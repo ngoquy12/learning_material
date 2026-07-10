@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Agent Learning Content Factory - Graph View</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Load svg-pan-zoom Library -->
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <style>
+      :root {
+        --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --accent-primary: #818cf8;
+        --accent-secondary: #c084fc;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+      }
+
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: var(--bg-gradient);
+        color: var(--text-main);
+        min-height: 100vh;
+        margin: 0;
+        padding: 2rem;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        max-width: 1400px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      header {
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        background: linear-gradient(
+          to right,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.025em;
+      }
+
+      p.subtitle {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        margin: 0;
+      }
+
+      .card {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        height: 70vh;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        position: relative;
+        overflow: hidden;
+        padding: 0;
+      }
+
+      .card:fullscreen {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      }
+
+      #graph-container {
+        width: 100%;
+        height: 100%;
+        cursor: grab;
+      }
+
+      #graph-container:active {
+        cursor: grabbing;
+      }
+
+      /* Floating controls bar */
+      .controls {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        display: flex;
+        gap: 8px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        padding: 8px;
+        border-radius: 14px;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+
+      .control-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        font-size: 1.1rem;
+      }
+
+      .control-btn:hover {
+        background: rgba(255, 255, 255, 0.18);
+        transform: translateY(-2px);
+        color: var(--accent-primary);
+      }
+
+      .tip-bar {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-muted);
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+
+      .btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        border: none;
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+        box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+      }
+
+      .info-box {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .info-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+
+      .info-card h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+        color: var(--accent-primary);
+      }
+
+      .info-card p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      /* Simulation Toggle Floating Button */
+      .sim-toggle-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 54px;
+        height: 54px;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 1.6rem;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .sim-toggle-btn:hover {
+        transform: rotate(45deg) scale(1.1);
+        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.65);
+      }
+
+      /* Simulation Panel Style - Fixed & Collapsible */
+      .sim-panel {
+        position: fixed;
+        bottom: 95px;
+        right: 25px;
+        width: 330px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 20px;
+        padding: 1.25rem;
+        z-index: 999;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: bottom right;
+      }
+
+      .sim-panel.collapsed {
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(0.8) translateY(20px);
+      }
+
+      .sim-panel h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--accent-primary);
+      }
+
+      .sim-controls {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .sim-btn {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        padding: 8px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+
+      .sim-btn:hover {
+        background: rgba(255, 255, 255, 0.18);
+        color: var(--accent-primary);
+      }
+
+      .sim-btn-play {
+        flex: 2;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        border: none;
+        font-weight: 600;
+      }
+
+      .sim-btn-play:hover {
+        opacity: 0.9;
+        color: white;
+      }
+
+      .sim-status {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .sim-step-badge {
+        align-self: flex-start;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: rgba(129, 140, 248, 0.2);
+        color: var(--accent-primary);
+        padding: 2px 8px;
+        border-radius: 6px;
+        text-transform: uppercase;
+      }
+
+      .sim-status h4 {
+        margin: 4px 0 2px 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+      }
+
+      .sim-status p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        line-height: 1.4;
+      }
+
+      .sim-speed-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+
+      .sim-speed-container select {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        border-radius: 6px;
+        padding: 2px 6px;
+        outline: none;
+        cursor: pointer;
+      }
+
+      /* Simulation Highlighting Styles */
+      @keyframes nodePulse {
+        0% {
+          filter: drop-shadow(0 0 5px var(--accent-primary));
+          transform: scale(1);
+        }
+        50% {
+          filter: drop-shadow(0 0 25px var(--accent-secondary));
+          transform: scale(1.04);
+        }
+        100% {
+          filter: drop-shadow(0 0 5px var(--accent-primary));
+          transform: scale(1);
+        }
+      }
+
+      .sim-active-node {
+        animation: nodePulse 1.2s infinite ease-in-out;
+        transform-origin: center;
+      }
+
+      .sim-active-node rect,
+      .sim-active-node polygon,
+      .sim-active-node circle,
+      .sim-active-node path.label-container {
+        stroke: var(--accent-secondary) !important;
+        stroke-width: 4px !important;
+        fill: rgba(129, 140, 248, 0.35) !important;
+      }
+
+      .sim-dimmed-node {
+        opacity: 0.25 !important;
+        transition: opacity 0.4s ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Sơ Đồ Tương Tác Hệ Thống Multi-Agent</h1>
+        <p class="subtitle">
+          Quy trình thiết kế ngược (Backward Design) & Xử lý song song bằng
+          Antigravity
+        </p>
+      </header>
+
+      <div class="card">
+        <div class="tip-bar">
+          <span
+            >💡 <b>Mẹo:</b> Sử dụng con lăn chuột để Zoom, giữ chuột trái và kéo
+            rê để di chuyển (Pan) sơ đồ.</span
+          >
+        </div>
+
+        <div class="controls">
+          <button class="control-btn" id="zoom-in" title="Phóng to">+</button>
+          <button class="control-btn" id="zoom-out" title="Thu nhỏ">-</button>
+          <button class="control-btn" id="zoom-reset" title="Đặt lại (100%)">
+            ↺
+          </button>
+          <button class="control-btn" id="zoom-fit" title="Vừa khít màn hình">
+            ⛶
+          </button>
+        </div>
+
+        <!-- Graph SVG render container -->
+        <div id="graph-container"></div>
+      </div>
+
+      <div class="actions">
+        <a href="docs/architecture.md" class="btn"
+          >Xem Tài Liệu Đặc Tả (architecture.md)</a
+        >
+        <button class="btn btn-primary" onclick="window.print()">
+          In/Xuất PDF Sơ Đồ
+        </button>
+      </div>
+
+      <div class="info-box">
+        <div class="info-card">
+          <h3>1. Thiết kế ngược (Backward Design)</h3>
+          <p>
+            Khởi động từ Objective Architect để định vị kết quả đầu ra mong đợi
+            trước khi thiết kế các bài học đơn lẻ.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>2. Vùng Nhớ Trung Tâm (SSOT)</h3>
+          <p>
+            SQLite đóng vai trò khóa tri thức gốc, tránh việc các Agent thực thi
+            tự sinh thông tin ảo tưởng (hallucination).
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>3. Luồng Parallel Antigravity</h3>
+          <p>
+            Nhóm Creator chạy song song độc lập giúp tối ưu hiệu năng và thời
+            gian xử lý của mô hình.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden source code block of Mermaid graph -->
+    <script type="text/plain" id="mermaid-code">
+      graph TD
+          %% Style Definitions
+          classDef input fill:#1e293b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+          classDef core fill:#312e81,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
+          classDef creator fill:#3c165a,stroke:#c084fc,stroke-width:1px,color:#f8fafc;
+          classDef reviewer fill:#581c1c,stroke:#f87171,stroke-width:1px,color:#f8fafc;
+          classDef output fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+          classDef trigger fill:#7c2d12,stroke:#fb923c,stroke-width:1px,color:#f8fafc;
+
+          subgraph Phase1 [GIAI ĐOẠN 1: HOẠCH ĐỊNH CHIẾN LƯỢC]
+              PM[Tài liệu PM Đầu Vào] -->|1. Trích xuất mục tiêu tối thượng| ID[Objective Architect Agent]:::core
+              Time[Thời gian học & Tuần tham chiếu] -->|2. Phân bổ thời lượng học| Sched[Scheduler Agent]:::core
+              ID --> Sched
+              Sched -->|3. Tổng hợp khái niệm & code mẫu| KB[Knowledge Base Agent]:::core
+          end
+
+          subgraph Phase2 [GIAI ĐOẠN 2: THIẾT LẬP VÙNG NHỚ TRUNG TÂM - SSOT]
+              KB -->|4. Khóa dữ liệu và sinh Hash Key| DB[(SQLite Persistence)]:::core
+          end
+
+          subgraph Phase3 [GIAI ĐOẠN 3: SẢN XUẤT SONG SONG & VÒNG LẶP SỬA LỖI]
+              %% HTML Branch
+              DB -->|Đọc SSOT| HTML[HTML Writer Agent]:::creator
+              HTML -->|HTML thô| R_UX[Pedagogical & UX Reviewer]:::reviewer
+              R_UX -->|APPROVED| HTML_OK(artifacts_status: Approved):::core
+              R_UX -->|REJECTED - Feedback| HTML_FAIL{Cần sửa đổi?}:::reviewer
+              HTML_FAIL -->|Attempt < 3| HTML
+              HTML_FAIL -->|Attempt >= 3| HTML_MAX[Ghi log lỗi & Dừng]:::reviewer
+
+              %% Slide Branch
+              DB -->|Đọc SSOT| Slide[Slide Agent]:::creator
+              Slide -->|Markdown Slide| R_Acad[Academic Reviewer]:::reviewer
+              R_Acad -->|APPROVED| Slide_OK(artifacts_status: Approved):::core
+              R_Acad -->|REJECTED - Terminology/Fact| Slide_FAIL{Cần sửa đổi?}:::reviewer
+              Slide_FAIL -->|Attempt < 3| Slide
+              Slide_FAIL -->|Attempt >= 3| Slide_MAX[Ghi log lỗi & Dừng]:::reviewer
+
+              %% Quiz Branch
+              DB -->|Đọc SSOT| Quiz[Quiz & Lab Agent]:::creator
+              Quiz -->|JSON Quiz & Lab| R_Sand[Sandbox Testing Agent]:::reviewer
+              R_Sand -->|APPROVED| Quiz_OK(artifacts_status: Approved):::core
+              R_Sand -->|REJECTED - Code/Logic Error| Quiz_FAIL{Cần sửa đổi?}:::reviewer
+              Quiz_FAIL -->|Attempt < 3| Quiz
+              Quiz_FAIL -->|Attempt >= 3| Quiz_MAX[Ghi log lỗi & Dừng]:::reviewer
+
+              %% Video & Mindmap
+              DB -->|Đọc SSOT| Video[Video Script Agent]:::creator
+              DB -->|Đọc SSOT| MM[Mindmap Agent]:::creator
+          end
+
+          subgraph Phase4 [GIAI ĐOẠN 4: BIÊN DỊCH & XUẤT BẢN]
+              HTML_OK --> Comp[Session Compiler Node]:::core
+              Slide_OK --> Comp
+              Quiz_OK --> Comp
+              Video --> Comp
+              MM --> Comp
+
+              Comp -->|Tạo thư mục cây & Ghi file| Publish[Publisher Engine]:::core
+
+              %% Outputs
+              Publish -->|5. Xuất bài đọc| Out_HTML[HTML Tương Tác / Bài đọc]:::output
+              Publish -->|6. Chạy Marp CLI npx| Out_Slide[Marp Slide HTML / Bài giảng]:::output
+              Publish -->|7. Lưu Quiz bài học| Out_Quiz[Quiz JSON / Bài tập]:::output
+              Publish -->|8. Lưu Kịch bản| Out_Video[Kịch bản video / Kịch bản video]:::output
+              Publish -->|9. Lưu Sơ đồ| Out_MM[Mindmap MD / Mindmap]:::output
+
+              %% Session level Quiz
+              Publish -->|10. Sinh Quiz đầu/cuối giờ| SessQuiz[Session Quiz Engine]:::core
+              SessQuiz -->|Xuất Excel 13 cột| Out_Excel[Excel Quizz_Dau_Gio / Quizz_Cuoi_Gio.xlsx]:::output
+          end
+
+          subgraph Phase5 [GIAI ĐOẠN 5: ĐÚC RÚT KINH NGHIỆM - SELF-LEARNING]
+              Publish -->|11. Phân tích nhật ký review_logs| Learn[Lessons Learned Agent]:::core
+              Learn -->|12. Tích lũy quy tắc mới| Skills[skills/lessons_learned/SKILL.md]:::output
+              Skills -->|13. Làm giàu tri thức tiền đề| HTML
+              Skills -->|14. Làm giàu tri thức tiền đề| Slide
+              Skills -->|15. Làm giàu tri thức tiền đề| Quiz
+          end
+
+          subgraph Reactive [CƠ CHẾ PHẢN ỨNG DÂY CHUYỀN - REACTIVE UPDATE]
+              UserEdit[User sửa SSOT / Data Admin] -->|1. Phát sự kiện thay đổi| DB_Trigger[DB Event Trigger]:::trigger
+              DB_Trigger -->|2. Đánh dấu trạng thái| OutdatedFlag[Đặt artifacts_status = Outdated]:::trigger
+              OutdatedFlag -->|3. Tái khởi động| DB
+          end
+
+          class PM,Time,UserEdit input;
+    </script>
+
+    <!-- Load Mermaid JS from CDN and Render manually -->
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        securityLevel: "loose",
+        themeVariables: {
+          background: "#1e293b",
+          primaryColor: "#818cf8",
+          primaryTextColor: "#f8fafc",
+          lineColor: "#64748b",
+        },
+      });
+
+      // Playback Simulation Steps Definition
+      const simSteps = [
+        {
+          nodes: ["PM"],
+          edges: [],
+          title: "Bước 1: Nhập tài liệu PM",
+          desc: "Khởi đầu quy trình bằng cách tải tệp cấu hình Excel chứa khung chương trình môn học.",
+        },
+        {
+          nodes: ["ID"],
+          edges: [["PM", "ID"]],
+          title: "Bước 2: Hoạch định mục tiêu",
+          desc: "Objective Architect Agent trích xuất mục tiêu tối thượng và xây dựng chuẩn đầu ra tổng quát.",
+        },
+        {
+          nodes: ["Time"],
+          edges: [],
+          title: "Bước 3: Xác định thời lượng",
+          desc: "Hệ thống tiếp nhận thông số tuần học và thời gian tự học của sinh viên.",
+        },
+        {
+          nodes: ["Sched"],
+          edges: [
+            ["ID", "Sched"],
+            ["Time", "Sched"],
+          ],
+          title: "Bước 4: Thiết lập lịch học",
+          desc: "Scheduler Agent phân bổ khối lượng kiến thức đều đặn cho các Session để cân bằng tải nhận thức.",
+        },
+        {
+          nodes: ["KB"],
+          edges: [["Sched", "KB"]],
+          title: "Bước 5: Xác lập nền tảng tri thức",
+          desc: "Knowledge Base Agent tổng hợp khái niệm lý thuyết cốt lõi, tìm kiếm code mẫu chuẩn.",
+        },
+        {
+          nodes: ["DB"],
+          edges: [["KB", "DB"]],
+          title: "Bước 6: Khóa vùng nhớ SSOT",
+          desc: "Lưu trữ toàn bộ cấu trúc học liệu vào SQLite Database để làm chuẩn duy nhất, chống ảo tưởng thông tin.",
+        },
+        {
+          nodes: ["HTML", "Slide", "Quiz", "Video", "MM"],
+          edges: [
+            ["DB", "HTML"],
+            ["DB", "Slide"],
+            ["DB", "Quiz"],
+            ["DB", "Video"],
+            ["DB", "MM"],
+          ],
+          title: "Bước 7: Sản xuất song song",
+          desc: "Các Creator Agents (HTML, Slide, Quiz, Video, Mindmap) đồng loạt khởi chạy song song để tối đa hóa hiệu năng.",
+        },
+        {
+          nodes: ["R_UX", "R_Acad", "R_Sand"],
+          edges: [
+            ["HTML", "R_UX"],
+            ["Slide", "R_Acad"],
+            ["Quiz", "R_Sand"],
+          ],
+          title: "Bước 8: Review & Kiểm thử Sandbox",
+          desc: "Các Reviewer đánh giá tính sư phạm, tính học thuật và thực thi thử nghiệm mã nguồn trong môi trường Sandbox cô lập.",
+        },
+        {
+          nodes: ["HTML_OK", "Slide_OK", "Quiz_OK"],
+          edges: [
+            ["R_UX", "HTML_OK"],
+            ["R_Acad", "Slide_OK"],
+            ["R_Sand", "Quiz_OK"],
+          ],
+          title: "Bước 9: Phê duyệt học liệu",
+          desc: "Các tài nguyên vượt qua bài kiểm tra sẽ được đánh dấu trạng thái Approved để chuẩn bị đóng gói.",
+        },
+        {
+          nodes: ["Comp"],
+          edges: [
+            ["HTML_OK", "Comp"],
+            ["Slide_OK", "Comp"],
+            ["Quiz_OK", "Comp"],
+            ["Video", "Comp"],
+            ["MM", "Comp"],
+          ],
+          title: "Bước 10: Thu gom và Biên dịch",
+          desc: "Compiler Node thu gom toàn bộ tri thức đã được duyệt để biên dịch thống nhất.",
+        },
+        {
+          nodes: ["Publish"],
+          edges: [["Comp", "Publish"]],
+          title: "Bước 11: Đóng gói Vật lý",
+          desc: "Publisher Engine ghi file ra ổ đĩa, tự động chạy Marp CLI để kết xuất slides bài giảng dạng HTML.",
+        },
+        {
+          nodes: [
+            "Out_HTML",
+            "Out_Slide",
+            "Out_Quiz",
+            "Out_Video",
+            "Out_MM",
+            "Out_Excel",
+          ],
+          edges: [
+            ["Publish", "Out_HTML"],
+            ["Publish", "Out_Slide"],
+            ["Publish", "Out_Quiz"],
+            ["Publish", "Out_Video"],
+            ["Publish", "Out_MM"],
+            ["Publish", "SessQuiz"],
+            ["SessQuiz", "Out_Excel"],
+          ],
+          title: "Bước 12: Xuất bản bộ học liệu hoàn chỉnh",
+          desc: "Tạo thành công hệ thống học liệu đa kênh gồm Bài đọc, Slide, Quiz trắc nghiệm, Kịch bản video và Sơ đồ tư duy.",
+        },
+        {
+          nodes: ["Learn"],
+          edges: [["Publish", "Learn"]],
+          title: "Bước 13: Đúc rút kinh nghiệm",
+          desc: "Lessons Learned Agent tự động phân tích nhật ký lỗi từ Reviewer sau các lượt sửa đổi.",
+        },
+        {
+          nodes: ["Skills"],
+          edges: [
+            ["Learn", "Skills"],
+            ["Skills", "HTML"],
+            ["Skills", "Slide"],
+            ["Skills", "Quiz"],
+          ],
+          title: "Bước 14: Tích lũy tri thức tiến hóa",
+          desc: "Lưu quy tắc chặn lỗi mới vào SKILL.md để các thế hệ Agent sau không bao giờ lặp lại lỗi cũ.",
+        },
+      ];
+
+      let currentStep = -1;
+      let simTimeout = null;
+      let panZoomInstance = null;
+
+      // Initialize rendering once DOM is ready
+      window.addEventListener("DOMContentLoaded", () => {
+        const code = document.getElementById("mermaid-code").textContent;
+        const container = document.getElementById("graph-container");
+
+        // Render Mermaid Graph manually to get SVG text
+        mermaid
+          .render("mermaid-svg", code)
+          .then(({ svg }) => {
+            container.innerHTML = svg;
+
+            const svgElement = container.querySelector("svg");
+            svgElement.setAttribute("width", "100%");
+            svgElement.setAttribute("height", "100%");
+            svgElement.style.maxWidth = "none";
+
+            // Initialize svg-pan-zoom on the rendered SVG
+            panZoomInstance = svgPanZoom(svgElement, {
+              zoomEnabled: true,
+              controlIconsEnabled: false, // Hide default controls since we have custom styled ones
+              fit: true,
+              center: true,
+              minZoom: 0.1,
+              maxZoom: 10,
+              zoomScaleSensitivity: 0.2,
+            });
+
+            // Helper to get nodes in Mermaid SVG
+            function getSvgNode(nodeId) {
+              let el = document.querySelector(`[id^="flowchart-${nodeId}-"]`);
+              if (!el) {
+                el = document.getElementById(nodeId);
+              }
+              return el;
+            }
+
+            // Helper to get edge between two nodes in Mermaid SVG
+            function getSvgEdge(startNodeId, endNodeId) {
+              const startClass = `LS-${startNodeId}`;
+              const endClass = `LE-${endNodeId}`;
+              const edges = document.querySelectorAll(".edgePath");
+              for (const edge of edges) {
+                const cls = edge.getAttribute("class") || "";
+                const hasStart = cls
+                  .split(" ")
+                  .some((c) => c.includes(startClass));
+                const hasEnd = cls.split(" ").some((c) => c.includes(endClass));
+                if (hasStart && hasEnd) {
+                  return edge;
+                }
+              }
+              return null;
+            }
+
+            // Function to center viewport on a specific SVG element
+            function centerOnElement(el) {
+              if (!panZoomInstance) return;
+
+              const svgRect = svgElement.getBoundingClientRect();
+              const nodeRect = el.getBoundingClientRect();
+
+              const nodeCenterX =
+                nodeRect.left + nodeRect.width / 2 - svgRect.left;
+              const nodeCenterY =
+                nodeRect.top + nodeRect.height / 2 - svgRect.top;
+
+              const sizes = panZoomInstance.getSizes();
+              const currentPan = panZoomInstance.getPan();
+
+              const targetX = sizes.width / 2 - (nodeCenterX - currentPan.x);
+              const targetY = sizes.height / 2 - (nodeCenterY - currentPan.y);
+
+              panZoomInstance.pan({ x: targetX, y: targetY });
+            }
+
+            // Highlight a step of the simulation
+            function highlightStep(stepIdx) {
+              if (stepIdx < 0 || stepIdx >= simSteps.length) return;
+
+              currentStep = stepIdx;
+              const step = simSteps[stepIdx];
+
+              // Update status
+              document.querySelector(".sim-step-badge").textContent =
+                `Bước ${stepIdx + 1}/${simSteps.length}`;
+              document.getElementById("sim-step-title").textContent =
+                step.title;
+              document.getElementById("sim-step-desc").textContent = step.desc;
+
+              // Dim all nodes
+              document.querySelectorAll(".node").forEach((node) => {
+                node.classList.add("sim-dimmed-node");
+                node.classList.remove("sim-active-node");
+              });
+
+              // Highlight active nodes for this step
+              step.nodes.forEach((nodeId) => {
+                const el = getSvgNode(nodeId);
+                if (el) {
+                  el.classList.remove("sim-dimmed-node");
+                  el.classList.add("sim-active-node");
+                }
+              });
+
+              // Dim all edges
+              document.querySelectorAll(".edgePath").forEach((edge) => {
+                edge.classList.add("sim-dimmed-edge");
+                edge.classList.remove("sim-active-edge");
+              });
+
+              // Highlight active edges for this step
+              if (step.edges) {
+                step.edges.forEach(([startId, endId]) => {
+                  const edgeEl = getSvgEdge(startId, endId);
+                  if (edgeEl) {
+                    edgeEl.classList.remove("sim-dimmed-edge");
+                    edgeEl.classList.add("sim-active-edge");
+                  }
+                });
+              }
+
+              // Focus/Center viewport
+              if (step.nodes.length > 0) {
+                const firstNodeEl = getSvgNode(step.nodes[0]);
+                if (firstNodeEl) {
+                  centerOnElement(firstNodeEl);
+                }
+              }
+            }
+
+            function stopSimulation() {
+              if (simTimeout) {
+                clearTimeout(simTimeout);
+                simTimeout = null;
+              }
+              document.getElementById("sim-play-pause").textContent = "▶ Chạy";
+            }
+
+            function startSimulation() {
+              if (simTimeout) return;
+
+              document.getElementById("sim-play-pause").textContent =
+                "⏸ Tạm dừng";
+
+              if (currentStep === -1 || currentStep >= simSteps.length - 1) {
+                highlightStep(0);
+              } else {
+                highlightStep(currentStep);
+              }
+
+              const runInterval = () => {
+                const speed = parseInt(
+                  document.getElementById("sim-speed").value,
+                );
+                simTimeout = setTimeout(() => {
+                  if (currentStep < simSteps.length - 1) {
+                    highlightStep(currentStep + 1);
+                    runInterval();
+                  } else {
+                    stopSimulation();
+                    alert("Mô phỏng quy trình Multi-Agent đã hoàn tất!");
+                  }
+                }, speed);
+              };
+
+              runInterval();
+            }
+
+            function resetSimulation() {
+              stopSimulation();
+              currentStep = -1;
+              document.querySelectorAll(".node").forEach((node) => {
+                node.classList.remove("sim-dimmed-node");
+                node.classList.remove("sim-active-node");
+              });
+              document.querySelectorAll(".edgePath").forEach((edge) => {
+                edge.classList.remove("sim-dimmed-edge");
+                edge.classList.remove("sim-active-edge");
+              });
+              document.querySelector(".sim-step-badge").textContent =
+                "Trạng thái";
+              document.getElementById("sim-step-title").textContent =
+                "Sẵn sàng chạy";
+              document.getElementById("sim-step-desc").textContent =
+                'Nhấn nút "▶ Chạy" để bắt đầu mô phỏng quy trình xử lý từng bước của hệ thống Agent.';
+              if (panZoomInstance) {
+                panZoomInstance.reset();
+                panZoomInstance.fit();
+                panZoomInstance.center();
+              }
+            }
+
+            // Bind Simulation Controller Event Listeners
+            document
+              .getElementById("sim-play-pause")
+              .addEventListener("click", () => {
+                if (simTimeout) {
+                  stopSimulation();
+                } else {
+                  startSimulation();
+                }
+              });
+
+            document
+              .getElementById("sim-prev")
+              .addEventListener("click", () => {
+                stopSimulation();
+                if (currentStep > 0) {
+                  highlightStep(currentStep - 1);
+                }
+              });
+
+            document
+              .getElementById("sim-next")
+              .addEventListener("click", () => {
+                stopSimulation();
+                if (currentStep < simSteps.length - 1) {
+                  highlightStep(currentStep + 1);
+                }
+              });
+
+            document
+              .getElementById("sim-reset")
+              .addEventListener("click", () => {
+                resetSimulation();
+              });
+
+            // Attach custom button events
+            document.getElementById("zoom-in").addEventListener("click", () => {
+              panZoomInstance.zoomIn();
+            });
+
+            document
+              .getElementById("zoom-out")
+              .addEventListener("click", () => {
+                panZoomInstance.zoomOut();
+              });
+
+            document
+              .getElementById("zoom-reset")
+              .addEventListener("click", () => {
+                panZoomInstance.reset();
+              });
+
+            document
+              .getElementById("zoom-fit")
+              .addEventListener("click", () => {
+                const card = document.querySelector(".card");
+                if (!document.fullscreenElement) {
+                  card.requestFullscreen().catch((err) => {
+                    console.error("Lỗi khi mở toàn màn hình: ", err);
+                  });
+                } else {
+                  document.exitFullscreen();
+                }
+              });
+
+            // Auto refit on window resize & fullscreen change
+            const refitGraph = () => {
+              setTimeout(() => {
+                panZoomInstance.resize();
+                panZoomInstance.fit();
+                panZoomInstance.center();
+              }, 100);
+            };
+
+            window.addEventListener("resize", refitGraph);
+            document.addEventListener("fullscreenchange", refitGraph);
+          })
+          .catch((err) => {
+            console.error("Mermaid rendering error: ", err);
+            container.innerHTML = `<div style="color:#f87171; padding: 2rem;">Lỗi kết xuất sơ đồ: ${err.message}</div>`;
+          });
+      });
+    </script>
+    <!-- Simulation Controller Panel & Toggle Button (Fixed Position) -->
+    <button
+      id="sim-toggle-btn"
+      class="sim-toggle-btn"
+      title="Ẩn/Hiện bảng điều khiển mô phỏng"
+    >
+      ⚙️
+    </button>
+
+    <div class="sim-panel collapsed" id="sim-panel">
+      <h3>⚙️ Trình Mô Phỏng Luồng Chạy</h3>
+      <div class="sim-controls">
+        <button class="sim-btn" id="sim-prev" title="Bước trước">⏮</button>
+        <button
+          class="sim-btn sim-btn-play"
+          id="sim-play-pause"
+          title="Chạy / Tạm dừng"
+        >
+          ▶ Chạy
+        </button>
+        <button class="sim-btn" id="sim-next" title="Bước sau">⏭</button>
+        <button class="sim-btn" id="sim-reset" title="Đặt lại">↺</button>
+      </div>
+      <div class="sim-status">
+        <div class="sim-step-badge">Trạng thái</div>
+        <h4 id="sim-step-title">Sẵn sàng chạy</h4>
+        <p id="sim-step-desc">
+          Nhấn nút "▶ Chạy" để bắt đầu mô phỏng quy trình xử lý từng bước của hệ
+          thống Agent.
+        </p>
+      </div>
+      <div class="sim-speed-container">
+        <label>Tốc độ:</label>
+        <select id="sim-speed">
+          <option value="2000">Chậm (2s)</option>
+          <option value="1200" selected>Thường (1.2s)</option>
+          <option value="600">Nhanh (0.6s)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Toggle logic -->
+    <script>
+      document
+        .getElementById("sim-toggle-btn")
+        .addEventListener("click", () => {
+          const panel = document.getElementById("sim-panel");
+          panel.classList.toggle("collapsed");
+        });
+    </script>
+  </body>
+</html>

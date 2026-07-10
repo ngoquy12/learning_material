@@ -1,0 +1,86 @@
+{
+  "lesson_quiz": [
+    {
+      "type": "Q1_Concept",
+      "question": "Đặc trưng nào sau đây mô tả đúng nhất cơ chế thực thi của ngôn ngữ lập trình Python?",
+      "options": [
+        "Biên dịch trực tiếp ra mã máy CPU",
+        "Thông dịch từng dòng mã lệnh (Interpreted language)",
+        "Chỉ chạy được trên hệ điều hành Linux",
+        "Yêu cầu khai báo kiểu dữ liệu tĩnh trước khi biên dịch"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Python là ngôn ngữ thông dịch, mã nguồn được thực thi qua Python Interpreter."
+    },
+    {
+      "type": "Q2_Concept",
+      "question": "Khái niệm 'Định kiểu động' (Dynamic Typing) trong Python có ý nghĩa gì?",
+      "options": [
+        "Biến không thể thay đổi giá trị sau khi gán",
+        "Kiểu dữ liệu của biến được tự động xác định tại thời điểm thực thi dựa trên giá trị được gán",
+        "Bắt buộc khai báo từ khóa int hoặc str khi khởi tạo biến",
+        "Biến chỉ lưu trữ được kiểu dữ liệu số nguyên"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Python tự động xác định kiểu dữ liệu của biến khi gán giá trị tại runtime."
+    },
+    {
+      "type": "Q3_Syntax",
+      "question": "Tệp tin có phần mở rộng .pyc sinh ra trong quá trình thực thi mã Python đóng vai trò gì?",
+      "options": [
+        "Chứa mã nguồn gốc bằng văn bản thuần",
+        "Chứa tài liệu hướng dẫn sử dụng",
+        "Chứa mã bytecode đã được biên dịch từ mã nguồn Python để tối ưu tốc độ thực thi",
+        "Chứa cấu hình hệ điều hành Windows"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Python biên dịch mã nguồn .py thành bytecode .pyc để tăng tốc cho các lần nạp sau."
+    },
+    {
+      "type": "Q4_Philosophy",
+      "question": "Triết lý lập trình 'Zen of Python' (PEP 20) nhấn mạnh nguyên tắc thiết kế nào sau đây?",
+      "options": [
+        "Readability counts (Tính dễ đọc là yếu tố cốt lõi)",
+        "Mã nguồn càng viết tắt ngắn gọn càng tốt",
+        "Luôn giấu lỗi một cách âm thầm",
+        "Sử dụng các cú pháp phức tạp để tăng tính bảo mật"
+      ],
+      "correct_option_index": 0,
+      "explanation": "PEP 20 đặt sự rõ ràng và tính dễ đọc của mã nguồn lên hàng đầu."
+    },
+    {
+      "type": "Q5_Memory",
+      "question": "Trình thông dịch CPython chuẩn quản lý bộ nhớ tự động thông qua cơ chế chính nào?",
+      "options": [
+        "Lập trình viên phải tự gọi lệnh free()",
+        "Reference Counting kết hợp với Garbage Collection",
+        "Cấp phát tĩnh trên Stack hoàn toàn",
+        "Ghi đè trực tiếp lên RAM vật lý"
+      ],
+      "correct_option_index": 1,
+      "explanation": "CPython sử dụng Reference Counting và Garbage Collector để tự động thu hồi vùng nhớ."
+    }
+  ],
+  "practical_lab": {
+    "title": "Thực hành: Giới thiệu ngôn ngữ Python",
+    "objectives": [
+      "Triển khai thành công: Giới thiệu ngôn ngữ Python.",
+      "Đạt chuẩn đầu ra kỳ vọng: 'Cài đặt thành công môi trường'."
+    ],
+    "description": {
+      "inputs": "Môi trường lập trình Python và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Tải và cài đặt Python bản mới nhất từ trang chủ python.org.",
+        "Bước 2: Cài đặt IDE VS Code và extension Python.",
+        "Bước 3: Tạo tệp hello.py và viết lệnh print.",
+        "Bước 4: Sử dụng input() để nhận tên và năm sinh, tính tuổi hiện tại và in ra."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chạy thành công script Python không có lỗi cú pháp.",
+        "Đầu ra tuổi hiện tại được tính toán chính xác."
+      ]
+    }
+  }
+}

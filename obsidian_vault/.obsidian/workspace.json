@@ -1,0 +1,225 @@
+{
+  "main": {
+    "id": "1a2b0e3dd8ddd996",
+    "type": "split",
+    "children": [
+      {
+        "id": "fc8e06f4581406c0",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "aec66cf5298ebc57",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "IT215_K25_Python_web_services/Session_14/Lesson_05/Lesson 05 - Reading.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Lesson 05 - Reading"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5e8f58a2bbf54aeb",
+    "type": "split",
+    "children": [
+      {
+        "id": "2091a1b08aa07e05",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e46b99007aa62332",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Trình duyệt tệp"
+            }
+          },
+          {
+            "id": "effa36039dc023f4",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Tìm kiếm"
+            }
+          },
+          {
+            "id": "9db9841d9c567273",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Đánh dấu"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "646817d5ced53f17",
+    "type": "split",
+    "children": [
+      {
+        "id": "84f4f26309b06da1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2152bbd1d6debbc8",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Session 21 - Authorization, Middleware & CORS/Lesson 01 - Authorization/Lesson 01 - Reading.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Liên kết đến của Lesson 01 - Reading"
+            }
+          },
+          {
+            "id": "5bd562980ad9c780",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Session 21 - Authorization, Middleware & CORS/Lesson 01 - Authorization/Lesson 01 - Reading.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Liên kết đi ra từ Lesson 01 - Reading"
+            }
+          },
+          {
+            "id": "450ebab53b1529ad",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Thẻ"
+            }
+          },
+          {
+            "id": "7297c8d12bcafe8f",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Tất cả thuộc tính"
+            }
+          },
+          {
+            "id": "89253dd4ff950709",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Session 21 - Authorization, Middleware & CORS/Lesson 01 - Authorization/Lesson 01 - Reading.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Đề cương của Lesson 01 - Reading"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Mở bộ chuyển đổi nhanh": false,
+      "graph:Mở xem biểu đồ": false,
+      "canvas:Tạo bảng mới": false,
+      "daily-notes:Mở ghi chú hôm nay": false,
+      "templates:Chèn mẫu": false,
+      "command-palette:Mở khay lệnh": false,
+      "bases:Tạo cơ sở mới": false
+    }
+  },
+  "active": "aec66cf5298ebc57",
+  "lastOpenFiles": [
+    "IT215_K25_Python_web_services/Session_15/Session 15 - Thiết kế & Xây dựng RESTful API tổng hợp.md",
+    "IT215_K25_Python_web_services/Session_15/Session 15 - Exit Quiz.md",
+    "IT215_K25_Python_web_services/Session_15/Session 15 - Entrance Quiz.md",
+    "IT215_K25_Python_web_services/Session_15",
+    "IT215_K25_Python_web_services/Session_16/Lesson_05/Lesson 05 - Video Script.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_05/Lesson 05 - Thiết kế API cho dữ liệu quan hệ.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_05/Lesson 05 - Slides.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_05/Lesson 05 - Reading.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_05/Lesson 05 - Mindmap.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_04/Lesson 04 - Video Script.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_04/Lesson 04 - Slides.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_04/Lesson 04 - Reading.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_04/Lesson 04 - Mindmap.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_04/Lesson 04 - Cơ chế Loading dữ liệu.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_03/Lesson 03 - Video Script.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_03/Lesson 03 - Slides.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_03/Lesson 03 - Reading.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_03/Lesson 03 - Quan hệ N-N.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_03/Lesson 03 - Mindmap.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_02/Lesson 02 - Video Script.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_02/Lesson 02 - Slides.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_02/Lesson 02 - Reading.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_02/Lesson 02 - Quan hệ 1-N.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_02/Lesson 02 - Mindmap.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_01/Lesson 01 - Video Script.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_01/Lesson 01 - Slides.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_01/Lesson 01 - Reading.md",
+    "IT215_K25_Python_web_services/Session_16/Lesson_05",
+    "IT215_K25_Python_web_services/Session_16/Lesson_04",
+    "IT215_K25_Python_web_services/Session_16/Lesson_03",
+    "IT215_K25_Python_web_services/Session_16/Lesson_02",
+    "IT215_K25_Python_web_services/Session_16/Lesson_01",
+    "IT215_K25_Python_web_services/Session_16",
+    "IT215_K25_Python_web_services/Session_14/Lesson_06",
+    "IT215_K25_Python_web_services/Session_14/Lesson_05",
+    "IT215_K25_Python_web_services/Session_14/Lesson_04"
+  ]
+}

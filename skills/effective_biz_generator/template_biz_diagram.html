@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sơ đồ Khung Quản trị Chiến lược - Effective HTML Business Diagram</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Apply dark mode immediately before paint
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'light') {
+                document.documentElement.classList.remove('dark');
+            } else {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <style>
+        :root {
+            --bg-body: #FAF9F5;
+            --bg-panel: #FFFFFF;
+            --bg-canvas: #F2EFE9;
+            --border-color: #D1CFC5;
+            --text-main: #141413;
+            --text-muted: #64635E;
+            --primary: #1E293B;
+            --primary-light: #334155;
+            --accent: #D97757;
+            --accent-glow: rgba(217, 119, 87, 0.15);
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+
+        html.dark {
+            --bg-body: #0B0F19;
+            --bg-panel: #131A2B;
+            --bg-canvas: #0F1626;
+            --border-color: #24314D;
+            --text-main: #F1F5F9;
+            --text-muted: #94A3B8;
+            --primary: #38BDF8;
+            --primary-light: #0EA5E9;
+            --accent: #F59E0B;
+            --accent-glow: rgba(245, 158, 11, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        button {
+            background: var(--bg-canvas);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        button:hover {
+            border-color: var(--primary);
+        }
+
+        .stage-container {
+            position: relative;
+            flex: 1;
+            min-height: 520px;
+            background: var(--bg-canvas);
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        svg.framework-stage {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        svg.framework-stage:active {
+            cursor: grabbing;
+        }
+
+        .node-group {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .node-group:hover rect {
+            stroke: var(--accent);
+            stroke-width: 2.5px;
+        }
+
+        /* Dismissible Detail Overlay */
+        .detail-drawer {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            width: 380px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 10;
+        }
+        .detail-drawer.active {
+            display: block;
+        }
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .drawer-header h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.05rem;
+            color: var(--primary);
+        }
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .plan-section {
+            padding: 32px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        details {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            padding: 16px 20px;
+        }
+        summary {
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Chuyên đề Quản trị: Mô hình Lợi thế Cạnh tranh & Chuỗi Giá trị</h1>
+        <div class="controls">
+            <button onclick="zoomStage(0.2)">+ Phóng to</button>
+            <button onclick="resetZoom()">100% Đặt lại</button>
+            <button onclick="zoomStage(-0.2)">- Thu nhỏ</button>
+            <button onclick="toggleTheme()">☀/🌙 Giao diện</button>
+        </div>
+    </header>
+
+    <div class="stage-container">
+        <svg class="framework-stage" id="main-svg" viewBox="0 0 1000 500">
+            <g id="svg-content" transform="translate(0, 0) scale(1)">
+                <!-- Background grid -->
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>
+                    </pattern>
+                </defs>
+                <rect width="2000" height="1000" x="-500" y="-250" fill="url(#grid)" />
+
+                <!-- Flow Connectors -->
+                <path d="M 280 250 L 370 250" stroke="var(--primary)" stroke-width="3" marker-end="url(#arrow)" />
+                <path d="M 610 250 L 700 250" stroke="var(--primary)" stroke-width="3" marker-end="url(#arrow)" />
+
+                <!-- Step 1 Node -->
+                <g class="node-group" onclick="selectNode(1)">
+                    <rect x="60" y="170" width="220" height="160" rx="12" fill="var(--bg-panel)" stroke="var(--border-color)" stroke-width="1.5"/>
+                    <text x="170" y="225" text-anchor="middle" fill="var(--text-main)" font-weight="600" font-size="16">1. Phân tích Thị trường</text>
+                    <text x="170" y="255" text-anchor="middle" fill="var(--text-muted)" font-size="13">Nghiên cứu Nhu cầu & Đối thủ</text>
+                </g>
+
+                <!-- Step 2 Node -->
+                <g class="node-group" onclick="selectNode(2)">
+                    <rect x="380" y="170" width="230" height="160" rx="12" fill="var(--bg-panel)" stroke="var(--border-color)" stroke-width="1.5"/>
+                    <text x="495" y="225" text-anchor="middle" fill="var(--text-main)" font-weight="600" font-size="16">2. Định vị Khác biệt</text>
+                    <text x="495" y="255" text-anchor="middle" fill="var(--text-muted)" font-size="13">Xây dựng USP & Lợi thế</text>
+                </g>
+
+                <!-- Step 3 Node -->
+                <g class="node-group" onclick="selectNode(3)">
+                    <rect x="710" y="170" width="230" height="160" rx="12" fill="var(--bg-panel)" stroke="var(--border-color)" stroke-width="1.5"/>
+                    <text x="825" y="225" text-anchor="middle" fill="var(--text-main)" font-weight="600" font-size="16">3. Thực thi Chiến lược</text>
+                    <text x="825" y="255" text-anchor="middle" fill="var(--text-muted)" font-size="13">Đo lường KPI & Tối ưu</text>
+                </g>
+            </g>
+        </svg>
+
+        <div class="detail-drawer" id="detail-drawer">
+            <div class="drawer-header">
+                <h3 id="drawer-title">Tiêu đề Node</h3>
+                <button class="close-btn" onclick="closeDrawer()">×</button>
+            </div>
+            <p id="drawer-desc" style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">Mô tả chi tiết</p>
+        </div>
+    </div>
+
+    <div class="plan-section">
+        <details open>
+            <summary>1. Tổng quan Khung Quản trị & Mục tiêu Chiến lược</summary>
+            <p style="margin-top: 12px; line-height: 1.6;">Khung quản trị giúp nhà điều hành ra quyết định dựa trên dữ liệu, liên kết chặt chẽ từ giai đoạn nghiên cứu thị trường đến đo lường KPI thực thi.</p>
+        </details>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        const nodesInfo = {
+            1: { title: "1. Phân tích Thị trường", desc: "Đánh giá quy mô thị trường (TAM/SAM/SOM), phân tích 5 áp lực cạnh tranh của Michael Porter và nhận diện Insight khách hàng." },
+            2: { title: "2. Định vị Khác biệt", desc: "Thiết lập tuyên bố giá trị độc bản (USP), lựa chọn chiến lược dẫn đầu chi phí hoặc khác biệt hóa sản phẩm." },
+            3: { title: "3. Thực thi Chiến lược", desc: "Triển khai thẻ điểm cân bằng (Balanced Scorecard), theo dõi chỉ số CAC, LTV và biên lợi nhuận ròng." }
+        };
+
+        function selectNode(id) {
+            document.getElementById('drawer-title').innerText = nodesInfo[id].title;
+            document.getElementById('drawer-desc').innerText = nodesInfo[id].desc;
+            document.getElementById('detail-drawer').classList.add('active');
+        }
+
+        function closeDrawer() {
+            document.getElementById('detail-drawer').classList.remove('active');
+        }
+
+        let scale = 1, panX = 0, panY = 0;
+        function zoomStage(delta) {
+            scale = Math.max(0.4, Math.min(2.5, scale + delta));
+            updateTransform();
+        }
+        function resetZoom() {
+            scale = 1; panX = 0; panY = 0;
+            updateTransform();
+        }
+        function updateTransform() {
+            document.getElementById('svg-content').setAttribute('transform', `translate(${panX}, ${panY}) scale(${scale})`);
+        }
+    </script>
+</body>
+</html>

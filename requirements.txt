@@ -1,0 +1,2 @@
+# Chứa danh sách các gói thư viện dự án
+requests==2.31.0

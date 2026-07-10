@@ -1,0 +1,86 @@
+{
+  "lesson_quiz": [
+    {
+      "type": "Q1_Function",
+      "question": "Hàm input() trong Python 3 luôn trả về dữ liệu nhận được từ bàn phím dưới kiểu dữ liệu nào?",
+      "options": [
+        "int",
+        "float",
+        "str (chuỗi ký tự)",
+        "bool"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Hàm input() luôn đọc dữ liệu từ bàn phím dưới dạng chuỗi ký tự (str)."
+    },
+    {
+      "type": "Q2_Param",
+      "question": "Tham số 'sep' trong hàm print() có chức năng gì?",
+      "options": [
+        "Quy định ký tự kết thúc dòng",
+        "Quy định ký tự phân cách giữa các đối số được in ra màn hình",
+        "Lọc bỏ ký tự trắng",
+        "Đổi màu văn bản"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Tham số sep (separator) xác định ký tự ngăn cách giữa các tham số in ra."
+    },
+    {
+      "type": "Q3_Param",
+      "question": "Khi thực hiện print('Hello', end=' '), tham số end=' ' có tác dụng gì?",
+      "options": [
+        "Thay thế ký tự xuống dòng mặc định bằng ký tự khoảng trắng sau khi in",
+        "In thêm một dòng trống trước từ Hello",
+        "Xóa ký tự cuối của chuỗi",
+        "Lỗi cú pháp"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Mặc định end='\\n', việc thay bằng end=' ' giữ cho lệnh in tiếp theo nằm trên cùng dòng."
+    },
+    {
+      "type": "Q4_Method",
+      "question": "Để nhận vào nhiều giá trị trên cùng một dòng nhập từ bàn phím và phân tách chúng bằng khoảng trắng, phương thức nào trên chuỗi thường được kết hợp với input()?",
+      "options": [
+        ".join()",
+        ".split()",
+        ".cut()",
+        ".parse()"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Phương thức .split() tách chuỗi thành danh sách các phần tử dựa trên ký tự phân cách."
+    },
+    {
+      "type": "Q5_Syntax",
+      "question": "Lệnh nào sau đây xuất ra màn hình chính xác chuỗi 'A-B-C'?",
+      "options": [
+        "print('A', 'B', 'C', sep='-')",
+        "print('A-B-C', end='-')",
+        "print('A', 'B', 'C')",
+        "print('A' + 'B' + 'C')"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Sử dụng sep='-' sẽ chèn dấu gạch ngang giữa các phần tử A, B và C."
+    }
+  ],
+  "practical_lab": {
+    "title": "Thực hành: Nhập, xuất dữ liệu trong python",
+    "objectives": [
+      "Triển khai thành công: Nhập, xuất dữ liệu trong python.",
+      "Đạt chuẩn đầu ra kỳ vọng: 'Chương trình I/O cơ bản'."
+    ],
+    "description": {
+      "inputs": "Môi trường lập trình Python và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Tải và cài đặt Python bản mới nhất từ trang chủ python.org.",
+        "Bước 2: Cài đặt IDE VS Code và extension Python.",
+        "Bước 3: Tạo tệp hello.py và viết lệnh print.",
+        "Bước 4: Sử dụng input() để nhận tên và năm sinh, tính tuổi hiện tại và in ra."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chạy thành công script Python không có lỗi cú pháp.",
+        "Đầu ra tuổi hiện tại được tính toán chính xác."
+      ]
+    }
+  }
+}

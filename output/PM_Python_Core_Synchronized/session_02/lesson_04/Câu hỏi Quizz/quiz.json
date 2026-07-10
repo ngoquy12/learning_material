@@ -1,0 +1,86 @@
+{
+  "lesson_quiz": [
+    {
+      "type": "Q1_Syntax",
+      "question": "Khối lệnh bên trong cấu trúc điều kiện if-elif-else trong Python được xác định phạm vi bằng cơ chế nào?",
+      "options": [
+        "Dấu ngoặc nhọn {}",
+        "Từ khóa begin...end",
+        "Thụt lề đầu dòng (Indentation) đồng nhất",
+        "Dấu chấm phẩy ;"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Python sử dụng việc thụt lề đầu dòng (indentation) để xác định phạm vi của khối lệnh."
+    },
+    {
+      "type": "Q2_Logic",
+      "question": "Cơ chế đánh giá ngắn mạch (Short-circuit evaluation) của toán tử and hoạt động như thế nào?",
+      "options": [
+        "Luôn đánh giá tất cả các toán hạng",
+        "Nếu toán hạng đầu tiên sai (False), Python lập tức trả về False mà không cần đánh giá toán hạng thứ hai",
+        "Đánh giá từ phải sang trái",
+        "Chỉ áp dụng cho toán hạng kiểu số"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Với toán tử and, nếu vế đầu False thì toàn bộ biểu thức chắc chắn False nên vế sau không được thực thi."
+    },
+    {
+      "type": "Q3_Ternary",
+      "question": "Cú pháp chuẩn của Toán tử ba ngôi (Ternary Conditional Operator) trong Python là gì?",
+      "options": [
+        "điều_kiện ? giá_trị_1 : giá_trị_2",
+        "giá_trị_1 if điều_kiện else giá_trị_2",
+        "if điều_kiện then giá_trị_1 else giá_trị_2",
+        "giá_trị_1 else giá_trị_2 if điều_kiện"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Cú pháp ba ngôi trong Python là: giá_trị_đúng if điều_kiện else giá_trị_sai."
+    },
+    {
+      "type": "Q4_Syntax",
+      "question": "Cấu trúc match-case được giới thiệu từ phiên bản Python nào và ký tự nào đại diện cho trường hợp mặc định (wildcard pattern)?",
+      "options": [
+        "Python 3.8, từ khóa default",
+        "Python 3.10+, ký tự gạch dưới _",
+        "Python 3.6, ký tự *",
+        "Python 3.11, từ khóa else"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Từ Python 3.10, match-case được ra mắt với ký tự _ đại diện cho wildcard/default case."
+    },
+    {
+      "type": "Q5_Eval",
+      "question": "Kết quả của biểu thức logic 'not (True and False) or False' trong Python là gì?",
+      "options": [
+        "True",
+        "False",
+        "None",
+        "Lỗi cú pháp"
+      ],
+      "correct_option_index": 0,
+      "explanation": "True and False = False -> not False = True -> True or False = True."
+    }
+  ],
+  "practical_lab": {
+    "title": "Thực hành: Cấu trúc điều kiện đa nhánh if-else-match-case",
+    "objectives": [
+      "Triển khai thành công: Cấu trúc điều kiện đa nhánh if-else-match-case.",
+      "Đạt chuẩn đầu ra kỳ vọng: 'Chương trình phân loại điều kiện'."
+    ],
+    "description": {
+      "inputs": "Môi trường lập trình Python và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Tạo file operators_lab.py.",
+        "Bước 2: Yêu cầu người dùng nhập vào số điểm toán, lý, hóa.",
+        "Bước 3: Kiểm tra điểm số hợp lệ (0-10). Nếu không hợp lệ, in ra thông báo lỗi và dừng chương trình.",
+        "Bước 4: Tính điểm trung bình và xếp loại học sinh theo các mức: Giỏi (>=8.0), Khá (>=6.5), Trung bình (>=5.0), Yếu (<5.0) bằng if-elif-else."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Kiểm tra lỗi điểm không hợp lệ hoạt động chính xác.",
+        "Xếp loại học lực chính xác cho mọi trường hợp điểm đầu vào."
+      ]
+    }
+  }
+}

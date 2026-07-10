@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 02 - Lesson 02: Toán tử so sánh - Trực quan hóa & Tương tác Động</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+              }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --card-border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --box-note-bg: rgba(15, 30, 54, 0.04);
+            --box-tip-bg: rgba(56, 161, 105, 0.05);
+            --box-warning-bg: rgba(221, 107, 32, 0.05);
+            --primary-text: #0f1e36;
+            --code-header-bg: #252526;
+            --code-body-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.04);
+            --clay: #D97757;
+            --clay-light: rgba(217, 119, 87, 0.06);
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-serif: 'Montserrat', 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --color-idle: #475569;
+            --color-compare: #eab308;
+            --color-swap: #ef4444;
+            --color-done: #22c55e;
+            --primary: #be111c;
+            --rust: #c2410c;
+            --rust-light: rgba(194, 65, 12, 0.08);
+        }
+
+        .theme-dark, html.dark, :root.dark {
+            --bg-body: #0b0f19;
+            --bg-card: #151d30;
+            --bg-hover: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --card-border: #1e293b;
+            --nav-bg: rgba(11, 15, 25, 0.95);
+            --box-note-bg: rgba(255, 255, 255, 0.03);
+            --box-tip-bg: rgba(56, 161, 105, 0.1);
+            --box-warning-bg: rgba(221, 107, 32, 0.1);
+            --primary-text: #ffffff;
+            --code-header-bg: #1e1e1e;
+            --code-body-bg: #121212;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --primary: #be111c;
+            --rust: #f97316;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Optimized Full-Width Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .main-content, .panel-box, .right-column, .visualizer-container, .visualizer-grid {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .panel {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-panel);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .gotchas {
+            border: 1.5px solid var(--clay);
+            border-radius: 12px;
+            background: var(--clay-light);
+            padding: 18px 20px;
+        }
+
+        .gotchas h3 {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--clay);
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Visualizer Playground Container */
+        .visualizer-container {
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-panel);
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* Interactive Grid Layout */
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Panel 1: Visualizer Canvas */
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .canvas-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .visualizer-canvas {
+            background-color: var(--bg-canvas);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-height: 380px;
+            max-height: 540px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            padding: 24px 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: background-color 0.3s;
+        }
+
+        .visualizer-canvas::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bar-item {
+            background-color: var(--color-idle);
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #ffffff;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, transform 0.3s ease;
+        }
+
+        .bar-item.comparing { background-color: var(--color-compare); transform: scaleY(1.03); }
+        .bar-item.swapping { background-color: var(--color-swap); transform: scale(1.05); }
+        .bar-item.sorted { background-color: var(--color-done); }
+
+        /* Panel 2 & 4: Controls & Stats */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--bg-panel);
+            color: var(--text-main);
+        }
+
+        .btn-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-start { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-start:hover { background: var(--primary); opacity: 0.9; }
+        .btn-reset { background: var(--rust-light); color: var(--rust); border-color: var(--rust); }
+        .btn-reset:hover { background: var(--rust); color: white; }
+
+        .inputs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--bg-canvas);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .custom-input-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Panel Right: Code Tracker & Log */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-canvas);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .code-tracker-panel {
+            background: #1e1e1e;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-tracker-panel pre, .code-tracker-panel code {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        .panel-top-bar {
+            background: #252526;
+            padding: 10px 14px;
+            border-bottom: 1.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #a5b4fc;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background-color: #1e1e1e;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 6px;
+            border-left: 3px solid transparent;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #d4d4d4;
+        }
+
+        .code-line.active-line {
+            background-color: rgba(217, 119, 87, 0.15);
+            border-left-color: var(--clay);
+            color: #ffffff;
+        }
+
+        .console-log-panel {
+            background: #1e1e1e;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            max-height: 200px;
+        }
+
+        .log-messages {
+            overflow-y: auto;
+            flex-grow: 1;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .log-info { background: rgba(30, 41, 59, 0.5); color: #94a3b8; }
+        .log-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }
+        .log-warn { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }
+
+        /* Step-by-Step Walkthrough Styling */
+        .step {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 18px;
+            padding: 24px 0;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .step:last-of-type {
+            border-bottom: none;
+        }
+
+        .badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .step.hot .badge {
+            background: var(--clay-light);
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+
+        .step-loc {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .step-loc .range {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .step-body {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        table, .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        table th, .comparison-table th {
+            background-color: #be111c !important;
+            color: white !important;
+            padding: 12px 16px !important;
+            font-weight: 700 !important;
+            font-family: 'Montserrat', sans-serif !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            text-align: left;
+        }
+
+        .theme-dark table th, .theme-dark .comparison-table th {
+            background-color: #991b1b !important;
+        }
+
+        table td, .comparison-table td {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* VS Code Dark Code container */
+        .code-container {
+            border: 1px solid #333333 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            margin: 16px 0 !important;
+            background-color: #1e1e1e !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .code-header {
+            background: #252526 !important;
+            border-bottom: 1px solid #333333 !important;
+            padding: 10px 16px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+            font-size: 0.82rem !important;
+            color: #cccccc !important;
+            font-weight: 600 !important;
+        }
+
+        .copy-btn {
+            background: #3c3c3c !important;
+            border: 1px solid #4d4d4d !important;
+            color: #cccccc !important;
+            padding: 4px 12px !important;
+            border-radius: 4px !important;
+            font-size: 0.75rem !important;
+            cursor: pointer !important;
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+
+        .copy-btn:hover {
+            background: #505050 !important;
+            color: #ffffff !important;
+        }
+
+        .code-body {
+            background-color: #1e1e1e !important;
+            padding: 16px 20px !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+        }
+
+        .code-body pre, .code-body code {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            color: #d4d4d4 !important;
+            font-family: 'JetBrains Mono', 'Consolas', 'Fira Code', monospace !important;
+            font-size: 0.88rem !important;
+            line-height: 1.75 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        /* Note, Tip & Warning Boxes */
+        .box {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border-left: 5px solid;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .tip-box { background: var(--box-tip-bg); border-color: #38a169; color: var(--text-main); }
+        .note-box { background: var(--box-note-bg); border-color: #be111c; color: var(--text-main); }
+        .warning-box { background: var(--box-warning-bg); border-color: #dd6b20; color: var(--text-main); }
+
+        .selftest-item {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+        .selftest-question { font-weight: 600; color: var(--primary); cursor: pointer; }
+        .selftest-answer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); }
+        .selftest-answer ul { list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer ol { list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer li { margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }
+        .selftest-item.active .selftest-answer { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Layout grid matching effective-html structure -->
+        <div class="layout">
+            
+            <div class="main-content">
+
+                <!-- Core Concept & Tech Stack Header Card -->
+                <div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div style="flex: 1; min-width: 260px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm cốt lõi</span>
+                            <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Session 02</span>
+                        </div>
+                        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">Toán tử so sánh</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                        <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
+                        <span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">PYTHON/CORE</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
+                <div class="visualizer-container">
+                    <div class="visualizer-grid">
+                        <!-- Left Panel: Interactive Visualizer & Controls -->
+                        <div class="panel-box">
+                            <div class="canvas-header">
+                                <div class="canvas-title">
+                                    Trực quan hóa Biểu thức & Rẽ nhánh Điều kiện (Logic Branching Engine)
+                                </div>
+                                <div class="legend-box">
+                                    
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-idle)"></div> Chờ đánh giá</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-compare)"></div> Đang tính toán logic</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-swap)"></div> Nhánh ĐÚNG (True)</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-done)"></div> Nhánh SAI (False)</div>
+            
+                                </div>
+                            </div>
+
+                            <!-- Interactive Visualizer Canvas -->
+                            <div class="visualizer-canvas" id="visualizer-canvas">
+                                <!-- Dynamic Bars / Nodes generated by JS engine -->
+                            </div>
+
+                            <!-- Control Buttons & Input Sliders -->
+                            <div class="controls-section">
+                                <div class="btn-group">
+                                    <button class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
+                                        <span>▶</span> Bắt đầu
+                                    </button>
+                                    <button class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
+                                        <span>⏸</span> Tạm dừng
+                                    </button>
+                                    <button class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
+                                        <span>⏭</span> Từng bước
+                                    </button>
+                                    <button class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
+                                        <span>↻</span> Đặt lại
+                                    </button>
+                                </div>
+
+                                <div class="inputs-row">
+                                    <div class="input-group">
+                                        <span class="input-label">TỐC ĐỘ THỰC THI (<span id="speed-display">400</span>ms)</span>
+                                        <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-label">TỰ NHẬP ĐIỂM SỐ & CHUYÊN CẦN (score, attendance)</span>
+                                        <div class="custom-input-box">
+                                            <input type="text" id="custom-data-input" class="custom-input" value="8.5, 85">
+                                            <button class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Stats, Live Code Tracker & Console Log -->
+                        <div class="right-column">
+                            <!-- Real-time Stats -->
+                            
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-title">ĐIỀU KIỆN KIỂM TRA</div>
+                        <div class="stat-value" id="stat-compare">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">NHÁNH ĐÚNG (TRUE)</div>
+                        <div class="stat-value" id="stat-swap">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">THỜI GIAN</div>
+                        <div class="stat-value" id="stat-time">0.0s</div>
+                    </div>
+                </div>
+            
+
+                            <!-- Live Code Tracker -->
+                            <div class="code-tracker-panel">
+                                <div class="panel-top-bar">
+                                    <span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+                                    <span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
+                                </div>
+                                <div class="code-content">
+                                    <pre><code id="code-tracker-box">
+
+<span class="code-line" id="line-0"># Đánh giá biểu thức và rẽ nhánh điều kiện logic</span>
+<span class="code-line" id="line-1">def evaluate_scholarship(score, attendance):</span>
+<span class="code-line" id="line-2">    if score >= 8.0 and attendance >= 80:</span>
+<span class="code-line" id="line-3">        return "Đạt học bổng Xuất sắc"</span>
+<span class="code-line" id="line-4">    elif score >= 6.5:</span>
+<span class="code-line" id="line-5">        return "Đạt danh hiệu Khá"</span>
+<span class="code-line" id="line-6">    else:</span>
+<span class="code-line" id="line-7">        return "Cần tiếp tục rèn luyện"</span>
+            
+                                    </code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Console Execution Log -->
+                            <div class="console-log-panel">
+                                <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+                                    <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+                                    <button onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
+                                </div>
+                                <div class="log-messages" id="log-messages">
+                                    <div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Walkthrough Step-by-Step Sections -->
+                <div class="walkthrough-section">
+                    <h2 style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 500; margin: 30px 0 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+                        Cơ chế hoạt động & Phân tích chi tiết (Step-by-step Walkthrough)
+                    </h2>
+
+                    <!-- Step 1: Problem Breakdown -->
+                    <div class="step">
+                        <div class="badge">1</div>
+                        <div class="step-body">
+                            <div class="step-loc">Đặt vấn đề & Thách thức thực tế <span class="range"></span></div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Trong lập trình Python cơ bản, việc học viên tiếp cận và triển khai <strong>Toán tử so sánh</strong> luôn đi kèm với những thử thách tư duy logic thực tế. Khi xây dựng các luồng quyết định (decision-making) trong chương trình, học viên thường gặp khó khăn trong việc kết hợp các toán tử so sánh và toán tử logic để tạo ra các biểu thức điều kiện chính xác. Ngoài ra, việc lạm dụng cấu trúc <code>if-else</code> lồng nhau sâu khiến mã nguồn trở nên rối rắm, khó đọc và khó kiểm thử các trường hợp biên.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Deep Dive Internals -->
+                    <div class="step">
+                        <div class="badge">2</div>
+                        <div class="step-body">
+                            <div class="step-loc">Phân tích Bản chất & Cơ chế vận hành nội bộ <span class="range"></span></div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi phân tích sâu về <strong>Toán tử so sánh</strong>, chúng ta nhận thấy: >, <, >=, <=, ==, != Python cung cấp hệ thống toán tử phong phú gồm toán tử số học (<code>+</code>, <code>-</code>, <code><em></code>, <code>/</code>, chia lấy nguyên <code>//</code>, chia lấy dư <code>%</code>, lũy thừa <code></em>*</code>), toán tử so sánh (<code>==</code>, <code>!=</code>, <code>></code>, <code><</code>, <code>>=</code>, <code><=</code>) và toán tử logic (<code>and</code>, <code>or</code>, <code>not</code>). Cấu trúc rẽ nhánh <code>if-elif-else</code> và cấu trúc <code>match-case</code> (từ Python 3.10) giúp phân tách luồng chạy của chương trình dựa trên kết quả của biểu thức điều kiện logic. Việc tối ưu hóa biểu thức logic bằng toán tử ba ngôi (ternary operator) giúp mã nguồn ngắn gọn hơn.</p>
+<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
+    <thead>
+        <tr style="background-color:var(--primary); color:white;">
+            <th style="padding:12px; border:1px solid var(--border-color);">Toán tử</th>
+            <th style="padding:12px; border:1px solid var(--border-color);">Ý nghĩa</th>
+            <th style="padding:12px; border:1px solid var(--border-color);">Ví dụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">%</td>
+            <td style="padding:10px; border:1px solid var(--border-color);">Chia lấy phần dư (Modulo)</td>
+            <td style="padding:10px; border:1px solid var(--border-color);">5 % 2 = 1</td>
+        </tr>
+        <tr style="background-color:#F8FAFC;">
+            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">//</td>
+            <td style="padding:10px; border:1px solid var(--border-color);">Chia lấy phần nguyên (Floor Division)</td>
+            <td style="padding:10px; border:1px solid var(--border-color);">5 // 2 = 2</td>
+        </tr>
+        <tr>
+            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">**</td>
+            <td style="padding:10px; border:1px solid var(--border-color);">Lũy thừa (Power)</td>
+            <td style="padding:10px; border:1px solid var(--border-color);">5 ** 2 = 25</td>
+        </tr>
+    </tbody>
+</table>
+                            <div class="box warning-box">
+                                <strong>Lưu ý hiệu năng:</strong> Cần tính toán kỹ độ phức tạp thuật toán và quản lý bộ nhớ khi xử lý khối lượng dữ liệu lớn.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Solution & Architecture -->
+                    <div class="step hot">
+                        <div class="badge">3</div>
+                        <div class="step-body">
+                            <div class="step-loc">Giới thiệu Giải pháp & Kiến trúc Triển khai <span class="range"></span></div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Để giải quyết triệt để vấn đề này, chúng ta cần áp dụng các cấu trúc lập trình Python chuẩn mực. Mục tiêu đầu ra là đạt được chuẩn: <strong>Biểu thức so sánh logic</strong>. Sử dụng đúng độ ưu tiên của các toán tử số học và logic (sử dụng dấu ngoặc đơn <code>()</code> để tường minh). Áp dụng cấu trúc rẽ nhánh <code>if-elif-else</code> một cách khoa học, tránh lồng nhau quá 3 cấp, hoặc chuyển sang dùng <code>match-case</code> khi so sánh một biến với nhiều giá trị cụ thể nhằm tăng tính thẩm mỹ và dễ bảo trì.</p>
+                            <div class="box tip-box">
+                                <strong>Giải pháp tối ưu:</strong> Sử dụng trực quan hóa giúp nhanh chóng định vị điểm nghẽn và cải thiện tốc độ phản hồi đáng kể.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Production Code Walkthrough -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc" style="color: #569cd6;">Mã nguồn chuẩn hóa & Phân tích thực thi <span class="range"></span></div>
+                            
+        <details class="interactive-details" open>
+            <summary>Nhấp vào để đóng/mở mã nguồn chi tiết</summary>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-controls">
+                        <span class="control-dot dot-red"></span>
+                        <span class="control-dot dot-yellow"></span>
+                        <span class="control-dot dot-green"></span>
+                    </div>
+                    <span class="code-title">main.py</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+                </div>
+                <div class="code-body">
+                    <pre><code class="language-python" id="code-snippet-1"># 1. Sử dụng toán tử số học và logic
+math_score = 8.5
+english_score = 7.0
+
+# Điều kiện đạt học bổng: Điểm trung bình >= 8.0 VÀ không môn nào dưới 6.5
+average_score = (math_score + english_score) / 2
+has_scholarship = average_score >= 8.0 and math_score >= 6.5 and english_score >= 6.5
+
+# 2. Sử dụng cấu trúc rẽ nhánh khoa học và toán tử ba ngôi
+status = "Đạt học bổng" if has_scholarship else "Không đạt học bổng"
+print(f"Điểm TB: {average_score} -> Trạng thái: {status}")
+
+# 3. Sử dụng cấu trúc match-case mới (Python 3.10+)
+rank_level = "A" if average_score >= 8.5 else "B" if average_score >= 7.0 else "C"
+match rank_level:
+    case "A":
+        print("Xếp loại xuất sắc, được nhận học bổng loại I.")
+    case "B":
+        print("Xếp loại khá giỏi, được nhận học bổng loại II.")
+    case _:
+        print("Cần cố gắng thêm trong các kỳ học sau.")
+</code></pre>
+                </div>
+            </div>
+        </details>
+        
+                            <div style="margin-top: 16px;">
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Sau khi áp dụng giải pháp cho <strong>Toán tử so sánh</strong>, chương trình đã có thể vận hành ổn định và chính xác. Chương trình tính toán điểm trung bình bằng biểu thức số học có ngoặc đơn. Sau đó, nó dùng toán tử logic <code>and</code> để kiểm tra đồng thời ba điều kiện logic. Toán tử ba ngôi gán giá trị cho <code>status</code> một cách ngắn gọn. Cuối cùng, cấu trúc <code>match-case</code> khớp giá trị của <code>rank<em>level</code> với các trường hợp cụ thể để in ra lời khuyên tương ứng, sử dụng dấu gạch dưới <code></em></code> làm trường hợp mặc định (default case).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Self-Test Checklist -->
+                    <div class="step">
+                        <div class="badge">5</div>
+                        <div class="step-body">
+                            <div class="step-loc">Bộ câu hỏi Khảo thí tự học & Đánh giá năng lực <span class="range"></span></div>
+                            <p style="margin-bottom: 12px; font-size: 0.9rem;">Học viên nhấp chuột vào từng câu hỏi bên dưới để đối chiếu gợi ý tự học và rèn luyện:</p>
+                            <div class="selftest-container">
+                                
+        <div class="selftest-item">
+            <div class="selftest-question">
+                <span>Câu 1 (Thông hiểu): Hãy trình bày vai trò cốt lõi và mục tiêu của việc triển khai 'Toán tử so sánh' trong dự án thực tế.</span>
+            </div>
+            <div class="selftest-answer">
+                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
+                <ul>
+                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
+                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
+                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="selftest-item">
+            <div class="selftest-question">
+                <span>Câu 2 (Vận dụng): Dựa trên lý thuyết đã học, hãy viết một đoạn code mẫu hoặc cấu hình để thực hiện: '>, <, >=, <=, ==, !='.</span>
+            </div>
+            <div class="selftest-answer">
+                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
+                <ul>
+                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
+                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
+                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="selftest-item">
+            <div class="selftest-question">
+                <span>Câu 3 (Phân tích): Tại sao việc đạt được đầu ra 'Biểu thức so sánh logic' lại quan trọng đối với tính toàn vẹn của hệ thống?</span>
+            </div>
+            <div class="selftest-answer">
+                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
+                <ul>
+                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
+                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
+                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
+                </ul>
+            </div>
+        </div>
+        
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Notice / Gotchas Section -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+                        <div class="step-body" style="border-color: var(--clay);">
+                            <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+                            <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Lưu ý quan trọng cho <strong>Toán tử so sánh</strong>: Luôn dùng dấu ngoặc đơn để làm rõ độ ưu tiên của toán tử. Lỗi thường gặp nhất là dùng một dấu bằng = thay cho hai dấu bằng == trong lệnh so sánh if.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Script imports -->
+
+    <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    <script>
+        
+        class InteractiveVisualizerEngine {
+            constructor() {
+                this.score = 8.5;
+                this.attendance = 85;
+                this.steps = [];
+                this.currentStep = 0;
+                this.isPlaying = false;
+                this.timer = null;
+                this.speed = 400;
+                this.stats = { compare: 0, swap: 0 };
+                this.startTime = null;
+                this.elapsedSeconds = 0.0;
+                this.audioSyncMap = [];
+                
+                this.init();
+            }
+
+            init() {
+                this.generateSteps();
+                this.render();
+                this.setupEvents();
+            }
+
+            generateSteps() {
+                this.steps = [];
+                let s = this.score;
+                let a = this.attendance;
+                
+                this.steps.push({
+                    state: "init",
+                    score: s,
+                    attendance: a,
+                    activeBranch: null,
+                    line: 1,
+                    msg: `Khởi tạo đầu vào: Điểm trung bình (score) = ${s}, Chuyên cần (attendance) = ${a}%.`
+                });
+
+                let cond1 = (s >= 8.0 && a >= 80);
+                this.steps.push({
+                    state: "eval_if",
+                    score: s,
+                    attendance: a,
+                    cond1: cond1,
+                    activeBranch: 1,
+                    line: 2,
+                    msg: `Kiểm tra nhánh IF: score >= 8.0 (${s >= 8.0}) VÀ attendance >= 80 (${a >= 80}) -> Kết quả: ${cond1 ? 'TRUE (Đúng)' : 'FALSE (Sai)'}.`
+                });
+
+                if (cond1) {
+                    this.steps.push({
+                        state: "exec_if",
+                        score: s,
+                        attendance: a,
+                        cond1: true,
+                        resultText: "Đạt học bổng Xuất sắc",
+                        activeBranch: 1,
+                        line: 3,
+                        isDone: true,
+                        msg: `Nhánh IF thỏa mãn (TRUE)! Thực thi khối lệnh trả về: "Đạt học bổng Xuất sắc".`
+                    });
+                } else {
+                    let cond2 = (s >= 6.5);
+                    this.steps.push({
+                        state: "eval_elif",
+                        score: s,
+                        attendance: a,
+                        cond1: false,
+                        cond2: cond2,
+                        activeBranch: 2,
+                        line: 4,
+                        msg: `Nhánh IF không đạt (FALSE). Chuyển sang kiểm tra nhánh ELIF: score >= 6.5 (${s >= 6.5}) -> Kết quả: ${cond2 ? 'TRUE' : 'FALSE'}.`
+                    });
+
+                    if (cond2) {
+                        this.steps.push({
+                            state: "exec_elif",
+                            score: s,
+                            attendance: a,
+                            cond1: false,
+                            cond2: true,
+                            resultText: "Đạt danh hiệu Khá",
+                            activeBranch: 2,
+                            line: 5,
+                            isDone: true,
+                            msg: `Nhánh ELIF thỏa mãn! Thực thi khối lệnh trả về: "Đạt danh hiệu Khá".`
+                        });
+                    } else {
+                        this.steps.push({
+                            state: "exec_else",
+                            score: s,
+                            attendance: a,
+                            cond1: false,
+                            cond2: false,
+                            resultText: "Cần tiếp tục rèn luyện",
+                            activeBranch: 3,
+                            line: 7,
+                            isDone: true,
+                            msg: `Tất cả điều kiện IF và ELIF đều không đạt (FALSE). Chạy vào khối mặc định ELSE trả về: "Cần tiếp tục rèn luyện".`
+                        });
+                    }
+                }
+            }
+
+            render() {
+                const canvas = document.getElementById('visualizer-canvas');
+                if (!canvas) return;
+                
+                let step = this.steps[this.currentStep] || this.steps[0];
+                let b1Color = step.activeBranch === 1 ? (step.cond1 ? '#10b981' : '#f59e0b') : '#334155';
+                let b2Color = step.activeBranch === 2 ? (step.cond2 ? '#10b981' : '#f59e0b') : '#334155';
+                let b3Color = step.activeBranch === 3 ? '#10b981' : '#334155';
+                
+                canvas.innerHTML = `
+                    <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; padding: 12px; font-family: 'JetBrains Mono', monospace;">
+                        <div style="background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; text-align: center;">
+                            <span style="color: #38bdf8; font-weight: bold;">INPUT STATE:</span> 
+                            <span style="color: #f1f5f9;">score = <strong style="color: #fbbf24;">${step.score}</strong></span> | 
+                            <span style="color: #f1f5f9;">attendance = <strong style="color: #fbbf24;">${step.attendance}%</strong></span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- IF Branch -->
+                            <div style="background: ${b1Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #38bdf8;">
+                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 1] if score >= 8.0 and attendance >= 80:</div>
+                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">
+                                    So sánh: (${step.score} >= 8.0) AND (${step.attendance} >= 80) &rarr; <strong style="color: ${step.cond1 ? '#6ee7b7' : '#f87171'}">${step.cond1 !== undefined ? (step.cond1 ? 'TRUE (Khớp)' : 'FALSE (Bỏ qua)') : 'Chờ đánh giá'}</strong>
+                                </div>
+                            </div>
+
+                            <!-- ELIF Branch -->
+                            <div style="background: ${b2Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #a855f7; opacity: ${step.activeBranch >= 2 || step.activeBranch === null ? 1 : 0.5}">
+                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 2] elif score >= 6.5:</div>
+                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">
+                                    So sánh: (${step.score} >= 6.5) &rarr; <strong style="color: ${step.cond2 ? '#6ee7b7' : '#f87171'}">${step.cond2 !== undefined ? (step.cond2 ? 'TRUE (Khớp)' : 'FALSE (Bỏ qua)') : 'Chờ kiểm tra'}</strong>
+                                </div>
+                            </div>
+
+                            <!-- ELSE Branch -->
+                            <div style="background: ${b3Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #64748b; opacity: ${step.activeBranch === 3 || step.activeBranch === null ? 1 : 0.5}">
+                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 3] else: (Khối lệnh mặc định)</div>
+                            </div>
+                        </div>
+
+                        ${step.resultText ? `
+                            <div style="background: #064e3b; border: 2px solid #10b981; border-radius: 8px; padding: 14px; text-align: center; animation: pulse 1s infinite;">
+                                <span style="color: #6ee7b7; font-weight: bold;">🎯 KẾT QUẢ RẼ NHÁNH:</span>
+                                <div style="color: #fff; font-size: 1.1rem; font-weight: bold; margin-top: 4px;">"${step.resultText}"</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+
+                this.highlightCode(step.line);
+                if (step.msg) this.log(step.msg, step.isDone ? 'success' : 'info');
+                this.updateStats();
+            }
+
+            highlightCode(lineNum) {
+                for (let i = 0; i <= 7; i++) {
+                    let el = document.getElementById(`line-${i}`);
+                    if (el) el.style.backgroundColor = 'transparent';
+                }
+                let target = document.getElementById(`line-${lineNum}`);
+                if (target) target.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
+            }
+
+            log(msg, type = 'info') {
+                const box = document.getElementById('log-messages');
+                if (!box) return;
+                const entry = document.createElement('div');
+                entry.className = `log-entry log-${type}`;
+                entry.innerText = `[Bước ${this.currentStep + 1}] ${msg}`;
+                box.appendChild(entry);
+                box.scrollTop = box.scrollHeight;
+            }
+
+            clearLog() {
+                const box = document.getElementById('log-messages');
+                if (box) box.innerHTML = '';
+            }
+
+            start() {
+                if (this.isPlaying) return;
+                this.isPlaying = true;
+                this.startTime = Date.now() - (this.elapsedSeconds * 1000);
+                this.syncAudioToStep();
+                this.timer = setInterval(() => {
+                    if (this.currentStep < this.steps.length - 1) {
+                        this.currentStep++;
+                        if (this.steps[this.currentStep].activeBranch !== null) this.stats.compare++;
+                        if (this.steps[this.currentStep].resultText) this.stats.swap++;
+                        this.elapsedSeconds = ((Date.now() - this.startTime) / 1000).toFixed(1);
+                        this.render();
+                    } else {
+                        this.pause();
+                    }
+                }, this.speed);
+            }
+
+            pause() {
+                this.isPlaying = false;
+                if (this.timer) clearInterval(this.timer);
+            }
+
+            step() {
+                this.pause();
+                if (this.currentStep < this.steps.length - 1) {
+                    this.currentStep++;
+                    if (this.steps[this.currentStep].activeBranch !== null) this.stats.compare++;
+                    if (this.steps[this.currentStep].resultText) this.stats.swap++;
+                    this.render();
+                    this.syncAudioToStep();
+                }
+            }
+
+            reset() {
+                this.pause();
+                this.currentStep = 0;
+                this.stats = { compare: 0, swap: 0 };
+                this.elapsedSeconds = 0.0;
+                this.render();
+                this.clearLog();
+                this.syncAudioToStep();
+                this.log('Đã khôi phục trạng thái xuất phát ban đầu.', 'info');
+            }
+
+            setSpeed(val) {
+                this.speed = parseInt(val);
+                const display = document.getElementById('speed-display');
+                if (display) display.innerText = val;
+                if (this.isPlaying) {
+                    this.pause();
+                    this.start();
+                }
+            }
+
+            applyCustomData() {
+                const inputEl = document.getElementById('custom-data-input');
+                if (!inputEl) return;
+                const parts = inputEl.value.split(',').map(v => v.trim());
+                if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+                    alert('Vui lòng nhập 2 số hợp lệ cho điểm số và chuyên cần, cách nhau bởi dấu phẩy (VD: 8.5, 85)!');
+                    return;
+                }
+                this.score = parseFloat(parts[0]);
+                this.attendance = parseFloat(parts[1]);
+                this.generateSteps();
+                this.reset();
+                this.log(`Đã áp dụng thông số mới: score = ${this.score}, attendance = ${this.attendance}%`, 'success');
+            }
+
+            updateStats() {
+                const cmpEl = document.getElementById('stat-compare');
+                const swpEl = document.getElementById('stat-swap');
+                const tmEl = document.getElementById('stat-time');
+                if (cmpEl) cmpEl.innerText = this.stats.compare;
+                if (swpEl) swpEl.innerText = this.stats.swap;
+                if (tmEl) tmEl.innerText = `${this.elapsedSeconds}s`;
+            }
+
+            setupAudioSync() {
+                const audioEl = document.getElementById('lesson-audio') || document.querySelector('audio');
+                if (!audioEl) return;
+                this.audioSyncMap = this.steps.map((step, idx) => ({
+                    stepIndex: idx,
+                    startTime: idx * 2.5,
+                    endTime: (idx + 1) * 2.5
+                }));
+                audioEl.addEventListener('timeupdate', () => {
+                    if (!this.isPlaying && audioEl.currentTime > 0) {
+                        const target = this.audioSyncMap.find(m => audioEl.currentTime >= m.startTime && audioEl.currentTime < m.endTime);
+                        if (target && target.stepIndex !== this.currentStep) {
+                            this.currentStep = target.stepIndex;
+                            if (this.steps[this.currentStep].line) this.highlightCode(this.steps[this.currentStep].line);
+                            this.render();
+                        }
+                    }
+                });
+            }
+
+            syncAudioToStep() {
+                const audioEl = document.getElementById('lesson-audio') || document.querySelector('audio');
+                if (audioEl && this.audioSyncMap && this.audioSyncMap[this.currentStep]) {
+                    audioEl.currentTime = this.audioSyncMap[this.currentStep].startTime;
+                    if (this.isPlaying && audioEl.paused) audioEl.play().catch(e => console.log('Audio autoplay prevented:', e));
+                }
+            }
+
+            setupEvents() {
+                document.querySelectorAll('.selftest-question').forEach(q => {
+                    q.addEventListener('click', () => {
+                        const item = q.parentElement;
+                        item.classList.toggle('active');
+                    });
+                });
+                this.setupAudioSync();
+            }
+        }
+            
+
+        // Initialize when DOM loaded
+        let visualizerApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            visualizerApp = new InteractiveVisualizerEngine();
+            if (window.hljs) hljs.highlightAll();
+        });
+
+        function copyCode(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', applyTheme);
+        applyTheme();
+    </script>
+</body>
+</html>
