@@ -1179,11 +1179,19 @@ def delete_room(room_id: int):
             "example": """from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# 1. Khai báo chuỗi kết nối Database (ví dụ SQLite cục bộ)
+# 1. Khai báo chuỗi kết nối Database (hỗ trợ PostgreSQL, SQLite, MySQL...)
+# Ví dụ với PostgreSQL: DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/hotel_db'
 DATABASE_URL = 'sqlite:///./hotel_reservation.db'
 
-# 2. Khởi tạo Engine và SessionLocal kết nối
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+# 2. Khởi tạo Engine với cấu hình Connection Pooling tiêu chuẩn Production
+engine = create_engine(
+    DATABASE_URL,
+    pool_size=10,            # Số kết nối tối đa được duy trì trong pool
+    max_overflow=20,         # Số kết nối tạo thêm tối đa khi pool bị quá tải
+    pool_timeout=30.0,       # Thời gian chờ tối đa (giây) để lấy kết nối từ pool
+    pool_recycle=1800,       # Tự động dọn dẹp các kết nối cũ sau 30 phút
+    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -1204,7 +1212,7 @@ def get_db():
         db.close()  # Đảm bảo đóng kết nối khi request kết thúc
 """,
             "resolve": """Thông qua hàm generator `get_db()`, FastAPI đảm bảo mỗi request gửi đến hệ thống sẽ được cấp phát riêng một database session độc lập và session này chắc chắn sẽ tự động đóng lại khi request kết thúc để tránh rò rỉ kết nối.""",
-            "summary": "Luôn quản lý vòng đời của Database Session thông qua Depend với generator yield. Lỗi thường gặp nhất là quên gọi `db.commit()` sau khi thực hiện thêm/sửa dữ liệu dẫn tới việc dữ liệu không được ghi lưu trữ vật lý thực tế xuống ổ đĩa cứng.",
+            "summary": "Luôn quản lý vòng đời của Database Session thông qua Depend với generator yield và cấu hình Connection Pooling (pool_size, max_overflow) cho SQLAlchemy Engine khi chạy thực tế.",
             "self_test": [
                 "Câu 1 (Thông hiểu): Tại sao việc sử dụng cơ chế Dependency Injection (`Depends(get_db)`) lại giúp tối ưu hóa việc quản lý kết nối cơ sở dữ liệu trong FastAPI?",
                 "Câu 2 (Vận dụng): Khai báo một lớp Model SQLAlchemy có tên `Product` ánh xạ tới bảng `products` gồm các trường: id (khóa chính), name (chuỗi), và price (số thực).",

@@ -11,6 +11,79 @@ try:
 except ImportError:
     pass
 
+# Caching registry for Gemini Context Caching
+_GEMINI_PROMPT_CACHES = {}
+
+def _get_cached_generative_model(
+    model_name: str,
+    system_prompt: str,
+    generation_config: dict
+) -> Optional[object]:
+    """
+    Attempts to retrieve or create a Gemini CachedContent and returns a GenerativeModel preloaded with it.
+    If caching is disabled, prompt is too short (< 32,768 tokens), or cache creation fails, returns None.
+    """
+    if os.getenv("GEMINI_PROMPT_CACHING", "True").lower() not in ("true", "1", "yes"):
+        return None
+
+    try:
+        import google.generativeai as genai
+        from google.generativeai import caching
+        import datetime
+
+        # Ensure canonical model name format for caching
+        canonical_model = model_name
+        if not canonical_model.startswith("models/"):
+            canonical_model = f"models/{canonical_model}"
+
+        # Context caching is supported on specific model versions (e.g., gemini-1.5-flash-001)
+        # Map base name versions to caching-enabled versions
+        if canonical_model in ("models/gemini-1.5-flash", "models/gemini-1.5-flash-latest"):
+            canonical_model = "models/gemini-1.5-flash-001"
+        elif canonical_model in ("models/gemini-1.5-pro", "models/gemini-1.5-pro-latest"):
+            canonical_model = "models/gemini-1.5-pro-001"
+
+        # Count tokens of system prompt to ensure minimum requirement
+        try:
+            temp_model = genai.GenerativeModel(model_name=canonical_model)
+            token_count_resp = temp_model.count_tokens(system_prompt)
+            total_tokens = getattr(token_count_resp, "total_tokens", getattr(token_count_resp, "total_token_count", len(system_prompt) // 4))
+        except Exception:
+            total_tokens = len(system_prompt) // 4
+
+        min_tokens = int(os.getenv("GEMINI_CACHE_MIN_TOKENS", "32768"))
+        if total_tokens < min_tokens:
+            return None
+
+        cache_key = (canonical_model, hash(system_prompt))
+        now = time.time()
+
+        # Check existing cached content
+        if cache_key in _GEMINI_PROMPT_CACHES:
+            cache_obj, expire_at = _GEMINI_PROMPT_CACHES[cache_key]
+            if now < expire_at:
+                print(f"  [Prompt Cache] Cache HIT for {canonical_model} ({total_tokens} tokens).")
+                return genai.GenerativeModel.from_cached_content(cached_content=cache_obj)
+
+        print(f"  [Prompt Cache] Cache MISS for {canonical_model} ({total_tokens} tokens). Creating new cached content...")
+        
+        # Create cached content with 30-minute TTL
+        cache_obj = caching.CachedContent.create(
+            model=canonical_model,
+            display_name=f"prompt_cache_{abs(hash(system_prompt)) % 10000000}",
+            contents=[system_prompt],
+            ttl=datetime.timedelta(minutes=30)
+        )
+        
+        # Save cache and expiration (25 minutes safety margin)
+        _GEMINI_PROMPT_CACHES[cache_key] = (cache_obj, now + 25 * 60)
+        
+        return genai.GenerativeModel.from_cached_content(cached_content=cache_obj)
+
+    except Exception as e:
+        print(f"  [Prompt Cache Warning] Failed to initialize prompt caching: {e}. Falling back to standard model call.")
+        return None
+
 def call_llm(
     system_prompt: str,
     user_prompt: str,
@@ -98,13 +171,21 @@ def call_llm(
                 if json_mode:
                     generation_config["response_mime_type"] = "application/json"
                     
-                model = genai.GenerativeModel(
-                    model_name=model_name,
-                    system_instruction=system_prompt,
-                    generation_config=generation_config
-                )
-                
-                response = model.generate_content(user_prompt, request_options={"timeout": 8.0})
+                # Try prompt caching first
+                cached_model = _get_cached_generative_model(model_name, system_prompt, generation_config)
+                if cached_model:
+                    response = cached_model.generate_content(
+                        user_prompt,
+                        generation_config=generation_config,
+                        request_options={"timeout": 8.0}
+                    )
+                else:
+                    model = genai.GenerativeModel(
+                        model_name=model_name,
+                        system_instruction=system_prompt,
+                        generation_config=generation_config
+                    )
+                    response = model.generate_content(user_prompt, request_options={"timeout": 8.0})
                 if response and response.text:
                     result_text = response.text.strip()
                     

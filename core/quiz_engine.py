@@ -56,7 +56,7 @@ FASTAPI_TOPIC_DETAILS = {
         "wrong_1": "db = SessionLocal(); return db",
         "wrong_2": "db = engine.connect(); yield db",
         "wrong_3": "db = Session(); yield db; db.commit()",
-        "action": "truy vấn cơ sở dữ liệu quan hệ MySQL / SQLite",
+        "action": "truy vấn cơ sở dữ liệu quan hệ PostgreSQL / MySQL / SQLite",
         "error": "rò rỉ kết nối cơ sở dữ liệu (connection leak)",
         "solution": "sử dụng dependency injection yield db để tự động đóng connection"
     },
