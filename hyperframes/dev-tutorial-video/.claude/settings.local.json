@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes hyperframes@0.6.62 validate)",
+      "Bash(npm run *)",
+      "Bash(npx *)",
+      "Bash(sed -n '365,382p' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_02.html)",
+      "Bash(sed -n '324,342p' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_03.html)",
+      "Bash(sed -n '392,410p' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_04.html)",
+      "Bash(sed -n '306,324p' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_05.html)",
+      "Bash(sed -n '250,268p' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_06.html)",
+      "Bash(python3 *)",
+      "Bash(awk 'NR==718' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_01.html)",
+      "Bash(awk NR>=710 && NR<=725 *)",
+      "Bash(awk 'NR>=710 && NR<=725' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_01.html)",
+      "Bash(awk 'NR>=710 && NR<=725' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_02.html)",
+      "Bash(sed -n '710,725p' /Users/cuongtran/Desktop/Hyperframes/dev-tutorial-video/src/compositions/Scene_01.html)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(node -e ' *)",
+      "Bash(node *)",
+      "Bash(npm show *)"
+    ]
+  }
+}

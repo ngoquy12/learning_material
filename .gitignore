@@ -1,1 +1,7 @@
 venv
+.venv
+/app
+__pycache__/
+*.pyc
+.vscode/
+scratch_cache_dump.txt

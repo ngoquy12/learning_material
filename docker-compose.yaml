@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Local Arize Phoenix (OTLP Tracing and evaluation)
+  phoenix:
+    image: arize-phoenix:latest
+    container_name: elearning_phoenix
+    ports:
+      - "6006:6006"   # Web UI
+      - "4317:4317"   # gRPC OTLP receiver
+      - "4318:4318"   # HTTP OTLP receiver
+    environment:
+      - PHOENIX_PORT=6006
+      - PHOENIX_HOST=0.0.0.0
+    restart: unless-stopped
+
+  # Local Langfuse (Self-hosted telemetry and analytics)
+  langfuse-db:
+    image: postgres:16-alpine
+    container_name: langfuse_postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=langfuse
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  langfuse:
+    image: langfuse/langfuse:latest
+    container_name: elearning_langfuse
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@langfuse-db:5432/langfuse
+      - NEXTAUTH_SECRET=my_super_secret_nextauth_value
+      - NEXTAUTH_URL=http://localhost:3000
+      - TELEMETRY_ENABLED=false
+      - LANGFUSE_INIT_PROJECT_NAME=Elearning_Agent
+    depends_on:
+      - langfuse-db
+    restart: unless-stopped
+
+volumes:
+  langfuse_db_data:

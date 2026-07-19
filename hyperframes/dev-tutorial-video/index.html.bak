@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0d1117;
+      }
+      .clip { position: absolute; visibility: hidden; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="python-list"
+      data-start="0"
+      data-duration="209.23"
+      data-width="1920"
+      data-height="1080"
+    >
+
+      <!-- ═══════════════════════════════════════════════════════════
+           INTRO — 0s → 9.24s
+      ═══════════════════════════════════════════════════════════ -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Intro.html"
+        data-composition-id="intro"
+        data-start="0"
+        data-duration="9.24"
+        data-track-index="0"
+      ></div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           SCENES — shifted +9.24s
+      ═══════════════════════════════════════════════════════════ -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_01.html"
+        data-composition-id="scene-01"
+        data-start="9.24"
+        data-duration="38.84"
+        data-track-index="1"
+      ></div>
+
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_02.html"
+        data-composition-id="scene-02"
+        data-start="48.08"
+        data-duration="45.24"
+        data-track-index="2"
+      ></div>
+
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_03.html"
+        data-composition-id="scene-03"
+        data-start="93.32"
+        data-duration="27.17"
+        data-track-index="3"
+      ></div>
+
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_04.html"
+        data-composition-id="scene-04"
+        data-start="120.49"
+        data-duration="30.85"
+        data-track-index="4"
+      ></div>
+
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_05.html"
+        data-composition-id="scene-05"
+        data-start="151.34"
+        data-duration="30.67"
+        data-track-index="5"
+      ></div>
+
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_06.html"
+        data-composition-id="scene-06"
+        data-start="182.01"
+        data-duration="15.07"
+        data-track-index="6"
+      ></div>
+
+      <!-- ═══════════════════════════════════════════════════════════
+           OUTRO — 197.08s → 209.23s
+      ═══════════════════════════════════════════════════════════ -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Outro.html"
+        data-composition-id="outro"
+        data-start="197.08"
+        data-duration="12.15"
+        data-track-index="7"
+      ></div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         BACKGROUND MUSIC
+    ═══════════════════════════════════════════════════════════ -->
+    <audio
+      id="bgm"
+      class="clip"
+      src="courses/fundamental_python/assets/bg-music.mp3"
+      loop
+      data-start="0"
+      data-duration="209.23"
+      data-track-index="20"
+      data-volume="0.3"
+    ></audio>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TRANSITION OVERLAYS (timestamps shifted +9.24s)
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- T0: Intro→S1 — Fade to black (9.24s) -->
+    <div
+      id="tx-0"
+      class="clip"
+      data-start="8.74"
+      data-duration="1.0"
+      data-track-index="10"
+      style="width:1920px;height:1080px;background:#000;pointer-events:none;z-index:500;"
+    ></div>
+
+    <!-- T1: S1→S2 — Fade to black (48.08s) -->
+    <div
+      id="tx-1"
+      class="clip"
+      data-start="47.58"
+      data-duration="1.0"
+      data-track-index="11"
+      style="width:1920px;height:1080px;background:#000;pointer-events:none;z-index:500;"
+    ></div>
+
+    <!-- T2: S2→S3 — Horizontal wipe (93.32s) -->
+    <div
+      id="tx-2"
+      class="clip"
+      data-start="92.82"
+      data-duration="1.0"
+      data-track-index="12"
+      style="width:1920px;height:1080px;background:#0f1117;pointer-events:none;z-index:500;transform-origin:left center;"
+    ></div>
+
+    <!-- T3: S3→S4 — Flash white (120.49s) -->
+    <div
+      id="tx-3"
+      class="clip"
+      data-start="119.99"
+      data-duration="1.0"
+      data-track-index="13"
+      style="width:1920px;height:1080px;background:#fff;pointer-events:none;z-index:500;"
+    ></div>
+
+    <!-- T4: S4→S5 — Vertical wipe (151.34s) -->
+    <div
+      id="tx-4"
+      class="clip"
+      data-start="150.84"
+      data-duration="1.0"
+      data-track-index="14"
+      style="width:1920px;height:1080px;background:#0f1117;pointer-events:none;z-index:500;transform-origin:top center;"
+    ></div>
+
+    <!-- T5: S5→S6 — Fade to black (182.01s) -->
+    <div
+      id="tx-5"
+      class="clip"
+      data-start="181.51"
+      data-duration="1.0"
+      data-track-index="15"
+      style="width:1920px;height:1080px;background:#000;pointer-events:none;z-index:500;"
+    ></div>
+
+    <!-- T6: S6→Outro — Fade to black (197.08s) -->
+    <div
+      id="tx-6"
+      class="clip"
+      data-start="196.58"
+      data-duration="1.0"
+      data-track-index="16"
+      style="width:1920px;height:1080px;background:#000;pointer-events:none;z-index:500;"
+    ></div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["python-list"] = tl;
+
+      // ── Transition animations ────────────────────────────────────────
+
+      // T0: Fade to black — Intro→S1 (at 8.74s)
+      tl.set("#tx-0",  { autoAlpha: 0 }, 8.74);
+      tl.to("#tx-0",   { autoAlpha: 1, duration: 0.35, ease: "power2.in"  }, 8.74);
+      tl.to("#tx-0",   { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 9.24);
+
+      // T1: Fade to black — S1→S2 (at 47.58s)
+      tl.set("#tx-1",  { autoAlpha: 0 }, 47.58);
+      tl.to("#tx-1",   { autoAlpha: 1, duration: 0.35, ease: "power2.in"  }, 47.58);
+      tl.to("#tx-1",   { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 48.08);
+
+      // T2: Horizontal wipe — S2→S3 (at 92.82s)
+      tl.set("#tx-2",  { autoAlpha: 1, scaleX: 0 }, 92.82);
+      tl.to("#tx-2",   { scaleX: 1, duration: 0.35, ease: "power3.inOut" }, 92.82);
+      tl.to("#tx-2",   { scaleX: 0, duration: 0.35, ease: "power3.inOut", transformOrigin: "right center" }, 93.32);
+
+      // T3: Flash white — S3→S4 (at 119.99s)
+      tl.set("#tx-3",  { autoAlpha: 0 }, 119.99);
+      tl.to("#tx-3",   { autoAlpha: 0.9, duration: 0.18, ease: "power3.in"  }, 119.99);
+      tl.to("#tx-3",   { autoAlpha: 0,   duration: 0.55, ease: "power2.out" }, 120.34);
+
+      // T4: Vertical wipe — S4→S5 (at 150.84s)
+      tl.set("#tx-4",  { autoAlpha: 1, scaleY: 0 }, 150.84);
+      tl.to("#tx-4",   { scaleY: 1, duration: 0.35, ease: "power3.inOut" }, 150.84);
+      tl.to("#tx-4",   { scaleY: 0, duration: 0.35, ease: "power3.inOut", transformOrigin: "bottom center" }, 151.34);
+
+      // T5: Fade to black — S5→S6 (at 181.51s)
+      tl.set("#tx-5",  { autoAlpha: 0 }, 181.51);
+      tl.to("#tx-5",   { autoAlpha: 1, duration: 0.35, ease: "power2.in"  }, 181.51);
+      tl.to("#tx-5",   { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 182.01);
+
+      // T6: Fade to black — S6→Outro (at 196.58s)
+      tl.set("#tx-6",  { autoAlpha: 0 }, 196.58);
+      tl.to("#tx-6",   { autoAlpha: 1, duration: 0.35, ease: "power2.in"  }, 196.58);
+      tl.to("#tx-6",   { autoAlpha: 0, duration: 0.35, ease: "power2.out" }, 197.08);
+    </script>
+
+  </body>
+</html>

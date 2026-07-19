@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene 01 - Tại sao phải dùng List?</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+    }
+    body::before { top: -200px; left: -200px; width: 800px; height: 800px; background: rgba(56,189,248,0.15); }
+    body::after  { bottom: -200px; right: -200px; width: 600px; height: 600px; background: rgba(168,85,247,0.15); }
+
+    #scene-01 { width: 1920px; height: 1080px; position: relative; }
+
+    .intro-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 72px; font-weight: 700;
+      color: #e6edf3;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .split-container {
+      display: flex;
+      width: 1920px; height: 1080px;
+      position: absolute; top: 0; left: 0;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 80px 80px;
+      position: relative;
+    }
+
+    .panel-left {
+      background: rgba(9,9,11,0.5);
+      border-right: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-right {
+      background: rgba(63,185,80,0.03);
+      backdrop-filter: blur(16px);
+    }
+
+    .panel-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 48px;
+    }
+    .panel-left .panel-label { color: #f85149; }
+    .panel-right .panel-label { color: #3fb950; }
+
+    .code-block {
+      font-family: 'Fira Code', monospace;
+      font-size: 34px;
+      line-height: 2;
+      text-align: left;
+    }
+
+    .var-line {
+      display: block;
+      color: #e6edf3;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .keyword  { color: #ff7b72; font-weight: bold; }
+    .string   { color: #a5d6ff; }
+    .operator { color: #d2a8ff; }
+    .bracket  { color: #d2a8ff; font-weight: 600; }
+    .variable { color: #79c0ff; }
+
+    .new-code-block {
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      padding: 40px 56px;
+      font-family: 'Fira Code', monospace;
+      font-size: 36px;
+      color: #3fb950;
+    }
+
+    .student-item { display: inline-block; }
+
+    .divider-line {
+      position: absolute;
+      top: 0; left: 50%;
+      width: 1px; height: 100%;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.08) 20%, rgba(255,255,255,0.08) 80%, transparent);
+    }
+
+    .name-box {
+      width: 120px; height: 120px;
+      border: 3px solid rgba(63,185,80,0.6);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Fira Code', monospace;
+      font-size: 22px; color: #3fb950;
+      overflow: hidden;
+    }
+    .box-name { display: block; }
+  </style>
+</head>
+<body>
+  <div id="scene-01" class="clip" data-start="0" data-duration="38.84" data-track-index="0">
+    <!-- Intro title: "Tổng quan về List trong Python" — hiển thị trước, thu nhỏ lên góc trên-trái -->
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="38.84" data-track-index="6">
+      Tổng quan về List trong Python
+    </div>
+
+    <!-- Scene main title: hiển thị sau intro-title, thu nhỏ lên góc trên căn giữa -->
+    <div id="scene-main-title" class="intro-title clip" data-start="0" data-duration="38.84" data-track-index="7">
+      Tại sao phải sử dụng List?
+    </div>
+
+    <div class="divider-line"></div>
+
+    <div class="split-container clip" data-start="0" data-duration="38.84" data-track-index="2">
+      <div class="panel panel-left">
+        <div class="panel-label">Cách cũ — Rắc rối</div>
+        <div class="code-block">
+          <span class="var-line" id="v1"><span class="variable">student1</span> <span class="operator">=</span> <span class="string">"An"</span></span>
+          <span class="var-line" id="v2"><span class="variable">student2</span> <span class="operator">=</span> <span class="string">"Bình"</span></span>
+          <span class="var-line" id="v3"><span class="variable">student3</span> <span class="operator">=</span> <span class="string">"Cường"</span></span>
+          <span class="var-line" id="v4"><span class="variable">student4</span> <span class="operator">=</span> <span class="string">"Dũng"</span></span>
+          <span class="var-line" id="v5"><span class="variable">student5</span> <span class="operator">=</span> <span class="string">"Em"</span></span>
+        </div>
+      </div>
+
+      <div class="panel panel-right">
+        <div class="panel-label">Dùng List — Gọn gàng</div>
+
+        <!-- Box animation: 5 ô vuông, tên rơi vào -->
+        <div id="boxes-row" style="display:flex; gap:16px; margin-bottom:32px; visibility:hidden;">
+          <div class="name-box" id="box-0"><span class="box-name" id="bname-0">"An"</span></div>
+          <div class="name-box" id="box-1"><span class="box-name" id="bname-1">"Bình"</span></div>
+          <div class="name-box" id="box-2"><span class="box-name" id="bname-2">"Cường"</span></div>
+          <div class="name-box" id="box-3"><span class="box-name" id="bname-3">"Dũng"</span></div>
+          <div class="name-box" id="box-4"><span class="box-name" id="bname-4">"Em"</span></div>
+        </div>
+
+        <div class="new-code-block" id="new-code-block">
+          <span class="variable">students</span> <span class="operator">=</span> <span class="bracket">[</span><span id="students-content"></span><span class="bracket">]</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-01"] = tl;
+
+    const _build01 = setInterval(function() {
+      const root = document.getElementById("scene-01");
+      if (!root) return;
+      clearInterval(_build01);
+
+      const names = ["An", "Bình", "Cường", "Dũng", "Em"];
+      const container = document.getElementById("students-content");
+      names.forEach((name, i) => {
+        const span = document.createElement("span");
+        span.className = "student-item";
+        span.id = "sname-" + i;
+        span.innerHTML = '<span class="string">"' + name + '"</span>' + (i < names.length - 1 ? '<span style="color:#e6edf3">, </span>' : '');
+        container.appendChild(span);
+      });
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+
+      // Initial hidden states — dùng tl.set để nằm trong timeline, tránh bị override
+      tl.set("#intro-title",      { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#scene-main-title", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set(".split-container",  { autoAlpha: 0 }, 0);
+      tl.set(["#v1","#v2","#v3","#v4","#v5"], { autoAlpha: 0, x: -50 }, 0);
+      tl.set("#new-code-block",   { autoAlpha: 0, y: 40 }, 0);
+      tl.set(["#box-0","#box-1","#box-2","#box-3","#box-4"], { autoAlpha: 0, scale: 0.5 }, 0);
+      names.forEach((_, i) => tl.set("#bname-" + i, { autoAlpha: 0, y: -60 }, 0));
+      names.forEach((_, i) => tl.set("#sname-" + i, { autoAlpha: 0, y: -20 }, 0));
+
+      // ── PHASE 1: intro-title ──────────────────────────────────────────
+      // 0.2s: "Tổng quan về List trong Python" fade+scale in
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+
+      // 3.2s: fade out hoàn toàn — KHÔNG có gì khác hiển thị lúc này
+      tl.to("#intro-title", { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: "power2.in" }, 3.2);
+
+      // ── PHASE 2: scene-main-title ─────────────────────────────────────
+      // 4.2s: "Tại sao phải sử dụng List?" fade+scale in (sau khi intro đã mất hẳn)
+      tl.to("#scene-main-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 4.2);
+
+      // 7.5s: thu nhỏ → góc trên căn giữa (x=0 giữ nguyên tâm, chỉ dịch lên trên)
+      tl.to("#scene-main-title", { scale: 0.38, x: 0, y: -460, duration: 0.7, ease: "power3.inOut" }, 7.5);
+
+      // ── PHASE 3: split container hiện ra SAU KHI title đã lên góc ────
+      // 8.4s: split-container visible
+      tl.to(".split-container", { autoAlpha: 1, duration: 0.4 }, 8.4);
+
+      // ── PHASE 4: v1..v5 slide in từ trái ─────────────────────────────
+      tl.to("#v1", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power3.out" }, 9.0);
+      tl.to("#v2", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power3.out" }, 9.3);
+      tl.to("#v3", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power3.out" }, 9.6);
+      tl.to("#v4", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power3.out" }, 9.9);
+      tl.to("#v5", { autoAlpha: 1, x: 0, duration: 0.45, ease: "power3.out" }, 10.2);
+
+      // 12.0s: strikethrough v1..v5
+      [1,2,3,4,5].forEach((n, i) => {
+        tl.to("#v" + n, { color: "rgba(110,118,129,0.5)", duration: 0.25 }, 12.0 + i * 0.35);
+        tl.add(() => {
+          const el = document.querySelector("#v" + n);
+          if (el && !el.querySelector(".strike")) {
+            const s = document.createElement("span");
+            s.className = "strike";
+            s.style.cssText = "position:absolute;left:0;top:50%;height:2px;background:#f85149;width:0;transform:translateY(-50%);border-radius:2px;";
+            el.style.position = "relative";
+            el.appendChild(s);
+            gsap.to(s, { width: "100%", duration: 0.35, ease: "power2.inOut" });
+          }
+        }, 12.1 + i * 0.35);
+      });
+
+      // ── PHASE 5: boxes animation ──────────────────────────────────────
+      // 20.0s: boxes-row visible, 5 ô xuất hiện
+      tl.add(() => { document.getElementById("boxes-row").style.visibility = "visible"; }, 20.0);
+      tl.to(["#box-0","#box-1","#box-2","#box-3","#box-4"], {
+        autoAlpha: 1, scale: 1, duration: 0.4, ease: "back.out(1.7)", stagger: 0.12
+      }, 20.1);
+
+      // 21.5s: tên rơi vào từng ô (bounce)
+      tl.to("#bname-0", { autoAlpha: 1, y: 0, duration: 0.4, ease: "bounce.out" }, 21.5);
+      tl.to("#bname-1", { autoAlpha: 1, y: 0, duration: 0.4, ease: "bounce.out" }, 21.9);
+      tl.to("#bname-2", { autoAlpha: 1, y: 0, duration: 0.4, ease: "bounce.out" }, 22.3);
+      tl.to("#bname-3", { autoAlpha: 1, y: 0, duration: 0.4, ease: "bounce.out" }, 22.7);
+      tl.to("#bname-4", { autoAlpha: 1, y: 0, duration: 0.4, ease: "bounce.out" }, 23.1);
+
+      // ── PHASE 6: new-code-block (cú pháp List) ───────────────────────
+      // 25.5s: new-code-block fade+slide up
+      tl.to("#new-code-block", { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 25.5);
+
+      // 27.0s: sname-0..4 stagger
+      names.forEach((_, i) => {
+        tl.to("#sname-" + i, { autoAlpha: 1, y: 0, duration: 0.45, ease: "back.out(1.7)" }, 27.0 + i * 0.3);
+      });
+
+      // 29.0s: panel-right glow
+      tl.to(".panel-right", { boxShadow: "inset 0 0 80px rgba(63,185,80,0.1)", duration: 1.2, yoyo: true, repeat: 1 }, 29.0);
+
+      // ── PHASE 7: boxes fade out trước khi scene kết thúc ─────────────
+      // 36.0s: boxes-row fade out
+      tl.to(["#box-0","#box-1","#box-2","#box-3","#box-4"], { autoAlpha: 0, duration: 0.5 }, 36.0);
+      tl.add(() => { document.getElementById("boxes-row").style.visibility = "hidden"; }, 36.6);
+
+      tl.set({}, {}, 38.84);
+    }, 50);
+  </script>
+</body>
+</html>

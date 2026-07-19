@@ -1,0 +1,604 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Color */
+  --color-primary: #1dbfaf;
+  --color-violet: #2b4dc9;
+  --color-orange: #c3841f;
+  --color-green: #3f9c12;
+  --color-red: #b82722;
+  --color-white: #ffffff;
+  --color-black: #272727;
+  --color-primary-400: #4fe4d3;
+  --color-primary-500: #2edcc7;
+  --color-red-text: #e61b1b;
+
+  /* Background */
+  --bg-violet: #b1c1fd;
+  --bg-orange: #fde0b1;
+  --bg-green: #bcefa2;
+  --bg-red: #efa5a2;
+  --bg-base: #e6fdfb;
+  --bg-white: #ffffff;
+
+  /* Size */
+  --height-input-large: 44px;
+  --height-input-medium: 40px;
+  --height-input-small: 36px;
+  --height-button-large: 44px;
+  --height-button-medium: 40px;
+  --height-button-small: 36px;
+  --h-lg: 44px;
+  --h-md: 40px;
+  --h-sm: 36px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+  border-radius: 4px;
+}
+
+@layer utilities {
+  /* Tailwind v4 đã bỏ space-y-* / space-x-*; thêm lại để tương thích ngược */
+  .space-y-1 > * + * {
+    margin-top: 0.25rem;
+  }
+  .space-y-2 > * + * {
+    margin-top: 0.5rem;
+  }
+  .space-y-2\.5 > * + * {
+    margin-top: 0.625rem;
+  }
+  .space-y-3 > * + * {
+    margin-top: 0.75rem;
+  }
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  .space-y-5 > * + * {
+    margin-top: 1.25rem;
+  }
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  .space-y-8 > * + * {
+    margin-top: 2rem;
+  }
+  .space-x-1 > * + * {
+    margin-left: 0.25rem;
+  }
+  .space-x-2 > * + * {
+    margin-left: 0.5rem;
+  }
+  .space-x-3 > * + * {
+    margin-left: 0.75rem;
+  }
+  .space-x-4 > * + * {
+    margin-left: 1rem;
+  }
+
+  .h-input-lg {
+    height: var(--h-lg);
+  }
+  .h-input-md {
+    height: var(--h-md);
+  }
+  .h-input-sm {
+    height: var(--h-sm);
+  }
+
+  .h-btn-lg {
+    height: var(--h-lg);
+  }
+  .h-btn-md {
+    height: var(--h-md);
+  }
+  .h-btn-sm {
+    height: var(--h-sm);
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Scrollbar ẩn mặc định, hiển thị khi hover */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scrollbar-hide:hover {
+    -ms-overflow-style: auto;
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-hide:hover::-webkit-scrollbar {
+    display: block;
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-hide:hover::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .scrollbar-hide:hover::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
+  .scrollbar-hide:hover::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+/* Override Antd Button disabled state */
+.ant-btn.ant-btn-primary:disabled,
+.ant-btn.ant-btn-primary[disabled] {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  opacity: 0.5;
+}
+
+/* ⚠️ Selectors dưới đây dùng antd hash (css-dev-only-do-not-override-*)
+   Các selectors này sẽ BREAK khi upgrade antd vì hash thay đổi.
+   TODO: Chuyển sang ConfigProvider token hoặc className override cụ thể. */
+
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group
+  > .ant-input:first-child,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group
+  .ant-input-group-addon:first-child {
+  height: 44px !important;
+}
+
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group
+  .ant-input-affix-wrapper:not(:last-child) {
+  height: 44px !important;
+}
+
+/* Override height cho input group khi input có height 40px (medium) */
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group:has(
+    .ant-input[class*="height-input-medium"]
+  )
+  > .ant-input:first-child,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group:has(
+    .ant-input[class*="height-input-medium"]
+  )
+  .ant-input-group-addon {
+  height: 40px !important;
+  max-height: 40px !important;
+  line-height: 40px !important;
+  box-sizing: border-box !important;
+}
+
+/* Override height cho Select trong addonAfter khi input có height 40px */
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group:has(
+    .ant-input[class*="height-input-medium"]
+  )
+  .ant-input-group-addon
+  .ant-select-single,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group:has(
+    .ant-input[class*="height-input-medium"]
+  )
+  .ant-input-group-addon
+  .ant-select-selector {
+  height: 40px !important;
+  max-height: 40px !important;
+  box-sizing: border-box !important;
+}
+
+/* Đảm bảo input group wrapper cũng có height chính xác */
+:where(.css-dev-only-do-not-override-1eyks2a).ant-input-group:has(
+    .ant-input[class*="height-input-medium"]
+  ) {
+  height: 40px !important;
+  max-height: 40px !important;
+  box-sizing: border-box !important;
+}
+
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light .ant-menu-item,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  > .ant-menu
+  .ant-menu-item,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  .ant-menu-submenu-title,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  > .ant-menu
+  .ant-menu-submenu-title {
+  color: var(--color-white) !important;
+  font-weight: 500;
+}
+
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  .ant-menu-item:hover,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  > .ant-menu
+  .ant-menu-item:hover,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  .ant-menu-submenu-title:hover,
+:where(.css-dev-only-do-not-override-1eyks2a).ant-menu-light
+  > .ant-menu
+  .ant-menu-submenu-title:hover {
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  padding: 0 20px !important;
+}
+
+:where(
+    .css-dev-only-do-not-override-1eyks2a
+  ).ant-collapse.ant-collapse-icon-position-end
+  > .ant-collapse-item
+  > .ant-collapse-header
+  .ant-collapse-expand-icon {
+  padding-top: 12px;
+}
+
+.ant-btn.ant-btn-primary:disabled,
+.ant-btn.ant-btn-primary[disabled] {
+  color: #ffffff !important;
+}
+
+/* Ẩn icon trong Select
+.ant-select-arrow,
+.ant-select-clear {
+  display: none !important;
+} */
+/* Nếu muốn mượt hơn: chỉ ẩn khi disabled */
+.select-disabled-hide-arrow.ant-select-disabled .ant-select-arrow {
+  display: none;
+}
+
+/* Chỉ áp dụng khi Select bị disabled → bỏ hết padding bên phải của text/suffix */
+:where(.css-dev-only-do-not-override-16p5q2t)
+  .ant-select-disabled
+  .ant-select-selection-item,
+:where(.css-dev-only-do-not-override-16p5q2t)
+  .ant-select-disabled
+  .ant-select-selection-placeholder,
+:where(.css-dev-only-do-not-override-16p5q2t)
+  .ant-select-disabled
+  .ant-select-selection-search {
+  padding-inline-end: 0 !important;
+}
+
+:where(.css-dev-only-do-not-override-16p5q2t).ant-popover .ant-popover-inner {
+  padding: 0;
+  width: 88px;
+}
+
+/* Splash Screen Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progress {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+
+.animate-progress {
+  animation: progress 2.5s ease-out forwards;
+}
+
+:where(.css-dev-only-do-not-override-1aqzow3).ant-menu-light.ant-menu-inline
+  .ant-menu-item,
+:where(.css-dev-only-do-not-override-1aqzow3).ant-menu-light
+  > .ant-menu.ant-menu-inline
+  .ant-menu-item,
+:where(.css-dev-only-do-not-override-1aqzow3).ant-menu-inline.ant-menu-root
+  .ant-menu-item,
+:where(.css-dev-only-do-not-override-1aqzow3).ant-menu-inline.ant-menu-root
+  .ant-menu-submenu-title {
+  color: #646970;
+}
+
+:where(.css-dev-only-do-not-override-1aqzow3).ant-menu-light
+  .ant-menu-item-selected,
+:where(.css-dev-only-do-not-override-1aqzow3).ant-menu-light
+  > .ant-menu
+  .ant-menu-item-selected {
+  background: linear-gradient(to right, #2edcc7, #4fe4d3, #78ecde) !important;
+  color: var(--color-white) !important;
+  transition: background 0.3s ease-in-out !important;
+}
+
+/* Override Ant Design Tooltip để giảm khoảng trống dưới */
+.ant-tooltip .ant-tooltip-inner {
+  padding: 4px 8px !important;
+  /* line-height: 1.5 !important; */
+  min-height: auto !important;
+}
+
+.ant-tooltip {
+  padding: 0 !important;
+}
+
+/* Custom Carousel dots style cho banner carrier */
+.carrier-banner-carousel .ant-carousel-dots {
+  bottom: 12px !important;
+}
+
+.carrier-banner-carousel .ant-carousel-dots li button {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+.carrier-banner-carousel .ant-carousel-dots li.ant-carousel-dot-active button {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(255, 255, 255, 1) !important;
+}
+
+/* Dashboard Tabs Transparency Override */
+.shipup-dashboard-tabs > .ant-tabs-content-holder {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* ========== DARK MODE GLOBAL OVERRIDES ========== */
+
+/* Ant Design Transfer dark mode */
+.dark .ant-transfer-list {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+.dark .ant-transfer-list-header {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+.dark .ant-transfer-list-content-item:hover {
+  background-color: #374151 !important;
+}
+.dark .ant-transfer-list-body-search-wrapper {
+  background-color: #1f2937 !important;
+}
+.dark .ant-transfer-operation .ant-btn {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Ant Design Select dropdown dark mode (popups are outside DOM tree) */
+.dark .ant-select-dropdown {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+.dark .ant-select-item {
+  color: #f3f4f6 !important;
+}
+.dark .ant-select-item-option-active,
+.dark .ant-select-item-option-selected {
+  background-color: #374151 !important;
+}
+.dark .ant-select-item-group {
+  color: #9ca3af !important;
+}
+
+/* Ant Design Checkbox dark mode */
+.dark .ant-checkbox-wrapper {
+  color: #f3f4f6 !important;
+}
+
+/* Ant Design List dark mode */
+.dark .ant-list-item {
+  border-color: #374151 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Ant Design Skeleton dark mode */
+.dark .ant-skeleton-element .ant-skeleton-image,
+.dark .ant-skeleton-content .ant-skeleton-title,
+.dark .ant-skeleton-content .ant-skeleton-paragraph > li {
+  background: linear-gradient(
+    90deg,
+    #1f2937 25%,
+    #374151 37%,
+    #1f2937 63%
+  ) !important;
+}
+
+/* Ant Design Tag dark mode */
+.dark .ant-tag {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Scrollbar dark mode */
+.dark ::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+.ant-table-row:hover {
+  background-color: #f5f5f5;
+  cursor: pointer;
+}
+
+:where(.css-dev-only-do-not-override-1enej14).ant-checkbox-wrapper-disabled {
+  align-items: center;
+}
+:where(.css-dev-only-do-not-override-1enej14).ant-checkbox-wrapper {
+  align-items: center;
+}
+
+:where(
+    .css-dev-only-do-not-override-1enej14
+  ).ant-collapse.ant-collapse-icon-placement-end
+  > .ant-collapse-item
+  > .ant-collapse-header
+  .ant-collapse-expand-icon {
+  padding-top: 10px;
+}
+
+/* ========== PREMIUM MARKDOWN STYLING ========== */
+.markdown-content {
+  color: #374151; /* gray-700 */
+  line-height: 1.7;
+  font-size: 15px;
+}
+.markdown-content h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+.markdown-content h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+.markdown-content h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+.markdown-content strong {
+  font-weight: 700;
+  color: #111827;
+}
+.markdown-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  margin-top: 0.25rem;
+}
+.markdown-content ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  margin-top: 0.25rem;
+}
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+.markdown-content blockquote {
+  border-left: 4px solid #1dbfaf;
+  background-color: #f9fafb;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  color: #4b5563;
+  font-style: italic;
+  border-radius: 0 4px 4px 0;
+}
+.markdown-content pre {
+  background-color: #1f2937;
+  color: #f9fafb;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+.markdown-content code {
+  background-color: #f3f4f6;
+  color: #b82722;
+  padding: 0.125rem 0.25rem;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+}
+.markdown-content pre code {
+  background-color: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+}
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+.markdown-content th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  padding: 0.625rem;
+  border: 1px solid #e5e7eb;
+}
+.markdown-content td {
+  padding: 0.625rem;
+  border: 1px solid #e5e7eb;
+}
+.markdown-content tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+.markdown-content a {
+  color: #2b4dc9;
+  text-decoration: underline;
+}
+.markdown-content a:hover {
+  color: #1dbfaf;
+}
+.markdown-content hr {
+  margin: 1.5rem 0;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}

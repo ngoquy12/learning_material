@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene 06 - Tổng kết</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+    }
+    body::before { top: -200px; left: -200px; width: 800px; height: 800px; background: rgba(56,189,248,0.15); }
+    body::after  { bottom: -200px; right: -200px; width: 600px; height: 600px; background: rgba(168,85,247,0.15); }
+
+    #scene-06 {
+      width: 1920px; height: 1080px; position: relative;
+    }
+
+    .intro-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 72px; font-weight: 700;
+      color: #e6edf3;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .summary-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 1400px;
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      padding: 64px 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-family: 'Inter', sans-serif;
+      font-size: 34px;
+      color: #c9d1d9;
+      line-height: 1.5;
+    }
+
+    .check-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(63,185,80,0.15);
+      border: 2px solid #3fb950;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3fb950;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .summary-item .kw {
+      font-family: 'Fira Code', monospace;
+      color: #79c0ff;
+      font-size: 30px;
+    }
+
+    .next-label {
+      position: absolute;
+      bottom: 60px;
+      left: 80px;
+      font-family: 'Inter', sans-serif;
+      font-size: 26px;
+      color: #3fb950;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-06" class="clip" data-start="0" data-duration="15.07" data-track-index="0">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="15.07" data-track-index="3">
+      Tổng kết
+    </div>
+
+    <!-- Summary checklist -->
+    <div class="summary-card clip" id="summary-list" data-start="0" data-duration="15.07" data-track-index="2">
+      <div class="summary-item" id="s1">
+        <div class="check-icon">✓</div>
+        <span>List là gì và tại sao cần dùng</span>
+      </div>
+      <div class="summary-item" id="s2">
+        <div class="check-icon">✓</div>
+        <span>Cú pháp: <span class="kw">list_name = [v1, v2, v3]</span></span>
+      </div>
+      <div class="summary-item" id="s3">
+        <div class="check-icon">✓</div>
+        <span>Thuật ngữ: <span class="kw">Element</span>, <span class="kw">Index</span>, <span class="kw">Length</span></span>
+      </div>
+      <div class="summary-item" id="s4">
+        <div class="check-icon">✓</div>
+        <span>Dùng <span class="kw">print()</span> và <span class="kw">len()</span> với List</span>
+      </div>
+    </div>
+
+    <div class="next-label clip" id="next-label" data-start="0" data-duration="15.07" data-track-index="1">
+      Bài tiếp theo: Truy cập phần tử trong List →
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-06"] = tl;
+
+    const _build06 = setInterval(function() {
+      const root = document.getElementById("scene-06");
+      if (!root) return;
+      clearInterval(_build06);
+
+      tl.set(".clip", { autoAlpha: 1 });
+
+      // ── Initial hidden states (inside timeline) ──────────────────────
+      tl.set("#intro-title",  { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#summary-list", { autoAlpha: 0 }, 0);
+      tl.set(["#s1","#s2","#s3","#s4"], { autoAlpha: 0, x: -50 }, 0);
+      tl.set("#next-label",   { autoAlpha: 0 }, 0);
+
+      // ── PHASE 1: intro-title ──────────────────────────────────────────
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 1.5);
+
+      // ── PHASE 2: summary-card xuất hiện sau khi intro lên góc ────────
+      tl.to("#summary-list", { autoAlpha: 1, duration: 0.4 }, 2.5);
+
+      // ── PHASE 3: s1..s4 slide in từ trái, chậm và thoáng ─────────────
+      tl.to("#s1", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 3.0);
+      tl.to("#s2", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 4.2);
+      tl.to("#s3", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 5.4);
+      tl.to("#s4", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 6.6);
+
+      // ── PHASE 4: next-label fade in ───────────────────────────────────
+      tl.to("#next-label", { autoAlpha: 1, duration: 0.7, ease: "power2.out" }, 9.5);
+
+      // ── PHASE 5: summary-card glow pulse ─────────────────────────────
+      tl.to("#summary-list", { boxShadow: "0 0 60px rgba(121,192,255,0.15)", duration: 0.8, yoyo: true, repeat: 1 }, 11.0);
+
+      tl.set({}, {}, 15.07);
+    }, 50);
+  </script>
+</body>
+</html>

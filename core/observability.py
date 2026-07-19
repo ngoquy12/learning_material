@@ -4,7 +4,7 @@ import json
 import time
 import uuid
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 
 TRACE_LOG_PATH = "trace_logs.jsonl"
 
@@ -44,11 +44,17 @@ try:
         from config.settings import OTEL_EXPORTER_OTLP_ENDPOINT
         if OTEL_EXPORTER_OTLP_ENDPOINT:
             try:
-                from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-                exporter = OTLPSpanExporter(endpoint=OTEL_EXPORTER_OTLP_ENDPOINT)
+                # Try gRPC exporter first
+                try:
+                    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+                    exporter = OTLPSpanExporter(endpoint=OTEL_EXPORTER_OTLP_ENDPOINT)
+                except ImportError:
+                    # Fallback to HTTP protobuf exporter
+                    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+                    exporter = OTLPSpanExporter(endpoint=OTEL_EXPORTER_OTLP_ENDPOINT)
                 provider.add_span_processor(BatchSpanProcessor(exporter))
             except Exception as exp_err:
-                # Fallback to console/noop if gRPC exporter import fails
+                print(f"  [Observability Warning] Failed to initialize OTLP Span Exporter: {exp_err}")
                 pass
                 
         trace.set_tracer_provider(provider)
@@ -145,5 +151,5 @@ def log_agent_call(
                 }
             )
         except Exception as lf_err:
-            print(f"  [Observability Langfuse Warning] Failed to dispatch generation trace: {lf_err}")
+            print(f"[Observability Langfuse Warning] Failed to dispatch generation trace: {lf_err}")
 

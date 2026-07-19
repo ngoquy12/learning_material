@@ -1,0 +1,15 @@
+{
+  "name": "learning-material-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "web/frontend"
+  ],
+  "scripts": {
+    "install:all": "npm install && cd web/backend && python -m venv venv && .\\venv\\Scripts\\activate && pip install -r requirements.txt",
+    "dev:frontend": "npm run dev --workspace=web/frontend",
+    "dev:backend": "cd web/backend && .\\venv\\Scripts\\activate && python -X utf8 main.py",
+    "docker:observability": "docker compose up -d",
+    "docker:stop": "docker compose down"
+  }
+}

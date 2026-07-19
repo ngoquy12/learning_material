@@ -409,8 +409,8 @@
       <header>
         <h1>Sơ Đồ Tương Tác Hệ Thống Multi-Agent</h1>
         <p class="subtitle">
-          Quy trình thiết kế ngược (Backward Design) & Xử lý song song bằng
-          Antigravity
+          Pipeline đầy đủ: PM → Prerequisite Guard → Biên dịch song song →
+          SCORM/Obsidian Export
         </p>
       </header>
 
@@ -438,9 +438,7 @@
       </div>
 
       <div class="actions">
-        <a href="docs/architecture.md" class="btn"
-          >Xem Tài Liệu Đặc Tả (architecture.md)</a
-        >
+        <a href="README.md" class="btn">📄 Xem README.md</a>
         <button class="btn btn-primary" onclick="window.print()">
           In/Xuất PDF Sơ Đồ
         </button>
@@ -448,24 +446,45 @@
 
       <div class="info-box">
         <div class="info-card">
-          <h3>1. Thiết kế ngược (Backward Design)</h3>
+          <h3>🛡️ Prerequisite Guard Agent</h3>
           <p>
-            Khởi động từ Objective Architect để định vị kết quả đầu ra mong đợi
-            trước khi thiết kế các bài học đơn lẻ.
+            Xây dựng DAG dependency graph, phát hiện vi phạm tiên quyết trước
+            khi tốn bất kỳ token nào. BLOCKER → dừng pipeline.
           </p>
         </div>
         <div class="info-card">
-          <h3>2. Vùng Nhớ Trung Tâm (SSOT)</h3>
+          <h3>🧠 Knowledge Memory Agent</h3>
           <p>
-            SQLite đóng vai trò khóa tri thức gốc, tránh việc các Agent thực thi
-            tự sinh thông tin ảo tưởng (hallucination).
+            SQLite-backed memory store phân loại 10 loại lỗi. Creator Agent
+            query trước khi sinh nội dung — không bao giờ lặp lại lỗi cũ.
           </p>
         </div>
         <div class="info-card">
-          <h3>3. Luồng Parallel Antigravity</h3>
+          <h3>💾 Semantic Cache Layer</h3>
           <p>
-            Nhóm Creator chạy song song độc lập giúp tối ưu hiệu năng và thời
-            gian xử lý của mô hình.
+            TF-IDF fuzzy matching (88% threshold) + SHA-256 exact match. Tiết
+            kiệm ~40% token cost. Tắt/bật qua SEMANTIC_CACHE_ENABLED.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>📦 SCORM 1.2 Export</h3>
+          <p>
+            Xuất toàn bộ học liệu thành file .zip chuẩn SCORM 1.2, nạp trực tiếp
+            vào Moodle, Canvas, Blackboard, TalentLMS.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>🔗 Obsidian Knowledge Vault</h3>
+          <p>
+            Graph View với prerequisite frontmatter, Prerequisite Map và
+            bidirectional WikiLinks — bản đồ lộ trình học tập trực quan.
+          </p>
+        </div>
+        <div class="info-card">
+          <h3>🔄 Self-Correction Loop</h3>
+          <p>
+            Mỗi artifact có vòng lặp Reviewer tự động sửa lỗi (tối đa 3 lần).
+            Lỗi được lưu vào Knowledge Memory để phòng tránh tương lai.
           </p>
         </div>
       </div>
@@ -474,91 +493,95 @@
     <!-- Hidden source code block of Mermaid graph -->
     <script type="text/plain" id="mermaid-code">
       graph TD
-          %% Style Definitions
           classDef input fill:#1e293b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
           classDef core fill:#312e81,stroke:#a855f7,stroke-width:2px,color:#f8fafc;
           classDef creator fill:#3c165a,stroke:#c084fc,stroke-width:1px,color:#f8fafc;
           classDef reviewer fill:#581c1c,stroke:#f87171,stroke-width:1px,color:#f8fafc;
           classDef output fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+          classDef newagent fill:#1a3a2a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
           classDef trigger fill:#7c2d12,stroke:#fb923c,stroke-width:1px,color:#f8fafc;
 
+          subgraph Phase0 [GIAI ĐOẠN 0: KIỂM DUYỆT ĐẦU VÀO]
+              PM[📋 Tài liệu PM Excel]:::input -->|Format & Content Audit| PMRev[PM Reviewer Agent]:::reviewer
+              PMRev -->|BLOCKER| PMFail[❌ Xuất pm_review_report.md & Dừng]:::trigger
+              PMRev -->|APPROVED hoặc --approve-pm| PGA[🛡️ Prerequisite Guard Agent]:::newagent
+              PGA -->|Xây dựng DAG tri thức| DepGraph[(Dependency Graph)]:::core
+              DepGraph -->|BLOCKER violation| PGAFail[❌ Xuất prerequisite_report.md & Dừng]:::trigger
+              DepGraph -->|Hợp lệ + state-prereq_data| Phase1Start
+          end
+
           subgraph Phase1 [GIAI ĐOẠN 1: HOẠCH ĐỊNH CHIẾN LƯỢC]
-              PM[Tài liệu PM Đầu Vào] -->|1. Trích xuất mục tiêu tối thượng| ID[Objective Architect Agent]:::core
-              Time[Thời gian học & Tuần tham chiếu] -->|2. Phân bổ thời lượng học| Sched[Scheduler Agent]:::core
+              Phase1Start[ ]:::core
+              Phase1Start -->|1. Trích xuất chuẩn đầu ra Bloom| ID[Objective Architect]:::core
+              Time[⏱ Thời gian tham chiếu]:::input --> Sched[Scheduler Agent]:::core
               ID --> Sched
-              Sched -->|3. Tổng hợp khái niệm & code mẫu| KB[Knowledge Base Agent]:::core
+              Sched -->|3. Tổng hợp tri thức nền| KB[Knowledge Base Agent]:::core
+              KB -->|4. Khóa SSOT| DB[(SQLite SSOT)]:::core
           end
 
-          subgraph Phase2 [GIAI ĐOẠN 2: THIẾT LẬP VÙNG NHỚ TRUNG TÂM - SSOT]
-              KB -->|4. Khóa dữ liệu và sinh Hash Key| DB[(SQLite Persistence)]:::core
+          subgraph Phase2 [GIAI ĐOẠN 2: SINH NỘI DUNG MASTER]
+              DB -->|Đọc SSOT| MC[Generate Master Content]:::core
+              KMA[🧠 Knowledge Memory Agent]:::newagent -->|Inject lessons learned| MC
+              Cache[💾 Semantic Cache Layer]:::newagent -->|88% fuzzy HIT → skip LLM| MC
+              MC -->|Master Content JSON| Creators
           end
 
-          subgraph Phase3 [GIAI ĐOẠN 3: SẢN XUẤT SONG SONG & VÒNG LẶP SỬA LỖI]
-              %% HTML Branch
-              DB -->|Đọc SSOT| HTML[HTML Writer Agent]:::creator
-              HTML -->|HTML thô| R_UX[Pedagogical & UX Reviewer]:::reviewer
-              R_UX -->|APPROVED| HTML_OK(artifacts_status: Approved):::core
-              R_UX -->|REJECTED - Feedback| HTML_FAIL{Cần sửa đổi?}:::reviewer
-              HTML_FAIL -->|Attempt < 3| HTML
-              HTML_FAIL -->|Attempt >= 3| HTML_MAX[Ghi log lỗi & Dừng]:::reviewer
+          subgraph Phase3 [GIAI ĐOẠN 3: SẢN XUẤT SONG SONG]
+              Creators[ ]:::core
+              Creators --> HTML[HTML Writer]:::creator
+              Creators --> Slide[Slide Agent]:::creator
+              Creators --> Quiz[Quiz & Lab Agent]:::creator
+              Creators --> Video[Video Script]:::creator
+              Creators --> MM[Mindmap Agent]:::creator
 
-              %% Slide Branch
-              DB -->|Đọc SSOT| Slide[Slide Agent]:::creator
-              Slide -->|Markdown Slide| R_Acad[Academic Reviewer]:::reviewer
-              R_Acad -->|APPROVED| Slide_OK(artifacts_status: Approved):::core
-              R_Acad -->|REJECTED - Terminology/Fact| Slide_FAIL{Cần sửa đổi?}:::reviewer
-              Slide_FAIL -->|Attempt < 3| Slide
-              Slide_FAIL -->|Attempt >= 3| Slide_MAX[Ghi log lỗi & Dừng]:::reviewer
+              HTML -->|Thô| R_UX[UX Reviewer]:::reviewer
+              R_UX -->|APPROVED| HTML_OK(HTML ✅):::core
+              R_UX -->|REJECTED x3| HTML
 
-              %% Quiz Branch
-              DB -->|Đọc SSOT| Quiz[Quiz & Lab Agent]:::creator
-              Quiz -->|JSON Quiz & Lab| R_Sand[Sandbox Testing Agent]:::reviewer
-              R_Sand -->|APPROVED| Quiz_OK(artifacts_status: Approved):::core
-              R_Sand -->|REJECTED - Code/Logic Error| Quiz_FAIL{Cần sửa đổi?}:::reviewer
-              Quiz_FAIL -->|Attempt < 3| Quiz
-              Quiz_FAIL -->|Attempt >= 3| Quiz_MAX[Ghi log lỗi & Dừng]:::reviewer
+              Slide -->|Thô| R_Acad[Academic Reviewer]:::reviewer
+              R_Acad -->|APPROVED| Slide_OK(Slide ✅):::core
+              R_Acad -->|REJECTED x3| Slide
 
-              %% Video & Mindmap
-              DB -->|Đọc SSOT| Video[Video Script Agent]:::creator
-              DB -->|Đọc SSOT| MM[Mindmap Agent]:::creator
+              Quiz -->|JSON| R_Sand[Sandbox Testing Agent]:::reviewer
+              R_Sand -->|APPROVED| Quiz_OK(Quiz ✅):::core
+              R_Sand -->|REJECTED x3| Quiz
+
+              Video --> Video_OK(Video ✅):::core
+              MM --> MM_OK(Mindmap ✅):::core
           end
 
           subgraph Phase4 [GIAI ĐOẠN 4: BIÊN DỊCH & XUẤT BẢN]
-              HTML_OK --> Comp[Session Compiler Node]:::core
+              HTML_OK --> Comp[Session Compiler]:::core
               Slide_OK --> Comp
               Quiz_OK --> Comp
-              Video --> Comp
-              MM --> Comp
-
-              Comp -->|Tạo thư mục cây & Ghi file| Publish[Publisher Engine]:::core
-
-              %% Outputs
-              Publish -->|5. Xuất bài đọc| Out_HTML[HTML Tương Tác / Bài đọc]:::output
-              Publish -->|6. Chạy Marp CLI npx| Out_Slide[Marp Slide HTML / Bài giảng]:::output
-              Publish -->|7. Lưu Quiz bài học| Out_Quiz[Quiz JSON / Bài tập]:::output
-              Publish -->|8. Lưu Kịch bản| Out_Video[Kịch bản video / Kịch bản video]:::output
-              Publish -->|9. Lưu Sơ đồ| Out_MM[Mindmap MD / Mindmap]:::output
-
-              %% Session level Quiz
-              Publish -->|10. Sinh Quiz đầu/cuối giờ| SessQuiz[Session Quiz Engine]:::core
-              SessQuiz -->|Xuất Excel 13 cột| Out_Excel[Excel Quizz_Dau_Gio / Quizz_Cuoi_Gio.xlsx]:::output
+              Video_OK --> Comp
+              MM_OK --> Comp
+              Comp -->|Marp CLI + ghi file| Publish[Publisher Engine]:::core
+              Publish --> Out_HTML[📖 reading.html]:::output
+              Publish --> Out_Slide[🖼️ slides.html]:::output
+              Publish --> Out_Quiz[❓ quiz.json]:::output
+              Publish --> Out_Video[🎬 video_script.md]:::output
+              Publish --> Out_MM[🧠 mindmap.md]:::output
+              Publish --> SessQuiz[Session Quiz Engine]:::core
+              SessQuiz --> Out_Excel[📊 Excel Quiz]:::output
           end
 
-          subgraph Phase5 [GIAI ĐOẠN 5: ĐÚC RÚT KINH NGHIỆM - SELF-LEARNING]
-              Publish -->|11. Phân tích nhật ký review_logs| Learn[Lessons Learned Agent]:::core
-              Learn -->|12. Tích lũy quy tắc mới| Skills[skills/lessons_learned/SKILL.md]:::output
-              Skills -->|13. Làm giàu tri thức tiền đề| HTML
-              Skills -->|14. Làm giàu tri thức tiền đề| Slide
-              Skills -->|15. Làm giàu tri thức tiền đề| Quiz
+          subgraph Phase5 [GIAI ĐOẠN 5: TRÍ NHỚ & XUẤT BẢN NÂNG CAO]
+              Publish -->|Phân tích review_logs| KMA
+              KMA -->|SQLite structured store| KMADB[(knowledge_store.db)]:::output
+              KMADB -->|Tích lũy quy tắc| HTML
+              KMADB -->|Tích lũy quy tắc| Slide
+              KMADB -->|Tích lũy quy tắc| Quiz
+
+              Publish -->|--obsidian flag| OKL[🔗 Obsidian Knowledge Linker]:::newagent
+              DepGraph --> OKL
+              OKL --> Vault[📁 Obsidian Vault + Prereq Map]:::output
+
+              Publish -->|--scorm flag| SCORM[📦 SCORM Exporter]:::newagent
+              SCORM --> SCORMZip[📦 SCORM 1.2 .zip → Moodle/Canvas]:::output
           end
 
-          subgraph Reactive [CƠ CHẾ PHẢN ỨNG DÂY CHUYỀN - REACTIVE UPDATE]
-              UserEdit[User sửa SSOT / Data Admin] -->|1. Phát sự kiện thay đổi| DB_Trigger[DB Event Trigger]:::trigger
-              DB_Trigger -->|2. Đánh dấu trạng thái| OutdatedFlag[Đặt artifacts_status = Outdated]:::trigger
-              OutdatedFlag -->|3. Tái khởi động| DB
-          end
-
-          class PM,Time,UserEdit input;
+          class PM,Time input;
     </script>
 
     <!-- Load Mermaid JS from CDN and Render manually -->
@@ -582,20 +605,35 @@
         {
           nodes: ["PM"],
           edges: [],
-          title: "Bước 1: Nhập tài liệu PM",
-          desc: "Khởi đầu quy trình bằng cách tải tệp cấu hình Excel chứa khung chương trình môn học.",
+          title: "Bước 1: Nhập tài liệu PM Excel",
+          desc: "Khởi đầu quy trình bằng cách tải file PM Excel chứa toàn bộ khung chương trình môn học (Session/Lesson/Details).",
         },
         {
-          nodes: ["ID"],
-          edges: [["PM", "ID"]],
-          title: "Bước 2: Hoạch định mục tiêu",
-          desc: "Objective Architect Agent trích xuất mục tiêu tối thượng và xây dựng chuẩn đầu ra tổng quát.",
+          nodes: ["PMRev"],
+          edges: [["PM", "PMRev"]],
+          title: "Bước 2: PM Reviewer Agent",
+          desc: "Kiểm duyệt format và nội dung PM. Nếu phát hiện vấn đề nghiêm trọng → xuất pm_review_report.md và dừng pipeline.",
         },
         {
-          nodes: ["Time"],
-          edges: [],
-          title: "Bước 3: Xác định thời lượng",
-          desc: "Hệ thống tiếp nhận thông số tuần học và thời gian tự học của sinh viên.",
+          nodes: ["PGA"],
+          edges: [["PMRev", "PGA"]],
+          title: "Bước 3: Prerequisite Guard Agent 🆕",
+          desc: "Xây dựng DAG dependency graph toàn bộ curriculum. Phát hiện vi phạm tiên quyết (BLOCKER) trước khi tốn token LLM.",
+        },
+        {
+          nodes: ["DepGraph"],
+          edges: [["PGA", "DepGraph"]],
+          title: "Bước 4: Dependency Graph",
+          desc: "Đồ thị định hướng không chu trình (DAG) thể hiện mối quan hệ tiên quyết giữa tất cả các Session và Lesson.",
+        },
+        {
+          nodes: ["Phase1Start", "ID"],
+          edges: [
+            ["DepGraph", "Phase1Start"],
+            ["Phase1Start", "ID"],
+          ],
+          title: "Bước 5: Objective Architect Agent",
+          desc: "Trích xuất chuẩn đầu ra học tập theo Thang đo Bloom (L1-L6). Có vòng lặp tự sửa với Objective Reviewer (max 3 lần).",
         },
         {
           nodes: ["Sched"],
@@ -603,32 +641,33 @@
             ["ID", "Sched"],
             ["Time", "Sched"],
           ],
-          title: "Bước 4: Thiết lập lịch học",
-          desc: "Scheduler Agent phân bổ khối lượng kiến thức đều đặn cho các Session để cân bằng tải nhận thức.",
+          title: "Bước 6: Scheduler Agent",
+          desc: "Phân bổ khối lượng kiến thức theo tuần học, cân bằng Cognitive Load cho sinh viên.",
         },
         {
-          nodes: ["KB"],
-          edges: [["Sched", "KB"]],
-          title: "Bước 5: Xác lập nền tảng tri thức",
-          desc: "Knowledge Base Agent tổng hợp khái niệm lý thuyết cốt lõi, tìm kiếm code mẫu chuẩn.",
+          nodes: ["KB", "DB"],
+          edges: [
+            ["Sched", "KB"],
+            ["KB", "DB"],
+          ],
+          title: "Bước 7: Knowledge Base → Khóa SSOT",
+          desc: "Knowledge Base Agent tổng hợp tri thức nền. Sau đó toàn bộ dữ liệu được khóa vào SQLite làm Nguồn Sự Thật Duy Nhất (SSOT).",
         },
         {
-          nodes: ["DB"],
-          edges: [["KB", "DB"]],
-          title: "Bước 6: Khóa vùng nhớ SSOT",
-          desc: "Lưu trữ toàn bộ cấu trúc học liệu vào SQLite Database để làm chuẩn duy nhất, chống ảo tưởng thông tin.",
+          nodes: ["KMA", "Cache", "MC"],
+          edges: [
+            ["DB", "MC"],
+            ["KMA", "MC"],
+            ["Cache", "MC"],
+          ],
+          title: "Bước 8: Generate Master Content 🆕",
+          desc: "Knowledge Memory Agent inject kinh nghiệm. Semantic Cache kiểm tra 88% similarity — nếu HIT thì bỏ qua LLM. Ngược lại gọi LLM sinh Master Content JSON.",
         },
         {
           nodes: ["HTML", "Slide", "Quiz", "Video", "MM"],
-          edges: [
-            ["DB", "HTML"],
-            ["DB", "Slide"],
-            ["DB", "Quiz"],
-            ["DB", "Video"],
-            ["DB", "MM"],
-          ],
-          title: "Bước 7: Sản xuất song song",
-          desc: "Các Creator Agents (HTML, Slide, Quiz, Video, Mindmap) đồng loạt khởi chạy song song để tối đa hóa hiệu năng.",
+          edges: [["MC", "Creators"]],
+          title: "Bước 9: Sản xuất Song song",
+          desc: "5 Creator Agents (HTML, Slide, Quiz, Video, Mindmap) chạy tuần tự theo chuỗi ưu tiên, mỗi agent đọc Master Content từ state.",
         },
         {
           nodes: ["R_UX", "R_Acad", "R_Sand"],
@@ -637,36 +676,29 @@
             ["Slide", "R_Acad"],
             ["Quiz", "R_Sand"],
           ],
-          title: "Bước 8: Review & Kiểm thử Sandbox",
-          desc: "Các Reviewer đánh giá tính sư phạm, tính học thuật và thực thi thử nghiệm mã nguồn trong môi trường Sandbox cô lập.",
+          title: "Bước 10: Review & Sandbox Testing",
+          desc: "Reviewer đánh giá sư phạm, học thuật. Sandbox chạy thử code trong Docker container cô lập. Reject → feedback → retry (tối đa 3 lần).",
         },
         {
-          nodes: ["HTML_OK", "Slide_OK", "Quiz_OK"],
+          nodes: ["HTML_OK", "Slide_OK", "Quiz_OK", "Video_OK", "MM_OK"],
           edges: [
             ["R_UX", "HTML_OK"],
             ["R_Acad", "Slide_OK"],
             ["R_Sand", "Quiz_OK"],
           ],
-          title: "Bước 9: Phê duyệt học liệu",
-          desc: "Các tài nguyên vượt qua bài kiểm tra sẽ được đánh dấu trạng thái Approved để chuẩn bị đóng gói.",
+          title: "Bước 11: Phê duyệt học liệu",
+          desc: "Các artifact vượt qua Review được đánh dấu Approved. Lỗi được ghi vào review_logs để KMA học sau.",
         },
         {
-          nodes: ["Comp"],
+          nodes: ["Comp", "Publish"],
           edges: [
             ["HTML_OK", "Comp"],
             ["Slide_OK", "Comp"],
             ["Quiz_OK", "Comp"],
-            ["Video", "Comp"],
-            ["MM", "Comp"],
+            ["Comp", "Publish"],
           ],
-          title: "Bước 10: Thu gom và Biên dịch",
-          desc: "Compiler Node thu gom toàn bộ tri thức đã được duyệt để biên dịch thống nhất.",
-        },
-        {
-          nodes: ["Publish"],
-          edges: [["Comp", "Publish"]],
-          title: "Bước 11: Đóng gói Vật lý",
-          desc: "Publisher Engine ghi file ra ổ đĩa, tự động chạy Marp CLI để kết xuất slides bài giảng dạng HTML.",
+          title: "Bước 12: Compiler & Publisher",
+          desc: "Session Compiler thu gom artifacts, chạy Marp CLI biên dịch slides. Publisher ghi file vật lý vào output/course/Session/Lesson/.",
         },
         {
           nodes: [
@@ -681,34 +713,44 @@
             ["Publish", "Out_HTML"],
             ["Publish", "Out_Slide"],
             ["Publish", "Out_Quiz"],
-            ["Publish", "Out_Video"],
-            ["Publish", "Out_MM"],
             ["Publish", "SessQuiz"],
             ["SessQuiz", "Out_Excel"],
           ],
-          title: "Bước 12: Xuất bản bộ học liệu hoàn chỉnh",
-          desc: "Tạo thành công hệ thống học liệu đa kênh gồm Bài đọc, Slide, Quiz trắc nghiệm, Kịch bản video và Sơ đồ tư duy.",
+          title: "Bước 13: Xuất bản Học liệu Hoàn chỉnh",
+          desc: "Hệ thống tạo thành công: reading.html, slides.html, quiz.json, video_script.md, mindmap.md và Excel Quiz đầu/cuối giờ.",
         },
         {
-          nodes: ["Learn"],
-          edges: [["Publish", "Learn"]],
-          title: "Bước 13: Đúc rút kinh nghiệm",
-          desc: "Lessons Learned Agent tự động phân tích nhật ký lỗi từ Reviewer sau các lượt sửa đổi.",
-        },
-        {
-          nodes: ["Skills"],
+          nodes: ["KMA", "KMADB"],
           edges: [
-            ["Learn", "Skills"],
-            ["Skills", "HTML"],
-            ["Skills", "Slide"],
-            ["Skills", "Quiz"],
+            ["Publish", "KMA"],
+            ["KMA", "KMADB"],
           ],
-          title: "Bước 14: Tích lũy tri thức tiến hóa",
-          desc: "Lưu quy tắc chặn lỗi mới vào SKILL.md để các thế hệ Agent sau không bao giờ lặp lại lỗi cũ.",
+          title: "Bước 14: Knowledge Memory Agent 🆕",
+          desc: "Phân tích review_logs, phân loại lỗi (10 categories), lưu Bad/Good examples vào SQLite. Creator Agent sẽ query kho này ở lần chạy sau.",
+        },
+        {
+          nodes: ["OKL", "Vault"],
+          edges: [
+            ["Publish", "OKL"],
+            ["DepGraph", "OKL"],
+            ["OKL", "Vault"],
+          ],
+          title: "Bước 15: Obsidian Knowledge Vault 🆕",
+          desc: "ObsidianKnowledgeLinker tạo vault với prerequisite frontmatter, Prerequisite Map.md và bidirectional WikiLinks. Mở Graph View trong Obsidian để xem bản đồ lộ trình.",
+        },
+        {
+          nodes: ["SCORM", "SCORMZip"],
+          edges: [
+            ["Publish", "SCORM"],
+            ["SCORM", "SCORMZip"],
+          ],
+          title: "Bước 16: SCORM Export 🆕",
+          desc: "SCORM Exporter đóng gói toàn bộ học liệu thành file .zip chuẩn SCORM 1.2. Nạp trực tiếp vào Moodle, Canvas, Blackboard hoặc TalentLMS.",
         },
       ];
 
       let currentStep = -1;
+
       let simTimeout = null;
       let panZoomInstance = null;
 

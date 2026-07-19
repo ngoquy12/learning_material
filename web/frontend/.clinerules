@@ -1,0 +1,33 @@
+# HIẾN PHÁP DỰ ÁN FRONTEND ADMIN GUAI (REACT + VITE)
+
+Nguyên tắc này áp dụng cho TẤT CẢ các phản hồi, tạo file, và sửa đổi code. Tuyệt đối không được vi phạm.
+
+## 1. GIAO TIẾP VÀ NGÔN NGỮ
+- **Ngôn ngữ chat:** LUÔN LUÔN trả lời và giải thích bằng Tiếng Việt.
+- **Ngôn ngữ Code:** Tên component, thư mục, hàm bằng Tiếng Anh. Dùng `kebab-case` cho tên file (vd: `user-table.tsx`).
+- **Giao diện:** Văn bản hiển thị trên màn hình Admin phải là Tiếng Việt mạch lạc, chuyên nghiệp.
+- **Ngôn ngữ Code:** Tên biến, hàm, class, file, interface bắt buộc 100% bằng Tiếng Anh.
+- **Comments & JSDoc:** Giải thích logic phức tạp bằng Tiếng Việt để team dễ đọc. Mỗi hàm UseCase phức tạp phải có JSDoc bằng Tiếng Việt. Gồm các thông tin như @params, @returns, @throws, @description, và giải thích logic nghiệp vụ.
+
+## 2. KIẾN TRÚC (FEATURE-SLICED DESIGN / MODULAR)
+- Dự án chạy bằng React + Vite (Client-side Rendering). Không dùng cú pháp của Next.js (không `<Image>`, không SSR).
+- Code phải chia theo Feature (vd: `src/features/auth`, `src/features/users`). Tách biệt rõ UI Components, API logic, và State.
+
+## 3. UI/UX DÀNH CHO DASHBOARD ADMIN
+- Không gian Dashboard cần sự gọn gàng, pad/margin chuẩn. Mật độ hiển thị (density) tối ưu cho việc đọc nhiều dữ liệu.
+- **Bảng dữ liệu (Data Table):** Luôn phải tính đến việc hiển thị Loading skeleton, Xử lý khi mảng rỗng (Empty state), hỗ trợ Phân trang (Pagination) và Lọc (Filtering) trên server.
+- **Form (Biểu mẫu):** Bắt buộc phải sử dụng `react-hook-form` kết hợp `zod` để validate. Xử lý hiển thị thông báo lỗi (Error messages) rõ ràng ngay dưới input. Tránh validate sơ sài.
+- UI Framework (Tailwind/Ant Design) phải tuân theo cấu hình Design System hiện tại của dự án, không tự ý hardcode màu lạ (vd: không dùng `#FF0000`, hãy dùng biến màu Tailwind).
+
+## 4. QUẢN LÝ API & STATE
+- **Axios Instance:** Mọi lời gọi API phải thông qua `apiClient` (`src/shared/api/base.ts`). 
+- Bắt buộc phải xử lý cấu hình `withCredentials: true` (hoặc đã cấu hình trong base) để đẩy HttpOnly Cookie đi.
+- **React Query:** Xử lý data fetching bằng Tanstack Query. Luôn nhớ Invalidate Queries (`queryClient.invalidateQueries`) sau khi gọi Mutation (Create/Update/Delete) thành công.
+- Xử lý lỗi toàn cục: Lỗi 401/403 phải tự động đá về `/login` hoặc hiển thị thông báo "Không đủ quyền". Lỗi 400 hiển thị Toast message rõ ràng.
+
+## 5. BẢO MẬT & QUYỀN TRUY CẬP (RBAC)
+- Khác với Frontend User, Admin panel có phân quyền phức tạp. Chỉ render các nút/hành động nguy hiểm (Xóa, Sửa tiền, Khóa tài khoản) nếu userInfo có quyền (Role) tương ứng.
+- **Idempotency:** Các thao tác nạp/trừ tiền, duyệt đơn hàng bắt buộc phải gọi API an toàn (không gửi đúp request khi người dùng bấm nút 2 lần liên tục $\rightarrow$ luôn dùng `isPending` disable button).
+
+## 6. TYPE SAFETY
+- CẤM `any`. Mọi DTO trả về từ API Backend phải được khai báo Type/Interface cực kỳ nghiêm ngặt tại thư mục `types` hoặc ngay trong file service.

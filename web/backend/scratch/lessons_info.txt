@@ -1,0 +1,54 @@
+=== LESSONS FOR SESSION 94 ===
+Lesson ID: 99, Name: Lesson 01, Title: Tổng quan kiến trúc web và FastAPI
+  Outline Artifact ID: 42, Status: Completed
+  Outline Content Snippet:
+```markmap
+# Session 94: Tổng quan Kiến trúc Web và FastAPI
+
+## Mục tiêu bài học
+- Nắm vững nguyên lý hoạt động của mô hình Client-Server và giao thức HTTP.
+- Làm chủ cách thiết lập môi trường ảo và khởi tạo dự án FastAPI độc lập.
+- Xây dựng, cấu hình và vận hành thành công Endpoint đầu tiên bằng Uvicorn.
+
+## Mô hình Client-Server
+### Khái niệm cốt lõi
+- Mô hình mạng phân chia vai trò rõ rệt giữa bên gửi yêu cầu (Client) và bên tiếp nhận, xử lý và phản hồi (Server).
+### Cú pháp & Cách khai báo
+-
+
+Lesson ID: 100, Name: Lesson 02, Title: Thiết lập môi trường và Virtual Environment
+  Outline Artifact ID: 21, Status: Completed
+  Outline Content Snippet:
+```markmap
+# Session 02: Thiết lập Môi trường ảo và Quản lý Thư viện trong Python
+
+## Mục tiêu bài học
+- Hiểu bản chất và thiết lập thành công môi trường ảo venv để cô lập dự án.
+- Sử dụng thành thạo công cụ pip để quản lý các gói thư viện Python.
+- Nắm vững cách quản lý phần phụ thuộc của dự án qua tệp requirements.txt.
+
+## môi trường ảo (venv)
+### Khái niệm cốt lõi
+- Không gian hoạt động độc lập chứa bản sao Python và thư viện riêng, ngăn chặn xung đột phiên bản giữa các dự án.
+- ![](../images
+
+Lesson ID: 101, Name: Lesson 03, Title: Khởi tạo ứng dụng FastAPI
+  Outline Artifact ID: 25, Status: Failed
+  Outline Content Snippet:
+None
+
+Lesson ID: 102, Name: Lesson 04, Title: API endpoint và routing
+  Outline Artifact ID: 29, Status: Failed
+  Outline Content Snippet:
+None
+
+Lesson ID: 103, Name: Lesson 05, Title: Swagger UI & ReDoc
+  Outline Artifact ID: 33, Status: Failed
+  Outline Content Snippet:
+None
+
+Lesson ID: 104, Name: Lesson 06, Title: Bản chất của OpenAPI trong FastAPI (Bổ sung từ AI)
+  Outline Artifact ID: 37, Status: Failed
+  Outline Content Snippet:
+None
+

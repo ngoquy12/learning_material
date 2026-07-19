@@ -9,7 +9,7 @@ def compile_session_html(session_dir: Path, session_title: str):
     extracts their body content, wraps them in collapsible accordion cards,
     and writes a unified premium session-level reading_all.html with a sticky left sidebar.
     """
-    html_files = sorted(list(session_dir.glob("lesson_*/Bài đọc/reading.html")))
+    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")))
     if not html_files:
         return
         
@@ -32,14 +32,18 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
     desktop_nav_buttons = []
     collapse_cards = []
     
-    for idx, path in enumerate(html_files, 1):
+    for idx, item in enumerate(html_files, 1):
         try:
-            with open(path, "r", encoding="utf-8") as f:
-                content = f.read()
-                
-            # Extract lesson title
-            title_match = re.search(r"<title>(.*?)</title>", content)
-            raw_title = title_match.group(1).replace(" - Trực quan hóa & Tương tác Động", "").strip() if title_match else f"Bài học {idx}"
+            if isinstance(item, dict):
+                content = item.get("content") or ""
+                raw_title = item.get("title") or f"Bài học {idx}"
+            else:
+                with open(item, "r", encoding="utf-8") as f:
+                    content = f.read()
+                # Extract lesson title
+                title_match = re.search(r"<title>(.*?)</title>", content)
+                raw_title = title_match.group(1).replace(" - Trực quan hóa & Tương tác Động", "").strip() if title_match else f"Bài học {idx}"
+            
             m = re.search(r'Lesson\s+(\d+)\s*[:-]\s*(.*)', raw_title, re.IGNORECASE)
             if m:
                 full_lesson_name = f'Lesson {m.group(1).zfill(2)} - {m.group(2).strip()}'
@@ -211,6 +215,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs2015.min.css"
     />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
     <style>
       :root {{
@@ -1818,64 +1823,280 @@ def compile_session_mindmap(session_dir: Path, session_title: str):
     Finds all lesson-level mindmap.md files in session_dir subfolders,
     and merges them into a single session-level mindmap_all.md file.
     """
-    mindmap_files = sorted(list(session_dir.glob("lesson_*/Mindmap/mindmap.md")))
+    import re
+    import mistune
+    
+    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")))
     if not mindmap_files:
         return
         
     print(f"  [Session Compiler] Merging {len(mindmap_files)} lesson mindmaps into mindmap_all.md...")
     
+    mindmap_data = []
+    for idx, path in enumerate(mindmap_files, 1):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+            mindmap_data.append({
+                "content": content,
+                "title": None
+            })
+        except Exception as e:
+            print(f"  [Session Compiler Warning] Failed to read mindmap {path}: {e}")
+            
+    if not mindmap_data:
+        return
+        
+    compiled_markdown = compile_session_mindmap_markdown(session_title, mindmap_data)
+    
+    output_path = session_dir / "mindmap_all.md"
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(compiled_markdown)
+    print(f"  [Session Compiler] Successfully compiled {output_path.name}")
+
+def render_inline(node):
+    ntype = node.get('type')
+    if ntype == 'text':
+        return node.get('raw', '')
+    elif ntype == 'strong':
+        return f"**{render_inline_list(node.get('children', []))}**"
+    elif ntype == 'emphasis':
+        return f"*{render_inline_list(node.get('children', []))}*"
+    elif ntype == 'codespan':
+        return f"`{node.get('raw', '')}`"
+    elif ntype == 'link':
+        url = node.get('attrs', {}).get('url', '')
+        return f"[{render_inline_list(node.get('children', []))}]({url})"
+    elif ntype == 'image':
+        url = node.get('attrs', {}).get('url', '')
+        alt = node.get('attrs', {}).get('alt', '') or render_inline_list(node.get('children', []))
+        return f"![{alt}]({url})"
+    elif ntype == 'softbreak':
+        return "\n"
+    elif ntype == 'linebreak':
+        return "  \n"
+    elif ntype == 'inline_html':
+        return node.get('raw', '')
+    else:
+        if 'children' in node:
+            return render_inline_list(node['children'])
+        return node.get('raw', '')
+
+def render_inline_list(nodes):
+    return "".join(render_inline(n) for n in nodes)
+
+def render_block(node, level_shift=0):
+    ntype = node.get('type')
+    if ntype == 'heading':
+        level = node.get('attrs', {}).get('level', 1) + level_shift
+        title = render_inline_list(node.get('children', []))
+        return f"{'#' * level} {title}"
+    elif ntype == 'paragraph':
+        return render_inline_list(node.get('children', []))
+    elif ntype == 'block_text':
+        return render_inline_list(node.get('children', []))
+    elif ntype == 'block_code':
+        info = node.get('attrs', {}).get('info', '')
+        raw_code = node.get('raw', '')
+        return f"```{info}\n{raw_code}```"
+    elif ntype == 'list':
+        ordered = node.get('attrs', {}).get('ordered', False)
+        bullet = node.get('bullet', '-')
+        lines = []
+        for idx, item in enumerate(node.get('children', []), 1):
+            item_text = render_block(item, level_shift)
+            indented_item_text = "\n".join(
+                ("  " + l if i > 0 else l)
+                for i, l in enumerate(item_text.splitlines())
+            )
+            prefix = f"{idx}. " if ordered else f"{bullet} "
+            lines.append(f"{prefix}{indented_item_text}")
+        return "\n".join(lines)
+    elif ntype == 'list_item':
+        children = node.get('children', [])
+        has_sublist = any(c.get('type') == 'list' for c in children)
+        join_str = "\n" if has_sublist else "\n\n"
+        return render_block_list(children, level_shift, join_str)
+    elif ntype == 'thematic_break':
+        return "---"
+    elif ntype == 'block_quote':
+        quote_text = render_block_list(node.get('children', []), level_shift)
+        return "\n".join(f"> {l}" for l in quote_text.splitlines())
+    elif ntype == 'blank_line':
+        return ""
+    else:
+        if 'children' in node:
+            return render_block_list(node['children'], level_shift)
+        return node.get('raw', '')
+
+def render_block_list(nodes, level_shift=0, join_str="\n\n"):
+    parts = []
+    for node in nodes:
+        rendered = render_block(node, level_shift)
+        if rendered is not None:
+            parts.append(rendered)
+    return join_str.join(parts)
+
+def strip_yaml_frontmatter(content: str) -> str:
+    content = re.sub(r'^\s*---\s*\n.*?\n---\s*\n', '', content, flags=re.DOTALL)
+    return content.strip()
+
+def clean_markmap_content(content: str) -> str:
+    content = content.strip()
+    if not content.startswith("```"):
+        return content
+
+    lines = content.splitlines()
+    if lines and lines[0].strip().startswith("```"):
+        lines.pop(0)
+
+    while lines and lines[-1].strip() == "":
+        lines.pop()
+
+    while lines:
+        last_line = lines[-1].strip()
+        if last_line == "```":
+            num_open = 0
+            num_close = 0
+            for line in lines:
+                stripped = line.strip()
+                if stripped.startswith("```"):
+                    if len(stripped) > 3 and stripped[3].isalnum():
+                        num_open += 1
+                    elif stripped == "```":
+                        num_close += 1
+            if num_close > num_open:
+                lines.pop()
+                while lines and lines[-1].strip() == "":
+                    lines.pop()
+            else:
+                break
+        else:
+            break
+
+    return "\n".join(lines).strip()
+
+def extract_and_remove_objectives(nodes):
+    objectives = []
+    nodes_to_remove = []
+    for i, node in enumerate(nodes):
+        if node.get('type') == 'heading':
+            title = render_inline_list(node.get('children', [])).strip().lower()
+            if title == 'mục tiêu bài học':
+                nodes_to_remove.append(node)
+                if i + 1 < len(nodes) and nodes[i+1].get('type') == 'list':
+                    list_node = nodes[i+1]
+                    nodes_to_remove.append(list_node)
+                    for item in list_node.get('children', []):
+                        item_text = render_block(item).strip()
+                        if item_text:
+                            item_text_clean = re.sub(r'^[-*\d\.\s]+', '', item_text).strip()
+                            objectives.append(item_text_clean)
+                break
+    cleaned_nodes = [n for n in nodes if n not in nodes_to_remove]
+    return cleaned_nodes, objectives
+
+def process_lesson_nodes(nodes, lesson_title_fallback):
+    cleaned_nodes = []
+    replaced_first_header = False
+    
+    for node in nodes:
+        if node.get('type') == 'heading':
+            level = node.get('attrs', {}).get('level', 1)
+            if level == 1 and not replaced_first_header:
+                title = render_inline_list(node.get('children', []))
+                title_to_use = lesson_title_fallback or title
+                
+                if ":" in title_to_use:
+                    parts = title_to_use.split(":", 1)
+                    first_part_lower = parts[0].strip().lower()
+                    if "session" in first_part_lower or "lesson" in first_part_lower:
+                        title_to_use = parts[1].strip()
+                        
+                cleaned_title = re.sub(
+                    r'^(?:Lesson\s*\d+|\d+)\s*(?:[:\-\.]\s*)?', 
+                    '', 
+                    title_to_use, 
+                    flags=re.IGNORECASE
+                ).strip()
+                
+                cleaned_nodes.append({
+                    'type': 'heading',
+                    'attrs': {'level': 2},
+                    'children': [{'type': 'text', 'raw': cleaned_title}]
+                })
+                replaced_first_header = True
+            else:
+                new_level = level + 1
+                cleaned_nodes.append({
+                    'type': 'heading',
+                    'attrs': {'level': new_level},
+                    'children': node.get('children', [])
+                })
+        else:
+            cleaned_nodes.append(node)
+            
+    return cleaned_nodes
+
+def compile_session_mindmap_markdown(session_title: str, mindmap_data: list) -> str:
+    """
+    Combines individual lesson mindmap Markdown content into a single session-level mindmap.
+    """
+    import re
+    import mistune
+    
+    session_objectives = []
+    lesson_contents = []
+    
+    parser = mistune.create_markdown(renderer='ast')
+
+    for idx, item in enumerate(mindmap_data, 1):
+        try:
+            content = item.get("content", "")
+            if not content:
+                continue
+            
+            content = clean_markmap_content(content)
+            content = strip_yaml_frontmatter(content)
+            
+            ast_nodes = parser(content)
+            cleaned_nodes, objs = extract_and_remove_objectives(ast_nodes)
+            session_objectives.extend(objs)
+            
+            lesson_title_fallback = item.get("title") or f"Lesson {idx}"
+            processed_nodes = process_lesson_nodes(cleaned_nodes, lesson_title_fallback)
+            
+            lesson_markdown = render_block_list(processed_nodes)
+            lesson_contents.append(lesson_markdown)
+        except Exception as e:
+            print(f"  [Session Compiler Warning] Failed to parse mindmap data for lesson {idx}: {e}")
+
     merged_lines = [
         "---",
         "markmap:",
-        "  colorFreezeLevel: 2",
+        "  colorFreezeLevel: 3",
         "---",
         f"# {session_title}",
         ""
     ]
-    
-    for idx, path in enumerate(mindmap_files, 1):
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-                
-            # Filter YAML frontmatter if present
-            yaml_indices = [i for i, line in enumerate(lines) if line.strip() == "---"]
-            content_start = 0
-            if len(yaml_indices) >= 2:
-                content_start = yaml_indices[1] + 1
-                
-            lesson_lines = lines[content_start:]
-            
-            # Find lesson title or use folder name as heading
-            lesson_title_candidate = f"Lesson {idx}"
-            for line in lesson_lines:
-                if line.startswith("# "):
-                    lesson_title_candidate = line.replace("# ", "").strip()
-                    break
-                elif line.startswith("## "):
-                    lesson_title_candidate = line.replace("## ", "").strip()
-                    break
-                    
-            merged_lines.append(f"## {lesson_title_candidate}")
-            
-            # Add other lines with increased indentation level to shift hierarchy
-            for line in lesson_lines:
-                stripped = line.strip()
-                if not stripped or stripped.startswith("#") or stripped == "---":
-                    continue
-                # Shift indentation for nested markmap nodes
-                if line.startswith("  -"):
-                    merged_lines.append("  " + line.rstrip())
-                elif line.startswith("-"):
-                    merged_lines.append("  " + line.rstrip())
-                else:
-                    # Generic line shift
-                    merged_lines.append("  " + line.rstrip())
+
+    if session_objectives:
+        merged_lines.append("## Mục tiêu bài học")
+        seen = set()
+        deduped_objectives = []
+        for obj in session_objectives:
+            if obj not in seen:
+                seen.add(obj)
+                deduped_objectives.append(obj)
+        for obj in deduped_objectives:
+            merged_lines.append(f"- {obj}")
+        merged_lines.append("")
+
+    for l_content in lesson_contents:
+        if l_content:
+            merged_lines.append(l_content)
             merged_lines.append("")
-        except Exception as e:
-            print(f"  [Session Compiler Warning] Failed to parse mindmap {path}: {e}")
-            
-    output_path = session_dir / "mindmap_all.md"
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(merged_lines))
-    print(f"  [Session Compiler] Successfully compiled {output_path.name}")
+
+    final_content = "\n".join(merged_lines).strip()
+    return f"```markmap\n{final_content}\n```"
+

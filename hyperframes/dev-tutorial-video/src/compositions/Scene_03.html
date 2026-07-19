@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scene 03 - Thuật ngữ nền tảng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+    }
+    body::before { top: -200px; left: -200px; width: 800px; height: 800px; background: rgba(56,189,248,0.15); }
+    body::after  { bottom: -200px; right: -200px; width: 600px; height: 600px; background: rgba(168,85,247,0.15); }
+
+    #scene-03 {
+      width: 1920px; height: 1080px; position: relative;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center; gap: 0;
+    }
+
+    .intro-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 72px; font-weight: 700;
+      color: #e6edf3;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .terms-row { display: flex; gap: 48px; align-items: stretch; }
+
+    .term-card {
+      width: 460px;
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      padding: 56px 40px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 18px;
+    }
+
+    #card-element { border-color: rgba(121,192,255,0.3); }
+    #card-index   { border-color: rgba(210,168,255,0.3); }
+    #card-length  { border-color: rgba(63,185,80,0.3); }
+
+    .term-icon { font-size: 56px; line-height: 1; }
+
+    .term-en {
+      font-family: 'Fira Code', monospace;
+      font-size: 42px; font-weight: 700;
+    }
+    #card-element .term-en { color: #79c0ff; }
+    #card-index   .term-en { color: #d2a8ff; }
+    #card-length  .term-en { color: #3fb950; }
+
+    .term-vi {
+      font-family: 'Inter', sans-serif;
+      font-size: 24px; color: #8b949e; font-weight: 400;
+    }
+
+    .term-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 19px; text-align: center; line-height: 1.6;
+    }
+    #card-element .term-desc { color: #a5d6ff; }
+    #card-index   .term-desc { color: #e2c9ff; }
+    #card-length  .term-desc { color: #7ee787; }
+  </style>
+</head>
+<body>
+  <div id="scene-03" class="clip" data-start="0" data-duration="27.17" data-track-index="0">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="27.17" data-track-index="3">
+      Thuật ngữ nền tảng
+    </div>
+
+    <div class="terms-row clip" data-start="0" data-duration="27.17" data-track-index="2">
+      <div class="term-card" id="card-element">
+        <div class="term-icon">📄</div>
+        <div class="term-en">Element</div>
+        <div class="term-vi">Phần tử</div>
+        <div class="term-desc">Mỗi giá trị bên trong List là một Element</div>
+      </div>
+
+      <div class="term-card" id="card-index">
+        <div class="term-icon">🔍</div>
+        <div class="term-en">Index</div>
+        <div class="term-vi">Chỉ số / Vị trí</div>
+        <div class="term-desc">Số thứ tự của Element, bắt đầu từ <span style="color:#d2a8ff;font-family:'Fira Code',monospace;font-weight:700;">0</span></div>
+      </div>
+
+      <div class="term-card" id="card-length">
+        <div class="term-icon">📏</div>
+        <div class="term-en">Length</div>
+        <div class="term-vi">Độ dài</div>
+        <div class="term-desc">Tổng số Element trong List</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-03"] = tl;
+
+    const _build03 = setInterval(function() {
+      const root = document.getElementById("scene-03");
+      if (!root) return;
+      clearInterval(_build03);
+
+      tl.set(".clip", { autoAlpha: 1 });
+
+      // Initial hidden states — inside timeline to avoid being overridden by tl.set(".clip")
+      tl.set("#intro-title", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set(["#card-element","#card-index","#card-length"], { autoAlpha: 0, scale: 0.6 }, 0);
+
+      // ── PHASE 1: intro-title ──────────────────────────────────────────
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 2.0);
+
+      // ── PHASE 2: card-element pop in ──────────────────────────────────
+      // scale 0.6 → 1.15 → 1.0 (overshoot rồi settle)
+      tl.to("#card-element", { autoAlpha: 1, scale: 1.15, duration: 0.35, ease: "power2.out" }, 3.2);
+      tl.to("#card-element", { scale: 1, duration: 0.45, ease: "elastic.out(1, 0.5)" }, "<0.35");
+
+      // ── PHASE 3: card-index pop in ────────────────────────────────────
+      tl.to("#card-index", { autoAlpha: 1, scale: 1.15, duration: 0.35, ease: "power2.out" }, 5.5);
+      tl.to("#card-index", { scale: 1, duration: 0.45, ease: "elastic.out(1, 0.5)" }, "<0.35");
+
+      // ── PHASE 4: card-length pop in ───────────────────────────────────
+      tl.to("#card-length", { autoAlpha: 1, scale: 1.15, duration: 0.35, ease: "power2.out" }, 7.8);
+      tl.to("#card-length", { scale: 1, duration: 0.45, ease: "elastic.out(1, 0.5)" }, "<0.35");
+
+      // ── PHASE 5: final pulse tất cả 3 cards ──────────────────────────
+      tl.to(["#card-element","#card-index","#card-length"], {
+        scale: 1.04, duration: 0.3, yoyo: true, repeat: 1,
+        ease: "power1.inOut", stagger: 0.12
+      }, 17.0);
+
+      tl.set({}, {}, 27.17);
+    }, 50);
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 import os
 import json
 import time
+import functools
 from typing import Optional
 
 # Load dotenv if available
@@ -13,6 +14,7 @@ except ImportError:
 
 # Caching registry for Gemini Context Caching
 _GEMINI_PROMPT_CACHES = {}
+
 
 def _get_cached_generative_model(
     model_name: str,
@@ -84,6 +86,32 @@ def _get_cached_generative_model(
         print(f"  [Prompt Cache Warning] Failed to initialize prompt caching: {e}. Falling back to standard model call.")
         return None
 
+def with_retry(max_retries=3, initial_delay=2, backoff_factor=2):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            delay = initial_delay
+            for attempt in range(max_retries):
+                try:
+                    result = func(*args, **kwargs)
+                    if result:
+                        return result
+                    elif attempt < max_retries - 1:
+                        print(f"  [LLM Retry] Empty response. Retrying in {delay} seconds (Attempt {attempt + 1}/{max_retries})...")
+                        time.sleep(delay)
+                        delay *= backoff_factor
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        print(f"  [LLM Retry] Error: {e}. Retrying in {delay} seconds (Attempt {attempt + 1}/{max_retries})...")
+                        time.sleep(delay)
+                        delay *= backoff_factor
+                    else:
+                        print(f"  [LLM Retry] Failed after {max_retries} attempts.")
+            return func(*args, **kwargs) # Last attempt without catching
+        return wrapper
+    return decorator
+
+@with_retry(max_retries=4, initial_delay=3, backoff_factor=2)
 def call_llm(
     system_prompt: str,
     user_prompt: str,
@@ -104,120 +132,87 @@ def call_llm(
     from core.observability import log_agent_call
     
     # Prioritize Gemini for Elearning Tools prompt guidelines
-    # Prioritize Gemini for Elearning Tools prompt guidelines
     if gemini_key:
-        base_url = os.getenv("GEMINI_BASE_URL")
-        if base_url:
-            # If GEMINI_BASE_URL is set, use OpenAI client to connect, because local proxy uses OpenAI protocol
-            try:
-                from openai import OpenAI
-                api_base = base_url
-                if not api_base.endswith("/v1") and not api_base.endswith("/v1/"):
-                    api_base = api_base.rstrip("/") + "/v1"
-                
-                model_name = os.getenv("GEMINI_MODEL", "gemini-3-flash")
-                client = OpenAI(api_key=gemini_key, base_url=api_base, timeout=8.0)
-                
-                messages = []
-                if system_prompt:
-                    messages.append({"role": "system", "content": system_prompt})
-                messages.append({"role": "user", "content": user_prompt})
-                
-                response_format = {"type": "json_object"} if json_mode else None
-                
-                response = client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    response_format=response_format,
-                    temperature=0.2,
-                    timeout=8.0
+        try:
+            import google.generativeai as genai
+            base_url = os.getenv("GEMINI_BASE_URL")
+            if base_url:
+                genai.configure(
+                    api_key=gemini_key,
+                    transport="rest",
+                    client_options={"api_endpoint": base_url}
                 )
-                if response and response.choices:
-                    result_text = response.choices[0].message.content.strip()
-                    tokens = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
-                    try:
-                        if response.usage:
-                            tokens = {
-                                "prompt_tokens": response.usage.prompt_tokens,
-                                "completion_tokens": response.usage.completion_tokens,
-                                "total_tokens": response.usage.total_tokens
-                            }
-                    except Exception:
-                        pass
-                    
-                    log_agent_call(
-                        agent_name=agent_name,
-                        session_id=session_id,
-                        lesson_id=lesson_id,
-                        prompt_summary=f"System: {system_prompt}\nUser: {user_prompt}",
-                        response_summary=result_text,
-                        start_time=start_time,
-                        token_cost=tokens
-                    )
-                    return result_text
-            except Exception as e:
-                print(f"  [LLM Warning] Gemini OpenAI proxy call failed: {e}. Trying standard SDK or fallback...")
-        
-        # Standard Google GenerativeAI SDK
-        if not base_url:
-            try:
-                import google.generativeai as genai
+            else:
                 genai.configure(api_key=gemini_key)
-                
-                # Select model
-                model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
-                
-                generation_config = {}
-                if json_mode:
-                    generation_config["response_mime_type"] = "application/json"
-                    
-                # Try prompt caching first
-                cached_model = _get_cached_generative_model(model_name, system_prompt, generation_config)
-                if cached_model:
-                    response = cached_model.generate_content(
-                        user_prompt,
-                        generation_config=generation_config,
-                        request_options={"timeout": 8.0}
-                    )
-                else:
-                    model = genai.GenerativeModel(
-                        model_name=model_name,
-                        system_instruction=system_prompt,
-                        generation_config=generation_config
-                    )
-                    response = model.generate_content(user_prompt, request_options={"timeout": 8.0})
-                if response and response.text:
-                    result_text = response.text.strip()
-                    
-                    # Try to extract tokens metadata
-                    tokens = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
-                    try:
-                        if hasattr(response, "usage_metadata") and response.usage_metadata:
-                            tokens = {
-                                "prompt_tokens": response.usage_metadata.prompt_token_count,
-                                "completion_tokens": response.usage_metadata.candidates_token_count,
-                                "total_tokens": response.usage_metadata.total_token_count
-                            }
-                    except Exception:
-                        pass
-                    
-                    log_agent_call(
-                        agent_name=agent_name,
-                        session_id=session_id,
-                        lesson_id=lesson_id,
-                        prompt_summary=f"System: {system_prompt}\nUser: {user_prompt}",
-                        response_summary=result_text,
-                        start_time=start_time,
-                        token_cost=tokens
-                    )
-                    return result_text
-            except Exception as e:
-                print(f"  [LLM Warning] Gemini standard SDK call failed: {e}. Trying OpenAI or fallback...")
             
+            # Select model
+            model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
+            
+            generation_config = {"max_output_tokens": 8192}
+            if json_mode:
+                generation_config["response_mime_type"] = "application/json"
+                
+            # Try prompt caching first
+            cached_model = _get_cached_generative_model(model_name, system_prompt, generation_config)
+            
+            print(f"  [LLM] Waiting for response from {model_name} (Local Proxy)...")
+            if cached_model:
+                response = cached_model.generate_content(
+                    user_prompt,
+                    generation_config=generation_config,
+                    request_options={"timeout": 120.0}
+                )
+            else:
+                model = genai.GenerativeModel(
+                    model_name=model_name,
+                    system_instruction=system_prompt,
+                    generation_config=generation_config
+                )
+                response = model.generate_content(user_prompt, request_options={"timeout": 120.0})
+                
+            if response and response.text:
+                result_text = response.text.strip()
+                
+                # Try to extract tokens metadata
+                tokens = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+                try:
+                    if hasattr(response, "usage_metadata") and response.usage_metadata:
+                        tokens = {
+                            "prompt_tokens": response.usage_metadata.prompt_token_count,
+                            "completion_tokens": response.usage_metadata.candidates_token_count,
+                            "total_tokens": response.usage_metadata.total_token_count
+                        }
+                except Exception:
+                    pass
+                
+                log_agent_call(
+                    agent_name=agent_name,
+                    session_id=session_id,
+                    lesson_id=lesson_id,
+                    prompt_summary=f"System: {system_prompt}\nUser: {user_prompt}",
+                    response_summary=result_text,
+                    start_time=start_time,
+                    token_cost=tokens
+                )
+                return result_text
+        except Exception as e:
+            print(f"  [LLM Warning] Gemini call failed: {e}. Falling back to OpenAI or templates...")
+            
+    # Setup OpenAI key fallback if not set but gemini_key is an OpenAI key
+    if not openai_key and gemini_key and gemini_key.startswith("sk-"):
+        openai_key = gemini_key
+
     if openai_key:
         try:
             from openai import OpenAI
-            client = OpenAI(api_key=openai_key, timeout=8.0)
+            client = OpenAI(
+                api_key=openai_key,
+                timeout=120.0,
+                default_headers={
+                    "HTTP-Referer": "http://localhost:3000",
+                    "X-Title": "Elearning Agent"
+                }
+            )
             
             model_name = os.getenv("LLM_MODEL", "gpt-4o-mini")
             
@@ -233,7 +228,7 @@ def call_llm(
                 messages=messages,
                 response_format=response_format,
                 temperature=0.2,
-                timeout=8.0
+                timeout=120.0
             )
             if response and response.choices:
                 result_text = response.choices[0].message.content.strip()
@@ -277,3 +272,17 @@ def call_llm(
         pass
         
     return ""
+
+
+# ─────────────────────────────────────────────────────
+# Semantic Cache Activation
+# Bọc call_llm với SemanticCache sau khi định nghĩa xong.
+# Không thay đổi interface hay logic gốc.
+# Tắt cache bằng cách đặt SEMANTIC_CACHE_ENABLED=false trong .env
+# ─────────────────────────────────────────────────────
+try:
+    from core.semantic_cache import with_semantic_cache
+    call_llm = with_semantic_cache(call_llm)
+    print("  [LLM] Semantic Cache activated. Duplicate LLM calls will be served from cache.")
+except ImportError:
+    pass  # Nếu semantic_cache chưa được cài, bỏ qua

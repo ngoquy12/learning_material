@@ -1,0 +1,69 @@
+=== COURSES ===
+ID: 1, Name: [IT-215] Phát triển dịch vụ Web với FastAPI, Tech: Python, FastAPI, SQLAlchemy ORM, MySQL
+
+=== SESSIONS ===
+ID: 93, Name: Session 01, Title: Định hướng học tập, demo sản phẩm cuối môn, Course ID: 1, Order: 0
+ID: 94, Name: Session 02, Title: Giới thiệu & Cài đặt FastAPI cơ bản, Course ID: 1, Order: 0
+ID: 95, Name: Session 03, Title: Thực hành viết API endpoint và Swagger UI, Course ID: 1, Order: 0
+ID: 96, Name: Session 04, Title: Parameters, Request body & Pydantic Validation, Course ID: 1, Order: 0
+ID: 97, Name: Session 05, Title: CRUD cơ bản (Bộ nhớ tạm), Course ID: 1, Order: 0
+ID: 98, Name: Session 06, Title: Thực hành CRUD dữ liệu với Bộ nhớ tạm, Course ID: 1, Order: 0
+ID: 99, Name: Session 07, Title: API Response & Handling Errors, Course ID: 1, Order: 0
+ID: 100, Name: Session 08, Title: Thực hành Chuẩn hóa phản hồi & Xử lý lỗi, Course ID: 1, Order: 0
+ID: 101, Name: Session 09, Title: Mini Project 1: Quản lý danh bạ (Contact Management), Course ID: 1, Order: 0
+ID: 102, Name: Session 10, Title: Kết nối Cơ sở dữ liệu với SQLAlchemy ORM, Course ID: 1, Order: 0
+ID: 103, Name: Session 11, Title: Khởi tạo CSDL và các thao tác CRUD, Course ID: 1, Order: 0
+ID: 104, Name: Session 12, Title: Hàm CRUD nâng cao, Mapping Schema & Dependency Injection, Course ID: 1, Order: 0
+ID: 105, Name: Session 13, Title: Thực hành Tích hợp Database vào Endpoint API, Course ID: 1, Order: 0
+ID: 106, Name: Session 14, Title: Project Structure (Cấu trúc dự án chuẩn), Course ID: 1, Order: 0
+ID: 107, Name: Session 15, Title: Hackathon: Thiết kế & Xây dựng RESTful API tổng hợp, Course ID: 1, Order: 0
+ID: 108, Name: Session 16, Title: Quan hệ giữa các bảng (Relationships) trong CSDL, Course ID: 1, Order: 0
+ID: 109, Name: Session 17, Title: Thực hành Quan hệ bảng, Course ID: 1, Order: 0
+ID: 110, Name: Session 18, Title: Security - Authentication & JWT (JSON Web Tokens), Course ID: 1, Order: 0
+ID: 111, Name: Session 19, Title: Thực hành Triển khai Đăng ký & Đăng nhập (Authentication), Course ID: 1, Order: 0
+ID: 112, Name: Session 20, Title: Mini Project 2: Hệ thống quản lý bài viết Blog cá nhân có Auth, Course ID: 1, Order: 0
+ID: 113, Name: Session 21, Title: Authorization, Middleware & CORS, Course ID: 1, Order: 0
+ID: 114, Name: Session 22, Title: Thực hành Phân quyền bảo mật & Cấu hình CORS, Course ID: 1, Order: 0
+ID: 115, Name: Session 23, Title: Form Data, Upload File, File Storage, Course ID: 1, Order: 0
+ID: 116, Name: Session 24, Title: Upload Avatar, Upload Document, Course ID: 1, Order: 0
+ID: 117, Name: Session 25, Title: TESTING API, Course ID: 1, Order: 0
+ID: 118, Name: Session 26, Title: Phát triển dự án cuối môn - Tuần 1: Thiết kế & Khởi tạo, Course ID: 1, Order: 0
+ID: 119, Name: Session 27, Title: Phát triển dự án cuối môn - Tuần 2: Database & Core API, Course ID: 1, Order: 0
+ID: 120, Name: Session 28, Title: Phát triển dự án cuối môn - Tuần 3: Security & Advanced Features, Course ID: 1, Order: 0
+ID: 121, Name: Session 29, Title: Phát triển dự án cuối môn - Tuần 4: Testing & Bug Fixing, Course ID: 1, Order: 0
+ID: 122, Name: Session 30, Title: Báo cáo dự án cuối môn, Course ID: 1, Order: 0
+
+=== ARTIFACTS ===
+ID: 5, Session ID: None, Lesson ID: 96, Type: outline, Status: Failed
+ID: 6, Session ID: None, Lesson ID: 96, Type: reading, Status: Failed
+ID: 7, Session ID: None, Lesson ID: 96, Type: quiz, Status: Failed
+ID: 8, Session ID: None, Lesson ID: 96, Type: walkthrough, Status: Failed
+ID: 17, Session ID: 94, Lesson ID: None, Type: pre_quiz, Status: Completed
+ID: 18, Session ID: 94, Lesson ID: None, Type: post_quiz, Status: Completed
+ID: 19, Session ID: 94, Lesson ID: None, Type: session_mindmap, Status: Completed
+ID: 20, Session ID: 94, Lesson ID: None, Type: session_reading, Status: Completed
+ID: 21, Session ID: None, Lesson ID: 100, Type: outline, Status: Completed
+ID: 22, Session ID: None, Lesson ID: 100, Type: reading, Status: Completed
+ID: 23, Session ID: None, Lesson ID: 100, Type: quiz, Status: Completed
+ID: 24, Session ID: None, Lesson ID: 100, Type: walkthrough, Status: Completed
+ID: 25, Session ID: None, Lesson ID: 101, Type: outline, Status: Completed
+ID: 26, Session ID: None, Lesson ID: 101, Type: reading, Status: Completed
+ID: 27, Session ID: None, Lesson ID: 101, Type: quiz, Status: Completed
+ID: 28, Session ID: None, Lesson ID: 101, Type: walkthrough, Status: Completed
+ID: 29, Session ID: None, Lesson ID: 102, Type: outline, Status: Failed
+ID: 30, Session ID: None, Lesson ID: 102, Type: reading, Status: Completed
+ID: 31, Session ID: None, Lesson ID: 102, Type: quiz, Status: Failed
+ID: 32, Session ID: None, Lesson ID: 102, Type: walkthrough, Status: Failed
+ID: 33, Session ID: None, Lesson ID: 103, Type: outline, Status: Failed
+ID: 34, Session ID: None, Lesson ID: 103, Type: reading, Status: Failed
+ID: 35, Session ID: None, Lesson ID: 103, Type: quiz, Status: Failed
+ID: 36, Session ID: None, Lesson ID: 103, Type: walkthrough, Status: Failed
+ID: 37, Session ID: None, Lesson ID: 104, Type: outline, Status: Failed
+ID: 38, Session ID: None, Lesson ID: 104, Type: reading, Status: Failed
+ID: 39, Session ID: None, Lesson ID: 104, Type: quiz, Status: Failed
+ID: 40, Session ID: None, Lesson ID: 104, Type: walkthrough, Status: Failed
+ID: 41, Session ID: 94, Lesson ID: None, Type: session_homework, Status: Completed
+ID: 42, Session ID: None, Lesson ID: 99, Type: outline, Status: Completed
+ID: 43, Session ID: None, Lesson ID: 99, Type: reading, Status: Completed
+ID: 44, Session ID: None, Lesson ID: 99, Type: quiz, Status: Completed
+ID: 45, Session ID: None, Lesson ID: 99, Type: walkthrough, Status: Completed

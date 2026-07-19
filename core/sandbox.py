@@ -23,7 +23,7 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
 
     # --- Sandbox Security Configuration (Read Dynamically) ---
     sandbox_provider = os.getenv("SANDBOX_PROVIDER", "docker").lower()
-    sandbox_strict = os.getenv("SANDBOX_STRICT", "False").lower() in ("true", "1", "yes") or os.getenv("SANDBOX_ENV", "").lower() == "production"
+    sandbox_strict = True  # SECURITY ENFORCEMENT: Subprocess fallback is strictly disabled globally
     sandbox_timeout = int(os.getenv("SANDBOX_TIMEOUT", "5"))
     sandbox_memory = os.getenv("SANDBOX_MEMORY", "256m")
     sandbox_cpus = os.getenv("SANDBOX_CPUS", "0.5")
@@ -68,19 +68,15 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
             }
 
     # 3. Local Subprocess Fallback Path (Security Guard)
-    if sandbox_strict:
-        print("  [Sandbox SECURITY ERROR] Local subprocess fallback blocked in strict/production mode.")
-        return {
-            "status": "FAILED",
-            "engine": "security_guard",
-            "error": (
-                "Security Block: Local subprocess execution is disabled for security reasons "
-                "(SANDBOX_STRICT=True or environment is production). Please configure Docker or E2B."
-            )
-        }
-
-    print("  [Sandbox WARNING] Executing code in local subprocess (insecure fallback, dev mode only)...")
-    return _execute_via_local_subprocess(code, sandbox_timeout)
+    print("  [Sandbox SECURITY ERROR] Local subprocess execution is permanently blocked for security reasons.")
+    return {
+        "status": "FAILED",
+        "engine": "security_guard",
+        "error": (
+            "Security Block: Local subprocess execution is disabled to prevent malicious code execution. "
+            "Please configure Docker or E2B sandbox providers."
+        )
+    }
 
 
 def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any]:
@@ -143,6 +139,9 @@ def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict
                 "--memory", memory,
                 "--cpus", cpus,
                 "--cap-drop", "ALL",
+                "--security-opt", "no-new-privileges",
+                "--read-only",
+                "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
                 "--user", "1000:1000",
                 "python:3.10-slim",
                 "python", "-"

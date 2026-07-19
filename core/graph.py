@@ -9,7 +9,9 @@ from agents import (
     slide_agent, academic_reviewer,
     quiz_agent, sandbox_testing_agent,
     session_compiler_agent, video_script_agent, mindmap_agent,
-    lessons_learned_agent
+    lessons_learned_agent, knowledge_memory_agent, get_relevant_memories_for_creator,
+    pm_reviewer_agent, objective_reviewer_agent,
+    mindmap_reviewer
 )
 
 def save_state_checkpoint(state: AgentState):
@@ -18,10 +20,105 @@ def save_state_checkpoint(state: AgentState):
     save_checkpoint(key, state)
 
 @component
+def node_pm_review(state: AgentState) -> AgentState:
+    """Giai đoạn 0: Review PM Input trước khi cho phép chạy"""
+    if not state.get("pm_approved", False):
+        import os
+        full_curriculum = state.get("full_curriculum", state.get("pm_input"))
+        report = pm_reviewer_agent(full_curriculum, state.get("technology_stack", "python/core"))
+        
+        course_dir_name = state.get("course_dir_name", "Unknown_Course")
+        out_dir = os.path.join("output", course_dir_name)
+        os.makedirs(out_dir, exist_ok=True)
+        
+        report_path = os.path.join(out_dir, "pm_review_report.md")
+        with open(report_path, "w", encoding="utf-8") as f:
+            f.write(report)
+        raise ValueError(
+            f"\n[CHỜ DUYỆT PM] Hệ thống đã đánh giá file PM và xuất báo cáo tại {report_path}.\n"
+            f"Hãy xem báo cáo và điều chỉnh file PM. Sau khi PM đã duyệt, hãy truyền tham số pm_approved=True vào state để tiếp tục tiến trình!"
+        )
+    return state
+
+@component
+def node_prerequisite_check(state: AgentState) -> AgentState:
+    """
+    Giai đoạn 0.5: Kiểm tra tính tuần tự tri thức (Prerequisite Guard)
+    Phân tích toàn bộ curriculum, xây dựng dependency graph và phát hiện
+    vi phạm tiên quyết trước khi tốn bất kỳ token nào sinh nội dung.
+    BLOCKER violations → dừng pipeline và yêu cầu sửa PM.
+    """
+    import json
+    import os
+
+    # Chỉ chạy khi được yêu cầu hoặc ở lần đầu tiên của session
+    if state.get("prerequisite_checked"):
+        return state
+
+    full_curriculum_str = state.get("full_curriculum", "[]")
+    try:
+        sessions = json.loads(full_curriculum_str)
+    except Exception:
+        sessions = []
+
+    if not sessions:
+        return state
+
+    tech_stack = state.get("technology_stack", "python/fastapi")
+    course_dir_name = state.get("course_dir_name", "Unknown_Course")
+    report_path = os.path.join("output", course_dir_name, "prerequisite_report.md")
+
+    from agents.prerequisite_guard_agent import run_prerequisite_check_for_pm
+    is_valid, prereq_result = run_prerequisite_check_for_pm(
+        sessions=sessions,
+        tech_stack=tech_stack,
+        output_report_path=report_path,
+    )
+
+    # Lưu dependency graph vào state để Obsidian Linker dùng sau
+    state["prerequisite_data"] = prereq_result
+    state["prerequisite_checked"] = True
+
+    if not is_valid:
+        blocker_count = prereq_result.get("stats", {}).get("blocker_count", 0)
+        raise ValueError(
+            f"\n[PM CHƯA ĐẠT CHUẨN TUẦN TỰ] PrerequisiteGuardAgent phát hiện {blocker_count} vi phạm BLOCKER.\n"
+            f"Báo cáo chi tiết: {report_path}\n"
+            f"Vui lòng sửa PM để đảm bảo tính tuần tự tri thức trước khi biên dịch học liệu!"
+        )
+
+    return state
+
+@component
 def node_init_objectives(state: AgentState) -> AgentState:
-    """Giai đoạn 1: ID Agent thiết lập chuẩn đầu ra dựa trên PM"""
-    state["learning_outcomes"] = objective_architect_agent(state["pm_input"], state.get("technology_stack", "python/core"))
-    save_state_checkpoint(state)
+    """Giai đoạn 1: ID Agent thiết lập chuẩn đầu ra dựa trên PM (Có vòng lặp phản biện sư phạm)"""
+    approved = False
+    for attempt in range(3):
+        # Allow recovery if already approved in a previous execution
+        if state.get("artifacts_status", {}).get("objectives") == "Approved" and not state.get("force_rebuild", False):
+            approved = True
+            break
+            
+        previous_feedback = state.get("review_logs", [-1])[-1]["feedback"] if state.get("review_logs") and state["review_logs"][-1]["source"] == "Objective_Reviewer" else None
+        state["learning_outcomes"] = objective_architect_agent(state["pm_input"], state.get("technology_stack", "python/core"), previous_feedback)
+        
+        review = objective_reviewer_agent(state["learning_outcomes"], state["pm_input"], state.get("technology_stack", "python/core"))
+        
+        if review["status"] == "APPROVED":
+            state.setdefault("artifacts_status", {})["objectives"] = "Approved"
+            save_state_checkpoint(state)
+            approved = True
+            break
+        else:
+            state.setdefault("review_logs", []).append({"source": "Objective_Reviewer", "feedback": review["feedback"]})
+            save_state_checkpoint(state)
+            
+    if not approved:
+        raise ValueError(
+            f"\n[LỖI SƯ PHẠM] Chuẩn đầu ra (Learning Outcomes) không đạt yêu cầu ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
+            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại hệ thống Agent!"
+        )
     return state
 
 @component
@@ -33,8 +130,14 @@ def node_allocate_schedule(state: AgentState) -> AgentState:
 
 @component
 def node_lock_ssot(state: AgentState) -> AgentState:
-    """Giai đoạn 2.5: Khóa dữ liệu gốc (SSOT) và ghi vào SQLite Persistence"""
+    """Giai đoạn 3: Khóa dữ liệu gốc (SSOT) và ghi vào Persistence"""
+    kb = knowledge_base_agent(state["program_structure"], state.get("technology_stack", "python/core"))
+    
+    # Merge existing core_ssot with kb
+    state.setdefault("core_ssot", {}).update(kb)
     save_state_checkpoint(state)
+    
+    print(f"\n[SUCCESS] Đã thiết lập xong Lịch trình và Bản đồ Tri thức Gốc (SSOT)")
     return state
 
 @component
@@ -129,28 +232,70 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
 
 @component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
-    """Tự động tạo kịch bản quay video cho bài giảng"""
+    """Vòng lặp phản biện (Critique Loop) tự động cho Video Script theo chuẩn HyperFrames"""
     if "requested_parts" in state and "video" not in state["requested_parts"] and "video_script" not in state["requested_parts"]:
         state["artifacts_status"]["video_script"] = "Skipped"
         return state
-    if state.get("artifacts_status", {}).get("video_script") == "Approved":
-        return state
-    state = video_script_agent(state)
-    state["artifacts_status"]["video_script"] = "Approved"
-    save_state_checkpoint(state)
+        
+    approved = False
+    for attempt in range(3):
+        # Allow recovery if already approved in a previous execution
+        if state.get("artifacts_status", {}).get("video_script") == "Approved" and not state.get("force_rebuild", False):
+            approved = True
+            break
+            
+        state = video_script_agent(state)
+        
+        # Call the video script reviewer
+        from agents.reviewer_agents import video_script_reviewer_agent
+        review = video_script_reviewer_agent(state)
+        
+        if review["status"] == "APPROVED":
+            state["artifacts_status"]["video_script"] = "Approved"
+            save_state_checkpoint(state)
+            approved = True
+            break
+        else:
+            state.setdefault("review_logs", []).append({"source": "Video_Script_Reviewer", "feedback": review["feedback"]})
+            save_state_checkpoint(state)
+            
+    if not approved:
+        raise ValueError(
+            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Kịch bản Video HyperFrames không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
+            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+        )
     return state
 
 @component
 def pipeline_mindmap_production(state: AgentState) -> AgentState:
-    """Tự động tạo sơ đồ tư duy (mindmap) cho bài giảng"""
+    """Tự động tạo sơ đồ tư duy (mindmap) cho bài giảng với vòng lặp phản biện"""
     if "requested_parts" in state and "mindmap" not in state["requested_parts"]:
         state["artifacts_status"]["mindmap"] = "Skipped"
         return state
-    if state.get("artifacts_status", {}).get("mindmap") == "Approved":
-        return state
-    state = mindmap_agent(state)
-    state["artifacts_status"]["mindmap"] = "Approved"
-    save_state_checkpoint(state)
+    approved = False
+    for attempt in range(3):
+        # Allow recovery if already approved in a previous execution
+        if state.get("artifacts_status", {}).get("mindmap") == "Approved" and not state.get("force_rebuild", False):
+            approved = True
+            break
+        state = mindmap_agent(state)
+        review = mindmap_reviewer(state)
+        if review["status"] == "APPROVED":
+            state["artifacts_status"]["mindmap"] = "Approved"
+            save_state_checkpoint(state)
+            approved = True
+            break
+        else:
+            state.setdefault("review_logs", []).append({"source": "Mindmap_Reviewer", "feedback": review["feedback"]})
+            save_state_checkpoint(state)
+            
+    if not approved:
+        raise ValueError(
+            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Nội dung Sơ đồ tư duy (Mindmap) không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
+            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+        )
     return state
 
 @component
@@ -207,7 +352,14 @@ def session_compiler_node(state: AgentState) -> AgentState:
 
 @component
 def lessons_learned_refiner(state: AgentState) -> AgentState:
-    """Giai đoạn 5: Tự động đúc rút bài học kinh nghiệm từ review_logs và ghi nhận vào kho tri thức."""
+    """
+    Giai đoạn cuối: Đúc rút kinh nghiệm từ review_logs.
+    - Gọi knowledge_memory_agent (SQLite-backed, phân loại có cấu trúc)
+    - Vẫn gọi lessons_learned_agent (Markdown SKILL.md) để tương thích ngược
+    """
+    # Kho tri thức có cấu trúc mới (SQLite)
+    state = knowledge_memory_agent(state)
+    # Kho tri thức cũ (Markdown) — tương thích ngược với loader cũ
     state = lessons_learned_agent(state)
     save_state_checkpoint(state)
     return state
@@ -216,52 +368,65 @@ def compile_learning_content_workflow():
     workflow = Workflow()
 
     # Khai báo các Node trục dọc trong hệ thống Antigravity
+    workflow.add_node("pm_review", node_pm_review)
+    workflow.add_node("prerequisite_check", node_prerequisite_check)
     workflow.add_node("init_objectives", node_init_objectives)
     workflow.add_node("allocate_schedule", node_allocate_schedule)
     workflow.add_node("lock_ssot", node_lock_ssot)
 
-    # Khai báo luồng chạy song song (Parallel Processing) giải phóng hiệu năng bằng ThreadPoolExecutor
-    @parallel
-    def run_parallel_creators(state: AgentState) -> Dict[str, Any]:
-        import concurrent.futures
-        import copy
+    @component
+    def node_generate_master_content(state: AgentState) -> AgentState:
+        """Giai đoạn 3.5: Sinh Master Content tuần tự trước khi rẽ nhánh đa luồng để tránh lỗi Rate Limit và Cache Miss"""
+        from agents.creator_agents import get_lesson_content
+        session_id = state.get("session_id", "Session 01")
+        lesson_id = state.get("lesson_id", "")
+        core_ssot = state.get("core_ssot", {})
+        lesson_title = core_ssot.get("session_title", "Course Session")
+        lesson_details = core_ssot.get("lesson_details", "")
+        expected_output = core_ssot.get("expected_output", "")
         
-        funcs = {
-            "html_branch": pipeline_html_production,
-            "slide_branch": pipeline_slide_production,
-            "quiz_branch": pipeline_quiz_production,
-            "video_branch": pipeline_video_script_production,
-            "mindmap_branch": pipeline_mindmap_production
-        }
-        
-        results = {}
-        # Run all creator pipelines concurrently to bypass sequential bottlenecks
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            future_to_branch = {
-                executor.submit(func, copy.deepcopy(state)): branch_name
-                for branch_name, func in funcs.items()
-            }
-            for future in concurrent.futures.as_completed(future_to_branch):
-                branch_name = future_to_branch[future]
-                try:
-                    results[branch_name] = future.result()
-                except Exception as e:
-                    print(f"  [Parallel Error] Branch {branch_name} failed: {e}")
-                    # Fallback to serial execution for stability
-                    results[branch_name] = funcs[branch_name](copy.deepcopy(state))
-                    
-        return results
+        # Call get_lesson_content to trigger LLM and populate state["master_content"]
+        # It handles its own caching if already generated.
+        get_lesson_content(
+            session_id=session_id,
+            lesson_id=lesson_id,
+            lesson_title=lesson_title,
+            lesson_details=lesson_details,
+            expected_output=expected_output,
+            attempt_num=1,
+            core_ssot=core_ssot,
+            state=state
+        )
+        return state
 
-    workflow.add_node("execute_parallel_pipelines", run_parallel_creators)
+    workflow.add_node("generate_master_content", node_generate_master_content)
+
+    # Khai báo các Node sáng tạo học liệu chạy tuần tự theo thứ tự ưu tiên & liên kết tri thức
+    workflow.add_node("html_production", pipeline_html_production)
+    workflow.add_node("slide_production", pipeline_slide_production)
+    workflow.add_node("quiz_production", pipeline_quiz_production)
+    workflow.add_node("video_script_production", pipeline_video_script_production)
+    workflow.add_node("mindmap_production", pipeline_mindmap_production)
+
     workflow.add_node("final_compiler_and_publish", session_compiler_node)
     workflow.add_node("lessons_learned_refiner", lessons_learned_refiner)
 
     # Thiết lập đồ thị liên kết (Edges)
-    workflow.set_entry_point("init_objectives")
+    workflow.set_entry_point("pm_review")
+    workflow.add_edge("pm_review", "prerequisite_check")
+    workflow.add_edge("prerequisite_check", "init_objectives")
     workflow.add_edge("init_objectives", "allocate_schedule")
     workflow.add_edge("allocate_schedule", "lock_ssot")
-    workflow.add_edge("lock_ssot", "execute_parallel_pipelines")
-    workflow.add_edge("execute_parallel_pipelines", "final_compiler_and_publish")
+    workflow.add_edge("lock_ssot", "generate_master_content")
+    
+    # Chuỗi liên kết tuần tự ưu tiên
+    workflow.add_edge("generate_master_content", "html_production")
+    workflow.add_edge("html_production", "slide_production")
+    workflow.add_edge("slide_production", "quiz_production")
+    workflow.add_edge("quiz_production", "video_script_production")
+    workflow.add_edge("video_script_production", "mindmap_production")
+    workflow.add_edge("mindmap_production", "final_compiler_and_publish")
+    
     workflow.add_edge("final_compiler_and_publish", "lessons_learned_refiner")
 
     return workflow.compile()

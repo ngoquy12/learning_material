@@ -5,7 +5,7 @@ from typing import Dict, Any
 from config.settings import get_agent_prompt
 from core.llm import call_llm
 
-def objective_architect_agent(pm_input: str, tech_stack: str = "python/core") -> Dict[str, Any]:
+def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", previous_feedback: str = None) -> Dict[str, Any]:
     """
     Objective Architect Agent:
     Dynamically analyzes the PM input JSON string for a specific Session and generates backward-design
@@ -32,7 +32,16 @@ def objective_architect_agent(pm_input: str, tech_stack: str = "python/core") ->
     {pm_input}
     
     The target technology stack for this course is: {tech_stack}
+    
+    {f"CẢNH BÁO TỪ LẦN REVIEW TRƯỚC (Hãy sửa lỗi theo phản hồi này): {previous_feedback}" if previous_feedback else ""}
+    
     Generate backward-design learning outcomes tailored specifically for this stack.
+    
+    🛑 CHỈ THỊ VỀ PHẠM VI & PHÂN BẬC NHẬN THỨC (STRICT SCOPE & COGNITIVE LEVELS):
+    1. Chỉ tập trung tuyệt đối vào đúng các chủ đề, kiến thức được mô tả trong PM input. Tuyệt đối không đưa vào các khái niệm nâng cao, thư viện bên ngoài phức tạp hoặc các tính năng không được yêu cầu.
+    2. Các chuẩn đầu ra phải phù hợp với trình độ hiện tại của học viên (không đòi hỏi các kỹ năng thiết kế hệ thống, tối ưu hiệu năng cao hay kiến trúc nâng cao ở các bài nhập môn).
+    3. Không trộn lẫn hay tham chiếu đến các công nghệ thuộc stack khác.
+    
     The response MUST be a valid JSON matching this schema:
     {{
         "session_title": "{session_title}",
@@ -203,6 +212,12 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "p
     {json.dumps(program_structure, ensure_ascii=False)}
     
     The target technology stack is: {tech_stack}
+    
+    🛑 QUY TẮC PHẠM VI & PHÂN BẬC SƯ PHẠM NGHIÊM NGẶT (STRICT SCOPE & PEDAGOGICAL BOUNDARIES):
+    1. Chỉ cung cấp khái niệm (concepts) và mã nguồn mẫu (code_samples) thuộc phạm vi của buổi học hiện tại. Tuyệt đối không đưa trước kiến thức của các buổi học sau hay các thư viện, framework ngoài lề.
+    2. Cú pháp và cấu trúc mã nguồn mẫu phải cực kỳ đơn giản, dễ tiếp cận và tương xứng với trình độ hiện tại của học viên (ví dụ: không viết async/await, lambda phức tạp, hay kết nối database khi học lập trình căn bản).
+    3. Mã nguồn ví dụ phải tập trung giải quyết đúng 1 vấn đề cốt lõi của bài học, tránh thêm code thừa hoặc các chức năng nâng cao không có trong yêu cầu.
+    
     Provide definitions for all key concepts and write solid, realistic code samples strictly in this stack (for example, if stack is 'python/core', all code samples must be in Python and explain Python-specific core concepts. Do NOT use JavaScript or other languages).
     The response MUST be a valid JSON matching this schema:
     {{
@@ -216,6 +231,7 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "p
             "code_sample_name_2": "actual clean code snippet"
         }}
     }}
+    WARNING: All backslashes (\\) in strings (such as Windows paths like venv\\Scripts) MUST be properly escaped as double backslashes (\\\\) to ensure the output is strictly valid JSON!
     Return only raw JSON. Do not wrap in markdown code blocks.
     """
     
@@ -246,41 +262,137 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "p
         except Exception as e:
             print(f"  [LLM Error] Failed to parse KB JSON: {e}. Falling back to default rules.")
             
-    # Default Fallback values if LLM fails or is not configured
+    # Dynamic category-aware fallback if LLM fails or is not configured
     if not concepts or not code_samples:
+        print(f"  [KB Fallback] Using dynamic category-aware fallback for stack: {tech_stack}")
+        parts = tech_stack.lower().split('/')
+        lang = parts[0] if len(parts) > 0 else "generic"
+        framework = parts[1] if len(parts) > 1 else "core"
+        
         concepts = {
-            "client_server": "Client (Browser/Postman) sends HTTP requests to Web API server, which queries Database and returns RESTful JSON responses.",
-            "virtual_env": "A self-contained directory containing a Python installation for a particular version of Python, plus additional packages.",
-            "uvicorn": "An ASGI web server implementation for Python, used to serve FastAPI applications.",
-            "routing": "Mapping HTTP methods (GET, POST, etc.) and URLs to specific Python execution handler functions.",
-            "swagger": "An open-source software framework backed by a large ecosystem of tools that helps developers design, build, document, and consume RESTful Web APIs."
+            f"core_{lang}_concept": f"Introduction to fundamental concepts of {lang.capitalize()} within {session_title}.",
+            "architecture_overview": f"Basic architectural overview and request-response lifecycle for {framework.capitalize()} applications.",
+            "best_practices": "Code organization, formatting, and standard conventions for development."
         }
         
-        code_samples = {
-            "virtual_env_setup": (
-                "# B1: Tạo môi trường ảo\n"
-                "python -m venv venv\n\n"
-                "# B2: Kích hoạt môi trường\n"
-                "venv\\Scripts\\activate  # Trên Windows\n"
-                "source venv/bin/activate  # Trên Linux/macOS\n\n"
-                "# B3: Cài đặt thư viện\n"
-                "pip install fastapi uvicorn"
-            ),
-            "fastapi_app": (
-                "from fastapi import FastAPI\n\n"
-                "app = FastAPI(title='IT215 FastAPI App')\n\n"
-                "@app.get('/hello')\n"
-                "def read_root():\n"
-                "    return {'message': 'Hello World'}"
-            ),
-            "diagram_ascii": (
-                "  +------------+             +-------------+             +------------+\n"
-                "  |   Client   |   REQUEST   | FastAPI API |   QUERY     |  Database  |\n"
-                "  | (Postman)  | ----------> |   Server    | ----------> |  (MySQL)   |\n"
-                "  |            | <---------- |             | <---------- |            |\n"
-                "  +------------+  RESPONSE   +-------------+  RESULT     +------------+"
-            )
-        }
+        if lang == "python":
+            if framework == "fastapi":
+                code_samples = {
+                    "app_init": (
+                        "from fastapi import FastAPI\n\n"
+                        "app = FastAPI()\n\n"
+                        "@app.get('/')\n"
+                        "def read_root():\n"
+                        "    return {'message': 'Hello World'}"
+                    )
+                }
+            else:
+                code_samples = {
+                    "hello_world": (
+                        "def main():\n"
+                        "    print('Hello from Python Core!')\n\n"
+                        "if __name__ == '__main__':\n"
+                        "    main()"
+                    )
+                }
+        elif lang in ("typescript", "javascript"):
+            if framework == "nestjs":
+                code_samples = {
+                    "app_controller": (
+                        "import { Controller, Get } from '@nestjs/common';\n\n"
+                        "@Controller()\n"
+                        "export class AppController {\n"
+                        "  @Get()\n"
+                        "  getHello(): string {\n"
+                        "    return 'Hello World!';\n"
+                        "  }\n"
+                        "}"
+                    )
+                }
+            elif framework == "react":
+                code_samples = {
+                    "app_component": (
+                        "import React from 'react';\n\n"
+                        "export default function App() {\n"
+                        "  return (\n"
+                        "    <div>\n"
+                        "      <h1>Hello World</h1>\n"
+                        "      <p>Welcome to React</p>\n"
+                        "    </div>\n"
+                        "  );\n"
+                        "}"
+                    )
+                }
+            elif framework == "express":
+                code_samples = {
+                    "app_init": (
+                        "const express = require('express');\n"
+                        "const app = express();\n"
+                        "const port = 3000;\n\n"
+                        "app.get('/', (req, res) => {\n"
+                        "  res.send('Hello World!');\n"
+                        "});\n\n"
+                        "app.listen(port, () => {\n"
+                        "  console.log(`App listening at http://localhost:${port}`);\n"
+                        "});"
+                    )
+                }
+            else:
+                code_samples = {
+                    "hello_world": (
+                        "console.log('Hello from JS/TS Core!');"
+                    )
+                }
+        elif lang == "java":
+            if framework == "springboot":
+                code_samples = {
+                    "controller": (
+                        "package com.example.demo;\n"
+                        "import org.springframework.web.bind.annotation.GetMapping;\n"
+                        "import org.springframework.web.bind.annotation.RestController;\n\n"
+                        "@RestController\n"
+                        "public class HelloController {\n"
+                        "    @GetMapping(\"/\")\n"
+                        "    public String index() {\n"
+                        "        return \"Hello from Spring Boot!\";\n"
+                        "    }\n"
+                        "}"
+                    )
+                }
+            else:
+                code_samples = {
+                    "hello_world": (
+                        "public class Main {\n"
+                        "    public static void main(String[] args) {\n"
+                        "        System.out.println(\"Hello from Java Core!\");\n"
+                        "    }\n"
+                        "}"
+                    )
+                }
+        elif lang == "dart" or framework == "flutter":
+            code_samples = {
+                "hello_world": (
+                    "import 'package:flutter/material.dart';\n\n"
+                    "void main() => runApp(const MyApp());\n\n"
+                    "class MyApp extends StatelessWidget {\n"
+                    "  const MyApp({super.key});\n"
+                    "  @override\n"
+                    "  Widget build(BuildContext context) {\n"
+                    "    return const MaterialApp(\n"
+                    "      home: Scaffold(body: Center(child: Text('Hello Flutter'))),\n"
+                    "    );\n"
+                    "  }\n"
+                    "}"
+                )
+            }
+        else:
+            code_samples = {
+                "hello_world": (
+                    f"// Hello world sample for {tech_stack}\n"
+                    "// Dynamic fallback generated offline"
+                )
+            }
+
         
     # Generate stable Hash
     hash_input = json.dumps(program_structure) + json.dumps(concepts)

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene 05 - In danh sách ra Terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+    }
+    body::before { top: -200px; left: -200px; width: 800px; height: 800px; background: rgba(56,189,248,0.15); }
+    body::after  { bottom: -200px; right: -200px; width: 600px; height: 600px; background: rgba(168,85,247,0.15); }
+
+    #scene-05 {
+      width: 1920px; height: 1080px; position: relative;
+    }
+
+    .intro-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 72px; font-weight: 700;
+      color: #e6edf3;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .pane-card {
+      position: absolute;
+      left: 160px;
+      right: 160px;
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    #editor-card   { top: 180px; }
+    #terminal-card { top: 620px; }
+
+    .pane-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .dot { width: 13px; height: 13px; border-radius: 50%; }
+    .dot-r { background: #f85149; }
+    .dot-y { background: #ffa657; }
+    .dot-g { background: #3fb950; }
+
+    .pane-filename {
+      font-family: 'Fira Code', monospace;
+      font-size: 17px;
+      color: #8b949e;
+      margin-left: 12px;
+    }
+
+    .editor-body {
+      padding: 32px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .code-row {
+      display: flex;
+      align-items: baseline;
+      gap: 28px;
+    }
+
+    .line-num {
+      font-family: 'Fira Code', monospace;
+      font-size: 24px;
+      color: #3d444d;
+      min-width: 32px;
+      text-align: right;
+      user-select: none;
+    }
+
+    .code-text {
+      font-family: 'Fira Code', monospace;
+      font-size: 34px;
+      color: #e6edf3;
+      white-space: pre;
+      min-height: 1.5em;
+    }
+
+    .keyword  { color: #ff7b72; font-weight: bold; }
+    .fn       { color: #d2a8ff; }
+    .string   { color: #a5d6ff; }
+    .variable { color: #79c0ff; }
+    .operator { color: #d2a8ff; }
+    .bracket  { color: #d2a8ff; }
+    .paren    { color: #e6edf3; }
+
+    .terminal-body {
+      padding: 24px 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .terminal-prompt {
+      font-family: 'Fira Code', monospace;
+      font-size: 28px;
+      color: #3fb950;
+    }
+
+    .terminal-output {
+      font-family: 'Fira Code', monospace;
+      font-size: 28px;
+      color: #e6edf3;
+      padding-left: 24px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 14px;
+      height: 30px;
+      background: #3fb950;
+      vertical-align: middle;
+      margin-left: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-05" class="clip" data-start="0" data-duration="30.67" data-track-index="0">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="30.67" data-track-index="4">
+      In danh sách ra Terminal
+    </div>
+
+    <!-- Code Editor -->
+    <div class="pane-card clip" id="editor-card" data-start="0" data-duration="30.67" data-track-index="2">
+      <div class="pane-titlebar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="pane-filename">main.py</div>
+      </div>
+      <div class="editor-body">
+        <div class="code-row">
+          <span class="line-num">1</span>
+          <span class="code-text" id="line1"></span>
+        </div>
+        <div class="code-row">
+          <span class="line-num">2</span>
+          <span class="code-text" id="line2"></span>
+        </div>
+        <div class="code-row">
+          <span class="line-num">3</span>
+          <span class="code-text" id="line3"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <div class="pane-card clip" id="terminal-card" data-start="0" data-duration="30.67" data-track-index="3">
+      <div class="pane-titlebar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <div class="pane-filename">Terminal</div>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-prompt">$ python main.py<span class="cursor" id="cursor"></span></div>
+        <div class="terminal-output" id="out1">['An', 'Bình', 'Cường', 'Dũng', 'Em']</div>
+        <div class="terminal-output" id="out2">Độ dài của danh sách là: 5</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-05"] = tl;
+
+    const _build05 = setInterval(function() {
+      const root = document.getElementById("scene-05");
+      if (!root) return;
+      clearInterval(_build05);
+
+      tl.set(".clip", { autoAlpha: 1 });
+
+      // ── Initial hidden states (inside timeline) ──────────────────────
+      tl.set("#intro-title",   { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#editor-card",   { autoAlpha: 0, y: 40 }, 0);
+      tl.set("#terminal-card", { autoAlpha: 0, y: 40 }, 0);
+      tl.set("#out1",          { autoAlpha: 0 }, 0);
+      tl.set("#out2",          { autoAlpha: 0 }, 0);
+
+      // ── PHASE 1: intro-title ──────────────────────────────────────────
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 2.0);
+
+      // ── PHASE 2: editor-card xuất hiện sau khi intro lên góc ─────────
+      tl.to("#editor-card", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 3.0);
+
+      // ── PHASE 4: terminal-card xuất hiện sau editor ──────────────────
+      tl.to("#terminal-card", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, 4.0);
+
+      // ── PHASE 5: cursor blink ─────────────────────────────────────────
+      tl.to("#cursor", { autoAlpha: 0, duration: 0.4, repeat: -1, yoyo: true }, 5.0);
+
+      // ── PHASE 6: set code content then fade in ───────────────────────
+      document.getElementById('line1').innerHTML = '<span class="variable">students<\/span> <span class="operator">=<\/span> <span class="bracket">[<\/span><span class="string">"An"<\/span>, <span class="string">"Bình"<\/span>, <span class="string">"Cường"<\/span>, <span class="string">"Dũng"<\/span>, <span class="string">"Em"<\/span><span class="bracket">]<\/span>';
+      document.getElementById('line2').innerHTML = '<span class="fn">print<\/span><span class="paren">(<\/span><span class="variable">students<\/span><span class="paren">)<\/span>';
+      document.getElementById('line3').innerHTML = '<span class="fn">print<\/span><span class="paren">(<\/span><span class="string">"Độ dài của danh sách là:"<\/span>, <span class="fn">len<\/span><span class="paren">(<\/span><span class="variable">students<\/span><span class="paren">))<\/span>';
+
+      tl.set(["#line1","#line2","#line3"], { autoAlpha: 0 }, 0);
+      tl.to("#line1", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 5.5);
+      tl.to("#line2", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 7.5);
+      tl.to("#line3", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 9.5);
+
+      // ── PHASE 7: dim editor, highlight terminal ───────────────────────
+      tl.to("#editor-card",   { autoAlpha: 0.5, duration: 0.4 }, 14.0);
+      tl.to("#terminal-card", { boxShadow: "0 0 50px rgba(63,185,80,0.25)", duration: 0.3 }, "<");
+
+      // ── PHASE 8: out1 fade in ─────────────────────────────────────────
+      tl.to("#out1", { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 14.5);
+
+      // ── PHASE 9: out2 fade in ─────────────────────────────────────────
+      tl.to("#out2", { autoAlpha: 1, duration: 0.45, ease: "power2.out" }, 15.5);
+
+      // ── PHASE 10: color highlights ────────────────────────────────────
+      tl.to("#out1", { color: "#a5d6ff", duration: 0.3 }, 16.5);
+      tl.to("#out2", { color: "#3fb950", duration: 0.3 }, 16.7);
+
+      // ── PHASE 11: restore editor ──────────────────────────────────────
+      tl.to("#editor-card", { autoAlpha: 1, duration: 0.5 }, 20.0);
+
+      // ── PHASE 12: editor scale pulse ──────────────────────────────────
+      tl.to("#editor-card", { scale: 1.01, duration: 0.45, yoyo: true, repeat: 1, ease: "power1.inOut" }, 22.0);
+
+      tl.set({}, {}, 30.67);
+    }, 50);
+  </script>
+</body>
+</html>

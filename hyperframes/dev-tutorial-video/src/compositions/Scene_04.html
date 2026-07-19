@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scene 04 - Áp dụng thuật ngữ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+    }
+    body::before { top: -200px; left: -200px; width: 800px; height: 800px; background: rgba(56,189,248,0.15); }
+    body::after  { bottom: -200px; right: -200px; width: 600px; height: 600px; background: rgba(168,85,247,0.15); }
+
+    #scene-04 {
+      width: 1920px; height: 1080px; position: relative;
+    }
+
+    /* ── Intro title (centered, absolute) ── */
+    .intro-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 72px; font-weight: 700;
+      color: #e6edf3;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* ── Badge row — phía trên code-card ── */
+    #badge-row {
+      position: absolute;
+      top: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 36px;
+      align-items: center;
+    }
+
+    .annotation-badge {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .badge-length  { background: rgba(63,185,80,0.1);   border: 2px solid #3fb950; color: #3fb950; }
+    .badge-element { background: rgba(255,166,87,0.1);   border: 2px solid #ffa657; color: #ffa657; }
+    .badge-index   { background: rgba(210,168,255,0.1);  border: 2px solid #d2a8ff; color: #d2a8ff; }
+
+    /* ── Code card — giữa màn hình ── */
+    #code-card {
+      position: absolute;
+      top: 360px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      padding: 44px 72px;
+    }
+
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 24px;
+    }
+    .dot { width: 13px; height: 13px; border-radius: 50%; }
+    .dot-r { background: #f85149; }
+    .dot-y { background: #ffa657; }
+    .dot-g { background: #3fb950; }
+
+    .code-display {
+      font-family: 'Fira Code', monospace;
+      font-size: 46px;
+      color: #e6edf3;
+      text-align: center;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .keyword  { color: #ff7b72; font-weight: bold; }
+    .string   { color: #a5d6ff; }
+    .variable { color: #79c0ff; }
+    .operator { color: #d2a8ff; }
+    .bracket  { color: #d2a8ff; font-weight: 700; }
+
+    .name-item {
+      display: inline-block;
+      position: relative;
+      margin: 0 4px;
+    }
+
+    .circle-overlay {
+      position: absolute;
+      border: 3px solid #ffa657;
+      border-radius: 50%;
+      pointer-events: none;
+      top: -10px; left: -10px;
+      right: -10px; bottom: -10px;
+    }
+
+    .index-label {
+      position: absolute;
+      top: -54px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Fira Code', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: #d2a8ff;
+    }
+
+    .index-label.zero { color: #f85149; }
+
+    /* ── Ruler — bên dưới code-card ── */
+    #ruler-wrap {
+      position: absolute;
+      top: 0; left: 0; /* set động bằng JS */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #ruler {
+      position: relative;
+      height: 28px;
+      width: 800px; /* sẽ được set động bằng JS */
+    }
+
+    .ruler-line {
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      height: 2px;
+      background: #3fb950;
+      transform-origin: left;
+    }
+
+    .ruler-cap {
+      position: absolute;
+      top: 50%;
+      width: 2px; height: 28px;
+      background: #3fb950;
+      transform: translateY(-50%);
+    }
+    .ruler-cap-left  { left: 0; }
+    .ruler-cap-right { right: 0; }
+
+    #length-label {
+      font-family: 'Fira Code', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: #3fb950;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-04" class="clip" data-start="0" data-duration="30.85" data-track-index="0">
+    <!-- Intro title -->
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="30.85" data-track-index="5">
+      Áp dụng thuật ngữ
+    </div>
+
+    <!-- Badge row — phía trên code-card -->
+    <div id="badge-row" class="clip" data-start="0" data-duration="30.85" data-track-index="4">
+      <div class="annotation-badge badge-length"  id="badge-length">Length = 5</div>
+      <div class="annotation-badge badge-element" id="badge-element">Element: "An", "Bình"...</div>
+      <div class="annotation-badge badge-index"   id="badge-index">Index: 0, 1, 2, 3, 4</div>
+    </div>
+
+    <!-- Code card — giữa màn hình -->
+    <div id="code-card" class="clip" data-start="0" data-duration="30.85" data-track-index="3">
+      <div class="card-header">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      </div>
+      <div class="code-display" id="code-display">
+        <span class="variable">students</span>
+        <span class="operator"> = </span>
+        <span class="bracket" id="bracket-open">[</span><!--
+        --><span class="name-item" id="ni-0">
+          <span class="string">"An"</span>
+          <div class="circle-overlay" id="circle-0"></div>
+          <div class="index-label zero" id="idx-0">0</div>
+        </span><span style="color:#e6edf3">, </span><!--
+        --><span class="name-item" id="ni-1">
+          <span class="string">"Bình"</span>
+          <div class="circle-overlay" id="circle-1"></div>
+          <div class="index-label" id="idx-1">1</div>
+        </span><span style="color:#e6edf3">, </span><!--
+        --><span class="name-item" id="ni-2">
+          <span class="string">"Cường"</span>
+          <div class="circle-overlay" id="circle-2"></div>
+          <div class="index-label" id="idx-2">2</div>
+        </span><span style="color:#e6edf3">, </span><!--
+        --><span class="name-item" id="ni-3">
+          <span class="string">"Dũng"</span>
+          <div class="circle-overlay" id="circle-3"></div>
+          <div class="index-label" id="idx-3">3</div>
+        </span><span style="color:#e6edf3">, </span><!--
+        --><span class="name-item" id="ni-4">
+          <span class="string">"Em"</span>
+          <div class="circle-overlay" id="circle-4"></div>
+          <div class="index-label" id="idx-4">4</div>
+        </span><!--
+        --><span class="bracket" id="bracket-close">]</span>
+      </div>
+    </div>
+
+    <!-- Ruler — bên dưới code-card -->
+    <div id="ruler-wrap" class="clip" data-start="0" data-duration="30.85" data-track-index="2">
+      <div id="ruler">
+        <div class="ruler-line" id="ruler-line"></div>
+        <div class="ruler-cap ruler-cap-left"></div>
+        <div class="ruler-cap ruler-cap-right"></div>
+      </div>
+      <div id="length-label">Length = 5</div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-04"] = tl;
+
+    const _build04 = setInterval(function() {
+      const root = document.getElementById("scene-04");
+      if (!root) return;
+      clearInterval(_build04);
+
+      // ── Đo ruler width, left và top dựa trên vị trí thực ───────────
+      requestAnimationFrame(function() {
+        const bOpen  = document.getElementById("bracket-open");
+        const bClose = document.getElementById("bracket-close");
+        const card   = document.getElementById("code-card");
+        const wrap   = document.getElementById("ruler-wrap");
+        if (bOpen && bClose && card && wrap) {
+          const r1   = bOpen.getBoundingClientRect();
+          const r2   = bClose.getBoundingClientRect();
+          const rCard = card.getBoundingClientRect();
+          const w    = r2.right - r1.left;
+          if (w > 0) {
+            wrap.style.width = w + "px";
+            wrap.style.left  = r1.left + "px";
+            wrap.style.top   = (rCard.bottom + 24) + "px";
+            document.getElementById("ruler").style.width = w + "px";
+          }
+        }
+      });
+
+      tl.set(".clip", { autoAlpha: 1 });
+
+      // ── Initial hidden states (inside timeline) ──────────────────────
+      tl.set("#intro-title",  { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#code-card",    { autoAlpha: 0, scale: 0.9 }, 0);
+      tl.set("#badge-row",    { autoAlpha: 0 }, 0);
+      tl.set(["#badge-length","#badge-element","#badge-index"], { autoAlpha: 0, y: 20 }, 0);
+      tl.set("#ruler-wrap",   { autoAlpha: 0 }, 0);
+      tl.set("#ruler-line",   { scaleX: 0 }, 0);
+      tl.set("#length-label", { autoAlpha: 0 }, 0);
+      tl.set(["#circle-0","#circle-1","#circle-2","#circle-3","#circle-4"], { autoAlpha: 0, scale: 0.5 }, 0);
+      tl.set(["#idx-0","#idx-1","#idx-2","#idx-3","#idx-4"], { autoAlpha: 0, y: -20 }, 0);
+
+      // ── PHASE 1: intro-title ──────────────────────────────────────────
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 2.0);
+
+      // ── PHASE 2: code-card xuất hiện sau khi intro đã lên góc ────────
+      tl.to("#code-card", { autoAlpha: 1, scale: 1, duration: 0.7, ease: "back.out(1.4)" }, 3.0);
+
+      // ── PHASE 3: ruler draw in bên dưới code-card ────────────────────
+      tl.to("#ruler-wrap",   { autoAlpha: 1, duration: 0.3 }, 5.0);
+      tl.to("#ruler-line",   { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, 5.1);
+      tl.to("#length-label", { autoAlpha: 1, duration: 0.4 }, 5.7);
+
+      // ── PHASE 4: badge-length ─────────────────────────────────────────
+      tl.to("#badge-row",    { autoAlpha: 1, duration: 0.1 }, 7.0);
+      tl.to("#badge-length", { autoAlpha: 1, y: 0, duration: 0.45, ease: "back.out(1.4)" }, 7.0);
+
+      // ── PHASE 5: badge-element + circles stagger ─────────────────────
+      tl.to("#badge-element", { autoAlpha: 1, y: 0, duration: 0.4, ease: "back.out(1.4)" }, 9.5);
+      [0,1,2,3,4].forEach(function(i) {
+        tl.to("#circle-" + i, { autoAlpha: 1, scale: 1, duration: 0.35, ease: "back.out(1.7)" }, 9.6 + i * 0.18);
+      });
+
+      // ── PHASE 6: badge-index + idx labels stagger ────────────────────
+      tl.to("#badge-index", { autoAlpha: 1, y: 0, duration: 0.4, ease: "back.out(1.4)" }, 13.0);
+      [0,1,2,3,4].forEach(function(i) {
+        tl.to("#idx-" + i, { autoAlpha: 1, y: 0, duration: 0.35, ease: "back.out(1.7)" }, 13.1 + i * 0.22);
+      });
+
+      // ── PHASE 7: spotlight idx-0 — "bắt đầu từ 0" ───────────────────
+      tl.to("#idx-0", { scale: 1.5, color: "#f85149", textShadow: "0 0 18px rgba(248,81,73,0.9)", duration: 0.35, yoyo: true, repeat: 3 }, 15.5);
+
+      // ── PHASE 8: final pulse code-card ───────────────────────────────
+      tl.to("#code-card", { scale: 1.02, duration: 0.45, yoyo: true, repeat: 1, ease: "power1.inOut" }, 20.0);
+
+      tl.set({}, {}, 30.85);
+    }, 50);
+  </script>
+</body>
+</html>

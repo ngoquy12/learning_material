@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0d1117;
+      }
+      .clip { position: absolute; visibility: hidden; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="python-list-preview"
+      data-start="0"
+      data-duration="187.84"
+      data-width="1920"
+      data-height="1080"
+    >
+
+      <!-- Scene 01 — 0s → 38.84s -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_01.html"
+        data-composition-id="scene-01"
+        data-start="0"
+        data-duration="38.84"
+        data-track-index="1"
+      ></div>
+
+      <!-- Scene 02 — 38.84s → 84.08s -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_02.html"
+        data-composition-id="scene-02"
+        data-start="38.84"
+        data-duration="45.24"
+        data-track-index="2"
+      ></div>
+
+      <!-- Scene 03 — 84.08s → 111.25s -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_03.html"
+        data-composition-id="scene-03"
+        data-start="84.08"
+        data-duration="27.17"
+        data-track-index="3"
+      ></div>
+
+      <!-- Scene 04 — 111.25s → 142.10s -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_04.html"
+        data-composition-id="scene-04"
+        data-start="111.25"
+        data-duration="30.85"
+        data-track-index="4"
+      ></div>
+
+      <!-- Scene 05 — 142.10s → 172.77s -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_05.html"
+        data-composition-id="scene-05"
+        data-start="142.10"
+        data-duration="30.67"
+        data-track-index="5"
+      ></div>
+
+      <!-- Scene 06 — 172.77s → 187.84s -->
+      <div
+        class="clip"
+        data-composition-src="src/compositions/Scene_06.html"
+        data-composition-id="scene-06"
+        data-start="172.77"
+        data-duration="15.07"
+        data-track-index="6"
+      ></div>
+
+      <!-- TTS Audio — absolute timestamps in root timeline -->
+      <audio id="tts-01" data-start="0"      data-duration="38.84" data-track-index="20" data-volume="1" src="courses/fundamental_python/assets/tts/scene_01.mp3"></audio>
+      <audio id="tts-02" data-start="38.84"  data-duration="45.24" data-track-index="21" data-volume="1" src="courses/fundamental_python/assets/tts/scene_02.mp3"></audio>
+      <audio id="tts-03" data-start="84.08"  data-duration="27.17" data-track-index="22" data-volume="1" src="courses/fundamental_python/assets/tts/scene_03.mp3"></audio>
+      <audio id="tts-04" data-start="111.25" data-duration="30.85" data-track-index="23" data-volume="1" src="courses/fundamental_python/assets/tts/scene_04.mp3"></audio>
+      <audio id="tts-05" data-start="142.10" data-duration="30.67" data-track-index="24" data-volume="1" src="courses/fundamental_python/assets/tts/scene_05.mp3"></audio>
+      <audio id="tts-06" data-start="172.77" data-duration="15.07" data-track-index="25" data-volume="1" src="courses/fundamental_python/assets/tts/scene_06.mp3"></audio>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["python-list-preview"] = tl;
+    </script>
+
+  </body>
+</html>

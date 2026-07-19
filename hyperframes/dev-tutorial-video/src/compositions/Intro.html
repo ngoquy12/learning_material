@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #000;
+    }
+    #scene-intro {
+      width: 1920px; height: 1080px; position: relative;
+    }
+    #intro-video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-intro" class="clip" data-start="0" data-duration="9.24" data-track-index="0">
+    <video
+      id="intro-video"
+      class="clip"
+      src="../../courses/fundamental_python/assets/intro.mp4"
+      data-start="0"
+      data-duration="9.24"
+      data-track-index="1"
+      data-has-audio="true"
+      data-volume="1"
+      muted
+      playsinline
+    ></video>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["intro"] = tl;
+
+    tl.set("#scene-intro", { autoAlpha: 1 }, 0);
+    tl.set("#intro-video",  { autoAlpha: 1 }, 0);
+    tl.set({}, {}, 9.24);
+  </script>
+</body>
+</html>

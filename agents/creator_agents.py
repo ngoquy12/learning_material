@@ -2,6 +2,7 @@ import json
 import re
 from typing import Dict, Any, List
 from core.state import AgentState
+from core.llm import call_llm
 
 def estimate_tokens(text: str) -> int:
     if not text:
@@ -71,7 +72,10 @@ def determine_visualization_strategy(lesson_title: str, lesson_details: str, tec
         "tổng quan", "kiến trúc", "architecture", "mô hình", "framework", 
         "quy trình", "workflow", "flowchart", "chiến lược", "strategy", 
         "chuỗi giá trị", "sơ đồ", "khái niệm", "giới thiệu", "overview", 
-        "lifecycle", "client-server", "mvc", "agile", "scrum"
+        "lifecycle", "client-server", "mvc", "agile", "scrum",
+        "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", 
+        "đánh giá", "roadmap", "method", "methodology", "study plan", 
+        "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
     ]
     if any(sig in combined_text for sig in concept_signals):
         return {
@@ -89,6 +93,217 @@ def determine_visualization_strategy(lesson_title: str, lesson_details: str, tec
         "rationale": f"Bài học '{lesson_title}' tập trung vào thực thi mã nguồn, thuật toán hoặc xử lý logic lập trình, cần Code Tracker theo dõi dòng lệnh và Console Log thời gian thực."
     }
 
+def fix_raw_newlines_in_json_strings(json_str: str) -> str:
+    chars = list(json_str)
+    in_string = False
+    escaped = False
+    for i in range(len(chars)):
+        char = chars[i]
+        if char == '"' and not escaped:
+            in_string = not in_string
+        elif char == '\\' and in_string and not escaped:
+            escaped = True
+            continue
+        elif char == '\n' and in_string:
+            chars[i] = '\\n'
+        elif char == '\r' and in_string:
+            chars[i] = ''
+        escaped = False
+    return "".join(chars)
+
+def robust_json_parse(json_str: str) -> dict:
+    try:
+        return json.loads(json_str)
+    except Exception as e:
+        print(f"  [Robust Parser] Standard json.loads failed: {e}. Attempting custom recovery...")
+        
+    cleaned = json_str.strip()
+    if cleaned.startswith("{"):
+        cleaned = cleaned[1:]
+    if cleaned.endswith("}"):
+        cleaned = cleaned[:-1]
+        
+    result = {}
+    keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer"]
+    
+    offsets = []
+    for k in keys:
+        pattern = r'"' + k + r'"\s*:\s*'
+        match = re.search(pattern, cleaned)
+        if match:
+            offsets.append((k, match.start(), match.end()))
+            
+    offsets.sort(key=lambda x: x[1])
+    
+    for idx, (k, start, val_start) in enumerate(offsets):
+        val_end = offsets[idx+1][1] if idx + 1 < len(offsets) else len(cleaned)
+        val_sub = cleaned[val_start:val_end].strip()
+        
+        if val_sub.endswith(","):
+            val_sub = val_sub[:-1].strip()
+            
+        if k in ["problem", "analysis", "solution", "example", "resolve", "summary"]:
+            if val_sub.startswith('"'):
+                val_sub = val_sub[1:]
+            if val_sub.endswith('"'):
+                val_sub = val_sub[:-1]
+            val_sub = val_sub.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
+            result[k] = val_sub
+        else:
+            try:
+                result[k] = json.loads(val_sub)
+            except Exception:
+                try:
+                    import ast
+                    result[k] = ast.literal_eval(val_sub)
+                except Exception:
+                    try:
+                        cleaned_sub = fix_raw_newlines_in_json_strings(val_sub)
+                        result[k] = json.loads(cleaned_sub)
+                    except Exception:
+                        if k == "self_test":
+                            items = re.findall(r'"([^"\\]*(?:\\.[^"\\]*)*)"', val_sub)
+                            result[k] = [item.replace('\\"', '"') for item in items]
+                        elif k == "quiz":
+                            result[k] = []
+                        elif k == "lab":
+                            result[k] = {"title": "Lab", "objectives": [], "steps": [], "checklist": []}
+                        else:
+                            result[k] = {}
+                            
+    for k in keys:
+        if k not in result:
+            if k in ["problem", "analysis", "solution", "example", "resolve", "summary"]:
+                result[k] = ""
+            elif k == "self_test":
+                result[k] = []
+            elif k == "quiz":
+                result[k] = []
+            elif k == "lab":
+                result[k] = {"title": "Lab", "objectives": [], "steps": [], "checklist": []}
+            else:
+                result[k] = {}
+                
+    return result
+
+def generate_offline_master_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, tech_stack: str) -> Dict[str, Any]:
+    print(f"  [Creator Fallback] Generating offline mock master content for stack: {tech_stack}...")
+    parts = tech_stack.lower().split('/')
+    lang = parts[0] if len(parts) > 0 else "generic"
+    framework = parts[1] if len(parts) > 1 else "core"
+    
+    # Generic example code based on stack
+    example_code = ""
+    if lang == "python":
+        if framework == "fastapi":
+            example_code = (
+                "from fastapi import FastAPI\n"
+                "app = FastAPI()\n\n"
+                "@app.get('/')\n"
+                "def read_root():\n"
+                "    return {'message': 'Hello FastAPI'}"
+            )
+        else:
+            example_code = "print('Hello, Python Core!')"
+    elif lang in ("typescript", "javascript"):
+        if framework == "nestjs":
+            example_code = (
+                "import { Controller, Get } from '@nestjs/common';\n\n"
+                "@Controller()\n"
+                "export class AppController {\n"
+                "  @Get()\n"
+                "  getHello(): string {\n"
+                "    return 'Hello NestJS!';\n"
+                "  }\n"
+                "}"
+            )
+        elif framework == "react":
+            example_code = (
+                "import React from 'react';\n"
+                "export default function App() {\n"
+                "  return <h1>Hello React</h1>;\n"
+                "}"
+            )
+        else:
+            example_code = "console.log('Hello, JS/TS Core!');"
+    elif lang == "java":
+        if framework == "springboot":
+            example_code = (
+                "import org.springframework.web.bind.annotation.GetMapping;\n"
+                "import org.springframework.web.bind.annotation.RestController;\n\n"
+                "@RestController\n"
+                "public class HelloController {\n"
+                "    @GetMapping('/')\n"
+                "    public String hello() { return 'Hello Spring!'; }\n"
+                "}"
+            )
+        else:
+            example_code = "System.out.println(\"Hello, Java Core!\");"
+    else:
+        example_code = f"// Hello World for {tech_stack}"
+
+    return {
+        "problem": f"### Đặt vấn đề\nHọc viên cần làm quen với {lesson_title} và cấu hình cơ bản cho {tech_stack}.",
+        "analysis": f"### Phân tích cơ chế\n{lesson_title} giải quyết các bài toán về {lesson_details or 'kiến trúc phần mềm'}.",
+        "solution": f"### Giải pháp kỹ thuật\nSử dụng các thư viện chuẩn và tuân thủ các quy tắc của {tech_stack}.",
+        "example": example_code,
+        "resolve": f"### Phân tích luồng chạy\nKhi ứng dụng chạy, mã nguồn ví dụ trên sẽ khởi chạy và thực thi.",
+        "summary": "### Tổng kết\n- Hiểu rõ cơ chế hoạt động.\n- Tránh cấu hình sai.\n- Áp dụng đúng chuẩn.\n\n### 3 lỗi thường gặp\n1. **Sai cấu hình môi trường**: Lỗi phổ biến nhất.\n2. **Import sai thư viện**: Thiếu package.\n3. **Cú pháp chưa chuẩn**: Vi phạm quy chuẩn code.",
+        "self_test": [
+            {
+                "question": f"Câu hỏi 1: Mục đích chính của {lesson_title} là gì?",
+                "answer": f"Mục đích chính là làm quen với kiến thức {lesson_title} và tích hợp vào hệ thống {tech_stack}."
+            }
+        ],
+        "references": [
+            {
+                "title": f"Tài liệu chính thức của {lang.capitalize()}",
+                "url": f"https://www.google.com/search?q={lang}+official+documentation"
+            }
+        ],
+        "quiz": [
+            {
+                "question": f"Đâu là đặc tả chính của {lesson_title}?",
+                "options": ["Giải pháp chuẩn", "Cấu hình mặc định", "Không có", "Cả A và B"],
+                "correct_option_index": 3,
+                "explanation": "Cả A và B đều đúng vì nó cung cấp giải pháp chuẩn cùng với cấu hình mặc định."
+            }
+        ],
+        "lab": {
+            "title": f"Lab thực hành {lesson_title}",
+            "objectives": [f"Khởi tạo thành công ứng dụng {tech_stack}", "Cấu hình cơ bản"],
+            "steps": ["Bước 1: Tạo thư mục", "Bước 2: Viết mã nguồn", "Bước 3: Chạy và kiểm tra"],
+            "checklist": ["Ứng dụng chạy không lỗi", "Kết quả trả về đúng mong đợi"]
+        },
+        "visualizer": {
+            "canvas_title": f"Trực quan hóa {lesson_title}",
+            "legend_html": "<span class='badge bg-success'>Hoạt động</span>",
+            "stats_html": "<div>Trạng thái: OK</div>",
+            "code_tracker_html": f"<div class='code-line' id='line-0'>{example_code.splitlines()[0] if example_code else ''}</div>",
+            "input_label": "Tham số đầu vào",
+            "input_default": "Mặc định",
+            "engine_js": (
+                "class InteractiveVisualizerEngine {\n"
+                "  constructor() { this.interval = null; }\n"
+                "  start() {\n"
+                "    console.log('Started visualizer');\n"
+                "    const l = document.getElementById('line-0');\n"
+                "    if(l) l.classList.add('active-line');\n"
+                "    const log = document.getElementById('log-messages');\n"
+                "    if(log) log.innerHTML += '<p>Visualizer started successfully.</p>';\n"
+                "  }\n"
+                "  pause() { console.log('Paused'); }\n"
+                "  step() { console.log('Step'); }\n"
+                "  reset() {\n"
+                "    console.log('Reset');\n"
+                "    const l = document.getElementById('line-0');\n"
+                "    if(l) l.classList.remove('active-line');\n"
+                "  }\n"
+                "}"
+            )
+        }
+    }
+
 def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, attempt_num: int, core_ssot: Dict[str, Any] = None, feedback: str = "", state: AgentState = None) -> Dict[str, Any]:
     # Cache optimization: check if we already generated master content for this lesson
     if state is not None and "master_content" in state and attempt_num == 1 and not feedback:
@@ -100,104 +315,70 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
-    if gemini_key or openai_key:
-        from core.llm import call_llm
-        from core.skills import load_skill_content
-        
-        tech_stack = "python/fastapi"
-        if state:
-            tech_stack = state.get("technology_stack", "python/fastapi")
-            
-        print(f"  [Creator Agent] Dynamically generating lesson content via LLM (Attempt #{attempt_num}) for stack: {tech_stack}...")
-        
-        TECH_STACK_RULES = {
-            "typescript/nestjs": {
-                "frameworks": "NestJS, TypeScript, TypeORM/Prisma",
-                "style_guideline": "tuân thủ TypeScript Clean Code, NestJS style guide, OOP, Dependency Injection, SOLID principles",
-                "database_orm": "TypeORM hoặc Prisma",
-                "validation": "class-validator và class-transformer",
-                "file_extension": "TypeScript (.ts)"
-            },
-            "typescript/react": {
-                "frameworks": "React, TypeScript, TailwindCSS/Styled Components",
-                "style_guideline": "tuân thủ React Hooks guidelines, functional components, component separation, TypeScript type definitions",
-                "database_orm": "React State Management (Zustand/Redux Toolkit)",
-                "validation": "Zod hoặc Yup",
-                "file_extension": "TypeScript React (.tsx)"
-            },
-            "java/springboot": {
-                "frameworks": "Java, Spring Boot, Spring Data JPA, Hibernate",
-                "style_guideline": "tuân thủ Java Code Conventions, Spring Boot best practices, SOLID principles, OOP",
-                "database_orm": "Spring Data JPA / Hibernate",
-                "validation": "Jakarta Bean Validation (Hibernate Validator)",
-                "file_extension": "Java (.java)"
-            },
-            "python/fastapi": {
-                "frameworks": "FastAPI, Pydantic, SQLAlchemy",
-                "style_guideline": "tuân thủ PEP 8, Type Hints, clean coding standards",
-                "database_orm": "SQLAlchemy ORM",
-                "validation": "Pydantic BaseModel",
-                "file_extension": "Python (.py)"
-            },
-            "python/core": {
-                "frameworks": "Python Core, Standard Library",
-                "style_guideline": "tuân thủ PEP 8, Type Hints, clean coding standards, functional and object-oriented paradigms",
-                "database_orm": "Không sử dụng ORM (chỉ dùng các cấu trúc dữ liệu thuần, file I/O hoặc sqlite3 nếu cần)",
-                "validation": "assert, Exception handling, Type Hints",
-                "file_extension": "Python (.py)"
-            },
-            "business/management": {
-                "frameworks": "Quản trị Kinh doanh, Chiến lược, Tổ chức Doanh nghiệp, Chuỗi giá trị",
-                "style_guideline": "tuân thủ tư duy quản trị chiến lược, phân tích thực chứng, trực quan hóa sơ đồ theo chuẩn Effective HTML",
-                "database_orm": "Không áp dụng code ORM (trực quan hóa bằng sơ đồ SVG tương tác và ma trận chiến lược)",
-                "validation": "KPIs, Balanced Scorecard, SWOT/TOWS",
-                "file_extension": "HTML Document (.html)"
-            },
-            "business/economics": {
-                "frameworks": "Kinh tế học, Tài chính, Thị trường, Mô hình cung cầu",
-                "style_guideline": "tuân thủ lý thuyết kinh tế hiện đại, phân tích số liệu thực chứng, trực quan hóa biểu đồ kinh tế theo chuẩn Effective HTML",
-                "database_orm": "Không áp dụng code ORM",
-                "validation": "Chỉ số kinh tế vĩ mô/vi mô, phân tích ROI/NPV",
-                "file_extension": "HTML Document (.html)"
-            }
-        }
-        
-        rules = TECH_STACK_RULES.get(tech_stack, TECH_STACK_RULES["python/fastapi"])
-        
-        # Xác định chiến lược trực quan hóa thông minh dựa trên tín hiệu bài học
-        viz_decision = determine_visualization_strategy(lesson_title, lesson_details, tech_stack)
-        print(f"  [Pedagogical Router] Lesson '{lesson_title}' -> Strategy: {viz_decision['strategy']} ({viz_decision['skill_name']}) | Rationale: {viz_decision['rationale']}")
-        
-        reading_skill = load_skill_content(viz_decision["skill_name"])
-        quiz_skill = load_skill_content("quiz_generator")
-        lab_skill = load_skill_content("lab_generator")
-        
-        # Load lessons learned from previous runs to prevent repeating mistakes
-        lessons_learned = load_skill_content("lessons_learned")
-        lessons_learned_prompt = ""
-        if lessons_learned:
-            lessons_learned_prompt = f"\n--- BÀI HỌC KINH NGHIỆM PHÒNG CHỐNG LỖI TỪ CÁC BÀI TRƯỚC (Lessons Learned) ---\nHãy đọc kỹ các bài học này để không lặp lại sai lầm tương tự:\n{lessons_learned}\n"
+    tech_stack = "python/fastapi"
+    if state:
+        tech_stack = state.get("technology_stack", "python/fastapi")
 
-        # Adapt reading skill content to target stack
-        reading_skill = (reading_skill
-            .replace("PEP 8, có đầy đủ Type Hints", rules["style_guideline"])
-            .replace("FastAPI/Pydantic/SQLAlchemy", rules["frameworks"])
-            .replace("SQLAlchemy ORM", rules["database_orm"])
-            .replace("Pydantic BaseModel", rules["validation"])
-            .replace("mã nguồn Python", f"mã nguồn {rules['file_extension']}")
-            .replace("FastAPI", rules["frameworks"].split(",")[0])
-        )
+    if not (gemini_key or openai_key):
+        result = generate_offline_master_content(session_id, lesson_id, lesson_title, lesson_details, expected_output, tech_stack)
+        if state is not None:
+            state["master_content"] = result
+        return result
+
         
-        system_prompt = f"""Bạn là chuyên gia Thiết kế Chương trình Đào tạo Lập trình (Instructional Designer) và Kỹ sư Phần mềm cao cấp tại Rikkei Education. 
+    from core.llm import call_llm
+    from core.skills import load_skill_content
+    
+    tech_stack = "python/fastapi"
+    if state:
+        tech_stack = state.get("technology_stack", "python/fastapi")
+        
+    print(f"  [Creator Agent] Dynamically generating lesson content via LLM (Attempt #{attempt_num}) for stack: {tech_stack}...")
+    
+    # Xác định chiến lược trực quan hóa thông minh dựa trên tín hiệu bài học
+    viz_decision = determine_visualization_strategy(lesson_title, lesson_details, tech_stack)
+    print(f"  [Pedagogical Router] Lesson '{lesson_title}' -> Strategy: {viz_decision['strategy']} ({viz_decision['skill_name']}) | Rationale: {viz_decision['rationale']}")
+    
+    reading_skill = load_skill_content(viz_decision["skill_name"])
+    quiz_skill = load_skill_content("quiz_generator")
+    lab_skill = load_skill_content("lab_generator")
+    
+    # Load lessons learned from previous runs using the new structured Knowledge Memory Agent
+    lessons_learned_prompt = ""
+    try:
+        from agents.knowledge_memory_agent import get_relevant_memories_for_creator
+        # Determine scope from the visualization strategy
+        scope_hint = "mindmap" if "mindmap" in lesson_title.lower() else "all"
+        lessons_learned_prompt = get_relevant_memories_for_creator(
+            tech_stack=tech_stack,
+            scope=scope_hint,
+            limit=10
+        )
+    except Exception:
+        # Fallback to old flat Markdown loader if KMA not available yet
+        from core.skills import load_skill_content
+        lessons_learned = load_skill_content("lessons_learned")
+        if lessons_learned:
+            lessons_learned_prompt = (
+                "\n--- BÀI HỌC KINH NGHIỆM PHÒNG CHỐNG LỖI TỪ CÁC BÀI TRƯỚC (Lessons Learned) ---\n"
+                "Hãy đọc kỹ các bài học này để không lặp lại sai lầm tương tự:\n"
+                f"{lessons_learned}\n"
+            )
+
+    system_prompt = f"""Bạn là chuyên gia Thiết kế Chương trình Đào tạo Lập trình (Instructional Designer) và Kỹ sư Phần mềm cao cấp tại Rikkei Education. 
 Nhiệm vụ của bạn là biên soạn tài liệu học tập sâu sắc, chất lượng cao về công nghệ '{tech_stack}'.
 
-YÊU CẦU QUAN TRỌNG VỀ TRỌNG TÂM & ĐỘ SÂU KIẾN THỨC:
+YÊU CẦU QUAN TRỌNG VỀ TRỌNG TÂM, ĐỘ SÂU KIẾN THỨC VÀ KIỂM SOÁT PHẠM VI SƯ PHẠM:
 1. Tập trung 100% vào nội dung bài học: Tài liệu phải bám sát tuyệt đối tiêu đề và chi tiết yêu cầu của Lesson hiện tại từ PM. TUYỆT ĐỐI không viết lan man sang bài học khác làm nội dung quá dài hoặc nhắc đến các bài học tiếp theo.
-2. Ràng buộc công nghệ nghiêm ngặt (Technology Stack Isolation): Bạn phải tuân thủ tuyệt đối công nghệ '{tech_stack}'. 
-   - Nếu '{tech_stack}' là 'python/core' (Python cơ bản), TUYỆT ĐỐI KHÔNG ĐƯỢC có bất kỳ đoạn mã nguồn, ví dụ, câu hỏi trắc nghiệm, bài thực hành hoặc nhắc đến các thư viện phát triển Web/Database như FastAPI, Uvicorn, Pydantic, SQLAlchemy, các framework khác (NestJS, Spring Boot, React) hoặc hệ quản trị cơ sở dữ liệu (SQL, MySQL, PostgreSQL, SQLite...). Chỉ dùng Python cơ bản (vòng lặp, hàm, list, dict, class thuần...). Bất kỳ sự pha tạp nào đều sẽ bị loại bỏ hoàn toàn.
-   - Nếu '{tech_stack}' là 'python/fastapi', tuyệt đối không được nhắc đến hay trộn lẫn các framework của ngôn ngữ khác (NestJS, Spring Boot) hoặc thư viện Front-end (React).
-3. Không bịa đặt nội dung/mã nguồn: Nếu bài học mang tính lý thuyết tổng quan hoặc không liên quan trực tiếp đến lập trình mã nguồn phức tạp (như giới thiệu, cài đặt môi trường...), TUYỆT ĐỐI không tự bịa đặt ra mã nguồn lập trình phức tạp không liên quan. Thay vào đó, dùng câu lệnh CLI cơ bản hoặc ví dụ siêu ngắn hoặc để trống.
-4. Cách trình bày khoa học & súc tích: Độ dài bài đọc cần linh hoạt và vừa phải (khoảng 800 - 1500 từ tùy chủ đề). Trình bày mạch lạc, giải thích logic, sử dụng bảng biểu so sánh hoặc sơ đồ dòng dữ liệu (data flow) chuẩn xác để làm rõ vấn đề.
+2. Ràng buộc công nghệ nghiêm ngặt (Technology Stack Isolation): Bạn phải tuân thủ tuyệt đối công nghệ '{tech_stack}'. Chỉ sử dụng các thư viện, framework, cú pháp, quy chuẩn và cấu trúc chuẩn của công nghệ '{tech_stack}'. Tuyệt đối không được trộn lẫn, nhắc đến hoặc sử dụng các thư viện, công nghệ hoặc framework khác.
+3. RÀNG BUỘC PHẠM VI VÀ LUỸ KẾ KIẾN THỨC (STRICT SCOPE & PROGRESSION):
+   - Tuyệt đối CẤM sử dụng các khái niệm, cú pháp lập trình, thư viện, hoặc framework nâng cao chưa từng xuất hiện trong các bài học trước đó (xem phần "THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ").
+   - Mã nguồn ví dụ phải cực kỳ đơn giản, ngắn gọn và khớp 100% với trình độ hiện tại của học viên. CẤM tự ý đưa vào các cấu trúc phức tạp như lập trình bất đồng bộ (async/await), decorator, lambda nâng cao, hoặc các thư viện bên thứ ba nếu bài học hoặc các bài trước đó chưa dạy chúng.
+   - Nội dung giải thích phải dễ hiểu, thực tế, đi từ cơ chế hoạt động cơ bản nhất trước khi phân tích internals, đảm bảo không gây quá tải nhận thức.
+4. CẢNH BÁO SƯ PHẠM CHO BÀI HỌC NHỎ (MINOR LESSONS): Nếu nội dung bài học từ PM rất ngắn gọn, mang tính giới thiệu, cài đặt môi trường, hoặc lý thuyết đơn giản, TUYỆT ĐỐI KHÔNG mở rộng vấn đề, không bịa đặt nội dung phức tạp. Hãy đi thẳng vào trọng tâm. Trình bày nội dung cực kỳ ngắn gọn.
+5. Không bịa đặt nội dung/mã nguồn: Nếu bài học không liên quan trực tiếp đến lập trình mã nguồn phức tạp, TUYỆT ĐỐI không tự bịa đặt ra mã nguồn lập trình. Thay vào đó, dùng câu lệnh CLI cơ bản hoặc ví dụ siêu ngắn hoặc để trống trường `example`.
+6. QUY LUẬT CODE ĐỐI VỚI BÀI LÝ THUYẾT: Đối với bài học mang tính lý thuyết tổng quan (giới thiệu, tổng quan, khái niệm), HẠN CHẾ viết code. TUY NHIÊN, NẾU PM yêu cầu rõ ràng việc code/thực hành trong chi tiết bài học (lesson_details), BẠN BẮT BUỘC PHẢI VIẾT CODE NGẮN GỌN VÀ ĐẦY ĐỦ VÀO TRƯỜNG `example`.
+7. Hạn chế kích thước trả về (STRICT SIZE LIMIT): Toàn bộ chuỗi JSON trả về PHẢI cực kỳ ngắn gọn và có tổng số từ dưới 1000 từ. Mỗi mục Markdown (problem, analysis, solution, resolve, summary) chỉ được viết tối đa 100 từ. Trường 'example' chỉ chứa tối đa 15 dòng code mẫu. KHÔNG viết dài dòng, KHÔNG giải thích chi tiết quá mức. Nếu viết dài dòng, hệ thống sẽ tự động cắt cụt và bạn sẽ bị ĐÁNH GIÁ THẤT BẠI. HẠN CHẾ TỐI ĐA SỬ DỤNG ICON EMOJI. CHỈ dùng khi thực sự cần thiết. ĐẶC BIỆT CẤM TUYỆT ĐỐI đặt icon emoji ở đầu các tiêu đề (Headings).
 {lessons_learned_prompt}
 
 Hãy tuân thủ nghiêm ngặt các quy chuẩn sư phạm được định nghĩa trong các tài liệu Kỹ năng (Skills) sau:
@@ -211,27 +392,26 @@ Hãy tuân thủ nghiêm ngặt các quy chuẩn sư phạm được định ngh
 --- PHẦN THỰC HÀNH (Lab Guidelines) ---
 {lab_skill}
 """
+    
+    # Query local vector store for relevant context
+    rag_context = ""
+    try:
+        from core.vector_store import LightweightVectorStore
+        store = LightweightVectorStore()
+        matches = store.query(lesson_title, k=2)
+        if matches:
+            rag_context = f"\nCác khái niệm/mã nguồn liên quan từ Vector DB cục bộ cho stack {tech_stack}:\n" + "\n".join([f"- {m['text']}" for m in matches])
+    except Exception as e:
+        print(f"  [VectorStore Warning] Query failed: {e}")
         
-        # Query local vector store for relevant context
-        rag_context = ""
-        if tech_stack != "python/core":
-            try:
-                from core.vector_store import LightweightVectorStore
-                store = LightweightVectorStore()
-                matches = store.query(lesson_title, k=2)
-                if matches:
-                    rag_context = f"\nCác khái niệm/mã nguồn liên quan từ Vector DB cục bộ cho stack {tech_stack}:\n" + "\n".join([f"- {m['text']}" for m in matches])
-            except Exception as e:
-                print(f"  [VectorStore Warning] Query failed: {e}")
-            
-        prev_lessons_prompt = ""
-        if state and state.get("previous_lessons"):
-            prev_lessons_prompt = "\n--- THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ (Mối liên kết bài học) ---\n"
-            prev_lessons_prompt += "Để đảm bảo tính liên kết chặt chẽ và học tập luỹ tiến, bài học hiện tại bắt buộc phải coi các bài trước đó làm nền tảng học thuật và xây dựng tiếp nối nội dung, tuyệt đối không được dạy trước hoặc lặp lại trùng lặp nội dung:\n"
-            for prev in state["previous_lessons"]:
-                prev_lessons_prompt += f"- {prev['lesson_id']}: {prev['title']} (Nội dung: {prev['details']})\n"
+    prev_lessons_prompt = ""
+    if state and state.get("previous_lessons"):
+        prev_lessons_prompt = "\n--- THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ (Mối liên kết bài học) ---\n"
+        prev_lessons_prompt += "Để đảm bảo tính liên kết chặt chẽ và học tập luỹ tiến, bài học hiện tại bắt buộc phải coi các bài trước đó làm nền tảng học thuật và xây dựng tiếp nối nội dung, tuyệt đối không được dạy trước hoặc lặp lại trùng lặp nội dung:\n"
+        for prev in state["previous_lessons"]:
+            prev_lessons_prompt += f"- {prev['lesson_id']}: {prev['title']} (Nội dung: {prev['details']})\n"
 
-        user_prompt = f"""Hãy sinh nội dung học liệu cho:
+    user_prompt = f"""Hãy sinh nội dung học liệu cho:
 Session: {session_id}
 Lesson: {lesson_id} (Tiêu đề: {lesson_title})
 Chi tiết bài học từ PM: {lesson_details}
@@ -241,21 +421,28 @@ Phản hồi sửa đổi từ reviewer (nếu có): {feedback}
 {prev_lessons_prompt}
 
 Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
-{json.dumps(core_ssot, ensure_ascii=False) if core_ssot else f"Không có SSOT cụ thể, hãy tự sinh dựa trên kiến thức chuẩn {rules['frameworks']}."}
+{json.dumps(core_ssot, ensure_ascii=False) if core_ssot else f"Không có SSOT cụ thể, hãy tự sinh dựa trên kiến thức chuẩn {tech_stack}."}
 {rag_context}
 
 Đầu ra bắt buộc phải trả về duy nhất chuỗi JSON khớp với cấu trúc sau:
 {{
     "problem": "Nội dung phần đặt vấn đề (Markdown)",
     "analysis": "Nội dung phân tích cơ chế và so sánh (Markdown)",
-    "solution": "Nội dung giải pháp kỹ thuật kèm sơ đồ (Markdown)",
-    "example": "Mã nguồn {rules['file_extension']} mẫu sạch, hoàn chỉnh. LƯU Ý QUAN TRỌNG VỀ TÍNH LINH HOẠT: Nếu bài học mang tính lý thuyết tổng quan hoặc không liên quan trực tiếp đến lập trình mã nguồn phức tạp (ví dụ: giới thiệu ngôn ngữ, cài đặt môi trường...), TUYỆT ĐỐI không tự bịa đặt ra mã nguồn lập trình phức tạp không liên quan. Thay vào đó, hãy ghi các câu lệnh command line (CLI) cơ bản, hoặc các đoạn mã siêu ngắn minh họa, hoặc để trống.",
+    "solution": "Nội dung giải pháp kỹ thuật. NẾU VẼ SƠ ĐỒ SVG HOẶC MERMAID, BẮT BUỘC PHẢI VẼ CỰC KỲ ĐƠN GIẢN (Giới hạn tối đa 20 dòng) để tránh sập hệ thống!",
+    "example": "Mã nguồn minh họa. 🛑 TUYỆT ĐỐI KHÔNG TỰ BỊA CODE. BẠN CHỈ ĐƯỢC PHÉP SINH CODE NẾU PM CÓ CUNG CẤP TỪ KHÓA CODE MẪU BÊN TRÊN. Nếu PM không đề cập đến code, BẮT BUỘC trả về chuỗi rỗng ''.",
     "resolve": "Phân tích luồng chạy và phản hồi/kết quả thực thi (Markdown). Nếu trường 'example' để trống hoặc chỉ có CLI, hãy phân tích lý thuyết/quy trình vận hành ở đây.",
-    "summary": "Tổng kết và 3 lỗi thường gặp (Markdown)",
+    "summary": "Tổng kết và 3 lỗi thường gặp (Markdown). BẮT BUỘC BÔI ĐẬM (DÙNG **bold**) tên các sai lầm thường gặp để học viên dễ chú ý.",
     "self_test": [
-        "Câu hỏi tự luận 1",
-        "Câu hỏi tự luận 2",
-        "Câu hỏi tự luận 3"
+        {{
+            "question": "Câu hỏi 1 (Tối đa 3 câu). Đặt tên rõ ràng, 100% sát sườn với bài.",
+            "answer": "Giải thích ĐẶC BIỆT CHI TIẾT và sâu sắc (không viết chung chung)."
+        }}
+    ],
+    "references": [
+        {{
+            "title": "Tên tài liệu tham khảo uy tín (Tài liệu chính thức, tutorial uy tín, sách...)",
+            "url": "Đường dẫn URL hợp lệ (bắt đầu bằng http hoặc https)"
+        }}
     ],
     "quiz": [
         {{
@@ -263,1495 +450,74 @@ Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
             "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
             "correct_option_index": 0,
             "explanation": "Giải thích chi tiết vì sao đáp án đúng và các đáp án khác sai."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 2",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 3",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 4",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 5",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
         }}
     ],
     "lab": {{
         "title": "Tiêu đề bài thực hành",
-        "objectives": ["Mục tiêu 1", "Mục tiêu 2"],
-        "steps": ["Bước 1", "Bước 2"],
-        "checklist": ["Tiêu chí 1", "Tiêu chí 2"]
+        "objectives": ["Mục tiêu 1"],
+        "steps": ["Bước 1"],
+        "checklist": ["Tiêu chí 1"]
+    }},
+    "visualizer": {{
+        "canvas_title": "Tiêu đề của khung trực quan hóa...",
+        "legend_html": "Mã HTML hiển thị chú giải các trạng thái màu sắc",
+        "stats_html": "Mã HTML hiển thị các thẻ đếm (ví dụ: trạng thái, số lượng...)",
+        "code_tracker_html": "Mã HTML chứa code. 🛑 CHỈ VIẾT TỐI ĐA 5-7 DÒNG CODE NGẮN GỌN NHẤT CÓ THỂ để tránh tràn bộ nhớ! TUYỆT ĐỐI KHÔNG đánh số thứ tự (1., 2.). Giữ nguyên khoảng trắng thụt lề (indentation). MỖI DÒNG CODE NẰM TRONG 1 thẻ <div class='code-line' id='line-0'>...</div> và dùng \\n ở cuối mỗi thẻ.",
+        "input_label": "Nhãn cho ô nhập liệu tùy chỉnh",
+        "input_default": "Giá trị mặc định cho ô nhập liệu",
+        "engine_js": "Mã JavaScript CÓ LOGIC THỰC SỰ của class InteractiveVisualizerEngine. Class phải định nghĩa start(), pause(), step(), reset(). CẦN thao tác DOM (thêm class 'active-line' vào line-0, cập nhật nội dung stat) và gọi document.getElementById('log-messages').innerHTML += '...' để in log. Bắt buộc dùng ký tự \\n để xuống dòng trong code JS giúp dễ nhìn."
     }}
 }}
+WARNING: LỖI NGHIÊM TRỌNG NẾU VI PHẠM: Tuyệt đối KHÔNG BẤM ENTER (ngắt dòng thực) bên trong bất kỳ chuỗi string nào của JSON (đặc biệt là Code và Markdown). Phải viết liền mạch trên một dòng và dùng ký tự "\\n" thay cho việc ngắt dòng! Tuyệt đối không dùng dấu ngoặc kép không được escape (" -> \\").
 Return only raw JSON. Do not wrap in markdown code blocks.
 """
+    for attempt in range(3):
         response_text = call_llm(
             system_prompt,
             user_prompt,
             json_mode=True,
-            agent_name="Creator_Agent",
+            agent_name=f"Creator_Agent_Att{attempt+1}",
             session_id=session_id,
             lesson_id=lesson_id
         )
         if response_text:
             try:
                 cleaned = response_text.strip()
-                if cleaned.startswith("```json"):
-                    cleaned = cleaned[7:]
-                if cleaned.endswith("```"):
-                    cleaned = cleaned[:-3]
-                cleaned = cleaned.strip()
+                # Trích xuất phần JSON bằng biểu thức chính quy (nếu có bao bọc bởi markdown)
+                json_match = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+                if json_match:
+                    cleaned = json_match.group(1).strip()
+                else:
+                    block_match = re.search(r"```\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+                    if block_match:
+                        cleaned = block_match.group(1).strip()
+                    else:
+                        first_brace = response_text.find("{")
+                        last_brace = response_text.rfind("}")
+                        if first_brace != -1 and last_brace != -1:
+                            cleaned = response_text[first_brace:last_brace+1].strip()
                 
-                result = json.loads(cleaned)
+                # Sửa đổi các dấu xuống dòng thô không được escape trong các chuỗi JSON
+                cleaned = fix_raw_newlines_in_json_strings(cleaned)
+                result = robust_json_parse(cleaned)
                 
                 # Validation of key fields to ensure no crash
-                required_keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab"]
+                required_keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer"]
                 if all(k in result for k in required_keys):
-                    print("  [Creator Agent] Dynamic generation successful!")
+                    print(f"  [Creator Agent] Dynamic generation successful on attempt {attempt+1}!")
                     if state is not None:
                         state["master_content"] = result
                     return result
                 else:
-                    print("  [Creator Agent Warning] LLM JSON missing keys. Falling back to local template.")
+                    print(f"  [Creator Agent Warning] Attempt {attempt+1} LLM JSON response is missing required keys: {set(required_keys) - set(result.keys())}")
             except Exception as e:
-                print(f"  [Creator Agent Warning] Failed to parse dynamic content: {e}. Falling back to local template.")
-
-    tech_stack = "python/fastapi"
-    if state is not None:
-        tech_stack = state.get("technology_stack", "python/fastapi")
-
-    if tech_stack == "python/core":
-        topic_key = get_base_topic_key_for_core(session_id)
-        trigger_titles = {
-            "core_intro": "giới thiệu python và cài đặt môi trường",
-            "core_operators": "toán tử và cấu trúc điều kiện",
-            "core_loops": "cấu trúc vòng lặp và range",
-            "core_practice": "thực hành tổng hợp python core",
-            "core_strings": "xử lý chuỗi trong python",
-            "core_lists": "cấu trúc dữ liệu list và tuple",
-            "core_dicts": "cấu trúc dữ liệu dictionary và set",
-            "core_functions": "hàm và phạm vi biến trong python",
-            "core_advanced": "hàm nâng cao và xử lý tập hợp",
-            "core_midterm": "kiểm tra giữa môn python core",
-            "core_fallback": "python core cơ bản"
-        }
-    else:
-        topic_key = get_base_topic_key(session_id)
-        trigger_titles = {
-            "orientation": "định hướng học tập",
-            "intro": "giới thiệu cài đặt fastapi",
-            "validation": "parameter pydantic validation",
-            "crud": "crud cơ bản",
-            "database": "sqlalchemy cơ sở dữ liệu database orm",
-            "structure": "structure thiết kế router",
-            "relationship": "quan hệ relationship",
-            "security": "security authentication jwt đăng ký phân quyền",
-            "middleware": "cors middleware",
-            "upload": "upload file avatar document",
-            "testing": "testing kiểm thử",
-            "fallback": "fallback"
-        }
-    
-    base_title = trigger_titles.get(topic_key, "fallback")
-    base_content = get_session_content(session_id, base_title, attempt_num, tech_stack)
-    
-    if not lesson_id:
-        return base_content
-        
-    if tech_stack == "python/core":
-        stack_intro = f"Trong lập trình Python cơ bản, việc học viên tiếp cận và triển khai **{lesson_title}** luôn đi kèm với những thử thách tư duy logic thực tế."
-        stack_analysis = f"Khi phân tích sâu về **{lesson_title}**, chúng ta nhận thấy: {lesson_details if lesson_details else 'việc hiểu rõ cú pháp và luồng điều khiển là cốt lõi để tránh lỗi logic.'}"
-        stack_solution = f"Để giải quyết triệt để vấn đề này, chúng ta cần áp dụng các cấu trúc lập trình Python chuẩn mực. Mục tiêu đầu ra là đạt được chuẩn: **{expected_output if expected_output else 'chương trình chạy đúng logic và tối ưu'}**."
-        stack_resolve = f"Sau khi áp dụng giải pháp cho **{lesson_title}**, chương trình đã có thể vận hành ổn định và chính xác."
-    elif tech_stack == "typescript/nestjs":
-        stack_intro = f"Trong quá trình xây dựng hệ thống với NestJS và TypeScript, việc triển khai **{lesson_title}** đòi hỏi sự hiểu biết sâu sắc về Dependency Injection và OOP."
-        stack_analysis = f"Khi phân tích sâu về **{lesson_title}**, chúng ta nhận thấy: {lesson_details if lesson_details else 'việc phân tách module và quản lý dependency là cực kỳ quan trọng.'}"
-        stack_solution = f"Để giải quyết vấn đề này, chúng ta sẽ thiết kế cấu trúc NestJS tối ưu. Mục tiêu đầu ra là: **{expected_output if expected_output else 'module hoạt động độc lập và dễ dàng kiểm thử'}**."
-        stack_resolve = f"Sau khi triển khai giải pháp cho **{lesson_title}**, hệ thống NestJS đã hoạt động đồng bộ và đúng chuẩn."
-    elif tech_stack == "typescript/react":
-        stack_intro = f"Trong quá trình phát triển ứng dụng Web Front-end với React, việc xây dựng thành phần **{lesson_title}** liên quan trực tiếp đến trải nghiệm người dùng và hiệu năng render."
-        stack_analysis = f"Khi phân tích sâu về **{lesson_title}**, chúng ta nhận thấy: {lesson_details if lesson_details else 'quản lý state và vòng đời component là yếu tố quyết định.'}"
-        stack_solution = f"Để giải quyết vấn đề này, chúng ta sẽ áp dụng các React hooks và tối ưu render. Mục tiêu đầu ra là: **{expected_output if expected_output else 'giao diện phản hồi nhanh và mượt mà'}**."
-        stack_resolve = f"Sau khi áp dụng giải pháp cho **{lesson_title}**, component React đã hiển thị chính xác và đáp ứng tốt tương tác."
-    elif tech_stack == "java/springboot":
-        stack_intro = f"Trong kiến trúc ứng dụng doanh nghiệp sử dụng Java Spring Boot, việc cấu hình và phát triển **{lesson_title}** đòi hỏi tính bảo mật và khả năng mở rộng cao."
-        stack_analysis = f"Khi phân tích sâu về **{lesson_title}**, chúng ta nhận thấy: {lesson_details if lesson_details else 'việc tổ chức code theo các layer Controller-Service-Repository là bắt buộc.'}"
-        stack_solution = f"Để giải quyết vấn đề này, chúng ta sẽ triển khai các Spring beans và JPA repository. Mục tiêu đầu ra là: **{expected_output if expected_output else 'api chạy ổn định và lưu trữ dữ liệu an toàn'}**."
-        stack_resolve = f"Sau khi triển khai giải pháp cho **{lesson_title}**, service Spring Boot đã hoạt động trơn tru."
-    else: # python/fastapi
-        stack_intro = f"Trong quá trình xây dựng hệ thống với FastAPI, việc học viên tiếp cận và triển khai **{lesson_title}** luôn đi kèm với những thách thức thực tế."
-        stack_analysis = f"Khi phân tích sâu về **{lesson_title}**, chúng ta nhận thấy: {lesson_details if lesson_details else 'việc không nắm rõ cấu trúc và nguyên lý hoạt động sẽ dẫn tới các lỗi logic nghiêm trọng.'}"
-        stack_solution = f"Để giải quyết triệt để vấn đề này, chúng ta cần triển khai giải pháp kỹ thuật cụ thể. Mục tiêu đầu ra là đạt được trạng thái: **{expected_output if expected_output else 'tích hợp thành công và hoạt động ổn định'}**."
-        stack_resolve = f"Sau khi triển khai giải pháp cho **{lesson_title}**, hệ thống đã có thể vận hành trơn tru."
-
-    problem = f"{stack_intro} {base_content['problem']}"
-    analysis = f"{stack_analysis} {base_content['analysis']}"
-    solution = f"{stack_solution} {base_content['solution']}"
-    example = base_content["example"]
-    resolve = f"{stack_resolve} {base_content['resolve']}"
-    summary = f"Lưu ý quan trọng cho **{lesson_title}**: {base_content['summary']}"
-    
-    self_test = [
-        f"Câu 1 (Thông hiểu): Hãy trình bày vai trò cốt lõi và mục tiêu của việc triển khai '{lesson_title}' trong dự án thực tế.",
-        f"Câu 2 (Vận dụng): Dựa trên lý thuyết đã học, hãy viết một đoạn code mẫu hoặc cấu hình để thực hiện: '{lesson_details if lesson_details else lesson_title}'.",
-        f"Câu 3 (Phân tích): Tại sao việc đạt được đầu ra '{expected_output if expected_output else 'hoạt động ổn định'}' lại quan trọng đối với tính toàn vẹn của hệ thống?"
-    ]
-    
-    def get_lesson_specific_quiz(title_str: str, stack_str: str, fallback_q: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        t_lower = (title_str or "").lower()
-        if stack_str == "python/core":
-            if "giới thiệu" in t_lower or "ngôn ngữ python" in t_lower:
-                return [
-                    {"type": "Q1_Concept", "question": "Đặc trưng nào sau đây mô tả đúng nhất cơ chế thực thi của ngôn ngữ lập trình Python?", "options": ["Biên dịch trực tiếp ra mã máy CPU", "Thông dịch từng dòng mã lệnh (Interpreted language)", "Chỉ chạy được trên hệ điều hành Linux", "Yêu cầu khai báo kiểu dữ liệu tĩnh trước khi biên dịch"], "correct_option_index": 1, "explanation": "Python là ngôn ngữ thông dịch, mã nguồn được thực thi qua Python Interpreter."},
-                    {"type": "Q2_Concept", "question": "Khái niệm 'Định kiểu động' (Dynamic Typing) trong Python có ý nghĩa gì?", "options": ["Biến không thể thay đổi giá trị sau khi gán", "Kiểu dữ liệu của biến được tự động xác định tại thời điểm thực thi dựa trên giá trị được gán", "Bắt buộc khai báo từ khóa int hoặc str khi khởi tạo biến", "Biến chỉ lưu trữ được kiểu dữ liệu số nguyên"], "correct_option_index": 1, "explanation": "Python tự động xác định kiểu dữ liệu của biến khi gán giá trị tại runtime."},
-                    {"type": "Q3_Syntax", "question": "Tệp tin có phần mở rộng .pyc sinh ra trong quá trình thực thi mã Python đóng vai trò gì?", "options": ["Chứa mã nguồn gốc bằng văn bản thuần", "Chứa tài liệu hướng dẫn sử dụng", "Chứa mã bytecode đã được biên dịch từ mã nguồn Python để tối ưu tốc độ thực thi", "Chứa cấu hình hệ điều hành Windows"], "correct_option_index": 2, "explanation": "Python biên dịch mã nguồn .py thành bytecode .pyc để tăng tốc cho các lần nạp sau."},
-                    {"type": "Q4_Philosophy", "question": "Triết lý lập trình 'Zen of Python' (PEP 20) nhấn mạnh nguyên tắc thiết kế nào sau đây?", "options": ["Readability counts (Tính dễ đọc là yếu tố cốt lõi)", "Mã nguồn càng viết tắt ngắn gọn càng tốt", "Luôn giấu lỗi một cách âm thầm", "Sử dụng các cú pháp phức tạp để tăng tính bảo mật"], "correct_option_index": 0, "explanation": "PEP 20 đặt sự rõ ràng và tính dễ đọc của mã nguồn lên hàng đầu."},
-                    {"type": "Q5_Memory", "question": "Trình thông dịch CPython chuẩn quản lý bộ nhớ tự động thông qua cơ chế chính nào?", "options": ["Lập trình viên phải tự gọi lệnh free()", "Reference Counting kết hợp với Garbage Collection", "Cấp phát tĩnh trên Stack hoàn toàn", "Ghi đè trực tiếp lên RAM vật lý"], "correct_option_index": 1, "explanation": "CPython sử dụng Reference Counting và Garbage Collector để tự động thu hồi vùng nhớ."}
-                ]
-            elif "cài đặt" in t_lower or "môi trường" in t_lower:
-                return [
-                    {"type": "Q1_CLI", "question": "Cú pháp lệnh chuẩn trong terminal để kiểm tra phiên bản trình thông dịch Python đã cài đặt là gì?", "options": ["python --version", "python -v", "check python", "version python"], "correct_option_index": 0, "explanation": "Lệnh python --version hoặc python -V hiển thị phiên bản Python hiện tại."},
-                    {"type": "Q2_Tool", "question": "Công cụ quản lý gói chuẩn tích hợp sẵn trong Python dùng để tải và cài đặt thư viện từ PyPI là gì?", "options": ["npm", "pip", "gem", "apt"], "correct_option_index": 1, "explanation": "pip (Pip Installs Packages) là trình quản lý gói chuẩn của Python."},
-                    {"type": "Q3_Concept", "question": "Mục đích chính của việc tạo Môi trường ảo (Virtual Environment) cho dự án Python là gì?", "options": ["Tăng tốc độ vi xử lý CPU", "Cô lập các thư viện và phiên bản phụ thuộc giữa các dự án khác nhau trên cùng máy tính", "Mã hóa mã nguồn dự án", "Thay thế cho trình soạn thảo code VS Code"], "correct_option_index": 1, "explanation": "Môi trường ảo giúp mỗi dự án có bộ thư viện riêng biệt, tránh xung đột phiên bản."},
-                    {"type": "Q4_CLI", "question": "Cú pháp lệnh CLI chuẩn để tạo một môi trường ảo có tên 'venv' là gì?", "options": ["python create venv", "python -m venv venv", "pip install venv", "venv new"], "correct_option_index": 1, "explanation": "Cờ -m gọi module tích hợp venv để tạo môi trường ảo."},
-                    {"type": "Q5_CLI", "question": "Trên hệ điều hành Windows, đường dẫn tệp lệnh nào cần thực thi để kích hoạt (activate) môi trường ảo 'venv'?", "options": ["venv\\Scripts\\activate", "venv/bin/activate", "activate venv", "python activate"], "correct_option_index": 0, "explanation": "Trên Windows, script kích hoạt nằm trong thư mục Scripts của môi trường ảo."}
-                ]
-            elif "khai báo" in t_lower or "biến" in t_lower:
-                return [
-                    {"type": "Q1_Convention", "question": "Theo tiêu chuẩn PEP 8, quy tắc đặt tên biến thông thường trong Python tuân theo định dạng nào?", "options": ["camelCase", "PascalCase", "snake_case (viết thường và phân cách bởi dấu gạch dưới)", "kebab-case"], "correct_option_index": 2, "explanation": "PEP 8 khuyến nghị sử dụng snake_case cho tên biến và hàm."},
-                    {"type": "Q2_Syntax", "question": "Tên biến nào sau đây KHÔNG hợp lệ theo quy tắc cú pháp Python?", "options": ["user_age", "_count", "2nd_number", "total_value_1"], "correct_option_index": 2, "explanation": "Tên biến trong Python không được phép bắt đầu bằng chữ số."},
-                    {"type": "Q3_Syntax", "question": "Đoạn mã 'x, y, z = 10, 20, 30' thực hiện thao tác gì trong Python?", "options": ["Gán giá trị 10 cho x, các biến y và z bị lỗi", "Gán đồng thời giá trị 10 cho x, 20 cho y và 30 cho z trên cùng một dòng lệnh", "Gán tổng 60 cho 3 biến", "Lỗi cú pháp"], "correct_option_index": 1, "explanation": "Python hỗ trợ gán đa biến (multiple assignment / tuple unpacking) trên 1 dòng."},
-                    {"type": "Q4_Function", "question": "Hàm dựng sẵn nào trong Python dùng để trả về địa chỉ bộ nhớ định danh (identity) của một đối tượng biến?", "options": ["type()", "id()", "mem()", "loc()"], "correct_option_index": 1, "explanation": "Hàm id() trả về định danh duy nhất (địa chỉ bộ nhớ) của đối tượng."},
-                    {"type": "Q5_Memory", "question": "Trong Python, lệnh gán 'a = b = 100' có ý nghĩa gì về mặt quản lý bộ nhớ?", "options": ["Tạo 2 đối tượng 100 độc lập trong RAM", "Cả hai biến a và b cùng tham chiếu đến cùng một đối tượng số nguyên 100", "Biến a là con trỏ của biến b", "Lỗi cú pháp"], "correct_option_index": 1, "explanation": "Lệnh gán liên tiếp trỏ các định danh về cùng một đối tượng trong bộ nhớ."}
-                ]
-            elif "kiểu dữ liệu" in t_lower:
-                return [
-                    {"type": "Q1_Function", "question": "Hàm tích hợp sẵn nào dùng để kiểm tra kiểu dữ liệu của một biến trong Python?", "options": ["check()", "type()", "kind()", "datatype()"], "correct_option_index": 1, "explanation": "Hàm type() trả về lớp (class) biểu thị kiểu dữ liệu của đối tượng."},
-                    {"type": "Q2_Concept", "question": "Kiểu dữ liệu nào sau đây trong Python thuộc nhóm kiểu dữ liệu bất biến (immutable)?", "options": ["list", "dict", "set", "str"], "correct_option_index": 3, "explanation": "Kiểu chuỗi str là bất biến; không thể thay đổi ký tự bên trong sau khi tạo."},
-                    {"type": "Q3_Output", "question": "Kết quả thực thi của biểu thức type(3.14) trong Python là gì?", "options": ["<class 'int'>", "<class 'float'>", "<class 'double'>", "<class 'real'>"], "correct_option_index": 1, "explanation": "Số thực thập phân trong Python được biểu thị bởi kiểu float."},
-                    {"type": "Q4_Syntax", "question": "Giá trị số phức (complex number) trong Python được biểu diễn bằng hậu tố chữ cái nào cho phần ảo?", "options": ["i", "j", "c", "v"], "correct_option_index": 1, "explanation": "Python sử dụng hậu tố j hoặc J cho số phức (ví dụ: 3 + 4j)."},
-                    {"type": "Q5_Concept", "question": "Trong Python, giá trị nào sau đây khi chuyển sang kiểu luận lý bool() sẽ trả về False?", "options": ["Số 1", "Chuỗi 'False'", "Chuỗi rỗng '' hoặc số 0", "Danh sách [0]"], "correct_option_index": 2, "explanation": "Số 0, chuỗi rỗng '', list/dict rỗng và None được đánh giá là False."}
-                ]
-            elif "nhập" in t_lower or "xuất" in t_lower:
-                return [
-                    {"type": "Q1_Function", "question": "Hàm input() trong Python 3 luôn trả về dữ liệu nhận được từ bàn phím dưới kiểu dữ liệu nào?", "options": ["int", "float", "str (chuỗi ký tự)", "bool"], "correct_option_index": 2, "explanation": "Hàm input() luôn đọc dữ liệu từ bàn phím dưới dạng chuỗi ký tự (str)."},
-                    {"type": "Q2_Param", "question": "Tham số 'sep' trong hàm print() có chức năng gì?", "options": ["Quy định ký tự kết thúc dòng", "Quy định ký tự phân cách giữa các đối số được in ra màn hình", "Lọc bỏ ký tự trắng", "Đổi màu văn bản"], "correct_option_index": 1, "explanation": "Tham số sep (separator) xác định ký tự ngăn cách giữa các tham số in ra."},
-                    {"type": "Q3_Param", "question": "Khi thực hiện print('Hello', end=' '), tham số end=' ' có tác dụng gì?", "options": ["Thay thế ký tự xuống dòng mặc định bằng ký tự khoảng trắng sau khi in", "In thêm một dòng trống trước từ Hello", "Xóa ký tự cuối của chuỗi", "Lỗi cú pháp"], "correct_option_index": 0, "explanation": "Mặc định end='\\n', việc thay bằng end=' ' giữ cho lệnh in tiếp theo nằm trên cùng dòng."},
-                    {"type": "Q4_Method", "question": "Để nhận vào nhiều giá trị trên cùng một dòng nhập từ bàn phím và phân tách chúng bằng khoảng trắng, phương thức nào trên chuỗi thường được kết hợp với input()?", "options": [".join()", ".split()", ".cut()", ".parse()"], "correct_option_index": 1, "explanation": "Phương thức .split() tách chuỗi thành danh sách các phần tử dựa trên ký tự phân cách."},
-                    {"type": "Q5_Syntax", "question": "Lệnh nào sau đây xuất ra màn hình chính xác chuỗi 'A-B-C'?", "options": ["print('A', 'B', 'C', sep='-')", "print('A-B-C', end='-')", "print('A', 'B', 'C')", "print('A' + 'B' + 'C')"], "correct_option_index": 0, "explanation": "Sử dụng sep='-' sẽ chèn dấu gạch ngang giữa các phần tử A, B và C."}
-                ]
-            elif "ép kiểu" in t_lower or "f-string" in t_lower:
-                return [
-                    {"type": "Q1_Syntax", "question": "Cú pháp chuẩn để định dạng chuỗi f-string (Formatted string literals) trong Python là gì?", "options": ["Tiền tố f đặt trước dấu nháy mở chuỗi, chứa các biểu thức trong cặp ngoặc nhọn {}", "Tiền tố s đặt trước chuỗi", "Dùng ký tự %d trong chuỗi", "Dùng phương thức .format()"], "correct_option_index": 0, "explanation": "f-string sử dụng chữ f ở đầu và đặt biến/biểu thức bên trong ngoặc nhọn {}."},
-                    {"type": "Q2_Formatting", "question": "Để định dạng hiển thị một số thực price với chính xác 2 chữ số sau dấu thập phân bằng f-string, cú pháp nào sau đây là đúng?", "options": ["f'{price:.2f}'", "f'{price:2d}'", "f'{price.round(2)}'", "f'{price:f2}'"], "correct_option_index": 0, "explanation": "Cú pháp :.2f định dạng hiển thị số thực với 2 chữ số sau dấu phẩy."},
-                    {"type": "Q3_Exception", "question": "Đoạn mã int('45.8') khi thực thi sẽ dẫn đến kết quả gì?", "options": ["Trả về số nguyên 45", "Trả về số nguyên 46", "Phát sinh ngoại lệ ValueError vì chuỗi chứa dấu thập phân không thể ép trực tiếp sang int", "Trả về float 45.8"], "correct_option_index": 2, "explanation": "Hàm int() không thể ép kiểu trực tiếp một chuỗi biểu diễn số thập phân sang số nguyên."},
-                    {"type": "Q4_Concept", "question": "Khái niệm 'Ép kiểu tường minh' (Explicit Type Casting) trong Python nghĩa là gì?", "options": ["Python tự động chuyển kiểu ngầm định khi cộng int và float", "Lập trình viên chủ động gọi các hàm tạo kiểu như int(), float(), str() để chuyển đổi dữ liệu", "Hệ thống tự động ép mọi kiểu dữ liệu về chuỗi", "Không cho phép chuyển kiểu dữ liệu"], "correct_option_index": 1, "explanation": "Ép kiểu tường minh là khi lập trình viên chủ động dùng hàm int(), float(), str() để ép kiểu."},
-                    {"type": "Q5_Eval", "question": "Kết quả thực thi của biểu thức f'{2 ** 3 + 1}' là chuỗi nào?", "options": ["'2 ** 3 + 1'", "'9'", "'7'", "Lỗi cú pháp"], "correct_option_index": 1, "explanation": "Biểu thức 2 ** 3 + 1 = 8 + 1 = 9 được tính toán bên trong ngoặc nhọn {} của f-string."}
-                ]
-            elif "toán tử" in t_lower:
-                return [
-                    {"type": "Q1_Operator", "question": "Toán tử nào trong Python thực hiện phép chia lấy phần dư (Modulo)?", "options": ["/", "//", "%", "**"], "correct_option_index": 2, "explanation": "Toán tử % thực hiện phép chia lấy phần dư."},
-                    {"type": "Q2_Operator", "question": "Kết quả của biểu thức toán học 17 // 5 (chia lấy phần nguyên) trong Python là bao nhiêu?", "options": ["3.4", "3", "2", "4"], "correct_option_index": 1, "explanation": "Toán tử // chia lấy phần nguyên làm tròn xuống, 17 // 5 = 3."},
-                    {"type": "Q3_Precedence", "question": "Theo thứ tự ưu tiên toán tử trong Python, phép toán nào được ưu tiên thực hiện trước nhất trong biểu thức 2 + 3 * 4 ** 2?", "options": ["Phép cộng +", "Phép nhân *", "Phép lũy thừa **", "Thực hiện từ trái sang phải"], "correct_option_index": 2, "explanation": "Lũy thừa ** có độ ưu tiên cao nhất: 4 ** 2 = 16, sau đó 3 * 16 = 48, cuối cùng 2 + 48 = 50."},
-                    {"type": "Q4_Operator", "question": "Toán tử ** trong Python đại diện cho phép toán số học nào?", "options": ["Phép nhân hai lần", "Phép căn bậc hai", "Phép lũy thừa (Exponentiation)", "Phép dịch bit"], "correct_option_index": 2, "explanation": "Toán tử ** dùng để tính lũy thừa."},
-                    {"type": "Q5_StringOp", "question": "Kết quả thực thi của biểu thức 'Py' * 3 trong Python là chuỗi nào?", "options": ["'Py3'", "'PyPyPy'", "'Py Py Py'", "Lỗi kiểu dữ liệu"], "correct_option_index": 1, "explanation": "Toán tử * giữa chuỗi và số nguyên thực hiện lặp chuỗi với số lần tương ứng."}
-                ]
-            elif "điều kiện" in t_lower or "if" in t_lower:
-                return [
-                    {"type": "Q1_Syntax", "question": "Khối lệnh bên trong cấu trúc điều kiện if-elif-else trong Python được xác định phạm vi bằng cơ chế nào?", "options": ["Dấu ngoặc nhọn {}", "Từ khóa begin...end", "Thụt lề đầu dòng (Indentation) đồng nhất", "Dấu chấm phẩy ;"], "correct_option_index": 2, "explanation": "Python sử dụng việc thụt lề đầu dòng (indentation) để xác định phạm vi của khối lệnh."},
-                    {"type": "Q2_Logic", "question": "Cơ chế đánh giá ngắn mạch (Short-circuit evaluation) của toán tử and hoạt động như thế nào?", "options": ["Luôn đánh giá tất cả các toán hạng", "Nếu toán hạng đầu tiên sai (False), Python lập tức trả về False mà không cần đánh giá toán hạng thứ hai", "Đánh giá từ phải sang trái", "Chỉ áp dụng cho toán hạng kiểu số"], "correct_option_index": 1, "explanation": "Với toán tử and, nếu vế đầu False thì toàn bộ biểu thức chắc chắn False nên vế sau không được thực thi."},
-                    {"type": "Q3_Ternary", "question": "Cú pháp chuẩn của Toán tử ba ngôi (Ternary Conditional Operator) trong Python là gì?", "options": ["điều_kiện ? giá_trị_1 : giá_trị_2", "giá_trị_1 if điều_kiện else giá_trị_2", "if điều_kiện then giá_trị_1 else giá_trị_2", "giá_trị_1 else giá_trị_2 if điều_kiện"], "correct_option_index": 1, "explanation": "Cú pháp ba ngôi trong Python là: giá_trị_đúng if điều_kiện else giá_trị_sai."},
-                    {"type": "Q4_Syntax", "question": "Cấu trúc match-case được giới thiệu từ phiên bản Python nào và ký tự nào đại diện cho trường hợp mặc định (wildcard pattern)?", "options": ["Python 3.8, từ khóa default", "Python 3.10+, ký tự gạch dưới _", "Python 3.6, ký tự *", "Python 3.11, từ khóa else"], "correct_option_index": 1, "explanation": "Từ Python 3.10, match-case được ra mắt với ký tự _ đại diện cho wildcard/default case."},
-                    {"type": "Q5_Eval", "question": "Kết quả của biểu thức logic 'not (True and False) or False' trong Python là gì?", "options": ["True", "False", "None", "Lỗi cú pháp"], "correct_option_index": 0, "explanation": "True and False = False -> not False = True -> True or False = True."}
-                ]
-        return fallback_q
-
-    quiz = get_lesson_specific_quiz(lesson_title, tech_stack, base_content["quiz"])
-    
-    lab = {
-        "title": f"Thực hành: {lesson_title}",
-        "objectives": [
-            f"Triển khai thành công: {lesson_title}.",
-            f"Đạt chuẩn đầu ra kỳ vọng: '{expected_output if expected_output else 'hoạt động ổn định'}'."
-        ],
-        "steps": base_content["lab"]["steps"],
-        "checklist": base_content["lab"]["checklist"]
-    }
-    
-    res = {
-        "problem": problem,
-        "analysis": analysis,
-        "solution": solution,
-        "example": example,
-        "resolve": resolve,
-        "summary": summary,
-        "self_test": self_test,
-        "quiz": quiz,
-        "lab": lab
-    }
-    if state is not None:
-        state["master_content"] = res
-    return res
-
-def get_session_content(session_id: str, title: str, attempt_num: int, tech_stack: str = "python/fastapi") -> Dict[str, Any]:
-    """
-    Returns deep, academically rigorous content, extensive code snippets, and complete quiz questions
-    based on the session title. Fully complies with "Storytelling in Tech" and "Reading Generator" guidelines.
-    """
-    t = title.lower()
-    
-    if tech_stack == "python/core":
-        if "core_intro" in t or "giới thiệu python" in t:
-            return {
-                "problem": "Khi mới bắt đầu học lập trình Python, học viên thường gặp khó khăn trong việc thiết lập môi trường phát triển (IDE), cài đặt trình thông dịch Python và cấu hình biến môi trường. Việc viết chương trình đầu tiên mà không hiểu cơ chế biên dịch và thông dịch của ngôn ngữ, cách khai báo biến cũng như nhập xuất cơ bản sẽ làm học viên bối rối trước các lỗi cú pháp sơ đẳng.",
-                "analysis": """Python là một ngôn ngữ thông dịch (interpreted language), có nghĩa là mã nguồn được thực thi từng dòng bởi trình thông dịch Python (Python Interpreter) chứ không biên dịch trực tiếp ra mã máy như C/C++. Việc khai báo biến trong Python cực kỳ linh hoạt vì Python sử dụng kiểu dữ liệu động (dynamic typing) và tự động quản lý bộ nhớ thông qua cơ chế Garbage Collection. Việc xuất dữ liệu dùng `print()` và nhập dữ liệu dùng `input()` là nền tảng giao tiếp giữa người dùng và máy tính.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Tiêu chí</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Định kiểu động (Python)</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Định kiểu tĩnh (Java/C++)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Khai báo biến</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Không cần chỉ định kiểu dữ liệu (x = 10)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Bắt buộc chỉ định kiểu (int x = 10)</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Độ linh hoạt</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Cực cao, có thể đổi kiểu dữ liệu của biến</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Thấp, biến không được đổi kiểu</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Phát hiện lỗi kiểu</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Khi chương trình đang chạy (Runtime)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Khi biên dịch chương trình (Compile time)</td>
-        </tr>
-    </tbody>
-</table>""",
-                "solution": "Cài đặt Python phiên bản mới nhất, cấu hình IDE VS Code chuyên nghiệp. Sử dụng các biến để lưu trữ dữ liệu tạm thời, thực hiện ép kiểu (type casting) hợp lý để chuyển đổi giữa các kiểu dữ liệu cơ bản (int, float, str, bool), và sử dụng f-string để định dạng chuỗi xuất ra màn hình một cách khoa học.",
-                "example": """# 1. Khai báo biến và các kiểu dữ liệu cơ bản
-student_name = "Nguyễn Văn A"  # Kiểu chuỗi (str)
-student_age = 20               # Kiểu số nguyên (int)
-student_gpa = 3.8              # Kiểu số thực (float)
-is_active = True               # Kiểu luận lý (bool)
-
-# 2. Nhập xuất dữ liệu cơ bản từ bàn phím
-print("--- THÔNG TIN SINH VIÊN ---")
-print(f"Họ tên: {student_name}")
-print(f"Tuổi: {student_age}")
-print(f"GPA: {student_gpa}")
-
-# Nhận input và thực hiện ép kiểu (Casting) từ str sang int
-extra_years = input("Nhập số năm cộng thêm: ")
-future_age = student_age + int(extra_years)
-print(f"Tuổi của sinh viên sau {extra_years} năm nữa là: {future_age}")
-""",
-                "resolve": "Chương trình khởi tạo bốn biến với các kiểu dữ liệu khác nhau. Hàm `print()` kết hợp với f-string giúp hiển thị thông tin sinh viên rõ ràng và có cấu trúc. Khi người dùng nhập một giá trị từ bàn phím qua `input()`, Python mặc định coi đó là một chuỗi (str). Chương trình thực hiện ép kiểu `int(extra_years)` để chuyển chuỗi thành số nguyên trước khi thực hiện phép cộng toán học, tránh lỗi `TypeError`.",
-                "summary": "Luôn ép kiểu rõ ràng khi nhận dữ liệu từ `input()`. Lỗi thường gặp nhất là quên f ở đầu f-string làm tên biến không được thế giá trị.",
-                "self_test": [
-                    "Câu 1 (Thông hiểu): Tại sao Python được gọi là ngôn ngữ định kiểu động (dynamically typed) và điều này khác gì với các ngôn ngữ định kiểu tĩnh như Java hay C++?",
-                    "Câu 2 (Vận dụng): Viết chương trình Python yêu cầu người dùng nhập vào hai số nguyên từ bàn phím, tính tổng và in kết quả ra màn hình bằng f-string.",
-                    "Câu 3 (Phân tích): Phân tích tầm quan trọng của việc sử dụng môi trường ảo (virtual environment) trong quản lý thư viện dự án Python thực tế."
-                ],
-                "quiz": [
-                    {"type": "Q1_Syntax_Definition", "question": "Hàm nào dùng để nhận dữ liệu nhập vào từ bàn phím của người dùng trong Python?", "options": ["read()", "input()", "get()", "scanf()"], "correct_option_index": 1, "explanation": "input() là hàm tích hợp sẵn của Python dùng để nhận dữ liệu từ bàn phím dưới dạng chuỗi."},
-                    {"type": "Q2_Execution_Flow", "question": "Cách nào đúng để ép kiểu từ chuỗi '123' sang số nguyên trong Python?", "options": ["to_int('123')", "int('123')", "Integer('123')", "(int)'123'"], "correct_option_index": 1, "explanation": "int() là hàm dựng sẵn để ép kiểu sang số nguyên."},
-                    {"type": "Q3_Code_Reading", "question": "Đoạn code: print(f'{2 + 3}') in ra gì?", "options": ["2 + 3", "f'{2 + 3}'", "5", "Lỗi cú pháp"], "correct_option_index": 2, "explanation": "Biểu thức bên trong dấu ngoặc nhọn {} của f-string sẽ được tính toán và chuyển thành chuỗi trước khi in."},
-                    {"type": "Q4_Compare_Contrast", "question": "Từ khóa nào KHÔNG được dùng để đặt tên biến trong Python?", "options": ["name", "value", "class", "total"], "correct_option_index": 2, "explanation": "class là từ khóa hệ thống dùng để định nghĩa lớp và không thể đặt làm tên biến."},
-                    {"type": "Q5_Prediction_Trap", "question": "Kiểu dữ liệu nào dùng để lưu giữ giá trị True hoặc False?", "options": ["int", "str", "bool", "float"], "correct_option_index": 2, "explanation": "bool (boolean) đại diện cho các giá trị luận lý Đúng hoặc Sai."}
-                ],
-                "lab": {
-                    "title": "Cài đặt môi trường và Viết chương trình Python đầu tiên",
-                    "objectives": ["Cài đặt thành công Python và VS Code.", "Viết chương trình nhập xuất và tính toán đơn giản."],
-                    "steps": [
-                        "Bước 1: Tải và cài đặt Python bản mới nhất từ trang chủ python.org.",
-                        "Bước 2: Cài đặt IDE VS Code và extension Python.",
-                        "Bước 3: Tạo tệp hello.py và viết lệnh print.",
-                        "Bước 4: Sử dụng input() để nhận tên và năm sinh, tính tuổi hiện tại và in ra."
-                    ],
-                    "checklist": ["Chạy thành công script Python không có lỗi cú pháp.", "Đầu ra tuổi hiện tại được tính toán chính xác."]
-                }
-            }
-        elif "core_operators" in t or "toán tử" in t:
-            return {
-                "problem": "Khi xây dựng các luồng quyết định (decision-making) trong chương trình, học viên thường gặp khó khăn trong việc kết hợp các toán tử so sánh và toán tử logic để tạo ra các biểu thức điều kiện chính xác. Ngoài ra, việc lạm dụng cấu trúc `if-else` lồng nhau sâu khiến mã nguồn trở nên rối rắm, khó đọc và khó kiểm thử các trường hợp biên.",
-                "analysis": """Python cung cấp hệ thống toán tử phong phú gồm toán tử số học (`+`, `-`, `*`, `/`, chia lấy nguyên `//`, chia lấy dư `%`, lũy thừa `**`), toán tử so sánh (`==`, `!=`, `>`, `<`, `>=`, `<=`) và toán tử logic (`and`, `or`, `not`). Cấu trúc rẽ nhánh `if-elif-else` và cấu trúc `match-case` (từ Python 3.10) giúp phân tách luồng chạy của chương trình dựa trên kết quả của biểu thức điều kiện logic. Việc tối ưu hóa biểu thức logic bằng toán tử ba ngôi (ternary operator) giúp mã nguồn ngắn gọn hơn.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Toán tử</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Ý nghĩa</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Ví dụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">%</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chia lấy phần dư (Modulo)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">5 % 2 = 1</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">//</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chia lấy phần nguyên (Floor Division)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">5 // 2 = 2</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">**</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lũy thừa (Power)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">5 ** 2 = 25</td>
-        </tr>
-    </tbody>
-</table>""",
-                "solution": "Sử dụng đúng độ ưu tiên của các toán tử số học và logic (sử dụng dấu ngoặc đơn `()` để tường minh). Áp dụng cấu trúc rẽ nhánh `if-elif-else` một cách khoa học, tránh lồng nhau quá 3 cấp, hoặc chuyển sang dùng `match-case` khi so sánh một biến với nhiều giá trị cụ thể nhằm tăng tính thẩm mỹ và dễ bảo trì.",
-                "example": """# 1. Sử dụng toán tử số học và logic
-math_score = 8.5
-english_score = 7.0
-
-# Điều kiện đạt học bổng: Điểm trung bình >= 8.0 VÀ không môn nào dưới 6.5
-average_score = (math_score + english_score) / 2
-has_scholarship = average_score >= 8.0 and math_score >= 6.5 and english_score >= 6.5
-
-# 2. Sử dụng cấu trúc rẽ nhánh khoa học và toán tử ba ngôi
-status = "Đạt học bổng" if has_scholarship else "Không đạt học bổng"
-print(f"Điểm TB: {average_score} -> Trạng thái: {status}")
-
-# 3. Sử dụng cấu trúc match-case mới (Python 3.10+)
-rank_level = "A" if average_score >= 8.5 else "B" if average_score >= 7.0 else "C"
-match rank_level:
-    case "A":
-        print("Xếp loại xuất sắc, được nhận học bổng loại I.")
-    case "B":
-        print("Xếp loại khá giỏi, được nhận học bổng loại II.")
-    case _:
-        print("Cần cố gắng thêm trong các kỳ học sau.")
-""",
-                "resolve": "Chương trình tính toán điểm trung bình bằng biểu thức số học có ngoặc đơn. Sau đó, nó dùng toán tử logic `and` để kiểm tra đồng thời ba điều kiện logic. Toán tử ba ngôi gán giá trị cho `status` một cách ngắn gọn. Cuối cùng, cấu trúc `match-case` khớp giá trị của `rank_level` với các trường hợp cụ thể để in ra lời khuyên tương ứng, sử dụng dấu gạch dưới `_` làm trường hợp mặc định (default case).",
-                "summary": "Luôn dùng dấu ngoặc đơn để làm rõ độ ưu tiên của toán tử. Lỗi thường gặp nhất là dùng một dấu bằng = thay cho hai dấu bằng == trong lệnh so sánh if.",
-                "self_test": [
-                    "Câu 1 (Thông hiểu): Giải thích nguyên lý đánh giá ngắn mạch (short-circuit evaluation) của toán tử `and` và `or` trong Python.",
-                    "Câu 2 (Vận dụng): Viết chương trình Python kiểm tra xem một năm nhập vào từ bàn phím có phải là năm nhuận hay không (Năm nhuận là năm chia hết cho 400 hoặc chia hết cho 4 nhưng không chia hết cho 100).",
-                    "Câu 3 (Phân tích): Tại sao cấu trúc `match-case` trong Python 3.10+ lại ưu việt hơn chuỗi câu lệnh `if-elif-else` dài khi cần khớp các giá trị dạng pattern?"
-                ],
-                "quiz": [
-                    {"type": "Q1_Syntax_Definition", "question": "Kết quả của biểu thức: 5 + 3 * 2 là bao nhiêu?", "options": ["16", "11", "13", "10"], "correct_option_index": 1, "explanation": "Toán tử nhân * có độ ưu tiên cao hơn cộng +, nên 3 * 2 = 6, sau đó 5 + 6 = 11."},
-                    {"type": "Q2_Execution_Flow", "question": "Toán tử nào dùng để lấy phần dư của phép chia trong Python?", "options": ["/", "//", "%", "**"], "correct_option_index": 2, "explanation": "% là toán tử modulo, dùng để lấy số dư."},
-                    {"type": "Q3_Code_Reading", "question": "Biểu thức: True or False and False trả về giá trị nào?", "options": ["True", "False", "None", "Lỗi cú pháp"], "correct_option_index": 0, "explanation": "Toán tử and có độ ưu tiên cao hơn or, nên False and False là False, sau đó True or False là True."},
-                    {"type": "Q4_Compare_Contrast", "question": "Trong cấu trúc match-case, ký tự nào đại diện cho case mặc định (default case)?", "options": ["*", "default", "_", "else"], "correct_option_index": 2, "explanation": "Dấu gạch dưới _ đại diện cho case mặc định khớp với mọi giá trị còn lại."},
-                    {"type": "Q5_Prediction_Trap", "question": "Đoạn code: x = 10; y = 20; max_val = x if x > y else y gán giá trị nào cho max_val?", "options": ["10", "20", "None", "True"], "correct_option_index": 1, "explanation": "Đây là toán tử ba ngôi. Vì x > y (10 > 20) là False, biểu thức trả về vế sau else là y (20)."}
-                ],
-                "lab": {
-                    "title": "Thực hành Toán tử và Cấu trúc điều kiện",
-                    "objectives": ["Sử dụng toán tử so sánh và logic để xây dựng biểu thức điều kiện.", "Áp dụng cấu trúc rẽ nhánh `if-elif-else` và `match-case`."],
-                    "steps": [
-                        "Bước 1: Tạo file operators_lab.py.",
-                        "Bước 2: Yêu cầu người dùng nhập vào số điểm toán, lý, hóa.",
-                        "Bước 3: Kiểm tra điểm số hợp lệ (0-10). Nếu không hợp lệ, in ra thông báo lỗi và dừng chương trình.",
-                        "Bước 4: Tính điểm trung bình và xếp loại học sinh theo các mức: Giỏi (>=8.0), Khá (>=6.5), Trung bình (>=5.0), Yếu (<5.0) bằng if-elif-else."
-                    ],
-                    "checklist": ["Kiểm tra lỗi điểm không hợp lệ hoạt động chính xác.", "Xếp loại học lực chính xác cho mọi trường hợp điểm đầu vào."]
-                }
-            }
-        elif "core_loops" in t or "vòng lặp" in t:
-            return {
-                "problem": "Khi xử lý các tập hợp dữ liệu lớn hoặc thực hiện các tác vụ lặp đi lặp lại trong Python, lập trình viên mới thường viết code thủ công lặp lại nhiều lần. Điều này không chỉ gây lãng phí bộ nhớ mà còn vi phạm nguyên tắc DRY (Don't Repeat Yourself), khiến mã nguồn dài dòng, dễ phát sinh lỗi logic và rất khó bảo trì khi quy mô dự án tăng lên.",
-                "analysis": """Python cung cấp hai loại vòng lặp cơ bản là `for` (lặp với số lần biết trước hoặc duyệt qua tập hợp) và `while` (lặp theo điều kiện logic). Để điều khiển luồng thực thi trong vòng lặp, các từ khóa `break` (thoát vòng lặp lập tức), `continue` (bỏ qua phần còn lại của vòng lặp hiện tại và chuyển sang bước tiếp theo), và `pass` (giữ chỗ không làm gì) đóng vai trò quyết định. Đặc biệt, Python hỗ trợ khối `else` sau vòng lặp, chạy khi và chỉ khi vòng lặp kết thúc bình thường (không bị ngắt bởi `break`).
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Đặc tính</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Vòng lặp for</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Vòng lặp while</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Số lần lặp</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Biết trước hoặc hữu hạn (duyệt tập hợp)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Phụ thuộc vào điều kiện logic dừng</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Cú pháp đặc trưng</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">for item in iterable:</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">while condition:</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Ứng dụng chính</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Duyệt mảng, chuỗi, range số</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lặp menu, chờ sự kiện, game loop</td>
-        </tr>
-    </tbody>
-</table>""",
-                "solution": "Sử dụng vòng lặp `for` kết hợp với hàm `range(start, stop, step)` để duyệt dãy số hiệu quả, hoặc dùng `while` cho các trường hợp lặp không xác định trước số lần. Sử dụng `break` và `continue` để tối ưu hiệu năng của vòng lặp, thoát sớm khi tìm thấy kết quả hoặc bỏ qua các phần tử không hợp lệ.",
-                "example": """# Duyệt qua danh sách số nguyên và tìm số nguyên tố đầu tiên
-numbers = [4, 6, 8, 9, 11, 13, 15]
-print("Bắt đầu tìm kiếm số nguyên tố trong danh sách:")
-for num in numbers:
-    if num <= 1:
-        continue
-    is_prime = True
-    for i in range(2, int(num ** 0.5) + 1):
-        if num % i == 0:
-            is_prime = False
-            break
-    if is_prime:
-        print(f"Tìm thấy số nguyên tố đầu tiên: {num}")
-        break
-else:
-    print("Không tìm thấy số nguyên tố nào.")
-""",
-                "resolve": "Chương trình khởi tạo danh sách `numbers`, duyệt qua từng số bằng vòng lặp `for`. Gặp các số hợp số, vòng lặp con kiểm tra số nguyên tố phát hiện chia hết nên gán `is_prime = False` và thoát sớm bằng `break`. Khi gặp số `11`, là số nguyên tố, điều kiện được thỏa mãn và in ra kết quả, sau đó ngắt vòng lặp ngoài bằng `break`.",
-                "summary": "Các lỗi phổ biến bao gồm: vòng lặp while vô hạn do quên cập nhật điều kiện dừng; off-by-one khi dùng sai chỉ số range; lạm dụng vòng lặp lồng nhau sâu gây suy giảm hiệu năng.",
-                "self_test": [
-                    "Câu 1 (Thông hiểu): Giải thích cách hoạt động của khối `else` đi kèm với vòng lặp `for` trong Python. Trường hợp nào khối `else` này sẽ không được thực thi?",
-                    "Câu 2 (Vận dụng): Viết đoạn code Python sử dụng vòng lặp `while` để yêu cầu người dùng nhập vào một số nguyên dương từ bàn phím. Nếu nhập sai, yêu cầu nhập lại cho đến khi đúng.",
-                    "Câu 3 (Phân tích): Tại sao việc thay thế các vòng lặp lồng nhau sâu bằng cách sử dụng các cấu trúc dữ liệu tối ưu (như Set hoặc Dict) lại giúp cải thiện hiệu năng của chương trình từ O(n^2) xuống O(n)?"
-                ],
-                "quiz": [
-                    {"type": "Q1_Syntax_Definition", "question": "Hàm range(1, 10, 2) tạo ra chuỗi số nào?", "options": ["1, 3, 5, 7, 9", "1, 2, 3, 4, 5, 6, 7, 8, 9, 10", "2, 4, 6, 8", "1, 2, 4, 6, 8"], "correct_option_index": 0, "explanation": "range(start, stop, step) bắt đầu từ 1, nhảy mỗi bước 2 đơn vị và dừng trước 10."},
-                    {"type": "Q2_Execution_Flow", "question": "Từ khóa nào dùng để bỏ qua các câu lệnh còn lại trong vòng lặp hiện tại và chuyển sang lần lặp tiếp theo?", "options": ["break", "continue", "pass", "exit"], "correct_option_index": 1, "explanation": "continue chuyển hướng điều khiển đến lần lặp kế tiếp của vòng lặp."},
-                    {"type": "Q3_Code_Reading", "question": "Khối else trong vòng lặp for chạy khi nào?", "options": ["Khi vòng lặp kết thúc bình thường không bị ngắt bởi break", "Khi vòng lặp bị ngắt bởi break", "Khi danh sách rỗng", "Không bao giờ chạy"], "correct_option_index": 0, "explanation": "Khối else chạy khi vòng lặp hoàn thành tất cả các chu trình lặp bình thường."},
-                    {"type": "Q4_Compare_Contrast", "question": "Chuyện gì xảy ra nếu điều kiện dừng của vòng lặp while luôn là True và không có break?", "options": ["Lỗi biên dịch", "Vòng lặp vô hạn gây treo chương trình", "Không in ra gì", "Lỗi Exception"], "correct_option_index": 1, "explanation": "While True mà không có break tạo thành vòng lặp vô hạn (infinite loop)."},
-                    {"type": "Q5_Prediction_Trap", "question": "Đoạn code: for i in range(3): print(i) in ra gì?", "options": ["0, 1, 2", "1, 2, 3", "0, 1, 2, 3", "Lỗi cú pháp"], "correct_option_index": 0, "explanation": "range(3) bắt đầu từ 0 và dừng trước 3, tức các số 0, 1, 2."}
-                ],
-                "lab": {
-                    "title": "Thực hành Vòng lặp và Kiểm soát Luồng chạy",
-                    "objectives": ["Sử dụng vòng lặp for và while để duyệt dữ liệu.", "Áp dụng các câu lệnh break và continue để kiểm soát luồng chạy."],
-                    "steps": [
-                        "Bước 1: Tạo file loops_lab.py.",
-                        "Bước 2: Viết vòng lặp in ra các số từ 1 đến 20 bỏ qua các số chia hết cho 3.",
-                        "Bước 3: Sử dụng vòng lặp while để tính tổng các số chẵn nhập từ bàn phím cho đến khi người dùng nhập số 0 thì dừng lại và in tổng ra."
-                    ],
-                    "checklist": ["Chương trình bỏ qua đúng các số chia hết cho 3.", "Tính toán chính xác tổng và dừng khi gặp số 0."]
-                }
-            }
+                print(f"  [Creator Agent Warning] Attempt {attempt+1} Failed to parse dynamic content generated by LLM: {e}")
         else:
-            return {
-                "problem": "Khi triển khai các giải pháp lập trình Python nâng cao hoặc cấu trúc dữ liệu phức tạp, việc không hiểu rõ mô hình hoạt động của Standard Library và cách thức tổ chức mã nguồn dạng Module/Package sẽ làm hệ thống phình to, lặp lại mã nguồn nhiều lần và gây khó khăn lớn cho việc bảo trì.",
-                "analysis": """Python Core cung cấp các thư viện tích hợp sẵn phong phú và các cấu trúc dữ liệu mạnh mẽ như List, Dictionary, Set, Tuple. Việc sử dụng các kỹ thuật như List Comprehension, Lambda function, và xử lý Exception Handling giúp tăng độ tin cậy và hiệu năng của ứng dụng mà không cần sử dụng các thư viện ngoài phức tạp.
+            print(f"  [Creator Agent Warning] Attempt {attempt+1} LLM returned empty response or call failed.")
+            
+    raise RuntimeError("ERROR: Failed to generate and parse dynamic master content via LLM after 3 attempts.")
 
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Cấu trúc</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Đặc trưng nổi bật</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Khi nào dùng</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">List</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Có thứ tự, có thể thay đổi (mutable), cho trùng lặp</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lưu danh sách thông thường cần truy cập index</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Set</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Không thứ tự, độc bản (unique), không chỉ mục</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lọc trùng lặp dữ liệu, thực hiện phép toán tập hợp</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Dict</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Cặp Key-Value, Key duy nhất, truy xuất cực nhanh</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lưu trữ thông tin có cấu trúc dạng từ điển bản đồ</td>
-        </tr>
-    </tbody>
-</table>""",
-                "solution": "Thiết kế mã nguồn tuân thủ nguyên tắc DRY và Clean Code PEP 8. Chia nhỏ hệ thống thành các hàm và module độc lập, sử dụng Exception handling (try-except-finally) để xử lý các lỗi runtime một cách thông minh.",
-                "example": """# Sử dụng cấu trúc dữ liệu và Exception handling chuẩn Python Core
-def process_data(data_list):
-    try:
-        # Sử dụng list comprehension để lọc và nhân đôi các số chẵn
-        cleaned_data = [x * 2 for x in data_list if isinstance(x, (int, float))]
-        return cleaned_data
-    except TypeError as e:
-        print(f"Lỗi kiểu dữ liệu đầu vào: {e}")
-        return []
 
-# Chạy thử
-sample = [1, 2, "invalid", 4]
-result = process_data(sample)
-print(f"Kết quả xử lý: {result}")
-""",
-                "resolve": "Hàm `process_data` nhận một danh sách, sử dụng list comprehension để lọc dữ liệu an toàn bằng cách kiểm tra kiểu dữ liệu `isinstance(x, (int, float))`. Khối `try-except` bắt các ngoại lệ xảy ra trong quá trình xử lý để chương trình không bị sập đột ngột.",
-                "summary": "Luôn dùng context manager (with) khi thao tác File I/O. Tránh sử dụng biến toàn cục bừa bãi và bắt ngoại lệ chung chung.",
-                "self_test": [
-                    "Câu 1 (Thông hiểu): Hãy giải thích cơ chế hoạt động của Exception Propagation trong Python.",
-                    "Câu 2 (Vận dụng): Viết một đoạn code Python đọc dữ liệu từ một tệp tin văn bản sử dụng context manager `with` và in từng dòng ra màn hình.",
-                    "Câu 3 (Phân tích): Tại sao việc viết mã nguồn tuân thủ tiêu chuẩn PEP 8 lại vô cùng quan trọng đối với khả năng đọc hiểu và bảo trì dự án trong môi trường doanh nghiệp?"
-                ],
-                "quiz": [
-                    {"type": "Q1_Syntax_Definition", "question": "Cấu trúc dữ liệu nào trong Python là bất biến (immutable)?", "options": ["List", "Dictionary", "Tuple", "Set"], "correct_option_index": 2, "explanation": "Tuple là cấu trúc dữ liệu bất biến, không thể thay đổi giá trị sau khi khởi tạo."},
-                    {"type": "Q2_Execution_Flow", "question": "Cách nào đúng để mở một file để đọc một cách an toàn trong Python?", "options": ["open('file.txt')", "with open('file.txt', 'r') as f:", "f = open('file.txt'); f.read()", "read('file.txt')"], "correct_option_index": 1, "explanation": "Sử dụng 'with' statement giúp tự động đóng file an toàn sau khi dùng xong, chống rò rỉ tài nguyên."},
-                    {"type": "Q3_Code_Reading", "question": "List comprehension: [x for x in range(5) if x % 2 == 0] trả về danh sách nào?", "options": ["[0, 2, 4]", "[1, 3]", "[0, 1, 2, 3, 4]", "[2, 4]"], "correct_option_index": 0, "explanation": "range(5) sinh dãy số 0,1,2,3,4. Điều kiện x % 2 == 0 lọc ra các số chẵn là 0, 2, 4."},
-                    {"type": "Q4_Compare_Contrast", "question": "Khối lệnh nào trong cấu trúc try-except luôn luôn được thực thi dù có lỗi xảy ra hay không?", "options": ["except", "else", "finally", "catch"], "correct_option_index": 2, "explanation": "Khối finally luôn được thực thi ở cuối cùng để dọn dẹp tài nguyên."},
-                    {"type": "Q5_Prediction_Trap", "question": "Từ khóa nào dùng để tạo ra một hàm ẩn danh (anonymous function) ngắn gọn trong Python?", "options": ["def", "function", "lambda", "inline"], "correct_option_index": 2, "explanation": "lambda là từ khóa dùng để định nghĩa các hàm ẩn danh siêu ngắn."},
-                ],
-                "lab": {
-                    "title": "Thực hành Tổng hợp Python Core cơ bản",
-                    "objectives": ["Sử dụng các cấu trúc dữ liệu tích hợp sẵn để xử lý danh sách.", "Áp dụng Exception handling và File I/O để đọc ghi dữ liệu ra đĩa."],
-                    "steps": [
-                        "Bước 1: Tạo tệp dữ liệu data.txt chứa một số dòng chữ.",
-                        "Bước 2: Viết script Python mở file, đọc nội dung và đếm số lượng từ xuất hiện.",
-                        "Bước 3: Sử dụng try-except để phòng chống lỗi FileNotFoundError khi đường dẫn file bị sai.",
-                        "Bước 4: Xuất kết quả đếm từ ra một file JSON mới."
-                    ],
-                    "checklist": ["Chương trình hoạt động ổn định và không sập khi file không tồn tại.", "File JSON kết quả chứa đúng cấu trúc từ khóa và số lượng."]
-                }
-            }
-
-    details_start = ""
-    details_end = ""
-
-    # Classify by topic
-    if "định hướng" in t or "orientation" in t:
-        return {
-            "problem": """Khi bước chân vào phát triển phần mềm và xây dựng dịch vụ web, đa số học viên đối mặt với rào cản lớn: sự mơ hồ về đích đến và lộ trình học. Phương pháp học truyền thống đi theo lối mòn học lý thuyết trước rồi mới làm dự án (Forward Design). Lối học này tạo ra khoảng trống kỹ năng cực lớn vì học viên viết mã nguồn mà không hiểu mục tiêu nghiệp vụ thực tế. Hệ quả là học viên dễ chán nản, học vẹt đối phó, và không thể tự tay thiết kế hay tích hợp hoàn chỉnh một hệ thống Web API kết nối cơ sở dữ liệu đáp ứng được tiêu chuẩn tuyển dụng khắt khe của doanh nghiệp.""",
-            "analysis": """Sở dĩ vấn đề này kéo dài là do thiếu hụt phương pháp Thiết kế ngược (Backward Design) và mô hình Học tập chủ động (Active Learning). Thay vì dạy lý thuyết rời rạc, thiết kế ngược lấy sản phẩm RESTful API thực chiến cuối khóa kết nối MySQL làm kim chỉ nam. Mọi lý thuyết, slide và bài thực hành Lab hàng tuần đều được phân rã ngược từ chính sản phẩm này. Học viên sẽ hiểu rõ mục đích của từng dòng code ngay từ đầu môn học.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Đặc tính so sánh</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Học xuôi (Forward Design)</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Thiết kế ngược (Backward Design)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Điểm xuất phát</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Học cú pháp, định nghĩa lý thuyết trước</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Đặc tả đầu ra dự án cuối khóa chuẩn doanh nghiệp</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Động lực học tập</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Thụ động, dễ trì hoãn do không thấy ứng dụng</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chủ động lắp ráp từng module sản phẩm hàng tuần</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Kết quả đầu ra</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Khó kết nối các mảnh kiến thức rời rạc</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Hoàn thiện 100% ứng dụng thực tế chạy ổn định</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Chương trình đào tạo thiết lập cấu trúc phân bổ điểm học phần tập trung tối đa vào kỹ năng thực hành và đánh giá liên tục. Dự án cuối khóa (bảo vệ trước hội đồng chuyên môn) đóng vai trò là cột mốc tối cao để tổng hợp toàn bộ các bài thực hành Lab đơn lẻ thành một hệ thống Web Service hoàn chỉnh.""",
-            "example": """Cơ cấu phân bổ điểm học phần chi tiết nhằm tối ưu hóa kỹ năng thực hành của học viên:
-- Điểm Chuyên cần (10%): Đánh giá thái độ tham gia các buổi học lý thuyết trực tuyến và thảo luận.
-- Điểm Bài thực hành Lab hàng tuần (30%): Đánh giá qua các bài tập viết API nhỏ tự làm hàng tuần.
-- Điểm Thi giữa kỳ (20%): Đánh giá tổng hợp kiến thức lý thuyết nền tảng.
-- Điểm Dự án cuối khóa (40%): Xây dựng RESTful API cho một ứng dụng thực tế (ví dụ: Quản lý thư viện, E-learning), bảo vệ trước hội đồng chấm điểm chuyên môn.""",
-            "resolve": """Quy trình học tập chủ động giúp chuyển đổi kiến thức thụ động sang kỹ năng lập trình thực tế. Mỗi bài Lab hàng tuần đóng vai trò như một bài test năng lực nhỏ tích lũy mã nguồn. Khi đến tuần cuối cùng, thay vì bỡ ngỡ, học viên chỉ cần thực hiện ghép nối các module chức năng đã chạy độc lập và tối ưu hóa hệ thống để bảo vệ tự tin trước hội đồng chuyên môn.""",
-            "summary": "Quy chế môn học quy định học viên bắt buộc phải hoàn thành tối thiểu 80% số bài Lab để đủ điều kiện thi cuối môn học. Tránh chủ quan dồn toàn bộ bài tập vào tuần cuối vì khối lượng kiến thức tích lũy rất lớn và đòi hỏi thời gian debug thực tế.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Tại sao phương pháp thiết kế ngược (Backward Design) lại hiệu quả hơn cách tiếp cận truyền thống trong việc học lập trình Web?",
-                "Câu 2 (Vận dụng): Tính điểm tổng kết của một sinh viên có kết quả chuyên cần = 9, điểm Lab trung bình = 8.5, thi giữa kỳ = 7.5 và bảo vệ dự án cuối môn = 8.2.",
-                "Câu 3 (Phân tích): Phân tích tầm quan trọng của việc hoàn thành đúng tiến độ các bài thực hành Lab nhỏ hàng tuần đối với sự thành bại của dự án cuối môn học."
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Trọng số của dự án cuối khóa chiếm bao nhiêu % tổng điểm môn học?", "options": ["10%", "20%", "30%", "40%"], "correct_option_index": 3, "explanation": "Dự án cuối khóa chiếm 40% trọng số nhằm đánh giá toàn diện kỹ năng thực hành."},
-                {"type": "Q2_Execution_Flow", "question": "Quy trình học tập chủ động nào sau đây là đúng?", "options": ["Thi -> Đọc", "Xem Video -> Làm Quiz -> Thực hành Lab -> Làm Dự án", "Làm dự án -> Đọc lý thuyết", "Học lý thuyết -> Thi trắc nghiệm"], "correct_option_index": 1, "explanation": "Đây là trình tự giúp chuyển hóa từ lý thuyết sang kỹ năng ứng dụng."},
-                {"type": "Q3_Code_Reading", "question": "Đoạn code sau: total = active*0.1 + lab*0.3 + exam*0.2 + final*0.4. Nếu active=9, lab=8, exam=7, final=6. total bằng bao nhiêu?", "options": ["6.8", "7.1", "7.5", "8.0"], "correct_option_index": 1, "explanation": "total = 0.9 + 2.4 + 1.4 + 2.4 = 7.1."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt lớn nhất giữa bài Lab thực hành và dự án cuối khóa là gì?", "options": ["Lab làm nhóm", "Lab rèn luyện kỹ năng đơn lẻ hàng tuần, Dự án đánh giá tổng hợp sản phẩm hoàn chỉnh", "Lab không tính điểm", "Không có khác biệt"], "correct_option_index": 1, "explanation": "Bài Lab tập trung vào bài tập nhỏ hàng tuần, dự án cuối khóa đòi hỏi tính tổng hợp."},
-                {"type": "Q5_Prediction_Trap", "question": "Chuyện gì xảy ra nếu sinh viên không nộp đủ tối thiểu 80% số bài Lab thực hành?", "options": ["Bình thường", "Bị trừ 50% điểm tổng", "Không đủ điều kiện đạt môn (Trượt môn học)", "Làm bù vào tuần thi"], "correct_option_index": 2, "explanation": "Hoàn thành tối thiểu 80% bài Lab là điều kiện cần bắt buộc để qua môn."}
-            ],
-            "lab": {
-                "title": "Đặc tả ý tưởng dự án cuối khóa",
-                "objectives": ["Định hình chủ đề và các API chức năng của dự án cuối môn.", "Viết tài liệu đặc tả sơ bộ dạng Markdown."],
-                "steps": [
-                    "Bước 1: Lựa chọn 1 đề tài quản lý (ví dụ: Quản lý thư viện, Quản lý tài chính cá nhân).",
-                    "Bước 2: Liệt kê tối thiểu 4 endpoint CRUD cơ bản.",
-                    "Bước 3: Lưu thành file `project_pitch.md` trong thư mục dự án."
-                ],
-                "checklist": ["Tài liệu viết bằng Markdown đúng định dạng.", "Có đủ 4 endpoint CRUD cơ bản phục vụ quản lý."]
-            }
-        }
-        
-    elif "giới thiệu" in t or "cài đặt fastapi" in t or "môi trường" in t or "thực hành viết api" in t:
-        return {
-            "problem": """Xây dựng hệ thống Web API bằng các công nghệ cũ đòi hỏi lập trình viên phải viết rất nhiều mã nguồn lặp đi lặp lại chỉ để xử lý các tác vụ cơ bản như định tuyến (routing), phân tách dữ liệu yêu cầu (request parsing) và định dạng dữ liệu phản hồi (response formatting). Ngoài ra, việc duy trì một bộ tài liệu đặc tả API chuẩn hóa (như Swagger UI hoặc OpenAPI) đồng bộ với mã nguồn thực tế luôn là thách thức lớn, dẫn tới tình trạng tài liệu bị lạc hậu so với code đang chạy thực tế.""",
-            "analysis": """Các framework web đồng bộ (như Django hay Flask) hoạt động theo cơ chế WSGI (Web Server Gateway Interface) xử lý tuần tự. Khi gặp các tác vụ tốn thời gian như truy vấn cơ sở dữ liệu hoặc đọc ghi file, luồng xử lý sẽ bị chặn hoàn toàn (I/O blocking). Việc thiếu hụt cơ chế tự động kiểm tra tính hợp lệ của dữ liệu đầu vào (data validation) ở mức framework buộc lập trình viên phải viết hàng chục dòng code `if-else` lồng nhau phức tạp, làm giảm đáng kể hiệu năng hệ thống.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Tiêu chí so sánh</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">WSGI (Django / Flask)</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">ASGI (FastAPI / Starlette)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Mô hình xử lý</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Đồng bộ (Synchronous), chặn I/O luồng</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Bất đồng bộ (Asynchronous), non-blocking Event Loop</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Tài liệu tự động</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Không có (Cần cài đặt thêm thư viện mở rộng)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Tự sinh Swagger UI và ReDoc tại /docs và /redoc</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Hiệu năng xử lý</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Trung bình (Giới hạn bởi Thread Pool)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Cực cao (Tương đương Go và Node.js nhờ ASGI)</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """FastAPI được xây dựng trên nền tảng ASGI, cho phép tận dụng sức mạnh của cơ chế xử lý bất đồng bộ (async/await) trong Python để xử lý hàng ngàn request đồng thời mà không bị nghẽn I/O. Ngoài ra, việc tích hợp sâu thư viện Pydantic giúp tự động hóa quá trình validate dữ liệu đầu vào bằng Type Hints và tự sinh tài liệu API tương tác trực quan Swagger UI song song với quá trình viết code.""",
-            "example": """# B1: Tạo và kích hoạt môi trường ảo (Khai báo local venv)
-# Trên Windows: python -m venv venv && venv\\Scripts\\activate
-# Trên macOS/Linux: python3 -m venv venv && source venv/bin/activate
-
-# B2: Cài đặt thư viện FastAPI và máy chủ Uvicorn ASGI
-# pip install fastapi uvicorn
-
-# B3: Viết code ứng dụng chính trong file main.py
-from fastapi import FastAPI
-
-app = FastAPI(
-    title="Hệ thống Quản lý Khách sạn",
-    description="RESTful API cho phép đặt phòng và quản lý phòng nghỉ trực tuyến",
-    version="1.0.0"
-)
-
-@app.get('/health', tags=["Hệ thống"])
-def health_check():
-    \"\"\"Kiểm tra trạng thái hoạt động của máy chủ API\"\"\"
-    return {
-        "status": "online",
-        "database": "connected",
-        "service": "FastAPI ASGI running"
-    }
-""",
-            "resolve": """Nhờ ứng dụng kiến trúc ASGI và Uvicorn Server, ứng dụng FastAPI có thể tiếp nhận request gọi API, xử lý bất đồng bộ và trả về kết quả JSON tiêu chuẩn chỉ trong vài mili-giây. Trang tài liệu kiểm thử `/docs` tự động xuất hiện để đội ngũ Front-end có thể dùng thử và tích hợp mà không cần viết thêm cấu hình.""",
-            "summary": "Luôn chạy dự án trong môi trường ảo độc lập (venv) để tránh xung đột thư viện. Tránh đặt tên tệp mã nguồn là `fastapi.py` để tránh lỗi nạp chồng (circular import). Lỗi phổ biến nhất là quên kích hoạt môi trường ảo dẫn đến lỗi ModuleNotFoundError khi chạy uvicorn.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Sự khác biệt cơ bản giữa chuẩn giao tiếp ASGI (FastAPI) và WSGI (Django/Flask) là gì?",
-                "Câu 2 (Vận dụng): Viết một chương trình FastAPI đơn giản khai báo endpoint GET `/health` trả về trạng thái hoạt động của server dạng JSON: `{'status': 'OK'}`.",
-                "Câu 3 (Phân tích): Tại sao việc tự động đồng bộ hóa tài liệu Swagger UI từ mã nguồn thực tế lại giúp giảm thiểu rủi ro trong quá trình phát triển dự án nhóm?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Hệ quản trị cơ sở dữ liệu chính được định hướng lưu trữ trạng thái lâu dài trong Multi-Agent Content Factory là?", "options": ["Redis", "MongoDB", "PostgreSQL", "SQLite"], "correct_option_index": 2, "explanation": "Hệ thống sử dụng PostgreSQL để lưu giữ dữ liệu bài học lâu dài."},
-                {"type": "Q2_Execution_Flow", "question": "Tham số nào chỉ định uvicorn tự reload code khi có thay đổi?", "options": ["--reload", "--restart", "--refresh", "--auto"], "correct_option_index": 0, "explanation": "--reload kích hoạt chức năng tự động tải lại code."},
-                {"type": "Q3_Code_Reading", "question": "Đoạn code: @app.get('/hello') def h(): return 'Hi' trả về kiểu dữ liệu gì?", "options": ["HTML", "JSON string 'Hi'", "Status 500", "Plain text"], "correct_option_index": 1, "explanation": "FastAPI tự động serialize dữ liệu trả về thành JSON."},
-                {"type": "Q4_Compare_Contrast", "question": "ASGI khác gì WSGI?", "options": ["ASGI chỉ chạy trên Linux", "ASGI hỗ trợ xử lý bất đồng bộ (Asynchronous), WSGI chạy đồng bộ (Synchronous)", "ASGI chậm hơn", "Không khác biệt"], "correct_option_index": 1, "explanation": "ASGI hỗ trợ Asynchronous mạnh mẽ giúp tránh nghẽn I/O."},
-                {"type": "Q5_Prediction_Trap", "question": "If đặt tên file code là fastapi.py và import fastapi thì chuyện gì xảy ra?", "options": ["Chạy bình thường", "Bỏ qua file local", "Lỗi Circular Import / ModuleNotFoundError", "Tự động xóa file"], "correct_option_index": 2, "explanation": "Python sẽ tự import chính file local gây lỗi nạp chồng."}
-            ],
-            "lab": {
-                "title": "Khởi tạo Ứng dụng FastAPI Đầu tiên",
-                "objectives": ["Tạo môi trường ảo venv và cài đặt FastAPI.", "Chạy ứng dụng FastAPI đầu tiên qua uvicorn."],
-                "steps": [
-                    "Bước 1: Tạo thư mục dự án và chạy `python -m venv venv`.",
-                    "Bước 2: Kích hoạt venv bằng lệnh `venv\\Scripts\\activate` (Windows).",
-                    "Bước 3: Cài đặt thư viện: `pip install fastapi uvicorn`.",
-                    "Bước 4: Tạo file `main.py` định nghĩa endpoint GET `/hello`.",
-                    "Bước 5: Khởi chạy: `uvicorn main:app --reload`."
-                ],
-                "checklist": ["Có thư mục venv trong dự án.", "Truy cập `http://127.0.0.1:8000/docs` hiển thị trang tài liệu Swagger UI."]
-            }
-        }
-        
-    elif "parameter" in t or "pydantic" in t or "validation" in t:
-        return {
-            "problem": """Khi nhận dữ liệu từ các yêu cầu của client (như Path parameters, Query parameters, hoặc Request body), hệ thống dễ gặp tình trạng dữ liệu bị sai định dạng, thiếu hụt trường hoặc chứa các giá trị độc hại. Nếu không có bộ kiểm soát nghiêm ngặt, các lỗi kiểu dữ liệu sẽ đi sâu vào tầng nghiệp vụ và cơ sở dữ liệu, gây ra các lỗi runtime nghiêm trọng.""",
-            "analysis": """Việc viết code kiểm tra dữ liệu bằng các câu lệnh `if-else` lồng nhau một cách thủ công ở mỗi controller vừa làm phình to mã nguồn, vừa tăng độ phức tạp khi bảo trì và dễ bỏ sót các lỗ hổng logic. Hơn thế nữa, các phương pháp ép kiểu dữ liệu thủ công không thể tự động trả về phản hồi lỗi trực quan cho phía Client, dẫn đến trải nghiệm người dùng kém và gây khó khăn lớn cho việc gỡ lỗi.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Tiêu chí so sánh</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Kiểm tra dữ liệu thủ công (if-else)</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Pydantic Validation (FastAPI)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Cú pháp khai báo</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Rườm rà, lặp đi lặp lại ở mọi endpoint</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Định nghĩa tập trung qua Pydantic BaseModel</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Tự động ép kiểu</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Phải ép kiểu thủ công (ví dụ int(), float())</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Tự động ép kiểu thông minh (Data Coercion)</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Định dạng lỗi</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Không đồng nhất, khó tích hợp với Frontend</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chuẩn hóa mã lỗi HTTP 422 kèm JSON chi tiết cấu trúc lỗi</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Pydantic cho phép định nghĩa cấu trúc dữ liệu mong muốn thông qua các lớp kế thừa từ `BaseModel`. Bằng cách tận dụng cơ chế Type Hints của Python, FastAPI tự động thực hiện ép kiểu dữ liệu thông minh, kiểm tra tính hợp lệ và tự động trả về lỗi chi tiết cho client nếu dữ liệu gửi lên không đúng định dạng mong đợi.""",
-            "example": """from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-
-app = FastAPI()
-
-# Định nghĩa dữ liệu đầu vào với Pydantic và Field
-class RoomReservation(BaseModel):
-    guest_name: str = Field(..., min_length=2, max_length=50, description="Tên khách hàng đặt phòng")
-    room_number: int = Field(..., gt=0, description="Số phòng phải lớn hơn 0")
-    price_per_night: float = Field(..., gt=0.0)
-    email: str = Field(..., description="Email nhận hóa đơn xác nhận")
-
-@app.post('/reservations', status_code=201, tags=["Đặt phòng"])
-def create_reservation(reservation: RoomReservation):
-    # Khi code chạy vào hàm này, dữ liệu đầu vào đảm bảo đã được validate 100%
-    return {
-        "message": "Đã tạo đơn đặt phòng thành công",
-        "data": reservation
-    }
-""",
-            "resolve": """Mọi yêu cầu POST gửi lên endpoint `/reservations` chứa dữ liệu sai lệch (ví dụ: `room_number: -5` hoặc thiếu trường `guest_name`) sẽ bị chặn đứng ngay lập tức tại cổng vào của API. FastAPI tự động phản hồi lại Client với mã lỗi HTTP 422 Unprocessable Entity kèm theo thông tin chi tiết về trường dữ liệu bị lỗi mà lập trình viên không cần viết thêm bất kỳ dòng code validate thủ công nào.""",
-            "summary": "Luôn sử dụng Pydantic Field để ràng buộc thêm các điều kiện logic (như độ dài chuỗi, khoảng giá trị của số). Lỗi thường gặp nhất là khai báo kiểu dữ liệu không khớp giữa Pydantic Model và cơ sở dữ liệu thực tế, hoặc truyền sai định dạng JSON dẫn tới lỗi validate.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Cơ chế tự động ép kiểu dữ liệu thông minh (data coercion) của Pydantic hoạt động như thế nào trong FastAPI?",
-                "Câu 2 (Vận dụng): Định nghĩa một Pydantic Model có tên `Product` gồm các thuộc tính: name (chuỗi, bắt buộc), price (số thực, lớn hơn 0), và stock (số nguyên, không âm, mặc định là 0).",
-                "Câu 3 (Phân tích): Tại sao FastAPI lại lựa chọn trả về mã lỗi HTTP 422 thay vì HTTP 500 khi Client gửi dữ liệu đầu vào không hợp lệ?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Lớp nào trong Pydantic được dùng làm lớp cha để định nghĩa cấu trúc JSON đầu vào?", "options": ["BaseClass", "BaseModel", "DataModel", "ValidationModel"], "correct_option_index": 1, "explanation": "BaseModel là lớp cha nền tảng của Pydantic để định nghĩa schema."},
-                {"type": "Q2_Execution_Flow", "question": "Quy trình validate của FastAPI diễn ra khi nào?", "options": ["Sau khi lưu database", "Trước khi chạy logic trong hàm route", "Khi render Swagger UI", "Sau khi trả response cho client"], "correct_option_index": 1, "explanation": "FastAPI tự động validate ngay khi nhận request trước khi gọi controller xử lý."},
-                {"type": "Q3_Code_Reading", "question": "Cho model: class User(BaseModel): name: str; age: int. Nếu client gửi {'name': 'An'}, API trả về lỗi gì?", "options": ["200 Success", "422 Unprocessable Entity", "404 Not Found", "500 Server Error"], "correct_option_index": 1, "explanation": "Thiếu trường bắt buộc age sẽ kích hoạt validate error (422)."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa Path Parameter và Query Parameter là gì?", "options": ["Path dùng định danh, Query dùng lọc/sắp xếp", "Path không bắt buộc, Query bắt buộc", "Path nằm trong Body, Query nằm trên URL", "Không khác biệt"], "correct_option_index": 0, "explanation": "Path param định dạng đường dẫn URL, Query param lọc kết quả sau dấu hỏi chấm (?)."},
-                {"type": "Q5_Prediction_Trap", "question": "Điều gì xảy ra nếu bạn truyền tham số kiểu số nguyên là '123' (chuỗi) vào Type Hint int trong FastAPI?", "options": ["Báo lỗi 422", "Tự động ép kiểu thành số nguyên 123", "Gây sập server", "Bỏ qua tham số"], "correct_option_index": 1, "explanation": "Pydantic sẽ tự động thực hiện ép kiểu thông minh (coercion) nếu hợp lệ."}
-            ],
-            "lab": {
-                "title": "Validate dữ liệu với Pydantic",
-                "objectives": ["Định nghĩa Pydantic model cho đối tượng đặt phòng (RoomReservation).", "Tích hợp validate vào API POST `/reservations`."],
-                "steps": [
-                    "Bước 1: Khai báo class `RoomReservation` kế thừa `BaseModel` gồm: guest_name (str), room_number (int), price_per_night (float), email (str).",
-                    "Bước 2: Định nghĩa route POST `/reservations` nhận body là RoomReservation.",
-                    "Bước 3: Sử dụng Swagger UI để test truyền dữ liệu đúng và dữ liệu sai (ví dụ: room_number=-1) để xem phản hồi lỗi 422."
-                ],
-                "checklist": ["Model Reservation kế thừa đúng BaseModel.", "Trả về mã lỗi HTTP 422 khi truyền room_number không phải là số dương."]
-            }
-        }
-        
-    elif "crud" in t:
-        return {
-            "problem": """Bất kỳ ứng dụng quản lý dữ liệu nào cũng đều xoay quanh bốn thao tác cốt lõi: Thêm mới (Create), Truy xuất (Read), Cập nhật (Update) và Xóa (Delete). Thách thức lớn nhất đối với lập trình viên là thiết kế các đường dẫn và phương thức giao tiếp API sao cho khoa học, dễ hiểu, tránh chồng chéo logic và tuân thủ các tiêu chuẩn thiết kế RESTful API quốc tế.""",
-            "analysis": """Việc lạm dụng một phương thức duy nhất (ví dụ chỉ dùng POST hoặc GET cho mọi thao tác) sẽ phá vỡ tính ngữ nghĩa của giao thức HTTP, gây khó khăn cho việc phân quyền bảo mật, cấu hình bộ đệm (caching) và mở rộng hệ thống sau này. Ngoài ra, việc quản lý và đồng bộ trạng thái dữ liệu trong bộ nhớ tạm (In-memory mock database) cần được thực hiện cẩn thận để tránh các xung đột dữ liệu khi có nhiều yêu cầu thay đổi đồng thời.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">HTTP Method</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Vai trò RESTful</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Tính chất Idempotent (Bất biến)</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Mã trạng thái thành công</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">GET</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lấy dữ liệu (Read)</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:green; font-weight:bold;">Có (True)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">200 OK</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">POST</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Tạo mới tài nguyên (Create)</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:red; font-weight:bold;">Không (False)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">201 Created</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">PUT</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Cập nhật toàn phần (Update)</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:green; font-weight:bold;">Có (True)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">200 OK / 204 No Content</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">DELETE</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Xóa tài nguyên (Delete)</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:green; font-weight:bold;">Có (True)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">200 OK / 204 No Content</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Xây dựng hệ thống định tuyến (Routing) chuẩn RESTful. Tận dụng đầy đủ các phương thức HTTP thích hợp cho từng thao tác nghiệp vụ: POST để tạo mới tài nguyên, GET để đọc dữ liệu, PUT để ghi đè toàn bộ thông tin, PATCH để cập nhật từng phần và DELETE để gỡ bỏ tài nguyên ra khỏi hệ thống.""",
-            "example": """from fastapi import FastAPI, HTTPException
-
-app = FastAPI()
-
-# Giả lập Database trong RAM
-hotel_rooms = [
-    {"id": 1, "room_type": "Deluxe Double", "available": True},
-    {"id": 2, "room_type": "Standard Single", "available": False}
-]
-
-@app.get('/rooms', tags=["Quản lý phòng"])
-def get_all_rooms():
-    return hotel_rooms
-
-@app.post('/rooms', status_code=201, tags=["Quản lý phòng"])
-def create_room(room_type: str):
-    new_room = {"id": len(hotel_rooms) + 1, "room_type": room_type, "available": True}
-    hotel_rooms.append(new_room)
-    return new_room
-
-@app.delete('/rooms/{room_id}', tags=["Quản lý phòng"])
-def delete_room(room_id: int):
-    for idx, room in enumerate(hotel_rooms):
-        if room["id"] == room_id:
-            deleted_room = hotel_rooms.pop(idx)
-            return {"message": "Đã xóa phòng thành công", "deleted_room": deleted_room}
-    raise HTTPException(status_code=404, detail="Không tìm thấy ID phòng yêu cầu")
-""",
-            "resolve": """Khi áp dụng cấu trúc CRUD chuẩn hóa, Client có thể dễ dàng tương tác dữ liệu hai chiều với server. Các endpoint hoạt động độc lập, có mã trạng thái HTTP trả về chính xác (như 201 Created cho POST, 200 OK cho GET và 404 Not Found khi truy cập tài nguyên không tồn tại), tạo nền tảng vững chắc để kết nối với cơ sở dữ liệu vật lý sau này.""",
-            "summary": "Luôn trả về đúng mã trạng thái HTTP cho từng thao tác thành công hoặc thất bại. Lỗi thường gặp nhất là dùng sai phương thức HTTP (ví dụ sử dụng GET để xóa dữ liệu) hoặc quên kiểm tra sự tồn tại của tài nguyên trước khi tiến hành cập nhật/xóa.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Tính chất Idempotency là gì và tại sao phương thức PUT lại có tính chất này trong khi POST thì không?",
-                "Câu 2 (Vận dụng): Viết code FastAPI triển khai endpoint PUT `/rooms/{room_id}` để cập nhật trạng thái hoàn thành của một phòng nghỉ trong danh sách giả lập.",
-                "Câu 3 (Phân tích): Tại sao trong thực tế doanh nghiệp, người ta thường ưu tiên sử dụng phương thức PATCH thay vì PUT khi thực hiện cập nhật thông tin người dùng?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Phương thức HTTP nào được dùng chuẩn để tạo mới tài nguyên?", "options": ["GET", "POST", "PUT", "DELETE"], "correct_option_index": 1, "explanation": "POST is used to submit data to create a new resource on the server."},
-                {"type": "Q2_Execution_Flow", "question": "Để cập nhật một phần nhỏ dữ liệu của đối tượng (Partial Update), phương thức HTTP nào phù hợp nhất?", "options": ["PUT", "PATCH", "POST", "DELETE"], "correct_option_index": 1, "explanation": "PATCH is tailored for partial updates, while PUT is for full replacement."},
-                {"type": "Q3_Code_Reading", "question": "Đoạn code xóa: items.pop(id). Lỗi gì xảy ra nếu id vượt quá độ dài mảng?", "options": ["Trả về None", "IndexError gây sập server (lỗi 500 nếu không handle)", "Tự động xóa phần tử cuối", "Trả lỗi 404 mặc định"], "correct_option_index": 1, "explanation": "IndexError is a python runtime error, causing a 500 server error if unhandled."},
-                {"type": "Q4_Compare_Contrast", "question": "Sự khác biệt giữa PUT và POST trong RESTful API?", "options": ["PUT không có body", "POST dùng tạo mới, PUT dùng cập nhật đè (Idempotent)", "POST chạy nhanh hơn PUT", "Không khác biệt"], "correct_option_index": 1, "explanation": "PUT is idempotent (calling it multiple times has same effect), POST appends new resources every time."},
-                {"type": "Q5_Prediction_Trap", "question": "Nếu gọi API DELETE thành công đối với tài nguyên đã bị xóa từ trước, mã HTTP trả về nên là gì?", "options": ["200 hoặc 204", "404 Not Found", "500 Server Error", "400 Bad Request"], "correct_option_index": 1, "explanation": "If the resource is already gone, returning 404 Not Found is highly descriptive."}
-            ],
-            "lab": {
-                "title": "Thiết kế CRUD phòng nghỉ",
-                "objectives": ["Đầy đủ 4 endpoint hoạt động.", "Xử lý được trường hợp ID không tồn tại để trả về thông báo phù hợp."],
-                "steps": [
-                    "Bước 1: Tạo biến danh sách `hotel_rooms = []` trong bộ nhớ.",
-                    "Bước 2: Tạo GET `/rooms` để xem danh sách.",
-                    "Bước 3: Tạo POST `/rooms` để thêm mới.",
-                    "Bước 4: Tạo DELETE `/rooms/{room_id}` để xóa và kiểm thử qua Swagger."
-                ],
-                "checklist": ["Đầy đủ 4 endpoint hoạt động.", "Xử lý được trường hợp ID không tồn tại để trả về thông báo phù hợp."]
-            }
-        }
-        
-    elif "sqlalchemy" in t or "cơ sở dữ liệu" in t or "database" in t or "orm" in t:
-        return {
-            "problem": """Lưu trữ dữ liệu trong bộ nhớ tạm thời (RAM) đồng nghĩa với việc thông tin sẽ bị xóa sạch khi ứng dụng khởi động lại hoặc gặp sự cố crash đột ngột. Để xây dựng một Web Service thực tế, chúng ta bắt buộc phải có cơ chế ghi nhớ trạng thái lâu dài bằng cách kết nối và lưu trữ dữ liệu vào các hệ cơ sở dữ liệu quan hệ như MySQL hay PostgreSQL.""",
-            "analysis": """Việc viết trực tiếp câu lệnh SQL thuần (Raw SQL) lồng ghép bên trong mã Python gây khó khăn cho việc bảo trì, không kiểm soát được kiểu dữ liệu và mở ra nguy cơ tấn công SQL Injection nghiêm trọng. SQLAlchemy ORM (Object-Relational Mapping) ra đời để giải quyết triệt để thách thức này bằng cách tự động ánh xạ cấu trúc bảng vật lý thành các Class Python hướng đối tượng.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Đặc tính so sánh</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Truy vấn SQL thuần (Raw SQL)</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">SQLAlchemy ORM (FastAPI)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Chống SQL Injection</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:red;">Phải tự xử lý tham số hóa thủ công</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:green; font-weight:bold;">Tự động tham số hóa dữ liệu (Parameterized)</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Độc lập hệ CSDL</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Phụ thuộc vào cú pháp SQL của từng hệ CSDL</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Độc lập (Tự sinh SQL tương thích với MySQL, PostgreSQL, SQLite...)</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Bảo trì & OOP</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Khó đồng bộ kiểu dữ liệu giữa Database và code</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Ánh xạ trực tiếp thành đối tượng Class Python</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Sử dụng SQLAlchemy để định nghĩa Models, thiết lập Connection Pooling (quản lý bể kết nối) tối ưu và quản lý Transaction. Kết hợp Dependency Injection của FastAPI (`Depends`) để cấp phát và tự động thu hồi Database Session ở mỗi Request gửi lên.""",
-            "example": """from sqlalchemy import create_engine, Column, Integer, String, Boolean
-from sqlalchemy.orm import sessionmaker, declarative_base
-
-# 1. Khai báo chuỗi kết nối Database (hỗ trợ PostgreSQL, SQLite, MySQL...)
-# Ví dụ với PostgreSQL: DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/hotel_db'
-DATABASE_URL = 'sqlite:///./hotel_reservation.db'
-
-# 2. Khởi tạo Engine với cấu hình Connection Pooling tiêu chuẩn Production
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=10,            # Số kết nối tối đa được duy trì trong pool
-    max_overflow=20,         # Số kết nối tạo thêm tối đa khi pool bị quá tải
-    pool_timeout=30.0,       # Thời gian chờ tối đa (giây) để lấy kết nối từ pool
-    pool_recycle=1800,       # Tự động dọn dẹp các kết nối cũ sau 30 phút
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# 3. Định nghĩa Model SQLAlchemy ánh xạ tới bảng
-class DBRoom(Base):
-    __tablename__ = 'rooms'
-    id = Column(Integer, primary_key=True, index=True)
-    room_number = Column(Integer, unique=True, index=True)
-    room_type = Column(String)
-    is_available = Column(Boolean, default=True)
-
-# 4. Hàm Generator cấp phát session DB (Dependency Injection)
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db  # Trả về session cho API sử dụng
-    finally:
-        db.close()  # Đảm bảo đóng kết nối khi request kết thúc
-""",
-            "resolve": """Thông qua hàm generator `get_db()`, FastAPI đảm bảo mỗi request gửi đến hệ thống sẽ được cấp phát riêng một database session độc lập và session này chắc chắn sẽ tự động đóng lại khi request kết thúc để tránh rò rỉ kết nối.""",
-            "summary": "Luôn quản lý vòng đời của Database Session thông qua Depend với generator yield và cấu hình Connection Pooling (pool_size, max_overflow) cho SQLAlchemy Engine khi chạy thực tế.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Tại sao việc sử dụng cơ chế Dependency Injection (`Depends(get_db)`) lại giúp tối ưu hóa việc quản lý kết nối cơ sở dữ liệu trong FastAPI?",
-                "Câu 2 (Vận dụng): Khai báo một lớp Model SQLAlchemy có tên `Product` ánh xạ tới bảng `products` gồm các trường: id (khóa chính), name (chuỗi), và price (số thực).",
-                "Câu 3 (Phân tích): So sánh và phân tích ưu điểm, nhược điểm của việc sử dụng thư viện ORM (như SQLAlchemy) so với việc viết các câu lệnh truy vấn SQL thuần túy."
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Hàm nào trong SQLAlchemy dùng để thiết lập kết nối vật lý tới Database?", "options": ["create_connection", "create_engine", "connect_db", "sessionmaker"], "correct_option_index": 1, "explanation": "create_engine định hình chuỗi kết nối và quản lý connection pool."},
-                {"type": "Q2_Execution_Flow", "question": "Mô hình quản lý session db khuyên dùng trong FastAPI là gì?", "options": ["Mở session toàn cục", "Tạo và đóng session trong từng request (Dependency Injection với yield)", "Mở session khi start app và đóng khi shutdown", "Mỗi truy vấn tạo 1 connection mới"], "correct_option_index": 1, "explanation": "Sử dụng Generator Yield giúp tự động đóng session ngay sau khi kết thúc request."},
-                {"type": "Q3_Code_Reading", "question": "Đoạn code: db.query(User).filter(User.id == 1).first(). Kết quả trả về là gì nếu id không có?", "options": ["Exception error", "None", "Mảng rỗng []", "Lỗi CSDL"], "correct_option_index": 1, "explanation": "first() trả về None nếu không tìm thấy bản ghi nào khớp điều kiện."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa Pydantic Model và SQLAlchemy Model là gì?", "options": ["Pydantic tương tác DB, SQLAlchemy validate dữ liệu", "Pydantic validate dữ liệu vào/ra và chuyển đổi JSON; SQLAlchemy định nghĩa cấu trúc bảng CSDL và tương tác dữ liệu vật lý", "Giống nhau hoàn toàn", "SQLAlchemy chỉ chạy trên PostgreSQL"], "correct_option_index": 1, "explanation": "Đây là 2 thư viện bổ trợ nhau: Pydantic ở tầng API, SQLAlchemy ở tầng Database."},
-                {"type": "Q5_Prediction_Trap", "question": "Nếu gọi db.add(obj) mà quên gọi db.commit() thì chuyện gì xảy ra?", "options": ["Dữ liệu vẫn được lưu", "Dữ liệu được lưu tạm, biến mất khi restart", "Dữ liệu không được ghi xuống Database vật lý", "Hệ thống báo lỗi ngay"], "correct_option_index": 2, "explanation": "commit() là bắt buộc để xác nhận transaction ghi xuống ổ đĩa."}
-            ],
-            "lab": {
-                "title": "Kết nối Cơ sở dữ liệu vật lý",
-                "objectives": ["Cấu hình chuỗi kết nối và tạo bảng dữ liệu MySQL bằng SQLAlchemy."],
-                "steps": [
-                    "Bước 1: Cài đặt thư viện: `pip install sqlalchemy mysqlclient`.",
-                    "Bước 2: Cấu hình `engine = create_engine('mysql://user:pass@localhost/db')`.",
-                    "Bước 3: Định nghĩa Model `Todo` kế thừa `Base`.",
-                    "Bước 4: Gọi lệnh `Base.metadata.create_all(bind=engine)` để tự sinh bảng trong CSDL."
-                ],
-                "checklist": ["Chạy script tạo bảng không báo lỗi kết nối.", "Bảng `todos` xuất hiện vật lý trong MySQL/PostgreSQL."]
-            }
-        }
-        
-    elif "structure" in t or "thiết kế" in t or "router" in t:
-        return {
-            "problem": """Khi quy mô dự án phát triển phần mềm mở rộng, số lượng API endpoints có thể lên tới hàng trăm. Việc nhồi nhét tất cả mã nguồn liên quan đến định tuyến, kết nối database, xử lý logic nghiệp vụ và validate dữ liệu vào chung một tệp tin duy nhất (như `main.py`) sẽ biến tệp tin đó thành một cấu trúc hỗn độn, vô cùng khó bảo trì và dễ xảy ra xung đột khi làm việc nhóm.""",
-            "analysis": """Việc vi phạm nguyên tắc Đơn nhiệm (Single Responsibility Principle) làm cho các thành phần của hệ thống bị ràng buộc chặt chẽ với nhau (tight coupling). Một thay đổi nhỏ ở cấu trúc database có thể trực tiếp làm sập logic của API Router nếu chúng không được phân tách lớp rõ ràng. Cấu trúc Clean Architecture giúp tách biệt rõ ràng trách nhiệm của từng cấu phần.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Thư mục chức năng</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Trách nhiệm chính</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Thư viện tương ứng</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">routers/</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Định nghĩa URL, phân phối request (Routing)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">FastAPI APIRouter</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">schemas/</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Validate cấu trúc request/response JSON</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Pydantic BaseModel</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">models/</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Định nghĩa cấu trúc bảng CSDL vật lý</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">SQLAlchemy declarative_base</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">crud/</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Trực tiếp truy vấn, ghi dữ liệu vào CSDL</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">SQLAlchemy Session query</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Áp dụng cấu trúc thư mục chuẩn công nghiệp kết hợp với công cụ `APIRouter` của FastAPI. Chúng ta chia nhỏ mã nguồn thành các thư mục chuyên biệt: `routers/` quản lý định tuyến, `models/` đại diện cấu trúc dữ liệu vật lý, `schemas/` validate đầu vào đầu ra với Pydantic, và `crud/` chịu trách nhiệm truy vấn database.""",
-            "example": """# 1. Định nghĩa router con độc lập (app/routers/rooms.py)
-from fastapi import APIRouter
-
-router = APIRouter(
-    prefix='/rooms',
-    tags=['Quản lý phòng nghỉ']
-)
-
-@router.get('/')
-def list_rooms():
-    return {"message": "Danh sách phòng", "data": []}
-
-# 2. Đăng ký router con vào file main.py chính
-from fastapi import FastAPI
-from app.routers import rooms  # Import router con an toàn
-
-app = FastAPI(title="Hệ thống Khách sạn")
-app.include_router(rooms.router)  # Gộp route
-""",
-            "resolve": """Nhờ sử dụng APIRouter, các module chức năng được tách rời hoàn toàn và có thể phát triển song song bởi nhiều thành viên trong dự án. Khi ứng dụng chính chạy lên, FastAPI tự động gộp các đường dẫn lại một cách thông minh và nhóm chúng thành các tag trực quan trên giao diện Swagger UI, giúp việc kiểm thử và tích hợp diễn ra trơn tru.""",
-            "summary": "Luôn đặt tiền tố (prefix) và gắn nhãn (tags) phù hợp cho từng APIRouter. Lỗi thường gặp nhất là cấu hình sai đường dẫn dẫn tới xung đột đè route, hoặc import chéo (circular import) giữa các tệp tin trong cấu trúc phân cấp.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): APIRouter trong FastAPI có vai trò gì trong việc giải quyết bài toán tổ chức dự án lớn?",
-                "Câu 2 (Vận dụng): Thiết kế cấu trúc thư mục chuẩn hóa cho một ứng dụng quản lý lớp học gồm các thực thể: Học viên, Giảng viên, Lớp học.",
-                "Câu 3 (Phân tích): Tại sao việc tách biệt rõ ràng giữa lớp Model (SQLAlchemy) và lớp Schema (Pydantic) lại được coi là một Best Practice quan trọng trong thiết kế kiến trúc phần mềm?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Hành động nào tích hợp APIRouter vào ứng dụng FastAPI chính?", "options": ["app.add_router(router)", "app.include_router(router)", "app.import_router(router)", "app.register_router(router)"], "correct_option_index": 1, "explanation": "include_router() là hàm chuẩn để gộp định tuyến module vào app chính."},
-                {"type": "Q2_Execution_Flow", "question": "Trong cấu trúc dự án chuẩn, thư mục nào thường chứa các file định nghĩa schema Pydantic?", "options": ["models/", "schemas/", "routers/", "crud/"], "correct_option_index": 1, "explanation": "schemas/ chứa Pydantic models validate dữ liệu đầu vào/ra."},
-                {"type": "Q3_Code_Reading", "question": "Đoạn code: router = APIRouter(prefix='/products'). Route bên dưới: @router.get('/{id}'). URL đầy đủ để gọi endpoint này là gì?", "options": ["/{id}", "/products/{id}", "/products/get/{id}", "/get/{id}"], "correct_option_index": 1, "explanation": "URL đầy đủ bằng prefix cộng với path cụ thể của endpoint."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa Models và Schemas trong dự án FastAPI cấu trúc chuẩn?", "options": ["Models là Pydantic, Schemas là SQLAlchemy", "Models là cấu trúc bảng CSDL (SQLAlchemy), Schemas là cấu trúc dữ liệu API (Pydantic)", "Hai thư mục này giống nhau", "Models lưu trong RAM, Schemas lưu trong DB"], "correct_option_index": 1, "explanation": "Models là ORM đại diện DB vật lý, Schemas là Pydantic validate dữ liệu API."},
-                {"type": "Q5_Prediction_Trap", "question": "Nếu quên include một router vào file main.py thì Swagger UI hiển thị như thế nào?", "options": ["Swagger sập", "Swagger hiển thị nhưng báo lỗi khi gọi", "Các endpoint của router đó không xuất hiện", "Swagger tự quét và hiển thị đầy đủ"], "correct_option_index": 2, "explanation": "FastAPI chỉ tự động nạp các router được đăng ký tường minh thông qua include_router."}
-            ],
-            "lab": {
-                "title": "Tái cấu trúc Dự án với APIRouter",
-                "objectives": ["Chia nhỏ ứng dụng đơn tệp thành cấu trúc thư mục chuẩn hóa."],
-                "steps": [
-                    "Bước 1: Tạo cấu trúc thư mục: `app/main.py`, `app/routers/`, `app/schemas/`.",
-                    "Bước 2: Di chuyển code liên quan đến User sang `app/routers/users.py` sử dụng `APIRouter`.",
-                    "Bước 3: Trong `app/main.py`, gọi `app.include_router(users_router)`.",
-                    "Bước 4: Chạy server uvicorn từ thư mục ngoài và xác nhận Swagger hoạt động bình thường."
-                ],
-                "checklist": ["Không còn code định tuyến trực tiếp trong main.py ngoại trừ include_router.", "API hoạt động bình thường qua cấu trúc mới."]
-            }
-        }
-        
-    elif "quan hệ" in t or "relationship" in t:
-        return {
-            "problem": """Dữ liệu trong thực tế luôn có các mối liên kết quan hệ chặt chẽ với nhau (ví dụ: Một phòng nghỉ có nhiều hóa đơn đặt phòng, mỗi hóa đơn bắt buộc phải thuộc về một phòng xác định). Nếu chúng ta thiết kế các bảng cơ sở dữ liệu dạng phẳng, không liên kết, dữ liệu sẽ bị trùng lặp nghiêm trọng và không đảm bảo được tính nhất quán tham chiếu.""",
-            "analysis": """Việc quản lý các mối quan hệ liên kết bằng cách truy vấn thủ công qua các câu lệnh JOIN phức tạp làm tốn hiệu năng xử lý của cơ sở dữ liệu. Đặc biệt, cơ chế nạp dữ liệu liên quan nếu không được cấu hình tốt sẽ dẫn tới lỗi nghẽn hiệu năng N+1 Query. Việc hiểu và lựa chọn Loading Strategy phù hợp là điều bắt buộc.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Loading Strategy</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Cơ chế hoạt động</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Ưu nhược điểm</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Lazy Loading (lazy='select')</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Trì hoãn query bảng liên quan tới khi gọi thuộc tính trong code</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Tiết kiệm kết nối, nhưng dễ gây lỗi N+1 Query trong vòng lặp</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Joined Loading (joinedload)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Sử dụng LEFT OUTER JOIN để lấy dữ liệu đồng thời ở 1 query duy nhất</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Nhanh, hiệu quả cao cho quan hệ 1-Nhiều hoặc 1-1</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Selectin Loading (selectinload)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Phát thêm câu lệnh truy vấn phụ sử dụng IN (IDs)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Rất tốt cho quan hệ Nhiều-Nhiều hoặc danh sách dữ liệu lớn</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Sử dụng các thuộc tính ràng buộc khóa ngoại (ForeignKey) ở tầng vật lý cơ sở dữ liệu và khai báo các thuộc tính ảo thông minh (`relationship()`) ở tầng SQLAlchemy ORM để tự động hóa liên kết thực thể.""",
-            "example": """from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
-
-class DBRoom(Base):
-    __tablename__ = 'rooms'
-    id = Column(Integer, primary_key=True)
-    room_number = Column(Integer)
-    # Khai báo quan hệ 1-Nhiều ảo trỏ tới Booking model
-    bookings = relationship('DBBooking', back_populates='room')
-
-class DBBooking(Base):
-    __tablename__ = 'bookings'
-    id = Column(Integer, primary_key=True)
-    guest_name = Column(String)
-    # Khóa ngoại liên kết vật lý tới bảng rooms
-    room_id = Column(Integer, ForeignKey('rooms.id'))
-    # Thuộc tính ảo lấy ngược thông tin phòng
-    room = relationship('DBRoom', back_populates='bookings')
-""",
-            "resolve": """Nhờ cấu hình `relationship()`, chúng ta có thể dễ dàng truy vấn lấy thông tin phòng từ một đơn đặt phòng (`booking.room.room_number`) hoặc ngược lại lấy toàn bộ lịch sử đặt phòng của một phòng nghỉ cụ thể (`room.bookings`) một cách cực kỳ trực quan mà không cần viết các câu lệnh SQL JOIN phức tạp.""",
-            "summary": "Luôn định nghĩa rõ tham số `back_populates` ở cả hai chiều của mối quan hệ để đồng bộ trạng thái đối tượng. Lỗi thường gặp nhất là lỗi lặp đệ quy vô tận (circular recursion) khi serialize đối tượng quan hệ chéo sang JSON bằng Pydantic.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Sự khác biệt cốt lõi giữa cơ chế Lazy Loading và Eager Loading trong việc nạp dữ liệu quan hệ của SQLAlchemy là gì?",
-                "Câu 2 (Vận dụng): Thiết lập mối quan hệ Nhiều - Nhiều giữa bảng Học viên (Student) và lớp học (Class) thông qua một bảng trung gian (Association table) sử dụng SQLAlchemy.",
-                "Câu 3 (Phân tích): Phân tích nguyên nhân và cách khắc phục lỗi IntegrityError khi chèn dữ liệu vi phạm ràng buộc khóa ngoại ForeignKey."
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Tham số nào khai báo khóa ngoại liên kết tới cột id của bảng users trong SQLAlchemy?", "options": ["ForeignKey('users.id')", "ForeignKey(User.id)", "ForeignKey('User')", "Join('users.id')"], "correct_option_index": 0, "explanation": "ForeignKey định nghĩa cột khóa ngoại liên kết vật lý."},
-                {"type": "Q2_Execution_Flow", "question": "Khi truy vấn một User và muốn lấy danh sách bài viết của họ, SQLAlchemy mặc định truy vấn theo cơ chế nào (Lazy Loading)?", "options": ["Eager Loading (truy vấn luôn)", "Lazy Loading (chỉ truy vấn khi truy cập thuộc tính .posts)", "No Loading (không cho truy cập)", "Raw Query Loading"], "correct_option_index": 1, "explanation": "Lazy loading nạp dữ liệu trễ khi thuộc tính thực sự được gọi."},
-                {"type": "Q3_Code_Reading", "question": "Cho class: Post(Base): user_id = Column(Integer, ForeignKey('users.id')). Chuyện gì xảy ra nếu chèn một Post có user_id = 999 trong khi bảng users chưa có id = 999?", "options": ["Lưu bình thường", "Lỗi vi phạm ràng buộc khóa ngoại (IntegrityError)", "Tự động tạo user 999", "Gán user_id = None"], "correct_option_index": 1, "explanation": "Hệ CSDL sẽ chặn do vi phạm khóa ngoại vật lý và báo IntegrityError."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa khóa ngoại (ForeignKey) và hàm relationship() trong SQLAlchemy?", "options": ["ForeignKey là ràng buộc vật lý trong DB; relationship() là thuộc tính ảo giúp Python truy vấn hướng đối tượng dễ dàng", "relationship() tạo cột trong DB, ForeignKey thì không", "Chúng là một", "Không khác biệt"], "correct_option_index": 0, "explanation": "ForeignKey là cột thực tế, relationship là ảo hỗ trợ ORM."},
-                {"type": "Q5_Prediction_Trap", "question": "Để tránh lỗi đệ quy vô hạn khi chuyển đổi (serialize) Object có quan hệ chéo sang Pydantic Schema, ta cần làm gì?", "options": ["Xóa quan hệ", "Không dùng Pydantic", "Định nghĩa Schema riêng biệt giới hạn các trường quan hệ (không lồng chéo vòng lặp)", "Tắt chế độ validate của Pydantic"], "correct_option_index": 2, "explanation": "Sử dụng các model schema phẳng không lồng chéo là cách tốt nhất để ngắt vòng lặp."}
-            ],
-            "lab": {
-                "title": "Thiết lập Quan hệ giữa các bảng",
-                "objectives": ["Xây dựng liên kết Một - Nhiều giữa bảng User và bảng Post.", "Viết API lấy user kèm danh sách bài viết của họ."],
-                "steps": [
-                    "Bước 1: Khai báo class `User` có `posts = relationship('Post', back_populates='author')`.",
-                    "Bước 2: Khai báo class `Post` chứa khóa ngoại `user_id` và `author = relationship('User', back_populates='posts')`.",
-                    "Bước 3: Viết API GET `/users/{id}` trả về User và cấu hình Pydantic Schema để hiển thị danh sách posts lồng bên trong."
-                ],
-                "checklist": ["Bảng posts trong CSDL có khóa ngoại trỏ sang users.", "Kết quả JSON trả về chứa mảng bài viết lồng tương ứng."]
-            }
-        }
-        
-    elif "security" in t or "authentication" in t or "jwt" in t or "đăng ký" in t or "phân quyền" in t:
-        return {
-            "problem": """Một ứng dụng web hoạt động trên môi trường Internet công khai nếu không có cơ chế bảo mật sẽ dễ bị tấn công. Bất kỳ ai cũng có thể truy cập tự do vào các tài nguyên nhạy cảm, đánh cắp thông tin cá nhân hoặc thực hiện các thao tác phá hoại dữ liệu trái phép.""",
-            "analysis": """Nhiều lập trình viên thường mắc sai lầm nghiêm trọng khi lưu mật khẩu dưới dạng văn bản thuần túy (Plaintext) hoặc thuật toán mã hóa lỗi thời (như MD5, SHA-1). Hơn nữa, giao thức HTTP hoạt động theo cơ chế không trạng thái (stateless) - tức là mỗi request độc lập hoàn toàn với nhau. Cần có giải pháp xác định danh tính người dùng an toàn.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Tiêu chí so sánh</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Mã hóa thô/MD5/SHA</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Bcrypt Hashing (FastAPI)</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Cơ chế muối (Salting)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Không có (Hai mật khẩu giống nhau cho ra mã băm giống nhau)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Tự sinh muối ngẫu nhiên (Salt) cho mỗi lượt băm mật khẩu</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Chống tấn công Brute-force</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:red;">Kém (Mã hóa rất nhanh, dễ bị vét cạn bằng bảng cầu vồng)</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:green; font-weight:bold;">Tốt (Hàm băm chậm cố ý, kiểm soát bởi Cost Factor)</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Xác thực Stateless</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Phải truy vấn Database liên tục kiểm tra session</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Xác thực chữ ký số trên Token JWT không cần DB</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Áp dụng thuật toán Bcrypt mã hóa mật khẩu một chiều an toàn kết hợp cấp phát JSON Web Tokens (JWT) cho Client. Mã JWT chứa chữ ký số (Signature) giúp Server tự kiểm thực tính toàn vẹn mà không cần lưu trữ trạng thái phiên làm việc (Session) trên server.""",
-            "example": """from passlib.context import CryptContext
-from datetime import datetime, timedelta
-from jose import jwt
-
-# 1. Cấu hình Bcrypt cho mật khẩu
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-
-# 2. Cấu hình chữ ký số JWT
-SECRET_KEY = "rikkei_secret_key_production_environment"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-def hash_password(password: str) -> str:
-    \"\"\"Băm mật khẩu sử dụng Bcrypt\"\"\"
-    return pwd_context.hash(password)
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    \"\"\"So khớp mật khẩu băm\"\"\"
-    return pwd_context.verify(plain_password, hashed_password)
-
-def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
-    \"\"\"Cấp mã xác thực JWT\"\"\"
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-""",
-            "resolve": """Thông qua cơ chế Dependency Injection xác thực mã JWT trong header của request gửi lên, hệ thống tự động nhận diện danh tính người dùng hoặc từ chối truy cập ngay lập tức bằng mã lỗi HTTP 401 Unauthorized nếu token không hợp lệ hoặc đã hết hạn.""",
-            "summary": "Tuyệt đối không để lộ SECRET_KEY trên mã nguồn công khai (phải cấu hình qua biến môi trường .env). Mật khẩu lưu trữ bắt buộc phải được băm qua Bcrypt. Lỗi thường gặp nhất là đặt thời gian sống của token quá dài hoặc không bắt ngoại lệ khi giải mã token.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Tại sao thuật toán băm Bcrypt lại an toàn hơn các thuật toán băm thông thường như MD5 hay SHA-256 đối với việc lưu trữ mật khẩu?",
-                "Câu 2 (Vận dụng): Viết mã nguồn Python giải mã (decode) một chuỗi JWT và bắt các ngoại lệ liên quan đến token hết hạn (ExpiredSignatureError) hoặc token không hợp lệ (JWTError).",
-                "Câu 3 (Phân tích): Phân tích quy trình trao đổi dữ liệu giữa Client và Server sử dụng giao thức xác thực Bearer Token kèm mã JWT."
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Ba phần chính phân tách bằng dấu chấm trong chuỗi JWT là gì?", "options": ["Header, Body, Key", "Header, Payload, Signature", "Id, Token, Expire", "Key, Value, Signature"], "correct_option_index": 1, "explanation": "Header, Payload, Signature là 3 cấu phần chuẩn hóa của JWT."},
-                {"type": "Q2_Execution_Flow", "question": "Khi Client gửi request kèm token xác thực, token đó thường nằm ở phần nào của HTTP Request?", "options": ["URL Query Parameter", "HTTP Header Authorization (dạng Bearer token)", "Request Body JSON", "Cookie"], "correct_option_index": 1, "explanation": "Gửi token trong header Authorization dạng 'Bearer <token>' là chuẩn RESTful."},
-                {"type": "Q3_Code_Reading", "question": "Nếu mã JWT đã hết hạn (expired), hàm jwt.decode() sẽ trả về kết quả gì?", "options": ["Dữ liệu cũ", "None", "Ném ra ngoại lệ ExpiredSignatureError", "Mã lỗi 401 mặc định"], "correct_option_index": 2, "explanation": "jose.jwt ném lỗi ExpiredSignatureError giúp chúng ta nhận diện và xử lý."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa Authentication và Authorization là gì?", "options": ["Chúng là một", "Authentication là xác thực danh tính (ai đây?); Authorization là phân quyền truy cập (làm được gì?)", "Authentication chạy chậm hơn Authorization", "Authentication dùng khóa đối xứng, Authorization dùng bất đối xứng"], "correct_option_index": 1, "explanation": "Authentication xác minh danh tính, Authorization xác minh quyền truy cập tài nguyên."},
-                {"type": "Q5_Prediction_Trap", "question": "Điều gì xảy ra nếu kẻ tấn công thay đổi nội dung Payload trong token JWT của sinh viên?", "options": ["Token vẫn hợp lệ và chạy tiếp", "Server bị sập", "Chữ ký số (Signature) không còn khớp với Payload mới, và server sẽ reject token khi decode", "Server tự sửa lại Payload cũ"], "correct_option_index": 2, "explanation": "Khi thay đổi nội dung Payload, chữ ký số không khớp và server từ chối giải mã."}
-            ],
-            "lab": {
-                "title": "Triển khai Xác thực JWT",
-                "objectives": ["Xây dựng API đăng nhập nhận mật khẩu và cấp phát token JWT."],
-                "steps": [
-                    "Bước 1: Cài đặt thư viện: `pip install passlib[bcrypt] python-jose[cryptography]`.",
-                    "Bước 2: Viết hàm băm mật khẩu và hàm so khớp mật khẩu.",
-                    "Bước 3: Viết API `/login` kiểm tra username và password, nếu đúng cấp token JWT.",
-                    "Bước 4: Tạo dependency `get_current_user` xác thực token trong header và test bằng Swagger."
-                ],
-                "checklist": ["Mật khẩu lưu trong database được mã hóa bcrypt (bắt đầu bằng $2b$).", "Truy cập endpoint bảo mật không gửi token trả về lỗi 401 Unauthorized."]
-            }
-        }
-        
-    elif "cors" in t or "middleware" in t:
-        return {
-            "problem": """Khi triển khai dự án thực tế, mã nguồn Frontend (React chạy tại cổng 3000) và Backend API (FastAPI chạy tại cổng 8000) nằm ở hai nguồn gốc khác nhau. Khi Frontend thực hiện gọi API gửi dữ liệu tới Backend, trình duyệt sẽ lập tức chặn đứng kết nối và báo lỗi đỏ liên quan đến chính sách CORS.""",
-            "analysis": """Đây là hành vi bảo mật mặc định (Same-Origin Policy) để bảo vệ người dùng khỏi việc gửi dữ liệu trộm. Khi gửi request chéo nguồn gốc, trình duyệt sẽ gửi request preflight OPTIONS để kiểm tra server trước. Chúng ta cần hiểu cách thức hoạt động của Middleware để cấu hình chia sẻ tài nguyên hợp lệ.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Cấu hình CORSMiddleware</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Vai trò kỹ thuật</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Khuyến nghị bảo mật</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">allow_origins</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chỉ định domain client nào được phép gọi API</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:orange; font-weight:bold;">Chỉ định chính xác domain (tránh dùng wildcard '*' ở production)</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">allow_methods</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Khai báo các phương thức HTTP được chấp nhận</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Giới hạn (ví dụ chỉ cho phép GET, POST)</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">allow_credentials</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Cho phép gửi Cookies/Auth Headers chéo</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Bắt buộc phải True nếu dùng Session Cookies</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Tích hợp CORSMiddleware của FastAPI để cấu hình định danh rõ ràng danh sách các nguồn gốc (Origins) được phép gửi yêu cầu chéo, các phương thức HTTP (GET, POST,...) và các headers xác thực được chấp nhận trong các yêu cầu giao tiếp.""",
-            "example": """from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
-
-# 1. Khai báo danh sách các domain tin cậy được phép truy cập
-allowed_origins = [
-    "http://localhost:3000",
-    "http://localhost:5173",  # Phổ biến cho Vite dev server
-    "https://hotel-app.rikkei.edu.vn"
-]
-
-# 2. Tích hợp CORSMiddleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],  # Hoặc khai báo cụ thể ["GET", "POST", "PUT", "DELETE"]
-    allow_headers=["*"],
-)
-""",
-            "resolve": """Trình duyệt nhận diện header `Access-Control-Allow-Origin` phản hồi từ server và cho phép Frontend React đọc kết quả JSON.""",
-            "summary": "Nguy hiểm bảo mật khi lạm dụng wildcard `*` cho các domain nhạy cảm, thứ tự thực thi của các Middleware.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Cơ chế CORS hoạt động như thế nào trong trình duyệt?",
-                "Câu 2 (Vận dụng): Viết code tích hợp CORSMiddleware vào ứng dụng chính, cấu hình an toàn không lạm dụng allow_origins=['*']",
-                "Câu 3 (Phân tích): Tại sao trình duyệt lại gửi request OPTIONS (Preflight Request) trước khi gửi request thực tế?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Hành động nào tích hợp APIRouter vào ứng dụng FastAPI chính?", "options": ["app.add_router(router)", "app.include_router(router)", "app.import_router(router)", "app.register_router(router)"], "correct_option_index": 1, "explanation": "include_router() nạp APIRouter con vào ứng dụng."},
-                {"type": "Q2_Execution_Flow", "question": "Trong cấu trúc dự án chuẩn, thư mục nào thường chứa các file định nghĩa schema Pydantic?", "options": ["models/", "schemas/", "routers/", "crud/"], "correct_option_index": 1, "explanation": "schemas/ chứa Pydantic models validate dữ liệu đầu vào/ra."},
-                {"type": "Q3_Code_Reading", "question": "Đoạn code: router = APIRouter(prefix='/products'). Route bên dưới: @router.get('/{id}'). URL đầy đủ để gọi endpoint này là gì?", "options": ["/{id}", "/products/{id}", "/products/get/{id}", "/get/{id}"], "correct_option_index": 1, "explanation": "Đường dẫn đầy đủ bằng prefix ghép với path con."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa Models và Schemas trong dự án FastAPI cấu trúc chuẩn?", "options": ["Models là Pydantic, Schemas là SQLAlchemy", "Models là cấu trúc bảng CSDL (SQLAlchemy), Schemas là cấu trúc dữ liệu API (Pydantic)", "Hai thư mục này giống nhau", "Models lưu trong RAM, Schemas lưu trong DB"], "correct_option_index": 1, "explanation": "Models là ORM đại diện DB vật lý, Schemas là Pydantic validate dữ liệu API."},
-                {"type": "Q5_Prediction_Trap", "question": "Nếu quên include một router vào file main.py thì Swagger UI hiển thị như thế nào?", "options": ["Swagger sập", "Swagger hiển thị nhưng báo lỗi khi gọi", "Các endpoint của router đó không xuất hiện", "Swagger tự quét và hiển thị đầy đủ"], "correct_option_index": 2, "explanation": "Các endpoint của router chưa đăng ký sẽ hoàn toàn không xuất hiện trên Swagger."}
-            ],
-            "lab": {
-                "title": "Tích hợp CORS",
-                "objectives": ["Cấu hình CORSMiddleware để kết nối API với Frontend chạy trên Localhost."],
-                "steps": [
-                    "Bước 1: Import CORSMiddleware từ fastapi.middleware.cors.",
-                    "Bước 2: Tạo list origins chứa domain localhost:3000.",
-                    "Bước 3: Gọi add_middleware cấu hình đầy đủ."
-                ],
-                "checklist": ["Gọi API chéo nguồn gốc từ Frontend thành công, không còn lỗi CORS ở Console của trình duyệt."]
-            }
-        }
-        
-    elif "upload" in t or "file" in t:
-        return {
-            "problem": """Nguy cơ tràn bộ nhớ RAM của server khi nhận các file kích thước lớn, rò rỉ bảo mật khi bị hacker tải lên các file thực thi chứa mã độc, hoặc lỗi ghi đè dữ liệu trùng tên file.""",
-            "analysis": """FastAPI phân biệt rõ ràng giữa bytes thô (đọc thẳng vào RAM) và UploadFile (lưu tạm thời vào ổ đĩa dưới dạng spooled file). Đảm bảo kiểm tra MIME-type và kích thước tệp tải lên là bắt buộc để bảo vệ tài nguyên hệ thống.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Kiểu dữ liệu nhận file</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Tiêu tốn bộ nhớ RAM</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Thuộc tính & Tiện ích đi kèm</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">bytes (File)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Bằng chính dung lượng file (nguy cơ tràn RAM)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Không có metadata, chỉ có chuỗi nhị phân thô</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">UploadFile (FastAPI)</td>
-            <td style="padding:10px; border:1px solid var(--border-color); color:green; font-weight:bold;">Cực thấp (Lưu tạm vào đĩa cứng dạng Spooled File)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Có filename, content_type (MIME) và các hàm async read/write/seek</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Khai báo `UploadFile = File(...)` của FastAPI, kiểm tra file size, MIME type, và đặt tên file bằng mã ngẫu nhiên UUID.""",
-            "example": """import os
-import uuid
-from fastapi import FastAPI, File, UploadFile, HTTPException
-
-app = FastAPI()
-UPLOAD_DIR = "static/uploads"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-
-@app.post("/upload/avatar", tags=["Tải lên"])
-async def upload_avatar(file: UploadFile = File(...)):
-    # 1. Kiểm tra kích thước file tải lên (ví dụ dưới 2MB)
-    MAX_FILE_SIZE = 2 * 1024 * 1024  # 2MB
-    contents = await file.read()
-    if len(contents) > MAX_FILE_SIZE:
-        raise HTTPException(status_code=400, detail="Kích thước tệp tin không được vượt quá 2MB")
-        
-    # 2. Kiểm tra định dạng file (chỉ cho phép .jpg, .png)
-    if not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Chỉ hỗ trợ định dạng hình ảnh")
-        
-    # 3. Tạo tên file ngẫu nhiên và lưu vào đĩa
-    file_ext = os.path.splitext(file.filename)[1]
-    unique_filename = f"{uuid.uuid4()}{file_ext}"
-    file_path = os.path.join(UPLOAD_DIR, unique_filename)
-    
-    with open(file_path, "wb") as f:
-        f.write(contents)
-        
-    return {"filename": unique_filename, "message": "Tải lên thành công"}""",
-            "resolve": """Sử dụng `await file.read()` hoặc `await file.seek(0)` một cách an toàn và lưu file xuống ổ đĩa, đảm bảo không bị tràn bộ nhớ RAM.""",
-            "summary": "Phân biệt `bytes` và `UploadFile`, các bước xác thực kích thước và định dạng file tải lên để đảm bảo an toàn.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): Tại sao trong ứng dụng thực tế nên dùng `UploadFile` thay vì `bytes` khi nhận file lớn?",
-                "Câu 2 (Vận dụng): Viết code endpoint nhận file tải lên, kiểm tra nếu kích thước vượt quá 5MB thì trả về lỗi HTTP 400.",
-                "Câu 3 (Phân tích): Điều gì xảy ra nếu hai người dùng tải lên cùng lúc hai file có tên giống hệt nhau (ví dụ: avatar.png) và cách phòng tránh?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Trong FastAPI, class nào được khuyến nghị sử dụng khi làm việc với file tải lên kích thước lớn?", "options": ["bytes", "UploadFile", "FileStream", "BinaryData"], "correct_option_index": 1, "explanation": "UploadFile lưu tạm vào Spooled File giúp tối ưu RAM."},
-                {"type": "Q2_Execution_Flow", "question": "phương thức `await file.read()` của UploadFile có tác dụng gì?", "options": ["Xóa file khỏi bộ nhớ", "Đọc toàn bộ nội dung của tệp tải lên dưới dạng bytes", "Lưu file trực tiếp vào DB", "Giải nén file zip"], "correct_option_index": 1, "explanation": "`await file.read()` đọc toàn bộ dữ liệu nhị phân của tệp."},
-                {"type": "Q3_Code_Reading", "question": "Để khai báo một tham số nhận file từ form-data trong FastAPI, ta sử dụng cú pháp nào?", "options": ["file: str = Form(...)", "file: UploadFile = File(...)", "file: bytes = Body(...)", "file: FileUpload = Query(...)"], "correct_option_index": 1, "explanation": "`file: UploadFile = File(...)` là cú pháp chuẩn của FastAPI."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt chính giữa `bytes` và `UploadFile` trong FastAPI?", "options": ["`bytes` lưu trong RAM, `UploadFile` lưu tạm trên ổ đĩa nếu file lớn và cung cấp metadata như filename, content_type", "`UploadFile` chỉ nhận file ảnh", "`bytes` nhanh hơn gấp 100 lần", "`UploadFile` không hỗ trợ async"], "correct_option_index": 0, "explanation": "`UploadFile` sử dụng SpooledTemporaryFile tối ưu RAM và có metadata."},
-                {"type": "Q5_Prediction_Trap", "question": "Nếu gọi `await file.read()` hai lần liên tiếp mà không gọi `await file.seek(0)`, kết quả lần đọc thứ hai là gì?", "options": ["Trả về lỗi Exception", "Trả về chuỗi rỗng b'' do con trỏ file đã ở cuối tệp", "Trả về lại nội dung file", "Tự động tải lại từ client"], "correct_option_index": 1, "explanation": "Con trỏ file đã di chuyển đến cuối sau lần đọc đầu tiên, nên cần seek(0) để đọc lại."}
-            ],
-            "lab": {
-                "title": "Tải lên tệp an toàn",
-                "objectives": ["Xây dựng API nhận file tải lên, xác thực dung lượng và lưu vào đĩa."],
-                "steps": [
-                    "Bước 1: Khai báo endpoint nhận `UploadFile = File(...)`.",
-                    "Bước 2: Kiểm tra content_type và kích thước tệp tải lên.",
-                    "Bước 3: Tạo tên file ngẫu nhiên bằng UUID và lưu vào thư mục static/uploads."
-                ],
-                "checklist": ["Tải lên file thành công bằng Postman/Swagger, file được lưu vào đúng thư mục trên máy chủ."]
-            }
-        }
-
-    elif "test" in t or "unit" in t:
-        return {
-            "problem": """Khó khăn trong việc đảm bảo tính đúng đắn của toàn bộ các API endpoints khi có thay đổi mã nguồn (Regression Bugs), tốn nhiều thời gian kiểm thử thủ công qua Postman/Swagger và rủi ro ghi đè dữ liệu thật trong Database khi chạy test.""",
-            "analysis": """Kiểm thử tự động (Automated Testing) là tiêu chuẩn bắt buộc trong các dự án thực tế. FastAPI tích hợp sẵn TestClient dựa trên httpx giúp viết Unit Test và Integration Test cực kỳ nhanh chóng.
-
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Loại kiểm thử</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Phạm vi & Mục tiêu</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Thời gian thực thi</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Unit Test</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Kiểm thử từng hàm/module riêng biệt (cô lập DB bằng Mocking)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Cực nhanh (Mili giây)</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">Integration Test</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Luồng xử lý hoàn chỉnh (gọi API -> check Database session)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Trung bình (Vài giây)</td>
-        </tr>
-    </tbody>
-</table>""",
-            "solution": """Xây dựng hệ thống kiểm thử tự động chuyên nghiệp sử dụng thư viện `pytest` kết hợp với `TestClient` của FastAPI. Thiết lập cơ chế ghi đè kết nối để trỏ DB của test sang SQLite in-memory database.""",
-            "example": """from fastapi.testclient import TestClient
-from main import app
-
-# 1. Khởi tạo TestClient kết nối tới app chính
-client = TestClient(app)
-
-def test_health_check_endpoint():
-    # 2. Gửi request giả lập
-    response = client.get('/health')
-    
-    # 3. Assert xác thực dữ liệu
-    assert response.status_code == 200
-    assert response.json()["status"] == "online"
-    assert "service" in response.json()
-""",
-            "resolve": """Bằng cách triển khai các kịch bản test tự động, lập trình viên chỉ cần chạy duy nhất một câu lệnh `pytest` ở cửa sổ dòng lệnh. Toàn bộ các API endpoints của hệ thống sẽ được quét, kiểm tra phản hồi đầu vào đầu ra chỉ trong vài giây.""",
-            "summary": "Tách biệt rõ ràng cơ sở dữ liệu kiểm thử. Viết các hàm kiểm thử độc lập, đảm bảo trạng thái dữ liệu được làm sạch sau mỗi test case. Lỗi thường gặp nhất là viết các test case phụ thuộc lẫn nhau.",
-            "self_test": [
-                "Câu 1 (Thông hiểu): TestClient trong FastAPI hoạt động như thế nào và tại sao nó không cần khởi chạy một uvicorn server thực tế khi chạy các bài test?",
-                "Câu 2 (Vận dụng): Viết một test case bằng pytest kiểm thử API POST `/reservations` kiểm tra xem khi Client gửi thiếu dữ liệu thì server có trả về mã trạng thái HTTP 422 chính xác hay không.",
-                "Câu 3 (Phân tích): Tại sao việc tự động hóa kiểm thử (CI/CD) lại được coi là tiêu chuẩn bắt buộc trong quy trình phát triển và vận hành phần mềm tại các doanh nghiệp công nghệ lớn?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": "Lớp nào được import từ fastapi.testclient để giả lập các request gửi tới ứng dụng?", "options": ["TestClient", "ClientRequest", "AppClient", "MockClient"], "correct_option_index": 0, "explanation": "TestClient cung cấp các phương thức get, post, put, delete tương tác với app chính."},
-                {"type": "Q2_Execution_Flow", "question": "Để pytest nhận diện một hàm là một test case để chạy, tên hàm bắt buộc phải bắt đầu bằng tiền tố gì?", "options": ["run_", "test_", "check_", "exec_"], "correct_option_index": 1, "explanation": "pytest quét toàn bộ các file và hàm có tên bắt đầu bằng test_ để chạy tự động."},
-                {"type": "Q3_Code_Reading", "question": "Kết quả chạy pytest: assert 200 == 201 thất bại. Điều này có nghĩa là gì?", "options": ["Server bị sập", "API chạy đúng", "Mã trạng thái trả về thực tế là 200 trong khi kịch bản kỳ vọng phải là 201", "Đường dẫn API sai"], "correct_option_index": 2, "explanation": "AssertionError chỉ ra sự lệch nhau giữa giá trị thực tế trả về và kỳ vọng thiết kế."},
-                {"type": "Q4_Compare_Contrast", "question": "Khác biệt giữa UnitTest và IntegrationTest là gì?", "options": ["UnitTest test giao diện, Integration test backend", "UnitTest kiểm thử hàm đơn lẻ biệt lập; IntegrationTest kiểm thử sự phối hợp giữa nhiều thành phần (API -> DB)", "UnitTest chạy chậm hơn", "Chúng giống nhau hoàn toàn"], "correct_option_index": 1, "explanation": "UnitTest test logic nhỏ biệt lập cô lập dependencies, IntegrationTest liên kết kiểm thử cả luồng database thực tế."},
-                {"type": "Q5_Prediction_Trap", "question": "Khi chạy kiểm thử liên quan đến database, làm thế nào để đảm bảo dữ liệu test không ảnh hưởng đến database thực tế?", "options": ["Xóa database thực tế", "Sử dụng cơ chế ghi đè dependency (Dependency Overrides) gán database session chạy thử vào SQLite in-memory", "Không chạy test database", "Backup và khôi phục database liên tục"], "correct_option_index": 1, "explanation": "FastAPI hỗ trợ `app.dependency_overrides` giúp thay thế Database session thực bằng SQLite test database một cách chuyên nghiệp."}
-            ],
-            "lab": {
-                "title": "Viết Unit & Integration Test",
-                "objectives": ["Viết kịch bản kiểm thử API GET `/hello` sử dụng pytest."],
-                "steps": [
-                    "Bước 1: Cài đặt thư viện: `pip install pytest httpx`.",
-                    "Bước 2: Tạo file `test_main.py`.",
-                    "Bước 3: Khai báo `TestClient` kết nối tới app FastAPI.",
-                    "Bước 4: Viết hàm `test_read_hello()` kiểm thử status code và dữ liệu trả về.",
-                    "Bước 5: Chạy lệnh `pytest` ở console và quan sát kết quả."
-                ],
-                "checklist": ["Chạy lệnh pytest hoàn thành không báo lỗi đỏ.", "Assert đúng trạng thái HTTP 200 và kết quả JSON trả về."]
-            }
-        }
-        
-    else: # Fallback / Default details
-        return {
-            "problem": f"Thao tác kỹ thuật của '{title}' đòi hỏi sự chính xác cao về cú pháp và logic nghiệp vụ.",
-            "analysis": "Không tuân thủ các quy tắc chuẩn hóa Web Service làm suy giảm hiệu năng hệ thống và gây khó khăn khi tích hợp ứng dụng.",
-            "solution": "Áp dụng kiến trúc FastAPI chuẩn hóa, sử dụng kiểu dữ liệu phù hợp và kiểm thử tự động thường xuyên.",
-            "example": f"# Cấu hình API\n# Nội dung liên quan đến {title}\n@app.get('/items')\ndef list_items():\n    return {{'status': 'OK', 'topic': '{title}'}}",
-            "resolve": "Giải quyết các yêu cầu nghiệp vụ theo đúng chuẩn của FastAPI, đảm bảo code sạch và dễ bảo trì.",
-            "summary": "Luôn kiểm thử kỹ lưỡng qua Swagger UI. Lỗi thường gặp: Quên gán kiểu dữ liệu làm giảm khả năng kiểm soát dữ liệu đầu vào.",
-            "self_test": [
-                f"Câu 1 (Thông hiểu): Khái quát vai trò cốt lõi của chủ đề '{title}' trong phát triển Web API.",
-                "Câu 2 (Vận dụng): Thiết lập một đoạn code mẫu đơn giản mô phỏng hoạt động của chủ đề này.",
-                "Câu 3 (Phân tích): Những lỗi thường gặp khi triển khai thực tế chủ đề này là gì?"
-            ],
-            "quiz": [
-                {"type": "Q1_Syntax_Definition", "question": f"Cú pháp khai báo cơ bản liên quan đến '{title}' nằm ở tầng nào?", "options": ["Tầng API Router", "Tầng Database Model", "Tầng Middleware", "Tầng Schema"], "correct_option_index": 0, "explanation": "Tùy thuộc vào thiết kế hệ thống, các cấu hình thường nằm ở tầng API để đón nhận request."},
-                {"type": "Q2_Execution_Flow", "question": "Luồng dữ liệu của chủ đề này di chuyển như thế nào?", "options": ["Client -> Server -> Client", "Server -> Database -> Server", "Client -> Middleware -> Router -> DB -> Client", "Database -> Client"], "correct_option_index": 2, "explanation": "Đây là luồng chuẩn của một request đi qua bộ lọc middleware, định tuyến router và cập nhật database."},
-                {"type": "Q3_Code_Reading", "question": f"Đoạn code mô tả '{title}' chạy thành công sẽ trả về mã trạng thái HTTP nào?", "options": ["200 OK", "400 Bad Request", "404 Not Found", "500 Server Error"], "correct_option_index": 0, "explanation": "Mã HTTP 200 biểu thị phản hồi thành công và hợp lệ."},
-                {"type": "Q4_Compare_Contrast", "question": f"So sánh chủ đề '{title}' với cách tiếp cận truyền thống cũ?", "options": ["Cách mới nhanh và an toàn hơn", "Cách cũ dễ viết hơn", "Không có sự khác biệt lớn", "Cách mới phức tạp hơn"], "correct_option_index": 0, "explanation": "FastAPI luôn đem lại các cải tiến về mặt tốc độ xử lý và sự an toàn về kiểu dữ liệu."},
-                {"type": "Q5_Prediction_Trap", "question": f"Rủi ro lớn nhất nếu triển khai lỗi chủ đề này là gì?", "options": ["Hệ thống sập hoàn toàn", "Rò rỉ dữ liệu hoặc sai lệch nghiệp vụ", "Giao diện Swagger không chạy", "Mất kết nối Internet"], "correct_option_index": 1, "explanation": "Rò rỉ bảo mật và lỗi nghiệp vụ là các vấn đề nghiêm trọng cần chú ý khi code."}
-            ],
-            "lab": {
-                "title": f"Thực hành chủ đề {title}",
-                "objectives": [f"Nắm vững cách thức thiết lập và triển khai liên quan đến '{title}'."],
-                "steps": [
-                    f"Bước 1: Nghiên cứu kỹ đặc tả yêu cầu của '{title}' trong PM.",
-                    "Bước 2: Viết mã nguồn Python mô phỏng logic xử lý chính.",
-                    "Bước 3: Tích hợp vào app FastAPI chính và test hoạt động."
-                ],
-                "checklist": ["API endpoint phản hồi đúng mã trạng thái HTTP 200.", "Dữ liệu trả về đúng đặc tả mong muốn của PM."]
-            }
-        }
 
 def session_compiler_agent(state: AgentState) -> AgentState:
     """
@@ -1776,110 +542,505 @@ def session_compiler_agent(state: AgentState) -> AgentState:
 
 def video_script_agent(state: AgentState) -> AgentState:
     """
-    Video Script Agent:
-    Generates a structured video recording script for the instructor.
-    Enforces the 3-part layout (Introduction, Main content, Conclusion) from educational video standards.
+    Video Director Agent (HyperFrames Standard):
+    Produces a production-ready blueprint JSON for HyperFrames video composition.
+    Follows the dev-tutorial-video standard: scene-based structure, GSAP timeline rules,
+    audio architecture, and design system as defined in skills/hyperframes_composer/SKILL.md.
     """
+    import json
+    import os
+    from core.llm import call_llm
+    from core.skills import load_skill_content
+
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
-    
     core_ssot = state.get("core_ssot", {})
     lesson_title = core_ssot.get("session_title", "Course Session")
     lesson_details = core_ssot.get("lesson_details", "")
-    expected_output = core_ssot.get("expected_output", "")
-    
-    # We can determine the video type dynamically
-    t = lesson_title.lower()
-    if "giới thiệu" in t or "tổng quan" in t or "định hướng" in t:
-        v_type = "Bài học giới thiệu (Introduction lesson)"
-        v_class = "intro"
-    elif "thực hành" in t or "tích hợp" in t or "xây dựng" in t or "triển khai" in t or "cài đặt" in t or "viết code" in t or "test" in t:
-        v_type = "Bài học thực hành (Practice lesson)"
-        v_class = "practice"
-    else:
-        v_type = "Bài học lý thuyết (Theory lesson)"
-        v_class = "theory"
-        
-    print(f"\n[Video_Script_Agent] Formulating {v_type} Script for {session_id} {lesson_id}")
-    
+    tech_stack = state.get("technology_stack", "python/core")
+
+    previous_rejects = [log for log in state.get("review_logs", []) if log["source"] == "Video_Script_Reviewer"]
+    attempt_num = len(previous_rejects) + 1
+    feedback_context = ""
+    if previous_rejects:
+        feedback_context = f"PHẢN HỒI TỪ REVIEWER (LẦN TRƯỚC — BẮT BUỘC SỬA):\n{previous_rejects[-1]['feedback']}\n"
+
+    print(f"\n[Video_Director_Agent] Generating HyperFrames Blueprint for {session_id} {lesson_id} (Attempt {attempt_num})")
+
+    # Load master content (shared cache)
     content = get_lesson_content(
         session_id=session_id,
         lesson_id=lesson_id,
         lesson_title=lesson_title,
         lesson_details=lesson_details,
-        expected_output=expected_output,
+        expected_output=core_ssot.get("expected_output", ""),
         attempt_num=1,
         core_ssot=core_ssot,
         state=state
     )
-    
-    # Build dialogue script table based on type
-    if v_class == "intro":
-        intro_desc = f"Giới thiệu tổng quan về chương trình học và các đề mục của '{lesson_title}'."
-        main_desc = f"Giải thích tầm quan trọng của chủ đề, lộ trình học tập, và đích đến thực tế: '{expected_output if expected_output else 'tích hợp thành công và hoạt động ổn định'}'."
-        conclusion_desc = "Tóm tắt các yêu cầu bắt buộc và kêu gọi hành động (CTA)."
-        
-        script_rows = f"""| **00:00 - 00:45** | **[Phần 1: Mở đầu - Introduction]**<br>- Hiện slide tiêu đề: {session_id} - {lesson_id}: {lesson_title}.<br>- Giảng viên (Talking head) xuất hiện ở góc màn hình chào hỏi thân thiện. | "Xin chào các bạn học viên của Rikkei Education! Hôm nay chúng ta sẽ bắt đầu một chương trình học vô cùng thú vị và thực tế. Bài học này sẽ giúp chúng ta có cái nhìn toàn cảnh về: {lesson_title}. Đây sẽ là viên gạch nền móng đầu tiên của cả khóa học." |
-| **00:45 - 03:00** | **[Phần 2: Nội dung chính - Main Content]**<br>- Trình bày slide lộ trình học tập và sơ đồ các cấu phần.<br>- Highlight các công nghệ cốt lõi sẽ áp dụng trong môn học.<br>- Chuyển camera cận cảnh giảng viên khi giải thích các mục tiêu. | "Trong phần nội dung chính này, chúng ta cần lưu ý đến những thách thức thực tế sau: {content["problem"][:250]}. Để giải quyết điều đó, giải pháp của chúng ta là học tập chủ động và thiết kế ngược, bám sát dự án thực chiến cuối khóa. Đầu ra kỳ vọng của phần này là: {expected_output if expected_output else 'nắm vững toàn bộ kiến trúc môn học'}. Phân tích sâu hơn, chúng ta thấy..." |
-| **03:00 - 04:00** | **[Phần 3: Kết luận - Conclusion]**<br>- Hiện slide tổng kết quy chế môn học và checklist.<br>- Hiển thị QR Code hoặc link tài nguyên bài học.<br>- Giảng viên chào tạm biệt người học. | "Để tóm tắt lại, mục tiêu lớn nhất của chúng ta hôm nay là định hình rõ lộ trình học. Các bạn hãy tải file Markdown dự án về và hoàn thành checklist tự học nhé. Hẹn gặp lại các bạn trong bài thực hành Lab tiếp theo!" |"""
 
-    elif v_class == "theory":
-        intro_desc = f"Giới thiệu khái niệm lý thuyết cốt lõi của '{lesson_title}'."
-        main_desc = f"Đưa ra bài toán thực tế, phân tích nguyên nhân nếu không áp dụng kỹ thuật, và giới thiệu giải pháp kỹ thuật cụ thể cùng lý thuyết chuẩn."
-        conclusion_desc = "Tóm tắt ý chính của lý thuyết và hướng dẫn chuẩn bị cho bài thực hành tiếp theo."
-        
-        script_rows = f"""| **00:00 - 00:45** | **[Phần 1: Mở đầu - Introduction]**<br>- Hiện slide định nghĩa: {lesson_title}.<br>- Giảng viên giới thiệu khái niệm lý thuyết nền tảng. | "Chào các bạn! Trong bài học lý thuyết hôm nay, chúng ta sẽ cùng nhau tìm hiểu về một chủ đề vô cùng quan trọng, đó là: {lesson_title}. Chúng ta sẽ đi sâu vào cấu trúc và nguyên lý vận hành của nó." |
-| **00:45 - 03:30** | **[Phần 2: Nội dung chính - Main Content]**<br>- Show slide phân tích bài toán thực tế (Problem).<br>- Minh họa bằng hình ảnh / sơ đồ khối so sánh (ví dụ: Đồng bộ vs Bất đồng bộ, hoặc API truyền thống vs Pydantic).<br>- Hiện code mẫu minh họa cách viết đúng chuẩn. | "Hãy tưởng tượng một bài toán thực tế: {content["problem"][:250]}. Tại sao vấn đề này lại xảy ra? {content["analysis"][:250]}. Để giải quyết triệt để, chúng ta áp dụng giải pháp: {content["solution"][:200]}. Hãy cùng nhìn vào ví dụ mã nguồn minh họa ở trên slide..." |
-| **03:30 - 04:30** | **[Phần 3: Kết luận - Conclusion]**<br>- Tóm tắt 3 ý chính cần ghi nhớ.<br>- Đưa ra lưu ý / lỗi thường gặp (Summary).<br>- Kêu gọi hành động: Đọc thêm bài đọc chi tiết và chuẩn bị làm Quiz. | "Tóm lại, hãy luôn ghi nhớ: {content["summary"][:200]}. Các bạn hãy trả lời 3 câu hỏi tự luận ở cuối bài đọc để củng cố kiến thức nhé. Chúc các bạn học tốt và hẹn gặp lại ở video tiếp theo!" |"""
+    # Load the HyperFrames composer skill for context
+    hyperframes_skill = load_skill_content("hyperframes_composer")
 
-    else: # practice
-        intro_desc = f"Giới thiệu bài toán thực hành cho '{lesson_title}'."
-        main_desc = f"Mô hình hóa các bước thực hành qua terminal / IDE, hướng dẫn viết code trực tiếp, khởi chạy uvicorn, và kiểm tra đầu ra."
-        conclusion_desc = "Tổng kết checklist hoàn thành bài Lab thực hành."
-        
-        script_rows = f"""| **00:00 - 00:45** | **[Phần 1: Mở đầu - Introduction]**<br>- Show slide mục tiêu bài Lab thực hành.<br>- Giảng viên mở IDE (VS Code) sẵn sàng để viết code. | "Chào các bạn học viên! Hôm nay chúng ta sẽ bắt tay vào phần thực hành vô cùng quan trọng: {lesson_title}. Mục tiêu của bài thực hành này là giúp các bạn tự tay cài đặt và vận hành hệ thống thực tế." |
-| **00:45 - 04:30** | **[Phần 2: Nội dung chính - Main Content]**<br>- Chia sẻ màn hình IDE (VS Code).<br>- Hướng dẫn từng bước viết code, giải thích chi tiết ý nghĩa từng dòng lệnh.<br>- Mở terminal, chạy lệnh khởi tạo / khởi động máy chủ (ví dụ: uvicorn main:app --reload).<br>- Mở trình duyệt truy cập Swagger UI (/docs) để kiểm thử API. | "Bước đầu tiên, chúng ta cần thiết lập môi trường ảo và cài đặt thư viện cần thiết. Các bạn hãy gõ theo tôi: pip install fastapi uvicorn. Tiếp theo, chúng ta viết file main.py. Dòng code này dùng để khởi tạo ứng dụng FastAPI. Bây giờ, hãy chạy máy chủ uvicorn và mở Swagger UI lên kiểm tra nhé..." |
-| **04:30 - 05:30** | **[Phần 3: Kết luận - Conclusion]**<br>- Hiện slide checklist đánh giá bài thực hành (Lab checklist).<br>- Nhắc nhở nộp bài đúng hạn lên hệ thống học tập.<br>- Khích lệ tinh thần học viên. | "Vậy là chúng ta đã hoàn thành bài thực hành hôm nay với kết quả đầu ra: {expected_output if expected_output else 'hệ thống chạy ổn định'}. Các bạn hãy kiểm tra lại theo checklist bài Lab để đảm bảo không bỏ sót bước nào. Chúc các bạn thành công!" |"""
+    # Build lesson slug for file naming
+    import re
+    def slugify(text: str) -> str:
+        text = text.lower().strip()
+        text = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', text)
+        text = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', text)
+        text = re.sub(r'[ìíịỉĩ]', 'i', text)
+        text = re.sub(r'[òóọỏõôồốộổỗơờớợởỡ]', 'o', text)
+        text = re.sub(r'[ùúụủũưừứựửữ]', 'u', text)
+        text = re.sub(r'[ỳýỵỷỹ]', 'y', text)
+        text = re.sub(r'[đ]', 'd', text)
+        text = re.sub(r'[^a-z0-9\s_]', '', text)
+        return re.sub(r'[\s]+', '_', text)
 
-    # Combine into Markdown
-    script_md = f"""# Kịch bản Video: {session_id} - {lesson_id}: {lesson_title}
-- **Thời lượng dự kiến**: 5-7 phút
-- **Loại bài giảng**: {v_type}
-- **Nhạc nền đề xuất**: Lofi Chill không lời (âm lượng -20dB, tốc độ 1.5x)
-- **Chuẩn hình ảnh**: Full HD 1080p, tỷ lệ 16:9, font chữ đồng bộ thương hiệu Rikkei Education
+    s_id_slug = slugify(session_id)
+    l_id_slug = slugify(lesson_id) if lesson_id else "lesson"
+    lesson_slug = f"{s_id_slug}_{l_id_slug}"
 
----
+    system_prompt = f"""Bạn là Video Director Agent — chuyên gia sản xuất video E-learning theo chuẩn HyperFrames.
+Nhiệm vụ của bạn là tạo ra một "Production Blueprint JSON" cho video bài học, tuân thủ TUYỆT ĐỐI các quy tắc kỹ thuật từ SKILL.md sau:
 
-## 1. Mục tiêu học tập (Learning Objectives)
-1. {intro_desc}
-2. {main_desc}
-3. {conclusion_desc}
+{hyperframes_skill}
 
----
+NGUYÊN TẮC CỐT LÕI:
+1. CHIA ĐỦ SCENE: Tạo ra 4-6 scenes. Mỗi scene có 1 chủ đề rõ ràng.
+2. NARRATION ĐỦ DÀI: Tổng từ narration của tất cả scenes phải đạt 400-800 từ (video 4-5 phút).
+3. CẤU TRÚC ANIMATION: Mỗi scene PHẢI có animation_timeline theo đúng quy trình: intro-title 0.2s→3.2s, nội dung từ 4.0s+.
+4. DESIGN SYSTEM: Dùng đúng màu sắc và font từ design system (#0f1117, #e6edf3, Inter, Fira Code).
+5. SƯ PHẠM: Mở đầu "Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education..." và kết "Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
+6. CÔNG NGHỆ: Kịch bản phải bám sát 100% vào {tech_stack}. KHÔNG đề cập công nghệ khác.
 
-## 2. Kịch bản lời thoại & Chỉ dẫn quay hình (Storyboard)
+Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
+{{
+  "lesson_slug": "{lesson_slug}",
+  "lesson_title": "{lesson_title}",
+  "total_duration": <tổng thời gian tất cả scenes>,
+  "scenes": [
+    {{
+      "scene_id": "Scene_01",
+      "scene_title": "<Tiêu đề ngắn của scene>",
+      "start_at_root": 0,
+      "duration": <số giây của scene, thường 30-50s>,
+      "track_index": 1,
+      "narration": "<Lời thoại đầy đủ, chi tiết, 80-180 từ/scene>",
+      "visual_description": "<Mô tả những gì hiện trên màn hình>",
+      "html_structure": "<Tên các elements HTML cần có trong scene này>",
+      "animation_timeline": [
+        "0.0s: tl.set('.clip', {{autoAlpha:1}}, 0)",
+        "0.2s: intro-title fade in",
+        "3.2s: intro-title <lên góc/fade out>",
+        "4.x s: <element chính đầu tiên xuất hiện>",
+        "...thêm các mốc thời gian cụ thể..."
+      ]
+    }}
+  ],
+  "tts_scripts": {{
+    "Scene_01": "<Lời thoại của scene 1, giống trường narration>",
+    "Scene_02": "..."
+  }}
+}}
 
-| Thời gian | Chỉ dẫn quay hình & Slide Visuals | Lời thoại chi tiết giảng viên (Conversational Tone) |
-| :--- | :--- | :--- |
-{script_rows}
+CRITICAL: start_at_root của scene (N+1) = start_at_root[N] + duration[N]
+CRITICAL: total_duration = tổng tất cả duration của các scenes
+CRITICAL: track_index của scenes là 1, 2, 3, ... (tăng dần)
+Return only raw JSON. Do not wrap in markdown code blocks."""
 
----
+    user_prompt = f"""Tạo Production Blueprint JSON cho bài học sau:
+Session: {session_id}
+Lesson: {lesson_id} (Tiêu đề: {lesson_title})
+Technology Stack: {tech_stack}
+Chi tiết bài học: {lesson_details}
 
-## 3. Checklist chuẩn bị & Lưu ý kỹ thuật cho Giảng viên
-- [ ] Thiết lập âm thanh: Phòng cách âm, không có tiếng ồn trắng hay tiếng quạt gió.
-- [ ] Thiết lập màn hình: Độ phân giải màn hình code tối thiểu 1080p, cỡ chữ trong VS Code tăng lên 16-18 để dễ nhìn.
-- [ ] Nhịp độ nói: Vừa phải, đối thoại tự nhiên, tránh đọc slide một cách thụ động.
-- [ ] Chuyển cảnh: Tránh khoảng lặng chết (dead air), cắt ghép mượt mà giữa camera cá nhân và chia sẻ màn hình.
-"""
+Nội dung bài học gốc (Master Content để bám sát):
+- Vấn đề đặt ra: {content.get('problem', '')}
+- Giải pháp: {content.get('solution', '')}
+- Ví dụ/Code: {content.get('example', '')}
+- Tổng kết: {content.get('summary', '')}
+
+{feedback_context}
+Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
+
+    # Generate via LLM or offline fallback
+    if not (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")):
+        # Offline fallback — minimal valid blueprint
+        result_json = {
+            "lesson_slug": lesson_slug,
+            "lesson_title": lesson_title,
+            "total_duration": 60.0,
+            "scenes": [
+                {
+                    "scene_id": "Scene_01",
+                    "scene_title": f"Giới thiệu {lesson_title}",
+                    "start_at_root": 0,
+                    "duration": 30.0,
+                    "track_index": 1,
+                    "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu về {lesson_title}. Đây là một chủ đề rất quan trọng trong {tech_stack}.",
+                    "visual_description": "Tiêu đề bài học xuất hiện giữa màn hình, background dark với dot grid pattern.",
+                    "html_structure": "intro-title centered, badge công nghệ",
+                    "animation_timeline": [
+                        "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                        "0.2s: intro-title fade in (scale 0.8→1)",
+                        "3.2s: intro-title lên góc trên-trái",
+                        "4.5s: content card xuất hiện"
+                    ]
+                },
+                {
+                    "scene_id": "Scene_02",
+                    "scene_title": "Tổng kết",
+                    "start_at_root": 30.0,
+                    "duration": 30.0,
+                    "track_index": 2,
+                    "narration": f"Như vậy, chúng ta đã cùng nhau tìm hiểu xong bài học về {lesson_title}. Hãy nhớ những điểm quan trọng mà chúng ta vừa đề cập. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!",
+                    "visual_description": "Màn hình tổng kết với các bullet points chính.",
+                    "html_structure": "summary-card, key-points list",
+                    "animation_timeline": [
+                        "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                        "0.2s: intro-title 'Tổng kết' fade in",
+                        "3.2s: intro-title lên góc",
+                        "4.5s: summary card slide up",
+                        "30.0s: tl.set({}, {}, 30.0)"
+                    ]
+                }
+            ],
+            "tts_scripts": {
+                "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu về {lesson_title}.",
+                "Scene_02": f"Như vậy, chúng ta đã cùng nhau tìm hiểu xong bài học về {lesson_title}. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
+            }
+        }
+    else:
+        llm_resp = call_llm(
+            system_prompt,
+            user_prompt,
+            json_mode=True,
+            agent_name=f"Video_Director_Agent_Att{attempt_num}",
+            session_id=session_id,
+            lesson_id=lesson_id
+        )
+        try:
+            from agents.creator_agents import robust_json_parse
+            result_json = robust_json_parse(llm_resp)
+            # Validate required fields
+            if "scenes" not in result_json or not result_json["scenes"]:
+                raise ValueError("Missing 'scenes' in blueprint JSON")
+            if "tts_scripts" not in result_json:
+                raise ValueError("Missing 'tts_scripts' in blueprint JSON")
+            print(f"  [Video_Director_Agent] Blueprint generated: {len(result_json['scenes'])} scenes, duration {result_json.get('total_duration', 0)}s")
+        except Exception as e:
+            print(f"  [Video_Director_Agent] JSON parse failed: {e}. Using fallback blueprint.")
+            result_json = {
+                "lesson_slug": lesson_slug,
+                "lesson_title": lesson_title,
+                "total_duration": 60.0,
+                "scenes": [
+                    {
+                        "scene_id": "Scene_01",
+                        "scene_title": lesson_title,
+                        "start_at_root": 0,
+                        "duration": 30.0,
+                        "track_index": 1,
+                        "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
+                        "visual_description": "Intro screen với tiêu đề bài học.",
+                        "html_structure": "intro-title, content area",
+                        "animation_timeline": [
+                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                            "0.2s: intro-title fade in",
+                            "3.2s: intro-title lên góc",
+                            "4.5s: content slide in"
+                        ]
+                    },
+                    {
+                        "scene_id": "Scene_02",
+                        "scene_title": "Kết luận",
+                        "start_at_root": 30.0,
+                        "duration": 30.0,
+                        "track_index": 2,
+                        "narration": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!",
+                        "visual_description": "Summary screen.",
+                        "html_structure": "summary card",
+                        "animation_timeline": [
+                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                            "0.2s: intro-title fade in",
+                            "3.2s: intro-title fade out",
+                            "30.0s: tl.set({}, {}, 30.0)"
+                        ]
+                    }
+                ],
+                "tts_scripts": {
+                    "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
+                    "Scene_02": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!"
+                }
+            }
+
+    # Persist blueprint to state
+    state["video_script_json"] = result_json
+    state["video_lesson_slug"] = result_json.get("lesson_slug", lesson_slug)
+
+    # Build readable SCRIPT.md (for human review + Hyperframes structure)
+    scenes = result_json.get("scenes", [])
+    total_dur = result_json.get("total_duration", 0)
+    script_md = f"# HyperFrames Script: {session_id} — {lesson_id}\n\n"
+    script_md += f"**Lesson:** {lesson_title}\n"
+    script_md += f"**Technology Stack:** {tech_stack}\n"
+    script_md += f"**Total Duration:** {total_dur}s\n"
+    script_md += f"**Scene Count:** {len(scenes)}\n\n"
+    script_md += "---\n\n"
+
+    cumulative = 0
+    for scene in scenes:
+        dur = scene.get("duration", 0)
+        script_md += f"## {scene.get('scene_id', '?')}: {scene.get('scene_title', '')}\n"
+        script_md += f"**Timeline (root):** {scene.get('start_at_root', cumulative):.2f}s → {(scene.get('start_at_root', cumulative) + dur):.2f}s ({dur}s)\n\n"
+        script_md += f"**Visual:** {scene.get('visual_description', '')}\n\n"
+        script_md += f"**Animation Timeline:**\n"
+        for step in scene.get("animation_timeline", []):
+            script_md += f"- {step}\n"
+        script_md += f"\n**Narration (VO):**\n> {scene.get('narration', '')}\n\n"
+        cumulative += dur
 
     state["video_script_markdown"] = script_md
-    log_agent_tokens("Video_Script_Agent", state, script_md)
+    print(f"  [Video_Director_Agent] Blueprint complete — {len(scenes)} scenes, {total_dur:.1f}s total.")
     return state
+
+
+def get_lesson_dir(state: AgentState) -> Path:
+    from pathlib import Path
+    import json
+    import re
+
+    def sanitize_folder_name(name: str) -> str:
+        name = name.replace("&", "va").replace("%", "").replace("^", "").replace("#", "")
+        return re.sub(r'[\\/*?:"<>|]', "", name).strip()
+
+    course_dir_name = state.get("course_dir_name")
+    if not course_dir_name:
+        pms_dir = Path("pms")
+        xlsx_files = list(pms_dir.glob("*.xlsx")) if pms_dir.exists() else []
+        xlsx_files = [f for f in xlsx_files if not f.name.startswith("~$")]
+        if xlsx_files:
+            course_dir_name = xlsx_files[0].stem.strip().replace(" ", "_").replace("-", "_")
+        else:
+            course_dir_name = "default_course"
+    session_id = state.get("session_id", "Session 01")
+    lesson_id = state.get("lesson_id", "")
+    
+    output_base_dir = Path(__file__).resolve().parent.parent / "output"
+    course_dir = output_base_dir / course_dir_name
+    
+    full_curr_str = state.get("full_curriculum", "[]")
+    try:
+        sessions = json.loads(full_curr_str)
+    except Exception:
+        sessions = []
+        
+    session_title = ""
+    lesson_title = ""
+    for s in sessions:
+        if s.get("session_id") == session_id:
+            session_title = s.get("title", "")
+            for l in s.get("lessons", []):
+                if l.get("lesson_id") == lesson_id:
+                    lesson_title = l.get("title", "")
+                    break
+            break
+            
+    session_prefix = session_id
+    session_full = f"{session_id} - {session_title}"
+    session_dir = course_dir / sanitize_folder_name(session_full)
+    if course_dir.exists():
+        for item in course_dir.iterdir():
+            if item.is_dir():
+                if item.name == sanitize_folder_name(session_full):
+                    session_dir = item
+                    break
+                if item.name == session_prefix or item.name.startswith(session_prefix + " ") or item.name.startswith(session_prefix + "-"):
+                    session_dir = item
+                    break
+                    
+    lesson_prefix = lesson_id
+    lesson_full = f"{lesson_id} - {lesson_title}"
+    lesson_dir = session_dir / sanitize_folder_name(lesson_full)
+    if session_dir.exists():
+        for item in session_dir.iterdir():
+            if item.is_dir():
+                if item.name == sanitize_folder_name(lesson_full):
+                    lesson_dir = item
+                    break
+                if item.name == lesson_prefix or item.name.startswith(lesson_prefix + " ") or item.name.startswith(lesson_prefix + "-"):
+                    lesson_dir = item
+                    break
+                    
+    return lesson_dir
+
+def generate_image_api(prompt_text: str, image_path) -> bool:
+    import os
+    import requests
+    import base64
+    
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if api_key:
+        try:
+            base_url = os.getenv("GEMINI_BASE_URL")
+            if base_url:
+                base_host = base_url.rstrip('/')
+                url = f"{base_host}/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
+            else:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            data = {
+                "instances": [
+                    {
+                        "prompt": prompt_text
+                    }
+                ],
+                "parameters": {
+                    "sampleCount": 1,
+                    "aspectRatio": "16:9",
+                    "outputMimeType": "image/png"
+                }
+            }
+            response = requests.post(url, headers=headers, json=data, timeout=30)
+            if response.status_code == 200:
+                resp_json = response.json()
+                if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
+                    img_b64 = resp_json["predictions"][0]["bytesBase64Encoded"]
+                    with open(image_path, "wb") as f:
+                        f.write(base64.b64decode(img_b64))
+                    print(f"  [Image Generator] Saved diagram to: {image_path}")
+                    return True
+                else:
+                    print(f"  [Image Generator Warning] Response did not contain images: {resp_json}")
+            else:
+                print(f"  [Image Generator Warning] API status {response.status_code}: {response.text}")
+        except Exception as e:
+            print(f"  [Image Generator Warning] Dynamic image generation error: {e}")
+    return False
+
+def draw_mindmap_fallback_diagram(prompt_text: str, image_path: Path, title: str):
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        
+        width, height = 1280, 720
+        img = Image.new("RGB", (width, height), "#0F172A")
+        draw = ImageDraw.Draw(img)
+        
+        try:
+            font_title = ImageFont.truetype("arial.ttf", 28)
+            font_header = ImageFont.truetype("arial.ttf", 20)
+            font_body = ImageFont.truetype("arial.ttf", 16)
+        except Exception:
+            font_title = ImageFont.load_default()
+            font_header = ImageFont.load_default()
+            font_body = ImageFont.load_default()
+            
+        grid_size = 40
+        for x in range(0, width, grid_size):
+            draw.line([(x, 0), (x, height)], fill="#1E293B", width=1)
+        for y in range(0, height, grid_size):
+            draw.line([(0, y), (width, y)], fill="#1E293B", width=1)
+            
+        draw.rounded_rectangle([40, 30, width-40, 95], radius=8, fill="#1E1E2F", outline="#06B6D4", width=3)
+        draw.text((width//2, 62), f"SYSTEM DIAGRAM: {title.upper()}", fill="#22D3EE", font=font_title, anchor="mm")
+        
+        draw.rounded_rectangle([80, 250, 360, 470], radius=10, fill="#1E293B", outline="#3B82F6", width=2)
+        draw.text((220, 280), "CLIENT / USER AGENT", fill="#3B82F6", font=font_header, anchor="mm")
+        draw.text((220, 350), "HTTP Request\n(GET/POST/PUT/DELETE)\nHeaders & JSON Body", fill="#94A3B8", font=font_body, anchor="mm")
+        
+        draw.line([(360, 360), (520, 360)], fill="#06B6D4", width=4)
+        draw.polygon([(520, 350), (520, 370), (540, 360)], fill="#06B6D4")
+        
+        draw.rounded_rectangle([540, 200, 840, 520], radius=10, fill="#1E293B", outline="#10B981", width=2)
+        draw.text((690, 230), "BACKEND ENGINE", fill="#10B981", font=font_header, anchor="mm")
+        draw.text((690, 320), "Middleware Pipeline\nRouting & Controllers\nValidation & Security\nBusiness Logic Execution", fill="#94A3B8", font=font_body, anchor="mm")
+        
+        draw.line([(840, 360), (1000, 360)], fill="#06B6D4", width=4)
+        draw.polygon([(1000, 350), (1000, 370), (1020, 360)], fill="#06B6D4")
+        
+        draw.rounded_rectangle([1020, 250, 1200, 470], radius=10, fill="#1E293B", outline="#F59E0B", width=2)
+        draw.text((1110, 280), "DATA LAYER", fill="#F59E0B", font=font_header, anchor="mm")
+        draw.text((1110, 350), "In-Memory DB / SQLite\nJSON State / ORM\nPersistence Context", fill="#94A3B8", font=font_body, anchor="mm")
+        
+        draw.rounded_rectangle([40, 560, width-40, 680], radius=8, fill="#111827", outline="#374151", width=1)
+        draw.text((60, 580), "PROMPT DESCRIPTION:", fill="#6B7280", font=font_body)
+        
+        words = prompt_text.split()
+        lines = []
+        current_line = []
+        for word in words:
+            current_line.append(word)
+            if len(" ".join(current_line)) > 110:
+                current_line.pop()
+                lines.append(" ".join(current_line))
+                current_line = [word]
+        if current_line:
+            lines.append(" ".join(current_line))
+            
+        y_prompt = 610
+        for pline in lines[:3]:
+            draw.text((60, y_prompt), pline, fill="#D1D5DB", font=font_body)
+            y_prompt += 22
+            
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        img.save(image_path)
+        print(f"  [Fallback Image] Saved fallback diagram to: {image_path}")
+    except Exception as e:
+        print(f"  [Fallback Image Error] Failed to generate fallback diagram: {e}")
+
+def process_mindmap_images(markmap_content: str, state: AgentState) -> str:
+    import re
+    from pathlib import Path
+    
+    brackets = re.findall(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", markmap_content)
+    asterisks = re.findall(r"\*Prompt tạo ảnh:\s*([^*]+)\*", markmap_content, flags=re.IGNORECASE)
+    
+    all_prompts = []
+    seen = set()
+    for p in brackets + asterisks:
+        p_clean = p.strip()
+        if p_clean not in seen:
+            seen.add(p_clean)
+            all_prompts.append(p_clean)
+            
+    if not all_prompts:
+        return markmap_content
+        
+    try:
+        lesson_dir = get_lesson_dir(state)
+        images_dir = lesson_dir / "images"
+        images_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"  [Image Processing Warning] Could not resolve lesson directory: {e}")
+        return markmap_content
+        
+    new_content = markmap_content
+    for idx, prompt_text in enumerate(all_prompts, 1):
+        image_name = f"mindmap_img_{idx}.png"
+        image_path = images_dir / image_name
+        
+        print(f"  [Mindmap Image] Processing prompt {idx}: '{prompt_text[:50]}...'")
+        
+        force_rebuild = state.get("force_rebuild", False)
+        if force_rebuild or not image_path.exists():
+            success = generate_image_api(prompt_text, image_path)
+            if not success:
+                lesson_title = state.get("core_ssot", {}).get("session_title", "Concept Flow")
+                draw_mindmap_fallback_diagram(prompt_text, image_path, lesson_title)
+        
+        search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
+        new_content = re.sub(search_bracket, f"![](../images/{image_name})", new_content)
+        
+        search_asterisk = r"\*Prompt tạo ảnh:\s*" + re.escape(prompt_text) + r"\*"
+        new_content = re.sub(search_asterisk, f"![](../images/{image_name})", new_content, flags=re.IGNORECASE)
+        
+    return new_content
 
 def mindmap_agent(state: AgentState) -> AgentState:
     """
     Mindmap Agent:
     Generates a structured Markmap diagram based on skills/mindmap_generator/SKILL.md.
+    Uses the LLM with retry/critique logs if keys are available, otherwise falls back to a template.
     """
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
@@ -1890,7 +1051,11 @@ def mindmap_agent(state: AgentState) -> AgentState:
     lesson_details = core_ssot.get("lesson_details", "")
     expected_output = core_ssot.get("expected_output", "")
     
-    print(f"\n[Mindmap_Agent] Generating Markmap diagram for {session_id} {lesson_id} using mindmap_generator skill...")
+    mindmap_logs = [log for log in state.get("review_logs", []) if log["source"] == "Mindmap_Reviewer"]
+    attempt_num = len(mindmap_logs) + 1
+    feedback = mindmap_logs[-1]["feedback"] if mindmap_logs else ""
+    
+    print(f"\n[Mindmap_Agent] Generating Markmap diagram for {session_id} {lesson_id} (Attempt #{attempt_num}) using mindmap_generator skill...")
     
     content = get_lesson_content(
         session_id=session_id,
@@ -1898,26 +1063,23 @@ def mindmap_agent(state: AgentState) -> AgentState:
         lesson_title=lesson_title,
         lesson_details=lesson_details,
         expected_output=expected_output,
-        attempt_num=1,
+        attempt_num=attempt_num,
         core_ssot=core_ssot,
+        feedback=feedback,
         state=state
     )
     
-    # Indent the example code for the markmap list
-    ex_snippet = content["example"]
-    indented_example = "\n".join(f"      {line}" for line in ex_snippet.splitlines())
+    import os
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
-    mindmap_prompts = {
-        "typescript/nestjs": "[Prompt: Generate a visual sequence diagram showing client HTTP request passing through NestJS controller and service, resolving database queries via TypeORM/Prisma, returning structured JSON response to client]",
-        "typescript/react": "[Prompt: Generate a visual component hierarchy flow diagram showing React component state changes and hooks triggering API calls]",
-        "java/springboot": "[Prompt: Generate a visual sequence diagram showing client request passing through Controller, Service, and Repository layers to Hibernate DB]",
-        "python/fastapi": "[Prompt: Generate a visual sequence diagram showing client requesting FastAPI endpoints, mapping to Pydantic validation, and returning JSON responses.]",
-        "python/core": "[Prompt: Generate a flowchart diagram showing standard input processed by control flow logic and printing the formatted output.]"
-    }
-    mindmap_prompt = mindmap_prompts.get(tech_stack, mindmap_prompts["python/fastapi"])
-
-    # Formulate markmap following standard
-    markmap_content = f"""```markmap
+    if not (gemini_key or openai_key):
+        # Offline mode fallback
+        ex_snippet = content.get("example", "")
+        indented_example = "\n".join(f"      {line}" for line in ex_snippet.splitlines()) if ex_snippet else "      # Không có mã nguồn minh họa."
+        mindmap_prompt = f"[Prompt: Generate a visual flow/sequence diagram showing the architecture, control flow, and execution lifecycle of '{tech_stack}']"
+        
+        markmap_content = f"""```markmap
 # {session_id}: {lesson_title}
 ## Mục tiêu bài học
 - Hiểu rõ khái niệm cốt lõi và kiến trúc của {lesson_title}.
@@ -1925,7 +1087,7 @@ def mindmap_agent(state: AgentState) -> AgentState:
 - Vận hành và kiểm tra đầu ra hoạt động ổn định.
 ## {lesson_title}
 ### Khái niệm cốt lõi
-- Giải pháp kỹ thuật giúp tối ưu hóa hiệu năng, giảm thiểu blocking I/O và tự động hóa validation.
+- Giải pháp kỹ thuật giúp tối ưu hóa hiệu năng, giảm thiểu blocking I/O và tự động hóa validation cho {tech_stack}.
 ### Cú pháp & Cách khai báo
 - Ví dụ triển khai:
 {indented_example}
@@ -1934,16 +1096,120 @@ def mindmap_agent(state: AgentState) -> AgentState:
 - Cấu hình môi trường ảo venv chính xác và không đặt trùng tên file hệ thống.
 {mindmap_prompt}
 ```"""
+    else:
+        from core.llm import call_llm
+        from core.skills import load_skill_content
+        
+        mindmap_skill = load_skill_content("mindmap_generator")
+        
+        # Build master content summary for LLM context
+        master_content_summary = ""
+        if content:
+            sections_text = "\n".join([f"### {sec['title']}\n{sec['content']}" for sec in content.get("reading_sections", [])])
+            master_content_summary = f"""
+--- NỘI DUNG CHI TIẾT BÀI HỌC (Sử dụng làm cơ sở dữ liệu học thuật) ---
+{sections_text}
 
-    state["mindmap_markdown"] = markmap_content
-    log_agent_tokens("Mindmap_Agent", state, markmap_content)
+--- MÃ NGUỒN VÍ DỤ ---
+```python
+{content.get('example', '')}
+```
+
+--- TỔNG KẾT & SAI LẦM THƯỜNG GẶP ---
+{content.get('summary', '')}
+"""
+
+        system_prompt = f"""Bạn là một Giảng viên Cao cấp và chuyên gia Thiết kế Chương trình Đào tạo học thuật chuyên sâu tại Rikkei Education. 
+Nhiệm vụ của bạn là dựa vào nội dung lý thuyết chi tiết của bài học dưới đây để biên soạn một SƠ ĐỒ TƯ DUY (Mindmap) chi tiết, phong phú và có chiều sâu chuyên môn cao để tóm tắt NỘI DUNG HỌC THUẬT của bài học.
+
+Bắt buộc tuân thủ nghiêm ngặt các hướng dẫn và tiêu chuẩn trong tài liệu Kỹ năng (Skill) sau:
+{mindmap_skill}
+"""
+        
+        concepts_list = "\n".join([f"- {k}" for k in core_ssot.get("concepts", {}).keys()])
+        feedback_context = f"\nPhản hồi sửa đổi từ Mindmap Reviewer (nếu có, bạn phải sửa lỗi này): {feedback}\n" if feedback else ""
+        
+        user_prompt = f"""Hãy sinh sơ đồ tư duy dạng Markmap cho bài học:
+Session: {session_id}
+Lesson: {lesson_id} (Tiêu đề: {lesson_title})
+Chi tiết bài học từ PM: {lesson_details}
+Đầu ra kỳ vọng: {expected_output}
+Target Technology Stack: {tech_stack}
+
+Bắt buộc tạo một nhánh cấp 2 (##) tương ứng cho mỗi khái niệm cốt lõi sau để đảm bảo quy tắc không bỏ sót nhánh (Zero-drop Policy):
+{concepts_list}
+
+{master_content_summary}
+{feedback_context}
+YÊU CẦU ĐẦU RA (BẮT BUỘC):
+- Trả về DUY NHẤT một khối mã Markdown ` ```markmap ... ` ``` chứa nội dung sơ đồ tư duy.
+- Sơ đồ phải bao quát 100% các chủ đề chính được nhắc đến (Zero-drop Policy).
+- Đảm bảo nhánh cấp 2 (##) đầu tiên là `## Mục tiêu bài học`.
+- Các nhánh tiếp theo tương ứng với các chủ đề lý thuyết chính của bài học (chính là danh sách các khái niệm cốt lõi ở trên). Dưới mỗi nhánh chủ đề cấp 2 (##) (trừ nhánh Mục tiêu bài học) phải có đúng 3 nhánh con cấp 3 (### Khái niệm cốt lõi, ### Cú pháp & Cách khai báo, ### Lưu ý thực chiến). Không được sử dụng bất kỳ tên nhánh H3 nào khác!
+- Cú pháp khai báo code mẫu trong nhánh `### Cú pháp & Cách khai báo` phải được bọc trong block Markdown chỉ định ngôn ngữ và thụt lề bằng dấu cách chính xác dưới gạch đầu dòng tương ứng.
+- Tuyệt đối cấm sử dụng emoji.
+- Tuyệt đối KHÔNG ĐƯỢC "rò rỉ kiến thức" (Scope Leakage) - nội dung và cú pháp trong mindmap không chứa cú pháp hay khái niệm vượt quá phạm vi bài học (ví dụ: Lesson 01 chỉ giới thiệu Web API nhưng không được chứa SQLite/SQLAlchemy/Database hay các khái niệm của bài học sau).
+- Không có bất kỳ ký tự # thừa thãi nào trong các nhánh văn bản làm vỡ markmap. Ký tự # chỉ được sử dụng ở đầu dòng để định nghĩa tiêu đề.
+- Với các khái niệm kiến trúc phức tạp hoặc luồng dữ liệu, bắt buộc chèn một nút con prompt ảnh bằng cú pháp: `[Prompt: <English description to generate visual architecture/logic/sequence diagram>]` hoặc `[Tạo ảnh: <English description to generate visual architecture/logic/sequence diagram>]`.
+- CỰC KỲ QUAN TRỌNG: Sơ đồ tư duy phải cực kỳ cô đọng, ngắn gọn và súc tích. Tránh các đoạn giải thích dài dòng. Mỗi nhánh con cấp 3 chỉ chứa tối đa 1-2 câu ngắn hoặc một đoạn mã nguồn mẫu siêu ngắn (dưới 10 dòng) để tránh bị cắt cụt.
+- Tuyệt đối không viết thêm bất kỳ lời chào hỏi, giới thiệu hay giải thích nào ngoài khối ```markmap ... ```.
+"""
+        markmap_content = call_llm(
+            system_prompt,
+            user_prompt,
+            json_mode=False,
+            agent_name=f"Mindmap_Agent_Att{attempt_num}",
+            session_id=session_id,
+            lesson_id=lesson_id
+        )
+        if markmap_content:
+            markmap_content = markmap_content.strip()
+            if markmap_content.startswith("```markdown"):
+                markmap_content = markmap_content[11:].strip()
+            
+            # Ensure it starts with ```markmap
+            if not markmap_content.startswith("```markmap"):
+                if "```markmap" in markmap_content:
+                    idx = markmap_content.find("```markmap")
+                    markmap_content = markmap_content[idx:].strip()
+                else:
+                    markmap_content = "```markmap\n" + markmap_content
+            
+            # Auto-close unclosed code blocks
+            lines = markmap_content.splitlines()
+            level = 0
+            for line in lines:
+                stripped_line = line.strip()
+                if stripped_line.startswith("```"):
+                    if level == 0 and stripped_line.startswith("```markmap"):
+                        level = 1
+                    elif level == 1:
+                        level = 2
+                    elif level == 2:
+                        level = 1
+                    elif level == 1 and stripped_line == "```":
+                        level = 0
+            if level == 2:
+                lines.append("```")
+                level = 1
+            if level == 1:
+                lines.append("```")
+                level = 0
+            markmap_content = "\n".join(lines)
+        else:
+            markmap_content = f"```markmap\n# {session_id}: {lesson_title}\n## Mục tiêu bài học\n- Lỗi khi sinh sơ đồ tư duy.\n```"
+
+    # Process and replace image prompts
+    processed_content = process_mindmap_images(markmap_content, state)
+    state["mindmap_markdown"] = processed_content
+    log_agent_tokens("Mindmap_Agent", state, processed_content)
     return state
 
 
 def slide_agent(state: AgentState) -> AgentState:
     """
     Slide Agent:
-    Generates Marp markdown slides suitable for lecturing.
+    Generates Marp markdown slides suitable for lecturing via LLM.
     Follows Visual Design Rules: homogeneous structures, minimal bullets.
     """
     session_id = state.get("session_id", "Session 01")
@@ -1974,38 +1240,57 @@ def slide_agent(state: AgentState) -> AgentState:
     
     display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
     
-    # Marp slide structure
-    slides_md = f"""---
+    system_prompt = f"""Bạn là một Chuyên gia thiết kế Slide Bài Giảng (Instructional Slide Designer).
+Nhiệm vụ: Tạo nội dung trình chiếu Markdown (Marp framework) cho bài học '{display_title}'.
+Yêu cầu thiết kế:
+1. Bố cục: Bắt đầu bằng block Marp chuẩn:
+---
 marp: true
 theme: gaia
 _class: lead
 paginate: true
 ---
-
-# {display_title}
-### Lớp học thực chiến Python Web Services
-
----
-
-# Đặt vấn đề & Thách thức
-- Bối cảnh thực tế: {content["problem"]}
-- Vấn đề gặp phải: {content["analysis"]}
-- Giải pháp: Áp dụng {content["solution"]}
-
----
-
-# Ví dụ Minh họa Triển khai
-- Cú pháp code chuẩn hóa và an toàn
-- Sử dụng công cụ tương tác trực quan
-- Xem ví dụ triển khai chi tiết trong bài đọc
-
----
-
-# Tổng kết & Luyện tập
-- Bài học cốt lõi: {content["summary"]}
-- Thực hành làm bài Lab tuần đầy đủ
-- Tự đối chiếu kết quả theo checklist tự học
+2. Nội dung: Phải chia nhỏ nội dung ra nhiều slide (ngăn cách bằng `---`). Không nhồi nhét quá nhiều chữ vào một slide.
+3. Code Samples: Phải trích xuất mã nguồn mẫu từ SSOT và đưa vào slide có highlight syntax chuẩn xác để giảng viên có thể demo.
+4. Trình bày Khoa học: Dùng bullet point ngắn gọn. KHÔNG dùng tiêu đề `###` lồng bên trong gạch đầu dòng `-`.
 """
+    
+    user_prompt = f"""
+Nội dung bài giảng chi tiết:
+- Vấn đề: {content.get('problem', '')}
+- Phân tích: {content.get('analysis', '')}
+- Giải pháp: {content.get('solution', '')}
+- Tổng kết: {content.get('summary', '')}
+
+Tri thức gốc (SSOT):
+{json.dumps(core_ssot.get('concepts', {}), ensure_ascii=False)}
+{json.dumps(core_ssot.get('code_samples', {}), ensure_ascii=False)}
+
+Phản hồi từ Academic Reviewer (nếu có, hãy sửa lỗi này):
+{feedback}
+
+Hãy sinh ra toàn bộ file Markdown cho Marp slides. KHÔNG bọc trong ```markdown, chỉ trả về nội dung raw.
+"""
+    
+    slides_md = call_llm(
+        system_prompt,
+        user_prompt,
+        json_mode=False,
+        agent_name=f"Slide_Agent_Att{attempt_num}",
+        session_id=session_id,
+        lesson_id=lesson_id
+    )
+    
+    if slides_md:
+        slides_md = slides_md.strip()
+        if slides_md.startswith("```markdown"):
+            slides_md = slides_md[11:]
+        if slides_md.endswith("```"):
+            slides_md = slides_md[:-3]
+        slides_md = slides_md.strip()
+    else:
+        # Fallback if LLM fails
+        slides_md = f"---\nmarp: true\ntheme: gaia\n_class: lead\npaginate: true\n---\n\n# {display_title}\n\nLỗi khi sinh slide."
 
     state["slide_markdown"] = slides_md
     log_agent_tokens("Slide_Agent", state, slides_md)
@@ -2048,24 +1333,19 @@ def quiz_agent(state: AgentState) -> AgentState:
         feedback=feedback,
         state=state
     )
+    lab = content.get("lab", {})
+    lab_title = lab.get("title", "Luyện tập (Tùy chọn)")
+    lab_objectives = lab.get("objectives", ["Nắm vững kiến thức nền tảng"])
+    lab_steps = lab.get("steps", ["Xem lại tài liệu lý thuyết"])
+    lab_checklist = lab.get("checklist", ["Hoàn thành câu hỏi trắc nghiệm"])
     
-    lab_steps = content["lab"]["steps"]
-    lab_checklist = content["lab"]["checklist"]
-    
-    inputs_map = {
-        "typescript/nestjs": "Dự án NestJS hiện tại và tài nguyên khóa học.",
-        "typescript/react": "Dự án React hiện tại và tài nguyên khóa học.",
-        "java/springboot": "Dự án Spring Boot hiện tại và tài nguyên khóa học.",
-        "python/fastapi": "Dự án FastAPI hiện tại và tài nguyên khóa học.",
-        "python/core": "Môi trường lập trình Python và tài nguyên khóa học."
-    }
-    inputs_text = inputs_map.get(tech_stack, inputs_map["python/fastapi"])
+    inputs_text = f"Dự án/môi trường phát triển {tech_stack} hiện tại và tài nguyên khóa học."
 
     quiz_data = {
-        "lesson_quiz": content["quiz"],
+        "lesson_quiz": content.get("quiz", []),
         "practical_lab": {
-            "title": content["lab"]["title"],
-            "objectives": content["lab"]["objectives"],
+            "title": lab_title,
+            "objectives": lab_objectives,
             "description": {
                 "inputs": inputs_text,
                 "steps": lab_steps
@@ -2138,10 +1418,10 @@ def convert_markdown_to_html(text: str) -> str:
     def process_inline(line: str) -> str:
         # Bold: **text** -> <strong>text</strong>, __text__ -> <strong>text</strong>
         line = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', line)
-        line = re.sub(r'__(.*?)__', r'<strong>\1</strong>', line)
+        line = re.sub(r'(?<!\w)__(.*?)__(?!\w)', r'<strong>\1</strong>', line)
         # Italic: *text* -> <em>text</em>, _text_ -> <em>text</em>
         line = re.sub(r'\*(.*?)\*', r'<em>\1</em>', line)
-        line = re.sub(r'_(.*?)_', r'<em>\1</em>', line)
+        line = re.sub(r'(?<!\w)_(.*?)_(?!\w)', r'<em>\1</em>', line)
         # Inline code: `code` -> <code>code</code>
         line = re.sub(r'`([^`]+)`', r'<code>\1</code>', line)
         # Links: [text](url) -> <a href="url" target="_blank">text</a>
@@ -2163,16 +1443,16 @@ def convert_markdown_to_html(text: str) -> str:
                 in_blockquote = False
                 
             if in_code:
-                output.append("</code></pre></div>")
+                output.append("</code></pre></div></div>")
                 in_code = False
             else:
                 lang = line_strip[3:].strip() or "python"
-                output.append(f'<div class="code-container"><div class="code-header"><span class="code-title">{lang}</span></div><pre><code class="language-{lang}">')
+                output.append(f'<div class="code-container"><div class="code-header"><span class="code-title">{lang}</span></div><div class="code-body"><pre><code class="language-{lang}">')
                 in_code = True
             continue
             
         if in_code:
-            output.append(line)
+            output.append(line.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
             continue
             
         # Empty lines
@@ -2199,7 +1479,7 @@ def convert_markdown_to_html(text: str) -> str:
             if in_blockquote:
                 output.append("</blockquote>")
                 in_blockquote = False
-            output.append(line)
+            output.append(process_inline(line))
             continue
             
         # Table detection
@@ -2301,954 +1581,10 @@ def convert_markdown_to_html(text: str) -> str:
     output.append(close_all_lists())
     if in_blockquote:
         output.append("</blockquote>")
+    if in_code:
+        output.append("</code></pre></div></div>")
         
     return "\n".join([line for line in output if line])
-
-def get_dynamic_visualizer_components(session_id: str, lesson_id: str, lesson_title: str, tech_stack: str = "python/core") -> Dict[str, Any]:
-    """
-    Returns tailored 6-panel interactive playground components (Canvas Title, Legend, Stats, Code Tracker, Input Box, JS Engine)
-    based on the specific Session and Lesson topic.
-    """
-    s_lower = session_id.lower()
-    t_lower = (lesson_title + " " + lesson_id).lower()
-    
-    # Check if Session 02 (Operators / Logic / If-Else / Branching)
-    if "session 02" in s_lower or any(k in t_lower for k in ["toán tử", "so sánh", "if else", "rẽ nhánh", "điều kiện"]):
-        return {
-            "canvas_title": "Trực quan hóa Biểu thức & Rẽ nhánh Điều kiện (Logic Branching Engine)",
-            "legend_html": """
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-idle)"></div> Chờ đánh giá</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-compare)"></div> Đang tính toán logic</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-swap)"></div> Nhánh ĐÚNG (True)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-done)"></div> Nhánh SAI (False)</div>
-            """,
-            "stats_html": """
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-title">ĐIỀU KIỆN KIỂM TRA</div>
-                        <div class="stat-value" id="stat-compare">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">NHÁNH ĐÚNG (TRUE)</div>
-                        <div class="stat-value" id="stat-swap">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">THỜI GIAN</div>
-                        <div class="stat-value" id="stat-time">0.0s</div>
-                    </div>
-                </div>
-            """,
-            "code_tracker_html": """
-<span class="code-line" id="line-0"># Đánh giá biểu thức và rẽ nhánh điều kiện logic</span>
-<span class="code-line" id="line-1">def evaluate_scholarship(score, attendance):</span>
-<span class="code-line" id="line-2">    if score >= 8.0 and attendance >= 80:</span>
-<span class="code-line" id="line-3">        return "Đạt học bổng Xuất sắc"</span>
-<span class="code-line" id="line-4">    elif score >= 6.5:</span>
-<span class="code-line" id="line-5">        return "Đạt danh hiệu Khá"</span>
-<span class="code-line" id="line-6">    else:</span>
-<span class="code-line" id="line-7">        return "Cần tiếp tục rèn luyện"</span>
-            """,
-            "input_label": "TỰ NHẬP ĐIỂM SỐ & CHUYÊN CẦN (score, attendance)",
-            "input_default": "8.5, 85",
-            "engine_js": """
-        class InteractiveVisualizerEngine {
-            constructor() {
-                this.score = 8.5;
-                this.attendance = 85;
-                this.steps = [];
-                this.currentStep = 0;
-                this.isPlaying = false;
-                this.timer = null;
-                this.speed = 400;
-                this.stats = { compare: 0, swap: 0 };
-                this.startTime = null;
-                this.elapsedSeconds = 0.0;
-                this.audioSyncMap = [];
-                
-                this.init();
-            }
-
-            init() {
-                this.generateSteps();
-                this.render();
-                this.setupEvents();
-            }
-
-            generateSteps() {
-                this.steps = [];
-                let s = this.score;
-                let a = this.attendance;
-                
-                this.steps.push({
-                    state: "init",
-                    score: s,
-                    attendance: a,
-                    activeBranch: null,
-                    line: 1,
-                    msg: `Khởi tạo đầu vào: Điểm trung bình (score) = ${s}, Chuyên cần (attendance) = ${a}%.`
-                });
-
-                let cond1 = (s >= 8.0 && a >= 80);
-                this.steps.push({
-                    state: "eval_if",
-                    score: s,
-                    attendance: a,
-                    cond1: cond1,
-                    activeBranch: 1,
-                    line: 2,
-                    msg: `Kiểm tra nhánh IF: score >= 8.0 (${s >= 8.0}) VÀ attendance >= 80 (${a >= 80}) -> Kết quả: ${cond1 ? 'TRUE (Đúng)' : 'FALSE (Sai)'}.`
-                });
-
-                if (cond1) {
-                    this.steps.push({
-                        state: "exec_if",
-                        score: s,
-                        attendance: a,
-                        cond1: true,
-                        resultText: "Đạt học bổng Xuất sắc",
-                        activeBranch: 1,
-                        line: 3,
-                        isDone: true,
-                        msg: `Nhánh IF thỏa mãn (TRUE)! Thực thi khối lệnh trả về: "Đạt học bổng Xuất sắc".`
-                    });
-                } else {
-                    let cond2 = (s >= 6.5);
-                    this.steps.push({
-                        state: "eval_elif",
-                        score: s,
-                        attendance: a,
-                        cond1: false,
-                        cond2: cond2,
-                        activeBranch: 2,
-                        line: 4,
-                        msg: `Nhánh IF không đạt (FALSE). Chuyển sang kiểm tra nhánh ELIF: score >= 6.5 (${s >= 6.5}) -> Kết quả: ${cond2 ? 'TRUE' : 'FALSE'}.`
-                    });
-
-                    if (cond2) {
-                        this.steps.push({
-                            state: "exec_elif",
-                            score: s,
-                            attendance: a,
-                            cond1: false,
-                            cond2: true,
-                            resultText: "Đạt danh hiệu Khá",
-                            activeBranch: 2,
-                            line: 5,
-                            isDone: true,
-                            msg: `Nhánh ELIF thỏa mãn! Thực thi khối lệnh trả về: "Đạt danh hiệu Khá".`
-                        });
-                    } else {
-                        this.steps.push({
-                            state: "exec_else",
-                            score: s,
-                            attendance: a,
-                            cond1: false,
-                            cond2: false,
-                            resultText: "Cần tiếp tục rèn luyện",
-                            activeBranch: 3,
-                            line: 7,
-                            isDone: true,
-                            msg: `Tất cả điều kiện IF và ELIF đều không đạt (FALSE). Chạy vào khối mặc định ELSE trả về: "Cần tiếp tục rèn luyện".`
-                        });
-                    }
-                }
-            }
-
-            render() {
-                const canvas = document.getElementById('visualizer-canvas');
-                if (!canvas) return;
-                
-                let step = this.steps[this.currentStep] || this.steps[0];
-                let b1Color = step.activeBranch === 1 ? (step.cond1 ? '#10b981' : '#f59e0b') : '#334155';
-                let b2Color = step.activeBranch === 2 ? (step.cond2 ? '#10b981' : '#f59e0b') : '#334155';
-                let b3Color = step.activeBranch === 3 ? '#10b981' : '#334155';
-                
-                canvas.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; padding: 12px; font-family: 'JetBrains Mono', monospace;">
-                        <div style="background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; text-align: center;">
-                            <span style="color: #38bdf8; font-weight: bold;">INPUT STATE:</span> 
-                            <span style="color: #f1f5f9;">score = <strong style="color: #fbbf24;">${step.score}</strong></span> | 
-                            <span style="color: #f1f5f9;">attendance = <strong style="color: #fbbf24;">${step.attendance}%</strong></span>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <!-- IF Branch -->
-                            <div style="background: ${b1Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #38bdf8;">
-                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 1] if score >= 8.0 and attendance >= 80:</div>
-                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">
-                                    So sánh: (${step.score} >= 8.0) AND (${step.attendance} >= 80) &rarr; <strong style="color: ${step.cond1 ? '#6ee7b7' : '#f87171'}">${step.cond1 !== undefined ? (step.cond1 ? 'TRUE (Khớp)' : 'FALSE (Bỏ qua)') : 'Chờ đánh giá'}</strong>
-                                </div>
-                            </div>
-
-                            <!-- ELIF Branch -->
-                            <div style="background: ${b2Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #a855f7; opacity: ${step.activeBranch >= 2 || step.activeBranch === null ? 1 : 0.5}">
-                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 2] elif score >= 6.5:</div>
-                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">
-                                    So sánh: (${step.score} >= 6.5) &rarr; <strong style="color: ${step.cond2 ? '#6ee7b7' : '#f87171'}">${step.cond2 !== undefined ? (step.cond2 ? 'TRUE (Khớp)' : 'FALSE (Bỏ qua)') : 'Chờ kiểm tra'}</strong>
-                                </div>
-                            </div>
-
-                            <!-- ELSE Branch -->
-                            <div style="background: ${b3Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #64748b; opacity: ${step.activeBranch === 3 || step.activeBranch === null ? 1 : 0.5}">
-                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 3] else: (Khối lệnh mặc định)</div>
-                            </div>
-                        </div>
-
-                        ${step.resultText ? `
-                            <div style="background: #064e3b; border: 2px solid #10b981; border-radius: 8px; padding: 14px; text-align: center; animation: pulse 1s infinite;">
-                                <span style="color: #6ee7b7; font-weight: bold;">🎯 KẾT QUẢ RẼ NHÁNH:</span>
-                                <div style="color: #fff; font-size: 1.1rem; font-weight: bold; margin-top: 4px;">"${step.resultText}"</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                this.highlightCode(step.line);
-                if (step.msg) this.log(step.msg, step.isDone ? 'success' : 'info');
-                this.updateStats();
-            }
-
-            highlightCode(lineNum) {
-                for (let i = 0; i <= 7; i++) {
-                    let el = document.getElementById(`line-${i}`);
-                    if (el) el.style.backgroundColor = 'transparent';
-                }
-                let target = document.getElementById(`line-${lineNum}`);
-                if (target) target.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
-            }
-
-            log(msg, type = 'info') {
-                const box = document.getElementById('log-messages');
-                if (!box) return;
-                const entry = document.createElement('div');
-                entry.className = `log-entry log-${type}`;
-                entry.innerText = `[Bước ${this.currentStep + 1}] ${msg}`;
-                box.appendChild(entry);
-                box.scrollTop = box.scrollHeight;
-            }
-
-            clearLog() {
-                const box = document.getElementById('log-messages');
-                if (box) box.innerHTML = '';
-            }
-
-            start() {
-                if (this.isPlaying) return;
-                this.isPlaying = true;
-                this.startTime = Date.now() - (this.elapsedSeconds * 1000);
-                this.syncAudioToStep();
-                this.timer = setInterval(() => {
-                    if (this.currentStep < this.steps.length - 1) {
-                        this.currentStep++;
-                        if (this.steps[this.currentStep].activeBranch !== null) this.stats.compare++;
-                        if (this.steps[this.currentStep].resultText) this.stats.swap++;
-                        this.elapsedSeconds = ((Date.now() - this.startTime) / 1000).toFixed(1);
-                        this.render();
-                    } else {
-                        this.pause();
-                    }
-                }, this.speed);
-            }
-
-            pause() {
-                this.isPlaying = false;
-                if (this.timer) clearInterval(this.timer);
-            }
-
-            step() {
-                this.pause();
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    if (this.steps[this.currentStep].activeBranch !== null) this.stats.compare++;
-                    if (this.steps[this.currentStep].resultText) this.stats.swap++;
-                    this.render();
-                    this.syncAudioToStep();
-                }
-            }
-
-            reset() {
-                this.pause();
-                this.currentStep = 0;
-                this.stats = { compare: 0, swap: 0 };
-                this.elapsedSeconds = 0.0;
-                this.render();
-                this.clearLog();
-                this.syncAudioToStep();
-                this.log('Đã khôi phục trạng thái xuất phát ban đầu.', 'info');
-            }
-
-            setSpeed(val) {
-                this.speed = parseInt(val);
-                const display = document.getElementById('speed-display');
-                if (display) display.innerText = val;
-                if (this.isPlaying) {
-                    this.pause();
-                    this.start();
-                }
-            }
-
-            applyCustomData() {
-                const inputEl = document.getElementById('custom-data-input');
-                if (!inputEl) return;
-                const parts = inputEl.value.split(',').map(v => v.trim());
-                if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) {
-                    alert('Vui lòng nhập 2 số hợp lệ cho điểm số và chuyên cần, cách nhau bởi dấu phẩy (VD: 8.5, 85)!');
-                    return;
-                }
-                this.score = parseFloat(parts[0]);
-                this.attendance = parseFloat(parts[1]);
-                this.generateSteps();
-                this.reset();
-                this.log(`Đã áp dụng thông số mới: score = ${this.score}, attendance = ${this.attendance}%`, 'success');
-            }
-
-            updateStats() {
-                const cmpEl = document.getElementById('stat-compare');
-                const swpEl = document.getElementById('stat-swap');
-                const tmEl = document.getElementById('stat-time');
-                if (cmpEl) cmpEl.innerText = this.stats.compare;
-                if (swpEl) swpEl.innerText = this.stats.swap;
-                if (tmEl) tmEl.innerText = `${this.elapsedSeconds}s`;
-            }
-
-            setupAudioSync() {
-                const audioEl = document.getElementById('lesson-audio') || document.querySelector('audio');
-                if (!audioEl) return;
-                this.audioSyncMap = this.steps.map((step, idx) => ({
-                    stepIndex: idx,
-                    startTime: idx * 2.5,
-                    endTime: (idx + 1) * 2.5
-                }));
-                audioEl.addEventListener('timeupdate', () => {
-                    if (!this.isPlaying && audioEl.currentTime > 0) {
-                        const target = this.audioSyncMap.find(m => audioEl.currentTime >= m.startTime && audioEl.currentTime < m.endTime);
-                        if (target && target.stepIndex !== this.currentStep) {
-                            this.currentStep = target.stepIndex;
-                            if (this.steps[this.currentStep].line) this.highlightCode(this.steps[this.currentStep].line);
-                            this.render();
-                        }
-                    }
-                });
-            }
-
-            syncAudioToStep() {
-                const audioEl = document.getElementById('lesson-audio') || document.querySelector('audio');
-                if (audioEl && this.audioSyncMap && this.audioSyncMap[this.currentStep]) {
-                    audioEl.currentTime = this.audioSyncMap[this.currentStep].startTime;
-                    if (this.isPlaying && audioEl.paused) audioEl.play().catch(e => console.log('Audio autoplay prevented:', e));
-                }
-            }
-
-            setupEvents() {
-                document.querySelectorAll('.selftest-question').forEach(q => {
-                    q.addEventListener('click', () => {
-                        const item = q.parentElement;
-                        item.classList.toggle('active');
-                    });
-                });
-                this.setupAudioSync();
-            }
-        }
-            """
-        }
-        
-    # Check if Session 03 (For Loops / Range / While / Break / Continue / Nested Loops)
-    elif "session 03" in s_lower or any(k in t_lower for k in ["vòng lặp", "for", "range", "while", "break", "continue"]):
-        return {
-            "canvas_title": "Trực quan hóa Vòng lặp & Bộ đếm Trạng thái (Loop Iterator Engine)",
-            "legend_html": """
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-idle)"></div> Chờ lặp</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-compare)"></div> Đang duyệt (Active)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-swap)"></div> Tích lũy giá trị</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-done)"></div> Hoàn tất duyệt</div>
-            """,
-            "stats_html": """
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-title">BƯỚC LẶP (ITER)</div>
-                        <div class="stat-value" id="stat-compare">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">BIẾN TÍCH LŨY (TOTAL)</div>
-                        <div class="stat-value" id="stat-swap">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">THỜI GIAN</div>
-                        <div class="stat-value" id="stat-time">0.0s</div>
-                    </div>
-                </div>
-            """,
-            "code_tracker_html": """
-<span class="code-line" id="line-0"># Duyệt tuần tự qua tập hợp range và quản lý bộ đếm lặp</span>
-<span class="code-line" id="line-1">def process_loop_range(start, stop):</span>
-<span class="code-line" id="line-2">    total = 0</span>
-<span class="code-line" id="line-3">    for i in range(start, stop):</span>
-<span class="code-line" id="line-4">        if i == 3:</span>
-<span class="code-line" id="line-5">            print("Phát hiện phần tử đặc biệt i = 3")</span>
-<span class="code-line" id="line-6">        total += i</span>
-<span class="code-line" id="line-7">    return total</span>
-            """,
-            "input_label": "TỰ NHẬP KHOẢNG RANGE (start, stop)",
-            "input_default": "1, 6",
-            "engine_js": """
-        class InteractiveVisualizerEngine {
-            constructor() {
-                this.startVal = 1;
-                this.stopVal = 6;
-                this.steps = [];
-                this.currentStep = 0;
-                this.isPlaying = false;
-                this.timer = null;
-                this.speed = 400;
-                this.stats = { compare: 0, swap: 0 };
-                this.startTime = null;
-                this.elapsedSeconds = 0.0;
-                
-                this.init();
-            }
-
-            init() {
-                this.generateSteps();
-                this.render();
-                this.setupEvents();
-            }
-
-            generateSteps() {
-                this.steps = [];
-                let s = this.startVal;
-                let e = this.stopVal;
-                let total = 0;
-                
-                let items = [];
-                for (let k = s; k < e; k++) items.push(k);
-                
-                this.steps.push({
-                    items: [...items],
-                    activeIdx: -1,
-                    total: 0,
-                    line: 2,
-                    msg: `Khởi tạo biến tích lũy total = 0. Chuẩn bị duyệt tập hợp range(${s}, ${e}) với ${items.length} phần tử.`
-                });
-
-                for (let idx = 0; idx < items.length; idx++) {
-                    let val = items[idx];
-                    this.steps.push({
-                        items: [...items],
-                        activeIdx: idx,
-                        total: total,
-                        line: 3,
-                        msg: `Vòng lặp bước ${idx + 1}: Lấy phần tử i = ${val} từ tập hợp range.`
-                    });
-
-                    if (val === 3) {
-                        this.steps.push({
-                            items: [...items],
-                            activeIdx: idx,
-                            total: total,
-                            line: 5,
-                            msg: `Phát hiện điều kiện i == 3! Thực thi câu lệnh inside block.`
-                        });
-                    }
-
-                    total += val;
-                    this.steps.push({
-                        items: [...items],
-                        activeIdx: idx,
-                        total: total,
-                        isAcc: true,
-                        line: 6,
-                        msg: `Cập nhật biến tích lũy: total = ${total - val} + ${val} &rarr; total mới = ${total}.`
-                    });
-                }
-
-                this.steps.push({
-                    items: [...items],
-                    activeIdx: items.length,
-                    total: total,
-                    line: 7,
-                    isDone: true,
-                    msg: `Hoàn tất duyệt toàn bộ range(${s}, ${e})! Giá trị trả về cuối cùng: total = ${total}.`
-                });
-            }
-
-            render() {
-                const canvas = document.getElementById('visualizer-canvas');
-                if (!canvas) return;
-                
-                let step = this.steps[this.currentStep] || this.steps[0];
-                
-                let boxesHtml = step.items.map((val, idx) => {
-                    let isActive = (idx === step.activeIdx);
-                    let isPassed = (idx < step.activeIdx);
-                    let bg = isActive ? '#f59e0b' : (isPassed ? '#10b981' : '#334155');
-                    let transform = isActive ? 'scale(1.15) translateY(-4px)' : 'scale(1)';
-                    let border = isActive ? '2px solid #fff' : '1px solid #475569';
-                    
-                    return `
-                        <div style="display: flex; flex-direction: column; items-center; align-items: center; gap: 6px;">
-                            <div style="width: 54px; height: 54px; background: ${bg}; border: ${border}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.25rem; color: #fff; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform: ${transform}; box-shadow: ${isActive ? '0 8px 20px rgba(245, 158, 11, 0.4)' : 'none'};">
-                                ${val}
-                            </div>
-                            <span style="font-size: 0.75rem; color: ${isActive ? '#fbbf24' : '#94a3b8'}; font-weight: ${isActive ? 'bold' : 'normal'};">i=${val}</span>
-                        </div>
-                    `;
-                }).join('');
-                
-                canvas.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 24px; width: 100%; padding: 16px; font-family: 'JetBrains Mono', monospace;">
-                        <div>
-                            <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px;">TẬP HỢP RANGE(${this.startVal}, ${this.stopVal}) - TRẠNG THÁI CON TRỎ DUYỆT:</div>
-                            <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; padding: 16px; background: #1e293b; border-radius: 12px; border: 1px solid #334155; min-height: 100px; align-items: center;">
-                                ${boxesHtml}
-                            </div>
-                        </div>
-
-                        <div style="display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 2px solid #38bdf8; border-radius: 10px; padding: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
-                            <div>
-                                <div style="font-size: 0.75rem; color: #38bdf8; font-weight: bold;">BIẾN TÍCH LŨY (TOTAL):</div>
-                                <div style="font-size: 1.8rem; font-weight: 900; color: #6ee7b7; margin-top: 2px;">${step.total}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 0.75rem; color: #94a3b8;">BƯỚC HIỆN TẠI:</div>
-                                <div style="font-size: 1.1rem; color: #f1f5f9; font-weight: bold;">${step.activeIdx >= 0 && step.activeIdx < step.items.length ? `Đang cộng i = ${step.items[step.activeIdx]}` : (step.activeIdx >= step.items.length ? 'Hoàn tất vòng lặp' : 'Chưa bắt đầu')}</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                this.highlightCode(step.line);
-                if (step.msg) this.log(step.msg, step.isDone ? 'success' : 'info');
-                this.updateStats();
-            }
-
-            highlightCode(lineNum) {
-                for (let i = 0; i <= 7; i++) {
-                    let el = document.getElementById(`line-${i}`);
-                    if (el) el.style.backgroundColor = 'transparent';
-                }
-                let target = document.getElementById(`line-${lineNum}`);
-                if (target) target.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
-            }
-
-            log(msg, type = 'info') {
-                const box = document.getElementById('log-messages');
-                if (!box) return;
-                const entry = document.createElement('div');
-                entry.className = `log-entry log-${type}`;
-                entry.innerText = `[Bước ${this.currentStep + 1}] ${msg}`;
-                box.appendChild(entry);
-                box.scrollTop = box.scrollHeight;
-            }
-
-            clearLog() {
-                const box = document.getElementById('log-messages');
-                if (box) box.innerHTML = '';
-            }
-
-            start() {
-                if (this.isPlaying) return;
-                this.isPlaying = true;
-                this.startTime = Date.now() - (this.elapsedSeconds * 1000);
-                this.timer = setInterval(() => {
-                    if (this.currentStep < this.steps.length - 1) {
-                        this.currentStep++;
-                        let st = this.steps[this.currentStep];
-                        if (st.activeIdx >= 0) this.stats.compare = st.activeIdx + 1;
-                        if (st.isAcc) this.stats.swap = st.total;
-                        this.elapsedSeconds = ((Date.now() - this.startTime) / 1000).toFixed(1);
-                        this.render();
-                    } else {
-                        this.pause();
-                    }
-                }, this.speed);
-            }
-
-            pause() {
-                this.isPlaying = false;
-                if (this.timer) clearInterval(this.timer);
-            }
-
-            step() {
-                this.pause();
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    let st = this.steps[this.currentStep];
-                    if (st.activeIdx >= 0) this.stats.compare = st.activeIdx + 1;
-                    if (st.isAcc) this.stats.swap = st.total;
-                    this.render();
-                }
-            }
-
-            reset() {
-                this.pause();
-                this.currentStep = 0;
-                this.stats = { compare: 0, swap: 0 };
-                this.elapsedSeconds = 0.0;
-                this.render();
-                this.clearLog();
-                this.log('Đã khôi phục trạng thái xuất phát ban đầu.', 'info');
-            }
-
-            setSpeed(val) {
-                this.speed = parseInt(val);
-                const display = document.getElementById('speed-display');
-                if (display) display.innerText = val;
-                if (this.isPlaying) {
-                    this.pause();
-                    this.start();
-                }
-            }
-
-            applyCustomData() {
-                const inputEl = document.getElementById('custom-data-input');
-                if (!inputEl) return;
-                const parts = inputEl.value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
-                if (parts.length < 2 || parts[0] >= parts[1] || (parts[1] - parts[0]) > 12) {
-                    alert('Vui lòng nhập 2 số nguyên start, stop cách nhau dấu phẩy (start < stop, khoảng cách tối đa 12. VD: 1, 8)!');
-                    return;
-                }
-                this.startVal = parts[0];
-                this.stopVal = parts[1];
-                this.generateSteps();
-                this.reset();
-                this.log(`Đã áp dụng khoảng range mới: range(${this.startVal}, ${this.stopVal})`, 'success');
-            }
-
-            updateStats() {
-                const cmpEl = document.getElementById('stat-compare');
-                const swpEl = document.getElementById('stat-swap');
-                const tmEl = document.getElementById('stat-time');
-                if (cmpEl) cmpEl.innerText = this.stats.compare;
-                if (swpEl) swpEl.innerText = this.stats.swap;
-                if (tmEl) tmEl.innerText = `${this.elapsedSeconds}s`;
-            }
-
-            setupEvents() {
-                document.querySelectorAll('.selftest-question').forEach(q => {
-                    q.addEventListener('click', () => {
-                        const item = q.parentElement;
-                        item.classList.toggle('active');
-                    });
-                });
-            }
-        }
-            """
-        }
-        
-    # Default / Type A: Session 01 (Memory Heap, Variable Allocation, Data Types, IO, F-string)
-    else:
-        return {
-            "canvas_title": "Trực quan hóa Bộ nhớ Heap & Cấp phát Biến Python (Memory Allocation Engine)",
-            "legend_html": """
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-idle)"></div> Stack (Tham chiếu biến)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-compare)"></div> Heap (Đối tượng dữ liệu)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-swap)"></div> Ép kiểu (Type Casting)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-done)"></div> F-String Output</div>
-            """,
-            "stats_html": """
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-title">BIẾN ĐÃ CẤP PHÁT</div>
-                        <div class="stat-value" id="stat-compare">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">THAO TÁC ÉP KIỂU</div>
-                        <div class="stat-value" id="stat-swap">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">THỜI GIAN</div>
-                        <div class="stat-value" id="stat-time">0.0s</div>
-                    </div>
-                </div>
-            """,
-            "code_tracker_html": """
-<span class="code-line" id="line-0"># Quản lý bộ nhớ Stack/Heap và ép kiểu động trong Python</span>
-<span class="code-line" id="line-1">student_name = "Nguyễn Văn A"   # str</span>
-<span class="code-line" id="line-2">age = 20                        # int</span>
-<span class="code-line" id="line-3">score = 95.5                    # float</span>
-<span class="code-line" id="line-4">extra_years_str = "5"           # str từ input()</span>
-<span class="code-line" id="line-5">future_age = age + int(extra_years_str) # Ép kiểu sang int</span>
-<span class="code-line" id="line-6">print(f"SV {student_name}: {future_age} tuổi") # F-string</span>
-            """,
-            "input_label": "TỰ NHẬP KHAI BÁO BIẾN (Tên biến, Giá trị)",
-            "input_default": "city, Hanoi",
-            "engine_js": """
-        class InteractiveVisualizerEngine {
-            constructor() {
-                this.customVarName = "city";
-                this.customVarVal = "Hanoi";
-                this.steps = [];
-                this.currentStep = 0;
-                this.isPlaying = false;
-                this.timer = null;
-                this.speed = 400;
-                this.stats = { compare: 0, swap: 0 };
-                this.startTime = null;
-                this.elapsedSeconds = 0.0;
-                
-                this.init();
-            }
-
-            init() {
-                this.generateSteps();
-                this.render();
-                this.setupEvents();
-            }
-
-            generateSteps() {
-                this.steps = [];
-                
-                this.steps.push({
-                    stack: [],
-                    heap: [],
-                    varsCount: 0,
-                    castCount: 0,
-                    line: 0,
-                    msg: "Khởi tạo chương trình Python. Bộ nhớ Stack và Heap đang trống."
-                });
-
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }],
-                    varsCount: 1,
-                    castCount: 0,
-                    line: 1,
-                    msg: `Cấp phát đối tượng chuỗi "Nguyễn Văn A" trên Heap (0x10A). Gán tham chiếu cho biến student_name trên Stack.`
-                });
-
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }, { name: "age", addr: "0x20B" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }, { addr: "0x20B", val: "20", type: "int", color: "#f59e0b" }],
-                    varsCount: 2,
-                    castCount: 0,
-                    line: 2,
-                    msg: `Cấp phát đối tượng số nguyên 20 (int) trên Heap tại 0x20B. Tham chiếu bởi biến age.`
-                });
-
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }, { name: "age", addr: "0x20B" }, { name: "score", addr: "0x30C" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }, { addr: "0x20B", val: "20", type: "int", color: "#f59e0b" }, { addr: "0x30C", val: "95.5", type: "float", color: "#a855f7" }],
-                    varsCount: 3,
-                    castCount: 0,
-                    line: 3,
-                    msg: `Cấp phát đối tượng số thực 95.5 (float) trên Heap tại 0x30C. Tham chiếu bởi biến score.`
-                });
-
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }, { name: "age", addr: "0x20B" }, { name: "score", addr: "0x30C" }, { name: "extra_years_str", addr: "0x40D" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }, { addr: "0x20B", val: "20", type: "int", color: "#f59e0b" }, { addr: "0x30C", val: "95.5", type: "float", color: "#a855f7" }, { addr: "0x40D", val: '"5"', type: "str", color: "#38bdf8" }],
-                    varsCount: 4,
-                    castCount: 0,
-                    line: 4,
-                    msg: `Nhận chuỗi "5" từ input() lưu tại 0x40D. Gán cho biến extra_years_str.`
-                });
-
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }, { name: "age", addr: "0x20B" }, { name: "score", addr: "0x30C" }, { name: "extra_years_str", addr: "0x40D" }, { name: "future_age", addr: "0x50E" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }, { addr: "0x20B", val: "20", type: "int", color: "#f59e0b" }, { addr: "0x30C", val: "95.5", type: "float", color: "#a855f7" }, { addr: "0x40D", val: '"5"', type: "str", color: "#38bdf8" }, { addr: "0x50E", val: "25", type: "int (Casted)", color: "#10b981" }],
-                    varsCount: 5,
-                    castCount: 1,
-                    line: 5,
-                    msg: `Thực hiện ép kiểu int("5") &rarr; 5 (int). Cộng age (20) + 5 = 25. Cấp phát đối tượng mới 25 tại 0x50E và gán cho future_age.`
-                });
-
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }, { name: "age", addr: "0x20B" }, { name: "score", addr: "0x30C" }, { name: "extra_years_str", addr: "0x40D" }, { name: "future_age", addr: "0x50E" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }, { addr: "0x20B", val: "20", type: "int", color: "#f59e0b" }, { addr: "0x30C", val: "95.5", type: "float", color: "#a855f7" }, { addr: "0x40D", val: '"5"', type: "str", color: "#38bdf8" }, { addr: "0x50E", val: "25", type: "int", color: "#10b981" }],
-                    varsCount: 5,
-                    castCount: 1,
-                    output: "SV Nguyễn Văn A: 25 tuổi",
-                    line: 6,
-                    isDone: true,
-                    msg: `Thực thi F-string! Thay thế {student_name} và {future_age} vào chuỗi và xuất ra màn hình console.`
-                });
-            }
-
-            render() {
-                const canvas = document.getElementById('visualizer-canvas');
-                if (!canvas) return;
-                
-                let step = this.steps[this.currentStep] || this.steps[0];
-                
-                let stackHtml = step.stack.map((item, idx) => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #38bdf8; font-size: 0.85rem;">
-                        <strong style="color: #f1f5f9;">${item.name}</strong>
-                        <span style="background: #0f172a; color: #fbbf24; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">&rarr; ${item.addr}</span>
-                    </div>
-                `).join('') || '<div style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 12px;">(Stack trống)</div>';
-                
-                let heapHtml = step.heap.map((item, idx) => `
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px 14px; border-radius: 8px; border: 1px solid ${item.color}; font-size: 0.85rem;">
-                        <div>
-                            <span style="color: #64748b; font-size: 0.75rem;">[${item.addr}]</span> 
-                            <strong style="color: #fff; margin-left: 6px;">${item.val}</strong>
-                        </div>
-                        <span style="background: ${item.color}; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">${item.type}</span>
-                    </div>
-                `).join('') || '<div style="color: #64748b; font-size: 0.85rem; text-align: center; padding: 12px;">(Heap trống)</div>';
-                
-                canvas.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; padding: 12px; font-family: 'JetBrains Mono', monospace;">
-                        <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px;">
-                            <!-- STACK -->
-                            <div style="background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 12px;">
-                                <div style="font-size: 0.75rem; font-weight: bold; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
-                                    STACK (Tên biến & Tham chiếu)
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 8px;">
-                                    ${stackHtml}
-                                </div>
-                            </div>
-
-                            <!-- HEAP -->
-                            <div style="background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 12px;">
-                                <div style="font-size: 0.75rem; font-weight: bold; color: #f59e0b; margin-bottom: 10px; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
-                                    HEAP (Đối tượng & Kiểu dữ liệu)
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 8px;">
-                                    ${heapHtml}
-                                </div>
-                            </div>
-                        </div>
-
-                        ${step.output ? `
-                            <div style="background: #064e3b; border: 2px solid #10b981; border-radius: 8px; padding: 12px; display: flex; align-items: center; justify-content: space-between;">
-                                <span style="color: #6ee7b7; font-weight: bold;">TERMINAL F-STRING OUTPUT:</span>
-                                <code style="color: #fff; font-size: 1rem; font-weight: bold;">&gt; ${step.output}</code>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                this.highlightCode(step.line);
-                if (step.msg) this.log(step.msg, step.isDone ? 'success' : 'info');
-                this.updateStats();
-            }
-
-            highlightCode(lineNum) {
-                for (let i = 0; i <= 7; i++) {
-                    let el = document.getElementById(`line-${i}`);
-                    if (el) el.style.backgroundColor = 'transparent';
-                }
-                let target = document.getElementById(`line-${lineNum}`);
-                if (target) target.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
-            }
-
-            log(msg, type = 'info') {
-                const box = document.getElementById('log-messages');
-                if (!box) return;
-                const entry = document.createElement('div');
-                entry.className = `log-entry log-${type}`;
-                entry.innerText = `[Bước ${this.currentStep + 1}] ${msg}`;
-                box.appendChild(entry);
-                box.scrollTop = box.scrollHeight;
-            }
-
-            clearLog() {
-                const box = document.getElementById('log-messages');
-                if (box) box.innerHTML = '';
-            }
-
-            start() {
-                if (this.isPlaying) return;
-                this.isPlaying = true;
-                this.startTime = Date.now() - (this.elapsedSeconds * 1000);
-                this.timer = setInterval(() => {
-                    if (this.currentStep < this.steps.length - 1) {
-                        this.currentStep++;
-                        let st = this.steps[this.currentStep];
-                        this.stats.compare = st.varsCount || 0;
-                        this.stats.swap = st.castCount || 0;
-                        this.elapsedSeconds = ((Date.now() - this.startTime) / 1000).toFixed(1);
-                        this.render();
-                    } else {
-                        this.pause();
-                    }
-                }, this.speed);
-            }
-
-            pause() {
-                this.isPlaying = false;
-                if (this.timer) clearInterval(this.timer);
-            }
-
-            step() {
-                this.pause();
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    let st = this.steps[this.currentStep];
-                    this.stats.compare = st.varsCount || 0;
-                    this.stats.swap = st.castCount || 0;
-                    this.render();
-                }
-            }
-
-            reset() {
-                this.pause();
-                this.currentStep = 0;
-                this.stats = { compare: 0, swap: 0 };
-                this.elapsedSeconds = 0.0;
-                this.render();
-                this.clearLog();
-                this.log('Đã khôi phục trạng thái xuất phát ban đầu.', 'info');
-            }
-
-            setSpeed(val) {
-                this.speed = parseInt(val);
-                const display = document.getElementById('speed-display');
-                if (display) display.innerText = val;
-                if (this.isPlaying) {
-                    this.pause();
-                    this.start();
-                }
-            }
-
-            applyCustomData() {
-                const inputEl = document.getElementById('custom-data-input');
-                if (!inputEl) return;
-                const parts = inputEl.value.split(',').map(v => v.trim());
-                if (parts.length < 2 || !parts[0] || !parts[1]) {
-                    alert('Vui lòng nhập tên biến và giá trị cách nhau bởi dấu phẩy (VD: score, 95.5)!');
-                    return;
-                }
-                let varName = parts[0];
-                let varVal = parts[1];
-                let typeStr = !isNaN(varVal) ? (varVal.includes('.') ? 'float' : 'int') : (varVal === 'True' || varVal === 'False' ? 'bool' : 'str');
-                
-                this.steps.push({
-                    stack: [{ name: "student_name", addr: "0x10A" }, { name: "age", addr: "0x20B" }, { name: varName, addr: "0x60F" }],
-                    heap: [{ addr: "0x10A", val: '"Nguyễn Văn A"', type: "str", color: "#38bdf8" }, { addr: "0x20B", val: "20", type: "int", color: "#f59e0b" }, { addr: "0x60F", val: typeStr === 'str' ? `"${varVal}"` : varVal, type: typeStr, color: "#10b981" }],
-                    varsCount: 3,
-                    castCount: 0,
-                    line: 2,
-                    msg: `Đã cấp phát biến tự chọn "${varName}" = ${varVal} (${typeStr}) vào bộ nhớ Stack/Heap thành công!`
-                });
-                this.currentStep = this.steps.length - 1;
-                this.stats.compare = 3;
-                this.render();
-                this.log(`Đã cấp phát biến mới ${varName} = ${varVal}`, 'success');
-            }
-
-            updateStats() {
-                const cmpEl = document.getElementById('stat-compare');
-                const swpEl = document.getElementById('stat-swap');
-                const tmEl = document.getElementById('stat-time');
-                if (cmpEl) cmpEl.innerText = this.stats.compare;
-                if (swpEl) swpEl.innerText = this.stats.swap;
-                if (tmEl) tmEl.innerText = `${this.elapsedSeconds}s`;
-            }
-
-            setupEvents() {
-                document.querySelectorAll('.selftest-question').forEach(q => {
-                    q.addEventListener('click', () => {
-                        const item = q.parentElement;
-                        item.classList.toggle('active');
-                    });
-                });
-            }
-        }
-            """
-        }
 
 def html_writer_agent(state: AgentState) -> AgentState:
     """
@@ -3291,6 +1627,22 @@ def html_writer_agent(state: AgentState) -> AgentState:
     summary_html = convert_markdown_to_html(content["summary"])
     
     raw_code = content["example"]
+    code_lang = "python"
+    
+    # Strip markdown code blocks and extract language dynamically
+    if raw_code.strip().startswith("```"):
+        first_line_end = raw_code.find("\n")
+        if first_line_end != -1:
+            lang_match = raw_code[:first_line_end].replace("```", "").strip()
+            if lang_match:
+                code_lang = lang_match.lower()
+            raw_code = raw_code[first_line_end+1:]
+            if raw_code.strip().endswith("```"):
+                raw_code = raw_code.strip()[:-3].rstrip()
+                
+    # Prevent HTML injection unconditionally to fix highlight.js rendering
+    import html
+    raw_code = html.escape(raw_code)
     
     # Format details/summary for code block if attempt_num > 1 (required by UX reviewer to reduce visual weight)
     if attempt_num > 1:
@@ -3304,11 +1656,11 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <span class="control-dot dot-yellow"></span>
                         <span class="control-dot dot-green"></span>
                     </div>
-                    <span class="code-title">main.py</span>
+                    <span class="code-title">example.{code_lang}</span>
                     <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
                 </div>
                 <div class="code-body">
-                    <pre><code class="language-python" id="code-snippet-1">{raw_code}</code></pre>
+                    <pre><code class="language-{code_lang}" id="code-snippet-1">{raw_code}</code></pre>
                 </div>
             </div>
         </details>
@@ -3322,51 +1674,104 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <span class="control-dot dot-yellow"></span>
                     <span class="control-dot dot-green"></span>
                 </div>
-                <span class="code-title">main.py</span>
+                <span class="code-title">example.{code_lang}</span>
                 <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
             </div>
             <div class="code-body">
-                <pre><code class="language-python" id="code-snippet-1">{raw_code}</code></pre>
+                <pre><code class="language-{code_lang}" id="code-snippet-1">{raw_code}</code></pre>
             </div>
         </div>
         """
         
-    self_test_html = ""
-    for idx, q_text in enumerate(content["self_test"], 1):
-        self_test_html += f"""
-        <div class="selftest-item">
-            <div class="selftest-question">
-                <span>{q_text}</span>
-            </div>
-            <div class="selftest-answer">
-                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
-                <ul>
-                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
-                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
-                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
-                </ul>
-            </div>
-        </div>
-        """
+    self_test_markdown = f"# Bộ câu hỏi Khảo thí & Đánh giá năng lực: {lesson_title}\n\n"
+    self_test_data = content.get("self_test", [])
+    if isinstance(self_test_data, dict):
+        self_test_data = [self_test_data]
+    elif not isinstance(self_test_data, list):
+        self_test_data = []
+        
+    for idx, q_item in enumerate(self_test_data, 1):
+        if isinstance(q_item, dict):
+            q_text = q_item.get("question", "")
+            q_answer = q_item.get("answer", "") or q_item.get("guideline", "") or q_item.get("suggestion", "")
+        else:
+            q_text = str(q_item)
+            q_answer = "Hãy đọc lại phần lý thuyết và thực hành ví dụ trên máy tính cá nhân để tự đối chiếu và kiểm tra kết quả."
+            
+        self_test_markdown += f"### Câu {idx}: {q_text}\n\n**Gợi ý trả lời & Hướng dẫn tự học:**\n{q_answer}\n\n---\n\n"
 
     display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
-    vis_comp = get_dynamic_visualizer_components(session_id, lesson_id, lesson_title, tech_stack)
+    
+    references_html = ""
+    refs = content.get("references", [])
+    if isinstance(refs, dict):
+        refs = [refs]
+    elif not isinstance(refs, list):
+        refs = []
+
     
     t_lower = lesson_title.lower()
-    is_theory_only = any(kw in t_lower for kw in [
-        "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm cơ bản", "lý thuyết"
-    ])
+    has_no_code = not raw_code or not raw_code.strip() or all(line.strip().startswith(('#', '//', '/*', '*', '$', 'pip', 'python')) for line in raw_code.splitlines() if line.strip())
+    is_theory_only = has_no_code or any(kw in t_lower for kw in [
+        "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm cơ bản", "lý thuyết", "bản chất", "tìm hiểu", "khái quát",
+        "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
+        "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
+    ]) or any(kw in session_id.lower() for kw in [
+        "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
+        "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
+    ]) or not lesson_id
 
     if is_theory_only:
         visualizer_section_html = ""
-        step_4_html = ""
+        # Strict enforcement: NEVER show step 4 for theory lessons, regardless of what AI hallucinated.
+        step_4_html = "" 
+            
+        js_initializer = """
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) hljs.highlightAll();
+        });
+        """
     else:
+        # For non-theory lessons, step 4 is displayed if there is code
+        step_4_html = "" if has_no_code else f"""
+                    <!-- Step 4: Setup & Configuration Code -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">Lệnh cấu hình & Mã nguồn <span class="range"></span></div>
+                            {code_block_html}
+                            <div style="margin-top: 16px;">
+                                {resolve_html}
+                            </div>
+                        </div>
+                    </div>"""
+                    
+        vis_comp = content.get("visualizer")
+        if not vis_comp:
+            vis_comp = {
+                "canvas_title": "Interactive Visualizer",
+                "legend_html": "",
+                "stats_html": "",
+                "code_tracker_html": "",
+                "input_label": "Input Data",
+                "input_default": "",
+                "engine_js": "class InteractiveVisualizerEngine { constructor() {} init() {} start() {} pause() {} step() {} reset() {} setSpeed() {} applyCustomData() {} }"
+            }
+            
+        import html
+        input_default_raw = vis_comp.get("input_default", "")
+        if isinstance(input_default_raw, (dict, list)):
+            input_default_str = json.dumps(input_default_raw, ensure_ascii=False)
+        else:
+            input_default_str = str(input_default_raw)
+        input_default_safe = html.escape(input_default_str, quote=True)
+        
         visualizer_section_html = f"""
                 <!-- Core Concept & Tech Stack Header Card -->
                 <div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                     <div style="flex: 1; min-width: 260px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm cốt lõi</span>
+                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
                             <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">{session_id}</span>
                         </div>
                         <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">{lesson_title}</h3>
@@ -3385,10 +1790,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <div class="panel-box">
                             <div class="canvas-header">
                                 <div class="canvas-title">
-                                    {vis_comp["canvas_title"]}
+                                    {vis_comp.get("canvas_title", "Interactive Visualizer")}
                                 </div>
                                 <div class="legend-box">
-                                    {vis_comp["legend_html"]}
+                                    {vis_comp.get("legend_html", "")}
                                 </div>
                             </div>
 
@@ -3420,9 +1825,9 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                         <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
                                     </div>
                                     <div class="input-group">
-                                        <span class="input-label">{vis_comp["input_label"]}</span>
+                                        <span class="input-label">{vis_comp.get("input_label", "Input Data")}</span>
                                         <div class="custom-input-box">
-                                            <input type="text" id="custom-data-input" class="custom-input" value="{vis_comp["input_default"]}">
+                                            <input type="text" id="custom-data-input" class="custom-input" value="{input_default_safe}" placeholder="Ví dụ: {{'name': 'Rikkei'}}, hoặc 1, 2, 3">
                                             <button class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
                                         </div>
                                     </div>
@@ -3433,7 +1838,9 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <!-- Right Column: Stats, Live Code Tracker & Console Log -->
                         <div class="right-column">
                             <!-- Real-time Stats -->
-                            {vis_comp["stats_html"]}
+                            <div class="stats-panel">
+                                {vis_comp.get("stats_html", "")}
+                            </div>
 
                             <!-- Live Code Tracker -->
                             <div class="code-tracker-panel">
@@ -3443,7 +1850,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                 </div>
                                 <div class="code-content">
                                     <pre><code id="code-tracker-box">
-{vis_comp["code_tracker_html"]}
+{vis_comp.get("code_tracker_html", "")}
                                     </code></pre>
                                 </div>
                             </div>
@@ -3462,18 +1869,80 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     </div>
                 </div>"""
 
-        step_4_html = f"""
+        step_4_html = "" if has_no_code else f"""
                     <!-- Step 4: Production Code Walkthrough -->
                     <div class="step">
                         <div class="badge">4</div>
                         <div class="step-body">
-                            <div class="step-loc" style="color: #569cd6;">Mã nguồn chuẩn hóa & Phân tích thực thi <span class="range"></span></div>
+                            <div class="step-loc">Mã nguồn chuẩn hóa & Phân tích thực thi <span class="range"></span></div>
                             {code_block_html}
                             <div style="margin-top: 16px;">
                                 {resolve_html}
                             </div>
                         </div>
                     </div>"""
+        js_initializer = f"""
+        {vis_comp.get("engine_js", "")}
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine === 'undefined') {{
+            window.InteractiveVisualizerEngine = class {{}};
+        }}
+
+        // Initialize when DOM loaded
+        let visualizerApp;
+        document.addEventListener('DOMContentLoaded', () => {{
+            try {{
+                visualizerApp = new InteractiveVisualizerEngine();
+            }} catch(e) {{
+                visualizerApp = {{}};
+            }}
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog'];
+            requiredMethods.forEach(method => {{
+                if (typeof visualizerApp[method] !== 'function') {{
+                    visualizerApp[method] = () => console.log(`[Stub] Method ${{method}} called.`);
+                }}
+            }});
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('code-tracker-box');
+            if (trackerBox) {{
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }}
+
+            if (window.hljs) hljs.highlightAll();
+        }});
+        """
+
+    # Dynamically assign number to references step based on presence of code (step 4)
+    ref_step_num = 4 if has_no_code or is_theory_only else 5
+    if refs:
+        references_html += f"""
+                    <!-- Step {ref_step_num}: References -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">{ref_step_num}</div>
+                        <div class="step-body">
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        """
+        for ref in refs:
+            if isinstance(ref, dict) and ref.get("title") and ref.get("url"):
+                references_html += f"""
+                                <li>
+                                    <a href="{ref.get("url")}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> {ref.get("title")}
+                                    </a>
+                                </li>"""
+        references_html += """
+                            </ul>
+                        </div>
+                    </div>
+        """
 
     html_template = f"""<!DOCTYPE html>
 <html lang="vi">
@@ -3506,6 +1975,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
       }}
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
     <style>
         :root {{
@@ -3535,8 +2005,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
             --bg-panel: var(--bg-card);
             --bg-canvas: var(--bg-body);
             --color-idle: #475569;
-            --color-compare: #eab308;
-            --color-swap: #ef4444;
+            --color-active: #eab308;
             --color-done: #22c55e;
             --primary: #be111c;
             --rust: #c2410c;
@@ -3563,6 +2032,13 @@ def html_writer_agent(state: AgentState) -> AgentState:
             --bg-canvas: var(--bg-body);
             --primary: #be111c;
             --rust: #f97316;
+        }}
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {{
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }}
 
         * {{
@@ -3617,10 +2093,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .panel h3 {{
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             color: var(--text-muted);
             margin-bottom: 12px;
         }}
@@ -3633,10 +2107,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .gotchas h3 {{
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             color: var(--clay);
             margin-bottom: 10px;
         }}
@@ -3710,6 +2182,9 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
         .visualizer-canvas {{
             background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             min-height: 380px;
@@ -3868,10 +2343,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .stat-title {{
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 2px;
         }}
 
@@ -3884,6 +2357,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
         .code-tracker-panel {{
             background: #1e1e1e;
+            color: #d1d5db;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -3921,6 +2395,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
             border-left: 3px solid transparent;
             font-family: var(--font-mono);
             font-size: 0.85rem;
+            white-space: pre-wrap;
             color: #d4d4d4;
         }}
 
@@ -3932,6 +2407,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
         .console-log-panel {{
             background: #1e1e1e;
+            color: #d1d5db;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 14px;
@@ -3939,6 +2415,32 @@ def html_writer_agent(state: AgentState) -> AgentState:
             display: flex;
             flex-direction: column;
             max-height: 200px;
+        }}
+
+        .stats-panel {{
+            background: #1e1e1e;
+            color: #d1d5db;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }}
+        
+        .stats-panel .badge {{
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }}
 
         .log-messages {{
@@ -4153,7 +2655,38 @@ def html_writer_agent(state: AgentState) -> AgentState:
         .selftest-item.active .selftest-answer {{ display: block; }}
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-200 antialiased font-sans transition-colors duration-300">
+    <!-- Sticky Nav Header -->
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 dark:bg-[#151d30]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#243049] shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+        <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Rikkei Logo -->
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" />
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Theme Switcher Segmented Control -->
+                <div class="flex items-center gap-1 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
+                    <button id="theme-btn-light" onclick="setThemeMode('light')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ sáng"><i class="ph ph-sun-dim text-base"></i></button>
+                    <button id="theme-btn-dark" onclick="setThemeMode('dark')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ tối"><i class="ph ph-moon text-base"></i></button>
+                    <button id="theme-btn-system" onclick="setThemeMode('system')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ hệ thống"><i class="ph ph-desktop text-base"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-[1600px] w-full mx-auto relative z-10">
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">{session_id}</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">{lesson_title}</h2>
+            <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
+                Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
+            </p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Main Layout grid matching effective-html structure -->
         <div class="layout">
@@ -4163,15 +2696,12 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
                 <!-- Walkthrough Step-by-Step Sections -->
                 <div class="walkthrough-section">
-                    <h2 style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 500; margin: 30px 0 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
-                        Cơ chế hoạt động & Phân tích chi tiết (Step-by-step Walkthrough)
-                    </h2>
 
                     <!-- Step 1: Problem Breakdown -->
                     <div class="step">
                         <div class="badge">1</div>
                         <div class="step-body">
-                            <div class="step-loc">Đặt vấn đề & Thách thức thực tế <span class="range"></span></div>
+                            <div class="step-loc">Đặt vấn đề</div>
                             {problem_html}
                         </div>
                     </div>
@@ -4180,38 +2710,23 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <div class="step">
                         <div class="badge">2</div>
                         <div class="step-body">
-                            <div class="step-loc">Phân tích Bản chất & Cơ chế vận hành nội bộ <span class="range"></span></div>
+                            <div class="step-loc">Phân tích Bản chất</div>
                             {analysis_html}
-                            <div class="box warning-box">
-                                <strong>Lưu ý hiệu năng:</strong> Cần tính toán kỹ độ phức tạp thuật toán và quản lý bộ nhớ khi xử lý khối lượng dữ liệu lớn.
-                            </div>
                         </div>
                     </div>
 
                     <!-- Step 3: Solution & Architecture -->
-                    <div class="step hot">
+                    <div class="step">
                         <div class="badge">3</div>
                         <div class="step-body">
-                            <div class="step-loc">Giới thiệu Giải pháp & Kiến trúc Triển khai <span class="range"></span></div>
+                            <div class="step-loc">Giới thiệu Giải pháp</div>
                             {solution_html}
-                            <div class="box tip-box">
-                                <strong>Giải pháp tối ưu:</strong> Sử dụng trực quan hóa giúp nhanh chóng định vị điểm nghẽn và cải thiện tốc độ phản hồi đáng kể.
-                            </div>
                         </div>
                     </div>
 {step_4_html}
 
-                    <!-- Step 5: Self-Test Checklist -->
-                    <div class="step">
-                        <div class="badge">5</div>
-                        <div class="step-body">
-                            <div class="step-loc">Bộ câu hỏi Khảo thí tự học & Đánh giá năng lực <span class="range"></span></div>
-                            <p style="margin-bottom: 12px; font-size: 0.9rem;">Học viên nhấp chuột vào từng câu hỏi bên dưới để đối chiếu gợi ý tự học và rèn luyện:</p>
-                            <div class="selftest-container">
-                                {self_test_html}
-                            </div>
-                        </div>
-                    </div>
+
+{references_html}
 
                     <!-- Bottom Notice / Gotchas Section -->
                     <div class="step" style="margin-top: 24px;">
@@ -4232,14 +2747,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
     <script>
-        {vis_comp["engine_js"]}
-
-        // Initialize when DOM loaded
-        let visualizerApp;
-        document.addEventListener('DOMContentLoaded', () => {{
-            visualizerApp = new InteractiveVisualizerEngine();
-            if (window.hljs) hljs.highlightAll();
-        }});
+        {js_initializer}
 
         function copyCode(button, codeId) {{
             const codeElement = document.getElementById(codeId);
@@ -4290,13 +2798,16 @@ def html_writer_agent(state: AgentState) -> AgentState:
             }}
         }});
 
-        document.addEventListener('DOMContentLoaded', applyTheme);
+        document.addEventListener('DOMContentLoaded', () => {{
+            applyTheme();
+        }});
         applyTheme();
     </script>
 </body>
 </html>"""
     
     state["html_content"] = html_template
+    state["self_test_markdown"] = self_test_markdown
     log_agent_tokens("HTML_Writer_Agent", state, html_template)
     return state
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #000;
+    }
+    #scene-outro {
+      width: 1920px; height: 1080px; position: relative;
+    }
+    #outro-video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 1920px; height: 1080px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-outro" class="clip" data-start="0" data-duration="12.15" data-track-index="0">
+    <video
+      id="outro-video"
+      class="clip"
+      src="../../courses/fundamental_python/assets/outro.mp4"
+      data-start="0"
+      data-duration="12.15"
+      data-track-index="1"
+      data-has-audio="true"
+      data-volume="1"
+      muted
+      playsinline
+    ></video>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["outro"] = tl;
+
+    tl.set("#scene-outro", { autoAlpha: 1 }, 0);
+    tl.set("#outro-video",  { autoAlpha: 1 }, 0);
+    tl.set({}, {}, 12.15);
+  </script>
+</body>
+</html>

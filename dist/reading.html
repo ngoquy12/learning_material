@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session 02 - Lesson 05: Điều kiện lồng nhau và toán tử ba ngôi - Trực quan hóa & Tương tác Động</title>
+    <title>Session 01 - Lesson 03: Hướng dẫn cài đặt công cụ - Trực quan hóa & Tương tác Động</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -29,6 +29,7 @@
         }
       }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
     <style>
         :root {
@@ -58,8 +59,7 @@
             --bg-panel: var(--bg-card);
             --bg-canvas: var(--bg-body);
             --color-idle: #475569;
-            --color-compare: #eab308;
-            --color-swap: #ef4444;
+            --color-active: #eab308;
             --color-done: #22c55e;
             --primary: #be111c;
             --rust: #c2410c;
@@ -86,6 +86,13 @@
             --bg-canvas: var(--bg-body);
             --primary: #be111c;
             --rust: #f97316;
+        }
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
         * {
@@ -140,10 +147,8 @@
         }
 
         .panel h3 {
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             color: var(--text-muted);
             margin-bottom: 12px;
         }
@@ -156,10 +161,8 @@
         }
 
         .gotchas h3 {
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             color: var(--clay);
             margin-bottom: 10px;
         }
@@ -233,6 +236,9 @@
 
         .visualizer-canvas {
             background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             min-height: 380px;
@@ -391,10 +397,8 @@
         }
 
         .stat-title {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
 
@@ -407,6 +411,7 @@
 
         .code-tracker-panel {
             background: #1e1e1e;
+            color: #d1d5db;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -444,6 +449,7 @@
             border-left: 3px solid transparent;
             font-family: var(--font-mono);
             font-size: 0.85rem;
+            white-space: pre-wrap;
             color: #d4d4d4;
         }
 
@@ -455,6 +461,7 @@
 
         .console-log-panel {
             background: #1e1e1e;
+            color: #d1d5db;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 14px;
@@ -462,6 +469,32 @@
             display: flex;
             flex-direction: column;
             max-height: 200px;
+        }
+
+        .stats-panel {
+            background: #1e1e1e;
+            color: #d1d5db;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-panel .badge {
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         .log-messages {
@@ -676,154 +709,54 @@
         .selftest-item.active .selftest-answer { display: block; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-200 antialiased font-sans transition-colors duration-300">
+    <!-- Sticky Nav Header -->
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 dark:bg-[#151d30]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#243049] shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+        <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Rikkei Logo -->
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" />
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Theme Switcher Segmented Control -->
+                <div class="flex items-center gap-1 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
+                    <button id="theme-btn-light" onclick="setThemeMode('light')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ sáng"><i class="ph ph-sun-dim text-base"></i></button>
+                    <button id="theme-btn-dark" onclick="setThemeMode('dark')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ tối"><i class="ph ph-moon text-base"></i></button>
+                    <button id="theme-btn-system" onclick="setThemeMode('system')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ hệ thống"><i class="ph ph-desktop text-base"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-[1600px] w-full mx-auto relative z-10">
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 01</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Hướng dẫn cài đặt công cụ</h2>
+            <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
+                Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
+            </p>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Main Layout grid matching effective-html structure -->
         <div class="layout">
             
             <div class="main-content">
 
-                <!-- Core Concept & Tech Stack Header Card -->
-                <div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                    <div style="flex: 1; min-width: 260px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm cốt lõi</span>
-                            <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Session 02</span>
-                        </div>
-                        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">Điều kiện lồng nhau và toán tử ba ngôi</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                        <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
-                        <span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">PYTHON/CORE</span>
-                    </div>
-                </div>
-
-                <!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
-                <div class="visualizer-container">
-                    <div class="visualizer-grid">
-                        <!-- Left Panel: Interactive Visualizer & Controls -->
-                        <div class="panel-box">
-                            <div class="canvas-header">
-                                <div class="canvas-title">
-                                    Trực quan hóa Biểu thức & Rẽ nhánh Điều kiện (Logic Branching Engine)
-                                </div>
-                                <div class="legend-box">
-                                    
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-idle)"></div> Chờ đánh giá</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-compare)"></div> Đang tính toán logic</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-swap)"></div> Nhánh ĐÚNG (True)</div>
-                <div class="legend-item"><div class="legend-color" style="background: var(--color-done)"></div> Nhánh SAI (False)</div>
-            
-                                </div>
-                            </div>
-
-                            <!-- Interactive Visualizer Canvas -->
-                            <div class="visualizer-canvas" id="visualizer-canvas">
-                                <!-- Dynamic Bars / Nodes generated by JS engine -->
-                            </div>
-
-                            <!-- Control Buttons & Input Sliders -->
-                            <div class="controls-section">
-                                <div class="btn-group">
-                                    <button class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
-                                        <span>▶</span> Bắt đầu
-                                    </button>
-                                    <button class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
-                                        <span>⏸</span> Tạm dừng
-                                    </button>
-                                    <button class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
-                                        <span>⏭</span> Từng bước
-                                    </button>
-                                    <button class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
-                                        <span>↻</span> Đặt lại
-                                    </button>
-                                </div>
-
-                                <div class="inputs-row">
-                                    <div class="input-group">
-                                        <span class="input-label">TỐC ĐỘ THỰC THI (<span id="speed-display">400</span>ms)</span>
-                                        <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
-                                    </div>
-                                    <div class="input-group">
-                                        <span class="input-label">TỰ NHẬP ĐIỂM SỐ & CHUYÊN CẦN (score, attendance)</span>
-                                        <div class="custom-input-box">
-                                            <input type="text" id="custom-data-input" class="custom-input" value="8.5, 85">
-                                            <button class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column: Stats, Live Code Tracker & Console Log -->
-                        <div class="right-column">
-                            <!-- Real-time Stats -->
-                            
-                <div class="stats-row">
-                    <div class="stat-card">
-                        <div class="stat-title">ĐIỀU KIỆN KIỂM TRA</div>
-                        <div class="stat-value" id="stat-compare">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">NHÁNH ĐÚNG (TRUE)</div>
-                        <div class="stat-value" id="stat-swap">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-title">THỜI GIAN</div>
-                        <div class="stat-value" id="stat-time">0.0s</div>
-                    </div>
-                </div>
-            
-
-                            <!-- Live Code Tracker -->
-                            <div class="code-tracker-panel">
-                                <div class="panel-top-bar">
-                                    <span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
-                                    <span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
-                                </div>
-                                <div class="code-content">
-                                    <pre><code id="code-tracker-box">
-
-<span class="code-line" id="line-0"># Đánh giá biểu thức và rẽ nhánh điều kiện logic</span>
-<span class="code-line" id="line-1">def evaluate_scholarship(score, attendance):</span>
-<span class="code-line" id="line-2">    if score >= 8.0 and attendance >= 80:</span>
-<span class="code-line" id="line-3">        return "Đạt học bổng Xuất sắc"</span>
-<span class="code-line" id="line-4">    elif score >= 6.5:</span>
-<span class="code-line" id="line-5">        return "Đạt danh hiệu Khá"</span>
-<span class="code-line" id="line-6">    else:</span>
-<span class="code-line" id="line-7">        return "Cần tiếp tục rèn luyện"</span>
-            
-                                    </code></pre>
-                                </div>
-                            </div>
-
-                            <!-- Console Execution Log -->
-                            <div class="console-log-panel">
-                                <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
-                                    <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
-                                    <button onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
-                                </div>
-                                <div class="log-messages" id="log-messages">
-                                    <div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Walkthrough Step-by-Step Sections -->
                 <div class="walkthrough-section">
-                    <h2 style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 500; margin: 30px 0 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
-                        Cơ chế hoạt động & Phân tích chi tiết (Step-by-step Walkthrough)
-                    </h2>
 
                     <!-- Step 1: Problem Breakdown -->
                     <div class="step">
                         <div class="badge">1</div>
                         <div class="step-body">
-                            <div class="step-loc">Đặt vấn đề & Thách thức thực tế <span class="range"></span></div>
-                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Trong lập trình Python cơ bản, việc học viên tiếp cận và triển khai <strong>Điều kiện lồng nhau và toán tử ba ngôi</strong> luôn đi kèm với những thử thách tư duy logic thực tế. Khi xây dựng các luồng quyết định (decision-making) trong chương trình, học viên thường gặp khó khăn trong việc kết hợp các toán tử so sánh và toán tử logic để tạo ra các biểu thức điều kiện chính xác. Ngoài ra, việc lạm dụng cấu trúc <code>if-else</code> lồng nhau sâu khiến mã nguồn trở nên rối rắm, khó đọc và khó kiểm thử các trường hợp biên.</p>
+                            <div class="step-loc">Đặt vấn đề</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi chuẩn bị môi trường thực hành phát triển Web API với FastAPI, học viên thường gặp các trở ngại như hệ điều hành không nhận diện lệnh do biến môi trường hoạt động sai, xung đột thư viện giữa các dự án do thiếu môi trường ảo (venv), hoặc cấu hình Git ban đầu chưa đúng chuẩn khiến tiến trình đồng bộ phiên bản bị gián đoạn.</p>
                         </div>
                     </div>
 
@@ -831,156 +764,172 @@
                     <div class="step">
                         <div class="badge">2</div>
                         <div class="step-body">
-                            <div class="step-loc">Phân tích Bản chất & Cơ chế vận hành nội bộ <span class="range"></span></div>
-                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi phân tích sâu về <strong>Điều kiện lồng nhau và toán tử ba ngôi</strong>, chúng ta nhận thấy: Tối ưu hóa cấu trúc rẽ nhánh phức tạp Python cung cấp hệ thống toán tử phong phú gồm toán tử số học (<code>+</code>, <code>-</code>, <code><em></code>, <code>/</code>, chia lấy nguyên <code>//</code>, chia lấy dư <code>%</code>, lũy thừa <code></em>*</code>), toán tử so sánh (<code>==</code>, <code>!=</code>, <code>></code>, <code><</code>, <code>>=</code>, <code><=</code>) và toán tử logic (<code>and</code>, <code>or</code>, <code>not</code>). Cấu trúc rẽ nhánh <code>if-elif-else</code> và cấu trúc <code>match-case</code> (từ Python 3.10) giúp phân tách luồng chạy của chương trình dựa trên kết quả của biểu thức điều kiện logic. Việc tối ưu hóa biểu thức logic bằng toán tử ba ngôi (ternary operator) giúp mã nguồn ngắn gọn hơn.</p>
-<table class="comparison-table" style="width:100%; border-collapse:collapse; margin:20px 0; font-size:0.95rem; text-align:left; border:1px solid var(--border-color);">
-    <thead>
-        <tr style="background-color:var(--primary); color:white;">
-            <th style="padding:12px; border:1px solid var(--border-color);">Toán tử</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Ý nghĩa</th>
-            <th style="padding:12px; border:1px solid var(--border-color);">Ví dụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">%</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chia lấy phần dư (Modulo)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">5 % 2 = 1</td>
-        </tr>
-        <tr style="background-color:#F8FAFC;">
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">//</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Chia lấy phần nguyên (Floor Division)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">5 // 2 = 2</td>
-        </tr>
-        <tr>
-            <td style="padding:10px; border:1px solid var(--border-color); font-weight:600;">**</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">Lũy thừa (Power)</td>
-            <td style="padding:10px; border:1px solid var(--border-color);">5 ** 2 = 25</td>
-        </tr>
-    </tbody>
-</table>
-                            <div class="box warning-box">
-                                <strong>Lưu ý hiệu năng:</strong> Cần tính toán kỹ độ phức tạp thuật toán và quản lý bộ nhớ khi xử lý khối lượng dữ liệu lớn.
-                            </div>
+                            <div class="step-loc">Phân tích Bản chất</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Để sẵn sàng phát triển dự án, lập trình viên cần hiểu rõ tương tác giữa các thành phần:</p>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Python: Trình thông dịch mã nguồn.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Biến PATH: Giúp Terminal định vị trình thực thi Python/Git từ bất kỳ thư mục nào.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Môi trường ảo (venv): Cô lập gói thư viện tránh xung đột phiên bản.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Git: Kiểm soát và theo dõi lịch sử chỉnh sửa mã nguồn.</li>
+</ul>
                         </div>
                     </div>
 
                     <!-- Step 3: Solution & Architecture -->
-                    <div class="step hot">
+                    <div class="step">
                         <div class="badge">3</div>
                         <div class="step-body">
-                            <div class="step-loc">Giới thiệu Giải pháp & Kiến trúc Triển khai <span class="range"></span></div>
-                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Để giải quyết triệt để vấn đề này, chúng ta cần áp dụng các cấu trúc lập trình Python chuẩn mực. Mục tiêu đầu ra là đạt được chuẩn: <strong>Mã nguồn rẽ nhánh sạch và gọn</strong>. Sử dụng đúng độ ưu tiên của các toán tử số học và logic (sử dụng dấu ngoặc đơn <code>()</code> để tường minh). Áp dụng cấu trúc rẽ nhánh <code>if-elif-else</code> một cách khoa học, tránh lồng nhau quá 3 cấp, hoặc chuyển sang dùng <code>match-case</code> khi so sánh một biến với nhiều giá trị cụ thể nhằm tăng tính thẩm mỹ và dễ bảo trì.</p>
-                            <div class="box tip-box">
-                                <strong>Giải pháp tối ưu:</strong> Sử dụng trực quan hóa giúp nhanh chóng định vị điểm nghẽn và cải thiện tốc độ phản hồi đáng kể.
-                            </div>
+                            <div class="step-loc">Giới thiệu Giải pháp</div>
+                            <ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt Python 3.10+, VS Code, Git, Postman/DBeaver.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt tham số PATH tạm thời trên Terminal nếu hệ thống báo lỗi không nhận diện lệnh:</li>
+</ol>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Windows (PowerShell): <code>$env:Path += ";C:\Python310"</code></li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Linux/macOS: <code>export PATH=$PATH:/usr/local/bin/python</code></li>
+</ul>
+<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sử dụng Git để thiết lập danh tính người dùng và khởi tạo thư mục dự án.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Kích hoạt venv, chạy mã chẩn đoán cài đặt và khởi tạo dự án FastAPI.</li>
+</ol>
                         </div>
                     </div>
 
-                    <!-- Step 4: Production Code Walkthrough -->
+
+
+
+                    
+                    <!-- Step 4: Lệnh cấu hình & Mã nguồn -->
                     <div class="step">
                         <div class="badge">4</div>
                         <div class="step-body">
-                            <div class="step-loc" style="color: #569cd6;">Mã nguồn chuẩn hóa & Phân tích thực thi <span class="range"></span></div>
-                            
-        <details class="interactive-details" open>
-            <summary>Nhấp vào để đóng/mở mã nguồn chi tiết</summary>
-            <div class="code-container">
-                <div class="code-header">
-                    <div class="code-controls">
-                        <span class="control-dot dot-red"></span>
-                        <span class="control-dot dot-yellow"></span>
-                        <span class="control-dot dot-green"></span>
-                    </div>
-                    <span class="code-title">main.py</span>
-                    <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
-                </div>
-                <div class="code-body">
-                    <pre><code class="language-python" id="code-snippet-1"># 1. Sử dụng toán tử số học và logic
-math_score = 8.5
-english_score = 7.0
-
-# Điều kiện đạt học bổng: Điểm trung bình >= 8.0 VÀ không môn nào dưới 6.5
-average_score = (math_score + english_score) / 2
-has_scholarship = average_score >= 8.0 and math_score >= 6.5 and english_score >= 6.5
-
-# 2. Sử dụng cấu trúc rẽ nhánh khoa học và toán tử ba ngôi
-status = "Đạt học bổng" if has_scholarship else "Không đạt học bổng"
-print(f"Điểm TB: {average_score} -> Trạng thái: {status}")
-
-# 3. Sử dụng cấu trúc match-case mới (Python 3.10+)
-rank_level = "A" if average_score >= 8.5 else "B" if average_score >= 7.0 else "C"
-match rank_level:
-    case "A":
-        print("Xếp loại xuất sắc, được nhận học bổng loại I.")
-    case "B":
-        print("Xếp loại khá giỏi, được nhận học bổng loại II.")
-    case _:
-        print("Cần cố gắng thêm trong các kỳ học sau.")
-</code></pre>
-                </div>
-            </div>
-        </details>
-        
+                            <div class="step-loc">Mã nguồn & Câu lệnh thực hành quan trọng</div>
                             <div style="margin-top: 16px;">
-                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Sau khi áp dụng giải pháp cho <strong>Điều kiện lồng nhau và toán tử ba ngôi</strong>, chương trình đã có thể vận hành ổn định và chính xác. Chương trình tính toán điểm trung bình bằng biểu thức số học có ngoặc đơn. Sau đó, nó dùng toán tử logic <code>and</code> để kiểm tra đồng thời ba điều kiện logic. Toán tử ba ngôi gán giá trị cho <code>status</code> một cách ngắn gọn. Cuối cùng, cấu trúc <code>match-case</code> khớp giá trị của <code>rank<em>level</code> với các trường hợp cụ thể để in ra lời khuyên tương ứng, sử dụng dấu gạch dưới <code></em></code> làm trường hợp mặc định (default case).</p>
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Dưới đây là các câu lệnh kiểm tra phiên bản và khởi tạo kho lưu trữ Git:</p>
+                                
+                                <div class="code-container">
+                                    <div class="code-header">
+                                        <div class="code-controls">
+                                            <span class="control-dot dot-red"></span>
+                                            <span class="control-dot dot-yellow"></span>
+                                            <span class="control-dot dot-green"></span>
+                                        </div>
+                                        <span class="code-title">terminal_commands.sh</span>
+                                        <button class="copy-btn" onclick="copyCode(this, 'terminal-commands-code')">Sao chép</button>
+                                    </div>
+                                    <div class="code-body">
+                                        <pre><code class="language-bash" id="terminal-commands-code"># 1. Kiểm tra phiên bản Python và Git
+python --version
+git --version
+
+# 2. Cấu hình thông tin danh tính Git toàn cục
+git config --global user.name "Nguyen Van A"
+git config --global user.email "anv@gmail.com"
+
+# 3. Khởi tạo kho lưu trữ Git mới
+git init</code></pre>
+                                    </div>
+                                </div>
+
+                                <p style="text-align: justify; margin-bottom: 15px; margin-top: 20px; line-height: 1.6;">Dưới đây là cách thêm đường dẫn Python vào biến môi trường PATH tạm thời:</p>
+                                
+                                <div class="code-container">
+                                    <div class="code-header">
+                                        <div class="code-controls">
+                                            <span class="control-dot dot-red"></span>
+                                            <span class="control-dot dot-yellow"></span>
+                                            <span class="control-dot dot-green"></span>
+                                        </div>
+                                        <span class="code-title">path_config.sh</span>
+                                        <button class="copy-btn" onclick="copyCode(this, 'path-config-code')">Sao chép</button>
+                                    </div>
+                                    <div class="code-body">
+                                        <pre><code class="language-powershell" id="path-config-code"># Trên Windows (PowerShell):
+$env:Path += ";C:\Path\To\Python"
+
+# Trên Linux/macOS (Bash/Zsh):
+export PATH="$PATH:/path/to/python"</code></pre>
+                                    </div>
+                                </div>
+
+                                <p style="text-align: justify; margin-bottom: 15px; margin-top: 20px; line-height: 1.6;">Dưới đây là mã nguồn chẩn đoán môi trường ảo <code>kiem_tra_moi_truong</code>:</p>
+                                
+                                <div class="code-container">
+                                    <div class="code-header">
+                                        <div class="code-controls">
+                                            <span class="control-dot dot-red"></span>
+                                            <span class="control-dot dot-yellow"></span>
+                                            <span class="control-dot dot-green"></span>
+                                        </div>
+                                        <span class="code-title">kiem_tra_moi_truong.py</span>
+                                        <button class="copy-btn" onclick="copyCode(this, 'kiem-tra-moi-truong-code')">Sao chép</button>
+                                    </div>
+                                    <div class="code-body">
+                                        <pre><code class="language-python" id="kiem-tra-moi-truong-code">import sys
+
+def run_diagnostics():
+    print(f"Python Version: {sys.version}")
+    is_venv = sys.prefix != sys.base_prefix
+    print(f"Using virtual environment (venv): {is_venv}")
+    try:
+        import fastapi
+        print(f"FastAPI installed successfully: version {fastapi.__version__}")
+    except ImportError:
+        print("FastAPI is NOT installed.")
+
+if __name__ == "__main__":
+    run_diagnostics()</code></pre>
+                                    </div>
+                                </div>
+
+                                <p style="text-align: justify; margin-bottom: 15px; margin-top: 20px; line-height: 1.6;">Dưới đây là mã nguồn ứng dụng FastAPI tối giản <code>ung_dung_fastapi_toi_gian</code>:</p>
+                                
+                                <div class="code-container">
+                                    <div class="code-header">
+                                        <div class="code-controls">
+                                            <span class="control-dot dot-red"></span>
+                                            <span class="control-dot dot-yellow"></span>
+                                            <span class="control-dot dot-green"></span>
+                                        </div>
+                                        <span class="code-title">ung_dung_fastapi_toi_gian.py</span>
+                                        <button class="copy-btn" onclick="copyCode(this, 'ung-dung-fastapi-toi-gian-code')">Sao chép</button>
+                                    </div>
+                                    <div class="code-body">
+                                        <pre><code class="language-python" id="ung-dung-fastapi-toi-gian-code">from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"status": "success", "message": "FastAPI da thiet lap thanh cong!"}</code></pre>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+            
 
-                    <!-- Step 5: Self-Test Checklist -->
-                    <div class="step">
+                    <!-- Step 5: References -->
+                    <div class="step" style="margin-top: 24px;">
                         <div class="badge">5</div>
                         <div class="step-body">
-                            <div class="step-loc">Bộ câu hỏi Khảo thí tự học & Đánh giá năng lực <span class="range"></span></div>
-                            <p style="margin-bottom: 12px; font-size: 0.9rem;">Học viên nhấp chuột vào từng câu hỏi bên dưới để đối chiếu gợi ý tự học và rèn luyện:</p>
-                            <div class="selftest-container">
-                                
-        <div class="selftest-item">
-            <div class="selftest-question">
-                <span>Câu 1 (Thông hiểu): Hãy trình bày vai trò cốt lõi và mục tiêu của việc triển khai 'Điều kiện lồng nhau và toán tử ba ngôi' trong dự án thực tế.</span>
-            </div>
-            <div class="selftest-answer">
-                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
-                <ul>
-                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
-                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
-                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
-                </ul>
-            </div>
-        </div>
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
         
-        <div class="selftest-item">
-            <div class="selftest-question">
-                <span>Câu 2 (Vận dụng): Dựa trên lý thuyết đã học, hãy viết một đoạn code mẫu hoặc cấu hình để thực hiện: 'Tối ưu hóa cấu trúc rẽ nhánh phức tạp'.</span>
-            </div>
-            <div class="selftest-answer">
-                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
-                <ul>
-                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
-                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
-                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="selftest-item">
-            <div class="selftest-question">
-                <span>Câu 3 (Phân tích): Tại sao việc đạt được đầu ra 'Mã nguồn rẽ nhánh sạch và gọn' lại quan trọng đối với tính toàn vẹn của hệ thống?</span>
-            </div>
-            <div class="selftest-answer">
-                <p><strong>Gợi ý hướng dẫn tự học:</strong></p>
-                <ul>
-                    <li>Hãy đọc lại phần "Giới thiệu giải pháp" và "Ví dụ minh họa" ở trên để đối chiếu.</li>
-                    <li>Thực hành gõ lại mã nguồn và chạy trên máy tính cá nhân để tự kiểm tra kết quả.</li>
-                    <li>Phân tích kỹ lưỡng các lỗi thường gặp trong phần "Tổng kết" để hoàn thiện câu trả lời.</li>
-                </ul>
-            </div>
-        </div>
-        
-                            </div>
+                                <li>
+                                    <a href="https://docs.python.org/3/using/index.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Setup and Usage Guide
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Git Installation and Configuration
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
+        
 
                     <!-- Bottom Notice / Gotchas Section -->
                     <div class="step" style="margin-top: 24px;">
@@ -988,7 +937,13 @@ match rank_level:
                         <div class="step-body" style="border-color: var(--clay);">
                             <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
                             <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
-                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Lưu ý quan trọng cho <strong>Điều kiện lồng nhau và toán tử ba ngôi</strong>: Luôn dùng dấu ngoặc đơn để làm rõ độ ưu tiên của toán tử. Lỗi thường gặp nhất là dùng một dấu bằng = thay cho hai dấu bằng == trong lệnh so sánh if.</p>
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Bài học cung cấp phương pháp chuẩn bị công cụ làm việc và liên kết môi trường cục bộ.</p>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Ba lỗi thường gặp:</p>
+<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Thiếu biến môi trường PATH</strong> khiến lệnh python hoặc git báo lỗi 'not found'.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Chưa kích hoạt venv</strong> dẫn đến cài đặt thư viện đè lên hệ thống nguồn toàn cục.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Sai lệch thông tin tài khoản Git</strong> (name/email) dẫn đến lỗi từ chối phiên làm việc khi kết nối kho chứa từ xa.</li>
+</ol>
                             </div>
                         </div>
                     </div>
@@ -1002,312 +957,10 @@ match rank_level:
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
     <script>
         
-        class InteractiveVisualizerEngine {
-            constructor() {
-                this.score = 8.5;
-                this.attendance = 85;
-                this.steps = [];
-                this.currentStep = 0;
-                this.isPlaying = false;
-                this.timer = null;
-                this.speed = 400;
-                this.stats = { compare: 0, swap: 0 };
-                this.startTime = null;
-                this.elapsedSeconds = 0.0;
-                this.audioSyncMap = [];
-                
-                this.init();
-            }
-
-            init() {
-                this.generateSteps();
-                this.render();
-                this.setupEvents();
-            }
-
-            generateSteps() {
-                this.steps = [];
-                let s = this.score;
-                let a = this.attendance;
-                
-                this.steps.push({
-                    state: "init",
-                    score: s,
-                    attendance: a,
-                    activeBranch: null,
-                    line: 1,
-                    msg: `Khởi tạo đầu vào: Điểm trung bình (score) = ${s}, Chuyên cần (attendance) = ${a}%.`
-                });
-
-                let cond1 = (s >= 8.0 && a >= 80);
-                this.steps.push({
-                    state: "eval_if",
-                    score: s,
-                    attendance: a,
-                    cond1: cond1,
-                    activeBranch: 1,
-                    line: 2,
-                    msg: `Kiểm tra nhánh IF: score >= 8.0 (${s >= 8.0}) VÀ attendance >= 80 (${a >= 80}) -> Kết quả: ${cond1 ? 'TRUE (Đúng)' : 'FALSE (Sai)'}.`
-                });
-
-                if (cond1) {
-                    this.steps.push({
-                        state: "exec_if",
-                        score: s,
-                        attendance: a,
-                        cond1: true,
-                        resultText: "Đạt học bổng Xuất sắc",
-                        activeBranch: 1,
-                        line: 3,
-                        isDone: true,
-                        msg: `Nhánh IF thỏa mãn (TRUE)! Thực thi khối lệnh trả về: "Đạt học bổng Xuất sắc".`
-                    });
-                } else {
-                    let cond2 = (s >= 6.5);
-                    this.steps.push({
-                        state: "eval_elif",
-                        score: s,
-                        attendance: a,
-                        cond1: false,
-                        cond2: cond2,
-                        activeBranch: 2,
-                        line: 4,
-                        msg: `Nhánh IF không đạt (FALSE). Chuyển sang kiểm tra nhánh ELIF: score >= 6.5 (${s >= 6.5}) -> Kết quả: ${cond2 ? 'TRUE' : 'FALSE'}.`
-                    });
-
-                    if (cond2) {
-                        this.steps.push({
-                            state: "exec_elif",
-                            score: s,
-                            attendance: a,
-                            cond1: false,
-                            cond2: true,
-                            resultText: "Đạt danh hiệu Khá",
-                            activeBranch: 2,
-                            line: 5,
-                            isDone: true,
-                            msg: `Nhánh ELIF thỏa mãn! Thực thi khối lệnh trả về: "Đạt danh hiệu Khá".`
-                        });
-                    } else {
-                        this.steps.push({
-                            state: "exec_else",
-                            score: s,
-                            attendance: a,
-                            cond1: false,
-                            cond2: false,
-                            resultText: "Cần tiếp tục rèn luyện",
-                            activeBranch: 3,
-                            line: 7,
-                            isDone: true,
-                            msg: `Tất cả điều kiện IF và ELIF đều không đạt (FALSE). Chạy vào khối mặc định ELSE trả về: "Cần tiếp tục rèn luyện".`
-                        });
-                    }
-                }
-            }
-
-            render() {
-                const canvas = document.getElementById('visualizer-canvas');
-                if (!canvas) return;
-                
-                let step = this.steps[this.currentStep] || this.steps[0];
-                let b1Color = step.activeBranch === 1 ? (step.cond1 ? '#10b981' : '#f59e0b') : '#334155';
-                let b2Color = step.activeBranch === 2 ? (step.cond2 ? '#10b981' : '#f59e0b') : '#334155';
-                let b3Color = step.activeBranch === 3 ? '#10b981' : '#334155';
-                
-                canvas.innerHTML = `
-                    <div style="display: flex; flex-direction: column; gap: 16px; width: 100%; padding: 12px; font-family: 'JetBrains Mono', monospace;">
-                        <div style="background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; text-align: center;">
-                            <span style="color: #38bdf8; font-weight: bold;">INPUT STATE:</span> 
-                            <span style="color: #f1f5f9;">score = <strong style="color: #fbbf24;">${step.score}</strong></span> | 
-                            <span style="color: #f1f5f9;">attendance = <strong style="color: #fbbf24;">${step.attendance}%</strong></span>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            <!-- IF Branch -->
-                            <div style="background: ${b1Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #38bdf8;">
-                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 1] if score >= 8.0 and attendance >= 80:</div>
-                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">
-                                    So sánh: (${step.score} >= 8.0) AND (${step.attendance} >= 80) &rarr; <strong style="color: ${step.cond1 ? '#6ee7b7' : '#f87171'}">${step.cond1 !== undefined ? (step.cond1 ? 'TRUE (Khớp)' : 'FALSE (Bỏ qua)') : 'Chờ đánh giá'}</strong>
-                                </div>
-                            </div>
-
-                            <!-- ELIF Branch -->
-                            <div style="background: ${b2Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #a855f7; opacity: ${step.activeBranch >= 2 || step.activeBranch === null ? 1 : 0.5}">
-                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 2] elif score >= 6.5:</div>
-                                <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;">
-                                    So sánh: (${step.score} >= 6.5) &rarr; <strong style="color: ${step.cond2 ? '#6ee7b7' : '#f87171'}">${step.cond2 !== undefined ? (step.cond2 ? 'TRUE (Khớp)' : 'FALSE (Bỏ qua)') : 'Chờ kiểm tra'}</strong>
-                                </div>
-                            </div>
-
-                            <!-- ELSE Branch -->
-                            <div style="background: ${b3Color}; padding: 14px; border-radius: 8px; transition: all 0.3s; border-left: 6px solid #64748b; opacity: ${step.activeBranch === 3 || step.activeBranch === null ? 1 : 0.5}">
-                                <div style="font-size: 0.85rem; color: #fff; font-weight: 600;">[Nhánh 3] else: (Khối lệnh mặc định)</div>
-                            </div>
-                        </div>
-
-                        ${step.resultText ? `
-                            <div style="background: #064e3b; border: 2px solid #10b981; border-radius: 8px; padding: 14px; text-align: center; animation: pulse 1s infinite;">
-                                <span style="color: #6ee7b7; font-weight: bold;">🎯 KẾT QUẢ RẼ NHÁNH:</span>
-                                <div style="color: #fff; font-size: 1.1rem; font-weight: bold; margin-top: 4px;">"${step.resultText}"</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                this.highlightCode(step.line);
-                if (step.msg) this.log(step.msg, step.isDone ? 'success' : 'info');
-                this.updateStats();
-            }
-
-            highlightCode(lineNum) {
-                for (let i = 0; i <= 7; i++) {
-                    let el = document.getElementById(`line-${i}`);
-                    if (el) el.style.backgroundColor = 'transparent';
-                }
-                let target = document.getElementById(`line-${lineNum}`);
-                if (target) target.style.backgroundColor = 'rgba(16, 185, 129, 0.25)';
-            }
-
-            log(msg, type = 'info') {
-                const box = document.getElementById('log-messages');
-                if (!box) return;
-                const entry = document.createElement('div');
-                entry.className = `log-entry log-${type}`;
-                entry.innerText = `[Bước ${this.currentStep + 1}] ${msg}`;
-                box.appendChild(entry);
-                box.scrollTop = box.scrollHeight;
-            }
-
-            clearLog() {
-                const box = document.getElementById('log-messages');
-                if (box) box.innerHTML = '';
-            }
-
-            start() {
-                if (this.isPlaying) return;
-                this.isPlaying = true;
-                this.startTime = Date.now() - (this.elapsedSeconds * 1000);
-                this.syncAudioToStep();
-                this.timer = setInterval(() => {
-                    if (this.currentStep < this.steps.length - 1) {
-                        this.currentStep++;
-                        if (this.steps[this.currentStep].activeBranch !== null) this.stats.compare++;
-                        if (this.steps[this.currentStep].resultText) this.stats.swap++;
-                        this.elapsedSeconds = ((Date.now() - this.startTime) / 1000).toFixed(1);
-                        this.render();
-                    } else {
-                        this.pause();
-                    }
-                }, this.speed);
-            }
-
-            pause() {
-                this.isPlaying = false;
-                if (this.timer) clearInterval(this.timer);
-            }
-
-            step() {
-                this.pause();
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    if (this.steps[this.currentStep].activeBranch !== null) this.stats.compare++;
-                    if (this.steps[this.currentStep].resultText) this.stats.swap++;
-                    this.render();
-                    this.syncAudioToStep();
-                }
-            }
-
-            reset() {
-                this.pause();
-                this.currentStep = 0;
-                this.stats = { compare: 0, swap: 0 };
-                this.elapsedSeconds = 0.0;
-                this.render();
-                this.clearLog();
-                this.syncAudioToStep();
-                this.log('Đã khôi phục trạng thái xuất phát ban đầu.', 'info');
-            }
-
-            setSpeed(val) {
-                this.speed = parseInt(val);
-                const display = document.getElementById('speed-display');
-                if (display) display.innerText = val;
-                if (this.isPlaying) {
-                    this.pause();
-                    this.start();
-                }
-            }
-
-            applyCustomData() {
-                const inputEl = document.getElementById('custom-data-input');
-                if (!inputEl) return;
-                const parts = inputEl.value.split(',').map(v => v.trim());
-                if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) {
-                    alert('Vui lòng nhập 2 số hợp lệ cho điểm số và chuyên cần, cách nhau bởi dấu phẩy (VD: 8.5, 85)!');
-                    return;
-                }
-                this.score = parseFloat(parts[0]);
-                this.attendance = parseFloat(parts[1]);
-                this.generateSteps();
-                this.reset();
-                this.log(`Đã áp dụng thông số mới: score = ${this.score}, attendance = ${this.attendance}%`, 'success');
-            }
-
-            updateStats() {
-                const cmpEl = document.getElementById('stat-compare');
-                const swpEl = document.getElementById('stat-swap');
-                const tmEl = document.getElementById('stat-time');
-                if (cmpEl) cmpEl.innerText = this.stats.compare;
-                if (swpEl) swpEl.innerText = this.stats.swap;
-                if (tmEl) tmEl.innerText = `${this.elapsedSeconds}s`;
-            }
-
-            setupAudioSync() {
-                const audioEl = document.getElementById('lesson-audio') || document.querySelector('audio');
-                if (!audioEl) return;
-                this.audioSyncMap = this.steps.map((step, idx) => ({
-                    stepIndex: idx,
-                    startTime: idx * 2.5,
-                    endTime: (idx + 1) * 2.5
-                }));
-                audioEl.addEventListener('timeupdate', () => {
-                    if (!this.isPlaying && audioEl.currentTime > 0) {
-                        const target = this.audioSyncMap.find(m => audioEl.currentTime >= m.startTime && audioEl.currentTime < m.endTime);
-                        if (target && target.stepIndex !== this.currentStep) {
-                            this.currentStep = target.stepIndex;
-                            if (this.steps[this.currentStep].line) this.highlightCode(this.steps[this.currentStep].line);
-                            this.render();
-                        }
-                    }
-                });
-            }
-
-            syncAudioToStep() {
-                const audioEl = document.getElementById('lesson-audio') || document.querySelector('audio');
-                if (audioEl && this.audioSyncMap && this.audioSyncMap[this.currentStep]) {
-                    audioEl.currentTime = this.audioSyncMap[this.currentStep].startTime;
-                    if (this.isPlaying && audioEl.paused) audioEl.play().catch(e => console.log('Audio autoplay prevented:', e));
-                }
-            }
-
-            setupEvents() {
-                document.querySelectorAll('.selftest-question').forEach(q => {
-                    q.addEventListener('click', () => {
-                        const item = q.parentElement;
-                        item.classList.toggle('active');
-                    });
-                });
-                this.setupAudioSync();
-            }
-        }
-            
-
-        // Initialize when DOM loaded
-        let visualizerApp;
         document.addEventListener('DOMContentLoaded', () => {
-            visualizerApp = new InteractiveVisualizerEngine();
             if (window.hljs) hljs.highlightAll();
         });
+        
 
         function copyCode(button, codeId) {
             const codeElement = document.getElementById(codeId);
@@ -1358,7 +1011,9 @@ match rank_level:
             }
         });
 
-        document.addEventListener('DOMContentLoaded', applyTheme);
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+        });
         applyTheme();
     </script>
 </body>

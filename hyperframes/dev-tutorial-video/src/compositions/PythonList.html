@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python List - Tổng quan</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { width: 1920px; height: 1080px; overflow: hidden; background: #0d1117; }
+  </style>
+</head>
+<body>
+  <!-- Background music -->
+  <audio id="bgm" src="../../courses/fundamental_python/assets/bg-music.mp3" loop autoplay></audio>
+
+  <!--
+    Total duration = 38.84 + 45.24 + 27.17 + 30.85 + 30.67 + 15.07 = 187.84s
+    Cumulative starts:
+      scene_01: 0
+      scene_02: 38.84
+      scene_03: 84.08
+      scene_04: 111.25
+      scene_05: 142.10
+      scene_06: 172.77
+  -->
+
+  <div id="python-list-master" class="clip" data-start="0" data-duration="187.84" data-track-index="0">
+
+    <div class="clip"
+         data-composition-src="src/compositions/Scene_01.html"
+         data-start="0"
+         data-duration="38.84"
+         data-track-index="1">
+    </div>
+
+    <div class="clip"
+         data-composition-src="src/compositions/Scene_02.html"
+         data-start="38.84"
+         data-duration="45.24"
+         data-track-index="2">
+    </div>
+
+    <div class="clip"
+         data-composition-src="src/compositions/Scene_03.html"
+         data-start="84.08"
+         data-duration="27.17"
+         data-track-index="3">
+    </div>
+
+    <div class="clip"
+         data-composition-src="src/compositions/Scene_04.html"
+         data-start="111.25"
+         data-duration="30.85"
+         data-track-index="4">
+    </div>
+
+    <div class="clip"
+         data-composition-src="src/compositions/Scene_05.html"
+         data-start="142.10"
+         data-duration="30.67"
+         data-track-index="5">
+    </div>
+
+    <div class="clip"
+         data-composition-src="src/compositions/Scene_06.html"
+         data-start="172.77"
+         data-duration="15.07"
+         data-track-index="6">
+    </div>
+
+  </div>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const bgm = document.getElementById("bgm");
+      bgm.volume = 0.2;
+      bgm.playbackRate = 1.5;
+
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["python-list-master"] = tl;
+
+      tl.set(".clip", { autoAlpha: 1 });
+    });
+  </script>
+</body>
+</html>

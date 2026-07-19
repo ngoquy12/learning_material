@@ -1,85 +1,82 @@
 {
   "lesson_quiz": [
     {
-      "type": "Q1_Operator",
-      "question": "Toán tử nào trong Python thực hiện phép chia lấy phần dư (Modulo)?",
+      "question": "Lệnh nào sau đây dùng để cấu hình tên người dùng toàn cục trên hệ thống Git?",
       "options": [
-        "/",
-        "//",
-        "%",
-        "**"
+        "git config --global user.name \"Tên\"",
+        "git config user.name \"Tên\"",
+        "git set --global user.name \"Tên\"",
+        "git config global.name \"Tên\""
       ],
-      "correct_option_index": 2,
-      "explanation": "Toán tử % thực hiện phép chia lấy phần dư."
+      "correct_option_index": 0,
+      "explanation": "Lệnh chính xác để thiết lập cấu hình toàn cục là 'git config --global user.name \"Tên\"'."
     },
     {
-      "type": "Q2_Operator",
-      "question": "Kết quả của biểu thức toán học 17 // 5 (chia lấy phần nguyên) trong Python là bao nhiêu?",
+      "question": "Cách nào để thêm đường dẫn Python vào biến môi trường PATH tạm thời trên hệ điều hành Windows qua PowerShell?",
       "options": [
-        "3.4",
-        "3",
-        "2",
-        "4"
+        "$env:Path += \";C:\\Python310\"",
+        "export PATH=$PATH:/Python310",
+        "set PATH=%PATH%;C:\\Python310",
+        "import sys; sys.path.append('C:\\Python310')"
       ],
-      "correct_option_index": 1,
-      "explanation": "Toán tử // chia lấy phần nguyên làm tròn xuống, 17 // 5 = 3."
+      "correct_option_index": 0,
+      "explanation": "Trên Windows PowerShell, cú pháp '$env:Path += \";...\"' được dùng để nối thêm thư mục vào PATH tạm thời của phiên làm việc."
     },
     {
-      "type": "Q3_Precedence",
-      "question": "Theo thứ tự ưu tiên toán tử trong Python, phép toán nào được ưu tiên thực hiện trước nhất trong biểu thức 2 + 3 * 4 ** 2?",
+      "question": "Trong Python, biểu thức nào trả về giá trị True khi mã đang được thực thi trong một môi trường ảo (venv)?",
       "options": [
-        "Phép cộng +",
-        "Phép nhân *",
-        "Phép lũy thừa **",
-        "Thực hiện từ trái sang phải"
+        "sys.prefix != sys.base_prefix",
+        "sys.venv == True",
+        "os.environ.get('VIRTUAL_ENV') is None",
+        "sys.executable == 'venv'"
       ],
-      "correct_option_index": 2,
-      "explanation": "Lũy thừa ** có độ ưu tiên cao nhất: 4 ** 2 = 16, sau đó 3 * 16 = 48, cuối cùng 2 + 48 = 50."
+      "correct_option_index": 0,
+      "explanation": "Khi venv hoạt động, thuộc tính sys.prefix sẽ được trỏ tới thư mục của venv trong khi sys.base_prefix trỏ tới thư mục cài đặt Python gốc, làm cho biểu thức so sánh khác nhau trả về True."
     },
     {
-      "type": "Q4_Operator",
-      "question": "Toán tử ** trong Python đại diện cho phép toán số học nào?",
+      "question": "Mục đích chính của việc sử dụng môi trường ảo venv trong phát triển dự án FastAPI là gì?",
       "options": [
-        "Phép nhân hai lần",
-        "Phép căn bậc hai",
-        "Phép lũy thừa (Exponentiation)",
-        "Phép dịch bit"
+        "Cô lập các gói thư viện cài đặt để tránh xung đột phiên bản giữa các dự án khác nhau",
+        "Tăng tốc độ xử lý và thực thi của Framework FastAPI",
+        "Tự động biên dịch mã nguồn Python thành bytecode nhanh hơn",
+        "Mã hóa các file cấu hình bảo mật của ứng dụng Web"
       ],
-      "correct_option_index": 2,
-      "explanation": "Toán tử ** dùng để tính lũy thừa."
+      "correct_option_index": 0,
+      "explanation": "Môi trường ảo venv có nhiệm vụ duy nhất là cô lập các gói thư viện cài đặt bên thứ ba, tránh việc các dự án có thư viện phiên bản khác nhau đè lên nhau."
     },
     {
-      "type": "Q5_StringOp",
-      "question": "Kết quả thực thi của biểu thức 'Py' * 3 trong Python là chuỗi nào?",
+      "question": "Phản hồi mặc định khi truy cập endpoint root '/' của ứng dụng FastAPI tối giản được cung cấp trong bài học là gì?",
       "options": [
-        "'Py3'",
-        "'PyPyPy'",
-        "'Py Py Py'",
-        "Lỗi kiểu dữ liệu"
+        "{\"status\": \"success\", \"message\": \"FastAPI da thiet lap thanh cong!\"}",
+        "{\"message\": \"Hello World\"}",
+        "{\"status\": 200, \"data\": \"Ready\"}",
+        "Ứng dụng báo lỗi HTTP 404 Không tìm thấy."
       ],
-      "correct_option_index": 1,
-      "explanation": "Toán tử * giữa chuỗi và số nguyên thực hiện lặp chuỗi với số lần tương ứng."
+      "correct_option_index": 0,
+      "explanation": "Hàm home() trang chủ được thiết lập để trả về một dictionary tương ứng với chuỗi JSON: {\"status\": \"success\", \"message\": \"FastAPI da thiet lap thanh cong!\"}."
     }
   ],
   "practical_lab": {
-    "title": "Thực hành: Điều kiện lồng nhau và toán tử ba ngôi",
+    "title": "Cài đặt môi trường phát triển và kiểm tra API tối giản",
     "objectives": [
-      "Triển khai thành công: Điều kiện lồng nhau và toán tử ba ngôi.",
-      "Đạt chuẩn đầu ra kỳ vọng: 'Mã nguồn rẽ nhánh sạch và gọn'."
+      "Kiểm tra và khắc phục lỗi nhận diện lệnh Python, Git trên terminal hệ thống.",
+      "Cấu hình thông tin danh tính Git toàn cục và khởi tạo workspace.",
+      "Khởi chạy ứng dụng FastAPI kiểm thử tối giản xác minh môi trường hoạt động tốt."
     ],
     "description": {
-      "inputs": "Môi trường lập trình Python và tài nguyên khóa học.",
+      "inputs": "Dự án/môi trường phát triển python/fastapi hiện tại và tài nguyên khóa học.",
       "steps": [
-        "Bước 1: Tạo file operators_lab.py.",
-        "Bước 2: Yêu cầu người dùng nhập vào số điểm toán, lý, hóa.",
-        "Bước 3: Kiểm tra điểm số hợp lệ (0-10). Nếu không hợp lệ, in ra thông báo lỗi và dừng chương trình.",
-        "Bước 4: Tính điểm trung bình và xếp loại học sinh theo các mức: Giỏi (>=8.0), Khá (>=6.5), Trung bình (>=5.0), Yếu (<5.0) bằng if-elif-else."
+        "Bước 1: Chạy lệnh `python --version` và `git --version` để kiểm tra cài đặt. Nếu lệnh không nhận diện, hãy cấu hình PATH tạm thời như hướng dẫn ở mục Giải pháp.",
+        "Bước 2: Cài đặt thông tin liên hệ Git thông qua các lệnh terminal `git config --global user.name` và `git config --global user.email`.",
+        "Bước 3: Khởi tạo một dự án Git mới trong thư mục bài tập bằng lệnh `git init`.",
+        "Bước 4: Tạo tập tin `main.py` chứa mã nguồn ứng dụng FastAPI tối giản đã cung cấp và dùng Uvicorn khởi chạy thử nghiệm."
       ]
     },
     "evaluation": {
       "checklist": [
-        "Kiểm tra lỗi điểm không hợp lệ hoạt động chính xác.",
-        "Xếp loại học lực chính xác cho mọi trường hợp điểm đầu vào."
+        "Các lệnh kiểm tra phiên bản trên terminal hiển thị thông tin chính xác, không gặp lỗi command not found.",
+        "Cấu hình Git toàn cục đã lưu chính xác thông tin định danh.",
+        "Ứng dụng FastAPI khởi động và trả về dữ liệu đúng định dạng JSON khi truy cập từ localhost."
       ]
     }
   }

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scene 02 - Khái niệm & Cú pháp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before, body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+    }
+    body::before { top: -200px; left: -200px; width: 800px; height: 800px; background: rgba(56,189,248,0.15); }
+    body::after  { bottom: -200px; right: -200px; width: 600px; height: 600px; background: rgba(168,85,247,0.15); }
+
+    #scene-02 {
+      width: 1920px; height: 1080px; position: relative;
+    }
+
+    .intro-title {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 72px; font-weight: 700;
+      color: #e6edf3;
+      text-align: center;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .hl-blue  { color: #79c0ff; }
+    .hl-arrow { color: #d2a8ff; margin: 0 24px; }
+    .hl-green { color: #3fb950; }
+
+    /* Key points — 2 quote boxes căn giữa màn hình */
+    #key-points {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      width: 1400px;
+    }
+
+    .quote-box {
+      background: rgba(9,9,11,0.7);
+      border-left: 5px solid #79c0ff;
+      border-radius: 0 16px 16px 0;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      padding: 36px 56px;
+      display: flex;
+      align-items: flex-start;
+      gap: 28px;
+    }
+
+    .quote-box:nth-child(2) {
+      border-left-color: #3fb950;
+    }
+
+    .quote-icon {
+      font-size: 36px;
+      line-height: 1;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .quote-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 32px;
+      font-weight: 400;
+      color: #e6edf3;
+      line-height: 1.6;
+    }
+
+    .quote-text .kw {
+      font-family: 'Fira Code', monospace;
+      color: #79c0ff;
+      font-weight: 600;
+    }
+
+    .quote-box:nth-child(2) .quote-text .kw {
+      color: #3fb950;
+    }
+
+    .code-card {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+      backdrop-filter: blur(16px);
+      padding: 36px 64px;
+      width: 1280px;
+    }
+
+    #syntax-card  { top: 340px; }
+    #example-card { top: 590px; }
+
+    .card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+    }
+    .dot { width: 13px; height: 13px; border-radius: 50%; }
+    .dot-r { background: #f85149; }
+    .dot-y { background: #ffa657; }
+    .dot-g { background: #3fb950; }
+
+    .card-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px; color: #8b949e;
+      text-transform: uppercase; letter-spacing: 2px;
+      margin-left: 8px;
+    }
+
+    .code-line {
+      font-family: 'Fira Code', monospace;
+      font-size: 36px; line-height: 1.7; color: #e6edf3;
+    }
+
+    .keyword  { color: #ff7b72; font-weight: bold; }
+    .string   { color: #a5d6ff; }
+    .variable { color: #79c0ff; }
+    .operator { color: #d2a8ff; }
+    .bracket  { color: #d2a8ff; font-weight: 700; }
+    .comment  { color: #8b949e; font-style: italic; }
+    .value-item { display: inline-block; }
+  </style>
+</head>
+<body>
+  <div id="scene-02" class="clip" data-start="0" data-duration="45.24" data-track-index="0">
+    <!-- PHASE 1: Intro title -->
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="45.24" data-track-index="5">
+      Khái niệm và Cú pháp
+    </div>
+
+    <!-- PHASE 2: Concept line — fade out sau 3s -->
+    <div id="concept-line" class="intro-title clip" data-start="0" data-duration="45.24" data-track-index="1">
+      <span class="hl-blue">List</span> trong Python
+      <span class="hl-arrow">⇔</span>
+      <span class="hl-green">Array (Mảng)</span> trong C++/Java
+    </div>
+
+    <!-- PHASE 3: Key points — 2 quote boxes -->
+    <div id="key-points" class="clip" data-start="0" data-duration="45.24" data-track-index="4">
+      <div class="quote-box" id="qb1">
+        <div class="quote-icon">📦</div>
+        <div class="quote-text">
+          Cấu trúc cho phép tổ chức các phần tử có tính chất <span class="kw">tương đồng</span> nhau cùng một chỗ
+        </div>
+      </div>
+      <div class="quote-box" id="qb2">
+        <div class="quote-icon">⚙️</div>
+        <div class="quote-text">
+          Cho phép sử dụng các phương thức có sẵn (<span class="kw">Built-in methods</span>) để làm việc với các phần tử trong list
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4: Syntax card -->
+    <div id="syntax-card" class="code-card clip" data-start="0" data-duration="45.24" data-track-index="2">
+      <div class="card-header">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="card-label">Cú pháp tổng quát</span>
+      </div>
+      <div class="code-line">
+        <span class="variable">list_name</span>
+        <span class="operator"> = </span>
+        <span class="bracket" id="b1">[</span><span id="val1" class="value-item"><span class="comment">value_01</span></span><span style="color:#e6edf3">, </span><span id="val2" class="value-item"><span class="comment">value_02</span></span><span style="color:#e6edf3">, </span><span id="val3" class="value-item"><span class="comment">value_03</span></span><span class="bracket" id="b2">]</span>
+      </div>
+    </div>
+
+    <!-- PHASE 5: Example card -->
+    <div id="example-card" class="code-card clip" data-start="0" data-duration="45.24" data-track-index="3">
+      <div class="card-header">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="card-label">Ví dụ thực tế</span>
+      </div>
+      <div class="code-line">
+        <span class="variable">points</span>
+        <span class="operator"> = </span>
+        <span class="bracket" id="b3">[</span><span id="p1" class="value-item"><span class="variable">8.5</span></span><span style="color:#e6edf3">, </span><span id="p2" class="value-item"><span class="variable">9.0</span></span><span style="color:#e6edf3">, </span><span id="p3" class="value-item"><span class="variable">7.5</span></span><span class="bracket" id="b4">]</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-02"] = tl;
+
+    const _build02 = setInterval(function() {
+      const root = document.getElementById("scene-02");
+      if (!root) return;
+      clearInterval(_build02);
+
+      tl.set(".clip", { autoAlpha: 1 });
+
+      // Initial hidden states
+      tl.set("#intro-title",  { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#concept-line", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#key-points",   { autoAlpha: 0 }, 0);
+      tl.set("#qb1",          { autoAlpha: 0, x: -60 }, 0);
+      tl.set("#qb2",          { autoAlpha: 0, x: -60 }, 0);
+      tl.set("#syntax-card",  { autoAlpha: 0, y: 50 }, 0);
+      tl.set("#example-card", { autoAlpha: 0, y: 50 }, 0);
+
+      // ── PHASE 1: intro-title "Khái niệm và Cú pháp" ──────────────────
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      // 3.2s: thu nhỏ → góc trên-trái
+      tl.to("#intro-title", { scale: 0.38, x: -880, y: -480, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      // ── PHASE 2: concept-line "List ⇔ Array" — hiện 3s rồi fade out ──
+      tl.to("#concept-line", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 4.2);
+      // 7.5s: fade out hoàn toàn
+      tl.to("#concept-line", { autoAlpha: 0, scale: 0.9, duration: 0.6, ease: "power2.in" }, 7.5);
+
+      // ── PHASE 3: key-points — 2 quote boxes slide in từ trái ──────────
+      tl.to("#key-points", { autoAlpha: 1, duration: 0.1 }, 8.3);
+      tl.to("#qb1", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 8.3);
+      tl.to("#qb2", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 9.0);
+
+      // ── PHASE 4: key-points fade out trước khi syntax-card xuất hiện ──
+      tl.to("#key-points", { autoAlpha: 0, duration: 0.5, ease: "power2.in" }, 23.0);
+
+      // ── PHASE 5: syntax-card (video 1:03 = scene giây 24.16) ─────────
+      tl.to("#syntax-card", { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 24.16);
+
+      // ── PHASE 6: example-card (4s sau = giây 28.16) ───────────────────
+      tl.to("#example-card", { autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out" }, 28.16);
+
+      // ── PHASE 7: highlight brackets ───────────────────────────────────
+      tl.to(["#b1","#b2","#b3","#b4"], {
+        color: "#ffd700", textShadow: "0 0 20px rgba(255,215,0,0.8)",
+        duration: 0.35, stagger: 0.1
+      }, 30.0);
+
+      // bounce syntax values
+      tl.to(["#val1","#val2","#val3"], { y: -12, duration: 0.2, ease: "power2.out", stagger: 0.1 }, 31.5);
+      tl.to(["#val1","#val2","#val3"], { y: 0,   duration: 0.28, ease: "bounce.out", stagger: 0.1 }, "<0.22");
+
+      // bounce example values
+      tl.to(["#p1","#p2","#p3"], { y: -12, duration: 0.2, ease: "power2.out", stagger: 0.1 }, 33.0);
+      tl.to(["#p1","#p2","#p3"], { y: 0,   duration: 0.28, ease: "bounce.out", stagger: 0.1 }, "<0.22");
+
+      // dim syntax-card, glow example-card
+      tl.to("#syntax-card",  { autoAlpha: 0.4, duration: 0.4 }, 35.0);
+      tl.to("#example-card", { boxShadow: "0 0 40px rgba(121,192,255,0.2)", duration: 0.5 }, "<");
+
+      // restore syntax-card
+      tl.to("#syntax-card", { autoAlpha: 1, duration: 0.5 }, 40.0);
+
+      tl.set({}, {}, 45.24);
+    }, 50);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1146 @@
+[
+  {
+    "text": "Khái niệm: Mô hình Client-Server - Định nghĩa: Mô hình kiến trúc mạng cơ bản phân chia vai trò thành hai bên: Client (gửi yêu cầu dịch vụ, ví dụ: trình duyệt web) và Server (tiếp nhận yêu cầu, xử lý và trả về kết quả tương ứng).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Giao thức HTTP - Định nghĩa: Giao thức truyền tải siêu văn bản (Hypertext Transfer Protocol) quy định các nguyên tắc trao đổi thông tin giữa Client và Server trên môi trường Internet.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Công cụ lập bản sao cô lập của Python dành cho từng dự án cụ thể, giúp quản lý cài đặt thư viện độc lập mà không ảnh hưởng tới hệ thống chính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Một framework lập trình web hiện đại của Python dùng để xây dựng API với cú pháp dễ sử dụng, hiệu năng cao và tự kiểm thử tự động dựa trên tiêu chuẩn OpenAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn (ASGI) - Định nghĩa: Một máy chủ web bất đồng bộ đảm nhận vai trò thực thi và trung chuyển các yêu cầu mạng từ người dùng tới ứng dụng FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Endpoint - Định nghĩa: Một điểm cuối hay đường dẫn tài nguyên cụ thể (được định vị qua URL và phương thức HTTP) trên server để nhận và đáp ứng yêu cầu từ Client.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Thiết lập môi trường và cấu hình:\n# 1. Khởi tạo môi trường ảo độc lập cho dự án\npython -m venv venv\n\n# 2. Kích hoạt môi trường ảo vừa tạo\n# Dành cho Windows (Command Prompt):\nvenv\\\\Scripts\\\\activate.bat\n# Dành cho macOS/Linux:\nsource venv/bin/activate\n\n# 3. Cài đặt hai thư viện cốt lõi\npip install fastapi uvicorn",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Ứng dụng Hello World đầu tiên (main.py):\nfrom fastapi import FastAPI\n\n# Tạo ứng dụng FastAPI\napp = FastAPI()\n\n# Định nghĩa một get endpoint tại đường dẫn gốc\n@app.get('/')\ndef read_root():\n    return {'message': 'Hello World'}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Lenh khoi chay ung dung:\n# Thực hiện chạy ứng dụng Web FastAPI ở chế độ phát triển để kiểm thử tự động cập nhật mã nguồn\nuvicorn main:app --reload",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan Kiến trúc Web và FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: môi trường ảo (venv) - Định nghĩa: Một thư mục cô lập chứa một bản cài đặt Python riêng biệt cùng các thư viện bổ sung. Công cụ này giúp ngăn ngừa xung đột phiên bản thư viện giữa các dự án khác nhau chạy trên cùng một máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: pip (Package Installer for Python) - Định nghĩa: Hệ thống quản lý gói tiêu chuẩn được sử dụng để cài đặt và quản lý các thư viện, gói phần mềm được viết bằng Python từ kho lưu trữ trực tuyến PyPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: requirements.txt - Định nghĩa: Tệp văn bản thuần túy chứa danh sách tên và phiên bản chính xác của các thư viện phụ thuộc trong dự án, được sử dụng để tái lập cấu hình môi trường giống hệt nhau trên các hệ thống khác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lenh_khoi_tao_va_kich_hoat_venv:\n# 1. Khởi tạo môi trường ảo (chạy chung cho các hệ điều hành)\npython -m venv venv\n\n# 2. Kích hoạt môi trường ảo trên Windows (Command Prompt)\nvenv\\Scripts\\activate.bat\n\n# 3. Kích hoạt môi trường ảo trên Windows (PowerShell)\nvenv\\Scripts\\Activate.ps1\n\n# 4. Kích hoạt môi trường ảo trên macOS/Linux (Terminal)\nsource venv/bin/activate\n\n# 5. Tắt môi trường ảo (chạy chung trên mọi OS)\ndeactivate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lenh_quan_ly_thu_vien_pip:\n# 1. Nâng cấp pip lên phiên bản mới nhất\npython -m pip install --upgrade pip\n\n# 2. Cài đặt các thư viện lõi cho dự án FastAPI + MySQL\npip install fastapi sqlalchemy pymysql\n\n# 3. Xuất danh sách thư viện đã cài đặt ra file requirements.txt\npip freeze > requirements.txt\n\n# 4. Cài đặt tất cả thư viện từ file requirements.txt trên máy khác\npip install -r requirements.txt",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho noi_dung_requirements_txt:\nfastapi==0.110.0\nsqlalchemy==2.0.28\npymysql==1.1.0",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_thu_vien_da_cai:\n# Kịch bản kiểm tra xem các thư viện đã được cài đặt thành công trong venv chưa\ntry:\n    import fastapi\n    import sqlalchemy\n    import pymysql\n    print(\"Thành công: Các thư viện cho stack FastAPI, SQLAlchemy, MySQL đã sẵn sàng!\")\nexcept ImportError as e:\n    print(f\"Thất bại: Thiếu thư viện phụ thuộc ({e})\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường ảo và Quản lý Thư viện trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Một framework web hiện đại, hiệu năng cao, viết bằng Python dùng để xây dựng các API dựa trên cấu trúc kiểu dữ liệu chuẩn (Type Hints) của Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Trình thực thi máy chủ ASGI (Asynchronous Server Gateway Interface) có tốc độ xử lý nhanh, được dùng để chạy ứng dụng FastAPI trên môi trường chạy thực tế hoặc cục bộ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Một thư mục lưu trữ cô lập chứa phiên bản Python cùng các thư viện riêng biệt dành cho ứng dụng, giúp tránh xung đột phiên bản với các dự án khác trên hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI Instance - Định nghĩa: Đối tượng chính được khởi tạo từ lớp FastAPI (ví dụ: app = FastAPI()), là trung tâm kết nối các route, middleware và quản lý vòng đời ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Route HTTP - Định nghĩa: Quy trình ánh xạ một yêu cầu HTTP (chẳng hạn như GET, POST) gửi tới một đường dẫn URL cụ thể đến một hàm xử lý tương ứng trong mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn CLI - Định nghĩa: Giao diện dòng lệnh của Uvicorn cho phép người phát triển cấu hình các tùy chọn hoạt động của máy chủ trực tiếp khi khởi chạy.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu hình --reload - Định nghĩa: Lựa chọn dòng lệnh của Uvicorn hướng dẫn máy chủ tự động tải lại dự án mỗi khi phát hiện sự thay đổi trong các file mã nguồn Python, chuyên dùng cho quá trình phát triển.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu hình --host và --port - Định nghĩa: Các tham số dòng lệnh để thiết lập địa chỉ IP (ví dụ: 127.0.0.1 hoặc 0.0.0.0) và cổng mạng (ví dụ: 8000) mà máy chủ sẽ mở ra để tiếp nhận các yêu cầu truy cập từ trình duyệt hoặc client.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_environment:\n# Tạo môi trường ảo có tên là venv\npython -m venv venv\n\n# Kích hoạt môi trường ảo trên hệ điều hành Windows\nvenv\\\\Scripts\\\\activate\n\n# Kích hoạt môi trường ảo trên hệ điều hành macOS hoặc Linux\nsource venv/bin/activate\n\n# Cài đặt các thư viện cần thiết trong môi trường ảo\npip install fastapi uvicorn",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho minimal_fastapi_app:\nfrom fastapi import FastAPI\n\n# Khởi tạo đối tượng app của FastAPI\napp = FastAPI()\n\n# Định nghĩa một route GET tại đường dẫn gốc\n@app.get(\"/\")\ndef read_root():\n    return {\"status\": \"running\", \"message\": \"FastAPI server is active\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_run_command:\n# Khởi chạy máy chủ cơ bản với tệp main.py và đối tượng app\nuvicorn main:app",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho advanced_run_command:\n# Khởi chạy máy chủ với tính năng tự động reload, cấu hình địa chỉ IP máy cục bộ và chỉ định cổng 8000\nuvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: RESTful API - Định nghĩa: Giao diện lập trình ứng dụng (API) thiết kế theo phong cách kiến trúc REST, sử dụng các phương thức HTTP tiêu chuẩn để thực hiện các thao tác CRUD trên tài nguyên hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Routing trong FastAPI - Định nghĩa: Cơ chế định tuyến các yêu cầu HTTP (HTTP Requests) từ phía client đến các hàm xử lý tương ứng (Path Operation Functions) trong mã nguồn dựa trên đường dẫn URL và phương thức HTTP.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: HTTP Methods (GET & POST) - Định nghĩa: Các phương thức gửi yêu cầu cơ bản trong giao thức HTTP; trong đó GET dùng để yêu cầu dữ liệu từ máy chủ (không làm thay đổi trạng thái), và POST dùng để gửi dữ liệu lên máy chủ để tạo mới tài nguyên hoặc xử lý dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Path Parameter - Định nghĩa: Tham số biến đổi được nhúng trực tiếp trên đường dẫn URL (ví dụ: '/items/{item_id}') để chỉ định rõ ràng tài nguyên cụ thể cần truy xuất hoặc xử lý.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Query Parameter - Định nghĩa: Tham số tùy chọn được truyền trên URL sau dấu hỏi chấm (ví dụ: '/items?limit=10') dùng để lọc, sắp xếp, hoặc phân trang dữ liệu mà không làm thay đổi định danh của tài nguyên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Request Body (Pydantic BaseModel) - Định nghĩa: Phần thân của yêu cầu HTTP chứa dữ liệu (thường dưới dạng JSON) gửi lên server. FastAPI sử dụng lớp Pydantic BaseModel để kiểm tra hợp lệ bản tin và tự động chuyển đổi kiểu dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: APIRouter - Định nghĩa: Một công cụ của FastAPI dùng để tổ chức, phân tách và quản lý các nhóm routes khác nhau thành từng module riêng biệt, giúp hệ thống mã nguồn có cấu trúc rõ ràng, dễ bảo trì.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_routing:\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n# Route GET co ban de lay thong tin\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Chao mung ban den voi khoa hoc FastAPI co ban!\"}\n\n# Route POST co ban de gui nhan thong tin\n@app.post(\"/submit\")\ndef submit_data():\n    return {\"status\": \"success\", \"message\": \"Du lieu da duoc tiep nhan\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho request_data_extraction:\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n# Dinh nghia kieu du lieu yeu cau su dung Pydantic\nclass Item(BaseModel):\n    name: str\n    price: float\n    is_offer: bool = None\n\n# Route trich xuat ca Path Parameter, Query Parameter va Request Body\n@app.post(\"/items/{item_id}\")\ndef create_item(item_id: int, q: str = None, item: Item = None):\n    result = {\"item_id\": item_id}\n    if q:\n        result.update({\"query_search\": q})\n    if item:\n        result.update({\"item_data\": item.dict()})\n    return result",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho apirouter_structure:\n# 1. File: routers/users.py\n# tuong duong voi viec khoi tao va dinh nghia router cho phan Users\nfrom fastapi import APIRouter\n\nuser_router = APIRouter(prefix=\"/users\", tags=[\"users\"])\n\n@user_router.get(\"/\")\ndef get_all_users():\n    return [{\"id\": 1, \"username\": \"admin\"}, {\"id\": 2, \"username\": \"member\"}]\n\n@user_router.get(\"/{user_id}\")\ndef get_user_by_id(user_id: int):\n    return {\"user_id\": user_id, \"username\": f\"user_{user_id}\"}\n\n# 2. File: main.py\n# tuong duong viec tich hop router chi tiet vao file ung dung chinh\nfrom fastapi import FastAPI\n# import user_router tu file routers.users o tren\n\napp = FastAPI()\n\n# Dang ky router voi ung dung chinh\napp.include_router(user_router)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập API Endpoint và Routing với FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: OpenAPI Specification - Định nghĩa: Một đặc tả tiêu chuẩn, độc lập với ngôn ngữ lập trình giúp mô tả các dịch vụ RESTful API, cho phép cả con người và máy tính hiểu rõ cấu trúc giao diện của API mà không cần đọc trực tiếp mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế tự động sinh tài liệu - Định nghĩa: Tính năng cốt lõi của FastAPI tự động tạo tài liệu tương tác từ mã nguồn thông qua đặc tả OpenAPI bằng cách tích hợp trực tiếp Swagger UI (/docs) và ReDoc (/redoc).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Metadata trong FastAPI - Định nghĩa: Các siêu dữ liệu như Title, Description, Version và Tags được cấu hình khi khởi tạo ứng dụng FastAPI nhằm hiển thị thông tin giới thiệu và phân nhóm danh mục API trên giao diện tài liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Pydantic Schemas - Định nghĩa: Mô hình dữ liệu của Pydantic định nghĩa kiểu dữ liệu và thực hiện kiểm tra tính hợp lệ của dữ liệu đầu vào/đầu ra, tự động được ánh xạ thành cấu trúc Schema trên Swagger UI dưới dạng các Model mẫu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Tùy biến Endpoint - Định nghĩa: Các tham số bổ sung trong router decorator của FastAPI như summary, description, responses nhằm làm rõ nhiệm vụ, mô tả luồng hoạt động chi tiết cùng các trạng thái kết quả HTTP phản hồi của API.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Kiểm thử trực tiếp trên Swagger UI - Định nghĩa: Tính năng sử dụng nút 'Try it out' trên giao diện tài liệu để truyền tham số (Path, Query, Body), gửi yêu cầu thực tế trực tiếp đến server FastAPI và quan sát kết quả phản hồi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Configuring_FastAPI_Metadata:\nfrom fastapi import FastAPI\n\ntags_metadata = [\n    {\n        'name': 'users',\n        'description': 'Danh sách các API liên quan đến quản lý người dùng.',\n    },\n    {\n        'name': 'products',\n        'description': 'Danh sách các API liên quan đến quản lý sản phẩm trong MySQL.',\n    },\n]\n\napp = FastAPI(\n    title='Hệ thống Quản lý Kho Hàng',\n    description='Hệ thống API quản lý kho hàng sử dụng FastAPI, SQLAlchemy ORM và MySQL.',\n    version='1.0.0',\n    openapi_tags=tags_metadata\n)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Pydantic_Schema_And_Endpoint_Customization:\nfrom fastapi import FastAPI, status\nfrom pydantic import BaseModel, Field\n\napp = FastAPI()\n\nclass ProductCreate(BaseModel):\n    name: str = Field(description='Tên sản phẩm cần thêm', examples=['Bàn phím cơ mechanical'])\n    price: float = Field(description='Giá bán sản phẩm', examples=[49.99])\n    stock: int = Field(default=10, description='Số lượng tồn kho ban đầu', examples=[50])\n\n@app.post(\n    '/products/',\n    response_model=ProductCreate,\n    status_code=status.HTTP_201_CREATED,\n    summary='Thêm sản phẩm mới',\n    description='Gửi thông tin sản phẩm từ Client để tạo một sản phẩm mới trong hệ thống MySQL.',\n    tags=['products'],\n    responses={\n        201: {'description': 'Sản phẩm được tạo thành công trong MySQL'},\n        400: {'description': 'Dữ liệu đầu vào không hợp lệ hoặc thiếu thông tin bắt buộc'}\n    }\n)\ndef create_product(product: ProductCreate):\n    return product",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho SQLAlchemy_ORM_to_Pydantic_Mapping:\nfrom sqlalchemy import Column, Integer, String, Float\nfrom sqlalchemy.orm import declarative_base\nfrom pydantic import BaseModel\n\nBase = declarative_base()\n\n# Khai báo cấu trúc bảng MySQL bằng SQLAlchemy ORM\nclass Product(Base):\n    __tablename__ = 'products'\n    id = Column(Integer, primary_key=True, index=True)\n    name = Column(String(255), nullable=False)\n    price = Column(Float, nullable=False)\n\n# Ánh xạ cấu trúc dữ liệu MySQL sang Pydantic Schema để hiển thị OpenAPI\nclass ProductResponse(BaseModel):\n    id: int\n    name: str\n    price: float\n\n    class Config:\n        from_attributes = True  # Cho phép tự động chuyển đổi từ đối tượng SQLAlchemy ORM sang định dạng JSON Schema",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu hình và Sử dụng Swagger UI & ReDoc trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: OpenAPI Specification (OAS) - Định nghĩa: Chuẩn mô tả API độc lập với ngôn ngữ lập trình, định nghĩa cách mô tả các RESTful API dưới định dạng JSON hoặc YAML để con người và máy có thể hiểu được cấu trúc mà không cần xem mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: OpenAPI Schema trong FastAPI - Định nghĩa: Tài liệu đặc tả dạng JSON chứa toàn bộ cấu hình, endpoints, kiểu dữ liệu gửi nhận (request/response) và tham số của ứng dụng FastAPI, được sinh ra tự động trong quá trình chạy ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế tự động chuyển đổi mã nguồn (Auto-generation) - Định nghĩa: Quá trình FastAPI phân tích signature của hàm (type hint), các Pydantic models và decorator định tuyến để chuyển dịch chúng thành định dạng JSON Schema tương thích hoàn hảo với chuẩn OpenAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu trúc JSON OpenAPI - Định nghĩa: Gồm 3 phần cốt lõi: 'info' (thông tin chung về API), 'paths' (danh sách các endpoints và phương thức HTTP tương ứng kèm tham số/response), và 'components.schemas' (định nghĩa cấu trúc dữ liệu của các thực thể Pydantic).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Metadata cấu hình FastAPI. - Định nghĩa: Các tham số cấu hình khởi tạo (như title, description, version, openapi_url) truyền vào constructor của lớp FastAPI nhằm tùy chỉnh thông tin hiển thị trên tài liệu và tài nguyên OpenAPI Schema.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Swagger UI - Định nghĩa: Giao diện web trực quan tương tác được tự động kết xuất từ OpenAPI Schema (truy cập qua đường dẫn mặc định /docs) cho phép nhà phát triển đọc tài liệu và thử nghiệm trực tiếp các endpoint API.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho auto_openapi_generation:\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\n# Pydantic model định nghĩa cấu trúc dữ liệu biểu diễn sản phẩm\nclass Product(BaseModel):\n    id: int\n    name: str\n    price: float\n\n# FastAPI tự động phân tích model Product và endpoint để đưa vào OpenAPI Schema\n@app.post(\"/products/\", response_model=Product)\ndef create_product(product: Product):\n    return product",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho inspect_openapi_json:\nfrom fastapi import FastAPI\nfrom fastapi.openapi.utils import get_openapi\n\napp = FastAPI()\n\n@app.get(\"/status\")\ndef get_status():\n    return {\"status\": \"ok\"}\n\n# Hàm tùy biến để trích xuất cấu trúc JSON OpenAPI trực tiếp từ mã nguồn\ndef inspect_schema():\n    schema = get_openapi(\n        title=\"Hệ Thống Tra Cứu OpenAPI\",\n        version=\"1.0.0\",\n        routes=app.routes,\n    )\n    # Cấu trúc JSON này chứa khóa 'openapi', 'info', 'paths' và 'components'\n    print(schema.get(\"paths\"))\n    return schema",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho customize_api_metadata:\nfrom fastapi import FastAPI\n\n# Khởi tạo ứng dựng FastAPI với đầy đủ các metadata tùy biến cho OpenAPI Schema và Swagger UI\napp = FastAPI(\n    title=\"Hệ Thống Quản Lý Kho Hàng\",\n    description=\"API quản lý thông tin kho hàng, sản phẩm và tích hợp cơ sở dữ liệu MySQL.\",\n    version=\"1.5.0\",\n    terms_of_service=\"http://example.com/terms/\",\n    contact={\n        \"name\": \"Bộ phận Phát triển API\",\n        \"email\": \"support@example.com\",\n    },\n    license_info={\n        \"name\": \"Apache 2.0\",\n        \"url\": \"https://www.apache.org/licenses/LICENSE-2.0.html\",\n    },\n    docs_url=\"/tai-lieu-giao-dien\",\n    openapi_url=\"/api/v1/openapi.json\"\n)\n\n@app.get(\"/\", tags=[\"General\"])\ndef system_index():\n    return {\"message\": \"Chào mừng bạn đến với hệ thống quản lý\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Bản chất của OpenAPI và OpenAPI Schema trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Khung làm việc (web framework) hiện đại, hiệu năng cao để xây dựng các API với Python 3.8+ dựa trên tiêu chuẩn Python type hints.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Giao diện cổng kết nối máy chủ bất đồng bộ, là tiêu chuẩn kế thừa của WSGI, cho phép hỗ trợ các ứng dụng Python bất đồng bộ (async/await) và xử lý đồng thời nhiều kết nối như WebSockets.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một máy chủ web ASGI cực nhanh cho Python, được xây dựng trên thư viện uvloop và httptools, đóng vai trò là môi trường thực thi cho ứng dụng FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI Instance - Định nghĩa: Đối tượng ứng dụng chính được khởi tạo từ class FastAPI (ví dụ: app = FastAPI()), đóng vai trò là điểm trung tâm quản lý định tuyến (routing), cấu hình, middleware và vòng đời ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: API Route - Định nghĩa: Sự kết hợp giữa một đường dẫn URL (path) và một phương thức HTTP (GET, POST, PUT, DELETE) trỏ đến một hàm xử lý cụ thể (path operation function).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Auto-reload - Định nghĩa: Tính năng tự động tải lại server Uvicorn khi phát hiện có sự thay đổi trong mã nguồn, thường được kích hoạt bằng tham số `--reload` trong môi trường phát triển.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Port Conflict (Xung đột Cổng) - Định nghĩa: Lỗi xảy ra khi Uvicorn cố gắng liên kết (bind) với một cổng mạng (ví dụ: 8000) đã bị chiếm dụng bởi một tiến trình khác đang chạy trên hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu trúc Thư mục Chuẩn (Standard Directory Structure) - Định nghĩa: Cách tổ chức mã nguồn dự án FastAPI một cách khoa học (ví dụ chia thành các thư mục app/, api/, core/, models/, schemas/) giúp dễ dàng mở rộng, bảo trì và tránh lỗi import vòng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_app:\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI(title=\"My First FastAPI App\", version=\"1.0.0\")\n\nclass Item(BaseModel):\n    name: str\n    price: float\n    is_offer: bool = None\n\n@app.get(\"/\")\nasync def read_root():\n    return {\"message\": \"Welcome to FastAPI!\"}\n\n@app.post(\"/items/\")\nasync def create_item(item: Item):\n    return {\"status\": \"success\", \"data\": item}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho uvicorn_programmatic_run:\nimport uvicorn\nimport socket\nimport sys\n\ndef check_port(host: str, port: int) -> bool:\n    \"\"\"Kiểm tra xem cổng mạng có đang bị chiếm dụng hay không.\"\"\"\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        return s.connect_ex((host, port)) == 0\n\nif __name__ == \"__main__\":\n    host = \"127.0.0.1\"\n    port = 8000\n    \n    if check_port(host, port):\n        print(f\"[ERROR] Port {port} is already in use. Please terminate the process using it or choose another port.\")\n        sys.exit(1)\n        \n    print(f\"[INFO] Starting server on {host}:{port}...\")\n    # Chạy Uvicorn lập trình với tính năng auto-reload\n    uvicorn.run(\"main:app\", host=host, port=port, reload=True, log_level=\"info\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho modular_router_setup:\n# Cấu trúc thư mục chuẩn minh họa:\n# project/\n# ├── app/\n# │   ├── __init__.py\n# │   ├── main.py\n# │   └── api/\n# │       ├── __init__.py\n# │       └── endpoints.py\n\n# --- File: app/api/endpoints.py ---\nfrom fastapi import APIRouter\n\nrouter = APIRouter()\n\n@router.get(\"/users\")\nasync def get_users():\n    return [{\"id\": 1, \"username\": \"admin\"}]\n\n# --- File: app/main.py ---\nfrom fastapi import FastAPI\n# Giả định import router từ module api.endpoints\n# from app.api.endpoints import router as api_router\n\napp = FastAPI(title=\"Modular FastAPI App\")\n\n# Đăng ký router với prefix\n# app.include_router(api_router, prefix=\"/api/v1\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Server Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Một framework web hiện đại, hiệu năng cao để xây dựng các API với Python 3.8+ dựa trên tiêu chuẩn Python type hints.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một máy chủ web ASGI (Asynchronous Server Gateway Interface) hiệu năng cao, được sử dụng để chạy các ứng dụng Python web bất đồng bộ như FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI - Định nghĩa: Asynchronous Server Gateway Interface - giao diện cổng dịch vụ máy chủ bất đồng bộ, là tiêu chuẩn kế thừa của WSGI nhằm hỗ trợ các ứng dụng Python bất đồng bộ hoạt động hiệu quả.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (venv) - Định nghĩa: Môi trường ảo giúp cô lập các thư viện và phiên bản Python của từng dự án riêng biệt, tránh xung đột hệ thống giữa các dự án khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Path Operation Decorator - Định nghĩa: Bộ trang trí (decorator) trong FastAPI (ví dụ: @app.get('/')) dùng để liên kết một đường dẫn URL và phương thức HTTP với một hàm xử lý tương ứng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn Reload - Định nghĩa: Chế độ tự động tải lại (--reload) của Uvicorn giúp phát hiện các thay đổi trong mã nguồn và tự động khởi động lại server ngay lập tức trong quá trình phát triển.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho environment_setup:\n# Tạo môi trường ảo\npython -m venv venv\n\n# Kích hoạt môi trường ảo trên Windows\nvenv\\\\Scripts\\\\activate\n\n# Kích hoạt môi trường ảo trên macOS/Linux\n# source venv/bin/activate\n\n# Cài đặt thư viện FastAPI và Uvicorn\npip install fastapi uvicorn",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_app:\nfrom fastapi import FastAPI\n\n# Khởi tạo ứng dụng FastAPI\napp = FastAPI()\n\n# Định nghĩa endpoint GET cơ bản tại đường dẫn gốc\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Chào mừng bạn đến với FastAPI!\"}\n\n# Định nghĩa endpoint GET nhận path parameter và query parameter\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int, q: str = None):\n    return {\"item_id\": item_id, \"q\": q}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho run_uvicorn_server:\n# Chạy server Uvicorn trỏ tới đối tượng app trong file main.py với chế độ reload\nuvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Chuẩn giao tiếp không đồng bộ giữa web server và ứng dụng web Python, hỗ trợ tính năng async/await, WebSockets và xử lý đồng thời nhiều kết nối hiệu năng cao.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Web server ASGI siêu nhanh dành cho Python, dựa trên uvloop và httptools, đóng vai trò lắng nghe kết nối HTTP và truyền dữ liệu cho ứng dụng FastAPI xử lý.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI Instance - Định nghĩa: Đối tượng chính đại diện cho ứng dụng web (`app = FastAPI()`), dùng để quản lý cấu hình toàn cục, khai báo các đường dẫn (routes), middleware và tự động tạo tài liệu OpenAPI (Swagger UI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Route Decorators - Định nghĩa: Các decorator trong FastAPI (như `@app.get()`, `@app.post()`) dùng để liên kết một đường dẫn URL và phương thức HTTP cụ thể với một hàm xử lý (operation function).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Auto-reload - Định nghĩa: Chế độ giám sát của Uvicorn (`--reload` hoặc `reload=True`), tự động khởi động lại server khi phát hiện các tập tin mã nguồn bị thay đổi trong quá trình phát triển.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Path & Query Parameters - Định nghĩa: Tham số đường dẫn (Path Parameter - nằm trực tiếp trên URL) và tham số truy vấn (Query Parameter - nằm sau dấu '?') được FastAPI tự động trích xuất, ép kiểu dữ liệu và kiểm tra tính hợp lệ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: HTTPException & Custom Error Handlers - Định nghĩa: Cơ chế của FastAPI giúp ném lỗi HTTP tiêu chuẩn hoặc bắt và xử lý ngoại lệ tùy chỉnh thông qua `@app.exception_handler` để trả về định dạng phản hồi chuẩn cho client.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment Workflow - Định nghĩa: Quy trình thiết lập môi trường isolated bằng `python -m venv venv` (hoặc `venv\\Scripts\\activate` trên Windows) và quản lý phụ thuộc qua `requirements.txt` nhằm tối ưu hóa việc quản lý cấu hình ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_app:\nfrom fastapi import FastAPI\nimport uvicorn\n\n# Khởi tạo instance của FastAPI\napp = FastAPI(\n    title=\"FastAPI Starter Kit\",\n    description=\"Ứng dụng FastAPI cơ bản chạy trên Uvicorn\",\n    version=\"1.0.0\"\n)\n\n@app.get(\"/\")\ndef read_root():\n    return {\"status\": \"online\", \"message\": \"Chào mừng bạn đến với FastAPI Server!\"}\n\nif __name__ == \"__main__\":\n    # Chạy server Uvicorn qua mã nguồn Python với tính năng auto-reload\n    uvicorn.run(\"main:app\", host=\"127.0.0.1\", port=8000, reload=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho routes_and_parameters:\nfrom typing import Optional\nfrom fastapi import FastAPI, Path, Query\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass ProductSchema(BaseModel):\n    name: str\n    price: float\n    in_stock: bool = True\n\n# Endpoint kết hợp Path Parameter và Query Parameter\n@app.get(\"/products/{product_id}\")\nasync def get_product(\n    product_id: int = Path(..., title=\"ID sản phẩm\", ge=1),\n    category: Optional[str] = Query(None, description=\"Lọc theo danh mục\")\n):\n    return {\"product_id\": product_id, \"category\": category}\n\n# Endpoint POST tiếp nhận dữ liệu từ Request Body\n@app.post(\"/products/\", status_code=201)\nasync def create_product(product: ProductSchema):\n    return {\"message\": \"Thêm mới sản phẩm thành công\", \"data\": product}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho error_handling_and_workflow:\nimport os\nfrom fastapi import FastAPI, HTTPException, Request, status\nfrom fastapi.responses import JSONResponse\nimport uvicorn\n\napp = FastAPI()\n\n# Định nghĩa ngoại lệ tùy chỉnh\nclass OutOfStockException(Exception):\n    def __init__(self, product_name: str):\n        self.product_name = product_name\n\n# Tùy chỉnh bộ xử lý ngoại lệ (Custom Exception Handler)\n@app.exception_handler(OutOfStockException)\nasync def out_of_stock_handler(request: Request, exc: OutOfStockException):\n    return JSONResponse(\n        status_code=status.HTTP_400_BAD_REQUEST,\n        content={\"error\": \"OUT_OF_STOCK\", \"detail\": f\"Sản phẩm '{exc.product_name}' hiện đã hết hàng.\"}\n    )\n\n@app.get(\"/checkout/{product_id}\")\nasync def checkout(product_id: int):\n    if product_id <= 0:\n        raise HTTPException(status_code=400, detail=\"ID sản phẩm không hợp lệ.\")\n    if product_id == 99:\n        raise OutOfStockException(product_name=\"Laptop Pro Max\")\n    return {\"product_id\": product_id, \"status\": \"order_placed\"}\n\nif __name__ == \"__main__\":\n    # Lấy thông tin Host và Port từ biến môi trường\n    host = os.getenv(\"SERVER_HOST\", \"127.0.0.1\")\n    port = int(os.getenv(\"SERVER_PORT\", 8000))\n    uvicorn.run(\"main:app\", host=host, port=port, reload=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Một web framework hiện đại, hiệu năng cao để xây dựng các API với Python 3.8+ dựa trên tiêu chuẩn Python type hints.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Giao diện cổng dịch vụ máy chủ bất đồng bộ, là tiêu chuẩn kế thừa của WSGI, hỗ trợ xử lý các kết nối bất đồng bộ như WebSockets và HTTP/2.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một máy chủ web ASGI hiệu năng cao dành cho Python, được xây dựng trên thư viện uvloop và httptools, dùng để chạy ứng dụng FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (venv) - Định nghĩa: Môi trường ảo độc lập giúp cô lập các thư viện và phiên bản Python của dự án hiện tại, tránh xung đột với hệ thống toàn cục. Lệnh kích hoạt trên Windows là venv\\\\Scripts\\\\activate và trên macOS/Linux là source venv/bin/activate.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Route (Định tuyến) - Định nghĩa: Sự kết hợp giữa một đường dẫn URL (path) và một phương thức HTTP (GET, POST, PUT, DELETE) để xác định hàm xử lý tương ứng trong FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Port Conflict (Xung đột cổng) - Định nghĩa: Lỗi xảy ra khi Uvicorn cố gắng khởi chạy trên một cổng mạng (ví dụ: 8000) đã bị chiếm dụng bởi một tiến trình khác, dẫn đến lỗi OSError: [Errno 98] Address already in use.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_and_run:\nimport uvicorn\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Hello World\"}\n\nif __name__ == \"__main__\":\n    # Chạy Uvicorn programmatically trên cổng 8000\n    uvicorn.run(\"main:app\", host=\"127.0.0.1\", port=8000, reload=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_routes:\nfrom fastapi import FastAPI\n\napp = FastAPI(title=\"My First FastAPI App\")\n\n@app.get(\"/\")\nasync def home():\n    return {\"status\": \"success\", \"message\": \"Welcome to FastAPI\"}\n\n@app.get(\"/items/{item_id}\")\nasync def read_item(item_id: int, q: str = None):\n    return {\"item_id\": item_id, \"query\": q}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho handle_port_conflict:\nimport socket\nimport uvicorn\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\ndef index():\n    return {\"status\": \"running\"}\n\ndef is_port_in_use(port: int) -> bool:\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        return s.connect_ex((\"localhost\", port)) == 0\n\nif __name__ == \"__main__\":\n    port = 8000\n    while is_port_in_use(port):\n        print(f\"Cổng {port} đã bị chiếm dụng. Đang thử cổng {port + 1}...\")\n        port += 1\n    uvicorn.run(app, host=\"127.0.0.1\", port=port)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Framework web hiện đại, hiệu năng cao để xây dựng API với Python 3.8+ dựa trên tiêu chuẩn Python type hints. Tự động sinh tài liệu OpenAPI (Swagger UI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Giao diện chuẩn giữa các máy chủ web bất đồng bộ (async-capable) và các ứng dụng/framework Python, kế thừa và phát triển từ WSGI để hỗ trợ async/await, WebSockets.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một ASGI server hiệu năng cao, được xây dựng trên thư viện uvloop và httptools, dùng để chạy các ứng dụng ASGI như FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: HTTP GET Endpoint - Định nghĩa: Điểm cuối (route) trong ứng dụng web xử lý các yêu cầu HTTP GET, thường dùng để truy xuất dữ liệu từ máy chủ mà không làm thay đổi trạng thái hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Auto-reload - Định nghĩa: Chế độ tự động tải lại server của Uvicorn (--reload) khi phát hiện có sự thay đổi trong mã nguồn, giúp tăng tốc độ phát triển ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu trúc thư mục dự án chuẩn (Scalable Project Structure) - Định nghĩa: Cách tổ chức mã nguồn FastAPI phân chia rõ ràng giữa các thành phần như routers, schemas, models, database, và main.py giúp dự án dễ dàng mở rộng và bảo trì.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_get_endpoints:\nfrom fastapi import FastAPI\n\napp = FastAPI(title=\"My First FastAPI App\")\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Welcome to FastAPI\"}\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int, q: str = None):\n    return {\"item_id\": item_id, \"query\": q}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho run_uvicorn_programmatically:\nimport uvicorn\n\nif __name__ == \"__main__\":\n    # Chạy ứng dụng từ file main.py với biến app, bật chế độ reload\n    uvicorn.run(\"main:app\", host=\"127.0.0.1\", port=8000, reload=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho scalable_router_setup:\n# File: app/main.py\nfrom fastapi import FastAPI\nfrom fastapi import APIRouter\n\napp = FastAPI()\n\n# Khởi tạo router cho module users\nusers_router = APIRouter(prefix=\"/users\", tags=[\"users\"])\n\n@users_router.get(\"/\")\ndef get_users():\n    return [{\"id\": 1, \"username\": \"admin\"}]\n\n# Tích hợp router vào ứng dụng chính\napp.include_router(users_router)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Framework web Python hiện đại, hiệu năng cao dựa trên Starlette và Pydantic, hỗ trợ lập trình bất đồng bộ (async/await) và tự động sinh tài liệu API tương tác (OpenAPI/Swagger UI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Giao diện chuẩn bất đồng bộ giữa web server và ứng dụng Python, cho phép xử lý đồng thời nhiều kết nối HTTP, WebSockets và các giao thức bất đồng bộ khác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Web server ASGI tốc độ cao dành cho Python, được xây dựng trên uvloop và httptools, đóng vai trò thực thi và vận hành các ứng dụng ASGI như FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Routing Decorator - Định nghĩa: Các decorator trong FastAPI (ví dụ: @app.get(), @app.post()) dùng để liên kết một đường dẫn URL và phương thức HTTP cụ thể với một hàm xử lý (path operation function).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn CLI - Định nghĩa: Công cụ dòng lệnh của Uvicorn cho phép khởi chạy ứng dụng FastAPI với các tùy chọn cấu hình như --reload (tự động tải lại khi sửa code), --host, --port và --workers.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Standard Project Structure - Định nghĩa: Cấu trúc tổ chức thư mục dự án FastAPI theo chuẩn mô-đun hóa, tách biệt các thành phần như routers, models, schemas, services và core config để dễ bảo trì và mở rộng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Server Diagnostics - Định nghĩa: Quy trình phát hiện và xử lý các sự cố vận hành server phổ biến như xung đột cổng (Address already in use), lỗi nhập mô-đun (ImportError), hoặc sai đường dẫn ứng dụng ASGI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_app:\nfrom fastapi import FastAPI\n\napp = FastAPI(\n    title=\"My First FastAPI App\",\n    version=\"1.0.0\"\n)\n\n@app.get(\"/\")\nasync def root():\n    return {\"message\": \"Hello World from FastAPI\"}\n\n@app.get(\"/health\")\ndef health_check():\n    return {\"status\": \"healthy\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho uvicorn_cli_and_programmatic_run:\n# Khởi chạy từ CLI (Terminal):\n# uvicorn main:app --reload --host 127.0.0.1 --port 8000\n\n# Khởi chạy trực tiếp bằng Python script (main.py):\nimport uvicorn\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/\")\nasync def index():\n    return {\"status\": \"running\"}\n\nif __name__ == \"__main__\":\n    uvicorn.run(\"main:app\", host=\"127.0.0.1\", port=8000, reload=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho modular_project_structure:\n# Cấu trúc thư mục dự án:\n# my_project/\n# ├── app/\n# │   ├── __init__.py\n# │   ├── main.py\n# │   └── api/\n# │       ├── __init__.py\n# │       └── v1/\n# │           ├── __init__.py\n# │           └── endpoints.py\n# └── requirements.txt\n\n# File: app/api/v1/endpoints.py\nfrom fastapi import APIRouter\n\nrouter = APIRouter(prefix=\"/users\", tags=[\"Users\"])\n\n@router.get(\"/\")\nasync def get_users():\n    return [{\"id\": 1, \"name\": \"Alice\"}, {\"id\": 2, \"name\": \"Bob\"}]\n\n# File: app/main.py\nfrom fastapi import FastAPI\nfrom app.api.v1.endpoints import router as user_router\n\napp = FastAPI(title=\"Modular FastAPI App\")\napp.include_router(user_router, prefix=\"/api/v1\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi Tạo Ứng Dụng FastAPI và Vận Hành Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Một web framework hiện đại, hiệu năng cao cho Python 3.8+ dùng để xây dựng RESTful API dựa trên chuẩn Python type hints, Pydantic và OpenAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Giao diện chuẩn giữa các web server bất đồng bộ và ứng dụng Python, hỗ trợ xử lý đồng thời nhiều kết nối HTTP, WebSockets và HTTP/2.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một ASGI server hiệu năng cao dành cho Python, được xây dựng trên uvloop và httptools, đóng vai trò thực thi và vận hành ứng dụng FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (venv) - Định nghĩa: Môi trường Python cô lập giúp quản lý các thư viện phụ thuộc riêng biệt cho từng dự án mà không ảnh hưởng đến hệ thống Python toàn cục.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI Application Instance - Định nghĩa: Đối tượng trung tâm được khởi tạo từ lớp `FastAPI()`, quản lý toàn bộ định tuyến (routing), middleware, sự kiện vòng đời và cấu hình ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: API Endpoint & Route Decorator - Định nghĩa: Điểm truy cập API được định nghĩa bằng các decorator như `@app.get()`, `@app.post()` để liên kết phương thức HTTP và đường dẫn URL với hàm xử lý (operation function).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Path & Query Parameters - Định nghĩa: Các tham số truyền vào API qua đường dẫn URL (Path Parameter) hoặc chuỗi truy vấn (Query Parameter), được FastAPI tự động ép kiểu và kiểm tra tính hợp lệ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn Auto-reload - Định nghĩa: Chế độ tự động phát hiện thay đổi trong mã nguồn và khởi động lại server Uvicorn trong môi trường phát triển (sử dụng cờ `--reload`).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho environment_setup:\n# Tạo môi trường ảo\npython -m venv venv\n\n# Kích hoạt môi trường ảo (Windows)\nvenv\\Scripts\\activate\n\n# Kích hoạt môi trường ảo (Linux/macOS)\nsource venv/bin/activate\n\n# Cài đặt FastAPI và Uvicorn\npip install fastapi uvicorn[standard]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_endpoints:\nfrom fastapi import FastAPI\n\napp = FastAPI(\n    title=\"My First FastAPI App\",\n    description=\"Ứng dụng FastAPI cơ bản\",\n    version=\"1.0.0\"\n)\n\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Chào mừng đến với FastAPI!\"}\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int, q: str = None):\n    return {\"item_id\": item_id, \"query\": q}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho uvicorn_server_runner:\nimport uvicorn\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/health\")\ndef health_check():\n    return {\"status\": \"ok\", \"service\": \"FastAPI App\"}\n\nif __name__ == \"__main__\":\n    uvicorn.run(\n        \"main:app\",\n        host=\"127.0.0.1\",\n        port=8000,\n        reload=True,\n        log_level=\"info\"\n    )",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI - Định nghĩa: Một framework phát triển Web API hiện đại, có hiệu năng cao dựa trên nền tảng Python 3.8+ tiêu chuẩn, sử dụng các gợi ý kiểu dữ liệu (type hints) để tự động hóa việc kiểm tra dữ liệu và tạo tài liệu API tự động.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Giao diện cổng dịch vụ máy chủ bất đồng bộ, kế thừa từ WSGI, đóng vai trò làm cầu nối giữa các máy chủ web bất đồng bộ và các ứng dụng Python, hỗ trợ xử lý đồng thời nhiều kết nối như WebSockets và HTTP/2.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một máy chủ ASGI (Asynchronous Server Gateway Interface) hiệu năng cao dành cho Python, được xây dựng dựa trên thư viện uvloop và httptools, chịu trách nhiệm chạy ứng dụng FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Một không gian cô lập chứa phiên bản Python và các thư viện phụ thuộc riêng biệt cho từng dự án, giúp tránh xung đột phiên bản giữa các dự án khác nhau trên cùng một máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Endpoint (Điểm cuối) - Định nghĩa: Một địa chỉ URL cụ thể kết hợp với một phương thức HTTP (GET, POST, PUT, DELETE,...) dùng để tiếp nhận yêu cầu từ phía client và trả về phản hồi tương ứng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Swagger UI - Định nghĩa: Giao diện tương tác trực quan được tích hợp sẵn trong FastAPI (truy cập qua đường dẫn /docs), tự động tạo tài liệu API theo chuẩn OpenAPI, cho phép lập trình viên thử nghiệm trực tiếp các endpoint.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_environment:\n# Tạo môi trường ảo có tên là venv\npython -m venv venv\n\n# Kích hoạt môi trường ảo trên Windows\nvenv\\\\Scripts\\\\activate\n\n# Kích hoạt môi trường ảo trên macOS/Linux\nsource venv/bin/activate\n\n# Cài đặt các thư viện cần thiết\npip install fastapi uvicorn",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_fastapi_app:\nfrom fastapi import FastAPI\n\n# Khởi tạo ứng dụng FastAPI\napp = FastAPI(\n    title=\"My First FastAPI App\",\n    description=\"Ứng dụng FastAPI cơ bản đầu tiên\",\n    version=\"1.0.0\"\n)\n\n# Định nghĩa endpoint cơ bản với phương thức GET\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Chào mừng bạn đến với FastAPI!\"}\n\n# Chạy ứng dụng bằng lệnh sau trong terminal:\n# uvicorn main:app --reload",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho endpoint_with_parameters:\nfrom fastapi import FastAPI\nfrom typing import Optional\n\napp = FastAPI()\n\n# Endpoint sử dụng Path Parameter và Query Parameter\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int, q: Optional[str] = None):\n    # item_id là Path Parameter (bắt buộc, kiểu số nguyên)\n    # q là Query Parameter (tùy chọn, kiểu chuỗi)\n    return {\"item_id\": item_id, \"query\": q}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo ứng dụng FastAPI và Chạy Server với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Uvicorn - Định nghĩa: Một máy chủ web ASGI (Asynchronous Server Gateway Interface) hiệu năng cao, được sử dụng để chạy các ứng dụng Python web không đồng bộ như FastAPI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: ASGI (Asynchronous Server Gateway Interface) - Định nghĩa: Chuẩn giao tiếp giữa máy chủ web không đồng bộ và ứng dụng Python, hỗ trợ các tính năng hiện đại như WebSockets và async/await.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (venv) - Định nghĩa: Môi trường ảo độc lập giúp quản lý các thư viện (dependencies) của dự án Python một cách riêng biệt, tránh xung đột phiên bản hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI Instance - Định nghĩa: Đối tượng được tạo ra từ lớp FastAPI (ví dụ: app = FastAPI()), đóng vai trò là điểm khởi đầu và quản lý toàn bộ cấu hình, định tuyến của ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Khái niệm: Path Operation Decorator - Định nghĩa: Bộ trang trí (ví dụ: @app.get('/')) dùng để khai báo phương thức HTTP và đường dẫn URL sẽ kích hoạt hàm xử lý bên dưới.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_environment:\n# Khởi tạo môi trường ảo venv\npython -m venv venv\n\n# Kích hoạt môi trường ảo trên Windows\nvenv\\\\Scripts\\\\activate\n\n# Kích hoạt môi trường ảo trên macOS/Linux\nsource venv/bin/activate\n\n# Cài đặt FastAPI và Uvicorn\npip install fastapi uvicorn",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho first_fastapi_app:\nfrom fastapi import FastAPI\n\n# Khởi tạo instance FastAPI\napp = FastAPI()\n\n# Định nghĩa endpoint đầu tiên với phương thức GET\n@app.get(\"/\")\ndef read_root():\n    return {\"message\": \"Chào mừng bạn đến với FastAPI!\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho run_uvicorn:\n# Lệnh chạy server Uvicorn để phát triển (development mode)\n# main: tên file python (main.py)\n# app: tên instance FastAPI được khai báo trong file\n# --reload: tự động tải lại server khi có thay đổi mã nguồn\nuvicorn main:app --reload",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
+    }
+  }
+]
