@@ -1142,5 +1142,2589 @@
       "type": "code",
       "session": "Khởi tạo Ứng dụng FastAPI và Vận hành với Uvicorn"
     }
+  },
+  {
+    "text": "Khái niệm: Path Parameters (Tham số đường dẫn) - Định nghĩa: Là các phần biến đổi nằm trong đường dẫn URL của API (được khai báo trong cặp dấu ngoặc nhọn `{}`), dùng để xác định một tài nguyên cụ thể trong hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Type Hinting và Tự động ép kiểu - Định nghĩa: Cơ chế của FastAPI sử dụng khai báo kiểu dữ liệu chuẩn của Python (như int, float, str) để tự động chuyển đổi dữ liệu nhận từ URL (vốn luôn là chuỗi) sang kiểu dữ liệu tương ứng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Tự động phản hồi lỗi (Automatic Error Validation) - Định nghĩa: Khi dữ liệu người dùng truyền trên URL không khớp với kiểu khai báo, FastAPI tự động từ chối yêu cầu và trả về mã lỗi HTTP 422 Unprocessable Entity cùng chi tiết lỗi ở định dạng JSON mà không cần viết code kiểm tra thủ công.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Ràng buộc dữ liệu bằng lớp Path - Định nghĩa: Công cụ `fastapi.Path` giúp khai báo thêm các quy luật kiểm tra tính hợp lệ cho tham số đường dẫn trực tiếp trên định nghĩa hàm (ví dụ: giá trị tối thiểu, độ dài, mô tả tài liệu API).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_path_parameter:\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n# Khai báo path parameter 'item_id' và tự động ép kiểu sang kiểu số nguyên (int)\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int):\n    return {\"item_id\": item_id, \"message\": \"Ép kiểu dữ liệu thành công\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho automatic_error_response:\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n# Nếu truy cập /users/abc, hệ thống tự động trả về lỗi 422 vì 'abc' không phải là int\n@app.get(\"/users/{user_id}\")\ndef read_user(user_id: int):\n    return {\"user_id\": user_id}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho path_parameter_constraints:\nfrom fastapi import FastAPI, Path\n\napp = FastAPI()\n\n# Thiết kế API RESTful có ràng buộc: product_id phải là số nguyên lớn hơn hoặc bằng 1\n@app.get(\"/products/{product_id}\")\ndef read_product(product_id: int = Path(ge=1, description=\"ID của sản phẩm cần lấy, phải lớn hơn hoặc bằng 1\")):\n    return {\"product_id\": product_id, \"status\": \"available\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Sử dụng Path Parameters trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Response Model - Định nghĩa: Là một cơ chế trong FastAPI sử dụng tham số response_model trong route decorator nhằm giới hạn, định dạng và bảo mật dữ liệu trả về cho client. Nó lọc bỏ tự động các trường dữ liệu nhạy cảm không mong muốn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Pydantic Schema (Response Schema) - Định nghĩa: Là một lớp Python định nghĩa cấu trúc dữ liệu mong muốn được trả về cho client, kế thừa từ BaseModel của Pydantic để thực hiện xác thực và tuần tự hóa dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: ORM Mode (from_attributes) - Định nghĩa: Là cấu hình trong Pydantic (thông qua ConfigDict(from_attributes=True) trong Pydantic v2) cho phép Schema đọc dữ liệu trực tiếp từ các đối tượng ORM (như SQLAlchemy Model) thay vì chỉ đọc từ Dictionary.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Phân định dữ liệu an toàn - Định nghĩa: Là nguyên tắc thiết kế phân chia tường minh giữa cấu trúc lưu trữ cơ sở dữ liệu (chứa các thông tin nhạy cảm như password, token) và cấu trúc dữ liệu hiển thị (chỉ chứa thông tin an toàn được phép xem công khai).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thiet_ke_pydantic_schema:\nfrom pydantic import BaseModel, ConfigDict, EmailStr\n\n# Schema định nghĩa dữ liệu an toàn trả về cho client\nclass UserResponse(BaseModel):\n    id: int\n    username: str\n    email: EmailStr\n    is_active: bool\n\n    # Cấu hình cho phép Pydantic đọc trực tiếp thuộc tính từ database đối tượng ORM\n    model_config = ConfigDict(from_attributes=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sqlalchemy_model_database:\nfrom sqlalchemy import Column, Integer, String, Boolean\nfrom sqlalchemy.orm import declarative_base\n\nBase = declarative_base()\n\n# Model SQLAlchemy đại diện cho bảng 'users' trong cơ sở dữ liệu MySQL\nclass UserDB(Base):\n    __tablename__ = \"users\"\n\n    id = Column(Integer, primary_key=True, index=True)\n    username = Column(String(50), unique=True, nullable=False)\n    email = Column(String(100), unique=True, nullable=False)\n    hashed_password = Column(String(255), nullable=False)  # Thuộc tính nhạy cảm\n    is_active = Column(Boolean, default=True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho endpoint_truy_van_bao_mat:\nfrom fastapi import FastAPI, Depends, HTTPException\nfrom sqlalchemy.orm import Session\n# Giả định engine, session_factory, UserDB và UserResponse đã được khai báo trước đó\n\napp = FastAPI()\n\ndef get_db():\n    db = session_factory()\n    try:\n        yield db\n    finally:\n        db.close()\n\n# Sử dụng response_model để tự động kiểm tra và lọc bỏ hashed_password trước khi trả về client\n@app.get(\"/users/{user_id}\", response_model=UserResponse)\ndef get_user_by_id(user_id: int, db: Session = Depends(get_db)):\n    user = db.query(UserDB).filter(UserDB.id == user_id).first()\n    if not user:\n        raise HTTPException(status_code=404, detail=\"Không tìm thấy người dùng\")\n    return user",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Bảo mật dữ liệu trả về với Response Model trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: api_standardization - Định nghĩa: Quá trình quy chuẩn hóa cấu trúc dữ liệu phản hồi từ Web API dưới dạng một định dạng JSON thống nhất (ví dụ: sử dụng mẫu envelope chứa status, message, data, error). Việc này giúp client (frontend/mobile) dễ dàng xây dựng cơ chế xử lý dữ liệu và bắt lỗi tự động, nhất quán.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: fastapi_serialization - Định nghĩa: Cơ chế tự động chuyển đổi đối tượng Python (hoặc các thực thể cơ sở dữ liệu như SQLAlchemy ORM model) sang chuỗi JSON dựa trên cấu hình kiểu dữ liệu của Pydantic schema được liên kết qua tham số response_model trong API router.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: pydantic_response_model - Định nghĩa: Lớp kế thừa từ Pydantic BaseModel được gán vào thuộc tính response_model của decorator API. Nó giúp xác thực dữ liệu đầu ra, ẩn đi các trường nhạy cảm không mong muốn, và tự động tạo tài liệu đặc tả OpenAPI (Swagger UI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: envelope_pattern - Định nghĩa: Mẫu thiết kế bao bọc (envelope) toàn bộ dữ liệu phản hồi từ API trong một vỏ bọc chuẩn gồm các trường siêu dữ liệu định danh trạng thái xử lý (status), thông điệp phản hồi (message), dữ liệu chính (data) và thông tin lỗi chi tiết (error).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: from_attributes_compatibility - Định nghĩa: Thuộc tính cấu hình `from_attributes=True` của Pydantic v2 (tương đương `orm_mode=True` trong Pydantic v1) cho phép Pydantic đọc và chuyển đổi trực tiếp các thuộc tính của SQLAlchemy ORM Models (vốn không phải là kiểu từ điển Python chuẩn) thành cấu trúc JSON.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: exception_handling_wrapper - Định nghĩa: Kỹ thuật sử dụng Custom Exception Handlers hoặc các hàm bọc (helpers) trong FastAPI nhằm bắt các lỗi hệ thống (như HTTPException) và chuyển đổi chúng về cấu trúc envelope thống nhất trước khi phản hồi về client.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pydantic_envelope_schemas:\nfrom typing import Generic, TypeVar, Optional, Any\nfrom pydantic import BaseModel\n\nT = TypeVar('T')\n\nclass APIResponse(BaseModel, Generic[T]):\n    status: str\n    message: str\n    data: Optional[T] = None\n    error: Optional[Any] = None\n\n# Ví dụ DTO cụ thể cho người dùng\nclass UserDTO(BaseModel):\n    id: int\n    username: str\n    email: str\n\n# Định nghĩa Schema phản hồi Envelope dành cho User\nclass UserResponse(APIResponse[UserDTO]):\n    pass",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sqlalchemy_orm_endpoint_integration:\nfrom fastapi import FastAPI, Depends, HTTPException\nfrom pydantic import BaseModel, ConfigDict\nfrom typing import Optional\nfrom sqlalchemy import create_engine, Column, Integer, String\nfrom sqlalchemy.orm import declarative_base, sessionmaker, Session\n\napp = FastAPI()\n\n# Cấu hình SQLAlchemy giả lập kết nối MySQL\nDATABASE_URL = \"sqlite:///:memory:\"  # Dùng memory để mô phỏng đơn giản\nengine = create_engine(DATABASE_URL)\nSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\nBase = declarative_base()\n\nclass UserModel(Base):\n    __tablename__ = \"users\"\n    id = Column(Integer, primary_key=True, index=True)\n    username = Column(String(50))\n    email = Column(String(100))\n\nBase.metadata.create_all(bind=engine)\n\n# Pydantic Schemas\nclass UserSchema(BaseModel):\n    id: int\n    username: str\n    email: str\n    \n    model_config = ConfigDict(from_attributes=True)\n\nclass StandardUserResponse(BaseModel):\n    status: str\n    message: str\n    data: Optional[UserSchema] = None\n    error: Optional[str] = None\n\n# Dependency get_db\ndef get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n\n@app.get(\"/users/{user_id}\", response_model=StandardUserResponse)\ndef get_user_by_id(user_id: int, db: Session = Depends(get_db)):\n    user = db.query(UserModel).filter(UserModel.id == user_id).first()\n    if not user:\n        return StandardUserResponse(\n            status=\"error\",\n            message=\"Không tìm thấy người dùng\",\n            data=None,\n            error=\"User not found in database\"\n        )\n    return StandardUserResponse(\n        status=\"success\",\n        message=\"Truy vấn dữ liệu thành công\",\n        data=user,\n        error=None\n    )",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho custom_exception_handler_middleware:\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\nfrom fastapi.exceptions import HTTPException\n\napp = FastAPI()\n\n# Thiết lập Exception Handler để chuẩn hóa tất cả HTTPException phát sinh\n@app.exception_handler(HTTPException)\ndef custom_http_exception_handler(request: Request, exc: HTTPException):\n    return JSONResponse(\n        status_code=exc.status_code,\n        content={\n            \"status\": \"error\",\n            \"message\": exc.detail,\n            \"data\": None,\n            \"error\": {\n                \"code\": exc.status_code,\n                \"details\": \"HTTP exception occurred\"\n            }\n        }\n    )\n\n# Hàm helper để định dạng nhanh phản hồi thành công\ndef format_success_response(data: any, message: str = \"Thao tác thành công\"):\n    return {\n        \"status\": \"success\",\n        \"message\": message,\n        \"data\": data,\n        \"error\": None\n    }\n\n@app.get(\"/items/{item_id}\")\ndef read_item(item_id: int):\n    if item_id <= 0:\n        raise HTTPException(status_code=400, detail=\"ID sản phẩm không hợp lệ\")\n    return format_success_response(data={\"item_id\": item_id, \"name\": \"Sách giáo trình FastAPI\"})",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chuẩn Hóa Cấu Trúc API Response Trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: HTTP_Status_Codes - Định nghĩa: Mã trạng thái phản hồi chuẩn do server trả về để biểu thị kết quả của một yêu cầu HTTP. Trong RESTful API, các nhóm mã phổ biến gồm: 2xx (Thành công), 4xx (Lỗi từ phía Client), và 5xx (Lỗi từ phía Server).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: FastAPI_Response_Status - Định nghĩa: Cách cấu hình mã trạng thái mặc định bằng thuộc tính `status_code` trong path decorator của FastAPI (ví dụ: `@app.post('/items', status_code=201)`) hoặc thay đổi động bằng cách sử dụng đối tượng `Response` hoặc ném ra `HTTPException`.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: SQLAlchemy_Exception_Handling - Định nghĩa: Cơ chế bắt lỗi dữ liệu khi thao tác với cơ sở dữ liệu MySQL thông qua SQLAlchemy ORM. Ví dụ: khi tìm kiếm thực thể không tồn tại (trả về 404 Not Found) hoặc khi vi phạm ràng buộc dữ liệu đầu vào (trả về 400 Bad Request).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: HTTPException - Định nghĩa: Lớp ngoại lệ được tích hợp sẵn trong FastAPI dùng để trả về phản hồi lỗi chuẩn RESTful cho Client với mã trạng thái tự chọn (status_code) kèm thông tin chi tiết (detail).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Internal_Server_Error_500 - Định nghĩa: Lỗi hệ thống xảy ra khi Server gặp phải sự cố không thể lường trước (ví dụ: mất kết nối CSDL MySQL, lỗi chia cho 0). Cần phân biệt rõ với lỗi 400/404 và nên được xử lý toàn cục bằng cơ chế Middleware hoặc Exception Handler của FastAPI để tránh rò rỉ thông tin hệ thống nhạy cảm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho fastapi_basic_status_codes:\nfrom fastapi import FastAPI, status, HTTPException\n\napp = FastAPI()\n\n# Lấy thông tin tài nguyên thành công (200 OK)\n@app.get(\"/items/{item_id}\", status_code=status.HTTP_200_OK)\ndef get_item(item_id: int):\n    if item_id == 0:\n        # Lỗi Client gửi yêu cầu sai (400 Bad Request)\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=\"Invalid ID provided\")\n    if item_id > 100:\n        # Không tìm thấy tài nguyên (404 Not Found)\n        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=\"Item not found\")\n    return {\"item_id\": item_id, \"status\": \"Active\"}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sqlalchemy_mysql_status_codes:\nfrom fastapi import FastAPI, Depends, HTTPException, status\nfrom sqlalchemy import create_engine, Column, Integer, String\nfrom sqlalchemy.orm import declarative_base, sessionmaker, Session\n\nDATABASE_URL = \"mysql+pymysql://root:password@localhost:3306/test_db\"\nengine = create_engine(DATABASE_URL)\nSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\nBase = declarative_base()\n\nclass User(Base):\n    __tablename__ = \"users\"\n    id = Column(Integer, primary_key=True, index=True)\n    username = Column(String(50), unique=True, nullable=False)\n\napp = FastAPI()\n\ndef get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n\n# Thêm mới tài nguyên thành công (201 Created) hoặc Báo lỗi trùng lặp (400 Bad Request)\n@app.post(\"/users/\", status_code=status.HTTP_201_CREATED)\ndef create_user(username: str, db: Session = Depends(get_db)):\n    if not username:\n        raise HTTPException(status_code=400, detail=\"Username cannot be empty\")\n    \n    existing_user = db.query(User).filter(User.username == username).first()\n    if existing_user:\n        raise HTTPException(status_code=400, detail=\"Username already registered\")\n    \n    new_user = User(username=username)\n    db.add(new_user)\n    db.commit()\n    db.refresh(new_user)\n    return new_user\n\n# Tìm kiếm tài nguyên (200 OK) hoặc Báo không tìm thấy (404 Not Found)\n@app.get(\"/users/{user_id}\", status_code=status.HTTP_200_OK)\ndef read_user(user_id: int, db: Session = Depends(get_db)):\n    db_user = db.query(User).filter(User.id == user_id).first()\n    if not db_user:\n        raise HTTPException(status_code=404, detail=\"User not found\")\n    return db_user",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho global_exception_handler_500:\nfrom fastapi import FastAPI, Request, status\nfrom fastapi.responses import JSONResponse\nimport logging\n\napp = FastAPI()\n\n# Khai báo bộ xử lý ngoại lệ toàn cục cho lỗi hệ thống (500)\n@app.exception_handler(Exception)\ndef validation_exception_handler(request: Request, exc: Exception):\n    # Ghi log lỗi thực tế lên console / file\n    logging.error(f\"System error on path {request.url.path}: {exc}\")\n    # Trả về phản hồi chuẩn hóa an toàn cho khách hàng\n    return JSONResponse(\n        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,\n        content={\"detail\": \"Internal Server Error. Please contact admin for support.\"}\n    )\n\n@app.get(\"/simulate-crash\")\ndef simulate_crash():\n    # Hành vi lỗi cổ ý gây ra Exception hệ thống\n    result = 100 / 0\n    return {\"result\": result}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Quản lý HTTP Status Codes Chuẩn RESTful trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: HTTPException trong FastAPI - Định nghĩa: Một exception cụ thể được FastAPI cung cấp để kích hoạt phản hồi HTTP lỗi lập tức (ví dụ: 400 Bad Request, 404 Not Found), ngắt luồng xử lý thông thường và trả về thông tin lỗi rõ ràng cho client dưới dạng JSON.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Chuyển đổi lỗi tầng dữ liệu (Database Exception Mapping) - Định nghĩa: Quá trình bắt các lỗi phát sinh trực tiếp từ tầng ORM (như IntegrityError của SQLAlchemy khi trùng lặp khóa duy nhất Unique Key trong MySQL) và chuyển ngữ chúng thành HTTPException phù hợp thay vì để lộ thông tin truy vấn thô của hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Global Exception Handler - Định nghĩa: Cơ chế bắt lỗi toàn cục bằng cách sử dụng decorator @app.exception_handler trong FastAPI, cho phép định nghĩa các hàm xử lý tùy biến khi xảy ra lỗi đặc định (như lỗi hệ thống chưa được kiểm soát hay lỗi validate dữ liệu) nhằm tránh crash ứng dụng và giữ cấu trúc phản hồi thống nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Standardized Error Response (Cấu trúc phản hồi lỗi chuẩn hóa) - Định nghĩa: Định dạng JSON chuẩn được trả về khi xảy ra bất kỳ lỗi nào từ backend, chứa các thông tin thiết yếu như mã lỗi nội bộ, mô tả lỗi, và mốc thời gian (timestamp) để phía client dễ dàng xử lý hiển thị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho application_http_exception:\nfrom fastapi import FastAPI, HTTPException, status\n\napp = FastAPI()\n\n# Giả lập dữ liệu trong bộ nhớ đại diện cho DB\nusers_db = {1: {\"username\": \"alice\"}, 2: {\"username\": \"bob\"}}\n\n@app.get(\"/users/{user_id}\")\ndef get_user(user_id: int):\n    if user_id not in users_db:\n        raise HTTPException(\n            status_code=status.HTTP_404_NOT_FOUND,\n            detail=f\"User with ID {user_id} not found\"\n        )\n    return users_db[user_id]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho db_exception_mapping:\nfrom fastapi import FastAPI, HTTPException, status, Depends\nfrom sqlalchemy import create_engine, Column, Integer, String\nfrom sqlalchemy.orm import declarative_base, sessionmaker, Session\nfrom sqlalchemy.exc import IntegrityError\n\n# Giả định cấu hình kết nối SQLAlchemy và MySQL\nDATABASE_URL = \"sqlite:///:memory:\"\nengine = create_engine(DATABASE_URL)\nSessionLocal = sessionmaker(bind=engine)\nBase = declarative_base()\n\nclass User(Base):\n    __tablename__ = \"users\"\n    id = Column(Integer, primary_key=True)\n    username = Column(String(50), unique=True, nullable=False)\n\nBase.metadata.create_all(bind=engine)\n\napp = FastAPI()\n\ndef get_db():\n    db = SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n\n@app.post(\"/users/\")\ndef create_user(username: str, db: Session = Depends(get_db)):\n    try:\n        new_user = User(username=username)\n        db.add(new_user)\n        db.commit()\n        return {\"username\": username}\n    except IntegrityError:\n        db.rollback()\n        raise HTTPException(\n            status_code=status.HTTP_400_BAD_REQUEST,\n            detail=\"Username already exists\"\n        )",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho global_exception_handler:\nfrom fastapi import FastAPI, Request\nfrom fastapi.responses import JSONResponse\nfrom datetime import datetime\n\napp = FastAPI()\n\n# Định nghĩa một Custom Exception tùy biến\nclass DatabaseConnectionException(Exception):\n    def __init__(self, message: str):\n        self.message = message\n\n# Đăng ký Global Exception Handler để bắt lỗi DatabaseConnectionException toàn cục\n@app.exception_handler(DatabaseConnectionException)\ndef database_exception_handler(request: Request, exc: DatabaseConnectionException):\n    return JSONResponse(\n        status_code=500,\n        content={\n            \"success\": False,\n            \"error_code\": \"DB_CONN_FAILURE\",\n            \"message\": exc.message,\n            \"timestamp\": datetime.utcnow().isoformat()\n        }\n    )\n\n@app.get(\"/test-db\")\ndef test_db():\n    # Giả lập tình huống lỗi hệ thống kết nối cơ sở dữ liệu bị mất\n    raise DatabaseConnectionException(\"Không thể kết nối đến cơ sở dữ liệu MySQL\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Xử lý lỗi với HTTPException và Global Exception Handler trong FastAPI"
+    }
+  },
+  {
+    "text": "Khái niệm: Python Interpreter - Định nghĩa: Trình thông dịch Python chịu trách nhiệm dịch và thực thi mã nguồn Python sang mã máy. Trong VS Code, người dùng cần cấu hình chính xác đường dẫn đến Interpreter này để chạy mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Thư mục cô lập chứa một bản cài đặt Python và các thư viện riêng biệt cho từng dự án, giúp ngăn ngừa xung đột phiên bản giữa các dự án khác nhau trên cùng một máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: pip - Định nghĩa: Trình quản lý gói chuẩn của Python, được sử dụng để cài đặt và quản lý các thư viện/gói phần mềm từ Python Package Index (PyPI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: virtualenv - Định nghĩa: Công cụ môi trường ảo bên thứ ba, cung cấp tốc độ tạo môi trường nhanh hơn và có nhiều tính năng mở rộng hơn so với mô-đun 'venv' mặc định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: Conda (Anaconda) - Định nghĩa: Trình quản lý gói và môi trường đa nền tảng mạnh mẽ, phổ biến trong khoa học dữ liệu, hỗ trợ cài đặt các phiên bản Python và thư viện không phải Python một cách dễ dàng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: Workspace Settings - Định nghĩa: Cấu hình riêng biệt cho từng thư mục dự án trong VS Code, được lưu trữ tại tệp tin `.vscode/settings.json`, ghi đè lên các cấu hình toàn cục (Global Settings).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến môi trường PATH (PATH Environment Variable) - Định nghĩa: Biến hệ thống chứa danh sách các đường dẫn đến các thư mục chứa file thực thi. Nếu thư mục cài đặt Python không nằm trong PATH, hệ điều hành sẽ không thể nhận diện các lệnh như 'python' hay 'pip'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_moi_truong.py:\nimport sys\nimport os\n\ndef kiem_tra_python():\n    # In ra phien ban Python dang dung\n    print(\"Phien ban Python:\", sys.version)\n    \n    # In ra duong dan cua Interpreter dang chay\n    print(\"Duong dan Python Interpreter:\", sys.executable)\n    \n    # Kiem tra xem co dang chay trong moi truong ao (virtualenv/venv) hay khong\n    trong_env_ao = sys.prefix != sys.base_prefix\n    print(\"Dang chay trong moi truong ao:\", trong_env_ao)\n\nif __name__ == \"__main__\":\n    kiem_tra_python()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tao_moi_truong_ao.sh:\n# Windows (Command Prompt)\n# Tao moi truong ao ten la 'myenv'\npython -m venv myenv\n# Kich hoat moi truong ao\nmyenv\\\\Scripts\\\\activate\n\n# macOS / Linux\n# Tao moi truong ao ten la 'myenv'\npython3 -m venv myenv\n# Kich hoat moi truong ao\nsource myenv/bin/activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho settings.json:\n{\n    \"python.defaultInterpreterPath\": \"${workspaceFolder}/myenv/Scripts/python.exe\",\n    \"python.analysis.typeCheckingMode\": \"basic\",\n    \"terminal.integrated.defaultProfile.windows\": \"Command Prompt\"\n}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python và Môi trường ảo"
+    }
+  },
+  {
+    "text": "Khái niệm: Zen_of_Python - Định nghĩa: Triết lý thiết kế cốt lõi của Python gồm 19 nguyên tắc viết mã nguồn do Tim Peters soạn thảo, nhấn mạnh tính rõ ràng, đơn giản và dễ đọc (có thể xem bằng cách chạy lệnh 'import this' trong môi trường Python).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Thong_dich_va_Bien_dich - Định nghĩa: Biên dịch (Compilation) chuyển toàn bộ mã nguồn thành mã máy trước khi chạy. Thông dịch (Interpretation) dịch và thực thi từng dòng mã tại thời điểm chạy nhờ Trình thông dịch.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Python_Bytecode_va_PVM - Định nghĩa: Quá trình thực thi của Python gồm hai bước: mã nguồn (.py) được dịch thành mã trung gian Bytecode (.pyc), sau đó Máy ảo Python (PVM - Python Virtual Machine) sẽ thực thi Bytecode này.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Dinh_kieu_dong_Dynamic_Typing - Định nghĩa: Đặc tính của Python cho phép gán bất kỳ kiểu dữ liệu nào cho biến mà không cần khai báo trước kiểu dữ liệu. Kiểu của biến sẽ được xác định lúc chương trình chạy (runtime).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kha_nang_di_dong_Platform_Independence - Định nghĩa: Mã nguồn Python có thể chạy trên nhiều hệ điều hành khác nhau (Windows, macOS, Linux) mà không cần thay đổi, miễn là hệ điều hành đó cài đặt trình thông dịch Python tương ứng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho triet_ly_viet_code_tinh_tuong_minh:\n# Minh họa nguyên tắc 'Explicit is better than implicit' (Rõ ràng tốt hơn là ngầm định)\\n# Cách không khuyến khích (Ngầm định khó hiểu)\\ndef tinh_toan(*args):\\n    return sum(args)\\n\\n# Cách khuyến khích theo Zen of Python (Tường minh các tham số truyền vào)\\ndef tinh_tong_diem(diem_toan, diem_van):\\n    return diem_toan + diem_van\\n\\nprint(tinh_tong_diem(8, 9))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_dinh_kieu_dong:\n# Minh họa biến thay đổi kiểu dữ liệu linh hoạt khi thực thi\\nx = 10\\nprint(\"Kieu du lieu ban dau:\", type(x))\\n\\nx = \"Xin chao Python\"\\nprint(\"Kieu du lieu sau khi gan lai:\", type(x))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xem_ma_bytecode_python:\n# Sử dụng thư viện chuẩn 'dis' để xem mã bytecode được tạo ra từ mã nguồn Python\\nimport dis\\n\\ndef tinh_tong(a, b):\\n    return a + b\\n\\n# Hien thi cac opcodes bytecode ma may ao PVM se thuc thi\\ndis.dis(tinh_tong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ung_dung_scripting_tu_dong_hoa:\n# Script đơn giản đọc dữ liệu từ một danh sách và ghi ra file lưu trữ để tự động hóa công việc\\ndanh_sach_cong_viec = [\"Hoc Python co ban\", \"Hieu ve Bytecode\", \"Viet script tu dong\"]\\n\\n# Ghi tung dong vao file van ban\\nwith open(\"nhiem_vu.txt\", \"w\", encoding=\"utf-8\") as file:\\n    for cong_viec in danh_sach_cong_viec:\\n        file.write(cong_viec + \"\\\\n\")\\n\\nprint(\"Da thuc hien quy trinh tu dong hoa ghi file thanh cong!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Ép kiểu dữ liệu (Type Casting) - Định nghĩa: Quá trình chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác, giúp đảm bảo tính đồng nhất dữ liệu khi thực hiện tính toán hoặc xử lý logic.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm int(), float(), str() - Định nghĩa: Các hàm cơ bản dùng để chuyển đổi kiểu dữ liệu tương ứng sang kiểu số nguyên (int), số thực (float) hoặc chuỗi ký tự (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế hoạt động của hàm bool() - Định nghĩa: Hàm dùng để kiểm tra tính đúng/sai của một giá trị. Trả về False đối với các giá trị rỗng hoặc bằng 0 (Falsy) và trả về True đối với các trường hợp còn lại (Truthy).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Trường hợp Falsy - Định nghĩa: Các giá trị đặc biệt khi ép sang kiểu Boolean sẽ luôn trả về False, bao gồm: số 0 (0, 0.0), chuỗi rỗng (\"\"), giá trị None, và các tập hợp rỗng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi ValueError trong ép kiểu - Định nghĩa: Lỗi runtime xảy ra khi cố gắng ép kiểu một giá trị có định dạng không phù hợp sang kiểu dữ liệu mục tiêu (ví dụ: ép kiểu chuỗi chứa chữ 'abc' thành số nguyên).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kỹ thuật kiểm tra và ép kiểu an toàn - Định nghĩa: Phương pháp ngăn ngừa lỗi dừng chương trình đột ngột bằng cách sử dụng các hàm kiểm tra định dạng hoặc cấu trúc try-except để xử lý ngoại lệ khi ép kiểu lỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_co_ban:\n# Ví dụ về hàm int(), float() và str()\nchuoi_so = \"15\"\n\n# Chuyển chuỗi thành số nguyên\nso_nguyen = int(chuoi_so)\nprint(so_nguyen + 5)  # Kết quả: 20\n\n# Chuyển chuỗi thành số thực\nso_thuc = float(chuoi_so)\nprint(so_thuc)  # Kết quả: 15.0\n\n# Chuyển số thành chuỗi\nchuoi_moi = str(so_nguyen)\nprint(\"Số nguyên vừa chuyển: \" + chuoi_moi)  # Kết quả: Số nguyên vừa chuyển: 15",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_boolean:\n# Ví dụ hoạt động của hàm bool() với Truthy và Falsy\nprint(bool(0))        # Kết quả: False (Falsy)\nprint(bool(\"\"))       # Kết quả: False (Falsy)\nprint(bool(None))     # Kết quả: False (Falsy)\n\nprint(bool(1))        # Kết quả: True (Truthy)\nprint(bool(\"Python\")) # Kết quả: True (Truthy)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_an_toan:\n# Kỹ thuật ép kiểu an toàn tránh lỗi ValueError\ndata_goc = \"abc\"\n\n# Cách 1: Sử dụng cấu trúc try-except để bắt lỗi ValueError\ntry:\n    so_nguyen = int(data_goc)\n    print(\"Ép kiểu thành công:\", so_nguyen)\nexcept ValueError:\n    print(\"Lỗi: Không thể ép kiểu chuỗi '\" + data_goc + \"' thành số nguyên.\")\n\n# Cách 2: Sử dụng phương thức isdigit() để kiểm tra chuỗi số nguyên trước khi ép kiểu\ndata_so = \"123\"\nif data_so.isdigit():\n    so_nguyen_2 = int(data_so)\n    print(\"Ép kiểu an toàn thành công:\", so_nguyen_2)\nelse:\n    print(\"Chuỗi không chứa các chữ số hợp lệ để ép kiểu.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm print() - Định nghĩa: Hàm tích hợp sẵn trong Python dùng để xuất dữ liệu ra màn hình console. Hàm này có các tham số tùy chọn như 'sep' (ký tự phân tách giữa các phần tử) và 'end' (ký tự kết thúc sau khi in xong hết các phần tử, mặc định là xuống dòng \\n).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm input() - Định nghĩa: Hàm tích hợp sẵn dùng để tạm dừng chương trình và nhận dữ liệu nhập vào từ bàn phím của người dùng. Giá trị trả về từ hàm input() luôn là một chuỗi ký tự (kiểu string/str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Ép kiểu dữ liệu (Type Casting) - Định nghĩa: Quy trình chuyển đổi giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác. Trong Python, các hàm ép kiểu cơ bản bao gồm int() để chuyển sang số nguyên và float() để chuyển sang số thực, giúp xử lý các phép toán từ dữ liệu chuỗi nhận được từ input().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử số học cơ bản - Định nghĩa: Các ký hiệu toán học dùng để thực hiện tính toán trên các kiểu dữ liệu số bao gồm cộng (+), trừ (-), nhân (*), chia thập phân (/), chia lấy phần nguyên (//) và chia lấy phần dư (%).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: F-string (Formatted String) - Định nghĩa: Cơ chế định dạng chuỗi được giới thiệu từ Python 3.6, bắt đầu bằng chữ 'f' hoặc 'F' trước dấu nháy. Nó cho phép nhúng trực tiếp giá trị của biến hoặc biểu thức vào bên trong chuỗi thông qua cặp ngoặc nhọn {}, giúp chuỗi đầu ra trực quan và dễ đọc hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_print_input_mac_dinh:\n# Nhập thông tin cơ bản từ người dùng (dữ liệu trả về mặc định luôn là chuỗi)\nten = input(\"Nhập tên của bạn: \")\ntuoi = input(\"Nhập tuổi của bạn: \")\n\n# Sử dụng hàm print() với tham số sep để thay đổi ký tự phân tách và end để thay đổi ký tự kết thúc dòng\nprint(\"Thông tin đăng ký\", sep=\" \")\nprint(\"Tên khách hàng:\", ten, sep=\" \", end=\" - \")\nprint(\"Tuổi:\", tuoi, sep=\" \")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_va_tinh_toan_so_hoc:\n# Nhận dữ liệu đầu vào từ bàn phím\nchieu_dai_str = input(\"Nhập chiều dài hình chữ nhật (mét): \")\nchieu_rong_str = input(\"Nhập chiều rộng hình chữ nhật (mét): \")\n\n# Ép kiểu dữ liệu từ chuỗi (str) sang số thực (float) để thực hiện tính toán\nchieu_dai = float(chieu_dai_str)\nchieu_rong = float(chieu_rong_str)\n\n# Thực hiện các phép toán số học cơ bản\nchu_vi = (chieu_dai + chieu_rong) * 2\ndien_tich = chieu_dai * chieu_rong\n\nprint(\"Chu vi hình chữ nhật:\", chu_vi)\nprint(\"Diện tích hình chữ nhật:\", dien_tich)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dinh_dang_dau_ra_va_ung_dung_cli:\n# Chương trình tương tác giao diện dòng lệnh (CLI) tính hóa đơn mua hàng đơn giản\nprint(\"=== HỆ THỐNG TÍNH LƯƠNG TRỰC XÁC CLI ===\")\n\nten_nhan_vien = input(\"Nhập tên nhân viên: \")\nluong_theo_gio = float(input(\"Nhập mức lương mỗi giờ làm việc (USD): \"))\nso_gio_lam = float(input(\"Nhập tổng số giờ làm việc: \"))\n\n# Tính toán tổng lương trước thuế và thực nhận sau khi trừ 10% thuế thu nhập\ntong_luong = luong_theo_gio * so_gio_lam\nthue = tong_luong * 0.1\nluong_thuc_nhan = tong_luong - thue\n\n# Sử dụng F-string để định dạng dữ liệu đầu ra hiển thị đẹp mắt và giới hạn số thập phân\nprint(\"\\n--- THÔNG TIN LƯƠNG NHÂN VIÊN ---\")\nprint(f\"Nhân viên: {ten_nhan_vien}\")\nprint(f\"Lương mỗi giờ: {luong_theo_gio:.2f} USD/giờ\")\nprint(f\"Tổng số giờ làm: {so_gio_lam:.1f} giờ\")\nprint(f\"Thuế thu nhập ước tính (10%): {thue:.2f} USD\")\nprint(f\"Thực nhận: {luong_thuc_nhan:.2f} USD\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tương tác cơ bản bằng Nhập và Xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: bien - Định nghĩa: Vùng lưu trữ trong bộ nhớ máy tính để chứa dữ liệu, được định danh bằng một tên cụ thể để truy xuất và cập nhật trong suốt quá trình chạy chương trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: quy_tac_dat_ten_bien - Định nghĩa: Quy tắc đặt tên biến trong Python bao gồm: chỉ chứa chữ cái, chữ số và dấu gạch dưới (_); bắt đầu bằng chữ cái hoặc dấu gạch dưới, không bắt đầu bằng số; phân biệt chữ hoa, chữ thường; và không được trùng với các từ khóa có sẵn của Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_so_int_float - Định nghĩa: Kiểu dữ liệu số gồm số nguyên (int, ví dụ: 10, -5) và số thực (float, đại diện cho số thập phân, ví dụ: 3.14, -0.5). Python tự động nhận diện kiểu số dựa trên cách nhập giá trị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_toan_so_hoc - Định nghĩa: Các phép toán cơ bản thực hiện trên kiểu số bao gồm cộng (+), trừ (-), nhân (*), chia thập phân (/), chia lấy phần nguyên (//), chia lấy phần dư (%) và lũy thừa (**).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_chuoi_str - Định nghĩa: Kiểu chuỗi (str) đại diện cho văn bản, chứa một chuỗi các ký tự nằm trong cặp dấu nháy đơn ('...') hoặc dấu nháy kép (\"...\").",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_luan_ly_bool - Định nghĩa: Kiểu logic (bool) chỉ nhận một trong hai giá trị là True (Đúng) hoặc False (Sai), thường là kết quả của biểu thức so sánh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_toan_logic - Định nghĩa: Các phép toán kết hợp nhiều giá trị logic với nhau gồm: and (Trả về True khi tất cả đều True), or (Trả về True khi có ít nhất một giá trị True), và not (Đảo ngược giá trị logic hiện tại).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: chuyen_doi_kieu_du_lieu - Định nghĩa: Phương pháp chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác bằng cách sử dụng các hàm có sẵn như int(), float(), str(), và bool().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_typeerror - Định nghĩa: Lỗi xảy ra khi người lập trình thực hiện một phép tính hoặc thao tác trên các kiểu dữ liệu không tương thích (ví dụ: cộng trực tiếp chuỗi văn bản với số nguyên).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: nhan_du_lieu_input - Định nghĩa: Hàm input() dùng để dừng chương trình và chờ người dùng nhập giá trị từ bàn phím. Dữ liệu nhận về từ hàm này luôn luôn có kiểu dữ liệu là chuỗi (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: xuat_du_lieu_f_string - Định nghĩa: Kỹ thuật sử dụng hàm print() kết hợp với định dạng f-string (f\"...\") để nhúng trực tiếp giá trị của các biến vào trong văn bản một cách trực quan và dễ hiểu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_bien_va_toan_tu_so_hoc:\n# Khai báo biến số nguyên và số thực\na = 15\nb = 4.0\n\n# Thực hiện các phép toán số học cơ bản\ntong = a + b              # Kết quả: 19.0 (float)\nhieu = a - b              # Kết quả: 11.0 (float)\ntich = a * 2              # Kết quả: 30 (int)\nthuong = a / 2            # Kết quả: 7.5 (float)\nchia_lay_nguyen = a // 4  # Kết quả: 3 (int)\nchia_lay_du = a % 4       # Kết quả: 3 (int)\nluy_thua = a ** 2         # Kết quả: 225 (int)\n\nprint(\"Tổng:\", tong)\nprint(\"Chia lấy phần nguyên:\", chia_lay_nguyen)\nprint(\"Chia lấy phần dư:\", chia_lay_du)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thao_tac_chuoi_va_logic:\n# Thao tác nối chuỗi bằng toán tử +\nten = \"Minh\"\nho = \"Nguyễn\"\nho_va_ten = ho + \" \" + ten\n\n# Khai báo và thực hiện phép toán so sánh (trả về kiểu bool)\ntuoi = 20\nla_tuoi_truong_thanh = tuoi >= 18  # Kết quả: True\n\n# Phép toán logic cơ bản\nla_sinh_vien = True\ndieu_kien_nhan_uu_dai = la_sinh_vien and la_tuoi_truong_thanh  # Cả hai đúng -> True\ndieu_kien_khac = la_sinh_vien or (tuoi < 10)                  # Một trong hai đúng -> True\nphu_dinh = not la_sinh_vien                                    # Phủ định -> False\n\nprint(\"Họ và tên:\", ho_va_ten)\nprint(\"Là tuổi trưởng thành:\", la_tuoi_truong_thanh)\nprint(\"Nhận ưu đãi:\", dieu_kien_nhan_uu_dai)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_va_khac_phuc_typeerror:\n# Trường hợp gây lỗi TypeError (bị comment lại để tránh gián đoạn chương trình):\n# so_luong = \"10\"\n# tong_cong = so_luong + 5  # TypeError: can only concatenate str (not \"int\") to str\n\n# Khắc phục bằng cách ép kiểu chuỗi sang số nguyên\nso_luong_chuoi = \"10\"\nso_luong_so = int(so_luong_chuoi)\ntong_cong = so_luong_so + 5\nprint(\"Tổng cộng:\", tong_cong)\n\n# Chuyển số thực sang số nguyên (lấy phần nguyên)\npi = 3.14\npi_so_nguyen = int(pi)  # Kết quả: 3\nprint(\"Pi số nguyên:\", pi_so_nguyen)\n\n# Ép kiểu số sang chuỗi để ghép văn bản\nthong_bao = \"Tổng số vật phẩm: \" + str(tong_cong)\nprint(thong_bao)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhan_input_va_dinh_dang_output:\n# Nhập thông tin từ người dùng\nten_nguoi_dung = input(\"Nhập tên của bạn: \")\nnam_sinh_chuoi = input(\"Nhập năm sinh của bạn: \")\n\n# Ép kiểu dữ liệu đầu vào từ str sang int để tính toán\nnam_sinh = int(nam_sinh_chuoi)\nnam_hien_tai = 2026\ntuoi = nam_hien_tai - nam_sinh\n\n# Xuất kết quả bằng f-string ngắn gọn và trực quan\nprint(f\"Chào bạn {ten_nguoi_dung}!\")\nprint(f\"Năm nay là {nam_hien_tai}, tính theo năm sinh {nam_sinh} thì bạn {tuoi} tuổi.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ liệu Cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử số học cơ bản - Định nghĩa: Các ký hiệu dùng để thực hiện phép toán số học như cộng (+), trừ (-), nhân (*) và chia thường (/). Trong Python, phép chia thường (/) luôn trả về kết quả kiểu số thực (float).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Phép chia lấy nguyên (Floor Division) - Định nghĩa: Ký hiệu là `//`, thực hiện chia hai số và trả về phần nguyên của kết quả bằng cách làm tròn xuống số nguyên gần nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Phép chia lấy dư (Modulo) - Định nghĩa: Ký hiệu là `%`, trả về số dư của phép chia giữa hai số nguyên hoặc số thực.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kiểm tra chẵn lẻ - Định nghĩa: Phương pháp sử dụng toán tử modulo `%`. Nếu số `n % 2` bằng 0 thì `n` là số chẵn, ngược lại là số lẻ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy đổi đơn vị thời gian - Định nghĩa: Bài toán ứng dụng toán tử `//` và `%` để phân tách một lượng tổng số giây cho trước thành các đơn vị phân cấp lớn hơn như giờ, phút và số giây còn dư.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lesson_1_basic_operators:\na = 15\nb = 4\ntong = a + b\nhieu = a - b\ntich = a * b\nthuong = a / b\nprint('Tong:', tong)\nprint('Hieu:', hieu)\nprint('Tich:', tich)\nprint('Thuong:', thuong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lesson_2_division_comparison:\nso_bi_chia = 17\nso_chia = 5\nchia_thuong = so_bi_chia / so_chia\nchia_nguyen = so_bi_chia // so_chia\nchia_du = so_bi_chia % so_chia\nprint('Chia thuong (/) :', chia_thuong)\nprint('Chia nguyen (//) :', chia_nguyen)\nprint('Chia du (%) :', chia_du)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lesson_3_even_odd_check:\nso_can_kiem_tra = 14\nif so_can_kiem_tra % 2 == 0:\n    print('Day la so chan')\nelse:\n    print('Day la so le')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lesson_4_time_conversion:\ntong_giay = 3665\ngio = tong_giay // 3600\ngiay_con_lai = tong_giay % 3600\nphut = giay_con_lai // 60\ngiay = giay_con_lai % 60\nprint(f'{tong_giay} giay = {gio} gio, {phut} phut, {giay} giay')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: if_elif_else - Định nghĩa: Cấu trúc rẽ nhánh điều kiện tuần tự. Python sẽ kiểm tra từng biểu thức điều kiện từ trên xuống dưới; nhánh đầu tiên có điều kiện đúng (True) sẽ được thực thi, các nhánh còn lại sẽ bị bỏ qua. Nhánh 'else' là tùy chọn và chỉ thực thi khi tất cả các điều kiện phía trên đều sai.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: match_case - Định nghĩa: Cấu trúc so khớp mẫu (Structural Pattern Matching) được giới thiệu từ Python 3.10. Nó đối chiếu giá trị của một biểu thức với các mẫu (patterns) khác nhau một cách tường minh và trực quan, giúp thay thế các khối if-elif-else dài dòng khi cần so khớp giá trị cụ thể.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: wildcard_pattern - Định nghĩa: Ký tự gạch dưới '_' trong cấu trúc match-case. Nó đóng vai trò là mẫu mặc định (catch-all), tương đương với nhánh 'else' trong cấu trúc if-else, dùng để bắt các trường hợp không khớp với bất kỳ mẫu nào trước đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: guard_clause_in_match_case - Định nghĩa: Điều kiện bổ sung bằng từ khóa 'if' đặt ngay trong một nhánh 'case' (ví dụ: case value if condition:). So khớp chỉ thành công nếu cả mẫu khớp và điều kiện đi kèm đều đúng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: short_circuit_evaluation - Định nghĩa: Cơ chế đánh giá ngắn mạch trong biểu thức logic (với 'and' và 'or'). Python sẽ dừng đánh giá biểu thức ngay khi có đủ thông tin để quyết định kết quả cuối cùng, giúp tối ưu hiệu năng và tránh lỗi khi kiểm tra điều kiện.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho code_sample_1_if_elif_else:\ndef phan_loai_hoc_luc(diem):\n    if diem < 0.0 or diem > 10.0:\n        return \"Điểm số không hợp lệ\"\n    elif diem >= 9.0:\n        return \"Xuất sắc\"\n    elif diem >= 8.0:\n        return \"Giỏi\"\n    elif diem >= 6.5:\n        return \"Khá\"\n    elif diem >= 5.0:\n        return \"Trung bình\"\n    else:\n        return \"Yếu\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho code_sample_2_match_case:\ndef phan_loai_lenh(lenh):\n    match lenh:\n        case \"start\":\n            return \"Khởi động hệ thống\"\n        case \"stop\":\n            return \"Dừng hệ thống\"\n        case \"restart\":\n            return \"Tái khởi động\"\n        case _:\n            return \"Lệnh không hợp lệ\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho code_sample_3_match_case_guard:\ndef kiem_tra_giao_dich(so_tien):\n    match so_tien:\n        case t if t <= 0:\n            return \"Giao dịch không hợp lệ\"\n        case t if t < 50000:\n            return \"Giao dịch miễn phí dịch vụ\"\n        case t if t >= 50000:\n            return \"Giao dịch áp dụng phí 1%\"\n        case _:\n            return \"Lỗi dữ liệu\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho code_sample_4_hybrid_logic:\ndef kiem_tra_quyen_truy_cap(user_role, user_age):\n    # Sử dụng if-else để xử lý kiểm tra chặn trước (Guard Clause)\n    if user_age < 18:\n        return \"Từ chối truy cập: Người dùng dưới 18 tuổi\"\n    \n    # Sử dụng match-case để phân loại quyền cụ thể theo vai trò\n    match user_role:\n        case \"admin\":\n            return \"Toàn quyền quản trị\"\n        case \"editor\":\n            return \"Quyền biên tập nội dung\"\n        case \"viewer\":\n            return \"Quyền đọc nội dung\"\n        case _:\n            return \"Vai trò không hợp lệ\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc điều kiện đa nhánh if-else và match-case trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Ternary Operator (Toán tử ba ngôi) - Định nghĩa: Cú pháp ngắn gọn trong Python cho phép kiểm tra một điều kiện và trả về giá trị chỉ trên một dòng mã, viết dưới dạng: [giá_trị_nếu_đúng] if [điều_kiện] else [giá_trị_nếu_sai].",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc rẽ nhánh phức tạp và Toán tử ba ngôi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Nested If-Else (Điều kiện lồng nhau) - Định nghĩa: Cấu trúc đặt một hoặc nhiều câu lệnh điều kiện if-else bên trong một nhánh điều kiện khác. Cấu trúc này dùng để kiểm tra các điều kiện phụ phụ thuộc lẫn nhau, nhưng dễ gây khó đọc khi lồng quá nhiều cấp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc rẽ nhánh phức tạp và Toán tử ba ngôi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Guard Clauses (Câu lệnh bảo vệ) - Định nghĩa: Kỹ thuật tối ưu hóa mã nguồn bằng cách kiểm tra các điều kiện biên hoặc điều kiện lỗi trước tiên và thoát khỏi hàm ngay lập tức bằng lệnh return. Kỹ thuật này giúp loại bỏ cấu trúc lồng nhau phức tạp, giúp luồng xử lý chính ở cuối hàm thẳng hàng và dễ đọc hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc rẽ nhánh phức tạp và Toán tử ba ngôi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho su_dung_toan_tu_ba_ngoi:\ndiem_so = 78\n# Su dung toan tu ba ngoi de xac dinh ket qua\nket_qua = \"Dat\" if diem_so >= 50 else \"Khong dat\"\nprint(f\"Ket qua hoc tap: {ket_qua}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc rẽ nhánh phức tạp và Toán tử ba ngôi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dieu_kien_long_nhau_truyen_thong:\ndef kiem_tra_quyen_truy_cap(tuoi, co_the_thanh_vien):\n    if tuoi >= 18:\n        if co_the_thanh_vien:\n            return \"Cho phep vao cong VIP\"\n        else:\n            return \"Cho phep vao nhung lam the thanh vien de vao VIP\"\n    else:\n        return \"Khong du tuoi vao tu diem\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc rẽ nhánh phức tạp và Toán tử ba ngôi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tai_cau_truc_voi_guard_clauses:\ndef dang_ky_khoa_hoc(tuoi, da_thong_qua_kiem_tra):\n    # Cau lenh bao ve 1: kiem tra do tuoi\n    if tuoi < 18:\n        return \"Khong thanh cong: Chua du 18 tuoi\"\n    \n    # Cau lenh bao ve 2: kiem tra bai test\n    if not da_thong_qua_kiem_tra:\n        return \"Khong thanh cong: Chua vuot qua bai kiem tra dau vao\"\n    \n    # Xu ly chinh sau khi qua het cac cau lenh bao ve\n    return \"Dang ky khoa hoc thanh cong\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc rẽ nhánh phức tạp và Toán tử ba ngôi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử logic and - Định nghĩa: Phép toán logic nhị phân, trả về True nếu tất cả các toán hạng đều True, ngược lại trả về False. Trong Python, nó trả về giá trị của toán hạng đầu tiên được đánh giá là False (Falsy), hoặc toán hạng cuối cùng nếu tất cả đều True (Truthy).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử logic or - Định nghĩa: Phép toán logic nhị phân, trả về True nếu ít nhất một trong các toán hạng là True, ngược lại trả về False. Trong Python, nó trả về giá trị của toán hạng đầu tiên được đánh giá là True (Truthy), hoặc toán hạng cuối cùng nếu tất cả đều False (Falsy).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử logic not - Định nghĩa: Phép toán logic đơn phân dùng để phủ định giá trị logic của một biểu thức hoặc biến. Nếu biểu thức là True, not sẽ biến nó thành False và ngược lại. Kết quả trả về luôn là kiểu dữ liệu bool.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Độ ưu tiên toán tử logic - Định nghĩa: Thứ tự thực thi được ưu tiên khi các toán tử logic xuất hiện trong cùng một biểu thức không có dấu ngoặc đơn. Thứ tự ưu tiên từ cao xuống thấp là: not, tiếp theo là and, và cuối cùng là or. Dấu ngoặc () có thể được dùng để thay đổi độ ưu tiên mặc định này.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế đánh giá ngắn mạch (Short-circuit evaluation) - Định nghĩa: Cơ chế tối ưu hóa trong Python, nơi trình biên dịch/thông dịch dừng đánh giá một biểu thức logic ngay khi kết quả cuối cùng đã được xác định chắc chắn. Đối với 'and', nếu vế đầu là False, toàn bộ biểu thức chắc chắn là False nên vế sau không được chạy. Đối với 'or', nếu vế đầu là True, toàn bộ biểu thức chắc chắn là True nên vế sau sẽ bị bỏ qua.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biểu thức điều kiện phức tạp - Định nghĩa: Biểu thức kết hợp nhiều phép so sánh cùng với các toán tử logic and, or, not và dấu ngoặc nhóm để giải quyết các luồng xử lý điều kiện phức tạp trong ứng dụng thực tế như xác thực dữ liệu và kiểm tra quyền người dùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho logic_operators_demo:\nis_sunny = True\nhas_umbrella = False\nis_weekend = True\n\n# Phép toán AND (Cả hai vế phải cùng đúng)\ngo_to_park = is_sunny and is_weekend\nprint('Đi công viên:', go_to_park)\n\n# Phép toán OR (Ít nhất một vế đúng)\ngo_outside = is_sunny or has_umbrella\nprint('Đi ra ngoài:', go_outside)\n\n# Phép toán NOT (Phủ định giá trị hiện thực)\nstay_inside = not is_sunny\nprint('Ở trong nhà:', stay_inside)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho short_circuit_and_precedence:\ndef check_first():\n    print(\"Hàm check_first() đã chạy\")\n    return False\n\ndef check_second():\n    print(\"Hàm check_second() đã chạy\")\n    return True\n\n# 1. Cơ chế ngắn mạch (Short-circuit evaluation)\n# check_first() trả về False nên check_second() không được gọi trong toán tử and\nresult_and = check_first() and check_second()\nprint(\"Kết quả AND:\", result_and)\n\n# 2. Độ ưu tiên toán tử: not -> and -> or\n# Biểu thức: True or False and False\n# Theo thứ tự ưu tiên: True or (False and False) -> True or False -> True\n# Nếu không có độ ưu tiên (tính từ trái qua phải): (True or False) and False -> True and False -> False\nresult_precedence = True or False and False\nprint(\"Kết quả độ ưu tiên logic:\", result_precedence)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho complex_condition_validation:\nage = 25\nis_active = True\nuser_role = \"MEMBER\"\nis_post_owner = True\n\n# Validate dữ liệu tuổi (phải thuộc khoảng từ 18 đến 100)\nis_valid_age = age >= 18 and age <= 100\n\n# Kiểm tra quyền sửa bài viết:\n# Tài khoản phải hợp lệ, đã kích hoạt VÀ đáp ứng một trong hai điều kiện (có quyền ADMIN hoặc là người sở hữu bài viết)\nhas_permission = is_valid_age and is_active and (user_role == \"ADMIN\" or is_post_owner)\n\nif has_permission:\n    print(\"Bạn có quyền chỉnh sửa bài viết này.\")\nelse:\n    print(\"Từ chối quyền chỉnh sửa bài viết!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Vòng lặp for - Định nghĩa: Cấu trúc điều khiển dùng để duyệt qua các phần tử của một chuỗi tuần tự hoặc lặp lại một khối lệnh với số lần xác định trước.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm range(start, stop) - Định nghĩa: Hàm tích hợp trong Python dùng để tạo ra một dãy số nguyên liên tiếp bắt đầu từ giá trị 'start' (mặc định là 0 nếu không khai báo) và kết thúc trước giá trị 'stop' (không lấy giá trị 'stop').",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Tham số step trong range() - Định nghĩa: Tham số thứ ba trong hàm range(start, stop, step) xác định khoảng cách giữa các số liên tiếp trong dãy. Step có thể nhận giá trị dương (bước nhảy tăng dần) hoặc âm (bước nhảy giảm dần).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Duyệt ngược (Negative Step) - Định nghĩa: Kỹ thuật sử dụng tham số step âm trong hàm range(start, stop, step) với điều kiện giá trị 'start' lớn hơn 'stop' để tạo chuỗi số giảm dần, phục vụ đếm ngược.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Tính tổng tích lũy - Định nghĩa: Kỹ thuật khởi tạo một biến chứa giá trị ban đầu là 0 trước vòng lặp, sau đó cộng dồn giá trị của biến chạy vào biến tích lũy này qua từng vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Lọc phần tử trong vòng lặp - Định nghĩa: Kỹ thuật đặt câu lệnh điều kiện if bên trong khối mã của vòng lặp for để kiểm tra và chỉ chọn xử lý những phần tử thỏa mãn điều kiện nhất định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vong_lap_for_co_ban:\nfor i in range(1, 5):\n    print(i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vong_lap_range_mac_dinh:\nfor i in range(3):\n    print(i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho range_voi_buoc_nhay_duong:\nfor i in range(1, 10, 2):\n    print(i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dem_nguoc_voi_buoc_nhay_am:\nfor i in range(5, 0, -1):\n    print(i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tinh_tong_cac_so:\ntong = 0\nfor i in range(1, 6):\n    tong = tong + i\nprint(tong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho loc_so_chan_trong_khoang:\nfor i in range(1, 11):\n    if i % 2 == 0:\n        print(i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: core_python_concept - Định nghĩa: Introduction to fundamental concepts of Python within Toán tử So sánh trong Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử So sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: architecture_overview - Định nghĩa: Basic architectural overview and request-response lifecycle for Core applications.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử So sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: best_practices - Định nghĩa: Code organization, formatting, and standard conventions for development.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử So sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho hello_world:\ndef main():\n    print('Hello from Python Core!')\n\nif __name__ == '__main__':\n    main()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử So sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: break - Định nghĩa: Câu lệnh dùng để ngay lập tức thoát khỏi vòng lặp chứa nó (for hoặc while). Chương trình sẽ nhảy đến câu lệnh đầu tiên bên ngoài vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: continue - Định nghĩa: Câu lệnh dùng để bỏ qua phần mã còn lại bên trong thân vòng lặp của lần lặp hiện tại và chuyển ngay sang lần kiểm tra điều kiện hoặc lần lặp tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: pass - Định nghĩa: Câu lệnh rỗng (null operation) được sử dụng khi cú pháp của Python yêu cầu một khối mã nhưng lập trình viên chưa muốn triển khai logic tại đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_vo_han_an_toan - Định nghĩa: Kỹ thuật kết hợp điều kiện luôn đúng (while True) với khối kiểm tra điều kiện bên trong và lệnh break nhằm ép buộc chương trình phải nhận đúng dữ liệu mong muốn từ người dùng trước khi dừng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: guard_clause - Định nghĩa: Kỹ thuật cấu trúc mã nguồn bằng cách sử dụng các điều kiện kiểm tra sớm (kết hợp với continue hoặc break) để loại bỏ các trường hợp ngoại lệ hoặc dữ liệu không hợp lệ ngay từ đầu, giúp hạn chế việc lồng nhiều tầng lặp phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho so_sanh_break_continue_pass:\nprint(\"Demo break:\")\nfor i in range(1, 6):\n    if i == 3:\n        break\n    print(i)\n\nprint(\"\\nDemo continue:\")\nfor i in range(1, 6):\n    if i == 3:\n        continue\n    print(i)\n\nprint(\"\\nDemo pass:\")\nfor i in range(1, 6):\n    if i == 3:\n        pass\n    print(i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vong_lap_nhap_lieu_an_toan:\nwhile True:\n    user_input = input(\"Nhap mot so nguyen duong: \")\n    if user_input.isdigit():\n        number = int(user_input)\n        if number > 0:\n            print(f\"Dữ liệu hop le: {number}\")\n            break\n    print(\"Du lieu sai dinh dang, vui long nhap lai!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho loc_du_lieu_voi_guard_clauses:\ndiem_so = [8.5, -2.0, 9.0, 15.0, 7.5]\ndiem_hop_le = []\nfor diem in diem_so:\n    if diem < 0.0:\n        continue\n    if diem > 10.0:\n        continue\n    diem_hop_le.append(diem)\nprint(\"Danh sach diem hop le:\", diem_hop_le)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phac_thao_khung_chuong_trinh:\ndef xu_ly_them():\n    pass\n\ndef xu_ly_xoa():\n    pass\n\nluong_chon = [1, 2, 3]\nfor chon in luong_chon:\n    if chon == 1:\n        xu_ly_them()\n    elif chon == 2:\n        xu_ly_xoa()\n    elif chon == 3:\n        print(\"Thoát chương trình\")\n    else:\n        pass",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát luồng vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: co_che_hoat_dong_loop_else - Định nghĩa: Khối lệnh else trong vòng lặp for hoặc while của Python sẽ được thực thi khi và chỉ khi vòng lặp hoàn thành tất cả các vòng lặp của nó một cách bình thường (không bị ngắt quãng đột ngột bởi câu lệnh break, return hoặc ngoại lệ).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: tac_dong_cua_break - Định nghĩa: Lệnh break dùng để thoát khỏi vòng lặp ngay lập tức. Khi vòng lặp bị ngắt bởi lệnh break, khối lệnh else đi kèm với vòng lặp đó sẽ hoàn toàn bị bỏ qua và không được thực thi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: loai_bo_bien_co_hieu - Định nghĩa: Kỹ thuật lập trình sử dụng cấu trúc loop-else để xác định xem một điều kiện tìm kiếm có được thỏa mãn hay không, thay thế hoàn toàn việc khai báo, cập nhật và kiểm tra các biến cờ hiệu (ví dụ: found = False) một cách dư thừa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: tai_cau_truc_ma_nguon_long_nhau - Định nghĩa: Quá trình đơn giản hóa cấu trúc mã nguồn bằng cách loại bỏ các khối điều kiện if-else lồng nhau phức tạp và các biến cờ hiệu trung gian, giúp mã nguồn sạch hơn, dễ đọc và dễ bảo trì hơn nhờ sử dụng loop-else.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_hoat_dong_loop_else:\n# Minh họa cơ chế hoạt động của khối else khi vòng lặp chạy hết và khi bị ngắt\n\nprint(\"--- Vòng lặp hoàn thành bình thường ---\")\nfor i in range(3):\n    print(f\"Đang chạy vòng lặp: i = {i}\")\nelse:\n    print(\"Khối else được thực thi vì vòng lặp chạy hết bình thường.\")\n\nprint(\"\\n--- Vòng lặp bị ngắt bởi break ---\")\nfor i in range(3):\n    if i == 1:\n        print(\"Gặp lệnh break tại i = 1, thoát vòng lặp.\")\n        break\n    print(f\"Đang chạy vòng lặp: i = {i}\")\nelse:\n    print(\"Khối else này sẽ KHÔNG được thực thi.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thay_the_co_hieu_khi_tim_kiem:\n# So sánh cách dùng biến cờ hiệu truyền thống và cách dùng loop-else\n\nnumbers = [1, 3, 5, 7, 9]\ntarget = 6\n\n# Cách 1: Dùng biến cờ hiệu (Flag Variable)\nfound = False\nfor num in numbers:\n    if num == target:\n        found = True\n        break\n\nif found:\n    print(f\"Tìm thấy {target} (dùng cờ hiệu)\")\nelse:\n    print(f\"Không tìm thấy {target} (dùng cờ hiệu)\")\n\n# Cách 2: Áp dụng loop-else gọn gàng hơn, không dùng cờ hiệu\nfor num in numbers:\n    if num == target:\n        print(f\"Tìm thấy {target} (dùng loop-else)\")\n        break\nelse:\n    print(f\"Không tìm thấy {target} (dùng loop-else)\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tai_cau_truc_ma_nguon_long:\n# Tái cấu trúc (refactoring) mã nguồn lồng nhau phức tạp\n\n# Hàm kiểm tra danh sách đen trước khi refactor (lồng nhiều tầng if và flag)\ndef check_blacklist_old(users, target_user):\n    is_blocked = False\n    for user in users:\n        if user[\"name\"] == target_user:\n            if user[\"is_blocked\"]:\n                is_blocked = True\n                break\n    \n    if is_blocked:\n        return \"Người dùng bị chặn\"\n    else:\n        return \"Người dùng hợp lệ\"\n\n# Hàm sau khi refactor bằng cách sử dụng loop-else\ndef check_blacklist_new(users, target_user):\n    for user in users:\n        if user[\"name\"] == target_user:\n            if user[\"is_blocked\"]:\n                return \"Người dùng bị chặn\"\n            break\n    else:\n        # Khối else chạy khi không tìm thấy user hoặc không thỏa mãn điều kiện block\n        return \"Người dùng hợp lệ\"\n\n# Chạy thử nghiệm hàm đã refactor\nuser_database = [\n    {\"name\": \"An\", \"is_blocked\": False},\n    {\"name\": \"Bình\", \"is_blocked\": True}\n]\nprint(check_blacklist_new(user_database, \"Bình\"))\nprint(check_blacklist_new(user_database, \"An\"))\nprint(check_blacklist_new(user_database, \"Cường\"))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc Else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: concept_nested_loop_mechanism - Định nghĩa: Vòng lặp lồng nhau (Nested Loop) là cấu trúc trong đó một vòng lặp được định nghĩa bên trong thân của một vòng lặp khác. Vòng lặp ngoài (outer loop) đóng vai trò điều khiển tiến trình lớn, trong khi vòng lặp trong (inner loop) chạy hoàn thành toàn bộ số lần lặp của nó cho mỗi lần lặp duy nhất của vòng lặp ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: concept_break_continue_behavior - Định nghĩa: Từ khóa 'break' và 'continue' khi đặt trong cấu trúc vòng lặp lồng nhau chỉ có phạm vi ảnh hưởng cục bộ lên vòng lặp trực tiếp chứa chúng. Lệnh 'break' ở vòng lặp trong chỉ kết thúc vòng lặp trong và đưa luồng điều hướng quay lại vòng lặp ngoài, không làm ngắt vòng lặp ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: concept_2d_list_traversal - Định nghĩa: Danh sách hai chiều (2D List) trong Python thực chất là một danh sách chứa các danh sách khác đại diện cho dòng. Để duyệt qua danh sách hai chiều, ta sử dụng vòng lặp ngoài để đi qua từng dòng (row) và vòng lặp trong để truy xuất các phần tử cột (column) tương ứng trên dòng đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: concept_pattern_printing - Định nghĩa: Thuật toán dựng hình ký tự là kỹ thuật áp dụng sơ đồ hàng/cột của lưới tọa độ Cartesian. Cần lập luồng tư duy toán học để tìm ra mối liên hệ giữa chỉ số dòng (i) và chỉ số cột (j) nhằm quyết định số lượng ký tự hoặc khoảng trắng cần hiển thị trên mỗi dòng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: concept_debugging_infinite_loops - Định nghĩa: Hiện tượng lặp vô hạn trong vòng lặp lồng nhau thường xảy ra khi biến lặp ở vòng lặp trong không được thiết lập lại (reset) trước mỗi chu kỳ vòng lặp ngoài mới, hoặc quên không thay đổi bước nhảy (increment) của biến điều kiện trong vòng lặp 'while'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_nested_loop_flow:\nfor row in range(1, 4):\n    print(f\"Row {row} bat dau:\")\n    for col in range(1, 3):\n        print(f\"  -> Col {col}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho break_continue_nested:\nfor i in range(1, 4):\n    for j in range(1, 4):\n        if j == 2:\n            break  # Chi ngat vong lap trong tai day\n        print(f\"i = {i}, j = {j}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho traverse_matrix:\nmatrix = [\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9]\n]\nfor r in range(len(matrix)):\n    for c in range(len(matrix[r])):\n        val = matrix[r][c]\n        print(f\"Gia tri o hang {r}, cot {c} la: {val}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pattern_triangle_star:\nheight = 5\nfor i in range(1, height + 1):\n    for j in range(i):\n        print(\"*\", end=\" \")\n    print()  # Xuong dong",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho prevent_infinite_nested_while:\nrow = 1\nwhile row <= 3:\n    col = 1  # Reset bien chay cua vong trong tai day\n    while col <= 3:\n        print(f\"Row {row} - Col {col}\")\n        col += 1  # Tang thong so vong lap trong\n    row += 1  # Tang thong so vong lap ngoai",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: core_python_concept - Định nghĩa: Introduction to fundamental concepts of Python within Vòng lặp while và kiểm soát điều kiện lặp trong Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_for_co_ban - Định nghĩa: Cấu trúc điều khiển dùng để lặp lại một khối lệnh với số lần lặp xác định trước bằng cách duyệt qua một dãy tuần tự.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_range_co_ban - Định nghĩa: Hàm tạo ra một chuỗi số nguyên bắt đầu từ 0 và tăng dần 1 đơn vị, dừng lại trước giá trị stop được cung cấp (không bao gồm stop).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: range_start_stop_step - Định nghĩa: Cấu hình mở rộng của hàm range với ba tham số: start (giá trị bắt đầu), stop (giới hạn dừng, không bao gồm), và step (bước nhảy giữa các số).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: chu_ky_lap_dao_nguoc - Định nghĩa: Cách sử dụng hàm range với tham số step mang giá trị âm để lặp lùi từ một số lớn về một số nhỏ hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_logic_off_by_one - Định nghĩa: Lỗi logic biên phổ biến khi vòng lặp thực hiện thừa hoặc thiếu một lần lặp do không tính toán chính xác giới hạn biên stop của hàm range.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: giai_quyet_bai_toan_tich_luy - Định nghĩa: Phương pháp áp dụng vòng lặp range(1, n + 1) để duyệt và tính toán giá trị tích lũy (như tính tổng, giai thừa) từ 1 đến n.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho su_dung_range_co_ban:\nfor i in range(5):\n    print(\"Gia tri hien tai:\", i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cau_hinh_buoc_nhay_va_huong_lap:\n# Lặp bước nhảy chẵn\nfor i in range(2, 11, 2):\n    print(\"So chan:\", i)\n\n# Lặp đếm ngược\nfor i in range(5, 0, -1):\n    print(\"Dem nguoc:\", i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khac_phuc_loi_off_by_one:\n# Tinh tong tu 1 den n (bao gom ca n gia tri)\nn = 5\ntong = 0\n# Neu dung range(1, n) se bi thieu gia tri n (loi off-by-one)\nfor i in range(1, n + 1):\n    tong += i\nprint(\"Tong tu 1 den\", n, \"la:\", tong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Vòng lặp while (while loop) - Định nghĩa: Cấu trúc điều khiển lặp thực hiện liên tục một khối lệnh khi điều kiện (biểu thức Boolean) còn mang giá trị True. Điều kiện được kiểm tra trước khi thực thi thân vòng lặp trong mỗi chu kỳ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biểu thức điều kiện (Boolean expression) - Định nghĩa: Là biểu thức toán học hoặc logic trả về giá trị True hoặc False. Biểu thức này quyết định việc vòng lặp tiếp tục chạy hay dừng lại.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến điều khiển (Control variable) - Định nghĩa: Biến số được khởi tạo trước vòng lặp và liên tục cập nhật giá trị bên trong thân vòng lặp nhằm làm thay đổi kết quả của biểu thức điều kiện, giúp chương trình đạt tới điểm dừng thiết kế sẵn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Vòng lặp vô hạn (Infinite loop) - Định nghĩa: Lỗi logic xảy ra khi biểu thức điều kiện của vòng lặp luôn luôn bằng True, khiến khối lệnh lập lại mãi mãi, gây tốn tài nguyên CPU và treo hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kiểm chuẩn dữ liệu đầu vào (Input validation) - Định nghĩa: Kỹ thuật sử dụng vòng lặp while để yêu cầu người dùng nhập lại dữ liệu liên tục cho đến khi dữ liệu nhập vào đáp ứng đúng tiêu chí hoặc định dạng mong muốn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cuh_phap_while_co_ban:\ncount = 1\nwhile count <= 5:\n    print(\"Lần lặp thứ:\", count)\n    count += 1\nprint(\"Vòng lặp kết thúc!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tranh_loi_vong_lap_vo_han:\n# Cách khắc phục lỗi quên cập nhật biến điều khiển\nso_luong = 5\nwhile so_luong > 0:\n    print(\"Số lượng còn lại:\", so_luong)\n    so_luong -= 1 # MUST: Cập nhật biến để điều kiện (so_luong > 0) chuyển thành False\nprint(\"Đã hết hàng!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_input_va_menu:\nlua_chon = \"\"\nwhile lua_chon != \"3\":\n    print(\"\\n--- MENU CHƯƠNG TRÌNH ---\")\n    print(\"1. Xin chào\")\n    print(\"2. Hiển thị giờ\")\n    print(\"3. Thoát\")\n    lua_chon = input(\"Nhập lựa chọn của bạn (1-3): \")\n    \n    if lua_choice == \"1\":\n        print(\"Xin chào bạn học viên!\")\n    elif lua_choice == \"2\":\n        print(\"Hiện tại là thời gian học lập trình.\")\n    elif lua_choice == \"3\":\n        print(\"Tạm biệt!\")\n    else:\n        print(\"Lựa chọn không hợp lệ. Vui lòng chọn lại từ 1 đến 3.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while và kiểm soát điều kiện lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: khoi_lenh_else_trong_vong_lap - Định nghĩa: Khối lệnh else đặt sau vòng lặp for hoặc while trong Python sẽ được thực thi khi và chỉ khi vòng lặp kết thúc bình thường (hoàn thành đầy đủ các vòng lặp mà không bị ngắt quãng bởi câu lệnh break). Nếu vòng lặp bị dừng đột ngột bằng lệnh break, khối lệnh else này sẽ bị bỏ qua hoàn toàn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: bien_co_hieu_flag_variable - Định nghĩa: Là một biến trung gian (thường thuộc kiểu dữ liệu Boolean) được khởi tạo trước vòng lặp để theo dõi và ghi nhận trạng thái xảy ra của một điều kiện cụ thể bên trong khối lặp, sau đó được kiểm tra ngoài vòng lặp để đưa ra quyết định xử lý tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: refactor_loai_bo_co_hieu - Định nghĩa: Là quá trình viết lại mã nguồn để tối ưu hóa, trong đó cấu trúc for-else hoặc while-else được sử dụng thay thế cho biến cờ hiệu. Kỹ thuật này giúp loại bỏ bước khai báo cờ hiệu, bước cập nhật trạng thái trong vòng lặp và câu lệnh rẽ nhánh if-else ở sau vòng lặp, làm cho mã nguồn ngắn gọn và trực quan hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: kiem_tra_tinh_chat_so_hoc - Định nghĩa: Thuật toán kiểm tra các tính chất toán học của số (như số nguyên tố, số hoàn hảo) bằng cách thử chia cho các giá trị trong một phạm vi. Nếu tìm thấy một số thỏa mãn điều kiện chia hết, ta dùng lệnh break để dừng vòng lặp sớm; ngược lại, nếu duyệt hết phạm vi mà không vi phạm, khối lệnh else sẽ xác định số đó thỏa mãn tính chất toán học cần tìm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cu_phap_co_ban_for_else:\n# Ví dụ minh họa nguyên lý hoạt động cơ bản của for-else\nnumbers = [1, 3, 5, 7]\ntarget = 4\n\nfor num in numbers:\n    if num == target:\n        print(\"Tim thay\", target)\n        break\nelse:\n    # Chạy vì vòng lặp không bị ngắt bởi break\n    print(\"Khong tim thay\", target, \"trong danh sach\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho refactor_tim_kiem_khong_dung_co:\n# Tim kiem phan tu va in ra ket qua ma khong su dung bien co hieu (flag)\nwords = [\"apple\", \"banana\", \"cherry\"]\nsearch_word = \"mango\"\n\nfor word in words:\n    if word == search_word:\n        print(\"Tim thay tu:\", search_word)\n        break\nelse:\n    # Thuc thi khi duyet het danh sach ma khong gap break\n    print(\"Tu\", search_word, \"khong ton tai trong danh sach\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_so_nguyen_to:\n# Ung dung for-else de kiem tra so nguyen to\nnumber = 29\n\nif number < 2:\n    print(number, \"khong phai la so nguyen to\")\nelse:\n    for i in range(2, int(number ** 0.5) + 1):\n        if number % i == 0:\n            print(number, \"khong phai la so nguyen to\")\n            break\n    else:\n        # Chi thuc thi neu khong tim thay uoc so nao trong pham vi tu 2 den can bac hai cua number\n        print(number, \"la so nguyen to\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cấu trúc Điều khiển Đặc biệt: Khối lệnh else trong Vòng lặp For và While"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_long_nhau - Định nghĩa: Là cấu trúc lập trình trong đó một vòng lặp (for hoặc while) được đặt bên trong khối lệnh của một vòng lặp khác. Vòng lặp chứa bên ngoài được gọi là vòng lặp ngoài (outer loop), vòng lặp nằm bên trong được gọi là vòng lặp trong (inner loop).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: luong_thuc_thi_vong_lap_long_nhau - Định nghĩa: Khi hoạt động, với mỗi một lần lặp của vòng lặp ngoài, vòng lặp trong sẽ được khởi chạy và thực hiện toàn bộ tất cả số lần lặp của nó từ đầu đến cuối trước khi vòng lặp ngoài chuyển sang lần lặp tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: duyet_danh_sach_hai_chieu - Định nghĩa: Kỹ thuật sử dụng vòng lặp lồng nhau để truy cập các phần tử trong danh sách chứa danh sách (List of Lists). Vòng lặp ngoài được sử dụng để duyệt qua từng danh sách con (tương ứng với các dòng), và vòng lặp trong duyệt qua từng phần tử lẻ bên trong danh sách con đó (tương ứng với các cột).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: kiem_soat_vong_lap_long_nhau_voi_break_continue - Định nghĩa: Lệnh break hoặc continue chỉ tác động trực tiếp đến vòng lặp hiện hành chứa nó. Nếu lệnh break nằm trong vòng lặp trong, nó chỉ kết thúc vòng lặp trong và đưa quyền điều khiển về lại vòng lặp ngoài. Để thoát hoàn toàn khỏi mọi cấp vòng lặp lồng nhau, lập trình viên thường sử dụng thêm một biến cờ hiệu (flag variable).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho syntax_co_ban_vong_lap_long_nhau:\nfor i in range(1, 3):\n    for j in range(1, 4):\n        print(f\"i = {i}, j = {j}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ve_hinh_va_bang_cuu_chuong:\n# 1. Vẽ hình chữ nhật bằng dấu sao (3 hàng x 5 cột)\nfor i in range(3):\n    for j in range(5):\n        print(\"*\", end=\" \")\n    print()  # Xuống dòng sau khi hoàn thành một hàng\n\n# 2. In bảng cửu chương đơn giản (từ 2 đến 3)\nfor i in range(2, 4):\n    print(f\"--- Bang nhan {i} ---\")\n    for j in range(1, 10):\n        print(f\"{i} x {j} = {i * j}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho duyet_list_2d:\nmatrix = [\n    [1, 2, 3],\n    [4, 5, 6],\n    [7, 8, 9]\n]\n\n# Duyệt và in các phần tử của ma trận\nfor row in matrix:\n    for item in row:\n        print(item, end=\" \")\n    print()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_soat_break_bang_co_hieu:\n# Tìm kiếm số chẵn đầu tiên trong ma trận và dừng toàn bộ vòng lặp\nmatrix = [\n    [1, 3, 5],\n    [7, 8, 9],\n    [11, 12, 13]\n]\n\nfound = False\nfor row in matrix:\n    for val in row:\n        if val % 2 == 0:\n            print(f\"Da tim thay so chan dau tien: {val}\")\n            found = True\n            break  # Thoát khỏi vòng lặp trong\n    if found:\n        break  # Thoát khỏi vòng lặp ngoài",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau trong Python (Nested Loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: break - Định nghĩa: Câu lệnh dùng để chấm dứt ngay lập tức vòng lặp chứa nó (for hoặc while). Luồng xử lý của chương trình sẽ nhảy đến câu lệnh tiếp theo nằm ngoài vòng lặp đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: continue - Định nghĩa: Câu lệnh dùng để bỏ qua các câu lệnh còn lại trong thân vòng lặp của lần lặp hiện tại, lập tức chuyển sang lượt lặp kế tiếp (kiểm tra lại điều kiện với while hoặc lấy phần tử tiếp theo với for).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: pass - Định nghĩa: Câu lệnh rỗng (null statement) không thực hiện bất kỳ hành động nào. Nó được dùng làm trình giữ chỗ (placeholder) khi cú pháp yêu cầu phải có một khối lệnh nhưng lập trình viên chưa cần viết logic xử lý.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_vo_han - Định nghĩa: Hiện tượng vòng lặp chạy liên tục không bao giờ dừng do điều kiện lặp luôn đúng (True) và không có cơ chế thay đổi trạng thái hoặc câu lệnh thoát (break). Cần phòng tránh bằng thiết lập điều kiện dừng hoặc biến đếm rõ ràng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: luong_thuc_thi - Định nghĩa: Trình tự thực hiện các câu lệnh của chương trình. Việc sử dụng break, continue làm thay đổi luồng thực thi tuần tự của cấu trúc vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cu_phap_co_ban_break_continue_pass:\n# Minh hoa cach hoat dong co ban cua break, continue va pass trong vong lap for\nfor i in range(1, 6):\n    if i == 2:\n        # pass khong lam thay doi luong, chi de giu cho\n        pass\n        print(\"Gặp pass tại i =\", i)\n    elif i == 4:\n        # continue bo qua phan code phia duoi va chuyen sang lan lap tiep theo\n        print(\"Gặp continue tại i =\", i, \"-> Bo qua in\")\n        continue\n    elif i == 5:\n        # break thoat khoi vong lap ngay lap tuc\n        print(\"Gặp break tại i =\", i, \"-> Thoat vong lap\")\n        break\n    print(\"Gia tri hien tai:\", i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ap_dung_break_dung_som:\n# Tim phan tu chia het cho 7 dau tien trong danh sach va dung lai ngay lap tuc\ndanh_sach_so = [12, 18, 25, 28, 30, 35]\nso_tim_thay = None\n\nfor so in danh_sach_so:\n    if so % 7 == 0:\n        so_tim_thay = so\n        break  # Ngat vong lap vi da tim thay ket qua, khong can duyet tiep\n\nprint(\"So chia het cho 7 dau tien tim thay la:\", so_tim_thay)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ap_dung_continue_loc_du_lieu:\n# Tinh tong cac so duong trong danh sach, bo qua cac so am\ndu_lieu = [10, -5, 20, -12, 30, 0]\ntong_so_duong = 0\n\nfor so in du_lieu:\n    if so <= 0:\n        continue  # Bo qua buoc cong vao tong doi voi cac so nho hon hoac bang 0\n    tong_so_duong += so\n\nprint(\"Tong cac so duong trong danh sach la:\", tong_so_duong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phong_tranh_vong_lap_vo_han_va_dung_pass:\n# Su dung bien dem va break de phong tranh vong lap vo han voi while\nbien_dem = 0\nwhile True:  # Vong lap co dieu kien luon dung\n    bien_dem += 1\n    \n    # Kiem soat de phong tranh vong lap chay vo han\n    if bien_dem > 5:\n        print(\"Dừng vong lap de phong tranh qua tai.\")\n        break\n        \n    if bien_dem % 2 == 0:\n        # Giu cho cho logic xu ly so chan sau nay\n        pass \n    else:\n        print(\"So le:\", bien_dem)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp trong Python với break, continue và pass"
+    }
+  },
+  {
+    "text": "Khái niệm: Chuỗi (String) - Định nghĩa: Kiểu dữ liệu dùng để lưu trữ chuỗi các ký tự, được khai báo bằng cách đặt văn bản trong cặp dấu nháy đơn ('') hoặc nháy kép (\"\").",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Chỉ mục dương (Positive Indexing) - Định nghĩa: Cơ chế đánh số thứ tự các ký tự trong chuỗi từ trái sang phải, bắt đầu từ index 0 cho ký tự đầu tiên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Chỉ mục âm (Negative Indexing) - Định nghĩa: Cơ chế đánh số thứ tự các ký tự trong chuỗi từ phải sang trái, bắt đầu từ index -1 cho ký tự cuối cùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Tính bất biến (Immutability) - Định nghĩa: Đặc tính của chuỗi trong Python làm cho nội dung của nó không thể bị thay đổi sau khi đã được tạo ra.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi TypeError trên chuỗi - Định nghĩa: Lỗi xảy ra khi người dùng cố gắng gán lại giá trị cho một ký tự tại một vị trí chỉ mục cụ thể (ví dụ: s[0] = 'x'), do Python không cho phép thay đổi dữ liệu của chuỗi tại chỗ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Phương pháp tạo chuỗi mới - Định nghĩa: Giải pháp thay thế để cập nhật thông tin bằng cách tạo ra một đối tượng chuỗi hoàn toàn mới thông qua cơ chế ghép chuỗi (concatenation) và cắt chuỗi (slicing) của chuỗi cũ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_va_truy_cap_chi_muc:\n# Khởi tạo chuỗi\ntext = \"Python\"\n\n# Chỉ mục dương (Positive Indexing)\nfirst = text[0]   # 'P'\nthird = text[2]   # 't'\n\n# Chỉ mục âm (Negative Indexing)\nlast = text[-1]   # 'n'\nsecond_last = text[-2] # 'o'\n\nprint(\"Ký tự đầu tiên:\", first)\nprint(\"Ký tự cuối cùng:\", last)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tinh_bat_bien_va_tao_chuoi_moi:\n# Minh họa tính bất biến (Immutability) và cách xử lý\nsample_str = \"hello\"\n\n# Dòng code dưới đây sẽ gây lỗi TypeError nếu chạy:\n# sample_str[0] = 'H'\n\n# Cách tạo chuỗi mới thay thế bằng việc cắt và nối chuỗi\nnew_str = \"H\" + sample_str[1:]\n\nprint(\"Chuỗi ban đầu:\", sample_str) # Kết quả vẫn là 'hello'\nprint(\"Chuỗi mới:\", new_str)       # Kết quả là 'Hello'",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu String, Indexing và Tính bất biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử cộng chuỗi (String Concatenation) - Định nghĩa: Phép toán sử dụng ký tự '+' để nối tiếp hai hay nhiều chuỗi lại với nhau thành một chuỗi duy nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử nhân chuỗi (String Multiplication) - Định nghĩa: Phép toán sử dụng ký tự '*' để lặp lại một chuỗi một số lần nhất định dựa trên một số nguyên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cú pháp Slicing cơ bản [start:stop] - Định nghĩa: Phương pháp trích xuất chuỗi con từ vị trí chỉ số 'start' (bao gồm) đến trước vị trí chỉ số 'stop' (không bao gồm).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cú pháp Slicing đầy đủ [start:stop:step] - Định nghĩa: Mở rộng của slicing cho phép xác định thêm 'step' (bước nhảy) để lấy các ký tự cách nhau một khoảng cố định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Slicing đảo ngược với bước nhảy âm - Định nghĩa: Sử dụng giá trị 'step' là số âm (ví dụ: -1) để duyệt và đảo ngược chuỗi từ phải qua trái.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Thiết lập tham số mặc định trong Slicing - Định nghĩa: Khi bỏ trống start, stop hoặc step, Python sẽ tự chọn giá trị mặc định của chuỗi (đầu chuỗi, cuối chuỗi, bước nhảy là 1).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho string_operators_demo:\nfirst_name = \"Nguyen\"\nlast_name = \"An\"\n# Cộng chuỗi để tạo tên đầy đủ\nfull_name = first_name + \" \" + last_name\nprint(full_name)  # Output: Nguyen An\n\n# Nhân chuỗi để tạo đường kẻ\ndivider = \"-\" * 10\nprint(divider)  # Output: ----------",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_slicing_demo:\ntext = \"PythonProgramming\"\n# Trích xuất từ chỉ số 0 đến trước chỉ số 6\nsub_text1 = text[0:6]\nprint(sub_text1)  # Output: Python\n\n# Sử dụng chỉ số âm để lấy từ cuối chuỗi\nsub_text2 = text[-11:]\nprint(sub_text2)  # Output: Programming",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho advanced_slicing_demo:\ntext = \"Python\"\n# Lấy các ký tự cách nhau bằng bước nhảy 2 (chỉ số chẵn: 0, 2, 4)\neven_chars = text[0:6:2]\nprint(even_chars)  # Output: Pto\n\n# Đảo ngược chuỗi bằng bước nhảy âm -1\nreversed_text = text[::-1]\nprint(reversed_text)  # Output: nohtyP",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho practical_string_processing:\ndef extract_and_format(raw_data):\n    # Hàm trích xuất mã số và kiểm tra định dạng đầu vào\n    if raw_data.startswith(\"ID:\"):\n        # Trích xuất phần số từ chỉ số 3 và bỏ 6 ký tự cuối cùng\n        data_part = raw_data[3:-6]\n        formatted_result = \"Mã định danh đã xử lý: \" + data_part\n        return formatted_result\n    return \"Định dạng không hợp lệ\"\n\n# Gọi hàm kiểm thử\nresult = extract_and_format(\"ID:98765-VALID\")\nprint(result)  # Output: Mã định danh đã xử lý: 98765",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác Chuỗi Nâng cao: Slicing và Toán tử Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: tinh_bat_bien_cua_chuoi - Định nghĩa: Chuỗi (string) trong Python là một kiểu dữ liệu bất biến (immutable). Điều này có nghĩa là khi một chuỗi đã được tạo ra, nội dung của nó trên bộ nhớ không thể bị sửa đổi. Việc sử dụng các phương thức như strip, upper, lower sẽ tạo và trả về một chuỗi hoàn toàn mới thay vì thay đổi chuỗi ban đầu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phuong_thuc_upper_lower_strip - Định nghĩa: Các phương thức cơ bản để biến đổi chữ: 'upper()' chuyển đổi toàn bộ ký tự trong chuỗi sang chữ in hoa; 'lower()' chuyển đổi sang chữ thường; 'strip()' loại bỏ tất cả khoảng trắng dư thừa ở cả đầu và cuối chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phuong_thuc_split - Định nghĩa: Phương thức tách một chuỗi thành một danh sách (list) các chuỗi con dựa trên một ký tự hoặc chuỗi phân tách (delimiter) được chỉ định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phuong_thuc_join - Định nghĩa: Phương thức liên kết các phần tử của một danh sách (hoặc một tập hợp chuỗi) lại thành một chuỗi duy nhất, sử dụng một chuỗi làm cầu nối ở giữa mỗi phần tử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phuong_thuc_replace - Định nghĩa: Phương thức tìm kiếm và thay thế tất cả các lần xuất hiện của một chuỗi con bằng một chuỗi con mới trong chuỗi đích.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: lien_ket_phuong_thuc_method_chaining - Định nghĩa: Kỹ thuật gọi liên tục nhiều phương thức trên cùng một dòng lệnh, chạy tuần tự từ trái qua phải. Phương thức tiếp theo sẽ thực thi trên kết quả trả về của phương thức trước đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tinh_bat_bien_va_bien_doi_co_ban:\n# Minh hoa tinh bat bien va phuong thuc upper, lower, strip\noriginal_text = \"   hoc lap trinh python   \"\n\n# Loai bo khoang trang va chuyen thanh chu hoa\ncleaned_text = original_text.strip()\nupper_text = cleaned_text.upper()\nlower_text = cleaned_text.lower()\n\nprint(\"Chuoi goc ban dau:\", original_text)\nprint(\"Sau khi dung strip:\", cleaned_text)\nprint(\"Sau khi dung upper:\", upper_text)\nprint(\"Sau khi dung lower:\", lower_text)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho split_join_replace:\n# Minh hoa phuong thuc split, join va replace\ncsv_data = \"apple,banana,orange,mango\"\n\n# 1. Thay he dau phay bang dau gach ngang\nupdated_data = csv_data.replace(\",\", \"-\")\nprint(\"Sau khi replace:\", updated_data)\n\n# 2. Tach chuoi thanh list\nfruit_list = csv_data.split(\",\")\nprint(\"Sau khi split:\", fruit_list)\n\n# 3. Noi list lai thanh chuoi kem dau gach dung\njoined_text = \" | \".join(fruit_list)\nprint(\"Sau khi join:\", joined_text)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho method_chaining_lam_sach:\n# Minh hoa Method Chaining de lam sach du lieu dau vao\nuser_input = \"   Nguyen Van A   \"\n\n# Loai bo khoang trang hai dau va chuyen thanh chu thuong tren cung 1 dong\ncleaned_input = user_input.strip().lower()\n\nprint(\"Dau vao goc:\", user_input)\nprint(\"Sau khi lam sach bang Method Chaining:\", cleaned_input)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phương thức xử lý Chuỗi trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Lịch sử phát triển Python - Định nghĩa: Python được tạo ra bởi Guido van Rossum và phát hành lần đầu vào năm 1991. Ngôn ngữ được thiết kế nhằm mục đích tối ưu hóa hiệu suất lập trình và làm cho mã nguồn trở nên dễ đọc, dễ hiểu hơn đối với con người.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Đặc tính cốt lõi của Python - Định nghĩa: Python là ngôn ngữ lập trình thông dịch (interpreted), định kiểu động (dynamically typed) và đa năng (general-purpose). Cú pháp của Python sử dụng thụt lề (indentation) để phân định các khối mã nguồn thay vì dấu ngoặc nhọn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Triết lý thiết kế (The Zen of Python) - Định nghĩa: Gồm 19 nguyên tắc định hình triết lý và phong cách viết code Python chất lượng (được gói gọn trong tài liệu PEP 20). Có thể đọc tài liệu này bằng cách chạy lệnh 'import this' trong Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Các lĩnh vực ứng dụng thực tế - Định nghĩa: Python được sử dụng rộng rãi trong Khoa học dữ liệu (Data Science), Trí tuệ nhân tạo (AI/Machine Learning), Phát triển Web (Web Development), Tự động hóa tác vụ (Automation/Scripting) và Kiểm thử phần mềm (Testing).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Đánh giá tính khả thi và So sánh - Định nghĩa: Python có thế mạnh rất lớn về tốc độ phát triển dự án (Rapid Prototyping) và thư viện phong phú, giúp kiểm thử ý tưởng nhanh chóng. Tuy nhiên, hiệu năng thực thi của Python chậm hơn so với các ngôn ngữ biên dịch như C/C++ hoặc Java.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xem_zen_of_python_va_tinh_dong_dieu:\n# Minh hoa triet ly Zen of Python: 'Explicit is better than implicit' (Ro rang tot hon che day)\n# Va 'Simple is better than complex' (Don gian tot hon phuc tap)\n\n# Ham tinh dien tich hinh chu nhat tuong minh, de hieu\ndef tinh_dien_tich_hinh_chu_nhat(chieu_dai, chieu_rong):\n    \"\"\"Tinh toan va tra ve dien tich\"\"\"\n    dien_tich = chieu_dai * chieu_rong\n    return dien_tich\n\n# Goi ham voi cac tham so tuong minh\nket_qua = tinh_dien_tich_hinh_chu_nhat(15.5, 10.0)\nprint(\"Dien tich hinh chu nhat la:\", ket_qua)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ung_dung_tu_dong_hoa_va_xu_ly_du_lieu:\n# Kich ban don gian minh hoa ung dung cua Python trong tu dong hoa loc du lieu\n# Neu dung C++ hoac Java se can luong code dai hon rat nhieu\n\ndanh_sach_tep_tin = [\"bao_cao.docx\", \"du_lieu.csv\", \"hinh_anh.png\", \"ket_qua.csv\"]\ntat_ca_file_csv = []\n\n# Loc cac file co duoi dinh dang .csv\nfor file in danh_sach_tep_tin:\n    if file.endswith(\".csv\"):\n        tat_ca_file_csv.append(file)\n\nprint(\"Danh sach file CSV da loc duoc:\")\nprint(tat_ca_file_csv)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan và Ứng dụng thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Bộ thông dịch Python (Python Interpreter) - Định nghĩa: Là một chương trình phần mềm chịu trách nhiệm biên dịch và thực thi trực tiếp mã nguồn Python sang mã máy theo từng dòng (hoặc mã byte) để máy tính hiểu và chạy được.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến môi trường PATH (PATH Environment Variable) - Định nghĩa: Là danh sách các đường dẫn thư mục mà hệ điều hành (Windows, macOS, Linux) sẽ tìm kiếm để tìm tệp thực thi khi người dùng nhập một lệnh (ví dụ: python hoặc pip) trong Command Prompt hoặc Terminal.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Là một thư mục độc lập chứa một bản cài đặt Python và một tập hợp các thư viện riêng biệt. Nó cô lập môi trường của từng dự án để tránh xung đột phiên bản phần mềm giữa các dự án khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Workspace - Định nghĩa: Là thư mục làm việc hiện hành của dự án được mở trong VS Code. Nó thường chứa mã nguồn của bạn, thư mục lưu trữ môi trường ảo (.venv) và cấu hình cụ thể cho dự án (.vscode).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Trình quản lý gói pip - Định nghĩa: Công cụ dòng lệnh đi kèm với Python dùng để tải về, cài đặt, nâng cấp hoặc gỡ bỏ các thư viện từ kho lưu trữ thư viện trù phú của Python (PyPI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_phien_ban_va_duong_dan_interpreter:\nimport sys\n\n# In ra phien ban Python ma trinh thong dich dang chay\nprint(\"Phien ban Python dang su dung:\", sys.version)\n\n# In ra duong dan truc tiep toi tep python.exe dang thuc thi doan script nay\nprint(\"Duong dan Python Interpreter:\", sys.executable)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lenh_tao_va_kich_hoat_moi_truong_ao:\n# Buoc 1: Mo Terminal/Command Prompt tai thu muc du an va chay lenh tao moi truong ao ten la venv:\n# Windows/macOS/Linux:\n# python -m venv venv\n\n# Buoc 2: Kich hoat moi truong ao\n# Windows (Command Prompt):\n# venv\\\\Scripts\\\\activate\n# macOS / Linux:\n# source venv/bin/activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xac_dinh_moi_truong_hoat_dong:\nimport sys\n\ndef kiem_tra_moi_truong():\n    # So sanh sys.prefix va sys.base_prefix de biet chuong trinh co dang chay trong venv hay khong\n    trong_venv = sys.prefix != sys.base_prefix\n    \n    if trong_venv:\n        print(\"Ket qua: Chuong trinh dang chay trong MOI TRUONG AO (venv).\")\n        print(\"Duong dan venv:\", sys.prefix)\n    else:\n        print(\"Ket qua: Chuong trinh dang chay trong moi truong HE THONG (Goc).\")\n        print(\"Duong dan he thong:\", sys.base_prefix)\n\nif __name__ == \"__main__\":\n    kiem_tra_moi_truong()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: bien - Định nghĩa: Là một phân vùng vùng nhớ được đặt tên dùng để lưu trữ dữ liệu trong chương trình. Giá trị lưu giữ trong biến có thể thay đổi được trong quá trình thực thi mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_snake_case - Định nghĩa: Quy chuẩn PEP 8 khuyến nghị viết tên biến bằng chữ thường, các từ cách nhau bởi dấu gạch dưới (_). Ví dụ: student_name, total_amount. Không bắt đầu bằng số hoặc chứa ký tự đặc biệt.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: gan_gia_tri - Định nghĩa: Hành động sử dụng toán tử gán (=) để gán một giá trị cho một biến. Cú pháp: ten_bien = gia_tri.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_cu_phap_bien - Định nghĩa: Lỗi (SyntaxError) xảy ra khi viết mã nguồn không tuân theo các quy tắc cú pháp của ngôn ngữ Python, chẳng hạn như đặt tên biến trùng với từ khóa hệ thống (class, block, if...) hoặc tên biến bắt đầu bằng chữ số.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: cap_nhat_bien - Định nghĩa: Hành động thay đổi giá trị của biến hiện có bằng toán tử gán, có thể dùng phép gán trực tiếp hoặc gán kết hợp (như +=, -=).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: refactor_pep8 - Định nghĩa: Quá trình tái cấu trúc, chỉnh sửa lại cách viết mã nguồn (đặt tên biến, định dạng khoảng cách) cho chuẩn hóa theo PEP 8 giúp code dễ đọc, dễ bảo trì mà không làm thay đổi logic thực thi của chương trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_bien_pep8:\n# Đặt tên biến đúng chuẩn PEP 8 (snake_case)\nstudent_name = \"Nguyen Van A\"\nstudent_age = 18\nis_enrolled = True\n\nprint(student_name)\nprint(student_age)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho gan_gia_tri_tinh_toan:\n# Gán giá trị và tính toán cơ bản\nitem_price = 25000\nquantity = 3\ntotal_payment = item_price * quantity\n\nprint(total_payment)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khac_phuc_loi_cu_phap:\n# SAI (Gây ra SyntaxError):\n# 1st_number = 10\n# class = \"Python\"\n\n# ĐÚNG (Đã sửa đổi):\nfirst_number = 10\nclass_name = \"Python\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cap_nhat_gia_tri_bien:\n# Khởi tạo giá trị ban đầu\nplayer_score = 100\nprint(\"Diem ban dau:\", player_score)\n\n# Cập nhật giá trị khi người chơi ghi điểm\nplayer_score = player_score + 50\nprint(\"Diem sau khi cong:\", player_score)\n\n# Viết ngắn gọn bằng toán tử cộng gán (+=)\nplayer_score += 20\nprint(\"Diem cuoi cung:\", player_score)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho refactor_code_pep8:\n# TRƯỚC KHI REFACTOR (Vi phạm quy tắc đặt tên và khoảng cách của PEP 8)\nUserName=\"Hoang\"\nUserAge=25\n\n# SAU KHI REFACTOR (Chuẩn snake_case và có khoảng cách quanh toán tử gán)\nuser_name = \"Hoang\"\nuser_age = 25",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_co_ban - Định nghĩa: Các kiểu dữ liệu nền tảng trong Python bao gồm: Số nguyên (int) biểu diễn các số không có phần thập phân; Số thực (float) biểu diễn các số có phần thập phân; Chuỗi ký tự (str) biểu diễn dữ liệu văn bản được đặt trong cặp nháy đơn hoặc nháy kép; Kiểu logic (bool) chỉ nhận một trong hai giá trị True hoặc False.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: co_che_gan_bien - Định nghĩa: Trong Python, biến không cần khai báo trước kiểu dữ liệu mà được xác định tự động khi gán giá trị (Dynamic Typing). Khi sử dụng toán tử gán (=), Python sẽ tạo một đối tượng trong bộ nhớ và gán nhãn tên biến tham chiếu đến đối tượng đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_toan_so_hoc_va_noi_chuoi - Định nghĩa: Các phép toán số học bao gồm cộng (+), trừ (-), nhân (*), chia thập phân (/), chia lấy nguyên (//), chia lấy dư (%) và lũy thừa (**). Phép cộng (+) còn dùng để nối chuỗi (str) và phép nhân (*) dùng để lặp chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_toan_logic - Định nghĩa: Các phép toán logic dùng để kết hợp hoặc đảo ngược giá trị logic (bool), bao gồm: 'and' (chỉ True khi tất cả đều True), 'or' (True khi ít nhất một bên True), và 'not' (phép phủ định, đảo True thành False và ngược lại).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ep_kieu_du_lieu - Định nghĩa: Phương pháp chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác bằng các hàm chuyển đổi tường minh như int(), float(), str(), và bool().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_TypeError - Định nghĩa: Lỗi kiểu dữ liệu (TypeError) xảy ra khi một phép toán hoặc một hàm được áp dụng cho đối tượng có kiểu dữ liệu không phù hợp (ví dụ: cố gắng cộng trực tiếp một chuỗi với một số nguyên).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: nhap_xuat_du_lieu - Định nghĩa: Sử dụng hàm input() để nhận dữ liệu nhập từ bàn phím dưới dạng chuỗi (str) và dùng hàm print() kết hợp với định dạng chuỗi F-string (f\"...\") để hiển thị thông tin ra màn hình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_bien_va_kieu_du_lieu:\n# Khai báo biến với các kiểu dữ liệu cơ bản\ntuoi = 20           # kiểu int\nchieu_cao = 1.68    # kiểu float\nten = \"Nguyễn Văn A\" # kiểu str\nla_sinh_vien = True # kiểu bool\n\n# Kiểm tra kiểu dữ liệu của biến bằng hàm type()\nprint(type(tuoi))\nprint(type(chieu_cao))\nprint(type(ten))\nprint(type(la_sinh_vien))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cac_phep_toan_co_ban:\n# 1. Phép toán số học\na = 15\nb = 4\ntong = a + b\nchia_lay_du = a % b\n\n# 2. Phép toán trên chuỗi\nho = \"Nguyễn\"\nten = \"An\"\nho_ten = ho + \" \" + ten\nlap_chuoi = \"*\" * 5\n\n# 3. Phép toán logic\nco_ve = True\nco_tien = False\nduoc_vao_cua = co_ve and (not co_tien)\n\nprint(tong, chia_lay_du, ho_ten, lap_chuoi, duoc_vao_cua)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_va_xu_ly_loi_kieu:\n# Tránh lỗi TypeError bằng cách ép kiểu\ntuoi_chuoi = \"18\"\n\n# Nếu thực hiện: tuoi_chuoi + 2 -> Gây ra lỗi TypeError\n# Cách xử lý đúng: Chuyển đổi chuỗi sang số nguyên trước khi tính toán\ntuoi_so = int(tuoi_chuoi)\ntuoi_moi = tuoi_so + 2\n\n# Đưa giá trị số về chuỗi để thực hiện ghép chuỗi\nthong_bao = \"Tuổi sau 2 năm nữa: \" + str(tuoi_moi)\nprint(thong_bao)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuong_trinh_tinh_chi_so_bmi:\n# Nhận dữ liệu đầu vào từ người dùng (mặc định là kiểu str)\ncân_nang_str = input(\"Nhập cân nặng (kg): \")\nchieu_cao_str = input(\"Nhập chiều cao (m): \")\n\n# Ép kiểu dữ liệu sang số thực (float) để tính toán\ncan_nang = float(cân_nang_str)\nchieu_cao = float(chieu_cao_str)\n\n# Tính toán chỉ số BMI\nbmi = can_nang / (chieu_cao ** 2)\n\n# Định dạng đầu ra sử dụng f-string, làm tròn 2 chữ số thập phân\nprint(f\"Cân nặng: {can_nang} kg\")\nprint(f\"Chiều cao: {chieu_cao} m\")\nprint(f\"Chỉ số BMI của bạn là: {bmi:.2f}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Python Interpreter - Định nghĩa: Trình thông dịch đóng vai trò dịch mã nguồn Python thành mã máy hoặc bytecode và thực thi chúng trên hệ điều hành.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: Anaconda - Định nghĩa: Một bản phân phối Python mã nguồn mở phổ biến, tích hợp sẵn trình quản lý gói 'conda' và nhiều thư viện dùng cho khoa học dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (Môi trường ảo) - Định nghĩa: Một thư mục độc lập chứa một phiên bản Python và các thư viện riêng biệt, giúp cô lập môi trường của từng dự án để tránh xung đột phiên bản.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: venv - Định nghĩa: Mô-đun đi kèm sẵn trong Python chuẩn để tạo và quản lý các môi trường ảo đơn giản.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: Conda Environment - Định nghĩa: Môi trường ảo được tạo và quản lý bởi Anaconda thông qua lệnh conda, hỗ trợ cài đặt các gói thư viện không chỉ giới hạn trong Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Workspace - Định nghĩa: Không gian làm việc trong VS Code, được xác định bởi một thư mục chứa mã nguồn cùng thư mục cấu hình ẩn .vscode để lưu trữ các cài đặt riêng (như Python Interpreter).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: Environment Variable (PATH) - Định nghĩa: Biến môi trường hệ thống chỉ ra danh sách các đường dẫn chứa tệp thực thi (như python.exe hoặc conda.exe) để terminal của hệ điều hành có thể nhận diện lệnh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_phien_ban_python:\nimport sys\n\n# Lay thong tin phien ban va duong dan trinh thong dich dang chay\nprint(\"Phien ban Python:\", sys.version)\nprint(\"Duong dan file thuc thi:\", sys.executable)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_moi_truong_ao:\nimport sys\n\n# So sanh duong dan prefix cua Python de kiem tra xem moi truong ao co dang hoat dong hay khong\ntrong_moi_truong_ao = sys.prefix != sys.base_prefix\nif trong_moi_truong_ao:\n    print(f\"Dang active moi truong ao tai: {sys.prefix}\")\nelse:\n    print(\"Dang su dung moi truong he thong (Global)\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_duong_dan_thu_vien:\nimport sys\n\n# In ra danh sach cac thu muc he thong ma Python tim kiem goi thu vien khi import\nprint(\"Cac thu muc chua module va thu vien cua Python:\")\nfor path in sys.path:\n    print(f\"- {path}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python với VS Code và Anaconda"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm input() - Định nghĩa: Hàm tích hợp dùng để nhận dữ liệu nhập vào từ bàn phím dưới dạng một chuỗi văn bản (string). Dữ liệu này cần được xử lý nếu muốn dùng cho tính toán số học.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Ép kiểu dữ liệu (Type Casting) - Định nghĩa: Phương pháp chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác (ví dụ: chuyển từ kiểu string sang kiểu int hoặc float) thông qua các hàm có sẵn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ValueError trong ép kiểu - Định nghĩa: Lỗi ngoại lệ xảy ra khi chương trình cố gắng ép một chuỗi không đúng định dạng số (như chữ cái hoặc ký tự đặc biệt) sang kiểu số nguyên (int) hoặc số thực (float).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm print() và các tham số sep, end - Định nghĩa: Hàm dùng để hiển thị dữ liệu ra màn hình. Tham số 'sep' định nghĩa ký tự phân tách giữa các phần tử khi in, còn 'end' định nghĩa ký tự kết thúc ở cuối dòng sau khi in xong các phần tử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cú pháp f-string - Định nghĩa: Cách thức định dạng chuỗi tiện lợi và trực quan bằng cách thêm chữ 'f' hoặc 'F' trước chuỗi, cho phép nhúng trực tiếp giá trị của biến hoặc kết quả biểu thức vào trong chuỗi thông qua cặp ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhan_du_lieu_va_ep_ky_tu_an_toan:\n# Nhập dữ liệu và chuyển đổi kiểu dữ liệu an toàn kết hợp xử lý lỗi ValueError\ntry:\n    so_tuoi_str = input(\"Nhập số tuổi của bạn: \")\n    tuoi = int(so_tuoi_str)\n    print(\"Số tuổi đã nhập:\", tuoi)\nexcept ValueError:\n    print(\"Lỗi: Vui lòng nhập vào một số nguyên hợp lệ!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tuy_bien_in_du_lieu_voi_print_va_fstring:\n# Tùy biến đầu ra sử dụng sep, end và định dạng chuỗi f-string\nten = \"Anh Tuấn\"\ndiem_tb = 8.75\n\n# Định dạng chuỗi bằng f-string với 1 chữ số thập phân\nprint(f\"Học viên: {ten} đạt điểm trung bình: {diem_tb:.1f}\")\n\n# Sử dụng sep để phân tách và end để không xuống dòng tự động\nprint(\"Python\", \"Cơ\", \"Bản\", sep=\"-\", end=\"...\")\nprint(\" Hoàn thành bài học!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ung_dung_bmi_cli_hoan_chinh:\n# Ứng dụng CLI thực tế: Máy tính chỉ số khối cơ thể (BMI)\ntry:\n    print(\"=== MÁY TÍNH CHỈ SỐ BMI ===\")\n    \n    # Thiết kế các câu nhắc (prompt) rõ ràng để người dùng nhập dữ liệu\n    chieu_cao_str = input(\"Nhập chiều cao của bạn (mét, ví dụ: 1.65): \")\n    chieu_cao = float(chieu_cao_str)\n    \n    can_nang_str = input(\"Nhập cân nặng của bạn (kg, ví dụ: 55.4): \")\n    can_nang = float(can_nang_str)\n    \n    # Thực hiện quy trình xử lý tính toán BMI\n    bmi = can_nang / (chieu_cao ** 2)\n    \n    # Xuất dữ liệu đã định dạng đẹp mắt ra màn hình\n    print(f\"\\\\nKết quả: Chỉ số BMI của bạn là {bmi:.2f}\")\n    \n    # Đánh giá kết quả dựa trên chỉ số BMI\n    if bmi < 18.5:\n        print(\"Đánh giá: Thể trạng gầy.\")\n    elif bmi < 25.0:\n        print(\"Đánh giá: Thể trạng bình thường.\")\n    else:\n        print(\"Đánh giá: Thể trạng thừa cân.\")\n        \nexcept ValueError:\n    print(\"\\\\nLỗi: Chiều cao và cân nặng phải là số nguyên hoặc số thực hợp lệ!\")\nexcept ZeroDivisionError:\n    print(\"\\\\nLỗi: Chiều cao phải lớn hơn 0!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ep_kieu_tuong_minh - Định nghĩa: Phương pháp người lập trình chủ động sử dụng các hàm tích hợp sẵn như int(), float(), str(), bool() để chuyển đổi kiểu dữ liệu của một giá trị theo ý muốn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: co_che_hoat_dong_ham_int - Định nghĩa: Hàm int() chuyển đổi giá trị sang kiểu số nguyên bằng cách làm tròn xuống số thực hoặc phân tích chuỗi chứa chữ số nguyên. Sẽ báo lỗi ValueError nếu chuỗi chữ có ký tự khác ngoài chữ số.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: co_che_hoat_dong_ham_float - Định nghĩa: Hàm float() chuyển đổi một giá trị sang kiểu số thực. Chấp nhận chuỗi số hoặc số nguyên. Báo lỗi ValueError nếu định dạng chuỗi không hợp lệ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: co_che_hoat_dong_ham_str - Định nghĩa: Hàm str() chuyển đổi bất kỳ đối tượng nào thành dạng chuỗi biểu diễn của nó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: co_che_hoat_dong_ham_bool - Định nghĩa: Hàm bool() chuyển đổi một giá trị sang kiểu Boolean. Trả về False cho các giá trị rỗng hoặc bằng không (0, 0.0, '', None), và True cho tất cả các trường hợp khác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_value_error - Định nghĩa: Ngoại lệ xảy ra khi một hàm nhận được giá trị có kiểu dữ liệu phù hợp nhưng nội dung giá trị không thể thực hiện chuyển đổi (ví dụ: cố gắng chuyển chuỗi chữ 'abc' thành số nguyên).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kiem_soat_loi_try_except - Định nghĩa: Cấu trúc sử dụng khối lệnh try...except để thử nghiệm một đoạn code có khả năng gây lỗi và bắt ngoại lệ (như ValueError), giúp chương trình tiếp tục chạy ổn định mà không bị dừng đột ngột.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_ep_kieu_co_ban:\n# Ví dụ ép kiểu cơ bản với các hàm tích hợp sẵn\nso_chuoi = \"123\"\nso_nguyen = int(so_chuoi)  # Chuyển thành số nguyên: 123\nso_thuc = float(so_chuoi)  # Chuyển thành số thực: 123.0\nchuoi_moi = str(so_thuc)  # Chuyển thành chuỗi: \"123.0\"\n\n# Kiểm tra giá trị logic qua hàm bool()\nchua_gia_tri = bool(10)    # Trả về True vì số khác 0\ngia_tri_rong = bool(\"\")    # Trả về False do chuỗi rỗng\n\nprint(so_nguyen)\nprint(so_thuc)\nprint(chuoi_moi)\nprint(chua_gia_tri)\nprint(gia_tri_rong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xu_ly_loi_value_error:\n# Nhận dữ liệu đầu vào và kiểm soát lỗi ValueError\nnhap_vao = input(\"Nhập một số nguyên: \")\n\ntry:\n    # Cố gắng chuyển đổi kiểu dữ liệu đầu vào\n    so_hop_le = int(nhap_vao)\n    print(\"Nhập liệu thành công, giá trị hợp lệ:\", so_hop_le)\nexcept ValueError:\n    # Xử lý trường hợp nhập sai định dạng số\n    print(\"Lỗi: Bạn đã nhập một giá trị không phải số nguyên!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_so_hoc_co_ban - Định nghĩa: Các kí hiệu được sử dụng để thực hiện các phép toán cơ bản bao gồm phép cộng (+), phép trừ (-), phép nhân (*) và phép chia (/). Trong Python, kết quả của phép chia (/) luôn luôn trả về một số thực (float), ngay cả khi hai số chia hết cho nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phan_biet_cac_phep_chia - Định nghĩa: Sự khác biệt giữa ba phép chia trong Python: Phép chia thường (/) trả về một số thực đầy đủ phần thập phân. Phép chia lấy nguyên (//) thực hiện phép chia rồi làm tròn kết quả xuống số nguyên gần nhất. Phép chia lấy dư (%) trả về số dư còn lại sau khi thực hiện phép chia nguyên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: thu_tu_uu_tien_toan_tu - Định nghĩa: Quy tắc xác định trình tự thực hiện các phép toán trong một biểu thức phức tạp. Thứ tự ưu tiên giảm dần từ: dấu ngoặc đơn ( ), phép lũy thừa (**), các phép toán nhân/chia (*, /, //, %), và cuối cùng là cộng/trừ (+, -). Nếu các toán tử có cùng độ ưu tiên, biểu thức được tính từ trái sang phải.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ung_dung_tinh_toan_cli - Định nghĩa: Phương pháp xây dựng một chương trình chạy trên giao diện dòng lệnh bằng cách kết hợp nhập liệu từ bàn phím (sử dụng hàm input), chuyển đổi kiểu dữ liệu từ chuỗi sang số thực hoặc số nguyên, thực hiện các phép tính số học thực tế và hiển thị kết quả cho người dùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phep_tinh_co_ban:\na = 10\nb = 4\n\ntong = a + b       # Kết quả: 14\nhieu = a - b       # Kết quả: 6\ntich = a * b       # Kết quả: 40\nthuong = a / b     # Kết quả: 2.5 (kiểu float)\n\nprint('Tong:', tong)\nprint('Thuong:', thuong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chia_thuong_chia_nguyen_chia_du:\nso_bi_chia = 17\nso_chia = 5\n\nchia_thuong = so_bi_chia / so_chia   # Kết quả: 3.4\nchia_nguyen = so_bi_chia // so_chia  # Kết quả: 3\nchia_du = so_bi_chia % so_chia       # Kết quả: 2\n\nprint('Chia thuong:', chia_thuong)\nprint('Chia nguyen (lay phan nguyen):', chia_nguyen)\nprint('Chia du (lay phan du):', chia_du)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho uu_tien_toan_tu:\ntieu_chuan = 10 + 5 * 2        # Nhân trước, cộng sau: 10 + 10 = 20\nngoac_don = (10 + 5) * 2       # Ngoặc trước, nhân sau: 15 * 2 = 30\ntra_sang_phai = 12 / 3 * 2      # Cùng độ ưu tiên, tính từ trái sang phải: 4.0 * 2 = 8.0\n\nprint('Ket qua tieu chuan:', tieu_chuan)\nprint('Ket qua co ngoac don:', ngoac_don)\nprint('Ket qua trai sang phai:', tra_sang_phai)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chia_hoa_don_cli:\n# Nhập thông tin từ bàn phím và ép kiểu số thực\ntong_hoa_don = float(input('Nhap tong so tien tren hoa don (VND): '))\nphan_tram_tip = float(input('Nhap phan tram tip (vi du 10 cho 10%): '))\nso_nguoi = int(input('Nhap so nguoi chia hoa don: '))\n\n# Tính toán tiền tip và tổng hóa đơn mới\ntien_tip = tong_hoa_don * (phan_tram_tip / 100)\ntong_cong = tong_hoa_don + tien_tip\nso_tien_moi_nguoi = tong_cong / so_nguoi\n\n# Xuất kết quả\nprint('Tien tip:', tien_tip, 'VND')\nprint('Tong cong phai tra:', tong_cong, 'VND')\nprint('Moi nguoi can tra:', so_tien_moi_nguoi, 'VND')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử so sánh (Comparison Operators) - Định nghĩa: Các ký hiệu được sử dụng để so sánh hai giá trị với nhau. Kết quả của phép so sánh luôn là một giá trị Boolean (True hoặc False). Các toán tử cơ bản gồm lớn hơn (>), nhỏ hơn (<), lớn hơn hoặc bằng (>=), và nhỏ hơn hoặc bằng (<=).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kiểu dữ liệu Boolean (Boolean Data Type) - Định nghĩa: Kiểu dữ liệu logic trong Python chỉ nhận một trong hai giá trị duy nhất là True (Đúng) và False (Sai). Đây là kết quả trả về của các phép toán so sánh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử so sánh bằng (==) và so sánh khác (!=) - Định nghĩa: Toán tử == dùng để kiểm tra xem giá trị của hai vế có bằng nhau hay không. Trong khi đó, toán tử != dùng để kiểm tra xem giá trị của hai vế có khác nhau hay không.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Phân biệt giữa toán tử gán (=) và toán tử so sánh bằng (==) - Định nghĩa: Toán tử gán (=) được dùng để lưu trữ giá trị vào một biến. Toán tử so sánh bằng (==) được dùng để so sánh giá trị giữa hai vế xem chúng có bằng nhau hay không và trả về giá trị Boolean.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biểu thức điều kiện (Conditional Expression) - Định nghĩa: Sự kết hợp giữa các biến, hằng số và toán tử so sánh để tạo ra một biểu thức logic đánh giá được tính đúng/sai. Biểu thức này là nền tảng để điều khiển luồng chương trình thông qua các cấu trúc điều kiện (như if-else).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho comparison_operators_basic:\n# Khai báo biến số\na = 15\nb = 10\n\n# Sử dụng các toán tử so sánh cơ bản và in kết quả Boolean\nket_qua_lon_hon = a > b\nket_qua_nho_hon = a < b\nket_qua_lon_hon_hoac_bang = a >= 15\nket_qua_nho_hon_hoac_bang = b <= 5\n\nprint(\"a > b:\", ket_qua_lon_hon)  # Kết quả: True\nprint(\"a < b:\", ket_qua_nho_hon)  # Kết quả: False\nprint(\"a >= 15:\", ket_qua_lon_hon_hoac_bang)  # Kết quả: True\nprint(\"b <= 5:\", ket_qua_nho_hon_hoac_bang)  # Kết quả: False",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho equality_and_assignment:\n# Toán tử gán (=) dùng để gán giá trị cho biến\ntuoi_chuan = 18\ntuoi_hoc_sinh = 16\n\n# Toán tử so sánh bằng (==) kiểm tra tính tương đương\nla_bang_nhau = (tuoi_hoc_sinh == tuoi_chuan)\nprint(\"Tuổi học sinh bằng tuổi chuẩn:\", la_bang_nhau)  # Kết quả: False\n\n# Toán tử so sánh khác (!=) kiểm tra sự khác biệt\nla_khac_nhau = (tuoi_hoc_sinh != tuoi_chuan)\nprint(\"Tuổi học sinh khác tuổi chuẩn:\", la_khac_nhau)  # Kết quả: True",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho conditional_expression_application:\n# Ứng dụng toán tử so sánh xây dựng biểu thức điều kiện thực tế\nso_du_tai_khoan = 50000\ngia_ve_xem_phim = 60000\n\n# Biểu thức điều kiện kiểm tra số dư có đủ mua vé hay không\ndu_dieu_kien_mua_ve = so_du_tai_khoan >= gia_ve_xem_phim\n\nif du_dieu_kien_mua_ve:\n    print(\"Giao dịch thành công! Bạn đã mua được vé.\")\nelse:\n    print(\"Giao dịch thất bại! Số dư tài khoản không đủ.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_logic - Định nghĩa: Các ký pháp hoặc từ khóa (and, or, not) dùng để kết hợp, thay đổi hoặc phủ định các biểu thức chứa giá trị Boolean (True/False).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_and - Định nghĩa: Phép hội logic. Trả về True nếu tất cả các vế tham gia đều True. Nếu có ít nhất một vế False, kết quả trả về False.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_or - Định nghĩa: Phép tuyển logic. Trả về True nếu có ít nhất một vế tham gia True. Chỉ trả về False khi tất cả các vế đều False.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_not - Định nghĩa: Phép phủ định logic. Có độ ưu tiên cao nhất trong các toán tử logic, dùng để đảo ngược giá trị chân trị từ True thành False và ngược lại.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: do_uu_tien_toan_tu - Định nghĩa: Quy tắc xác định thứ tự thực hiện các phép toán khi chúng nằm chung trong biểu thức. Thứ tự ưu tiên mặc định từ cao xuống thấp: Toán học (Lũy thừa -> Nhân/Chia -> Cộng/Trừ) -> So sánh (>, <, ==, >=, <=, !=) -> Logic (not -> and -> or).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vai_tro_ngoac_don - Định nghĩa: Cú pháp cho phép ghi đè/thay đổi thứ tự ưu tiên mặc định của trình biên dịch. Các biểu thức đặt trong cặp ngoặc đơn '()' luôn được tính toán trước tiên từ trong ra ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_logic_do_uu_tien - Định nghĩa: Loại lỗi lập trình (logical bug) xuất hiện do không phân biệt được thứ tự chạy của and/or hoặc thiếu cặp ngoặc đơn dẫn đến biểu thức rẽ nhánh thực thi sai so với kịch bản thực tế mong muốn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho bang_chan_tri_and_or_not:\n# Min họa bảng chân trị của các toán tử logic trong Python\nx = True\ny = False\n\n# Kiểm tra toán tử and\nprint('x and y =', x and y)  # Kết quả: False\n\n# Kiểm tra toán tử or\nprint('x or y =', x or y)    # Kết quả: True\n\n# Kiểm tra toán tử not\nprint('not x =', not x)      # Kết quả: False\nprint('not y =', not y)      # Kết quả: True",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thu_tu_uu_tien_toan_tu:\n# Minh họa độ ưu tiên của toán tử: Toán học > So sánh > Logic\n# Thứ tự thực thi:\n# B1: Tính toán học: 5 + 3 = 8\n# B2: So sánh: 8 > 10 (False), 2 * 3 = 6 và 6 == 6 (True)\n# B3: Logic: False or True -> Kết quả cuối là True\nket_qua = 5 + 3 > 10 or 2 * 3 == 6\nprint('Kết quả biểu thức:', ket_qua)\n\n# Sử dụng ngoặc đơn để thay đổi thứ tự ưu tiên mặc định\n# Biểu thức tính trong ngoặc trước: 10 or 2 -> and / or với các giá trị khác để so sánh\nvi_du_ngoac = (10 > 5 + 3) and (2 * 3 == 6)\n# (10 > 8) and (6 == 6) -> True and True -> True\nprint('Kết quả có ngoặc:', vi_du_ngoac)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sua_loi_logic_re_nhanh:\n# Bài toán: Cho phép học sinh đi dã ngoại nếu: (Có điểm chuyên cần tốt HOẶC điểm thi cao) VÀ bố mẹ đồng ý.\ndiem_chuyen_can_tot = False\ndiem_thi_cao = True\nbo_me_dong_y = False\n\n# LỖI LOGIC: Thiếu cặp ngoặc đơn kiểm soát thứ tự ưu tiên.\n# Vì 'and' chạy trước 'or', dòng code dưới hiểu là: diem_chuyen_can_tot or (diem_thi_cao and bo_me_dong_y)\n# Kết quả: False or (True and False) -> False or False -> False (May mắn trùng khớp kết quả yêu cầu)\nloi_logic = diem_chuyen_can_tot or diem_thi_cao and bo_me_dong_y\n\n# Trường hợp lỗi rõ ràng: Nếu bố mẹ đồng ý = True nhưng không đạt tiêu chuẩn học tập.\ndiem_chuyen_can_tot = False\ndiem_thi_cao = False\nbo_me_dong_y = True\n# Ta mong muốn kết quả là False (vì học không tốt), nhưng do không có ngoặc:\n# False or (False and True) -> False (vẫn False). Nhưng nếu:\ndiem_chuyen_can_tot = True\ndiem_thi_cao = False\nbo_me_dong_y = False \n# Mong muốn là False (vì bố mẹ không đồng ý). Code sai: True or (False and False) -> True or False -> True (Học sinh vẫn được đi - Sai logic nghiệp vụ!)\n\n# SỬA LỖI: Nhóm các điều kiện cần thiết bằng cặp ngoặc đơn\ndung_logic = (diem_chuyen_can_tot or diem_thi_cao) and bo_me_dong_y\nprint('Đúng logic mong muốn:', dung_logic) # Kết quả sẽ ra False chính xác",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
+    }
   }
 ]

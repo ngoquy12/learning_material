@@ -12,8 +12,15 @@ from agents import (
     lessons_learned_agent, pm_reviewer_agent, objective_reviewer_agent
 )
 
+# Global flag to cancel running AI workflows
+cancellation_requested = False
+
 def save_state_checkpoint(state: AgentState):
     """Helper to save checkpoint with lesson-specific key if lesson_id is present."""
+    global cancellation_requested
+    if cancellation_requested:
+        raise ValueError("Tác vụ đã bị hủy bởi người dùng.")
+        
     session_id = state.get('session_id', 'default')
     lesson_id = state.get('lesson_id', '')
     course_prefix = ""

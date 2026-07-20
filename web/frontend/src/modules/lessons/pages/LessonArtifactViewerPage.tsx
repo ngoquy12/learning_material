@@ -62,8 +62,6 @@ function MarkmapComponent({ markmapData }: { markmapData: string }) {
       cleanMd = cleanMd.trim();
     }
 
-
-
     // Replace markdown image syntax with HTML img tags for inline rendering in Markmap
     cleanMd = cleanMd.replace(/!\[(.*?)\]\((.*?)\)/g, (_match, alt, src) => {
       return `<img src="${src}" alt="${alt}" style="max-height: 100px; max-width: 200px; display: block; margin: 6px auto; border-radius: 4px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);" />`;
@@ -182,10 +180,13 @@ export default function LessonArtifactViewerPage() {
   const activeTab = searchParams.get("tab") || "reading";
 
   const setActiveTab = (tab: string) => {
-    setSearchParams((prev) => {
-      prev.set("tab", tab);
-      return prev;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        prev.set("tab", tab);
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   // Load first available artifact type as default tab
@@ -202,10 +203,13 @@ export default function LessonArtifactViewerPage() {
       } else if (types.includes("outline")) {
         defaultTab = "outline";
       }
-      setSearchParams((prev) => {
-        prev.set("tab", defaultTab);
-        return prev;
-      }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          prev.set("tab", defaultTab);
+          return prev;
+        },
+        { replace: true },
+      );
     }
   }, [artifacts, searchParams, setSearchParams]);
 
@@ -281,9 +285,12 @@ export default function LessonArtifactViewerPage() {
   ].filter((t) => t.exists || t.key === "practice");
 
   return (
-    <Layout className="min-h-[calc(100vh-112px)] bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
+    <Layout className="h-[calc(100vh-200px)] bg-slate-50 rounded-lg overflow-hidden border border-slate-200">
       {/* Top Learning Navigation Bar */}
-      <Header className="bg-white px-4 flex items-center justify-between border-b border-slate-200 h-16" style={{ background: "#fff", padding: "0 16px" }}>
+      <Header
+        className="bg-white px-4 flex items-center justify-between border-b border-slate-200 h-16"
+        style={{ background: "#fff", padding: "0 16px" }}
+      >
         <div className="flex items-center gap-3 overflow-hidden">
           <Button
             type="text"
@@ -292,7 +299,10 @@ export default function LessonArtifactViewerPage() {
             className="hover:bg-slate-100"
           />
           <Divider type="vertical" className="h-6 border-slate-200" />
-          <div className="truncate flex flex-col justify-center" style={{ lineHeight: "normal" }}>
+          <div
+            className="truncate flex flex-col justify-center"
+            style={{ lineHeight: "normal" }}
+          >
             <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 font-mono px-2 py-0.5 rounded w-max block mb-2">
               {lesson.name}
             </span>
@@ -412,7 +422,7 @@ function ReadingViewer({ artifact }: { artifact: ArtifactResponse }) {
     }
   }, [artifact]);
 
-  // Inject themes and styles into iframe dynamically
+  // Load content into iframe only when artifact content changes
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe || !artifact?.content) return;
@@ -424,16 +434,50 @@ function ReadingViewer({ artifact }: { artifact: ArtifactResponse }) {
     doc.write(artifact.content);
     doc.close();
 
-    // Style injections
-    const styleEl = doc.createElement("style");
+    const win = iframe.contentWindow as (Window & { initApp?: () => void }) | null;
+    if (win && typeof win.initApp === "function") {
+      try {
+        win.initApp();
+      } catch (e) {
+        console.error(
+          "Failed to re-initialize visualizer app on frame content load",
+          e,
+        );
+      }
+    }
+  }, [artifact]);
+
+  // Inject/update themes and styles dynamically without reloading iframe content
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe || !artifact?.content) return;
+
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+
+    // Check if style element already exists, if not, create it
+    let styleEl = doc.getElementById(
+      "iframe-injected-styles",
+    ) as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = doc.createElement("style");
+      styleEl.id = "iframe-injected-styles";
+      doc.head.appendChild(styleEl);
+    }
+
     styleEl.innerHTML = `
       body {
         font-size: ${fontSize}px !important;
         line-height: 1.7 !important;
-        padding: 40px !important;
+        padding: 24px !important;
         margin: 0 auto !important;
-        max-width: 800px !important;
+        max-width: 1200px !important;
         transition: all 0.3s ease;
+      }
+      @media (min-width: 768px) {
+        body {
+          padding: 40px !important;
+        }
       }
       pre, code {
         font-family: 'Fira Code', Consolas, Monaco, monospace !important;
@@ -482,10 +526,11 @@ function ReadingViewer({ artifact }: { artifact: ArtifactResponse }) {
       body.font-serif { font-family: 'Georgia', 'Playfair Display', serif !important; }
       body.font-mono { font-family: 'Fira Code', 'Courier New', monospace !important; }
     `;
-    doc.head.appendChild(styleEl);
 
-    // Apply active classes
-    doc.body.className = `${fontFamily} theme-${theme}`;
+    // Apply active classes to body
+    if (doc.body) {
+      doc.body.className = `${fontFamily} theme-${theme}`;
+    }
 
     // Handle iframe scroll to update progress bar
     const handleScroll = () => {
@@ -519,7 +564,7 @@ function ReadingViewer({ artifact }: { artifact: ArtifactResponse }) {
     <div className="flex-1 flex min-h-0 bg-white">
       {/* Table of Contents Sidebar */}
       {!focusMode && headings.length > 0 && (
-        <div className="w-64 border-r border-slate-200 bg-slate-50 flex flex-col min-h-0 hidden md:flex">
+        <div className="w-64 border-r border-slate-200 bg-slate-50 flex-col min-h-0 hidden md:flex">
           <div className="p-4 border-b border-slate-200 bg-white flex items-center justify-between">
             <span className="font-bold text-slate-700 text-xs uppercase tracking-wider flex items-center gap-1.5">
               <ListTodo size={14} className="text-indigo-600" /> Mục lục bài đọc
@@ -639,17 +684,21 @@ function ReadingViewer({ artifact }: { artifact: ArtifactResponse }) {
         </div>
 
         {/* Dynamic Iframe Panel */}
-        <div className="flex-1 bg-slate-100 flex justify-center p-4 min-h-0 overflow-hidden">
-          <div
-            className={`w-full max-w-4xl bg-white shadow-sm border border-slate-200 rounded-xl overflow-hidden flex flex-col transition-all ${theme === "dark" ? "border-slate-800 shadow-slate-950/20" : ""}`}
-          >
-            <iframe
-              ref={iframeRef}
-              className="w-full flex-1 border-0"
-              title="Reading Frame"
-              sandbox="allow-same-origin allow-scripts"
-            />
-          </div>
+        <div
+          className={`flex-1 flex flex-col min-h-0 overflow-hidden transition-all ${
+            theme === "dark"
+              ? "bg-slate-900"
+              : theme === "sepia"
+                ? "bg-[#fcf6e8]"
+                : "bg-white"
+          }`}
+        >
+          <iframe
+            ref={iframeRef}
+            className="w-full flex-1 border-0"
+            title="Reading Frame"
+            sandbox="allow-same-origin allow-scripts"
+          />
         </div>
       </div>
     </div>
@@ -754,7 +803,8 @@ function QuizViewer({ artifact }: { artifact: ArtifactResponse }) {
 
         let explanation = q.explanation || "";
         if (!explanation) {
-          explanation = (q[`explanation_answer_${isCorrectIdx}`] as string) || "";
+          explanation =
+            (q[`explanation_answer_${isCorrectIdx}`] as string) || "";
         }
 
         return {
@@ -767,18 +817,20 @@ function QuizViewer({ artifact }: { artifact: ArtifactResponse }) {
       list = rawData.questions.map((q: RawQuestionDetail) => {
         let options: QuestionOption[] = [];
         if (Array.isArray(q.options)) {
-          options = q.options.map((opt: RawQuestionOption | string, idx: number) => {
-            if (typeof opt === "object" && opt !== null) {
+          options = q.options.map(
+            (opt: RawQuestionOption | string, idx: number) => {
+              if (typeof opt === "object" && opt !== null) {
+                return {
+                  option_text: opt.option_text || "",
+                  is_correct: !!opt.is_correct,
+                };
+              }
               return {
-                option_text: opt.option_text || "",
-                is_correct: !!opt.is_correct,
+                option_text: String(opt),
+                is_correct: idx === q.correct_option_index,
               };
-            }
-            return {
-              option_text: String(opt),
-              is_correct: idx === q.correct_option_index,
-            };
-          });
+            },
+          );
         }
         return {
           question_text: q.question_text || q.question || "",
@@ -790,18 +842,20 @@ function QuizViewer({ artifact }: { artifact: ArtifactResponse }) {
       list = rawData.lesson_quiz.map((q: RawQuestionDetail) => {
         let options: QuestionOption[] = [];
         if (Array.isArray(q.options)) {
-          options = q.options.map((opt: RawQuestionOption | string, idx: number) => {
-            if (typeof opt === "object" && opt !== null) {
+          options = q.options.map(
+            (opt: RawQuestionOption | string, idx: number) => {
+              if (typeof opt === "object" && opt !== null) {
+                return {
+                  option_text: opt.option_text || "",
+                  is_correct: !!opt.is_correct,
+                };
+              }
               return {
-                option_text: opt.option_text || "",
-                is_correct: !!opt.is_correct,
+                option_text: String(opt),
+                is_correct: idx === q.correct_option_index,
               };
-            }
-            return {
-              option_text: String(opt),
-              is_correct: idx === q.correct_option_index,
-            };
-          });
+            },
+          );
         }
         return {
           question_text: q.question_text || q.question || "",
@@ -991,7 +1045,10 @@ function QuizViewer({ artifact }: { artifact: ArtifactResponse }) {
                 <div className="flex flex-col items-center gap-2">
                   <div className="flex items-center gap-2">
                     {scorePercent >= 80 ? (
-                      <Award size={24} className="text-yellow-500 animate-bounce" />
+                      <Award
+                        size={24}
+                        className="text-yellow-500 animate-bounce"
+                      />
                     ) : scorePercent >= 50 ? (
                       <CheckCircle2 size={24} className="text-emerald-500" />
                     ) : (

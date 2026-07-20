@@ -9,7 +9,7 @@ def compile_session_html(session_dir: Path, session_title: str):
     extracts their body content, wraps them in collapsible accordion cards,
     and writes a unified premium session-level reading_all.html with a sticky left sidebar.
     """
-    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")))
+    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")), key=lambda p: int(re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE).group(1)) if re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE) else 999)
     if not html_files:
         return
         
@@ -60,16 +60,13 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
                 else:
                     body_content = content[start_idx:].strip()
                 
-                # Balance div tags by removing the extra closing div of .container
-                div_balance = body_content.count('<div') - body_content.count('</div>')
-                if div_balance < 0:
-                    script_idx = body_content.find('<script>')
-                    if script_idx == -1:
-                        script_idx = body_content.find('<!-- Script imports -->')
-                    search_limit = script_idx if script_idx != -1 else len(body_content)
-                    last_close_div = body_content.rfind('</div>', 0, search_limit)
-                    if last_close_div != -1:
-                        body_content = body_content[:last_close_div] + body_content[last_close_div + 6:]
+                # Use BeautifulSoup to robustly balance and self-repair all HTML tags
+                try:
+                    from bs4 import BeautifulSoup
+                    soup = BeautifulSoup(body_content, "html.parser")
+                    body_content = str(soup)
+                except Exception as e:
+                    print(f"  [Warning] BeautifulSoup repair failed: {e}")
             else:
                 body_content = content # Fallback
                 
@@ -1585,13 +1582,77 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
         }}
       }}
 
+      function getSessionStorageKey() {{
+        return "session_expanded_" + encodeURIComponent(document.title);
+      }}
+
+      function saveLessonState(idx, isExpanded) {{
+        try {{
+          const key = getSessionStorageKey();
+          let state = JSON.parse(localStorage.getItem(key) || "{{}}");
+          state[idx] = isExpanded;
+          localStorage.setItem(key, JSON.stringify(state));
+        }} catch(e) {{
+          console.error("Failed to save lesson state to localStorage", e);
+        }}
+      }}
+
+      function loadLessonStates() {{
+        try {{
+          const key = getSessionStorageKey();
+          return JSON.parse(localStorage.getItem(key) || "{{}}");
+        }} catch(e) {{
+          return "{{}}";
+        }}
+      }}
+
       document.addEventListener("DOMContentLoaded", (event) => {{
         document.querySelectorAll("pre code").forEach((el) => {{
           hljs.highlightElement(el);
         }});
 
-        // Auto-toggle first lesson on page load
-        toggleLesson(1);
+        // Load saved states
+        const savedStates = loadLessonStates();
+        const cards = document.querySelectorAll('[id^="lesson-card-"]');
+        let hasSavedState = Object.keys(savedStates).length > 0;
+
+        if (hasSavedState) {{
+          cards.forEach((card) => {{
+            const idx = card.id.replace("lesson-card-", "");
+            const isExpanded = savedStates[idx];
+            if (isExpanded) {{
+              expandLesson(parseInt(idx));
+            }} else {{
+              collapseLesson(parseInt(idx));
+            }}
+          }});
+        }} else {{
+          // Auto-toggle first lesson if no saved state exists
+          expandLesson(1);
+        }}
+
+        // Restore scroll position
+        try {{
+          const scrollKey = "session_scroll_" + encodeURIComponent(document.title);
+          const savedScroll = localStorage.getItem(scrollKey);
+          if (savedScroll) {{
+            setTimeout(() => {{
+              window.scrollTo(0, parseInt(savedScroll));
+            }}, 150);
+          }}
+        }} catch(e) {{}}
+
+        // Save scroll position on scroll (throttled)
+        let scrollTimeout;
+        window.addEventListener("scroll", () => {{
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {{
+            try {{
+              const scrollKey = "session_scroll_" + encodeURIComponent(document.title);
+              localStorage.setItem(scrollKey, window.scrollY);
+            }} catch(e) {{}}
+          }}, 100);
+        }});
       }});
 
       function toggleLesson(idx) {{
@@ -1613,6 +1674,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             "ring-[#be111c]/20",
             "dark:ring-[#60a5fa]/20",
           );
+          saveLessonState(idx, true);
         }} else {{
           content.classList.add("hidden");
           chevron.style.transform = "rotate(0deg)";
@@ -1623,6 +1685,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             "ring-[#be111c]/20",
             "dark:ring-[#60a5fa]/20",
           );
+          saveLessonState(idx, false);
         }}
       }}
 
@@ -1643,6 +1706,28 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             "ring-[#be111c]/20",
             "dark:ring-[#60a5fa]/20",
           );
+          saveLessonState(idx, true);
+        }}
+      }}
+
+      function collapseLesson(idx) {{
+        const content = document.getElementById(`content-${{idx}}`);
+        const chevron = document.getElementById(`chevron-${{idx}}`);
+        const card = document.getElementById(`lesson-card-${{idx}}`);
+
+        if (!content || !chevron || !card) return;
+
+        if (!content.classList.contains("hidden")) {{
+          content.classList.add("hidden");
+          chevron.style.transform = "rotate(0deg)";
+          card.classList.remove(
+            "border-[#be111c]",
+            "dark:border-[#60a5fa]",
+            "ring-1",
+            "ring-[#be111c]/20",
+            "dark:ring-[#60a5fa]/20",
+          );
+          saveLessonState(idx, false);
         }}
       }}
 
@@ -1826,7 +1911,7 @@ def compile_session_mindmap(session_dir: Path, session_title: str):
     import re
     import mistune
     
-    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")))
+    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")), key=lambda p: int(re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE).group(1)) if re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE) else 999)
     if not mindmap_files:
         return
         

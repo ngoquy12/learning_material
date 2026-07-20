@@ -23,7 +23,14 @@ import { Transformer } from "markmap-lib";
 import { Markmap } from "markmap-view";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../../../shared/api/base";
-import { Trash2, Plus, Save, XCircle, Maximize2, Minimize2 } from "lucide-react";
+import {
+  Trash2,
+  Plus,
+  Save,
+  XCircle,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 
 interface RawGeneralQuizQuestion {
   question_content?: string;
@@ -98,8 +105,6 @@ export const MarkmapComponent = ({ markmapData }: { markmapData: string }) => {
       cleanMd = cleanMd.replace(/\r?\n```$/, "");
       cleanMd = cleanMd.trim();
     }
-
-
 
     // Replace markdown image syntax with HTML img tags for inline rendering in Markmap
     cleanMd = cleanMd.replace(/!\[(.*?)\]\((.*?)\)/g, (_match, alt, src) => {
@@ -1149,7 +1154,10 @@ export const ArtifactPreviewModal = ({
       const cleanHtml = DOMPurify.sanitize(rawHtml);
 
       let htmlRubric = "";
-      if (artifact.type === "project_mini_project" && artifact.content_json?.rubric) {
+      if (
+        artifact.type === "project_mini_project" &&
+        artifact.content_json?.rubric
+      ) {
         let rubricMd = artifact.content_json.rubric.trim();
         if (rubricMd.startsWith("```")) {
           rubricMd = rubricMd.replace(/^```[a-zA-Z]*\r?\n/, "");
@@ -1180,8 +1188,12 @@ export const ArtifactPreviewModal = ({
       );
     }
 
-    if (artifact.type === "project_entry_tests" && artifact.content_json?.entry_tests) {
-      const allTests = (artifact.content_json.entry_tests || []) as ProjectEntryTest[];
+    if (
+      artifact.type === "project_entry_tests" &&
+      artifact.content_json?.entry_tests
+    ) {
+      const allTests = (artifact.content_json.entry_tests ||
+        []) as ProjectEntryTest[];
       return (
         <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-6">
           {allTests.map((test: ProjectEntryTest, idx: number) => {
@@ -1193,7 +1205,8 @@ export const ArtifactPreviewModal = ({
                 key={idx}
                 title={
                   <div className="font-bold text-base text-gray-800">
-                    Đề kiểm tra {idx + 1}: {test.title || `Bài kiểm tra đầu giờ ${idx + 1}`}
+                    Đề kiểm tra {idx + 1}:{" "}
+                    {test.title || `Bài kiểm tra đầu giờ ${idx + 1}`}
                   </div>
                 }
                 className="shadow-sm border-blue-100 hover:border-blue-200 transition-all duration-200"
@@ -1304,7 +1317,10 @@ export const ArtifactPreviewModal = ({
                 title={
                   <div className="flex justify-between items-center w-full">
                     <span className="font-bold text-base text-gray-800">
-                      Bài {ex.index}: {ex.title ? ex.title.replace(/<\/?[^>]+(>|$)/g, "").trim() : ""}
+                      Bài {ex.index}:{" "}
+                      {ex.title
+                        ? ex.title.replace(/<\/?[^>]+(>|$)/g, "").trim()
+                        : ""}
                     </span>
                     <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full uppercase tracking-wider">
                       {ex.level}
@@ -1377,7 +1393,8 @@ export const ArtifactPreviewModal = ({
       return <Empty description="Không có dữ liệu bài tập" />;
     }
 
-    const allExercises = (artifact.content_json.exercises || []) as HomeworkExercise[];
+    const allExercises = (artifact.content_json.exercises ||
+      []) as HomeworkExercise[];
     const ex = allExercises.find((e) => e.index === exIndex);
 
     if (!ex) {
@@ -1397,7 +1414,8 @@ export const ArtifactPreviewModal = ({
           title={
             <div className="flex justify-between items-center w-full">
               <span className="font-bold text-base text-gray-800">
-                Bài {ex.index}: {ex.title ? ex.title.replace(/<\/?[^>]+(>|$)/g, "").trim() : ""}
+                Bài {ex.index}:{" "}
+                {ex.title ? ex.title.replace(/<\/?[^>]+(>|$)/g, "").trim() : ""}
               </span>
               <span className="px-2.5 py-0.5 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full uppercase tracking-wider">
                 {ex.level}
@@ -1467,7 +1485,8 @@ export const ArtifactPreviewModal = ({
       return <Empty description="Không có dữ liệu đề kiểm tra" />;
     }
 
-    const allTests = (artifact.content_json.entry_tests || []) as ProjectEntryTest[];
+    const allTests = (artifact.content_json.entry_tests ||
+      []) as ProjectEntryTest[];
     const test = allTests[testIndex - 1];
 
     if (!test) {
@@ -1484,7 +1503,8 @@ export const ArtifactPreviewModal = ({
           title={
             <div className="flex justify-between items-center w-full">
               <span className="font-bold text-base text-gray-800">
-                Đề kiểm tra {testIndex}: {test.title || `Bài kiểm tra đầu giờ ${testIndex}`}
+                Đề kiểm tra {testIndex}:{" "}
+                {test.title || `Bài kiểm tra đầu giờ ${testIndex}`}
               </span>
             </div>
           }
@@ -1610,7 +1630,9 @@ export const ArtifactPreviewModal = ({
                     sessionId={sessionId}
                     exerciseIndex={exerciseIndex}
                   >
-                    {(previewedArt) => renderSingleExercise(previewedArt, exerciseIndex)}
+                    {(previewedArt) =>
+                      renderSingleExercise(previewedArt, exerciseIndex)
+                    }
                   </ArtifactVersionWrapper>
                 );
               }
@@ -1623,7 +1645,9 @@ export const ArtifactPreviewModal = ({
                     sessionId={sessionId}
                     exerciseIndex={exerciseIndex}
                   >
-                    {(previewedArt) => renderSingleEntryTest(previewedArt, exerciseIndex)}
+                    {(previewedArt) =>
+                      renderSingleEntryTest(previewedArt, exerciseIndex)
+                    }
                   </ArtifactVersionWrapper>
                 );
               }

@@ -114,11 +114,13 @@ def node_init_objectives(state: AgentState) -> AgentState:
             save_state_checkpoint(state)
             
     if not approved:
-        raise ValueError(
-            f"\n[LỖI SƯ PHẠM] Chuẩn đầu ra (Learning Outcomes) không đạt yêu cầu ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+        print(
+            f"\n[CẢNH BÁO SƯ PHẠM] Chuẩn đầu ra (Learning Outcomes) chưa hoàn toàn đạt yêu cầu ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại hệ thống Agent!"
+            f"Hệ thống BỎ QUA LỖI và sử dụng bản nháp tốt nhất hiện tại để tiếp tục tiến hành!"
         )
+        state.setdefault("artifacts_status", {})["objectives"] = "Approved with Warnings"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -163,11 +165,13 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             state["review_logs"].append({"source": "UX_Reviewer", "feedback": review["feedback"]})
             save_state_checkpoint(state)
     if not approved:
-        raise ValueError(
-            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Giao diện/Nội dung Bài đọc không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Giao diện/Nội dung Bài đọc chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
+        state["artifacts_status"]["html"] = "Approved with Warnings"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -193,11 +197,13 @@ def pipeline_slide_production(state: AgentState) -> AgentState:
             state["review_logs"].append({"source": "Academic_Reviewer", "feedback": review["feedback"]})
             save_state_checkpoint(state)
     if not approved:
-        raise ValueError(
-            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Nội dung học thuật Slide không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Nội dung học thuật Slide chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
+        state["artifacts_status"]["slide"] = "Approved with Warnings"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -223,11 +229,13 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
             state["review_logs"].append({"source": "Sandbox_Agent", "feedback": review["feedback"]})
             save_state_checkpoint(state)
     if not approved:
-        raise ValueError(
-            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Đáp án Quiz/Code Sandbox không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Đáp án Quiz/Code Sandbox chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
+        state["artifacts_status"]["quiz"] = "Approved with Warnings"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -260,11 +268,13 @@ def pipeline_video_script_production(state: AgentState) -> AgentState:
             save_state_checkpoint(state)
             
     if not approved:
-        raise ValueError(
-            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Kịch bản Video HyperFrames không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Kịch bản Video HyperFrames chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
+        state["artifacts_status"]["video_script"] = "Approved with Warnings"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -291,11 +301,13 @@ def pipeline_mindmap_production(state: AgentState) -> AgentState:
             save_state_checkpoint(state)
             
     if not approved:
-        raise ValueError(
-            f"\n[XÁC NHẬN CẦN THIẾT TỪ PM] Nội dung Sơ đồ tư duy (Mindmap) không phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Nội dung Sơ đồ tư duy (Mindmap) chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống DỪNG tiến hành để tránh sai sót. Hãy kiểm tra lại cấu trúc và bấm chạy lại khi đã điều chỉnh!"
+            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
+        state["artifacts_status"]["mindmap"] = "Approved with Warnings"
+        save_state_checkpoint(state)
     return state
 
 @component

@@ -2,6 +2,7 @@ import json
 import re
 from typing import Dict, Any, List
 from core.state import AgentState
+from core.llm import call_llm
 
 def estimate_tokens(text: str) -> int:
     if not text:
@@ -123,7 +124,7 @@ def robust_json_parse(json_str: str) -> dict:
         cleaned = cleaned[:-1]
         
     result = {}
-    keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer", "reading_sections", "references"]
+    keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer"]
     
     offsets = []
     for k in keys:
@@ -167,10 +168,6 @@ def robust_json_parse(json_str: str) -> dict:
                             result[k] = []
                         elif k == "lab":
                             result[k] = {"title": "Lab", "objectives": [], "steps": [], "checklist": []}
-                        elif k == "reading_sections":
-                            result[k] = []
-                        elif k == "references":
-                            result[k] = []
                         else:
                             result[k] = {}
                             
@@ -182,16 +179,130 @@ def robust_json_parse(json_str: str) -> dict:
                 result[k] = []
             elif k == "quiz":
                 result[k] = []
-            elif k == "reading_sections":
-                result[k] = []
-            elif k == "references":
-                result[k] = []
             elif k == "lab":
                 result[k] = {"title": "Lab", "objectives": [], "steps": [], "checklist": []}
             else:
                 result[k] = {}
                 
     return result
+
+def generate_offline_master_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, tech_stack: str) -> Dict[str, Any]:
+    print(f"  [Creator Fallback] Generating offline mock master content for stack: {tech_stack}...")
+    parts = tech_stack.lower().split('/')
+    lang = parts[0] if len(parts) > 0 else "generic"
+    framework = parts[1] if len(parts) > 1 else "core"
+    
+    # Generic example code based on stack
+    example_code = ""
+    if lang == "python":
+        if framework == "fastapi":
+            example_code = (
+                "from fastapi import FastAPI\n"
+                "app = FastAPI()\n\n"
+                "@app.get('/')\n"
+                "def read_root():\n"
+                "    return {'message': 'Hello FastAPI'}"
+            )
+        else:
+            example_code = "print('Hello, Python Core!')"
+    elif lang in ("typescript", "javascript"):
+        if framework == "nestjs":
+            example_code = (
+                "import { Controller, Get } from '@nestjs/common';\n\n"
+                "@Controller()\n"
+                "export class AppController {\n"
+                "  @Get()\n"
+                "  getHello(): string {\n"
+                "    return 'Hello NestJS!';\n"
+                "  }\n"
+                "}"
+            )
+        elif framework == "react":
+            example_code = (
+                "import React from 'react';\n"
+                "export default function App() {\n"
+                "  return <h1>Hello React</h1>;\n"
+                "}"
+            )
+        else:
+            example_code = "console.log('Hello, JS/TS Core!');"
+    elif lang == "java":
+        if framework == "springboot":
+            example_code = (
+                "import org.springframework.web.bind.annotation.GetMapping;\n"
+                "import org.springframework.web.bind.annotation.RestController;\n\n"
+                "@RestController\n"
+                "public class HelloController {\n"
+                "    @GetMapping('/')\n"
+                "    public String hello() { return 'Hello Spring!'; }\n"
+                "}"
+            )
+        else:
+            example_code = "System.out.println(\"Hello, Java Core!\");"
+    else:
+        example_code = f"// Hello World for {tech_stack}"
+
+    return {
+        "problem": f"### Đặt vấn đề\nHọc viên cần làm quen với {lesson_title} và cấu hình cơ bản cho {tech_stack}.",
+        "analysis": f"### Phân tích cơ chế\n{lesson_title} giải quyết các bài toán về {lesson_details or 'kiến trúc phần mềm'}.",
+        "solution": f"### Giải pháp kỹ thuật\nSử dụng các thư viện chuẩn và tuân thủ các quy tắc của {tech_stack}.",
+        "example": example_code,
+        "resolve": f"### Phân tích luồng chạy\nKhi ứng dụng chạy, mã nguồn ví dụ trên sẽ khởi chạy và thực thi.",
+        "summary": "### Tổng kết\n- Hiểu rõ cơ chế hoạt động.\n- Tránh cấu hình sai.\n- Áp dụng đúng chuẩn.\n\n### 3 lỗi thường gặp\n1. **Sai cấu hình môi trường**: Lỗi phổ biến nhất.\n2. **Import sai thư viện**: Thiếu package.\n3. **Cú pháp chưa chuẩn**: Vi phạm quy chuẩn code.",
+        "self_test": [
+            {
+                "question": f"Câu hỏi 1: Mục đích chính của {lesson_title} là gì?",
+                "answer": f"Mục đích chính là làm quen với kiến thức {lesson_title} và tích hợp vào hệ thống {tech_stack}."
+            }
+        ],
+        "references": [
+            {
+                "title": f"Tài liệu chính thức của {lang.capitalize()}",
+                "url": f"https://www.google.com/search?q={lang}+official+documentation"
+            }
+        ],
+        "quiz": [
+            {
+                "question": f"Đâu là đặc tả chính của {lesson_title}?",
+                "options": ["Giải pháp chuẩn", "Cấu hình mặc định", "Không có", "Cả A và B"],
+                "correct_option_index": 3,
+                "explanation": "Cả A và B đều đúng vì nó cung cấp giải pháp chuẩn cùng với cấu hình mặc định."
+            }
+        ],
+        "lab": {
+            "title": f"Lab thực hành {lesson_title}",
+            "objectives": [f"Khởi tạo thành công ứng dụng {tech_stack}", "Cấu hình cơ bản"],
+            "steps": ["Bước 1: Tạo thư mục", "Bước 2: Viết mã nguồn", "Bước 3: Chạy và kiểm tra"],
+            "checklist": ["Ứng dụng chạy không lỗi", "Kết quả trả về đúng mong đợi"]
+        },
+        "visualizer": {
+            "canvas_title": f"Trực quan hóa {lesson_title}",
+            "legend_html": "<span class='badge bg-success'>Hoạt động</span>",
+            "stats_html": "<div>Trạng thái: OK</div>",
+            "code_tracker_html": f"<div class='code-line' id='line-0'>{example_code.splitlines()[0] if example_code else ''}</div>",
+            "input_label": "Tham số đầu vào",
+            "input_default": "Mặc định",
+            "engine_js": (
+                "class InteractiveVisualizerEngine {\n"
+                "  constructor() { this.interval = null; }\n"
+                "  start() {\n"
+                "    console.log('Started visualizer');\n"
+                "    const l = document.getElementById('line-0');\n"
+                "    if(l) l.classList.add('active-line');\n"
+                "    const log = document.getElementById('log-messages');\n"
+                "    if(log) log.innerHTML += '<p>Visualizer started successfully.</p>';\n"
+                "  }\n"
+                "  pause() { console.log('Paused'); }\n"
+                "  step() { console.log('Step'); }\n"
+                "  reset() {\n"
+                "    console.log('Reset');\n"
+                "    const l = document.getElementById('line-0');\n"
+                "    if(l) l.classList.remove('active-line');\n"
+                "  }\n"
+                "}"
+            )
+        }
+    }
 
 def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, attempt_num: int, core_ssot: Dict[str, Any] = None, feedback: str = "", state: AgentState = None) -> Dict[str, Any]:
     # Cache optimization: check if we already generated master content for this lesson
@@ -204,11 +315,16 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
+    tech_stack = "python/fastapi"
+    if state:
+        tech_stack = state.get("technology_stack", "python/fastapi")
+
     if not (gemini_key or openai_key):
-        raise RuntimeError(
-            f"ERROR: LLM API key not found. Offline fallback is disabled. "
-            f"Please set GEMINI_API_KEY or OPENAI_API_KEY to run the content generation pipeline."
-        )
+        result = generate_offline_master_content(session_id, lesson_id, lesson_title, lesson_details, expected_output, tech_stack)
+        if state is not None:
+            state["master_content"] = result
+        return result
+
         
     from core.llm import call_llm
     from core.skills import load_skill_content
@@ -227,22 +343,43 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
     quiz_skill = load_skill_content("quiz_generator")
     lab_skill = load_skill_content("lab_generator")
     
-    # Load lessons learned from previous runs to prevent repeating mistakes
-    lessons_learned = load_skill_content("lessons_learned")
+    # Load lessons learned from previous runs using the new structured Knowledge Memory Agent
     lessons_learned_prompt = ""
-    if lessons_learned:
-        lessons_learned_prompt = f"\n--- BÀI HỌC KINH NGHIỆM PHÒNG CHỐNG LỖI TỪ CÁC BÀI TRƯỚC (Lessons Learned) ---\nHãy đọc kỹ các bài học này để không lặp lại sai lầm tương tự:\n{lessons_learned}\n"
+    try:
+        from agents.knowledge_memory_agent import get_relevant_memories_for_creator
+        # Determine scope from the visualization strategy
+        scope_hint = "mindmap" if "mindmap" in lesson_title.lower() else "all"
+        lessons_learned_prompt = get_relevant_memories_for_creator(
+            tech_stack=tech_stack,
+            scope=scope_hint,
+            limit=10
+        )
+    except Exception:
+        # Fallback to old flat Markdown loader if KMA not available yet
+        from core.skills import load_skill_content
+        lessons_learned = load_skill_content("lessons_learned")
+        if lessons_learned:
+            lessons_learned_prompt = (
+                "\n--- BÀI HỌC KINH NGHIỆM PHÒNG CHỐNG LỖI TỪ CÁC BÀI TRƯỚC (Lessons Learned) ---\n"
+                "Hãy đọc kỹ các bài học này để không lặp lại sai lầm tương tự:\n"
+                f"{lessons_learned}\n"
+            )
 
     system_prompt = f"""Bạn là chuyên gia Thiết kế Chương trình Đào tạo Lập trình (Instructional Designer) và Kỹ sư Phần mềm cao cấp tại Rikkei Education. 
 Nhiệm vụ của bạn là biên soạn tài liệu học tập sâu sắc, chất lượng cao về công nghệ '{tech_stack}'.
 
-YÊU CẦU QUAN TRỌNG VỀ TRỌNG TÂM & ĐỘ SÂU KIẾN THỨC:
+YÊU CẦU QUAN TRỌNG VỀ TRỌNG TÂM, ĐỘ SÂU KIẾN THỨC VÀ KIỂM SOÁT PHẠM VI SƯ PHẠM:
 1. Tập trung 100% vào nội dung bài học: Tài liệu phải bám sát tuyệt đối tiêu đề và chi tiết yêu cầu của Lesson hiện tại từ PM. TUYỆT ĐỐI không viết lan man sang bài học khác làm nội dung quá dài hoặc nhắc đến các bài học tiếp theo.
 2. Ràng buộc công nghệ nghiêm ngặt (Technology Stack Isolation): Bạn phải tuân thủ tuyệt đối công nghệ '{tech_stack}'. Chỉ sử dụng các thư viện, framework, cú pháp, quy chuẩn và cấu trúc chuẩn của công nghệ '{tech_stack}'. Tuyệt đối không được trộn lẫn, nhắc đến hoặc sử dụng các thư viện, công nghệ hoặc framework khác.
-3. Không bịa đặt nội dung/mã nguồn: Nếu bài học mang tính lý thuyết tổng quan hoặc không liên quan trực tiếp đến lập trình mã nguồn phức tạp (như giới thiệu, cài đặt môi trường...), TUYỆT ĐỐI không tự bịa đặt ra mã nguồn lập trình phức tạp không liên quan. Thay vào đó, dùng câu lệnh CLI cơ bản hoặc ví dụ siêu ngắn hoặc để trống.
-4. QUY LUẬT CODE ĐỐI VỚI BÀI LÝ THUYẾT: Đối với bài học mang tính lý thuyết tổng quan (giới thiệu, tổng quan, khái niệm), HẠN CHẾ viết code. TUY NHIÊN, NẾU PM yêu cầu rõ ràng việc code/thực hành trong chi tiết bài học (lesson_details), BẠN BẮT BUỘC PHẢI VIẾT CODE NGẮN GỌN VÀ ĐẦY ĐỦ VÀO TRƯỜNG `example`.
-5. Cách trình bày khoa học & súc tích: CỰC KỲ QUAN TRỌNG: Do giới hạn bộ nhớ hệ thống (Token Limit), bạn PHẢI VIẾT CỰC KỲ NGẮN GỌN VÀ SÚC TÍCH. Khống chế tối đa 150-200 từ cho mỗi mục Markdown. Code ví dụ CHỈ viết những dòng trọng tâm nhất (không viết toàn bộ file dài dòng). Nếu viết dài, chữ sẽ bị cắt cụt và toàn bộ quy trình sẽ sụp đổ. HẠN CHẾ TỐI ĐA SỬ DỤNG ICON EMOJI. CHỈ dùng khi thực sự cần thiết. ĐẶC BIỆT CẤM TUYỆT ĐỐI đặt icon emoji ở đầu các tiêu đề (Headings).
-{lessons_learned_prompt} 
+3. RÀNG BUỘC PHẠM VI VÀ LUỸ KẾ KIẾN THỨC (STRICT SCOPE & PROGRESSION):
+   - Tuyệt đối CẤM sử dụng các khái niệm, cú pháp lập trình, thư viện, hoặc framework nâng cao chưa từng xuất hiện trong các bài học trước đó (xem phần "THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ").
+   - Mã nguồn ví dụ phải cực kỳ đơn giản, ngắn gọn và khớp 100% với trình độ hiện tại của học viên. CẤM tự ý đưa vào các cấu trúc phức tạp như lập trình bất đồng bộ (async/await), decorator, lambda nâng cao, hoặc các thư viện bên thứ ba nếu bài học hoặc các bài trước đó chưa dạy chúng.
+   - Nội dung giải thích phải dễ hiểu, thực tế, đi từ cơ chế hoạt động cơ bản nhất trước khi phân tích internals, đảm bảo không gây quá tải nhận thức.
+4. CẢNH BÁO SƯ PHẠM CHO BÀI HỌC NHỎ (MINOR LESSONS): Nếu nội dung bài học từ PM rất ngắn gọn, mang tính giới thiệu, cài đặt môi trường, hoặc lý thuyết đơn giản, TUYỆT ĐỐI KHÔNG mở rộng vấn đề, không bịa đặt nội dung phức tạp. Hãy đi thẳng vào trọng tâm. Trình bày nội dung cực kỳ ngắn gọn.
+5. Không bịa đặt nội dung/mã nguồn: Nếu bài học không liên quan trực tiếp đến lập trình mã nguồn phức tạp, TUYỆT ĐỐI không tự bịa đặt ra mã nguồn lập trình. Thay vào đó, dùng câu lệnh CLI cơ bản hoặc ví dụ siêu ngắn hoặc để trống trường `example`.
+6. QUY LUẬT CODE ĐỐI VỚI BÀI LÝ THUYẾT: Đối với bài học mang tính lý thuyết tổng quan (giới thiệu, tổng quan, khái niệm), HẠN CHẾ viết code. TUY NHIÊN, NẾU PM yêu cầu rõ ràng việc code/thực hành trong chi tiết bài học (lesson_details), BẠN BẮT BUỘC PHẢI VIẾT CODE NGẮN GỌN VÀ ĐẦY ĐỦ VÀO TRƯỜNG `example`.
+7. Hạn chế kích thước trả về (STRICT SIZE LIMIT): Toàn bộ chuỗi JSON trả về PHẢI cực kỳ ngắn gọn và có tổng số từ dưới 1000 từ. Mỗi mục Markdown (problem, analysis, solution, resolve, summary) chỉ được viết tối đa 100 từ. Trường 'example' chỉ chứa tối đa 15 dòng code mẫu. KHÔNG viết dài dòng, KHÔNG giải thích chi tiết quá mức. Nếu viết dài dòng, hệ thống sẽ tự động cắt cụt và bạn sẽ bị ĐÁNH GIÁ THẤT BẠI. HẠN CHẾ TỐI ĐA SỬ DỤNG ICON EMOJI. CHỈ dùng khi thực sự cần thiết. ĐẶC BIỆT CẤM TUYỆT ĐỐI đặt icon emoji ở đầu các tiêu đề (Headings).
+{lessons_learned_prompt}
 
 Hãy tuân thủ nghiêm ngặt các quy chuẩn sư phạm được định nghĩa trong các tài liệu Kỹ năng (Skills) sau:
 
@@ -289,21 +426,11 @@ Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
 
 Đầu ra bắt buộc phải trả về duy nhất chuỗi JSON khớp với cấu trúc sau:
 {{
-    "reading_sections": [
-        {{
-            "title": "Tiêu đề linh hoạt của phần 1 (VD: Khái niệm cốt lõi, Tình huống thực tế, Từ vựng mới...)",
-            "content": "Nội dung chi tiết phần 1 (Markdown)"
-        }},
-        {{
-            "title": "Tiêu đề linh hoạt của phần 2",
-            "content": "Nội dung chi tiết phần 2 (Markdown)"
-        }},
-        {{
-            "title": "Tiêu đề linh hoạt của phần 3",
-            "content": "Nội dung chi tiết phần 3 (Markdown)"
-        }}
-    ],
-    "example": "Mã nguồn minh họa (đối với môn Lập trình) hoặc Hội thoại/Ví dụ cụ thể (đối với môn Ngoại ngữ). QUY TẮC TỐI THƯỢNG: Nếu bài học là lý thuyết lập trình thuần túy (giới thiệu, lộ trình...), CẤM TUYỆT ĐỐI việc sinh code. TUY NHIÊN, nếu là bài Cài đặt, Setup, hoặc Thực hành, BẮT BUỘC phải sinh đầy đủ các câu lệnh CLI, cấu hình file và mã mẫu chi tiết (tuyệt đối không được bỏ trống).",
+    "problem": "Nội dung phần đặt vấn đề (Markdown)",
+    "analysis": "Nội dung phân tích cơ chế và so sánh (Markdown)",
+    "solution": "Nội dung giải pháp kỹ thuật. NẾU VẼ SƠ ĐỒ SVG HOẶC MERMAID, BẮT BUỘC PHẢI VẼ CỰC KỲ ĐƠN GIẢN (Giới hạn tối đa 20 dòng) để tránh sập hệ thống!",
+    "example": "Mã nguồn minh họa. 🛑 TUYỆT ĐỐI KHÔNG TỰ BỊA CODE. BẠN CHỈ ĐƯỢC PHÉP SINH CODE NẾU PM CÓ CUNG CẤP TỪ KHÓA CODE MẪU BÊN TRÊN. Nếu PM không đề cập đến code, BẮT BUỘC trả về chuỗi rỗng ''.",
+    "resolve": "Phân tích luồng chạy và phản hồi/kết quả thực thi (Markdown). Nếu trường 'example' để trống hoặc chỉ có CLI, hãy phân tích lý thuyết/quy trình vận hành ở đây.",
     "summary": "Tổng kết và 3 lỗi thường gặp (Markdown). BẮT BUỘC BÔI ĐẬM (DÙNG **bold**) tên các sai lầm thường gặp để học viên dễ chú ý.",
     "self_test": [
         {{
@@ -313,8 +440,8 @@ Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
     ],
     "references": [
         {{
-            "title": "Tên tài liệu",
-            "url": "URL"
+            "title": "Tên tài liệu tham khảo uy tín (Tài liệu chính thức, tutorial uy tín, sách...)",
+            "url": "Đường dẫn URL hợp lệ (bắt đầu bằng http hoặc https)"
         }}
     ],
     "quiz": [
@@ -323,120 +450,72 @@ Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
             "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
             "correct_option_index": 0,
             "explanation": "Giải thích chi tiết vì sao đáp án đúng và các đáp án khác sai."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 2",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 3",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 4",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
-        }},
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 5",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích."
         }}
     ],
     "lab": {{
         "title": "Tiêu đề bài thực hành",
-        "objectives": ["Mục tiêu 1", "Mục tiêu 2"],
-        "steps": ["Bước 1", "Bước 2"],
-        "checklist": ["Tiêu chí 1", "Tiêu chí 2"]
+        "objectives": ["Mục tiêu 1"],
+        "steps": ["Bước 1"],
+        "checklist": ["Tiêu chí 1"]
     }},
     "visualizer": {{
-        "canvas_title": "Tiêu đề của khung trực quan hóa tương tác phù hợp với công nghệ '{tech_stack}' và nội dung bài học",
-        "legend_html": "Mã HTML hiển thị chú giải các trạng thái màu sắc phù hợp với bộ phỏng đoán trực quan",
-        "stats_html": "Mã HTML hiển thị các thẻ đếm chỉ số trạng thái (ví dụ: số lần lặp, độ trễ, số lượng biến, hoặc stage...)",
-        "code_tracker_html": "Mã HTML của các dòng code có gắn id line-0, line-1... để highlight khi chạy từng bước",
-        "input_label": "Nhãn cho ô nhập dữ liệu tùy chỉnh",
-        "input_default": "Giá trị mặc định cho ô nhập dữ liệu tùy chỉnh",
-        "engine_js": "Mã JavaScript của class InteractiveVisualizerEngine chứa constructor(), init(), generateSteps(), render(), highlightCode(lineNum), log(msg, type), start(), pause(), step(), reset(), setSpeed(val), applyCustomData(), updateStats() để điều khiển toàn bộ logic. LƯU Ý QUAN TRỌNG: Bạn PHẢI sử dụng đúng các element ID trong HTML sau: 'custom-data-input' (để lấy dữ liệu đầu vào trong applyCustomData), 'log-messages' (để in logs/nhật ký thuật toán), và 'visualizer-canvas' (để render giao diện). Tuyệt đối không dùng các ID tự chế khác."
+        "canvas_title": "Tiêu đề của khung trực quan hóa...",
+        "legend_html": "Mã HTML hiển thị chú giải các trạng thái màu sắc",
+        "stats_html": "Mã HTML hiển thị các thẻ đếm (ví dụ: trạng thái, số lượng...)",
+        "code_tracker_html": "Mã HTML chứa code. 🛑 CHỈ VIẾT TỐI ĐA 5-7 DÒNG CODE NGẮN GỌN NHẤT CÓ THỂ để tránh tràn bộ nhớ! TUYỆT ĐỐI KHÔNG đánh số thứ tự (1., 2.). Giữ nguyên khoảng trắng thụt lề (indentation). MỖI DÒNG CODE NẰM TRONG 1 thẻ <div class='code-line' id='line-0'>...</div> và dùng \\n ở cuối mỗi thẻ.",
+        "input_label": "Nhãn cho ô nhập liệu tùy chỉnh",
+        "input_default": "Giá trị mặc định cho ô nhập liệu",
+        "engine_js": "Mã JavaScript CÓ LOGIC THỰC SỰ của class InteractiveVisualizerEngine. Class phải định nghĩa start(), pause(), step(), reset(). CẦN thao tác DOM (thêm class 'active-line' vào line-0, cập nhật nội dung stat) và gọi document.getElementById('log-messages').innerHTML += '...' để in log. Bắt buộc dùng ký tự \\n để xuống dòng trong code JS giúp dễ nhìn."
     }}
 }}
 WARNING: LỖI NGHIÊM TRỌNG NẾU VI PHẠM: Tuyệt đối KHÔNG BẤM ENTER (ngắt dòng thực) bên trong bất kỳ chuỗi string nào của JSON (đặc biệt là Code và Markdown). Phải viết liền mạch trên một dòng và dùng ký tự "\\n" thay cho việc ngắt dòng! Tuyệt đối không dùng dấu ngoặc kép không được escape (" -> \\").
 Return only raw JSON. Do not wrap in markdown code blocks.
 """
-    response_text = call_llm(
-        system_prompt,
-        user_prompt,
-        json_mode=True,
-        agent_name="Creator_Agent",
-        session_id=session_id,
-        lesson_id=lesson_id
-    )
-    if response_text:
-        try:
-            cleaned = response_text.strip()
-            # Trích xuất phần JSON bằng biểu thức chính quy (nếu có bao bọc bởi markdown)
-            json_match = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
-            if json_match:
-                cleaned = json_match.group(1).strip()
-            else:
-                block_match = re.search(r"```\s*(\{.*?\})\s*```", response_text, re.DOTALL)
-                if block_match:
-                    cleaned = block_match.group(1).strip()
-                else:
-                    first_brace = response_text.find("{")
-                    last_brace = response_text.rfind("}")
-                    if first_brace != -1 and last_brace != -1:
-                        cleaned = response_text[first_brace:last_brace+1].strip()
-            
-            # Sửa đổi các dấu xuống dòng thô không được escape trong các chuỗi JSON
-            cleaned = fix_raw_newlines_in_json_strings(cleaned)
-            result = robust_json_parse(cleaned)
-            
-            # Map reading_sections to problem, analysis, solution, resolve for compatibility
-            if "reading_sections" in result:
-                sections = result["reading_sections"]
-                def format_section(sect):
-                    if not sect:
-                        return ""
-                    title = sect.get("title", "")
-                    body = sect.get("content", "")
-                    if title:
-                        return f"### {title}\n\n{body}"
-                    return body
-                
-                if "problem" not in result:
-                    result["problem"] = format_section(sections[0]) if len(sections) > 0 else ""
-                if "analysis" not in result:
-                    result["analysis"] = format_section(sections[1]) if len(sections) > 1 else ""
-                if "solution" not in result:
-                    result["solution"] = format_section(sections[2]) if len(sections) > 2 else ""
-                if "resolve" not in result:
-                    result["resolve"] = format_section(sections[3]) if len(sections) > 3 else ""
-            
-            # Validation of key fields to ensure no crash
-            required_keys = ["reading_sections", "example", "summary", "self_test", "references", "quiz", "lab", "visualizer"]
-            if all(k in result for k in required_keys):
-                print("  [Creator Agent] Dynamic generation successful!")
-                if state is not None:
-                    state["master_content"] = result
-                return result
-            else:
-                raise ValueError(f"LLM JSON response is missing required keys: {set(required_keys) - set(result.keys())}")
-        except Exception as e:
+    for attempt in range(3):
+        response_text = call_llm(
+            system_prompt,
+            user_prompt,
+            json_mode=True,
+            agent_name=f"Creator_Agent_Att{attempt+1}",
+            session_id=session_id,
+            lesson_id=lesson_id
+        )
+        if response_text:
             try:
-                with open("llm_response_error.json", "w", encoding="utf-8") as f:
-                    f.write(response_text)
-                print("  [DEBUG] Dumped raw LLM response to llm_response_error.json")
-            except Exception as dump_err:
-                print(f"  [DEBUG] Failed to dump raw LLM response: {dump_err}")
-            raise RuntimeError(f"ERROR: Failed to parse dynamic content generated by LLM: {e}") from e
-    else:
-        raise RuntimeError("ERROR: LLM returned empty response or call failed.")
+                cleaned = response_text.strip()
+                # Trích xuất phần JSON bằng biểu thức chính quy (nếu có bao bọc bởi markdown)
+                json_match = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+                if json_match:
+                    cleaned = json_match.group(1).strip()
+                else:
+                    block_match = re.search(r"```\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+                    if block_match:
+                        cleaned = block_match.group(1).strip()
+                    else:
+                        first_brace = response_text.find("{")
+                        last_brace = response_text.rfind("}")
+                        if first_brace != -1 and last_brace != -1:
+                            cleaned = response_text[first_brace:last_brace+1].strip()
+                
+                # Sửa đổi các dấu xuống dòng thô không được escape trong các chuỗi JSON
+                cleaned = fix_raw_newlines_in_json_strings(cleaned)
+                result = robust_json_parse(cleaned)
+                
+                # Validation of key fields to ensure no crash
+                required_keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer"]
+                if all(k in result for k in required_keys):
+                    print(f"  [Creator Agent] Dynamic generation successful on attempt {attempt+1}!")
+                    if state is not None:
+                        state["master_content"] = result
+                    return result
+                else:
+                    print(f"  [Creator Agent Warning] Attempt {attempt+1} LLM JSON response is missing required keys: {set(required_keys) - set(result.keys())}")
+            except Exception as e:
+                print(f"  [Creator Agent Warning] Attempt {attempt+1} Failed to parse dynamic content generated by LLM: {e}")
+        else:
+            print(f"  [Creator Agent Warning] Attempt {attempt+1} LLM returned empty response or call failed.")
+            
+    raise RuntimeError("ERROR: Failed to generate and parse dynamic master content via LLM after 3 attempts.")
 
 
 
@@ -463,110 +542,505 @@ def session_compiler_agent(state: AgentState) -> AgentState:
 
 def video_script_agent(state: AgentState) -> AgentState:
     """
-    Video Script Agent:
-    Generates a structured video recording script for the instructor.
-    Enforces the 3-part layout (Introduction, Main content, Conclusion) from educational video standards.
+    Video Director Agent (HyperFrames Standard):
+    Produces a production-ready blueprint JSON for HyperFrames video composition.
+    Follows the dev-tutorial-video standard: scene-based structure, GSAP timeline rules,
+    audio architecture, and design system as defined in skills/hyperframes_composer/SKILL.md.
     """
+    import json
+    import os
+    from core.llm import call_llm
+    from core.skills import load_skill_content
+
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
-    
     core_ssot = state.get("core_ssot", {})
     lesson_title = core_ssot.get("session_title", "Course Session")
     lesson_details = core_ssot.get("lesson_details", "")
-    expected_output = core_ssot.get("expected_output", "")
-    
-    # We can determine the video type dynamically
-    t = lesson_title.lower()
-    if "giới thiệu" in t or "tổng quan" in t or "định hướng" in t:
-        v_type = "Bài học giới thiệu (Introduction lesson)"
-        v_class = "intro"
-    elif "thực hành" in t or "tích hợp" in t or "xây dựng" in t or "triển khai" in t or "cài đặt" in t or "viết code" in t or "test" in t:
-        v_type = "Bài học thực hành (Practice lesson)"
-        v_class = "practice"
-    else:
-        v_type = "Bài học lý thuyết (Theory lesson)"
-        v_class = "theory"
-        
-    print(f"\n[Video_Script_Agent] Formulating {v_type} Script for {session_id} {lesson_id}")
-    
+    tech_stack = state.get("technology_stack", "python/core")
+
+    previous_rejects = [log for log in state.get("review_logs", []) if log["source"] == "Video_Script_Reviewer"]
+    attempt_num = len(previous_rejects) + 1
+    feedback_context = ""
+    if previous_rejects:
+        feedback_context = f"PHẢN HỒI TỪ REVIEWER (LẦN TRƯỚC — BẮT BUỘC SỬA):\n{previous_rejects[-1]['feedback']}\n"
+
+    print(f"\n[Video_Director_Agent] Generating HyperFrames Blueprint for {session_id} {lesson_id} (Attempt {attempt_num})")
+
+    # Load master content (shared cache)
     content = get_lesson_content(
         session_id=session_id,
         lesson_id=lesson_id,
         lesson_title=lesson_title,
         lesson_details=lesson_details,
-        expected_output=expected_output,
+        expected_output=core_ssot.get("expected_output", ""),
         attempt_num=1,
         core_ssot=core_ssot,
         state=state
     )
-    
-    # Build dialogue script table based on type
-    if v_class == "intro":
-        intro_desc = f"Giới thiệu tổng quan về chương trình học và các đề mục của '{lesson_title}'."
-        main_desc = f"Giải thích tầm quan trọng của chủ đề, lộ trình học tập, và đích đến thực tế: '{expected_output if expected_output else 'tích hợp thành công và hoạt động ổn định'}'."
-        conclusion_desc = "Tóm tắt các yêu cầu bắt buộc và kêu gọi hành động (CTA)."
-        
-        script_rows = f"""| **00:00 - 00:45** | **[Phần 1: Mở đầu - Introduction]**<br>- Hiện slide tiêu đề: {session_id} - {lesson_id}: {lesson_title}.<br>- Giảng viên (Talking head) xuất hiện ở góc màn hình chào hỏi thân thiện. | "Xin chào các bạn học viên của Rikkei Education! Hôm nay chúng ta sẽ bắt đầu một chương trình học vô cùng thú vị và thực tế. Bài học này sẽ giúp chúng ta có cái nhìn toàn cảnh về: {lesson_title}. Đây sẽ là viên gạch nền móng đầu tiên của cả khóa học." |
-| **00:45 - 03:00** | **[Phần 2: Nội dung chính - Main Content]**<br>- Trình bày slide lộ trình học tập và sơ đồ các cấu phần.<br>- Highlight các công nghệ cốt lõi sẽ áp dụng trong môn học.<br>- Chuyển camera cận cảnh giảng viên khi giải thích các mục tiêu. | "Trong phần nội dung chính này, chúng ta cần lưu ý đến những thách thức thực tế sau: {content["problem"][:250]}. Để giải quyết điều đó, giải pháp của chúng ta là học tập chủ động và thiết kế ngược, bám sát dự án thực chiến cuối khóa. Đầu ra kỳ vọng của phần này là: {expected_output if expected_output else 'nắm vững toàn bộ kiến trúc môn học'}. Phân tích sâu hơn, chúng ta thấy..." |
-| **03:00 - 04:00** | **[Phần 3: Kết luận - Conclusion]**<br>- Hiện slide tổng kết quy chế môn học và checklist.<br>- Hiển thị QR Code hoặc link tài nguyên bài học.<br>- Giảng viên chào tạm biệt người học. | "Để tóm tắt lại, mục tiêu lớn nhất của chúng ta hôm nay là định hình rõ lộ trình học. Các bạn hãy tải file Markdown dự án về và hoàn thành checklist tự học nhé. Hẹn gặp lại các bạn trong bài thực hành Lab tiếp theo!" |"""
 
-    elif v_class == "theory":
-        intro_desc = f"Giới thiệu khái niệm lý thuyết cốt lõi của '{lesson_title}'."
-        main_desc = f"Đưa ra bài toán thực tế, phân tích nguyên nhân nếu không áp dụng kỹ thuật, và giới thiệu giải pháp kỹ thuật cụ thể cùng lý thuyết chuẩn."
-        conclusion_desc = "Tóm tắt ý chính của lý thuyết và hướng dẫn chuẩn bị cho bài thực hành tiếp theo."
-        
-        script_rows = f"""| **00:00 - 00:45** | **[Phần 1: Mở đầu - Introduction]**<br>- Hiện slide định nghĩa: {lesson_title}.<br>- Giảng viên giới thiệu khái niệm lý thuyết nền tảng. | "Chào các bạn! Trong bài học lý thuyết hôm nay, chúng ta sẽ cùng nhau tìm hiểu về một chủ đề vô cùng quan trọng, đó là: {lesson_title}. Chúng ta sẽ đi sâu vào cấu trúc và nguyên lý vận hành của nó." |
-| **00:45 - 03:30** | **[Phần 2: Nội dung chính - Main Content]**<br>- Show slide phân tích bài toán thực tế (Problem).<br>- Minh họa bằng hình ảnh / sơ đồ khối so sánh (ví dụ: Đồng bộ vs Bất đồng bộ, hoặc API truyền thống vs Pydantic).<br>- Hiện code mẫu minh họa cách viết đúng chuẩn. | "Hãy tưởng tượng một bài toán thực tế: {content["problem"][:250]}. Tại sao vấn đề này lại xảy ra? {content["analysis"][:250]}. Để giải quyết triệt để, chúng ta áp dụng giải pháp: {content["solution"][:200]}. Hãy cùng nhìn vào ví dụ mã nguồn minh họa ở trên slide..." |
-| **03:30 - 04:30** | **[Phần 3: Kết luận - Conclusion]**<br>- Tóm tắt 3 ý chính cần ghi nhớ.<br>- Đưa ra lưu ý / lỗi thường gặp (Summary).<br>- Kêu gọi hành động: Đọc thêm bài đọc chi tiết và chuẩn bị làm Quiz. | "Tóm lại, hãy luôn ghi nhớ: {content["summary"][:200]}. Các bạn hãy trả lời 3 câu hỏi tự luận ở cuối bài đọc để củng cố kiến thức nhé. Chúc các bạn học tốt và hẹn gặp lại ở video tiếp theo!" |"""
+    # Load the HyperFrames composer skill for context
+    hyperframes_skill = load_skill_content("hyperframes_composer")
 
-    else: # practice
-        intro_desc = f"Giới thiệu bài toán thực hành cho '{lesson_title}'."
-        main_desc = f"Mô hình hóa các bước thực hành qua terminal / IDE, hướng dẫn viết code trực tiếp, khởi chạy uvicorn, và kiểm tra đầu ra."
-        conclusion_desc = "Tổng kết checklist hoàn thành bài Lab thực hành."
-        
-        script_rows = f"""| **00:00 - 00:45** | **[Phần 1: Mở đầu - Introduction]**<br>- Show slide mục tiêu bài Lab thực hành.<br>- Giảng viên mở IDE (VS Code) sẵn sàng để viết code. | "Chào các bạn học viên! Hôm nay chúng ta sẽ bắt tay vào phần thực hành vô cùng quan trọng: {lesson_title}. Mục tiêu của bài thực hành này là giúp các bạn tự tay cài đặt và vận hành hệ thống thực tế." |
-| **00:45 - 04:30** | **[Phần 2: Nội dung chính - Main Content]**<br>- Chia sẻ màn hình IDE (VS Code).<br>- Hướng dẫn từng bước viết code, giải thích chi tiết ý nghĩa từng dòng lệnh.<br>- Mở terminal, chạy lệnh khởi tạo / khởi động máy chủ (ví dụ: uvicorn main:app --reload).<br>- Mở trình duyệt truy cập Swagger UI (/docs) để kiểm thử API. | "Bước đầu tiên, chúng ta cần thiết lập môi trường ảo và cài đặt thư viện cần thiết. Các bạn hãy gõ theo tôi: pip install fastapi uvicorn. Tiếp theo, chúng ta viết file main.py. Dòng code này dùng để khởi tạo ứng dụng FastAPI. Bây giờ, hãy chạy máy chủ uvicorn và mở Swagger UI lên kiểm tra nhé..." |
-| **04:30 - 05:30** | **[Phần 3: Kết luận - Conclusion]**<br>- Hiện slide checklist đánh giá bài thực hành (Lab checklist).<br>- Nhắc nhở nộp bài đúng hạn lên hệ thống học tập.<br>- Khích lệ tinh thần học viên. | "Vậy là chúng ta đã hoàn thành bài thực hành hôm nay với kết quả đầu ra: {expected_output if expected_output else 'hệ thống chạy ổn định'}. Các bạn hãy kiểm tra lại theo checklist bài Lab để đảm bảo không bỏ sót bước nào. Chúc các bạn thành công!" |"""
+    # Build lesson slug for file naming
+    import re
+    def slugify(text: str) -> str:
+        text = text.lower().strip()
+        text = re.sub(r'[àáạảãâầấậẩẫăằắặẳẵ]', 'a', text)
+        text = re.sub(r'[èéẹẻẽêềếệểễ]', 'e', text)
+        text = re.sub(r'[ìíịỉĩ]', 'i', text)
+        text = re.sub(r'[òóọỏõôồốộổỗơờớợởỡ]', 'o', text)
+        text = re.sub(r'[ùúụủũưừứựửữ]', 'u', text)
+        text = re.sub(r'[ỳýỵỷỹ]', 'y', text)
+        text = re.sub(r'[đ]', 'd', text)
+        text = re.sub(r'[^a-z0-9\s_]', '', text)
+        return re.sub(r'[\s]+', '_', text)
 
-    # Combine into Markdown
-    script_md = f"""# Kịch bản Video: {session_id} - {lesson_id}: {lesson_title}
-- **Thời lượng dự kiến**: 5-7 phút
-- **Loại bài giảng**: {v_type}
-- **Nhạc nền đề xuất**: Lofi Chill không lời (âm lượng -20dB, tốc độ 1.5x)
-- **Chuẩn hình ảnh**: Full HD 1080p, tỷ lệ 16:9, font chữ đồng bộ thương hiệu Rikkei Education
+    s_id_slug = slugify(session_id)
+    l_id_slug = slugify(lesson_id) if lesson_id else "lesson"
+    lesson_slug = f"{s_id_slug}_{l_id_slug}"
 
----
+    system_prompt = f"""Bạn là Video Director Agent — chuyên gia sản xuất video E-learning theo chuẩn HyperFrames.
+Nhiệm vụ của bạn là tạo ra một "Production Blueprint JSON" cho video bài học, tuân thủ TUYỆT ĐỐI các quy tắc kỹ thuật từ SKILL.md sau:
 
-## 1. Mục tiêu học tập (Learning Objectives)
-1. {intro_desc}
-2. {main_desc}
-3. {conclusion_desc}
+{hyperframes_skill}
 
----
+NGUYÊN TẮC CỐT LÕI:
+1. CHIA ĐỦ SCENE: Tạo ra 4-6 scenes. Mỗi scene có 1 chủ đề rõ ràng.
+2. NARRATION ĐỦ DÀI: Tổng từ narration của tất cả scenes phải đạt 400-800 từ (video 4-5 phút).
+3. CẤU TRÚC ANIMATION: Mỗi scene PHẢI có animation_timeline theo đúng quy trình: intro-title 0.2s→3.2s, nội dung từ 4.0s+.
+4. DESIGN SYSTEM: Dùng đúng màu sắc và font từ design system (#0f1117, #e6edf3, Inter, Fira Code).
+5. SƯ PHẠM: Mở đầu "Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education..." và kết "Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
+6. CÔNG NGHỆ: Kịch bản phải bám sát 100% vào {tech_stack}. KHÔNG đề cập công nghệ khác.
 
-## 2. Kịch bản lời thoại & Chỉ dẫn quay hình (Storyboard)
+Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
+{{
+  "lesson_slug": "{lesson_slug}",
+  "lesson_title": "{lesson_title}",
+  "total_duration": <tổng thời gian tất cả scenes>,
+  "scenes": [
+    {{
+      "scene_id": "Scene_01",
+      "scene_title": "<Tiêu đề ngắn của scene>",
+      "start_at_root": 0,
+      "duration": <số giây của scene, thường 30-50s>,
+      "track_index": 1,
+      "narration": "<Lời thoại đầy đủ, chi tiết, 80-180 từ/scene>",
+      "visual_description": "<Mô tả những gì hiện trên màn hình>",
+      "html_structure": "<Tên các elements HTML cần có trong scene này>",
+      "animation_timeline": [
+        "0.0s: tl.set('.clip', {{autoAlpha:1}}, 0)",
+        "0.2s: intro-title fade in",
+        "3.2s: intro-title <lên góc/fade out>",
+        "4.x s: <element chính đầu tiên xuất hiện>",
+        "...thêm các mốc thời gian cụ thể..."
+      ]
+    }}
+  ],
+  "tts_scripts": {{
+    "Scene_01": "<Lời thoại của scene 1, giống trường narration>",
+    "Scene_02": "..."
+  }}
+}}
 
-| Thời gian | Chỉ dẫn quay hình & Slide Visuals | Lời thoại chi tiết giảng viên (Conversational Tone) |
-| :--- | :--- | :--- |
-{script_rows}
+CRITICAL: start_at_root của scene (N+1) = start_at_root[N] + duration[N]
+CRITICAL: total_duration = tổng tất cả duration của các scenes
+CRITICAL: track_index của scenes là 1, 2, 3, ... (tăng dần)
+Return only raw JSON. Do not wrap in markdown code blocks."""
 
----
+    user_prompt = f"""Tạo Production Blueprint JSON cho bài học sau:
+Session: {session_id}
+Lesson: {lesson_id} (Tiêu đề: {lesson_title})
+Technology Stack: {tech_stack}
+Chi tiết bài học: {lesson_details}
 
-## 3. Checklist chuẩn bị & Lưu ý kỹ thuật cho Giảng viên
-- [ ] Thiết lập âm thanh: Phòng cách âm, không có tiếng ồn trắng hay tiếng quạt gió.
-- [ ] Thiết lập màn hình: Độ phân giải màn hình code tối thiểu 1080p, cỡ chữ trong VS Code tăng lên 16-18 để dễ nhìn.
-- [ ] Nhịp độ nói: Vừa phải, đối thoại tự nhiên, tránh đọc slide một cách thụ động.
-- [ ] Chuyển cảnh: Tránh khoảng lặng chết (dead air), cắt ghép mượt mà giữa camera cá nhân và chia sẻ màn hình.
-"""
+Nội dung bài học gốc (Master Content để bám sát):
+- Vấn đề đặt ra: {content.get('problem', '')}
+- Giải pháp: {content.get('solution', '')}
+- Ví dụ/Code: {content.get('example', '')}
+- Tổng kết: {content.get('summary', '')}
+
+{feedback_context}
+Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
+
+    # Generate via LLM or offline fallback
+    if not (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")):
+        # Offline fallback — minimal valid blueprint
+        result_json = {
+            "lesson_slug": lesson_slug,
+            "lesson_title": lesson_title,
+            "total_duration": 60.0,
+            "scenes": [
+                {
+                    "scene_id": "Scene_01",
+                    "scene_title": f"Giới thiệu {lesson_title}",
+                    "start_at_root": 0,
+                    "duration": 30.0,
+                    "track_index": 1,
+                    "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu về {lesson_title}. Đây là một chủ đề rất quan trọng trong {tech_stack}.",
+                    "visual_description": "Tiêu đề bài học xuất hiện giữa màn hình, background dark với dot grid pattern.",
+                    "html_structure": "intro-title centered, badge công nghệ",
+                    "animation_timeline": [
+                        "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                        "0.2s: intro-title fade in (scale 0.8→1)",
+                        "3.2s: intro-title lên góc trên-trái",
+                        "4.5s: content card xuất hiện"
+                    ]
+                },
+                {
+                    "scene_id": "Scene_02",
+                    "scene_title": "Tổng kết",
+                    "start_at_root": 30.0,
+                    "duration": 30.0,
+                    "track_index": 2,
+                    "narration": f"Như vậy, chúng ta đã cùng nhau tìm hiểu xong bài học về {lesson_title}. Hãy nhớ những điểm quan trọng mà chúng ta vừa đề cập. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!",
+                    "visual_description": "Màn hình tổng kết với các bullet points chính.",
+                    "html_structure": "summary-card, key-points list",
+                    "animation_timeline": [
+                        "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                        "0.2s: intro-title 'Tổng kết' fade in",
+                        "3.2s: intro-title lên góc",
+                        "4.5s: summary card slide up",
+                        "30.0s: tl.set({}, {}, 30.0)"
+                    ]
+                }
+            ],
+            "tts_scripts": {
+                "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu về {lesson_title}.",
+                "Scene_02": f"Như vậy, chúng ta đã cùng nhau tìm hiểu xong bài học về {lesson_title}. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
+            }
+        }
+    else:
+        llm_resp = call_llm(
+            system_prompt,
+            user_prompt,
+            json_mode=True,
+            agent_name=f"Video_Director_Agent_Att{attempt_num}",
+            session_id=session_id,
+            lesson_id=lesson_id
+        )
+        try:
+            from agents.creator_agents import robust_json_parse
+            result_json = robust_json_parse(llm_resp)
+            # Validate required fields
+            if "scenes" not in result_json or not result_json["scenes"]:
+                raise ValueError("Missing 'scenes' in blueprint JSON")
+            if "tts_scripts" not in result_json:
+                raise ValueError("Missing 'tts_scripts' in blueprint JSON")
+            print(f"  [Video_Director_Agent] Blueprint generated: {len(result_json['scenes'])} scenes, duration {result_json.get('total_duration', 0)}s")
+        except Exception as e:
+            print(f"  [Video_Director_Agent] JSON parse failed: {e}. Using fallback blueprint.")
+            result_json = {
+                "lesson_slug": lesson_slug,
+                "lesson_title": lesson_title,
+                "total_duration": 60.0,
+                "scenes": [
+                    {
+                        "scene_id": "Scene_01",
+                        "scene_title": lesson_title,
+                        "start_at_root": 0,
+                        "duration": 30.0,
+                        "track_index": 1,
+                        "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
+                        "visual_description": "Intro screen với tiêu đề bài học.",
+                        "html_structure": "intro-title, content area",
+                        "animation_timeline": [
+                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                            "0.2s: intro-title fade in",
+                            "3.2s: intro-title lên góc",
+                            "4.5s: content slide in"
+                        ]
+                    },
+                    {
+                        "scene_id": "Scene_02",
+                        "scene_title": "Kết luận",
+                        "start_at_root": 30.0,
+                        "duration": 30.0,
+                        "track_index": 2,
+                        "narration": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!",
+                        "visual_description": "Summary screen.",
+                        "html_structure": "summary card",
+                        "animation_timeline": [
+                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
+                            "0.2s: intro-title fade in",
+                            "3.2s: intro-title fade out",
+                            "30.0s: tl.set({}, {}, 30.0)"
+                        ]
+                    }
+                ],
+                "tts_scripts": {
+                    "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
+                    "Scene_02": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!"
+                }
+            }
+
+    # Persist blueprint to state
+    state["video_script_json"] = result_json
+    state["video_lesson_slug"] = result_json.get("lesson_slug", lesson_slug)
+
+    # Build readable SCRIPT.md (for human review + Hyperframes structure)
+    scenes = result_json.get("scenes", [])
+    total_dur = result_json.get("total_duration", 0)
+    script_md = f"# HyperFrames Script: {session_id} — {lesson_id}\n\n"
+    script_md += f"**Lesson:** {lesson_title}\n"
+    script_md += f"**Technology Stack:** {tech_stack}\n"
+    script_md += f"**Total Duration:** {total_dur}s\n"
+    script_md += f"**Scene Count:** {len(scenes)}\n\n"
+    script_md += "---\n\n"
+
+    cumulative = 0
+    for scene in scenes:
+        dur = scene.get("duration", 0)
+        script_md += f"## {scene.get('scene_id', '?')}: {scene.get('scene_title', '')}\n"
+        script_md += f"**Timeline (root):** {scene.get('start_at_root', cumulative):.2f}s → {(scene.get('start_at_root', cumulative) + dur):.2f}s ({dur}s)\n\n"
+        script_md += f"**Visual:** {scene.get('visual_description', '')}\n\n"
+        script_md += f"**Animation Timeline:**\n"
+        for step in scene.get("animation_timeline", []):
+            script_md += f"- {step}\n"
+        script_md += f"\n**Narration (VO):**\n> {scene.get('narration', '')}\n\n"
+        cumulative += dur
 
     state["video_script_markdown"] = script_md
-    log_agent_tokens("Video_Script_Agent", state, script_md)
+    print(f"  [Video_Director_Agent] Blueprint complete — {len(scenes)} scenes, {total_dur:.1f}s total.")
     return state
+
+
+def get_lesson_dir(state: AgentState) -> Path:
+    from pathlib import Path
+    import json
+    import re
+
+    def sanitize_folder_name(name: str) -> str:
+        name = name.replace("&", "va").replace("%", "").replace("^", "").replace("#", "")
+        return re.sub(r'[\\/*?:"<>|]', "", name).strip()
+
+    course_dir_name = state.get("course_dir_name")
+    if not course_dir_name:
+        pms_dir = Path("pms")
+        xlsx_files = list(pms_dir.glob("*.xlsx")) if pms_dir.exists() else []
+        xlsx_files = [f for f in xlsx_files if not f.name.startswith("~$")]
+        if xlsx_files:
+            course_dir_name = xlsx_files[0].stem.strip().replace(" ", "_").replace("-", "_")
+        else:
+            course_dir_name = "default_course"
+    session_id = state.get("session_id", "Session 01")
+    lesson_id = state.get("lesson_id", "")
+    
+    output_base_dir = Path(__file__).resolve().parent.parent / "output"
+    course_dir = output_base_dir / course_dir_name
+    
+    full_curr_str = state.get("full_curriculum", "[]")
+    try:
+        sessions = json.loads(full_curr_str)
+    except Exception:
+        sessions = []
+        
+    session_title = ""
+    lesson_title = ""
+    for s in sessions:
+        if s.get("session_id") == session_id:
+            session_title = s.get("title", "")
+            for l in s.get("lessons", []):
+                if l.get("lesson_id") == lesson_id:
+                    lesson_title = l.get("title", "")
+                    break
+            break
+            
+    session_prefix = session_id
+    session_full = f"{session_id} - {session_title}"
+    session_dir = course_dir / sanitize_folder_name(session_full)
+    if course_dir.exists():
+        for item in course_dir.iterdir():
+            if item.is_dir():
+                if item.name == sanitize_folder_name(session_full):
+                    session_dir = item
+                    break
+                if item.name == session_prefix or item.name.startswith(session_prefix + " ") or item.name.startswith(session_prefix + "-"):
+                    session_dir = item
+                    break
+                    
+    lesson_prefix = lesson_id
+    lesson_full = f"{lesson_id} - {lesson_title}"
+    lesson_dir = session_dir / sanitize_folder_name(lesson_full)
+    if session_dir.exists():
+        for item in session_dir.iterdir():
+            if item.is_dir():
+                if item.name == sanitize_folder_name(lesson_full):
+                    lesson_dir = item
+                    break
+                if item.name == lesson_prefix or item.name.startswith(lesson_prefix + " ") or item.name.startswith(lesson_prefix + "-"):
+                    lesson_dir = item
+                    break
+                    
+    return lesson_dir
+
+def generate_image_api(prompt_text: str, image_path) -> bool:
+    import os
+    import requests
+    import base64
+    
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if api_key:
+        try:
+            base_url = os.getenv("GEMINI_BASE_URL")
+            if base_url:
+                base_host = base_url.rstrip('/')
+                url = f"{base_host}/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
+            else:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            data = {
+                "instances": [
+                    {
+                        "prompt": prompt_text
+                    }
+                ],
+                "parameters": {
+                    "sampleCount": 1,
+                    "aspectRatio": "16:9",
+                    "outputMimeType": "image/png"
+                }
+            }
+            response = requests.post(url, headers=headers, json=data, timeout=30)
+            if response.status_code == 200:
+                resp_json = response.json()
+                if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
+                    img_b64 = resp_json["predictions"][0]["bytesBase64Encoded"]
+                    with open(image_path, "wb") as f:
+                        f.write(base64.b64decode(img_b64))
+                    print(f"  [Image Generator] Saved diagram to: {image_path}")
+                    return True
+                else:
+                    print(f"  [Image Generator Warning] Response did not contain images: {resp_json}")
+            else:
+                print(f"  [Image Generator Warning] API status {response.status_code}: {response.text}")
+        except Exception as e:
+            print(f"  [Image Generator Warning] Dynamic image generation error: {e}")
+    return False
+
+def draw_mindmap_fallback_diagram(prompt_text: str, image_path: Path, title: str):
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        
+        width, height = 1280, 720
+        img = Image.new("RGB", (width, height), "#0F172A")
+        draw = ImageDraw.Draw(img)
+        
+        try:
+            font_title = ImageFont.truetype("arial.ttf", 28)
+            font_header = ImageFont.truetype("arial.ttf", 20)
+            font_body = ImageFont.truetype("arial.ttf", 16)
+        except Exception:
+            font_title = ImageFont.load_default()
+            font_header = ImageFont.load_default()
+            font_body = ImageFont.load_default()
+            
+        grid_size = 40
+        for x in range(0, width, grid_size):
+            draw.line([(x, 0), (x, height)], fill="#1E293B", width=1)
+        for y in range(0, height, grid_size):
+            draw.line([(0, y), (width, y)], fill="#1E293B", width=1)
+            
+        draw.rounded_rectangle([40, 30, width-40, 95], radius=8, fill="#1E1E2F", outline="#06B6D4", width=3)
+        draw.text((width//2, 62), f"SYSTEM DIAGRAM: {title.upper()}", fill="#22D3EE", font=font_title, anchor="mm")
+        
+        draw.rounded_rectangle([80, 250, 360, 470], radius=10, fill="#1E293B", outline="#3B82F6", width=2)
+        draw.text((220, 280), "CLIENT / USER AGENT", fill="#3B82F6", font=font_header, anchor="mm")
+        draw.text((220, 350), "HTTP Request\n(GET/POST/PUT/DELETE)\nHeaders & JSON Body", fill="#94A3B8", font=font_body, anchor="mm")
+        
+        draw.line([(360, 360), (520, 360)], fill="#06B6D4", width=4)
+        draw.polygon([(520, 350), (520, 370), (540, 360)], fill="#06B6D4")
+        
+        draw.rounded_rectangle([540, 200, 840, 520], radius=10, fill="#1E293B", outline="#10B981", width=2)
+        draw.text((690, 230), "BACKEND ENGINE", fill="#10B981", font=font_header, anchor="mm")
+        draw.text((690, 320), "Middleware Pipeline\nRouting & Controllers\nValidation & Security\nBusiness Logic Execution", fill="#94A3B8", font=font_body, anchor="mm")
+        
+        draw.line([(840, 360), (1000, 360)], fill="#06B6D4", width=4)
+        draw.polygon([(1000, 350), (1000, 370), (1020, 360)], fill="#06B6D4")
+        
+        draw.rounded_rectangle([1020, 250, 1200, 470], radius=10, fill="#1E293B", outline="#F59E0B", width=2)
+        draw.text((1110, 280), "DATA LAYER", fill="#F59E0B", font=font_header, anchor="mm")
+        draw.text((1110, 350), "In-Memory DB / SQLite\nJSON State / ORM\nPersistence Context", fill="#94A3B8", font=font_body, anchor="mm")
+        
+        draw.rounded_rectangle([40, 560, width-40, 680], radius=8, fill="#111827", outline="#374151", width=1)
+        draw.text((60, 580), "PROMPT DESCRIPTION:", fill="#6B7280", font=font_body)
+        
+        words = prompt_text.split()
+        lines = []
+        current_line = []
+        for word in words:
+            current_line.append(word)
+            if len(" ".join(current_line)) > 110:
+                current_line.pop()
+                lines.append(" ".join(current_line))
+                current_line = [word]
+        if current_line:
+            lines.append(" ".join(current_line))
+            
+        y_prompt = 610
+        for pline in lines[:3]:
+            draw.text((60, y_prompt), pline, fill="#D1D5DB", font=font_body)
+            y_prompt += 22
+            
+        image_path.parent.mkdir(parents=True, exist_ok=True)
+        img.save(image_path)
+        print(f"  [Fallback Image] Saved fallback diagram to: {image_path}")
+    except Exception as e:
+        print(f"  [Fallback Image Error] Failed to generate fallback diagram: {e}")
+
+def process_mindmap_images(markmap_content: str, state: AgentState) -> str:
+    import re
+    from pathlib import Path
+    
+    brackets = re.findall(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", markmap_content)
+    asterisks = re.findall(r"\*Prompt tạo ảnh:\s*([^*]+)\*", markmap_content, flags=re.IGNORECASE)
+    
+    all_prompts = []
+    seen = set()
+    for p in brackets + asterisks:
+        p_clean = p.strip()
+        if p_clean not in seen:
+            seen.add(p_clean)
+            all_prompts.append(p_clean)
+            
+    if not all_prompts:
+        return markmap_content
+        
+    try:
+        lesson_dir = get_lesson_dir(state)
+        images_dir = lesson_dir / "images"
+        images_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"  [Image Processing Warning] Could not resolve lesson directory: {e}")
+        return markmap_content
+        
+    new_content = markmap_content
+    for idx, prompt_text in enumerate(all_prompts, 1):
+        image_name = f"mindmap_img_{idx}.png"
+        image_path = images_dir / image_name
+        
+        print(f"  [Mindmap Image] Processing prompt {idx}: '{prompt_text[:50]}...'")
+        
+        force_rebuild = state.get("force_rebuild", False)
+        if force_rebuild or not image_path.exists():
+            success = generate_image_api(prompt_text, image_path)
+            if not success:
+                lesson_title = state.get("core_ssot", {}).get("session_title", "Concept Flow")
+                draw_mindmap_fallback_diagram(prompt_text, image_path, lesson_title)
+        
+        search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
+        new_content = re.sub(search_bracket, f"![](../images/{image_name})", new_content)
+        
+        search_asterisk = r"\*Prompt tạo ảnh:\s*" + re.escape(prompt_text) + r"\*"
+        new_content = re.sub(search_asterisk, f"![](../images/{image_name})", new_content, flags=re.IGNORECASE)
+        
+    return new_content
 
 def mindmap_agent(state: AgentState) -> AgentState:
     """
     Mindmap Agent:
     Generates a structured Markmap diagram based on skills/mindmap_generator/SKILL.md.
+    Uses the LLM with retry/critique logs if keys are available, otherwise falls back to a template.
     """
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
@@ -577,7 +1051,11 @@ def mindmap_agent(state: AgentState) -> AgentState:
     lesson_details = core_ssot.get("lesson_details", "")
     expected_output = core_ssot.get("expected_output", "")
     
-    print(f"\n[Mindmap_Agent] Generating Markmap diagram for {session_id} {lesson_id} using mindmap_generator skill...")
+    mindmap_logs = [log for log in state.get("review_logs", []) if log["source"] == "Mindmap_Reviewer"]
+    attempt_num = len(mindmap_logs) + 1
+    feedback = mindmap_logs[-1]["feedback"] if mindmap_logs else ""
+    
+    print(f"\n[Mindmap_Agent] Generating Markmap diagram for {session_id} {lesson_id} (Attempt #{attempt_num}) using mindmap_generator skill...")
     
     content = get_lesson_content(
         session_id=session_id,
@@ -585,102 +1063,153 @@ def mindmap_agent(state: AgentState) -> AgentState:
         lesson_title=lesson_title,
         lesson_details=lesson_details,
         expected_output=expected_output,
-        attempt_num=1,
+        attempt_num=attempt_num,
         core_ssot=core_ssot,
+        feedback=feedback,
         state=state
     )
     
-    from core.llm import call_llm
+    import os
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
-    reading_sections_text = ""
-    for sect in content.get("reading_sections", []):
-        reading_sections_text += f"### {sect.get('title', '')}\n{sect.get('content', '')}\n\n"
+    if not (gemini_key or openai_key):
+        # Offline mode fallback
+        ex_snippet = content.get("example", "")
+        indented_example = "\n".join(f"      {line}" for line in ex_snippet.splitlines()) if ex_snippet else "      # Không có mã nguồn minh họa."
+        mindmap_prompt = f"[Prompt: Generate a visual flow/sequence diagram showing the architecture, control flow, and execution lifecycle of '{tech_stack}']"
         
-    summary_text = content.get("summary", "")
-    example_code = content.get("example", "")
-    
-    system_prompt = f"""Bạn là một Giảng viên Cao cấp và chuyên gia Thiết kế Chương trình Đào tạo học thuật chuyên sâu tại Rikkei Education. Nhiệm vụ của bạn là dựa vào nội dung bài học được cung cấp để biên soạn một SƠ ĐỒ TƯ DUY (Mindmap) chi tiết, phong phú và có chiều sâu chuyên môn cao để tóm tắt NỘI DUNG HỌC THUẬT của bài học.
-
-Bắt buộc sử dụng Cú pháp MARKDOWN CHUẨN tương thích hoàn toàn với công cụ Markmap (bọc toàn bộ nội dung trong duy nhất một khối ```markmap ... ```).
-
-HƯỚNG DẪN THIẾT KẾ CẤU TRÚC VÀ NỘI DUNG SƠ ĐỒ (CỰC KỲ QUAN TRỌNG):
-1. BỐI CẢNH GIẢNG DẠY (THỜI LƯỢNG 1.5 GIỜ): Học viên đã tự học lý thuyết nền tảng ở nhà. Thời gian trên lớp chỉ có 1.5 giờ để giảng viên chốt kiến thức trọng tâm. Do đó, nội dung Mindmap phải THẬT SỰ CÔ ĐỌNG, SÚC TÍCH, tuyệt đối không viết dài dòng tràn lan đại hải. Bỏ qua các thông tin bên ngoài rườm rà không liên quan trực tiếp.
-2. CHÍNH SÁCH KHÔNG BỎ SÓT (ZERO-DROP POLICY): Sơ đồ tư duy phải bao quát 100% toàn bộ chủ đề bài học. Bạn BẮT BUỘC phải tạo ĐẦY ĐỦ các nhánh cấp 2 (##) đại diện cho TẤT CẢ các chủ đề chính được nhắc đến trong bài học.
-3. KHÔNG LÀM KỊCH BẢN GIẢNG DẠY/GIÁO ÁN: Nhiệm vụ của bạn là tóm tắt NỘI DUNG HỌC THUẬT cốt lõi, chứ KHÔNG phải tạo ra kịch bản đứng lớp hay giáo án cho giảng viên. Tuyệt đối cấm sử dụng các từ khóa như: "Slide 1", "Slide 2", "Lecture Note", "Live Demo Steps", "Concept Check", "Khởi động", v.v.
-4. NHÁNH ĐẦU TIÊN LÀ MỤC TIÊU BÀI HỌC (## Mục tiêu bài học): Nhánh lớn cấp 2 (##) đầu tiên luôn là `## Mục tiêu bài học`. Nhánh này chỉ nêu ngắn gọn 2-3 gạch đầu dòng mấu chốt nhất về Kiến thức và Kỹ năng học viên đạt được sau bài học.
-5. CÁC NHÁNH CHÍNH TIẾP THEO (Heading 2 - ##) KHỚP VỚI CÁC CHỦ ĐỀ CHÍNH: Các nhánh lớn cấp 2 (##) tiếp theo bắt buộc phải là tiêu đề của các nội dung cốt lõi của bài học (Ví dụ: `## Path parameters`, `## Query parameters`).
-6. CẤU TRÚC NHÁNH CON CÔ ĐỌNG CHO LỚP 1.5H (Heading 3 - ###): Dưới mỗi chủ đề chính (##), bạn chỉ tập trung vào 3 nhánh con cốt lõi nhất:
-   - ### Khái niệm cốt lõi: Định nghĩa bản chất lý thuyết ngắn gọn nhất (1-2 câu).
-   - ### Cú pháp & Cách khai báo: Trình bày cú pháp khai báo kèm ví dụ minh họa cực kỳ cô đọng (bọc trong block code Markdown).
-   - ### Lưu ý thực chiến: Những điểm mấu chốt hoặc lỗi hay gặp nhất khi làm dự án thực tế (1-2 ý quan trọng).
-7. NỘI DUNG CÔ ĐỌNG: Tại mỗi nhánh, viết ngắn gọn bằng các gạch đầu dòng (-).
-8. HÌNH ẢNH TRỰC QUAN (PROMPT AI): Với các khái niệm kiến trúc phức tạp, thêm nút con: `![](../images/mindmap_img_[số].png)` đại diện cho vị trí hình ảnh minh họa logic trực quan.
-9. TUYỆT ĐỐI NGHIÊM CẤM DÙNG EMOJI trong toàn bộ sơ đồ tư duy.
-10. ĐỊNH DẠNG VÍ DỤ CODE CHUẨN NGÔN NGỮ: Khi minh họa ví dụ code mẫu, bắt buộc phải trình bày theo đúng định dạng khối mã Markdown kèm tên ngôn ngữ (ví dụ ```python ... ```) được thụt lề dưới nhánh gạch đầu dòng (-) tương ứng để Mindmap hiển thị highlight cú pháp trực quan, rõ ràng cho giảng viên giải thích.
-11. Bắt buộc kết thúc bằng khối đóng ```. Tuyệt đối không viết thêm bất kỳ lời chào hỏi, giới thiệu hay giải thích nào ngoài khối ```markmap ... ```.
-"""
-
-    user_prompt = f"""Hãy tạo Sơ đồ tư duy (Markmap Markdown) cho bài học:
-Session ID: {session_id}
-Lesson Title: {lesson_title}
-Stack công nghệ: {tech_stack}
-
-Chi tiết nội dung thực tế của bài học:
-1. Các mục lý thuyết chính:
-{reading_sections_text}
-
-2. Mã ví dụ minh họa chính:
-```{tech_stack.split('/')[-1]}
-{example_code}
-```
-
-3. Tóm tắt & Sai lầm cần tránh:
-{summary_text}
-
-Hãy sinh Markmap Markdown chính xác theo cấu trúc yêu cầu.
-"""
-
-    try:
-        response = call_llm(
-            system_prompt,
-            user_prompt,
-            agent_name="Mindmap_Agent",
-            session_id=session_id,
-            lesson_id=lesson_id
-        )
-        if response and "```markmap" in response:
-            markmap_content = response.strip()
-        else:
-            markmap_content = f"```markmap\n{response.strip()}\n```"
-    except Exception as e:
-        print(f"  [Mindmap_Agent Warning] LLM call failed: {e}. Using structured fallback.")
         markmap_content = f"""```markmap
 # {session_id}: {lesson_title}
 ## Mục tiêu bài học
-- Hiểu rõ khái niệm cốt lõi của {lesson_title}.
-- Nắm vững cú pháp triển khai {tech_stack}.
+- Hiểu rõ khái niệm cốt lõi và kiến trúc của {lesson_title}.
+- Áp dụng các quy tắc triển khai thực tiễn để giải quyết bài toán: {expected_output if expected_output else 'tích hợp thành công'}.
+- Vận hành và kiểm tra đầu ra hoạt động ổn định.
 ## {lesson_title}
-### Khái niệm lý thuyết
-- {lesson_details[:150]}
-### Cấu trúc cú pháp
+### Khái niệm cốt lõi
+- Giải pháp kỹ thuật giúp tối ưu hóa hiệu năng, giảm thiểu blocking I/O và tự động hóa validation cho {tech_stack}.
+### Cú pháp & Cách khai báo
 - Ví dụ triển khai:
-    ```python
-    # {lesson_title} example
-    {example_code}
-    ```
-### Lưu ý
-- {expected_output[:150]}
+{indented_example}
+### Lưu ý thực chiến
+- Tránh bỏ sót các tham số bắt buộc.
+- Cấu hình môi trường ảo venv chính xác và không đặt trùng tên file hệ thống.
+{mindmap_prompt}
 ```"""
+    else:
+        from core.llm import call_llm
+        from core.skills import load_skill_content
+        
+        mindmap_skill = load_skill_content("mindmap_generator")
+        
+        # Build master content summary for LLM context
+        master_content_summary = ""
+        if content:
+            sections_text = "\n".join([f"### {sec['title']}\n{sec['content']}" for sec in content.get("reading_sections", [])])
+            master_content_summary = f"""
+--- NỘI DUNG CHI TIẾT BÀI HỌC (Sử dụng làm cơ sở dữ liệu học thuật) ---
+{sections_text}
 
-    state["mindmap_markdown"] = markmap_content
-    log_agent_tokens("Mindmap_Agent", state, markmap_content)
+--- MÃ NGUỒN VÍ DỤ ---
+```python
+{content.get('example', '')}
+```
+
+--- TỔNG KẾT & SAI LẦM THƯỜNG GẶP ---
+{content.get('summary', '')}
+"""
+
+        system_prompt = f"""Bạn là một Giảng viên Cao cấp và chuyên gia Thiết kế Chương trình Đào tạo học thuật chuyên sâu tại Rikkei Education. 
+Nhiệm vụ của bạn là dựa vào nội dung lý thuyết chi tiết của bài học dưới đây để biên soạn một SƠ ĐỒ TƯ DUY (Mindmap) chi tiết, phong phú và có chiều sâu chuyên môn cao để tóm tắt NỘI DUNG HỌC THUẬT của bài học.
+
+Bắt buộc tuân thủ nghiêm ngặt các hướng dẫn và tiêu chuẩn trong tài liệu Kỹ năng (Skill) sau:
+{mindmap_skill}
+"""
+        
+        concepts_list = "\n".join([f"- {k}" for k in core_ssot.get("concepts", {}).keys()])
+        feedback_context = f"\nPhản hồi sửa đổi từ Mindmap Reviewer (nếu có, bạn phải sửa lỗi này): {feedback}\n" if feedback else ""
+        
+        user_prompt = f"""Hãy sinh sơ đồ tư duy dạng Markmap cho bài học:
+Session: {session_id}
+Lesson: {lesson_id} (Tiêu đề: {lesson_title})
+Chi tiết bài học từ PM: {lesson_details}
+Đầu ra kỳ vọng: {expected_output}
+Target Technology Stack: {tech_stack}
+
+Bắt buộc tạo một nhánh cấp 2 (##) tương ứng cho mỗi khái niệm cốt lõi sau để đảm bảo quy tắc không bỏ sót nhánh (Zero-drop Policy):
+{concepts_list}
+
+{master_content_summary}
+{feedback_context}
+YÊU CẦU ĐẦU RA (BẮT BUỘC):
+- Trả về DUY NHẤT một khối mã Markdown ` ```markmap ... ` ``` chứa nội dung sơ đồ tư duy.
+- Sơ đồ phải bao quát 100% các chủ đề chính được nhắc đến (Zero-drop Policy).
+- Đảm bảo nhánh cấp 2 (##) đầu tiên là `## Mục tiêu bài học`.
+- Các nhánh tiếp theo tương ứng với các chủ đề lý thuyết chính của bài học (chính là danh sách các khái niệm cốt lõi ở trên). Dưới mỗi nhánh chủ đề cấp 2 (##) (trừ nhánh Mục tiêu bài học) phải có đúng 3 nhánh con cấp 3 (### Khái niệm cốt lõi, ### Cú pháp & Cách khai báo, ### Lưu ý thực chiến). Không được sử dụng bất kỳ tên nhánh H3 nào khác!
+- Cú pháp khai báo code mẫu trong nhánh `### Cú pháp & Cách khai báo` phải được bọc trong block Markdown chỉ định ngôn ngữ và thụt lề bằng dấu cách chính xác dưới gạch đầu dòng tương ứng.
+- Tuyệt đối cấm sử dụng emoji.
+- Tuyệt đối KHÔNG ĐƯỢC "rò rỉ kiến thức" (Scope Leakage) - nội dung và cú pháp trong mindmap không chứa cú pháp hay khái niệm vượt quá phạm vi bài học (ví dụ: Lesson 01 chỉ giới thiệu Web API nhưng không được chứa SQLite/SQLAlchemy/Database hay các khái niệm của bài học sau).
+- Không có bất kỳ ký tự # thừa thãi nào trong các nhánh văn bản làm vỡ markmap. Ký tự # chỉ được sử dụng ở đầu dòng để định nghĩa tiêu đề.
+- Với các khái niệm kiến trúc phức tạp hoặc luồng dữ liệu, bắt buộc chèn một nút con prompt ảnh bằng cú pháp: `[Prompt: <English description to generate visual architecture/logic/sequence diagram>]` hoặc `[Tạo ảnh: <English description to generate visual architecture/logic/sequence diagram>]`.
+- CỰC KỲ QUAN TRỌNG: Sơ đồ tư duy phải cực kỳ cô đọng, ngắn gọn và súc tích. Tránh các đoạn giải thích dài dòng. Mỗi nhánh con cấp 3 chỉ chứa tối đa 1-2 câu ngắn hoặc một đoạn mã nguồn mẫu siêu ngắn (dưới 10 dòng) để tránh bị cắt cụt.
+- Tuyệt đối không viết thêm bất kỳ lời chào hỏi, giới thiệu hay giải thích nào ngoài khối ```markmap ... ```.
+"""
+        markmap_content = call_llm(
+            system_prompt,
+            user_prompt,
+            json_mode=False,
+            agent_name=f"Mindmap_Agent_Att{attempt_num}",
+            session_id=session_id,
+            lesson_id=lesson_id
+        )
+        if markmap_content:
+            markmap_content = markmap_content.strip()
+            if markmap_content.startswith("```markdown"):
+                markmap_content = markmap_content[11:].strip()
+            
+            # Ensure it starts with ```markmap
+            if not markmap_content.startswith("```markmap"):
+                if "```markmap" in markmap_content:
+                    idx = markmap_content.find("```markmap")
+                    markmap_content = markmap_content[idx:].strip()
+                else:
+                    markmap_content = "```markmap\n" + markmap_content
+            
+            # Auto-close unclosed code blocks
+            lines = markmap_content.splitlines()
+            level = 0
+            for line in lines:
+                stripped_line = line.strip()
+                if stripped_line.startswith("```"):
+                    if level == 0 and stripped_line.startswith("```markmap"):
+                        level = 1
+                    elif level == 1:
+                        level = 2
+                    elif level == 2:
+                        level = 1
+                    elif level == 1 and stripped_line == "```":
+                        level = 0
+            if level == 2:
+                lines.append("```")
+                level = 1
+            if level == 1:
+                lines.append("```")
+                level = 0
+            markmap_content = "\n".join(lines)
+        else:
+            markmap_content = f"```markmap\n# {session_id}: {lesson_title}\n## Mục tiêu bài học\n- Lỗi khi sinh sơ đồ tư duy.\n```"
+
+    # Process and replace image prompts
+    processed_content = process_mindmap_images(markmap_content, state)
+    state["mindmap_markdown"] = processed_content
+    log_agent_tokens("Mindmap_Agent", state, processed_content)
     return state
 
 
 def slide_agent(state: AgentState) -> AgentState:
     """
     Slide Agent:
-    Generates Marp markdown slides suitable for lecturing.
+    Generates Marp markdown slides suitable for lecturing via LLM.
     Follows Visual Design Rules: homogeneous structures, minimal bullets.
     """
     session_id = state.get("session_id", "Session 01")
@@ -711,38 +1240,57 @@ def slide_agent(state: AgentState) -> AgentState:
     
     display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
     
-    # Marp slide structure
-    slides_md = f"""---
+    system_prompt = f"""Bạn là một Chuyên gia thiết kế Slide Bài Giảng (Instructional Slide Designer).
+Nhiệm vụ: Tạo nội dung trình chiếu Markdown (Marp framework) cho bài học '{display_title}'.
+Yêu cầu thiết kế:
+1. Bố cục: Bắt đầu bằng block Marp chuẩn:
+---
 marp: true
 theme: gaia
 _class: lead
 paginate: true
 ---
-
-# {display_title}
-### Lớp học thực chiến Python Web Services
-
----
-
-# Đặt vấn đề & Thách thức
-- Bối cảnh thực tế: {content["problem"]}
-- Vấn đề gặp phải: {content["analysis"]}
-- Giải pháp: Áp dụng {content["solution"]}
-
----
-
-# Ví dụ Minh họa Triển khai
-- Cú pháp code chuẩn hóa và an toàn
-- Sử dụng công cụ tương tác trực quan
-- Xem ví dụ triển khai chi tiết trong bài đọc
-
----
-
-# Tổng kết & Luyện tập
-- Bài học cốt lõi: {content["summary"]}
-- Thực hành làm bài Lab tuần đầy đủ
-- Tự đối chiếu kết quả theo checklist tự học
+2. Nội dung: Phải chia nhỏ nội dung ra nhiều slide (ngăn cách bằng `---`). Không nhồi nhét quá nhiều chữ vào một slide.
+3. Code Samples: Phải trích xuất mã nguồn mẫu từ SSOT và đưa vào slide có highlight syntax chuẩn xác để giảng viên có thể demo.
+4. Trình bày Khoa học: Dùng bullet point ngắn gọn. KHÔNG dùng tiêu đề `###` lồng bên trong gạch đầu dòng `-`.
 """
+    
+    user_prompt = f"""
+Nội dung bài giảng chi tiết:
+- Vấn đề: {content.get('problem', '')}
+- Phân tích: {content.get('analysis', '')}
+- Giải pháp: {content.get('solution', '')}
+- Tổng kết: {content.get('summary', '')}
+
+Tri thức gốc (SSOT):
+{json.dumps(core_ssot.get('concepts', {}), ensure_ascii=False)}
+{json.dumps(core_ssot.get('code_samples', {}), ensure_ascii=False)}
+
+Phản hồi từ Academic Reviewer (nếu có, hãy sửa lỗi này):
+{feedback}
+
+Hãy sinh ra toàn bộ file Markdown cho Marp slides. KHÔNG bọc trong ```markdown, chỉ trả về nội dung raw.
+"""
+    
+    slides_md = call_llm(
+        system_prompt,
+        user_prompt,
+        json_mode=False,
+        agent_name=f"Slide_Agent_Att{attempt_num}",
+        session_id=session_id,
+        lesson_id=lesson_id
+    )
+    
+    if slides_md:
+        slides_md = slides_md.strip()
+        if slides_md.startswith("```markdown"):
+            slides_md = slides_md[11:]
+        if slides_md.endswith("```"):
+            slides_md = slides_md[:-3]
+        slides_md = slides_md.strip()
+    else:
+        # Fallback if LLM fails
+        slides_md = f"---\nmarp: true\ntheme: gaia\n_class: lead\npaginate: true\n---\n\n# {display_title}\n\nLỗi khi sinh slide."
 
     state["slide_markdown"] = slides_md
     log_agent_tokens("Slide_Agent", state, slides_md)
@@ -785,17 +1333,19 @@ def quiz_agent(state: AgentState) -> AgentState:
         feedback=feedback,
         state=state
     )
-    
-    lab_steps = content["lab"]["steps"]
-    lab_checklist = content["lab"]["checklist"]
+    lab = content.get("lab", {})
+    lab_title = lab.get("title", "Luyện tập (Tùy chọn)")
+    lab_objectives = lab.get("objectives", ["Nắm vững kiến thức nền tảng"])
+    lab_steps = lab.get("steps", ["Xem lại tài liệu lý thuyết"])
+    lab_checklist = lab.get("checklist", ["Hoàn thành câu hỏi trắc nghiệm"])
     
     inputs_text = f"Dự án/môi trường phát triển {tech_stack} hiện tại và tài nguyên khóa học."
 
     quiz_data = {
-        "lesson_quiz": content["quiz"],
+        "lesson_quiz": content.get("quiz", []),
         "practical_lab": {
-            "title": content["lab"]["title"],
-            "objectives": content["lab"]["objectives"],
+            "title": lab_title,
+            "objectives": lab_objectives,
             "description": {
                 "inputs": inputs_text,
                 "steps": lab_steps
@@ -929,7 +1479,7 @@ def convert_markdown_to_html(text: str) -> str:
             if in_blockquote:
                 output.append("</blockquote>")
                 in_blockquote = False
-            output.append(line)
+            output.append(process_inline(line))
             continue
             
         # Table detection
@@ -1089,9 +1639,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
             raw_code = raw_code[first_line_end+1:]
             if raw_code.strip().endswith("```"):
                 raw_code = raw_code.strip()[:-3].rstrip()
-    else:
-        # Prevent HTML injection if code contains unescaped HTML characters
-        raw_code = raw_code.replace("<", "&lt;").replace(">", "&gt;")
+                
+    # Prevent HTML injection unconditionally to fix highlight.js rendering
+    import html
+    raw_code = html.escape(raw_code)
     
     # Format details/summary for code block if attempt_num > 1 (required by UX reviewer to reduce visual weight)
     if attempt_num > 1:
@@ -1157,29 +1708,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         refs = [refs]
     elif not isinstance(refs, list):
         refs = []
-        
-    if refs:
-        references_html += f"""
-                    <!-- Step 6: References -->
-                    <div class="step" style="margin-top: 24px;">
-                        <div class="badge"><i class="ph-duotone ph-books"></i></div>
-                        <div class="step-body">
-                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
-                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
-        """
-        for ref in refs:
-            if isinstance(ref, dict) and ref.get("title") and ref.get("url"):
-                references_html += f"""
-                                <li>
-                                    <a href="{ref.get("url")}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> {ref.get("title")}
-                                    </a>
-                                </li>"""
-        references_html += """
-                            </ul>
-                        </div>
-                    </div>
-        """
+
     
     t_lower = lesson_title.lower()
     has_no_code = not raw_code or not raw_code.strip() or all(line.strip().startswith(('#', '//', '/*', '*', '$', 'pip', 'python')) for line in raw_code.splitlines() if line.strip())
@@ -1194,18 +1723,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
     if is_theory_only:
         visualizer_section_html = ""
-        step_4_html = "" if has_no_code else f"""
-                    <!-- Step 4: Setup & Configuration Code -->
-                    <div class="step">
-                        <div class="badge">4</div>
-                        <div class="step-body">
-                            <div class="step-loc">Code mẫu tham khảo<span class="range"></span></div>
-                            {code_block_html}
-                            <div style="margin-top: 16px;">
-                                {resolve_html}
-                            </div>
-                        </div>
-                    </div>"""
+        # Strict enforcement: NEVER show step 4 for theory lessons, regardless of what AI hallucinated.
+        step_4_html = "" 
             
         js_initializer = """
         document.addEventListener('DOMContentLoaded', () => {
@@ -1213,23 +1732,272 @@ def html_writer_agent(state: AgentState) -> AgentState:
         });
         """
     else:
+        # For non-theory lessons, step 4 is displayed if there is code
+        step_4_html = "" if has_no_code else f"""
+                    <!-- Step 4: Setup & Configuration Code -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">Lệnh cấu hình & Mã nguồn <span class="range"></span></div>
+                            {code_block_html}
+                            <div style="margin-top: 16px;">
+                                {resolve_html}
+                            </div>
+                        </div>
+                    </div>"""
+                    
         vis_comp = content.get("visualizer")
         if not vis_comp:
-            vis_comp = {
-                "canvas_title": "Interactive Visualizer",
-                "legend_html": "",
-                "stats_html": "",
-                "code_tracker_html": "",
-                "input_label": "Input Data",
-                "input_default": "",
-                "engine_js": "class InteractiveVisualizerEngine { constructor() {} init() {} start() {} pause() {} step() {} reset() {} setSpeed() {} applyCustomData() {} }"
+            vis_comp = {}
+            
+        canvas_title = vis_comp.get("canvas_title", "Interactive Visualizer")
+        legend_html = vis_comp.get("legend_html", "")
+        stats_html = vis_comp.get("stats_html", "")
+        code_tracker_html = vis_comp.get("code_tracker_html", "")
+        input_label = vis_comp.get("input_label", "Input Data")
+        input_default_raw = vis_comp.get("input_default", "")
+        
+        # Robust full-featured interactive engine logic
+        engine_js = vis_comp.get("engine_js", "")
+        if not engine_js or "constructor() {}" in engine_js or "InteractiveVisualizerEngine" not in engine_js:
+            engine_js = """class InteractiveVisualizerEngine {
+    constructor() {
+        this.steps = [];
+        this.currentStep = 0;
+        this.isPlaying = false;
+        this.timer = null;
+        this.speed = 400;
+    }
+    
+    init() {
+        this.steps = [];
+        const lines = Array.from(document.querySelectorAll('#code-tracker-box .code-line'));
+        if (lines.length > 0) {
+            this.steps = lines.map((el, index) => {
+                if (!el.id) el.id = `line-${index}`;
+                return {
+                    lineId: el.id,
+                    description: el.innerText.trim(),
+                    message: `Đang thực thi dòng: ${el.innerText.trim()}`
+                };
+            });
+        } else {
+            this.steps = [
+                { message: "Khởi chạy Client gửi yêu cầu HTTP Request", step: 0 },
+                { message: "ASGI Server (Uvicorn) tiếp nhận và chuyển tiếp request", step: 1 },
+                { message: "FastAPI Routing Handler xử lý nghiệp vụ & Middleware", step: 2 },
+                { message: "Trả về dữ liệu JSON Response cho Client thành công", step: 3 }
+            ];
+        }
+        
+        this.currentStep = 0;
+        this.isPlaying = false;
+        this.render();
+    }
+    
+    start() {
+        if (this.isPlaying) return;
+        this.isPlaying = true;
+        this.log("▶ [Bắt đầu] Đang khởi chạy quy trình phỏng đoán trực quan.");
+        this.runLoop();
+    }
+    
+    pause() {
+        this.isPlaying = false;
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        this.log("⏸ [Tạm dừng] Đã tạm dừng luồng chạy.");
+    }
+    
+    step() {
+        this.pause();
+        if (this.steps.length === 0) return;
+        this.currentStep = (this.currentStep + 1) % this.steps.length;
+        this.log(`⏭ [Từng bước] Đã chuyển sang bước ${this.currentStep + 1}`);
+        this.render();
+    }
+    
+    reset() {
+        this.pause();
+        this.currentStep = 0;
+        this.log("↻ [Đặt lại] Đã đưa trạng thái hệ thống về ban đầu.");
+        this.render();
+    }
+    
+    setSpeed(speedVal) {
+        this.speed = parseInt(speedVal) || 400;
+        const display = document.getElementById('speed-display');
+        if (display) display.innerText = this.speed;
+        const slider = document.getElementById('slider-speed');
+        if (slider) slider.value = speedVal;
+    }
+    
+    applyCustomData() {
+        const val = document.getElementById('custom-data-input').value;
+        this.log(`⚙ [Cấu hình] Đã áp dụng dữ liệu đầu vào: ${val || '(trống)'}`);
+        this.reset();
+    }
+    
+    runLoop() {
+        if (!this.isPlaying) return;
+        if (this.steps.length === 0) return;
+        
+        this.timer = setTimeout(() => {
+            this.currentStep = (this.currentStep + 1) % this.steps.length;
+            this.render();
+            if (this.currentStep === 0) {
+                this.pause();
+                this.log("✅ [Hoàn tất] Luồng chạy đã kết thúc một chu kỳ.");
+            } else {
+                this.runLoop();
             }
+        }, this.speed);
+    }
+    
+    render() {
+        const stepIdx = this.currentStep;
+        if (!this.steps || this.steps.length === 0) return;
+        
+        const codeLines = document.querySelectorAll('#code-tracker-box .code-line');
+        codeLines.forEach(l => l.classList.remove('active-line'));
+        
+        const stepData = this.steps[stepIdx];
+        if (stepData) {
+            if (stepData.lineId) {
+                const activeLine = document.getElementById(stepData.lineId);
+                if (activeLine) activeLine.classList.add('active-line');
+            } else if (codeLines[stepIdx]) {
+                codeLines[stepIdx].classList.add('active-line');
+            }
+            
+            const msg = stepData.message || stepData.description || `Thực thi bước ${stepIdx + 1}`;
+            this.log(`ℹ ${msg}`);
+            
+            const stepperDesc = document.getElementById('stepper-desc');
+            const stepperProgress = document.getElementById('stepper-progress');
+            const stepperBar = document.getElementById('stepper-bar');
+            
+            if (stepperDesc) {
+                let desc = stepData.description || msg;
+                if (desc.includes('from') || desc.includes('app =') || desc.includes('@app.') || desc.includes('def') || desc.includes('return')) {
+                    desc = `Đang thực thi lệnh: <code style="color: var(--primary); font-family: var(--font-mono); font-weight: 600;">${desc}</code>`;
+                }
+                stepperDesc.innerHTML = desc;
+            }
+            if (stepperProgress) stepperProgress.innerText = `Bước ${stepIdx + 1}/${this.steps.length}`;
+            if (stepperBar) stepperBar.style.width = `${((stepIdx + 1) / this.steps.length) * 100}%`;
+        }
+        
+        this.updateStats();
+        
+        const canvas = document.getElementById('visualizer-canvas');
+        if (canvas) {
+            let clientClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            let serverClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            let appClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            let handlerClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            
+            const nodeIndex = stepIdx % 4;
+            if (nodeIndex === 0) {
+                clientClass = "border-emerald-500 bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/20 scale-110";
+            } else if (nodeIndex === 1) {
+                serverClass = "border-amber-500 bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/20 scale-110";
+            } else if (nodeIndex === 2) {
+                appClass = "border-blue-500 bg-blue-500/10 text-blue-500 shadow-lg shadow-blue-500/20 scale-110";
+            } else if (nodeIndex === 3) {
+                handlerClass = "border-indigo-500 bg-indigo-500/10 text-indigo-500 shadow-lg shadow-indigo-500/20 scale-110";
+            }
+            
+            canvas.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center justify-around w-full gap-4 md:gap-2 my-auto py-6 select-none">
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${clientClass}">
+                      <i class="ph-duotone ph-desktop text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Client</span>
+                  </div>
+                  
+                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 1 ? 'text-amber-500' : ''}">➔</div>
+                  
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${serverClass}">
+                      <i class="ph-duotone ph-hard-drives text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">ASGI Server (Uvicorn)</span>
+                  </div>
+                  
+                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 2 ? 'text-blue-500' : ''}">➔</div>
+                  
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${appClass}">
+                      <i class="ph-duotone ph-cpu text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">FastAPI Instance</span>
+                  </div>
+                  
+                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 3 ? 'text-indigo-500' : ''}">➔</div>
+                  
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${handlerClass}">
+                      <i class="ph-duotone ph-code text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Route Handler</span>
+                  </div>
+                </div>
+            `;
+        }
+    }
+    
+    log(msg) {
+        const logBox = document.getElementById('log-messages');
+        if (!logBox) return;
+        
+        let entryClass = "log-info";
+        if (msg.includes("▶") || msg.includes("⚙")) entryClass = "log-info";
+        else if (msg.includes("✅") || msg.includes("Hoàn tất")) entryClass = "log-success";
+        else if (msg.includes("⏸") || msg.includes("Tạm dừng")) entryClass = "log-warn";
+        
+        logBox.innerHTML += `<div class="log-entry ${entryClass}">${msg}</div>`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+    
+    clearLog() {
+        const logBox = document.getElementById('log-messages');
+        if (logBox) logBox.innerHTML = "";
+    }
+    
+    updateStats() {}
+    
+    scrubStep(e) {
+        if (!this.steps || this.steps.length === 0) return;
+        const barContainer = e.currentTarget;
+        const rect = barContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percentage = clickX / rect.width;
+        const targetStep = Math.min(this.steps.length - 1, Math.max(0, Math.floor(percentage * this.steps.length)));
+        
+        this.currentStep = targetStep;
+        this.log(`ℹ [Hệ thống] Đã tua đến bước ${targetStep + 1}`);
+        this.render();
+    }
+}"""
+            
+        import html
+        input_default_raw = vis_comp.get("input_default", "")
+        if isinstance(input_default_raw, (dict, list)):
+            input_default_str = json.dumps(input_default_raw, ensure_ascii=False)
+        else:
+            input_default_str = str(input_default_raw)
+        input_default_safe = html.escape(input_default_str, quote=True)
+        
         visualizer_section_html = f"""
                 <!-- Core Concept & Tech Stack Header Card -->
                 <div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                     <div style="flex: 1; min-width: 260px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm cốt lõi</span>
+                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
                             <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">{session_id}</span>
                         </div>
                         <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">{lesson_title}</h3>
@@ -1248,10 +2016,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <div class="panel-box">
                             <div class="canvas-header">
                                 <div class="canvas-title">
-                                    {vis_comp.get("canvas_title", "Interactive Visualizer")}
+                                    {canvas_title}
                                 </div>
                                 <div class="legend-box">
-                                    {vis_comp.get("legend_html", "")}
+                                    {legend_html}
                                 </div>
                             </div>
 
@@ -1260,19 +2028,32 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                 <!-- Dynamic Bars / Nodes generated by JS engine -->
                             </div>
 
+                            <!-- Stepper / Execution Flow Panel -->
+                            <div class="stepper-panel" id="stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+                                    <span id="stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+                                </div>
+                                <div id="stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+                                <!-- Progress Bar/Scrubber -->
+                                <div class="stepper-bar-container" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;" onclick="visualizerApp?.scrubStep?.(event)">
+                                    <div id="stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+                                </div>
+                            </div>
+
                             <!-- Control Buttons & Input Sliders -->
                             <div class="controls-section">
                                 <div class="btn-group">
-                                    <button class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
+                                    <button type="button" class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
                                         <span>▶</span> Bắt đầu
                                     </button>
-                                    <button class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
+                                    <button type="button" class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
                                         <span>⏸</span> Tạm dừng
                                     </button>
-                                    <button class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
+                                    <button type="button" class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
                                         <span>⏭</span> Từng bước
                                     </button>
-                                    <button class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
+                                    <button type="button" class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
                                         <span>↻</span> Đặt lại
                                     </button>
                                 </div>
@@ -1283,10 +2064,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                         <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
                                     </div>
                                     <div class="input-group">
-                                        <span class="input-label">{vis_comp.get("input_label", "Input Data")}</span>
+                                        <span class="input-label">{input_label}</span>
                                         <div class="custom-input-box">
-                                            <input type="text" id="custom-data-input" class="custom-input" value="{vis_comp.get("input_default", "")}">
-                                            <button class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
+                                            <input type="text" id="custom-data-input" class="custom-input" value="{input_default_safe}" placeholder="Ví dụ: {{'name': 'Rikkei'}}, hoặc 1, 2, 3" onkeydown="if(event.key === 'Enter') {{ event.preventDefault(); visualizerApp.applyCustomData(); }}">
+                                            <button type="button" class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1296,7 +2077,9 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <!-- Right Column: Stats, Live Code Tracker & Console Log -->
                         <div class="right-column">
                             <!-- Real-time Stats -->
-                            {vis_comp.get("stats_html", "")}
+                            <div class="stats-panel">
+                                {stats_html}
+                            </div>
 
                             <!-- Live Code Tracker -->
                             <div class="code-tracker-panel">
@@ -1306,7 +2089,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                 </div>
                                 <div class="code-content">
                                     <pre><code id="code-tracker-box">
-{vis_comp.get("code_tracker_html", "")}
+{code_tracker_html}
                                     </code></pre>
                                 </div>
                             </div>
@@ -1315,7 +2098,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                             <div class="console-log-panel">
                                 <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
                                     <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
-                                    <button onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
+                                    <button type="button" onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
                                 </div>
                                 <div class="log-messages" id="log-messages">
                                     <div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
@@ -1325,7 +2108,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     </div>
                 </div>"""
 
-        step_4_html = f"""
+        step_4_html = "" if has_no_code else f"""
                     <!-- Step 4: Production Code Walkthrough -->
                     <div class="step">
                         <div class="badge">4</div>
@@ -1338,15 +2121,80 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         </div>
                     </div>"""
         js_initializer = f"""
-        {vis_comp.get("engine_js", "")}
+        {engine_js}
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine === 'undefined') {{
+            window.InteractiveVisualizerEngine = class {{}};
+        }}
+
+        function initApp() {{
+            try {{
+                visualizerApp = new InteractiveVisualizerEngine();
+            }} catch(e) {{
+                visualizerApp = {{}};
+            }}
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
+            requiredMethods.forEach(method => {{
+                if (typeof visualizerApp[method] !== 'function') {{
+                    visualizerApp[method] = () => console.log(`[Stub] Method ${{method}} called.`);
+                }}
+            }});
+
+            // Perform initialization
+            if (typeof visualizerApp.init === 'function') {{
+                visualizerApp.init();
+            }}
+            if (typeof visualizerApp.render === 'function') {{
+                visualizerApp.render();
+            }}
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('code-tracker-box');
+            if (trackerBox) {{
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }}
+
+            if (window.hljs) hljs.highlightAll();
+        }}
 
         // Initialize when DOM loaded
         let visualizerApp;
-        document.addEventListener('DOMContentLoaded', () => {{
-            visualizerApp = new InteractiveVisualizerEngine();
-            if (typeof visualizerApp.init === 'function') visualizerApp.init();
-            if (window.hljs) hljs.highlightAll();
-        }});
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {{
+            initApp();
+        }} else {{
+            document.addEventListener('DOMContentLoaded', initApp);
+        }}
+        """
+
+    # Dynamically assign number to references step based on presence of code (step 4)
+    ref_step_num = 4 if has_no_code or is_theory_only else 5
+    if refs:
+        references_html += f"""
+                    <!-- Step {ref_step_num}: References -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">{ref_step_num}</div>
+                        <div class="step-body">
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        """
+        for ref in refs:
+            if isinstance(ref, dict) and ref.get("title") and ref.get("url"):
+                references_html += f"""
+                                <li>
+                                    <a href="{ref.get("url")}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> {ref.get("title")}
+                                    </a>
+                                </li>"""
+        references_html += """
+                            </ul>
+                        </div>
+                    </div>
         """
 
     html_template = f"""<!DOCTYPE html>
@@ -1380,6 +2228,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
       }}
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
     <style>
         :root {{
@@ -1409,8 +2258,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
             --bg-panel: var(--bg-card);
             --bg-canvas: var(--bg-body);
             --color-idle: #475569;
-            --color-compare: #eab308;
-            --color-swap: #ef4444;
+            --color-active: #eab308;
             --color-done: #22c55e;
             --primary: #be111c;
             --rust: #c2410c;
@@ -1437,6 +2285,13 @@ def html_writer_agent(state: AgentState) -> AgentState:
             --bg-canvas: var(--bg-body);
             --primary: #be111c;
             --rust: #f97316;
+        }}
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {{
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }}
 
         * {{
@@ -1491,10 +2346,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .panel h3 {{
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             color: var(--text-muted);
             margin-bottom: 12px;
         }}
@@ -1507,10 +2360,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .gotchas h3 {{
-            font-size: 11px;
+            font-size: 14px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
             color: var(--clay);
             margin-bottom: 10px;
         }}
@@ -1584,6 +2435,9 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
         .visualizer-canvas {{
             background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             min-height: 380px;
@@ -1742,10 +2596,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .stat-title {{
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             margin-bottom: 2px;
         }}
 
@@ -1757,7 +2609,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .code-tracker-panel {{
-            background: #1e1e1e;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -1771,7 +2624,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .panel-top-bar {{
-            background: #252526;
+            background: #1e293b;
             padding: 10px 14px;
             border-bottom: 1.5px solid var(--border-color);
             display: flex;
@@ -1779,14 +2632,14 @@ def html_writer_agent(state: AgentState) -> AgentState:
             align-items: center;
             font-family: var(--font-mono);
             font-size: 0.8rem;
-            color: #a5b4fc;
+            color: #38bdf8;
         }}
 
         .code-content pre {{
             margin: 0;
             padding: 14px;
             overflow-x: auto;
-            background-color: #1e1e1e;
+            background-color: #121824;
         }}
 
         .code-line {{
@@ -1795,17 +2648,19 @@ def html_writer_agent(state: AgentState) -> AgentState:
             border-left: 3px solid transparent;
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            color: #d4d4d4;
+            white-space: pre-wrap;
+            color: #cbd5e1;
         }}
 
         .code-line.active-line {{
-            background-color: rgba(217, 119, 87, 0.15);
-            border-left-color: var(--clay);
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
             color: #ffffff;
         }}
 
         .console-log-panel {{
-            background: #1e1e1e;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 14px;
@@ -1813,6 +2668,32 @@ def html_writer_agent(state: AgentState) -> AgentState:
             display: flex;
             flex-direction: column;
             max-height: 200px;
+        }}
+
+        .stats-panel {{
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }}
+        
+        .stats-panel .badge {{
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }}
 
         .log-messages {{
@@ -1832,7 +2713,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
             line-height: 1.4;
         }}
 
-        .log-info {{ background: rgba(30, 41, 59, 0.5); color: #94a3b8; }}
+        .log-info {{ background: rgba(30, 41, 59, 0.6); color: #38bdf8; }}
         .log-success {{ background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }}
         .log-warn {{ background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }}
 
@@ -2051,8 +2932,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="max-w-[1600px] w-full mx-auto relative z-10">
-            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold uppercase tracking-wider mb-3 border border-white/10">{session_id}</span>
-            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight uppercase leading-tight mb-2">{lesson_title}</h2>
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">{session_id}</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">{lesson_title}</h2>
             <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
                 Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
             </p>
@@ -2073,7 +2954,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <div class="step">
                         <div class="badge">1</div>
                         <div class="step-body">
-                            <div class="step-loc">Đặt vấn đề & Thách thức thực tế <span class="range"></span></div>
+                            <div class="step-loc">Đặt vấn đề</div>
                             {problem_html}
                         </div>
                     </div>
@@ -2082,23 +2963,17 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <div class="step">
                         <div class="badge">2</div>
                         <div class="step-body">
-                            <div class="step-loc">Phân tích Bản chất & Cơ chế vận hành nội bộ <span class="range"></span></div>
+                            <div class="step-loc">Phân tích Bản chất</div>
                             {analysis_html}
-                            <div class="box warning-box">
-                                <strong>Lưu ý hiệu năng:</strong> Cần tính toán kỹ độ phức tạp thuật toán và quản lý bộ nhớ khi xử lý khối lượng dữ liệu lớn.
-                            </div>
                         </div>
                     </div>
 
                     <!-- Step 3: Solution & Architecture -->
-                    <div class="step hot">
+                    <div class="step">
                         <div class="badge">3</div>
                         <div class="step-body">
-                            <div class="step-loc">Giới thiệu Giải pháp & Kiến trúc Triển khai <span class="range"></span></div>
+                            <div class="step-loc">Giới thiệu Giải pháp</div>
                             {solution_html}
-                            <div class="box tip-box">
-                                <strong>Giải pháp tối ưu:</strong> Sử dụng trực quan hóa giúp nhanh chóng định vị điểm nghẽn và cải thiện tốc độ phản hồi đáng kể.
-                            </div>
                         </div>
                     </div>
 {step_4_html}

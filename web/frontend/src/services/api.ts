@@ -114,6 +114,8 @@ export interface SCORMTaskStatus {
   download_url?: string;
   vault_path?: string;
   error?: string;
+  percent?: number;
+  video_url?: string;
 }
 
 export const exportSCORM = (courseName: string, outputDir?: string): Promise<{ task_id: string; status: string; message: string }> =>
@@ -145,12 +147,33 @@ export interface VideoRenderPayload {
   course_name: string;
   session_id: string;
   lesson_id: string;
+  draft?: boolean;
 }
 
 export const renderVideo = (payload: VideoRenderPayload): Promise<{ task_id: string; status: string; message: string }> =>
   request('/pipeline/video/render', {
     method: 'POST',
     body: JSON.stringify(payload),
+  });
+
+export interface VideoProjectDetails {
+  status: string;
+  project_found: boolean;
+  index_html?: string;
+  script_md?: string;
+  preview_url?: string;
+  video_url?: string | null;
+  project_dir?: string;
+  message?: string;
+}
+
+export const getVideoProjectDetails = (courseName: string, sessionId: string, lessonId: string): Promise<VideoProjectDetails> =>
+  request(`/pipeline/video/project-details?course_name=${encodeURIComponent(courseName)}&session_id=${encodeURIComponent(sessionId)}&lesson_id=${encodeURIComponent(lessonId)}`);
+
+export const saveVideoFile = (payload: { course_name: string; session_id: string; lesson_id: string; filename: string; content: string }): Promise<{ status: string; message: string }> =>
+  request('/pipeline/video/save-file', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   });
 
 export const getVideoStatus = (taskId: string): Promise<SCORMTaskStatus> =>

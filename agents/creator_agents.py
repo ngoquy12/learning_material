@@ -1748,15 +1748,241 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     
         vis_comp = content.get("visualizer")
         if not vis_comp:
-            vis_comp = {
-                "canvas_title": "Interactive Visualizer",
-                "legend_html": "",
-                "stats_html": "",
-                "code_tracker_html": "",
-                "input_label": "Input Data",
-                "input_default": "",
-                "engine_js": "class InteractiveVisualizerEngine { constructor() {} init() {} start() {} pause() {} step() {} reset() {} setSpeed() {} applyCustomData() {} }"
+            vis_comp = {}
+            
+        canvas_title = vis_comp.get("canvas_title", "Interactive Visualizer")
+        legend_html = vis_comp.get("legend_html", "")
+        stats_html = vis_comp.get("stats_html", "")
+        code_tracker_html = vis_comp.get("code_tracker_html", "")
+        input_label = vis_comp.get("input_label", "Input Data")
+        input_default_raw = vis_comp.get("input_default", "")
+        
+        # Robust full-featured interactive engine logic
+        engine_js = vis_comp.get("engine_js", "")
+        if not engine_js or "constructor() {}" in engine_js or "InteractiveVisualizerEngine" not in engine_js:
+            engine_js = """class InteractiveVisualizerEngine {
+    constructor() {
+        this.steps = [];
+        this.currentStep = 0;
+        this.isPlaying = false;
+        this.timer = null;
+        this.speed = 400;
+    }
+    
+    init() {
+        this.steps = [];
+        const lines = Array.from(document.querySelectorAll('#code-tracker-box .code-line'));
+        if (lines.length > 0) {
+            this.steps = lines.map((el, index) => {
+                if (!el.id) el.id = `line-${index}`;
+                return {
+                    lineId: el.id,
+                    description: el.innerText.trim(),
+                    message: `Đang thực thi dòng: ${el.innerText.trim()}`
+                };
+            });
+        } else {
+            this.steps = [
+                { message: "Khởi chạy Client gửi yêu cầu HTTP Request", step: 0 },
+                { message: "ASGI Server (Uvicorn) tiếp nhận và chuyển tiếp request", step: 1 },
+                { message: "FastAPI Routing Handler xử lý nghiệp vụ & Middleware", step: 2 },
+                { message: "Trả về dữ liệu JSON Response cho Client thành công", step: 3 }
+            ];
+        }
+        
+        this.currentStep = 0;
+        this.isPlaying = false;
+        this.render();
+    }
+    
+    start() {
+        if (this.isPlaying) return;
+        this.isPlaying = true;
+        this.log("▶ [Bắt đầu] Đang khởi chạy quy trình phỏng đoán trực quan.");
+        this.runLoop();
+    }
+    
+    pause() {
+        this.isPlaying = false;
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        this.log("⏸ [Tạm dừng] Đã tạm dừng luồng chạy.");
+    }
+    
+    step() {
+        this.pause();
+        if (this.steps.length === 0) return;
+        this.currentStep = (this.currentStep + 1) % this.steps.length;
+        this.log(`⏭ [Từng bước] Đã chuyển sang bước ${this.currentStep + 1}`);
+        this.render();
+    }
+    
+    reset() {
+        this.pause();
+        this.currentStep = 0;
+        this.log("↻ [Đặt lại] Đã đưa trạng thái hệ thống về ban đầu.");
+        this.render();
+    }
+    
+    setSpeed(speedVal) {
+        this.speed = parseInt(speedVal) || 400;
+        const display = document.getElementById('speed-display');
+        if (display) display.innerText = this.speed;
+        const slider = document.getElementById('slider-speed');
+        if (slider) slider.value = speedVal;
+    }
+    
+    applyCustomData() {
+        const val = document.getElementById('custom-data-input').value;
+        this.log(`⚙ [Cấu hình] Đã áp dụng dữ liệu đầu vào: ${val || '(trống)'}`);
+        this.reset();
+    }
+    
+    runLoop() {
+        if (!this.isPlaying) return;
+        if (this.steps.length === 0) return;
+        
+        this.timer = setTimeout(() => {
+            this.currentStep = (this.currentStep + 1) % this.steps.length;
+            this.render();
+            if (this.currentStep === 0) {
+                this.pause();
+                this.log("✅ [Hoàn tất] Luồng chạy đã kết thúc một chu kỳ.");
+            } else {
+                this.runLoop();
             }
+        }, this.speed);
+    }
+    
+    render() {
+        const stepIdx = this.currentStep;
+        if (!this.steps || this.steps.length === 0) return;
+        
+        const codeLines = document.querySelectorAll('#code-tracker-box .code-line');
+        codeLines.forEach(l => l.classList.remove('active-line'));
+        
+        const stepData = this.steps[stepIdx];
+        if (stepData) {
+            if (stepData.lineId) {
+                const activeLine = document.getElementById(stepData.lineId);
+                if (activeLine) activeLine.classList.add('active-line');
+            } else if (codeLines[stepIdx]) {
+                codeLines[stepIdx].classList.add('active-line');
+            }
+            
+            const msg = stepData.message || stepData.description || `Thực thi bước ${stepIdx + 1}`;
+            this.log(`ℹ ${msg}`);
+            
+            const stepperDesc = document.getElementById('stepper-desc');
+            const stepperProgress = document.getElementById('stepper-progress');
+            const stepperBar = document.getElementById('stepper-bar');
+            
+            if (stepperDesc) {
+                let desc = stepData.description || msg;
+                if (desc.includes('from') || desc.includes('app =') || desc.includes('@app.') || desc.includes('def') || desc.includes('return')) {
+                    desc = `Đang thực thi lệnh: <code style="color: var(--primary); font-family: var(--font-mono); font-weight: 600;">${desc}</code>`;
+                }
+                stepperDesc.innerHTML = desc;
+            }
+            if (stepperProgress) stepperProgress.innerText = `Bước ${stepIdx + 1}/${this.steps.length}`;
+            if (stepperBar) stepperBar.style.width = `${((stepIdx + 1) / this.steps.length) * 100}%`;
+        }
+        
+        this.updateStats();
+        
+        const canvas = document.getElementById('visualizer-canvas');
+        if (canvas) {
+            let clientClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            let serverClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            let appClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            let handlerClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            
+            const nodeIndex = stepIdx % 4;
+            if (nodeIndex === 0) {
+                clientClass = "border-emerald-500 bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/20 scale-110";
+            } else if (nodeIndex === 1) {
+                serverClass = "border-amber-500 bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/20 scale-110";
+            } else if (nodeIndex === 2) {
+                appClass = "border-blue-500 bg-blue-500/10 text-blue-500 shadow-lg shadow-blue-500/20 scale-110";
+            } else if (nodeIndex === 3) {
+                handlerClass = "border-indigo-500 bg-indigo-500/10 text-indigo-500 shadow-lg shadow-indigo-500/20 scale-110";
+            }
+            
+            canvas.innerHTML = `
+                <div class="flex flex-col md:flex-row items-center justify-around w-full gap-4 md:gap-2 my-auto py-6 select-none">
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${clientClass}">
+                      <i class="ph-duotone ph-desktop text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Client</span>
+                  </div>
+                  
+                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 1 ? 'text-amber-500' : ''}">➔</div>
+                  
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${serverClass}">
+                      <i class="ph-duotone ph-hard-drives text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">ASGI Server (Uvicorn)</span>
+                  </div>
+                  
+                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 2 ? 'text-blue-500' : ''}">➔</div>
+                  
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${appClass}">
+                      <i class="ph-duotone ph-cpu text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">FastAPI Instance</span>
+                  </div>
+                  
+                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 3 ? 'text-indigo-500' : ''}">➔</div>
+                  
+                  <div class="flex flex-col items-center transition-all duration-300">
+                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${handlerClass}">
+                      <i class="ph-duotone ph-code text-4xl"></i>
+                    </div>
+                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Route Handler</span>
+                  </div>
+                </div>
+            `;
+        }
+    }
+    
+    log(msg) {
+        const logBox = document.getElementById('log-messages');
+        if (!logBox) return;
+        
+        let entryClass = "log-info";
+        if (msg.includes("▶") || msg.includes("⚙")) entryClass = "log-info";
+        else if (msg.includes("✅") || msg.includes("Hoàn tất")) entryClass = "log-success";
+        else if (msg.includes("⏸") || msg.includes("Tạm dừng")) entryClass = "log-warn";
+        
+        logBox.innerHTML += `<div class="log-entry ${entryClass}">${msg}</div>`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+    
+    clearLog() {
+        const logBox = document.getElementById('log-messages');
+        if (logBox) logBox.innerHTML = "";
+    }
+    
+    updateStats() {}
+    
+    scrubStep(e) {
+        if (!this.steps || this.steps.length === 0) return;
+        const barContainer = e.currentTarget;
+        const rect = barContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percentage = clickX / rect.width;
+        const targetStep = Math.min(this.steps.length - 1, Math.max(0, Math.floor(percentage * this.steps.length)));
+        
+        this.currentStep = targetStep;
+        this.log(`ℹ [Hệ thống] Đã tua đến bước ${targetStep + 1}`);
+        this.render();
+    }
+}"""
             
         import html
         input_default_raw = vis_comp.get("input_default", "")
@@ -1790,10 +2016,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <div class="panel-box">
                             <div class="canvas-header">
                                 <div class="canvas-title">
-                                    {vis_comp.get("canvas_title", "Interactive Visualizer")}
+                                    {canvas_title}
                                 </div>
                                 <div class="legend-box">
-                                    {vis_comp.get("legend_html", "")}
+                                    {legend_html}
                                 </div>
                             </div>
 
@@ -1802,19 +2028,32 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                 <!-- Dynamic Bars / Nodes generated by JS engine -->
                             </div>
 
+                            <!-- Stepper / Execution Flow Panel -->
+                            <div class="stepper-panel" id="stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+                                    <span id="stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+                                </div>
+                                <div id="stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+                                <!-- Progress Bar/Scrubber -->
+                                <div class="stepper-bar-container" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;" onclick="visualizerApp?.scrubStep?.(event)">
+                                    <div id="stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+                                </div>
+                            </div>
+
                             <!-- Control Buttons & Input Sliders -->
                             <div class="controls-section">
                                 <div class="btn-group">
-                                    <button class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
+                                    <button type="button" class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
                                         <span>▶</span> Bắt đầu
                                     </button>
-                                    <button class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
+                                    <button type="button" class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
                                         <span>⏸</span> Tạm dừng
                                     </button>
-                                    <button class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
+                                    <button type="button" class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
                                         <span>⏭</span> Từng bước
                                     </button>
-                                    <button class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
+                                    <button type="button" class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
                                         <span>↻</span> Đặt lại
                                     </button>
                                 </div>
@@ -1825,10 +2064,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                         <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
                                     </div>
                                     <div class="input-group">
-                                        <span class="input-label">{vis_comp.get("input_label", "Input Data")}</span>
+                                        <span class="input-label">{input_label}</span>
                                         <div class="custom-input-box">
-                                            <input type="text" id="custom-data-input" class="custom-input" value="{input_default_safe}" placeholder="Ví dụ: {{'name': 'Rikkei'}}, hoặc 1, 2, 3">
-                                            <button class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
+                                            <input type="text" id="custom-data-input" class="custom-input" value="{input_default_safe}" placeholder="Ví dụ: {{'name': 'Rikkei'}}, hoặc 1, 2, 3" onkeydown="if(event.key === 'Enter') {{ event.preventDefault(); visualizerApp.applyCustomData(); }}">
+                                            <button type="button" class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1839,7 +2078,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         <div class="right-column">
                             <!-- Real-time Stats -->
                             <div class="stats-panel">
-                                {vis_comp.get("stats_html", "")}
+                                {stats_html}
                             </div>
 
                             <!-- Live Code Tracker -->
@@ -1850,7 +2089,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                                 </div>
                                 <div class="code-content">
                                     <pre><code id="code-tracker-box">
-{vis_comp.get("code_tracker_html", "")}
+{code_tracker_html}
                                     </code></pre>
                                 </div>
                             </div>
@@ -1859,7 +2098,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                             <div class="console-log-panel">
                                 <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
                                     <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
-                                    <button onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
+                                    <button type="button" onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
                                 </div>
                                 <div class="log-messages" id="log-messages">
                                     <div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
@@ -1882,16 +2121,14 @@ def html_writer_agent(state: AgentState) -> AgentState:
                         </div>
                     </div>"""
         js_initializer = f"""
-        {vis_comp.get("engine_js", "")}
+        {engine_js}
 
         // Fallback for missing class to prevent ReferenceError
         if (typeof InteractiveVisualizerEngine === 'undefined') {{
             window.InteractiveVisualizerEngine = class {{}};
         }}
 
-        // Initialize when DOM loaded
-        let visualizerApp;
-        document.addEventListener('DOMContentLoaded', () => {{
+        function initApp() {{
             try {{
                 visualizerApp = new InteractiveVisualizerEngine();
             }} catch(e) {{
@@ -1899,12 +2136,20 @@ def html_writer_agent(state: AgentState) -> AgentState:
             }}
             
             // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog'];
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
             requiredMethods.forEach(method => {{
                 if (typeof visualizerApp[method] !== 'function') {{
                     visualizerApp[method] = () => console.log(`[Stub] Method ${{method}} called.`);
                 }}
             }});
+
+            // Perform initialization
+            if (typeof visualizerApp.init === 'function') {{
+                visualizerApp.init();
+            }}
+            if (typeof visualizerApp.render === 'function') {{
+                visualizerApp.render();
+            }}
 
             // Auto-fix code tracker formatting if LLM glued tags together
             const trackerBox = document.getElementById('code-tracker-box');
@@ -1916,7 +2161,15 @@ def html_writer_agent(state: AgentState) -> AgentState:
             }}
 
             if (window.hljs) hljs.highlightAll();
-        }});
+        }}
+
+        // Initialize when DOM loaded
+        let visualizerApp;
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {{
+            initApp();
+        }} else {{
+            document.addEventListener('DOMContentLoaded', initApp);
+        }}
         """
 
     # Dynamically assign number to references step based on presence of code (step 4)
@@ -2356,8 +2609,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .code-tracker-panel {{
-            background: #1e1e1e;
-            color: #d1d5db;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -2371,7 +2624,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .panel-top-bar {{
-            background: #252526;
+            background: #1e293b;
             padding: 10px 14px;
             border-bottom: 1.5px solid var(--border-color);
             display: flex;
@@ -2379,14 +2632,14 @@ def html_writer_agent(state: AgentState) -> AgentState:
             align-items: center;
             font-family: var(--font-mono);
             font-size: 0.8rem;
-            color: #a5b4fc;
+            color: #38bdf8;
         }}
 
         .code-content pre {{
             margin: 0;
             padding: 14px;
             overflow-x: auto;
-            background-color: #1e1e1e;
+            background-color: #121824;
         }}
 
         .code-line {{
@@ -2396,18 +2649,18 @@ def html_writer_agent(state: AgentState) -> AgentState:
             font-family: var(--font-mono);
             font-size: 0.85rem;
             white-space: pre-wrap;
-            color: #d4d4d4;
+            color: #cbd5e1;
         }}
 
         .code-line.active-line {{
-            background-color: rgba(217, 119, 87, 0.15);
-            border-left-color: var(--clay);
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
             color: #ffffff;
         }}
 
         .console-log-panel {{
-            background: #1e1e1e;
-            color: #d1d5db;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 14px;
@@ -2418,8 +2671,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
 
         .stats-panel {{
-            background: #1e1e1e;
-            color: #d1d5db;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 10px 14px;
@@ -2460,7 +2713,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
             line-height: 1.4;
         }}
 
-        .log-info {{ background: rgba(30, 41, 59, 0.5); color: #94a3b8; }}
+        .log-info {{ background: rgba(30, 41, 59, 0.6); color: #38bdf8; }}
         .log-success {{ background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }}
         .log-warn {{ background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }}
 

@@ -22,15 +22,15 @@ import shutil
 router = APIRouter()
 
 # ── Root paths ──────────────────────────────────────────
-_BACKEND_DIR = Path(__file__).resolve().parents[4]  # Learning-Material root
+_BACKEND_DIR = Path(__file__).resolve().parents[5]  # Learning-Material root
 _PROJECT_ROOT = _BACKEND_DIR
 
 
 def _resolve_root() -> Path:
     """Resolve the Learning-Material project root robustly."""
-    # When running from web/backend, go up 4 levels
+    # When running from web/backend, go up 5 levels
     candidates = [
-        Path(__file__).resolve().parents[4],
+        Path(__file__).resolve().parents[5],
         Path(os.getcwd()),
     ]
     for c in candidates:
@@ -40,6 +40,15 @@ def _resolve_root() -> Path:
 
 
 ROOT = _resolve_root()
+
+def safe_print(msg: str):
+    try:
+        print(msg)
+    except UnicodeEncodeError:
+        try:
+            print(msg.encode('ascii', errors='replace').decode('ascii'))
+        except Exception:
+            pass
 
 
 # ── Schemas ──────────────────────────────────────────────
@@ -617,32 +626,349 @@ class VideoRenderRequest(BaseModel):
     course_name: str
     session_id: str
     lesson_id: str
+    draft: bool = False
+
+
+async def run_cmd_async(cmd: List[str]):
+    import asyncio
+    proc = await asyncio.create_subprocess_exec(
+        *cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await proc.communicate()
+    if proc.returncode != 0:
+        err_msg = stderr.decode("utf-8", errors="replace")
+        raise Exception(f"Command {' '.join(cmd)} failed with exit code {proc.returncode}: {err_msg}")
+    return stdout
+
+
+async def assemble_final_video(project_dir: Path, output_file: Path, final_render_path: Path):
+    import asyncio
+    import json
+    assets_dir = project_dir / "assets"
+    temp_dir = project_dir / "temp_assembly"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        # 1. Probe out.mp4
+        probe_cmd = [
+            "ffprobe", "-v", "error", 
+            "-show_entries", "stream=width,height,r_frame_rate,pix_fmt,codec_type,sample_rate,channels",
+            "-of", "json", str(output_file)
+        ]
+        probe_stdout = await run_cmd_async(probe_cmd)
+        probe_data = json.loads(probe_stdout.decode("utf-8"))
+        
+        video_stream = next((s for s in probe_data.get("streams", []) if s.get("codec_type") == "video"), None)
+        audio_stream = next((s for s in probe_data.get("streams", []) if s.get("codec_type") == "audio"), None)
+        
+        width = video_stream.get("width", 1920) if video_stream else 1920
+        height = video_stream.get("height", 1080) if video_stream else 1080
+        pix_fmt = video_stream.get("pix_fmt", "yuv420p") if video_stream else "yuv420p"
+        
+        fps_str = video_stream.get("r_frame_rate", "30/1") if video_stream else "30/1"
+        if "/" in fps_str:
+            num, den = fps_str.split("/")
+            framerate = float(num) / float(den) if float(den) != 0 else 30.0
+        else:
+            framerate = float(fps_str)
+            
+        has_audio = audio_stream is not None
+        sample_rate = int(audio_stream.get("sample_rate", 44100)) if has_audio else 44100
+        channels = int(audio_stream.get("channels", 2)) if has_audio else 2
+        
+        # 2. Check bg-music
+        bg_music = assets_dir / "bg-music.mp3"
+        temp_main = temp_dir / "temp_main.mp4"
+        
+        if bg_music.exists():
+            if has_audio:
+                mix_cmd = [
+                    "ffmpeg", "-y", "-i", str(output_file),
+                    "-stream_loop", "-1", "-i", str(bg_music),
+                    "-filter_complex", "[1:a]volume=0.05[bgm];[0:a][bgm]amix=inputs=2:duration=first[a]",
+                    "-map", "0:v", "-map", "[a]",
+                    "-c:v", "copy", "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(temp_main)
+                ]
+            else:
+                mix_cmd = [
+                    "ffmpeg", "-y", "-i", str(output_file),
+                    "-stream_loop", "-1", "-i", str(bg_music),
+                    "-map", "0:v", "-map", "1:a", "-shortest",
+                    "-c:v", "copy", "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(temp_main)
+                ]
+            await run_cmd_async(mix_cmd)
+        else:
+            if not has_audio:
+                silent_cmd = [
+                    "ffmpeg", "-y", "-i", str(output_file),
+                    "-f", "lavfi", "-i", f"anullsrc=r={sample_rate}:cl=stereo",
+                    "-map", "0:v", "-map", "1:a", "-shortest",
+                    "-c:v", "copy", "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(temp_main)
+                ]
+                await run_cmd_async(silent_cmd)
+            else:
+                shutil.copy2(output_file, temp_main)
+                
+        # 3. Normalize intro
+        intro_file = assets_dir / "intro.mp4"
+        intro_norm = temp_dir / "temp_intro.mp4"
+        if intro_file.exists():
+            intro_probe_cmd = [
+                "ffprobe", "-v", "error", "-show_entries", "stream=codec_type",
+                "-of", "json", str(intro_file)
+            ]
+            intro_probe_stdout = await run_cmd_async(intro_probe_cmd)
+            intro_probe = json.loads(intro_probe_stdout.decode("utf-8"))
+            intro_has_audio = any(s.get("codec_type") == "audio" for s in intro_probe.get("streams", []))
+            
+            if intro_has_audio:
+                norm_intro_cmd = [
+                    "ffmpeg", "-y", "-i", str(intro_file),
+                    "-vf", f"scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2",
+                    "-r", str(framerate), "-pix_fmt", pix_fmt,
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                    "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(intro_norm)
+                ]
+            else:
+                norm_intro_cmd = [
+                    "ffmpeg", "-y", "-i", str(intro_file),
+                    "-f", "lavfi", "-i", f"anullsrc=r={sample_rate}:cl=stereo",
+                    "-vf", f"scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2",
+                    "-r", str(framerate), "-pix_fmt", pix_fmt, "-shortest",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                    "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(intro_norm)
+                ]
+            await run_cmd_async(norm_intro_cmd)
+            
+        # 4. Normalize outro
+        outro_file = assets_dir / "outro.mp4"
+        outro_norm = temp_dir / "temp_outro.mp4"
+        if outro_file.exists():
+            outro_probe_cmd = [
+                "ffprobe", "-v", "error", "-show_entries", "stream=codec_type",
+                "-of", "json", str(outro_file)
+            ]
+            outro_probe_stdout = await run_cmd_async(outro_probe_cmd)
+            outro_probe = json.loads(outro_probe_stdout.decode("utf-8"))
+            outro_has_audio = any(s.get("codec_type") == "audio" for s in outro_probe.get("streams", []))
+            
+            if outro_has_audio:
+                norm_outro_cmd = [
+                    "ffmpeg", "-y", "-i", str(outro_file),
+                    "-vf", f"scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2",
+                    "-r", str(framerate), "-pix_fmt", pix_fmt,
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                    "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(outro_norm)
+                ]
+            else:
+                norm_outro_cmd = [
+                    "ffmpeg", "-y", "-i", str(outro_file),
+                    "-f", "lavfi", "-i", f"anullsrc=r={sample_rate}:cl=stereo",
+                    "-vf", f"scale={width}:{height}:force_original_aspect_ratio=decrease,pad={width}:{height}:(ow-iw)/2:(oh-ih)/2",
+                    "-r", str(framerate), "-pix_fmt", pix_fmt, "-shortest",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "18",
+                    "-c:a", "aac", "-ar", str(sample_rate), "-ac", str(channels),
+                    str(outro_norm)
+                ]
+            await run_cmd_async(norm_outro_cmd)
+            
+        # 5. Concatenate
+        if intro_norm.exists() or outro_norm.exists():
+            concat_list_path = temp_dir / "list.txt"
+            with open(concat_list_path, "w", encoding="utf-8") as f:
+                if intro_norm.exists():
+                    f.write(f"file '{intro_norm.as_posix()}'\n")
+                f.write(f"file '{temp_main.as_posix()}'\n")
+                if outro_norm.exists():
+                    f.write(f"file '{outro_norm.as_posix()}'\n")
+                    
+            concat_cmd = [
+                "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(concat_list_path),
+                "-c", "copy", str(final_render_path)
+            ]
+            await run_cmd_async(concat_cmd)
+        else:
+            shutil.copy2(temp_main, final_render_path)
+            
+    finally:
+        # Cleanup temp_dir
+        if temp_dir.exists():
+            try:
+                shutil.rmtree(temp_dir)
+            except Exception:
+                pass
 
 @router.post("/video/render", summary="Render Video bằng Hyperframes")
 async def render_video(payload: VideoRenderRequest, background_tasks: BackgroundTasks):
     import uuid
     task_id = str(uuid.uuid4())[:8]
-    _video_tasks[task_id] = {"status": "running", "progress": "Khởi tạo môi trường Hyperframes..."}
+    _video_tasks[task_id] = {"status": "running", "progress": "Khởi tạo..."}
 
     async def run_render():
         import asyncio
+        import shutil
+        
         try:
-            await asyncio.sleep(2)
-            _video_tasks[task_id]["progress"] = "Đang phân tích SCRIPT.md..."
-            await asyncio.sleep(2)
-            _video_tasks[task_id]["progress"] = "Đang render bằng Hyperframes Engine..."
-            await asyncio.sleep(3)
+            # 1. Locate the video project directory dynamically
+            safe_course = payload.course_name.strip().replace(" ", "_").replace("-", "_")
+            course_path = ROOT / "output" / safe_course
             
-            safe_name = payload.course_name.strip().replace(" ", "_").replace("-", "_")
-            video_path = f"output/{safe_name}/{payload.session_id}/{payload.lesson_id}/Video/final_render.mp4"
+            if not course_path.exists():
+                raise Exception(f"Không tìm thấy thư mục khóa học: {course_path}")
+                
+            session_dir = None
+            for item in course_path.iterdir():
+                if item.is_dir() and (item.name.startswith(payload.session_id + " ") or item.name == payload.session_id):
+                    session_dir = item
+                    break
+                    
+            if not session_dir:
+                raise Exception(f"Không tìm thấy thư mục Session: {payload.session_id}")
+                
+            lesson_dir = None
+            for item in session_dir.iterdir():
+                if item.is_dir() and (item.name.startswith(payload.lesson_id + " ") or item.name == payload.lesson_id):
+                    lesson_dir = item
+                    break
+                    
+            if not lesson_dir:
+                raise Exception(f"Không tìm thấy thư mục Lesson: {payload.lesson_id}")
+                
+            video_dir = lesson_dir / "Video"
+            if not video_dir.exists():
+                raise Exception("Không tìm thấy thư mục Video trong bài học")
+                
+            project_dir = None
+            for item in video_dir.iterdir():
+                if item.is_dir() and (item / "package.json").exists():
+                    project_dir = item
+                    break
+                    
+            if not project_dir:
+                if (video_dir / "package.json").exists():
+                    project_dir = video_dir
+                    
+            if not project_dir:
+                raise Exception("Không tìm thấy thư mục dự án HyperFrames (thiếu package.json)")
+            
+            # 2. Run check/lint to validate (unless it's a draft rendering)
+            if not payload.draft:
+                _video_tasks[task_id]["progress"] = "Đang kiểm tra chất lượng (npx hyperframes check)..."
+                safe_print(f"[{task_id}] Running check in {project_dir}...")
+                
+                check_process = await asyncio.create_subprocess_shell(
+                    "npm run check",
+                    cwd=str(project_dir),
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                check_stdout, check_stderr = await check_process.communicate()
+                if check_process.returncode != 0:
+                    check_out = (check_stderr or check_stdout or b"").decode("utf-8", errors="replace")
+                    safe_print(f"[{task_id}] Check warnings/errors:\n{check_out}")
+            else:
+                safe_print(f"[{task_id}] Skipping check stage because it's a draft rendering.")
+            
+            # 3. Run render
+            quality = "low" if payload.draft else "high"
+            _video_tasks[task_id]["progress"] = f"Đang render video ({quality} quality)..."
+            safe_print(f"[{task_id}] Running render in {project_dir} with {quality} quality...")
+            
+            output_file = project_dir / "out.mp4"
+            # Remove existing out.mp4 if present to avoid stale file reads
+            if output_file.exists():
+                try:
+                    output_file.unlink()
+                except Exception:
+                    pass
+            
+            _video_tasks[task_id]["percent"] = 5
+            render_cmd = f"npx --yes hyperframes@0.6.63 render --quality {quality} --output out.mp4"
+            render_process = await asyncio.create_subprocess_shell(
+                render_cmd,
+                cwd=str(project_dir),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            render_out_lines = []
+            render_err_lines = []
+            import re
+            
+            async def read_stdout():
+                while True:
+                    line = await render_process.stdout.readline()
+                    if not line:
+                        break
+                    line_str = line.decode("utf-8", errors="replace")
+                    render_out_lines.append(line_str)
+                    clean_line = line_str.strip()
+                    if clean_line:
+                        safe_print(f"[{task_id}] [STDOUT] {clean_line}")
+                        pct_match = re.search(r"(\d+)%", clean_line)
+                        if pct_match:
+                            pct = int(pct_match.group(1))
+                            _video_tasks[task_id]["progress"] = f"Rendering: {pct}%"
+                            _video_tasks[task_id]["percent"] = pct
+                        elif "Frame " in clean_line:
+                            frame_match = re.search(r"Frame (\d+)/(\d+)", clean_line)
+                            if frame_match:
+                                curr, total = int(frame_match.group(1)), int(frame_match.group(2))
+                                pct = int((curr / total) * 100)
+                                _video_tasks[task_id]["progress"] = f"Rendering frame {curr}/{total} ({pct}%)"
+                                _video_tasks[task_id]["percent"] = pct
+                                
+            async def read_stderr():
+                while True:
+                    line = await render_process.stderr.readline()
+                    if not line:
+                        break
+                    line_str = line.decode("utf-8", errors="replace")
+                    render_err_lines.append(line_str)
+                    clean_line = line_str.strip()
+                    if clean_line:
+                        safe_print(f"[{task_id}] [STDERR] {clean_line}")
+                        pct_match = re.search(r"(\d+)%", clean_line)
+                        if pct_match:
+                            pct = int(pct_match.group(1))
+                            _video_tasks[task_id]["progress"] = f"Rendering: {pct}%"
+                            _video_tasks[task_id]["percent"] = pct
+                            
+            await asyncio.gather(read_stdout(), read_stderr())
+            await render_process.wait()
+            
+            render_out = "".join(render_out_lines)
+            render_err = "".join(render_err_lines)
+            
+            if render_process.returncode != 0 or not output_file.exists() or output_file.stat().st_size == 0:
+                raise Exception(f"Render failed (exit {render_process.returncode}): {render_err or render_out or 'Không có file out.mp4 được tạo ra.'}")
+                
+            # Assemble the final video with background music, intro, and outro
+            _video_tasks[task_id]["progress"] = "Đang ghép intro, outro và nhạc nền..."
+            final_render_path = project_dir / "final_render.mp4"
+            await assemble_final_video(project_dir, output_file, final_render_path)
+            
+            # Get video download path relative to ROOT
+            rel_video_path = final_render_path.relative_to(ROOT).as_posix()
             
             _video_tasks[task_id] = {
                 "status": "completed",
-                "progress": "Render thành công",
-                "video_url": f"/api/v1/pipeline/video/download?path={video_path}"
+                "progress": "Hoàn tất render",
+                "video_url": f"/api/v1/pipeline/video/download?path={rel_video_path}"
             }
+            safe_print(f"[{task_id}] Render completed successfully!")
+            
         except Exception as e:
-            _video_tasks[task_id] = {"status": "failed", "error": str(e), "progress": "Thất bại"}
+            safe_print(f"[{task_id}] Render failed with error: {e}")
+            _video_tasks[task_id] = {"status": "failed", "error": str(e), "progress": f"Thất bại: {e}"}
 
     background_tasks.add_task(run_render)
     return {"task_id": task_id, "status": "running", "message": "Video rendering started."}
@@ -654,6 +980,13 @@ async def get_video_status(task_id: str):
     if task_id not in _video_tasks:
         raise HTTPException(status_code=404, detail="Task không tồn tại.")
     return _video_tasks[task_id]
+
+@router.get("/video/download", summary="Tải xuống video đã render")
+async def download_video(path: str):
+    file_path = ROOT / path
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="Video không tồn tại hoặc chưa được render")
+    return FileResponse(path=file_path, media_type="video/mp4", filename=file_path.name)
 
 # ── Dashboard Stats ───────────────────────────────────────
 
@@ -723,6 +1056,120 @@ async def get_dashboard_stats():
             },
             "cache_hits": cache_hits,
             "knowledge_memories": memory_count,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+def get_video_project_dir(course_name: str, session_id: str, lesson_id: str) -> Path:
+    safe_course = course_name.strip().replace(" ", "_").replace("-", "_")
+    course_path = ROOT / "output" / safe_course
+    if not course_path.exists():
+        raise Exception(f"Không tìm thấy thư mục khóa học: {course_path}")
+        
+    session_dir = None
+    for item in course_path.iterdir():
+        if item.is_dir() and (item.name.startswith(session_id + " ") or item.name == session_id):
+            session_dir = item
+            break
+            
+    if not session_dir:
+        raise Exception(f"Không tìm thấy thư mục Session: {session_id}")
+        
+    lesson_dir = None
+    for item in session_dir.iterdir():
+        if item.is_dir() and (item.name.startswith(lesson_id + " ") or item.name == lesson_id):
+            lesson_dir = item
+            break
+            
+    if not lesson_dir:
+        raise Exception(f"Không tìm thấy thư mục Lesson: {lesson_id}")
+        
+    video_dir = lesson_dir / "Video"
+    if not video_dir.exists():
+        raise Exception("Không tìm thấy thư mục Video trong bài học")
+        
+    project_dir = None
+    for item in video_dir.iterdir():
+        if item.is_dir() and (item / "package.json").exists():
+            project_dir = item
+            break
+            
+    if not project_dir:
+        if (video_dir / "package.json").exists():
+            project_dir = video_dir
+            
+    if not project_dir:
+        raise Exception("Không tìm thấy thư mục dự án HyperFrames (thiếu package.json)")
+        
+    return project_dir
+
+class SaveVideoFileRequest(BaseModel):
+    course_name: str
+    session_id: str
+    lesson_id: str
+    filename: str
+    content: str
+
+@router.get("/video/project-details", summary="Lấy chi tiết dự án video để xem preview và chỉnh sửa")
+async def get_video_project_details(course_name: str, session_id: str, lesson_id: str):
+    try:
+        project_dir = get_video_project_dir(course_name, session_id, lesson_id)
+        
+        index_html_path = project_dir / "index.html"
+        index_html_content = ""
+        if index_html_path.exists():
+            with open(index_html_path, "r", encoding="utf-8") as f:
+                index_html_content = f.read()
+                
+        script_md_path = project_dir / "SCRIPT.md"
+        script_md_content = ""
+        if script_md_path.exists():
+            with open(script_md_path, "r", encoding="utf-8") as f:
+                script_md_content = f.read()
+                
+        # Calculate preview URL relative to /static (which serves ROOT / output)
+        output_dir = ROOT / "output"
+        rel_index_path = index_html_path.relative_to(output_dir).as_posix()
+        preview_url = f"/static/{rel_index_path}"
+        
+        # Check if rendered video exists
+        final_render_path = project_dir / "final_render.mp4"
+        video_url = None
+        if final_render_path.exists():
+            rel_video_path = final_render_path.relative_to(ROOT).as_posix()
+            video_url = f"/api/v1/pipeline/video/download?path={rel_video_path}"
+            
+        return {
+            "status": "success",
+            "project_found": True,
+            "index_html": index_html_content,
+            "script_md": script_md_content,
+            "preview_url": preview_url,
+            "video_url": video_url,
+            "project_dir": str(project_dir)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "project_found": False,
+            "message": str(e)
+        }
+
+@router.post("/video/save-file", summary="Lưu tệp chỉnh sửa trực tiếp của video")
+async def save_video_file(payload: SaveVideoFileRequest):
+    try:
+        project_dir = get_video_project_dir(payload.course_name, payload.session_id, payload.lesson_id)
+        
+        if payload.filename not in ["index.html", "SCRIPT.md"]:
+            raise HTTPException(status_code=400, detail="Chỉ hỗ trợ chỉnh sửa index.html hoặc SCRIPT.md")
+            
+        target_path = project_dir / payload.filename
+        with open(target_path, "w", encoding="utf-8") as f:
+            f.write(payload.content)
+            
+        return {
+            "status": "success",
+            "message": f"Đã lưu tệp {payload.filename} thành công."
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

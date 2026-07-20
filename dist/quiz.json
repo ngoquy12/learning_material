@@ -1,82 +1,84 @@
 {
   "lesson_quiz": [
     {
-      "question": "Lệnh nào sau đây dùng để cấu hình tên người dùng toàn cục trên hệ thống Git?",
+      "question": "OpenAPI Specification (OAS) trong FastAPI được dùng để làm gì?",
       "options": [
-        "git config --global user.name \"Tên\"",
-        "git config user.name \"Tên\"",
-        "git set --global user.name \"Tên\"",
-        "git config global.name \"Tên\""
+        "Lưu trữ dữ liệu ứng dụng vào cơ sở dữ liệu.",
+        "Đặc tả cấu trúc của APIs RESTful dưới định dạng JSON/YAML.",
+        "Thực hiện xử lý bảo mật cho các đường dẫn API.",
+        "Biên dịch mã Python thành mã Assembly."
       ],
-      "correct_option_index": 0,
-      "explanation": "Lệnh chính xác để thiết lập cấu hình toàn cục là 'git config --global user.name \"Tên\"'."
+      "correct_option_index": 1,
+      "explanation": "Đặc tả OpenAPI (OAS) là tiêu chuẩn mở dùng để cấu trúc hóa toàn bộ giao diện lập trình của một API giúp máy tính và con người đọc hiểu được tài liệu API một cách chuẩn mực."
     },
     {
-      "question": "Cách nào để thêm đường dẫn Python vào biến môi trường PATH tạm thời trên hệ điều hành Windows qua PowerShell?",
+      "question": "Bản chất mối quan hệ giữa Swagger UI và FastAPI là gì?",
       "options": [
-        "$env:Path += \";C:\\Python310\"",
-        "export PATH=$PATH:/Python310",
-        "set PATH=%PATH%;C:\\Python310",
-        "import sys; sys.path.append('C:\\Python310')"
+        "Swagger UI là một phần cứng được cài đặt vào hệ điều hành.",
+        "FastAPI tự sinh mã CSS/HTML trực tiếp cho từng nút bấm của Swagger UI.",
+        "Swagger UI là client độc lập lấy file openapi.json do FastAPI tạo ra để hiển thị web tương tác.",
+        "FastAPI không liên quan gì đến Swagger UI mà phải cài thư viện thứ ba."
       ],
-      "correct_option_index": 0,
-      "explanation": "Trên Windows PowerShell, cú pháp '$env:Path += \";...\"' được dùng để nối thêm thư mục vào PATH tạm thời của phiên làm việc."
+      "correct_option_index": 2,
+      "explanation": "Swagger UI là một Dashboard tĩnh dạng HTML/CSS/JS. Nó hoạt động bằng cách gửi yêu cầu HTTP đến file JSON đặc tả của hệ thống (mặc định /openapi.json) và hiển thị giao diện động dựa trên file cấu trúc đó."
     },
     {
-      "question": "Trong Python, biểu thức nào trả về giá trị True khi mã đang được thực thi trong một môi trường ảo (venv)?",
+      "question": "Bạn khởi tạo ứng dụng như sau: app = FastAPI(openapi_url=\"/custom/schema.json\"). Swagger UI tại địa chỉ nào vẫn hoạt động bình thường?",
       "options": [
-        "sys.prefix != sys.base_prefix",
-        "sys.venv == True",
-        "os.environ.get('VIRTUAL_ENV') is None",
-        "sys.executable == 'venv'"
+        "Không hoạt động do openapi_url đã bị thay đổi.",
+        "Truy cập vào /docs bình thường vì Swagger UI sẽ tự chuyển hướng đón đọc schema ở địa chỉ mới.",
+        "Phải truy cập thủ công vào địa chỉ /custom/schema.json để bật giao diện.",
+        "Chỉ xem được giao diện ReDoc chứ không xem được Swagger UI."
       ],
-      "correct_option_index": 0,
-      "explanation": "Khi venv hoạt động, thuộc tính sys.prefix sẽ được trỏ tới thư mục của venv trong khi sys.base_prefix trỏ tới thư mục cài đặt Python gốc, làm cho biểu thức so sánh khác nhau trả về True."
+      "correct_option_index": 1,
+      "explanation": "FastAPI tự động chuyển tiếp giá trị `openapi_url` mới cấu hình làm nguồn cấp dữ liệu cho Swagger UI tại route `/docs`, giúp giao diện hoạt động chính xác bình thường."
     },
     {
-      "question": "Mục đích chính của việc sử dụng môi trường ảo venv trong phát triển dự án FastAPI là gì?",
+      "question": "Pydantic giúp ích gì cho tiến trình tạo sinh OpenAPI Schema trong FastAPI?",
       "options": [
-        "Cô lập các gói thư viện cài đặt để tránh xung đột phiên bản giữa các dự án khác nhau",
-        "Tăng tốc độ xử lý và thực thi của Framework FastAPI",
-        "Tự động biên dịch mã nguồn Python thành bytecode nhanh hơn",
-        "Mã hóa các file cấu hình bảo mật của ứng dụng Web"
+        "Pydantic kết nối trực tiếp đến database để kiểm tra cấu trúc bảng.",
+        "Pydantic chuyển đổi class schema mô hình hóa dữ liệu thành các trường JSON Schema tích hợp trong OpenAPI.",
+        "Pydantic biên dịch hàm Python thành JSON.",
+        "Pydantic giúp mã hóa mật khẩu người dùng trước khi Swagger UI hiển thị."
       ],
-      "correct_option_index": 0,
-      "explanation": "Môi trường ảo venv có nhiệm vụ duy nhất là cô lập các gói thư viện cài đặt bên thứ ba, tránh việc các dự án có thư viện phiên bản khác nhau đè lên nhau."
+      "correct_option_index": 1,
+      "explanation": "Các lớp BaseModel của Pydantic định nghĩa sẵn kiểu dữ liệu. FastAPI sử dụng các thông tin này để chuyển đổi tự động thành chuẩn JSON Schema, nhúng thẳng vào các định nghĩa (definitions) của file openapi.json."
     },
     {
-      "question": "Phản hồi mặc định khi truy cập endpoint root '/' của ứng dụng FastAPI tối giản được cung cấp trong bài học là gì?",
+      "question": "Tại sao việc đặt thuộc tính `response_model` trong Decorator Routing lại quan trọng đối với OpenAPI?",
       "options": [
-        "{\"status\": \"success\", \"message\": \"FastAPI da thiet lap thanh cong!\"}",
-        "{\"message\": \"Hello World\"}",
-        "{\"status\": 200, \"data\": \"Ready\"}",
-        "Ứng dụng báo lỗi HTTP 404 Không tìm thấy."
+        "Nó là bắt buộc để ứng dụng FastAPI không bị báo lỗi cú pháp khi khởi động.",
+        "Nó giúp tối ưu hóa tốc độ truy xuất dữ liệu từ RAM.",
+        "Nó đồng bộ tự động cấu trúc dữ liệu phản hồi giúp Swagger UI hiển thị chính xác định dạng output của endpoint đó.",
+        "Nó tự động phân quyền truy cập cho API."
       ],
-      "correct_option_index": 0,
-      "explanation": "Hàm home() trang chủ được thiết lập để trả về một dictionary tương ứng với chuỗi JSON: {\"status\": \"success\", \"message\": \"FastAPI da thiet lap thanh cong!\"}."
+      "correct_option_index": 2,
+      "explanation": "Cài đặt `response_model` chỉ định rõ hình thái đầu đầu ra. FastAPI dựa vào đó ghi nhận cấu trúc trả về vào OpenAPI Schema, giúp Swagger UI hiển thị cấu trúc dữ liệu mẫu mà client sẽ nhận được."
     }
   ],
   "practical_lab": {
-    "title": "Cài đặt môi trường phát triển và kiểm tra API tối giản",
+    "title": "Tùy Biến Metadata Và Khảo Sát File openapi.json Thực Tế",
     "objectives": [
-      "Kiểm tra và khắc phục lỗi nhận diện lệnh Python, Git trên terminal hệ thống.",
-      "Cấu hình thông tin danh tính Git toàn cục và khởi tạo workspace.",
-      "Khởi chạy ứng dụng FastAPI kiểm thử tối giản xác minh môi trường hoạt động tốt."
+      "Tùy biến thành công thông tin tiêu đề, mô tả và phiên bản API.",
+      "Thay đổi đường dẫn lưu trữ cấu trúc openapi.json.",
+      "Truy cập trực tiếp file JSon gốc và đối chiếu các thông số đầu vào."
     ],
     "description": {
       "inputs": "Dự án/môi trường phát triển python/fastapi hiện tại và tài nguyên khóa học.",
       "steps": [
-        "Bước 1: Chạy lệnh `python --version` và `git --version` để kiểm tra cài đặt. Nếu lệnh không nhận diện, hãy cấu hình PATH tạm thời như hướng dẫn ở mục Giải pháp.",
-        "Bước 2: Cài đặt thông tin liên hệ Git thông qua các lệnh terminal `git config --global user.name` và `git config --global user.email`.",
-        "Bước 3: Khởi tạo một dự án Git mới trong thư mục bài tập bằng lệnh `git init`.",
-        "Bước 4: Tạo tập tin `main.py` chứa mã nguồn ứng dụng FastAPI tối giản đã cung cấp và dùng Uvicorn khởi chạy thử nghiệm."
+        "Khởi tạo một môi trường ảo như đã học ở Bài 02.",
+        "Viết mã nguồn khởi tạo ứng dụng FastAPI với các tham số: title='Store API Manager', description='Hệ thống kho hàng mini', version='1.0.0', openapi_url='/developer/spec.json'.",
+        "Khai báo Pydantic Schema 'VatTu' gồm 'ten: str' và 'so_luong: int'.",
+        "Tạo API Route POST '/them-vat-tu/' với request nhận đối tượng 'VatTu' và ghi nhận response_model=VatTu.",
+        "Chạy ứng dụng với uvicorn, truy cập '/developer/spec.json' để kiểm tra file OpenAPI thô.",
+        "Truy cập '/docs' để kiểm tra kết quả hiển thị của giao diện tài liệu tự sinh."
       ]
     },
     "evaluation": {
       "checklist": [
-        "Các lệnh kiểm tra phiên bản trên terminal hiển thị thông tin chính xác, không gặp lỗi command not found.",
-        "Cấu hình Git toàn cục đã lưu chính xác thông tin định danh.",
-        "Ứng dụng FastAPI khởi động và trả về dữ liệu đúng định dạng JSON khi truy cập từ localhost."
+        "[ ] Truy cập được đường dẫn '/developer/spec.json' và thấy file JSON hợp lệ.",
+        "[ ] Swagger UI hiển thị đúng tiêu đề 'Store API Manager' và mô tả 'Hệ thống kho hàng mini'.",
+        "[ ] Swagger UI hiển thị cấu trúc model VatTu tại API Route POST '/them-vat-tu/' đúng các trường dữ liệu."
       ]
     }
   }

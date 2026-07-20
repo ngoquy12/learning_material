@@ -808,170 +808,146 @@ def main():
                         
                     v_json = final_state.get("video_script_json")
                     if v_json:
-                        import subprocess
-                        # Scaffold HyperFrames Modular Composition
-                        src_dir = video_sub / "src" / "compositions"
-                        src_dir.mkdir(parents=True, exist_ok=True)
-                        assets_dir = video_sub / "assets"
-                        assets_dir.mkdir(parents=True, exist_ok=True)
-                        tts_dir = assets_dir / "tts"
-                        tts_dir.mkdir(parents=True, exist_ok=True)
+                        # 1. Run hyperframes_writer_agent to scaffold project with dynamic premium layouts
+                        from agents.hyperframes_writer_agent import hyperframes_writer_agent
+                        final_state = hyperframes_writer_agent(final_state)
                         
-                        scenes = v_json.get("scenes", [])
-                        
-                        # Phase 1: Generate prepare_tts.cjs to replicate gold standard exactly
-                        cjs_content = "const { execSync } = require('child_process');\n"
-                        cjs_content += "const fs = require('fs');\n"
-                        cjs_content += "const path = require('path');\n\n"
-                        
-                        js_scenes = []
-                        for idx, scene in enumerate(scenes):
-                            s_id = scene.get("scene_id", f"Scene_{idx+1:02d}")
-                            narration = scene.get("narration", "").replace("'", "\\'").replace('"', '\\"')
-                            js_scenes.append(f"  {{ id: '{s_id}', text: '{narration}' }}")
+                        project_path_str = final_state.get("hyperframes_project_path")
+                        if project_path_str:
+                            video_project_dir = Path(project_path_str)
+                            assets_dir = video_project_dir / "assets"
+                            tts_dir = assets_dir / "tts"
                             
-                        cjs_content += "const scenes = [\n" + ",\n".join(js_scenes) + "\n];\n\n"
-                        
-                        cjs_content += """
-const ttsDir = path.join(__dirname, 'assets/tts');
-if (!fs.existsSync(ttsDir)) {
-  fs.mkdirSync(ttsDir, { recursive: true });
-}
+                            # 2. Link or copy the default assets intro.mp4, outro.mp4, bg-music.mp3
+                            project_root = Path(__file__).resolve().parent
+                            asset_search_paths = [
+                                project_root / "hyperframes" / "dev-tutorial-video" / "courses" / "fundamental_python" / "assets",
+                                project_root / "hyperframes" / "java-intro-video" / "courses" / "java_intro" / "assets",
+                                project_root / "assets"
+                            ]
+                            
+                            import shutil
+                            for p in asset_search_paths:
+                                if p.exists():
+                                    try:
+                                        for asset_name in ["intro.mp4", "outro.mp4", "bg-music.mp3"]:
+                                            src_file = p / asset_name
+                                            dest_file = assets_dir / asset_name
+                                            if src_file.exists() and not dest_file.exists():
+                                                try:
+                                                    os.link(str(src_file), str(dest_file))
+                                                except Exception:
+                                                    shutil.copy2(src_file, dest_file)
+                                    except Exception as e:
+                                        print("  [Assets Error] Failed to link or copy assets:", e)
+                            
+                            # 3. Generate prepare_tts.py to run TTS for the scenes
+                            scenes = v_json.get("scenes", [])
+                            py_scenes = []
+                            for idx, scene in enumerate(scenes):
+                                s_id = scene.get("scene_id", f"Scene_{idx+1:02d}")
+                                narration = scene.get("narration", "")
+                                py_scenes.append({"id": s_id, "text": narration})
+                            
+                            py_content = f"""import os
+import json
+import subprocess
+import sys
+import io
+from pathlib import Path
+from gtts import gTTS
 
-let allDurations = {};
+# Set console encoding to UTF-8
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', write_through=True)
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', write_through=True)
 
-for (const scene of scenes) {
-  if (!scene.text) continue;
-  
-  const wavPath = path.join(ttsDir, `${scene.id}.wav`);
-  const mp3Path = path.join(ttsDir, `${scene.id}.mp3`);
-  
-  if (!fs.existsSync(mp3Path)) {
-    console.log(`Generating TTS for ${scene.id}...`);
-    try {
-      execSync(`npx hyperframes tts "${scene.text}" --output "${wavPath}" --voice vi-VN`, { stdio: "inherit" });
-      execSync(`ffmpeg -y -i "${wavPath}" -c:a libmp3lame -q:a 2 "${mp3Path}"`, { stdio: "ignore" });
-      if (fs.existsSync(wavPath)) fs.unlinkSync(wavPath);
-    } catch (e) {
-      console.log(`Failed to generate TTS for ${scene.id}.`);
-    }
-  }
+scenes = {json.dumps(py_scenes, indent=2, ensure_ascii=False)}
 
-  if (fs.existsSync(mp3Path)) {
-    try {
-      const probe = execSync(`ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${mp3Path}"`);
-      const duration = parseFloat(probe.toString().trim());
-      allDurations[scene.id] = Math.ceil(duration * 100) / 100 + 0.5; // add 0.5s padding
-    } catch (e) {
-      allDurations[scene.id] = Math.max(5.0, scene.text.split(/\\s+/).length / 2.5);
-    }
-  } else {
-    allDurations[scene.id] = Math.max(5.0, scene.text.split(/\\s+/).length / 2.5);
-  }
-}
+tts_dir = Path("assets/tts")
+tts_dir.mkdir(parents=True, exist_ok=True)
 
+all_durations = {{}}
 
-fs.writeFileSync(path.join(ttsDir, 'durations.json'), JSON.stringify(allDurations, null, 2));
-console.log('TTS Generation Complete!');
+for scene in scenes:
+    scene_id = scene["id"]
+    text = scene["text"]
+    if not text:
+        continue
+        
+    mp3_path = tts_dir / f"{{scene_id}}.mp3"
+    print(f"Generating TTS for {{scene_id}} using gTTS...")
+    try:
+        tts = gTTS(text=text, lang="vi")
+        if mp3_path.exists():
+            mp3_path.unlink()
+        tts.save(str(mp3_path))
+    except Exception as e:
+        print(f"Failed to generate TTS for {{scene_id}}: {{e}}.")
+        if not mp3_path.exists():
+            print("Generating fallback silent audio...")
+            try:
+                fallback_dur = max(5.0, len(text.split()) / 2.5)
+                cmd = f'ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=mono -t {{fallback_dur}} -q:a 2 "{{mp3_path}}"'
+                subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            except Exception as fe:
+                print(f"Failed to generate fallback silent audio: {{fe}}")
+                
+    if mp3_path.exists():
+        try:
+            cmd = f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{{mp3_path}}"'
+            probe = subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+            duration = float(probe)
+            all_durations[scene_id] = round(duration, 2) + 0.5
+        except Exception as e:
+            all_durations[scene_id] = max(5.0, len(text.split()) / 2.5)
+    else:
+        all_durations[scene_id] = max(5.0, len(text.split()) / 2.5)
+
+with open(tts_dir / "durations.json", "w", encoding="utf-8") as f:
+    json.dump(all_durations, f, indent=2, ensure_ascii=False)
+print("TTS Generation Complete!")
 """
-                        cjs_path = video_sub / "prepare_tts.cjs"
-                        with open(cjs_path, "w", encoding="utf-8") as f:
-                            f.write(cjs_content)
-                            
-                        # Execute the node script
-                        print("  [TTS] Running prepare_tts.cjs (Node.js engine)...")
-                        try:
-                            subprocess.run(["node", "prepare_tts.cjs"], cwd=str(video_sub), check=True, shell=True)
-                        except Exception as e:
-                            print(f"  [TTS Error] Node script execution failed: {e}")
-                            
-                        # Read back durations
-                        durations_file = tts_dir / "durations.json"
-                        durations = {}
-                        if durations_file.exists():
-                            with open(durations_file, "r", encoding="utf-8") as f:
-                                durations = json.load(f)
+                            py_path = video_project_dir / "prepare_tts.py"
+                            with open(py_path, "w", encoding="utf-8") as f:
+                                f.write(py_content)
                                 
-                        for idx, scene in enumerate(scenes):
-                            s_id = scene.get("scene_id", f"Scene_{idx+1:02d}")
-                            if s_id in durations:
-                                scene["duration"] = durations[s_id]
-                        
-                        # Phase 2: Generate main index.html and scenes HTML
-                        import shutil
-                        intro_dur = 9.24
-                        outro_dur = 12.15
-                        
-                        # Copy assets
-                        try:
-                            shutil.copy(r"d:\Rikkei Education\Elearning_Agent\Learning-Material\hyperframes\java-intro-video\courses\java_intro\assets\intro.mp4", assets_dir / "intro.mp4")
-                            shutil.copy(r"d:\Rikkei Education\Elearning_Agent\Learning-Material\hyperframes\java-intro-video\courses\java_intro\assets\outro.mp4", assets_dir / "outro.mp4")
-                            shutil.copy(r"d:\Rikkei Education\Elearning_Agent\Learning-Material\hyperframes\java-intro-video\courses\java_intro\assets\bg-music.mp3", assets_dir / "bg-music.mp3")
-                        except Exception as e:
-                            print("  [Assets Error] Failed to copy intro/outro/bgm:", e)
-                            
-                        scenes_dur = sum(float(s.get("duration", 5.0)) for s in scenes)
-                        total_dur = intro_dur + scenes_dur + outro_dur
-                        
-                        index_html = "<!DOCTYPE html>\n<html lang='vi'>\n<head>\n<meta charset='UTF-8'>\n<meta name='viewport' content='width=1920, height=1080'>\n<script src='https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js'></script>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nhtml, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d1117; font-family: sans-serif; color: white; }\n.clip { position: absolute; visibility: hidden; }\n</style>\n</head>\n<body>\n"
-                        index_html += f"  <div data-hf-id='main-root' id='root' data-composition-id='lesson-main' data-start='0' data-duration='{total_dur:.2f}' data-width='1920' data-height='1080'>\n\n"
-                        
-                        index_html += f"    <!-- Intro Video -->\n"
-                        index_html += f"    <video id='intro-video' class='clip' data-start='0' data-duration='{intro_dur:.2f}' data-track-index='1' src='assets/intro.mp4' data-has-audio='true'></video>\n\n"
-                        
-                        current_time = intro_dur
-                        audio_tags = ""
-                        for idx, scene in enumerate(scenes):
-                            s_id = scene.get("scene_id", f"Scene_{idx+1:02d}")
-                            dur = float(scene.get("duration", 5.0))
-                            
-                            # HTML for sub-scene mount
-                            index_html += f"    <!-- Scene {idx+1:02d} -->\n"
-                            index_html += f"    <div id='clip-{idx+1:02d}' class='clip' data-composition-src='src/compositions/{s_id}.html' data-composition-id='{s_id}' data-start='{current_time:.2f}' data-duration='{dur:.2f}' data-track-index='{idx+2}'></div>\n\n"
-                            
-                            # Audio Tag for TTS (Track indexes from 20)
-                            if (tts_dir / f"{s_id}.mp3").exists():
-                                audio_tags += f"    <audio id='tts-{idx+1:02d}' data-start='{current_time:.2f}' data-duration='{dur:.2f}' data-track-index='{20+idx}' data-volume='1' src='assets/tts/{s_id}.mp3'></audio>\n"
-                            
-                            # Generate inner Scene HTML
-                            scene_html = f"<!DOCTYPE html>\n<html lang='vi'>\n<head>\n<meta charset='UTF-8'>\n<style>\n* {{ margin: 0; padding: 0; box-sizing: border-box; }}\nhtml, body {{ width: 1920px; height: 1080px; overflow: hidden; background: transparent; font-family: 'Inter', sans-serif; color: white; }}\n.clip {{ position: absolute; visibility: hidden; }}\n</style>\n</head>\n<body>\n"
-                            scene_html += f"  <div data-composition-id='{s_id}' data-width='1920' data-height='1080' class='clip' data-start='0' data-duration='{dur:.2f}' data-track-index='0'>\n"
-                            scene_html += f"    {scene.get('html_content', '')}\n"
-                            scene_html += f"  </div>\n\n  <script>\n    window.__timelines = window.__timelines || {{}};\n    const tl = gsap.timeline({{ paused: true }});\n"
-                            scene_html += f"    {scene.get('gsap_code', '')}\n"
-                            scene_html += f"    window.__timelines['{s_id}'] = tl;\n  </script>\n</body>\n</html>"
-                            
-                            with open(src_dir / f"{s_id}.html", "w", encoding="utf-8") as sf:
-                                sf.write(scene_html)
+                            # 4. Execute python prepare_tts.py
+                            print("  [TTS] Running prepare_tts.py in video project directory...")
+                            import subprocess
+                            try:
+                                subprocess.run(["python", "prepare_tts.py"], cwd=str(video_project_dir), check=True, shell=True)
+                            except Exception as e:
+                                print(f"  [TTS Error] Python script execution failed: {e}")
                                 
-                            current_time += dur
-                            
-                        index_html += f"    <!-- Outro Video -->\n"
-                        index_html += f"    <video id='outro-video' class='clip' data-start='{current_time:.2f}' data-duration='{outro_dur:.2f}' data-track-index='99' src='assets/outro.mp4' data-has-audio='true'></video>\n\n"
-                        
-                        if audio_tags:
-                            index_html += f"\n    <!-- TTS Audio Tracks -->\n{audio_tags}\n"
-                            
-                        # BGM
-                        index_html += f"\n    <!-- Background Music -->\n"
-                        index_html += f"    <audio id='bg-music' data-start='0' data-duration='{total_dur:.2f}' data-track-index='999' data-volume='0.05' src='assets/bg-music.mp3' loop></audio>\n\n"
-                        
-                        index_html += "  </div>\n\n  <script>\n    window.__timelines = window.__timelines || {};\n    const tl = gsap.timeline({ paused: true });\n    window.__timelines['lesson-main'] = tl;\n  </script>\n</body>\n</html>"
-                        
-                        with open(video_sub / "index.html", "w", encoding="utf-8") as f:
-                            f.write(index_html)
-                            
-                        # Output proper hyperframes CLI config
-                        hf_json = {
-                            "$schema": "https://hyperframes.heygen.com/schema/hyperframes.json",
-                            "paths": {
-                                "blocks": "compositions",
-                                "components": "compositions/components",
-                                "assets": "assets"
-                            }
-                        }
-                        with open(video_sub / "hyperframes.json", "w", encoding="utf-8") as f:
-                            json.dump(hf_json, f, indent=2)
+                            # 5. Read back actual durations from durations.json
+                            durations_file = tts_dir / "durations.json"
+                            durations = {}
+                            if durations_file.exists():
+                                with open(durations_file, "r", encoding="utf-8") as f:
+                                    durations = json.load(f)
+                                    
+                            # Update scene durations in the blueprint JSON
+                            has_duration_changed = False
+                            for scene in scenes:
+                                s_id = scene.get("scene_id")
+                                if s_id in durations:
+                                    old_dur = scene.get("duration")
+                                    new_dur = durations[s_id]
+                                    if old_dur != new_dur:
+                                        scene["duration"] = new_dur
+                                        has_duration_changed = True
+                                        
+                            if has_duration_changed:
+                                # Re-calculate start times and total duration
+                                current_time = 9.24  # intro duration
+                                for scene in scenes:
+                                    scene["start_at_root"] = current_time
+                                    current_time += scene["duration"]
+                                v_json["total_duration"] = current_time + 12.15  # outro duration
+                                
+                                # Update markdown with the new durations (optional but good)
+                                print("  [TTS Sync] Durations changed! Re-scaffolding the video composition...")
+                                final_state = hyperframes_writer_agent(final_state)
                 else:
                     video_script_path = "Skipped"
 

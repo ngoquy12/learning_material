@@ -1,3 +1,4 @@
+from pathlib import Path
 # agents/practice_agents.py
 import json
 import re
@@ -69,7 +70,7 @@ CÁC QUY TẮC BẮT BUỘC CHO BÀI TẬP:
    - Trình bày dạng Markdown học thuật chỉnh chu theo chuẩn trường đại học, khoa học, dễ hiểu.
    - Không được dùng các cụm từ như "AI", "Assistant". CẤM TUYỆT ĐỐI các từ ngữ suồng sã, thân mật hoặc sến súa như "nhé", "nhé các bạn", "thân mến", "nhe", "nha".
 4. Cấu trúc bài tập:
-   - Tên bài tập: Dùng thẻ '## <center>[Tên bài tập]</center>' (căn giữa). CẤM TUYỆT ĐỐI ghi số thứ tự bài tập ở tiêu đề chính này.
+   - Tên bài tập: Dùng thẻ '## <center>[Tên bài tập]</center>' (căn giữa). Tên bài tập BẮT BUỘC phải viết bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC (Ví dụ: '## <center>Tính Toán Hóa Đơn và Phân Hạng Khách Hàng Ecommerce</center>'). CẤM TUYỆT ĐỐI viết không dấu, cấm ghi số thứ tự bài tập ở tiêu đề chính này.
    - Tên các tiêu đề phần trong bài tập: Dùng thẻ '### **1. Mục tiêu**', '### **2. Vấn đề**', '### **3. Yêu cầu bài toán**', '### **4. Quy tắc xử lý**', '### **5. Yêu cầu nộp bài**' (căn trái, bôi đậm).
    - Mục tiêu: Viết sâu sắc, nêu bật sau khi học xong sinh viên áp dụng/ứng dụng được gì về mặt kỹ thuật/lý thuyết chung. CẤM TUYỆT ĐỐI ghi các từ khoá chỉ mức độ khó (Dễ/Trung bình/Khá/Giỏi/Xuất sắc) hay phân nhóm học lực (yếu/trung bình/khá/giỏi/xuất sắc) trong phần này hoặc bất kỳ phần nào khác của đề bài nhằm tránh gây sự tự ti hay phân biệt cho học viên.
    - Vấn đề: Phải mô tả sâu sắc, thuyết phục các khó khăn thực tế của doanh nghiệp để làm nổi bật lý do phải dùng giải pháp này.
@@ -103,7 +104,7 @@ CÁC QUY TẮC BẮT BUỘC CHO BÀI TẬP:
       `*Prompt tạo ảnh: A realistic 16:9 cinematic photo of [mô tả chi tiết các thành phần nghiệp vụ, giao diện phần mềm, API endpoints, hoặc sơ đồ luồng dữ liệu 3D đan xen liên quan trực tiếp đến bài toán ở đây]. [Mô tả cụ thể các chi tiết kỹ thuật hiển thị trên màn hình hoặc giao diện hệ thống ở đây]. Cinematic lighting, detailed software environment, professional visualization, high tech aesthetics.*`
 
 Đầu ra bắt buộc phải là duy nhất chuỗi XML hợp lệ bọc trong thẻ <exercise>...</exercise>:
-- <title>: Tên bài tập ngắn gọn (cấm dùng ký tự '&', nếu cần hãy thay bằng 'and' hoặc 'và').
+- <title>: Tên bài tập ngắn gọn bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC (CẤM TUYỆT ĐỐI viết không dấu, cấm dùng ký tự '&', nếu cần hãy thay bằng 'and' hoặc 'và').
 - <filename>: Tên file viết thường không dấu cách.
 - <content>: Nội dung markdown mô tả đề bài bọc trong khối CDATA (bao gồm các phần 1. Mục tiêu đến 5. Yêu cầu nộp bài, tuyệt đối KHÔNG chứa Tiêu chí chấm điểm ở đây).
 - <rubric>: Nội dung markdown chi tiết về Tiêu chí chấm điểm (AI) bọc trong khối CDATA, thiết kế thang điểm chi tiết tổng 100 điểm + bonus theo 5 nhóm tiêu chí từ mẫu báo cáo tiêu chí chấm điểm:
@@ -118,7 +119,7 @@ CÁC QUY TẮC BẮT BUỘC CHO BÀI TẬP:
     #### **Điểm cộng khuyến khích (Bonus) — 5 đến 10 điểm**
 
 <exercise>
-  <title>Tên bài tập ngắn gọn</title>
+  <title>Xây dựng API Quản lý Đơn hàng Ecommerce (Tên bài tập bằng tiếng Việt có dấu)</title>
   <filename>xay_dung_api_quan_ly_san_pham</filename>
   <content><![CDATA[
 Nội dung Markdown đề bài bài tập ở đây...

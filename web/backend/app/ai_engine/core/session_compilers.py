@@ -1585,13 +1585,77 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
         }}
       }}
 
+      function getSessionStorageKey() {{
+        return "session_expanded_" + encodeURIComponent(document.title);
+      }}
+
+      function saveLessonState(idx, isExpanded) {{
+        try {{
+          const key = getSessionStorageKey();
+          let state = JSON.parse(localStorage.getItem(key) || "{{}}");
+          state[idx] = isExpanded;
+          localStorage.setItem(key, JSON.stringify(state));
+        }} catch(e) {{
+          console.error("Failed to save lesson state to localStorage", e);
+        }}
+      }}
+
+      function loadLessonStates() {{
+        try {{
+          const key = getSessionStorageKey();
+          return JSON.parse(localStorage.getItem(key) || "{{}}");
+        }} catch(e) {{
+          return "{{}}";
+        }}
+      }}
+
       document.addEventListener("DOMContentLoaded", (event) => {{
         document.querySelectorAll("pre code").forEach((el) => {{
           hljs.highlightElement(el);
         }});
 
-        // Auto-toggle first lesson on page load
-        toggleLesson(1);
+        // Load saved states
+        const savedStates = loadLessonStates();
+        const cards = document.querySelectorAll('[id^="lesson-card-"]');
+        let hasSavedState = Object.keys(savedStates).length > 0;
+
+        if (hasSavedState) {{
+          cards.forEach((card) => {{
+            const idx = card.id.replace("lesson-card-", "");
+            const isExpanded = savedStates[idx];
+            if (isExpanded) {{
+              expandLesson(parseInt(idx));
+            }} else {{
+              collapseLesson(parseInt(idx));
+            }}
+          }});
+        }} else {{
+          // Auto-toggle first lesson if no saved state exists
+          expandLesson(1);
+        }}
+
+        // Restore scroll position
+        try {{
+          const scrollKey = "session_scroll_" + encodeURIComponent(document.title);
+          const savedScroll = localStorage.getItem(scrollKey);
+          if (savedScroll) {{
+            setTimeout(() => {{
+              window.scrollTo(0, parseInt(savedScroll));
+            }}, 150);
+          }}
+        }} catch(e) {{}}
+
+        // Save scroll position on scroll (throttled)
+        let scrollTimeout;
+        window.addEventListener("scroll", () => {{
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {{
+            try {{
+              const scrollKey = "session_scroll_" + encodeURIComponent(document.title);
+              localStorage.setItem(scrollKey, window.scrollY);
+            }} catch(e) {{}}
+          }}, 100);
+        }});
       }});
 
       function toggleLesson(idx) {{
@@ -1613,6 +1677,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             "ring-[#be111c]/20",
             "dark:ring-[#60a5fa]/20",
           );
+          saveLessonState(idx, true);
         }} else {{
           content.classList.add("hidden");
           chevron.style.transform = "rotate(0deg)";
@@ -1623,6 +1688,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             "ring-[#be111c]/20",
             "dark:ring-[#60a5fa]/20",
           );
+          saveLessonState(idx, false);
         }}
       }}
 
@@ -1643,6 +1709,28 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             "ring-[#be111c]/20",
             "dark:ring-[#60a5fa]/20",
           );
+          saveLessonState(idx, true);
+        }}
+      }}
+
+      function collapseLesson(idx) {{
+        const content = document.getElementById(`content-${{idx}}`);
+        const chevron = document.getElementById(`chevron-${{idx}}`);
+        const card = document.getElementById(`lesson-card-${{idx}}`);
+
+        if (!content || !chevron || !card) return;
+
+        if (!content.classList.contains("hidden")) {{
+          content.classList.add("hidden");
+          chevron.style.transform = "rotate(0deg)";
+          card.classList.remove(
+            "border-[#be111c]",
+            "dark:border-[#60a5fa]",
+            "ring-1",
+            "ring-[#be111c]/20",
+            "dark:ring-[#60a5fa]/20",
+          );
+          saveLessonState(idx, false);
         }}
       }}
 

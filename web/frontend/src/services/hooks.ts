@@ -246,7 +246,7 @@ export function useVideoRender() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const startRender = async (payload: { course_name: string; session_id: string; lesson_id: string }) => {
+  const startRender = async (payload: { course_name: string; session_id: string; lesson_id: string; draft?: boolean }) => {
     setLoading(true);
     setError(null);
     setStatus(null);

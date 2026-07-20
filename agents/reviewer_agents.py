@@ -839,6 +839,8 @@ def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
             # Check for redundant # symbol
             if "#" in line:
                 line_no_inline = re.sub(r"`[^`]+`", "", line)
+                # Strip out hexadecimal colors (e.g., #FFF, #1e293b) to prevent false positives in SVG/HTML tags
+                line_no_inline = re.sub(r"#[0-9a-fA-F]{3,6}\b", "", line_no_inline)
                 if "#" in line_no_inline:
                     if not re.match(r"^#{1,6}\s", line_no_inline.strip()):
                         feedback = f"Phát hiện ký tự '#' thừa thãi ở dòng {idx}: '{line.strip()}'. Ký tự '#' chỉ được dùng cho tiêu đề Markdown ở đầu dòng."

@@ -21,6 +21,7 @@ import {
   Steps,
   Tooltip,
   List,
+  Modal,
 } from "antd";
 import {
   Brain,
@@ -61,6 +62,10 @@ import {
   getCourses,
   type Course,
   getSCORMDownloadUrl,
+  getVideoProjectDetails,
+  saveVideoFile,
+  getVideoStatus,
+  renderVideo,
 } from "../../../services/api";
 
 const { Text, Paragraph, Title: AntdTitle } = Typography;
@@ -161,48 +166,62 @@ export default function PipelineMonitorPage() {
 
   // URL state synchronization
   const activeTab = searchParams.get("tab") || "workflow";
-  const selectedCourseId = searchParams.get("courseId") ? Number(searchParams.get("courseId")) : null;
+  const selectedCourseId = searchParams.get("courseId")
+    ? Number(searchParams.get("courseId"))
+    : null;
   const categoryFilter = searchParams.get("category") || undefined;
   const scopeFilter = searchParams.get("scope") || undefined;
 
   const setActiveTab = (tab: string) => {
-    setSearchParams((prev) => {
-      prev.set("tab", tab);
-      return prev;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        prev.set("tab", tab);
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   const setSelectedCourseId = (courseId: number | null) => {
-    setSearchParams((prev) => {
-      if (courseId) {
-        prev.set("courseId", String(courseId));
-      } else {
-        prev.delete("courseId");
-      }
-      return prev;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        if (courseId) {
+          prev.set("courseId", String(courseId));
+        } else {
+          prev.delete("courseId");
+        }
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   const setCategoryFilter = (category: string | undefined) => {
-    setSearchParams((prev) => {
-      if (category) {
-        prev.set("category", category);
-      } else {
-        prev.delete("category");
-      }
-      return prev;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        if (category) {
+          prev.set("category", category);
+        } else {
+          prev.delete("category");
+        }
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   const setScopeFilter = (scope: string | undefined) => {
-    setSearchParams((prev) => {
-      if (scope) {
-        prev.set("scope", scope);
-      } else {
-        prev.delete("scope");
-      }
-      return prev;
-    }, { replace: true });
+    setSearchParams(
+      (prev) => {
+        if (scope) {
+          prev.set("scope", scope);
+        } else {
+          prev.delete("scope");
+        }
+        return prev;
+      },
+      { replace: true },
+    );
   };
 
   const [currentStep, setCurrentStep] = useState(selectedCourseId ? 2 : 0);
@@ -213,7 +232,22 @@ export default function PipelineMonitorPage() {
   const [pmFile, setPmFile] = useState<File | null>(null);
   const [videoSession, setVideoSession] = useState<string>("");
   const [videoLesson, setVideoLesson] = useState<string>("");
+  const [videoDraft, setVideoDraft] = useState<boolean>(false);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
+
+  // Video Management States
+  const [videoModalVisible, setVideoModalVisible] = useState<boolean>(false);
+  const [activeVideoLesson, setActiveVideoLesson] = useState<{ id: number; name: string; title: string } | null>(null);
+  const [activeVideoSession, setActiveVideoSession] = useState<string>("");
+  const [videoDetails, setVideoDetails] = useState<any>(null);
+  const [loadingDetails, setLoadingDetails] = useState<boolean>(false);
+  const [editingContent, setEditingContent] = useState<string>("");
+  const [activeEditorTab, setActiveEditorTab] = useState<"script" | "html">("script");
+  const [savingFile, setSavingFile] = useState<boolean>(false);
+  const [renderTaskId, setRenderTaskId] = useState<string | null>(null);
+  const [renderStatus, setRenderStatus] = useState<any>(null);
+  const [pollingRender, setPollingRender] = useState<boolean>(false);
+  const [modalDraft, setModalDraft] = useState<boolean>(false);
 
   // Custom Hooks & Services
   const {
@@ -275,6 +309,101 @@ export default function PipelineMonitorPage() {
     status: vidStatus,
     loading: vidLoading,
   } = useVideoRender();
+
+  const openVideoManager = async (lesson: { id: number; name: string; title: string }, sessionName: string) => {
+    setActiveVideoLesson(lesson);
+    setActiveVideoSession(sessionName);
+    setVideoModalVisible(true);
+    setLoadingDetails(true);
+    setVideoDetails(null);
+    setRenderTaskId(null);
+    setRenderStatus(null);
+    
+    try {
+      const details = await getVideoProjectDetails(selectedCourseName, sessionName, lesson.name);
+      setVideoDetails(details);
+      if (details.project_found) {
+        setEditingContent(details.script_md || "");
+        setActiveEditorTab("script");
+      }
+    } catch (e: any) {
+      message.error("Lỗi khi tải chi tiết dự án video: " + e.message);
+    } finally {
+      setLoadingDetails(false);
+    }
+  };
+
+  const handleSaveFile = async () => {
+    if (!activeVideoLesson || !activeVideoSession) return;
+    setSavingFile(true);
+    try {
+      const filename = activeEditorTab === "script" ? "SCRIPT.md" : "index.html";
+      await saveVideoFile({
+        course_name: selectedCourseName,
+        session_id: activeVideoSession,
+        lesson_id: activeVideoLesson.name,
+        filename,
+        content: editingContent
+      });
+      message.success(`Đã lưu tệp ${filename} thành công!`);
+      setVideoDetails((prev: any) => ({
+        ...prev,
+        [activeEditorTab === "script" ? "script_md" : "index_html"]: editingContent
+      }));
+    } catch (e: any) {
+      message.error("Lỗi khi lưu tệp: " + e.message);
+    } finally {
+      setSavingFile(false);
+    }
+  };
+
+  const handleModalRender = async () => {
+    if (!activeVideoLesson || !activeVideoSession) return;
+    setPollingRender(true);
+    setRenderStatus({ status: "running", progress: "Khởi tạo kết xuất..." });
+    try {
+      const res = await renderVideo({
+        course_name: selectedCourseName,
+        session_id: activeVideoSession,
+        lesson_id: activeVideoLesson.name,
+        draft: modalDraft
+      });
+      setRenderTaskId(res.task_id);
+    } catch (e: any) {
+      message.error("Lỗi khi khởi chạy render: " + e.message);
+      setPollingRender(false);
+      setRenderStatus({ status: "failed", error: e.message, progress: "Khỏi chạy thất bại" });
+    }
+  };
+
+  useEffect(() => {
+    if (!renderTaskId) return;
+    
+    const interval = setInterval(async () => {
+      try {
+        const s = await getVideoStatus(renderTaskId);
+        setRenderStatus(s);
+        if (s.status !== 'running') {
+          setPollingRender(false);
+          clearInterval(interval);
+          
+          if (s.status === 'completed') {
+            message.success("Render video thành công!");
+            const details = await getVideoProjectDetails(selectedCourseName, activeVideoSession, activeVideoLesson!.name);
+            setVideoDetails(details);
+          } else {
+            message.error("Render video thất bại: " + (s.error || s.progress));
+          }
+        }
+      } catch (e: any) {
+        message.error("Lỗi kiểm tra trạng thái render: " + e.message);
+        setPollingRender(false);
+        clearInterval(interval);
+      }
+    }, 2000);
+    
+    return () => clearInterval(interval);
+  }, [renderTaskId]);
 
   // Load Course list on startup
   useEffect(() => {
@@ -901,14 +1030,25 @@ export default function PipelineMonitorPage() {
                                       </span>
                                     )}
                                   </div>
-                                  <Button
-                                    size="small"
-                                    icon={<Play size={10} />}
-                                    loading={generateLessonLoading}
-                                    onClick={() => handleGenerateLesson(les.id)}
-                                  >
-                                    Biên dịch
-                                  </Button>
+                                  <div className="flex gap-1.5">
+                                    <Button
+                                      size="small"
+                                      type="primary"
+                                      ghost
+                                      icon={<Video size={10} />}
+                                      onClick={() => openVideoManager(les, sess.name)}
+                                    >
+                                      Quản lý Video
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      icon={<Play size={10} />}
+                                      loading={generateLessonLoading}
+                                      onClick={() => handleGenerateLesson(les.id)}
+                                    >
+                                      Biên dịch
+                                    </Button>
+                                  </div>
                                 </div>
                               </List.Item>
                             )}
@@ -1196,6 +1336,18 @@ export default function PipelineMonitorPage() {
                                 label: `${l.name} - ${l.title}`,
                               }))}
                           />
+                          <div className="flex items-center justify-between py-1.5 bg-indigo-50/50 rounded-md px-2.5 border border-indigo-100/50 my-1">
+                            <span className="text-[11px] text-indigo-700 font-semibold">Chế độ Draft (Render nhanh 1-2p)</span>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={videoDraft}
+                                onChange={(e) => setVideoDraft(e.target.checked)}
+                                className="sr-only peer"
+                              />
+                              <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                          </div>
                           <Button
                             type="primary"
                             block
@@ -1211,6 +1363,7 @@ export default function PipelineMonitorPage() {
                                 course_name: selectedCourseName,
                                 session_id: videoSession,
                                 lesson_id: videoLesson,
+                                draft: videoDraft,
                               })
                             }
                           >
@@ -1427,7 +1580,7 @@ export default function PipelineMonitorPage() {
                 {Object.entries(cacheStats.by_agent).map(([agent, info]) => (
                   <div
                     key={agent}
-                    className="flex justify-between items-center py-3 border-b last:border-0"
+                    className="flex justify-between items-center py-3 border-b border-slate-200 last:border-0"
                   >
                     <span className="font-semibold text-slate-700 text-sm">
                       {agent}
@@ -1488,6 +1641,250 @@ export default function PipelineMonitorPage() {
         size="large"
         className="custom-pipeline-tabs"
       />
+
+      <Modal
+        title={
+          <span className="flex items-center gap-2 text-indigo-600 text-sm md:text-base font-bold">
+            <Video size={18} /> Quản lý và Thiết kế Video: {activeVideoLesson?.name} - {activeVideoLesson?.title}
+          </span>
+        }
+        visible={videoModalVisible}
+        onCancel={() => {
+          setVideoModalVisible(false);
+          setActiveVideoLesson(null);
+        }}
+        footer={null}
+        width={1200}
+        bodyStyle={{ padding: "16px" }}
+      >
+        {loadingDetails ? (
+          <div className="flex flex-col items-center justify-center p-16 space-y-3">
+            <Spin size="large" />
+            <Text type="secondary">Đang tải cấu trúc và tệp tin của Video...</Text>
+          </div>
+        ) : videoDetails && !videoDetails.project_found ? (
+          <div className="text-center p-12 space-y-4">
+            <AlertTriangle size={48} className="mx-auto text-amber-500" />
+            <div>
+              <h4 className="font-semibold text-slate-800">Chưa tìm thấy Dự án Video cho bài học này</h4>
+              <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                Dự án video (HyperFrames) chưa được khởi tạo. Vui lòng bấm biên dịch bài học này ở bước Biên dịch AI trước để tạo mã nguồn, lời thoại (TTS) và cấu trúc mặc định.
+              </p>
+            </div>
+            <Button 
+              type="primary" 
+              onClick={async () => {
+                if (activeVideoLesson) {
+                  setLoadingDetails(true);
+                  try {
+                    await handleGenerateLesson(activeVideoLesson.id);
+                    const details = await getVideoProjectDetails(selectedCourseName, activeVideoSession, activeVideoLesson.name);
+                    setVideoDetails(details);
+                    if (details.project_found) {
+                      setEditingContent(details.script_md || "");
+                      setActiveEditorTab("script");
+                    }
+                  } catch (e: any) {
+                    message.error("Lỗi khi tạo video: " + e.message);
+                  } finally {
+                    setLoadingDetails(false);
+                  }
+                }
+              }}
+            >
+              Khởi tạo/Biên dịch Video bài học
+            </Button>
+          </div>
+        ) : (
+          <Row gutter={16}>
+            <Col span={12} className="flex flex-col space-y-3">
+              <div className="flex justify-between items-center bg-slate-100 p-1.5 rounded-lg border">
+                <div className="flex gap-1">
+                  <Button
+                    size="small"
+                    type={activeEditorTab === "script" ? "primary" : "text"}
+                    onClick={() => {
+                      setActiveEditorTab("script");
+                      setEditingContent(videoDetails?.script_md || "");
+                    }}
+                    className="text-xs font-semibold"
+                  >
+                    Kịch bản (SCRIPT.md)
+                  </Button>
+                  <Button
+                    size="small"
+                    type={activeEditorTab === "html" ? "primary" : "text"}
+                    onClick={() => {
+                      setActiveEditorTab("html");
+                      setEditingContent(videoDetails?.index_html || "");
+                    }}
+                    className="text-xs font-semibold"
+                  >
+                    Mã nguồn (index.html)
+                  </Button>
+                </div>
+                <Button
+                  size="small"
+                  type="primary"
+                  ghost
+                  icon={<RefreshCw size={12} className={savingFile ? "animate-spin" : ""} />}
+                  loading={savingFile}
+                  onClick={handleSaveFile}
+                  className="text-xs"
+                >
+                  Lưu thay đổi
+                </Button>
+              </div>
+              
+              <div className="relative flex-1">
+                <textarea
+                  value={editingContent}
+                  onChange={(e) => setEditingContent(e.target.value)}
+                  className="w-full h-[55vh] font-mono text-xs p-4 bg-slate-900 text-indigo-200 rounded-lg border focus:ring-2 focus:ring-indigo-500 outline-none leading-relaxed resize-none"
+                  placeholder="Nhập nội dung chỉnh sửa..."
+                />
+                <div className="absolute bottom-2 right-2 px-2 py-1 bg-slate-800 text-[10px] text-slate-400 rounded border border-slate-700">
+                  {activeEditorTab === "script" ? "Markdown Mode" : "HTML Mode"}
+                </div>
+              </div>
+            </Col>
+            
+            <Col span={12} className="flex flex-col space-y-4">
+              <Tabs
+                defaultActiveKey="preview"
+                size="small"
+                items={[
+                  {
+                    key: "preview",
+                    label: <span className="font-semibold text-xs flex items-center gap-1"><Play size={12} /> Live Preview (Trực quan)</span>,
+                    children: (
+                      <div className="space-y-2">
+                        <div className="w-full bg-slate-950 rounded-lg overflow-hidden border border-slate-800 relative aspect-video flex items-center justify-center">
+                          {videoDetails?.preview_url ? (
+                            <iframe
+                              key={videoDetails.preview_url}
+                              src={videoDetails.preview_url}
+                              className="w-full h-full border-none bg-white"
+                              title="HyperFrames Live Preview"
+                            />
+                          ) : (
+                            <Text type="secondary" className="text-xs">Không có đường dẫn xem trước</Text>
+                          )}
+                        </div>
+                        <div className="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-200">
+                          <span className="text-[10px] text-slate-500 italic">Preview chạy trực tiếp HTML/GSAP từ đĩa cứng.</span>
+                          <Button
+                            size="small"
+                            type="default"
+                            icon={<RefreshCw size={11} />}
+                            onClick={() => {
+                              setVideoDetails((prev: any) => ({
+                                ...prev,
+                                preview_url: prev.preview_url.split('?')[0] + "?t=" + Date.now()
+                              }));
+                            }}
+                          >
+                            Tải lại Preview
+                          </Button>
+                        </div>
+                      </div>
+                    )
+                  },
+                  {
+                    key: "render",
+                    label: <span className="font-semibold text-xs flex items-center gap-1"><Video size={12} /> Render Video & Xuất bản</span>,
+                    children: (
+                      <div className="space-y-4 p-1">
+                        <div className="bg-slate-50 p-3 rounded-lg border space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <Text strong className="text-slate-800 text-xs">Cấu hình kết xuất bài học</Text>
+                              <Paragraph className="text-[10px] text-slate-500 m-0 mt-0.5">
+                                Chọn render nháp để kiểm tra thời gian thực, hoặc chất lượng cao để xuất bản.
+                              </Paragraph>
+                            </div>
+                            <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border">
+                              <span className="text-[11px] text-slate-600 font-semibold">Render Nháp (Nhanh)</span>
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={modalDraft}
+                                  onChange={(e) => setModalDraft(e.target.checked)}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+                              </label>
+                            </div>
+                          </div>
+                          
+                          <Button
+                            type="primary"
+                            block
+                            icon={<Video size={14} />}
+                            onClick={handleModalRender}
+                            loading={pollingRender}
+                          >
+                            Bắt đầu kết xuất MP4
+                          </Button>
+                        </div>
+                        
+                        {renderStatus && (
+                          <div className="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50 space-y-2.5">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-indigo-800 font-semibold flex items-center gap-1.5">
+                                <Spin size="small" className="scale-75" /> Trạng thái: {renderStatus.progress}
+                              </span>
+                              <span className="font-bold text-indigo-700">{renderStatus.percent || 0}%</span>
+                            </div>
+                            <Progress 
+                              percent={renderStatus.percent || 0} 
+                              status={renderStatus.status === "failed" ? "exception" : "active"}
+                              strokeColor="#4f46e5" 
+                              showInfo={false} 
+                            />
+                            {renderStatus.error && (
+                              <Alert type="error" message={renderStatus.error} banner className="text-[10px] rounded p-1" />
+                            )}
+                          </div>
+                        )}
+                        
+                        {videoDetails?.video_url ? (
+                          <div className="space-y-2">
+                            <Text strong className="text-slate-800 text-xs">Video bài giảng đã xuất bản:</Text>
+                            <div className="w-full bg-black rounded-lg overflow-hidden border aspect-video">
+                              <video 
+                                controls 
+                                className="w-full h-full" 
+                                src={videoDetails.video_url} 
+                                key={videoDetails.video_url}
+                              />
+                            </div>
+                            <Button 
+                              type="primary" 
+                              ghost 
+                              block 
+                              icon={<Download size={14} />}
+                              href={videoDetails.video_url}
+                              download
+                            >
+                              Tải video MP4 chất lượng cao
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="p-8 text-center bg-slate-50 border rounded-lg">
+                            <Video size={32} className="mx-auto text-slate-300 mb-2" />
+                            <Text type="secondary" className="text-xs">Chưa có video được render cho bài học này.</Text>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }
+                ]}
+              />
+            </Col>
+          </Row>
+        )}
+      </Modal>
     </div>
   );
 }

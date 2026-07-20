@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session 01 - Lesson 03: Hướng dẫn cài đặt công cụ - Trực quan hóa & Tương tác Động</title>
+    <title>Session 02 - Lesson 06: Bản chất của OpenAPI trong FastAPI (Bổ sung từ AI) - Trực quan hóa & Tương tác Động</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -410,8 +410,8 @@
         }
 
         .code-tracker-panel {
-            background: #1e1e1e;
-            color: #d1d5db;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -425,7 +425,7 @@
         }
 
         .panel-top-bar {
-            background: #252526;
+            background: #1e293b;
             padding: 10px 14px;
             border-bottom: 1.5px solid var(--border-color);
             display: flex;
@@ -433,14 +433,14 @@
             align-items: center;
             font-family: var(--font-mono);
             font-size: 0.8rem;
-            color: #a5b4fc;
+            color: #38bdf8;
         }
 
         .code-content pre {
             margin: 0;
             padding: 14px;
             overflow-x: auto;
-            background-color: #1e1e1e;
+            background-color: #121824;
         }
 
         .code-line {
@@ -450,18 +450,18 @@
             font-family: var(--font-mono);
             font-size: 0.85rem;
             white-space: pre-wrap;
-            color: #d4d4d4;
+            color: #cbd5e1;
         }
 
         .code-line.active-line {
-            background-color: rgba(217, 119, 87, 0.15);
-            border-left-color: var(--clay);
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
             color: #ffffff;
         }
 
         .console-log-panel {
-            background: #1e1e1e;
-            color: #d1d5db;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 14px;
@@ -472,8 +472,8 @@
         }
 
         .stats-panel {
-            background: #1e1e1e;
-            color: #d1d5db;
+            background: #121824;
+            color: #f1f5f9;
             border: 1.5px solid var(--border-color);
             border-radius: var(--radius-md);
             padding: 10px 14px;
@@ -514,7 +514,7 @@
             line-height: 1.4;
         }
 
-        .log-info { background: rgba(30, 41, 59, 0.5); color: #94a3b8; }
+        .log-info { background: rgba(30, 41, 59, 0.6); color: #38bdf8; }
         .log-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }
         .log-warn { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }
 
@@ -733,8 +733,8 @@
         <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="max-w-[1600px] w-full mx-auto relative z-10">
-            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 01</span>
-            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Hướng dẫn cài đặt công cụ</h2>
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 02</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Bản chất của OpenAPI trong FastAPI (Bổ sung từ AI)</h2>
             <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
                 Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
             </p>
@@ -756,7 +756,7 @@
                         <div class="badge">1</div>
                         <div class="step-body">
                             <div class="step-loc">Đặt vấn đề</div>
-                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi chuẩn bị môi trường thực hành phát triển Web API với FastAPI, học viên thường gặp các trở ngại như hệ điều hành không nhận diện lệnh do biến môi trường hoạt động sai, xung đột thư viện giữa các dự án do thiếu môi trường ảo (venv), hoặc cấu hình Git ban đầu chưa đúng chuẩn khiến tiến trình đồng bộ phiên bản bị gián đoạn.</p>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi sử dụng Swagger UI tại đường dẫn <code>/docs</code>, giao diện tài liệu API sẽ tự động cập nhật mỗi khi chúng ta chỉnh sửa mã nguồn Python. Làm sao Swagger UI có thể tự động hiểu các endpoint, kiểu dữ liệu truyền vào và phản hồi mà không cần lập trình viên can thiệp thủ công? Việc này gây tò mò lớn cho học viên mới và nếu không hiểu bản chất nguồn gốc dữ liệu này, chúng ta khó có thể tùy chỉnh hoặc sửa lỗi khi tài liệu API hiển thị sai lệch thông tin thiết kế.</p>
                         </div>
                     </div>
 
@@ -765,13 +765,7 @@
                         <div class="badge">2</div>
                         <div class="step-body">
                             <div class="step-loc">Phân tích Bản chất</div>
-                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Để sẵn sàng phát triển dự án, lập trình viên cần hiểu rõ tương tác giữa các thành phần:</p>
-<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Python: Trình thông dịch mã nguồn.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Biến PATH: Giúp Terminal định vị trình thực thi Python/Git từ bất kỳ thư mục nào.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Môi trường ảo (venv): Cô lập gói thư viện tránh xung đột phiên bản.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Git: Kiểm soát và theo dõi lịch sử chỉnh sửa mã nguồn.</li>
-</ul>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">FastAPI không trực tiếp tạo ra giao diện Swagger UI. Bản chất FastAPI tự động xây dựng một tài liệu chuẩn hóa dưới dạng JSON Schema theo tiêu chuẩn OpenAPI Specification (OAS). Tệp này được lưu trữ mặc định tại đầu mút <code>/openapi.json</code>. Swagger UI chỉ đơn thuần là một thư viện hiển thị giao diện Client, thực hiện tải file <code>/openapi.json</code> này và hiển thị nó một cách trực diện và trực quan. Do đó, mã nguồn Python và Pydantic của bạn là nguồn sinh duy nhất cho tệp JSON này.</p>
                         </div>
                     </div>
 
@@ -780,150 +774,27 @@
                         <div class="badge">3</div>
                         <div class="step-body">
                             <div class="step-loc">Giới thiệu Giải pháp</div>
-                            <ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt Python 3.10+, VS Code, Git, Postman/DBeaver.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt tham số PATH tạm thời trên Terminal nếu hệ thống báo lỗi không nhận diện lệnh:</li>
-</ol>
-<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Windows (PowerShell): <code>$env:Path += ";C:\Python310"</code></li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Linux/macOS: <code>export PATH=$PATH:/usr/local/bin/python</code></li>
-</ul>
-<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sử dụng Git để thiết lập danh tính người dùng và khởi tạo thư mục dự án.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Kích hoạt venv, chạy mã chẩn đoán cài đặt và khởi tạo dự án FastAPI.</li>
-</ol>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Cơ chế hoạt động chuyển dịch thông tin từ code sang giao diện thông qua OpenAPI:</p>
+<div class="code-container"><div class="code-header"><span class="code-title">python</span></div><div class="code-body"><pre><code class="language-python">
+[Python Code + Pydantic] ➔ [openapi.json Schema] ➔ [Swagger UI / ReDoc]
+</code></pre></div></div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Bằng việc khai báo metadata tại constructor của <code>FastAPI</code> và định nghĩa kiểu dữ liệu thông qua Pydantic Model, dữ liệu mô tả sẽ tự động kết tinh vào <code>/openapi.json</code> để giao diện Swagger UI render đúng.</p>
                         </div>
                     </div>
 
 
 
 
-                    
-                    <!-- Step 4: Lệnh cấu hình & Mã nguồn -->
-                    <div class="step">
-                        <div class="badge">4</div>
-                        <div class="step-body">
-                            <div class="step-loc">Mã nguồn & Câu lệnh thực hành quan trọng</div>
-                            <div style="margin-top: 16px;">
-                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Dưới đây là các câu lệnh kiểm tra phiên bản và khởi tạo kho lưu trữ Git:</p>
-                                
-                                <div class="code-container">
-                                    <div class="code-header">
-                                        <div class="code-controls">
-                                            <span class="control-dot dot-red"></span>
-                                            <span class="control-dot dot-yellow"></span>
-                                            <span class="control-dot dot-green"></span>
-                                        </div>
-                                        <span class="code-title">terminal_commands.sh</span>
-                                        <button class="copy-btn" onclick="copyCode(this, 'terminal-commands-code')">Sao chép</button>
-                                    </div>
-                                    <div class="code-body">
-                                        <pre><code class="language-bash" id="terminal-commands-code"># 1. Kiểm tra phiên bản Python và Git
-python --version
-git --version
-
-# 2. Cấu hình thông tin danh tính Git toàn cục
-git config --global user.name "Nguyen Van A"
-git config --global user.email "anv@gmail.com"
-
-# 3. Khởi tạo kho lưu trữ Git mới
-git init</code></pre>
-                                    </div>
-                                </div>
-
-                                <p style="text-align: justify; margin-bottom: 15px; margin-top: 20px; line-height: 1.6;">Dưới đây là cách thêm đường dẫn Python vào biến môi trường PATH tạm thời:</p>
-                                
-                                <div class="code-container">
-                                    <div class="code-header">
-                                        <div class="code-controls">
-                                            <span class="control-dot dot-red"></span>
-                                            <span class="control-dot dot-yellow"></span>
-                                            <span class="control-dot dot-green"></span>
-                                        </div>
-                                        <span class="code-title">path_config.sh</span>
-                                        <button class="copy-btn" onclick="copyCode(this, 'path-config-code')">Sao chép</button>
-                                    </div>
-                                    <div class="code-body">
-                                        <pre><code class="language-powershell" id="path-config-code"># Trên Windows (PowerShell):
-$env:Path += ";C:\Path\To\Python"
-
-# Trên Linux/macOS (Bash/Zsh):
-export PATH="$PATH:/path/to/python"</code></pre>
-                                    </div>
-                                </div>
-
-                                <p style="text-align: justify; margin-bottom: 15px; margin-top: 20px; line-height: 1.6;">Dưới đây là mã nguồn chẩn đoán môi trường ảo <code>kiem_tra_moi_truong</code>:</p>
-                                
-                                <div class="code-container">
-                                    <div class="code-header">
-                                        <div class="code-controls">
-                                            <span class="control-dot dot-red"></span>
-                                            <span class="control-dot dot-yellow"></span>
-                                            <span class="control-dot dot-green"></span>
-                                        </div>
-                                        <span class="code-title">kiem_tra_moi_truong.py</span>
-                                        <button class="copy-btn" onclick="copyCode(this, 'kiem-tra-moi-truong-code')">Sao chép</button>
-                                    </div>
-                                    <div class="code-body">
-                                        <pre><code class="language-python" id="kiem-tra-moi-truong-code">import sys
-
-def run_diagnostics():
-    print(f"Python Version: {sys.version}")
-    is_venv = sys.prefix != sys.base_prefix
-    print(f"Using virtual environment (venv): {is_venv}")
-    try:
-        import fastapi
-        print(f"FastAPI installed successfully: version {fastapi.__version__}")
-    except ImportError:
-        print("FastAPI is NOT installed.")
-
-if __name__ == "__main__":
-    run_diagnostics()</code></pre>
-                                    </div>
-                                </div>
-
-                                <p style="text-align: justify; margin-bottom: 15px; margin-top: 20px; line-height: 1.6;">Dưới đây là mã nguồn ứng dụng FastAPI tối giản <code>ung_dung_fastapi_toi_gian</code>:</p>
-                                
-                                <div class="code-container">
-                                    <div class="code-header">
-                                        <div class="code-controls">
-                                            <span class="control-dot dot-red"></span>
-                                            <span class="control-dot dot-yellow"></span>
-                                            <span class="control-dot dot-green"></span>
-                                        </div>
-                                        <span class="code-title">ung_dung_fastapi_toi_gian.py</span>
-                                        <button class="copy-btn" onclick="copyCode(this, 'ung-dung-fastapi-toi-gian-code')">Sao chép</button>
-                                    </div>
-                                    <div class="code-body">
-                                        <pre><code class="language-python" id="ung-dung-fastapi-toi-gian-code">from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/")
-def home():
-    return {"status": "success", "message": "FastAPI da thiet lap thanh cong!"}</code></pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-            
-
-                    <!-- Step 5: References -->
+                    <!-- Step 4: References -->
                     <div class="step" style="margin-top: 24px;">
-                        <div class="badge">5</div>
+                        <div class="badge">4</div>
                         <div class="step-body">
                             <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
                             <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
         
                                 <li>
-                                    <a href="https://docs.python.org/3/using/index.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Setup and Usage Guide
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Git Installation and Configuration
+                                    <a href="https://fastapi.tiangolo.com/tutorial/metadata/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> FastAPI Metadata and Docs URLs Reference
                                     </a>
                                 </li>
                             </ul>
@@ -937,13 +808,7 @@ def home():
                         <div class="step-body" style="border-color: var(--clay);">
                             <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
                             <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
-                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Bài học cung cấp phương pháp chuẩn bị công cụ làm việc và liên kết môi trường cục bộ.</p>
-<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Ba lỗi thường gặp:</p>
-<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Thiếu biến môi trường PATH</strong> khiến lệnh python hoặc git báo lỗi 'not found'.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Chưa kích hoạt venv</strong> dẫn đến cài đặt thư viện đè lên hệ thống nguồn toàn cục.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Sai lệch thông tin tài khoản Git</strong> (name/email) dẫn đến lỗi từ chối phiên làm việc khi kết nối kho chứa từ xa.</li>
-</ol>
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Nắm vững bản chất OpenAPI giúp lập trình viên kiểm soát cách hiển thị API của mình cho bên thứ ba. Ba sai lầm phổ biến: 1. <strong>Sai kiểu mô tả dữ liệu trên Pydantic Model</strong> làm tài liệu API hiển thị không khớp thực tế. 2. <strong>Bỏ quên thuộc tính tags và summary</strong> tại API endpoint khiến giao diện tài liệu lộn xộn. 3. <strong>Nhầm lẫn Swagger UI tự sinh logic</strong> thay vì hiểu rằng thông tin hoàn toàn dựa vào <code>/openapi.json</code>.</p>
                             </div>
                         </div>
                     </div>

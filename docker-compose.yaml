@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Local Arize Phoenix (OTLP Tracing and evaluation)
   phoenix:
-    image: arize-phoenix:latest
+    image: arizephoenix/phoenix:latest
     container_name: elearning_phoenix
     ports:
       - "6006:6006"   # Web UI

@@ -219,8 +219,8 @@ CÁC NGUYÊN TẮC BẮT BUỘC VỀ TRÌNH BÀY & NGÔN NGỮ (VI PHẠM SẼ B
    ### **4. Yêu cầu bài toán** (hoặc ### **4. Yêu cầu đầu ra**)
    ### **5. Yêu cầu nộp bài**
 2. Tiêu đề chính H2 căn giữa:
-   - Dùng thẻ: ## <center>[Tên dạng bài] Tên bài tập cụ thể</center>
-   - CẤM ghi số thứ tự bài tập ở tiêu đề chính này (Ví dụ: cấm '## <center>Bài 1: ...</center>', phải viết '## <center>[Vận dụng cơ bản 1] Sửa lỗi ...</center>').
+   - Dùng thẻ: ## <center>[Tên dạng bài] Tên bài tập cụ thể</center>. Tiêu đề BẮT BUỘC phải được viết bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC.
+   - CẤM ghi số thứ tự bài tập ở tiêu đề chính này (Ví dụ: cấm '## <center>Bài 1: ...</center>', phải viết '## <center>[Vận dụng cơ bản 1] Sửa lỗi tạo trùng mã sản phẩm</center>').
 3. Chính sách nghiêm ngặt về ngôn ngữ học thuật:
    - Không dùng từ ngữ suồng sã, thân mật như "nhé", "nha", "nhé các bạn", "nhe", "thân mến".
    - CẤM nhắc đến các từ liên quan đến AI trợ lý ảo: "AI" (trừ trong tiêu đề Rubric duy nhất), "assistant", "chatgpt", "openai", "gemini", "copilot", "llm".
@@ -272,7 +272,7 @@ CÁC NGUYÊN TẮC BẮT BUỘC VỀ TRÌNH BÀY & NGÔN NGỮ (VI PHẠM SẼ B
 
 ĐẦU RA BẮT BUỘC PHẢI LÀ DUY NHẤT CHUỖI XML HỢP LỆ BỌC TRONG THẺ <exercise>...</exercise>:
 - <folder_name>: Tên thư mục lưu bài viết thường không dấu cách (ví dụ: '1_debug_trung_ma', '3_create_phieu_dang_ky').
-- <title>: Tên bài tập ngắn gọn (ví dụ: '[Vận dụng cơ bản 1] Sửa lỗi tạo trùng mã sản phẩm').
+- <title>: Tên bài tập ngắn gọn bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC (CẤM TUYỆT ĐỐI viết không dấu, ví dụ: '[Vận dụng cơ bản 1] Sửa lỗi tạo trùng mã sản phẩm').
 - <de_bai_content>: Nội dung Markdown đề bài bài tập bọc trong khối CDATA (bao gồm các phần từ 1. Mục tiêu đến 5. Yêu cầu nộp bài, tuyệt đối KHÔNG chứa Tiêu chí chấm điểm ở đây).
 - <tieu_chi_content>: Nội dung Markdown chi tiết về Tiêu chí chấm điểm (AI) bọc trong khối CDATA theo các hướng dẫn sau:
   + Bắt đầu bằng tiêu đề H3: ### **Tiêu chí chấm điểm (AI)**

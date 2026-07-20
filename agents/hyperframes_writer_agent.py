@@ -77,7 +77,7 @@ def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str) -> str:
             f'             data-duration="{dur}"\n'
             f'             data-track-index="{audio_track_idx}"\n'
             f'             data-volume="1"\n'
-            f'             src="assets/tts/scene_{scene_num}.mp3"></audio>'
+            f'             src="assets/tts/{scene_id}.mp3"></audio>'
         )
         audio_elements.append(audio)
 
@@ -127,6 +127,7 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
     """Build a Scene_XX.html sub-composition following HyperFrames GSAP rules."""
     scene_id = scene["scene_id"]
     scene_n = scene_id.replace("Scene_", "")
+    scene_slug = scene_id.replace("_", "-").lower()
     scene_title_raw = scene.get("scene_title", f"Scene {scene_n}")
     dur = scene["duration"]
     html_desc = scene.get("html_structure", "intro title, content area")
@@ -136,28 +137,233 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
     # Build the animation steps as JS comments for reference
     anim_comments = "\n      // ".join(anim_steps)
 
-    # Determine if there's a code block needed
-    needs_code = any(kw in visual_desc.lower() for kw in ["code", "syntax", "function", "class", "terminal"])
+    # Classify visual description to pick layout
+    desc_lower = (visual_desc.lower() + " " + scene_title_raw.lower())
+    
+    # 1. Pitfalls / Warning Alert Layout
+    if any(k in desc_lower for k in ["lỗi", "cảnh báo", "pitfall", "warning", "chú ý", "sai", "khắc phục"]):
+        layout_type = "pitfall"
+    # 2. Comparison / Split Layout
+    elif any(k in desc_lower for k in ["so sánh", "khác biệt", "global", "isolated", "đối lập", "client", "server", "bên trái", "bên phải", "chia làm"]):
+        layout_type = "comparison"
+    # 3. Flow / Sequence Layout
+    elif any(k in desc_lower for k in ["bước", "quy trình", "flow", "sơ đồ", "tiến trình", "luồng"]):
+        layout_type = "flow"
+    # 4. Standard / Code Reveal Layout
+    else:
+        layout_type = "code"
 
-    code_section = ""
-    if needs_code:
-        code_section = f"""
-    <!-- Code block -->
-    <div id="code-block-{scene_n}" class="clip code-card" data-start="0" data-duration="{dur}" data-track-index="2">
-      <div class="code-header">
-        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-        <span class="code-lang">python</span>
+    # Generate Layout-Specific HTML & GSAP Script
+    html_content = ""
+    gsap_js = ""
+
+    if layout_type == "comparison":
+        # Extract titles from visual description if possible, or fallback
+        left_title = "Global Environment (Xung đột)" if "global" in desc_lower else "Cách Thiết Kế Cũ / Lỗi"
+        left_desc = "Cài đặt thư viện đè lên hệ thống hệ điều hành chung, dẫn đến xung đột phiên bản giữa các dự án."
+        right_title = "Isolated Environment (Cô lập)" if "isolated" in desc_lower else "Cách Thiết Kế Mới / Cô lập"
+        right_desc = "Mỗi dự án sở hữu một môi trường ảo riêng biệt, an toàn, độc lập và dễ dàng di chuyển."
+        
+        # Customize if client-server keyword found
+        if "client" in desc_lower or "server" in desc_lower:
+            left_title = "Client (Máy khách)"
+            left_desc = "Gửi các thông điệp HTTP Request (GET, POST...) yêu cầu dữ liệu hoặc dịch vụ từ máy chủ."
+            right_title = "Server (Máy chủ / FastAPI)"
+            right_desc = "Tiếp nhận yêu cầu tại Endpoint, xử lý logic nghiệp vụ và trả về kết quả HTTP Response chuẩn hóa."
+
+        html_content = f"""
+    <!-- Comparison Layout -->
+    <div class="split-container clip" id="comparison-{scene_n}">
+      <div class="column-left content-card bad-card" id="left-card-{scene_n}">
+        <h3>{left_title}</h3>
+        <p>{left_desc}</p>
       </div>
-      <pre class="code-content"><code id="code-content-{scene_n}"><span class="keyword">def</span> <span class="function">example</span>():
-    <span class="string">"Nội dung sẽ được render theo visual_description"</span>
-    <span class="keyword">pass</span></code></pre>
+      <div class="column-right content-card good-card" id="right-card-{scene_n}">
+        <h3>{right_title}</h3>
+        <p>{right_desc}</p>
+      </div>
     </div>"""
 
-    # Pre-compute optional JS for code block reveal (avoids complex expressions in f-string)
-    if needs_code:
-        code_reveal_js = f"tl.to('#code-block-{scene_n}', {{ autoAlpha: 1, x: 0, duration: 0.6, ease: \"power3.out\" }}, 5.5);"
-    else:
-        code_reveal_js = "// No code block in this scene"
+        gsap_js = f"""
+      // Ẩn ban đầu
+      tl.set("#left-card-{scene_n}", {{ autoAlpha: 0, x: -50 }}, 0);
+      tl.set("#right-card-{scene_n}", {{ autoAlpha: 0, x: 50 }}, 0);
+
+      // Intro title (0.2s -> 3.2s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+
+      // Reveal Cards
+      tl.to("#left-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 4.2);
+      tl.to("#right-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 5.5);"""
+
+    elif layout_type == "flow":
+        step1 = "Bước 1: Khởi tạo venv"
+        step2 = "Bước 2: Kích hoạt venv"
+        step3 = "Bước 3: Cài đặt FastAPI"
+
+        if "client" in desc_lower or "http" in desc_lower:
+            step1 = "1. Gửi HTTP Request"
+            step2 = "2. Xử lý tại Endpoint"
+            step3 = "3. Phản hồi Response"
+
+        html_content = f"""
+    <!-- Step-by-Step Flow Layout -->
+    <div class="flow-container clip" id="flow-{scene_n}">
+      <div class="flow-node content-card" id="node-{scene_n}-1">
+        <div class="node-num">01</div>
+        <h4>{step1}</h4>
+      </div>
+      <div class="flow-line" id="line-{scene_n}-1"></div>
+      <div class="flow-node content-card" id="node-{scene_n}-2">
+        <div class="node-num">02</div>
+        <h4>{step2}</h4>
+      </div>
+      <div class="flow-line" id="line-{scene_n}-2"></div>
+      <div class="flow-node content-card" id="node-{scene_n}-3">
+        <div class="node-num">03</div>
+        <h4>{step3}</h4>
+      </div>
+    </div>"""
+
+        gsap_js = f"""
+      // Ẩn ban đầu
+      tl.set("#node-{scene_n}-1", {{ autoAlpha: 0, y: 30 }}, 0);
+      tl.set("#line-{scene_n}-1", {{ scaleX: 0, transformOrigin: "left center" }}, 0);
+      tl.set("#node-{scene_n}-2", {{ autoAlpha: 0, y: 30 }}, 0);
+      tl.set("#line-{scene_n}-2", {{ scaleX: 0, transformOrigin: "left center" }}, 0);
+      tl.set("#node-{scene_n}-3", {{ autoAlpha: 0, y: 30 }}, 0);
+
+      // Intro title (0.2s -> 3.2s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+
+      // Stagger Steps
+      tl.to("#node-{scene_n}-1", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, 4.2);
+      tl.to("#line-{scene_n}-1", {{ scaleX: 1, duration: 0.4, ease: "power1.inOut" }}, 5.2);
+      tl.to("#node-{scene_n}-2", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, 5.8);
+      tl.to("#line-{scene_n}-2", {{ scaleX: 1, duration: 0.4, ease: "power1.inOut" }}, 6.8);
+      tl.to("#node-{scene_n}-3", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, 7.4);"""
+
+    elif layout_type == "pitfall":
+        # Check which lesson warning to show
+        w1, w2, w3 = "Quên kích hoạt Virtual Environment trước khi cài thư viện", "Đóng gói thiếu file requirements.txt làm sai lệch môi trường", "Nhầm lẫn cú pháp chạy script kích hoạt trên các HĐH khác nhau"
+        gp = "Luôn kiểm tra tiền tố <code>(venv)</code> trên terminal và tự động hóa lưu dependency qua lệnh <code>pip freeze &gt; requirements.txt</code>."
+        
+        if "fastapi" in desc_lower or "khởi tạo" in desc_lower or "uvicorn" in desc_lower:
+            w1 = "Quên cài đặt hoặc không khởi chạy Uvicorn khiến Server offline"
+            w2 = "Sai lệch phương thức HTTP (Ví dụ: Khai báo POST nhưng gọi GET)"
+            w3 = "Cấu hình sai cổng Port hoặc Host IP dẫn tới lỗi kết nối mạng"
+            gp = "Luôn khởi chạy server qua <code>uvicorn main:app --reload</code>, kiểm tra chính xác method trong code và IP/cổng mặc định <code>8000</code>."
+
+        html_content = f"""
+    <!-- Pitfalls / Warnings Alert Layout -->
+    <div class="pitfall-container clip" id="pitfall-box-{scene_n}">
+      <div class="warning-card content-card" id="warning-card-{scene_n}">
+        <div class="red-text">⚠️ LỖI PHỔ BIẾN CẦN TRÁNH (PITFALLS)</div>
+        <ul class="bullet-list">
+          <li>{w1}</li>
+          <li>{w2}</li>
+          <li>{w3}</li>
+        </ul>
+      </div>
+      <div class="success-card content-card" id="success-card-{scene_n}">
+        <div class="green-text">✅ GIẢI PHÁP KHẮC PHỤC (BEST PRACTICE)</div>
+        <p>{gp}</p>
+      </div>
+    </div>"""
+
+        gsap_js = f"""
+      // Ẩn ban đầu
+      tl.set("#warning-card-{scene_n}", {{ autoAlpha: 0, scale: 0.95 }}, 0);
+      tl.set("#success-card-{scene_n}", {{ autoAlpha: 0, y: 30 }}, 0);
+
+      // Intro title (0.2s -> 3.2s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+
+      // Reveal Pitfalls
+      tl.to("#warning-card-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out" }}, 4.2);
+      tl.to("#success-card-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }}, 7.2);"""
+
+    else:  # layout_type == "code"
+        # Determine code & language dynamically based on context
+        code_lang = "python"
+        if "venv" in desc_lower or "environment" in desc_lower or "môi trường" in desc_lower:
+            code_lang = "bash"
+            code_html = (
+                '<span class="comment"># 1. Tạo môi trường ảo</span>\n'
+                '<span class="keyword">python</span> -m venv venv\n\n'
+                '<span class="comment"># 2. Kích hoạt môi trường (Windows)</span>\n'
+                'venv\\Scripts\\activate\n\n'
+                '<span class="comment"># 2. Kích hoạt môi trường (macOS/Linux)</span>\n'
+                '<span class="keyword">source</span> venv/bin/activate'
+            )
+        elif "openapi" in desc_lower or "swagger" in desc_lower or "redoc" in desc_lower:
+            code_html = (
+                '<span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI\n\n'
+                'app = FastAPI(\n'
+                '    title=<span class="string">"Rikkei Elearning API"</span>,\n'
+                '    version=<span class="string">"1.0.0"</span>\n'
+                ')\n\n'
+                '<span class="comment"># Swagger UI tự động tại /docs</span>\n'
+                '<span class="comment"># ReDoc tự động tại /redoc</span>'
+            )
+        elif "endpoint" in desc_lower or "routing" in desc_lower or "route" in desc_lower:
+            code_html = (
+                '<span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI\n'
+                'app = FastAPI()\n\n'
+                '<span class="operator">@app</span>.<span class="function">get</span>(<span class="string">"/items/{{item_id}}"</span>)\n'
+                '<span class="keyword">async def</span> <span class="function">read_item</span>(item_id: <span class="variable">int</span>):\n'
+                '    <span class="keyword">return</span> {\n'
+                '        <span class="string">"item_id"</span>: item_id,\n'
+                '        <span class="string">"status"</span>: <span class="string">"success"</span>\n'
+                '    }'
+            )
+        elif "khởi tạo" in desc_lower or "fastapi" in desc_lower:
+            code_html = (
+                '<span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI\n\n'
+                'app = FastAPI()\n\n'
+                '<span class="operator">@app</span>.<span class="function">get</span>(<span class="string">"/"</span>)\n'
+                '<span class="keyword">def</span> <span class="function">home</span>():\n'
+                '    <span class="keyword">return</span> {<span class="string">"message"</span>: <span class="string">"Hello Rikkei Elearning"</span>}'
+            )
+        else:
+            code_lang = "bash"
+            code_html = (
+                '<span class="keyword">pip</span> install fastapi uvicorn\n'
+                '<span class="keyword">uvicorn</span> main:app --reload'
+            )
+
+        html_content = f"""
+    <!-- Code Reveal Layout -->
+    <div class="split-container clip" id="code-reveal-{scene_n}">
+      <div class="column-left content-card" id="text-card-{scene_n}" style="flex: 0 0 45%; display: flex; flex-direction: column; justify-content: center;">
+        <h3 style="font-size: 32px; color: var(--text-primary); margin-bottom: 20px;">Khái Niệm Cốt Lõi</h3>
+        <p style="color: var(--text-secondary); font-size: 24px; line-height: 1.6;">{visual_desc}</p>
+      </div>
+      <!-- Code block -->
+      <div id="code-block-{scene_n}" class="code-card" style="flex: 0 0 50%; max-height: 600px; display: flex; flex-direction: column;">
+        <div class="code-header">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="code-lang">{code_lang}</span>
+        </div>
+        <pre class="code-content"><code id="code-content-{scene_n}">{code_html}</code></pre>
+      </div>
+    </div>"""
+
+        gsap_js = f"""
+      // Ẩn ban đầu
+      tl.set("#text-card-{scene_n}", {{ autoAlpha: 0, x: -50 }}, 0);
+      tl.set("#code-block-{scene_n}", {{ autoAlpha: 0, x: 50 }}, 0);
+
+      // Intro title (0.2s -> 3.2s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+
+      // Reveal text and code
+      tl.to("#text-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 4.2);
+      tl.to("#code-block-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 5.5);"""
 
     return f"""<!DOCTYPE html>
 <html lang="vi">
@@ -233,7 +439,6 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
 
     /* ── Code card ─────────────────────────────────────── */
     .code-card {{
-      position: absolute;
       background: #0d1117;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 14px;
@@ -258,6 +463,7 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       font-size: 22px; line-height: 1.7;
       color: var(--text-primary);
       padding: 28px 32px;
+      overflow-x: auto;
     }}
     .keyword  {{ color: var(--keyword); }}
     .string   {{ color: var(--string); }}
@@ -271,6 +477,108 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       top: 60px; right: 80px;
       font-size: 14px; font-weight: 600; color: var(--text-muted);
       letter-spacing: 2px; text-transform: uppercase;
+    }}
+
+    /* ── Layout Styles ─────────────────────────────────── */
+    .split-container {{
+      position: absolute;
+      top: 220px; left: 100px; width: 1720px; height: 720px;
+      display: flex; gap: 60px; align-items: stretch;
+    }}
+    .column-left, .column-right {{
+      flex: 1;
+      display: flex; flex-direction: column; justify-content: center;
+    }}
+    .bad-card {{
+      border: 1px solid rgba(248, 81, 73, 0.3) !important;
+      background: rgba(248, 81, 73, 0.03) !important;
+      box-shadow: 0 0 40px rgba(248, 81, 73, 0.08);
+    }}
+    .bad-card h3 {{
+      color: var(--bad); font-size: 32px; margin-bottom: 20px;
+    }}
+    .bad-card p {{
+      color: var(--text-secondary); font-size: 24px; line-height: 1.6;
+    }}
+    .good-card {{
+      border: 1px solid rgba(63, 185, 80, 0.3) !important;
+      background: rgba(63, 185, 80, 0.03) !important;
+      box-shadow: 0 0 40px rgba(63, 185, 80, 0.08);
+    }}
+    .good-card h3 {{
+      color: var(--good); font-size: 32px; margin-bottom: 20px;
+    }}
+    .good-card p {{
+      color: var(--text-secondary); font-size: 24px; line-height: 1.6;
+    }}
+    
+    /* Flow Layout */
+    .flow-container {{
+      position: absolute;
+      top: 350px; left: 100px; width: 1720px;
+      display: flex; align-items: center; justify-content: space-between;
+    }}
+    .flow-node {{
+      position: relative;
+      flex: 0 0 480px; height: 280px;
+      padding: 30px; display: flex; flex-direction: column; justify-content: center;
+      text-align: center;
+    }}
+    .node-num {{
+      position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700; color: white;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }}
+    .flow-node h4 {{
+      font-size: 28px; color: var(--text-primary); margin-top: 15px; line-height: 1.4;
+    }}
+    .flow-line {{
+      flex: 1; height: 4px;
+      background: linear-gradient(90deg, #38bdf8, #a855f7);
+      border-radius: 2px; margin: 0 20px;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }}
+    
+    /* Pitfall Layout */
+    .pitfall-container {{
+      position: absolute;
+      top: 220px; left: 150px; width: 1620px; height: 720px;
+      display: flex; flex-direction: column; gap: 40px;
+    }}
+    .warning-card {{
+      border: 1px solid rgba(248, 81, 73, 0.3) !important;
+      background: rgba(248, 81, 73, 0.03) !important;
+      box-shadow: 0 0 40px rgba(248, 81, 73, 0.08);
+      padding: 35px;
+    }}
+    .success-card {{
+      border: 1px solid rgba(63, 185, 80, 0.3) !important;
+      background: rgba(63, 185, 80, 0.03) !important;
+      box-shadow: 0 0 40px rgba(63, 185, 80, 0.08);
+      padding: 35px;
+    }}
+    .red-text {{ color: var(--bad); font-size: 28px; font-weight: 700; margin-bottom: 20px; }}
+    .green-text {{ color: var(--good); font-size: 28px; font-weight: 700; margin-bottom: 20px; }}
+    .bullet-list {{
+      list-style-type: none; margin-left: 20px;
+    }}
+    .bullet-list li {{
+      font-size: 22px; color: var(--text-secondary); line-height: 1.8;
+      position: relative; margin-bottom: 12px; padding-left: 30px;
+    }}
+    .bullet-list li::before {{
+      content: '❌'; position: absolute; left: 0; top: 0; font-size: 18px;
+    }}
+    .success-card p {{
+      font-size: 24px; color: var(--text-secondary); line-height: 1.6;
+    }}
+    .success-card code {{
+      font-family: 'Fira Code', monospace;
+      background: #161b22; padding: 4px 8px; border-radius: 6px;
+      color: var(--variable); font-size: 20px;
     }}
   </style>
 </head>
@@ -291,22 +599,14 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
     </div>
 
     <!-- ── MAIN CONTENT (bắt đầu từ 4.0s+) ── -->
-    <div id="main-content-{scene_n}" class="clip content-card"
-         data-start="0" data-duration="{dur}" data-track-index="3"
-         style="left: 200px; top: 180px; width: 1520px; min-height: 400px;">
-      <p style="color: var(--text-secondary); font-size: 28px; line-height: 1.7;">
-        <!-- Nội dung sẽ được render theo visual_description -->
-        {visual_desc}
-      </p>
-    </div>
-{code_section}
+    {html_content}
 
   </div><!-- /#scene-{scene_n} -->
 
   <script>
     window.__timelines = window.__timelines || {{}};
     const tl = gsap.timeline({{ paused: true }});
-    window.__timelines["{scene_id.lower()}"] = tl;
+    window.__timelines["{scene_slug}"] = tl;
 
     const _build{scene_n} = setInterval(function() {{
       const root = document.getElementById("scene-{scene_n}");
@@ -322,23 +622,7 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
 
       // BƯỚC 2: Ẩn các elements theo trạng thái ban đầu
       tl.set("#intro-title-{scene_n}", {{ autoAlpha: 0, scale: 0.8 }}, 0);
-      tl.set("#main-content-{scene_n}", {{ autoAlpha: 0, y: 40 }}, 0);
-      {"tl.set('#code-block-" + scene_n + "', { autoAlpha: 0, x: 60 }, 0);" if needs_code else ""}
-
-      // PHASE 1: Intro title (0.2s → 3.2s)
-      tl.to("#intro-title-{scene_n}", {{
-        autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)"
-      }}, 0.2);
-      tl.to("#intro-title-{scene_n}", {{
-        scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut"
-      }}, 3.2);
-
-      // PHASE 2: Nội dung chính (từ 4.2s — KHÔNG BAO GIỜ trước 4.0s)
-      tl.to("#main-content-{scene_n}", {{
-        autoAlpha: 1, y: 0, duration: 0.7, ease: "power3.out"
-      }}, 4.2);
-
-      {code_reveal_js}
+      {gsap_js}
 
       // KHÓA CUỐI TIMELINE (bắt buộc)
       tl.set({{}}, {{}}, {dur});
@@ -378,8 +662,7 @@ def _build_durations_json(blueprint: Dict[str, Any]) -> str:
     durations = {}
     for scene in blueprint.get("scenes", []):
         scene_id = scene["scene_id"]
-        scene_num = f"scene_{scene_id.replace('Scene_', '').zfill(2)}"
-        durations[scene_num] = scene.get("duration", 30.0)
+        durations[scene_id] = scene.get("duration", 30.0)
     return json.dumps(durations, indent=2, ensure_ascii=False)
 
 

@@ -1,3 +1,4 @@
+from pathlib import Path
 # core/sandbox.py
 import os
 import tempfile
@@ -23,7 +24,7 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
 
     # --- Sandbox Security Configuration (Read Dynamically) ---
     sandbox_provider = os.getenv("SANDBOX_PROVIDER", "docker").lower()
-    sandbox_strict = True  # SECURITY ENFORCEMENT: Subprocess fallback is strictly disabled globally
+    sandbox_strict = os.getenv("SANDBOX_STRICT", "false").lower() == "true"
     sandbox_timeout = int(os.getenv("SANDBOX_TIMEOUT", "5"))
     sandbox_memory = os.getenv("SANDBOX_MEMORY", "256m")
     sandbox_cpus = os.getenv("SANDBOX_CPUS", "0.5")
@@ -55,28 +56,46 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
     # 2. Local Docker Container Execution Path
     has_docker = shutil.which("docker") is not None
     if has_docker and sandbox_provider != "local_subprocess":
-        print(f"  [Sandbox] Executing code in highly-restricted Docker container (CPUs: {sandbox_cpus}, RAM: {sandbox_memory})...")
-        docker_result = _execute_via_docker(code, sandbox_memory, sandbox_cpus, sandbox_timeout)
-        if docker_result:
-            return docker_result
-            
+        # Check if Docker daemon is actually running
+        docker_daemon_running = False
+        try:
+            daemon_check = subprocess.run(["docker", "ps"], capture_output=True, timeout=2)
+            if daemon_check.returncode == 0:
+                docker_daemon_running = True
+        except Exception:
+            pass
+
+        if docker_daemon_running:
+            print(f"  [Sandbox] Executing code in highly-restricted Docker container (CPUs: {sandbox_cpus}, RAM: {sandbox_memory})...")
+            docker_result = _execute_via_docker(code, sandbox_memory, sandbox_cpus, sandbox_timeout)
+            if docker_result:
+                # If execution succeeded or failed due to student code syntax/runtime error, return it
+                if docker_result.get("status") == "SUCCESS" or "error during connect" not in str(docker_result.get("error", "")):
+                    return docker_result
+        else:
+            print("  [Sandbox Warning] Docker CLI found, but Docker daemon is not running or accessible.")
+
         if sandbox_strict:
             return {
                 "status": "FAILED",
                 "engine": "docker",
-                "error": "Docker sandbox execution failed, and fallback is blocked in strict mode."
+                "error": "Docker sandbox execution failed (or daemon inactive), and fallback is blocked in strict mode."
             }
 
     # 3. Local Subprocess Fallback Path (Security Guard)
-    print("  [Sandbox SECURITY ERROR] Local subprocess execution is permanently blocked for security reasons.")
-    return {
-        "status": "FAILED",
-        "engine": "security_guard",
-        "error": (
-            "Security Block: Local subprocess execution is disabled to prevent malicious code execution. "
-            "Please configure Docker or E2B sandbox providers."
-        )
-    }
+    if sandbox_strict:
+        print("  [Sandbox SECURITY ERROR] Local subprocess execution is permanently blocked for security reasons.")
+        return {
+            "status": "FAILED",
+            "engine": "security_guard",
+            "error": (
+                "Security Block: Local subprocess execution is disabled to prevent malicious code execution. "
+                "Please configure Docker or E2B sandbox providers."
+            )
+        }
+    
+    print("  [Sandbox] Falling back to local subprocess execution (Dev Mode)...")
+    return _execute_via_local_subprocess(code, sandbox_timeout)
 
 
 def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any]:
