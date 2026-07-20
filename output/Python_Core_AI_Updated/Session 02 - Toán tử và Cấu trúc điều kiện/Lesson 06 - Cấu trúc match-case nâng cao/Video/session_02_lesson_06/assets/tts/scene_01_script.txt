@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay, chúng ta sẽ tìm hiểu về cấu trúc match-case nâng cao từ Python 3.10. Trước đây, khi kiểm tra điều kiện phức tạp, các em thường dùng chuỗi if-elif-else dài dòng, cồng kềnh và dễ gây ra lỗi logic. Cấu trúc match-case ra đời để giúp giải quyết triệt để vấn đề này.

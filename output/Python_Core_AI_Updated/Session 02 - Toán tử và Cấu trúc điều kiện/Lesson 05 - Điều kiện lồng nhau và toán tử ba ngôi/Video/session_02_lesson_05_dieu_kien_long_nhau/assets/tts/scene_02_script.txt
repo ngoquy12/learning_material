@@ -1,0 +1,1 @@
+Để giải quyết vấn đề này, giải pháp đầu tiên là áp dụng Guard Clauses. Chúng ta sẽ kiểm tra và loại bỏ các điều kiện lỗi ngay ở đầu hàm bằng lệnh return. Kỹ thuật này giúp giải phóng các khối block lồng nhau, đưa mã nguồn về dạng phẳng, dễ dàng theo dõi.

@@ -5,7 +5,7 @@ import zlib
 import queue
 import threading
 from contextlib import contextmanager
-from typing import Dict, Any
+from typing import Dict, Any, Mapping, Generator
 
 DB_PATH = "state_store_v2.db"
 _db_initialized = False
@@ -36,7 +36,7 @@ class SQLiteConnectionPool:
         return conn
 
     @contextmanager
-    def get_connection(self) -> sqlite3.Connection:
+    def get_connection(self) -> Generator[sqlite3.Connection, None, None]:
         conn = None
         try:
             # Attempt to retrieve an existing connection from the queue
@@ -147,7 +147,7 @@ def init_db():
         else:
             print(f"  -> SQLite connection warning during init: {e}")
 
-def save_checkpoint(session_id: str, state: Dict[str, Any]):
+def save_checkpoint(session_id: str, state: Mapping[str, Any]):
     """Saves the current AgentState to the database with auto-healing retry support."""
     init_db()
     for attempt in range(2):
@@ -183,7 +183,7 @@ def save_checkpoint(session_id: str, state: Dict[str, Any]):
                 print(f"  -> Failed to save checkpoint to database: {e}")
                 break
 
-def load_checkpoint(session_id: str) -> Dict[str, Any]:
+def load_checkpoint(session_id: str) -> Dict[str, Any] | None:
     """Loads a previously saved AgentState for the given session_id with auto-healing retry support."""
     init_db()
     for attempt in range(2):

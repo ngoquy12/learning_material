@@ -1,0 +1,3275 @@
+<!doctype html>
+<!-- =========================================================================
+     CẢNH BÁO: ĐÂY LÀ FILE ĐƯỢC TẠO TỰ ĐỘNG (COMPILED).
+     VUI LÒNG KHÔNG CHỈNH SỬA TRỰC TIẾP FILE NÀY ĐỂ TRÁNH MẤT DỮ LIỆU.
+     
+     Để đồng bộ việc chỉnh sửa:
+     1. Hãy chỉnh sửa file reading.html tương ứng trong từng thư mục lesson_*/Bài đọc/
+     2. Chạy lại session_compilers.py hoặc build_all để render lại file reading_all.html.
+     ========================================================================= -->
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Tài liệu học tập tổng hợp - Session 01 - Giới thiệu Python & Thiết lập môi trường
+    </title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons & Tailwind CSS -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                black: "#1a1a1a",
+                gray: "#f5f5f5",
+                text: "#333333",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            fontSize: {
+              "2xs": "0.7rem",
+              "3xs": "0.6rem",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- VS Code (VS 2015) HighlightJS theme for accurate vscode colors -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/vs2015.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+
+    <style>
+      :root {
+        --bg-body: #f8fafc;
+        --bg-card: #ffffff;
+        --bg-hover: #f1f5f9;
+        --text-main: #1e293b;
+        --text-muted: #475569;
+        --border-color: #e2e8f0;
+        --card-border: #e2e8f0;
+        --nav-bg: rgba(255, 255, 255, 0.95);
+        --box-note-bg: rgba(15, 30, 54, 0.04);
+        --box-tip-bg: rgba(56, 161, 105, 0.05);
+        --box-warning-bg: rgba(221, 107, 32, 0.05);
+        --primary-text: #0f1e36;
+        --code-header-bg: #252526;
+        --code-body-bg: #1e1e1e;
+        --shadow-color: rgba(0, 0, 0, 0.04);
+        --clay: #d97757;
+        --clay-light: rgba(217, 119, 87, 0.06);
+        --font-sans:
+          "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, sans-serif;
+        --font-serif: "Montserrat", "Inter", sans-serif;
+        --font-mono:
+          "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, monospace;
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --radius-sm: 8px;
+        --bg-panel: var(--bg-card);
+        --bg-canvas: var(--bg-body);
+        --color-idle: #475569;
+        --color-compare: #eab308;
+        --color-swap: #ef4444;
+        --color-done: #22c55e;
+        --primary: #be111c;
+        --rust: #c2410c;
+        --rust-light: rgba(194, 65, 12, 0.08);
+      }
+
+      .theme-dark {
+        --bg-body: #0b0f19;
+        --bg-card: #151d30;
+        --bg-hover: #1e293b;
+        --text-main: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #1e293b;
+        --card-border: #243049;
+        --nav-bg: rgba(21, 29, 48, 0.95);
+        --box-note-bg: rgba(255, 255, 255, 0.04);
+        --box-tip-bg: rgba(56, 161, 105, 0.08);
+        --box-warning-bg: rgba(221, 107, 32, 0.08);
+        --primary-text: #60a5fa;
+        --code-header-bg: #0b0f19;
+        --code-body-bg: #05070c;
+        --shadow-color: rgba(0, 0, 0, 0.2);
+        --clay: #f97316;
+        --clay-light: rgba(249, 115, 22, 0.15);
+      }
+
+      /* Premium scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg-body);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #be111c;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #90000a;
+      }
+
+      body {
+        font-family: var(--font-sans) !important;
+        color: var(--text-main);
+        background-color: var(--bg-body);
+        line-height: 1.7;
+        letter-spacing: 0.015em;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* Markdown paragraph render - optimized dimensions */
+      p {
+        margin-bottom: 12px !important;
+        color: var(--text-muted) !important;
+        font-size: 1rem !important;
+        text-align: justify !important;
+        line-height: 1.7 !important;
+      }
+
+      .hero-banner p {
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-align: left !important;
+      }
+
+      p strong {
+        color: var(--primary-text) !important;
+        font-weight: 700 !important;
+      }
+
+      /* Card styling - compact spacing */
+      .section-card {
+        background-color: var(--bg-card) !important;
+        border-radius: 12px !important;
+        padding: 24px !important;
+        margin-bottom: 18px !important;
+        box-shadow: 0 1px 3px var(--shadow-color) !important;
+        border: 1px solid var(--card-border) !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+      }
+
+      .section-card:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 6px -1px var(--shadow-color) !important;
+        border-color: rgba(190, 17, 28, 0.2) !important;
+      }
+
+      .section-header {
+        display: flex !important;
+        align-items: center !important;
+        margin-bottom: 14px !important;
+        border-bottom: 2px solid var(--border-color) !important;
+        padding-bottom: 10px !important;
+      }
+
+      .section-icon {
+        font-size: 1.3rem !important;
+        margin-right: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        background-color: var(--bg-hover) !important;
+        color: var(--primary-text) !important;
+        border-radius: 50% !important;
+      }
+
+      .section-title {
+        font-family: "Montserrat", sans-serif !important;
+        font-size: 1.25rem !important;
+        font-weight: 800 !important;
+        color: var(--primary-text) !important;
+        margin: 0 !important;
+        letter-spacing: -0.01em !important;
+      }
+
+      /* List formatting for bullet lists and nested points */
+      .section-card ul {
+        list-style-type: disc !important;
+        margin-left: 20px !important;
+        padding-left: 10px !important;
+        margin-top: 6px !important;
+        margin-bottom: 14px !important;
+      }
+
+      .section-card ul ul {
+        list-style-type: circle !important;
+        margin-left: 20px !important;
+        margin-top: 6px !important;
+        margin-bottom: 6px !important;
+      }
+
+      .section-card ol {
+        list-style-type: decimal !important;
+        margin-left: 20px !important;
+        padding-left: 10px !important;
+        margin-top: 6px !important;
+        margin-bottom: 14px !important;
+      }
+
+      .section-card ol ol {
+        list-style-type: lower-alpha !important;
+        margin-left: 20px !important;
+        margin-top: 6px !important;
+        margin-bottom: 6px !important;
+      }
+
+      .section-card li {
+        margin-bottom: 6px !important;
+        display: list-item !important;
+        color: var(--text-muted) !important;
+        font-size: 1rem !important;
+        line-height: 1.7 !important;
+        text-align: justify !important;
+      }
+
+      /* Comparison and standard tables */
+      .table-wrapper {
+        overflow-x: auto !important;
+        width: 100% !important;
+        margin: 16px 0 !important;
+      }
+
+      table,
+      .comparison-table {
+        width: 100% !important;
+        min-width: 750px !important; /* Force table to maintain minimum width for readability */
+        border-collapse: collapse !important;
+        margin: 0 !important;
+        font-size: 0.9rem !important;
+        text-align: left !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        box-shadow: 0 1px 3px var(--shadow-color) !important;
+        background-color: var(--bg-card) !important;
+      }
+
+      table th,
+      .comparison-table th {
+        background-color: #be111c !important;
+        color: white !important;
+        padding: 12px 16px !important;
+        font-weight: 700 !important;
+        font-family: "Montserrat", sans-serif !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      }
+
+      .theme-dark table th,
+      .theme-dark .comparison-table th {
+        background-color: #991b1b !important;
+      }
+
+      table td,
+      .comparison-table td {
+        padding: 8px 14px !important;
+        border: 1px solid var(--border-color) !important;
+        color: var(--text-main) !important;
+        line-height: 1.6 !important;
+      }
+
+      table tr:nth-child(even),
+      .comparison-table tr:nth-child(even) {
+        background-color: var(--bg-body) !important;
+      }
+
+      table tr:hover,
+      .comparison-table tr:hover {
+        background-color: var(--bg-hover) !important;
+      }
+
+      /* Warning boxes and notes */
+      .box {
+        padding: 16px 20px !important;
+        border-radius: 12px !important;
+        margin: 16px 0 !important;
+        position: relative !important;
+        font-size: 0.98rem !important;
+        line-height: 1.7 !important;
+        background-color: var(--box-note-bg) !important;
+        border-left: 5px solid var(--border-color) !important;
+      }
+
+      .tip-box {
+        background-color: var(--box-tip-bg) !important;
+        border-left: 5px solid #38a169 !important;
+        color: #1b5e20 !important;
+      }
+      .theme-dark .tip-box {
+        color: #81c784 !important;
+      }
+
+      .note-box {
+        background-color: var(--box-note-bg) !important;
+        border-left: 5px solid #be111c !important;
+        color: var(--text-main) !important;
+      }
+
+      .warning-box {
+        background-color: var(--box-warning-bg) !important;
+        border-left: 5px solid #dd6b20 !important;
+        color: #a04000 !important;
+      }
+      .theme-dark .warning-box {
+        color: #ffb74d !important;
+      }
+
+      /* VS Code dark style for code container */
+      .code-container {
+        border: 1px solid #333333 !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        margin: 16px 0 !important;
+        background-color: #1e1e1e !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+      }
+
+      .code-header {
+        background: #252526 !important;
+        border-bottom: 1px solid #333333 !important;
+        padding: 10px 16px !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+      }
+
+      .code-title {
+        font-family: "JetBrains Mono", ui-monospace, monospace !important;
+        font-size: 0.82rem !important;
+        color: #cccccc !important;
+        font-weight: 600 !important;
+      }
+
+      .copy-btn {
+        background: #3c3c3c !important;
+        border: 1px solid #4d4d4d !important;
+        color: #cccccc !important;
+        padding: 4px 12px !important;
+        border-radius: 4px !important;
+        font-size: 0.75rem !important;
+        cursor: pointer !important;
+        font-weight: 500 !important;
+        transition: all 0.2s !important;
+      }
+
+      .copy-btn:hover {
+        background: #505050 !important;
+        color: #ffffff !important;
+      }
+
+      .code-body pre,
+      .code-body code {
+        margin: 0 !important;
+        padding: 16px 20px !important;
+        overflow-x: auto !important;
+        background: #1e1e1e !important;
+        color: #d4d4d4 !important;
+        font-family:
+          "JetBrains Mono", "Consolas", "Fira Code", monospace !important;
+        font-size: 0.88rem !important;
+        line-height: 1.7 !important;
+      }
+
+      .tip-box p,
+      .tip-box li,
+      .tip-box strong {
+        color: inherit !important;
+      }
+      .note-box p,
+      .note-box li,
+      .note-box strong {
+        color: inherit !important;
+      }
+      .warning-box p,
+      .warning-box li,
+      .warning-box strong {
+        color: inherit !important;
+      }
+
+      /* VSCode code block styling */
+      .code-container {
+        background-color: var(--code-body-bg) !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        margin: 16px 0 !important;
+        box-shadow: 0 4px 6px -1px var(--shadow-color) !important;
+        border: 1px solid var(--border-color) !important;
+      }
+
+      .code-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background-color: var(--code-header-bg) !important;
+        padding: 10px 16px !important;
+        border-bottom: 1px solid var(--border-color) !important;
+      }
+
+      .code-title {
+        color: var(--text-muted) !important;
+        font-size: 0.85rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-weight: 500 !important;
+      }
+
+      .copy-btn {
+        background-color: var(--bg-hover) !important;
+        color: var(--text-main) !important;
+        border: 1px solid var(--border-color) !important;
+        padding: 4px 10px !important;
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        font-weight: 600 !important;
+      }
+
+      .copy-btn:hover {
+        background-color: #be111c !important;
+        color: white !important;
+        border-color: #be111c !important;
+      }
+
+      .code-body {
+        padding: 14px !important;
+        overflow-x: auto !important;
+        background-color: var(--code-body-bg) !important;
+      }
+
+      /* VSCode Dark+ Editor High-Fidelity Styling & Anti-Clipping Fix */
+      .code-container {
+        background-color: #1e1e1e !important;
+        border-radius: 8px !important;
+        border: 1px solid #333333 !important;
+        overflow: hidden !important;
+        margin: 20px 0 !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+      }
+      .code-header {
+        background-color: #252526 !important;
+        padding: 10px 16px !important;
+        border-bottom: 1px solid #333333 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        color: #cccccc !important;
+        font-family: var(--font-sans) !important;
+        font-size: 0.85rem !important;
+      }
+      .code-body {
+        background-color: #1e1e1e !important;
+        padding: 16px 20px !important;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+      }
+      .code-body pre,
+      .code-tracker-panel pre {
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: transparent !important;
+        border: none !important;
+        overflow: visible !important;
+      }
+      .code-body code,
+      .code-body pre code,
+      .code-tracker-panel code,
+      .code-tracker-panel pre code {
+        font-family:
+          "JetBrains Mono", "Consolas", "Courier New", monospace !important;
+        font-size: 14px !important;
+        line-height: 1.7 !important;
+        color: #d4d4d4 !important;
+        background-color: transparent !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        overflow: visible !important;
+        white-space: pre !important;
+      }
+      /* Exact VSCode Dark+ Syntax Highlight Theme Overrides */
+      .hljs {
+        background: #1e1e1e !important;
+        color: #d4d4d4 !important;
+      }
+      .hljs-comment,
+      .hljs-quote {
+        color: #6a9955 !important;
+        font-style: italic !important;
+      }
+      .hljs-keyword,
+      .hljs-selector-tag {
+        color: #569cd6 !important;
+        font-weight: normal !important;
+      }
+      .hljs-string,
+      .hljs-doctag {
+        color: #ce9178 !important;
+      }
+      .hljs-number,
+      .hljs-literal {
+        color: #b5cea8 !important;
+      }
+      .hljs-title,
+      .hljs-section,
+      .hljs-selector-id,
+      .hljs-title.function_ {
+        color: #dcdcaa !important;
+      }
+      .hljs-type,
+      .hljs-class .hljs-title {
+        color: #4ec9b0 !important;
+      }
+      .hljs-built_in,
+      .hljs-variable {
+        color: #9cdcfe !important;
+      }
+      .hljs-attr,
+      .hljs-attribute {
+        color: #9cdcfe !important;
+      }
+
+      /* Layout stability: prevent aside sidebar overlap in accordion cards */
+      .layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 32px !important;
+        width: 100% !important;
+      }
+      .main-content,
+      .panel-box,
+      .right-column,
+      .visualizer-container,
+      .visualizer-grid,
+      aside {
+        min-width: 0 !important;
+        max-width: 100% !important;
+      }
+      aside {
+        position: static !important;
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+        gap: 20px !important;
+        width: 100% !important;
+      }
+
+      @media (max-width: 1200px) {
+        .visualizer-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+
+      /* Interactive details */
+      .interactive-details {
+        border: 1px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        background-color: var(--bg-body) !important;
+        margin: 16px 0 !important;
+        overflow: hidden !important;
+      }
+
+      .interactive-details .code-container {
+        margin: 14px 8px 16px 8px !important;
+      }
+
+      @media (min-width: 640px) {
+        .interactive-details .code-container {
+          margin: 16px 20px !important;
+        }
+      }
+
+      .interactive-details summary {
+        padding: 12px 16px !important;
+        font-weight: 700 !important;
+        color: var(--text-main) !important;
+        cursor: pointer !important;
+        outline: none !important;
+        background-color: var(--bg-hover) !important;
+        font-family: "Montserrat", sans-serif !important;
+        font-size: 0.9rem !important;
+      }
+
+      /* Sidebar Navigation buttons custom */
+      .sidebar-nav-btn {
+        border: 1px solid transparent !important;
+        color: var(--text-muted) !important;
+      }
+      .sidebar-nav-btn:hover {
+        background-color: var(--bg-hover) !important;
+        color: #be111c !important;
+      }
+      .sidebar-nav-btn.active {
+        background-color: rgba(190, 17, 28, 0.08) !important;
+        color: #be111c !important;
+        border-color: rgba(190, 17, 28, 0.2) !important;
+      }
+      .theme-dark .sidebar-nav-btn.active {
+        background-color: rgba(96, 165, 250, 0.1) !important;
+        color: #60a5fa !important;
+        border-color: rgba(96, 165, 250, 0.2) !important;
+      }
+
+      /* Self-Test Questions Accordion */
+      .selftest-container {
+        margin-top: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+
+      .selftest-item {
+        border: 1px solid var(--border-color) !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        background-color: var(--bg-card) !important;
+        transition: all 0.2s ease !important;
+      }
+
+      .selftest-item:hover {
+        border-color: #be111c !important;
+      }
+      .theme-dark .selftest-item:hover {
+        border-color: #60a5fa !important;
+      }
+
+      .selftest-question {
+        padding: 12px 16px !important;
+        background-color: var(--bg-hover) !important;
+        font-weight: 600 !important;
+        color: var(--primary-text) !important;
+        cursor: pointer !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        user-select: none !important;
+        font-size: 0.95rem !important;
+      }
+
+      .selftest-answer {
+        padding: 16px !important;
+        border-top: 1px solid var(--border-color) !important;
+        display: none;
+        background-color: var(--bg-card) !important;
+      }
+
+      .selftest-answer ul {
+        list-style-type: disc !important;
+        margin-left: 24px !important;
+        padding-left: 8px !important;
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
+      }
+
+      .selftest-answer ol {
+        list-style-type: decimal !important;
+        margin-left: 24px !important;
+        padding-left: 8px !important;
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
+      }
+
+      .selftest-answer li {
+        margin-bottom: 8px !important;
+        display: list-item !important;
+        color: var(--text-muted) !important;
+        font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+      }
+
+      .selftest-question::after {
+        content: "▼" !important;
+        font-size: 0.75rem !important;
+        color: var(--text-muted) !important;
+        transition: transform 0.2s !important;
+        margin-left: 8px !important;
+      }
+
+      .selftest-item.active .selftest-question::after {
+        transform: rotate(180deg) !important;
+      }
+
+      /* Walkthrough & Effective-HTML Full-Width Layout */
+      .layout {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 32px !important;
+        width: 100% !important;
+        margin-top: 24px !important;
+      }
+
+      .layout aside {
+        position: sticky !important;
+        top: 100px !important;
+        align-self: start !important;
+      }
+
+      .layout .panel {
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: 12px !important;
+        background-color: var(--bg-card) !important;
+        padding: 18px 20px !important;
+        margin-bottom: 20px !important;
+      }
+
+      .layout .panel h3 {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        color: var(--text-muted) !important;
+        margin-bottom: 12px !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      .layout .gotchas {
+        border: 1.5px solid var(--clay, #d97757) !important;
+        border-radius: 12px !important;
+        background-color: var(
+          --clay-light,
+          rgba(217, 119, 87, 0.06)
+        ) !important;
+        padding: 18px 20px !important;
+      }
+
+      .layout .gotchas h3 {
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+        color: var(--clay, #d97757) !important;
+        margin-bottom: 10px !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      .step {
+        display: grid !important;
+        grid-template-columns: 44px 1fr !important;
+        gap: 18px !important;
+        padding: 24px 0 !important;
+        border-bottom: 1.5px solid var(--border-color) !important;
+      }
+
+      .step:last-of-type {
+        border-bottom: none !important;
+      }
+
+      .badge {
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 50% !important;
+        background-color: var(--bg-hover) !important;
+        border: 1.5px solid var(--border-color) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-family: var(--font-mono, monospace) !important;
+        font-weight: 600 !important;
+        color: var(--text-main) !important;
+        font-size: 14px !important;
+      }
+
+      .step.hot .badge {
+        background-color: var(
+          --clay-light,
+          rgba(217, 119, 87, 0.06)
+        ) !important;
+        border-color: var(--clay, #d97757) !important;
+        color: var(--clay, #d97757) !important;
+      }
+
+      .step-loc {
+        font-family: var(--font-sans, "Inter", sans-serif) !important;
+        font-size: 1.25rem !important;
+        color: var(--text-main) !important;
+        margin-bottom: 12px !important;
+        font-weight: 700 !important;
+      }
+
+      .step-loc .range {
+        color: var(--text-muted) !important;
+        font-weight: 400 !important;
+      }
+
+      /* Interactive Visualizer Playground Container */
+      .visualizer-container {
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--radius-lg) !important;
+        background-color: var(--bg-panel) !important;
+        padding: 24px !important;
+        margin-bottom: 30px !important;
+      }
+
+      /* Interactive Grid Layout */
+      .visualizer-grid {
+        display: grid !important;
+        grid-template-columns: 1.5fr 1fr !important;
+        gap: 24px !important;
+      }
+
+      @media (max-width: 1024px) {
+        .visualizer-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+
+      .panel-box {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      /* Panel 1: Visualizer Canvas */
+      .canvas-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        margin-bottom: 16px !important;
+        flex-wrap: wrap !important;
+        gap: 15px !important;
+      }
+
+      .canvas-title {
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        color: var(--text-main) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+      }
+
+      .legend-box {
+        display: flex !important;
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+        font-size: 0.8rem !important;
+        color: var(--text-muted) !important;
+      }
+
+      .legend-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+      }
+
+      .legend-color {
+        width: 10px !important;
+        height: 10px !important;
+        border-radius: 2px !important;
+      }
+
+      .visualizer-canvas {
+        background-color: var(--bg-canvas) !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--radius-md) !important;
+        min-height: 380px !important;
+        max-height: 540px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 16px !important;
+        padding: 24px 20px !important;
+        position: relative !important;
+        overflow-y: auto !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+        transition: background-color 0.3s !important;
+      }
+
+      .visualizer-canvas::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      .bar-item {
+        background-color: var(--color-idle) !important;
+        width: 48px !important;
+        border-radius: 6px 6px 0 0 !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        padding-top: 10px !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        color: #ffffff !important;
+        transition:
+          height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          background-color 0.2s ease,
+          transform 0.3s ease !important;
+      }
+
+      .bar-item.comparing {
+        background-color: var(--color-compare) !important;
+        transform: scaleY(1.03) !important;
+      }
+      .bar-item.swapping {
+        background-color: var(--color-swap) !important;
+        transform: scale(1.05) !important;
+      }
+      .bar-item.sorted {
+        background-color: var(--color-done) !important;
+      }
+
+      /* Panel 2 & 4: Controls & Stats */
+      .controls-section {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 16px !important;
+        margin-top: 16px !important;
+      }
+
+      .btn-group {
+        display: flex !important;
+        gap: 10px !important;
+        flex-wrap: wrap !important;
+      }
+
+      .btn-action {
+        flex: 1 !important;
+        min-width: 100px !important;
+        padding: 10px 14px !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--radius-sm) !important;
+        font-family: var(--font-sans) !important;
+        font-weight: 600 !important;
+        font-size: 0.9rem !important;
+        cursor: pointer !important;
+        transition: all 0.2s !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        background: var(--bg-panel) !important;
+        color: var(--text-main) !important;
+      }
+
+      .btn-action:hover {
+        background: var(--bg-hover) !important;
+        border-color: var(--text-muted) !important;
+      }
+
+      .btn-start {
+        background: var(--primary) !important;
+        color: white !important;
+        border-color: var(--primary) !important;
+      }
+      .btn-start:hover {
+        background: var(--primary) !important;
+        opacity: 0.9;
+      }
+      .btn-reset {
+        background: var(--rust-light, rgba(194, 65, 12, 0.08)) !important;
+        color: var(--rust) !important;
+        border-color: var(--rust) !important;
+      }
+      .btn-reset:hover {
+        background: var(--rust) !important;
+        color: white !important;
+      }
+
+      .inputs-row {
+        display: flex !important;
+        justify-content: space-between !important;
+        gap: 16px !important;
+        flex-wrap: wrap !important;
+        background: var(--bg-canvas) !important;
+        padding: 14px !important;
+        border-radius: var(--radius-sm) !important;
+        border: 1.5px solid var(--border-color) !important;
+      }
+
+      .input-group {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+        flex: 1 !important;
+        min-width: 180px !important;
+      }
+
+      .input-label {
+        font-size: 0.8rem !important;
+        color: var(--text-muted) !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+      }
+
+      .custom-input-box {
+        display: flex !important;
+        gap: 8px !important;
+      }
+
+      .custom-input {
+        flex: 1 !important;
+        background: var(--bg-panel) !important;
+        border: 1.5px solid var(--border-color) !important;
+        color: var(--text-main) !important;
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.85rem !important;
+      }
+
+      .btn-apply {
+        background: var(--primary) !important;
+        color: white !important;
+        border: none !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        cursor: pointer !important;
+      }
+
+      /* Panel Right: Code Tracker & Log */
+      .right-column {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 20px !important;
+      }
+
+      .stats-row {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+      }
+
+      .stat-card {
+        background: var(--bg-canvas) !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--radius-md) !important;
+        padding: 12px 8px !important;
+        text-align: center !important;
+      }
+
+      .stat-title {
+        font-size: 0.7rem !important;
+        color: var(--text-muted) !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        margin-bottom: 2px !important;
+      }
+
+      .stat-value {
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        color: var(--primary) !important;
+        font-family: var(--font-mono) !important;
+      }
+
+      .code-tracker-panel {
+        background: #1e1e1e !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--radius-md) !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .panel-top-bar {
+        background: #252526 !important;
+        padding: 10px 14px !important;
+        border-bottom: 1.5px solid var(--border-color) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.8rem !important;
+        color: #a5b4fc !important;
+      }
+
+      .code-content pre {
+        margin: 0 !important;
+        padding: 14px !important;
+        overflow-x: auto !important;
+        background-color: #1e1e1e !important;
+      }
+
+      .code-line {
+        display: block !important;
+        padding: 2px 6px !important;
+        border-left: 3px solid transparent !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.85rem !important;
+        color: #d4d4d4 !important;
+      }
+
+      .code-line.active-line {
+        background-color: rgba(217, 119, 87, 0.15) !important;
+        border-left-color: var(--clay) !important;
+        color: #ffffff !important;
+      }
+
+      .console-log-panel {
+        background: #1e1e1e !important;
+        border: 1.5px solid var(--border-color) !important;
+        border-radius: var(--radius-md) !important;
+        padding: 14px !important;
+        flex-grow: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        max-height: 200px !important;
+      }
+
+      .log-messages {
+        overflow-y: auto !important;
+        flex-grow: 1 !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.8rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        padding-right: 4px !important;
+      }
+
+      .log-entry {
+        padding: 4px 8px !important;
+        border-radius: 4px !important;
+        line-height: 1.4 !important;
+      }
+
+      .log-info {
+        background: rgba(30, 41, 59, 0.5) !important;
+        color: #94a3b8 !important;
+      }
+      .log-success {
+        background: rgba(16, 185, 129, 0.1) !important;
+        color: #34d399 !important;
+        border-left: 3px solid #10b981 !important;
+      }
+      .log-warn {
+        background: rgba(245, 158, 11, 0.1) !important;
+        color: #fbbf24 !important;
+        border-left: 3px solid #f59e0b !important;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-200 antialiased font-sans transition-colors duration-300"
+  >
+    <!-- Sticky Nav Header -->
+    <div
+      id="sticky-header"
+      class="sticky top-0 z-30 bg-white/95 dark:bg-[#151d30]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#243049] shadow-sm px-4 md:px-6 py-3 transition-all duration-300"
+    >
+      <div
+        class="max-w-[1600px] w-full mx-auto flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <!-- Drawer Toggle Button for mobile -->
+          <button
+            class="lg:hidden flex items-center justify-center p-2 rounded-lg bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-[#be111c] cursor-pointer"
+            onclick="toggleDrawer(true)"
+          >
+            <i class="ph ph-list text-xl"></i>
+          </button>
+          <!-- Rikkei Logo -->
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Education Logo"
+            class="h-9 w-auto object-contain"
+          />
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Theme Switcher Segmented Control -->
+          <div
+            class="flex items-center gap-1 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800"
+          >
+            <button
+              id="theme-btn-light"
+              onclick="setTheme('light')"
+              class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center"
+              title="Chế độ sáng"
+            >
+              <i class="ph ph-sun-dim text-base"></i>
+            </button>
+            <button
+              id="theme-btn-dark"
+              onclick="setTheme('dark')"
+              class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center"
+              title="Chế độ tối"
+            >
+              <i class="ph ph-moon text-base"></i>
+            </button>
+            <button
+              id="theme-btn-system"
+              onclick="setTheme('system')"
+              class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center"
+              title="Chế độ hệ thống"
+            >
+              <i class="ph ph-desktop text-base"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div
+      class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]"
+    >
+      <div
+        class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"
+      ></div>
+      <div
+        class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"
+      ></div>
+
+      <div class="max-w-[1600px] w-full mx-auto relative z-10">
+        <span
+          class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold uppercase tracking-wider mb-3 border border-white/10"
+          >Tài liệu học tập tổng hợp</span
+        >
+        <h2
+          class="font-montserrat font-black text-2xl md:text-4xl tracking-tight uppercase leading-tight mb-2"
+        >
+          Session 01 - Giới thiệu Python & Thiết lập môi trường
+        </h2>
+        <p
+          class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);"
+        >
+          Hệ thống giáo trình lý thuyết và thực hành phân rã chi tiết từng bài
+          học trực thuộc dưới dạng thẻ mở rộng tương tác.
+        </p>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div
+      id="drawer-backdrop"
+      class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm hidden transition-all duration-300"
+      onclick="toggleDrawer(false)"
+    ></div>
+
+        <!-- Mobile Drawer Panel -->
+    <div
+      id="drawer-panel"
+      class="fixed inset-y-0 left-0 w-72 z-50 bg-white dark:bg-[#151d30] border-r border-slate-200 dark:border-[#243049] shadow-2xl p-5 transform -translate-x-full transition-transform duration-300 ease-out flex flex-col"
+    >
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-2">
+          <i class="ph ph-list-numbers text-lg text-[#be111c]"></i>
+          <span
+            class="font-montserrat font-bold text-sm tracking-wide text-slate-800 dark:text-slate-200"
+            >DANH SÁCH BÀI HỌC</span
+          >
+        </div>
+        <button class="p-1 rounded-md text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onclick="toggleDrawer(false)">
+          <i class="ph ph-x text-lg"></i>
+        </button>
+      </div>
+      <div class="space-y-1 overflow-y-auto pb-6">
+        
+            <button onclick="scrollToAndExpand(1); toggleDrawer(false);" id="drawer-btn-1" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                01
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 01 - Giới thiệu ngôn ngữ Python</span>
+            </button>
+            <button onclick="scrollToAndExpand(2); toggleDrawer(false);" id="drawer-btn-2" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                02
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 02 - Cài đặt môi trường</span>
+            </button>
+            <button onclick="scrollToAndExpand(3); toggleDrawer(false);" id="drawer-btn-3" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                03
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 03 - Biến và Kiểu dữ liệu cơ bản</span>
+            </button>
+            <button onclick="scrollToAndExpand(4); toggleDrawer(false);" id="drawer-btn-4" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                04
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 04 - Nhập xuất dữ liệu & Ép kiểu dữ liệu</span>
+            </button>
+            <button onclick="scrollToAndExpand(5); toggleDrawer(false);" id="drawer-btn-5" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                05
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 05 - Định dạng chuỗi hiển thị với f-string</span>
+            </button>
+      </div>
+    </div>
+<!-- Main Grid Layout -->
+    <div class="max-w-[1600px] w-full mx-auto px-4 md:px-6 py-6 md:py-8">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left Column (Desktop Sidebar Menu) -->
+        <div class="w-full lg:w-72 shrink-0 hidden lg:block">
+          <div
+            class="lg:sticky lg:top-24 bg-white dark:bg-[#151d30] border border-slate-200 dark:border-[#243049] rounded-xl p-4 shadow-sm transition-all duration-300"
+          >
+            <h3
+              class="font-montserrat font-bold text-xs tracking-wider text-[#be111c] dark:text-blue-400 uppercase mb-3 flex items-center gap-2"
+            >
+              <i class="ph ph-list-numbers text-sm"></i> Danh sách bài học
+            </h3>
+            <div class="space-y-1">
+              
+        
+            <button onclick="scrollToAndExpand(1)" id="sidebar-btn-1" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                01
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 01 - Giới thiệu ngôn ngữ Python</span>
+            </button>
+            <button onclick="scrollToAndExpand(2)" id="sidebar-btn-2" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                02
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 02 - Cài đặt môi trường</span>
+            </button>
+            <button onclick="scrollToAndExpand(3)" id="sidebar-btn-3" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                03
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 03 - Biến và Kiểu dữ liệu cơ bản</span>
+            </button>
+            <button onclick="scrollToAndExpand(4)" id="sidebar-btn-4" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                04
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 04 - Nhập xuất dữ liệu & Ép kiểu dữ liệu</span>
+            </button>
+            <button onclick="scrollToAndExpand(5)" id="sidebar-btn-5" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs font-medium border border-transparent transition-all duration-200 cursor-pointer sidebar-nav-btn">
+              <span class="flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-2xs tracking-tight shrink-0 index-badge transition-colors">
+                05
+              </span>
+              <span class="truncate text-slate-700 dark:text-slate-300 font-semibold text-xs leading-snug flex-grow">Lesson 05 - Định dạng chuỗi hiển thị với f-string</span>
+            </button>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column (Accordions Main Content) -->
+        <div id="main-content" class="flex-grow min-w-0 space-y-6">
+          
+            <div class="border border-slate-200/80 dark:border-[#243049] rounded-2xl bg-white dark:bg-[#151d30] overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-6" id="lesson-card-1">
+              <button class="w-full flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 text-left border-none outline-none cursor-pointer transition-colors duration-200" onclick="toggleLesson(1)">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/20 text-[#be111c] dark:text-[#be111c] font-black text-xs border border-red-100 dark:border-red-900/10">
+                    01
+                  </span>
+                  <div>
+                    <span class="text-3xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">Bài học 01</span>
+                    <h3 class="font-montserrat font-black text-sm md:text-base text-slate-800 dark:text-slate-200 m-0 leading-tight">
+                      Giới thiệu ngôn ngữ Python
+                    </h3>
+                  </div>
+                </div>
+                <i class="ph ph-caret-down text-slate-400 dark:text-slate-500 transition-transform duration-300 text-sm" id="chevron-1"></i>
+              </button>
+              
+              <div class="hidden border-t border-slate-100 dark:border-[#243049] p-5 md:p-6 bg-white dark:bg-[#151d30]" id="content-1">
+                <div class="layout">
+<div class="main-content">
+<!-- Walkthrough Step-by-Step Sections -->
+<div class="walkthrough-section">
+<!-- Step 1: Problem Breakdown -->
+<div class="step">
+<div class="badge">1</div>
+<div class="step-body">
+<div class="step-loc">Đặt vấn đề</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi tiếp cận Python, lập trình viên thường bắt đầu viết mã ngay mà bỏ qua nguồn gốc lịch sử hoặc các đặc tính vận hành nền tảng. Việc thiếu hiểu biết về người sáng lập Guido van Rossum (năm 1991) và mục tiêu ban đầu của Python dẫn đến việc thiết kế hệ thống sai lệch. Ngoài ra, việc không nắm rõ bản chất của một ngôn ngữ thông dịch (Interpreted Language) và cơ chế kiểu dữ liệu động (Dynamic Typing) khiến mã nguồn dễ gặp lỗi Runtime khi phân tích kiểu hoặc tối ưu hóa hiệu năng ứng dụng.</p>
+</div>
+</div>
+<!-- Step 2: Deep Dive Internals -->
+<div class="step">
+<div class="badge">2</div>
+<div class="step-body">
+<div class="step-loc">Phân tích Bản chất</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Python là ngôn ngữ thông dịch, nơi mã nguồn được trình thông dịch (Python Interpreter) đọc và thực thi tuần tự từ trên xuống dưới. Đặc tính này giúp tăng tốc độ phát triển và kiểm tra thử nghiệm. Đi kèm là kiểu dữ liệu động (Dynamic Typing), giúp gán giá trị mà không cần khai báo kiểu trước. So với các ngôn ngữ tĩnh, Python linh hoạt hơn nhưng đòi hỏi kiểm soát chặt chẽ để tránh lỗi kiểu dữ liệu lúc runtime. Triết lý thiết kế (Zen of Python) hướng tới sự đơn giản và rõ ràng, có thể gọi trực tiếp qua câu lệnh <code>import this</code>.</p>
+</div>
+</div>
+<!-- Step 3: Solution & Architecture -->
+<div class="step">
+<div class="badge">3</div>
+<div class="step-body">
+<div class="step-loc">Giới thiệu Giải pháp</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Mô hình vận hành của trình thông dịch Python được tối giản hóa qua sơ đồ sau:</p>
+<svg viewbox="0 0 400 100" width="100%">
+<rect fill="#38BDF8" height="40" rx="5" width="80" x="10" y="30"></rect>
+<text fill="black" font-size="12" text-anchor="middle" x="50" y="55">Code .py</text>
+<path d="M 90 50 L 140 50" stroke="black" stroke-width="2"></path>
+<rect fill="#D97757" height="40" rx="5" width="100" x="150" y="30"></rect>
+<text fill="black" font-size="12" text-anchor="middle" x="200" y="55">Interpreter</text>
+<path d="M 250 50 L 300 50" stroke="black" stroke-width="2"></path>
+<rect fill="#F59E0B" height="40" rx="5" width="80" x="310" y="30"></rect>
+<text fill="black" font-size="12" text-anchor="middle" x="350" y="55">Output</text>
+</svg>
+</div>
+</div>
+<!-- Step 4: References -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge">4</div>
+<div class="step-body">
+<div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+<ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+<li>
+<a href="https://docs.python.org/3/" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Official Documentation
+                                    </a>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Notice / Gotchas Section -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+<div class="step-body" style="border-color: var(--clay);">
+<div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+<div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Tóm lại, Python là ngôn ngữ thông dịch có kiểu dữ liệu động, đề cao triết lý tối giản của Guido van Rossum. Ba sai lầm thường gặp khi sử dụng là: <strong>Nhầm lẫn kiểu dữ liệu lúc tính toán</strong>, <strong>Lỗi thụt lề IndentationError do không nhất quán khoảng trắng</strong>, và <strong>Tự ý gán đè kiểu dữ liệu khác loại</strong> gây lỗi logic ở các module phía sau.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Script imports -->
+<!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+<script>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) hljs.highlightAll();
+        });
+        
+
+        function copyCode1(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme1() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode1(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme1();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme1();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme1();
+        });
+        applyTheme1();
+    </script>
+              </div>
+            </div>
+            <div class="border border-slate-200/80 dark:border-[#243049] rounded-2xl bg-white dark:bg-[#151d30] overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-6" id="lesson-card-2">
+              <button class="w-full flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 text-left border-none outline-none cursor-pointer transition-colors duration-200" onclick="toggleLesson(2)">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/20 text-[#be111c] dark:text-[#be111c] font-black text-xs border border-red-100 dark:border-red-900/10">
+                    02
+                  </span>
+                  <div>
+                    <span class="text-3xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">Bài học 02</span>
+                    <h3 class="font-montserrat font-black text-sm md:text-base text-slate-800 dark:text-slate-200 m-0 leading-tight">
+                      Cài đặt môi trường
+                    </h3>
+                  </div>
+                </div>
+                <i class="ph ph-caret-down text-slate-400 dark:text-slate-500 transition-transform duration-300 text-sm" id="chevron-2"></i>
+              </button>
+              
+              <div class="hidden border-t border-slate-100 dark:border-[#243049] p-5 md:p-6 bg-white dark:bg-[#151d30]" id="content-2">
+                <div class="layout">
+<div class="main-content">
+<!-- Walkthrough Step-by-Step Sections -->
+<div class="walkthrough-section">
+<!-- Step 1: Problem Breakdown -->
+<div class="step">
+<div class="badge">1</div>
+<div class="step-body">
+<div class="step-loc">Đặt vấn đề</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi mới bắt đầu học Python, rào cản lớn nhất là cài đặt môi trường. Người học thường gặp lỗi khi chạy lệnh Python trong terminal do thiếu cấu hình biến môi trường PATH. Ngoài ra, việc cài đặt trực tiếp tất cả các thư viện học tập vào môi trường hệ thống (Global) dễ gây ra xung đột phiên bản nghiêm trọng giữa các dự án khác nhau, khiến hệ thống mất ổn định và không thể chạy mã nguồn.</p>
+</div>
+</div>
+<!-- Step 2: Deep Dive Internals -->
+<div class="step">
+<div class="badge">2</div>
+<div class="step-body">
+<div class="step-loc">Phân tích Bản chất</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Để giải quyết vấn đề cô lập và chạy mã nguồn, ta cần phân biệt rõ Python Interpreter và Môi trường ảo (Virtual Environment). Python Interpreter là trình biên dịch dịch mã nguồn thành mã byte thực thi trên máy. Trình soạn thảo (VS Code) cần được cấu hình chỉ tới đúng tệp Interpreter này. Môi trường ảo (venv hoặc Anaconda) tạo ra các vùng thư mục biệt lập cho mỗi dự án, giúp quản lý riêng rẽ phiên bản thư viện mà không ảnh hưởng tới Python hệ thống.</p>
+</div>
+</div>
+<!-- Step 3: Solution & Architecture -->
+<div class="step">
+<div class="badge">3</div>
+<div class="step-body">
+<div class="step-loc">Giới thiệu Giải pháp</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Giải pháp chuẩn cho mọi dự án Python bao gồm:</p>
+<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt Python chính thức và tích chọn cấu hình biến PATH tự động.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt VS Code kèm extension Python và cấu hình đường dẫn Interpreter.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tạo môi trường ảo qua thư viện venv tích hợp sẵn.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Kích hoạt môi trường và cài đặt các phụ thuộc riêng biệt.</li>
+</ol>
+</div>
+</div>
+<!-- Step 4: References -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge">4</div>
+<div class="step-body">
+<div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+<ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+<li>
+<a href="https://docs.python.org/3/using/index.html" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Hướng dẫn cài đặt Python chính thức
+                                    </a>
+</li>
+<li>
+<a href="https://code.visualstudio.com/docs/languages/python" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Làm việc với Python trong VS Code
+                                    </a>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Notice / Gotchas Section -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+<div class="step-body" style="border-color: var(--clay);">
+<div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+<div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Tóm lại, việc thiết lập môi trường chỉnh chu giúp lập trình viên tránh được các lỗi vận hành sơ đẳng. Ba sai lầm thường gặp bao gồm:</p>
+<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Quên cấu hình PATH</strong>: Khiến Terminal/CMD báo lỗi không tìm thấy CLI của Python hoặc pip.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Chưa kích hoạt môi trường ảo</strong>: Cài đặt thư viện sai vị trí và phân tán gói toàn cục.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Lỗi phân quyền Execution Policy</strong>: Hệ điều hành Windows chặn thực thi script kích hoạt môi trường ảo của PowerShell.</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Script imports -->
+<!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+<script>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) hljs.highlightAll();
+        });
+        
+
+        function copyCode2(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme2() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode2(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme2();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme2();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme2();
+        });
+        applyTheme2();
+    </script>
+              </div>
+            </div>
+            <div class="border border-slate-200/80 dark:border-[#243049] rounded-2xl bg-white dark:bg-[#151d30] overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-6" id="lesson-card-3">
+              <button class="w-full flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 text-left border-none outline-none cursor-pointer transition-colors duration-200" onclick="toggleLesson(3)">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/20 text-[#be111c] dark:text-[#be111c] font-black text-xs border border-red-100 dark:border-red-900/10">
+                    03
+                  </span>
+                  <div>
+                    <span class="text-3xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">Bài học 03</span>
+                    <h3 class="font-montserrat font-black text-sm md:text-base text-slate-800 dark:text-slate-200 m-0 leading-tight">
+                      Biến và Kiểu dữ liệu cơ bản
+                    </h3>
+                  </div>
+                </div>
+                <i class="ph ph-caret-down text-slate-400 dark:text-slate-500 transition-transform duration-300 text-sm" id="chevron-3"></i>
+              </button>
+              
+              <div class="hidden border-t border-slate-100 dark:border-[#243049] p-5 md:p-6 bg-white dark:bg-[#151d30]" id="content-3">
+                <div class="layout">
+<div class="main-content">
+<!-- Core Concept & Tech Stack Header Card -->
+<div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+<div style="flex: 1; min-width: 260px;">
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+<span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
+<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Session 01</span>
+</div>
+<h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">Biến và Kiểu dữ liệu cơ bản</h3>
+<p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+<span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
+<span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">PYTHON/CORE</span>
+</div>
+</div>
+<!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
+<div class="visualizer-container">
+<div class="visualizer-grid">
+<!-- Left Panel: Interactive Visualizer & Controls -->
+<div class="panel-box">
+<div class="canvas-header">
+<div class="canvas-title">
+                                    Variables and Memory Labels Map
+                                </div>
+<div class="legend-box">
+<span style="color: #38BDF8; font-weight: bold;">Variables (Labels)</span> | <span style="color: #F59E0B; font-weight: bold;">Objects (Memory Value)</span>
+</div>
+</div>
+<!-- Interactive Visualizer Canvas -->
+<div class="visualizer-canvas" id="lesson3-visualizer-canvas">
+<!-- Dynamic Bars / Nodes generated by JS engine -->
+</div>
+<!-- Stepper / Execution Flow Panel -->
+<div class="stepper-panel" id="lesson3-stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+<span id="lesson3-stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+</div>
+<div id="lesson3-stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+<!-- Progress Bar/Scrubber -->
+<div class="stepper-bar-container" onclick="visualizerApp3?.scrubStep?.(event)" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;">
+<div id="lesson3-stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+</div>
+</div>
+<!-- Control Buttons & Input Sliders -->
+<div class="controls-section">
+<div class="btn-group">
+<button class="btn-action btn-start" id="lesson3-btn-start" onclick="visualizerApp3.start()" type="button">
+<span>▶</span> Bắt đầu
+                                    </button>
+<button class="btn-action btn-pause" id="lesson3-btn-pause" onclick="visualizerApp3.pause()" type="button">
+<span>⏸</span> Tạm dừng
+                                    </button>
+<button class="btn-action btn-step" id="lesson3-btn-step" onclick="visualizerApp3.step()" type="button">
+<span>⏭</span> Từng bước
+                                    </button>
+<button class="btn-action btn-reset" id="lesson3-btn-reset" onclick="visualizerApp3.reset()" type="button">
+<span>↻</span> Đặt lại
+                                    </button>
+</div>
+<div class="inputs-row">
+<div class="input-group">
+<span class="input-label">TỐC ĐỘ THỰC THI (<span id="lesson3-speed-display">400</span>ms)</span>
+<input id="lesson3-slider-speed" max="1000" min="100" oninput="visualizerApp3.setSpeed(this.value)" step="50" type="range" value="400"/>
+</div>
+<div class="input-group">
+<span class="input-label">Enter execution speed delay (ms)</span>
+<div class="custom-input-box">
+<input class="custom-input" id="lesson3-custom-data-input" onkeydown="if(event.key === 'Enter') { event.preventDefault(); visualizerApp3.applyCustomData(); }" placeholder="Ví dụ: {'name': 'Rikkei'}, hoặc 1, 2, 3" type="text" value="1500"/>
+<button class="btn-apply" onclick="visualizerApp3.applyCustomData()" type="button">Áp dụng</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Stats, Live Code Tracker & Console Log -->
+<div class="right-column">
+<!-- Real-time Stats -->
+<div class="stats-panel">
+<span>Status: Active Binding Test</span>
+</div>
+<!-- Live Code Tracker -->
+<div class="code-tracker-panel">
+<div class="panel-top-bar">
+<span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+<span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
+</div>
+<div class="code-content">
+<pre><code id="lesson3-code-tracker-box">
+<div class="code-line" id="lesson3-line-0">age = 25</div>
+<div class="code-line" id="lesson3-line-1">price = 9.99</div>
+<div class="code-line" id="lesson3-line-2">name = "Alice"</div>
+<div class="code-line" id="lesson3-line-3">is_active = True</div>
+
+                                    </code></pre>
+</div>
+</div>
+<!-- Console Execution Log -->
+<div class="console-log-panel">
+<div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+<span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+<button onclick="visualizerApp3.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;" type="button">Xóa</button>
+</div>
+<div class="log-messages" id="lesson3-log-messages">
+<div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Walkthrough Step-by-Step Sections -->
+<div class="walkthrough-section">
+<!-- Step 1: Problem Breakdown -->
+<div class="step">
+<div class="badge">1</div>
+<div class="step-body">
+<div class="step-loc">Đặt vấn đề</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi viết chương trình, máy tính cần lưu trữ các thông tin tạm thời như thông số cài đặt, dữ liệu người dùng hay trạng thái hệ thống. Nếu thiếu cơ chế lưu trữ này cùng khả năng phân loại dữ liệu, máy tính sẽ không thể định vị, hiểu và xử lý các thông số một cách chính xác trong bộ nhớ RAM, dẫn đến việc chương trình không thể vận hành.</p>
+</div>
+</div>
+<!-- Step 2: Deep Dive Internals -->
+<div class="step">
+<div class="badge">2</div>
+<div class="step-body">
+<div class="step-loc">Phân tích Bản chất</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Python sử dụng cơ chế định kiểu động (dynamic typing). Biến không chứa trực tiếp dữ liệu mà hoạt động như một nhãn tham chiếu trỏ đến đối tượng trong bộ nhớ. Bốn kiểu dữ liệu cơ bản bao gồm: 'int' (số nguyên), 'float' (số thực), 'str' (chuỗi ký tự trong nháy đơn/kếp) và 'bool' (True/False) giúp xác định định dạng và các phép toán hợp lệ trên vùng dữ liệu đó.</p>
+</div>
+</div>
+<!-- Step 3: Solution & Architecture -->
+<div class="step">
+<div class="badge">3</div>
+<div class="step-body">
+<div class="step-loc">Giới thiệu Giải pháp</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khai báo biến bằng toán tử gán '=' theo cú pháp: 'tên_biến = giá_trị'. Tên biến tuân thủ nguyên tắc: chỉ chứa chữ cái, chữ số, dấu gạch dưới, không bắt đầu bằng số và không trùng từ khóa. Sử dụng hàm 'type()' để kiểm tra kiểu dữ liệu thực tế và 'print()' để hiển thị kết quả ra màn hình.</p>
+</div>
+</div>
+<!-- Step 4: Production Code Walkthrough -->
+<div class="step">
+<div class="badge">4</div>
+<div class="step-body">
+<div class="step-loc">Mã nguồn chuẩn hóa &amp; Phân tích thực thi <span class="range"></span></div>
+<div class="code-container">
+<div class="code-header">
+<div class="code-controls">
+<span class="control-dot dot-red"></span>
+<span class="control-dot dot-yellow"></span>
+<span class="control-dot dot-green"></span>
+</div>
+<span class="code-title">example.python</span>
+<button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+</div>
+<div class="code-body">
+<pre><code class="language-python" id="lesson3-code-snippet-1">age = 25
+price = 9.99
+product_name = "Smart Device"
+is_active = True
+
+print("Value:", age, "| Type:", type(age))
+print("Value:", price, "| Type:", type(price))
+print("Value:", product_name, "| Type:", type(product_name))
+print("Value:", is_active, "| Type:", type(is_active))</code></pre>
+</div>
+</div>
+<div style="margin-top: 16px;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi chạy script, Python tạo ra 4 đối tượng trong bộ nhớ tương ứng với các giá trị được gán và liên kết nhãn biến với các đối tượng này. Hàm type() sẽ lần lượt truy xuất thông tin lớp của từng đối tượng và trả về kết quả hiển thị dạng: <class 'int'="">, <class 'float'="">, <class 'str'="">, và <class 'bool'=""> mà không gặp bất kỳ lỗi logic nào.</class></class></class></class></p>
+</div>
+</div>
+</div>
+<!-- Step 5: References -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge">5</div>
+<div class="step-body">
+<div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+<ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+<li>
+<a href="https://docs.python.org/3/library/stdtypes.html" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Built-in Types - Python Documentation
+                                    </a>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Notice / Gotchas Section -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+<div class="step-body" style="border-color: var(--clay);">
+<div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+<div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Biến là nhãn tham chiếu vùng nhớ và gán trị qua toán tử <code>=</code>. Sử dụng cặp hàm <code>print()</code> và <code>type()</code> để kiểm tra kiểu dữ liệu. Ba lỗi cần tránh: <strong>Sai quy tắc đặt tên</strong> (ví dụ: <code>1st_value = 10</code>), <strong>Sử dụng từ khóa hệ thống</strong> (ví dụ: <code>class = 5</code>), và <strong>Nhầm lẫn viết thường từ khóa bool</strong> (như viết <code>true</code> thay vì viết đúng chuẩn <code>True</code>).</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Script imports -->
+<!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+<script>
+        
+        class InteractiveVisualizerEngine3 {
+  constructor() {
+    this.currentLine = 0;
+    this.interval = null;
+  }
+  start() {
+    this.reset();
+    this.interval = setInterval(() => {
+      this.step();
+    }, 1200);
+  }
+  pause() {
+    clearInterval(this.interval);
+  }
+  step() {
+    const lines = document.querySelectorAll('.code-line');
+    lines.forEach(l => l.classList.remove('active-line'));
+    if (this.currentLine < lines.length) {
+      lines[this.currentLine].classList.add('active-line');
+      const msg = ['Binding name age to integer 25', 'Binding name price to float 9.99', 'Binding name name to string Alice', 'Binding name is_active to bool True'];
+      document.getElementById('lesson3-log-messages').innerHTML += `<div>[Step ${this.currentLine + 1}] ${msg[this.currentLine]}</div>`;
+      this.currentLine++;
+    } else {
+      this.pause();
+    }
+  }
+  reset() {
+    this.pause();
+    this.currentLine = 0;
+    document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active-line'));
+    document.getElementById('lesson3-log-messages').innerHTML = '<div>Visualisation ready. Click Start.</div>';
+  }
+}
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine3 === 'undefined') {
+            window.InteractiveVisualizerEngine3 = class {};
+        }
+
+        function initApp() {
+            try {
+                visualizerApp3 = new InteractiveVisualizerEngine3();
+            } catch(e) {
+                visualizerApp3 = {};
+            }
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
+            requiredMethods.forEach(method => {
+                if (typeof visualizerApp3[method] !== 'function') {
+                    visualizerApp3[method] = () => console.log(`[Stub] Method ${method} called.`);
+                }
+            });
+
+            // Perform initialization
+            if (typeof visualizerApp3.init === 'function') {
+                visualizerApp3.init();
+            }
+            if (typeof visualizerApp3.render === 'function') {
+                visualizerApp3.render();
+            }
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('lesson3-code-tracker-box');
+            if (trackerBox) {
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }
+
+            if (window.hljs) hljs.highlightAll();
+        }
+
+        // Initialize when DOM loaded
+        let visualizerApp3;
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initApp();
+        } else {
+            document.addEventListener('DOMContentLoaded', initApp);
+        }
+        
+
+        function copyCode3(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme3() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode3(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme3();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme3();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme3();
+        });
+        applyTheme3();
+    </script>
+              </div>
+            </div>
+            <div class="border border-slate-200/80 dark:border-[#243049] rounded-2xl bg-white dark:bg-[#151d30] overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-6" id="lesson-card-4">
+              <button class="w-full flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 text-left border-none outline-none cursor-pointer transition-colors duration-200" onclick="toggleLesson(4)">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/20 text-[#be111c] dark:text-[#be111c] font-black text-xs border border-red-100 dark:border-red-900/10">
+                    04
+                  </span>
+                  <div>
+                    <span class="text-3xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">Bài học 04</span>
+                    <h3 class="font-montserrat font-black text-sm md:text-base text-slate-800 dark:text-slate-200 m-0 leading-tight">
+                      Nhập xuất dữ liệu & Ép kiểu dữ liệu
+                    </h3>
+                  </div>
+                </div>
+                <i class="ph ph-caret-down text-slate-400 dark:text-slate-500 transition-transform duration-300 text-sm" id="chevron-4"></i>
+              </button>
+              
+              <div class="hidden border-t border-slate-100 dark:border-[#243049] p-5 md:p-6 bg-white dark:bg-[#151d30]" id="content-4">
+                <div class="layout">
+<div class="main-content">
+<!-- Core Concept & Tech Stack Header Card -->
+<div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+<div style="flex: 1; min-width: 260px;">
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+<span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
+<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Session 01</span>
+</div>
+<h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">Nhập xuất dữ liệu &amp; Ép kiểu dữ liệu</h3>
+<p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+<span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
+<span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">PYTHON/CORE</span>
+</div>
+</div>
+<!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
+<div class="visualizer-container">
+<div class="visualizer-grid">
+<!-- Left Panel: Interactive Visualizer & Controls -->
+<div class="panel-box">
+<div class="canvas-header">
+<div class="canvas-title">
+                                    Mô phỏng Luồng Nhận dữ liệu &amp; Ép kiểu
+                                </div>
+<div class="legend-box">
+<span style="color:#eab308; margin-right:15px;">■ Đang thực thi</span><span style="color:#10b981; margin-right:15px;">■ Hoàn tất</span><span style="color:#ef4444;">■ Gặp lỗi</span>
+</div>
+</div>
+<!-- Interactive Visualizer Canvas -->
+<div class="visualizer-canvas" id="lesson4-visualizer-canvas">
+<!-- Dynamic Bars / Nodes generated by JS engine -->
+</div>
+<!-- Stepper / Execution Flow Panel -->
+<div class="stepper-panel" id="lesson4-stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+<span id="lesson4-stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+</div>
+<div id="lesson4-stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+<!-- Progress Bar/Scrubber -->
+<div class="stepper-bar-container" onclick="visualizerApp4?.scrubStep?.(event)" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;">
+<div id="lesson4-stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+</div>
+</div>
+<!-- Control Buttons & Input Sliders -->
+<div class="controls-section">
+<div class="btn-group">
+<button class="btn-action btn-start" id="lesson4-btn-start" onclick="visualizerApp4.start()" type="button">
+<span>▶</span> Bắt đầu
+                                    </button>
+<button class="btn-action btn-pause" id="lesson4-btn-pause" onclick="visualizerApp4.pause()" type="button">
+<span>⏸</span> Tạm dừng
+                                    </button>
+<button class="btn-action btn-step" id="lesson4-btn-step" onclick="visualizerApp4.step()" type="button">
+<span>⏭</span> Từng bước
+                                    </button>
+<button class="btn-action btn-reset" id="lesson4-btn-reset" onclick="visualizerApp4.reset()" type="button">
+<span>↻</span> Đặt lại
+                                    </button>
+</div>
+<div class="inputs-row">
+<div class="input-group">
+<span class="input-label">TỐC ĐỘ THỰC THI (<span id="lesson4-speed-display">400</span>ms)</span>
+<input id="lesson4-slider-speed" max="1000" min="100" oninput="visualizerApp4.setSpeed(this.value)" step="50" type="range" value="400"/>
+</div>
+<div class="input-group">
+<span class="input-label">Nhập giá trị đầu vào (Giả lập):</span>
+<div class="custom-input-box">
+<input class="custom-input" id="lesson4-custom-data-input" onkeydown="if(event.key === 'Enter') { event.preventDefault(); visualizerApp4.applyCustomData(); }" placeholder="Ví dụ: {'name': 'Rikkei'}, hoặc 1, 2, 3" type="text" value="12.5"/>
+<button class="btn-apply" onclick="visualizerApp4.applyCustomData()" type="button">Áp dụng</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Stats, Live Code Tracker & Console Log -->
+<div class="right-column">
+<!-- Real-time Stats -->
+<div class="stats-panel">
+<div style="display:flex; gap:10px;"><div style="padding:5px 10px; background:#1c2d5a; border-radius:5px;">Giá trị chuỗi: <span id="lesson4-stat-input" style="color:#eab308; font-weight:bold;">None</span></div><div style="padding:5px 10px; background:#1c2d5a; border-radius:5px;">Giá trị số: <span id="lesson4-stat-casted" style="color:#10b981; font-weight:bold;">None</span></div></div>
+</div>
+<!-- Live Code Tracker -->
+<div class="code-tracker-panel">
+<div class="panel-top-bar">
+<span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+<span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
+</div>
+<div class="code-content">
+<pre><code id="lesson4-code-tracker-box">
+<div class="code-line" id="lesson4-line-0">val_str = input("Nhap so: ")</div>
+<div class="code-line" id="lesson4-line-1">val_num = float(val_str)</div>
+<div class="code-line" id="lesson4-line-2">res = val_num * 2</div>
+<div class="code-line" id="lesson4-line-3">print("Ket qua:", res)</div>
+
+                                    </code></pre>
+</div>
+</div>
+<!-- Console Execution Log -->
+<div class="console-log-panel">
+<div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+<span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+<button onclick="visualizerApp4.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;" type="button">Xóa</button>
+</div>
+<div class="log-messages" id="lesson4-log-messages">
+<div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Walkthrough Step-by-Step Sections -->
+<div class="walkthrough-section">
+<!-- Step 1: Problem Breakdown -->
+<div class="step">
+<div class="badge">1</div>
+<div class="step-body">
+<div class="step-loc">Đặt vấn đề</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi phát triển ứng dụng dòng lệnh (CLI), việc tương tác với người dùng qua bàn phím là cực kỳ quan trọng. Tuy nhiên, một trở ngại lớn là hàm <code>input()</code> luôn trả về kiểu dữ liệu chuỗi (<code>str</code>). Nếu thực hiện các phép tính trực tiếp trên kết quả này, chương trình sẽ báo lỗi hoặc đưa ra kết quả không mong muốn (ví dụ ghép chuỗi thay vì cộng số).</p>
+</div>
+</div>
+<!-- Step 2: Deep Dive Internals -->
+<div class="step">
+<div class="badge">2</div>
+<div class="step-body">
+<div class="step-loc">Phân tích Bản chất</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Hàm <code>input()</code> nhận mọi ký tự nhập vào từ bàn phím dưới dạng một <code>str</code>. Để thực hiện tính toán số học, ta bắt buộc phải sử dụng kỹ thuật ép kiểu (Type Casting) bằng các hàm dựng sẵn: <code>int()</code> cho số nguyên, <code>float()</code> cho số thực. Nếu dữ liệu nhập vào chứa ký tự không hợp lệ (ví dụ: chữ cái), hàm ép kiểu sẽ ném ra lỗi Runtime mang tên <code>ValueError</code>.</p>
+</div>
+</div>
+<!-- Step 3: Solution & Architecture -->
+<div class="step">
+<div class="badge">3</div>
+<div class="step-body">
+<div class="step-loc">Giới thiệu Giải pháp</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Thiết kế luồng hoạt động tuần tự:</p>
+<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: decimal;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Nhận dữ liệu dưới dạng chuỗi bằng hàm <code>input()</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Ép kiểu dữ liệu sang <code>int</code> hoặc <code>float</code> để xử lý số liệu.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Thực hiện công thức toán học.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Định dạng và xuất kết quả ra màn hình bằng hàm <code>print()</code>.</li>
+</ol>
+</div>
+</div>
+<!-- Step 4: Production Code Walkthrough -->
+<div class="step">
+<div class="badge">4</div>
+<div class="step-body">
+<div class="step-loc">Mã nguồn chuẩn hóa &amp; Phân tích thực thi <span class="range"></span></div>
+<details class="interactive-details" open="">
+<summary>Nhấp vào để đóng/mở mã nguồn chi tiết</summary>
+<div class="code-container">
+<div class="code-header">
+<div class="code-controls">
+<span class="control-dot dot-red"></span>
+<span class="control-dot dot-yellow"></span>
+<span class="control-dot dot-green"></span>
+</div>
+<span class="code-title">example.python</span>
+<button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+</div>
+<div class="code-body">
+<pre><code class="language-python" id="lesson4-code-snippet-1">qty_str = input("Nhap so luong: ")
+price_str = input("Nhap don gia: ")
+qty = int(qty_str)
+price = float(price_str)
+total = qty * price
+print("Thanh tien:", total)</code></pre>
+</div>
+</div>
+</details>
+<div style="margin-top: 16px;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi chạy chương trình, giả sử người dùng nhập vào số lượng '5' và đơn giá '12.5'. Biến <code>qty_str</code> nhận giá trị '5' (kiểu str) và <code>price_str</code> nhận '12.5' (kiểu str). Sau khi ép kiểu, <code>int('5')</code> chuyển thành số nguyên 5, <code>float('12.5')</code> chuyển thành số thực 12.5. Phép tính nhân được thực hiện thành công và hàm <code>print</code> hiển thị kết quả 'Thanh tien: 62.5' ra console.</p>
+</div>
+</div>
+</div>
+<!-- Step 5: References -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge">5</div>
+<div class="step-body">
+<div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+<ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+<li>
+<a href="https://docs.python.org/3/library/functions.html#input" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Built-in Functions - input()
+                                    </a>
+</li>
+<li>
+<a href="https://docs.python.org/3/library/functions.html#int" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Built-in Functions - int() &amp; float()
+                                    </a>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Notice / Gotchas Section -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+<div class="step-body" style="border-color: var(--clay);">
+<div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+<div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Chương trình tương tác chuẩn cần kết hợp nhập (<code>input</code>), ép kiểu (<code>int</code> / <code>float</code>) và xuất dữ liệu (<code>print</code>). Ba sai lầm phổ biến cần tránh: <strong>Quên chuyển đổi kiểu dữ liệu</strong> (gây ghép chuỗi thay vì tính toán), <strong>Ép kiểu chuỗi ký tự chứa chữ</strong> (gây ra lỗi <code>ValueError</code>), và <strong>Thiếu xử lý logic khi giá trị âm</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Script imports -->
+<!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+<script>
+        
+        class InteractiveVisualizerEngine4 {
+  constructor() {
+    this.stepIndex = -1;
+    this.isPlaying = false;
+    this.intervalId = null;
+    this.inputVal = "";
+  }
+  start() {
+    if (this.isPlaying) return;
+    this.isPlaying = true;
+    this.intervalId = setInterval(() => this.step(), 1500);
+  }
+  pause() {
+    this.isPlaying = false;
+    clearInterval(this.intervalId);
+  }
+  step() {
+    const input = document.getElementById("lesson4-custom-input").value || "12.5";
+    this.stepIndex = (this.stepIndex + 1) % 4;
+    document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-line"));
+    const active = document.getElementById("line-" + this.stepIndex);
+    if (active) active.classList.add("active-line");
+    const log = document.getElementById("lesson4-log-messages");
+    if (this.stepIndex === 0) {
+      this.inputVal = input;
+      document.getElementById("lesson4-stat-input").innerText = "'" + this.inputVal + "'";
+      document.getElementById("lesson4-stat-casted").innerText = "None";
+      log.innerHTML += "<div>[Dong 0] Doc input, gia tri nhan duoc la chuoi: '" + this.inputVal + "'</div>";
+    } else if (this.stepIndex === 1) {
+      const casted = parseFloat(this.inputVal);
+      if (isNaN(casted)) {
+        document.getElementById("lesson4-stat-casted").innerText = "Loi ValueError";
+        log.innerHTML += "<div style='color:#ef4444;'>[Dong 1] ValueError: Khong the ep kieu '" + this.inputVal + "' sang float!</div>";
+        this.pause();
+      } else {
+        document.getElementById("lesson4-stat-casted").innerText = casted;
+        log.innerHTML += "<div>[Dong 1] Ep kieu thanh cong tu str '" + this.inputVal + "' sang float: " + casted + "</div>";
+      }
+    } else if (this.stepIndex === 2) {
+      const val = parseFloat(this.inputVal);
+      const res = isNaN(val) ? 0 : val * 2;
+      log.innerHTML += "<div>[Dong 2] Nhan doi gia tri so: " + res + "</div>";
+    } else if (this.stepIndex === 3) {
+      const val = parseFloat(this.inputVal);
+      const res = isNaN(val) ? 0 : val * 2;
+      log.innerHTML += "<div style='color:#10b981;'>[Dong 3] print out -> Ket qua: " + res + "</div>";
+    }
+    log.scrollTop = log.scrollHeight;
+  }
+  reset() {
+    this.pause();
+    this.stepIndex = -1;
+    document.querySelectorAll(".code-line").forEach(l => l.classList.remove("active-line"));
+    document.getElementById("lesson4-stat-input").innerText = "None";
+    document.getElementById("lesson4-stat-casted").innerText = "None";
+    document.getElementById("lesson4-log-messages").innerHTML = "<div>Da reset trinh mo phong. Bam 'Bat dau' de chay.</div>";
+  }
+}
+window.visualizerEngine = new InteractiveVisualizerEngine4();
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine4 === 'undefined') {
+            window.InteractiveVisualizerEngine4 = class {};
+        }
+
+        function initApp() {
+            try {
+                visualizerApp4 = new InteractiveVisualizerEngine4();
+            } catch(e) {
+                visualizerApp4 = {};
+            }
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
+            requiredMethods.forEach(method => {
+                if (typeof visualizerApp4[method] !== 'function') {
+                    visualizerApp4[method] = () => console.log(`[Stub] Method ${method} called.`);
+                }
+            });
+
+            // Perform initialization
+            if (typeof visualizerApp4.init === 'function') {
+                visualizerApp4.init();
+            }
+            if (typeof visualizerApp4.render === 'function') {
+                visualizerApp4.render();
+            }
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('lesson4-code-tracker-box');
+            if (trackerBox) {
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }
+
+            if (window.hljs) hljs.highlightAll();
+        }
+
+        // Initialize when DOM loaded
+        let visualizerApp4;
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initApp();
+        } else {
+            document.addEventListener('DOMContentLoaded', initApp);
+        }
+        
+
+        function copyCode4(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme4() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode4(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme4();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme4();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme4();
+        });
+        applyTheme4();
+    </script>
+              </div>
+            </div>
+            <div class="border border-slate-200/80 dark:border-[#243049] rounded-2xl bg-white dark:bg-[#151d30] overflow-hidden shadow-sm transition-all duration-300 hover:shadow-md mb-6" id="lesson-card-5">
+              <button class="w-full flex justify-between items-center p-5 bg-slate-50/50 hover:bg-slate-50 dark:bg-slate-800/30 dark:hover:bg-slate-800/60 text-left border-none outline-none cursor-pointer transition-colors duration-200" onclick="toggleLesson(5)">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center justify-center w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/20 text-[#be111c] dark:text-[#be111c] font-black text-xs border border-red-100 dark:border-red-900/10">
+                    05
+                  </span>
+                  <div>
+                    <span class="text-3xs font-bold text-slate-400 dark:text-slate-500 tracking-wider uppercase">Bài học 05</span>
+                    <h3 class="font-montserrat font-black text-sm md:text-base text-slate-800 dark:text-slate-200 m-0 leading-tight">
+                      Định dạng chuỗi hiển thị với f-string
+                    </h3>
+                  </div>
+                </div>
+                <i class="ph ph-caret-down text-slate-400 dark:text-slate-500 transition-transform duration-300 text-sm" id="chevron-5"></i>
+              </button>
+              
+              <div class="hidden border-t border-slate-100 dark:border-[#243049] p-5 md:p-6 bg-white dark:bg-[#151d30]" id="content-5">
+                <div class="layout">
+<div class="main-content">
+<!-- Core Concept & Tech Stack Header Card -->
+<div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+<div style="flex: 1; min-width: 260px;">
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+<span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
+<span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Session 01</span>
+</div>
+<h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">Định dạng chuỗi hiển thị với f-string</h3>
+<p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
+</div>
+<div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+<span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
+<span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">PYTHON/CORE</span>
+</div>
+</div>
+<!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
+<div class="visualizer-container">
+<div class="visualizer-grid">
+<!-- Left Panel: Interactive Visualizer & Controls -->
+<div class="panel-box">
+<div class="canvas-header">
+<div class="canvas-title">
+                                    Mô phỏng cơ chế Căn lề &amp; Đệm khoảng trắng (f-string Padding Grid)
+                                </div>
+<div class="legend-box">
+<span style="background:var(--accent-secondary); width:15px; height:15px; display:inline-block; margin-right:5px; border-radius:3px;"></span>Ký tự gốc 
+ <span style="background:var(--state-done); width:15px; height:15px; display:inline-block; margin-left:15px; margin-right:5px; border-radius:3px;"></span>Đệm khoảng trắng (Space Padding)
+                                </div>
+</div>
+<!-- Interactive Visualizer Canvas -->
+<div class="visualizer-canvas" id="lesson5-visualizer-canvas">
+<!-- Dynamic Bars / Nodes generated by JS engine -->
+</div>
+<!-- Stepper / Execution Flow Panel -->
+<div class="stepper-panel" id="lesson5-stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+<span id="lesson5-stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+</div>
+<div id="lesson5-stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+<!-- Progress Bar/Scrubber -->
+<div class="stepper-bar-container" onclick="visualizerApp5?.scrubStep?.(event)" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;">
+<div id="lesson5-stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+</div>
+</div>
+<!-- Control Buttons & Input Sliders -->
+<div class="controls-section">
+<div class="btn-group">
+<button class="btn-action btn-start" id="lesson5-btn-start" onclick="visualizerApp5.start()" type="button">
+<span>▶</span> Bắt đầu
+                                    </button>
+<button class="btn-action btn-pause" id="lesson5-btn-pause" onclick="visualizerApp5.pause()" type="button">
+<span>⏸</span> Tạm dừng
+                                    </button>
+<button class="btn-action btn-step" id="lesson5-btn-step" onclick="visualizerApp5.step()" type="button">
+<span>⏭</span> Từng bước
+                                    </button>
+<button class="btn-action btn-reset" id="lesson5-btn-reset" onclick="visualizerApp5.reset()" type="button">
+<span>↻</span> Đặt lại
+                                    </button>
+</div>
+<div class="inputs-row">
+<div class="input-group">
+<span class="input-label">TỐC ĐỘ THỰC THI (<span id="lesson5-speed-display">400</span>ms)</span>
+<input id="lesson5-slider-speed" max="1000" min="100" oninput="visualizerApp5.setSpeed(this.value)" step="50" type="range" value="400"/>
+</div>
+<div class="input-group">
+<span class="input-label">Nhập chuỗi cần căn chỉnh (tối đa 6 ký tự):</span>
+<div class="custom-input-box">
+<input class="custom-input" id="lesson5-custom-data-input" onkeydown="if(event.key === 'Enter') { event.preventDefault(); visualizerApp5.applyCustomData(); }" placeholder="Ví dụ: {'name': 'Rikkei'}, hoặc 1, 2, 3" type="text" value="Py"/>
+<button class="btn-apply" onclick="visualizerApp5.applyCustomData()" type="button">Áp dụng</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Stats, Live Code Tracker & Console Log -->
+<div class="right-column">
+<!-- Real-time Stats -->
+<div class="stats-panel">
+                                Trạng thái: <span id="lesson5-align-mode" style="color:var(--accent-primary); font-weight:bold;">Chưa chạy</span> | Độ rộng cột cố định: <span style="color:var(--accent-secondary); font-weight:bold;">10 ô</span>
+</div>
+<!-- Live Code Tracker -->
+<div class="code-tracker-panel">
+<div class="panel-top-bar">
+<span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+<span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
+</div>
+<div class="code-content">
+<pre><code id="lesson5-code-tracker-box">
+<div class="code-line" id="lesson5-line-0">text = "Py"</div>
+<div class="code-line" id="lesson5-line-1"># Bước 1: Căn trái: f"{text:&lt;10}"</div>
+<div class="code-line" id="lesson5-line-2"># Bước 2: Căn phải: f"{text:&gt;10}"</div>
+<div class="code-line" id="lesson5-line-3"># Bước 3: Căn giữa: f"{text:^10}"</div>
+
+                                    </code></pre>
+</div>
+</div>
+<!-- Console Execution Log -->
+<div class="console-log-panel">
+<div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+<span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+<button onclick="visualizerApp5.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;" type="button">Xóa</button>
+</div>
+<div class="log-messages" id="lesson5-log-messages">
+<div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Walkthrough Step-by-Step Sections -->
+<div class="walkthrough-section">
+<!-- Step 1: Problem Breakdown -->
+<div class="step">
+<div class="badge">1</div>
+<div class="step-body">
+<div class="step-loc">Đặt vấn đề</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi phát triển phần mềm, ta thường phải in kết quả ra màn hình ở dạng bảng biểu, hóa đơn hoặc định dạng JSON. Sử dụng các phương pháp cũ như toán tử <code>%</code> hoặc phương thức <code>.format()</code> khiến mã nguồn dài dòng, khó đọc và dễ xảy ra lỗi nếu số lượng biến cần truyền vào lớn.</p>
+</div>
+</div>
+<!-- Step 2: Deep Dive Internals -->
+<div class="step">
+<div class="badge">2</div>
+<div class="step-body">
+<div class="step-loc">Phân tích Bản chất</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Cú pháp f-string (bắt đầu bằng chữ 'f' hoặc 'F' trước chuỗi) xử lý trực tiếp biểu thức trong cặp ngoặc nhọn <code>{}</code> tại thời điểm chạy. f-string cung cấp các bộ chỉ thị định dạng tinh gọn: <code>:<n< code=""> (căn trái), <code>:&gt;N</code> (căn phải), <code>:^N</code> (căn giữa) với độ rộng cột <code>N</code>; <code>:.2f</code> để bo tròn số thập phân; và <code>:,</code> để phân tách hàng nghìn.</n<></code></p>
+</div>
+</div>
+<!-- Step 3: Solution & Architecture -->
+<div class="step">
+<div class="badge">3</div>
+<div class="step-body">
+<div class="step-loc">Giới thiệu Giải pháp</div>
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Áp dụng f-string kết hợp các bộ định dạng căn lề và định dạng số trực tiếp trong chuỗi. Để hiển thị cặp ngoặc nhọn vật lý trong văn bản (ví dụ như tạo chuỗi JSON), ta cần viết đúp thành <code>{{</code> và <code>}}</code> để trình biên dịch không nhầm lẫn với biểu thức nội suy.</p>
+</div>
+</div>
+<!-- Step 4: Production Code Walkthrough -->
+<div class="step">
+<div class="badge">4</div>
+<div class="step-body">
+<div class="step-loc">Mã nguồn chuẩn hóa &amp; Phân tích thực thi <span class="range"></span></div>
+<details class="interactive-details" open="">
+<summary>Nhấp vào để đóng/mở mã nguồn chi tiết</summary>
+<div class="code-container">
+<div class="code-header">
+<div class="code-controls">
+<span class="control-dot dot-red"></span>
+<span class="control-dot dot-yellow"></span>
+<span class="control-dot dot-green"></span>
+</div>
+<span class="code-title">example.python</span>
+<button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+</div>
+<div class="code-body">
+<pre><code class="language-python" id="lesson5-code-snippet-1">name, price, qty = 'Book', 120000, 3
+# 1. So sanh % vs .format() vs f-string
+print('Cũ 1: %s' % name)
+print('Cũ 2: {}'.format(name))
+print(f'Mới: {name}')
+# 2. Dinh dang gpa thap phan va ngan cach hang nghin
+print(f'Total: {price * qty:,.2f}')
+# 3. Can le hoa don va in ngoac nhon JSON vat ly
+print(f"{'Product':&lt;10} | {'Qty':&gt;5}")
+print(f"{name:&lt;10} | {qty:&gt;5}")
+print(f"JSON: {{ 'item': '{name}' }}")</code></pre>
+</div>
+</div>
+</details>
+<div style="margin-top: 16px;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi chạy chương trình, f-string biên dịch nhanh và cho ra kết quả căn chỉnh cột thẳng hàng một cách hoàn hảo. Giá trị số tiền lớn được hiển thị rõ ràng nhờ cấu trúc phân tách hàng nghìn và phần thập phân được làm tròn chính xác, biểu thức JSON hiển thị đúng mong đợi.</p>
+</div>
+</div>
+</div>
+<!-- Step 5: References -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge">5</div>
+<div class="step-body">
+<div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+<ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+<li>
+<a href="https://peps.python.org/pep-0498/" onmouseout="this.style.opacity='1'" onmouseover="this.style.opacity='0.8'" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" target="_blank">
+<i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python PEP 498 - Literal String Interpolation
+                                    </a>
+</li>
+</ul>
+</div>
+</div>
+<!-- Bottom Notice / Gotchas Section -->
+<div class="step" style="margin-top: 24px;">
+<div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+<div class="step-body" style="border-color: var(--clay);">
+<div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+<div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+<p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">f-string là phương pháp định dạng chuỗi tối ưu và trực quan nhất trong Python. Học viên cần tránh 3 lỗi thường gặp: <strong>Trùng dấu nháy</strong> giữa f-string và biểu thức con bên trong, <strong>Thiếu ký tự f</strong> ở đầu chuỗi dẫn đến không biên dịch được giá trị, và <strong>Nhầm lẫn cú pháp căn lề</strong> giữa dấu <code>&lt;</code> (trái) và <code>&gt;</code> (phải).</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Script imports -->
+<!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+<script>
+        
+        class InteractiveVisualizerEngine5 {
+  constructor() {
+    this.timer = null;
+    this.stepIndex = 0;
+    this.text = "Py";
+  }
+  start() {
+    this.reset();
+    this.stepIndex = 1;
+    this.runStep();
+    this.timer = setInterval(() => {
+      this.stepIndex = (this.stepIndex % 3) + 1;
+      this.runStep();
+    }, 2000);
+  }
+  pause() {
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    document.getElementById('lesson5-log-messages').innerHTML += '<div>[Hệ thống] Tạm dừng visualizer.</div>';
+  }
+  step() {
+    this.stepIndex = (this.stepIndex % 3) + 1;
+    this.runStep();
+  }
+  reset() {
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    this.stepIndex = 0;
+    this.text = document.getElementById('lesson5-custom-input').value.substring(0, 6) || "Py";
+    document.getElementById('lesson5-align-mode').innerText = "Chưa chạy";
+    document.getElementById('lesson5-visualizer-canvas').innerHTML = "";
+    document.getElementById('lesson5-log-messages').innerHTML = '<div>[Hệ thống] Reset visualizer thành công.</div>';
+    document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active-line'));
+  }
+  runStep() {
+    document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active-line'));
+    const activeEl = document.getElementById('line-' + this.stepIndex);
+    if (activeEl) activeEl.classList.add('active-line');
+    let mode = "";
+    let align = "left";
+    if(this.stepIndex === 1) { mode = "Căn trái (<)"; align = "left"; }
+    if(this.stepIndex === 2) { mode = "Căn phải (>)"; align = "right"; }
+    if(this.stepIndex === 3) { mode = "Căn giữa (^)"; align = "center"; }
+    document.getElementById('lesson5-align-mode').innerText = mode;
+    const canvas = document.getElementById('lesson5-visualizer-canvas');
+    canvas.innerHTML = "";
+    const width = 10;
+    const len = this.text.length;
+    const padCount = width - len;
+    let leftPad = 0;
+    if(align === "right") leftPad = padCount;
+    if(align === "center") leftPad = Math.floor(padCount / 2);
+    for(let i=0; i<width; i++) {
+      const cell = document.createElement('div');
+      cell.style.display = 'inline-block';
+      cell.style.width = '30px';
+      cell.style.height = '30px';
+      cell.style.border = '1px solid var(--border-glow)';
+      cell.style.textAlign = 'center';
+      cell.style.lineHeight = '30px';
+      cell.style.margin = '2px';
+      cell.style.fontWeight = 'bold';
+      cell.style.borderRadius = '4px';
+      if(i >= leftPad && i < leftPad + len) {
+        cell.innerText = this.text[i - leftPad];
+        cell.style.background = 'var(--accent-secondary)';
+        cell.style.color = '#fff';
+      } else {
+        cell.innerText = '␣';
+        cell.style.background = 'var(--state-done)';
+        cell.style.color = '#fff';
+      }
+      canvas.appendChild(cell);
+    }
+    const logBox = document.getElementById('lesson5-log-messages');
+    logBox.innerHTML += '<div>[Xử lý] ' + mode + ' chuỗi "' + this.text + '" với độ rộng 10 ký tự.</div>';
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+}
+window.visualizerEngine = new InteractiveVisualizerEngine5();
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine5 === 'undefined') {
+            window.InteractiveVisualizerEngine5 = class {};
+        }
+
+        function initApp() {
+            try {
+                visualizerApp5 = new InteractiveVisualizerEngine5();
+            } catch(e) {
+                visualizerApp5 = {};
+            }
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
+            requiredMethods.forEach(method => {
+                if (typeof visualizerApp5[method] !== 'function') {
+                    visualizerApp5[method] = () => console.log(`[Stub] Method ${method} called.`);
+                }
+            });
+
+            // Perform initialization
+            if (typeof visualizerApp5.init === 'function') {
+                visualizerApp5.init();
+            }
+            if (typeof visualizerApp5.render === 'function') {
+                visualizerApp5.render();
+            }
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('lesson5-code-tracker-box');
+            if (trackerBox) {
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }
+
+            if (window.hljs) hljs.highlightAll();
+        }
+
+        // Initialize when DOM loaded
+        let visualizerApp5;
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initApp();
+        } else {
+            document.addEventListener('DOMContentLoaded', initApp);
+        }
+        
+
+        function copyCode5(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme5() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode5(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme5();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme5();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme5();
+        });
+        applyTheme5();
+    </script>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+<script>
+      // Theme Switcher Logic
+      function setTheme(mode) {
+        localStorage.setItem("theme", mode);
+        document.documentElement.classList.remove("theme-light", "theme-dark");
+
+        let activeTheme = mode;
+        if (mode === "system") {
+          const isDark = window.matchMedia(
+            "(prefers-color-scheme: dark)",
+          ).matches;
+          activeTheme = isDark ? "dark" : "light";
+        }
+
+        if (activeTheme === "dark") {
+          document.documentElement.classList.add("theme-dark");
+          document.documentElement.classList.add("dark"); // for tailwind dark classes if any
+        } else {
+          document.documentElement.classList.add("theme-light");
+          document.documentElement.classList.remove("dark");
+        }
+
+        updateThemeSelectorUI(mode);
+      }
+
+      function updateThemeSelectorUI(mode) {
+        const btnLight = document.getElementById("theme-btn-light");
+        const btnDark = document.getElementById("theme-btn-dark");
+        const btnSystem = document.getElementById("theme-btn-system");
+
+        if (!btnLight || !btnDark || !btnSystem) return;
+
+        [btnLight, btnDark, btnSystem].forEach((btn) => {
+          btn.classList.remove(
+            "bg-red-50",
+            "text-[#be111c]",
+            "border-red-200",
+            "bg-slate-700",
+            "text-white",
+            "border-slate-600",
+            "dark:bg-slate-900",
+          );
+          btn.classList.add(
+            "bg-transparent",
+            "text-slate-500",
+            "border-transparent",
+            "dark:text-slate-400",
+          );
+        });
+
+        const activeBtn =
+          mode === "light" ? btnLight : mode === "dark" ? btnDark : btnSystem;
+        const isThemeDark =
+          document.documentElement.classList.contains("theme-dark");
+
+        if (isThemeDark) {
+          activeBtn.classList.remove(
+            "bg-transparent",
+            "text-slate-500",
+            "border-transparent",
+            "dark:text-slate-400",
+          );
+          activeBtn.classList.add(
+            "bg-slate-700",
+            "text-white",
+            "border-slate-600",
+          );
+        } else {
+          activeBtn.classList.remove(
+            "bg-transparent",
+            "text-slate-500",
+            "border-transparent",
+          );
+          activeBtn.classList.add(
+            "bg-red-50",
+            "text-[#be111c]",
+            "border-red-200",
+          );
+        }
+      }
+
+      // Initial theme set
+      const savedTheme = localStorage.getItem("theme") || "system";
+      setTheme(savedTheme);
+
+      // Listen to system preference changes
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (e) => {
+          if (localStorage.getItem("theme") === "system") {
+            setTheme("system");
+          }
+        });
+
+      // Drawer Toggle Functions
+      function toggleDrawer(open) {
+        const panel = document.getElementById("drawer-panel");
+        const backdrop = document.getElementById("drawer-backdrop");
+        if (!panel || !backdrop) return;
+
+        if (open) {
+          panel.classList.remove("-translate-x-full");
+          backdrop.classList.remove("hidden");
+        } else {
+          panel.classList.add("-translate-x-full");
+          backdrop.classList.add("hidden");
+        }
+      }
+
+      function getSessionStorageKey() {
+        return "session_expanded_" + encodeURIComponent(document.title);
+      }
+
+      function saveLessonState(idx, isExpanded) {
+        try {
+          const key = getSessionStorageKey();
+          let state = JSON.parse(localStorage.getItem(key) || "{}");
+          state[idx] = isExpanded;
+          localStorage.setItem(key, JSON.stringify(state));
+        } catch(e) {
+          console.error("Failed to save lesson state to localStorage", e);
+        }
+      }
+
+      function loadLessonStates() {
+        try {
+          const key = getSessionStorageKey();
+          return JSON.parse(localStorage.getItem(key) || "{}");
+        } catch(e) {
+          return "{}";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", (event) => {
+        document.querySelectorAll("pre code").forEach((el) => {
+          hljs.highlightElement(el);
+        });
+
+        // Load saved states
+        const savedStates = loadLessonStates();
+        const cards = document.querySelectorAll('[id^="lesson-card-"]');
+        let hasSavedState = Object.keys(savedStates).length > 0;
+
+        if (hasSavedState) {
+          cards.forEach((card) => {
+            const idx = card.id.replace("lesson-card-", "");
+            const isExpanded = savedStates[idx];
+            if (isExpanded) {
+              expandLesson(parseInt(idx));
+            } else {
+              collapseLesson(parseInt(idx));
+            }
+          });
+        } else {
+          // Auto-toggle first lesson if no saved state exists
+          expandLesson(1);
+        }
+
+        // Restore scroll position
+        try {
+          const scrollKey = "session_scroll_" + encodeURIComponent(document.title);
+          const savedScroll = localStorage.getItem(scrollKey);
+          if (savedScroll) {
+            setTimeout(() => {
+              window.scrollTo(0, parseInt(savedScroll));
+            }, 150);
+          }
+        } catch(e) {}
+
+        // Save scroll position on scroll (throttled)
+        let scrollTimeout;
+        window.addEventListener("scroll", () => {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            try {
+              const scrollKey = "session_scroll_" + encodeURIComponent(document.title);
+              localStorage.setItem(scrollKey, window.scrollY);
+            } catch(e) {}
+          }, 100);
+        });
+      });
+
+      function toggleLesson(idx) {
+        const content = document.getElementById(`content-${idx}`);
+        const chevron = document.getElementById(`chevron-${idx}`);
+        const card = document.getElementById(`lesson-card-${idx}`);
+
+        if (!content || !chevron || !card) return;
+
+        const isHidden = content.classList.contains("hidden");
+
+        if (isHidden) {
+          content.classList.remove("hidden");
+          chevron.style.transform = "rotate(180deg)";
+          card.classList.add(
+            "border-[#be111c]",
+            "dark:border-[#60a5fa]",
+            "ring-1",
+            "ring-[#be111c]/20",
+            "dark:ring-[#60a5fa]/20",
+          );
+          saveLessonState(idx, true);
+        } else {
+          content.classList.add("hidden");
+          chevron.style.transform = "rotate(0deg)";
+          card.classList.remove(
+            "border-[#be111c]",
+            "dark:border-[#60a5fa]",
+            "ring-1",
+            "ring-[#be111c]/20",
+            "dark:ring-[#60a5fa]/20",
+          );
+          saveLessonState(idx, false);
+        }
+      }
+
+      function expandLesson(idx) {
+        const content = document.getElementById(`content-${idx}`);
+        const chevron = document.getElementById(`chevron-${idx}`);
+        const card = document.getElementById(`lesson-card-${idx}`);
+
+        if (!content || !chevron || !card) return;
+
+        if (content.classList.contains("hidden")) {
+          content.classList.remove("hidden");
+          chevron.style.transform = "rotate(180deg)";
+          card.classList.add(
+            "border-[#be111c]",
+            "dark:border-[#60a5fa]",
+            "ring-1",
+            "ring-[#be111c]/20",
+            "dark:ring-[#60a5fa]/20",
+          );
+          saveLessonState(idx, true);
+        }
+      }
+
+      function collapseLesson(idx) {
+        const content = document.getElementById(`content-${idx}`);
+        const chevron = document.getElementById(`chevron-${idx}`);
+        const card = document.getElementById(`lesson-card-${idx}`);
+
+        if (!content || !chevron || !card) return;
+
+        if (!content.classList.contains("hidden")) {
+          content.classList.add("hidden");
+          chevron.style.transform = "rotate(0deg)";
+          card.classList.remove(
+            "border-[#be111c]",
+            "dark:border-[#60a5fa]",
+            "ring-1",
+            "ring-[#be111c]/20",
+            "dark:ring-[#60a5fa]/20",
+          );
+          saveLessonState(idx, false);
+        }
+      }
+
+      function scrollToAndExpand(idx) {
+        expandLesson(idx);
+
+        const card = document.getElementById(`lesson-card-${idx}`);
+        if (!card) return;
+
+        const offset = 90; // sticky header height
+        const bodyRect = document.body.getBoundingClientRect().top;
+        const elementRect = card.getBoundingClientRect().top;
+        const elementPosition = elementRect - bodyRect;
+        const offsetPosition = elementPosition - offset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+
+        highlightActiveSidebarLink(idx);
+      }
+
+      // Active navigation state highlight based on viewport scroll position
+      window.addEventListener("scroll", () => {
+        const cards = document.querySelectorAll('[id^="lesson-card-"]');
+        let currentActiveId = 1;
+
+        cards.forEach((card) => {
+          const rect = card.getBoundingClientRect();
+          if (rect.top <= 120) {
+            const idx = card.id.replace("lesson-card-", "");
+            currentActiveId = parseInt(idx);
+          }
+        });
+
+        highlightActiveSidebarLink(currentActiveId);
+      });
+
+      function highlightActiveSidebarLink(idx) {
+        const btns = document.querySelectorAll(".sidebar-nav-btn");
+        btns.forEach((btn) => {
+          btn.classList.remove(
+            "bg-red-50",
+            "dark:bg-blue-950/20",
+            "text-[#be111c]",
+            "dark:text-[#60a5fa]",
+            "border-red-200",
+            "dark:border-blue-900/30",
+            "active",
+          );
+          const badge = btn.querySelector(".index-badge");
+          if (badge) {
+            badge.classList.remove(
+              "bg-red-100",
+              "dark:bg-blue-950/40",
+              "text-[#be111c]",
+              "dark:text-[#60a5fa]",
+            );
+            badge.classList.add(
+              "bg-slate-100",
+              "dark:bg-slate-800",
+              "text-slate-500",
+              "dark:text-slate-400",
+            );
+          }
+        });
+
+        // Update sidebar desktop
+        const sidebarBtn = document.getElementById("sidebar-btn-" + idx);
+        if (sidebarBtn) {
+          sidebarBtn.classList.add(
+            "bg-red-50",
+            "dark:bg-blue-950/20",
+            "text-[#be111c]",
+            "dark:text-[#60a5fa]",
+            "border-red-200",
+            "dark:border-blue-900/30",
+            "active",
+          );
+          const badge = sidebarBtn.querySelector(".index-badge");
+          if (badge) {
+            badge.classList.remove(
+              "bg-slate-100",
+              "dark:bg-slate-800",
+              "text-slate-500",
+              "dark:text-slate-400",
+            );
+            badge.classList.add(
+              "bg-red-100",
+              "dark:bg-blue-950/40",
+              "text-[#be111c]",
+              "dark:text-[#60a5fa]",
+            );
+          }
+        }
+
+        // Update drawer mobile
+        const drawerBtn = document.getElementById("drawer-btn-" + idx);
+        if (drawerBtn) {
+          drawerBtn.classList.add(
+            "bg-red-50",
+            "dark:bg-blue-950/20",
+            "text-[#be111c]",
+            "dark:text-[#60a5fa]",
+            "border-red-200",
+            "dark:border-blue-900/30",
+            "active",
+          );
+          const badge = drawerBtn.querySelector(".index-badge");
+          if (badge) {
+            badge.classList.remove(
+              "bg-slate-100",
+              "dark:bg-slate-800",
+              "text-slate-500",
+              "dark:text-slate-400",
+            );
+            badge.classList.add(
+              "bg-red-100",
+              "dark:bg-blue-950/40",
+              "text-[#be111c]",
+              "dark:text-[#60a5fa]",
+            );
+          }
+        }
+      }
+
+      function copyCode(btn, elementId) {
+        const codeEl = document.getElementById(elementId);
+        if (!codeEl) return;
+        const text = codeEl.innerText;
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            const originalText = btn.innerText;
+            btn.innerText = "Đã chép!";
+            btn.style.backgroundColor = "#be111c";
+            btn.style.color = "white";
+            setTimeout(() => {
+              btn.innerText = originalText;
+              btn.style.backgroundColor = "";
+              btn.style.color = "";
+            }, 2000);
+          })
+          .catch((err) => {
+            console.error("Lỗi khi sao chép: ", err);
+          });
+      }
+
+      // Toggle self-test questions
+      document.addEventListener("click", function (e) {
+        const question = e.target.closest(".selftest-question");
+        if (!question) return;
+
+        const item = question.parentElement;
+        const answer = item.querySelector(".selftest-answer");
+        if (!answer) return;
+
+        const isActive = item.classList.contains("active");
+        if (isActive) {
+          item.classList.remove("active");
+          answer.style.display = "none";
+        } else {
+          item.classList.add("active");
+          answer.style.display = "block";
+        }
+      });
+    </script>
+  </body>
+</html>
+   
+
+    

@@ -98,15 +98,15 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
     return _execute_via_local_subprocess(code, sandbox_timeout)
 
 
-def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any]:
+def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any] | None:
     """Helper to execute code via E2B SDK."""
     try:
         try:
             # Try importing e2b-code-interpreter first
-            from e2b_code_interpreter import Sandbox
+            from e2b_code_interpreter import Sandbox  # type: ignore
         except ImportError:
             # Fallback to core e2b sandbox
-            from e2b import Sandbox
+            from e2b import Sandbox  # type: ignore
 
         with Sandbox(api_key=api_key) as sandbox:
             if hasattr(sandbox, "run_code"):
@@ -144,7 +144,7 @@ def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any]:
         return None
 
 
-def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict[str, Any]:
+def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict[str, Any] | None:
     """Helper to execute code in a highly-secured Docker environment without volume mounting."""
     try:
         # We pipe the python code directly to Python stdin inside container

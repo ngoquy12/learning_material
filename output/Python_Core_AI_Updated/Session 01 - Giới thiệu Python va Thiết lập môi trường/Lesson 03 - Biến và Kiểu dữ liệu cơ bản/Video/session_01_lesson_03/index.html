@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d1117; }
+      .clip { position: absolute; visibility: hidden; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="session_01_lesson_03"
+      data-start="0"
+      data-duration="105.0"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- ── Scene Clips ── -->
+      <div class="clip"
+           data-composition-src="src/compositions/Scene_01.html"
+           data-composition-id="scene-01"
+           data-start="0.0"
+           data-duration="25.0"
+           data-track-index="1"></div>
+
+      <div class="clip"
+           data-composition-src="src/compositions/Scene_02.html"
+           data-composition-id="scene-02"
+           data-start="25.0"
+           data-duration="25.0"
+           data-track-index="2"></div>
+
+      <div class="clip"
+           data-composition-src="src/compositions/Scene_03.html"
+           data-composition-id="scene-03"
+           data-start="50.0"
+           data-duration="30.0"
+           data-track-index="3"></div>
+
+      <div class="clip"
+           data-composition-src="src/compositions/Scene_04.html"
+           data-composition-id="scene-04"
+           data-start="80.0"
+           data-duration="25.0"
+           data-track-index="4"></div>
+
+      <!-- ── TTS Audio Tracks (absolute root timestamps) ── -->
+      <audio id="tts-01"
+             data-start="0.0"
+             data-duration="25.0"
+             data-track-index="20"
+             data-volume="1"
+             src="assets/tts/Scene_01.mp3"></audio>
+
+      <audio id="tts-02"
+             data-start="25.0"
+             data-duration="25.0"
+             data-track-index="21"
+             data-volume="1"
+             src="assets/tts/Scene_02.mp3"></audio>
+
+      <audio id="tts-03"
+             data-start="50.0"
+             data-duration="30.0"
+             data-track-index="22"
+             data-volume="1"
+             src="assets/tts/Scene_03.mp3"></audio>
+
+      <audio id="tts-04"
+             data-start="80.0"
+             data-duration="25.0"
+             data-track-index="23"
+             data-volume="1"
+             src="assets/tts/Scene_04.mp3"></audio>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["session_01_lesson_03"] = tl;
+    </script>
+  </body>
+</html>

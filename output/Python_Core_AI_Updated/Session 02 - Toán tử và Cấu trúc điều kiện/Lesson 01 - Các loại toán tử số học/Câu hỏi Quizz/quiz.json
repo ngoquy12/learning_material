@@ -1,0 +1,37 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Cho doan code sau: x = 15; y = 4; print(x // y, x % y). Ket qua in ra man hinh la gi?",
+      "options": [
+        "3.75 3",
+        "3 3",
+        "3 1",
+        "3.0 3"
+      ],
+      "correct_option_index": 1,
+      "explanation": "15 chia 4 duoc 3 du 3. Phep // lay phan nguyen la 3, phep % lay phan du la 3."
+    }
+  ],
+  "practical_lab": {
+    "title": "Tinh toan so giay le",
+    "objectives": [
+      "Su dung toan tu chia lay nguyen (//) de tinh phut",
+      "Su dung toan tu chia lay du (%) de tinh giay du"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Buoc 1: Khai bao bien total_seconds = 365",
+        "Buoc 2: Tinh so phut bang cach chia lay nguyen total_seconds cho 60",
+        "Buoc 3: Tinh so giay du bang cach lay phan du cua total_seconds chia 60",
+        "Buoc 4: In ket qua ra man hinh voi thong tin phut va giay"
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Ket qua tinh ra phai la 6 phut va 5 giay",
+        "Khong xay ra loi Unicode hoac loi cu phap"
+      ]
+    }
+  }
+}

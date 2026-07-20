@@ -83,9 +83,9 @@ async def get_artifact_path_context(db: AsyncSession, lesson_id: Optional[int], 
     session_dir_name = "Session 01"
     lesson_dir_name = "Lesson 01"
     
-    db_lesson = None
-    db_session = None
-    db_course = None
+    db_lesson: Any = None
+    db_session: Any = None
+    db_course: Any = None
     
     if lesson_id:
         res = await db.execute(select(Lesson).where(Lesson.id == lesson_id))
@@ -211,7 +211,7 @@ async def rewrite_artifact_response(
             schema_art.content, course_dir, session_dir, lesson_dir, artifact.lesson_id, request_base_url
         )
     if schema_art.content_json:
-        schema_art.content_json = rewrite_json_urls(
+        schema_art.content_json = rewrite_json_urls(  # type: ignore
             schema_art.content_json, course_dir, session_dir, lesson_dir, artifact.lesson_id, request_base_url
         )
         
@@ -252,7 +252,8 @@ async def copy_lesson_images_to_session(db: AsyncSession, session_id: int):
     # 3. For each lesson, check if it has images folder, and copy its contents
     for lesson in lessons:
         try:
-            _, _, lesson_dir = await get_artifact_path_context(db, lesson_id=lesson.id, session_id=session_id)
+            lesson_id: Any = lesson.id
+            _, _, lesson_dir = await get_artifact_path_context(db, lesson_id=lesson_id, session_id=session_id)
             lesson_images_dir = session_path / lesson_dir / "images"
             if lesson_images_dir.exists() and lesson_images_dir.is_dir():
                 if not session_images_dir.exists():
@@ -265,4 +266,97 @@ async def copy_lesson_images_to_session(db: AsyncSession, session_id: int):
                             shutil.copy2(item, dest_file)
         except Exception as e:
             print(f"[Warning] Failed to copy images for lesson {lesson.id}: {e}")
+
+
+async def write_artifact_to_disk(db: AsyncSession, artifact) -> None:
+    """
+    Writes the content or content_json of the artifact to its physical file location on disk.
+    Supports both lesson-level and session-level artifacts.
+    """
+    import json
+    from pathlib import Path
+
+    try:
+        # 1. Resolve path context (course_dir, session_dir, lesson_dir)
+        course_dir, session_dir, lesson_dir = await get_artifact_path_context(db, artifact.lesson_id, artifact.session_id)
+        
+        current_file = Path(__file__).resolve()
+        # current_file is web/backend/app/utils/artifact.py
+        # parents[4] is the Learning-Material root directory
+        project_root = current_file.parents[4]
+        output_path = project_root / "output"
+        
+        if artifact.lesson_id:
+            target_dir = output_path / course_dir / session_dir / lesson_dir
+        else:
+            target_dir = output_path / course_dir / session_dir
+            
+        # 2. Determine file path based on artifact type
+        file_path = None
+        if artifact.type == "reading":
+            file_path = target_dir / "Bài đọc" / "reading.html"
+        elif artifact.type == "outline":
+            file_path = target_dir / "Sơ đồ tư duy" / "outline.md"
+        elif artifact.type == "quiz":
+            file_path = target_dir / "Câu hỏi Quizz" / "quiz.json"
+        elif artifact.type == "pre_quiz":
+            file_path = target_dir / "Câu hỏi Quizz" / "quiz_entrance.json"
+        elif artifact.type == "post_quiz":
+            file_path = target_dir / "Câu hỏi Quizz" / "quiz_exit.json"
+        elif artifact.type == "session_reading":
+            file_path = target_dir / "Bài đọc" / "reading_all.html"
+        elif artifact.type == "session_mindmap":
+            file_path = target_dir / "Sơ đồ tư duy" / "mindmap_all.md"
+        elif artifact.type in ["session_homework", "session_practice"]:
+            file_path = target_dir / "Bài tập về nhà" / "homework.json"
+        elif artifact.type == "project_entry_tests":
+            file_path = target_dir / "Bài kiểm tra đầu giờ"
+        elif artifact.type == "project_srs":
+            file_path = target_dir / "Tài liệu đặc tả SRS" / "tai_lieu_dac_ta_yeu_cau_srs.md"
+        elif artifact.type == "project_mini_project":
+            file_path = target_dir / "Mini project" / "de_bai_mini_project.md"
+
+        if not file_path:
+            print(f"[Sync Disk Info] Unknown or unsupported artifact type: {artifact.type}. Skipping disk sync.")
+            return
+
+        # 3. Write content/JSON back to disk
+        if artifact.type == "project_entry_tests":
+            # Special handling for project entry tests (multiple files)
+            file_path.mkdir(parents=True, exist_ok=True)
+            entry_tests = (artifact.content_json or {}).get("entry_tests") or []
+            from app.ai_engine.agents.project_agents import sanitize_vietnamese_filename
+            for idx, test in enumerate(entry_tests, 1):
+                clean_name = sanitize_vietnamese_filename(test.get("title", f"test_{idx}"))
+                filename = f"bai_kiem_tra_{idx:02d}_{clean_name}"
+                with open(file_path / filename, "w", encoding="utf-8") as f:
+                    f.write(test.get("content", ""))
+            print(f"[Sync Disk Success] Saved project entry tests to {file_path}")
+            
+        elif artifact.type == "project_mini_project":
+            # Special handling for project mini project (writes main md and scoring criteria rubric)
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(artifact.content or (artifact.content_json or {}).get("content", ""))
+            
+            rubric_content = (artifact.content_json or {}).get("rubric", "")
+            if rubric_content:
+                rubric_path = file_path.parent / "tieu_chi_cham_diem_ai.md"
+                with open(rubric_path, "w", encoding="utf-8") as f:
+                    f.write(rubric_content)
+            print(f"[Sync Disk Success] Saved project mini project to {file_path}")
+
+        else:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            if artifact.content is not None:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    f.write(str(artifact.content))
+            elif artifact.content_json is not None:
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(artifact.content_json, f, ensure_ascii=False, indent=2)
+            print(f"[Sync Disk Success] Saved artifact {artifact.id} ({artifact.type}) to {file_path}")
+            
+    except Exception as e:
+        print(f"[Sync Disk Error] Failed to write artifact {artifact.id} to disk: {e}")
+
 

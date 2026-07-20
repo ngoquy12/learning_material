@@ -1,0 +1,81 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Cú pháp rẽ nhánh nào sau đây là hợp lệ trong Python?",
+      "options": [
+        "if x > 10: print(x) else: print('small')",
+        "if x > 10:\n    print(x)\nelse:\n    print('small')",
+        "if x > 10 then print(x) else print('small')",
+        "if (x > 10) { print(x) } else { print('small') }"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Python yêu cầu sử dụng dấu hai chấm ':' sau câu lệnh điều kiện và khối lệnh con phải được thụt lề chuẩn xác."
+    },
+    {
+      "question": "Điều gì xảy ra nếu có nhiều điều kiện elif đều trả về True?",
+      "options": [
+        "Tất cả các khối lệnh elif thỏa mãn đều sẽ được thực thi.",
+        "Chương trình báo lỗi SyntaxError.",
+        "Chỉ khối lệnh của nhánh elif đầu tiên thỏa mãn được thực thi, các nhánh sau bị bỏ qua.",
+        "Khối lệnh của nhánh elif cuối cùng thỏa mãn sẽ được thực thi."
+      ],
+      "correct_option_index": 2,
+      "explanation": "Cấu trúc rẽ nhánh của Python sẽ dừng lại ngay sau khi tìm thấy điều kiện True đầu tiên và thực thi khối lệnh tương ứng."
+    },
+    {
+      "question": "Kết quả của đoạn mã sau là gì?\nscore = 85\nif score >= 50:\n    print('Pass')\nelif score >= 80:\n    print('Good')\nelse:\n    print('Fail')",
+      "options": [
+        "Pass",
+        "Good",
+        "Fail",
+        "Pass và Good"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Do score = 85 thỏa mãn điều kiện đầu tiên >= 50, nhánh 'Pass' lập tức chạy và bỏ qua toàn bộ phần kiểm tra phía sau."
+    },
+    {
+      "question": "Hãy chỉ ra lỗi logic (Unreachable Code) trong đoạn mã sau:\nif x > 5:\n    print('A')\nelif x > 10:\n    print('B')",
+      "options": [
+        "Nhánh elif x > 10 không bao giờ được thực thi vì mọi số lớn hơn 10 đều đã lớn hơn 5.",
+        "Mã nguồn lỗi cú pháp không chạy được.",
+        "Nhánh if x > 5 không bao giờ được chạy.",
+        "Nhánh else bị thiếu nên gây lỗi chương trình."
+      ],
+      "correct_option_index": 0,
+      "explanation": "Bất kỳ giá trị nào lớn hơn 10 thì chắc chắn lớn hơn 5, do đó nó sẽ đi vào nhánh if x > 5 trước và không thể chạm tới nhánh elif."
+    },
+    {
+      "question": "Toán tử logic nào giúp kết hợp nhiều biểu thức kiểm tra trong câu lệnh if?",
+      "options": [
+        "and, or, not",
+        "&&, ||, !",
+        "amp, pipe, default",
+        "UNION, INTERSECT"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Python sử dụng các từ khóa tiếng Anh tự nhiên and, or, not làm toán tử logic để xây dựng các biểu thức điều kiện phức tạp."
+    }
+  ],
+  "practical_lab": {
+    "title": "Xây dựng hệ thống phân loại học lực học sinh",
+    "objectives": [
+      "Luyện tập sử dụng cấu trúc rẽ nhánh if-elif-else trong Python.",
+      "Phân biệt và tối ưu hóa thứ tự các điều kiện logic để tránh lỗi Unreachable Code."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Khai báo một biến score đại diện cho điểm số học sinh (ví dụ: score = 7.5).",
+        "Sử dụng if-elif-else để phân loại: từ 8.5 trở lên xếp loại Gioi, từ 6.5 đến dưới 8.5 xếp loại Kha, từ 5.0 đến dưới 6.5 xếp loại Trung binh, còn lại xếp loại Yeu.",
+        "In kết quả phân loại ra màn hình console."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chương trình chạy ổn định, không lỗi cú pháp.",
+        "Sắp xếp đúng thứ tự điều kiện để điểm 9.0 được phân loại là Gioi chứ không phải Kha.",
+        "Đã kiểm tra thử nghiệm với tất cả các mốc điểm biên (8.5, 6.5, 5.0)."
+      ]
+    }
+  }
+}

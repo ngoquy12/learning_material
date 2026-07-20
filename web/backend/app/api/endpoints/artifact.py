@@ -2,12 +2,12 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List
+from typing import List, Any, Optional
 
 from app.db.session import get_db
 from app.models.artifact import Artifact
 from app.schemas.artifact import ArtifactResponse, ArtifactCreate
-from app.utils.artifact import rewrite_artifacts_list, rewrite_artifact_response
+from app.utils.artifact import rewrite_artifacts_list, rewrite_artifact_response, write_artifact_to_disk
 
 router = APIRouter()
 
@@ -15,7 +15,7 @@ router = APIRouter()
 async def get_artifacts(request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Artifact))
     artifacts = result.scalars().all()
-    return await rewrite_artifacts_list(db, artifacts, str(request.base_url))
+    return await rewrite_artifacts_list(db, list(artifacts), str(request.base_url))
 
 @router.post("/", response_model=ArtifactResponse)
 async def create_artifact(request: Request, artifact_in: ArtifactCreate, db: AsyncSession = Depends(get_db)):
@@ -29,7 +29,7 @@ async def create_artifact(request: Request, artifact_in: ArtifactCreate, db: Asy
 async def get_artifacts_by_lesson(lesson_id: int, request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Artifact).where(Artifact.lesson_id == lesson_id))
     artifacts = result.scalars().all()
-    return await rewrite_artifacts_list(db, artifacts, str(request.base_url))
+    return await rewrite_artifacts_list(db, list(artifacts), str(request.base_url))
 
 from fastapi import HTTPException, BackgroundTasks
 from app.schemas.artifact import ArtifactUpdate
@@ -41,7 +41,7 @@ class SelectVersionRequest(BaseModel):
 @router.put("/{artifact_id}", response_model=ArtifactResponse)
 async def update_artifact(artifact_id: int, request: Request, artifact_in: ArtifactUpdate, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Artifact).where(Artifact.id == artifact_id))
-    artifact = result.scalars().first()
+    artifact: Any = result.scalars().first()
     if not artifact:
         raise HTTPException(status_code=404, detail="Artifact not found")
     
@@ -51,22 +51,23 @@ async def update_artifact(artifact_id: int, request: Request, artifact_in: Artif
         
     await db.commit()
     await db.refresh(artifact)
+    await write_artifact_to_disk(db, artifact)
     return await rewrite_artifact_response(db, artifact, str(request.base_url))
 
 class RegenerateRequest(BaseModel):
-    exercise_index: int = None
+    exercise_index: Optional[int] = None
 
 @router.post("/{artifact_id}/regenerate", response_model=ArtifactResponse)
 async def regenerate_single_artifact(
     artifact_id: int,
     request: Request,
     background_tasks: BackgroundTasks,
-    req_body: RegenerateRequest = None,
+    req_body: Optional[RegenerateRequest] = None,
     db: AsyncSession = Depends(get_db)
 ):
     stmt = select(Artifact).where(Artifact.id == artifact_id)
     res = await db.execute(stmt)
-    artifact = res.scalars().first()
+    artifact: Any = res.scalars().first()
     if not artifact:
         raise HTTPException(status_code=404, detail="Artifact not found")
         
@@ -87,7 +88,7 @@ async def select_artifact_version(
 ):
     stmt = select(Artifact).where(Artifact.id == artifact_id)
     res = await db.execute(stmt)
-    artifact = res.scalars().first()
+    artifact: Any = res.scalars().first()
     if not artifact:
         raise HTTPException(status_code=404, detail="Artifact not found")
         
@@ -105,9 +106,10 @@ async def select_artifact_version(
     artifact.content_json = target_version.get("content_json")
     await db.commit()
     await db.refresh(artifact)
+    await write_artifact_to_disk(db, artifact)
     return await rewrite_artifact_response(db, artifact, str(request.base_url))
 
-async def generate_single_artifact_task(artifact_id: int, exercise_index: int = None):
+async def generate_single_artifact_task(artifact_id: int, exercise_index: Optional[int] = None):
     from app.db.session import AsyncSessionLocal
     from app.models.session import Session
     from app.models.course import Course
@@ -141,7 +143,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
         async with AsyncSessionLocal() as db:
             stmt = select(Artifact).where(Artifact.id == artifact_id)
             res = await db.execute(stmt)
-            art = res.scalars().first()
+            art: Any = res.scalars().first()
             if not art:
                 print(f"[Error] Artifact {artifact_id} not found")
                 return
@@ -152,13 +154,13 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                 return
 
             result = await db.execute(select(Session).where(Session.id == session_id))
-            session = result.scalars().first()
+            session: Any = result.scalars().first()
             if not session:
                 print(f"[Error] Session {session_id} not found")
                 return
                 
             result = await db.execute(select(Course).where(Course.id == session.course_id))
-            course = result.scalars().first()
+            course: Any = result.scalars().first()
             raw_tech = course.technology_stack if course else "python/fastapi"
             tech_stack = "python/core" if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower() else raw_tech
 
@@ -179,7 +181,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                 Session.order_index < session.order_index
             ).order_by(Session.order_index.desc())
             prev_sess_res = await db.execute(prev_session_stmt)
-            prev_session = prev_sess_res.scalars().first()
+            prev_session: Any = prev_sess_res.scalars().first()
             
             if prev_session:
                 if is_core:
@@ -213,7 +215,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                 if lesson_ids:
                     stmt = select(Artifact).where(Artifact.lesson_id.in_(lesson_ids), Artifact.type == "outline", Artifact.status == "Completed")
                     outline_res = await db.execute(stmt)
-                    outline_arts = {o.lesson_id: o for o in outline_res.scalars().all()}
+                    outline_arts: dict[Any, Any] = {o.lesson_id: o for o in outline_res.scalars().all()}
                     mindmap_md_data = []
                     for idx, lesson in enumerate(lessons, 1):
                         out_art = outline_arts.get(lesson.id)
@@ -238,7 +240,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                 if lesson_ids:
                     stmt = select(Artifact).where(Artifact.lesson_id.in_(lesson_ids), Artifact.type == "reading", Artifact.status == "Completed")
                     reading_res = await db.execute(stmt)
-                    reading_arts = {r.lesson_id: r for r in reading_res.scalars().all()}
+                    reading_arts: dict[Any, Any] = {r.lesson_id: r for r in reading_res.scalars().all()}
                     reading_html_data = []
                     for idx, lesson in enumerate(lessons, 1):
                         read_art = reading_arts.get(lesson.id)
@@ -274,7 +276,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                         is_practice_session = True
                     
                     temp_output_dir = str(root_path / "output" / f"session_{session_id}")
-                    previous_lessons_text = ", ".join([l.title for l in lessons]) if lessons else "FastAPI fundamentals"
+                    previous_lessons_text = ", ".join([str(l.title) for l in lessons]) if lessons else "FastAPI fundamentals"
                     
                     if is_practice_session:
                         from agents.practice_agents import regenerate_single_practice_exercise, generate_practice_session_exercises
@@ -359,7 +361,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                         ).order_by(Lesson.session_id.asc(), Lesson.order_index.asc())
                         prev_lessons_res = await db.execute(prev_lessons_stmt)
                         prev_lessons = prev_lessons_res.scalars().all()
-                        previous_lessons_text = ", ".join([l.title for l in prev_lessons])
+                        previous_lessons_text = ", ".join([str(l.title) for l in prev_lessons])
                     else:
                         previous_lessons_text = f"{tech_stack} fundamentals"
 
@@ -443,7 +445,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                         srs_title = "Enterprise Project"
                         srs_art_stmt = select(Artifact).where(Artifact.session_id == session_id, Artifact.type == "project_srs")
                         srs_art_res = await db.execute(srs_art_stmt)
-                        srs_art = srs_art_res.scalars().first()
+                        srs_art: Any = srs_art_res.scalars().first()
                         if srs_art and srs_art.content_json:
                             srs_title = srs_art.content_json.get("title", srs_title)
                             
@@ -496,10 +498,14 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
                 art.content = task_error or f"No content was generated by the AI agent for {art.type}."
                 
             await db.commit()
+            try:
+                await write_artifact_to_disk(db, art)
+            except Exception as disk_err:
+                print(f"[Sync Disk Error] Failed to write regenerated artifact to disk: {disk_err}")
             if art.type in ["session_mindmap", "session_reading"]:
                 try:
                     from app.utils.artifact import copy_lesson_images_to_session
-                    await copy_lesson_images_to_session(db, art.session_id)
+                    await copy_lesson_images_to_session(db, int(art.session_id))
                 except Exception as img_err:
                     log_task_error(f"[Error] Failed to copy lesson images to session: {img_err}")
             print(f"[AI Regenerate Success] Finished regenerating single artifact {artifact_id} of type {art.type}")
@@ -509,7 +515,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: int = 
             async with AsyncSessionLocal() as db:
                 stmt = select(Artifact).where(Artifact.id == artifact_id)
                 res = await db.execute(stmt)
-                art = res.scalars().first()
+                art: Any = res.scalars().first()
                 if art:
                     art.status = "Failed"
                     art.content = f"Lỗi hệ thống (System Error): {str(e)}"

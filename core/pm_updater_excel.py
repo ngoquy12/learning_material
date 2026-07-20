@@ -6,6 +6,8 @@ def export_updated_pm_to_excel(sessions_json, original_excel_path, new_excel_pat
     """
     wb = openpyxl.Workbook()
     ws = wb.active
+    if ws is None:
+        raise ValueError("Workbook has no active worksheet.")
     ws.title = "Chương trình đào tạo chi tiết"
     
     # Headers

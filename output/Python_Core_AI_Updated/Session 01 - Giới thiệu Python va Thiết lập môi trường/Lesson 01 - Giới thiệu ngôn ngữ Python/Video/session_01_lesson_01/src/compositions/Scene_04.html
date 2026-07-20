@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene_04 — Cú pháp thụt lề bắt buộc</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.2) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      top: -200px; left: -200px; width: 800px; height: 800px;
+      background: rgba(56,189,248,0.15);
+    }
+    body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      bottom: -200px; right: -200px; width: 600px; height: 600px;
+      background: rgba(168,85,247,0.15);
+    }
+
+    #scene-04 { width: 1920px; height: 1080px; position: relative; }
+
+    :root {
+      --text-primary:   #e6edf3;
+      --text-secondary: #c9d1d9;
+      --text-muted:     #8b949e;
+      --bg-card:        rgba(9,9,11,0.7);
+      --bg-border:      rgba(255,255,255,0.08);
+      --good:           #3fb950;
+      --bad:            #f85149;
+      --accent:         #38bdf8;
+      --accent-purple:  #a855f7;
+    }
+
+    .section-badge {
+      position: absolute; top: 60px; right: 80px;
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 2px; text-transform: uppercase;
+      z-index: 5;
+    }
+
+    .intro-title {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px; font-weight: 700;
+      color: var(--text-primary); text-align: center;
+      white-space: nowrap; z-index: 100; pointer-events: none;
+    }
+    .intro-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Main Layout ── */
+    .container {
+      position: absolute; top: 180px; left: 100px; width: 1720px; height: 780px;
+      display: flex; gap: 60px; align-items: center;
+    }
+
+    .split-panel {
+      flex: 1; height: 620px;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-border);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      padding: 35px;
+      display: flex; flex-direction: column; gap: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .panel-header {
+      font-size: 28px; font-weight: 700; text-align: center;
+      padding-bottom: 16px; border-bottom: 1px solid var(--bg-border);
+    }
+    .panel-bad h3 { color: var(--bad); }
+    .panel-good h3 { color: var(--good); }
+
+    .code-card {
+      background: #0d1117;
+      border: 1px solid var(--bg-border);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', monospace;
+      font-size: 20px; line-height: 1.6;
+    }
+    .code-bad { border-color: rgba(248, 81, 73, 0.3); }
+    .code-good { border-color: rgba(63, 185, 80, 0.3); }
+
+    .warn-box {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid var(--bad);
+      border-radius: 12px; padding: 16px 20px;
+      color: var(--bad); font-size: 18px; font-family: 'Fira Code', monospace;
+    }
+    .ok-box {
+      background: rgba(63, 185, 80, 0.1);
+      border: 1px solid var(--good);
+      border-radius: 12px; padding: 16px 20px;
+      color: var(--good); font-size: 18px; font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-04" class="clip" data-composition-id="scene-04" data-width="1920" data-height="1080" data-start="0" data-duration="61.54" data-track-index="0">
+    <div id="badge-04" class="section-badge clip" data-start="0" data-duration="61.54" data-track-index="1">
+      Giới thiệu ngôn ngữ Python
+    </div>
+
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="61.54" data-track-index="10">
+      <span>Thụt lề bắt buộc</span>
+    </div>
+
+    <div class="container clip" id="main-container-04" data-start="4.0" data-duration="57.54" data-track-index="2">
+      <!-- Left Panel: Bad practice -->
+      <div class="split-panel panel-bad" id="bad-panel-04">
+        <div class="panel-header">
+          <h3>Lỗi Thụt Lề (IndentationError)</h3>
+        </div>
+        <div class="code-card code-bad">
+          <div><span style="color: #ff7b72;">if</span> temp &gt; <span style="color: #79c0ff;">25</span>:</div>
+          <div style="color: #8b949e;" id="bad-code-err">print("Thời tiết khá nóng.")</div>
+        </div>
+        <div class="warn-box" id="warn-box-04">
+          IndentationError: expected an indented block
+        </div>
+      </div>
+
+      <!-- Right Panel: Good practice -->
+      <div class="split-panel panel-good" id="good-panel-04">
+        <div class="panel-header">
+          <h3>Đúng chuẩn PEP 8</h3>
+        </div>
+        <div class="code-card code-good">
+          <div><span style="color: #ff7b72;">if</span> temp &gt; <span style="color: #79c0ff;">25</span>:</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: #a5d6ff;">print("Thời tiết khá nóng.")</span></div>
+        </div>
+        <div class="ok-box" id="ok-box-04">
+          ✓ Chương trình chạy hoàn hảo
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-04"] = tl;
+
+    const _build04 = setInterval(function() {
+      const root = document.getElementById("scene-04");
+      if (!root) return;
+      clearInterval(_build04);
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#bad-panel-04", { autoAlpha: 0, x: -60 }, 0);
+      tl.set("#good-panel-04", { autoAlpha: 0, x: 60 }, 0);
+      tl.set("#warn-box-04", { autoAlpha: 0, scale: 0.9 }, 0);
+      tl.set("#ok-box-04", { autoAlpha: 0, scale: 0.9 }, 0);
+
+      // Intro title: 0.2s -> 3.2s
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      // Slide in panels: 4.2s
+      tl.to("#bad-panel-04", { autoAlpha: 1, x: 0, duration: 0.8, ease: "power3.out" }, 4.2);
+      tl.to("#good-panel-04", { autoAlpha: 1, x: 0, duration: 0.8, ease: "power3.out" }, 5.5);
+
+      // Highlight bad code block & show warning: 10s & 18s
+      tl.to("#bad-code-err", { color: "var(--bad)", fontWeight: "bold", duration: 0.4 }, 10.0);
+      tl.to("#warn-box-04", { autoAlpha: 1, scale: 1, duration: 0.5, ease: "bounce.out" }, 18.0);
+
+      // Highlight good code block & show ok badge: 32s & 40s
+      tl.to("#ok-box-04", { autoAlpha: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 32.0);
+
+      // Focus glow good panel at 48s
+      tl.to("#good-panel-04", { borderColor: "rgba(63, 185, 80, 0.4)", boxShadow: "0 0 40px rgba(63, 185, 80, 0.15)", duration: 0.6 }, 48.0);
+
+      tl.set({}, {}, 61.54);
+    }, 50);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+Điểm đặc biệt là Python sử dụng Dynamic Typing. Biến số x ban đầu nhận giá trị mười thuộc kiểu số nguyên, nhưng sau đó có thể gán ngay bằng một chuỗi chữ mà không cần khai báo lại kiểu dữ liệu, mang lại sự linh hoạt đáng kinh ngạc.

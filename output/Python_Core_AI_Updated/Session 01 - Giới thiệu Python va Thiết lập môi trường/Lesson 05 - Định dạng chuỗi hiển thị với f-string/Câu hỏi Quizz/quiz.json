@@ -1,0 +1,84 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Cú pháp f-string bắt đầu bằng ký tự nào trước dấu nháy của chuỗi?",
+      "options": [
+        "Ký tự 's' hoặc 'S'",
+        "Ký tự 'f' hoặc 'F'",
+        "Ký tự 'p' hoặc 'P'",
+        "Ký tự 'r' hoặc 'R'"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Quy chuẩn của Python yêu cầu đặt tiền tố 'f' hoặc 'F' trước dấu nháy kép hoặc nháy đơn của chuỗi để trình biên dịch nhận diện là một f-string."
+    },
+    {
+      "question": "Đoạn code sau xuất ra kết quả gì: age = 20; print(f'Age: {age + 5}') ?",
+      "options": [
+        "Age: age + 5",
+        "Age: 20",
+        "Age: 25",
+        "Lỗi cú pháp SyntaxError"
+      ],
+      "correct_option_index": 2,
+      "explanation": "f-string cho phép đánh giá trực tiếp biểu thức số học bên trong cặp ngoặc nhọn. Biến age có giá trị 20 cộng 5 thành 25 và hiển thị ra màn hình."
+    },
+    {
+      "question": "Lựa chọn nào mô tả đúng định dạng số thực lấy 2 chữ số thập phân trong f-string?",
+      "options": [
+        "{val:2f}",
+        "{val:.2f}",
+        "{val.2f}",
+        "{val::2f}"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Cú pháp chuẩn để định cấu hình định dạng số thực là đặt dấu hai chấm (:), tiếp tục bằng dấu chấm (.) và số lượng chữ số mong muốn kèm chữ 'f' đằng sau."
+    },
+    {
+      "question": "Khi muốn căn trái dữ liệu trong một cột có độ rộng 10 ký tự, ta dùng ký tự định dạng nào sau dấu hai chấm?",
+      "options": [
+        ">10",
+        "<10",
+        "^10",
+        "=10"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Ký tự '<' quy định căn lề trái (left-aligned), '>' quy định căn phải, và '^' quy định căn giữa dòng dữ liệu."
+    },
+    {
+      "question": "Tại sao đoạn code sau bị lỗi SyntaxError: print(f\"Xin chao {user['name']}\") khi user = {'name': 'An'}?",
+      "options": [
+        "Không được phép truyền dict vào f-string",
+        "Lồng trùng dấu nháy kép bên trong ngoặc nhọn gây đứt chuỗi",
+        "Biến name chưa được định nghĩa độc lập",
+        "Dư thừa dấu nháy đơn quanh từ khóa name"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Khi chuỗi f-string bên ngoài dùng nháy kép, biểu thức khóa dict bên trong phải dùng nháy đơn để tránh gây lỗi phân tách chuỗi sớm."
+    }
+  ],
+  "practical_lab": {
+    "title": "Xay dung chuong trinh in hoa don ban hang bang f-string",
+    "objectives": [
+      "Su dung f-string de truyen cac bien so va tinh toan don gia hoa don ban hang.",
+      "Thuc hien tinh nang can le cac dong san pham, so luong va gia ban thanh hang ngay ngan.",
+      "Lam tron cac chi so so thuc va format phan ngan cach hang nghin cho so tien."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Buoc 1: Khoi tao bien ten san pham product_name = 'Python Book', gia ban price = 75000 va so luong quantity = 3.",
+        "Buoc 2: Tinh toan bien thanh tien total_amount bang cach nhan don gia voi so luong san pham.",
+        "Buoc 3: Su dung mot cau lenh print hop nhat ket hop f-string de dung dinh dang tieu de cot san pham can trai 12 ky tu, so luong can phai 5 ky tu va don gia can phai 10 ky tu.",
+        "Buoc 4: In dong thong tin chi tiet san pham ra console, ap dung format them dau phay phan cach hang ngan cho cac con so de hoa don ro rang.",
+        "Buoc 5: Kiem tra ket qua hien thi tren man hinh thong tin terminal cho thay cac dong da can chinh deu va ngay ngan."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chuong trinh chay on dinh ma khong gay loi bien dich tieng Viet hoac cu phap.",
+        "Cac cot du lieu 'Ten san pham', 'So luong' va 'Thanh tien' deu duoc can chinh thang hang thang tap.",
+        "So tien hoan toan duoc dinh dang dung voi dau phay phan cach hang ngan."
+      ]
+    }
+  }
+}

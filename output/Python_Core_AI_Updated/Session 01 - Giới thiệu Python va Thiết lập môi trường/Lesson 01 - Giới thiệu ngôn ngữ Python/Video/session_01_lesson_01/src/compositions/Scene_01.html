@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene_01 — Triết lý Python</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.2) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      top: -200px; left: -200px; width: 800px; height: 800px;
+      background: rgba(56,189,248,0.15);
+    }
+    body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      bottom: -200px; right: -200px; width: 600px; height: 600px;
+      background: rgba(168,85,247,0.15);
+    }
+
+    #scene-01 { width: 1920px; height: 1080px; position: relative; }
+
+    :root {
+      --text-primary:   #e6edf3;
+      --text-secondary: #c9d1d9;
+      --text-muted:     #8b949e;
+      --bg-card:        rgba(9,9,11,0.7);
+      --bg-border:      rgba(255,255,255,0.08);
+      --accent:         #38bdf8;
+      --accent-purple:  #a855f7;
+    }
+
+    .section-badge {
+      position: absolute; top: 60px; right: 80px;
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 2px; text-transform: uppercase;
+      z-index: 5;
+    }
+
+    .intro-title {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px; font-weight: 700;
+      color: var(--text-primary); text-align: center;
+      white-space: nowrap; z-index: 100; pointer-events: none;
+    }
+    .intro-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Main Layout ── */
+    .container {
+      position: absolute; top: 220px; left: 100px; width: 1720px; height: 740px;
+      display: flex; flex-direction: column; justify-content: center; gap: 40px;
+    }
+    .philosophy-grid {
+      display: flex; flex-direction: row; gap: 40px; justify-content: space-between;
+      width: 100%;
+    }
+    .philosophy-card {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-border);
+      border-radius: 24px; padding: 40px;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+    }
+    .phi-icon {
+      font-size: 64px; color: var(--accent);
+      background: rgba(56, 189, 248, 0.1);
+      width: 120px; height: 120px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+    }
+    .phi-content h4 {
+      font-size: 28px; color: var(--text-primary); margin-bottom: 12px;
+    }
+    .phi-content p {
+      font-size: 20px; color: var(--text-secondary); line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-01" class="clip" data-composition-id="scene-01" data-width="1920" data-height="1080" data-start="0" data-duration="63.22" data-track-index="0">
+    <div id="badge-01" class="section-badge clip" data-start="0" data-duration="63.22" data-track-index="1">
+      Giới thiệu ngôn ngữ Python
+    </div>
+
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="63.22" data-track-index="10">
+      <span>Triết lý thiết kế Python</span>
+    </div>
+
+    <div class="container clip" id="main-container-01" data-start="4.0" data-duration="59.22" data-track-index="2">
+      <div class="philosophy-grid">
+        <div class="philosophy-card" id="phi-1">
+          <div class="phi-icon">✨</div>
+          <div class="phi-content">
+            <h4>Đẹp đẽ tốt hơn xấu xí</h4>
+            <p>Mã nguồn cần được trình bày sạch sẽ, trực quan và có tính thẩm mỹ.</p>
+          </div>
+        </div>
+        <div class="philosophy-card" id="phi-2">
+          <div class="phi-icon">🔍</div>
+          <div class="phi-content">
+            <h4>Tường minh tốt hơn ngầm định</h4>
+            <p>Mọi câu lệnh nên rõ ràng, dễ hiểu, tránh các xử lý ẩn mơ hồ.</p>
+          </div>
+        </div>
+        <div class="philosophy-card" id="phi-3">
+          <div class="phi-icon">🛠️</div>
+          <div class="phi-content">
+            <h4>Đơn giản tốt hơn phức tạp</h4>
+            <p>Ưu tiên các giải pháp trực diện, tối giản để tối ưu hóa thời gian bảo trì.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-01"] = tl;
+
+    const _build01 = setInterval(function() {
+      const root = document.getElementById("scene-01");
+      if (!root) return;
+      clearInterval(_build01);
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set(["#phi-1", "#phi-2", "#phi-3"], { autoAlpha: 0, y: 50 }, 0);
+
+      // Intro title: 0.2s -> 3.2s
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      // Philosophy cards stagger aligned to ElevenLabs voice timing:
+      // Voice describes the principles around 15s to 49s
+      tl.to("#phi-1", { autoAlpha: 1, y: 0, duration: 0.8, ease: "back.out(1.2)" }, 5.0);
+      tl.to("#phi-2", { autoAlpha: 1, y: 0, duration: 0.8, ease: "back.out(1.2)" }, 22.0);
+      tl.to("#phi-3", { autoAlpha: 1, y: 0, duration: 0.8, ease: "back.out(1.2)" }, 36.0);
+
+      // Highlight glow effects: 48s onwards
+      tl.to("#phi-1", { borderColor: "rgba(56, 189, 248, 0.4)", boxShadow: "0 0 20px rgba(56, 189, 248, 0.15)", duration: 0.5 }, 48.0);
+      tl.to("#phi-2", { borderColor: "rgba(168, 85, 247, 0.4)", boxShadow: "0 0 20px rgba(168, 85, 247, 0.15)", duration: 0.5 }, 48.5);
+      tl.to("#phi-3", { borderColor: "rgba(56, 189, 248, 0.4)", boxShadow: "0 0 20px rgba(56, 189, 248, 0.15)", duration: 0.5 }, 49.0);
+
+      tl.set({}, {}, 63.22);
+    }, 50);
+  </script>
+</body>
+</html>

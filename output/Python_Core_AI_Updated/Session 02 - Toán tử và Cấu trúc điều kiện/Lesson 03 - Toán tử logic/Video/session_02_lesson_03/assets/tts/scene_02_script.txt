@@ -1,0 +1,1 @@
+Python cung cấp ba toán tử logic chính gồm and, or và not. Để hiểu rõ cách chúng hoạt động, chúng ta sử dụng bảng chân trị. Hãy xem cách viết code tự động xuất bảng chân trị cho biểu thức A and not B bằng cách lặp qua các giá trị True và False để kiểm tra kết quả.

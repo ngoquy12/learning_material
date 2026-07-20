@@ -1,0 +1,1 @@
+Tóm lại, hãy tránh ba sai lầm: quên cấu hình PATH, chưa kích hoạt môi trường ảo, và lỗi phân quyền Execution Policy trên Windows. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

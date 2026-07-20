@@ -1,0 +1,1 @@
+Hãy cùng xem ví dụ cụ thể này. Bằng cách sử dụng cấu trúc match-case mới, ta có thể so khớp trực tiếp status code một cách ngắn gọn. Ở đây, các case cụ thể như hai trăm, bốn trăm lẻ bốn được liệt kê rõ ràng, giúp mã nguồn tối giản hơn. Ký tự gạch dưới đại diện cho mọi trường hợp còn lại.

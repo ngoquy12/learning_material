@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong lập trình, đôi khi chúng ta cần chương trình đưa ra quyết định thông minh dựa trên dữ liệu thực tế, thay vì chỉ thực thi các dòng lệnh tuần tự từ trên xuống dưới. Đó là lúc cấu trúc rẽ nhánh xuất hiện.

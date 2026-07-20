@@ -1,0 +1,1 @@
+Python hỗ trợ các kiểu dữ liệu cơ bản gồm Số nguyên int, Số thực float, Chuỗi ký tự str và Luận lý bool. Chúng ta có thể phối hợp hàm print và type để kiểm tra kiểu dữ liệu của biến.

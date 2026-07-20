@@ -1,0 +1,1 @@
+Tóm lại, hãy tránh ba lỗi: quên chọn PATH, cài thiếu venv, hoặc đặt tên thư mục chứa dấu Tiếng Việt. Thiết lập môi trường sạch sẽ giúp các em phát triển dự án trơn tru. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

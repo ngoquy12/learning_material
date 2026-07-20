@@ -1,0 +1,82 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Đoạn code nào sau đây biểu diễn chính xác toán tử ba ngôi trong Python?",
+      "options": [
+        "result = score >= 5 ? 'Pass' : 'Fail'",
+        "result = 'Pass' if score >= 5 else 'Fail'",
+        "result = if score >= 5: 'Pass' else: 'Fail'",
+        "result = score >= 5 else 'Fail' if 'Pass'"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Cú pháp đúng của toán tử ba ngôi trong Python là <giá_trị_đúng> if <điều_kiện> else <giá_trị_sai>. Cách dùng dấu hỏi chấm '?' thuộc về Java/JavaScript, không phải Python."
+    },
+    {
+      "question": "Mục đích chính của việc sử dụng Guard Clauses (Mệnh đề bảo vệ) trong thiết kế mã nguồn là gì?",
+      "options": [
+        "Tăng tốc độ thực thi của CPU lên gấp đôi",
+        "Loại bỏ hoàn toàn từ khóa else và các khối điều kiện lồng nhau phức tạp",
+        "Bắt buộc mọi hàm phải trả về giá trị kiểu None",
+        "Giấu đi các lỗi nghiêm trọng trong chương trình để tránh crash"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Mệnh đề bảo vệ giúp kiểm tra điều kiện biên hoặc lỗi sớm để thoát thoát hàm ngay lập tức bằng return, giúp loại bỏ các khối điều kiện lồng nhau sâu (if lồng if) và bỏ bớt nhánh else không cần thiết."
+    },
+    {
+      "question": "Cho đoạn code sau:\nx = 10\ny = 20\nval = x * 2 if x > y else y // 2\nGiá trị của val là bao nhiêu?",
+      "options": [
+        "20",
+        "10",
+        "40",
+        "5"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Điều kiện x > y tương đương 10 > 20 (Sai). Do đó biểu thức nhánh else được thực hiện: y // 2 = 20 // 2 = 10."
+    },
+    {
+      "question": "Khi áp dụng Guard Clauses cho hàm có kiểm tra tính hợp lệ của tham số đầu vào, lệnh nào thường được gọi ngay khi phát hiện tham số không hợp lệ?",
+      "options": [
+        "break",
+        "continue",
+        "return",
+        "pass"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Từ khóa 'return' được sử dụng để thoát khỏi hàm ngay lập tức và trả về thông báo lỗi hoặc giá trị mặc định, ngăn không cho code phía dưới tiếp tục chạy."
+    },
+    {
+      "question": "Đoạn code nào sau đây lạm dụng toán tử ba ngôi gây khó đọc nhất cho người phát triển?",
+      "options": [
+        "status = 'Active' if is_valid else 'Inactive'",
+        "x = a if a > b else b",
+        "res = 'A' if score > 80 else 'B' if score > 60 else 'C'",
+        "price = original_price - 10 if has_coupon else original_price"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Việc lồng nhiều toán tử ba ngôi vào nhau trên một dòng ('A' if score > 80 else 'B' if score > 60 else 'C') gây nhiễu và làm mã nguồn cực kỳ khó đọc, vi phạm nguyên tắc giữ code sạch và gọn."
+    }
+  ],
+  "practical_lab": {
+    "title": "Tối ưu hóa hệ thống kiểm tra và phân loại tài khoản",
+    "objectives": [
+      "Áp dụng Guard Clauses loại bỏ cấu trúc if-else lồng nhau phức tạp.",
+      "Sử dụng toán tử ba ngôi để gán trạng thái tài khoản ngắn gọn."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Tạo một hàm nhận vào hai tham số: số dư tài khoản (balance) và trạng thái kích hoạt (is_active).",
+        "Sử dụng Guard Clauses để kiểm tra: nếu tài khoản không kích hoạt thì trả về ngay lập tức chuỗi 'Tài khoản đã bị khóa'.",
+        "Sử dụng Guard Clauses để kiểm tra: nếu số dư nhỏ hơn 0 thì trả về ngay lập tức chuỗi 'Số dư không hợp lệ'.",
+        "Tại dòng thực thi chính cuối cùng, sử dụng toán tử ba ngôi để trả về 'Tài khoản VIP' nếu số dư lớn hơn hoặc bằng 1000, ngược lại trả về 'Tài khoản Thường'."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Hàm không sử dụng cấu trúc if-else lồng nhau phức tạp (không quá 1 cấp thụt lề if).",
+        "Giá trị trả về chính xác khi đầu vào không kích hoạt hoặc số dư âm.",
+        "Toán tử ba ngôi được triển khai đúng cú pháp chuẩn Python."
+      ]
+    }
+  }
+}

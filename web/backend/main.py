@@ -4,8 +4,8 @@ import os
 # Force UTF-8 encoding for standard streams to prevent CP1252/charmap errors on Windows
 if sys.platform.startswith('win'):
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
-        sys.stderr.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding='utf-8')  # type: ignore
+        sys.stderr.reconfigure(encoding='utf-8')  # type: ignore
     except Exception:
         pass
 
@@ -25,7 +25,7 @@ app = FastAPI(
 # Set all CORS enabled origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # In production, set this to the specific frontend URL
+    allow_origins=["http://localhost:5173", "http://localhost:3000"], # Specific frontend URLs
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,7 +33,7 @@ app.add_middleware(
 
 from app.api.api_router import api_router
 
-@app.on_event("startup")
+@app.on_event("startup") 
 async def startup_event():
     from app.db.session import engine
     from sqlalchemy import text

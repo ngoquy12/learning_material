@@ -151,15 +151,36 @@ def robust_json_parse(json_str: str) -> dict:
             result[k] = val_sub
         else:
             try:
-                result[k] = json.loads(val_sub)
+                parsed = json.loads(val_sub)
+                if k == "lab" and not isinstance(parsed, dict):
+                    raise ValueError("lab must be a dict")
+                if k == "quiz" and not isinstance(parsed, list):
+                    raise ValueError("quiz must be a list")
+                if k == "visualizer" and not isinstance(parsed, dict):
+                    raise ValueError("visualizer must be a dict")
+                result[k] = parsed
             except Exception:
                 try:
                     import ast
-                    result[k] = ast.literal_eval(val_sub)
+                    parsed = ast.literal_eval(val_sub)
+                    if k == "lab" and not isinstance(parsed, dict):
+                        raise ValueError("lab must be a dict")
+                    if k == "quiz" and not isinstance(parsed, list):
+                        raise ValueError("quiz must be a list")
+                    if k == "visualizer" and not isinstance(parsed, dict):
+                        raise ValueError("visualizer must be a dict")
+                    result[k] = parsed
                 except Exception:
                     try:
                         cleaned_sub = fix_raw_newlines_in_json_strings(val_sub)
-                        result[k] = json.loads(cleaned_sub)
+                        parsed = json.loads(cleaned_sub)
+                        if k == "lab" and not isinstance(parsed, dict):
+                            raise ValueError("lab must be a dict")
+                        if k == "quiz" and not isinstance(parsed, list):
+                            raise ValueError("quiz must be a list")
+                        if k == "visualizer" and not isinstance(parsed, dict):
+                            raise ValueError("visualizer must be a dict")
+                        result[k] = parsed
                     except Exception:
                         if k == "self_test":
                             items = re.findall(r'"([^"\\]*(?:\\.[^"\\]*)*)"', val_sub)
@@ -606,12 +627,12 @@ Nhiệm vụ của bạn là tạo ra một "Production Blueprint JSON" cho vide
 {hyperframes_skill}
 
 NGUYÊN TẮC CỐT LÕI:
-1. CHIA ĐỦ SCENE: Tạo ra 4-6 scenes. Mỗi scene có 1 chủ đề rõ ràng.
-2. NARRATION ĐỦ DÀI: Tổng từ narration của tất cả scenes phải đạt 400-800 từ (video 4-5 phút).
-3. CẤU TRÚC ANIMATION: Mỗi scene PHẢI có animation_timeline theo đúng quy trình: intro-title 0.2s→3.2s, nội dung từ 4.0s+.
+1. CHIA ĐỦ SCENE: Tạo ra 3-5 scenes. Mỗi scene có 1 chủ đề rõ ràng.
+2. NARRATION NGẮN GỌN: Tổng từ narration của tất cả scenes đạt 150-250 từ. Lời thoại ngắn gọn, súc tích (40-60 từ/scene) để tránh bị cắt cụt JSON.
+3. CẤU TRÚC ANIMATION: Mỗi scene có 2-3 mốc animation chính (intro-title 0.2s→3.2s, nội dung chính 4.0s+).
 4. DESIGN SYSTEM: Dùng đúng màu sắc và font từ design system (#0f1117, #e6edf3, Inter, Fira Code).
-5. SƯ PHẠM: Mở đầu "Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education..." và kết "Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
-6. CÔNG NGHỆ: Kịch bản phải bám sát 100% vào {tech_stack}. KHÔNG đề cập công nghệ khác.
+5. SƯ PHẠM: Mở đầu "Chào mừng các em..." và kết "Cảm ơn các em..."
+6. CÔNG NGHỆ: Kịch bản phải bám sát 100% vào {tech_stack}.
 
 Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
 {{
@@ -623,24 +644,19 @@ Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
       "scene_id": "Scene_01",
       "scene_title": "<Tiêu đề ngắn của scene>",
       "start_at_root": 0,
-      "duration": <số giây của scene, thường 30-50s>,
+      "duration": <số giây của scene, thường 20-30s>,
       "track_index": 1,
-      "narration": "<Lời thoại đầy đủ, chi tiết, 80-180 từ/scene>",
+      "narration": "<Lời thoại súc tích, 40-60 từ/scene>",
       "visual_description": "<Mô tả những gì hiện trên màn hình>",
-      "html_structure": "<Tên các elements HTML cần có trong scene này>",
+      "html_structure": "<Các elements HTML chính>",
       "animation_timeline": [
-        "0.0s: tl.set('.clip', {{autoAlpha:1}}, 0)",
         "0.2s: intro-title fade in",
-        "3.2s: intro-title <lên góc/fade out>",
-        "4.x s: <element chính đầu tiên xuất hiện>",
-        "...thêm các mốc thời gian cụ thể..."
+        "3.2s: intro-title fade out",
+        "4.0s: main content show"
       ]
     }}
   ],
-  "tts_scripts": {{
-    "Scene_01": "<Lời thoại của scene 1, giống trường narration>",
-    "Scene_02": "..."
-  }}
+  "tts_scripts": {{}}
 }}
 
 CRITICAL: start_at_root của scene (N+1) = start_at_root[N] + duration[N]
@@ -775,8 +791,9 @@ Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
             }
 
     # Persist blueprint to state
+    result_json["lesson_slug"] = lesson_slug
     state["video_script_json"] = result_json
-    state["video_lesson_slug"] = result_json.get("lesson_slug", lesson_slug)
+    state["video_lesson_slug"] = lesson_slug
 
     # Build readable SCRIPT.md (for human review + Hyperframes structure)
     scenes = result_json.get("scenes", [])

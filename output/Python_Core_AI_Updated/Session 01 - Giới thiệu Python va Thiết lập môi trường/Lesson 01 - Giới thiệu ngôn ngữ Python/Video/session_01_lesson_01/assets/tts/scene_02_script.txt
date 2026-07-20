@@ -1,0 +1,1 @@
+Khác với ngôn ngữ biên dịch, Python là ngôn ngữ thông dịch. Trình thông dịch Interpreter sẽ đọc trực tiếp mã nguồn chấm py, dịch các dòng lệnh và thực thi ra kết quả ngay lập tức, giúp tối ưu hóa thời gian kiểm tra và phát triển phần mềm.

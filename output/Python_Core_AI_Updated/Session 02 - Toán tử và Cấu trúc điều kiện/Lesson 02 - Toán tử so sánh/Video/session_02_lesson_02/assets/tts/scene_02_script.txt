@@ -1,0 +1,1 @@
+Hãy xem ví dụ, ta so sánh biến age có lớn hơn hoặc bằng mười tám hay không, kết quả trả về sẽ là True. Chúng ta cũng có thể so sánh thứ tự bảng chữ cái của các chuỗi như apple và banana.

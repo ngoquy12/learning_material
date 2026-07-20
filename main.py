@@ -137,7 +137,8 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
     for session in sessions:
         session_id = session["session_id"]
         session_title = session.get("title", "")
-        if requested_session != "all" and requested_session not in session_id.lower():
+        req_sess_list = [r.strip() for r in requested_session.split(",")] if requested_session != "all" else ["all"]
+        if "all" not in req_sess_list and not any(rs in session_id.lower() for rs in req_sess_list):
             continue
 
         session_dir = get_or_rename_sanitized_folder(course_dir, session_id, f"{session_id} - {session_title}")
@@ -244,7 +245,8 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
     for session in sessions:
         session_id = session["session_id"]
         session_title = session.get("title", "")
-        if requested_session != "all" and requested_session not in session_id.lower():
+        req_sess_list = [r.strip() for r in requested_session.split(",")] if requested_session != "all" else ["all"]
+        if "all" not in req_sess_list and not any(rs in session_id.lower() for rs in req_sess_list):
             continue
 
         session_dir = get_or_rename_sanitized_folder(course_dir, session_id, f"{session_id} - {session_title}")
@@ -506,11 +508,14 @@ def main():
         return
 
     requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "slide", "quiz", "video", "mindmap"]
-    requested_session = args.session.strip().lower()
+    requested_sessions = [s.strip().lower() for s in args.session.split(",")] if args.session != "all" else ["all"]
 
     print(f"Loading spreadsheet: {excel_path}")
     sessions = parse_all_sessions(excel_path)
     print(f"Successfully loaded {len(sessions)} sessions from spreadsheet.")
+    if "all" not in requested_sessions:
+        sessions = [s for s in sessions if any(rs in s["session_id"].lower() for rs in requested_sessions)]
+        print(f"Filtered to {len(sessions)} sessions matching {requested_sessions}.")
 
     # Compile the workflow graph
     workflow = compile_learning_content_workflow()
@@ -575,8 +580,8 @@ def main():
             return
 
     # Khởi tạo và duyệt cấu trúc thư mục/file rỗng trước khi chạy sinh nội dung
-    initialize_skeleton_structure(sessions, course_dir, requested_parts, requested_session)
-    project_structure_reviewer_agent(sessions, course_dir, requested_parts, requested_session)
+    initialize_skeleton_structure(sessions, course_dir, requested_parts, args.session.strip().lower())
+    project_structure_reviewer_agent(sessions, course_dir, requested_parts, args.session.strip().lower())
 
     summary = []
 
@@ -584,7 +589,7 @@ def main():
         session_id = session["session_id"]
         session_title = session.get("title", "")
 
-        if requested_session != "all" and requested_session not in session_id.lower():
+        if "all" not in requested_sessions and not any(rs in session_id.lower() for rs in requested_sessions):
             continue
 
         print(f"\n=====================================================================")
@@ -915,7 +920,10 @@ print("TTS Generation Complete!")
                             print("  [TTS] Running prepare_tts.py in video project directory...")
                             import subprocess
                             try:
-                                subprocess.run(["python", "prepare_tts.py"], cwd=str(video_project_dir), check=True, shell=True)
+                                cwd_str = str(video_project_dir)
+                                if cwd_str.startswith("\\\\?\\"):
+                                    cwd_str = cwd_str[4:]
+                                subprocess.run(["python", "prepare_tts.py"], cwd=cwd_str, check=True, shell=True)
                             except Exception as e:
                                 print(f"  [TTS Error] Python script execution failed: {e}")
                                 

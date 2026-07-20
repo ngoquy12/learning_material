@@ -16,7 +16,7 @@ class Settings(BaseSettings):
         return f"mysql+aiomysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_SERVER}:{self.MYSQL_PORT}/{self.MYSQL_DB}"
 
     class Config:
-        env_file = ".env"
+        env_file = ".env" 
         extra = "ignore"
 
 settings = Settings()

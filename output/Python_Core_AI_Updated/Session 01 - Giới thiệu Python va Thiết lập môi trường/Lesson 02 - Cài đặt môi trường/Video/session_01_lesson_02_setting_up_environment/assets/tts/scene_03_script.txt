@@ -1,0 +1,1 @@
+Tóm lại, hãy luôn lưu ý ba lỗi phổ biến: quên tích hợp PATH, chưa kích hoạt venv trước khi dùng pip, và cấu hình sai Interpreter trên VS Code. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

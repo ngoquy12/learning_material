@@ -99,7 +99,7 @@ def node_init_objectives(state: AgentState) -> AgentState:
             approved = True
             break
             
-        previous_feedback = state.get("review_logs", [-1])[-1]["feedback"] if state.get("review_logs") and state["review_logs"][-1]["source"] == "Objective_Reviewer" else None
+        previous_feedback = state.get("review_logs", [-1])[-1]["feedback"] if state.get("review_logs") and state["review_logs"][-1]["source"] == "Objective_Reviewer" else ""
         state["learning_outcomes"] = objective_architect_agent(state["pm_input"], state.get("technology_stack", "python/core"), previous_feedback)
         
         review = objective_reviewer_agent(state["learning_outcomes"], state["pm_input"], state.get("technology_stack", "python/core"))

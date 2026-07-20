@@ -1,0 +1,1 @@
+Python cung cấp các toán tử số học cơ bản gồm cộng, trừ, nhân, chia. Đặc biệt, ta có toán tử phần trăm để chia lấy dư, hai dấu gạch chéo để chia lấy phần nguyên, và hai dấu sao để thực hiện phép tính lũy thừa một cách nhanh chóng và tối ưu.

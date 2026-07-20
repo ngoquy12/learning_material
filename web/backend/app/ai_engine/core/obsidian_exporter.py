@@ -2,6 +2,7 @@
 import os
 import openpyxl
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
 def generate_obsidian_vault(excel_path: str, output_dir: str = "obsidian_vault"):
     """
@@ -15,6 +16,8 @@ def generate_obsidian_vault(excel_path: str, output_dir: str = "obsidian_vault")
 
     wb = openpyxl.load_workbook(excel_path)
     ws = wb.active
+    if ws is None:
+        raise ValueError("Workbook has no active worksheet.")
     course_name = ws.title.strip()
     
     # Clean up course name for filesystem use
@@ -32,33 +35,34 @@ def generate_obsidian_vault(excel_path: str, output_dir: str = "obsidian_vault")
     vault_path.mkdir(parents=True, exist_ok=True)
 
     # 1. Parse sessions & lessons
-    sessions = []
-    current_session = None
+    sessions: List[Dict[str, Any]] = []
+    current_session: Optional[Dict[str, Any]] = None
     
     for row in ws.iter_rows(min_row=2, values_only=True):
-        stt, form, session_val, content_val, lesson_val, details_val, output_val, deadline = row[:8]
+        row_padded = list(row) + [None] * (8 - len(row))
+        stt, form, session_val, content_val, lesson_val, details_val, output_val, deadline = row_padded[:8]
         
         if session_val and str(session_val).strip().startswith("Session"):
-            session_id = session_val.strip()
+            session_id = str(session_val).strip()
             existing = [s for s in sessions if s["session_id"] == session_id]
             if existing:
                 current_session = existing[0]
             else:
                 current_session = {
                     "session_id": session_id,
-                    "title": content_val.strip() if content_val else "",
+                    "title": str(content_val).strip() if content_val else "",
                     "lessons": []
                 }
                 sessions.append(current_session)
             
         if lesson_val and str(lesson_val).strip().startswith("Lesson") and current_session:
-            lesson_id = lesson_val.strip().split(":")[0].strip()
-            lesson_title = lesson_val.strip().split(":", 1)[1].strip() if ":" in str(lesson_val) else str(lesson_val).strip()
+            lesson_id = str(lesson_val).strip().split(":")[0].strip()
+            lesson_title = str(lesson_val).strip().split(":", 1)[1].strip() if ":" in str(lesson_val) else str(lesson_val).strip()
             current_session["lessons"].append({
                 "lesson_id": lesson_id,
                 "title": lesson_title,
-                "details": details_val.strip() if details_val else "",
-                "expected_output": output_val.strip() if output_val else ""
+                "details": str(details_val).strip() if details_val else "",
+                "expected_output": str(output_val).strip() if output_val else ""
             })
 
     print(f"[Obsidian Exporter] Parsed {len(sessions)} sessions to export.")

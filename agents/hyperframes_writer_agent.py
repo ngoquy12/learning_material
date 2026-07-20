@@ -668,6 +668,12 @@ def _build_durations_json(blueprint: Dict[str, Any]) -> str:
 
 # ── Main Agent ──────────────────────────────────────────────────────────────
 
+def _to_long_path(path: Path) -> Path:
+    abs_path = os.path.abspath(str(path))
+    if os.name == 'nt' and not abs_path.startswith('\\\\?\\'):
+        abs_path = '\\\\?\\' + abs_path
+    return Path(abs_path)
+
 def hyperframes_writer_agent(state: AgentState) -> AgentState:
     """
     HyperFrames Composition Writer Agent:
@@ -700,9 +706,9 @@ def hyperframes_writer_agent(state: AgentState) -> AgentState:
         print(f"  [HyperFrames_Writer Warning] Could not resolve lesson_dir: {e}. Using fallback.")
         lesson_dir = Path(__file__).resolve().parent.parent / "output" / "lessons" / lesson_slug
 
-    video_dir = lesson_dir / "Video" / lesson_slug
-    compositions_dir = video_dir / "src" / "compositions"
-    assets_tts_dir = video_dir / "assets" / "tts"
+    video_dir = _to_long_path(lesson_dir / "Video" / lesson_slug)
+    compositions_dir = _to_long_path(video_dir / "src" / "compositions")
+    assets_tts_dir = _to_long_path(video_dir / "assets" / "tts")
 
     # Create directories
     compositions_dir.mkdir(parents=True, exist_ok=True)

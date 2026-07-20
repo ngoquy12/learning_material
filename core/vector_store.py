@@ -38,17 +38,30 @@ class LightweightVectorStore:
 
         if gemini_key:
             try:
-                import google.generativeai as genai
+                import google.generativeai as genai  # type: ignore
                 base_url = os.getenv("GEMINI_BASE_URL")
                 if base_url:
-                    genai.configure(
-                        api_key=gemini_key,
-                        client_options={"api_endpoint": base_url},
-                        transport="rest"
-                    )
-                else:
-                    genai.configure(api_key=gemini_key)
-                # Use standard embedding model
+                    try:
+                        genai.configure(
+                            api_key=gemini_key,
+                            client_options={"api_endpoint": base_url},
+                            transport="rest"
+                        )
+                        result = genai.embed_content(
+                            model="models/embedding-001",
+                            content=text,
+                            task_type="retrieval_document"
+                        )
+                        return result.get("embedding", [])
+                    except Exception as proxy_err:
+                        print(f"  [VectorStore Warning] Proxy embedding failed: {proxy_err}. Retrying directly with Google API...")
+                
+                # Direct call to Google Generative AI API (bypass proxy)
+                genai.configure(
+                    api_key=gemini_key,
+                    client_options={"api_endpoint": "https://generativelanguage.googleapis.com"},
+                    transport="rest"
+                )
                 result = genai.embed_content(
                     model="models/embedding-001",
                     content=text,
@@ -60,7 +73,7 @@ class LightweightVectorStore:
 
         if openai_key:
             try:
-                from openai import OpenAI
+                from openai import OpenAI  # type: ignore
                 client = OpenAI(api_key=openai_key)
                 response = client.embeddings.create(
                     model="text-embedding-3-small",

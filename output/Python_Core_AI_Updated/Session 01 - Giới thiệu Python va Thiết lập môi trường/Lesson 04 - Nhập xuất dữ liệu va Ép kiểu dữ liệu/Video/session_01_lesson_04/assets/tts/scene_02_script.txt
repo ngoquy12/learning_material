@@ -1,0 +1,1 @@
+Để xử lý chính xác, chúng ta cần ép kiểu dữ liệu bằng các hàm như int hay float. Quy trình chuẩn sẽ là: nhận chuỗi từ người dùng, ép kiểu sang dạng số, tiến hành tính toán số học nâng cao, và dùng hàm print để xuất kết quả hoàn thiện ra màn hình.

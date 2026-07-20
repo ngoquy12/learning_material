@@ -1,0 +1,1 @@
+Khi kết hợp nhiều toán tử, Python đánh giá theo thứ tự ưu tiên mặc định. Đầu tiên là các phép so sánh toán học, tiếp theo là toán tử not, sau đó đến and, và cuối cùng là or. Hiểu rõ thứ tự này giúp các em tránh được lỗi logic nghiêm trọng khi viết biểu thức phức tạp.

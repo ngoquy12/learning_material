@@ -17,4 +17,4 @@ dependencies = [
 ]
 
 [tool.pyright]
-extraPaths = ["."]
+extraPaths = [".", "app/ai_engine", "../.."]

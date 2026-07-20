@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay, chúng ta sẽ tìm hiểu cách tối ưu hóa các cấu trúc rẽ nhánh phức tạp. Khi viết quá nhiều if-else lồng nhau, mã nguồn sẽ bị đẩy sâu về bên phải, tạo ra cấu trúc Arrow Anti-pattern cực kỳ khó đọc.

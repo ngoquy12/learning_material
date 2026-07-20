@@ -1,0 +1,1 @@
+Để giải quyết triệt để, chúng ta có quy trình chuẩn: Một là cài đặt Python từ trang chủ và tích chọn Add Python to PATH. Hai là cài đặt VS Code kèm extension Python để tối ưu hóa trình biên dịch mã nguồn.

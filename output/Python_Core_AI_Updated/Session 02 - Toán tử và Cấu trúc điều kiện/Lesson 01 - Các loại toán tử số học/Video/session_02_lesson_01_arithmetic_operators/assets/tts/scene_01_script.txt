@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong lập trình, tính toán là yêu cầu cốt lõi. Ngoài các phép tính cơ bản, làm sao để chia lấy dư phân loại chẵn lẻ, chia lấy nguyên để phân trang, hay tính lũy thừa hiệu suất cao? Hãy cùng tìm hiểu ngay sau đây.

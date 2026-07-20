@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay, chúng ta sẽ tìm hiểu về nhập xuất và ép kiểu dữ liệu trong Python. Các em cần lưu ý, hàm input luôn trả về dữ liệu dạng chuỗi, khiến phép toán cộng bị biến thành phép ghép chuỗi sai lệch.

@@ -78,3 +78,17 @@ Khi xuất file Excel ngân hàng câu hỏi Quizz đầu giờ và Quizz cuối
 | 11  | `isCorrect`            | Number       | Chỉ mục đáp án đúng (`1` cho A, `2` cho B, `3` cho C, `4` cho D).       |
 | 12  | `difficulty`           | Number       | Độ khó của câu hỏi theo thang từ `1` đến `11`.                         |
 | 13  | `category`             | Text         | Phân loại nguồn câu hỏi: `"BÀI CŨ"` hoặc `"BÀI MỚI"`.                   |
+
+---
+
+## 💻 4. Quy tắc viết code mẫu trong câu hỏi (Code Styling Guidelines)
+
+Khi sinh các đoạn code mẫu trong nội dung câu hỏi (`question_content`), các đáp án hoặc phần giải thích, Agent bắt buộc phải tuân thủ nghiêm ngặt các quy tắc định dạng mã nguồn sau:
+1. **Ngôn ngữ của mã nguồn:** 100% tên biến, tên hàm, tên lớp, tên thuộc tính, và các định danh trong code phải viết bằng **Tiếng Anh**.
+2. **Quy tắc đặt tên (Naming Conventions):**
+   * Sử dụng **`snake_case`** cho tên biến, tên hàm, tên thuộc tính trong Python/Database (ví dụ: `user_id`, `get_active_users`).
+   * Sử dụng **`camelCase`** hoặc **`PascalCase`** đối với JavaScript/TypeScript/Java nếu ngôn ngữ đó quy định chuẩn như vậy (ví dụ: `userId`, `fetchData`).
+3. **Thụt lề và căn lề (Indentation):**
+   * Đảm bảo thụt lề chuẩn bằng khoảng trắng (Indent) hoặc Tab đồng nhất theo tiêu chuẩn của từng ngôn ngữ (ví dụ: Python bắt buộc thụt lề 4 khoảng trắng cho mỗi khối block logic).
+   * Không viết mã nguồn dồn cục trên một dòng duy nhất khi trình bày cấu trúc đa dòng. Dùng ký tự xuống dòng `\n` chính xác.
+

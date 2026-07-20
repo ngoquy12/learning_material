@@ -1,0 +1,1 @@
+Chúng ta sử dụng các từ khóa if, elif và else kết hợp với toán tử so sánh để phân loại điều kiện. Hãy xem ví dụ phân loại chỉ số BMI sau đây. Nếu điều kiện đầu tiên sai, chương trình sẽ tiếp tục kiểm tra các điều kiện tiếp theo trước khi thực thi nhánh else.

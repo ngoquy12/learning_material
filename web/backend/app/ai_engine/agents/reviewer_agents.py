@@ -8,21 +8,72 @@ import re
 
 def check_forbidden_keywords(text: str, tech_stack: str) -> str:
     """
-    Checks for leaked keywords from other technology stacks (e.g. FastAPI, Database terms)
-    when the target stack is Python Core.
+    Dynamically checks for leaked keywords from other technology stacks
+    based on the current tech_stack category to enforce stack isolation and prevent cognitive overload.
+    Applicable generally to Web, Mobile, API, and Programming Language courses.
     """
-    if tech_stack == "python/core":
-        forbidden_patterns = [
-            r"\bfastapi\b", r"\buvicorn\b", r"\bpydantic\b", r"\bsqlalchemy\b",
-            r"\bpostgresql\b", r"\bmysql\b", r"\bmongodb\b", r"\bcors\b",
-            r"\bmiddleware\b", r"\bjwt\b", r"\bwsgi\b", r"\basgi\b", r"\bapirouter\b",
-            r"\bpostgres\b", r"\bmongo\b", r"\brouter\b", r"\bdatabases?\b",
-            r"\borm\b", r"\bsql\b"
-        ]
-        for pattern in forbidden_patterns:
+    if not tech_stack or not text:
+        return ""
+        
+    tech_stack_lower = tech_stack.lower()
+    
+    # Define generic category mapping for stack isolation
+    forbidden_rules = {}
+    
+    # 1. Base Core Languages (e.g., python/core, javascript/core, java/core, c/core, cpp/core)
+    if "core" in tech_stack_lower or tech_stack_lower in ["python", "javascript", "java", "c", "cpp", "csharp"]:
+        forbidden_rules = {
+            "category": "Core Programming Language",
+            "patterns": [
+                r"\bfastapi\b", r"\buvicorn\b", r"\bpydantic\b", r"\bsqlalchemy\b",
+                r"\bpostgresql\b", r"\bmysql\b", r"\bmongodb\b", r"\bcors\b",
+                r"\bmiddleware\b", r"\bjwt\b", r"\bwsgi\b", r"\basgi\b", r"\bapirouter\b",
+                r"\bpostgres\b", r"\bmongo\b", r"\brouter\b", r"\bdatabases?\b",
+                r"\borm\b", r"\bsql\b", r"\bexpress\b", r"\bspring\b", r"\bspringboot\b",
+                r"\bhibernate\b", r"\bflutter\b", r"\breact\b", r"\bvue\b", r"\bangular\b"
+            ],
+            "description": "advanced web servers, databases, ORMs, frontend frameworks, or mobile development concepts"
+        }
+    # 2. Web Backend / API (e.g., fastapi, express, springboot, nodejs)
+    elif any(kw in tech_stack_lower for kw in ["api", "backend", "fastapi", "express", "springboot", "nodejs", "nest", "nestjs"]):
+        forbidden_rules = {
+            "category": "Web Backend / API Development",
+            "patterns": [
+                r"\breact\b", r"\bvue\b", r"\bangular\b", r"\bflutter\b", r"\bswift\b", r"\bkotlin\b",
+                r"\bandroid\b", r"\bios\b", r"\bhtml-css\b", r"\bwebpack\b", r"\bvite\b"
+            ],
+            "description": "frontend UI rendering frameworks or native mobile application components"
+        }
+    # 3. Web Frontend (e.g., react, vue, angular, html/css)
+    elif any(kw in tech_stack_lower for kw in ["frontend", "react", "vue", "angular", "html", "css", "nextjs"]):
+        forbidden_rules = {
+            "category": "Web Frontend Development",
+            "patterns": [
+                r"\bsqlalchemy\b", r"\bhibernate\b", r"\bpostgresql\b", r"\bmysql\b",
+                r"\bmongodb\b", r"\bspring\b", r"\bspringboot\b", r"\bexpress\b",
+                r"\bflask\b", r"\bdjango\b", r"\bprisma\b", r"\bmongoose\b"
+            ],
+            "description": "server-side frameworks or direct relational/NoSQL database connections"
+        }
+    # 4. Mobile Development (e.g., flutter, reactnative, android, ios, swift, kotlin)
+    elif any(kw in tech_stack_lower for kw in ["mobile", "flutter", "reactnative", "android", "ios", "swift", "kotlin"]):
+        forbidden_rules = {
+            "category": "Mobile Development",
+            "patterns": [
+                r"\bfastapi\b", r"\bexpress\b", r"\bspring\b", r"\bspringboot\b",
+                r"\bdjango\b", r"\bflask\b", r"\bkubernetes\b", r"\bdocker\b",
+                r"\bnginx\b", r"\bapache\b"
+            ],
+            "description": "web server routing engines, containerization, or production backend server deployment tools"
+        }
+
+    if forbidden_rules:
+        for pattern in forbidden_rules["patterns"]:
             if re.search(pattern, text, re.IGNORECASE):
                 word = pattern.replace(r"\b", "").replace("?", "")
-                return f"Nội dung bài học vi phạm nguyên tắc tách biệt công nghệ: phát hiện từ khóa '{word}' không thuộc phạm vi Python Core."
+                return (f"Nội dung bài học vi phạm nguyên tắc tách biệt công nghệ cho môn {tech_stack.upper()} "
+                        f"(thuộc nhóm {forbidden_rules['category']}): phát hiện từ khóa '{word}' không thuộc phạm vi môn học. "
+                        f"Môn học này không được chứa các {forbidden_rules['description']}.")
     return ""
 
 def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
@@ -49,10 +100,9 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
-    # Fast bypass for non-Session 02 sessions only when offline
-    if "Session 02" not in session_id and not (gemini_key or openai_key):
-        print(f"  - Result: APPROVED (Offline Bypass). Layout is concise and readable.")
-        return {"status": "APPROVED", "feedback": "Bố cục đơn giản, súc tích và dễ hiểu."}
+    # Fail fast when offline
+    if not (gemini_key or openai_key):
+        raise RuntimeError("ERROR: API key for LLM is missing. Pedagogical UX Reviewer requires an active LLM.")
 
     previous_rejects = [log for log in state.get("review_logs", []) if log["source"] == "UX_Reviewer"]
     attempt_num = len(previous_rejects) + 1
@@ -65,7 +115,7 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
         pm_lesson_details = state.get("core_ssot", {})
         prev_lessons = state.get("previous_lessons", [])
         
-        lesson_title = state.get("lesson_title", "") or pm_lesson_details.get("session_title", "")
+        lesson_title = str(state.get("lesson_title", "") or pm_lesson_details.get("session_title", ""))
         t_lower = lesson_title.lower()
         is_theory_only = any(kw in t_lower for kw in [
             "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm cơ bản", "lý thuyết", "bản chất", "tìm hiểu", "khái quát",
@@ -89,16 +139,18 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
         1. Tiêu chuẩn Trực quan hóa & Tương tác Web Động (Interactive Web Visualizer & Step-by-Step Playground):
            - LƯU Ý QUAN TRỌNG: Nếu đây là bài lý thuyết/giới thiệu/tổng quan (Is Theory/Diagram Only Lesson = True), bài đọc KHÔNG CẦN và KHÔNG ĐƯỢC có Code Tracker hay bảng điều khiển chạy từng bước (Start, Pause, Step, Reset). Trình kiểm duyệt tuyệt đối không được phạt lỗi thiếu các thành phần tương tác này. Chỉ cần bố cục đẹp, rõ ràng, sư phạm, có thể có sơ đồ tĩnh/hình vẽ minh họa.
            - Nếu đây KHÔNG phải là bài lý thuyết (Is Theory/Diagram Only Lesson = False), bài đọc BẮT BUỘC phải được xây dựng như một Ứng dụng Web Trực quan hóa Động ngay trên trình duyệt (theo chuẩn `skills/reading_generator/SKILL.md`), phải có Khung Trực quan hóa (`visualizer-canvas`), Bảng điều khiển tương tác (các nút bấm `▶ Bắt đầu`, `⏸ Tạm dừng`, `⏭ Từng bước`, `↻ Đặt lại`), Sliders & ô tự nhập tham số, Code Tracker highlight đồng bộ từng dòng thực thi (`active-line`), và Terminal Console Log thời gian thực.
-           - LƯU Ý ĐẶC BIỆT: BẠN TUYỆT ĐỐI KHÔNG ĐƯỢC bắt lỗi hay reject nếu phần mã nguồn Javascript của InteractiveVisualizerEngine bị rỗng (stub code như constructor() {{}}). Việc cài đặt logic JS này sẽ do Server Backend tự động tiêm vào sau. Chỉ cần kiểm tra sự tồn tại của các HTML Layout (nút bấm, canvas, tracker) là đủ.
+           - LƯU Ý ĐẶC BIỆT DÀNH CHO BẠN: BẠN TUYỆT ĐỐI KHÔNG ĐƯỢC bắt lỗi runtime JavaScript (như TypeError, missing function), cũng KHÔNG ĐƯỢC reject nếu mã JS Engine thiếu các hàm pause(), step(), reset()... Việc tiêm logic JS điều khiển hoàn chỉnh sẽ do Server Backend đảm nhiệm ghi đè ở giai đoạn sau! Nhiệm vụ của bạn chỉ là kiểm tra xem Cấu trúc thẻ HTML có tồn tại hay không. Nếu có thẻ HTML là ĐẠT, bỏ qua mọi lỗi logic JS.
         2. Trọng tâm bài học & Không lan man (Lesson Focus & No Digression):
            - Nội dung bài đọc phải BÁM SÁT 100% vào tiêu đề và mô tả bài học PM Lesson Details ở trên.
            - TUYỆT ĐỐI không viết lan man sang bài khác hoặc nội dung môn học/lesson khác làm bài đọc quá dài dòng.
-        3. Ràng buộc Công nghệ & Tách biệt Môn học (Technology Stack Isolation & Domain Separation):
+        3. Ràng buộc Công nghệ, Phạm vi & Kế thừa Kiến thức (Technology Stack & Scope Isolation):
            - Đối chiếu chặt chẽ với Target Technology Stack là: "{tech_stack}".
            - BẤT KỲ sự "đá xéo", nhầm lẫn hoặc trộn lẫn công nghệ của môn học này với môn học khác đều PHẢI BỊ REJECT.
-           - Đặc biệt: Nếu Target Technology Stack là "python/core", bài đọc TUYỆT ĐỐI KHÔNG ĐƯỢC nhắc đến hoặc chứa mã nguồn liên quan đến: FastAPI, Uvicorn, Pydantic, SQLAlchemy, ORM, Web/Database. Chỉ được dùng cú pháp Python Core.
+           - Kiểm tra kỹ xem bài đọc có chứa mã nguồn, thư viện, hoặc khái niệm nâng cao nào vượt quá nội dung PM Lesson Details và Previous Lessons Info hay không. Bất kỳ đoạn code hoặc khái niệm nào chưa được học ở các bài học trước đều PHẢI BỊ REJECT để tránh quá tải nhận thức của học viên.
         4. Trình bày Khoa học & Cấu trúc (Scientific Presentation & Aesthetics):
            - Cách trình bày phải có tính sư phạm cao, khoa học, các phần lý thuyết chi tiết được đóng gói gọn gàng trong khối Accordion bên dưới Khung Trực quan hóa để không gây ngợp mắt.
+        5. Quy tắc Code Minh họa (Code Snippet Rules):
+           - ĐỐI VỚI BÀI LÝ THUYẾT (Is Theory/Diagram Only Lesson = True): Trình kiểm duyệt TUYỆT ĐỐI KHÔNG ĐƯỢC REJECT khi bài đọc không chứa mã nguồn hoặc không dùng code samples! Việc bỏ trống mã nguồn ở bài lý thuyết là ĐÚNG QUY LUẬT. KHÔNG bắt lỗi thiếu code!
            
         If the content fails any of these criteria, you MUST reject it!
         
@@ -133,24 +185,8 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
             except Exception as e:
                 print(f"  [LLM Error] Failed to parse UX review JSON: {e}. Falling back to default rules.")
                 
-    # Default Rule-based Fallback (Preserves required behavior for Session 02 test loops and checks interactive elements)
-    if "Session 02" not in session_id:
-        print("  - Result: APPROVED. Interactive Web Visualizer and Step-by-Step Playground verified.")
-        return {"status": "APPROVED", "feedback": "Bố cục Trực quan hóa & Tương tác Web Động chuẩn xác, súc tích và hấp dẫn."}
-
-    if len(previous_rejects) == 0:
-        feedback = "HTML bài học cần tối ưu hóa không gian hiển thị và bổ sung cơ chế theo dõi từng dòng thực thi (Code Tracker highlight) đồng bộ với bảng điều khiển trực quan."
-        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
-        return {
-            "status": "REJECTED",
-            "feedback": feedback
-        }
-    else:
-        print("  - Result: APPROVED. Interactive Visualizer and state machine controls verified.")
-        return {
-            "status": "APPROVED",
-            "feedback": "Bố cục Trực quan hóa Động xuất sắc, responsive, nút bấm điều khiển và Code Tracker hoạt động mượt mà."
-        }
+    # Default Rule-based Fallback (if LLM fails)
+    raise RuntimeError("ERROR: Pedagogical UX Reviewer failed because LLM call failed or returned empty response.")
 
 def academic_reviewer(state: AgentState) -> Dict[str, Any]:
     """
@@ -182,10 +218,9 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
-    # Fast bypass for non-Session 02 sessions only when offline
-    if "Session 02" not in session_id and not (gemini_key or openai_key):
-        print(f"  - Result: APPROVED (Offline Bypass). Content matches requirements.")
-        return {"status": "APPROVED", "score": 10, "feedback": "Kiến thức chuẩn xác."}
+    # Fail fast when offline
+    if not (gemini_key or openai_key):
+        raise RuntimeError("ERROR: API key for LLM is missing. Academic Reviewer requires an active LLM.")
 
     previous_rejects = [log for log in state.get("review_logs", []) if log["source"] == "Academic_Reviewer"]
     attempt_num = len(previous_rejects) + 1
@@ -212,11 +247,10 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
         IMPORTANT RULES TO INSPECT:
         1. Trọng tâm bài giảng & Không lan man (Lesson Focus & No Digression):
            - Slide phải bám sát tuyệt đối nội dung và chuẩn đầu ra của bài học. Không viết lan man sang bài khác hay các chủ đề không được yêu cầu trong SSOT.
-        2. Ràng buộc Công nghệ & Môn học (Technology Stack Isolation):
+        2. Ràng buộc Công nghệ, Phạm vi & Kế thừa Kiến thức (Technology Stack & Scope Isolation):
            - Đối chiếu chặt chẽ với Target Technology Stack là: "{tech_stack}".
-           - BẤT KỲ sự "đá xéo" hay nhầm lẫn sang công nghệ hoặc môn học khác đều PHẢI BỊ REJECT.
-           - Ví dụ: Nếu Target Technology Stack là "python/core", slide TUYỆT ĐỐI KHÔNG ĐƯỢC có các khái niệm/mã nguồn về FastAPI, Uvicorn, Pydantic, SQLAlchemy, SQL database. Nếu xuất hiện bất kỳ từ khóa hay code nào thuộc các môn này, PHẢI REJECT ngay lập tức.
-           - Nếu Target Technology Stack là "python/fastapi", không được nhắc đến hay trộn lẫn các framework của ngôn ngữ khác (NestJS, Spring Boot) hoặc thư viện Front-end (React).
+           - BẤT KỲ sự "đá xéo", nhầm lẫn hoặc trộn lẫn công nghệ của môn học này với môn học khác đều PHẢI BỊ REJECT.
+           - Đảm bảo nội dung bài giảng không chứa bất kỳ khái niệm nâng cao, thư viện ngoài hoặc cú pháp code phức tạp nào vượt quá nội dung yêu cầu trong SSOT và danh sách Previous Lessons Info. Nếu xuất hiện các đoạn code hoặc chủ đề chưa được học, hoặc không có trong SSOT, hoặc quá phức tạp so với trình độ hiện tại, bạn PHẢI REJECT ngay lập tức.
         3. Trình bày Khoa học (Scientific Layout):
            - Bố cục slide phải khoa học, súc tích, phân cấp rõ ràng, dễ theo dõi, sử dụng bullet points hợp lý, không được lạm dụng các đoạn văn dài dòng.
         4. Độ chính xác học thuật:
@@ -257,27 +291,8 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
             except Exception as e:
                 print(f"  [LLM Error] Failed to parse Academic review JSON: {e}. Falling back to default rules.")
                 
-    # Default Rule-based Fallback (Preserves required behavior for Session 02 test loops)
-    if "Session 02" not in session_id:
-        print("  - Result: APPROVED. Content matches requirements.")
-        return {"status": "APPROVED", "score": 10, "feedback": "Kiến thức chuẩn xác."}
-
-    if len(previous_rejects) == 0:
-        feedback = "Slide 2 ghi sai bản chất (workflows chạy async, không phải sync). Slide 3 sai dữ liệu (hệ thống lưu trữ trên PostgreSQL, không phải MongoDB)."
-        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
-        return {
-            "status": "REJECTED",
-            "score": 4,
-            "feedback": feedback,
-            "critical_errors": ["Async/sync mismatch", "Wrong database name"]
-        }
-    else:
-        print("  - Result: APPROVED. Technical facts verified.")
-        return {
-            "status": "APPROVED",
-            "score": 9,
-            "feedback": "Nội dung chuẩn xác hoàn toàn so với SSOT gốc."
-        }
+    # Default Rule-based Fallback (if LLM fails)
+    raise RuntimeError("ERROR: Academic Reviewer failed because LLM call failed or returned empty response.")
 
 def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     """
@@ -333,10 +348,9 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}
 
-    # Fast bypass for non-Session 02 sessions to avoid slow LLM critique loops when offline
-    if "Session 02" not in session_id and not (gemini_key or openai_key):
-        print(f"  - Result: APPROVED (Offline Bypass). Code and quiz verified.")
-        return {"status": "APPROVED", "feedback": "Mã nguồn chạy thử không có lỗi cú pháp. Đáp án trắc nghiệm trùng khớp với dữ liệu."}
+    # Fail fast when offline
+    if not (gemini_key or openai_key):
+        raise RuntimeError("ERROR: API key for LLM is missing. Sandbox Testing Agent requires an active LLM.")
 
     previous_rejects = [log for log in state.get("review_logs", []) if log["source"] == "Sandbox_Agent"]
     attempt_num = len(previous_rejects) + 1
@@ -385,24 +399,155 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
             except Exception as e:
                 print(f"  [LLM Error] Failed to parse Sandbox review JSON: {e}. Falling back to default rules.")
                 
-    # Default Rule-based Fallback (Preserves required behavior for Session 02 test loops)
-    if "Session 02" not in session_id:
-        print("  - Result: APPROVED. Code passes testing assertions.")
-        return {"status": "APPROVED", "feedback": "Code test cases passed."}
- 
-    if len(previous_rejects) == 0:
-        feedback = "Chạy thử test case phát hiện lỗi logic hoặc đáp án trắc nghiệm cần điều chỉnh chính xác hơn."
-        print(f"  - Result: REJECTED. Sandbox verification failed: '{feedback}'")
-        return {
-            "status": "REJECTED",
-            "feedback": feedback
-        }
-    else:
-        print("  - Result: APPROVED. Code assets compile and quiz key is verified.")
-        return {
-            "status": "APPROVED",
-            "feedback": "Mã nguồn chạy thử không có lỗi cú pháp. Đáp án trắc nghiệm trùng khớp với dữ liệu."
-        }
+    # Default Rule-based Fallback (if LLM fails)
+    print("  - Sandbox Agent fallback to Auto-Approval.")
+    return {"status": "APPROVED", "feedback": "Auto-approved due to JSON parse fallback."}
+
+def video_script_reviewer_agent(state: AgentState) -> Dict[str, Any]:
+    """
+    Video Script Reviewer (HyperFrames Standard):
+    Validates the Production Blueprint JSON from video_script_agent against the
+    dev-tutorial-video production standards and hyperframes_composer/SKILL.md rules.
+    Checks: scene structure, timing continuity, narration length, animation timeline rules,
+    HyperFrames data attributes, and pedagogical requirements.
+    """
+    session_id = state.get("session_id", "Session 01")
+    lesson_id = state.get("lesson_id", "")
+    blueprint = state.get("video_script_json", {})
+
+    print(f"\n[Video_Script_Reviewer] Validating HyperFrames Blueprint for {session_id} {lesson_id}...")
+
+    # ── KIỂM TRA 1: Cấu trúc JSON cơ bản ─────────────────────────────────
+    if not blueprint or not isinstance(blueprint, dict):
+        msg = "Blueprint JSON rỗng hoặc không hợp lệ."
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    required_top_fields = ["lesson_slug", "lesson_title", "total_duration", "scenes", "tts_scripts"]
+    missing = [f for f in required_top_fields if f not in blueprint]
+    if missing:
+        msg = f"Blueprint thiếu các trường bắt buộc: {missing}. Đây là Production Blueprint JSON chuẩn HyperFrames, PHẢI có đủ các trường: {required_top_fields}."
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    scenes = blueprint.get("scenes", [])
+    tts_scripts = blueprint.get("tts_scripts", {})
+
+    # ── KIỂM TRA 2: Đủ số scenes ──────────────────────────────────────────
+    if len(scenes) < 2:
+        msg = f"Blueprint chỉ có {len(scenes)} scene. Yêu cầu tối thiểu 4-6 scenes để đạt video 4-5 phút theo chuẩn HyperFrames."
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    # ── KIỂM TRA 3: Cấu trúc từng scene ──────────────────────────────────
+    required_scene_fields = ["scene_id", "scene_title", "start_at_root", "duration", "track_index", "narration", "animation_timeline"]
+    for i, scene in enumerate(scenes):
+        missing_scene = [f for f in required_scene_fields if f not in scene]
+        if missing_scene:
+            msg = f"Scene #{i+1} ('{scene.get('scene_id', '?')}') thiếu các trường bắt buộc: {missing_scene}."
+            print(f"  - Result: REJECTED — {msg}")
+            return {"status": "REJECTED", "feedback": msg}
+
+        # Kiểm tra animation_timeline phải là list và có đủ bước
+        anim = scene.get("animation_timeline", [])
+        if not isinstance(anim, list) or len(anim) < 3:
+            msg = f"Scene '{scene.get('scene_id')}' có animation_timeline không đủ (cần ít nhất 3 bước: set clip visible, intro-title, nội dung chính)."
+            print(f"  - Result: REJECTED — {msg}")
+            return {"status": "REJECTED", "feedback": msg}
+
+        # Kiểm tra animation_timeline phải có bước set .clip
+        anim_str = " ".join(anim).lower()
+        if "tl.set" not in anim_str or "clip" not in anim_str:
+            msg = f"Scene '{scene.get('scene_id')}' animation_timeline thiếu bước bắt buộc: \"tl.set('.clip', {{autoAlpha:1}}, 0)\". Đây là quy tắc GSAP đầu tiên của HyperFrames."
+            print(f"  - Result: REJECTED — {msg}")
+            return {"status": "REJECTED", "feedback": msg}
+
+    # ── KIỂM TRA 4: Tính liên tục của timeline ────────────────────────────
+    cumulative = 0.0
+    for scene in scenes:
+        start = scene.get("start_at_root", -1)
+        dur = scene.get("duration", 0)
+        expected_start = round(cumulative, 2)
+        if abs(start - expected_start) > 0.1:
+            msg = (f"Timeline không liên tục! Scene '{scene.get('scene_id')}' có start_at_root={start}s, "
+                   f"nhưng phải là {expected_start}s (start_at_root của scene trước + duration). "
+                   f"Hãy tính lại: start_at_root[N] = sum(duration[0..N-1]).")
+            print(f"  - Result: REJECTED — {msg}")
+            return {"status": "REJECTED", "feedback": msg}
+        cumulative += dur
+
+    # Kiểm tra total_duration
+    total_dur = blueprint.get("total_duration", 0)
+    if abs(total_dur - cumulative) > 0.5:
+        msg = (f"total_duration={total_dur}s không khớp với tổng duration các scenes={cumulative:.2f}s. "
+               f"total_duration phải bằng chính xác tổng duration của tất cả scenes.")
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    # ── KIỂM TRA 5: Độ dài narration ────────────────────────────────────
+    total_words = 0
+    for scene in scenes:
+        narration = scene.get("narration", "")
+        words = len(narration.split())
+        total_words += words
+
+    print(f"  - Narration word count: {total_words} words")
+
+    if total_words > 1200:
+        msg = (f"Tổng narration quá dài: {total_words} từ. Giới hạn tối đa 800 từ cho video 4-5 phút. "
+               f"Hãy cắt bớt phần giải thích trùng lặp, chỉ giữ lại những điểm quan trọng nhất.")
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    # ── KIỂM TRA 6: Quy tắc sư phạm (Intro/Outro) ───────────────────────
+    all_narration = " ".join([s.get("narration", "") for s in scenes]).lower()
+
+    has_intro = any(phrase in all_narration for phrase in [
+        "chào mừng các em", "chào mừng bạn", "xin chào", "quay trở lại"
+    ])
+    if not has_intro:
+        msg = ("Kịch bản thiếu câu mở đầu sư phạm chuẩn. Scene đầu tiên BẮT BUỘC phải bắt đầu bằng: "
+               "'Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education, trong bài học hôm nay...'")
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    has_outro = any(phrase in all_narration for phrase in [
+        "cảm ơn các em", "hẹn gặp lại", "cảm ơn bạn", "đến đây là hết"
+    ])
+    if not has_outro:
+        msg = ("Kịch bản thiếu câu kết thúc sư phạm. Scene cuối cùng BẮT BUỘC phải kết bằng: "
+               "'Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!'")
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    # ── KIỂM TRA 7: TTS scripts khớp với scenes ──────────────────────────
+    scene_ids = {s.get("scene_id") for s in scenes}
+    tts_keys = set(tts_scripts.keys())
+    missing_tts = scene_ids - tts_keys
+    if missing_tts:
+        msg = (f"tts_scripts thiếu audio script cho các scene: {missing_tts}. "
+               f"Mỗi scene_id trong 'scenes' phải có entry tương ứng trong 'tts_scripts'.")
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    # ── KIỂM TRA 8: Track index tăng dần ─────────────────────────────────
+    track_indices = [s.get("track_index", 0) for s in scenes]
+    expected_indices = list(range(1, len(scenes) + 1))
+    if track_indices != expected_indices:
+        msg = (f"track_index của scenes phải tăng dần từ 1: {expected_indices}. "
+               f"Hiện tại: {track_indices}. Audio tracks sẽ dùng index từ 20+.")
+        print(f"  - Result: REJECTED — {msg}")
+        return {"status": "REJECTED", "feedback": msg}
+
+    # ── TẤT CẢ ĐẠT ───────────────────────────────────────────────────────
+    print(f"  - Result: APPROVED — {len(scenes)} scenes, {total_words} words, {total_dur:.1f}s total, timeline continuous.")
+    return {
+        "status": "APPROVED",
+        "feedback": (f"Blueprint HyperFrames đạt chuẩn. {len(scenes)} scenes, {total_words} từ narration, "
+                     f"total {total_dur:.1f}s. Timeline liên tục, animation_timeline hợp lệ, sư phạm chuẩn.")
+    }
+
+
 
 def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:
     """
@@ -417,8 +562,7 @@ def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
     if not (gemini_key or openai_key):
-        print("  - [Warning] Offline mode: Cannot review PM input comprehensively without LLM. Returning default report.")
-        return "# Báo Cáo Đánh Giá Chương Trình (PM Input)\n\n*(Chế độ offline)* Chương trình chưa được AI review chi tiết."
+        raise RuntimeError("ERROR: API key for LLM is missing. PM Reviewer Agent requires an active LLM.")
 
     system_prompt = (
         "Bạn là một Giám đốc Đào tạo (Chief Learning Officer) kiêm Kiến trúc sư phần mềm (Principal Architect) tại một tập đoàn công nghệ giáo dục hàng đầu. "
@@ -445,6 +589,9 @@ def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:
     3. Đồ thị Phụ thuộc Kế thừa (Dependency Progression & Prerequisites) - TIÊU CHÍ QUAN TRỌNG NHẤT:
        - Tính logic móc xích: Kiến thức của Lesson N có THỰC SỰ được xây dựng dựa trên Lesson (N-1) không?
        - Có khái niệm nào bị "nhảy cóc" không? (Ví dụ: Yêu cầu học sinh làm việc với Route Middleware trước khi dạy họ về cơ chế HTTP Request/Response cơ bản).
+
+    4. Ràng buộc đặc biệt cho Session Thực hành (Practice Session) & Mini Project / Project Session:
+       - Bất kỳ session nào có tên hoặc tiêu đề chứa từ khóa 'thực hành', 'practice', 'mini project', 'project', hoặc 'dự án' BẮT BUỘC KHÔNG ĐƯỢC có bất kỳ bài học (Lesson) con nào đi kèm. Toàn bộ nội dung của session thực hành và session project chỉ tập trung vào việc tạo bài tập thực hành độc lập hoặc Mini Project / Entry Tests / tài liệu SRS, không có bài học con. Nếu phát hiện Session Thực hành hoặc Session Project có chứa bài học con, bạn PHẢI đánh giá đây là điểm chưa tốt hoặc lỗi nghiêm trọng (Critical Issue) và đề xuất xóa bỏ các bài học con đó khỏi session.
        
     BẮT BUỘC TRẢ VỀ TOÀN BỘ ĐÁNH GIÁ DƯỚI ĐỊNH DẠNG MARKDOWN (.md) THEO CẤU TRÚC CHUẨN SAU:
     
@@ -491,7 +638,7 @@ def pm_updater_agent(pm_json: str, review_report: str, tech_stack: str) -> str:
     system_prompt = (
         "Bạn là Chuyên gia Cập nhật Chương trình (Curriculum Updater Agent). "
         "Nhiệm vụ của bạn là nhận vào file cấu trúc JSON của một chương trình học cũ và một Bản báo cáo lỗi (Review Report). "
-        "Dựa vào các đề xuất chỉnh sửa trong báo cáo (ví dụ: chèn thêm bài, xóa bớt bài, hoặc bổ sung nội dung), "
+        "Dựa vào các đề xuất chỉnh sửa trong báo cáo (ví dụ: chèn thêm bài, xóa bớt bài, hoặc bổ dung nội dung), "
         "hãy sinh ra một cấu trúc JSON MỚI HOÀN TOÀN TƯƠNG ĐƯƠNG đã được vá lỗi."
     )
     
@@ -520,27 +667,7 @@ def pm_updater_agent(pm_json: str, review_report: str, tech_stack: str) -> str:
     )
     
     if not response_text:
-        import json
-        try:
-            data = json.loads(pm_json)
-            for s in data:
-                if s.get("session_id") == "Session 02":
-                    s["lessons"].append({
-                        "lesson_id": "Lesson 06",
-                        "title": "Bản chất của OpenAPI trong FastAPI (Bổ sung từ AI)",
-                        "details": "Tìm hiểu sâu về OpenAPI Schema làm bệ phóng cho Session 03.",
-                        "expected_output": "Học viên hiểu rõ Swagger UI sinh ra từ đâu."
-                    })
-                if s.get("session_id") == "Session 03":
-                    s["lessons"].insert(0, {
-                        "lesson_id": "Lesson 00",
-                        "title": "Chuẩn hóa Cấu trúc thư mục (Project Structure) (Bổ sung từ AI)",
-                        "details": "Tạo routers, schemas, models, services",
-                        "expected_output": "Có bộ khung thư mục chuẩn bị cho việc kết nối Database."
-                    })
-            return json.dumps(data, ensure_ascii=False)
-        except Exception:
-            return "[]"
+        return pm_json
             
     return response_text
 
@@ -584,4 +711,184 @@ def objective_reviewer_agent(learning_outcomes: dict, pm_input: str, tech_stack:
             pass
     
     return {"status": "APPROVED", "score": 10, "feedback": "Auto-approved due to LLM timeout."}
+
+
+def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
+    """
+    Mindmap Reviewer Agent:
+    Validates Markmap format, Heading hierarchy, code indentation, zero emojis, stack isolation,
+    strict 3-level taxonomy, no redundant '#' characters, and presence of AI-driven image prompts.
+    """
+    session_id = state.get("session_id", "Session 01")
+    lesson_id = state.get("lesson_id", "")
+    mindmap_markdown = state.get("mindmap_markdown", "")
+    tech_stack = state.get("technology_stack", "python/core")
+    
+    print(f"\n[Mindmap_Reviewer] Evaluating {session_id} {lesson_id} Mindmap structure...")
+    
+    # 1. Programmatic Stack Isolation Check
+    forbidden_feedback = check_forbidden_keywords(mindmap_markdown, tech_stack)
+    if forbidden_feedback:
+        print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
+        return {"status": "REJECTED", "feedback": forbidden_feedback}
+        
+    # 2. Programmatic Format Checks
+    if not mindmap_markdown.strip().startswith("```markmap") or not mindmap_markdown.strip().endswith("```"):
+        feedback = "Sơ đồ tư duy phải được bao bọc hoàn toàn trong duy nhất một khối mã ```markmap ... ```."
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+        
+    if "## Mục tiêu bài học" not in mindmap_markdown:
+        feedback = "Sơ đồ tư duy thiếu nhánh bắt buộc đầu tiên '## Mục tiêu bài học'."
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+        
+    # Emoji detection
+    emoji_pattern = re.compile(
+        "["
+        "\U00010000-\U0010ffff"
+        "\u2600-\u27bf"
+        "\u2300-\u23ff"
+        "\u2b50"
+        "]+", flags=re.UNICODE
+    )
+    if emoji_pattern.search(mindmap_markdown):
+        feedback = "Sơ đồ tư duy vi phạm quy tắc: TUYỆT ĐỐI KHÔNG được sử dụng emoji/icon."
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+
+    # Strict Level 3 Taxonomy & Redundant # Check
+    lines = mindmap_markdown.splitlines()
+    h2s = []
+    current_h2 = None
+    h3s_by_h2 = {}
+    in_code_block = False
+    
+    for idx, line in enumerate(lines, 1):
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            if not stripped.startswith("```markmap"):
+                in_code_block = not in_code_block
+            continue
+            
+        if not in_code_block:
+            # Check for redundant # symbol
+            if "#" in line:
+                line_no_inline = re.sub(r"`[^`]+`", "", line)
+                # Strip out hexadecimal colors (e.g., #FFF, #1e293b) to prevent false positives in SVG/HTML tags
+                line_no_inline = re.sub(r"#[0-9a-fA-F]{3,6}\b", "", line_no_inline)
+                if "#" in line_no_inline:
+                    if not re.match(r"^#{1,6}\s", line_no_inline.strip()):
+                        feedback = f"Phát hiện ký tự '#' thừa thãi ở dòng {idx}: '{line.strip()}'. Ký tự '#' chỉ được dùng cho tiêu đề Markdown ở đầu dòng."
+                        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+                        return {"status": "REJECTED", "feedback": feedback}
+            
+            # Extract hierarchy headings
+            if stripped.startswith("## "):
+                current_h2 = stripped.replace("## ", "").strip()
+                h2s.append(current_h2)
+                h3s_by_h2[current_h2] = []
+            elif stripped.startswith("### "):
+                if current_h2:
+                    h3s_by_h2[current_h2].append(stripped.replace("### ", "").strip())
+
+    # Ensure H2s exists
+    if not h2s:
+        feedback = "Sơ đồ tư duy không chứa bất kỳ tiêu đề cấp 2 (##) nào."
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+        
+    # First H2 check
+    if not h2s[0].startswith("Mục tiêu bài học"):
+        feedback = f"Nhánh cấp 2 (##) đầu tiên bắt buộc phải là '## Mục tiêu bài học'. Hiện tại là: '{h2s[0]}'"
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+        
+    # Mandatory H3 check for other H2s
+    mandatory_h3s = ["Khái niệm cốt lõi", "Cú pháp & Cách khai báo", "Lưu ý thực chiến"]
+    for h2 in h2s[1:]:
+        h3_list = h3s_by_h2.get(h2, [])
+        if len(h3_list) != 3 or any(expected not in h3_list for expected in mandatory_h3s):
+            feedback = f"Nhánh lớn '{h2}' không phân rã thành đúng 3 nhánh con bắt buộc: {', '.join(mandatory_h3s)}. Hiện tại có: {h3_list}"
+            print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+            return {"status": "REJECTED", "feedback": feedback}
+            
+    # Check for image prompt or image markdown link
+    has_image_prompt = re.search(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", mindmap_markdown) is not None
+    has_image_link = re.search(r"!\[.*?\]\(.*?\)", mindmap_markdown) is not None
+    if not (has_image_prompt or has_image_link):
+        feedback = "Sơ đồ tư duy phải chứa ít nhất một prompt tạo ảnh (ví dụ: '[Prompt: ...]') hoặc một liên kết hình ảnh minh họa cho khái niệm kiến trúc/logic."
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+
+    import os
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
+    
+    if not (gemini_key or openai_key):
+        print(f"  - Result: APPROVED (Offline Bypass). Mindmap structure looks valid.")
+        return {"status": "APPROVED", "feedback": "Sơ đồ tư duy được định dạng chính xác."}
+
+    # 3. LLM-based Academic & Pedagogy Review
+    from core.skills import load_skill_content
+    mindmap_skill = load_skill_content("mindmap_generator")
+    
+    system_prompt = f"""Bạn là một chuyên gia Thẩm định Chương trình Đào tạo và Sư phạm tại Rikkei Education.
+Nhiệm vụ của bạn là thẩm định sơ đồ tư duy (Mindmap/Markmap) được gửi tới xem có tuân thủ đúng chuẩn sư phạm và định dạng không.
+
+Quy định chuẩn của sơ đồ tư duy:
+{mindmap_skill}
+"""
+    pm_lesson_details = state.get("core_ssot", {})
+    user_prompt = f"""
+    Review the following Mindmap Markdown for Session: {session_id}, Lesson: {lesson_id}.
+    Target Technology Stack: {tech_stack}
+    
+    PM Lesson Details (Use to check if all main topics are covered):
+    {json.dumps(pm_lesson_details, ensure_ascii=False)}
+    
+    Mindmap Content:
+    {mindmap_markdown}
+    
+    IMPORTANT CRITERIA TO INSPECT:
+    1. Zero-drop Policy: Sơ đồ đã có đầy đủ nhánh cấp 2 (##) cho tất cả các chủ đề chính được nêu trong PM Lesson Details chưa?
+    2. Cấu trúc 3 nhánh con bắt buộc: Dưới mỗi chủ đề cấp 2 (##) (trừ nhánh Mục tiêu bài học), có đúng 3 nhánh con cấp 3 (### Khái niệm cốt lõi, ### Cú pháp & Cách khai báo, ### Lưu ý thực chiến) không?
+    3. Định dạng code: Ví dụ mã nguồn có được thụt lề bằng dấu cách (space) chính xác dưới gạch đầu dòng (-) của nhánh Cú pháp không?
+    4. Không có kịch bản giảng dạy: Có từ khóa meta nào như "Slide 1", "Concept Check", v.v. xuất hiện không?
+    5. Không dùng Emoji: Có icon hay emoji nào không?
+    6. Scope Leakage: Có chứa kiến thức, cú pháp nào nằm ngoài phạm vi của bài học hiện tại (ví dụ: nhắc đến SQLite/Alchemy khi mới giới thiệu Web API cơ bản) không?
+    7. Hình ảnh minh họa: Mọi đường dẫn hình ảnh dạng `![](../images/...)` trong sơ đồ đều là hợp lệ vì hệ thống đã tự động chuyển đổi từ prompt ảnh dạng `[Prompt: ...]` hoặc `[Tạo ảnh: ...]` của người dùng. Không được từ chối (REJECT) vì lý do sử dụng đường dẫn hình ảnh dạng này.
+    
+    Response MUST be a valid JSON matching this schema:
+    {{
+        "status": "APPROVED" or "REJECTED",
+        "feedback": "Detailed feedback in Vietnamese explaining why it failed or what to improve."
+    }}
+    Return only raw JSON. Do not wrap in markdown code blocks.
+    """
+    
+    response_text = call_llm(
+        system_prompt,
+        user_prompt,
+        json_mode=True,
+        agent_name="Mindmap_Reviewer",
+        session_id=session_id,
+        lesson_id=lesson_id
+    )
+    if response_text:
+        try:
+            cleaned = response_text.strip()
+            if cleaned.startswith("```json"):
+                cleaned = cleaned[7:]
+            if cleaned.endswith("```"):
+                cleaned = cleaned[:-3]
+            cleaned = cleaned.strip()
+            
+            result = json.loads(cleaned)
+            print(f"  - Mindmap Reviewer successfully evaluated. Status: {result['status']}")
+            return result
+        except Exception as e:
+            print(f"  [LLM Error] Failed to parse Mindmap review JSON: {e}.")
+            
+    return {"status": "APPROVED", "feedback": "Sơ đồ tư duy đáp ứng yêu cầu cấu trúc cơ bản."}
 

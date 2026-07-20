@@ -1,0 +1,1 @@
+Để xử lý dữ liệu số, ta cần chuyển đổi kiểu dữ liệu bằng các hàm như int cho số nguyên và float cho số thực. Sau khi ép kiểu thành công, chúng ta mới có thể thực hiện chính xác các phép toán số học như cộng, trừ, nhân, chia.

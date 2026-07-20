@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học cách định dạng chuỗi bằng f-string trong Python. Cách ghép chuỗi cũ bằng dấu cộng hoặc dùng format rất rườm rà, dễ gây lỗi ép kiểu thủ công.

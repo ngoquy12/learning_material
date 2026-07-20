@@ -1,0 +1,1 @@
+Tóm lại, hãy tránh ba lỗi khi đặt tên biến là: bắt đầu bằng số, chứa khoảng trắng và trùng từ khóa. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

@@ -1,0 +1,1 @@
+Khi làm việc với toán tử, hãy tránh ba sai lầm phổ biến: Chia cho số không gây lỗi ZeroDivisionError, quên ép kiểu gây TypeError, và tính sai thứ tự ưu tiên do thiếu dấu ngoặc đơn. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

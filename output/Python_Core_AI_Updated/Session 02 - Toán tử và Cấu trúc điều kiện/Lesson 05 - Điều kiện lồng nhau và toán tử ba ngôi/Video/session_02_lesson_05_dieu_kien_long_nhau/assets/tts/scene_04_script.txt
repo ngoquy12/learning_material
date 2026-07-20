@@ -1,0 +1,1 @@
+Khi tối ưu rẽ nhánh, hãy đặc biệt tránh ba lỗi: lồng quá ba tầng if-else, lạm dụng toán tử ba ngôi lồng nhau, và quên return trong Guard Clauses. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

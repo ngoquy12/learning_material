@@ -5,3 +5,13 @@ __pycache__/
 *.pyc
 .vscode/
 scratch_cache_dump.txt
+node_modules/
+*.db
+*.db-wal
+*.db-shm
+output/**/*.mp4
+output/**/*.mp3
+output/**/*.png
+output/**/*.jpg
+output/**/*.jpeg
+output/**/*.gif

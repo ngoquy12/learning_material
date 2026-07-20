@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 01 - Lesson 03: Biến và Kiểu dữ liệu cơ bản - Trực quan hóa & Tương tác Động</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+              }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --card-border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --box-note-bg: rgba(15, 30, 54, 0.04);
+            --box-tip-bg: rgba(56, 161, 105, 0.05);
+            --box-warning-bg: rgba(221, 107, 32, 0.05);
+            --primary-text: #0f1e36;
+            --code-header-bg: #252526;
+            --code-body-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.04);
+            --clay: #D97757;
+            --clay-light: rgba(217, 119, 87, 0.06);
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-serif: 'Montserrat', 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --color-idle: #475569;
+            --color-active: #eab308;
+            --color-done: #22c55e;
+            --primary: #be111c;
+            --rust: #c2410c;
+            --rust-light: rgba(194, 65, 12, 0.08);
+        }
+
+        .theme-dark, html.dark, :root.dark {
+            --bg-body: #0b0f19;
+            --bg-card: #151d30;
+            --bg-hover: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --card-border: #1e293b;
+            --nav-bg: rgba(11, 15, 25, 0.95);
+            --box-note-bg: rgba(255, 255, 255, 0.03);
+            --box-tip-bg: rgba(56, 161, 105, 0.1);
+            --box-warning-bg: rgba(221, 107, 32, 0.1);
+            --primary-text: #ffffff;
+            --code-header-bg: #1e1e1e;
+            --code-body-bg: #121212;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --primary: #be111c;
+            --rust: #f97316;
+        }
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Optimized Full-Width Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .main-content, .panel-box, .right-column, .visualizer-container, .visualizer-grid {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .panel {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-panel);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .gotchas {
+            border: 1.5px solid var(--clay);
+            border-radius: 12px;
+            background: var(--clay-light);
+            padding: 18px 20px;
+        }
+
+        .gotchas h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--clay);
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Visualizer Playground Container */
+        .visualizer-container {
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-panel);
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* Interactive Grid Layout */
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Panel 1: Visualizer Canvas */
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .canvas-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .visualizer-canvas {
+            background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-height: 380px;
+            max-height: 540px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            padding: 24px 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: background-color 0.3s;
+        }
+
+        .visualizer-canvas::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bar-item {
+            background-color: var(--color-idle);
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #ffffff;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, transform 0.3s ease;
+        }
+
+        .bar-item.comparing { background-color: var(--color-compare); transform: scaleY(1.03); }
+        .bar-item.swapping { background-color: var(--color-swap); transform: scale(1.05); }
+        .bar-item.sorted { background-color: var(--color-done); }
+
+        /* Panel 2 & 4: Controls & Stats */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--bg-panel);
+            color: var(--text-main);
+        }
+
+        .btn-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-start { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-start:hover { background: var(--primary); opacity: 0.9; }
+        .btn-reset { background: var(--rust-light); color: var(--rust); border-color: var(--rust); }
+        .btn-reset:hover { background: var(--rust); color: white; }
+
+        .inputs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--bg-canvas);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .custom-input-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Panel Right: Code Tracker & Log */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-canvas);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .code-tracker-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-tracker-panel pre, .code-tracker-panel code {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        .panel-top-bar {
+            background: #1e293b;
+            padding: 10px 14px;
+            border-bottom: 1.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #38bdf8;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background-color: #121824;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 6px;
+            border-left: 3px solid transparent;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+
+        .code-line.active-line {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .console-log-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            max-height: 200px;
+        }
+
+        .stats-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-panel .badge {
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .log-messages {
+            overflow-y: auto;
+            flex-grow: 1;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .log-info { background: rgba(30, 41, 59, 0.6); color: #38bdf8; }
+        .log-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }
+        .log-warn { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }
+
+        /* Step-by-Step Walkthrough Styling */
+        .step {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 18px;
+            padding: 24px 0;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .step:last-of-type {
+            border-bottom: none;
+        }
+
+        .badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .step.hot .badge {
+            background: var(--clay-light);
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+
+        .step-loc {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .step-loc .range {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .step-body {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        table, .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        table th, .comparison-table th {
+            background-color: #be111c !important;
+            color: white !important;
+            padding: 12px 16px !important;
+            font-weight: 700 !important;
+            font-family: 'Montserrat', sans-serif !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            text-align: left;
+        }
+
+        .theme-dark table th, .theme-dark .comparison-table th {
+            background-color: #991b1b !important;
+        }
+
+        table td, .comparison-table td {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* VS Code Dark Code container */
+        .code-container {
+            border: 1px solid #333333 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            margin: 16px 0 !important;
+            background-color: #1e1e1e !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .code-header {
+            background: #252526 !important;
+            border-bottom: 1px solid #333333 !important;
+            padding: 10px 16px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+            font-size: 0.82rem !important;
+            color: #cccccc !important;
+            font-weight: 600 !important;
+        }
+
+        .copy-btn {
+            background: #3c3c3c !important;
+            border: 1px solid #4d4d4d !important;
+            color: #cccccc !important;
+            padding: 4px 12px !important;
+            border-radius: 4px !important;
+            font-size: 0.75rem !important;
+            cursor: pointer !important;
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+
+        .copy-btn:hover {
+            background: #505050 !important;
+            color: #ffffff !important;
+        }
+
+        .code-body {
+            background-color: #1e1e1e !important;
+            padding: 16px 20px !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+        }
+
+        .code-body pre, .code-body code {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            color: #d4d4d4 !important;
+            font-family: 'JetBrains Mono', 'Consolas', 'Fira Code', monospace !important;
+            font-size: 0.88rem !important;
+            line-height: 1.75 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        /* Note, Tip & Warning Boxes */
+        .box {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border-left: 5px solid;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .tip-box { background: var(--box-tip-bg); border-color: #38a169; color: var(--text-main); }
+        .note-box { background: var(--box-note-bg); border-color: #be111c; color: var(--text-main); }
+        .warning-box { background: var(--box-warning-bg); border-color: #dd6b20; color: var(--text-main); }
+
+        .selftest-item {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+        .selftest-question { font-weight: 600; color: var(--primary); cursor: pointer; }
+        .selftest-answer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); }
+        .selftest-answer ul { list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer ol { list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer li { margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }
+        .selftest-item.active .selftest-answer { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-200 antialiased font-sans transition-colors duration-300">
+    <!-- Sticky Nav Header -->
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 dark:bg-[#151d30]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#243049] shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+        <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Rikkei Logo -->
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" />
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Theme Switcher Segmented Control -->
+                <div class="flex items-center gap-1 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
+                    <button id="theme-btn-light" onclick="setThemeMode('light')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ sáng"><i class="ph ph-sun-dim text-base"></i></button>
+                    <button id="theme-btn-dark" onclick="setThemeMode('dark')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ tối"><i class="ph ph-moon text-base"></i></button>
+                    <button id="theme-btn-system" onclick="setThemeMode('system')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ hệ thống"><i class="ph ph-desktop text-base"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-[1600px] w-full mx-auto relative z-10">
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 01</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Biến và Kiểu dữ liệu cơ bản</h2>
+            <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
+                Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Layout grid matching effective-html structure -->
+        <div class="layout">
+            
+            <div class="main-content">
+
+                <!-- Core Concept & Tech Stack Header Card -->
+                <div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                    <div style="flex: 1; min-width: 260px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
+                            <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">Session 01</span>
+                        </div>
+                        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">Biến và Kiểu dữ liệu cơ bản</h3>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                        <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
+                        <span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">PYTHON/CORE</span>
+                    </div>
+                </div>
+
+                <!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
+                <div class="visualizer-container">
+                    <div class="visualizer-grid">
+                        <!-- Left Panel: Interactive Visualizer & Controls -->
+                        <div class="panel-box">
+                            <div class="canvas-header">
+                                <div class="canvas-title">
+                                    Variables and Memory Labels Map
+                                </div>
+                                <div class="legend-box">
+                                    <span style='color: #38BDF8; font-weight: bold;'>Variables (Labels)</span> | <span style='color: #F59E0B; font-weight: bold;'>Objects (Memory Value)</span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Visualizer Canvas -->
+                            <div class="visualizer-canvas" id="visualizer-canvas">
+                                <!-- Dynamic Bars / Nodes generated by JS engine -->
+                            </div>
+
+                            <!-- Stepper / Execution Flow Panel -->
+                            <div class="stepper-panel" id="stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+                                    <span id="stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+                                </div>
+                                <div id="stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+                                <!-- Progress Bar/Scrubber -->
+                                <div class="stepper-bar-container" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;" onclick="visualizerApp?.scrubStep?.(event)">
+                                    <div id="stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Control Buttons & Input Sliders -->
+                            <div class="controls-section">
+                                <div class="btn-group">
+                                    <button type="button" class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
+                                        <span>▶</span> Bắt đầu
+                                    </button>
+                                    <button type="button" class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
+                                        <span>⏸</span> Tạm dừng
+                                    </button>
+                                    <button type="button" class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
+                                        <span>⏭</span> Từng bước
+                                    </button>
+                                    <button type="button" class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
+                                        <span>↻</span> Đặt lại
+                                    </button>
+                                </div>
+
+                                <div class="inputs-row">
+                                    <div class="input-group">
+                                        <span class="input-label">TỐC ĐỘ THỰC THI (<span id="speed-display">400</span>ms)</span>
+                                        <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-label">Enter execution speed delay (ms)</span>
+                                        <div class="custom-input-box">
+                                            <input type="text" id="custom-data-input" class="custom-input" value="1500" placeholder="Ví dụ: {'name': 'Rikkei'}, hoặc 1, 2, 3" onkeydown="if(event.key === 'Enter') { event.preventDefault(); visualizerApp.applyCustomData(); }">
+                                            <button type="button" class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Stats, Live Code Tracker & Console Log -->
+                        <div class="right-column">
+                            <!-- Real-time Stats -->
+                            <div class="stats-panel">
+                                <span>Status: Active Binding Test</span>
+                            </div>
+
+                            <!-- Live Code Tracker -->
+                            <div class="code-tracker-panel">
+                                <div class="panel-top-bar">
+                                    <span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+                                    <span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
+                                </div>
+                                <div class="code-content">
+                                    <pre><code id="code-tracker-box">
+<div class='code-line' id='line-0'>age = 25</div>
+<div class='code-line' id='line-1'>price = 9.99</div>
+<div class='code-line' id='line-2'>name = "Alice"</div>
+<div class='code-line' id='line-3'>is_active = True</div>
+
+                                    </code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Console Execution Log -->
+                            <div class="console-log-panel">
+                                <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+                                    <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+                                    <button type="button" onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
+                                </div>
+                                <div class="log-messages" id="log-messages">
+                                    <div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Walkthrough Step-by-Step Sections -->
+                <div class="walkthrough-section">
+
+                    <!-- Step 1: Problem Breakdown -->
+                    <div class="step">
+                        <div class="badge">1</div>
+                        <div class="step-body">
+                            <div class="step-loc">Đặt vấn đề</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi viết chương trình, máy tính cần lưu trữ các thông tin tạm thời như thông số cài đặt, dữ liệu người dùng hay trạng thái hệ thống. Nếu thiếu cơ chế lưu trữ này cùng khả năng phân loại dữ liệu, máy tính sẽ không thể định vị, hiểu và xử lý các thông số một cách chính xác trong bộ nhớ RAM, dẫn đến việc chương trình không thể vận hành.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Deep Dive Internals -->
+                    <div class="step">
+                        <div class="badge">2</div>
+                        <div class="step-body">
+                            <div class="step-loc">Phân tích Bản chất</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Python sử dụng cơ chế định kiểu động (dynamic typing). Biến không chứa trực tiếp dữ liệu mà hoạt động như một nhãn tham chiếu trỏ đến đối tượng trong bộ nhớ. Bốn kiểu dữ liệu cơ bản bao gồm: 'int' (số nguyên), 'float' (số thực), 'str' (chuỗi ký tự trong nháy đơn/kếp) và 'bool' (True/False) giúp xác định định dạng và các phép toán hợp lệ trên vùng dữ liệu đó.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Solution & Architecture -->
+                    <div class="step">
+                        <div class="badge">3</div>
+                        <div class="step-body">
+                            <div class="step-loc">Giới thiệu Giải pháp</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khai báo biến bằng toán tử gán '=' theo cú pháp: 'tên_biến = giá_trị'. Tên biến tuân thủ nguyên tắc: chỉ chứa chữ cái, chữ số, dấu gạch dưới, không bắt đầu bằng số và không trùng từ khóa. Sử dụng hàm 'type()' để kiểm tra kiểu dữ liệu thực tế và 'print()' để hiển thị kết quả ra màn hình.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Production Code Walkthrough -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">Mã nguồn chuẩn hóa & Phân tích thực thi <span class="range"></span></div>
+                            
+        <div class="code-container">
+            <div class="code-header">
+                <div class="code-controls">
+                    <span class="control-dot dot-red"></span>
+                    <span class="control-dot dot-yellow"></span>
+                    <span class="control-dot dot-green"></span>
+                </div>
+                <span class="code-title">example.python</span>
+                <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+            </div>
+            <div class="code-body">
+                <pre><code class="language-python" id="code-snippet-1">age = 25
+price = 9.99
+product_name = &quot;Smart Device&quot;
+is_active = True
+
+print(&quot;Value:&quot;, age, &quot;| Type:&quot;, type(age))
+print(&quot;Value:&quot;, price, &quot;| Type:&quot;, type(price))
+print(&quot;Value:&quot;, product_name, &quot;| Type:&quot;, type(product_name))
+print(&quot;Value:&quot;, is_active, &quot;| Type:&quot;, type(is_active))</code></pre>
+            </div>
+        </div>
+        
+                            <div style="margin-top: 16px;">
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi chạy script, Python tạo ra 4 đối tượng trong bộ nhớ tương ứng với các giá trị được gán và liên kết nhãn biến với các đối tượng này. Hàm type() sẽ lần lượt truy xuất thông tin lớp của từng đối tượng và trả về kết quả hiển thị dạng: <class 'int'>, <class 'float'>, <class 'str'>, và <class 'bool'> mà không gặp bất kỳ lỗi logic nào.</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Step 5: References -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">5</div>
+                        <div class="step-body">
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        
+                                <li>
+                                    <a href="https://docs.python.org/3/library/stdtypes.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Built-in Types - Python Documentation
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+        
+
+                    <!-- Bottom Notice / Gotchas Section -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+                        <div class="step-body" style="border-color: var(--clay);">
+                            <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+                            <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Biến là nhãn tham chiếu vùng nhớ và gán trị qua toán tử <code>=</code>. Sử dụng cặp hàm <code>print()</code> và <code>type()</code> để kiểm tra kiểu dữ liệu. Ba lỗi cần tránh: <strong>Sai quy tắc đặt tên</strong> (ví dụ: <code>1st_value = 10</code>), <strong>Sử dụng từ khóa hệ thống</strong> (ví dụ: <code>class = 5</code>), và <strong>Nhầm lẫn viết thường từ khóa bool</strong> (như viết <code>true</code> thay vì viết đúng chuẩn <code>True</code>).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Script imports -->
+
+    <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    <script>
+        
+        class InteractiveVisualizerEngine {
+  constructor() {
+    this.currentLine = 0;
+    this.interval = null;
+  }
+  start() {
+    this.reset();
+    this.interval = setInterval(() => {
+      this.step();
+    }, 1200);
+  }
+  pause() {
+    clearInterval(this.interval);
+  }
+  step() {
+    const lines = document.querySelectorAll('.code-line');
+    lines.forEach(l => l.classList.remove('active-line'));
+    if (this.currentLine < lines.length) {
+      lines[this.currentLine].classList.add('active-line');
+      const msg = ['Binding name age to integer 25', 'Binding name price to float 9.99', 'Binding name name to string Alice', 'Binding name is_active to bool True'];
+      document.getElementById('log-messages').innerHTML += `<div>[Step ${this.currentLine + 1}] ${msg[this.currentLine]}</div>`;
+      this.currentLine++;
+    } else {
+      this.pause();
+    }
+  }
+  reset() {
+    this.pause();
+    this.currentLine = 0;
+    document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active-line'));
+    document.getElementById('log-messages').innerHTML = '<div>Visualisation ready. Click Start.</div>';
+  }
+}
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine === 'undefined') {
+            window.InteractiveVisualizerEngine = class {};
+        }
+
+        function initApp() {
+            try {
+                visualizerApp = new InteractiveVisualizerEngine();
+            } catch(e) {
+                visualizerApp = {};
+            }
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
+            requiredMethods.forEach(method => {
+                if (typeof visualizerApp[method] !== 'function') {
+                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+                }
+            });
+
+            // Perform initialization
+            if (typeof visualizerApp.init === 'function') {
+                visualizerApp.init();
+            }
+            if (typeof visualizerApp.render === 'function') {
+                visualizerApp.render();
+            }
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('code-tracker-box');
+            if (trackerBox) {
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }
+
+            if (window.hljs) hljs.highlightAll();
+        }
+
+        // Initialize when DOM loaded
+        let visualizerApp;
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initApp();
+        } else {
+            document.addEventListener('DOMContentLoaded', initApp);
+        }
+        
+
+        function copyCode(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+        });
+        applyTheme();
+    </script>
+</body>
+</html>

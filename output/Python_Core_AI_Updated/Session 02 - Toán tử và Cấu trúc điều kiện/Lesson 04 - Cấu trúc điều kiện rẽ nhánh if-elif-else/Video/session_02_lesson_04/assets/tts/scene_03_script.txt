@@ -1,0 +1,1 @@
+Khi sử dụng cấu trúc rẽ nhánh, các em cần lưu ý ba lỗi phổ biến. Đó là thiếu dấu hai chấm ở cuối điều kiện gây lỗi cú pháp, thụt lề không đồng nhất dẫn đến lỗi logic, và sắp xếp sai thứ tự điều kiện khiến mã nguồn bị che khuất và không thể thực thi.

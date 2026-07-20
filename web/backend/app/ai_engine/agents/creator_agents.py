@@ -1,6 +1,8 @@
 import json
 import re
+import os
 from typing import Dict, Any, List
+from pathlib import Path
 from core.state import AgentState
 from core.llm import call_llm
 
@@ -151,15 +153,36 @@ def robust_json_parse(json_str: str) -> dict:
             result[k] = val_sub
         else:
             try:
-                result[k] = json.loads(val_sub)
+                parsed = json.loads(val_sub)
+                if k == "lab" and not isinstance(parsed, dict):
+                    raise ValueError("lab must be a dict")
+                if k == "quiz" and not isinstance(parsed, list):
+                    raise ValueError("quiz must be a list")
+                if k == "visualizer" and not isinstance(parsed, dict):
+                    raise ValueError("visualizer must be a dict")
+                result[k] = parsed
             except Exception:
                 try:
                     import ast
-                    result[k] = ast.literal_eval(val_sub)
+                    parsed = ast.literal_eval(val_sub)
+                    if k == "lab" and not isinstance(parsed, dict):
+                        raise ValueError("lab must be a dict")
+                    if k == "quiz" and not isinstance(parsed, list):
+                        raise ValueError("quiz must be a list")
+                    if k == "visualizer" and not isinstance(parsed, dict):
+                        raise ValueError("visualizer must be a dict")
+                    result[k] = parsed
                 except Exception:
                     try:
                         cleaned_sub = fix_raw_newlines_in_json_strings(val_sub)
-                        result[k] = json.loads(cleaned_sub)
+                        parsed = json.loads(cleaned_sub)
+                        if k == "lab" and not isinstance(parsed, dict):
+                            raise ValueError("lab must be a dict")
+                        if k == "quiz" and not isinstance(parsed, list):
+                            raise ValueError("quiz must be a list")
+                        if k == "visualizer" and not isinstance(parsed, dict):
+                            raise ValueError("visualizer must be a dict")
+                        result[k] = parsed
                     except Exception:
                         if k == "self_test":
                             items = re.findall(r'"([^"\\]*(?:\\.[^"\\]*)*)"', val_sub)
@@ -304,7 +327,7 @@ def generate_offline_master_content(session_id: str, lesson_id: str, lesson_titl
         }
     }
 
-def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, attempt_num: int, core_ssot: Dict[str, Any] = None, feedback: str = "", state: AgentState = None) -> Dict[str, Any]:
+def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, attempt_num: int, core_ssot: Dict[str, Any] | None = None, feedback: str = "", state: AgentState | None = None) -> Dict[str, Any]:
     # Cache optimization: check if we already generated master content for this lesson
     if state is not None and "master_content" in state and attempt_num == 1 and not feedback:
         print(f"  [Creator Agent] Reusing cached master_content for {session_id} {lesson_id} (Token Cost Saved!).")
@@ -320,10 +343,7 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
         tech_stack = state.get("technology_stack", "python/fastapi")
 
     if not (gemini_key or openai_key):
-        result = generate_offline_master_content(session_id, lesson_id, lesson_title, lesson_details, expected_output, tech_stack)
-        if state is not None:
-            state["master_content"] = result
-        return result
+        raise RuntimeError("ERROR: API key (GEMINI_API_KEY or OPENAI_API_KEY) is missing. Cannot generate content dynamically.")
 
         
     from core.llm import call_llm
@@ -378,7 +398,7 @@ YÊU CẦU QUAN TRỌNG VỀ TRỌNG TÂM, ĐỘ SÂU KIẾN THỨC VÀ KIỂM S
 4. CẢNH BÁO SƯ PHẠM CHO BÀI HỌC NHỎ (MINOR LESSONS): Nếu nội dung bài học từ PM rất ngắn gọn, mang tính giới thiệu, cài đặt môi trường, hoặc lý thuyết đơn giản, TUYỆT ĐỐI KHÔNG mở rộng vấn đề, không bịa đặt nội dung phức tạp. Hãy đi thẳng vào trọng tâm. Trình bày nội dung cực kỳ ngắn gọn.
 5. Không bịa đặt nội dung/mã nguồn: Nếu bài học không liên quan trực tiếp đến lập trình mã nguồn phức tạp, TUYỆT ĐỐI không tự bịa đặt ra mã nguồn lập trình. Thay vào đó, dùng câu lệnh CLI cơ bản hoặc ví dụ siêu ngắn hoặc để trống trường `example`.
 6. QUY LUẬT CODE ĐỐI VỚI BÀI LÝ THUYẾT: Đối với bài học mang tính lý thuyết tổng quan (giới thiệu, tổng quan, khái niệm), HẠN CHẾ viết code. TUY NHIÊN, NẾU PM yêu cầu rõ ràng việc code/thực hành trong chi tiết bài học (lesson_details), BẠN BẮT BUỘC PHẢI VIẾT CODE NGẮN GỌN VÀ ĐẦY ĐỦ VÀO TRƯỜNG `example`.
-7. Hạn chế kích thước trả về (STRICT SIZE LIMIT): Toàn bộ chuỗi JSON trả về PHẢI cực kỳ ngắn gọn và có tổng số từ dưới 1000 từ. Mỗi mục Markdown (problem, analysis, solution, resolve, summary) chỉ được viết tối đa 100 từ. Trường 'example' chỉ chứa tối đa 15 dòng code mẫu. KHÔNG viết dài dòng, KHÔNG giải thích chi tiết quá mức. Nếu viết dài dòng, hệ thống sẽ tự động cắt cụt và bạn sẽ bị ĐÁNH GIÁ THẤT BẠI. HẠN CHẾ TỐI ĐA SỬ DỤNG ICON EMOJI. CHỈ dùng khi thực sự cần thiết. ĐẶC BIỆT CẤM TUYỆT ĐỐI đặt icon emoji ở đầu các tiêu đề (Headings).
+7. Hạn chế kích thước trả về (STRICT SIZE LIMIT): Toàn bộ chuỗi JSON trả về phải kiểm soát dưới 2500 từ để tránh lỗi tràn/cắt cụt token. Mỗi mục Markdown (problem, analysis, solution, resolve, summary) viết từ 200 đến 300 từ để đảm bảo độ sâu sư phạm. Trường 'example' chứa mã nguồn minh họa chi tiết và hoạt động được, giới hạn tối đa từ 35 đến 40 dòng. KHÔNG viết dài dòng lan man ngoài phạm vi. HẠN CHẾ TỐI ĐA SỬ DỤNG ICON EMOJI. CHỈ dùng khi thực sự cần thiết. ĐẶC BIỆT CẤM TUYỆT ĐỐI đặt icon emoji ở đầu các tiêu đề (Headings).
 {lessons_learned_prompt}
 
 Hãy tuân thủ nghiêm ngặt các quy chuẩn sư phạm được định nghĩa trong các tài liệu Kỹ năng (Skills) sau:
@@ -408,7 +428,7 @@ Hãy tuân thủ nghiêm ngặt các quy chuẩn sư phạm được định ngh
     if state and state.get("previous_lessons"):
         prev_lessons_prompt = "\n--- THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ (Mối liên kết bài học) ---\n"
         prev_lessons_prompt += "Để đảm bảo tính liên kết chặt chẽ và học tập luỹ tiến, bài học hiện tại bắt buộc phải coi các bài trước đó làm nền tảng học thuật và xây dựng tiếp nối nội dung, tuyệt đối không được dạy trước hoặc lặp lại trùng lặp nội dung:\n"
-        for prev in state["previous_lessons"]:
+        for prev in state.get("previous_lessons", []):
             prev_lessons_prompt += f"- {prev['lesson_id']}: {prev['title']} (Nội dung: {prev['details']})\n"
 
     user_prompt = f"""Hãy sinh nội dung học liệu cho:
@@ -462,10 +482,10 @@ Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
         "canvas_title": "Tiêu đề của khung trực quan hóa...",
         "legend_html": "Mã HTML hiển thị chú giải các trạng thái màu sắc",
         "stats_html": "Mã HTML hiển thị các thẻ đếm (ví dụ: trạng thái, số lượng...)",
-        "code_tracker_html": "Mã HTML chứa code. 🛑 CHỈ VIẾT TỐI ĐA 5-7 DÒNG CODE NGẮN GỌN NHẤT CÓ THỂ để tránh tràn bộ nhớ! TUYỆT ĐỐI KHÔNG đánh số thứ tự (1., 2.). Giữ nguyên khoảng trắng thụt lề (indentation). MỖI DÒNG CODE NẰM TRONG 1 thẻ <div class='code-line' id='line-0'>...</div> và dùng \\n ở cuối mỗi thẻ.",
+        "code_tracker_html": "Mã HTML chứa code. MỖI DÒNG CODE BẮT BUỘC nằm trong 1 thẻ <div class='code-line' id='line-0'>...</div> và dùng \\n ở cuối mỗi thẻ. Giữ nguyên khoảng trắng thụt lề (indentation).",
         "input_label": "Nhãn cho ô nhập liệu tùy chỉnh",
         "input_default": "Giá trị mặc định cho ô nhập liệu",
-        "engine_js": "Mã JavaScript CÓ LOGIC THỰC SỰ của class InteractiveVisualizerEngine. Class phải định nghĩa start(), pause(), step(), reset(). CẦN thao tác DOM (thêm class 'active-line' vào line-0, cập nhật nội dung stat) và gọi document.getElementById('log-messages').innerHTML += '...' để in log. Bắt buộc dùng ký tự \\n để xuống dòng trong code JS giúp dễ nhìn."
+        "engine_js": "Mã JavaScript của class InteractiveVisualizerEngine. Class phải định nghĩa start(), pause(), step(), reset(). YÊU CẦU AN TOÀN TUYỆT ĐỐI: 1) Bao bọc logic của các phương thức init(), start(), pause(), step(), reset(), và render() trong các khối try-catch để tránh crash giao diện gây reload vô tận. 2) Bắt buộc validate tốc độ thực thi: 'this.speed = Math.max(50, parseInt(speedVal) || 400);' trong các phương thức để tránh đơ trình duyệt. 3) Cập nhật DOM an toàn (chỉ thay đổi class 'active-line' cho code tracker và nội dung stats/logs khi các phần tử tồn tại thực sự). 4) Mọi nút bấm tương tác HTML được sinh ra hoặc gọi trong JS bắt buộc phải có thuộc tính type='button' và gọi event.preventDefault() trong callback event để ngăn chặn reload trang."
     }}
 }}
 WARNING: LỖI NGHIÊM TRỌNG NẾU VI PHẠM: Tuyệt đối KHÔNG BẤM ENTER (ngắt dòng thực) bên trong bất kỳ chuỗi string nào của JSON (đặc biệt là Code và Markdown). Phải viết liền mạch trên một dòng và dùng ký tự "\\n" thay cho việc ngắt dòng! Tuyệt đối không dùng dấu ngoặc kép không được escape (" -> \\").
@@ -484,7 +504,7 @@ Return only raw JSON. Do not wrap in markdown code blocks.
             try:
                 cleaned = response_text.strip()
                 # Trích xuất phần JSON bằng biểu thức chính quy (nếu có bao bọc bởi markdown)
-                json_match = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
+                json_match = re.search(r"```json\s*(\{.*`?\})\s*```", response_text, re.DOTALL)
                 if json_match:
                     cleaned = json_match.group(1).strip()
                 else:
@@ -606,12 +626,12 @@ Nhiệm vụ của bạn là tạo ra một "Production Blueprint JSON" cho vide
 {hyperframes_skill}
 
 NGUYÊN TẮC CỐT LÕI:
-1. CHIA ĐỦ SCENE: Tạo ra 4-6 scenes. Mỗi scene có 1 chủ đề rõ ràng.
-2. NARRATION ĐỦ DÀI: Tổng từ narration của tất cả scenes phải đạt 400-800 từ (video 4-5 phút).
-3. CẤU TRÚC ANIMATION: Mỗi scene PHẢI có animation_timeline theo đúng quy trình: intro-title 0.2s→3.2s, nội dung từ 4.0s+.
+1. CHIA ĐỦ SCENE: Tạo ra 3-5 scenes. Mỗi scene có 1 chủ đề rõ ràng.
+2. NARRATION NGẮN GỌN: Tổng từ narration của tất cả scenes đạt 150-250 từ. Lời thoại ngắn gọn, súc tích (40-60 từ/scene) để tránh bị cắt cụt JSON.
+3. CẤU TRÚC ANIMATION: Mỗi scene có 2-3 mốc animation chính (intro-title 0.2s→3.2s, nội dung chính 4.0s+).
 4. DESIGN SYSTEM: Dùng đúng màu sắc và font từ design system (#0f1117, #e6edf3, Inter, Fira Code).
-5. SƯ PHẠM: Mở đầu "Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education..." và kết "Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
-6. CÔNG NGHỆ: Kịch bản phải bám sát 100% vào {tech_stack}. KHÔNG đề cập công nghệ khác.
+5. SƯ PHẠM: Mở đầu "Chào mừng các em..." và kết "Cảm ơn các em..."
+6. CÔNG NGHỆ: Kịch bản phải bám sát 100% vào {tech_stack}.
 
 Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
 {{
@@ -623,24 +643,19 @@ Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
       "scene_id": "Scene_01",
       "scene_title": "<Tiêu đề ngắn của scene>",
       "start_at_root": 0,
-      "duration": <số giây của scene, thường 30-50s>,
+      "duration": <số giây của scene, thường 20-30s>,
       "track_index": 1,
-      "narration": "<Lời thoại đầy đủ, chi tiết, 80-180 từ/scene>",
+      "narration": "<Lời thoại súc tích, 40-60 từ/scene>",
       "visual_description": "<Mô tả những gì hiện trên màn hình>",
-      "html_structure": "<Tên các elements HTML cần có trong scene này>",
+      "html_structure": "<Các elements HTML chính>",
       "animation_timeline": [
-        "0.0s: tl.set('.clip', {{autoAlpha:1}}, 0)",
         "0.2s: intro-title fade in",
-        "3.2s: intro-title <lên góc/fade out>",
-        "4.x s: <element chính đầu tiên xuất hiện>",
-        "...thêm các mốc thời gian cụ thể..."
+        "3.2s: intro-title fade out",
+        "4.0s: main content show"
       ]
     }}
   ],
-  "tts_scripts": {{
-    "Scene_01": "<Lời thoại của scene 1, giống trường narration>",
-    "Scene_02": "..."
-  }}
+  "tts_scripts": {{}}
 }}
 
 CRITICAL: start_at_root của scene (N+1) = start_at_root[N] + duration[N]
@@ -663,53 +678,9 @@ Nội dung bài học gốc (Master Content để bám sát):
 {feedback_context}
 Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
 
-    # Generate via LLM or offline fallback
+    # Generate via LLM or raise error
     if not (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")):
-        # Offline fallback — minimal valid blueprint
-        result_json = {
-            "lesson_slug": lesson_slug,
-            "lesson_title": lesson_title,
-            "total_duration": 60.0,
-            "scenes": [
-                {
-                    "scene_id": "Scene_01",
-                    "scene_title": f"Giới thiệu {lesson_title}",
-                    "start_at_root": 0,
-                    "duration": 30.0,
-                    "track_index": 1,
-                    "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu về {lesson_title}. Đây là một chủ đề rất quan trọng trong {tech_stack}.",
-                    "visual_description": "Tiêu đề bài học xuất hiện giữa màn hình, background dark với dot grid pattern.",
-                    "html_structure": "intro-title centered, badge công nghệ",
-                    "animation_timeline": [
-                        "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
-                        "0.2s: intro-title fade in (scale 0.8→1)",
-                        "3.2s: intro-title lên góc trên-trái",
-                        "4.5s: content card xuất hiện"
-                    ]
-                },
-                {
-                    "scene_id": "Scene_02",
-                    "scene_title": "Tổng kết",
-                    "start_at_root": 30.0,
-                    "duration": 30.0,
-                    "track_index": 2,
-                    "narration": f"Như vậy, chúng ta đã cùng nhau tìm hiểu xong bài học về {lesson_title}. Hãy nhớ những điểm quan trọng mà chúng ta vừa đề cập. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!",
-                    "visual_description": "Màn hình tổng kết với các bullet points chính.",
-                    "html_structure": "summary-card, key-points list",
-                    "animation_timeline": [
-                        "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
-                        "0.2s: intro-title 'Tổng kết' fade in",
-                        "3.2s: intro-title lên góc",
-                        "4.5s: summary card slide up",
-                        "30.0s: tl.set({}, {}, 30.0)"
-                    ]
-                }
-            ],
-            "tts_scripts": {
-                "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu về {lesson_title}.",
-                "Scene_02": f"Như vậy, chúng ta đã cùng nhau tìm hiểu xong bài học về {lesson_title}. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
-            }
-        }
+        raise RuntimeError("ERROR: API key for LLM is missing. Video Script Director requires an active LLM.")
     else:
         llm_resp = call_llm(
             system_prompt,
@@ -720,7 +691,6 @@ Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
             lesson_id=lesson_id
         )
         try:
-            from agents.creator_agents import robust_json_parse
             result_json = robust_json_parse(llm_resp)
             # Validate required fields
             if "scenes" not in result_json or not result_json["scenes"]:
@@ -729,54 +699,12 @@ Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
                 raise ValueError("Missing 'tts_scripts' in blueprint JSON")
             print(f"  [Video_Director_Agent] Blueprint generated: {len(result_json['scenes'])} scenes, duration {result_json.get('total_duration', 0)}s")
         except Exception as e:
-            print(f"  [Video_Director_Agent] JSON parse failed: {e}. Using fallback blueprint.")
-            result_json = {
-                "lesson_slug": lesson_slug,
-                "lesson_title": lesson_title,
-                "total_duration": 60.0,
-                "scenes": [
-                    {
-                        "scene_id": "Scene_01",
-                        "scene_title": lesson_title,
-                        "start_at_root": 0,
-                        "duration": 30.0,
-                        "track_index": 1,
-                        "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
-                        "visual_description": "Intro screen với tiêu đề bài học.",
-                        "html_structure": "intro-title, content area",
-                        "animation_timeline": [
-                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
-                            "0.2s: intro-title fade in",
-                            "3.2s: intro-title lên góc",
-                            "4.5s: content slide in"
-                        ]
-                    },
-                    {
-                        "scene_id": "Scene_02",
-                        "scene_title": "Kết luận",
-                        "start_at_root": 30.0,
-                        "duration": 30.0,
-                        "track_index": 2,
-                        "narration": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!",
-                        "visual_description": "Summary screen.",
-                        "html_structure": "summary card",
-                        "animation_timeline": [
-                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
-                            "0.2s: intro-title fade in",
-                            "3.2s: intro-title fade out",
-                            "30.0s: tl.set({}, {}, 30.0)"
-                        ]
-                    }
-                ],
-                "tts_scripts": {
-                    "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
-                    "Scene_02": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!"
-                }
-            }
+            raise RuntimeError(f"ERROR: Video Script Director failed to generate blueprint JSON via LLM: {e}")
 
     # Persist blueprint to state
+    result_json["lesson_slug"] = lesson_slug
     state["video_script_json"] = result_json
-    state["video_lesson_slug"] = result_json.get("lesson_slug", lesson_slug)
+    state["video_lesson_slug"] = lesson_slug
 
     # Build readable SCRIPT.md (for human review + Hyperframes structure)
     scenes = result_json.get("scenes", [])
@@ -829,7 +757,7 @@ def get_lesson_dir(state: AgentState) -> Path:
     output_base_dir = Path(__file__).resolve().parent.parent / "output"
     course_dir = output_base_dir / course_dir_name
     
-    full_curr_str = state.get("full_curriculum", "[]")
+    full_curr_str = str(state.get("full_curriculum", "[]"))
     try:
         sessions = json.loads(full_curr_str)
     except Exception:
@@ -920,7 +848,7 @@ def generate_image_api(prompt_text: str, image_path) -> bool:
 
 def draw_mindmap_fallback_diagram(prompt_text: str, image_path: Path, title: str):
     try:
-        from PIL import Image, ImageDraw, ImageFont
+        from PIL import Image, ImageDraw, ImageFont  # type: ignore
         
         width, height = 1280, 720
         img = Image.new("RGB", (width, height), "#0F172A")
@@ -1074,28 +1002,7 @@ def mindmap_agent(state: AgentState) -> AgentState:
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     
     if not (gemini_key or openai_key):
-        # Offline mode fallback
-        ex_snippet = content.get("example", "")
-        indented_example = "\n".join(f"      {line}" for line in ex_snippet.splitlines()) if ex_snippet else "      # Không có mã nguồn minh họa."
-        mindmap_prompt = f"[Prompt: Generate a visual flow/sequence diagram showing the architecture, control flow, and execution lifecycle of '{tech_stack}']"
-        
-        markmap_content = f"""```markmap
-# {session_id}: {lesson_title}
-## Mục tiêu bài học
-- Hiểu rõ khái niệm cốt lõi và kiến trúc của {lesson_title}.
-- Áp dụng các quy tắc triển khai thực tiễn để giải quyết bài toán: {expected_output if expected_output else 'tích hợp thành công'}.
-- Vận hành và kiểm tra đầu ra hoạt động ổn định.
-## {lesson_title}
-### Khái niệm cốt lõi
-- Giải pháp kỹ thuật giúp tối ưu hóa hiệu năng, giảm thiểu blocking I/O và tự động hóa validation cho {tech_stack}.
-### Cú pháp & Cách khai báo
-- Ví dụ triển khai:
-{indented_example}
-### Lưu ý thực chiến
-- Tránh bỏ sót các tham số bắt buộc.
-- Cấu hình môi trường ảo venv chính xác và không đặt trùng tên file hệ thống.
-{mindmap_prompt}
-```"""
+        raise RuntimeError("ERROR: API key for LLM is missing. Mindmap Agent requires an active LLM.")
     else:
         from core.llm import call_llm
         from core.skills import load_skill_content
@@ -1197,7 +1104,7 @@ YÊU CẦU ĐẦU RA (BẮT BUỘC):
                 level = 0
             markmap_content = "\n".join(lines)
         else:
-            markmap_content = f"```markmap\n# {session_id}: {lesson_title}\n## Mục tiêu bài học\n- Lỗi khi sinh sơ đồ tư duy.\n```"
+            raise RuntimeError("ERROR: Mindmap Agent failed to generate markmap content via LLM.")
 
     # Process and replace image prompts
     processed_content = process_mindmap_images(markmap_content, state)
@@ -1550,7 +1457,8 @@ def convert_markdown_to_html(text: str) -> str:
         
         if ul_match or ol_match:
             tag = 'ul' if ul_match else 'ol'
-            content = process_inline(ul_match.group(1) if ul_match else ol_match.group(1))
+            raw_text = ul_match.group(1) if ul_match else (ol_match.group(1) if ol_match else "")
+            content = process_inline(raw_text)
             
             # Close deeper levels
             output.append(close_lists_to_level(indent))
@@ -1770,217 +1678,275 @@ def html_writer_agent(state: AgentState) -> AgentState:
     }
     
     init() {
-        this.steps = [];
-        const lines = Array.from(document.querySelectorAll('#code-tracker-box .code-line'));
-        if (lines.length > 0) {
-            this.steps = lines.map((el, index) => {
-                if (!el.id) el.id = `line-${index}`;
-                return {
-                    lineId: el.id,
-                    description: el.innerText.trim(),
-                    message: `Đang thực thi dòng: ${el.innerText.trim()}`
-                };
-            });
-        } else {
-            this.steps = [
-                { message: "Khởi chạy Client gửi yêu cầu HTTP Request", step: 0 },
-                { message: "ASGI Server (Uvicorn) tiếp nhận và chuyển tiếp request", step: 1 },
-                { message: "FastAPI Routing Handler xử lý nghiệp vụ & Middleware", step: 2 },
-                { message: "Trả về dữ liệu JSON Response cho Client thành công", step: 3 }
-            ];
+        try {
+            this.steps = [];
+            const lines = Array.from(document.querySelectorAll('#code-tracker-box .code-line'));
+            if (lines.length > 0) {
+                this.steps = lines.map((el, index) => {
+                    if (!el.id) el.id = `line-${index}`;
+                    return {
+                        lineId: el.id,
+                        description: el.innerText.trim(),
+                        message: `Đang thực thi dòng: ${el.innerText.trim()}`
+                    };
+                });
+            } else {
+                this.steps = [
+                    { message: "Khởi chạy Client gửi yêu cầu HTTP Request", step: 0 },
+                    { message: "ASGI Server (Uvicorn) tiếp nhận và chuyển tiếp request", step: 1 },
+                    { message: "FastAPI Routing Handler xử lý nghiệp vụ & Middleware", step: 2 },
+                    { message: "Trả về dữ liệu JSON Response cho Client thành công", step: 3 }
+                ];
+            }
+            
+            this.currentStep = 0;
+            this.isPlaying = false;
+            this.render();
+        } catch (e) {
+            console.error("Lỗi khởi tạo mô phỏng:", e);
+            this.log("⚠ [Lỗi] Không thể khởi tạo bộ mô phỏng.");
         }
-        
-        this.currentStep = 0;
-        this.isPlaying = false;
-        this.render();
     }
     
     start() {
-        if (this.isPlaying) return;
-        this.isPlaying = true;
-        this.log("▶ [Bắt đầu] Đang khởi chạy quy trình phỏng đoán trực quan.");
-        this.runLoop();
+        try {
+            if (this.isPlaying) return;
+            this.isPlaying = true;
+            this.log("▶ [Bắt đầu] Đang khởi chạy quy trình phỏng đoán trực quan.");
+            this.runLoop();
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     pause() {
-        this.isPlaying = false;
-        if (this.timer) {
-            clearTimeout(this.timer);
-            this.timer = null;
+        try {
+            this.isPlaying = false;
+            if (this.timer) {
+                clearTimeout(this.timer);
+                this.timer = null;
+            }
+            this.log("⏸ [Tạm dừng] Đã tạm dừng luồng chạy.");
+        } catch (e) {
+            console.error(e);
         }
-        this.log("⏸ [Tạm dừng] Đã tạm dừng luồng chạy.");
     }
     
     step() {
-        this.pause();
-        if (this.steps.length === 0) return;
-        this.currentStep = (this.currentStep + 1) % this.steps.length;
-        this.log(`⏭ [Từng bước] Đã chuyển sang bước ${this.currentStep + 1}`);
-        this.render();
+        try {
+            this.pause();
+            if (!this.steps || this.steps.length === 0) return;
+            this.currentStep = (this.currentStep + 1) % this.steps.length;
+            this.log(`⏭ [Từng bước] Đã chuyển sang bước ${this.currentStep + 1}`);
+            this.render();
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     reset() {
-        this.pause();
-        this.currentStep = 0;
-        this.log("↻ [Đặt lại] Đã đưa trạng thái hệ thống về ban đầu.");
-        this.render();
+        try {
+            this.pause();
+            this.currentStep = 0;
+            this.log("↻ [Đặt lại] Đã đưa trạng thái hệ thống về ban đầu.");
+            this.render();
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     setSpeed(speedVal) {
-        this.speed = parseInt(speedVal) || 400;
-        const display = document.getElementById('speed-display');
-        if (display) display.innerText = this.speed;
-        const slider = document.getElementById('slider-speed');
-        if (slider) slider.value = speedVal;
+        try {
+            this.speed = Math.max(50, parseInt(speedVal) || 400);
+            const display = document.getElementById('speed-display');
+            if (display) display.innerText = this.speed;
+            const slider = document.getElementById('slider-speed');
+            if (slider) slider.value = this.speed;
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     applyCustomData() {
-        const val = document.getElementById('custom-data-input').value;
-        this.log(`⚙ [Cấu hình] Đã áp dụng dữ liệu đầu vào: ${val || '(trống)'}`);
-        this.reset();
+        try {
+            const inputEl = document.getElementById('custom-data-input');
+            const val = inputEl ? inputEl.value : "";
+            this.log(`⚙ [Cấu hình] Đã áp dụng dữ liệu đầu vào: ${val || '(trống)'}`);
+            this.reset();
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     runLoop() {
-        if (!this.isPlaying) return;
-        if (this.steps.length === 0) return;
-        
-        this.timer = setTimeout(() => {
-            this.currentStep = (this.currentStep + 1) % this.steps.length;
-            this.render();
-            if (this.currentStep === 0) {
-                this.pause();
-                this.log("✅ [Hoàn tất] Luồng chạy đã kết thúc một chu kỳ.");
-            } else {
-                this.runLoop();
-            }
-        }, this.speed);
+        try {
+            if (!this.isPlaying) return;
+            if (!this.steps || this.steps.length === 0) return;
+            
+            const delay = Math.max(50, this.speed || 400);
+            this.timer = setTimeout(() => {
+                try {
+                    this.currentStep = (this.currentStep + 1) % this.steps.length;
+                    this.render();
+                    if (this.currentStep === 0) {
+                        this.pause();
+                        this.log("✅ [Hoàn tất] Luồng chạy đã kết thúc một chu kỳ.");
+                    } else {
+                        this.runLoop();
+                    }
+                } catch (err) {
+                    console.error("Lỗi trong vòng lặp mô phỏng:", err);
+                    this.pause();
+                }
+            }, delay);
+        } catch (e) {
+            console.error(e);
+            this.pause();
+        }
     }
     
     render() {
-        const stepIdx = this.currentStep;
-        if (!this.steps || this.steps.length === 0) return;
-        
-        const codeLines = document.querySelectorAll('#code-tracker-box .code-line');
-        codeLines.forEach(l => l.classList.remove('active-line'));
-        
-        const stepData = this.steps[stepIdx];
-        if (stepData) {
-            if (stepData.lineId) {
-                const activeLine = document.getElementById(stepData.lineId);
-                if (activeLine) activeLine.classList.add('active-line');
-            } else if (codeLines[stepIdx]) {
-                codeLines[stepIdx].classList.add('active-line');
-            }
+        try {
+            const stepIdx = this.currentStep;
+            if (!this.steps || this.steps.length === 0) return;
             
-            const msg = stepData.message || stepData.description || `Thực thi bước ${stepIdx + 1}`;
-            this.log(`ℹ ${msg}`);
+            const codeLines = document.querySelectorAll('#code-tracker-box .code-line');
+            codeLines.forEach(l => l.classList.remove('active-line'));
             
-            const stepperDesc = document.getElementById('stepper-desc');
-            const stepperProgress = document.getElementById('stepper-progress');
-            const stepperBar = document.getElementById('stepper-bar');
-            
-            if (stepperDesc) {
-                let desc = stepData.description || msg;
-                if (desc.includes('from') || desc.includes('app =') || desc.includes('@app.') || desc.includes('def') || desc.includes('return')) {
-                    desc = `Đang thực thi lệnh: <code style="color: var(--primary); font-family: var(--font-mono); font-weight: 600;">${desc}</code>`;
+            const stepData = this.steps[stepIdx];
+            if (stepData) {
+                if (stepData.lineId) {
+                    const activeLine = document.getElementById(stepData.lineId);
+                    if (activeLine) activeLine.classList.add('active-line');
+                } else if (codeLines[stepIdx]) {
+                    codeLines[stepIdx].classList.add('active-line');
                 }
-                stepperDesc.innerHTML = desc;
-            }
-            if (stepperProgress) stepperProgress.innerText = `Bước ${stepIdx + 1}/${this.steps.length}`;
-            if (stepperBar) stepperBar.style.width = `${((stepIdx + 1) / this.steps.length) * 100}%`;
-        }
-        
-        this.updateStats();
-        
-        const canvas = document.getElementById('visualizer-canvas');
-        if (canvas) {
-            let clientClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            let serverClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            let appClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            let handlerClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            
-            const nodeIndex = stepIdx % 4;
-            if (nodeIndex === 0) {
-                clientClass = "border-emerald-500 bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/20 scale-110";
-            } else if (nodeIndex === 1) {
-                serverClass = "border-amber-500 bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/20 scale-110";
-            } else if (nodeIndex === 2) {
-                appClass = "border-blue-500 bg-blue-500/10 text-blue-500 shadow-lg shadow-blue-500/20 scale-110";
-            } else if (nodeIndex === 3) {
-                handlerClass = "border-indigo-500 bg-indigo-500/10 text-indigo-500 shadow-lg shadow-indigo-500/20 scale-110";
+                
+                const msg = stepData.message || stepData.description || `Thực thi bước ${stepIdx + 1}`;
+                this.log(`ℹ ${msg}`);
+                
+                const stepperDesc = document.getElementById('stepper-desc');
+                const stepperProgress = document.getElementById('stepper-progress');
+                const stepperBar = document.getElementById('stepper-bar');
+                
+                if (stepperDesc) {
+                    let desc = stepData.description || msg;
+                    if (desc.includes('from') || desc.includes('app =') || desc.includes('@app.') || desc.includes('def') || desc.includes('return')) {
+                        desc = `Đang thực thi lệnh: <code style="color: var(--primary); font-family: var(--font-mono); font-weight: 600;">${desc}</code>`;
+                    }
+                    stepperDesc.innerHTML = desc;
+                }
+                if (stepperProgress) stepperProgress.innerText = `Bước ${stepIdx + 1}/${this.steps.length}`;
+                if (stepperBar) stepperBar.style.width = `${((stepIdx + 1) / this.steps.length) * 100}%`;
             }
             
-            canvas.innerHTML = `
-                <div class="flex flex-col md:flex-row items-center justify-around w-full gap-4 md:gap-2 my-auto py-6 select-none">
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${clientClass}">
-                      <i class="ph-duotone ph-desktop text-4xl"></i>
+            this.updateStats();
+            
+            const canvas = document.getElementById('visualizer-canvas');
+            if (canvas) {
+                let clientClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+                let serverClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+                let appClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+                let handlerClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+                
+                const nodeIndex = stepIdx % 4;
+                if (nodeIndex === 0) {
+                    clientClass = "border-emerald-500 bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/20 scale-110";
+                } else if (nodeIndex === 1) {
+                    serverClass = "border-amber-500 bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/20 scale-110";
+                } else if (nodeIndex === 2) {
+                    appClass = "border-blue-500 bg-blue-500/10 text-blue-500 shadow-lg shadow-blue-500/20 scale-110";
+                } else if (nodeIndex === 3) {
+                    handlerClass = "border-indigo-500 bg-indigo-500/10 text-indigo-500 shadow-lg shadow-indigo-500/20 scale-110";
+                }
+                
+                canvas.innerHTML = `
+                    <div class="flex flex-col md:flex-row items-center justify-around w-full gap-4 md:gap-2 my-auto py-6 select-none">
+                      <div class="flex flex-col items-center transition-all duration-300">
+                        <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${clientClass}">
+                          <i class="ph-duotone ph-desktop text-4xl"></i>
+                        </div>
+                        <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Client</span>
+                      </div>
+                      
+                      <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 1 ? 'text-amber-500' : ''}">➔</div>
+                      
+                      <div class="flex flex-col items-center transition-all duration-300">
+                        <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${serverClass}">
+                          <i class="ph-duotone ph-hard-drives text-4xl"></i>
+                        </div>
+                        <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">ASGI Server (Uvicorn)</span>
+                      </div>
+                      
+                      <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 2 ? 'text-blue-500' : ''}">➔</div>
+                      
+                      <div class="flex flex-col items-center transition-all duration-300">
+                        <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${appClass}">
+                          <i class="ph-duotone ph-cpu text-4xl"></i>
+                        </div>
+                        <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">FastAPI Instance</span>
+                      </div>
+                      
+                      <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 3 ? 'text-indigo-500' : ''}">➔</div>
+                      
+                      <div class="flex flex-col items-center transition-all duration-300">
+                        <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${handlerClass}">
+                          <i class="ph-duotone ph-code text-4xl"></i>
+                        </div>
+                        <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Route Handler</span>
+                      </div>
                     </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Client</span>
-                  </div>
-                  
-                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 1 ? 'text-amber-500' : ''}">➔</div>
-                  
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${serverClass}">
-                      <i class="ph-duotone ph-hard-drives text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">ASGI Server (Uvicorn)</span>
-                  </div>
-                  
-                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 2 ? 'text-blue-500' : ''}">➔</div>
-                  
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${appClass}">
-                      <i class="ph-duotone ph-cpu text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">FastAPI Instance</span>
-                  </div>
-                  
-                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 3 ? 'text-indigo-500' : ''}">➔</div>
-                  
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${handlerClass}">
-                      <i class="ph-duotone ph-code text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Route Handler</span>
-                  </div>
-                </div>
-            `;
+                `;
+            }
+        } catch (e) {
+            console.error("Lỗi vẽ giao diện mô phỏng:", e);
         }
     }
     
     log(msg) {
-        const logBox = document.getElementById('log-messages');
-        if (!logBox) return;
-        
-        let entryClass = "log-info";
-        if (msg.includes("▶") || msg.includes("⚙")) entryClass = "log-info";
-        else if (msg.includes("✅") || msg.includes("Hoàn tất")) entryClass = "log-success";
-        else if (msg.includes("⏸") || msg.includes("Tạm dừng")) entryClass = "log-warn";
-        
-        logBox.innerHTML += `<div class="log-entry ${entryClass}">${msg}</div>`;
-        logBox.scrollTop = logBox.scrollHeight;
+        try {
+            const logBox = document.getElementById('log-messages');
+            if (!logBox) return;
+            
+            let entryClass = "log-info";
+            if (msg.includes("▶") || msg.includes("⚙")) entryClass = "log-info";
+            else if (msg.includes("✅") || msg.includes("Hoàn tất")) entryClass = "log-success";
+            else if (msg.includes("⏸") || msg.includes("Tạm dừng")) entryClass = "log-warn";
+            else if (msg.includes("⚠") || msg.includes("Lỗi")) entryClass = "log-error";
+            
+            logBox.innerHTML += `<div class="log-entry ${entryClass}">${msg}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     clearLog() {
-        const logBox = document.getElementById('log-messages');
-        if (logBox) logBox.innerHTML = "";
+        try {
+            const logBox = document.getElementById('log-messages');
+            if (logBox) logBox.innerHTML = "";
+        } catch (e) {
+            console.error(e);
+        }
     }
     
     updateStats() {}
     
     scrubStep(e) {
-        if (!this.steps || this.steps.length === 0) return;
-        const barContainer = e.currentTarget;
-        const rect = barContainer.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const percentage = clickX / rect.width;
-        const targetStep = Math.min(this.steps.length - 1, Math.max(0, Math.floor(percentage * this.steps.length)));
-        
-        this.currentStep = targetStep;
-        this.log(`ℹ [Hệ thống] Đã tua đến bước ${targetStep + 1}`);
-        this.render();
+        try {
+            if (!this.steps || this.steps.length === 0) return;
+            const barContainer = e.currentTarget;
+            const rect = barContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = clickX / rect.width;
+            const targetStep = Math.min(this.steps.length - 1, Math.max(0, Math.floor(percentage * this.steps.length)));
+            
+            this.currentStep = targetStep;
+            this.log(`ℹ [Hệ thống] Đã tua đến bước ${targetStep + 1}`);
+            this.render();
+        } catch (err) {
+            console.error(err);
+        }
     }
 }"""
             
@@ -2155,8 +2121,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
             const trackerBox = document.getElementById('code-tracker-box');
             if (trackerBox) {{
                 let rawHtml = trackerBox.innerHTML;
-                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\\n<div');
-                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\\n<span');
+                rawHtml = rawHtml.replace(/<\\/div><div/g, '</div>\\n<div');
+                rawHtml = rawHtml.replace(/<\\/span><span/g, '</span>\\n<span');
                 trackerBox.innerHTML = rawHtml;
             }}
 

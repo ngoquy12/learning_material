@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta sẽ tìm hiểu về Nhập xuất dữ liệu và Ép kiểu. Khi dùng hàm input, Python luôn trả về một chuỗi ký tự. Nếu trực tiếp tính toán, chương trình sẽ lỗi hoặc chạy sai logic.

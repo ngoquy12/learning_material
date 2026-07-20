@@ -1,0 +1,83 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Thành phần nào đảm nhiệm vai trò dịch và thực thi mã nguồn Python sang mã máy?",
+      "options": [
+        "Python Interpreter",
+        "VS Code IDE",
+        "Virtual Environment",
+        "Biến PATH"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Python Interpreter là trình thông dịch chính đảm nhận việc phân tích cú pháp, dịch mã dòng lệnh và chạy chương trình."
+    },
+    {
+      "question": "Lệnh nào sau đây được dùng để khởi tạo môi trường ảo có tên 'myenv' bằng thư viện chuẩn của Python?",
+      "options": [
+        "python -m venv myenv",
+        "venv myenv create",
+        "virtualenv start myenv",
+        "python create venv myenv"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Lệnh 'python -m venv myenv' gọi module venv tích hợp sẵn để tạo thư mục môi trường ảo có tên myenv."
+    },
+    {
+      "question": "Làm thế nào để khắc phục lỗi chặn quyền thực thi script (Execution Policy) khi kích hoạt venv trên Windows PowerShell?",
+      "options": [
+        "Chạy lệnh bypass tạm thời: Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass",
+        "Xóa thư mục môi trường ảo cài đi cài lại nhiều lần",
+        "Gỡ cài đặt Python và chuyển sang dùng hệ điều hành macOS",
+        "Cài đặt thêm thư viện conda để ghi đè cấu hình bảo mật"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Lệnh bypass tạm thời chính sách bảo mật giúp PowerShell cho phép thực thi file script kích hoạt môi trường ảo mà không hạ thấp bảo mật lâu dài của hệ thống."
+    },
+    {
+      "question": "Sự khác biệt quan trọng giữa sys.prefix và sys.base_prefix khi kiểm tra trạng thái môi trường ảo là gì?",
+      "options": [
+        "Trong môi trường ảo, sys.prefix trỏ tới thư mục ảo còn sys.base_prefix trỏ tới thư mục cài đặt mặc định của hệ thống",
+        "sys.prefix chứa phiên bản Python còn sys.base_prefix chứa phiên bản hệ điều hành",
+        "Chúng luôn luôn có giá trị tương đương nhau trong mọi trường hợp chạy",
+        "sys.prefix chỉ khả dụng khi chạy trên Linux còn sys.base_prefix chỉ dành cho Windows"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Khi môi trường ảo được kích hoạt, Python trỏ sys.prefix vào thư mục ảo của dự án để tải thư viện biệt lập, trong khi base_prefix vẫn giữ thư mục gốc hệ thống."
+    },
+    {
+      "question": "Nếu chạy lệnh 'pip install requests' mà không kích hoạt môi trường ảo trước đó, điều gì sẽ xảy ra?",
+      "options": [
+        "Thư viện 'requests' sẽ cài đặt vào môi trường mặc định hệ thống (Global) thay vì môi trường ảo",
+        "Thư viện tự động phát hiện thư mục ảo gần nhất để cài đặt",
+        "Quá trình cài đặt sẽ bị hủy hoàn toàn và báo lỗi bảo mật",
+        "Hệ thống sẽ ép người dùng khởi tạo môi trường ảo mới"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Thiếu kích hoạt môi trường ảo đồng nghĩa lệnh pip hoạt động trên phạm vi global, cài thư viện trực tiếp vào máy gây nguy cơ xung đột."
+    }
+  ],
+  "practical_lab": {
+    "title": "Khởi tạo, kích hoạt và cấu hình môi trường ảo cho dự án",
+    "objectives": [
+      "Thực hành tạo môi trường ảo bằng venv trên máy tính cá nhân",
+      "Kích hoạt thành công môi trường ảo từ terminal tích hợp của VS Code",
+      "Chạy chương trình Python xác thực đường dẫn cô lập"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Mở VS Code trên thư mục của bạn và khởi tạo môi trường ảo bằng dòng lệnh: python -m venv myenv",
+        "Bước 2: Mở terminal trên hệ điều hành tương thích và chạy lệnh kích hoạt. Trên Windows (CMD): myenv\\Scripts\\activate. Trên macOS/Linux: source myenv/bin/activate",
+        "Bước 3: Nhấn phím F1 hoặc Ctrl+Shift+P, gõ chọn 'Python: Select Interpreter' và trỏ đường dẫn tới Python ở trong thư mục ảo 'myenv'",
+        "Bước 4: Tạo tập tin verify_setup.py, dán mã nguồn lấy thông tin môi trường và chạy thử"
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Thư mục 'myenv' (chứa Scripts hoặc bin) được tạo trong thư mục làm việc ví dụ.",
+        "Terminal hiển thị tiền tố '(myenv)' ở vị trí đầu dòng lệnh.",
+        "Tập tin verify_setup.py chạy thành công và báo kết quả đường dẫn trỏ vào thư mục myenv."
+      ]
+    }
+  }
+}

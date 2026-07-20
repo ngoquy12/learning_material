@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Layout, Menu, Dropdown, Avatar, message, theme } from "antd";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -26,25 +26,6 @@ export default function MainLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-
-  // Retrieve user mock login info or fallback to default
-  const userLogined = useMemo(() => {
-    const raw = localStorage.getItem("userLogined");
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (parsed) return parsed;
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    return {
-      firstName: "Giảng viên",
-      lastName: "Rikkei",
-      role: "Quản trị viên",
-      position: "Giảng viên công nghệ",
-    };
-  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("userLogined");
@@ -206,16 +187,10 @@ export default function MainLayout() {
                 />
                 <div className="hidden sm:flex flex-col items-start leading-tight">
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    {userLogined?.name ||
-                      `${userLogined?.firstName || ""} ${userLogined?.lastName || ""}`.trim() ||
-                      "Giảng viên Rikkei"}
+                    Giảng viên Rikkei
                   </span>
                   <span className="text-[11px] text-slate-400 font-medium">
-                    {userLogined?.position?.positionName ||
-                      userLogined?.position ||
-                      userLogined?.role?.roleName ||
-                      userLogined?.role ||
-                      "Quản trị viên"}
+                    Quản trị viên
                   </span>
                 </div>
                 <ChevronDown size={14} className="text-slate-400" />

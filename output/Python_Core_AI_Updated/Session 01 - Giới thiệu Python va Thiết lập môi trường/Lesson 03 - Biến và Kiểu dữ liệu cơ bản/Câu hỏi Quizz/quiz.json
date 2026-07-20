@@ -1,0 +1,86 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Tên biến nào sau đây là KHÔNG hợp lệ trong cú pháp Python?",
+      "options": [
+        "device_id",
+        "device1",
+        "1_device",
+        "_device"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Theo quy tắc đặt tên biến của Python, tên biến không được phép bắt đầu bằng chữ số (1_device là sai quy tắc)."
+    },
+    {
+      "question": "Hàm nào được sử dụng để lấy kiểu dữ liệu của một đối tượng trong Python?",
+      "options": [
+        "print()",
+        "type()",
+        "input()",
+        "dataType()"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Hàm type() nhận vào đối tượng hoặc biến và trả về kiểu dữ liệu tương ứng của đối tượng đó."
+    },
+    {
+      "question": "Đoạn mã sau in ra kết quả gì: x = 10; x = \"Active\"; print(type(x))",
+      "options": [
+        "<class 'int'>",
+        "<class 'str'>",
+        "Lỗi biên dịch SyntaxError",
+        "<class 'bool'>"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Python áp dụng định kiểu động (dynamic typing), kiểu dữ liệu của biến thay đổi theo giá trị mới nhất được gán cho nó. 'Active' là chuỗi ký tự kiểu str."
+    },
+    {
+      "question": "Kiểu dữ liệu nào được sử dụng để lưu trữ giá trị logic chỉ gồm True hoặc False?",
+      "options": [
+        "float",
+        "str",
+        "int",
+        "bool"
+      ],
+      "correct_option_index": 3,
+      "explanation": "Kiểu bool (Boolean) đại diện cho hai giá trị lô-gíc duy nhất là True và False."
+    },
+    {
+      "question": "Mã nguồn sau gặp lỗi gì: is_available = true",
+      "options": [
+        "Lỗi cú pháp SyntaxError",
+        "Lỗi NameError (chưa định nghĩa biến 'true')",
+        "Không có lỗi, biến chạy bình thường kiểu bool",
+        "Lỗi TypeError"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Trong Python, từ khóa luận lý phân biệt chữ hoa chữ thường và phải viết hoa chữ cái đầu (True/False). Viết 'true' chữ thường khiến trình biên dịch hiểu lầm đây là một biến chưa khai báo trước đó và gây ra lỗi NameError."
+    }
+  ],
+  "practical_lab": {
+    "title": "Khai Báo và Xác Định Kiểu Dữ Liệu Thiết Bị Thử Nghiệm",
+    "objectives": [
+      "Làm chủ cú pháp khai báo và đặt tên biến đúng quy tắc trong Python.",
+      "Lựa chọn và gán đúng 4 kiểu dữ liệu cơ bản: int, float, str, bool.",
+      "Đạt chuẩn đầu ra kỳ vọng: hoạt động ổn định, không lỗi logic."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Tạo một file mã nguồn có tên là 'device_check.py'.",
+        "Khai báo biến 'device_id' gán giá trị nguyên bất kỳ đại diện cho mã thiết bị.",
+        "Khai báo biến 'voltage' gán giá trị số thực đại diện cho điện áp hoạt động.",
+        "Khai báo biến 'firmware_version' gán giá trị dạng chuỗi đại diện cho phiên bản hệ thống.",
+        "Khai báo biến 'is_calibrated' gán giá trị kiểu logic đại diện cho trạng thái hiệu chuẩn.",
+        "Sử dụng hàm print và type để hiển thị giá trị cùng kiểu dữ liệu của cả 4 biến ra Terminal.",
+        "Nhấn chạy chương trình và kiểm tra kết quả hiển thị."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "[ ] Khai báo đủ 4 biến tương ứng với các kiểu int, float, str, và bool.",
+        "[ ] Tên các biến tuân thủ đúng quy tắc đặt tên của Python.",
+        "[ ] Chương trình thực thi thành công trên terminal và hiển thị đầy đủ kiểu dữ liệu qua hàm type()."
+      ]
+    }
+  }
+}

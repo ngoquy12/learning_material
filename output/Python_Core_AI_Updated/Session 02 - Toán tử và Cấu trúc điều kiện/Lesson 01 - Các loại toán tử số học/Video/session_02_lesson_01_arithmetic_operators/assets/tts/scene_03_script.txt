@@ -1,0 +1,1 @@
+Hãy quan sát ví dụ sau. Khi khai báo hai biến a và b, ta dễ dàng tính toán các giá trị tổng, thương thực, thương nguyên, số dư và lũy thừa. Lưu ý, khi nhận dữ liệu từ bàn phím qua hàm input, ta bắt buộc phải ép sang kiểu số nguyên int hoặc số thực float trước khi tính.

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene_05 — Tổng kết & Outro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.2) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      top: -200px; left: -200px; width: 800px; height: 800px;
+      background: rgba(56,189,248,0.15);
+    }
+    body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      bottom: -200px; right: -200px; width: 600px; height: 600px;
+      background: rgba(168,85,247,0.15);
+    }
+
+    #scene-05 { width: 1920px; height: 1080px; position: relative; }
+
+    :root {
+      --text-primary:   #e6edf3;
+      --text-secondary: #c9d1d9;
+      --text-muted:     #8b949e;
+      --bg-card:        rgba(9,9,11,0.7);
+      --bg-border:      rgba(255,255,255,0.08);
+      --accent:         #38bdf8;
+      --accent-purple:  #a855f7;
+    }
+
+    .section-badge {
+      position: absolute; top: 60px; right: 80px;
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 2px; text-transform: uppercase;
+      z-index: 5;
+    }
+
+    .intro-title {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px; font-weight: 700;
+      color: var(--text-primary); text-align: center;
+      white-space: nowrap; z-index: 100; pointer-events: none;
+    }
+    .intro-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Main Layout ── */
+    .container {
+      position: absolute; top: 180px; left: 100px; width: 1720px; height: 780px;
+      display: flex; gap: 60px; align-items: center;
+    }
+
+    .split-panel {
+      flex: 1; height: 620px;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-border);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      padding: 40px;
+      display: flex; flex-direction: column; gap: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      position: relative;
+    }
+    .panel-header {
+      font-size: 28px; font-weight: 700; color: var(--accent);
+      padding-bottom: 16px; border-bottom: 1px solid var(--bg-border);
+    }
+
+    .code-card {
+      background: #0d1117;
+      border: 1px solid var(--bg-border);
+      border-radius: 14px;
+      padding: 24px;
+      font-family: 'Fira Code', monospace;
+      font-size: 18px; line-height: 1.6;
+    }
+
+    .takeaway-list {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .takeaway-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--bg-border);
+      border-radius: 12px; padding: 18px 24px;
+      display: flex; align-items: center; gap: 16px;
+      opacity: 0.3; transition: all 0.3s;
+    }
+    .takeaway-item.active {
+      opacity: 1; border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.05);
+    }
+    .item-num {
+      font-weight: 700; font-size: 20px; color: var(--accent);
+    }
+    .item-text {
+      font-size: 18px; color: var(--text-secondary);
+    }
+
+    /* Outro Slide */
+    .outro-overlay {
+      position: absolute; top: 0; left: 0; width: 1920px; height: 1080px;
+      background: #0d1117;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 30px; z-index: 200; opacity: 0; visibility: hidden;
+    }
+    .logo-container {
+      width: 160px; height: 160px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 72px; color: white;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+    }
+    .outro-overlay h2 {
+      font-size: 48px; font-weight: 700; color: var(--text-primary);
+    }
+    .outro-overlay p {
+      font-size: 24px; color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-05" class="clip" data-composition-id="scene-05" data-width="1920" data-height="1080" data-start="0" data-duration="57.14" data-track-index="0">
+    <div id="badge-05" class="section-badge clip" data-start="0" data-duration="57.14" data-track-index="1">
+      Giới thiệu ngôn ngữ Python
+    </div>
+
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="57.14" data-track-index="10">
+      <span>Thư viện & Tổng kết</span>
+    </div>
+
+    <div class="container clip" id="main-container-05" data-start="4.0" data-duration="53.14" data-track-index="2">
+      <!-- Left Panel: Ecosystem -->
+      <div class="split-panel" id="eco-panel-05">
+        <div class="panel-header">
+          <h3>Hệ sinh thái Thư viện</h3>
+        </div>
+        <div class="code-card">
+          <div><span style="color: #ff7b72;">import</span> math</div>
+          <div><span style="color: #ff7b72;">import</span> os</div>
+          <div style="margin-top: 15px; color: #8b949e;"># Lấy thư mục hiện tại</div>
+          <div>current_dir = os.getcwd()</div>
+          <div style="margin-top: 10px; color: #8b949e;"># Tính căn bậc hai</div>
+          <div>result = math.sqrt(<span style="color: #79c0ff;">16</span>)</div>
+        </div>
+        <p style="font-size: 18px; color: var(--text-secondary); line-height: 1.5;">
+          Thư viện chuẩn phong phú giúp rút ngắn thời gian lập trình và tăng cường độ ổn định cho phần mềm.
+        </p>
+      </div>
+
+      <!-- Right Panel: Key Takeaways -->
+      <div class="split-panel" id="summary-panel-05">
+        <div class="panel-header">
+          <h3>4 Kiến thức cốt lõi</h3>
+        </div>
+        <div class="takeaway-list">
+          <div class="takeaway-item" id="item-05-1">
+            <span class="item-num">01</span>
+            <span class="item-text">Triết lý thiết kế Zen tối giản</span>
+          </div>
+          <div class="takeaway-item" id="item-05-2">
+            <span class="item-num">02</span>
+            <span class="item-text">Cơ chế thông dịch đa nền tảng</span>
+          </div>
+          <div class="takeaway-item" id="item-05-3">
+            <span class="item-num">03</span>
+            <span class="item-text">Định kiểu động linh hoạt</span>
+          </div>
+          <div class="takeaway-item" id="item-05-4">
+            <span class="item-num">04</span>
+            <span class="item-text">Quy tắc thụt lề nghiêm ngặt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Outro Overlay Screen -->
+    <div class="outro-overlay" id="outro-screen-05">
+      <div class="logo-container">📖</div>
+      <h2>Cảm ơn các em đã theo dõi!</h2>
+      <p>Hẹn gặp lại trong bài giảng tiếp theo của Rikkei Education.</p>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-05"] = tl;
+
+    const _build05 = setInterval(function() {
+      const root = document.getElementById("scene-05");
+      if (!root) return;
+      clearInterval(_build05);
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#eco-panel-05", { autoAlpha: 0, x: -60 }, 0);
+      tl.set("#summary-panel-05", { autoAlpha: 0, x: 60 }, 0);
+      tl.set("#outro-screen-05", { autoAlpha: 0 }, 0);
+
+      // Intro title: 0.2s -> 3.2s
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      // Panels slide in: 4.2s
+      tl.to("#eco-panel-05", { autoAlpha: 1, x: 0, duration: 0.8, ease: "power3.out" }, 4.2);
+      tl.to("#summary-panel-05", { autoAlpha: 1, x: 0, duration: 0.8, ease: "power3.out" }, 5.5);
+
+      // Highlights key takeaways: 12s, 18s, 24s, 30s
+      tl.to("#item-05-1", { className: "takeaway-item active", duration: 0.4 }, 12.0);
+      tl.to("#item-05-2", { className: "takeaway-item active", duration: 0.4 }, 18.0);
+      tl.to("#item-05-3", { className: "takeaway-item active", duration: 0.4 }, 24.0);
+      tl.to("#item-05-4", { className: "takeaway-item active", duration: 0.4 }, 30.0);
+
+      // Outro Screen reveal: 42s onwards
+      tl.to("#main-container-05", { autoAlpha: 0, scale: 0.95, duration: 0.8, ease: "power3.in" }, 42.0);
+      tl.to("#badge-05", { autoAlpha: 0, duration: 0.5 }, 42.0);
+      tl.to("#intro-title", { autoAlpha: 0, duration: 0.5 }, 42.0);
+
+      tl.to("#outro-screen-05", { autoAlpha: 1, duration: 1.0, ease: "power2.out" }, 44.0);
+      tl.from("#outro-screen-05 .logo-container", { scale: 0.5, rotation: -30, duration: 1.2, ease: "back.out(1.7)" }, 44.5);
+
+      tl.set({}, {}, 57.14);
+    }, 50);
+  </script>
+</body>
+</html>

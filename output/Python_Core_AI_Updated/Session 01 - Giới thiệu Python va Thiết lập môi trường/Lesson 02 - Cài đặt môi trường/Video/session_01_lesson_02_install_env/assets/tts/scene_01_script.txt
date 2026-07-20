@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Khi bắt đầu học Python, việc thiết lập môi trường chạy mã nguồn thường gặp lỗi nghiêm trọng như command not found do cấu hình sai PATH hoặc xung đột phiên bản giữa các dự án.

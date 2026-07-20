@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Khi viết chương trình, chúng ta cần lưu trữ các thông tin như tên tài khoản hay điểm số. Biến chính là các ô nhớ trong máy tính giúp lưu trữ và quản lý những thông tin này.

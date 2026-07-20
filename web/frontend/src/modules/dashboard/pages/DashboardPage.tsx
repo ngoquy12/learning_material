@@ -18,7 +18,7 @@ export default function DashboardPage() {
   if (loading && !stats) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Spin size="large" tip="Đang tải thống kê hệ thống..." />
+        <Spin size="large" description="Đang tải thống kê hệ thống..." />
       </div>
     );
   }
@@ -38,7 +38,7 @@ export default function DashboardPage() {
         {error && (
           <Alert
             type="warning"
-            message="Không thể kết nối API"
+            title="Không thể kết nối API"
             description="Đang hiển thị dữ liệu tĩnh"
             showIcon
             closable
@@ -50,42 +50,42 @@ export default function DashboardPage() {
       {/* Row 1: Core counts */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow h-full">
+          <Card variant="borderless" className="shadow-sm hover:shadow-md transition-shadow h-full">
             <Statistic
               title={<span className="text-gray-600 font-medium">Tổng số Môn học</span>}
               value={stats?.courses ?? '—'}
               prefix={<BookOpen size={20} className="text-blue-500 mr-2 inline" />}
-              valueStyle={{ color: '#1677ff', fontWeight: 700 }}
+              styles={{ content: { color: '#1677ff', fontWeight: 700 } }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow h-full">
+          <Card variant="borderless" className="shadow-sm hover:shadow-md transition-shadow h-full">
             <Statistic
               title={<span className="text-gray-600 font-medium">Tổng Session</span>}
               value={stats?.sessions ?? '—'}
               prefix={<FileText size={20} className="text-purple-500 mr-2 inline" />}
-              valueStyle={{ color: '#722ed1', fontWeight: 700 }}
+              styles={{ content: { color: '#722ed1', fontWeight: 700 } }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow h-full">
+          <Card variant="borderless" className="shadow-sm hover:shadow-md transition-shadow h-full">
             <Statistic
               title={<span className="text-gray-600 font-medium">Tổng Bài học</span>}
               value={stats?.lessons ?? '—'}
               prefix={<CheckCircle size={20} className="text-green-500 mr-2 inline" />}
-              valueStyle={{ color: '#52c41a', fontWeight: 700 }}
+              styles={{ content: { color: '#52c41a', fontWeight: 700 } }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
-          <Card bordered={false} className="shadow-sm hover:shadow-md transition-shadow h-full">
+          <Card variant="borderless" className="shadow-sm hover:shadow-md transition-shadow h-full">
             <Statistic
               title={<span className="text-gray-600 font-medium">Đang xử lý</span>}
               value={stats?.artifacts.pending ?? '—'}
               prefix={<Clock size={20} className="text-orange-500 mr-2 inline" />}
-              valueStyle={{ color: '#fa8c16', fontWeight: 700 }}
+              styles={{ content: { color: '#fa8c16', fontWeight: 700 } }}
             />
           </Card>
         </Col>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
         <Col xs={24} lg={8}>
           <Card
             title={<span className="flex items-center gap-2"><TrendingUp size={16} className="text-blue-500" /> Tỷ lệ thành công Artifacts</span>}
-            bordered={false}
+            variant="borderless"
             className="shadow-sm h-full"
           >
             <div className="text-center mb-4">
@@ -108,7 +108,7 @@ export default function DashboardPage() {
               percent={artifactSuccessRate}
               strokeColor={rateColor}
               showInfo={false}
-              strokeWidth={12}
+              size={12}
             />
             <Row gutter={8} className="mt-4">
               <Col span={8} className="text-center">
@@ -130,7 +130,7 @@ export default function DashboardPage() {
         <Col xs={24} lg={8}>
           <Card
             title={<span className="flex items-center gap-2"><Zap size={16} className="text-yellow-500" /> Semantic Cache</span>}
-            bordered={false}
+            variant="borderless"
             className="shadow-sm h-full"
           >
             <div className="space-y-4">
@@ -152,7 +152,7 @@ export default function DashboardPage() {
         <Col xs={24} lg={8}>
           <Card
             title={<span className="flex items-center gap-2"><Brain size={16} className="text-purple-500" /> Knowledge Memory</span>}
-            bordered={false}
+            variant="borderless"
             className="shadow-sm h-full"
           >
             <div className="text-center mb-4">

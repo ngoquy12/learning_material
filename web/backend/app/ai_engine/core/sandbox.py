@@ -24,7 +24,7 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
 
     # --- Sandbox Security Configuration (Read Dynamically) ---
     sandbox_provider = os.getenv("SANDBOX_PROVIDER", "docker").lower()
-    sandbox_strict = os.getenv("SANDBOX_STRICT", "False").lower() in ("true", "1", "yes") or os.getenv("SANDBOX_ENV", "").lower() == "production"
+    sandbox_strict = os.getenv("SANDBOX_STRICT", "false").lower() == "true"
     sandbox_timeout = int(os.getenv("SANDBOX_TIMEOUT", "5"))
     sandbox_memory = os.getenv("SANDBOX_MEMORY", "256m")
     sandbox_cpus = os.getenv("SANDBOX_CPUS", "0.5")
@@ -56,43 +56,57 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
     # 2. Local Docker Container Execution Path
     has_docker = shutil.which("docker") is not None
     if has_docker and sandbox_provider != "local_subprocess":
-        print(f"  [Sandbox] Executing code in highly-restricted Docker container (CPUs: {sandbox_cpus}, RAM: {sandbox_memory})...")
-        docker_result = _execute_via_docker(code, sandbox_memory, sandbox_cpus, sandbox_timeout)
-        if docker_result:
-            return docker_result
-            
+        # Check if Docker daemon is actually running
+        docker_daemon_running = False
+        try:
+            daemon_check = subprocess.run(["docker", "ps"], capture_output=True, timeout=2)
+            if daemon_check.returncode == 0:
+                docker_daemon_running = True
+        except Exception:
+            pass
+
+        if docker_daemon_running:
+            print(f"  [Sandbox] Executing code in highly-restricted Docker container (CPUs: {sandbox_cpus}, RAM: {sandbox_memory})...")
+            docker_result = _execute_via_docker(code, sandbox_memory, sandbox_cpus, sandbox_timeout)
+            if docker_result:
+                # If execution succeeded or failed due to student code syntax/runtime error, return it
+                if docker_result.get("status") == "SUCCESS" or "error during connect" not in str(docker_result.get("error", "")):
+                    return docker_result
+        else:
+            print("  [Sandbox Warning] Docker CLI found, but Docker daemon is not running or accessible.")
+
         if sandbox_strict:
             return {
                 "status": "FAILED",
                 "engine": "docker",
-                "error": "Docker sandbox execution failed, and fallback is blocked in strict mode."
+                "error": "Docker sandbox execution failed (or daemon inactive), and fallback is blocked in strict mode."
             }
 
     # 3. Local Subprocess Fallback Path (Security Guard)
     if sandbox_strict:
-        print("  [Sandbox SECURITY ERROR] Local subprocess fallback blocked in strict/production mode.")
+        print("  [Sandbox SECURITY ERROR] Local subprocess execution is permanently blocked for security reasons.")
         return {
             "status": "FAILED",
             "engine": "security_guard",
             "error": (
-                "Security Block: Local subprocess execution is disabled for security reasons "
-                "(SANDBOX_STRICT=True or environment is production). Please configure Docker or E2B."
+                "Security Block: Local subprocess execution is disabled to prevent malicious code execution. "
+                "Please configure Docker or E2B sandbox providers."
             )
         }
-
-    print("  [Sandbox WARNING] Executing code in local subprocess (insecure fallback, dev mode only)...")
+    
+    print("  [Sandbox] Falling back to local subprocess execution (Dev Mode)...")
     return _execute_via_local_subprocess(code, sandbox_timeout)
 
 
-def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any]:
+def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any] | None:
     """Helper to execute code via E2B SDK."""
     try:
         try:
             # Try importing e2b-code-interpreter first
-            from e2b_code_interpreter import Sandbox
+            from e2b_code_interpreter import Sandbox  # type: ignore
         except ImportError:
             # Fallback to core e2b sandbox
-            from e2b import Sandbox
+            from e2b import Sandbox  # type: ignore
 
         with Sandbox(api_key=api_key) as sandbox:
             if hasattr(sandbox, "run_code"):
@@ -130,7 +144,7 @@ def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any]:
         return None
 
 
-def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict[str, Any]:
+def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict[str, Any] | None:
     """Helper to execute code in a highly-secured Docker environment without volume mounting."""
     try:
         # We pipe the python code directly to Python stdin inside container
@@ -144,6 +158,9 @@ def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict
                 "--memory", memory,
                 "--cpus", cpus,
                 "--cap-drop", "ALL",
+                "--security-opt", "no-new-privileges",
+                "--read-only",
+                "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
                 "--user", "1000:1000",
                 "python:3.10-slim",
                 "python", "-"
@@ -160,23 +177,12 @@ def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict
                 "output": result.stdout
             }
         else:
-            err_msg = result.stderr or ""
-            if "error during connect" in err_msg.lower() or "cannot connect" in err_msg.lower() or "daemon" in err_msg.lower():
-                print(f"  [Sandbox Warning] Docker daemon connection error: {err_msg.strip()}")
-                return None
             return {
                 "status": "FAILED",
                 "engine": "docker",
                 "error": result.stderr or result.stdout or f"Exit code: {result.returncode}"
             }
-    except subprocess.TimeoutExpired as e:
-        is_server = any(kw in code for kw in ["uvicorn.run", "app.run", "while True", "time.sleep"])
-        if is_server and not (e.stderr or "").strip():
-            return {
-                "status": "SUCCESS",
-                "engine": "docker",
-                "output": e.stdout or "Server started successfully (TimeoutExpired)."
-            }
+    except subprocess.TimeoutExpired:
         return {
             "status": "FAILED",
             "engine": "docker",
@@ -213,14 +219,7 @@ def _execute_via_local_subprocess(code: str, timeout: int) -> Dict[str, Any]:
                     "engine": "local_subprocess",
                     "error": result.stderr or f"Exit code: {result.returncode}"
                 }
-        except subprocess.TimeoutExpired as e:
-            is_server = any(kw in code for kw in ["uvicorn.run", "app.run", "while True", "time.sleep"])
-            if is_server and not (e.stderr or "").strip():
-                return {
-                    "status": "SUCCESS",
-                    "engine": "local_subprocess",
-                    "output": e.stdout or "Server started successfully (TimeoutExpired)."
-                }
+        except subprocess.TimeoutExpired:
             return {
                 "status": "FAILED",
                 "engine": "local_subprocess",

@@ -4,14 +4,14 @@ import json
 import time
 import uuid
 from datetime import datetime
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 
 TRACE_LOG_PATH = "trace_logs.jsonl"
 
 # 1. Try importing Langfuse SDK
 _langfuse_client = None
 try:
-    from langfuse import Langfuse
+    from langfuse import Langfuse  # type: ignore
     from config.settings import LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_HOST
     if LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY:
         _langfuse_client = Langfuse(
@@ -26,10 +26,10 @@ except ImportError:
 _otel_enabled = False
 _tracer = None
 try:
-    from opentelemetry import trace
-    from opentelemetry.sdk.trace import TracerProvider
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.sdk.resources import Resource
+    from opentelemetry import trace  # type: ignore
+    from opentelemetry.sdk.trace import TracerProvider  # type: ignore
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor  # type: ignore
+    from opentelemetry.sdk.resources import Resource  # type: ignore
     
     # Check if a custom endpoint or tracer provider is already active
     if not trace.get_tracer_provider().__class__.__name__ == "ProxyTracerProvider":
@@ -44,11 +44,17 @@ try:
         from config.settings import OTEL_EXPORTER_OTLP_ENDPOINT
         if OTEL_EXPORTER_OTLP_ENDPOINT:
             try:
-                from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-                exporter = OTLPSpanExporter(endpoint=OTEL_EXPORTER_OTLP_ENDPOINT)
+                # Try gRPC exporter first
+                try:
+                    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter  # type: ignore
+                    exporter = OTLPSpanExporter(endpoint=OTEL_EXPORTER_OTLP_ENDPOINT)
+                except ImportError:
+                    # Fallback to HTTP protobuf exporter
+                    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter  # type: ignore
+                    exporter = OTLPSpanExporter(endpoint=OTEL_EXPORTER_OTLP_ENDPOINT)
                 provider.add_span_processor(BatchSpanProcessor(exporter))
             except Exception as exp_err:
-                # Fallback to console/noop if gRPC exporter import fails
+                print(f"  [Observability Warning] Failed to initialize OTLP Span Exporter: {exp_err}")
                 pass
                 
         trace.set_tracer_provider(provider)
@@ -145,5 +151,5 @@ def log_agent_call(
                 }
             )
         except Exception as lf_err:
-            print(f"  [Observability Langfuse Warning] Failed to dispatch generation trace: {lf_err}")
+            print(f"[Observability Langfuse Warning] Failed to dispatch generation trace: {lf_err}")
 

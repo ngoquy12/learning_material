@@ -1,0 +1,1 @@
+Hãy dùng thư viện sys để in phiên bản và đường dẫn Interpreter đang chạy nhằm xác thực môi trường ảo. Tránh quên tích PATH hoặc chạy sai Interpreter trên VS Code. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

@@ -1,0 +1,1 @@
+Để giải quyết, f-string ra đời. Chúng ta chỉ cần thêm ký tự f trước dấu nháy của chuỗi. Khi đó, mọi biến số hoặc biểu thức nằm trong cặp ngoặc nhọn sẽ tự động được định dạng và hiển thị trực quan.

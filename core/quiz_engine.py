@@ -153,7 +153,14 @@ def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: 
     for batch in batches:
         start_stt = len(questions) + 1
         print(f"    -> Agent generating {batch['count']} questions (Diff {batch['diff']}) for '{batch['topic']}'...")
-        q_batch = generate_quiz_batch_via_llm(batch["topic"], tech_stack, batch["count"], batch["diff"], batch["cat"], start_stt)
+        q_batch = generate_quiz_batch_via_llm(
+            str(batch["topic"]),
+            tech_stack,
+            int(batch["count"]),
+            int(batch["diff"]),
+            str(batch["cat"]),
+            start_stt
+        )
         if q_batch:
             questions.extend(q_batch)
             
@@ -180,7 +187,14 @@ def generate_exit_quiz(session_id: str, current_topic: str, tech_stack: str = "p
     for batch in batches:
         start_stt = len(questions) + 1
         print(f"    -> Agent generating {batch['count']} questions (Diff {batch['diff']}) for '{batch['topic']}'...")
-        q_batch = generate_quiz_batch_via_llm(batch["topic"], tech_stack, batch["count"], batch["diff"], batch["cat"], start_stt)
+        q_batch = generate_quiz_batch_via_llm(
+            str(batch["topic"]),
+            tech_stack,
+            int(batch["count"]),
+            int(batch["diff"]),
+            str(batch["cat"]),
+            start_stt
+        )
         if q_batch:
             questions.extend(q_batch)
             

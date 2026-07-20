@@ -1,0 +1,1 @@
+Tiếp theo, chúng ta cài đặt VS Code và cài thêm Extension Python. Để quản lý các thư viện dự án độc lập, tránh xung đột phiên bản, ta dùng lệnh python -m venv venv_demo để tạo môi trường ảo chuyên biệt cho dự án.

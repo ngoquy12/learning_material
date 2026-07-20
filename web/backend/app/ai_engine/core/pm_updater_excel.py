@@ -6,10 +6,12 @@ def export_updated_pm_to_excel(sessions_json, original_excel_path, new_excel_pat
     """
     wb = openpyxl.Workbook()
     ws = wb.active
+    if ws is None:
+        raise ValueError("Workbook has no active worksheet.")
     ws.title = "Chương trình đào tạo chi tiết"
     
     # Headers
-    ws.append(["STT", "Hình thức", "Session", "Nội dung Session", "Lesson", "Chi tiết bài học", "Kết quả đầu ra", "Deadline"])
+    ws.append(["STT", "Hình thức", "Session", "Nội dung Session", "Lesson", "Chi tiết bài học", "Kết quả đầu ra"])
     
     stt = 1
     for session in sessions_json:

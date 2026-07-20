@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene_03 — Định kiểu động</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.2) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      top: -200px; left: -200px; width: 800px; height: 800px;
+      background: rgba(56,189,248,0.15);
+    }
+    body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      bottom: -200px; right: -200px; width: 600px; height: 600px;
+      background: rgba(168,85,247,0.15);
+    }
+
+    #scene-03 { width: 1920px; height: 1080px; position: relative; }
+
+    :root {
+      --text-primary:   #e6edf3;
+      --text-secondary: #c9d1d9;
+      --text-muted:     #8b949e;
+      --bg-card:        rgba(9,9,11,0.7);
+      --bg-border:      rgba(255,255,255,0.08);
+      --keyword:        #ff7b72;
+      --string:         #a5d6ff;
+      --variable:       #79c0ff;
+      --operator:       #d2a8ff;
+      --good:           #3fb950;
+      --bad:            #f85149;
+      --accent:         #38bdf8;
+      --accent-purple:  #a855f7;
+    }
+
+    .section-badge {
+      position: absolute; top: 60px; right: 80px;
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 2px; text-transform: uppercase;
+      z-index: 5;
+    }
+
+    .intro-title {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px; font-weight: 700;
+      color: var(--text-primary); text-align: center;
+      white-space: nowrap; z-index: 100; pointer-events: none;
+    }
+    .intro-title span {
+      background: linear-gradient(135deg, var(--accent), var(--accent-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Layout ── */
+    .container {
+      position: absolute; top: 180px; left: 100px; width: 1720px; height: 780px;
+      display: flex; gap: 60px; align-items: center;
+    }
+
+    .code-card {
+      flex: 1.1; height: 600px;
+      background: #0d1117;
+      border: 1px solid var(--bg-border);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    .code-header {
+      background: #161b22;
+      padding: 16px 24px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid var(--bg-border);
+    }
+    .dot { width: 14px; height: 14px; border-radius: 50%; }
+    .dot.red    { background: #f85149; }
+    .dot.yellow { background: #ffa657; }
+    .dot.green  { background: #3fb950; }
+    .code-title {
+      margin-left: 10px; font-size: 18px; font-weight: 500; color: var(--text-muted);
+    }
+    .code-content {
+      font-family: 'Fira Code', monospace;
+      font-size: 26px; line-height: 1.8;
+      color: var(--text-primary);
+      padding: 40px;
+    }
+    .line {
+      opacity: 0.3; transition: opacity 0.3s;
+      padding: 4px 12px; border-radius: 6px;
+    }
+    .line.active {
+      opacity: 1; background: rgba(56, 189, 248, 0.15);
+    }
+
+    .keyword  { color: var(--keyword); }
+    .string   { color: var(--string); }
+    .variable { color: var(--variable); }
+    .operator { color: var(--operator); }
+
+    .inspector-card {
+      flex: 0.9; height: 600px;
+      background: var(--bg-card);
+      border: 1px solid var(--bg-border);
+      border-radius: 24px;
+      backdrop-filter: blur(16px);
+      padding: 40px;
+      display: flex; flex-direction: column; gap: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+    .inspector-header h3 {
+      font-size: 28px; color: var(--text-primary);
+      text-align: center; border-bottom: 1px solid var(--bg-border);
+      padding-bottom: 20px;
+    }
+
+    .mem-block {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--bg-border);
+      border-radius: 16px; padding: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mem-label { font-size: 22px; color: var(--text-secondary); font-weight: 600; }
+    .mem-val { font-family: 'Fira Code', monospace; font-size: 24px; color: var(--accent); }
+    .mem-type {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--accent); border-radius: 8px;
+      padding: 6px 16px; font-size: 18px; font-weight: 700; color: var(--accent);
+    }
+    .type-str {
+      background: rgba(168, 85, 247, 0.15) !important;
+      border-color: var(--accent-purple) !important;
+      color: var(--accent-purple) !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="scene-03" class="clip" data-composition-id="scene-03" data-width="1920" data-height="1080" data-start="0" data-duration="59.30" data-track-index="0">
+    <div id="badge-03" class="section-badge clip" data-start="0" data-duration="59.30" data-track-index="1">
+      Giới thiệu ngôn ngữ Python
+    </div>
+
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="59.30" data-track-index="10">
+      <span>Kiểu dữ liệu động</span>
+    </div>
+
+    <div class="container clip" id="main-container-03" data-start="4.0" data-duration="55.30" data-track-index="2">
+      <!-- Left side: Code Editor -->
+      <div class="code-card" id="editor-03">
+        <div class="code-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <span class="code-title">demo.py</span>
+        </div>
+        <div class="code-content">
+          <div class="line" id="code-l1"><span class="variable">x</span> <span class="operator">=</span> <span class="number">10</span></div>
+          <div class="line" id="code-l2"><span class="variable">print</span>(<span class="variable">type</span>(<span class="variable">x</span>))</div>
+          <div class="line" id="code-l3" style="margin-top: 20px;"><span class="variable">x</span> <span class="operator">=</span> <span class="string">"Xin chào Python"</span></div>
+          <div class="line" id="code-l4"><span class="variable">print</span>(<span class="variable">type</span>(<span class="variable">x</span>))</div>
+        </div>
+      </div>
+
+      <!-- Right side: Memory Inspector -->
+      <div class="inspector-card" id="inspector-03">
+        <div class="inspector-header">
+          <h3>Trình giám sát Bộ nhớ (Memory Inspector)</h3>
+        </div>
+        <div class="mem-block" id="mem-box-1">
+          <span class="mem-label">Tên biến:</span>
+          <span class="mem-val" style="color: var(--variable);">x</span>
+        </div>
+        <div class="mem-block" id="mem-box-2">
+          <span class="mem-label">Giá trị bộ nhớ:</span>
+          <span class="mem-val" id="mem-value">10</span>
+        </div>
+        <div class="mem-block" id="mem-box-3">
+          <span class="mem-label">Kiểu dữ liệu:</span>
+          <span class="mem-type" id="mem-type-badge">int</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-03"] = tl;
+
+    const _build03 = setInterval(function() {
+      const root = document.getElementById("scene-03");
+      if (!root) return;
+      clearInterval(_build03);
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#editor-03", { autoAlpha: 0, x: -60 }, 0);
+      tl.set("#inspector-03", { autoAlpha: 0, x: 60 }, 0);
+
+      // Intro title: 0.2s -> 3.2s
+      tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      // Slide in editor & inspector at 4.2s
+      tl.to("#editor-03", { autoAlpha: 1, x: 0, duration: 0.8, ease: "power3.out" }, 4.2);
+      tl.to("#inspector-03", { autoAlpha: 1, x: 0, duration: 0.8, ease: "power3.out" }, 5.5);
+
+      // Highlight line 1: 8s
+      tl.to("#code-l1", { className: "+=line active", duration: 0.3 }, 8.0);
+      tl.to("#code-l2", { className: "+=line active", duration: 0.3 }, 15.0);
+
+      // Highlight line 3 (reassignment): 26s
+      tl.to("#code-l1", { className: "line", duration: 0.3 }, 26.0);
+      tl.to("#code-l2", { className: "line", duration: 0.3 }, 26.0);
+      tl.to("#code-l3", { className: "+=line active", duration: 0.3 }, 26.0);
+      
+      // Update memory inspector for line 3: 32s
+      tl.to("#mem-value", { scale: 0.8, opacity: 0, duration: 0.3 }, 32.0);
+      tl.add(() => {
+        document.getElementById("mem-value").innerText = '"Xin chào Python"';
+        document.getElementById("mem-value").style.color = "var(--string)";
+        document.getElementById("mem-type-badge").innerText = "str";
+        document.getElementById("mem-type-badge").classList.add("type-str");
+      }, 32.3);
+      tl.to("#mem-value", { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.5)" }, 32.4);
+      tl.to("#mem-type-badge", { scale: 1.2, duration: 0.3, yoyo: true, repeat: 1 }, 32.6);
+
+      // Highlight line 4: 40s
+      tl.to("#code-l4", { className: "+=line active", duration: 0.3 }, 40.0);
+
+      // Glow effect at 48s
+      tl.to("#inspector-03", { borderColor: "rgba(168, 85, 247, 0.4)", boxShadow: "0 0 40px rgba(168, 85, 247, 0.15)", duration: 0.6 }, 48.0);
+
+      tl.set({}, {}, 59.30);
+    }, 50);
+  </script>
+</body>
+</html>

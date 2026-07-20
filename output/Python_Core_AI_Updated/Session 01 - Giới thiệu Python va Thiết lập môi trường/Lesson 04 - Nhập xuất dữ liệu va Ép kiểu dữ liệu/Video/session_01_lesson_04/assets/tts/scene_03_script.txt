@@ -1,0 +1,1 @@
+Khi thực hiện ép kiểu, hãy đặc biệt lưu ý lỗi ValueError khi ép chuỗi chứa chữ sang số, lỗi nối chuỗi ngoài ý muốn, và tránh dùng int cho số thực. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

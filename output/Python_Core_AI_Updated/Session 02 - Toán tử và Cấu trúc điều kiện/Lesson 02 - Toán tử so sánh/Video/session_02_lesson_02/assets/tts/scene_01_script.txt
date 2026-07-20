@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong lập trình, để máy tính đưa ra quyết định tự động, chúng ta phải so sánh dữ liệu. Nếu không thể so sánh độ tuổi hay tải trọng, chương trình sẽ không có logic rẽ nhánh.

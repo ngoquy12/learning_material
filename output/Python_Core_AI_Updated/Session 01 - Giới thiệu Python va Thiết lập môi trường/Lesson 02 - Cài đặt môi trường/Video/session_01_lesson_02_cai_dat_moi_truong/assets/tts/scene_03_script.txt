@@ -1,0 +1,1 @@
+Tiếp theo, hãy luôn sử dụng môi trường ảo venv để cô lập thư viện cho từng dự án. Đoạn mã sau sẽ giúp kiểm tra thông số hệ điều hành, phiên bản Python và đường dẫn execution hiện tại trên thiết bị của các em.

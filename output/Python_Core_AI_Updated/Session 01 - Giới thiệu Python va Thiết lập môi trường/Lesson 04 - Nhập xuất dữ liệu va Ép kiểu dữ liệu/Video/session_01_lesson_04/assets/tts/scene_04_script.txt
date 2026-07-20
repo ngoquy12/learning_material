@@ -1,0 +1,1 @@
+Hãy xem ví dụ này: ép kiểu chuỗi mười thành số nguyên, năm phẩy năm thành số thực, rồi cộng lại. Lưu ý tránh lỗi ValueError khi ép kiểu chuỗi không chứa số. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

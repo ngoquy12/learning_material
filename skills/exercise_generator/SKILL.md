@@ -48,3 +48,16 @@ Chia làm các phần nhỏ (Parts) để đánh giá toàn diện:
 
 ## 4. Định dạng Đầu ra (Output Format)
 Sử dụng Markdown. Đảm bảo ngôn từ chuyên nghiệp, mang đậm tính thực chiến doanh nghiệp (sử dụng các từ vựng như: Khách hàng, Phòng Đào tạo, Giáo vụ, Bug, Crash hệ thống, Edge case).
+
+---
+
+## 💻 5. Quy tắc viết code mẫu trong bài tập (Code Styling Guidelines)
+Khi viết hoặc cung cấp các đoạn mã nguồn mẫu (Source Code) trong bài tập, Agent bắt buộc phải tuân thủ nghiêm ngặt các quy tắc định dạng mã nguồn sau:
+* **Ngôn ngữ của mã nguồn:** 100% tên biến, tên hàm, tên lớp, tên thuộc tính, và các định danh trong code phải viết bằng **Tiếng Anh**.
+* **Quy tắc đặt tên (Naming Conventions):**
+  - Sử dụng **`snake_case`** cho tên biến, tên hàm, tên thuộc tính trong Python/Database (ví dụ: `student_list`, `calculate_gpa`).
+  - Sử dụng **`camelCase`** hoặc **`PascalCase`** đối với JavaScript/TypeScript/Java nếu ngôn ngữ đó quy định chuẩn như vậy (ví dụ: `studentList`, `calculateGpa`).
+* **Thụt lề và căn lề (Indentation):**
+  - Đảm bảo thụt lề chuẩn bằng khoảng trắng (Indent) hoặc Tab đồng nhất theo tiêu chuẩn của từng ngôn ngữ (ví dụ: Python bắt buộc thụt lề 4 khoảng trắng cho mỗi khối block logic).
+  - Không viết mã nguồn dồn cục trên một dòng duy nhất khi trình bày cấu trúc đa dòng. Dùng ký tự xuống dòng `\n` chính xác.
+

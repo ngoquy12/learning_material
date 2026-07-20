@@ -1,0 +1,50 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Tính năng nào sau đây mô tả chính xác nhất về đặc tính Dynamic Typing của Python?",
+      "options": [
+        "Biến số có thể thay đổi dữ liệu lưu trữ và tự động chuyển đổi kiểu mà không cần khai báo trước.",
+        "Biến số bắt buộc phải giữ nguyên kiểu dữ liệu đã khai báo suốt vòng đời.",
+        "Kiểu dữ liệu của biến chỉ được gán thủ công thông qua từ khóa đặc biệt.",
+        "Trình biên dịch bắt buộc kiểm tra kiểu tĩnh của mọi biến trước khi thực thi."
+      ],
+      "correct_option_index": 0,
+      "explanation": "Đặc tính Dynamic Typing cho phép tự động xác định kiểu dữ liệu khi chạy chương trình dựa trên giá trị được gán cho biến."
+    },
+    {
+      "question": "Đặc điểm của một ngôn ngữ thông dịch (Interpreted Language) như Python là gì?",
+      "options": [
+        "Biên dịch toàn bộ chương trình thành mã máy trước khi chạy.",
+        "Mã nguồn được dịch và thực thi tuần tự từng dòng bởi trình thông dịch ngay khi chạy chương trình.",
+        "Không cần cài đặt trình thông dịch vẫn chạy được trực tiếp trên hệ điều hành.",
+        "Chỉ cho phép chạy trên môi trường Web Browser."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Ngôn ngữ thông dịch dịch và thực thi tuần tự mã nguồn từng dòng tại thời điểm ứng dụng chạy."
+    }
+  ],
+  "practical_lab": {
+    "title": "Làm quen với kiểu dữ liệu động và thông dịch trong Python",
+    "objectives": [
+      "Thay đổi kiểu dữ liệu của biến số linh hoạt",
+      "Kiểm tra kiểu dữ liệu của biến bằng hàm type()",
+      "Trải nghiệm cách trình thông dịch thực hiện tuần tự"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Tạo một file python đầu tiên tên là 'intro.py'.",
+        "Bước 2: Viết mã khai báo biến gán giá trị số nguyên và in ra kiểu dữ liệu tương ứng.",
+        "Bước 3: Gán lại biến đó với giá trị dạng chuỗi và dùng hàm type() in ra để so sánh.",
+        "Bước 4: Chạy file qua terminal bằng lệnh 'python intro.py' để xem kết quả."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Tạo thành công file intro.py và chạy không lỗi.",
+        "In ra được kiểu dữ liệu int và str của cùng một tên biến.",
+        "Xác nhận thay đổi kiểu dữ liệu động theo đúng kết quả in ra."
+      ]
+    }
+  }
+}

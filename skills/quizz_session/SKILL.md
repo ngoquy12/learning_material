@@ -33,3 +33,16 @@ Kiểm tra kiến thức bài cũ (tỷ lệ 2/3) kết hợp khởi động bà
 * **Đáp án nhiễu thông minh (Plausible Distractors)**: Các phương án sai phải phản ánh lỗi sai thực tế của lập trình viên (ví dụ: sai import path, quên await, sai syntax decorator).
 * **Văn phong**: Khách quan, trung lập. Tuyệt đối cấm dùng các cụm từ tham chiếu mơ hồ ("theo video", "trong bài học này").
 * **Đầu ra**: Trả về danh sách JSON chứa các câu hỏi theo đúng định dạng 13 cột của Excel template.
+
+---
+
+## 4. Quy tắc viết code mẫu trong câu hỏi (Code Styling Guidelines)
+Khi sinh các đoạn code mẫu trong nội dung câu hỏi (`question_content`), các đáp án hoặc phần giải thích, Agent bắt buộc phải tuân thủ nghiêm ngặt các quy tắc định dạng mã nguồn sau:
+* **Ngôn ngữ của mã nguồn:** 100% tên biến, tên hàm, tên lớp, tên thuộc tính, và các định danh trong code phải viết bằng **Tiếng Anh**.
+* **Quy tắc đặt tên (Naming Conventions):**
+  - Sử dụng **`snake_case`** cho tên biến, tên hàm, tên thuộc tính trong Python/Database (ví dụ: `user_id`, `get_active_users`).
+  - Sử dụng **`camelCase`** hoặc **`PascalCase`** đối với JavaScript/TypeScript/Java nếu ngôn ngữ đó quy định chuẩn như vậy (ví dụ: `userId`, `fetchData`).
+* **Thụt lề và căn lề (Indentation):**
+  - Đảm bảo thụt lề chuẩn bằng khoảng trắng (Indent) hoặc Tab đồng nhất theo tiêu chuẩn của từng ngôn ngữ (ví dụ: Python bắt buộc thụt lề 4 khoảng trắng cho mỗi khối block logic).
+  - Không viết mã nguồn dồn cục trên một dòng duy nhất khi trình bày cấu trúc đa dòng. Dùng ký tự xuống dòng `\n` chính xác.
+

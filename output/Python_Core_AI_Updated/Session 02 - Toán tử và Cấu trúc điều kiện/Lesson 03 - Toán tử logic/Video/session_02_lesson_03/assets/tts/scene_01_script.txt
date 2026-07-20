@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong lập trình, chúng ta thường cần kiểm tra nhiều điều kiện cùng lúc để đưa ra quyết định, ví dụ như kiểm tra độ tuổi và sức khỏe. Làm thế nào để viết code ngắn gọn, tối ưu thay vì lồng nhiều câu lệnh phức tạp? Hôm nay chúng ta sẽ tìm hiểu về các toán tử logic trong Python.

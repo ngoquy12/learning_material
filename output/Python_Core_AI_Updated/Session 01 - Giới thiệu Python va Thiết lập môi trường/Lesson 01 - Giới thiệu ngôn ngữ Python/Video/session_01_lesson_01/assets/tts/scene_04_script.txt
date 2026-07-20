@@ -1,0 +1,1 @@
+Tóm lại, hãy chú ý ba sai lầm: tính toán sai kiểu dữ liệu, lỗi thụt lề IndentationError, và tự ý gán đè kiểu dữ liệu khác loại gây lỗi logic. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

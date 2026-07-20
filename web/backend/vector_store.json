@@ -3726,5 +3726,701 @@
       "type": "code",
       "session": "Toán tử logic and, or, not và độ ưu tiên toán tử trong Python"
     }
+  },
+  {
+    "text": "Khái niệm: core_python_concept - Định nghĩa: Introduction to fundamental concepts of Python within FastAPI Development.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "FastAPI Development"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường Toàn cục (Global Environment) - Định nghĩa: Không gian cài đặt Python dùng chung trên toàn hệ thống hệ điều hành. Bất kỳ thư viện nào cài đặt tại đây sẽ hiển thị cho tất cả các dự án, dễ gây ra xung đột phiên bản giữa các dự án khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường Ảo (Virtual Environment) - Định nghĩa: Một thư mục cô lập chứa một phiên bản Python riêng biệt và các thư viện bổ sung độc lập. Giúp quản lý dependencies riêng cho từng dự án, tránh xung đột phiên bản giữa các dự án trên cùng một máy.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Trình thông dịch Python (Python Interpreter) - Định nghĩa: Chương trình thực thi mã nguồn Python (ví dụ: python.exe trên Windows). Trong VS Code, người dùng cần cấu hình chính xác Interpreter của dự án để trình soạn thảo nhận dạng đúng thư viện.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến PATH (PATH Environment Variable) - Định nghĩa: Biến hệ thống chứa danh sách các thư mục chứa tệp thực thi. Nếu thư mục cài đặt Python không được khai báo trong PATH, terminal sẽ báo lỗi không nhận dạng được lệnh 'python'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Anaconda/Conda - Định nghĩa: Nền tảng phân phối Python tích hợp sẵn công cụ quản lý thư viện và môi trường Conda, giúp dễ dàng tạo môi trường biệt lập mà không lo xung đột gói phần mềm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_venv_windows:\n# Tạo môi trường ảo với tên thư mục 'env'\npython -m venv env\n\n# Kích hoạt trên Command Prompt (CMD)\nenv\\\\Scripts\\\\activate\n\n# Kích hoạt trên PowerShell\n.\\\\env\\\\Scripts\\\\Activate.ps1",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_venv_mac_linux:\n# Tạo môi trường ảo với tên thư mục 'env'\npython3 -m venv env\n\n# Kích hoạt trên macOS hoặc Linux\nsource env/bin/activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho verify_setup:\n# Lưu thành test_env.py và chạy để kiểm tra cấu hình môi trường\nimport sys\nimport os\n\nprint('Phien ban Python:', sys.version)\nprint('Duong dan Python dang dung:', sys.executable)\nprint('Kiem tra thu muc lam viec:', os.getcwd())",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho setup_conda_env:\n# Tạo môi trường ảo Conda với phiên bản Python xác định\nconda create --name myenv python=3.10 -y\n\n# Kích hoạt môi trường vừa tạo\nconda activate myenv",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến (Variable) - Định nghĩa: Một vùng nhớ được đặt tên dùng để lưu trữ dữ liệu trong quá trình chương trình hoạt động. Biến cho phép người lập trình dễ dàng lưu trữ, quản lý và sử dụng lại các thông tin.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy tắc đặt tên biến PEP 8 - Định nghĩa: Hướng dẫn chuẩn hóa trong Python khuyến nghị đặt tên biến bằng chữ thường, các từ nối với nhau bằng dấu gạch dưới (snake_case). Tên biến chỉ được bắt đầu bằng chữ cái hoặc dấu gạch dưới, không được bắt đầu bằng số, không chứa khoảng trắng hay ký tự đặc biệt, và không trùng từ khóa hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toán tử gán (=) - Định nghĩa: Công cụ được sử dụng để đưa giá trị từ biểu thức ở vế phải cất vào vùng nhớ của biến nằm ở vế trái.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi cú pháp (SyntaxError) - Định nghĩa: Lỗi xảy ra khi mã nguồn vi phạm quy tắc ngữ pháp của Python, khiến trình thông dịch không thể hiểu và biên dịch chương trình (ví dụ: đặt tên biến có số ở đầu hoặc chứa dấu gạch ngang).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cập nhật biến (Variable Re-assignment) - Định nghĩa: Hành động ghi đè giá trị mới lên một biến đã được khai báo trước đó thông qua toán tử gán, làm thay đổi dữ liệu mà biến đó đang đại diện.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_naming_rules:\n# Khai bao bien hop le theo chuan PEP 8\nstudent_name = \"Nguyen Van A\"\nclass_id = 12\nis_active = True\n\n# Hien thi gia tri cua bien\nprint(student_name)\nprint(class_id)\nprint(is_active)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho variable_update_and_syntax:\n# Khai bao va khoi tao gia tri ban dau\ncurrent_score = 100\nprint(\"Diem so hien tai:\", current_score)\n\n# Cap nhat gia tri moi cho bien\ncurrent_score = 150\nprint(\"Diem so sau khi cap nhat:\", current_score)\n\n# LUU Y: Cac truong hop sau se gay ra loi SyntaxError (da duoc comment lai)\n# 1_number = 10      # Loi: Bat dau bang chu so\n# total-amount = 50   # Loi: Dung dau gach ngang\n# user age = 20       # Loi: Chua khoang trang",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho practical_calculation:\n# Chuong trinh tinh dien tich va chu vi hinh chu nhat\nchieu_dai = 20\nchieu_rong = 10\n\n# Tinh toan bang cach su dung cac bien\ndien_tich = chieu_dai * chieu_rong\nchu_vi = (chieu_dai + chieu_rong) * 2\n\n# In ket qua\nprint(\"Chieu dai:\", chieu_dai)\nprint(\"Chieu rong:\", chieu_rong)\nprint(\"Dien tich:\", dien_tich)\nprint(\"Chu vi:\", chu_vi)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai Báo và Sử Dụng Biến Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: số nguyên (int) - Định nghĩa: Kiểu dữ liệu biểu diễn các số nguyên không có phần thập phân, bao gồm các số dương, số âm và số 0.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: số thực (float) - Định nghĩa: Kiểu dữ liệu biểu diễn số có dấu phẩy động (số thập phân), dùng để lưu trữ các giá trị có phần lẻ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: chuỗi ký tự (str) - Định nghĩa: Kiểu dữ liệu dùng để lưu trữ văn bản, kí tự, được giới hạn bởi cặp dấu nháy đơn ('') hoặc nháy kép (\"\").",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kiểu luận lý (bool) - Định nghĩa: Kiểu dữ liệu logic chỉ nhận một trong hai giá trị duy nhất là True (Đúng) hoặc False (Sai).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: biến (variable) - Định nghĩa: Tên đại diện cho một phân vùng bộ nhớ dùng để lưu trữ dữ liệu, có thể gán giá trị mới bằng toán tử gán (=).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toán tử số học - Định nghĩa: Các ký hiệu thực hiện phép tính toán học cơ bản: + (cộng), - (trừ), * (nhân), / (chia), // (chia lấy nguyên), % (chia lấy dư), ** (lũy thừa).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toán tử so sánh - Định nghĩa: Các toán tử dùng để so sánh hai giá trị, trả về kiểu dữ liệu bool: == (bằng), != (khác), >, <, >=, <=.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: toán tử logic - Định nghĩa: Các toán tử dùng để liên kết nhiều biểu thức điều kiện: and (trả về True nếu tất cả đều True), or (trả về True nếu ít nhất một điều kiện True), not (phủ định giá trị logic).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ép kiểu (type casting) - Định nghĩa: Quá trình chuyển đổi giá trị của một biến từ kiểu dữ liệu này sang kiểu dữ liệu khác bằng các hàm tương ứng: int(), float(), str(), bool().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: hàm input() - Định nghĩa: Hàm dùng để nhận thông tin nhập vào từ bàn phím bởi người dùng dưới dạng một chuỗi ký tự (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: hàm print() - Định nghĩa: Hàm dùng để hiển thị dữ liệu hoạt động hoặc kết quả xử lý ra màn hình Console.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhan_dien_kieu_du_lieu:\n# Khai bao cac kieu du lieu co ban\nso_nguyen = 42\nso_thuc = 3.1415\nchuoi_chu = \"Lap trinh Python\"\nlogic_dung = True\n\n# Su dung ham type() de kiem tra kieu du lieu cua bien\nprint(type(so_nguyen))  # Ket qua: <class 'int'>\nprint(type(so_thuc))    # Ket qua: <class 'float'>\nprint(type(chuoi_chu))  # Ket qua: <class 'str'>\nprint(type(logic_dung))  # Ket qua: <class 'bool'>",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_bien_va_phep_toan:\n# Khai bao bien va thuc hien ghi de gia tri\na = 10\nb = 3\n\n# Ap dung cac phep toan so hoc\ntong = a + b          # Ket qua: 13\nthuong_nguyen = a // b # Ket qua: 3\nchia_du = a % b        # Ket qua: 1\n\n# Ap dung so sanh va logic\nso_sanh = a > b        # Ket qua: True\n logic_ket_hop = (a > 5) and (b < 2) # Ket qua: False (vi b = 3 kho co the nho hon 2)\n\nprint(\"Tong:\", tong)\nprint(\"Chia lay nguyen:\", thuong_nguyen)\nprint(\"So du:\", chia_du)\nprint(\"a co lon hon b khong?:\", so_sanh)\nprint(\"Ket qua logic:\", logic_ket_hop)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ep_kieu_du_lieu:\n# Chuyen doi chuoi nhap vao thanh so\nchuoi_so = \"150\"\nso_nguyen = int(chuoi_so)   # Chuyen thanh kieu int\nso_thuc = float(chuoi_so)   # Chuyen thanh kieu float\n\n# Chuyen doi so thanh chuoi de ghep chuoi\ntuoi = 18\nthong_bao = \"Tuoi hoc vien: \" + str(tuoi)\n\n# Chuyen doi kieu logic\nco_gia_tri = bool(\"Python\")  # True vi chuoi khong rong\nkhong_gia_tri = bool(0)     # False vi gia tri so bang 0\n\nprint(so_nguyen, type(so_nguyen))\nprint(so_thuc, type(so_thuc))\nprint(thong_bao)\nprint(co_gia_tri, khong_gia_tri)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuong_trinh_hoan_chinh:\n# Nguyen mau chuong trinh tiep nhan so tuoi va xac dinh dieu kien vao cua rap phim\n\n# 1. Nhan thong tin nhap lieu (luon nhan ve kieu str)\nten_khach_hang = input(\"Nhap ten cua ban: \")\nchuoi_tuoi = input(\"Nhap tuoi cua ban: \")\n\n# 2. Ep kieu du lieu\ntuoi = int(chuoi_tuoi)\n\n# 3. Xu ly logic\ndu_tuoi_xem_phim_18 = tuoi >= 18\n\n# 4. Xuat ket qua ra man hinh\nprint(\"Chao ban:\", ten_khach_hang)\nprint(\"Tuoi cua ban la:\", tuoi)\nprint(\"Du dieu kien xem phim gioi han do tuoi:\", du_tuoi_xem_phim_18)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm print() - Định nghĩa: Hàm xây dựng sẵn trong Python được sử dụng để hiển thị dữ liệu ra thiết bị đầu ra chuẩn (thường là màn hình console).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Tham số sep - Định nghĩa: Tham số trong hàm print() dùng để cấu hình ký tự phân tách giữa các phần tử khi in ra, mặc định là một khoảng trắng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Tham số end - Định nghĩa: Tham số trong hàm print() dùng để cấu hình ký tự kết thúc sau khi tất cả các phần tử đã được in ra, mặc định là ký tự xuống dòng (\\n).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: F-string (Formatted string literals) - Định nghĩa: Cú pháp định dạng chuỗi được giới thiệu từ Python 3.6, cho phép nhúng trực tiếp giá trị của các biến hoặc biểu thức vào bên trong chuỗi thông qua cặp ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm input() - Định nghĩa: Hàm dừng chương trình và chờ người dùng nhập dữ liệu từ bàn phím, dữ liệu nhận được luôn luôn có kiểu chuỗi (string).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Ép kiểu dữ liệu (Type casting) - Định nghĩa: Quá trình chuyển đổi thủ công một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác, ví dụ sử dụng int() hoặc float() để chuyển đổi chuỗi thu được từ input() sang số thực tế.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Giao diện dòng lệnh (CLI - Command Line Interface) - Định nghĩa: Chương trình tương tác với người dùng theo phương thức nhận các chuỗi ký tự nhập vào từ bàn phím và xuất ra kết quả tương ứng dạng văn bản trên màn hình giao diện dòng lệnh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho su_dung_ham_print_va_dinh_dang:\n# 1. Su dung cac tham so sep va end cua ham print\nten_khoa_hoc = \"Python Core\"\nprint(\"Chao\", \"mung\", \"den\", \"voi\", ten_khoa_hoc, sep=\"-\", end=\"!!!\\n\")\n\n# 2. Dinh dang dau ra su dung f-string\nhoc_vien = \"Nguyen Van A\"\ntuan = 1\nprint(f\"Hoc vien {hoc_vien} dang o tuan thu {tuan} cua khoa hoc.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thu_thap_input_va_ep_kieu:\n# Thu nhap du lieu dang chuoi\nten = input(\"Nhap ten cua ban: \")\ntuoi_nhap = input(\"Nhap tuoi cua ban: \")\n\n# Ep kieu tu chuoi sang so nguyen de tinh toan thuong mai\ntuoi = int(tuoi_nhap)\nnam_sinh = 2026 - tuoi\n\nprint(f\"Chao {ten}! Co phai ban sinh nam {nam_sinh} dung khong?\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho interactive_cli_calculator:\n# Chuong trinh CLI hoan chinh tinh dien tich hinh chu nhat\nprint(\"=== CHUONG TRINH CLI TINH DIEN TICH HINH CHU NHAT ===\")\n\n# Nhap chieu dai va chieu rong\nchieu_dai_str = input(\"Nhap chieu dai (met): \")\nchieu_rong_str = input(\"Nhap chieu rong (met): \")\n\n# Ep kieu du lieu de tinh toan an toan\nchieu_dai = float(chieu_dai_str)\nchieu_rong = float(chieu_rong_str)\n\n# Tinh toan\ndien_tich = chieu_dai * chieu_rong\n\n# Hien thi ket qua ra CLI\nprint(\"--------------------------------------------------\")\nprint(f\"Ket qua: Dien tich cua hinh chu nhat la {dien_tich} m2\")\nprint(\"Cam on ban da trai nghiem chuong trinh CLI!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và xuất dữ liệu trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Implicit Type Casting (Ép kiểu ngầm định) - Định nghĩa: Cơ chế tự động của Python chuyển đổi một kiểu dữ liệu này sang kiểu dữ liệu khác khi tính toán giữa các kiểu khác nhau (ví dụ: cộng số nguyên int với số thực float sẽ tự động thu được kết quả dạng float), giúp bảo toàn độ chính xác mà không cần lập trình viên thao tác thủ công.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Explicit Type Casting (Ép kiểu tường minh) - Định nghĩa: Quá trình lập trình viên chủ động chuyển đổi kiểu dữ liệu của một giá trị bằng các hàm chuyển type dựng sẵn như int(), float(), str(), và bool() để đáp ứng nghiệp vụ cụ thể.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: ValueError trong Ép kiểu & Cách xử lý - Định nghĩa: Lỗi runtime xuất hiện khi chuyển đổi thất bại do định dạng dữ liệu nguồn không thích hợp để ép sang kiểu đích (ví dụ: chuyển chuỗi chữ 'abc' thành số nguyên). Lỗi này thường được bắt và xử lý an toàn bằng khối lệnh try-except.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Kỹ thuật Định dạng f-string (Formatted String Literal) - Định nghĩa: Phương thức định dạng chuỗi trực quan trong Python khởi đầu bằng tiền tố 'f' hoặc 'F' trước chuỗi, cho phép nhúng trực tiếp giá trị biến hoặc biểu diễn biểu thức tính toán trong các cặp ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Định cấu hình số thực và căn lề trong f-string - Định nghĩa: Cách sử dụng bộ đặc tả định dạng (format specifiers) ngay trong cặp dấu ngoặc nhọn để làm tròn số thực (ví dụ: {x:.2f}), thêm dấu ngăn cách hàng nghìn (ví dụ: {x:,.2f}), hoặc điều chỉnh căn lề (trái '<', phải '>', trung tâm '^') đi kèm phân bổ độ rộng bảng hiển thị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Implicit vs Explicit Casting Example:\n# Ép kiểu ngầm định (Implicit Casting)\nnum_int = 10\nnum_flo = 5.5\nresult_implicit = num_int + num_flo  # Python tự biến đổi num_int thành dạng float\nprint(\"Kiểu dữ liệu kết quả ngầm định:\", type(result_implicit))  # <class 'float'>\n\n# Ép kiểu tường minh (Explicit Casting)\ninput_str = \"150\"\n# Chuyển đổi thủ công từ str sang int để làm toán\nconverted_int = int(input_str)\nresult_explicit = converted_int + 50\nprint(\"Kết quả sau khi ép kiểu tường minh:\", result_explicit)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Handling ValueError in Casting:\nuser_input = \"python123\"\ntry:\n    # Tiến hành ép kiểu từ chuỗi chữ sang int (bị lỗi ValueError)\n    number = int(user_input)\n    print(\"Giá trị số:\", number)\nexcept ValueError:\n    # Xử lý lỗi an toàn hạn chế crash chương trình\n    print(\"Lỗi: Không thể ép kiểu chuỗi '\" + user_input + \"' về số nguyên hợp lệ!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Formatting Float Numbers with f-string:\nprice = 15300450.789\ntax_rate = 0.08\ntotal = price * (1 + tax_rate)\n\n# :.2f dùng làm tròn số thực lấy 2 chữ số sau dấu chấm\n# :, dùng phân tách hàng nghìn bằng dấu phẩy theo tiêu chuẩn hiển thị\nprint(f\"Thành tiền chưa thuế: {price:,.2f} VNĐ\")\nprint(f\"Tổng thanh toán (gồm {tax_rate:.0%} thuế): {total:,.2f} VNĐ\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Console Invoice Generator:\n# Dữ liệu thô của hóa đơn\nitem1_name = \"Bút dạ quang\"\nitem1_qty = 10\nitem1_price = 12000.0\n\nitem2_name = \"Sách giáo khoa\"\nitem2_qty = 3\nitem2_price = 45000.0\n\ntotal1 = item1_qty * item1_price\ntotal2 = item2_qty * item2_price\ngrand_total = total1 + total2\n\n# In hóa đơn canh lề chuẩn hóa trên Console\nprint(\"=\" * 50)\nprint(f\"{'HÓA ĐƠN BÁN LẺ':^50}\")\nprint(\"=\" * 50)\nprint(fHeader := f\"{'Tên hàng hóa':<18} | {'SL':^4} | {'Đơn giá':>10} | {'Thành tiền':>11}\")\nprint(\"-\" * 50)\nprint(f\"{item1_name:<18} | {item1_qty:^4} | {item1_price:>10,.0f} | {total1:>11,.0f}\")\nprint(f\"{item2_name:<18} | {item2_qty:^4} | {item2_price:>10,.0f} | {total2:>11,.0f}\")\nprint(\"-\" * 50)\nprint(f\"{'TỔNG PHẢI THU:':<35} {grand_total:>11,.0f} VNĐ\")\nprint(\"=\" * 50)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi Nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_so_hoc_co_ban - Định nghĩa: Các ký hiệu toán học sử dụng để thực hiện các phép tính cơ bản trong Python bao gồm: phép cộng (+), phép trừ (-), phép nhân (*), và phép chia thập phân (/). Ký tự toán tử được viết giữa hai toán hạng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: quy_tac_thu_tu_uu_tien_pemdas - Định nghĩa: Thứ tự ưu tiên xử lý các phép toán trong một biểu thức phức tạp của Python tuân theo quy tắc: biểu thức trong ngoặc đơn () đầu tiên, lũy thừa (**) thứ hai, các phép nhân/chia/chia lấy phần nguyên/chia lấy dư (*, /, //, %) thứ ba, cuối cùng là các phép cộng/trừ (+, -). Các phép toán có cùng mức ưu tiên được duyệt từ trái sang phải.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_chia_thap_phan - Định nghĩa: Phép toán sử dụng ký hiệu / trả về kết quả là một số thực (float) thể hiện thương số chính xác của phép chia hai số, ngay cả khi phép chia hết (ví dụ: 10 / 2 trả về 5.0).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_chia_lay_phan_nguyen - Định nghĩa: Phép toán sử dụng ký hiệu // để lấy phần nguyên của phép chia, kết quả trả về là số nguyên lớn nhất không vượt quá thương số (thực hiện làm tròn xuống số nguyên gần nhất).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_chia_lay_phan_du - Định nghĩa: Phép toán sử dụng ký hiệu % (modulo) trả về phần dư còn lại sau khi thực hiện phép chia lấy phần nguyên giữa số bị chia và số chia.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_chia_cho_so_khong - Định nghĩa: Lỗi runtime ZeroDivisionError xảy ra khi chương trình thực hiện bất kỳ phép chia nào (/, //, %) với số chia bằng 0. Khi lỗi này xuất hiện, chương trình sẽ lập tức dừng hoạt động.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho toan_tu_co_ban_va_uu_tien:\na = 15\nb = 4\n\n# Cac phep toan co ban\ntong = a + b       # 19\nhieu = a - b       # 11\ntich = a * b       # 60\nthuong = a / b     # 3.75\n\n# Quy tac thu tu uu tien (PEMDAS)\nket_qua_mac_dinh = 10 + 2 * 3   # 2 * 3 thuc hien truoc -> Ket qua: 16\nket_qua_co_ngoac = (10 + 2) * 3 # (10 + 2) thuc hien truoc -> Ket qua: 36",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phan_biet_chia_va_loi_so_khong:\nx = 11\ny = 3\n\n# So sanh cac loai phep chia\nchia_thap_phan = x / y  # Ket qua: 3.6666666666666665\nchia_nguyen = x // y    # Ket qua: 3\nchia_du = x % y         # Ket qua: 2\n\n# Minh hoa loi ZeroDivisionError (bo comment dong duoi de kiem tra loi)\n# loi_chia = 10 / 0",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ung_dung_thuc_te_toan_tu:\n# 1. Kiem tra tinh chan le\nso_can_kiem_tra = 17\nla_so_chan = (so_can_kiem_tra % 2 == 0) # False (vi 17 chia 2 du 1)\n\n# 2. Tach chu so cua mot so co 2 chu so\nso_nguyen = 83\nhang_chuc = so_nguyen // 10    # 8\nhang_don_vi = so_nguyen % 10   # 3\n\n# 3. Quy doi don vi thoi gian\ntong_so_giay = 370\nso_phut = tong_so_giay // 60    # 6 phut\nso_giay_du = tong_so_giay % 60  # 10 giay\n\n# 4. Tinh toan hoa don\ngia_goc = 500000\nthue_viet_nam = 0.1             # Thue VAT 10%\ntien_thue = gia_goc * thue_viet_nam\ntong_hoa_don = gia_goc + tien_thue # 550000.0",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kieu_du_lieu_Boolean - Định nghĩa: Kiểu dữ liệu chỉ nhận một trong hai giá trị là True (Đúng) hoặc False (Sai), đại diện cho trạng thái đúng hay sai của một mệnh đề logic.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toan_tu_so_sanh_quan_he - Định nghĩa: Các toán tử dùng để kiểm tra mối quan hệ giữa hai giá trị, bao gồm: == (bằng), != (khác), > (lớn hơn), < (nhỏ hơn), >= (lớn hơn hoặc bằng), và <= (nhỏ hơn hoặc bằng). Kết quả trả về của các phép so sánh này luôn là giá trị kiểu Boolean.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Toan_tu_gan_va_Toan_tu_bang - Định nghĩa: Toán tử '=' dùng để gán giá trị cho một biến (ví dụ: x = 5). Trong khi đó, toán tử '==' được dùng để so sánh xem hai giá trị ở hai vế có bằng nhau hay không và trả về giá trị kiểu Boolean.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: So_sanh_chuoi_va_so_loi_kieu_du_lieu - Định nghĩa: Quy tắc so sánh các kiểu dữ liệu khác nhau. Khi so sánh giữa hai chuỗi, Python sẽ so sánh theo thứ tự ký tự trong bảng mã Unicode. Việc so sánh trực tiếp chuỗi với số bằng các toán tử như <, >, <=, >= sẽ gây lỗi TypeError.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Bieu_thuc_so_sanh_lien_hoan - Định nghĩa: Cách viết kết hợp chuỗi phép toán so sánh trong Python mà không cần dùng toán tử logic 'and' (ví dụ: a < x < b), giúp kiểm tra xem một giá trị có nằm trong khoảng mong muốn một cách ngắn gọn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho so_sanh_co_ban_va_boolean:\na = 15\nb = 20\n\n# Cac phep so sanh co ban tra ve Boolean\nket_qua_nho_hon = a < b\nket_qua_bang = a == b\nket_qua_khac = a != b\n\nprint(\"a < b:\", ket_qua_nho_hon)  # True\nprint(\"a == b:\", ket_qua_bang)    # False\nprint(\"a != b:\", ket_qua_khac)    # True",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phan_biet_gan_va_bang:\n# Toan tu gan (=) dung de tao bien va luu gia tri\nx = 10\n\n# Toan tu so sanh bang (==) dung de kiem tra gia tri\nkiem_tra = (x == 10)\n\nprint(\"Gia tri cua x:\", x)\nprint(\"Ket qua x == 10:\", kiem_tra)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho so_sanh_chuoi_va_so:\n# So sanh chuoi theo thu tu Unicode\nprint(\"apple\" < \"banana\")  # True\n\n# Loi TypeError khi so sanh chuoi voi so bang toan tu quan he\n# print(\"10\" > 5)  # Se gay loi\n\n# Cach giai quet dung bang cach chuyen doi kieu du lieu (ep kieu)\nso_chuoi = \"10\"\nso_nguyen = 5\nprint(int(so_chuoi) > so_nguyen)  # True",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho bieu_thuc_so_sanh_thuc_te:\n# Dung bieu thuc so sanh lien hoan de kiem tra do tuoi lao dong (tu 18 den 60 tuoi)\ntuoi = 25\nhop_le = 18 <= tuoi <= 60\nprint(\"Do tuoi phu hop de lao dong?:\", hop_le)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử so sánh trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_while - Định nghĩa: Là cấu trúc điều khiển luồng cho phép thực hiện lặp đi lặp lại một khối lệnh chừng nào điều kiện logic của vòng lặp (boolean expression) còn nhận giá trị True.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: dieu_kien_lap - Định nghĩa: Biểu thức điều kiện logic được đánh giá trước mỗi chu kỳ lặp. Nếu True, thân vòng lặp sẽ được thực thi; nếu False, vòng lặp sẽ lập tức kết thúc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: bien_dieu_khien - Định nghĩa: Biến được sử dụng trong biểu thức logic của vòng lặp while. Biến này bắt buộc phải được khởi tạo trước vòng lặp và cập nhật giá trị bên trong thân vòng lặp để thay đổi kết quả kiểm tra điều kiện.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_vo_han - Định nghĩa: Lỗi logic xảy ra khi điều kiện của vòng lặp while luôn có giá trị True do biến điều khiển không được cập nhật hoặc cập nhật sai hướng, khiến chương trình chạy mãi mãi không dừng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kiem_tra_nhap_lieu - Định nghĩa: Kỹ thuật áp dụng vòng lặp while để yêu cầu người dùng nhập lại dữ liệu liên tục cho đến khi họ cung cấp giá trị hợp lệ đạt yêu cầu đầu vào của chương trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_while_co_ban:\ncount = 1\nwhile count <= 5:\n    print(\"Lần lặp thứ:\", count)\n    count += 1",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phong_tranh_lap_vo_han:\nso_lan_chay = 0\ntoi_da = 3\nwhile so_lan_chay < toi_da:\n    print(\"Trạng thái hiện tại:\", so_lan_chay)\n    # Cập nhật biến điều khiển để đảm bảo điều kiện (so_lan_chay < toi_da) cuối cùng sẽ False\n    so_lan_chay += 1",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhap_lieu_hop_le:\nnhap_so = -1\nwhile nhap_so < 1 or nhap_so > 10:\n    chuoi_nhap = input(\"Nhập một số nguyên dương từ 1 đến 10: \")\n    if chuoi_nhap.isdigit():\n        nhap_so = int(chuoi_nhap)\n    else:\n        print(\"Dữ liệu nhập không hợp lệ! Hãy thử lại.\")\nprint(\"Giá trị hợp lệ đã nhận là:\", nhap_so)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while và kiểm soát vòng lặp trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_long_nhau - Định nghĩa: Là cấu trúc lập trình trong đó một vòng lặp (vòng lặp trong) được đặt bên trong thân của một vòng lặp khác (vòng lặp ngoài). Cứ mỗi một lần lặp của vòng lặp ngoài, vòng lặp trong sẽ thực hiện hết chu kỳ của nó từ đầu đến cuối trước khi vòng lặp ngoài chuyển sang bước lặp tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: danh_sach_long_nhau_ma_tran - Định nghĩa: Là cấu trúc dữ liệu dạng danh sách chứa các danh sách con bên trong, tương tự cấu trúc bảng dữ liệu (ma trận) gồm dòng và cột. Để truy cập vào một giá trị, ta dùng cú pháp tên_danh_sách[chỉ_số_dòng][chỉ_số_cột].",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_logic_chi_so_index_error - Định nghĩa: Lỗi xảy ra khi duyệt ma trận nếu dùng nhầm chỉ số của vòng lặp ngoài cho chiều của vòng lặp trong, hoặc truy cập vượt quá giới hạn index thực tế của danh sách con. Cách khắc phục tốt nhất là sử dụng hàm len() để xác định động giới hạn vòng lặp trong theo từng dòng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: in_hinh_ky_tu_va_bang_cuu_chuong - Định nghĩa: Ứng dụng trực quan của vòng lặp lồng nhau. Trong đó, vòng lặp ngoài quản lý số dòng (tọa độ Y) và vòng lặp trong quản lý việc in ký tự hoặc tính toán các giá trị tại từng cột trên dòng đó (tọa độ X).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: danh_gia_hieu_nang_vong_lap - Định nghĩa: Sự so sánh về số lần thực hiện câu lệnh giữa vòng lặp đơn và vòng lặp lồng nhau. Vòng lặp đơn chạy N lần (độ phức tạp thời gian tuyến tính), trong khi vòng lặp lồng nhau 2 tầng chạy N * N lần (độ phức tạp thời gian bình phương). Khi N lớn, vòng lặp lồng nhau sẽ tốn thời gian xử lý hơn rất nhiều so với vòng lặp đơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho luong_thuc_thi_vong_lap_long_nhau:\n# Minh họa thứ tự thực thi của hai vòng lặp lồng nhau\nfor i in range(1, 4):  # Vòng lặp ngoài\n    print(f\"Bat dau vong ngoai i = {i}\")\n    for j in range(1, 3):  # Vòng lặp trong\n        print(f\"  -> Vong trong j = {j} (i hien tai la {i})\")\n    print(f\"Ket thuc vong ngoai i = {i}\\n\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho duyet_danh_sach_long_nhau:\n# Ma trận 2 dòng, 3 cột\nmatrix = [\n    [10, 20, 30],\n    [40, 50, 60]\n]\n\n# Duyệt an toàn tránh lỗi IndexError bằng cách dùng len() động\nfor r in range(len(matrix)):\n    for c in range(len(matrix[r])):\n        print(f\"Phan tu tai index [{r}][{c}]: {matrix[r][c]}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ve_tam_giac_va_bang_cuu_chuong:\n# 1. Vẽ hình tam giác vuông bằng ký tự *\nn = 5\nfor r in range(1, n + 1):\n    for c in range(r):\n        print(\"*\", end=\"\")\n    print()  # Xuống dòng sau khi in hết các ký tự trên một dòng\n\nprint(\"\\nBang cuu chuong rut gon (2 den 4):\")\n# 2. In bảng cửu chương cơ bản\nfor i in range(2, 5):\n    for j in range(1, 10):\n        print(f\"{i} x {j} = {i * j}\", end=\"\\t\")\n    print()  # Xuống dòng khi đổi bảng cửu chương",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho danh_gia_hieu_nang:\n# Đánh giá số bước thực thi giữa vòng lặp đơn và vòng lặp lồng nhau\nN = 100\nlinear_steps = 0\nfor i in range(N):\n    linear_steps += 1\n\nnested_steps = 0\nfor i in range(N):\n    for j in range(N):\n        nested_steps += 1\n\nprint(f\"Vong lap don chay: {linear_steps} buoc\")\nprint(f\"Vong lap long nhau chay: {nested_steps} buoc (N x N = {N*N} buoc)\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Vòng lặp lồng nhau trong Python"
+    }
   }
 ]

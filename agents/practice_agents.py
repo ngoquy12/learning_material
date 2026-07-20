@@ -23,7 +23,7 @@ def sanitize_vietnamese_filename(text: str) -> str:
     text = re.sub(r'\s+', '_', text)
     return text.strip('_') + ".md"
 
-def practice_creator_agent(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str, only_index: int = None) -> Dict[str, Any]:
+def practice_creator_agent(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str, only_index: int | None = None) -> Dict[str, Any]:
     print(f"  [Practice Creator] Designing exercises for {session_id} - {session_title}...")
     
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -248,7 +248,8 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
         ]
         for header in required_headers:
             if not re.search(header, content):
-                return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' thiếu tiêu đề bắt buộc hoặc không đúng định dạng H3 bôi đậm: '{header.replace('\\', '')}'."}
+                header_clean = header.replace('\\', '')
+                return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' thiếu tiêu đề bắt buộc hoặc không đúng định dạng H3 bôi đậm: '{header_clean}'."}
 
         # Check rubric headers
         if not rubric:
@@ -266,7 +267,8 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
         ]
         for r_hdr in rubric_required:
             if not re.search(r_hdr, rubric, re.IGNORECASE):
-                return {"status": "REJECTED", "feedback": f"Tiêu chí chấm điểm Bài tập {idx+1} '{title}' thiếu nhóm tiêu chí bắt buộc: '{r_hdr.replace('\\', '')}'."}
+                r_hdr_clean = r_hdr.replace('\\', '')
+                return {"status": "REJECTED", "feedback": f"Tiêu chí chấm điểm Bài tập {idx+1} '{title}' thiếu nhóm tiêu chí bắt buộc: '{r_hdr_clean}'."}
 
         # 5. Check input/output details in Yêu cầu bài toán
         if "đầu vào" not in content.lower() or "đầu ra" not in content.lower():
@@ -357,129 +359,7 @@ def parse_diagram_info(prompt_text: str, content: str = ""):
     return endpoints[:4], storage
 
 def draw_fallback_diagram(prompt_text: str, content: str, title_text: str, image_path):
-    try:
-        from PIL import Image, ImageDraw, ImageFont
-        endpoints, storage = parse_diagram_info(prompt_text, content)
-        
-        # 16:9 Aspect Ratio
-        width, height = 1280, 720
-        img = Image.new("RGB", (width, height), "#0F172A") # Deep slate blue-gray
-        draw = ImageDraw.Draw(img)
-        
-        try:
-            font_title = ImageFont.truetype("arial.ttf", 28)
-            font_header = ImageFont.truetype("arial.ttf", 20)
-            font_body = ImageFont.truetype("arial.ttf", 16)
-            font_code = ImageFont.truetype("consolas.ttf", 15)
-            font_label = ImageFont.truetype("arial.ttf", 14)
-        except Exception:
-            font_title = ImageFont.load_default()
-            font_header = ImageFont.load_default()
-            font_body = ImageFont.load_default()
-            font_code = ImageFont.load_default()
-            font_label = ImageFont.load_default()
-            
-        # Draw tech grid
-        grid_size = 40
-        for x in range(0, width, grid_size):
-            draw.line([(x, 0), (x, height)], fill="#1E293B", width=1)
-        for y in range(0, height, grid_size):
-            draw.line([(0, y), (width, y)], fill="#1E293B", width=1)
-            
-        # Incident Title Panel (Bright Red Warning Border)
-        draw.rounded_rectangle([40, 30, width-40, 95], radius=8, fill="#1E1E2F", outline="#EF4444", width=3)
-        draw.text((width//2, 62), f"CRITICAL INCIDENT ALERT: {title_text.upper()}", fill="#F87171", font=font_title, anchor="mm")
-        
-        # LEFT PANEL: SYSTEM METRICS (Status: DEGRADED)
-        metrics_box = [60, 140, 380, 660]
-        draw.rounded_rectangle(metrics_box, radius=10, fill="#1E293B", outline="#F59E0B", width=2)
-        draw.text((220, 175), "INCIDENT STATE", fill="#F59E0B", font=font_header, anchor="mm")
-        draw.line([(80, 200), (360, 200)], fill="#334155", width=2)
-        
-        metrics = [
-            ("STATUS:", "DEGRADED", "#F87171"),
-            ("CPU LOAD:", "99.4% (CRITICAL)", "#F87171"),
-            ("LATENCY:", "4850 ms", "#FBBF24"),
-            ("STORAGE:", storage.upper(), "#E2E8F0"),
-            ("LEAK TYPE:", "RESOURCE LOCK", "#F87171"),
-        ]
-        
-        y_offset = 230
-        for label, val, val_color in metrics:
-            draw.text((90, y_offset), label, fill="#94A3B8", font=font_body)
-            draw.text((210, y_offset), val, fill=val_color, font=font_body)
-            y_offset += 45
-            
-        # Urgent notice footer inside metrics
-        draw.rounded_rectangle([80, 480, 360, 630], radius=6, fill="#0F172A", outline="#EF4444", width=1)
-        draw.text((220, 510), "ACTION REQUIRED:", fill="#F87171", font=font_header, anchor="mm")
-        notice_text = "Optimize algorithms &\nresolve critical leaks\nin FastAPI endpoint\nto restore operations."
-        y_n = 535
-        for line in notice_text.split("\n"):
-            draw.text((220, y_n), line, fill="#E2E8F0", font=font_label, anchor="mm")
-            y_n += 22
-
-        # CENTER PANEL: JAGGED CRITICAL WAVEFORM (Performance Bottleneck)
-        wave_box = [420, 140, 860, 660]
-        draw.rounded_rectangle(wave_box, radius=10, fill="#1E293B", outline="#475569", width=2)
-        draw.text((640, 175), "LATENCY ANOMALY CHART (SPIKE)", fill="#E2E8F0", font=font_header, anchor="mm")
-        draw.line([(440, 200), (840, 200)], fill="#334155", width=2)
-        
-        # Draw waveform coordinate system
-        draw.line([(460, 240), (460, 620)], fill="#475569", width=2)
-        draw.line([(460, 620), (830, 620)], fill="#475569", width=2)
-        
-        # Waveform points (simulating a dramatic lag spike)
-        points = [
-            (460, 580), (500, 570), (540, 590), (580, 520), (620, 540),
-            (660, 260), # HUGE CRITICAL SPIKE
-            (700, 320), (740, 450), (780, 540), (820, 560)
-        ]
-        draw.line(points, fill="#EF4444", width=4)
-        
-        # Draw flashing critical alert point at the top of the spike
-        draw.ellipse([650, 250, 670, 270], fill="#EF4444", outline="#FCA5A5", width=2)
-        draw.text((680, 245), "BOTTLENECK DETECTED", fill="#F87171", font=font_label)
-        
-        # Add labels to chart
-        draw.text((435, 260), "5s", fill="#94A3B8", font=font_label, anchor="rm")
-        draw.text((435, 450), "2.5s", fill="#94A3B8", font=font_label, anchor="rm")
-        draw.text((435, 620), "0s", fill="#94A3B8", font=font_label, anchor="rm")
-
-        # RIGHT PANEL: FLAGGED API ENDPOINTS
-        api_box = [900, 140, 1220, 660]
-        draw.rounded_rectangle(api_box, radius=10, fill="#1E293B", outline="#A855F7", width=2)
-        draw.text((1060, 175), "AFFECTED ROUTERS", fill="#A855F7", font=font_header, anchor="mm")
-        draw.line([(920, 200), (1200, 200)], fill="#334155", width=2)
-        
-        draw.text((925, 220), "Active endpoint targets:", fill="#E2E8F0", font=font_body)
-        
-        y_offset = 260
-        for method, path in endpoints:
-            m_color = "#34D399" # Green for GET
-            if method == "POST":
-                m_color = "#FBBF24" # Yellow/Orange for POST
-            elif method in ["DELETE", "REMOVE"]:
-                m_color = "#F87171" # Red for DELETE
-            elif method in ["PUT", "PATCH"]:
-                m_color = "#60A5FA" # Blue for PUT/PATCH
-                
-            draw.rounded_rectangle([925, y_offset-2, 1005, y_offset+22], radius=4, fill="#0F172A", outline=m_color, width=1)
-            draw.text((965, y_offset+10), method, fill=m_color, font=font_code, anchor="mm")
-            draw.text((1015, y_offset+10), path, fill="#E2E8F0", font=font_code, anchor="lm")
-            y_offset += 55
-            
-        draw.text((925, 520), "Host: localhost:8000", fill="#94A3B8", font=font_body)
-        draw.text((925, 555), "Protocol: HTTP/1.1 JSON", fill="#94A3B8", font=font_body)
-        draw.text((925, 590), "Status: 503 Service Temp", fill="#F87171", font=font_body)
-
-        draw.rectangle([5, 5, width-5, height-5], outline="#EF4444", width=3)
-        
-        image_path.parent.mkdir(parents=True, exist_ok=True)
-        img.save(image_path)
-        print(f"  [Image Incident Visualizer Fallback] Programmatically drew incident report dashboard to: {image_path}")
-    except Exception as e:
-        print(f"  [Image Incident Visualizer Error] Failed to draw incident: {e}")
+    raise NotImplementedError("Fallback diagram generation is disabled.")
 
 def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) -> str:
     from pathlib import Path

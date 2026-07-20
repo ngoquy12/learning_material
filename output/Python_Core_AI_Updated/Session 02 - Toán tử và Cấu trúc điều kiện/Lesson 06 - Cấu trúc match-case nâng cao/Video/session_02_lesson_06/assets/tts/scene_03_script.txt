@@ -1,0 +1,1 @@
+Trước khi kết thúc, các em cần lưu ý ba điểm quan trọng: luôn đặt wildcard gạch dưới ở cuối cùng, tránh nhầm lẫn gán biến, và chỉ sử dụng từ phiên bản Python 3.10 trở lên để tránh lỗi phiên bản. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

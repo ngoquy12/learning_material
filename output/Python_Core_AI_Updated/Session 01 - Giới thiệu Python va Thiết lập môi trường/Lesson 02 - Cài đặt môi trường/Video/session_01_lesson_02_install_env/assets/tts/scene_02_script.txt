@@ -1,0 +1,1 @@
+Để khắc phục, chúng ta cần thực hiện quy trình chuẩn ba bước. Đầu tiên, hãy tải Python và nhớ tích chọn Add python.exe to PATH. Tiếp theo, cài đặt VS Code cùng extension Python để viết code trực quan và thuận tiện hơn.

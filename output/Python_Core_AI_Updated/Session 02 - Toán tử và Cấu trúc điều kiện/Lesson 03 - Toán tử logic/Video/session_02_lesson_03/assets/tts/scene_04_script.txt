@@ -1,0 +1,1 @@
+Hãy lưu ý ba lỗi phổ biến: sai thứ tự ưu tiên do thiếu ngoặc đơn, ngăn mạch ngoài ý muốn, và nhầm lẫn các giá trị Falsy như số không hoặc chuỗi rỗng. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

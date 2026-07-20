@@ -1,0 +1,1 @@
+Hãy xem ví dụ tính tổng tiền. Chúng ta dùng float nhận đơn giá và int nhận số lượng. Nhờ ép kiểu, phép nhân diễn ra chuẩn xác để tính ra tổng tiền. Cuối cùng, hàm print kết hợp f-string sẽ xuất kết quả trực quan ra màn hình.

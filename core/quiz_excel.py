@@ -1,5 +1,7 @@
 import openpyxl
+import os
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
 from typing import List, Dict, Any
 
 def export_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
@@ -9,6 +11,8 @@ def export_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
     """
     wb = openpyxl.Workbook()
     ws = wb.active
+    if ws is None:
+        raise ValueError("Workbook has no active worksheet.")
     ws.title = "Quiz Bank"
     
     # Columns schema
@@ -69,10 +73,14 @@ def export_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
             # Simple length heuristic
             if len(val_str) > max_len:
                 max_len = len(val_str)
-        col_letter = openpyxl.utils.get_column_letter(col[0].column)
+        col_letter = get_column_letter(col[0].column or 1)
         ws.column_dimensions[col_letter].width = min(max(max_len + 3, 10), 60)
         
-    wb.save(file_path)
+    abs_path = os.path.abspath(file_path)
+    if os.name == 'nt' and not abs_path.startswith('\\\\?\\'):
+        abs_path = '\\\\?\\' + abs_path
+    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+    wb.save(abs_path)
 
 def export_lesson_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
     """
@@ -82,6 +90,8 @@ def export_lesson_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str)
     """
     wb = openpyxl.Workbook()
     ws = wb.active
+    if ws is None:
+        raise ValueError("Workbook has no active worksheet.")
     ws.title = "Quizz Questions"
     
     headers = ["questionName", "point", "answerName", "isCorrect"]
@@ -139,4 +149,8 @@ def export_lesson_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str)
     ws.column_dimensions['C'].width = 50
     ws.column_dimensions['D'].width = 15
     
-    wb.save(file_path)
+    abs_path = os.path.abspath(file_path)
+    if os.name == 'nt' and not abs_path.startswith('\\\\?\\'):
+        abs_path = '\\\\?\\' + abs_path
+    os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+    wb.save(abs_path)

@@ -1,0 +1,1 @@
+Tóm lại, hãy nhớ luôn ép kiểu dữ liệu từ input để tránh ba lỗi phổ biến: ghép chuỗi ngoài ý muốn, ValueError khi sai định dạng, và TypeError giữa chuỗi với số. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

@@ -1,0 +1,1 @@
+Để tránh xung đột, hãy khởi tạo môi trường ảo bằng lệnh python -m venv venv. Khi gõ lệnh chạy, hệ thống sẽ duyệt qua thư mục PATH để thực thi đúng tập tin python.exe trong môi trường cô lập của dự án.

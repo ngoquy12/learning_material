@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List
+from typing import List, Any
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[5]
 
 from app.db.session import get_db
 from app.models.course import Course
@@ -56,15 +58,16 @@ class PMRow(BaseModel):
 async def parse_excel_preview(course_id: int, file: UploadFile = File(...)):
     content = await file.read()
     wb = openpyxl.load_workbook(filename=io.BytesIO(content))
-    ws = wb.active
+    ws: Any = wb.active
     
     rows = []
     for row in ws.iter_rows(min_row=2, values_only=True):
         # Prevent completely empty rows
-        if not any(row[:8]):
+        row_padded = list(row) + [None] * (8 - len(row))
+        if not any(row_padded[:8]):
             continue
             
-        stt, form, session_val, content_val, lesson_val, details_val, output_val, deadline = row[:8]
+        stt, form, session_val, content_val, lesson_val, details_val, output_val, deadline = row_padded[:8]
         rows.append(PMRow(
             stt=str(stt) if stt is not None else "",
             form=str(form) if form is not None else "",
@@ -76,6 +79,98 @@ async def parse_excel_preview(course_id: int, file: UploadFile = File(...)):
             deadline=str(deadline) if deadline is not None else ""
         ))
     return rows
+
+def sync_curriculum_to_pms_excel(course_name: str, payload: List[PMRow]) -> None:
+    """
+    Finds the correct Excel file in the pms/ root directory, or creates one,
+    and updates it with the list of PMRow objects representing the curriculum.
+    """
+    import openpyxl
+    import re
+    from pathlib import Path
+    
+    # ROOT is resolved as the project root (Learning-Material)
+    pms_dir = ROOT / "pms"
+    pms_dir.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Resolve Excel file path
+    target_excel = None
+    xlsx_files = list(pms_dir.glob("*.xlsx")) if pms_dir.exists() else []
+    xlsx_files = [f for f in xlsx_files if not f.name.startswith("~$")]
+    
+    if xlsx_files:
+        # Check if there is an excel file matching words in the course name
+        clean_course_words = set(re.findall(r'\w+', course_name.lower()))
+        best_match = None
+        best_overlap = 0
+        for f in xlsx_files:
+            file_words = set(re.findall(r'\w+', f.stem.lower()))
+            overlap = len(clean_course_words.intersection(file_words))
+            if overlap > best_overlap:
+                best_overlap = overlap
+                best_match = f
+                
+        if best_match and best_overlap > 0:
+            target_excel = best_match
+        elif len(xlsx_files) == 1:
+            target_excel = xlsx_files[0]
+            
+    if not target_excel:
+        # Sanitize course name to construct a safe filename
+        sanitized_name = re.sub(r'[\\/*?:"<>|]', "", course_name).strip().replace(" ", "_").replace("-", "_")
+        target_excel = pms_dir / f"PM_{sanitized_name}.xlsx"
+        
+    print(f"  [PM Excel Sync] Writing curriculum to: {target_excel}")
+    
+    # 2. Write rows to Excel
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    if not ws:
+        ws = wb.create_sheet()
+    ws.title = "Syllabus"
+    
+    # Write headers matching PM layout
+    headers = [
+        "STT", "Hình thức", "Session", "Nội dung Session", 
+        "Lesson", "Chi tiết / Prompt Context", "Output mong muốn", "Hạn chót (Deadline)"
+    ]
+    ws.append(headers)
+    
+    # Write curriculum rows
+    for row in payload:
+        ws.append([
+            row.stt or "",
+            row.form or "",
+            row.session_val or "",
+            row.content_val or "",
+            row.lesson_val or "",
+            row.details_val or "",
+            row.output_val or "",
+            row.deadline or ""
+        ])
+        
+    # Standard format adjustments
+    try:
+        from openpyxl.styles import Font, Alignment
+        header_font = Font(name="Calibri", size=11, bold=True)
+        header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        for col_idx in range(1, 9):
+            cell = ws.cell(row=1, column=col_idx)
+            cell.font = header_font
+            cell.alignment = header_align
+            
+        # Basic auto column width
+        from openpyxl.utils import get_column_letter
+        for col in ws.columns:
+            max_len = max(len(str(cell.value or '')) for cell in col)
+            col_letter = get_column_letter(col[0].column or 1)
+            ws.column_dimensions[col_letter].width = min(max(max_len + 3, 10), 50)
+    except Exception as e:
+        print(f"  [PM Excel Sync Warning] Styling failed: {e}")
+        
+    wb.save(str(target_excel))
+    print(f"  [PM Excel Sync Success] Excel sync complete for course: {course_name}")
+
 
 @router.post("/{course_id}/confirm-import")
 async def confirm_import(course_id: int, payload: List[PMRow], db: AsyncSession = Depends(get_db)):
@@ -112,7 +207,9 @@ async def confirm_import(course_id: int, payload: List[PMRow], db: AsyncSession 
         
     await db.flush()
     
-    current_session_model = None
+    current_session_model: Any = None
+    session_name = ""
+    s_title = ""
     last_session_name = None
     session_counter = 0
     lesson_counter = 0
@@ -186,6 +283,13 @@ async def confirm_import(course_id: int, payload: List[PMRow], db: AsyncSession 
                 db.add(new_lesson)
             
     await db.commit()
+    
+    # Sync edited syllabus to Excel
+    try:
+        sync_curriculum_to_pms_excel(str(course.name), payload)
+    except Exception as exc:
+        print(f"  [PM Excel Sync Warning] Failed to write back to Excel syllabus: {exc}")
+        
     return {"status": "success", "message": "Imported sessions and lessons successfully"}
 
 @router.post("/{course_id}/review-pm")
@@ -345,7 +449,7 @@ async def generate_all_course_lessons(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db)
 ):
-    course = await db.get(Course, course_id)
+    course: Any = await db.get(Course, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
         
@@ -353,7 +457,7 @@ async def generate_all_course_lessons(
     
     stmt = select(Lesson).join(Session).where(Session.course_id == course_id)
     result = await db.execute(stmt)
-    lessons = result.scalars().all()
+    lessons: List[Any] = list(result.scalars().all())
     
     if not lessons:
         raise HTTPException(status_code=400, detail="Không có bài học nào trong khóa này để tạo AI.")
@@ -397,6 +501,8 @@ def map_pm_rows_to_json(rows: List[PMRow]) -> List[dict]:
     sessions = []
     current_session = None
     last_session_name = None
+    session_id_part = ""
+    s_title = ""
     
     for row in rows:
         session_val_str = row.session_val.strip() if row.session_val else ""
@@ -448,7 +554,8 @@ def map_pm_rows_to_json(rows: List[PMRow]) -> List[dict]:
                     l_id = lesson_val_str
                     l_title = lesson_val_str
                 
-            current_session["lessons"].append({
+            lessons_list: Any = current_session["lessons"]
+            lessons_list.append({
                 "lesson_id": l_id,
                 "title": l_title,
                 "form": row.form.strip() if row.form else "Lý thuyết",
@@ -502,7 +609,7 @@ def flatten_json_to_pm_rows(sessions_data: List[dict]) -> List[PMRow]:
 
 @router.post("/{course_id}/auto-fix-pm", response_model=List[PMRow])
 async def auto_fix_pm(course_id: int, request_data: PMAutoFixRequest, db: AsyncSession = Depends(get_db)):
-    course = await db.get(Course, course_id)
+    course: Any = await db.get(Course, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
         

@@ -1,0 +1,1 @@
+Để tạo và kích hoạt môi trường ảo, chúng ta sử dụng lệnh venv trong terminal. Hãy chắc chắn bạn đã kích hoạt đúng script cho hệ điều hành của mình và cấu hình chính xác Python Interpreter trong VS Code để chạy mã nguồn.

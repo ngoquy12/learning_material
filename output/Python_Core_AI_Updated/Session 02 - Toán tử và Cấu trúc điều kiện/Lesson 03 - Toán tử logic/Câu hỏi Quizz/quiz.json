@@ -1,0 +1,82 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Biểu thức logic nào kiểm tra biến tuoi nằm trong khoảng từ 18 đến 60 tuổi (bao gồm cả hai mốc)?",
+      "options": [
+        "tuoi >= 18 and tuoi <= 60",
+        "tuoi >= 18 or tuoi <= 60",
+        "tuoi > 18 not tuoi < 60",
+        "18 <= tuoi or tuoi <= 60"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Để nằm trong một khoảng xác định, cả hai điều kiện biên phải đồng thời thỏa mãn, do đó ta dùng toán tử logic and."
+    },
+    {
+      "question": "Kết quả của đoạn mã sau là gì?\nx = 5\ny = 10\nket_qua = x > 10 and (y / 0 > 1)",
+      "options": [
+        "ZeroDivisionError",
+        "False",
+        "True",
+        "None"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Do cơ chế ngắn mạch của toán tử and, vế trái (x > 10) là False nên vế phải (y / 0 > 1) không bao giờ được thực hiện, tránh được lỗi chia cho 0 và trả về False."
+    },
+    {
+      "question": "Biểu thức 'not True or False and True' có kết quả là gì?",
+      "options": [
+        "True",
+        "False",
+        "None",
+        "Lỗi cú pháp"
+      ],
+      "correct_option_index": 1,
+      "explanation": "not True thành False. False and True thành False. Cuối cùng False or False trả về kết quả là False."
+    },
+    {
+      "question": "Khi sinh bảng chân trị tự động cho biểu thức logic có 3 biến độc lập, ta cần tối thiểu bao nhiêu vòng lặp lồng nhau?",
+      "options": [
+        "1 vòng lặp",
+        "2 vòng lặp",
+        "3 vòng lặp",
+        "4 vòng lặp"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Mỗi biến nhận 2 giá trị True/False độc lập. Để duyệt qua 2^3 = 8 tổ hợp, ta cần 3 vòng lặp for lồng nhau."
+    },
+    {
+      "question": "Kết quả của biểu thức (3 > 2) or (10 / 0 == 0) là gì?",
+      "options": [
+        "True",
+        "ZeroDivisionError",
+        "False",
+        "None"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Vế trái (3 > 2) là True. Với toán tử or, khi gặp vế đầu là True, Python dừng đánh giá và trả về ngay kết quả True (ngắn mạch)."
+    }
+  ],
+  "practical_lab": {
+    "title": "Bảng Chân Trị Tự Động Và Bộ Lọc Đăng Nhập",
+    "objectives": [
+      "Áp dụng toán tử logic and, or, not để lọc dữ liệu đầu vào.",
+      "Hiểu và ứng dụng cơ chế đánh giá ngắn mạch.",
+      "Tạo bảng chân trị tự động cho kiểm định logic."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Tạo file main.py và khai báo hai biến kiem_tra_1, kiem_tra_2.",
+        "Sử dụng các vòng lặp lồng nhau để phân tích biểu thức logic mang tính điều kiện.",
+        "In kết quả dạng bảng căn lề đẹp mắt để kiểm tra tính đúng đắn."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Bảng chân trị được in ra thẳng hàng.",
+        "Áp dụng đúng cơ chế ngắn mạch không gây crash chương trình.",
+        "Không sử dụng thư viện ngoài."
+      ]
+    }
+  }
+}

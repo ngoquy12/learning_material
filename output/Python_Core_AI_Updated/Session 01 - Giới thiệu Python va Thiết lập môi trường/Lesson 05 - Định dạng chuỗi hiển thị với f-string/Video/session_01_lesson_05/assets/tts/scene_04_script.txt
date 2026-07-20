@@ -1,0 +1,1 @@
+Hãy tránh ba sai lầm: quên viết chữ f, trùng dấu nháy bao ngoài và bên trong biểu thức, và thiếu ký tự nhân đôi ngoặc nhọn khi muốn in trực tiếp chúng. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

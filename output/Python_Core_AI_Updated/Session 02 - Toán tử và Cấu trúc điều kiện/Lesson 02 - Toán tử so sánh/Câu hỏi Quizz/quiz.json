@@ -1,0 +1,37 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Đoạn code sau đây sẽ hiển thị kết quả gì ra màn hình console?\na = 10\nb = '10'\nprint(a == b)",
+      "options": [
+        "True",
+        "False",
+        "Lỗi TypeError",
+        "Lỗi SyntaxError"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Trong Python, toán tử so sánh bằng (==) có thể so sánh giữa số và chuỗi mà không gây ra lỗi TypeError. Vì khác biệt về cả kiểu dữ liệu và cấu trúc giá trị, kết quả trả về sẽ là False."
+    }
+  ],
+  "practical_lab": {
+    "title": "Xây dựng biểu thức so sánh điều kiện người dùng",
+    "objectives": [
+      "Sử dụng đúng các toán tử so sánh cơ bản trong ngôn ngữ Python.",
+      "Thiết lập biểu thức so sánh kiểm tra các điều kiện thực tế của người dùng."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Tạo một file mã nguồn Python có tên main.py",
+        "Khai báo hai biến: user_age đại diện cho tuổi và user_score đại diện cho điểm số.",
+        "Viết biểu thức logic để kiểm tra xem user_age có lớn hơn hoặc bằng 18 hay không và hiển thị kết quả.",
+        "Viết biểu thức logic kiểm tra xem user_score có khác 0 hay không và hiển thị kết quả."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Mã nguồn chạy thành công không có lỗi cú pháp.",
+        "Kết quả hiển thị trên terminal phản ánh đúng giá trị Boolean (True/False)."
+      ]
+    }
+  }
+}

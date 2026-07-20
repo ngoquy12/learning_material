@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học hôm nay, chúng ta sẽ bắt đầu thiết lập môi trường lập trình Python. Hãy nhớ luôn tích chọn Add Python to PATH khi cài đặt để tránh lỗi hệ điều hành không nhận diện lệnh.

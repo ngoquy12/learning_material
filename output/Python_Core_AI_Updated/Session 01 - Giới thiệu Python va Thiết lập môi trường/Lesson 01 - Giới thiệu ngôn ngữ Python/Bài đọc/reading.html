@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 01 - Lesson 01: Giới thiệu ngôn ngữ Python - Trực quan hóa & Tương tác Động</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+              }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --card-border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --box-note-bg: rgba(15, 30, 54, 0.04);
+            --box-tip-bg: rgba(56, 161, 105, 0.05);
+            --box-warning-bg: rgba(221, 107, 32, 0.05);
+            --primary-text: #0f1e36;
+            --code-header-bg: #252526;
+            --code-body-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.04);
+            --clay: #D97757;
+            --clay-light: rgba(217, 119, 87, 0.06);
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-serif: 'Montserrat', 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --color-idle: #475569;
+            --color-active: #eab308;
+            --color-done: #22c55e;
+            --primary: #be111c;
+            --rust: #c2410c;
+            --rust-light: rgba(194, 65, 12, 0.08);
+        }
+
+        .theme-dark, html.dark, :root.dark {
+            --bg-body: #0b0f19;
+            --bg-card: #151d30;
+            --bg-hover: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --card-border: #1e293b;
+            --nav-bg: rgba(11, 15, 25, 0.95);
+            --box-note-bg: rgba(255, 255, 255, 0.03);
+            --box-tip-bg: rgba(56, 161, 105, 0.1);
+            --box-warning-bg: rgba(221, 107, 32, 0.1);
+            --primary-text: #ffffff;
+            --code-header-bg: #1e1e1e;
+            --code-body-bg: #121212;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --primary: #be111c;
+            --rust: #f97316;
+        }
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Optimized Full-Width Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .main-content, .panel-box, .right-column, .visualizer-container, .visualizer-grid {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .panel {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-panel);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .gotchas {
+            border: 1.5px solid var(--clay);
+            border-radius: 12px;
+            background: var(--clay-light);
+            padding: 18px 20px;
+        }
+
+        .gotchas h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--clay);
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Visualizer Playground Container */
+        .visualizer-container {
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-panel);
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* Interactive Grid Layout */
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Panel 1: Visualizer Canvas */
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .canvas-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .visualizer-canvas {
+            background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-height: 380px;
+            max-height: 540px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            padding: 24px 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: background-color 0.3s;
+        }
+
+        .visualizer-canvas::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bar-item {
+            background-color: var(--color-idle);
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #ffffff;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, transform 0.3s ease;
+        }
+
+        .bar-item.comparing { background-color: var(--color-compare); transform: scaleY(1.03); }
+        .bar-item.swapping { background-color: var(--color-swap); transform: scale(1.05); }
+        .bar-item.sorted { background-color: var(--color-done); }
+
+        /* Panel 2 & 4: Controls & Stats */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--bg-panel);
+            color: var(--text-main);
+        }
+
+        .btn-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-start { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-start:hover { background: var(--primary); opacity: 0.9; }
+        .btn-reset { background: var(--rust-light); color: var(--rust); border-color: var(--rust); }
+        .btn-reset:hover { background: var(--rust); color: white; }
+
+        .inputs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--bg-canvas);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .custom-input-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Panel Right: Code Tracker & Log */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-canvas);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .code-tracker-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-tracker-panel pre, .code-tracker-panel code {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        .panel-top-bar {
+            background: #1e293b;
+            padding: 10px 14px;
+            border-bottom: 1.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #38bdf8;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background-color: #121824;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 6px;
+            border-left: 3px solid transparent;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+
+        .code-line.active-line {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .console-log-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            max-height: 200px;
+        }
+
+        .stats-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-panel .badge {
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .log-messages {
+            overflow-y: auto;
+            flex-grow: 1;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .log-info { background: rgba(30, 41, 59, 0.6); color: #38bdf8; }
+        .log-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }
+        .log-warn { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }
+
+        /* Step-by-Step Walkthrough Styling */
+        .step {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 18px;
+            padding: 24px 0;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .step:last-of-type {
+            border-bottom: none;
+        }
+
+        .badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .step.hot .badge {
+            background: var(--clay-light);
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+
+        .step-loc {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .step-loc .range {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .step-body {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        table, .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        table th, .comparison-table th {
+            background-color: #be111c !important;
+            color: white !important;
+            padding: 12px 16px !important;
+            font-weight: 700 !important;
+            font-family: 'Montserrat', sans-serif !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            text-align: left;
+        }
+
+        .theme-dark table th, .theme-dark .comparison-table th {
+            background-color: #991b1b !important;
+        }
+
+        table td, .comparison-table td {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* VS Code Dark Code container */
+        .code-container {
+            border: 1px solid #333333 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            margin: 16px 0 !important;
+            background-color: #1e1e1e !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .code-header {
+            background: #252526 !important;
+            border-bottom: 1px solid #333333 !important;
+            padding: 10px 16px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+            font-size: 0.82rem !important;
+            color: #cccccc !important;
+            font-weight: 600 !important;
+        }
+
+        .copy-btn {
+            background: #3c3c3c !important;
+            border: 1px solid #4d4d4d !important;
+            color: #cccccc !important;
+            padding: 4px 12px !important;
+            border-radius: 4px !important;
+            font-size: 0.75rem !important;
+            cursor: pointer !important;
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+
+        .copy-btn:hover {
+            background: #505050 !important;
+            color: #ffffff !important;
+        }
+
+        .code-body {
+            background-color: #1e1e1e !important;
+            padding: 16px 20px !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+        }
+
+        .code-body pre, .code-body code {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            color: #d4d4d4 !important;
+            font-family: 'JetBrains Mono', 'Consolas', 'Fira Code', monospace !important;
+            font-size: 0.88rem !important;
+            line-height: 1.75 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        /* Note, Tip & Warning Boxes */
+        .box {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border-left: 5px solid;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .tip-box { background: var(--box-tip-bg); border-color: #38a169; color: var(--text-main); }
+        .note-box { background: var(--box-note-bg); border-color: #be111c; color: var(--text-main); }
+        .warning-box { background: var(--box-warning-bg); border-color: #dd6b20; color: var(--text-main); }
+
+        .selftest-item {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+        .selftest-question { font-weight: 600; color: var(--primary); cursor: pointer; }
+        .selftest-answer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); }
+        .selftest-answer ul { list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer ol { list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer li { margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }
+        .selftest-item.active .selftest-answer { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-200 antialiased font-sans transition-colors duration-300">
+    <!-- Sticky Nav Header -->
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 dark:bg-[#151d30]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#243049] shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+        <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Rikkei Logo -->
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" />
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Theme Switcher Segmented Control -->
+                <div class="flex items-center gap-1 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
+                    <button id="theme-btn-light" onclick="setThemeMode('light')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ sáng"><i class="ph ph-sun-dim text-base"></i></button>
+                    <button id="theme-btn-dark" onclick="setThemeMode('dark')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ tối"><i class="ph ph-moon text-base"></i></button>
+                    <button id="theme-btn-system" onclick="setThemeMode('system')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ hệ thống"><i class="ph ph-desktop text-base"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-[1600px] w-full mx-auto relative z-10">
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 01</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Giới thiệu ngôn ngữ Python</h2>
+            <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
+                Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Layout grid matching effective-html structure -->
+        <div class="layout">
+            
+            <div class="main-content">
+
+
+                <!-- Walkthrough Step-by-Step Sections -->
+                <div class="walkthrough-section">
+
+                    <!-- Step 1: Problem Breakdown -->
+                    <div class="step">
+                        <div class="badge">1</div>
+                        <div class="step-body">
+                            <div class="step-loc">Đặt vấn đề</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Khi tiếp cận Python, lập trình viên thường bắt đầu viết mã ngay mà bỏ qua nguồn gốc lịch sử hoặc các đặc tính vận hành nền tảng. Việc thiếu hiểu biết về người sáng lập Guido van Rossum (năm 1991) và mục tiêu ban đầu của Python dẫn đến việc thiết kế hệ thống sai lệch. Ngoài ra, việc không nắm rõ bản chất của một ngôn ngữ thông dịch (Interpreted Language) và cơ chế kiểu dữ liệu động (Dynamic Typing) khiến mã nguồn dễ gặp lỗi Runtime khi phân tích kiểu hoặc tối ưu hóa hiệu năng ứng dụng.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Deep Dive Internals -->
+                    <div class="step">
+                        <div class="badge">2</div>
+                        <div class="step-body">
+                            <div class="step-loc">Phân tích Bản chất</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Python là ngôn ngữ thông dịch, nơi mã nguồn được trình thông dịch (Python Interpreter) đọc và thực thi tuần tự từ trên xuống dưới. Đặc tính này giúp tăng tốc độ phát triển và kiểm tra thử nghiệm. Đi kèm là kiểu dữ liệu động (Dynamic Typing), giúp gán giá trị mà không cần khai báo kiểu trước. So với các ngôn ngữ tĩnh, Python linh hoạt hơn nhưng đòi hỏi kiểm soát chặt chẽ để tránh lỗi kiểu dữ liệu lúc runtime. Triết lý thiết kế (Zen of Python) hướng tới sự đơn giản và rõ ràng, có thể gọi trực tiếp qua câu lệnh <code>import this</code>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Solution & Architecture -->
+                    <div class="step">
+                        <div class="badge">3</div>
+                        <div class="step-body">
+                            <div class="step-loc">Giới thiệu Giải pháp</div>
+                            <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Mô hình vận hành của trình thông dịch Python được tối giản hóa qua sơ đồ sau:</p>
+<svg viewBox="0 0 400 100" width="100%">
+  <rect x="10" y="30" width="80" height="40" fill="#38BDF8" rx="5"/>
+  <text x="50" y="55" fill="black" text-anchor="middle" font-size="12">Code .py</text>
+  <path d="M 90 50 L 140 50" stroke="black" stroke-width="2"/>
+  <rect x="150" y="30" width="100" height="40" fill="#D97757" rx="5"/>
+  <text x="200" y="55" fill="black" text-anchor="middle" font-size="12">Interpreter</text>
+  <path d="M 250 50 L 300 50" stroke="black" stroke-width="2"/>
+  <rect x="310" y="30" width="80" height="40" fill="#F59E0B" rx="5"/>
+  <text x="350" y="55" fill="black" text-anchor="middle" font-size="12">Output</text>
+</svg>
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- Step 4: References -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        
+                                <li>
+                                    <a href="https://docs.python.org/3/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Official Documentation
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+        
+
+                    <!-- Bottom Notice / Gotchas Section -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+                        <div class="step-body" style="border-color: var(--clay);">
+                            <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+                            <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+                                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Tóm lại, Python là ngôn ngữ thông dịch có kiểu dữ liệu động, đề cao triết lý tối giản của Guido van Rossum. Ba sai lầm thường gặp khi sử dụng là: <strong>Nhầm lẫn kiểu dữ liệu lúc tính toán</strong>, <strong>Lỗi thụt lề IndentationError do không nhất quán khoảng trắng</strong>, và <strong>Tự ý gán đè kiểu dữ liệu khác loại</strong> gây lỗi logic ở các module phía sau.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Script imports -->
+
+    <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) hljs.highlightAll();
+        });
+        
+
+        function copyCode(button, codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+
+        function applyTheme() {
+            const savedMode = localStorage.getItem('themeMode') || 'system';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.add('theme-dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.remove('theme-dark');
+            }
+
+            ['light', 'dark', 'system'].forEach(m => {
+                const btn = document.getElementById('theme-btn-' + m);
+                if (btn) {
+                    if (m === savedMode) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        function setThemeMode(mode) {
+            localStorage.setItem('themeMode', mode);
+            applyTheme();
+        }
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('themeMode') || 'system') === 'system') {
+                applyTheme();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
+        });
+        applyTheme();
+    </script>
+</body>
+</html>

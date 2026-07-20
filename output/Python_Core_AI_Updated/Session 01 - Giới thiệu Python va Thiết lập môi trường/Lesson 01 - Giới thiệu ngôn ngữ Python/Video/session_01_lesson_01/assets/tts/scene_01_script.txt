@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay, chúng ta sẽ bắt đầu hành trình chinh phục Python. Được Guido van Rossum ra mắt vào năm 1991, Python nổi bật với triết lý tối giản, dễ học và dễ đọc.

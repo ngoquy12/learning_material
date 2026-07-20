@@ -1,0 +1,1 @@
+Tiếp theo, với các quyết định trả về kết quả đơn giản ở cuối luồng, ta sử dụng toán tử ba ngôi. Hãy xem ví dụ trực quan trên màn hình. Hàm check payment status được rút gọn tối đa bằng cách kết hợp cả Guard Clauses và toán tử ba ngôi một cách tinh tế.

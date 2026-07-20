@@ -9,7 +9,7 @@ def compile_session_html(session_dir: Path, session_title: str):
     extracts their body content, wraps them in collapsible accordion cards,
     and writes a unified premium session-level reading_all.html with a sticky left sidebar.
     """
-    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")))
+    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")), key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE)) else 999)
     if not html_files:
         return
         
@@ -60,16 +60,13 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
                 else:
                     body_content = content[start_idx:].strip()
                 
-                # Balance div tags by removing the extra closing div of .container
-                div_balance = body_content.count('<div') - body_content.count('</div>')
-                if div_balance < 0:
-                    script_idx = body_content.find('<script>')
-                    if script_idx == -1:
-                        script_idx = body_content.find('<!-- Script imports -->')
-                    search_limit = script_idx if script_idx != -1 else len(body_content)
-                    last_close_div = body_content.rfind('</div>', 0, search_limit)
-                    if last_close_div != -1:
-                        body_content = body_content[:last_close_div] + body_content[last_close_div + 6:]
+                # Use BeautifulSoup to robustly balance and self-repair all HTML tags
+                try:
+                    from bs4 import BeautifulSoup
+                    soup = BeautifulSoup(body_content, "html.parser")
+                    body_content = str(soup)
+                except Exception as e:
+                    print(f"  [Warning] BeautifulSoup repair failed: {e}")
             else:
                 body_content = content # Fallback
                 
@@ -151,7 +148,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             </div>"""
             collapse_cards.append(card)
         except Exception as e:
-            print(f"  [Session Compiler Warning] Failed to parse {path}: {e}")
+            print(f"  [Session Compiler Warning] Failed to parse {item}: {e}")
             
     session_html = f"""<!doctype html>
 <!-- =========================================================================
@@ -1914,7 +1911,7 @@ def compile_session_mindmap(session_dir: Path, session_title: str):
     import re
     import mistune
     
-    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")))
+    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")), key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE)) else 999)
     if not mindmap_files:
         return
         
@@ -2187,6 +2184,4 @@ def compile_session_mindmap_markdown(session_title: str, mindmap_data: list) -> 
 
     final_content = "\n".join(merged_lines).strip()
     return f"```markmap\n{final_content}\n```"
-
-
 

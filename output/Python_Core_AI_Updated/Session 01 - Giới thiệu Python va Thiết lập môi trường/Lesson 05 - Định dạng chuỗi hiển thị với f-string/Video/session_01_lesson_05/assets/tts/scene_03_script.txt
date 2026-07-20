@@ -1,0 +1,1 @@
+Ngoài ra, f-string hỗ trợ định dạng nâng cao sau dấu hai chấm. Ví dụ, dấu hai chấm chấm hai f giúp làm tròn số thập phân, hoặc ký tự bé hơn, lớn hơn kết hợp độ rộng giúp định hình căn lề cột dữ liệu.

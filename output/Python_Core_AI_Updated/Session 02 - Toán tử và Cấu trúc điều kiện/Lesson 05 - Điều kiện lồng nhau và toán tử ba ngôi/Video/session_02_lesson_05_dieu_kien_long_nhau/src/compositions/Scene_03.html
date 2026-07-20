@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scene_03 — Giải pháp 2: Toán tử ba ngôi tối ưu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    /* ── Reset ─────────────────────────────────────────── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background-color: #0f1117;
+      background-image: radial-gradient(rgba(255,255,255,0.25) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+      font-family: 'Inter', sans-serif;
+    }
+    body::before {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      top: -200px; left: -200px; width: 800px; height: 800px;
+      background: rgba(56,189,248,0.15);
+    }
+    body::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+      bottom: -200px; right: -200px; width: 600px; height: 600px;
+      background: rgba(168,85,247,0.15);
+    }
+
+    /* ── Scene wrapper ─────────────────────────────────── */
+    #scene-03 { width: 1920px; height: 1080px; position: relative; }
+
+    /* ── Design tokens ─────────────────────────────────── */
+    :root {
+      --keyword:  #ff7b72;
+      --string:   #a5d6ff;
+      --variable: #79c0ff;
+      --operator: #d2a8ff;
+      --function: #d2a8ff;
+      --comment:  #8b949e;
+      --good:     #3fb950;
+      --bad:      #f85149;
+      --accent:   #ffa657;
+      --text-primary:   #e6edf3;
+      --text-secondary: #c9d1d9;
+      --text-muted:     #8b949e;
+    }
+
+    /* ── Intro title ───────────────────────────────────── */
+    #intro-title-03 {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 72px; font-weight: 700;
+      color: var(--text-primary); text-align: center;
+      white-space: nowrap; z-index: 100; pointer-events: none;
+    }
+    #intro-title-03 span {
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Content card ──────────────────────────────────── */
+    .content-card {
+      position: absolute;
+      background: rgba(9,9,11,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      padding: 40px;
+    }
+
+    /* ── Code card ─────────────────────────────────────── */
+    .code-card {
+      background: #0d1117;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .code-header {
+      background: #161b22;
+      padding: 12px 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot.red    { background: #f85149; }
+    .dot.yellow { background: #ffa657; }
+    .dot.green  { background: #3fb950; }
+    .code-lang {
+      margin-left: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px; color: var(--text-muted);
+    }
+    .code-content {
+      font-family: 'Fira Code', monospace;
+      font-size: 22px; line-height: 1.7;
+      color: var(--text-primary);
+      padding: 28px 32px;
+      overflow-x: auto;
+    }
+    .keyword  { color: var(--keyword); }
+    .string   { color: var(--string); }
+    .variable { color: var(--variable); }
+    .function { color: var(--function); }
+    .comment  { color: var(--comment); font-style: italic; }
+
+    /* ── Section badge ─────────────────────────────────── */
+    .section-badge {
+      position: absolute;
+      top: 60px; right: 80px;
+      font-size: 14px; font-weight: 600; color: var(--text-muted);
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+
+    /* ── Layout Styles ─────────────────────────────────── */
+    .split-container {
+      position: absolute;
+      top: 220px; left: 100px; width: 1720px; height: 720px;
+      display: flex; gap: 60px; align-items: stretch;
+    }
+    .column-left, .column-right {
+      flex: 1;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .bad-card {
+      border: 1px solid rgba(248, 81, 73, 0.3) !important;
+      background: rgba(248, 81, 73, 0.03) !important;
+      box-shadow: 0 0 40px rgba(248, 81, 73, 0.08);
+    }
+    .bad-card h3 {
+      color: var(--bad); font-size: 32px; margin-bottom: 20px;
+    }
+    .bad-card p {
+      color: var(--text-secondary); font-size: 24px; line-height: 1.6;
+    }
+    .good-card {
+      border: 1px solid rgba(63, 185, 80, 0.3) !important;
+      background: rgba(63, 185, 80, 0.03) !important;
+      box-shadow: 0 0 40px rgba(63, 185, 80, 0.08);
+    }
+    .good-card h3 {
+      color: var(--good); font-size: 32px; margin-bottom: 20px;
+    }
+    .good-card p {
+      color: var(--text-secondary); font-size: 24px; line-height: 1.6;
+    }
+    
+    /* Flow Layout */
+    .flow-container {
+      position: absolute;
+      top: 350px; left: 100px; width: 1720px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .flow-node {
+      position: relative;
+      flex: 0 0 480px; height: 280px;
+      padding: 30px; display: flex; flex-direction: column; justify-content: center;
+      text-align: center;
+    }
+    .node-num {
+      position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 700; color: white;
+      box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+    .flow-node h4 {
+      font-size: 28px; color: var(--text-primary); margin-top: 15px; line-height: 1.4;
+    }
+    .flow-line {
+      flex: 1; height: 4px;
+      background: linear-gradient(90deg, #38bdf8, #a855f7);
+      border-radius: 2px; margin: 0 20px;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+    
+    /* Pitfall Layout */
+    .pitfall-container {
+      position: absolute;
+      top: 220px; left: 150px; width: 1620px; height: 720px;
+      display: flex; flex-direction: column; gap: 40px;
+    }
+    .warning-card {
+      border: 1px solid rgba(248, 81, 73, 0.3) !important;
+      background: rgba(248, 81, 73, 0.03) !important;
+      box-shadow: 0 0 40px rgba(248, 81, 73, 0.08);
+      padding: 35px;
+    }
+    .success-card {
+      border: 1px solid rgba(63, 185, 80, 0.3) !important;
+      background: rgba(63, 185, 80, 0.03) !important;
+      box-shadow: 0 0 40px rgba(63, 185, 80, 0.08);
+      padding: 35px;
+    }
+    .red-text { color: var(--bad); font-size: 28px; font-weight: 700; margin-bottom: 20px; }
+    .green-text { color: var(--good); font-size: 28px; font-weight: 700; margin-bottom: 20px; }
+    .bullet-list {
+      list-style-type: none; margin-left: 20px;
+    }
+    .bullet-list li {
+      font-size: 22px; color: var(--text-secondary); line-height: 1.8;
+      position: relative; margin-bottom: 12px; padding-left: 30px;
+    }
+    .bullet-list li::before {
+      content: '❌'; position: absolute; left: 0; top: 0; font-size: 18px;
+    }
+    .success-card p {
+      font-size: 24px; color: var(--text-secondary); line-height: 1.6;
+    }
+    .success-card code {
+      font-family: 'Fira Code', monospace;
+      background: #161b22; padding: 4px 8px; border-radius: 6px;
+      color: var(--variable); font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- ═══ Scene_03: Giải pháp 2: Toán tử ba ngôi tối ưu ═══ -->
+  <!--  Visual: Hiển thị so sánh code trước và sau khi dùng toán tử ba ngôi cho phần return cuối cùng. Đoạn code if amount > 1000: return 'Require approval' else: return 'Approved' được gộp thành return 'Require approval' if amount > 1000 else 'Approved' trên một dòng.  -->
+  <!--  HTML Structure: Khung card so sánh chứa 2 code block nhỏ đặt dọc hoặc song song. Vùng syntax highlighting bằng màu sắc chuẩn của hệ thống cho toán tử ba ngôi (keyword, operator, string).  -->
+  <div id="scene-03" class="clip" data-start="0" data-duration="22.4" data-track-index="0">
+
+    <!-- Section badge -->
+    <div class="section-badge clip" data-start="0" data-duration="22.4" data-track-index="1">
+      Điều kiện lồng nhau và toán tử ba ngôi
+    </div>
+
+    <!-- Intro title (xuất hiện 0.2s, kết thúc/lên góc lúc 3.2s) -->
+    <div id="intro-title-03" class="clip" data-start="0" data-duration="22.4" data-track-index="10">
+      <span>Giải pháp 2: Toán tử ba ngôi tối ưu</span>
+    </div>
+
+    <!-- ── MAIN CONTENT (bắt đầu từ 4.0s+) ── -->
+    
+    <!-- Comparison Layout -->
+    <div class="split-container clip" id="comparison-03">
+      <div class="column-left content-card bad-card" id="left-card-03">
+        <h3>Cách Thiết Kế Cũ / Lỗi</h3>
+        <p>Cài đặt thư viện đè lên hệ thống hệ điều hành chung, dẫn đến xung đột phiên bản giữa các dự án.</p>
+      </div>
+      <div class="column-right content-card good-card" id="right-card-03">
+        <h3>Cách Thiết Kế Mới / Cô lập</h3>
+        <p>Mỗi dự án sở hữu một môi trường ảo riêng biệt, an toàn, độc lập và dễ dàng di chuyển.</p>
+      </div>
+    </div>
+
+  </div><!-- /#scene-03 -->
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    window.__timelines["scene-03"] = tl;
+
+    const _build03 = setInterval(function() {
+      const root = document.getElementById("scene-03");
+      if (!root) return;
+      clearInterval(_build03);
+
+      // ── TIMELINE PLAN (from blueprint animation_timeline) ──────────────
+      // 0.0s: tl.set('.clip', {autoAlpha:1}, 0)
+      // 0.2s: tl.to('#intro-title-3', {autoAlpha:1, scale:1, duration:0.6}, 0.2)
+      // 3.2s: tl.to('#intro-title-3', {scale:0.38, x:-760, y:-460, duration:0.7}, 3.2)
+      // 4.2s: tl.to('#compare-container', {autoAlpha:1, y:0, duration:0.8}, 4.2)
+      // 9.0s: tl.to('#ternary-code-highlight', {borderColor:'rgba(56,189,248,0.8)', duration:0.5}, 9.0)
+      // 50.0s: tl.set({}, {}, 50.0)
+      // ──────────────────────────────────────────────────────────────────
+
+      // BƯỚC 1 (BẮT BUỘC ĐẦU TIÊN): Set toàn bộ .clip visible
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+
+      // BƯỚC 2: Ẩn các elements theo trạng thái ban đầu
+      tl.set("#intro-title-03", { autoAlpha: 0, scale: 0.8 }, 0);
+      
+      // Ẩn ban đầu
+      tl.set("#left-card-03", { autoAlpha: 0, x: -50 }, 0);
+      tl.set("#right-card-03", { autoAlpha: 0, x: 50 }, 0);
+
+      // Intro title (0.2s -> 3.2s)
+      tl.to("#intro-title-03", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title-03", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      // Reveal Cards
+      tl.to("#left-card-03", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 4.2);
+      tl.to("#right-card-03", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, 5.5);
+
+      // KHÓA CUỐI TIMELINE (bắt buộc)
+      tl.set({}, {}, 22.4);
+    }, 50);
+  </script>
+</body>
+</html>

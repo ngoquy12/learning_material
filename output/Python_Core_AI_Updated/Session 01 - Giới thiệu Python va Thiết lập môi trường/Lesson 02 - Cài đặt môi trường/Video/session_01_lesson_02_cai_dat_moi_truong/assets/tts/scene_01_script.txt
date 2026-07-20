@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay, chúng ta sẽ tìm hiểu cách thiết lập môi trường lập trình Python chuẩn xác. Rào cản lớn nhất của người mới là lỗi biến môi trường PATH và xung đột phiên bản giữa các dự án.

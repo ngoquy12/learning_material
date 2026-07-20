@@ -1,0 +1,84 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Hàm nào được sử dụng để nhận dữ liệu nhập vào từ bàn phím của người dùng trong Python?",
+      "options": [
+        "read()",
+        "input()",
+        "get()",
+        "print()"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Hàm input() là hàm built-in dùng để nhận thông tin đầu vào từ bàn phím dưới dạng chuỗi ký tự đại diện."
+    },
+    {
+      "question": "Mặc định, giá trị trả về của hàm input() có kiểu dữ liệu là gì?",
+      "options": [
+        "int",
+        "float",
+        "str",
+        "bool"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Tất cả dữ liệu nhập từ input() đều được Python coi là một chuỗi ký tự (str), bất kể người dùng nhập chữ hay số."
+    },
+    {
+      "question": "Kết quả hiển thị ra màn hình của đoạn code sau là gì? \nval1 = \"10\"\nval2 = \"20\"\nprint(val1 + val2)",
+      "options": [
+        "30",
+        "Lỗi TypeError",
+        "Lỗi ValueError",
+        "1020"
+      ],
+      "correct_option_index": 3,
+      "explanation": "Vì val1 và val2 đang ở kiểu chuỗi (str) do đặt trong dấu ngoặc kép, toán tử '+' sẽ thực hiện ghép hai chuỗi lại với nhau tạo thành '1020'."
+    },
+    {
+      "question": "Dòng lệnh nào dưới đây sẽ gây ra lỗi runtime ValueError?",
+      "options": [
+        "int(\"123\")",
+        "float(\"12.5\")",
+        "int(\"12.5\")",
+        "str(123)"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Hàm int() không thể ép kiểu trực tiếp một chuỗi đại diện cho số thực (chứa dấu chấm thập phân) thành số nguyên, gây ra lỗi ValueError."
+    },
+    {
+      "question": "Nếu muốn đổi số nguyên 45 thành chuỗi ký tự '45', ta sử dụng hàm nào?",
+      "options": [
+        "str(45)",
+        "char(45)",
+        "string(45)",
+        "int(45)"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Hàm str() nhận vào một đối tượng bất kỳ và chuyển đổi đối tượng đó thành kiểu dữ liệu chuỗi ký tự tương ứng."
+    }
+  ],
+  "practical_lab": {
+    "title": "Xây dựng Chương trình Tính Điểm Trung Bình Học Tập",
+    "objectives": [
+      "Sử dụng hàm input() để thu thập thông tin",
+      "Áp dụng ép kiểu float() để tính toán điểm số",
+      "Sử dụng hàm print() xuất kết quả định dạng chuẩn"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Nhập họ tên học sinh bằng hàm input() lưu vào biến student_name.",
+        "Bước 2: Nhập điểm Toán và điểm Văn từ người dùng bằng hai câu lệnh input() riêng biệt.",
+        "Bước 3: Sử dụng hàm float() ép kiểu điểm Toán và Văn từ chuỗi sang số thực.",
+        "Bước 4: Tính điểm trung bình cộng theo công thức (Toán + Văn) / 2.",
+        "Bước 5: Sử dụng hàm print() xuất ra tên học sinh cùng điểm trung bình đã tính."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Nhập dữ liệu thành công không gặp lỗi cú pháp.",
+        "Đã ép kiểu chính xác sang float cho hai điểm số.",
+        "Điểm trung bình được tính và in ra chuẩn xác kiểu số thực."
+      ]
+    }
+  }
+}

@@ -9,7 +9,7 @@ def compile_session_html(session_dir: Path, session_title: str):
     extracts their body content, wraps them in collapsible accordion cards,
     and writes a unified premium session-level reading_all.html with a sticky left sidebar.
     """
-    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")), key=lambda p: int(re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE).group(1)) if re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE) else 999)
+    html_files = sorted(list(session_dir.glob("*/Bài đọc/reading.html")), key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE)) else 999)
     if not html_files:
         return
         
@@ -148,7 +148,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             </div>"""
             collapse_cards.append(card)
         except Exception as e:
-            print(f"  [Session Compiler Warning] Failed to parse {path}: {e}")
+            print(f"  [Session Compiler Warning] Failed to parse {item}: {e}")
             
     session_html = f"""<!doctype html>
 <!-- =========================================================================
@@ -1911,7 +1911,7 @@ def compile_session_mindmap(session_dir: Path, session_title: str):
     import re
     import mistune
     
-    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")), key=lambda p: int(re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE).group(1)) if re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE) else 999)
+    mindmap_files = sorted(list(session_dir.glob("*/Mindmap/mindmap.md")), key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE)) else 999)
     if not mindmap_files:
         return
         

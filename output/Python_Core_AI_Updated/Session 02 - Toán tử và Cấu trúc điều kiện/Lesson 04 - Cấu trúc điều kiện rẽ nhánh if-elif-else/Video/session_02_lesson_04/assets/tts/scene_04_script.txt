@@ -1,0 +1,1 @@
+Tóm lại, cấu trúc rẽ nhánh giúp điều khiển dòng chạy ứng dụng một cách linh hoạt dựa trên Boolean. Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!

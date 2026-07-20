@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Khi mới bắt đầu với Python, việc cài đặt trực tiếp thư viện vào hệ thống dễ gây xung đột phiên bản. Giải pháp tối ưu là thiết lập môi trường chuẩn gồm Python PATH, VS Code và môi trường ảo venv.

@@ -5,7 +5,7 @@ from typing import Dict, Any
 from config.settings import get_agent_prompt
 from core.llm import call_llm
 
-def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", previous_feedback: str = None) -> Dict[str, Any]:
+def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", previous_feedback: str = "") -> Dict[str, Any]:
     """
     Objective Architect Agent:
     Dynamically analyzes the PM input JSON string for a specific Session and generates backward-design

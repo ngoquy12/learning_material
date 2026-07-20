@@ -1,0 +1,1 @@
+Tóm lại, toán tử so sánh trả về True hoặc False. Các em cần tránh ba lỗi: nhầm dấu bằng với so sánh bằng, so sánh sai kiểu dữ liệu, và viết sai ký tự toán tử kép. Cảm ơn các em đã theo dõi, hẹn gặp lại!

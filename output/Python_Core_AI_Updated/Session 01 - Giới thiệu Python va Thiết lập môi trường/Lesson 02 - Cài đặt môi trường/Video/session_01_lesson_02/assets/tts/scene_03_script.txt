@@ -1,0 +1,1 @@
+Kích hoạt môi trường bằng lệnh source activate trên Linux/macOS hoặc Scripts/activate trên Windows. Hãy chạy đoạn mã Python sau để xác minh hệ thống đang thực thi trong môi trường ảo hay global.

@@ -3,7 +3,7 @@ import os
 import json
 import time
 import functools
-from typing import Optional
+from typing import Optional, Any
 
 # Load dotenv if available
 try:
@@ -20,7 +20,7 @@ def _get_cached_generative_model(
     model_name: str,
     system_prompt: str,
     generation_config: dict
-) -> Optional[object]:
+) -> Optional[Any]:
     """
     Attempts to retrieve or create a Gemini CachedContent and returns a GenerativeModel preloaded with it.
     If caching is disabled, prompt is too short (< 32,768 tokens), or cache creation fails, returns None.
@@ -148,7 +148,7 @@ def call_llm(
             # Select model
             model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
             
-            generation_config = {"max_output_tokens": 8192}
+            generation_config: dict = {"max_output_tokens": 8192}
             if json_mode:
                 generation_config["response_mime_type"] = "application/json"
                 
@@ -168,7 +168,11 @@ def call_llm(
                     system_instruction=system_prompt,
                     generation_config=generation_config
                 )
-                response = model.generate_content(user_prompt, request_options={"timeout": 120.0})
+                response = model.generate_content(
+                    user_prompt,
+                    generation_config=generation_config,
+                    request_options={"timeout": 120.0}
+                )
                 
             if response and response.text:
                 result_text = response.text.strip()
