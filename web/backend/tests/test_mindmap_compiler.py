@@ -11,9 +11,9 @@ from pathlib import Path
 # Add project and app/ai_engine to path
 backend_path = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(backend_path))
-sys.path.insert(0, str(backend_path / "app" / "ai_engine"))
+sys.path.insert(0, str(backend_path.parents[0]))
 
-from app.ai_engine.core.session_compilers import compile_session_mindmap_markdown
+from core.session_compilers import compile_session_mindmap_markdown
 
 def test_compile_session_mindmap_markdown_hierarchical_shifting():
     """

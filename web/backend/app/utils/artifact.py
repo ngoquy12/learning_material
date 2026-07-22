@@ -325,7 +325,7 @@ async def write_artifact_to_disk(db: AsyncSession, artifact) -> None:
             # Special handling for project entry tests (multiple files)
             file_path.mkdir(parents=True, exist_ok=True)
             entry_tests = (artifact.content_json or {}).get("entry_tests") or []
-            from app.ai_engine.agents.project_agents import sanitize_vietnamese_filename
+            from agents.project_agents import sanitize_vietnamese_filename
             for idx, test in enumerate(entry_tests, 1):
                 clean_name = sanitize_vietnamese_filename(test.get("title", f"test_{idx}"))
                 filename = f"bai_kiem_tra_{idx:02d}_{clean_name}"

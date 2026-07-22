@@ -62,6 +62,10 @@ RÀNG BUỘC CỦA ĐỢT SINH NÀY (BẮT BUỘC TUÂN THỦ):
 - Số thứ tự bắt đầu (STT): {current_stt}.
 - Độ khó (difficulty): {difficulty} (Thang điểm 1-10. 1-4: Nhớ/Hiểu, 5-7: Phân tích/Vận dụng, 8-10: Debug/Tối ưu/Kiến trúc).
 - Phân loại (category): "{category}".
+- QUY TẮC RÀNG BUỘC PHẠM VI KIẾN THỨC (DYNAMIC KNOWLEDGE SCOPE BOUNDARY):
+  + Mọi câu hỏi CHỈ ĐƯỢC PHÉP hỏi về đúng chủ đề '{topic_name}' và công nghệ '{tech_stack}'.
+  + TUYỆT ĐỐI CẤM đưa các khái niệm, cú pháp, hàm hay framework nâng cao thuộc các bài học tương lai hoặc chưa học vào câu hỏi hay bất kỳ phương án đáp án nào!
+  + CẤM lạc đề, CẤM đưa từ ngữ mơ hồ ("theo slide", "trong video này"). Câu hỏi phải chính xác, khách quan như đề thi quốc tế.
 {rag_context}
 
 Yêu cầu định dạng đầu ra:

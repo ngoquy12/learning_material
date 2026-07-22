@@ -320,12 +320,14 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
     report_path = course_dir / "structure_review_report.md"
     status = "APPROVED" if not missing_elements else "REJECTED"
     
+    from datetime import datetime
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     report_content = f"""# 📂 BÁO CÁO DUYỆT KHUNG CẤU TRÚC DỰ ÁN (PROJECT STRUCTURE REVIEW)
 **Đường dẫn dự án:** `{course_dir}`
 
 ## 📊 Kết quả Thẩm định
 * **Trạng thái:** `{status}`
-* **Thời gian quét:** 2026-07-16
+* **Thời gian quét:** {now_str}
 
 ## 🔍 Chi tiết đánh giá
 {"Mọi thư mục Session và Lesson rỗng đã được tạo lập thành công và đầy đủ cấu trúc khung rỗng." if not missing_elements else "Phát hiện các lỗi cấu trúc sau:"}
@@ -429,6 +431,7 @@ def main():
     parser.add_argument("--obsidian", action="store_true", help="Generate Obsidian Vault for the entire course structure")
     parser.add_argument("--scorm", action="store_true", help="Export compiled lessons to SCORM 1.2 .zip package for LMS import (Moodle, Canvas, etc.)")
     parser.add_argument("--cache-stats", action="store_true", help="Show Semantic Cache statistics and exit")
+    parser.add_argument("--tech-stack", type=str, default="", help="Explicit technology stack (e.g. 'python/core', 'python/fastapi', 'typescript/nestjs', 'typescript/react', 'java/springboot')")
     args = parser.parse_args()
 
     excel_path = args.pm
@@ -529,18 +532,30 @@ def main():
     course_dir = output_base_dir / course_dir_name
     course_dir.mkdir(parents=True, exist_ok=True)
 
-    # Detect technology stack dynamically
-    tech_stack = "python/fastapi"
-    fn = os.path.basename(excel_path).lower()
-    sn = course_dir_name.lower()
-    if "nestjs" in fn or "nestjs" in sn or "nest" in fn or "nest" in sn:
-        tech_stack = "typescript/nestjs"
-    elif "react" in fn or "react" in sn:
-        tech_stack = "typescript/react"
-    elif "java" in fn or "java" in sn or "springboot" in fn or "springboot" in sn:
-        tech_stack = "java/springboot"
-    elif "core" in fn or "core" in sn or "basic" in fn or "basic" in sn:
-        tech_stack = "python/core"
+    # Detect technology stack dynamically or strictly from args/PM metadata
+    tech_stack = args.tech_stack.strip().lower() if getattr(args, "tech_stack", "") else ""
+    if not tech_stack:
+        fn = os.path.basename(excel_path).lower()
+        sn = course_dir_name.lower()
+        if "fastapi" in fn or "fastapi" in sn:
+            tech_stack = "python/fastapi"
+        elif "nestjs" in fn or "nestjs" in sn or "nest" in fn or "nest" in sn:
+            tech_stack = "typescript/nestjs"
+        elif "react" in fn or "react" in sn:
+            tech_stack = "typescript/react"
+        elif "java" in fn or "java" in sn or "springboot" in fn or "springboot" in sn:
+            tech_stack = "java/springboot"
+        elif "python" in fn or "python" in sn or "core" in fn or "core" in sn or "basic" in fn or "basic" in sn:
+            tech_stack = "python/core"
+
+    if not tech_stack:
+        raise ValueError(
+            f"\n❌ [LỖI KHÔNG THỂ XÁC ĐỊNH CÔNG NGHỆ] Không thể tự động gán Technology Stack cho file PM '{excel_path}'.\n"
+            f"Hệ thống ĐÃ TẮT HOÀN TOÀN CƠ CHẾ FALLBACK MẶC ĐỊNH để tránh rò rỉ công nghệ (Technology Leak).\n"
+            f"Vui lòng truyền tham số --tech-stack chính xác khi chạy command.\n"
+            f"Ví dụ: python main.py --pm \"{excel_path}\" --tech-stack python/core --approve-pm"
+        )
+
     print(f"Detected course technology stack: {tech_stack}")
 
     if not args.approve_pm:
@@ -770,13 +785,14 @@ def main():
                     with open(selftest_path, "w", encoding="utf-8") as f:
                         f.write(final_state.get("self_test_markdown", ""))
 
-                # Save Slides to "Bài giảng" subfolder
-                if "slide" in requested_parts and final_state.get("slide_markdown"):
+                # Save Slides to "Bài giảng" subfolder (Interactive Rikkei Master HTML Slide Template)
+                if "slide" in requested_parts and (final_state.get("slide_html") or final_state.get("slide_markdown")):
                     slide_sub = lesson_dir / "Bài giảng"
                     slide_sub.mkdir(parents=True, exist_ok=True)
-                    slides_path = slide_sub / "slides.md"
+                    slides_path = slide_sub / "slides.html"
+                    slide_content = final_state.get("slide_html") or final_state.get("slide_markdown", "")
                     with open(slides_path, "w", encoding="utf-8") as f:
-                        f.write(final_state.get("slide_markdown", ""))
+                        f.write(slide_content)
                 else:
                     slides_path = "Skipped"
 
@@ -845,7 +861,7 @@ def main():
                                                     shutil.copy2(src_file, dest_file)
                                     except Exception as e:
                                         print("  [Assets Error] Failed to link or copy assets:", e)
-                            
+
                             # 3. Generate prepare_tts.py to run TTS for the scenes
                             scenes = v_json.get("scenes", [])
                             py_scenes = []
@@ -853,65 +869,136 @@ def main():
                                 s_id = scene.get("scene_id", f"Scene_{idx+1:02d}")
                                 narration = scene.get("narration", "")
                                 py_scenes.append({"id": s_id, "text": narration})
-                            
-                            py_content = f"""import os
-import json
-import subprocess
-import sys
-import io
-from pathlib import Path
-from gtts import gTTS
 
-# Set console encoding to UTF-8
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', write_through=True)
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', write_through=True)
-
-scenes = {json.dumps(py_scenes, indent=2, ensure_ascii=False)}
-
-tts_dir = Path("assets/tts")
-tts_dir.mkdir(parents=True, exist_ok=True)
-
-all_durations = {{}}
-
-for scene in scenes:
-    scene_id = scene["id"]
-    text = scene["text"]
-    if not text:
-        continue
-        
-    mp3_path = tts_dir / f"{{scene_id}}.mp3"
-    print(f"Generating TTS for {{scene_id}} using gTTS...")
-    try:
-        tts = gTTS(text=text, lang="vi")
-        if mp3_path.exists():
-            mp3_path.unlink()
-        tts.save(str(mp3_path))
-    except Exception as e:
-        print(f"Failed to generate TTS for {{scene_id}}: {{e}}.")
-        if not mp3_path.exists():
-            print("Generating fallback silent audio...")
-            try:
-                fallback_dur = max(5.0, len(text.split()) / 2.5)
-                cmd = f'ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=mono -t {{fallback_dur}} -q:a 2 "{{mp3_path}}"'
-                subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            except Exception as fe:
-                print(f"Failed to generate fallback silent audio: {{fe}}")
-                
-    if mp3_path.exists():
-        try:
-            cmd = f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{{mp3_path}}"'
-            probe = subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
-            duration = float(probe)
-            all_durations[scene_id] = round(duration, 2) + 0.5
-        except Exception as e:
-            all_durations[scene_id] = max(5.0, len(text.split()) / 2.5)
-    else:
-        all_durations[scene_id] = max(5.0, len(text.split()) / 2.5)
-
-with open(tts_dir / "durations.json", "w", encoding="utf-8") as f:
-    json.dump(all_durations, f, indent=2, ensure_ascii=False)
-print("TTS Generation Complete!")
-"""
+                            _scenes_json = json.dumps(py_scenes, indent=2, ensure_ascii=False)
+                            py_content = (
+                                'import os\n'
+                                'import json\n'
+                                'import subprocess\n'
+                                'import sys\n'
+                                'import io\n'
+                                'import time\n'
+                                'import urllib.request\n'
+                                'from pathlib import Path\n'
+                                '\n'
+                                '# Set console encoding to UTF-8\n'
+                                "sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', write_through=True)\n"
+                                "sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', write_through=True)\n"
+                                '\n'
+                                '# ElevenLabs configuration\n'
+                                'ELEVENLABS_API_KEY = "e05b46192de9da212d843066bd4d15b86c8bbeb7c7fbf5a5ce50308aeed4afde"\n'
+                                'ELEVENLABS_VOICE_ID = "6adFm46eyy74snVn6YrT"\n'
+                                'BASE_URL = "https://api.elevenlabs.io"\n'
+                                '\n'
+                                f'scenes = {_scenes_json}\n'
+                                '\n'
+                                '# ElevenLabs Pre-flight Quota Checker\n'
+                                'def check_elevenlabs_quota(api_key, required_chars):\n'
+                                '    # Kiem tra so token con lai trong tai khoan ElevenLabs\n'
+                                '    try:\n'
+                                '        url = f"{BASE_URL}/v1/user/subscription"\n'
+                                '        req = urllib.request.Request(url, headers={"xi-api-key": api_key}, method="GET")\n'
+                                '        with urllib.request.urlopen(req) as response:\n'
+                                '            sub_data = json.loads(response.read().decode("utf-8"))\n'
+                                '            char_count = sub_data.get("character_count", 0)\n'
+                                '            char_limit = sub_data.get("character_limit", 0)\n'
+                                '            remaining = max(0, char_limit - char_count)\n'
+                                '            return (remaining >= required_chars), remaining, char_limit\n'
+                                '    except Exception as e:\n'
+                                '        print(f"  [Quota Check] Khong the kiem tra ElevenLabs Quota ({e}). Se thu goi truc tiep...")\n'
+                                '        return True, -1, -1\n'
+                                '\n'
+                                'total_required_chars = sum(len(s.get("text", "")) for s in scenes)\n'
+                                'has_enough_quota, remaining_tokens, total_quota = check_elevenlabs_quota(ELEVENLABS_API_KEY, total_required_chars)\n'
+                                '\n'
+                                'use_elevenlabs = True\n'
+                                'if not has_enough_quota and remaining_tokens != -1:\n'
+                                '    print("\\n[CANH BAO ELEVENLABS QUOTA] Tai khoan ElevenLabs KHONG DU TOKEN!")\n'
+                                '    print(f"  - So ky tu can: {total_required_chars} / Con lai: {remaining_tokens}/{total_quota}")\n'
+                                '    print("  - TU DONG CHUYEN SANG GIONG MAC DINH HE THONG: Edge-TTS Neural Voice (vi-VN-NamMinhNeural)")\n'
+                                '    use_elevenlabs = False\n'
+                                'elif remaining_tokens != -1:\n'
+                                '    print(f"[ElevenLabs Quota Check] Token kha dung: {remaining_tokens}/{total_quota} (Can: {total_required_chars})")\n'
+                                '\n'
+                                'tts_dir = Path("assets/tts")\n'
+                                'tts_dir.mkdir(parents=True, exist_ok=True)\n'
+                                '\n'
+                                'all_durations = {}\n'
+                                '\n'
+                                'for scene in scenes:\n'
+                                '    scene_id = scene["id"]\n'
+                                '    text = scene["text"]\n'
+                                '    if not text:\n'
+                                '        continue\n'
+                                '    mp3_path = tts_dir / f"{scene_id}.mp3"\n'
+                                '    success = False\n'
+                                '\n'
+                                '    if use_elevenlabs:\n'
+                                '        print(f"Generating TTS for {scene_id} using ElevenLabs (Voice: {ELEVENLABS_VOICE_ID})...")\n'
+                                '        url = f"{BASE_URL}/v1/text-to-speech/{ELEVENLABS_VOICE_ID}"\n'
+                                '        headers = {"xi-api-key": ELEVENLABS_API_KEY, "Content-Type": "application/json"}\n'
+                                '        data = {"text": text, "model_id": "eleven_v3", "voice_settings": {"stability": 0.45, "similarity_boost": 0.65, "use_speaker_boost": True}}\n'
+                                '        for attempt in range(3):\n'
+                                '            try:\n'
+                                '                req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers=headers, method="POST")\n'
+                                '                with urllib.request.urlopen(req, timeout=60) as response:\n'
+                                '                    audio_data = response.read()\n'
+                                '                    if mp3_path.exists():\n'
+                                '                        mp3_path.unlink()\n'
+                                '                    with open(mp3_path, "wb") as f:\n'
+                                '                        f.write(audio_data)\n'
+                                '                print(f"[OK] ElevenLabs audio generated for {scene_id} (attempt {attempt+1})")\n'
+                                '                success = True\n'
+                                '                break\n'
+                                '            except Exception as e:\n'
+                                '                wait_s = 2 ** attempt\n'
+                                '                print(f"  [ElevenLabs Attempt {attempt+1}/3] Failed: {e}. Retrying in {wait_s}s...")\n'
+                                '                if attempt < 2:\n'
+                                '                    time.sleep(wait_s)\n'
+                                '        if not success:\n'
+                                '            print(f"[FAIL] ElevenLabs failed after 3 attempts for {scene_id}. Switching to Edge-TTS...")\n'
+                                '\n'
+                                '    if not success:\n'
+                                '        try:\n'
+                                '            import asyncio, edge_tts\n'
+                                '            communicate = edge_tts.Communicate(text, "vi-VN-NamMinhNeural")\n'
+                                '            if mp3_path.exists():\n'
+                                '                mp3_path.unlink()\n'
+                                '            asyncio.run(communicate.save(str(mp3_path)))\n'
+                                '            print(f"[OK] Edge-TTS audio generated for {scene_id}")\n'
+                                '            success = True\n'
+                                '        except Exception as ee:\n'
+                                '            print(f"[FAIL] Edge-TTS failed for {scene_id}: {ee}. Falling back to gTTS...")\n'
+                                '            try:\n'
+                                '                from gtts import gTTS\n'
+                                '                tts = gTTS(text=text, lang="vi")\n'
+                                '                if mp3_path.exists():\n'
+                                '                    mp3_path.unlink()\n'
+                                '                tts.save(str(mp3_path))\n'
+                                '                print(f"[OK] gTTS audio generated for {scene_id}")\n'
+                                '                success = True\n'
+                                '            except Exception as ge:\n'
+                                '                print(f"[FAIL] gTTS failed for {scene_id}: {ge}. Generating silent fallback...")\n'
+                                '                if not mp3_path.exists():\n'
+                                '                    fallback_dur = max(5.0, len(text.split()) / 2.5)\n'
+                                '                    cmd = f\'ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=mono -t {fallback_dur} -q:a 2 "{mp3_path}"\'\n'
+                                '                    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n'
+                                '                    print(f"[OK] Silent fallback audio generated for {scene_id}")\n'
+                                '\n'
+                                '    if mp3_path.exists():\n'
+                                '        try:\n'
+                                '            cmd = f\'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{mp3_path}"\'\n'
+                                '            probe = subprocess.check_output(cmd, shell=True).decode("utf-8").strip()\n'
+                                '            all_durations[scene_id] = round(float(probe), 2) + 0.5\n'
+                                '        except Exception:\n'
+                                '            all_durations[scene_id] = max(5.0, len(text.split()) / 2.5)\n'
+                                '    else:\n'
+                                '        all_durations[scene_id] = max(5.0, len(text.split()) / 2.5)\n'
+                                '\n'
+                                'with open(tts_dir / "durations.json", "w", encoding="utf-8") as f:\n'
+                                '    json.dump(all_durations, f, indent=2, ensure_ascii=False)\n'
+                                'print(f"[OK] TTS Generation Complete! {len(all_durations)} scenes processed.")\n'
+                            )
                             py_path = video_project_dir / "prepare_tts.py"
                             with open(py_path, "w", encoding="utf-8") as f:
                                 f.write(py_content)
@@ -953,9 +1040,49 @@ print("TTS Generation Complete!")
                                     current_time += scene["duration"]
                                 v_json["total_duration"] = current_time + 12.15  # outro duration
                                 
-                                # Update markdown with the new durations (optional but good)
                                 print("  [TTS Sync] Durations changed! Re-scaffolding the video composition...")
                                 final_state = hyperframes_writer_agent(final_state)
+
+                            # ── FIX #8: Update package.json with GPU acceleration + multi-workers
+                            pkg_path = video_project_dir / "package.json"
+                            if pkg_path.exists():
+                                try:
+                                    with open(pkg_path, "r", encoding="utf-8") as f:
+                                        pkg_data = json.load(f)
+                                    pkg_data["scripts"]["render"] = (
+                                        "npx --yes hyperframes@0.6.63 render . "
+                                        "--workers 4 "
+                                        "--chrome-flags \"--use-angle=d3d11 --enable-gpu-rasterization --enable-zero-copy\""
+                                    )
+                                    pkg_data["scripts"]["check"] = (
+                                        "npx --yes hyperframes@0.6.63 lint && "
+                                        "npx --yes hyperframes@0.6.63 validate && "
+                                        "npx --yes hyperframes@0.6.63 inspect"
+                                    )
+                                    with open(pkg_path, "w", encoding="utf-8") as f:
+                                        json.dump(pkg_data, f, indent=2, ensure_ascii=False)
+                                    print("  [Render Config] Updated package.json with GPU acceleration + 4 workers")
+                                except Exception as e:
+                                    print(f"  [Render Config Warning] Could not update package.json: {e}")
+
+                            # ── FIX #5: Post-build cleanup — remove prepare_tts.py and frame cache
+                            try:
+                                prep_tts_path = video_project_dir / "prepare_tts.py"
+                                if prep_tts_path.exists():
+                                    prep_tts_path.unlink()
+                                    print("  [Cleanup] Removed prepare_tts.py (temp file)")
+                                # Remove any leftover .png frame cache files
+                                for png_file in video_project_dir.rglob("*.png"):
+                                    png_file.unlink()
+                                cache_dirs = [".cache", ".frames", "frames", "__pycache__"]
+                                for cd in cache_dirs:
+                                    cache_path = video_project_dir / cd
+                                    if cache_path.exists() and cache_path.is_dir():
+                                        import shutil as _shutil
+                                        _shutil.rmtree(cache_path, ignore_errors=True)
+                                        print(f"  [Cleanup] Removed {cd}/ cache directory")
+                            except Exception as ce:
+                                print(f"  [Cleanup Warning] {ce}")
                 else:
                     video_script_path = "Skipped"
 
@@ -1100,13 +1227,14 @@ print("TTS Generation Complete!")
             else:
                 html_path = "Skipped"
 
-            # Save Slides to "Bài giảng" subfolder
-            if "slide" in requested_parts and final_state.get("slide_markdown"):
+            # Save Slides to "Bài giảng" subfolder (Interactive Rikkei Master HTML Slide Template)
+            if "slide" in requested_parts and (final_state.get("slide_html") or final_state.get("slide_markdown")):
                 slide_sub = session_dir / "Bài giảng"
                 slide_sub.mkdir(parents=True, exist_ok=True)
-                slides_path = slide_sub / "slides.md"
+                slides_path = slide_sub / "slides.html"
+                slide_content = final_state.get("slide_html") or final_state.get("slide_markdown", "")
                 with open(slides_path, "w", encoding="utf-8") as f:
-                    f.write(final_state.get("slide_markdown", ""))
+                    f.write(slide_content)
             else:
                 slides_path = "Skipped"
 

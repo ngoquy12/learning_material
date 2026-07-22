@@ -171,9 +171,9 @@ def recall_memories(
         conditions = []
         params = []
 
-        # Lọc theo tech_stack: khớp chính xác HOẶC universal rules
-        conditions.append("(tech_stack = ? OR tech_stack = '*')")
-        params.append(tech_stack)
+        # Lọc theo tech_stack: khớp chính xác, universal rules, hoặc khớp substring phân cấp
+        conditions.append("(tech_stack = ? OR tech_stack = '*' OR ? LIKE '%' || tech_stack || '%' OR tech_stack LIKE '%' || ? || '%')")
+        params.extend([tech_stack, tech_stack, tech_stack])
 
         if scope:
             conditions.append("(scope = ? OR scope = 'all')")
@@ -398,3 +398,29 @@ def get_memory_stats() -> Dict[str, Any]:
         }
     finally:
         conn.close()
+
+
+def extract_anti_patterns(tech_stack: str = "*", limit: int = 3) -> str:
+    """
+    Trích xuất danh sách các bẫy lỗi lập trình thường gặp (Anti-Pattern Catalog) từ KMA 
+    để tự động chèn vào Slide/Bài đọc HTML cho học viên.
+    """
+    memories = recall_memories(tech_stack=tech_stack, scope="all", limit=limit)
+    if not memories:
+        return ""
+        
+    lines = ["### ⚠️ Các cạm bẫy lập trình thường gặp & Cách khắc phục:"]
+    for idx, mem in enumerate(memories, start=1):
+        rule = mem.get("rule_text", "")
+        bad = mem.get("example_bad", "")
+        good = mem.get("example_good", "")
+        
+        entry = f"{idx}. **Lỗi thường gặp:** {rule}"
+        if bad:
+            entry += f"\n   - ❌ **Cách làm sai:** `{bad}`"
+        if good:
+            entry += f"\n   - ✅ **Cách sửa đúng:** `{good}`"
+        lines.append(entry)
+        
+    return "\n".join(lines)
+

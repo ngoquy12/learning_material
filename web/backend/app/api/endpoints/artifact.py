@@ -116,9 +116,9 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: Option
     from app.models.lesson import Lesson
     from app.models.artifact import Artifact
     from sqlalchemy import select
-    from app.ai_engine.agents.creator_agents import get_base_topic_key, get_base_topic_key_for_core
-    from app.ai_engine.core.quiz_engine import generate_entrance_quiz, generate_exit_quiz
-    from app.ai_engine.core.session_compilers import _build_session_reading_html, compile_session_mindmap_markdown
+    from agents.creator_agents import get_base_topic_key, get_base_topic_key_for_core
+    from core.quiz_engine import generate_entrance_quiz, generate_exit_quiz
+    from core.session_compilers import _build_session_reading_html, compile_session_mindmap_markdown
     import datetime
     import asyncio
     from pathlib import Path

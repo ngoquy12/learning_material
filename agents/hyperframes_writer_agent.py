@@ -43,7 +43,10 @@ def _sanitize_id(text: str) -> str:
 def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str) -> str:
     """Build the root index.html (master timeline) following HyperFrames audio-first architecture."""
     scenes = blueprint["scenes"]
-    total_dur = blueprint["total_duration"]
+    
+    # Calculate exact total duration including intro (9.24s) and outro (12.15s)
+    outro_start = round(scenes[-1]["start_at_root"] + scenes[-1]["duration"], 2) if scenes else 9.24
+    total_dur = round(outro_start + 12.15, 2)
 
     # Scene clip divs
     scene_clips = []
@@ -105,6 +108,31 @@ def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str) -> str:
       data-width="1920"
       data-height="1080"
     >
+      <!-- ── Media Assets (Intro Video, Outro Video, Background Music) ── -->
+      <video id="intro-video"
+             data-start="0"
+             data-duration="9.24"
+             data-track-index="0"
+             data-has-audio="true"
+             data-volume="1"
+             src="assets/intro.mp4"></video>
+
+      <video id="outro-video"
+             data-start="{outro_start}"
+             data-duration="12.15"
+             data-track-index="0"
+             data-has-audio="true"
+             data-volume="1"
+             src="assets/outro.mp4"></video>
+
+      <audio id="bg-music"
+             data-start="0"
+             data-duration="{total_dur}"
+             data-track-index="30"
+             data-volume="0.12"
+             data-loop="true"
+             src="assets/bg-music.mp3"></audio>
+
       <!-- ── Scene Clips ── -->
 {scene_clips_str}
 
@@ -137,39 +165,116 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
     # Build the animation steps as JS comments for reference
     anim_comments = "\n      // ".join(anim_steps)
 
-    # Classify visual description to pick layout
+    # ── FIX #2: Layout type comes from Creator Agent blueprint (layout_type field)
+    # Priority: blueprint field > keyword fallback (never use cứng hardcoded mapping)
+    blueprint_layout = scene.get("layout_type", "").lower().strip()
     desc_lower = (visual_desc.lower() + " " + scene_title_raw.lower())
-    
-    # 1. Pitfalls / Warning Alert Layout
-    if any(k in desc_lower for k in ["lỗi", "cảnh báo", "pitfall", "warning", "chú ý", "sai", "khắc phục"]):
-        layout_type = "pitfall"
-    # 2. Comparison / Split Layout
-    elif any(k in desc_lower for k in ["so sánh", "khác biệt", "global", "isolated", "đối lập", "client", "server", "bên trái", "bên phải", "chia làm"]):
-        layout_type = "comparison"
-    # 3. Flow / Sequence Layout
-    elif any(k in desc_lower for k in ["bước", "quy trình", "flow", "sơ đồ", "tiến trình", "luồng"]):
-        layout_type = "flow"
-    # 4. Standard / Code Reveal Layout
+
+    if blueprint_layout in ["terminal_cli", "code_editor", "comparison", "process_flow", "pitfall_alert",
+                             "pitfall", "flow", "comparison", "code", "terminal"]:
+        # Map blueprint names to internal layout keys
+        _map = {
+            "terminal_cli": "terminal", "code_editor": "code",
+            "process_flow": "flow", "pitfall_alert": "pitfall",
+        }
+        layout_type = _map.get(blueprint_layout, blueprint_layout)
     else:
-        layout_type = "code"
+        # Fallback keyword detection (safety net only)
+        if any(k in desc_lower for k in ["lỗi", "cảnh báo", "pitfall", "warning", "khắc phục"]):
+            layout_type = "pitfall"
+        elif any(k in desc_lower for k in ["terminal", "cli", "lệnh", "command", "pip ", "python ", "activate"]):
+            layout_type = "terminal"
+        elif any(k in desc_lower for k in ["so sánh", "global", "isolated", "client", "server"]):
+            layout_type = "comparison"
+        elif any(k in desc_lower for k in ["bước", "quy trình", "flow", "sơ đồ", "luồng"]):
+            layout_type = "flow"
+        else:
+            layout_type = "code"
+
+    # ── FIX #2: Extract CLEAN educational text — strip ALL meta-prompt instructions
+    META_PROMPT_KEYWORDS = [
+        "màn hình", "hiển thị", "sử dụng font", "nền tối", "xuất hiện",
+        "giao diện", "thiết kế", "biểu tượng", "gradient", "phông nền",
+        "văn bản", "layout", "animation", "slide", "mockup", "background",
+        "screen shows", "display", "render"
+    ]
+    clean_desc = visual_desc
+    if any(k in visual_desc.lower() for k in META_PROMPT_KEYWORDS):
+        narration_raw = scene.get("narration", "")
+        sentences = [s.strip() for s in re.split(r'[.!?:]', narration_raw) if len(s.strip()) > 10]
+        if len(sentences) >= 2:
+            clean_desc = f"{sentences[0]}. {sentences[1]}."
+        elif len(sentences) == 1:
+            clean_desc = f"{sentences[0]}."
+        else:
+            clean_desc = scene_title_raw
 
     # Generate Layout-Specific HTML & GSAP Script
     html_content = ""
     gsap_js = ""
 
-    if layout_type == "comparison":
-        # Extract titles from visual description if possible, or fallback
-        left_title = "Global Environment (Xung đột)" if "global" in desc_lower else "Cách Thiết Kế Cũ / Lỗi"
-        left_desc = "Cài đặt thư viện đè lên hệ thống hệ điều hành chung, dẫn đến xung đột phiên bản giữa các dự án."
-        right_title = "Isolated Environment (Cô lập)" if "isolated" in desc_lower else "Cách Thiết Kế Mới / Cô lập"
-        right_desc = "Mỗi dự án sở hữu một môi trường ảo riêng biệt, an toàn, độc lập và dễ dàng di chuyển."
-        
-        # Customize if client-server keyword found
-        if "client" in desc_lower or "server" in desc_lower:
-            left_title = "Client (Máy khách)"
-            left_desc = "Gửi các thông điệp HTTP Request (GET, POST...) yêu cầu dữ liệu hoặc dịch vụ từ máy chủ."
-            right_title = "Server (Máy chủ / FastAPI)"
-            right_desc = "Tiếp nhận yêu cầu tại Endpoint, xử lý logic nghiệp vụ và trả về kết quả HTTP Response chuẩn hóa."
+    if layout_type == "terminal":
+        # ── FIX #2: Terminal CLI layout — chuẩn Black UI với prompt '$'
+        # Extract narration for command lines display
+        narration_lines = scene.get("narration", "")
+        cmd_lines = [l.strip() for l in visual_desc.split("\n") if l.strip()]
+        if not cmd_lines:
+            cmd_lines = ["$ python --version", "Python 3.11.x", "$ pip --version", "pip 23.x"]
+
+        def _fmt_cmd(line: str) -> str:
+            if line.startswith("$") or line.startswith("#"):
+                color = "#8b949e" if line.startswith("#") else "#e6edf3"
+                return f'<div style="color:{color};font-family:\'Fira Code\',monospace;font-size:20px;line-height:1.8;">{line}</div>'
+            return f'<div style="color:#3fb950;font-family:\'Fira Code\',monospace;font-size:20px;line-height:1.8;">{line}</div>'
+
+        cmd_html = "".join(_fmt_cmd(l) for l in cmd_lines[:10])
+
+        html_content = f"""
+    <!-- Terminal CLI Layout -->
+    <div class="split-container clip" id="terminal-reveal-{scene_n}" style="display:flex;gap:40px;width:1760px;margin:0 auto;align-items:center;height:900px;">
+      <div id="text-card-{scene_n}" style="flex:0 0 38%;background:rgba(9,9,11,0.75);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:48px;">
+        <h3 style="font-size:32px;color:#e6edf3;margin-bottom:20px;">Khái Niệm Cốt Lõi</h3>
+        <p style="color:#c9d1d9;font-size:22px;line-height:1.7;">{clean_desc}</p>
+      </div>
+      <div id="terminal-block-{scene_n}" style="flex:1;background:#0d1117;border:1px solid rgba(255,255,255,0.12);border-radius:12px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+        <div style="background:#1c1c1e;height:38px;display:flex;align-items:center;padding:0 16px;gap:8px;border-bottom:1px solid rgba(255,255,255,0.08);">
+          <span style="width:12px;height:12px;border-radius:50%;background:#f85149;"></span>
+          <span style="width:12px;height:12px;border-radius:50%;background:#ffa657;"></span>
+          <span style="width:12px;height:12px;border-radius:50%;background:#3fb950;"></span>
+          <span style="font-family:system-ui,sans-serif;font-size:13px;color:#8b949e;margin-left:8px;">Terminal — bash</span>
+        </div>
+        <div style="padding:28px 32px;">{cmd_html}</div>
+      </div>
+    </div>"""
+
+        t1 = 1.5
+        t2 = 2.8
+        t3 = round(dur * 0.55, 2)
+        t4 = round(dur * 0.80, 2)
+        gsap_js = f"""
+      // Ẩn ban đầu
+      tl.set("#text-card-{scene_n}", {{ autoAlpha: 0, x: -40 }}, 0);
+      tl.set("#terminal-block-{scene_n}", {{ autoAlpha: 0, y: 30 }}, 0);
+
+      // Intro title (0.2s -> 1.8s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.6, ease: "power3.inOut" }}, 1.8);
+
+      // Reveal text card then terminal (dynamic timing dur={dur:.2f}s)
+      tl.to("#text-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, {t1});
+      tl.to("#terminal-block-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.7, ease: "back.out(1.2)" }}, {t2});
+      
+      // Dynamic visual highlights during voice narration
+      tl.to("#terminal-block-{scene_n}", {{ borderColor: "#38bdf8", boxShadow: "0 0 30px rgba(56,189,248,0.3)", duration: 0.6, yoyo: true, repeat: 1 }}, {t3});
+      tl.to("#text-card-{scene_n}", {{ borderColor: "rgba(56,189,248,0.4)", duration: 0.6, yoyo: true, repeat: 1 }}, {t4});"""
+
+    elif layout_type == "comparison":
+        # Use clean_desc as card content — no hardcoded topic-specific text
+        left_title = "❌ Phương pháp Cũ"
+        right_title = "✅ Phương pháp Mới"
+        narration_parts = [s.strip() for s in re.split(r'[.!?]', scene.get("narration", "")) if len(s.strip()) > 15]
+        left_desc = narration_parts[0] if narration_parts else clean_desc
+        right_desc = narration_parts[1] if len(narration_parts) > 1 else clean_desc
 
         html_content = f"""
     <!-- Comparison Layout -->
@@ -184,23 +289,27 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       </div>
     </div>"""
 
+        t1 = 1.5
+        t2 = round(1.5 + (dur - 3.0) * 0.45, 2)
+        t3 = round(dur * 0.80, 2)
         gsap_js = f"""
       // Ẩn ban đầu
       tl.set("#left-card-{scene_n}", {{ autoAlpha: 0, x: -50 }}, 0);
       tl.set("#right-card-{scene_n}", {{ autoAlpha: 0, x: 50 }}, 0);
 
-      // Intro title (0.2s -> 3.2s)
-      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
-      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+      // Intro title (0.2s -> 1.8s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.6, ease: "power3.inOut" }}, 1.8);
 
-      // Reveal Cards
-      tl.to("#left-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 4.2);
-      tl.to("#right-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 5.5);"""
+      // Reveal Cards (dynamic timing based on dur={dur:.2f}s)
+      tl.to("#left-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, {t1});
+      tl.to("#right-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, {t2});
+      tl.to("#right-card-{scene_n}", {{ scale: 1.03, boxShadow: "0 0 50px rgba(63,185,80,0.3)", duration: 0.6, yoyo: true, repeat: 1 }}, {t3});"""
 
     elif layout_type == "flow":
         step1 = "Bước 1: Khởi tạo venv"
         step2 = "Bước 2: Kích hoạt venv"
-        step3 = "Bước 3: Cài đặt FastAPI"
+        step3 = "Bước 3: Cài đặt Thư viện"
 
         if "client" in desc_lower or "http" in desc_lower:
             step1 = "1. Gửi HTTP Request"
@@ -226,6 +335,12 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       </div>
     </div>"""
 
+        r_dur = max(dur - 3.0, 5.0)
+        t1 = 1.6
+        t2 = round(1.6 + r_dur * 0.18, 2)
+        t3 = round(1.6 + r_dur * 0.38, 2)
+        t4 = round(1.6 + r_dur * 0.58, 2)
+        t5 = round(1.6 + r_dur * 0.78, 2)
         gsap_js = f"""
       // Ẩn ban đầu
       tl.set("#node-{scene_n}-1", {{ autoAlpha: 0, y: 30 }}, 0);
@@ -234,16 +349,16 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       tl.set("#line-{scene_n}-2", {{ scaleX: 0, transformOrigin: "left center" }}, 0);
       tl.set("#node-{scene_n}-3", {{ autoAlpha: 0, y: 30 }}, 0);
 
-      // Intro title (0.2s -> 3.2s)
-      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
-      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+      // Intro title (0.2s -> 1.8s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.6, ease: "power3.inOut" }}, 1.8);
 
-      // Stagger Steps
-      tl.to("#node-{scene_n}-1", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, 4.2);
-      tl.to("#line-{scene_n}-1", {{ scaleX: 1, duration: 0.4, ease: "power1.inOut" }}, 5.2);
-      tl.to("#node-{scene_n}-2", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, 5.8);
-      tl.to("#line-{scene_n}-2", {{ scaleX: 1, duration: 0.4, ease: "power1.inOut" }}, 6.8);
-      tl.to("#node-{scene_n}-3", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, 7.4);"""
+      // Stagger Steps (dynamic timing based on dur={dur:.2f}s)
+      tl.to("#node-{scene_n}-1", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, {t1});
+      tl.to("#line-{scene_n}-1", {{ scaleX: 1, duration: 0.4, ease: "power1.inOut" }}, {t2});
+      tl.to("#node-{scene_n}-2", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, {t3});
+      tl.to("#line-{scene_n}-2", {{ scaleX: 1, duration: 0.4, ease: "power1.inOut" }}, {t4});
+      tl.to("#node-{scene_n}-3", {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, {t5});"""
 
     elif layout_type == "pitfall":
         # Check which lesson warning to show
@@ -273,97 +388,166 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       </div>
     </div>"""
 
+        t1 = 1.5
+        t2 = round(1.5 + (dur - 3.0) * 0.45, 2)
+        t3 = round(dur * 0.80, 2)
         gsap_js = f"""
       // Ẩn ban đầu
       tl.set("#warning-card-{scene_n}", {{ autoAlpha: 0, scale: 0.95 }}, 0);
       tl.set("#success-card-{scene_n}", {{ autoAlpha: 0, y: 30 }}, 0);
 
-      // Intro title (0.2s -> 3.2s)
-      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
-      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+      // Intro title (0.2s -> 1.8s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.6, ease: "power3.inOut" }}, 1.8);
 
-      // Reveal Pitfalls
-      tl.to("#warning-card-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out" }}, 4.2);
-      tl.to("#success-card-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }}, 7.2);"""
+      // Reveal Pitfalls (dynamic timing based on dur={dur:.2f}s)
+      tl.to("#warning-card-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out" }}, {t1});
+      tl.to("#success-card-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }}, {t2});
+      tl.to("#success-card-{scene_n}", {{ scale: 1.02, boxShadow: "0 0 40px rgba(63,185,80,0.3)", duration: 0.5, yoyo: true, repeat: 1 }}, {t3});"""
 
     else:  # layout_type == "code"
         # Determine code & language dynamically based on context
         code_lang = "python"
-        if "venv" in desc_lower or "environment" in desc_lower or "môi trường" in desc_lower:
+        if "requirements" in desc_lower or "freeze" in desc_lower:
             code_lang = "bash"
             code_html = (
-                '<span class="comment"># 1. Tạo môi trường ảo</span>\n'
+                '<span class="comment"># 1. Lưu danh sách thư viện hiện tại</span>\n'
+                '<span class="keyword">pip</span> freeze > requirements.txt\n\n'
+                '<span class="comment"># 2. Cài đặt lại trên máy mới</span>\n'
+                '<span class="keyword">pip</span> install -r requirements.txt'
+            )
+        elif "venv" in desc_lower or "environment" in desc_lower or "môi trường" in desc_lower or "kích hoạt" in desc_lower:
+            code_lang = "bash"
+            code_html = (
+                '<span class="comment"># 1. Tạo môi trường ảo venv</span>\n'
                 '<span class="keyword">python</span> -m venv venv\n\n'
                 '<span class="comment"># 2. Kích hoạt môi trường (Windows)</span>\n'
                 'venv\\Scripts\\activate\n\n'
-                '<span class="comment"># 2. Kích hoạt môi trường (macOS/Linux)</span>\n'
+                '<span class="comment"># 3. Kích hoạt môi trường (macOS/Linux)</span>\n'
                 '<span class="keyword">source</span> venv/bin/activate'
             )
-        elif "openapi" in desc_lower or "swagger" in desc_lower or "redoc" in desc_lower:
+        elif "interpreter" in desc_lower or "vs code" in desc_lower or "cấu hình" in desc_lower:
+            code_lang = "python"
             code_html = (
-                '<span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI\n\n'
-                'app = FastAPI(\n'
-                '    title=<span class="string">"Rikkei Elearning API"</span>,\n'
-                '    version=<span class="string">"1.0.0"</span>\n'
-                ')\n\n'
-                '<span class="comment"># Swagger UI tự động tại /docs</span>\n'
-                '<span class="comment"># ReDoc tự động tại /redoc</span>'
+                '<span class="keyword">import</span> sys\n\n'
+                '<span class="comment"># Kiểm tra đường dẫn Python Interpreter thực thi</span>\n'
+                '<span class="function">print</span>(<span class="string">"Python Path:"</span>, sys.executable)\n'
+                '<span class="function">print</span>(<span class="string">"Python Version:"</span>, sys.version)'
             )
-        elif "endpoint" in desc_lower or "routing" in desc_lower or "route" in desc_lower:
+        elif "khai báo" in desc_lower or "biến" in desc_lower:
+            code_lang = "python"
             code_html = (
-                '<span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI\n'
-                'app = FastAPI()\n\n'
-                '<span class="operator">@app</span>.<span class="function">get</span>(<span class="string">"/items/{{item_id}}"</span>)\n'
-                '<span class="keyword">async def</span> <span class="function">read_item</span>(item_id: <span class="variable">int</span>):\n'
-                '    <span class="keyword">return</span> {\n'
-                '        <span class="string">"item_id"</span>: item_id,\n'
-                '        <span class="string">"status"</span>: <span class="string">"success"</span>\n'
-                '    }'
-            )
-        elif "khởi tạo" in desc_lower or "fastapi" in desc_lower:
-            code_html = (
-                '<span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI\n\n'
-                'app = FastAPI()\n\n'
-                '<span class="operator">@app</span>.<span class="function">get</span>(<span class="string">"/"</span>)\n'
-                '<span class="keyword">def</span> <span class="function">home</span>():\n'
-                '    <span class="keyword">return</span> {<span class="string">"message"</span>: <span class="string">"Hello Rikkei Elearning"</span>}'
+                '<span class="comment"># Khai báo biến cơ bản trong Python</span>\n'
+                'course_name = <span class="string">"Python Core AI"</span>\n'
+                'lesson_number = <span class="variable">2</span>\n'
+                'is_active = <span class="keyword">True</span>\n\n'
+                '<span class="function">print</span>(<span class="string">f"Bài học: {course_name} - Bài {lesson_number}"</span>)'
             )
         else:
             code_lang = "bash"
             code_html = (
-                '<span class="keyword">pip</span> install fastapi uvicorn\n'
-                '<span class="keyword">uvicorn</span> main:app --reload'
+                '<span class="comment"># Kiểm tra phiên bản Python</span>\n'
+                '<span class="keyword">python</span> --version\n'
+                '<span class="keyword">pip</span> --version'
             )
 
+        filename_display = "main.py" if code_lang == "python" else "install.sh"
+        line_count = len(code_html.split('\n'))
+        line_numbers_html = '<br/>'.join(str(i) for i in range(1, line_count + 1))
+
         html_content = f"""
-    <!-- Code Reveal Layout -->
+    <!-- Code Reveal Layout (VS Code Theme) -->
     <div class="split-container clip" id="code-reveal-{scene_n}">
-      <div class="column-left content-card" id="text-card-{scene_n}" style="flex: 0 0 45%; display: flex; flex-direction: column; justify-content: center;">
+      <div class="column-left content-card" id="text-card-{scene_n}" style="flex: 0 0 40%; display: flex; flex-direction: column; justify-content: center;">
         <h3 style="font-size: 32px; color: var(--text-primary); margin-bottom: 20px;">Khái Niệm Cốt Lõi</h3>
-        <p style="color: var(--text-secondary); font-size: 24px; line-height: 1.6;">{visual_desc}</p>
+        <p style="color: var(--text-secondary); font-size: 24px; line-height: 1.6;">{clean_desc}</p>
       </div>
-      <!-- Code block -->
-      <div id="code-block-{scene_n}" class="code-card" style="flex: 0 0 50%; max-height: 600px; display: flex; flex-direction: column;">
-        <div class="code-header">
-          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-          <span class="code-lang">{code_lang}</span>
+      <!-- VS Code Window Block -->
+      <div id="code-block-{scene_n}" class="code-card" style="flex: 0 0 56%; max-height: 620px; display: flex; flex-direction: column; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <!-- Titlebar -->
+        <div class="code-header" style="background: #323233; height: 38px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.2);">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="dot red" style="width:12px; height:12px; border-radius:50%; background:#f85149;"></span>
+            <span class="dot yellow" style="width:12px; height:12px; border-radius:50%; background:#ffa657;"></span>
+            <span class="dot green" style="width:12px; height:12px; border-radius:50%; background:#3fb950;"></span>
+          </div>
+          <div style="font-family: system-ui, sans-serif; font-size: 13px; color: #cccccc; font-weight: 500;">Visual Studio Code — {filename_display}</div>
+          <div class="code-lang" style="font-family: 'Fira Code', monospace; font-size: 12px; color: #858585; text-transform: uppercase;">{code_lang}</div>
         </div>
-        <pre class="code-content"><code id="code-content-{scene_n}">{code_html}</code></pre>
+        
+        <!-- Editor Body -->
+        <div style="display: flex; flex: 1; overflow: hidden; background: #1e1e1e;">
+          <!-- 1. Activity Bar -->
+          <div style="width: 48px; background: #333333; display: flex; flex-direction: column; align-items: center; padding-top: 12px; gap: 18px; border-right: 1px solid rgba(255,255,255,0.05);">
+            <div style="font-size: 18px; color: #ffffff; border-left: 2px solid #007acc; padding-left: 8px; width: 100%;">📁</div>
+            <div style="font-size: 18px; color: #858585; opacity: 0.6;">🔍</div>
+            <div style="font-size: 18px; color: #858585; opacity: 0.6;">🌿</div>
+            <div style="font-size: 18px; color: #858585; opacity: 0.6;">🐞</div>
+            <div style="font-size: 18px; color: #858585; opacity: 0.6;">⚙️</div>
+          </div>
+          
+          <!-- 2. Sidebar Explorer -->
+          <div style="width: 150px; background: #252526; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; font-size: 13px; color: #cccccc; padding: 12px 10px;">
+            <div style="font-weight: 700; text-transform: uppercase; font-size: 11px; margin-bottom: 12px; color: #858585; letter-spacing: 0.8px;">Explorer</div>
+            <div style="font-weight: 600; color: #ffffff; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">📂 PROJECT</div>
+            <div style="margin-left: 12px; margin-bottom: 6px; color: #007acc; font-weight: 600; display: flex; align-items: center; gap: 6px;">🐍 {filename_display}</div>
+            <div style="margin-left: 12px; margin-bottom: 6px; color: #757575;">📄 config.json</div>
+            <div style="margin-left: 12px; margin-bottom: 6px; color: #757575;">📄 README.md</div>
+          </div>
+          
+          <!-- 3. Main Workspace -->
+          <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #1e1e1e;">
+            <!-- Tab Bar -->
+            <div style="height: 36px; background: #2d2d2d; display: flex; align-items: center;">
+              <div style="background: #1e1e1e; color: #ffffff; padding: 0 16px; height: 100%; display: flex; align-items: center; gap: 8px; border-top: 2px solid #007acc; font-size: 13px; font-weight: 500;">
+                <span>🐍 {filename_display}</span>
+                <span style="opacity: 0.5; font-size: 11px;">✕</span>
+              </div>
+              <div style="color: #858585; padding: 0 16px; height: 100%; display: flex; align-items: center; gap: 8px; font-size: 13px;">
+                <span>📄 config.json</span>
+              </div>
+            </div>
+            
+            <!-- Code content with Line Numbers -->
+            <div style="display: flex; flex: 1; overflow-y: auto;">
+              <div style="width: 44px; padding: 20px 8px 20px 0; text-align: right; color: #858585; font-family: 'Fira Code', monospace; font-size: 18px; line-height: 1.7; select-none: none; background: #1e1e1e; border-right: 1px solid rgba(255,255,255,0.05);">
+                {line_numbers_html}
+              </div>
+              <pre class="code-content" style="padding: 20px 24px; margin: 0; background: #1e1e1e; flex: 1; font-size: 18px; line-height: 1.7;"><code id="code-content-{scene_n}">{code_html}</code></pre>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div style="height: 24px; background: #007acc; color: #ffffff; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 12px; font-family: system-ui, sans-serif;">
+          <div style="display: flex; gap: 16px;">
+            <span>🟢 main*</span>
+            <span>⚡ Python 3.11</span>
+          </div>
+          <div style="display: flex; gap: 16px;">
+            <span>Ln 1, Col 1</span>
+            <span>UTF-8</span>
+          </div>
+        </div>
       </div>
     </div>"""
 
+        t1 = 1.5
+        t2 = round(1.5 + (dur - 3.0) * 0.35, 2)
+        t3 = round(dur * 0.75, 2)
         gsap_js = f"""
       // Ẩn ban đầu
       tl.set("#text-card-{scene_n}", {{ autoAlpha: 0, x: -50 }}, 0);
       tl.set("#code-block-{scene_n}", {{ autoAlpha: 0, x: 50 }}, 0);
 
-      // Intro title (0.2s -> 3.2s)
-      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }}, 0.2);
-      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }}, 3.2);
+      // Intro title (0.2s -> 1.8s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.6, ease: "power3.inOut" }}, 1.8);
 
-      // Reveal text and code
-      tl.to("#text-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 4.2);
-      tl.to("#code-block-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, 5.5);"""
+      // Reveal text and code (dynamic timing based on dur={dur:.2f}s)
+      tl.to("#text-card-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, {t1});
+      tl.to("#code-block-{scene_n}", {{ autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }}, {t2});
+      tl.to("#code-block-{scene_n}", {{ borderColor: "#38bdf8", boxShadow: "0 0 40px rgba(56,189,248,0.4)", duration: 0.5, yoyo: true, repeat: 1 }}, {t3});"""
 
     return f"""<!DOCTYPE html>
 <html lang="vi">
@@ -586,7 +770,7 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
   <!-- ═══ {scene_id}: {scene_title_raw} ═══ -->
   <!--  Visual: {visual_desc}  -->
   <!--  HTML Structure: {html_desc}  -->
-  <div id="scene-{scene_n}" class="clip" data-start="0" data-duration="{dur}" data-track-index="0">
+  <div id="scene-{scene_n}" class="clip" data-composition-id="scene-{scene_n}" data-start="0" data-duration="{dur}" data-track-index="0">
 
     <!-- Section badge -->
     <div class="section-badge clip" data-start="0" data-duration="{dur}" data-track-index="1">
@@ -631,6 +815,25 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
 </body>
 </html>
 """
+
+
+# ── UI Component Renderer Integration ─────────────────────────────────────────
+# The old _build_scene_html with ~650 lines of inline HTML has been replaced.
+# All layout logic is now inside UIComponentRenderer + component templates.
+
+def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
+    """
+    Render a scene HTML file by delegating to UIComponentRenderer.
+    Reads the layout_type from the scene blueprint and renders the
+    matching component template (ide/vscode.html, ide/terminal.html,
+    cards/comparison.html, cards/warning_card.html, cards/process_flow.html).
+    """
+    from agents.ui_component_renderer import UIComponentRenderer
+    renderer = UIComponentRenderer()
+    return renderer.render(scene, lesson_title)
+
+
+
 
 
 def _build_meta_json(lesson_slug: str, lesson_title: str) -> str:
@@ -705,6 +908,17 @@ def hyperframes_writer_agent(state: AgentState) -> AgentState:
     except Exception as e:
         print(f"  [HyperFrames_Writer Warning] Could not resolve lesson_dir: {e}. Using fallback.")
         lesson_dir = Path(__file__).resolve().parent.parent / "output" / "lessons" / lesson_slug
+
+    video_base_dir = _to_long_path(lesson_dir / "Video")
+    if video_base_dir.exists():
+        import shutil
+        for child in video_base_dir.iterdir():
+            if child.is_dir() and child.name != lesson_slug:
+                print(f"  [HyperFrames_Writer Clean] Removing redundant video directory: {child.name}")
+                try:
+                    shutil.rmtree(child, ignore_errors=True)
+                except Exception as ce:
+                    print(f"  [HyperFrames_Writer Clean Error] Could not remove {child.name}: {ce}")
 
     video_dir = _to_long_path(lesson_dir / "Video" / lesson_slug)
     compositions_dir = _to_long_path(video_dir / "src" / "compositions")

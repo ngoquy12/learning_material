@@ -94,6 +94,17 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
                 body_content = body_content.replace(f'for="{element_id}"', f'for="lesson{idx}-{element_id}"')
                 body_content = body_content.replace(f"for='{element_id}'", f"for='lesson{idx}-{element_id}'")
                 
+            # Ensure all <button> elements explicitly specify type="button" to prevent form submission page reloads
+            def _ensure_button_types(html_str: str) -> str:
+                def fix_btn(match):
+                    tag = match.group(0)
+                    if 'type=' not in tag.lower():
+                        return tag.replace('<button', '<button type="button"', 1)
+                    return tag
+                return re.sub(r'<button\b[^>]*>', fix_btn, html_str, flags=re.IGNORECASE)
+                
+            body_content = _ensure_button_types(body_content)
+
             # Prefix JS template literal IDs used in visualizers
             body_content = body_content.replace('getElementById(`line-${', f'getElementById(`lesson{idx}-line-${{')
             body_content = body_content.replace('id="line-', f'id="lesson{idx}-line-')
@@ -103,6 +114,16 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             body_content = body_content.replace('applyTheme', f'applyTheme{idx}')
             body_content = body_content.replace('setThemeMode', f'setThemeMode{idx}')
             body_content = body_content.replace('function copyCode', f'function copyCode{idx}')
+            
+            # Isolate common standalone global JS functions per lesson
+            common_js_fn_names = [
+                'stepNext', 'stepPrev', 'runStep', 'resetVisualizer', 'startSim',
+                'pauseSim', 'resetSim', 'stepForward', 'stepBackward', 'runCode'
+            ]
+            for fn_name in common_js_fn_names:
+                body_content = body_content.replace(f'function {fn_name}(', f'function lesson{idx}_{fn_name}(')
+                body_content = body_content.replace(f'onclick="{fn_name}(', f'onclick="lesson{idx}_{fn_name}(')
+                body_content = body_content.replace(f"onclick='{fn_name}(", f"onclick='lesson{idx}_{fn_name}(")
             
             # Button Templates
             btn_mobile = f"""

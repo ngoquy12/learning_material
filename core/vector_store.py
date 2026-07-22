@@ -32,34 +32,21 @@ class LightweightVectorStore:
             print(f"  [VectorStore Warning] Failed to save store: {e}")
 
     def _get_embedding(self, text: str) -> List[float]:
-        """Call Gemini or OpenAI to get vector embedding."""
+        """Call Gemini or OpenAI to get vector embedding, or return empty list for local TF-IDF search."""
         gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
 
-        if gemini_key:
+        # Skip remote embedding if using local proxy or invalid key to avoid noisy API key errors
+        base_url = os.getenv("GEMINI_BASE_URL", "")
+        if "127.0.0.1" in base_url or "localhost" in base_url:
+            return []
+
+        if gemini_key and gemini_key.strip() != "dummy":
             try:
                 import google.generativeai as genai  # type: ignore
-                base_url = os.getenv("GEMINI_BASE_URL")
-                if base_url:
-                    try:
-                        genai.configure(
-                            api_key=gemini_key,
-                            client_options={"api_endpoint": base_url},
-                            transport="rest"
-                        )
-                        result = genai.embed_content(
-                            model="models/embedding-001",
-                            content=text,
-                            task_type="retrieval_document"
-                        )
-                        return result.get("embedding", [])
-                    except Exception as proxy_err:
-                        print(f"  [VectorStore Warning] Proxy embedding failed: {proxy_err}. Retrying directly with Google API...")
-                
-                # Direct call to Google Generative AI API (bypass proxy)
                 genai.configure(
                     api_key=gemini_key,
-                    client_options={"api_endpoint": "https://generativelanguage.googleapis.com"},
+                    client_options={"api_endpoint": base_url} if base_url else None,
                     transport="rest"
                 )
                 result = genai.embed_content(
@@ -68,8 +55,10 @@ class LightweightVectorStore:
                     task_type="retrieval_document"
                 )
                 return result.get("embedding", [])
-            except Exception as e:
-                print(f"  [VectorStore LLM Warning] Gemini embedding failed: {e}")
+            except Exception:
+                return []
+
+        return []
 
         if openai_key:
             try:
@@ -118,36 +107,90 @@ class LightweightVectorStore:
             return 0.0
         return dot_product / (norm1 * norm2)
 
-    def _keyword_similarity(self, query: str, document: str) -> float:
-        """Fallback TF-IDF/Overlap scorer."""
-        query_words = set(query.lower().split())
-        doc_words = document.lower().split()
-        if not query_words or not doc_words:
+    def _bm25_score(self, query_terms: List[str], doc_text: str, avgdl: float, total_docs: int, term_doc_counts: Dict[str, int], k1: float = 1.5, b: float = 0.75) -> float:
+        """BM25 sparse keyword ranking score."""
+        doc_words = doc_text.lower().split()
+        doc_len = len(doc_words)
+        if doc_len == 0 or avgdl == 0:
             return 0.0
-            
-        # Term Frequency in document
-        matches = sum(1 for w in doc_words if w in query_words)
-        return matches / len(doc_words)
 
-    def query(self, query_text: str, k: int = 3) -> List[Dict[str, Any]]:
-        """Queries the vector store and returns top K matches."""
+        # Term frequencies in document
+        tf_map = {}
+        for w in doc_words:
+            tf_map[w] = tf_map.get(w, 0) + 1
+
+        score = 0.0
+        for term in query_terms:
+            if term not in tf_map:
+                continue
+            f = tf_map[term]
+            n_q = term_doc_counts.get(term, 0)
+            idf = math.log((total_docs - n_q + 0.5) / (n_q + 0.5) + 1.0)
+            numerator = f * (k1 + 1.0)
+            denominator = f + k1 * (1.0 - b + b * (doc_len / avgdl))
+            score += idf * (numerator / denominator)
+
+        return score
+
+    def hybrid_query(self, query_text: str, k: int = 3, alpha: float = 0.5) -> List[Dict[str, Any]]:
+        """
+        Hybrid Search combining Dense Vector Cosine Similarity + Sparse BM25 Keyword Search.
+        alpha (0.0 to 1.0): Weight of Dense Vector score vs Sparse BM25 score.
+        """
         if not self.documents:
             return []
 
+        query_terms = [t for t in query_text.lower().split() if len(t) > 1]
+        total_docs = len(self.documents)
+        
+        # Calculate collection stats for BM25
+        doc_lengths = [len(doc.get("text", "").lower().split()) for doc in self.documents]
+        avgdl = sum(doc_lengths) / max(1, total_docs)
+
+        term_doc_counts: Dict[str, int] = {}
+        for term in set(query_terms):
+            cnt = sum(1 for doc in self.documents if term in doc.get("text", "").lower())
+            term_doc_counts[term] = cnt
+
+        # Get dense query vector
         query_vector = self._get_embedding(query_text)
-        results = []
 
-        if query_vector:
-            # Vector cosine similarity matching
-            for doc in self.documents:
-                sim = self._cosine_similarity(query_vector, doc.get("vector", []))
-                results.append((sim, doc))
-        else:
-            # Fallback keyword overlap matching
-            for doc in self.documents:
-                sim = self._keyword_similarity(query_text, doc.get("text", ""))
-                results.append((sim, doc))
+        raw_scores = []
+        for doc in self.documents:
+            doc_text = doc.get("text", "")
+            
+            # 1. Dense score
+            dense_score = 0.0
+            if query_vector and doc.get("vector"):
+                dense_score = max(0.0, self._cosine_similarity(query_vector, doc.get("vector", [])))
 
-        # Sort descending by similarity
-        results.sort(key=lambda x: x[0], reverse=True)
-        return [res[1] for res in results[:k]]
+            # 2. Sparse BM25 score
+            bm25_score = self._bm25_score(query_terms, doc_text, avgdl, total_docs, term_doc_counts)
+            
+            raw_scores.append({
+                "doc": doc,
+                "dense": dense_score,
+                "bm25": bm25_score
+            })
+
+        # Normalize BM25 scores to [0, 1] range
+        max_bm25 = max((item["bm25"] for item in raw_scores), default=1.0)
+        if max_bm25 == 0.0:
+            max_bm25 = 1.0
+
+        scored_docs = []
+        for item in raw_scores:
+            norm_bm25 = item["bm25"] / max_bm25
+            norm_dense = item["dense"]  # Cosine is already in [0, 1]
+            
+            # Combine scores
+            hybrid_score = (alpha * norm_dense) + ((1.0 - alpha) * norm_bm25)
+            scored_docs.append((hybrid_score, item["doc"]))
+
+        scored_docs.sort(key=lambda x: x[0], reverse=True)
+        return [doc for score, doc in scored_docs[:k]]
+
+    def query(self, query_text: str, k: int = 3) -> List[Dict[str, Any]]:
+        """Queries the vector store using Hybrid Search (Dense + BM25)."""
+        return self.hybrid_query(query_text=query_text, k=k, alpha=0.5)
+

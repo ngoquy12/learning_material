@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 from typing_extensions import TypedDict, NotRequired
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total=False):
     session_id: str                     # Mã Session hiện tại (ví dụ: Session 01)
     lesson_id: str                      # Mã Lesson hiện tại (nếu có)
     pm_input: str                       # Văn bản PM thô đầu vào hoặc mô tả môn học

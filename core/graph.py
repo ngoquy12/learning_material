@@ -311,6 +311,249 @@ def pipeline_mindmap_production(state: AgentState) -> AgentState:
     return state
 
 @component
+def pipeline_video_tts_and_render(state: AgentState) -> AgentState:
+    """
+    Cổng 3-7: TTS Audio Generation + HyperFrames Composition + Lint + Render + QA
+    Tự động sản xuất video MP4 hoàn chỉnh từ blueprint đã được duyệt.
+    """
+    import subprocess
+    import shutil
+    from pathlib import Path
+
+    if "requested_parts" in state and "video" not in state["requested_parts"]:
+        state.setdefault("artifacts_status", {})["video_render"] = "Skipped"
+        return state
+
+    blueprint = state.get("video_script_json", {})
+    if not blueprint or "scenes" not in blueprint:
+        print("\n[Video_TTS_Render] SKIPPED — No approved blueprint in state.")
+        state.setdefault("artifacts_status", {})["video_render"] = "Skipped"
+        return state
+
+    scenes = blueprint.get("scenes", [])
+    lesson_slug = blueprint.get("lesson_slug", "lesson-video")
+    lesson_title = blueprint.get("lesson_title", "Bài học")
+
+    print(f"\n{'='*70}")
+    print(f"🎬 VIDEO PRODUCTION PIPELINE: {lesson_title} ({len(scenes)} scenes)")
+    print(f"{'='*70}")
+
+    # ── Resolve output directory ──
+    from agents.creator_agents import get_lesson_dir
+    try:
+        lesson_dir = get_lesson_dir(state)
+    except Exception:
+        lesson_dir = Path("output") / "lessons" / lesson_slug
+
+    video_dir = lesson_dir / "Video" / lesson_slug
+    compositions_dir = video_dir / "src" / "compositions"
+    assets_dir = video_dir / "assets"
+    assets_tts_dir = assets_dir / "tts"
+
+    # Clean and recreate
+    if video_dir.exists():
+        shutil.rmtree(video_dir, ignore_errors=True)
+    compositions_dir.mkdir(parents=True, exist_ok=True)
+    assets_tts_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy template media assets (intro.mp4, outro.mp4, bg-music.mp3) into assets_dir
+    project_root = Path(__file__).resolve().parent.parent
+    asset_search_paths = [
+        project_root / "hyperframes" / "dev-tutorial-video" / "courses" / "fundamental_python" / "assets",
+        project_root / "assets"
+    ]
+    for p in asset_search_paths:
+        if p.exists():
+            for asset_name in ["intro.mp4", "outro.mp4", "bg-music.mp3"]:
+                src_file = p / asset_name
+                dest_file = assets_dir / asset_name
+                if src_file.exists() and not dest_file.exists():
+                    try:
+                        shutil.copy2(src_file, dest_file)
+                        print(f"  ✓ Copied media asset: {asset_name}")
+                    except Exception as e:
+                        print(f"  ⚠️ Failed to copy asset {asset_name}: {e}")
+
+    # ── GATE 3: TTS Audio Generation with Async Parallel Batching ──
+    print("\n[Gate 3/7] Sinh giọng đọc TTS Audio song song (Async Batching)...")
+    from core.tts_normalizer import normalize_tts_text
+    import json
+    import asyncio
+
+    try:
+        import edge_tts
+        use_edge = True
+    except ImportError:
+        use_edge = False
+        print("  ⚠️ edge_tts not available, using silent fallback")
+
+    # Helper async task cho từng scene
+    async def _async_gen_scene_tts(scene_item, voice="vi-VN-NamMinhNeural"):
+        sc_id = scene_item["scene_id"]
+        raw_text = scene_item.get("narration", "")
+        norm_text = normalize_tts_text(raw_text)
+        mp3 = assets_tts_dir / f"{sc_id}.mp3"
+        if use_edge and norm_text:
+            try:
+                communicate = edge_tts.Communicate(norm_text, voice)
+                await communicate.save(str(mp3))
+                return sc_id, mp3, True
+            except Exception as e:
+                print(f"  ⚠️ TTS failed for {sc_id}: {e}, creating silent")
+                _create_silent_mp3(mp3, max(8.0, len(raw_text.split()) / 2.5))
+                return sc_id, mp3, False
+        else:
+            _create_silent_mp3(mp3, max(8.0, len(raw_text.split()) / 2.5))
+            return sc_id, mp3, False
+
+    async def _async_batch_tts_all():
+        tasks = [_async_gen_scene_tts(s) for s in scenes]
+        return await asyncio.gather(*tasks, return_exceptions=True)
+
+    try:
+        asyncio.run(_async_batch_tts_all())
+    except Exception as batch_err:
+        print(f"  ⚠️ Batch TTS fallback: {batch_err}")
+        for scene in scenes:
+            scene_id = scene["scene_id"]
+            raw_narration = scene.get("narration", "")
+            mp3_path = assets_tts_dir / f"{scene_id}.mp3"
+            if not mp3_path.exists():
+                _create_silent_mp3(mp3_path, max(8.0, len(raw_narration.split()) / 2.5))
+
+    durations = {}
+    cumulative_root = 9.24  # After intro
+
+    for scene in scenes:
+        scene_id = scene["scene_id"]
+        mp3_path = assets_tts_dir / f"{scene_id}.mp3"
+        dur = _probe_audio_duration(mp3_path)
+        scene["duration"] = round(dur, 2)
+        scene["start_at_root"] = round(cumulative_root, 2)
+        durations[scene_id] = round(dur, 2)
+        cumulative_root += round(dur, 2)
+
+    # Write durations.json with actual TTS timings
+    with open(assets_tts_dir / "durations.json", "w", encoding="utf-8") as f:
+        json.dump(durations, f, indent=2, ensure_ascii=False)
+
+    # Update blueprint total_duration
+    blueprint["total_duration"] = round(cumulative_root + 12.15, 2)
+    state["video_script_json"] = blueprint
+
+    # Write TTS narration scripts as reference
+    for scene in scenes:
+        scene_id = scene["scene_id"]
+        script_path = assets_tts_dir / f"{scene_id}_script.txt"
+        script_path.write_text(scene.get("narration", ""), encoding="utf-8")
+
+    print(f"  ✓ TTS hoàn tất song song: {len(durations)} audio files, tổng {sum(durations.values()):.1f}s")
+
+    # ── GATE 4: HyperFrames Composition Writing ──
+    print("\n[Gate 4/7] Dựng HyperFrames Project (Master Timeline + Sub-compositions)...")
+    from agents.hyperframes_writer_agent import (
+        _build_root_index_html, _build_scene_html,
+        _build_meta_json, _build_package_json
+    )
+
+    # Root index.html
+    root_html = _build_root_index_html(blueprint, lesson_slug)
+    (video_dir / "index.html").write_text(root_html, encoding="utf-8")
+
+    # Sub-compositions
+    for scene in scenes:
+        scene_html = _build_scene_html(scene, lesson_title)
+        (compositions_dir / f"{scene['scene_id']}.html").write_text(scene_html, encoding="utf-8")
+
+    # meta.json & package.json
+    (video_dir / "meta.json").write_text(_build_meta_json(lesson_slug, lesson_title), encoding="utf-8")
+    (video_dir / "package.json").write_text(_build_package_json(lesson_slug), encoding="utf-8")
+    print(f"  ✓ HyperFrames Project scaffolded: {len(scenes)} scenes")
+
+    # ── GATE 5: Lint Validation ──
+    print("\n[Gate 5/7] Kiểm tra Validation (hyperframes lint)...")
+    lint_res = subprocess.run(
+        "npx --yes hyperframes@0.6.63 lint",
+        shell=True, cwd=str(video_dir),
+        capture_output=True, text=True, timeout=60
+    )
+    if lint_res.returncode == 0:
+        print("  ✓ Lint PASSED")
+    else:
+        print(f"  ⚠️ Lint warnings (non-blocking): {lint_res.stdout[:200]}")
+
+    # ── GATE 6: Controlled Heavy Render Execution ──
+    import os
+    enable_heavy_render = (
+        os.getenv("ENABLE_HEAVY_VIDEO_RENDER", "false").lower() in ("true", "1", "yes")
+        or state.get("render_video_mp4", False)
+        or ("requested_parts" in state and "video_render" in state.get("requested_parts", []))
+    )
+
+    if not enable_heavy_render:
+        print("\n[Gate 6/7] Bỏ qua Render MP4 nặng (Dự án HyperFrames HTML/TTS đã sẵn sàng cho Render khi cần).")
+        print(f"  ✓ HyperFrames Scaffold hoàn tất tại: {video_dir}")
+        state.setdefault("artifacts_status", {})["video_render"] = "SCAFFOLDED_READY"
+        state["hyperframes_project_path"] = str(video_dir.resolve())
+        save_state_checkpoint(state)
+        return state
+
+    print("\n[Gate 6/7] Render Video bằng HyperFrames Chromium Engine...")
+    try:
+        render_res = subprocess.run(
+            "npx --yes hyperframes@0.6.63 render -o out.mp4",
+            shell=True, cwd=str(video_dir),
+            capture_output=True, text=True, timeout=600
+        )
+        out_mp4 = video_dir / "out.mp4"
+        final_mp4 = video_dir / "final_render.mp4"
+
+        if out_mp4.exists() and out_mp4.stat().st_size > 100000:
+            shutil.copy(out_mp4, final_mp4)
+            print(f"  ✓ Render SUCCESS: {final_mp4} ({final_mp4.stat().st_size / 1024 / 1024:.2f} MB)")
+
+            # ── GATE 7: Post-render QA ──
+            print("\n[Gate 7/7] Kiểm tra QA cuối cùng...")
+            if final_mp4.stat().st_size > 500000:
+                print("  ✓ QA PASSED — Video đạt chuẩn chất lượng")
+                state.setdefault("artifacts_status", {})["video_render"] = "RENDERED"
+            else:
+                print("  ⚠️ QA WARNING — Video quá nhỏ, có thể thiếu nội dung")
+                state.setdefault("artifacts_status", {})["video_render"] = "RENDERED_WITH_WARNINGS"
+        else:
+            print(f"  ❌ Render FAILED — output file missing or too small")
+            state.setdefault("artifacts_status", {})["video_render"] = "RENDER_FAILED"
+    except subprocess.TimeoutExpired:
+        print("  ❌ Render TIMEOUT — exceeded 10 minutes")
+        state.setdefault("artifacts_status", {})["video_render"] = "RENDER_TIMEOUT"
+    except Exception as e:
+        print(f"  ❌ Render ERROR: {e}")
+        state.setdefault("artifacts_status", {})["video_render"] = "RENDER_ERROR"
+
+    state["hyperframes_project_path"] = str(video_dir.resolve())
+    save_state_checkpoint(state)
+    return state
+
+
+def _create_silent_mp3(path, dur: float):
+    """Create a silent MP3 file of specified duration."""
+    import subprocess
+    cmd = f'ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=mono -t {dur} -q:a 2 "{path}"'
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def _probe_audio_duration(path) -> float:
+    """Get audio duration using ffprobe."""
+    import subprocess
+    try:
+        cmd = f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{path}"'
+        probe = subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
+        return float(probe) + 0.5
+    except Exception:
+        return 8.0
+
+
+@component
 def session_compiler_node(state: AgentState) -> AgentState:
     """Node 7: Tiến hành thu gom dữ liệu, tự động tạo cấu trúc cây thư mục vật lý bằng thư viện os, ghi file bài đọc HTML, ghi file Slide Markdown và dùng subprocess.run để gọi lệnh Marp CLI biên dịch slide ra HTML, xuất tệp câu hỏi JSON sạch ra ổ đĩa tại thư mục dist/"""
     state = session_compiler_agent(state)
@@ -411,15 +654,80 @@ def compile_learning_content_workflow():
         )
         return state
 
+    @component
+    def node_html_first_production(state: AgentState) -> AgentState:
+        """
+        Giai đoạn Reading-First:
+        Tạo và duyệt Bài đọc HTML (`reading.html`) ĐẦU TIÊN làm cơ sở chuẩn ngữ cảnh cho tất cả tài nguyên dẫn xuất.
+        """
+        print("\n[Reading-First Pipeline] 📖 Đang khởi tạo sản xuất Bài đọc HTML chính làm Nguồn Sự Thật...")
+        return pipeline_html_production(state)
+
+    @component
+    def node_parallel_derived_production(state: AgentState) -> AgentState:
+        """
+        Giai đoạn Parallel Derived Production:
+        Cho phép 4 Creator Pipelines dẫn xuất (Slide, Quiz, Video Script, Mindmap)
+        chạy song song sau khi Bài đọc HTML đã được phê duyệt làm SSOT.
+        """
+        import copy
+        import time
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 4 tài nguyên dẫn xuất từ Bài đọc HTML...")
+        start_t = time.time()
+        
+        # 4 Creator Pipelines dẫn xuất bám sát Bài đọc HTML
+        pipelines = [
+            ("Slide", pipeline_slide_production),
+            ("Quiz", pipeline_quiz_production),
+            ("VideoScript", pipeline_video_script_production),
+            ("Mindmap", pipeline_mindmap_production),
+        ]
+        
+        futures_map = {}
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            for name, fn in pipelines:
+                state_copy = copy.deepcopy(state)
+                future = executor.submit(fn, state_copy)
+                futures_map[future] = name
+                
+            for future in as_completed(futures_map):
+                name = futures_map[future]
+                try:
+                    sub_state = future.result()
+                    if sub_state.get("slide_markdown"):
+                        state["slide_markdown"] = sub_state["slide_markdown"]
+                    if sub_state.get("slide_html"):
+                        state["slide_html"] = sub_state["slide_html"]
+                    if sub_state.get("quiz_json"):
+                        state["quiz_json"] = sub_state["quiz_json"]
+                    if sub_state.get("video_script_markdown"):
+                        state["video_script_markdown"] = sub_state["video_script_markdown"]
+                    if sub_state.get("video_script_json"):
+                        state["video_script_json"] = sub_state["video_script_json"]
+                    if sub_state.get("mindmap_markdown"):
+                        state["mindmap_markdown"] = sub_state["mindmap_markdown"]
+                    
+                    if "artifacts_status" in sub_state:
+                        state.setdefault("artifacts_status", {}).update(sub_state["artifacts_status"])
+                    if sub_state.get("review_logs"):
+                        for log in sub_state["review_logs"]:
+                            if log not in state.setdefault("review_logs", []):
+                                state["review_logs"].append(log)
+                    print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
+                except Exception as e:
+                    print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
+                    
+        elapsed = time.time() - start_t
+        print(f"[Parallel Engine] ✅ Tất cả tài nguyên dẫn xuất đã hoàn tất song song trong {elapsed:.2f}s!\n")
+        save_state_checkpoint(state)
+        return state
+
     workflow.add_node("generate_master_content", node_generate_master_content)
-
-    # Khai báo các Node sáng tạo học liệu chạy tuần tự theo thứ tự ưu tiên & liên kết tri thức
-    workflow.add_node("html_production", pipeline_html_production)
-    workflow.add_node("slide_production", pipeline_slide_production)
-    workflow.add_node("quiz_production", pipeline_quiz_production)
-    workflow.add_node("video_script_production", pipeline_video_script_production)
-    workflow.add_node("mindmap_production", pipeline_mindmap_production)
-
+    workflow.add_node("html_first_production", node_html_first_production)
+    workflow.add_node("parallel_derived_production", node_parallel_derived_production)
+    workflow.add_node("video_tts_and_render", pipeline_video_tts_and_render)
     workflow.add_node("final_compiler_and_publish", session_compiler_node)
     workflow.add_node("lessons_learned_refiner", lessons_learned_refiner)
 
@@ -431,14 +739,11 @@ def compile_learning_content_workflow():
     workflow.add_edge("allocate_schedule", "lock_ssot")
     workflow.add_edge("lock_ssot", "generate_master_content")
     
-    # Chuỗi liên kết tuần tự ưu tiên
-    workflow.add_edge("generate_master_content", "html_production")
-    workflow.add_edge("html_production", "slide_production")
-    workflow.add_edge("slide_production", "quiz_production")
-    workflow.add_edge("quiz_production", "video_script_production")
-    workflow.add_edge("video_script_production", "mindmap_production")
-    workflow.add_edge("mindmap_production", "final_compiler_and_publish")
-    
+    # BẮT BUỘC: Bài đọc HTML sản xuất & kiểm duyệt ĐẦU TIÊN -> sau đó 4 tài nguyên dẫn xuất chạy song song
+    workflow.add_edge("generate_master_content", "html_first_production")
+    workflow.add_edge("html_first_production", "parallel_derived_production")
+    workflow.add_edge("parallel_derived_production", "video_tts_and_render")
+    workflow.add_edge("video_tts_and_render", "final_compiler_and_publish")
     workflow.add_edge("final_compiler_and_publish", "lessons_learned_refiner")
 
     return workflow.compile()

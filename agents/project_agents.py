@@ -222,6 +222,7 @@ Session: {session_id} - {session_title}
 Môn học công nghệ: {tech_stack}
 
 CÁC QUY TẮC BẮT BUỘC:
+0. TUYỆT ĐỐI CẤM SỬ DỤNG EMOJI: Tuyệt đối KHÔNG sử dụng bất kỳ biểu tượng cảm xúc/emoji (như 🚀, 💡, ⚠️, ✅, ❌,...) trong toàn bộ đề bài, tài liệu SRS, hay mã nguồn mẫu. Thay bằng nhãn văn bản [NOTE], [TIP], [WARNING], [YÊU CẦU].
 1. Tinh gọn cực độ: Đề bài Mini Project đóng vai trò như các thẻ nhiệm vụ tóm tắt. TUYỆT ĐỐI CẤM định nghĩa chi tiết Pydantic Schema, bảng mã lỗi, hay ví dụ JSON response dài dòng tại đây. Hãy lược bỏ các phần này để sinh viên có trải nghiệm tinh gọn, không bị quá tải thông tin.
 2. Dẫn link liên kết đến SRS: Bắt buộc ghi rõ chú thích dẫn link đến file đặc tả SRS để sinh viên tự tra cứu cấu trúc kỹ thuật:
    *Ví dụ chú thích: "Học viên bắt buộc phải tự nghiên cứu và tuân thủ các quy định đặc tả chi tiết về cấu trúc dữ liệu, Pydantic validation, danh mục mã lỗi nghiệp vụ tại [Tài liệu đặc tả SRS](../Tài liệu đặc tả SRS/tai_lieu_dac_ta_yeu_cau_srs.md)."*

@@ -334,7 +334,7 @@ Bạn BẮT BUỘC phải trả về kết quả dưới dạng JSON có cấu t
 """
 
     import asyncio
-    from app.ai_engine.core.llm import call_llm
+    from core.llm import call_llm
     
     try:
         # Gọi Gemini/LLM từ hệ thống lõi trong background thread để không block event loop
@@ -622,7 +622,7 @@ async def auto_fix_pm(course_id: int, request_data: PMAutoFixRequest, db: AsyncS
     pm_json_str = json.dumps(nested_curriculum, ensure_ascii=False)
     
     # Run the PM Updater Agent to automatically apply fixes based on the review report
-    from app.ai_engine.agents.reviewer_agents import pm_updater_agent
+    from agents.reviewer_agents import pm_updater_agent
     import asyncio
     
     try:

@@ -16,6 +16,7 @@ Triết lý thiết kế:
 """
 
 import json
+import re
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -205,38 +206,44 @@ def _extract_concept_registry(
     """
     Dùng LLM để trích xuất toàn bộ khái niệm từ chương trình học
     và xác định chúng được giới thiệu lần đầu ở đâu.
+    Hỗ trợ chia Batch tự động cho khóa học dài để không bị mất mát thông tin.
     """
     try:
         from core.llm import call_llm
 
-        # Tóm tắt curriculum để gửi cho LLM
-        curriculum_summary = []
-        for s in sessions:
-            s_entry = {
-                "session_id": s.get("session_id"),
-                "title": s.get("title"),
-                "lessons": [
-                    {
-                        "lesson_id": l.get("lesson_id"),
-                        "title": l.get("title"),
-                        "details": l.get("details", "")[:100],  # Giới hạn để tránh quá dài
-                    }
-                    for l in s.get("lessons", [])[:8]  # Tối đa 8 lesson đầu mỗi session
-                ]
-            }
-            curriculum_summary.append(s_entry)
+        registry: Dict[str, ConceptNode] = {}
+        batch_size = 10  # Xử lý theo batch 10 Session để đảm bảo bao phủ 100% môn học dài
 
-        system_prompt = (
-            "Bạn là Chuyên gia Thiết kế Chương trình học. "
-            "Phân tích chương trình và trích xuất các khái niệm kỹ thuật cốt lõi, "
-            "xác định bài học nào giới thiệu chúng lần đầu tiên."
-        )
+        for i in range(0, len(sessions), batch_size):
+            session_batch = sessions[i:i + batch_size]
+            
+            curriculum_summary = []
+            for s in session_batch:
+                s_entry = {
+                    "session_id": s.get("session_id"),
+                    "title": s.get("title"),
+                    "lessons": [
+                        {
+                            "lesson_id": l.get("lesson_id"),
+                            "title": l.get("title"),
+                            "details": l.get("details", "")[:200],  # Lấy đầy đủ chi tiết hơn
+                        }
+                        for l in s.get("lessons", [])  # BAO PHỦ 100% LESSONS, KHÔNG CẮT GIẢM
+                    ]
+                }
+                curriculum_summary.append(s_entry)
 
-        user_prompt = f"""Phân tích chương trình học {tech_stack} sau:
+            system_prompt = (
+                "Bạn là Chuyên gia Thiết kế Chương trình học. "
+                "Phân tích phân đoạn chương trình và trích xuất TẤT CẢ các khái niệm kỹ thuật cốt lõi, "
+                "xác định bài học nào giới thiệu chúng lần đầu tiên."
+            )
 
-{json.dumps(curriculum_summary[:10], ensure_ascii=False, indent=2)}
+            user_prompt = f"""Phân tích phân đoạn chương trình học {tech_stack} (Session {i+1} đến {i+len(session_batch)}) sau:
 
-Trích xuất TỐI ĐA 30 khái niệm kỹ thuật cốt lõi. Trả về JSON object:
+{json.dumps(curriculum_summary, ensure_ascii=False, indent=2)}
+
+Trích xuất các khái niệm kỹ thuật cốt lõi được dạy trong phân đoạn này. Trả về JSON object:
 {{
   "concept_id_snake_case": {{
     "concept_id": "concept_id_snake_case",
@@ -249,28 +256,29 @@ Trích xuất TỐI ĐA 30 khái niệm kỹ thuật cốt lõi. Trả về JSON
   }}
 }}
 
-Chỉ trả về JSON thuần túy.
+Chỉ trả về JSON thuần túy, không kèm văn bản nào khác.
 """
 
-        response = call_llm(
-            system_prompt, user_prompt,
-            json_mode=True,
-            agent_name="PrerequisiteGuard_ConceptExtractor",
-        )
+            response = call_llm(
+                system_prompt, user_prompt,
+                json_mode=True,
+                agent_name="PrerequisiteGuard_ConceptExtractor",
+            )
 
-        if response:
-            cleaned = response.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
-            raw = json.loads(cleaned)
-            # Convert dict thành ConceptNode objects
-            registry = {}
-            for cid, data in raw.items():
+            if response:
+                cleaned = response.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
                 try:
-                    registry[cid] = ConceptNode(**{
-                        k: v for k, v in data.items()
-                        if k in ConceptNode.__dataclass_fields__
-                    })
-                except Exception:
-                    pass
+                    raw = json.loads(cleaned)
+                    for cid, data in raw.items():
+                        if isinstance(data, dict) and cid not in registry:
+                            registry[cid] = ConceptNode(**{
+                                k: v for k, v in data.items()
+                                if k in ConceptNode.__dataclass_fields__
+                            })
+                except Exception as parse_err:
+                    print(f"  [PrerequisiteGuard Warning] Parse batch {i//batch_size + 1} JSON failed: {parse_err}")
+
+        if registry:
             return registry
 
     except Exception as e:
@@ -281,12 +289,17 @@ Chỉ trả về JSON thuần túy.
 
 
 def _concept_appears_in_content(concept: ConceptNode, content: str) -> bool:
-    """Kiểm tra đơn giản xem concept có xuất hiện trong nội dung lesson không."""
+    """Kiểm tra xem concept có xuất hiện trong nội dung lesson không với regex ranh giới từ an toàn."""
     content_lower = content.lower()
-    return (
-        concept.concept_name.lower() in content_lower
-        or concept.concept_id.lower().replace("_", " ") in content_lower
-    )
+    c_name = concept.concept_name.lower().strip()
+    c_id_space = concept.concept_id.lower().replace("_", " ").strip()
+
+    # Nếu tên concept ngắn (< 3 ký tự như OS, IP, C), bắt buộc khớp regex ranh giới từ để tránh false match
+    if len(c_name) < 3:
+        pattern = r"\b" + re.escape(c_name) + r"\b"
+        return bool(re.search(pattern, content_lower))
+
+    return c_name in content_lower or c_id_space in content_lower
 
 
 def _build_dependency_graph(

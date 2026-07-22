@@ -416,17 +416,23 @@ async def review_pm(file: UploadFile = File(...)):
         sessions = parse_all_sessions(str(file_path))
         full_curriculum_json = json.dumps(sessions, ensure_ascii=False)
         
-        # Guess tech stack from filename
-        tech_stack = "python/fastapi"
+        # Determine tech stack strictly without silent default fallback
         fn = file.filename.lower()
-        if "nestjs" in fn or "nest" in fn:
+        if "fastapi" in fn:
+            tech_stack = "python/fastapi"
+        elif "nestjs" in fn or "nest" in fn:
             tech_stack = "typescript/nestjs"
         elif "react" in fn:
             tech_stack = "typescript/react"
         elif "java" in fn or "springboot" in fn:
             tech_stack = "java/springboot"
-        elif "core" in fn or "basic" in fn:
+        elif "python" in fn or "core" in fn or "basic" in fn:
             tech_stack = "python/core"
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Không thể tự động xác định công nghệ (Tech Stack) cho file '{file.filename}'. Tắt cơ chế fallback mặc định để tránh rò rỉ công nghệ."
+            )
             
         report = pm_reviewer_agent(full_curriculum_json, tech_stack)
         

@@ -14,6 +14,7 @@ Khi tạo bất kỳ câu hỏi trắc nghiệm nào, Agent bắt buộc phải 
 4. **Nguyên tắc đồng nhất (Homogeneity):** Cả 4 phương án trả lời (A, B, C, D) phải tương đồng nhau về mặt độ dài, cấu trúc ngữ pháp và phạm vi kiến thức. Tránh việc đáp án đúng thì dài và chi tiết, còn các phương án nhiễu thì ngắn cụt ngủn khiến học viên đoán mò được câu trả lời.
 5. **Nguyên tắc sắc bén (No clues):** Loại bỏ mọi dấu hiệu mách nước. Không dùng các từ khóa trong câu hỏi trùng lặp trực tiếp với từ khóa trong đáp án đúng (Keyword matching).
 6. **Nguyên tắc khách quan & có ý nghĩa (Objectivity & Contextual Integrity):** Đặt các câu hỏi có ý nghĩa chuyên môn rõ ràng. Nghiêm cấm sử dụng các từ ngữ tham chiếu bối cảnh bài học/bài giảng hay nguồn trích xuất mơ hồ như: "theo video", "trong video này", "lời giảng viên", "slide bài giảng", "slide đề cập", "từ một nguồn nào đó không rõ", v.v. Câu hỏi phải được phát biểu một cách khách quan, chính thống như một đề thi chuẩn.
+7. **Nguyên tắc Ràng buộc Phạm vi Kiến thức Động (Dynamic Progressive Scope Boundary):** 100% câu hỏi BẮT BUỘC chỉ thuộc phạm vi kiến thức đã được dạy trong bài học hiện tại và các bài học trước đó. TUYỆT ĐỐI CẤM đưa các công nghệ, framework, khái niệm hay hàm nâng cao thuộc bài học tương lai vào câu hỏi hoặc các đáp án lựa chọn. CẤM lạc đề hoặc hỏi kiến thức ngoài chương trình.
 
 ---
 

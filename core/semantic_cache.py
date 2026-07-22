@@ -124,13 +124,23 @@ def cache_lookup(
         ).fetchone()
 
         if row:
-            conn.execute(
-                "UPDATE semantic_cache SET hit_count = hit_count + 1, last_used = ? WHERE id = ?",
-                (now, row["id"])
+            resp_text = row["response"]
+            import re
+            emoji_match = re.search(
+                r"[\U0001F600-\U0001F64F\U0001F300-\U0001F5FF\U0001F680-\U0001F6FF\U0001F1E0-\U0001F1FF\U0001F900-\U0001F9FF\U0001FA70-\U0001FAFF]",
+                resp_text, flags=re.UNICODE
             )
-            conn.commit()
-            print(f"  [SemanticCache] [EXACT HIT] for {agent_name}. Skipping LLM call.")
-            return row["response"]
+            if emoji_match:
+                conn.execute("DELETE FROM semantic_cache WHERE id = ?", (row["id"],))
+                conn.commit()
+            else:
+                conn.execute(
+                    "UPDATE semantic_cache SET hit_count = hit_count + 1, last_used = ? WHERE id = ?",
+                    (now, row["id"])
+                )
+                conn.commit()
+                print(f"  [SemanticCache] [EXACT HIT] for {agent_name}. Skipping LLM call.")
+                return resp_text
 
         # 2. Fuzzy similarity match
         if fuzzy:

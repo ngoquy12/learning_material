@@ -212,6 +212,11 @@ HƯỚNG DẪN CẤP ĐỘ KHÓ {level_name.upper()}:
 {level_guidelines}
 
 CÁC NGUYÊN TẮC BẮT BUỘC VỀ TRÌNH BÀY & NGÔN NGỮ (VI PHẠM SẼ BỊ PHẠT):
+0. QUY TẮC CẤM EMOJI: TUYỆT ĐỐI KHÔNG sử dụng bất kỳ biểu tượng cảm xúc/emoji (như 🚀, 💡, ⚠️, ✅, ❌,...) trong toàn bộ đề bài, tiêu đề hay mã nguồn. Thay bằng nhãn văn bản [NOTE], [TIP], [WARNING], [YÊU CẦU].
+0.1 QUY TẮC GIỚI HẠN KIẾN THỨC ĐỘNG BẮT BUỘC (DYNAMIC PROGRESSIVE SCOPE):
+- Bạn BẮT BUỘC CHỈ ĐƯỢC PHÉP sử dụng các kiến thức đã học trong Session hiện tại ({session_id} - {session_title}) và các bài học trước đó: {previous_lessons_text}.
+- TUYỆT ĐỐI CẤM đưa vào bất kỳ khái niệm, cú pháp, hàm, thư viện hay cấu trúc thuộc các bài học SAU ĐÓ trong chương trình đào tạo!
+- Nếu vi phạm đưa kiến thức nhảy cóc/nói trước bài sau -> Đề bài sẽ bị REJECT 100%.
 1. Cấu trúc đề bài bắt buộc phải chứa đúng 5 phần tiêu đề H3 bôi đậm sau (không được thừa, thiếu hay đổi tên):
    ### **1. Mục tiêu**
    ### **2. Vấn đề** (hoặc ### **2. Bối cảnh & Vấn đề**)

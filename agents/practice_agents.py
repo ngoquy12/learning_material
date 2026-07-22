@@ -59,6 +59,10 @@ Môn học công nghệ: {tech_stack}
 - Chủ đề nghiệp vụ: Phân hệ {domain.upper()} (Quản lý {domain})
 
 CÁC QUY TẮC BẮT BUỘC CHO BÀI TẬP:
+0. QUY TẮC CẤM EMOJI: TUYỆT ĐỐI KHÔNG sử dụng bất kỳ biểu tượng cảm xúc/emoji (như 🚀, 💡, ⚠️, ✅, ❌,...) trong toàn bộ đề bài, tiêu đề hay mã nguồn. Thay bằng các nhãn văn bản thuần túy [NOTE], [TIP], [WARNING], [YÊU CẦU].
+0.1 QUY TẮC GIỚI HẠN KIẾN THỨC ĐỘNG BẮT BUỘC (DYNAMIC PROGRESSIVE SCOPE):
+   - Bạn BẮT BUỘC CHỈ ĐƯỢC PHÉP sử dụng các kiến thức thuộc Session hiện tại ({session_id} - {session_title}) và các bài học trước đó.
+   - TUYỆT ĐỐI CẤM đưa vào bất kỳ khái niệm, cú pháp, hàm hay thư viện thuộc các bài học SAU ĐÓ trong chương trình đào tạo!
 1. Độ khó tương ứng với mức {level_name}:
    - Nếu là Dễ: Tập trung làm quen cú pháp, cấu hình ban đầu, xây dựng các cấu trúc/chức năng đơn giản nhất. CẤM TUYỆT ĐỐI các chức năng lọc, tìm kiếm, sắp xếp hay phân trang ở mức độ này.
    - Nếu là Trung bình: Xây dựng các chức năng cơ bản, tiếp nhận tham số đầu vào đơn giản. CẤM TUYỆT ĐỐI các chức năng lọc, tìm kiếm, sắp xếp hay phân trang phức tạp ở mức độ này.
