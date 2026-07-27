@@ -393,14 +393,14 @@
             <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
             <div class="inner-white-card">
                 <h4>Hạn Chế Hệ Thống Cũ</h4>
-                <p>Khái niệm cốt lõi Lesson 02 - Cài đặt môi trường: Phân tích bản chất nguyên lý và ứng dụng thực tế của Lesson 02 - Cài đặt môi trường trong phát triển phần mềm doanh nghiệp.</p>
+                <p>Môi Trường Ảo venv: Không gian độc lập giúp quản lý chính xác danh sách dependency qua file requirements.txt.</p>
             </div>
         </div>
         <div class="card-column-box card-success">
             <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
             <div class="inner-white-card">
                 <h4>Đột Phá Năng Suất</h4>
-                <p>Ứng dụng thực chiến Lesson 02 - Cài đặt môi trường: Xây dựng module xử lý nghiệp vụ tối ưu hiệu năng theo chuẩn PEP 8 cho Lesson 02 - Cài đặt môi trường.</p>
+                <p>Đường Dẫn Biến Môi Trường PATH: Cấu hình PATH giúp hệ điều hành nhận diện lệnh python và pip từ bất kỳ thư mục làm việc nào.</p>
             </div>
         </div>
     </div>
@@ -442,22 +442,21 @@ flowchart TD
             <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
             <div class="inner-white-card">
                 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-                <p>Áp dụng mã nguồn chuẩn PEP 8 và thiết lập môi trường tối ưu cho Lesson 02 - Cài đặt môi trường.</p>
+                <p>Khởi tạo môi trường ảo bằng lệnh `python -m venv venv` và kích hoạt trước khi cài đặt bất kỳ gói thư viện nào qua `pip`.</p>
             </div>
             <div class="inner-white-card">
                 <h4>Cảnh Báo Lỗi Runtime</h4>
-                <p>Tổng kết trọng tâm và lưu ý tránh lỗi Runtime với Lesson 02 - Cài đặt môi trường.</p>
+                <p>Luôn kiểm tra trạng thái kích hoạt của venv và cấu hình đúng đường dẫn Python Interpreter trong VS Code.</p>
             </div>
         </div>
         <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
             <div class="academic-code-box">
-                # Ma nguon thuc chien: Lesson 02 - Cài đặt môi trường
-def execute_module():
-    print('--- Executing: Lesson 02 - Cài đặt môi trường ---')
-    return True
+                import sys
 
-if __name__ == '__main__':
-    execute_module()
+# Kiem tra xem moi truong ao venv da duoc kich hoat hay chua
+in_venv = sys.prefix != sys.base_prefix
+print('Virtual Environment Active:', in_venv)
+print('Current Python Executable:', sys.executable)
             </div>
         </div>
     </div>
