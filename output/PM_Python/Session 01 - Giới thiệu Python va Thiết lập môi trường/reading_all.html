@@ -66,23 +66,20 @@
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
       function renderAllMermaidDiagrams() {
-        document.querySelectorAll('pre code, .code-body code, div.code-container, pre').forEach(el => {
+        document.querySelectorAll('.mermaid, .language-mermaid, pre.mermaid, code.language-mermaid, div[class*="mermaid"]').forEach(el => {
+          if (el.dataset.mermaidConverted) return;
           const text = (el.innerText || el.textContent || '').trim();
-          if (text.startsWith('sequenceDiagram') || text.startsWith('flowchart') || text.startsWith('graph TD') || text.startsWith('graph LR') || text.startsWith('gantt') || text.startsWith('classDiagram')) {
-            const targetParent = el.closest('.code-container, pre') || el;
-            if (targetParent && !targetParent.dataset.mermaidConverted) {
-              targetParent.dataset.mermaidConverted = "true";
-              const mermaidDiv = document.createElement('div');
-              mermaidDiv.className = 'mermaid';
-              mermaidDiv.style.cssText = 'display:flex;justify-content:center;margin:20px 0;background:#0f172a;padding:20px;border-radius:12px;border:1px solid #334155;color:#f8fafc;width:100%;overflow-x:auto;';
-              mermaidDiv.textContent = text;
-              targetParent.parentNode.replaceChild(mermaidDiv, targetParent);
+          if (text.startsWith('sequenceDiagram') || text.startsWith('flowchart') || text.startsWith('graph ') || text.startsWith('gantt') || text.startsWith('classDiagram')) {
+            el.dataset.mermaidConverted = "true";
+            if (!el.classList.contains('mermaid')) {
+              el.classList.add('mermaid');
             }
+            el.style.cssText = 'display:flex;justify-content:center;margin:20px 0;background:#0f172a;padding:20px;border-radius:12px;border:1px solid #334155;color:#f8fafc;width:100%;overflow-x:auto;';
           }
         });
         if (window.mermaid) {
           try {
-            mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+            mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose', suppressErrorRendering: true });
             mermaid.run({ querySelector: '.mermaid' });
           } catch(e) {
             console.log('Mermaid render info:', e);
