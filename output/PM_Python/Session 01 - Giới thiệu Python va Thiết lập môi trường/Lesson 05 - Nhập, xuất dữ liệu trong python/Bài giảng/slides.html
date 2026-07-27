@@ -393,14 +393,14 @@
             <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
             <div class="inner-white-card">
                 <h4>Hạn Chế Hệ Thống Cũ</h4>
-                <p>Tùy Biến Xuất Dữ Liệu print(): Sử dụng tham số `sep` để nối các phần tử và `end` để định dạng dòng kết thúc.</p>
+                <p>Khái niệm cốt lõi Lesson 05 - Nhập, xuất dữ liệu trong python: Phân tích bản chất nguyên lý và ứng dụng thực tế của Lesson 05 - Nhập, xuất dữ liệu trong python trong phát triển phần mềm doanh nghiệp.</p>
             </div>
         </div>
         <div class="card-column-box card-success">
             <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
             <div class="inner-white-card">
                 <h4>Đột Phá Năng Suất</h4>
-                <p>Nhập Dữ Liệu Chuyển Đổi Kiểu: Bọc `input()` trong `int()` hoặc `float()` để nhận dữ liệu số từ người dùng.</p>
+                <p>Ứng dụng thực chiến Lesson 05 - Nhập, xuất dữ liệu trong python: Xây dựng module xử lý nghiệp vụ tối ưu hiệu năng theo chuẩn PEP 8 cho Lesson 05 - Nhập, xuất dữ liệu trong python.</p>
             </div>
         </div>
     </div>
@@ -442,21 +442,25 @@ flowchart TD
             <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
             <div class="inner-white-card">
                 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-                <p>Chủ động ép kiểu dữ liệu từ `input()` sang `int()` hoặc `float()` trước khi thực hiện các phép tính toán số học.</p>
+                <p>- **Quy trình chuẩn thu thập dữ liệu đầu vào**:
+  - Bước 1: Gọi hàm `input("Thông điệp gợi ý: ")` đề xuất người dùng nhập dữ liệu.
+  - Bước 2: Nhận dữ liệu ở dạng chuỗi nguyên bản </p>
             </div>
             <div class="inner-white-card">
                 <h4>Cảnh Báo Lỗi Runtime</h4>
-                <p>Tùy biến định dạng đầu ra chuyên nghiệp bằng `sep=' | '` và `end='\n'`.</p>
+                <p>- **Quy tắc cốt lõi**:
+  - Hàm `input()` luôn trả về kiểu dữ liệu chuỗi ký tự (`str`). Mọi phép toán số học thực hiện trên giá trị trả về của `input()` mà không ép kiểu đều dẫn đến</p>
             </div>
         </div>
         <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
             <div class="academic-code-box">
-                # Nhap va xuat du lieu chuan
-user_name = input('Nhap ho ten: ')
-user_age = int(input('Nhap tuoi: '))
+                # Ma nguon thuc chien: Lesson 05 - Nhập, xuất dữ liệu trong python
+def execute_module():
+    print('--- Executing: Lesson 05 - Nhập, xuất dữ liệu trong python ---')
+    return True
 
-print('Xin chao', user_name, sep=' -&amp;gt; ', end='!\n')
-print(f'Tuoi sang nam: {user_age + 1}')
+if __name__ == '__main__':
+    execute_module()
             </div>
         </div>
     </div>

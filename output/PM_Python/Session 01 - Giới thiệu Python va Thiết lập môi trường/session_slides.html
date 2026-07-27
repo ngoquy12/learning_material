@@ -635,14 +635,14 @@ print('Current Python Executable:', sys.executable)
 <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Hạn Chế Hệ Thống Cũ</h4>
-<p>Tham Chiếu Ô Nhớ RAM: Phép gán `=` kết nối tên biến với địa chỉ bộ nhớ chứa giá trị đối tượng.</p>
+<p>Khái niệm cốt lõi Lesson 03 - Khai báo Biến: Phân tích bản chất nguyên lý và ứng dụng thực tế của Lesson 03 - Khai báo Biến trong phát triển phần mềm doanh nghiệp.</p>
 </div>
 </div>
 <div class="card-column-box card-success">
 <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Đột Phá Năng Suất</h4>
-<p>Quy Chuẩn snake_case PEP 8: Đặt tên biến ngắn gọn, rõ nghĩa, dùng chữ thường phân cách bằng `_` như `student_name`, `total_amount`.</p>
+<p>Ứng dụng thực chiến Lesson 03 - Khai báo Biến: Xây dựng module xử lý nghiệp vụ tối ưu hiệu năng theo chuẩn PEP 8 cho Lesson 03 - Khai báo Biến.</p>
 </div>
 </div>
 </div>
@@ -690,21 +690,24 @@ flowchart TD
 <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
 <div class="inner-white-card">
 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-<p>Tuân thủ quy tắc đặt tên biến `snake_case` chuẩn PEP 8 (chữ thường, phân cách bằng dấu gạch dưới) và kiểm tra địa chỉ RAM bằng hàm `id()`.</p>
+<p>- **Cú pháp gán dữ liệu cơ bản**:
+  - Cú pháp chuẩn hóa: `<tên_biến> = <giá_trị>`.
+  - Dấu `=` đóng vai trò là **lực gán giá trị** từ bên phải qua bên trái, không đồng nghĩa với dấ</giá_trị></tên_biến></p>
 </div>
 <div class="inner-white-card">
 <h4>Cảnh Báo Lỗi Runtime</h4>
-<p>Không đặt tên biến trùng từ khóa hệ thống (`def`, `class`), bắt đầu bằng chữ số hoặc chứa ký tự đặc biệt.</p>
+<p>- **Khái quát kiến thức cốt lõi**: Khai báo biến trong Python chỉ đơn giản là việc gán nhãn định danh cho các đối tượng lưu trữ dữ liệu tại bộ nhớ RAM, kế thừa tính năng định kiểu </p>
 </div>
 </div>
 <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
 <div class="academic-code-box">
-                # Khai bao bien va truy xuat dia chi RAM
-student_name = 'Nguyen Van A'
-gpa_score = 3.85
+                # Ma nguon thuc chien: Lesson 03 - Khai báo Biến
+def execute_module():
+    print('--- Executing: Lesson 03 - Khai báo Biến ---')
+    return True
 
-print(f'Sinh vien: {student_name} | GPA: {gpa_score}')
-print(f'Dia chi RAM cua gpa_score: {id(gpa_score)}')
+if __name__ == '__main__':
+    execute_module()
             </div>
 </div>
 </div>
@@ -728,14 +731,14 @@ print(f'Dia chi RAM cua gpa_score: {id(gpa_score)}')
 <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Hạn Chế Hệ Thống Cũ</h4>
-<p>Cơ Chế Dynamic Typing: Biến có thể tham chiếu đến các kiểu đối tượng khác nhau trong suốt tiến trình thực thi.</p>
+<p>Khái niệm cốt lõi Lesson 04 - Kiểu dữ liệu cơ bản: Phân tích bản chất nguyên lý và ứng dụng thực tế của Lesson 04 - Kiểu dữ liệu cơ bản trong phát triển phần mềm doanh nghiệp.</p>
 </div>
 </div>
 <div class="card-column-box card-success">
 <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Đột Phá Năng Suất</h4>
-<p>Kiểm Tra Kiểu An Toàn: Hàm `isinstance(val, type)` giúp đảm bảo kiểu dữ liệu đầu vào đúng kỳ vọng trước khi xử lý.</p>
+<p>Ứng dụng thực chiến Lesson 04 - Kiểu dữ liệu cơ bản: Xây dựng module xử lý nghiệp vụ tối ưu hiệu năng theo chuẩn PEP 8 cho Lesson 04 - Kiểu dữ liệu cơ bản.</p>
 </div>
 </div>
 </div>
@@ -783,22 +786,26 @@ flowchart TD
 <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
 <div class="inner-white-card">
 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-<p>Sử dụng hàm `type()` để kiểm tra kiểu dữ liệu và `isinstance()` để xác minh an toàn trước khi thực hiện phép toán.</p>
+<p>- **Cú pháp định vị các kiểu dữ liệu cốt lõi**:
+  - Kiểu số nguyên (**Integer - int**): Biểu diễn các giá trị logic số học nguyên tố không chứa dấu phẩy thập phân.
+  - Kiểu số thực</p>
 </div>
 <div class="inner-white-card">
 <h4>Cảnh Báo Lỗi Runtime</h4>
-<p>Nắm vững 4 kiểu dữ liệu cơ bản: Số nguyên `int`, Số thực `float`, Chuỗi `str` và Boolean `bool` (`True`/`False`).</p>
+<p>- **Tóm tắt nội dung bài học**:
+  - Bốn kiểu dữ liệu cơ bản bao gồm `int`, `float`, `str`, và `bool` là nền tảng cốt lõi định hình nên mọi cấu trúc dữ liệu phức tạp trong Python.
+ </p>
 </div>
 </div>
 <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
 <div class="academic-code-box">
-                age = 25
-price = 99.95
-name = 'Rikkei'
-is_active = True
+                # Ma nguon thuc chien: Lesson 04 - Kiểu dữ liệu cơ bản
+def execute_module():
+    print('--- Executing: Lesson 04 - Kiểu dữ liệu cơ bản ---')
+    return True
 
-print(type(age), type(price))
-print('Checking str:', isinstance(name, str))
+if __name__ == '__main__':
+    execute_module()
             </div>
 </div>
 </div>
@@ -822,14 +829,14 @@ print('Checking str:', isinstance(name, str))
 <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Hạn Chế Hệ Thống Cũ</h4>
-<p>Tùy Biến Xuất Dữ Liệu print(): Sử dụng tham số `sep` để nối các phần tử và `end` để định dạng dòng kết thúc.</p>
+<p>Khái niệm cốt lõi Lesson 05 - Nhập, xuất dữ liệu trong python: Phân tích bản chất nguyên lý và ứng dụng thực tế của Lesson 05 - Nhập, xuất dữ liệu trong python trong phát triển phần mềm doanh nghiệp.</p>
 </div>
 </div>
 <div class="card-column-box card-success">
 <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Đột Phá Năng Suất</h4>
-<p>Nhập Dữ Liệu Chuyển Đổi Kiểu: Bọc `input()` trong `int()` hoặc `float()` để nhận dữ liệu số từ người dùng.</p>
+<p>Ứng dụng thực chiến Lesson 05 - Nhập, xuất dữ liệu trong python: Xây dựng module xử lý nghiệp vụ tối ưu hiệu năng theo chuẩn PEP 8 cho Lesson 05 - Nhập, xuất dữ liệu trong python.</p>
 </div>
 </div>
 </div>
@@ -877,21 +884,25 @@ flowchart TD
 <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
 <div class="inner-white-card">
 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-<p>Chủ động ép kiểu dữ liệu từ `input()` sang `int()` hoặc `float()` trước khi thực hiện các phép tính toán số học.</p>
+<p>- **Quy trình chuẩn thu thập dữ liệu đầu vào**:
+  - Bước 1: Gọi hàm `input("Thông điệp gợi ý: ")` đề xuất người dùng nhập dữ liệu.
+  - Bước 2: Nhận dữ liệu ở dạng chuỗi nguyên bản </p>
 </div>
 <div class="inner-white-card">
 <h4>Cảnh Báo Lỗi Runtime</h4>
-<p>Tùy biến định dạng đầu ra chuyên nghiệp bằng `sep=' | '` và `end='\n'`.</p>
+<p>- **Quy tắc cốt lõi**:
+  - Hàm `input()` luôn trả về kiểu dữ liệu chuỗi ký tự (`str`). Mọi phép toán số học thực hiện trên giá trị trả về của `input()` mà không ép kiểu đều dẫn đến</p>
 </div>
 </div>
 <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
 <div class="academic-code-box">
-                # Nhap va xuat du lieu chuan
-user_name = input('Nhap ho ten: ')
-user_age = int(input('Nhap tuoi: '))
+                # Ma nguon thuc chien: Lesson 05 - Nhập, xuất dữ liệu trong python
+def execute_module():
+    print('--- Executing: Lesson 05 - Nhập, xuất dữ liệu trong python ---')
+    return True
 
-print('Xin chao', user_name, sep=' -&amp;gt; ', end='!\n')
-print(f'Tuoi sang nam: {user_age + 1}')
+if __name__ == '__main__':
+    execute_module()
             </div>
 </div>
 </div>
@@ -915,14 +926,14 @@ print(f'Tuoi sang nam: {user_age + 1}')
 <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Hạn Chế Hệ Thống Cũ</h4>
-<p>Ép Kiểu Trực Tiếp (Explicit Casting): Sử dụng các hàm khởi tạo `int()`, `float()`, `str()`, `bool()` để chuyển đổi dữ liệu.</p>
+<p>Khái niệm cốt lõi Lesson 06 - Ép kiểu dữ liệu f-string: Phân tích bản chất nguyên lý và ứng dụng thực tế của Lesson 06 - Ép kiểu dữ liệu f-string trong phát triển phần mềm doanh nghiệp.</p>
 </div>
 </div>
 <div class="card-column-box card-success">
 <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
 <div class="inner-white-card">
 <h4>Đột Phá Năng Suất</h4>
-<p>Chuỗi Định Dạng f-string: Cú pháp nhúng biến và biểu thức trực tiếp trong ngoặc nhọn `{}` với hiệu năng xử lý cao nhất.</p>
+<p>Ứng dụng thực chiến Lesson 06 - Ép kiểu dữ liệu f-string: Xây dựng module xử lý nghiệp vụ tối ưu hiệu năng theo chuẩn PEP 8 cho Lesson 06 - Ép kiểu dữ liệu f-string.</p>
 </div>
 </div>
 </div>
@@ -970,22 +981,26 @@ flowchart TD
 <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
 <div class="inner-white-card">
 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-<p>Sử dụng cú pháp `f'{var}'` để hiển thị biến và `f'{val:.2f}'` để định dạng độ chính xác số thực.</p>
+<p>- **Quy trình các bước thực thi chuẩn hóa dữ liệu**:
+  - **Bước 1**: Tiếp nhận dữ liệu dạng chuỗi gốc từ nguồn đầu vào hệ thống.
+  - **Bước 2**: Chuyển đổi tường minh dữ liệu chuỗi</p>
 </div>
 <div class="inner-white-card">
 <h4>Cảnh Báo Lỗi Runtime</h4>
-<p>Tránh lỗi `ValueError` bằng cách đảm bảo chuỗi cần ép sang số chỉ chứa các chữ số hợp lệ.</p>
+<p>- **Tổng kết kiến thức cốt lõi**:
+  - Luôn luôn chuyển đổi dữ liệu đầu vào dạng chuỗi trước khi tham gia vào các phép tính toán để tránh phát sinh ngoại lệ runtime.
+  - Sử dụng cú </p>
 </div>
 </div>
 <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
 <div class="academic-code-box">
-                item = 'Laptop Dell'
-price = 1250.756
-quantity = 2
-total = price * quantity
+                # Ma nguon thuc chien: Lesson 06 - Ép kiểu dữ liệu f-string
+def execute_module():
+    print('--- Executing: Lesson 06 - Ép kiểu dữ liệu f-string ---')
+    return True
 
-# Dinh dang f-string voi 2 chu so thap phan
-print(f'San pham: {item} | Tong tien: {total:,.2f} USD')
+if __name__ == '__main__':
+    execute_module()
             </div>
 </div>
 </div>
