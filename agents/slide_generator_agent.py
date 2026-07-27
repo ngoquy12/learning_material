@@ -942,25 +942,37 @@ class SlideGeneratorAgent:
         total_pages = 2  # Cover + Session Agenda
 
         for l_data in lessons_data:
-            total_pages += 1  # Lesson Divider
             total_pages += len(l_data.get("scenes", []))
 
         current_year = datetime.now().year
         copyright_text = f"© {current_year} By Rikkei Academy - All rights reserved."
-        cover_triangle_svg = """<svg class="cover-left-triangle-svg" viewBox="0 0 100 160"><polygon points="0,0 0,160 100,80" fill="#c01e23"/></svg>"""
+        cover_triangle_svg = """<svg class="cover-left-triangle-svg" viewBox="0 0 100 160"><polygon points="0,0 0,160 100,80" fill="#be111c"/></svg>"""
 
         clean_session_title = self.clean_title_string(session_title)
+        
+        # Parse Session prefix vs main topic name
+        m_sess = re.search(r'^(Session\s*\d+)\s*[:-]\s*(.*)', clean_session_title, re.IGNORECASE)
+        if m_sess:
+            session_tag_text = m_sess.group(1).strip()
+            main_title_text = m_sess.group(2).strip()
+        else:
+            session_tag_text = "Session Slide Master"
+            main_title_text = clean_session_title
+
+        clean_module_name = module_name.replace("NIKKEI ACADEMY", "Lập trình Python").replace("RIKKEI ACADEMY", "Lập trình Python").strip()
+        if not clean_module_name or clean_module_name.isupper():
+            clean_module_name = "Lập trình Python"
 
         # 1. Master Cover Slide
         all_slides_html_parts.append(f"""
-    <div class="slide slide-cover active" data-type="cover" data-title="SESSION MASTER SLIDES">
+    <div class="slide slide-cover active" data-type="cover" data-title="{clean_session_title}">
       {cover_triangle_svg}
       <div class="cover-content-box">
-        <div class="cover-session-tag">SLIDE TỔNG HỢP SESSION</div>
-        <div class="cover-main-title">{clean_session_title}</div>
-        <div class="cover-meta-text">Môn học: {module_name} — Tổng số bài học: {len(lessons_data)}</div>
+        <div class="cover-session-tag" style="color: #be111c; font-size: 22px; font-weight: 800; text-transform: none; margin-bottom: 8px;">{session_tag_text}</div>
+        <div class="cover-main-title" style="color: #0f172a; font-size: 34px; font-weight: 900; text-transform: none; line-height: 1.25;">{main_title_text}</div>
+        <div class="cover-meta-text" style="color: #475569; font-size: 14px; text-transform: none; margin-top: 12px;">Môn học: {clean_module_name} — Tổng số bài học: {len(lessons_data)}</div>
       </div>
-      <img src="{self.LOGO_URL}" alt="Rikkei Academy Logo" class="cover-bottom-logo" />
+      <img src="{self.LOGO_URL}" alt="Rikkei Education Logo" class="cover-bottom-logo" />
       <div class="corner-page-badge">1</div>
       <div class="footer-copyright">{copyright_text}</div>
     </div>
@@ -971,13 +983,13 @@ class SlideGeneratorAgent:
         for i, l_data in enumerate(lessons_data, 1):
             l_title = l_data.get("lesson_title", f"Bài học {i}")
             clean_l_title = self.clean_title_string(l_title)
-            session_agenda_items_html += f'<div class="agenda-item-row"><span>{i:02d}.</span> <span>{clean_l_title}</span></div>\n'
+            session_agenda_items_html += f'<div class="agenda-item-row" style="font-size: 15px; margin-bottom: 10px;"><span>{i:02d}.</span> <span style="font-weight: 600; color: #0f172a;">{clean_l_title}</span></div>\n'
 
         all_slides_html_parts.append(f"""
-    <div class="slide slide-agenda" data-type="agenda" data-title="DANH SÁCH BÀI HỌC TRONG SESSION">
-      <div class="agenda-top-left-title">NỘI DUNG TỔNG QUAN SESSION</div>
+    <div class="slide slide-agenda" data-type="agenda" data-title="Nội dung tổng quan Session">
+      <div class="agenda-top-left-title" style="color: #be111c; font-weight: 800; font-size: 22px; text-transform: none;">Nội dung tổng quan Session</div>
       <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="agenda-list-box">
+      <div class="agenda-list-box" style="margin-top: 24px;">
         {session_agenda_items_html}
       </div>
       <div class="corner-page-badge">2</div>
@@ -986,40 +998,34 @@ class SlideGeneratorAgent:
 """)
 
         current_page = 3
-        # Iteration across lessons
+        # Iteration across lessons & scenes
         for l_idx, l_data in enumerate(lessons_data, 1):
             l_title = l_data.get("lesson_title", f"Bài học {l_idx}")
             clean_l_title = self.clean_title_string(l_title)
             scenes = l_data.get("scenes", [])
 
-            # Lesson Divider Banner Slide
-            all_slides_html_parts.append(f"""
-    <div class="slide slide-cover" data-type="lesson-divider" data-title="BÀI {l_idx:02d}: {clean_l_title}">
-      {cover_triangle_svg}
-      <div class="cover-content-box">
-        <div class="cover-session-tag" style="background: #1e293b; color: #38bdf8;">BÀI HỌC {l_idx:02d}</div>
-        <div class="cover-main-title" style="font-size: 32px;">{clean_l_title}</div>
-        <div class="cover-meta-text">Số lượng chủ đề trọng tâm: {len(scenes)}</div>
-      </div>
-      <img src="{self.LOGO_URL}" alt="Logo" class="cover-bottom-logo" />
-      <div class="corner-page-badge">{current_page}</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-            current_page += 1
-
             for s_idx, scene in enumerate(scenes, 1):
-                raw_stitle = scene.get("short_title") or scene.get("scene_title") or f"Chủ đề {s_idx}"
+                raw_stitle = scene.get("action_title") or scene.get("short_title") or scene.get("scene_title") or f"Chủ đề {s_idx}"
                 clean_stitle = self.clean_title_string(raw_stitle)
-                slide_heading = f"[{l_idx:02d}.{s_idx:02d}] {self.clean_title_string(scene.get('action_title') or clean_stitle)}"
+                
+                # Strip duplicate "01.", "[01.01]" prefixes from clean_stitle
+                clean_stitle = re.sub(r'^\s*(\[\d+\.\d+\]|\d+\.)\s*', '', clean_stitle).strip()
+
+                main_large_title = f"{clean_l_title} - {s_idx}"
+                slide_heading_attr = f"{main_large_title} - {clean_stitle}"
 
                 content_inner_html = self._render_scene_content_html(scene, clean_stitle)
                 all_slides_html_parts.append(f"""
-    <div class="slide slide-content-layout" data-type="content" data-title="{slide_heading}">
-      <div class="content-top-accent-bar"></div>
+    <div class="slide slide-content-layout" data-type="content" data-title="{slide_heading_attr}">
+      <div class="content-top-accent-bar" style="background: #be111c;"></div>
       <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        {slide_heading}
+      <div class="content-header-box" style="margin-bottom: 16px;">
+        <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 22px; color: #be111c; margin: 0; line-height: 1.2; text-transform: none;">
+          {main_large_title}
+        </h2>
+        <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; color: #0f172a; margin-top: 6px; line-height: 1.3; text-transform: none;">
+          {clean_stitle}
+        </h3>
       </div>
       {content_inner_html}
       <div class="corner-page-badge">{current_page}</div>
@@ -1033,8 +1039,8 @@ class SlideGeneratorAgent:
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{clean_session_title} — Master Session Presentation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
+  <title>{clean_session_title} — Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {{
@@ -1076,5 +1082,3 @@ class SlideGeneratorAgent:
 
 
 slide_generator_agent = SlideGeneratorAgent()
-
-
