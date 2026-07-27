@@ -75,8 +75,9 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 |    • SƠ ĐỒ MERMAID DIAGRAM (flowchart TD / sequenceDiagram) giải thích luồng thực thi.        |
 |    • **BẮT BUỘC CÚ PHÁP MERMAID V10+**:                                                       |
 |      1. Mũi tên có nhãn: Dùng `A -->|Nhãn| B` (CẤM dùng `A -- Nhãn --> B`).                    |
-|      2. Node chứa toán tử `//`, `%`, `>`, `<`: BẮT BUỘC BỌC TRONG KÉP `A["label // val"]`.     |
-|      3. SequenceDiagram: Tên participant KHÔNG chứa ngoặc đơn `()` (Dùng `participant Fn as input()`). |
+|      2. Node chứa toán tử `//`, `%`, `>`, `<`, `=`, `:`, `-`: BẮT BUỘC BỌC `A["label // val"]`. |
+|      3. SequenceDiagram: Tên participant KHÔNG chứa ngoặc `()` (Dùng `participant Fn as input()`). |
+|    • **BẮT BUỘC SƠ ĐỒ SVG**: CẤM lồng thẻ HTML `<p>` hay `<div>` trong thẻ `<text>` của SVG.   |
 |    • Cấu trúc mã nguồn chuẩn Best Practice vs Anti-Pattern.                                   |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 4. QUY CHUẨN MÃ NGUỒN & PHÂN TÍCH THỰC THI (Code & Console Analysis)                          |
@@ -86,8 +87,9 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 5. KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC (Self-Test Accordion)                                 |
 |    • Bộ 3 câu hỏi khảo thí tự luyện dạng thẻ nhấp mở gợi ý đáp án.                            |
+|    • **BẮT BUỘC**: Text câu hỏi và đáp án **100% TIẾNG VIỆT CÓ DẤU ĐẦY ĐỦ** (CẤM không dấu).  |
 |    • **BẮT BUỘC**: Text câu hỏi và câu trả lời **CĂN GIỮA 100%** (`text-align: center`).      |
-|    • **BẮT BUỘC**: Có tính năng **ĐÓNG / MỞ ĐỘNG** (Collapsible toggle state).                |
+|    • **BẮT BUỘC**: Có tính năng **ĐÓNG / MỞ ĐỘNG** (`onclick="this.parentElement.classList.toggle('active')"`). |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 6. TÀI LIỆU THAM KHẢO CHÍNH THỨC (Official References)                                        |
 |    • Danh sách đường dẫn tài liệu chính thức (PEP, Python Docs, Official Specs).              |
