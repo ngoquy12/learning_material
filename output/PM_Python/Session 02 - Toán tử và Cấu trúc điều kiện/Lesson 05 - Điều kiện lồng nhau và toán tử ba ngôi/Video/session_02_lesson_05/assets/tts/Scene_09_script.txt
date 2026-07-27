@@ -1,0 +1,1 @@
+Tiếp theo, ta tính toán giá trị final đít-cao bằng cách nhân o-đơ tô-tồ với đít-cao rết, sau đó in các kết quả ra terminal. Thực thi lệnh python main chấm py, bạn có thể thấy kết quả trả về chính xác với tỷ lệ chiết khấu mong muốn mà không cần tới bất kỳ khối lệnh íp eo-sơ đa tầng nào.

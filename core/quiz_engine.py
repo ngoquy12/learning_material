@@ -68,6 +68,9 @@ RÀNG BUỘC CỦA ĐỢT SINH NÀY (BẮT BUỘC TUÂN THỦ):
   + CẤM lạc đề, CẤM đưa từ ngữ mơ hồ ("theo slide", "trong video này"). Câu hỏi phải chính xác, khách quan như đề thi quốc tế.
 {rag_context}
 
+- BẮT BUỘC GIẢI THÍCH CHI TIẾT CẢ 4 PHƯƠNG ÁN (PROPOSAL 4):
+  Phần 'explanation_answer_X' cho cả đáp án đúng và 3 đáp án nhiễu (B, C, D) BẮT BUỘC phải phân tích chi tiết: Vì sao đáp án này sai, bẫy cú pháp hoặc tư duy sai lầm nào khiến học viên chọn nhầm. TUYỆT ĐỐI CẤM trả về giải thích ngắn súc tích 1-2 từ ("Sai", "Không đúng").
+
 Yêu cầu định dạng đầu ra:
 Bạn phải trả về duy nhất một mảng JSON (List) chứa đúng {sub_count} phần tử Object có cấu trúc như sau:
 [
@@ -75,13 +78,13 @@ Bạn phải trả về duy nhất một mảng JSON (List) chứa đúng {sub_c
     "STT": {current_stt},
     "question_content": "Nội dung câu hỏi tình huống thực tế...",
     "answer_1": "Đáp án đúng A",
-    "explanation_answer_1": "Giải thích vì sao A đúng...",
+    "explanation_answer_1": "Giải thích ĐẶC BIỆT CHI TIẾT vì sao A đúng...",
     "answer_2": "Đáp án nhiễu B",
-    "explanation_answer_2": "Giải thích vì sao B sai...",
+    "explanation_answer_2": "Phân tích SÂU SẮC tư duy sai lầm và lý do B sai...",
     "answer_3": "Đáp án nhiễu C",
-    "explanation_answer_3": "Giải thích...",
+    "explanation_answer_3": "Phân tích SÂU SẮC bẫy cú pháp và lý do C sai...",
     "answer_4": "Đáp án nhiễu D",
-    "explanation_answer_4": "Giải thích...",
+    "explanation_answer_4": "Phân tích SÂU SẮC lý do D sai...",
     "isCorrect": 1,
     "difficulty": {difficulty},
     "category": "{category}"

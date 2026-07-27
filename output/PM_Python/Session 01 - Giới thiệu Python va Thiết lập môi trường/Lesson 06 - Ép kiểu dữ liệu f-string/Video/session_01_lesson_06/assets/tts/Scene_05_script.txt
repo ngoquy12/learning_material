@@ -1,0 +1,1 @@
+Đối với các đại lượng đếm được như số lượng sản phẩm hay số lượng đơn hàng, hàm int sẽ phân tích chuỗi ký tự và chuyển đổi thành số nguyên trong bộ nhớ, tối ưu hóa không gian lưu trữ và tốc độ xử lý.

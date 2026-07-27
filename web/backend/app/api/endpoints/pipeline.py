@@ -88,6 +88,53 @@ class PrerequisiteReportResponse(BaseModel):
     report_content: Optional[str]
 
 
+# ── PM Excel Template & Upload ──────────────────────────────
+
+@router.get("/download-pm-template", summary="Tải file PM Excel Mẫu Chuẩn (.xlsx)")
+async def download_pm_template():
+    """Trả về tệp PM Excel Mẫu Chuẩn 9 cột cho người dùng tải về máy để chỉnh sửa."""
+    template_path = ROOT / "templates" / "PM_Template_Standard.xlsx"
+    if not template_path.exists():
+        # Auto-generate template if missing
+        sys.path.insert(0, str(ROOT))
+        from scripts.generate_pm_template import generate_standard_pm_template
+        template_path = generate_standard_pm_template()
+
+    return FileResponse(
+        path=str(template_path),
+        filename="PM_Template_Standard.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+@router.post("/upload-pm", summary="Upload & Parse File PM Excel 9 Cột")
+async def upload_pm_excel(file: UploadFile = File(...)):
+    """Upload tệp PM Excel 9 cột, áp dụng thuật toán ffill và trả về JSON Syllabus chuẩn."""
+    if not file.filename.endswith((".xlsx", ".xls")):
+        raise HTTPException(status_code=400, detail="Chỉ hỗ trợ tệp định dạng Excel (.xlsx, .xls)")
+
+    try:
+        temp_path = ROOT / "scratch" / f"uploaded_{file.filename}"
+        temp_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        sys.path.insert(0, str(ROOT))
+        from core.pm_parser import parse_pm_excel
+        from core.scope_calculator import validate_session_cadence_and_lesson_bounds
+
+        parsed_syllabus = parse_pm_excel(temp_path)
+        warnings = validate_session_cadence_and_lesson_bounds(parsed_syllabus)
+
+        return {
+            "status": "success",
+            "filename": file.filename,
+            "parsed_syllabus": parsed_syllabus,
+            "cadence_warnings": warnings
+        }
+    except Exception as e:
+        safe_print(f"[Upload PM Error] {e}")
+        raise HTTPException(status_code=500, detail=f"Lỗi khi đọc file PM Excel: {str(e)}")
+
 # ── Cache Stats ───────────────────────────────────────────
 
 @router.get("/cache/stats", response_model=CacheStatsResponse, summary="Thống kê Semantic Cache")
@@ -1179,3 +1226,113 @@ async def save_video_file(payload: SaveVideoFileRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Process Control & Cancellation Endpoints ───────────
+
+from app.core.process_manager import cancel_all_tasks, cancel_course_tasks, cancel_lesson_task, get_active_task_count, get_active_lesson_ids
+
+@router.get("/active-tasks", summary="Lấy danh sách và số lượng các tiến trình đang thực thi ngầm")
+async def get_active_tasks_status():
+    try:
+        from app.db.session import AsyncSessionLocal as SessionLocal
+        from app.models.artifact import Artifact
+        from sqlalchemy import select, func
+
+        active_python_tasks = get_active_task_count()
+        active_lesson_ids = get_active_lesson_ids()
+
+        async with SessionLocal() as db:
+            stmt = select(func.count(Artifact.id)).where(Artifact.status == "Pending")
+            res = await db.execute(stmt)
+            pending_db_artifacts = res.scalar() or 0
+
+        has_running_process = (active_python_tasks > 0) or (pending_db_artifacts > 0)
+
+        return {
+            "has_active_tasks": has_running_process,
+            "active_task_count": max(active_python_tasks, pending_db_artifacts),
+            "active_lesson_ids": active_lesson_ids,
+            "pending_db_artifacts": pending_db_artifacts,
+        }
+    except Exception as e:
+        return {
+            "has_active_tasks": False,
+            "active_task_count": 0,
+            "active_lesson_ids": [],
+            "error": str(e),
+        }
+
+@router.post("/stop-all", summary="Dừng toàn bộ các tiến trình ngầm đang chạy")
+async def stop_all_pipeline_tasks():
+    try:
+        cancelled_count = cancel_all_tasks()
+        
+        # Mark all pending artifacts as Failed / Cancelled in DB immediately
+        from app.db.session import AsyncSessionLocal as SessionLocal
+        from app.models.artifact import Artifact
+        from sqlalchemy import select
+
+        async with SessionLocal() as db:
+            stmt = select(Artifact).where(Artifact.status == "Pending")
+            result = await db.execute(stmt)
+            pending_arts = result.scalars().all()
+            for art in pending_arts:
+                art.status = "Failed"
+                art.content = "Đã dừng tiến trình theo yêu cầu của người dùng."
+            await db.commit()
+
+        return {
+            "status": "ok",
+            "message": f"Đã phát lệnh dừng toàn bộ tiến trình. Đã ngắt {cancelled_count} tác vụ đang thực thi.",
+            "cancelled_count": cancelled_count
+        }
+    except Exception as e:
+        safe_print(f"[StopAll Error] {e}")
+        return {"status": "ok", "message": "Đã ghi nhận yêu cầu dừng tiến trình ngầm."}
+
+@router.post("/courses/{course_id}/stop", summary="Dừng tiến trình của một môn học cụ thể")
+async def stop_course_pipeline_task(course_id: int):
+    try:
+        cancelled_count = cancel_course_tasks(course_id)
+        
+        # Mark pending artifacts of this course's lessons as Failed in DB
+        from app.db.session import AsyncSessionLocal as SessionLocal
+        from app.models.artifact import Artifact
+        from app.models.lesson import Lesson
+        from app.models.session import Session
+        from sqlalchemy import select
+
+        async with SessionLocal() as db:
+            stmt = select(Artifact).join(Lesson).join(Session).where(
+                Session.course_id == course_id,
+                Artifact.status == "Pending"
+            )
+            result = await db.execute(stmt)
+            pending_arts = result.scalars().all()
+            for art in pending_arts:
+                art.status = "Failed"
+                art.content = "Đã dừng tiến trình môn học theo yêu cầu."
+            await db.commit()
+
+        return {
+            "status": "ok",
+            "message": f"Đã dừng tiến trình cho môn học ID {course_id}.",
+            "cancelled_count": cancelled_count
+        }
+    except Exception as e:
+        safe_print(f"[StopCourse Error] {e}")
+        return {"status": "ok", "message": f"Đã dừng tiến trình môn học ID {course_id}."}
+
+@router.post("/tasks/{task_id}/cancel", summary="Dừng một tác vụ cụ thể")
+async def stop_pipeline_task(task_id: str):
+    try:
+        if task_id.isdigit():
+            cancel_lesson_task(int(task_id))
+        return {
+            "status": "ok",
+            "message": f"Đã gửi yêu cầu dừng tác vụ {task_id}."
+        }
+    except Exception as e:
+        return {"status": "ok", "message": f"Đã dừng tác vụ {task_id}."}
+

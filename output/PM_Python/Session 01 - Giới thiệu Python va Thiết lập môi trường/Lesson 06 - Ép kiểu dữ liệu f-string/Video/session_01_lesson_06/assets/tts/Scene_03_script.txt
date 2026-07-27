@@ -1,0 +1,1 @@
+Nếu tiến hành tính toán số học trực tiếp trên giá trị trả về từ hàm in-put, Python sẽ lập tức báo lỗi taip e-rơ. Hệ thống không thể nhân một chuỗi ký tự với một chuỗi ký tự khác, gây ngắt quãng chương trình đột ngột.

@@ -1,0 +1,1 @@
+Giải pháp triệt để là thực hiện ép kiểu, hay còn gọi là taip cát-tinh. Đây là quá trình chuyển đổi kiểu dữ liệu từ chuỗi ký tự ban đầu sang các kiểu số chuyên biệt trước khi chuyển sang các tầng xử lý logic tiếp theo.

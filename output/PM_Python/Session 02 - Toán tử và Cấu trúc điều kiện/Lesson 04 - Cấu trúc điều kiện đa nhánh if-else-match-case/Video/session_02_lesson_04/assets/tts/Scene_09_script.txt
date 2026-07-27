@@ -1,0 +1,1 @@
+Hãy cùng chạy kiểm thử hàm vừa tạo trong môi trường thực tế. Trên màn hình tơ-mi-nơ, chúng ta thực thi tập tin python. Kết quả trả về cho giao dịch thành công của khách hàng hạng vàng là phí năm chấm không và chiết khấu mười phần trăm. Khi thay đổi trạng thái sang thất bại, hệ thống tự động gán phí hai chấm không mà không bị ảnh hưởng bởi hạng thành viên.

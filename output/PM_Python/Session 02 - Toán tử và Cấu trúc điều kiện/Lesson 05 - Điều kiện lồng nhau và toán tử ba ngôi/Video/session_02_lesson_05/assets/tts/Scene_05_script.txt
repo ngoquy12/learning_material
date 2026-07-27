@@ -1,0 +1,1 @@
+Quy trình tái cấu trúc gồm ba bước rõ ràng. Bước đầu tiên, chúng ta xác định các điều kiện biên để loại bỏ trường hợp ngoại lệ ngay lập tức. Bước thứ hai, tách biệt các kiểm tra biểu thức phức tạp ra các biến trung gian độc lập. Bước cuối cùng, thực hiện gán trực tiếp bằng toán tử ba ngôi để hoàn thiện luồng xử lý.

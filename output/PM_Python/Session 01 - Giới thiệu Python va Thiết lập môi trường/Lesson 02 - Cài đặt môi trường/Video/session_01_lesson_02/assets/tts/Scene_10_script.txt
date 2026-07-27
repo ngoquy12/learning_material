@@ -1,0 +1,1 @@
+Khi chạy file kiểm tra bằng lệnh python app chấm p-y ngay trong terminal đã kích hoạt, màn hình sẽ hiển thị Virtual Env bằng True đi kèm đường dẫn thư mục dự án cục bộ. Ngược lại, nếu tắt kích hoạt môi trường và chạy lại, kết quả trả về sẽ là False và đường dẫn chỉ tới thư viện gốc của hệ thống.

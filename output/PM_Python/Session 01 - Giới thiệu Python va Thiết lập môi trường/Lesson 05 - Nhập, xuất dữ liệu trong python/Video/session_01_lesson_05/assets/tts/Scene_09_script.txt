@@ -1,0 +1,1 @@
+Tương tự, hành vi kết thúc dòng hiển thị của hàm prin-t được kiểm soát bởi đối số en-đơ. Mặc định, đối số en-đơ chứa ký tự xuống dòng xuyệt n. Bằng cách gán lại tham số en-đơ với các chuỗi ký tự tùy chỉnh hoặc một chuỗi rỗng, lập trình viên có thể giữ con trỏ trên cùng một dòng hoặc hiển thị trạng thái hoàn thành ngay sau kết quả.

@@ -41,7 +41,14 @@ import {
   Database,
   Play,
   GitBranch,
+  OctagonPause,
+  Activity,
+  BookOpen,
+  Sparkles,
 } from "lucide-react";
+import { GeneratePMModal } from "../../courses/components/GeneratePMModal";
+import { PMPreviewModal } from "../../courses/components/PMPreviewModal";
+import { useConfirmImport, type PMRow } from "../../courses/hooks/useCourses";
 import {
   useCacheStats,
   useClearCache,
@@ -57,6 +64,8 @@ import {
   useGenerateAllCourse,
   useGenerateSession,
   useGenerateLesson,
+  useStopAllPipeline,
+  useActiveTasksStatus,
 } from "../../../services/hooks";
 import {
   getCourses,
@@ -66,6 +75,9 @@ import {
   saveVideoFile,
   getVideoStatus,
   renderVideo,
+  getPMTemplateDownloadUrl,
+  type VideoProjectDetails,
+  type SCORMTaskStatus,
 } from "../../../services/api";
 
 const { Text, Paragraph, Title: AntdTitle } = Typography;
@@ -235,17 +247,33 @@ export default function PipelineMonitorPage() {
   const [videoDraft, setVideoDraft] = useState<boolean>(false);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
 
+  // AI PM Generator States
+  const [generateModalOpen, setGenerateModalOpen] = useState<boolean>(false);
+  const [generatedPMRows, setGeneratedPMRows] = useState<PMRow[]>([]);
+  const [pmPreviewModalOpen, setPmPreviewModalOpen] = useState<boolean>(false);
+  const { mutate: confirmImport, isPending: isConfirmingImport } = useConfirmImport();
+
   // Video Management States
   const [videoModalVisible, setVideoModalVisible] = useState<boolean>(false);
-  const [activeVideoLesson, setActiveVideoLesson] = useState<{ id: number; name: string; title: string } | null>(null);
+  const [activeVideoLesson, setActiveVideoLesson] = useState<{
+    id: number;
+    name: string;
+    title: string;
+  } | null>(null);
   const [activeVideoSession, setActiveVideoSession] = useState<string>("");
-  const [videoDetails, setVideoDetails] = useState<any>(null);
+  const [videoDetails, setVideoDetails] = useState<VideoProjectDetails | null>(
+    null,
+  );
   const [loadingDetails, setLoadingDetails] = useState<boolean>(false);
   const [editingContent, setEditingContent] = useState<string>("");
-  const [activeEditorTab, setActiveEditorTab] = useState<"script" | "html">("script");
+  const [activeEditorTab, setActiveEditorTab] = useState<"script" | "html">(
+    "script",
+  );
   const [savingFile, setSavingFile] = useState<boolean>(false);
   const [renderTaskId, setRenderTaskId] = useState<string | null>(null);
-  const [renderStatus, setRenderStatus] = useState<any>(null);
+  const [renderStatus, setRenderStatus] = useState<SCORMTaskStatus | null>(
+    null,
+  );
   const [pollingRender, setPollingRender] = useState<boolean>(false);
   const [modalDraft, setModalDraft] = useState<boolean>(false);
 
@@ -290,6 +318,8 @@ export default function PipelineMonitorPage() {
     useGenerateSession();
   const { execute: triggerGenerateLesson, loading: generateLessonLoading } =
     useGenerateLesson();
+  const { execute: doStopAll, loading: stoppingAll } = useStopAllPipeline();
+  const { data: activeTasksInfo, refetch: refetchActiveTasks } = useActiveTasksStatus();
 
   const {
     startExport: startSCORM,
@@ -310,7 +340,10 @@ export default function PipelineMonitorPage() {
     loading: vidLoading,
   } = useVideoRender();
 
-  const openVideoManager = async (lesson: { id: number; name: string; title: string }, sessionName: string) => {
+  const openVideoManager = async (
+    lesson: { id: number; name: string; title: string },
+    sessionName: string,
+  ) => {
     setActiveVideoLesson(lesson);
     setActiveVideoSession(sessionName);
     setVideoModalVisible(true);
@@ -318,16 +351,22 @@ export default function PipelineMonitorPage() {
     setVideoDetails(null);
     setRenderTaskId(null);
     setRenderStatus(null);
-    
+
     try {
-      const details = await getVideoProjectDetails(selectedCourseName, sessionName, lesson.name);
+      const details = await getVideoProjectDetails(
+        selectedCourseName,
+        sessionName,
+        lesson.name,
+      );
       setVideoDetails(details);
       if (details.project_found) {
         setEditingContent(details.script_md || "");
         setActiveEditorTab("script");
       }
-    } catch (e: any) {
-      message.error("Lỗi khi tải chi tiết dự án video: " + e.message);
+    } catch (err: unknown) {
+      message.error(
+        "Lỗi khi tải chi tiết dự án video: " + (err as Error).message,
+      );
     } finally {
       setLoadingDetails(false);
     }
@@ -337,21 +376,27 @@ export default function PipelineMonitorPage() {
     if (!activeVideoLesson || !activeVideoSession) return;
     setSavingFile(true);
     try {
-      const filename = activeEditorTab === "script" ? "SCRIPT.md" : "index.html";
+      const filename =
+        activeEditorTab === "script" ? "SCRIPT.md" : "index.html";
       await saveVideoFile({
         course_name: selectedCourseName,
         session_id: activeVideoSession,
         lesson_id: activeVideoLesson.name,
         filename,
-        content: editingContent
+        content: editingContent,
       });
       message.success(`Đã lưu tệp ${filename} thành công!`);
-      setVideoDetails((prev: any) => ({
-        ...prev,
-        [activeEditorTab === "script" ? "script_md" : "index_html"]: editingContent
-      }));
-    } catch (e: any) {
-      message.error("Lỗi khi lưu tệp: " + e.message);
+      setVideoDetails((prev: VideoProjectDetails | null) =>
+        prev
+          ? {
+              ...prev,
+              [activeEditorTab === "script" ? "script_md" : "index_html"]:
+                editingContent,
+            }
+          : null,
+      );
+    } catch (err: unknown) {
+      message.error("Lỗi khi lưu tệp: " + (err as Error).message);
     } finally {
       setSavingFile(false);
     }
@@ -366,42 +411,53 @@ export default function PipelineMonitorPage() {
         course_name: selectedCourseName,
         session_id: activeVideoSession,
         lesson_id: activeVideoLesson.name,
-        draft: modalDraft
+        draft: modalDraft,
       });
       setRenderTaskId(res.task_id);
-    } catch (e: any) {
-      message.error("Lỗi khi khởi chạy render: " + e.message);
+    } catch (err: unknown) {
+      const errorMsg = (err as Error).message;
+      message.error("Lỗi khi khởi chạy render: " + errorMsg);
       setPollingRender(false);
-      setRenderStatus({ status: "failed", error: e.message, progress: "Khỏi chạy thất bại" });
+      setRenderStatus({
+        status: "failed",
+        error: errorMsg,
+        progress: "Khởi chạy thất bại",
+      });
     }
   };
 
   useEffect(() => {
     if (!renderTaskId) return;
-    
+
     const interval = setInterval(async () => {
       try {
         const s = await getVideoStatus(renderTaskId);
         setRenderStatus(s);
-        if (s.status !== 'running') {
+        if (s.status !== "running") {
           setPollingRender(false);
           clearInterval(interval);
-          
-          if (s.status === 'completed') {
+
+          if (s.status === "completed") {
             message.success("Render video thành công!");
-            const details = await getVideoProjectDetails(selectedCourseName, activeVideoSession, activeVideoLesson!.name);
+            const details = await getVideoProjectDetails(
+              selectedCourseName,
+              activeVideoSession,
+              activeVideoLesson!.name,
+            );
             setVideoDetails(details);
           } else {
             message.error("Render video thất bại: " + (s.error || s.progress));
           }
         }
-      } catch (e: any) {
-        message.error("Lỗi kiểm tra trạng thái render: " + e.message);
+      } catch (err: unknown) {
+        message.error(
+          "Lỗi kiểm tra trạng thái render: " + (err as Error).message,
+        );
         setPollingRender(false);
         clearInterval(interval);
       }
     }, 2000);
-    
+
     return () => clearInterval(interval);
   }, [renderTaskId]);
 
@@ -633,7 +689,52 @@ export default function PipelineMonitorPage() {
                   trúc, kiểm tra ràng buộc sư phạm và xuất bản học liệu.
                 </Paragraph>
               </div>
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-2 items-center flex-wrap">
+                {activeTasksInfo?.has_active_tasks && (
+                  <Popconfirm
+                    title="Dừng tất cả tiến trình ngầm?"
+                    description={`Đang có ${activeTasksInfo.active_task_count} tiến trình biên dịch đang chạy ngầm.`}
+                    onConfirm={async () => {
+                      try {
+                        await doStopAll();
+                        message.success("Đã phát lệnh dừng tất cả tiến trình!");
+                        refetchCourseStatus();
+                        refetchActiveTasks();
+                      } catch {
+                        message.error("Lỗi khi phát lệnh dừng!");
+                      }
+                    }}
+                    okText="Dừng toàn bộ"
+                    cancelText="Hủy"
+                  >
+                    <Button
+                      danger
+                      type="primary"
+                      loading={stoppingAll}
+                      icon={<OctagonPause size={14} />}
+                      className="bg-rose-600 hover:bg-rose-700 font-bold shadow-sm animate-pulse"
+                    >
+                      Dừng toàn bộ ({activeTasksInfo.active_task_count})
+                    </Button>
+                  </Popconfirm>
+                )}
+                <Button
+                  type="primary"
+                  className="bg-gradient-to-r from-indigo-600 via-purple-600 to-teal-600 text-white font-bold border-none shadow-md hover:opacity-90 flex items-center gap-1.5"
+                  icon={<Sparkles size={16} />}
+                  onClick={() => setGenerateModalOpen(true)}
+                >
+                  AI Sinh PM 10 Cột Tự Động
+                </Button>
+                <Button
+                  type="default"
+                  className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 font-semibold"
+                  icon={<Download size={14} />}
+                  href={getPMTemplateDownloadUrl()}
+                  target="_blank"
+                >
+                  Tải PM Excel Mẫu Chuẩn (.xlsx)
+                </Button>
                 <Select
                   showSearch
                   allowClear
@@ -1036,7 +1137,9 @@ export default function PipelineMonitorPage() {
                                       type="primary"
                                       ghost
                                       icon={<Video size={10} />}
-                                      onClick={() => openVideoManager(les, sess.name)}
+                                      onClick={() =>
+                                        openVideoManager(les, sess.name)
+                                      }
                                     >
                                       Quản lý Video
                                     </Button>
@@ -1044,7 +1147,9 @@ export default function PipelineMonitorPage() {
                                       size="small"
                                       icon={<Play size={10} />}
                                       loading={generateLessonLoading}
-                                      onClick={() => handleGenerateLesson(les.id)}
+                                      onClick={() =>
+                                        handleGenerateLesson(les.id)
+                                      }
                                     >
                                       Biên dịch
                                     </Button>
@@ -1337,12 +1442,16 @@ export default function PipelineMonitorPage() {
                               }))}
                           />
                           <div className="flex items-center justify-between py-1.5 bg-indigo-50/50 rounded-md px-2.5 border border-indigo-100/50 my-1">
-                            <span className="text-[11px] text-indigo-700 font-semibold">Chế độ Draft (Render nhanh 1-2p)</span>
+                            <span className="text-[11px] text-indigo-700 font-semibold">
+                              Chế độ Draft (Render nhanh 1-2p)
+                            </span>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input
                                 type="checkbox"
                                 checked={videoDraft}
-                                onChange={(e) => setVideoDraft(e.target.checked)}
+                                onChange={(e) =>
+                                  setVideoDraft(e.target.checked)
+                                }
                                 className="sr-only peer"
                               />
                               <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
@@ -1618,21 +1727,124 @@ export default function PipelineMonitorPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start flex-wrap gap-4">
+      {/* Modern Top Header */}
+      <div className="flex justify-between items-center flex-wrap gap-4 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 m-0 tracking-tight flex items-center gap-2">
-            Operations & AI Pipeline Center
+          <h1 className="text-2xl font-extrabold text-slate-900 m-0 tracking-tight flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-teal-500 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-teal-500/20">
+              <Activity size={20} />
+            </div>
+            <span>Trung Tâm Điều Phối Tiến Trình AI</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Trung tâm kiểm soát, tối ưu hóa sư phạm, quản lý Semantic Cache và
-            biên dịch đa định dạng khóa học.
+          <p className="text-slate-500 text-xs mt-1 m-0 leading-relaxed">
+            Hệ thống giám sát thời gian thực, thẩm định sư phạm tiên quyết, quản lý Semantic Cache và biên dịch đa định dạng khóa học.
           </p>
         </div>
-        <div className="bg-indigo-50 border border-indigo-100 rounded-lg px-4 py-2 text-xs flex items-center gap-2 shadow-sm text-indigo-700 font-semibold">
-          <Zap size={16} className="text-indigo-600 animate-bounce" />
-          <span>Agentic Pipeline: Đang hoạt động</span>
+        <div className="flex items-center gap-2">
+          {activeTasksInfo?.has_active_tasks ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2 text-xs flex items-center gap-2 shadow-sm text-emerald-700 font-semibold">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span>Đang xử lý {activeTasksInfo.active_task_count} tiến trình ngầm</span>
+            </div>
+          ) : (
+            <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2 text-xs flex items-center gap-2 text-slate-600 font-semibold">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+              <span>Hệ thống AI Agent: Sẵn sàng</span>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Top Banner KPI Metric Cards */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} className="bg-slate-900 text-white shadow-sm rounded-2xl p-0.5 border border-slate-800">
+            <div className="flex items-center justify-between p-1">
+              <div>
+                <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block">Tiến Trình Chạy Ngầm</span>
+                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                  {activeTasksInfo?.active_task_count || 0} Task
+                </span>
+              </div>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeTasksInfo?.has_active_tasks ? "bg-teal-500/20 text-teal-400 animate-pulse" : "bg-slate-800 text-slate-400"}`}>
+                <Activity size={20} />
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+              <span className="text-slate-400">Trạng thái Worker</span>
+              {activeTasksInfo?.has_active_tasks ? (
+                <Tag color="processing" className="m-0 text-[10px] font-bold border-none bg-teal-500/20 text-teal-300">ĐANG CHẠY</Tag>
+              ) : (
+                <Tag color="default" className="m-0 text-[10px] font-bold border-none bg-slate-800 text-slate-300">SẴN SÀNG</Tag>
+              )}
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} className="bg-gradient-to-br from-teal-900 to-emerald-950 text-white shadow-sm rounded-2xl p-0.5 border border-teal-800/60">
+            <div className="flex items-center justify-between p-1">
+              <div>
+                <span className="text-[11px] text-teal-300 font-medium uppercase tracking-wider block">Môn Học Hệ Thống</span>
+                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                  {courses.length} Khóa Học
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center">
+                <BookOpen size={20} />
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-teal-800/60 flex items-center justify-between text-[11px]">
+              <span className="text-teal-300">Môn mục tiêu</span>
+              <span className="font-bold text-emerald-300 truncate max-w-[130px]">
+                {selectedCourseName || "Chưa chọn"}
+              </span>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} className="bg-gradient-to-br from-indigo-950 to-slate-900 text-white shadow-sm rounded-2xl p-0.5 border border-indigo-800/60">
+            <div className="flex items-center justify-between p-1">
+              <div>
+                <span className="text-[11px] text-indigo-300 font-medium uppercase tracking-wider block">Bộ Nhớ Đệm Cache</span>
+                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                  {cacheStats?.total_cache_hits || 0} Hits
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center">
+                <Zap size={20} />
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-indigo-800/60 flex items-center justify-between text-[11px]">
+              <span className="text-indigo-300">Tiết kiệm ước tính</span>
+              <span className="font-bold text-indigo-200">
+                {(cacheStats?.estimated_tokens_saved || 0).toLocaleString()} tokens
+              </span>
+            </div>
+          </Card>
+        </Col>
+
+        <Col xs={24} sm={12} md={6}>
+          <Card bordered={false} className="bg-gradient-to-br from-emerald-950 to-teal-950 text-white shadow-sm rounded-2xl p-0.5 border border-emerald-800/60">
+            <div className="flex items-center justify-between p-1">
+              <div>
+                <span className="text-[11px] text-emerald-300 font-medium uppercase tracking-wider block">Bộ Nhớ Tri Thức</span>
+                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                  {memories?.length || 0} Quy Chuẩn
+                </span>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                <Brain size={20} />
+              </div>
+            </div>
+            <div className="mt-2 pt-2 border-t border-emerald-800/60 flex items-center justify-between text-[11px]">
+              <span className="text-emerald-300">Chuẩn sư phạm</span>
+              <span className="font-bold text-emerald-200">100% Đã Khóa</span>
+            </div>
+          </Card>
+        </Col>
+      </Row>
 
       <Tabs
         activeKey={activeTab}
@@ -1645,7 +1857,8 @@ export default function PipelineMonitorPage() {
       <Modal
         title={
           <span className="flex items-center gap-2 text-indigo-600 text-sm md:text-base font-bold">
-            <Video size={18} /> Quản lý và Thiết kế Video: {activeVideoLesson?.name} - {activeVideoLesson?.title}
+            <Video size={18} /> Quản lý và Thiết kế Video:{" "}
+            {activeVideoLesson?.name} - {activeVideoLesson?.title}
           </span>
         }
         visible={videoModalVisible}
@@ -1660,32 +1873,44 @@ export default function PipelineMonitorPage() {
         {loadingDetails ? (
           <div className="flex flex-col items-center justify-center p-16 space-y-3">
             <Spin size="large" />
-            <Text type="secondary">Đang tải cấu trúc và tệp tin của Video...</Text>
+            <Text type="secondary">
+              Đang tải cấu trúc và tệp tin của Video...
+            </Text>
           </div>
         ) : videoDetails && !videoDetails.project_found ? (
           <div className="text-center p-12 space-y-4">
             <AlertTriangle size={48} className="mx-auto text-amber-500" />
             <div>
-              <h4 className="font-semibold text-slate-800">Chưa tìm thấy Dự án Video cho bài học này</h4>
+              <h4 className="font-semibold text-slate-800">
+                Chưa tìm thấy Dự án Video cho bài học này
+              </h4>
               <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-                Dự án video (HyperFrames) chưa được khởi tạo. Vui lòng bấm biên dịch bài học này ở bước Biên dịch AI trước để tạo mã nguồn, lời thoại (TTS) và cấu trúc mặc định.
+                Dự án video (HyperFrames) chưa được khởi tạo. Vui lòng bấm biên
+                dịch bài học này ở bước Biên dịch AI trước để tạo mã nguồn, lời
+                thoại (TTS) và cấu trúc mặc định.
               </p>
             </div>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               onClick={async () => {
                 if (activeVideoLesson) {
                   setLoadingDetails(true);
                   try {
                     await handleGenerateLesson(activeVideoLesson.id);
-                    const details = await getVideoProjectDetails(selectedCourseName, activeVideoSession, activeVideoLesson.name);
+                    const details = await getVideoProjectDetails(
+                      selectedCourseName,
+                      activeVideoSession,
+                      activeVideoLesson.name,
+                    );
                     setVideoDetails(details);
                     if (details.project_found) {
                       setEditingContent(details.script_md || "");
                       setActiveEditorTab("script");
                     }
-                  } catch (e: any) {
-                    message.error("Lỗi khi tạo video: " + e.message);
+                  } catch (err: unknown) {
+                    message.error(
+                      "Lỗi khi tạo video: " + (err as Error).message,
+                    );
                   } finally {
                     setLoadingDetails(false);
                   }
@@ -1727,7 +1952,12 @@ export default function PipelineMonitorPage() {
                   size="small"
                   type="primary"
                   ghost
-                  icon={<RefreshCw size={12} className={savingFile ? "animate-spin" : ""} />}
+                  icon={
+                    <RefreshCw
+                      size={12}
+                      className={savingFile ? "animate-spin" : ""}
+                    />
+                  }
                   loading={savingFile}
                   onClick={handleSaveFile}
                   className="text-xs"
@@ -1735,7 +1965,7 @@ export default function PipelineMonitorPage() {
                   Lưu thay đổi
                 </Button>
               </div>
-              
+
               <div className="relative flex-1">
                 <textarea
                   value={editingContent}
@@ -1748,7 +1978,7 @@ export default function PipelineMonitorPage() {
                 </div>
               </div>
             </Col>
-            
+
             <Col span={12} className="flex flex-col space-y-4">
               <Tabs
                 defaultActiveKey="preview"
@@ -1756,7 +1986,11 @@ export default function PipelineMonitorPage() {
                 items={[
                   {
                     key: "preview",
-                    label: <span className="font-semibold text-xs flex items-center gap-1"><Play size={12} /> Live Preview (Trực quan)</span>,
+                    label: (
+                      <span className="font-semibold text-xs flex items-center gap-1">
+                        <Play size={12} /> Live Preview (Trực quan)
+                      </span>
+                    ),
                     children: (
                       <div className="space-y-2">
                         <div className="w-full bg-slate-950 rounded-lg overflow-hidden border border-slate-800 relative aspect-video flex items-center justify-center">
@@ -1768,55 +2002,78 @@ export default function PipelineMonitorPage() {
                               title="HyperFrames Live Preview"
                             />
                           ) : (
-                            <Text type="secondary" className="text-xs">Không có đường dẫn xem trước</Text>
+                            <Text type="secondary" className="text-xs">
+                              Không có đường dẫn xem trước
+                            </Text>
                           )}
                         </div>
                         <div className="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-200">
-                          <span className="text-[10px] text-slate-500 italic">Preview chạy trực tiếp HTML/GSAP từ đĩa cứng.</span>
+                          <span className="text-[10px] text-slate-500 italic">
+                            Preview chạy trực tiếp HTML/GSAP từ đĩa cứng.
+                          </span>
                           <Button
                             size="small"
                             type="default"
                             icon={<RefreshCw size={11} />}
                             onClick={() => {
-                              setVideoDetails((prev: any) => ({
-                                ...prev,
-                                preview_url: prev.preview_url.split('?')[0] + "?t=" + Date.now()
-                              }));
+                              setVideoDetails(
+                                (prev: VideoProjectDetails | null) =>
+                                  prev && prev.preview_url
+                                    ? {
+                                        ...prev,
+                                        preview_url:
+                                          prev.preview_url.split("?")[0] +
+                                          "?t=" +
+                                          Date.now(),
+                                      }
+                                    : prev,
+                              );
                             }}
                           >
                             Tải lại Preview
                           </Button>
                         </div>
                       </div>
-                    )
+                    ),
                   },
                   {
                     key: "render",
-                    label: <span className="font-semibold text-xs flex items-center gap-1"><Video size={12} /> Render Video & Xuất bản</span>,
+                    label: (
+                      <span className="font-semibold text-xs flex items-center gap-1">
+                        <Video size={12} /> Render Video & Xuất bản
+                      </span>
+                    ),
                     children: (
                       <div className="space-y-4 p-1">
                         <div className="bg-slate-50 p-3 rounded-lg border space-y-3">
                           <div className="flex items-center justify-between">
                             <div>
-                              <Text strong className="text-slate-800 text-xs">Cấu hình kết xuất bài học</Text>
+                              <Text strong className="text-slate-800 text-xs">
+                                Cấu hình kết xuất bài học
+                              </Text>
                               <Paragraph className="text-[10px] text-slate-500 m-0 mt-0.5">
-                                Chọn render nháp để kiểm tra thời gian thực, hoặc chất lượng cao để xuất bản.
+                                Chọn render nháp để kiểm tra thời gian thực,
+                                hoặc chất lượng cao để xuất bản.
                               </Paragraph>
                             </div>
                             <div className="flex items-center gap-2 bg-white px-2 py-1 rounded border">
-                              <span className="text-[11px] text-slate-600 font-semibold">Render Nháp (Nhanh)</span>
+                              <span className="text-[11px] text-slate-600 font-semibold">
+                                Render Nháp (Nhanh)
+                              </span>
                               <label className="relative inline-flex items-center cursor-pointer">
                                 <input
                                   type="checkbox"
                                   checked={modalDraft}
-                                  onChange={(e) => setModalDraft(e.target.checked)}
+                                  onChange={(e) =>
+                                    setModalDraft(e.target.checked)
+                                  }
                                   className="sr-only peer"
                                 />
                                 <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
                               </label>
                             </div>
                           </div>
-                          
+
                           <Button
                             type="primary"
                             block
@@ -1827,42 +2084,56 @@ export default function PipelineMonitorPage() {
                             Bắt đầu kết xuất MP4
                           </Button>
                         </div>
-                        
+
                         {renderStatus && (
                           <div className="bg-indigo-50/50 p-3 rounded-lg border border-indigo-100/50 space-y-2.5">
                             <div className="flex justify-between items-center text-xs">
                               <span className="text-indigo-800 font-semibold flex items-center gap-1.5">
-                                <Spin size="small" className="scale-75" /> Trạng thái: {renderStatus.progress}
+                                <Spin size="small" className="scale-75" /> Trạng
+                                thái: {renderStatus.progress}
                               </span>
-                              <span className="font-bold text-indigo-700">{renderStatus.percent || 0}%</span>
+                              <span className="font-bold text-indigo-700">
+                                {renderStatus.percent || 0}%
+                              </span>
                             </div>
-                            <Progress 
-                              percent={renderStatus.percent || 0} 
-                              status={renderStatus.status === "failed" ? "exception" : "active"}
-                              strokeColor="#4f46e5" 
-                              showInfo={false} 
+                            <Progress
+                              percent={renderStatus.percent || 0}
+                              status={
+                                renderStatus.status === "failed"
+                                  ? "exception"
+                                  : "active"
+                              }
+                              strokeColor="#4f46e5"
+                              showInfo={false}
                             />
                             {renderStatus.error && (
-                              <Alert type="error" message={renderStatus.error} banner className="text-[10px] rounded p-1" />
+                              <Alert
+                                type="error"
+                                message={renderStatus.error}
+                                banner
+                                className="text-[10px] rounded p-1"
+                              />
                             )}
                           </div>
                         )}
-                        
+
                         {videoDetails?.video_url ? (
                           <div className="space-y-2">
-                            <Text strong className="text-slate-800 text-xs">Video bài giảng đã xuất bản:</Text>
+                            <Text strong className="text-slate-800 text-xs">
+                              Video bài giảng đã xuất bản:
+                            </Text>
                             <div className="w-full bg-black rounded-lg overflow-hidden border aspect-video">
-                              <video 
-                                controls 
-                                className="w-full h-full" 
-                                src={videoDetails.video_url} 
+                              <video
+                                controls
+                                className="w-full h-full"
+                                src={videoDetails.video_url}
                                 key={videoDetails.video_url}
                               />
                             </div>
-                            <Button 
-                              type="primary" 
-                              ghost 
-                              block 
+                            <Button
+                              type="primary"
+                              ghost
+                              block
                               icon={<Download size={14} />}
                               href={videoDetails.video_url}
                               download
@@ -1872,19 +2143,59 @@ export default function PipelineMonitorPage() {
                           </div>
                         ) : (
                           <div className="p-8 text-center bg-slate-50 border rounded-lg">
-                            <Video size={32} className="mx-auto text-slate-300 mb-2" />
-                            <Text type="secondary" className="text-xs">Chưa có video được render cho bài học này.</Text>
+                            <Video
+                              size={32}
+                              className="mx-auto text-slate-300 mb-2"
+                            />
+                            <Text type="secondary" className="text-xs">
+                              Chưa có video được render cho bài học này.
+                            </Text>
                           </div>
                         )}
                       </div>
-                    )
-                  }
+                    ),
+                  },
                 ]}
               />
             </Col>
           </Row>
         )}
       </Modal>
+
+      <GeneratePMModal
+        open={generateModalOpen}
+        onCancel={() => setGenerateModalOpen(false)}
+        onSuccess={(generatedRows) => {
+          setGeneratedPMRows(generatedRows);
+          setPmPreviewModalOpen(true);
+        }}
+        defaultCourseName={selectedCourseName}
+      />
+
+      {pmPreviewModalOpen && (
+        <PMPreviewModal
+          open={pmPreviewModalOpen}
+          courseId={selectedCourseId || 1}
+          onCancel={() => setPmPreviewModalOpen(false)}
+          initialData={generatedPMRows}
+          isConfirming={isConfirmingImport}
+          onConfirm={(payload) => {
+            if (selectedCourseId) {
+              confirmImport(
+                { courseId: selectedCourseId, payload },
+                {
+                  onSuccess: () => {
+                    setPmPreviewModalOpen(false);
+                    refetchCourseStatus();
+                  },
+                }
+              );
+            } else {
+              message.warning("Vui lòng chọn môn học để lưu cấu trúc PM vào CSDL!");
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

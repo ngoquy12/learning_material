@@ -1,0 +1,1 @@
+Bước kế tiếp là kích hoạt môi trường. Trên Windows PowerShell, chạy script chấm xuệc app gạch dưới env xuệc Scripts xuệc Activate chấm p-s-một. Trên macOS hoặc Linux, bạn dùng lệnh source cách app gạch dưới env xuệc bin xuệc activate. Command prompt sẽ xuất hiện hậu tố tên môi trường đầu dòng lệnh.

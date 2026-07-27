@@ -176,6 +176,20 @@ Cấu trúc Rubric bắt buộc gồm 5 nhóm tiêu chí sau:
 """
         rubric_guidelines = f"""
 Cấu trúc Rubric bắt buộc gồm 5 nhóm tiêu chí sau:
+1. Cấu trúc đề bài bắt buộc phải chứa đúng 5 phần tiêu đề H3 bôi đậm sau (không được thừa, thiếu hay đổi tên):
+   ### **1. Mục tiêu**
+   ### **2. Vấn đề** (hoặc ### **2. Bối cảnh & Vấn đề**)
+   ### **3. Quy tắc nghiệp vụ** 
+   ### **4. Yêu cầu bài toán** (hoặc ### **4. Yêu cầu đầu ra**)
+   ### **5. Yêu cầu nộp bài**
+
+1.1. BẮT BUỘC SƠ ĐỒ MERMAID BỐI CẢNH BÀI TOÁN (PROPOSAL 2):
+   - Trong phần '### **2. Bối cảnh & Vấn đề**', BẮT BUỘC phải bổ sung 1 sơ đồ Mermaid (dùng ```mermaid ... ```) trực quan hóa luồng dữ liệu của bài toán (Đầu vào -> Xử lý/Quy tắc nghiệp vụ -> Đầu ra kỳ vọng).
+   - QUY TẮC NGÔN NGỮ TRONG SƠ ĐỒ DÀNH CHO SINH VIÊN VIỆT NAM: Giữ nguyên tên biến, hàm, từ khóa công nghệ bằng TIẾNG ANH (`total_price`, `validate()`); Tiêu đề sơ đồ và nhãn các bước xử lý bằng TIẾNG VIỆT (`[Khởi tạo đơn hàng] --> [Kiểm tra mã giảm giá] --> [Tính tổng tiền]`).
+
+1.2. BẮT BUỘC BẢNG RUBRIC CHẤM ĐIỂM 100 ĐIỂM CHO GIẢNG VIÊN (PROPOSAL 3):
+   - Ở cuối bài tập (sau mục 5), BẮT BUỘC thêm phần '### **6. Tiêu chí đánh giá & Rubric chấm điểm (Dành cho Giảng viên/Mentor)**' bao gồm Bảng Rubric 100 điểm với các tiêu chí: Logic & Testcases (40đ), Clean Code & Naming (20đ), Xử lý Bẫy ngoại lệ & Edge cases (20đ), Tối ưu hiệu năng & Format nộp bài (20đ).
+
 #### **1. Khởi tạo Dự án & Schema dữ liệu — 20 điểm**
 *   **[10 điểm] Thiết lập môi trường và cấu trúc dự án:** Tạo môi trường ảo `.venv`, cài đặt thư viện phụ thuộc, cấu hình tệp chạy chính khởi tạo FastAPI.
 *   **[10 điểm] Xây dựng Pydantic Schemas:** Định nghĩa chính xác các schemas cho request/response với các kiểu dữ liệu tương ứng.

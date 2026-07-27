@@ -1,0 +1,1 @@
+Không chỉ xung đột thư viện, sự không nhất quán về cấu hình đường dẫn và biến môi trường giữa các hệ điều hành Windows, macOS, Linux còn khiến mã nguồn hoạt động không ổn định. Lỗi runtime âm thầm chỉ xuất hiện trên máy chủ hoặc máy của thành viên khác là hậu quả của việc thiếu cơ chế cô lập và tự động hóa.

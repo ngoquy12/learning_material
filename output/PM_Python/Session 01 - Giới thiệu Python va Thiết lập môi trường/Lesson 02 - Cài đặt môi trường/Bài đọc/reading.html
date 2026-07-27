@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 01 - Lesson 02: Cài đặt môi trường - Trực quan hóa & Tương tác Động</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+              }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.mermaid) {
+            mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+        }
+    });
+    </script>
+    <script>
+    let _pyodideInstance = null;
+    async function getPyodideInstance() {
+        if (!_pyodideInstance && window.loadPyodide) {
+            console.log("Initializing Pyodide WebAssembly Engine...");
+            _pyodideInstance = await loadPyodide();
+        }
+        return _pyodideInstance;
+    }
+
+    async function runPyodideSandbox(event, boxId) {
+        if (event && event.preventDefault) event.preventDefault();
+        const codeEl = document.querySelector('#' + boxId + '_code code');
+        const outEl = document.getElementById(boxId + '_output');
+        if (!codeEl || !outEl) return;
+
+        const rawCode = codeEl.innerText || codeEl.textContent;
+        outEl.style.display = 'block';
+        outEl.innerHTML = '<span style="color: #38bdf8;">⏳ Đang khởi tạo Pyodide Wasm Sandbox và thực thi mã nguồn...</span>';
+
+        try {
+            let py = await getPyodideInstance();
+            if (py) {
+                py.runPython(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+`);
+                let res = py.runPython(rawCode);
+                let stdout = py.runPython("sys.stdout.getvalue()");
+                let stderr = py.runPython("sys.stderr.getvalue()");
+                
+                let outputText = "";
+                if (stdout) outputText += stdout;
+                if (stderr) outputText += "\n[STDERR]:\n" + stderr;
+                if (res !== undefined && res !== null && !stdout) outputText += String(res);
+                
+                if (!outputText.trim()) outputText = "[Chương trình hoàn tất thực thi - Không có đầu ra Console]";
+                outEl.innerHTML = '<strong style="color: #10b981;"><i class="ph-duotone ph-check-circle" style="font-size: 1.1rem;"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>\n' + escapeHtml(outputText);
+            } else {
+                outEl.innerHTML = '<strong style="color: #f59e0b;"><i class="ph-duotone ph-warning-octagon" style="font-size: 1.1rem;"></i> KHÔNG THỂ TẢI ENGINE PYODIDE (KIỂM TRA KẾT NỐI MẠNG). MÃ NGUỒN:</strong>\n' + escapeHtml(rawCode);
+            }
+        } catch (err) {
+            outEl.innerHTML = '<strong style="color: #ef4444;"><i class="ph-duotone ph-x-circle" style="font-size: 1.1rem;"></i> LỖI THỰC THI (RUNTIME ERROR):</strong>\n' + escapeHtml(String(err));
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    </script>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --card-border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --box-note-bg: rgba(15, 30, 54, 0.04);
+            --box-tip-bg: rgba(56, 161, 105, 0.05);
+            --box-warning-bg: rgba(221, 107, 32, 0.05);
+            --primary-text: #0f1e36;
+            --code-header-bg: #252526;
+            --code-body-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.04);
+            --clay: #D97757;
+            --clay-light: rgba(217, 119, 87, 0.06);
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-serif: 'Montserrat', 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --color-idle: #475569;
+            --color-active: #eab308;
+            --color-done: #22c55e;
+            --primary: #be111c;
+            --rust: #c2410c;
+            --rust-light: rgba(194, 65, 12, 0.08);
+        }
+
+        .theme-dark, html.dark, :root.dark {
+            --bg-body: #0b0f19;
+            --bg-card: #151d30;
+            --bg-hover: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --card-border: #1e293b;
+            --nav-bg: rgba(11, 15, 25, 0.95);
+            --box-note-bg: rgba(255, 255, 255, 0.03);
+            --box-tip-bg: rgba(56, 161, 105, 0.1);
+            --box-warning-bg: rgba(221, 107, 32, 0.1);
+            --primary-text: #ffffff;
+            --code-header-bg: #1e1e1e;
+            --code-body-bg: #121212;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --primary: #be111c;
+            --rust: #f97316;
+        }
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Optimized Full-Width Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .main-content, .panel-box, .right-column, .visualizer-container, .visualizer-grid {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .panel {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-panel);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .gotchas {
+            border: 1.5px solid var(--clay);
+            border-radius: 12px;
+            background: var(--clay-light);
+            padding: 18px 20px;
+        }
+
+        .gotchas h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--clay);
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Visualizer Playground Container */
+        .visualizer-container {
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-panel);
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* Interactive Grid Layout */
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Panel 1: Visualizer Canvas */
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .canvas-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .visualizer-canvas {
+            background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-height: 380px;
+            max-height: 540px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            padding: 24px 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: background-color 0.3s;
+        }
+
+        .visualizer-canvas::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bar-item {
+            background-color: var(--color-idle);
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #ffffff;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, transform 0.3s ease;
+        }
+
+        .bar-item.comparing { background-color: var(--color-compare); transform: scaleY(1.03); }
+        .bar-item.swapping { background-color: var(--color-swap); transform: scale(1.05); }
+        .bar-item.sorted { background-color: var(--color-done); }
+
+        /* Panel 2 & 4: Controls & Stats */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--bg-panel);
+            color: var(--text-main);
+        }
+
+        .btn-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-start { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-start:hover { background: var(--primary); opacity: 0.9; }
+        .btn-reset { background: var(--rust-light); color: var(--rust); border-color: var(--rust); }
+        .btn-reset:hover { background: var(--rust); color: white; }
+
+        .inputs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--bg-canvas);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .custom-input-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Panel Right: Code Tracker & Log */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-canvas);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .code-tracker-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-tracker-panel pre, .code-tracker-panel code {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        .panel-top-bar {
+            background: #1e293b;
+            padding: 10px 14px;
+            border-bottom: 1.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #38bdf8;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background-color: #121824;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 6px;
+            border-left: 3px solid transparent;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+
+        .code-line.active-line {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .console-log-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            max-height: 200px;
+        }
+
+        .stats-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-panel .badge {
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .log-messages {
+            overflow-y: auto;
+            flex-grow: 1;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .log-info { background: rgba(30, 41, 59, 0.6); color: #38bdf8; }
+        .log-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }
+        .log-warn { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }
+
+        /* Step-by-Step Walkthrough Styling */
+        .step {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 18px;
+            padding: 24px 0;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .step:last-of-type {
+            border-bottom: none;
+        }
+
+        .badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .step.hot .badge {
+            background: var(--clay-light);
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+
+        .step-loc {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .step-loc .range {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .step-body {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        table, .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        table th, .comparison-table th {
+            background-color: #be111c !important;
+            color: white !important;
+            padding: 12px 16px !important;
+            font-weight: 700 !important;
+            font-family: 'Montserrat', sans-serif !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            text-align: left;
+        }
+
+        .theme-dark table th, .theme-dark .comparison-table th {
+            background-color: #991b1b !important;
+        }
+
+        table td, .comparison-table td {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* VS Code Dark Code container */
+        .code-container {
+            border: 1px solid #333333 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            margin: 16px 0 !important;
+            background-color: #1e1e1e !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .code-header {
+            background: #252526 !important;
+            border-bottom: 1px solid #333333 !important;
+            padding: 10px 16px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+            font-size: 0.82rem !important;
+            color: #cccccc !important;
+            font-weight: 600 !important;
+        }
+
+        .copy-btn {
+            background: #3c3c3c !important;
+            border: 1px solid #4d4d4d !important;
+            color: #cccccc !important;
+            padding: 4px 12px !important;
+            border-radius: 4px !important;
+            font-size: 0.75rem !important;
+            cursor: pointer !important;
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+
+        .copy-btn:hover {
+            background: #505050 !important;
+            color: #ffffff !important;
+        }
+
+        .code-body {
+            background-color: #1e1e1e !important;
+            padding: 16px 20px !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+        }
+
+        .code-body pre, .code-body code {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            color: #d4d4d4 !important;
+            font-family: 'JetBrains Mono', 'Consolas', 'Fira Code', monospace !important;
+            font-size: 0.88rem !important;
+            line-height: 1.75 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        /* Note, Tip & Warning Boxes */
+        .box {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border-left: 5px solid;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .tip-box { background: var(--box-tip-bg); border-color: #38a169; color: var(--text-main); }
+        .note-box { background: var(--box-note-bg); border-color: #be111c; color: var(--text-main); }
+        .warning-box { background: var(--box-warning-bg); border-color: #dd6b20; color: var(--text-main); }
+
+        .selftest-item {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+        .selftest-question { font-weight: 600; color: var(--primary); cursor: pointer; }
+        .selftest-answer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); }
+        .selftest-answer ul { list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer ol { list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer li { margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }
+        .selftest-item.active .selftest-answer { display: block; }
+
+        /* Strict Left Alignment for All Text, Paragraphs, Lists & Body Containers */
+        .step-body, p, li, ul, ol {
+            text-align: left;
+        }
+
+        /* Guarantee 100% Horizontal Centering ONLY for Media Elements */
+        img, svg, .scene-image-container, .mermaid, figure {
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+        }
+        .scene-image-container {
+            max-width: 800px !important;
+            width: 100% !important;
+            margin: 24px auto !important;
+            text-align: center !important;
+        }
+        .step-body img, .step-body svg {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans transition-colors duration-300">
+    <!-- Sticky Nav Header -->
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+        <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Rikkei Logo -->
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" / style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-[1600px] w-full mx-auto relative z-10">
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 01</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Cài đặt môi trường</h2>
+            <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
+                Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Layout grid matching effective-html structure -->
+        <div class="layout">
+            
+            <div class="main-content">
+
+
+                <!-- Walkthrough Step-by-Step Sections -->
+                <div class="walkthrough-section">
+
+                    <!-- Step 1: Problem Breakdown -->
+                    <div class="step">
+                        <div class="badge">1</div>
+                        <div class="step-body">
+                            <div class="step-loc">Thách thức về tính nhất quán và cô lập môi trường trong doanh nghiệp</div>
+                            <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Thách thức về tính nhất quán môi trường toàn cục</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trong môi trường sản xuất của doanh nghiệp công nghệ, các nhóm phát triển lớn làm việc đồng thời trên nhiều dự án phần mềm khác nhau trên cùng một máy tính.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tình trạng này dẫn đến xung đột trầm trọng về phiên bản thư viện giữa các dự án khác biệt.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Hiện tượng này được gọi là <strong>Dependency Hell</strong> (Địa ngục phụ thuộc), xảy ra khi Dự án A yêu cầu phiên bản hệ thống cũ trong khi Dự án B bắt buộc phải sử dụng phiên bản mới nhất.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt trực tiếp lên hệ điều hành gây ghi đè tệp tin toàn cục và làm hỏng luồng chạy của các ứng dụng cũ đang vận hành ổn định.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Lỗi đồng bộ mã nguồn giữa các hệ điều hành</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sự bất đồng bộ về cấu hình đường dẫn và biến môi trường hệ thống xảy ra thường xuyên giữa Windows, macOS và Linux.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Code chạy thành công trên máy của lập trình viên này nhưng lại gặp lỗi nghiêm trọng khi triển khai trên máy chủ hoặc máy của thành viên khác.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Hệ thống thiếu linh hoạt trong việc tự động phát hiện và liên kết đúng trình thông dịch dẫn đến thời gian cấu hình thủ công kéo dài, làm giảm hiệu suất phát triển.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Tác động tiêu cực của cấu hình thủ công sai quy chuẩn</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Lập trình viên tự ý chỉnh sửa thủ công biến hệ thống chứa tệp chạy dẫn đến lỗi ghi đè khóa môi trường cục bộ.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Phần mềm hoạt động chập chờn, không thể tải đúng tài nguyên thư viện chuẩn khi khởi chạy trực tiếp thông qua cửa sổ dòng lệnh Terminal.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Các sai lệch về phiên bản gây ra các lỗi runtime âm thầm chỉ xuất hiện khi đưa mã nguồn lên môi trường kiểm thử thực tế.</li>
+</ul>
+</ul>
+<div style='text-align: center; margin: 20px 0;'>
+  <svg width='100%' height='auto' viewBox='0 0 800 450' xmlns='http://www.w3.org/2000/svg' style="background:#f4f6f9; border-radius:8px;; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;">
+    <rect width='800' height='450' fill='#f4f6f9' rx='10'/>
+    <rect x='50' y='80' width='300' height='120' rx='8' fill='#e2e8f0' stroke='#cbd5e1' stroke-width='2'/>
+    <text x='200' y='120' font-family='sans-serif' font-size='16' font-weight='bold' fill='#1e293b' text-anchor='middle'>Project A (Legacy App)</text>
+    <text x='200' y='160' font-family='sans-serif' font-size='14' fill='#64748b' text-anchor='middle'>Requires: Package X (v1.0)</text>
+    <rect x='450' y='80' width='300' height='120' rx='8' fill='#e2e8f0' stroke='#cbd5e1' stroke-width='2'/>
+    <text x='600' y='120' font-family='sans-serif' font-size='16' font-weight='bold' fill='#1e293b' text-anchor='middle'>Project B (New API)</text>
+    <text x='600' y='160' font-family='sans-serif' font-size='14' fill='#64748b' text-anchor='middle'>Requires: Package X (v2.0)</text>
+    <circle cx='400' cy='280' r='50' fill='#ef4444'/>
+    <text x='400' y='285' font-family='sans-serif' font-size='14' font-weight='bold' fill='#ffffff' text-anchor='middle'>CONFLICT</text>
+    <path d='M 200 200 L 350 280' stroke='#ef4444' stroke-width='3' stroke-dasharray='5,5'/>
+    <path d='M 600 200 L 450 280' stroke='#ef4444' stroke-width='3' stroke-dasharray='5,5'/>
+    <rect x='200' y='360' width='400' height='60' rx='6' fill='#10b981'/>
+    <text x='400' y='395' font-family='sans-serif' font-size='16' font-weight='bold' fill='#ffffff' text-anchor='middle'>Solution: Isolated Virtual Environments (venv)</text>
+  </svg>
+</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Deep Dive Internals -->
+                    <div class="step">
+                        <div class="badge">2</div>
+                        <div class="step-body">
+                            <div class="step-loc">Phân tích cơ chế cô lập môi trường ảo và so sánh hệ thống thực thi</div>
+                            <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cơ chế cô lập môi trường của module venv</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Khi kích hoạt một virtual environment, hệ thống sẽ thực hiện chuyển hướng đường dẫn tìm kiếm thư viện mặc định.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Hệ thống sử dụng biến môi trường <strong>PATH</strong> của phiên làm việc dòng lệnh hiện tại để đẩy đường dẫn thư mục <code>bin</code> (macOS/Linux) hoặc <code>Scripts</code> (Windows) của môi trường ảo lên vị trí ưu tiên đầu tiên.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tất cả các lệnh gọi trình thông dịch Python cũng như việc truy xuất các gói bổ sung thông qua công cụ quản lý gói <strong>pip</strong> sẽ bị giới hạn hoàn toàn trong phạm vi thư mục cục bộ của môi trường ảo đó.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">File cấu hình <code>pyvenv.cfg</code> lưu trữ thông tin chỉ mục của môi trường gốc giúp ánh xạ các thư viện chuẩn mà không cần sao chép toàn bộ mã nguồn lõi của Python, tiết kiệm dung lượng ổ đĩa.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cơ chế quản lý môi trường của Anaconda</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Anaconda sử dụng trình quản lý gói độc lập mang tên <strong>conda</strong> để xử lý không chỉ thư viện Python mà còn cả mã nguồn biên dịch của hệ thống như C/C++.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Anaconda tối ưu hóa việc phân tách bằng cách cung cấp các gói công cụ nhị phân đã biên dịch sẵn giúp tối ưu hiệu năng tính toán số học nâng cao.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tuy nhiên, nhược điểm của giải pháp này là dung lượng cài đặt chiếm dụng tài nguyên đĩa cứng rất lớn, không phù hợp cho các dự án web nhẹ hoặc ứng dụng nhỏ gọn.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Bảng so sánh kỹ thuật môi trường thực thi của các ngôn ngữ</strong>:</li>
+</ul>
+
+    <div style="margin: 20px 0; overflow-x: auto;">
+        <table class="comparison-table" style="width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
+            <thead>
+                <tr style="background-color: #be111c; color: white;">
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Tiêu chí So sánh Kỹ thuật</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Cài đặt môi trường (PYTHON/CORE)</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Giải pháp / Ngôn ngữ truyền thống (C/C++/Java)</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Đánh giá bối cảnh Doanh nghiệp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cơ chế Thực thi</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Thông dịch / Runtime linh hoạt (Bytecode/PVM)</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Biên dịch trước toàn bộ (AOT / Native Code)</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu hóa tốc độ phát triển (Time-to-Market)</td>
+                </tr>
+                <tr style="background-color: var(--bg-hover);">
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cú pháp & Cấu trúc</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối giản, định kiểu động, lùi dòng làm khối lệnh</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tường minh, khai báo kiểu tĩnh, ngoặc nhọn</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Dễ đọc, dễ bảo trì và nhanh chóng thử nghiệm MVP</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Hiệu năng & Tài nguyên</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Overhead kiểm tra kiểu lúc runtime, quản lý bộ nhớ tự động</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu phần cứng, kiểm tra kiểu lúc compile-time</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Đánh đổi nhẹ hiệu năng lấy năng suất kỹ sư phần mềm</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Solution & Architecture -->
+                    <div class="step">
+                        <div class="badge">3</div>
+                        <div class="step-body">
+                            <div class="step-loc">Giải pháp thiết lập môi trường phát triển đúng quy chuẩn kỹ thuật</div>
+                            <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Quy trình cài đặt Python và tích hợp PATH</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tải bộ cài đặt chính thức của Python phiên bản ổn định từ trang chủ python.org.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Thực hiện chạy bộ cài đặt và bắt buộc tích hợp tùy chọn <strong>Add Python to PATH</strong> để hệ thống tự động nhận diện lệnh chạy.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Qấu hình Visual Studio Code làm môi trường phát triển chính</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cài đặt trình soạn thảo VS Code từ nguồn phân phối chính thức.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tiến hành cài đặt tiện ích mở rộng <strong>Python extension</strong> cung cấp bởi Microsoft để kích hoạt các tính năng phân tích mã nguồn và tích hợp thiết bị dòng lệnh.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Tạo lập và kích hoạt môi trường ảo cho dự án mới</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Mở thư mục gốc của dự án trên ứng dụng dòng lệnh.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Khởi tạo môi trường ảo bằng lệnh sau: <code>python -m venv app_env</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Kích hoạt phân vùng môi trường ảo cô lập:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trên hệ điều hành Windows (PowerShell): Chạy script <code>./app_env/Scripts/Activate.ps1</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trên hệ điều hành macOS/Linux: Chạy lệnh <code>source app_env/bin/activate</code>.</li>
+</ul>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Liên kết môi trường ảo với trình soạn thảo VS Code</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Kích hoạt bảng điều khiển của VS Code bằng tổ hợp phím <code>Ctrl + Shift + P</code> (hoặc <code>Cmd + Shift + P</code> trên macOS).</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tìm kiếm lựa chọn cấu hình <strong>Python: Select Interpreter</strong> và chỉ định đường dẫn đến file thực thi Python nằm bên trong môi trường ảo <code>app_env</code> vừa thiết lập.</li>
+</ul>
+</ul>
+<div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
+flowchart TD
+    A[Script Python: app.py] --> B{He thong kiem tra moi truong}
+    B -->|Chua kich hoat venv| C[Trinh thong dich Toan cuc / Global Python]
+    B -->|Da kich hoat venv| D[Trinh thong dich Moi truong ao / Local venv]
+    C --> E[Su dung site-packages he thong - De xung dot phien ban]
+    D --> F[Su dung site-packages cuc bo - Co lap an toan cho du an]
+</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Setup & Configuration Code -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">Phân tích kết quả vận hành và kịch bản thực thi thực tế <span class="range"></span></div>
+                            
+        <details class="interactive-details" open>
+            <summary>Nhấp vào để đóng/mở mã nguồn chi tiết</summary>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-controls">
+                        <span class="control-dot dot-red"></span>
+                        <span class="control-dot dot-yellow"></span>
+                        <span class="control-dot dot-green"></span>
+                    </div>
+                    <span class="code-title">example.python</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+                </div>
+                <div class="code-body">
+                    <pre><code class="language-python" id="code-snippet-1">import sys
+
+
+def check_development_environment():
+    # Lay duong dan thuc thi cua trinh thong dich
+    interpreter_path = sys.executable
+    active_prefix = sys.prefix
+    base_prefix = getattr(sys, &quot;base_prefix&quot;, sys.prefix)
+
+    # Xac dinh trang thai co lap cua phan vung moi truong
+    is_virtual_env = active_prefix != base_prefix
+
+    print(&quot;=== ENVIRONMENT STATUS ===&quot;)
+    print(&quot;Interpreter Path:&quot;)
+    print(interpreter_path)
+    print(&quot;Is Active Virtual Environment:&quot;)
+    print(is_virtual_env)
+
+
+if __name__ == &quot;__main__&quot;:
+    check_development_environment()
+</code></pre>
+                </div>
+            </div>
+        </details>
+        
+                            <div style="margin-top: 16px;">
+                                <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Quy trình nạp và phân tích cấu trúc hệ thống</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Khi file mã nguồn chạy trong môi trường ảo, chương trình truy cập biến hệ thống để đọc tiền tố thư mục hiện hành.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bộ xử lý so sánh giá trị phân vùng thực tế của dự án với phân vùng của nhân hệ điều hành.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Nhờ cơ chế chuyển hướng thông tin, trình thông dịch liên kết chính xác thư viện cục bộ thay vì gây ảnh hưởng đến hệ thống máy chủ bên ngoài.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Console Output mong đợi khi chạy kiểm thử trong môi trường ảo thành công</strong>:</li>
+</ul>
+<div class="code-container" style="border: 1px solid #334155; border-radius: 8px; margin: 20px 0; overflow: hidden; background: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><div class="code-header" style="background: #1e293b; color: #94a3b8; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;"><span class="code-title" style="font-weight: 600; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-code" style="font-size: 1.1rem;"></i> TEXT Snippet</span><button type="button" onclick="copyCode(this)" style="background: #334155; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.75rem;">Sao chép mã</button></div><div class="code-body" style="padding: 15px; overflow-x: auto;"><pre><code class="language-text">
+  === ENVIRONMENT STATUS ===
+  Interpreter Path:
+  C:\projects\app_env\Scripts\python.exe
+  Is Active Virtual Environment:
+  True
+</code></pre></div></div>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Console Output mong đợi khi chạy trực tiếp trên môi trường toàn cục (Chưa kích hoạt venv)</strong>:</li>
+</ul>
+<div class="code-container" style="border: 1px solid #334155; border-radius: 8px; margin: 20px 0; overflow: hidden; background: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><div class="code-header" style="background: #1e293b; color: #94a3b8; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;"><span class="code-title" style="font-weight: 600; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-code" style="font-size: 1.1rem;"></i> TEXT Snippet</span><button type="button" onclick="copyCode(this)" style="background: #334155; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.75rem;">Sao chép mã</button></div><div class="code-body" style="padding: 15px; overflow-x: auto;"><pre><code class="language-text">
+  === ENVIRONMENT STATUS ===
+  Interpreter Path:
+  C:\Users\admin\AppData\Local\Programs\Python\Python311\python.exe
+  Is Active Virtual Environment:
+  False
+</code></pre></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Self-Test Questions -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">5</div>
+                        <div class="step-body">
+                            <div class="step-loc">Khảo thí & Đánh giá năng lực tự học <span class="range"></span></div>
+                            <div class="selftest-container" style="margin-top: 12px;">
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 1: Hiện tượng Dependency Hell (Địa ngục phụ thuộc) xảy ra khi nào theo phản ánh từ thực tế doanh nghiệp?
+            </div>
+            <div class="selftest-answer">
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Dependency Hell xảy ra khi các nhóm phát triển lớn làm việc đồng thời trên cùng một máy tính nhưng các dự án khác biệt lại yêu cầu các phiên bản thư viện hệ thống khác nhau (ví dụ Dự án A yêu cầu bản cũ, Dự án B yêu cầu bản mới nhất). Việc cài đặt trực tiếp lên hệ điều hành toàn cục gây ghi đè tệp tin và làm hỏng ứng dụng cũ.</p>
+            </div>
+        </div>
+        
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 2: Sự bất đồng bộ về hệ điều hành (Windows, macOS, Linux) ảnh hưởng như thế nào đến mã nguồn của dự án?
+            </div>
+            <div class="selftest-answer">
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Sự bất đồng bộ này gây ra các lỗi về cấu hình đường dẫn và biến môi trường. Kết quả là mã nguồn chạy thành công trên máy của lập trình viên này nhưng lại gặp lỗi nghiêm trọng tại máy của thành viên khác hoặc trên máy chủ triển khai.</p>
+            </div>
+        </div>
+        
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 3: Việc lập trình viên tự ý chỉnh sửa thủ công biến hệ thống chứa tệp chạy dẫn đến hệ quả gì?
+            </div>
+            <div class="selftest-answer">
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Dẫn đến lỗi ghi đè các khóa môi trường cục bộ, làm phần mềm hoạt động chập chờn, không thể tải đúng các tài nguyên thư viện chuẩn khi khởi chạy trực tiếp thông qua cửa sổ dòng lệnh Terminal, và tạo ra các lỗi runtime âm thầm chỉ xuất hiện trên môi trường kiểm thử thực tế.</p>
+            </div>
+        </div>
+        </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Step 5: References -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">5</div>
+                        <div class="step-body">
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        
+                                <li>
+                                    <a href="https://docs.python.org/3/tutorial/venv.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Understanding Dependency Conflict in Shared Environments
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://learn.microsoft.com/en-us/windows/deployment/usmt/usmt-recognized-environment-variables" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> System Environment Variables and Local Identifiers Reference
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+        
+
+                    <!-- Bottom Notice / Gotchas Section -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay); display: inline-flex; align-items: center; justify-content: center;"><i class="ph-duotone ph-star" style="font-size: 1.1rem;"></i></div>
+                        <div class="step-body" style="border-color: var(--clay);">
+                            <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+                            <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+                                <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Khái niệm môi trường ảo (venv)</strong>: Giúp cô lập thư viện giữa các dự án để tránh hoàn toàn hiện tượng xung đột phiên bản phụ thuộc giữa các ứng dụng khác nhau.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Vai trò của biến PATH</strong>: Đăng ký đường dẫn file thực thi của Python vào biến <strong>PATH</strong> của hệ điều hành là điều kiện bắt buộc để có thể thực thi lệnh chạy từ bất kỳ thư mục nào trên dòng lệnh.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Lỗi thiếu gói thư viện</strong>: Lỗi runtime <strong>ModuleNotFoundError</strong> xảy ra do lập trình viên quên kích hoạt môi trường ảo cục bộ trước khi khởi chạy ứng dụng hoặc cài đặt gói thư viện sai phân vùng.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Lỗi không tìm thấy file</strong>: Lỗi runtime <strong>FileNotFoundError</strong> xuất hiện khi thư mục làm việc của terminal không trùng khớp với vị trí đặt tệp tin mã nguồn trong VS Code.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Lỗi quyền hạn thực thi</strong>: Lỗi runtime <strong>PermissionError</strong> xảy ra khi cố gắng cấu hình môi trường hoặc cài đặt gói hệ thống mà không khởi chạy terminal bằng quyền quản trị viên cao nhất.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Script imports -->
+
+    <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) hljs.highlightAll();
+        });
+        
+
+        function copyCode(event, button, codeId) {
+            if (event && event.preventDefault) event.preventDefault();
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

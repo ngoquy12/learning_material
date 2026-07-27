@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kokoro Vietnamese - Real-Time TTS & Streaming Studio</title>
+    <meta name="description" content="Hệ thống tổng hợp giọng nói tiếng Việt thời gian thực sử dụng Kokoro-82M và Web Audio Streaming.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-glow"></div>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-group">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M17 5v14M22 10v4M7 8v8M2 11v2"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="logo-title">Kokoro <span>Vietnamese</span></h1>
+                    <p class="logo-subtitle">Real-Time Text-to-Speech & Streaming API Studio</p>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge badge-glow" id="status-badge">
+                    <span class="status-dot"></span> Sẵn sàng
+                </span>
+                <span class="badge badge-outline">Kokoro-82M</span>
+                <span class="badge badge-outline">24 kHz</span>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="main-grid">
+            <!-- Left Panel: Input & Settings -->
+            <section class="card input-card">
+                <div class="card-header">
+                    <h2><span class="icon">📝</span> Văn bản Tiếng Việt</h2>
+                    <div class="presets-dropdown">
+                        <select id="preset-select" aria-label="Mẫu câu có sẵn">
+                            <option value="Hôm nay 20/07/2026, UBND TP.HCM họp lúc 15h30. Ngân sách dự án AI là 100k USD, giảm 50%, nhiệt độ 35°C.">Thử nghiệm Chuẩn hóa (Số, Ngày, Tiền, Viết tắt)</option>
+                            <option value="Giữa một buổi chiều yên tĩnh, cô ấy kể lại câu chuyện bằng một giọng nói ấm áp và chậm rãi.">Chiều yên tĩnh (Ấm áp)</option>
+                            <option value="Xin chào! Hôm nay trời rất trong xanh, gió thổi nhẹ qua hiên nhà. Chúc bạn một ngày làm việc thật hiệu quả!">Lời chào ngày mới</option>
+                            <option value="Hệ thống tổng hợp tiếng nói Kokoro Vietnamese hỗ trợ stream audio thời gian thực với độ trễ siêu thấp qua WebSocket và HTTP Chunked.">Giới thiệu hệ thống (Technical)</option>
+                            <option value="Ma mà má mả mã mạ là sáu thanh điệu khác nhau trong tiếng Việt, cần được phát âm chính xác.">Thử nghiệm 6 thanh điệu</option>
+                            <option value="Tường nhà khách đã được sơn lại sạch đẹp. Thường nhà khách đón rất nhiều đoàn đại biểu ghé thăm.">Kiểm tra cặp tối thiểu (Tường/Thường)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="textarea-wrapper">
+                    <textarea id="text-input" placeholder="Nhập câu hoặc đoạn văn bản tiếng Việt bạn muốn tổng hợp thành giọng nói..." rows="5" maxlength="2000"></textarea>
+                    <div class="char-count"><span id="char-counter">0</span> / 2000</div>
+                </div>
+
+                <div class="settings-grid">
+                    <!-- Voice Select -->
+                    <div class="setting-item">
+                        <label for="voice-select">Giọng đọc (Voice)</label>
+                        <div class="select-style">
+                            <select id="voice-select">
+                                <option value="diem_trinh">Diễm Trinh (diem_trinh)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Mode Select -->
+                    <div class="setting-item">
+                        <label for="mode-select">Chế độ phát (Mode)</label>
+                        <div class="select-style">
+                            <select id="mode-select">
+                                <option value="websocket">WebSocket Streaming (Siêu tốc)</option>
+                                <option value="http_stream">HTTP Chunked Stream</option>
+                                <option value="full">Tải Full Audio (WAV)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Speed Slider -->
+                    <div class="setting-item slider-item">
+                        <div class="slider-header">
+                            <label for="speed-range">Tốc độ nói: <span id="speed-val">1.0x</span></label>
+                        </div>
+                        <input type="range" id="speed-range" min="0.5" max="1.8" step="0.1" value="1.0">
+                    </div>
+
+                    <!-- Peak Normalization Toggle -->
+                    <div class="setting-item checkbox-item">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="normalize-toggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Peak Normalization (0.95)</span>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button id="btn-synthesize" class="btn-primary">
+                    <span class="btn-icon">▶</span>
+                    <span id="btn-text">Bắt đầu tạo giọng nói</span>
+                </button>
+            </section>
+
+            <!-- Right Panel: Audio Player, Visualizer & Phonemes -->
+            <section class="card output-card">
+                <div class="card-header">
+                    <h2><span class="icon">🎙️</span> Phát Audio & Visualizer</h2>
+                    <div class="audio-stats" id="audio-stats">0.0s / 24kHz</div>
+                </div>
+
+                <!-- Visualizer Canvas -->
+                <div class="visualizer-container">
+                    <canvas id="visualizer-canvas"></canvas>
+                    <div class="visualizer-overlay" id="visualizer-overlay">
+                        <span>Nhấn "Bắt đầu" để phát âm thanh</span>
+                    </div>
+                </div>
+
+                <!-- Native Audio Player Controls -->
+                <div class="player-controls">
+                    <button id="btn-play-pause" class="btn-circle" disabled aria-label="Phát hoặc tạm dừng">
+                        <svg id="play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+                    </button>
+                    <div class="progress-bar-container" id="progress-container">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <a id="btn-download" class="btn-secondary" download="kokoro_vietnamese.wav" title="Tải xuống WAV">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    </a>
+                </div>
+
+                <!-- Phonemes Stream Log -->
+                <div class="phonemes-section">
+                    <div class="phonemes-header">
+                        <h3><span class="icon">🔤</span> Chuỗi Âm vị (Phonemes Stream)</h3>
+                        <button id="btn-copy-phonemes" class="btn-text">Sao chép</button>
+                    </div>
+                    <div class="phonemes-box" id="phonemes-box">
+                        <span class="placeholder-text">Các token âm vị (G2P IPA) sẽ xuất hiện tại đây khi mô hình tổng hợp...</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Powered by <strong>Kokoro Vietnamese Engine</strong> &bull; Fast, Lightweight & High Quality Vietnamese Text-to-Speech</p>
+        </footer>
+    </div>
+
+    <!-- App Script -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -9,3 +9,9 @@ node_modules/
 *.db
 *.db-wal
 *.db-shm
+.pytest_cache/
+.DS_Store
+dist/
+build/
+web/frontend/dist/
+web/frontend/build/

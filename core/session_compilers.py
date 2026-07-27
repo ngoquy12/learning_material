@@ -20,6 +20,14 @@ def compile_session_html(session_dir: Path, session_title: str):
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(interactive_html)
     print(f"  [Session Compiler] Successfully compiled {output_path.name}")
+    
+    # Automatic Compiled Session Validation Check
+    from core.validators.session_compiler_validator import validate_compiled_session_html
+    is_valid, comp_errors = validate_compiled_session_html(output_path)
+    if is_valid:
+        print(f"  [Session Compiler Validator] PASSED 100% (DOM & JS Isolation Verified)")
+    else:
+        print(f"  [Session Compiler Validator Warning] {'; '.join(comp_errors)}")
 
 def _build_session_reading_html(session_title: str, html_files: list, is_static: bool = False) -> str:
     """
@@ -108,7 +116,9 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             # Prefix JS template literal IDs used in visualizers
             body_content = body_content.replace('getElementById(`line-${', f'getElementById(`lesson{idx}-line-${{')
             body_content = body_content.replace('id="line-', f'id="lesson{idx}-line-')
-            # Prefix global JS variables and classes to prevent redeclaration syntax errors
+            # Dynamic regex isolation of JS visualizer classes and global functions per lesson
+            body_content = re.sub(r'class\s+([A-Za-z0-9_]+VisualizerEngine[A-Za-z0-9_]*)', rf'class \1_{idx}', body_content)
+            body_content = re.sub(r'new\s+([A-Za-z0-9_]+VisualizerEngine[A-Za-z0-9_]*)\s*\(', rf'new \1_{idx}(', body_content)
             body_content = body_content.replace('InteractiveVisualizerEngine', f'InteractiveVisualizerEngine{idx}')
             body_content = body_content.replace('visualizerApp', f'visualizerApp{idx}')
             body_content = body_content.replace('applyTheme', f'applyTheme{idx}')
@@ -2205,4 +2215,79 @@ def compile_session_mindmap_markdown(session_title: str, mindmap_data: list) -> 
 
     final_content = "\n".join(merged_lines).strip()
     return f"```markmap\n{final_content}\n```"
+
+
+def compile_session_slides(session_dir: Path, session_title: str):
+    """
+    Tìm tất cả các file slides.html của từng Lesson trong session_dir,
+    tách các slide thành các cảnh (scenes), chèn các slide phân tách Lesson Divider,
+    và xuất ra file session_slides.html tổng hợp cho toàn bộ Session.
+    """
+    slides_files = sorted(
+        list(session_dir.glob("*/Bài giảng/slides.html")),
+        key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.parent.parent.name, re.IGNORECASE)) else 999
+    )
+    if not slides_files:
+        return
+
+    print(f"  [Session Compiler] Merging {len(slides_files)} lesson slide decks into session_slides.html...")
+    from agents.slide_generator_agent import slide_generator_agent
+
+    lessons_data = []
+    for idx, slide_path in enumerate(slides_files, 1):
+        try:
+            with open(slide_path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            title_match = re.search(r"<title>(.*?)</title>", content)
+            raw_title = title_match.group(1).replace(" — Rikkei Master Slide Presentation", "").strip() if title_match else f"Bài học {idx}"
+
+            m = re.search(r'Lesson\s+(\d+)\s*[:-]\s*(.*)', raw_title, re.IGNORECASE)
+            if m:
+                full_lesson_name = f'Lesson {m.group(1).zfill(2)} - {m.group(2).strip()}'
+            else:
+                full_lesson_name = raw_title
+
+            # Parse slide divs from deck-container
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(content, "html.parser")
+            deck = soup.find("div", id="deck-container")
+            slide_divs = deck.find_all("div", class_="slide") if deck else []
+
+            scenes = []
+            for s_div in slide_divs:
+                stype = s_div.get("data-type", "")
+                stitle = s_div.get("data-title", "")
+                # Skip standalone cover, agenda, and summary slides of individual lessons
+                if stype in ["cover", "agenda", "summary"]:
+                    continue
+
+                scene_html = "".join([str(c) for c in s_div.children])
+                scenes.append({
+                    "scene_title": stitle,
+                    "short_title": stitle,
+                    "action_title": stitle,
+                    "html_content": scene_html,
+                    "layout_type": "CUSTOM_RAW"
+                })
+
+            lessons_data.append({
+                "lesson_id": f"Lesson {idx:02d}",
+                "lesson_title": full_lesson_name,
+                "scenes": scenes
+            })
+        except Exception as e:
+            print(f"  [Warning] Error parsing {slide_path}: {e}")
+
+    if lessons_data:
+        master_slide_html = slide_generator_agent.generate_session_deck_html(
+            session_title=session_title,
+            module_name="RIKKEI ACADEMY",
+            lessons_data=lessons_data
+        )
+        output_path = session_dir / "session_slides.html"
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(master_slide_html)
+        print(f"  [Session Compiler] Successfully compiled master session slides: {output_path.name}")
+
 

@@ -1,0 +1,1 @@
+Hãy phân tích luồng vòng đời dữ liệu. Khi người dùng nhập dữ liệu qua bàn phím và nhấn Enter, Terminal gửi luồng byte thô đến hàm in-put. Hàm này lưu trữ giá trị dưới dạng chuỗi trong bộ nhớ ảo Virtual Machine. Trước khi tính toán, dữ liệu chuỗi cần đi qua bộ ép kiểu để chuyển thành số thực hoặc số nguyên, giúp CPU thực thi chính xác các phép toán.

@@ -1,0 +1,180 @@
+<!--
+  COMPONENT: summary_recap.html (Key Takeaways / Outro Summary)
+  SLOTS: {{slot_scene_n}}, {{slot_dur}}, {{slot_intro_title}},
+         {{slot_recap_title}},
+         {{slot_takeaway1}}, {{slot_takeaway2}}, {{slot_takeaway3}}, {{slot_takeaway4}},
+         {{slot_next_lesson}},
+         {{slot_t1}}, {{slot_t2}}, {{slot_gsap_extra}}
+-->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #0f1117; font-family: 'Inter', sans-serif;
+      background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+    }
+    body::before {
+      content:''; position:absolute; border-radius:50%; filter:blur(180px); z-index:-1;
+      top:-100px; left:50%; transform:translateX(-50%);
+      width:900px; height:600px; background:rgba(63,185,80,0.08);
+    }
+    .scene-root { width: 1920px; height: 1080px; position: relative; }
+    [id^="scene-"] { width: 1920px; height: 1080px; position: relative; }
+
+    .intro-title {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-size: 72px; font-weight: 800; color: #e6edf3; z-index: 100;
+      text-align: center; white-space: nowrap; text-shadow: 0 0 60px rgba(63,185,80,0.4);
+    }
+
+    .recap-container {
+      position: absolute; top: 100px; left: 120px;
+      width: 1680px; height: 880px;
+      display: flex; flex-direction: column; justify-content: center; gap: 36px;
+    }
+    .recap-header {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid rgba(63,185,80,0.3); padding-bottom: 24px;
+    }
+    .recap-title {
+      font-size: 44px; font-weight: 800; color: #e6edf3;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .recap-badge {
+      background: rgba(63,185,80,0.15); border: 1px solid rgba(63,185,80,0.3);
+      color: #3fb950; font-size: 18px; font-weight: 700; padding: 8px 24px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .takeaways-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .takeaway-card {
+      background: rgba(9,9,11,0.75); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 32px 36px;
+      display: flex; align-items: flex-start; gap: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    }
+    .takeaway-check {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(63,185,80,0.15); border: 1px solid rgba(63,185,80,0.4);
+      color: #3fb950; font-size: 22px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .takeaway-text { font-size: 24px; color: #ffffff; line-height: 1.6; font-weight: 600; }
+
+    .next-step-bar {
+      background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(168,85,247,0.12));
+      border: 1px solid rgba(56,189,248,0.25); border-radius: 16px;
+      padding: 24px 36px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .next-step-label { font-size: 20px; color: #8b949e; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .next-step-val { font-size: 24px; color: #38bdf8; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div id="scene-{{slot_scene_n}}" class="clip scene-root"
+       data-composition-id="scene-{{slot_scene_n}}"
+       data-start="0" data-duration="{{slot_dur}}" data-track-index="0">
+
+    <div id="intro-title-{{slot_scene_n}}" class="intro-title clip"
+         data-start="0" data-duration="{{slot_dur}}" data-track-index="100">
+      {{slot_intro_title}}
+    </div>
+
+    <div class="recap-container clip" data-start="0" data-duration="{{slot_dur}}" data-track-index="2">
+      <div class="recap-header">
+        <div class="recap-title" style="display:flex;align-items:center;gap:14px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          {{slot_recap_title}}
+        </div>
+        <div class="recap-badge">KEY TAKEAWAYS</div>
+      </div>
+
+      <div class="takeaways-grid">
+        <div id="tk-1-{{slot_scene_n}}" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">{{slot_takeaway1}}</div>
+        </div>
+
+        <div id="tk-2-{{slot_scene_n}}" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">{{slot_takeaway2}}</div>
+        </div>
+
+        <div id="tk-3-{{slot_scene_n}}" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">{{slot_takeaway3}}</div>
+        </div>
+
+        <div id="tk-4-{{slot_scene_n}}" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">{{slot_takeaway4}}</div>
+        </div>
+      </div>
+
+      <div id="next-bar-{{slot_scene_n}}" class="next-step-bar">
+        <div class="next-step-label" style="display:flex;align-items:center;gap:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          BÀI HỌC TIẾP THEO
+        </div>
+        <div class="next-step-val">{{slot_next_lesson}}</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    const sceneId = "scene-{{slot_scene_n}}";
+    window.__timelines[sceneId] = tl;
+
+    const _buildTimer = setInterval(function() {
+      if (!document.getElementById(sceneId)) return;
+      clearInterval(_buildTimer);
+
+      const t1 = parseFloat("{{slot_t1}}") || 4.0;
+      const t2 = parseFloat("{{slot_t2}}") || 5.5;
+      const dur = parseFloat("{{slot_dur}}") || 30.0;
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title-{{slot_scene_n}}", { autoAlpha: 0, scale: 0.8 }, 0);
+      ["1","2","3","4"].forEach(n => {
+        tl.set("#tk-" + n + "-{{slot_scene_n}}", { autoAlpha: 0, y: 24 }, 0);
+      });
+      tl.set("#next-bar-{{slot_scene_n}}", { autoAlpha: 0, scale: 0.96 }, 0);
+
+      tl.to("#intro-title-{{slot_scene_n}}", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title-{{slot_scene_n}}", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      tl.to("#tk-1-{{slot_scene_n}}", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1);
+      tl.to("#tk-2-{{slot_scene_n}}", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1 + 0.2);
+      tl.to("#tk-3-{{slot_scene_n}}", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1 + 0.4);
+      tl.to("#tk-4-{{slot_scene_n}}", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1 + 0.6);
+
+      tl.to("#next-bar-{{slot_scene_n}}", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.2)" }, t2);
+
+      /* {{slot_gsap_extra}} */
+
+      // Clean scene fade-out before transition
+      tl.to("#scene-{{slot_scene_n}}", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+      tl.set({}, {}, dur);
+    }, 50);
+  </script>
+</body>
+</html>

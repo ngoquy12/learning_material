@@ -1,0 +1,1 @@
+Bây giờ, chúng ta viết toán tử ba ngôi để tính toán đít-cao rết. Giá trị bằng không chấm hai mươi nếu o-đơ tô-tồ lớn hơn năm trăm chấm không. Ngược lại, giá trị sẽ bằng không chấm mười nếu cớt-xtơ-mơ mem-bơ-íp bằng gôl, và nhận giá trị mặc định là không chấm không năm cho các trường hợp còn lại.

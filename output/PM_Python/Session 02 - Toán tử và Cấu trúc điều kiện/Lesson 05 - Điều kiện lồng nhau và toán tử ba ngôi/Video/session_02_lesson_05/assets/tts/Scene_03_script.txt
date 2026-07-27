@@ -1,0 +1,1 @@
+Để giải quyết vấn đề này, các kỹ sư thường áp dụng nguyên lý thiết kế phẳng. Mục tiêu là duy trì tối đa hai cấp độ rẽ nhánh. Việc cấu trúc lại sơ đồ logic giúp tối ưu hóa bộ nhớ tạm của hệ thống và định hướng các luồng thực thi lệnh của bộ vi xử lý diễn ra trực diện hơn.

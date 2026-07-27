@@ -1,0 +1,1 @@
+Trước khi gõ lệnh, ta cần hiểu rõ lý do sử dụng venv. Môi trường ảo thực chất là một thư mục cô lập hoàn toàn chứa bản sao gọn nhẹ của trình thông dịch Python và một thư mục site gạch dưới packages riêng biệt. Cơ chế này đảm bảo mọi gói cài đặt qua pip sẽ chỉ nằm trong giới hạn dự án đó.

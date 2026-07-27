@@ -7,23 +7,40 @@ description: Bộ quy chuẩn kỹ thuật sản xuất video HyperFrames cho h�
 
 Tài liệu này là **Nguồn sự thật duy nhất (SSOT)** cho mọi Video Director Agent khi sinh kịch bản và compositions HyperFrames. Mọi output phải tuân thủ tuyệt đối các quy tắc dưới đây.
 
+> [!IMPORTANT]
+> **QUY TẮC ĐƯỜNG DẪN TỆP (WORKSPACE-RELATIVE PATHS ONLY):**
+> **NGHIÊM CẤM** việc hardcode tuyệt đối các đường dẫn từ ổ đĩa máy tính (ví dụ: `d:\...`, `C:\...`, `file:///d:/...`).
+> **BẮT BUỘC** tất cả các đường dẫn tệp trong cấu hình, tài liệu, kịch bản, mã nguồn script và tham chiếu (link) PHẢI xuất phát từ thư mục gốc của dự án (ví dụ: `Kokoro-Vietnamese/configs/tech_dictionary.json`, `skills/hyperframes_composer/SKILL.md`, `hyperframes/components/`).
+
+> [!IMPORTANT]
+> **QUY TẮC NỐI MÃ NGUỒN HTML TRỰC TIẾP (INLINED SCENE DOM — CHỐNG MÀN HÌNH ĐEN):**
+> Khi render trên Windows với giao thức `file://`, Chrome Puppeteer sẽ chặn truy cập `iframe.contentWindow.__timelines` do chính sách bảo mật cross-origin `origin null`. Điều này khiến các animation GSAP trong `iframe` bị kẹt ở frame 0 (màn hình đen).
+> **BẮT BUỘC**: Nhúng trực tiếp container HTML của tất cả các Scene (`<div id="scene-01" class="clip scene-root">...</div>`) và mã GSAP timeline tương ứng vào tệp `index.html` duy nhất. Không sử dụng nested `<iframe>` trong `index.html`.
+
 ---
 
 ## 1. Kiến trúc Project (File Structure) — BẮT BUỘC
 
+Toàn bộ code dự án video phải được lưu tại thư mục `Video/{lesson_slug}` của từng Lesson (VD: `output/PM_Python/Session 01.../Lesson 01.../Video/session_01_lesson_01`), copy cấu trúc dự án mẫu chuẩn từ `hyperframes/dev-tutorial-video`:
+
 ```
-{lesson_slug}/
-├── index.html                    ← Root composition (master timeline)
+{lesson_path}/Video/{lesson_slug}/
+├── index.html                    ← Root composition (master timeline chứa Intro/Outro/BGM/TTS/Scenes)
 ├── meta.json                     ← { "id": "{slug}", "name": "{slug}" }
 ├── package.json                  ← HyperFrames CLI scripts
-├── src/compositions/
-│   ├── Scene_01.html             ← Scene 1 sub-composition
-│   ├── Scene_02.html             ← Scene 2 sub-composition
-│   └── Scene_0N.html             ← ...
-└── assets/tts/
-    ├── scene_01.mp3              ← TTS audio (từng scene)
-    ├── scene_02.mp3
-    └── durations.json            ← { "scene_01": 38.84, "scene_02": 45.24, ... }
+├── prepare_assets.js / gen_tts.py← Script sinh voice TTS bằng Kokoro-Vietnamese (hung_thinh)
+├── assets/                       ← Tài nguyên media (Copy từ hyperframes/assets/)
+│   ├── intro.mp4                 ← Video Intro Rikkei Education (9.24s)
+│   ├── outro.mp4                 ← Video Outro Rikkei Education (12.15s)
+│   ├── bg-music.mp3              ← Nhạc nền Background Music
+│   └── tts/
+│       ├── Scene_01.mp3          ← TTS audio (từng scene)
+│       ├── Scene_02.mp3
+│       └── durations.json        ← { "Scene_01": 27.63, "Scene_02": 22.80, ... }
+└── src/compositions/
+    ├── Scene_01.html             ← Scene 1 sub-composition
+    ├── Scene_02.html             ← Scene 2 sub-composition
+    └── Scene_0N.html             ← ...
 ```
 
 **package.json chuẩn:**
@@ -43,7 +60,7 @@ Tài liệu này là **Nguồn sự thật duy nhất (SSOT)** cho mọi Video D
 
 ---
 
-## 2. Cấu trúc `index.html` (Root Composition) — BẮT BUỘC
+## 2. Cấu trúc `index.html` (Root Composition Chứa Intro/Outro/BGM/TTS) — BẮT BUỘC
 
 ```html
 <!doctype html>
@@ -67,16 +84,41 @@ Tài liệu này là **Nguồn sự thật duy nhất (SSOT)** cho mọi Video D
       data-width="1920"
       data-height="1080"
     >
-      <!-- Scene clips: data-start là timestamp tuyệt đối trong root timeline -->
+      <!-- ── Media Assets (Intro Video, Outro Video, Background Music từ hyperframes/assets) ── -->
+      <video id="intro-video"
+             data-start="0"
+             data-duration="9.24"
+             data-track-index="0"
+             data-has-audio="true"
+             data-volume="1"
+             src="assets/intro.mp4"></video>
+
+      <video id="outro-video"
+             data-start="{OUTRO_START}"
+             data-duration="12.15"
+             data-track-index="0"
+             data-has-audio="true"
+             data-volume="1"
+             src="assets/outro.mp4"></video>
+
+      <audio id="bg-music"
+             data-start="0"
+             data-duration="{TOTAL_DURATION}"
+             data-track-index="30"
+             data-volume="0.12"
+             data-loop="true"
+             src="assets/bg-music.mp3"></audio>
+
+      <!-- Scene clips: data-start bắt đầu SAU KHI intro-video kết thúc (mốc 9.24s) -->
       <div class="clip" data-composition-src="src/compositions/Scene_01.html"
-           data-composition-id="scene-01" data-start="0" data-duration="{S1_DUR}" data-track-index="1"></div>
+           data-composition-id="scene-01" data-start="9.24" data-duration="{S1_DUR}" data-track-index="1"></div>
       <div class="clip" data-composition-src="src/compositions/Scene_02.html"
-           data-composition-id="scene-02" data-start="{S1_DUR}" data-duration="{S2_DUR}" data-track-index="2"></div>
+           data-composition-id="scene-02" data-start="{9.24 + S1_DUR}" data-duration="{S2_DUR}" data-track-index="2"></div>
       <!-- ... tiếp tục cho mỗi scene -->
 
-      <!-- TTS Audio: PHẢI đặt ở đây với timestamp TUYỆT ĐỐI, KHÔNG đặt trong sub-composition -->
-      <audio id="tts-01" data-start="0"          data-duration="{S1_DUR}" data-track-index="20" data-volume="1" src="assets/tts/scene_01.mp3"></audio>
-      <audio id="tts-02" data-start="{S1_DUR}"   data-duration="{S2_DUR}" data-track-index="21" data-volume="1" src="assets/tts/scene_02.mp3"></audio>
+      <!-- TTS Audio: Đặt ở root timeline đồng bộ với timestamps của từng scene -->
+      <audio id="tts-01" data-start="9.24"         data-duration="{S1_DUR}" data-track-index="20" data-volume="1" src="assets/tts/Scene_01.mp3"></audio>
+      <audio id="tts-02" data-start="{9.24+S1_DUR}" data-duration="{S2_DUR}" data-track-index="21" data-volume="1" src="assets/tts/Scene_02.mp3"></audio>
       <!-- ... -->
     </div>
 
@@ -182,16 +224,23 @@ Tài liệu này là **Nguồn sự thật duy nhất (SSOT)** cho mọi Video D
 
 ---
 
-## 4. Quy tắc Timeline GSAP — BẮT BUỘC TUÂN THỦ
+## 4. Quy tắc Timeline GSAP — BẮT BUỘC TUÂN THỦ (NHỊP ĐIỆU THONG THẢ)
+
+### Thời lượng & Nhịp điệu chuẩn:
+- **Thời lượng mỗi Scene**: **30s – 60s** / scene (Tổng video bài học từ **5 – 10 phút**).
+- **Khoảng nghỉ giữa các Animation**: **2.5s – 4.0s** giữa các bước xuất hiện của phần tử UI, giúp học viên kịp đọc và tiếp thu kiến thức.
 
 ### Thứ tự tuyệt đối trong mỗi scene:
 ```
 0.0s → tl.set(".clip", { autoAlpha: 1 }, 0)        ← BẮT BUỘC ĐẦU TIÊN
 0.0s → tl.set(elements, { ẩn }, 0)                 ← BẮT BUỘC THỨ HAI
 0.2s → intro-title fade in
-3.2s → intro-title lên góc / fade out
-4.0s+ → element chính bắt đầu xuất hiện            ← KHÔNG BAO GIỜ trước 4.0s
+3.0s → intro-title lên góc / fade out
+4.0s+ → Element UI 1 bắt đầu xuất hiện
+7.5s+ → Element UI 2 bắt đầu xuất hiện (Khoảng nghỉ ≥ 3.0s)
+12.0s+→ Element UI 3 bắt đầu xuất hiện (Khoảng nghỉ ≥ 3.5s)
 ...
+{DURATION - 0.8}s → tl.to("#scene-XX", { autoAlpha: 0, duration: 0.8 }) ← BẮT BUỘC DỌN DẸP SẠCH UI
 {DURATION}s → tl.set({}, {}, {DURATION})           ← BẮT BUỘC CUỐI TIMELINE
 ```
 

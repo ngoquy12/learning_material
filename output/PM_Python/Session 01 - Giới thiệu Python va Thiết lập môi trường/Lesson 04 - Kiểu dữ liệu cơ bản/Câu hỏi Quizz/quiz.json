@@ -1,0 +1,71 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Trong bối cảnh hệ thống doanh nghiệp được mô tả, tại sao phép cộng thực hiện trên chuỗi văn bản chứa số lại gây lỗi?",
+      "options": [
+        "Vì chuỗi văn bản tự động chuyển đổi thành giá trị null khi gặp phép toán",
+        "Vì nó gây ra xung đột kiểu dữ liệu và làm tê liệt tiến trình xử lý giao dịch",
+        "Vì bộ nhớ tạm thời từ chối ghi nhận các chuỗi ký tự dài",
+        "Vì máy tính ưu tiên các biểu mẫu thanh toán hơn các thông tin đăng ký"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Theo bài viết, việc thực hiện các phép cộng trừ toán học trên một chuỗi văn bản chứa số sẽ gây ra xung đột kiểu dữ liệu, dẫn đến tê liệt toàn bộ tiến trình xử lý giao dịch."
+    },
+    {
+      "question": "Những thông tin nào đại diện cho kiểu dữ liệu số nguyên (int) và số thực (float) được nêu trong bài đọc?",
+      "options": [
+        "Họ tên và trạng thái kích hoạt tài khoản",
+        "Số dư ví và trạng thái kích hoạt tài khoản",
+        "Tuổi của khách hàng và số dư ví",
+        "Tuổi của khách hàng và họ tên"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Bài đọc chỉ rõ: tuổi của khách hàng biểu diễn dưới dạng số nguyên (int) và số dư ví biểu diễn dưới dạng số thực (float)."
+    },
+    {
+      "question": "Sự mơ hồ giữa chuỗi số và số thực tế gây ra vấn đề gì trực tiếp trên bộ nhớ?",
+      "options": [
+        "Làm tăng dung lượng chiếm dụng của bộ nhớ RAM gấp hai lần",
+        "Gây rò rỉ dữ liệu của khách hàng ra môi trường bên ngoài",
+        "Dẫn đến việc lưu trữ sai thông tin trên bộ nhớ tạm thời",
+        "Máy tính tự động xóa các biến không có kiểu dữ liệu rõ ràng"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Nguyên văn từ bài đọc: 'Sự mơ hồ giữa chuỗi số và số thực tế dẫn đến việc lưu trữ sai thông tin trên bộ nhớ tạm thời.'"
+    },
+    {
+      "question": "Trạng thái kích hoạt tài khoản của khách hàng được phân loại vào nhóm kiểu dữ liệu nào?",
+      "options": [
+        "Dạng số nguyên",
+        "Dạng đúng/sai (boolean)",
+        "Dạng văn bản",
+        "Dạng số thực"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Bài đọc mô tả thông tin trạng thái kích hoạt tài khoản là dạng đúng/sai (tương ứng với kiểu dữ liệu Boolean)."
+    }
+  ],
+  "practical_lab": {
+    "title": "Phan tich va Phan loai Kieu du lieu dau vao",
+    "objectives": [
+      "Nhan dien chinh xac 4 kieu du lieu can ban tu bieu mau dau vao",
+      "Chuyen doi thanh cong du lieu dang chuoi thoi ve dang so thuc va so nguyen de tinh toan an toan"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Buoc 1: Khai bao cac bien thieu kieu du lieu hoac gia tri mo ho tu he thong nhap. Vi du: raw_age = '28', raw_balance = '150.5'",
+        "Buoc 2: Su dung cac ham chuyen doi int() va float() de chuyen raw_age va raw_balance ve dung dinh dang so.",
+        "Buoc 3: Thuc hien phep toan cong don de cap nhat so du va tuoi de kiem chung xem he thong co gap loi xung dot hay khong.",
+        "Buoc 4: Ghi nhan ket qua vao bang dieu khien de so sanh su khac biet cua bo nho truoc va sau ep kieu."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chuyen doi thanh cong chuoi tuoi '28' thanh so nguyen de tinh toan",
+        "Chuyen doi thanh cong chuoi so du '150.5' thanh so thuc ma khong gay loi crash",
+        "In ra ket qua tinh toan sau khi du lieu da duoc lam sach va phan loai ro rang"
+      ]
+    }
+  }
+}

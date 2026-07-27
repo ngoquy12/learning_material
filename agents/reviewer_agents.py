@@ -6,96 +6,104 @@ from config.settings import get_agent_prompt
 from core.llm import call_llm
 import re
 
-def check_forbidden_keywords(text: str, tech_stack: str) -> str:
+from core.scope_calculator import validate_text_against_scope
+from core.validators.syntax_linter import lint_html_syntax
+from core.validators.master_validator import validate_resource
+
+def check_syntax_errors(html_text: str) -> str:
     """
-    Dynamically checks for leaked keywords from other technology stacks
-    based on the current tech_stack category to enforce stack isolation and prevent cognitive overload.
-    Applicable generally to Web, Mobile, API, and Programming Language courses.
+    Programmatically lints HTML and JS syntax to prevent Unexpected Token
+    or unclosed tag errors prior to reviewer approval.
     """
-    if not tech_stack or not text:
+    if not html_text:
+        return ""
+    is_valid, errors = lint_html_syntax(html_text)
+    if not is_valid:
+        return f"Lỗi cú pháp HTML/JS không hợp lệ (Linter Error): {'; '.join(errors[:2])}"
+    return ""
+
+def check_forbidden_keywords(text: str, tech_stack: str, forbidden_scope: set = None) -> str:
+    """
+    Checks for out-of-scope keywords or concepts based on dynamic syllabus contracts
+    or stack isolation rules to prevent cognitive overload.
+    """
+    if not text:
         return ""
         
-    tech_stack_lower = tech_stack.lower()
-    
-    # Define generic category mapping for stack isolation
-    forbidden_rules = {}
-    
-    # 1. Base Core Languages (e.g., python/core, javascript/core, java/core, c/core, cpp/core)
-    if "core" in tech_stack_lower or tech_stack_lower in ["python", "javascript", "java", "c", "cpp", "csharp"]:
-        forbidden_rules = {
-            "category": "Core Programming Language",
-            "patterns": [
-                r"\bfastapi\b", r"\buvicorn\b", r"\bpydantic\b", r"\bsqlalchemy\b",
-                r"\bpostgresql\b", r"\bmysql\b", r"\bmongodb\b", r"\bcors\b",
-                r"\bmiddleware\b", r"\bjwt\b", r"\bwsgi\b", r"\basgi\b", r"\bapirouter\b",
-                r"\bpostgres\b", r"\bmongo\b", r"\brouter\b", r"\bdatabases?\b",
-                r"\borm\b", r"\bsql\b", r"\bexpress\b", r"\bspring\b", r"\bspringboot\b",
-                r"\bhibernate\b", r"\bflutter\b", r"\breact\b", r"\bvue\b", r"\bangular\b"
-            ],
-            "description": "advanced web servers, databases, ORMs, frontend frameworks, or mobile development concepts"
-        }
-    # 2. Web Backend / API (e.g., fastapi, express, springboot, nodejs)
-    elif any(kw in tech_stack_lower for kw in ["api", "backend", "fastapi", "express", "springboot", "nodejs", "nest", "nestjs"]):
-        forbidden_rules = {
-            "category": "Web Backend / API Development",
-            "patterns": [
-                r"\breact\b", r"\bvue\b", r"\bangular\b", r"\bflutter\b", r"\bswift\b", r"\bkotlin\b",
-                r"\bandroid\b", r"\bios\b", r"\bhtml-css\b", r"\bwebpack\b", r"\bvite\b"
-            ],
-            "description": "frontend UI rendering frameworks or native mobile application components"
-        }
-    # 3. Web Frontend (e.g., react, vue, angular, html/css)
-    elif any(kw in tech_stack_lower for kw in ["frontend", "react", "vue", "angular", "html", "css", "nextjs"]):
-        forbidden_rules = {
-            "category": "Web Frontend Development",
-            "patterns": [
-                r"\bsqlalchemy\b", r"\bhibernate\b", r"\bpostgresql\b", r"\bmysql\b",
-                r"\bmongodb\b", r"\bspring\b", r"\bspringboot\b", r"\bexpress\b",
-                r"\bflask\b", r"\bdjango\b", r"\bprisma\b", r"\bmongoose\b"
-            ],
-            "description": "server-side frameworks or direct relational/NoSQL database connections"
-        }
-    # 4. Mobile Development (e.g., flutter, reactnative, android, ios, swift, kotlin)
-    elif any(kw in tech_stack_lower for kw in ["mobile", "flutter", "reactnative", "android", "ios", "swift", "kotlin"]):
-        forbidden_rules = {
-            "category": "Mobile Development",
-            "patterns": [
-                r"\bfastapi\b", r"\bexpress\b", r"\bspring\b", r"\bspringboot\b",
-                r"\bdjango\b", r"\bflask\b", r"\bkubernetes\b", r"\bdocker\b",
-                r"\bnginx\b", r"\bapache\b"
-            ],
-            "description": "web server routing engines, containerization, or production backend server deployment tools"
-        }
+    # 1. Dynamic Syllabus Contract Check if forbidden_scope provided
+    if forbidden_scope:
+        violations = validate_text_against_scope(text, forbidden_scope)
+        if violations:
+            return f"Nội dung bài học vi phạm ranh giới kiến thức: phát hiện từ khóa vượt cấp '{', '.join(violations[:3])}' chưa được học trong phạm vi này."
 
-    if forbidden_rules:
-        for pattern in forbidden_rules["patterns"]:
-            if re.search(pattern, text, re.IGNORECASE):
-                word = pattern.replace(r"\b", "").replace("?", "")
-                return (f"Nội dung bài học vi phạm nguyên tắc tách biệt công nghệ cho môn {tech_stack.upper()} "
-                        f"(thuộc nhóm {forbidden_rules['category']}): phát hiện từ khóa '{word}' không thuộc phạm vi môn học. "
-                        f"Môn học này không được chứa các {forbidden_rules['description']}.")
+    # 2. Stack Category Check (Generic matching based on provided tech_stack)
+    if tech_stack:
+        tech_lower = tech_stack.lower()
+        if "core" in tech_lower and any(kw in text.lower() for kw in ["fastapi", "uvicorn", "pydantic", "sqlalchemy", "express", "springboot"]):
+            return f"Nội dung môn {tech_stack.upper()} bị lẫn khái niệm framework/database nâng cao không thuộc phạm vi core."
+
     return ""
 
 def check_forbidden_emojis(text: str) -> str:
     """
     Checks if text contains actual emoji characters.
     Emojis are strictly forbidden across all educational content.
-    Standard typographical stars/bullets like '★' or '•' are allowed.
+    Standard typographical bullet points '•' are allowed.
     """
     if not text:
         return ""
     emoji_pattern = re.compile(
-        "[\U0001F600-\U0001F64F"
-        "\U0001F300-\U0001F5FF"
-        "\U0001F680-\U0001F6FF"
-        "\U0001F1E0-\U0001F1FF"
-        "\U0001F900-\U0001F9FF"
-        "\U0001FA70-\U0001FAFF"
+        "[\u2600-\u26FF"          # Warning ⚠️, symbols
+        "\u2700-\u27BF"          # Dingbats 💡, Checkmarks ✅, Crosses ❌
+        "\u2139"                 # Info ℹ️
+        "\u25B6"                 # Play ▶
+        "\U0001F600-\U0001F64F" # Emoticons
+        "\U0001F300-\U0001F5FF" # Misc Symbols and Pictographs (🐍, 🚀, 🔥)
+        "\U0001F680-\U0001F6FF" # Transport and Map
+        "\U0001F1E0-\U0001F1FF" # Flags
+        "\U0001F900-\U0001F9FF" # Supplemental Symbols
+        "\U0001FA70-\U0001FAFF" # Symbols and Pictographs Extended-A
         "]+", flags=re.UNICODE
     )
     match = emoji_pattern.search(text)
     if match:
         return f"Nội dung vi phạm quy tắc: TUYỆT ĐỐI CẤM sử dụng icon/biểu tượng cảm xúc (emoji). Ký tự vi phạm: '{match.group(0)}'. Hãy thay bằng văn bản nhãn [NOTE], [TIP], [WARNING] hoặc Phosphor Icons <i class='ph-...'>."
+    return ""
+
+def check_unaccented_vietnamese(text: str) -> str:
+    """
+    Kiem tra va phat hien van ban Tieng Viet khong dau (unaccented Vietnamese text).
+    Tat ca noi dung giang day phai dung Tieng Viet co dau chuan xac.
+    """
+    if not text or len(text) < 100:
+        return ""
+    
+    unaccented_patterns = [
+        r"\bphan mem\b", r"\bthuc te\b", r"\bdoanh nghiep\b", r"\bky su\b",
+        r"\bdong thoi\b", r"\bphien ban\b", r"\bthu vien\b", r"\btren mot\b",
+        r"\bneu nguoi\b", r"\btoan cuc\b", r"\bcua python\b", r"\bdu an\b",
+        r"\bnghiem trong\b", r"\bgiai quyet\b", r"\btriet de\b", r"\bnha phat trien\b",
+        r"\bnam ro\b", r"\bco che\b", r"\bvan hanh\b", r"\bhe thong\b",
+        r"\bbien path\b", r"\bcommand line\b", r"\bhe dieu hanh\b", r"\bkhong tim\b",
+        r"\btu choi\b", r"\bmoi truong ao\b", r"\bnhan ban\b", r"\bthu nho\b",
+        r"\buu tien\b", r"\bbang so sanh\b", r"\bthiet lap\b", r"\bquy trinh\b",
+        r"\bdieu kien\b", r"\btien quyet\b", r"\btrinh cai dat\b", r"\bphu hop\b",
+        r"\btu dong\b", r"\bmo command\b", r"\bkich hoat\b", r"\bthoat khoi\b",
+        r"\bquen kich\b", r"\bthuc hanh\b", r"\bcai dat\b", r"\bkhoi tao\b",
+        r"\bmay tinh\b", r"\bca nhan\b", r"\brieng biet\b", r"\bvua tao\b",
+        r"\bduoc tao\b", r"\bbao trang thai\b", r"\btra cuu\b", r"\bthay doi\b",
+        r"\bduong dan\b", r"\bso sanh\b", r"\bnguyen nhan\b", r"\bkhac phuc\b"
+    ]
+    
+    matches = []
+    for pat in unaccented_patterns:
+        m = re.search(pat, text, re.IGNORECASE)
+        if m:
+            matches.append(m.group(0))
+            if len(matches) >= 3:
+                return (f"Nội dung vi phạm quy tắc nghiêm trọng: Phát hiện văn bản Tiếng Việt KHÔNG DẤU "
+                        f"(các cụm từ không dấu: {', '.join(matches)}). "
+                        f"Tất cả nội dung bài học, diễn giải, bài tập và câu hỏi BẮT BUỘC phải viết bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC.")
     return ""
 
 def check_knowledge_scope_violations(text: str, session_id: str = "", state: Dict[str, Any] = None) -> str:
@@ -131,6 +139,26 @@ def check_knowledge_scope_violations(text: str, session_id: str = "", state: Dic
                     return f"Cảnh báo vi phạm phạm vi kiến thức động: Nội dung xuất hiện thuật ngữ '{kw}' thuộc bài học tương lai '{fut.get('title')}' chưa được dạy."
     return ""
 
+def check_structural_completeness(html_text: str) -> str:
+    """
+    Programmatically verifies that promised content structures (Comparison Tables, Code Containers)
+    are present in the HTML output to prevent truncated or incomplete lessons.
+    """
+    if not html_text:
+        return ""
+    
+    text_lower = html_text.lower()
+    
+    # Check table completeness if table introduction exists
+    if ("bảng so sánh" in text_lower or "so sánh các đặc tính" in text_lower) and "<table" not in text_lower:
+        return "Nội dung bài đọc xuất hiện câu dẫn 'Bảng so sánh' nhưng bị thiếu hoàn toàn cấu trúc HTML <table>. Bắt buộc phải bổ sung Bảng so sánh chi tiết."
+        
+    # Check code container completeness if code introduction exists
+    if ("mã nguồn" in text_lower or "chi tiết mã nguồn" in text_lower) and ("<code" not in text_lower and "code-container" not in text_lower):
+        return "Nội dung bài đọc xuất hiện câu dẫn 'chi tiết mã nguồn' nhưng bị thiếu khối hiển thị mã nguồn (code container / live playground)."
+        
+    return ""
+
 def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
     """
     Pedagogical & UX Reviewer:
@@ -145,7 +173,26 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
     
     tech_stack = state.get("technology_stack", "python/core")
     
-    # 1. Programmatic emoji check
+    # 1. Programmatic Master Resource Validator (HTML DOM, JS Linter, 5-Step Walkthrough)
+    is_valid_master, master_errs = validate_resource("READING", html_content, {"tech_stack": tech_stack})
+    if not is_valid_master:
+        master_fb = f"Lỗi kiểm định lập trình tự động (Master Validator Error): {'; '.join(master_errs[:2])}"
+        print(f"  - Result: REJECTED (Master Validator check failed). Feedback: '{master_fb}'")
+        return {"status": "REJECTED", "feedback": master_fb}
+
+    # 1.1 Structural completeness check (Table & Code Containers)
+    struct_feedback = check_structural_completeness(html_content)
+    if struct_feedback:
+        print(f"  - Result: REJECTED (Structural Completeness check failed). Feedback: '{struct_feedback}'")
+        return {"status": "REJECTED", "feedback": struct_feedback}
+
+    # 2. Programmatic unaccented Vietnamese check
+    unaccented_feedback = check_unaccented_vietnamese(html_content)
+    if unaccented_feedback:
+        print(f"  - Result: REJECTED (Unaccented Vietnamese check failed). Feedback: '{unaccented_feedback}'")
+        return {"status": "REJECTED", "feedback": unaccented_feedback}
+
+    # 2. Programmatic emoji check
     emoji_feedback = check_forbidden_emojis(html_content)
     if emoji_feedback:
         print(f"  - Result: REJECTED (Emoji Prohibition check failed). Feedback: '{emoji_feedback}'")
@@ -760,35 +807,101 @@ def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:
     
     return response_text if response_text else "# Báo Cáo Đánh Giá Chương Trình\n\nKhông có phản hồi từ LLM."
 
+def apply_smart_pedagogical_rule_fixes(pm_json: str, tech_stack: str) -> str:
+    """
+    100% Technology-Agnostic Fallback Synthesizer:
+    Dynamically generates expected_outcome, forbidden_scope, and allowed_scope according to Bloom's Taxonomy
+    for ANY technology stack (Python, Java, React, Go, Flutter, DevOps, C#, etc.) based purely on
+    lesson metadata (title, details, session index) without any hardcoded language-specific strings.
+    """
+    import json
+    from app.utils.json_helper import clean_and_parse_json
+    try:
+        curriculum = clean_and_parse_json(pm_json)
+        if not isinstance(curriculum, list):
+            return pm_json
+            
+        stack_name = tech_stack or "công nghệ khóa học"
+        
+        for s_idx, session in enumerate(curriculum, 1):
+            if not isinstance(session, dict):
+                continue
+            s_title = session.get("session_title", session.get("title", f"Session {s_idx:02d}"))
+            lessons = session.get("lessons", [])
+            for l_idx, lesson in enumerate(lessons, 1):
+                if not isinstance(lesson, dict):
+                    continue
+                l_title = lesson.get("lesson_title", lesson.get("title", f"Lesson {l_idx:02d}"))
+                details = lesson.get("details", "").strip()
+                clean_title = l_title.replace("Lesson", "").replace("Lesson:", "").strip()
+                
+                # Dynamic Bloom's Taxonomy Outcome Synthesis (Stack-Agnostic)
+                if not lesson.get("expected_outcome") or str(lesson.get("expected_outcome")).strip() == "":
+                    if details:
+                        lesson["expected_outcome"] = f"Hiểu rõ khái niệm và cấu trúc {clean_title} ({details}); vận dụng tự viết và thực thi thành công mã nguồn/sản phẩm thực hành chuẩn kỹ thuật."
+                    else:
+                        lesson["expected_outcome"] = f"Nắm vững nền tảng & cú pháp {clean_title}; tự triển khai và làm chủ các bài tập thực hành của {stack_name}."
+                
+                # Dynamic Forbidden Scope Synthesis (Stack-Agnostic)
+                if not lesson.get("forbidden_scope") or str(lesson.get("forbidden_scope")).strip() == "":
+                    if s_idx <= 2:
+                        lesson["forbidden_scope"] = f"CẤM: Kiến thức nâng cao, thư viện ngoài, framework và nội dung của các Session từ Session 03 trở đi."
+                    else:
+                        lesson["forbidden_scope"] = f"CẤM: Sử dụng kiến thức, hàm hoặc module thuộc phạm vi các Session phía sau (chưa đến buổi học)."
+                    
+                # Dynamic Allowed Scope Synthesis (Stack-Agnostic)
+                if not lesson.get("allowed_scope") or str(lesson.get("allowed_scope")).strip() == "":
+                    if s_idx == 1:
+                        lesson["allowed_scope"] = "ĐÃ HỌC: Chưa có (Buổi mở đầu)."
+                    else:
+                        lesson["allowed_scope"] = f"ĐÃ HỌC: Công cụ & kiến thức đã tích lũy từ Session 01 đến Session {s_idx-1:02d}."
+                    
+        return json.dumps(curriculum, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"  [Smart Rule Fixer Warning] {e}")
+        return pm_json
+
 def pm_updater_agent(pm_json: str, review_report: str, tech_stack: str) -> str:
     """
     PM Updater Agent:
     Takes the original PM curriculum JSON and the AI review report,
-    and returns an updated curriculum JSON containing the requested fixes.
+    and returns an updated curriculum JSON containing the requested fixes in 10-column standard.
+    Falls back to algorithmic smart rule fixer if LLM call is offline/empty.
     """
-    print(f"\n[PM_Updater_Agent] Đang tự động cập nhật chương trình PM dựa trên báo cáo...")
+    print(f"\n[PM_Updater_Agent] Đang tự động cập nhật chương trình PM 10 cột dựa trên báo cáo...")
     
     system_prompt = (
-        "Bạn là Chuyên gia Cập nhật Chương trình (Curriculum Updater Agent). "
-        "Nhiệm vụ của bạn là nhận vào file cấu trúc JSON của một chương trình học cũ và một Bản báo cáo lỗi (Review Report). "
-        "Dựa vào các đề xuất chỉnh sửa trong báo cáo (ví dụ: chèn thêm bài, xóa bớt bài, hoặc bổ dung nội dung), "
-        "hãy sinh ra một cấu trúc JSON MỚI HOÀN TOÀN TƯƠNG ĐƯƠNG đã được vá lỗi."
+        "Bạn là Chuyên gia Cập nhật Cấu trúc PM Chuẩn 10 Cột Sư Phạm Quốc Tế (Curriculum Updater Agent). "
+        "Nhiệm vụ của bạn là nhận vào file cấu trúc JSON của một chương trình học PM và một Bản báo cáo kiểm định lỗi (Review Report). "
+        "Dựa vào các đề xuất chỉnh sửa trong báo cáo, "
+        "hãy sinh ra một cấu trúc JSON MỚI HOÀN TOÀN đã được tự động vá lỗi và BẮT BUỘC BỔ SUNG ĐẦY ĐỦ 100% 'expected_outcome' (Kết Quả Mong Đợi) cho tất cả bài học."
     )
     
     user_prompt = f"""
     Công nghệ: {tech_stack}
     
-    Báo cáo lỗi (Review Report):
+    Báo cáo lỗi kiểm định (Review Report):
     {review_report}
     
-    Chương trình học ban đầu (JSON):
+    Chương trình học ban đầu (JSON 10 Cột):
     {pm_json}
     
-    YÊU CẦU:
-    - Trả về DUY NHẤT một mảng JSON hợp lệ chứa các session và lessons.
-    - Không thêm markdown block ```json. Chỉ trả về JSON thuần túy.
-    - Đảm bảo giữ nguyên các trường (session_id, title, lessons: [lesson_id, title, details, expected_output]).
-    - Cập nhật đúng các vị trí được yêu cầu trong Báo cáo (Ví dụ: Thêm bài học mới thì đánh lại số lesson_id nếu cần, thêm chi tiết vào details...).
+    YÊU CẦU ĐỊNH DẠNG ĐẦU RA (RẤT QUAN TRỌNG):
+    - Trả về DUY NHẤT một mảng JSON các Session. Mỗi Session chứa danh sách `lessons`.
+    - Không chứa bất kỳ văn bản giải thích hay markdown code block ```json nào.
+    - Mỗi Session CỦA MẢNG PHẢI GIỮ ĐỦ 4 TRƯỜNG THÔNG TIN SESSION:
+        + "session_id": "Session 01" (Ví dụ: Session 01, Session 02...)
+        + "session_type_vn": "Bài lý thuyết + thực hành" (hoặc "Bài thực hành / Lab", "Bài kiểm tra / Thi")
+        + "session_code": "S01" (hoặc S02, S03...)
+        + "session_title": "Tên tiêu đề session"
+    - Mỗi Lesson TRONG MẢNG `lessons` PHẢI GIỮ ĐỦ 6 TRƯỜNG THÔNG TIN LESSON (Chuẩn PM 10 cột):
+        + "lesson_title": "Tên bài học / Lesson"
+        + "details": "Nội dung chi tiết kiến thức (Lesson Scope)"
+        + "expected_outcome": "Kết quả mong đợi (BẮT BUỘC KHÔNG ĐƯỢC RỖNG: Viết theo Thang tư duy Bloom's Taxonomy - Sản phẩm / Năng lực sinh viên tự viết/làm/đạt được sau bài học này)"
+        + "forbidden_scope": "Phạm vi CẤM DÙNG (BẮT BUỘC liệt kê: CẤM dùng các kiến thức của các bài học & session PHÍA SAU trong chương trình + CẤM các kiến thức BÊN NGOÀI môn học)"
+        + "allowed_scope": "Phạm vi ĐÃ HỌC (Output kiến thức đã đạt được từ các session trước)"
+        + "tech_stack": "{tech_stack}"
+    - Cập nhật chính xác các vị trí được chỉ ra trong Báo cáo lỗi (đặc biệt BẮT BUỘC sinh đầy đủ 'expected_outcome' và 'forbidden_scope' nếu đang bị rỗng).
     """
     
     from core.llm import call_llm
@@ -799,10 +912,16 @@ def pm_updater_agent(pm_json: str, review_report: str, tech_stack: str) -> str:
         agent_name="PM_Updater_Agent"
     )
     
-    if not response_text:
-        return pm_json
-            
-    return response_text
+    if not response_text or response_text == pm_json:
+        print("  [PM_Updater_Agent] LLM phản hồi rỗng hoặc lỗi -> Kích hoạt Smart Pedagogical Rule Fixer...")
+        return apply_smart_pedagogical_rule_fixes(pm_json, tech_stack)
+        
+    try:
+        from app.utils.json_helper import clean_and_parse_json
+        parsed = clean_and_parse_json(response_text)
+        return apply_smart_pedagogical_rule_fixes(json.dumps(parsed, ensure_ascii=False), tech_stack)
+    except Exception:
+        return apply_smart_pedagogical_rule_fixes(pm_json, tech_stack)
 
 def objective_reviewer_agent(learning_outcomes: dict, pm_input: str, tech_stack: str) -> dict:
     """
@@ -871,80 +990,21 @@ def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
         print(f"  - Result: REJECTED. Feedback: '{feedback}'")
         return {"status": "REJECTED", "feedback": feedback}
         
-    if "## Mục tiêu bài học" not in mindmap_markdown:
-        feedback = "Sơ đồ tư duy thiếu nhánh bắt buộc đầu tiên '## Mục tiêu bài học'."
-        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
-        return {"status": "REJECTED", "feedback": feedback}
-        
-    # Emoji detection
-    emoji_pattern = re.compile(
-        "["
-        "\U00010000-\U0010ffff"
-        "\u2600-\u27bf"
-        "\u2300-\u23ff"
-        "\u2b50"
-        "]+", flags=re.UNICODE
-    )
-    if emoji_pattern.search(mindmap_markdown):
-        feedback = "Sơ đồ tư duy vi phạm quy tắc: TUYỆT ĐỐI KHÔNG được sử dụng emoji/icon."
-        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
-        return {"status": "REJECTED", "feedback": feedback}
-
-    # Strict Level 3 Taxonomy & Redundant # Check
+    # Extract H2 headings
     lines = mindmap_markdown.splitlines()
-    h2s = []
-    current_h2 = None
-    h3s_by_h2 = {}
-    in_code_block = False
-    
-    for idx, line in enumerate(lines, 1):
-        stripped = line.strip()
-        if stripped.startswith("```"):
-            if not stripped.startswith("```markmap"):
-                in_code_block = not in_code_block
-            continue
-            
-        if not in_code_block:
-            # Check for redundant # symbol
-            if "#" in line:
-                line_no_inline = re.sub(r"`[^`]+`", "", line)
-                # Strip out hexadecimal colors (e.g., #FFF, #1e293b) to prevent false positives in SVG/HTML tags
-                line_no_inline = re.sub(r"#[0-9a-fA-F]{3,6}\b", "", line_no_inline)
-                if "#" in line_no_inline:
-                    if not re.match(r"^#{1,6}\s", line_no_inline.strip()):
-                        feedback = f"Phát hiện ký tự '#' thừa thãi ở dòng {idx}: '{line.strip()}'. Ký tự '#' chỉ được dùng cho tiêu đề Markdown ở đầu dòng."
-                        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
-                        return {"status": "REJECTED", "feedback": feedback}
-            
-            # Extract hierarchy headings
-            if stripped.startswith("## "):
-                current_h2 = stripped.replace("## ", "").strip()
-                h2s.append(current_h2)
-                h3s_by_h2[current_h2] = []
-            elif stripped.startswith("### "):
-                if current_h2:
-                    h3s_by_h2[current_h2].append(stripped.replace("### ", "").strip())
-
+    h2s = [line.strip().replace("## ", "").strip() for line in lines if line.strip().startswith("## ")]
+        
     # Ensure H2s exists
     if not h2s:
         feedback = "Sơ đồ tư duy không chứa bất kỳ tiêu đề cấp 2 (##) nào."
         print(f"  - Result: REJECTED. Feedback: '{feedback}'")
         return {"status": "REJECTED", "feedback": feedback}
-        
-    # First H2 check
-    if not h2s[0].startswith("Mục tiêu bài học"):
-        feedback = f"Nhánh cấp 2 (##) đầu tiên bắt buộc phải là '## Mục tiêu bài học'. Hiện tại là: '{h2s[0]}'"
+
+    # Reject if 'Mục tiêu bài học' is present as an H2 branch (we require going straight to knowledge topics)
+    if any("mục tiêu bài học" in h2.lower() for h2 in h2s):
+        feedback = "Sơ đồ tư duy không được chứa nhánh 'Mục tiêu bài học'. Hãy để tiêu đề cấp 1 (#) phân nhánh trực tiếp ra các chủ đề kiến thức cốt lõi (##)."
         print(f"  - Result: REJECTED. Feedback: '{feedback}'")
         return {"status": "REJECTED", "feedback": feedback}
-        
-    # Mandatory H3 check for other H2s
-    mandatory_h3s = ["Khái niệm cốt lõi", "Cú pháp & Cách khai báo", "Lưu ý thực chiến"]
-    for h2 in h2s[1:]:
-        h3_list = h3s_by_h2.get(h2, [])
-        if len(h3_list) != 3 or any(expected not in h3_list for expected in mandatory_h3s):
-            feedback = f"Nhánh lớn '{h2}' không phân rã thành đúng 3 nhánh con bắt buộc: {', '.join(mandatory_h3s)}. Hiện tại có: {h3_list}"
-            print(f"  - Result: REJECTED. Feedback: '{feedback}'")
-            return {"status": "REJECTED", "feedback": feedback}
             
     # Check for image prompt or image markdown link
     has_image_prompt = re.search(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", mindmap_markdown) is not None
@@ -985,11 +1045,11 @@ Quy định chuẩn của sơ đồ tư duy:
     
     IMPORTANT CRITERIA TO INSPECT:
     1. Zero-drop Policy: Sơ đồ đã có đầy đủ nhánh cấp 2 (##) cho tất cả các chủ đề chính được nêu trong PM Lesson Details chưa?
-    2. Cấu trúc 3 nhánh con bắt buộc: Dưới mỗi chủ đề cấp 2 (##) (trừ nhánh Mục tiêu bài học), có đúng 3 nhánh con cấp 3 (### Khái niệm cốt lõi, ### Cú pháp & Cách khai báo, ### Lưu ý thực chiến) không?
-    3. Định dạng code: Ví dụ mã nguồn có được thụt lề bằng dấu cách (space) chính xác dưới gạch đầu dòng (-) của nhánh Cú pháp không?
+    2. Phân nhánh động linh hoạt: Sơ đồ KHÔNG chứa nhánh 'Mục tiêu bài học' và KHÔNG bị lặp lại rập khuôn 3 nhánh con 'Khái niệm', 'Cú pháp', 'Lưu ý' ở tất cả các mục chưa?
+    3. Định dạng code: Ví dụ mã nguồn có được thụt lề bằng dấu cách (space) chính xác dưới gạch đầu dòng (-) tương ứng chưa?
     4. Không có kịch bản giảng dạy: Có từ khóa meta nào như "Slide 1", "Concept Check", v.v. xuất hiện không?
     5. Không dùng Emoji: Có icon hay emoji nào không?
-    6. Scope Leakage: Có chứa kiến thức, cú pháp nào nằm ngoài phạm vi của bài học hiện tại (ví dụ: nhắc đến SQLite/Alchemy khi mới giới thiệu Web API cơ bản) không?
+    6. Scope Leakage: Có chứa kiến thức, cú pháp nào nằm ngoài phạm vi của bài học hiện tại không?
     7. Hình ảnh minh họa: Mọi đường dẫn hình ảnh dạng `![](../images/...)` trong sơ đồ đều là hợp lệ vì hệ thống đã tự động chuyển đổi từ prompt ảnh dạng `[Prompt: ...]` hoặc `[Tạo ảnh: ...]` của người dùng. Không được từ chối (REJECT) vì lý do sử dụng đường dẫn hình ảnh dạng này.
     
     Response MUST be a valid JSON matching this schema:

@@ -1,0 +1,1 @@
+Tương tự, đối với các giá trị đo lường độ chính xác cao như giá cả sản phẩm hoặc lãi suất ngân hàng, chúng ta cần ép kiểu sang kiểu phờ-lốt. Hàm phờ-lốt sẽ diễn dịch chuỗi đầu vào thành định dạng số chấm động tương thích tiêu chuẩn I-tri-pơ-lơ bảy trăm tám mươi tư, giúp bảo toàn phần thập phân trong chuỗi số học.

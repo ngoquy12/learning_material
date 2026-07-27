@@ -172,21 +172,21 @@
   </style>
 </head>
 <body>
-  <div id="scene-04" class="clip" data-start="0" data-duration="30.85" data-track-index="0">
+  <div id="scene-04" data-composition-id="scene-04" data-width="1920" data-height="1080" class="clip" data-start="0" data-duration="26.98" data-track-index="0">
     <!-- Intro title -->
-    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="30.85" data-track-index="5">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="26.98" data-track-index="5">
       Áp dụng thuật ngữ
     </div>
 
     <!-- Badge row — phía trên code-card -->
-    <div id="badge-row" class="clip" data-start="0" data-duration="30.85" data-track-index="4">
+    <div id="badge-row" class="clip" data-start="0" data-duration="26.98" data-track-index="4">
       <div class="annotation-badge badge-length"  id="badge-length">Length = 5</div>
       <div class="annotation-badge badge-element" id="badge-element">Element: "An", "Bình"...</div>
       <div class="annotation-badge badge-index"   id="badge-index">Index: 0, 1, 2, 3, 4</div>
     </div>
 
     <!-- Code card — giữa màn hình -->
-    <div id="code-card" class="clip" data-start="0" data-duration="30.85" data-track-index="3">
+    <div id="code-card" class="clip" data-start="0" data-duration="26.98" data-track-index="3">
       <div class="card-header">
         <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
       </div>
@@ -308,10 +308,10 @@
       // ── PHASE 7: spotlight idx-0 — "bắt đầu từ 0" ───────────────────
       tl.to("#idx-0", { scale: 1.5, color: "#f85149", textShadow: "0 0 18px rgba(248,81,73,0.9)", duration: 0.35, yoyo: true, repeat: 3 }, 15.5);
 
-      // ── PHASE 8: final pulse code-card ───────────────────────────────
-      tl.to("#code-card", { scale: 1.02, duration: 0.45, yoyo: true, repeat: 1, ease: "power1.inOut" }, 20.0);
+      // ── PHASE 8: fade out entire scene before transition to Scene 05 ─────
+      tl.to("#scene-04", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 25.8);
 
-      tl.set({}, {}, 30.85);
+      tl.set({}, {}, 26.98);
     }, 50);
   </script>
 </body>

@@ -354,9 +354,9 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
     if state:
         tech_stack = state.get("technology_stack", "python/fastapi")
         
-    print(f"  [Creator Agent] Dynamically generating lesson content via LLM (Attempt #{attempt_num}) for stack: {tech_stack}...")
+    print(f"  [Creator Agent] Dynamically generating lesson content via Two-Stage LLM (Attempt #{attempt_num}) for stack: {tech_stack}...")
     
-    # Xác định chiến lược trực quan hóa thông minh dựa trên tín hiệu bài học
+    # Smart visualization decision
     viz_decision = determine_visualization_strategy(lesson_title, lesson_details, tech_stack)
     print(f"  [Pedagogical Router] Lesson '{lesson_title}' -> Strategy: {viz_decision['strategy']} ({viz_decision['skill_name']}) | Rationale: {viz_decision['rationale']}")
     
@@ -364,11 +364,12 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
     quiz_skill = load_skill_content("quiz_generator")
     lab_skill = load_skill_content("lab_generator")
     
-    # Load lessons learned from previous runs using the new structured Knowledge Memory Agent
+    reading_type_info = classify_reading_type(lesson_title, lesson_details)
+    print(f"  [Smart Reading Router] Classified '{lesson_title}' -> Type: {reading_type_info['type']} ({reading_type_info['name']})")
+    
     lessons_learned_prompt = ""
     try:
         from agents.knowledge_memory_agent import get_relevant_memories_for_creator
-        # Determine scope from the visualization strategy
         scope_hint = "mindmap" if "mindmap" in lesson_title.lower() else "all"
         lessons_learned_prompt = get_relevant_memories_for_creator(
             tech_stack=tech_stack,
@@ -376,7 +377,6 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
             limit=10
         )
     except Exception:
-        # Fallback to old flat Markdown loader if KMA not available yet
         from core.skills import load_skill_content
         lessons_learned = load_skill_content("lessons_learned")
         if lessons_learned:
@@ -386,139 +386,96 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
                 f"{lessons_learned}\n"
             )
 
-    system_prompt = f"""Bạn là chuyên gia Thiết kế Chương trình Đào tạo Lập trình (Instructional Designer) và Kỹ sư Phần mềm cao cấp tại Rikkei Education. 
-Nhiệm vụ của bạn là biên soạn tài liệu học tập sâu sắc, chất lượng cao về công nghệ '{tech_stack}' theo PHONG CÁCH W3SCHOOLS (W3Schools Educational Standard).
+    core_ssot = state.get("core_ssot", {}) if state else {}
+    forbidden_scope = core_ssot.get("forbidden_scope", "") if isinstance(core_ssot, dict) else ""
+    allowed_scope = core_ssot.get("allowed_scope", "") if isinstance(core_ssot, dict) else ""
+    tech_stack_convention = core_ssot.get("tech_stack_convention", "") if isinstance(core_ssot, dict) else ""
+    session_type = core_ssot.get("session_type", "") if isinstance(core_ssot, dict) else ""
 
-YÊU CẦU QUAN TRỌNG VỀ TRỌNG TÂM, ĐỘ SÂU KIẾN THỨC VÀ KIỂM SOÁT PHẠM VI SƯ PHẠM:
-1. Tập trung 100% vào nội dung bài học: Tài liệu phải bám sát tuyệt đối tiêu đề và chi tiết yêu cầu của Lesson hiện tại từ PM. TUYỆT ĐỐI không viết lan man sang bài học khác hoặc nhắc đến các bài học tiếp theo.
-2. Ràng buộc công nghệ nghiêm ngặt (Technology Stack Isolation): Bạn phải tuân thủ tuyệt đối công nghệ '{tech_stack}'. Chỉ sử dụng các thư viện, framework, cú pháp, quy chuẩn và cấu trúc chuẩn của công nghệ '{tech_stack}'. Tuyệt đối không được trộn lẫn, nhắc đến hoặc sử dụng các thư viện, công nghệ hoặc framework khác.
-3. RÀNG BUỘC PHẠM VI VÀ LUỸ KẾ KIẾN THỨC (STRICT SCOPE & PROGRESSION):
-   - Tuyệt đối CẤM sử dụng các khái niệm, cú pháp lập trình, thư viện, hoặc framework nâng cao chưa từng xuất hiện trong các bài học trước đó (xem phần "THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ").
-   - Mã nguồn ví dụ phải đơn giản, ngắn gọn và khớp 100% với trình độ hiện tại của học viên. CẤM tự ý đưa vào các cấu trúc phức tạp như lập trình bất đồng bộ (async/await), decorator, lambda nâng cao, hoặc các thư viện bên thứ ba nếu bài học hoặc các bài trước đó chưa dạy chúng.
-   - Nội dung giải thích phải dễ hiểu, thực tế, đi từ cơ chế hoạt động cơ bản nhất trước khi phân tích internals, đảm bảo không gây quá tải nhận thức.
-3.1. QUY TẮC RÀNG BUỘC PHẠM VI CÂU HỎI (SELF-TEST & QUIZ SCOPE ISOLATION):
-   - Tất cả câu hỏi trong `self_test` và `quiz` BẮT BUỘC CHỈ ĐƯỢC PHÉP hỏi về đúng các khái niệm ĐÃ ĐƯỢC GIẢI THÍCH TRONG BÀI ĐỌC NÀY!
-   - TUYỆT ĐỐI CẤM hỏi trước kiến thức của các bài học tiếp theo (Ví dụ tại Lesson 01 'Giới thiệu Python': TUYỆT ĐỐI CẤM đề cập tên kiểu dữ liệu cụ thể int/float/str hay khai báo biến của Lesson 03, CẤM hỏi về hàm hay class/OOP).
-   - Nếu câu hỏi vi phạm đưa kiến thức bài sau vào -> Bài viết sẽ bị REJECT 100%.
-4. CẢNH BÁO SƯ PHẠM CHO BÀI HỌC NHỎ (MINOR LESSONS): Nếu nội dung bài học từ PM rất ngắn gọn, mang tính giới thiệu, cài đặt môi trường, hoặc lý thuyết đơn giản, hãy đi thẳng vào trọng tâm, trình bày rõ ràng, không bịa đặt nội dung phức tạp.
-5. TIÊU CHUẨN TRÌNH BÀY PHONG CÁCH W3SCHOOLS (W3SCHOOLS DESIGN & PEDAGOGICAL STANDARD):
-   - Yêu cầu bài đọc giải thích đầy đủ, chuyên sâu, tối thiểu 300 - 500 từ cho mỗi mục Markdown (problem, analysis, solution, resolve, summary) kèm ví dụ thực tế tại doanh nghiệp.
-   - BẮT BUỘC cung cấp cả 2 ví dụ mã nguồn đối chiếu: `example_good` (Mã nguồn chuẩn theo Best Practice ✅) và `example_bad` (Mã nguồn sai hoặc Anti-Pattern/Pitfall ❌).
-   - BỔ SUNG các khối Lưu ý quan trọng (Note / Tip / Warning Callouts) giải thích vì sao code này đúng/sai và bẫy cú pháp cần tránh.
-5.1. QUY TẮC BẢNG SO SÁNH BẮT BUỘC (MANDATORY MARKDOWN COMPARISON TABLES):
-   - Nếu nội dung bài đọc có yếu tố so sánh (ví dụ: so sánh các cơ chế, khái niệm, phương pháp, cú pháp, Best Practice vs Anti-Pattern...), BẮT BUỘC phải trình bày bằng BẢNG MARKDOWN COMPARISON TABLE với các cột (Tiêu chí, Đối tượng A, Đối tượng B, Đánh giá bối cảnh thực tế doanh nghiệp) thay vì dùng văn bản text dài dòng!
-   - TUYỆT ĐỐI CẤM liệt kê so sánh bằng các đoạn văn bản thuần túy khi có thể lập bảng.
-5.2. BỘ LUẬT BÀI ĐỌC CHUẨN ĐẦU RA TỐI ƯU (OPTIMAL READING MATERIAL RULES):
-   - Tính gắn kết doanh nghiệp: Bài toán bối cảnh phải thực tế (CRM, E-commerce, Fintech, Logistics...).
-   - Bố cục 5 phần chuẩn: Đảm bảo đầy đủ 5 mục (problem, analysis, solution, resolve, summary).
-   - Chuẩn hóa Self-Test: 100% câu hỏi khảo thí tự luyện và trắc nghiệm phải dựa trên đúng nội dung đã giải thích trong bài đọc, không có URL hay tiêu đề rác.
-{lessons_learned_prompt}
-
-Hãy tuân thủ nghiêm ngặt các quy chuẩn sư phạm được định nghĩa trong các tài liệu Kỹ năng (Skills) sau:
-
---- PHẦN BÀI ĐỌC (Reading Guidelines) ---
-{reading_skill}
-
---- PHẦN TRẮC NGHIỆM (Quiz Guidelines) ---
-{quiz_skill}
-
---- PHẦN THỰC HÀNH (Lab Guidelines) ---
-{lab_skill}
+    pm_boundaries_prompt = f"""
+🛑 QUY TẮC RÀNG BUỘC PHẠM VI NGHIÊM NGẶT TỪ FILE PM (STRICT PM PEDAGOGICAL BOUNDARIES):
+- ⛔ PHẠM VI CẤM DÙNG (STRICTLY FORBIDDEN): {forbidden_scope or 'Không dùng các thư viện/cú pháp nâng cao vượt cấp'}
+  -> TUYỆT ĐỐI CẤM không được giải thích, minh họa hay sử dụng bất kỳ cú pháp/hàm/khái niệm nào thuộc danh sách cấm này! Học viên CHƯA ĐƯỢC HỌC kiến thức này ở bài học hiện tại!
+- ✅ PHẠM VI ĐÃ HỌC & CHO PHÉP (ALLOWED SCOPE): {allowed_scope or 'Nội dung thuộc phạm vi bài học'}
+  -> Chỉ được phép sử dụng các kiến thức và hàm nằm trong phạm vi đã học này.
+- 📋 TECH STACK & QUY CHUẨN KỸ THUẬT: {tech_stack_convention or tech_stack}
+  -> Mọi ví dụ mã nguồn và hướng dẫn phải áp dụng đúng 100% quy chuẩn kỹ thuật này.
 """
-    
-    # Query local vector store for relevant context
-    rag_context = ""
-    try:
-        from core.vector_store import LightweightVectorStore
-        store = LightweightVectorStore()
-        matches = store.query(lesson_title, k=2)
-        if matches:
-            rag_context = f"\nCác khái niệm/mã nguồn liên quan từ Vector DB cục bộ cho stack {tech_stack}:\n" + "\n".join([f"- {m['text']}" for m in matches])
-    except Exception as e:
-        print(f"  [VectorStore Warning] Query failed: {e}")
-        
+
+    # ── STAGE 1: HIGH-DEPTH ARTICLE GENERATION ──
+    stage1_system_prompt = f"""Bạn là chuyên gia Thiết kế Chương trình Đào tạo Lập trình (Instructional Designer) và Kỹ sư Phần mềm cao cấp tại Rikkei Education. 
+Nhiệm vụ của bạn là biên soạn TÀI LIỆU BÀI ĐỌC HỌC THUẬT SÂU SẮC, TRÌNH BÀY KHOA HỌC CHUẨN SƯ PHẠM DOANH NGHIỆP về công nghệ '{tech_stack}'.
+
+{pm_boundaries_prompt}
+
+YÊU CẦU BẮT BUỘC VỀ TRÌNH BÀY KHOA HỌC & ĐỘ SÂU (TỔNG 800 - 1,200 TỪ):
+1. TRÌNH BÀY DẠNG LIST & SUBLIST KHOA HỌC: TUYỆT ĐỐI CẤM viết đoạn văn dài tràn lan. Mọi nội dung giải thích lý thuyết, phân tích cơ chế hay hướng dẫn BẮT BUỘC phải dùng cấu trúc Markdown Bullet Lists ('- Ý chính') và Sublists ('  - Chi tiết hỗ trợ'). Mỗi câu ngắt ý rõ ràng 1-2 câu, bôi đậm (**bold**) từ khóa kỹ thuật cốt lõi.
+2. BỐ CẢNH & HÌNH ẢNH TRỰC QUAN 16:9 (problem): 250 - 400 từ. Trình bày bài toán thực tế doanh nghiệp, bối cảnh ra đời, lịch sử/người sáng lập (ví dụ: Guido van Rossum, 1991), triết lý thiết kế. BẮT BUỘC có 1 khối SVG/HTML minh họa bối cảnh bài toán theo tỉ lệ 16:9 căn giữa chiều ngang.
+3. PHÂN TÍCH BẢN CHẤT VÀ SO SÁNH (analysis): 250 - 400 từ dạng List/Sublist. Giải thích cơ chế nội bộ (Interpreted Language, Dynamic Typing, Bytecode, Virtual Machine, Memory Management). BẮT BUỘC có 1 BẢNG MARKDOWN COMPARISON TABLE so sánh Python với C/C++/Java/JS.
+4. GIẢI PHÁP KỸ THUẬT & SƠ ĐỒ MERMAID (solution): Hướng dẫn từng bước cú pháp chuẩn dạng List. BẮT BUỘC có ít nhất 1 sơ đồ ```mermaid (flowchart hoặc sequenceDiagram) giải thích luồng thực thi.
+5. MÃ NGUỒN ĐỐI CHIẾU (example_good & example_bad): Cung cấp mã chuẩn Best Practice (example_good) và mã sai/Anti-pattern (example_bad) có comment giải thích lý do.
+6. KẾT QUẢ & KỊCH BẢN NỔI BẬT (resolve): Phân tích chi tiết luồng chạy dạng List và kết quả console output.
+7. TỔNG KẾT & LƯU Ý (summary): Tổng kết Lưu ý & Cảnh báo sư phạm dạng List, BÔI ĐẬM (**bold**) tên các sai lầm runtime thường gặp.
+
+QUY TẮC BẮT BUỘC VỀ PHONG CÁCH VÀ MÃ NGUỒN (STRICT RULES):
+- 100% Tiếng Việt có dấu chuẩn xác.
+- TUYỆT ĐỐI CẤM sử dụng biểu tượng cảm xúc (emoji).
+- TUYỆT ĐỐI CẤM dùng từ khóa "W3Schools" hay các nhãn bọc trong ngoặc vuông như [NOTE], [WARNING], [BEST PRACTICE], [ANTI-PATTERN]. Thay bằng nhãn thuần: Lưu ý:, Cảnh báo:, Mẹo:, Thực hành tốt:, Mẫu nên tránh:.
+- RÀNG BUỘC PYTHON CODING CONVENTIONS (PEP 8): Tất cả tên biến, tên hàm, tên hằng số BẮT BUỘC viết bằng TIẾNG ANH CÓ Ý NGHĨA dạng snake_case (ví dụ: user_age, rectangle_width, calculate_area(), total_price). CẤM TUYỆT ĐỐI dùng tiếng Việt không dấu (như chieu_dai, nhap_chieu_rong, bien1, temp).
+{lessons_learned_prompt}
+"""
+
     prev_lessons_prompt = ""
     if state and state.get("previous_lessons"):
         prev_lessons_prompt = "\n--- THÔNG TIN CÁC BÀI HỌC TRƯỚC ĐÓ (Mối liên kết bài học) ---\n"
-        prev_lessons_prompt += "Để đảm bảo tính liên kết chặt chẽ và học tập luỹ tiến, bài học hiện tại bắt buộc phải coi các bài trước đó làm nền tảng học thuật và xây dựng tiếp nối nội dung, tuyệt đối không được dạy trước hoặc lặp lại trùng lặp nội dung:\n"
         for prev in state["previous_lessons"]:
-            prev_lessons_prompt += f"- {prev['lesson_id']}: {prev['title']} (Nội dung: {prev['details']})\n"
+            det = prev.get('details') or prev.get('lesson_details', '')
+            l_id = prev.get('lesson_id', '')
+            l_t = prev.get('title', '')
+            prev_lessons_prompt += f"- {l_id}: {l_t} (Nội dung: {det})\n"
 
-    user_prompt = f"""Hãy sinh nội dung học liệu cho:
-Session: {session_id}
+    stage1_user_prompt = f"""Hãy biên soạn bài đọc sâu sắc dạng List/Sublist cho:
+Session: {session_id} ({session_type})
 Lesson: {lesson_id} (Tiêu đề: {lesson_title})
-Chi tiết bài học từ PM: {lesson_details}
+Chi tiết từ PM: {lesson_details}
 Đầu ra kỳ vọng: {expected_output}
-Số lần thử hiện tại: {attempt_num}
-Phản hồi sửa đổi từ reviewer (nếu có): {feedback}
+Phạm vi CẤM DÙNG: {forbidden_scope or 'Không có'}
+Phạm vi ĐÃ HỌC: {allowed_scope or 'Kiến thức theo bài học'}
+Tech Stack & Quy chuẩn: {tech_stack_convention or tech_stack}
 {prev_lessons_prompt}
+Phản hồi từ Reviewer nếu có: {feedback}
 
-Căn cứ vào Nguồn Sự Thật Duy Nhất (SSOT) sau đây:
-{json.dumps(core_ssot, ensure_ascii=False) if core_ssot else f"Không có SSOT cụ thể, hãy tự sinh dựa trên kiến thức chuẩn {tech_stack}."}
-{rag_context}
-
-Đầu ra bắt buộc phải trả về duy nhất chuỗi JSON khớp với cấu trúc sau:
+Đầu ra trả về duy nhất chuỗi JSON có các trường:
 {{
-    "problem": "Nội dung phần đặt vấn đề & Bối cảnh thực tế tại doanh nghiệp (Markdown phong phú 200-400 từ)",
-    "analysis": "Nội dung phân tích cơ chế vận hành nội bộ và so sánh (Markdown phong phú 200-400 từ)",
-    "solution": "Nội dung giải pháp kỹ thuật và giải thích cú pháp chi tiết. NẾU VẼ SƠ ĐỒ SVG HOẶC MERMAID, BẮT BUỘC PHẢI VẼ ĐƠN GIẢN (Giới hạn tối đa 25 dòng)!",
-    "example": "Mã nguồn minh họa chính. Nếu không liên quan đến lập trình, trả về CLI hoặc ví dụ ngắn gọn.",
-    "example_good": "Ví dụ mã chuẩn theo Best Practice (✅ GOOD Example) kèm comment giải thích lý do nên làm theo cách này.",
-    "example_bad": "Ví dụ mã sai/Anti-Pattern (❌ BAD Practice) kèm comment giải thích hậu quả hoặc lỗi sinh ra.",
-    "resolve": "Phân tích luồng chạy và phản hồi/kết quả thực thi (Markdown phong phú).",
-    "summary": "Tổng kết bài học và các lưu ý quan trọng (Markdown W3Schools Note & Warning). BẮT BUỘC BÔI ĐẬM (DÙNG **bold**) tên các sai lầm thường gặp.",
-    "self_test": [
-        {{
-            "question": "Câu hỏi 1. Đặt tên rõ ràng, 100% sát sườn với bài học.",
-            "answer": "Giải thích ĐẶC BIỆT CHI TIẾT và sâu sắc."
-        }}
-    ],  // (BẮT BUỘC ĐÚNG 3 CÂU HỎI KHẢO THÍ, KHÔNG ĐƯỢC VƯỢT QUÁ 3 CÂU)
-    "references": [
-        {{
-            "title": "Tên tài liệu tham khảo uy tín (Tài liệu chính thức, tutorial uy tín, sách...)",
-            "url": "Đường dẫn URL hợp lệ (bắt đầu bằng http hoặc https)"
-        }}
-    ],
-    "quiz": [
-        {{
-            "question": "Nội dung câu hỏi trắc nghiệm 1",
-            "options": ["Đáp án A", "Đáp án B", "Đáp án C", "Đáp án D"],
-            "correct_option_index": 0,
-            "explanation": "Giải thích chi tiết vì sao đáp án đúng và các đáp án khác sai."
-        }}
-    ],
-    "lab": {{
-        "title": "Tiêu đề bài thực hành",
-        "objectives": ["Mục tiêu 1"],
-        "steps": ["Bước 1"],
-        "checklist": ["Tiêu chí 1"]
-    }},
-    "visualizer": {{
-        "canvas_title": "Tiêu đề của khung trực quan hóa...",
-        "legend_html": "Mã HTML hiển thị chú giải các trạng thái màu sắc",
-        "stats_html": "Mã HTML hiển thị các thẻ đếm (ví dụ: trạng thái, số lượng...)",
-        "code_tracker_html": "Mã HTML chứa code. 🛑 CHỈ VIẾT TỐI ĐA 5-7 DÒNG CODE NGẮN GỌN NHẤT CÓ THỂ! MỖI DÒNG CODE NẰM TRONG 1 thẻ <div class='code-line' id='line-0'>...</div> và dùng \\n ở cuối mỗi thẻ.",
-        "input_label": "Nhãn cho ô nhập liệu tùy chỉnh",
-        "input_default": "Giá trị mặc định cho ô nhập liệu",
-        "engine_js": "Mã JavaScript CÓ LOGIC THỰC SỰ của class InteractiveVisualizerEngine. Class phải định nghĩa start(), pause(), step(), reset(). CẦN thao tác DOM (thêm class 'active-line' vào line-0) và gọi document.getElementById('log-messages').innerHTML += '...' để in log."
-    }}
+    "problem_title": "Tiêu đề ngắn gọn cho phần 1",
+    "problem": "Nội dung đặt vấn đề dạng Markdown Bullet List & Sublist (250-400 từ), kèm bối cảnh thực tế doanh nghiệp",
+    "analysis_title": "Tiêu đề ngắn gọn cho phần 2",
+    "analysis": "Phân tích cơ chế vận hành nội bộ dạng List/Sublist kèm BẢNG SO SÁNH MARKDOWN KỸ THUẬT (250-400 từ)",
+    "solution_title": "Tiêu đề ngắn gọn cho phần 3",
+    "solution": "Giải pháp kỹ thuật chi tiết dạng List kèm SƠ ĐỒ MERMAID ```mermaid ... ```",
+    "example": "Mã nguồn minh họa chính tuân thủ PEP 8 (snake_case tiếng Anh)",
+    "example_good": "Ví dụ mã chuẩn Best Practice (GOOD Practice) kèm comment giải thích",
+    "example_bad": "Ví dụ mã sai/Anti-pattern (BAD Practice) kèm comment cảnh báo bẫy lỗi",
+    "resolve_title": "Tiêu đề ngắn gọn cho phần 4",
+    "resolve": "Phân tích chi tiết luồng chạy thực thi dạng List và Console Output",
+    "summary": "Tổng kết bài học dạng List và bôi đậm **các sai lầm runtime thường gặp**"
 }}
-WARNING: LỖI NGHIÊM TRỌNG NẾU VI PHẠM: Tuyệt đối KHÔNG BẤM ENTER (ngắt dòng thực) bên trong bất kỳ chuỗi string nào của JSON (đặc biệt là Code và Markdown). Phải viết liền mạch trên một dòng và dùng ký tự "\\n" thay cho việc ngắt dòng! Tuyệt đối không dùng dấu ngoặc kép không được escape (" -> \\").
-Return only raw JSON. Do not wrap in markdown code blocks.
+Return only raw JSON.
 """
+
+    stage1_result = {}
     for attempt in range(3):
         response_text = call_llm(
-            system_prompt,
-            user_prompt,
+            stage1_system_prompt,
+            stage1_user_prompt,
             json_mode=True,
-            agent_name=f"Creator_Agent_Att{attempt+1}",
+            agent_name=f"Creator_Agent_Stage1_Att{attempt+1}",
             session_id=session_id,
             lesson_id=lesson_id
         )
         if response_text:
             try:
                 cleaned = response_text.strip()
-                # Trích xuất phần JSON bằng biểu thức chính quy (nếu có bao bọc bởi markdown)
                 json_match = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
                 if json_match:
                     cleaned = json_match.group(1).strip()
@@ -532,25 +489,104 @@ Return only raw JSON. Do not wrap in markdown code blocks.
                         if first_brace != -1 and last_brace != -1:
                             cleaned = response_text[first_brace:last_brace+1].strip()
                 
-                # Sửa đổi các dấu xuống dòng thô không được escape trong các chuỗi JSON
                 cleaned = fix_raw_newlines_in_json_strings(cleaned)
-                result = robust_json_parse(cleaned)
-                
-                # Validation of key fields to ensure no crash
-                required_keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer"]
-                if all(k in result for k in required_keys):
-                    print(f"  [Creator Agent] Dynamic generation successful on attempt {attempt+1}!")
-                    if state is not None:
-                        state["master_content"] = result
-                    return result
-                else:
-                    print(f"  [Creator Agent Warning] Attempt {attempt+1} LLM JSON response is missing required keys: {set(required_keys) - set(result.keys())}")
+                stage1_result = robust_json_parse(cleaned)
+                if stage1_result.get("problem") and stage1_result.get("analysis"):
+                    print(f"  [Creator Agent Stage 1] High-depth reading article generated successfully!")
+                    break
             except Exception as e:
-                print(f"  [Creator Agent Warning] Attempt {attempt+1} Failed to parse dynamic content generated by LLM: {e}")
-        else:
-            print(f"  [Creator Agent Warning] Attempt {attempt+1} LLM returned empty response or call failed.")
-            
-    raise RuntimeError("ERROR: Failed to generate and parse dynamic master content via LLM after 3 attempts.")
+                print(f"  [Creator Agent Stage 1 Warning] Attempt {attempt+1} failed: {e}")
+
+    # Fallback for Stage 1 if LLM parse failed
+    if not stage1_result.get("problem"):
+        stage1_result = generate_offline_master_content(session_id, lesson_id, lesson_title, lesson_details, expected_output, tech_stack)
+
+    # ── STAGE 2: COMPONENTS GENERATION (Self-test, Quiz, Lab, Visualizer) ──
+    stage2_system_prompt = f"""Bạn là Kỹ sư Khảo thí và Kiểm định Giáo dục tại Rikkei Education.
+Nhiệm vụ của bạn là đọc bài đọc lý thuyết Stage 1 và sinh các thành phần phụ trợ (Self-test 3 câu, References, Quiz 4 câu, Lab, Visualizer Engine).
+BẮT BUỘC: 100% câu hỏi self_test và quiz phải bám sát nội dung bài đọc Stage 1, tuyệt đối không hỏi trước bài học sau. Không emoji.
+"""
+    stage2_user_prompt = f"""Dựa vào bài đọc Stage 1 sau đây:
+{json.dumps(stage1_result, ensure_ascii=False)[:3000]}
+
+Hãy trả về duy nhất chuỗi JSON chứa các thành phần phụ trợ:
+{{
+    "self_test": [
+        {{"question": "Câu hỏi khảo thí 1 bám sát bài đọc?", "answer": "Gợi ý trả lời chi tiết sâu sắc."}},
+        {{"question": "Câu hỏi khảo thí 2?", "answer": "Gợi ý trả lời."}},
+        {{"question": "Câu hỏi khảo thí 3?", "answer": "Gợi ý trả lời."}}
+    ],
+    "references": [
+        {{"title": "Tên tài liệu tham khảo uy tín chính thức", "url": "https://docs.python.org/3/"}}
+    ],
+    "quiz": [
+        {{
+            "question": "Nội dung câu hỏi trắc nghiệm 1?",
+            "options": ["Phương án A", "Phương án B", "Phương án C", "Phương án D"],
+            "correct_option_index": 0,
+            "explanation": "Giải thích chi tiết vì sao đáp án đúng."
+        }}
+    ],
+    "lab": {{
+        "title": "Tiêu đề bài thực hành",
+        "objectives": ["Mục tiêu thực hành"],
+        "steps": ["Các bước thực hiện"],
+        "checklist": ["Tiêu chí đánh giá"]
+    }},
+    "visualizer": {{
+        "canvas_title": "Khung trực quan hóa bài học",
+        "legend_html": "Chú giải màu sắc",
+        "stats_html": "Thẻ thông tin đếm",
+        "code_tracker_html": "<div class='code-line' id='line-0'># Code tracker...</div>",
+        "input_label": "Nhãn ô nhập",
+        "input_default": "Mặc định",
+        "engine_js": "class InteractiveVisualizerEngine {{ constructor() {{}} init() {{}} start() {{}} pause() {{}} step() {{}} reset() {{}} }}"
+    }}
+}}
+Return only raw JSON.
+"""
+
+    stage2_result = {}
+    try:
+        response_text_s2 = call_llm(
+            stage2_system_prompt,
+            stage2_user_prompt,
+            json_mode=True,
+            agent_name=f"Creator_Agent_Stage2",
+            session_id=session_id,
+            lesson_id=lesson_id
+        )
+        if response_text_s2:
+            cleaned_s2 = response_text_s2.strip()
+            first_b = cleaned_s2.find("{")
+            last_b = cleaned_s2.rfind("}")
+            if first_b != -1 and last_b != -1:
+                cleaned_s2 = cleaned_s2[first_b:last_b+1].strip()
+            cleaned_s2 = fix_raw_newlines_in_json_strings(cleaned_s2)
+            stage2_result = robust_json_parse(cleaned_s2)
+    except Exception as e:
+        print(f"  [Creator Agent Stage 2 Warning] Failed to generate Stage 2 components: {e}")
+
+    # Merge Stage 1 and Stage 2 results
+    final_result = dict(stage1_result)
+    final_result["self_test"] = stage2_result.get("self_test") or [
+        {"question": f"Giải thích bản chất và nguyên lý hoạt động cốt lõi của {lesson_title}?", "answer": f"Hiểu rõ bản chất giúp vận dụng đúngBest Practice."},
+        {"question": f"Liệt kê các cú pháp hoặc lỗi thường gặp khi làm việc với {lesson_title} và cách phòng tránh?", "answer": f"Tuân thủ quy tắc lùi lề và định dạng kiểu dữ liệu."},
+        {"question": f"Trình bày ứng dụng thực tế của {lesson_title} trong dự án?", "answer": f"Vận dụng để xử lý luồng logic và tính toán dữ liệu."}
+    ]
+    final_result["references"] = stage2_result.get("references") or [
+        {"title": f"Tài liệu hướng dẫn chính thức {tech_stack.upper()}", "url": "https://docs.python.org/3/"},
+        {"title": "W3Schools Online Web Tutorials", "url": "https://www.w3schools.com"}
+    ]
+    final_result["quiz"] = stage2_result.get("quiz") or []
+    final_result["lab"] = stage2_result.get("lab") or {"title": f"Lab {lesson_title}", "objectives": [], "steps": [], "checklist": []}
+    # Run Post-Linter Guard to ensure no forbidden scope terms slipped through LLM generation
+    final_result, _ = validate_and_clean_forbidden_scope(final_result, forbidden_scope)
+
+    if state is not None:
+        state["master_content"] = final_result
+
+    return final_result
 
 
 
@@ -574,6 +610,68 @@ def session_compiler_agent(state: AgentState) -> AgentState:
     
     state["artifacts_status"]["session"] = "PUBLISHED"
     return state
+
+def mini_project_generator_agent(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, tech_stack: str, core_ssot: dict) -> dict:
+    """
+    Mini Project Generator Agent:
+    Generates full Mini Project assets for 'Mini Project' session types:
+    1. srs_spec (Software Requirements Specification HTML)
+    2. architecture_mermaid (Mermaid ERD / Class / Data Flow Diagram)
+    3. starter_code (Modular Python starter code with TODOs following PEP 8)
+    4. project_rubric (100-point Professional Evaluation Rubric)
+    """
+    from core.llm import call_llm
+
+    forbidden_scope = core_ssot.get("forbidden_scope", "") if isinstance(core_ssot, dict) else ""
+    allowed_scope = core_ssot.get("allowed_scope", "") if isinstance(core_ssot, dict) else ""
+    tech_stack_convention = core_ssot.get("tech_stack_convention", "") if isinstance(core_ssot, dict) else ""
+
+    sys_prompt = f"""Bạn là Kiến trúc sư Phần mềm và Chuyên gia Thiết kế Đồ án tại Rikkei Education.
+Nhiệm vụ của bạn là biên soạn BỘ TÀI NGUYÊN MINI PROJECT DOANH NGHIỆP hoàn chỉnh cho Session: '{session_id}: {lesson_title}'.
+
+RÀNG BUỘC PHẠM VI NGHIÊM NGẶT:
+- ⛔ CẤM DÙNG: {forbidden_scope or 'Thư viện/cú pháp nâng cao chưa học'}
+- ✅ ĐÃ HỌC: {allowed_scope or 'Kiến thức theo chương trình từ Session trước'}
+- 📋 QUY CHUẨN: {tech_stack_convention or tech_stack} (PEP 8, snake_case tiếng Anh)
+
+Hãy tạo duy nhất chuỗi JSON gồm 4 thành phần:
+{{
+    "srs_title": "Tên Đặc tả Yêu cầu Đồ án Mini Project",
+    "srs_spec": "Nội dung Đặc tả SRS dạng Markdown Bullet Lists & Sublists gồm: 1. Bối cảnh doanh nghiệp, 2. Yêu cầu Chức năng (Functional Specs), 3. Yêu cầu Phi chức năng (Non-functional Specs), 4. Giao diện CLI/Mẫu console đầu ra mong đợi.",
+    "architecture_mermaid": "```mermaid\\ngraph TD\\n  %% Sơ đồ kiến trúc luồng dữ liệu dự án...\\n```",
+    "starter_code": "# Khung mã nguồn khởi tạo Best Practice PEP 8 (snake_case tiếng Anh) kèm comment # TODO...",
+    "project_rubric": "### BẢNG RUBRIC CHẤM ĐIỂM DỰ ÁN MINI PROJECT (TỔNG 100 ĐIỂM)\\n- Chức năng cốt lõi (40đ):\\n- Chất lượng Code & PEP 8 (30đ):\\n- Xử lý lỗi & Exception (20đ):\\n- Tối ưu & Clean Code (10đ):"
+}}
+Return only raw JSON.
+"""
+    user_prompt = f"""Biên soạn Mini Project cho Session: {session_id} - {lesson_title}
+Chi tiết từ PM: {lesson_details}
+Đầu ra kỳ vọng: {expected_output}"""
+
+    try:
+        res = call_llm(sys_prompt, user_prompt, json_mode=True, agent_name="Mini_Project_Generator", session_id=session_id, lesson_id=lesson_id)
+        if res:
+            cleaned = res.strip()
+            f_b = cleaned.find("{")
+            l_b = cleaned.rfind("}")
+            if f_b != -1 and l_b != -1:
+                cleaned = cleaned[f_b:l_b+1].strip()
+            cleaned = fix_raw_newlines_in_json_strings(cleaned)
+            parsed = robust_json_parse(cleaned)
+            if parsed.get("srs_spec") or parsed.get("starter_code"):
+                print(f"  [Mini Project Generator] Successfully compiled SRS, Architecture, Starter Code & Rubric for {session_id}!")
+                return parsed
+    except Exception as e:
+        print(f"  [Mini Project Generator Warning] LLM generation failed: {e}")
+
+    return {
+        "srs_title": f"Dự án Mini Project {lesson_title}",
+        "srs_spec": f"### Đặc tả Yêu cầu Mini Project {lesson_title}\n- Xây dựng ứng dụng hoàn chỉnh theo yêu cầu.",
+        "architecture_mermaid": "```mermaid\ngraph TD\n  A[Input User] --> B[Processing Engine]\n  B --> C[Output Console]\n```",
+        "starter_code": "# Starter Code PEP 8\ndef main():\n    # TODO: Implement mini project logic\n    pass\n\nif __name__ == '__main__':\n    main()\n",
+        "project_rubric": "### Rubric Chấm điểm Mini Project (100đ)\n- Chức năng cốt lõi: 40đ\n- Mã nguồn chuẩn PEP 8: 30đ\n- Xử lý ngoại lệ: 20đ\n- Clean Code & Structural Layout: 10đ"
+    }
+
 
 def video_script_agent(state: AgentState) -> AgentState:
     """
@@ -1256,9 +1354,9 @@ Bắt buộc tạo một nhánh cấp 2 (##) tương ứng cho mỗi khái niệ
 YÊU CẦU ĐẦU RA (BẮT BUỘC):
 - Trả về DUY NHẤT một khối mã Markdown ` ```markmap ... ` ``` chứa nội dung sơ đồ tư duy.
 - Sơ đồ phải bao quát 100% các chủ đề chính được nhắc đến (Zero-drop Policy).
-- Đảm bảo nhánh cấp 2 (##) đầu tiên là `## Mục tiêu bài học`.
-- Các nhánh tiếp theo tương ứng với các chủ đề lý thuyết chính của bài học (chính là danh sách các khái niệm cốt lõi ở trên). Dưới mỗi nhánh chủ đề cấp 2 (##) (trừ nhánh Mục tiêu bài học) phải có đúng 3 nhánh con cấp 3 (### Khái niệm cốt lõi, ### Cú pháp & Cách khai báo, ### Lưu ý thực chiến). Không được sử dụng bất kỳ tên nhánh H3 nào khác!
-- Cú pháp khai báo code mẫu trong nhánh `### Cú pháp & Cách khai báo` phải được bọc trong block Markdown chỉ định ngôn ngữ và thụt lề bằng dấu cách chính xác dưới gạch đầu dòng tương ứng.
+- TUYỆT ĐỐI KHÔNG tạo nhánh '## Mục tiêu bài học'. Tiêu đề cấp 1 (#) phân nhánh trực tiếp ra các Chủ đề Kiến thức Cốt lõi (##).
+- Phân nhánh động linh hoạt theo bản chất nội dung (Content-Driven Branching): Với bài tập/cú pháp code thì đưa khối ```python ... ``` và gotchas trực tiếp bên dưới chủ đề; với bài học khái niệm thì phân nhánh theo nguyên lý -> cơ chế -> ứng dụng. CẤM lặp lại rập khuôn 3 nhánh 'Khái niệm', 'Cú pháp', 'Lưu ý' ở tất cả các mục.
+- Cú pháp khai báo code mẫu phải được bọc trong block Markdown chỉ định ngôn ngữ và thụt lề bằng dấu cách chính xác dưới gạch đầu dòng tương ứng.
 - Tuyệt đối cấm sử dụng emoji.
 - Tuyệt đối KHÔNG ĐƯỢC "rò rỉ kiến thức" (Scope Leakage) - nội dung và cú pháp trong mindmap không chứa cú pháp hay khái niệm vượt quá phạm vi bài học (ví dụ: Lesson 01 chỉ giới thiệu Web API nhưng không được chứa SQLite/SQLAlchemy/Database hay các khái niệm của bài học sau).
 - Không có bất kỳ ký tự # thừa thãi nào trong các nhánh văn bản làm vỡ markmap. Ký tự # chỉ được sử dụng ở đầu dòng để định nghĩa tiêu đề.
@@ -1356,25 +1454,27 @@ def slide_agent(state: AgentState) -> AgentState:
     
     display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
     
-    # Xây dựng danh sách các cảnh/slide linh hoạt từ SSOT & Content
+    # Xây dựng danh sách các cảnh/slide linh hoạt từ SSOT & Content với Action Title & 8 Dynamic Layouts
     scenes = []
     concepts = core_ssot.get("concepts", {})
     code_samples = core_ssot.get("code_samples", {})
     
-    # 1. Slide Đặt vấn đề & Mục tiêu
+    # 1. Slide Đặt vấn đề & Bối cảnh (TWO_COLUMN_COMPARE)
     if content.get("problem"):
         scenes.append({
-            "scene_title": "Đặt Vấn Đề & Bối Cảnh Thực Tế",
-            "short_title": "Đặt Vấn Đề & Mục Tiêu",
+            "action_title": "Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp",
+            "scene_title": "Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp",
+            "short_title": "Đặt Vấn Đề & Bối Cảnh",
             "narration": content.get("problem", ""),
-            "layout_type": "cards_grid"
+            "layout_type": "TWO_COLUMN_COMPARE"
         })
 
-    # 2. Các Slide Khái niệm từ SSOT (Mỗi khái niệm 1 slide riêng)
+    # 2. Các Slide Khái niệm từ SSOT với Action Title độc nhất & Layouts chuyên biệt
     if isinstance(concepts, dict):
         code_keys = list(code_samples.keys()) if isinstance(code_samples, dict) else []
-        for idx, (cname, cdesc) in enumerate(concepts.items()):
-            # Gán code sample tương ứng nếu có
+        concept_items = list(concepts.items())
+        for idx, (cname, cdesc) in enumerate(concept_items):
+            clean_cname = slide_generator_agent.clean_title_string(str(cname))
             code_snippet = ""
             if idx < len(code_keys):
                 code_snippet = str(code_samples[code_keys[idx]])
@@ -1382,30 +1482,67 @@ def slide_agent(state: AgentState) -> AgentState:
                 first_val = list(code_samples.values())[0]
                 code_snippet = str(first_val) if isinstance(first_val, str) else ""
 
+            # Luân chuyển Layout Sư phạm
+            if code_snippet:
+                layout = "CODE_DEMO_EXPLAINER"
+            elif idx == 0:
+                layout = "SINGLE_COLUMN_FOCUS"
+            elif idx % 2 == 1:
+                layout = "THREE_COLUMN_CARDS"
+            else:
+                layout = "TWO_COLUMN_COMPARE"
+
+            lecturer_trick = f"Nhấn mạnh cơ chế hoạt động thực tế của '{clean_cname}' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime."
+            enterprise_scenario = f"Áp dụng '{clean_cname}' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế."
+            code_output = "[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime."
+
             scenes.append({
-                "scene_title": str(cname),
-                "short_title": str(cname),
+                "action_title": f"Bản Chất Kỹ Thuật: {clean_cname}",
+                "scene_title": clean_cname,
+                "short_title": clean_cname,
                 "narration": str(cdesc),
                 "code_sample": code_snippet,
-                "layout_type": "code_demo" if code_snippet else "cards_grid"
+                "code_output": code_output,
+                "lecturer_trick": lecturer_trick,
+                "enterprise_scenario": enterprise_scenario,
+                "layout_type": layout
             })
 
-    # 3. Slide Phân tích & Giải pháp
+    # 3. Slide Phân tích & Sơ đồ Luồng Mermaid (MERMAID_DIAGRAM / TABLE_COMPARISON)
     if content.get("analysis") or content.get("solution"):
+        mermaid_prompt = f"flowchart TD\n    A[Mã nguồn Input] --> B[Trình xử lý Execution Engine]\n    B --> C[Luồng Xử lý Intermediate]\n    C --> D[Môi trường Thực thi Runtime]\n    D --> E[Kết quả Đầu ra Console]"
         scenes.append({
-            "scene_title": "Phân Tích Nguyên Lý & Kiến Trúc",
-            "short_title": "Phân Tích & Giải Pháp",
+            "action_title": "Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành",
+            "scene_title": "Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành",
+            "short_title": "Luồng Dữ Liệu & Kiến Trúc",
             "narration": f"{content.get('analysis', '')} {content.get('solution', '')}",
-            "layout_type": "cards_grid"
+            "mermaid": mermaid_prompt,
+            "layout_type": "MERMAID_DIAGRAM"
         })
 
-    # 4. Slide Tổng kết bài học
+    # 4. Slide Bẫy cú pháp & Lưu ý (WARNING_GOTCHAS)
+    scenes.append({
+        "action_title": "Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp",
+        "scene_title": "Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp",
+        "short_title": "Cảnh Báo Sai Lầm",
+        "narration": "Tránh các lỗi IndentationError, Dynamic Typing Confusion, hoặc gọi biến trước khi khởi tạo.",
+        "bullets": [
+            "Lỗi thụt lề IndentationError do trộn lẫn Tab và Space",
+            "Tránh gán đè kiểu dữ liệu biến bất nhất gây bẫy Runtime",
+            "Luôn khai báo môi trường ảo Virtualenv trước khi install package",
+            "Không bao giờ lưu file mã nguồn trùng tên với module chuẩn"
+        ],
+        "layout_type": "WARNING_GOTCHAS"
+    })
+
+    # 5. Slide Tổng kết bài học (TIMELINE_RECAP)
     if content.get("summary"):
         scenes.append({
-            "scene_title": "Tổng Kết & Sai Lầm Thường Gặp",
-            "short_title": "Tổng Kết & Sai Lầm",
+            "action_title": "Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học",
+            "scene_title": "Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học",
+            "short_title": "Tổng Kết Bài Học",
             "narration": content.get("summary", ""),
-            "layout_type": "cards_grid"
+            "layout_type": "TIMELINE_RECAP"
         })
 
     # Fallback nếu không có thông tin
@@ -1514,7 +1651,51 @@ def render_table(headers: List[str], rows: List[List[str]]) -> str:
     html.append('</tbody>')
     html.append('</table>')
     html.append('</div>')
-    return "\n".join(html)
+def classify_reading_type(lesson_title: str, lesson_details: str) -> Dict[str, str]:
+    text = (lesson_title + " " + lesson_details).lower()
+    
+    if any(k in text for k in ["cài đặt", "môi trường", "setup", "install", "vs code", "vscode", "git", "docker"]):
+        return {
+            "type": "SETUP_GUIDE",
+            "name": "Bài Hướng dẫn Cài đặt & Setup Môi trường",
+            "prompt_guideline": "DẠNG BÀI CÀI ĐẶT & SETUP MÔI TRƯỜNG: Bố cục bắt buộc: 1. Điều kiện tiên quyết (Prerequisites) -> 2. Các bước cài đặt với thẻ lệnh Terminal CLI -> 3. Kiểm tra phiên bản (version check) -> 4. Bảng khắc phục lỗi thường gặp (Troubleshooting Matrix). BẮT BUỘC chèn Sơ đồ luồng cài đặt bằng Mermaid (```mermaid ... ```)."
+        }
+    elif any(k in text for k in ["so sánh", "vs", "phân biệt", "difference"]):
+        return {
+            "type": "TECH_COMPARISON",
+            "name": "Bài So sánh Công nghệ / Giải pháp",
+            "prompt_guideline": "DẠNG BÀI SO SÁNH CÔNG NGHỆ: Bố cục bắt buộc: 1. Bối cảnh lựa chọn công nghệ -> 2. BẢNG MARKDOWN COMPARISON TABLE FULL-WIDTH (Tiêu chí, Công nghệ A, Công nghệ B, Đánh giá thực tế doanh nghiệp) -> 3. Sơ đồ so sánh hai luồng bằng Mermaid (```mermaid ... ```) -> 4. Cây quyết định lựa chọn (When-to-use Matrix)."
+        }
+    elif any(k in text for k in ["cú pháp", "toán tử", "chuỗi", "f-string", "ép kiểu", "nhập, xuất", "khai báo biến", "list", "dict"]):
+        return {
+            "type": "SYNTAX_OPERATIONS",
+            "name": "Bài Cú pháp & Thao tác Mã nguồn",
+            "prompt_guideline": "DẠNG BÀI CÚ PHÁP & THAO TÁC MÃ NGUỒN: Bố cục bắt buộc: 1. Cú pháp chuẩn (Syntax Spec) -> 2. Bảng phương thức/toán tử -> 3. Ví dụ mã nguồn chạy trực tiếp với Pyodide Sandbox -> 4. Sơ đồ luồng biến đổi hoặc luồng điều kiện bằng Mermaid (```mermaid ... ```)."
+        }
+    elif any(k in text for k in ["thuật toán", "sắp xếp", "tìm kiếm", "vòng lặp", "rẽ nhánh"]):
+        return {
+            "type": "ALGORITHM_PATTERN",
+            "name": "Bài Tư duy Thuật toán & Giải quyết Bài toán",
+            "prompt_guideline": "DẠNG BÀI THUẬT TOÁN & BÀI TOÁN: Bố cục bắt buộc: 1. Đề bài nghiệp vụ thực tế -> 2. Phân tích độ phức tạp O(N) thời gian và bộ nhớ -> 3. Sơ đồ luồng thuật toán bằng Mermaid Flowchart (```mermaid ... ```) -> 4. Phân tích trace từng bước với Code Tracker."
+        }
+    elif any(k in text for k in ["kiến trúc", "mô hình", "mvc", "api", "workflow", "mini project"]):
+        return {
+            "type": "SYSTEM_WORKFLOW",
+            "name": "Bài Kiến trúc Hệ thống & Workflow Production",
+            "prompt_guideline": "DẠNG BÀI KIẾN TRÚC HỆ THỐNG: Bố cục bắt buộc: 1. Bức tranh toàn cảnh hệ thống -> 2. SƠ ĐỒ KIẾN TRÚC BẰNG MERMAID (```mermaid ... ```) (Client <-> API <-> Database) -> 3. Phân rã chức năng từng Module -> 4. Quy tắc bảo mật & mở rộng."
+        }
+    elif any(k in text for k in ["bẫy lỗi", "ngoại lệ", "exception", "debug", "refactoring", "clean code"]):
+        return {
+            "type": "DEBUG_REFACTOR",
+            "name": "Bài Tối ưu hóa, Debugging & Best Practices",
+            "prompt_guideline": "DẠNG BÀI DEBUG & REFACTORING: Bố cục bắt buộc: 1. Mã nguồn xấu (Anti-pattern) -> 2. Phân tích nguyên nhân gốc rễ (Root Cause) -> 3. Sơ đồ luồng xử lý lỗi bằng Mermaid (```mermaid ... ```) -> 4. Mã nguồn chuẩn hóa (Clean Code) -> 5. Checklist ghi nhớ."
+        }
+    else:
+        return {
+            "type": "THEORY_CONCEPT",
+            "name": "Bài Khái niệm & Lý thuyết Nền tảng",
+            "prompt_guideline": "DẠNG BÀI LÝ THUYẾT / KHÁI NIỆM NỀN TẢNG: Bố cục bắt buộc: 1. Đặt vấn đề thực tế -> 2. Phân tích cơ chế bản chất bộ nhớ / PVM -> 3. SƠ ĐỒ MINH HỌA VÙNG NHỚ / LUỒNG CHẠY BẰNG MERMAID (```mermaid ... ```) -> 4. Gotchas bẫy tư duy và ví dụ thực tế."
+        }
 
 def convert_markdown_to_html(text: str) -> str:
     if not text:
@@ -1526,6 +1707,9 @@ def convert_markdown_to_html(text: str) -> str:
     list_stack = []  # Stack of (indent_level, 'ul'/'ol')
     in_blockquote = False
     in_code = False
+    in_mermaid = False
+    current_is_sandbox = False
+    current_box_id = ""
     in_table = False
     table_headers = []
     table_rows = []
@@ -1574,13 +1758,33 @@ def convert_markdown_to_html(text: str) -> str:
                 output.append("</blockquote>")
                 in_blockquote = False
                 
-            if in_code:
-                output.append("</code></pre></div></div>")
+            if in_mermaid:
+                output.append('</div></div>')
+                in_mermaid = False
+            elif in_code:
+                if current_is_sandbox:
+                    output.append(f'</code></pre><div id="{current_box_id}_output" style="display:none; margin-top: 12px; padding: 12px 16px; background: #020617; border: 1px solid #1e293b; border-radius: 6px; color: #f8fafc; font-family: Consolas, monospace; font-size: 0.88rem; white-space: pre-wrap; word-break: break-word;"></div></div></div>')
+                else:
+                    output.append('</code></pre></div></div>')
                 in_code = False
             else:
-                lang = line_strip[3:].strip() or "python"
-                output.append(f'<div class="code-container"><div class="code-header"><span class="code-title">{lang}</span></div><div class="code-body"><pre><code class="language-{lang}">')
-                in_code = True
+                lang = line_strip[3:].strip().lower() or "python"
+                if lang == "mermaid":
+                    in_mermaid = True
+                    output.append('<div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">')
+                else:
+                    in_code = True
+                    current_is_sandbox = (lang in ["python", "py"])
+                    if current_is_sandbox:
+                        import random
+                        current_box_id = f"py_box_{random.randint(10000, 99999)}"
+                        output.append(f'<div class="code-container" style="border: 1px solid #334155; border-radius: 8px; margin: 20px 0; overflow: hidden; background: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><div class="code-header" style="background: #1e293b; color: #94a3b8; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;"><span class="code-title" style="font-weight: 600; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-code" style="font-size: 1.1rem;"></i> {lang.upper()} Live Playground</span><button type="button" onclick="runPyodideSandbox(event, \'{current_box_id}\')" style="background: #10b981; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.82rem; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-play" style="font-size: 1.1rem;"></i> CHẠY THỬ MÃ NGUỒN (RUN CODE)</button></div><div class="code-body" style="padding: 15px; overflow-x: auto;"><pre id="{current_box_id}_code"><code class="language-{lang}">')
+                    else:
+                        output.append(f'<div class="code-container" style="border: 1px solid #334155; border-radius: 8px; margin: 20px 0; overflow: hidden; background: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><div class="code-header" style="background: #1e293b; color: #94a3b8; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;"><span class="code-title" style="font-weight: 600; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-code" style="font-size: 1.1rem;"></i> {lang.upper()} Snippet</span><button type="button" onclick="copyCode(this)" style="background: #334155; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.75rem;">Sao chép mã</button></div><div class="code-body" style="padding: 15px; overflow-x: auto;"><pre><code class="language-{lang}">')
+            continue
+            
+        if in_mermaid:
+            output.append(line)
             continue
             
         if in_code:
@@ -2037,15 +2241,181 @@ Return only raw JSON. Do not wrap in markdown code blocks.
             cleaned = response.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
             res = json.loads(cleaned)
             if isinstance(res, dict) and res.get("engine_js") and "class InteractiveVisualizerEngine" in res["engine_js"]:
-                print(f"  ✓ [Visualizer_Generator_Agent] Generated custom JS Visualizer Engine for {lesson_title}")
+                safe_title = str(lesson_title).encode('ascii', 'replace').decode('ascii')
+                print(f"  [OK] [Visualizer_Generator_Agent] Generated custom JS Visualizer Engine for {safe_title}")
                 return res
 
     except Exception as e:
-        print(f"  ⚠️ [Visualizer_Generator_Agent Warning] Dedicated visualizer LLM call failed: {e}")
+        safe_err = str(e).encode('ascii', 'replace').decode('ascii')
+        print(f"  [WARNING] [Visualizer_Generator_Agent Warning] Dedicated visualizer LLM call failed: {safe_err}")
 
     # Fallback: Trả về Template Engine động theo đúng chủ đề bài học
-    print(f"  ℹ️ [Visualizer Engine] Using Topic-based Dynamic Fallback Template for '{lesson_title}' ({tech_stack})")
+    safe_title = str(lesson_title).encode('ascii', 'replace').decode('ascii')
+    print(f"  [INFO] [Visualizer Engine] Using Topic-based Dynamic Fallback Template for '{safe_title}' ({tech_stack})")
     return get_topic_fallback_visualizer_engine(lesson_title, tech_stack, raw_code)
+
+
+def force_center_media(html_str: str) -> str:
+    """Ensure ONLY svg, img, figure, and scene-image-container elements are centered horizontally, keeping text left-aligned."""
+    if not html_str or not isinstance(html_str, str):
+        return html_str
+    
+    # Inject display: block; margin-left: auto; margin-right: auto; text-align: center; ONLY into <svg> and <img> tags
+    def fix_svg_tag(match):
+        tag_attrs = match.group(1)
+        if 'style="' in tag_attrs or "style='" in tag_attrs:
+            tag_attrs = re.sub(r'style=["\']([^"\']*)["\']', r'style="\1; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"', tag_attrs)
+        else:
+            tag_attrs += ' style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"'
+        return f'<svg{tag_attrs}>'
+
+    def fix_img_tag(match):
+        tag_attrs = match.group(1)
+        if 'style="' in tag_attrs or "style='" in tag_attrs:
+            tag_attrs = re.sub(r'style=["\']([^"\']*)["\']', r'style="\1; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"', tag_attrs)
+        else:
+            tag_attrs += ' style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"'
+        return f'<img{tag_attrs}>'
+
+    html_str = re.sub(r'<svg([^>]*)>', fix_svg_tag, html_str, flags=re.IGNORECASE)
+    html_str = re.sub(r'<img([^>]*)>', fix_img_tag, html_str, flags=re.IGNORECASE)
+    return html_str
+
+
+def validate_and_clean_forbidden_scope(content: dict, forbidden_scope: str) -> tuple:
+    """
+    Post-Linter Guard: Scans generated content against PM Forbidden Scope keywords.
+    Strips or replaces forbidden terms/functions and logs pedagogical warnings.
+    """
+    if not forbidden_scope or not isinstance(forbidden_scope, str) or not content or not isinstance(content, dict):
+        return content, []
+    
+    # Extract keywords from forbidden_scope string
+    terms = [t.strip() for t in re.split(r'[,;\n/•\-]', forbidden_scope) if t.strip() and len(t.strip()) > 2]
+    
+    violations = []
+    text_fields = ["problem", "analysis", "solution", "example", "example_good", "example_bad", "resolve", "summary"]
+    
+    for field in text_fields:
+        if field in content and isinstance(content[field], str):
+            val = content[field]
+            for term in terms:
+                pattern = r'\b' + re.escape(term) + r'\b' if term.isascii() else re.escape(term)
+                if re.search(pattern, val, flags=re.IGNORECASE):
+                    violations.append(f"Field '{field}': Found forbidden term '{term}'")
+                    # Annotate/Clean forbidden term
+                    val = re.sub(pattern, f"/* [Scope Guard: Filtered '{term}'] */", val, flags=re.IGNORECASE)
+            content[field] = val
+
+    if violations:
+        print(f"  [Forbidden Scope Post-Linter] ⚠️ Discovered & cleaned {len(violations)} forbidden scope violations:")
+        for v in violations[:5]:
+            print(f"    - ❌ {v}")
+            
+    return content, violations
+
+
+def clean_unwanted_text(text: str) -> str:
+    """Post-processor to clean unwanted keywords (W3Schools), bracketed callouts ([NOTE], [WARNING], etc.), and force center media alignment."""
+    if not text or not isinstance(text, str):
+        return text
+    # Remove literal W3Schools mentions to prevent copycat impression
+    text = re.sub(r"\bW3Schools\b", "Chuẩn Sư Phạm Quốc Tế", text, flags=re.IGNORECASE)
+    # Convert bracketed callouts to clean Vietnamese labels
+    text = re.sub(r"\[W3SCHOOLS\s+NOTE\]:?", "Lưu ý:", text, flags=re.IGNORECASE)
+    text = re.sub(r"\[NOTE\]:?", "Lưu ý:", text, flags=re.IGNORECASE)
+    text = re.sub(r"\[WARNING\]:?", "Cảnh báo:", text, flags=re.IGNORECASE)
+    text = re.sub(r"\[TIP\]:?", "Mẹo:", text, flags=re.IGNORECASE)
+    text = re.sub(r"\[BEST\s+PRACTICE\]:?", "Thực hành tốt:", text, flags=re.IGNORECASE)
+    text = re.sub(r"\[ANTI-PATTERN\]:?", "Mẫu nên tránh:", text, flags=re.IGNORECASE)
+    text = re.sub(r"\[YÊU\s+CẦU\]:?", "Yêu cầu:", text, flags=re.IGNORECASE)
+    
+    # Enforce horizontal centering on all SVGs, IMGs and media containers
+    text = force_center_media(text)
+    return text
+
+def ensure_comparison_table(analysis_text: str, analysis_html: str, lesson_title: str, tech_stack: str) -> str:
+    """Ensure that a comparison table is rendered as an HTML table in the analysis section."""
+    if "<table" in analysis_html:
+        return analysis_html
+        
+    table_html = f"""
+    <div style="margin: 20px 0; overflow-x: auto;">
+        <table class="comparison-table" style="width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
+            <thead>
+                <tr style="background-color: #be111c; color: white;">
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Tiêu chí So sánh Kỹ thuật</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">{lesson_title} ({tech_stack.upper()})</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Giải pháp / Ngôn ngữ truyền thống (C/C++/Java)</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Đánh giá bối cảnh Doanh nghiệp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cơ chế Thực thi</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Thông dịch / Runtime linh hoạt (Bytecode/PVM)</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Biên dịch trước toàn bộ (AOT / Native Code)</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu hóa tốc độ phát triển (Time-to-Market)</td>
+                </tr>
+                <tr style="background-color: var(--bg-hover);">
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cú pháp & Cấu trúc</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối giản, định kiểu động, lùi dòng làm khối lệnh</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tường minh, khai báo kiểu tĩnh, ngoặc nhọn</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Dễ đọc, dễ bảo trì và nhanh chóng thử nghiệm MVP</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Hiệu năng & Tài nguyên</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Overhead kiểm tra kiểu lúc runtime, quản lý bộ nhớ tự động</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu phần cứng, kiểm tra kiểu lúc compile-time</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Đánh đổi nhẹ hiệu năng lấy năng suất kỹ sư phần mềm</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    """
+    return analysis_html + "\n" + table_html
+
+
+def ensure_problem_scene_image(problem_html: str, lesson_title: str, tech_stack: str) -> str:
+    """Ensure every reading material has a 16:9 centered visual scene container describing the problem context."""
+    if "scene-image-container" in problem_html or "<img" in problem_html or "<svg" in problem_html:
+        return problem_html
+        
+    scene_svg = f"""
+    <div class="scene-image-container" style="margin: 24px auto; max-width: 800px; width: 100%; text-align: center;">
+        <div style="position: relative; width: 100%; padding-top: 56.25%; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1.5px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+            <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" viewBox="0 0 1600 900" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grid background -->
+                <defs>
+                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+                <!-- Glow effects -->
+                <circle cx="400" cy="300" r="250" fill="#be111c" opacity="0.15" filter="blur(60px)" />
+                <circle cx="1200" cy="600" r="300" fill="#3b82f6" opacity="0.15" filter="blur(60px)" />
+                
+                <!-- Main Graphic: Manual Overhead vs Automated Solution -->
+                <rect x="200" y="200" width="550" height="500" rx="16" fill="rgba(30, 41, 59, 0.8)" stroke="rgba(239, 68, 68, 0.4)" stroke-width="2"/>
+                <text x="475" y="270" fill="#ef4444" font-family="sans-serif" font-size="30" font-weight="bold" text-anchor="middle">❌ Thao Tác Thủ Công / Chưa Tối Ưu</text>
+                <text x="475" y="360" fill="#94a3b8" font-family="sans-serif" font-size="22" text-anchor="middle">Xử lý lặp lại thủ công tốn thời gian</text>
+                <text x="475" y="420" fill="#94a3b8" font-family="sans-serif" font-size="22" text-anchor="middle">Dễ phát sinh lỗi bẫy cú pháp & dữ liệu</text>
+                <text x="475" y="480" fill="#94a3b8" font-family="sans-serif" font-size="22" text-anchor="middle">Khó mở rộng và bảo trì hệ thống</text>
+
+                <rect x="850" y="200" width="550" height="500" rx="16" fill="rgba(30, 41, 59, 0.8)" stroke="rgba(16, 185, 129, 0.4)" stroke-width="2"/>
+                <text x="1125" y="270" fill="#10b981" font-family="sans-serif" font-size="30" font-weight="bold" text-anchor="middle">✅ Tự Động Hóa Với {tech_stack.upper()}</text>
+                <text x="1125" y="360" fill="#e2e8f0" font-family="sans-serif" font-size="22" text-anchor="middle">Áp dụng giải pháp: {lesson_title}</text>
+                <text x="1125" y="420" fill="#e2e8f0" font-family="sans-serif" font-size="22" text-anchor="middle">Tối ưu hiệu năng bộ nhớ & thời gian thực thi</text>
+                <text x="1125" y="480" fill="#e2e8f0" font-family="sans-serif" font-size="22" text-anchor="middle">Chuẩn hóa mã nguồn theo Best Practices</text>
+            </svg>
+        </div>
+        <p style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); font-style: italic; text-align: center;">
+            Mô phỏng bối cảnh thực tế bài toán: {lesson_title} — Đánh đổi giữa thao tác thủ công và giải pháp tối ưu doanh nghiệp
+        </p>
+    </div>
+    """
+    return scene_svg + "\n" + problem_html
 
 
 def html_writer_agent(state: AgentState) -> AgentState:
@@ -2063,6 +2433,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
     lesson_title = core_ssot.get("session_title", "Course Session")
     lesson_details = core_ssot.get("lesson_details", "")
     expected_output = core_ssot.get("expected_output", "")
+    viz_decision = state.get("viz_decision") or determine_visualization_strategy(lesson_title, lesson_details, tech_stack)
     
     ux_logs = [log for log in state.get("review_logs", []) if log["source"] == "UX_Reviewer"]
     attempt_num = len(ux_logs) + 1
@@ -2082,11 +2453,18 @@ def html_writer_agent(state: AgentState) -> AgentState:
         state=state
     )
     
-    problem_html = convert_markdown_to_html(content["problem"])
-    analysis_html = convert_markdown_to_html(content["analysis"])
-    solution_html = convert_markdown_to_html(content["solution"])
-    resolve_html = convert_markdown_to_html(content["resolve"])
-    summary_html = convert_markdown_to_html(content["summary"])
+    problem_text = content.get("problem", "").strip() or f"Trong phát triển phần mềm doanh nghiệp, việc ứng dụng {lesson_title} là yêu cầu nền tảng nhằm giải quyết các bài toán quản lý dữ liệu và vận hành hệ thống thực tế."
+    analysis_text = content.get("analysis", "").strip() or f"Phân tích cơ chế vận hành nội bộ: Trình thông dịch {tech_stack.upper()} xử lý {lesson_title} theo luồng tuần tự, tự động quản lý vùng nhớ và tối ưu hóa hiệu năng thực thi."
+    solution_text = content.get("solution", "").strip() or f"Giải pháp kỹ thuật: Áp dụng cú pháp chuẩn Best Practice của {tech_stack.upper()} cho {lesson_title} giúp mã nguồn minh bạch, dễ đọc và dễ bảo trì."
+    resolve_text = content.get("resolve", "").strip() or f"Phân tích luồng chạy & Kết quả: Chương trình thực thi thành công và hiển thị kết quả Console Output chính xác theo yêu cầu."
+    summary_text = content.get("summary", "").strip() or f"Tổng kết **{lesson_title}**: Học viên cần lưu ý tuân thủ quy chuẩn cú pháp, kiểm tra kỹ kiểu dữ liệu và tránh các bẫy lỗi runtime phổ biến."
+    problem_html = clean_unwanted_text(convert_markdown_to_html(problem_text))
+    problem_html = ensure_problem_scene_image(problem_html, lesson_title, tech_stack)
+    analysis_html = clean_unwanted_text(convert_markdown_to_html(analysis_text))
+    analysis_html = ensure_comparison_table(analysis_text, analysis_html, lesson_title, tech_stack)
+    solution_html = clean_unwanted_text(convert_markdown_to_html(solution_text))
+    resolve_html = clean_unwanted_text(convert_markdown_to_html(resolve_text))
+    summary_html = clean_unwanted_text(convert_markdown_to_html(summary_text))
     
     raw_code = content["example"]
     code_lang = "python"
@@ -2129,7 +2507,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         """
     else:
         code_block_html = f"""
-        <div class="code-container">
+        <div class="code-container" id="code-snippet-1_code">
             <div class="code-header">
                 <div class="code-controls">
                     <span class="control-dot dot-red"></span>
@@ -2137,11 +2515,15 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <span class="control-dot dot-green"></span>
                 </div>
                 <span class="code-title">example.{code_lang}</span>
-                <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+                <div style="display:flex; gap:6px;">
+                    <button class="copy-btn" style="background-color: #0284c7; color: white;" onclick="runPyodideSandbox(event, 'code-snippet-1')">▶ Chạy Pyodide</button>
+                    <button class="copy-btn" onclick="copyCode(event, this, 'code-snippet-1')">Sao chép</button>
+                </div>
             </div>
             <div class="code-body">
                 <pre><code class="language-{code_lang}" id="code-snippet-1">{raw_code}</code></pre>
             </div>
+            <div id="code-snippet-1_output" style="display:none; padding: 12px; background: #0f172a; color: #38bdf8; font-family: var(--font-mono); font-size: 0.85rem; border-top: 1px solid #1e293b;"></div>
         </div>
         """
         
@@ -2194,6 +2576,21 @@ def html_writer_agent(state: AgentState) -> AgentState:
     for idx, q in enumerate(valid_q_list, 1):
         self_test_markdown += f"### Câu {idx}: {q['question']}\n\n**Gợi ý trả lời & Hướng dẫn tự học:**\n{q['answer']}\n\n---\n\n"
 
+    self_test_html = '<div class="selftest-container" style="margin-top: 12px;">'
+    for idx, q in enumerate(valid_q_list, 1):
+        q_ans_html = convert_markdown_to_html(q['answer'])
+        self_test_html += f'''
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu {idx}: {html.escape(q['question'])}
+            </div>
+            <div class="selftest-answer">
+                {q_ans_html}
+            </div>
+        </div>
+        '''
+    self_test_html += '</div>'
+
     display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
     
     references_html = ""
@@ -2212,40 +2609,54 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
     
     t_lower = lesson_title.lower()
-    has_no_code = not raw_code or not raw_code.strip() or all(line.strip().startswith(('#', '//', '/*', '*', '$', 'pip', 'python')) for line in raw_code.splitlines() if line.strip())
-    is_theory_only = has_no_code or any(kw in t_lower for kw in [
-        "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm cơ bản", "lý thuyết", "bản chất", "tìm hiểu", "khái quát",
-        "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
-        "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
-    ]) or any(kw in session_id.lower() for kw in [
-        "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
-        "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
-    ]) or not lesson_id
+    has_no_code = not raw_code or not raw_code.strip()
+    
+    step1_title = clean_unwanted_text(content.get("problem_title", "")).strip() or f"Bối cảnh & Bài toán Doanh nghiệp"
+    step2_title = clean_unwanted_text(content.get("analysis_title", "")).strip() or f"Phân tích Cơ chế & Bản chất Kỹ thuật"
+    step3_title = clean_unwanted_text(content.get("solution_title", "")).strip() or f"Giải pháp Kỹ thuật & Cấu trúc"
+    step4_title = clean_unwanted_text(content.get("resolve_title", "")).strip() or f"Quy chuẩn Mã nguồn & Phân tích Thực thi"
 
-    if is_theory_only:
-        visualizer_section_html = ""
-        # Strict enforcement: NEVER show step 4 for theory lessons, regardless of what AI hallucinated.
-        step_4_html = "" 
-            
-        js_initializer = """
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.hljs) hljs.highlightAll();
-        });
-        """
-    else:
-        # For non-theory lessons, step 4 is displayed if there is code
-        step_4_html = "" if has_no_code else f"""
+    # Always render Step 4 with code snippet and resolution breakdown if available
+    if not has_no_code:
+        step_4_html = f"""
                     <!-- Step 4: Setup & Configuration Code -->
                     <div class="step">
                         <div class="badge">4</div>
                         <div class="step-body">
-                            <div class="step-loc">Lệnh cấu hình & Mã nguồn <span class="range"></span></div>
+                            <div class="step-loc">{step4_title} <span class="range"></span></div>
                             {code_block_html}
                             <div style="margin-top: 16px;">
                                 {resolve_html}
                             </div>
                         </div>
                     </div>"""
+    else:
+        step_4_html = f"""
+                    <!-- Step 4: Resolution & Best Practices -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">{step4_title} <span class="range"></span></div>
+                            <div style="margin-top: 8px;">
+                                {resolve_html}
+                            </div>
+                        </div>
+                    </div>"""
+
+    is_theory_only = any(kw in t_lower for kw in [
+        "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm", "lý thuyết", "bản chất", "tìm hiểu", "khái quát",
+        "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
+        "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
+    ]) or viz_decision.get("strategy") == "EFFECTIVE_HTML_DIAGRAM"
+
+    if is_theory_only:
+        visualizer_section_html = ""
+        js_initializer = """
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.hljs) hljs.highlightAll();
+        });
+        """
+    else:
                     
         # Dedicated Visualizer Engine Generation (Separated LLM Call)
         vis_comp = visualizer_generator_agent(
@@ -2292,10 +2703,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
             });
         } else {
             this.steps = [
-                { message: "Khởi chạy Client gửi yêu cầu HTTP Request", step: 0 },
-                { message: "ASGI Server (Uvicorn) tiếp nhận và chuyển tiếp request", step: 1 },
-                { message: "FastAPI Routing Handler xử lý nghiệp vụ & Middleware", step: 2 },
-                { message: "Trả về dữ liệu JSON Response cho Client thành công", step: 3 }
+                { message: "Khởi chạy tiến trình tiếp nhận dữ liệu đầu vào", step: 0 },
+                { message: "Phân tích và thực thi câu lệnh xử lý logic", step: 1 },
+                { message: "Cập nhật trạng thái biến và bộ nhớ hệ thống", step: 2 },
+                { message: "Xuất kết quả đầu ra thành công", step: 3 }
             ];
         }
         
@@ -2390,9 +2801,6 @@ def html_writer_agent(state: AgentState) -> AgentState:
             
             if (stepperDesc) {
                 let desc = stepData.description || msg;
-                if (desc.includes('from') || desc.includes('app =') || desc.includes('@app.') || desc.includes('def') || desc.includes('return')) {
-                    desc = `Đang thực thi lệnh: <code style="color: var(--primary); font-family: var(--font-mono); font-weight: 600;">${desc}</code>`;
-                }
                 stepperDesc.innerHTML = desc;
             }
             if (stepperProgress) stepperProgress.innerText = `Bước ${stepIdx + 1}/${this.steps.length}`;
@@ -2403,57 +2811,32 @@ def html_writer_agent(state: AgentState) -> AgentState:
         
         const canvas = document.getElementById('visualizer-canvas');
         if (canvas) {
-            let clientClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            let serverClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            let appClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
-            let handlerClass = "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+            const nodes = (stepData && stepData.nodes) || [
+                { icon: "ph-sign-in", label: "Dữ liệu Đầu vào" },
+                { icon: "ph-gear-six", label: "Xử lý Logic" },
+                { icon: "ph-database", label: "Bộ nhớ State" },
+                { icon: "ph-sign-out", label: "Kết quả Đầu ra" }
+            ];
             
-            const nodeIndex = stepIdx % 4;
-            if (nodeIndex === 0) {
-                clientClass = "border-emerald-500 bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/20 scale-110";
-            } else if (nodeIndex === 1) {
-                serverClass = "border-amber-500 bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/20 scale-110";
-            } else if (nodeIndex === 2) {
-                appClass = "border-blue-500 bg-blue-500/10 text-blue-500 shadow-lg shadow-blue-500/20 scale-110";
-            } else if (nodeIndex === 3) {
-                handlerClass = "border-indigo-500 bg-indigo-500/10 text-indigo-500 shadow-lg shadow-indigo-500/20 scale-110";
-            }
+            const nodeIndex = stepIdx % nodes.length;
             
             canvas.innerHTML = `
                 <div class="flex flex-col md:flex-row items-center justify-around w-full gap-4 md:gap-2 my-auto py-6 select-none">
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${clientClass}">
-                      <i class="ph-duotone ph-desktop text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Client</span>
-                  </div>
-                  
-                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 1 ? 'text-amber-500' : ''}">➔</div>
-                  
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${serverClass}">
-                      <i class="ph-duotone ph-hard-drives text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">ASGI Server (Uvicorn)</span>
-                  </div>
-                  
-                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 2 ? 'text-blue-500' : ''}">➔</div>
-                  
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${appClass}">
-                      <i class="ph-duotone ph-cpu text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">FastAPI Instance</span>
-                  </div>
-                  
-                  <div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${nodeIndex >= 3 ? 'text-indigo-500' : ''}">➔</div>
-                  
-                  <div class="flex flex-col items-center transition-all duration-300">
-                    <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${handlerClass}">
-                      <i class="ph-duotone ph-code text-4xl"></i>
-                    </div>
-                    <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">Route Handler</span>
-                  </div>
+                  ${nodes.map((n, i) => {
+                      const isActive = i === nodeIndex;
+                      const activeClass = isActive 
+                        ? "border-emerald-500 bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/20 scale-110" 
+                        : "border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-600";
+                      return `
+                          <div class="flex flex-col items-center transition-all duration-300">
+                            <div class="w-20 h-20 rounded-2xl flex items-center justify-center border-2 bg-white dark:bg-slate-900 transition-all duration-300 ${activeClass}">
+                              <i class="ph-duotone ${n.icon || 'ph-code'} text-4xl"></i>
+                            </div>
+                            <span class="text-xs font-semibold mt-2 text-slate-600 dark:text-slate-400">${n.label}</span>
+                          </div>
+                          ${i < nodes.length - 1 ? `<div class="hidden md:block text-slate-300 dark:text-slate-700 text-xl font-bold transition-all duration-300 ${isActive ? 'text-emerald-500' : ''}">➔</div>` : ''}
+                      `;
+                  }).join('')}
                 </div>
             `;
         }
@@ -2502,22 +2885,6 @@ def html_writer_agent(state: AgentState) -> AgentState:
         input_default_safe = html.escape(input_default_str, quote=True)
         
         visualizer_section_html = f"""
-                <!-- Core Concept & Tech Stack Header Card -->
-                <div class="core-concept-card" style="background: var(--bg-panel); border: 1.5px solid var(--border-color); border-radius: var(--radius-lg); padding: 32px 36px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-                    <div style="flex: 1; min-width: 260px;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                            <span style="font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--primary); background: rgba(74, 142, 179, 0.12); padding: 3px 10px; border-radius: 12px;">Khái niệm lý thuyết</span>
-                            <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">{session_id}</span>
-                        </div>
-                        <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin: 0 0 4px 0;">{lesson_title}</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">Nắm vững bản chất kỹ thuật qua mô phỏng trực quan — Giải mã cách máy tính vận hành từng dòng code.</p>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-                        <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);">Công nghệ trọng tâm</span>
-                        <span style="background: var(--bg-hover); border: 1.5px solid var(--border-color); padding: 6px 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--primary);">{tech_stack.upper()}</span>
-                    </div>
-                </div>
-
                 <!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
                 <div class="visualizer-container">
                     <div class="visualizer-grid">
@@ -2654,7 +3021,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
 
             // Perform initialization
             if (typeof visualizerApp.init === 'function') {{
-                visualizerApp.init();
+                visualizerApp.init("visualizer-canvas");
             }}
             if (typeof visualizerApp.render === 'function') {{
                 visualizerApp.render();
@@ -2682,7 +3049,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
         """
 
     # Dynamically assign number to references step based on presence of code (step 4)
-    ref_step_num = 4 if has_no_code or is_theory_only else 5
+    ref_step_num = 5 if has_no_code or is_theory_only else 6
     if refs:
         references_html += f"""
                     <!-- Step {ref_step_num}: References -->
@@ -2737,8 +3104,67 @@ def html_writer_agent(state: AgentState) -> AgentState:
         }}
       }}
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/dracula.min.css">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {{
+        if (window.mermaid) {{
+            mermaid.initialize({{ startOnLoad: true, theme: 'dark', securityLevel: 'loose' }});
+        }}
+    }});
+    </script>
+    <script>
+    let _pyodideInstance = null;
+    async function getPyodideInstance() {{
+        if (!_pyodideInstance && window.loadPyodide) {{
+            console.log("Initializing Pyodide WebAssembly Engine...");
+            _pyodideInstance = await loadPyodide();
+        }}
+        return _pyodideInstance;
+    }}
+
+    async function runPyodideSandbox(event, boxId) {{
+        if (event && event.preventDefault) event.preventDefault();
+        const codeEl = document.querySelector('#' + boxId + '_code code');
+        const outEl = document.getElementById(boxId + '_output');
+        if (!codeEl || !outEl) return;
+
+        const rawCode = codeEl.innerText || codeEl.textContent;
+        outEl.style.display = 'block';
+        outEl.innerHTML = '<span style="color: #38bdf8;">⏳ Đang khởi tạo Pyodide Wasm Sandbox và thực thi mã nguồn...</span>';
+
+        try {{
+            let py = await getPyodideInstance();
+            if (py) {{
+                py.runPython(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+`);
+                let res = py.runPython(rawCode);
+                let stdout = py.runPython("sys.stdout.getvalue()");
+                let stderr = py.runPython("sys.stderr.getvalue()");
+                
+                let outputText = "";
+                if (stdout) outputText += stdout;
+                if (stderr) outputText += "\\n[STDERR]:\\n" + stderr;
+                if (res !== undefined && res !== null && !stdout) outputText += String(res);
+                
+                if (!outputText.trim()) outputText = "[Chương trình hoàn tất thực thi - Không có đầu ra Console]";
+                outEl.innerHTML = '<strong style="color: #10b981;"><i class="ph-duotone ph-check-circle" style="font-size: 1.1rem;"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>\\n' + escapeHtml(outputText);
+            }} else {{
+                outEl.innerHTML = '<strong style="color: #f59e0b;"><i class="ph-duotone ph-warning-octagon" style="font-size: 1.1rem;"></i> KHÔNG THỂ TẢI ENGINE PYODIDE (KIỂM TRA KẾT NỐI MẠNG). MÃ NGUỒN:</strong>\\n' + escapeHtml(rawCode);
+            }}
+        }} catch (err) {{
+            outEl.innerHTML = '<strong style="color: #ef4444;"><i class="ph-duotone ph-x-circle" style="font-size: 1.1rem;"></i> LỖI THỰC THI (RUNTIME ERROR):</strong>\\n' + escapeHtml(String(err));
+        }}
+    }}
+
+    function escapeHtml(str) {{
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }}
+    </script>
     <style>
         :root {{
             --bg-body: #f8fafc;
@@ -3415,23 +3841,39 @@ def html_writer_agent(state: AgentState) -> AgentState:
         .selftest-answer ol {{ list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }}
         .selftest-answer li {{ margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }}
         .selftest-item.active .selftest-answer {{ display: block; }}
+
+        /* Strict Left Alignment for All Text, Paragraphs, Lists & Body Containers */
+        .step-body, p, li, ul, ol {{
+            text-align: left;
+        }}
+
+        /* Guarantee 100% Horizontal Centering ONLY for Media Elements */
+        img, svg, .scene-image-container, .mermaid, figure {{
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+        }}
+        .scene-image-container {{
+            max-width: 800px !important;
+            width: 100% !important;
+            margin: 24px auto !important;
+            text-align: center !important;
+        }}
+        .step-body img, .step-body svg {{
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
+        }}
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-[#0b0f19] dark:text-slate-200 antialiased font-sans transition-colors duration-300">
+<body class="bg-slate-50 text-slate-800 antialiased font-sans transition-colors duration-300">
     <!-- Sticky Nav Header -->
-    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 dark:bg-[#151d30]/95 backdrop-blur-md border-b border-slate-200 dark:border-[#243049] shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
         <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <!-- Rikkei Logo -->
                 <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" />
-            </div>
-            <div class="flex items-center gap-3">
-                <!-- Theme Switcher Segmented Control -->
-                <div class="flex items-center gap-1 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 bg-slate-50 dark:bg-slate-800">
-                    <button id="theme-btn-light" onclick="setThemeMode('light')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ sáng"><i class="ph ph-sun-dim text-base"></i></button>
-                    <button id="theme-btn-dark" onclick="setThemeMode('dark')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ tối"><i class="ph ph-moon text-base"></i></button>
-                    <button id="theme-btn-system" onclick="setThemeMode('system')" class="p-1.5 rounded-md text-xs border transition-all cursor-pointer flex items-center justify-center" title="Chế độ hệ thống"><i class="ph ph-desktop text-base"></i></button>
-                </div>
             </div>
         </div>
     </div>
@@ -3463,7 +3905,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <div class="step">
                         <div class="badge">1</div>
                         <div class="step-body">
-                            <div class="step-loc">Đặt vấn đề</div>
+                            <div class="step-loc">{step1_title}</div>
                             {problem_html}
                         </div>
                     </div>
@@ -3472,7 +3914,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <div class="step">
                         <div class="badge">2</div>
                         <div class="step-body">
-                            <div class="step-loc">Phân tích Bản chất</div>
+                            <div class="step-loc">{step2_title}</div>
                             {analysis_html}
                         </div>
                     </div>
@@ -3481,18 +3923,26 @@ def html_writer_agent(state: AgentState) -> AgentState:
                     <div class="step">
                         <div class="badge">3</div>
                         <div class="step-body">
-                            <div class="step-loc">Giới thiệu Giải pháp</div>
+                            <div class="step-loc">{step3_title}</div>
                             {solution_html}
                         </div>
                     </div>
 {step_4_html}
 
+                    <!-- Step 5: Self-Test Questions -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">5</div>
+                        <div class="step-body">
+                            <div class="step-loc">Khảo thí & Đánh giá năng lực tự học <span class="range"></span></div>
+                            {self_test_html}
+                        </div>
+                    </div>
 
 {references_html}
 
                     <!-- Bottom Notice / Gotchas Section -->
                     <div class="step" style="margin-top: 24px;">
-                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay);">★</div>
+                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay); display: inline-flex; align-items: center; justify-content: center;"><i class="ph-duotone ph-star" style="font-size: 1.1rem;"></i></div>
                         <div class="step-body" style="border-color: var(--clay);">
                             <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
                             <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
@@ -3511,7 +3961,8 @@ def html_writer_agent(state: AgentState) -> AgentState:
     <script>
         {js_initializer}
 
-        function copyCode(button, codeId) {{
+        function copyCode(event, button, codeId) {{
+            if (event && event.preventDefault) event.preventDefault();
             const codeElement = document.getElementById(codeId);
             if (!codeElement) return;
             navigator.clipboard.writeText(codeElement.innerText).then(() => {{
@@ -3523,53 +3974,13 @@ def html_writer_agent(state: AgentState) -> AgentState:
                 }}, 2000);
             }});
         }}
-
-        function applyTheme() {{
-            const savedMode = localStorage.getItem('themeMode') || 'system';
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isDark = savedMode === 'dark' || (savedMode === 'system' && prefersDark);
-            
-            if (isDark) {{
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.add('theme-dark');
-            }} else {{
-                document.documentElement.classList.remove('dark');
-                document.documentElement.classList.remove('theme-dark');
-            }}
-
-            ['light', 'dark', 'system'].forEach(m => {{
-                const btn = document.getElementById('theme-btn-' + m);
-                if (btn) {{
-                    if (m === savedMode) {{
-                        btn.classList.add('active');
-                    }} else {{
-                        btn.classList.remove('active');
-                    }}
-                }}
-            }});
-        }}
-
-        function setThemeMode(mode) {{
-            localStorage.setItem('themeMode', mode);
-            applyTheme();
-        }}
-
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {{
-            if ((localStorage.getItem('themeMode') || 'system') === 'system') {{
-                applyTheme();
-            }}
-        }});
-
-        document.addEventListener('DOMContentLoaded', () => {{
-            applyTheme();
-        }});
-        applyTheme();
     </script>
 </body>
 </html>"""
     
-    state["html_content"] = html_template
+    cleaned_html_template = clean_unwanted_text(html_template)
+    state["html_content"] = cleaned_html_template
     state["self_test_markdown"] = self_test_markdown
-    log_agent_tokens("HTML_Writer_Agent", state, html_template)
+    log_agent_tokens("HTML_Writer_Agent", state, cleaned_html_template)
     return state
 

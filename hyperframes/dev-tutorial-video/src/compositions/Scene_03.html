@@ -84,12 +84,12 @@
   </style>
 </head>
 <body>
-  <div id="scene-03" class="clip" data-start="0" data-duration="27.17" data-track-index="0">
-    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="27.17" data-track-index="3">
+  <div id="scene-03" data-composition-id="scene-03" data-width="1920" data-height="1080" class="clip" data-start="0" data-duration="22.99" data-track-index="0">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="22.99" data-track-index="3">
       Thuật ngữ nền tảng
     </div>
 
-    <div class="terms-row clip" data-start="0" data-duration="27.17" data-track-index="2">
+    <div class="terms-row clip" data-start="0" data-duration="22.99" data-track-index="2">
       <div class="term-card" id="card-element">
         <div class="term-icon">📄</div>
         <div class="term-en">Element</div>
@@ -146,13 +146,10 @@
       tl.to("#card-length", { autoAlpha: 1, scale: 1.15, duration: 0.35, ease: "power2.out" }, 7.8);
       tl.to("#card-length", { scale: 1, duration: 0.45, ease: "elastic.out(1, 0.5)" }, "<0.35");
 
-      // ── PHASE 5: final pulse tất cả 3 cards ──────────────────────────
-      tl.to(["#card-element","#card-index","#card-length"], {
-        scale: 1.04, duration: 0.3, yoyo: true, repeat: 1,
-        ease: "power1.inOut", stagger: 0.12
-      }, 17.0);
+      // ── PHASE 6: fade out entire scene before transition to Scene 04 ─────
+      tl.to("#scene-03", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 21.8);
 
-      tl.set({}, {}, 27.17);
+      tl.set({}, {}, 22.99);
     }, 50);
   </script>
 </body>

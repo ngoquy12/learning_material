@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Modal, Form, Input, Select, Button } from 'antd';
-import { CourseCreate } from '../../../types/course';
+import { CourseCreate, CourseResponse } from '../../../types/course';
 import { useEffect } from 'react';
 import { useSemesters } from '../../semesters/hooks/useSemesters';
 
@@ -19,9 +19,11 @@ interface Props {
   onCancel: () => void;
   onSubmit: (data: CourseCreate) => void;
   isPending: boolean;
+  initialValues?: CourseResponse | null;
+  fixedSemesterId?: number;
 }
 
-export const CourseFormModal = ({ open, onCancel, onSubmit, isPending }: Props) => {
+export const CourseFormModal = ({ open, onCancel, onSubmit, isPending, initialValues, fixedSemesterId }: Props) => {
   const { data: semesters } = useSemesters();
   
   const {
@@ -34,17 +36,31 @@ export const CourseFormModal = ({ open, onCancel, onSubmit, isPending }: Props) 
     defaultValues: {
       name: '',
       technology_stack: '',
-      semester_id: undefined,
+      semester_id: fixedSemesterId || undefined,
     },
   });
 
   useEffect(() => {
-    if (!open) reset();
-  }, [open, reset]);
+    if (open) {
+      if (initialValues) {
+        reset({
+          name: initialValues.name || '',
+          technology_stack: initialValues.technology_stack || '',
+          semester_id: initialValues.semester_id,
+        });
+      } else {
+        reset({
+          name: '',
+          technology_stack: '',
+          semester_id: fixedSemesterId || undefined,
+        });
+      }
+    }
+  }, [open, initialValues, fixedSemesterId, reset]);
 
   return (
     <Modal
-      title="Thêm Môn học mới"
+      title={initialValues ? "Sửa Môn học" : "Thêm Môn học mới"}
       open={open}
       onCancel={onCancel}
       footer={null}
@@ -59,12 +75,12 @@ export const CourseFormModal = ({ open, onCancel, onSubmit, isPending }: Props) 
           <Controller
             name="name"
             control={control}
-            render={({ field }) => <Input {...field} placeholder="Ví dụ: Java Web Development" />}
+            render={({ field }) => <Input {...field} placeholder="Ví dụ: Lập trình Python Căn Bản" />}
           />
         </Form.Item>
 
         <Form.Item
-          label="Công nghệ sử dụng"
+          label="Công nghệ sử dụng (Technology Stack)"
           validateStatus={errors.technology_stack ? 'error' : ''}
           help={errors.technology_stack?.message}
         >
@@ -72,7 +88,7 @@ export const CourseFormModal = ({ open, onCancel, onSubmit, isPending }: Props) 
             name="technology_stack"
             control={control}
             render={({ field }) => (
-              <Input {...field} placeholder="Ví dụ: Java, Spring Boot, MySQL" />
+              <Input {...field} placeholder="Ví dụ: python/core, Java, Spring Boot" />
             )}
           />
         </Form.Item>
@@ -86,7 +102,7 @@ export const CourseFormModal = ({ open, onCancel, onSubmit, isPending }: Props) 
             name="semester_id"
             control={control}
             render={({ field }) => (
-              <Select {...field} placeholder="Chọn học kỳ" loading={!semesters}>
+              <Select {...field} placeholder="Chọn học kỳ" loading={!semesters} disabled={!!fixedSemesterId}>
                 {semesters?.map(s => <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>)}
               </Select>
             )}

@@ -1,0 +1,1 @@
+Hãy bắt đầu triển khai hàm áp dụng chính sách giao dịch. Chúng ta khai báo hàm a-play-tran-sắc-sơn-pô-li-si nhận hai tham số đầu vào là sta-tút và ti-ơ. Đầu tiên, chúng ta khởi tạo giá trị mặc định cho hai biến là phi bằng không chấm không và đít-khao bằng không chấm không. Việc này đảm bảo các biến số luôn được khởi tạo giá trị cơ sở trước khi đi vào cấu trúc mátch.

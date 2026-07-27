@@ -1,0 +1,1 @@
+Để khởi tạo môi trường ảo, hãy mở cửa sổ dòng lệnh tại thư mục gốc của dự án, sau đó thực thi lệnh: python trừ m venv app gạch dưới env. Ở đây, cờ trừ m chỉ định chạy module venv tích hợp sẵn trong thư viện chuẩn, và app gạch dưới env là tên thư mục chứa toàn bộ môi trường ảo.

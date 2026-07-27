@@ -144,13 +144,13 @@
   </style>
 </head>
 <body>
-  <div id="scene-05" class="clip" data-start="0" data-duration="30.67" data-track-index="0">
-    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="30.67" data-track-index="4">
+  <div id="scene-05" data-composition-id="scene-05" data-width="1920" data-height="1080" class="clip" data-start="0" data-duration="27.86" data-track-index="0">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="27.86" data-track-index="4">
       In danh sách ra Terminal
     </div>
 
     <!-- Code Editor -->
-    <div class="pane-card clip" id="editor-card" data-start="0" data-duration="30.67" data-track-index="2">
+    <div class="pane-card clip" id="editor-card" data-start="0" data-duration="27.86" data-track-index="2">
       <div class="pane-titlebar">
         <div class="dot dot-r"></div>
         <div class="dot dot-y"></div>
@@ -248,10 +248,10 @@
       // ── PHASE 11: restore editor ──────────────────────────────────────
       tl.to("#editor-card", { autoAlpha: 1, duration: 0.5 }, 20.0);
 
-      // ── PHASE 12: editor scale pulse ──────────────────────────────────
-      tl.to("#editor-card", { scale: 1.01, duration: 0.45, yoyo: true, repeat: 1, ease: "power1.inOut" }, 22.0);
+      // ── PHASE 12: fade out entire scene before transition to Scene 06 ─────
+      tl.to("#scene-05", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 26.5);
 
-      tl.set({}, {}, 30.67);
+      tl.set({}, {}, 27.86);
     }, 50);
   </script>
 </body>

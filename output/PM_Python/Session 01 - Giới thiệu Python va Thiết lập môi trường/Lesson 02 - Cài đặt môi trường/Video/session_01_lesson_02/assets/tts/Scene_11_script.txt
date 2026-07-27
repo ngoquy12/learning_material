@@ -1,0 +1,1 @@
+Cuối cùng, cần ghi nhớ lỗi ModuleNotFoundError phát sinh khi quên kích hoạt môi trường ảo trước khi pip install, lỗi FileNotFoundError do đường dẫn làm việc của terminal lệch so với vị trí chứa file script, và lỗi PermissionError báo hiệu terminal thiếu đặc quyền quản trị cao nhất trên hệ điều hành.

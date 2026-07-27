@@ -5,15 +5,29 @@ import { message } from 'antd';
 
 export const semesterKeys = {
   all: ['semesters'] as const,
+  list: (majorId?: number) => ['semesters', 'list', majorId] as const,
+  detail: (id: number) => ['semesters', id] as const,
 };
 
-export const useSemesters = () => {
+export const useSemesters = (majorId?: number) => {
   return useQuery({
-    queryKey: semesterKeys.all,
+    queryKey: semesterKeys.list(majorId),
     queryFn: async (): Promise<SemesterResponse[]> => {
-      const { data } = await apiClient.get('/semesters/');
+      const url = majorId ? `/semesters/?major_id=${majorId}` : '/semesters/';
+      const { data } = await apiClient.get(url);
       return data;
     },
+  });
+};
+
+export const useSemester = (id: number | null) => {
+  return useQuery({
+    queryKey: id ? semesterKeys.detail(id) : ['semesters', 'null'],
+    queryFn: async (): Promise<SemesterResponse> => {
+      const { data } = await apiClient.get(`/semesters/${id}`);
+      return data;
+    },
+    enabled: !!id,
   });
 };
 
@@ -28,6 +42,36 @@ export const useCreateSemester = () => {
       message.success('Thêm Kỳ học thành công!');
       queryClient.invalidateQueries({ queryKey: semesterKeys.all });
     },
-    onError: () => message.error('Thất bại!'),
+    onError: () => message.error('Thất bại khi thêm Kỳ học!'),
+  });
+};
+
+export const useUpdateSemester = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: number; payload: SemesterCreate }) => {
+      const { data } = await apiClient.put(`/semesters/${id}`, payload);
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      message.success('Cập nhật Kỳ học thành công!');
+      queryClient.invalidateQueries({ queryKey: semesterKeys.all });
+      queryClient.invalidateQueries({ queryKey: semesterKeys.detail(variables.id) });
+    },
+    onError: () => message.error('Cập nhật thất bại!'),
+  });
+};
+
+export const useDeleteSemester = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await apiClient.delete(`/semesters/${id}`);
+    },
+    onSuccess: () => {
+      message.success('Xóa Kỳ học thành công!');
+      queryClient.invalidateQueries({ queryKey: semesterKeys.all });
+    },
+    onError: () => message.error('Xóa thất bại!'),
   });
 };

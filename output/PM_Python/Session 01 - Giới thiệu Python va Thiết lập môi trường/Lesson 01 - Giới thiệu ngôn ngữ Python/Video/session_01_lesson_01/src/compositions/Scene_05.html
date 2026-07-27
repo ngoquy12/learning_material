@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #0f1117; font-family: "Inter", sans-serif;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px);
+        background-size: 32px 32px;
+      }
+      .scene-root { width: 1920px; height: 1080px; position: relative; }
+      
+      /* Scene Header Bar */
+      .scene-header {
+        position: absolute; top: 48px; left: 60px; right: 60px;
+        display: flex; align-items: center; gap: 20px; z-index: 10;
+        opacity: 0; visibility: hidden;
+      }
+      .header-badge {
+        background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);
+        color: #38bdf8; font-size: 15px; font-weight: 800; padding: 6px 18px;
+        border-radius: 999px; letter-spacing: 1px; text-transform: uppercase;
+      }
+      .scene-title {
+        font-size: 36px; font-weight: 800; color: #ffffff;
+        text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+      }
+
+      /* Main Layout */
+      .main-layout {
+        position: absolute; top: 150px; left: 60px; right: 60px; bottom: 50px;
+        display: flex; gap: 36px; align-items: center;
+      }
+      .concept-card {
+        flex: 0 0 34%; background: rgba(22, 27, 34, 0.92);
+        border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 20px;
+        padding: 44px; height: 680px; display: flex; flex-direction: column;
+        gap: 20px; justify-content: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        opacity: 0; visibility: hidden;
+      }
+      .concept-card h3 {
+        font-size: 28px; font-weight: 800; color: #ffffff;
+        border-bottom: 2px solid rgba(56, 189, 248, 0.5); padding-bottom: 14px;
+      }
+      .concept-card p { font-size: 21px; line-height: 1.75; color: #f0f6fc; font-weight: 500; }
+      
+      .vscode-window {
+        flex: 1; height: 680px; border-radius: 14px; overflow: hidden;
+        border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+        display: flex; flex-direction: column; background: #1e1e1e;
+        opacity: 0; visibility: hidden;
+      }
+      .vscode-titlebar {
+        background: #323233; height: 38px; padding: 0 16px; display: flex;
+        align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .vscode-dots { display: flex; gap: 8px; }
+      .dot { width: 12px; height: 12px; border-radius: 50%; }
+      .dot.red { background: #f85149; } .dot.yellow { background: #ffa657; } .dot.green { background: #3fb950; }
+      .vscode-title-text { font-family: system-ui, sans-serif; font-size: 13px; color: #cccccc; font-weight: 500; }
+      .editor-body { display: flex; flex: 1; font-family: "Fira Code", monospace; font-size: 20px; line-height: 1.8; }
+      .line-numbers {
+        width: 48px; padding: 20px 8px; text-align: right; color: #858585;
+        background: #1e1e1e; border-right: 1px solid rgba(255, 255, 255, 0.08); user-select: none;
+      }
+      .code-area { padding: 20px 24px; color: #f0f6fc; }
+      .kw { color: #ff7b72; font-weight: 600; }
+      .fn { color: #d2a8ff; }
+      .str { color: #a5d6ff; }
+      .var { color: #79c0ff; }
+      .cm { color: #8b949e; font-style: italic; }
+      .num { color: #79c0ff; }
+    </style>
+  </head>
+  <body>
+    <div id="scene-05" class="clip scene-root" data-composition-id="scene-05" data-start="0" data-duration="22.74" data-track-index="0">
+      <!-- Header Bar -->
+      <div id="header-05" class="scene-header">
+        <div class="header-badge">DATA CONVERSION</div>
+        <h1 class="scene-title">Xử Lý Đầu Vào &amp; Ép Kiểu int()</h1>
+      </div>
+
+      <div class="main-layout">
+        <div id="concept-card-05" class="concept-card">
+          <h3>Ép Kiểu Dữ Liệu</h3>
+          <p>Hàm <strong>input()</strong> nhận dạng chuỗi. Ép kiểu <strong>int()</strong> để tính toán số học và dùng <strong>print()</strong> để xuất dữ liệu.</p>
+        </div>
+
+        <div id="vscode-05" class="vscode-window">
+          <div class="vscode-titlebar">
+            <div class="vscode-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+            <div class="vscode-title-text">io_example.py — Visual Studio Code</div>
+            <div style="display:flex;align-items:center;gap:6px;color:#38bdf8;font-size:12px;font-weight:600;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              PYTHON
+            </div>
+          </div>
+          <div class="editor-body">
+            <div class="line-numbers">1<br/>2<br/>3<br/>4<br/>5<br/>6</div>
+            <div class="code-area">
+              <span class="cm"># input() luôn trả về kiểu str</span><br/>
+              <span class="var">birth_year_str</span> = <span class="fn">input</span>(<span class="str">"Nhập năm sinh: "</span>)<br/><br/>
+              <span class="cm"># Ép kiểu str -> int để tính tuổi</span><br/>
+              <span class="var">age</span> = <span class="num">2026</span> - <span class="fn">int</span>(<span class="var">birth_year_str</span>)<br/>
+              <span class="fn">print</span>(<span class="str">"Tuổi của bạn:"</span>, <span class="var">age</span>)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["scene-05"] = tl;
+
+      const _buildTimer = setInterval(function() {
+        if (!document.getElementById("scene-05")) return;
+        clearInterval(_buildTimer);
+
+        const dur = 22.74;
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+
+        tl.to("#header-05", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+        tl.to("#concept-card-05", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+        tl.to("#vscode-05", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 11.5);
+
+        // Clean scene fade-out before exit
+        tl.to("#scene-05", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
+</html>

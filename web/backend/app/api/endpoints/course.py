@@ -11,11 +11,16 @@ from app.schemas.course import CourseResponse, CourseCreate
 
 router = APIRouter()
 
+from fastapi import Query, HTTPException
+
 @router.get("/", response_model=List[CourseResponse])
-async def get_courses(db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Course))
-    courses = result.scalars().all()
-    return courses
+async def get_courses(semester_id: Optional[int] = Query(None), db: AsyncSession = Depends(get_db)):
+    stmt = select(Course)
+    if semester_id is not None:
+        stmt = stmt.where(Course.semester_id == semester_id)
+    stmt = stmt.order_by(Course.id.asc())
+    result = await db.execute(stmt)
+    return result.scalars().all()
 
 @router.post("/", response_model=CourseResponse)
 async def create_course(course_in: CourseCreate, db: AsyncSession = Depends(get_db)):
@@ -25,14 +30,33 @@ async def create_course(course_in: CourseCreate, db: AsyncSession = Depends(get_
     await db.refresh(new_course)
     return new_course
 
-from fastapi import HTTPException
-
 @router.get("/{course_id}", response_model=CourseResponse)
 async def get_course(course_id: int, db: AsyncSession = Depends(get_db)):
     course = await db.get(Course, course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
     return course
+
+@router.put("/{course_id}", response_model=CourseResponse)
+async def update_course(course_id: int, course_in: CourseCreate, db: AsyncSession = Depends(get_db)):
+    course = await db.get(Course, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    for key, value in course_in.model_dump(exclude_unset=True).items():
+        setattr(course, key, value)
+    await db.commit()
+    await db.refresh(course)
+    return course
+
+@router.delete("/{course_id}")
+async def delete_course(course_id: int, db: AsyncSession = Depends(get_db)):
+    course = await db.get(Course, course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found")
+    await db.delete(course)
+    await db.commit()
+    return {"status": "success"}
+
 
 from fastapi import UploadFile, File
 import openpyxl
@@ -45,45 +69,121 @@ from pydantic import BaseModel
 from typing import Optional
 
 class PMRow(BaseModel):
-    stt: Optional[str] = ""
-    form: Optional[str] = ""
-    session_val: Optional[str] = ""
-    content_val: Optional[str] = ""
-    lesson_val: Optional[str] = ""
-    details_val: Optional[str] = ""
-    output_val: Optional[str] = ""
-    deadline: Optional[str] = ""
+    session_id: Optional[str] = ""          # Col 1: Session (e.g. Session 01)
+    session_type_vn: Optional[str] = ""     # Col 2: Loại Session (Lý thuyết, Thực hành, Mini Project...)
+    session_code: Optional[str] = ""        # Col 3: Mã Session (THEORY, PRACTICE, MINI_PROJECT...)
+    session_title: Optional[str] = ""       # Col 4: Tên Tiêu Đề Session
+    lesson_title: Optional[str] = ""        # Col 5: Tên Lesson
+    details: Optional[str] = ""             # Col 6: Nội Dung Chi Tiết (Lesson Scope)
+    expected_outcome: Optional[str] = ""    # Col 7: Kết Quả Mong Đợi (Expected Outcome)
+    forbidden_scope: Optional[str] = ""     # Col 8: Phạm Vi CẤM DÙNG (Forbidden Scope)
+    allowed_scope: Optional[str] = ""       # Col 9: Phạm Vi ĐÃ HỌC (Allowed Scope)
+    tech_stack: Optional[str] = ""          # Col 10: Tech Stack & Quy Chuẩn
+
+    # Compatibility getters/properties for existing code
+    @property
+    def stt(self) -> str:
+        return self.session_id or ""
+    @property
+    def form(self) -> str:
+        return self.session_type_vn or ""
+    @property
+    def session_val(self) -> str:
+        return self.session_id or ""
+    @property
+    def content_val(self) -> str:
+        return self.session_title or ""
+    @property
+    def lesson_val(self) -> str:
+        return self.lesson_title or ""
+    @property
+    def details_val(self) -> str:
+        return self.details or ""
+    @property
+    def output_val(self) -> str:
+        return self.expected_outcome or self.allowed_scope or ""
+    @property
+    def deadline(self) -> str:
+        return ""
 
 @router.post("/{course_id}/parse-excel", response_model=List[PMRow])
 async def parse_excel_preview(course_id: int, file: UploadFile = File(...)):
     content = await file.read()
-    wb = openpyxl.load_workbook(filename=io.BytesIO(content))
+    wb = openpyxl.load_workbook(filename=io.BytesIO(content), data_only=True)
     ws: Any = wb.active
     
     rows = []
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        # Prevent completely empty rows
-        row_padded = list(row) + [None] * (8 - len(row))
-        if not any(row_padded[:8]):
+    curr_session_id = ""
+    curr_type_vn = ""
+    curr_code = ""
+    curr_title = ""
+
+    raw_rows = list(ws.iter_rows(values_only=True))
+    if not raw_rows or len(raw_rows) < 2:
+        return []
+
+    header_found = False
+    for row in raw_rows:
+        cell_vals = [str(c).strip() if c is not None else "" for c in row]
+        if not any(cell_vals):
             continue
-            
-        stt, form, session_val, content_val, lesson_val, details_val, output_val, deadline = row_padded[:8]
+
+        # Skip top metadata header rows until table header row is found
+        if not header_found:
+            first_val = cell_vals[0].lower()
+            fifth_val = cell_vals[4].lower() if len(cell_vals) > 4 else ""
+            if first_val == "session" or fifth_val in ["tên lesson", "lesson"]:
+                header_found = True
+            continue
+
+        # Extract 10 columns safely matching PM_Template_Standard.xlsx
+        if len(cell_vals) >= 10:
+            val_session_id = cell_vals[0]
+            val_type_vn = cell_vals[1]
+            val_code = cell_vals[2]
+            val_title = cell_vals[3]
+            val_lesson = cell_vals[4]
+            val_details = cell_vals[5]
+            val_expected = cell_vals[6]
+            val_forbidden = cell_vals[7]
+            val_allowed = cell_vals[8]
+            val_tech_stack = cell_vals[9]
+        else:
+            val_session_id = cell_vals[0] if len(cell_vals) > 0 else ""
+            val_type_vn = cell_vals[1] if len(cell_vals) > 1 else ""
+            val_code = cell_vals[2] if len(cell_vals) > 2 else ""
+            val_title = cell_vals[3] if len(cell_vals) > 3 else ""
+            val_lesson = cell_vals[4] if len(cell_vals) > 4 else ""
+            val_details = cell_vals[5] if len(cell_vals) > 5 else ""
+            val_expected = ""
+            val_forbidden = cell_vals[6] if len(cell_vals) > 6 else ""
+            val_allowed = cell_vals[7] if len(cell_vals) > 7 else ""
+            val_tech_stack = cell_vals[8] if len(cell_vals) > 8 else ""
+
+        # Forward fill merged cell values
+        if val_session_id: curr_session_id = val_session_id
+        if val_type_vn: curr_type_vn = val_type_vn
+        if val_code: curr_code = val_code
+        if val_title: curr_title = val_title
+
         rows.append(PMRow(
-            stt=str(stt) if stt is not None else "",
-            form=str(form) if form is not None else "",
-            session_val=str(session_val) if session_val is not None else "",
-            content_val=str(content_val) if content_val is not None else "",
-            lesson_val=str(lesson_val) if lesson_val is not None else "",
-            details_val=str(details_val) if details_val is not None else "",
-            output_val=str(output_val) if output_val is not None else "",
-            deadline=str(deadline) if deadline is not None else ""
+            session_id=val_session_id or curr_session_id,
+            session_type_vn=val_type_vn or curr_type_vn,
+            session_code=val_code or curr_code,
+            session_title=val_title or curr_title,
+            lesson_title=val_lesson,
+            details=val_details,
+            expected_outcome=val_expected,
+            forbidden_scope=val_forbidden,
+            allowed_scope=val_allowed,
+            tech_stack=val_tech_stack
         ))
     return rows
 
 def sync_curriculum_to_pms_excel(course_name: str, payload: List[PMRow]) -> None:
     """
     Finds the correct Excel file in the pms/ root directory, or creates one,
-    and updates it with the list of PMRow objects representing the curriculum.
+    and updates it with the list of PMRow objects representing the 9-column curriculum.
     """
     import openpyxl
     import re
@@ -99,7 +199,6 @@ def sync_curriculum_to_pms_excel(course_name: str, payload: List[PMRow]) -> None
     xlsx_files = [f for f in xlsx_files if not f.name.startswith("~$")]
     
     if xlsx_files:
-        # Check if there is an excel file matching words in the course name
         clean_course_words = set(re.findall(r'\w+', course_name.lower()))
         best_match = None
         best_overlap = 0
@@ -116,37 +215,40 @@ def sync_curriculum_to_pms_excel(course_name: str, payload: List[PMRow]) -> None
             target_excel = xlsx_files[0]
             
     if not target_excel:
-        # Sanitize course name to construct a safe filename
         sanitized_name = re.sub(r'[\\/*?:"<>|]', "", course_name).strip().replace(" ", "_").replace("-", "_")
         target_excel = pms_dir / f"PM_{sanitized_name}.xlsx"
         
     print(f"  [PM Excel Sync] Writing curriculum to: {target_excel}")
     
-    # 2. Write rows to Excel
+    # 2. Write rows to Excel matching PM_Template_Standard.xlsx (9 columns)
     wb = openpyxl.Workbook()
     ws = wb.active
     if not ws:
         ws = wb.create_sheet()
     ws.title = "Syllabus"
     
-    # Write headers matching PM layout
+    # Standard 10-column headers
     headers = [
-        "STT", "Hình thức", "Session", "Nội dung Session", 
-        "Lesson", "Chi tiết / Prompt Context", "Output mong muốn", "Hạn chót (Deadline)"
+        "Session", "Loại Session", "Mã Session", "Tên Tiêu Đề Session",
+        "Tên Lesson", "Nội Dung Chi Tiết (Lesson Scope)",
+        "Kết Quả Mong Đợi (Expected Outcome)",
+        "Phạm Vi CẤM DÙNG (Forbidden Scope)", "Phạm Vi ĐÃ HỌC (Allowed Scope)", "Tech Stack & Quy Chuẩn"
     ]
     ws.append(headers)
     
     # Write curriculum rows
     for row in payload:
         ws.append([
-            row.stt or "",
-            row.form or "",
-            row.session_val or "",
-            row.content_val or "",
-            row.lesson_val or "",
-            row.details_val or "",
-            row.output_val or "",
-            row.deadline or ""
+            row.session_id or "",
+            row.session_type_vn or "",
+            row.session_code or "",
+            row.session_title or "",
+            row.lesson_title or "",
+            row.details or "",
+            row.expected_outcome or "",
+            row.forbidden_scope or "",
+            row.allowed_scope or "",
+            row.tech_stack or ""
         ])
         
     # Standard format adjustments
@@ -154,7 +256,7 @@ def sync_curriculum_to_pms_excel(course_name: str, payload: List[PMRow]) -> None
         from openpyxl.styles import Font, Alignment
         header_font = Font(name="Calibri", size=11, bold=True)
         header_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
-        for col_idx in range(1, 9):
+        for col_idx in range(1, 10):
             cell = ws.cell(row=1, column=col_idx)
             cell.font = header_font
             cell.alignment = header_align
@@ -239,7 +341,14 @@ async def confirm_import(course_id: int, payload: List[PMRow], db: AsyncSession 
             
         if should_create_session:
             session_counter += 1
-            new_session = Session(name=session_name, title=s_title, course_id=course_id, order_index=session_counter)
+            new_session = Session(
+                name=session_name,
+                title=s_title,
+                session_type_vn=row.session_type_vn or row.form or "Lý thuyết",
+                session_code=row.session_code or "THEORY",
+                course_id=course_id,
+                order_index=session_counter
+            )
             db.add(new_session)
             await db.flush()
             current_session_model = new_session
@@ -272,11 +381,20 @@ async def confirm_import(course_id: int, payload: List[PMRow], db: AsyncSession 
                         l_title = lesson_val_str
                     
                 lesson_counter += 1
+                det = (row.details or row.details_val or "").strip()
+                exp = (row.expected_outcome or row.output_val or "").strip()
+                forb = (row.forbidden_scope or "").strip()
+                allow = (row.allowed_scope or "").strip()
+                tech = (row.tech_stack or "").strip()
+                
                 new_lesson = Lesson(
                     name=l_name,
                     title=l_title,
-                    details=row.details_val.strip() if row.details_val else None,
-                    expected_output=row.output_val.strip() if row.output_val else None,
+                    details=det if det else None,
+                    expected_output=exp if exp else None,
+                    forbidden_scope=forb if forb else None,
+                    allowed_scope=allow if allow else None,
+                    tech_stack=tech if tech else None,
                     session_id=current_session_model.id,
                     order_index=lesson_counter
                 )
@@ -298,25 +416,38 @@ async def review_pm(course_id: int, payload: List[PMRow], db: AsyncSession = Dep
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
         
-    # Chuẩn bị dữ liệu gửi cho LLM
-    markdown_table = "| Session | Tiêu đề | Lesson | Chi tiết / Prompt Context | Output mong muốn |\n"
-    markdown_table += "|---|---|---|---|---|\n"
+    # Chuẩn bị dữ liệu 10 cột tiêu chuẩn gửi cho LLM Senior Academic Director
+    markdown_table = "| Session | Loại Session | Mã Session | Tiêu đề Session | Tên Lesson | Nội Dung Chi Tiết (Lesson Scope) | Kết Quả Mong Đợi (Outcome) | Phạm vi CẤM DÙNG (Forbidden) | Phạm vi ĐÃ HỌC (Allowed) | Tech Stack |\n"
+    markdown_table += "|---|---|---|---|---|---|---|---|---|---|\n"
     for row in payload:
-        if row.session_val or row.lesson_val:
-            markdown_table += f"| {row.session_val} | {row.content_val} | {row.lesson_val} | {row.details_val} | {row.output_val} |\n"
+        s_id = row.session_id or row.session_val or ""
+        s_type = row.session_type_vn or row.form or ""
+        s_code = row.session_code or ""
+        s_title = row.session_title or row.content_val or ""
+        l_title = row.lesson_title or row.lesson_val or ""
+        details = row.details or row.details_val or ""
+        expected = row.expected_outcome or ""
+        forbidden = row.forbidden_scope or ""
+        allowed = row.allowed_scope or row.output_val or ""
+        tech = row.tech_stack or ""
+        
+        if s_id or l_title:
+            markdown_table += f"| {s_id} | {s_type} | {s_code} | {s_title} | {l_title} | {details} | {expected} | {forbidden} | {allowed} | {tech} |\n"
             
     prompt = f"""Bạn là một Giám đốc Học thuật (Senior Academic Director) và Kiến trúc sư Chương trình (Curriculum Architect) với hơn 10 năm kinh nghiệm thiết kế khóa học công nghệ.
-Hãy xem xét cấu trúc môn học sau (dựa trên file PM) và đưa ra đánh giá sắc bén.
-Môn học: {course.name} ({course.technology_stack})
+Hãy xem xét cấu trúc môn học sau (dựa trên mẫu PM 10 cột chuẩn quốc tế: Session, Loại Session, Mã Session, Tiêu đề, Lesson, Chi tiết Scope, Kết quả mong đợi Expected Outcome, Phạm vi Cấm dùng, Phạm vi Đã học, Tech Stack) và đưa ra đánh giá sắc bén.
+Môn học: {course.name} (Tech Stack master: {course.technology_stack})
 
-Cấu trúc chương trình:
+Cấu trúc chương trình 10 cột:
 {markdown_table}
 
-Nhiệm vụ của bạn:
-1. Nhận xét về luồng logic: Có bài nào dạy quá sớm trước khi học kiến thức nền không?
-2. Nhận xét về độ chi tiết: Các mục "Chi tiết / Prompt" có đủ thông tin để AI Agent (creator) sau này sinh ra bài học hay chưa?
-3. Tìm kiếm sự trùng lặp (nếu có).
-4. Gợi ý 1-2 cải tiến cụ thể.
+Nhiệm vụ kiểm định của bạn:
+1. Kiểm tra 'Kết Quả Mong Đợi (Expected Outcome)' của từng bài học: Có rõ ràng, đo lường được theo Thang tư duy Bloom's Taxonomy không? Đã xác định rõ sản phẩm/năng lực sinh viên tự viết/làm được chưa?
+2. Nhận xét về luồng logic: Có bài học nào dạy quá sớm trước khi học kiến thức nền không?
+3. Kiểm tra Phạm vi CẤM DÙNG (Forbidden Scope): BẮT BUỘC kiểm tra cả 2 khía cạnh: (a) CẤM dùng các kiến thức/khái niệm của các bài học VÀ session PHÍA SAU trong chương trình học (chưa đến buổi học), và (b) CẤM các kiến thức BÊN NGOÀI phạm vi môn học. Phát hiện và cảnh báo nếu có bài học bị rò rỉ kiến thức của các bài phía sau hoặc rò rỉ kiến thức nâng cao ngoài chương trình.
+4. Kiểm tra Phạm vi ĐÃ HỌC (Allowed Scope) và Chi tiết Lesson Scope: Đã đủ prompt context để AI Content Agent sinh bài đọc HTML/GSAP và SCORM chất lượng cao chưa?
+5. Kiểm tra sự phù hợp của Mã Session (ORIENTATION, THEORY, PRACTICE, MINI_PROJECT, FINAL_PROJECT) và Tech Stack.
+6. Gợi ý 1-3 cải tiến cụ thể.
 
 Bạn BẮT BUỘC phải trả về kết quả dưới dạng JSON có cấu trúc chính xác như sau:
 {{
@@ -484,6 +615,9 @@ async def generate_all_course_lessons(
         if course.name:
             course_dir_name = course.name.strip().replace(" ", "_").replace("-", "_")
 
+    from app.core.process_manager import reset_cancel_flags
+    reset_cancel_flags()
+
     for lesson in lessons:
         pm_input = lesson.details if lesson.details else "Vui lòng phân tích và sinh bài học chi tiết."
         background_tasks.add_task(generate_lesson_task, lesson.id, lesson.session_id, pm_input, lesson.title, tech_stack, course_dir_name)
@@ -495,116 +629,95 @@ class PMAutoFixRequest(BaseModel):
     review_report: str
 
 def map_pm_rows_to_json(rows: List[PMRow]) -> List[dict]:
-    import re
-    from app.utils.json_helper import normalize_id
-    
     sessions = []
     current_session = None
     last_session_name = None
-    session_id_part = ""
-    s_title = ""
     
     for row in rows:
-        session_val_str = row.session_val.strip() if row.session_val else ""
-        
-        # Check if we should create a new session
+        s_id = row.session_id or row.session_val or ""
+        s_type = row.session_type_vn or row.form or "Lý thuyết"
+        s_code = row.session_code or "THEORY"
+        s_title = row.session_title or row.content_val or "Untitled Session"
+        l_title = row.lesson_title or row.lesson_val or ""
+        details = row.details or row.details_val or ""
+        expected = row.expected_outcome or ""
+        forbidden = row.forbidden_scope or ""
+        allowed = row.allowed_scope or row.output_val or ""
+        tech = row.tech_stack or ""
+
         should_create_session = False
-        if session_val_str:
-            s_match = re.search(r'(:| - )', session_val_str)
-            if s_match:
-                s_idx = s_match.start()
-                session_id_part = session_val_str[:s_idx].strip()
-                s_title = session_val_str[s_idx + len(s_match.group(1)):].strip()
-            else:
-                session_id_part = session_val_str
-                s_title = row.content_val.strip() if row.content_val else "Untitled"
-                
-            from app.utils.json_helper import normalize_id
-            norm_sess_name = normalize_id(session_id_part)
-            if current_session is None or last_session_name is None or norm_sess_name != last_session_name:
+        if s_id:
+            if current_session is None or last_session_name != s_id:
                 should_create_session = True
-                last_session_name = norm_sess_name
-        else:
-            # If session_val is empty, we continue with the current session
-            pass
-            
+                last_session_name = s_id
+
         if should_create_session:
             current_session = {
-                "session_id": session_id_part,
-                "title": s_title,
-                "form": row.form.strip() if row.form else "Lý thuyết",
-                "deadline": row.deadline.strip() if row.deadline else "",
+                "session_id": s_id,
+                "session_type_vn": s_type,
+                "session_code": s_code,
+                "session_title": s_title,
                 "lessons": []
             }
             sessions.append(current_session)
-            
-        lesson_val_str = row.lesson_val.strip() if row.lesson_val else ""
-        if lesson_val_str and current_session:
-            match = re.search(r'(:| - )', lesson_val_str)
-            if match:
-                idx = match.start()
-                l_id = lesson_val_str[:idx].strip()
-                l_title = lesson_val_str[idx + len(match.group(1)):].strip()
-            else:
-                prefix_match = re.match(r'^((?:lesson|bài|bai|less|chương|session)\s*\d+)\s*(.*)', lesson_val_str, re.IGNORECASE)
-                if prefix_match:
-                    l_id = prefix_match.group(1).strip()
-                    l_title = prefix_match.group(2).strip() or l_id
-                else:
-                    l_id = lesson_val_str
-                    l_title = lesson_val_str
-                
+
+        if l_title and current_session:
             lessons_list: Any = current_session["lessons"]
             lessons_list.append({
-                "lesson_id": l_id,
-                "title": l_title,
-                "form": row.form.strip() if row.form else "Lý thuyết",
-                "deadline": row.deadline.strip() if row.deadline else "",
-                "details": row.details_val.strip() if row.details_val else "",
-                "expected_output": row.output_val.strip() if row.output_val else ""
+                "lesson_title": l_title,
+                "details": details,
+                "expected_outcome": expected,
+                "forbidden_scope": forbidden,
+                "allowed_scope": allowed,
+                "tech_stack": tech
             })
-            
+
     return sessions
 
 
 def flatten_json_to_pm_rows(sessions_data: List[dict]) -> List[PMRow]:
     rows = []
-    stt = 1
     for s_idx, session in enumerate(sessions_data, 1):
-        session_id = session.get("session_id", f"Session {s_idx:02d}")
-        session_title = session.get("title", "")
-        session_val = f"{session_id}: {session_title}"
-        
+        s_id = session.get("session_id", f"Session {s_idx:02d}")
+        s_type = session.get("session_type_vn", session.get("form", "Lý thuyết"))
+        s_code = session.get("session_code", "THEORY")
+        s_title = session.get("session_title", session.get("title", ""))
+
         lessons = session.get("lessons", [])
         if not lessons:
             rows.append(PMRow(
-                stt=str(stt),
-                form=session.get("form", "Lý thuyết"),
-                session_val=session_val,
-                content_val=session_title,
-                lesson_val="",
-                details_val="",
-                output_val="",
-                deadline=session.get("deadline", "")
+                session_id=s_id,
+                session_type_vn=s_type,
+                session_code=s_code,
+                session_title=s_title,
+                lesson_title="",
+                details="",
+                expected_outcome="",
+                forbidden_scope="",
+                allowed_scope="",
+                tech_stack=""
             ))
-            stt += 1
         else:
             for l_idx, lesson in enumerate(lessons):
-                lesson_id = lesson.get("lesson_id", f"Lesson {l_idx+1:02d}")
-                lesson_title = lesson.get("title", "")
-                lesson_val = f"{lesson_id}: {lesson_title}"
-                
+                l_title = lesson.get("lesson_title", lesson.get("title", ""))
+                details = lesson.get("details", "")
+                expected = lesson.get("expected_outcome", lesson.get("outcome", ""))
+                forbidden = lesson.get("forbidden_scope", "")
+                allowed = lesson.get("allowed_scope", "")
+                tech = lesson.get("tech_stack", "")
+
                 rows.append(PMRow(
-                    stt=str(stt),
-                    form=lesson.get("form", "Lý thuyết"),
-                    session_val=session_val if l_idx == 0 else "",
-                    content_val=session_title if l_idx == 0 else "",
-                    lesson_val=lesson_val,
-                    details_val=lesson.get("details", ""),
-                    output_val=lesson.get("expected_output", ""),
-                    deadline=lesson.get("deadline", "")
+                    session_id=s_id,
+                    session_type_vn=s_type,
+                    session_code=s_code,
+                    session_title=s_title,
+                    lesson_title=l_title,
+                    details=details,
+                    expected_outcome=expected,
+                    forbidden_scope=forbidden,
+                    allowed_scope=allowed,
+                    tech_stack=tech
                 ))
-                stt += 1
     return rows
 
 @router.post("/{course_id}/auto-fix-pm", response_model=List[PMRow])
@@ -640,11 +753,57 @@ async def auto_fix_pm(course_id: int, request_data: PMAutoFixRequest, db: AsyncS
         # Merge updated content back into the original curriculum
         merged_json = merge_curriculums(nested_curriculum, parsed_json)
         
+        # Guarantee expected_outcome and forbidden_scope are 100% populated
+        from agents.reviewer_agents import apply_smart_pedagogical_rule_fixes
+        merged_json_str = json.dumps(merged_json, ensure_ascii=False)
+        fixed_json_str = apply_smart_pedagogical_rule_fixes(merged_json_str, tech_stack)
+        fixed_json = clean_and_parse_json(fixed_json_str)
+        
         # Flatten back into PMRow list
-        fixed_rows = flatten_json_to_pm_rows(merged_json)
+        fixed_rows = flatten_json_to_pm_rows(fixed_json)
         return fixed_rows
     except Exception as e:
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
+
+class PMGenerateFromScratchRequest(BaseModel):
+    course_name: str
+    description: Optional[str] = ""
+    tech_stack: Optional[str] = ""
+    total_sessions: int = 30
+    target_persona: Optional[str] = ""
+    course_outcomes: Optional[str] = ""
+    capstone_target: Optional[str] = ""
+
+@router.post("/generate-pm-from-scratch", response_model=List[PMRow])
+async def generate_pm_from_scratch(request_data: PMGenerateFromScratchRequest):
+    from agents.pm_generator_agent import pm_generator_agent
+    from app.utils.json_helper import clean_and_parse_json
+    import asyncio
+    
+    try:
+        json_str = await asyncio.to_thread(
+            pm_generator_agent,
+            request_data.course_name,
+            request_data.description or "",
+            request_data.tech_stack or "",
+            request_data.total_sessions,
+            request_data.target_persona or "",
+            request_data.course_outcomes or "",
+            request_data.capstone_target or ""
+        )
+        
+        if not json_str:
+            raise HTTPException(status_code=500, detail="Không nhận được phản hồi từ AI Agent. Vui lòng kiểm tra lại kết nối mạng tới Google AI.")
+            
+        parsed_json = clean_and_parse_json(json_str)
+        rows = flatten_json_to_pm_rows(parsed_json)
+        return rows
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Lỗi khi AI sinh PM tự động: {str(e)}")
 

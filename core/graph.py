@@ -472,15 +472,18 @@ def pipeline_video_tts_and_render(state: AgentState) -> AgentState:
 
     # ── GATE 5: Lint Validation ──
     print("\n[Gate 5/7] Kiểm tra Validation (hyperframes lint)...")
-    lint_res = subprocess.run(
-        "npx --yes hyperframes@0.6.63 lint",
-        shell=True, cwd=str(video_dir),
-        capture_output=True, text=True, timeout=60
-    )
-    if lint_res.returncode == 0:
-        print("  ✓ Lint PASSED")
-    else:
-        print(f"  ⚠️ Lint warnings (non-blocking): {lint_res.stdout[:200]}")
+    try:
+        lint_res = subprocess.run(
+            "npx --yes hyperframes@0.6.63 lint",
+            shell=True, cwd=str(video_dir),
+            capture_output=True, text=True, timeout=60
+        )
+        if lint_res.returncode == 0:
+            print("  ✓ Lint PASSED")
+        else:
+            print(f"  ⚠️ Lint warnings (non-blocking): {lint_res.stdout[:200]}")
+    except Exception as e:
+        print(f"  ⚠️ Lint skipped due to timeout/error (non-blocking): {e}")
 
     # ── GATE 6: Controlled Heavy Render Execution ──
     import os

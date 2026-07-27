@@ -1,0 +1,1 @@
+Tóm lại, quy trình tương tác dữ liệu chuẩn trong Python đòi hỏi việc nắm vững cơ chế thu nhận chuỗi qua hàm in-t, ép kiểu an toàn và định dạng đầu ra tùy biến cao với hàm prin-t. Việc kiểm soát cấu trúc dữ liệu đầu vào và các tham số điều khiển bộ luồng ký tự là tiền đề xây dựng phần mềm ổn định.

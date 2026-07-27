@@ -4,11 +4,17 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from typing import List, Dict, Any
 
+from core.validators.quiz_validator import validate_and_shuffle_quiz
+
 def export_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
     """
     Exports a list of quiz questions to a standardized E-learning Excel format.
-    Ensures 13 columns: STT, question_content, answer_1, explanation_answer_1, ...
+    Validates and shuffles option positions before exporting to ensure balanced answer keys.
     """
+    is_valid, processed_qs, errs = validate_and_shuffle_quiz(questions)
+    if processed_qs:
+        questions = processed_qs
+        
     wb = openpyxl.Workbook()
     ws = wb.active
     if ws is None:

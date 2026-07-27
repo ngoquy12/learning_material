@@ -1,0 +1,1 @@
+Hãy lưu ý các lỗi phổ biến khi quản lý biến. Lỗi xin-tắc e-rơ xảy ra nếu đặt tên biến bắt đầu bằng số hoặc chứa ký tự đặc biệt, hoặc sử dụng các từ khóa được bảo vệ như íp, đép, cờ-lát. Lỗi nêm e-rơ xuất hiện khi gọi một biến chưa được định nghĩa. Tuyệt đối không đặt tên trùng với các hàm dựng sẵn của hệ thống.

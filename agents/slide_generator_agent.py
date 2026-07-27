@@ -472,21 +472,24 @@ class SlideGeneratorAgent:
       }
     }
 
-    function nextSlide() {
+    function nextSlide(e) {
+      if (e && e.preventDefault) e.preventDefault();
       if (currentIndex < totalSlides - 1) {
         currentIndex++;
         updateDeck();
       }
     }
 
-    function prevSlide() {
+    function prevSlide(e) {
+      if (e && e.preventDefault) e.preventDefault();
       if (currentIndex > 0) {
         currentIndex--;
         updateDeck();
       }
     }
 
-    function toggleFullscreen() {
+    function toggleFullscreen(e) {
+      if (e && e.preventDefault) e.preventDefault();
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().then(() => {
           document.body.classList.add('fullscreen-mode');
@@ -526,11 +529,30 @@ class SlideGeneratorAgent:
     updateDeck();
 """
 
+    def clean_title_string(self, text: str) -> str:
+        """Chuyển đổi chuỗi tên/khóa thô (snake_case, identifier) thành tiêu đề Tiếng Việt đẹp, có khoảng trắng và viết hoa chuẩn."""
+        if not text:
+            return ""
+        clean = text.strip()
+        if '_' in clean and ' ' not in clean:
+            words = clean.split('_')
+            clean_words = []
+            for w in words:
+                w_lower = w.lower()
+                if w_lower in ['py', 'pvm', 'cli', 'api', 'http', 'crud', 'sql', 'orm', 'json', 'url', 'id', 'vs', 'code', 'wasm']:
+                    clean_words.append(w.upper())
+                elif w_lower in ['va', 'va_triet_ly']:
+                    clean_words.append("và")
+                else:
+                    clean_words.append(w.capitalize())
+            clean = " ".join(clean_words)
+        return clean
+
     def truncate_title(self, title: str, max_chars: int = 55) -> str:
         """Rút gọn tiêu đề slide nếu quá dài để hiển thị súc tích trên header."""
         if not title:
             return "Nội dung bài học"
-        clean = title.strip()
+        clean = self.clean_title_string(title)
         # Loại bỏ các tiền tố số thứ tự lặp lại nếu có
         clean = re.sub(r'^\d+[\.\:]\s*', '', clean)
         if len(clean) <= max_chars:
@@ -554,7 +576,6 @@ class SlideGeneratorAgent:
         
         # 2. Nếu chưa có, suy luận dựa trên từ khóa trong tiêu đề slide hoặc nội dung
         title_lower = short_stitle.lower()
-        narr_lower = narration.lower()
 
         if any(k in title_lower for k in ["vấn đề", "trở ngại", "lỗi", "conflict", "problem"]):
             c1_t = col1_title or "Vấn Đề & Tác Động"
@@ -604,6 +625,146 @@ class SlideGeneratorAgent:
             col2_cards_html = f'<div class="inner-white-card"><h4>{h2}</h4><p>{narration[200:400] if len(narration) > 200 else "Áp dụng vào xây dựng ứng dụng thực chiến."}</p></div>'
 
         return c1_t, c2_t, col1_cards_html, col2_cards_html
+
+    def _render_scene_content_html(self, scene: Dict[str, Any], clean_stitle: str) -> str:
+        """Hàm dựng nội dung HTML cho 1 slide linh hoạt và đầy đủ thông tin giảng dạy."""
+        layout_type = (scene.get("layout_type") or "").upper()
+        if layout_type == "CUSTOM_RAW" and scene.get("html_content"):
+            return scene.get("html_content")
+
+        narration = scene.get("narration") or scene.get("explanation") or ""
+        bullets = scene.get("bullets", [])
+        code_sample = scene.get("code_sample") or scene.get("code") or ""
+        mermaid_code = scene.get("mermaid") or scene.get("diagram") or ""
+        layout_type = (scene.get("layout_type") or "").upper()
+
+        if not bullets and narration:
+            raw_sentences = [s.strip() for s in re.split(r'[\.\;\n]', narration) if len(s.strip()) > 10]
+            bullets = raw_sentences[:4]
+
+        # 1. MERMAID DIAGRAM
+        if "MERMAID" in layout_type or mermaid_code:
+            return f"""
+        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+{mermaid_code}
+          </div>
+        </div>
+"""
+        # 2. SINGLE COLUMN FOCUS
+        elif "SINGLE_COLUMN" in layout_type:
+            bullet_cards_html = "".join([f'<div class="inner-white-card" style="margin-bottom: 12px;"><p>{b}</p></div>' for b in bullets[:4]])
+            return f"""
+        <div style="max-width: 900px; margin: 0 auto; width: 100%; padding: 20px;">
+          <div class="inner-white-card" style="background: #ffffff; border: 2px solid var(--brand-red); border-radius: 12px; padding: 24px;">
+            <h3 style="font-size: 22px; font-weight: 800; color: var(--brand-red); margin-bottom: 16px;">{clean_stitle}</h3>
+            {bullet_cards_html}
+          </div>
+        </div>
+"""
+        # 3. THREE COLUMN CARDS
+        elif "THREE_COLUMN" in layout_type and len(bullets) >= 3:
+            cols_html = "".join([f'<div class="card-column-box" style="flex: 1; background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;"><h4 style="font-size: 18px; font-weight: 700; color: var(--brand-red); margin-bottom: 10px;">Mục #{idx+1}</h4><p>{b}</p></div>' for idx, b in enumerate(bullets[:3])])
+            return f"""
+        <div class="cards-container-row" style="gap: 16px;">
+          {cols_html}
+        </div>
+"""
+        # 4. WARNING GOTCHAS
+        elif "WARNING" in layout_type or "GOTCHAS" in layout_type:
+            bullet_cards_html = "".join([f'<div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>{b}</p></div>' for b in bullets[:4]])
+            return f"""
+        <div style="max-width: 950px; margin: 0 auto; width: 100%; padding: 20px;">
+          <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 24px;">
+            <h3 style="font-size: 22px; font-weight: 800; color: #991b1b; margin-bottom: 14px;">⚠️ [CẢNH BÁO] Bẫy Cú Pháp &amp; Anti-Pattern</h3>
+            {bullet_cards_html}
+          </div>
+        </div>
+"""
+        # 5. CODE DEMO EXPLAINER WITH INPUT/OUTPUT & TRICKS FOR LECTURERS
+        elif code_sample or "CODE" in layout_type:
+            bullet_cards_html = ""
+            if bullets:
+                for b in bullets[:3]:
+                    bullet_cards_html += f'<div class="inner-white-card" style="margin-bottom: 8px;"><p>{b}</p></div>'
+            else:
+                bullet_cards_html = f'<div class="inner-white-card"><p>{narration[:250] if narration else "Mã nguồn minh họa khái niệm cốt lõi của bài học."}</p></div>'
+
+            lecturer_trick = scene.get("lecturer_trick") or scene.get("trick")
+            trick_box_html = ""
+            if lecturer_trick:
+                trick_box_html = f"""
+                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
+                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> {lecturer_trick}
+                </div>"""
+
+            ent_scenario = scene.get("enterprise_scenario") or scene.get("scenario")
+            scenario_box_html = ""
+            if ent_scenario:
+                scenario_box_html = f"""
+                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
+                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> {ent_scenario}
+                </div>"""
+
+            safe_code = code_sample.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            code_lines = safe_code.splitlines()
+            formatted_code_lines = []
+            for line in code_lines:
+                if line.strip().startswith('#'):
+                    formatted_code_lines.append(f'<span class="cm">{line}</span>')
+                elif any(kw in line for kw in ['def ', 'class ', 'import ', 'from ', 'return ', 'if ', 'else:', 'elif ']):
+                    line_esc = line.replace('def ', '<span class="kw">def</span> ').replace('return ', '<span class="kw">return</span> ').replace('import ', '<span class="kw">import</span> ')
+                    formatted_code_lines.append(line_esc)
+                else:
+                    formatted_code_lines.append(line)
+            code_display_html = "<br/>".join(formatted_code_lines) if formatted_code_lines else safe_code
+
+            code_output = scene.get("code_output") or scene.get("output")
+            output_box_html = ""
+            if code_output:
+                output_box_html = f"""
+                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
+                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
+                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">{code_output}</pre>
+                </div>"""
+
+            return f"""
+        <div class="cards-container-row">
+          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
+            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
+            {bullet_cards_html}
+            {trick_box_html}
+            {scenario_box_html}
+          </div>
+          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
+            <div class="academic-code-box">
+              {code_display_html}
+            </div>
+            {output_box_html}
+          </div>
+        </div>
+"""
+        # 6. TWO COLUMN COMPARE / DEFAULT
+        else:
+            c1_title, c2_title, col1_cards, col2_cards = self._get_dynamic_column_titles_and_cards(
+                scene=scene,
+                short_stitle=clean_stitle,
+                narration=narration,
+                bullets=bullets
+            )
+
+            return f"""
+        <div class="cards-container-row">
+          <div class="card-column-box">
+            <div class="column-title" style="color: var(--brand-red);">{c1_title}</div>
+            {col1_cards}
+          </div>
+          <div class="card-column-box">
+            <div class="column-title" style="color: var(--brand-dark);">{c2_title}</div>
+            {col2_cards}
+          </div>
+        </div>
+"""
 
     def generate_deck_html(self, lesson_title: str, module_name: str, scenes: List[Dict[str, Any]]) -> str:
         slides_html_parts = []
@@ -662,104 +823,14 @@ class SlideGeneratorAgent:
     </div>
 """)
 
-        # Trích xuất số thứ tự Lesson (Ví dụ: Lesson 02 -> 2)
-        lesson_num_match = re.search(r'Lesson\s*(\d+)', lesson_title, re.IGNORECASE)
-        lesson_num = int(lesson_num_match.group(1)) if lesson_num_match else 1
-
-        # Đếm tần suất xuất hiện của từng tiêu đề ngắn trong scenes
-        title_counts: Dict[str, int] = {}
-        for sc in scenes:
-            raw_t = sc.get("short_title") or sc.get("scene_title") or "Nội dung"
-            clean_t = self.truncate_title(raw_t, max_chars=45)
-            title_counts[clean_t] = title_counts.get(clean_t, 0) + 1
-
-        title_tracker: Dict[str, int] = {}
-
-        # 3..N. Content Slides (Trang 3, 4, ..., N+2) - Render ĐỘNG 100%
+        # 3..N. Content Slides (Trang 3, 4, ..., N+2)
         for i, scene in enumerate(scenes, 1):
-            raw_stitle = scene.get("scene_title") or f"Nội dung {i}"
-            short_stitle = scene.get("short_title") or self.truncate_title(raw_stitle, max_chars=45)
-            short_stitle = self.truncate_title(short_stitle, max_chars=45)
-
-            # Đánh số tiêu đề theo Lesson Number và Suffix - 1, - 2 nếu trùng
-            total_freq = title_counts.get(short_stitle, 1)
-            title_tracker[short_stitle] = title_tracker.get(short_stitle, 0) + 1
-            current_part = title_tracker[short_stitle]
-
-            if total_freq > 1:
-                slide_heading = f"{lesson_num}. {short_stitle} - {current_part}"
-            else:
-                slide_heading = f"{lesson_num}. {short_stitle}"
-
-            narration = scene.get("narration") or scene.get("explanation") or ""
-            bullets = scene.get("bullets", [])
-            code_sample = scene.get("code_sample") or scene.get("code") or ""
-            layout_type = scene.get("layout_type", "")
+            raw_action_title = scene.get("action_title") or scene.get("scene_title") or scene.get("short_title") or f"Trọng tâm {i}"
+            clean_action_title = self.truncate_title(raw_action_title, max_chars=60)
+            slide_heading = f"{i:02d}. {clean_action_title}"
             page_num = i + 2
 
-            # Nếu chưa có bullets, tách narration thành các câu ngắn làm bullet points
-            if not bullets and narration:
-                raw_sentences = [s.strip() for s in re.split(r'[\.\;\n]', narration) if len(s.strip()) > 10]
-                bullets = raw_sentences[:4]
-
-            # Xử lý Render Layout động
-            if code_sample or "code" in layout_type:
-                # Layout Code Demo: Bên trái là Khái niệm/Bullets, Bên phải là Code Box thực sự
-                bullet_cards_html = ""
-                if bullets:
-                    for b in bullets[:3]:
-                        bullet_cards_html += f'<div class="inner-white-card" style="margin-bottom: 12px;"><p>{b}</p></div>'
-                else:
-                    bullet_cards_html = f'<div class="inner-white-card"><p>{narration[:250] if narration else "Mã nguồn minh họa khái niệm cốt lõi của bài học."}</p></div>'
-
-                # Escape HTML trong code_sample
-                safe_code = code_sample.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                code_lines = safe_code.splitlines()
-                formatted_code_lines = []
-                for line in code_lines:
-                    if line.strip().startswith('#'):
-                        formatted_code_lines.append(f'<span class="cm">{line}</span>')
-                    elif any(kw in line for kw in ['def ', 'class ', 'import ', 'from ', 'return ', 'if ', 'else:', 'elif ']):
-                        line_esc = line.replace('def ', '<span class="kw">def</span> ').replace('return ', '<span class="kw">return</span> ').replace('import ', '<span class="kw">import</span> ')
-                        formatted_code_lines.append(line_esc)
-                    else:
-                        formatted_code_lines.append(line)
-                code_display_html = "<br/>".join(formatted_code_lines) if formatted_code_lines else safe_code
-
-                content_inner_html = f"""
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 24px;">
-            <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 16px; color: var(--brand-red);">Khái niệm &amp; Nguyên lý</h3>
-            {bullet_cards_html}
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0;">
-            <div class="academic-code-box">
-              {code_display_html}
-            </div>
-          </div>
-        </div>
-"""
-            else:
-                # Layout 2 Cột Thẻ Động (Cards Grid) - Tiêu đề cột & nhãn thẻ linh hoạt do AI chỉ định hoặc suy luận
-                c1_title, c2_title, col1_cards, col2_cards = self._get_dynamic_column_titles_and_cards(
-                    scene=scene,
-                    short_stitle=short_stitle,
-                    narration=narration,
-                    bullets=bullets
-                )
-
-                content_inner_html = f"""
-        <div class="cards-container-row">
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">{c1_title}</div>
-            {col1_cards}
-          </div>
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">{c2_title}</div>
-            {col2_cards}
-          </div>
-        </div>
-"""
+            content_inner_html = self._render_scene_content_html(scene, clean_action_title)
 
             slides_html_parts.append(f"""
     <div class="slide slide-content-layout" data-type="content" data-title="{slide_heading}">
@@ -824,6 +895,14 @@ class SlideGeneratorAgent:
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{clean_cover_title} — Rikkei Master Slide Presentation</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {{
+      if (window.mermaid) {{
+        mermaid.initialize({{ startOnLoad: true, theme: 'dark', securityLevel: 'loose' }});
+      }}
+    }});
+  </script>
   <style>
 {self._build_css()}
   </style>
@@ -841,10 +920,10 @@ class SlideGeneratorAgent:
 
     <div id="hover-trigger-zone"></div>
     <div id="controls">
-      <button class="btn-ctrl" onclick="prevSlide()">◀ Trước</button>
+      <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
       <span id="slide-indicator">1 / {total_pages}</span>
-      <button class="btn-ctrl" onclick="nextSlide()">Sau ▶</button>
-      <button class="btn-ctrl" onclick="toggleFullscreen()">Toàn màn hình ⛶</button>
+      <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
+      <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
     </div>
   </div>
 
@@ -852,10 +931,150 @@ class SlideGeneratorAgent:
 {self._build_js()}
   </script>
 </body>
-</html>
-"""
+</html>"""
+        return full_html
+
+    def generate_session_deck_html(self, session_title: str, module_name: str, lessons_data: List[Dict[str, Any]]) -> str:
+        """Sinh duy nhất một file Master Slide HTML tổng hợp toàn bộ các Lesson trong một Session.
+        lessons_data: List[{ 'lesson_id': 'Lesson 01', 'lesson_title': '...', 'scenes': [...] }, ...]
+        """
+        all_slides_html_parts = []
+        total_pages = 2  # Cover + Session Agenda
+
+        for l_data in lessons_data:
+            total_pages += 1  # Lesson Divider
+            total_pages += len(l_data.get("scenes", []))
+
+        current_year = datetime.now().year
+        copyright_text = f"© {current_year} By Rikkei Academy - All rights reserved."
+        cover_triangle_svg = """<svg class="cover-left-triangle-svg" viewBox="0 0 100 160"><polygon points="0,0 0,160 100,80" fill="#c01e23"/></svg>"""
+
+        clean_session_title = self.clean_title_string(session_title)
+
+        # 1. Master Cover Slide
+        all_slides_html_parts.append(f"""
+    <div class="slide slide-cover active" data-type="cover" data-title="SESSION MASTER SLIDES">
+      {cover_triangle_svg}
+      <div class="cover-content-box">
+        <div class="cover-session-tag">SLIDE TỔNG HỢP SESSION</div>
+        <div class="cover-main-title">{clean_session_title}</div>
+        <div class="cover-meta-text">Môn học: {module_name} — Tổng số bài học: {len(lessons_data)}</div>
+      </div>
+      <img src="{self.LOGO_URL}" alt="Rikkei Academy Logo" class="cover-bottom-logo" />
+      <div class="corner-page-badge">1</div>
+      <div class="footer-copyright">{copyright_text}</div>
+    </div>
+""")
+
+        # 2. Master Session Agenda Slide
+        session_agenda_items_html = ""
+        for i, l_data in enumerate(lessons_data, 1):
+            l_title = l_data.get("lesson_title", f"Bài học {i}")
+            clean_l_title = self.clean_title_string(l_title)
+            session_agenda_items_html += f'<div class="agenda-item-row"><span>{i:02d}.</span> <span>{clean_l_title}</span></div>\n'
+
+        all_slides_html_parts.append(f"""
+    <div class="slide slide-agenda" data-type="agenda" data-title="DANH SÁCH BÀI HỌC TRONG SESSION">
+      <div class="agenda-top-left-title">NỘI DUNG TỔNG QUAN SESSION</div>
+      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
+      <div class="agenda-list-box">
+        {session_agenda_items_html}
+      </div>
+      <div class="corner-page-badge">2</div>
+      <div class="footer-copyright">{copyright_text}</div>
+    </div>
+""")
+
+        current_page = 3
+        # Iteration across lessons
+        for l_idx, l_data in enumerate(lessons_data, 1):
+            l_title = l_data.get("lesson_title", f"Bài học {l_idx}")
+            clean_l_title = self.clean_title_string(l_title)
+            scenes = l_data.get("scenes", [])
+
+            # Lesson Divider Banner Slide
+            all_slides_html_parts.append(f"""
+    <div class="slide slide-cover" data-type="lesson-divider" data-title="BÀI {l_idx:02d}: {clean_l_title}">
+      {cover_triangle_svg}
+      <div class="cover-content-box">
+        <div class="cover-session-tag" style="background: #1e293b; color: #38bdf8;">BÀI HỌC {l_idx:02d}</div>
+        <div class="cover-main-title" style="font-size: 32px;">{clean_l_title}</div>
+        <div class="cover-meta-text">Số lượng chủ đề trọng tâm: {len(scenes)}</div>
+      </div>
+      <img src="{self.LOGO_URL}" alt="Logo" class="cover-bottom-logo" />
+      <div class="corner-page-badge">{current_page}</div>
+      <div class="footer-copyright">{copyright_text}</div>
+    </div>
+""")
+            current_page += 1
+
+            for s_idx, scene in enumerate(scenes, 1):
+                raw_stitle = scene.get("short_title") or scene.get("scene_title") or f"Chủ đề {s_idx}"
+                clean_stitle = self.clean_title_string(raw_stitle)
+                slide_heading = f"[{l_idx:02d}.{s_idx:02d}] {self.clean_title_string(scene.get('action_title') or clean_stitle)}"
+
+                content_inner_html = self._render_scene_content_html(scene, clean_stitle)
+                all_slides_html_parts.append(f"""
+    <div class="slide slide-content-layout" data-type="content" data-title="{slide_heading}">
+      <div class="content-top-accent-bar"></div>
+      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
+      <div class="content-header-title">
+        {slide_heading}
+      </div>
+      {content_inner_html}
+      <div class="corner-page-badge">{current_page}</div>
+      <div class="footer-copyright">{copyright_text}</div>
+    </div>
+""")
+                current_page += 1
+
+        full_html = f"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{clean_session_title} — Master Session Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {{
+      if (window.mermaid) {{
+        mermaid.initialize({{ startOnLoad: true, theme: 'dark', securityLevel: 'loose' }});
+      }}
+    }});
+  </script>
+  <style>
+{self._build_css()}
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <div class="sidebar-scroll" id="thumbnail-list"></div>
+  </div>
+
+  <div id="main-stage">
+    <div id="deck-container">
+{"".join(all_slides_html_parts)}
+    </div>
+
+    <div id="hover-trigger-zone"></div>
+    <div id="controls">
+      <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
+      <span id="slide-indicator">1 / {total_pages}</span>
+      <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
+      <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
+    </div>
+  </div>
+
+  <script>
+{self._build_js()}
+  </script>
+</body>
+</html>"""
         return full_html
 
 
 slide_generator_agent = SlideGeneratorAgent()
+
 

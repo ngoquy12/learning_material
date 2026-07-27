@@ -1,0 +1,1 @@
+Hãy xem xét đoạn mã nguồn thực tế. Chúng ta khai báo các biến lưu trữ thông tin đơn hàng gồm yu-nít pri-xơ giá trị một trăm năm mươi phẩy năm, qoan-ti-ty bằng mười và đít-cao rết bằng không phẩy không năm. Tiếp tục thực hiện tính toán các biến phụ thuộc như sub-to-tal và truyền vào hàm brin để kiểm tra kết quả.

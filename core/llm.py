@@ -174,7 +174,7 @@ def call_llm(
                 # Dynamic Model Selection based on Agent Complexity
                 model_name = resolve_model_name(agent_name, is_gemini=True)
                 
-                generation_config: dict = {"max_output_tokens": 8192}
+                generation_config: dict = {"max_output_tokens": 16384}
                 if json_mode:
                     generation_config["response_mime_type"] = "application/json"
                     
@@ -242,13 +242,29 @@ def call_llm(
                     )
                     return result_text
             except Exception as e:
-                print(f"  [LLM Warning] Gemini call failed: {e}. Falling back to OpenAI or templates...")
+                print(f"  [LLM Warning] Gemini call failed: {e}.")
+                if ("127.0.0.1" in str(e) or "8045" in str(e) or "10061" in str(e)) and gemini_key and gemini_key.startswith("AIzaSy"):
+                    print("  [LLM Auto-Bypass Proxy] Thử lại kết nối trực tiếp tới Google AI API (bỏ qua local proxy 127.0.0.1:8045)...")
+                    try:
+                        genai.configure(api_key=gemini_key)
+                        model_name = resolve_model_name(agent_name, is_gemini=True)
+                        model = genai.GenerativeModel(
+                            model_name=model_name,
+                            system_instruction=system_prompt,
+                            generation_config=generation_config
+                        )
+                        response = model.generate_content(
+                            user_prompt,
+                            generation_config=generation_config,
+                            request_options={"timeout": 120.0}
+                        )
+                        if response and response.text:
+                            return response.text.strip()
+                    except Exception as retry_err:
+                        print(f"  [LLM Direct Fallback Error] {retry_err}")
                 
-        # Setup OpenAI key fallback if not set but gemini_key is an OpenAI key
-        if not openai_key and gemini_key and gemini_key.startswith("sk-"):
-            openai_key = gemini_key
-
-        if openai_key:
+        # Only route to OpenAI fallback if explicit OPENAI_API_KEY is provided
+        if openai_key and openai_key.startswith("sk-") and os.getenv("OPENAI_API_KEY"):
             try:
                 from openai import OpenAI
                 client = OpenAI(

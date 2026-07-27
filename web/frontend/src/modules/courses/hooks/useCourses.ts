@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { apiClient } from '../../../shared/api/base';
 import { CourseResponse, CourseCreate } from '../../../types/course';
 import { message } from 'antd';
@@ -7,11 +8,12 @@ export const courseKeys = {
   all: ['courses'] as const,
 };
 
-export const useCourses = () => {
+export const useCourses = (semesterId?: number) => {
   return useQuery({
-    queryKey: courseKeys.all,
+    queryKey: semesterId ? ['courses', 'list', semesterId] : courseKeys.all,
     queryFn: async (): Promise<CourseResponse[]> => {
-      const { data } = await apiClient.get('/courses/');
+      const url = semesterId ? `/courses/?semester_id=${semesterId}` : '/courses/';
+      const { data } = await apiClient.get(url);
       return data;
     },
   });
@@ -46,15 +48,57 @@ export const useCreateCourse = () => {
   });
 };
 
+export const useUpdateCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: number; payload: CourseCreate }) => {
+      const { data } = await apiClient.put(`/courses/${id}`, payload);
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      message.success('Cập nhật môn học thành công!');
+      queryClient.invalidateQueries({ queryKey: courseKeys.all });
+      queryClient.invalidateQueries({ queryKey: [...courseKeys.all, variables.id] });
+    },
+    onError: () => message.error('Cập nhật thất bại!'),
+  });
+};
+
+export const useDeleteCourse = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      await apiClient.delete(`/courses/${id}`);
+    },
+    onSuccess: () => {
+      message.success('Xóa môn học thành công!');
+      queryClient.invalidateQueries({ queryKey: courseKeys.all });
+    },
+    onError: () => message.error('Xóa môn học thất bại!'),
+  });
+};
+
 export interface PMRow {
-  stt: string;
-  form: string;
-  session_val: string;
-  content_val: string;
-  lesson_val: string;
-  details_val: string;
-  output_val: string;
-  deadline: string;
+  session_id: string;        // Col 1: Session (e.g. Session 01)
+  session_type_vn: string;   // Col 2: Loại Session (Lý thuyết, Thực hành, Mini Project...)
+  session_code: string;      // Col 3: Mã Session (THEORY, PRACTICE, MINI_PROJECT...)
+  session_title: string;     // Col 4: Tên Tiêu Đề Session
+  lesson_title: string;      // Col 5: Tên Lesson
+  details: string;           // Col 6: Nội Dung Chi Tiết (Lesson Scope)
+  expected_outcome?: string; // Col 7: Kết Quả Mong Đợi (Expected Outcome)
+  forbidden_scope: string;   // Col 8: Phạm Vi CẤM DÙNG (Forbidden Scope)
+  allowed_scope: string;     // Col 9: Phạm Vi ĐÃ HỌC (Allowed Scope)
+  tech_stack: string;        // Col 10: Tech Stack & Quy Chuẩn
+
+  // Legacy fallback fields
+  stt?: string;
+  form?: string;
+  session_val?: string;
+  content_val?: string;
+  lesson_val?: string;
+  details_val?: string;
+  output_val?: string;
+  deadline?: string;
 }
 
 export const useParseExcel = () => {
@@ -109,6 +153,46 @@ export const useAutoFixPM = () => {
     },
     onSuccess: () => message.success('AI đã tự động khắc phục và chỉnh sửa xong!'),
     onError: () => message.error('AI Tự động sửa thất bại!'),
+  });
+};
+
+export interface PMGenerateFromScratchPayload {
+  course_name: string;
+  description?: string;
+  tech_stack?: string;
+  total_sessions: number;
+  target_persona?: string;
+  course_outcomes?: string;
+  capstone_target?: string;
+}
+
+export const useGeneratePMFromScratch = () => {
+  const messageKey = 'generate-pm-scratch';
+  return useMutation({
+    mutationFn: async (payload: PMGenerateFromScratchPayload): Promise<PMRow[]> => {
+      message.loading({
+        content: 'AI Senior Architect đang phân tích và thiết lập 10 cột chương trình PM... Vui lòng chờ khoảng 15-30 giây.',
+        key: messageKey,
+        duration: 0,
+      });
+      const { data } = await apiClient.post('/courses/generate-pm-from-scratch', payload);
+      return data;
+    },
+    onSuccess: (data) => {
+      message.success({
+        content: `AI đã kiến trúc thành công PM 10 cột (${data.length} bài học)!`,
+        key: messageKey,
+        duration: 4,
+      });
+    },
+    onError: (err: AxiosError<{ detail?: string }>) => {
+      const detail = err.response?.data?.detail || err.message || 'AI Sinh PM thất bại!';
+      message.error({
+        content: detail,
+        key: messageKey,
+        duration: 5,
+      });
+    },
   });
 };
 

@@ -1,0 +1,1 @@
+Lưu ý quan trọng khi chạy chương trình trong thực tế. Nếu người dùng nhập vào các chuỗi không thể ánh xạ thành số như ký tự chữ cái, máy ảo Python sẽ lập tức kích hoạt lỗi ngoại lệ Va-lưu Ê-rơ. Điều này xảy ra do bộ giải mã chuỗi của hàm in-t hoặc phờ-lốt gặp phải cấu trúc biểu diễn không hợp lệ trong hệ đếm.

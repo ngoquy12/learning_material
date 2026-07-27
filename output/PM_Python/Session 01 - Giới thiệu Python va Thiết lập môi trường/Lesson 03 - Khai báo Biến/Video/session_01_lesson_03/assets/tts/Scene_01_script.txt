@@ -1,0 +1,1 @@
+Trong phát triển phần mềm doanh nghiệp, luồng dữ liệu thô liên tục đổ về hệ thống. Nếu không có cơ chế lưu trữ tạm thời, máy tính không thể duy trì trạng thái dữ liệu sau khi dòng lệnh kết thúc. Việc nhập trực tiếp các giá trị cố định vào công thức tính toán sẽ làm mã nguồn trở nên rối rắm, cực kỳ khó bảo trì và dễ gây sai sót hệ thống khi chính sách kinh doanh thay đổi.

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { apiClient } from '../../../shared/api/base';
 import { SessionResponse, SessionCreate } from '../../../types/session';
 import { message } from 'antd';
@@ -44,6 +45,24 @@ export const useDeleteSession = () => {
     onSuccess: () => {
       message.success('Xóa Session thành công!');
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    },
+  });
+};
+
+export const useBatchDeleteSessions = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ sessionIds }: { sessionIds: number[]; courseId: number }) => {
+      const { data } = await apiClient.post('/sessions/batch-delete', { item_ids: sessionIds });
+      return data;
+    },
+    onSuccess: (_, { courseId }) => {
+      message.success('Đã xóa thành công các Session đã chọn!');
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.invalidateQueries({ queryKey: sessionKeys.byCourse(courseId) });
+    },
+    onError: (err: AxiosError | Error) => {
+      message.error(`Xóa Session thất bại: ${err?.message || 'Lỗi hệ thống'}`);
     },
   });
 };

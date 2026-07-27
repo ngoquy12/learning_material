@@ -12,7 +12,8 @@ from app.models.artifact import Artifact
 from app.models.course import Course
 from app.models.lesson import Lesson
 from app.models.session import Session
-from app.schemas.lesson import LessonCreate, LessonResponse
+from app.schemas.lesson import LessonCreate, LessonResponse, LessonUpdate
+from app.core.process_manager import register_task, unregister_task, is_cancelled
 from core.graph import compile_learning_content_workflow
 from core.persistence import load_checkpoint
 from core.state import AgentState
@@ -61,6 +62,19 @@ async def reorder_lessons(payload: ReorderPayload, db: AsyncSession = Depends(ge
     await db.commit()
     return {"status": "success"}
 
+
+class BatchDeletePayload(BaseModel):
+    item_ids: List[int]
+
+@router.post("/batch-delete")
+async def batch_delete_lessons(payload: BatchDeletePayload, db: AsyncSession = Depends(get_db)):
+    if not payload.item_ids:
+        return {"status": "success", "deleted_count": 0}
+        
+    await db.execute(delete(Artifact).where(Artifact.lesson_id.in_(payload.item_ids)))
+    await db.execute(delete(Lesson).where(Lesson.id.in_(payload.item_ids)))
+    await db.commit()
+    return {"status": "success", "deleted_count": len(payload.item_ids)}
 
 @router.delete("/{lesson_id}")
 async def delete_lesson(lesson_id: int, db: AsyncSession = Depends(get_db)):
@@ -134,6 +148,10 @@ async def generate_lesson_task(
         return workflow.run(initial_state)
 
     # Khởi chạy luồng chạy workflow AI và poller đồng bộ checkpoint thời gian thực
+    current_async_task = asyncio.current_task()
+    if current_async_task:
+        register_task(lesson_id, None, current_async_task)
+
     task = asyncio.create_task(asyncio.to_thread(run_sync_workflow))
 
     checkpoint_key = f"{session_name}_{lesson_name}"
@@ -143,7 +161,12 @@ async def generate_lesson_task(
 
     async def poll_checkpoints():
         while not task.done():
-            await asyncio.sleep(3)
+            await asyncio.sleep(2)
+            if is_cancelled(lesson_id):
+                print(f"[AI CANCELLED] Phát hiện tín hiệu dừng cho Lesson {lesson_id}")
+                task.cancel()
+                break
+
             try:
                 state = load_checkpoint(checkpoint_key)
                 if not state:
@@ -245,31 +268,25 @@ async def generate_lesson_task(
             except Exception as auto_sess_err:
                 print(f"Error auto-triggering session artifacts: {auto_sess_err}")
 
-    except asyncio.TimeoutError:
-        print(f"\n[AI TIMEOUT] Quá thời gian tối đa 5 phút cho Lesson {lesson_id}")
-        # Đánh dấu các phần chưa hoàn thành là Failed và nêu rõ lý do quá hạn
-        try:
-            async with SessionLocal() as db:
-                stmt = select(Artifact).where(Artifact.lesson_id == lesson_id, Artifact.status == "Pending")
-                result = await db.execute(stmt)
-                for art in result.scalars().all():
-                    art.status = "Failed"
-                    art.content = "Hệ thống tự động hủy tác vụ do thời gian phản hồi từ AI vượt quá 5 phút."
-                await db.commit()
-        except Exception as db_err:
-            print(f"Lỗi khi đánh dấu Timeout cho artifacts: {db_err}")
+    except (asyncio.CancelledError, Exception) as err:
+        if isinstance(err, asyncio.CancelledError):
+            print(f"\n[AI CANCELLED] Tiến trình bài học {lesson_id} đã bị hủy bởi người dùng.")
+        else:
+            print(f"\n[AI ERROR] Lỗi khi sinh học liệu bài {lesson_id}: {str(err)}")
 
-    except Exception as e:
-        print(f"\n[AI ERROR] Lỗi khi sinh học liệu: {str(e)}")
         try:
             async with SessionLocal() as db:
                 stmt = select(Artifact).where(Artifact.lesson_id == lesson_id, Artifact.status == "Pending")
                 result = await db.execute(stmt)
                 for art in result.scalars().all():
                     art.status = "Failed"
+                    art.content = "Đã dừng tiến trình theo yêu cầu của người dùng." if isinstance(err, asyncio.CancelledError) else "Lỗi trong quá trình AI tạo học liệu."
                 await db.commit()
         except Exception as db_err:
-            print(f"Lỗi khi đánh dấu Failed cho artifacts: {db_err}")
+            print(f"Lỗi khi cập nhật trạng thái Failed/Cancelled cho artifacts: {db_err}")
+    finally:
+        unregister_task(lesson_id)
+
 
 
 @router.get("/{lesson_id}", response_model=LessonResponse)
@@ -277,6 +294,23 @@ async def get_lesson_by_id(lesson_id: int, db: AsyncSession = Depends(get_db)):
     lesson = await db.get(Lesson, lesson_id)
     if not lesson:
         raise HTTPException(status_code=404, detail="Lesson not found")
+    return lesson
+
+
+@router.put("/{lesson_id}", response_model=LessonResponse)
+async def update_lesson(
+    lesson_id: int, lesson_in: LessonUpdate, db: AsyncSession = Depends(get_db)
+):
+    lesson = await db.get(Lesson, lesson_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lesson not found")
+
+    update_data = lesson_in.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(lesson, field, value)
+
+    await db.commit()
+    await db.refresh(lesson)
     return lesson
 
 

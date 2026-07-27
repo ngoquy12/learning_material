@@ -1,0 +1,1 @@
+Lỗi va-liu e-rơ xảy ra khi chuỗi đầu vào chứa các ký tự đặc biệt hoặc chữ cái mà các hàm int hoặc phờ-lốt không thể biên dịch thành số. Việc kiểm soát lỗi này rất quan trọng để đảm bảo tính an toàn của luồng nghiệp vụ.

@@ -1,0 +1,1 @@
+Trong quá trình viết mã nguồn, hãy chú ý tránh hai lỗi cơ bản là in-đen-tây-sơn-e-rơ và sin-tắc-e-rơ. In-đen-tây-sơn-e-rơ xảy ra khi căn lề thụt dòng không đồng đều giữa các lệnh kết bên dưới khối mátch. Còn sin-tắc-e-rơ thường do thiếu dấu hai chấm ở cuối các dòng điều kiện mátch hoặc kết. Trình biên dịch sẽ báo lỗi lập tức khi phát hiện các lỗi này.

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #0f1117; font-family: "Inter", sans-serif;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px);
+        background-size: 32px 32px;
+      }
+      body::before {
+        content: ""; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
+        top: -100px; left: 50%; transform: translateX(-50%); width: 800px; height: 500px;
+        background: rgba(56, 189, 248, 0.08);
+      }
+      .scene-root { width: 1920px; height: 1080px; position: relative; }
+      
+      /* Scene Header Bar */
+      .scene-header {
+        position: absolute; top: 48px; left: 60px; right: 60px;
+        display: flex; align-items: center; gap: 20px; z-index: 10;
+        opacity: 0; visibility: hidden;
+      }
+      .header-badge {
+        background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);
+        color: #38bdf8; font-size: 15px; font-weight: 800; padding: 6px 18px;
+        border-radius: 999px; letter-spacing: 1px; text-transform: uppercase;
+      }
+      .scene-title {
+        font-size: 36px; font-weight: 800; color: #ffffff;
+        text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+      }
+
+      /* History Grid */
+      .history-grid {
+        position: absolute; top: 150px; left: 60px; right: 60px; bottom: 50px;
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; align-items: center;
+      }
+      .history-card {
+        background: rgba(22, 27, 34, 0.92); border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px; padding: 48px 40px; display: flex; flex-direction: column;
+        gap: 20px; height: 600px; justify-content: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        opacity: 0; visibility: hidden;
+      }
+      .card-badge {
+        display: flex; align-items: center; gap: 10px;
+        background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3);
+        color: #38bdf8; font-size: 16px; font-weight: 700; padding: 8px 20px;
+        border-radius: 999px; width: fit-content; text-transform: uppercase;
+      }
+      .card-title { font-size: 32px; font-weight: 800; color: #ffffff; line-height: 1.3; }
+      .card-body { font-size: 21px; color: #f0f6fc; line-height: 1.7; font-weight: 500; }
+    </style>
+  </head>
+  <body>
+    <div id="scene-02" class="clip scene-root" data-composition-id="scene-02" data-start="0" data-duration="30.38" data-track-index="0">
+      <!-- Header Bar -->
+      <div id="header-02" class="scene-header">
+        <div class="header-badge">HISTORY &amp; ZEN</div>
+        <h1 class="scene-title">Lịch Sử &amp; Triết Lý Zen of Python</h1>
+      </div>
+
+      <!-- History Grid -->
+      <div class="history-grid">
+        <div id="hist-card-1" class="history-card">
+          <div class="card-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            TÁC GIẢ
+          </div>
+          <div class="card-title">Guido van Rossum</div>
+          <div class="card-body">Khởi xướng phát triển vào cuối thập niên 1980 tại Viện Toán Tin học CWI (Hà Lan).</div>
+        </div>
+
+        <div id="hist-card-2" class="history-card">
+          <div class="card-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            NĂM RA MẮT
+          </div>
+          <div class="card-title">Năm 1991</div>
+          <div class="card-body">Phiên bản đầu tiên chính thức ra mắt. Lấy cảm hứng tên gọi từ kịch bản Monty Python.</div>
+        </div>
+
+        <div id="hist-card-3" class="history-card">
+          <div class="card-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ZEN OF PYTHON
+          </div>
+          <div class="card-title">Triết Lý Cốt Lõi</div>
+          <div class="card-body">Tường minh tốt hơn ẩn ý, đơn giản tốt hơn phức tạp. Ép buộc thụt lề bắt buộc theo PEP 8.</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["scene-02"] = tl;
+
+      const _buildTimer = setInterval(function() {
+        if (!document.getElementById("scene-02")) return;
+        clearInterval(_buildTimer);
+
+        const dur = 30.38;
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+
+        tl.to("#header-02", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+        tl.to("#hist-card-1", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 4.0);
+        tl.to("#hist-card-2", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 12.5);
+        tl.to("#hist-card-3", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 21.5);
+
+        // Clean scene fade-out before exit
+        tl.to("#scene-02", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
+</html>

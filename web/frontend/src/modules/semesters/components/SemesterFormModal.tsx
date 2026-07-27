@@ -2,7 +2,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Modal, Form, Input, Button, Select } from 'antd';
-import { SemesterCreate } from '../../../types/semester';
+import { SemesterCreate, SemesterResponse } from '../../../types/semester';
 import { useEffect } from 'react';
 import { useMajors } from '../../majors/hooks/useMajors';
 
@@ -18,26 +18,48 @@ interface Props {
   onCancel: () => void;
   onSubmit: (data: SemesterCreate) => void;
   isPending: boolean;
+  initialValues?: SemesterResponse | null;
+  fixedMajorId?: number;
 }
 
-export const SemesterFormModal = ({ open, onCancel, onSubmit, isPending }: Props) => {
+export const SemesterFormModal = ({ open, onCancel, onSubmit, isPending, initialValues, fixedMajorId }: Props) => {
   const { data: majors } = useMajors();
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: '', major_id: undefined },
+    defaultValues: { name: '', major_id: fixedMajorId || undefined },
   });
 
-  useEffect(() => { if (!open) reset(); }, [open, reset]);
+  useEffect(() => {
+    if (open) {
+      if (initialValues) {
+        reset({
+          name: initialValues.name || '',
+          major_id: initialValues.major_id,
+        });
+      } else {
+        reset({
+          name: '',
+          major_id: fixedMajorId || undefined,
+        });
+      }
+    }
+  }, [open, initialValues, fixedMajorId, reset]);
 
   return (
-    <Modal title="Thêm Kỳ học" open={open} onCancel={onCancel} footer={null} destroyOnClose>
+    <Modal
+      title={initialValues ? "Sửa Kỳ học" : "Thêm Kỳ học"}
+      open={open}
+      onCancel={onCancel}
+      footer={null}
+      destroyOnClose
+    >
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)} className="mt-4">
         <Form.Item label="Tên kỳ học" validateStatus={errors.name ? 'error' : ''} help={errors.name?.message}>
-          <Controller name="name" control={control} render={({ field }) => <Input {...field} placeholder="VD: Học kỳ 1" />} />
+          <Controller name="name" control={control} render={({ field }) => <Input {...field} placeholder="Ví dụ: Học kỳ 1" />} />
         </Form.Item>
         <Form.Item label="Thuộc Chuyên ngành" validateStatus={errors.major_id ? 'error' : ''} help={errors.major_id?.message}>
           <Controller name="major_id" control={control} render={({ field }) => (
-            <Select {...field} placeholder="Chọn chuyên ngành" loading={!majors}>
+            <Select {...field} placeholder="Chọn chuyên ngành" loading={!majors} disabled={!!fixedMajorId}>
               {majors?.map(m => <Select.Option key={m.id} value={m.id}>{m.name}</Select.Option>)}
             </Select>
           )} />

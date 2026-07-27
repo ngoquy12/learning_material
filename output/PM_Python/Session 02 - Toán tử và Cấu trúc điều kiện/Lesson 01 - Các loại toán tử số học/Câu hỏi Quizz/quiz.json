@@ -1,0 +1,76 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Guido van Rossum thiết kế Python vào năm nào với hệ thống cú pháp mô phỏng biểu thức toán học thông thường?",
+      "options": [
+        "Năm 1991",
+        "Năm 1995",
+        "Năm 2000",
+        "Năm 1989"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Theo thông tin từ bài đọc Stage 1, Guido van Rossum đã thiết kế Python vào năm 1991 với triết lý tối giản hóa cú pháp toán học."
+    },
+    {
+      "question": "Nếu một hóa đơn có Quantity (Số lượng) là 15 và Box Capacity (Sức chứa) là 4, kết quả của phép toán chia lấy nguyên (Qty // Cap) và phép toán chia lấy dư (Qty % Cap) sẽ lần lượt là bao nhiêu?",
+      "options": [
+        "3 và 3",
+        "3.75 và 3",
+        "3 và 0",
+        "4 và 1"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Ta có 15 chia cho 4 được thương nguyên là 3 thương dư là 3. Phép chia lấy nguyên (15 // 4) cho kết quả là 3, và phép chia lấy dư (15 % 4) cho kết quả là 3."
+    },
+    {
+      "question": "Python có ưu điểm cấu trúc gì so với C, C++, và Java khi xử lý toán học lớn trong doanh nghiệp nhằm tránh treo hệ thống?",
+      "options": [
+        "Khả năng biểu diễn số nguyên có độ rộng vô hạn giúp tránh tràn số",
+        "Tốc độ xử lý tính toán dấu phẩy động nhanh hơn",
+        "Sở hữu trình biên dịch song song thời gian thực",
+        "Cấm hoàn toàn các phép chia cho số không từ cấp phần cứng"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Theo bài đọc, Python tối ưu hóa tự động hóa việc biểu diễn số nguyên có độ rộng vô hạn giúp tránh lỗi tràn số (overflow) vốn thường gặp ở C/C++/Java."
+    },
+    {
+      "question": "Toán tử số học nào được sử dụng để thực hiện việc chia đều tài nguyên hóa đơn cho các thành viên đồng chi trả (Split)?",
+      "options": [
+        "Toán tử chia thực (/)",
+        "Toán tử chia lấy nguyên (//)",
+        "Toán tử nhân (*)",
+        "Toán tử chia lấy dư (%)"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Dựa trên bài toán cụ thể và sơ đồ cấu trúc trong bài đọc, toán tử chia thực (/) được dùng cho việc phân chia đều tài nguyên hóa đơn (Split: Qty / Cap)."
+    }
+  ],
+  "practical_lab": {
+    "title": "Ứng dụng các toán tử số học Python trong module thanh toán E-commerce",
+    "objectives": [
+      "Làm quen và phân biệt chức năng của các toán tử số học cơ bản: *, /, //, %.",
+      "Xử lý chuẩn xác dữ liệu đơn hàng tránh lỗi sai sót về số dư hoặc sai logic phân tách.",
+      "Tận dụng thuộc tính tự động tránh tràn số của Python để thực thi các giao dịch số lượng cực lớn."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Khởi tạo các giá trị đầu vào ban đầu của đơn hàng bao gồm: quantity = 15, unit_price = 4.5, và box_capacity = 4.",
+        "Bước 2: Viết mã nguồn tính tổng chi phí đơn hàng (total_price) bằng cách nhân đơn giá với số lượng sản phẩm.",
+        "Bước 3: Thực hiện phép chia lấy nguyên (//) để tính số lượng thùng đóng gói tối đa có thể xếp đầy (packed_boxes).",
+        "Bước 4: Thực hiện phép chia lấy dư (%) để tìm số lượng nguyên liệu hoặc sản phẩm dư lẻ chưa được đóng đóng gói (remaining_items).",
+        "Bước 5: Thực hiện phép chia thực (/) để nhận về tỷ lệ phân chia tài nguyên hóa đơn đều cho mỗi thùng hàng (invoice_split).",
+        "Bước 6: Thay đổi giá trị quantity thành một số cực lớn (ví dụ: 10 mũ 30) để kiểm chứng khả năng tính toán số nguyên lớn không bị tràn số của Python."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chương trình chạy hoàn chỉnh không lỗi cú pháp.",
+        "Kết quả phép nhân total_price đạt giá trị 67.5.",
+        "Kết quả phép chia lấy nguyên packed_boxes bằng 3 và chia lấy dư remaining_items bằng 3.",
+        "Kết quả phép chia thực invoice_split bằng 3.75.",
+        "Chương trình in ra kết quả số nguyên lớn thành công mà không báo lỗi tràn số."
+      ]
+    }
+  }
+}

@@ -8,6 +8,8 @@ class Session(Base):
     course_id = Column(Integer, ForeignKey("courses.id"), nullable=False)
     name = Column(String(255), nullable=False)
     title = Column(String(255), nullable=False)
+    session_type_vn = Column(String(100), nullable=True)
+    session_code = Column(String(100), nullable=True)
     order_index = Column(Integer, default=0)
     
     course = relationship("Course", back_populates="sessions")

@@ -142,9 +142,9 @@
   </style>
 </head>
 <body>
-  <div id="scene-02" class="clip" data-start="0" data-duration="45.24" data-track-index="0">
+  <div id="scene-02" data-composition-id="scene-02" data-width="1920" data-height="1080" class="clip" data-start="0" data-duration="40.53" data-track-index="0">
     <!-- PHASE 1: Intro title -->
-    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="45.24" data-track-index="5">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="40.53" data-track-index="5">
       Khái niệm và Cú pháp
     </div>
 
@@ -257,14 +257,10 @@
       tl.to(["#p1","#p2","#p3"], { y: -12, duration: 0.2, ease: "power2.out", stagger: 0.1 }, 33.0);
       tl.to(["#p1","#p2","#p3"], { y: 0,   duration: 0.28, ease: "bounce.out", stagger: 0.1 }, "<0.22");
 
-      // dim syntax-card, glow example-card
-      tl.to("#syntax-card",  { autoAlpha: 0.4, duration: 0.4 }, 35.0);
-      tl.to("#example-card", { boxShadow: "0 0 40px rgba(121,192,255,0.2)", duration: 0.5 }, "<");
+      // ── PHASE 8: fade out entire scene before transition to Scene 03 ─────
+      tl.to("#scene-02", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 39.2);
 
-      // restore syntax-card
-      tl.to("#syntax-card", { autoAlpha: 1, duration: 0.5 }, 40.0);
-
-      tl.set({}, {}, 45.24);
+      tl.set({}, {}, 40.53);
     }, 50);
   </script>
 </body>

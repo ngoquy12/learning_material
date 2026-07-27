@@ -1,0 +1,168 @@
+<!--
+  COMPONENT: qa_quiz.html (Interactive Q&A / Knowledge Check)
+  SLOTS: {{slot_scene_n}}, {{slot_dur}}, {{slot_intro_title}},
+         {{slot_question_text}},
+         {{slot_opt_a}}, {{slot_opt_b}}, {{slot_opt_c}},
+         {{slot_correct_opt}},  → 'A', 'B', hoặc 'C' (được highlight xanh lá)
+         {{slot_t1}}, {{slot_t2}}, {{slot_gsap_extra}}
+-->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #0f1117; font-family: 'Inter', sans-serif;
+      background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+    }
+    body::before {
+      content:''; position:absolute; border-radius:50%; filter:blur(180px); z-index:-1;
+      top:-150px; left:50%; transform:translateX(-50%);
+      width:900px; height:600px; background:rgba(250,204,21,0.08);
+    }
+    .scene-root { width: 1920px; height: 1080px; position: relative; }
+    [id^="scene-"] { width: 1920px; height: 1080px; position: relative; }
+
+    .intro-title {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-size: 72px; font-weight: 800; color: #e6edf3; z-index: 100;
+      text-align: center; white-space: nowrap; text-shadow: 0 0 60px rgba(250,204,21,0.4);
+    }
+
+    .quiz-container {
+      position: absolute; top: 120px; left: 140px;
+      width: 1640px; height: 840px;
+      display: flex; flex-direction: column; justify-content: center; gap: 32px;
+    }
+    .quiz-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 8px 24px; border-radius: 999px; font-size: 18px; font-weight: 700;
+      background: rgba(250,204,21,0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3);
+      width: fit-content; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .question-box {
+      background: rgba(9,9,11,0.85); border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 24px; padding: 40px 48px;
+      font-size: 32px; font-weight: 700; color: #e6edf3; line-height: 1.4;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    .options-list {
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    .option-item {
+      background: rgba(9,9,11,0.7); border: 1.5px solid rgba(255,255,255,0.08);
+      border-radius: 18px; padding: 24px 36px;
+      display: flex; align-items: center; gap: 24px;
+      font-size: 24px; color: #c9d1d9; transition: all 0.3s;
+    }
+    .option-key {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      font-weight: 800; font-size: 22px; color: #e6edf3;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .option-item.correct {
+      background: rgba(63,185,80,0.12); border-color: rgba(63,185,80,0.4);
+      color: #ffffff; box-shadow: 0 0 30px rgba(63,185,80,0.2);
+    }
+    .option-item.correct .option-key {
+      background: #3fb950; color: #0f1117; border-color: #3fb950;
+    }
+    .option-item.correct::after {
+      content: '✅ CHÍNH XÁC!'; margin-left: auto;
+      font-size: 18px; font-weight: 800; color: #3fb950; letter-spacing: 0.5px;
+    }
+    code { font-family: 'Fira Code', monospace; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div id="scene-{{slot_scene_n}}" class="clip scene-root"
+       data-composition-id="scene-{{slot_scene_n}}"
+       data-start="0" data-duration="{{slot_dur}}" data-track-index="0">
+
+    <div id="intro-title-{{slot_scene_n}}" class="intro-title clip"
+         data-start="0" data-duration="{{slot_dur}}" data-track-index="100">
+      {{slot_intro_title}}
+    </div>
+
+    <div class="quiz-container clip" data-start="0" data-duration="{{slot_dur}}" data-track-index="2">
+      <div class="quiz-badge">💡 KNOWLEDGE CHECK</div>
+
+      <div id="question-{{slot_scene_n}}" class="question-box">
+        {{slot_question_text}}
+      </div>
+
+      <div class="options-list">
+        <div id="opt-a-{{slot_scene_n}}" class="option-item">
+          <div class="option-key">A</div>
+          <div>{{slot_opt_a}}</div>
+        </div>
+
+        <div id="opt-b-{{slot_scene_n}}" class="option-item">
+          <div class="option-key">B</div>
+          <div>{{slot_opt_b}}</div>
+        </div>
+
+        <div id="opt-c-{{slot_scene_n}}" class="option-item">
+          <div class="option-key">C</div>
+          <div>{{slot_opt_c}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    const sceneId = "scene-{{slot_scene_n}}";
+    window.__timelines[sceneId] = tl;
+
+    const _buildTimer = setInterval(function() {
+      if (!document.getElementById(sceneId)) return;
+      clearInterval(_buildTimer);
+
+      const t1 = parseFloat("{{slot_t1}}") || 4.0;
+      const t2 = parseFloat("{{slot_t2}}") || 6.5;
+      const dur = parseFloat("{{slot_dur}}") || 30.0;
+      const correctOpt = ("{{slot_correct_opt}}" || "A").toUpperCase().trim();
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title-{{slot_scene_n}}", { autoAlpha: 0, scale: 0.8 }, 0);
+      tl.set("#question-{{slot_scene_n}}", { autoAlpha: 0, y: -20 }, 0);
+      ["a","b","c"].forEach(k => {
+        tl.set("#opt-" + k + "-{{slot_scene_n}}", { autoAlpha: 0, x: -30 }, 0);
+      });
+
+      tl.to("#intro-title-{{slot_scene_n}}", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title-{{slot_scene_n}}", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      tl.to("#question-{{slot_scene_n}}", { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }, t1);
+      tl.to("#opt-a-{{slot_scene_n}}", { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, t1 + 0.3);
+      tl.to("#opt-b-{{slot_scene_n}}", { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, t1 + 0.5);
+      tl.to("#opt-c-{{slot_scene_n}}", { autoAlpha: 1, x: 0, duration: 0.4, ease: "power2.out" }, t1 + 0.7);
+
+      // Reveal correct option at t2
+      const targetId = "#opt-" + correctOpt.toLowerCase() + "-{{slot_scene_n}}";
+      tl.to(targetId, {
+        className: "+=correct",
+        scale: 1.02,
+        duration: 0.5,
+        ease: "back.out(1.4)"
+      }, t2);
+
+      /* {{slot_gsap_extra}} */
+
+      // Clean scene fade-out before transition
+      tl.to("#scene-{{slot_scene_n}}", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+      tl.set({}, {}, dur);
+    }, 50);
+  </script>
+</body>
+</html>

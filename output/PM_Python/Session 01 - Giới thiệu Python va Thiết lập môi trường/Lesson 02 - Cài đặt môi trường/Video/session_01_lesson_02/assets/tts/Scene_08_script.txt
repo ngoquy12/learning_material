@@ -1,0 +1,1 @@
+Để đảm bảo VS Code thực thi mã nguồn bằng đúng môi trường vừa tạo, hãy mở Command Palette bằng tổ hợp phím Control Shift P hoặc Command Shift P trên macOS. Gõ tìm kiếm cụm từ Python hai chấm Select Interpreter, rồi tìm và chọn đường dẫn trỏ thẳng đến tệp thực thi nằm trong thư mục app gạch dưới env.

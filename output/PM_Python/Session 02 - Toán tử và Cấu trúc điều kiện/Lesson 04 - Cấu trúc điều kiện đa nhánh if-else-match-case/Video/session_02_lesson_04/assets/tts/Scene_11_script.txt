@@ -1,0 +1,1 @@
+Tiếp theo là lỗi an-bao-lô-cồ-e-rơ và va-liêu-e-rơ. An-bao-lô-cồ-e-rơ xuất hiện khi bạn sử dụng một biến số bên ngoài khối điều kiện mà biến đó chưa từng được khởi tạo ở các nhánh chạy trước. Chúng ta khắc phục bằng cách luôn khai báo biến mặc định ở đầu hàm. Tránh va-liêu-e-rơ bằng cách ép kiểu và kiểm tra đầu vào trước khi đưa vào cấu trúc so khớp dữ liệu.

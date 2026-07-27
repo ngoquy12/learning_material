@@ -1,0 +1,1 @@
+Ngược lại với toán tử a-n-đờ, toán tử o-lờ chỉ yêu cầu tối thiểu một trong hai trạng thái điều kiện đạt giá trị tru để biểu thức toàn cục trả về kết quả tru. Phép toán này chỉ nhận giá trị phôn khi toàn bộ các toán hạng tham gia đều là phôn. Điều này cực kỳ hữu ích khi thiết kế các trường hợp ngoại lệ hoặc chấp nhận nhiều phương án thay thế trong quy trình xử lý nghiệp vụ.

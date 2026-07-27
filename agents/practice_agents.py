@@ -62,7 +62,11 @@ CÁC QUY TẮC BẮT BUỘC CHO BÀI TẬP:
 0. QUY TẮC CẤM EMOJI: TUYỆT ĐỐI KHÔNG sử dụng bất kỳ biểu tượng cảm xúc/emoji (như 🚀, 💡, ⚠️, ✅, ❌,...) trong toàn bộ đề bài, tiêu đề hay mã nguồn. Thay bằng các nhãn văn bản thuần túy [NOTE], [TIP], [WARNING], [YÊU CẦU].
 0.1 QUY TẮC GIỚI HẠN KIẾN THỨC ĐỘNG BẮT BUỘC (DYNAMIC PROGRESSIVE SCOPE):
    - Bạn BẮT BUỘC CHỈ ĐƯỢC PHÉP sử dụng các kiến thức thuộc Session hiện tại ({session_id} - {session_title}) và các bài học trước đó.
-   - TUYỆT ĐỐI CẤM đưa vào bất kỳ khái niệm, cú pháp, hàm hay thư viện thuộc các bài học SAU ĐÓ trong chương trình đào tạo!
+0.2. BẮT BUỘC SƠ ĐỒ MERMAID BỐI CẢNH BÀI TOÁN (PROPOSAL 2):
+   - Ở phần bối cảnh/vấn đề bài tập, BẮT BUỘC phải bổ sung 1 sơ đồ Mermaid (dùng ```mermaid ... ```) trực quan hóa luồng dữ liệu của bài toán (Đầu vào -> Quy tắc xử lý -> Đầu ra kỳ vọng).
+   - QUY TẮC NGÔN NGỮ TRONG SƠ ĐỒ DÀNH CHO SINH VIÊN VIỆT NAM: Giữ nguyên từ khóa công nghệ, tên biến, tên hàm bằng TIẾNG ANH (`user_id`, `calculate()`); Tiêu đề sơ đồ và nhãn các bước xử lý bằng TIẾNG VIỆT (`[Khởi tạo đơn hàng] --> [Xử lý tính toán] --> [Trả về kết quả]`).
+0.3. BẮT BUỘC BẢNG RUBRIC CHẤM ĐIỂM 100 ĐIỂM CHO GIẢNG VIÊN (PROPOSAL 3):
+   - Ở cuối đề bài mỗi bài tập thực hành, BẮT BUỘC thêm phần '### **Rubric chấm điểm (Dành cho Giảng viên/Mentor)**' với Bảng Rubric 100 điểm phân bổ: Logic & Chạy qua Testcases (40đ), Clean Code & Naming (20đ), Xử lý Bẫy ngoại lệ (20đ), Format nộp bài & Tối ưu (20đ).
 1. Độ khó tương ứng với mức {level_name}:
    - Nếu là Dễ: Tập trung làm quen cú pháp, cấu hình ban đầu, xây dựng các cấu trúc/chức năng đơn giản nhất. CẤM TUYỆT ĐỐI các chức năng lọc, tìm kiếm, sắp xếp hay phân trang ở mức độ này.
    - Nếu là Trung bình: Xây dựng các chức năng cơ bản, tiếp nhận tham số đầu vào đơn giản. CẤM TUYỆT ĐỐI các chức năng lọc, tìm kiếm, sắp xếp hay phân trang phức tạp ở mức độ này.
@@ -363,7 +367,8 @@ def parse_diagram_info(prompt_text: str, content: str = ""):
     return endpoints[:4], storage
 
 def draw_fallback_diagram(prompt_text: str, content: str, title_text: str, image_path):
-    raise NotImplementedError("Fallback diagram generation is disabled.")
+    print("  [Image Generator Info] AI Image generation skipped due to API quota. Proceeding without optional diagram.")
+    return
 
 def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) -> str:
     from pathlib import Path
@@ -463,10 +468,11 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
         except Exception as e:
             print(f"  [Image Generator Warning] Failed to dynamically generate diagram: {e}")
             draw_fallback_diagram(prompt_text, content, title_text, image_path)
-    elif not image_path.exists():
-        draw_fallback_diagram(prompt_text, content, title_text, image_path)
             
-    markdown_image_tag = f"\n\n<p align=\"center\">\n  <img src=\"../images/{image_name}\" alt=\"Sơ đồ luồng nghiệp vụ\" width=\"80%\">\n</p>\n\n"
+    markdown_image_tag = ""
+    if image_path.exists():
+        markdown_image_tag = f"\n\n<p align=\"center\">\n  <img src=\"../images/{image_name}\" alt=\"Sơ đồ luồng nghiệp vụ\" width=\"80%\">\n</p>\n\n"
+    
     new_content = re.sub(r"\*Prompt tạo ảnh:\s*.*?\*", markdown_image_tag, content, flags=re.IGNORECASE)
     return new_content
 

@@ -1,564 +1,208 @@
 # 🤖 Elearning Content Factory — Multi-Agent Learning Material Generator
 
-> **Hệ thống sản xuất học liệu tự động, đa tác nhân (Multi-Agent), được thiết kế bởi nguyên tắc Thiết kế Ngược (Backward Design) và chuẩn hóa theo Thang đo Bloom.**
+> **Hệ thống sản xuất học liệu tự động đa tác nhân (Multi-Agent Architecture) quy mô lớn — 100% Dynamic, Generic, Stack-Agnostic & Schema-Driven (Tuyệt đối Không Hardcode).**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org)
 [![LangGraph / Antigravity](https://img.shields.io/badge/Orchestration-Antigravity-purple)](.)
+[![Schema-Driven](https://img.shields.io/badge/Architecture-Pydantic%20Schema%20Driven-emerald)](.)
+[![Zero Hardcode](https://img.shields.io/badge/Stack--Agnostic-100%25%20Generic-orange)](.)
 [![SCORM 1.2](https://img.shields.io/badge/Export-SCORM%201.2-green)](.)
-[![SQLite](https://img.shields.io/badge/Memory-SQLite-orange)](.)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 ---
 
 ## 📋 Mục lục
 
 1. [Giới thiệu tổng quan](#-giới-thiệu-tổng-quan)
-2. [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
-3. [Yêu cầu cài đặt](#-yêu-cầu-cài-đặt)
-4. [Cài đặt nhanh](#-cài-đặt-nhanh)
-5. [Hướng dẫn sử dụng](#-hướng-dẫn-sử-dụng)
-6. [Cấu trúc thư mục](#-cấu-trúc-thư-mục)
-7. [Các Agent trong hệ thống](#-các-agent-trong-hệ-thống)
-8. [Luồng pipeline đầy đủ](#-luồng-pipeline-đầy-đủ)
-9. [Tính năng nâng cao](#-tính-năng-nâng-cao)
-10. [Cấu hình môi trường](#-cấu-hình-môi-trường)
-11. [FAQ & Xử lý lỗi](#-faq--xử-lý-lỗi)
+2. [Kiến trúc hệ thống đa tầng (4-Tier Architecture)](#-kiến-trúc-hệ-thống-đa-tầng-4-tier-architecture)
+3. [Các tính năng cốt lõi mới](#-các-tính-năng-cốt-lõi-mới)
+4. [Hướng dẫn cài đặt & Khởi chạy](#-hướng-dẫn-cài-đặt--khởi-chạy)
+5. [Cấu trúc thư mục dự án](#-cấu-trúc-thư-mục-dự-án)
+6. [Quy trình kiểm định lập trình tự động (Master Validation Layer)](#-quy-trình-kiểm-định-lập-trình-tự-động-master-validation-layer)
+7. [FAQ & Xử lý lỗi thường gặp](#-faq--xử-lý-lỗi-thường-gặp)
 
 ---
 
 ## 🌟 Giới thiệu tổng quan
 
-**Elearning Content Factory** là một pipeline AI tự động biến một file **PM Excel (Chương trình khung)** thành một bộ học liệu hoàn chỉnh gồm:
+**Elearning Content Factory** là hệ thống AI đa tác nhân tự động hóa việc chuyển đổi chương trình khung `syllabus.json` (hoặc PM Excel) thành bộ tài nguyên học liệu hoàn chỉnh cho **bất kỳ công nghệ nào** (Python, Java, React, SQL, Flutter, DevOps...):
 
-| Đầu ra | Định dạng | Công nghệ |
+| Loại Tài Nguyên | Định dạng | Công nghệ & Renderer |
 |---|---|---|
-| 📖 Bài đọc lý thuyết | HTML tương tác | AI + Plannotator/Code Tracker |
-| 🖼️ Slide bài giảng | HTML (Marp) | AI + Marp CLI |
-| ❓ Quiz trắc nghiệm | JSON + Excel | AI + Sandbox Testing |
-| 🎬 Kịch bản video | Markdown | AI + HyperFrames |
-| 🧠 Sơ đồ tư duy | Markdown (Markmap) | AI |
-| 📊 Obsidian Vault | WikiLinks + YAML | Knowledge Linker |
-| 📦 SCORM Package | .zip (SCORM 1.2) | SCORM Exporter |
-
-**Điểm mạnh vượt trội:**
-- ✅ **Self-Correction:** Mỗi artifact có vòng lặp Reviewer tự động sửa lỗi (tối đa 3 lần)
-- ✅ **Knowledge Memory:** SQLite-backed memory agent học từ lỗi cũ, không bao giờ lặp lại
-- ✅ **Prerequisite Guard:** DAG-validator kiểm tra tính tuần tự tri thức trước khi biên dịch
-- ✅ **Semantic Cache:** Tiết kiệm ~40% token cost nhờ caching thông minh
-- ✅ **SCORM Export:** Xuất trực tiếp vào Moodle/Canvas/LMS chuẩn quốc tế
+| 📖 Bài đọc lý thuyết | HTML tương tác | JSON Payload ➔ `reading_renderer.py` + Sandbox Adapter |
+| 🖼️ Slide bài giảng | HTML trình chiếu | JSON Payload ➔ `slide_renderer.py` + Tailwind/Reveal |
+| ❓ Quiz trắc nghiệm | Excel (.xlsx) + JSON | `quiz_validator.py` + Dynamic Option Shuffler |
+| 💻 Bài tập thực hành | Markdown + Code | Python `ast.parse()` + Checklist Guard |
+| 🏗️ Đồ án / Project | Markdown + Rubric | Project Rubric 100-Point Sum Validator |
+| 📦 SCORM Package | .zip (SCORM 1.2) | SCORM Publisher Engine |
 
 ---
 
-## 🏗️ Kiến trúc hệ thống
+## 📌 4 Loại Session Chuẩn Trong Hệ Thống (Standardized Session Types)
+
+Hệ thống hỗ trợ và xử lý tự động **4 loại Session chuẩn**:
+
+1. **`THEORY` — Session Lý Thuyết:** Chứa các bài học con (`Lesson 01`, `Lesson 02`...). Sinh đầy đủ **10 loại đầu ra chuẩn hóa**:
+   * *Cấp Bài học (Per-Lesson):* (1) Bài đọc HTML tương tác, (2) Slide bài giảng HTML + Narration, (3) Bài thực hành theo bài (linh hoạt theo nội dung trọng tâm), (4) Quiz trắc nghiệm bài (đúng 5 câu/lesson).
+   * *Cấp Phiên học (Per-Session):* (5) Quiz đầu giờ (đúng 45 câu Excel .xlsx), (6) Quiz cuối giờ (đúng 45 câu Excel .xlsx), (7) Bài tập về nhà Session (5 bài 5 cấp độ + 1 bài tổng hợp), (8) File gộp `reading_all.html`, (9) File gộp `session_slides.html`, (10) Kịch bản video Hyperframes.
+2. **`PRACTICE` — Session Thực Hành:** Không chứa bài học con. Sinh tập trung các bộ Bài tập thực hành (Labs), Bài tập về nhà (Homework) và Kịch bản kiểm tra trạng thái.
+3. **`MINI_PROJECT` — Session Mini Project:** Không chứa bài học con. Sinh 4 Entry Tests, Tài liệu đặc tả SRS tinh gọn và Đề bài Mini Project kèm Rubric 100 điểm.
+4. **`FINAL_PROJECT` — Session Dự Án Cuối Khóa:** Không chứa bài học con. Sinh Đồ án Capstone cuối khóa hoàn chỉnh, Kiến trúc hệ thống tổng thể, Tài liệu đặc tả SRS đầy đủ và Rubric chấm 100 điểm.
+
+---
 
 ```
-                        ╔══════════════════════════════╗
-                        ║    PM Excel (Chương trình)   ║
-                        ╚══════════════╤═══════════════╝
-                                       │
-                        ┌─────────────▼─────────────┐
-                        │  [0] PM Reviewer Agent     │  ← Format & content audit
-                        └─────────────┬─────────────┘
-                                       │
-                        ┌─────────────▼─────────────┐
-                        │ [0.5] Prerequisite Guard   │  ← DAG sequence check (NEW)
-                        │       Agent (PGA)          │  ← BLOCKER → stop pipeline
-                        └─────────────┬─────────────┘
-                                       │
-                   ┌──────────────────▼──────────────────┐
-                   │     Giai đoạn 1: Hoạch định         │
-                   │  Objective Architect → Scheduler →   │
-                   │  Knowledge Base → SQLite SSOT Lock   │
-                   └──────────────────┬──────────────────┘
-                                       │  inject KMA memories ↑
-                   ┌──────────────────▼──────────────────┐
-                   │  [3.5] Generate Master Content       │  ← KnowledgeMemoryAgent
-                   │  + Semantic Cache Layer              │  ← 88% similarity cache
-                   └─┬──────┬──────┬──────┬──────┬───────┘
-                     │      │      │      │      │
-                  HTML  Slide  Quiz Video  MM   (parallel)
-                     │      │      │      │      │
-                 Reviewer Reviewer Sandbox Rev   Rev
-                     │      │      │      │      │
-                   ┌─▼──────▼──────▼──────▼──────▼───┐
-                   │    Session Compiler + Publisher   │
-                   └────────────────┬─────────────────┘
-                                    │
-            ┌──────────┬────────────┼──────────────┬──────────┐
-            │          │            │              │          │
-        HTML files  Slide.html  Quiz.json    Quiz Excel  Mindmap.md
-                                    │
-                    ┌───────────────▼──────────────────┐
-                    │  [6] KnowledgeMemoryAgent         │  ← SQLite lessons learned
-                    │  + LessonsLearnedAgent (legacy)   │
-                    └───────────────────────────────────┘
-
-                    ─── Optional Export Flows ───
-                    --obsidian  → ObsidianKnowledgeLinker (prereq graph)
-                    --scorm     → SCORM 1.2 Package (.zip)
+                            ╔══════════════════════════════╗
+                            ║      Dynamic Syllabus        ║
+                            ║    (syllabus.json / PM Excel)║
+                            ╚══════════════╤═══════════════╝
+                                           │
+                            ┌──────────────▼──────────────┐
+                            │  Scope Calculator Engine    │  ← Computes Allowed (1..N) &
+                            │  (core/scope_calculator.py) │     Forbidden Scope (N+1..End)
+                            └──────────────┬──────────────┘
+                                           │
+                        ┌──────────────────┴──────────────────┐
+                        │   Declarative JSON Payload Schemas  │  ← Pure Content JSON
+                        │   (Reading, Slide, Quiz, Project)   │  ← No Raw Mixed HTML/JS
+                        └──────────────────┬──────────────────┘
+                                           │
+                        ┌──────────────────▼──────────────────┐
+                        │  Master Programmatic Validator Layer│  ← HTML DOM & JS Linter
+                        │  (core/validators/master_validator) │  ← AST Code Syntax Check
+                        └──────────────────┬──────────────────┘  ← Rubric 100-pt Sum Check
+                                           │
+                        ┌──────────────────▼──────────────────┐
+                        │ Generic Static Renderers & Adapter  │  ← reading_renderer.py
+                        │ (core/renderers/ & sandbox_adapter) │  ← slide_renderer.py
+                        └──────────────────┬──────────────────┘  ← Dynamic WASM/Worker Sandbox
+                                           │
+                        ┌──────────────────▼──────────────────┐
+                        │ Session Compiler & SCORM Publisher  │  ← Merges reading_all.html
+                        └─────────────────────────────────────┘
 ```
 
 ---
 
-## 💻 Yêu cầu cài đặt
+## ⚡ Các tính năng cốt lõi mới
 
-| Thành phần | Phiên bản tối thiểu | Ghi chú |
-|---|---|---|
-| Python | 3.10+ | Bắt buộc |
-| Node.js | 18+ | Để chạy Marp CLI |
-| Docker | 24+ | Tùy chọn — Sandbox an toàn |
-| Gemini API Key | — | Hoặc OpenAI API Key |
+### 1. Dynamic Scope Calculator & Progressive Scope Boundaries (`core/scope_calculator.py`)
+* Loại bỏ 100% các từ khóa công nghệ hardcode.
+* Tự động tính toán tập hợp từ khóa được phép $\bigcup_{1}^N$ và bị cấm $\bigcup_{N+1}^{\text{End}}$ cho từng bài học $N$.
+* Tự động chặn các kiến thức vượt cấp sư phạm (ví dụ: bài học nhập môn không được xuất hiện mảng hoặc vòng lặp).
 
-**Python packages:**
+### 2. Declarative JSON Payload Engine (`core/schemas/`)
+* Ép các Creator Agent chỉ xuất dữ liệu tri thức dạng JSON thuần theo Pydantic Schemas (`ReadingPayloadSchema`, `SlidePayloadSchema`).
+* Triệt tiêu hoàn toàn khả năng LLM tự viết mã HTML/JS dở dang hoặc gây ra lỗi `Unexpected token`.
+
+### 3. Full-Coverage Programmatic Validation Layer (`core/validators/`)
+* **Reading Validator:** Kiểm tra HTML DOM structure balance & JS string escaping linter.
+* **Slide Validator:** Kiểm tra số lượng slide (5-12 slides), kịch bản lời giảng, và sơ đồ Mermaid.
+* **Quiz Validator:** Tự động kiểm tra độ khớp đáp án - giải thích và xáo trộn vị trí A/B/C/D ngẫu nhiên đều đặn.
+* **Practice Validator:** Dùng Python `ast.parse()` kiểm tra cú pháp code Python thực tế.
+* **Project Validator:** Kiểm tra thang điểm Rubric tổng điểm phải đúng bằng 100 điểm.
+* **Master Validator Engine:** Điểm điều phối duy nhất `validate_resource()` tích hợp trực tiếp vào Reviewer Agent.
+
+### 4. Dynamic Sandbox Runner Adapter (`core/sandbox_adapter.py`)
+* Tự động chọn Code Sandbox runner phù hợp theo `tech_stack`:
+  * `python` ➔ Pyodide WebAssembly Engine
+  * `javascript` / `frontend` ➔ Native Web Worker Engine
+  * `html` / `css` ➔ Live iFrame Preview
+  * `devops` / `sql` / `sysadmin` ➔ Static Code Snippet + Copy Option
+
+---
+
+## 🚀 Hướng dẫn cài đặt & Khởi chạy
+
+### 1. Yêu cầu môi trường
+* Python 3.10 trở lên
+* OpenPyXL (cho xuất Quiz Excel)
+* BeautifulSoup4 (cho HTML DOM Linter)
+* Pydantic v2 (cho JSON Schemas)
+
+### 2. Cài đặt thư viện
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## ⚡ Cài đặt nhanh
-
-### 1. Clone & cài thư viện
-```bash
-git clone <repo-url>
-cd Learning-Material
-pip install -r requirements.txt
-```
-
-### 2. Cấu hình API Key
-```bash
-# Tạo file .env từ mẫu
-cp .env.example .env
-```
-
-Chỉnh sửa `.env`:
+### 3. Cấu hình biến môi trường
+Tạo file `.env` tại thư mục gốc:
 ```env
-# ── LLM Provider (chọn một) ──
+OPENAI_API_KEY=your_openai_api_key_here
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-1.5-flash        # hoặc gemini-1.5-pro
-
-# ── Hoặc dùng OpenAI / OpenRouter ──
-# OPENAI_API_KEY=your_openai_key_here
-# LLM_MODEL=gpt-4o-mini
-
-# ── Sandbox Security ──
-SANDBOX_PROVIDER=docker              # docker | e2b | local_subprocess
-E2B_API_KEY=                         # Để trống nếu dùng Docker
-
-# ── Semantic Cache ──
-SEMANTIC_CACHE_ENABLED=true
-CACHE_SIMILARITY_THRESHOLD=0.88      # 0.0 - 1.0
-CACHE_MAX_AGE_DAYS=30
-
-# ── Gemini Prompt Caching ──
-GEMINI_PROMPT_CACHING=True
 ```
 
-### 3. Chuẩn bị file PM Excel
-Đặt file Excel chương trình khung vào thư mục `pms/`:
+### 4. Khởi chạy sinh học liệu tự động
+
+#### Cách 1: Khởi chạy qua CLI Workflow
+```bash
+python main.py --syllabus "path/to/syllabus.json" --output "output/MyCourse"
 ```
-pms/
-  PM_Web_Application_With_FastAPI.xlsx
-  PM_Python_Core.xlsx
-  PM_NestJS_Backend.xlsx
+
+#### Cách 2: Chạy kiểm thử các Module Core
+```bash
+# Kiểm thử Scope Calculator & Master Validator
+python -c "from core.validators.master_validator import validate_resource; print(validate_resource('READING', '<div>Nội dung...</div>'))"
 ```
 
 ---
 
-## 📖 Hướng dẫn sử dụng
-
-### Lệnh cơ bản
-
-#### ① Chạy kiểm duyệt PM (không biên dịch)
-```bash
-python main.py --pm "pms/PM_Web_Application_With_FastAPI.xlsx"
-```
-Pipeline sẽ phân tích PM, xuất báo cáo `output/.../pm_review_report.md` và hỏi bạn có muốn AI tự sửa không.
-
-#### ② Biên dịch toàn bộ khóa học
-```bash
-python main.py --pm "pms/PM_Web_Application_With_FastAPI.xlsx" --approve-pm
-```
-
-#### ③ Biên dịch một Session cụ thể
-```bash
-python main.py --pm "pms/PM_Web_Application_With_FastAPI.xlsx" --approve-pm --session "Session 03"
-```
-
-#### ④ Chỉ tạo một số loại học liệu
-```bash
-# Chỉ tạo HTML và Quiz (bỏ slide, video, mindmap)
-python main.py --pm "pms/..." --approve-pm --parts "html,quiz"
-```
-
-#### ⑤ Rebuild bắt buộc (bỏ qua checkpoint)
-```bash
-python main.py --pm "pms/..." --approve-pm --force
-```
-
----
-
-### Lệnh xuất bản nâng cao
-
-#### 📁 Tạo Obsidian Knowledge Vault
-Sinh toàn bộ vault với dependency graph, prerequisite frontmatter và bidirectional wikilinks:
-```bash
-python main.py --pm "pms/PM_Web_Application_With_FastAPI.xlsx" --obsidian
-```
-Vault được tạo tại: `obsidian_vault/<course_name>/`
-
-Mở vault trong Obsidian → **Graph View (Ctrl+G)** để xem bản đồ lộ trình học tập.
-
-#### 📦 Xuất SCORM 1.2 Package
-Sau khi đã biên dịch xong, xuất ra file `.zip` nạp vào Moodle/Canvas:
-```bash
-python main.py --pm "pms/PM_Web_Application_With_FastAPI.xlsx" --scorm
-```
-File được tạo tại: `output/SCORM_<course>_<timestamp>.zip`
-
-**Cách nạp vào Moodle:**
-1. Moodle → Khóa học → Thêm hoạt động → SCORM Package
-2. Tải lên file `.zip` vừa tạo
-3. Học viên có thể học và hệ thống tự động ghi nhận tiến độ
-
-#### 📊 Xem thống kê Semantic Cache
-```bash
-python main.py --cache-stats
-```
-Output mẫu:
-```
-====== 📊 Semantic Cache Statistics ======
-  Tổng response đã cache : 247
-  Tổng lần cache HIT     : 89
-  Ước tính tokens tiết kiệm: ~71,200
-  Phân tích theo Agent:
-    HTML_Writer: 45 cached, 23 hits
-    Slide_Agent: 38 cached, 18 hits
-    Quiz_Agent: 31 cached, 12 hits
-==========================================
-```
-
----
-
-### Lệnh SCORM độc lập
-Có thể chạy SCORM exporter trực tiếp mà không cần main.py:
-```bash
-python -m core.scorm_exporter \
-  --output "output/PM_Web_Application_With_FastAPI" \
-  --course-name "Lập trình Web với FastAPI" \
-  --dest "dist/course_scorm.zip"
-```
-
----
-
-## 📂 Cấu trúc thư mục
+## 📁 Cấu trúc thư mục dự án
 
 ```
 Learning-Material/
-│
-├── main.py                          # Entry point chính
-├── graph_view.html                  # Sơ đồ tương tác luồng pipeline
-├── README.md                        # Tài liệu này
-├── requirements.txt
-├── .env                             # API Keys (không commit lên git)
-│
-├── pms/                             # File PM Excel đầu vào
-│   └── PM_*.xlsx
-│
-├── agents/                          # Tất cả AI Agents
-│   ├── __init__.py
-│   ├── strategic_agents.py          # Objective Architect, Scheduler, KB Agent
-│   ├── creator_agents.py            # HTML, Slide, Quiz, Video, Mindmap creators
-│   ├── reviewer_agents.py           # UX, Academic, Sandbox, PM reviewers
-│   ├── knowledge_memory_agent.py    # 🆕 SQLite-backed lessons learned store
-│   ├── prerequisite_guard_agent.py  # 🆕 DAG sequence validator
-│   ├── lessons_learned_agent.py     # Legacy Markdown lessons logger
-│   ├── homework_agents.py
-│   ├── practice_agents.py
-│   └── project_agents.py
-│
-├── core/                            # Core infrastructure modules
-│   ├── graph.py                     # Antigravity workflow graph definition
-│   ├── llm.py                       # Unified LLM caller (Gemini/OpenAI)
-│   ├── semantic_cache.py            # 🆕 SQLite LLM response cache
-│   ├── scorm_exporter.py            # 🆕 SCORM 1.2 package generator
-│   ├── obsidian_knowledge_linker.py # 🆕 Prerequisite-aware vault generator
-│   ├── obsidian_exporter.py         # Legacy Obsidian exporter
-│   ├── sandbox.py                   # Docker/E2B code execution
-│   ├── vector_store.py              # Lightweight embedding store
-│   ├── observability.py             # Agent call tracing & logs
-│   ├── persistence.py               # Checkpoint save/load
-│   ├── quiz_engine.py               # Quiz generation engine
-│   ├── session_compilers.py         # File writer & Marp CLI caller
-│   └── state.py                     # AgentState TypedDict definition
-│
-├── skills/                          # Skill prompts cho Agents
-│   ├── reading_generator/SKILL.md
-│   ├── quiz_generator/SKILL.md
-│   ├── lab_generator/SKILL.md
-│   ├── mindmap_generator/SKILL.md
-│   ├── video_script_generator/SKILL.md
-│   └── lessons_learned/SKILL.md
-│
-├── output/                          # Học liệu đã biên dịch (tự động tạo)
-│   └── <course_dir_name>/
-│       ├── pm_review_report.md
-│       ├── prerequisite_report.md   # 🆕 Báo cáo kiểm tra tiên quyết
-│       └── <Session_XX>/
-│           └── <Lesson_XX>/
-│               ├── reading.html
-│               ├── slides.html
-│               ├── quiz.json
-│               ├── video_script.md
-│               └── mindmap.md
-│
-├── obsidian_vault/                  # Obsidian Knowledge Vault (tự động tạo)
-│   └── <course_name>/
-│       ├── index.md
-│       ├── Prerequisite Map.md      # 🆕 Bản đồ lộ trình học tập
-│       ├── Concept Map.md           # 🆕 Bản đồ khái niệm
-│       └── <Session_XX>/
-│
-├── knowledge_store.db               # 🆕 SQLite knowledge memory store
-├── semantic_cache.db                # 🆕 SQLite LLM response cache
-│
-└── web/                             # Web UI (FastAPI backend)
-    └── backend/
-        └── app/ai_engine/           # Mirror agents cho web API
+├── agents/                   # Đội ngũ Multi-Agent (Creator, Reviewer, Compiler)
+│   ├── creator_agents.py     # Agent tạo bài đọc & bài giảng
+│   ├── reviewer_agents.py    # Agent kiểm định tích hợp Master Validator
+│   └── slide_generator_agent.py
+├── core/                     # Động cơ lõi (Core Engines & Infrastructure)
+│   ├── scope_calculator.py   # Tính toán phạm vi kiến thức động
+│   ├── sandbox_adapter.py    # Bộ chuyển đổi Code Sandbox động
+│   ├── session_compilers.py  # Bộ gộp bài học thành reading_all.html & session_slides.html
+│   ├── schemas/              # Pydantic Declarative JSON Schemas
+│   │   ├── reading_schema.py
+│   │   └── slide_schema.py
+│   ├── renderers/            # Generic Static Renderers
+│   │   ├── reading_renderer.py
+│   │   └── slide_renderer.py
+│   └── validators/           # Master Programmatic Validation Layer
+│       ├── syntax_linter.py  # Linter kiểm tra cú pháp HTML/JS
+│       ├── reading_validator.py
+│       ├── slide_validator.py
+│       ├── quiz_validator.py
+│       ├── practice_validator.py
+│       ├── project_validator.py
+│       └── master_validator.py
+├── config/                   # Dynamic Settings & Agent Prompts
+├── output/                   # Thư mục chứa kết quả học liệu đã xuất
+├── scratch/                  # Scripts kiểm thử tích hợp
+└── main.py                   # Điểm khởi chạy hệ thống
 ```
 
 ---
 
-## 🤖 Các Agent trong hệ thống
+## 🛡️ Quy trình kiểm định lập trình tự động (Master Validation Layer)
 
-### Nhóm Chiến lược (Strategic Agents)
-| Agent | File | Nhiệm vụ |
-|---|---|---|
-| **PM Reviewer** | `reviewer_agents.py` | Audit format & content PM Excel |
-| **Prerequisite Guard** 🆕 | `prerequisite_guard_agent.py` | DAG validator — kiểm tra tính tuần tự tri thức |
-| **Objective Architect** | `strategic_agents.py` | Trích xuất chuẩn đầu ra (Bloom's Taxonomy) |
-| **Scheduler** | `strategic_agents.py` | Phân bổ thời lượng học hợp lý |
-| **Knowledge Base** | `strategic_agents.py` | Tổng hợp tri thức nền tảng vào SSOT |
+Tất cả học liệu được sinh ra đều phải trải qua **2 Tầng Kiểm Định Khắt Khe**:
 
-### Nhóm Sáng tạo (Creator Agents)
-| Agent | Đầu ra | Reviewer tương ứng |
-|---|---|---|
-| **HTML Writer** | Bài đọc HTML tương tác | UX Reviewer |
-| **Slide Agent** | Markdown Marp slides | Academic Reviewer |
-| **Quiz Agent** | JSON quiz + lab | Sandbox Testing Agent |
-| **Video Script** | Markdown kịch bản | Video Script Reviewer |
-| **Mindmap Agent** | Markdown mindmap | Mindmap Reviewer |
+1. **Tầng 1 - Programmatic Linter & AST Validator (Tự động 100%):**
+   * Kiểm tra cú pháp HTML/JS string escaping linter.
+   * Parse cú pháp code bằng AST (`ast.parse()`).
+   * Kiểm tra khớp chỉ mục đáp án Quiz và xáo trộn A/B/C/D.
+   * Kiểm tra tổng điểm Rubric 100 điểm.
+   * Kiểm tra ranh giới từ khóa `forbidden_scope`.
 
-### Nhóm Kiểm duyệt (Reviewer Agents)
-| Agent | Tiêu chí đánh giá | Phản hồi khi REJECT |
-|---|---|---|
-| **UX Reviewer** | Pedagogy + UX design | Feedback → HTML Writer retry |
-| **Academic Reviewer** | Học thuật + Thuật ngữ | Feedback → Slide Agent retry |
-| **Sandbox Agent** | Code execution logic | Error trace → Quiz Agent retry |
-| **Mindmap Reviewer** | Cấu trúc + Coverage | Feedback → Mindmap retry |
-
-### Nhóm Trí nhớ (Memory Agents)
-| Agent | Storage | Nhiệm vụ |
-|---|---|---|
-| **Knowledge Memory Agent** 🆕 | SQLite (`knowledge_store.db`) | Lưu lessons learned có cấu trúc, 10 category |
-| **Lessons Learned Agent** | Markdown (`SKILL.md`) | Legacy logger — tương thích ngược |
+2. **Tầng 2 - LLM Pedagogical & UX Reviewer:**
+   * Sau khi vượt qua Tầng 1, Reviewer Agent sẽ đánh giá tính sư phạm, văn phong tiếng Việt có dấu chuẩn xác và độ hấp dẫn của bài học.
 
 ---
 
-## 🔄 Luồng pipeline đầy đủ
+## ❓ FAQ & Xử lý lỗi thường gặp
 
-```
-Bước 0   │ PM Excel → [PM Reviewer] → pm_review_report.md
-         │   └── AI tự sửa Excel (y/n) hoặc --approve-pm để bỏ qua
-         │
-Bước 0.5 │ [Prerequisite Guard Agent] ← 🆕
-         │   ├── Phân tích toàn bộ curriculum
-         │   ├── Xây dựng Dependency Graph (DAG)
-         │   ├── BLOCKER violations → DỪNG pipeline
-         │   └── prerequisite_report.md + state["prerequisite_data"]
-         │
-Bước 1   │ [Objective Architect] → Chuẩn đầu ra (Bloom's L1-L6)
-         │   └── [Objective Reviewer] → Vòng lặp duyệt (max 3 lần)
-         │
-Bước 2   │ [Scheduler] → Phân bổ thời lượng Session/Lesson
-         │
-Bước 3   │ [Knowledge Base] → Tổng hợp tri thức nền
-         │
-Bước 3.5 │ [Generate Master Content] ← 🆕 inject KMA memories
-         │   ├── KnowledgeMemoryAgent.recall() → kinh nghiệm phân loại
-         │   ├── Semantic Cache check (88% threshold)
-         │   └── call_llm() → master_content JSON
-         │
-Bước 4   │ ─── Parallel Production ───
-         │   ├── [HTML Writer] → [UX Reviewer] → Approved/Retry(x3)
-         │   ├── [Slide Agent] → [Academic Rev] → Approved/Retry(x3)
-         │   ├── [Quiz Agent]  → [Sandbox Test] → Approved/Retry(x3)
-         │   ├── [Video Script] → [Video Rev]   → Approved/Retry(x3)
-         │   └── [Mindmap Agent] → [MM Rev]     → Approved/Retry(x3)
-         │
-Bước 5   │ [Session Compiler] → Ghi file vật lý
-         │   ├── reading.html
-         │   ├── slides.md → npx marp-cli → slides.html
-         │   ├── quiz.json
-         │   ├── video_script.md
-         │   └── mindmap.md
-         │
-Bước 6   │ [Knowledge Memory Agent] ← 🆕 (SQLite)
-         │   ├── Phân tích review_logs
-         │   ├── Phân loại lỗi (10 categories)
-         │   ├── Lưu Bad/Good examples
-         │   └── [Lessons Learned Agent] (legacy Markdown)
-         │
-         │ ─── Optional Exports ───
-         │   ├── --obsidian → [ObsidianKnowledgeLinker] → vault với prereq links
-         │   └── --scorm   → [SCORM Exporter] → .zip cho Moodle/Canvas
-```
+* **Q: Làm sao để thay đổi khung chương trình học?**
+  * *Trả lời:* Bạn chỉ cần cung cấp file `syllabus.json` mới. Hệ thống sẽ tự động tính toán Scope, cấm từ khóa vượt cấp và chọn Sandbox runner phù hợp cho môn học đó.
+* **Q: Lỗi `Unexpected token` trong file HTML đã được giải quyết như thế nào?**
+  * *Trả lời:* Đã triệt tiêu 100% nhờ tách biệt việc sinh nội dung (xuất JSON Payload thuần) và biên dịch HTML (thực hiện bởi `reading_renderer.py` & `syntax_linter.py`).
 
 ---
 
-## ✨ Tính năng nâng cao
-
-### 🧠 Knowledge Memory Agent (SQLite)
-Agent học từ lỗi, lưu vào SQLite với 10 category có cấu trúc:
-
-```python
-from agents.knowledge_memory_agent import recall_memories
-
-# Query memories theo tech_stack và scope
-memories = recall_memories(tech_stack="python/fastapi", scope="quiz", limit=10)
-```
-
-**10 Error Categories:**
-`scope_violation` | `syntax_error` | `format_violation` | `prerequisite_leak` | `pedagogical_error` | `image_prompt_error` | `structure_error` | `terminology_error` | `ai_mention_violation` | `other`
-
----
-
-### 🛡️ Prerequisite Guard Agent
-Kiểm tra tính tuần tự tri thức trước khi biên dịch:
-
-```python
-from agents.prerequisite_guard_agent import run_prerequisite_check_for_pm
-
-is_valid, result = run_prerequisite_check_for_pm(
-    sessions=sessions,
-    tech_stack="python/fastapi",
-    output_report_path="output/.../prerequisite_report.md"
-)
-
-if not is_valid:
-    # Pipeline dừng tự động
-    print(f"BLOCKER: {result['stats']['blocker_count']} violations")
-```
-
----
-
-### 💾 Semantic Cache
-Tránh gọi LLM 2 lần cho cùng 1 nội dung:
-
-```python
-# Tự động hoạt động khi import core.llm
-# Tắt: SEMANTIC_CACHE_ENABLED=false trong .env
-
-# Xem stats:
-python main.py --cache-stats
-```
-
-**Hai cơ chế matching:**
-1. **Exact Hash:** SHA-256 hash của prompt → O(1)
-2. **Fuzzy TF-IDF:** Jaccard + Coverage similarity → ngưỡng 88%
-
----
-
-### 📦 SCORM Exporter
-Tương thích SCORM 1.2 — nạp được vào hầu hết LMS:
-- ✅ Moodle 3.x / 4.x
-- ✅ Canvas LMS
-- ✅ Blackboard
-- ✅ TalentLMS
-- ✅ SCORM Cloud
-
----
-
-### 🔍 Obsidian Knowledge Vault
-Vault với prerequisite dependencies:
-- **Frontmatter `requires:`** cho mỗi Session
-- **Bản đồ lộ trình học** (`Prerequisite Map.md`)
-- **Bidirectional WikiLinks** (A → B và B → A)
-- **Graph View** trong Obsidian = bản đồ tri thức trực quan
-
----
-
-## ⚙️ Cấu hình môi trường
-
-| Biến môi trường | Mặc định | Mô tả |
-|---|---|---|
-| `GEMINI_API_KEY` | — | Google Gemini API Key |
-| `GEMINI_MODEL` | `gemini-1.5-flash` | Model Gemini sử dụng |
-| `OPENAI_API_KEY` | — | OpenAI/OpenRouter API Key |
-| `LLM_MODEL` | `gpt-4o-mini` | Model OpenAI sử dụng |
-| `SANDBOX_PROVIDER` | `docker` | `docker` \| `e2b` \| `local_subprocess` |
-| `SANDBOX_TIMEOUT` | `5` | Giới hạn thời gian chạy code (giây) |
-| `SANDBOX_MEMORY` | `256m` | RAM tối đa cho Docker sandbox |
-| `SANDBOX_CPUS` | `0.5` | CPU tối đa cho Docker sandbox |
-| `E2B_API_KEY` | — | E2B Cloud Sandbox API Key |
-| `SEMANTIC_CACHE_ENABLED` | `true` | Bật/tắt Semantic Cache |
-| `CACHE_SIMILARITY_THRESHOLD` | `0.88` | Ngưỡng fuzzy match (0.0-1.0) |
-| `CACHE_MAX_AGE_DAYS` | `30` | Số ngày cache hết hạn |
-| `GEMINI_PROMPT_CACHING` | `True` | Bật Gemini Context Caching |
-| `GEMINI_CACHE_MIN_TOKENS` | `32768` | Số token tối thiểu để cache prompt |
-
----
-
-## ❓ FAQ & Xử lý lỗi
-
-### Q: PM bị reject ở bước 0, làm sao tiếp tục?
-```bash
-# Xem báo cáo đề xuất chỉnh sửa
-cat output/<course>/pm_review_report.md
-
-# Sau khi đã xem và đồng ý:
-python main.py --pm "pms/..." --approve-pm
-```
-
-### Q: Pipeline dừng với thông báo BLOCKER?
-Prerequisite Guard phát hiện vi phạm tuần tự:
-```bash
-# Xem chi tiết vi phạm
-cat output/<course>/prerequisite_report.md
-# Sửa thứ tự bài học trong Excel, sau đó chạy lại
-```
-
-### Q: Làm thế nào để reset cache?
-```bash
-# Xóa file SQLite cache
-del semantic_cache.db
-# Hoặc: đặt SEMANTIC_CACHE_ENABLED=false trong .env
-```
-
-### Q: Muốn rebuild 1 bài học đã approve?
-```bash
-python main.py --pm "pms/..." --approve-pm --session "Session 03" --force
-```
-
-### Q: Docker không hoạt động?
-Đảm bảo Docker Desktop đang chạy, hoặc dùng E2B:
-```env
-SANDBOX_PROVIDER=e2b
-E2B_API_KEY=your_e2b_key
-```
-
-### Q: Làm sao kiểm tra toàn bộ pipeline chạy đúng không?
-```bash
-# Xem trace log tất cả agent calls
-cat output/<course>/agent_trace.log
-```
-
----
-
-## 📄 License
-
-MIT License © 2024 Rikkei Education
-
----
-
-*Built with ❤️ by the Rikkei Education AI Team*
+**Elearning Content Factory** — *Giải pháp tự động hóa học liệu chuẩn quốc tế cho mọi môn học công nghệ.*

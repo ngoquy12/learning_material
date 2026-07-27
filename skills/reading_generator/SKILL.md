@@ -1,100 +1,99 @@
 ---
 name: reading_generator
-description: Generate rich, interactive, W3Schools-style educational reading materials with step-by-step Code Trackers, Good vs. Bad code comparison cards, Note/Warning callouts, and comprehensive theory explanations.
+description: Generate rich, scientific, scannable educational reading materials with bullet/subbullet lists, centered 16:9 visual problem scene images, Mermaid flowcharts, Good vs Bad code comparison cards, Note/Warning callouts, and PEP 8 English snake_case conventions.
 ---
 
-# Kỹ năng Xây dựng Bài đọc Học liệu Chuẩn W3Schools (W3Schools Educational Standard Skill)
+# Kỹ năng Xây dựng Bài đọc Học liệu Chuẩn Sư phạm Doanh nghiệp (Enterprise Educational Reading Skill)
 
-## 1. Triết lý Đào tạo Chuẩn W3Schools (W3Schools Educational Philosophy)
+## 1. Triết lý Đào tạo & Trình bày Khoa học (Educational & Pedagogical Standards)
 Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồn Sự Thật Duy Nhất (Single Source of Truth - SSOT)** cho toàn bộ môn học. Tất cả các tài nguyên khác (Slide, Quiz, Kịch bản Video, Mindmap) đều được trích xuất từ bài đọc này.
 
-11: Bài đọc phải đạt tiêu chuẩn W3Schools:
-12: 1. **Rõ ràng, trực quan, đi thẳng vào bản chất (Clean & Direct)**: Giải thích dễ hiểu, cấu trúc chuẩn hóa, typography hiện đại.
-13: 2. **Độ sâu lý thuyết & Bối cảnh doanh nghiệp (Deep & Practical Theory)**: Bài đọc đầy đủ 400 - 800 từ, giải thích cơ chế vận hành nội bộ (low-level internals), không viết ngắn tóm tắt 100 từ.
-14: 3. **TUYỆT ĐỐI CẤM SỬ DỤNG EMOJI (Emoji Icons Forbidden)**: Tuyệt đối KHÔNG sử dụng biểu tượng cảm xúc/emoji (như ℹ️, 💡, ⚠️, ✅, ❌, 🚀, 🔥,...) trong toàn bộ bài đọc, bài tập, slide. Sử dụng văn bản thuần túy `[GHI CHÚ]`, `[MẸO]`, `[CẢNH BÁO]`, `[BEST PRACTICE]`, `[ANTI-PATTERN]` hoặc Phosphor Icon dạng HTML `<i class="ph-duotone ph-...">`.
-15: 4. **Đối chiếu Mã nguồn Đúng vs. Sai (Good vs. Bad Code Comparison)**:
-16:    - **[BEST PRACTICE] GOOD Example**: Khối code chuẩn doanh nghiệp, tối ưu, dễ bảo trì kèm giải thích lý do.
-17:    - **[ANTI-PATTERN] BAD Example**: Khối code hay bị lỗi, kém hiệu quả kèm giải thích bẫy cú pháp.
-18: 5. **Thẻ ghi chú W3Schools Callouts (Note, Tip, Warning Boxes)**:
-19:    - `[NOTE] Note Box`: Nhấn mạnh kiến thức trọng tâm.
-20:    - `[TIP] Tip Box`: Mẹo viết code nhanh và tối ưu.
-21:    - `[WARNING] Warning Box`: Cảnh báo lỗi nguy hiểm và bẫy khi chạy production.
-22: 6. **Khu vực Trực quan hóa Code (Try It Yourself / Interactive Code Tracker)**:
-23:    - Cho phép học viên theo dõi dòng lệnh đang chạy (`active-line`), bấm nút thử nghiệm, quan sát Console Log thời gian thực.
-24: 7. **Bảng So sánh Markdown Chuẩn W3Schools (Mandatory Comparison Tables)**:
-25:    - Mọi nội dung so sánh khái niệm, cú pháp hay phương pháp BẮT BUỘC phải được thiết lập dạng BẢNG MARKDOWN COMPARISON TABLE với chiều dài 100% màn hình (thay vì đoạn văn bản text) với tối thiểu 3-4 tiêu chí so sánh trực quan.
+### 1.1. Quy tắc Trình bày Khoa học & Ngắt Ý bằng Markdown Lists / Sublists (Scannable Bullet Structure):
+1. **CẤM VIẾT ĐOẠN VĂN DÀI DÒNG**: Tuyệt đối không viết các đoạn văn bản dài tràn lan không có ngắt ý. Mọi nội dung phân tích lý thuyết, cơ chế vận hành hay hướng dẫn kỹ thuật **BẮT BUỘC PHẢI DÙNG DẠNG LIST (`- Ý chính`) VÀ SUBLIST (`  - Chi tiết hỗ trợ`)**.
+2. **Ngắt câu rõ ràng & Bôi đậm Từ khóa**:
+   - Ý chính: Ngắn gọn từ 1 - 2 câu ngắt rõ ràng, bôi đậm (**bold**) các từ khóa chuyên môn cốt lõi.
+   - Sublist ý phụ: Làm rõ bản chất kỹ thuật, tác động tới bộ nhớ/hiệu năng hoặc lưu ý khi triển khai.
+3. **Mẫu cấu trúc List sư phạm**:
+   - **Tên Khái niệm / Cơ chế**: Mô tả bản chất trong 1 câu ngắn gọn.
+     - **Cơ chế hoạt động**: Chi tiết cách hệ thống xử lý từng bước.
+     - **Tác động thực tế**: Đánh giá ảnh hưởng tới hiệu năng và bảo trì mã nguồn.
 
 ---
 
-## 2. Cấu Trúc Bố Cục Bài Đọc W3Schools (W3Schools Document Architecture)
+### 1.2. Quy tắc Chèn Hình Ảnh Trực Quan Bối Cảnh Bài Toán (Mandatory 16:9 Centered Scene Image):
+1. **BẮT BUỘC CHÈN HÌNH ẢNH BỐ CẢNH 16:9**: Bên cạnh sơ đồ luồng Mermaid và khung chạy code, **mỗi bài đọc BẮT BUỘC phải có 1 Hình ảnh Trực quan mô tả bài toán/bối cảnh thực tế** của bài học ở ngay phần Đặt Vấn Đề (Bước 1).
+   - *Ví dụ bài Vòng lặp (Loops)*: Hình ảnh 16:9 mô tả sự vất vả khi lập trình viên phải chép đi chép lại thủ công 100 câu lệnh giống hệt nhau so với việc dùng 1 vòng lặp thông minh.
+   - *Ví dụ bài Khai báo Biến (Variables)*: Hình ảnh 16:9 mô tả các ô chứa đồ đóng nhãn trong kho hàng tương ứng với các vùng nhớ RAM.
+2. **Quy chuẩn Định dạng & Hiển thị Hình ảnh**:
+   - **Tỷ lệ khung hình**: `16:9` (`aspect-ratio: 16/9`).
+   - **Bố cục căn chỉnh**: Căn giữa chiều ngang tuyệt đối (`margin: 0 auto; display: block; max-width: 800px; width: 100%;`).
+   - **Khung chứa & Shadow**: Bo góc tròn `border-radius: 12px`, đổ bóng mờ `box-shadow: 0 4px 20px rgba(0,0,0,0.08)`, có viền nhẹ `border: 1px solid var(--border-color)`.
+   - **Chú thích ảnh (Caption)**: Đặt ngay bên dưới ảnh dạng nghiêng `font-style: italic`, chữ nhỏ màu xám nhạt căn giữa.
+
+---
+
+### 1.3. Quy tắc Mã Nguồn & Coding Conventions (PEP 8 Standards):
+1. **Ràng buộc Tên biến & Tên hàm bằng Tiếng Anh `snake_case`**:
+   - Tất cả mã nguồn ví dụ (Python) **BẮT BUỘC phải dùng tên biến, tên hàm, tên hằng số bằng TIẾNG ANH CÓ Ý NGHĨA dạng `snake_case`** (ví dụ: `user_age`, `rectangle_width`, `total_price`, `calculate_area()`).
+   - **TUYỆT ĐỐI CẤM** dùng tên biến tiếng Việt không dấu (như `chieu_dai`, `nhap_chieu_rong`, `bien1`, `temp`, `a`, `b` không có ý nghĩa).
+2. **Mã nguồn Đối chiếu Chuẩn doanh nghiệp**:
+   - **Mã nguồn Đúng (GOOD Practice)**: Viết mã chuẩn Best Practice, ngắn gọn, minh bạch có comment giải thích lý do.
+   - **Mã nguồn Sai (BAD Practice / Anti-pattern)**: Viết mã nguồn dễ gây bẫy lỗi hoặc kém hiệu quả kèm comment giải thích hậu quả.
+
+---
+
+### 1.4. Loại bỏ Từ khóa Dư thừa & Chuẩn hóa Nhãn Thuần (Clean Pedagogical Labels):
+1. **TUYỆT ĐỐI CẤM DÙNG TỪ KHÓA W3SCHOOLS**: Không đưa từ "W3Schools" vào tiêu đề, nội dung hay bảng so sánh để tránh tạo cảm giác đi sao chép. Thay bằng các cụm từ chuẩn mực sư phạm doanh nghiệp.
+2. **TẠM TẠM BỎ CÁC TEXT BỌC TRONG NGOẶC VUÔNG `[...]`**:
+   - Thay `[NOTE]` -> `Lưu ý:`
+   - Thay `[WARNING]` -> `Cảnh báo:`
+   - Thay `[TIP]` -> `Mẹo:`
+   - Thay `[BEST PRACTICE]` -> `Thực hành tốt:`
+   - Thay `[ANTI-PATTERN]` -> `Mẫu nên tránh:`
+   - Thay `[YÊU CẦU]` -> `Yêu cầu:`
+
+---
+
+## 2. Cấu Trúc Bố Cục Bài Đọc Chuẩn Sư Phạm Doanh Nghiệp
 
 ```
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| [Header/Navbar]  TÊN MÔN HỌC & BÀI HỌC • Badges: [Thực Tiễn • Sáng Tạo • W3Schools Standard] |
+| [Header/Navbar]  TÊN MÔN HỌC & BÀI HỌC • Badges: [Chuẩn Sư Phạm • Doanh Nghiệp]               |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| 1. KHÁI NIỆM & BỐI CẢNH THỰC TẾ (Introduction & Real-world Problem)                           |
-| • Giải thích rõ ràng bài toán thực tế doanh nghiệp gặp phải.                                  |
-| • [ℹ️ W3Schools Note Box]: Nhấn mạnh điểm quan trọng.                                         |
+| 1. BỐ CẢNH & BÀI TOÁN THỰC TẾ (Introduction & Context)                                        |
+|    • HÌNH ẢNH TRỰC QUAN 16:9 CĂN GIỮA (Illustration Scene Image aspect 16:9 centered)        |
+|      [Caption chú thích hình ảnh bối cảnh bài toán...]                                       |
+|    • List ngắt ý khoa học (- Ý chính, sub-bullet chi tiết) phân tích bối cảnh.              |
+|    • Lưu ý: Nhấn mạnh điểm quan trọng trong bối cảnh.                                         |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| 2. CÚ PHÁP & CƠ CHẾ VẬN HÀNH NỘI BỘ (Syntax & Low-Level Internals)                             |
-| • Phân tích cú pháp chi tiết từng tham số/dòng lệnh.                                          |
-| • [💡 W3Schools Tip Box]: Mẹo viết code sạch (Clean Code).                                     |
+| 2. PHÂN TÍCH BẢN CHẤT KỸ THUẬT & CƠ CHẾ NỘI BỘ (Technical Internals)                          |
+|    • List ngắt ý khoa học phân tích cơ chế bộ nhớ, thông dịch, Bytecode, PVM.                 |
+|    • BẢNG SO SÁNH MARKDOWN KỸ THUẬT (Technical Comparison Table full-width).                 |
+|    • Mẹo: Mẹo tối ưu cấu trúc mã nguồn.                                                      |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| 3. ĐỐI CHIẾU MÃ NGUỒN: ĐÚNG (BEST PRACTICE) VS SAI (ANTI-PATTERN)                             |
-| +──────────────────────────────────────────────┬────────────────────────────────────────────+ |
-| | ✅ GOOD Example (Best Practice)              | ❌ BAD Example (Anti-Pattern / Common Bug)  | |
-| | code_good_here...                            | code_bad_here...                           | |
-| +──────────────────────────────────────────────┴────────────────────────────────────────────+ |
+| 3. GIẢI PHÁP KỸ THUẬT & SƠ ĐỒ LUỒNG (Architecture & Flow)                                     |
+|    • SƠ ĐỒ MERMAID DIAGRAM (flowchart TD / sequenceDiagram) giải thích luồng thực thi.        |
+|    • Cấu trúc mã nguồn chuẩn Best Practice vs Anti-Pattern.                                   |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| 4. TRỰC QUAN HÓA MÃ NGUỒN & CODE TRACKER (Interactive Playground / Try it Yourself)           |
-| • Live Code Tracker highlight dòng lệnh đang chạy.                                           |
-| • Console Log nhật ký hệ thống thời gian thực.                                               |
+| 4. QUY CHUẨN MÃ NGUỒN & PHÂN TÍCH THỰC THI (Code & Console Analysis)                          |
+|    • Khối code minh họa Python tuân thủ PEP 8 English snake_case.                            |
+|    • Nút ▶ Thử chạy Pyodide WebAssembly và Nút Sao chép.                                      |
+|    • Phân tích Console Output và luồng chạy từng dòng.                                        |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| 5. LƯU Ý QUAN TRỌNG & BẪY LẬP TRÌNH (Important Warnings & Pitfalls)                           |
-| • [⚠️ W3Schools Warning Box]: Cảnh báo các lỗi đắt giá khi chạy thực tế.                      |
+| 5. KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC (Self-Test Accordion)                                 |
+|    • Bộ 3 câu hỏi khảo thí tự luyện dạng thẻ nhấp mở gợi ý đáp án.                            |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
-| 6. BỘ CÂU HỎI TỰ KHẢO THÍ & BÀI TẬP THỰC HÀNH (Self-Test & Exercises)                          |
-| • <details> Câu hỏi tự khảo thí kèm đáp án chi tiết </details>                                |
+| 6. TÀI LIỆU THAM KHẢO CHÍNH THỨC (Official References)                                        |
+|    • Danh sách đường dẫn tài liệu chính thức (PEP, Python Docs, Official Specs).              |
++───────────────────────────────────────────────────────────────────────────────────────────────+
+| 7. LƯU Ý QUAN TRỌNG & BẪY LẬP TRÌNH (Important Warnings & Runtime Pitfalls)                   |
+|    • Cảnh báo: Cảnh báo các bẫy lỗi đắt giá (IndentationError, TypeError...) bôi đậm.        |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 ```
 
 ---
 
-## 3. Quy Chuẩn Kỹ Thuật CSS W3Schools Callouts
-
-```css
-/* W3Schools Callout Note Boxes */
-.w3-note {
-    background-color: #eff6ff;
-    border-left: 6px solid #3b82f6;
-    color: #1e3a8a;
-    padding: 16px;
-    border-radius: 8px;
-    margin: 16px 0;
-}
-
-.w3-tip {
-    background-color: #f0fdf4;
-    border-left: 6px solid #10b981;
-    color: #065f46;
-    padding: 16px;
-    border-radius: 8px;
-    margin: 16px 0;
-}
-
-.w3-warning {
-    background-color: #fef2f2;
-    border-left: 6px solid #ef4444;
-    color: #991b1b;
-    padding: 16px;
-    border-radius: 8px;
-    margin: 16px 0;
-}
-```
-
----
-
-## 5. Quy Chuẩn Kỹ Thuật JavaScript & Chống Reload Trang (Strict JS & Anti-Reload Rules)
+## 3. Quy Chuẩn Kỹ Thuật JavaScript & Chống Reload Trang (Strict JS & Anti-Reload Rules)
 1. **Bắt buộc 100% thẻ `<button>` phải khai báo `type="button"`**:
    - Mọi nút bấm trong giao diện bài đọc và bảng điều khiển trực quan hóa (Visualizer Panel) tuyệt đối phải ghi rõ `<button type="button" ...>` để ngăn ngừa hành vi tự động reload/submit form của trình duyệt.
 2. **Chống Reload khi click hoặc bấm Enter**:
@@ -110,8 +109,21 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 
 ---
 
-## 6. Tiêu Chuẩn Phê Duyệt Bài Đọc (Approval Rubric)
+## 4. Quy Tắc Phân Loại 7 Dạng Bài Đọc (Smart 7-Type Rules)
+1. `SETUP_GUIDE`: Cài đặt & Môi trường -> Timeline các bước CLI, Terminal code, Version check.
+2. `TECH_COMPARISON`: So sánh công nghệ -> Bảng so sánh 4 cột Full-width, Sơ đồ so sánh luồng.
+3. `SYNTAX_OPERATIONS`: Cú pháp & Thao tác -> Syntax spec, Pyodide Sandbox, Bảng phương thức.
+4. `ALGORITHM_PATTERN`: Thuật toán & Bài toán -> Flowchart bài toán, Phân tích độ phức tạp O(N), Step tracker.
+5. `SYSTEM_WORKFLOW`: Kiến trúc hệ thống -> System diagram (Client <-> API <-> DB), Phân rã module.
+6. `DEBUG_REFACTOR`: Refactoring & Debug -> Anti-pattern vs Clean Code, Exception flow, Checklist.
+7. `THEORY_CONCEPT`: Khái niệm & Lý thuyết -> Đặt vấn đề, Internals bộ nhớ/PVM, Memory Diagram, Gotchas.
+
+---
+
+## 5. Tiêu Chuẩn Phê Duyệt Bài Đọc (Approval Rubric)
 1. **Độ chính xác ngữ cảnh**: Bài đọc chỉ tập trung 100% vào nội dung Lesson hiện tại, không rò rỉ môn khác hay kiến thức chưa học.
-2. **Độ sâu học thuật**: Giải thích đầy đủ cơ chế, không tóm tắt dưới 200 từ.
-3. **Có khối Good vs. Bad Code**: Bắt buộc có khối ví dụ đối chiếu mã đúng vs mã sai.
-4. **Trực quan hóa hoạt động**: Khung Code Tracker / Playground hoạt động tương tác thực sự trên trình duyệt, không reload trang.
+2. **Độ sâu học thuật**: Bài đọc đầy đủ 800 - 1,200 từ, giải thích sâu cơ chế nội bộ.
+3. **Trình bày khoa học dạng List**: Mọi đoạn lý thuyết dài đều được ngắt ý khoa học dạng List/Sublist.
+4. **Có Hình ảnh bối cảnh 16:9 căn giữa**: Có khối hình ảnh 16:9 mô tả bối cảnh bài toán ở Bước 1.
+5. **Có khối Good vs Bad Code**: Bắt buộc có khối ví dụ đối chiếu mã chuẩn Best Practice vs Mã sai Anti-pattern.
+6. **Trực quan hóa hoạt động**: Khung Pyodide / Code Tracker / Playground hoạt động tương tác thực sự trên trình duyệt, không reload trang.

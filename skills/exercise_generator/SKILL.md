@@ -61,3 +61,9 @@ Khi viết hoặc cung cấp các đoạn mã nguồn mẫu (Source Code) trong 
   - Đảm bảo thụt lề chuẩn bằng khoảng trắng (Indent) hoặc Tab đồng nhất theo tiêu chuẩn của từng ngôn ngữ (ví dụ: Python bắt buộc thụt lề 4 khoảng trắng cho mỗi khối block logic).
   - Không viết mã nguồn dồn cục trên một dòng duy nhất khi trình bày cấu trúc đa dòng. Dùng ký tự xuống dòng `\n` chính xác.
 
+---
+
+## 🌐 6. Quy tắc Song ngữ Tiếng Anh / Tiếng Việt trong Sơ đồ & Prompt Tạo ảnh (Bilingual Diagram & Image Rule)
+* **TIẾNG ANH (English)**: Giữ nguyên từ khóa công nghệ, cú pháp, tên biến, tên hàm, tên lớp (`user_id`, `calculate_total()`, `POST /api/v1/checkout`, `PVM`, `Interpreter`).
+* **TIẾNG VIỆT (Vietnamese)**: Tiêu đề sơ đồ, nhãn các bước xử lý (Node labels), và mô tả luồng nghiệp vụ bài toán (`[Khởi tạo đơn hàng] --> [Xử lý tính toán] --> [Trả về hóa đơn]`). Điều này giúp sinh viên Việt Nam tiếp thu nhanh mà không bị rào cản tiếng Anh nhưng vẫn chuẩn công nghệ.
+

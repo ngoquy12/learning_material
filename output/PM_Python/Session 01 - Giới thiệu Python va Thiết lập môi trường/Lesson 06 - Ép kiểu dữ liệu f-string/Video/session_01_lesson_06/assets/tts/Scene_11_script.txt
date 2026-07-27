@@ -1,0 +1,1 @@
+Trong ví dụ thực tế này, đơn giá dạng chuỗi được chuyển đổi qua hàm phờ-lốt, số lượng được chuyển đổi qua hàm int. Kết quả nhân logic sau đó được trình bày mạch lạc, căn chỉnh chuyên nghiệp nhờ sự kết hợp giữa ép-xtring và đặc tả định dạng.

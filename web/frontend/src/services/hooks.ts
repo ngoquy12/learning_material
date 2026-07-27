@@ -6,9 +6,11 @@ import {
   exportObsidian, getObsidianStatus, uploadPMReview, updatePM,
   renderVideo, getVideoStatus, generateAllCourse, getCourseStatus,
   generateSession, generateLesson,
+  stopAllPipelineTasks, stopCoursePipelineTask, stopPipelineTask, getActiveTasksStatus,
+  getSystemSettings, updateSystemSettings, resetSystemSettings,
   type DashboardStats, type CacheStats, type KnowledgeMemoryItem,
   type MemoryCategory, type PrerequisiteReport, type SCORMTaskStatus,
-  type CourseStatusResponse,
+  type CourseStatusResponse, type ActiveTasksStatusResponse, type SystemSettings,
 } from './api';
 
 // ── Generic hook factory ─────────────────────────────────
@@ -204,7 +206,7 @@ export function useObsidianExport() {
 export function usePMReview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<unknown>(null);
 
   const executeReview = async (file: File) => {
     setLoading(true);
@@ -221,7 +223,7 @@ export function usePMReview() {
     }
   };
 
-  const executeUpdate = async (payload: any) => {
+  const executeUpdate = async (payload: Record<string, unknown>) => {
     setLoading(true);
     setError(null);
     try {
@@ -242,7 +244,7 @@ export function usePMReview() {
 
 export function useVideoRender() {
   const [taskId, setTaskId] = useState<string | null>(null);
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -428,3 +430,147 @@ export function useGenerateLesson() {
 
   return { execute, loading, error };
 }
+
+// ── Process Control & Stop Hooks ─────────────────────────
+
+export function useStopAllPipeline() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await stopAllPipelineTasks();
+      return res;
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+      return { status: "ok", message: "Đã gửi yêu cầu dừng toàn bộ các tiến trình." };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { execute, loading, error };
+}
+
+export function useStopCoursePipeline() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = async (courseId: number | string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await stopCoursePipelineTask(courseId);
+      return res;
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+      return { status: "ok", message: `Đã dừng tiến trình môn học ID ${courseId}.` };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { execute, loading, error };
+}
+
+export function useStopPipelineTask() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = async (taskId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await stopPipelineTask(taskId);
+      return res;
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
+      return { status: "ok", message: `Đã dừng tiến trình ${taskId}.` };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { execute, loading, error };
+}
+
+export function useActiveTasksStatus() {
+  const [status, setStatus] = useState<ActiveTasksStatusResponse>({
+    has_active_tasks: false,
+    active_task_count: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await getActiveTasksStatus();
+      setStatus(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStatus();
+    // Real-time polling every 2.5s to show/hide the stop button instantly
+    const interval = setInterval(fetchStatus, 2500);
+    return () => clearInterval(interval);
+  }, [fetchStatus]);
+
+  return { data: status, loading, refetch: fetchStatus };
+}
+
+export function useSystemSettings() {
+  return useAsync<SystemSettings>(getSystemSettings);
+}
+
+export function useUpdateSystemSettings() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = async (payload: SystemSettings) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await updateSystemSettings(payload);
+      return data;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { execute, loading, error };
+}
+
+export function useResetSystemSettings() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const execute = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await resetSystemSettings();
+      return data;
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { execute, loading, error };
+}
+
+
+

@@ -1,0 +1,1 @@
+Cuối cùng, hãy đề phòng lỗi nem e-rơ hoặc ăn-baon-đơ lô-cồ e-rơ khi một nhánh điều kiện chưa khởi tạo giá trị cho biến. Phải đảm bảo thứ tự ưu tiên bằng cách sử dụng dấu ngoặc đơn một cách rõ ràng khi kết hợp toán tử ba ngôi với các phép toán so sánh hoặc các toán tử lô-gíc khác.

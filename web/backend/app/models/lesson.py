@@ -10,6 +10,9 @@ class Lesson(Base):
     title = Column(String(255), nullable=False)
     details = Column(Text, nullable=True)
     expected_output = Column(Text, nullable=True)
+    forbidden_scope = Column(Text, nullable=True)
+    allowed_scope = Column(Text, nullable=True)
+    tech_stack = Column(String(255), nullable=True)
     order_index = Column(Integer, default=0)
     
     session = relationship("Session", back_populates="lessons")

@@ -1,0 +1,73 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Khi nguoi dung nhap mot so (vi du: 100) vao ham input(), kieu du lieu nhan duoc trong Python la gi?",
+      "options": [
+        "int",
+        "float",
+        "string",
+        "boolean"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Moi thong tin nhap qua ham input() deu duoc tra ve duoi dang chuoi (string), bat ke noi dung nhap co phai la so hay khong."
+    },
+    {
+      "question": "Phep tinh so thuc nao sau day thuong gap phai loi sai so dau phay dong trong thuc te?",
+      "options": [
+        "Cong hai so nguyen duong",
+        "Chia ty le phan tram hoac tinh thue",
+        "Lien ket chuoi dung f-string",
+        "Ep kieu string ve kieu int"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Theo bai doc, các phep tinh so thuc khi chia ty le phan tram hoac tinh thue thuong gap hien tuong sai so dau phay dong (Floating-point representation)."
+    },
+    {
+      "question": "Viec dung toan tu % hoac phuong thuc .format() se gay ra van de gi cho he thong doanh nghiep?",
+      "options": [
+        "Gay sập he thong ngay lap tuc",
+        "Khong thuc hien duoc cac phep tinh toan so hoc",
+        "Lam ma nguon roi ram, cong kenh, giam toc do va tang chi phi bao tri",
+        "Tu dong lam tron moi phat sinh co so thuc"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Bai doc chi ra rang cach dung cu (% va .format()) khien ma nguon tro nen roi ram, cong kenh, lam cham toc do va lam tang chi phi bao tri he thong."
+    },
+    {
+      "question": "Quy trinh chuan de xu ly tu luc nhap lieu den khi xuat bao cao doanh thu la gi?",
+      "options": [
+        "Nhan du lieu -> Dinh dang f-string -> Ep kieu du lieu",
+        "Ep kieu du lieu -> Nhan du lieu -> Dinh dang f-string",
+        "Nhan du lieu -> Ep kieu truc tiep (Type casting) -> Dinh dang chuoi bang f-string",
+        "Dinh dang f-string -> Ep kieu du lieu -> Nhan du lieu"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Dua tren so do va noi dung, doanh nghiep can phan tach: 1. Nhan du lieu (Input string) -> 2. Ep kieu truc tiep (Type casting sang int/float) -> 3. Dung chuoi f-string de trinh dien bao cao."
+    }
+  ],
+  "practical_lab": {
+    "title": "Xay dung Modul Tinh hoa don va Dinh dang Doanh thu",
+    "objectives": [
+      "Thuc hien thanh thao quy trinh nhan gia tri tu input va ep kieu",
+      "Khac phuc hien tuong sai so dau phay dong bang f-string",
+      "Trinh bay bao cao ngan han, dung chuan nghiep vu doanh nghiep"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Viet chuong trinh nhan vao hai gia tri rieng biet: so luong san pham va don gia ban tu ban phim.",
+        "Thuc hien chuyen doi kieu du lieu (Type casting): so luong chuyen thanh so nguyen (int) va don gia chuyen thanh so thuc (float).",
+        "Tinh tong hoa don truoc thue bang cach nhan so luong voi don gia.",
+        "Tinh tong hoa don sau thue VAT (8%), tuc la lay tong hoa don truoc thue nhan voi 1.08.",
+        "Su dung f-string de in ra man hinh voi tu khoa lam tron 2 chu so thap phan (.2f) de loai bo cac so thap phan vo han."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Du lieu nhap vao duoc ep kieu dung va khong bi loi ghep chuoi.",
+        "Khong dung các toan tu % hoac phuong thuc .format() khi hien thi.",
+        "Ket qua hien thi tong sau thue duoc lam tron dung 2 chu so sau dau thap phan."
+      ]
+    }
+  }
+}

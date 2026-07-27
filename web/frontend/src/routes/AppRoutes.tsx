@@ -4,8 +4,11 @@ import DashboardPage from "../modules/dashboard/pages/DashboardPage";
 import CourseListPage from "../modules/courses/pages/CourseListPage";
 import CourseDetailPage from "../modules/courses/pages/CourseDetailPage";
 import ProgramListPage from "../modules/programs/pages/ProgramListPage";
+import ProgramDetailPage from "../modules/programs/pages/ProgramDetailPage";
 import MajorListPage from "../modules/majors/pages/MajorListPage";
+import MajorDetailPage from "../modules/majors/pages/MajorDetailPage";
 import SemesterListPage from "../modules/semesters/pages/SemesterListPage";
+import SemesterDetailPage from "../modules/semesters/pages/SemesterDetailPage";
 import PipelineMonitorPage from "../modules/pipeline/pages/PipelineMonitorPage";
 import LessonArtifactViewerPage from "../modules/lessons/pages/LessonArtifactViewerPage";
 import SessionArtifactViewerPage from "../modules/sessions/pages/SessionArtifactViewerPage";
@@ -22,8 +25,11 @@ export default function AppRoutes() {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<DashboardPage />} />
         <Route path="programs" element={<ProgramListPage />} />
+        <Route path="programs/:programId" element={<ProgramDetailPage />} />
         <Route path="majors" element={<MajorListPage />} />
+        <Route path="majors/:majorId" element={<MajorDetailPage />} />
         <Route path="semesters" element={<SemesterListPage />} />
+        <Route path="semesters/:semesterId" element={<SemesterDetailPage />} />
         <Route path="courses" element={<CourseListPage />} />
         <Route path="courses/:courseId" element={<CourseDetailPage />} />
         <Route path="courses/:courseId/lessons/:lessonId/viewer" element={<LessonArtifactViewerPage />} />

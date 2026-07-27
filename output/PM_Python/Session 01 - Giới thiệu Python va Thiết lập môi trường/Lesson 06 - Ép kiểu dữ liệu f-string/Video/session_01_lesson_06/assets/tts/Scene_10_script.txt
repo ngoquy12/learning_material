@@ -1,0 +1,1 @@
+Bằng cách áp dụng đặc tả định dạng hai chấm chấm hai ép vào trong cặp dấu ngoặc nhọn của ép-xtring, hệ thống sẽ thực hiện làm tròn số thực đến hai chữ số thập phân, đảm bảo hiển thị đúng chuẩn tiền tệ doanh nghiệp.

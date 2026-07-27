@@ -1,0 +1,1 @@
+Phép gán bằng dấu bằng trong Python hoạt động theo cơ chế từ phải qua trái. Trình thông dịch sẽ đánh giá biểu thức ở vế phải của toán tử gán trước để tạo ra đối tượng dữ liệu trong bộ nhớ. Sau khi đối tượng được xác định, địa chỉ của nó mới được liên kết với tên biến nằm ở vế bên trái của biểu thức.

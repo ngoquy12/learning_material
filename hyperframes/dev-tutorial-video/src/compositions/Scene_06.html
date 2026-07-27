@@ -97,13 +97,13 @@
   </style>
 </head>
 <body>
-  <div id="scene-06" class="clip" data-start="0" data-duration="15.07" data-track-index="0">
-    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="15.07" data-track-index="3">
+  <div id="scene-06" data-composition-id="scene-06" data-width="1920" data-height="1080" class="clip" data-start="0" data-duration="13.91" data-track-index="0">
+    <div id="intro-title" class="intro-title clip" data-start="0" data-duration="13.91" data-track-index="3">
       Tổng kết
     </div>
 
     <!-- Summary checklist -->
-    <div class="summary-card clip" id="summary-list" data-start="0" data-duration="15.07" data-track-index="2">
+    <div class="summary-card clip" id="summary-list" data-start="0" data-duration="13.91" data-track-index="2">
       <div class="summary-item" id="s1">
         <div class="check-icon">✓</div>
         <span>List là gì và tại sao cần dùng</span>
@@ -122,7 +122,7 @@
       </div>
     </div>
 
-    <div class="next-label clip" id="next-label" data-start="0" data-duration="15.07" data-track-index="1">
+    <div class="next-label clip" id="next-label" data-start="0" data-duration="13.91" data-track-index="1">
       Bài tiếp theo: Truy cập phần tử trong List →
     </div>
   </div>
@@ -161,10 +161,10 @@
       // ── PHASE 4: next-label fade in ───────────────────────────────────
       tl.to("#next-label", { autoAlpha: 1, duration: 0.7, ease: "power2.out" }, 9.5);
 
-      // ── PHASE 5: summary-card glow pulse ─────────────────────────────
-      tl.to("#summary-list", { boxShadow: "0 0 60px rgba(121,192,255,0.15)", duration: 0.8, yoyo: true, repeat: 1 }, 11.0);
+      // ── PHASE 6: fade out entire scene before end of video ─────────────
+      tl.to("#scene-06", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 12.8);
 
-      tl.set({}, {}, 15.07);
+      tl.set({}, {}, 13.91);
     }, 50);
   </script>
 </body>

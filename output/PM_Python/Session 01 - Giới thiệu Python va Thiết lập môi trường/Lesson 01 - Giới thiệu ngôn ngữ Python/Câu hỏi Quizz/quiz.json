@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Nhà khoa học máy tính nào đã khởi xướng dự án lập trình Python vào năm 1989?",
+      "options": [
+        "Guido van Rossum",
+        "Dennis Ritchie",
+        "Bjarne Stroustrup",
+        "James Gosling"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Theo bài đọc, dự án Python được khởi xướng bởi nhà khoa học máy tính người Hà Lan Guido van Rossum vào năm 1989."
+    },
+    {
+      "question": "Triết lý thiết kế mang tính đột phá của ngôn ngữ lập trình Python là gì?",
+      "options": [
+        "Tối đa hóa tốc độ thực thi thô của máy tính bằng mọi giá",
+        "Ưu tiên năng suất của kỹ sư phần mềm hơn là tốc độ thực thi thô của máy tính",
+        "Ép buộc lập trình viên quản lý bộ nhớ thủ công để tối ưu tài nguyên",
+        "Chỉ tập trung chạy trên các hạ tầng phần cứng đắt đỏ chuyên biệt"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Bài học chỉ rõ Python ưu tiên năng suất của kỹ sư phần mềm hơn là tốc độ thực thi thô của máy tính, nhờ vào cú pháp trực quan, dễ đọc."
+    },
+    {
+      "question": "Vào cuối thập niên 1980, sự thống trị của C và C++ đã gây ra những khó khăn gì cho doanh nghiệp?",
+      "options": [
+        "Quá ít người biết sử dụng máy tính chạy hệ điều hành biên dịch",
+        "Hao phí quá nhiều tài nguyên vào khâu gỡ lỗi (debugging) và bảo trì hệ thống cồng kềnh",
+        "Máy tính thời đó không đủ cấu hình bộ nhớ để cài đặt trình biên dịch",
+        "Các ngôn ngữ này có cú pháp quá tương đồng với ngôn ngữ tự nhiên"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Sự phức tạp trong cú pháp cùng cơ chế quản lý bộ nhớ thủ công của C/C++ khiến các doanh nghiệp tốn quá nhiều tài nguyên vào khâu gỡ lỗi và bảo trì."
+    },
+    {
+      "question": "Năng lực nào sau đây của Python đáp ứng nhu cầu thực tiễn của doanh nghiệp hiện đại?",
+      "options": [
+        "Khả năng thay thế toàn bộ hệ thống cơ sở hạ tầng mạng viễn thông",
+        "Phát triển mẫu thử nhanh, tự động hóa quy trình và xử lý tập dữ liệu lớn",
+        "Yêu cầu nâng cấp bắt buộc lên phần cứng đắt đỏ mới hoạt động được",
+        "Loại bỏ hoàn toàn sự xuất hiện của các tiến trình biên dịch trung gian"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Theo bài đọc, doanh nghiệp cần công nghệ đa năng để kết nối hệ thống sẵn có, phát triển mẫu thử nhanh (fast prototyping), tự động hóa quy trình và xử lý dữ liệu lớn mà ko cần hạ tầng đắt đỏ."
+    }
+  ],
+  "practical_lab": {
+    "title": "Phân tích và thiết kế mô hình so sánh năng suất phát triển phần mềm",
+    "objectives": [
+      "Hiểu rõ sự khác biệt thực tiễn giữa triết lý chú trọng hiệu năng phần cứng (C/C++) và triết lý chú trọng năng suất con người (Python).",
+      "Mô hình hóa biểu đồ quy trình từ bước viết mã đến thực thi của cả hai hệ thống.",
+      "Xây dựng tiêu chí đánh giá lợi thế của Python trong phát triển mẫu thử nhanh (fast prototyping)."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Phân tích 4 tiêu chí cốt lõi của quy trình sản xuất phần mềm: Cú pháp, Quản lý bộ nhớ, Gỡ lỗi, và Thời gian bàn giao dựa theo nội dung bài đọc.",
+        "Bước 2: Vẽ sơ đồ cấu trúc so sánh các công đoạn dịch mã của C (tập trung biên dịch trực tiếp ra mã máy kèm cấp phát bộ nhớ thủ công) và Python (mã nguồn tối giản, tự động hóa quản lý bộ nhớ).",
+        "Bước 3: Viết mã giả mô tả cách xây dựng tác vụ in dữ liệu và giải phóng vùng nhớ ở C++ so với cú pháp tối giản trong Python.",
+        "Bước 4: Thiết lập bảng đánh giá chi phí nhân sự và thời gian phát triển dự án khi lựa chọn giữa hai ngôn ngữ này trong thực tế doanh nghiệp hiện đại."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Xác định đúng ít nhất 3 hạn chế cốt lõi của ngôn ngữ biên dịch cuối thập niên 1980.",
+        "Giải thích được sự khác biệt giữa triết lý tập trung hiệu năng phần cứng và năng suất của lập trình viên.",
+        "Đưa ra biểu đồ quy trình hoặc mã giả chứng minh thời gian viết mã của Python được rút ngắn đáng kể."
+      ]
+    }
+  }
+}

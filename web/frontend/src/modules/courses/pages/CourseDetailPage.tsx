@@ -9,11 +9,12 @@ import {
   Upload,
   Popconfirm,
   message,
+  Checkbox,
+  Modal,
 } from "antd";
 import { marked } from "marked";
 import {
   Plus,
-  ArrowLeft,
   PlayCircle,
   Layers,
   Settings2,
@@ -37,6 +38,7 @@ import {
   useSessions,
   useCreateSession,
   useDeleteSession,
+  useBatchDeleteSessions,
   useReorderSessions,
   useGenerateSession,
   useGeneratePracticeSession,
@@ -48,12 +50,14 @@ import {
   useCreateLesson,
   useGenerateLesson,
   useDeleteLesson,
+  useBatchDeleteLessons,
   useReorderLessons,
   useArtifacts,
   ArtifactResponse,
 } from "../../lessons/hooks/useLessons";
 import { SessionFormModal } from "../../sessions/components/SessionFormModal";
 import { LessonFormModal } from "../../lessons/components/LessonFormModal";
+import { LessonConfigModal } from "../../lessons/components/LessonConfigModal";
 import { PMPreviewModal } from "../components/PMPreviewModal";
 import { ArtifactPreviewModal } from "../../lessons/components/ArtifactPreviewModal";
 
@@ -91,16 +95,23 @@ interface SortableSessionItemProps {
   ) => void;
   onGenerateSession: (id: number) => void;
   isGenerating?: boolean;
+  isSelected?: boolean;
+  onSelectToggle?: () => void;
+  selectedLessonIds?: number[];
+  onToggleSelectLesson?: (lessonId: number) => void;
+  onConfigLesson?: (lesson: LessonResponse) => void;
 }
 
 interface SortableLessonItemProps {
   lesson: LessonResponse;
   onPreviewArtifact?: (id: number, title: string) => void;
+  isSelected?: boolean;
+  onSelectToggle?: () => void;
+  onConfigLesson?: (lesson: LessonResponse) => void;
 }
 
 export default function CourseDetailPage() {
   const { courseId } = useParams();
-  const navigate = useNavigate();
   const parsedCourseId = Number(courseId);
 
   const { data: course, isLoading: isLoadingCourse } =
@@ -181,17 +192,81 @@ export default function CourseDetailPage() {
     );
   };
   const [previewData, setPreviewData] = useState<PMRow[] | null>(null);
+  const [configLesson, setConfigLesson] = useState<LessonResponse | null>(null);
+  const [selectedSessionIds, setSelectedSessionIds] = useState<number[]>([]);
+  const [selectedLessonIds, setSelectedLessonIds] = useState<number[]>([]);
 
   const { mutate: createSession, isPending: isCreatingSession } =
     useCreateSession();
   const { mutate: createLesson, isPending: isCreatingLesson } =
     useCreateLesson();
   const { mutate: deleteSession } = useDeleteSession();
+  const { mutate: batchDeleteSessions, isPending: isBatchDeletingSessions } =
+    useBatchDeleteSessions();
+  const { mutate: batchDeleteLessons, isPending: isBatchDeletingLessons } =
+    useBatchDeleteLessons();
   const { mutate: reorderSessions } = useReorderSessions();
   const { mutate: parseExcel, isPending: isParsing } = useParseExcel();
   const { mutate: confirmImport, isPending: isConfirming } = useConfirmImport();
   const { mutate: generateAllCourse, isPending: isGeneratingAll } =
     useGenerateAllCourse();
+
+  const handleBatchDeleteSessions = () => {
+    if (selectedSessionIds.length === 0) return;
+    Modal.confirm({
+      title: "Xác Nhận Xóa Hàng Loạt Session",
+      content: (
+        <div className="space-y-2 mt-2">
+          <p className="text-slate-700">
+            Bạn có chắc chắn muốn xóa{" "}
+            <strong>{selectedSessionIds.length} Session</strong> đã chọn không?
+          </p>
+          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-medium">
+            ⚠️ Cảnh báo: Tất cả bài học (Lessons), bài tập thực hành & tài
+            nguyên AI đã tạo bên trong các Session này cũng sẽ bị xóa vĩnh viễn
+            khỏi Database!
+          </div>
+        </div>
+      ),
+      okText: `Xóa ${selectedSessionIds.length} Session Đã Chọn`,
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk: () => {
+        batchDeleteSessions(
+          { sessionIds: selectedSessionIds, courseId: parsedCourseId },
+          { onSuccess: () => setSelectedSessionIds([]) },
+        );
+      },
+    });
+  };
+
+  const handleBatchDeleteLessons = () => {
+    if (selectedLessonIds.length === 0) return;
+    Modal.confirm({
+      title: "Xác Nhận Xóa Hàng Loạt Lesson",
+      content: (
+        <div className="space-y-2 mt-2">
+          <p className="text-slate-700">
+            Bạn có chắc chắn muốn xóa{" "}
+            <strong>{selectedLessonIds.length} Lesson</strong> đã chọn không?
+          </p>
+          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-medium">
+            ⚠️ Cảnh báo: Tất cả tài nguyên học liệu AI (HTML bài đọc, Quizz,
+            Video script, Mindmap) của các bài học này sẽ bị xóa vĩnh viễn!
+          </div>
+        </div>
+      ),
+      okText: `Xóa ${selectedLessonIds.length} Lesson Đã Chọn`,
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk: () => {
+        batchDeleteLessons(
+          { lessonIds: selectedLessonIds },
+          { onSuccess: () => setSelectedLessonIds([]) },
+        );
+      },
+    });
+  };
   const {
     mutate: generateSession,
     isPending: isGeneratingSession,
@@ -248,19 +323,11 @@ export default function CourseDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          icon={<ArrowLeft size={16} />}
-          onClick={() => navigate("/courses")}
-        />
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 m-0">
-            {course.name}
-          </h2>
-          <p className="text-gray-500 m-0">
-            Công nghệ: {course.technology_stack || "Trống"}
-          </p>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-800 m-0">{course.name}</h2>
+        <p className="text-gray-500 m-0">
+          Công nghệ: {course.technology_stack || "Trống"}
+        </p>
       </div>
 
       <Card
@@ -271,6 +338,30 @@ export default function CourseDetailPage() {
               (Sessions)
             </span>
             <div className="flex gap-2">
+              {selectedSessionIds.length > 0 && (
+                <Button
+                  type="primary"
+                  danger
+                  icon={<Trash2 size={16} />}
+                  onClick={handleBatchDeleteSessions}
+                  loading={isBatchDeletingSessions}
+                  className="font-semibold shadow-sm animate-pulse"
+                >
+                  Xóa {selectedSessionIds.length} Session Đã Chọn
+                </Button>
+              )}
+              {selectedLessonIds.length > 0 && (
+                <Button
+                  type="primary"
+                  danger
+                  icon={<Trash2 size={16} />}
+                  onClick={handleBatchDeleteLessons}
+                  loading={isBatchDeletingLessons}
+                  className="font-semibold shadow-sm animate-pulse"
+                >
+                  Xóa {selectedLessonIds.length} Lesson Đã Chọn
+                </Button>
+              )}
               <Button
                 type="primary"
                 danger
@@ -325,6 +416,23 @@ export default function CourseDetailPage() {
                     key={session.id}
                     session={session}
                     isExpanded={expandedSessionIds.includes(session.id)}
+                    isSelected={selectedSessionIds.includes(session.id)}
+                    onSelectToggle={() => {
+                      setSelectedSessionIds((prev) =>
+                        prev.includes(session.id)
+                          ? prev.filter((id) => id !== session.id)
+                          : [...prev, session.id],
+                      );
+                    }}
+                    selectedLessonIds={selectedLessonIds}
+                    onToggleSelectLesson={(lessonId: number) => {
+                      setSelectedLessonIds((prev) =>
+                        prev.includes(lessonId)
+                          ? prev.filter((id) => id !== lessonId)
+                          : [...prev, lessonId],
+                      );
+                    }}
+                    onConfigLesson={(les) => setConfigLesson(les)}
                     onToggle={() => toggleSession(session.id)}
                     onAddLesson={() => {
                       setActiveSessionId(session.id);
@@ -432,6 +540,12 @@ export default function CourseDetailPage() {
           }
         />
       )}
+
+      <LessonConfigModal
+        open={!!configLesson}
+        lesson={configLesson}
+        onCancel={() => setConfigLesson(null)}
+      />
     </div>
   );
 }
@@ -446,6 +560,11 @@ const SortableSessionItem = ({
   onPreviewSessionArtifact,
   onGenerateSession,
   isGenerating,
+  isSelected,
+  onSelectToggle,
+  selectedLessonIds,
+  onToggleSelectLesson,
+  onConfigLesson,
 }: SortableSessionItemProps) => {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -505,10 +624,15 @@ const SortableSessionItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`border rounded-lg bg-white overflow-hidden ${isDragging ? "shadow-lg border-blue-400" : "border-gray-200"}`}
+      className={`border rounded-lg bg-white overflow-hidden ${isSelected ? "border-red-400 bg-red-50/10" : isDragging ? "shadow-lg border-blue-400" : "border-gray-200"}`}
     >
       <div className="flex justify-between items-center bg-gray-50 p-3 border-b border-gray-100">
         <div className="flex items-center gap-3">
+          <Checkbox
+            checked={isSelected}
+            onChange={onSelectToggle}
+            onClick={(e) => e.stopPropagation()}
+          />
           <div
             {...attributes}
             {...listeners}
@@ -667,7 +791,10 @@ const SortableSessionItem = ({
           ) : (
             <LessonList
               sessionId={session.id}
+              selectedLessonIds={selectedLessonIds}
+              onToggleSelectLesson={onToggleSelectLesson}
               onPreviewArtifact={onPreviewArtifact}
+              onConfigLesson={onConfigLesson}
             />
           )}
         </div>
@@ -678,10 +805,16 @@ const SortableSessionItem = ({
 
 const LessonList = ({
   sessionId,
+  selectedLessonIds = [],
+  onToggleSelectLesson,
   onPreviewArtifact,
+  onConfigLesson,
 }: {
   sessionId: number;
+  selectedLessonIds?: number[];
+  onToggleSelectLesson?: (id: number) => void;
   onPreviewArtifact: (id: number, title: string) => void;
+  onConfigLesson?: (lesson: LessonResponse) => void;
 }) => {
   const { data: lessons, isLoading } = useLessons(sessionId);
   const { mutate: reorderLessons } = useReorderLessons();
@@ -724,7 +857,10 @@ const LessonList = ({
             <SortableLessonItem
               key={lesson.id}
               lesson={lesson}
+              isSelected={selectedLessonIds.includes(lesson.id)}
+              onSelectToggle={() => onToggleSelectLesson?.(lesson.id)}
               onPreviewArtifact={onPreviewArtifact}
+              onConfigLesson={onConfigLesson}
             />
           ))}
         </div>
@@ -733,7 +869,12 @@ const LessonList = ({
   );
 };
 
-const SortableLessonItem = ({ lesson }: SortableLessonItemProps) => {
+const SortableLessonItem = ({
+  lesson,
+  isSelected,
+  onSelectToggle,
+  onConfigLesson,
+}: SortableLessonItemProps) => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const {
@@ -749,6 +890,8 @@ const SortableLessonItem = ({ lesson }: SortableLessonItemProps) => {
 
   const { data: artifacts } = useArtifacts(lesson.id);
   const isLessonPending = artifacts?.some((a) => a.status === "Pending");
+  const hasCompletedArtifacts =
+    artifacts?.some((a) => a.status === "Completed") ?? false;
   const [prevLessonPending, setPrevLessonPending] = useState(false);
 
   useEffect(() => {
@@ -786,9 +929,14 @@ const SortableLessonItem = ({ lesson }: SortableLessonItemProps) => {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex justify-between items-center p-3 border rounded-lg bg-gray-50 ${isDragging ? "shadow-md border-blue-400" : "border-gray-100 hover:border-blue-200"}`}
+      className={`flex justify-between items-center p-3 border rounded-lg ${isSelected ? "bg-red-50/20 border-red-300" : "bg-gray-50 border-gray-100 hover:border-blue-200"} ${isDragging ? "shadow-md border-blue-400" : ""}`}
     >
       <div className="flex items-center gap-3">
+        <Checkbox
+          checked={isSelected}
+          onChange={onSelectToggle}
+          onClick={(e) => e.stopPropagation()}
+        />
         <div
           {...attributes}
           {...listeners}
@@ -802,27 +950,49 @@ const SortableLessonItem = ({ lesson }: SortableLessonItemProps) => {
         </div>
       </div>
       <div className="flex gap-2">
-        <Tooltip title="Vào Màn hình Học thử (Lý thuyết, Trắc nghiệm & Thực hành coding)">
+        <Tooltip
+          title={
+            hasCompletedArtifacts
+              ? "Vào Màn hình Học thử (Lý thuyết, Trắc nghiệm & Thực hành coding)"
+              : "Chưa có tài nguyên học liệu. Hãy bấm 'Tạo AI' trước!"
+          }
+        >
           <Button
             size="small"
             type="primary"
             icon={<BookOpen size={14} />}
+            disabled={!hasCompletedArtifacts}
             onClick={() =>
               navigate(`/courses/${courseId}/lessons/${lesson.id}/viewer`)
             }
-            className="bg-indigo-600 border-indigo-600 hover:bg-indigo-700 flex items-center gap-1"
+            className={
+              hasCompletedArtifacts
+                ? "bg-indigo-600 border-indigo-600 hover:bg-indigo-700 flex items-center gap-1"
+                : "flex items-center gap-1"
+            }
           >
             Học thử
           </Button>
         </Tooltip>
-        <Tooltip title="Xem Tài nguyên">
+        <Tooltip
+          title={
+            hasCompletedArtifacts
+              ? "Xem Tài nguyên"
+              : "Chưa có tài nguyên học liệu. Hãy bấm 'Tạo AI' trước!"
+          }
+        >
           <Button
             size="small"
             icon={<Eye size={14} />}
+            disabled={!hasCompletedArtifacts}
             onClick={() =>
               navigate(`/courses/${courseId}/lessons/${lesson.id}/viewer`)
             }
-            className="text-green-600 border-green-600 hover:bg-green-50"
+            className={
+              hasCompletedArtifacts
+                ? "text-green-600 border-green-600 hover:bg-green-50"
+                : ""
+            }
           >
             Tài nguyên
           </Button>
@@ -841,7 +1011,11 @@ const SortableLessonItem = ({ lesson }: SortableLessonItemProps) => {
           </Button>
         </Tooltip>
         <Tooltip title="Cấu hình">
-          <Button size="small" icon={<Settings2 size={14} />} />
+          <Button
+            size="small"
+            icon={<Settings2 size={14} />}
+            onClick={() => onConfigLesson?.(lesson)}
+          />
         </Tooltip>
         <Popconfirm
           title="Xóa Lesson?"

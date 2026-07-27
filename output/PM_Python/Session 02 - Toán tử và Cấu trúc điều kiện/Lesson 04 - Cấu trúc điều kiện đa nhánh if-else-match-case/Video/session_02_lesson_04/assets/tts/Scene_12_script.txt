@@ -1,0 +1,1 @@
+Tổng kết lại, cấu trúc rẽ nhánh giúp điều khiển chương trình xử lý chính xác dựa trên đầu vào. Hãy dùng cấu trúc mátch-kết khi cần tối ưu hóa các điều kiện xử lý đa luồng phức tạp dựa trên hằng số và thuộc tính tĩnh. Với các biểu thức so sánh logic động phức tạp hơn, các bạn vẫn nên lựa chọn cấu trúc íp, e-líp truyền thống để đảm bảo tính linh hoạt tối đa.

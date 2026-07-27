@@ -1,0 +1,1 @@
+Sau khi xử lý thành công, kết quả cần được xuất ra luồng đầu ra tiêu chuẩn thông qua hàm prin-t. Hàm prin-t mặc định nhận danh sách các đối tượng, chuyển đổi chúng thành chuỗi văn bản ký tự thô và gửi trực tiếp ra màn hình dòng lệnh. Các tham số truyền vào hàm được ngăn cách mặc định bằng một khoảng trắng đơn.

@@ -1,0 +1,1 @@
+Trước phiên bản Python 3 chấm 10, các lập trình viên thường dùng cấu trúc íp, e-líp, eo lồng nhau để xử lý hai chiều biến số này. Hãy nhìn vào đoạn mã mẫu. Việc lồng khối lệnh điều kiện này tạo ra cấu trúc mã hình kim tự tháp. Nó làm tăng độ phức tạp thuật toán, đồng thời dễ phát sinh sai sót logic ngoài ý muốn khi có thêm các trạng thái giao dịch hoặc hạng thành viên mới.

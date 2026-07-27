@@ -1,0 +1,1 @@
+Giải pháp đầu tiên là cài đặt chuẩn hóa. Khi tải bản cài đặt Python chính thức từ website python chấm o-r-g, tùy chọn 'Add Python to PATH' là bắt buộc. Điều này giúp đăng ký đường dẫn chứa tệp thực thi vào danh sách tìm kiếm của hệ điều hành, cho phép kích hoạt lệnh python trực tiếp từ bất kỳ dòng lệnh nào.

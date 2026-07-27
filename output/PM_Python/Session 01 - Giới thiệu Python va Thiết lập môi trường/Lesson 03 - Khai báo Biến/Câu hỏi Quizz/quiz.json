@@ -1,0 +1,73 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Ngôn ngữ Python được sáng lập bởi ai và vào mốc thời gian nào?",
+      "options": [
+        "Dennis Ritchie vào năm 1972",
+        "Guido van Rossum vào năm 1991",
+        "Bjarne Stroustrup vào năm 1985",
+        "James Gosling vào năm 1995"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Guido van Rossum là người sáng lập ngôn ngữ lập trình Python và phiên bản đầu tiên được công bố vào năm 1991."
+    },
+    {
+      "question": "Bản chất thực sự của một biến trong bộ nhớ Python là gì?",
+      "options": [
+        "Một ngăn chứa phần cứng có độ lớn byte cố định",
+        "Một đường dẫn chứa thư mục tạm thời trên ổ cứng",
+        "Nhãn dán định danh động chỉ hướng đến các đối tượng dữ liệu trong bộ nhớ ảo",
+        "Một phân vùng ổ đĩa ảo được mã hóa"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Triết lý của Python không coi biến là ô chứa giá trị cố định thô sơ, mà coi chúng là các nhãn dán định danh trỏ tới các đối tượng dữ liệu thực tế."
+    },
+    {
+      "question": "Hậu quả trực tiếp của việc thiếu cơ chế lưu trữ tạm thời trong hệ thống tính toán doanh thu là gì?",
+      "options": [
+        "Hệ thống sẽ bị ngắt kết nối Internet ngay lập tức",
+        "Máy tính không thể duy trì trạng thái của thông tin sau khi kết thúc một dòng lệnh",
+        "Mọi biến số tự động chuyển thành biến tĩnh cố định",
+        "Hệ thống tự động kích hoạt chế độ tối ưu hóa phần cứng"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Không có bộ nhớ tạm hoặc cơ chế gán biến lưu trữ trạng thái, chương trình sẽ làm mất dữ liệu ngay khi thực thi xong mỗi lệnh đơn lẻ, ngắt quãng hoạt động phân tích logic kế tiếp."
+    },
+    {
+      "question": "Theo bài đọc, việc chuẩn hóa nguyên tắc đặt tên biến trong các dự án lớn mang lại lợi ích gì?",
+      "options": [
+        "Giúp thay thế toàn bộ lập trình viên bằng AI",
+        "Tự động tăng tốc độ xử lý của CPU vật lý lên gấp hai lần",
+        "Tối giản logic nghiệp vụ, giảm mơ hồ giữa các thành viên và tăng tốc kiểm thử hệ thống",
+        "Loại bỏ hoàn toàn sự tồn tại của vùng nhớ ảo"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Thống nhất nguyên tắc đặt tên biến giúp mã nguồn minh bạch, các thành viên dễ làm việc chung, giảm thiểu sự hiểu lầm và đẩy nhanh tiến độ kiểm nghiệm chất lượng hệ thống."
+    }
+  ],
+  "practical_lab": {
+    "title": "Mô phỏng Gán biến Tài chính và Loại bỏ Hardcoding trong Python",
+    "objectives": [
+      "Hiểu được tác hại của việc hardcoding và biết cách thay thế bằng biến lưu trữ tạm thời.",
+      "Làm quen với cơ chế biến đóng vai trò là nhãn dán và gán chiếu tới các đối tượng dữ liệu trong Python.",
+      "Tạo bước thực hành đầu tiên trong việc đặt tên biến chuẩn hóa để tối ưu hóa mã nguồn phân tích."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Thiết lập một kịch bản tính thuế doanh nghiệp đơn giản ban đầu có cấu hình hardcoding: tính doanh thu 5000 nhân trực tiếp với 0.1.",
+        "Tiến hành tái cấu trúc bằng cách khai báo biến lưu trữ tạm thời thứ nhất là 'daily_revenue' và gán giá trị 5000.",
+        "Khai báo biến thứ hai đại diện cho hệ số thuế là 'tax_rate' và gán giá trị 0.1.",
+        "Thực hiện phép tính doanh thu sau thuế bằng cách gọi các nhãn dán biến này thay vì giá trị thô.",
+        "Tiến hành gán một nhãn mới 'backup_revenue' bằng với 'daily_revenue' và giải thích cách hai nhãn cùng trỏ đến một vùng giá trị."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Đã chạy thử nghiệm loại bỏ hoàn toàn các giá trị số cứng (hardcoded) trong công thức tính.",
+        "Đặt tên các biến đúng quy chuẩn và mang tính gợi nhớ theo nghiệp vụ tài chính.",
+        "Giải thích được nguyên lý nhãn dán thông qua dòng lệnh gán liên kết giữa các biến."
+      ]
+    }
+  }
+}

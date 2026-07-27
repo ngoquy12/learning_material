@@ -1,0 +1,1 @@
+Trong kết xuất báo cáo tài chính, số thực thường gặp lỗi biểu diễn dấu phẩy động với các chữ số thập phân kéo dài vô hạn. Điều này làm giảm tính chuyên nghiệp của giao diện và gây khó khăn cho việc đối soát số liệu.

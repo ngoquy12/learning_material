@@ -1,0 +1,1 @@
+Hãy kiểm nghiệm bằng một tập lệnh Python. Ta import thư viện sys của hệ điều hành, truy xuất sys chấm executable nhằm xác định chính xác đường dẫn tệp thực thi hiện hành. Sự chênh lệch giữa thuộc tính sys chấm prefix và base gạch dưới prefix sẽ cho biết trạng thái cô lập của ứng dụng đã hoạt động hay chưa.

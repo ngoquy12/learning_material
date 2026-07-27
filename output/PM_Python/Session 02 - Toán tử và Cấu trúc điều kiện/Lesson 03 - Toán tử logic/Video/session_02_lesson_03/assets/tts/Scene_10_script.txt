@@ -1,0 +1,1 @@
+Tương tự như vậy, đối với toán tử o-lờ, hành vi ngắn mạch xảy ra khi vế bên trái được lượng giá là tru. Lúc này, do chỉ cần một điều kiện đúng là đủ để kết luận toàn bộ biểu thức mang giá trị tru, Python sẽ lập tức trả về giá trị tru mà không biên dịch phần mã nguồn phía sau. Cơ chế này tối ưu đáng kể tốc độ xử lý của chip khi chạy các luồng tính toán lặp phức tạp.

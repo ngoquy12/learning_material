@@ -1,0 +1,1 @@
+Hãy bắt đầu quá trình viết code thực tế. Tôi khai báo biến cớt-xtơ-mơ mem-bơ-íp bằng chuỗi gôl và o-đơ tô-tồ bằng sáu trăm năm mươi chấm không. Đây là các dữ liệu biên chuẩn bị cho việc thực thi giải thuật tính toán giá trị chiết khấu tối ưu trực tiếp.

@@ -186,19 +186,19 @@ def merge_curriculums(original: Any, updated: Any) -> list:
         if orig_s is not None:
             used_original_sessions.add(id(orig_s))
             
-            # Merge session fields, preserving form/deadline if present at session level
+            # Merge session fields, preserving 9-column fields
             merged_s = {
-                "session_id": updated_s.get("session_id") or orig_s.get("session_id"),
-                "title": updated_s.get("title") or orig_s.get("title"),
-                "form": updated_s.get("form") or orig_s.get("form") or "Lý thuyết",
-                "deadline": updated_s.get("deadline") or orig_s.get("deadline") or "",
+                "session_id": updated_s.get("session_id") or orig_s.get("session_id", ""),
+                "session_type_vn": updated_s.get("session_type_vn") or updated_s.get("session_type") or orig_s.get("session_type_vn") or orig_s.get("form", "Bài lý thuyết + thực hành"),
+                "session_code": updated_s.get("session_code") or orig_s.get("session_code", ""),
+                "session_title": updated_s.get("session_title") or updated_s.get("title") or orig_s.get("session_title") or orig_s.get("title", ""),
                 "lessons": []
             }
             
             orig_lessons_list = [l for l in orig_s.get("lessons", []) if isinstance(l, dict)]
             orig_lessons_by_id = {}
             for l in orig_lessons_list:
-                l_id = l.get("lesson_id")
+                l_id = l.get("lesson_title") or l.get("title") or l.get("lesson_id")
                 if l_id:
                     norm_l_id = normalize_id(l_id)
                     if norm_l_id:
@@ -214,7 +214,7 @@ def merge_curriculums(original: Any, updated: Any) -> list:
                 for updated_l in updated_lessons:
                     if not isinstance(updated_l, dict):
                         continue
-                    l_id = updated_l.get("lesson_id")
+                    l_id = updated_l.get("lesson_title") or updated_l.get("title") or updated_l.get("lesson_id")
                     norm_l_id = normalize_id(l_id) if l_id else ""
                     
                     matched_l = None
@@ -232,12 +232,12 @@ def merge_curriculums(original: Any, updated: Any) -> list:
                     if matched_l is not None:
                         used_lessons.add(id(matched_l))
                         merged_l = {
-                            "lesson_id": updated_l.get("lesson_id") or matched_l.get("lesson_id"),
-                            "title": updated_l.get("title") or matched_l.get("title"),
-                            "form": updated_l.get("form") or matched_l.get("form") or "Lý thuyết",
-                            "deadline": updated_l.get("deadline") or matched_l.get("deadline") or "",
-                            "details": updated_l.get("details") or matched_l.get("details"),
-                            "expected_output": updated_l.get("expected_output") or matched_l.get("expected_output")
+                            "lesson_title": updated_l.get("lesson_title") or updated_l.get("title") or matched_l.get("lesson_title") or matched_l.get("title", ""),
+                            "details": updated_l.get("details") or matched_l.get("details", ""),
+                            "expected_outcome": updated_l.get("expected_outcome") or updated_l.get("outcome") or matched_l.get("expected_outcome") or matched_l.get("outcome", ""),
+                            "forbidden_scope": updated_l.get("forbidden_scope") or matched_l.get("forbidden_scope", ""),
+                            "allowed_scope": updated_l.get("allowed_scope") or matched_l.get("allowed_scope", ""),
+                            "tech_stack": updated_l.get("tech_stack") or matched_l.get("tech_stack", "")
                         }
                         merged_lessons_by_orig_id[id(matched_l)] = merged_l
                     else:

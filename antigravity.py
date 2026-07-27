@@ -24,7 +24,8 @@ Changelog:
 """
 
 import sys
-from typing import Callable, Any, Dict, List, Optional
+from typing import Callable, Any, Dict, List, Optional, Union
+from core.state import AgentState
 
 
 # =============================================================================
@@ -242,7 +243,7 @@ class CompiledWorkflow:
 
         return merged
 
-    def run(self, initial_state: Dict[str, Any]) -> Dict[str, Any]:
+    def run(self, initial_state: Union[AgentState, Dict[str, Any]]) -> Dict[str, Any]:
         current_node = self.entry_point
         state = initial_state.copy()
 

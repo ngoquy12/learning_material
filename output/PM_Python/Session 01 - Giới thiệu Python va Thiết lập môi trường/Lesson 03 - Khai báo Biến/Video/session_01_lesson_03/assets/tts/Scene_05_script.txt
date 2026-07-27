@@ -1,0 +1,1 @@
+Chuẩn viết code PEP tám khuyến nghị lập trình viên chuyên nghiệp sử dụng định dạng snếk cây. Tất cả ký tự được viết thường và phân tách bằng dấu gạch dưới. Tên biến cần ngắn gọn nhưng phải phản ánh rõ ràng ý nghĩa nghiệp vụ, tránh viết tắt mơ hồ gây khó đọc cho các thành viên trong dự án.

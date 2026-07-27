@@ -1,0 +1,49 @@
+{
+  "course_id": "PM_PYTHON_MASTER",
+  "course_title": "Lập trình Python Chuyên nghiệp",
+  "technology_stack": "python",
+  "version": "3.0",
+  "sessions": [
+    {
+      "session_id": "SESSION_01",
+      "session_type": "THEORY",
+      "session_title": "Session 01 - Giới thiệu Python và Thiết lập môi trường",
+      "description": "Loại 1: Session Lý Thuyết — Cung cấp bài đọc HTML, Slide bài giảng và Quiz trắc nghiệm.",
+      "lessons": [
+        {
+          "lesson_id": "LESSON_01",
+          "title": "Giới thiệu ngôn ngữ Python",
+          "topics": ["Tổng quan Python", "Ứng dụng Python", "Trình biên dịch và Thông dịch"],
+          "keywords": ["python", "interpreter", "compiler", "bytecode", "pvm", "syntax"]
+        },
+        {
+          "lesson_id": "LESSON_02",
+          "title": "Khai báo biến và Nhập xuất dữ liệu",
+          "topics": ["Biến số", "Hàm input(), print()", "Ép kiểu dữ liệu"],
+          "keywords": ["variable", "input", "print", "typecasting", "f-string"]
+        }
+      ]
+    },
+    {
+      "session_id": "SESSION_02",
+      "session_type": "PRACTICE",
+      "session_title": "Session 02 - Thực hành Tổng hợp Khai báo biến và Nhập xuất",
+      "description": "Loại 2: Session Thực Hành — Không có lesson con, sinh bài tập thực hành Labs & Homework.",
+      "lessons": []
+    },
+    {
+      "session_id": "SESSION_03",
+      "session_type": "MINI_PROJECT",
+      "session_title": "Session 03 - Mini Project: Hệ thống Quản lý Thư viện Tinh gọn",
+      "description": "Loại 3: Session Mini Project — Sinh 4 Entry Tests, Tài liệu SRS đặc tả và Đề bài Mini Project.",
+      "lessons": []
+    },
+    {
+      "session_id": "SESSION_04",
+      "session_type": "FINAL_PROJECT",
+      "session_title": "Session 04 - Dự án Cuối khóa: Hệ thống E-Commerce RESTful API",
+      "description": "Loại 4: Session Dự án Cuối khóa — Sinh Đồ án Capstone hoàn chỉnh, Kiến trúc hệ thống, SRS và Rubric 100 điểm.",
+      "lessons": []
+    }
+  ]
+}

@@ -972,3 +972,27 @@ def hyperframes_writer_agent(state: AgentState) -> AgentState:
     print(f"    2. Run: cd '{project_path}' && npm run check")
     print(f"    3. Run: npm run render")
     return state
+
+
+def hyperframes_reviewer_agent(state: AgentState) -> Dict[str, Any]:
+    """
+    Programmatic & Pedagogical Reviewer for HyperFrames Video Narration Scripts.
+    Validates script timing, WPM rate, audio-first architecture, and forbidden emojis.
+    """
+    blueprint = state.get("video_script_blueprint", {}) or state.get("hyperframes_blueprint", {})
+    if not blueprint:
+        print("  [HyperFrames_Reviewer Warning] No video script blueprint found in state.")
+        return {"status": "APPROVED", "feedback": "Không có blueprint video script để kiểm tra."}
+        
+    print("  [HyperFrames_Reviewer] Auditing HyperFrames Narration Script...")
+    
+    from core.validators.hyperframes_validator import validate_hyperframes_script
+    is_valid, errors = validate_hyperframes_script(blueprint)
+    
+    if not is_valid:
+        feedback = f"Kịch bản Video HyperFrames chưa đạt chuẩn: {'; '.join(errors[:2])}"
+        print(f"  - Result: REJECTED (HyperFrames Validator Failed). Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+        
+    print("  - Result: APPROVED (HyperFrames Narration Script verified 100%).")
+    return {"status": "APPROVED", "feedback": "Kịch bản Video HyperFrames đạt 100% tiêu chuẩn lồng tiếng & timing."}

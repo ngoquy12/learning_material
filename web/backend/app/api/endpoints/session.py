@@ -724,6 +724,36 @@ async def reorder_sessions(payload: ReorderPayload, db: AsyncSession = Depends(g
     await db.commit()
     return {"status": "success"}
 
+class BatchDeletePayload(BaseModel):
+    item_ids: List[int]
+
+@router.post("/batch-delete")
+async def batch_delete_sessions(payload: BatchDeletePayload, db: AsyncSession = Depends(get_db)):
+    if not payload.item_ids:
+        return {"status": "success", "deleted_count": 0}
+        
+    from app.models.lesson import Lesson
+    from app.models.artifact import Artifact
+    from sqlalchemy import delete
+    
+    # 1. Fetch lesson IDs for all specified sessions
+    lessons_res = await db.execute(select(Lesson.id).where(Lesson.session_id.in_(payload.item_ids)))
+    lesson_ids = lessons_res.scalars().all()
+    
+    # 2. Delete artifacts for these lessons
+    if lesson_ids:
+        await db.execute(delete(Artifact).where(Artifact.lesson_id.in_(lesson_ids)))
+        await db.execute(delete(Lesson).where(Lesson.session_id.in_(payload.item_ids)))
+        
+    # 3. Delete session-level artifacts
+    await db.execute(delete(Artifact).where(Artifact.session_id.in_(payload.item_ids)))
+    
+    # 4. Delete sessions
+    await db.execute(delete(Session).where(Session.id.in_(payload.item_ids)))
+    await db.commit()
+    
+    return {"status": "success", "deleted_count": len(payload.item_ids)}
+
 @router.delete("/{session_id}")
 async def delete_session(session_id: int, db: AsyncSession = Depends(get_db)):
     sess = await db.get(Session, session_id)

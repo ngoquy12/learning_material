@@ -1,0 +1,1 @@
+Thực thi file python vừa viết trên công cụ dòng lệnh terminal. Kết quả in ra màn hình cho thấy giá trị tổng chưa chiết khấu sub-to-tal hiển thị là một nghìn năm trăm linh năm phẩy không, và giá trị thanh toán cuối cùng fai-nờ to-tal được tính toán chính xác sau khi trừ đi chiết khấu.

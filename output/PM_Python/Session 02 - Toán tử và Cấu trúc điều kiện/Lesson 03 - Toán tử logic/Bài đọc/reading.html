@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 02 - Lesson 03: Toán tử logic - Trực quan hóa & Tương tác Động</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+              }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.mermaid) {
+            mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });
+        }
+    });
+    </script>
+    <script>
+    let _pyodideInstance = null;
+    async function getPyodideInstance() {
+        if (!_pyodideInstance && window.loadPyodide) {
+            console.log("Initializing Pyodide WebAssembly Engine...");
+            _pyodideInstance = await loadPyodide();
+        }
+        return _pyodideInstance;
+    }
+
+    async function runPyodideSandbox(event, boxId) {
+        if (event && event.preventDefault) event.preventDefault();
+        const codeEl = document.querySelector('#' + boxId + '_code code');
+        const outEl = document.getElementById(boxId + '_output');
+        if (!codeEl || !outEl) return;
+
+        const rawCode = codeEl.innerText || codeEl.textContent;
+        outEl.style.display = 'block';
+        outEl.innerHTML = '<span style="color: #38bdf8;">⏳ Đang khởi tạo Pyodide Wasm Sandbox và thực thi mã nguồn...</span>';
+
+        try {
+            let py = await getPyodideInstance();
+            if (py) {
+                py.runPython(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+`);
+                let res = py.runPython(rawCode);
+                let stdout = py.runPython("sys.stdout.getvalue()");
+                let stderr = py.runPython("sys.stderr.getvalue()");
+                
+                let outputText = "";
+                if (stdout) outputText += stdout;
+                if (stderr) outputText += "\n[STDERR]:\n" + stderr;
+                if (res !== undefined && res !== null && !stdout) outputText += String(res);
+                
+                if (!outputText.trim()) outputText = "[Chương trình hoàn tất thực thi - Không có đầu ra Console]";
+                outEl.innerHTML = '<strong style="color: #10b981;"><i class="ph-duotone ph-check-circle" style="font-size: 1.1rem;"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>\n' + escapeHtml(outputText);
+            } else {
+                outEl.innerHTML = '<strong style="color: #f59e0b;"><i class="ph-duotone ph-warning-octagon" style="font-size: 1.1rem;"></i> KHÔNG THỂ TẢI ENGINE PYODIDE (KIỂM TRA KẾT NỐI MẠNG). MÃ NGUỒN:</strong>\n' + escapeHtml(rawCode);
+            }
+        } catch (err) {
+            outEl.innerHTML = '<strong style="color: #ef4444;"><i class="ph-duotone ph-x-circle" style="font-size: 1.1rem;"></i> LỖI THỰC THI (RUNTIME ERROR):</strong>\n' + escapeHtml(String(err));
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    </script>
+    <style>
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-hover: #f1f5f9;
+            --text-main: #1e293b;
+            --text-muted: #475569;
+            --border-color: #e2e8f0;
+            --card-border: #e2e8f0;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --box-note-bg: rgba(15, 30, 54, 0.04);
+            --box-tip-bg: rgba(56, 161, 105, 0.05);
+            --box-warning-bg: rgba(221, 107, 32, 0.05);
+            --primary-text: #0f1e36;
+            --code-header-bg: #252526;
+            --code-body-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.04);
+            --clay: #D97757;
+            --clay-light: rgba(217, 119, 87, 0.06);
+            --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-serif: 'Montserrat', 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --color-idle: #475569;
+            --color-active: #eab308;
+            --color-done: #22c55e;
+            --primary: #be111c;
+            --rust: #c2410c;
+            --rust-light: rgba(194, 65, 12, 0.08);
+        }
+
+        .theme-dark, html.dark, :root.dark {
+            --bg-body: #0b0f19;
+            --bg-card: #151d30;
+            --bg-hover: #1e293b;
+            --text-main: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #1e293b;
+            --card-border: #1e293b;
+            --nav-bg: rgba(11, 15, 25, 0.95);
+            --box-note-bg: rgba(255, 255, 255, 0.03);
+            --box-tip-bg: rgba(56, 161, 105, 0.1);
+            --box-warning-bg: rgba(221, 107, 32, 0.1);
+            --primary-text: #ffffff;
+            --code-header-bg: #1e1e1e;
+            --code-body-bg: #121212;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --bg-panel: var(--bg-card);
+            --bg-canvas: var(--bg-body);
+            --primary: #be111c;
+            --rust: #f97316;
+        }
+
+        #theme-btn-light.active, #theme-btn-dark.active, #theme-btn-system.active {
+            background-color: var(--bg-hover) !important;
+            color: var(--primary) !important;
+            border-color: var(--border-color) !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 0;
+            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Optimized Full-Width Layout */
+        .layout {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            width: 100%;
+            margin-top: 32px;
+        }
+
+        .main-content, .panel-box, .right-column, .visualizer-container, .visualizer-grid {
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .panel {
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-panel);
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .gotchas {
+            border: 1.5px solid var(--clay);
+            border-radius: 12px;
+            background: var(--clay-light);
+            padding: 18px 20px;
+        }
+
+        .gotchas h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--clay);
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Visualizer Playground Container */
+        .visualizer-container {
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background-color: var(--bg-panel);
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+
+        /* Interactive Grid Layout */
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Panel 1: Visualizer Canvas */
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .canvas-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-box {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .visualizer-canvas {
+            background-color: var(--bg-canvas);
+            background-image: linear-gradient(rgba(128, 128, 128, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-height: 380px;
+            max-height: 540px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 16px;
+            padding: 24px 20px;
+            position: relative;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            transition: background-color 0.3s;
+        }
+
+        .visualizer-canvas::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bar-item {
+            background-color: var(--color-idle);
+            width: 48px;
+            border-radius: 6px 6px 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #ffffff;
+            transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease, transform 0.3s ease;
+        }
+
+        .bar-item.comparing { background-color: var(--color-compare); transform: scaleY(1.03); }
+        .bar-item.swapping { background-color: var(--color-swap); transform: scale(1.05); }
+        .bar-item.sorted { background-color: var(--color-done); }
+
+        /* Panel 2 & 4: Controls & Stats */
+        .controls-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: var(--bg-panel);
+            color: var(--text-main);
+        }
+
+        .btn-action:hover {
+            background: var(--bg-hover);
+            border-color: var(--text-muted);
+        }
+
+        .btn-start { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-start:hover { background: var(--primary); opacity: 0.9; }
+        .btn-reset { background: var(--rust-light); color: var(--rust); border-color: var(--rust); }
+        .btn-reset:hover { background: var(--rust); color: white; }
+
+        .inputs-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--bg-canvas);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border-color);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .custom-input-box {
+            display: flex;
+            gap: 8px;
+        }
+
+        .custom-input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .btn-apply {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* Panel Right: Code Tracker & Log */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-canvas);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-mono);
+        }
+
+        .code-tracker-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-tracker-panel pre, .code-tracker-panel code {
+            white-space: pre-wrap !important;
+            word-break: break-word !important;
+        }
+
+        .panel-top-bar {
+            background: #1e293b;
+            padding: 10px 14px;
+            border-bottom: 1.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #38bdf8;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background-color: #121824;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 6px;
+            border-left: 3px solid transparent;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            color: #cbd5e1;
+        }
+
+        .code-line.active-line {
+            background-color: rgba(56, 189, 248, 0.15);
+            border-left-color: var(--primary);
+            color: #ffffff;
+        }
+
+        .console-log-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            max-height: 200px;
+        }
+
+        .stats-panel {
+            background: #121824;
+            color: #f1f5f9;
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-panel .badge {
+            width: auto;
+            height: auto;
+            border-radius: 4px;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 8px;
+            font-size: 0.85rem;
+            display: inline-block;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .log-messages {
+            overflow-y: auto;
+            flex-grow: 1;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+
+        .log-entry {
+            padding: 4px 8px;
+            border-radius: 4px;
+            line-height: 1.4;
+        }
+
+        .log-info { background: rgba(30, 41, 59, 0.6); color: #38bdf8; }
+        .log-success { background: rgba(16, 185, 129, 0.1); color: #34d399; border-left: 3px solid #10b981; }
+        .log-warn { background: rgba(245, 158, 11, 0.1); color: #fbbf24; border-left: 3px solid #f59e0b; }
+
+        /* Step-by-Step Walkthrough Styling */
+        .step {
+            display: grid;
+            grid-template-columns: 44px 1fr;
+            gap: 18px;
+            padding: 24px 0;
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .step:last-of-type {
+            border-bottom: none;
+        }
+
+        .badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            border: 1.5px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+        }
+
+        .step.hot .badge {
+            background: var(--clay-light);
+            border-color: var(--clay);
+            color: var(--clay);
+        }
+
+        .step-loc {
+            font-family: var(--font-sans);
+            font-size: 1.25rem;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .step-loc .range {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .step-body {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        table, .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-card);
+        }
+
+        table th, .comparison-table th {
+            background-color: #be111c !important;
+            color: white !important;
+            padding: 12px 16px !important;
+            font-weight: 700 !important;
+            font-family: 'Montserrat', sans-serif !important;
+            border: 1px solid rgba(255,255,255,0.15) !important;
+            text-align: left;
+        }
+
+        .theme-dark table th, .theme-dark .comparison-table th {
+            background-color: #991b1b !important;
+        }
+
+        table td, .comparison-table td {
+            padding: 10px 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        /* VS Code Dark Code container */
+        .code-container {
+            border: 1px solid #333333 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            margin: 16px 0 !important;
+            background-color: #1e1e1e !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .code-header {
+            background: #252526 !important;
+            border-bottom: 1px solid #333333 !important;
+            padding: 10px 16px !important;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+        }
+
+        .code-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .control-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+            font-size: 0.82rem !important;
+            color: #cccccc !important;
+            font-weight: 600 !important;
+        }
+
+        .copy-btn {
+            background: #3c3c3c !important;
+            border: 1px solid #4d4d4d !important;
+            color: #cccccc !important;
+            padding: 4px 12px !important;
+            border-radius: 4px !important;
+            font-size: 0.75rem !important;
+            cursor: pointer !important;
+            font-weight: 500 !important;
+            transition: all 0.2s !important;
+        }
+
+        .copy-btn:hover {
+            background: #505050 !important;
+            color: #ffffff !important;
+        }
+
+        .code-body {
+            background-color: #1e1e1e !important;
+            padding: 16px 20px !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+        }
+
+        .code-body pre, .code-body code {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            color: #d4d4d4 !important;
+            font-family: 'JetBrains Mono', 'Consolas', 'Fira Code', monospace !important;
+            font-size: 0.88rem !important;
+            line-height: 1.75 !important;
+            display: block !important;
+            overflow: visible !important;
+        }
+
+        /* Note, Tip & Warning Boxes */
+        .box {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            margin: 16px 0;
+            border-left: 5px solid;
+            font-size: 0.98rem;
+            line-height: 1.7;
+        }
+
+        .tip-box { background: var(--box-tip-bg); border-color: #38a169; color: var(--text-main); }
+        .note-box { background: var(--box-note-bg); border-color: #be111c; color: var(--text-main); }
+        .warning-box { background: var(--box-warning-bg); border-color: #dd6b20; color: var(--text-main); }
+
+        .selftest-item {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            padding: 16px;
+        }
+        .selftest-question { font-weight: 600; color: var(--primary); cursor: pointer; }
+        .selftest-answer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); }
+        .selftest-answer ul { list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer ol { list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }
+        .selftest-answer li { margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }
+        .selftest-item.active .selftest-answer { display: block; }
+
+        /* Strict Left Alignment for All Text, Paragraphs, Lists & Body Containers */
+        .step-body, p, li, ul, ol {
+            text-align: left;
+        }
+
+        /* Guarantee 100% Horizontal Centering ONLY for Media Elements */
+        img, svg, .scene-image-container, .mermaid, figure {
+            display: block !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            text-align: center !important;
+        }
+        .scene-image-container {
+            max-width: 800px !important;
+            width: 100% !important;
+            margin: 24px auto !important;
+            text-align: center !important;
+        }
+        .step-body img, .step-body svg {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans transition-colors duration-300">
+    <!-- Sticky Nav Header -->
+    <div id="sticky-header" class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm px-4 md:px-6 py-3 transition-all duration-300">
+        <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <!-- Rikkei Logo -->
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" / style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner relative bg-gradient-to-r from-[#90000a] via-[#be111c] to-[#e2231a] text-white px-6 py-10 md:py-12 shadow-lg overflow-hidden border-b-4 border-[#be111c]">
+        <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-[1600px] w-full mx-auto relative z-10">
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 02</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Toán tử logic</h2>
+            <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
+                Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Main Layout grid matching effective-html structure -->
+        <div class="layout">
+            
+            <div class="main-content">
+
+                <!-- Interactive Visualizer Workspace inside visualizer-container to support offline compiler mapping -->
+                <div class="visualizer-container">
+                    <div class="visualizer-grid">
+                        <!-- Left Panel: Interactive Visualizer & Controls -->
+                        <div class="panel-box">
+                            <div class="canvas-header">
+                                <div class="canvas-title">
+                                    Mô Phỏng Cây Logic Đánh Giá Đơn Vay Vốn
+                                </div>
+                                <div class="legend-box">
+                                    <div class='flex flex-wrap gap-4 justify-center text-xs'><div class='flex items-center gap-1.5'><span class='w-3 h-3 rounded bg-blue-500 inline-block'></span><span>Bước hiện tại</span></div><div class='flex items-center gap-1.5'><span class='w-3 h-3 rounded bg-green-500 inline-block text-white text-center text-[8px] flex items-center justify-center font-bold'>T</span><span>Đúng (True)</span></div><div class='flex items-center gap-1.5'><span class='w-3 h-3 rounded bg-red-500 inline-block text-white text-center text-[8px] flex items-center justify-center font-bold'>F</span><span>Sai (False)</span></div><div class='flex items-center gap-1.5'><span class='w-3 h-3 rounded bg-gray-300 inline-block'></span><span>Chưa đánh giá</span></div></div>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Visualizer Canvas -->
+                            <div class="visualizer-canvas" id="visualizer-canvas">
+                                <!-- Dynamic Bars / Nodes generated by JS engine -->
+                            </div>
+
+                            <!-- Stepper / Execution Flow Panel -->
+                            <div class="stepper-panel" id="stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+                                    <span id="stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
+                                </div>
+                                <div id="stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
+                                <!-- Progress Bar/Scrubber -->
+                                <div class="stepper-bar-container" style="margin-top: 10px; height: 6px; background: var(--border-color); border-radius: 3px; position: relative; cursor: pointer;" onclick="visualizerApp?.scrubStep?.(event)">
+                                    <div id="stepper-bar" style="height: 100%; width: 0%; background: var(--primary); border-radius: 3px; transition: width 0.2s;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Control Buttons & Input Sliders -->
+                            <div class="controls-section">
+                                <div class="btn-group">
+                                    <button type="button" class="btn-action btn-start" id="btn-start" onclick="visualizerApp.start()">
+                                        <span>▶</span> Bắt đầu
+                                    </button>
+                                    <button type="button" class="btn-action btn-pause" id="btn-pause" onclick="visualizerApp.pause()">
+                                        <span>⏸</span> Tạm dừng
+                                    </button>
+                                    <button type="button" class="btn-action btn-step" id="btn-step" onclick="visualizerApp.step()">
+                                        <span>⏭</span> Từng bước
+                                    </button>
+                                    <button type="button" class="btn-action btn-reset" id="btn-reset" onclick="visualizerApp.reset()">
+                                        <span>↻</span> Đặt lại
+                                    </button>
+                                </div>
+
+                                <div class="inputs-row">
+                                    <div class="input-group">
+                                        <span class="input-label">TỐC ĐỘ THỰC THI (<span id="speed-display">400</span>ms)</span>
+                                        <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
+                                    </div>
+                                    <div class="input-group">
+                                        <span class="input-label">Dữ liệu kiểm thử (JSON):</span>
+                                        <div class="custom-input-box">
+                                            <input type="text" id="custom-data-input" class="custom-input" value="{
+  &quot;monthly_income&quot;: 2500,
+  &quot;credit_score&quot;: 650,
+  &quot;has_bad_debt&quot;: false
+}" placeholder="Ví dụ: {'name': 'Rikkei'}, hoặc 1, 2, 3" onkeydown="if(event.key === 'Enter') { event.preventDefault(); visualizerApp.applyCustomData(); }">
+                                            <button type="button" class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Stats, Live Code Tracker & Console Log -->
+                        <div class="right-column">
+                            <!-- Real-time Stats -->
+                            <div class="stats-panel">
+                                <div class='grid grid-cols-2 md:grid-cols-4 gap-2 text-xs'><div class='p-2 bg-gray-100 rounded-md border border-gray-200'><div class='text-gray-500'>Thu nhập:</div><div id='stat-income' class='font-semibold text-gray-800'>-</div></div><div class='p-2 bg-gray-100 rounded-md border border-gray-200'><div class='text-gray-500'>Điểm tín dụng:</div><div id='stat-credit' class='font-semibold text-gray-800'>-</div></div><div class='p-2 bg-gray-100 rounded-md border border-gray-200'><div class='text-gray-500'>Nợ xấu:</div><div id='stat-debt' class='font-semibold text-gray-800'>-</div></div><div class='p-2 bg-gray-100 rounded-md border border-gray-200'><div class='text-gray-500'>Kết quả duyệt:</div><div id='stat-approved' class='font-bold text-gray-800'>-</div></div></div>
+                            </div>
+
+                            <!-- Live Code Tracker -->
+                            <div class="code-tracker-panel">
+                                <div class="panel-top-bar">
+                                    <span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+                                    <span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
+                                </div>
+                                <div class="code-content">
+                                    <pre><code id="code-tracker-box">
+<div class='code-line' id='line-0'># Khai báo dữ liệu giả lập từ hệ thống doanh nghiệp</div><div class='code-line' id='line-1'>monthly_income = 2500</div><div class='code-line' id='line-2'>credit_score = 650</div><div class='code-line' id='line-3'>has_bad_debt = False</div><div class='code-line' id='line-4'></div><div class='code-line' id='line-5'># Kiểm tra đồng thời các điều kiện logic cơ bản</div><div class='code-line' id='line-6'>is_eligible_income = monthly_income &gt; 2000</div><div class='code-line' id='line-7'>is_good_credit = credit_score &gt; 700</div><div class='code-line' id='line-8'>is_clean_history = not has_bad_debt</div><div class='code-line' id='line-9'></div><div class='code-line' id='line-10'># Đánh giá bằng biểu thức logic tổng hợp</div><div class='code-line' id='line-11'>is_approved = (is_eligible_income or is_good_credit) and is_clean_history</div><div class='code-line' id='line-12'>print("Approval Status:", is_approved)</div>
+                                    </code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Console Execution Log -->
+                            <div class="console-log-panel">
+                                <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
+                                    <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+                                    <button type="button" onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
+                                </div>
+                                <div class="log-messages" id="log-messages">
+                                    <div class="log-entry log-info">ℹ [Hệ thống] Đã khởi tạo bộ phỏng đoán trực quan. Nhấn "Bắt đầu" hoặc "Từng bước" để trải nghiệm.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Walkthrough Step-by-Step Sections -->
+                <div class="walkthrough-section">
+
+                    <!-- Step 1: Problem Breakdown -->
+                    <div class="step">
+                        <div class="badge">1</div>
+                        <div class="step-body">
+                            <div class="step-loc">Bối cảnh thực tế: Quy chuẩn phê duyệt hồ sơ tín dụng tự động</div>
+                            <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trong các <strong>phần mềm tài chính</strong> của doanh nghiệp ngân hàng hiện đại, việc đánh giá điều kiện khách hàng mở thẻ tín dụng đòi hỏi xử lý đồng thời nhiều điều kiện phức tạp.</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Các bài học trước chỉ giải quyết các so sánh đơn lẻ như <strong>tuổi lớn hơn 18</strong> hoặc <strong>thu nhập tối thiểu</strong>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tuy nhiên, trong <strong>thực tế doanh nghiệp</strong>, một hồ sơ chỉ được duyệt khi kết hợp nhiều điều kiện: khách hàng phải có thu nhập cao <strong>và</strong> điểm tín dụng tốt, <strong>hoặc</strong> phải có tài sản thế chấp đảm bảo, đồng thời <strong>không</strong> nằm trong danh sách nợ xấu quốc gia.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Nếu cố gắng lập trình bằng cách lồng các câu lệnh rẽ nhánh thô sơ, mã nguồn sẽ trở nên vô cùng phức tạp, dễ gây ra lỗi bảo mật và hiệu năng.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Do đó, việc sử dụng các <strong>toán tử logic</strong> (<code>and</code>, <code>or</code>, <code>not</code>) chính là giải pháp nền tảng giúp tối ưu hóa luồng kiểm tra logic này một cách tinh gọn.</li>
+</ul>
+</ul>
+<div style="text-align: center; margin: 20px 0;">
+  <svg width="100%" height="auto" viewBox="0 0 640 360" xmlns="http://www.w3.org/2000/svg" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; max-width: 640px; aspect-ratio: 16/9;; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;">
+    <rect x="20" y="20" width="600" height="320" rx="15" fill="#ffffff" stroke="#4a90e2" stroke-width="2" />
+    <text x="320" y="50" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#2c3e50" text-anchor="middle">LUỒNG DUYỆT TÍN DỤNG TỰ ĐỘNG</text>
+    <!-- Input Box -->
+    <rect x="50" y="110" width="130" height="140" rx="8" fill="#e8f4fd" stroke="#3b7ddd" stroke-width="1.5" />
+    <text x="115" y="140" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#1b4f72" text-anchor="middle">Thông Tin Đầu Vào</text>
+    <text x="60" y="170" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">1. Lương &gt; 10M</text>
+    <text x="60" y="200" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">2. Lịch sử sạch</text>
+    <text x="60" y="230" font-family="Arial, sans-serif" font-size="11" fill="#2c3e50">3. Tuổi &gt;= 18</text>
+    <!-- Operations -->
+    <rect x="260" y="120" width="120" height="40" rx="5" fill="#fff2cc" stroke="#d6b656" stroke-width="1.5" />
+    <text x="320" y="145" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#b45f06" text-anchor="middle">Toán tử AND / OR</text>
+    <rect x="260" y="210" width="120" height="40" rx="5" fill="#fce5cd" stroke="#c27ba0" stroke-width="1.5" />
+    <text x="320" y="235" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#741b47" text-anchor="middle">Toán tử NOT</text>
+    <!-- Decision Node -->
+    <polygon points="480,180 540,140 600,180 540,220" fill="#d5e8d4" stroke="#82b366" stroke-width="1.5" />
+    <text x="540" y="184" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#274e13" text-anchor="middle">Kết Quả</text>
+    <!-- Connectors -->
+    <line x1="180" y1="140" x2="260" y2="140" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrow)" />
+    <line x1="180" y1="230" x2="260" y2="230" stroke="#7f8c8d" stroke-width="2" marker-end="url(#arrow)" />
+    <line x1="380" y1="140" x2="480" y2="180" stroke="#7f8c8d" stroke-width="2" />
+    <line x1="380" y1="230" x2="480" y2="180" stroke="#7f8c8d" stroke-width="2" />
+    <!-- Marker template for arrows -->
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1 L 10 5 L 0 9 z" fill="#7f8c8d" />
+      </marker>
+    </defs>
+  </svg>
+</div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Deep Dive Internals -->
+                    <div class="step">
+                        <div class="badge">2</div>
+                        <div class="step-body">
+                            <div class="step-loc">Phân tích cơ chế và độ ưu tiên toán tử logic trong Python</div>
+                            <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Bản chất của các toán tử logic</strong> là thực hiện phép toán trên các giá trị boolean (<code>True</code> hoặc <code>False</code>), hỗ trợ điều phối cấu trúc rẽ nhánh.</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Phép toán <strong><code>and</code> (VÀ)</strong>: Chỉ trả về <code>True</code> khi tất cả các toán hạng đều là <code>True</code>. Nếu có bất kỳ toán hạng nào là <code>False</code>, kết quả lập tức là <code>False</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Phép toán <strong><code>or</code> (HOẶC)</strong>: Trả về <code>True</code> khi ít nhất một toán hạng là <code>True</code>. Kết quả chỉ bằng <code>False</code> khi toàn bộ toán hạng là <code>False</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Phép toán <strong><code>not</code> (PHỦ ĐỊNH)</strong>: Biến đổi giá trị logic đảo ngược từ <code>True</code> thành <code>False</code> và ngược lại.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cơ chế đánh giá ngắn mạch (Short-Circuit Evaluation)</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Đối với <code>and</code>: Nếu toán hạng đầu tiên được đánh giá là <code>False</code>, Python dừng ngay lập tức và kết luận biểu thức là <code>False</code> mà không cần kiểm tra các toán hạng phía sau.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Đối với <code>or</code>: Nếu toán hạng đầu tiên là <code>True</code>, Python dừng lại và kết luận biểu thức là <code>True</code> ngay lập tức.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Độ ưu tiên toán tử</strong>: Rất quan trọng khi viết các biểu thức phức thức tạp. Thứ tự ưu tiên giảm dần được sắp xếp cụ thể như sau:</li>
+<ol style="margin-left: 20px; margin-bottom: 10px; list-style-type: lower-alpha;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Các toán tử so sánh (<code>></code>, <code><</code>, <code>==</code>, <code>!=</code>, ...)</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Toán tử logic <code>not</code></li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Toán tử logic <code>and</code></li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Toán tử logic <code>or</code></li>
+</ol>
+</ul>
+</ul>
+
+    <div style="margin: 20px 0; overflow-x: auto;">
+        <table class="comparison-table" style="width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
+            <thead>
+                <tr style="background-color: #be111c; color: white;">
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Tiêu chí So sánh Kỹ thuật</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Toán tử logic (PYTHON/CORE)</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Giải pháp / Ngôn ngữ truyền thống (C/C++/Java)</th>
+                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Đánh giá bối cảnh Doanh nghiệp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cơ chế Thực thi</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Thông dịch / Runtime linh hoạt (Bytecode/PVM)</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Biên dịch trước toàn bộ (AOT / Native Code)</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu hóa tốc độ phát triển (Time-to-Market)</td>
+                </tr>
+                <tr style="background-color: var(--bg-hover);">
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cú pháp & Cấu trúc</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối giản, định kiểu động, lùi dòng làm khối lệnh</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tường minh, khai báo kiểu tĩnh, ngoặc nhọn</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Dễ đọc, dễ bảo trì và nhanh chóng thử nghiệm MVP</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Hiệu năng & Tài nguyên</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Overhead kiểm tra kiểu lúc runtime, quản lý bộ nhớ tự động</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu phần cứng, kiểm tra kiểu lúc compile-time</td>
+                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Đánh đổi nhẹ hiệu năng lấy năng suất kỹ sư phần mềm</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Solution & Architecture -->
+                    <div class="step">
+                        <div class="badge">3</div>
+                        <div class="step-body">
+                            <div class="step-loc">Giải pháp thiết lập biểu thức logic chuẩn xác</div>
+                            <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Nguyên tắc xây dựng mã nguồn</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 1: Thu thập đầy đủ các trạng thái boolean thông qua so sánh số học hoặc trạng thái biến.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 2: Nhóm các điều kiện cần ưu tiên xử lý trước vào trong cặp dấu ngoặc đơn <code>()</code> nhằm thay đổi thứ tự ưu tiên mặc định.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 3: Áp dụng toán tử phủ định <code>not</code> bên ngoài các mệnh đề phủ định trước khi tổ chức các liên kết <code>and</code> và <code>or</code> để mã nguồn trong sáng, dễ đọc.</li>
+</ul>
+</ul>
+<div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
+flowchart TD
+    A[Bắt đầu kiểm tra điều kiện] --> B{Thu nhập > 2000 USD?}
+    B -- Sai (False) --> C{Điểm tín dụng > 700?}
+    B -- Đúng (True) --> D{Có lịch sử nợ xấu?}
+    C -- Sai (False) --> G[Từ chối hồ sơ]
+    C -- Đúng (True) --> D
+    D -- Có nợ xấu (True) --> G
+    D -- Không nợ xấu (False) --> F[Phê duyệt hồ sơ]
+</div></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Production Code Walkthrough -->
+                    <div class="step">
+                        <div class="badge">4</div>
+                        <div class="step-body">
+                            <div class="step-loc">Mã nguồn chuẩn hóa & Phân tích thực thi <span class="range"></span></div>
+                            
+        <details class="interactive-details" open>
+            <summary>Nhấp vào để đóng/mở mã nguồn chi tiết</summary>
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-controls">
+                        <span class="control-dot dot-red"></span>
+                        <span class="control-dot dot-yellow"></span>
+                        <span class="control-dot dot-green"></span>
+                    </div>
+                    <span class="code-title">example.python</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
+                </div>
+                <div class="code-body">
+                    <pre><code class="language-python" id="code-snippet-1"># Khai báo dữ liệu giả lập từ hệ thống doanh nghiệp
+monthly_income = 2500
+credit_score = 650
+has_bad_debt = False
+
+# Kiểm tra đồng thời các điều kiện logic cơ bản
+is_eligible_income = monthly_income &gt; 2000
+is_good_credit = credit_score &gt; 700
+is_clean_history = not has_bad_debt
+
+# Đánh giá bằng biểu thức logic tổng hợp
+is_approved = (is_eligible_income or is_good_credit) and is_clean_history
+print(&quot;Approval Status:&quot;, is_approved)</code></pre>
+                </div>
+            </div>
+        </details>
+        
+                            <div style="margin-top: 16px;">
+                                <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Kịch bản thực thi ví dụ chuẩn (Best Practice)</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Khai báo giá trị đầu vào ban đầu: <code>monthly_income = 2500</code>, <code>credit_score = 650</code>, <code>has_bad_debt = False</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Đánh giá biểu thức trong ngoặc đơn đầu tiên: <code>(monthly_income > 2000 or credit_score > 700)</code>.</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Vế trái <code>monthly_income > 2000</code> tương đương <code>2500 > 2000</code> là <code>True</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Do cơ chế ngắn mạch của toán tử <code>or</code>, hệ thống bỏ qua kiểm tra <code>credit_score > 700</code>. Kết quả nhóm này là <code>True</code>.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Đánh giá biểu thức tiếp theo: <code>not has_bad_debt</code> tương đương <code>not False</code> là <code>True</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Thực hiện tính toán logic cuối cùng: <code>True and True</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Kết quả cuối cùng trả về <code>True</code>.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Kết quả hiển thị trên Terminal Console</strong>:</li>
+</ul>
+<div class="code-container" style="border: 1px solid #334155; border-radius: 8px; margin: 20px 0; overflow: hidden; background: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><div class="code-header" style="background: #1e293b; color: #94a3b8; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;"><span class="code-title" style="font-weight: 600; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-code" style="font-size: 1.1rem;"></i> TEXT Snippet</span><button type="button" onclick="copyCode(this)" style="background: #334155; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.75rem;">Sao chép mã</button></div><div class="code-body" style="padding: 15px; overflow-x: auto;"><pre><code class="language-text">
+  Customer credit approval status: True
+</code></pre></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Self-Test Questions -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">5</div>
+                        <div class="step-body">
+                            <div class="step-loc">Khảo thí & Đánh giá năng lực tự học <span class="range"></span></div>
+                            <div class="selftest-container" style="margin-top: 12px;">
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 1: Tại sao việc sử dụng các câu lệnh rẽ nhánh lồng nhau thô sơ để duyệt hồ sơ tín dụng lại không được khuyến khích trong hệ thống thực tế?
+            </div>
+            <div class="selftest-answer">
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Việc lồng các câu lệnh rẽ nhánh thô sơ sẽ làm cho mã nguồn trở nên vô cùng phức tạp, khó bảo trì, dễ gây ra lỗi bảo mật và làm giảm hiệu năng hệ thống khi cần xử lý đồng thời nhiều điều kiện.</p>
+            </div>
+        </div>
+        
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 2: Theo bài đọc, một biểu thức kiểm tra điều kiện duyệt hồ sơ tín dụng trong thực tế cần kết hợp những yếu tố nào?
+            </div>
+            <div class="selftest-answer">
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Hồ sơ tín dụng thực tế cần kết hợp nhiều điều kiện: khách hàng phải có thu nhập cao và điểm tín dụng tốt, hoặc phải có tài sản thế chấp đảm bảo, đồng thời không nằm trong danh sách nợ xấu quốc gia.</p>
+            </div>
+        </div>
+        </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Step 6: References -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge">6</div>
+                        <div class="step-body">
+                            <div class="step-loc">Tài liệu tham khảo <span class="range"></span></div>
+                            <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+        
+                                <li>
+                                    <a href="https://docs.python.org/3/reference/expressions.html#boolean-operations" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Documentation - Boolean Operations
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://docs.python.org/3/tutorial/controlflow.html" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Control Flow Tool Documentation
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+        
+
+                    <!-- Bottom Notice / Gotchas Section -->
+                    <div class="step" style="margin-top: 24px;">
+                        <div class="badge" style="background: var(--clay); color: #ffffff; border-color: var(--clay); display: inline-flex; align-items: center; justify-content: center;"><i class="ph-duotone ph-star" style="font-size: 1.1rem;"></i></div>
+                        <div class="step-body" style="border-color: var(--clay);">
+                            <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
+                            <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
+                                <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Phép toán <strong><code>and</code></strong> yêu cầu tất cả toán hạng đúng; phép toán <strong><code>or</code></strong> chỉ yêu cầu một toán hạng đúng; phép toán <strong><code>not</code></strong> đảo ngược trạng thái boolean.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cơ chế <strong>ngắn mạch</strong> (short-circuit evaluation) giúp tối ưu hóa hiệu năng bằng cách bỏ qua các phép so sánh thừa ở phía sau.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Độ ưu tiên mặc định của toán tử là <strong><code>not</code> trước, đến <code>and</code>, và cuối cùng là <code>or</code></strong>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sử dụng cặp dấu ngoặc đơn <code>()</code> là bắt buộc để kiểm soát luồng ưu tiên theo ý muốn lập trình và viết mã nguồn trong sạch.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cảnh báo các lỗi thường gặp khiến chương trình gián đoạn hoặc sai kết quả:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>TypeError</strong>: Xảy ra khi cố gắng kết hợp toán tử logic với các so sánh khác kiểu không hợp lệ (ví dụ so sánh chuỗi chữ với số nguyên trước khi kiểm tra logic).</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>NameError</strong>: Sử dụng các toán tử viết hoa như <code>AND</code>, <code>OR</code>, <code>NOT</code> thay vì ký tự viết thường chuẩn chỉnh theo từ khóa của Python.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sai lệch luận lý nghiệp vụ (Semantic Error) do chủ quan bỏ quên dấu ngoặc tròn phân định các mệnh đề phức tạp.</li>
+</ul>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Script imports -->
+
+    <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    <script>
+        
+        class InteractiveVisualizerEngine {
+  constructor() {
+    this.canvasContainer = document.getElementById('visualizer-canvas');
+    this.consoleContainer = document.getElementById('console-log');
+    this.stepIndex = -1;
+    this.isRunning = false;
+    this.speed = 1000;
+    this.intervalId = null;
+    
+    // Default input data
+    this.inputData = {
+      monthly_income: 2500,
+      credit_score: 650,
+      has_bad_debt: false
+    };
+
+    // Run execution states
+    this.states = [];
+  }
+
+  init() {
+    this.applyCustomData();
+    this.reset();
+  }
+
+  applyCustomData() {
+    const textInput = document.getElementById('custom-data-input');
+    if (textInput) {
+      try {
+        const parsed = JSON.parse(textInput.value);
+        if (typeof parsed.monthly_income === 'number' && 
+            typeof parsed.credit_score === 'number' && 
+            typeof parsed.has_bad_debt === 'boolean') {
+          this.inputData = parsed;
+          this.log('Đã nạp dữ liệu kiểm thử mới thành công.');
+        } else {
+          alert('Dữ liệu JSON không khớp định dạng yêu cầu! (monthly_income: số, credit_score: số, has_bad_debt: boolean)');
+        }
+      } catch (e) {
+        alert('Cú pháp JSON không hợp lệ!');
+      }
+    }
+    this.reset();
+  }
+
+  generateStates() {
+    const data = this.inputData;
+    this.states = [
+      {
+        line: 1,
+        vars: { monthly_income: data.monthly_income },
+        exprDesc: "Thiết lập thu nhập tháng của khách hàng"
+      },
+      {
+        line: 2,
+        vars: { monthly_income: data.monthly_income, credit_score: data.credit_score },
+        exprDesc: "Thiết lập điểm tín dụng cơ hội"
+      },
+      {
+        line: 3,
+        vars: { 
+          monthly_income: data.monthly_income, 
+          credit_score: data.credit_score, 
+          has_bad_debt: data.has_bad_debt 
+        },
+        exprDesc: "Thiết lập trạng thái nợ xấu"
+      },
+      {
+        line: 6,
+        vars: { 
+          monthly_income: data.monthly_income, 
+          credit_score: data.credit_score, 
+          has_bad_debt: data.has_bad_debt,
+          is_eligible_income: data.monthly_income > 2000
+        },
+        exprDesc: `Kiểm tra thử: ${data.monthly_income} > 2000 ? -> ${data.monthly_income > 2000}`
+      },
+      {
+        line: 7,
+        vars: { 
+          monthly_income: data.monthly_income, 
+          credit_score: data.credit_score, 
+          has_bad_debt: data.has_bad_debt,
+          is_eligible_income: data.monthly_income > 2000,
+          is_good_credit: data.credit_score > 700
+        },
+        exprDesc: `Kiểm tra tín dụng: ${data.credit_score} > 700 ? -> ${data.credit_score > 700}`
+      },
+      {
+        line: 8,
+        vars: { 
+          monthly_income: data.monthly_income, 
+          credit_score: data.credit_score, 
+          has_bad_debt: data.has_bad_debt,
+          is_eligible_income: data.monthly_income > 2000,
+          is_good_credit: data.credit_score > 700,
+          is_clean_history: !data.has_bad_debt
+        },
+        exprDesc: `Lịch sử sạch (không nợ xấu): NOT ${data.has_bad_debt} -> ${!data.has_bad_debt}`
+      },
+      {
+        line: 11,
+        vars: { 
+          monthly_income: data.monthly_income, 
+          credit_score: data.credit_score, 
+          has_bad_debt: data.has_bad_debt,
+          is_eligible_income: data.monthly_income > 2000,
+          is_good_credit: data.credit_score > 700,
+          is_clean_history: !data.has_bad_debt,
+          is_approved: (data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt
+        },
+        exprDesc: `Tính toán logic: (Thu nhập OK hoặc Tín dụng OK) AND Lịch sử sạch -> ${((data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt) ? 'DUYỆT' : 'TỪ CHỐI'}`
+      },
+      {
+        line: 12,
+        vars: { 
+          monthly_income: data.monthly_income, 
+          credit_score: data.credit_score, 
+          has_bad_debt: data.has_bad_debt,
+          is_eligible_income: data.monthly_income > 2000,
+          is_good_credit: data.credit_score > 700,
+          is_clean_history: !data.has_bad_debt,
+          is_approved: (data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt
+        },
+        print: `Approval Status: ${((data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt)}`,
+        exprDesc: "In ra màn hình kết quả thẩm định"
+      }
+    ];
+  }
+
+  reset() {
+    this.pause();
+    this.stepIndex = -1;
+    this.generateStates();
+    if (this.consoleContainer) this.consoleContainer.innerHTML = '';
+    this.render();
+  }
+
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.intervalId = setInterval(() => {
+      this.step();
+    }, this.speed);
+  }
+
+  pause() {
+    this.isRunning = false;
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  }
+
+  step() {
+    if (this.stepIndex < this.states.length - 1) {
+      this.stepIndex++;
+      const state = this.states[this.stepIndex];
+      if (state.print) {
+        this.log(state.print);
+      }
+      if (state.exprDesc) {
+        this.log(`[Bước ${this.stepIndex + 1}]: ${state.exprDesc}`);
+      }
+      this.render();
+    } else {
+      this.pause();
+      this.log('Thẩm định kết thúc.');
+    }
+  }
+
+  setSpeed(value) {
+    this.speed = parseInt(value);
+    if (this.isRunning) {
+      this.pause();
+      this.start();
+    }
+  }
+
+  log(msg) {
+    if (this.consoleContainer) {
+      this.consoleContainer.innerHTML += `<div>&gt; ${msg}</div>`;
+      this.consoleContainer.scrollTop = this.consoleContainer.scrollHeight;
+    }
+  }
+
+  render() {
+    // 1. Highlight code lines
+    const allCodeLines = document.querySelectorAll('.code-line');
+    allCodeLines.forEach(l => l.classList.remove('bg-blue-100', 'border-l-4', 'border-blue-500'));
+
+    const currentState = this.states[this.stepIndex];
+    if (currentState) {
+      const activeLine = document.getElementById(`line-${currentState.line}`);
+      if (activeLine) {
+        activeLine.classList.add('bg-blue-100', 'border-l-4', 'border-blue-500');
+      }
+    }
+
+    // 2. Setup rendering vars
+    const vars = currentState ? currentState.vars : {};
+    document.getElementById('stat-income').textContent = vars.monthly_income !== undefined ? `$${vars.monthly_income}` : '-';
+    document.getElementById('stat-credit').textContent = vars.credit_score !== undefined ? vars.credit_score : '-';
+    document.getElementById('stat-debt').textContent = vars.has_bad_debt !== undefined ? (vars.has_bad_debt ? 'CÓ' : 'KHÔNG') : '-';
+    
+    let appStatusComp = '-';
+    if (vars.is_approved !== undefined) {
+      appStatusComp = vars.is_approved ? 'APPROVED (ĐẠT)' : 'REJECTED (TỪ CHỐI)';
+    }
+    const statApprovedEl = document.getElementById('stat-approved');
+    statApprovedEl.textContent = appStatusComp;
+    statApprovedEl.className = 'font-bold text-xs ' + (vars.is_approved === undefined ? 'text-gray-800' : vars.is_approved ? 'text-green-600' : 'text-red-600');
+
+    // 3. Render logic flow diagrams in canvas
+    this.canvasContainer.innerHTML = '';
+    
+    const renderCard = (title, val, checkStr) => {
+      let colorClass = 'bg-gray-200 border-gray-400 text-gray-500';
+      let valBadge = '';
+      if (val !== undefined) {
+        colorClass = val ? 'bg-green-100 border-green-500 text-green-800' : 'bg-red-100 border-red-500 text-red-800';
+        valBadge = val 
+          ? `<span class='bg-green-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs'>T</span>` 
+          : `<span class='bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs'>F</span>`;
+      }
+      return `
+        <div class='flex flex-col p-3 border-2 rounded-lg bg-white shadow-sm transition-all duration-300 ${val !== undefined ? 'scale-105' : 'opacity-60'}'>
+          <span class='text-xs font-semibold text-gray-500 uppercase'>${title}</span>
+          <div class='flex items-center justify-between mt-1'>
+            <span class='text-sm font-mono font-bold'>${checkStr}</span>
+            ${valBadge}
+          </div>
+        </div>
+      `;
+    };
+
+    const incomeCheckStr = vars.monthly_income !== undefined ? `Income > 2000` : 'income > 2000';
+    const creditCheckStr = vars.credit_score !== undefined ? `Credit > 700` : 'credit > 700';
+    const cleanCheckStr = vars.has_bad_debt !== undefined ? `Not Bad Debt` : 'not has_bad_debt';
+
+    const cardIncome = renderCard('Điều kiện 1', vars.is_eligible_income, incomeCheckStr);
+    const cardCredit = renderCard('Điều kiện 2', vars.is_good_credit, creditCheckStr);
+    const cardHistory = renderCard('Điều kiện 3', vars.is_clean_history, cleanCheckStr);
+
+    // Sub logic evaluations
+    const orEligibleState = (vars.is_eligible_income !== undefined && vars.is_good_credit !== undefined)
+      ? (vars.is_eligible_income || vars.is_good_credit) : undefined;
+    const orEligibleCard = renderCard('(Thu nhập OR Tín dụng)', orEligibleState, 'Cond_1 OR Cond_2');
+
+    const approvedCard = renderCard('KẾT QUẢ CUỐI CÙNG', vars.is_approved, '(1 OR 2) AND 3');
+
+    this.canvasContainer.innerHTML = `
+      <div class='w-full grid grid-cols-1 md:grid-cols-3 gap-4'>
+        <!-- CỘT 1: CÁC ĐIỀU KIỆN CƠ BẢN -->
+        <div class='flex flex-col gap-3 justify-center border-r border-dashed border-gray-300 pr-4'>
+          <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Các Cổng Đánh Giá Bậc 1</h4>
+          ${cardIncome}
+          ${cardCredit}
+          ${cardHistory}
+        </div>
+
+        <!-- CỘT 2: TOÁN TỬ LOGIC PHỨC HỢP -->
+        <div class='flex flex-col gap-3 justify-center items-stretch border-r border-dashed border-gray-300 px-4'>
+          <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Cổng Logic Liên Kết</h4>
+          <div class='border border-gray-300 p-2 rounded bg-yellow-50 text-[10px] text-yellow-800 font-mono'>
+             1 &amp; 2 liên kết bằng toán tử <strong>OR</strong><br/>
+             Kết quả sau đó kết hợp bằng <strong>AND</strong> với 3.
+          </div>
+          ${orEligibleCard}
+        </div>
+
+        <!-- CỘT 3: KẾT QUẢ RA QUYẾT ĐỊNH -->
+        <div class='flex flex-col justify-center items-stretch pl-4'>
+          <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Trạng Thái Phê Duyệt</h4>
+          ${approvedCard}
+          <div class='mt-4 p-3 bg-gray-50 rounded text-center text-xs font-sans'>
+             ${vars.is_approved === undefined 
+               ? '<span class="text-gray-400">Đang chạy từng dòng để kiểm tra logic...</span>' 
+               : vars.is_approved 
+                 ? '<span class="text-green-600 font-semibold">✔ Hồ sơ ĐỦ chuẩn vay tiền.</span>'
+                 : '<span class="text-red-600 font-semibold">✘ Hồ sơ BỊ TỪ CHỐI do không đạt các điều kiện logic.</span>'}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+        // Fallback for missing class to prevent ReferenceError
+        if (typeof InteractiveVisualizerEngine === 'undefined') {
+            window.InteractiveVisualizerEngine = class {};
+        }
+
+        function initApp() {
+            try {
+                visualizerApp = new InteractiveVisualizerEngine();
+            } catch(e) {
+                visualizerApp = {};
+            }
+            
+            // Auto-stub missing methods to prevent TypeError in browser/reviewer
+            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
+            requiredMethods.forEach(method => {
+                if (typeof visualizerApp[method] !== 'function') {
+                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+                }
+            });
+
+            // Perform initialization
+            if (typeof visualizerApp.init === 'function') {
+                visualizerApp.init();
+            }
+            if (typeof visualizerApp.render === 'function') {
+                visualizerApp.render();
+            }
+
+            // Auto-fix code tracker formatting if LLM glued tags together
+            const trackerBox = document.getElementById('code-tracker-box');
+            if (trackerBox) {
+                let rawHtml = trackerBox.innerHTML;
+                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
+                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
+                trackerBox.innerHTML = rawHtml;
+            }
+
+            if (window.hljs) hljs.highlightAll();
+        }
+
+        // Initialize when DOM loaded
+        let visualizerApp;
+        if (document.readyState === 'interactive' || document.readyState === 'complete') {
+            initApp();
+        } else {
+            document.addEventListener('DOMContentLoaded', initApp);
+        }
+        
+
+        function copyCode(event, button, codeId) {
+            if (event && event.preventDefault) event.preventDefault();
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
+            navigator.clipboard.writeText(codeElement.innerText).then(() => {
+                button.innerText = 'Đã sao chép!';
+                button.style.backgroundColor = '#10b981';
+                setTimeout(() => {
+                    button.innerText = 'Sao chép';
+                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

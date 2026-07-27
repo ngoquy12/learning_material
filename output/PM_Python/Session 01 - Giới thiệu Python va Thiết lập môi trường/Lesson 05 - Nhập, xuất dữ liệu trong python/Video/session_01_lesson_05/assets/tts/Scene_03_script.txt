@@ -1,0 +1,1 @@
+Để bắt đầu thu thập dữ liệu, Python cung cấp API toàn cục in-put. Khi chương trình thực thi hàm in-put, tiến trình sẽ tạm ngưng, giải phóng quyền kiểm soát màn hình giao diện dòng lệnh cơ bản để chờ người dùng nhập giá trị. Mọi ký tự được nhập từ bàn phím trước khi ấn phím Enter sẽ được đóng gói nguyên bản dưới dạng một chuỗi văn bản duy nhất.

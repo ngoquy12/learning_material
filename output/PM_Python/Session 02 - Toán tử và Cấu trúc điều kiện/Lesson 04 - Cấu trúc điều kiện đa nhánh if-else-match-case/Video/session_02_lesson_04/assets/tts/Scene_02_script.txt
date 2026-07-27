@@ -1,0 +1,1 @@
+Hãy quan sát luồng xử lý của hệ thống. Luồng dữ liệu đi qua hai tầng kiểm tra. Đầu tiên là kiểm tra trạng thái giao dịch: thành công, thất bại hoặc đang chờ xử lý. Từ nhánh thành công, chúng ta tiếp tục rẽ nhánh dựa trên phân hạng thành viên gồm vàng, bạc và đồng để áp dụng mức chiết khấu. Việc thiết kế sơ đồ rõ ràng sẽ giúp việc thiết lập mã nguồn chính xác.

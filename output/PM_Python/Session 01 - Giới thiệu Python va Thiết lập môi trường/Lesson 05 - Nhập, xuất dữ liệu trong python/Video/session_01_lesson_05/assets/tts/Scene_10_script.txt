@@ -1,0 +1,1 @@
+Hãy quan sát chương trình thực tế hoàn chỉnh giả lập hệ thống thanh toán. Chúng ta khai báo biến giá sản phẩm và số lượng thông qua hai hàm in-put. Tiếp theo thực hiện ép kiểu sang kiểu phờ-lốt và kiểu in-t chuyên biệt. Cuối cùng, kết quả được tính toán và in ra màn hình sử dụng kết hợp cả hai đối số từ khóa xép và en-đơ để tạo báo cáo chuẩn hóa.
