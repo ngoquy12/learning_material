@@ -574,17 +574,17 @@ def session_compiler_node(state: AgentState) -> AgentState:
         with open(os.path.join("dist", "reading.html"), "w", encoding="utf-8") as f:
             f.write(html_content)
             
-    # Write slides.md
+    # Write slides.html
     slide_md = state.get("slide_markdown", "")
     if slide_md:
-        slides_path = os.path.join("dist", "slides.md")
+        slides_path = os.path.join("dist", "slides.html")
         with open(slides_path, "w", encoding="utf-8") as f:
             f.write(slide_md)
         # Call Marp CLI to compile slide markdown to HTML
         try:
             print("  [Compiler] Compiling slide.md to slide.html via Marp CLI...")
             result = subprocess.run(
-                "npx --yes @marp-team/marp-cli --no-stdin dist/slides.md -o dist/slides.html",
+                "npx --yes @marp-team/marp-cli --no-stdin dist/slides.html -o dist/slides.html",
                 shell=True,
                 capture_output=True,
                 encoding="utf-8",

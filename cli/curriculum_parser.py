@@ -226,7 +226,7 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 if "slide" in requested_parts:
                     sub = lesson_dir / "Bài giảng"
                     sub.mkdir(parents=True, exist_ok=True)
-                    with open(sub / "slides.md", "w", encoding="utf-8") as f:
+                    with open(sub / "slides.html", "w", encoding="utf-8") as f:
                         f.write(f"<!-- Empty slide outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
                 
                 if "quiz" in requested_parts:
@@ -255,7 +255,7 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
             if "slide" in requested_parts:
                 sub = session_dir / "Bài giảng"
                 sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "slides.md", "w", encoding="utf-8") as f:
+                with open(sub / "slides.html", "w", encoding="utf-8") as f:
                     f.write(f"<!-- Empty slide outline for {session_id} -->\n")
             if "quiz" in requested_parts:
                 sub = session_dir / "Câu hỏi Quizz"
@@ -333,8 +333,8 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
 
                 if "html" in requested_parts and not (lesson_dir / "Bài đọc" / "reading.html").exists():
                     missing_elements.append(f"Thiếu file reading.html tại {session_id} -> {lesson_id}")
-                if "slide" in requested_parts and not (lesson_dir / "Bài giảng" / "slides.md").exists():
-                    missing_elements.append(f"Thiếu file slides.md tại {session_id} -> {lesson_id}")
+                if "slide" in requested_parts and not (lesson_dir / "Bài giảng" / "slides.html").exists():
+                    missing_elements.append(f"Thiếu file slides.html tại {session_id} -> {lesson_id}")
                 if "quiz" in requested_parts and not (lesson_dir / "Câu hỏi Quizz" / "quiz.json").exists():
                     missing_elements.append(f"Thiếu file quiz.json tại {session_id} -> {lesson_id}")
                 if ("video" in requested_parts or "video_script" in requested_parts) and not (lesson_dir / "Video" / "SCRIPT.md").exists():
@@ -344,8 +344,8 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
         else:
             if "html" in requested_parts and not (session_dir / "Bài đọc" / "reading.html").exists():
                 missing_elements.append(f"Thiếu file reading.html tại {session_id}")
-            if "slide" in requested_parts and not (session_dir / "Bài giảng" / "slides.md").exists():
-                missing_elements.append(f"Thiếu file slides.md tại {session_id}")
+            if "slide" in requested_parts and not (session_dir / "Bài giảng" / "slides.html").exists():
+                missing_elements.append(f"Thiếu file slides.html tại {session_id}")
             if "quiz" in requested_parts and not (session_dir / "Câu hỏi Quizz" / "quiz.json").exists():
                 missing_elements.append(f"Thiếu file quiz.json tại {session_id}")
             if ("video" in requested_parts or "video_script" in requested_parts) and not (session_dir / "Video" / "SCRIPT.md").exists():
@@ -426,9 +426,9 @@ def verify_previous_lessons_completed(sessions, current_session_id: str, current
             if not html_file.exists() or html_file.stat().st_size < 500 or "<!-- Empty outline" in html_file.read_text(encoding="utf-8"):
                 uncompleted.append("Bài đọc/reading.html chưa được sinh nội dung chi tiết hoặc quá ngắn.")
         if "slide" in requested_parts:
-            slide_file = prev_dir / "Bài giảng" / "slides.md"
+            slide_file = prev_dir / "Bài giảng" / "slides.html"
             if not slide_file.exists() or slide_file.stat().st_size < 500 or "<!-- Empty slide outline" in slide_file.read_text(encoding="utf-8"):
-                uncompleted.append("Bài giảng/slides.md chưa được sinh nội dung chi tiết hoặc quá ngắn.")
+                uncompleted.append("Bài giảng/slides.html chưa được sinh nội dung chi tiết hoặc quá ngắn.")
         if "quiz" in requested_parts:
             quiz_file = prev_dir / "Câu hỏi Quizz" / "quiz.json"
             if not quiz_file.exists() or quiz_file.stat().st_size < 20:

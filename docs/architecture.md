@@ -256,7 +256,7 @@ output/
 ├── Bài đọc/
 │ └── reading.html # Tài liệu tự học HTML
 ├── Bài giảng/
-│ └── slides.md # Slide bài giảng Marp Markdown
+│ └── slides.html # Slide bài giảng Marp Markdown
 ├── Bài tập/
 │ └── quiz.json # Trắc nghiệm + Hands-on Lab
 ├── Kịch bản video/

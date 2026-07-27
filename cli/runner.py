@@ -309,7 +309,7 @@ def main_entry():
                     if "slide" in requested_parts and final_state.get("slide_markdown"):
                         slide_sub = lesson_dir / "Bài giảng"
                         slide_sub.mkdir(parents=True, exist_ok=True)
-                        slides_path = slide_sub / "slides.md"
+                        slides_path = slide_sub / "slides.html"
                         with open(slides_path, "w", encoding="utf-8") as f:
                             f.write(final_state.get("slide_markdown", ""))
                     else:
@@ -427,7 +427,7 @@ def main_entry():
                 if "slide" in requested_parts and final_state.get("slide_markdown"):
                     slide_sub = session_dir / "Bài giảng"
                     slide_sub.mkdir(parents=True, exist_ok=True)
-                    slides_path = slide_sub / "slides.md"
+                    slides_path = slide_sub / "slides.html"
                     with open(slides_path, "w", encoding="utf-8") as f:
                         f.write(final_state.get("slide_markdown", ""))
                 else:

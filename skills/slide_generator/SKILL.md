@@ -62,3 +62,7 @@ Slide bài giảng đóng vai trò là **Công cụ Hỗ trợ Giảng dạy Tr�
    - Bọc trong thẻ `<div class="mermaid"> ... </div>`.
    - Dùng cú pháp Mermaid chuẩn v10: `flowchart TD`, `sequenceDiagram`, `classDiagram`.
    - Nhãn các bước bằng Tiếng Việt giàu ý nghĩa.
+
+
+> [!IMPORTANT]
+> Tệp đầu ra duy nhất của Agent Slide cho từng Lesson là **`slides.html`** (Nằm trong thư mục `Bài giảng/slides.html`). TUYỆT ĐỐI KHÔNG LƯU THÀNH `slides.md`.
