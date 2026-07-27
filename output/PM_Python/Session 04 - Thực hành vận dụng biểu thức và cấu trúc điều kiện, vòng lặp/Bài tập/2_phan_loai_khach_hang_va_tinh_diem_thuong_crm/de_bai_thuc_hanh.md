@@ -25,12 +25,12 @@ Dưới đây là sơ đồ luồng dữ liệu của chương trình:
 graph TD
     A[Bắt đầu chương trình] --> B[Nhập Tên khách hàng hoặc STOP để dừng]
     B --> C{Tên là STOP?}
-    C -- Đúng --> D[In báo cáo tổng hợp và Kết thúc]
-    C -- Sai --> E[Nhập: Chi tiêu, Số tháng hoạt động, Số hóa đơn]
+    C -->|Đúng| D[In báo cáo tổng hợp và Kết thúc]
+    C -->|Sai| E[Nhập: Chi tiêu, Số tháng hoạt động, Số hóa đơn]
     E --> F{Dữ liệu đầu vào > 0?}
-    F -- Sai --> G[[Thông báo lỗi và yêu cầu nhập lại từ đầu]]
+    F -->|Sai| G[[Thông báo lỗi và yêu cầu nhập lại từ đầu]]
     G --> B
-    F -- Đúng --> H[Xử lý phân hạng khách hàng]
+    F -->|Đúng| H[Xử lý phân hạng khách hàng]
     H --> I[Xử lý tính điểm thưởng cơ bản và điểm bonus]
     I --> J[In chi tiết kết quả của khách hàng hiện tại]
     J --> B

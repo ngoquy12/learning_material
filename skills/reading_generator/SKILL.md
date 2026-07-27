@@ -73,6 +73,7 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 3. GIẢI PHÁP KỸ THUẬT & SƠ ĐỒ LUỒNG (Architecture & Flow)                                     |
 |    • SƠ ĐỒ MERMAID DIAGRAM (flowchart TD / sequenceDiagram) giải thích luồng thực thi.        |
+|    • **BẮT BUỘC**: Dùng cú pháp `A -->|Nhãn| B` (CẤM dùng `A -- Nhãn --> B` gây lỗi Mermaid v10). |
 |    • Cấu trúc mã nguồn chuẩn Best Practice vs Anti-Pattern.                                   |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 4. QUY CHUẨN MÃ NGUỒN & PHÂN TÍCH THỰC THI (Code & Console Analysis)                          |

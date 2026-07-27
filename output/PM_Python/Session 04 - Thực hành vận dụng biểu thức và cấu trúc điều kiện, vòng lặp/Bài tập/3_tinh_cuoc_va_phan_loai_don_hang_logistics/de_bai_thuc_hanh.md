@@ -20,14 +20,14 @@ Hệ thống cần một chương trình tự động chạy trên giao diện d
 graph TD
     Start[Bắt đầu ca làm việc] --> InputPackage[Nhập package_id, weight, distance, shipping_method]
     InputPackage --> Validation{Kiểm tra tính hợp lệ}
-    Validation -- Không hợp lệ --> PrintError[Hiển thị lỗi và yêu cầu nhập lại]
+    Validation -->|Không hợp lệ| PrintError[Hiển thị lỗi và yêu cầu nhập lại]
     PrintError --> InputPackage
-    Validation -- Hợp lệ --> FeeCalculation[Tính shipping_fee và phụ phí tải trọng]
+    Validation -->|Hợp lệ| FeeCalculation[Tính shipping_fee và phụ phí tải trọng]
     FeeCalculation --> DiscountCalculation[Tính chiết khấu discount_applied nếu đạt điều kiện]
     DiscountCalculation --> Accumulate[Cập nhật total_cost và total_weight]
     Accumulate --> CheckNext{Người dùng nhập EXIT?}
-    CheckNext -- Không --> InputPackage
-    CheckNext -- Có --> PrintSummary[Xuất báo cáo thống kê kết quả]
+    CheckNext -->|Không| InputPackage
+    CheckNext -->|Có| PrintSummary[Xuất báo cáo thống kê kết quả]
     PrintSummary --> End[Kết thúc]
 ```
 

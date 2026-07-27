@@ -1032,8 +1032,8 @@ sys.stderr = io.StringIO()
 flowchart TD
     A[Bắt đầu kiểm tra điều kiện] --> B(Đọc giá trị biến input_value)
     B --> C{input_value >= 18}
-    C -- Đúng (True) --> D[Cấp quyền truy cập hệ thống]
-    C -- Sai (False) --> E[Từ chối truy cập hệ thống]
+    C -->|Đúng (True)| D[Cấp quyền truy cập hệ thống]
+    C -->|Sai (False)| E[Từ chối truy cập hệ thống]
     D --> F[Kết thúc xử lý]
     E --> F
 </div></div>

@@ -1055,10 +1055,10 @@ sys.stderr = io.StringIO()
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
     A[Bắt đầu đánh giá điều kiện] --> B{Kiểm tra Điều kiện chính}
-    B -- True --> C{Kiểm tra Điều kiện phụ}
-    B -- False --> D[Trả về giá trị mặc định / Khác]
-    C -- True --> E[Trả về kết quả tối ưu 1]
-    C -- False --> F[Trả về kết quả tối ưu 2]
+    B -->|True| C{Kiểm tra Điều kiện phụ}
+    B -->|False| D[Trả về giá trị mặc định / Khác]
+    C -->|True| E[Trả về kết quả tối ưu 1]
+    C -->|False| F[Trả về kết quả tối ưu 2]
     E --> G[Kết thúc biểu thức]
     F --> G
     D --> G

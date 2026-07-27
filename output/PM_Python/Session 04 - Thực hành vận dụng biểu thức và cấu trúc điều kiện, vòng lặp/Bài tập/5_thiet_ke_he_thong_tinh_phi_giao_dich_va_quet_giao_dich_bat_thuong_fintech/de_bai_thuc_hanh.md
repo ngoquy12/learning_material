@@ -24,18 +24,18 @@ Nếu hệ thống tính toán sai lệch dù chỉ 1 đồng, hoặc không ng�
 flowchart TD
     A[Bắt đầu: Danh sách giao dịch raw_transactions] --> B[Vòng lặp duyệt từng giao dịch]
     B --> C{Kiểm tra tính hợp lệ dữ liệu?}
-    C -- Không hợp lệ --> D[Ghi nhận mã lỗi INVALID_DATA] --> B
-    C -- Hợp lệ --> E{Kiểm tra vượt hạn mức đơn lẻ?}
-    E -- Vượt hạn mức --> F[Gác giao dịch, gắn nhãn LIMIT_EXCEEDED] --> B
-    E -- Trong hạn mức --> G{Kiểm tra trùng lặp liên tiếp >= 3 lần?}
-    G -- Đúng nghi vấn spam --> H[Gắn nhãn SUSPICIOUS_SPAM] --> I[Tính toán phí giao dịch bậc thang]
-    G -- Sai --> I
+    C -->|Không hợp lệ| D[Ghi nhận mã lỗi INVALID_DATA] --> B
+    C -->|Hợp lệ| E{Kiểm tra vượt hạn mức đơn lẻ?}
+    E -->|Vượt hạn mức| F[Gác giao dịch, gắn nhãn LIMIT_EXCEEDED] --> B
+    E -->|Trong hạn mức| G{Kiểm tra trùng lặp liên tiếp >= 3 lần?}
+    G -->|Đúng nghi vấn spam| H[Gắn nhãn SUSPICIOUS_SPAM] --> I[Tính toán phí giao dịch bậc thang]
+    G -->|Sai| I
     I --> J{Kiểm tra hạn mức ngày dồn tích?}
-    J -- Vượt hạn mức ngày --> K[Gắn nhãn DAILY_LIMIT_EXCEEDED] --> B
-    J -- Hợp lệ --> L[Trừ số dư tài khoản & Tích lũy tổng tiền trong ngày] --> M[Đánh dấu THÀNH CÔNG]
+    J -->|Vượt hạn mức ngày| K[Gắn nhãn DAILY_LIMIT_EXCEEDED] --> B
+    J -->|Hợp lệ| L[Trừ số dư tài khoản & Tích lũy tổng tiền trong ngày] --> M[Đánh dấu THÀNH CÔNG]
     M --> B
     B --> N{Hết danh sách giao dịch?}
-    N -- Đúng --> O[Tổng hợp báo cáo số dư cuối, tổng phí thu được, danh sách giao dịch cảnh báo]
+    N -->|Đúng| O[Tổng hợp báo cáo số dư cuối, tổng phí thu được, danh sách giao dịch cảnh báo]
     O --> P[Kết thúc]
 ```
 
