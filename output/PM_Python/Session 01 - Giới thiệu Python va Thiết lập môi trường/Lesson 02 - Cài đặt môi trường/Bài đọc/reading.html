@@ -964,11 +964,11 @@ sys.stderr = io.StringIO()
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
-    A[Script Python: app.py] --> B{He thong kiem tra moi truong}
-    B -->|Chua kich hoat venv| C[Trinh thong dich Toan cuc / Global Python]
-    B -->|Da kich hoat venv| D[Trinh thong dich Moi truong ao / Local venv]
-    C --> E[Su dung site-packages he thong - De xung dot phien ban]
-    D --> F[Su dung site-packages cuc bo - Co lap an toan cho du an]
+    A["Script Python: app.py"] --> B{"Hệ thống kiểm tra môi trường"}
+    B -->|Chưa kích hoạt venv| C["Trình thông dịch Toàn cục (Global Python)"]
+    B -->|Đã kích hoạt venv| D["Trình thông dịch Môi trường ảo (Local venv)"]
+    C --> E["Sử dụng site-packages hệ thống - Dễ xung đột phiên bản"]
+    D --> F["Sử dụng site-packages cục bộ - Cô lập an toàn cho dự án"]
 </div></div>
                         </div>
                     </div>

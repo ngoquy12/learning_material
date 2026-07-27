@@ -962,12 +962,12 @@ sys.stderr = io.StringIO()
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
-    A[Bắt đầu khai báo biến] --> B{Kiểm tra tên biến hợp lệ?}
+    A["Bắt đầu khai báo biến"] --> B{"Kiểm tra tên biến hợp lệ?"}
     B -->|Không hợp lệ| C["Báo lỗi cú pháp SyntaxError"]
-    B -->|Hợp lệ| D[Đánh giá giá trị biểu thức bên phải toán tử =]
-    D --> E[Tạo đối tượng lưu trữ giá trị trong Heap Memory]
-    E --> F[Liên kết tên biến trong Namespace với đối tượng đó]
-    F --> G[Hoàn thành khai báo biến]
+    B -->|Hợp lệ| D["Đánh giá giá trị biểu thức bên phải toán tử ="]
+    D --> E["Tạo đối tượng lưu trữ giá trị trong Heap Memory"]
+    E --> F["Liên kết tên biến trong Namespace với đối tượng đó"]
+    F --> G["Hoàn thành khai báo biến"]
 </div></div>
                         </div>
                     </div>

@@ -1064,11 +1064,11 @@ sys.stderr = io.StringIO()
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
-    A[Nhận dữ liệu người dùng] --> B{Kiểm tra sự tương thích kiểu}
-    B -->|Không hợp lệ| C[Ném ngoại lệ ValueError/TypeError]
-    B -->|Hợp lệ| D[Thực hiện ép kiểu int / float / str]
-    D --> E[Xác nhận thành công bằng hàm type]
-    E --> F[Xử lý tác vụ nghiệp vụ tiếp theo]
+    A["Nhận dữ liệu người dùng"] --> B{"Kiểm tra sự tương thích kiểu"}
+    B -->|Không hợp lệ| C["Ném ngoại lệ ValueError / TypeError"]
+    B -->|Hợp lệ| D["Thực hiện ép kiểu int / float / str"]
+    D --> E["Xác nhận thành công bằng hàm type()"]
+    E --> F["Xử lý tác vụ nghiệp vụ tiếp theo"]
 </div></div>
                         </div>
                     </div>

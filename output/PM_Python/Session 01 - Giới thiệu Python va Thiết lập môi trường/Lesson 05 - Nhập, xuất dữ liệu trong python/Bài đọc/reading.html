@@ -1029,15 +1029,22 @@ sys.stderr = io.StringIO()
 <li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Sơ đồ luồng xử lý luồng dữ liệu tương tác</strong>:</li>
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
-  sequenceDiagram
-      autonumber
-      User->>Terminal: Go phim va nhan phim Enter
-      Terminal->>InputFn:  Truyen du lieu tho (String)
-      InputFn->>Memory:  Luu tru gia tri dang chuoi (String)
-      Memory->>Type Casting: Chuyen doi chuoi thanh kieu du lieu so (int/float)
-      Type Casting->>Process Engine: Thuc hien toan tu toan hoc
-      ProcessEngine->>PrintFn:  Goi bo xu ly xuat du lieu
-      PrintFn->>Terminal:  Hien thi thong tin ket qua da dinh dang
+sequenceDiagram
+    autonumber
+    actor User as Người dùng
+    participant Terminal as Dòng lệnh (Terminal)
+    participant InputFn as Hàm input()
+    participant Memory as Bộ nhớ RAM
+    participant TypeCasting as Ép kiểu dữ liệu
+    participant ProcessEngine as Bộ xử lý logic
+    participant PrintFn as Hàm print()
+    User->>Terminal: Gõ phím và nhấn Enter
+    Terminal->>InputFn: Truyền dữ liệu thô (String)
+    InputFn->>Memory: Lưu trữ giá trị dạng chuỗi (String)
+    Memory->>TypeCasting: Chuyển đổi chuỗi thành kiểu dữ liệu số (int/float)
+    TypeCasting->>ProcessEngine: Thực hiện toán tử toán học
+    ProcessEngine->>PrintFn: Gọi bộ xử lý xuất dữ liệu
+    PrintFn->>Terminal: Hiển thị thông tin kết quả đã định dạng
 </div></div>
                         </div>
                     </div>

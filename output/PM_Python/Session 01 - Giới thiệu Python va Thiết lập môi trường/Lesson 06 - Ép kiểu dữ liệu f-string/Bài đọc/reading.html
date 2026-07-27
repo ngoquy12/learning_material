@@ -1035,14 +1035,14 @@ sys.stderr = io.StringIO()
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
-    A[Bắt đầu chương trình] --> B[Nhận giá trị chuỗi qua input]
-    B --> C{Kiểm tra sự phù hợp kiểu dữ liệu}
-    C -->|Nếu là số nguyên| D[Dùng int để ép kiểu]
-    C -->|Nếu là số thực| E[Dùng float để ép kiểu]
-    D --> F[Thực hiện xử lý tính toán số học]
+    A["Bắt đầu chương trình"] --> B["Nhận giá trị chuỗi qua input()"]
+    B --> C{"Kiểm tra sự phù hợp kiểu dữ liệu"}
+    C -->|Nếu là số nguyên| D["Dùng int() để ép kiểu"]
+    C -->|Nếu là số thực| E["Dùng float() để ép kiểu"]
+    D --> F["Thực hiện xử lý tính toán số học"]
     E --> F
-    F --> G[Sử dụng f-string định dạng đầu ra]
-    G --> H[Hiển thị kết quả ra Console]
+    F --> G["Sử dụng f-string định dạng đầu ra"]
+    G --> H["Hiển thị kết quả ra Console"]
 </div></div>
                         </div>
                     </div>
