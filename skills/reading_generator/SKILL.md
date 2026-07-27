@@ -28,7 +28,7 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
    - **Tỷ lệ khung hình**: `16:9` (`aspect-ratio: 16/9`).
    - **Bố cục căn chỉnh**: Căn giữa chiều ngang tuyệt đối (`margin: 0 auto; display: block; max-width: 800px; width: 100%;`).
    - **Khung chứa & Shadow**: Bo góc tròn `border-radius: 12px`, đổ bóng mờ `box-shadow: 0 4px 20px rgba(0,0,0,0.08)`, có viền nhẹ `border: 1px solid var(--border-color)`.
-   - **Chú thích ảnh (Caption)**: Đặt ngay bên dưới ảnh dạng nghiêng `font-style: italic`, chữ nhỏ màu xám nhạt căn giữa.
+   - **Chú thích ảnh (Caption)**: Đặt ngay bên dưới ảnh dạng nghiêng `font-style: italic`, chữ nhỏ màu xám nhạt căn trái.
 
 ---
 
@@ -102,7 +102,7 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 > [!IMPORTANT]
 > **QUY TẮC CĂN GIỮA VÀ ĐÓNG MỞ PHẦN KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC:**
 > 1. **Căn Giữa Text (`text-align: center`)**:
->    - Tiêu đề câu hỏi (`.selftest-question`) và nội dung câu trả lời (`.selftest-answer`) **BẮT BUỘC** phải được căn giữa chiều ngang (`text-align: center !important; justify-content: center !important;`).
+>    - Tiêu đề câu hỏi (`.selftest-question`) và nội dung câu trả lời (`.selftest-answer`) **BẮT BUỘC** phải được căn trái chiều ngang (`text-align: left !important; justify-content: space-between !important;`).
 > 2. **Đóng / Mở Động (Collapsible Accordion Toggle)**:
 >    - Khi nhấp vào tiêu đề câu hỏi, khối thẻ phải tự động bật/tắt hiển thị câu trả lời (`onclick="this.parentElement.classList.toggle('active')"` hoặc dùng `<details class="selftest-item"><summary class="selftest-question">...` ). Mũi tên indicator tự động xoay chuyển chỉ báo trạng thái.
 
@@ -141,6 +141,6 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 1. **Độ chính xác ngữ cảnh**: Bài đọc chỉ tập trung 100% vào nội dung Lesson hiện tại, không rò rỉ môn khác hay kiến thức chưa học.
 2. **Độ sâu học thuật**: Bài đọc đầy đủ 800 - 1,200 từ, giải thích sâu cơ chế nội bộ.
 3. **Trình bày khoa học dạng List**: Mọi đoạn lý thuyết dài đều được ngắt ý khoa học dạng List/Sublist.
-4. **Có Hình ảnh bối cảnh 16:9 căn giữa**: Có khối hình ảnh 16:9 mô tả bối cảnh bài toán ở Bước 1.
+4. **Có Hình ảnh bối cảnh 16:9 căn trái**: Có khối hình ảnh 16:9 mô tả bối cảnh bài toán ở Bước 1.
 5. **Có khối Good vs Bad Code**: Bắt buộc có khối ví dụ đối chiếu mã chuẩn Best Practice vs Mã sai Anti-pattern.
 6. **Trực quan hóa hoạt động**: Khung Pyodide / Code Tracker / Playground hoạt động tương tác thực sự trên trình duyệt, không reload trang.

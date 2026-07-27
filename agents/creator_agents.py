@@ -3835,8 +3835,8 @@ sys.stderr = io.StringIO()
             margin-bottom: 12px;
             padding: 16px;
         }}
-        .selftest-question {{ font-weight: 600; color: var(--primary); cursor: pointer; }}
-        .selftest-answer {{ margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); }}
+        .selftest-question {{ font-weight: 600; color: var(--primary); cursor: pointer; text-align: left !important; display: flex; align-items: center; justify-content: space-between; }}
+        .selftest-answer {{ margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); text-align: left !important; }}
         .selftest-answer ul {{ list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }}
         .selftest-answer ol {{ list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }}
         .selftest-answer li {{ margin-bottom: 8px !important; display: list-item !important; font-size: 0.95rem !important; line-height: 1.6 !important; }}
