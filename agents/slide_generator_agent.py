@@ -934,6 +934,17 @@ class SlideGeneratorAgent:
 </html>"""
         return full_html
 
+    
+    def _clean_inner_html(self, html_str: str) -> str:
+        if not html_str:
+            return ""
+        # Strip style, script, head, html, body tags completely
+        html_str = re.sub(r'<style[^>]*>.*?</style>', '', html_str, flags=re.DOTALL | re.IGNORECASE)
+        html_str = re.sub(r'<script[^>]*>.*?</script>', '', html_str, flags=re.DOTALL | re.IGNORECASE)
+        html_str = re.sub(r'<!DOCTYPE[^>]*>', '', html_str, flags=re.IGNORECASE)
+        html_str = re.sub(r'</?(html|head|body|meta|title|link)[^>]*>', '', html_str, flags=re.IGNORECASE)
+        return html_str.strip()
+
     def generate_session_deck_html(self, session_title: str, module_name: str, lessons_data: List[Dict[str, Any]]) -> str:
         """Sinh duy nhất một file Master Slide HTML tổng hợp toàn bộ các Lesson trong một Session.
         lessons_data: List[{ 'lesson_id': 'Lesson 01', 'lesson_title': '...', 'scenes': [...] }, ...]
