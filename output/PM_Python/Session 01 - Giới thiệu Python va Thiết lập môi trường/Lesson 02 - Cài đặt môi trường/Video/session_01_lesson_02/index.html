@@ -2,210 +2,353 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=1920, height=1080" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <title>Session 01 — Lesson 02: Cài đặt môi trường Python & VS Code</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d1117; }
-      .clip { position: absolute; visibility: hidden; }
+      body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #0f1117; font-family: "Inter", sans-serif;
+      }
+      .scene-root {
+        width: 1920px; height: 1080px; position: absolute; top: 0; left: 0;
+        background: #0f1117;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1.5px, transparent 1.5px);
+        background-size: 32px 32px;
+        opacity: 0; visibility: hidden;
+      }
+
+      /* Scene Header Bar */
+      .scene-header {
+        position: absolute; top: 48px; left: 60px; right: 60px;
+        display: flex; align-items: center; gap: 20px; z-index: 10;
+        opacity: 0; visibility: hidden;
+      }
+      .header-badge {
+        background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4);
+        color: #38bdf8; font-size: 15px; font-weight: 800; padding: 6px 18px;
+        border-radius: 999px; letter-spacing: 1px; text-transform: uppercase;
+      }
+      .header-badge.green {
+        background: rgba(63, 185, 80, 0.15); border: 1px solid rgba(63, 185, 80, 0.4); color: #3fb950;
+      }
+      .scene-title {
+        font-size: 36px; font-weight: 800; color: #ffffff;
+        text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
+      }
+
+      /* Main Layout */
+      .main-layout {
+        position: absolute; top: 140px; left: 60px; right: 60px; bottom: 50px;
+        display: flex; gap: 36px; align-items: center;
+      }
+
+      /* Concept Card */
+      .concept-card {
+        flex: 0 0 32%; background: rgba(22, 27, 34, 0.92);
+        border: 1.5px solid rgba(255, 255, 255, 0.15); border-radius: 20px;
+        padding: 44px; height: 720px; display: flex; flex-direction: column;
+        gap: 24px; justify-content: center; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        opacity: 0; visibility: hidden;
+      }
+      .concept-card h3 {
+        font-size: 28px; font-weight: 800; color: #ffffff;
+        border-bottom: 2px solid rgba(56, 189, 248, 0.5); padding-bottom: 14px;
+      }
+      .concept-card p { font-size: 21px; line-height: 1.75; color: #f0f6fc; font-weight: 500; }
+
+      /* Comparison Cards Grid */
+      .compare-grid {
+        flex: 1; height: 720px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+      }
+      .compare-card {
+        background: rgba(22, 27, 34, 0.92); border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px; padding: 40px; display: flex; flex-direction: column;
+        gap: 20px; justify-content: center; box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+        opacity: 0; visibility: hidden;
+      }
+      .compare-card.bad { border-color: rgba(248, 81, 73, 0.4); }
+      .compare-card.good { border-color: rgba(63, 185, 80, 0.4); }
+      .card-tag {
+        font-size: 15px; font-weight: 800; padding: 6px 16px; border-radius: 999px; width: fit-content; text-transform: uppercase;
+      }
+      .compare-card.bad .card-tag { background: rgba(248, 81, 73, 0.15); color: #f85149; }
+      .compare-card.good .card-tag { background: rgba(63, 185, 80, 0.15); color: #3fb950; }
+      .compare-card h4 { font-size: 26px; color: #ffffff; font-weight: 800; }
+      .compare-card p { font-size: 19px; color: #f0f6fc; line-height: 1.6; font-weight: 500; }
+
+      /* Terminal Window Mockup */
+      .terminal-window {
+        flex: 1; height: 720px; border-radius: 16px; overflow: hidden;
+        border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+        display: flex; flex-direction: column; background: #161b22;
+        opacity: 0; visibility: hidden;
+      }
+      .terminal-titlebar {
+        background: #21262d; height: 42px; padding: 0 18px; display: flex;
+        align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .terminal-dots { display: flex; gap: 8px; }
+      .dot { width: 12px; height: 12px; border-radius: 50%; }
+      .dot.red { background: #f85149; } .dot.yellow { background: #ffa657; } .dot.green { background: #3fb950; }
+      .terminal-title { font-family: system-ui, sans-serif; font-size: 14px; color: #8b949e; font-weight: 600; }
+      .terminal-body {
+        padding: 32px; font-family: "Fira Code", monospace; font-size: 22px; line-height: 2; color: #f0f6fc; flex: 1;
+      }
+      .prompt { color: #38bdf8; font-weight: 700; }
+      .cmd { color: #58a6ff; font-weight: 600; }
+      .out-success { color: #3fb950; }
+      .out-warn { color: #ffa657; }
+      .out-err { color: #f85149; }
+
+      /* VS Code Extensions Mockup */
+      .vscode-window {
+        flex: 1; height: 720px; border-radius: 16px; overflow: hidden;
+        border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+        display: flex; flex-direction: column; background: #1e1e1e;
+        opacity: 0; visibility: hidden;
+      }
+      .vscode-titlebar {
+        background: #323233; height: 40px; padding: 0 18px; display: flex;
+        align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      /* Recap Section */
+      .recap-container {
+        position: absolute; top: 140px; left: 60px; right: 60px; bottom: 50px;
+        display: flex; flex-direction: column; justify-content: center; gap: 28px;
+      }
+      .recap-header {
+        display: flex; align-items: center; justify-content: space-between;
+        border-bottom: 2px solid rgba(63, 185, 80, 0.3); padding-bottom: 16px;
+        opacity: 0; visibility: hidden;
+      }
+      .recap-title {
+        font-size: 32px; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 14px;
+      }
+      .recap-badge {
+        background: rgba(63, 185, 80, 0.15); border: 1px solid rgba(63, 185, 80, 0.3);
+        color: #3fb950; font-size: 16px; font-weight: 700; padding: 6px 20px; border-radius: 999px;
+        text-transform: uppercase; letter-spacing: 1px;
+      }
+      .takeaways-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+      .takeaway-card {
+        background: rgba(22, 27, 34, 0.92); border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px; padding: 28px 32px; display: flex; align-items: center; gap: 20px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        opacity: 0; visibility: hidden;
+      }
+      .takeaway-check {
+        width: 44px; height: 44px; border-radius: 50%;
+        background: rgba(63, 185, 80, 0.15); border: 1px solid rgba(63, 185, 80, 0.4);
+        color: #3fb950; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      }
+      .takeaway-text { font-size: 21px; color: #ffffff; line-height: 1.5; font-weight: 600; }
+      
+      .next-step-bar {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(168, 85, 247, 0.15));
+        border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 16px;
+        padding: 20px 36px; display: flex; align-items: center; justify-content: space-between;
+        opacity: 0; visibility: hidden;
+      }
+      .next-step-label {
+        font-size: 18px; color: #8b949e; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .next-step-val { font-size: 22px; color: #38bdf8; font-weight: 800; }
     </style>
   </head>
   <body>
-    <div
-      id="root"
-      data-composition-id="session_01_lesson_02"
-      data-start="0"
-      data-duration="222.37"
-      data-width="1920"
-      data-height="1080"
-    >
-      <!-- ── Media Assets (Intro Video, Outro Video, Background Music) ── -->
-      <video id="intro-video"
-             data-start="0"
-             data-duration="9.24"
-             data-track-index="0"
-             data-has-audio="true"
-             data-volume="1"
-             src="assets/intro.mp4"></video>
+    <div id="root" class="clip" data-composition-id="root" data-start="0" data-duration="122.96" data-width="1920" data-height="1080" data-no-timeline="true">
+      <!-- Intro & Outro Videos -->
+      <video id="intro-video" class="clip" src="assets/intro.mp4" data-start="0" data-duration="9.24" data-track-index="0" data-volume="1" data-has-audio="true" style="width:1920px;height:1080px;object-fit:cover;position:absolute;top:0;left:0"></video>
+      <video id="outro-video" class="clip" src="assets/outro.mp4" data-start="110.81" data-duration="12.15" data-track-index="0" data-volume="1" data-has-audio="true" style="width:1920px;height:1080px;object-fit:cover;position:absolute;top:0;left:0"></video>
 
-      <video id="outro-video"
-             data-start="210.22"
-             data-duration="12.15"
-             data-track-index="0"
-             data-has-audio="true"
-             data-volume="1"
-             src="assets/outro.mp4"></video>
+      <!-- SCENE 01: Dependency Hell vs Virtual Envs -->
+      <div id="scene-01" class="clip scene-root" data-composition-id="scene-01" data-start="9.24" data-duration="23.44" data-track-index="1">
+        <div id="header-01" class="scene-header"><div class="header-badge">LESSON 02</div><h1 class="scene-title">Thách Thức Xung Đột Môi Trường Toàn Cục</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-01" class="concept-card">
+            <h3>Rủi Ro Hệ Thống</h3>
+            <p>Cài đặt thư viện trực tiếp lên máy tính dễ gây xung đột phiên bản giữa các dự án (Dependency Hell).</p>
+          </div>
+          <div class="compare-grid">
+            <div id="compare-bad-01" class="compare-card bad">
+              <div class="card-tag">Rủi Ro Toàn Cục</div>
+              <h4>Global Environment Conflict</h4>
+              <p>Project A (Django v3.2) xung đột với Project B (Django v4.2) làm hỏng toàn bộ hệ thống máy tính.</p>
+            </div>
+            <div id="compare-good-01" class="compare-card good">
+              <div class="card-tag">Giải Pháp Cô Lập</div>
+              <h4>Virtual Environments (venv)</h4>
+              <p>Mỗi dự án sở hữu một môi trường ảo hoàn toàn độc lập với phiên bản thư viện riêng biệt.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <audio id="bg-music"
-             data-start="0"
-             data-duration="222.37"
-             data-track-index="30"
-             data-volume="0.12"
-             data-loop="true"
-             src="assets/bg-music.mp3"></audio>
+      <!-- SCENE 02: Installing Python & PATH Config -->
+      <div id="scene-02" class="clip scene-root" data-composition-id="scene-02" data-start="32.68" data-duration="18.57" data-track-index="2">
+        <div id="header-02" class="scene-header"><div class="header-badge">INSTALLATION</div><h1 class="scene-title">Cài Đặt Python &amp; Cấu Hình Biến PATH</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-02" class="concept-card">
+            <h3>Tùy Chọn Bắt Buộc</h3>
+            <p>Tải bộ cài chính thức từ <strong>python.org</strong> và phải đánh dấu chọn <strong>Add Python to PATH</strong>.</p>
+          </div>
+          <div id="terminal-02" class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div class="terminal-title">Windows PowerShell / Terminal</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">CLI CHECK</div>
+            </div>
+            <div class="terminal-body">
+              <span class="prompt">PS C:\Users\Rikkei&gt;</span> <span class="cmd">python --version</span><br/>
+              <span class="out-success">Python 3.12.2</span><br/><br/>
+              <span class="prompt">PS C:\Users\Rikkei&gt;</span> <span class="cmd">pip --version</span><br/>
+              <span class="out-success">pip 24.0 from C:\Python312\lib\site-packages</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <!-- ── Scene Clips ── -->
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_01.html"
-           data-composition-id="scene-01"
-           data-start="9.24"
-           data-duration="17.16"
-           data-track-index="1"></div>
+      <!-- SCENE 03: VS Code Setup & Extensions -->
+      <div id="scene-03" class="clip scene-root" data-composition-id="scene-03" data-start="51.25" data-duration="18.46" data-track-index="3">
+        <div id="header-03" class="scene-header"><div class="header-badge">IDE CONFIGURATION</div><h1 class="scene-title">Cấu Hình VS Code &amp; Python Extension</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-03" class="concept-card">
+            <h3>Tiện Ích Mở Rộng</h3>
+            <p>Cài đặt <strong>Python Extension (Microsoft)</strong> để tự động hỗ trợ gợi ý code, kiểm tra cú pháp và kết nối venv.</p>
+          </div>
+          <div id="vscode-03" class="vscode-window">
+            <div class="vscode-titlebar">
+              <div class="vscode-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div style="color:#cccccc;font-size:13px;font-weight:500;">Extensions: Marketplace — Visual Studio Code</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">MICROSOFT EXTENSION</div>
+            </div>
+            <div style="padding:40px;display:flex;flex-direction:column;gap:24px;justify-content:center;height:100%;">
+              <div style="background:#252526;border:1.5px solid rgba(56, 189, 248, 0.4);border-radius:16px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:24px;font-weight:800;color:#ffffff;margin-bottom:6px;">Python (ms-python.python)</div>
+                  <div style="font-size:18px;color:#8b949e;">IntelliSense, Linting, Debugging, Jupyter Notebooks</div>
+                </div>
+                <div style="background:#3fb950;color:#0f1117;font-size:16px;font-weight:800;padding:10px 24px;border-radius:8px;">INSTALLED</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_02.html"
-           data-composition-id="scene-02"
-           data-start="26.4"
-           data-duration="17.95"
-           data-track-index="2"></div>
+      <!-- SCENE 04: Creating & Activating venv -->
+      <div id="scene-04" class="clip scene-root" data-composition-id="scene-04" data-start="69.71" data-duration="19.71" data-track-index="4">
+        <div id="header-04" class="scene-header"><div class="header-badge">VIRTUAL ENV</div><h1 class="scene-title">Khởi Tạo &amp; Kích Hoạt Môi Trường Ảo (venv)</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-04" class="concept-card">
+            <h3>Lệnh CLI Cốt Lõi</h3>
+            <p>Tạo môi trường ảo bằng <strong>python -m venv app_env</strong> và kích hoạt bằng file script tương ứng theo hệ điều hành.</p>
+          </div>
+          <div id="terminal-04" class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div class="terminal-title">Terminal — Create &amp; Activate venv</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">CLI TERMINAL</div>
+            </div>
+            <div class="terminal-body">
+              <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">python -m venv app_env</span><br/>
+              <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">.\app_env\Scripts\Activate.ps1</span><br/>
+              <span class="out-success">(app_env) PS C:\my_project&gt;</span> <span class="cmd">python --version</span><br/>
+              <span class="out-success">(app_env) Python 3.12.2 [VIRTUAL ENV ACTIVE]</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_03.html"
-           data-composition-id="scene-03"
-           data-start="44.35"
-           data-duration="19.58"
-           data-track-index="3"></div>
+      <!-- SCENE 05: Recap & Next Lesson Announcement -->
+      <div id="scene-05" class="clip scene-root" data-composition-id="scene-05" data-start="89.42" data-duration="21.39" data-track-index="5">
+        <div id="header-05" class="scene-header"><div class="header-badge green">SUMMARY &amp; RECAP</div><h1 class="scene-title">Lưu Ý Lỗi Thường Gặp &amp; Bài Học Tiếp Theo</h1></div>
+        <div class="recap-container">
+          <div id="recap-hdr" class="recap-header">
+            <div class="recap-title">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              Lỗi Cấu Hình Phổ Biến &amp; Cách Khắc Phục
+            </div>
+            <div class="recap-badge">KEY TAKEAWAYS</div>
+          </div>
+          <div class="takeaways-grid">
+            <div id="tk-1" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="takeaway-text">Tránh <strong>ModuleNotFoundError</strong> bằng cách kích hoạt venv trước khi <code>pip install</code>.</div></div>
+            <div id="tk-2" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="takeaway-text">Tránh <strong>FileNotFoundError</strong> bằng cách chuyển terminal về đúng thư mục chứa file.</div></div>
+            <div id="tk-3" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="takeaway-text">Đánh dấu <strong>Add Python to PATH</strong> giúp chạy lệnh CLI từ bất kỳ đâu.</div></div>
+            <div id="tk-4" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="takeaway-text">Môi trường <strong>venv</strong> cô lập hoàn toàn các thư viện cho từng dự án độc lập.</div></div>
+          </div>
+          <div id="next-bar" class="next-step-bar">
+            <div class="next-step-label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>BÀI HỌC TIẾP THEO</div>
+            <div class="next-step-val">Lesson 03 — Khai báo Biến &amp; Kiểu dữ liệu cơ bản trong Python</div>
+          </div>
+        </div>
+      </div>
 
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_04.html"
-           data-composition-id="scene-04"
-           data-start="63.93"
-           data-duration="17.3"
-           data-track-index="4"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_05.html"
-           data-composition-id="scene-05"
-           data-start="81.23"
-           data-duration="18.55"
-           data-track-index="5"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_06.html"
-           data-composition-id="scene-06"
-           data-start="99.78"
-           data-duration="19.1"
-           data-track-index="6"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_07.html"
-           data-composition-id="scene-07"
-           data-start="118.88"
-           data-duration="20.68"
-           data-track-index="7"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_08.html"
-           data-composition-id="scene-08"
-           data-start="139.56"
-           data-duration="18.6"
-           data-track-index="8"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_09.html"
-           data-composition-id="scene-09"
-           data-start="158.16"
-           data-duration="18.69"
-           data-track-index="9"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_10.html"
-           data-composition-id="scene-10"
-           data-start="176.85"
-           data-duration="17.85"
-           data-track-index="10"></div>
-
-      <div class="clip"
-           data-composition-src="src/compositions/Scene_11.html"
-           data-composition-id="scene-11"
-           data-start="194.7"
-           data-duration="15.52"
-           data-track-index="11"></div>
-
-      <!-- ── TTS Audio Tracks (absolute root timestamps) ── -->
-      <audio id="tts-01"
-             data-start="9.24"
-             data-duration="17.16"
-             data-track-index="20"
-             data-volume="1"
-             src="assets/tts/Scene_01.mp3"></audio>
-
-      <audio id="tts-02"
-             data-start="26.4"
-             data-duration="17.95"
-             data-track-index="21"
-             data-volume="1"
-             src="assets/tts/Scene_02.mp3"></audio>
-
-      <audio id="tts-03"
-             data-start="44.35"
-             data-duration="19.58"
-             data-track-index="22"
-             data-volume="1"
-             src="assets/tts/Scene_03.mp3"></audio>
-
-      <audio id="tts-04"
-             data-start="63.93"
-             data-duration="17.3"
-             data-track-index="23"
-             data-volume="1"
-             src="assets/tts/Scene_04.mp3"></audio>
-
-      <audio id="tts-05"
-             data-start="81.23"
-             data-duration="18.55"
-             data-track-index="24"
-             data-volume="1"
-             src="assets/tts/Scene_05.mp3"></audio>
-
-      <audio id="tts-06"
-             data-start="99.78"
-             data-duration="19.1"
-             data-track-index="25"
-             data-volume="1"
-             src="assets/tts/Scene_06.mp3"></audio>
-
-      <audio id="tts-07"
-             data-start="118.88"
-             data-duration="20.68"
-             data-track-index="26"
-             data-volume="1"
-             src="assets/tts/Scene_07.mp3"></audio>
-
-      <audio id="tts-08"
-             data-start="139.56"
-             data-duration="18.6"
-             data-track-index="27"
-             data-volume="1"
-             src="assets/tts/Scene_08.mp3"></audio>
-
-      <audio id="tts-09"
-             data-start="158.16"
-             data-duration="18.69"
-             data-track-index="28"
-             data-volume="1"
-             src="assets/tts/Scene_09.mp3"></audio>
-
-      <audio id="tts-10"
-             data-start="176.85"
-             data-duration="17.85"
-             data-track-index="29"
-             data-volume="1"
-             src="assets/tts/Scene_10.mp3"></audio>
-
-      <audio id="tts-11"
-             data-start="194.7"
-             data-duration="15.52"
-             data-track-index="30"
-             data-volume="1"
-             src="assets/tts/Scene_11.mp3"></audio>
-
+      <!-- AUDIO TRACKS -->
+      <audio id="tts-01" class="clip" src="assets/tts/Scene_01.mp3" data-start="9.24" data-duration="23.44" data-track-index="20" data-volume="1"></audio>
+      <audio id="tts-02" class="clip" src="assets/tts/Scene_02.mp3" data-start="32.68" data-duration="18.57" data-track-index="21" data-volume="1"></audio>
+      <audio id="tts-03" class="clip" src="assets/tts/Scene_03.mp3" data-start="51.25" data-duration="18.46" data-track-index="22" data-volume="1"></audio>
+      <audio id="tts-04" class="clip" src="assets/tts/Scene_04.mp3" data-start="69.71" data-duration="19.71" data-track-index="23" data-volume="1"></audio>
+      <audio id="tts-05" class="clip" src="assets/tts/Scene_05.mp3" data-start="89.42" data-duration="21.39" data-track-index="24" data-volume="1"></audio>
+      <audio id="bg-music" class="clip" src="assets/bg-music.mp3" data-start="0" data-duration="122.96" data-track-index="30" data-volume="0.12" data-loop="true"></audio>
     </div>
 
+    <!-- UNIFIED GSAP TIMELINES -->
     <script>
       window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true });
-      window.__timelines["session_01_lesson_02"] = tl;
+
+      // Scene 01 Timeline
+      const tl1 = gsap.timeline({ paused: true });
+      tl1.set("#scene-01", { autoAlpha: 1 }, 0);
+      tl1.to("#header-01", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl1.to("#concept-card-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 4.0);
+      tl1.to("#compare-bad-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 10.0);
+      tl1.to("#compare-good-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 16.5);
+      tl1.to("#scene-01", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 22.64);
+      window.__timelines["scene-01"] = tl1;
+
+      // Scene 02 Timeline
+      const tl2 = gsap.timeline({ paused: true });
+      tl2.set("#scene-02", { autoAlpha: 1 }, 0);
+      tl2.to("#header-02", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl2.to("#concept-card-02", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl2.to("#terminal-02", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 9.5);
+      tl2.to("#scene-02", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 17.77);
+      window.__timelines["scene-02"] = tl2;
+
+      // Scene 03 Timeline
+      const tl3 = gsap.timeline({ paused: true });
+      tl3.set("#scene-03", { autoAlpha: 1 }, 0);
+      tl3.to("#header-03", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl3.to("#concept-card-03", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl3.to("#vscode-03", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 9.5);
+      tl3.to("#scene-03", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 17.66);
+      window.__timelines["scene-03"] = tl3;
+
+      // Scene 04 Timeline
+      const tl4 = gsap.timeline({ paused: true });
+      tl4.set("#scene-04", { autoAlpha: 1 }, 0);
+      tl4.to("#header-04", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl4.to("#concept-card-04", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl4.to("#terminal-04", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 9.5);
+      tl4.to("#scene-04", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 18.91);
+      window.__timelines["scene-04"] = tl4;
+
+      // Scene 05 Timeline
+      const tl5 = gsap.timeline({ paused: true });
+      tl5.set("#scene-05", { autoAlpha: 1 }, 0);
+      tl5.to("#header-05", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl5.to("#recap-hdr", { autoAlpha: 1, duration: 0.5 }, 2.0);
+      tl5.to("#tk-1", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 2.5);
+      tl5.to("#tk-2", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 4.0);
+      tl5.to("#tk-3", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 5.5);
+      tl5.to("#tk-4", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 7.0);
+      tl5.to("#next-bar", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.2)" }, 12.5);
+      tl5.to("#scene-05", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 20.59);
+      window.__timelines["scene-05"] = tl6 = tl5;
     </script>
   </body>
 </html>

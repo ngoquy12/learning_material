@@ -4990,5 +4990,349 @@
       "type": "code",
       "session": "Giới thiệu ngôn ngữ lập trình Python"
     }
+  },
+  {
+    "text": "Khái niệm: python_interpreter - Định nghĩa: Trình dịch mã code Python sang mã máy. Giúp biên dịch và thực thi dòng lệnh Python trực tiếp trên máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: virtual_environment - Định nghĩa: Thư mục cô lập độc lập dành riêng cho dự án, giúp quản lý gói thư viện tách biệt với môi trường Python chung của hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: pip_package_manager - Định nghĩa: Công cụ quản lý gói mặc định của Python, được sử dụng để cài đặt và quản lý các thư viện mở rộng từ Python Package Index (PyPI).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vs_code_workspace - Định nghĩa: Thư mục dự án đang phát triển được quản lý trên Visual Studio Code, thường chứa cấu hình chạy (settings.json) và trình thông dịch Python được chỉ định cấu hình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_phien_ban_python:\nimport sys\n\n# Kiem tra file thuc thi và phien ban hien tai cua Python dang dung\nprint(\"Interpreter Path:\", sys.executable)\nprint(\"Python Version:\", sys.version)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_moi_truong_ao:\nimport sys\n\n# Xac dinh xem script co dang chay ben trong moi truong ao (venv) hay khong\ndang_trong_venv = sys.prefix != sys.base_prefix\n\nif dang_trong_venv:\n    print(f\"Trang thai: Dang chay trong Virtual Environment.\")\n    print(f\"Duong dan: {sys.prefix}\")\nelse:\n    print(\"Trang thai: Dang chay o moi truong he thong (Global Environment).\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chay_script_workspace:\ndef main():\n    thong_diep = \"Xin chao! Project da setup workspace thanh cong va san sang chay.\"\n    print(thong_diep)\n\nif __name__ == \"__main__\":\n    main()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Bien_va_Co_che_gan - Định nghĩa: Bien trong Python la mot ten goi duoc lien ket (bind) voi mot doi tuong gia tri trong bo nho. Khi gan gia tri (vi du: x = 10), Python tao ra doi tuong gia tri 10 trong vung nho, sau do gan nhan 'x' de tham chieu den o nho do.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy_chuan_dat_ten_PEP8 - Định nghĩa: Quy tac PEP 8 khuyen khich dat ten bien su dung chu thuong va phan tach bang dau gach duoi (snake_case). Ten bien chi duoc bat dau bang chu cai hoac dau gach duoi, khong duoc chua ky tu dac biet, va phan biet chu hoa - chu thuong.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Tu_khoa_he_thong - Định nghĩa: Cac tu dac biet duoc Python giu lai de su dung cho syntax he thong nhu if, else, for, break, class, import. Khong duoc dung cac tu khoa nay de dat ten bien vi se gay ra loi cu phap.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Gan_nhieu_bien_va_Hoan_doi - Định nghĩa: Python cho phep gan nhieu bien tren cung mot dong (Multiple Assignment) va hoan doi gia tri giua hai bien ma khong can bien tam thoi bang cu phap tinh gon: a, b = b, a.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: SyntaxError_va_NameError - Định nghĩa: SyntaxError xay ra khi dat ten bien vi pham quy tac cu phap cua Python (nhu bat dau ten bien bang so). NameError xay ra khi goi den mot ten bien chua tung duoc khoi tao hoac khai bao trong chuong trinh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_gan_co_ban:\nage = 25\nstudent_name = \"Nguyen Van A\"\nprint(\"Tuoi:\", age)\nprint(\"Ten:\", student_name)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_chuan_pep8_va_phan_biet_chu_hoa_thuong:\n# Dat ten theo dung chuan snake_case\ntotal_students = 45\n\n# Phan biet chu hoa - thuong (day la hai bien khong trung nhau)\nscore = 9.5\nScore = 10.0\nprint(\"score:\", score)\nprint(\"Score:\", Score)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho gan_nang_cao_va_hoan_doi_gia_tri:\n# Gan nhieu bien cung luc\nx, y = 5, 10\nprint(\"Truoc khi hoan doi: x =\", x, \", y =\", y)\n\n# Hoan doi gia tri khong can bien trung gian\nx, y = y, x\nprint(\"Sau khi hoan doi: x =\", x, \", y =\", y)\n\n# Gan cung mot gia tri cho nhieu bien\na = b = c = 0\nprint(\"a =\", a, \", b =\", b, \", c =\", c)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhan_dien_loi_bien:\n# 1. Minh hoa loi NameError khi goi bien chua khai bao\ntry:\n    print(my_variable)\nexcept NameError as e:\n    print(\"Loi NameError: \", e)\n\n# 2. Minh hoa loi SyntaxError (khong the thuc thi, can ghi nho quy tac)\n# Vi du ten bien loi: 2nd_user = \"An\" (Bat dau bang so)\n# Vi du ten bien loi: class = \"Lop A\" (Trung tu khoa he thong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo và Sử dụng Biến trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: int - Định nghĩa: Kiểu dữ liệu số nguyên trong Python, biểu diễn các số nguyên dương, âm hoặc số 0.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: float - Định nghĩa: Kiểu dữ liệu biểu diễn các số thực hoặc số thập phân.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: str - Định nghĩa: Kiểu dữ liệu chuỗi dùng để lưu trữ văn bản, được bao bọc bởi dấu nháy đơn hoặc nháy kép.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: bool - Định nghĩa: Kiểu dữ liệu logic chỉ nhận một trong hai giá trị là True hoặc False.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Type Casting - Định nghĩa: Quá trình chuyển đổi giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác bằng các hàm như int(), float(), str(), bool().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: input() - Định nghĩa: Hàm dùng để nhận dữ liệu từ người dùng thông qua bàn phím, dữ liệu nhận về luôn ở dạng chuỗi (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: TypeError - Định nghĩa: Lỗi xảy ra khi thực hiện phép toán hoặc gọi hàm trên một đối tượng có kiểu dữ liệu không phù hợp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ValueError - Định nghĩa: Lỗi xảy ra khi hàm nhận giá trị có kiểu dữ liệu đúng nhưng nội dung giá trị không thể chuyển đổi hoặc xử lý được.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_va_tinh_toan_co_ban:\n# Khai báo biến\ntoi_la_int = 10\ntoi_la_float = 5.5\ntoi_la_str = \"Python\"\ntoi_la_bool = True\n\n# Phép toán cơ bản\ntong = toi_la_int + toi_la_float\nghep_chuoi = toi_la_str + \" Căn Bản\"\nphu_dinh = not toi_la_bool\n\nprint(tong)       # Kết quả: 15.5\nprint(ghep_chuoi) # Kết quả: Python Căn Bản\nprint(phu_dinh)   # Kết quả: False",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhap_lieu_va_ep_kieu:\n# Nhận dữ liệu dạng chuỗi từ người dùng\nso_nhap_str = input(\"Nhập một số: \")\n\n# Chuyển đổi kiểu dữ liệu (ép kiểu)\nso_float = float(so_nhap_str)\n\n# Xuất kết quả sử dụng f-string\nprint(f\"Bình phương của số vừa nhập là: {so_float ** 2}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhan_dien_va_xu_ly_loi:\n# Xử lý lỗi TypeError và ValueError bằng try-except cơ bản\ntry:\n    # Thực hiện hành động dễ lỗi ValueError nếu người dùng nhập chữ\n    so_tuoi = int(input(\"Nhập tuổi của bạn: \"))\n    print(f\"Tuổi của bạn là {so_tuoi}\")\nexcept ValueError:\n    print(\"Lỗi: Vui lòng nhập một số nguyên hợp lệ!\")\n\ntry:\n    # Minh họa lỗi TypeError (Cộng chuỗi với số không qua ép kiểu)\n    trai_cay = \"Táo\" + 3\nexcept TypeError:\n    print(\"Lỗi: Không thể cộng trực tiếp chuỗi (str) với số (int)!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểu dữ liệu cơ bản trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Implicit and Explicit Casting - Định nghĩa: Ép kiểu dữ liệu là sự chuyển đổi giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác. Ép kiểu ngầm định xảy ra tự động khi Python thực hiện tính toán kết hợp (ví dụ: float cộng với int). Ép kiểu tường minh yêu cầu lập trình viên gọi tường minh các hàm như int(), float(), str() để biến đổi giá trị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: User Input Handling (Hàm input) - Định nghĩa: Hàm input() cho phép nhận dữ liệu nhập vào từ bàn phím dưới dạng một chuỗi văn bản (str). Để thực hiện các phép toán số học như cộng, trừ, nhân, chia, ta bắt buộc phải ép kiểu dữ liệu chuỗi này sang int hoặc float.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: f-string Alignment and Padding - Định nghĩa: Kỹ thuật căn lề văn bản trong f-string bằng cách chỉ định độ rộng hiển thị. Sử dụng '<' để căn trái, '>' để căn phải, '^' để căn giữa, đi kèm ký tự tùy chọn đứng trước chúng để lấp đầy các khoảng còn trống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: f-string Number Formatting - Định nghĩa: Cách định cấu hình số lượng chữ số thập phân sử dụng cú pháp '.Nf' (ví dụ: '.2f' lấy hai chữ số thập phân) kết hợp với ký tự dấu phẩy ',' làm dấu phân tách hàng nghìn giúp biểu diễn số lớn trực quan hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Console Table Construction - Định nghĩa: Kỹ thuật kết cấu hóa dữ liệu đầu ra bằng cách dùng f-string kết hợp độ rộng cột cố định và các đường kẻ ký tự như nét đứt '-' hoặc nét kép '=' làm phân cách dòng, giúp bảng số liệu thẳng cột và chuyên nghiệp trên giao diện console.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho explicit_type_casting_input:\nchieu_dai_str = input(\"Nhập chiều dài (m): \")\nchieu_rong_str = input(\"Nhập chiều rộng (m): \")\n\n# Chuyển đổi dữ liệu nhập dạng chuỗi sang số thực\nchieu_dai = float(chieu_dai_str)\nchieu_rong = float(chieu_rong_str)\n\ndien_tich = chieu_dai * chieu_rong\nprint(\"Diện tích hình chữ nhật là:\", dien_tich)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho fsharp_format_alignment_and_numbers:\nten_vat_pham = \"Bàn phím gỗ\"\ngia_ban = 1250000.5\n\n# Căn lề trái trong 20 khoảng trắng, lấp đầy bằng dấu chấm\nten_formatted = f\"{ten_vat_pham:.<20}\"\n\n# Định dạng phân tách hàng nghìn và hiển thị 2 số thập phân\ngia_formatted = f\"{gia_ban:,.2f} VNĐ\"\n\nprint(f\"Sản phẩm: {ten_formatted}\")\nprint(f\"Thành tiền: {gia_formatted}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho console_invoice_printing:\nsp1_ten, sp1_gia = \"Sách Python\", 95000\nsp2_ten, sp2_gia = \"Chuột máy tính\", 250000\nsp3_ten, sp3_gia = \"Vở ghi chép\", 12500.5\n\n# Tiêu đề bảng\nprint(\"=\" * 40)\nprint(f\"{'TÊN SẢN PHẨM':<25}{'ĐƠN GIÁ (VND)':>15}\")\nprint(\"-\" * 40)\n\n# Nội dung bảng\nprint(f\"{sp1_ten:<25}{sp1_gia:>15,.1f}\")\nprint(f\"{sp2_ten:<25}{sp2_gia:>15,.1f}\")\nprint(f\"{sp3_ten:<25}{sp3_gia:>15,.1f}\")\nprint(\"=\" * 40)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Ép kiểu dữ liệu và Định dạng chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: hàm_print - Định nghĩa: Hàm tích hợp sẵn trong Python dùng để hiển thị dữ liệu văn bản hoặc giá trị của biến ra màn hình console.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: nối_chuỗi - Định nghĩa: Kỹ thuật kết hợp nhiều chuỗi ký tự lại với nhau thành một chuỗi duy nhất bằng cách sử dụng toán tử cộng (+). Lưu ý phải chuyển đổi các kiểu dữ liệu khác (như số) về dạng chuỗi bằng str() trước khi nối.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: f_string - Định nghĩa: Cú pháp định dạng chuỗi nhanh gọn và trực quan trong Python (bắt đầu bằng chữ f hoặc F trước dấu nháy), cho phép nhúng trực tiếp biến hoặc biểu thức vào bên trong chuỗi thông qua cặp ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: hàm_input - Định nghĩa: Hàm dùng để nhận thông tin nhập vào từ bàn phím của người dùng dưới dạng văn bản. Giá trị trả về từ hàm này luôn có kiểu dữ liệu là chuỗi (string).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ép_kiểu_dữ_liệu - Định nghĩa: Quá trình chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác (ví dụ: dùng định dạng int() hoặc float() để chuyển chuỗi ký tự nhận từ hàm input() thành số nguyên hoặc số thực để có thể thực hiện tính toán cơ bản).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho in_du_lieu_va_dinh_dang_chuoi:\n# 1. Su dung ham print() co ban\nprint(\"Chao mung ban den voi khoa hoc Python!\")\n\n# 2. Noi chuoi co ban (phai ep kieu so sang str truoc khi noi)\nten = \"Nam\"\ntuoi = 18\nthong_bao_noi_chuoi = \"Hoc vien \" + ten + \" nam nay \" + str(tuoi) + \" tuoi.\"\nprint(thong_bao_noi_chuoi)\n\n# 3. Dinh dang chuoi bang f-string (toi uu va khong can ep kieu thu cong)\nthong_bao_f_string = f\"Hoc vien {ten} nam nay {tuoi} tuoi.\"\nprint(thong_bao_f_string)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nhan_dau_vao_va_ep_kiu:\n# Nhan chuoi tu nguoi dung va ep kieu so nguyen\nso_luong_str = input(\"Nhap so luong sach muon mua: \")\nso_luong = int(so_luong_str)\n\n# Nhan chuoi tu nguoi dung va ep kieu so thuc\ndong_gia_str = input(\"Nhap don gia moi cuon (VND): \")\ndong_gia = float(dong_gia_str)\n\nprint(f\"So luong: {so_luong} | Don gia: {dong_gia} VND\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuong_trinh_cli_hoan_chinh:\n# Chuong trinh CLI tinh dien tich va chu vi hinh chu nhat\nprint(\"=== HE THONG TINH TOAN DIEU CHINH KICH THUOC ===\")\n\n# Buoc 1: Nhap va ep kieu du lieu\nchieu_dai = float(input(\"Nhap chieu dai hinh chu nhat (met): \"))\nchieu_rong = float(input(\"Nhap chieu rong hinh chu nhat (met): \"))\n\n# Buoc 2: Xu ly tinh toan\ndien_tich = chieu_dai * chieu_rong\nchu_vi = (chieu_dai + chieu_rong) * 2\n\n# Buoc 3: Dinh dang dau ra (dinh dang 2 chu so thap phan voi :.2f)\nprint(\"\\\\n--- KET QUA KHAO SAT ---\")\nprint(f\"Chieu dai da nhap: {chieu_dai:.2f} m\")\nprint(f\"Chieu rong da nhap: {chieu_rong:.2f} m\")\nprint(f\"Chu vi hinh chu nhat: {chu_vi:.2f} m\")\nprint(f\"Dien tich hinh chu nhat: {dien_tich:.2f} m2\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
+    }
   }
 ]
