@@ -32,8 +32,8 @@ def compile_session_html(session_dir: Path, session_title: str):
 def _build_session_reading_html(session_title: str, html_files: list, is_static: bool = False) -> str:
     """
     Builds a 100% faithful Master Session Reading Hub (reading_all.html)
-    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo
-    and automatically hides redundant inner lesson headers.
+    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo,
+    automatically hides redundant inner lesson headers, and preserves active lesson tab state on auto-reload.
     """
     import json
     import re
@@ -158,6 +158,20 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
         }} catch(e) {{}}
       }}
 
+      function getInitialLesson() {{
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#lesson-')) {{
+          const num = parseInt(hash.replace('#lesson-', ''), 10);
+          if (num && document.getElementById('frame-' + num)) return num;
+        }}
+        const saved = localStorage.getItem('active_session_lesson_' + encodeURIComponent(window.location.pathname));
+        if (saved) {{
+          const num = parseInt(saved, 10);
+          if (num && document.getElementById('frame-' + num)) return num;
+        }}
+        return 1;
+      }}
+
       function switchLesson(idx) {{
         document.querySelectorAll('.sidebar-nav-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.lesson-frame').forEach(frame => {{
@@ -174,7 +188,17 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
           activeFrame.style.display = 'block';
           hideIframeHeader(activeFrame);
         }}
+
+        try {{
+          history.replaceState(null, null, '#lesson-' + idx);
+          localStorage.setItem('active_session_lesson_' + encodeURIComponent(window.location.pathname), idx);
+        }} catch(e) {{}}
       }}
+
+      document.addEventListener('DOMContentLoaded', () => {{
+        const initIdx = getInitialLesson();
+        switchLesson(initIdx);
+      }});
     </script>
   </body>
 </html>"""
