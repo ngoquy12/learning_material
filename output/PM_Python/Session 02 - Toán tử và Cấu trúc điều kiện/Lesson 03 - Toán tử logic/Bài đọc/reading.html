@@ -1053,8 +1053,8 @@ sys.stderr = io.StringIO()
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
-    A[Bắt đầu kiểm tra điều kiện] --> B{Thu nhập > 2000 USD?}
-    B -->|Sai (False)| C{Điểm tín dụng > 700?}
+    A[Bắt đầu kiểm tra điều kiện] --> B{"Thu nhập > 2000 USD?"}
+    B -->|Sai (False)| C{"Điểm tín dụng > 700?"}
     B -->|Đúng (True)| D{Có lịch sử nợ xấu?}
     C -->|Sai (False)| G[Từ chối hồ sơ]
     C -->|Đúng (True)| D

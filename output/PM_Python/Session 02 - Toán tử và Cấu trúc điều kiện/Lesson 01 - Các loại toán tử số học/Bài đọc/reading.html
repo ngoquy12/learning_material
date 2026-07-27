@@ -1056,8 +1056,8 @@ sys.stderr = io.StringIO()
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
     A[Bắt đầu tính toán số học] --> B[Khai báo biến tổng hàng hóa và sức chứa của thùng]
-    B --> C[Tính toán full_boxes = total_items // box_capacity]
-    B --> D[Tính toán leftover_items = total_items % box_capacity]
+    B --> C["Tính toán full_boxes = total_items // box_capacity"]
+    B --> D["Tính toán leftover_items = total_items % box_capacity"]
     C --> E[Tính toán tổng chi phí cơ bản = full_boxes * price_per_box]
     E --> F[Tính toán chi phí sau chiết khấu = base_cost - discount_amount]
     D --> G[Hiển thị kết quả đóng gói và chi phí lên console]

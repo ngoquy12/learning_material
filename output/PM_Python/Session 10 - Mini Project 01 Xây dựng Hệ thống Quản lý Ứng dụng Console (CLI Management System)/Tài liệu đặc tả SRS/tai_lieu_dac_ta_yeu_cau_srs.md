@@ -33,7 +33,7 @@ flowchart TD
   ORD_CREATE["Tạo đơn hàng mới"]:::process
   ORD_STATUS["Cập nhật trạng thái đơn"]:::process
 
-  CHECK_STOCK{"Tìm sản phẩm & Khả dụng?\n(Requested <= Stock)"}:::decision
+  CHECK_STOCK{""Tìm sản phẩm & Khả dụng?\n(Requested <= Stock)""}:::decision
   STOCK_ERR["Báo lỗi: Thiếu hàng / Không tồn tại"]:::process
   DEDUCT_STOCK["Trừ tồn kho hàng\ntrong dict 'inventory'"]:::process
   SAVE_ORDER["Thêm đơn hàng mới\nvào list 'orders'"]:::process

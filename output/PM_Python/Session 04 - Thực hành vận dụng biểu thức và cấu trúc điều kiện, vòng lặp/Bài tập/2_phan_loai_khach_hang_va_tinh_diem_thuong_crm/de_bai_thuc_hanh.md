@@ -27,7 +27,7 @@ graph TD
     B --> C{Tên là STOP?}
     C -->|Đúng| D[In báo cáo tổng hợp và Kết thúc]
     C -->|Sai| E[Nhập: Chi tiêu, Số tháng hoạt động, Số hóa đơn]
-    E --> F{Dữ liệu đầu vào > 0?}
+    E --> F{"Dữ liệu đầu vào > 0?"}
     F -->|Sai| G[[Thông báo lỗi và yêu cầu nhập lại từ đầu]]
     G --> B
     F -->|Đúng| H[Xử lý phân hạng khách hàng]

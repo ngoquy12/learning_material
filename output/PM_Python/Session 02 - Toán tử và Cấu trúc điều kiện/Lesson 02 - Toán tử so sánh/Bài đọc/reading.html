@@ -1031,7 +1031,7 @@ sys.stderr = io.StringIO()
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
     A[Bắt đầu kiểm tra điều kiện] --> B(Đọc giá trị biến input_value)
-    B --> C{input_value >= 18}
+    B --> C{"input_value >= 18"}
     C -->|Đúng (True)| D[Cấp quyền truy cập hệ thống]
     C -->|Sai (False)| E[Từ chối truy cập hệ thống]
     D --> F[Kết thúc xử lý]

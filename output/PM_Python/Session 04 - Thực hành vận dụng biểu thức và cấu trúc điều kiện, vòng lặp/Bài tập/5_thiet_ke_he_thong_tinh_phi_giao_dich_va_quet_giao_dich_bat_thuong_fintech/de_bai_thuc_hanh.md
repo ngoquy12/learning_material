@@ -27,7 +27,7 @@ flowchart TD
     C -->|Không hợp lệ| D[Ghi nhận mã lỗi INVALID_DATA] --> B
     C -->|Hợp lệ| E{Kiểm tra vượt hạn mức đơn lẻ?}
     E -->|Vượt hạn mức| F[Gác giao dịch, gắn nhãn LIMIT_EXCEEDED] --> B
-    E -->|Trong hạn mức| G{Kiểm tra trùng lặp liên tiếp >= 3 lần?}
+    E -->|Trong hạn mức| G{"Kiểm tra trùng lặp liên tiếp >= 3 lần?"}
     G -->|Đúng nghi vấn spam| H[Gắn nhãn SUSPICIOUS_SPAM] --> I[Tính toán phí giao dịch bậc thang]
     G -->|Sai| I
     I --> J{Kiểm tra hạn mức ngày dồn tích?}

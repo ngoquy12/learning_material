@@ -1032,12 +1032,12 @@ sys.stderr = io.StringIO()
   sequenceDiagram
       autonumber
       User->>Terminal: Go phim va nhan phim Enter
-      Terminal->>input() Function: Truyen du lieu tho (String)
-      input() Function->>Memory: Luu tru gia tri dang chuoi (String)
+      Terminal->>InputFn:  Truyen du lieu tho (String)
+      InputFn->>Memory:  Luu tru gia tri dang chuoi (String)
       Memory->>Type Casting: Chuyen doi chuoi thanh kieu du lieu so (int/float)
       Type Casting->>Process Engine: Thuc hien toan tu toan hoc
-      Process Engine->>print() Function: Goi bo xu ly xuat du lieu
-      print() Function->>Terminal: Hien thi thong tin ket qua da dinh dang
+      ProcessEngine->>PrintFn:  Goi bo xu ly xuat du lieu
+      PrintFn->>Terminal:  Hien thi thong tin ket qua da dinh dang
 </div></div>
                         </div>
                     </div>

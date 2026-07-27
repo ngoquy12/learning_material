@@ -21,7 +21,7 @@ Trong phân hệ quản lý đơn hàng của một hệ thống thương mại 
 ```mermaid
 graph TD
     A[Bắt đầu] --> B[Nhập đơn giá price và số lượng quantity]
-    B --> C{price == 0?}
+    B --> C{"price == 0?"}
     C -->|Sai| D[Tích lũy vào subtotal] --> B
     C -->|Đúng| E[Yêu cầu nhập mã giảm giá coupon_code]
     E --> F[Tính phí vận chuyển shipping_fee]
