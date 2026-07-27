@@ -1418,142 +1418,154 @@ YÊU CẦU ĐẦU RA (BẮT BUỘC):
 
 def slide_agent(state: AgentState) -> AgentState:
     """
-    Slide Agent (Rikkei Academic PPTX Master & Google Slides UI Standard):
-    Tự động thiết kế Slide bài giảng tương tác HTML chuẩn giao diện Rikkei Master
-    với Sidebar Miniature Preview, Toàn màn hình ⛶ Mode, và Badge Số trang góc dưới bên phải bắt đầu từ trang 1.
-    Nội dung và số lượng Slide linh động 100% theo SSOT bài học.
+    Slide Agent (Rikkei Master Presentation Engine):
+    Tự động thiết kế Slide bài giảng HTML 16:9 sắc nét, chuẩn mực sư phạm doanh nghiệp.
+    Sử dụng 8 Golden Rules, Bento Grid, Card Color Coding, Mermaid Flowcharts & Code Boxes.
+    Cố định 3 Slide nội dung giàu tri thức + 1 Cover Slide + 1 Agenda Slide per Lesson.
     """
     from agents.slide_generator_agent import slide_generator_agent
 
     session_id = state.get("session_id", "Session 01")
-    lesson_id = state.get("lesson_id", "")
-    tech_stack = state.get("technology_stack", "python/core")
+    lesson_id = state.get("lesson_id", "Lesson 01")
+    tech_stack = state.get("technology_stack", "Python Core")
     
     core_ssot = state.get("core_ssot", {})
-    lesson_title = core_ssot.get("session_title", "Course Session")
+    lesson_title = core_ssot.get("session_title") or core_ssot.get("lesson_title") or "Lập trình Python Doanh Nghiệp"
     lesson_details = core_ssot.get("lesson_details", "")
-    expected_output = core_ssot.get("expected_output", "")
     
     acad_logs = [log for log in state.get("review_logs", []) if log["source"] == "Academic_Reviewer"]
     attempt_num = len(acad_logs) + 1
     feedback = acad_logs[-1]["feedback"] if acad_logs else ""
     
-    print(f"\n[Slide_Agent] Designing Interactive Master HTML Slide Deck for {session_id} {lesson_id} | Attempt: #{attempt_num}")
+    print(f"\n[Slide_Agent] Generating Master HTML Slide Deck for {session_id} - {lesson_id}: {lesson_title} | Attempt: #{attempt_num}")
     
-    content = get_lesson_content(
-        session_id=session_id,
-        lesson_id=lesson_id,
-        lesson_title=lesson_title,
-        lesson_details=lesson_details,
-        expected_output=expected_output,
-        attempt_num=attempt_num,
-        core_ssot=core_ssot,
-        feedback=feedback,
-        state=state
-    )
-    
-    display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
-    
-    # Xây dựng danh sách các cảnh/slide linh hoạt từ SSOT & Content với Action Title & 8 Dynamic Layouts
-    scenes = []
+    content = state.get("lesson_content")
+    if not content:
+        content = get_lesson_content(
+            session_id=session_id,
+            lesson_id=lesson_id,
+            lesson_title=lesson_title,
+            lesson_details=lesson_details,
+            expected_output="",
+            attempt_num=attempt_num,
+            core_ssot=core_ssot,
+            feedback=feedback,
+            state=state
+        )
+
+
     concepts = core_ssot.get("concepts", {})
     code_samples = core_ssot.get("code_samples", {})
-    
-    # 1. Slide Đặt vấn đề & Bối cảnh (TWO_COLUMN_COMPARE)
-    if content.get("problem"):
-        scenes.append({
+    problem_desc = content.get("problem") or f"Thách thức thực tế trong phát triển phần mềm với {lesson_title}."
+    analysis_desc = content.get("analysis") or f"Phân tích bản chất nguyên lý vận hành và kiến trúc của {lesson_title}."
+    solution_desc = content.get("solution") or f"Giải pháp triển khai mã nguồn tối ưu chuẩn PEP 8 cho {lesson_title}."
+    summary_desc = content.get("summary") or f"Tổng kết các điểm trọng tâm và lưu ý kỹ thuật cho {lesson_title}."
+
+    # Xây dựng danh sách concept text
+    concept_list = []
+    if isinstance(concepts, dict):
+        for cname, cdesc in concepts.items():
+            concept_list.append(f"{cname}: {cdesc}")
+    elif isinstance(concepts, list):
+        concept_list = [str(c) for c in concepts]
+
+    # Xây dựng mã nguồn mẫu thực tế
+    first_code = ""
+    if isinstance(code_samples, dict) and code_samples:
+        first_code = str(list(code_samples.values())[0])
+    elif isinstance(code_samples, str) and code_samples:
+        first_code = code_samples
+
+    if not first_code or len(first_code) < 15:
+        first_code = f"""# Ma nguon thuc chien: {lesson_title}
+def execute_demo():
+    print("--- Thuc thi module: {lesson_title} ---")
+    status = True
+    return status
+
+if __name__ == "__main__":
+    execute_demo()"""
+
+    # 1. Slide 1: Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp (TWO_COLUMN_COMPARE)
+    p_text1 = concept_list[0] if len(concept_list) > 0 else problem_desc
+    p_text2 = concept_list[1] if len(concept_list) > 1 else analysis_desc
+
+    slide_1_html = f"""
+    <div class="cards-container-row">
+        <div class="card-column-box card-error">
+            <div class="column-title" style="color: #991b1b; font-weight: 800; font-size: 20px;">Thách Thức &amp; Bối Cảnh Doanh Nghiệp</div>
+            <div class="inner-white-card">
+                <h4>Hạn Chế Hệ Thống Cũ</h4>
+                <p>{p_text1[:220]}</p>
+            </div>
+        </div>
+        <div class="card-column-box card-success">
+            <div class="column-title" style="color: #166534; font-weight: 800; font-size: 20px;">Giải Pháp Hiện Đại Chuẩn Doanh Nghiệp</div>
+            <div class="inner-white-card">
+                <h4>Đột Phá Năng Suất</h4>
+                <p>{p_text2[:220]}</p>
+            </div>
+        </div>
+    </div>
+"""
+
+    # 2. Slide 2: Khái Niệm Cốt Lõi & Trực Quan Hóa Luồng Dữ Liệu (MERMAID_DIAGRAM)
+    mermaid_diagram = f"""flowchart TD
+    A[Yêu cầu nghiệp vụ {lesson_title}] --> B[Khởi tạo Module & Tham chiếu RAM]
+    B --> C[Xử lý logic theo nguyên lý cốt lõi]
+    C --> D[Kiểm tra an toàn Runtime]
+    D --> E[Kết quả Console Output chuẩn]"""
+
+    # 3. Slide 3: Mã Nguồn Thực Chiến & Cảnh Báo Bẫy Cú Pháp (CODE_DEMO_EXPLAINER)
+    b_text1 = concept_list[2] if len(concept_list) > 2 else solution_desc
+    b_text2 = summary_desc
+
+    slide_3_html = f"""
+    <div class="cards-container-row">
+        <div class="card-column-box card-warning">
+            <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
+            <div class="inner-white-card">
+                <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
+                <p>{b_text1[:180]}</p>
+            </div>
+            <div class="inner-white-card">
+                <h4>Cảnh Báo Lỗi Runtime</h4>
+                <p>{b_text2[:180]}</p>
+            </div>
+        </div>
+        <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
+            <div class="academic-code-box">
+                {first_code.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')}
+            </div>
+        </div>
+    </div>
+"""
+
+    scenes = [
+        {
             "action_title": "Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp",
             "scene_title": "Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp",
-            "short_title": "Đặt Vấn Đề & Bối Cảnh",
-            "narration": content.get("problem", ""),
-            "layout_type": "TWO_COLUMN_COMPARE"
-        })
-
-    # 2. Các Slide Khái niệm từ SSOT với Action Title độc nhất & Layouts chuyên biệt
-    if isinstance(concepts, dict):
-        code_keys = list(code_samples.keys()) if isinstance(code_samples, dict) else []
-        concept_items = list(concepts.items())
-        for idx, (cname, cdesc) in enumerate(concept_items):
-            clean_cname = slide_generator_agent.clean_title_string(str(cname))
-            code_snippet = ""
-            if idx < len(code_keys):
-                code_snippet = str(code_samples[code_keys[idx]])
-            elif code_samples and isinstance(code_samples, dict):
-                first_val = list(code_samples.values())[0]
-                code_snippet = str(first_val) if isinstance(first_val, str) else ""
-
-            # Luân chuyển Layout Sư phạm
-            if code_snippet:
-                layout = "CODE_DEMO_EXPLAINER"
-            elif idx == 0:
-                layout = "SINGLE_COLUMN_FOCUS"
-            elif idx % 2 == 1:
-                layout = "THREE_COLUMN_CARDS"
-            else:
-                layout = "TWO_COLUMN_COMPARE"
-
-            lecturer_trick = f"Nhấn mạnh cơ chế hoạt động thực tế của '{clean_cname}' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime."
-            enterprise_scenario = f"Áp dụng '{clean_cname}' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế."
-            code_output = "[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime."
-
-            scenes.append({
-                "action_title": f"Bản Chất Kỹ Thuật: {clean_cname}",
-                "scene_title": clean_cname,
-                "short_title": clean_cname,
-                "narration": str(cdesc),
-                "code_sample": code_snippet,
-                "code_output": code_output,
-                "lecturer_trick": lecturer_trick,
-                "enterprise_scenario": enterprise_scenario,
-                "layout_type": layout
-            })
-
-    # 3. Slide Phân tích & Sơ đồ Luồng Mermaid (MERMAID_DIAGRAM / TABLE_COMPARISON)
-    if content.get("analysis") or content.get("solution"):
-        mermaid_prompt = f"flowchart TD\n    A[Mã nguồn Input] --> B[Trình xử lý Execution Engine]\n    B --> C[Luồng Xử lý Intermediate]\n    C --> D[Môi trường Thực thi Runtime]\n    D --> E[Kết quả Đầu ra Console]"
-        scenes.append({
-            "action_title": "Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành",
-            "scene_title": "Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành",
-            "short_title": "Luồng Dữ Liệu & Kiến Trúc",
-            "narration": f"{content.get('analysis', '')} {content.get('solution', '')}",
-            "mermaid": mermaid_prompt,
+            "short_title": "Bối cảnh & Đặt vấn đề",
+            "html_content": slide_1_html,
+            "layout_type": "CUSTOM_RAW"
+        },
+        {
+            "action_title": "Khái Niệm Cốt Lõi & Trực Quan Hóa Luồng Dữ Liệu",
+            "scene_title": "Khái Niệm Cốt Lõi & Trực Quan Hóa Luồng Dữ Liệu",
+            "short_title": "Khái niệm & Sơ đồ luồng",
+            "mermaid": mermaid_diagram,
             "layout_type": "MERMAID_DIAGRAM"
-        })
+        },
+        {
+            "action_title": "Mã Nguồn Thực Chiến & Cảnh Báo Bẫy Cú Pháp",
+            "scene_title": "Mã Nguồn Thực Chiến & Cảnh Báo Bẫy Cú Pháp",
+            "short_title": "Mã nguồn & Cảnh báo",
+            "html_content": slide_3_html,
+            "layout_type": "CUSTOM_RAW"
+        }
+    ]
 
-    # 4. Slide Bẫy cú pháp & Lưu ý (WARNING_GOTCHAS)
-    scenes.append({
-        "action_title": "Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp",
-        "scene_title": "Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp",
-        "short_title": "Cảnh Báo Sai Lầm",
-        "narration": "Tránh các lỗi IndentationError, Dynamic Typing Confusion, hoặc gọi biến trước khi khởi tạo.",
-        "bullets": [
-            "Lỗi thụt lề IndentationError do trộn lẫn Tab và Space",
-            "Tránh gán đè kiểu dữ liệu biến bất nhất gây bẫy Runtime",
-            "Luôn khai báo môi trường ảo Virtualenv trước khi install package",
-            "Không bao giờ lưu file mã nguồn trùng tên với module chuẩn"
-        ],
-        "layout_type": "WARNING_GOTCHAS"
-    })
-
-    # 5. Slide Tổng kết bài học (TIMELINE_RECAP)
-    if content.get("summary"):
-        scenes.append({
-            "action_title": "Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học",
-            "scene_title": "Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học",
-            "short_title": "Tổng Kết Bài Học",
-            "narration": content.get("summary", ""),
-            "layout_type": "TIMELINE_RECAP"
-        })
-
-    # Fallback nếu không có thông tin
-    if not scenes:
-        scenes = [
-            {"scene_title": "Đặt Vấn Đề & Khái Niệm Cốt Lõi", "short_title": "Đặt Vấn Đề", "narration": content.get("problem", "Giới thiệu khái niệm bài học")},
-            {"scene_title": "Phân Tích Nguyên Lý Kỹ Thuật", "short_title": "Phân Tích Nguyên Lý", "narration": content.get("analysis", "Phân tích cơ chế hoạt động")},
-            {"scene_title": "Thực Hành Mã Nguồn Minh Họa", "short_title": "Thực Hành Mã Nguồn", "narration": content.get("solution", "Triển khai mã nguồn minh họa")},
-            {"scene_title": "Tổng Kết & Sai Lầm Cần Tránh", "short_title": "Tổng Kết Bài Học", "narration": content.get("summary", "Tổng kết kiến thức cốt lõi")}
-        ]
-
+    display_title = f"{session_id} - {lesson_id}: {lesson_title}" if lesson_id else f"{session_id}: {lesson_title}"
     slides_html = slide_generator_agent.generate_deck_html(
         lesson_title=display_title,
         module_name=tech_stack.upper(),
@@ -1564,6 +1576,7 @@ def slide_agent(state: AgentState) -> AgentState:
     state["slide_markdown"] = slides_html
     log_agent_tokens("Slide_Agent", state, slides_html)
     return state
+
 
 def quiz_agent(state: AgentState) -> AgentState:
     """
