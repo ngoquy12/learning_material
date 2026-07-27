@@ -882,23 +882,46 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
       }}
 
       .selftest-question {{
-        padding: 12px 16px !important;
+        padding: 14px 20px !important;
         background-color: var(--bg-hover) !important;
-        font-weight: 600 !important;
-        color: var(--primary-text) !important;
+        font-weight: 700 !important;
+        color: var(--primary-text, #1e293b) !important;
         cursor: pointer !important;
         display: flex !important;
-        justify-content: space-between !important;
+        justify-content: center !important;
         align-items: center !important;
+        text-align: center !important;
         user-select: none !important;
         font-size: 0.95rem !important;
+        line-height: 1.6 !important;
+        position: relative !important;
+      }}
+
+      .selftest-question i {{
+        margin-right: 8px !important;
+      }}
+
+      .selftest-item.active .selftest-answer {{
+        display: block !important;
       }}
 
       .selftest-answer {{
-        padding: 16px !important;
+        padding: 18px 24px !important;
         border-top: 1px solid var(--border-color) !important;
         display: none;
         background-color: var(--bg-card) !important;
+        text-align: center !important;
+        font-size: 0.95rem !important;
+        line-height: 1.7 !important;
+      }}
+
+      .selftest-answer p,
+      .selftest-answer div,
+      .selftest-answer span,
+      .selftest-answer li {{
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
       }}
 
       .selftest-answer ul {{

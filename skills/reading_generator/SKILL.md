@@ -82,6 +82,8 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 5. KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC (Self-Test Accordion)                                 |
 |    • Bộ 3 câu hỏi khảo thí tự luyện dạng thẻ nhấp mở gợi ý đáp án.                            |
+|    • **BẮT BUỘC**: Text câu hỏi và câu trả lời **CĂN GIỮA 100%** (`text-align: center`).      |
+|    • **BẮT BUỘC**: Có tính năng **ĐÓNG / MỞ ĐỘNG** (Collapsible toggle state).                |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 | 6. TÀI LIỆU THAM KHẢO CHÍNH THỨC (Official References)                                        |
 |    • Danh sách đường dẫn tài liệu chính thức (PEP, Python Docs, Official Specs).              |
@@ -90,6 +92,15 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 |    • Cảnh báo: Cảnh báo các bẫy lỗi đắt giá (IndentationError, TypeError...) bôi đậm.        |
 +───────────────────────────────────────────────────────────────────────────────────────────────+
 ```
+
+> [!IMPORTANT]
+> **QUY TẮC CĂN GIỮA VÀ ĐÓNG MỞ PHẦN KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC:**
+> 1. **Căn Giữa Text (`text-align: center`)**:
+>    - Tiêu đề câu hỏi (`.selftest-question`) và nội dung câu trả lời (`.selftest-answer`) **BẮT BUỘC** phải được căn giữa chiều ngang (`text-align: center !important; justify-content: center !important;`).
+> 2. **Đóng / Mở Động (Collapsible Accordion Toggle)**:
+>    - Khi nhấp vào tiêu đề câu hỏi, khối thẻ phải tự động bật/tắt hiển thị câu trả lời (`onclick="this.parentElement.classList.toggle('active')"` hoặc dùng `<details class="selftest-item"><summary class="selftest-question">...` ). Mũi tên indicator tự động xoay chuyển chỉ báo trạng thái.
+
+---
 
 ---
 
