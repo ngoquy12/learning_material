@@ -236,6 +236,14 @@
       font-size: 32px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 16px;
     }
 
+    
+    /* Card Color Coding System */
+    .card-default { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+    .card-warning { background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 12px; padding: 20px; color: #92400e; }
+    .card-error { background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 12px; padding: 20px; color: #991b1b; }
+    .card-success { background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 12px; padding: 20px; color: #166534; }
+    .card-info { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 12px; padding: 20px; color: #1e40af; }
+
     /* Content Slide */
     .slide-content-layout {
       position: relative; padding: 40px 60px !important; background: #ffffff;
@@ -264,8 +272,9 @@
       background: #ffffff; border-radius: 10px; padding: 16px 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-    .inner-white-card h4 { font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 4px; }
-    .inner-white-card p { font-size: 15px; color: var(--text-gray); line-height: 1.5; }
+    .inner-white-card h4 { font-size: 20px; font-weight: 800; color: #000000; margin-bottom: 6px; }
+    .inner-white-card p { font-size: 18px; color: #334155; line-height: 1.6; }
+    .inner-white-card small, .inner-white-card ul li { font-size: 16px; }
 
     .academic-code-box {
       background: #0f172a; border-radius: 10px; padding: 22px;
@@ -352,7 +361,7 @@
       <div class="cover-content-box">
         <div class="cover-session-tag">Session 01:</div>
         <div class="cover-main-title">Kiểu dữ liệu cơ bản</div>
-        <div class="cover-meta-text">Môn học: PYTHON/CORE</div>
+        <div class="cover-meta-text">Môn học: Lập trình Python</div>
       </div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="cover-bottom-logo" />
       <div class="corner-page-badge">1</div>
@@ -363,37 +372,30 @@
       <div class="agenda-top-left-title">NỘI DUNG BÀI HỌC</div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="agenda-list-box">
-        <div class="agenda-item-row"><span>1.</span> <span>Đặt Vấn Đề & Bối Cảnh</span></div>
-<div class="agenda-item-row"><span>2.</span> <span>Kịch bản tuyến tính (Linear script)</span></div>
-<div class="agenda-item-row"><span>3.</span> <span>Kiểu dữ liệu int (Integer)</span></div>
-<div class="agenda-item-row"><span>4.</span> <span>Kiểu dữ liệu float (Floating-point)</span></div>
-<div class="agenda-item-row"><span>5.</span> <span>Kiểu dữ liệu str (String)</span></div>
-<div class="agenda-item-row"><span>6.</span> <span>Kiểu dữ liệu bool (Boolean)</span></div>
+        <div class="agenda-item-row"><span>1.</span> <span>Phân loại kiểu dữ liệu</span></div>
+<div class="agenda-item-row"><span>2.</span> <span>Định kiểu động</span></div>
+<div class="agenda-item-row"><span>3.</span> <span>Mã nguồn kiểu dữ liệu</span></div>
 
       </div>
       <div class="corner-page-badge">2</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="01. Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp">
+    <div class="slide slide-content-layout" data-type="content" data-title="01. Phân loại kiểu dữ liệu cơ bản trong Python">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        01. Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp
+        01. Phân loại kiểu dữ liệu cơ bản trong Python
       </div>
       
         <div class="cards-container-row">
           <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">Vấn Đề & Tác Động</div>
-            <div class="inner-white-card"><h4>Trở Ngại Hệ Thống #1</h4><p>- Sự phát sinh thông tin phi cấu trúc trong môi trường thực tế:</p></div>
-<div class="inner-white-card"><h4>Trở Ngại Hệ Thống #2</h4><p>- Trong các hệ thống phần mềm doanh nghiệp, dữ liệu thu thập từ người dùng thông qua terminal hoặc các nguồn bên ngoài thường được trả về dưới dạng một chuỗi ký tự thô</p></div>
-
+            <div class="column-title" style="color: var(--brand-red);">Trọng Tâm Bài Học</div>
+            <div class="inner-white-card"><h4>Nội Dung Chính</h4><p>Nội dung phân tích nguyên lý kỹ thuật.</p></div>
           </div>
           <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">Giải Pháp & Cách Khắc Phục</div>
-            <div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để #1</h4><p>- Ví dụ, khi một khách hàng mua sản phẩm trên sàn thương mại điện tử, các dữ liệu thô nhận về bao gồm số lượng sản phẩm là "3", đơn giá là "15</p></div>
-<div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để #2</h4><p>5", và trạng thái áp dụng mã giảm giá là "True"</p></div>
-
+            <div class="column-title" style="color: var(--brand-dark);">Phân Tích Chi Tiết</div>
+            <div class="inner-white-card"><h4>Ứng Dụng Thực Tế</h4><p>Áp dụng vào xây dựng ứng dụng thực chiến.</p></div>
           </div>
         </div>
 
@@ -401,35 +403,16 @@
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="02. Bản Chất Kỹ Thuật: Kịch bản tuyến tính (Linear script)">
+    <div class="slide slide-content-layout" data-type="content" data-title="02. Cơ chế định kiểu động (Dynamic Typing)">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        02. Bản Chất Kỹ Thuật: Kịch bản tuyến tính (Linear script)
+        02. Cơ chế định kiểu động (Dynamic Typing)
       </div>
       
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Tập hợp các dòng lệnh được trình biên dịch thực thi tuần tự từ trên xuống dưới một lần duy nhất, không rẽ nhánh hay lặp lại</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Kịch bản tuyến tính (Linear script)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Kịch bản tuyến tính (Linear script)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
+        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+
           </div>
         </div>
 
@@ -437,464 +420,29 @@
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="03. Bản Chất Kỹ Thuật: Kiểu dữ liệu int (Integer)">
+    <div class="slide slide-content-layout" data-type="content" data-title="03. Mã nguồn kiểm tra & Truy xuất kiểu dữ liệu">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        03. Bản Chất Kỹ Thuật: Kiểu dữ liệu int (Integer)
+        03. Mã nguồn kiểm tra & Truy xuất kiểu dữ liệu
       </div>
       
         <div class="cards-container-row">
           <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
             <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Kiểu dữ liệu số nguyên, đại diện cho các số nguyên dương, nguyên âm hoặc số không, không chứa phần thập phân</p></div>
+            <div class="inner-white-card"><p>Mã nguồn minh họa khái niệm cốt lõi của bài học.</p></div>
             
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Kiểu dữ liệu int (Integer)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
             
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Kiểu dữ liệu int (Integer)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
           </div>
           <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
             <div class="academic-code-box">
-              <span class="cm"># Khai bao va phan biet 4 kieu du lieu co ban</span><br/>tuoi = 18<br/>chieu_cao = 1.72<br/>ten = "Minh Anh"<br/>la_hoc_vien = True<br/><br/>print(tuoi)<br/>print(chieu_cao)<br/>print(ten)<br/>print(la_hoc_vien)
+              
             </div>
             
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
           </div>
         </div>
 
       <div class="corner-page-badge">5</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="04. Bản Chất Kỹ Thuật: Kiểu dữ liệu float (Floating-point)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        04. Bản Chất Kỹ Thuật: Kiểu dữ liệu float (Floating-point)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Kiểu dữ liệu biểu diễn số thực, có chứa phần thập phân ngăn cách bởi dấu chấm (</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Kiểu dữ liệu float (Floating-point)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Kiểu dữ liệu float (Floating-point)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Thao tac tinhtoan hoc va xuly ghep chuoi co ban</span><br/>so_a = 15<br/>so_b = 4<br/><br/>tong = so_a + so_b<br/>thuong = so_a / so_b<br/><br/>ho = "Nguyen"<br/>ten_dem = "Van"<br/>ten_day_du = ho + " " + ten_dem<br/>print(ten_day_du)
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">6</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="05. Bản Chất Kỹ Thuật: Kiểu dữ liệu str (String)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        05. Bản Chất Kỹ Thuật: Kiểu dữ liệu str (String)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Kiểu chuỗi ký tự dùng để biểu diễn văn bản, được đặt trong cặp dấu nháy đơn hoặc nháy kép</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Kiểu dữ liệu str (String)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Kiểu dữ liệu str (String)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Bieu thuc so sanh va logic don gian</span><br/>tuoi_hoc_sinh = 16<br/>tuoi_hop_le = tuoi_hoc_sinh &gt;= 18<br/>co_dong_y = True<br/><br/>duoc_phe_duyet = tuoi_hop_le and co_dong_y<br/>print(duoc_phe_duyet)
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">7</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="06. Bản Chất Kỹ Thuật: Kiểu dữ liệu bool (Boolean)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        06. Bản Chất Kỹ Thuật: Kiểu dữ liệu bool (Boolean)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Kiểu dữ liệu logic chỉ nhận một trong hai giá trị duy nhất là True (Đúng) hoặc False (Sai)</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Kiểu dữ liệu bool (Boolean)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Kiểu dữ liệu bool (Boolean)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Cach sua loi TypeError bang co che ep kieu (Type Casting)</span><br/>chuoi_so = "2024"<br/><span class="cm"># loi_chua_ep_kieu = chuoi_so + 1 # Se gay ra loi TypeError</span><br/><br/><span class="cm"># Khac phuc bang cach ep kieu chuoi ve dang so nguyen</span><br/>nam_so_nguyen = int(chuoi_so)<br/>nam_tiep_theo = nam_so_nguyen + 1<br/>print(nam_tiep_theo)
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">8</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="07. Bản Chất Kỹ Thuật: Các phép toán số học cơ bản">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        07. Bản Chất Kỹ Thuật: Các phép toán số học cơ bản
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Các phép tính toán học cơ bản áp dụng cho kiểu số bao gồm cộng (+), trừ (-), nhân (*) và chia thập phân (/)</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Các phép toán số học cơ bản' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Các phép toán số học cơ bản' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Chuong trinh tinh toan tuyen tinh hoan chinh nhan dau vao</span><br/>nhap_chieu_dai = input("Nhap chieu dai: ")<br/>nhap_chieu_rong = input("Nhap chieu rong: ")<br/><br/><span class="cm"># Ep kieu str sang float de thuc hien tinh toan</span><br/>dai = float(nhap_chieu_dai)<br/>rong = float(nhap_chieu_rong)<br/><br/>dien_tich = dai * rong<br/>print("Dien tich hinh chu nhat la: " + str(dien_tich))
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">9</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="08. Bản Chất Kỹ Thuật: Ghép chuỗi (String Concatenation)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        08. Bản Chất Kỹ Thuật: Ghép chuỗi (String Concatenation)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Thao tác nối các chuỗi ký tự lại với nhau bằng toán tử cộng (+)</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Ghép chuỗi (String Concatenation)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Ghép chuỗi (String Concatenation)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">10</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="09. Bản Chất Kỹ Thuật: Phép so sánh quan hệ">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        09. Bản Chất Kỹ Thuật: Phép so sánh quan hệ
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Các biểu thức sử dụng toán tử so sánh (như ==, !=, >, <, >=, <=) để so khớp hai giá trị và trả về True hoặc False</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Phép so sánh quan hệ' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Phép so sánh quan hệ' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">11</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="10. Bản Chất Kỹ Thuật: Biểu thức logic đơn giản">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        10. Bản Chất Kỹ Thuật: Biểu thức logic đơn giản
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Sự kết hợp giữa nhiều biểu thức so sánh quan hệ thông qua các toán tử logic gồm and, or và not</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Biểu thức logic đơn giản' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Biểu thức logic đơn giản' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">12</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="11. Bản Chất Kỹ Thuật: Cơ chế ép kiểu (Type Casting)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        11. Bản Chất Kỹ Thuật: Cơ chế ép kiểu (Type Casting)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Quá trình chuyển đổi dữ liệu từ kiểu này sang kiểu khác một cách chủ động bằng cách sử dụng các hàm tích hợp sẵn như int(), float(), str(), bool()</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Cơ chế ép kiểu (Type Casting)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Cơ chế ép kiểu (Type Casting)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">13</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="12. Bản Chất Kỹ Thuật: Lỗi sai kiểu dữ liệu (TypeError)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        12. Bản Chất Kỹ Thuật: Lỗi sai kiểu dữ liệu (TypeError)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Lỗi xảy ra khi thực thi một thao tác toán học hay hàm trên hai kiểu dữ liệu không tương thích với nhau (ví dụ: cộng một chuỗi với một số)</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Lỗi sai kiểu dữ liệu (TypeError)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Lỗi sai kiểu dữ liệu (TypeError)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">14</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="13. Bản Chất Kỹ Thuật: Hàm nhập dữ liệu input()">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        13. Bản Chất Kỹ Thuật: Hàm nhập dữ liệu input()
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Hàm dừng chương trình tạm thời để chờ người dùng nhập dữ liệu từ bàn phím</p></div><div class="inner-white-card" style="margin-bottom: 8px;"><p>Kết quả trả về của hàm này luôn ở dạng chuỗi (str)</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Hàm nhập dữ liệu input()' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Hàm nhập dữ liệu input()' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Viet va chay chuong trinh tuyen tinh dau tien</span><br/>print("Bat dau thiet lap moi truong Code...")<br/>print("Chay thanh cong tap tin Python tuyen tinh!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">15</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="14. Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        14. Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành
-      </div>
-      
-        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
-          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
-flowchart TD
-    A[Mã nguồn Input] --> B[Trình xử lý Execution Engine]
-    B --> C[Luồng Xử lý Intermediate]
-    C --> D[Môi trường Thực thi Runtime]
-    D --> E[Kết quả Đầu ra Console]
-          </div>
-        </div>
-
-      <div class="corner-page-badge">16</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="15. Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        15. Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp
-      </div>
-      
-        <div style="max-width: 950px; margin: 0 auto; width: 100%; padding: 20px;">
-          <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 24px;">
-            <h3 style="font-size: 22px; font-weight: 800; color: #991b1b; margin-bottom: 14px;">⚠️ [CẢNH BÁO] Bẫy Cú Pháp &amp; Anti-Pattern</h3>
-            <div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Lỗi thụt lề IndentationError do trộn lẫn Tab và Space</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Tránh gán đè kiểu dữ liệu biến bất nhất gây bẫy Runtime</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Luôn khai báo môi trường ảo Virtualenv trước khi install package</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Không bao giờ lưu file mã nguồn trùng tên với module chuẩn</p></div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">17</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="16. Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        16. Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">Tổng Kết Kiến Thức</div>
-            <div class="inner-white-card"><h4>Điểm Cốt Lõi #1</h4><p>- Phân loại kiểu dữ liệu cốt lõi: Ghi nhớ rõ chức năng của 4 kiểu dữ liệu cơ bản bao gồm `int` (số nguyên), `float` (số thực), `str` (chuỗi văn bản), và `bool` (luận lý)</p></div>
-<div class="inner-white-card"><h4>Điểm Cốt Lõi #2</h4><p>- Kiểm tra kiểu dữ liệu: Luôn dùng hàm dựng sẵn `type()` để giám sát kiểu dữ liệu thực tế của biến trong quá trình phát triển mã nguồn</p></div>
-
-          </div>
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">Sai Lầm Cần Tránh</div>
-            <div class="inner-white-card"><h4>Lưu Ý Thực Chiến #1</h4><p>- Cảnh báo các sai lầm runtime thường gặp:</p></div>
-<div class="inner-white-card"><h4>Lưu Ý Thực Chiến #2</h4><p>- Lỗi **TypeError**: Xuất hiện khi cố thực hiện phép toán không tương thích kiểu, ví dụ cộng trực tiếp một chuỗi văn bản với số nguyên mà không chuyển đổi kiểu trước</p></div>
-
-          </div>
-        </div>
-
-      <div class="corner-page-badge">18</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
@@ -907,36 +455,28 @@ flowchart TD
           
           <div class="timeline-node">
             <div class="node-card" style="margin-bottom: 24px;">
-              <h5>1. Đặt Vấn Đề & Bối Cảnh</h5>
-              <p>- Sự phát sinh thông tin phi cấu trúc trong môi trường thực tế:
-  - Trong các hệ thống phầ...</p>
+              <h5>1. Phân loại kiểu dữ liệu</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
             <div class="timeline-dot"></div>
           </div>
           <div class="timeline-node">
             <div class="timeline-dot" style="margin-top: 60px;"></div>
             <div class="node-card" style="margin-top: 24px;">
-              <h5>2. Kịch bản tuyến tính (Linear script)</h5>
-              <p>Tập hợp các dòng lệnh được trình biên dịch thực thi tuần tự từ trên xuống dưới một lần duy...</p>
+              <h5>2. Định kiểu động</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
           </div>
           <div class="timeline-node">
             <div class="node-card" style="margin-bottom: 24px;">
-              <h5>3. Kiểu dữ liệu int (Integer)</h5>
-              <p>Kiểu dữ liệu số nguyên, đại diện cho các số nguyên dương, nguyên âm hoặc số không, không c...</p>
+              <h5>3. Mã nguồn kiểu dữ liệu</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
             <div class="timeline-dot"></div>
           </div>
-          <div class="timeline-node">
-            <div class="timeline-dot" style="margin-top: 60px;"></div>
-            <div class="node-card" style="margin-top: 24px;">
-              <h5>4. Kiểu dữ liệu float (Floating-point)</h5>
-              <p>Kiểu dữ liệu biểu diễn số thực, có chứa phần thập phân ngăn cách bởi dấu chấm (.)....</p>
-            </div>
-          </div>
         </div>
       </div>
-      <div class="corner-page-badge">19</div>
+      <div class="corner-page-badge">6</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
@@ -945,7 +485,7 @@ flowchart TD
     <div id="hover-trigger-zone"></div>
     <div id="controls">
       <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
-      <span id="slide-indicator">1 / 19</span>
+      <span id="slide-indicator">1 / 6</span>
       <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
       <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
     </div>

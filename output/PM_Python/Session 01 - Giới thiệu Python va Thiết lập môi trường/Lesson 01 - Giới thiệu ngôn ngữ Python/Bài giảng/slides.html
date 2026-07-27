@@ -236,6 +236,14 @@
       font-size: 32px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 16px;
     }
 
+    
+    /* Card Color Coding System */
+    .card-default { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+    .card-warning { background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 12px; padding: 20px; color: #92400e; }
+    .card-error { background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 12px; padding: 20px; color: #991b1b; }
+    .card-success { background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 12px; padding: 20px; color: #166534; }
+    .card-info { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 12px; padding: 20px; color: #1e40af; }
+
     /* Content Slide */
     .slide-content-layout {
       position: relative; padding: 40px 60px !important; background: #ffffff;
@@ -264,8 +272,9 @@
       background: #ffffff; border-radius: 10px; padding: 16px 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-    .inner-white-card h4 { font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 4px; }
-    .inner-white-card p { font-size: 15px; color: var(--text-gray); line-height: 1.5; }
+    .inner-white-card h4 { font-size: 20px; font-weight: 800; color: #000000; margin-bottom: 6px; }
+    .inner-white-card p { font-size: 18px; color: #334155; line-height: 1.6; }
+    .inner-white-card small, .inner-white-card ul li { font-size: 16px; }
 
     .academic-code-box {
       background: #0f172a; border-radius: 10px; padding: 22px;
@@ -352,7 +361,7 @@
       <div class="cover-content-box">
         <div class="cover-session-tag">Session 01:</div>
         <div class="cover-main-title">Giới thiệu ngôn ngữ Python</div>
-        <div class="cover-meta-text">Môn học: PYTHON/CORE</div>
+        <div class="cover-meta-text">Môn học: Lập trình Python</div>
       </div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="cover-bottom-logo" />
       <div class="corner-page-badge">1</div>
@@ -363,37 +372,30 @@
       <div class="agenda-top-left-title">NỘI DUNG BÀI HỌC</div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="agenda-list-box">
-        <div class="agenda-item-row"><span>1.</span> <span>Đặt Vấn Đề & Bối Cảnh</span></div>
-<div class="agenda-item-row"><span>2.</span> <span>Ngon ngu Python (Python Language)</span></div>
-<div class="agenda-item-row"><span>3.</span> <span>Trinh thong dich Python (Interpreter)</span></div>
-<div class="agenda-item-row"><span>4.</span> <span>Moi truong ao (Virtual Environment)</span></div>
-<div class="agenda-item-row"><span>5.</span> <span>Ham print()</span></div>
-<div class="agenda-item-row"><span>6.</span> <span>Loi cu phap (Syntax Error)</span></div>
+        <div class="agenda-item-row"><span>1.</span> <span>Bối cảnh & Đặt vấn đề</span></div>
+<div class="agenda-item-row"><span>2.</span> <span>Nguyên lý vận hành</span></div>
+<div class="agenda-item-row"><span>3.</span> <span>Mã nguồn & Cảnh báo</span></div>
 
       </div>
       <div class="corner-page-badge">2</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="01. Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp">
+    <div class="slide slide-content-layout" data-type="content" data-title="01. Đặt vấn đề & Bối cảnh thực tế doanh nghiệp">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        01. Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp
+        01. Đặt vấn đề & Bối cảnh thực tế doanh nghiệp
       </div>
       
         <div class="cards-container-row">
           <div class="card-column-box">
             <div class="column-title" style="color: var(--brand-red);">Vấn Đề & Tác Động</div>
-            <div class="inner-white-card"><h4>Trở Ngại Hệ Thống #1</h4><p>- **Bối cảnh lịch sử phát triển công nghệ thông tin**:</p></div>
-<div class="inner-white-card"><h4>Trở Ngại Hệ Thống #2</h4><p>- Trong những thập niên cuối thế kỷ 20, các nhà phát triển phần mềm doanh nghiệp phụ thuộc nặng nề vào các ngôn ngữ biên dịch cấp thấp như **C** và **C++**</p></div>
-
+            <div class="inner-white-card"><h4>Trở Ngại Hệ Thống</h4><p>Nội dung phân tích nguyên lý kỹ thuật.</p></div>
           </div>
           <div class="card-column-box">
             <div class="column-title" style="color: var(--brand-dark);">Giải Pháp & Cách Khắc Phục</div>
-            <div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để #1</h4><p>- Mặc dù mang lại hiệu năng tối ưu, các ngôn ngữ này đòi hỏi người viết mã nguồn phải quản lý trực tiếp bộ nhớ hệ thống, xử lý chi tiết con trỏ và thực hiện các chu trình phân bổ phức tạp</p></div>
-<div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để #2</h4><p>- Một lỗi nhỏ trong việc thu hồi bộ nhớ có thể dẫn đến rò rỉ dữ liệu hoặc làm sập toàn bộ hệ điều hành của doanh nghiệp</p></div>
-
+            <div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để</h4><p>Áp dụng vào xây dựng ứng dụng thực chiến.</p></div>
           </div>
         </div>
 
@@ -401,35 +403,16 @@
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="02. Bản Chất Kỹ Thuật: Ngon ngu Python (Python Language)">
+    <div class="slide slide-content-layout" data-type="content" data-title="02. Khái niệm cốt lõi & Nguyên lý vận hành">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        02. Bản Chất Kỹ Thuật: Ngon ngu Python (Python Language)
+        02. Khái niệm cốt lõi & Nguyên lý vận hành
       </div>
       
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Ngon ngu lap trinh bac cao, thong dich, huong doi tuong va da muc dich, duoc phat trien boi Guido van Rossum nam 1991</p></div><div class="inner-white-card" style="margin-bottom: 8px;"><p>Python noi bat voi cu phap ro rang, de doc va co kho thu vien phong phu cho nhieu linh vuc</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Ngon ngu Python (Python Language)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Ngon ngu Python (Python Language)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Chuong trinh Python dau tien</span><br/>print("Hello, World!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
+        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+
           </div>
         </div>
 
@@ -437,212 +420,29 @@
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="03. Bản Chất Kỹ Thuật: Trinh thong dich Python (Interpreter)">
+    <div class="slide slide-content-layout" data-type="content" data-title="03. Mã nguồn thực chiến & Cảnh báo cú pháp">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        03. Bản Chất Kỹ Thuật: Trinh thong dich Python (Interpreter)
+        03. Mã nguồn thực chiến & Cảnh báo cú pháp
       </div>
       
         <div class="cards-container-row">
           <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
             <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Chuong trinh thuc thi cho phep doc truc tiep tung dong ma nguon Python, phan tich va chay chung ma khong can quan buoc phai bien dich toan bo chuong trinh sang file ma may nhi phan (</p></div>
+            <div class="inner-white-card"><p>Mã nguồn minh họa khái niệm cốt lõi của bài học.</p></div>
             
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Trinh thong dich Python (Interpreter)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
             
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Trinh thong dich Python (Interpreter)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
           </div>
           <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
             <div class="academic-code-box">
-              <span class="cm"># Huong dan su dung Terminal/Command Prompt de cau hinh moi truong ao</span><br/><span class="cm"># </span><br/><span class="cm"># Buoc 1: Tao moi truong ao dat ten la 'venv'</span><br/><span class="cm"># Lenh execute: python -m venv venv</span><br/><span class="cm">#</span><br/><span class="cm"># Buoc 2: Kich hoat moi truong ao</span><br/><span class="cm"># Tren Windows (PowerShell): .\\venv\\Scripts\\Activate.ps1</span><br/><span class="cm"># Tren Windows (CMD): .\\venv\\Scripts\\activate.bat</span><br/><span class="cm"># Tren macOS/Linux: source venv/bin/activate</span>
+              
             </div>
             
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
           </div>
         </div>
 
       <div class="corner-page-badge">5</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="04. Bản Chất Kỹ Thuật: Moi truong ao (Virtual Environment)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        04. Bản Chất Kỹ Thuật: Moi truong ao (Virtual Environment)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Mot thu muc rieng biet chua phien ban Python va cac thu vien can thiet cho mot du an rieng le</p></div><div class="inner-white-card" style="margin-bottom: 8px;"><p>Viec dung moi truong ao giup co lap va tranh xung dot phien ban thu vien khi phat trien nhieu du an tren mot may tinh</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Moi truong ao (Virtual Environment)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Moi truong ao (Virtual Environment)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Vi du ve loi cu phap va cach sua</span><br/><span class="cm"># </span><br/><span class="cm"># Code loi (Thieu dau nhay kep ket thuc chuoi):</span><br/><span class="cm"># print("Hello World)</span><br/><span class="cm"># </span><br/><span class="cm"># Code dung:</span><br/>print("Hello World")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">6</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="05. Bản Chất Kỹ Thuật: Ham print()">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        05. Bản Chất Kỹ Thuật: Ham print()
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Ham co san cua he thong dung de xuat cac thong tin duoi dang chuoi ky tu ra man hinh console de kiem tra hoac giao tiep voi nguoi dung</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Ham print()' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Ham print()' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Chuong trinh Python dau tien</span><br/>print("Hello, World!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">7</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="06. Bản Chất Kỹ Thuật: Loi cu phap (Syntax Error)">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        06. Bản Chất Kỹ Thuật: Loi cu phap (Syntax Error)
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Loi xay ra khi doan code viet sai quy tac ngu phap cua ngon ngu</p></div><div class="inner-white-card" style="margin-bottom: 8px;"><p>Khi gap loi nay, trinh thong dich Python se thong bao vi tri loi va khien chuong trinh ngung hoat dong ngay lap tuc</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Loi cu phap (Syntax Error)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Loi cu phap (Syntax Error)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Chuong trinh Python dau tien</span><br/>print("Hello, World!")
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">8</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="07. Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        07. Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành
-      </div>
-      
-        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
-          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
-flowchart TD
-    A[Mã nguồn Input] --> B[Trình xử lý Execution Engine]
-    B --> C[Luồng Xử lý Intermediate]
-    C --> D[Môi trường Thực thi Runtime]
-    D --> E[Kết quả Đầu ra Console]
-          </div>
-        </div>
-
-      <div class="corner-page-badge">9</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="08. Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        08. Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp
-      </div>
-      
-        <div style="max-width: 950px; margin: 0 auto; width: 100%; padding: 20px;">
-          <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 24px;">
-            <h3 style="font-size: 22px; font-weight: 800; color: #991b1b; margin-bottom: 14px;">⚠️ [CẢNH BÁO] Bẫy Cú Pháp &amp; Anti-Pattern</h3>
-            <div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Lỗi thụt lề IndentationError do trộn lẫn Tab và Space</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Tránh gán đè kiểu dữ liệu biến bất nhất gây bẫy Runtime</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Luôn khai báo môi trường ảo Virtualenv trước khi install package</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Không bao giờ lưu file mã nguồn trùng tên với module chuẩn</p></div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">10</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="09. Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        09. Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">Tổng Kết Kiến Thức</div>
-            <div class="inner-white-card"><h4>Điểm Cốt Lõi #1</h4><p>- **Lưu ý quan trọng khi bắt đầu viết mã Python**:</p></div>
-<div class="inner-white-card"><h4>Điểm Cốt Lõi #2</h4><p>- Python phân biệt chữ hoa và chữ thường trong khai báo danh tính (Ví dụ: Biến `User` khác hoàn toàn với biến `user`)</p></div>
-
-          </div>
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">Sai Lầm Cần Tránh</div>
-            <div class="inner-white-card"><h4>Lưu Ý Thực Chiến #1</h4><p>- Lập trình viên bắt buộc phải sử dụng 4 dấu cách (Space) để lùi dòng thụt lề nhằm định nghĩa khối lệnh trong các cấu trúc phức tạp</p></div>
-<div class="inner-white-card"><h4>Lưu Ý Thực Chiến #2</h4><p>- **Cảnh báo các sai lầm runtime thường gặp**:</p></div>
-
-          </div>
-        </div>
-
-      <div class="corner-page-badge">11</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
@@ -655,36 +455,28 @@ flowchart TD
           
           <div class="timeline-node">
             <div class="node-card" style="margin-bottom: 24px;">
-              <h5>1. Đặt Vấn Đề & Bối Cảnh</h5>
-              <p>- **Bối cảnh lịch sử phát triển công nghệ thông tin**:
-  - Trong những thập niên cuối thế ...</p>
+              <h5>1. Bối cảnh & Đặt vấn đề</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
             <div class="timeline-dot"></div>
           </div>
           <div class="timeline-node">
             <div class="timeline-dot" style="margin-top: 60px;"></div>
             <div class="node-card" style="margin-top: 24px;">
-              <h5>2. Ngon ngu Python (Python Language)</h5>
-              <p>Ngon ngu lap trinh bac cao, thong dich, huong doi tuong va da muc dich, duoc phat trien bo...</p>
+              <h5>2. Nguyên lý vận hành</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
           </div>
           <div class="timeline-node">
             <div class="node-card" style="margin-bottom: 24px;">
-              <h5>3. Trinh thong dich Python...</h5>
-              <p>Chuong trinh thuc thi cho phep doc truc tiep tung dong ma nguon Python, phan tich va chay ...</p>
+              <h5>3. Mã nguồn & Cảnh báo</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
             <div class="timeline-dot"></div>
           </div>
-          <div class="timeline-node">
-            <div class="timeline-dot" style="margin-top: 60px;"></div>
-            <div class="node-card" style="margin-top: 24px;">
-              <h5>4. Moi truong ao (Virtual Environment)</h5>
-              <p>Mot thu muc rieng biet chua phien ban Python va cac thu vien can thiet cho mot du an rieng...</p>
-            </div>
-          </div>
         </div>
       </div>
-      <div class="corner-page-badge">12</div>
+      <div class="corner-page-badge">6</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
@@ -693,7 +485,7 @@ flowchart TD
     <div id="hover-trigger-zone"></div>
     <div id="controls">
       <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
-      <span id="slide-indicator">1 / 12</span>
+      <span id="slide-indicator">1 / 6</span>
       <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
       <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
     </div>

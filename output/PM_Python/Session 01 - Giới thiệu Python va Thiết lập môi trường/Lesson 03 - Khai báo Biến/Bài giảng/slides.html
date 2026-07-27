@@ -236,6 +236,14 @@
       font-size: 32px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 16px;
     }
 
+    
+    /* Card Color Coding System */
+    .card-default { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+    .card-warning { background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 12px; padding: 20px; color: #92400e; }
+    .card-error { background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 12px; padding: 20px; color: #991b1b; }
+    .card-success { background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 12px; padding: 20px; color: #166534; }
+    .card-info { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 12px; padding: 20px; color: #1e40af; }
+
     /* Content Slide */
     .slide-content-layout {
       position: relative; padding: 40px 60px !important; background: #ffffff;
@@ -264,8 +272,9 @@
       background: #ffffff; border-radius: 10px; padding: 16px 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-    .inner-white-card h4 { font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 4px; }
-    .inner-white-card p { font-size: 15px; color: var(--text-gray); line-height: 1.5; }
+    .inner-white-card h4 { font-size: 20px; font-weight: 800; color: #000000; margin-bottom: 6px; }
+    .inner-white-card p { font-size: 18px; color: #334155; line-height: 1.6; }
+    .inner-white-card small, .inner-white-card ul li { font-size: 16px; }
 
     .academic-code-box {
       background: #0f172a; border-radius: 10px; padding: 22px;
@@ -352,7 +361,7 @@
       <div class="cover-content-box">
         <div class="cover-session-tag">Session 01:</div>
         <div class="cover-main-title">Khai báo Biến</div>
-        <div class="cover-meta-text">Môn học: PYTHON/CORE</div>
+        <div class="cover-meta-text">Môn học: Lập trình Python</div>
       </div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="cover-bottom-logo" />
       <div class="corner-page-badge">1</div>
@@ -363,37 +372,30 @@
       <div class="agenda-top-left-title">NỘI DUNG BÀI HỌC</div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="agenda-list-box">
-        <div class="agenda-item-row"><span>1.</span> <span>Đặt Vấn Đề & Bối Cảnh</span></div>
-<div class="agenda-item-row"><span>2.</span> <span>Biến (Variable)</span></div>
-<div class="agenda-item-row"><span>3.</span> <span>Quy tắc đặt tên biến theo chuẩn PEP 8</span></div>
-<div class="agenda-item-row"><span>4.</span> <span>SyntaxError trong khai báo biến</span></div>
-<div class="agenda-item-row"><span>5.</span> <span>NameError</span></div>
-<div class="agenda-item-row"><span>6.</span> <span>Cập nhật giá trị biến</span></div>
+        <div class="agenda-item-row"><span>1.</span> <span>Bản chất Biến</span></div>
+<div class="agenda-item-row"><span>2.</span> <span>Sơ đồ gán dữ liệu</span></div>
+<div class="agenda-item-row"><span>3.</span> <span>Mã nguồn & Bẫy lỗi</span></div>
 
       </div>
       <div class="corner-page-badge">2</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="01. Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp">
+    <div class="slide slide-content-layout" data-type="content" data-title="01. Bản chất kỹ thuật của Biến trong bộ nhớ RAM">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        01. Đặt Vấn Đề & Bối Cảnh Thực Tế Doanh Nghiệp
+        01. Bản chất kỹ thuật của Biến trong bộ nhớ RAM
       </div>
       
         <div class="cards-container-row">
           <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">Vấn Đề & Tác Động</div>
-            <div class="inner-white-card"><h4>Trở Ngại Hệ Thống #1</h4><p>- Trực quan hóa dữ liệu trong thực tế:</p></div>
-<div class="inner-white-card"><h4>Trở Ngại Hệ Thống #2</h4><p>- Trong lập trình ứng dụng doanh nghiệp, hệ thống cần xử lý và lưu trữ tạm thời một lượng lớn thông tin biến động như số lượng hàng tồn kho, đơn giá sản phẩm hoặc thông tin tài khoản người dùng</p></div>
-
+            <div class="column-title" style="color: var(--brand-red);">Thành Phần Hệ Thống</div>
+            <div class="inner-white-card"><h4>Thông Số Khởi Tạo</h4><p>Nội dung phân tích nguyên lý kỹ thuật.</p></div>
           </div>
           <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">Giải Pháp & Cách Khắc Phục</div>
-            <div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để #1</h4><p>- Ở cấp độ phần cứng, máy tính quản lý và truy xuất thông tin dựa vào các địa chỉ vật lý thô của bộ nhớ RAM dưới dạng các chuỗi thập lục phân phức tạp</p></div>
-<div class="inner-white-card"><h4>Hướng Xử Lý Triệt Để #2</h4><p>- Những thách thức nếu không có cơ chế quản lý phù hợp:</p></div>
-
+            <div class="column-title" style="color: var(--brand-dark);">Cấu Hình & Tương Tác</div>
+            <div class="inner-white-card"><h4>Quy Tắc Thiết Lập</h4><p>Áp dụng vào xây dựng ứng dụng thực chiến.</p></div>
           </div>
         </div>
 
@@ -401,35 +403,16 @@
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="02. Bản Chất Kỹ Thuật: Biến (Variable)">
+    <div class="slide slide-content-layout" data-type="content" data-title="02. Sơ đồ luồng gán dữ liệu & Tham chiếu bộ nhớ">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        02. Bản Chất Kỹ Thuật: Biến (Variable)
+        02. Sơ đồ luồng gán dữ liệu & Tham chiếu bộ nhớ
       </div>
       
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Một vùng trong bộ nhớ máy tính được đặt tên dùng để lưu trữ dữ liệu</p></div><div class="inner-white-card" style="margin-bottom: 8px;"><p>Giá trị của biến có thể thay đổi và cập nhật trong quá trình thực thi chương trình</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Biến (Variable)' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Biến (Variable)' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Khai báo biến đúng chuẩn PEP 8 (snake_case)</span><br/>student_name = "Nguyen Van A"<br/>math_score = 9.5<br/>is_passed = True<br/><br/><span class="cm"># Cac truong hop khai bao sai quy tac (gay loi SyntaxError)</span><br/><span class="cm"># 1st_student = "B"      # Loi vi bat dau bang so</span><br/><span class="cm"># total-amount = 1000   # Loi vi chua dau gach ngang</span><br/><span class="cm"># class = "Python Core"  # Loi vi trung tu khoa he thong</span>
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
+        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
+          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
+
           </div>
         </div>
 
@@ -437,212 +420,29 @@
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
-    <div class="slide slide-content-layout" data-type="content" data-title="03. Bản Chất Kỹ Thuật: Quy tắc đặt tên biến theo chuẩn PEP 8">
+    <div class="slide slide-content-layout" data-type="content" data-title="03. Khai báo biến chuẩn & Phân tích bẫy lỗi">
       <div class="content-top-accent-bar"></div>
       <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
       <div class="content-header-title">
-        03. Bản Chất Kỹ Thuật: Quy tắc đặt tên biến theo chuẩn PEP 8
+        03. Khai báo biến chuẩn & Phân tích bẫy lỗi
       </div>
       
         <div class="cards-container-row">
           <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
             <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Quy chuẩn định dạng mã nguồn Python khuyến nghị đặt tên biến bằng chữ thường, các từ phân cách bằng dấu gạch dưới (snake_case) (ví dụ: user_age, total_score), không bắt đầu bằng chữ số và không trùng với các từ khóa hệ thống (keyword)</p></div>
+            <div class="inner-white-card"><p>Mã nguồn minh họa khái niệm cốt lõi của bài học.</p></div>
             
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Quy tắc đặt tên biến theo chuẩn PEP 8' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
             
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Quy tắc đặt tên biến theo chuẩn PEP 8' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
           </div>
           <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
             <div class="academic-code-box">
-              <span class="cm"># Minh hoa ve loi NameError do sai chinh ta</span><br/>user_age = 18<br/><span class="cm"># print(user_eg)  # Gây ra loi NameError: name 'user_eg' is not defined</span><br/><br/><span class="cm"># Minh hoa ve loi SyntaxError do su dung ky tu dac biet</span><br/><span class="cm"># user$name = "Admin"  # Gây ra loi SyntaxError: invalid syntax</span>
+              
             </div>
             
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
           </div>
         </div>
 
       <div class="corner-page-badge">5</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="04. Bản Chất Kỹ Thuật: SyntaxError trong khai báo biến">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        04. Bản Chất Kỹ Thuật: SyntaxError trong khai báo biến
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Lỗi cú pháp xảy ra khi chương trình viết sai quy tắc của ngôn ngữ Python, ví dụ như đặt tên biến chứa khoảng trắng, chứa ký tự đặc biệt trái phép hoặc bắt đầu bằng số</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'SyntaxError trong khai báo biến' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'SyntaxError trong khai báo biến' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Khoi tao so luong sach trong kho</span><br/>book_count = 100<br/>print("So luong ban dau:", book_count)<br/><br/><span class="cm"># Cap nhat gia tri bien bang cach gán gia tri moi truc tiep</span><br/>book_count = 85<br/>print("So luong sau khi ban:", book_count)<br/><br/><span class="cm"># Cap nhat tang dan bang bieu thuc toan hoc</span><br/>book_count = book_count + 50<br/>print("So luong sau khi nhap them:", book_count)
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">6</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="05. Bản Chất Kỹ Thuật: NameError">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        05. Bản Chất Kỹ Thuật: NameError
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Lỗi định danh xảy ra khi cố gắng gọi hoặc sử dụng một biến chưa được khai báo trước đó trong chương trình, hoặc do gõ sai chính tả tên biến khi truy xuất</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'NameError' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'NameError' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Khai báo biến đúng chuẩn PEP 8 (snake_case)</span><br/>student_name = "Nguyen Van A"<br/>math_score = 9.5<br/>is_passed = True<br/><br/><span class="cm"># Cac truong hop khai bao sai quy tac (gay loi SyntaxError)</span><br/><span class="cm"># 1st_student = "B"      # Loi vi bat dau bang so</span><br/><span class="cm"># total-amount = 1000   # Loi vi chua dau gach ngang</span><br/><span class="cm"># class = "Python Core"  # Loi vi trung tu khoa he thong</span>
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">7</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="06. Bản Chất Kỹ Thuật: Cập nhật giá trị biến">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        06. Bản Chất Kỹ Thuật: Cập nhật giá trị biến
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            <div class="inner-white-card" style="margin-bottom: 8px;"><p>Hành động thay đổi dữ liệu mà biến đang tham chiếu tới bằng cách sử dụng toán tử gán (=) để gán một giá trị mới cho biến đã được khai báo trước đó</p></div>
-            
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> Nhấn mạnh cơ chế hoạt động thực tế của 'Cập nhật giá trị biến' giúp tối ưu hiệu năng và hạn chế lỗi tại runtime.
-                </div>
-            
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> Áp dụng 'Cập nhật giá trị biến' trong module xử lý nghiệp vụ của hệ thống doanh nghiệp thực tế.
-                </div>
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              <span class="cm"># Khai báo biến đúng chuẩn PEP 8 (snake_case)</span><br/>student_name = "Nguyen Van A"<br/>math_score = 9.5<br/>is_passed = True<br/><br/><span class="cm"># Cac truong hop khai bao sai quy tac (gay loi SyntaxError)</span><br/><span class="cm"># 1st_student = "B"      # Loi vi bat dau bang so</span><br/><span class="cm"># total-amount = 1000   # Loi vi chua dau gach ngang</span><br/><span class="cm"># class = "Python Core"  # Loi vi trung tu khoa he thong</span>
-            </div>
-            
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">[CONSOLE OUTPUT]: Thực thi chương trình hoàn tất - Không có lỗi Runtime.</pre>
-                </div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">8</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="07. Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        07. Phân Tích Luồng Dữ Liệu & Nguyên Lý Vận Hành
-      </div>
-      
-        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
-          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
-flowchart TD
-    A[Mã nguồn Input] --> B[Trình xử lý Execution Engine]
-    B --> C[Luồng Xử lý Intermediate]
-    C --> D[Môi trường Thực thi Runtime]
-    D --> E[Kết quả Đầu ra Console]
-          </div>
-        </div>
-
-      <div class="corner-page-badge">9</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="08. Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        08. Cảnh Báo Bẫy Cú Pháp & Anti-Pattern Thường Gặp
-      </div>
-      
-        <div style="max-width: 950px; margin: 0 auto; width: 100%; padding: 20px;">
-          <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 24px;">
-            <h3 style="font-size: 22px; font-weight: 800; color: #991b1b; margin-bottom: 14px;">⚠️ [CẢNH BÁO] Bẫy Cú Pháp &amp; Anti-Pattern</h3>
-            <div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Lỗi thụt lề IndentationError do trộn lẫn Tab và Space</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Tránh gán đè kiểu dữ liệu biến bất nhất gây bẫy Runtime</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Luôn khai báo môi trường ảo Virtualenv trước khi install package</p></div><div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>Không bao giờ lưu file mã nguồn trùng tên với module chuẩn</p></div>
-          </div>
-        </div>
-
-      <div class="corner-page-badge">10</div>
-      <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
-    </div>
-
-    <div class="slide slide-content-layout" data-type="content" data-title="09. Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học">
-      <div class="content-top-accent-bar"></div>
-      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        09. Tổng Kết Trọng Tâm & Tiến Trình Cột Mốc Bài Học
-      </div>
-      
-        <div class="cards-container-row">
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">Tổng Kết Kiến Thức</div>
-            <div class="inner-white-card"><h4>Điểm Cốt Lõi #1</h4><p>- Tóm tắt nguyên lý cốt lõi:</p></div>
-<div class="inner-white-card"><h4>Điểm Cốt Lõi #2</h4><p>- Biến trong Python là các nhãn tham chiếu đến đối tượng trong bộ nhớ, được quản lý theo cơ chế định kiểu động</p></div>
-
-          </div>
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">Sai Lầm Cần Tránh</div>
-            <div class="inner-white-card"><h4>Lưu Ý Thực Chiến #1</h4><p>- Phong cách đặt tên biến bắt buộc phải tuần thủ quy chuẩn ký tự đặc biệt của bộ dịch và nên áp dụng phong cách viết `snake_case` của PEP 8</p></div>
-<div class="inner-white-card"><h4>Lưu Ý Thực Chiến #2</h4><p>- Cảnh báo các sai lầm runtime thường gặp:</p></div>
-
-          </div>
-        </div>
-
-      <div class="corner-page-badge">11</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
@@ -655,36 +455,28 @@ flowchart TD
           
           <div class="timeline-node">
             <div class="node-card" style="margin-bottom: 24px;">
-              <h5>1. Đặt Vấn Đề & Bối Cảnh</h5>
-              <p>- Trực quan hóa dữ liệu trong thực tế:
-  - Trong lập trình ứng dụng doanh nghiệp, hệ thống...</p>
+              <h5>1. Bản chất Biến</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
             <div class="timeline-dot"></div>
           </div>
           <div class="timeline-node">
             <div class="timeline-dot" style="margin-top: 60px;"></div>
             <div class="node-card" style="margin-top: 24px;">
-              <h5>2. Biến (Variable)</h5>
-              <p>Một vùng trong bộ nhớ máy tính được đặt tên dùng để lưu trữ dữ liệu. Giá trị của biến có t...</p>
+              <h5>2. Sơ đồ gán dữ liệu</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
           </div>
           <div class="timeline-node">
             <div class="node-card" style="margin-bottom: 24px;">
-              <h5>3. Quy tắc đặt tên biến theo chuẩn PEP...</h5>
-              <p>Quy chuẩn định dạng mã nguồn Python khuyến nghị đặt tên biến bằng chữ thường, các từ phân ...</p>
+              <h5>3. Mã nguồn & Bẫy lỗi</h5>
+              <p>Tóm tắt điểm cốt lõi bài học....</p>
             </div>
             <div class="timeline-dot"></div>
           </div>
-          <div class="timeline-node">
-            <div class="timeline-dot" style="margin-top: 60px;"></div>
-            <div class="node-card" style="margin-top: 24px;">
-              <h5>4. SyntaxError trong khai báo biến</h5>
-              <p>Lỗi cú pháp xảy ra khi chương trình viết sai quy tắc của ngôn ngữ Python, ví dụ như đặt tê...</p>
-            </div>
-          </div>
         </div>
       </div>
-      <div class="corner-page-badge">12</div>
+      <div class="corner-page-badge">6</div>
       <div class="footer-copyright">© 2026 By Rikkei Academy - All rights reserved.</div>
     </div>
 
@@ -693,7 +485,7 @@ flowchart TD
     <div id="hover-trigger-zone"></div>
     <div id="controls">
       <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
-      <span id="slide-indicator">1 / 12</span>
+      <span id="slide-indicator">1 / 6</span>
       <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
       <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
     </div>
