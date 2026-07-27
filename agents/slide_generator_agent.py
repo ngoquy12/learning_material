@@ -266,6 +266,14 @@ class SlideGeneratorAgent:
       font-size: 32px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 16px;
     }
 
+    
+    /* Card Color Coding System */
+    .card-default { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
+    .card-warning { background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 12px; padding: 20px; color: #92400e; }
+    .card-error { background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 12px; padding: 20px; color: #991b1b; }
+    .card-success { background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 12px; padding: 20px; color: #166534; }
+    .card-info { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 12px; padding: 20px; color: #1e40af; }
+
     /* Content Slide */
     .slide-content-layout {
       position: relative; padding: 40px 60px !important; background: #ffffff;
@@ -294,8 +302,9 @@ class SlideGeneratorAgent:
       background: #ffffff; border-radius: 10px; padding: 16px 20px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-    .inner-white-card h4 { font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 4px; }
-    .inner-white-card p { font-size: 15px; color: var(--text-gray); line-height: 1.5; }
+    .inner-white-card h4 { font-size: 20px; font-weight: 800; color: #000000; margin-bottom: 6px; }
+    .inner-white-card p { font-size: 18px; color: #334155; line-height: 1.6; }
+    .inner-white-card small, .inner-white-card ul li { font-size: 16px; }
 
     .academic-code-box {
       background: #0f172a; border-radius: 10px; padding: 22px;
@@ -1044,10 +1053,10 @@ class SlideGeneratorAgent:
       <div class="content-top-accent-bar" style="background: #be111c;"></div>
       <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
       <div class="content-header-box" style="margin-bottom: 16px;">
-        <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 22px; color: #be111c; margin: 0; line-height: 1.2; text-transform: none;">
+        <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 28px; color: #be111c; margin: 0; line-height: 1.2; text-transform: none; font-family: 'Montserrat', sans-serif;">
           {main_large_title}
         </h2>
-        <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; color: #0f172a; margin-top: 6px; line-height: 1.3; text-transform: none;">
+        <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: #0f172a; margin-top: 6px; line-height: 1.3; text-transform: none; font-family: 'Inter', sans-serif;">
           {clean_stitle}
         </h3>
       </div>

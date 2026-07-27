@@ -19,16 +19,26 @@ Slide bài giảng đóng vai trò là **Công cụ Hỗ trợ Giảng dạy Tr�
 > 2. **Slide Mục Lục Session (Agenda Slide - Slide 2)**:
 >    - Bắt buộc liệt kê đầy đủ danh sách các Lesson trong Session dưới dạng danh sách được đánh số thứ tự (`01. Lesson 01 - ...`, `02. Lesson 02 - ...`).
 >    - Tiêu đề mục lục đổi thành **`NỘI DUNG BÀI HỌC`** (Font Montserrat Bold 36px, màu đỏ `#be111c`). Các chữ tên bài học kích thước to đậm (24px - 28px) dễ quan sát từ xa.
-> 3. **Tiêu Đề Lớn Bài Học (Content Slide Large Title)**:
->    - Tiêu đề lớn nhất trên từng slide nội dung **BẮT BUỘC** là **Tên Lesson kèm theo số thứ tự slide của Lesson đó**, phân cách bằng dấu gạch ngang `-` (ví dụ `Lesson 01 - Giới thiệu ngôn ngữ Python - 1`, `Lesson 01 - Giới thiệu ngôn ngữ Python - 2`).
->    - Phông chữ tiêu đề lớn: Màu đỏ thương hiệu `#be111c`, kích thước 22px, font Montserrat Bold.
+> 3. **Tiêu Đề Lớn Bài Học (Content Slide Large Title - Áp dụng từ Slide 3)**:
+>    - Tiêu đề lớn nhất trên từng slide nội dung **BẮT BUỘC** là **Tên Lesson kèm theo số thứ tự slide của Lesson đó**, phân cách bằng dấu gạch ngang `-` (ví dụ `Lesson 01 - Giới thiệu ngôn ngữ Python - 1`).
+>    - Phông chữ tiêu đề lớn: Màu đỏ thương hiệu `#be111c`, kích thước **28px** (Montserrat Bold).
 > 4. **Tiêu Đề Nhỏ / Phụ (Content Slide Subtitle)**:
 >    - Tiêu đề nhỏ ngay dưới Tiêu đề lớn chính là tên chủ đề cụ thể của slide đó (ví dụ `Đặt vấn đề & Bối cảnh thực tế doanh nghiệp`).
->    - Phông chữ tiêu đề nhỏ: **BẮT BUỘC CHỮ MÀU ĐEN (`#0f172a`)**, kích thước nhỏ hơn (16px), font Inter Bold. **CẤM LẶP LẠI TIÊU ĐỀ LỚN HOẶC DÙNG DẪN 01.01 LẶP DƯ THỪA**.
-> 5. **Chuẩn Mực Ngôn Ngữ Sư Phạm Doanh Nghiệp**:
->    - **TUYỆT ĐỐI CẤM** dùng các từ sến súa, khẩu ngữ suồng sã như: _"nhé"_, _"thân mến"_, _"nha"_, _"đó nhé"_, _"các bạn ơi"_.
->    - Ngôn từ phải thể hiện sự chuyên nghiệp, chuẩn sư phạm và kỹ thuật doanh nghiệp.
-> 6. **Cơ Chế Biểu Tượng & Đồ Họa (No Emoji Policy)**:
+>    - Phông chữ tiêu đề nhỏ: **BẮT BUỘC CHỮ MÀU ĐEN (`#0f172a`)**, kích thước **20px** (Inter Bold). **CẤM LẶP LẠI TIÊU ĐỀ LỚN HOẶC DÙNG DẪN 01.01 LẶP DƯ THỪA**.
+> 5. **Quy Chuẩn Kích Thước Chữ Nội Dung & Thẻ (Typography Scaling)**:
+>    - **Text Body**: Kích thước **18px** (Inter Medium/Regular).
+>    - **Text Con / Sub-bullets**: Kích thước **TỐI THIỂU 16px** (Cấm dùng chữ nhỏ hơn 16px).
+> 6. **Quy Tắc Phối Màu Khối Thẻ (Card Color Coding System)**:
+>    - ⚪ **Khối Mặc Định**: Nền Xám nhạt (`#f8fafc`), Viền `#e2e8f0`.
+>    - 🟠 **Khối Cảnh Báo**: Nền Cam nhạt (`#fffbeb`), Viền `#f59e0b`, Chữ `#92400e`.
+>    - 🔴 **Khối Lỗi / Bẫy cú pháp**: Nền Đỏ nhạt (`#fef2f2`), Viền `#ef4444`, Chữ `#991b1b`.
+>    - 🟢 **Khối Thành Công / Chuẩn**: Nền Xanh lá nhạt (`#f0fdf4`), Viền `#22c55e`, Chữ `#166534`.
+>    - 🔵 **Khối Đề Xuất / Thực Tế**: Nền Xanh dương nhạt (`#eff6ff`), Viền `#3b82f6`, Chữ `#1e40af`.
+> 7. **Đồ Họa, Render Markdown & Chuẩn Mực Ngôn Ngữ Sư Phạm**:
+>    - **Trực quan hóa 100%**: Ưu tiên tạo Sơ đồ luồng (Mermaid Flowchart/Sequence), SVG Vector hoặc Infographic thay vì chỉ toàn chữ.
+>    - **Render Markdown 100%**: Mọi cú pháp Markdown (`**bold**`, `` `code` ``) phải được render hoàn chỉnh ra HTML chuẩn.
+>    - **Văn phong Học thuật & Chuyên nghiệp**: Ngôn từ chuẩn sư phạm doanh nghiệp, giàu tính kỹ thuật học thuật. **TUYỆT ĐỐI CẤM** dùng từ sến súa (*"nhé"*, *"thân mến"*, *"nha"*).
+> 8. **Cơ Chế Biểu Tượng & Đồ Họa (No Emoji Policy)**:
 >    - **TUYỆT ĐỐI CẤM DÙNG ICON EMOJI** (như 🚀, 💡, 📌, 🎯, 🔥, ⚡, ❌, ✅, 🏢, 🖥️).
 >    - **ĐƯỢC PHÉP VÀ KHUYÊN DÙNG**: SVG vector icons, Phosphor Icons (`<i class="ph-bold ph-...">`), hoặc thẻ Badge CSS chuyên nghiệp (`[HOT]`, `[BEST PRACTICE]`, `[WARNING]`).
 
@@ -39,14 +49,14 @@ Slide bài giảng đóng vai trò là **Công cụ Hỗ trợ Giảng dạy Tr�
 | Layout Code (`layout_type`) | Mục đích & Mô tả                                    | Cấu trúc trình bày                                             |
 | :-------------------------- | :-------------------------------------------------- | :------------------------------------------------------------- |
 | `COVER_LAYOUT`              | Trang bìa đầu bài giảng                             | Logo Rikkei Red, Tag đỏ Session, Tiêu đề chính đen, Mã môn học |
-| `AGENDA_LAYOUT`             | Trang mục lục tiến trình bài học                    | Danh sách các Lesson kẻ số thứ tự nổi bật                      |
-| `SINGLE_COLUMN_FOCUS`       | Trình bày 1 định nghĩa / nguyên lý cốt lõi          | 1 Thẻ lớn căn giữa, Typography nổi bật, Callout Note           |
-| `TWO_COLUMN_COMPARE`        | Đối chiếu Vấn đề vs Giải pháp, Good vs Bad Code     | 2 Cột thẻ màu sắc đối sánh tương phản                          |
+| `AGENDA_LAYOUT`             | Trang mục lục tiến trình bài học                    | Danh sách các Lesson kẻ số thứ tự nổi bật (Badge đỏ 24px)      |
+| `SINGLE_COLUMN_FOCUS`       | Trình bày 1 định nghĩa / nguyên lý cốt lõi          | 1 Thẻ lớn căn giữa, Typography 20px-24px, Callout Note         |
+| `TWO_COLUMN_COMPARE`        | Đối chiếu Vấn đề vs Giải pháp, Good vs Bad Code     | 2 Cột thẻ màu sắc đối sánh tương phản (Xanh vs Đỏ)             |
 | `THREE_COLUMN_CARDS`        | Trình bày 3 thành phần / 3 quy tắc / 3 bước         | Grid 3 cột thẻ song song                                       |
-| `CODE_DEMO_EXPLAINER`       | Mã nguồn chuẩn kèm giải thích chi tiết              | Trái: Khái quát & Gạch đầu dòng; Phải: Khung Code VS Code Dark |
+| `CODE_DEMO_EXPLAINER`       | Mã nguồn chuẩn kèm giải thích chi tiết              | Trái: Khái quát & Gạch đầu dòng 18px; Phải: Khung Code VS Dark |
 | `MERMAID_DIAGRAM`           | Sơ đồ luồng/kiến trúc trực quan chiếm 80% diện tích | Sơ đồ Mermaid Flowchart/Sequence/ClassDiagram render mượt      |
 | `TABLE_COMPARISON`          | Bảng so sánh 4 cột Full-width 100% màn hình         | Bảng so sánh Markdown 4 cột (Tiêu chí, A, B, Thực tế)          |
-| `WARNING_GOTCHAS`           | Nhấn mạnh sai lầm đắt giá / Bẫy cú pháp             | Khung Cảnh báo Đỏ (Rikkei Warning Alert Box)                   |
+| `WARNING_GOTCHAS`           | Nhấn mạnh sai lầm đắt giá / Bẫy cú pháp             | Khung Cảnh báo Đỏ nhạt (`#fef2f2`, viền `#ef4444`)             |
 | `TIMELINE_RECAP`            | Trang tổng kết mốc tiến trình bài học               | Timeline 4 mốc kết nối mượt mà                                 |
 
 ---
@@ -66,3 +76,4 @@ Slide bài giảng đóng vai trò là **Công cụ Hỗ trợ Giảng dạy Tr�
 
 > [!IMPORTANT]
 > Tệp đầu ra duy nhất của Agent Slide cho từng Lesson là **`slides.html`** (Nằm trong thư mục `Bài giảng/slides.html`). TUYỆT ĐỐI KHÔNG LƯU THÀNH `slides.md`.
+
