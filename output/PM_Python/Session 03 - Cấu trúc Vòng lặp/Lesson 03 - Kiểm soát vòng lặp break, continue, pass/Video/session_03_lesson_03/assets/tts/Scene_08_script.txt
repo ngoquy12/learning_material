@@ -1,0 +1,1 @@
+Tiến hành chạy tệp tin python bằng lệnh python tên tệp tin chấm pi-oai. Quan sát kết quả logs trên màn hình terminal: Giao dịch một trăm năm mươi được xử lý, giá trị âm năm bị bỏ qua, và ngay khi gặp lỗi độc hại âm chín trăm chín mươi chín, chương trình in ra cảnh báo và kết thúc ngay lập tức.

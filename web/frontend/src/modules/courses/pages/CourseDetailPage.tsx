@@ -650,7 +650,14 @@ const SortableSessionItem = ({
               <ChevronRight size={18} />
             )}
             <span className="font-medium text-gray-700">
-              {session.name}: {session.title}
+              {session.title
+                ? session.name &&
+                  session.title
+                    .toLowerCase()
+                    .startsWith(session.name.toLowerCase())
+                  ? session.title
+                  : `${session.name}: ${session.title}`
+                : session.name}
             </span>
           </button>
         </div>
@@ -1125,7 +1132,7 @@ const ExerciseList = ({
             className="flex justify-between items-center p-3 border rounded-lg bg-gray-50 border-gray-100 hover:border-blue-200 transition-all duration-200"
           >
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              <div className="w-24 flex-shrink-0">
+              <div className="w-24 shrink-0">
                 <span
                   className={`inline-block w-full text-center px-2 py-0.5 text-xs font-semibold rounded-full border ${badgeClass}`}
                 >
@@ -1147,7 +1154,7 @@ const ExerciseList = ({
                 </div>
               </div>
             </div>
-            <div className="flex gap-2 flex-shrink-0 ml-4">
+            <div className="flex gap-2 shrink-0 ml-4">
               <Button
                 size="small"
                 icon={<Eye size={12} />}
@@ -1244,7 +1251,7 @@ const ProjectArtifactList = ({
       {srsArt && srsArt.status === "Completed" && (
         <div className="flex justify-between items-center p-3 border rounded-lg bg-gray-50 border-gray-100 hover:border-blue-200 transition-all duration-200">
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="w-24 flex-shrink-0">
+            <div className="w-24 shrink-0">
               <span className="inline-block w-full text-center px-2 py-0.5 text-xs font-semibold rounded-full border bg-blue-50 text-blue-700 border-blue-200">
                 Đặc tả SRS
               </span>
@@ -1254,7 +1261,7 @@ const ProjectArtifactList = ({
                 Tài liệu đặc tả yêu cầu phần mềm SRS
               </div>
               <div className="text-xs text-gray-500 truncate max-w-[600px]">
-                {srsArt.content_json?.title ||
+                {(srsArt.content_json?.title as string) ||
                   getPlainTextFromMarkdown(srsArt.content || "").substring(
                     0,
                     120,
@@ -1262,7 +1269,7 @@ const ProjectArtifactList = ({
               </div>
             </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0 ml-4">
+          <div className="flex gap-2 shrink-0 ml-4">
             <Button
               size="small"
               icon={<Eye size={12} />}
@@ -1286,7 +1293,7 @@ const ProjectArtifactList = ({
       {miniProjectArt && miniProjectArt.status === "Completed" && (
         <div className="flex justify-between items-center p-3 border rounded-lg bg-gray-50 border-gray-100 hover:border-blue-200 transition-all duration-200">
           <div className="flex items-center gap-4 flex-1 min-w-0">
-            <div className="w-24 flex-shrink-0">
+            <div className="w-24 shrink-0">
               <span className="inline-block w-full text-center px-2 py-0.5 text-xs font-semibold rounded-full border bg-purple-50 text-purple-700 border-purple-200">
                 Đề bài
               </span>
@@ -1296,14 +1303,14 @@ const ProjectArtifactList = ({
                 Đề bài & Yêu cầu Mini Project
               </div>
               <div className="text-xs text-gray-500 truncate max-w-[600px]">
-                {miniProjectArt.content_json?.title ||
+                {(miniProjectArt.content_json?.title as string) ||
                   getPlainTextFromMarkdown(
                     miniProjectArt.content || "",
                   ).substring(0, 120)}
               </div>
             </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0 ml-4">
+          <div className="flex gap-2 shrink-0 ml-4">
             <Button
               size="small"
               icon={<Eye size={12} />}
@@ -1346,7 +1353,7 @@ const ProjectArtifactList = ({
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2 flex-shrink-0 ml-4">
+                <div className="flex gap-2 shrink-0 ml-4">
                   <Button
                     size="small"
                     icon={<Eye size={10} />}

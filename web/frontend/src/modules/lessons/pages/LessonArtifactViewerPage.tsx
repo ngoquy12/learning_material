@@ -827,7 +827,7 @@ function QuizViewer({ artifact }: { artifact: ArtifactResponse }) {
         /* ──────────────────────────────────────────────────────────
            LIST VIEW MODE: Render All Questions with Inline Editing
            ────────────────────────────────────────────────────────── */
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 max-w-4xl mx-auto w-full">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4! max-w-4xl mx-auto w-full">
           {questions.map((q, qIdx) => (
             <Card
               key={qIdx}
@@ -854,7 +854,7 @@ function QuizViewer({ artifact }: { artifact: ArtifactResponse }) {
                 </div>
               }
             >
-              <div className="space-y-4">
+              <div className="space-y-4!">
                 {/* Question Content Field */}
                 <div>
                   <div className="text-xs font-semibold text-slate-400 mb-1">

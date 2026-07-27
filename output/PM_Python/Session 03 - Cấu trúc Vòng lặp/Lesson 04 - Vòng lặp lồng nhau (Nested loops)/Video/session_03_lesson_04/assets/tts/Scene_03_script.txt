@@ -1,0 +1,1 @@
+Được thiết kế bởi Gido van Rốt sum vào năm một chín chín mốt, Python luôn ưu tiên tính tường minh và dễ đọc của cú pháp. Để mô phỏng tự nhiên các không gian đa chiều này mà không làm tăng độ phức tạp thuật toán, cấu trúc vòng lặp lồng nhau ra đời, cho phép liên kết các chiều dữ liệu một cách trực quan và dễ hiểu nhất.

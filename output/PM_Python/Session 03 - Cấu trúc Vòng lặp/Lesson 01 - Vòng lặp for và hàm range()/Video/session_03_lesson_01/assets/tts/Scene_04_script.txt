@@ -1,0 +1,1 @@
+Cấu trúc vòng lặp for bắt đầu bằng từ khóa f-o-r, theo sau là biến đại diện đón nhận giá trị. Kết thúc dòng thiết lập bắt buộc phải có dấu hai chấm để khai báo phạm vi khối lệnh. Các câu lệnh bên trong bắt buộc phải được thụt lề chẵn bốn khoảng trắng để trình thông dịch Python phân biệt thuộc tính khối con.

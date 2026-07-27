@@ -1,0 +1,1 @@
+Quan sát luồng chạy, máy ảo khởi đầu bằng việc kiểm tra biến đếm đã đạt mức cận kết thúc stop hay chưa. Nếu đã đạt, vòng lặp dừng ngay lập tức. Nếu chưa đạt, giá trị được gán vào biến lặp để thực thi các lệnh thụt lề, tiếp theo biến đếm tự động cộng thêm giá trị step trước khi quay lại bước kiểm tra.

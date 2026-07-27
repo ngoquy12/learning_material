@@ -5398,5 +5398,925 @@
       "type": "code",
       "session": "Thiết lập Môi trường Phát triển Python"
     }
+  },
+  {
+    "text": "Khái niệm: Python Interpreter - Định nghĩa: Trình thông dịch Python, chịu trách nhiệm dịch trực tiếp và thực thi mã nguồn Python từng dòng một sang mã máy mà không cần biên dịch trước toàn bộ chương trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: PATH Environment Variable - Định nghĩa: Biến môi trường hệ thống chứa danh sách các thư mục chứa tệp tin thực thi. Cấu hình PATH đúng giúp hệ điều hành tìm và chạy lệnh 'python' từ bất kỳ thư mục nào trong Command Prompt hoặc Terminal.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (venv) - Định nghĩa: Thư mục cô lập chứa một phiên bản Python và các thư viện phụ thuộc riêng biệt cho từng dự án, giúp ngăn chặn xung đột phiên bản thư viện giữa các ứng dụng trên cùng một máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Workspace - Định nghĩa: Không gian làm việc trong VS Code định nghĩa thư mục dự án hiện tại cùng các tùy chọn cấu hình cục bộ (chẳng hạn như tệp cài đặt ẩn .vscode/settings.json).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Interpreter Linkage - Định nghĩa: Thao tác chọn lựa trình thông dịch thích hợp trong VS Code để chỉ định trình soạn thảo chạy mã nguồn bằng Python ở môi trường ảo vừa tạo thay vì Python hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_cai_dat_python:\npython --version",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_virtual_environment:\npython -m venv venv",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kich_hoat_moi_truong_ao_windows:\nvenv\\\\Scripts\\\\activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kich_hoat_moi_truong_ao_macos_linux:\nsource venv/bin/activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tat_kich_hoat_moi_truong_ao:\ndeactivate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuong_trinh_dau_tien:\nprint(\"Hello, World!\")\n\nmessage = \"Chao mung den voi bai hoc lap trinh Python dau tien!\"\nprint(message)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Trình thông dịch Python (Python Interpreter) - Định nghĩa: Chương trình thực hiện đọc và thực thi trực tiếp mã nguồn Python dòng lệnh qua dòng lệnh thành mã máy.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment - venv) - Định nghĩa: Một cơ chế cô lập giúp tạo thư mục độc lập chứa trình thông dịch Python và các thư viện cài thêm, ngăn chặn xung đột phiên bản giữa các dự án khác nhau trên cùng một máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Chọn Interpreter trong VS Code - Định nghĩa: Thao tác cấu hình trên Visual Studio Code (Ctrl + Shift + P -> Python: Select Interpreter) để chỉ định trình soạn thảo sử dụng đúng phiên bản Python từ thư mục môi trường ảo venv đã tạo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Kích hoạt Môi trường ảo (Activation) - Định nghĩa: Quá trình thay đổi biến môi trường PATH tạm thời của Terminal/Command Prompt trỏ đến thư mục local chứa binary của môi trường ảo (ví dụ: 'venv\\\\Scripts' trên Windows hoặc 'venv/bin' trên macOS/Linux).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho verify_interpreter.py:\nimport sys\n\ndef check_env():\n    print(\"Python Interpreter Path: \" + sys.executable)\n    in_venv = sys.prefix != sys.base_prefix\n    print(\"Is running inside Virtual Environment: \" + str(in_venv))\n\nif __name__ == \"__main__\":\n    check_env()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_packages_check.py:\nimport sys\nimport subprocess\n\ndef list_installed_packages():\n    try:\n        # Chay thong qua interpreter hien hanh de dam bao check dung moi truong\n        result = subprocess.run([sys.executable, \"-m\", \"pip\", \"list\"], capture_output=True, text=True)\n        print(\"Cac thu vien trong moi truong hien tai:\\\\n\" + result.stdout)\n    except Exception as e:\n        print(\"Khong the truy xuat pip: \", e)\n\nif __name__ == \"__main__\":\n    list_installed_packages()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Lập trình Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Python Interpreter - Định nghĩa: Bộ dịch mã nguồn Python thành mã máy dòng lệnh, thực thi các mã lập trình Python trực tiếp trên hệ điều hành.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến môi trường (PATH) - Định nghĩa: Biến hệ thống lưu danh sách các đường dẫn chứa tập tin thực thi (ví dụ: python.exe) giúp terminal có thể gọi lệnh ở bất kỳ thư mục nào.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Thư mục độc lập chứa một phiên bản Python và các thư viện riêng biệt cho từng dự án, giúp tránh xung đột phiên bản thư viện giữa các ứng dụng khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: venv - Định nghĩa: Thư viện mặc định đi kèm với cài đặt standard của Python, dùng để khởi tạo môi trường ảo nhanh chóng không cần công cụ cài đặt ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Conda / Anaconda - Định nghĩa: Nền tảng quản lý thư viện và môi trường ảo đặc biệt phù hợp trong khoa học dữ liệu, hỗ trợ cài đặt các gói thư viện nhị phân phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Workspace Settings - Định nghĩa: Cấu hình riêng của một thư mục dự án được định nghĩa trong file .vscode/settings.json, giúp chỉ định chính xác đường dẫn môi trường ảo cho dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cmd_check_python:\npython --version",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho venv_setup_windows:\npython -m venv myenv\nmyenv\\Scripts\\activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho venv_setup_unix:\npython3 -m venv myenv\nsource myenv/bin/activate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vscode_workspace_config:\n{\n  \"python.defaultInterpreterPath\": \".venv\\\\Scripts\\\\python.exe\",\n  \"python.terminal.activateEnvironment\": true\n}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho verify_active_environment:\nimport sys\n\nprint(\"Python Executable:\", sys.executable)\nprint(\"Core Directory:\", sys.base_prefix)\nprint(\"Virtual Directory:\", sys.prefix)\nprint(\"Is Virtual Env:\", sys.prefix != sys.base_prefix)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_for - Định nghĩa: Cấu trúc điều khiển lặp trong Python dùng để duyệt qua các phần tử của một chuỗi hoặc một dãy số, thực thi một khối lệnh lặp lại với số lần xác định trước.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_range_1_tham_so - Định nghĩa: Hàm range(stop) tạo ra một chuỗi số nguyên bắt đầu từ 0 và kết thúc sát giá trị stop (không bao gồm stop), tăng dần mặc định 1 đơn vị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_range_2_tham_so - Định nghĩa: Hàm range(start, stop) tạo ra một chuỗi số nguyên bắt đầu từ start và kết thúc sát giá trị stop (không bao gồm stop), tăng dần mặc định 1 đơn vị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: buoc_nhay_step_duong - Định nghĩa: Tham số thứ ba trong range(start, stop, step) với step là số dương giúp tạo chuỗi số tăng dần với khoảng cách giữa các số bằng giá trị của step.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: buoc_nhay_step_am - Định nghĩa: Tham số thứ ba trong range(start, stop, step) với step là số âm giúp tạo chuỗi số giảm dần (đếm ngược) từ start về stop, yêu cầu start phải lớn hơn stop.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_logic_range_rong - Định nghĩa: Lỗi thiết lập sai tham số trong range() khiến chuỗi số trả về là rỗng (ví dụ: start > stop khi step > 0, hoặc start < stop khi step < 0), dẫn đến vòng lặp for không được thực thi lần nào.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: tich_luy_va_loc_du_lieu - Định nghĩa: Kỹ thuật kết hợp vòng lặp for, câu lệnh rẽ nhánh if và biến tích lũy để lọc tìm các số thỏa mãn điều kiện rồi cộng dồn hoặc thống kê giá trị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho duyet_range_1_va_2_tham_so:\nprint(\"Duyet range(5):\")\nfor i in range(5):\n    print(i)  # Ket qua: 0, 1, 2, 3, 4\n\nprint(\"Duyet range(2, 6):\")\nfor i in range(2, 6):\n    print(i)  # Ket qua: 2, 3, 4, 5",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tuy_bien_buoc_nhay_step:\nprint(\"Tang dan voi step = 2:\")\nfor i in range(1, 10, 2):\n    print(i)  # Ket qua: 1, 3, 5, 7, 9\n\nprint(\"Giam dan voi step = -2:\")\nfor i in range(10, 0, -2):\n    print(i)  # Ket qua: 10, 8, 6, 4, 2",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho loi_logic_va_ung_dung_thuc_te:\n# 1. Minh hoa loi logic dan den range rong\nso_lan_lap = 0\nfor i in range(10, 1, 1):  # Khoi dau 10, dung o 1, nhung step la tang dan (+1)\n    so_lan_lap += 1\nprint(\"So lan lap (loi logic):\", so_lan_lap)  # Ket qua: 0\n\n# 2. Ung dung: Tinh tong cac so le chia het cho 3 tu 1 den 20\ntong_so_le = 0\nfor i in range(1, 21):\n    if i % 2 != 0 and i % 3 == 0:\n        tong_so_le += i\nprint(\"Tong cac so le chia het cho 3 la:\", tong_so_le)  # Ket qua: 27 (kết quả của 3 + 9 + 15)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range() trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: triet_ly_thiet_ke_python - Định nghĩa: Triết lý thiết kế của Python được đúc kết qua tài liệu 'The Zen of Python' (được truy xuất bằng lệnh import this). Triết lý này ưu tiên sự tối giản, rõ ràng, dễ đọc ('Đẹp tốt hơn xấu', 'Rõ ràng tốt hơn che đậy', 'Đơn giản tốt hơn phức tạp').",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: ngon_ngu_thong_dich_va_dinh_kieu_dong - Định nghĩa: Python là ngôn ngữ thông dịch (interpreted language), dòng mã được thực thi trực tiếp từng dòng thông qua trình thông dịch mà không cần biên dịch trước sang mã máy. Python cũng sử dụng cơ chế định kiểu động (dynamic typing), nghĩa là kiểu dữ liệu của biến được xác định tự động tại thời điểm chạy (runtime) dựa trên giá trị được gán cho nó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: thu_vien_tieu_chuan_python - Định nghĩa: Hệ sinh thái đi kèm với hàng trăm mô-đun được tích hợp sẵn (Standard Library) như os, sys, math, csv, giúp lập trình viên thực hiện nhiều công việc mà không cần cài đặt thư viện bên ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: xu_ly_du_lieu_va_tu_dong_hoa - Định nghĩa: Việc ứng dụng Python để đọc ghi file, tính toán dữ liệu hoặc điều khiển luồng công việc tự động lặp đi lặp lại. Đây là lợi thế rất lớn của Python core dành cho chuyên viên phân tích dữ liệu và tự động hóa tác vụ văn phòng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: quy_trinh_giai_quyet_bai_toan - Định nghĩa: Quy trình phân tích yêu cầu nghiệp vụ thực tế, chuyển đổi các yêu cầu thành thuật toán và cấu trúc dữ liệu cơ bản (ví dụ: sử dụng biến, vòng lặp 'for', câu lệnh rẽ nhánh 'if-else') để giải quyết bài toán hiệu quả nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vi_du_zen_of_python:\n# Trực quan hóa triết lý: Rõ ràng, dễ hiểu tốt hơn sự phức tạp không cần thiết.\n# Cách làm ẩn ý, khó hiểu:\n# x = [i for i in range(10) if i % 2 == 0]\n\n# Cách viết tường minh, dễ đọc theo Zen of Python:\nso_chan = []\nfor so in range(10):\n    if so % 2 == 0:\n        so_chan.append(so)\n\nprint(\"Danh sách số chẵn:\", so_chan)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tu_dong_hoa_loc_du_lieu:\n# Tự động hóa lọc danh sách điểm số và tìm học viên đỗ tốt nghiệp (điểm >= 5.0)\ndiem_so = {\n    \"An\": 4.5,\n    \"Binh\": 8.0,\n    \"Chi\": 4.8,\n    \"Dung\": 7.5\n}\n\nhoc_vien_do = []\nfor ten, diem in diem_so.items():\n    if diem >= 5.0:\n        hoc_vien_do.append(ten)\n        \nprint(\"Học viên vượt qua kỳ thi:\", hoc_vien_do)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho giai_quyet_bai_toan_tinh_thue:\n# Bài toán thực tế: Tính thuế thu nhập cá nhân dựa trên mức lương\n# Quy tắc: Lương dưới 11 triệu không tính thuế, từ 11 triệu trở lên tính 10% cho phần vượt\nten_nhan_vien = \"Nguyen Duy Hung\"\nluong = 15000000  # 15 triệu VND\n\nmuc_giam_tru = 11000000\nif luong <= muc_giam_tru:\n    thue = 0\nelse:\n    thu_nhap_tinh_thue = luong - muc_giam_tru\n    thue = thu_nhap_tinh_thue * 0.10\n    \nprint(\"Nhân viên:\", ten_nhan_vien)\nprint(\"Thuế thu nhập phải nộp:\", thue, \"VND\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu và Ứng dụng Thực tế của Ngôn ngữ Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Python Interpreter - Định nghĩa: Trình thông dịch Python chịu trách nhiệm thực thi các đoạn mã Python bằng cách chuyển dịch từng câu lệnh thành ngôn ngữ máy để máy tính có thể hiểu và chạy được.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Khái niệm: System PATH - Định nghĩa: Biến môi trường hệ thống chứa danh sách các đường dẫn đến các thư mục chứa chương trình thực thi. Thêm Python vào PATH giúp chạy lệnh 'python' từ bất kỳ thư mục nào trên Terminal.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Khái niệm: Virtual Environment (venv) - Định nghĩa: Một thư mục cô lập chứa phiên bản Python cùng các thư viện riêng biệt dành cho từng dự án, ngăn ngừa xung đột phiên bản thư viện giữa các dự án khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Python Interpreter - Định nghĩa: Cấu hình trong phần mềm VS Code định rõ phiên bản Python hoặc môi trường ảo nào sẽ được sử dụng để chạy mã nguồn, hiển thị gợi ý cú pháp và gỡ lỗi (debug).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_moi_truong_he_thong:\nimport sys\nimport os\n\n# Kiem tra thong tin phien ban va phan biet venv voi moi truong he thong\nin_virtual_env = sys.prefix != sys.base_prefix\n\nprint(f\"Phien ban Python : {sys.version}\")\nprint(f\"Duong dan thuc thi : {sys.executable}\")\nprint(f\"Dang chay trong Virtual Environment? : {in_virtual_env}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho huong_dan_thiet_lap_venv:\n# File nay chua cac lenh Terminal co ban de thiet lap moi truong ao\n# Chay cac lenh sau tu o cua so Terminal cua ban:\n\n# Bước 1: Tao moi truong ao co ten la '.venv'\n# Windows/macOS/Linux: python -m venv .venv\n\n# Bước 2: Kich hoat moi truong ao\n# - Tren Windows (Command Prompt): .venv\\\\Scripts\\\\activate.bat\n# - Tren Windows (PowerShell): .venv\\\\Scripts\\\\Activate.ps1\n# - Tren macOS/Linux: source .venv/bin/activate\n\n# Bước 3: Tat kich hoat môi truong ảo\n# Go lenh: deactivate",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cau_hinh_interpreter_vscode:\nimport json\nimport os\n\n# Script ghi file thiet lap de VS Code nhan tiet interpreter tu venv cua du an\nconfig = {\n    \"python.defaultInterpreterPath\": \".venv/Scripts/python.exe\",\n    \"python.terminal.activateEnvironment\": True\n}\n\nos.makedirs(\".vscode\", exist_ok=True)\nwith open(\".vscode/settings.json\", \"w\", encoding=\"utf-8\") as f:\n    json.dump(config, f, indent=4)\n\nprint(\"Da tao tep '.vscode/settings.json' de thiet lap Interpreter mac dinh cho VS Code.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python và VS Code"
+    }
+  },
+  {
+    "text": "Khái niệm: bien_va_vai_tro - Định nghĩa: Biến (Variable) là một vùng nhớ được đặt tên trên RAM dùng để lưu trữ dữ liệu. Dữ liệu lưu trong biến có thể thay đổi hoặc được tái sử dụng nhiều lần trong suốt chương trình chạy.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: phep_gan - Định nghĩa: Phép gán (Assignment) sử dụng toán tử '=' để gán giá trị từ vế phải vào trong biến ở vế trái (Ví dụ: x = 10 gán giá trị 10 cho biến tên x).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kiu_du_lieu_co_ban - Định nghĩa: Các kiểu dữ liệu nền tảng trong Python bao gồm: Số nguyên (int), Số thực (float), Chuỗi ký tự (str) đặt trong cặp nháy kép hoặc nháy đơn, và Kiểu lô-gic Đúng/Sai (bool).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: quy_tac_dat_ten_bat_buoc - Định nghĩa: Các quy tắc bắt buộc của Python: Tên biến chỉ được chứa chữ cái, chữ số và dấu gạch dưới (_); không được bắt đầu bằng chữ số; không trùng với các từ khóa hệ thống của Python như: if, for, class, import...",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: chuan_pep_8_snake_case - Định nghĩa: Quy chuẩn đặt tên PEP 8 dành cho biến khuyến nghị sử dụng định dạng snake_case: viết toàn bộ bằng chữ thường, các từ phân tách nhau bằng dấu gạch dưới (Ví dụ: user_name, total_price).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_bien_co_ban:\n# Khai bao cac bien voi cac kieu du lieu co ban\nage = 20\nheight = 1.75\nuser_name = \"Nguyen Van A\"\nis_student = True\n\n# Hien thi gia tri va kiem tra kieu du lieu cua bien\nprint(\"Ho ten:\", user_name)\nprint(\"Tuoi:\", age)\nprint(\"Chieu cao:\", height)\nprint(\"Sinh vien:\", is_student)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sua_loi_dat_ten_bien:\n# Vi du ve sua cac loi dat ten vi pham quy tac va PEP 8\n\n# 1. Ten bien sai quy tac: 1st_address = \"Ha Noi\" (Bat dau bang so)\nfirst_address = \"Ha Noi\"\n\n# 2. Ten bien sai quy tac: my-email = \"a@gmail.com\" (Dung dau gach ngang)\nmy_email = \"a@gmail.com\"\n\n# 3. Ten bien sai quy tac: class = \"10A\" (Trung tu khoa cua he thong)\nclass_name = \"10A\"\n\n# 4. Ten bien chua dung chuan PEP 8: userAge = 25 (Khuyen nghi khong dung CamelCase)\nuser_age = 25",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thiet_ke_he_thong_bien_thuc_te:\n# Chuong trinh quan ly thong tin san pham thuc te tuan thu PEP 8\n\n# Khai bao thong tin san pham\nproduct_id = \"SP001\"\nproduct_name = \"Dien thoai di dong\"\nproduct_price = 15000000.0\nis_available = True\n\n# Khai bao thong tin khach hang dat mua\ncustomer_name = \"Tran Thi B\"\nordered_quantity = 2\n\n# Hien thi chi tiet hoa don khoi tao\nprint(\"--- THONG TIN DON HANG ---\")\nprint(\"San pham:\", product_name)\nprint(\"Gia ban:\", product_price, \"VND\")\nprint(\"Khach hang:\", customer_name)\nprint(\"So luong mua:\", ordered_quantity)\nprint(\"Trang thai con hang:\", is_available)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo Biến và Quy tắc Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Variable (Biến) - Định nghĩa: Vùng lưu trữ trong bộ nhớ dùng để chứa dữ liệu, được định danh bằng một tên cụ thể để tham chiếu và tái sử dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: Integer (int) - Định nghĩa: Kiểu dữ liệu biểu diễn các số nguyên (dương, âm hoặc số 0) không có phần thập phân.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: Float (float) - Định nghĩa: Kiểu dữ liệu biểu diễn số thực, chứa phần thập phân hoặc ký hiệu số mũ khoa học.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: Boolean (bool) - Định nghĩa: Kiểu dữ liệu luận lý chỉ nhận một trong hai giá trị logic là True (Đúng) hoặc False (Sai).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: String (str) - Định nghĩa: Kiểu dữ liệu biểu diễn chuỗi các ký tự đặt trong dấu nháy đơn ('...') hoặc dấu nháy kép (\"...\").",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: String Concatenation (Nối chuỗi) - Định nghĩa: Phép toán ghép hai hoặc nhiều chuỗi ký tự lại với nhau bằng cách sử dụng toán tử cộng (+).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: Type Casting (Chuyển đổi kiểu) - Định nghĩa: Quá trình chuyển đổi giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác bằng các hàm dựng sẵn như int(), float(), str().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: TypeError (Lỗi kiểu dữ liệu) - Định nghĩa: Lỗi xảy ra khi thực hành một thao tác hoặc hàm lên một đối tượng có kiểu dữ liệu không phù hợp hoặc không được hỗ trợ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: Input (Nhận dữ liệu) - Định nghĩa: Hàm input() trong Python dùng để lấy dữ liệu nhập vào từ bàn phím của người dùng, kết quả trả về luôn ở dạng chuỗi (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: f-string (Định dạng chuỗi) - Định nghĩa: Phương pháp định dạng chuỗi được bắt đầu với ký tự 'f' hoặc 'F', cho phép nhúng trực tiếp giá trị của biến vào trong chuỗi thông qua cặp dấu ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Variables_and_Basic_Types:\n# Khai báo các biến với kiểu dữ liệu cơ bản\nage = 20          # Kiểu số nguyên (int)\nheight = 1.75     # Kiểu số thực (float)\nis_active = True  # Kiểu luận lý (bool)\n\n# Hiển thị giá trị của các biến ra màn hình\nprint(age)\nprint(height)\nprint(is_active)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho String_Concatenation:\n# Khai báo chuỗi họ và tên\nfirst_name = \"An\"\nlast_name = \"Nguyen\"\n\n# Ghép chuỗi họ và tên sử dụng toán tử cộng (+)\nfull_name = last_name + \" \" + first_name\nprint(full_name)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Type_Casting_and_TypeError_Handling:\n# Nhập tuổi biểu diễn dưới dạng chuỗi\nage_string = \"25\"\n\n# Ép kiểu chuỗi sang kiểu số nguyên để tính toán tránh lỗi TypeError\nage_integer = int(age_string)\nnext_year_age = age_integer + 1\n\n# Chuyển đổi ngược lại từ số sang chuỗi khi cần nối chuỗi để in kết quả\nprint(\"Tuoi sang nam la: \" + str(next_year_age))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Input_and_fstring_Formatting:\n# Nhận dữ liệu đầu vào từ bàn phím\nlength_str = input(\"Nhap chieu dai hinh chu nhat: \")\nwidth_str = input(\"Nhap chieu rong hinh chu nhat: \")\n\n# Chuyển đổi dữ liệu sang kiểu số thực và tính diện tích\nlength = float(length_str)\nwidth = float(width_str)\narea = length * width\n\n# Định dạng xuất kết quả bằng f-string giới hạn 2 chữ số thập phân\nprint(f\"Chieu dai: {length} - Chieu rong: {width}\")\nprint(f\"Dien tich hinh chu nhat la: {area:.2f}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Lập trình Python Cơ Bản: Kiểu Dữ Liệu Số, Chuỗi và Luận Lý"
+    }
+  },
+  {
+    "text": "Khái niệm: print_function - Định nghĩa: Hàm built-in dùng để hiển thị dữ liệu hoặc thông điệp ra màn hình console. Hỗ trợ các tham số như 'sep' để định nghĩa ký tự ngăn cách các phần tử và 'end' để định nghĩa ký tự kết thúc sau khi in.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Khái niệm: f_string_formatting - Định nghĩa: Cú pháp định dạng chuỗi bằng cách thêm chữ 'f' hoặc 'F' trước dấu nháy kép, cho phép nhúng trực tiếp giá trị của các biến hay biểu thức toán học vào trong cặp dấu ngoặc nhọn {} một cách rõ ràng và trực quan.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Khái niệm: input_function - Định nghĩa: Hàm built-in dùng để tạm dừng chương trình và cho phép người dùng nhập vào dữ liệu từ bàn phím. Mọi dữ liệu do hàm này nhận vào đều được lưu trữ mặc định dưới dạng chuỗi ký tự (string).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Khái niệm: type_casting - Định nghĩa: Cơ chế ép kiểu (chuyển đổi kiểu dữ liệu) của một giá trị sang kiểu dữ liệu khác như sử dụng int() để đổi thành số nguyên, float() để đổi thành số thực, nhằm mục đích thực hiện tính toán số học chính xác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Khái niệm: interactive_script_structure - Định nghĩa: Quy trình lập trình tuần tự 3 bước căn bản của một chương trình tương tác console: (1) Nhận dữ liệu đầu vào của người dùng, (2) Xử lý logic hoặc tính toán toán học, và (3) Hiển thị kết quả đầu ra trực quan.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho print_and_formatting_demo:\nname = \"Python\"\nversion = 3.12\n# Sử dụng sep để ngăn cách và end để giữ con trỏ trên cùng dòng\nprint(\"Ngôn ngữ\", name, sep=\": \", end=\" - \")\nprint(f\"Phiên bản hiện tại là {version}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho input_and_casting_demo:\n# Nhận dữ liệu chuỗi từ bàn phím\ninput_str = input(\"Nhập một số nguyên bất kỳ: \")\n# Ép kiểu dữ liệu sang số nguyên để tính toán số học\nnum = int(input_str)\nresult = num * 2\nprint(f\"Giá trị sau khi nhân đôi là: {result}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho interactive_script_demo:\n# Bước 1: Nhận thông tin đầu vào và ép kiểu sang số thực\nchieu_dai = float(input(\"Nhập chiều dài (m): \"))\nchieu_rong = float(input(\"Nhập chiều rộng (m): \"))\n\n# Bước 2: Thực hiện phép tính toán học cơ bản\ndien_tich = chieu_dai * chieu_rong\n\n# Bước 3: Định dạng kết quả và xuất ra màn hình console\nprint(f\"Diện tích hình chữ nhật là: {dien_tich} mét vuông.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Nhập và xuất dữ liệu cơ bản với Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Type Casting (Ép kiểu dữ liệu) - Định nghĩa: Quá trình chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác trong Python (ví dụ: chuyển chuỗi nhận được từ hàm input() thành số nguyên bằng int() hoặc số thực bằng float()).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: ValueError - Định nghĩa: Ngoại lệ xảy ra khi một hàm thực hiện ép kiểu nhận được giá trị có kiểu dữ liệu đúng nhưng định dạng của giá trị đó không thể chuyển đổi được (ví dụ: cố gắng chuyển chuỗi 'abc' thành số nguyên).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Xử lý ngoại lệ cơ bản với try-except - Định nghĩa: Cấu trúc lập trình dùng để bắt và xử lý các lỗi runtime (chẳng hạn như ValueError), giữ cho chương trình không bị dừng đột ngột khi người dùng nhập sai định dạng dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Định dạng chuỗi bằng f-string - Định nghĩa: Cú pháp định dạng chuỗi hiện đại trong Python, bắt đầu bằng chữ 'f' hoặc 'F' trước chuỗi, cho phép nhúng trực tiếp giá trị của biến hoặc biểu thức trong cặp dấu ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Căn lề và Thiết lập độ rộng (Alignment & Width) - Định nghĩa: Kỹ thuật sử dụng trong f-string để căn chỉnh vị trí hiển thị của văn bản (căn trái '<', căn phải '>', căn giữa '^') và xác định số lượng ký tự tối thiểu hiển thị của cột dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: Làm tròn số thập phân (Decimal Rounding) - Định nghĩa: Kỹ thuật chỉ định số lượng chữ số nằm sau dấu phẩy thập phân khi hiển thị số thực bằng cú pháp :.Nf trong f-string (ví dụ: :.2f để làm tròn và hiển thị 2 chữ số thập phân).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho type_casting_and_exception_handling:\ntry:\n    so_luong_nhap = input(\"Nhập số lượng sản phẩm: \")\n    # Ép kiểu dữ liệu từ chuỗi sang số nguyên\n    so_luong = int(so_luong_nhap)\n    print(f\"Số lượng bạn đã nhập: {so_luong}\")\nexcept ValueError:\n    # Xử lý trường hợp người dùng nhập chữ thay vì số\n    print(\"Lỗi: Vui lòng nhập vào một số nguyên hợp lệ!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho f_string_advanced_formatting:\nten_sp = \"Sách Python\"\ngia_ban = 95000.567\n\n# 1. Căn lề trái, rộng 20 ký tự\nprint(f\"{ten_sp:<20}\")\n\n# 2. Căn phải, rộng 15 ký tự và làm tròn lấy 2 chữ số thập phân\nprint(f\"{gia_ban:>15.2f}\")\n\n# 3. Căn giữa, rộng 20 ký tự với ký tự lấp đầy là dấu gạch ngang\nprint(f\"{ten_sp:-^20}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho terminal_invoice_application:\n# Khai báo dữ liệu mẫu\nten_hang_1, so_luong_1, gia_1 = \"Bút bi Thiên Long\", 5, 4500.0\nten_hang_2, so_luong_2, gia_2 = \"Vở 96 trang\", 10, 8500.5\n\n# Tính toán\ntong_1 = so_luong_1 * gia_1\ntong_2 = so_luong_2 * gia_2\ntong_cong = tong_1 + tong_2\n\n# Vẽ hóa đơn căn chỉnh chuẩn xác trên Terminal\nprint(\"=\" * 50)\nprint(f\"{'HÓA ĐƠN THANH TOÁN':^50}\")\nprint(\"=\" * 50)\n\n# Tiêu đề các cột dữ liệu\nprint(f\"{'Tên sản phẩm':<20} | {'SL':^5} | {'Đơn giá':>10} | {'Thành tiền':>10}\")\nprint(\"-\" * 50)\n\n# Dữ liệu sản phẩm 1 và 2\nprint(f\"{ten_hang_1:<20} | {so_luong_1:^5} | {gia_1:>10.1f} | {tong_1:>10.1f}\")\nprint(f\"{ten_hang_2:<20} | {so_luong_2:^5} | {gia_2:>10.1f} | {tong_2:>10.1f}\")\nprint(\"-\" * 50)\n\n# Tổng cộng hóa đơn\nprint(f\"{'Tổng thanh toán:':<39} | {tong_cong:>10.1f}\")\nprint(\"=\" * 50)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Type Casting và Định dạng Chuỗi nâng cao bằng f-string"
+    }
+  },
+  {
+    "text": "Khái niệm: triet_ly_thiet_ke_python - Định nghĩa: Triết lý phát triển của Python được đúc kết trong tài liệu 'Zen of Python' (PEP 20), nhấn mạnh việc viết mã nguồn rõ ràng, tường minh, dễ đọc và ưu tiên sự đơn giản thay vì phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Khái niệm: ngon_ngu_thong_dich - Định nghĩa: Python là ngôn ngữ thông dịch (interpreted), nghĩa là mã nguồn được thực thi từng dòng bởi trình thông dịch mà không cần biên dịch trước thành mã máy. Điều này giúp lập trình viên thử nghiệm và gỡ lỗi nhanh chóng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_dong - Định nghĩa: Python sử dụng cơ chế định kiểu động (dynamic typing). Biến không cần khai báo kiểu dữ liệu khi tạo; kiểu của biến sẽ được quyết định tự động dựa trên giá trị được gán và có thể thay đổi tự do trong quá trình chạy.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Khái niệm: tu_dong_hoa_python_core - Định nghĩa: Việc sử dụng các tính năng tích hợp sẵn của Python (như vòng lặp, câu điều kiện, thao tác tệp) để tự động hóa các tác vụ lặp đi lặp lại hàng ngày như ghi chú dữ liệu hoặc phân loại thông tin.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Khái niệm: danh_gia_tinh_kha_thi - Định nghĩa: Bước phân tích độ phức tạp của bài toán thực tế kết hợp với khả năng đáp ứng của Python, nhằm quyết định xem có nên sử dụng Python để giải quyết vấn đề hay không.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_kieu_du_lieu_dong_va_doc_code:\n# Minh họa tính dễ đọc và kiểu dữ liệu động của Python\nx = 10          # x đang là kiểu số nguyên (int)\nprint(\"Giá trị x ban đầu:\", x)\n\nx = \"Chào mừng bạn đến với Python!\"  # x thay đổi sang kiểu chuỗi (str) mà không bị lỗi\nprint(\"Giá trị x sau khi thay đổi:\", x)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tu_dong_hoa_ghi_va_doc_file_co_ban:\n# Kịch bản tự động hóa đơn giản: Tạo và lưu nhật ký công việc hàng ngày vào file văn bản\nten_file = \"nhat_ky.txt\"\n\n# Ghi nội dung vào file\nwith open(ten_file, \"w\", encoding=\"utf-8\") as file:\n    file.write(\"1. Báo cáo tiến độ dự án lúc 9:00 AM\\\\n\")\n    file.write(\"2. Kiểm tra lỗi hệ thống lúc 2:00 PM\\\\n\")\n\n# Đọc và in lại nội dung để kiểm tra kết quả\nwith open(ten_file, \"r\", encoding=\"utf-8\") as file:\n    noi_dung = file.read()\n    print(\"--- Nội dung nhật ký tự động ---\")\n    print(noi_dung)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho giai_quyet_bai_toan_loc_du_lieu:\n# Ý tưởng giải quyết bài toán thực tế: Lọc danh sách email hợp lệ dạng cơ bản\ndanh_sach_email = [\"user1@gmail.com\", \"email_khong_hop_le\", \"admin@company.com\", \"hello-world\"]\n\nemail_hop_le = []\nfor email in danh_sach_email:\n    # Kiểm tra điều kiện đơn giản xem từ khóa có chứa ký tự '@' hay không\n    if \"@\" in email:\n        email_hop_le.append(email)\n\nprint(\"Danh sách email hợp lệ được tìm thấy:\", email_hop_le)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu ngôn ngữ Python và Ứng dụng thực tế"
+    }
+  },
+  {
+    "text": "Khái niệm: python_interpreter - Định nghĩa: Trình thông dịch Python: Thành phần phần mềm chịu trách nhiệm biên dịch và thực thi mã nguồn Python bằng cách chuyển đổi nó thành mã máy (bytecode) theo từng dòng tại thời điểm chạy.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: system_path - Định nghĩa: Biến môi trường PATH: Danh sách các đường dẫn thư mục được hệ điều hành sử dụng để tìm kiếm các tệp thực thi. Cấu hình đúng PATH giúp chạy lệnh 'python' hoặc 'pip' từ bất kỳ thư mục nào trên Command Prompt hoặc Terminal.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: project_directory_structure - Định nghĩa: Cấu trúc thư mục dự án: Cách tổ chức logic mã nguồn Python. Cấu trúc cơ bản chuẩn bao gồm tệp chạy chính (main.py), thư mục môi trường ảo (.venv/) và tệp khai báo thư viện (requirements.txt).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: virtual_environment - Định nghĩa: Môi trường ảo (Virtual Environment): Phân vùng biệt lập độc lập cho từng dự án, chứa trình thông dịch Python và các thư viện riêng, giúp ngăn chặn xung đột phiên bản thư viện giữa các dự án khác nhau trên cùng một máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: vscode_interpreter_link - Định nghĩa: Liên kết Python Interpreter trong VS Code: Thiết lập cho phép trình soạn thảo VS Code trỏ và sử dụng chính xác bộ thông dịch Python của môi trường ảo (ví dụ: đường dẫn .venv\\\\Scripts\\\\python.exe trên Windows hoặc .venv/bin/python trên macOS/Linux) để phục vụ cho việc thực thi và gợi ý mã code.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_phien_ban_python:\nimport sys\n\n# Kiem tra phien ban hien tai cua Python dang chay\nprint(\"Phien ban Python:\", sys.version)\n\n# Kiem tra duong dan thuc thi cua interpreter hien tai\nprint(\"Duong dan Interpreter:\", sys.executable)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xac_thuc_moi_truong_ao:\nimport sys\n\ndef kiem_tra_moi_truong_ao():\n    # Neu sys.prefix khac sys.base_prefix, nghia la Python dang chay trong moi truong ao\n    trong_moi_truong_ao = sys.prefix != sys.base_prefix\n    return trong_moi_truong_ao\n\nprint(\"Dang su dung Virtual Environment?:\", kiem_tra_moi_truong_ao())\nprint(\"Thu muc prefixes:\", sys.prefix)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và Cấu hình Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến (Variable) - Định nghĩa: Trong Python, biến là một nhãn hoặc tên tham chiếu trỏ đến một đối tượng (giá trị) cụ thể được lưu trữ trong bộ nhớ RAM. Biến không đi kèm với một kiểu dữ liệu cố định trước (Dynamic Typing), bản thân đối tượng mà biến trỏ tới mới quyết định kiểu dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Phép gán (Assignment Operator) - Định nghĩa: Sử dụng toán tử '=' để liên kết tên biến ở vế trái với giá trị hoặc kết quả tính toán của biểu thức ở vế phải.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế quản lý vùng nhớ (Memory Reference) - Định nghĩa: Khi một biến được khởi tạo, Python sẽ tạo ra đối tượng dữ liệu trong bộ nhớ trước, sau đó gán địa chỉ ô nhớ của đối tượng đó cho biến. Hàm id() trong Python được dùng để truy xuất địa chỉ vùng nhớ định danh của đối tượng mà biến đang trỏ tới.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy chuẩn đặt tên PEP 8 (PEP 8 Variable Naming Rules) - Định nghĩa: Quy tắc đặt tên biến bằng chữ thường, phân tách các từ bằng dấu gạch dưới (snake_case). Tên biến phải có ý nghĩa biểu thị rõ ràng mục đích của dữ liệu (ví dụ: user_age, total_amount), không được trùng với các từ khóa hệ thống, không chứa ký tự đặc biệt trừ dấu gạch dưới, và không bắt đầu bằng số.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi cú pháp khởi tạo biến (Syntax Error in Variables) - Định nghĩa: Các lỗi phát sinh do vi phạm quy tắc đặt tên hoặc cú pháp gán của Python. Các lỗi phổ biến bao gồm đặt tên biến có ký tự đặc biệt (ví dụ: user-name, price$), bắt đầu bằng số (ví dụ: 1st_value), hoặc gán giá trị không đúng thứ tự (ví dụ: 100 = count).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho co_che_gan_va_quan_ly_vung_nho:\n# Khoi tao bien va kiem tra dia chi vung nho\na = 100\nb = a  # ca hai cung tro toi cung mot doi tuong 100\n\nprint('Gia tri cua a:', a)\nprint('Gia tri cua b:', b)\nprint('Dia chi cua a (id):', id(a))\nprint('Dia chi cua b (id):', id(b))  # id se trung nhau\n\n# Khi thay doi gia tri cua a\na = 200  # a gio day tro den doi tuong moi 200\nprint('Gia tri moi cua a:', a)\nprint('Dia chi moi cua a (id):', id(a))  # id thay doi\nprint('Gia tri b khong doi:', b)  # b van luu dia chi doi tuong 100",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_naming_convention:\n# 1. Dat ten bien dung chuan PEP 8 (snake_case)\nstudent_name = 'Nguyen Van A'\nis_logged_in = True\nmax_attempts = 5\n\n# 2. Cac truong hop loi cu phap (duoc chu thich de khong gay loi crash ung dung)\n# 1st_user = 'A'   # Loi: Bat dau bang chu so\n# user-name = 'B'  # Loi: Chua ky tu dac biet '-'\n# class = 'Python' # Loi: Trung tu khoa he thong\n\n# Cach sua de code chay dung va hop le:\nfirst_user = 'A'\nuser_name = 'B'\nclass_name = 'Python'\n\nprint(student_name, is_logged_in, class_name)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thiet_ke_he_thong_bien_thuc_te:\n# Thiet ke bien cho bai toan tinh hoa don ban hang\nunit_price = 25000       # Don gia (VND)\nquantity = 4             # So luong hang hoa mua\ndiscount_rate = 0.05      # Ti le chiet khau (5%)\n\n# Tinh toan thong qua cac bien trung gian ro nghia\nsubtotal = unit_price * quantity\ntotal_discount = subtotal * discount_rate\nfinal_amount = subtotal - total_discount\n\nprint('--- THONG TIN DON HANG ---')\nprint('Tien hang:', subtotal, 'VND')\nprint('Tien duoc giam:', total_discount, 'VND')\nprint('Tong thanh toan:', final_amount, 'VND')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
+    }
   }
 ]

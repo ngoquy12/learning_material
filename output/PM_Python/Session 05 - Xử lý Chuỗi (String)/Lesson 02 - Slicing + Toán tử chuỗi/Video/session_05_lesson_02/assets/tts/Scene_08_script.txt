@@ -1,0 +1,1 @@
+Sau khi trích xuất thành công các thuộc tính cần thiết, chúng ta ghép chúng thành một dòng thông tin có cấu trúc chuẩn bằng toán tử cộng chuỗi. Các đoạn văn bản tĩnh và các biến được liên kết tuần tự để tạo ra chuỗi tường tường minh lưu trữ vào processed gạch dưới report.

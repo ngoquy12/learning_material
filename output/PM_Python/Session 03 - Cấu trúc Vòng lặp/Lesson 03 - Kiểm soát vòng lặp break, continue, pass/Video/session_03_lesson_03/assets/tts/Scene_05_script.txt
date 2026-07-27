@@ -1,0 +1,1 @@
+Khác với bờ-rếch, khi gặp một lỗi nhẹ như số tiền giao dịch nhỏ hơn hoặc bằng không, chúng ta không cần dừng toàn bộ hệ thống. Câu lệnh cần-ti-niu sẽ bỏ qua các dòng lệnh xử lý bên dưới của lượt này và chuyển ngay sang phần tử tiếp theo trong danh sách.

@@ -1,0 +1,1 @@
+Cơ chế vận hành của vòng lặp lồng nhau dựa trên nguyên lý tọa độ hai chiều. Vòng lặp ngoài đại diện cho dòng, đi qua từng bước một. Với mỗi bước của vòng lặp ngoài, vòng lặp trong đóng vai trò là cột sẽ phải thực thi đầy đủ chu kỳ lặp từ đầu đến cuối. Tổng số bước tính toán sẽ là tích số lần lặp của vòng ngoài và vòng trong.

@@ -1,0 +1,1 @@
+Tóm lại khi làm việc với chuỗi văn bản trong Python, hãy luôn nghĩ đến việc xây dựng một luồng dữ liệu một chiều tức tạo ra dữ liệu mới thay vì sửa đổi trực tiếp dữ liệu cũ. Việc thấu hiểu tính bất biến và cách sử dụng chỉ mục thông minh sẽ giúp bạn xây dựng những hệ thống bảo mật cao và vận hành ổn định.

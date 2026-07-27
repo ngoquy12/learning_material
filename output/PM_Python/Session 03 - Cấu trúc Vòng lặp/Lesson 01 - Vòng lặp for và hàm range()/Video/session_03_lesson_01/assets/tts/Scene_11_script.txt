@@ -1,0 +1,1 @@
+Hai ngoại lệ runtime phổ biến gồm: lỗi Típ E-rờ, xảy ra khi truyền kiểu số thực float vào tham số của hàm range. Thứ hai là lỗi Va-lu E-rờ, xuất hiện nếu để step bằng không, vì máy ảo không thể cộng dồn số không để tính điểm dịch chuyển tiếp theo và sẽ sinh lỗi ngay lập tức.

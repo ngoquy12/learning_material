@@ -1,0 +1,1 @@
+F-string được thiết lập bằng cách thêm ký tự ép trước chuỗi. Bạn có thể chèn trực tiếp tên biến hoặc biểu thức logic vào trong cặp ngoặc nhọn mà không cần dùng hàm bổ trợ. Công nghệ này tối ưu tốc độ chạy của chương trình nhờ cơ chế biên dịch trực tiếp ở run-time.

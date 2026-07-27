@@ -1,17 +1,43 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
-  getDashboardStats, getCacheStats, clearCache,
-  getKnowledgeMemories, getMemoryCategories,
-  getPrerequisiteReport, exportSCORM, getSCORMStatus,
-  exportObsidian, getObsidianStatus, uploadPMReview, updatePM,
-  renderVideo, getVideoStatus, generateAllCourse, getCourseStatus,
-  generateSession, generateLesson,
-  stopAllPipelineTasks, stopCoursePipelineTask, stopPipelineTask, getActiveTasksStatus,
-  getSystemSettings, updateSystemSettings, resetSystemSettings,
-  type DashboardStats, type CacheStats, type KnowledgeMemoryItem,
-  type MemoryCategory, type PrerequisiteReport, type SCORMTaskStatus,
-  type CourseStatusResponse, type ActiveTasksStatusResponse, type SystemSettings,
-} from './api';
+  getDashboardStats,
+  getCacheStats,
+  clearCache,
+  getKnowledgeMemories,
+  getMemoryCategories,
+  getPrerequisiteReport,
+  exportSCORM,
+  getSCORMStatus,
+  exportObsidian,
+  getObsidianStatus,
+  uploadPMReview,
+  updatePM,
+  renderVideo,
+  getVideoStatus,
+  generateAllCourse,
+  getCourseStatus,
+  generateSession,
+  generateLesson,
+  stopAllPipelineTasks,
+  stopCoursePipelineTask,
+  stopPipelineTask,
+  getActiveTasksStatus,
+  getSystemSettings,
+  updateSystemSettings,
+  resetSystemSettings,
+  type DashboardStats,
+  type CacheStats,
+  type KnowledgeMemoryItem,
+  type MemoryCategory,
+  type PrerequisiteReport,
+  type SCORMTaskStatus,
+  type CourseStatusResponse,
+  type ActiveTasksStatusResponse,
+  type SystemSettings,
+  type PMReviewResult,
+  type PMUpdatePayload,
+  type PMUpdateResult,
+} from "./api";
 
 // ── Generic hook factory ─────────────────────────────────
 
@@ -33,7 +59,9 @@ function useAsync<T>(fetcher: () => Promise<T>, deps: unknown[] = []) {
     }
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { refetch(); }, [refetch]);
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   return { data, loading, error, refetch };
 }
@@ -81,7 +109,7 @@ export function useKnowledgeMemories(filters?: {
 }) {
   return useAsync<KnowledgeMemoryItem[]>(
     () => getKnowledgeMemories(filters),
-    [filters?.tech_stack, filters?.scope, filters?.category, filters?.limit]
+    [filters?.tech_stack, filters?.scope, filters?.category, filters?.limit],
   );
 }
 
@@ -93,10 +121,16 @@ export function useMemoryCategories() {
 
 export function usePrerequisiteReport(courseName: string | null) {
   return useAsync<PrerequisiteReport>(
-    () => courseName ? getPrerequisiteReport(courseName) : Promise.resolve({
-      course_name: '', has_blockers: false, blocker_count: 0, warning_count: 0
-    } as PrerequisiteReport),
-    [courseName]
+    () =>
+      courseName
+        ? getPrerequisiteReport(courseName)
+        : Promise.resolve({
+            course_name: "",
+            has_blockers: false,
+            blocker_count: 0,
+            warning_count: 0,
+          } as PrerequisiteReport),
+    [courseName],
   );
 }
 
@@ -128,7 +162,7 @@ export function useSCORMExport() {
       try {
         const s = await getSCORMStatus(taskId);
         setStatus(s);
-        if (s.status !== 'running') {
+        if (s.status !== "running") {
           setLoading(false);
           clearInterval(interval);
         }
@@ -178,7 +212,7 @@ export function useObsidianExport() {
       try {
         const s = await getObsidianStatus(taskId);
         setStatus(s);
-        if (s.status !== 'running') {
+        if (s.status !== "running") {
           setLoading(false);
           clearInterval(interval);
         }
@@ -203,10 +237,12 @@ export function useObsidianExport() {
 
 // ── PM Reviewer & Updater ─────────────────────────────────
 
+export type PMData = PMReviewResult & Partial<PMUpdateResult>;
+
 export function usePMReview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<unknown>(null);
+  const [data, setData] = useState<PMData | null>(null);
 
   const executeReview = async (file: File) => {
     setLoading(true);
@@ -223,11 +259,14 @@ export function usePMReview() {
     }
   };
 
-  const executeUpdate = async (payload: Record<string, unknown>) => {
+  const executeUpdate = async (payload: PMUpdatePayload) => {
     setLoading(true);
     setError(null);
     try {
       const result = await updatePM(payload);
+      setData((prev) =>
+        prev ? { ...prev, ...result } : (result as unknown as PMData),
+      );
       return result;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
@@ -244,11 +283,16 @@ export function usePMReview() {
 
 export function useVideoRender() {
   const [taskId, setTaskId] = useState<string | null>(null);
-  const [status, setStatus] = useState<unknown>(null);
+  const [status, setStatus] = useState<SCORMTaskStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const startRender = async (payload: { course_name: string; session_id: string; lesson_id: string; draft?: boolean }) => {
+  const startRender = async (payload: {
+    course_name: string;
+    session_id: string;
+    lesson_id: string;
+    draft?: boolean;
+  }) => {
     setLoading(true);
     setError(null);
     setStatus(null);
@@ -267,7 +311,7 @@ export function useVideoRender() {
       try {
         const s = await getVideoStatus(taskId);
         setStatus(s);
-        if (s.status !== 'running') {
+        if (s.status !== "running") {
           setLoading(false);
           clearInterval(interval);
         }
@@ -300,7 +344,7 @@ export function useSyncDisk() {
     setLoading(true);
     setError(null);
     try {
-      const { syncDiskToDatabase } = await import('./api');
+      const { syncDiskToDatabase } = await import("./api");
       const result = await syncDiskToDatabase();
       return result;
     } catch (e: unknown) {
@@ -368,19 +412,18 @@ export function useCourseStatus(courseId: number | null) {
   // Polling helper
   useEffect(() => {
     if (!courseId) return;
-    
+
     // Check if any artifact is in "Pending" status
-    const hasPending = data?.sessions.some(s => 
-      s.artifacts.some(a => a.status === 'Pending') ||
-      s.lessons.some(l => l.artifacts.some(a => a.status === 'Pending'))
+    const hasPending = data?.sessions.some(
+      (s) =>
+        s.artifacts.some((a) => a.status === "Pending") ||
+        s.lessons.some((l) => l.artifacts.some((a) => a.status === "Pending")),
     );
-    
+
     if (!hasPending) return;
 
     const interval = setInterval(() => {
-      getCourseStatus(courseId)
-        .then(setData)
-        .catch(console.error);
+      getCourseStatus(courseId).then(setData).catch(console.error);
     }, 4000);
 
     return () => clearInterval(interval);
@@ -445,7 +488,10 @@ export function useStopAllPipeline() {
       return res;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
-      return { status: "ok", message: "Đã gửi yêu cầu dừng toàn bộ các tiến trình." };
+      return {
+        status: "ok",
+        message: "Đã gửi yêu cầu dừng toàn bộ các tiến trình.",
+      };
     } finally {
       setLoading(false);
     }
@@ -466,7 +512,10 @@ export function useStopCoursePipeline() {
       return res;
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
-      return { status: "ok", message: `Đã dừng tiến trình môn học ID ${courseId}.` };
+      return {
+        status: "ok",
+        message: `Đã dừng tiến trình môn học ID ${courseId}.`,
+      };
     } finally {
       setLoading(false);
     }
@@ -571,6 +620,3 @@ export function useResetSystemSettings() {
 
   return { execute, loading, error };
 }
-
-
-

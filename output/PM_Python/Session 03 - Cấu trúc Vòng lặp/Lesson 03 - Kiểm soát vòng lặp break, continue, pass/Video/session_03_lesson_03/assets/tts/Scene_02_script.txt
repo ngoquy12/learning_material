@@ -1,0 +1,1 @@
+Để kiểm soát luồng thực thi trong ngôn ngữ Python, chúng ta sử dụng ba từ khóa cốt lõi: bờ-rếch để ngắt toàn bộ vòng lặp ngay lập tức, cần-ti-niu để bỏ qua phần còn lại của lượt hiện tại và chuyển sang lượt tiếp theo, và pát để giữ chỗ cú pháp khi chưa triển khai logic.

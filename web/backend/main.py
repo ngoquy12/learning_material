@@ -39,6 +39,12 @@ async def startup_event():
     from sqlalchemy import text
     async with engine.begin() as conn:
         try:
+            await conn.execute(text("ALTER TABLE artifacts ADD COLUMN session_id INTEGER NULL;"))
+            print("[DB] Added session_id column to artifacts table successfully.")
+        except Exception as e:
+            print(f"[DB] Attempted to add session_id column (may already exist): {e}")
+
+        try:
             await conn.execute(text("ALTER TABLE artifacts ADD COLUMN versions JSON NULL;"))
             print("[DB] Added versions column to artifacts table successfully.")
         except Exception as e:

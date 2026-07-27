@@ -1,0 +1,1 @@
+Bước đầu tiên là lập bản đồ địa chỉ cố định của chuỗi dữ liệu đầu vào. Với chuỗi e-m-pe hai không hai tư đê-ê-vê chín chín tám không, ta xác định rõ mã nhân viên nằm ở vùng chỉ mục từ không đến ba, năm từ ba đến bảy, phòng ban từ bảy đến mười, và phần số sê-ri ở đoạn cuối từ mười đến mười bốn.

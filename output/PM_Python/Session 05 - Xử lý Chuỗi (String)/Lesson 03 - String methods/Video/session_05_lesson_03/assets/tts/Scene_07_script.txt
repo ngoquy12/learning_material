@@ -1,0 +1,1 @@
+Sau khi đã làm sạch và tùy biến cấu trúc các thành phần đơn lẻ, chúng ta sử dụng phương thức choin để kết hợp chúng lại thành một chuỗi hoàn chỉnh. Cú pháp của hàm choin có điểm đặc biệt là được gọi trực tiếp từ chuỗi liên kết đóng vai trò làm ký tự ngăn cách, nhận đối số đầu vào là một danh sách chứa các chuỗi con.

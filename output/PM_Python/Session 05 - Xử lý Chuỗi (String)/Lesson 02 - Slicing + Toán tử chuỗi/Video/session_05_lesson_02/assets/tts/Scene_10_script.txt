@@ -1,0 +1,1 @@
+Hãy ghi nhớ cơ chế nội bộ của Python. Thao tác cắt chuỗi là cực kỳ an toàn vì không bao giờ ném ra lỗi ngoại lệ in-đếch e-rờ nếu chỉ mục vượt quá chiều dài chuỗi. Tuy nhiên, nó sẽ tạo ra một vùng nhớ hoàn toàn mới trong ram chứa chuỗi con vừa cắt, do đó cần tránh cắt chuỗi liên tục vô ích trong các vòng lặp lớn.

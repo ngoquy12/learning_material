@@ -1,0 +1,1 @@
+Một lỗi phổ biến nhất khi viết vòng lặp oai là quên cập nhật biến điều kiện bên trong khối lệnh, dẫn đến lỗi vòng lặp vô hạn in-phi-nít lúp tàn phá bộ nhớ. Hãy luôn đảm bảo cấu trúc logic của bạn có dòng lệnh làm thay đổi chân trị của biểu thức điều kiện. Bên cạnh đó, luôn đặt các cơ chế kiểm tra biên chặt chẽ để hệ thống vận hành trơn tru và an toàn tối đa.

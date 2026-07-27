@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Đâu là giải pháp ngây thơ ban đầu dẫn đến việc phình to mã nguồn và tăng khả năng lỗi cú pháp?",
+      "options": [
+        "Sao chép các dòng lệnh liên tục để xử lý tuần tự từng đối tượng",
+        "Sử dụng vòng lặp vô hạn chạy ngầm trong máy ảo",
+        "Khởi tạo lại biến số liên tục trên bộ nhớ đệm",
+        "Tách logic xử lý thành các hàm con biệt lập"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Theo bài đọc, giải pháp ngây thơ ban đầu là sao chép dòng lệnh liên tục để xử lý tuần tự cho từng đối tượng, dẫn đến phình to mã nguồn và tăng nguy cơ lỗi cú pháp khi cập nhật."
+    },
+    {
+      "question": "Khi quy mô danh sách người dùng thay đổi, khó khăn lớn nhất của phương pháp lặp thủ công là gì?",
+      "options": [
+        "Máy ảo không thể biên dịch kịp các thay đổi",
+        "Phải viết lại trình thông dịch của hệ thống",
+        "Cực kỳ khó khăn và tốn công sức khi cần thay đổi logic nghiệp vụ chung",
+        "Hệ quản trị cơ sở dữ liệu tự động từ chối truy cập kết nối"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Khi lặp thủ công bằng sao chép lệnh, việc chỉnh sửa logic nghiệp vụ chung đòi hỏi sửa đổi thủ công mọi vị trí dòng lệnh đã nhân bản, gây cực kỳ nhiều khó khăn trong quản lý mã nguồn."
+    },
+    {
+      "question": "Theo yêu cầu kỹ thuật hệ thống, cấu trúc điều khiển lặp tự động phải mang lại lợi ích nào sau đây?",
+      "options": [
+        "Tự động phát hiện virus và lỗ hổng bảo mật",
+        "Đảm bảo quản lý hiệu quả tài nguyên tính toán và dễ bảo trì khi cập nhật khoảng giá trị lặp",
+        "Loại bỏ hoàn toàn sự phụ thuộc vào máy ảo và hạ tầng phần cứng",
+        "Từ chối thực thi các hàm liên quan đến gửi email trực tuyến"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Cấu trúc điều khiển tự động hóa lặp đáp ứng yêu cầu kỹ thuật là: quản lý hiệu quả tài nguyên tính toán và dễ bảo trì khi cập nhật các khoảng giá trị lặp."
+    },
+    {
+      "question": "Trong hình vẽ minh họa, cấu pháp biểu diễn của 'VÒNG LẶP TỰ ĐỘNG' gửi email cho tập hợp người dùng được viết như thế nào?",
+      "options": [
+        "while index in range(0, 100): send_email(user_list[index])",
+        "loop_manual(0, 100) -> send_email()",
+        "for index in range(0, 100): send_email(user_list[index])",
+        "foreach user in send_email(): print(user)"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Khối biểu đồ màu xanh lá đại diện cho Vòng Lặp Tự Động thể hiện chính xác mã giả: for index in range(0, 100): send_email(user_list[index])."
+    }
+  ],
+  "practical_lab": {
+    "title": "Phân tích so sánh thực thi lặp thủ công và lặp tự động cấu trúc",
+    "objectives": [
+      "Hiểu rõ sự khác biệt trực quan giữa viết mã lặp thủ công dài dòng và cấu trúc lặp tự động gọn gàng.",
+      "Nhận thức được mức độ phức tạp khi nâng cấp và chỉnh sửa các dòng mã trùng lặp.",
+      "Thiết lập thành công vòng lặp cơ bản kiểm soát phạm vi miền dữ liệu xác định."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Giả lập kịch bản gửi email tới 5 người dùng bằng cách viết mã thủ công liên tục 5 dòng gọi hàm send_email(user).",
+        "Bước 2: Thay đổi yêu cầu nghiệp vụ: thêm tiền tố thông tin cập nhật vào định dạng tham số truyền vào của hàm gửi. Thực hiện sửa đổi trên cả 5 dòng lệnh thủ công và đếm số thao tác sửa đổi cần thiết.",
+        "Bước 3: Chuyển đổi mã nguồn trên sử dụng cấu trúc vòng lặp for tinh gọn với một danh sách chứa 5 người dùng đó.",
+        "Bước 4: Thay đổi yêu cầu nghiệp vụ một lần nữa và chỉ sửa đổi 1 vị trí duy nhất trong cấu trúc vòng lặp, kiểm chứng tính dễ bảo trì."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Xây dựng thành công mã lệnh lặp thủ công kiểm thử chạy được.",
+        "Xây dựng thành công mã lệnh lặp tự động sử dụng vòng lặp kiểm soát miền dữ liệu.",
+        "Báo cáo chỉ ra chính xác số lượng thao tác thay đổi mã giảm thiểu nhờ vòng lặp tự động."
+      ]
+    }
+  }
+}

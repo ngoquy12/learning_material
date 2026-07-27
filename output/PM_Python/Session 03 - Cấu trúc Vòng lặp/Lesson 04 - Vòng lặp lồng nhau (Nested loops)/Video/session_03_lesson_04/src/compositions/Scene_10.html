@@ -1,0 +1,279 @@
+<!--
+  COMPONENT: warning_card.html (Pitfall Alert)
+  SLOTS: 10, 29.7, Tránh lỗi trùng biến và thụt lề,
+         <li>Lưu ý rằng sự độc lập của biến điều khiển là bắt buộc</li>
+<li>Tuyệt đối không dùng chung một tên biến cho cả vòng trong lẫn vòng ngoài vì sẽ gây lỗi ghi đè dữ liệu</li>
+<li>Đồng thời, lỗi in-den-tây-sơn e-rơ rất dễ xảy ra nếu bạn vô tình trộn lẫn dấu cách và phím tab</li>,  → <li>nội dung lỗi</li> list items
+         Hãy đồng bộ sử dụng duy nhất bốn dấu cách để cấu trúc code luôn ổn định,       → giải pháp khắc phục
+         4.0, 10.05, 
+-->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0f1117;
+        font-family: "Inter", sans-serif;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.15) 1.5px,
+          transparent 1.5px
+        );
+        background-size: 32px 32px;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(180px);
+        z-index: -1;
+        top: -150px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 900px;
+        height: 500px;
+        background: rgba(248, 81, 73, 0.07);
+      }
+      .scene-root {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      [id^="scene-"] {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      .intro-title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 72px;
+        font-weight: 800;
+        color: #e6edf3;
+        z-index: 100;
+        text-align: center;
+        white-space: nowrap;
+        text-shadow: 0 0 60px rgba(248, 81, 73, 0.4);
+      }
+      .layout {
+        position: absolute;
+        top: 80px;
+        left: 80px;
+        width: 1760px;
+        height: 960px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        justify-content: center;
+      }
+      .section-label {
+        font-size: 16px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #8b949e;
+      }
+      .warning-box {
+        background: rgba(248, 81, 73, 0.07);
+        border: 1.5px solid rgba(248, 81, 73, 0.28);
+        border-radius: 20px;
+        padding: 40px 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .warning-box .box-header {
+        font-size: 22px;
+        font-weight: 700;
+        color: #f85149;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .warning-box ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .warning-box ul li {
+        font-size: 22px;
+        color: #f0f6fc;
+        font-weight: 500;
+        line-height: 1.5;
+        padding-left: 28px;
+        position: relative;
+      }
+      .warning-box ul li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: #f85149;
+        font-weight: 700;
+      }
+      .solution-box {
+        background: rgba(63, 185, 80, 0.07);
+        border: 1.5px solid rgba(63, 185, 80, 0.28);
+        border-radius: 20px;
+        padding: 40px 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .solution-box .box-header {
+        font-size: 22px;
+        font-weight: 700;
+        color: #3fb950;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .solution-box .box-body {
+        font-size: 22px;
+        color: #f0f6fc;
+        font-weight: 500;
+        line-height: 1.7;
+      }
+      code {
+        font-family: "Fira Code", monospace;
+        background: rgba(63, 185, 80, 0.12);
+        padding: 2px 8px;
+        border-radius: 6px;
+        color: #3fb950;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="scene-10"
+      class="clip"
+      data-composition-id="scene-10"
+      data-start="0"
+      data-duration="29.7"
+      data-track-index="0"
+    >
+      <div
+        id="intro-title-10"
+        class="intro-title clip"
+        data-start="0"
+        data-duration="29.7"
+        data-track-index="100"
+      >
+        Tránh lỗi trùng biến và thụt lề
+      </div>
+
+      <div
+        class="layout clip"
+        data-start="0"
+        data-duration="29.7"
+        data-track-index="2"
+      >
+        <div class="section-label" style="display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 3-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Phân tích — Lỗi phổ biến &amp; Giải pháp
+        </div>
+
+        <!-- Pitfall warning box -->
+        <div id="warning-box-10" class="warning-box">
+          <div class="box-header" style="display:flex;align-items:center;gap:10px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            LỖI PHỔ BIẾN CẦN TRÁNH (PITFALLS)
+          </div>
+          <ul>
+            <li>Lưu ý rằng sự độc lập của biến điều khiển là bắt buộc</li>
+<li>Tuyệt đối không dùng chung một tên biến cho cả vòng trong lẫn vòng ngoài vì sẽ gây lỗi ghi đè dữ liệu</li>
+<li>Đồng thời, lỗi in-den-tây-sơn e-rơ rất dễ xảy ra nếu bạn vô tình trộn lẫn dấu cách và phím tab</li>
+          </ul>
+        </div>
+
+        <!-- Solution box -->
+        <div id="solution-box-10" class="solution-box">
+          <div class="box-header" style="display:flex;align-items:center;gap:10px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            GIẢI PHÁP KHẮC PHỤC (BEST PRACTICE)
+          </div>
+          <div class="box-body">Hãy đồng bộ sử dụng duy nhất bốn dấu cách để cấu trúc code luôn ổn định</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const sceneId = "scene-10";
+      window.__timelines[sceneId] = tl;
+
+      const _buildTimer = setInterval(function () {
+        if (!document.getElementById(sceneId)) return;
+        clearInterval(_buildTimer);
+
+        const t1 = parseFloat("4.0") || 4.0;
+        const t2 = parseFloat("10.05") || 5.5;
+        const dur = parseFloat("29.7") || 30.0;
+
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+        tl.set(
+          "#intro-title-10",
+          { autoAlpha: 0, scale: 0.8 },
+          0,
+        );
+        tl.set(
+          "#warning-box-10",
+          { autoAlpha: 0, y: 30 },
+          0,
+        );
+        tl.set("#solution-box-10", { autoAlpha: 0, y: 30 }, 0);
+
+        tl.to(
+          "#intro-title-10",
+          { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" },
+          0.2,
+        );
+        tl.to(
+          "#intro-title-10",
+          {
+            scale: 0.38,
+            x: -760,
+            y: -460,
+            duration: 0.7,
+            ease: "power3.inOut",
+          },
+          3.2,
+        );
+
+        tl.to(
+          "#warning-box-10",
+          { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" },
+          t1,
+        );
+        tl.to(
+          "#solution-box-10",
+          { autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" },
+          t2,
+        );
+
+        /*  */
+
+        // Clean scene fade-out before transition
+        tl.to("#scene-10", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
+</html>

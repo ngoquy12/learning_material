@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Lỗi nào sau đây là lỗi dữ liệu đầu vào thô phổ biến được đề cập trực tiếp trong bài đọc?",
+      "options": [
+        "Dữ liệu số điện thoại bị thiếu mã quốc gia.",
+        "Khoảng trắng thừa ngẫu nhiên ở đầu hoặc cuối chuỗi.",
+        "Độ dài mật khẩu của người dùng quá ngắn.",
+        "Dữ liệu ngày tháng năm bị sai múi giờ."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Theo bài đọc, các lỗi phổ biến bao gồm khoảng trắng thừa ngẫu nhiên ở đầu/cuối chuỗi, định dạng chữ hoa chữ thường không đồng nhất, dữ liệu dạng ngăn cách bằng dấu phẩy bị lẫn ký tự đặc biệt."
+    },
+    {
+      "question": "Nếu hệ thống lưu trực tiếp email có dạng ' John.Doe@Rikkei-Academy.edu.vn ' vào cơ sở dữ liệu, lỗi gì có thể xảy ra tiếp theo?",
+      "options": [
+        "Băng thông mạng của doanh nghiệp sẽ bị nghẽn.",
+        "Việc so khớp tài khoản hoặc gửi thư điện tử sẽ thất bại.",
+        "Máy chủ cơ sở dữ liệu sẽ tự động ngừng hoạt động.",
+        "Giao diện của người quản trị sẽ bị khóa hoàn toàn."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Bài đọc chỉ rõ: nếu lưu trực tiếp email có chứa khoảng trắng thừa ở đầu/cuối vào cơ sở dữ liệu, việc so khớp tài khoản hoặc gửi thư điện tử sẽ thất bại."
+    },
+    {
+      "question": "Hệ quả kỹ thuật nào dưới đây KHÔNG phải là hậu quả của việc không chuẩn hóa dữ liệu đầu vào?",
+      "options": [
+        "Gây trùng lặp bản ghi dữ liệu trong hệ thống định danh.",
+        "Làm hỏng giao diện của người dùng cuối.",
+        "Các truy vấn tìm kiếm dữ liệu trở nên kém chính xác.",
+        "Làm tăng tốc độ xử lý của bộ nhớ đệm CPU."
+      ],
+      "correct_option_index": 3,
+      "explanation": "Bài đọc liệt kê ba hệ quả kỹ thuật gồm: trùng lặp bản ghi, hỏng giao diện người dùng, và truy vấn tìm kiếm kém chính xác. Việc tăng tốc độ xử lý bộ nhớ đệm CPU không phải là hệ quả được nhắc đến."
+    },
+    {
+      "question": "Yếu tố nào làm các truy vấn tìm kiếm dữ liệu trở nên kém chính xác khi dữ liệu không được chuẩn hóa?",
+      "options": [
+        "Do dữ liệu không trùng khớp chính xác 100% từng byte dữ liệu.",
+        "Do định dạng dữ liệu đã được tự động chuyển sang mã nhị phân.",
+        "Do hệ thống bắt buộc phải sử dụng các thuật toán mã hóa khóa công khai.",
+        "Do kích thước tệp tin cơ sở dữ liệu tăng lên gấp hai lần."
+      ],
+      "correct_option_index": 0,
+      "explanation": "Bài đọc khẳng định các truy vấn tìm kiếm dữ liệu trở nên kém chính xác do không trùng khớp chính xác 100% từng byte dữ liệu."
+    }
+  ],
+  "practical_lab": {
+    "title": "Chuẩn hóa chuỗi dữ liệu thô nhập vào từ người dùng",
+    "objectives": [
+      "Nhận diện các khoảng trắng thừa ở đầu và cuối chuỗi dữ liệu thô.",
+      "Thực hiện loại bỏ hoàn toàn khoảng trắng thừa ở hai đầu chuỗi.",
+      "Đồng nhất chuỗi văn bản về dạng viết thường để chuẩn bị cho việc lưu trữ hoặc tìm kiếm."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Khai báo một biến lưu trữ chuỗi dữ liệu thô đầu vào chứa khoảng trắng thừa ở hai đầu và chữ viết hoa không đồng nhất, ví dụ: raw_email = '  John.Doe@Rikkei-Academy.edu.vn  '.",
+        "Bước 2: Sử dụng phương thức xử lý chuỗi thích hợp để cắt bỏ các khoảng trắng thừa ở đầu và cuối chuỗi.",
+        "Bước 3: Sử dụng phương thức biến đổi chuỗi để chuyển toàn bộ các ký tự viết hoa trong chuỗi thành viết thường.",
+        "Bước 4: In chuỗi kết quả đã được xử lý ra màn hình và đối chiếu độ dài chuỗi trước và sau khi chuẩn hóa để kiểm chứng hiệu quả."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chuỗi kết quả không còn chứa khoảng trắng ở đầu và cuối.",
+        "Toàn bộ các ký tự trong chuỗi kết quả đều đã được chuyển thành chữ thường.",
+        "Không làm thay đổi các ký tự nội dung chính của email, chỉ loại bỏ khoảng trắng và chuyển đổi chữ hoa/thường."
+      ]
+    }
+  }
+}

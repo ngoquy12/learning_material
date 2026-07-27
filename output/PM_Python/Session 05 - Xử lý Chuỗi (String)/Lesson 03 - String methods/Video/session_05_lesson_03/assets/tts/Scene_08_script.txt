@@ -1,0 +1,1 @@
+Để viết mã nguồn ngắn gọn và tối ưu hiệu suất, lập trình viên thường sử dụng phương pháp liên kết phương thức me-thơd che-ning. Thay vì khởi tạo nhiều biến trung gian gây lãng phí tài nguyên, chúng ta thực hiện chuỗi lệnh làm sạch liên tục từ trái qua phải trên cùng một dòng lệnh duy nhất, tận dụng kết quả trả về của phương thức trước làm đầu vào cho phương thức sau.

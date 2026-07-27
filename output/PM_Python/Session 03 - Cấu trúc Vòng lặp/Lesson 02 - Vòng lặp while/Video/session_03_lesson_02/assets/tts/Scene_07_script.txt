@@ -1,0 +1,1 @@
+Trước khi bước vào vòng lặp, chúng ta sử dụng hàm in-pút để nhận dữ liệu thô đầu tiên từ người dùng và gán vào biến róa in-pút. Do hàm in-pút mặc định trả về chuỗi văn bản, chúng ta thực hiện ép kiểu sang số nguyên bằng hàm in và lưu vào biến diu-dơ va-ly. Đây là bước đệm quan trọng để cung cấp dữ liệu kiểm tra cho biểu thức điều kiện của vòng lặp oai sắp tới.

@@ -1,0 +1,1 @@
+Bây giờ chúng ta sẽ thử nghiệm hành vi thay đổi giá trị của chuỗi trực tiếp. Giả sử ta viết dòng lệnh gán ký tự đê viết hoa vào ô-ri-gi-nơl gạch dưới ai-đên-ti-phai-ơ tại chỉ mục không nhằm sửa mã định danh thành D-2026. Hãy lưu dự án và chuẩn bị thực thi để xem phản ứng từ hệ thống.

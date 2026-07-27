@@ -1,0 +1,1 @@
+Một lỗi phổ biến khác là in-đếch-e-rơ. Lỗi runtime này xuất hiện bất cứ khi nào chỉ mục bạn truy cập vượt quá phạm vi giới hạn từ trừ n đến n trừ một của chuỗi. Hãy luôn kiểm soát độ dài của chuỗi trước khi thực hiện truy cập động để tránh làm sập các tiến trình chạy ngầm.

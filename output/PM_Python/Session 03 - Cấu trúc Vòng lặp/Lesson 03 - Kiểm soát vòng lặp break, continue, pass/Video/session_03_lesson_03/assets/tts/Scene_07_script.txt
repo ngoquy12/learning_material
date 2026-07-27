@@ -1,0 +1,1 @@
+Hãy quan sát mã nguồn tổng hợp này. Chúng ta khởi tạo một danh sách các giá trị giao dịch. Vòng lặp pho duyệt từng phần tử. Tùy thuộc vào các điều kiện kiểm tra, hệ thống sẽ đưa ra quyết định dừng khẩn cấp, bỏ qua dữ liệu lỗi, hoặc phân nhánh giữ chỗ cho nhóm khách hàng VIP.

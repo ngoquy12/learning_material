@@ -1,0 +1,1 @@
+Khi dữ liệu đầu vào chứa nhiều trường thông tin được ghép nối bởi một ký tự phân tách cụ thể, chúng ta sử dụng phương thức sờ-plít. Hàm sờ-plít nhận tham số là ký tự phân tách và trả về một danh sách list chứa các chuỗi con đã được bóc tách riêng biệt. Ví dụ, tách email thành tên người dùng và nhà cung cấp tên miền dựa trên ký tự a-còng.

@@ -1,0 +1,1 @@
+Tóm lại, quy trình tối ưu để làm sạch dữ liệu văn bản bao gồm các bước: loại bỏ khoảng trắng rìa bằng strip, đồng nhất chữ thường bằng lower, cấu trúc lại bằng split, hiệu chỉnh mẫu lỗi bằng replace và khôi phục định dạng chuẩn qua hàm choin. Hãy luôn lưu ý tính bất biến và kiểu dữ liệu của danh sách khi lập trình xử lý chuỗi trong Python.

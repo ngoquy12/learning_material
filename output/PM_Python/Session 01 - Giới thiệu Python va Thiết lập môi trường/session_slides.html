@@ -884,14 +884,15 @@ flowchart TD
 <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
 <div class="inner-white-card">
 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-<p>- **Quy trình chuẩn thu thập dữ liệu đầu vào**:
-  - Bước 1: Gọi hàm `input("Thông điệp gợi ý: ")` đề xuất người dùng nhập dữ liệu.
-  - Bước 2: Nhận dữ liệu ở dạng chuỗi nguyên bản </p>
+<p>- **Quy trình các bước triển khai mã nguồn**:
+  - Bước 1: Gọi hàm `input()` hiển thị thông tin lời nhắc để nhận giá trị dạng văn bản thô từ người dùng.
+  - Bước 2: Kiểm tra hướng x</p>
 </div>
 <div class="inner-white-card">
 <h4>Cảnh Báo Lỗi Runtime</h4>
-<p>- **Quy tắc cốt lõi**:
-  - Hàm `input()` luôn trả về kiểu dữ liệu chuỗi ký tự (`str`). Mọi phép toán số học thực hiện trên giá trị trả về của `input()` mà không ép kiểu đều dẫn đến</p>
+<p>- Các điểm chốt kiến thức cốt lõi:
+  - Hàm `input()` luôn trả về kiểu dữ liệu chuỗi kí tự (`str`) trong mọi trường hợp người dùng nhập chữ hay số.
+  - Cần sử dụng hàm kiểm soát kiể</p>
 </div>
 </div>
 <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
@@ -981,15 +982,15 @@ flowchart TD
 <div class="column-title" style="color: #92400e; font-weight: 800; font-size: 20px;">Lưu Ý Kỹ Thuật &amp; Cảnh Báo Anti-Pattern</div>
 <div class="inner-white-card">
 <h4>Quy Chuẩn PEP 8 &amp; Tối Ưu Bộ Nhớ</h4>
-<p>- **Quy trình các bước thực thi chuẩn hóa dữ liệu**:
-  - **Bước 1**: Tiếp nhận dữ liệu dạng chuỗi gốc từ nguồn đầu vào hệ thống.
-  - **Bước 2**: Chuyển đổi tường minh dữ liệu chuỗi</p>
+<p>- **Quy trình xử lý dữ liệu chuẩn hóa**:
+  - Bước 1: Tiếp nhận dữ liệu dạng chuỗi gốc từ phía người dùng.
+  - Bước 2: Thực thi ép kiểu dữ liệu tường minh bằng các hàm tích hợp phù </p>
 </div>
 <div class="inner-white-card">
 <h4>Cảnh Báo Lỗi Runtime</h4>
-<p>- **Tổng kết kiến thức cốt lõi**:
-  - Luôn luôn chuyển đổi dữ liệu đầu vào dạng chuỗi trước khi tham gia vào các phép tính toán để tránh phát sinh ngoại lệ runtime.
-  - Sử dụng cú </p>
+<p>- **Tóm tắt nội dung cốt lõi**:
+  - Việc ép kiểu dữ liệu tường minh là điều kiện tiên quyết trước khi thực hiện các hoạt động tính toán số học từ giá trị đầu vào.
+  - F-string là g</p>
 </div>
 </div>
 <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">

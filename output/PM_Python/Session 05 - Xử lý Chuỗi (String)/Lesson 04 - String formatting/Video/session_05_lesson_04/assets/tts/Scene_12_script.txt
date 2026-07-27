@@ -1,0 +1,1 @@
+Tóm lại, đối với các dự án sử dụng Python phiên bản ba chấm sáu trở lên, ép-string luôn là lựa chọn tối ưu về mặt hiệu suất và thẩm mỹ. Để hiển thị số liệu chính xác trên báo cáo và hóa đơn, hãy luôn sử dụng đặc tả hai chấm chấm N-ép để đảm bảo làm tròn số thực chính xác.

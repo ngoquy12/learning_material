@@ -1,0 +1,1 @@
+Tại bước này, thực hiện thụt đầu dòng đúng bốn khoảng trắng theo tiêu chuẩn pếp tám. Khởi tạo vòng lặp trong bằng câu lệnh pho co-lum năm-bờ in ren-giơ từ một đến co-lum li-mít cộng một. Quy tắc thụt dòng bắt buộc này giúp Python hiểu rằng vòng lặp co-lum năm-bờ là một khối mã con, phụ thuộc hoàn toàn vào chu kỳ của vòng lặp cha bên ngoài.

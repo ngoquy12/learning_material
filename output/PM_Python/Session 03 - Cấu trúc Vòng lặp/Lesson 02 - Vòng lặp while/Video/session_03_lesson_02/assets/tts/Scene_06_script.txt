@@ -1,0 +1,1 @@
+Bắt đầu viết mã nguồn trong môi trường phát triển. Chúng ta khởi tạo biến tích lũy tổng tô-tần săm bằng không, biến đếm số lượng in-pút kao bằng không để đếm chu kỳ, và biến hằng sen-ti-nơ va-ly bằng trừ một để làm mốc dừng vòng lặp. Việc định nghĩa rõ ràng các biến này giúp mã nguồn tường minh và dễ kiểm soát trạng thái bộ nhớ.

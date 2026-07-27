@@ -1,0 +1,1 @@
+Lưu ý rằng sự độc lập của biến điều khiển là bắt buộc. Tuyệt đối không dùng chung một tên biến cho cả vòng trong lẫn vòng ngoài vì sẽ gây lỗi ghi đè dữ liệu. Đồng thời, lỗi in-den-tây-sơn e-rơ rất dễ xảy ra nếu bạn vô tình trộn lẫn dấu cách và phím tab. Hãy đồng bộ sử dụng duy nhất bốn dấu cách để cấu trúc code luôn ổn định.

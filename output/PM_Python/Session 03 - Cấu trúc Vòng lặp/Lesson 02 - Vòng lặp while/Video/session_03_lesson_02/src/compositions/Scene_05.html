@@ -1,0 +1,362 @@
+<!--
+  COMPONENT: process_flow.html
+  SLOTS: 05, 21.4, Giải thuật tính trung bình cộng bằng Sentinel Value,
+         Khái Niệm Cốt Lõi, Hãy cùng phân tích giải thuật tính giá trị trung bình cộng bằng kỹ thuật ghim giá trị lính canh sen-ti-nơ va-ly. Chương trình sẽ liên tục yêu cầu người dùng nhập số nguyên từ bàn phím cho đến khi người dùng nhập giá trị trừ một để báo hiệu kết thúc.,
+         01, Hãy cùng phân tích giải thuật tính giá t, Hãy cùng phân tích giải thuật tính giá trị trung bình cộng bằng kỹ thuật ghim giá trị lính canh sen-ti-nơ va-ly,
+         02, Chương trình sẽ liên tục yêu cầu người d, Chương trình sẽ liên tục yêu cầu người dùng nhập số nguyên từ bàn phím cho đến khi người dùng nhập giá trị trừ một để báo hiệu kết thúc,
+         03, Hệ thống sẽ tích lũy tổng số, đếm số lượ, Hệ thống sẽ tích lũy tổng số, đếm số lượng số đã nhập, sau đó kiểm tra điều kiện hợp lệ trước khi thực hiện phép chia để tính trung bình,
+         04, Bước 4, Thực hiện theo hướng dẫn.,  (tùy chọn)
+         4.0, 7.97, 11.95, 15.92, 19.9,
+         
+-->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0f1117;
+        font-family: "Inter", sans-serif;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.15) 1.5px,
+          transparent 1.5px
+        );
+        background-size: 32px 32px;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+        top: -100px;
+        left: -100px;
+        width: 700px;
+        height: 700px;
+        background: rgba(56, 189, 248, 0.08);
+      }
+      body::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+        bottom: -100px;
+        right: -100px;
+        width: 600px;
+        height: 600px;
+        background: rgba(168, 85, 247, 0.08);
+      }
+      .scene-root {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      [id^="scene-"] {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      .intro-title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 72px;
+        font-weight: 800;
+        color: #e6edf3;
+        z-index: 100;
+        text-align: center;
+        white-space: nowrap;
+        text-shadow: 0 0 60px rgba(56, 189, 248, 0.4);
+      }
+      .main-layout {
+        position: absolute;
+        top: 80px;
+        left: 40px;
+        display: flex;
+        gap: 36px;
+        width: 1840px;
+        height: 960px;
+        align-items: center;
+      }
+      .concept-card {
+        flex: 0 0 32%;
+        background: rgba(22, 27, 34, 0.92);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 44px;
+        height: 680px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        justify-content: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      }
+      .concept-card h3 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ffffff;
+        border-bottom: 2px solid rgba(56, 189, 248, 0.5);
+        padding-bottom: 14px;
+      }
+      .concept-card p {
+        font-size: 21px;
+        line-height: 1.75;
+        color: #f0f6fc;
+        font-weight: 500;
+      }
+      .flow-container {
+        flex: 1;
+        height: 760px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0;
+      }
+      .flow-step {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+      .step-node {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: rgba(22, 27, 34, 0.92);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        padding: 24px 32px;
+        width: 100%;
+        transition: border-color 0.3s;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      .step-number {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f1117;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+      }
+      .step-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .step-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+      .step-body {
+        font-size: 19px;
+        color: #f0f6fc;
+        line-height: 1.6;
+        font-weight: 500;
+      }
+      .flow-connector {
+        width: 4px;
+        height: 32px;
+        background: linear-gradient(
+          to bottom,
+          rgba(56, 189, 248, 0.5),
+          rgba(129, 140, 248, 0.5)
+        );
+        margin: 0 auto;
+        margin-left: 68px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="scene-05"
+      class="clip"
+      data-composition-id="scene-05"
+      data-start="0"
+      data-duration="21.4"
+      data-track-index="0"
+    >
+      <div
+        id="intro-title-05"
+        class="intro-title clip"
+        data-start="0"
+        data-duration="21.4"
+        data-track-index="100"
+      >
+        Giải thuật tính trung bình cộng bằng Sentinel Value
+      </div>
+
+      <div
+        class="main-layout clip"
+        data-start="0"
+        data-duration="21.4"
+        data-track-index="2"
+      >
+        <div id="concept-card-05" class="concept-card">
+          <h3>Khái Niệm Cốt Lõi</h3>
+          <p>Hãy cùng phân tích giải thuật tính giá trị trung bình cộng bằng kỹ thuật ghim giá trị lính canh sen-ti-nơ va-ly. Chương trình sẽ liên tục yêu cầu người dùng nhập số nguyên từ bàn phím cho đến khi người dùng nhập giá trị trừ một để báo hiệu kết thúc.</p>
+        </div>
+
+        <div class="flow-container">
+          <div class="flow-step">
+            <div id="step-05-1" class="step-node">
+              <div class="step-number">01</div>
+              <div class="step-content">
+                <div class="step-title">Hãy cùng phân tích giải thuật tính giá t</div>
+                <div class="step-body">Hãy cùng phân tích giải thuật tính giá trị trung bình cộng bằng kỹ thuật ghim giá trị lính canh sen-ti-nơ va-ly</div>
+              </div>
+            </div>
+          </div>
+          <div id="connector-05-1" class="flow-connector"></div>
+          <div class="flow-step">
+            <div id="step-05-2" class="step-node">
+              <div class="step-number">02</div>
+              <div class="step-content">
+                <div class="step-title">Chương trình sẽ liên tục yêu cầu người d</div>
+                <div class="step-body">Chương trình sẽ liên tục yêu cầu người dùng nhập số nguyên từ bàn phím cho đến khi người dùng nhập giá trị trừ một để báo hiệu kết thúc</div>
+              </div>
+            </div>
+          </div>
+          <div id="connector-05-2" class="flow-connector"></div>
+          <div class="flow-step">
+            <div id="step-05-3" class="step-node">
+              <div class="step-number">03</div>
+              <div class="step-content">
+                <div class="step-title">Hệ thống sẽ tích lũy tổng số, đếm số lượ</div>
+                <div class="step-body">Hệ thống sẽ tích lũy tổng số, đếm số lượng số đã nhập, sau đó kiểm tra điều kiện hợp lệ trước khi thực hiện phép chia để tính trung bình</div>
+              </div>
+            </div>
+          </div>
+          <div id="connector-05-3" class="flow-connector"></div>
+          <div class="flow-step">
+            <div id="step-05-4" class="step-node">
+              <div class="step-number">04</div>
+              <div class="step-content">
+                <div class="step-title">Bước 4</div>
+                <div class="step-body">Thực hiện theo hướng dẫn.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const sceneId = "scene-05";
+      window.__timelines[sceneId] = tl;
+
+      const _buildTimer = setInterval(function () {
+        if (!document.getElementById(sceneId)) return;
+        clearInterval(_buildTimer);
+
+        const t1 = parseFloat("4.0") || 4.0;
+        const t2 = parseFloat("7.97") || 4.5;
+        const t3 = parseFloat("11.95") || 5.0;
+        const t4 = parseFloat("15.92") || 5.5;
+        const t5 = parseFloat("19.9") || 6.0;
+        const dur = parseFloat("21.4") || 30.0;
+
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+        tl.set(
+          "#intro-title-05",
+          { autoAlpha: 0, scale: 0.8 },
+          0,
+        );
+        tl.set("#concept-card-05", { autoAlpha: 0, x: -50 }, 0);
+        ["1", "2", "3", "4"].forEach((n) => {
+          tl.set("#step-05-" + n, { autoAlpha: 0, y: 20 }, 0);
+          if (n !== "4")
+            tl.set(
+              "#connector-05-" + n,
+              { scaleY: 0, transformOrigin: "top center" },
+              0,
+            );
+        });
+        tl.to(
+          "#intro-title-05",
+          { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" },
+          0.2,
+        );
+        tl.to(
+          "#intro-title-05",
+          {
+            scale: 0.38,
+            x: -760,
+            y: -460,
+            duration: 0.7,
+            ease: "power3.inOut",
+          },
+          3.2,
+        );
+        tl.to(
+          "#concept-card-05",
+          { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" },
+          t1,
+        );
+        tl.to(
+          "#step-05-1",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t2,
+        );
+        tl.to(
+          "#connector-05-1",
+          { scaleY: 1, duration: 0.35, ease: "power1.inOut" },
+          t3 - 0.15,
+        );
+        tl.to(
+          "#step-05-2",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t3,
+        );
+        tl.to(
+          "#connector-05-2",
+          { scaleY: 1, duration: 0.35, ease: "power1.inOut" },
+          t4 - 0.15,
+        );
+        tl.to(
+          "#step-05-3",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t4,
+        );
+        tl.to(
+          "#connector-05-3",
+          { scaleY: 1, duration: 0.35, ease: "power1.inOut" },
+          t5 - 0.15,
+        );
+        tl.to(
+          "#step-05-4",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t5,
+        );
+
+        /*  */
+
+        // Clean scene fade-out before transition
+        tl.to("#scene-05", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
+</html>

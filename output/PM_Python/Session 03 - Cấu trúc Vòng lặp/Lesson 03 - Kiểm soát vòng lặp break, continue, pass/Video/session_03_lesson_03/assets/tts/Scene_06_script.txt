@@ -1,0 +1,1 @@
+Trong thực tế phát triển phần mềm, bạn thường xuyên phải phác thảo cấu trúc trước khi code chi tiết. Nếu bạn để trống một khối lệnh íp hay vòng lặp, Python sẽ báo lỗi cú pháp. Sử dụng pát giúp mã nguồn hợp lệ để kiểm thử các luồng khác trước khi quay lại hoàn thiện logic.

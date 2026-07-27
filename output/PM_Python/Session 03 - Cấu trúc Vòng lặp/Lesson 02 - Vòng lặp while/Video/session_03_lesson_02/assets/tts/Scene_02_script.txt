@@ -1,0 +1,1 @@
+Vòng lặp pho với hàm ren sơ đòi hỏi chương trình phải xác định rõ số lần lặp hoặc kích thước của tập hợp dữ liệu trước khi thực thi. Khi áp dụng vào bài toán đọc dữ liệu động, cơ chế này trở nên bất khả thi do không thể dự đoán thời điểm người dùng dừng nhập hoặc thời điểm dữ liệu kết thúc. Đây là lý do chúng ta cần đến một cấu trúc lặp kiểm tra điều kiện linh hoạt hơn.

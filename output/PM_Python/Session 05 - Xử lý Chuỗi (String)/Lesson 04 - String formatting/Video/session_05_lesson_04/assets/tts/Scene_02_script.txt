@@ -1,0 +1,1 @@
+Phương pháp ghép chuỗi truyền thống sử dụng toán tử cộng tạo ra gánh nặng lớn cho bộ nhớ do tính chất im-mu-ta-bi-li-ti, tức là tính bất biến của chuỗi trong Python. Mỗi phép cộng sẽ sinh ra một đối tượng hoàn toàn mới trong RAM. Hơn nữa, mã nguồn rất khó đọc và không hỗ trợ định dạng số phức tạp.

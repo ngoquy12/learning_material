@@ -1,7 +1,12 @@
 import { BrowserRouter } from "react-router-dom";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, message } from "antd";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import AppRoutes from "./routes/AppRoutes";
+
+message.config({
+  top: 75,
+  maxCount: 3,
+});
 
 const queryClient = new QueryClient();
 

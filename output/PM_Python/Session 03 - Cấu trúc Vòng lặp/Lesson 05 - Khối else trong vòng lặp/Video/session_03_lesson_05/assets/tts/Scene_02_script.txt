@@ -1,0 +1,1 @@
+Phương pháp truyền thống bắt buộc lập trình viên sử dụng một biến cờ hiệu kiểu bu-li-an để ghi nhận trạng thái. Việc này làm phình to mã nguồn do phải cập nhật cờ trước khi gọi lệnh brếch và viết thêm cấu trúc điều kiện ít để kiểm tra sau vòng lặp.

@@ -1,0 +1,1 @@
+Hàm range được xây dựng sẵn trong lớp nhân của Python với vai trò khởi tạo một chuỗi số tuần tự. Lợi thế lớn nhất của range là nó lưu trữ các chỉ số dưới dạng thực thể động thay vì nạp toàn bộ danh sách số nguyên vào bộ nhớ RAM, giúp giải phóng áp lực lưu trữ tài nguyên khi quét lượng phần tử lớn.

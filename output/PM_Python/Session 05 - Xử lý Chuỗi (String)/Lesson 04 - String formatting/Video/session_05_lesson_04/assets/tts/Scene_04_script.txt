@@ -1,0 +1,1 @@
+Quy trình chuẩn hóa chuỗi gồm ba bước. Đầu tiên, xác định cấu trúc dữ liệu đầu ra và các yêu cầu định dạng. Bước hai, thiết lập chuỗi mẫu sử dụng ép-string hoặc chấm format. Bước ba, bổ sung các ký tự đặc tả chi tiết sau dấu hai chấm để làm tròn số thực hoặc căn lề cột.

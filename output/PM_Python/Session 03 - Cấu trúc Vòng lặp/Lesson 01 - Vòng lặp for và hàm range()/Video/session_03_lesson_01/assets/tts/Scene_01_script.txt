@@ -1,0 +1,1 @@
+Trong thực tế phát triển phần mềm, việc thực thi lặp đi lặp lại một hành động với sự thay đổi của các biến số là vô cùng phổ biến. Ví dụ điển hình bao gồm việc quét qua hàng nghìn đơn hàng để tính tổng doanh thu hoặc tự động hóa gửi thư xác nhận định kỳ tới danh sách địa chỉ người dùng hệ thống.

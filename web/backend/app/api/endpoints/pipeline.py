@@ -629,7 +629,12 @@ async def get_course_artifacts_status(course_id: int):
         # Fetch all artifacts for these sessions and lessons
         session_artifacts = []
         if session_ids:
-            s_art_res = await db.execute(select(Artifact).where(Artifact.session_id.in_(session_ids)))
+            s_art_res = await db.execute(
+                select(Artifact).where(
+                    Artifact.session_id.in_(session_ids),
+                    Artifact.lesson_id.is_(None)
+                )
+            )
             session_artifacts = s_art_res.scalars().all()
             
         lesson_artifacts = []

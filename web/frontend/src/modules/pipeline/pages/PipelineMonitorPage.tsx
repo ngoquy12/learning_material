@@ -17,7 +17,6 @@ import {
   Popconfirm,
   message,
   Typography,
-  Badge,
   Steps,
   Tooltip,
   List,
@@ -251,7 +250,8 @@ export default function PipelineMonitorPage() {
   const [generateModalOpen, setGenerateModalOpen] = useState<boolean>(false);
   const [generatedPMRows, setGeneratedPMRows] = useState<PMRow[]>([]);
   const [pmPreviewModalOpen, setPmPreviewModalOpen] = useState<boolean>(false);
-  const { mutate: confirmImport, isPending: isConfirmingImport } = useConfirmImport();
+  const { mutate: confirmImport, isPending: isConfirmingImport } =
+    useConfirmImport();
 
   // Video Management States
   const [videoModalVisible, setVideoModalVisible] = useState<boolean>(false);
@@ -319,7 +319,8 @@ export default function PipelineMonitorPage() {
   const { execute: triggerGenerateLesson, loading: generateLessonLoading } =
     useGenerateLesson();
   const { execute: doStopAll, loading: stoppingAll } = useStopAllPipeline();
-  const { data: activeTasksInfo, refetch: refetchActiveTasks } = useActiveTasksStatus();
+  const { data: activeTasksInfo, refetch: refetchActiveTasks } =
+    useActiveTasksStatus();
 
   const {
     startExport: startSCORM,
@@ -603,66 +604,54 @@ export default function PipelineMonitorPage() {
       quiz: "Quiz",
       outline: "Outline",
       walkthrough: "Script",
-      pre_quiz: "Pre-Q",
-      post_quiz: "Post-Q",
-      session_mindmap: "Map",
-      session_reading: "Book",
+      pre_quiz: "Exit_Quiz",
+      post_quiz: "Entrance_Quiz",
+      session_mindmap: "Mindmap",
+      session_reading: "Reading",
+      session_homework: "Homework",
+      homework: "Homework",
+      video: "video",
+      document: "Document",
     };
 
     const label = textMap[type] || type;
 
     if (status === "Completed") {
       return (
-        <Tooltip title="Đã hoàn thành">
-          <Badge
-            status="success"
-            text={
-              <Text className="text-emerald-600 font-medium text-xs bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
-                {label}
-              </Text>
-            }
-          />
+        <Tooltip title={`${label}: Đã hoàn thành`}>
+          <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 font-medium text-xs px-2.5 py-0.5 rounded-md border border-emerald-200/80 whitespace-nowrap shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+            <span>{label}</span>
+          </span>
         </Tooltip>
       );
     }
     if (status === "Pending") {
       return (
-        <Tooltip title="Đang sinh học liệu bằng AI...">
-          <Badge
-            status="processing"
-            text={
-              <Text className="text-indigo-600 font-medium text-xs bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 animate-pulse flex items-center gap-1">
-                <Spin size="small" className="scale-75" /> {label}
-              </Text>
-            }
-          />
+        <Tooltip title={`${label}: Đang sinh học liệu bằng AI...`}>
+          <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 font-semibold text-xs px-2.5 py-0.5 rounded-md border border-indigo-200/80 whitespace-nowrap shadow-xs">
+            <Spin size="small" className="scale-75 shrink-0 text-indigo-600" />
+            <span>{label}</span>
+          </span>
         </Tooltip>
       );
     }
     if (status === "Failed") {
       return (
-        <Tooltip title="Biên dịch thất bại, vui lòng chạy lại">
-          <Badge
-            status="error"
-            text={
-              <Text className="text-rose-600 font-medium text-xs bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
-                {label}
-              </Text>
-            }
-          />
+        <Tooltip title={`${label}: Biên dịch thất bại`}>
+          <span className="inline-flex items-center gap-1.5 bg-rose-50 text-rose-700 font-medium text-xs px-2.5 py-0.5 rounded-md border border-rose-200/80 whitespace-nowrap shadow-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+            <span>{label}</span>
+          </span>
         </Tooltip>
       );
     }
     return (
-      <Tooltip title="Chưa bắt đầu">
-        <Badge
-          status="default"
-          text={
-            <Text className="text-slate-400 font-normal text-xs bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
-              {label}
-            </Text>
-          }
-        />
+      <Tooltip title={`${label}: Chưa bắt đầu`}>
+        <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 font-normal text-xs px-2.5 py-0.5 rounded-md border border-slate-200/80 whitespace-nowrap">
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+          <span>{label}</span>
+        </span>
       </Tooltip>
     );
   };
@@ -1069,14 +1058,16 @@ export default function PipelineMonitorPage() {
                                   {sess.title}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-3">
-                                <span className="text-xs text-slate-400">
+                              <div className="flex items-center gap-3 flex-wrap max-w-full">
+                                <span className="text-xs text-slate-400 font-medium shrink-0">
                                   Học liệu Session:
                                 </span>
-                                <div className="flex gap-1">
-                                  {sess.artifacts.map((a) =>
-                                    renderArtifactBadge(a.type, a.status),
-                                  )}
+                                <div className="flex flex-wrap items-center gap-1.5 max-w-full">
+                                  {sess.artifacts.map((a, idx) => (
+                                    <span key={a.id || a.type || idx}>
+                                      {renderArtifactBadge(a.type, a.status)}
+                                    </span>
+                                  ))}
                                 </div>
                                 <Button
                                   size="small"
@@ -1085,6 +1076,7 @@ export default function PipelineMonitorPage() {
                                   icon={<Play size={12} />}
                                   loading={generateSessionLoading}
                                   onClick={() => handleGenerateSession(sess.id)}
+                                  className="shrink-0"
                                 >
                                   Biên dịch Session
                                 </Button>
@@ -1098,9 +1090,9 @@ export default function PipelineMonitorPage() {
                             renderItem={(les) => (
                               <List.Item
                                 key={les.id}
-                                className="flex justify-between items-center text-xs py-2 border-b last:border-b-0 hover:bg-slate-50 rounded px-2"
+                                className="flex justify-between items-center text-xs py-2.5 border-b last:border-b-0 hover:bg-slate-50/80 transition-colors rounded-lg px-2.5 flex-wrap gap-2.5"
                               >
-                                <div className="w-1/3">
+                                <div className="flex-1 min-w-[220px] max-w-full py-0.5">
                                   <Tooltip title="Bấm để vào Màn hình Học thử (Lý thuyết, Trắc nghiệm & Coding)">
                                     <span
                                       onClick={() =>
@@ -1108,48 +1100,51 @@ export default function PipelineMonitorPage() {
                                           `/courses/${selectedCourseId}/lessons/${les.id}/viewer`,
                                         )
                                       }
-                                      className="cursor-pointer text-indigo-600 hover:text-indigo-800 hover:underline font-semibold"
+                                      className="cursor-pointer text-indigo-600 hover:text-indigo-800 font-semibold leading-normal inline-flex items-center gap-1.5 flex-wrap"
                                     >
-                                      <Text
-                                        strong
-                                        className="text-indigo-600 hover:text-indigo-800"
-                                      >
-                                        {les.name}:{" "}
-                                      </Text>
-                                      {les.title}
+                                      <span className="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100/60 whitespace-nowrap">
+                                        {les.name}
+                                      </span>
+                                      <span className="text-slate-800 hover:text-indigo-600 font-semibold">
+                                        {les.title}
+                                      </span>
                                     </span>
                                   </Tooltip>
                                 </div>
-                                <div className="flex items-center gap-6">
-                                  <div className="flex gap-2">
-                                    {les.artifacts.map((a) =>
-                                      renderArtifactBadge(a.type, a.status),
-                                    )}
+                                <div className="flex items-center flex-wrap justify-end gap-3 shrink-0 max-w-full">
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    {les.artifacts.map((a, idx) => (
+                                      <span key={a.id || a.type || idx}>
+                                        {renderArtifactBadge(a.type, a.status)}
+                                      </span>
+                                    ))}
                                     {les.artifacts.length === 0 && (
                                       <span className="text-slate-400 italic">
                                         Chưa cấu hình học liệu
                                       </span>
                                     )}
                                   </div>
-                                  <div className="flex gap-1.5">
+                                  <div className="flex items-center gap-1.5 shrink-0">
                                     <Button
                                       size="small"
                                       type="primary"
                                       ghost
-                                      icon={<Video size={10} />}
+                                      icon={<Video size={11} />}
                                       onClick={() =>
                                         openVideoManager(les, sess.name)
                                       }
+                                      className="text-xs"
                                     >
                                       Quản lý Video
                                     </Button>
                                     <Button
                                       size="small"
-                                      icon={<Play size={10} />}
+                                      icon={<Play size={11} />}
                                       loading={generateLessonLoading}
                                       onClick={() =>
                                         handleGenerateLesson(les.id)
                                       }
+                                      className="text-xs"
                                     >
                                       Biên dịch
                                     </Button>
@@ -1490,7 +1485,7 @@ export default function PipelineMonitorPage() {
                             <Alert
                               type="success"
                               showIcon
-                              message="Render hoàn tất!"
+                              title="Render hoàn tất!"
                               description={
                                 <a
                                   href={vidStatus.video_url}
@@ -1737,14 +1732,17 @@ export default function PipelineMonitorPage() {
             <span>Trung Tâm Điều Phối Tiến Trình AI</span>
           </h1>
           <p className="text-slate-500 text-xs mt-1 m-0 leading-relaxed">
-            Hệ thống giám sát thời gian thực, thẩm định sư phạm tiên quyết, quản lý Semantic Cache và biên dịch đa định dạng khóa học.
+            Hệ thống giám sát thời gian thực, thẩm định sư phạm tiên quyết, quản
+            lý Semantic Cache và biên dịch đa định dạng khóa học.
           </p>
         </div>
         <div className="flex items-center gap-2">
           {activeTasksInfo?.has_active_tasks ? (
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-3.5 py-2 text-xs flex items-center gap-2 shadow-sm text-emerald-700 font-semibold">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span>Đang xử lý {activeTasksInfo.active_task_count} tiến trình ngầm</span>
+              <span>
+                Đang xử lý {activeTasksInfo.active_task_count} tiến trình ngầm
+              </span>
             </div>
           ) : (
             <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3.5 py-2 text-xs flex items-center gap-2 text-slate-600 font-semibold">
@@ -1758,91 +1756,116 @@ export default function PipelineMonitorPage() {
       {/* Top Banner KPI Metric Cards */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="bg-slate-900 text-white shadow-sm rounded-2xl p-0.5 border border-slate-800">
-            <div className="flex items-center justify-between p-1">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between h-full">
+            <div className="flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-slate-400 font-medium uppercase tracking-wider block">Tiến Trình Chạy Ngầm</span>
-                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider block">
+                  Tiến Trình Chạy Ngầm
+                </span>
+                <span className="text-2xl font-extrabold text-slate-900 mt-1 block">
                   {activeTasksInfo?.active_task_count || 0} Task
                 </span>
               </div>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeTasksInfo?.has_active_tasks ? "bg-teal-500/20 text-teal-400 animate-pulse" : "bg-slate-800 text-slate-400"}`}>
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${activeTasksInfo?.has_active_tasks ? "bg-teal-100 text-teal-700 animate-pulse" : "bg-slate-100 text-slate-600"}`}
+              >
                 <Activity size={20} />
               </div>
             </div>
-            <div className="mt-2 pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
-              <span className="text-slate-400">Trạng thái Worker</span>
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-medium">
+                Trạng thái Worker
+              </span>
               {activeTasksInfo?.has_active_tasks ? (
-                <Tag color="processing" className="m-0 text-[10px] font-bold border-none bg-teal-500/20 text-teal-300">ĐANG CHẠY</Tag>
+                <Tag
+                  color="processing"
+                  className="m-0 text-[10px] font-bold border-none bg-teal-50 text-teal-700"
+                >
+                  ĐANG CHẠY
+                </Tag>
               ) : (
-                <Tag color="default" className="m-0 text-[10px] font-bold border-none bg-slate-800 text-slate-300">SẴN SÀNG</Tag>
+                <Tag
+                  color="default"
+                  className="m-0 text-[10px] font-bold border-none bg-slate-100 text-slate-700"
+                >
+                  SẴN SÀNG
+                </Tag>
               )}
             </div>
-          </Card>
+          </div>
         </Col>
 
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="bg-gradient-to-br from-teal-900 to-emerald-950 text-white shadow-sm rounded-2xl p-0.5 border border-teal-800/60">
-            <div className="flex items-center justify-between p-1">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between h-full">
+            <div className="flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-teal-300 font-medium uppercase tracking-wider block">Môn Học Hệ Thống</span>
-                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                <span className="text-[11px] text-teal-600 font-bold uppercase tracking-wider block">
+                  Môn Học Hệ Thống
+                </span>
+                <span className="text-2xl font-extrabold text-slate-900 mt-1 block">
                   {courses.length} Khóa Học
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
                 <BookOpen size={20} />
               </div>
             </div>
-            <div className="mt-2 pt-2 border-t border-teal-800/60 flex items-center justify-between text-[11px]">
-              <span className="text-teal-300">Môn mục tiêu</span>
-              <span className="font-bold text-emerald-300 truncate max-w-[130px]">
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-medium">Môn mục tiêu</span>
+              <span className="font-bold text-teal-700 truncate max-w-[130px]">
                 {selectedCourseName || "Chưa chọn"}
               </span>
             </div>
-          </Card>
+          </div>
         </Col>
 
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="bg-gradient-to-br from-indigo-950 to-slate-900 text-white shadow-sm rounded-2xl p-0.5 border border-indigo-800/60">
-            <div className="flex items-center justify-between p-1">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between h-full">
+            <div className="flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-indigo-300 font-medium uppercase tracking-wider block">Bộ Nhớ Đệm Cache</span>
-                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                <span className="text-[11px] text-indigo-600 font-bold uppercase tracking-wider block">
+                  Bộ Nhớ Đệm Cache
+                </span>
+                <span className="text-2xl font-extrabold text-slate-900 mt-1 block">
                   {cacheStats?.total_cache_hits || 0} Hits
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                 <Zap size={20} />
               </div>
             </div>
-            <div className="mt-2 pt-2 border-t border-indigo-800/60 flex items-center justify-between text-[11px]">
-              <span className="text-indigo-300">Tiết kiệm ước tính</span>
-              <span className="font-bold text-indigo-200">
-                {(cacheStats?.estimated_tokens_saved || 0).toLocaleString()} tokens
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-medium">
+                Tiết kiệm ước tính
+              </span>
+              <span className="font-bold text-indigo-700">
+                {(cacheStats?.estimated_tokens_saved || 0).toLocaleString()}{" "}
+                tokens
               </span>
             </div>
-          </Card>
+          </div>
         </Col>
 
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="bg-gradient-to-br from-emerald-950 to-teal-950 text-white shadow-sm rounded-2xl p-0.5 border border-emerald-800/60">
-            <div className="flex items-center justify-between p-1">
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between h-full">
+            <div className="flex items-center justify-between">
               <div>
-                <span className="text-[11px] text-emerald-300 font-medium uppercase tracking-wider block">Bộ Nhớ Tri Thức</span>
-                <span className="text-2xl font-extrabold text-white mt-0.5 block">
+                <span className="text-[11px] text-emerald-600 font-bold uppercase tracking-wider block">
+                  Bộ Nhớ Tri Thức
+                </span>
+                <span className="text-2xl font-extrabold text-slate-900 mt-1 block">
                   {memories?.length || 0} Quy Chuẩn
                 </span>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <Brain size={20} />
               </div>
             </div>
-            <div className="mt-2 pt-2 border-t border-emerald-800/60 flex items-center justify-between text-[11px]">
-              <span className="text-emerald-300">Chuẩn sư phạm</span>
-              <span className="font-bold text-emerald-200">100% Đã Khóa</span>
+            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-medium">Chuẩn sư phạm</span>
+              <span className="font-bold text-emerald-700">100% Đã Khóa</span>
             </div>
-          </Card>
+          </div>
         </Col>
       </Row>
 
@@ -2188,10 +2211,12 @@ export default function PipelineMonitorPage() {
                     setPmPreviewModalOpen(false);
                     refetchCourseStatus();
                   },
-                }
+                },
               );
             } else {
-              message.warning("Vui lòng chọn môn học để lưu cấu trúc PM vào CSDL!");
+              message.warning(
+                "Vui lòng chọn môn học để lưu cấu trúc PM vào CSDL!",
+              );
             }
           }}
         />

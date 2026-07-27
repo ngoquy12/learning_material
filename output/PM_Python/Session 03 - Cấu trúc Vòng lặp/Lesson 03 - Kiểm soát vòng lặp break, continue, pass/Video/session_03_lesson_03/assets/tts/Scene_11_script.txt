@@ -1,0 +1,1 @@
+Để so sánh trực quan, việc để trống khối lệnh con của các câu lệnh cấu trúc như íp hoặc pho sẽ khiến trình biên dịch ném ra lỗi in-đen-tây-sơn e-rơ ngay lập tức. Khi đặt từ khóa pát vào, trình thông dịch hiểu rằng đây là một khối rỗng hợp lệ và chương trình chạy hoàn toàn bình thường.

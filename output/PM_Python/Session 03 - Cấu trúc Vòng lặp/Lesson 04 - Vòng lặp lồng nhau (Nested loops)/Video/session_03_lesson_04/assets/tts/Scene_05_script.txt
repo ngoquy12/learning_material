@@ -1,0 +1,1 @@
+Hãy bắt đầu viết mã nguồn thực tế. Đầu tiên, khởi tạo biến giới hạn dòng râu li-mít bằng ba, và giới hạn cột co-lum li-mít bằng bốn. Tiếp theo, khai báo vòng lặp ngoài bằng lệnh pho râu năm-bờ in ren-giơ từ một đến râu li-mít cộng một. Việc cộng thêm một giúp hàm ren-giơ giữ đúng phạm vi lặp đến hết dòng thứ ba.

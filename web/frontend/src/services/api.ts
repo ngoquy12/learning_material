@@ -263,6 +263,9 @@ export interface PMReviewResult {
   tech_stack: string;
   report: string;
   json_data: string;
+  new_file_path?: string;
+  download_url?: string;
+  message?: string;
 }
 
 export const uploadPMReview = async (file: File): Promise<PMReviewResult> => {
@@ -287,15 +290,17 @@ export interface PMUpdatePayload {
   report: string;
 }
 
-export const updatePM = (
-  payload: PMUpdatePayload,
-): Promise<{
+export interface PMUpdateResult {
   status: string;
   new_file_path: string;
   message: string;
   download_url: string;
-}> =>
-  request("/pipeline/pm/update", {
+}
+
+export const updatePM = (
+  payload: PMUpdatePayload,
+): Promise<PMUpdateResult> =>
+  request<PMUpdateResult>("/pipeline/pm/update", {
     method: "POST",
     body: JSON.stringify(payload),
   });

@@ -1,0 +1,1 @@
+Trong các hệ thống tài chính lớn, việc duyệt qua hàng triệu giao dịch mỗi giây đòi hỏi tối ưu tài nguyên tối đa. Nếu xử lý tuần tự mà không có cơ chế rẽ nhánh sớm, hệ thống sẽ lãng phí chu kỳ xử lý của xi-pi-u cho các tác vụ lỗi hoặc các giao dịch bất hợp lệ. Do đó, chúng ta cần nắm vững các công cụ điều hướng vòng lặp.

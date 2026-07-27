@@ -7150,5 +7150,765 @@
       "type": "code",
       "session": "Ép kiểu dữ liệu f-string"
     }
+  },
+  {
+    "text": "Khái niệm: Vòng lặp for trong Python - Định nghĩa: Cú pháp điều khiển luồng lặp cho phép thực hiện lặp đi lặp lại một tập hợp các lệnh dựa trên các phần tử trong một chuỗi, một danh sách hoặc một dãy số liên tục được sinh ra từ hàm range().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm range(start, stop, step) - Định nghĩa: Hàm tích hợp sẵn trong Python dùng để sinh ra tuần tự các số nguyên từ giá trị 'start' đến giá trị sát trước 'stop' với bước nhảy 'step'. Chấp nhận cả giá trị âm cho 'step' để sinh chuỗi giảm dần.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy tắc cận trên (Exclusive Limit) - Định nghĩa: Mô hình quy định cận trên của Python, theo đó giá trị 'stop' truyền vào hàm range(start, stop) sẽ không được tính vào kết quả trả về của dãy số (dãy số luôn dừng lại ở stop - 1 đối với dãy tăng dần).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Tổng lũy tiến (Cumulative Sum) - Định nghĩa: Kỹ thuật cộng dồn liên tiếp giá trị thay đổi của biến lặp vào một biến tích lũy trung gian được khai báo từ trước khi bắt đầu vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu trúc match-case kết hợp vòng lặp - Định nghĩa: Tính năng so khớp mẫu cấu trúc (structural pattern matching) được giới thiệu từ Python 3.10+, được lồng ghép trong vòng lặp để xử lý phân nhánh nhiều giá trị một cách trực quan thay vì viết lồng nhiều điều kiện if-else.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi logic Off-by-one - Định nghĩa: Lỗi logic xảy ra khi vòng lặp lặp thừa hoặc thiếu đúng một đơn vị số lần lặp dự tính, nguyên nhân chính do định cấu hình giá trị giới hạn của hàm range() sai lệch so với quy tắc cận trên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy chuẩn tài liệu PEP 8 - Định nghĩa: Hướng dẫn viết mã chuẩn của Python giúp nâng cao tính thống nhất và độ rõ ràng của mã nguồn, ví dụ như sử dụng thụt lề 4 khoảng trắng, cách đặt tên hàm/biến kiểu snake_case, và định lề rõ ràng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Cu_phap_co_ban_cua_range:\n# Su dung range de in cac so nguyen le tu 1 den 9\nfor i in range(1, 10, 2):\n    print(f'Gia tri hien tai: {i}')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Lap_giam_dan_va_tinh_tong_luy_tien:\n# Khoi tao bien tich luy ban dau\ntong_tich_luy = 0\n\n# Vong lap giam dan tu 5 ve 1 (buoc nhay am là -1)\nfor so in range(5, 0, -1):\n    print(f'So giam dan: {so}')\n    tong_tich_luy += so\n\nprint(f'Tong luy tien tu 5 ve 1 la: {tong_tich_luy}')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Vong_lap_ket_hop_dieu_kien_va_match_case:\n# Duyet cac so tu 1 den 5\nfor i in range(1, 6):\n    # Loc dieu kien bang if-else\n    if i % 2 == 0:\n        print(f'{i} la so chan')\n    else:\n        print(f'{i} la so le')\n    \n    # Phim chuc nang kieu ky tu bang match-case\n    match i:\n        case 1:\n            print('-> Day la buoc khoi dau')\n        case 5:\n            print('-> Day la buoc ket thuc')\n        case _:\n            print('-> Day la buoc trung gian')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Khac_phuc_off_by_one_va_chuan_PEP_8:\ndef tinh_tong_trong_khoang(n_limit):\n    # Thiet lap chan tren bang n_limit + 1 de khac phuc loi off-by-one\n    tong_so = 0\n    for so in range(1, n_limit + 1):\n        tong_so += so\n    return tong_so\n\n\ndef main():\n    # Chuong trinh console hoan chinh theo PEP 8\n    gioi_han = 10\n    ket_qua = tinh_tong_trong_khoang(gioi_han)\n    print(f'Tong cac so tu 1 den {gioi_han} la: {ket_qua}')\n\n\nif __name__ == '__main__':\n    main()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp for và hàm range()"
+    }
+  },
+  {
+    "text": "Khái niệm: Cú pháp vòng lặp while - Định nghĩa: Cấu trúc điều khiển lặp dùng để thực thi một khối lệnh lặp đi lặp lại nhiều lần chừng nào điều kiện kiểm tra (biểu thức Boolean) còn mang giá trị True.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế đánh giá điều kiện - Định nghĩa: Trước mỗi lượt lặp, Python sẽ kiểm tra giá trị chân trị (truth value) của biểu thức điều kiện. Nếu True, khối mã thụt lề bên dưới sẽ chạy. Nếu False, khối mã bị bỏ qua và chương trình tiếp tục chạy các câu lệnh sau vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy tắc PEP 8 cho vòng lặp while - Định nghĩa: Quy chuẩn viết mã nguồn Python sạch: Yêu cầu thụt lề đúng 4 khoảng trắng (khoảng trắng mềm) cho thân vòng lặp, sử dụng chính xác một khoảng trắng giữa các toán tử so sánh (ví dụ: `while x < 10:` thay vì `while x<10:`), và tránh đặt ngoặc đơn thừa chạy quanh điều kiện kiểm tra trừ khi cần phân tách độ ưu tiên toán tử phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Vòng lặp vô hạn - Định nghĩa: Lỗi logic xảy ra khi biểu thức điều kiện của vòng lặp luôn đánh giá là True, khiến cho khối lệnh lặp vô tận và chương trình không thể kết thúc tự nhiên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến điều khiển - Định nghĩa: Biến số dùng để quyết định điều kiện tiếp tục hay dừng của vòng lặp. Biến này phải được khởi tạo trước vòng lặp và bắt buộc phải được cập nhật giá trị (tăng, giảm hoặc đổi trạng thái) bên trong thân vòng lặp để tiệm cận đến điều kiện dừng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Phân tích Dry run - Định nghĩa: Kỹ thuật gỡ lỗi thủ công bằng cách vẽ bảng theo dõi dòng chảy của chương trình. Lập trình viên ghi lại giá trị thay đổi của biến điều khiển và kết quả của điều kiện kiểm tra qua từng bước lặp để tìm ra sơ hở logic.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Kiểm tra tính hợp lệ đầu vào - Định nghĩa: Việc kết hợp vòng lặp while cùng cấu trúc rẽ nhánh if-else để ép buộc người dùng phải nhập vào dữ liệu đúng quy định. Nếu dữ liệu sai, thông báo lỗi hiện ra và vòng lặp tiếp tục chạy để yêu cầu nhập lại cho đến khi nhập đúng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Tích lũy toán học - Định nghĩa: Tác vụ lưu trữ và cộng dồn liên tục giá trị tính toán sau mỗi lượt lặp vào một biến tích lũy duy nhất (như tính tổng chuỗi số hoặc tính giai thừa).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: Kiểm soát thoát vòng lặp an toàn - Định nghĩa: Kỹ thuật lập trình sử dụng cờ hiệu (flag) có trạng thái Boolean hoặc từ khóa break để ngắt vòng lặp ngay lập tức khi phát hiện tín hiệu thoát từ người dùng hoặc đạt điều kiện giới hạn đặc biệt, tránh tình trạng treo ứng dụng CLI.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cu_phap_while_pep8:\ncount = 1\nlimit = 5\n\n# Đánh giá điều kiện đúng quy chuẩn PEP 8\nwhile count <= limit:\n    print(f\"Lượt lặp hiện tại: {count}\")\n    # Cập nhật biến điều khiển đảm bảo tính dừng\n    count += 1",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tranh_vong_lap_vo_han:\nindex = 10\n\n# Vòng lặp đếm ngược giảm dần về 0\nwhile index > 0:\n    print(f\"Thời gian còn lại: {index} giây\")\n    # Rút bớt giá trị của biến điều khiển\n    index -= 2",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_hop_le_dau_vao:\ntuoi = -1\n\nwhile tuoi < 0 or tuoi > 100:\n    chuoi_nhap = input(\"Nhập tuổi của bạn (0 - 100): \").strip()\n    \n    if chuoi_nhap.isdigit():\n        tuoi = int(chuoi_nhap)\n        if tuoi < 0 or tuoi > 100:\n            print(\"Lỗi: Tuổi phải nằm trong khoảng từ 0 đến 100!\")\n    else: \n        print(\"Lỗi: Định dạng không hợp lệ, vui lòng chỉ nhập ký tự số!\")\n\nprint(f\"Nhận thông tin thành công. Tuổi đã lưu: {tuoi}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cli_tich_luy_loi_thoat_an_toan:\ntong_tich_luy = 0\ndang_hoat_dong = True\n\nprint(\"=== CHƯƠNG TRÌNH CỘNG DỒN SỐ NGUYÊN (Nhập 'thoat' để dừng) ===\")\n\nwhile dang_hoat_dong:\n    du_lieu = input(\"Nhập một số nguyên: \").strip()\n    \n    if du_lieu.lower() == \"thoat\":\n        dang_hoat_dong = False\n        print(\"Đã nhận yêu cầu thoát hệ thống.\")\n    else:\n        # Kiểm tra tính hợp lệ của số nguyên (có hỗ trợ số âm)\n        la_so_am = du_lieu.startswith(\"-\") and du_lieu[1:].isdigit()\n        la_so_duong = du_lieu.isdigit()\n        \n        if la_so_am or la_so_duong:\n            gia_tri = int(du_lieu)\n            tong_tich_luy += gia_tri\n            print(f\"-> Cộng thêm {gia_tri}. Tổng tích lũy hiện thời: {tong_tich_luy}\")\n        else:\n            print(\"Lỗi: Vui lòng nhập số nguyên hợp lệ hoặc gõ 'thoat'\")\n\nprint(f\"Kết quả tổng tích lũy cuối cùng: {tong_tich_luy}\")\nprint(\"Chương trình kết thúc an toàn.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp while"
+    }
+  },
+  {
+    "text": "Khái niệm: break - Định nghĩa: Lệnh dùng để kết thúc (thoát) vòng lặp ngay lập tức khi điều kiện thỏa mãn, chương trình sẽ tiếp tục chạy các dòng code bên ngoài và phía dưới vòng lặp đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Khái niệm: continue - Định nghĩa: Lệnh dùng để bỏ qua các câu lệnh còn lại trong lần lặp hiện tại và lập tức chuyển đến lượt lặp tiếp theo của vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Khái niệm: pass - Định nghĩa: Lệnh giữ chỗ (placeholder) không thực hiện hành động nào, được dùng để tránh lỗi cú pháp khi định nghĩa khối lệnh rỗng chưa có logic xử lý.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_vo_han - Định nghĩa: Vòng lặp chạy mãi mãi không bao giờ dừng do điều kiện lặp luôn luôn đúng (True) hoặc thiếu biến đổi điều kiện dừng; cần sửa bằng cách cập nhật biến điều kiện hoặc gọi lệnh break.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Khái niệm: pep_8_vong_lap - Định nghĩa: Quy chuẩn trình bày code Python sạch đẹp cho vòng lặp, ví dụ: thụt lề chuẩn 4 khoảng trắng, đặt tên biến đếm trực quan (i, j hoặc tên rõ nghĩa), và chừa khoảng trống hợp lý quanh toán tử so sánh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phan_biet_break_continue_pass:\nfor i in range(1, 6):\n    if i == 2:\n        pass  # Chi giu cho, khong anh huong luong chay\n    elif i == 3:\n        continue  # Bo qua in so 3, nhay sang i = 4\n    elif i == 5:\n        break  # Thoat vong lap ngay khi i = 5\n    print(\"Gia tri cua i:\", i)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dung_break_va_continue:\ndanh_sach_so = [1, 3, 5, 8, 9, 10]\nfor so in danh_sach_so:\n    if so % 2 != 0:\n        continue  # Chi quan tam so chan, bo qua so le\n    print(\"Da tim thay so chan dau tien:\", so)\n    break  # Dung vong lap ngay lap tuc sau khi tim thay",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho theo_doi_bien_dieu_kien:\ndem = 0\nso_lan_lap = 0\nwhile dem < 10:\n    so_lan_lap += 1\n    dem += 3\n    print(f\"Lan lap {so_lan_lap}: dem = {dem}\")\nprint(\"Tong so lan lap thuc te:\", so_lan_lap)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sua_loi_vong_lap_vo_han_nhap_lieu:\nwhile True:\n    chuoi_nhap = input(\"Nhap vao mot so nguyen duong: \")\n    \n    if not chuoi_nhap.isdigit():\n        print(\"Loi: Du lieu phai la so. Vui long nhap lai.\")\n        continue\n        \n    so_nguyen = int(chuoi_nhap)\n    if so_nguyen <= 0:\n        print(\"Loi: So phai lon hon 0. Vui long nhap lai.\")\n        continue\n        \n    print(f\"Nhap lieu thanh cong! So ban da nhap: {so_nguyen}\")\n    break",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiểm soát vòng lặp: break, continue, pass"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_long_nhau_nested_loops - Định nghĩa: Là cấu trúc mà một vòng lặp (vòng lặp trong - inner loop) được khai báo và thực thi bên trong thân của một vòng lặp khác (vòng lặp ngoài - outer loop).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_ngoai_outer_loop - Định nghĩa: Vòng lặp cấp cao hơn chứa vòng lặp khác bên trong. Với mỗi bước lặp của vòng lặp ngoài, vòng lặp trong sẽ khởi chạy lại và thực hiện hết toàn bộ số chu kỳ lặp của nó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_trong_inner_loop - Định nghĩa: Vòng lặp được đặt bên trong thân của vòng lặp ngoài. Vòng lặp này phải kết thúc tất cả các vòng lặp của mình thì vòng lặp ngoài mới tiếp tục chuyển sang bước lặp tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: bien_chay_loop_control_variable - Định nghĩa: Biến lưu trữ chỉ số trạng thái hiện tại của vòng lặp (ví dụ: i ở vòng lặp ngoài và j ở vòng lặp trong). Kỹ thuật theo dõi biến này giúp tính toán chính xác đường đi của chương trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: tong_so_lan_lap_total_iterations - Định nghĩa: Tổng số lần mà phần code bên trong vòng lặp trong cùng được gọi, được tính bằng tích số lần lặp của vòng lặp ngoài và số lần lặp của vòng lặp trong.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: ve_hinh_bang_ky_tu_character_drawing - Định nghĩa: Kỹ thuật dùng các vòng lặp lồng nhau kết hợp với câu lệnh in không xuống dòng để hiển thị các hình lập phương, hình chữ nhật, hình tam giác từ các ký tự (như dấu *).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: long_ghep_vong_lap_khac_loai_mixed_loops - Định nghĩa: Việc kết hợp l lồng một vòng lặp for vào trong while hoặc ngược lại để xử lý bài toán linh hoạt, yêu cầu hiểu rõ cách thức tăng/giảm biến đếm của mỗi loại vòng lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: vong_lap_vo_tan_infinite_loop - Định nghĩa: Hiện tượng xảy ra khi điều kiện kết thúc của vòng lặp không bao giờ đạt được, khiến chương trình chạy mãi mãi. Thường gặp nếu quên cập nhật biến điều khiển trong vòng lặp while lồng nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: toi_uu_cau_lenh_in_print_optimization - Định nghĩa: Cách sử dụng tham số end trong hàm print() (ví dụ: end=' ' hoặc end='\\t') để các kết quả in ra nằm trên cùng một hàng thay vì mặc định tự động xuống dòng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: phong_cach_lap_trinh_pep8 - Định nghĩa: Tiêu chuẩn định dạng mã nguồn Python giúp code dễ đọc, quy định thụt lề 4 khoảng trắng, đặt tên biến rõ ràng và phân bố khoảng cách hợp lý xung quanh các toán tử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cu_phap_vong_lap_long_nhau:\nfor i in range(2):\n    for j in range(3):\n        print(f\"Outer i = {i}, Inner j = {j}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho theo_doi_bien_chay:\ndem_lan_lap = 0\nfor i in range(1, 4):  # i chay tu 1 den 3\n    for j in range(1, 3):  # j chay tu 1 den 2\n        dem_lan_lap += 1\n        print(f\"Lan chay {dem_lan_lap}: i = {i}, j = {j}\")\nprint(f\"Tong so lan lap cua khoi lenh trong: {dem_lan_lap}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ve_hinh_chu_nhat_va_tam_giac:\n# 1. Ve hinh chu nhat co kick thuoc 3 hang x 5 cot\nfor i in range(3):\n    for j in range(5):\n        print(\"*\", end=\" \")\n    print()  # Xuong dong khi ket thuc mot hang\n\nprint()  # Nhay mot dong trong\n\n# 2. Ve hinh tam giac vuong chieu cao 4\nfor i in range(1, 5):\n    for j in range(i):\n        print(\"*\", end=\" \")\n    print()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho long_vong_lap_khac_loai_for_while:\ni = 1\nwhile i <= 3:\n    print(f\"Vong ngoai (while) chay lan: {i}\")\n    # Vong lap for long ben trong\n    for j in range(1, 3):\n        print(f\"  Vong trong (for) j = {j}\")\n    i += 1  # Cap nhat bien chay i de tranh vong lap vo tan",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho bang_cuu_chuong_pep8:\n# In bang cuu chuong tu 2 den 9 theo chuan PEP 8\nfor i in range(1, 11):\n    for j in range(2, 10):\n        # Ngan xuong dong bang tab de thiet lap hang ngang\n        print(f\"{j} x {i} = {j * i}\", end=\"\\t\")\n    print()  # Xuong dong sau khi in xong mot dong cua tat ca cac bang",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng lặp lồng nhau (Nested loops)"
+    }
+  },
+  {
+    "text": "Khái niệm: loop_else_syntax_and_behavior - Định nghĩa: Cấu trúc cho phép thực thi một khối mã lệnh 'else' ngay sau vòng lặp (for hoặc while) chỉ khi vòng lặp đó hoàn thành tất cả các lượt lặp một cách bình thường mà không bị ngắt giữa chừng bởi câu lệnh 'break'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Khái niệm: difference_between_loop_else_and_if_else - Định nghĩa: Trong cấu trúc 'if-else', khối 'else' được kích hoạt khi điều kiện 'if' là Sai (False). Trong khi đó, ở cấu trúc 'loop-else', khối 'else' không đại diện cho điều kiện phủ định của vòng lặp, mà nó đóng vai trò là một điểm kiểm soát chạy khi và chỉ khi vòng lặp kết thúc tự nhiên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Khái niệm: sequential_search_on_strings_without_lists - Định nghĩa: Kỹ thuật tìm kiếm phần tử tuần tự trực tiếp trên một chuỗi văn bản gốc bằng vòng lặp lặp ký tự, không thực hiện chuyển đổi chuỗi thành kiểu dữ liệu mảng hoặc danh sách (list) nhằm tối ưu hiệu năng bộ nhớ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Khái niệm: flag_variable_refactoring - Định nghĩa: Quá trình tái cấu trúc code bằng cách thay thế biến logic trung gian (biến cờ hiệu - ví dụ: found = True/False) bằng việc kết hợp trực tiếp cấu trúc rẽ nhánh của vòng lặp (loop-else) để mã nguồn tinh gọn và ít sinh lỗi logic.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_compliance_in_prime_check - Định nghĩa: Thiết kế hàm kiểm tra số nguyên tố tuân thủ các quy tắc chuẩn PEP 8 về khoảng trắng phân tách khối lệnh, cấu trúc thụt lề định dạng quy định, sử dụng snake_case cho tên hàm và tên biến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho loop_else_basic_mechanism:\nprint('--- Vong lap for ket thuc binh thuong ---')\nfor i in range(3):\n    print(f'Gia tri: {i}')\nelse:\n    print('Khoi else cua for duoc thuc thi vi khong gap break!')\n\nprint('\\n--- Vong lap while bi ngat boi break ---')\ncount = 0\nwhile count < 3:\n    if count == 1:\n        print('Vong lap bi ngat!')\n        break\n    count += 1\nelse:\n    print('Khoi else cua while duoc thuc thi!')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sequential_search_no_list:\ntext = 'learning_python_core'\ntarget_char = 'p'\n\nfor char in text:\n    if char == target_char:\n        print(f\"Tim thay ky tu '{target_char}' trong chuoi.\")\n        break\nelse:\n    print(f\"Khong tim thay ky tu '{target_char}' trong chuoi.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_prime_checker_else:\ndef check_prime_number(number: int) -> None:\n    \"\"\"Kiem tra so nguyen to va in ket qua dung chuan PEP 8.\"\"\"\n    if number <= 1:\n        print(f'{number} khong phai la so nguyen to.')\n        return\n\n    # Dung loop-else thay the bien co hieu\n    for divisor in range(2, int(number ** 0.5) + 1):\n        if number % divisor == 0:\n            print(f'{number} khong phai la so nguyen to.')\n            break\n    else:\n        # Chi chay vao day neu vong lap khong bao gio bi ngat boi break\n        print(f'{number} la so nguyen to.')\n\n# Chay thu nghiem nghiep vu\ncheck_prime_number(17)\ncheck_prime_number(4)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khối else trong vòng lặp"
+    }
+  },
+  {
+    "text": "Khái niệm: Chuỗi ký tự (String) - Định nghĩa: Kiểu dữ liệu dùng để biểu diễn văn bản trong Python 3.12, là một tập hợp tuần tự các ký tự Unicode.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Khái niệm: Chỉ mục hai chiều (Two-way Indexing) - Định nghĩa: Cơ chế truy cập từng ký tự trong chuỗi qua vị trí số nguyên. Chỉ mục dương chạy từ 0 đến len(s)-1 (từ trái qua phải). Chỉ mục âm chạy từ -1 đến -len(s) (từ phải qua trái).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Khái niệm: Tính bất biến (Immutability) - Định nghĩa: Đặc tính của chuỗi chứa giá trị không thể thay đổi sau khi được khởi tạo. Không thể gán giá trị mới cho một chỉ mục cụ thể của chuỗi hiện tại.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi TypeError do sửa chuỗi - Định nghĩa: Lỗi xuất hiện khi cố ý thực hiện phép gán phần tử (ví dụ: s[0] = 'x') đối với đối tượng bất biến như chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi IndexError (Index out of range) - Định nghĩa: Lỗi xảy ra khi truy cập vào chỉ mục nằm ngoài khoảng hợp lệ của chuỗi (nhỏ hơn -len(s) hoặc lớn hơn len(s)-1).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Khái niệm: Tạo chuỗi mới tuân thủ PEP 8 - Định nghĩa: Kỹ thuật duyệt qua chuỗi ban đầu và xây dựng một chuỗi mới bằng cách dùng vòng lặp kết hợp câu lệnh điều kiện để thay đổi dữ liệu mong muốn mà không vi phạm tính bất biến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho truy_cap_chi_muc_hai_chieu:\n# Dinh nghia chuoi va truy cap qua chi muc duong va am\ntext = \"Python\"\n\n# Lay ky tu dau tien (chi muc duong)\nfirst_char = text[0]\n\n# Lay ky tu cuoi cung (chi muc am)\nlast_char = text[-1]\n\nprint(\"Ky tu dau:\", first_char)\nprint(\"Ky tu cuoi:\", last_char)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_soat_loi_chi_muc_va_kieu_du_lieu:\n# Kiem soat loi khi lam viec voi chuoi\ntext = \"Python\"\n\n# 1. Kiem soat TypeError khi co tinh thay doi gia tri\ntry:\n    text[0] = \"J\"\nexcept TypeError as error:\n    print(f\"Loi: {error}\")\n\n# 2. Kiem soat IndexError truoc khi truy cap chi muc\ntarget_index = 10\nif -len(text) <= target_index < len(text):\n    print(\"Ky tu tai chi muc:\", text[target_index])\nelse:\n    print(\"Loi: Chi muc vuot qua gioi han (Index out of range)\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tao_chuoi_moi_voi_vong_lap:\n# Bien doi chuoi bang cach tao chuoi moi tuong thich PEP 8\noriginal = \"python\"\nmodified = \"\"\n\nfor i in range(len(original)):\n    if i == 0:\n        modified += original[i].upper()\n    else:\n        modified += original[i]\n\nprint(\"Chuoi ban dau:\", original)\nprint(\"Chuoi moi:\", modified)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu string + indexing + immutable"
+    }
+  },
+  {
+    "text": "Khái niệm: index_duong_am - Định nghĩa: Chỉ số (Index) xác định vị trí của ký tự trong chuỗi. Chỉ số dương bắt đầu từ 0 (từ trái qua phải), chỉ số âm bắt đầu từ -1 (từ phải qua trái).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Khái niệm: slicing_co_ban - Định nghĩa: Cú pháp trích xuất chuỗi con 'chuoi[start:stop]' lấy các ký tự từ vị trí 'start' đến sát vị trí 'stop' (không bao gồm 'stop'). Bỏ trống 'start' mặc định là 0, bỏ trống 'stop' mặc định là cuối chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Khái niệm: slicing_nang_cao_va_dao_chuoi - Định nghĩa: Cú pháp 'chuoi[start:stop:step]' bổ sung bước nhảy 'step'. Chỉ số bước nhảy âm (ví dụ: 'chuoi[::-1]') đảo ngược hoàn toàn thứ tự các ký tự trong chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Khái niệm: phong_tranh_loi_bien - Định nghĩa: Trong Python, cú pháp slicing tự động xử lý an toàn lỗi vượt quá giới hạn (out-of-bounds). Nếu chỉ số vượt ngoài phạm vi của chuỗi, Python sẽ tự điều chỉnh giới hạn hoặc trả về chuỗi rỗng thay vì ném lỗi IndexError.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Khái niệm: toan_tu_chuoi_pep8 - Định nghĩa: Phép ghép chuỗi (+) nối các chuỗi lại với nhau và phép nhân chuỗi (*) lặp lại chuỗi nhiều lần. Quy tắc PEP 8 khuyến cáo đặt các khoảng trắng rõ ràng xung quanh toán tử ghép chuỗi để tối ưu hóa khả năng đọc mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Khái niệm: cli_trich_xuat_dinh_danh - Định nghĩa: Ứng dụng dòng lệnh tích hợp slicing và cấu trúc rẽ nhánh (if/else) để bóc tách, làm sạch dữ liệu đầu vào và kiểm tra tính hợp lệ của các ký tự mã định danh theo mẫu định sẵn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vi_du_chi_so_va_slicing_co_ban:\ntext = \"Python\"\n# Truy cập ký tự đơn bằng chỉ số dương/âm\nfirst = text[0]   # Kết quả: 'P'\nlast = text[-1]   # Kết quả: 'n'\n\n# Cắt chuỗi cơ bản [start:stop]\nsub_start_stop = text[0:4]  # Kết quả: 'Pyth'\nsub_default_stop = text[2:]  # Lấy từ index 2 tới cuối chuỗi: 'thon'\n\nprint(\"Ky tu dau:\", first)\nprint(\"Ky tu cuoi:\", last)\nprint(\"Chuoi con:\", sub_start_stop)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vi_du_slicing_nang_cao_dao_chuoi:\ntext = \"LapTrinhPython\"\n# Slicing với bước nhảy step\nstep_slice = text[0:14:2]  # Lấy cách ký tự: 'LpTihyhn'\n\n# Đảo ngược chuỗi dùng bước nhảy âm\nreversed_text = text[::-1]  # Kết quả: 'nohtyPnihrTpaL'\n\n# An toàn lỗi biên (out-of-bounds)\nsafe_slice = text[0:100]    # Không gây lỗi IndexError, trả về toàn bộ chuỗi ban đầu\n\nprint(\"Buoc nhay 2:\", step_slice)\nprint(\"Dao nguoc:\", reversed_text)\nprint(\"An toan bien:\", safe_slice)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vi_du_toan_tu_chuoi_pep8:\nheader = \"Python\"\nbody = \"Core\"\n\n# Ghép chuỗi chuẩn PEP 8 (sử dụng khoảng trắng hai bên toán tử +)\nsentence = header + \" \" + body\n\n# Nhân chuỗi tạo dòng phân cách trang trí\ndecorator = \"-\" * 15\n\nprint(sentence)\nprint(decorator)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vi_du_app_cli_trich_xuat:\n# Trích xuất thông tin định danh dạng: VN-9988-DEV\nraw_id = \"  VN-9988-DEV  \"\nclean_id = raw_id.strip()  # Loại bỏ khoảng trắng thừa ở hai đầu\n\n# Kiểm tra độ dài và vị trí dấu gạch ngang phân cách\nif len(clean_id) == 11 and clean_id[2] == \"-\" and clean_id[7] == \"-\":\n    country = clean_id[0:2]\n    number = clean_id[3:7]\n    category = clean_id[8:]\n    \n    print(\"--- Thong Tin ID ---\")\n    print(\"Quoc gia:\", country)\n    print(\"Ma so:\", number)\n    print(\"Phan loai:\", category)\nelse:\n    print(\"Dinh dang ma dinh danh khong hop le.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Slicing + Toán tử chuỗi"
+    }
+  },
+  {
+    "text": "Khái niệm: String Immutability - Định nghĩa: The characteristic of Python strings indicating that they cannot be modified in place after creation. Any method or operation that seems to alter a string actually creates and returns a brand-new string object, leaving the original unchanged in memory.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Khái niệm: Input Normalization - Định nghĩa: The practice of standardized cleaning of user inputs by converting character casing to a uniform state (using upper() or lower()) and stripping off leading or trailing whitespace (using strip()), ensuring stable data comparison.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Khái niệm: Text Division and Assembly - Định nghĩa: The process of breaking a single string into a list of components based on a delimiter using the split() method, and conversely, stitching a sequence of strings together into a single string using a separator via the join() method.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Khái niệm: Substring Replacement - Định nghĩa: The process of locating specified occurrences of a substring within a larger text and replacing them with a new substring using the replace() method. Unlike strip(), which only targets the start and end, replace() targets occurrences throughout the entire string.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Khái niệm: Sanitization Pipeline - Định nghĩa: A structured step-by-step sequence of string operations (such as cleaning, filtering, and formatting) mapped over raw data using loops and conditional logic, designed to output clean, reliable data compliant with Python style guidelines (PEP 8).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho string_immutability_example:\noriginal = \"hello\"\nmodified = original.upper()\n\n# The original string remains unchanged\nprint(f\"Original: {original}\")  # Output: hello\nprint(f\"Modified: {modified}\")  # Output: HELLO",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho input_cleaning_example:\nraw_input = \"  admin_user  \"\n# Normalize by removing extra outer spaces and converting to lowercase\nclean_input = raw_input.strip().lower()\n\nif clean_input == \"admin_user\":\n    print(\"Input is matched successfully.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho split_and_join_example:\ncsv_data = \"python,core,strings\"\n# Divide text by comma\nwords = csv_data.split(\",\")\n\n# Assemble text using a space separator\nsentence = \" \".join(words)\nprint(sentence)  # Output: python core strings",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho replace_versus_strip_example:\ntext = \"   hello world   \"\n\n# strip() only removes exterior whitespace\nstripped_text = text.strip()\nprint(f\"Stripped: '{stripped_text}'\")  # Output: 'hello world'\n\n# replace() replaces all spaces everywhere\nno_space_text = text.replace(\" \", \"\")\nprint(f\"Replaced: '{no_space_text}'\")  # Output: 'helloworld'",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sanitization_pipeline_example:\nraw_data = [\"  Alice  \", \"bob_user!\", \"  CHARLIE \", \"\"]\nclean_records = []\n\nfor record in raw_data:\n    # Clean whitespace and normalize to lowercase\n    cleaned = record.strip().lower()\n    # Remove unwanted exclamation marks\n    cleaned = cleaned.replace(\"!\", \"\")\n    # Only keep non-empty records\n    if cleaned:\n      clean_records.append(cleaned)\n\nprint(clean_records)  # Output: ['alice', 'bob_user', 'charlie']",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String methods"
+    }
+  },
+  {
+    "text": "Khái niệm: %-formatting - Định nghĩa: Phương thức định dạng chuỗi cổ điển (C-style), sử dụng toán tử % kết hợp với các ký tự định lượng như %s cho chuỗi và %f cho số thực để truyền giá trị vào chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Khái niệm: str.format() - Định nghĩa: Phương thức định dạng chuỗi được giới thiệu từ Python 2.6, sử dụng các dấu ngoặc nhọn làm vị trí giữ chỗ (placeholder) và cho phép truyền tham số linh hoạt theo vị trí hoặc theo từ khóa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Khái niệm: f-string - Định nghĩa: Cú pháp định dạng chuỗi hiện đại và trực quan nhất từ Python 3.6 (Formatted String Literals), cho phép nhúng trực tiếp biểu thức hoặc biến Python vào trong cặp ngoặc nhọn {} với tiền tố 'f' hoặc 'F' trước chuỗi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Khái niệm: Căn lề và độ rộng hiển thị - Định nghĩa: Kỹ thuật tùy biến cách sắp xếp chuỗi bằng cách định nghĩa số lượng ký tự tối thiểu (width) và căn lề tương ứng (trái '<', phải '>', giữa '^') ngay sau dấu hai chấm ':' trong cặp ngoặc nhọn placeholder.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Khái niệm: Làm tròn số thập phân - Định nghĩa: Đặc tả định dạng sử dụng ký tự phân tách dạng '.Nf' để giới hạn số lượng chữ số (N) sau dấu phẩy đối với số thực khi hiển thị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Khái niệm: Báo cáo dữ liệu chuẩn PEP 8 - Định nghĩa: Việc căn chỉnh cột dữ liệu đẹp mắt kết hợp ngắt dòng thông minh khi in chuỗi dài (dưới 79 ký tự trên mỗi dòng) giúp mã nguồn sạch sẽ, dễ đọc đúng triết lý lập trình Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho string_formatting_comparison:\nname = \"Python\"\nversion = 3.12\n\n# 1. Định dạng kiểu cũ (%-formatting)\nprint(\"Version (old): %s %s\" % (name, version))\n\n# 2. Phương thức .format()\nprint(\"Version (medium): {} {}\".format(name, version))\n\n# 3. Sử dụng f-string (khuyên dùng)\nprint(f\"Version (modern): {name} {version}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho alignment_and_precision:\npi = 3.14159265\nitem_name = \"Apple\"\nprice = 1.25\n\n# Định dạng căn lề trái (<10), căn phải (>6) và làm tròn số thập phân (.2f hoặc .3f)\nprint(f\"Item: {item_name:<10} | Price: ${price:>6.2f}\")\nprint(f\"Pi (rounded to 3 decimal places): {pi:.3f}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho conditionals_and_loops:\nproducts = [\n    (\"Laptop\", 1200.00, True),\n    (\"Mouse\", 25.50, False),\n    (\"Keyboard\", 75.00, True)\n]\n\nfor name, price, available in products:\n    # Sử dụng cấu trúc rẽ nhánh (if-else line) để định dạng trạng thái\n    status = \"Con hang\" if available else \"Het hang\"\n    print(f\"Name: {name:<10} | Price: ${price:>8.2f} | Status: {status}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String formatting"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_sales_report:\n# Chương trình xuất báo cáo dữ liệu trực quan chuẩn PEP 8 về độ dài dòng\nsales_data = [\n    {\"item\": \"Laptop\", \"qty\": 5, \"price\": 999.99},\n    {\"item\": \"Mouse\", \"qty\": 15, \"price\": 19.99},\n    {\"item\": \"Monitor\", \"qty\": 3, \"price\": 299.99}\n]\n\nprint(\"=\" * 45)\nprint(f\"{'TEN SAN PHAM':<15}{'SL':>5}{'DON GIA':>12}{'TONG CONG':>13}\")\nprint(\"=\" * 45)\n\nfor entry in sales_data:\n    total = entry[\"qty\"] * entry[\"price\"]\n    # Sử dụng nối chuỗi ngầm định đa dòng theo chuẩn PEP 8 tránh vượt quá 79 ký tự\n    print(\n        f\"{entry['item']:<15}\"\n        f\"{entry['qty']:>5}\"\n        f\"${entry['price']:>11.2f}\"\n        f\"${total:>12.2f}\"\n    )\n\nprint(\"=\" * 45)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "String formatting"
+    }
   }
 ]

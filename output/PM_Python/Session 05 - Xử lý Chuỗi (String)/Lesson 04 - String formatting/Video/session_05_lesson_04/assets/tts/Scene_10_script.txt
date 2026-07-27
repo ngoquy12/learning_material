@@ -1,0 +1,1 @@
+Khi thao tác với chuỗi, lỗi tai e-rơ xuất hiện nếu truyền kiểu dữ liệu chuỗi vào chỗ cần số nguyên phần trăm d. Lỗi va-liu e-rơ sẽ được kích hoạt nếu chúng ta áp dụng định dạng số float hai chấm ép cho dữ liệu đầu vào vốn dĩ là một chuỗi văn bản.

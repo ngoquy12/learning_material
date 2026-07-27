@@ -1,0 +1,1 @@
+Trong nhiều trường hợp ta muốn nhanh chóng định vị các ký tự mang mã số ở phía cuối cùng của chuỗi mà không cần tính toán độ dài. Chúng ta sử dụng cú pháp toán tử chỉ mục âm dạng mở ngoặc vuông trừ index đóng ngoặc vuông. Tại đây, chỉ mục trừ một sẽ trích xuất chính xác ký tự số sáu nằm ở cuối chuỗi.

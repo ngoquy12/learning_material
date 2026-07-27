@@ -1,0 +1,1 @@
+Bây giờ, chúng ta khai báo cấu trúc oai với điều kiện diu-dơ va-ly khác sen-ti-nơ va-ly, tức là khác trừ một. Trình thông dịch của Pai-thơn sẽ kiểm tra giá trị của biến diu-dơ va-ly. Nếu người dùng nhập bất kỳ số nào khác trừ một, biểu thức so sánh này trả về tru và cho phép luồng thực thi đi vào trong khối lệnh lặp để xử lý tính toán.

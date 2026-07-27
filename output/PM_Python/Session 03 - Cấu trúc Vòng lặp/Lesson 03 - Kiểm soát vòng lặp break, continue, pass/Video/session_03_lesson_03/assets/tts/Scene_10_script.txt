@@ -1,0 +1,1 @@
+Hãy lưu ý về mã nguồn chết. Khi một câu lệnh bờ-rếch hay cần-ti-niu được thực thi không điều kiện hoặc đặt sai vị trí, toàn bộ khối lệnh phía sau nó trong phạm vi lặp sẽ bị trình biên dịch bỏ qua. Hãy tránh cấu trúc này để giữ mã nguồn tường minh, dễ bảo trì.

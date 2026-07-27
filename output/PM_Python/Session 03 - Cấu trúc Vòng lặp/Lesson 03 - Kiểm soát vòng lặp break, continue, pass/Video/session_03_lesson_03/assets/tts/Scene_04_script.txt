@@ -1,0 +1,1 @@
+Hãy quan sát luồng điều hướng của lệnh bờ-rếch. Khi biểu thức điều kiện trả về giá trị đúng, chương trình sẽ không thực hiện bất kỳ lệnh nào bên dưới trong khối lặp nữa. Nó lập tức nhảy thẳng ra ngoài vòng lặp để tiếp tục các câu lệnh ở cấp độ cha cao hơn.

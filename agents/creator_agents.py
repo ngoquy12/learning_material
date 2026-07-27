@@ -2254,8 +2254,14 @@ Return only raw JSON. Do not wrap in markdown code blocks.
             cleaned = response.strip().lstrip("```json").lstrip("```").rstrip("```").strip()
             res = json.loads(cleaned)
             if isinstance(res, dict) and res.get("engine_js") and "class InteractiveVisualizerEngine" in res["engine_js"]:
+                # Auto-sanitize and synchronize DOM IDs in generated JS code to match HTML DOM standard
+                engine_js = res["engine_js"]
+                engine_js = engine_js.replace("canvas-area", "visualizer-canvas")
+                engine_js = engine_js.replace("custom-input-data", "custom-data-input")
+                res["engine_js"] = engine_js
+
                 safe_title = str(lesson_title).encode('ascii', 'replace').decode('ascii')
-                print(f"  [OK] [Visualizer_Generator_Agent] Generated custom JS Visualizer Engine for {safe_title}")
+                print(f"  [OK] [Visualizer_Generator_Agent] Generated & synchronized custom JS Visualizer Engine for {safe_title}")
                 return res
 
     except Exception as e:
@@ -2268,30 +2274,142 @@ Return only raw JSON. Do not wrap in markdown code blocks.
     return get_topic_fallback_visualizer_engine(lesson_title, tech_stack, raw_code)
 
 
+def ensure_vietnamese_diacritics(text: str) -> str:
+    """Detect and auto-correct common unaccented Vietnamese words in generated questions and answers."""
+    if not text or not isinstance(text, str):
+        return text
+
+    replacements = {
+        r"\btai sao\b": "tại sao",
+        r"\bTai sao\b": "Tại sao",
+        r"\bnguoi dung\b": "người dùng",
+        r"\bNguoi dung\b": "Người dùng",
+        r"\bchuoi\b": "chuỗi",
+        r"\bChuoi\b": "Chuỗi",
+        r"\bket qua\b": "kết quả",
+        r"\bKet qua\b": "Kết quả",
+        r"\btoan tu\b": "toán tử",
+        r"\bToan tu\b": "Toán tử",
+        r"\bdoanh nghiep\b": "doanh nghiệp",
+        r"\bDoanh nghiep\b": "Doanh nghiệp",
+        r"\bbai doc\b": "bài đọc",
+        r"\bBai doc\b": "Bài đọc",
+        r"\bngon ngu\b": "ngôn ngữ",
+        r"\bNgon ngu\b": "Ngôn ngữ",
+        r"\blap trinh\b": "lập trình",
+        r"\bLap trinh\b": "Lập trình",
+        r"\bkhoang trang\b": "khoảng trắng",
+        r"\bKhoang trang\b": "Khoảng trắng",
+        r"\bdu thua\b": "dư thừa",
+        r"\bDu thua\b": "Dư thừa",
+        r"\bvi sao\b": "vì sao",
+        r"\bVi sao\b": "Vì sao",
+        r"\bthuc te\b": "thực tế",
+        r"\bThuc te\b": "Thực tế",
+        r"\bhieu nang\b": "hiệu năng",
+        r"\bHieu nang\b": "Hiệu năng",
+        r"\bnguy co\b": "nguy cơ",
+        r"\bNguy co\b": "Nguy cơ",
+        r"\bhe thong\b": "hệ thống",
+        r"\bHe thong\b": "Hệ thống",
+        r"\bco so du lieu\b": "cơ sở dữ liệu",
+        r"\bCo so du lieu\b": "Cơ sở dữ liệu",
+        r"\bphep so sanh\b": "phép so sánh",
+        r"\bPhep so sanh\b": "Phép so sánh",
+        r"\bxac thuc\b": "xác thực",
+        r"\bXac thuc\b": "Xác thực",
+        r"\btrung lap\b": "trùng lặp",
+        r"\bTrung lap\b": "Trùng lặp",
+        r"\bbien\b": "biến",
+        r"\bBien\b": "Biến",
+        r"\bgia tri\b": "giá trị",
+        r"\bGia tri\b": "Giá trị",
+        r"\bdu lieu\b": "dữ liệu",
+        r"\bDu lieu\b": "Dữ liệu",
+        r"\bmo ta\b": "mô tả",
+        r"\bMo ta\b": "Mô tả",
+        r"\bgiai thich\b": "giải thích",
+        r"\bGiai thich\b": "Giải thích",
+        r"\bphan tich\b": "phân tích",
+        r"\bPhan tich\b": "Phân tích",
+        r"\bcho biet\b": "cho biết",
+        r"\bCho biet\b": "Cho biết",
+        r"\btrinh bay\b": "trình bày",
+        r"\bTrinh bay\b": "Trình bày",
+        r"\bso sanh\b": "so sánh",
+        r"\bSo sanh\b": "So sánh",
+        r"\bkhai niem\b": "khái niệm",
+        r"\bKhai niem\b": "Khái niệm",
+        r"\bcot loi\b": "cốt lõi",
+        r"\bCot loi\b": "Cốt lõi",
+        r"\bnguyen ly\b": "nguyên lý",
+        r"\bNguyen ly\b": "Nguyên lý",
+        r"\bhoat dong\b": "hoạt động",
+        r"\bHoat dong\b": "Hoạt động",
+        r"\bphong tranh\b": "phòng tránh",
+        r"\bPhong tranh\b": "Phòng tránh",
+        r"\blam chu\b": "làm chủ",
+        r"\bLam chu\b": "Làm chủ",
+        r"\bnen tang\b": "nền tảng",
+        r"\bNen tang\b": "Nền tảng",
+        r"\bchinh xac\b": "chính xác",
+        r"\bChinh xac\b": "Chính xác",
+        r"\btuan thu\b": "tuân thủ",
+        r"\bTuan thu\b": "Tuân thủ",
+        r"\bquy tac\b": "quy tắc",
+        r"\bQuy tac\b": "Quy tắc",
+        r"\bcu phap\b": "cú pháp",
+        r"\bCu phap\b": "Cú pháp",
+        r"\bdinh dang\b": "định dạng",
+        r"\bDinh dang\b": "Định dạng",
+        r"\bkiem tra\b": "kiểm tra",
+        r"\bKiem tra\b": "Kiểm tra",
+        r"\bdau ra\b": "đầu ra",
+        r"\bDau ra\b": "Đầu ra",
+        r"\bdau vao\b": "đầu vào",
+        r"\bDau vao\b": "Đầu vào",
+        r"\bcan than\b": "cẩn thận",
+        r"\bCan than\b": "Cẩn thận",
+        r"\bvan dung\b": "vận dụng",
+        r"\bVan dung\b": "Vận dụng",
+        r"\bluong\b": "luồng",
+        r"\bLuong\b": "Luồng",
+        r"\btinh toan\b": "tính toán",
+        r"\bTinh toan\b": "Tính toán",
+        r"\bbieu thuc\b": "biểu thức",
+        r"\bBieu thuc\b": "Biểu thức",
+        r"\bhien thi\b": "hiển thị",
+        r"\bHien thi\b": "Hiển thị",
+        r"\btruc quan\b": "trực quan",
+        r"\bTruc quan\b": "Trực quan"
+    }
+
+    for pattern, repl in replacements.items():
+        text = re.sub(pattern, repl, text)
+
+    return text
+
+
 def force_center_media(html_str: str) -> str:
     """Ensure ONLY svg, img, figure, and scene-image-container elements are centered horizontally, keeping text left-aligned."""
     if not html_str or not isinstance(html_str, str):
         return html_str
     
-    # Inject display: block; margin-left: auto; margin-right: auto; text-align: center; ONLY into <svg> and <img> tags
-    def fix_svg_tag(match):
-        tag_attrs = match.group(1)
-        if 'style="' in tag_attrs or "style='" in tag_attrs:
-            tag_attrs = re.sub(r'style=["\']([^"\']*)["\']', r'style="\1; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"', tag_attrs)
+    def fix_media_tag(match):
+        tag_name = match.group(1)
+        tag_attrs = match.group(2)
+        if 'display: block' in tag_attrs or 'margin-left: auto' in tag_attrs:
+            return f'<{tag_name}{tag_attrs}>'
+            
+        if 'style="' in tag_attrs:
+            tag_attrs = tag_attrs.replace('style="', 'style="display: block; margin-left: auto; margin-right: auto; text-align: center; ')
+        elif "style='" in tag_attrs:
+            tag_attrs = tag_attrs.replace("style='", "style='display: block; margin-left: auto; margin-right: auto; text-align: center; ")
         else:
-            tag_attrs += ' style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"'
-        return f'<svg{tag_attrs}>'
+            tag_attrs += ' style="display: block; margin-left: auto; margin-right: auto; text-align: center;"'
+        return f'<{tag_name}{tag_attrs}>'
 
-    def fix_img_tag(match):
-        tag_attrs = match.group(1)
-        if 'style="' in tag_attrs or "style='" in tag_attrs:
-            tag_attrs = re.sub(r'style=["\']([^"\']*)["\']', r'style="\1; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"', tag_attrs)
-        else:
-            tag_attrs += ' style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;"'
-        return f'<img{tag_attrs}>'
-
-    html_str = re.sub(r'<svg([^>]*)>', fix_svg_tag, html_str, flags=re.IGNORECASE)
-    html_str = re.sub(r'<img([^>]*)>', fix_img_tag, html_str, flags=re.IGNORECASE)
+    html_str = re.sub(r'<(svg|img)([^>]*)>', fix_media_tag, html_str, flags=re.IGNORECASE)
     return html_str
 
 
@@ -2348,45 +2466,8 @@ def clean_unwanted_text(text: str) -> str:
     return text
 
 def ensure_comparison_table(analysis_text: str, analysis_html: str, lesson_title: str, tech_stack: str) -> str:
-    """Ensure that a comparison table is rendered as an HTML table in the analysis section."""
-    if "<table" in analysis_html:
-        return analysis_html
-        
-    table_html = f"""
-    <div style="margin: 20px 0; overflow-x: auto;">
-        <table class="comparison-table" style="width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
-            <thead>
-                <tr style="background-color: #be111c; color: white;">
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Tiêu chí So sánh Kỹ thuật</th>
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">{lesson_title} ({tech_stack.upper()})</th>
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Giải pháp / Ngôn ngữ truyền thống (C/C++/Java)</th>
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Đánh giá bối cảnh Doanh nghiệp</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cơ chế Thực thi</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Thông dịch / Runtime linh hoạt (Bytecode/PVM)</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Biên dịch trước toàn bộ (AOT / Native Code)</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu hóa tốc độ phát triển (Time-to-Market)</td>
-                </tr>
-                <tr style="background-color: var(--bg-hover);">
-                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cú pháp & Cấu trúc</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối giản, định kiểu động, lùi dòng làm khối lệnh</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tường minh, khai báo kiểu tĩnh, ngoặc nhọn</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Dễ đọc, dễ bảo trì và nhanh chóng thử nghiệm MVP</td>
-                </tr>
-                <tr>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Hiệu năng & Tài nguyên</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Overhead kiểm tra kiểu lúc runtime, quản lý bộ nhớ tự động</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu phần cứng, kiểm tra kiểu lúc compile-time</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Đánh đổi nhẹ hiệu năng lấy năng suất kỹ sư phần mềm</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    """
-    return analysis_html + "\n" + table_html
+    """Return analysis_html as-is. Comparison tables should only be present when explicitly required by lesson context."""
+    return analysis_html
 
 
 def ensure_problem_scene_image(problem_html: str, lesson_title: str, tech_stack: str) -> str:
@@ -2555,6 +2636,10 @@ def html_writer_agent(state: AgentState) -> AgentState:
         else:
             q_text = str(q_item).strip()
             q_answer = ""
+
+        # Auto-enforce Vietnamese diacritics on question and answer text
+        q_text = ensure_vietnamese_diacritics(q_text)
+        q_answer = ensure_vietnamese_diacritics(q_answer)
         
         # Filter out URLs, headings, "references", and non-question strings
         is_url_or_ref = q_text.lower().startswith(("http://", "https://", "references")) or "peps.python.org" in q_text.lower() or "docs.python.org" in q_text.lower()
@@ -3848,7 +3933,7 @@ sys.stderr = io.StringIO()
             margin-bottom: 12px;
             padding: 16px;
         }}
-        .selftest-question {{ font-weight: 600; color: var(--primary); cursor: pointer; text-align: left !important; display: flex; align-items: center; justify-content: space-between; }}
+        .selftest-question {{ font-weight: 600; color: var(--primary); cursor: pointer; text-align: left !important; display: flex; align-items: center; justify-content: flex-start !important; gap: 8px !important; }}
         .selftest-answer {{ margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color); display: none; color: var(--text-main); text-align: left !important; }}
         .selftest-answer ul {{ list-style-type: disc !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }}
         .selftest-answer ol {{ list-style-type: decimal !important; margin-left: 24px !important; padding-left: 8px !important; margin-top: 8px !important; margin-bottom: 8px !important; }}

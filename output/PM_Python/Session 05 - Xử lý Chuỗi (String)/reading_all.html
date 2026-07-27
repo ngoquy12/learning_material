@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session 05 - Xử lý Chuỗi (String) | Tổng hợp bài đọc</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --primary: #be111c;
+            --primary-hover: #9e0e17;
+            --bg-canvas: #0f172a;
+            --bg-card: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        header {
+            background-color: #1a080a;
+            border-bottom: 2px solid var(--primary);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            z-index: 10;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+        }
+
+        .badge-session {
+            background-color: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        nav.tabs-nav {
+            display: flex;
+            background-color: #111827;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            gap: 4px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 18px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            color: #ffffff;
+            border-bottom-color: var(--primary);
+            background-color: rgba(190, 17, 28, 0.1);
+        }
+
+        .main-container {
+            flex: 1;
+            position: relative;
+            background-color: #0b0f19;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <span class="badge-session">SESSION 05</span>
+            <h1>Xử Lý Chuỗi (String) - Master Learning Portal</h1>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted);">
+            <i class="ph-duotone ph-book-open"></i> Rikkei Education Python Curriculum
+        </div>
+    </header>
+
+    <nav class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab(this, 'Lesson 01 - Giới thiệu string + indexing + immutable/Bài đọc/reading.html')">
+            <i class="ph-duotone ph-text-t"></i> Bài 01: Giới thiệu String & Indexing
+        </button>
+        <button class="tab-btn" onclick="switchTab(this, 'Lesson 02 - Slicing + Toán tử chuỗi/Bài đọc/reading.html')">
+            <i class="ph-duotone ph-scissors"></i> Bài 02: Slicing & Toán tử chuỗi
+        </button>
+        <button class="tab-btn" onclick="switchTab(this, 'Lesson 03 - String methods/Bài đọc/reading.html')">
+            <i class="ph-duotone ph-function"></i> Bài 03: String Methods
+        </button>
+        <button class="tab-btn" onclick="switchTab(this, 'Lesson 04 - String formatting/Bài đọc/reading.html')">
+            <i class="ph-duotone ph-brackets-curly"></i> Bài 04: String Formatting
+        </button>
+    </nav>
+
+    <div class="main-container">
+        <iframe id="content-frame" src="Lesson 01 - Giới thiệu string + indexing + immutable/Bài đọc/reading.html"></iframe>
+    </div>
+
+    <script>
+        function switchTab(btn, url) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('content-frame').src = url;
+        }
+    </script>
+</body>
+</html>

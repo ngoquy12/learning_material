@@ -1,0 +1,1 @@
+Hàm chấm format sử dụng các cặp ngoặc nhọn để làm placeholder. Nhờ đó, chúng ta có thể truyền tham số theo vị trí mặc định, hoặc chỉ mục in-đếc, hoặc thậm chí là khai báo các từ khóa định danh. Điều này cải thiện khả năng đọc hiểu mã nguồn một cách rõ rệt.

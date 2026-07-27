@@ -1,0 +1,1 @@
+Thử nghiệm chạy chương trình trên môi trường Terminal. Chúng ta nhập chuỗi giá trị mười, hai mươi, ba mươi và sau cùng nhập trừ một. Hệ thống ghi nhận chính xác ba số đầu tiên, bỏ qua giá trị lính canh trừ một, tính toán tổng bằng sáu mươi và xuất ra trung bình cộng bằng hai mươi chấm không. Vòng lặp đã thực thi và dừng lại hoàn toàn đúng thiết kế.

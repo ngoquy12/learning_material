@@ -1,0 +1,1 @@
+Khi cần đảo ngược một phân đoạn mã hóa, ta truyền sờ-tép bằng trừ một. Cú pháp mở ngoặc vuông hai chấm trừ bảy hai chấm trừ một đóng ngoặc vuông sẽ bắt đầu đọc từ ký tự cuối cùng của chuỗi và lùi dần về phía bên trái cho tới khi chạm giới hạn chỉ mục âm bảy, giúp ta sinh mã đảo bảo mật cho hệ thống.

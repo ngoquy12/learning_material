@@ -1,0 +1,1 @@
+Trong trường hợp cần sửa đổi lại một mẫu ký tự cụ thể hoặc cập nhật phần mở rộng của tên miền lỗi thời, phương thức ri-plây-xơ sẽ được sử dụng. Hàm nhận vào hai tham số: chuỗi con cần tìm kiếm và chuỗi con mới sẽ thay thế. Toàn bộ các vị trí phù hợp trong chuỗi ban đầu sẽ được cập nhật.

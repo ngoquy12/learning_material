@@ -1,0 +1,1 @@
+Để lọc lấy các ký tự ở vị trí lẻ trong chuỗi sê-ri ở cuối, chúng ta cấu hình giá trị sờ-tép bằng hai. Phép cắt mở ngoặc vuông mười một hai chấm hai chấm hai đóng ngoặc vuông sẽ trích xuất từ chỉ mục mười một cho đến hết chuỗi, nhưng chỉ lấy các phần tử cách nhau hai đơn vị, bỏ qua các vị trí chẵn.

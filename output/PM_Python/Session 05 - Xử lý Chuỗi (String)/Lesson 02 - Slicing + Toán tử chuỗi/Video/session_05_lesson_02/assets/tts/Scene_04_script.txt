@@ -1,0 +1,1 @@
+Cú pháp cắt chuỗi đầy đủ của Python dạng mở ngoặc vuông sờ-tạt hai chấm bờ-tóp hai chấm sờ-tép đóng ngoặc vuông. Hướng di chuyển của lát cắt phụ thuộc vào dấu của sờ-tép. Nếu sờ-tép lớn hơn không, luồng duyệt sẽ đi từ trái sang phải từ sờ-tạt tới bờ-tóp trừ một. Nếu sờ-tép nhỏ hơn không, trình biên dịch sẽ duyệt ngược từ phải sang trái để thực hiện đảo chuỗi.

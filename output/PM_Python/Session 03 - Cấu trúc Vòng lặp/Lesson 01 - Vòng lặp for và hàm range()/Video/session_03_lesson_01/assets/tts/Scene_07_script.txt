@@ -1,0 +1,1 @@
+Hàm range nhận vào ba đối số bao gồm start là điểm khởi hành, stop xác định điểm chặn, và step cấu hình bước tăng động. Ba tham số này phân cách bởi dấu phẩy, cho phép lập trình viên định cấu hình linh hoạt phạm vi hoạt động của cấu trúc lặp.

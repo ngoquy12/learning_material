@@ -1,0 +1,1 @@
+Trong phát triển phần mềm doanh nghiệp, bài toán tìm kiếm tuần tự diễn ra vô cùng phổ biến. Ví dụ như quét danh sách giao dịch tài chính để phát hiện gian lận. Khi phần tử đích không tồn tại, hệ thống bắt buộc phải thực thi một hành động dự phòng như ghi nhật ký lỗi hoặc khởi tạo lại cơ sở dữ liệu.
