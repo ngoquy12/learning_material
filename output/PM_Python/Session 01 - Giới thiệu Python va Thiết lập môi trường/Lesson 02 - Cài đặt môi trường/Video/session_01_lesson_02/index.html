@@ -2,7 +2,7 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <title>Session 01 — Lesson 02: Cài đặt môi trường Python & VS Code</title>
+    <title>Session 01 — Lesson 02: Cài đặt môi trường Python & VS Code (Masterclass)</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <style>
@@ -44,6 +44,24 @@
         display: flex; gap: 36px; align-items: center;
       }
 
+      /* Rich Image Asset Container */
+      .image-asset-container {
+        flex: 0 0 38%; height: 720px; border-radius: 24px; overflow: hidden;
+        border: 1.5px solid rgba(255, 255, 255, 0.2); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+        position: relative; background: #161b22;
+        opacity: 0; visibility: hidden;
+      }
+      .image-asset-container img {
+        width: 100%; height: 100%; object-fit: cover; filter: brightness(1.05) contrast(1.05);
+      }
+      .image-overlay-badge {
+        position: absolute; bottom: 24px; left: 24px; right: 24px;
+        background: rgba(15, 17, 23, 0.85); backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 14px;
+        padding: 18px 24px; color: #ffffff; font-size: 18px; font-weight: 700;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      }
+
       /* Concept Card */
       .concept-card {
         flex: 0 0 32%; background: rgba(22, 27, 34, 0.92);
@@ -58,7 +76,7 @@
       }
       .concept-card p { font-size: 21px; line-height: 1.75; color: #f0f6fc; font-weight: 500; }
 
-      /* Comparison Cards Grid */
+      /* Comparison Grid */
       .compare-grid {
         flex: 1; height: 720px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
       }
@@ -94,15 +112,13 @@
       .dot.red { background: #f85149; } .dot.yellow { background: #ffa657; } .dot.green { background: #3fb950; }
       .terminal-title { font-family: system-ui, sans-serif; font-size: 14px; color: #8b949e; font-weight: 600; }
       .terminal-body {
-        padding: 32px; font-family: "Fira Code", monospace; font-size: 22px; line-height: 2; color: #f0f6fc; flex: 1;
+        padding: 32px; font-family: "Fira Code", monospace; font-size: 20px; line-height: 1.9; color: #f0f6fc; flex: 1;
       }
       .prompt { color: #38bdf8; font-weight: 700; }
       .cmd { color: #58a6ff; font-weight: 600; }
       .out-success { color: #3fb950; }
-      .out-warn { color: #ffa657; }
-      .out-err { color: #f85149; }
 
-      /* VS Code Extensions Mockup */
+      /* VS Code Window */
       .vscode-window {
         flex: 1; height: 720px; border-radius: 16px; overflow: hidden;
         border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
@@ -113,6 +129,17 @@
         background: #323233; height: 40px; padding: 0 18px; display: flex;
         align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
+      .editor-body { display: flex; flex: 1; font-family: "Fira Code", monospace; font-size: 20px; line-height: 1.8; }
+      .line-numbers {
+        width: 48px; padding: 20px 8px; text-align: right; color: #858585;
+        background: #1e1e1e; border-right: 1px solid rgba(255, 255, 255, 0.08); user-select: none;
+      }
+      .code-area { padding: 20px 24px; color: #f0f6fc; }
+      .kw { color: #ff7b72; font-weight: 600; }
+      .fn { color: #d2a8ff; }
+      .str { color: #a5d6ff; }
+      .var { color: #79c0ff; }
+      .cm { color: #8b949e; font-style: italic; }
 
       /* Recap Section */
       .recap-container {
@@ -160,163 +187,240 @@
     </style>
   </head>
   <body>
-    <div id="root" class="clip" data-composition-id="root" data-start="0" data-duration="122.96" data-width="1920" data-height="1080" data-no-timeline="true">
+    <div id="root" class="clip" data-composition-id="root" data-start="0" data-duration="228.30" data-width="1920" data-height="1080" data-no-timeline="true">
       <!-- Intro & Outro Videos -->
       <video id="intro-video" class="clip" src="assets/intro.mp4" data-start="0" data-duration="9.24" data-track-index="0" data-volume="1" data-has-audio="true" style="width:1920px;height:1080px;object-fit:cover;position:absolute;top:0;left:0"></video>
-      <video id="outro-video" class="clip" src="assets/outro.mp4" data-start="110.81" data-duration="12.15" data-track-index="0" data-volume="1" data-has-audio="true" style="width:1920px;height:1080px;object-fit:cover;position:absolute;top:0;left:0"></video>
+      <video id="outro-video" class="clip" src="assets/outro.mp4" data-start="216.15" data-duration="12.15" data-track-index="0" data-volume="1" data-has-audio="true" style="width:1920px;height:1080px;object-fit:cover;position:absolute;top:0;left:0"></video>
 
-      <!-- SCENE 01: Dependency Hell vs Virtual Envs -->
-      <div id="scene-01" class="clip scene-root" data-composition-id="scene-01" data-start="9.24" data-duration="23.44" data-track-index="1">
-        <div id="header-01" class="scene-header"><div class="header-badge">LESSON 02</div><h1 class="scene-title">Thách Thức Xung Đột Môi Trường Toàn Cục</h1></div>
+      <!-- SCENE 01: Dependency Hell Case Study (WITH 3D TECH IMAGE ASSET) -->
+      <div id="scene-01" class="clip scene-root" data-composition-id="scene-01" data-start="9.24" data-duration="31.53" data-track-index="1">
+        <div id="header-01" class="scene-header"><div class="header-badge">LESSON 02</div><h1 class="scene-title">Thách Thức Xung Đột Thư Viện Toàn Cục</h1></div>
         <div class="main-layout">
-          <div id="concept-card-01" class="concept-card">
-            <h3>Rủi Ro Hệ Thống</h3>
-            <p>Cài đặt thư viện trực tiếp lên máy tính dễ gây xung đột phiên bản giữa các dự án (Dependency Hell).</p>
+          <div id="img-container-01" class="image-asset-container">
+            <img src="assets/images/scene_01_concept.png" alt="Dependency Hell Illustration" />
+            <div class="image-overlay-badge">⚠️ Visualizing Dependency Hell &amp; System Conflicts</div>
           </div>
           <div class="compare-grid">
             <div id="compare-bad-01" class="compare-card bad">
-              <div class="card-tag">Rủi Ro Toàn Cục</div>
+              <div class="card-tag">Hạn Chế Cũ</div>
               <h4>Global Environment Conflict</h4>
-              <p>Project A (Django v3.2) xung đột với Project B (Django v4.2) làm hỏng toàn bộ hệ thống máy tính.</p>
+              <p>Cài đặt trực tiếp vào phân vùng hệ thống làm đè phiên bản thư viện giữa các dự án (Django 3.2 vs 4.2), gây sập hệ thống máy tính.</p>
             </div>
             <div id="compare-good-01" class="compare-card good">
               <div class="card-tag">Giải Pháp Cô Lập</div>
-              <h4>Virtual Environments (venv)</h4>
-              <p>Mỗi dự án sở hữu một môi trường ảo hoàn toàn độc lập với phiên bản thư viện riêng biệt.</p>
+              <h4>Virtual Environment (venv)</h4>
+              <p>Phân chia môi trường riêng biệt cho từng dự án, giúp quản lý gói độc lập 100%.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 02: Installing Python & PATH Config -->
-      <div id="scene-02" class="clip scene-root" data-composition-id="scene-02" data-start="32.68" data-duration="18.57" data-track-index="2">
-        <div id="header-02" class="scene-header"><div class="header-badge">INSTALLATION</div><h1 class="scene-title">Cài Đặt Python &amp; Cấu Hình Biến PATH</h1></div>
+      <!-- SCENE 02: Architecture of venv (WITH 3D ISOMETRIC CONTAINER IMAGE) -->
+      <div id="scene-02" class="clip scene-root" data-composition-id="scene-02" data-start="40.77" data-duration="25.48" data-track-index="2">
+        <div id="header-02" class="scene-header"><div class="header-badge">ARCHITECTURE</div><h1 class="scene-title">Kiến Trúc Cô Lập Thư Mục Của Môi Trường Ảo</h1></div>
         <div class="main-layout">
-          <div id="concept-card-02" class="concept-card">
-            <h3>Tùy Chọn Bắt Buộc</h3>
-            <p>Tải bộ cài chính thức từ <strong>python.org</strong> và phải đánh dấu chọn <strong>Add Python to PATH</strong>.</p>
+          <div id="img-container-02" class="image-asset-container">
+            <img src="assets/images/scene_02_concept.png" alt="Virtual Environment Container Illustration" />
+            <div class="image-overlay-badge">🛡️ Isolated Virtual Container &amp; Site-Packages</div>
           </div>
-          <div id="terminal-02" class="terminal-window">
-            <div class="terminal-titlebar">
-              <div class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
-              <div class="terminal-title">Windows PowerShell / Terminal</div>
-              <div style="color:#38bdf8;font-size:12px;font-weight:600;">CLI CHECK</div>
+          <div class="compare-grid">
+            <div id="compare-sys-02" class="compare-card">
+              <div class="card-tag">System Scope</div>
+              <h4>C:\Python312\Lib\site-packages</h4>
+              <p>Chỉ chứa các thư viện mặc định của hệ điều hành, giữ môi trường gốc luôn sạch sẽ.</p>
             </div>
-            <div class="terminal-body">
-              <span class="prompt">PS C:\Users\Rikkei&gt;</span> <span class="cmd">python --version</span><br/>
-              <span class="out-success">Python 3.12.2</span><br/><br/>
-              <span class="prompt">PS C:\Users\Rikkei&gt;</span> <span class="cmd">pip --version</span><br/>
-              <span class="out-success">pip 24.0 from C:\Python312\lib\site-packages</span>
+            <div id="compare-local-02" class="compare-card good">
+              <div class="card-tag">Local Project Scope</div>
+              <h4>my_project\app_env\site-packages</h4>
+              <p>Toàn bộ gói cài qua <code>pip install</code> chỉ nằm trong phạm vi dự án hiện tại.</p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 03: VS Code Setup & Extensions -->
-      <div id="scene-03" class="clip scene-root" data-composition-id="scene-03" data-start="51.25" data-duration="18.46" data-track-index="3">
-        <div id="header-03" class="scene-header"><div class="header-badge">IDE CONFIGURATION</div><h1 class="scene-title">Cấu Hình VS Code &amp; Python Extension</h1></div>
+      <!-- SCENE 03: Python Installation & PATH Variable -->
+      <div id="scene-03" class="clip scene-root" data-composition-id="scene-03" data-start="66.25" data-duration="23.64" data-track-index="3">
+        <div id="header-03" class="scene-header"><div class="header-badge">INSTALLATION</div><h1 class="scene-title">Cài Đặt Python &amp; Bản Chất Biến Môi Trường PATH</h1></div>
         <div class="main-layout">
           <div id="concept-card-03" class="concept-card">
-            <h3>Tiện Ích Mở Rộng</h3>
-            <p>Cài đặt <strong>Python Extension (Microsoft)</strong> để tự động hỗ trợ gợi ý code, kiểm tra cú pháp và kết nối venv.</p>
+            <h3>Add Python to PATH</h3>
+            <p>Biến PATH đóng vai trò như bảng chỉ đường giúp hệ điều hành tìm kiếm và kích hoạt file <code>python.exe</code>.</p>
           </div>
-          <div id="vscode-03" class="vscode-window">
+          <div id="terminal-03" class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div class="terminal-title">Windows Terminal / PowerShell</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">PATH VERIFICATION</div>
+            </div>
+            <div class="terminal-body">
+              <span class="prompt">PS C:\&gt;</span> <span class="cmd">python --version</span><br/>
+              <span class="out-success">Python 3.12.2</span><br/><br/>
+              <span class="prompt">PS C:\&gt;</span> <span class="cmd">where.exe python</span><br/>
+              <span class="out-success">C:\Users\Rikkei\AppData\Local\Programs\Python\Python312\python.exe</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 04: VS Code & Python Extension Setup -->
+      <div id="scene-04" class="clip scene-root" data-composition-id="scene-04" data-start="89.89" data-duration="24.48" data-track-index="4">
+        <div id="header-04" class="scene-header"><div class="header-badge">IDE SETUP</div><h1 class="scene-title">Cấu Hình VS Code &amp; Extensions Microsoft</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-04" class="concept-card">
+            <h3>IntelliSense &amp; Linter</h3>
+            <p>Cài đặt <strong>Python Extension (Microsoft)</strong> để tự động hỗ trợ gợi ý code thông minh và nhận diện venv.</p>
+          </div>
+          <div id="vscode-04" class="vscode-window">
             <div class="vscode-titlebar">
               <div class="vscode-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
               <div style="color:#cccccc;font-size:13px;font-weight:500;">Extensions: Marketplace — Visual Studio Code</div>
               <div style="color:#38bdf8;font-size:12px;font-weight:600;">MICROSOFT EXTENSION</div>
             </div>
-            <div style="padding:40px;display:flex;flex-direction:column;gap:24px;justify-content:center;height:100%;">
-              <div style="background:#252526;border:1.5px solid rgba(56, 189, 248, 0.4);border-radius:16px;padding:28px 36px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="padding:36px;display:flex;flex-direction:column;gap:20px;justify-content:center;height:100%;">
+              <div style="background:#252526;border:1.5px solid rgba(56, 189, 248, 0.4);border-radius:16px;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;">
                 <div>
-                  <div style="font-size:24px;font-weight:800;color:#ffffff;margin-bottom:6px;">Python (ms-python.python)</div>
-                  <div style="font-size:18px;color:#8b949e;">IntelliSense, Linting, Debugging, Jupyter Notebooks</div>
+                  <div style="font-size:22px;font-weight:800;color:#ffffff;margin-bottom:6px;">Python (ms-python.python)</div>
+                  <div style="font-size:16px;color:#8b949e;">Rich support for Python (IntelliSense, Linting, Debugging)</div>
                 </div>
-                <div style="background:#3fb950;color:#0f1117;font-size:16px;font-weight:800;padding:10px 24px;border-radius:8px;">INSTALLED</div>
+                <div style="background:#3fb950;color:#0f1117;font-size:15px;font-weight:800;padding:8px 20px;border-radius:8px;">INSTALLED</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 04: Creating & Activating venv -->
-      <div id="scene-04" class="clip scene-root" data-composition-id="scene-04" data-start="69.71" data-duration="19.71" data-track-index="4">
-        <div id="header-04" class="scene-header"><div class="header-badge">VIRTUAL ENV</div><h1 class="scene-title">Khởi Tạo &amp; Kích Hoạt Môi Trường Ảo (venv)</h1></div>
+      <!-- SCENE 05: Practical CLI venv creation -->
+      <div id="scene-05" class="clip scene-root" data-composition-id="scene-05" data-start="114.37" data-duration="22.34" data-track-index="5">
+        <div id="header-05" class="scene-header"><div class="header-badge">CLI COMMAND</div><h1 class="scene-title">Thực Hành Tạo Môi Trường Ảo Qua Terminal</h1></div>
         <div class="main-layout">
-          <div id="concept-card-04" class="concept-card">
-            <h3>Lệnh CLI Cốt Lõi</h3>
-            <p>Tạo môi trường ảo bằng <strong>python -m venv app_env</strong> và kích hoạt bằng file script tương ứng theo hệ điều hành.</p>
+          <div id="concept-card-05" class="concept-card">
+            <h3>Cú Pháp Lệnh CLI</h3>
+            <p>Khởi tạo môi trường ảo bằng lệnh <strong>python -m venv app_env</strong> (Cờ <code>-m</code> chạy module chuẩn venv).</p>
           </div>
-          <div id="terminal-04" class="terminal-window">
+          <div id="terminal-05" class="terminal-window">
             <div class="terminal-titlebar">
               <div class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
-              <div class="terminal-title">Terminal — Create &amp; Activate venv</div>
-              <div style="color:#38bdf8;font-size:12px;font-weight:600;">CLI TERMINAL</div>
+              <div class="terminal-title">Terminal — Create Virtual Environment</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">CREATE VENV</div>
             </div>
             <div class="terminal-body">
               <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">python -m venv app_env</span><br/>
-              <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">.\app_env\Scripts\Activate.ps1</span><br/>
-              <span class="out-success">(app_env) PS C:\my_project&gt;</span> <span class="cmd">python --version</span><br/>
-              <span class="out-success">(app_env) Python 3.12.2 [VIRTUAL ENV ACTIVE]</span>
+              <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">dir app_env</span><br/>
+              <span class="out-success">Include/  Lib/  Scripts/  pyvenv.cfg</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SCENE 05: Recap & Next Lesson Announcement -->
-      <div id="scene-05" class="clip scene-root" data-composition-id="scene-05" data-start="89.42" data-duration="21.39" data-track-index="5">
-        <div id="header-05" class="scene-header"><div class="header-badge green">SUMMARY &amp; RECAP</div><h1 class="scene-title">Lưu Ý Lỗi Thường Gặp &amp; Bài Học Tiếp Theo</h1></div>
+      <!-- SCENE 06: Activation & Execution Policy -->
+      <div id="scene-06" class="clip scene-root" data-composition-id="scene-06" data-start="136.71" data-duration="28.26" data-track-index="6">
+        <div id="header-06" class="scene-header"><div class="header-badge">ACTIVATION</div><h1 class="scene-title">Kích Hoạt Môi Trường Ảo &amp; Sửa Lỗi Policy</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-06" class="concept-card">
+            <h3>Kích Hoạt Môi Trường</h3>
+            <p>Chạy script <strong>Activate.ps1</strong> (Windows) hoặc <strong>source bin/activate</strong> (macOS). Mở quyền nếu gặp Execution Policy.</p>
+          </div>
+          <div id="terminal-06" class="terminal-window">
+            <div class="terminal-titlebar">
+              <div class="terminal-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div class="terminal-title">PowerShell / Bash Activation</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">ACTIVATE SCRIPT</div>
+            </div>
+            <div class="terminal-body">
+              <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">Set-ExecutionPolicy RemoteSigned -Scope CurrentUser</span><br/>
+              <span class="prompt">PS C:\my_project&gt;</span> <span class="cmd">.\app_env\Scripts\Activate.ps1</span><br/>
+              <span class="out-success">(app_env) PS C:\my_project&gt;</span> <span class="cmd">pip list</span><br/>
+              <span class="out-success">Package Version: pip 24.0, setuptools 69.1</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 07: Python Script Verification -->
+      <div id="scene-07" class="clip scene-root" data-composition-id="scene-07" data-start="164.97" data-duration="21.74" data-track-index="7">
+        <div id="header-07" class="scene-header"><div class="header-badge">CODE VERIFY</div><h1 class="scene-title">Viết Code Python Kiểm Chứng Trạng Thái venv</h1></div>
+        <div class="main-layout">
+          <div id="concept-card-07" class="concept-card">
+            <h3>Kiểm Tra Trình Thông Dịch</h3>
+            <p>In thuộc tính <strong>sys.executable</strong> để xác nhận đường dẫn tệp thực thi đang chạy trong <code>app_env</code>.</p>
+          </div>
+          <div id="vscode-07" class="vscode-window">
+            <div class="vscode-titlebar">
+              <div class="vscode-dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+              <div style="color:#cccccc;font-size:13px;font-weight:500;">check_env.py — Visual Studio Code</div>
+              <div style="color:#38bdf8;font-size:12px;font-weight:600;">PYTHON CODE</div>
+            </div>
+            <div class="editor-body">
+              <div class="line-numbers">1<br/>2<br/>3<br/>4<br/>5</div>
+              <div class="code-area">
+                <span class="kw">import</span> <span class="var">sys</span><br/><br/>
+                <span class="cm"># Kiểm tra đường dẫn Python executable</span><br/>
+                <span class="fn">print</span>(<span class="str">"Trình thông dịch hiện tại:"</span>, <span class="var">sys</span>.<span class="var">executable</span>)<br/>
+                <span class="fn">print</span>(<span class="str">"Vùng thư viện:"</span>, <span class="var">sys</span>.<span class="var">prefix</span>)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 08: Recap & Next Lesson Announcement -->
+      <div id="scene-08" class="clip scene-root" data-composition-id="scene-08" data-start="186.71" data-duration="29.44" data-track-index="8">
+        <div id="header-08" class="scene-header"><div class="header-badge green">SUMMARY &amp; RECAP</div><h1 class="scene-title">Tổng Kết Lưu Ý Lỗi &amp; Bài Học Tiếp Theo</h1></div>
         <div class="recap-container">
           <div id="recap-hdr" class="recap-header">
             <div class="recap-title">
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-              Lỗi Cấu Hình Phổ Biến &amp; Cách Khắc Phục
+              Lỗi Cấu Hình Phổ Biến &amp; Nguyên Tắc Cốt Lõi
             </div>
             <div class="recap-badge">KEY TAKEAWAYS</div>
           </div>
           <div class="takeaways-grid">
             <div id="tk-1" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="takeaway-text">Tránh <strong>ModuleNotFoundError</strong> bằng cách kích hoạt venv trước khi <code>pip install</code>.</div></div>
-            <div id="tk-2" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="takeaway-text">Tránh <strong>FileNotFoundError</strong> bằng cách chuyển terminal về đúng thư mục chứa file.</div></div>
-            <div id="tk-3" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="takeaway-text">Đánh dấu <strong>Add Python to PATH</strong> giúp chạy lệnh CLI từ bất kỳ đâu.</div></div>
-            <div id="tk-4" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="takeaway-text">Môi trường <strong>venv</strong> cô lập hoàn toàn các thư viện cho từng dự án độc lập.</div></div>
+            <div id="tk-2" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div class="takeaway-text">Tránh <strong>FileNotFoundError</strong> bằng cách chuyển terminal về đúng thư mục dự án.</div></div>
+            <div id="tk-3" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="takeaway-text">Tùy chọn <strong>Add Python to PATH</strong> là bắt buộc để dùng lệnh CLI.</div></div>
+            <div id="tk-4" class="takeaway-card"><div class="takeaway-check"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><div class="takeaway-text">Môi trường <strong>venv</strong> cô lập hoàn toàn thư viện cho từng dự án độc lập.</div></div>
           </div>
           <div id="next-bar" class="next-step-bar">
             <div class="next-step-label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>BÀI HỌC TIẾP THEO</div>
-            <div class="next-step-val">Lesson 03 — Khai báo Biến &amp; Kiểu dữ liệu cơ bản trong Python</div>
+            <div class="next-step-val">Lesson 03 — Khai báo Biến &amp; Các Kiểu Dữ Liệu Cơ Bản Trong Python</div>
           </div>
         </div>
       </div>
 
       <!-- AUDIO TRACKS -->
-      <audio id="tts-01" class="clip" src="assets/tts/Scene_01.mp3" data-start="9.24" data-duration="23.44" data-track-index="20" data-volume="1"></audio>
-      <audio id="tts-02" class="clip" src="assets/tts/Scene_02.mp3" data-start="32.68" data-duration="18.57" data-track-index="21" data-volume="1"></audio>
-      <audio id="tts-03" class="clip" src="assets/tts/Scene_03.mp3" data-start="51.25" data-duration="18.46" data-track-index="22" data-volume="1"></audio>
-      <audio id="tts-04" class="clip" src="assets/tts/Scene_04.mp3" data-start="69.71" data-duration="19.71" data-track-index="23" data-volume="1"></audio>
-      <audio id="tts-05" class="clip" src="assets/tts/Scene_05.mp3" data-start="89.42" data-duration="21.39" data-track-index="24" data-volume="1"></audio>
-      <audio id="bg-music" class="clip" src="assets/bg-music.mp3" data-start="0" data-duration="122.96" data-track-index="30" data-volume="0.12" data-loop="true"></audio>
+      <audio id="tts-01" class="clip" src="assets/tts/Scene_01.mp3" data-start="9.24" data-duration="31.53" data-track-index="20" data-volume="1"></audio>
+      <audio id="tts-02" class="clip" src="assets/tts/Scene_02.mp3" data-start="40.77" data-duration="25.48" data-track-index="21" data-volume="1"></audio>
+      <audio id="tts-03" class="clip" src="assets/tts/Scene_03.mp3" data-start="66.25" data-duration="23.64" data-track-index="22" data-volume="1"></audio>
+      <audio id="tts-04" class="clip" src="assets/tts/Scene_04.mp3" data-start="89.89" data-duration="24.48" data-track-index="23" data-volume="1"></audio>
+      <audio id="tts-05" class="clip" src="assets/tts/Scene_05.mp3" data-start="114.37" data-duration="22.34" data-track-index="24" data-volume="1"></audio>
+      <audio id="tts-06" class="clip" src="assets/tts/Scene_06.mp3" data-start="136.71" data-duration="28.26" data-track-index="25" data-volume="1"></audio>
+      <audio id="tts-07" class="clip" src="assets/tts/Scene_07.mp3" data-start="164.97" data-duration="21.74" data-track-index="26" data-volume="1"></audio>
+      <audio id="tts-08" class="clip" src="assets/tts/Scene_08.mp3" data-start="186.71" data-duration="29.44" data-track-index="27" data-volume="1"></audio>
+      <audio id="bg-music" class="clip" src="assets/bg-music.mp3" data-start="0" data-duration="228.30" data-track-index="30" data-volume="0.12" data-loop="true"></audio>
     </div>
 
     <!-- UNIFIED GSAP TIMELINES -->
     <script>
       window.__timelines = window.__timelines || {};
 
-      // Scene 01 Timeline
+      // Scene 01 Timeline (With 3D Tech Asset Reveal)
       const tl1 = gsap.timeline({ paused: true });
       tl1.set("#scene-01", { autoAlpha: 1 }, 0);
       tl1.to("#header-01", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
-      tl1.to("#concept-card-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 4.0);
-      tl1.to("#compare-bad-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 10.0);
-      tl1.to("#compare-good-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 16.5);
-      tl1.to("#scene-01", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 22.64);
+      tl1.to("#img-container-01", { autoAlpha: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" }, 4.5);
+      tl1.to("#compare-bad-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 12.0);
+      tl1.to("#compare-good-01", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 22.0);
+      tl1.to("#scene-01", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 30.73);
       window.__timelines["scene-01"] = tl1;
 
-      // Scene 02 Timeline
+      // Scene 02 Timeline (With 3D Isometric Container Asset Reveal)
       const tl2 = gsap.timeline({ paused: true });
       tl2.set("#scene-02", { autoAlpha: 1 }, 0);
       tl2.to("#header-02", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
-      tl2.to("#concept-card-02", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
-      tl2.to("#terminal-02", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 9.5);
-      tl2.to("#scene-02", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 17.77);
+      tl2.to("#img-container-02", { autoAlpha: 1, scale: 1, duration: 0.8, ease: "back.out(1.2)" }, 3.5);
+      tl2.to("#compare-sys-02", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 10.0);
+      tl2.to("#compare-local-02", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 17.5);
+      tl2.to("#scene-02", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 24.68);
       window.__timelines["scene-02"] = tl2;
 
       // Scene 03 Timeline
@@ -324,8 +428,8 @@
       tl3.set("#scene-03", { autoAlpha: 1 }, 0);
       tl3.to("#header-03", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
       tl3.to("#concept-card-03", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
-      tl3.to("#vscode-03", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 9.5);
-      tl3.to("#scene-03", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 17.66);
+      tl3.to("#terminal-03", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 11.0);
+      tl3.to("#scene-03", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 22.84);
       window.__timelines["scene-03"] = tl3;
 
       // Scene 04 Timeline
@@ -333,22 +437,49 @@
       tl4.set("#scene-04", { autoAlpha: 1 }, 0);
       tl4.to("#header-04", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
       tl4.to("#concept-card-04", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
-      tl4.to("#terminal-04", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 9.5);
-      tl4.to("#scene-04", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 18.91);
+      tl4.to("#vscode-04", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 11.0);
+      tl4.to("#scene-04", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 23.68);
       window.__timelines["scene-04"] = tl4;
 
       // Scene 05 Timeline
       const tl5 = gsap.timeline({ paused: true });
       tl5.set("#scene-05", { autoAlpha: 1 }, 0);
       tl5.to("#header-05", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
-      tl5.to("#recap-hdr", { autoAlpha: 1, duration: 0.5 }, 2.0);
-      tl5.to("#tk-1", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 2.5);
-      tl5.to("#tk-2", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 4.0);
-      tl5.to("#tk-3", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 5.5);
-      tl5.to("#tk-4", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 7.0);
-      tl5.to("#next-bar", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.2)" }, 12.5);
-      tl5.to("#scene-05", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 20.59);
-      window.__timelines["scene-05"] = tl6 = tl5;
+      tl5.to("#concept-card-05", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl5.to("#terminal-05", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 10.0);
+      tl5.to("#scene-05", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 21.54);
+      window.__timelines["scene-05"] = tl5;
+
+      // Scene 06 Timeline
+      const tl6 = gsap.timeline({ paused: true });
+      tl6.set("#scene-06", { autoAlpha: 1 }, 0);
+      tl6.to("#header-06", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl6.to("#concept-card-06", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl6.to("#terminal-06", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 12.0);
+      tl6.to("#scene-06", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 27.46);
+      window.__timelines["scene-06"] = tl6;
+
+      // Scene 07 Timeline
+      const tl7 = gsap.timeline({ paused: true });
+      tl7.set("#scene-07", { autoAlpha: 1 }, 0);
+      tl7.to("#header-07", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl7.to("#concept-card-07", { autoAlpha: 1, duration: 0.6, ease: "power3.out" }, 3.5);
+      tl7.to("#vscode-07", { autoAlpha: 1, duration: 0.7, ease: "power3.out" }, 10.0);
+      tl7.to("#scene-07", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 20.94);
+      window.__timelines["scene-07"] = tl7;
+
+      // Scene 08 Timeline
+      const tl8 = gsap.timeline({ paused: true });
+      tl8.set("#scene-08", { autoAlpha: 1 }, 0);
+      tl8.to("#header-08", { autoAlpha: 1, duration: 0.6, ease: "power2.out" }, 0.3);
+      tl8.to("#recap-hdr", { autoAlpha: 1, duration: 0.5 }, 2.0);
+      tl8.to("#tk-1", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 2.5);
+      tl8.to("#tk-2", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 4.0);
+      tl8.to("#tk-3", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 5.5);
+      tl8.to("#tk-4", { autoAlpha: 1, duration: 0.5, ease: "power2.out" }, 7.0);
+      tl8.to("#next-bar", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.2)" }, 19.0);
+      tl8.to("#scene-08", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, 28.64);
+      window.__timelines["scene-08"] = tl8;
     </script>
   </body>
 </html>

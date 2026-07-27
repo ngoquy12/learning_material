@@ -23,6 +23,10 @@ hyperframes_writer_agent    ← Ghi file HTML/JSON ra đĩa & Gọi Smart G2P TT
 > **QUY TẮC PHIÊN ÂM THUẬT NGỮ TỰ ĐỘNG (SMART AUTOMATED G2P PIPELINE):**
 > Hệ thống TTS Kokoro-Vietnamese đã tích hợp **Smart G2P & Tech Normalizer Engine** tự động. Kịch bản và lời thoại **HOÀN TOÀN TỰ ĐỘNG** chuyển đổi các từ tiếng Anh (`Python`, `TypeError`, `ValueError`, `VS Code`, `snake_case`, `PVM`...) và CamelCase Exception classes thành phiên âm tự nhiên. Người biên soạn **KHÔNG CẦN** ngồi nhập thủ công từ điển phiên âm.
 
+> [!IMPORTANT]
+> **QUY TẮC BẮT BUỘC HÌNH ẢNH MINH HỌA & ẢNH GENERATE (DYNAMIC IMAGE & ASSET GENERATION):**
+> Mỗi Scene trong video **BẮT BUỘC** phải có hình ảnh minh họa đồ họa công nghệ (`.png` / `.jpg`). Agent **BẮT BUỘC** sử dụng công cụ `generate_image` để tự động tạo các bức ảnh 3D Tech Concept / Infographic Banners chất lượng cao cho từng Scene tại thư mục `Video/{lesson_slug}/assets/images/`, sau đó nhúng trực tiếp vào HTML. Tuyệt đối không dùng 100% chữ HTML trần trụi.
+
 ---
 
 ## 2. Đầu Vào Bắt Buộc (Input Source: Bài Đọc)
@@ -81,16 +85,19 @@ Agent **PHẢI** trả về JSON với cấu trúc sau:
 - `track_index` của scenes: 1, 2, 3, ... (tăng dần)
 - Audio tracks: 20, 21, 22, ... (được gán trong `index.html`)
 
----
+## 4. Quy tắc Narration (Lời Thoại & Thời Lượng Thong Thả Sâu Sắc)
 
-## 4. Quy tắc Narration (Lời Thoại & Thời Lượng Thong Thả)
+> [!IMPORTANT]
+> **QUY TẮC NỘI DUNG CHI TIẾT NGHÊM NGẶT NGAY TỪ BAN ĐẦU (INITIAL DEEP-DETAIL BLUEPRINT):**
+> **NGHIÊM CẤM** việc sinh ra kịch bản hời hợt, vắn tắt 2–3 phút để rồi sau đó phải sửa đổi từng bài học thủ công.
+> Ngay từ lần khởi tạo đầu tiên, Agent **BẮT BUỘC** phải viết kịch bản chi tiết, chuyên sâu, mở rộng đầy đủ 7–10 Scene với đầy đủ ví dụ mã nguồn thực tế, phân tích cơ chế dưới hood, câu lệnh CLI từng bước và các tình huống thực chiến.
 
 | Tiêu chí | Yêu cầu chuẩn |
 |----------|---------------|
-| **Tổng Thời Lượng Video** | **5 – 10 Phút (300s – 600s)** / bài học (Chưa bao gồm Intro & Outro). Tuyệt đối không làm video vội vàng dưới 4 phút. |
-| **Thời Lượng / Scene** | **30s – 60s** / scene. Đảm bảo đủ thời gian giảng giải chi tiết, không dồn dập. |
-| **Tổng Số Từ** | **800 – 1500 từ** / bài học (Đảm bảo độ sâu kiến thức sư phạm). |
-| **Số Từ / Scene** | **120 – 250 từ** / scene. |
+| **Tổng Thời Lượng Video** | **5 – 8 Phút (300s – 480s)** / bài học (Chưa bao gồm Intro & Outro). Tuyệt đối không sinh kịch bản dưới 4.5 phút. |
+| **Thời Lượng / Scene** | **35s – 60s** / scene (Tổng số: **7 – 10 Scenes** / bài học). |
+| **Tổng Số Từ Lời Thoại** | **1,200 – 1,800 từ** / bài học (Giảng giải tỉ mỉ, thong thả, sư phạm). |
+| **Số Từ / Scene** | **140 – 220 từ** / scene. |
 | **Tốc Độ Đọc & Ngắt Nghỉ** | Tốc độ đọc thong thả, từ tốn (`speed = 0.9` – `1.0`). Bắt buộc chèn đầy đủ dấu phẩy `,`, dấu chấm `.`, dấu hai chấm `:` để giọng đọc ngắt nghỉ tự nhiên, sư phạm. |
 | **Lời Mở Đầu (BẮT BUỘC SCENE 01)** | **BẮT BUỘC** câu đầu tiên của `Scene_01` (trong lời thoại & file TTS script) phải cất lên: `"Chào mừng các bạn đã quay trở lại với hệ thống Elearning của Rikkei Education."` |
 | **Lời Tạm Biệt & Giới Thiệu Bài Tiếp (BẮT BUỘC SCENE CUỐI)** | **BẮT BUỘC** ở đoạn kết thúc Scene cuối cùng, voiceover phải đọc rõ tóm tắt + **tên & nội dung của Bài Học Tiếp Theo**, và cất lời tạm biệt: `"Tóm lại... Trong bài học tiếp theo, chúng ta sẽ cùng nhau tìm hiểu về [Tên_Bài_Học_Tiếp_Theo]. Cảm ơn các bạn đã theo dõi, hẹn gặp lại!"`. Đồng thời UI Banner bài học tiếp theo (`.next-step-bar`) **phải xuất hiện đồng bộ** trên màn hình lúc voice cất lời dẫn này. |

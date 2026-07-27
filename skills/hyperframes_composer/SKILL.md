@@ -17,6 +17,17 @@ Tài liệu này là **Nguồn sự thật duy nhất (SSOT)** cho mọi Video D
 > Khi render trên Windows với giao thức `file://`, Chrome Puppeteer sẽ chặn truy cập `iframe.contentWindow.__timelines` do chính sách bảo mật cross-origin `origin null`. Điều này khiến các animation GSAP trong `iframe` bị kẹt ở frame 0 (màn hình đen).
 > **BẮT BUỘC**: Nhúng trực tiếp container HTML của tất cả các Scene (`<div id="scene-01" class="clip scene-root">...</div>`) và mã GSAP timeline tương ứng vào tệp `index.html` duy nhất. Không sử dụng nested `<iframe>` trong `index.html`.
 
+> [!IMPORTANT]
+> **QUY TẮC BẮT BUỘC VỀ HÌNH ẢNH & ĐỒ HỌA MINH HỌA (DYNAMIC VISUAL ASSET & IMAGE PIPELINE):**
+> **NGHIÊM CẤM** việc dựng 100% giao diện video chỉ bằng các khung chữ HTML trần trụi, gây nhàm chán cho người xem!
+> **BẮT BUỘC**:
+> 1. **Tạo Hình Ảnh Minh Họa Đồ Họa Công Nghệ (Generated Image Assets)**:
+>    - Khi sinh kịch bản cho bài học mới, Agent **BẮT BUỘC** gọi công cụ `generate_image` để tự động tạo các tệp hình ảnh minh họa 3D/Infographic công nghệ chất lượng cao (`.png` / `.jpg`) cho mỗi Scene (VD: `assets/images/scene_01_concept.png`).
+>    - Các tệp ảnh sinh ra được lưu tại `Video/{lesson_slug}/assets/images/` và nhúng trực tiếp vào thẻ HTML `<img src="assets/images/scene_XX_concept.png" class="scene-illustration" />`.
+> 2. **Bố Cục Giao Diện Giàu Đồ Họa (Rich Graphical Layouts)**:
+>    - Áp dụng các bố cục sinh động: **Split-Screen (Khung Ảnh Minh Họa 3D bên trái + Nội dung Thẻ bên phải)**, **Infographic Interactive Step-Cards**, **Glassmorphic Hero Showcase với Sơ Đồ Vector SVG Glowing**.
+> 3. **Cập Nhật Tự Động Toàn Hệ Thống**: Tất cả các video sinh ra từ Agent sau này sẽ tự động tích hợp quy chuẩn sinh ảnh này mà không cần đi chỉnh sửa thủ công từng video lẻ.
+
 ---
 
 ## 1. Kiến trúc Project (File Structure) — BẮT BUỘC
