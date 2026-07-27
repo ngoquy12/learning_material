@@ -94,21 +94,36 @@
 
       <div class="viewport-panel">
         
-            <iframe id="frame-1" src="Lesson 01 - Giới thiệu ngôn ngữ Python/Bài đọc/reading.html" class="lesson-frame active" style="width:100%;height:100%;border:none;display:block;"></iframe>
+            <iframe id="frame-1" src="Lesson 01 - Giới thiệu ngôn ngữ Python/Bài đọc/reading.html" class="lesson-frame active" onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:block;"></iframe>
 
-            <iframe id="frame-2" src="Lesson 02 - Cài đặt môi trường/Bài đọc/reading.html" class="lesson-frame " style="width:100%;height:100%;border:none;display:none;"></iframe>
+            <iframe id="frame-2" src="Lesson 02 - Cài đặt môi trường/Bài đọc/reading.html" class="lesson-frame " onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:none;"></iframe>
 
-            <iframe id="frame-3" src="Lesson 03 - Khai báo Biến/Bài đọc/reading.html" class="lesson-frame " style="width:100%;height:100%;border:none;display:none;"></iframe>
+            <iframe id="frame-3" src="Lesson 03 - Khai báo Biến/Bài đọc/reading.html" class="lesson-frame " onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:none;"></iframe>
 
-            <iframe id="frame-4" src="Lesson 04 - Kiểu dữ liệu cơ bản/Bài đọc/reading.html" class="lesson-frame " style="width:100%;height:100%;border:none;display:none;"></iframe>
+            <iframe id="frame-4" src="Lesson 04 - Kiểu dữ liệu cơ bản/Bài đọc/reading.html" class="lesson-frame " onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:none;"></iframe>
 
-            <iframe id="frame-5" src="Lesson 05 - Nhập, xuất dữ liệu trong python/Bài đọc/reading.html" class="lesson-frame " style="width:100%;height:100%;border:none;display:none;"></iframe>
+            <iframe id="frame-5" src="Lesson 05 - Nhập, xuất dữ liệu trong python/Bài đọc/reading.html" class="lesson-frame " onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:none;"></iframe>
 
-            <iframe id="frame-6" src="Lesson 06 - Ép kiểu dữ liệu f-string/Bài đọc/reading.html" class="lesson-frame " style="width:100%;height:100%;border:none;display:none;"></iframe>
+            <iframe id="frame-6" src="Lesson 06 - Ép kiểu dữ liệu f-string/Bài đọc/reading.html" class="lesson-frame " onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:none;"></iframe>
       </div>
     </div>
 
     <script>
+      function hideIframeHeader(iframe) {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          if (doc && doc.head) {
+            let style = doc.getElementById('hide-inner-header-style');
+            if (!style) {
+              style = doc.createElement('style');
+              style.id = 'hide-inner-header-style';
+              style.textContent = '#sticky-header, header, .sticky-nav { display: none !important; } body { padding-top: 0 !important; }';
+              doc.head.appendChild(style);
+            }
+          }
+        } catch(e) {}
+      }
+
       function switchLesson(idx) {
         document.querySelectorAll('.sidebar-nav-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.lesson-frame').forEach(frame => {
@@ -123,6 +138,7 @@
         if (activeFrame) {
           activeFrame.classList.add('active');
           activeFrame.style.display = 'block';
+          hideIframeHeader(activeFrame);
         }
       }
     </script>

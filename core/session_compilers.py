@@ -32,7 +32,8 @@ def compile_session_html(session_dir: Path, session_title: str):
 def _build_session_reading_html(session_title: str, html_files: list, is_static: bool = False) -> str:
     """
     Builds a 100% faithful Master Session Reading Hub (reading_all.html)
-    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo.
+    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo
+    and automatically hides redundant inner lesson headers.
     """
     import json
     import re
@@ -75,7 +76,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             desktop_nav_buttons.append(btn_desktop)
 
             frame = f"""
-            <iframe id="frame-{idx}" src="{rel_path}" class="lesson-frame {active_frame_cls}" style="width:100%;height:100%;border:none;display:{'block' if idx == 1 else 'none'};"></iframe>"""
+            <iframe id="frame-{idx}" src="{rel_path}" class="lesson-frame {active_frame_cls}" onload="hideIframeHeader(this)" style="width:100%;height:100%;border:none;display:{'block' if idx == 1 else 'none'};"></iframe>"""
             frames.append(frame)
         except Exception as e:
             print(f"  [Session Compiler Warning] Failed to prepare lesson {item}: {e}")
@@ -142,6 +143,21 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
     </div>
 
     <script>
+      function hideIframeHeader(iframe) {{
+        try {{
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          if (doc && doc.head) {{
+            let style = doc.getElementById('hide-inner-header-style');
+            if (!style) {{
+              style = doc.createElement('style');
+              style.id = 'hide-inner-header-style';
+              style.textContent = '#sticky-header, header, .sticky-nav {{ display: none !important; }} body {{ padding-top: 0 !important; }}';
+              doc.head.appendChild(style);
+            }}
+          }}
+        }} catch(e) {{}}
+      }}
+
       function switchLesson(idx) {{
         document.querySelectorAll('.sidebar-nav-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.lesson-frame').forEach(frame => {{
@@ -156,6 +172,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
         if (activeFrame) {{
           activeFrame.classList.add('active');
           activeFrame.style.display = 'block';
+          hideIframeHeader(activeFrame);
         }}
       }}
     </script>
