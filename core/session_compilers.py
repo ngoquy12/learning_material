@@ -32,8 +32,8 @@ def compile_session_html(session_dir: Path, session_title: str):
 def _build_session_reading_html(session_title: str, html_files: list, is_static: bool = False) -> str:
     """
     Builds a 100% faithful Master Session Reading Hub (reading_all.html)
-    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo
-    and pure, lightweight, bulletproof JS (no history triggers, no onload loops).
+    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo.
+    Uses opacity/z-index instead of display:none to guarantee 100% flawless Mermaid diagram layout rendering on all tabs.
     """
     import json
     import re
@@ -76,7 +76,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             desktop_nav_buttons.append(btn_desktop)
 
             frame = f"""
-            <iframe id="frame-{idx}" src="{rel_path}" class="lesson-frame {active_frame_cls}" style="width:100%;height:100%;border:none;display:{'block' if idx == 1 else 'none'};"></iframe>"""
+            <iframe id="frame-{idx}" src="{rel_path}" class="lesson-frame {active_frame_cls}"></iframe>"""
             frames.append(frame)
         except Exception as e:
             print(f"  [Session Compiler Warning] Failed to prepare lesson {item}: {e}")
@@ -108,7 +108,8 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
       .sidebar-hdr {{ padding: 18px 20px; border-bottom: 1px solid #e2e8f0; font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px; }}
       .nav-scroll {{ overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }}
       .viewport-panel {{ flex: 1; height: 100%; background: #ffffff; position: relative; }}
-      .lesson-frame {{ width: 100%; height: 100%; border: none; }}
+      .lesson-frame {{ position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; opacity: 0; pointer-events: none; z-index: 1; transition: opacity 0.15s ease-in-out; }}
+      .lesson-frame.active {{ opacity: 1; pointer-events: auto; z-index: 10; }}
       .sidebar-nav-btn.active {{ background: rgba(190, 17, 28, 0.08) !important; border-color: rgba(190, 17, 28, 0.25) !important; color: #be111c !important; font-weight: 800 !important; }}
       .sidebar-nav-btn.active .badge-num {{ background: #be111c !important; color: #ffffff !important; border-color: #be111c !important; }}
       .sidebar-nav-btn.active span {{ color: #be111c !important; font-weight: 800 !important; }}
@@ -170,11 +171,14 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
         frames.forEach((frame, i) => {{
           if (i + 1 === idx) {{
             frame.classList.add('active');
-            frame.style.display = 'block';
             hideIframeHeader(frame);
+            try {{
+              if (frame.contentWindow && frame.contentWindow.mermaid && typeof frame.contentWindow.mermaid.run === 'function') {{
+                frame.contentWindow.mermaid.run();
+              }}
+            }} catch(e) {{}}
           }} else {{
             frame.classList.remove('active');
-            frame.style.display = 'none';
           }}
         }});
       }}
