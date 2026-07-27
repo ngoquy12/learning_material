@@ -1,10 +1,13 @@
-"""Vietnamese Text Normalization (TN) for TTS.
-Converts numbers, dates, times, currencies, units, and common Vietnamese abbreviations to spoken Vietnamese text.
+"""Vietnamese Text Normalization (TN) & Smart Technical G2P Engine for Elearning TTS.
+Converts numbers, dates, currencies, code symbols, CamelCase errors, English technical terms,
+and abbreviations into natural spoken Vietnamese text.
 """
 
 from __future__ import annotations
 
 import re
+import json
+import os
 
 UNITS_MAP = [
     ("", ""),
@@ -93,11 +96,83 @@ def _replace_number_match(match: re.Match) -> str:
         return match.group(0)
 
 
-# Comprehensive Production Vietnamese & Tech Abbreviations Rules
-# Format: (pattern, replacement, flags)
+# Built-in Phonetic Dictionary for Common IT Components & English Technical Words
+DEFAULT_TECH_PHONETICS = {
+    # Languages & Core Concepts
+    "python": "Pai-thon",
+    "javascript": "Gia-va-xơ-cơ-ríp",
+    "typescript": "Tai-pơ-xơ-cơ-ríp",
+    "html": "Hát-Tê-Em-El",
+    "css": "Xi-Ét-Ét",
+    "bytecode": "bai-cốt",
+    "interpreter": "in-tơ-prơ-tơ",
+    "compiler": "com-pai-lơ",
+    "pvm": "P-Vi-Em",
+    "pep": "pép",
+    "pep 8": "pép tám",
+    "snake_case": "snếch kê-xơ",
+    "camelcase": "ca-mel kê-xơ",
+    "pascalcase": "pas-cal kê-xơ",
+
+    # Common Exceptions & Errors (CamelCase)
+    "typeerror": "Tai-pơ É-rơ",
+    "valueerror": "Vá-liu É-rơ",
+    "indentationerror": "In-đen-tay-sơn É-rơ",
+    "syntaxerror": "Sin-tắc É-rơ",
+    "attributeerror": "Á-tri-biu-tơ É-rơ",
+    "indexerror": "In-đếch É-rơ",
+    "keyerror": "Ki É-rơ",
+    "nameerror": "Nêm É-rơ",
+    "zerodivisionerror": "Gi-rô Đi-vi-dần É-rơ",
+    "recursionerror": "Ri-cơ-sần É-rơ",
+    "keyboardinterrupt": "Ki-bo-đơ In-tơ-ráp",
+    "overflowerror": "Ô-vơ-flô É-rơ",
+    "runtimeerror": "Răn-taim É-rơ",
+    "exception": "Éch-xép-sần",
+
+    # Functions & Functions Calls
+    "input()": "hàm in-pút",
+    "input": "in-pút",
+    "print()": "hàm pơ-rin",
+    "print": "pơ-rin",
+    "int()": "ép kiểu in-tơ-dơ",
+    "int": "in-tơ-dơ",
+    "str()": "ép kiểu xơ-trinh",
+    "str": "xơ-trinh",
+    "float()": "ép kiểu phơ-lốt",
+    "float": "phơ-lốt",
+    "bool()": "ép kiểu bu-lin",
+    "bool": "bu-lin",
+    "len()": "hàm len",
+    "range()": "hàm reng",
+    "type()": "hàm tai-pơ",
+
+    # Built-in terms & Environment
+    "vs code": "Vê-Ét Cốt",
+    "vscode": "Vê-Ét Cốt",
+    "console": "con-xôn",
+    "terminal": "tơ-mi-nồ",
+    "ide": "Ai-Đi-I",
+    "cli": "Si-El-Ai",
+    "api": "Ây-Pi-Ai",
+    "json": "Giai-xơn",
+    "yaml": "Ya-mần",
+    "git": "gít",
+    "github": "gít-háp",
+    "main": "mên",
+    "def": "đép",
+    "__main__": "mên",
+    "__name__": "nêm",
+    "time-to-market": "Taim tu Má-két",
+    "built-in": "biu-in",
+    "runtime": "răn-taim",
+    "source code": "xót cốt"
+}
+
+
 ABBREVIATIONS_RULES = [
     # ----------------------------------------------------
-    # 1. Công nghệ & CNTT (Technology & Computing) - Case-sensitive
+    # 1. Công nghệ & CNTT (Technology & Computing)
     # ----------------------------------------------------
     (r"\bA\.?I\.?\b", "ây ai", 0),
     (r"\bA\.?P\.?I\.?\b", "ây pi ai", 0),
@@ -113,130 +188,22 @@ ABBREVIATIONS_RULES = [
     (r"\bD\.?N\.?S\.?\b", "đê en ét", 0),
     (r"\bS\.?M\.?S\.?\b", "ét em ét", 0),
     (r"\bP\.?D\.?F\.?\b", "pê đê ép", 0),
-    (r"\bH\.?T\.?M\.?L\.?\b", "hát tê em el", 0),
-    (r"\bC\.?S\.?S\.?\b", "xi ét ét", 0),
-    (r"\bJ\.?S\.?\b", "gây ét", 0),
-    (r"\bV\.?I\.?P\.?\b", "víp", re.IGNORECASE),
     (r"\bWi-?Fi\b", "oai fai", re.IGNORECASE),
     (r"\bBluetooth\b", "blu tút", re.IGNORECASE),
-    (r"\bApp\b", "áp", re.IGNORECASE),
-    (r"\bWeb\b", "wép", re.IGNORECASE),
-    (r"\bBot\b", "bốt", re.IGNORECASE),
-    (r"\bRam\b", "ram", re.IGNORECASE),
-    (r"\bRom\b", "rom", re.IGNORECASE),
-    (r"\bSim\b", "sim", re.IGNORECASE),
-    (r"\b4G\b", "bốn gơ", re.IGNORECASE),
-    (r"\b5G\b", "năm gơ", re.IGNORECASE),
 
     # ----------------------------------------------------
-    # 2. Hành chính & Chính trị & Chức danh (Administration & Titles)
+    # 2. Hành chính & Trường học
     # ----------------------------------------------------
     (r"\bUBND\b", "ủy ban nhân dân", re.IGNORECASE),
-    (r"\bHĐND\b", "hội đồng nhân dân", re.IGNORECASE),
-    (r"\bHDND\b", "hội đồng nhân dân", re.IGNORECASE),
-    (r"\bBCH\b", "ban chấp hành", re.IGNORECASE),
-    (r"\bTW\b", "trung ương", re.IGNORECASE),
-    (r"\bTƯ\b", "trung ương", re.IGNORECASE),
-    (r"\bBHXH\b", "bảo hiểm xã hội", re.IGNORECASE),
-    (r"\bBHYT\b", "bảo hiểm y tế", re.IGNORECASE),
-    (r"\bPCCC\b", "phòng cháy chữa cháy", re.IGNORECASE),
-    (r"\bCSGT\b", "cảnh sát giao thông", re.IGNORECASE),
-    (r"\bCAND\b", "công an nhân dân", re.IGNORECASE),
-    (r"\bQĐND\b", "quân đội nhân dân", re.IGNORECASE),
-    (r"\bBQP\b", "bộ quốc phòng", re.IGNORECASE),
-    (r"\bBCA\b", "bộ công an", re.IGNORECASE),
-    (r"\bBYT\b", "bộ y tế", re.IGNORECASE),
-    (r"\bBGDĐT\b", "bộ giáo dục và đào tạo", re.IGNORECASE),
-    (r"\bGS\.?\b", "giáo sư", re.IGNORECASE),
-    (r"\bP\.?GS\.?\b", "phó giáo sư", re.IGNORECASE),
-    (r"\bTS\.?\b", "tiến sĩ", re.IGNORECASE),
-    (r"\bThS\.?\b", "thạc sĩ", re.IGNORECASE),
-    (r"\bBS\.?\b", "bác sĩ", re.IGNORECASE),
-    (r"\bNSND\b", "nghệ sĩ nhân dân", re.IGNORECASE),
-    (r"\bNSƯT\b", "nghệ sĩ ưu tú", re.IGNORECASE),
-    
-
-    # ----------------------------------------------------
-    # 3. Địa danh & Đơn vị hành chính (Geography & Locations)
-    # ----------------------------------------------------
-    (r"\bTP\.?\s*HCM\b", "thành phố hồ chí minh", re.IGNORECASE),
-    (r"\bTPHCM\b", "thành phố hồ chí minh", re.IGNORECASE),
-    (r"\bTP\.?\s*Hà Nội\b", "thành phố hà nội", re.IGNORECASE),
-    (r"\bHN\b", "hà nội", 0),
-    (r"\bĐN\b", "đà nẵng", 0),
-    (r"\bHP\b", "hải phòng", 0),
-    (r"\bCT\b", "cần thơ", 0),
-    (r"\bQN\b", "quảng ninh", 0),
-    (r"\bBD\b", "bình dương", 0),
-    (r"\bQ\.?\s*(\d+)\b", r"quận \1", re.IGNORECASE),
-    (r"\bP\.?\s*(\d+)\b", r"phường \1", re.IGNORECASE),
-
-    # ----------------------------------------------------
-    # 4. Giáo dục & Trường học (Education & Schools)
-    # ----------------------------------------------------
     (r"\bTHPT\b", "trung học phổ thông", re.IGNORECASE),
-    (r"\bTHCS\b", "trung học cơ sở", re.IGNORECASE),
     (r"\bĐH\b", "đại học", re.IGNORECASE),
-    (r"\bCĐ\b", "cao đẳng", re.IGNORECASE),
-    (r"\bGDĐT\b", "giáo dục đào tạo", re.IGNORECASE),
-    (r"\bCLB\b", "câu lạc bộ", re.IGNORECASE),
-    (r"\bHV\b", "học viện", re.IGNORECASE),
-
-    # ----------------------------------------------------
-    # 5. Kinh tế, Tài chính & Doanh nghiệp (Finance & Business)
-    # ----------------------------------------------------
     (r"\bVNĐ\b", "đồng", re.IGNORECASE),
     (r"\bVND\b", "đồng", re.IGNORECASE),
     (r"\bUSD\b", "đô la", re.IGNORECASE),
-    (r"\bEUR\b", "ơ rơ", re.IGNORECASE),
-    (r"\bTNHH\b", "trách nhiệm hữu hạn", re.IGNORECASE),
-    (r"\bCP\b", "cổ phần", 0),
-    (r"\bCty\b", "công ty", re.IGNORECASE),
-    (r"\bCTY\b", "công ty", re.IGNORECASE),
-    (r"\bDNTN\b", "doanh nghiệp tư nhân", re.IGNORECASE),
-    (r"\bVAT\b", "vát", re.IGNORECASE),
-    (r"\bGDP\b", "gi đi pi", re.IGNORECASE),
-    (r"\bWTO\b", "dáp lưu tê ô", re.IGNORECASE),
-    (r"\bCEO\b", "si i ô", re.IGNORECASE),
-    (r"\bCFO\b", "xi ép ô", re.IGNORECASE),
-    (r"\bHR\b", "át rờ", re.IGNORECASE),
-    (r"\bPR\b", "pi ar", re.IGNORECASE),
-    (r"\bKPI\b", "kei pi ai", re.IGNORECASE),
-
-    # ----------------------------------------------------
-    # 6. Truyền thông, Mạng xã hội & Giải trí (Media & Entertainment)
-    # ----------------------------------------------------
-    (r"\bVTV1\b", "vê tê vê một", re.IGNORECASE),
-    (r"\bVTV2\b", "vê tê vê hai", re.IGNORECASE),
-    (r"\bVTV3\b", "vê tê vê ba", re.IGNORECASE),
-    (r"\bVTV6\b", "vê tê vê sáu", re.IGNORECASE),
-    (r"\bVTV\b", "vê tê vê", re.IGNORECASE),
-    (r"\bHTV\b", "hát tê vê", re.IGNORECASE),
-    (r"\bVOV\b", "vê o vê", re.IGNORECASE),
-    (r"\bFacebook\b", "phây búc", re.IGNORECASE),
-    (r"\bFB\b", "phây búc", 0),
-    (r"\bZalo\b", "za lô", re.IGNORECASE),
-    (r"\bYouTube\b", "ju tuýp", re.IGNORECASE),
-    (r"\bTikTok\b", "tíc tót", re.IGNORECASE),
-    (r"\bMC\b", "em si", re.IGNORECASE),
-    (r"\bMV\b", "em vi", re.IGNORECASE),
-
-    # ----------------------------------------------------
-    # 7. Viết tắt nhắn tin & Giao tiếp mạng (Chat & Daily Written)
-    # ----------------------------------------------------
     (r"\bđc\b", "được", re.IGNORECASE),
-    (r"\bdc\b", "được", 0),
     (r"\bko\b", "không", re.IGNORECASE),
-    (r"\bkh\b", "không", 0),
-    (r"\bmn\b", "mọi người", 0),
-    (r"\bsp\b", "sản phẩm", 0),
-    (r"\binbox\b", "in bốc", re.IGNORECASE),
-    (r"\bib\b", "in bốc", 0),
 ]
 
-
-import json
-import os
 
 _TECH_DICT_CACHE = None
 
@@ -245,7 +212,7 @@ def get_tech_dictionary() -> dict:
     if _TECH_DICT_CACHE is not None:
         return _TECH_DICT_CACHE
     
-    _TECH_DICT_CACHE = {}
+    _TECH_DICT_CACHE = dict(DEFAULT_TECH_PHONETICS)
     possible_paths = [
         os.path.join(os.path.dirname(__file__), "..", "..", "configs", "tech_dictionary.json"),
         os.path.join(os.path.dirname(__file__), "..", "configs", "tech_dictionary.json"),
@@ -256,25 +223,72 @@ def get_tech_dictionary() -> dict:
             try:
                 with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    _TECH_DICT_CACHE = data.get("entries", {})
+                    user_entries = data.get("entries", {})
+                    # Lowercase mapping for robust matching
+                    for k, v in user_entries.items():
+                        _TECH_DICT_CACHE[k.lower()] = v
+                        _TECH_DICT_CACHE[k] = v
                     break
             except Exception:
                 pass
     return _TECH_DICT_CACHE
 
 
+def _smart_fallback_english_g2p(term: str) -> str:
+    """Smart heuristic G2P converter for un-mapped English technical words."""
+    # Split CamelCase or PascalCase (e.g. AttributeError -> Attribute Error)
+    words = re.sub(r"([a-z])([A-Z])", r"\1 \2", term).split()
+    converted_parts = []
+    
+    dict_map = get_tech_dictionary()
+    
+    for word in words:
+        w_lower = word.lower()
+        if w_lower in dict_map:
+            converted_parts.append(dict_map[w_lower])
+        elif word.isupper() and len(word) <= 5:
+            # Spell out uppercase acronyms (e.g. SDK -> S-D-K)
+            spelled = "-".join(list(word))
+            converted_parts.append(spelled)
+        else:
+            # Common English suffix/prefix replacements for natural speech
+            w_norm = word
+            w_norm = re.sub(r"Error$", " É-rơ", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"Type", "Tai-pơ ", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"Value", "Vá-liu ", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"Index", "In-đếch ", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"Syntax", "Sin-tắc ", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"Key", "Ki ", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"Code", "Cốt", w_norm, flags=re.IGNORECASE)
+            w_norm = re.sub(r"\s+", " ", w_norm).strip()
+            converted_parts.append(w_norm)
+            
+    return " ".join(converted_parts)
+
+
 def normalize_vietnamese_text(text: str) -> str:
-    """Normalizes raw Vietnamese text into spoken text format."""
+    """Normalizes raw Vietnamese text into natural spoken Elearning text."""
     if not text:
         return ""
 
     normalized = text
 
-    # 0. Tech Dictionary Auto-Phonetic Replacement (Training Dictionary)
+    # 0. Smart Tech Dictionary & G2P Auto-Replacement
     tech_dict = get_tech_dictionary()
-    for term, phonetic in sorted(tech_dict.items(), key=lambda x: len(x[0]), reverse=True):
+    # Sort keys by length descending to match longest terms first
+    sorted_terms = sorted(tech_dict.keys(), key=lambda x: len(x), reverse=True)
+    
+    for term in sorted_terms:
+        phonetic = tech_dict[term]
         pattern = r"\b" + re.escape(term) + r"\b"
-        normalized = re.sub(pattern, phonetic, normalized)
+        normalized = re.sub(pattern, phonetic, normalized, flags=re.IGNORECASE)
+
+    # Auto-detect leftover unmapped CamelCase Error classes (e.g. ZeroDivisionError)
+    def _camel_error_repl(m: re.Match) -> str:
+        term = m.group(0)
+        return _smart_fallback_english_g2p(term)
+
+    normalized = re.sub(r"\b[A-Z][a-zA-Z0-9]*(?:Error|Exception|Interrupt)\b", _camel_error_repl, normalized)
 
     # 1. Date format: DD/MM/YYYY or DD-MM-YYYY
     def _date_repl(m: re.Match) -> str:
@@ -295,37 +309,25 @@ def normalize_vietnamese_text(text: str) -> str:
 
     normalized = re.sub(r"\b(\d{1,2})[h:](\d{2})\b", _time_repl, normalized, flags=re.IGNORECASE)
 
-    # 3. Currency / Money shortcuts (e.g. 100k USD, 100kđ, 500tr, 10 tỷ)
+    # 3. Currency / Money shortcuts
     def _money_k_repl(m: re.Match) -> str:
         val = number_to_words(int(m.group(1)))
         currency = (m.group(2) or "").strip().lower()
         if currency in ("usd", "$", "đô la"):
             return f"{val} nghìn đô la"
-        if currency in ("đ", "đ", "vnđ", "vnd", "đồng"):
+        if currency in ("đ", "vnđ", "vnd", "đồng"):
             return f"{val} nghìn đồng"
         return f"{val} nghìn"
 
-    normalized = re.sub(r"\b(\d+)\s*[kK]\s*(usd|\$|đ|đ|vnđ|vnd|đô la|đồng)?\b", _money_k_repl, normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\b(\d+)\s*[kK]\s*(usd|\$|đ|vnđ|vnd|đô la|đồng)?\b", _money_k_repl, normalized, flags=re.IGNORECASE)
 
-    def _money_tr_repl(m: re.Match) -> str:
-        val = number_to_words(int(m.group(1)))
-        currency = (m.group(2) or "").strip().lower()
-        if currency in ("usd", "$", "đô la"):
-            return f"{val} triệu đô la"
-        return f"{val} triệu đồng"
-
-    normalized = re.sub(r"\b(\d+)\s*(?:tr|triệu)\s*(usd|\$|đ|đ|vnđ|vnd|đô la|đồng)?\b", _money_tr_repl, normalized, flags=re.IGNORECASE)
-
-    # 4. Units (km, m, cm, mm, kg, g, °C, %)
-    normalized = re.sub(r"(\d+)\s*% ", r"\1 phần trăm ", normalized)
+    # 4. Units (% , °C, km, kg, cm, m)
     normalized = re.sub(r"(\d+)\s*%", r"\1 phần trăm", normalized)
     normalized = re.sub(r"(\d+)\s*°C\b", r"\1 độ cê", normalized)
     normalized = re.sub(r"(\d+)\s*km\b", r"\1 ki lô mét", normalized, flags=re.IGNORECASE)
     normalized = re.sub(r"(\d+)\s*kg\b", r"\1 ki lô gam", normalized, flags=re.IGNORECASE)
-    normalized = re.sub(r"(\d+)\s*cm\b", r"\1 xen ti mét", normalized, flags=re.IGNORECASE)
-    normalized = re.sub(r"(\d+)\s*m\b", r"\1 mét", normalized, flags=re.IGNORECASE)
 
-    # 5. Abbreviations & Tech Acronyms
+    # 5. Abbreviations
     for item in ABBREVIATIONS_RULES:
         if len(item) == 3:
             pattern, repl, flags = item
@@ -334,21 +336,16 @@ def normalize_vietnamese_text(text: str) -> str:
             flags = re.IGNORECASE
         normalized = re.sub(pattern, repl, normalized, flags=flags)
 
-    # 6. Vietnamese Thousand Separators (e.g. 1.000 -> 1000, 1.000.000 -> 1000000)
-    normalized = re.sub(r"\b(\d{1,3})(?:\.\d{3})+\b", lambda m: m.group(0).replace(".", ""), normalized)
-
-    # 7. Decimal numbers (e.g. 3,5 hoặc 3.5 -> ba phẩy năm)
+    # 6. Numbers & Decimals
     def _decimal_repl(m: re.Match) -> str:
         int_part = number_to_words(int(m.group(1)))
         dec_part = " ".join(DIGITS[int(d)] for d in m.group(2))
         return f"{int_part} phẩy {dec_part}"
 
     normalized = re.sub(r"\b(\d+)[.,](\d{1,3})\b", _decimal_repl, normalized)
-
-    # 8. Standalone Integers (e.g. 1000 -> một nghìn)
     normalized = re.sub(r"\b\d+\b", _replace_number_match, normalized)
 
-    # 8. Special symbols cleanup
+    # 7. Special symbols & Whitespace cleanup
     normalized = normalized.replace("&", " và ").replace("@", " a còng ")
     normalized = re.sub(r"\s+", " ", normalized).strip()
 

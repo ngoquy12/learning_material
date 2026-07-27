@@ -16,8 +16,12 @@ video_script_agent          ← Đọc Bài Đọc (reading.md) & sinh Productio
        ↓
 video_script_reviewer_agent ← Validate theo 9 tiêu chí HyperFrames
        ↓ (APPROVED)
-hyperframes_writer_agent    ← Ghi file HTML/JSON ra đĩa
+hyperframes_writer_agent    ← Ghi file HTML/JSON ra đĩa & Gọi Smart G2P TTS Normalizer
 ```
+
+> [!IMPORTANT]
+> **QUY TẮC PHIÊN ÂM THUẬT NGỮ TỰ ĐỘNG (SMART AUTOMATED G2P PIPELINE):**
+> Hệ thống TTS Kokoro-Vietnamese đã tích hợp **Smart G2P & Tech Normalizer Engine** tự động. Kịch bản và lời thoại **HOÀN TOÀN TỰ ĐỘNG** chuyển đổi các từ tiếng Anh (`Python`, `TypeError`, `ValueError`, `VS Code`, `snake_case`, `PVM`...) và CamelCase Exception classes thành phiên âm tự nhiên. Người biên soạn **KHÔNG CẦN** ngồi nhập thủ công từ điển phiên âm.
 
 ---
 
