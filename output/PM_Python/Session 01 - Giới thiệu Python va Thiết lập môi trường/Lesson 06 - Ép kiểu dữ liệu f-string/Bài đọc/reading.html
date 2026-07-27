@@ -1112,29 +1112,29 @@ print(f&quot;Total Bill: ${total:.2f}&quot;)</code></pre>
                             <div class="step-loc">Khảo thí & Đánh giá năng lực tự học <span class="range"></span></div>
                             <div class="selftest-container" style="margin-top: 12px;">
         <div class="selftest-item">
-            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
-                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 1: Tai sao du lieu nhan ve tu ham input() khong the dung truc tiep de tinh toan hoa don hoac doanh thu?
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')" style="justify-content: center !important; text-align: center !important;">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 1: Tại sao dữ liệu nhận về từ hàm input() không thể dùng trực tiếp để tính toán hóa đơn hoặc doanh thu?
             </div>
-            <div class="selftest-answer">
-                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Nắm vững các khái niệm cốt lõi của Ép kiểu dữ liệu f-string. Học viên đối chiếu lại phần lý thuyết trong bài đọc và xem xét mã nguồn ví dụ để tự trả lời.</p>
-            </div>
-        </div>
-        
-        <div class="selftest-item">
-            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
-                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 2: Hien tuong sai so dau phay dong (Floating-point representation) gay ra nhung bat loi gi cho cac bao cao tai chinh trong doanh nghiep?
-            </div>
-            <div class="selftest-answer">
-                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Nắm vững các khái niệm cốt lõi của Ép kiểu dữ liệu f-string. Học viên đối chiếu lại phần lý thuyết trong bài đọc và xem xét mã nguồn ví dụ để tự trả lời.</p>
+            <div class="selftest-answer" style="justify-content: center !important; text-align: center !important;">
+                <p style="text-align: center !important; margin-bottom: 15px; line-height: 1.6;">Vì hàm input() luôn trả về dữ liệu thuộc kiểu Chuỗi văn bản (str). Nếu thực hiện các phép tính số học trực tiếp trên chuỗi, Python sẽ báo lỗi TypeError hoặc thực hiện phép nhân chuỗi thay vì tính toán con số thực tế.</p>
             </div>
         </div>
-        
+
         <div class="selftest-item">
-            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
-                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 3: Uu diem vuot troi cua viec su dung f-string so voi cac cach dinh dang cu (% hoac .format()) la gi?
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')" style="justify-content: center !important; text-align: center !important;">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 2: Hiện tượng sai số dấu phẩy động (Floating-point representation) gây ra những bất lợi gì cho các báo cáo tài chính trong doanh nghiệp?
             </div>
-            <div class="selftest-answer">
-                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Nắm vững các khái niệm cốt lõi của Ép kiểu dữ liệu f-string. Học viên đối chiếu lại phần lý thuyết trong bài đọc và xem xét mã nguồn ví dụ để tự trả lời.</p>
+            <div class="selftest-answer" style="justify-content: center !important; text-align: center !important;">
+                <p style="text-align: center !important; margin-bottom: 15px; line-height: 1.6;">Số thực dấu phẩy động trong bộ nhớ nhị phân có thể tạo ra các phần dư nhỏ lẻ (như 0.1 + 0.2 = 0.30000000000000004), gây ra sai số dồn tích trên các báo cáo tài chính quy mô lớn nếu không được ép kiểu làm tròn hoặc định dạng chuẩn mực.</p>
+            </div>
+        </div>
+
+        <div class="selftest-item">
+            <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')" style="justify-content: center !important; text-align: center !important;">
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 3: Ưu điểm vượt trội của việc sử dụng f-string (Formatted String Literals) so với các cách định dạng cũ (% hoặc .format()) là gì?
+            </div>
+            <div class="selftest-answer" style="justify-content: center !important; text-align: center !important;">
+                <p style="text-align: center !important; margin-bottom: 15px; line-height: 1.6;">f-string cung cấp cú pháp vô cùng ngắn gọn, trực quan (chèn trực tiếp tên biến vào trong chuỗi qua cặp ngoặc nhọn {}), có tốc độ xử lý nhanh hơn đáng kể ở cấp độ Bytecode và hỗ trợ nhúng trực tiếp biểu thức Python ngay trong chuỗi.</p>
             </div>
         </div>
         </div>

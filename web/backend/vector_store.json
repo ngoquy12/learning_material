@@ -5334,5 +5334,69 @@
       "type": "code",
       "session": "Nhập và Xuất Dữ Liệu Cơ Bản Trong Python"
     }
+  },
+  {
+    "text": "Khái niệm: Python Interpreter - Định nghĩa: Bộ dịch dòng lệnh đọc và thực thi mã Python theo từng dòng, chuyển đổi mã nguồn Python thành mã máy hoặc bytecode để máy tính có thể hiểu và chạy được.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Visual Studio Code (VS Code) - Định nghĩa: Trình soạn thảo mã nguồn gọn nhẹ, mạnh mẽ, hỗ trợ phát triển Python thông qua việc cài đặt các phần mở rộng (Extensions) như Python Extension để chọn môi trường, chạy và debug code dễ dàng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường Global (Global Environment) - Định nghĩa: Môi trường cài đặt Python mặc định trên hệ thống nơi chứa tất cả các thư viện dùng chung cho toàn máy tính, dễ phát sinh xung đột phiên bản khi làm việc với nhiều dự án khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Môi trường ảo (Virtual Environment) - Định nghĩa: Một không gian hoạt động biệt lập dạng thư mục tự tạo (ví dụ dùng thư viện venv hoặc conda), chứa bản sao của Python Interpreter và thư viện riêng của dự án, giúp cô lập mã nguồn và các dependencies.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Biến môi trường PATH (Environment Variable) - Định nghĩa: Danh sách các thư mục chứa file thực thi (.exe trên Windows hoặc tương đương trên Unix/Linux) để hệ điều hành tìm kiếm khi chạy lệnh terminal. Lỗi 'python/pip is not recognized' thường do thiếu đường dẫn Python trong PATH.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy trình kích hoạt venv - Định nghĩa: Kích hoạt môi trường ảo để trỏ trình thông dịch của dự án sang thư mục cục bộ của môi trường ảo đó. Trên Windows lệnh kích hoạt là: `venv\\\\Scripts\\\\activate`, còn trên macOS/Linux là: `source venv/bin/activate`.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_moi_truong:\nimport sys\n\n# Xem duong dan trinh thong dich Python dang duoc chay thuc te\nprint(\"Interpreter hien tai dang su dung:\", sys.executable)\n\n# Kiem tra xem ban dang chay bang Virtual Environment (Venv) hay Global\nis_virtual = sys.prefix != sys.base_prefix\nif is_virtual:\n    print(\"Moi truong dang active: VIRTUAL ENVIRONMENT (Moi truong ao)\")\nelse:\n    print(\"Moi truong dang active: GLOBAL ENVIRONMENT (Moi truong he thong)\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuong_trinh_dau_tien:\n# Chuong trinh chay thu dau tien de kiem tra trinh thong dich da duoc cau hinh dung hay chua\ntitle = \"Kiem tra chay chuong trinh Python\"\nnum_a = 15\nnum_b = 30\n\nprint(\"===\", title, \"===\")\nprint(\"Xin chao! Day la chuong trinh chay thu dau tien tren VS Code.\")\nprint(f\"Ket qua do doan ma thuc hien (a + b): {num_a} + {num_b} = {num_a + num_b}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập Môi trường Phát triển Python"
+    }
   }
 ]

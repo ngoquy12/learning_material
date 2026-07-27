@@ -1,0 +1,78 @@
+
+==========================================
+LESSON: Lesson 01 - Giới thiệu ngôn ngữ Python
+==========================================
+Q1: Câu 1: Trong bối cảnh sản xuất phần mềm hiện đại, tại sao tốc độ hoàn thiện và đưa sản phẩm ra thị trường (time-to-market) lại dẫn đến sự cần thiết của một ngôn ngữ như Python?
+A1: Trong sản xuất phần mềm hiện đại, tốc độ đưa sản phẩm ra thị trường quyết định sự tồn tại của doanh nghiệp. Các ngôn ngữ lập trình thế hệ cũ đòi hỏi nhiều dòng lệnh phức tạp để thực thi một tác vụ đơn giản, làm tăng nguy cơ xảy ra lỗi logic và kéo dài thời gian thử nghiệm. Python giải quyết vấn đề này bằng cách cung cấp cú pháp rõ ràng, trực quan, giúp các kỹ sư tập trung vào giải quyết bài toán nghiệp vụ thay vì các chi tiết kỹ thuật hệ thống phức tạp, từ đó tối ưu hóa thời gian phát triển.
+
+Q2: Câu 2: Trình bày về hoàn cảnh ra đời, người sáng lập và nguồn gốc tên gọi của ngôn ngữ lập trình Python.
+A2: Python được sáng tạo bởi nhà toán học kiêm lập trình viên Guido van Rossum vào cuối thập niên 1980 tại Viện Toán-Tin học CWI Hà Lan và chính thức công bố vào năm 1991. Tên gọi của ngôn ngữ bắt nguồn từ chương trình hài kịch yêu thích của ông mang tên Monty Python's Flying Circus.
+
+Q3: Câu 3: Nêu triết lý thiết kế cốt lõi của Python và quy tắc cú pháp bắt buộc nào được áp dụng để đảm bảo tính đồng bộ mã nguồn khi làm việc nhóm?
+A3: Triết lý tối giản của Python được đúc kết qua tài liệu 'The Zen of Python' với các tiêu chuẩn cốt lõi: rõ ràng tốt hơn mập mờ, đơn giản tốt hơn phức tạp, và dễ đọc tốt hơn dễ viết. Để duy trì tính nhất quán khi làm việc nhóm, ngôn ngữ này khuyến khích và bắt buộc sử dụng cấu trúc mã nguồn thụt lề thay vì các khối lệnh đóng mở bằng ký hiệu.
+
+
+==========================================
+LESSON: Lesson 02 - Cài đặt môi trường
+==========================================
+Q1: Câu 1: Hiện tượng Dependency Hell (Địa ngục phụ thuộc) xảy ra khi nào theo phản ánh từ thực tế doanh nghiệp?
+A1: Dependency Hell xảy ra khi các nhóm phát triển lớn làm việc đồng thời trên cùng một máy tính nhưng các dự án khác biệt lại yêu cầu các phiên bản thư viện hệ thống khác nhau (ví dụ Dự án A yêu cầu bản cũ, Dự án B yêu cầu bản mới nhất). Việc cài đặt trực tiếp lên hệ điều hành toàn cục gây ghi đè tệp tin và làm hỏng ứng dụng cũ.
+
+Q2: Câu 2: Sự bất đồng bộ về hệ điều hành (Windows, macOS, Linux) ảnh hưởng như thế nào đến mã nguồn của dự án?
+A2: Sự bất đồng bộ này gây ra các lỗi về cấu hình đường dẫn và biến môi trường. Kết quả là mã nguồn chạy thành công trên máy của lập trình viên này nhưng lại gặp lỗi nghiêm trọng tại máy của thành viên khác hoặc trên máy chủ triển khai.
+
+Q3: Câu 3: Việc lập trình viên tự ý chỉnh sửa thủ công biến hệ thống chứa tệp chạy dẫn đến hệ quả gì?
+A3: Dẫn đến lỗi ghi đè các khóa môi trường cục bộ, làm phần mềm hoạt động chập chờn, không thể tải đúng các tài nguyên thư viện chuẩn khi khởi chạy trực tiếp thông qua cửa sổ dòng lệnh Terminal, và tạo ra các lỗi runtime âm thầm chỉ xuất hiện trên môi trường kiểm thử thực tế.
+
+
+==========================================
+LESSON: Lesson 03 - Khai báo Biến
+==========================================
+Q1: Câu 1: Tại sao việc nhập trực tiếp các giá trị (hardcoding) như thuế suất vào mã nguồn của hệ thống tài chính doanh nghiệp lại là một cách làm kém hiệu quả?
+A1: Việc cứng hóa giá trị (hardcoding) làm cho mã nguồn trở nên rối rắm, cực kỳ khó bảo trì và dễ dẫn đến sai sót trên diện rộng. Khi doanh nghiệp thay đổi hoặc cập nhật chính sách thuế mới, nhà phát triển sẽ phải tìm kiếm và sửa đổi thủ công ở mọi vị trí chứa giá trị cũ, thay vì chỉ cần cập nhật ở một điểm khai báo biến duy nhất.
+
+Q2: Câu 2: Trình bày cách hiểu đúng về biến trong ngôn ngữ lập trình Python dựa trên triết lý thiết kế của Guido van Rossum?
+A2: Trong Python, biến không phải là một vùng ô nhớ vật lý cố định chứa giá trị tĩnh. Thay vào đó, Python định nghĩa biến như một nhãn dán định danh động trỏ và liên kết trực tiếp tới các đối tượng dữ liệu được khởi tạo trong không gian bộ nhớ ảo ảo.
+
+Q3: Câu 3: Vì sao các hệ thống tính toán doanh thu hay quản lý kho bãi của doanh nghiệp lại cần có cơ chế lưu trữ thông tin tạm thời?
+A3: Bởi vì các chương trình này liên tục nhận các luồng dữ liệu thô biến đổi không ngừng. Nếu không có cơ chế lưu trữ tạm thời, máy tính sẽ không duy trì được trạng thái thông tin sau khi kết thúc một dòng lệnh, khiến cho việc thực hiện các bài toán phân tích liên đới phức tạp tiếp theo trở nên bất khả thi.
+
+
+==========================================
+LESSON: Lesson 04 - Kiểu dữ liệu cơ bản
+==========================================
+Q1: Câu 1: Tại sao máy tính không thể tự nhận diện được mục đích tính toán nếu lập trình viên định nghĩa các kiểu dữ liệu mơ hồ trong hệ thống?
+A1: Máy tính hoạt động dựa trên các kiểu dữ liệu được xác định rõ ràng. Nếu định nghĩa mơ hồ (như để số dạng chuỗi văn bản), các phép toán số học sẽ gây ra xung đột kiểu dữ liệu (TypeError), khiến toàn bộ tiến trình xử lý giao dịch bị dừng đột ngột hoặc tính toán sai lệch.
+
+Q2: Câu 2: Những hệ quả nghiêm trọng nào xảy ra khi có sự mơ hồ giữa chuỗi ký tự số và giá trị số thực tế lúc lưu trữ thông tin?
+A2: Sự mơ hồ này dẫn đến việc hệ thống lưu trữ sai lệch bản chất dữ liệu trên bộ nhớ tạm, khiến các thuật toán ghép chuỗi thay vì cộng số học (ví dụ: "100" + "50" thành "10050" thay vì 150), làm sai lệch hoàn toàn báo cáo tài chính và dữ liệu kế toán.
+
+Q3: Câu 3: Hệ thống đăng ký tài khoản hoặc biểu mẫu thanh toán điện tử thường tiếp nhận những luồng thông tin cơ bản nào và biểu diễn chúng dưới các kiểu dữ liệu chuẩn nào?
+A3: Hệ thống biểu diễn thông tin đa dạng: Tuổi của khách hàng dạng Số nguyên (int), Số dư tài khoản hoặc giá trị giao dịch dạng Số thực (float), Họ tên và địa chỉ dạng Chuỗi văn bản (str), Trạng thái kích hoạt tài khoản hoặc xác thực dạng Logic Đúng/Sai (bool).
+
+
+==========================================
+LESSON: Lesson 05 - Nhập, xuất dữ liệu trong python
+==========================================
+Q1: Câu 1: Hàm input() trong Python lấy dữ liệu từ thiết bị nào và trả về kiểu dữ liệu mặc định là gì?
+A1: Hàm input() chịu trách nhiệm đọc luồng dữ liệu từ thiết bị nhập chuẩn (Standard Input), thông thường là bàn phím của người dùng. Kiểu dữ liệu trả về luôn luôn mặc định là kiểu Chuỗi văn bản (str), kể cả khi người dùng nhập vào chuỗi các chữ số.
+
+Q2: Câu 2: Tại sao luồng thực thi phần mềm lại tạm dừng ngay khi hàm input() được triệu gọi và làm thế nào để chương trình tiếp tục chạy?
+A2: Khi hàm input() được triệu gọi, trình thông dịch Python tạm dừng tiến trình thực thi để chờ tín hiệu nhập liệu từ người dùng. Chương trình chỉ tiếp tục thực thi các dòng lệnh kế tiếp sau khi người dùng hoàn tất nhập liệu và nhấn phím Enter.
+
+Q3: Câu 3: Vai trò của tham số sep và end trong hàm print() mặc định hoạt động như thế nào?
+A3: Tham số sep (separator) quy định ký tự phân cách giữa các đối số được in ra (mặc định là 1 khoảng trắng ' '). Tham số end quy định ký tự được tự động thêm vào cuối kết quả in (mặc định là ký tự xuống dòng '
+').
+
+
+==========================================
+LESSON: Lesson 06 - Ép kiểu dữ liệu f-string
+==========================================
+Q1: Câu 1: Tại sao dữ liệu nhận về từ hàm input() không thể dùng trực tiếp để tính toán hóa đơn hoặc doanh thu?
+A1: Vì hàm input() luôn trả về dữ liệu thuộc kiểu Chuỗi văn bản (str). Nếu thực hiện các phép tính số học trực tiếp trên chuỗi, Python sẽ báo lỗi TypeError hoặc thực hiện phép nhân chuỗi thay vì tính toán con số thực tế.
+
+Q2: Câu 2: Hiện tượng sai số dấu phẩy động (Floating-point representation) gây ra những bất lợi gì cho các báo cáo tài chính trong doanh nghiệp?
+A2: Số thực dấu phẩy động trong bộ nhớ nhị phân có thể tạo ra các phần dư nhỏ lẻ (như 0.1 + 0.2 = 0.30000000000000004), gây ra sai số dồn tích trên các báo cáo tài chính quy mô lớn nếu không được ép kiểu làm tròn hoặc định dạng chuẩn mực.
+
+Q3: Câu 3: Ưu điểm vượt trội của việc sử dụng f-string (Formatted String Literals) so với các cách định dạng cũ (% hoặc .format()) là gì?
+A3: f-string cung cấp cú pháp vô cùng ngắn gọn, trực quan (chèn trực tiếp tên biến vào trong chuỗi qua cặp ngoặc nhọn {}), có tốc độ xử lý nhanh hơn đáng kể ở cấp độ Bytecode và hỗ trợ nhúng trực tiếp biểu thức Python ngay trong chuỗi.
