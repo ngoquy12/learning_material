@@ -32,7 +32,7 @@ def compile_session_html(session_dir: Path, session_title: str):
 def _build_session_reading_html(session_title: str, html_files: list, is_static: bool = False) -> str:
     """
     Builds a 100% faithful Master Session Reading Hub (reading_all.html)
-    using isolated lesson viewports without injecting any destructive global CSS overrides.
+    using isolated lesson viewports in a clean white light theme with official Rikkei Education logo.
     """
     import json
     import re
@@ -66,11 +66,11 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
             active_frame_cls = "active" if idx == 1 else ""
 
             btn_desktop = f"""
-            <button type="button" onclick="switchLesson({idx})" id="sidebar-btn-{idx}" class="sidebar-nav-btn {active_btn_cls} w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left text-xs font-semibold border border-transparent transition-all duration-200 cursor-pointer hover:bg-slate-800/60 hover:text-white">
-              <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-red-950/40 text-[#f87171] font-black text-xs shrink-0 border border-red-900/30">
+            <button type="button" onclick="switchLesson({idx})" id="sidebar-btn-{idx}" class="sidebar-nav-btn {active_btn_cls} w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-left text-xs font-semibold border border-transparent transition-all duration-200 cursor-pointer hover:bg-slate-100 hover:text-[#be111c]">
+              <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-[#be111c] font-black text-xs shrink-0 border border-red-100 badge-num">
                 {idx:02d}
               </span>
-              <span class="truncate text-slate-300 font-semibold text-xs leading-snug flex-grow">{full_lesson_name}</span>
+              <span class="truncate text-slate-700 font-semibold text-xs leading-snug flex-grow">{full_lesson_name}</span>
             </button>"""
             desktop_nav_buttons.append(btn_desktop)
 
@@ -88,7 +88,7 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
      CẢNH BÁO: ĐÂY LÀ FILE ĐƯỢC TẠO TỰ ĐỘNG (COMPILED SESSION MASTER HUB).
      VUI LÒNG KHÔNG CHỈNH SỬA TRỰC TIẾP FILE NÀY ĐỂ TRÁNH MẤT DỮ LIỆU.
      ========================================================================= -->
-<html lang="vi" class="dark">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -100,24 +100,27 @@ def _build_session_reading_html(session_title: str, html_files: list, is_static:
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-      body {{ font-family: 'Inter', sans-serif; background: #0b0f19; color: #e2e8f0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }}
-      .session-header-bar {{ height: 60px; background: #151d30; border-bottom: 1px solid #1e293b; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; z-index: 20; }}
-      .main-container {{ display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }}
-      .sidebar-panel {{ width: 340px; background: #0f172a; border-right: 1px solid #1e293b; display: flex; flex-direction: column; flex-shrink: 0; }}
-      .sidebar-hdr {{ padding: 18px 20px; border-bottom: 1px solid #1e293b; font-size: 12px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px; }}
+      body {{ font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }}
+      .session-header-bar {{ height: 64px; background: #ffffff; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0; z-index: 20; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }}
+      .main-container {{ display: flex; flex: 1; height: calc(100vh - 64px); overflow: hidden; }}
+      .sidebar-panel {{ width: 340px; background: #ffffff; border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; flex-shrink: 0; }}
+      .sidebar-hdr {{ padding: 18px 20px; border-bottom: 1px solid #e2e8f0; font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; display: flex; align-items: center; gap: 8px; }}
       .nav-scroll {{ overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }}
-      .viewport-panel {{ flex: 1; height: 100%; background: #0b0f19; position: relative; }}
+      .viewport-panel {{ flex: 1; height: 100%; background: #ffffff; position: relative; }}
       .lesson-frame {{ width: 100%; height: 100%; border: none; }}
-      .sidebar-nav-btn.active {{ background: rgba(190, 17, 28, 0.18) !important; border-color: rgba(190, 17, 28, 0.4) !important; color: #f87171 !important; font-weight: 800 !important; }}
+      .sidebar-nav-btn.active {{ background: rgba(190, 17, 28, 0.08) !important; border-color: rgba(190, 17, 28, 0.25) !important; color: #be111c !important; font-weight: 800 !important; }}
+      .sidebar-nav-btn.active .badge-num {{ background: #be111c !important; color: #ffffff !important; border-color: #be111c !important; }}
+      .sidebar-nav-btn.active span {{ color: #be111c !important; font-weight: 800 !important; }}
     </style>
   </head>
   <body>
     <div class="session-header-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <span style="background:#be111c;color:white;font-weight:900;font-size:12px;padding:5px 14px;border-radius:6px;letter-spacing:1px;">RIKKEI ACADEMY</span>
-        <h1 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:#ffffff;margin:0;">Tài liệu học tập tổng hợp — {session_title}</h1>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Education" style="height:36px;width:auto;object-fit:contain;" />
+        <div style="height:20px;width:1px;background:#e2e8f0;"></div>
+        <h1 style="font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:#0f172a;margin:0;">Tài liệu học tập tổng hợp — {session_title}</h1>
       </div>
-      <div style="font-size:12px;font-weight:700;color:#94a3b8;background:rgba(30,41,59,0.8);padding:6px 16px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);">
+      <div style="font-size:12px;font-weight:700;color:#64748b;background:#f1f5f9;padding:6px 16px;border-radius:999px;border:1px solid #e2e8f0;">
         {len(html_files)} Bài học hoàn chỉnh
       </div>
     </div>
