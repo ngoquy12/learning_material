@@ -18,7 +18,7 @@ Slide bài giảng đóng vai trò là **Công cụ Hỗ trợ Giảng dạy Tr�
 >    - **Tên môn học**: Bắt buộc là tên môn học thực tế (như `Môn học: Lập trình Python`), **NGHIÊM CẤM DÙNG UPPERCASE** hoặc dùng từ sai như `RIKKEI ACADEMY`.
 > 2. **Slide Mục Lục Session (Agenda Slide - Slide 2)**:
 >    - Bắt buộc liệt kê đầy đủ danh sách các Lesson trong Session dưới dạng danh sách được đánh số thứ tự (`01. Lesson 01 - ...`, `02. Lesson 02 - ...`).
->    - Tiêu đề mục lục dùng chữ Title Case chuẩn (`Nội dung tổng quan Session`), **CẤM VIẾT HOA TOÀN BỘ (UPPERCASE)**.
+>    - Tiêu đề mục lục đổi thành **`NỘI DUNG BÀI HỌC`** (Font Montserrat Bold 36px, màu đỏ `#be111c`). Các chữ tên bài học kích thước to đậm (24px - 28px) dễ quan sát từ xa.
 > 3. **Tiêu Đề Lớn Bài Học (Content Slide Large Title)**:
 >    - Tiêu đề lớn nhất trên từng slide nội dung **BẮT BUỘC** là **Tên Lesson kèm theo số thứ tự slide của Lesson đó**, phân cách bằng dấu gạch ngang `-` (ví dụ `Lesson 01 - Giới thiệu ngôn ngữ Python - 1`, `Lesson 01 - Giới thiệu ngôn ngữ Python - 2`).
 >    - Phông chữ tiêu đề lớn: Màu đỏ thương hiệu `#be111c`, kích thước 22px, font Montserrat Bold.

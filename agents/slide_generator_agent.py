@@ -989,18 +989,31 @@ class SlideGeneratorAgent:
     </div>
 """)
 
-        # 2. Master Session Agenda Slide
+        # 2. Master Session Agenda Slide (NỘI DUNG BÀI HỌC)
         session_agenda_items_html = ""
+        font_size = "24px" if len(lessons_data) <= 6 else "20px"
+        badge_size = "42px" if len(lessons_data) <= 6 else "36px"
+        gap_size = "22px" if len(lessons_data) <= 6 else "14px"
+        
         for i, l_data in enumerate(lessons_data, 1):
             l_title = l_data.get("lesson_title", f"Bài học {i}")
             clean_l_title = self.clean_title_string(l_title)
-            session_agenda_items_html += f'<div class="agenda-item-row" style="font-size: 15px; margin-bottom: 10px;"><span>{i:02d}.</span> <span style="font-weight: 600; color: #0f172a;">{clean_l_title}</span></div>\n'
+            session_agenda_items_html += f"""
+            <div class="agenda-item-row" style="display: flex; align-items: center; gap: 20px;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: {badge_size}; height: {badge_size}; border-radius: 12px; background: #fef2f2; color: #be111c; font-weight: 900; font-size: 18px; border: 1.5px solid #fee2e2; flex-shrink: 0;">
+                {i:02d}
+              </span>
+              <span style="font-weight: 800; color: #0f172a; font-size: {font_size}; line-height: 1.3;">
+                {clean_l_title}
+              </span>
+            </div>
+"""
 
         all_slides_html_parts.append(f"""
-    <div class="slide slide-agenda" data-type="agenda" data-title="Nội dung tổng quan Session">
-      <div class="agenda-top-left-title" style="color: #be111c; font-weight: 800; font-size: 22px; text-transform: none;">Nội dung tổng quan Session</div>
+    <div class="slide slide-agenda" data-type="agenda" data-title="Nội dung bài học">
+      <div class="agenda-top-left-title" style="color: #be111c; font-weight: 900; font-size: 38px; letter-spacing: 1px; margin-bottom: 28px; font-family: 'Montserrat', sans-serif;">NỘI DUNG BÀI HỌC</div>
       <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="agenda-list-box" style="margin-top: 24px;">
+      <div class="agenda-list-box" style="margin-top: 24px; display: flex; flex-direction: column; gap: {gap_size}; max-width: 1100px;">
         {session_agenda_items_html}
       </div>
       <div class="corner-page-badge">2</div>
