@@ -62,6 +62,44 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
 
+    <!-- Mermaid JS Flowchart & Sequence Diagram Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      function renderAllMermaidDiagrams() {
+        document.querySelectorAll('pre code, .code-body code, div.code-container, pre').forEach(el => {
+          const text = (el.innerText || el.textContent || '').trim();
+          if (text.startsWith('sequenceDiagram') || text.startsWith('flowchart') || text.startsWith('graph TD') || text.startsWith('graph LR') || text.startsWith('gantt') || text.startsWith('classDiagram')) {
+            const targetParent = el.closest('.code-container, pre') || el;
+            if (targetParent && !targetParent.dataset.mermaidConverted) {
+              targetParent.dataset.mermaidConverted = "true";
+              const mermaidDiv = document.createElement('div');
+              mermaidDiv.className = 'mermaid';
+              mermaidDiv.style.cssText = 'display:flex;justify-content:center;margin:20px 0;background:#0f172a;padding:20px;border-radius:12px;border:1px solid #334155;color:#f8fafc;width:100%;overflow-x:auto;';
+              mermaidDiv.textContent = text;
+              targetParent.parentNode.replaceChild(mermaidDiv, targetParent);
+            }
+          }
+        });
+        if (window.mermaid) {
+          try {
+            mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+            mermaid.run({ querySelector: '.mermaid' });
+          } catch(e) {
+            console.log('Mermaid render info:', e);
+          }
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        renderAllMermaidDiagrams();
+        setTimeout(renderAllMermaidDiagrams, 300);
+      });
+
+      function reinitMermaid() {
+        renderAllMermaidDiagrams();
+      }
+    </script>
+
     <style>
       :root {
         --bg-body: #f8fafc;
@@ -4835,6 +4873,7 @@ print(f"Total Bill: ${total:.2f}")</code></pre>
             "dark:ring-[#60a5fa]/20",
           );
           saveLessonState(idx, true);
+          setTimeout(() => reinitMermaid(), 100);
         } else {
           content.classList.add("hidden");
           chevron.style.transform = "rotate(0deg)";
@@ -4867,6 +4906,7 @@ print(f"Total Bill: ${total:.2f}")</code></pre>
             "dark:ring-[#60a5fa]/20",
           );
           saveLessonState(idx, true);
+          setTimeout(() => reinitMermaid(), 100);
         }
       }
 

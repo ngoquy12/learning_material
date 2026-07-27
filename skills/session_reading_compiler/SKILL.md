@@ -46,5 +46,8 @@ Tài liệu HTML hợp nhất `reading_all.html` phải được xây dựng the
 
 1. **Bảo tồn ID & Tiền tố Cô lập (Scoped Element IDs)**:
    - Các ID phần tử trong từng Lesson được gắn tiền tố `lessonX-` (ví dụ `l1-code-editor`, `l2-code-editor`) để tránh đụng độ ID giữa các bài học khi nằm chung trên một DOM tree.
-2. **Kích hoạt Lại Trực quan hóa & Pyodide Sandbox**:
-   - Đảm bảo các script khởi tạo Mermaid diagrams, Pyodide Wasm Sandbox và Visualizers của từng Lesson hoạt động trôi chảy 100% khi học viên chuyển tab.
+2. **Tự Động Render Sơ Đồ Khái Niệm & Flowchart (Automatic Mermaid Diagram Rendering Engine)**:
+   - Tất cả các khối sơ đồ Mermaid (`sequenceDiagram`, `flowchart`, `graph TD`, `classDiagram`) bất kể ở dạng `<div class="mermaid">` hay mã text code blocks **BẮT BUỘC** được tự động nhận diện và chuyển đổi trực tiếp sang đồ họa SVG tương tác trực quan sắc nét.
+   - Thêm engine `renderAllMermaidDiagrams()` tự động quét và gọi `mermaid.run()` khi tải trang và khi người dùng chuyển đổi mở rộng các thẻ bài học.
+
+---
