@@ -15,3 +15,7 @@ dist/
 build/
 web/frontend/dist/
 web/frontend/build/
+*.mp4
+*.wav
+*.log
+trace_logs.jsonl

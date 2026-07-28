@@ -1,0 +1,74 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Đặc tính nào của cấu trúc dữ liệu List trong Python dẫn đến việc kiểm tra địa chỉ IP đen bị chậm khi danh sách có kích thước lớn?",
+      "options": [
+        "List chỉ cho phép lưu trữ địa chỉ IP dạng chuỗi",
+        "Tìm kiếm giá trị trong List có độ phức tạp thời gian là O(N)",
+        "Bất kỳ thao tác đọc phần tử theo chỉ số nào trong List đều mất O(N)",
+        "List không cho phép các phần tử trùng lặp dữ liệu"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Kiểm tra sự tồn tại của một giá trị trong cấu trúc List đòi hỏi hệ thống phải quét tuần tự từ phần tử đầu tiên đến phần tử cuối cùng, dẫn đến độ phức tạp thời gian O(N), tỷ lệ thuận với kích thước danh sách."
+    },
+    {
+      "question": "Trong bối cảnh hệ thống mạng thời gian thực với hàng triệu kết nối mỗi giây, hậu quả nghiêm trọng nhất của việc nghẽn CPU do thuật toán tra cứu chậm là gì?",
+      "options": [
+        "Địa chỉ IP của người dùng hợp lệ bị tự động thêm vào danh sách đen",
+        "Hệ thống tự động chuyển toàn bộ cơ sở dữ liệu sang dạng Set",
+        "Máy chủ phản hồi chậm hoặc dừng hoạt động hoàn toàn, gây gián đoạn dịch vụ",
+        "Bộ nhớ RAM của máy chủ bị giải phóng và xóa sạch dữ liệu ứng dụng"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Khi CPU bị nghẽn do xử lý liên tục các thao tác O(N) trên lưu lượng hàng triệu kết nối, máy chủ sẽ không thể đáp ứng kịp dẫn đến phản hồi chậm hoặc tê liệt hoạt động hệ thống."
+    },
+    {
+      "question": "Theo bài đọc, lập trình viên cần làm gì để có thể giải quyết bài toán lựa chọn cấu trúc dữ liệu tối ưu thích hợp?",
+      "options": [
+        "Chuyển đổi toàn bộ mã nguồn sang ngôn ngữ máy cấp thấp",
+        "Nâng cấp cấu hình phần cứng CPU và bộ nhớ RAM liên tục",
+        "Phân nhỏ tệp dữ liệu IP đen ra nhiều máy chủ khác nhau",
+        "Nắm vững bản chất lưu trữ của các cấu trúc dữ liệu cốt lõi"
+      ],
+      "correct_option_index": 3,
+      "explanation": "Nắm vững bản chất lưu trữ vật lý của cấu trúc dữ liệu giúp lập trình viên xác định chính xác ưu thế của cấu trúc và chọn kiểu dữ liệu phù hợp với yêu cầu nghiệp vụ."
+    },
+    {
+      "question": "Thao tác nào sau đây trên cấu trúc dữ liệu List trong Python có độ phức tạp thời gian tối ưu O(1) nhưng KHÔNG giải quyết được bài toán tra cứu sự tồn tại của IP?",
+      "options": [
+        "Tìm kiếm tuyến tính toàn bộ danh sách đen",
+        "Đọc phần tử theo chỉ số index cụ thể",
+        "Đảo ngược thứ tự toàn bộ danh sách đen",
+        "Sắp xếp danh sách đen theo thứ tự bảng chữ cái"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Mặc dù đọc phần tử qua chỉ số (index) có độ phức tạp thời gian O(1), nó không giúp ích cho việc đối chiếu một IP đầu vào không rõ chỉ số xem có tồn tại trong danh sách đen hay không."
+    }
+  ],
+  "practical_lab": {
+    "title": "Tối ưu hóa thời gian đối soát địa tri IP bằng cấu trúc dữ liệu thay thế",
+    "objectives": [
+      "Đo lường thời gian thực thi của thao tác tra cứu trên cấu trúc List với kích thước lớn",
+      "Chuyển đổi cấu trúc dữ liệu từ List sang Set để so sánh trực quan hiệu năng",
+      "Đánh giá sự thay đổi về độ phức tạp thời gian từ O(N) về dạng tối ưu hơn"
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Tạo một danh sách giả lập gồm 100,000 địa chỉ IP đen trong Python sử dụng kiểu dữ liệu List.",
+        "Tạo danh sách 1,000 IP ngẫu nhiên cần kiểm tra truy cập (đối chiếu xem có nằm trong danh sách đen hay không).",
+        "Sử dụng module time của Python để đo tổng thời gian thực hiện kiểm tra 1,000 IP này trên List.",
+        "Chuyển đổi danh sách đen 100,000 IP thành cấu trúc dữ liệu Set.",
+        "Đo thời gian thực hiện kiểm tra 1,000 IP trên Set vừa tạo.",
+        "Tải lên bảng so sánh thời gian và tỷ lệ chênh lệch tốc độ giữa hai cấu trúc dữ liệu."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Viết đúng mã nguồn tạo lập dữ liệu thử nghiệm 100,000 IP",
+        "Hiển thị rõ ràng chỉ số đo thời gian chạy của cả hai phương pháp List và Set",
+        "Kết quả chứng minh thời gian tra cứu của Set nhanh hơn List tối thiểu 20 lần"
+      ]
+    }
+  }
+}

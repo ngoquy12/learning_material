@@ -1,0 +1,1 @@
+Để ghi nhớ sâu hơn, chúng ta cùng nhìn vào bảng so sánh này. A-pen chỉ thêm một phần tử vào cuối. In-sợt cho phép chọn vị trí bất kỳ bằng chỉ mục nhưng tốn thời gian dịch chuyển vùng nhớ. Còn ếch-xten được sinh ra chuyên biệt để nối hai danh sách lại với nhau một cách hiệu quả.

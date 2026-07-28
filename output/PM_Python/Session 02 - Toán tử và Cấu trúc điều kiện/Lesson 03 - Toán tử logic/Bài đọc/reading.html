@@ -512,6 +512,54 @@ sys.stderr = io.StringIO()
             color: #cbd5e1;
         }
 
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (Rule 3) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (System Rule 1) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
         .code-line.active-line {
             background-color: rgba(56, 189, 248, 0.15);
             border-left-color: var(--primary);
@@ -1202,358 +1250,261 @@ print(&quot;Approval Status:&quot;, is_approved)</code></pre>
     <!-- Script imports -->
 
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    
+    <!-- Smart Self-Healing Interactive Visualizer Engine -->
     <script>
-        
-        class InteractiveVisualizerEngine {
-  constructor() {
-    this.canvasContainer = document.getElementById('visualizer-canvas');
-    this.consoleContainer = document.getElementById('console-log');
-    this.stepIndex = -1;
-    this.isRunning = false;
-    this.speed = 1000;
-    this.intervalId = null;
-    
-    // Default input data
-    this.inputData = {
-      monthly_income: 2500,
-      credit_score: 650,
-      has_bad_debt: false
-    };
-
-    // Run execution states
-    this.states = [];
-  }
-
-  init() {
-    this.applyCustomData();
-    this.reset();
-  }
-
-  applyCustomData() {
-    const textInput = document.getElementById('custom-data-input');
-    if (textInput) {
-      try {
-        const parsed = JSON.parse(textInput.value);
-        if (typeof parsed.monthly_income === 'number' && 
-            typeof parsed.credit_score === 'number' && 
-            typeof parsed.has_bad_debt === 'boolean') {
-          this.inputData = parsed;
-          this.log('Đã nạp dữ liệu kiểm thử mới thành công.');
-        } else {
-          alert('Dữ liệu JSON không khớp định dạng yêu cầu! (monthly_income: số, credit_score: số, has_bad_debt: boolean)');
-        }
-      } catch (e) {
-        alert('Cú pháp JSON không hợp lệ!');
-      }
-    }
-    this.reset();
-  }
-
-  generateStates() {
-    const data = this.inputData;
-    this.states = [
-      {
-        line: 1,
-        vars: { monthly_income: data.monthly_income },
-        exprDesc: "Thiết lập thu nhập tháng của khách hàng"
-      },
-      {
-        line: 2,
-        vars: { monthly_income: data.monthly_income, credit_score: data.credit_score },
-        exprDesc: "Thiết lập điểm tín dụng cơ hội"
-      },
-      {
-        line: 3,
-        vars: { 
-          monthly_income: data.monthly_income, 
-          credit_score: data.credit_score, 
-          has_bad_debt: data.has_bad_debt 
-        },
-        exprDesc: "Thiết lập trạng thái nợ xấu"
-      },
-      {
-        line: 6,
-        vars: { 
-          monthly_income: data.monthly_income, 
-          credit_score: data.credit_score, 
-          has_bad_debt: data.has_bad_debt,
-          is_eligible_income: data.monthly_income > 2000
-        },
-        exprDesc: `Kiểm tra thử: ${data.monthly_income} > 2000 ? -> ${data.monthly_income > 2000}`
-      },
-      {
-        line: 7,
-        vars: { 
-          monthly_income: data.monthly_income, 
-          credit_score: data.credit_score, 
-          has_bad_debt: data.has_bad_debt,
-          is_eligible_income: data.monthly_income > 2000,
-          is_good_credit: data.credit_score > 700
-        },
-        exprDesc: `Kiểm tra tín dụng: ${data.credit_score} > 700 ? -> ${data.credit_score > 700}`
-      },
-      {
-        line: 8,
-        vars: { 
-          monthly_income: data.monthly_income, 
-          credit_score: data.credit_score, 
-          has_bad_debt: data.has_bad_debt,
-          is_eligible_income: data.monthly_income > 2000,
-          is_good_credit: data.credit_score > 700,
-          is_clean_history: !data.has_bad_debt
-        },
-        exprDesc: `Lịch sử sạch (không nợ xấu): NOT ${data.has_bad_debt} -> ${!data.has_bad_debt}`
-      },
-      {
-        line: 11,
-        vars: { 
-          monthly_income: data.monthly_income, 
-          credit_score: data.credit_score, 
-          has_bad_debt: data.has_bad_debt,
-          is_eligible_income: data.monthly_income > 2000,
-          is_good_credit: data.credit_score > 700,
-          is_clean_history: !data.has_bad_debt,
-          is_approved: (data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt
-        },
-        exprDesc: `Tính toán logic: (Thu nhập OK hoặc Tín dụng OK) AND Lịch sử sạch -> ${((data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt) ? 'DUYỆT' : 'TỪ CHỐI'}`
-      },
-      {
-        line: 12,
-        vars: { 
-          monthly_income: data.monthly_income, 
-          credit_score: data.credit_score, 
-          has_bad_debt: data.has_bad_debt,
-          is_eligible_income: data.monthly_income > 2000,
-          is_good_credit: data.credit_score > 700,
-          is_clean_history: !data.has_bad_debt,
-          is_approved: (data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt
-        },
-        print: `Approval Status: ${((data.monthly_income > 2000 || data.credit_score > 700) && !data.has_bad_debt)}`,
-        exprDesc: "In ra màn hình kết quả thẩm định"
-      }
-    ];
-  }
-
-  reset() {
-    this.pause();
-    this.stepIndex = -1;
-    this.generateStates();
-    if (this.consoleContainer) this.consoleContainer.innerHTML = '';
-    this.render();
-  }
-
-  start() {
-    if (this.isRunning) return;
-    this.isRunning = true;
-    this.intervalId = setInterval(() => {
-      this.step();
-    }, this.speed);
-  }
-
-  pause() {
-    this.isRunning = false;
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
-  }
-
-  step() {
-    if (this.stepIndex < this.states.length - 1) {
-      this.stepIndex++;
-      const state = this.states[this.stepIndex];
-      if (state.print) {
-        this.log(state.print);
-      }
-      if (state.exprDesc) {
-        this.log(`[Bước ${this.stepIndex + 1}]: ${state.exprDesc}`);
-      }
-      this.render();
-    } else {
-      this.pause();
-      this.log('Thẩm định kết thúc.');
-    }
-  }
-
-  setSpeed(value) {
-    this.speed = parseInt(value);
-    if (this.isRunning) {
-      this.pause();
-      this.start();
-    }
-  }
-
-  log(msg) {
-    if (this.consoleContainer) {
-      this.consoleContainer.innerHTML += `<div>&gt; ${msg}</div>`;
-      this.consoleContainer.scrollTop = this.consoleContainer.scrollHeight;
-    }
-  }
-
-  render() {
-    // 1. Highlight code lines
-    const allCodeLines = document.querySelectorAll('.code-line');
-    allCodeLines.forEach(l => l.classList.remove('bg-blue-100', 'border-l-4', 'border-blue-500'));
-
-    const currentState = this.states[this.stepIndex];
-    if (currentState) {
-      const activeLine = document.getElementById(`line-${currentState.line}`);
-      if (activeLine) {
-        activeLine.classList.add('bg-blue-100', 'border-l-4', 'border-blue-500');
-      }
-    }
-
-    // 2. Setup rendering vars
-    const vars = currentState ? currentState.vars : {};
-    document.getElementById('stat-income').textContent = vars.monthly_income !== undefined ? `$${vars.monthly_income}` : '-';
-    document.getElementById('stat-credit').textContent = vars.credit_score !== undefined ? vars.credit_score : '-';
-    document.getElementById('stat-debt').textContent = vars.has_bad_debt !== undefined ? (vars.has_bad_debt ? 'CÓ' : 'KHÔNG') : '-';
-    
-    let appStatusComp = '-';
-    if (vars.is_approved !== undefined) {
-      appStatusComp = vars.is_approved ? 'APPROVED (ĐẠT)' : 'REJECTED (TỪ CHỐI)';
-    }
-    const statApprovedEl = document.getElementById('stat-approved');
-    statApprovedEl.textContent = appStatusComp;
-    statApprovedEl.className = 'font-bold text-xs ' + (vars.is_approved === undefined ? 'text-gray-800' : vars.is_approved ? 'text-green-600' : 'text-red-600');
-
-    // 3. Render logic flow diagrams in canvas
-    this.canvasContainer.innerHTML = '';
-    
-    const renderCard = (title, val, checkStr) => {
-      let colorClass = 'bg-gray-200 border-gray-400 text-gray-500';
-      let valBadge = '';
-      if (val !== undefined) {
-        colorClass = val ? 'bg-green-100 border-green-500 text-green-800' : 'bg-red-100 border-red-500 text-red-800';
-        valBadge = val 
-          ? `<span class='bg-green-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs'>T</span>` 
-          : `<span class='bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs'>F</span>`;
-      }
-      return `
-        <div class='flex flex-col p-3 border-2 rounded-lg bg-white shadow-sm transition-all duration-300 ${val !== undefined ? 'scale-105' : 'opacity-60'}'>
-          <span class='text-xs font-semibold text-gray-500 uppercase'>${title}</span>
-          <div class='flex items-center justify-between mt-1'>
-            <span class='text-sm font-mono font-bold'>${checkStr}</span>
-            ${valBadge}
-          </div>
-        </div>
-      `;
-    };
-
-    const incomeCheckStr = vars.monthly_income !== undefined ? `Income > 2000` : 'income > 2000';
-    const creditCheckStr = vars.credit_score !== undefined ? `Credit > 700` : 'credit > 700';
-    const cleanCheckStr = vars.has_bad_debt !== undefined ? `Not Bad Debt` : 'not has_bad_debt';
-
-    const cardIncome = renderCard('Điều kiện 1', vars.is_eligible_income, incomeCheckStr);
-    const cardCredit = renderCard('Điều kiện 2', vars.is_good_credit, creditCheckStr);
-    const cardHistory = renderCard('Điều kiện 3', vars.is_clean_history, cleanCheckStr);
-
-    // Sub logic evaluations
-    const orEligibleState = (vars.is_eligible_income !== undefined && vars.is_good_credit !== undefined)
-      ? (vars.is_eligible_income || vars.is_good_credit) : undefined;
-    const orEligibleCard = renderCard('(Thu nhập OR Tín dụng)', orEligibleState, 'Cond_1 OR Cond_2');
-
-    const approvedCard = renderCard('KẾT QUẢ CUỐI CÙNG', vars.is_approved, '(1 OR 2) AND 3');
-
-    this.canvasContainer.innerHTML = `
-      <div class='w-full grid grid-cols-1 md:grid-cols-3 gap-4'>
-        <!-- CỘT 1: CÁC ĐIỀU KIỆN CƠ BẢN -->
-        <div class='flex flex-col gap-3 justify-center border-r border-dashed border-gray-300 pr-4'>
-          <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Các Cổng Đánh Giá Bậc 1</h4>
-          ${cardIncome}
-          ${cardCredit}
-          ${cardHistory}
-        </div>
-
-        <!-- CỘT 2: TOÁN TỬ LOGIC PHỨC HỢP -->
-        <div class='flex flex-col gap-3 justify-center items-stretch border-r border-dashed border-gray-300 px-4'>
-          <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Cổng Logic Liên Kết</h4>
-          <div class='border border-gray-300 p-2 rounded bg-yellow-50 text-[10px] text-yellow-800 font-mono'>
-             1 &amp; 2 liên kết bằng toán tử <strong>OR</strong><br/>
-             Kết quả sau đó kết hợp bằng <strong>AND</strong> với 3.
-          </div>
-          ${orEligibleCard}
-        </div>
-
-        <!-- CỘT 3: KẾT QUẢ RA QUYẾT ĐỊNH -->
-        <div class='flex flex-col justify-center items-stretch pl-4'>
-          <h4 class='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Trạng Thái Phê Duyệt</h4>
-          ${approvedCard}
-          <div class='mt-4 p-3 bg-gray-50 rounded text-center text-xs font-sans'>
-             ${vars.is_approved === undefined 
-               ? '<span class="text-gray-400">Đang chạy từng dòng để kiểm tra logic...</span>' 
-               : vars.is_approved 
-                 ? '<span class="text-green-600 font-semibold">✔ Hồ sơ ĐỦ chuẩn vay tiền.</span>'
-                 : '<span class="text-red-600 font-semibold">✘ Hồ sơ BỊ TỪ CHỐI do không đạt các điều kiện logic.</span>'}
-          </div>
-        </div>
-      </div>
-    `;
-  }
-}
-
-        // Fallback for missing class to prevent ReferenceError
-        if (typeof InteractiveVisualizerEngine === 'undefined') {
-            window.InteractiveVisualizerEngine = class {};
+    class InteractiveVisualizerEngine {
+        constructor() {
+            this.currentStep = 0;
+            this.isPlaying = false;
+            this.speed = 500;
+            this.steps = [];
+            this.inputText = '';
+            this.timer = null;
         }
 
-        function initApp() {
-            try {
-                visualizerApp = new InteractiveVisualizerEngine();
-            } catch(e) {
-                visualizerApp = {};
+        init() {
+            const container = document.getElementById('visualizer-canvas');
+            if (!container) return;
+
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            } else {
+                this.inputText = "10, 20, 30, 40, 50";
+                if (inputEl) inputEl.value = this.inputText;
             }
+
+            this.applyCustomData();
+        }
+
+        log(msg) {
+            const history = document.getElementById('log-messages');
+            if (history) {
+                const line = document.createElement('div');
+                line.className = 'log-entry log-info';
+                line.style.padding = '4px 0';
+                line.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                line.innerHTML = `<span style="color: #64748b;">[${new Date().toLocaleTimeString()}]</span> <span style="color: #38bdf8;">&gt;</span> ${msg}`;
+                history.appendChild(line);
+                history.scrollTop = history.scrollHeight;
+            }
+        }
+
+        clearLog() {
+            const history = document.getElementById('log-messages');
+            if (history) history.innerHTML = '<div class="log-entry log-info">ℹ [Hệ thống] Đã xóa nhật ký thuật toán.</div>';
+        }
+
+        applyCustomData() {
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            }
+            this.reset();
+        }
+
+        reset() {
+            this.pause();
+            this.currentStep = 0;
+            this.steps = [];
+            this.buildExecutionSteps();
+            this.clearLog();
+            this.log('Khởi tạo mô phỏng trực quan hóa cho dữ liệu: ' + this.inputText);
+            this.render();
+        }
+
+        buildExecutionSteps() {
+            const pageTitle = document.title || '';
+            const items = this.inputText.split(',').map(s => s.trim()).filter(Boolean);
+            const dataList = items.length > 0 ? items : ["Phần tử 1", "Phần tử 2", "Phần tử 3"];
             
-            // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
-            requiredMethods.forEach(method => {
-                if (typeof visualizerApp[method] !== 'function') {
-                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+            let steps = [];
+
+            // Step 0: Initial State
+            steps.push({
+                highlightLines: ['line-0', 'line-1', 'line-2'],
+                status: 'Khởi tạo',
+                mode: 'Khởi đầu',
+                result: 'Sẵn sàng',
+                log: 'Khởi tạo cấu trúc mảng bộ nhớ RAM và thiết lập thông số ban đầu.',
+                items: dataList.map((val, idx) => ({ val, state: 'idle', idx }))
+            });
+
+            // Step 1: Memory Allocation
+            steps.push({
+                highlightLines: ['line-3', 'line-4', 'line-5'],
+                status: 'Cấp phát bộ nhớ',
+                mode: 'Bộ nhớ RAM',
+                result: 'Đã cấp phát',
+                log: `Cấp phát ${dataList.length} ô nhớ liên tiếp cho các phần tử mảng dữ liệu.`,
+                items: dataList.map((val, idx) => ({ val, state: 'active', idx }))
+            });
+
+            // Step 2: Processing Loop (Item by Item)
+            dataList.forEach((val, i) => {
+                steps.push({
+                    highlightLines: [`line-${6 + (i % 4)}`],
+                    status: `Xử lý phần tử [${i}]`,
+                    mode: 'Tuần tự',
+                    result: 'Đang duyệt',
+                    log: `Duyệt qua phần tử thứ ${i + 1}: giá trị = "${val}" tại chỉ mục index ${i}.`,
+                    items: dataList.map((v, idx) => ({
+                        val: v,
+                        state: idx === i ? 'comparing' : (idx < i ? 'done' : 'idle'),
+                        idx
+                    }))
+                });
+            });
+
+            # Step Final: Completed
+            steps.push({
+                highlightLines: ['line-10', 'line-11', 'line-12'],
+                status: 'Hoàn thành',
+                mode: 'Kết quả',
+                result: 'Thành công',
+                log: 'Hoàn tất toàn bộ chu trình xử lý dữ liệu. Kết quả sẵn sàng trả về.',
+                items: dataList.map((val, idx) => ({ val, state: 'done', idx }))
+            });
+
+            this.steps = steps;
+        }
+
+        start() {
+            if (this.isPlaying) return;
+            this.isPlaying = true;
+            this.timer = setInterval(() => {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.step();
+                } else {
+                    this.pause();
                 }
-            });
-
-            // Perform initialization
-            if (typeof visualizerApp.init === 'function') {
-                visualizerApp.init();
-            }
-            if (typeof visualizerApp.render === 'function') {
-                visualizerApp.render();
-            }
-
-            // Auto-fix code tracker formatting if LLM glued tags together
-            const trackerBox = document.getElementById('code-tracker-box');
-            if (trackerBox) {
-                let rawHtml = trackerBox.innerHTML;
-                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
-                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
-                trackerBox.innerHTML = rawHtml;
-            }
-
-            if (window.hljs) hljs.highlightAll();
+            }, this.speed);
         }
 
-        // Initialize when DOM loaded
-        let visualizerApp;
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            initApp();
-        } else {
-            document.addEventListener('DOMContentLoaded', initApp);
+        pause() {
+            this.isPlaying = false;
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
         }
-        
 
-        function copyCode(event, button, codeId) {
-            if (event && event.preventDefault) event.preventDefault();
-            const codeElement = document.getElementById(codeId);
-            if (!codeElement) return;
-            navigator.clipboard.writeText(codeElement.innerText).then(() => {
-                button.innerText = 'Đã sao chép!';
-                button.style.backgroundColor = '#10b981';
-                setTimeout(() => {
-                    button.innerText = 'Sao chép';
-                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }, 2000);
-            });
+        step() {
+            if (this.currentStep < this.steps.length - 1) {
+                this.currentStep++;
+                this.render();
+            } else {
+                this.log('Đã đến bước cuối cùng của tiến trình.');
+            }
         }
+
+        scrubStep(e) {
+            const barContainer = e.currentTarget;
+            if (!barContainer || !this.steps.length) return;
+            const rect = barContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+            const targetStep = Math.floor(percentage * this.steps.length);
+            this.currentStep = Math.min(this.steps.length - 1, targetStep);
+            this.render();
+        }
+
+        setSpeed(val) {
+            this.speed = parseInt(val, 10) || 500;
+            const disp = document.getElementById('speed-display');
+            if (disp) disp.textContent = this.speed;
+            if (this.isPlaying) {
+                this.pause();
+                this.start();
+            }
+        }
+
+        render() {
+            if (!this.steps || !this.steps.length) return;
+            const current = this.steps[this.currentStep] || this.steps[0];
+
+            // 1. Update Stepper UI
+            const stepProgress = document.getElementById('stepper-progress');
+            const stepDesc = document.getElementById('stepper-desc');
+            const stepBar = document.getElementById('stepper-bar');
+
+            if (stepProgress) stepProgress.textContent = `Bước ${this.currentStep + 1}/${this.steps.length}`;
+            if (stepDesc) stepDesc.textContent = current.log;
+            if (stepBar) stepBar.style.width = `${((this.currentStep + 1) / this.steps.length) * 100}%`;
+
+            // 2. Update Realtime Stats
+            const statMode = document.getElementById('stat-mode');
+            const statLength = document.getElementById('stat-length');
+            const statMatch = document.getElementById('stat-match-count');
+            const statRes = document.getElementById('stat-result');
+
+            if (statMode) statMode.textContent = current.mode || '-';
+            if (statLength) statLength.textContent = (current.items || []).length;
+            if (statMatch) statMatch.textContent = this.currentStep;
+            if (statRes) {
+                statRes.textContent = current.result || 'Đang duyệt';
+                statRes.className = current.result === 'Thành công' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-semibold';
+            }
+
+            // 3. Highlight Code Tracker Line
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active', 'active-line', 'bg-yellow-200'));
+            if (current.highlightLines) {
+                current.highlightLines.forEach(lineId => {
+                    const el = document.getElementById(lineId);
+                    if (el) el.classList.add('active', 'active-line');
+                });
+            }
+
+            // 4. Render Items on Visualizer Canvas
+            const canvas = document.getElementById('visualizer-canvas');
+            if (canvas && current.items) {
+                let itemsMarkup = current.items.map(item => {
+                    let borderBgClass = 'border-slate-700 bg-slate-800/90 text-slate-200';
+                    if (item.state === 'active') {
+                        borderBgClass = 'border-sky-500 bg-sky-900/60 text-sky-200 font-bold scale-105';
+                    } else if (item.state === 'comparing') {
+                        borderBgClass = 'border-amber-400 bg-amber-500/40 text-amber-200 font-bold animate-pulse scale-110';
+                    } else if (item.state === 'done') {
+                        borderBgClass = 'border-emerald-500 bg-emerald-600/30 text-emerald-200 font-bold';
+                    }
+
+                    return `
+                        <div class="flex flex-col items-center transition-all duration-300 transform">
+                            <div class="border rounded-lg px-4 py-3 font-mono text-center min-w-[64px] shadow-md transition-all duration-300 ${borderBgClass}">
+                                ${item.val}
+                            </div>
+                            <small class="text-slate-400 font-mono text-xs mt-1.5">[Index ${item.idx}]</small>
+                        </div>
+                    `;
+                }).join('');
+
+                canvas.innerHTML = `
+                    <div class="flex flex-wrap gap-3 justify-center items-center p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 w-full min-h-[160px] shadow-inner">
+                        ${itemsMarkup}
+                    </div>
+                `;
+            }
+
+            this.log(current.log);
+        }
+    }
+
+    // Auto-initialize when DOM loaded
+    let visualizerApp;
+    function initVisualizerApp() {
+        if (typeof InteractiveVisualizerEngine !== 'undefined') {
+            visualizerApp = new InteractiveVisualizerEngine();
+            visualizerApp.init();
+        }
+    }
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        initVisualizerApp();
+    } else {
+        document.addEventListener('DOMContentLoaded', initVisualizerApp);
+    }
     </script>
+
 </body>
 </html>

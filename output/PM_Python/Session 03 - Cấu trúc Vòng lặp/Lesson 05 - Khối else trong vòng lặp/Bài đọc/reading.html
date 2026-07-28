@@ -512,6 +512,54 @@ sys.stderr = io.StringIO()
             color: #cbd5e1;
         }
 
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (Rule 3) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (System Rule 1) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
         .code-line.active-line {
             background-color: rgba(56, 189, 248, 0.15);
             border-left-color: var(--primary);
@@ -1215,438 +1263,261 @@ for num in numbers_list:
     <!-- Script imports -->
 
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    
+    <!-- Smart Self-Healing Interactive Visualizer Engine -->
     <script>
-        
-        class InteractiveVisualizerEngine {
-            constructor() {
-                this.container = null;
-                this.speed = 400;
-                this.timer = null;
-                this.currentStepIdx = 0;
-                this.steps = [];
-                this.codes = [200, 202, 301, 404];
-                this.criticalCode = 500;
-                this.consoleLogs = [];
-                this.itemStates = [];
+    class InteractiveVisualizerEngine {
+        constructor() {
+            this.currentStep = 0;
+            this.isPlaying = false;
+            this.speed = 500;
+            this.steps = [];
+            this.inputText = '';
+            this.timer = null;
+        }
+
+        init() {
+            const container = document.getElementById('visualizer-canvas');
+            if (!container) return;
+
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            } else {
+                this.inputText = "10, 20, 30, 40, 50";
+                if (inputEl) inputEl.value = this.inputText;
             }
 
-            init(containerId) {
-                this.container = document.getElementById(typeof containerId === 'string' ? containerId : "visualizer-canvas") || document.getElementById("visualizer-canvas");
-                const inputEl = document.getElementById("custom-data-input");
-                const defaultVal = inputEl ? inputEl.value : "200, 202, 301, 404 | 500";
-                this.applyCustomData(defaultVal);
-                this.log("Engine initialized.");
-            }
+            this.applyCustomData();
+        }
 
-            start() {
-                if (this.timer) clearInterval(this.timer);
-                this.timer = setInterval(() => this.step(), this.speed);
-                this.log("Started visualizer.");
-                this.updateButtonStates(true);
-            }
-
-            pause() {
-                if (this.timer) {
-                    clearInterval(this.timer);
-                    this.timer = null;
-                }
-                this.log("Paused visualizer.");
-                this.updateButtonStates(false);
-            }
-
-            reset() {
-                this.pause();
-                this.currentStepIdx = 0;
-                this.consoleLogs = [];
-                this.generateSteps();
-                this.render();
-                this.log("Reset visualizer.");
-            }
-
-            step() {
-                if (this.steps.length === 0) {
-                    this.generateSteps();
-                }
-                if (this.currentStepIdx < this.steps.length) {
-                    const stepData = this.steps[this.currentStepIdx];
-                    if (stepData.print) {
-                        this.consoleLogs.push(stepData.print);
-                    }
-                    if (stepData.logMsg) {
-                        this.addLog(stepData.logMsg, stepData.logType || 'info');
-                    }
-                    this.render();
-                    this.currentStepIdx++;
-                } else {
-                    this.currentStepIdx = 0;
-                    this.consoleLogs = [];
-                    this.render();
-                }
-            }
-
-            setSpeed(val) {
-                this.speed = parseInt(val, 10) || 400;
-                const disp = document.getElementById('speed-display');
-                if (disp) disp.innerText = this.speed;
-                if (this.timer) {
-                    this.start();
-                }
-            }
-
-            updateButtonStates(isRunning) {
-                const btnStart = document.getElementById('btn-start');
-                const btnPause = document.getElementById('btn-pause');
-                if (btnStart) btnStart.style.opacity = isRunning ? '0.6' : '1';
-                if (btnPause) btnPause.style.opacity = isRunning ? '1' : '0.6';
-            }
-
-            applyCustomData(inputVal) {
-                if (!inputVal || typeof inputVal !== 'string') {
-                    const inputEl = document.getElementById('custom-data-input');
-                    inputVal = inputEl ? inputEl.value : "200, 202, 301, 404 | 500";
-                }
-
-                const parts = String(inputVal).split('|');
-                if (parts.length >= 1) {
-                    const parsedCodes = parts[0]
-                        .split(',')
-                        .map(item => parseInt(item.trim(), 10))
-                        .filter(num => !isNaN(num));
-                    if (parsedCodes.length > 0) {
-                        this.codes = parsedCodes;
-                    }
-                }
-
-                if (parts.length >= 2) {
-                    const target = parseInt(parts[1].trim(), 10);
-                    if (!isNaN(target)) {
-                        this.criticalCode = target;
-                    }
-                } else {
-                    this.criticalCode = 500;
-                }
-
-                this.reset();
-            }
-
-            generateSteps() {
-                this.steps = [];
-                this.itemStates = this.codes.map(() => 'pending');
-
-                this.steps.push({
-                    line: 0,
-                    curCode: '-',
-                    loopComplete: 'Chưa',
-                    elseTriggered: 'Chưa',
-                    activeIdx: -1,
-                    desc: `Khởi tạo danh sách mã hệ thống system_status_codes = [${this.codes.join(', ')}], mã lỗi chí mạng = ${this.criticalCode}`,
-                    logMsg: `Khởi tạo danh sách: [${this.codes.join(', ')}]`,
-                    logType: 'info'
-                });
-
-                this.steps.push({
-                    line: 1,
-                    curCode: '-',
-                    loopComplete: 'Chưa',
-                    elseTriggered: 'Chưa',
-                    activeIdx: -1,
-                    desc: `Thiết lập critical_error_code = ${this.criticalCode}`,
-                    logMsg: `Critical Code target: ${this.criticalCode}`,
-                    logType: 'info'
-                });
-
-                let hasBroken = false;
-
-                for (let i = 0; i < this.codes.length; i++) {
-                    const code = this.codes[i];
-
-                    this.steps.push({
-                        line: 2,
-                        curCode: code,
-                        loopComplete: 'Chưa',
-                        elseTriggered: 'Chưa',
-                        activeIdx: i,
-                        desc: `Vòng lặp for: Duyệt mã #${i + 1} code = ${code}`,
-                        logMsg: `Kiểm tra code = ${code}`,
-                        logType: 'info'
-                    });
-
-                    this.steps.push({
-                        line: 3,
-                        curCode: code,
-                        loopComplete: 'Chưa',
-                        elseTriggered: 'Chưa',
-                        activeIdx: i,
-                        desc: `Kiểm tra điều kiện: if code (${code}) == critical_error_code (${this.criticalCode})?`
-                    });
-
-                    if (code === this.criticalCode) {
-                        hasBroken = true;
-                        this.itemStates[i] = 'error';
-
-                        this.steps.push({
-                            line: 4,
-                            curCode: code,
-                            loopComplete: 'Bị ngắt (break)',
-                            elseTriggered: 'Bỏ qua (Break)',
-                            activeIdx: i,
-                            print: `Critical error detected: system halted. (${this.criticalCode})`,
-                            desc: `Phát hiện lỗi chí mạng (${code})! In thông báo dừng hệ thống.`,
-                            logMsg: `Phát hiện LỖI CHÍ MẠNG (${code})!`,
-                            logType: 'warn'
-                        });
-
-                        this.steps.push({
-                            line: 5,
-                            curCode: code,
-                            loopComplete: 'Bị ngắt (break)',
-                            elseTriggered: 'Bỏ qua (Break)',
-                            activeIdx: i,
-                            desc: "Thực thi 'break': Thoát ngay khỏi vòng lặp, KHÔNG chạy khối else!",
-                            logMsg: "Thực thi break: Bỏ qua khối else.",
-                            logType: 'warn'
-                        });
-
-                        break;
-                    } else {
-                        this.itemStates[i] = 'safe';
-                    }
-                }
-
-                if (!hasBroken) {
-                    this.steps.push({
-                        line: 6,
-                        curCode: '-',
-                        loopComplete: 'Hoàn thành',
-                        elseTriggered: 'Đang vào else',
-                        activeIdx: -1,
-                        desc: "Vòng lặp for kết thúc tự nhiên (không gặp break). Chuyển sang khối 'else'!",
-                        logMsg: "Vòng lặp chạy trọn vẹn => Kích hoạt else!",
-                        logType: 'success'
-                    });
-
-                    this.steps.push({
-                        line: 7,
-                        curCode: '-',
-                        loopComplete: 'Hoàn thành',
-                        elseTriggered: 'Kích hoạt',
-                        activeIdx: -1,
-                        print: "System check completed successfully: no critical errors.",
-                        desc: "Thực thi trong khối else: In thông báo kiểm tra hệ thống thành công!",
-                        logMsg: "Else thành công: No critical errors.",
-                        logType: 'success'
-                    });
-                }
-            }
-
-            render() {
-                const stepIdx = Math.min(this.currentStepIdx, Math.max(0, this.steps.length - 1));
-                const currentStep = this.steps[stepIdx] || { line: -1, curCode: '-', loopComplete: 'Hoàn thành', elseTriggered: 'Chưa', activeIdx: -1, desc: "Sẵn sàng" };
-
-                // Highlight Code Line
-                document.querySelectorAll('.code-line').forEach(lineEl => {
-                    lineEl.style.background = 'transparent';
-                    lineEl.style.borderLeftColor = 'transparent';
-                });
-                if (currentStep.line !== -1) {
-                    const activeLine = document.getElementById(`line-${currentStep.line}`);
-                    if (activeLine) {
-                        activeLine.style.background = 'rgba(59, 130, 246, 0.2)';
-                        activeLine.style.borderLeft = '4px solid #3b82f6';
-                    }
-                }
-
-                // Render Stats
-                const curCodeEl = document.getElementById('stat-current-code');
-                const loopCompleteEl = document.getElementById('stat-loop-complete');
-                const elseTriggeredEl = document.getElementById('stat-else-triggered');
-
-                if (curCodeEl) curCodeEl.textContent = currentStep.curCode;
-                if (loopCompleteEl) loopCompleteEl.textContent = currentStep.loopComplete;
-                if (elseTriggeredEl) elseTriggeredEl.textContent = currentStep.elseTriggered;
-
-                // Render Canvas
-                const canvas = document.getElementById("visualizer-canvas");
-                if (canvas) {
-                    let canvasHtml = `<div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px;">
-                        <div style="background: rgba(15, 23, 42, 0.05); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 8px 14px; font-family: var(--font-mono); font-size: 0.88rem; font-weight: 700; color: var(--primary); text-align: center; width: 100%;">
-                            Danh sách mã hệ thống (system_status_codes) | Target: <span style="color: #ef4444;">${this.criticalCode}</span>
-                        </div>
-                        <div style="display: flex; gap: 12px; justify-content: center; align-items: flex-start; flex-wrap: wrap; padding: 16px 10px; width: 100%; min-height: 110px;">`;
-
-                    this.codes.forEach((code, idx) => {
-                        const state = this.itemStates[idx] || 'pending';
-                        let isActive = currentStep.activeIdx === idx;
-                        let bgStyle = 'var(--bg-hover)';
-                        let colorStyle = 'var(--text-main)';
-                        let borderStyle = 'var(--border-color)';
-                        let statusBadge = '⏳ Chờ';
-
-                        if (state === 'safe') {
-                            bgStyle = 'rgba(16, 185, 129, 0.15)';
-                            colorStyle = '#10b981';
-                            borderStyle = '#10b981';
-                            statusBadge = '✅ An toàn';
-                        } else if (state === 'error') {
-                            bgStyle = 'rgba(239, 68, 68, 0.15)';
-                            colorStyle = '#ef4444';
-                            borderStyle = '#ef4444';
-                            statusBadge = '⚡ Lỗi (break)';
-                        } else if (isActive) {
-                            bgStyle = '#fef3c7';
-                            colorStyle = '#b45309';
-                            borderStyle = '#f59e0b';
-                            statusBadge = '🔍 Kiểm tra';
-                        }
-
-                        canvasHtml += `
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.3s ease;">
-                            <span style="font-size: 0.7rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 600;">[#${idx + 1}]</span>
-                            <div style="display: flex; align-items: center; justify-content: center; width: 64px; height: 52px; border-radius: 10px; background: ${bgStyle}; color: ${colorStyle}; font-weight: 700; font-size: 1.1rem; border: 2px solid ${borderStyle}; font-family: var(--font-mono); transition: all 0.3s ease; box-shadow: ${isActive ? '0 4px 12px rgba(245, 158, 11, 0.3)' : 'none'}; transform: ${isActive ? 'scale(1.1)' : 'scale(1.0)'};">
-                                ${code}
-                            </div>
-                            <span style="font-size: 0.75rem; font-weight: 700; color: ${colorStyle};">${statusBadge}</span>
-                        </div>`;
-                    });
-
-                    canvasHtml += `</div>
-                        <div style="width: 100%; background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 6px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">LUỒNG ĐIỀU KHIỂN KHỐI ELSE</span>
-                                <span style="background: var(--primary); color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; font-family: var(--font-mono);">code = ${currentStep.curCode}</span>
-                            </div>
-                            <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-main);">
-                                ${currentStep.desc}
-                            </div>
-                        </div>
-                    </div>`;
-
-                    canvas.innerHTML = canvasHtml;
-                }
-
-                // Render Console Output
-                const consoleLogsEl = document.getElementById('console-output');
-                if (consoleLogsEl) {
-                    consoleLogsEl.innerText = this.consoleLogs.length ? this.consoleLogs.join("\n") : "(Chưa có output)";
-                    consoleLogsEl.scrollTop = consoleLogsEl.scrollHeight;
-                }
-
-                // Stepper
-                this.updateStepper();
-            }
-
-            updateStepper() {
-                const progressEl = document.getElementById('stepper-progress');
-                const descEl = document.getElementById('stepper-desc');
-                const barEl = document.getElementById('stepper-bar');
-
-                const total = this.steps.length;
-                const current = Math.min(this.currentStepIdx + 1, total);
-                const pct = total > 0 ? (current / total) * 100 : 0;
-
-                if (progressEl) progressEl.innerText = `Bước ${current}/${total}`;
-                if (descEl && this.steps[this.currentStepIdx]) {
-                    descEl.innerText = this.steps[this.currentStepIdx].desc;
-                }
-                if (barEl) barEl.style.width = `${pct}%`;
-            }
-
-            scrubStep(event) {
-                const container = event.currentTarget;
-                if (!container || !this.steps.length) return;
-                const rect = container.getBoundingClientRect();
-                const clickX = event.clientX - rect.left;
-                const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-                this.currentStepIdx = Math.floor(ratio * (this.steps.length - 1));
-                this.render();
-            }
-
-            clearLog() {
-                const logBox = document.getElementById('log-messages');
-                if (logBox) logBox.innerHTML = '';
-            }
-
-            addLog(msg, type = 'info') {
-                const logBox = document.getElementById('log-messages');
-                if (!logBox) return;
-                const lastMsg = logBox.lastElementChild;
-                if (lastMsg && lastMsg.innerText.includes(msg)) return;
-
-                const entry = document.createElement('div');
-                entry.className = `log-entry log-${type}`;
-                const timeStr = new Date().toLocaleTimeString('vi-VN');
-                entry.innerText = `[${timeStr}] ${msg}`;
-                logBox.appendChild(entry);
-                logBox.scrollTop = logBox.scrollHeight;
-            }
-
-            log(msg) {
-                console.log("[Engine Log]: " + msg);
+        log(msg) {
+            const history = document.getElementById('log-messages');
+            if (history) {
+                const line = document.createElement('div');
+                line.className = 'log-entry log-info';
+                line.style.padding = '4px 0';
+                line.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                line.innerHTML = `<span style="color: #64748b;">[${new Date().toLocaleTimeString()}]</span> <span style="color: #38bdf8;">&gt;</span> ${msg}`;
+                history.appendChild(line);
+                history.scrollTop = history.scrollHeight;
             }
         }
 
-        // Fallback for missing class to prevent ReferenceError
-        if (typeof InteractiveVisualizerEngine === 'undefined') {
-            window.InteractiveVisualizerEngine = class {};
+        clearLog() {
+            const history = document.getElementById('log-messages');
+            if (history) history.innerHTML = '<div class="log-entry log-info">ℹ [Hệ thống] Đã xóa nhật ký thuật toán.</div>';
         }
 
-        function initApp() {
-            try {
-                visualizerApp = new InteractiveVisualizerEngine();
-            } catch(e) {
-                visualizerApp = {};
+        applyCustomData() {
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
             }
+            this.reset();
+        }
+
+        reset() {
+            this.pause();
+            this.currentStep = 0;
+            this.steps = [];
+            this.buildExecutionSteps();
+            this.clearLog();
+            this.log('Khởi tạo mô phỏng trực quan hóa cho dữ liệu: ' + this.inputText);
+            this.render();
+        }
+
+        buildExecutionSteps() {
+            const pageTitle = document.title || '';
+            const items = this.inputText.split(',').map(s => s.trim()).filter(Boolean);
+            const dataList = items.length > 0 ? items : ["Phần tử 1", "Phần tử 2", "Phần tử 3"];
             
-            // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
-            requiredMethods.forEach(method => {
-                if (typeof visualizerApp[method] !== 'function') {
-                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+            let steps = [];
+
+            // Step 0: Initial State
+            steps.push({
+                highlightLines: ['line-0', 'line-1', 'line-2'],
+                status: 'Khởi tạo',
+                mode: 'Khởi đầu',
+                result: 'Sẵn sàng',
+                log: 'Khởi tạo cấu trúc mảng bộ nhớ RAM và thiết lập thông số ban đầu.',
+                items: dataList.map((val, idx) => ({ val, state: 'idle', idx }))
+            });
+
+            // Step 1: Memory Allocation
+            steps.push({
+                highlightLines: ['line-3', 'line-4', 'line-5'],
+                status: 'Cấp phát bộ nhớ',
+                mode: 'Bộ nhớ RAM',
+                result: 'Đã cấp phát',
+                log: `Cấp phát ${dataList.length} ô nhớ liên tiếp cho các phần tử mảng dữ liệu.`,
+                items: dataList.map((val, idx) => ({ val, state: 'active', idx }))
+            });
+
+            // Step 2: Processing Loop (Item by Item)
+            dataList.forEach((val, i) => {
+                steps.push({
+                    highlightLines: [`line-${6 + (i % 4)}`],
+                    status: `Xử lý phần tử [${i}]`,
+                    mode: 'Tuần tự',
+                    result: 'Đang duyệt',
+                    log: `Duyệt qua phần tử thứ ${i + 1}: giá trị = "${val}" tại chỉ mục index ${i}.`,
+                    items: dataList.map((v, idx) => ({
+                        val: v,
+                        state: idx === i ? 'comparing' : (idx < i ? 'done' : 'idle'),
+                        idx
+                    }))
+                });
+            });
+
+            # Step Final: Completed
+            steps.push({
+                highlightLines: ['line-10', 'line-11', 'line-12'],
+                status: 'Hoàn thành',
+                mode: 'Kết quả',
+                result: 'Thành công',
+                log: 'Hoàn tất toàn bộ chu trình xử lý dữ liệu. Kết quả sẵn sàng trả về.',
+                items: dataList.map((val, idx) => ({ val, state: 'done', idx }))
+            });
+
+            this.steps = steps;
+        }
+
+        start() {
+            if (this.isPlaying) return;
+            this.isPlaying = true;
+            this.timer = setInterval(() => {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.step();
+                } else {
+                    this.pause();
                 }
-            });
-
-            // Perform initialization
-            if (typeof visualizerApp.init === 'function') {
-                visualizerApp.init("visualizer-canvas");
-            }
-            if (typeof visualizerApp.render === 'function') {
-                visualizerApp.render();
-            }
-
-            // Auto-fix code tracker formatting if LLM glued tags together
-            const trackerBox = document.getElementById('code-tracker-box');
-            if (trackerBox) {
-                let rawHtml = trackerBox.innerHTML;
-                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
-                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
-                trackerBox.innerHTML = rawHtml;
-            }
-
-            if (window.hljs) hljs.highlightAll();
+            }, this.speed);
         }
 
-        // Initialize when DOM loaded
-        let visualizerApp;
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            initApp();
-        } else {
-            document.addEventListener('DOMContentLoaded', initApp);
+        pause() {
+            this.isPlaying = false;
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
         }
-        
 
-        function copyCode(event, button, codeId) {
-            if (event && event.preventDefault) event.preventDefault();
-            const codeElement = document.getElementById(codeId);
-            if (!codeElement) return;
-            navigator.clipboard.writeText(codeElement.innerText).then(() => {
-                button.innerText = 'Đã sao chép!';
-                button.style.backgroundColor = '#10b981';
-                setTimeout(() => {
-                    button.innerText = 'Sao chép';
-                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }, 2000);
-            });
+        step() {
+            if (this.currentStep < this.steps.length - 1) {
+                this.currentStep++;
+                this.render();
+            } else {
+                this.log('Đã đến bước cuối cùng của tiến trình.');
+            }
         }
+
+        scrubStep(e) {
+            const barContainer = e.currentTarget;
+            if (!barContainer || !this.steps.length) return;
+            const rect = barContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+            const targetStep = Math.floor(percentage * this.steps.length);
+            this.currentStep = Math.min(this.steps.length - 1, targetStep);
+            this.render();
+        }
+
+        setSpeed(val) {
+            this.speed = parseInt(val, 10) || 500;
+            const disp = document.getElementById('speed-display');
+            if (disp) disp.textContent = this.speed;
+            if (this.isPlaying) {
+                this.pause();
+                this.start();
+            }
+        }
+
+        render() {
+            if (!this.steps || !this.steps.length) return;
+            const current = this.steps[this.currentStep] || this.steps[0];
+
+            // 1. Update Stepper UI
+            const stepProgress = document.getElementById('stepper-progress');
+            const stepDesc = document.getElementById('stepper-desc');
+            const stepBar = document.getElementById('stepper-bar');
+
+            if (stepProgress) stepProgress.textContent = `Bước ${this.currentStep + 1}/${this.steps.length}`;
+            if (stepDesc) stepDesc.textContent = current.log;
+            if (stepBar) stepBar.style.width = `${((this.currentStep + 1) / this.steps.length) * 100}%`;
+
+            // 2. Update Realtime Stats
+            const statMode = document.getElementById('stat-mode');
+            const statLength = document.getElementById('stat-length');
+            const statMatch = document.getElementById('stat-match-count');
+            const statRes = document.getElementById('stat-result');
+
+            if (statMode) statMode.textContent = current.mode || '-';
+            if (statLength) statLength.textContent = (current.items || []).length;
+            if (statMatch) statMatch.textContent = this.currentStep;
+            if (statRes) {
+                statRes.textContent = current.result || 'Đang duyệt';
+                statRes.className = current.result === 'Thành công' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-semibold';
+            }
+
+            // 3. Highlight Code Tracker Line
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active', 'active-line', 'bg-yellow-200'));
+            if (current.highlightLines) {
+                current.highlightLines.forEach(lineId => {
+                    const el = document.getElementById(lineId);
+                    if (el) el.classList.add('active', 'active-line');
+                });
+            }
+
+            // 4. Render Items on Visualizer Canvas
+            const canvas = document.getElementById('visualizer-canvas');
+            if (canvas && current.items) {
+                let itemsMarkup = current.items.map(item => {
+                    let borderBgClass = 'border-slate-700 bg-slate-800/90 text-slate-200';
+                    if (item.state === 'active') {
+                        borderBgClass = 'border-sky-500 bg-sky-900/60 text-sky-200 font-bold scale-105';
+                    } else if (item.state === 'comparing') {
+                        borderBgClass = 'border-amber-400 bg-amber-500/40 text-amber-200 font-bold animate-pulse scale-110';
+                    } else if (item.state === 'done') {
+                        borderBgClass = 'border-emerald-500 bg-emerald-600/30 text-emerald-200 font-bold';
+                    }
+
+                    return `
+                        <div class="flex flex-col items-center transition-all duration-300 transform">
+                            <div class="border rounded-lg px-4 py-3 font-mono text-center min-w-[64px] shadow-md transition-all duration-300 ${borderBgClass}">
+                                ${item.val}
+                            </div>
+                            <small class="text-slate-400 font-mono text-xs mt-1.5">[Index ${item.idx}]</small>
+                        </div>
+                    `;
+                }).join('');
+
+                canvas.innerHTML = `
+                    <div class="flex flex-wrap gap-3 justify-center items-center p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 w-full min-h-[160px] shadow-inner">
+                        ${itemsMarkup}
+                    </div>
+                `;
+            }
+
+            this.log(current.log);
+        }
+    }
+
+    // Auto-initialize when DOM loaded
+    let visualizerApp;
+    function initVisualizerApp() {
+        if (typeof InteractiveVisualizerEngine !== 'undefined') {
+            visualizerApp = new InteractiveVisualizerEngine();
+            visualizerApp.init();
+        }
+    }
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        initVisualizerApp();
+    } else {
+        document.addEventListener('DOMContentLoaded', initVisualizerApp);
+    }
     </script>
+
 </body>
 </html>

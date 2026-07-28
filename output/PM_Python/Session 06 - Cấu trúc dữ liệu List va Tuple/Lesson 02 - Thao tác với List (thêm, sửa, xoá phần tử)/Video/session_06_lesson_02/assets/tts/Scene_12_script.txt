@@ -1,0 +1,1 @@
+Thông qua bài học này, chúng ta đã cùng tìm hiểu thành công toàn bộ cách thêm, sửa, và xóa phần tử trong lít bằng các hàm tiêu chuẩn trong ngôn ngữ Python. Chúc các em luyện tập tốt và áp dụng thành thạo vào dự án thực tế của mình. Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo!

@@ -1,0 +1,1 @@
+Tiếp theo là hành vi xóa phần tử. Phương thức póp được dùng khi các em muốn xóa một phần tử ra khỏi danh sách và đồng thời lấy ra giá trị đó để sử dụng cho mục đích khác như hoàn tác hay ghi nhật ký hệ thống. Nếu không truyền in-đếch, póp mặc định loại bỏ phần tử cuối cùng của lít.

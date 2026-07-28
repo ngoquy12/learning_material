@@ -512,6 +512,54 @@ sys.stderr = io.StringIO()
             color: #cbd5e1;
         }
 
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (Rule 3) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (System Rule 1) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
         .code-line.active-line {
             background-color: rgba(56, 189, 248, 0.15);
             border-left-color: var(--primary);
@@ -1187,449 +1235,261 @@ print(f&quot;Total Bill: ${total:.2f}&quot;)</code></pre>
     <!-- Script imports -->
 
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    
+    <!-- Smart Self-Healing Interactive Visualizer Engine -->
     <script>
-        
-        class InteractiveVisualizerEngine {
-    constructor() {
-        this.currentStep = 0;
-        this.isPlaying = false;
-        this.speed = 1000;
-        this.timer = null;
-        
-        // Default inputs
-        this.inputPrice = '29.99';
-        this.inputQuantity = '3';
-        
-        // Variable states
-        this.states = [];
-        this.outputs = [];
-        
-        // Define steps and mapping code lines
-        this.steps = [
-            { line: 0, desc: 'Bắt đầu chương trình.' },
-            { line: 1, desc: 'Gán biến unit_price_string là một Chuỗi (String).' },
-            { line: 2, desc: 'Gán biến product_quantity_string là một Chuỗi (String).' },
-            { line: 3, desc: 'Nhận xét: Không thể thực hiện phép toán số học trực tiếp trên Chuỗi.' },
-            { line: 4, desc: 'Ép kiểu unit_price_string sang kiểu số thực float().' },
-            { line: 5, desc: 'Ép kiểu product_quantity_string sang kiểu số nguyên int().' },
-            { line: 6, desc: 'Chuẩn bị thực hiện tính toán với các con số số thực và số nguyên.' },
-            { line: 7, desc: 'Thực hiện phép tính: total = unit_price * product_quantity' },
-            { line: 8, desc: 'Chuẩn bị xuất kết quả lập trình thông qua f-string.' },
-            { line: 9, desc: 'Xuất Unit Price, sử dụng format :.2f để làm tròn đúng 2 chữ số thập phân.' },
-            { line: 10, desc: 'Xuất Quantity, truyền thẳng giá trị số nguyên vào f-string.' },
-            { line: 11, desc: 'Xuất Total Bill, làm tròn giá trị tổng hóa đơn với :.2f.' }
-        ];
-    }
-
-    init(containerId) {
-        this.containerId = containerId || 'visualizer-canvas';
-        this.inputPrice = '29.99';
-        this.inputQuantity = '3';
-        this.currentStep = 0;
-        this.isPlaying = false;
-        this.generateStateTimeline();
-        this.render();
-        this.log('Khởi tạo Visualizer Engine thành công.');
-    }
-
-    generateStateTimeline() {
-        this.states = [];
-        let priceStr = this.inputPrice || "29.99";
-        let qtyStr = this.inputQuantity || "3";
-        let priceNum = parseFloat(priceStr) || 29.99;
-        let qtyNum = parseInt(qtyStr, 10) || 3;
-        let totalNum = priceNum * qtyNum;
-
-        // Line 0: Init / Comment
-        this.states.push({
-            vars: { unit_price_string: undefined, product_quantity_string: undefined, unit_price: undefined, product_quantity: undefined, total: undefined },
-            console: []
-        });
-
-        // Line 1: unit_price_string = "29.99"
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: undefined, unit_price: undefined, product_quantity: undefined, total: undefined },
-            console: []
-        });
-
-        // Line 2: product_quantity_string = "3"
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: undefined, product_quantity: undefined, total: undefined },
-            console: []
-        });
-
-        // Line 3: Comment
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: undefined, product_quantity: undefined, total: undefined },
-            console: []
-        });
-
-        // Line 4: unit_price = float(unit_price_string)
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: undefined, total: undefined },
-            console: []
-        });
-
-        // Line 5: product_quantity = int(product_quantity_string)
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: undefined },
-            console: []
-        });
-
-        // Line 6: Comment
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: undefined },
-            console: []
-        });
-
-        // Line 7: total = unit_price * product_quantity
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: totalNum },
-            console: []
-        });
-
-        // Line 8: Comment
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: totalNum },
-            console: []
-        });
-
-        // Line 9: print(f"Unit Price: ${unit_price:.2f}")
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: totalNum },
-            console: [`Unit Price: $${priceNum.toFixed(2)}`]
-        });
-
-        // Line 10: print(f"Quantity: {product_quantity}")
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: totalNum },
-            console: [`Unit Price: $${priceNum.toFixed(2)}`, `Quantity: ${qtyNum}`]
-        });
-
-        // Line 11: print(f"Total Bill: ${total:.2f}")
-        this.states.push({
-            vars: { unit_price_string: priceStr, product_quantity_string: qtyStr, unit_price: priceNum, product_quantity: qtyNum, total: totalNum },
-            console: [`Unit Price: $${priceNum.toFixed(2)}`, `Quantity: ${qtyNum}`, `Total Bill: $${totalNum.toFixed(2)}`]
-        });
-    }
-
-    start() {
-        if (this.isPlaying) return;
-        this.isPlaying = true;
-        this.log('Chương trình tự động chạy...');
-        this.timer = setInterval(() => {
-            if (this.currentStep < this.steps.length - 1) {
-                this.step();
-            } else {
-                this.pause();
-                this.log('Hoàn thành luồng chạy chương trình.');
-            }
-        }, this.speed);
-    }
-
-    pause() {
-        this.isPlaying = false;
-        if (this.timer) {
-            clearInterval(this.timer);
+    class InteractiveVisualizerEngine {
+        constructor() {
+            this.currentStep = 0;
+            this.isPlaying = false;
+            this.speed = 500;
+            this.steps = [];
+            this.inputText = '';
             this.timer = null;
         }
-        this.log('Tạm dừng trình diễn.');
-    }
 
-    step() {
-        if (this.currentStep < this.steps.length - 1) {
-            this.currentStep++;
-            this.render();
-        } else {
-            this.log('Bạn đang ở bước cuối cùng.');
+        init() {
+            const container = document.getElementById('visualizer-canvas');
+            if (!container) return;
+
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            } else {
+                this.inputText = "10, 20, 30, 40, 50";
+                if (inputEl) inputEl.value = this.inputText;
+            }
+
+            this.applyCustomData();
         }
-    }
 
-    reset() {
-        this.pause();
-        this.currentStep = 0;
-        this.generateStateTimeline();
-        this.render();
-        this.log('Khởi tạo lại trạng thái ban đầu.');
-    }
+        log(msg) {
+            const history = document.getElementById('log-messages');
+            if (history) {
+                const line = document.createElement('div');
+                line.className = 'log-entry log-info';
+                line.style.padding = '4px 0';
+                line.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                line.innerHTML = `<span style="color: #64748b;">[${new Date().toLocaleTimeString()}]</span> <span style="color: #38bdf8;">&gt;</span> ${msg}`;
+                history.appendChild(line);
+                history.scrollTop = history.scrollHeight;
+            }
+        }
 
-    setSpeed(val) {
-        this.speed = parseInt(val, 10);
-        this.log(`Tốc độ thực thi: ${this.speed}ms`);
-        if (this.isPlaying) {
+        clearLog() {
+            const history = document.getElementById('log-messages');
+            if (history) history.innerHTML = '<div class="log-entry log-info">ℹ [Hệ thống] Đã xóa nhật ký thuật toán.</div>';
+        }
+
+        applyCustomData() {
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            }
+            this.reset();
+        }
+
+        reset() {
             this.pause();
-            this.start();
-        }
-    }
-
-    applyCustomData(data) {
-        let valStr = "";
-        if (typeof data === 'string' && data.trim()) {
-            valStr = data.trim();
-        } else {
-            const inputEl = document.getElementById('custom-data-input') || document.getElementById('control-input');
-            if (inputEl) valStr = inputEl.value.trim();
-        }
-        if (valStr) {
-            const parts = valStr.split(',');
-            if (parts.length >= 2) {
-                this.inputPrice = parts[0].trim() || '29.99';
-                this.inputQuantity = parts[1].trim() || '3';
-            } else if (parts.length === 1 && parts[0].trim()) {
-                this.inputPrice = parts[0].trim();
-            }
-        }
-        if (!this.inputPrice) this.inputPrice = '29.99';
-        if (!this.inputQuantity) this.inputQuantity = '3';
-        this.log(`Áp dụng dữ liệu mới: Đơn giá="${this.inputPrice}", Số lượng="${this.inputQuantity}"`);
-        this.reset();
-    }
-
-    render() {
-        // Highlight code line
-        document.querySelectorAll('.code-line').forEach(line => {
-            line.classList.remove('bg-amber-500/25', 'border-l-4', 'border-amber-400');
-        });
-        
-        const activeStep = this.steps[this.currentStep];
-        if (activeStep) {
-            const activeLineEl = document.getElementById(`line-${activeStep.line}`);
-            if (activeLineEl) {
-                activeLineEl.classList.add('bg-amber-500/25', 'border-l-4', 'border-amber-400');
-                activeLineEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+            this.currentStep = 0;
+            this.steps = [];
+            this.buildExecutionSteps();
+            this.clearLog();
+            this.log('Khởi tạo mô phỏng trực quan hóa cho dữ liệu: ' + this.inputText);
+            this.render();
         }
 
-        // Get active state representation
-        const activeState = this.states[this.currentStep] || this.states[0];
-        const { vars, console: consoleLogs } = activeState;
-
-        // Update stats widgets
-        this.updateStat('ups', vars.unit_price_string, 'str');
-        this.updateStat('pqs', vars.product_quantity_string, 'str');
-        this.updateStat('up', vars.unit_price, 'float');
-        this.updateStat('pq', vars.product_quantity, 'int');
-        this.updateStat('total', vars.total, 'float/calc');
-
-        const stepperProgress = document.getElementById('stepper-progress');
-        if (stepperProgress) {
-            stepperProgress.innerText = `Bước ${this.currentStep + 1}/${this.steps.length}`;
-        }
-        const stepperDesc = document.getElementById('stepper-desc');
-        if (stepperDesc && activeStep) {
-            stepperDesc.innerText = activeStep.desc;
-        }
-        const stepperBar = document.getElementById('stepper-bar');
-        if (stepperBar) {
-            stepperBar.style.width = `${((this.currentStep + 1) / this.steps.length) * 100}%`;
-        }
-
-        // Render Visual Area Canvas
-        const canvas = document.getElementById('visualizer-canvas') || document.getElementById('visual-canvas');
-        if (canvas) {
-            canvas.innerHTML = this.buildCanvasDetailsHTML(vars, consoleLogs, activeStep);
-        }
-    }
-
-    updateStat(idSuffix, value, type) {
-        const valEl = document.getElementById(`val-${idSuffix}`);
-        const typeEl = document.getElementById(`type-${idSuffix}`);
-        
-        if (value === undefined) {
-            if (valEl) {
-                valEl.textContent = '-';
-                valEl.className = 'text-base font-bold text-gray-400';
-            }
-            if (typeEl) typeEl.textContent = 'None';
-        } else {
-            if (valEl) {
-                if (typeof value === 'string') {
-                    valEl.textContent = `"${value}"`;
-                    valEl.className = 'text-base font-bold text-amber-600';
-                } else if (typeof value === 'number') {
-                    valEl.textContent = value;
-                    valEl.className = type === 'int' ? 'text-base font-bold text-emerald-600' : 'text-base font-bold text-blue-600';
-                }
-            }
-            if (typeEl) typeEl.textContent = type;
-        }
-    }
-
-    buildCanvasDetailsHTML(vars, consoleLogs, activeStep) {
-        let upsBox = vars.unit_price_string !== undefined ? 
-            `<div class='bg-amber-500/10 border border-amber-500/30 p-2.5 rounded text-center'><p class='text-[10px] text-amber-400 font-bold'>str</p><p class='text-sm font-mono text-amber-300 font-bold'>"${vars.unit_price_string}"</p></div>` : 
-            `<div class='border border-dashed border-gray-600 p-2.5 rounded text-center text-gray-500 text-xs'>Chưa khai báo</div>`;
-
-        let pqsBox = vars.product_quantity_string !== undefined ? 
-            `<div class='bg-amber-500/10 border border-amber-500/30 p-2.5 rounded text-center'><p class='text-[10px] text-amber-400 font-bold'>str</p><p class='text-sm font-mono text-amber-300 font-bold'>"${vars.product_quantity_string}"</p></div>` : 
-            `<div class='border border-dashed border-gray-600 p-2.5 rounded text-center text-gray-500 text-xs'>Chưa khai báo</div>`;
-
-        let floatCastingArrow = vars.unit_price !== undefined ? 
-            `<div class='flex flex-col items-center py-1'><span class='text-xs text-blue-400 font-bold'>float()</span><span class='text-blue-400'>⬇</span></div>` : 
-            `<div class='flex flex-col items-center py-1 opacity-30'><span class='text-xs text-gray-400 font-bold'>float()</span><span class='text-gray-400'>⬇</span></div>`;
-
-        let intCastingArrow = vars.product_quantity !== undefined ? 
-            `<div class='flex flex-col items-center py-1'><span class='text-xs text-emerald-400 font-bold'>int()</span><span class='text-emerald-400'>⬇</span></div>` : 
-            `<div class='flex flex-col items-center py-1 opacity-30'><span class='text-xs text-gray-400 font-bold'>int()</span><span class='text-gray-400'>⬇</span></div>`;
-
-        let upBox = vars.unit_price !== undefined ? 
-            `<div class='bg-blue-500/10 border border-blue-500/30 p-2.5 rounded text-center'><p class='text-[10px] text-blue-400 font-bold'>float</p><p class='text-sm font-mono text-blue-300 font-bold'>${vars.unit_price}</p></div>` : 
-            `<div class='border border-dashed border-gray-600 p-2.5 rounded text-center text-gray-500 text-xs'>Chưa ép kiểu</div>`;
-
-        let pqBox = vars.product_quantity !== undefined ? 
-            `<div class='bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded text-center'><p class='text-[10px] text-emerald-400 font-bold'>int</p><p class='text-sm font-mono text-emerald-300 font-bold'>${vars.product_quantity}</p></div>` : 
-            `<div class='border border-dashed border-gray-600 p-2.5 rounded text-center text-gray-500 text-xs'>Chưa ép kiểu</div>`;
-
-        let calcBox = vars.total !== undefined ? 
-            `<div class='bg-indigo-500/10 border border-indigo-500/30 p-2.5 rounded text-center w-full'><p class='text-[10px] text-indigo-400 font-bold'>Total = ${vars.unit_price} * ${vars.product_quantity}</p><p class='text-base font-mono text-indigo-300 font-bold'>$${vars.total}</p></div>` : 
-            `<div class='text-xs text-gray-500 italic text-center p-2'>Chưa tính toán tổng hóa đơn</div>`;
-
-        let consoleUI = (consoleLogs && consoleLogs.length > 0) ? 
-            consoleLogs.map(line => `<div class='font-mono text-xs text-emerald-400'>$ python main.py<br/>${line}</div>`).join('') : 
-            `<div class='text-xs text-gray-500 italic'>Chờ lệnh print()...</div>`;
-
-        return `
-            <div style="width: 100%; display: flex; flex-direction: column; gap: 12px; padding: 4px;">
-                <!-- Step Description Banner -->
-                <div class='bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center text-slate-200'>
-                    <span class='text-xs font-bold text-amber-400'>Bước ${this.currentStep + 1}/${this.steps.length}:</span>
-                    <span class='text-xs font-medium text-right text-slate-300'>${activeStep ? activeStep.desc : ''}</span>
-                </div>
-
-                <!-- Flow visualizer diagram -->
-                <div class='grid grid-cols-2 gap-3 my-1'>
-                    <!-- Box Left: Price Casting -->
-                    <div class='flex flex-col gap-2 p-3 bg-slate-900 rounded-lg border border-slate-800 justify-center'>
-                        <p class='text-xs text-slate-400 font-bold border-b border-slate-800 pb-1'>Ép kiểu Đơn Giá (Float)</p>
-                        ${upsBox}
-                        ${floatCastingArrow}
-                        ${upBox}
-                    </div>
-                    
-                    <!-- Box Right: Quantity Casting -->
-                    <div class='flex flex-col gap-2 p-3 bg-slate-900 rounded-lg border border-slate-800 justify-center'>
-                        <p class='text-xs text-slate-400 font-bold border-b border-slate-800 pb-1'>Ép kiểu Số lượng (Integer)</p>
-                        ${pqsBox}
-                        ${intCastingArrow}
-                        ${pqBox}
-                    </div>
-                </div>
-
-                <!-- Math & Total Calculation Area -->
-                <div class='p-3 bg-slate-900 rounded-lg border border-slate-800 flex flex-col items-center justify-center'>
-                    <p class='text-xs text-slate-400 font-bold mb-1'>Phép toán Nhân (Sau khi ép kiểu)</p>
-                    ${calcBox}
-                </div>
-
-                <!-- Mock Console screen represent f-string -->
-                <div class='bg-black text-white rounded-lg p-3 border border-slate-800 shadow-inner'>
-                    <div class='flex justify-between items-center border-b border-slate-800 pb-1 mb-2'>
-                        <span class='text-[10px] text-slate-400 font-bold uppercase tracking-wider'>Terminal / Console Output (f-string)</span>
-                        <div class='flex gap-1'>
-                            <span class='w-2 h-2 rounded-full bg-red-500'></span>
-                            <span class='w-2 h-2 rounded-full bg-yellow-500'></span>
-                            <span class='w-2 h-2 rounded-full bg-green-500'></span>
-                        </div>
-                    </div>
-                    <div class='space-y-1 min-h-[50px] font-mono'>
-                        ${consoleUI}
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    clearLog() {
-        const logBox = document.getElementById('log-messages') || document.getElementById('console-log');
-        if (logBox) logBox.innerHTML = '';
-    }
-
-    scrubStep(e) {
-        if (!e || !this.steps.length) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-        const targetStep = Math.floor(ratio * this.steps.length);
-        this.currentStep = Math.min(targetStep, this.steps.length - 1);
-        this.render();
-    }
-
-    log(msg) {
-        console.log(`[Engine Log]: ${msg}`);
-        const consoleLogBox = document.getElementById('log-messages') || document.getElementById('console-log');
-        if (consoleLogBox) {
-            const timestamp = new Date().toLocaleTimeString();
-            const div = document.createElement("div");
-            div.className = "log-entry log-info";
-            div.innerText = `[${timestamp}] ${msg}`;
-            consoleLogBox.appendChild(div);
-            consoleLogBox.scrollTop = consoleLogBox.scrollHeight;
-        }
-    }
-}
-
-        // Fallback for missing class to prevent ReferenceError
-        if (typeof InteractiveVisualizerEngine === 'undefined') {
-            window.InteractiveVisualizerEngine = class {};
-        }
-
-        function initApp() {
-            try {
-                visualizerApp = new InteractiveVisualizerEngine();
-            } catch(e) {
-                visualizerApp = {};
-            }
+        buildExecutionSteps() {
+            const pageTitle = document.title || '';
+            const items = this.inputText.split(',').map(s => s.trim()).filter(Boolean);
+            const dataList = items.length > 0 ? items : ["Phần tử 1", "Phần tử 2", "Phần tử 3"];
             
-            // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
-            requiredMethods.forEach(method => {
-                if (typeof visualizerApp[method] !== 'function') {
-                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+            let steps = [];
+
+            // Step 0: Initial State
+            steps.push({
+                highlightLines: ['line-0', 'line-1', 'line-2'],
+                status: 'Khởi tạo',
+                mode: 'Khởi đầu',
+                result: 'Sẵn sàng',
+                log: 'Khởi tạo cấu trúc mảng bộ nhớ RAM và thiết lập thông số ban đầu.',
+                items: dataList.map((val, idx) => ({ val, state: 'idle', idx }))
+            });
+
+            // Step 1: Memory Allocation
+            steps.push({
+                highlightLines: ['line-3', 'line-4', 'line-5'],
+                status: 'Cấp phát bộ nhớ',
+                mode: 'Bộ nhớ RAM',
+                result: 'Đã cấp phát',
+                log: `Cấp phát ${dataList.length} ô nhớ liên tiếp cho các phần tử mảng dữ liệu.`,
+                items: dataList.map((val, idx) => ({ val, state: 'active', idx }))
+            });
+
+            // Step 2: Processing Loop (Item by Item)
+            dataList.forEach((val, i) => {
+                steps.push({
+                    highlightLines: [`line-${6 + (i % 4)}`],
+                    status: `Xử lý phần tử [${i}]`,
+                    mode: 'Tuần tự',
+                    result: 'Đang duyệt',
+                    log: `Duyệt qua phần tử thứ ${i + 1}: giá trị = "${val}" tại chỉ mục index ${i}.`,
+                    items: dataList.map((v, idx) => ({
+                        val: v,
+                        state: idx === i ? 'comparing' : (idx < i ? 'done' : 'idle'),
+                        idx
+                    }))
+                });
+            });
+
+            # Step Final: Completed
+            steps.push({
+                highlightLines: ['line-10', 'line-11', 'line-12'],
+                status: 'Hoàn thành',
+                mode: 'Kết quả',
+                result: 'Thành công',
+                log: 'Hoàn tất toàn bộ chu trình xử lý dữ liệu. Kết quả sẵn sàng trả về.',
+                items: dataList.map((val, idx) => ({ val, state: 'done', idx }))
+            });
+
+            this.steps = steps;
+        }
+
+        start() {
+            if (this.isPlaying) return;
+            this.isPlaying = true;
+            this.timer = setInterval(() => {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.step();
+                } else {
+                    this.pause();
                 }
-            });
-
-            // Perform initialization
-            if (typeof visualizerApp.init === 'function') {
-                visualizerApp.init("visualizer-canvas");
-            }
-            if (typeof visualizerApp.render === 'function') {
-                visualizerApp.render();
-            }
-
-            // Auto-fix code tracker formatting if LLM glued tags together
-            const trackerBox = document.getElementById('code-tracker-box');
-            if (trackerBox) {
-                let rawHtml = trackerBox.innerHTML;
-                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
-                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
-                trackerBox.innerHTML = rawHtml;
-            }
-
-            if (window.hljs) hljs.highlightAll();
+            }, this.speed);
         }
 
-        // Initialize when DOM loaded
-        let visualizerApp;
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            initApp();
-        } else {
-            document.addEventListener('DOMContentLoaded', initApp);
+        pause() {
+            this.isPlaying = false;
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
         }
-        
 
-        function copyCode(event, button, codeId) {
-            if (event && event.preventDefault) event.preventDefault();
-            const codeElement = document.getElementById(codeId);
-            if (!codeElement) return;
-            navigator.clipboard.writeText(codeElement.innerText).then(() => {
-                button.innerText = 'Đã sao chép!';
-                button.style.backgroundColor = '#10b981';
-                setTimeout(() => {
-                    button.innerText = 'Sao chép';
-                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }, 2000);
-            });
+        step() {
+            if (this.currentStep < this.steps.length - 1) {
+                this.currentStep++;
+                this.render();
+            } else {
+                this.log('Đã đến bước cuối cùng của tiến trình.');
+            }
         }
+
+        scrubStep(e) {
+            const barContainer = e.currentTarget;
+            if (!barContainer || !this.steps.length) return;
+            const rect = barContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+            const targetStep = Math.floor(percentage * this.steps.length);
+            this.currentStep = Math.min(this.steps.length - 1, targetStep);
+            this.render();
+        }
+
+        setSpeed(val) {
+            this.speed = parseInt(val, 10) || 500;
+            const disp = document.getElementById('speed-display');
+            if (disp) disp.textContent = this.speed;
+            if (this.isPlaying) {
+                this.pause();
+                this.start();
+            }
+        }
+
+        render() {
+            if (!this.steps || !this.steps.length) return;
+            const current = this.steps[this.currentStep] || this.steps[0];
+
+            // 1. Update Stepper UI
+            const stepProgress = document.getElementById('stepper-progress');
+            const stepDesc = document.getElementById('stepper-desc');
+            const stepBar = document.getElementById('stepper-bar');
+
+            if (stepProgress) stepProgress.textContent = `Bước ${this.currentStep + 1}/${this.steps.length}`;
+            if (stepDesc) stepDesc.textContent = current.log;
+            if (stepBar) stepBar.style.width = `${((this.currentStep + 1) / this.steps.length) * 100}%`;
+
+            // 2. Update Realtime Stats
+            const statMode = document.getElementById('stat-mode');
+            const statLength = document.getElementById('stat-length');
+            const statMatch = document.getElementById('stat-match-count');
+            const statRes = document.getElementById('stat-result');
+
+            if (statMode) statMode.textContent = current.mode || '-';
+            if (statLength) statLength.textContent = (current.items || []).length;
+            if (statMatch) statMatch.textContent = this.currentStep;
+            if (statRes) {
+                statRes.textContent = current.result || 'Đang duyệt';
+                statRes.className = current.result === 'Thành công' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-semibold';
+            }
+
+            // 3. Highlight Code Tracker Line
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active', 'active-line', 'bg-yellow-200'));
+            if (current.highlightLines) {
+                current.highlightLines.forEach(lineId => {
+                    const el = document.getElementById(lineId);
+                    if (el) el.classList.add('active', 'active-line');
+                });
+            }
+
+            // 4. Render Items on Visualizer Canvas
+            const canvas = document.getElementById('visualizer-canvas');
+            if (canvas && current.items) {
+                let itemsMarkup = current.items.map(item => {
+                    let borderBgClass = 'border-slate-700 bg-slate-800/90 text-slate-200';
+                    if (item.state === 'active') {
+                        borderBgClass = 'border-sky-500 bg-sky-900/60 text-sky-200 font-bold scale-105';
+                    } else if (item.state === 'comparing') {
+                        borderBgClass = 'border-amber-400 bg-amber-500/40 text-amber-200 font-bold animate-pulse scale-110';
+                    } else if (item.state === 'done') {
+                        borderBgClass = 'border-emerald-500 bg-emerald-600/30 text-emerald-200 font-bold';
+                    }
+
+                    return `
+                        <div class="flex flex-col items-center transition-all duration-300 transform">
+                            <div class="border rounded-lg px-4 py-3 font-mono text-center min-w-[64px] shadow-md transition-all duration-300 ${borderBgClass}">
+                                ${item.val}
+                            </div>
+                            <small class="text-slate-400 font-mono text-xs mt-1.5">[Index ${item.idx}]</small>
+                        </div>
+                    `;
+                }).join('');
+
+                canvas.innerHTML = `
+                    <div class="flex flex-wrap gap-3 justify-center items-center p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 w-full min-h-[160px] shadow-inner">
+                        ${itemsMarkup}
+                    </div>
+                `;
+            }
+
+            this.log(current.log);
+        }
+    }
+
+    // Auto-initialize when DOM loaded
+    let visualizerApp;
+    function initVisualizerApp() {
+        if (typeof InteractiveVisualizerEngine !== 'undefined') {
+            visualizerApp = new InteractiveVisualizerEngine();
+            visualizerApp.init();
+        }
+    }
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        initVisualizerApp();
+    } else {
+        document.addEventListener('DOMContentLoaded', initVisualizerApp);
+    }
     </script>
+
 </body>
 </html>

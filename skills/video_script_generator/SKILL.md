@@ -99,11 +99,11 @@ Agent **PHẢI** trả về JSON với cấu trúc sau:
 | **Tổng Số Từ Lời Thoại** | **1,200 – 1,800 từ** / bài học (Giảng giải tỉ mỉ, thong thả, sư phạm). |
 | **Số Từ / Scene** | **140 – 220 từ** / scene. |
 | **Tốc Độ Đọc & Ngắt Nghỉ** | Tốc độ đọc thong thả, từ tốn (`speed = 0.9` – `1.0`). Bắt buộc chèn đầy đủ dấu phẩy `,`, dấu chấm `.`, dấu hai chấm `:` để giọng đọc ngắt nghỉ tự nhiên, sư phạm. |
-| **Lời Mở Đầu (BẮT BUỘC SCENE 01)** | **BẮT BUỘC** câu đầu tiên của `Scene_01` (trong lời thoại & file TTS script) phải cất lên: `"Chào mừng các bạn đã quay trở lại với hệ thống Elearning của Rikkei Education."` |
-| **Lời Tạm Biệt & Giới Thiệu Bài Tiếp (BẮT BUỘC SCENE CUỐI)** | **BẮT BUỘC** ở đoạn kết thúc Scene cuối cùng, voiceover phải đọc rõ tóm tắt + **tên & nội dung của Bài Học Tiếp Theo**, và cất lời tạm biệt: `"Tóm lại... Trong bài học tiếp theo, chúng ta sẽ cùng nhau tìm hiểu về [Tên_Bài_Học_Tiếp_Theo]. Cảm ơn các bạn đã theo dõi, hẹn gặp lại!"`. Đồng thời UI Banner bài học tiếp theo (`.next-step-bar`) **phải xuất hiện đồng bộ** trên màn hình lúc voice cất lời dẫn này. |
-| **Hành văn & Từ Nối Chuyển Cảnh (BẮT BUỘC TỰ NHIÊN)** | **BẮT BUỘC** sử dụng các từ nối, câu dẫn dắt sư phạm tự nhiên giữa các ý và giữa các Scene (*"Bây giờ chúng ta hãy cùng đặt câu hỏi...", "Thế nhưng trong thực tế...", "Liệu có giải pháp nào...", "Đến đây, chúng ta sẽ chuyển sang..."*). **KHÔNG ĐƯỢC** đọc liệt kê khô khan như đọc slide. |
-| **Cấu Trúc Kịch Bản (BẮT BUỘC ĐẶT VẤN ĐỀ TRƯỚC)** | **BẮT BUỘC** tuân theo cấu trúc **Bối cảnh -> Vấn đề/Pain point -> Giải pháp -> Thực thi mã nguồn**. Tuyệt đối không nhảy ngay vào định nghĩa/giải pháp khi người học chưa hiểu rõ lý do và ứng dụng thực tế. |
-| **Từ Ngữ Cấm Dùng** | **NGHIÊM CẤM** sử dụng từ ngữ sến súa, khẩu ngữ/từ đệm thừa (`nhé`, `dạ`, `các em thân mến`, `nhé các bạn`, `à`, `ừm`...) và từ ngữ tiêu cực/kích động/gây hoảng sợ (`chết chóc`, `thảm họa`, `tiêu tùng`...). |
+| **Lời Mở Đầu (BẮT BUỘC SCENE 01)** | **BẮT BUỘC** câu đầu tiên của `Scene_01` phải là: `"Chào mừng các bạn đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong nội dung bài học này, chúng ta sẽ cùng tìm hiểu về [Tên_Bài_Học]."` |
+| **Lời Tạm Biệt & Giới Thiệu Bài Tiếp (BẮT BUỘC SCENE CUỐI)** | **BẮT BUỘC** đoạn cuối Scene phải tóm tắt nội dung đã học, dẫn vào bài tiếp theo: `"Như vậy, trong bài học này chúng ta đã [tóm tắt]. Trong bài học tiếp theo, chúng ta sẽ tìm hiểu về [Tên_Bài_Học_Tiếp_Theo]. Xin cảm ơn và hẹn gặp lại."` Đồng thời UI Banner bài học tiếp theo **phải xuất hiện đồng bộ** trên màn hình. |
+| **Hành văn & Từ Nối Chuyển Cảnh (BẮT BUỘC TỰ NHIÊN)** | **BẮT BUỘC** sử dụng các từ nối, câu dẫn dắt sư phạm tự nhiên giữa các ý và giữa các Scene (*"Hãy cùng đặt câu hỏi...", "Thế nhưng trong thực tế...", "Vậy giải pháp ở đây là...", "Tiếp theo, chúng ta sẽ chuyển sang...", "Lưu ý quan trọng ở bước này là..."*). **KHÔNG ĐƯỢC** đọc liệt kê khô khan như đọc slide. |
+| **Cấu Trúc Kịch Bản (BẮT BUỘC ĐẶT VẤN ĐỀ TRƯỚC)** | **BẮT BUỘC** tuân theo cấu trúc **Bối cảnh -> Vấn đề/Pain point -> Giải pháp -> Thực thi mã nguồn sản xuất**. Tuyệt đối không nhảy ngay vào định nghĩa/giải pháp khi người học chưa hiểu rõ lý do và ứng dụng thực tế. |
+| **Văn Phong Giảng Viên Đại Học (BẮT BUỘC)** | Phong cách giảng dạy bậc đại học: mạch lạc, chuyên sâu kỹ thuật, trung lập cảm xúc. Xưng hô chuẩn: **"chúng ta"** (không dùng *"các em"*, *"các bạn ơi"*). Cấm tuyệt đối mọi từ ngữ sến súa, kích động hoặc thiếu chuyên nghiệp — xem danh sách đầy đủ ở **Section 4.3**. |
 
 ---
 
@@ -131,6 +131,65 @@ Mỗi chuyển giao giữa các phân cảnh và các ý giảng giải **MUST (
 - **Chuyển sang giải pháp**: *"Vậy làm thế nào để giải quyết vấn đề này?...", "Đó chính là lý do ngôn ngữ cung cấp cơ chế..."*
 - **Chuyển sang Code Demo**: *"Để thấy rõ cách hoạt động, hãy cùng quan sát đoạn mã nguồn sau...", "Bây giờ, chúng ta hãy cùng thực thi đoạn lệnh này..."*
 - **Chuyển cảnh mới**: *"Tiếp nối khái niệm này, chúng ta sẽ chuyển sang một phần cực kỳ quan trọng...", "Sau khi đã hiểu rõ nguyên lý, bước tiếp theo chúng ta cần lưu ý..."*
+
+---
+
+## 4.3. Quy Tắc Giọng Văn Giảng Viên Đại Học & Danh Sách Từ Ngữ Bị Cấm (Academic Lecturer Tone & Forbidden Words Policy)
+
+> [!CAUTION]
+> **NGHIÊM CẤM TUYỆT ĐỐI (ZERO TOLERANCE).** Bất kỳ từ ngữ nào trong danh sách dưới đây xuất hiện trong `narration` hoặc `tts_scripts` sẽ khiến Reviewer Agent **TỪ CHỐI (REJECT)** kịch bản ngay lập tức và yêu cầu viết lại toàn bộ phân cảnh vi phạm.
+
+### A. Tiêu Chuẩn Giọng Văn Giảng Viên Đại Học
+
+| Tiêu Chí | Quy Tắc Bắt Buộc |
+|---|---|
+| **Xưng hô** | Chỉ dùng **"chúng ta"** (ngôi số nhiều trung lập). NGHIÊM CẤM: *"các em"*, *"các em ơi"*, *"các bạn ơi"*, *"các bạn nhé"*, *"mọi người"* |
+| **Giọng điệu** | Trung lập, mạch lạc, chuyên nghiệp như bài giảng tại giảng đường. Không huyên thuyên, không cảm thán thái quá |
+| **Câu kết thúc ý** | Dùng cấu trúc phân tích rõ ràng: *"Như vậy...", "Kết luận rút ra là...", "Điều này có nghĩa là..."*. NGHIÊM CẤM kết thúc bằng *"nhé!"*, *"nha!"*, *"đó nha!"* |
+| **Mức độ cảm xúc** | Tập trung vào lập luận kỹ thuật, ví dụ thực tế và hậu quả logic. NGHIÊM CẤM dùng ngôn ngữ kịch tính hóa để gây sợ hãi hoặc kích thích |
+| **Kết thúc video** | Kết thúc lịch sự, ngắn gọn: *"Xin cảm ơn và hẹn gặp lại."*. NGHIÊM CẤM: *"Cảm ơn các em nhiều lắm!"*, *"Thích thì like nhé!"* |
+
+### B. Danh Sách Từ Ngữ Bị Cấm Tuyệt Đối
+
+**Nhóm 1 — Từ sến súa / thân mật quá mức:**
+```
+nhé, nha, nhen, ha, nghen, ơi, ơi các em, các em ơi, các em thân mến,
+bạn ơi, mọi người ơi, các bạn thân mến, chúc các em, chúc các bạn,
+yêu cầu, cố lên, cố gắng nhé, học tốt nhé, thành công nhé
+```
+
+**Nhóm 2 — Từ kích động / gây hoảng sợ / chết chóc:**
+```
+chết, chết chóc, chết người, giết, bị chết, tiêu tùng, tiêu rồi,
+thảm họa, thảm khốc, thảm bại, thất bại thảm hại, sụp đổ hoàn toàn,
+nguy hiểm chết người, cực kỳ nguy hiểm, rất đáng sợ, kinh khủng,
+khủng khiếp, hãi hùng, ghê gớm, nguy to rồi, lỗi chết người
+```
+
+**Nhóm 3 — Từ phóng đại thái quá / thiếu nghiêm túc:**
+```
+siêu, cực siêu, cực kỳ tuyệt vời, tuyệt đỉnh, đỉnh của đỉnh,
+huyền thoại, thần thánh, vô địch, bá đạo, ảo diệu, điên đảo,
+xịn xò, ngầu lòi, hack não, ngộp thở, bùng nổ, cháy hết mình
+```
+
+**Nhóm 4 — Từ khích lệ thiếu chuyên nghiệp:**
+```
+like, subscribe, share, đăng ký kênh, nhấn chuông, ủng hộ kênh,
+comment bên dưới, hãy chia sẻ, nếu thích thì, nếu hay thì
+```
+
+### C. Bảng So Sánh Trước/Sau (Before/After Examples)
+
+| ❌ SAI — Cấm dùng | ✅ ĐÚNG — Giảng viên đại học |
+|---|---|
+| *"Các em ơi, nhớ nhé!"* | *"Đây là điểm cần lưu ý."* |
+| *"Tuyệt vời quá các bạn ơi!"* | *"Như vậy, chúng ta đã hiểu được cơ chế hoạt động."* |
+| *"Lỗi này chết người lắm đó!"* | *"Đây là lỗi phổ biến dẫn đến sai lệch logic nghiêm trọng."* |
+| *"Nếu hay thì nhớ like nhé!"* | *(Không đề cập. Kết thúc bằng giới thiệu bài tiếp theo.)* |
+| *"Cố lên các em nhé!"* | *"Để củng cố, chúng ta sẽ thực hành thêm ở bài tiếp theo."* |
+| *"Thảm họa sẽ xảy ra nếu..."* | *"Trường hợp không xử lý điều kiện này, hệ thống sẽ trả về lỗi runtime."* |
+| *"Chào mừng các em thân mến!"* | *"Chào mừng các bạn quay trở lại với hệ thống Elearning của Rikkei Education."* |
 
 ---
 
@@ -189,28 +248,66 @@ Mỗi chuyển giao giữa các phân cảnh và các ý giảng giải **MUST (
 
 ---
 
-## 7. Design System & Icon Rules (BẮT BUỘC tuân theo)
+## 7. Design System & Layout Standard (BẮT BUỘC tuân theo Light Theme Standard)
 
 ```
-Background: #0f1117 + dot grid + radial cyan/purple glow
-Font text: Inter | Font code: Fira Code
-Text colors (BẮT BUỘC SIÊU TƯƠNG PHẢN): #ffffff (Tiêu đề - 100% White), #f0f6fc (Nội dung - Bright White), font-weight: 500-700
-CẤM MÀU XÁM TỐI: Không bao giờ dùng màu #8b949e, #666, #444 cho văn bản nội dung.
-Syntax: keyword #ff7b72 | string #a5d6ff | variable #79c0ff | function #d2a8ff
-IDE Window: VS Code Dark+ background #1e1e1e, border rgba(255,255,255,0.15)
-Cards: rgba(22, 27, 34, 0.92) + border rgba(255,255,255,0.15) + border-radius 20px
+Background: #f8fafc canvas + linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%) + dark dot grid overlay (rgba(15,23,42,0.08))
+Font text: Be Vietnam Pro (font-family: 'Be Vietnam Pro', sans-serif)
+Font code: Monospace Fira Code (font-family: 'Fira Code', monospace)
+Brand Logo: Fixed top-right Rikkei logo (top: 50px; right: 80px; height: 52px; z-index: 100)
+Main Title: Top-left title (top: 50px; left: 80px; font-size: 44px; font-weight: 800; color: #ba252a - Rikkei Red)
+Alignment: 100% Strict Left-Alignment (text-align: left !important) for all text elements
+Text colors: #0f1117 / #0f172a (Slate 900 for text)
+Cards: #ffffff + 1.5px solid #e2e8f0 + 6px solid #ba252a left border + border-radius 14px + box-shadow(0 8px 20px rgba(15,23,42,0.04))
+Code Container: #ffffff + 1.5px solid #cbd5e1 + 5px solid #ba252a top border + Fira Code monospace + tab-size 4
 Canvas: 1920×1080px, overflow hidden
 ```
 
 **QUY TẮC ICON & TỪ NGỮ GIAO DIỆN (UI):**
 1. **NGHIÊM CẤM DÙNG EMOJI TRÊN UI**: Sử dụng 100% SVG Vector Icons (`<svg>...</svg>`) cho mọi nhãn, nút, badge, sidebar.
 2. **PHÂN TÁCH 100% GIỮA TTS SCRIPT VÀ UI DISPLAY**:
-   - `TTS Script` (để đọc voice): Dùng phiên âm (`Pai-thòn`, `snếch-kê-xơ`, `P-Vi-Em`) để mô hình đọc tiếng Anh chuẩn.
+   - `TTS Script` (để đọc voice): Dùng phiên âm (`Pai-thừn`, `snếch-kê-xơ`, `P-Vi-Em`) để mô hình đọc tiếng Anh chuẩn.
    - `UI Display Text` (hiển thị hình ảnh): **BẮT BUỘC** dùng từ chuẩn tiếng Anh / tiếng Việt kỹ thuật: `Python`, `snake_case`, `PVM`, `compiler`, `PEP 8`.
-3. **KHÔNG DÁN ĐOẠN VĂN DÀI LÊN UI**: UI Cards chỉ chứa Keywords, Bullet Points (tối đa 5–10 từ/card), Code Snippets hoặc Diagrams. Không bao giờ chép lại nguyên đoạn văn lời thoại lên UI.
+3. **KHÔNG DÁN ĐOẠN VĂN DÀI LÊN UI**: Giao diện UI chỉ chứa Keywords, Bullet Points (tối đa 5–10 từ), Code Snippets hoặc Diagrams. Không bao giờ chép lại nguyên đoạn văn lời thoại lên UI.
 4. **FADE-OUT CLEAN CUỐI SCENE**: Ở 0.8s cuối của mỗi Scene timeline, **BẮT BUỘC** fade out toàn bộ scene (`tl.to("#scene-XX", {autoAlpha:0, duration:0.8})`) để tránh đè layout sang Scene tiếp theo hoặc Outro video.
-5. **CẤM SỬA LẺ TỪNG VIDEO**: Tất cả video bài học phải được sinh và đóng gói tự động thông qua quy chuẩn SKILL và bộ Component Reusable (`hyperframes/components/`).
-6. **NGHIÊM CẤM ĐƯỜNG DẪN Ổ ĐĨA TỦ MÁY TÍNH (WORKSPACE-RELATIVE PATHS ONLY)**: **BẮT BUỘC** tất cả các đường dẫn tệp trong cấu hình, tài liệu, kịch bản, mã nguồn script và tham chiếu (link) PHẢI xuất phát từ thư mục gốc của dự án (ví dụ: `Kokoro-Vietnamese/configs/tech_dictionary.json`, `skills/video_script_generator/SKILL.md`, `hyperframes/components/`). **NGHIÊM CẤM** việc ghi đường dẫn tuyệt đối bắt đầu từ ổ đĩa máy tính (`d:\...`, `C:\...`, `file:///d:...`).
+5. **CẤM SỬA LẺ TỪNG VIDEO**: Tất cả video bài học phải được sinh và đóng gói tự động thông qua quy chuẩn SKILL và UIComponentRenderer chuẩn.
+6. **NGHIÊM CẤM ĐƯỜNG DẪN Ổ ĐĨA TỦ MÁY TÍNH (WORKSPACE-RELATIVE PATHS ONLY)**: **BẮT BUỘC** tất cả các đường dẫn tệp trong cấu hình, tài liệu, kịch bản, mã nguồn script và tham chiếu (link) PHẢI xuất phát từ thư mục gốc của dự án (ví dụ: `Kokoro-Vietnamese/configs/tech_dictionary.json`, `skills/video_script_generator/SKILL.md`). **NGHIÊM CẤM** việc ghi đường dẫn tuyệt đối bắt đầu từ ổ đĩa máy tính (`d:\...`, `C:\...`, `file:///d:...`).
+
+---
+
+## 7.1. Quy Tắc Kịch Bản Video Chuyên Nghiệp Quốc Tế (6 Advanced Features)
+
+Để kịch bản đạt trình độ sản xuất chuyên nghiệp đỉnh cao như các kênh công nghệ quốc tế (*Fireship, ByteByteGo*), kịch bản **PHẢI** tích hợp 6 tính năng sau:
+
+1. **Scene Live-Debugging & Pitfall Scene (BẮT BUỘC ÍT NHẤT 1 SCENE)**:
+   - Kịch bản không chỉ dạy Happy Path mà **phải có ít nhất 1 Scene cố tình tạo lỗi thực tế** (`TypeError`, `AttributeError`, `HTTP 500`).
+   - Giảng viên đọc Stack trace, phân tích dòng code lỗi và hướng dẫn sửa lại mã nguồn chuẩn.
+
+2. **Director Cue Markups (Thẻ Đạo Diễn Kỹ Thuật trong Lời Thoại)**:
+   - Nhúng trực tiếp các thẻ chỉ dẫn vào `narration` để hỗ trợ giọng đọc TTS và hiệu ứng GSAP:
+     - `[stress: từ_khóa]`: Nhấn giọng ngắt nghỉ tại từ khóa quan trọng.
+     - `[zoom: line_12-15]`: Ra lệnh GSAP tự động phóng to (Zoom-in) vào vị trí code/element tương ứng.
+     - `[pause: 1.5s]`: Tạo khoảng dừng để học viên kịp suy ngẫm thông tin phức tạp.
+
+3. **Cognitive Load & Pacing Control (Quản Lý Nhịp Điệu Bài Giảng)**:
+   - Mỗi Scene khai báo thuộc tính `pacing_mode`:
+     - `"fast_hook"` (Intro / Đặt vấn đề): Tốc độ đọc nhanh, sôi nổi (`speed = 1.05`).
+     - `"dense_code"` (Lý thuyết khó/Code phức tạp): Tốc độ đọc thong thả (`speed = 0.88`), có khoảng dừng.
+     - `"recap_outro"` (Tóm tắt): Nhịp điệu dứt khoát, chắc chắn.
+
+4. **Semantic Code Reading Protocol (Quy Tắc Đọc Code Theo Ý Nghĩa Nghiệp Vụ)**:
+   - Tuyệt đối không đọc vẹt từng ký tự cú pháp (`if i == 0:`).
+   - Đọc theo bản chất nghiệp vụ (Ví dụ: *"Nếu người dùng chưa đăng nhập, hệ thống sẽ chuyển hướng sang trang Login"*).
+
+5. **Micro-Engagement Checkpoints (Thử Thách Tương Tác 5 Giây)**:
+   - Ở giữa video (Scene 4 hoặc 5), kịch bản chèn 1 mốc thử thách tương tác: Màn hình dừng lại với 1 câu hỏi tình huống ngắn và đếm ngược 3..2..1 trước khi hé lộ đáp án.
+
+6. **Data-Flow Continuity (Nối Mạch Thị Giác Dữ Liệu)**:
+   - Khai báo `continuity_anchor` (ví dụ: `"#user-dto-card"`) để phần tử dữ liệu chuyển động mềm mại giữa các Scene liên tiếp.
+
+7. **UI Visual Buffer for Greetings (Intro Hero Banner & Outro Next-Lesson Banner)**:
+   - **Scene 01 (Lời Chào Mở Đầu)**: Từ `0.0s ➔ 3.2s` (khi cất lời chào thương hiệu), màn hình hiển thị **Hero Brand Banner** (Badge Rikkei Education + Hero Title 72px + Subtitle Lộ trình) nằm chính giữa màn hình. Ở `3.2s`, Hero Banner thu nhỏ (`scale: 0.38`) và di chuyển lên góc trên-trái thành Header Bar cố định trước khi UI chính xuất hiện lúc `4.0s`.
+   - **Scene Cuối (Lời Tạm Biệt & Kết Thúc)**: Hiển thị Thẻ Tổng Kết Key Takeaways kết hợp với **Next Lesson Preview Banner** viền tím gradient phát sáng (`[ TIẾP TỤC ➔ ]`) để lấp đầy khoảng trống lời tạm biệt trước khi chuyển sang Video Outro.
 
 ---
 
@@ -240,8 +337,13 @@ Reviewer agent sẽ **REJECT (TỪ CHỐI)** nếu vi phạm bất kỳ tiêu ch
    - Scene cuối cất lời giới thiệu bài tiếp theo: `"Trong bài học tiếp theo, chúng ta sẽ cùng nhau tìm hiểu về [Tên_Bài_Học_Tiếp_Theo]. Cảm ơn các bạn đã theo dõi, hẹn gặp lại!"` (Đồng thời UI Banner xuất hiện đồng bộ).
 7. ✅ `tts_scripts` có đủ entry cho mọi `scene_id`
 8. ✅ `track_index` tăng dần: 1, 2, 3, ...
-9. ✅ **Không từ sến súa/kích động**: Không chứa `nhé`, `dạ`, `các em thân mến`, `chết chóc`, `thảm họa`...
-10. ✅ **Nguồn kiến thức từ Bài Đọc**: Trích xuất 100% từ file Bài Đọc (`reading.md`) làm nguồn tri thức SSOT.
+9. ✅ **Tuân thủ Giọng Văn Giảng Viên Đại Học (Section 4.3 — Zero Tolerance)**: Reviewer sẽ REJECT ngay nếu narration vi phạm BẤT KỲ quy tắc nào trong Section 4.3, bao gồm nhưng không giới hạn:
+   - Xưng hô sai: `các em`, `các em ơi`, `các em thân mến`, `bạn ơi`, `mọi người ơi`
+   - Từ sến súa: `nhé`, `nha`, `nhen`, `cố lên nhé`, `học tốt nhé`, `thành công nhé`
+   - Từ chết chóc / kích động: `chết`, `chết người`, `tiêu tùng`, `thảm họa`, `thảm khốc`, `kinh khủng`, `nguy hiểm chết người`
+   - Từ phóng đại: `siêu`, `đỉnh của đỉnh`, `huyền thoại`, `thần thánh`, `bá đạo`, `ảo diệu`, `bùng nổ`
+   - Lời kêu gọi mạng xã hội: `like`, `subscribe`, `đăng ký kênh`, `nhấn chuông`, `comment bên dưới`
+10. ✅ **Nguồn kiến thức từ Bài Đọc (Reading-First SSOT Dependency)**: Kịch bản video CHỈ được phép biên soạn **SAU KHI Bài Đọc HTML (`reading.md`) đã được tạo và phê duyệt 100%**. Trích xuất 100% nội dung kiến thức từ file Bài Đọc để đảm bảo tính đồng bộ và chính xác tuyệt đối.
 11. ✅ **Phân Tích & Tự Huấn Luyện Từ Điển TTS**: Bắt buộc quét từ khó/tiếng Anh và lưu phiên âm vào `configs/tech_dictionary.json` trước khi sinh voice.
 12. ✅ **Chuẩn hóa SVG Icons & Tên Kỹ Thuật trên UI**: Không dùng Emoji trên UI; Không đưa từ phiên âm (`Pai-thòn`) lên UI Display text (chỉ dùng `Python`).
 13. ✅ **UI Ngắn gọn & Clean Fade-out**: UI Cards chỉ dùng từ khóa/bullet points (không chứa văn bản dài); Bắt buộc có Fade-out ở cuối mỗi Scene.

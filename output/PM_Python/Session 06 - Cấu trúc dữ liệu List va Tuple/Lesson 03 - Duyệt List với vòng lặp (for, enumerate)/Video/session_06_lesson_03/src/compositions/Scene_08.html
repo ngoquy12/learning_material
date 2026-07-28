@@ -1,0 +1,402 @@
+<!--
+  COMPONENT: terminal.html
+  HyperFrames UI Component Library — Terminal CLI Window
+
+  SLOTS:
+    08         → số thứ tự scene
+    26.42             → thời lượng scene
+    Thực thi kiểm thử đầu ra trên Terminal CLI     → tiêu đề scene
+    Khái Niệm Cốt Lõi   → tiêu đề card khái niệm
+    Chúng ta hãy chạy thử file mã nguồn này bằng dòng lệnh python và kiểm tra kết quả hiển thị trên màn hình terminal. Các em gõ lệnh python main chấm py và nhấn enter.    → nội dung khái niệm
+    <span class="cmd-line"><span class="cmd-prompt-prefix">$</span> <span class="cmd-text">python --version</span></span>
+          <span class="cmd-line cmd-output">Python 3.11.9</span>
+          <span class="cmd-separator"></span>
+          <span class="cmd-line"><span class="cmd-prompt-prefix">$</span> <span class="cmd-text">pip --version</span></span>
+          <span class="cmd-line cmd-output">pip 23.3.1 from /usr/lib/python3.11</span>  → HTML danh sách lệnh terminal (mỗi dòng là <div>)
+    bash      → tên shell (bash, PowerShell, zsh, cmd...)
+    ~/project        → thư mục hiện tại (ví dụ: ~/project)
+    4.0              → thời điểm concept card xuất hiện
+    9.23              → thời điểm terminal xuất hiện
+          → GSAP JS bổ sung (tùy chọn)
+-->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scene 08 — Thực thi kiểm thử đầu ra trên Terminal CLI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background-color: #0f1117;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.18) 1.5px,
+          transparent 1.5px
+        );
+        background-size: 32px 32px;
+        font-family: "Inter", sans-serif;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+        top: -200px;
+        left: -200px;
+        width: 800px;
+        height: 800px;
+        background: rgba(63, 185, 80, 0.08);
+      }
+      body::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+        bottom: -200px;
+        right: -200px;
+        width: 600px;
+        height: 600px;
+        background: rgba(56, 189, 248, 0.08);
+      }
+      .scene-root {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      [id^="scene-"] {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      :root {
+        --text-primary: #e6edf3;
+        --text-secondary: #c9d1d9;
+        --text-muted: #8b949e;
+        --cmd-prompt: #3fb950;
+        --cmd-output: #c9d1d9;
+        --cmd-comment: #8b949e;
+        --cmd-error: #f85149;
+        --cmd-path: #79c0ff;
+      }
+      .section-badge {
+        position: absolute;
+        top: 28px;
+        right: 40px;
+        background: rgba(63, 185, 80, 0.12);
+        border: 1px solid rgba(63, 185, 80, 0.3);
+        border-radius: 999px;
+        padding: 8px 24px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #3fb950;
+        letter-spacing: 0.5px;
+      }
+      .intro-title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 72px;
+        font-weight: 800;
+        color: var(--text-primary);
+        text-align: center;
+        white-space: nowrap;
+        z-index: 100;
+        text-shadow: 0 0 60px rgba(63, 185, 80, 0.4);
+      }
+      .main-layout {
+        position: absolute;
+        top: 80px;
+        left: 40px;
+        display: flex;
+        gap: 36px;
+        width: 1840px;
+        height: 960px;
+        align-items: center;
+      }
+      .concept-card {
+        flex: 0 0 36%;
+        background: rgba(9, 9, 11, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 48px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        height: 680px;
+        justify-content: center;
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      }
+      .concept-card h3 {
+        font-size: 30px;
+        font-weight: 700;
+        color: var(--text-primary);
+        border-bottom: 2px solid rgba(63, 185, 80, 0.3);
+        padding-bottom: 16px;
+      }
+      .concept-card p {
+        font-size: 22px;
+        line-height: 1.75;
+        color: var(--text-secondary);
+      }
+
+      /* ── Terminal Window ──────────────────────────────── */
+      .terminal-window {
+        flex: 1;
+        height: 740px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow:
+          0 24px 64px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(255, 255, 255, 0.04);
+        display: flex;
+        flex-direction: column;
+        background: #0d1117;
+      }
+      .terminal-titlebar {
+        background: #1c1c1e;
+        height: 38px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+      }
+      .terminal-dots {
+        display: flex;
+        gap: 8px;
+      }
+      .t-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .t-dot.red {
+        background: #f85149;
+      }
+      .t-dot.yellow {
+        background: #ffa657;
+      }
+      .t-dot.green {
+        background: #3fb950;
+      }
+      .terminal-title-text {
+        font-family: system-ui, sans-serif;
+        font-size: 13px;
+        color: #8b949e;
+        font-weight: 500;
+      }
+      .terminal-body {
+        flex: 1;
+        padding: 24px 32px;
+        overflow: hidden;
+        font-family: "Fira Code", monospace;
+        font-size: 19px;
+        line-height: 1.9;
+      }
+      /* Command line styles */
+      .cmd-line {
+        display: block;
+      }
+      .cmd-prompt-prefix {
+        color: var(--cmd-prompt);
+        font-weight: 600;
+      }
+      .cmd-path {
+        color: var(--cmd-path);
+      }
+      .cmd-text {
+        color: var(--text-primary);
+      }
+      .cmd-output {
+        color: var(--cmd-output);
+        padding-left: 0;
+      }
+      .cmd-comment {
+        color: var(--cmd-comment);
+        font-style: italic;
+      }
+      .cmd-success {
+        color: var(--cmd-prompt);
+      }
+      .cmd-error {
+        color: var(--cmd-error);
+      }
+      .cmd-separator {
+        height: 12px;
+        display: block;
+      }
+      /* Blinking cursor */
+      .cursor-blink {
+        display: inline-block;
+        width: 10px;
+        height: 20px;
+        background: #3fb950;
+        animation: none;
+        vertical-align: middle;
+        margin-left: 2px;
+      }
+      @keyframes blink {
+        0%,
+        49% {
+          opacity: 1;
+        }
+        50%,
+        100% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="scene-08"
+      class="clip"
+      data-composition-id="scene-08"
+      data-start="0"
+      data-duration="26.42"
+      data-track-index="0"
+    >
+      <div
+        class="section-badge clip"
+        data-start="0"
+        data-duration="26.42"
+        data-track-index="1"
+      >
+        Thực thi kiểm thử đầu ra trên Terminal CLI
+      </div>
+
+      <div
+        id="intro-title-08"
+        class="intro-title clip"
+        data-start="0"
+        data-duration="26.42"
+        data-track-index="100"
+      >
+        Thực thi kiểm thử đầu ra trên Terminal CLI
+      </div>
+
+      <div
+        id="main-layout-08"
+        class="main-layout clip"
+        data-start="0"
+        data-duration="26.42"
+        data-track-index="2"
+      >
+        <!-- Concept card -->
+        <div id="concept-card-08" class="concept-card">
+          <h3>Khái Niệm Cốt Lõi</h3>
+          <p>Chúng ta hãy chạy thử file mã nguồn này bằng dòng lệnh python và kiểm tra kết quả hiển thị trên màn hình terminal. Các em gõ lệnh python main chấm py và nhấn enter.</p>
+        </div>
+
+        <!-- Terminal window -->
+        <div id="terminal-08" class="terminal-window">
+          <div class="terminal-titlebar">
+            <div class="terminal-dots">
+              <span class="t-dot red"></span>
+              <span class="t-dot yellow"></span>
+              <span class="t-dot green"></span>
+            </div>
+            <div class="terminal-title-text">
+              bash — ~/project
+            </div>
+            <div style="font-size: 13px; color: #8b949e">⊕ ×</div>
+          </div>
+          <div class="terminal-body" id="terminal-body-08">
+            <span class="cmd-line"><span class="cmd-prompt-prefix">$</span> <span class="cmd-text">python --version</span></span>
+          <span class="cmd-line cmd-output">Python 3.11.9</span>
+          <span class="cmd-separator"></span>
+          <span class="cmd-line"><span class="cmd-prompt-prefix">$</span> <span class="cmd-text">pip --version</span></span>
+          <span class="cmd-line cmd-output">pip 23.3.1 from /usr/lib/python3.11</span>
+            <span class="cursor-blink" id="cursor-08">█</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const sceneId = "scene-08";
+      window.__timelines[sceneId] = tl;
+
+      const _buildTimer = setInterval(function () {
+        if (!document.getElementById(sceneId)) return;
+        clearInterval(_buildTimer);
+
+        const t1 = parseFloat("4.0") || 4.0;
+        const t2 = parseFloat("9.23") || 4.5;
+        const dur = parseFloat("26.42") || 30.0;
+
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+        tl.set(
+          "#intro-title-08",
+          { autoAlpha: 0, scale: 0.8 },
+          0,
+        );
+        tl.set("#concept-card-08", { autoAlpha: 0, x: -50 }, 0);
+        tl.set("#terminal-08", { autoAlpha: 0, y: 40 }, 0);
+
+        tl.to(
+          "#intro-title-08",
+          { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" },
+          0.2,
+        );
+        tl.to(
+          "#intro-title-08",
+          {
+            scale: 0.38,
+            x: -760,
+            y: -460,
+            duration: 0.7,
+            ease: "power3.inOut",
+          },
+          3.2,
+        );
+
+        tl.to(
+          "#concept-card-08",
+          { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" },
+          t1,
+        );
+        tl.to(
+          "#terminal-08",
+          { autoAlpha: 1, y: 0, duration: 0.7, ease: "back.out(1.2)" },
+          t2,
+        );
+
+        // Cursor blink after terminal appears
+        tl.to(
+          "#cursor-08",
+          { opacity: 0, duration: 0.5, repeat: -1, yoyo: true, ease: "none" },
+          t2 + 0.8,
+        );
+
+        /*  */
+
+        // Clean scene fade-out before transition
+        tl.to("#scene-08", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
+</html>

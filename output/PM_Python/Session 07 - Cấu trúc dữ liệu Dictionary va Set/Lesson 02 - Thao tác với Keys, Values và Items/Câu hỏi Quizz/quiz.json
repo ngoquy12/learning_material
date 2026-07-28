@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Thao tac truc tiep bang chi muc so hoc tren List thong thuong de dan den rui ro gi ve mat phan mem?",
+      "options": [
+        "Loi doc ghi o cung cham",
+        "Loi tran chi muc hoac nham lan giua cac thuoc tinh nguoi dung",
+        "Du lieu tu dong bi khoa",
+        "Loi ro ri bo nho o cung"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Thao tac bang chi muc so hoc khong co nhan ro rang rat de gay ra loi vuot qua gioi han index hoac cap nhat thong tin vao nham truong du lieu cua nguoi dung khac."
+    },
+    {
+      "question": "Do phuc tap thoi gian cua viec truy xuat du lieu truc tiep thong qua co che bam cua Dictionary la gi?",
+      "options": [
+        "O(N)",
+        "O(log N)",
+        "O(1)",
+        "O(N log N)"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Bieu do trong bai hoc chi ra rang Hash Function thuc hien O(1) Direct Mapping, nghia la anh xa truc tiep den gia tri ma khong phu thuoc vao kich thuoc tap du lieu."
+    },
+    {
+      "question": "Trong so do hoat dong cua Dictionary, dau vao 'email' truoc khi den duoc o chua gia tri phai di qua thanh phan nao?",
+      "options": [
+        "Sequential Scan Block",
+        "Index List Pointer",
+        "Hash Function",
+        "Sorting Block"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Theo so do truc quan trong bai doc, khoa 'email' se duoc chuyen den 'Hash Function' de bam ra vi tri anh xa truoc khi lay ra du lieu."
+    },
+    {
+      "question": "Kịch ban nao sau day co the gay ra loi dung chuong trinh dot ngot khi dung Dictionary?",
+      "options": [
+        "Lay toan bo danh sach cac khoa cua Dictionary",
+        "Truy cap hoac thay doi gia tri cua mot khoa khong ton tai ma khong kiem tra truoc",
+        "Khoi tao Dictionary co nhieu hon 100 phan tu",
+        "Dung gia tri chuoi lam khoa cho Dictionary"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Truy cap vao mot khoa khong co san trong Dictionary ma khong qua buoc kiem tra se phat sinh ngoai le (KeyError) khien ung dung bi dung bat thuong."
+    }
+  ],
+  "practical_lab": {
+    "title": "Thuc hanh cap nhat ho so nguoi dung ngan ngua loi Key Error",
+    "objectives": [
+      "Khoi tao mot Dictionary luu tru ho so nguoi dung bao gom cac khoa co ban nhu email va vai tro.",
+      "Viet ham cap nhat thong tin thong minh kiem tra khoa ton tai.",
+      "Mo phong va ngan chan loi he thong khi nguoi dung nhap khoa can cap nhat khong hop le."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Buoc 1: Khoi tao mot Dictionary co ten la 'user_profile' voi cac cap key-value mac dinh nhu {'email': 'user@rikkei.edu.vn', 'role': 'member'}.",
+        "Buoc 2: Viet mot ham 'update_field(profile, key, new_value)' nhan vao Dictionary, khoa can sua va gia tri moi.",
+        "Buoc 3: Trong ham thiet lap dieu kien dung check 'key in profile'. Neu dung thi tien hanh cap nhat, nguoc lai in ra thong bao loi nhung khong de ung dung bi crash.",
+        "Buoc 4: Tien hanh goi ham voi khoa hop le ('email') va mot khoa khong ton tai ('address') de kiem tra tinh on dinh cua chuong trinh."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Dictionary khoi tao khong bi loi cu phap.",
+        "Ham kiem tra thanh cong su ton tai cua khoa truoc khi gan gia tri moi.",
+        "Khong bi dung chuong trinh dot ngot khi truyen vao mot khoa chua khoi tao."
+      ]
+    }
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Trong quản lý chuỗi cung ứng, việc xác định vị trí thực tế của từng kiện hàng trên băng chuyền tương ứng với cấu trúc dữ liệu nào khi lập trình?",
+      "options": [
+        "Truy xuất đồng thời cả chỉ số vị trí (Index) và giá trị dữ liệu (Value)",
+        "Chỉ truy xuất giá trị dữ liệu (Value)",
+        "Chỉ truy xuất duy nhất chỉ số vị trí (Index)",
+        "Xáo trộn ngẫu nhiên vị trí các phần tử dữ liệu"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Theo bài đọc, lập trình viên thường xuyên đối mặt với bài toán cần truy xuất đồng thời cả chỉ số vị trí (Index) và giá trị dữ liệu (Value) của từng phần tử để định vị chính xác kiện hàng."
+    },
+    {
+      "question": "Đâu là hạn chế lớn nhất được nhắc đến của việc duy trì một biến đếm thủ công bên ngoài vòng lặp?",
+      "options": [
+        "Làm tăng thời gian chạy của vòng lặp lên gấp đôi",
+        "Làm mã nguồn rườm rà, dễ gây lỗi logic do quên tăng biến đếm, gây bất đồng bộ dữ liệu",
+        "Khiến Python báo lỗi ngay lập tức khi dịch mã nguồn",
+        "Không thể thay đổi giá trị của các phần tử bên trong danh sách"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Bài đọc chỉ rõ việc tự duy trì biến đếm thủ công làm mã nguồn rườm rà, dễ gây lỗi logic do quên tăng biến đếm, dẫn đến bất đồng bộ dữ liệu."
+    },
+    {
+      "question": "Triết lý thiết kế của Python được Guido van Rossum hướng tới khi giải quyết bài toán lặp lấy chỉ số là gì?",
+      "options": [
+        "Bắt buộc người dùng dùng các cấu trúc rẽ nhánh phức tạp",
+        "Hạn chế sử dụng các hàm tích hợp sẵn",
+        "Đơn giản, rõ ràng, hạn chế tạo biến trung gian dư thừa và cho phép giải nén tự nhiên",
+        "Khuyến khích tạo nhiều biến toàn cục để theo dõi dữ liệu"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Guido van Rossum đưa ra cơ chế tối ưu cho phép giải nén trực tiếp dữ liệu dạng cặp khóa/giá trị một cách tự nhiên và an toàn, hạn chế tối đa các biến trung gian dư thừa."
+    },
+    {
+      "question": "Thông thường, chỉ số danh sách mặc định của máy tính bắt đầu từ bao nhiêu, và hệ thống cần hiển thị báo cáo bắt đầu từ bao nhiêu để thân thiện với người dùng?",
+      "options": [
+        "Mặc định từ 1, báo cáo hiển thị từ 0",
+        "Mặc định từ 0, báo cáo hiển thị từ 1",
+        "Mặc định từ 0, báo cáo hiển thị từ 0",
+        "Mặc định từ 1, báo cáo hiển thị từ 2"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Ngôn ngữ máy tính mặc định chỉ số bắt đầu từ 0, còn biểu mẫu báo cáo hoặc danh sách hiển thị cần đánh số thứ tự thân thiện bắt đầu từ 1."
+    }
+  ],
+  "practical_lab": {
+    "title": "Ứng Dụng Nhãn Vị Trí Vận Hành Cho Kiện Hàng Trên Băng Chuyền",
+    "objectives": [
+      "Hiểu và chỉ ra lỗi tiềm ẩn của phương pháp đếm chỉ số thủ công truyền thống.",
+      "Visual hóa giải pháp tối ưu sử dụng tuple unpacking trực tiếp không qua biến trung gian.",
+      "Tạo lập hệ thống định danh sản phẩm với chỉ số hiển thị bắt đầu từ 1."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Khởi tạo danh sách sản phẩm gồm 4 kiện hàng: conveyor_items = ['Laptop', 'Desktop', 'Server', 'Storage-Disk'].",
+        "Bước 2: Viết một đoạn mã sử dụng biến loop count ngoài để đếm sản phẩm. Thử tình huống quên tăng biến đếm và nhận xét sự sai lệch vị trí in ra.",
+        "Bước 3: Chuyển đổi mã nguồn sang phương án sử dụng cú pháp gọn nhẹ, an toàn của Python để giải nén cùng lúc (index, value) mà không cần biến phụ.",
+        "Bước 4: Định dạng đầu ra sao cho chỉ số hiển thị bắt đầu từ số 1 nhằm phục vụ chính xác báo cáo thực tế gửi cho quản lý kho."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Đoạn mã không khai báo thêm bất kỳ biến đếm rời rạc nào bên ngoài vòng lặp.",
+        "Sử dụng cơ chế giải nén cặp dữ liệu ngay tại khai báo vòng lặp.",
+        "Kết quả in ra đúng định dạng: 'Sản phẩm X nằm ở vị trí thứ Y' (với Y bắt đầu từ 1 và tăng dần liên tục)."
+      ]
+    }
+  }
+}

@@ -221,8 +221,8 @@
 
       // ── PHASE 1: intro-title "Khái niệm và Cú pháp" ──────────────────
       tl.to("#intro-title", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
-      // 3.2s: thu nhỏ → góc trên-trái
-      tl.to("#intro-title", { scale: 0.38, x: -880, y: -480, duration: 0.7, ease: "power3.inOut" }, 3.2);
+      // 3.2s: thu nhỏ → góc trên-trái (x: -760 để nằm an toàn trong canvas)
+      tl.to("#intro-title", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
 
       // ── PHASE 2: concept-line "List ⇔ Array" — hiện 3s rồi fade out ──
       tl.to("#concept-line", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 4.2);

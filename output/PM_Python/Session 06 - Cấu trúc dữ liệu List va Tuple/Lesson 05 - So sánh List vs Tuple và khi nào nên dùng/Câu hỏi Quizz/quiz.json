@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Đâu là nguyên nhân cốt lõi khiến đối tượng List trong Python tiêu hao nhiều bộ nhớ hơn so với Tuple khi chứa cùng lượng phần tử?",
+      "options": [
+        "Cơ chế over-allocation cấp phát dư thừa bộ nhớ đệm để sẵn sàng cho các thao tác chèn phần tử tiếp theo.",
+        "List sử dụng thuật toán mã hóa dữ liệu phức tạp hơn để bảo mật thông tin nội bộ.",
+        "Trình dịch Python bắt buộc lưu trữ dữ liệu dạng nhị phân đối với List để đảm bảo tương thích hệ thống.",
+        "Mọi phần tử trong List đều được nâng kích cỡ lên mức tối thiểu 1MB để đồng bộ hóa tốc độ đọc."
+      ],
+      "correct_option_index": 0,
+      "explanation": "List là một mảng động (dynamic array). Để tránh việc cấp phát lại bộ nhớ liên tục mỗi khi append phần tử mới, CPython sử dụng cơ chế cấp phát thừa (over-allocation) để dự phòng ô nhớ trống."
+    },
+    {
+      "question": "Trong xử lý Big Data, ảnh hưởng nào sau đây là trực tiếp nhất do việc overload Garbage Collector gây ra?",
+      "options": [
+        "Làm gián đoạn các luồng truy vấn cơ sở dữ liệu bên ngoài hệ thống.",
+        "Suy giảm tốc độ phản hồi tổng thể của ứng dụng do CPU bị chiếm dụng tài nguyên để dọn dẹp cấu trúc vùng nhớ động.",
+        "Làm hỏng mã nguồn định dạng Python thành các file text không thể đọc được.",
+        "Ép buộc hệ thống phải đóng kết nối mạng không đồng bộ."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Garbage Collector phải quét các đối tượng động liên tục để giải phóng các bộ nhớ dư thừa của List. Quá trình này tiêu tốn chu kỳ xử lý của CPU, trực tiếp làm tăng độ trễ và giảm hiệu năng ứng dụng."
+    },
+    {
+      "question": "Tính chất 'mutable' của List mang lại rủi ro nào cho các biến lưu cấu hình hệ thống?",
+      "options": [
+        "Làm tăng đáng kể tốc độ kiểm thử đơn vị do dữ liệu không cố định.",
+        "Khiến hệ thống tự động khóa dữ liệu khi phát hiện truy cập đồng thời.",
+        "Cho phép các hàm trung gian vô tình ghi đè, sửa đổi thông tin cấu hình gốc mà không có cơ chế cảnh báo lỗi.",
+        "Buộc lập trình viên phải biên dịch lại toàn bộ ứng dụng mỗi lần cấu hình thay đổi."
+      ],
+      "correct_option_index": 2,
+      "explanation": "Tính khả biến (mutable) cho phép dữ liệu bị chỉnh sửa trực tiếp tại địa chỉ ô nhớ cũ. Do đó các hàm trung gian có thể vô tình thao tác ghi đè lên các giá trị gốc gây mất tính toàn vẹn hệ thống."
+    },
+    {
+      "question": "Để khắc phục cả hai vấn đề: Over-allocation bộ nhớ và tính bất biến cấu hình dữ liệu mạng, giải pháp tối ưu nhất là gì?",
+      "options": [
+        "Chuyển đổi hoàn toàn tất cả cấu trúc dữ liệu sang dạng Dictionary.",
+        "Thay thế việc dùng List bằng Tuple để tận dụng kích thước vùng nhớ cố định và tính chất immutable.",
+        "Tăng cường tài nguyên phần cứng vật lý và nâng tần suất chạy của Garbage Collector.",
+        "Sử dụng thư viện mã hóa dữ liệu cho toàn bộ danh sách đầu vào."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Tuple là cấu trúc tĩnh (fixed size) và bất biến (immutable), không có cơ chế over-allocation giúp tiết kiệm bộ nhớ, đồng thời ngăn chặn mọi thay đổi vô ý đối với dữ liệu cấu hình gốc."
+    }
+  ],
+  "practical_lab": {
+    "title": "Phân tích và tối ưu hóa tài nguyên bộ nhớ hệ thống: List vs Tuple",
+    "objectives": [
+      "Đo lường sự khác biệt về kích thước bộ nhớ vật lý giữa List và Tuple khi xử lý cùng lượng dữ liệu.",
+      "Nhận diện cơ chế phân bổ dư thừa bộ nhớ (over-allocation) của List thông qua hàm sys.getsizeof.",
+      "Xử lý kiểm soát ngoại lệ bảo vệ dữ liệu cấu hình khi chuyển đổi từ Mutable sang Immutable."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "1. Nhập thư viện sys để truy cập các hàm hệ thống quản lý kích thước bộ nhớ.",
+        "2. Khởi tạo một danh sách List rỗng, lặp và thêm liên tiếp 8 phần tử dạng chuỗi. Ở mỗi lượt thêm, in ra độ dài thực tế và kích thước bộ nhớ (bytes) chiếm dụng để quan sát bước tăng của bộ nhớ (over-allocation steps).",
+        "3. Chuyển đổi chính List vừa tạo thành một Tuple và in ra kích thước bộ nhớ để so sánh sự chênh lệch.",
+        "4. Thử nghiệm thay đổi một phần tử trong Tuple thông qua chỉ số index, chụp lỗi TypeError và ghi nhận cơ chế bảo vệ dữ liệu."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Hiển thị được sự thay đổi kích thước bộ nhớ của List không tăng tuyến tính mà tăng nhảy vọt tại các điểm trigger over-allocation.",
+        "Chứng minh được dung lượng bộ nhớ của Tuple thấp hơn dung lượng bộ nhớ của List có cùng dữ liệu.",
+        "Bắt được ngoại lệ TypeError khi thực hiện thay đổi giá trị của Tuple."
+      ]
+    }
+  }
+}

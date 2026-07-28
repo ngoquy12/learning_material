@@ -1,9 +1,9 @@
 <!--
   COMPONENT: comparison.html
-  SLOTS: 01, 17.16, Thách thức về tính nhất quán môi trường toàn cục,
-         Phương pháp Cũ, Trong phát triển phần mềm chuyên nghiệp, việc chạy đồng thời nhiều dự án có phiên bản thư viện khác nhau trên cùng một thiết bị là thử thách lớn, ⚠️,
-         Phương pháp Mới, Nếu cài đặt trực tiếp mọi thứ lên phân vùng hệ thống toàn cục, xung đột phiên bản sẽ xuất hiện tức thì, gây ra hiện tượng địa ngục phụ thuộc hay còn gọi là dependency hell, 🚀,
-         4.0, 6.92, 
+  SLOTS: 01, 35.0, Giới thiệu: Tổng quan về List trong Python,
+         Phương pháp Cũ, Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education, ⚠️,
+         Phương pháp Mới, Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu chi tiết về Tổng quan về List trong Python, 🚀,
+         4.0, 11.38, 
 -->
 <!DOCTYPE html>
 <html lang="vi">
@@ -68,27 +68,30 @@
     }
     .bad-badge { background:rgba(248,81,73,0.15); color:#f85149; border:1px solid rgba(248,81,73,0.3); }
     .good-badge { background:rgba(63,185,80,0.15); color:#3fb950; border:1px solid rgba(63,185,80,0.3); }
-    .card-title { font-size:34px; font-weight:800; color:#e6edf3; line-height:1.2; }
-    .card-body { font-size:22px; line-height:1.7; color:#c9d1d9; }
+    .card-title { font-size:34px; font-weight:800; color:#ffffff; line-height:1.2; }
+    .card-body { font-size:22px; line-height:1.7; color:#f0f6fc; font-weight:500; }
     .separator { width:4px; background:rgba(255,255,255,0.06); height:720px; flex-shrink:0; }
   </style>
 </head>
 <body>
   <div id="scene-01" class="clip"
        data-composition-id="scene-01"
-       data-start="0" data-duration="17.16" data-track-index="0">
+       data-start="0" data-duration="35.0" data-track-index="0">
 
     <div id="intro-title-01" class="intro-title clip"
-         data-start="0" data-duration="17.16" data-track-index="100">
-      Thách thức về tính nhất quán môi trường toàn cục
+         data-start="0" data-duration="35.0" data-track-index="100">
+      Giới thiệu: Tổng quan về List trong Python
     </div>
 
-    <div class="layout clip" data-start="0" data-duration="17.16" data-track-index="2">
+    <div class="layout clip" data-start="0" data-duration="35.0" data-track-index="2">
       <!-- Left: Bad/Old -->
       <div id="left-card-01" class="side-card left-card">
         <div class="card-icon">⚠️</div>
-        <div class="card-badge bad-badge">❌ Phương pháp Cũ</div>
-        <div class="card-body">Trong phát triển phần mềm chuyên nghiệp, việc chạy đồng thời nhiều dự án có phiên bản thư viện khác nhau trên cùng một thiết bị là thử thách lớn</div>
+        <div class="card-badge bad-badge" style="display:flex;align-items:center;gap:6px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f85149" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Phương pháp Cũ
+        </div>
+        <div class="card-body">Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education</div>
       </div>
 
       <div class="separator"></div>
@@ -99,8 +102,11 @@
       <!-- Right: Good/New -->
       <div id="right-card-01" class="side-card right-card">
         <div class="card-icon">🚀</div>
-        <div class="card-badge good-badge">✅ Phương pháp Mới</div>
-        <div class="card-body">Nếu cài đặt trực tiếp mọi thứ lên phân vùng hệ thống toàn cục, xung đột phiên bản sẽ xuất hiện tức thì, gây ra hiện tượng địa ngục phụ thuộc hay còn gọi là dependency hell</div>
+        <div class="card-badge good-badge" style="display:flex;align-items:center;gap:6px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Phương pháp Mới
+        </div>
+        <div class="card-body">Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu chi tiết về Tổng quan về List trong Python</div>
       </div>
     </div>
   </div>
@@ -116,8 +122,8 @@
       clearInterval(_buildTimer);
 
       const t1 = parseFloat("4.0") || 4.0;
-      const t2 = parseFloat("6.92") || 4.5;
-      const dur = parseFloat("17.16") || 30.0;
+      const t2 = parseFloat("11.38") || 4.5;
+      const dur = parseFloat("35.0") || 30.0;
 
       tl.set(".clip", { autoAlpha: 1 }, 0);
       tl.set("#intro-title-01", { autoAlpha: 0, scale: 0.8 }, 0);
@@ -131,6 +137,9 @@
       tl.to("#right-card-01", { autoAlpha: 1, x: 0, duration: 0.7, ease: "power3.out" }, t2);
 
       /*  */
+
+      // Clean scene fade-out before transition
+      tl.to("#scene-01", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
       tl.set({}, {}, dur);
     }, 50);
   </script>

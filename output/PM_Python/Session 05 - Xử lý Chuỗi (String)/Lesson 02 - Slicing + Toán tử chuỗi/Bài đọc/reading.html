@@ -512,6 +512,54 @@ sys.stderr = io.StringIO()
             color: #cbd5e1;
         }
 
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (Rule 3) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (System Rule 1) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
         .code-line.active-line {
             background-color: rgba(56, 189, 248, 0.15);
             border-left-color: var(--primary);
@@ -1188,384 +1236,261 @@ print(reversed_serial)</code></pre>
     <!-- Script imports -->
 
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    
+    <!-- Smart Self-Healing Interactive Visualizer Engine -->
     <script>
-        
-        class InteractiveVisualizerEngine {
-            constructor() {
-                this.rawString = "TXN20241024AUTH09875";
-                this.currentStepIdx = 0;
-                this.isPlaying = false;
-                this.speed = 400;
-                this.timer = null;
-                this.consoleLogs = [];
-                this.variables = {
-                    raw_data_record: '',
-                    transaction_type: '',
-                    transaction_year: '',
-                    auth_status: '',
-                    odd_serial_ids: '',
-                    reversed_serial: '',
-                    processed_report: ''
-                };
+    class InteractiveVisualizerEngine {
+        constructor() {
+            this.currentStep = 0;
+            this.isPlaying = false;
+            this.speed = 500;
+            this.steps = [];
+            this.inputText = '';
+            this.timer = null;
+        }
+
+        init() {
+            const container = document.getElementById('visualizer-canvas');
+            if (!container) return;
+
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            } else {
+                this.inputText = "10, 20, 30, 40, 50";
+                if (inputEl) inputEl.value = this.inputText;
             }
 
-            init(containerId) {
-                const inputEl = document.getElementById("custom-data-input");
-                const defaultVal = inputEl ? inputEl.value : "TXN20241024AUTH09875";
-                this.applyCustomData(defaultVal);
-                this.log("Visualizer initialized.");
-            }
+            this.applyCustomData();
+        }
 
-            applyCustomData(inputVal) {
-                if (!inputVal || typeof inputVal !== 'string') {
-                    const inputEl = document.getElementById("custom-data-input");
-                    inputVal = inputEl ? inputEl.value : "TXN20241024AUTH09875";
-                }
-
-                this.rawString = inputVal.trim() || "TXN20241024AUTH09875";
-                const lenEl = document.getElementById('stat-length');
-                if (lenEl) lenEl.innerText = this.rawString.length;
-                this.reset();
-            }
-
-            reset() {
-                this.pause();
-                this.currentStepIdx = 0;
-                this.consoleLogs = [];
-                this.variables = {
-                    raw_data_record: '',
-                    transaction_type: '',
-                    transaction_year: '',
-                    auth_status: '',
-                    odd_serial_ids: '',
-                    reversed_serial: '',
-                    processed_report: ''
-                };
-                const statusEl = document.getElementById('stat-status');
-                if (statusEl) {
-                    statusEl.innerText = 'Chờ chạy';
-                    statusEl.style.color = 'var(--text-main)';
-                }
-                this.log('Đã reset toàn bộ trạng thái visualizer.');
-                this.render();
-            }
-
-            start() {
-                if (this.timer) clearInterval(this.timer);
-                this.isPlaying = true;
-                const statusEl = document.getElementById('stat-status');
-                if (statusEl) {
-                    statusEl.innerText = 'Đang chạy';
-                    statusEl.style.color = '#10b981';
-                }
-                this.timer = setInterval(() => {
-                    this.step();
-                }, this.speed);
-                this.updateButtonStates(true);
-            }
-
-            pause() {
-                this.isPlaying = false;
-                if (this.timer) {
-                    clearInterval(this.timer);
-                    this.timer = null;
-                }
-                const statusEl = document.getElementById('stat-status');
-                if (statusEl) {
-                    statusEl.innerText = 'Tạm dừng';
-                    statusEl.style.color = '#f59e0b';
-                }
-                this.updateButtonStates(false);
-            }
-
-            setSpeed(val) {
-                this.speed = parseInt(val, 10) || 400;
-                const disp = document.getElementById('speed-display');
-                if (disp) disp.innerText = this.speed;
-                if (this.isPlaying) {
-                    this.start();
-                }
-            }
-
-            updateButtonStates(isRunning) {
-                const btnStart = document.getElementById('btn-start');
-                const btnPause = document.getElementById('btn-pause');
-                if (btnStart) btnStart.style.opacity = isRunning ? '0.6' : '1';
-                if (btnPause) btnPause.style.opacity = isRunning ? '1' : '0.6';
-            }
-
-            step() {
-                const len = this.rawString.length;
-                if (this.currentStepIdx > 9) {
-                    this.pause();
-                    const statusEl = document.getElementById('stat-status');
-                    if (statusEl) {
-                        statusEl.innerText = 'Hoàn thành';
-                        statusEl.style.color = '#3b82f6';
-                    }
-                    return;
-                }
-
-                switch (this.currentStepIdx) {
-                    case 0:
-                        this.variables.raw_data_record = this.rawString;
-                        this.addLog(`Khởi tạo chuỗi gốc raw_data_record = "${this.rawString}"`, 'info');
-                        break;
-                    case 1:
-                        this.variables.transaction_type = this.rawString.slice(0, 3);
-                        this.addLog(`Cắt transaction_type = raw_data_record[0:3] -> "${this.variables.transaction_type}"`, 'info');
-                        break;
-                    case 2:
-                        this.variables.transaction_year = this.rawString.slice(3, 7);
-                        this.addLog(`Cắt transaction_year = raw_data_record[3:7] -> "${this.variables.transaction_year}"`, 'info');
-                        break;
-                    case 3:
-                        this.variables.auth_status = this.rawString.slice(7, 11);
-                        this.addLog(`Cắt auth_status = raw_data_record[7:11] -> "${this.variables.auth_status}"`, 'info');
-                        break;
-                    case 4:
-                        let chars = [];
-                        for (let i = 11; i < len; i += 2) {
-                            chars.push(this.rawString[i] || '');
-                        }
-                        this.variables.odd_serial_ids = chars.join('');
-                        this.addLog(`Cắt odd_serial_ids = raw_data_record[11::2] -> "${this.variables.odd_serial_ids}"`, 'info');
-                        break;
-                    case 5:
-                        let reversedSymbols = [];
-                        for (let i = len - 1; i >= Math.max(0, len - 6); i--) {
-                            reversedSymbols.push(this.rawString[i]);
-                        }
-                        this.variables.reversed_serial = reversedSymbols.join('');
-                        this.addLog(`Đảo chuỗi reversed_serial = raw_data_record[:-7:-1] -> "${this.variables.reversed_serial}"`, 'warn');
-                        break;
-                    case 6:
-                        this.variables.processed_report =
-                            (this.variables.transaction_type || '?') + "-" +
-                            (this.variables.transaction_year || '?') + "-" +
-                            (this.variables.auth_status || '?');
-                        this.addLog(`Ghép chuỗi processed_report = "${this.variables.processed_report}"`, 'success');
-                        break;
-                    case 7:
-                        this.consoleLogs.push(this.variables.processed_report);
-                        this.addLog(`In báo cáo: "${this.variables.processed_report}"`, 'success');
-                        break;
-                    case 8:
-                        this.consoleLogs.push(this.variables.odd_serial_ids);
-                        this.addLog(`In chuỗi lẻ: "${this.variables.odd_serial_ids}"`, 'info');
-                        break;
-                    case 9:
-                        this.consoleLogs.push(this.variables.reversed_serial);
-                        this.addLog(`In chuỗi đảo bảo mật: "${this.variables.reversed_serial}"`, 'info');
-                        break;
-                }
-
-                this.render();
-                this.currentStepIdx++;
-            }
-
-            render() {
-                // Highlight Code Line
-                document.querySelectorAll('.code-line').forEach(lineEl => {
-                    lineEl.style.background = 'transparent';
-                    lineEl.style.borderLeftColor = 'transparent';
-                });
-                const activeLine = document.getElementById(`line-${this.currentStepIdx}`);
-                if (activeLine) {
-                    activeLine.style.background = 'rgba(59, 130, 246, 0.2)';
-                    activeLine.style.borderLeft = '4px solid #3b82f6';
-                }
-
-                // Render Canvas Area
-                const canvas = document.getElementById('visualizer-canvas');
-                if (canvas) {
-                    const len = this.rawString.length;
-                    let cellsHtml = '';
-
-                    for (let i = 0; i < len; i++) {
-                        let bgStyle = 'var(--bg-hover)';
-                        let colorStyle = 'var(--text-main)';
-                        let borderStyle = '1px solid var(--border-color)';
-
-                        if (this.currentStepIdx === 1 && i >= 0 && i < 3) {
-                            bgStyle = 'rgba(16, 185, 129, 0.25)';
-                            colorStyle = '#10b981';
-                            borderStyle = '2px solid #10b981';
-                        } else if (this.currentStepIdx === 2 && i >= 3 && i < 7) {
-                            bgStyle = 'rgba(16, 185, 129, 0.25)';
-                            colorStyle = '#10b981';
-                            borderStyle = '2px solid #10b981';
-                        } else if (this.currentStepIdx === 3 && i >= 7 && i < 11) {
-                            bgStyle = 'rgba(16, 185, 129, 0.25)';
-                            colorStyle = '#10b981';
-                            borderStyle = '2px solid #10b981';
-                        } else if (this.currentStepIdx === 4 && i >= 11 && (i - 11) % 2 === 0) {
-                            bgStyle = '#fef3c7';
-                            colorStyle = '#b45309';
-                            borderStyle = '2px solid #f59e0b';
-                        } else if (this.currentStepIdx === 5 && i >= len - 6) {
-                            bgStyle = 'rgba(59, 130, 246, 0.25)';
-                            colorStyle = '#3b82f6';
-                            borderStyle = '2px solid #3b82f6';
-                        }
-
-                        cellsHtml += `
-                        <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                            <span style="font-size: 0.68rem; font-family: var(--font-mono); color: var(--text-muted); font-weight: 600;">${i}</span>
-                            <div style="display: flex; align-items: center; justify-content: center; width: 34px; height: 42px; border-radius: 8px; background: ${bgStyle}; color: ${colorStyle}; font-weight: 700; font-size: 1rem; border: ${borderStyle}; font-family: var(--font-mono); transition: all 0.2s;">
-                                ${this.rawString[i]}
-                            </div>
-                            <span style="font-size: 0.65rem; font-weight: 600; color: #ef4444; font-family: var(--font-mono);">-${len - i}</span>
-                        </div>`;
-                    }
-
-                    let canvasHtml = `
-                    <div style="width: 100%; display: flex; flex-direction: column; gap: 14px;">
-                        <div style="background: rgba(15, 23, 42, 0.05); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 10px;">
-                            <div style="font-size: 0.78rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 6px; text-align: center;">Phân tích mảng Ký Tự Gốc (Dương & Âm Index)</div>
-                            <div style="display: flex; gap: 6px; justify-content: flex-start; overflow-x: auto; flex-wrap: nowrap; padding: 10px 4px; width: 100%;">
-                                ${cellsHtml}
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                            <div style="background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 12px 16px;">
-                                <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">BẢNG GIÁ TRỊ CÁC BIẾN SLICING</div>
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-family: var(--font-mono); font-size: 0.82rem;">
-                                    <div><b>transaction_type:</b> <span style="color: #10b981; font-weight: 700;">"${this.variables.transaction_type}"</span></div>
-                                    <div><b>transaction_year:</b> <span style="color: #10b981; font-weight: 700;">"${this.variables.transaction_year}"</span></div>
-                                    <div><b>auth_status:</b> <span style="color: #10b981; font-weight: 700;">"${this.variables.auth_status}"</span></div>
-                                    <div><b>odd_serial_ids:</b> <span style="color: #f59e0b; font-weight: 700;">"${this.variables.odd_serial_ids}"</span></div>
-                                    <div><b>reversed_serial:</b> <span style="color: #3b82f6; font-weight: 700;">"${this.variables.reversed_serial}"</span></div>
-                                    <div><b>processed_report:</b> <span style="color: #ef4444; font-weight: 700;">"${this.variables.processed_report}"</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-
-                    canvas.innerHTML = canvasHtml;
-                }
-
-                // Render Console Output
-                const consoleLogsEl = document.getElementById('console-output');
-                if (consoleLogsEl) {
-                    consoleLogsEl.innerText = this.consoleLogs.length ? this.consoleLogs.join("\n") : "(Chưa có output)";
-                    consoleLogsEl.scrollTop = consoleLogsEl.scrollHeight;
-                }
-
-                // Stepper
-                this.updateStepper();
-            }
-
-            updateStepper() {
-                const progressEl = document.getElementById('stepper-progress');
-                const descEl = document.getElementById('stepper-desc');
-                const barEl = document.getElementById('stepper-bar');
-
-                const total = 10;
-                const current = Math.min(this.currentStepIdx, total);
-                const pct = (current / total) * 100;
-
-                if (progressEl) progressEl.innerText = `Bước ${current}/${total}`;
-                if (barEl) barEl.style.width = `${pct}%`;
-            }
-
-            scrubStep(event) {
-                const container = event.currentTarget;
-                if (!container) return;
-                const rect = container.getBoundingClientRect();
-                const clickX = event.clientX - rect.left;
-                const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-                this.currentStepIdx = Math.floor(ratio * 9);
-                this.render();
-            }
-
-            clearLog() {
-                const logBox = document.getElementById('log-messages');
-                if (logBox) logBox.innerHTML = '';
-            }
-
-            addLog(msg, type = 'info') {
-                const logBox = document.getElementById('log-messages');
-                if (!logBox) return;
-                const lastMsg = logBox.lastElementChild;
-                if (lastMsg && lastMsg.innerText.includes(msg)) return;
-
-                const entry = document.createElement('div');
-                entry.className = `log-entry log-${type}`;
-                const timeStr = new Date().toLocaleTimeString('vi-VN');
-                entry.innerText = `[${timeStr}] ${msg}`;
-                logBox.appendChild(entry);
-                logBox.scrollTop = logBox.scrollHeight;
-            }
-
-            log(msg) {
-                console.log("[Engine Log]: " + msg);
+        log(msg) {
+            const history = document.getElementById('log-messages');
+            if (history) {
+                const line = document.createElement('div');
+                line.className = 'log-entry log-info';
+                line.style.padding = '4px 0';
+                line.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                line.innerHTML = `<span style="color: #64748b;">[${new Date().toLocaleTimeString()}]</span> <span style="color: #38bdf8;">&gt;</span> ${msg}`;
+                history.appendChild(line);
+                history.scrollTop = history.scrollHeight;
             }
         }
 
-        // Fallback for missing class to prevent ReferenceError
-        if (typeof InteractiveVisualizerEngine === 'undefined') {
-            window.InteractiveVisualizerEngine = class {};
+        clearLog() {
+            const history = document.getElementById('log-messages');
+            if (history) history.innerHTML = '<div class="log-entry log-info">ℹ [Hệ thống] Đã xóa nhật ký thuật toán.</div>';
         }
 
-        function initApp() {
-            try {
-                visualizerApp = new InteractiveVisualizerEngine();
-            } catch(e) {
-                visualizerApp = {};
+        applyCustomData() {
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
             }
+            this.reset();
+        }
+
+        reset() {
+            this.pause();
+            this.currentStep = 0;
+            this.steps = [];
+            this.buildExecutionSteps();
+            this.clearLog();
+            this.log('Khởi tạo mô phỏng trực quan hóa cho dữ liệu: ' + this.inputText);
+            this.render();
+        }
+
+        buildExecutionSteps() {
+            const pageTitle = document.title || '';
+            const items = this.inputText.split(',').map(s => s.trim()).filter(Boolean);
+            const dataList = items.length > 0 ? items : ["Phần tử 1", "Phần tử 2", "Phần tử 3"];
             
-            // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
-            requiredMethods.forEach(method => {
-                if (typeof visualizerApp[method] !== 'function') {
-                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+            let steps = [];
+
+            // Step 0: Initial State
+            steps.push({
+                highlightLines: ['line-0', 'line-1', 'line-2'],
+                status: 'Khởi tạo',
+                mode: 'Khởi đầu',
+                result: 'Sẵn sàng',
+                log: 'Khởi tạo cấu trúc mảng bộ nhớ RAM và thiết lập thông số ban đầu.',
+                items: dataList.map((val, idx) => ({ val, state: 'idle', idx }))
+            });
+
+            // Step 1: Memory Allocation
+            steps.push({
+                highlightLines: ['line-3', 'line-4', 'line-5'],
+                status: 'Cấp phát bộ nhớ',
+                mode: 'Bộ nhớ RAM',
+                result: 'Đã cấp phát',
+                log: `Cấp phát ${dataList.length} ô nhớ liên tiếp cho các phần tử mảng dữ liệu.`,
+                items: dataList.map((val, idx) => ({ val, state: 'active', idx }))
+            });
+
+            // Step 2: Processing Loop (Item by Item)
+            dataList.forEach((val, i) => {
+                steps.push({
+                    highlightLines: [`line-${6 + (i % 4)}`],
+                    status: `Xử lý phần tử [${i}]`,
+                    mode: 'Tuần tự',
+                    result: 'Đang duyệt',
+                    log: `Duyệt qua phần tử thứ ${i + 1}: giá trị = "${val}" tại chỉ mục index ${i}.`,
+                    items: dataList.map((v, idx) => ({
+                        val: v,
+                        state: idx === i ? 'comparing' : (idx < i ? 'done' : 'idle'),
+                        idx
+                    }))
+                });
+            });
+
+            # Step Final: Completed
+            steps.push({
+                highlightLines: ['line-10', 'line-11', 'line-12'],
+                status: 'Hoàn thành',
+                mode: 'Kết quả',
+                result: 'Thành công',
+                log: 'Hoàn tất toàn bộ chu trình xử lý dữ liệu. Kết quả sẵn sàng trả về.',
+                items: dataList.map((val, idx) => ({ val, state: 'done', idx }))
+            });
+
+            this.steps = steps;
+        }
+
+        start() {
+            if (this.isPlaying) return;
+            this.isPlaying = true;
+            this.timer = setInterval(() => {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.step();
+                } else {
+                    this.pause();
                 }
-            });
-
-            // Perform initialization
-            if (typeof visualizerApp.init === 'function') {
-                visualizerApp.init("visualizer-canvas");
-            }
-            if (typeof visualizerApp.render === 'function') {
-                visualizerApp.render();
-            }
-
-            // Auto-fix code tracker formatting if LLM glued tags together
-            const trackerBox = document.getElementById('code-tracker-box');
-            if (trackerBox) {
-                let rawHtml = trackerBox.innerHTML;
-                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
-                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
-                trackerBox.innerHTML = rawHtml;
-            }
-
-            if (window.hljs) hljs.highlightAll();
+            }, this.speed);
         }
 
-        // Initialize when DOM loaded
-        let visualizerApp;
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            initApp();
-        } else {
-            document.addEventListener('DOMContentLoaded', initApp);
+        pause() {
+            this.isPlaying = false;
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
         }
-        
 
-        function copyCode(event, button, codeId) {
-            if (event && event.preventDefault) event.preventDefault();
-            const codeElement = document.getElementById(codeId);
-            if (!codeElement) return;
-            navigator.clipboard.writeText(codeElement.innerText).then(() => {
-                button.innerText = 'Đã sao chép!';
-                button.style.backgroundColor = '#10b981';
-                setTimeout(() => {
-                    button.innerText = 'Sao chép';
-                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }, 2000);
-            });
+        step() {
+            if (this.currentStep < this.steps.length - 1) {
+                this.currentStep++;
+                this.render();
+            } else {
+                this.log('Đã đến bước cuối cùng của tiến trình.');
+            }
         }
+
+        scrubStep(e) {
+            const barContainer = e.currentTarget;
+            if (!barContainer || !this.steps.length) return;
+            const rect = barContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+            const targetStep = Math.floor(percentage * this.steps.length);
+            this.currentStep = Math.min(this.steps.length - 1, targetStep);
+            this.render();
+        }
+
+        setSpeed(val) {
+            this.speed = parseInt(val, 10) || 500;
+            const disp = document.getElementById('speed-display');
+            if (disp) disp.textContent = this.speed;
+            if (this.isPlaying) {
+                this.pause();
+                this.start();
+            }
+        }
+
+        render() {
+            if (!this.steps || !this.steps.length) return;
+            const current = this.steps[this.currentStep] || this.steps[0];
+
+            // 1. Update Stepper UI
+            const stepProgress = document.getElementById('stepper-progress');
+            const stepDesc = document.getElementById('stepper-desc');
+            const stepBar = document.getElementById('stepper-bar');
+
+            if (stepProgress) stepProgress.textContent = `Bước ${this.currentStep + 1}/${this.steps.length}`;
+            if (stepDesc) stepDesc.textContent = current.log;
+            if (stepBar) stepBar.style.width = `${((this.currentStep + 1) / this.steps.length) * 100}%`;
+
+            // 2. Update Realtime Stats
+            const statMode = document.getElementById('stat-mode');
+            const statLength = document.getElementById('stat-length');
+            const statMatch = document.getElementById('stat-match-count');
+            const statRes = document.getElementById('stat-result');
+
+            if (statMode) statMode.textContent = current.mode || '-';
+            if (statLength) statLength.textContent = (current.items || []).length;
+            if (statMatch) statMatch.textContent = this.currentStep;
+            if (statRes) {
+                statRes.textContent = current.result || 'Đang duyệt';
+                statRes.className = current.result === 'Thành công' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-semibold';
+            }
+
+            // 3. Highlight Code Tracker Line
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active', 'active-line', 'bg-yellow-200'));
+            if (current.highlightLines) {
+                current.highlightLines.forEach(lineId => {
+                    const el = document.getElementById(lineId);
+                    if (el) el.classList.add('active', 'active-line');
+                });
+            }
+
+            // 4. Render Items on Visualizer Canvas
+            const canvas = document.getElementById('visualizer-canvas');
+            if (canvas && current.items) {
+                let itemsMarkup = current.items.map(item => {
+                    let borderBgClass = 'border-slate-700 bg-slate-800/90 text-slate-200';
+                    if (item.state === 'active') {
+                        borderBgClass = 'border-sky-500 bg-sky-900/60 text-sky-200 font-bold scale-105';
+                    } else if (item.state === 'comparing') {
+                        borderBgClass = 'border-amber-400 bg-amber-500/40 text-amber-200 font-bold animate-pulse scale-110';
+                    } else if (item.state === 'done') {
+                        borderBgClass = 'border-emerald-500 bg-emerald-600/30 text-emerald-200 font-bold';
+                    }
+
+                    return `
+                        <div class="flex flex-col items-center transition-all duration-300 transform">
+                            <div class="border rounded-lg px-4 py-3 font-mono text-center min-w-[64px] shadow-md transition-all duration-300 ${borderBgClass}">
+                                ${item.val}
+                            </div>
+                            <small class="text-slate-400 font-mono text-xs mt-1.5">[Index ${item.idx}]</small>
+                        </div>
+                    `;
+                }).join('');
+
+                canvas.innerHTML = `
+                    <div class="flex flex-wrap gap-3 justify-center items-center p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 w-full min-h-[160px] shadow-inner">
+                        ${itemsMarkup}
+                    </div>
+                `;
+            }
+
+            this.log(current.log);
+        }
+    }
+
+    // Auto-initialize when DOM loaded
+    let visualizerApp;
+    function initVisualizerApp() {
+        if (typeof InteractiveVisualizerEngine !== 'undefined') {
+            visualizerApp = new InteractiveVisualizerEngine();
+            visualizerApp.init();
+        }
+    }
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        initVisualizerApp();
+    } else {
+        document.addEventListener('DOMContentLoaded', initVisualizerApp);
+    }
     </script>
+
 </body>
 </html>

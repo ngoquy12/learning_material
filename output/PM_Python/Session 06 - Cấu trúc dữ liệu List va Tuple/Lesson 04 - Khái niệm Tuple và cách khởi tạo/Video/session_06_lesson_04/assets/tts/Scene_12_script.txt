@@ -1,0 +1,1 @@
+Tổng kết lại bài học, chúng ta đã nắm chắc khái niệm Tuple, cách khởi tạo Tuple một phần tử an toàn, cơ chế pắc-king unpack-king và hiểu sâu về cơ chế quản lý bộ nhớ ưu việt của Tuple so với Lít. Ở bài học tiếp theo, chúng ta sẽ tiếp tục khám phá các phương thức xử lý và các phép toán thao tác với Tuple. Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo!

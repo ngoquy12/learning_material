@@ -7910,5 +7910,2301 @@
       "type": "code",
       "session": "String formatting"
     }
+  },
+  {
+    "text": "Khái niệm: dynamic_array_nature - Định nghĩa: Bản chất của List trong Python là một mảng động (dynamic array). Nó cho phép tự động thay đổi kích cỡ (co giãn bộ nhớ) khi thêm hoặc bớt phần tử mà người dùng không cần khai báo trước kích thước cố định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: list_initialization - Định nghĩa: Cú pháp khởi tạo List có thể dùng cặp ngoặc vuông `[]` (tạo List rỗng hoặc chứa sẵn phần tử) hoặc dùng hàm dựng `list()` để tạo mới một đối tượng danh sách.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: heterogeneous_data_pep8 - Định nghĩa: Bên trong một List có thể chứa nhiều kiểu dữ liệu khác nhau (như số nguyên, float, chuỗi, boolean). Chuẩn PEP 8 quy định cần có chính xác một khoảng trắng sau mỗi dấu phẩy ngăn cách các phần tử để đảm bảo tính tường minh của mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: list_indexing - Định nghĩa: Cơ cấu phân bổ chỉ mục (index) của List bắt đầu từ chỉ mục 0 cho phần tử đầu tiên góc trái. Python cũng hỗ trợ chỉ mục âm, bắt đầu từ -1 cho phần tử cuối cùng bên phải và giảm dần về bên trái.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: syntax_troubleshooting - Định nghĩa: Một số lỗi cú pháp kinh điển bao gồm việc thiếu dấu phẩy phân tách giữa các phần tử khi khởi tạo, dùng sai loại ngoặc (như dùng ngoặc tròn thay vì ngoặc vuông khi gán trực tiếp), hoặc cố gắng truy cập chỉ mục vượt quá giới hạn hiện tại của mảng (IndexError).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_list_co_ban:\n# Khoi tao list rong bang hai cach thong dung\nlist_rong_ngoac_vuong = []\nlist_rong_constructor = list()\n\n# Khoi tao list co san phan tu (kieu du lieu dong nhat)\ndanh_sach_so = [10, 20, 30]\ndanh_sach_chuoi = [\"Python\", \"Core\"]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_da_kieu_pep8_va_chi_muc:\n# Khoi tao list da kieu du lieu tuan thu dung PEP 8 (co dau cach sau dau phay)\nthong_tin_lop = [\"K5\", 45, True, 9.5]\n\n# Truy xuat thong qua chi muc duong (tu trai sang phai, bat dau tu 0)\nten_lop = thong_tin_lop[0]     # Lay gia tri \"K5\"\nsi_so = thong_tin_lop[1]       # Lay gia tri 45\n\n# Truy xuat thong qua chi muc am (tu phai sang trai, bat dau tu -1)\ndiem_so = thong_tin_lop[-1]     # Lay gia tri 9.5\ntrang_thai = thong_tin_lop[-2]   # Lay gia tri True",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sua_loi_khoi_tao_va_xu_ly_tuan_tu:\n# Sua loi ky tu bi thieu (vi du truoc do: diem = [8.5  9.0  7.5] thi nay sua bang cach them dau phay)\ndiem_so = [8.5, 9.0, 7.5]\n\n# Xu ly tuan tu don gian (truy xuat va tinh toan tuyen tinh dung voi trinh do Co ban)\ndiem_toan = diem_so[0]\ndiem_ly = diem_so[1]\ndiem_hoa = diem_so[2]\n\ntong_diem = diem_toan + diem_ly + diem_hoa\ndiem_trung_binh = tong_diem / 3\n\nprint(\"Diem trung binh:\", diem_trung_binh)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm List và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: append - Định nghĩa: Phương thức thêm một phần tử duy nhất vào cuối danh sách. Làm thay đổi trực tiếp danh sách gốc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: insert - Định nghĩa: Phương thức chèn một phần tử vào vị trí chỉ định (index) trong danh sách. Các phần tử phía sau sẽ bị dịch chuyển về phía sau (tăng chỉ số lên 1).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: extend - Định nghĩa: Phương thức gộp toàn bộ các phần tử của một iterable (danh sách khác, tuple,...) vào cuối danh sách hiện tại.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: cap_nhat_qua_index - Định nghĩa: Thao tác thay đổi trực tiếp giá trị của phần tử tại một chỉ số được xác định bằng cú pháp gán: danh_sach[index] = gia_tri_moi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: pop - Định nghĩa: Phương thức xoá và trả về phần tử tại vị trí index được truyền vào. Nếu không truyền index, phương thức sẽ mặc định xoá phần tử cuối cùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: remove - Định nghĩa: Phương thức tìm và xoá phần tử đầu tiên được tìm thấy có giá trị bằng với giá trị truyền vào. Sẽ báo lỗi ValueError nếu không tìm thấy phần tử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: clear - Định nghĩa: Phương thức xoá bỏ toàn bộ phần tử trong danh sách, đưa danh sách trở thành danh sách rỗng nhưng không làm đổi địa chỉ ô nhớ (id) của danh sách.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: thay_doi_chi_so_index_shifting - Định nghĩa: Hiện tượng dịch chuyển vị trí (chỉ số) của các phần tử đằng sau khi tiến hành chèn hoặc xoá phần tử. Cần cẩn trọng khi thực hiện thao tác thay đổi cấu trúc danh sách trong quá trình lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_va_format_chuoi - Định nghĩa: Quy chuẩn viết code Python dễ đọc (snake_case, khoảng cách hợp lý sau dấu phẩy) kết hợp phương pháp định dạng chuỗi (f-string) để hiển thị thông tin trực quan.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho them_phan_tu_append_insert_extend:\n# Khoi tao danh sach ban dau\ncau_hoi = ['Cau 1', 'Cau 2']\n\n# 1. Dung append de them phan tu vao cuoi danh sach\ncau_hoi.append('Cau 3')\n\n# 2. Dung insert de chen phan tu vao index 1\ncau_hoi.insert(1, 'Cau 1.5')\n\n# 3. Dung extend de gop them nhieu phan tu tu mot list khac\ncau_hoi_them = ['Cau 4', 'Cau 5']\ncau_hoi.extend(cau_hoi_them)\n\nprint(cau_hoi)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cap_nhat_va_xoa_phan_tu:\nhoc_sinh = ['Anh', 'Binh', 'Chau', 'Danh']\n\n# Cap nhat gia tri phan tu tai index 1 (tu 'Binh' thanh 'Bao')\nhoc_sinh[1] = 'Bao'\n\n# Dung pop de lay ra va xoa phan tu cuoi cung cua list\nphan_tu_cuoi = hoc_sinh.pop()\n\n# Dung remove de xoa phan tu co gia tri specified\nhoc_sinh.remove('Anh')\n\n# Dung clear de lam rong toan bo danh sach\nhoc_sinh.clear()\n\nprint(f'Hoc sinh cuoi da xoa: {phan_tu_cuoi}')\nprint(f'Danh sach sau khi clear: {hoc_sinh}')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xu_ly_index_shifting_khi_xoa:\n# Cach an toan de loc lay cac so chan, tranh loi bo sot do Index Shifting khi vua lap vua xoa\ndanh_sach_so = [1, 2, 3, 4, 5, 6]\n\n# Duyet qua ban sao .copy() nhung thuc hien xoa han tren danh sach goc\nfor so in danh_sach_so.copy():\n    if so % 2 != 0:\n        danh_sach_so.remove(so)\n\nprint(danh_sach_so)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kich_ban_quan_ly_pep8:\n# Kich ban luu tru va hien thi danh sach khoa hoc chuẩn PEP 8 va F-strings\ndanh_sach_khoa_hoc = []\n\n# Them khoa hoc moi\ndanh_sach_khoa_hoc.append('Ngon ngu lap trinh Python')\ndanh_sach_khoa_hoc.append('Phan tich du lieu co ban')\ndanh_sach_khoa_hoc.insert(0, 'Khai niem Lap trinh căn ban')\n\n# Hien thi danh sach duoi dang danh muc co index bat dau tu 1\nprint('*** DANH MUC KHOA HOC HIEN CO ***')\nfor index, khoa_hoc in enumerate(danh_sach_khoa_hoc, start=1):\n    print(f'Ma: KH-{index:02d} | Ten khoa hoc: {khoa_hoc}')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với List (thêm, sửa, xoá phần tử)"
+    }
+  },
+  {
+    "text": "Khái niệm: Vòng lặp for duyệt List - Định nghĩa: Cơ chế lặp qua từng phần tử trong một danh sách (List) theo thứ tự từ chỉ mục đầu tiên đến cuối cùng mà không cần quản lý bộ đếm chỉ mục một cách thủ công.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm enumerate() - Định nghĩa: Hàm tích hợp sẵn giúp tự động ghép một bộ đếm (mặc định bắt đầu từ 0) vào mỗi phần tử của danh sách, trả về một đối tượng chứa các cặp dạng (chỉ mục, giá trị).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Khái niệm: Cơ chế Unpacking (Phân rã) - Định nghĩa: Kỹ thuật tách các phần tử của một tuple (như cặp chỉ mục và giá trị sinh ra bởi enumerate) trực tiếp vào các biến riêng biệt ngay trong câu lệnh lặp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Khái niệm: Định dạng chuỗi f-string - Định nghĩa: Phương pháp định dạng chuỗi nhanh và trực quan bắt đầu bằng chữ 'f' hoặc 'F', cho phép nhúng trực tiếp giá trị của biến hoặc biểu thức vào bên trong chuỗi thông qua cặp ngoặc nhọn {}.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi thay đổi List khi duyệt - Định nghĩa: Bẫy logic xảy ra khi thực hiện thêm hoặc xóa phần tử trực tiếp trên danh sách đang được duyệt bằng vòng lặp, gây thay đổi chiều dài danh sách và dịch chuyển chỉ mục hoạt động, dẫn đến việc bỏ sót phần tử hoặc lỗi chương trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Khái niệm: Tiêu chuẩn PEP 8 về đặt tên và cấu trúc vòng lặp - Định nghĩa: Quy chuẩn viết mã nguồn Python khuyến nghị thụt lề chuẩn 4 khoảng trắng, đặt tên biến rõ nghĩa (dạng số ít và số nhiều như 'for student in students'), và tránh viết các vòng lặp quá phức tạp hoặc lồng nhau sâu hơn 2 cấp làm giảm tính dễ đọc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho for_loop_basic:\n# Duyệt và in từng phần tử của danh sách món ăn\ndanh_sach_mon_an = [\"Phở\", \"Bún chả\", \"Bánh mì\"]\nfor mon_an in danh_sach_mon_an:\n    print(\"Món ăn:\", mon_an)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho enumerate_and_unpacking:\n# Sử dụng enumerate và unpacking để lấy đồng thời cả chỉ mục và giá trị\ndanh_sach_ngon_ngu = [\"Python\", \"Java\", \"C++\"]\nfor chi_muc, ngon_ngu in enumerate(danh_sach_ngon_ngu):\n    print(\"Chỉ mục:\", chi_muc, \"| Giá trị:\", ngon_ngu)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho fstring_comparison:\n# Định dạng đầu ra với f-string và so sánh hai cách duyệt\ndanh_sach_ten = [\"An\", \"Bình\", \"Chi\"]\n\n# Cách 1: Dùng biến đếm thủ công (không tối ưu, dễ sai sót)\ni = 0\nfor ten in danh_sach_ten:\n    print(f\"[Cách 1] Học sinh thứ {i + 1}: {ten}\")\n    i += 1\n\n# Cách 2: Dùng enumerate kết hợp tham số start để tối ưu mã nguồn\nfor thu_tu, ten in enumerate(danh_sach_ten, start=1):\n    print(f\"[Cách 2] Học sinh thứ {thu_tu}: {ten}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho avoid_mutating_list_pep8:\n# Tạo danh sách mới để lọc dữ liệu, tránh thay đổi trực tiếp list gốc khi lặp\ndanh_sach_so = [1, 2, 3, 4, 5, 6]\n\n# Khởi tạo danh sách rỗng chứa các số chẵn (Chuẩn PEP 8)\ndanh_sach_so_chan = []\nfor so in danh_sach_so:\n    if so % 2 == 0:\n        danh_sach_so_chan.append(so)\n\nprint(\"Danh sách số chẵn sau khi lọc:\", danh_sach_so_chan)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Duyệt List với vòng lặp (for, enumerate)"
+    }
+  },
+  {
+    "text": "Khái niệm: Tuple - Định nghĩa: Một cấu trúc dữ liệu dạng chuỗi tuần tự (sequence) trong Python, dùng để lưu trữ một nhóm các phần tử có thứ tự và được bao bọc bởi cặp ngoặc đơn ().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: Đặc tính Bất biến (Immutability) - Định nghĩa: Đặc tính của Tuple không cho phép thay đổi, thêm hoặc xóa các phần tử sau khi nó đã được tạo ra. Điều này giúp bảo vệ tính toàn vẹn của dữ liệu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi TypeError với Tuple - Định nghĩa: Lỗi xảy ra khi cố gắng sửa đổi giá trị phần tử của một Tuple (ví dụ gán lại giá trị qua index), do Tuple là kiểu dữ liệu bất biến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: Tuple đơn phần tử - Định nghĩa: Cách khởi tạo Tuple chỉ có một phần tử duy nhất, yêu cầu phải có dấu phẩy đặt ngay sau phần tử đó (ví dụ: (item,)) để Python nhận diện là Tuple chứ không phải là biểu thức đóng ngoặc thông thường.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: Tuple Indexing - Định nghĩa: Kỹ thuật truy xuất một phần tử thuộc Tuple thông qua chỉ số vị trí (chỉ số dương bắt đầu từ 0 từ trái sang phải, hoặc chỉ số âm bắt đầu từ -1 từ phải sang trái).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: Tuple Slicing - Định nghĩa: Kỹ thuật cắt và trích xuất một Tuple con từ Tuple gốc bằng cú pháp [start:stop:step], trả về một Tuple mới mà không làm thay đổi Tuple ban đầu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: Ứng dụng Bản ghi tĩnh - Định nghĩa: Việc sử dụng Tuple để lưu trữ các bộ thông tin cố định như tọa độ địa lý (kinh độ, vĩ độ) hoặc cấu hình hệ thống, đảm bảo dữ liệu không bị thay đổi ngoài ý muốn trong quá trình chạy ứng dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_tuple:\n# Khoi tao tuple rong\ntuple_rong = ()\n\n# Khoi tao tuple don phan tu (bat buoc phai co dau phay)\ntuple_mot_phan_tu = (10,)\n\n# Khoi tao tuple co nhieu phan tu\ntuple_nhieu_phan_tu = (1, 2, 3, 4, 5)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tinh_bat_bien_va_loi:\ntoa_do = (10.5, 20.8)\n\n# Co gang thay doi gia tri phan tu se gay ra loi TypeError\ntry:\n    toa_do[0] = 15.0\nexcept TypeError as e:\n    print(\"Loi: \", e) # Output: Loi: 'tuple' object does not support item assignment",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho truy_xuat_tuple:\nchu_cai = ('a', 'b', 'c', 'd', 'e')\n\n# Indexing: Truy xuat phan tu bang chi so\nphan_tu_dau = chu_cai[0]   # 'a'\nphan_tu_cuoi = chu_cai[-1] # 'e'\n\n# Slicing: Cat lay mot phan cua tuple\ntuple_con = chu_cai[1:4]   # Tu chi so 1 den truoc chi so 4: ('b', 'c', 'd')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ung_dung_chuan_pep8:\n# Su dung tuple lam ban ghi tinh luu he toan do GPS cua mot dia diem\nvi_tri_ha_noi = (21.0285, 105.8542)\n\n# So sanh voi List: List cho phep thay doi, Tuple thi khong\n# Cuan PEP 8: Su dung dau phay kem mot khoang trang sau moi phan tu\ncolors = (\"red\", \"green\", \"blue\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm Tuple và cách khởi tạo"
+    }
+  },
+  {
+    "text": "Khái niệm: List (Danh sách) - Định nghĩa: Cấu trúc dữ liệu có thứ tự trong Python, được khai báo bằng cặp ngoặc vuông []. List cho phép thay đổi dữ liệu bên trong (Mutable), có nghĩa là ta có thể thêm, sửa, hoặc xóa các phần tử sau khi đã tạo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: Tuple (Bộ dữ liệu) - Định nghĩa: Cấu trúc dữ liệu có thứ tự trong Python, được khai báo bằng cặp ngoặc tròn (). Tuple không cho phép thay đổi dữ liệu sau khi đã khởi tạo (Immutable). Việc cố gắng chỉnh sửa một phần tử của Tuple sẽ gây ra lỗi TypeError.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: Mutable (Khả biến) - Định nghĩa: Đặc tính của đối tượng dữ liệu cho phép thay đổi trạng thái hoặc giá trị của chúng mà không làm thay đổi định danh (ID) bộ nhớ ban đầu của đối tượng đó. Điển hình là List.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: Immutable (Bất biến) - Định nghĩa: Đặc tính của đối tượng dữ liệu giữ nguyên trạng thái và giá trị trong suốt vòng đời của nó. Khi muốn thay đổi, hệ thống buộc phải tạo ra một đối tượng mới trong bộ nhớ. Điển hình là Tuple.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: Indexing (Truy xuất qua chỉ số) - Định nghĩa: Kỹ thuật truy cập một phần tử đơn lẻ trong List hoặc Tuple dựa vào vị trí của nó, bắt đầu từ 0 cho phần tử đầu tiên và chỉ số âm -1 cho phần tử cuối cùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: Slicing (Cắt lát dữ liệu) - Định nghĩa: Kỹ thuật trích xuất một phần (mảng con) từ List hoặc Tuple gốc bằng cú pháp [nút_bắt_đầu:nút_kết_thúc:bước_nhảy]. Vị trí kết thúc sẽ không được bao gồm trong kết quả.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: PEP 8 (Quy chuẩn định dạng code) - Định nghĩa: Quy chuẩn hướng dẫn viết mã nguồn Python chuẩn mực, khuyến nghị đặt tên biến dạng snake_case, chèn một khoảng trắng sau dấu phẩy và không lạm dụng khoảng trắng thừa để tăng khả năng đọc code.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_va_kiem_tra_tinh_khabi_cua_list_tuple:\n# Khởi tạo một List (Mutable)\nmy_list = [10, 20, 30]\nmy_list[0] = 99\nprint(\"List sau khi thay đổi phần tử đầu:\", my_list)\n\n# Khởi tạo một Tuple (Immutable)\nmy_tuple = (10, 20, 30)\ntry:\n    my_tuple[0] = 99\nexcept TypeError as error:\n    print(\"Lỗi phát sinh khi cố thay đổi Tuple:\", error)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho indexing_va_slicing_co_ban:\nnumbers = (10, 20, 30, 40, 50)\n\n# Indexing lấy phần tử cụ thể\nfirst_item = numbers[0]\nlast_item = numbers[-1]\n\n# Slicing cắt lát con\nsub_sequence = numbers[1:4]\n\nprint(\"Phần tử đầu tiên:\", first_item)\nprint(\"Phần tử cuối cùng:\", last_item)\nprint(\"Sub-sequence trích xuất từ 1 đến 3:\", sub_sequence)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tinh_huong_thuc_te_va_pep8:\n# Thực tế: Dùng Tuple để lưu trữ dữ liệu cấu hình cố định (Tọa độ GPS)\nhanoi_coordinate = (21.0285, 105.8542)\n\n# Thực tế: Dùng List để quản lý danh sách học viên thay đổi liên tục\nstudent_list = [\"Nguyen Van A\", \"Tran Thi B\"]\nstudent_list.append(\"Le Van C\")\n\n# Định dạng code chuẩn PEP 8: Đặt tên biến rõ ràng, cách dấu phẩy bằng 1 khoảng trắng\nprint(\"Tọa độ Hà Nội:\", hanoi_coordinate)\nprint(\"Danh sách học sinh cập nhật:\", student_list)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "So sánh List vs Tuple và khi nào nên dùng"
+    }
+  },
+  {
+    "text": "Khái niệm: dictionary_definition - Định nghĩa: Là một cấu trúc dữ liệu (data structure) trong Python lưu trữ các phần tử dưới dạng cặp khóa-giá trị (key-value). Dictionary là kiểu dữ liệu có thể thay đổi (mutable) nhưng các khóa (keys) bên trong nó phải là duy nhất và không thể thay đổi (immutable/hashable).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: key_value_mechanism - Định nghĩa: Cơ chế hoạt động dựa trên ánh xạ (mapping). Mỗi khóa (key) đóng vai trò như một chỉ mục trỏ trực tiếp đến một giá trị (value) tương ứng, cho phép tìm kiếm và truy xuất thông tin cực kỳ nhanh chóng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: key_immutability_and_hashability - Định nghĩa: Khóa của Dictionary phải thuộc kiểu dữ liệu bất biến (immutable) và có thể băm (hashable) như string, int, float, hoặc tuple. Các kiểu dữ liệu thay đổi được (mutable) như list hay dict không được phép làm khóa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: init_curly_bracket_vs_dict_function - Định nghĩa: Có hai phương pháp khởi tạo cơ bản: sử dụng cặp ngoặc nhọn '{}' chứa các cặp key: value phân tách bằng dấu phẩy, hoặc sử dụng hàm dựng 'dict()' với các tham số truyền vào dưới dạng keyword arguments hoặc một cặp danh sách liên kết.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: dictionary_vs_list_tuple - Định nghĩa: Trong khi List và Tuple quản lý phần tử dựa trên thứ tự chỉ số nguyên (0, 1, 2...), Dictionary quản lý phần tử bằng các khóa tự đặt giúp nâng cao tính ngữ nghĩa của mã nguồn và tốc độ truy vấn theo định danh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: unhashable_key_error - Định nghĩa: Lỗi run-time xảy ra khi chương trình cố ý chỉ định một đối tượng mutable (chẳng hạn như List) làm khóa cho Dictionary. Python sẽ ném ra ngoại lệ 'TypeError: unhashable type: \\'list\\''.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_dictionary_formatting - Định nghĩa: Quy tắc PEP 8 quy định: đặt dấu hai chấm sát khóa, cách ra một khoảng trắng trước khi viết giá trị. Ở chế độ nhiều dòng, thụt lề thống nhất cho các phần tử con và kết thúc bằng một dấu phẩy sau cặp key-value cuối cùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho init_with_curly_braces:\n# Khoi tao Dictionary dung cap ngoac nhon {} theo chuan PEP 8\nstudent = {\n    \"name\": \"Nguyen Van A\",\n    \"age\": 20,\n    \"major\": \"Computer Science\"\n}\nprint(student)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho init_with_dict_function:\n# Khoi tao Dictionary bang cach su dung ham dict()\n# Cach 1: Su dung keyword arguments (khoa khong dat trong ngoac kep)\nemployee = dict(name=\"Tran Thi B\", age=30, role=\"Developer\")\n\n# Cach 2: Su dung mot danh sach gom cac tuple\nproduct = dict([(\"id\", 101), (\"name\", \"Laptop\"), (\"price\", 1500.0)])\n\nprint(employee)\nprint(product)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho duplicate_key_behavior:\n# Neu khai bao trung khoa (key), gia tri cuoi cung se ghi de gia tri truoc do\nconfig = {\n    \"theme\": \"light\",\n    \"font_size\": 14,\n    \"theme\": \"dark\"  # Khoa \"theme\" bi trung lap va se ghi de gia tri \"light\"\n}\nprint(config)  # Output: {'theme': 'dark', 'font_size': 14}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho unhashable_key_handling:\n# Vi du minh hoa va bat loi unhashable type khi dung List lam khoa\ntry:\n    # List la mutable nen khong the lam khoa\n    invalid_dict = {[1, 2]: \"List key\"}\nexcept TypeError as error:\n    print(f\"Ngoai le xay ra: {error}\")  # Se in: unhashable type: 'list'",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Dictionary"
+    }
+  },
+  {
+    "text": "Khái niệm: dictionary - Định nghĩa: Dictionary (từ điển) là một cấu trúc dữ liệu lưu trữ các phần tử dưới dạng cặp khóa-giá trị (key-value), cho phép truy xuất và quản lý dữ liệu cực kỳ nhanh chóng thông qua khóa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: immutable_key_rule - Định nghĩa: Quy tắc bất biến của khóa: Tất cả các khóa (keys) trong dictionary bắt buộc phải thuộc kiểu dữ liệu bất biến (immutable) và có thể băm (hashable) như string, integer, float, tuple. Các kiểu dữ liệu thay đổi được như list hay dict không thể làm khóa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: bracket_notation - Định nghĩa: Cú pháp ngoặc vuông []: Phương pháp cơ bản nhất dùng để truy cập giá trị của một khóa có sẵn, cập nhật giá trị của khóa đó, hoặc thêm một cặp khóa-giá trị mới vào dictionary.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: keys_method - Định nghĩa: Phương thức .keys(): Trả về một đối tượng giao diện (view object) chứa toàn bộ các khóa hiện có trong dictionary, tự động cập nhật khi dictionary thay đổi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: values_method - Định nghĩa: Phương thức .values(): Trả về một đối tượng giao diện chứa toàn bộ các giá trị của các phần tử trong dictionary.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: items_method - Định nghĩa: Phương thức .items(): Trả về một đối tượng giao diện chứa danh sách các tuple dạng (key, value), đại diện cho từng cặp khóa-giá trị trong dictionary.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: unpacking_in_loop - Định nghĩa: Kỹ thuật giải nén (unpacking) trong vòng lặp: Việc khai báo đồng thời hai biến nhận diện (ví dụ: for k, v in dict.items()) để trích xuất trực tiếp khóa và giá trị trong mỗi lượt duyệt.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: in_operator_key_check - Định nghĩa: Toán tử 'in': Toán tử dùng để kiểm tra sự tồn tại của một khóa trong dictionary nhằm quyết định có truy xuất hay không, giúp chương trình an toàn, tránh lỗi dừng đột ngột.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: key_error_prevention - Định nghĩa: Phòng ngừa KeyError: Lỗi xảy ra khi cố gắng truy cập một khóa không tồn tại bằng cú pháp ngoặc vuông []. Khắc phục bằng cách kiểm tra trước với toán tử 'in' hoặc dùng phương thức an toàn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_flat_dict - Định nghĩa: Quản lý thông tin phẳng chuẩn PEP 8: Cách tổ chức cấu trúc dữ liệu dạng dictionary không lồng nhau quá nhiều lớp, kết hợp viết mã nguồn tuân thủ quy tắc đặt tên snake_case, khoảng trắng sau dấu hai chấm và thụt lề chuẩn xác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_dict_operations:\n# Khoi tao tu dien thong tin san pham\nproduct = {\n    \"id\": \"P100\",\n    \"name\": \"Ban phim co\",\n    \"price\": 1250000\n}\n\n# Truy cap gia tri cua phan tu qua khoa\nproduct_name = product[\"name\"]\nprint(\"Ten san pham:\", product_name)\n\n# Cap nhat gia tri cho khoa san co\nproduct[\"price\"] = 1200000\n\n# Them khoa moi va gia tri moi bang cu phap ngoac vuong\nproduct[\"stock\"] = 50\nprint(\"Tu dien sau khi cap nhat:\", product)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dict_iteration_and_unpacking:\nstudent_scores = {\n    \"An\": 8.5,\n    \"Binh\": 9.0,\n    \"Chi\": 7.5\n}\n\n# Duyet qua toan bo cac khoa (keys)\nprint(\"Danh sach hoc sinh:\")\nfor name in student_scores.keys():\n    print(\"-\", name)\n\n# Duyet qua toan bo gia tri (values)\nprint(\"Danh sach diem so:\")\nfor score in student_scores.values():\n    print(\"-\", score)\n\n# Duyet va unpack ca khoa va gia tri bang .items()\nprint(\"Ket qua chi tiet:\")\nfor name, score in student_scores.items():\n    print(f\"Hoc sinh {name} dat {score} diem\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho safe_access_and_pep8:\n# Quan ly thong tin nhan vien dang phang chuan PEP 8\nemployee_profile = {\n    \"employee_id\": \"EMP99\",\n    \"full_name\": \"Tran Van Binh\",\n    \"department\": \"IT\"\n}\n\n# Khoa can kiem tra\nsearch_key = \"salary\"\n\n# Su dung toan tu 'in' de kiem tra khoa truoc khi truy cap, tranh loi KeyError\nif search_key in employee_profile:\n    salary_value = employee_profile[search_key]\n    print(f\"Luong cua nhan vien la: {salary_value}\")\nelse:\n    print(f\"Thong tin ve '{search_key}' khong ton tai trong ho so nhan vien.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác với Keys, Values và Items"
+    }
+  },
+  {
+    "text": "Khái niệm: Set (Tập hợp) - Định nghĩa: Cấu trúc dữ liệu không có thứ tự (unordered), các phần tử là duy nhất (unique) và không thể thay thế hay thay đổi giá trị trực tiếp của từng phần tử sau khi đã thêm vào (các phần tử bắt buộc phải là đối tượng hashable/immutable).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Tính độc bản (Unique) và Không thứ tự (Unordered) - Định nghĩa: Đặc tính tự động loại bỏ các phần tử trùng lặp khi nạp vào Set, đồng thời các phần tử không có vị trí chỉ mục (index) cố định nên không bảo toàn thứ tự xuất hiện ban đầu.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Khởi tạo Set rỗng - Định nghĩa: Để tạo một Set rỗng, phải sử dụng cú pháp set(). Nếu sử dụng cặp ngoặc nhọn rỗng {}, Python sẽ hiểu là muốn tạo ra một dictionary (từ điển) rỗng chứ không phải Set.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Ép kiểu dữ liệu (Type Casting) - Định nghĩa: Quá trình sử dụng hàm dựng set() để chuyển đổi các kiểu dữ liệu có thể lặp (Iterable) như String, List, Tuple sang cấu trúc Set, tự động lọc trùng lặp và phá vỡ thứ tự phần tử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi phần tử Mutable (Unhashable Class) - Định nghĩa: Set chỉ chấp nhận các phần tử không thể thay đổi giá trị (immutable) như số, chuỗi, tuple. Nếu cố gắng đưa kiểu dữ liệu có thể thay đổi (mutable) như List vào làm phần tử của Set, chương trình sẽ báo lỗi 'TypeError: unhashable type'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_set_rong:\n# Dung: Khoi tao Set rong bang set()\nset_rong = set()\nprint(type(set_rong))  # Output: <class 'set'>\n\n# Sai: Khoi tao bang {} se tao ra Dict chu khong phai Set\ndict_rong = {}\nprint(type(dict_rong))  # Output: <class 'dict'>",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuyen_doi_va_khoi_tao_set:\n# Khoi tao truc tiep\nmy_set = {1, 2, 3}\nprint(my_set)  # Output: {1, 2, 3}\n\n# Ep kieu tu String sang Set\nstr_set = set(\"hello\")\nprint(str_set)  # Vi du: {'h', 'e', 'l', 'o'}\n\n# Ep kieu tu List sang Set\nlist_set = set([1, 2, 2, 3])\nprint(list_set)  # Output: {1, 2, 3}\n\n# Ep kieu tu Tuple sang Set\ntuple_set = set((10, 20, 20))\nprint(tuple_set)  # Output: {10, 20}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xu_ly_loi_mutable:\n# Chay khoi ma kiem tra va xu ly loi unhashable type khi dua list vao set\ntry:\n    invalid_set = {1, 2, [3, 4]}  # Gay loi do List [3, 4] la mutable\nexcept TypeError as error:\n    print(f\"Loi xay ra: {error}\")  # Output: unhashable type: 'list'\n\n# Khac phuc bang cach thay List bang Tuple (immutable)\nvalid_set = {1, 2, (3, 4)}\nprint(valid_set)  # Output: {1, 2, (3, 4)}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho loai_bo_trung_lap_pep8:\ndef remove_duplicates(input_list):\n    \"\"\"Loai bo phan tu trung lap bang cach dung set va chuyen ve list.\"\"\"\n    unique_set = set(input_list)\n    return list(unique_set)\n\n\n# Su dung ham va in ket qua dung chuan PEP 8\nnumbers = [1, 2, 2, 3, 4, 4, 5]\ncleaned_numbers = remove_duplicates(numbers)\nprint(cleaned_numbers)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khái niệm và cách khởi tạo Set"
+    }
+  },
+  {
+    "text": "Khái niệm: set_definition - Định nghĩa: Set (Tập hợp) là một kiểu dữ liệu trong Python dùng để lưu trữ nhiều phần tử độc nhất (unique) và không có thứ tự xác định (unordered). Do tính chất unordered, các phần tử trong set không thể được truy cập thông qua chỉ số (index) như list hay tuple.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Khái niệm: set_initialization - Định nghĩa: Để khởi tạo một set có sẵn dữ liệu, ta dùng cặp ngoặc nhọn {}. Để khởi tạo một set rỗng, bắt buộc phải dùng hàm dựng set() thay vì {} (vì cặp ngoặc nhọn rỗng sẽ tạo ra một dictionary trống).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Khái niệm: set_operations - Định nghĩa: Các phép toán tập hợp cơ bản gồm: Phép Hợp (Union) lấy tất cả phần tử của hai tập hợp; Phép Giao (Intersection) lấy các phần tử chung; Phép Hiệu (Difference) lấy các phần tử chỉ có trong tập hợp thứ nhất mà không có ở tập hợp thứ hai. Có thể biểu diễn các phép toán này bằng toán tử toán học (| , & , -) hoặc phương thức (.union(), .intersection(), .difference()).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Khái niệm: type_casting_deduplication - Định nghĩa: Ngoại trừ kiểu dữ liệu dict, các kiểu dữ liệu dạng chuỗi tuần tự (List, Tuple, String) đều có thể dễ dàng chuyển đổi sang kiểu Set bằng hàm dựng set(). Phương pháp này thường được dùng để lọc bỏ tự động tất cả các phần tử trùng lặp trong dữ liệu gốc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Khái niệm: product_comparison_pep8 - Định nghĩa: Ứng dụng các phép toán trên Set để so sánh đối chiếu dữ liệu thực tế (như danh sách sản phẩm cũ và mới) giúp tối ưu hóa hiệu năng so với việc duyệt vòng lặp lồng nhau. Đồng thời, cấu trúc mã nguồn phải tuân thủ chuẩn định dạng PEP 8 (sử dụng tên biến snake_case rõ nghĩa, khoảng trắng quanh toán tử, và xuống dòng hợp lý).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho initialize_set:\n# Khoi tao set co phan tu (tu dong loc trung lap)\nfruits = {\"apple\", \"banana\", \"orange\", \"apple\"}\nprint(\"Set qua tang:\", fruits)\n\n# Khoi tao mot set rong dung cach\nempty_set = set()\nprint(\"Kieu du lieu cua empty_set:\", type(empty_set))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho set_math_operations:\n# Khoi tao hai tap hop khoa hoc\npython_class = {\"An\", \"Binh\", \"Chi\"}\nsql_class = {\"Binh\", \"Duy\", \"Chi\", \"Giang\"}\n\n# Phep hop - Cac hoc vien tham gia it nhat 1 lop\nall_students_op = python_class | sql_class\nall_students_meth = python_class.union(sql_class)\n\n# Phep giao - Cac hoc vien tham gia ca 2 lop\nboth_classes_op = python_class & sql_class\nboth_classes_meth = python_class.intersection(sql_class)\n\n# Phep hieu - Cac hoc vien chi hoc lop Python va khong hoc SQL\nonly_python_op = python_class - sql_class\nonly_python_meth = python_class.difference(sql_class)\n\nprint(\"Tatat ca hoc vien (toan tu):\", all_students_op)\nprint(\"Hoc vien trung (method):\", both_classes_meth)\nprint(\"Chi hoc Python (toan tu):\", only_python_op)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho deduplicate_data:\n# Loai bo trung lap tu mot danh sach khach hang (List)\nraw_emails = [\"a@gmail.com\", \"b@gmail.com\", \"a@gmail.com\", \"c@gmail.com\"]\nunique_emails = list(set(raw_emails))\nprint(\"Danh sach email duy nhat:\", unique_emails)\n\n# Tim cac ky tu duy nhat tu mot chuoi chu (String)\nword = \"abracadabra\"\nunique_letters = set(word)\nprint(\"Cac ky tu duy nhat co trong tu:\", unique_letters)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho product_comparison_pep8:\n# Danh sach danh muc san pham dang ban o cua hang\ncurrent_inventory = {\"ao_thun\", \"quan_jean\", \"ao_khoac\", \"giay_sneaker\"}\n\n# Danh sach san pham moi nhap tu nha cung cap\nnew_shipment = {\"giay_sneaker\", \"mu_luoi_trai\", \"kinh_mat\"}\n\n# Tim cac san pham moi chua co trong kho san pham hien tai\nnew_items_to_add = new_shipment - current_inventory\n\n# Tim cac san pham trung nhau de kiem tra gia ban\noverlapping_items = current_inventory & new_shipment\n\nprint(\"San pham moi can them vao he thong:\", new_items_to_add)\nprint(\"San pham can kiem tra lai gia:\", overlapping_items)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các phép toán trên Set"
+    }
+  },
+  {
+    "text": "Khái niệm: List (Danh sách) - Định nghĩa: Cấu trúc dữ liệu có thứ tự, cho phép chứa các phần tử trùng lặp và có thể thay đổi (mutable). Hỗ trợ truy cập phần tử qua chỉ số (index) với độ phức tạp O(1) nhưng tìm kiếm một phần tử là O(n).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Set (Tập hợp) - Định nghĩa: Cấu trúc dữ liệu không có thứ tự, chỉ chứa các phần tử duy nhất (không trùng lặp). Các phần tử trong Set phải thuộc loại không thể thay đổi (immutable/hashable). Sử dụng bảng băm (hash table) giúp kiểm tra sự tồn tại của phần tử với độ phức tạp trung bình là O(1).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Dictionary (Từ điển) - Định nghĩa: Cấu trúc dữ liệu lưu trữ dưới dạng các cặp khóa-giá trị (key-value). Khóa (key) phải là duy nhất và có tính chất hashable. Cho phép truy xuất giá trị thông qua khóa cực nhanh với độ phức tạp trung bình là O(1).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Độ phức tạp thời gian tìm kiếm - Định nghĩa: Khái niệm so sánh hiệu năng tìm kiếm giữa các cấu trúc: List có thời gian tìm kiếm trung bình là O(n) do phải duyệt qua từng phần tử, trong khi Set và Dictionary chỉ mất O(1) nhờ cơ chế bảng băm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Khả năng băm (Hashability) - Định nghĩa: Yêu cầu kỹ thuật trong Python bắt buộc các khóa của Dictionary và phần tử của Set phải là các đối tượng không thể thay đổi dữ liệu (như string, int, tuple) để tạo ra mã băm cố định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Khái niệm: Chuẩn PEP 8 cho cấu trúc dữ liệu cơ bản - Định nghĩa: Quy tắc định dạng mã nguồn Python như: đặt khoảng trống sau dấu phẩy trong List/Set/Dict, thụt lề 4 dấu cách, viết tên biến dạng snake_case, và khai báo hàm có docstring rõ ràng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_va_thao_tac_co_ban:\n# Khoi tao cac cau truc du lieu co ban\nmy_list = [1, 2, 3]\nmy_set = {1, 2, 3}\nmy_dict = {\"a\": 1, \"b\": 2}\n\n# Them phan tu moi\nmy_list.append(4)\nmy_set.add(4)\nmy_dict[\"c\"] = 3\n\n# Xoa phan tu\nmy_list.remove(2)\nmy_set.discard(2)  # Dung discard de khong gay loi neu phan tu khong ton tai\ndel my_dict[\"b\"]\n\n# Cap nhat phan tu\nmy_list[0] = 10\nmy_dict[\"a\"] = 100",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho so_sanh_hieu_nang_tim_kiem:\n# Kiem tra su ton tai cua phan tu bang toan tu 'in'\ndanih_sach_so = list(range(1000000))\ntap_hop_so = set(danih_sach_so)\n\n# Tim kiem tren List ton thoi gian O(n) - phai duyet tuan tu\nis_in_list = 999999 in danih_sach_so\n\n# Tim kiem tren Set ton thoi gian O(1) - truy cap bang bam truc tiep\nis_in_set = 999999 in tap_hop_so",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho giai_quyet_bai_toan_thuc_te:\n# 1. Loc trung lap tu mot danh sach\ndanh_sach_trung = [1, 2, 2, 3, 4, 4, 5]\ndanh_sach_loc_trung = list(set(danh_sach_trung))\n\n# 2. Dem tan suat xuat hien cac tu dung Dictionary\ndanh_sach_tu = [\"apple\", \"banana\", \"apple\", \"orange\", \"banana\"]\ntan_suat = {}\nfor tu in danh_sach_tu:\n    # Su dung phuong thuc get de thiet lap gia tri mac dinh la 0\n    tan_suat[tu] = tan_suat.get(tu, 0) + 1",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho toi_uu_va_viet_chuan_pep8:\n# Chuong trinh thiet ke theo chuan PEP 8 va toi uu hieu nang bang Set\n\ndef kiem_tra_khach_hang_vip(danh_sach_vip, khach_hang):\n    \"\"\"Kiem tra khach hang VIP voi hieu nang toi uu O(1).\"\"\"\n    # Chuyen doi sang Set de ho tro tim kiem nhanh\n    tap_hop_vip = set(danh_sach_vip)\n    \n    if khach_hang in tap_hop_vip:\n        return True\n    return False\n\n# Khai bao du lieu thu nghiem\ndanh_sach_goc = [\"khoa\", \"lan\", \"minh\"]\nkhach_hang_can_tim = \"minh\"\n\n# Thuc thi\nis_vip = kiem_tra_khach_hang_vip(danh_sach_goc, khach_hang_can_tim)\nprint(f\"Ket qua: {is_vip}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khi nào nên dùng List, Dictionary hay Set"
+    }
+  },
+  {
+    "text": "Khái niệm: dinh_nghia_ham_def - Định nghĩa: Cú pháp khai báo một khối lệnh độc lập bằng từ khóa 'def', theo sau là tên hàm viết theo chuẩn snake_case (chữ thường, phân tách bằng dấu gạch dưới) cùng cặp ngoặc đơn chứa tham số và dấu hai chấm để bắt đầu khối lệnh thụt lề.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: tham_so_va_doi_so - Định nghĩa: Tham số (parameter) là các biến được khai báo ở định nghĩa hàm để nhận dữ liệu vào. Đối số (argument) là giá trị thực tế được truyền vào tham số khi gọi hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: tu_khoa_return - Định nghĩa: Lệnh kết thúc thực thi hàm và trả kết quả về nơi gọi. Nếu hàm không sử dụng return hoặc chỉ gọi return không kèm giá trị, Python sẽ ngầm định trả về giá trị None.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: tai_su_dung_code - Định nghĩa: Kỹ thuật phân tích mã nguồn tuần tự để phát hiện các đoạn mã lặp lại, sau đó đóng gói chúng thành một hàm duy nhất nhằm giảm trùng lặp dữ liệu (DRY - Don't Repeat Yourself) và tăng tính bảo trì.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: xu_ly_cau_truc_du_lieu_trong_ham - Định nghĩa: Cách thức nhận, thao tác trực tiếp và trả về các kiểu dữ liệu tích hợp sẵn của Python như String, List, Tuple, Dictionary, và Set bên trong thân hàm để giải quyết các logic nghiệp vụ cụ thể.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: pham_vi_bien_scope - Định nghĩa: Quy tắc xác định khả năng truy cập của biến. Biến khai báo bên ngoài hàm là biến toàn cục (global scope) có thể đọc được ở mọi nơi, biến khai báo bên trong hàm là biến cục bộ (local scope) chỉ tồn tại và sử dụng được trong nội bộ hàm đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: phoi_hop_ham_modular - Định nghĩa: Phương pháp thiết kế chương trình bằng cách chia nhỏ một bài toán nghiệp vụ phức tạp thành nhiều hàm đơn giản, mỗi hàm giải quyết một trách nhiệm duy nhất (Single Responsibility), sau đó kết hợp giá trị trả về của chúng để hoàn thành luồng công việc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_ham_co_ban:\ndef tinh_tong_hai_so(so_thu_nhat, so_thu_hai):\n    # Ham nhan vao hai so va tra ve tong cua chung theo dung chuan PEP 8\n    ket_qua = so_thu_nhat + so_thu_hai\n    return ket_qua\n\n# Cach goi ham\ntong = tinh_tong_hai_so(10, 20)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tach_ma_nguon_trung_lap:\n# Truoc khi tach: in thong tin lap di lap lai nhieu lan voi dinh dang xau\n# Sau khi tach thanh ham tai su dung:\ndef in_thong_tin_hoc_vien(ten, tuoi, lop):\n    print(\"--- THONG TIN HOC VIEN ---\")\n    print(\"Ten: \" + str(ten))\n    print(\"Tuoi: \" + str(tuoi))\n    print(\"Lop: \" + str(lop))\n    print(\"-------------------------\")\n\nin_thong_tin_hoc_vien(\"Nguyen Van A\", 18, \"Python Core\")\nin_thong_tin_hoc_vien(\"Tran Thi B\", 19, \"AI Core\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xu_ly_cau_truc_du_lieu:\ndef loc_san_pham_theo_gia(danh_sach_san_pham, gia_gioi_han):\n    # Input: danh_sach_san_pham la kieu List chua cac Dict ve san pham\n    # Output: Set chua ten cac san pham co gia cao hon gia_gioi_han\n    ket_qua = set()\n    for san_pham in danh_sach_san_pham:\n        if san_pham[\"gia\"] > gia_gioi_han:\n            ket_qua.add(san_pham[\"ten\"])\n    return ket_qua\n\n# Lay vi du danh sach\ndanh_sach = [\n    {\"ten\": \"Dien thoai\", \"gia\": 500},\n    {\"ten\": \"May tinh ban\", \"gia\": 1200},\n    {\"ten\": \"Chuot may tinh\", \"gia\": 20}\n]\nsan_pham_dat = loc_san_pham_theo_gia(danh_sach, 100)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pham_vi_bien_scope:\nti_le_thue = 0.1 # Bien toan cuc (global)\n\ndef tinh_gia_sau_thue(gia_chua_thue):\n    # gia_chua_thue va tien_thue la bien cuc bo (local)\n    tien_thue = gia_chua_thue * ti_le_thue\n    gia_sau_thue = gia_chua_thue + tien_thue\n    return gia_sau_thue\n\ntong_tien = tinh_gia_sau_thue(100)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phoi_hop_nhieu_ham:\ndef tinh_tien_hang(so_luong, don_gia):\n    return so_luong * don_gia\n\ndef ap_dung_giam_gia(tong_tien, la_khach_vip):\n    if la_khach_vip:\n        return tong_tien * 0.1 # Giam 10%\n    return 0.0\n\ndef tinh_hoa_don_thanh_toan(so_luong, don_gia, la_khach_vip):\n    # Phoi hop dong nhat cac ham tren de giai quyet bai toan thanh toan\n    tien_hang = tinh_tien_hang(so_luong, don_gia)\n    tien_giam = ap_dung_giam_gia(tien_hang, la_khach_vip)\n    so_tien_cuoi_cung = tien_hang - tien_giam\n    return so_tien_cuoi_cung\n\nthanh_toan = tinh_hoa_don_thanh_toan(5, 200, True)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Positional Argument (Tham số vị trí) - Định nghĩa: Tham số được truyền vào hàm dựa trên vị trí và thứ tự khai báo của chúng trong định nghĩa hàm. Giá trị thực tế khi gọi sẽ khớp trực tiếp theo thứ tự từ trái qua phải.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Keyword Argument (Tham số định danh) - Định nghĩa: Tham số được định nghĩa bằng cách chỉ định rõ tên tham số kèm toán tử gán (=) khi gọi hàm. Cách này cho phép truyền tham số không phụ thuộc vào thứ tự khai báo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Default Argument (Tham số mặc định) - Định nghĩa: Tham số được gán sẵn một giá trị ngay khi định nghĩa hàm. Theo quy tắc PEP 8, các tham số mặc định phải đặt sau các tham số bắt buộc không có giá trị mặc định và không được có khoảng trắng xung quanh dấu '=' khi gán giá trị mặc định.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Return Statement & Tuple Return (Trả về nhiều giá trị) - Định nghĩa: Lệnh return kết thúc thực thi hàm và trả về một hoặc nhiều giá trị. Trong Python, việc trả về nhiều giá trị ngăn cách bởi dấu phẩy thực chất là gộp chúng lại thành một Tuple duy nhất và trả về.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: *args (Tham số biến thiên theo vị trí) - Định nghĩa: Cú pháp cho phép hàm nhận số lượng tham số vị trí không giới hạn. Bên trong hàm, các tham số này được định dạng và truy cập như một Tuple.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: **kwargs (Tham số biến thiên định danh) - Định nghĩa: Cú pháp cho phép hàm nhận số lượng tham số định danh không giới hạn dạng cặp key=value. Bên trong hàm, các tham số này được lưu trữ và truy cập dưới dạng một Dictionary.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy tắc thứ tự tham số & Chuẩn hóa Python 3.12 - Định nghĩa: Quy tắc bắt buộc khi sắp xếp tham số khi định nghĩa hàm trong Python để tránh lỗi SyntaxError là: Tham số vị trí thông thường -> Tham số mặc định -> Tham số biến thiên vị trí (*args) -> Tham số chỉ định danh (Keyword-only) -> Tham số biến thiên định danh (**kwargs).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho positional_keyword_default:\ndef calculate_bill(price, quantity, tax_rate=0.08):\n    # Sử dụng tham số mặc định tax_rate tuân thủ PEP 8 (không dùng khoảng trắng quanh dấu =)\n    subtotal = price * quantity\n    return subtotal + (subtotal * tax_rate)\n\n# Gọi hàm bằng Positional arguments (truyền theo thứ tự)\nbill_1 = calculate_bill(100, 3)\n\n# Gọi hàm bằng Keyword arguments (truyền theo tên, tự do thay đổi thứ tự)\nbill_2 = calculate_bill(quantity=5, price=50, tax_rate=0.1)\n\nprint(f\"Hóa đơn 1: {bill_1}, Hóa đơn 2: {bill_2}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho return_multiple_values:\ndef analyze_numbers(numbers):\n    # Hàm thực hiện xử lý danh sách số và trả về nhiều giá trị\n    if not numbers:\n        return 0, 0, 0\n    total = sum(numbers)\n    count = len(numbers)\n    average = total / count\n    return total, count, average  # Trả về 3 giá trị dưới dạng 1 Tuple duy nhất\n\n# Unpacking (giải nén) giá trị trả về\ntotal_sum, length, mean = analyze_numbers([10, 20, 30, 40])\nprint(f\"Tổng: {total_sum}, Số lượng: {length}, Trung bình: {mean}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho args_and_kwargs_usage:\ndef print_course_details(course_name, *students, **tutors):\n    # *students gom các tham số vị trí dư vào một Tuple\n    # **tutors gom các tham số định danh dư vào một Dictionary\n    print(f\"Khóa học: {course_name}\")\n    print(\"Danh sách học viên:\")\n    for student in students:\n        print(f\"  - {student}\")\n    print(\"Danh sách trợ giảng:\")\n    for role, name in tutors.items():\n        print(f\"  - {role.capitalize()}: {name}\")\n\n# Gọi hàm kết hợp cả *args và **kwargs linh hoạt\nprint_course_details(\"Lập trình Python\", \"Bình\", \"An\", \"Chi\", lead=\"Tú\", assistant=\"Hoa\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho datastructure_transformation:\ndef process_user_data(raw_emails_list):\n    # Nhận một danh sách chuỗi email thô (List)\n    # Làm sạch bằng cách loại bỏ khoảng trắng, chuyển chữ thường\n    # Loại bỏ email trùng lặp bằng cách chuyển sang Set\n    # Trả về một List email đã sắp xếp\n    cleaned_emails = {email.strip().lower() for email in raw_emails_list if email.strip()}\n    return sorted(list(cleaned_emails))\n\nraw_data = [\"  An@gmail.com \", \"binh@gmail.com\", \"an@gmail.com\", \"  Binh@gmail.com \"]\nprint(process_user_data(raw_data))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho parameter_ordering_and_checks:\n# Sắp xếp các loại tham số theo thứ tự chuẩn hóa trong Python 3.12 để tránh lỗi SyntaxError\ndef create_user_profile(user_id, status=\"Active\", *badges, location, **additional_info):\n    # location đứng sau *badges bắt buộc phải được truyền dưới dạng Keyword-only-argument\n    profile = {\n        \"id\": user_id,\n        \"status\": status,\n        \"badges\": badges,\n        \"location\": location,\n        \"extra\": additional_info\n    }\n    return profile\n\n# Truy cập đúng cú pháp đã định nghĩa\nuser = create_user_profile(1001, \"Active\", \"VIP\", \"Contributor\", location=\"Hanoi\", age=25, gender=\"Male\")\nprint(user)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Local Scope (Phạm vi cục bộ) - Định nghĩa: Phạm vi chứa các biến được khai báo bên trong một chức năng (hàm). Các biến này chỉ hiển thị và có hiệu lực sử dụng nội bộ bên bên trong hàm đó, tự động bị hủy khi hàm kết thúc phiên thực thi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Global Scope (Phạm vi toàn cục) - Định nghĩa: Phạm vi rộng nhất cấp độ module/file. Biến được khai báo ở đây có thể truy cập được từ bất kỳ hàm hay mã lệnh nào bên trong cùng một file script.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Variable Shadowing (Che khuất biến) - Định nghĩa: Hiện tượng xảy ra khi một biến được khai báo bên trong một phạm vi hẹp hơn (local hoặc enclosing scope) có tên trùng khớp với biến ở phạm vi rộng ngoài (global scope). Biến phạm vi hẹp sẽ che khuất và làm ẩn đi biến phạm vi ngoài khi thực thi trong vùng hoạt động của nó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Nested Functions (Hàm lồng nhau) - Định nghĩa: Cấu trúc định nghĩa một hàm (hàm con) nằm hoàn toàn trong thân mã của một hàm khác (hàm cha). Hàm con có quyền truy cập gián tiếp vào tài nguyên biến của hàm cha.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: global Keyword - Định nghĩa: Từ khóa dùng để nói cho Python biết rằng mã lệnh cục bộ trong hàm đang muốn thao tác thay đổi trực tiếp giá trị của một biến thuộc phạm vi toàn cục (global scope) thay vì tạo ra biến cục bộ mới.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: nonlocal Keyword - Định nghĩa: Từ khóa dùng trong cấu trúc hàm lồng nhau để liên kết một biến cục bộ bên trong hàm con tới biến cùng tên thuộc phạm vi hàm cha (enclosing scope) kế cận nhất, cho phép thay đổi dữ liệu của hàm cha đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: UnboundLocalError - Định nghĩa: Lỗi runtime xuất hiện khi mã thực thi cố gắng truy xuất hoặc tính toán dựa trên một biến cục bộ trước khi biến đó được gán một giá trị cụ thể trong hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: PEP 8 Scope Variable Convention - Định nghĩa: Nhóm quy tắc định dạng PEP 8 về đặt tên biến: Dùng chữ viết thường, cách nhau bằng gạch dưới (snake_case) cho biến cục bộ/toàn cục thông dụng, phân biệt với hằng số toàn cục (UPPER_CASE) không thay đổi giá trị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho local_vs_global_and_shadowing:\nx = 100  # Global variable\n\ndef shadow_demo():\n    x = 50   # Local variable shadows global variable 'x'\n    print(\"Inside function local x:\", x)\n\nshadow_demo()\nprint(\"Outside function global x:\", x)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nested_functions_and_keywords:\nscore = 0\n\ndef modify_global_score():\n    global score\n    score += 10\n\ndef outer_function():\n    level_name = \"Level 1\"\n    def inner_function():\n        nonlocal level_name\n        level_name = \"Level 2\"\n    inner_function()\n    print(\"Level name after update:\", level_name)\n\nmodify_global_score()\nprint(\"Global score:\", score)\nouter_function()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho diagnosing_and_fixing_unboundlocalerror:\n# Error scenario:\n# count = 5\n# def increment():\n#     count += 1  # Raises UnboundLocalError: local variable 'count' referenced before assignment\n\n# Correct implementation:\ncount = 5\n\ndef increment_fixed():\n    global count\n    count += 1\n    return count\n\nprint(\"Count updated successfully:\", increment_fixed())",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_scope_compliant_module:\n# PEP 8: Global Constant in uppercase\nTAX_RATE = 0.05\n\ndef calculate_invoice(price):\n    # PEP 8: Local variable in snake_case\n    net_price = price\n    tax_value = net_price * TAX_RATE\n    total_price = net_price + tax_value\n    return total_price\n\nresult = calculate_invoice(150.0)\nprint(\"Total (after tax):\", result)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: lambda_function - Định nghĩa: Một hàm nặc danh (anonymous function) được định nghĩa bằng từ khóa 'lambda' thay vì 'def'. Chỉ chứa một biểu thức duy nhất, tự động trả về giá trị của biểu thức đó mà không cần sử dụng từ khóa 'return'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: def_vs_lambda - Định nghĩa: Hàm định nghĩa bằng 'def' là câu lệnh (statement) có tên, có thể chứa nhiều dòng mã và docstring, phù hợp cho logic phức tạp và tái sử dụng lâu dài. Hàm 'lambda' là một biểu thức (expression) không tên, giới hạn trong một dòng, phù hợp để làm đối số cho các hàm khác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_lambda - Định nghĩa: Chuẩn PEP 8 khuyến cáo tránh gán trực tiếp biểu thức lambda vào một biến để đặt tên cho nó (ví dụ: 'f = lambda x: x + 1'). Thay vào đó, hãy sử dụng định nghĩa 'def' nếu muốn tạo một hàm có tên để traceback lỗi chính xác hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: map_function - Định nghĩa: Hàm tích hợp sẵn trong Python, nhận đầu vào là một hàm và một hoặc nhiều đối tượng lặp (iterable). Nó duyệt qua từng phần tử và áp dụng hàm đó lên phần tử, trả về một generator/iterator lớp 'map'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: filter_function - Định nghĩa: Hàm tích hợp sẵn giúp lọc các phần tử từ một iterable. Nó nhận một hàm lọc (trả về giá trị chân lý Boolean) và một iterable, trả về một 'filter' iterator chỉ chứa các phần tử thỏa mãn điều kiện.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: reduce_function - Định nghĩa: Hàm thuộc thư viện chuẩn 'functools', thực hiện áp dụng liên tiếp một hàm hai tham số lên các phần tử của một iterable từ trái sang phải, rút gọn (tích lũy) chuỗi phần tử đó thành một giá trị đơn nhất duy nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: complex_data_processing - Định nghĩa: Kỹ thuật kết hợp lambda, map, filter để biến đổi hoặc trích xuất dữ liệu trên cấu trúc lồng nhau như Danh sách các Từ điển (List of Dicts), Từ điển (Dictionary), Tập hợp (Set).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: performance_and_readability - Định nghĩa: So sánh giữa vòng lặp truyền thống (for loop), các hàm functional (map/filter) và List Comprehension. List Comprehension thường là lựa chọn tối ưu nhất trong Python về cả hiệu năng lẫn độ sạch mã nguồn (Pythonic).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: refactoring_pipeline - Định nghĩa: Quá trình cấu trúc lại các đoạn mã lặp lồng nhau hoặc xử lý dữ liệu thô rối rắm thành một chuỗi (pipeline) các bộ lọc và phép biến đổi tuần tự rõ ràng, dễ bảo trì.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lambda_basic:\n# Ví dụ định nghĩa và gọi trực tiếp một hàm lambda đơn giản\n# Thực hiện bình phương một số nguyên\nsquare = lambda x: x ** 2\nprint(square(5))  # Output: 25\n\n# Gọi lambda không qua trung gian biến gán (inline)\nprint((lambda a, b: a + b)(10, 20))  # Output: 30",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_def_vs_lambda:\n# Chuẩn PEP 8: Không gán lambda cho một định danh. Sử dụng lambda làm đối số trực tiếp.\n\n# Tránh viết:\n# custom_sort = lambda student: student['score']\n\n# Khuyên dùng: Dùng lambda làm tham số key ẩn danh hoặc định nghĩa hàm bằng 'def'\nstudents = [\n    {\"name\": \"An\", \"score\": 8.5},\n    {\"name\": \"Bình\", \"score\": 9.5},\n    {\"name\": \"Cường\", \"score\": 7.0}\n]\n\n# Dùng lambda làm tham số key ẩn danh trong hàm sorted()\nstudents_sorted = sorted(students, key=lambda student: student[\"score\"])\nprint(students_sorted)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho map_list_tuple:\n# Sử dụng map() để chuyển đổi tất cả phần tử trong List và Tuple\nnumbers_list = [1, 2, 3, 4]\nnumbers_tuple = (5, 6, 7, 8)\n\n# Nhân đôi phần tử trong danh sách\ndoubled = list(map(lambda x: x * 2, numbers_list))\nprint(doubled)  # Output: [2, 4, 6, 8]\n\n# Định dạng các phần tử trong tuple thành dạng chuỗi\nformatted_strings = tuple(map(lambda x: f\"Item: {x}\", numbers_tuple))\nprint(formatted_strings)  # Output: ('Item: 5', 'Item: 6', 'Item: 7', 'Item: 8')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho filter_even_numbers:\n# Sử dụng filter() kết hợp lambda để lọc dữ liệu số\nnumbers = [10, 15, 21, 30, 43, 50]\n\n# Lọc lấy các số chẵn từ danh sách\neven_numbers = list(filter(lambda x: x % 2 == 0, numbers))\nprint(even_numbers)  # Output: [10, 30, 50]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho reduce_sum_product:\n# Sử dụng functools.reduce để tích lũy giá trị\nfrom functools import reduce\n\nnumbers = [1, 2, 3, 4, 5]\n\n# Tính tích của tất cả phần tử trong danh sách (1 * 2 * 3 * 4 * 5)\nproduct = reduce(lambda acc, val: acc * val, numbers)\nprint(product)  # Output: 120\n\n# Tính tổng kèm giá trị khởi tạo ban đầu là 10\ntotal_with_initializer = reduce(lambda acc, val: acc + val, numbers, 10)\nprint(total_with_initializer)  # Output: 25 (10 + 1 + 2 + 3 + 4 + 5)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho complex_data_processing:\n# Biến đổi và lọc dữ liệu trên cấu trúc phức tạp (List of Dicts)\nproducts = [\n    {\"name\": \"Laptop\", \"price\": 1200, \"active\": True},\n    {\"name\": \"Mouse\", \"price\": 25, \"active\": False},\n    {\"name\": \"Keyboard\", \"price\": 80, \"active\": True},\n    {\"name\": \"Monitor\", \"price\": 300, \"active\": True}\n]\n\n# Bước 1: Lọc các sản phẩm active\nactive_products = filter(lambda p: p[\"active\"], products)\n\n# Bước 2: Chỉ lấy ra danh sách tên của các sản phẩm đã lọc\nactive_product_names = list(map(lambda p: p[\"name\"], active_products))\nprint(active_product_names)  # Output: ['Laptop', 'Keyboard', 'Monitor']",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho loop_vs_functional:\n# Phân tích và so sánh hiệu năng/cách viết giữa looping truyền thống và functional dạng sạch\nnumbers = range(1, 1000)\n\n# Cách 1: Vòng lặp for truyền thống\nloop_result = []\nfor x in numbers:\n    if x % 3 == 0:\n        loop_result.append(x * 2)\n\n# Cách 2: Kết hợp map và filter\nfunctional_result = list(map(lambda x: x * 2, filter(lambda x: x % 3 == 0, numbers)))\n\n# Cách 3: List Comprehension (Khuyến nghị dùng nhất trong Python vì trực quan và nhanh)\ncomprehension_result = [x * 2 for x in numbers if x % 3 == 0]\n\nassert loop_result == functional_result == comprehension_result",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho refactoring_pipeline:\n# Tái cấu trúc (Refactoring) chuỗi xử lý bán hàng lồng nhau\norders = [\n    {\"order_id\": 1, \"items\": [{\"price\": 100}, {\"price\": 200}], \"status\": \"shipped\"},\n    {\"order_id\": 2, \"items\": [{\"price\": 50}], \"status\": \"pending\"},\n    {\"order_id\": 3, \"items\": [{\"price\": 300}, {\"price\": 150}], \"status\": \"shipped\"}\n]\n\n# Yêu cầu: Tính tổng doanh thu của đơn hàng có trạng thái 'shipped'\n\n# Pipeline xử lý sạch sẽ:\n# 1. Lọc đơn hàng hợp lệ\nshipped_orders = filter(lambda o: o[\"status\"] == \"shipped\", orders)\n\n# 2. Ánh xạ thành tổng tiền của từng đơn hàng (dùng map + sum)\norder_totals = map(lambda o: sum(item[\"price\"] for item in o[\"items\"]), shipped_orders)\n\n# 3. Tính tổng doanh thu sau cùng\ntotal_revenue = sum(order_totals)\n\nprint(total_revenue)  # Output: 750 (300 + 450)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: docstring_definition - Định nghĩa: Docstring (Document String) la chuoi van ban dac biet duoc dat ngay duoi dong dinh nghia cua module, lop, phuong thuc hoac ham nham muc dich tai lieu hoa ma nguon Python. Docstring co the duoc truy cap thong qua thuoc tinh __doc__ cua doi tuong.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Khái niệm: docstring_vs_comment - Định nghĩa: Comment (bat dau bang dau #) duoc dung de giai thich chi tiet trien khai ky thuat ('how' va 'why') cho lap trinh vien doc code. Docstring (bao quanh boi 3 cap nhay kep) giai thich muc dich su dung, tham so dau vao va ket qua dau ra ('what' va 'interface') cho nguoi su dung ham ma khong can doc logic chi tiet.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Khái niệm: pep_257 - Định nghĩa: PEP 257 la tai lieu dac ta di ra cac quy chuan, huong dan va nguyen tac thiet ke de viet Docstring dong bo, nhat quan trong Python, phan chia ro rang giua cach su dung docstring mot dong va docstring nhieu dong.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Khái niệm: one_line_docstrings - Định nghĩa: Docstring mot dong duoc ap dung cho cac ham don gian, duoc bao quanh boi cap triple-double quotes (\\\"\\\"\\\"). Docstring nay bat dau bang chu in hoa, ket thuc bang dau cham va nam tren cung mot dong voi cap dau nhay.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Khái niệm: multi_line_docstrings - Định nghĩa: Docstring nhieu dong gom dong tom tat ngan gon (bat dau bang chu hoa, ket thuc bang dau cham), tiep theo la khoang trong duong nhu mot dong trong de phan cach, tiep theo la mo ta chi tiet hon cac doi so (Args), gia tri tra ve (Returns) hoac ngoai le co the xay ra (Raises).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Khái niệm: pep_8_and_pep_257_alignment - Định nghĩa: Quy tac dong bo hoa ma nguon va tai lieu hoa. Pep 8 quy dinh ve phong cach trinh bay code (khoang trang, ten bien, do dai dong), ket hop voi quy chuan viet docstring cua Pep 257 de dam bao ma nguon Python vua dat chuan sach, dep, vua co tai lieu huong dan su dung day du.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho one_line_docstring_and_comment:\ndef square_number(number):\n    \"\"\"Return the square value of the given number.\"\"\"\n    # Use arithmetic multiplication operator to compute the square\n    return number * number",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho multiline_list_tuple_docstring:\ndef find_extremes(numbers):\n    \"\"\"Find the minimum and maximum values in a sequence of numbers.\n\n    Args:\n        numbers (list or tuple): A sequence containing numeric types (int, float).\n\n\n    Returns:\n        tuple: A tuple containing two elements: (min_value, max_value).\n        None: If the sequence is empty.\n    \"\"\"\n    if not numbers:\n        return None\n    return min(numbers), max(numbers)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dict_set_docstring:\ndef extract_unique_keys(data_dict, key_filter):\n    \"\"\"Extract unique keys from a dictionary that match a filter set.\n\n    Args:\n        data_dict (dict): The dictionary containing arbitrary data.\n        key_filter (set): A set of keys permitted to be extracted.\n\n    Returns:\n        set: A set containing only the filtered keys that exist in the dictionary.\n    \"\"\"\n    existing_keys = set(data_dict.keys())\n    return existing_keys.intersection(key_filter)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_pep257_standardized_function:\ndef calculate_net_salary(gross_salary, tax_rate):\n    \"\"\"Calculate the net salary after applying the income tax rate.\n\n    Args:\n        gross_salary (float): The total income prior to tax deductions.\n        tax_rate (float): The tax percentage represented as a decimal (e.g. 0.1 for 10%).\n\n    Returns:\n        float: The net salary amount after deductions.\n    \"\"\"\n    if gross_salary < 0 or tax_rate < 0:\n        return 0.0\n    return gross_salary * (1.0 - tax_rate)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Docstring & best practice"
+    }
+  },
+  {
+    "text": "Khái niệm: regex_tong_quan - Định nghĩa: Bieu thuc chinh quy (Regular Expression) la mot chuoi cac ky tu dung de thiet lap mot khuon mau tim kiem truc quan, ho tro viec kiem tra, tim kiem va thay the van ban nhanh chong trong Python thong qua module 're'.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: ky_tu_neo_dau_cuoi - Định nghĩa: Ky tu '^' dinh nghia bat dau chuoi va '$' dinh nghia ket thuc chuoi. Chung giup dam bao toan bo chuoi phai khop voi khuon mau yeu cau thay vi chi khop mot phat doan nho ben trong.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: ky_tu_luong_hoa - Định nghĩa: Cac ky tu dinh luong tan suat lap lai di kem truoc no: '*' (0 hoac nhieu lan), '+' (1 hoac nhieu lan), '?' (0 hoac 1 lan), va '{m,n}' (lap tu m den n lan).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: re_match_vs_re_search - Định nghĩa: re.match() chi kiem tra su trung khop ke tu ky tu dau tien cua chuoi. Neu ky tu dau khong khop nhung cac ky tu sau co khop thi van tra ve None. Trong khi do, re.search() se quet qua toan bo chuoi va tra ve ket qua dau tien tim thay.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: regex_email_phone_pattern - Định nghĩa: Xay dung bieu thuc chinh quy tinh loc bang cach phoi hop cac tap ky tu [a-zA-Z0-9] cung voi ky tu escape nhu '\\\\d' hoac '\\\\.' de tao khuon kiem dinh chinh xac dinh dang email hoac so dien thoai di dong viet nam.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: chuan_hoa_map_filter - Định nghĩa: Qua trinh ket hop lap trinh ham voi regex: dung map() de chuan hoa du lieu tho (loai bo khoang trang bang strip()) va filter() dung voi ham kiem tra regex de chon loc ra danh sach cac gia tri hop le theo chuan PEP 8.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sample_regex_basic_quantifiers:\nimport re\n\n# Kiem tra mot chuoi chua tu 2 den 4 chu so\npattern = r\"^\\d{2,4}$\"\n\n# Kiem tra ket qua\nprint(bool(re.match(pattern, \"123\")))  # True\nprint(bool(re.match(pattern, \"8\")))    # False (it hon 2 chu so)\nprint(bool(re.match(pattern, \"12345\"))) # False (nhieu hon 4 chu so)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sample_match_vs_search:\nimport re\n\ntext = \"Hoc Python rat la hay\"\n\n# re.match kiem tra o dau chuoi dung dau tien\nmatch_res = re.match(r\"Python\", text)\nprint(\"Match result:\", match_res)  # None (chuoi bat dau bang 'Hoc')\n\n# re.search tim kiem tren toan bo chuoi\nsearch_res = re.search(r\"Python\", text)\nif search_res:\n    print(\"Search result:\", search_res.group())  # 'Python'",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sample_email_phone_validation:\nimport re\n\n\ndef validate_email(email):\n    # Pattern kiem tra email co ban\n    pattern = r\"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\"\n    return bool(re.match(pattern, email))\n\n\ndef validate_vietnamese_phone(phone):\n    # So dien thoai 10 so bat dau bang so 0\n    pattern = r\"^0[0-9]{9}$\"\n    return bool(re.match(pattern, phone))\n\n\n# Kiem thu thuc te\nprint(validate_email(\"hocvien.code@python.edu.vn\"))  # True\nprint(validate_vietnamese_phone(\"0912345678\"))         # True\nprint(validate_vietnamese_phone(\"1234567890\"))         # False (khong bat dau bang 0)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sample_regex_map_filter:\nimport re\n\n\ndef clean_text(text):\n    # Chuan hoa chuoi bang cach loai bo khoang trang dau va duoi\n    return text.strip()\n\n\ndef is_valid_username(username):\n    # Username hop le chi gom chu, so va tu 3 den 8 ky tu\n    pattern = r\"^[a-zA-Z0-9]{3,8}$\"\n    return bool(re.match(pattern, username))\n\n\n# Danh sach thong tin nhap vao chưa qua xu ly\nraw_data = [\" user1 \", \"ab\", \"invalid_char!\", \"  admin88  \", \"   \"]\n\n# 1. Chuan hoa du lieu voi map()\ncleaned_data = list(map(clean_text, raw_data))\n\n# 2. Loc loc lay thong tin hop le voi filter()\nvalid_data = list(filter(is_valid_username, cleaned_data))\n\nprint(\"Du lieu da chon loc:\", valid_data)  # ['user1', 'admin88']",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý chuỗi nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: list_comprehension_co_ban - Định nghĩa: Cú pháp rút gọn trong Python giúp tạo một list mới từ một iterable có sẵn, thay thế cho vòng lặp for truyền thống một cách ngắn gọn và tường minh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: list_comprehension_nang_cao - Định nghĩa: Kỹ thuật sử dụng biểu thức điều kiện (if/else) để biến đổi giá trị phần tử hoặc lồng các vòng lặp for lại với nhau trong cùng một biểu thức list comprehension để xử lý cấu trúc dữ liệu đa chiều.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: list_sort_vs_sorted - Định nghĩa: Phương thức list.sort() thay đổi thứ tự các phần tử trực tiếp trên list ban đầu (in-place) và trả về None. Trong khi đó, hàm sorted() nhận vào một iterable, trả về một list mới đã được sắp xếp và không làm thay đổi dữ liệu gốc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: sap_xep_da_tieu_chi_lambda - Định nghĩa: Kỹ thuật truyền một hàm ẩn danh (lambda function) vào tham số `key` của hàm sắp xếp để trích xuất ra một tuple chứa các tiêu chí ưu tiên xếp hạng khác nhau (ví dụ: ưu tiên điểm số trước, độ tuổi sau).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: list_comprehension_vs_map_filter - Định nghĩa: Cách tiếp cận so sánh hiệu năng và độ tường minh: List comprehension thường được ưu tiên hơn map() và filter() kết hợp lambda trong Python vì tính dễ đọc cao hơn, dù hiệu năng thực thi của các phương thức này trong thực tế là tương tự nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: pep_8_clean_code - Định nghĩa: Quy chuẩn viết code sạch, chuẩn hóa quy tắc đặt tên biến (snake_case), khoảng trắng xung quanh toán tử, thụt lề 4 dấu cách và cấu trúc chương trình Python nhất quán.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho list_comprehension_vs_for_loop:\n# So sánh vòng lặp truyền thống và List Comprehension\nnumbers = [1, 2, 3, 4, 5]\n\n# Cách truyền thống\nsquares_for = []\nfor x in numbers:\n    squares_for.append(x * x)\n\n# Cách dùng List Comprehension\nsquares_comp = [x * x for x in numbers]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho advanced_comprehensions:\n# 1. Sử dụng ternary operator (if/else) để gán nhãn chẵn lẻ\nnumbers = [1, 2, 3, 4, 5]\nlabels = [\"even\" if x % 2 == 0 else \"odd\" for x in numbers]\n\n# 2. Vòng lặp lồng nhau: Làm phẳng ma trận 2 chiều\nmatrix = [[1, 2], [3, 4]]\nflattened = [num for row in matrix for num in row]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho sort_vs_sorted:\n# Phân biệt list.sort() và sorted()\nnumbers_original = [3, 1, 4, 2]\n\n# sorted() trả về list mới, giữ nguyên list gốc\nnew_sorted = sorted(numbers_original)\n\n# list.sort() thay đổi trực tiếp trên list gốc\nnumbers_original.sort()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lambda_sorting:\n# Sắp xếp đa tiêu chí danh sách học sinh\nstudents = [\n    {\"name\": \"Nam\", \"grade\": 8, \"age\": 15},\n    {\"name\": \"An\", \"grade\": 9, \"age\": 14},\n    {\"name\": \"Binh\", \"grade\": 8, \"age\": 14}\n]\n\n# Sắp xếp theo grade giảm dần (-s['grade']), nếu bằng nhau thì theo age tăng dần (s['age'])\nstudents.sort(key=lambda s: (-s[\"grade\"], s[\"age\"]))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho comprehension_vs_map_filter:\n# So sánh Map/Filter với List Comprehension\nnumbers = [1, 2, 3, 4, 5]\n\n# Dùng map() và filter()\nresult_map_filter = list(map(lambda x: x * 2, filter(lambda x: x % 2 == 0, numbers)))\n\n# Dùng List Comprehension (tường minh hơn)\nresult_comp = [x * 2 for x in numbers if x % 2 == 0]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep_8_console_app:\n# Ứng dụng lọc và chuẩn hóa dữ liệu văn bản thô theo chuẩn PEP 8\ndef clean_data(raw_data):\n    \"\"\"Chuẩn hóa chuỗi bằng cách xóa khoảng trắng thừa và chuyển chữ thường.\"\"\"\n    cleaned = []\n    for item in raw_data:\n        if isinstance(item, str):\n            processed = item.strip().lower()\n            if processed:  # Loại bỏ chuỗi rỗng\n                cleaned.append(processed)\n    return cleaned\n\nraw_inputs = [\"  Python \", \"   \", \"JAVA\", \" C++  \"]\ncleaned_inputs = clean_data(raw_inputs)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Các hàm xử lý list nâng cao"
+    }
+  },
+  {
+    "text": "Khái niệm: khai_niem_ham_va_def - Định nghĩa: Hàm là một khối mã nguồn độc lập, được đặt tên để thực hiện một nhóm công việc cụ thể và có khả năng tái sử dụng nhiều lần. Trong Python, hàm được khai báo bằng từ khóa 'def' và bắt đầu một khối lệnh thụt lề.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: tham_so_va_gia_tri_tra_ve - Định nghĩa: Hàm nhận dữ liệu đầu vào qua tham số (parameters) và trả kết quả về thông qua câu lệnh 'return'. Một hàm có thể không có tham số hoặc không dùng 'return' (sẽ mặc định trả về None).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: xu_ly_kieu_du_lieu_trong_ham - Định nghĩa: Hàm có thể nhận và xử lý đầy đủ các kiểu dữ liệu cơ bản và cấu trúc như String, List, Tuple, Dict, Set để giải quyết các logic nghiệp vụ đa dạng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_cu_phap_va_pep8 - Định nghĩa: Khi viết hàm cần tránh SyntaxError (lỗi cú pháp cơ bản) và IndentationError (lỗi lệch dòng thụt lề). Quy chuẩn PEP 8 hướng dẫn dùng 4 khoảng trắng để thụt lề và đặt tên hàm theo kiểu snake_case.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: phan_ra_va_phoi_hop_ham - Định nghĩa: Khái niệm chia nhỏ (phân rã) một chương trình tuần tự dài thành các hàm chức năng độc lập, nhỏ gọn và liên kết chúng lại để xử lý luồng dữ liệu phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_ham_co_ban:\ndef chao_mung():\n    # Khai báo hàm không tham số bằng từ khóa def\n    print('Xin chao! Day la ham co ban.')\n\n# Goi ham thuc thi\nchao_mung()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho truyen_tham_so_va_return:\ndef tinh_tong(so_a, so_b):\n    # Nhan tham so so_a, so_b va dung return de tra ve ket qua\n    ket_qua = so_a + so_b\n    return ket_qua\n\n# Goi ham va luu gia tri tra ve\ntong_so = tinh_tong(10, 20)\nprint(tong_so)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xu_ly_kieu_du_lieu_tap_hop:\ndef loc_danh_sach_ten(danh_sach):\n    # Nhan vao mot List cac chuoi (String) va tra ve tap hop Set cac ten hop le\n    ten_hop_le = set()\n    for ten in danh_sach:\n        ten_chuan_hoa = ten.strip()\n        if len(ten_chuan_hoa) > 2:\n            ten_hop_le.add(ten_chuan_hoa)\n    return ten_hop_le\n\nket_qua_set = loc_danh_sach_ten([' An ', 'Ba', ' Cuong '])\nprint(ket_qua_set)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho pep8_va_sua_loi_cu_phap:\ndef tinh_dien_tich(chieu_dai, chieu_rong):\n    # Thut le dong nhat 4 khoang trang de tranh IndentationError\n    # Ten ham va bien tuan thu snake_case theo chuan PEP 8\n    dien_tich = chieu_dai * chieu_rong\n    return dien_tich\n\nprint(tinh_dien_tich(5, 4))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phoi_hop_nhieu_ham:\ndef lay_so_chan(danh_sach):\n    ket_qua = []\n    for n in danh_sach:\n        if n % 2 == 0:\n            ket_qua.append(n)\n    return ket_qua\n\ndef tinh_trung_binh(danh_sach):\n    if not danh_sach:\n        return 0\n    return sum(danh_sach) / len(danh_sach)\n\ndef quy_trinh_xu_ly(danh_sach_goc):\n    # Phoi hop hai ham con de dung cho bai toan lon hon\n    so_chan = lay_so_chan(danh_sach_goc)\n    trung_binh = tinh_trung_binh(so_chan)\n    return trung_binh\n\nprint(quy_trinh_xu_ly([1, 2, 3, 4, 5, 6]))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm (Function) - Định nghĩa: Một khối lệnh có đặt tên, có tính tái sử dụng cao, chạy khi được gọi trực tiếp và giúp mã nguồn rõ ràng, tránh lặp lại (DRY - Don't Repeat Yourself).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Từ khóa def - Định nghĩa: Từ khóa bắt buộc trong Python sử dụng ở đầu dòng để bắt đầu định nghĩa một hàm mới, theo sau là tên hàm và cặp ngoặc đơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy chuẩn PEP 8 đối với hàm - Định nghĩa: Quy tắc định dạng mã nguồn quy định: Tên hàm phải viết thường, các từ cách nhau bằng dấu gạch dưới (snake_case); block trong thân hàm phải thụt lề thụt đầu dòng đúng 4 khoảng trắng; chừa 2 dòng trống trước và sau khai báo hàm ở cấp độ ngoài cùng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Định nghĩa hàm (Function Definition) so với Gọi hàm (Function Call) - Định nghĩa: Định nghĩa hàm là việc khai báo cấu trúc và lưu trữ logic của hàm bằng từ khóa 'def'. Gọi hàm là việc thực thi các câu lệnh bên trong hàm bằng cách sử dụng tên hàm kết hợp với cặp dấu ngoặc đơn (), ví dụ: ten_ham().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Luồng thực thi hàm - Định nghĩa: Khi chương trình gặp một lệnh gọi hàm, trình thông dịch Python tạm dừng dòng thực thi hiện tại, nhảy đến vị trí định nghĩa hàm để thực thi tuần tự các câu lệnh trong thân hàm, sau đó quay lại nơi gọi hàm để chạy tiếp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Tái cấu trúc mã nguồn tuần tự (Refactoring) - Định nghĩa: Quá trình gom các đoạn mã nguồn tuần tự lặp đi lặp lại hoặc có cùng nhiệm vụ logic vào bên trong các hàm có tên định danh rõ ràng, giúp mã nguồn sạch hơn và dễ bảo trì hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Hệ thống hàm phối hợp - Định nghĩa: Cách tổ chức mã nguồn bằng việc thiết kế nhiều hàm nhỏ, mỗi hàm giải quyết một trách nhiệm duy nhất (Single Responsibility). Đầu ra của hàm này có thể làm tham số đầu vào cho hàm khác để hoàn thành nghiệp vụ lớn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_function_definition:\ndef chao_mung_hoc_vien():\n    # Thân hàm thụt lề 4 khoảng trắng theo PEP 8\n    print(\"Chào mừng bạn đến với khóa học lập trình Python!\")\n\n# Gọi hàm\nchao_mung_hoc_vien()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho function_definition_vs_call:\n# 1. Định nghĩa hàm (Chỉ đăng ký cấu trúc, chưa xuất kết quả ra màn hình)\ndef thong_bao_he_thong():\n    print(\"Hệ thống đang khởi động...\")\n\n# 2. Gọi hàm (Thực thi mã nguồn bên trong)\nprint(\"Bắt đầu chương trình chính.\")\nthong_bao_he_thong()\nprint(\"Kết thúc chương trình chính.\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho process_data_structures:\n# Hàm nhận danh sách số thực (List) và tính giá trị trung bình\ndef tinh_trung_binh_cong(danh_sach_so):\n    if len(danh_sach_so) == 0:\n        return 0\n    tong = sum(danh_sach_so)\n    return tong / len(danh_sach_so)\n\n# Ví dụ sử dụng hàm\ndiem_so = [8.5, 9.0, 7.0, 10.0]\ndiem_trung_binh = tinh_trung_binh_cong(diem_so)\nprint(\"Điểm trung bình tích lũy:\", diem_trung_binh)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho code_refactoring:\n# CHƯA TÁI CẤU TRÚC (Viết tuần tự, lặp logic)\n# gia_san_pham_a = 100000\n# thue_a = gia_san_pham_a * 0.1\n# tong_tiet_a = gia_san_pham_a + thue_a\n#\n# gia_san_pham_b = 200000\n# thue_b = gia_san_pham_b * 0.1\n# tong_tien_b = gia_san_pham_b + thue_b\n\n# SAU KHI TÁI CẤU TRÚC: Định nghĩa hàm dùng chung\ndef tinh_tong_sau_thue(gia_goc):\n    thue_suat = 0.1\n    return gia_goc + (gia_goc * thue_suat)\n\ntong_a = tinh_tong_sau_thue(100000)\ntong_b = tinh_tong_sau_thue(200000)\nprint(f\"Tổng A: {tong_a}, Tổng B: {tong_b}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho coordinated_functions:\n# Hàm độc lập 1: Xác định phần trăm giảm giá dựa vào số lượng\ndef lay_ty_le_giam_gia(so_luong):\n    if so_luong >= 10:\n        return 0.15 # Giảm 15%\n    elif so_luong >= 5:\n        return 0.05 # Giảm 5%\n    return 0.0\n\n# Hàm độc lập 2: Phối hợp gọi hàm 1 để tính tổng hóa đơn thực tế\ndef tinh_tien_thanh_toan(gia_don_vi, so_luong):\n    thanh_tien_chua_giam = gia_don_vi * so_luong\n    ty_le_giam = lay_ty_le_giam_gia(so_luong) # Gọi hàm 1\n    tien_giam = thanh_tien_chua_giam * ty_le_giam\n    return thanh_tien_chua_giam - tien_giam\n\n# Chạy thử hệ thống hàm phối hợp\ntong_dien_thoai = tinh_tien_thanh_toan(12000000, 12)\nprint(\"Tổng số tiền sau khi áp dụng chiết khấu:\", tong_dien_thoai)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Positional arguments - Định nghĩa: Các đối số được truyền vào hàm dựa theo đúng thứ tự vị trí mà các tham số được khai báo trong định nghĩa hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Keyword arguments - Định nghĩa: Các đối số được truyền vào hàm bằng tên tham số đi kèm giá trị cụ thể, cho phép bỏ qua ràng buộc về thứ tự.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Default arguments - Định nghĩa: Các tham số được gán sẵn một giá trị mặc định khi định nghĩa hàm. Nếu lúc gọi hàm không truyền đối số tương ứng, giá trị mặc định này sẽ tự động được sử dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: *args (Variable-length positional arguments) - Định nghĩa: Cú pháp cho phép hàm nhận vào một số lượng tùy ý các đối số truyền theo vị trí. Trong thân hàm, *args được biểu diễn như một tuple.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: **kwargs (Variable-length keyword arguments) - Định nghĩa: Cú pháp cho phép hàm nhận vào một số lượng tùy ý các đối số truyền theo tên (từ khóa). Trong thân hàm, **kwargs được biểu diễn dưới dạng một dictionary.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Parameter ordering rules - Định nghĩa: Quy tắc bắt buộc khi thiết lập thứ tự các loại tham số trong định nghĩa hàm: Positional arguments -> Default arguments -> *args -> Keyword-only arguments -> **kwargs.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: PEP 8 formatting for default values - Định nghĩa: Quy chuẩn trình bày code Python (PEP 8) chỉ ra rằng không được sử dụng khoảng trắng xung quanh dấu '=' khi gán giá trị mặc định cho tham số trong hàm (Ví dụ: dùng `x=1` chứ không dùng `x = 1`).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Compound data structures in functions - Định nghĩa: Phương pháp thiết kế các hàm chịu trách nhiệm phân tích, lọc và chuyển đổi dữ liệu hỗn hợp (gồm List, Tuple, Dict, Set lồng nhau) mà không dựa vào thư viện bên ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_arguments_usage:\ndef print_message(name, action, emphasis=False):\n    punctuation = \"!\" if emphasis else \".\"\n    return f\"{name} is {action}{punctuation}\"\n\n# Gọi bằng truyền tham số theo vị trí (Positional arguments)\nres1 = print_message(\"Alice\", \"reading\")\n\n# Gọi bằng truyền tham số theo từ khóa (Keyword arguments)\nres2 = print_message(action=\"running\", name=\"Bob\", emphasis=True)\n\nprint(res1)\nprint(res2)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho star_args_and_kwargs:\ndef print_scores(student_name, *scores, **metadata):\n    total_score = sum(scores)\n    term = metadata.get(\"term\", \"N/A\")\n    print(f\"Student: {student_name}\")\n    print(f\"Term: {term}\")\n    print(f\"Total: {total_score} of {len(scores)} exams\")\n\n# *scores gom các giá trị số; **metadata gom các cặp khóa-giá trị\nprint_scores(\"Minh\", 8.5, 9.0, 7.5, term=\"Fall 2023\", status=\"Passed\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho correct_parameter_order_pep8:\n# Tuân thủ thứ tự truyền tham số và chuẩn PEP 8 (không viết khoảng trống quanh dấu '=')\ndef register_course(student_id, course_name=\"Python Basics\", *instructors, **additional_info):\n    course_details = {\n        \"id\": student_id,\n        \"course\": course_name,\n        \"instructors\": instructors,\n        \"extra\": additional_info\n    }\n    return course_details\n\n# Thử nghiệm hàm đúng chuẩn\nprint(register_course(101, \"Python Advanced\", \"Teacher A\", \"Teacher B\", difficulty=\"Medium\"))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho compound_data_processing:\ndef calculate_unique_averages(data_dict):\n    # Nhận dictionary có giá trị là List/Tuple của các số nguyên để trả về kết quả đã được làm sạch\n    averages = {}\n    for category, scores in data_dict.items():\n        # Sử dụng Set để loại bỏ các điểm số trùng lặp\n        unique_scores = set(scores)\n        if unique_scores:\n            avg = sum(unique_scores) / len(unique_scores)\n        else:\n            avg = 0.0\n        averages[category] = round(avg, 2)\n    return averages\n\nraw_data = {\n    \"Math\": (9, 8, 9, 10, 8),\n    \"Physics\": [7, 7, 7, 8, 6]\n}\nprint(calculate_unique_averages(raw_data))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Pham_vi_bien_Scope - Định nghĩa: Khu vực địa lý trong mã nguồn nơi mà một biến tồn tại, có hiệu lực hoạt động và có thể truy cập được.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy_tac_LEGB - Định nghĩa: Cơ chế tìm kiếm biến tuần tự trong Python theo thứ tự ưu tiên: Local (Cục bộ trong hàm), Enclosing (Phạm vi hàm bao ngoài), Global (Toàn cục của module), và Built-in (Sẵn có của hệ thống).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Tu_khoa_global - Định nghĩa: Từ khóa dùng để thông báo cho trình thông dịch Python biết một biến nằm bên trong hàm cần được tham chiếu và sửa đổi trực tiếp tại phạm vi toàn cục (Global Scope).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Loi_UnboundLocalError - Định nghĩa: Lỗi runtime xảy ra khi một biến cục bộ được tham chiếu trước khi được gán giá trị rõ ràng trong phạm vi hàm đó, thường do nhầm lẫn giữa phạm vi toàn cục hoặc bao ngoài với phạm vi cục bộ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Ham_long_nhau - Định nghĩa: Kỹ thuật định nghĩa một hàm (hàm con) nằm hoàn toàn bên trong thân của một hàm khác (hàm cha). Hàm con có quyền truy cập các biến của hàm cha.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Tu_khoa_nonlocal - Định nghĩa: Từ khóa khai báo rằng biến bên trong hàm con thuộc về phạm vi bao ngoài (Enclosing Scope) gần nhất, cho phép chỉnh sửa giá trị trực tiếp của biến đó thay vì tự tạo một biến cục bộ mới trùng tên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Loi_Shadowing - Định nghĩa: Trường hợp một biến ở phạm vi hẹp (local) trùng tên với biến ở phạm vi rộng (global, built-in) làm che khuất và tạm thời ngăn chặn quyền cập nhật trực tiếp biến ở phạm vi rộng hơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Luu_tru_trang_thai_bang_Closure - Định nghĩa: Phương pháp duy trì trạng thái hoạt động của dữ liệu thông qua hàm lồng nhau và từ khóa nonlocal, cho phép tạo biến trạng thái mà không cần định nghĩa Class phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_tac_legb:\n# Minh họa quy tắc tìm kiếm LEGB\nx = \"Global X\"  # Global (G)\n\ndef outer_function():\n    x = \"Enclosing X\"  # Enclosing (E)\n    \n    def inner_function():\n        x = \"Local X\"  # Local (L)\n        print(x)  # Ưu tiên kiểm tra Local đầu tiên: In ra \"Local X\"\n        print(len([1, 2]))  # len là hàm thuộc Built-in (B)\n    \n    inner_function()\n\nouter_function()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tu_khoa_global_va_unboundlocal:\n# Sử dụng global và khắc phục lỗi UnboundLocalError\ndiem_so = 100\n\ndef cap_nhat_diem_sai():\n    try:\n        # Cố tình tăng điểm trực tiếp không khai báo global sẽ gây lỗi UnboundLocalError\n        diem_so = diem_so + 10\n    except UnboundLocalError as e:\n        print(f\"Loi phat sinh: {e}\")\n\ndef cap_nhat_diem_dung():\n    global diem_so  # Chỉ định sử dụng biến toàn cục\n    diem_so = diem_so + 10\n    print(f\"Diem so hop le: {diem_so}\")\n\ncap_nhat_diem_sai()\ncap_nhat_diem_dung()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tu_khoa_nonlocal:\n# Sử dụng từ khóa nonlocal trong hàm lồng nhau\ndef tao_bo_dem():\n    dem = 0  # Enclosing variable\n    \n    def tang_dem():\n        nonlocal dem  # Khai báo không dùng biến local mới mà dùng biến của hàm cha\n        dem += 1\n        return dem\n        \n    return tang_dem\n\ncounter = tao_bo_dem()\nprint(counter())  # Kết quả: 1\nprint(counter())  # Kết quả: 2",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tranh_shadowing_va_luu_tru_trang_thai:\n# Tránh lỗi Shadowing bằng cách đổi tên biến riêng biệt\n# Thiết bị ghi nhận nhật ký giao dịch tài chính dùng Closure thay cho Class\n\ndef bo_theo_doi_tai_khoan(so_du_khoi_dau):\n    so_du_hieng_tai = so_du_khoi_dau  # Tránh trùng tên với các từ khóa hoặc hàm dựng sẵn của Python\n\n    def giao_dich(so_tien_bien_dong):\n        nonlocal so_du_hieng_tai\n        if so_tien_bien_dong < 0 and abs(so_tien_bien_dong) > so_du_hieng_tai:\n            return \"Giao dịch không thành công: Không đủ số dư.\"\n        so_du_hieng_tai += so_tien_bien_dong\n        return f\"Giao hoành tất. Số dư mới: {so_du_hieng_tai}\"\n        \n    return giao_dich\n\ntai_khoan = bo_theo_doi_tai_khoan(500)\nprint(tai_khoan(200))    # Nạp 200 -> Số dư mới: 700\nprint(tai_khoan(-1000))  # Rút quá hạn mức -> Thất bại\nprint(tai_khoan(-300))   # Rút 300 -> Số dư mới: 400",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Lambda Expression - Định nghĩa: Hàm ẩn danh (lambda) là hàm không có tên, được định nghĩa bằng từ khóa lambda theo cú pháp: lambda arguments: expression. Khác với hàm thông thường định nghĩa bằng def, lambda chỉ chứa một biểu thức duy nhất, tự động trả về giá trị của biểu thức đó mà không cần dùng câu lệnh return.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm map() - Định nghĩa: Hàm built-in dùng để áp dụng một hàm xử lý (thường là lambda) lên từng phần tử của một iterable (list, tuple, set, string...) và trả về một map object (một dạng iterator chứa các kết quả đã được biến đổi).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm filter() - Định nghĩa: Hàm built-in dùng để lọc các phần tử của một iterable dựa trên một điều kiện logic (hàm kiểm tra trả về True hoặc False). Kết quả trả về là một filter object chứa các phần tử thỏa mãn điều kiện.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm reduce() - Định nghĩa: Hàm thuộc module functools dùng để thực hiện tính toán tích lũy. Hàm này áp dụng liên tiếp một hàm nhận vào 2 tham số lên các phần tử của danh sách từ trái qua phải, cuối cùng rút gọn danh sách về một giá trị duy nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: Pipeline xử lý dữ liệu phức hợp - Định nghĩa: Chuỗi các bước xử lý dữ liệu tuần tự có cấu trúc phức tạp (như danh sách các dictionary) tuân thủ quy chuẩn PEP 8. Thường bắt đầu từ việc lọc dữ liệu (filter), biến đổi định dạng (map) và cuối cùng là tổng hợp hoặc tích lũy (reduce) kết quả.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: Kỹ thuật Debug lỗi lồng hàm - Định nghĩa: Phương pháp tìm và sửa lỗi khi lồng nhiều hàm chức năng (như map, filter, lambda) với nhau. Cách tiếp cận tốt nhất là tách các hàm lồng nhau thành các biến trung gian từng bước rõ ràng, chuyển đổi kết quả trung gian sang list để in (print) kiểm tra, hoặc viết các hàm 'def' tường minh thay cho lambda phức tạp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho lambda_vs_def:\n# Định nghĩa hàm tính bình phương bằng cấu trúc def truyền thống\ndef binh_phuong_def(x):\n    return x ** 2\n\n# Định nghĩa cùng chức năng bằng biểu thức lambda ngắn gọn\nbinh_phuong_lambda = lambda x: x ** 2\n\n# Sử dụng cả hai cách để so sánh kết quả\nprint(binh_phuong_def(5))      # Đầu ra: 25\nprint(binh_phuong_lambda(5))   # Đầu ra: 25",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho map_filter_lambda:\n# Danh sách số nguyên ban đầu\nnumbers = [1, 2, 3, 4, 5, 6]\n\n# Bước 1: Lọc dữ liệu - chỉ lấy các số chẵn bằng filter() và lambda\nfiltered_numbers = filter(lambda x: x % 2 == 0, numbers)\n\n# Bước 2: Biến đổi dữ liệu - nhân đôi các số đã lọc bằng map() và lambda\ntransformed_numbers = map(lambda x: x * 2, filtered_numbers)\n\n# Chuyển đổi iterator kết quả thành List để hiển thị\nresult = list(transformed_numbers)\nprint(result)  # Đầu ra: [4, 8, 12]",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho reduce_vs_loop:\nfrom functools import reduce\n\nnumbers = [1, 2, 3, 4, 5]\n\n# Cách 1: Sử dụng reduce() kết hợp lambda để tính tích lũy (nhân các phần tử)\ntich_reduce = reduce(lambda x, y: x * y, numbers)\nprint(\"Kết quả dùng reduce:\", tich_reduce)  # Đầu ra: 120\n\n# Cách 2: Sử dụng vòng lặp for truyền thống để so sánh giải thuật\ntich_loop = 1\nfor num in numbers:\n    tich_loop *= num\nprint(\"Kết quả dùng vòng lặp:\", tich_loop)  # Đầu ra: 120",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho data_pipeline_debug:\n# Pipeline xử lý danh sách học sinh (List of Dictionaries) theo chuẩn PEP 8\nstudents = [\n    {\"name\": \"an\", \"score\": 4.5},\n    {\"name\": \"binh\", \"score\": 7.0},\n    {\"name\": \"chi\", \"score\": 8.5},\n    {\"name\": \"dung\", \"score\": 3.0}\n]\n\n# Bước 1: Lọc các học sinh đạt điểm từ 5.0 trở lên\npassing_students = filter(lambda s: s[\"score\"] >= 5.0, students)\n\n# Debug trung gian: Kiểm tra dữ liệu sau khi lọc (ép kiểu sang list)\n# print(\"Debug Bước 1:\", list(passing_students))\n\n# Bước 2: Biến đổi tên học sinh đạt yêu cầu thành chữ in hoa\nuppercase_names = map(lambda s: s[\"name\"].upper(), passing_students)\n\n# Xuất kết quả cuối cùng\nresult = list(uppercase_names)\nprint(\"Kết quả Pipeline:\", result)  # Đầu ra: ['BINH', 'CHI']",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Hàm nâng cao / tiện ích"
+    }
+  },
+  {
+    "text": "Khái niệm: khai_niem_ham_va_def - Định nghĩa: Hàm (Function) là một khối mã nguồn có tổ chức, có thể tái sử dụng để thực hiện một tác vụ duy nhất. Trong Python, từ khóa 'def' được sử dụng để định nghĩa (khai báo) một hàm, theo sau là tên hàm và cặp ngoặc đơn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: dinh_nghia_va_loi_goi_ham - Định nghĩa: Định nghĩa hàm (Function Definition) là việc thiết lập tên, tham số và các câu lệnh xử lý bên trong hàm. Lời gọi hàm (Function Call) là dòng lệnh thực tế yêu cầu hệ thống thực thi khối mã nguồn đã định nghĩa trong hàm đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: luong_dieu_huong_chuong_trinh - Định nghĩa: Khi gặp lời gọi hàm, luồng điều hướng (Control Flow) của chương trình sẽ nhảy vào bên trong hàm để thực thi các câu lệnh. Sau khi thực thi xong khối lệnh hoặc gặp câu lệnh 'return', luồng điều hướng sẽ quay trở lại vị trí ngay sau thời điểm hàm được gọi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: xu_ly_cau_truc_du_lieu_trong_ham - Định nghĩa: Hàm có thể nhận các tham số là String, List, Tuple, hoặc Dictionary để xử lý dữ liệu. Đối với kiểu dữ liệu có thể thay đổi (mutable) như List và Dictionary, các thay đổi thực hiện bên trong hàm sẽ ảnh hưởng trực tiếp đến đối tượng gốc bên ngoài hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: tai_cau_truc_ma_nguon_va_pep8 - Định nghĩa: Tái cấu trúc (Refactoring) là quá trình tổ chức lại code trùng lặp thành các hàm dùng chung để code ngắn gọn, dễ quản lý hơn. PEP 8 cung cấp các tiêu chuẩn cách trình bày mã nguồn như: đặt tên hàm kiểu snake_case, lùi lề 4 khoảng trắng, thụt đầu dòng rõ ràng và để hai dòng trống giữa các định nghĩa hàm cấp toàn cục.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dinh_nghia_va_goi_ham_co_ban:\ndef chao_mung():\n    # Hàm đơn giản in ra lời chào\n    print(\"Chào mừng bạn đến với khóa học Python!\")\n\n# Lời gọi hàm để thực thi\nchao_mung()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho luong_thuc_thi_va_tham_so:\ndef tinh_tong(so_a, so_b):\n    print(\"Bắt đầu tính tổng...\")\n    ket_qua = so_a + so_b\n    return ket_qua\n\nprint(\"Trước khi gọi hàm\")\ntong_so = tinh_tong(15, 25)\nprint(\"Kết quả nhận được:\", tong_so)\nprint(\"Sau khi gọi hàm\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho xu_ly_bien_doi_danh_sach:\ndef nhan_doi_danh_sach(danh_sach_so):\n    ket_qua = []\n    for so in danh_sach_so:\n        ket_qua.append(so * 2)\n    return ket_qua\n\n# Sử dụng hàm để biến đổi cấu trúc dữ liệu List\nso_goc = [1, 2, 3, 4]\nso_moi = nhan_doi_danh_sach(so_goc)\nprint(\"Danh sách ban đầu:\", so_goc)\nprint(\"Danh sách sau khi nhân đôi:\", so_moi)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tai_cau_truc_pep8:\ndef tinh_dien_tich_hinh_chu_nhat(chieu_dai, chieu_rong):\n    \"\"\"Tính diện tích theo chuẩn viết code PEP 8.\"\"\"\n    return chieu_dai * chieu_rong\n\n\ndef in_thong_tin_dien_tich(dien_tich):\n    print(f\"Diện tích tính được là: {dien_tich} m2\")\n\n\n# Tách biệt logic tính toán và hiển thị\ndien_tich_a = tinh_dien_tich_hinh_chu_nhat(8, 5)\nin_thong_tin_dien_tich(dien_tich_a)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Positional Arguments (Tham số vị trí) - Định nghĩa: Là các đối số được truyền vào hàm theo đúng thứ tự của các tham số được khai báo trong định nghĩa hàm. Vị trí của giá trị truyền vào quyết định nó sẽ được gán cho tham số nào.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Keyword Arguments (Tham số từ khóa) - Định nghĩa: Là cách truyền đối số bằng cách chỉ rõ tên tham số kèm theo giá trị của nó khi gọi hàm (ví dụ: tham_so=gia_tri). Kỹ thuật này giúp người phát triển bỏ qua sự phụ thuộc vào thứ tự khai báo tham số.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Default Arguments (Tham số mặc định) - Định nghĩa: Là các tham số được gán sẵn một giá trị mặc định khi định nghĩa hàm. Nếu người dùng không truyền giá trị cho tham số này khi gọi hàm, giá trị mặc định sẽ tự động được sử dụng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: *args (Tham số vị trí biến thiên) - Định nghĩa: Cú pháp định nghĩa tham số với một dấu sao (*) phía trước, cho phép hàm nhận vào một số lượng không giới hạn các đối số dạng vị trí. Các đối số này được gom lại thành một Tuple bên trong thân hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: **kwargs (Tham số từ khóa biến thiên) - Định nghĩa: Cú pháp định nghĩa tham số với hai dấu sao (**) phía trước, cho phép hàm nhận vào một số lượng không giới hạn các đối số dạng từ khóa. Các đối số này được gom lai thành một Dictionary bên trong thân hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Thứ tự khai báo các loại tham số - Định nghĩa: Quy tắc bắt buộc khi định nghĩa hàm trong Python. Thứ tự tiêu chuẩn phải là: tham số vị trí thông thường (positional) -> tham số mặc định (default) -> tham số vị trí biến thiên (*args) -> tham số vị trí chỉ dùng từ khóa (keyword-only) -> tham số từ khóa biến thiên (**kwargs). Nếu khai báo sai thứ tự sẽ dẫn đến lỗi SyntaxError.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Chuẩn hóa cấu tạo giá trị trả về - Định nghĩa: Kỹ thuật định nghĩa cấu trúc của dữ liệu trả về từ hàm một cách nhất quán (ví dụ như luôn trả về một Dictionary dạng {'success': bool, 'data': value, 'error': str}) giúp mã nguồn dễ đọc, an toàn và dễ tái cấu trúc mà không phá vỡ logic hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho positional_keyword_default:\ndef calculate_bill(unit_price, quantity, discount=0.0):\n    # unit_price và quantity là tham số bắt buộc, discount có giá trị mặc định\n    subtotal = unit_price * quantity\n    final_total = subtotal * (1 - discount)\n    return final_total\n\n# 1. Gọi hàm bằng positional arguments (truyền theo thứ tự)\nbill_1 = calculate_bill(100, 5)\n\n# 2. Gọi hàm bằng keyword arguments (không phụ thuộc thứ tự)\nbill_2 = calculate_bill(quantity=10, unit_price=50, discount=0.1)\n\n# 3. Sử dụng giá trị mặc định có sẵn của discount (0.0)\nbill_3 = calculate_bill(200, 2)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho args_kwargs_basics:\ndef build_product_report(*tags, **details):\n    # *tags thu thập các vị trí đối số thành một tuple\n    print('Tags:', tags)\n    \n    # **details thu thập các từ khóa đối số thành một dictionary\n    print('Details:')\n    for key, value in details.items():\n        print(f'- {key}: {value}')\n        \n# Gọi hàm thử nghiệm\nbuild_product_report('sale', 'electronic', name='Laptop', price=1200, warranty_months=12)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho parameter_order_and_debugging:\n# Ví dụ về thứ tự khai báo đúng chuẩn: positional -> default -> *args -> **kwargs\ndef register_event(user_id, level='Standard', *dates, **preferences):\n    return {\n        'user_id': user_id,\n        'level': level,\n        'dates': dates,\n        'preferences': preferences\n    }\n\n# Gọi hàm hợp lệ\nsuccess_call = register_event(102, 'VIP', '2026-04-01', '2026-04-02', food='vegetarian', notify=True)\n\n# Kỹ thuật debug lỗi thường gặp (Lỗi truyền sai vị trí):\n# Gặp lỗi: SyntaxError: positional argument follows keyword argument\n# Ví dụ lỗi: register_event(level='VIP', 103)\n# Cách khắc phục: Tất cả tham số vị trí bắt buộc phải đặt trước các tham số từ khóa.",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho refactor_complex_data_and_return:\n# Hàm xử lý danh sách thông tin người dùng từ dữ liệu thô và trả về kết quả chuẩn hóa\ndef process_user_assessments(user_list):\n    # Chuẩn hóa giá trị trả về khi đầu vào rỗng\n    if not user_list:\n        return {\n            'success': False,\n            'processed_count': 0,\n            'passed_users': [],\n            'average_score': 0.0\n        }\n\n    passed_users = []\n    total_score = 0\n    for user in user_list:\n        name = user.get('name', 'Unknown')\n        score = user.get('score', 0.0)\n        total_score += score\n        if score >= 5.0:\n            passed_users.append(name)\n\n    avg_score = total_score / len(user_list)\n\n    # Trả về Dictionary có cấu trúc đồng nhất để dễ dàng đọc và kiểm soát lỗi ở nơi sử dụng\n    return {\n        'success': True,\n        'processed_count': len(user_list),\n        'passed_users': passed_users,\n        'average_score': round(avg_score, 2)\n    }",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tham số và giá trị trả về"
+    }
+  },
+  {
+    "text": "Khái niệm: Khai_niem_Scope - Định nghĩa: Phạm vi (Scope) xác định vùng trong mã nguồn mà một định danh (biến, hàm) có giá trị sử dụng và có thể truy cập được.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy_tac_LEGB - Định nghĩa: Thứ tự tìm kiếm biến của Python khi tìm một định danh: Local (Cục bộ), Enclosing (Hàm bao ngoài), Global (Toàn cục), Built-in (Sẵn có).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Variable_Shadowing - Định nghĩa: Hiện tượng xảy ra khi một biến được khai báo bên trong một phạm vi hẹp (như cục bộ) trùng tên với biến ở phạm vi rộng hơn, làm tạm ẩn biến ở phạm vi ngoài.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Tu_khoa_global - Định nghĩa: Từ khóa dùng để khai báo trực tiếp rằng biến bên trong hàm tham chiếu tới biến toàn cục ngoài hàm, cho phép thay đổi giá trị của biến toàn cục đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Nested_Functions - Định nghĩa: Hàm lồng nhau là kỹ thuật định nghĩa hàm bên trong một hàm khác, giúp đóng gói logic và tạo ra phạm vi bao ngoài (Enclosing Scope).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Tu_khoa_nonlocal - Định nghĩa: Từ khóa dùng trong hàm lồng nhau để liên kết một biến cụ thể với biến cùng tên trong phạm vi hàm bao ngoài gần nhất (Enclosing Scope) thay vì tạo ra biến local mới.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Loi_UnboundLocalError - Định nghĩa: Lỗi runtime xảy ra khi một biến cục bộ được tham chiếu trước khi được gán giá trị cụ thể trong cùng phạm vi thực thi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Pep8_Scope_Design - Định nghĩa: Nguyên tắc thiết kế mã nguồn chuẩn PEP 8 khuyến khích việc đặt tên hằng số toàn cầu bằng chữ IN_HOA và hạn chế sửa đổi trực tiếp biến toàn cục, ưu tiên truyền nhận tham số qua hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho legb_rule:\nx = 'global'\\n\\ndef outer_func():\\n    y = 'enclosing'\\n    \\n    def inner_func():\\n        z = 'local'\\n        print(z)    # Local (L)\\n        print(y)    # Enclosing (E)\\n        print(x)    # Global (G)\\n        print(len)  # Built-in (B)\\n        \\n    inner_func()\\n\\nouter_func()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho variable_shadowing_and_global:\nnumber = 10\\n\\ndef shadow_demo():\\n    number = 5  # Variable Shadowing\\n    print('Local value (shadowed):', number)\\n\\ndef global_demo():\\n    global number\\n    number = 20  # Modifies the global variable\\n\\nshadow_demo()\\nprint('Global value after shadow_demo:', number)\\nglobal_demo()\\nprint('Global value after global_demo:', number)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho nested_functions_and_nonlocal:\ndef parent_function():\\n    counter = 0\\n    \\n    def child_function():\\n        nonlocal counter\\n        counter = counter + 1\\n        return counter\\n        \\n    return child_function\\n\\nnext_count = parent_function()\\nprint(next_count())  # Output: 1\\nprint(next_count())  # Output: 2",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho unbound_local_error_debug:\n# Error case (commented out to avoid crash):\\n# count = 0\\n# def bad_increment():\\n#     count = count + 1  # Raises UnboundLocalError\\n\\n# PEP 8 & Clean Solution: Pass as parameter and return updated value\\nLIMIT = 100  # Global constant\\n\\ndef safe_increment(current_value):\\n    if current_value < LIMIT:\\n        return current_value + 1\\n    return current_value\\n\\nmy_value = 0\\nmy_value = safe_increment(my_value)\\nprint('Corrected value:', my_value)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Phạm vi biến và scope"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm (Function) & Từ khóa def - Định nghĩa: Hàm là một khối lệnh độc lập, có đặt tên và có khả năng tái sử dụng nhiều lần trong chương trình. Từ khóa `def` (define) được sử dụng để bắt đầu khai báo một hàm mới trong Python.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Quy tắc thụt lề (Indentation) - Định nghĩa: Python sử dụng thụt lề (thường là 4 khoảng trắng) để xác định khối mã nguồn (body) thuộc về hàm. Mọi dòng lệnh thụt lề cùng cấp sau dòng chứa `def` sẽ nằm trong phạm vi thực thi của hàm đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Định nghĩa hàm (Function Definition) vs Thực thi hàm (Function Call) - Định nghĩa: Định nghĩa hàm (sử dụng `def`) chỉ là việc đăng ký cấu trúc và lưu trữ logic của hàm vào bộ nhớ nhưng chưa chạy. Thực thi hàm (gọi hàm bằng cách sử dụng tên hàm kèm cặp ngoặc đơn `()`) là hành động kích hoạt để CPU chạy các lệnh bên trong hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Tham số (Parameters) và Đối số (Arguments) - Định nghĩa: Tham số là các biến được khai báo trong định nghĩa hàm (trong dấu ngoặc đơn của `def`) đóng vai trò làm đại diện nhận dữ liệu. Đối số là giá trị thực tế được truyền vào khi gọi hàm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Chuẩn PEP 8 đặt tên hàm - Định nghĩa: Khuyến nghị của Python (PEP 8) yêu cầu tên hàm phải tuân theo quy tắc `snake_case`: viết toàn bộ bằng chữ thường, các từ được phân tách nhau bởi dấu gạch dưới `_` để tăng độ rõ nghĩa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Khái niệm: Hàm bổ trợ (Helper Functions) - Định nghĩa: Là các hàm nhỏ, chuyên biệt được thiết kế để giải quyết một mảng logic nhỏ độc lập. Chúng được gọi lồng bên trong một hàm chính để module hóa bài toán phức tạp, tránh việc sử dụng Class khi không cần thiết.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_va_goi_ham_co_ban:\ndef chao_mung_hoc_vien():\n    # Dòng lệnh thụt lề xác định phần thân của hàm\n    print(\"Chào mừng bạn đến với khóa học Python Core!\")\n    print(\"Chúc bạn học tốt!\")\n\n# Gọi hàm để thực thi\nchao_mung_hoc_vien()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ham_xu_ly_kieu_du_lieu_co_ban:\ndef phan_tich_gio_hang(danh_sach_gia):\n    # Hàm nhận tham số kiểu List để xử lý logic toán học cơ bản\n    if not danh_sach_gia:\n        return 0\n    tong_tien = sum(danh_sach_gia)\n    trung_binh = tong_tien / len(danh_sach_gia)\n    return tong_tien, trung_binh\n\n# Sử dụng hàm với đối số truyền vào là list số thực\ngia_san_pham = [120.0, 80.0, 200.0]\ntong, trung_binh = phan_tich_gio_hang(gia_san_pham)\nprint(f\"Tong: {tong}, Trung binh: {trung_binh}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tai_cau_truc_trung_lap:\n# Đoạn mã chưa tối ưu (bị lặp logic định dạng chuỗi):\n# name1 = \"  nGuyEn van a \".strip().title()\n# name2 = \" trAn tHi b \".strip().title()\n\n# Tối ưu hóa bằng cách tách thành hàm dùng chung:\ndef chuan_hoa_ho_ten(ho_ten):\n    return ho_ten.strip().title()\n\nstudent_1 = chuan_hoa_ho_ten(\"  nGuyEn van a \")\nstudent_2 = chuan_hoa_ho_ten(\" trAn tHi b \")\nprint(student_1)\nprint(student_2)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho he_thong_ham_bo_tro:\ndef tinh_thue_vat(so_tien):\n    # Hàm bổ trợ 1: Tính 10% thuế VAT\n    return so_tien * 0.1\n\ndef ap_dung_giam_gia(so_tien, giam_gia):\n    # Hàm bổ trợ 2: Áp dụng trừ tiền giảm giá\n    return so_tien - giam_gia\n\ndef tinh_tong_thanh_toan(gia_ban, muc_giam):\n    # Hàm chính liên kết các hàm bổ trợ\n    gia_sau_giam = ap_dung_giam_gia(gia_ban, muc_giam)\n    thue = tinh_thue_vat(gia_sau_giam)\n    return gia_sau_giam + thue\n\n# Thực thi hệ thống hàm\ntong_tinh = tinh_tong_thanh_toan(1000, 100)\nprint(f\"Tong thanh toan (da gom thue va giam gia): {tong_tinh}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu hàm và cách định nghĩa"
+    }
   }
 ]

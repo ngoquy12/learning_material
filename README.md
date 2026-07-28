@@ -3,205 +3,267 @@
 > **Hệ thống sản xuất học liệu tự động đa tác nhân (Multi-Agent Architecture) quy mô lớn — 100% Dynamic, Generic, Stack-Agnostic & Schema-Driven (Tuyệt đối Không Hardcode).**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org)
+[![Node.js 18+](https://img.shields.io/badge/Node.js-18+-green?logo=nodedotjs)](https://nodejs.org)
 [![LangGraph / Antigravity](https://img.shields.io/badge/Orchestration-Antigravity-purple)](.)
 [![Schema-Driven](https://img.shields.io/badge/Architecture-Pydantic%20Schema%20Driven-emerald)](.)
-[![Zero Hardcode](https://img.shields.io/badge/Stack--Agnostic-100%25%20Generic-orange)](.)
+[![HyperFrames Video](https://img.shields.io/badge/Video%20Engine-HyperFrames-red)](.)
 [![SCORM 1.2](https://img.shields.io/badge/Export-SCORM%201.2-green)](.)
 
 ---
 
-## 📋 Mục lục
+## 📋 Mục Lục
 
 1. [Giới thiệu tổng quan](#-giới-thiệu-tổng-quan)
-2. [Kiến trúc hệ thống đa tầng (4-Tier Architecture)](#-kiến-trúc-hệ-thống-đa-tầng-4-tier-architecture)
-3. [Các tính năng cốt lõi mới](#-các-tính-năng-cốt-lõi-mới)
-4. [Hướng dẫn cài đặt & Khởi chạy](#-hướng-dẫn-cài-đặt--khởi-chạy)
-5. [Cấu trúc thư mục dự án](#-cấu-trúc-thư-mục-dự-án)
-6. [Quy trình kiểm định lập trình tự động (Master Validation Layer)](#-quy-trình-kiểm-định-lập-trình-tự-động-master-validation-layer)
-7. [FAQ & Xử lý lỗi thường gặp](#-faq--xử-lý-lỗi-thường-gặp)
+2. [Các loại học liệu hệ thống sinh tự động](#-các-loại-học-liệu-hệ-thống-sinh-tự-động)
+3. [Yêu cầu tiền đề (Prerequisites)](#-yêu-cầu-tiền-đề-prerequisites)
+4. [Hướng dẫn cài đặt chi tiết (Installation Guide)](#-hướng-dẫn-cài-đặt-chi-tiết-installation-guide)
+5. [Cấu hình biến môi trường (.env)](#-cấu-hình-biến-môi-trường-env)
+6. [Hướng dẫn sử dụng & Khởi chạy hệ thống (Usage Guide)](#-hướng-dẫn-sử-dụng--khởi-chạy-hệ-thống-usage-guide)
+   - [6.1. Sinh bộ học liệu đầy đủ qua CLI Workflow](#61-sinh-bộ-học-liệu-đầy-đủ-qua-cli-workflow)
+   - [6.2. Sản xuất Video HyperFrames (Audio TTS ➔ GSAP ➔ MP4)](#62-sản-xuất-video-hyperframes-audio-tts--gsap--mp4)
+   - [6.3. Kiểm thử các Module Core & Validator](#63-kiểm-thử-các-module-core--validator)
+7. [Cấu trúc thư mục dự án](#-cấu-trúc-thư-mục-dự-án)
+8. [Quy chuẩn thiết kế học liệu chuẩn hệ thống (AGENTS.md)](#-quy-chuẩn-thiết-kế-học-liệu-chuẩn-hệ-thống-agentsmd)
+9. [FAQ & Xử lý lỗi thường gặp](#-faq--xử-lý-lỗi-thường-gặp)
 
 ---
 
-## 🌟 Giới thiệu tổng quan
+## 🌟 Giới Thiệu Tổng Quan
 
-**Elearning Content Factory** là hệ thống AI đa tác nhân tự động hóa việc chuyển đổi chương trình khung `syllabus.json` (hoặc PM Excel) thành bộ tài nguyên học liệu hoàn chỉnh cho **bất kỳ công nghệ nào** (Python, Java, React, SQL, Flutter, DevOps...):
+**Elearning Content Factory** là hệ thống AI đa tác nhân chuyên nghiệp tự động hóa việc chuyển đổi chương trình khung `syllabus.json` (hoặc PM Excel) thành bộ tài nguyên học liệu đa phương tiện hoàn chỉnh cho **bất kỳ công nghệ nào** (Python, Java, React, SQL, Flutter, DevOps...):
 
-| Loại Tài Nguyên | Định dạng | Công nghệ & Renderer |
+- **100% Tiếng Việt có dấu chuẩn sản xuất** & thuật ngữ tiếng Anh `snake_case` / `camelCase`.
+- **Phân định phạm vi kiến thức động (Dynamic Scope Boundaries)**: Tự động chặn từ khóa vượt cấp.
+- **Pipeline Video Voice-Driven (HyperFrames)**: Đồng bộ hoạt họa UI GSAP theo từng miligiây giọng đọc TTS (Kokoro AI).
+
+---
+
+## 📚 Các Loại Học Liệu Hệ Thống Sinh Tự Động
+
+| Loại Học Liệu | Định dạng Đầu ra | Đặc tả & Tiêu chuẩn Sư phạm |
 |---|---|---|
-| 📖 Bài đọc lý thuyết | HTML tương tác | JSON Payload ➔ `reading_renderer.py` + Sandbox Adapter |
-| 🖼️ Slide bài giảng | HTML trình chiếu | JSON Payload ➔ `slide_renderer.py` + Tailwind/Reveal |
-| ❓ Quiz trắc nghiệm | Excel (.xlsx) + JSON | `quiz_validator.py` + Dynamic Option Shuffler |
-| 💻 Bài tập thực hành | Markdown + Code | Python `ast.parse()` + Checklist Guard |
-| 🏗️ Đồ án / Project | Markdown + Rubric | Project Rubric 100-Point Sum Validator |
-| 📦 SCORM Package | .zip (SCORM 1.2) | SCORM Publisher Engine |
+| 📖 **Bài đọc lý thuyết** | `reading.html` & `reading_all.html` | Cấu trúc list ngắt ý ngắn gọn, 100% tiếng Việt có dấu, ảnh bối cảnh 16:9, Dark Terminal Console, Self-Test left-alignment. |
+| 🖼️ **Slide bài giảng** | `slides.html` | Master HTML Slides (15-20 slides/session), Bento Grid modern, 3-30-300 typography, Card Color Coding, Dual Theme (Light/Dark), NO Emoji. |
+| 📝 **Bài tập thực hành** | Markdown + Code files | 6 bài tập theo bối cảnh doanh nghiệp (4 cấp độ Bloom: Vận dụng ➔ Phân tích ➔ Sáng tạo). Code 100% tiếng Anh. |
+| 🧪 **Mini Project / Lab** | Markdown + Checklist | Bố cục 3 phần: Mục tiêu ➔ Các bước thực hiện ➔ Checklist đánh giá định lượng `[ ]`. |
+| ❓ **Quizz Trắc nghiệm** | Excel (.xlsx) + JSON | 5 câu/lesson (Bloom), Entrance Quiz 45 câu (30 cũ + 15 mới), Exit Quiz 45 câu (100% mới). 7 nguyên tắc sư phạm Quizz. |
+| 🎬 **Video HyperFrames** | MP4 Video (1080p) | 8-Stage Pipeline: Script ➔ Human Review Gate ➔ Kokoro TTS ➔ Duration Probing ➔ Voice-Driven GSAP HTML Compositions ➔ Puppeteer MP4 Render. |
+| 🗺️ **Visualizer & Mindmap** | HTML / JS Interactive | Interactive DOM canvas (`#visualizer-canvas`), high-contrast code tracker highlighting, console log panel. |
 
 ---
 
-## 📌 4 Loại Session Chuẩn Trong Hệ Thống (Standardized Session Types)
+## 🛠️ Yêu Cầu Tiền Đề (Prerequisites)
 
-Hệ thống hỗ trợ và xử lý tự động **4 loại Session chuẩn**:
+Trước khi cài đặt, hãy đảm bảo máy tính của bạn đã cài đặt các công cụ sau:
 
-1. **`THEORY` — Session Lý Thuyết:** Chứa các bài học con (`Lesson 01`, `Lesson 02`...). Sinh đầy đủ **10 loại đầu ra chuẩn hóa**:
-   * *Cấp Bài học (Per-Lesson):* (1) Bài đọc HTML tương tác, (2) Slide bài giảng HTML + Narration, (3) Bài thực hành theo bài (linh hoạt theo nội dung trọng tâm), (4) Quiz trắc nghiệm bài (đúng 5 câu/lesson).
-   * *Cấp Phiên học (Per-Session):* (5) Quiz đầu giờ (đúng 45 câu Excel .xlsx), (6) Quiz cuối giờ (đúng 45 câu Excel .xlsx), (7) Bài tập về nhà Session (5 bài 5 cấp độ + 1 bài tổng hợp), (8) File gộp `reading_all.html`, (9) File gộp `session_slides.html`, (10) Kịch bản video Hyperframes.
-2. **`PRACTICE` — Session Thực Hành:** Không chứa bài học con. Sinh tập trung các bộ Bài tập thực hành (Labs), Bài tập về nhà (Homework) và Kịch bản kiểm tra trạng thái.
-3. **`MINI_PROJECT` — Session Mini Project:** Không chứa bài học con. Sinh 4 Entry Tests, Tài liệu đặc tả SRS tinh gọn và Đề bài Mini Project kèm Rubric 100 điểm.
-4. **`FINAL_PROJECT` — Session Dự Án Cuối Khóa:** Không chứa bài học con. Sinh Đồ án Capstone cuối khóa hoàn chỉnh, Kiến trúc hệ thống tổng thể, Tài liệu đặc tả SRS đầy đủ và Rubric chấm 100 điểm.
+1. **Python**: Phiên bản `3.10` trở lên ([Tải Python](https://www.python.org/downloads/)).
+2. **Node.js & npm**: Phiên bản `18.0.0` trở lên ([Tải Node.js](https://nodejs.org/)).
+3. **FFmpeg**: Cần thiết cho quá trình render & merge audio/video MP4 ([Tải FFmpeg](https://ffmpeg.org/download.html)).
+4. **Git**: Công cụ quản lý mã nguồn.
 
 ---
 
-```
-                            ╔══════════════════════════════╗
-                            ║      Dynamic Syllabus        ║
-                            ║    (syllabus.json / PM Excel)║
-                            ╚══════════════╤═══════════════╝
-                                           │
-                            ┌──────────────▼──────────────┐
-                            │  Scope Calculator Engine    │  ← Computes Allowed (1..N) &
-                            │  (core/scope_calculator.py) │     Forbidden Scope (N+1..End)
-                            └──────────────┬──────────────┘
-                                           │
-                        ┌──────────────────┴──────────────────┐
-                        │   Declarative JSON Payload Schemas  │  ← Pure Content JSON
-                        │   (Reading, Slide, Quiz, Project)   │  ← No Raw Mixed HTML/JS
-                        └──────────────────┬──────────────────┘
-                                           │
-                        ┌──────────────────▼──────────────────┐
-                        │  Master Programmatic Validator Layer│  ← HTML DOM & JS Linter
-                        │  (core/validators/master_validator) │  ← AST Code Syntax Check
-                        └──────────────────┬──────────────────┘  ← Rubric 100-pt Sum Check
-                                           │
-                        ┌──────────────────▼──────────────────┐
-                        │ Generic Static Renderers & Adapter  │  ← reading_renderer.py
-                        │ (core/renderers/ & sandbox_adapter) │  ← slide_renderer.py
-                        └──────────────────┬──────────────────┘  ← Dynamic WASM/Worker Sandbox
-                                           │
-                        ┌──────────────────▼──────────────────┐
-                        │ Session Compiler & SCORM Publisher  │  ← Merges reading_all.html
-                        └─────────────────────────────────────┘
-```
+## 📥 Hướng Dẫn Cài Đặt Chi Tiết (Installation Guide)
 
----
-
-## ⚡ Các tính năng cốt lõi mới
-
-### 1. Dynamic Scope Calculator & Progressive Scope Boundaries (`core/scope_calculator.py`)
-* Loại bỏ 100% các từ khóa công nghệ hardcode.
-* Tự động tính toán tập hợp từ khóa được phép $\bigcup_{1}^N$ và bị cấm $\bigcup_{N+1}^{\text{End}}$ cho từng bài học $N$.
-* Tự động chặn các kiến thức vượt cấp sư phạm (ví dụ: bài học nhập môn không được xuất hiện mảng hoặc vòng lặp).
-
-### 2. Declarative JSON Payload Engine (`core/schemas/`)
-* Ép các Creator Agent chỉ xuất dữ liệu tri thức dạng JSON thuần theo Pydantic Schemas (`ReadingPayloadSchema`, `SlidePayloadSchema`).
-* Triệt tiêu hoàn toàn khả năng LLM tự viết mã HTML/JS dở dang hoặc gây ra lỗi `Unexpected token`.
-
-### 3. Full-Coverage Programmatic Validation Layer (`core/validators/`)
-* **Reading Validator:** Kiểm tra HTML DOM structure balance & JS string escaping linter.
-* **Slide Validator:** Kiểm tra số lượng slide (5-12 slides), kịch bản lời giảng, và sơ đồ Mermaid.
-* **Quiz Validator:** Tự động kiểm tra độ khớp đáp án - giải thích và xáo trộn vị trí A/B/C/D ngẫu nhiên đều đặn.
-* **Practice Validator:** Dùng Python `ast.parse()` kiểm tra cú pháp code Python thực tế.
-* **Project Validator:** Kiểm tra thang điểm Rubric tổng điểm phải đúng bằng 100 điểm.
-* **Master Validator Engine:** Điểm điều phối duy nhất `validate_resource()` tích hợp trực tiếp vào Reviewer Agent.
-
-### 4. Dynamic Sandbox Runner Adapter (`core/sandbox_adapter.py`)
-* Tự động chọn Code Sandbox runner phù hợp theo `tech_stack`:
-  * `python` ➔ Pyodide WebAssembly Engine
-  * `javascript` / `frontend` ➔ Native Web Worker Engine
-  * `html` / `css` ➔ Live iFrame Preview
-  * `devops` / `sql` / `sysadmin` ➔ Static Code Snippet + Copy Option
-
----
-
-## 🚀 Hướng dẫn cài đặt & Khởi chạy
-
-### 1. Yêu cầu môi trường
-* Python 3.10 trở lên
-* OpenPyXL (cho xuất Quiz Excel)
-* BeautifulSoup4 (cho HTML DOM Linter)
-* Pydantic v2 (cho JSON Schemas)
-
-### 2. Cài đặt thư viện
+### Bước 1: Clone repository về máy
 ```bash
+git clone https://github.com/ngoquy12/learning_material.git
+cd Learning-Material
+```
+
+### Bước 2: Khởi tạo và kích hoạt môi trường ảo Python
+* **Trên Windows (PowerShell):**
+  ```powershell
+  python -m venv .venv
+  .\.venv\Scripts\Activate.ps1
+  ```
+* **Trên macOS / Linux:**
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  ```
+
+### Bước 3: Cài đặt các thư viện Python
+```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 3. Cấu hình biến môi trường
-Tạo file `.env` tại thư mục gốc:
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+### Bước 4: Cài đặt các gói Node.js (cho HyperFrames Render Engine)
+```bash
+npm install
 ```
 
-### 4. Khởi chạy sinh học liệu tự động
-
-#### Cách 1: Khởi chạy qua CLI Workflow
+### Bước 5: Kiểm tra cài đặt Puppeteer (Browser Renderer)
+Cài đặt Chromium cho Puppeteer để phục vụ render video MP4:
 ```bash
-python main.py --syllabus "path/to/syllabus.json" --output "output/MyCourse"
-```
-
-#### Cách 2: Chạy kiểm thử các Module Core
-```bash
-# Kiểm thử Scope Calculator & Master Validator
-python -c "from core.validators.master_validator import validate_resource; print(validate_resource('READING', '<div>Nội dung...</div>'))"
+npx puppeteer browsers install chrome
 ```
 
 ---
 
-## 📁 Cấu trúc thư mục dự án
+## ⚙️ Cấu Hình Biến Môi Trường (.env)
+
+Tạo file `.env` tại thư mục gốc của dự án `Learning-Material/.env`:
+
+```env
+# API Keys cho hệ thống Multi-Agent
+OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Cấu hình giọng đọc Kokoro TTS (Default: hung_thinh / speed: 0.95)
+KOKORO_TTS_VOICE=hung_thinh
+KOKORO_TTS_SPEED=0.95
+
+# Cấu hình Output Directory
+DEFAULT_OUTPUT_DIR=output/PM_Python
+```
+
+---
+
+## 🚀 Hướng Dẫn Sử Dụng & Khởi Chạy Hệ Thống (Usage Guide)
+
+### 6.1. Sinh bộ học liệu đầy đủ qua CLI Workflow
+
+Để khởi chạy toàn bộ hệ thống tự động sinh tài nguyên cho một khóa học từ `syllabus.json`:
+
+```bash
+python main.py --syllabus "path/to/syllabus.json" --output "output/PM_Python"
+```
+
+Hoặc sử dụng các cờ tùy chọn nâng cao:
+```bash
+# Chỉ sinh Bài đọc & Slide bài giảng
+python main.py --syllabus "path/to/syllabus.json" --types reading,slide
+
+# Sinh Bài tập & Quizz trắc nghiệm xuất file Excel
+python main.py --syllabus "path/to/syllabus.json" --types exercise,quiz
+```
+
+---
+
+### 6.2. Sản xuất Video HyperFrames (Audio TTS ➔ GSAP ➔ MP4)
+
+Quy trình sản xuất Video HyperFrames gồm **6 Giai Đoạn Chuẩn Hóa**:
+
+```
+ ┌────────────────┐     ┌──────────────────────┐     ┌───────────────────────┐
+ │ Stage 1: Setup │ ──► │ Stage 2 & 3: Kokoro  │ ──► │ Stage 4: Probed Audio │
+ │ Project Dirs   │     │ TTS Parallel Synth   │     │ Durations (json)      │
+ └────────────────┘     └──────────────────────┘     └───────────┬───────────┘
+                                                                 │
+ ┌────────────────┐     ┌──────────────────────┐                 │
+ │ Stage 6: Render│ ◄── │ Stage 5: Voice-Driven│ ◄───────────────┘
+ │ Puppeteer MP4  │     │ GSAP HTML Comps      │
+ └────────────────┘     └──────────────────────┘
+```
+
+#### Bước 1: Viết kịch bản & Trình bày Review Gate (`SCRIPT.md`)
+Tạo kịch bản bài học với Lời thoại TTS tự nhiên (dẫn dắt bối cảnh ➔ khái niệm ➔ ví dụ ➔ câu chốt) và giao diện Dark Theme (`#09090b`, tiêu đề trắng `#ffffff`).
+
+#### Bước 2: Khởi chạy Pipeline sinh Video Project bằng Script Python
+Tạo hoặc chạy script build trong thư mục `scratch/`:
+
+```bash
+python -X utf8 scratch/build_lesson02_s08.py
+```
+
+*Script sẽ tự động:*
+1. Tổng hợp giọng đọc tiếng Việt bằng Kokoro TTS.
+2. Bóc tách thời lượng âm thanh thực tế millisecond vào `assets/tts/durations.json`.
+3. Sinh các phân cảnh `Scene_01.html`, `Scene_02.html`... được căn thời gian hoạt họa GSAP khớp 100% với giọng đọc.
+4. Đóng gói file master `index.html` và `package.json`.
+
+#### Bước 3: Render xuất file MP4 hoàn chỉnh
+Di chuyển vào thư mục video project được sinh ra và chạy lệnh render:
+
+```bash
+cd "output/PM_Python/Session 08 - Hàm (Function) va Phạm vi biến/Lesson 02 - Tham số và giá trị trả về/Video/session_08_lesson_02"
+npm run render
+```
+
+Video MP4 hoàn chỉnh sẽ được lưu tại thư mục `renders/session_08_lesson_XX_YYYY-MM-DD_HH-MM-SS.mp4`.
+
+---
+
+### 6.3. Kiểm thử các Module Core & Validator
+
+Bạn có thể kiểm thử trực tiếp từng thành phần lõi của hệ thống:
+
+```bash
+# 1. Kiểm thử Master Programmatic Validator
+python -c "from core.validators.master_validator import validate_resource; print(validate_resource('READING', '<div>Nội dung học liệu...</div>'))"
+
+# 2. Kiểm thử Scope Calculator Engine
+python -c "from core.scope_calculator import ScopeCalculator; calc = ScopeCalculator(); print(calc.get_allowed_scope(1))"
+
+# 3. Kiểm thử Code Sandbox Adapter
+python -c "from core.sandbox_adapter import get_sandbox_config; print(get_sandbox_config('python'))"
+```
+
+---
+
+## 📁 Cấu Trúc Thư Mục Dự Án
 
 ```
 Learning-Material/
-├── agents/                   # Đội ngũ Multi-Agent (Creator, Reviewer, Compiler)
-│   ├── creator_agents.py     # Agent tạo bài đọc & bài giảng
+├── .agents/                  # Quy chuẩn hệ thống & Quy định thiết kế (AGENTS.md)
+│   └── AGENTS.md             # Single Source of Truth cho Quy chuẩn Sư phạm & UI
+├── agents/                   # Đội ngũ Multi-Agent (Creator, Reviewer, Writer)
+│   ├── creator_agents.py     # Prompt & Logic sinh bài đọc, bài giảng, video
 │   ├── reviewer_agents.py    # Agent kiểm định tích hợp Master Validator
-│   └── slide_generator_agent.py
-├── core/                     # Động cơ lõi (Core Engines & Infrastructure)
+│   └── hyperframes_writer_agent.py # Agent chuyên sinh composition HTML video
+├── core/                     # Động cơ lõi (Core Infrastructure)
 │   ├── scope_calculator.py   # Tính toán phạm vi kiến thức động
-│   ├── sandbox_adapter.py    # Bộ chuyển đổi Code Sandbox động
-│   ├── session_compilers.py  # Bộ gộp bài học thành reading_all.html & session_slides.html
+│   ├── sandbox_adapter.py    # Bộ chuyển đổi Code Sandbox động (Pyodide/Worker)
+│   ├── session_compilers.py  # Bộ gộp bài học thành reading_all.html & slides
 │   ├── schemas/              # Pydantic Declarative JSON Schemas
-│   │   ├── reading_schema.py
-│   │   └── slide_schema.py
 │   ├── renderers/            # Generic Static Renderers
-│   │   ├── reading_renderer.py
-│   │   └── slide_renderer.py
 │   └── validators/           # Master Programmatic Validation Layer
-│       ├── syntax_linter.py  # Linter kiểm tra cú pháp HTML/JS
-│       ├── reading_validator.py
-│       ├── slide_validator.py
-│       ├── quiz_validator.py
-│       ├── practice_validator.py
-│       ├── project_validator.py
-│       └── master_validator.py
-├── config/                   # Dynamic Settings & Agent Prompts
-├── output/                   # Thư mục chứa kết quả học liệu đã xuất
-├── scratch/                  # Scripts kiểm thử tích hợp
-└── main.py                   # Điểm khởi chạy hệ thống
+├── hyperframes/              # Động cơ sản xuất Video AI (HyperFrames Engine)
+│   ├── video_pipeline_engine.py  # VoiceDrivenVideoEngine điều phối 6 giai đoạn
+│   ├── ui_manager.py         # Thư viện UI Component & Renderer
+│   └── dev-tutorial-video/   # Remotion / Puppeteer Template base
+├── skills/                   # Bộ Kỹ năng Chuyên biệt (Skill Repository)
+│   ├── reading_generator/    # Kỹ năng sinh Bài đọc học liệu
+│   ├── exercise_generator/   # Kỹ năng sinh Bài tập 6 cấp độ
+│   ├── lab_generator/        # Kỹ năng sinh Bài thực hành Lab
+│   ├── quiz_generator/       # Kỹ năng sinh Quizz & Ma trận đề
+│   ├── slide_generator/      # Kỹ năng sinh Slide HTML Master
+│   └── video_production_standard/ # Quy chuẩn sản xuất Video 8 giai đoạn
+├── output/                   # Kết quả học liệu đã xuất theo môn học & Session
+├── scratch/                  # Scripts hỗ trợ build & test nhanh
+├── requirements.txt          # Danh sách thư viện Python
+├── package.json              # Danh sách gói Node.js
+└── main.py                   # Điểm khởi chạy chính của CLI
 ```
 
 ---
 
-## 🛡️ Quy trình kiểm định lập trình tự động (Master Validation Layer)
+## 🛡️ Quy Chuẩn Thiết Kế Học Liệu Chuẩn Hệ Thống (AGENTS.md)
 
-Tất cả học liệu được sinh ra đều phải trải qua **2 Tầng Kiểm Định Khắt Khe**:
+Tất cả các Agent và Module trong hệ thống bắt buộc phải tuân thủ nghiêm ngặt **Quy chuẩn Thiết kế Học liệu** được quy định tại [.agents/AGENTS.md](file:///.agents/AGENTS.md):
 
-1. **Tầng 1 - Programmatic Linter & AST Validator (Tự động 100%):**
-   * Kiểm tra cú pháp HTML/JS string escaping linter.
-   * Parse cú pháp code bằng AST (`ast.parse()`).
-   * Kiểm tra khớp chỉ mục đáp án Quiz và xáo trộn A/B/C/D.
-   * Kiểm tra tổng điểm Rubric 100 điểm.
-   * Kiểm tra ranh giới từ khóa `forbidden_scope`.
-
-2. **Tầng 2 - LLM Pedagogical & UX Reviewer:**
-   * Sau khi vượt qua Tầng 1, Reviewer Agent sẽ đánh giá tính sư phạm, văn phong tiếng Việt có dấu chuẩn xác và độ hấp dẫn của bài học.
+1. **Bài Đọc (`reading.html`)**: Scannable Bullets (`- Ý chính` / `  - Chi tiết`), 100% tiếng Việt có dấu, ảnh bối cảnh 16:9, Code Cards (Good vs Bad), Dark Terminal Console, Self-Test left-alignment.
+2. **Bài Tập (6 Exercises)**: Đặt trong bối cảnh thực tế doanh nghiệp (LMS, Điểm danh, Khảo thí...), 4 cấp độ Bloom (Vận dụng ➔ Phân tích ➔ Sáng tạo). Code 100% tiếng Anh `snake_case`.
+3. **Bài Thực Hành Lab**: 3 phần chuẩn hóa (Mục tiêu ➔ Các bước ➔ Checklist đánh giá `[ ]`).
+4. **Quizz Trắc Nghiệm**: 7 nguyên tắc sư phạm Quizz, ma trận đề 5 câu/lesson, 45 câu Entrance Quiz (30 cũ + 15 mới), 45 câu Exit Quiz (100% mới).
+5. **Slide Bài Giảng**: Limit 15-20 slides/session, Bento Grid modern, Typography 3-30-300, Card Color Coding, Dual Theme (Light/Dark), NO Emoji.
+6. **Video HyperFrames**: Voice-UI Separation, Human Script Review Gate, Voice-Driven GSAP animation, Dark Theme (`#09090b`), tiêu đề trắng (`#ffffff !important`), **CẤM `border-left` màu accent**, **CẤM badge số thứ tự thừa**.
+7. **System Rules**: Strict No ALL CAPS (dùng `Sentence case`), High-Contrast Dark Code syntax highlighting, Synchronized Visualizer DOM IDs.
 
 ---
 
-## ❓ FAQ & Xử lý lỗi thường gặp
+## ❓ FAQ & Xử Lý Lỗi Thường Gặp
 
-* **Q: Làm sao để thay đổi khung chương trình học?**
-  * *Trả lời:* Bạn chỉ cần cung cấp file `syllabus.json` mới. Hệ thống sẽ tự động tính toán Scope, cấm từ khóa vượt cấp và chọn Sandbox runner phù hợp cho môn học đó.
-* **Q: Lỗi `Unexpected token` trong file HTML đã được giải quyết như thế nào?**
-  * *Trả lời:* Đã triệt tiêu 100% nhờ tách biệt việc sinh nội dung (xuất JSON Payload thuần) và biên dịch HTML (thực hiện bởi `reading_renderer.py` & `syntax_linter.py`).
+* **Q: Làm sao để thay đổi môn học hoặc ngôn ngữ lập trình khác?**
+  * *Trả lời:* Cung cấp file `syllabus.json` của môn học đó. Hệ thống sẽ tự động tính toán Scope, cấm từ khóa vượt cấp và áp dụng quy chuẩn Naming Convention tương ứng (`snake_case` cho Python/DB, `camelCase` cho JS/Java).
+* **Q: Lỗi `Puppeteer render failed` hoặc thiếu Chrome browser khi render MP4?**
+  * *Trả lời:* Chạy lệnh `npx puppeteer browsers install chrome` để tải Chrome binary cho Puppeteer.
+* **Q: Giọng đọc Kokoro TTS bị thiếu hoặc lỗi âm thanh khi build video?**
+  * *Trả lời:* Đảm bảo đã tải hoặc đặt runtime Kokoro-Vietnamese trong dự án hoặc cấu hình `KOKORO_TTS_VOICE=hung_thinh` trong `.env`.
+* **Q: Làm thế nào để điều chỉnh thời lượng các phân cảnh video?**
+  * *Trả lời:* Động cơ `VoiceDrivenVideoEngine` tự động đo thời lượng audio TTS mili-giây và lưu vào `assets/tts/durations.json`. Thời lượng UI GSAP sẽ tự động dãn/co theo giọng đọc thực tế.
 
 ---
 

@@ -1,0 +1,1 @@
+Phương thức đầu tiên là a-pen. Phương thức này giúp thêm một phần tử vào cuối danh sách hiện tại. Cú pháp rất đơn giản: tên lít chấm a-pen và truyền giá trị cần thêm vào cặp ngoặc tròn. Các em lưu ý phương thức này làm thay đổi trực tiếp lít ban đầu và có độ phức tạp thời gian cực nhanh là ô một.

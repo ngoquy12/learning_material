@@ -21,64 +21,7 @@ from typing import Any, Dict, List, Optional
 
 # ── Component Registry Metadata ───────────────────────────────────────────────
 
-COMPONENT_REGISTRY: Dict[str, Dict[str, Any]] = {
-    "code_editor": {
-        "rel_path": "ide/vscode.html",
-        "name": "VS Code IDE Editor",
-        "description": "Hiển thị mã nguồn Python/Bash với syntax highlighting và file tree sidebar.",
-        "category": "ide",
-        "aliases": ["code", "vscode", "ide"],
-    },
-    "terminal_cli": {
-        "rel_path": "ide/terminal.html",
-        "name": "Terminal CLI Window",
-        "description": "Giao diện dòng lệnh Terminal/Bash với con trỏ nhấp nháy.",
-        "category": "ide",
-        "aliases": ["terminal", "cli", "shell", "cmd"],
-    },
-    "comparison": {
-        "rel_path": "cards/comparison.html",
-        "name": "Side-by-Side Comparison Card",
-        "description": "So sánh 2 phương pháp (Cách cũ ❌ vs Best Practice ✅).",
-        "category": "cards",
-        "aliases": ["vs", "compare"],
-    },
-    "pitfall_alert": {
-        "rel_path": "cards/warning_card.html",
-        "name": "Pitfall Alert & Solution",
-        "description": "Cảnh báo lỗi phổ biến học viên thường gặp và giải pháp khắc phục.",
-        "category": "cards",
-        "aliases": ["pitfall", "warning", "error_alert"],
-    },
-    "process_flow": {
-        "rel_path": "cards/process_flow.html",
-        "name": "4-Step Process Flow",
-        "description": "Trình bày luồng thực hiện qua 4 bước với đường nối động.",
-        "category": "cards",
-        "aliases": ["flow", "steps", "workflow"],
-    },
-    "architecture_diagram": {
-        "rel_path": "cards/architecture.html",
-        "name": "Architecture & Data Flow Diagram",
-        "description": "Sơ đồ kiến trúc 3 khối (Client ➔ Server ➔ Database).",
-        "category": "cards",
-        "aliases": ["architecture", "diagram", "system_flow"],
-    },
-    "summary_recap": {
-        "rel_path": "cards/summary_recap.html",
-        "name": "Key Takeaways & Summary Outro",
-        "description": "Thẻ tổng kết điểm cốt lõi bài học và thông tin bài tiếp theo.",
-        "category": "cards",
-        "aliases": ["recap", "summary", "outro"],
-    },
-    "interactive_quiz": {
-        "rel_path": "cards/qa_quiz.html",
-        "name": "Knowledge Check Quiz",
-        "description": "Thẻ câu hỏi trắc nghiệm củng cố kiến thức giữa bài giảng.",
-        "category": "cards",
-        "aliases": ["quiz", "qa", "question"],
-    },
-}
+COMPONENT_REGISTRY: Dict[str, Dict[str, Any]] = {}
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -97,176 +40,126 @@ def _clean_meta_prompts(text: str) -> str:
     return text.strip()
 
 
-def _extract_sentences(narration: str, max_sentences: int = 2) -> str:
-    """Extract first N clean sentences from narration."""
-    sentences = [s.strip() for s in re.split(r"[.!?:]", narration) if len(s.strip()) > 12]
-    result = ". ".join(sentences[:max_sentences])
-    return result + "." if result else narration[:200]
-
-
-def _make_line_numbers_html(line_count: int) -> str:
-    return "<br/>".join(str(i) for i in range(1, line_count + 1))
-
-
-def _make_sidebar_files_html(filename: str, lang: str) -> str:
-    ext_map = {
-        "python": "🐍", "bash": "🖥️", "javascript": "🟨",
-        "html": "🌐", "css": "🎨", "json": "📋",
-    }
-    icon = ext_map.get(lang.lower(), "📄")
-    return (
-        f'<div class="sidebar-file active">{icon} {filename}</div>'
-        f'<div class="sidebar-file muted">📄 requirements.txt</div>'
-        f'<div class="sidebar-file muted">📄 README.md</div>'
-        f'<div class="sidebar-file muted">📁 .venv/</div>'
-    )
-
-
-def _make_code_html(scene: Dict[str, Any], desc_lower: str) -> tuple[str, str, int]:
-    """
-    Generate code HTML for VS Code editor component.
-    Priority: scene['code_content'] (from LLM blueprint) > keyword fallback.
-    """
-    # ── Priority 1: Use code_content from blueprint if available ──
-    blueprint_code = scene.get("code_content", "")
-    blueprint_lang = scene.get("code_language", "")
-    if blueprint_code:
-        lang = blueprint_lang or "python"
-        # Auto-wrap in syntax spans if raw text
-        if "<span" not in blueprint_code:
-            lines = blueprint_code.split("\n")
-            formatted = []
-            for line in lines:
-                if line.strip().startswith("#"):
-                    formatted.append(f'<span class="comment">{line}</span>')
-                elif any(kw in line for kw in ["import ", "from ", "def ", "class ", "return ", "if ", "for ", "while "]):
-                    formatted.append(f'<span class="keyword">{line}</span>')
-                else:
-                    formatted.append(line)
-            blueprint_code = "\n".join(formatted)
-        line_count = len(blueprint_code.split("\n"))
-        return blueprint_code, lang, line_count
-
-    # ── Priority 2: Keyword-based fallback (existing logic) ──
-    lang = "python"
-    code_html = ""
-
-    if "requirements" in desc_lower or "freeze" in desc_lower:
-        lang = "bash"
-        code_html = (
-            '<span class="comment"># 1. Lưu danh sách thư viện hiện tại</span>\n'
-            '<span class="keyword">pip</span> freeze &gt; requirements.txt\n\n'
-            '<span class="comment"># 2. Cài đặt lại trên môi trường mới</span>\n'
-            '<span class="keyword">pip</span> install -r requirements.txt'
-        )
-    elif "venv" in desc_lower or "virtualenv" in desc_lower or "kích hoạt" in desc_lower:
-        lang = "bash"
-        code_html = (
-            '<span class="comment"># 1. Tạo môi trường ảo</span>\n'
-            '<span class="keyword">python</span> -m venv venv\n\n'
-            '<span class="comment"># 2. Kích hoạt (Windows)</span>\n'
-            'venv<span class="operator">\\</span>Scripts<span class="operator">\\</span>activate\n\n'
-            '<span class="comment"># 3. Kích hoạt (macOS / Linux)</span>\n'
-            '<span class="keyword">source</span> venv/bin/activate'
-        )
-    elif "import" in desc_lower or "module" in desc_lower or "thư viện" in desc_lower:
-        lang = "python"
-        code_html = (
-            '<span class="keyword">import</span> <span class="variable">os</span>\n'
-            '<span class="keyword">import</span> <span class="variable">sys</span>\n'
-            '<span class="keyword">from</span> <span class="variable">pathlib</span> '
-            '<span class="keyword">import</span> <span class="variable">Path</span>\n\n'
-            '<span class="comment"># Kiểm tra Python interpreter đang dùng</span>\n'
-            '<span class="function">print</span>(<span class="string">"Python:"</span>, sys.executable)'
-        )
-    elif "biến" in desc_lower or "variable" in desc_lower or "khai báo" in desc_lower:
-        lang = "python"
-        code_html = (
-            '<span class="comment"># Khai báo và gán giá trị biến</span>\n'
-            'course_name = <span class="string">"Python Core AI"</span>\n'
-            'lesson_num = <span class="number">1</span>\n'
-            'is_active = <span class="keyword">True</span>\n\n'
-            '<span class="function">print</span>(<span class="string">'
-            'f"Bài {lesson_num}: {course_name}"</span>)'
-        )
-    elif "fastapi" in desc_lower or "endpoint" in desc_lower or "router" in desc_lower:
-        lang = "python"
-        code_html = (
-            '<span class="keyword">from</span> <span class="variable">fastapi</span> '
-            '<span class="keyword">import</span> <span class="variable">FastAPI</span>\n\n'
-            'app = <span class="function">FastAPI</span>()\n\n'
-            '<span class="operator">@</span>app.<span class="function">get</span>'
-            '(<span class="string">"/"</span>)\n'
-            '<span class="keyword">def</span> <span class="function">read_root</span>():\n'
-            '    <span class="keyword">return</span> {<span class="string">"message"</span>: '
-            '<span class="string">"Hello, FastAPI!"</span>}'
-        )
-    else:
-        lang = "python"
-        code_html = (
-            '<span class="comment"># Python — Chương trình đầu tiên</span>\n'
-            '<span class="function">print</span>(<span class="string">"Hello, Python!"</span>)\n\n'
-            '<span class="comment"># Kiểm tra phiên bản</span>\n'
-            '<span class="keyword">import</span> <span class="variable">sys</span>\n'
-            '<span class="function">print</span>(<span class="string">'
-            'f"Version: {sys.version}"</span>)'
-        )
-
-    line_count = len(code_html.split("\n"))
-    return code_html, lang, line_count
-
-
-def _make_terminal_lines_html(visual_desc: str, narration: str, scene: Optional[Dict[str, Any]] = None) -> str:
-    """
-    Generate terminal command lines HTML.
-    Priority: scene['terminal_commands'] (from LLM blueprint) > visual_desc parsing.
-    """
-    # ── Priority 1: Use terminal_commands from blueprint if available ──
-    if scene and scene.get("terminal_commands"):
-        cmd_lines = scene["terminal_commands"]
-        if isinstance(cmd_lines, str):
-            cmd_lines = [l.strip() for l in cmd_lines.split("\n") if l.strip()]
-    else:
-        # ── Priority 2: Parse from visual_desc (existing logic) ──
-        raw_lines = [l.strip() for l in visual_desc.split("\n") if l.strip()]
-        cmd_lines = [l for l in raw_lines if l and not any(
-            k in l.lower() for k in ["màn hình", "hiển thị", "animation", "layout", "gradient"]
-        )]
-        if not cmd_lines:
-            cmd_lines = [
-                "$ python --version",
-                "Python 3.11.9",
-                "",
-                "$ pip --version",
-                "pip 23.3.1 from /usr/lib/python3.11",
-            ]
-
-    html_parts = []
-    for line in cmd_lines[:12]:
-        if not line:
-            html_parts.append('<span class="cmd-separator"></span>')
-        elif line.startswith("#"):
-            html_parts.append(f'<span class="cmd-line cmd-comment">{line}</span>')
-        elif line.startswith("$") or line.startswith(">>>"):
-            parts = line.split(" ", 1)
-            prompt = parts[0]
-            cmd = parts[1] if len(parts) > 1 else ""
-            html_parts.append(
-                f'<span class="cmd-line">'
-                f'<span class="cmd-prompt-prefix">{prompt}</span> '
-                f'<span class="cmd-text">{cmd}</span>'
-                f'</span>'
-            )
-        else:
-            html_parts.append(f'<span class="cmd-line cmd-output">{line}</span>')
-    return "\n          ".join(html_parts)
-
-
 def _compute_dynamic_timing(dur: float, n_events: int = 4) -> List[float]:
     start = 4.0
     end = max(dur - 1.5, start + n_events * 0.8)
     step = (end - start) / max(n_events - 1, 1)
     return [round(start + i * step, 2) for i in range(n_events)]
+
+
+def _clean_ui_text_to_bullets(text: str) -> str:
+    """Format long text into clean short bullet items (max 6-7 words per item)."""
+    if not text:
+        return ""
+    if "<pre" in text or "<code" in text or "<ul" in text:
+        return text
+    clean_text = re.sub(r'\[.*?\]', '', text).strip()
+    sentences = [s.strip() for s in re.split(r'[.!?;\n]', clean_text) if len(s.strip()) > 3]
+    bullets = []
+    for s in sentences:
+        words = s.split()
+        if len(words) > 8:
+            s = " ".join(words[:7])
+        if s and s not in bullets:
+            bullets.append(s)
+    if bullets:
+        items_html = "".join(f"<li>{b}</li>" for b in bullets[:4])
+        return f"<ul>{items_html}</ul>"
+    return f'<div class="desc-text">{clean_text[:60]}</div>'
+
+
+def _highlight_python_code(code_str: str) -> str:
+    import html
+    code = html.escape(code_str)
+    keywords = [r'\bdef\b', r'\breturn\b', r'\bif\b', r'\belse\b', r'\belif\b', r'\bfor\b', r'\bwhile\b', r'\bimport\b', r'\bfrom\b', r'\bprint\b', r'\bclass\b', r'\bfunction\b', r'\bconst\b', r'\blet\b', r'\bvar\b']
+    for kw in keywords:
+        code = re.sub(f"({kw})", r'<span class="kw">\1</span>', code)
+    code = re.sub(r'(&quot;&quot;&quot;[\s\S]*?&quot;&quot;&quot;|&quot;.*?&quot;|\'.*?\')', r'<span class="str">\1</span>', code)
+    code = re.sub(r'(#.*?$|//.*?$)', r'<span class="cm">\1</span>', code, flags=re.MULTILINE)
+    code = re.sub(r'\b([a-zA-Z_]\w*)(?=\()', r'<span class="fn">\1</span>', code)
+    code = re.sub(r'\b(\d+(?:\.\d+)?)\b', r'<span class="num">\1</span>', code)
+    return code
+
+
+def _format_clean_content_to_html(clean_input: Any, scene_title: str) -> str:
+    """
+    Converts blueprint clean_content / html_structure into final HTML.
+
+    Priority logic:
+    1. If input is already an HTML string (contains any tag) → return as-is.
+       AI-generated html_structure is trusted 100%; no card wrapping added.
+    2. If input is a structured dict (legacy path) → build card/split layout.
+    3. Fallback: wrap plain text in desc-text.
+    """
+    if isinstance(clean_input, str):
+        stripped = clean_input.strip()
+        # Detect ANY HTML tag → return AI-generated markup directly
+        if stripped and re.search(r'<[a-zA-Z]', stripped):
+            return stripped
+        # Mermaid diagram without HTML tags
+        if "```mermaid" in stripped or stripped.startswith("graph ") or stripped.startswith("flowchart "):
+            clean_diagram = stripped.replace("```mermaid", "").replace("```", "").strip()
+            return f'<pre class="mermaid" style="font-family: \'Be Vietnam Pro\', sans-serif !important; width: 100%;">{clean_diagram}</pre>'
+        # Plain text fallback
+        if stripped:
+            return f'<p class="desc-text">{stripped}</p>'
+        return ""
+
+    if isinstance(clean_input, dict):
+        # Legacy structured dict path → build card layout
+        badge = clean_input.get("badge", "")
+        title = clean_input.get("title", scene_title)
+        bullets = clean_input.get("bullets", [])
+        code_snippet = clean_input.get("code_snippet", "")
+        diagram = clean_input.get("diagram", "") or clean_input.get("mermaid", "")
+
+        bullets_html = "".join(
+            f'<li><i class="ph-bold ph-check-circle" style="color:#ba252a;margin-right:14px;margin-top:4px;font-size:26px;flex-shrink:0;"></i><span>{b}</span></li>'
+            for b in bullets
+        )
+
+        badge_html = f'<span class="card-badge">{badge}</span>' if badge else ""
+        header_html = f'<div class="card-header">{badge_html}<h2 class="card-title">{title}</h2></div>' if (badge or title) else ""
+
+        if diagram:
+            clean_diagram = diagram.replace("```mermaid", "").replace("```", "").strip()
+            return f'''<div class="split-container">
+  <div class="card-left">
+    {header_html}
+    <ul class="bullet-list">{bullets_html}</ul>
+  </div>
+  <div class="diagram-panel-right">
+    <pre class="mermaid" style="font-family: \'Be Vietnam Pro\', sans-serif !important; width: 100%;">
+{clean_diagram}
+    </pre>
+  </div>
+</div>'''
+
+        if code_snippet:
+            highlighted_code = _highlight_python_code(code_snippet)
+            return f'''<div class="split-container">
+  <div class="card-left">
+    {header_html}
+    <ul class="bullet-list">{bullets_html}</ul>
+  </div>
+  <div class="code-panel-right">
+    <div class="code-header-bar">
+      <div class="mac-dots">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      </div>
+      <span class="code-filename"><i class="ph-bold ph-code" style="margin-right:6px;"></i>python_core.py</span>
+    </div>
+    <pre class="code-body"><code>{highlighted_code}</code></pre>
+  </div>
+</div>'''
+
+        # Bullets-only
+        return f'''<div class="card-full">
+  {header_html}
+  <ul class="bullet-list">{bullets_html}</ul>
+</div>'''
+
+    return f'<p class="desc-text">{scene_title}</p>'
 
 
 # ── Central UI Component Manager Class ───────────────────────────────────────
@@ -282,208 +175,241 @@ class UIManager:
             components_dir = Path(__file__).resolve().parent / "components"
         self.components_dir = components_dir
         self._template_cache: Dict[str, str] = {}
-        self._alias_map: Dict[str, str] = {}
-        self._build_alias_map()
-
-    def _build_alias_map(self) -> None:
-        """Build normalized alias map for all layout types."""
-        for canonical_name, meta in COMPONENT_REGISTRY.items():
-            self._alias_map[canonical_name] = canonical_name
-            for alias in meta.get("aliases", []):
-                self._alias_map[alias] = canonical_name
 
     def normalize_layout_type(self, raw_layout: str) -> str:
-        """
-        Normalize any layout_type alias to its canonical layout name.
-        Defaults to 'code_editor' if unmapped.
-        """
-        cleaned = (raw_layout or "").lower().strip()
-        return self._alias_map.get(cleaned, "code_editor")
+        return "standard"
 
     def is_valid_layout(self, layout_type: str) -> bool:
-        """Check if layout_type is registered in the UI Component Library."""
-        cleaned = (layout_type or "").lower().strip()
-        return cleaned in self._alias_map
+        return True
 
     def list_layouts(self) -> List[str]:
-        """Return all registered canonical layout names."""
-        return list(COMPONENT_REGISTRY.keys())
+        return ["standard"]
 
     def get_layout_meta(self, layout_type: str) -> Dict[str, Any]:
-        """Get metadata for a specific layout type."""
-        canonical = self.normalize_layout_type(layout_type)
-        return COMPONENT_REGISTRY[canonical]
-
-    def _load_template(self, rel_path: str) -> str:
-        """Load and cache an HTML template file."""
-        if rel_path not in self._template_cache:
-            full_path = self.components_dir / rel_path
-            if not full_path.exists():
-                raise FileNotFoundError(
-                    f"[UIManager] Component Template not found: {full_path}"
-                )
-            self._template_cache[rel_path] = full_path.read_text(encoding="utf-8")
-        return self._template_cache[rel_path]
+        return {"name": "Standard Direct HTML", "category": "standard", "rel_path": ""}
 
     def render_scene(self, scene: Dict[str, Any], lesson_title: str) -> str:
         """
-        Central method to render a Scene HTML using the Component Library.
+        Render scene HTML.
 
-        Args:
-            scene: Scene dictionary from blueprint.
-            lesson_title: Title of the lesson for context.
-
-        Returns:
-            Render-ready HTML string.
+        Content priority (AI-first, no forced card wrapping):
+        1. scene["html_structure"] — raw HTML from AI blueprint (highest priority)
+        2. scene["clean_content"]  — fallback if html_structure missing
+        3. scene["visual_description"] — last resort plain text
         """
-        raw_layout = scene.get("layout_type", "code_editor")
-        canonical_layout = self.normalize_layout_type(raw_layout)
-        meta = COMPONENT_REGISTRY[canonical_layout]
-        template = self._load_template(meta["rel_path"])
-
         scene_id = scene["scene_id"]
         scene_n = scene_id.replace("Scene_", "").zfill(2)
+        scene_slug = scene_id.replace("_", "-").lower()
         scene_title = scene.get("scene_title", f"Scene {scene_n}")
+        if scene_title and scene_title.isupper() and len(scene_title) > 3:
+            scene_title = scene_title.capitalize()
         dur = float(scene.get("duration", 30.0))
-        narration = scene.get("narration", "")
-        visual_desc = scene.get("visual_description", "")
 
-        desc_lower = (visual_desc.lower() + " " + scene_title.lower() + " " + narration.lower())
-        concept_body = _extract_sentences(narration, max_sentences=2)
-        concept_body = _clean_meta_prompts(concept_body) or scene_title
+        # ── AI-first content resolution ─────────────────────────────────────
+        raw_html_structure = scene.get("html_structure", "").strip()
+        raw_clean_content = scene.get("clean_content", "")
 
-        timing = _compute_dynamic_timing(dur, n_events=5)
-        t1, t2, t3, t4, t5 = timing
+        # Prefer html_structure from AI; fall back to clean_content
+        content_source = raw_html_structure or raw_clean_content
+        clean_content = _format_clean_content_to_html(content_source, scene_title)
 
-        # Base slots common across all components
-        slots: Dict[str, str] = {
-            "slot_scene_n":      scene_n,
-            "slot_dur":          str(dur),
-            "slot_intro_title":  scene_title,
-            "slot_concept_title": "Khái Niệm Cốt Lõi",
-            "slot_concept_body": concept_body,
-            "slot_t1":           str(t1),
-            "slot_t2":           str(t2),
-            "slot_t3":           str(t3),
-            "slot_t4":           str(t4),
-            "slot_t5":           str(t5),
-            "slot_gsap_extra":   "",
-        }
+        # Last resort: use visual_description as plain text
+        if not clean_content.strip():
+            desc = scene.get("visual_description", scene_title)
+            clean_content = f'<p class="desc-text">{desc}</p>'
 
-        # Layout-specific slot injection
-        if canonical_layout == "code_editor":
-            code_html, lang, line_count = _make_code_html(scene, desc_lower)
-            filename = "main.py" if lang == "python" else "run.sh"
-            slots.update({
-                "slot_filename":      filename,
-                "slot_lang":          lang,
-                "slot_code_html":     code_html,
-                "slot_line_count":    str(line_count),
-                "slot_line_numbers":  _make_line_numbers_html(line_count),
-                "slot_sidebar_files": _make_sidebar_files_html(filename, lang),
-                "slot_git_branch":    "main",
-                "slot_python_version":"3.11",
-            })
+        # Dynamic Skeleton Template File Resolution
+        template_file = Path(__file__).parent / "templates" / "light_theme_skeleton.html"
+        if template_file.exists():
+            template_str = template_file.read_text(encoding="utf-8")
+            rendered_html = (
+                template_str
+                .replace("{scene_n}", str(scene_n))
+                .replace("{scene_slug}", str(scene_slug))
+                .replace("{scene_title}", str(scene_title))
+                .replace("{dur}", str(dur))
+                .replace("{clean_content}", str(clean_content))
+            )
+            return rendered_html.strip()
 
-        elif canonical_layout == "terminal_cli":
-            cmd_lines_html = _make_terminal_lines_html(visual_desc, narration, scene=scene)
-            slots.update({
-                "slot_cmd_lines_html": cmd_lines_html,
-                "slot_shell_name":     "bash",
-                "slot_cwd_path":       "~/project",
-            })
+        # Fallback inline template if template file missing
+        template = f"""<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    /* FIX 1: body transparent — HyperFrames host canvas owns background */
+    html, body {{
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #0a0a0f; color: #ffffff;
+      font-family: 'Be Vietnam Pro', system-ui, -apple-system, sans-serif;
+    }}
+    .scene-root {{
+      width: 1920px; height: 1080px; position: relative; overflow: hidden;
+      background: #0a0a0f;
+      font-family: 'Be Vietnam Pro', sans-serif;
+    }}
+    .scene-root::before {{
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }}
+    .scene-title-header {{
+      position: absolute; top: 40px; left: 80px; right: 80px; z-index: 10;
+      text-align: left !important; border-bottom: 2px solid rgba(255,255,255,0.15); padding-bottom: 18px;
+    }}
+    .main-title {{
+      font-size: 44px; font-weight: 800; color: #ffffff !important; line-height: 1.25;
+      letter-spacing: -0.02em; text-align: left !important; margin: 0; padding: 0;
+    }}
+    .main-stage {{
+      position: absolute; top: 135px; bottom: 40px; left: 80px; right: 80px; z-index: 5;
+      display: flex; flex-direction: column; justify-content: flex-start; align-items: flex-start;
+      text-align: left !important;
+    }}
+    /* FIX 3: content-box is naked — no card wrapping, no background */
+    .content-box {{
+      width: 100%; max-width: 1760px; height: 100%;
+      background: transparent; border: none; padding: 0; box-shadow: none;
+      text-align: left !important;
+    }}
+    .split-container {{
+      display: grid; grid-template-columns: 1.05fr 1fr; gap: 32px; width: 100%; height: 100%;
+      align-items: stretch;
+    }}
+    .card-full {{
+      width: 100%; background: #ffffff; border: 1.5px solid #e2e8f0; border-left: 8px solid #ba252a;
+      border-radius: 18px; padding: 36px 44px; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+      text-align: left !important; display: flex; flex-direction: column; justify-content: flex-start; gap: 24px;
+    }}
+    .card-left {{
+      width: 100%; background: #ffffff; border: 1.5px solid #e2e8f0; border-left: 8px solid #ba252a;
+      border-radius: 18px; padding: 32px 36px; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+      text-align: left !important; display: flex; flex-direction: column; justify-content: flex-start; gap: 20px;
+    }}
+    .card-header {{ display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }}
+    .card-badge {{
+      background: #ba252a; color: #ffffff; font-weight: 800; font-size: 20px;
+      width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 4px 12px rgba(186,37,42,0.25); flex-shrink: 0;
+    }}
+    .card-title {{ font-size: 28px; font-weight: 700; color: #0f172a; line-height: 1.35; margin: 0; }}
+    .bullet-list {{
+      list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 18px;
+      text-align: left !important;
+    }}
+    .bullet-list li {{
+      font-size: 24px; line-height: 1.55 !important; color: #1e293b;
+      display: flex; align-items: flex-start; font-family: 'Be Vietnam Pro', sans-serif;
+      text-align: left !important; background: transparent; border: none; padding: 0; box-shadow: none;
+    }}
+    .code-panel-right {{
+      width: 100%; background: #0f172a; border: 1.5px solid #1e293b; border-radius: 18px;
+      overflow: hidden; box-shadow: 0 16px 36px rgba(15,23,42,0.18);
+      display: flex; flex-direction: column; height: 100%;
+    }}
+    .code-header-bar {{
+      background: #1e293b; padding: 14px 22px; border-bottom: 1.5px solid #334155;
+      display: flex; align-items: center; justify-content: space-between;
+    }}
+    .mac-dots {{ display: flex; align-items: center; gap: 8px; }}
+    .mac-dots .dot {{ width: 13px; height: 13px; border-radius: 50%; display: inline-block; }}
+    .mac-dots .dot.red {{ background: #ff5f56; }}
+    .mac-dots .dot.yellow {{ background: #ffbd2e; }}
+    .mac-dots .dot.green {{ background: #27c93f; }}
+    .code-filename {{ font-family: 'Fira Code', monospace; font-size: 16px; font-weight: 600; color: #38bdf8; }}
+    .code-body {{
+      padding: 28px 32px; background: #0f172a; flex: 1; margin: 0 !important;
+      overflow-x: auto; white-space: pre !important; word-break: normal !important;
+      font-family: 'Fira Code', monospace; font-size: 23px; line-height: 1.7 !important;
+      color: #f8fafc !important; tab-size: 4; text-align: left !important;
+    }}
+    .code-body code {{
+      background: transparent !important; border: none !important; padding: 0 !important;
+      font-family: inherit; font-size: inherit; color: inherit; box-shadow: none !important;
+    }}
+    .kw  {{ color: #ff7b72 !important; font-weight: 700 !important; }}
+    .fn  {{ color: #79c0ff !important; font-weight: 700 !important; }}
+    .str {{ color: #7ee787 !important; }}
+    .cm  {{ color: #8b949e !important; font-style: italic !important; }}
+    .num {{ color: #ffa657 !important; font-weight: 600 !important; }}
+    .desc-text {{ font-size: 30px; font-weight: 600; color: #334155; text-align: left !important; line-height: 1.6; }}
+  </style>
+</head>
+<body>
+  <div id="scene-{scene_n}" class="scene-root clip" data-composition-id="scene-{scene_n}" data-start="0" data-duration="{dur}" data-track-index="0">
+    <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy" class="rikkei-logo clip" data-start="0" data-duration="{dur}" data-track-index="5">
+    <div class="scene-title-header clip" data-start="0" data-duration="{dur}" data-track-index="10">
+      <h1 class="main-title">{scene_title}</h1>
+    </div>
+    <div class="main-stage clip" data-start="0.5" data-duration="{dur}" data-track-index="20">
+      <div class="content-box">
+        {clean_content}
+      </div>
+    </div>
+  </div>
 
-        elif canonical_layout == "comparison":
-            narration_parts = [s.strip() for s in re.split(r"[.!?]", narration) if len(s.strip()) > 15]
-            slots.update({
-                "slot_left_icon":  "⚠️",
-                "slot_left_title": "Phương pháp Cũ",
-                "slot_left_body":  narration_parts[0] if narration_parts else concept_body,
-                "slot_right_icon": "🚀",
-                "slot_right_title":"Phương pháp Mới",
-                "slot_right_body": narration_parts[1] if len(narration_parts) > 1 else concept_body,
-            })
+  <script>
+    window.__timelines = window.__timelines || {{}};
+    const tl = gsap.timeline({{ paused: true }});
+    window.__timelines["{scene_slug}"] = tl;
 
-        elif canonical_layout == "pitfall_alert":
-            all_sentences = [s.strip() for s in re.split(r"[.!?]", narration) if len(s.strip()) > 10]
-            pitfall_sentences = all_sentences[:3] if len(all_sentences) >= 3 else all_sentences + ["Luôn kiểm tra kỹ trước khi chạy lệnh."]
-            pitfall_items_html = "\n".join(f"<li>{s}</li>" for s in pitfall_sentences[:3])
-            solution = all_sentences[3] if len(all_sentences) > 3 else "Tham khảo tài liệu chính thức và kiểm tra từng bước."
-            slots.update({
-                "slot_pitfall_items_html": pitfall_items_html,
-                "slot_solution_body":      solution,
-            })
+    const _buildTimer = setInterval(function() {{
+      const root = document.getElementById("scene-{scene_n}");
+      if (!root) return;
+      clearInterval(_buildTimer);
 
-        elif canonical_layout == "process_flow":
-            step_sentences = [s.strip() for s in re.split(r"[.!?]", narration) if len(s.strip()) > 10]
-            def _get_step(idx: int) -> tuple[str, str]:
-                if idx < len(step_sentences):
-                    parts = step_sentences[idx].split(":", 1)
-                    if len(parts) == 2:
-                        return parts[0].strip(), parts[1].strip()
-                    return step_sentences[idx][:40], step_sentences[idx]
-                return f"Bước {idx+1}", "Thực hiện theo hướng dẫn."
+      const dur = parseFloat(root.getAttribute("data-duration")) || parseFloat("{dur}");
+      const durEnd = Math.max(0.1, dur - 0.8);
 
-            s1t, s1b = _get_step(0)
-            s2t, s2b = _get_step(1)
-            s3t, s3b = _get_step(2)
-            s4t, s4b = _get_step(3)
+      /* All elements start invisible */
+      tl.set(".clip",        {{ autoAlpha: 1 }}, 0);
+      tl.set(".main-title",  {{ autoAlpha: 0, x: -30 }}, 0);
+      tl.set(".rikkei-logo", {{ autoAlpha: 0 }}, 0);
+      tl.set(".main-stage",  {{ autoAlpha: 0 }}, 0);
 
-            slots.update({
-                "slot_step1_num": "01", "slot_step1_title": s1t, "slot_step1_body": s1b,
-                "slot_step2_num": "02", "slot_step2_title": s2t, "slot_step2_body": s2b,
-                "slot_step3_num": "03", "slot_step3_title": s3t, "slot_step3_body": s3b,
-                "slot_step4_num": "04", "slot_step4_title": s4t, "slot_step4_body": s4b,
-            })
+      tl.to(".rikkei-logo", {{ autoAlpha: 1, duration: 0.5, ease: "power2.out" }}, 0.1);
+      tl.to(".main-title",  {{ autoAlpha: 1, x: 0, duration: 0.7, ease: "power2.out" }}, 0.2);
+      tl.to(".main-stage",  {{ autoAlpha: 1, duration: 0.4, ease: "none" }}, 0.6);
 
-        elif canonical_layout == "architecture_diagram":
-            sentences = [s.strip() for s in re.split(r"[.!?]", narration) if len(s.strip()) > 10]
-            n1_desc = sentences[0] if len(sentences) > 0 else "Client / User Request"
-            n2_desc = sentences[1] if len(sentences) > 1 else "Core Engine / API Server"
-            n3_desc = sentences[2] if len(sentences) > 2 else "Database / Response Payload"
+      /* Universal stagger: any direct children of content-box */
+      const topItems = Array.from(root.querySelectorAll(".content-box > *"));
+      let cursor = 1.1;
+      if (topItems.length > 0) {{
+        tl.set(topItems, {{ autoAlpha: 0, y: 28 }}, 0);
+        const topStep = Math.max(0.35, (durEnd * 0.55) / topItems.length);
+        topItems.forEach((item, idx) => {{
+          tl.to(item, {{ autoAlpha: 1, y: 0, duration: 0.65, ease: "power2.out" }}, cursor + idx * topStep);
+        }});
+        cursor += topItems.length * topStep;
+      }}
 
-            slots.update({
-                "slot_node1_icon":  "💻",
-                "slot_node1_title": "Client Layer",
-                "slot_node1_desc":  n1_desc,
-                "slot_node2_icon":  "⚙️",
-                "slot_node2_title": "Application Core",
-                "slot_node2_desc":  n2_desc,
-                "slot_node3_icon":  "🗄️",
-                "slot_node3_title": "Data / Service",
-                "slot_node3_desc":  n3_desc,
-            })
+      const liItems = root.querySelectorAll(".bullet-list li, .step-list li");
+      if (liItems.length > 0) {{
+        tl.set(liItems, {{ autoAlpha: 0, y: 18 }}, 0);
+        const liStep = Math.max(0.22, (durEnd - cursor - 1.2) / liItems.length);
+        liItems.forEach((li, idx) => {{
+          tl.to(li, {{ autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }}, cursor + 0.3 + idx * liStep);
+        }});
+      }}
 
-        elif canonical_layout == "summary_recap":
-            sentences = [s.strip() for s in re.split(r"[.!?]", narration) if len(s.strip()) > 10]
-            def _get_tk(idx: int, default: str) -> str:
-                return sentences[idx] if idx < len(sentences) else default
+      tl.to("#scene-{scene_n}", {{ autoAlpha: 0, duration: 0.8 }}, durEnd);
+      tl.set({{}}, {{}}, dur);
+    }}, 50);
+  </script>
+</body>
+</html>"""
 
-            slots.update({
-                "slot_recap_title": "Tổng Kết Bài Học",
-                "slot_takeaway1":   _get_tk(0, "Nắm vững khái niệm cốt lõi của bài học."),
-                "slot_takeaway2":   _get_tk(1, "Hiểu rõ các bước thực hành và cấu hình môi trường."),
-                "slot_takeaway3":   _get_tk(2, "Tránh các lỗi phổ biến và áp dụng Best Practices."),
-                "slot_takeaway4":   _get_tk(3, "Sẵn sàng áp dụng vào bài tập thực tế."),
-                "slot_next_lesson": "Tiếp tục bài học tiếp theo trong lộ trình.",
-            })
+        return template.strip()
 
-        elif canonical_layout == "interactive_quiz":
-            sentences = [s.strip() for s in re.split(r"[.!?]", narration) if len(s.strip()) > 10]
-            question = sentences[0] if sentences else "Đâu là câu trả lời đúng cho vấn đề trên?"
-            slots.update({
-                "slot_question_text": question,
-                "slot_opt_a":         sentences[1] if len(sentences) > 1 else "Đáp án A: Cấu hình mặc định hệ thống",
-                "slot_opt_b":         sentences[2] if len(sentences) > 2 else "Đáp án B: Thực thi lệnh trên môi trường chuẩn",
-                "slot_opt_c":         sentences[3] if len(sentences) > 3 else "Đáp án C: Tự động tối ưu hóa tài nguyên",
-                "slot_correct_opt":   "B",
-            })
-
-        # Substitute all slots in template
-        rendered_html = template
-        for key, value in slots.items():
-            rendered_html = rendered_html.replace("{{" + key + "}}", str(value))
-        return rendered_html
 
 
 # Global Singleton Instance for fast import & usage

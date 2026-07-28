@@ -19,6 +19,63 @@ def save_state_checkpoint(state: AgentState):
     key = f"{state.get('session_id', 'default')}_{state.get('lesson_id', '')}".strip("_")
     save_checkpoint(key, state)
 
+def write_state_artifacts_to_disk(state: AgentState):
+    """Writes current generated artifacts in state to disk immediately."""
+    from agents.creator_agents import get_lesson_dir
+    from pathlib import Path
+    import json
+    
+    try:
+        lesson_dir = get_lesson_dir(state)
+        requested_parts = state.get("requested_parts", [])
+        
+        # 1. HTML
+        if "html" in requested_parts and state.get("html_content"):
+            html_sub = lesson_dir / "Bài đọc"
+            html_sub.mkdir(parents=True, exist_ok=True)
+            with open(html_sub / "reading.html", "w", encoding="utf-8") as f:
+                f.write(state["html_content"])
+                
+        # 2. Slide
+        if "slide" in requested_parts and state.get("slide_markdown"):
+            slide_sub = lesson_dir / "Bài giảng"
+            slide_sub.mkdir(parents=True, exist_ok=True)
+            with open(slide_sub / "slides.html", "w", encoding="utf-8") as f:
+                f.write(state["slide_markdown"])
+                
+        # 3. Quiz
+        if "quiz" in requested_parts and state.get("quiz_json"):
+            quiz_sub = lesson_dir / "Câu hỏi Quizz"
+            quiz_sub.mkdir(parents=True, exist_ok=True)
+            with open(quiz_sub / "quiz.json", "w", encoding="utf-8") as f:
+                json.dump(state["quiz_json"], f, ensure_ascii=False, indent=2)
+                
+            from core.quiz_excel import export_lesson_quiz_to_excel
+            s_num_str = state.get("session_id", "").replace(" ", "")
+            l_num_str = state.get("lesson_id", "").replace(" ", "")
+            excel_filename = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
+            excel_path_file = quiz_sub / excel_filename
+            quiz_items = state.get("quiz_json", {}).get("lesson_quiz") or state.get("quiz_json", {}).get("quiz") or []
+            if quiz_items:
+                export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
+                
+        # 4. Video Script
+        if ("video" in requested_parts or "video_script" in requested_parts) and state.get("video_script_markdown"):
+            video_sub = lesson_dir / "Video"
+            video_sub.mkdir(parents=True, exist_ok=True)
+            with open(video_sub / "SCRIPT.md", "w", encoding="utf-8") as f:
+                f.write(state["video_script_markdown"])
+                
+        # 5. Mindmap
+        if "mindmap" in requested_parts and state.get("mindmap_markdown"):
+            mindmap_sub = lesson_dir / "Mindmap"
+            mindmap_sub.mkdir(parents=True, exist_ok=True)
+            with open(mindmap_sub / "mindmap.md", "w", encoding="utf-8") as f:
+                f.write(state["mindmap_markdown"])
+    except Exception as e:
+        print(f"  [Write Disk Warning] Failed to write artifacts to disk: {e}")
+
+
 @component
 def node_pm_review(state: AgentState) -> AgentState:
     """Giai đoạn 0: Review PM Input trước khi cho phép chạy"""
@@ -154,6 +211,26 @@ def pipeline_html_production(state: AgentState) -> AgentState:
         if state.get("artifacts_status", {}).get("html") == "Approved" and not state.get("force_rebuild", False):
             approved = True
             break
+            
+        # Nếu đây là lần đầu chạy và đã nạp sẵn html_content từ đĩa (qua sync)
+        # thì ưu tiên kiểm định trực tiếp nội dung trên đĩa trước
+        if attempt == 0 and state.get("html_content"):
+            print("  [HTML_Production] Phát hiện nội dung bài đọc từ đĩa. Đang kiểm định trực tiếp...")
+            review = html_ux_reviewer(state)
+            if review["status"] == "APPROVED":
+                state["artifacts_status"]["html"] = "Approved"
+                save_state_checkpoint(state)
+                approved = True
+                break
+            else:
+                state.setdefault("review_logs", []).append({
+                    "source": "UX_Reviewer", 
+                    "feedback": f"Bản trên đĩa chưa đạt chuẩn: {review['feedback']}"
+                })
+                save_state_checkpoint(state)
+                # Tiếp tục vòng lặp để AI sinh/sửa đổi tự động
+                continue
+
         state = html_writer_agent(state)
         review = html_ux_reviewer(state)
         if review["status"] == "APPROVED":
@@ -162,16 +239,20 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             approved = True
             break
         else:
-            state["review_logs"].append({"source": "UX_Reviewer", "feedback": review["feedback"]})
+            state.setdefault("review_logs", []).append({"source": "UX_Reviewer", "feedback": review["feedback"]})
             save_state_checkpoint(state)
+
+    # Ghi đĩa bản nháp HTML lập tức kể cả khi lỗi để người dùng sửa đổi
+    write_state_artifacts_to_disk(state)
+
     if not approved:
-        print(
-            f"\n[CẢNH BÁO TỪ PM] Giao diện/Nội dung Bài đọc chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
-        )
-        state["artifacts_status"]["html"] = "Approved with Warnings"
+        state["artifacts_status"]["html"] = "Rejected"
         save_state_checkpoint(state)
+        raise ValueError(
+            f"\n❌ [KIỂM ĐỊNH BÀI ĐỌC THẤT BẠI] Bài đọc HTML (reading.html) cho {state.get('session_id')} - {state.get('lesson_id')} chưa đạt chuẩn kiểm duyệt UX/Sư phạm sau 3 lần phản biện.\n"
+            f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
+            f"Bản nháp đã được xuất ra đĩa. Vui lòng xem log phản hồi, hiệu chỉnh file bài đọc trực tiếp trên đĩa, sau đó chạy lại!"
+        )
     return state
 
 @component
@@ -241,10 +322,16 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
 @component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện (Critique Loop) tự động cho Video Script theo chuẩn HyperFrames"""
-    if "requested_parts" in state and "video" not in state["requested_parts"] and "video_script" not in state["requested_parts"]:
-        state["artifacts_status"]["video_script"] = "Skipped"
+    # ── ĐẢM BẢO PHỤ THUỘC TẦN THỨC: Bài đọc HTML (reading.md) BẮT BUỘC xong 100% trước khi tạo Video ──
+    html_status = state.get("artifacts_status", {}).get("html", "")
+    has_reading = bool(state.get("html_content") or state.get("reading_material"))
+    
+    # Chỉ chấp nhận trạng thái Approved hoặc Skipped
+    if html_status not in ("Approved", "Skipped") and not has_reading:
+        print(f"\n[Video_Script_Agent] CHỜ BÀI ĐỌC — Bài đọc HTML (reading.md) chưa đạt chuẩn Approved (Trạng thái hiện tại: {html_status}). Trì hoãn tạo video.")
+        state.setdefault("artifacts_status", {})["video_script"] = "Deferred"
         return state
-        
+
     approved = False
     for attempt in range(3):
         # Allow recovery if already approved in a previous execution
@@ -267,14 +354,17 @@ def pipeline_video_script_production(state: AgentState) -> AgentState:
             state.setdefault("review_logs", []).append({"source": "Video_Script_Reviewer", "feedback": review["feedback"]})
             save_state_checkpoint(state)
             
+    # Ghi đĩa bản nháp SCRIPT.md ngay khi hoàn thành vòng lặp
+    write_state_artifacts_to_disk(state)
+
     if not approved:
-        print(
-            f"\n[CẢNH BÁO TỪ PM] Kịch bản Video HyperFrames chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
-        )
-        state["artifacts_status"]["video_script"] = "Approved with Warnings"
+        state["artifacts_status"]["video_script"] = "Rejected"
         save_state_checkpoint(state)
+        raise ValueError(
+            f"\n❌ [KIỂM ĐỊNH KỊCH BẢN THẤT BẠI] Kịch bản Video cho {state.get('session_id')} - {state.get('lesson_id')} chưa đạt chuẩn kiểm duyệt HyperFrames sau 3 lần phản biện.\n"
+            f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
+            f"Bản nháp đã được ghi ra đĩa. Vui lòng kiểm tra và chạy lại!"
+        )
     return state
 
 @component
@@ -635,13 +725,32 @@ def compile_learning_content_workflow():
     @component
     def node_generate_master_content(state: AgentState) -> AgentState:
         """Giai đoạn 3.5: Sinh Master Content tuần tự trước khi rẽ nhánh đa luồng để tránh lỗi Rate Limit và Cache Miss"""
-        from agents.creator_agents import get_lesson_content
+        from agents.creator_agents import get_lesson_content, get_lesson_dir
+        from pathlib import Path
+        
         session_id = state.get("session_id", "Session 01")
         lesson_id = state.get("lesson_id", "")
         core_ssot = state.get("core_ssot", {})
         lesson_title = core_ssot.get("session_title", "Course Session")
         lesson_details = core_ssot.get("lesson_details", "")
         expected_output = core_ssot.get("expected_output", "")
+        
+        # Đồng bộ hóa Bài đọc HTML từ đĩa (nếu có và không rỗng)
+        try:
+            lesson_dir = get_lesson_dir(state)
+            html_path = lesson_dir / "Bài đọc" / "reading.html"
+            if html_path.exists() and html_path.stat().st_size > 100:
+                with open(html_path, "r", encoding="utf-8") as f:
+                    disk_html = f.read()
+                # Chỉ nạp nếu nội dung trong state trống hoặc khác với đĩa
+                if not state.get("html_content") or state["html_content"] != disk_html:
+                    print(f"  [Sync] Tự động nạp file reading.html từ đĩa: {html_path} ({len(disk_html)} ký tự)")
+                    state["html_content"] = disk_html
+                    # Đặt lại status của html thành Pending nếu nó chưa được duyệt Approved trong state cũ
+                    if state.get("artifacts_status", {}).get("html") != "Approved":
+                        state.setdefault("artifacts_status", {})["html"] = "Pending"
+        except Exception as e:
+            print(f"  [Sync Warning] Lỗi khi nạp bài đọc từ đĩa: {e}")
         
         # Call get_lesson_content to trigger LLM and populate state["master_content"]
         # It handles its own caching if already generated.

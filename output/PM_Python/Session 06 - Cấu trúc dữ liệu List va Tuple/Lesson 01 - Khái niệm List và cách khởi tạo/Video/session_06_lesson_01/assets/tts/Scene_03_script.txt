@@ -1,0 +1,1 @@
+Về mặt bản chất hệ thống bên dưới, List trong Python là một mảng động lưu trữ các tham chiếu đối tượng. Điều này có nghĩa là bộ nhớ không cần cấp phát các ô nhớ liên tiếp cho giá trị thực, mà chỉ cần lưu địa chỉ trỏ tới các đối tượng đó. Nhờ vậy, List có thể chứa đa kiểu dữ liệu từ số nguyên, chuỗi cho đến cả list khác, đồng thời tự động tăng kích thước khi đầy.

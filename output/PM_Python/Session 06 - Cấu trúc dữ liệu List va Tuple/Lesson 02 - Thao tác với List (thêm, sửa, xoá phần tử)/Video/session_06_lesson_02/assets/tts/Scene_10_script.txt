@@ -1,0 +1,1 @@
+Sau cùng, khi người dùng muốn xóa sạch toàn bộ sản phẩm để đưa giỏ hàng về trạng thái trống rỗng hoàn toàn, phương thức clia sẽ giải quyết gọn gàng điều này. Sau khi gọi clia, độ dài của danh sách sẽ trả về bằng không.

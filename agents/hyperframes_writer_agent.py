@@ -40,26 +40,218 @@ def _sanitize_id(text: str) -> str:
     return re.sub(r"[\s]+", "-", text).strip("-")
 
 
-def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str) -> str:
+def extract_director_cues(narration: str) -> tuple[str, list[dict[str, Any]]]:
+    """
+    Trích xuất các thẻ chỉ dẫn đạo diễn ([stress: ...], [zoom: ...], [pause: ...]) khỏi lời thoại.
+    Trả về (chuỗi TTS sạch để đọc voiceover, danh sách các Director Cues bóc tách).
+    """
+    if not narration:
+        return "", []
+
+    cues: list[dict[str, Any]] = []
+
+    # 1. Trích xuất [pause: X.Xs]
+    pause_matches = re.findall(r'\[pause:\s*([\d\.]+)s?\]', narration, re.IGNORECASE)
+    for p in pause_matches:
+        try:
+            cues.append({"type": "pause", "duration": float(p)})
+        except ValueError:
+            pass
+    clean_text = re.sub(r'\[pause:\s*[\d\.]+s?\]', ', ', narration, flags=re.IGNORECASE)
+
+    # 2. Trích xuất [stress: text]
+    stress_matches = re.findall(r'\[stress:\s*([^\]]+)\]', clean_text, re.IGNORECASE)
+    for s in stress_matches:
+        cues.append({"type": "stress", "target": s.strip()})
+    clean_text = re.sub(r'\[stress:\s*([^\]]+)\]', r'\1', clean_text, flags=re.IGNORECASE)
+
+    # 3. Trích xuất [zoom: target]
+    zoom_matches = re.findall(r'\[zoom:\s*([^\]]+)\]', clean_text, re.IGNORECASE)
+    for z in zoom_matches:
+        cues.append({"type": "zoom", "target": z.strip()})
+    clean_text = re.sub(r'\[zoom:\s*([^\]]+)\]', '', clean_text, flags=re.IGNORECASE)
+
+    # Chuẩn hóa khoảng trắng
+    clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+    return clean_text, cues
+
+
+def _build_gen_tts_py_script(blueprint: Dict[str, Any], lesson_slug: str) -> str:
+    """Tự động sinh script gen_tts.py để tổng hợp âm thanh Kokoro-Vietnamese TTS."""
+    tts_scripts = blueprint.get("tts_scripts", {})
+    if not tts_scripts and "scenes" in blueprint:
+        tts_scripts = {sc["scene_id"]: sc.get("narration", "") for sc in blueprint["scenes"]}
+    clean_tts_map = {}
+    cues_map = {}
+
+    for sc_id, text in tts_scripts.items():
+        clean_text, cues = extract_director_cues(text)
+        clean_tts_map[sc_id] = clean_text
+        cues_map[sc_id] = cues
+
+    return f'''"""
+gen_tts.py — Kokoro-Vietnamese Audio Generator & Director Cue Processor
+"""
+import os
+import sys
+import json
+import re
+import soundfile as sf
+
+# Thêm đường dẫn Kokoro-Vietnamese
+sys.path.insert(0, os.path.abspath("../../Kokoro-Vietnamese"))
+
+try:
+    from kokoro_vietnamese import KokoroVietnamese
+except ImportError:
+    KokoroVietnamese = None
+
+CLEAN_TTS_SCRIPTS = {json.dumps(clean_tts_map, ensure_ascii=False, indent=2)}
+DIRECTOR_CUES = {json.dumps(cues_map, ensure_ascii=False, indent=2)}
+
+def update_timings(durations):
+    if not os.path.exists("index.html"):
+        return
+    with open("index.html", "r", encoding="utf-8") as f:
+        html = f.read()
+    
+    intro_dur = 9.24
+    outro_dur = 12.15
+    current_start = intro_dur
+    
+    for sc_id, dur in durations.items():
+        sc_num = sc_id.replace("Scene_", "").zfill(2)
+        sc_slug = sc_id.replace("_", "-").lower()
+        
+        # Update <div class="clip" data-composition-id="scene-XX"> start/duration
+        pattern_div = r'(<div\\s+class="clip"\\s+data-composition-src="src/compositions/' + sc_id + r'\\.html"\\s+data-composition-id="' + sc_slug + r'"\\s+data-start=")[^"]+("\\s+data-duration=")[^"]+(")'
+        html = re.sub(pattern_div, rf'\\g<1>{{round(current_start, 2)}}\\g<2>{{dur}}\\g<3>', html)
+        
+        # Update <audio id="tts-XX"> start/duration
+        pattern_audio = r'(<audio\\s+id="tts-' + sc_num + r'"\\s+data-start=")[^"]+("\\s+data-duration=")[^"]+(")'
+        html = re.sub(pattern_audio, rf'\\g<1>{{round(current_start, 2)}}\\g<2>{{dur}}\\g<3>', html)
+        
+        # Update individual Scene_XX.html file timings
+        scene_html_path = os.path.join("src", "compositions", f"{{sc_id}}.html")
+        if os.path.exists(scene_html_path):
+            with open(scene_html_path, "r", encoding="utf-8") as sf_file:
+                sc_html = sf_file.read()
+            
+            # Recalculate dynamic timing events proportionally
+            t1 = 4.0
+            end = max(dur - 1.5, t1 + 3.0)
+            step = (end - t1) / 4.0
+            t2 = round(t1 + step, 2)
+            t3 = round(t1 + 2.0*step, 2)
+            t4 = round(t1 + 3.0*step, 2)
+            t5 = round(end, 2)
+            
+            # Replace data-duration and static values
+            sc_html = re.sub(r'data-duration="[^"]*"', rf'data-duration="{{dur}}"', sc_html)
+            sc_html = re.sub(r'const t1 = parseFloat\\("[^"]*"\\) \\|\\| [^;]+;', f'const t1 = {{t1}};', sc_html)
+            sc_html = re.sub(r'const t2 = parseFloat\\("[^"]*"\\) \\|\\| [^;]+;', f'const t2 = {{t2}};', sc_html)
+            sc_html = re.sub(r'const t3 = parseFloat\\("[^"]*"\\) \\|\\| [^;]+;', f'const t3 = {{t3}};', sc_html)
+            sc_html = re.sub(r'const t4 = parseFloat\\("[^"]*"\\) \\|\\| [^;]+;', f'const t4 = {{t4}};', sc_html)
+            sc_html = re.sub(r'const t5 = parseFloat\\("[^"]*"\\) \\|\\| [^;]+;', f'const t5 = {{t5}};', sc_html)
+            sc_html = re.sub(r'const dur = parseFloat\\("[^"]*"\\) \\|\\| [^;]+;', f'const dur = {{dur}};', sc_html)
+            
+            with open(scene_html_path, "w", encoding="utf-8") as sf_file:
+                sf_file.write(sc_html)
+            print(f"  [OK] Updated timings inside {{scene_html_path}}")
+            
+        current_start += dur
+        
+    outro_start = round(current_start, 2)
+    total_dur = round(outro_start + outro_dur, 2)
+    
+    # Update outro-video data-start
+    html = re.sub(r'(<video\\s+id="outro-video"\\s+data-start=")[^"]+(")', rf'\\g<1>{{outro_start}}\\g<2>', html)
+    # Update bg-music data-duration
+    html = re.sub(r'(<audio\\s+id="bg-music"\\s+data-start="0"\\s+data-duration=")[^"]+(")', rf'\\g<1>{{total_dur}}\\g<2>', html)
+    # Update root duration
+    html = re.sub(r'(id="root"\\s+data-composition-id="[^"]*"\\s+data-start="0"\\s+data-duration=")[^"]+(")', rf'\\g<1>{{total_dur}}\\g<2>', html)
+    
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"[OK] Re-synchronized index.html timings (total duration: {{total_dur}}s)")
+
+def main():
+    out_dir = os.path.join("assets", "tts")
+    os.makedirs(out_dir, exist_ok=True)
+    
+    durations = {{}}
+    
+    if KokoroVietnamese:
+        print("[TTS Pipeline] Initializing Kokoro-Vietnamese Engine (voice='hung_thinh')...")
+        
+        def _synth_worker(scene_id, text):
+            try:
+                tts = KokoroVietnamese(device="cpu", voice="hung_thinh")
+                wav_path = os.path.join(out_dir, f"{{scene_id}}.wav")
+                audio, phonemes = tts.synthesize(text, speed=0.85, normalize_peak=0.95)
+                sf.write(wav_path, audio, 24000)
+                dur_sec = round(len(audio) / 24000.0, 2)
+                return scene_id, dur_sec
+            except Exception as e:
+                print(f"  [WARN] {{scene_id}} synthesis failed: {{e}}")
+                return scene_id, round(max(len(text.split()) * 0.35, 15.0), 2)
+
+        max_workers = min(4, max(1, os.cpu_count() or 2))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_map = {{executor.submit(_synth_worker, sc_id, text): sc_id for sc_id, text in CLEAN_TTS_SCRIPTS.items()}}
+            for future in as_completed(future_map):
+                sc_id, dur_sec = future.result()
+                durations[sc_id] = dur_sec
+                print(f"  [OK] Synthesized {{sc_id}}: {{dur_sec}}s")
+    else:
+        print("[TTS Pipeline] Kokoro-Vietnamese engine fallback mode...")
+        for scene_id, text in CLEAN_TTS_SCRIPTS.items():
+            durations[scene_id] = round(max(len(text.split()) * 0.35, 15.0), 2)
+            
+    dur_file = os.path.join(out_dir, "durations.json")
+    with open(dur_file, "w", encoding="utf-8") as f:
+        json.dump(durations, f, ensure_ascii=False, indent=2)
+    print(f"[OK] Saved audio durations to {{dur_file}}")
+    
+    # Run dynamic timings synchronization
+    update_timings(durations)
+
+if __name__ == "__main__":
+    main()
+'''
+
+
+def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str, video_dir: Optional[Path] = None) -> str:
     """Build the root index.html (master timeline) following HyperFrames audio-first architecture."""
     scenes = blueprint["scenes"]
     
-    # Calculate exact total duration including intro (9.24s) and outro (12.15s)
-    outro_start = round(scenes[-1]["start_at_root"] + scenes[-1]["duration"], 2) if scenes else 9.24
-    total_dur = round(outro_start + 12.15, 2)
+    intro_dur = 9.24
+    outro_dur = 12.15
+    
+    # Calculate exact total duration and shifted scene positions
+    shifted_scenes = []
+    current_start = intro_dur
+    for scene in scenes:
+        shifted_scene = scene.copy()
+        shifted_scene["start_at_root"] = round(current_start, 2)
+        current_start += scene["duration"]
+        shifted_scenes.append(shifted_scene)
+        
+    outro_start = round(current_start, 2)
+    total_dur = round(outro_start + outro_dur, 2)
 
     # Scene clip divs
     scene_clips = []
-    for scene in scenes:
+    for scene in shifted_scenes:
         scene_id = scene["scene_id"]
-        scene_slug = scene_id.replace("_", "-").lower()
+        scene_slug_clip = scene_id.replace("_", "-").lower()
         start = scene["start_at_root"]
         dur = scene["duration"]
         track = scene["track_index"]
         clip = (
             f'      <div class="clip"\n'
             f'           data-composition-src="src/compositions/{scene_id}.html"\n'
-            f'           data-composition-id="{scene_slug}"\n'
+            f'           data-composition-id="{scene_slug_clip}"\n'
             f'           data-start="{start}"\n'
             f'           data-duration="{dur}"\n'
             f'           data-track-index="{track}"></div>'
@@ -68,19 +260,29 @@ def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str) -> str:
 
     # Audio elements with absolute timestamps — ALWAYS in root index.html
     audio_elements = []
-    for i, scene in enumerate(scenes):
+    for i, scene in enumerate(shifted_scenes):
         scene_id = scene["scene_id"]
         scene_num = scene_id.replace("Scene_", "").zfill(2)
         start = scene["start_at_root"]
         dur = scene["duration"]
         audio_track_idx = 20 + i  # Audio tracks start at 20
+        
+        # Tự động nhận diện file .wav hoặc .mp3
+        ext = "wav"
+        if video_dir:
+            wav_path = video_dir / "assets" / "tts" / f"{scene_id}.wav"
+            mp3_path = video_dir / "assets" / "tts" / f"{scene_id}.mp3"
+            if wav_path.exists():
+                ext = "wav"
+            elif mp3_path.exists():
+                ext = "mp3"
         audio = (
             f'      <audio id="tts-{scene_num}"\n'
             f'             data-start="{start}"\n'
             f'             data-duration="{dur}"\n'
             f'             data-track-index="{audio_track_idx}"\n'
             f'             data-volume="1"\n'
-            f'             src="assets/tts/{scene_id}.mp3"></audio>'
+            f'             src="assets/tts/{scene_id}.{ext}"></audio>'
         )
         audio_elements.append(audio)
 
@@ -128,7 +330,7 @@ def _build_root_index_html(blueprint: Dict[str, Any], lesson_slug: str) -> str:
       <audio id="bg-music"
              data-start="0"
              data-duration="{total_dur}"
-             data-track-index="30"
+             data-track-index="99"
              data-volume="0.12"
              data-loop="true"
              src="assets/bg-music.mp3"></audio>
@@ -170,12 +372,13 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
     blueprint_layout = scene.get("layout_type", "").lower().strip()
     desc_lower = (visual_desc.lower() + " " + scene_title_raw.lower())
 
-    if blueprint_layout in ["terminal_cli", "code_editor", "comparison", "process_flow", "pitfall_alert",
-                             "pitfall", "flow", "comparison", "code", "terminal"]:
+    if blueprint_layout in ["terminal_cli", "code_editor", "comparison", "process_flow", "pitfall_alert", "summary_recap",
+                             "pitfall", "flow", "comparison", "code", "terminal", "summary"]:
         # Map blueprint names to internal layout keys
         _map = {
             "terminal_cli": "terminal", "code_editor": "code",
             "process_flow": "flow", "pitfall_alert": "pitfall",
+            "summary_recap": "summary"
         }
         layout_type = _map.get(blueprint_layout, blueprint_layout)
     else:
@@ -404,6 +607,44 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       tl.to("#warning-card-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.6, ease: "power3.out" }}, {t1});
       tl.to("#success-card-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }}, {t2});
       tl.to("#success-card-{scene_n}", {{ scale: 1.02, boxShadow: "0 0 40px rgba(63,185,80,0.3)", duration: 0.5, yoyo: true, repeat: 1 }}, {t3});"""
+
+    elif layout_type == "summary":
+        html_content = f"""
+    <!-- Summary Recap Layout -->
+    <div class="summary-container clip" id="summary-box-{scene_n}" style="display:flex;flex-direction:column;gap:32px;width:1600px;margin:0 auto;height:850px;justify-content:center;">
+      <div id="recap-card-{scene_n}" style="background:rgba(9,9,11,0.85);border:1px solid rgba(56,189,248,0.25);border-radius:24px;padding:48px;box-shadow:0 20px 60px rgba(0,0,0,0.6);backdrop-filter:blur(16px);">
+        <div style="font-size:24px;color:#38bdf8;font-weight:700;letter-spacing:1px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+          <span>🎯 TỔNG KẾT BÀI HỌC (KEY TAKEAWAYS)</span>
+        </div>
+        <h2 style="font-size:36px;color:#ffffff;margin-bottom:24px;">{lesson_title}</h2>
+        <p style="color:#c9d1d9;font-size:24px;line-height:1.7;">{clean_desc}</p>
+      </div>
+      
+      <div id="next-step-card-{scene_n}" style="background:linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,41,59,0.9));border:1px solid rgba(168,85,247,0.3);border-radius:20px;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:16px;color:#a855f7;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Bài Học Tiếp Theo</div>
+          <div style="font-size:24px;color:#ffffff;font-weight:600;">Thực hành và Củng cố Kiến thức Kỹ năng Chuyên sâu</div>
+        </div>
+        <div style="background:#a855f7;color:#ffffff;padding:12px 24px;border-radius:12px;font-weight:700;font-size:18px;">TIẾP TỤC ➔</div>
+      </div>
+    </div>"""
+
+        t1 = 1.5
+        t2 = round(1.5 + (dur - 3.0) * 0.40, 2)
+        t3 = round(dur * 0.85, 2)
+        gsap_js = f"""
+      // Ẩn ban đầu
+      tl.set("#recap-card-{scene_n}", {{ autoAlpha: 0, y: 40 }}, 0);
+      tl.set("#next-step-card-{scene_n}", {{ autoAlpha: 0, y: 30 }}, 0);
+
+      // Intro title (0.2s -> 1.8s)
+      tl.to("#intro-title-{scene_n}", {{ autoAlpha: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }}, 0.2);
+      tl.to("#intro-title-{scene_n}", {{ scale: 0.38, x: -760, y: -460, duration: 0.6, ease: "power3.inOut" }}, 1.8);
+
+      // Reveal Summary & Next Step
+      tl.to("#recap-card-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.6, ease: "power3.out" }}, {t1});
+      tl.to("#next-step-card-{scene_n}", {{ autoAlpha: 1, y: 0, duration: 0.6, ease: "back.out(1.2)" }}, {t2});
+      tl.to("#next-step-card-{scene_n}", {{ scale: 1.02, boxShadow: "0 0 40px rgba(168,85,247,0.4)", duration: 0.5, yoyo: true, repeat: 1 }}, {t3});"""
 
     else:  # layout_type == "code"
         # Determine code & language dynamically based on context
@@ -777,9 +1018,11 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
       {lesson_title}
     </div>
 
-    <!-- Intro title (xuất hiện 0.2s, kết thúc/lên góc lúc 3.2s) -->
+    <!-- Intro title / Hero Brand Banner (xuất hiện 0.2s, kết thúc/lên góc lúc 3.2s) -->
     <div id="intro-title-{scene_n}" class="clip" data-start="0" data-duration="{dur}" data-track-index="10">
+      {'<div style="font-size:18px;letter-spacing:1px;color:#38bdf8;font-weight:700;margin-bottom:12px;">⚡ Rikkei Education E-Learning</div>' if scene_n == '01' else ''}
       <span>{scene_title_raw}</span>
+      {'<div style="font-size:22px;color:#c9d1d9;font-weight:500;margin-top:12px;">Khóa học E-Learning Chất lượng cao</div>' if scene_n == '01' else ''}
     </div>
 
     <!-- ── MAIN CONTENT (bắt đầu từ 4.0s+) ── -->
@@ -825,9 +1068,12 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
     """
     Render a scene HTML file by delegating to UIComponentRenderer.
     Reads the layout_type from the scene blueprint and renders the
-    matching component template (ide/vscode.html, ide/terminal.html,
-    cards/comparison.html, cards/warning_card.html, cards/process_flow.html).
+    matching component template.
     """
+    stitle = scene.get("scene_title", "")
+    if stitle and stitle.isupper() and len(stitle) > 3:
+        scene["scene_title"] = stitle.capitalize()
+
     from agents.ui_component_renderer import UIComponentRenderer
     renderer = UIComponentRenderer()
     return renderer.render(scene, lesson_title)
@@ -929,7 +1175,7 @@ def hyperframes_writer_agent(state: AgentState) -> AgentState:
     assets_tts_dir.mkdir(parents=True, exist_ok=True)
 
     # Write root index.html
-    index_html = _build_root_index_html(blueprint, lesson_slug)
+    index_html = _build_root_index_html(blueprint, lesson_slug, video_dir=video_dir)
     (video_dir / "index.html").write_text(index_html, encoding="utf-8")
     print(f"  [HyperFrames_Writer] Written: index.html ({len(index_html)} chars)")
 
@@ -954,12 +1200,25 @@ def hyperframes_writer_agent(state: AgentState) -> AgentState:
     (assets_tts_dir / "durations.json").write_text(durs, encoding="utf-8")
     print(f"  [HyperFrames_Writer] Written: assets/tts/durations.json")
 
-    # Write TTS scripts as text files for reference (actual TTS generation is separate)
+    # Write gen_tts.py script for automated Kokoro-Vietnamese audio generation
+    gen_tts_code = _build_gen_tts_py_script(blueprint, lesson_slug)
+    (video_dir / "gen_tts.py").write_text(gen_tts_code, encoding="utf-8")
+    print(f"  [HyperFrames_Writer] Written: gen_tts.py")
+
+    # Write Director Cues metadata & Clean TTS text files
     tts_scripts = blueprint.get("tts_scripts", {})
+    director_cues_map = {}
     for scene_id, narration in tts_scripts.items():
+        clean_text, cues = extract_director_cues(narration)
+        director_cues_map[scene_id] = cues
         scene_num = scene_id.replace("Scene_", "").zfill(2)
         script_path = assets_tts_dir / f"scene_{scene_num}_script.txt"
-        script_path.write_text(narration, encoding="utf-8")
+        script_path.write_text(clean_text, encoding="utf-8")
+
+    (assets_tts_dir / "director_cues.json").write_text(
+        json.dumps(director_cues_map, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(f"  [HyperFrames_Writer] Written: assets/tts/director_cues.json")
 
     project_path = str(video_dir.resolve())
     state["hyperframes_project_path"] = project_path

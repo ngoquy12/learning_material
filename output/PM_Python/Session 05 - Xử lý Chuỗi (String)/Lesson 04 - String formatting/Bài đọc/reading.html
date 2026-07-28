@@ -512,6 +512,54 @@ sys.stderr = io.StringIO()
             color: #cbd5e1;
         }
 
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (Rule 3) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
+        
+        /* High-Contrast Code Tracker Line Highlighting Standard (System Rule 1) */
+        .code-line.active, 
+        .code-line.active-line, 
+        .code-line.bg-yellow-100, 
+        .code-line.bg-yellow-200, 
+        .code-line.bg-yellow-300, 
+        .code-line.bg-amber-200 {
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-left: 4px solid #eab308 !important;
+            font-weight: 700 !important;
+        }
+
+        .code-line.active *, 
+        .code-line.active-line *, 
+        .code-line.bg-yellow-100 *, 
+        .code-line.bg-yellow-200 *, 
+        .code-line.bg-yellow-300 *, 
+        .code-line.bg-amber-200 * {
+            color: #0f172a !important;
+            font-weight: 700 !important;
+        }
+
         .code-line.active-line {
             background-color: rgba(56, 189, 248, 0.15);
             border-left-color: var(--primary);
@@ -895,8 +943,24 @@ sys.stderr = io.StringIO()
                         <!-- Right Column: Stats, Live Code Tracker & Console Log -->
                         <div class="right-column">
                             <!-- Real-time Stats -->
-                            <div class="stats-panel">
-                                <div class='grid grid-cols-2 gap-4'><div class='bg-slate-100 p-2 rounded text-center'><div class='text-xs text-slate-500 font-semibold uppercase'>Method đang chạy</div><div id='stat-current-method' class='text-lg font-black text-blue-600'>Chưa chạy</div></div><div class='bg-slate-100 p-2 rounded text-center'><div class='text-xs text-slate-500 font-semibold uppercase'>Độ dài Chuỗi K.Quả</div><div id='stat-string-length' class='text-lg font-black text-green-600'>0 ký tự</div></div></div>
+                            <div class="stats-panel" style="background: var(--bg-card); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; display: flex; flex-direction: column; gap: 14px;">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                                    <div style="background: var(--bg-canvas); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Method đang chạy</div>
+                                        <div id="stat-current-method" style="font-size: 1.1rem; font-weight: 800; color: #3b82f6; font-family: var(--font-mono); margin-top: 2px;">Chưa chạy</div>
+                                    </div>
+                                    <div style="background: var(--bg-canvas); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center;">
+                                        <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Độ dài Chuỗi K.Quả</div>
+                                        <div id="stat-string-length" style="font-size: 1.1rem; font-weight: 800; color: #10b981; font-family: var(--font-mono); margin-top: 2px;">0 ký tự</div>
+                                    </div>
+                                </div>
+                                <div style="background: #121824; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 14px; font-family: var(--font-mono);">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 6px; margin-bottom: 8px; font-size: 0.75rem; color: #38bdf8; font-weight: 700;">
+                                        <span>PYTHON CONSOLE OUTPUT</span>
+                                        <span style="color: #34d399; background: rgba(52, 211, 153, 0.15); padding: 1px 6px; border-radius: 4px; font-size: 0.7rem;">Interactive Screen</span>
+                                    </div>
+                                    <div id="console-output" style="height: 90px; overflow-y: auto; font-size: 0.82rem; line-height: 1.5; color: #34d399; white-space: pre-wrap;">(Chưa có output)</div>
+                                </div>
                             </div>
 
                             <!-- Live Code Tracker -->
@@ -907,7 +971,7 @@ sys.stderr = io.StringIO()
                                 </div>
                                 <div class="code-content">
                                     <pre><code id="code-tracker-box">
-<div class='code-line' id='line-0'># Khai báo thông tin sản phẩm và doanh thu thực tế</div><div class='code-line' id='line-1'>product_name = "Mini Laptop"</div><div class='code-line' id='line-2'>quantity = 5</div><div class='code-line' id='line-3'>unit_price = 899.957</div><div class='code-line' id='line-4'>discount_rate = 0.15</div><div class='code-line' id='line-5'># 1. Định dạng bằng phương pháp truyền thống % format</div><div class='code-line' id='line-6'>formatted_old = "Product: %s | Price: %.2f | Qty: %d" % (product_name, unit_price, quantity)</div><div class='code-line' id='line-7'>print(formatted_old)</div><div class='code-line' id='line-8'># 2. Định dạng bằng phương thức .format()</div><div class='code-line' id='line-9'>formatted_mid = "Product: {} | Total: {:.2f}".format(product_name, unit_price * quantity)</div><div class='code-line' id='line-10'>print(formatted_mid)</div><div class='code-line' id='line-11'># 3. Định dạng bằng f-string (Khuyên dùng)</div><div class='code-line' id='line-12'>net_total = unit_price * quantity * (1 - discount_rate)</div><div class='code-line' id='line-13'>formatted_new = f"Product: {product_name:&lt;15} | Discounted Total: ${net_total:,.2f}"</div><div class='code-line' id='line-14'>print(formatted_new)</div>
+<div class='code-line' id='line-0' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #8b949e;'># Khai báo thông tin sản phẩm và doanh thu thực tế</span></div><div class='code-line' id='line-1' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>product_name</span> = <span style='color: #a5d6ff;'>"Mini Laptop"</span></div><div class='code-line' id='line-2' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>quantity</span> = <span style='color: #7ee787;'>5</span></div><div class='code-line' id='line-3' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>unit_price</span> = <span style='color: #7ee787;'>899.957</span></div><div class='code-line' id='line-4' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>discount_rate</span> = <span style='color: #7ee787;'>0.15</span></div><div class='code-line' id='line-5' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #8b949e;'># 1. Định dạng bằng phương pháp truyền thống % format</span></div><div class='code-line' id='line-6' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>formatted_old</span> = <span style='color: #a5d6ff;'>"Product: %s | Price: %.2f | Qty: %d"</span> % (product_name, unit_price, quantity)</div><div class='code-line' id='line-7' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #ffa657;'>print</span>(formatted_old)</div><div class='code-line' id='line-8' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #8b949e;'># 2. Định dạng bằng phương thức .format()</span></div><div class='code-line' id='line-9' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>formatted_mid</span> = <span style='color: #a5d6ff;'>"Product: {{}} | Total: {{:.2f}}"</span>.<span style='color: #ffa657;'>format</span>(product_name, unit_price * quantity)</div><div class='code-line' id='line-10' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #ffa657;'>print</span>(formatted_mid)</div><div class='code-line' id='line-11' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #8b949e;'># 3. Định dạng bằng f-string (Khuyên dùng)</span></div><div class='code-line' id='line-12' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>net_total</span> = unit_price * quantity * (<span style='color: #7ee787;'>1</span> - discount_rate)</div><div class='code-line' id='line-13' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #79c0ff; font-weight: 600;'>formatted_new</span> = f<span style='color: #a5d6ff;'>"Product: {{product_name:&lt;15}} | Discounted Total: ${{net_total:,.2f}}"</span></div><div class='code-line' id='line-14' style='white-space: pre; padding: 4px 8px; border-radius: 4px; font-family: monospace;'><span style='color: #ffa657;'>print</span>(formatted_new)</div>
                                     </code></pre>
                                 </div>
                             </div>
@@ -1225,385 +1289,261 @@ print(formatted_new)</code></pre>
     <!-- Script imports -->
 
     <!-- State Machine & Interactive Visualizer JavaScript Engine (Dynamic) -->
+    
+    <!-- Smart Self-Healing Interactive Visualizer Engine -->
     <script>
-        
-        class InteractiveVisualizerEngine {
-    constructor() {
-        this.canvasId = 'canvas-container';
-        this.inputData = {
-            product_name: "Mini Laptop",
-            quantity: 5,
-            unit_price: 899.957,
-            discount_rate: 0.15
-        };
-        this.currentStep = 0;
-        this.isPlaying = false;
-        this.speed = 1000;
-        this.interval = null;
-        this.steps = [];
-        this.terminalOutput = [];
-    }
-
-    init() {
-        this.initSteps();
-        this.render();
-    }
-
-    initSteps() {
-        const name = this.inputData.product_name;
-        const qty = parseInt(this.inputData.quantity);
-        const price = parseFloat(this.inputData.unit_price);
-        const rate = parseFloat(this.inputData.discount_rate);
-
-        const fmtOld = `Product: ${name} | Price: ${price.toFixed(2)} | Qty: ${qty}`;
-        const fmtMid = `Product: ${name} | Total: ${(price * qty).toFixed(2)}`;
-        const netTotal = price * qty * (1 - rate);
-        const namePadded = name.padEnd(15, ' ');
-        const formattedNet = netTotal.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-        const fmtNew = `Product: ${namePadded} | Discounted Total: $${formattedNet}`;
-
-        this.steps = [
-            {
-                line: [1, 2, 3, 4],
-                method: 'Khởi tạo',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate },
-                desc: 'Khởi tạo biến cấu hình & lưu vào bộ nhớ.',
-                len: 0,
-                term: []
-            },
-            {
-                line: [6],
-                method: '% Format',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld },
-                desc: 'Định dạng kiểu truyền thống %s (string), %.2f (float làm tròn 2 chữ số) và %d (integer).',
-                len: fmtOld.length,
-                term: []
-            },
-            {
-                line: [7],
-                method: '% Format',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld },
-                desc: 'In chuỗi formatted_old ra màn hình hệ thống.',
-                len: fmtOld.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld]
-            },
-            {
-                line: [9],
-                method: 'str.format()',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid },
-                desc: 'Sử dụng .format() với {} giữ chỗ mặc định và {:.2f} định dạng kết quả nhân thành float với 2 chữ số thập phân.',
-                len: fmtMid.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld]
-            },
-            {
-                line: [10],
-                method: 'str.format()',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid },
-                desc: 'In chuỗi formatted_mid ra cửa sổ điều khiển.',
-                len: fmtMid.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid]
-            },
-            {
-                line: [12],
-                method: 'f-string',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid, net_total: netTotal },
-                desc: 'Tính toán giá trị thực tế sau khi áp dụng chiết khấu (discount_rate).',
-                len: fmtMid.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid]
-            },
-            {
-                line: [13],
-                method: 'f-string',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid, net_total: netTotal, formatted_new: fmtNew },
-                desc: 'Sử dụng f-string biểu thức mạnh mẽ: {product_name:<15} căn lề trái rộng 15 ký tự, và {net_total:,.2f} phân tách hàng nghìn bằng dấu phẩy và làm tròn 2 phần thập phân.',
-                len: fmtNew.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid]
-            },
-            {
-                line: [14],
-                method: 'f-string',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid, net_total: netTotal, formatted_new: fmtNew },
-                desc: 'In chuỗi formatted_new ra màn hình console.',
-                len: fmtNew.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid, "", "--- METHOD 3: f-string ---", fmtNew]
-            }
-        ];
-    }
-
-    start() {
-        if (this.isPlaying) return;
-        this.isPlaying = true;
-        this.interval = setInterval(() => {
-            this.step();
-        }, this.speed);
-    }
-
-    pause() {
-        this.isPlaying = false;
-        clearInterval(this.interval);
-    }
-
-    step() {
-        if (this.currentStep < this.steps.length - 1) {
-            this.currentStep++;
-        } else {
+    class InteractiveVisualizerEngine {
+        constructor() {
             this.currentStep = 0;
+            this.isPlaying = false;
+            this.speed = 500;
+            this.steps = [];
+            this.inputText = '';
+            this.timer = null;
         }
-        this.render();
-    }
 
-    reset() {
-        this.currentStep = 0;
-        this.isPlaying = false;
-        clearInterval(this.interval);
-        this.render();
-    }
+        init() {
+            const container = document.getElementById('visualizer-canvas');
+            if (!container) return;
 
-    setSpeed(val) {
-        this.speed = val;
-        if (this.isPlaying) {
-            this.pause();
-            this.start();
-        }
-    }
-
-    applyCustomData(data) {
-        try {
-            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-            if (!parsed.product_name || parsed.quantity === undefined || parsed.unit_price === undefined || parsed.discount_rate === undefined) {
-                 throw new Error('Dữ liệu không đúng cấu trúc key required');
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            } else {
+                this.inputText = "10, 20, 30, 40, 50";
+                if (inputEl) inputEl.value = this.inputText;
             }
-            this.inputData = parsed;
+
+            this.applyCustomData();
+        }
+
+        log(msg) {
+            const history = document.getElementById('log-messages');
+            if (history) {
+                const line = document.createElement('div');
+                line.className = 'log-entry log-info';
+                line.style.padding = '4px 0';
+                line.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                line.innerHTML = `<span style="color: #64748b;">[${new Date().toLocaleTimeString()}]</span> <span style="color: #38bdf8;">&gt;</span> ${msg}`;
+                history.appendChild(line);
+                history.scrollTop = history.scrollHeight;
+            }
+        }
+
+        clearLog() {
+            const history = document.getElementById('log-messages');
+            if (history) history.innerHTML = '<div class="log-entry log-info">ℹ [Hệ thống] Đã xóa nhật ký thuật toán.</div>';
+        }
+
+        applyCustomData() {
+            const inputEl = document.getElementById('custom-data-input');
+            if (inputEl && inputEl.value) {
+                this.inputText = inputEl.value.trim();
+            }
             this.reset();
-            this.initSteps();
+        }
+
+        reset() {
+            this.pause();
+            this.currentStep = 0;
+            this.steps = [];
+            this.buildExecutionSteps();
+            this.clearLog();
+            this.log('Khởi tạo mô phỏng trực quan hóa cho dữ liệu: ' + this.inputText);
             this.render();
-            this.log('Cập nhật dữ liệu tùy chỉnh thành công!');
-        } catch(e) {
-            alert('Định dạng JSON cấu hình không hợp lệ!');
-            this.log('Lỗi cập nhật dữ liệu: ' + e.message);
-        }
-    }
-
-    render() {
-        const stepData = this.steps[this.currentStep];
-        if (!stepData) return;
-
-        // Render stats
-        const statMethod = document.getElementById('stat-current-method');
-        const statLen = document.getElementById('stat-string-length');
-        if (statMethod) statMethod.innerText = stepData.method;
-        if (statLen) statLen.innerText = `${stepData.len} ký tự`;
-
-        // Highlights code lines
-        document.querySelectorAll('.code-line').forEach(el => {
-            el.classList.remove('bg-yellow-200', 'text-black', 'border-l-4', 'border-yellow-500', 'font-semibold');
-        });
-        stepData.line.forEach(lnID => {
-            const el = document.getElementById(`line-${lnID}`);
-            if (el) {
-                el.classList.add('bg-yellow-200', 'text-black', 'border-l-4', 'border-yellow-500', 'font-semibold');
-            }
-        });
-
-        // Render HTML canvas area
-        const container = document.getElementById(this.canvasId);
-        if (!container) return;
-
-        let rawVariablesHTML = '';
-        Object.keys(stepData.vars).forEach(key => {
-            let val = stepData.vars[key];
-            let valStr = typeof val === 'number' ? `<span class="text-purple-600 font-mono">${val}</span>` : `<span class="text-green-700 font-mono">"${val}"</span>`;
-            rawVariablesHTML += `
-                <div class="flex justify-between items-center bg-white p-2 border border-slate-200 rounded shadow-sm hover:shadow-md transition-shadow">
-                    <span class="font-mono font-bold text-slate-700 text-sm">${key}</span>
-                    <span class="text-sm">${valStr}</span>
-                </div>`;
-        });
-
-        let terminalLinesHTML = stepData.term.map(line => {
-            if (line.startsWith('---')) {
-                return `<div class="text-blue-400 font-bold font-mono">${line}</div>`;
-            }
-            return `<div class="text-slate-200 font-mono">${line}</div>`;
-        }).join('');
-
-        const formatSimulators = this.getFormatSimulatorsHTML(stepData);
-
-        container.innerHTML = `
-            <div class="flex flex-col gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg min-h-[420px]">
-                <div class="p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
-                    <p class="text-sm text-blue-900 font-medium">💡 Bước: ${this.currentStep + 1}/${this.steps.length}</p>
-                    <p class="text-xs text-blue-800 mt-1">${stepData.desc}</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Khối Stack Bộ Nhớ -->
-                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Biến Đang hoạt động</h3>
-                        <div class="flex flex-col gap-2">
-                            ${rawVariablesHTML || '<div class="text-xs text-slate-400 text-center py-4">Chưa khai báo biến</div>'}
-                        </div>
-                    </div>
-                    
-                    <!-- Khối Trực quan hóa placeholders -->
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col justify-between">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Cấu trúc chuyển vùng dữ liệu</h3>
-                        <div class="flex-1 flex flex-col justify-center gap-3">
-                            ${formatSimulators}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Terminal Module -->
-                <div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm leading-relaxed shadow-inner minimal-terminal mt-auto">
-                    <div class="flex items-center gap-2 border-b border-slate-700 pb-2 mb-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
-                        <span class="text-xs text-slate-400 ml-2 font-sans select-none">Python Console Output</span>
-                    </div>
-                    <div class="max-h-[140px] overflow-y-auto flex flex-col gap-1" id="terminal-body">
-                        ${terminalLinesHTML || '<div class="text-slate-500 text-xs italic">[Trạng thái trống]</div>'}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const termDiv = document.getElementById('terminal-body');
-        if (termDiv) termDiv.scrollTop = termDiv.scrollHeight;
-    }
-
-    getFormatSimulatorsHTML(stepData) {
-        const name = this.inputData.product_name;
-        const qty = this.inputData.quantity;
-        const price = parseFloat(this.inputData.unit_price);
-        const rate = parseFloat(this.inputData.discount_rate);
-
-        if (stepData.method === '% Format') {
-            return `
-                <div class='flex flex-col gap-2'>
-                    <div class='text-xs font-semibold text-purple-700'>Phương thức % (Truyền thống):</div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>%s</span> 👉 <span class='bg-green-100 px-1 rounded text-green-800 font-mono'>"${name}"</span>
-                    </div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>%.2f</span> 👉 <span class='bg-blue-100 px-1 rounded text-blue-800 font-mono'>${price.toFixed(2)}</span> (Làm tròn từ ${price})
-                    </div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>%d</span> 👉 <span class='bg-blue-100 px-1 rounded text-blue-800 font-mono'>${qty}</span>
-                    </div>
-                </div>
-            `;
-        } else if (stepData.method === 'str.format()') {
-            return `
-                <div class='flex flex-col gap-2'>
-                    <div class='text-xs font-semibold text-purple-700'>Phương thức str.format():</div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>{}</span> 👉 <span class='bg-green-100 px-1 rounded text-green-800 font-mono'>"${name}"</span>
-                    </div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>{:.2f}</span> 👉 <span class='bg-blue-100 px-1 rounded text-blue-800 font-mono'>${(price * qty).toFixed(2)}</span> (Tính toán biểu thức trước, định dạng sau)
-                    </div>
-                </div>
-            `;
-        } else if (stepData.method === 'f-string') {
-            const netTotal = price * qty * (1 - rate);
-            const formattedNet = netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            // Visualizing spacing formatting
-            let paddedText = name.padEnd(15, '.');
-            return `
-                <div class='flex flex-col gap-2'>
-                    <div class='text-xs font-semibold text-purple-700'>Phương thức f-string modern:</div>
-                    <div class='text-xs'>
-                        <span class='font-mono bg-slate-200 px-1 py-0.5 rounded'>{product_name:&lt;15}</span>
-                        <div class='mt-1 text-[11px] text-slate-500 font-mono bg-slate-50 p-1 border rounded'>
-                            Hành vi: Căn lề trái & chèn khoảng trắng cho đủ 15 ký tự:<br/>
-                            <span class='text-green-800 font-bold'>"${paddedText}"</span>
-                        </div>
-                    </div>
-                    <div class='text-xs mt-1'>
-                        <span class='font-mono bg-slate-200 px-1 py-0.5 rounded'>{net_total:,.2f}</span>
-                        <div class='mt-1 text-[11px] text-slate-500 font-mono bg-slate-50 p-1 border rounded'>
-                            Hành vi: Dấu phẩy ngăn nghìn & 2 chữ số thập phân:<br/>
-                            <span class='text-blue-800 font-bold'>$${formattedNet}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } 
-        return `<div class='text-xs text-slate-400 italic text-center'>Đang chuẩn bị mô phỏng...</div>`;
-    }
-
-    log(msg) {
-        console.log(`[Visualizer Log]: ${msg}`);
-    }
-}
-
-        // Fallback for missing class to prevent ReferenceError
-        if (typeof InteractiveVisualizerEngine === 'undefined') {
-            window.InteractiveVisualizerEngine = class {};
         }
 
-        function initApp() {
-            try {
-                visualizerApp = new InteractiveVisualizerEngine();
-            } catch(e) {
-                visualizerApp = {};
-            }
+        buildExecutionSteps() {
+            const pageTitle = document.title || '';
+            const items = this.inputText.split(',').map(s => s.trim()).filter(Boolean);
+            const dataList = items.length > 0 ? items : ["Phần tử 1", "Phần tử 2", "Phần tử 3"];
             
-            // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
-            requiredMethods.forEach(method => {
-                if (typeof visualizerApp[method] !== 'function') {
-                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
+            let steps = [];
+
+            // Step 0: Initial State
+            steps.push({
+                highlightLines: ['line-0', 'line-1', 'line-2'],
+                status: 'Khởi tạo',
+                mode: 'Khởi đầu',
+                result: 'Sẵn sàng',
+                log: 'Khởi tạo cấu trúc mảng bộ nhớ RAM và thiết lập thông số ban đầu.',
+                items: dataList.map((val, idx) => ({ val, state: 'idle', idx }))
+            });
+
+            // Step 1: Memory Allocation
+            steps.push({
+                highlightLines: ['line-3', 'line-4', 'line-5'],
+                status: 'Cấp phát bộ nhớ',
+                mode: 'Bộ nhớ RAM',
+                result: 'Đã cấp phát',
+                log: `Cấp phát ${dataList.length} ô nhớ liên tiếp cho các phần tử mảng dữ liệu.`,
+                items: dataList.map((val, idx) => ({ val, state: 'active', idx }))
+            });
+
+            // Step 2: Processing Loop (Item by Item)
+            dataList.forEach((val, i) => {
+                steps.push({
+                    highlightLines: [`line-${6 + (i % 4)}`],
+                    status: `Xử lý phần tử [${i}]`,
+                    mode: 'Tuần tự',
+                    result: 'Đang duyệt',
+                    log: `Duyệt qua phần tử thứ ${i + 1}: giá trị = "${val}" tại chỉ mục index ${i}.`,
+                    items: dataList.map((v, idx) => ({
+                        val: v,
+                        state: idx === i ? 'comparing' : (idx < i ? 'done' : 'idle'),
+                        idx
+                    }))
+                });
+            });
+
+            # Step Final: Completed
+            steps.push({
+                highlightLines: ['line-10', 'line-11', 'line-12'],
+                status: 'Hoàn thành',
+                mode: 'Kết quả',
+                result: 'Thành công',
+                log: 'Hoàn tất toàn bộ chu trình xử lý dữ liệu. Kết quả sẵn sàng trả về.',
+                items: dataList.map((val, idx) => ({ val, state: 'done', idx }))
+            });
+
+            this.steps = steps;
+        }
+
+        start() {
+            if (this.isPlaying) return;
+            this.isPlaying = true;
+            this.timer = setInterval(() => {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.step();
+                } else {
+                    this.pause();
                 }
-            });
-
-            // Perform initialization
-            if (typeof visualizerApp.init === 'function') {
-                visualizerApp.init("visualizer-canvas");
-            }
-            if (typeof visualizerApp.render === 'function') {
-                visualizerApp.render();
-            }
-
-            // Auto-fix code tracker formatting if LLM glued tags together
-            const trackerBox = document.getElementById('code-tracker-box');
-            if (trackerBox) {
-                let rawHtml = trackerBox.innerHTML;
-                rawHtml = rawHtml.replace(/<\/div><div/g, '</div>\n<div');
-                rawHtml = rawHtml.replace(/<\/span><span/g, '</span>\n<span');
-                trackerBox.innerHTML = rawHtml;
-            }
-
-            if (window.hljs) hljs.highlightAll();
+            }, this.speed);
         }
 
-        // Initialize when DOM loaded
-        let visualizerApp;
-        if (document.readyState === 'interactive' || document.readyState === 'complete') {
-            initApp();
-        } else {
-            document.addEventListener('DOMContentLoaded', initApp);
+        pause() {
+            this.isPlaying = false;
+            if (this.timer) {
+                clearInterval(this.timer);
+                this.timer = null;
+            }
         }
-        
 
-        function copyCode(event, button, codeId) {
-            if (event && event.preventDefault) event.preventDefault();
-            const codeElement = document.getElementById(codeId);
-            if (!codeElement) return;
-            navigator.clipboard.writeText(codeElement.innerText).then(() => {
-                button.innerText = 'Đã sao chép!';
-                button.style.backgroundColor = '#10b981';
-                setTimeout(() => {
-                    button.innerText = 'Sao chép';
-                    button.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }, 2000);
-            });
+        step() {
+            if (this.currentStep < this.steps.length - 1) {
+                this.currentStep++;
+                this.render();
+            } else {
+                this.log('Đã đến bước cuối cùng của tiến trình.');
+            }
         }
+
+        scrubStep(e) {
+            const barContainer = e.currentTarget;
+            if (!barContainer || !this.steps.length) return;
+            const rect = barContainer.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const percentage = Math.max(0, Math.min(1, clickX / rect.width));
+            const targetStep = Math.floor(percentage * this.steps.length);
+            this.currentStep = Math.min(this.steps.length - 1, targetStep);
+            this.render();
+        }
+
+        setSpeed(val) {
+            this.speed = parseInt(val, 10) || 500;
+            const disp = document.getElementById('speed-display');
+            if (disp) disp.textContent = this.speed;
+            if (this.isPlaying) {
+                this.pause();
+                this.start();
+            }
+        }
+
+        render() {
+            if (!this.steps || !this.steps.length) return;
+            const current = this.steps[this.currentStep] || this.steps[0];
+
+            // 1. Update Stepper UI
+            const stepProgress = document.getElementById('stepper-progress');
+            const stepDesc = document.getElementById('stepper-desc');
+            const stepBar = document.getElementById('stepper-bar');
+
+            if (stepProgress) stepProgress.textContent = `Bước ${this.currentStep + 1}/${this.steps.length}`;
+            if (stepDesc) stepDesc.textContent = current.log;
+            if (stepBar) stepBar.style.width = `${((this.currentStep + 1) / this.steps.length) * 100}%`;
+
+            // 2. Update Realtime Stats
+            const statMode = document.getElementById('stat-mode');
+            const statLength = document.getElementById('stat-length');
+            const statMatch = document.getElementById('stat-match-count');
+            const statRes = document.getElementById('stat-result');
+
+            if (statMode) statMode.textContent = current.mode || '-';
+            if (statLength) statLength.textContent = (current.items || []).length;
+            if (statMatch) statMatch.textContent = this.currentStep;
+            if (statRes) {
+                statRes.textContent = current.result || 'Đang duyệt';
+                statRes.className = current.result === 'Thành công' ? 'text-emerald-400 font-bold' : 'text-amber-400 font-semibold';
+            }
+
+            // 3. Highlight Code Tracker Line
+            document.querySelectorAll('.code-line').forEach(line => line.classList.remove('active', 'active-line', 'bg-yellow-200'));
+            if (current.highlightLines) {
+                current.highlightLines.forEach(lineId => {
+                    const el = document.getElementById(lineId);
+                    if (el) el.classList.add('active', 'active-line');
+                });
+            }
+
+            // 4. Render Items on Visualizer Canvas
+            const canvas = document.getElementById('visualizer-canvas');
+            if (canvas && current.items) {
+                let itemsMarkup = current.items.map(item => {
+                    let borderBgClass = 'border-slate-700 bg-slate-800/90 text-slate-200';
+                    if (item.state === 'active') {
+                        borderBgClass = 'border-sky-500 bg-sky-900/60 text-sky-200 font-bold scale-105';
+                    } else if (item.state === 'comparing') {
+                        borderBgClass = 'border-amber-400 bg-amber-500/40 text-amber-200 font-bold animate-pulse scale-110';
+                    } else if (item.state === 'done') {
+                        borderBgClass = 'border-emerald-500 bg-emerald-600/30 text-emerald-200 font-bold';
+                    }
+
+                    return `
+                        <div class="flex flex-col items-center transition-all duration-300 transform">
+                            <div class="border rounded-lg px-4 py-3 font-mono text-center min-w-[64px] shadow-md transition-all duration-300 ${borderBgClass}">
+                                ${item.val}
+                            </div>
+                            <small class="text-slate-400 font-mono text-xs mt-1.5">[Index ${item.idx}]</small>
+                        </div>
+                    `;
+                }).join('');
+
+                canvas.innerHTML = `
+                    <div class="flex flex-wrap gap-3 justify-center items-center p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 w-full min-h-[160px] shadow-inner">
+                        ${itemsMarkup}
+                    </div>
+                `;
+            }
+
+            this.log(current.log);
+        }
+    }
+
+    // Auto-initialize when DOM loaded
+    let visualizerApp;
+    function initVisualizerApp() {
+        if (typeof InteractiveVisualizerEngine !== 'undefined') {
+            visualizerApp = new InteractiveVisualizerEngine();
+            visualizerApp.init();
+        }
+    }
+
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+        initVisualizerApp();
+    } else {
+        document.addEventListener('DOMContentLoaded', initVisualizerApp);
+    }
     </script>
+
 </body>
 </html>

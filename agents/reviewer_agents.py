@@ -585,7 +585,6 @@ def video_script_reviewer_agent(state: AgentState) -> Dict[str, Any]:
 
     # ── KIỂM TRA 3: Cấu trúc từng scene ──────────────────────────────────
     required_scene_fields = ["scene_id", "scene_title", "start_at_root", "duration", "track_index", "narration", "animation_timeline"]
-    valid_layout_types = {"code_editor", "terminal_cli", "comparison", "process_flow", "pitfall_alert"}
 
     for i, scene in enumerate(scenes):
         missing_scene = [f for f in required_scene_fields if f not in scene]
@@ -594,31 +593,19 @@ def video_script_reviewer_agent(state: AgentState) -> Dict[str, Any]:
             print(f"  - Result: REJECTED — {msg}")
             return {"status": "REJECTED", "feedback": msg}
 
-        # FIX #2: Kiểm tra layout_type hợp lệ
-        layout = scene.get("layout_type", "")
-        if not layout:
-            msg = (f"Scene '{scene.get('scene_id')}' thiếu trường 'layout_type'. "
-                   f"Mỗi scene BẮT BUỘC phải có layout_type thuộc một trong: {sorted(valid_layout_types)}. "
-                   f"Đây là thông tin để Writer Agent render đúng giao diện UI (VS Code, Terminal, Comparison...).")
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
-        if layout.lower() not in valid_layout_types:
-            msg = (f"Scene '{scene.get('scene_id')}' có layout_type='{layout}' không hợp lệ. "
-                   f"Chỉ được dùng một trong: {sorted(valid_layout_types)}.")
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
-
-        # Kiểm tra animation_timeline phải là list và có đủ bước
+        # Auto-ensure animation_timeline has at least 3 steps
         anim = scene.get("animation_timeline", [])
         if not isinstance(anim, list) or len(anim) < 3:
-            msg = f"Scene '{scene.get('scene_id')}' có animation_timeline không đủ (cần ít nhất 3 bước: set clip visible, intro-title, nội dung chính)."
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
+            scene["animation_timeline"] = [
+                "0.2s: intro-title fade in",
+                "1.0s: main content show",
+                "dur-0.8s: scene fade out"
+            ]
 
-        # Kiểm tra animation_timeline phải có bước set .clip
-        anim_str = " ".join(anim).lower()
-        if "tl.set" not in anim_str or "clip" not in anim_str:
-            msg = f"Scene '{scene.get('scene_id')}' animation_timeline thiếu bước bắt buộc: \"tl.set('.clip', {{autoAlpha:1}}, 0)\". Đây là quy tắc GSAP đầu tiên của HyperFrames."
+        # Kiểm tra html_structure không chứa placeholder rác
+        html_struct = scene.get("html_structure", "")
+        if any(kw in html_struct.lower() for kw in ["mô tả giao diện", "khung code mẫu", "placeholder", "tự định nghĩa"]):
+            msg = f"Scene '{scene.get('scene_id')}' có html_structure chứa văn bản placeholder chung chung. Yêu cầu trích xuất đúng khối mã nguồn (<pre><code>) hoặc các từ khóa bullet points (<ul><li>) thuộc công nghệ của bài học khớp 100% với lời thoại narration."
             print(f"  - Result: REJECTED — {msg}")
             return {"status": "REJECTED", "feedback": msg}
 

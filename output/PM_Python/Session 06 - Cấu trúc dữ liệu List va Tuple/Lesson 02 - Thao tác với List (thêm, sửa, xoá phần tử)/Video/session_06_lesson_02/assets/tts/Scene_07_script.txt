@@ -1,0 +1,1 @@
+Bây giờ chúng ta cùng chuyển sang thao tác sửa đổi giá trị. Việc cập nhật giá trị của một phần tử trong lít vô cùng đơn giản bằng cách truy cập trực tiếp qua chỉ mục và gán một giá trị mới cho nó thông qua toán tử gán dấu bằng.

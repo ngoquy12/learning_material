@@ -1,0 +1,73 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Trong cấu trúc danh sách (List) truyền thống, phần tử dữ liệu được sắp xếp và quản lý theo cơ chế nào?",
+      "options": [
+        "Tự động đặt tên theo các biến cục bộ",
+        "Theo các chỉ mục số nguyên tự động tăng từ 0",
+        "Theo mã băm bảo mật ngẫu nhiên mã hóa",
+        "Theo thứ tự bảng chữ cái của tên phần tử"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Theo bài đọc Stage 1, trong cấu trúc danh sách truyền thống, dữ liệu được sắp xếp và quản lý theo các chỉ mục số nguyên tự động tăng như 0, 1, 2..."
+    },
+    {
+      "question": "Khi danh sách bị xao trộn thứ tự phần tử, điều gì sẽ xảy ra với các truy xuất bằng chỉ mục (index)?",
+      "options": [
+        "Hệ thống tự động cập nhật lại ý nghĩa nghiệp vụ cho chỉ mục",
+        "Chỉ mục cũ tự động liên kết với giá trị mới mà không gây sai sót",
+        "Toàn bộ logic truy xuất theo chỉ mục trước đó sẽ bị sai lệch nghiêm trọng",
+        "Danh sách tự động chuyển đổi thành mô hình Key-Value"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Bài đọc chỉ rõ nhược điểm của giải pháp danh sách tuần tự là khi danh sách thay đổi kích thước hoặc thứ tự phần tử bị xáo trộn, toàn bộ logic truy xuất theo chỉ mục trước đó sẽ bị sai lệch nghiêm trọng."
+    },
+    {
+      "question": "Độ phức tạp thời gian khi tìm kiếm phần tử cụ thể bằng cách duyệt tuần tự trên List là bao nhiêu?",
+      "options": [
+        "O(1)",
+        "O(log N)",
+        "O(N)",
+        "O(N^2)"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Trong mô hình List, việc tìm kiếm yêu cầu duyệt tuyến tính qua từng phần tử để đối chiếu, dẫn đến độ phức tạp thuật toán là O(N)."
+    },
+    {
+      "question": "Mô hình Dictionary lưu trữ dữ liệu dưới dạng nào để tối ưu hóa tốc độ truy xuất?",
+      "options": [
+        "Cặp Key-Value đem lại khả năng truy xuất trực tiếp O(1)",
+        "Mảng hai chiều gồm toàn bộ các số nguyên liên tục",
+        "Danh sách liên kết đơn có con trỏ đảo ngược chiều",
+        "Cây nhị phân nối tiếp phân cấp ngẫu nhiên"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Từ hình vẽ minh họa và nội dung bài đọc, Dictionary cho phép tương tác trực tiếp với dữ liệu thông qua các nhãn định danh (Key) mang ý nghĩa nghiệp vụ, nâng hiệu suất truy xuất lên O(1)."
+    }
+  ],
+  "practical_lab": {
+    "title": "Phát triển Bộ máy Tìm kiếm Sản phẩm Tối ưu bằng Dictionary",
+    "objectives": [
+      "Kiểm chứng nhược điểm của việc lưu trữ và truy cập thông tin bằng chỉ mục (Index) trên List.",
+      "Tái cấu trúc luồng lưu trữ thông tin sản phẩm sang dạng Dictionary sử dụng các Key mang ý nghĩa nghiệp vụ.",
+      "So sánh tính ổn định của mã nguồn khi cấu trúc dữ liệu bị hoán đổi vị trí thứ tự phần tử."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Khởi tạo thông tin một sản phẩm gồm tên và giá bằng List: product_list = ['Dien thoai', 15000000]. Thực hiện in ra giá của sản phẩm bằng chỉ mục chỉ định.",
+        "Bước 2: Giả lập sự thay đổi thứ tự phần tử trong List: product_list = [15000000, 'Dien thoai']. Thực thi lại dòng code in giá ở Bước 1 và quan sát lỗi logic phát sinh.",
+        "Bước 3: Tái thiết kế cấu trúc dữ liệu trên bằng Dictionary đại diện quan hệ Key-Value rõ ràng: product_dict = {'name': 'Dien thoai', 'price': 15000000}.",
+        "Bước 4: Sử dụng cú pháp truy cập theo Key để lấy thông tin giá tiền: price = product_dict['price'].",
+        "Bước 5: Thay đổi thứ tự khai báo các cặp Key-Value trong Dictionary và chạy lại để chứng minh tính độc lập và an toàn tuyệt đối của cơ chế Key-Value."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Tạo thành công List và chỉ ra được sự sai lệch kết quả khi thay đổi vị trí phần tử.",
+        "Tạo được Dictionary chứa các trường thông tin có khóa tường minh đại diện cho nghiệp vụ.",
+        "Truy xuất thành công giá trị thông qua Key mục tiêu mà không bị ảnh hưởng bởi thứ tự định nghĩa phần tử."
+      ]
+    }
+  }
+}

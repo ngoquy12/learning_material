@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=1920, height=1080, initial-scale=1.0"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&family=Fira+Code:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #09090b;
+        color: #ffffff;
+        font-family:
+          "Be Vietnam Pro",
+          system-ui,
+          -apple-system,
+          sans-serif;
+      }
+
+      .scene-root {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+        overflow: hidden;
+        background: #09090b;
+        font-family: "Be Vietnam Pro", sans-serif;
+      }
+
+      /* Subtle grid overlay */
+      .scene-root::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 60px 60px;
+        pointer-events: none;
+      }
+
+      /* ── TITLE HEADER — Synchronized Pure White ── */
+      .scene-title-header {
+        position: absolute;
+        top: 40px;
+        left: 80px;
+        right: 80px;
+        z-index: 10;
+        text-align: left !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        padding-bottom: 18px;
+      }
+      .main-title {
+        font-family: "Be Vietnam Pro", sans-serif;
+        font-size: 44px;
+        font-weight: 800;
+        color: #ffffff !important;
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        text-align: left !important;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ── AI CONTENT ZONE — Spaciously Sized ── */
+      .main-stage {
+        position: absolute;
+        top: 130px;
+        bottom: 40px;
+        left: 80px;
+        right: 80px;
+        z-index: 5;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left !important;
+        font-family: "Be Vietnam Pro", sans-serif;
+      }
+      .content-box {
+        width: 100%;
+        max-width: 1760px;
+        height: 100%;
+        background: transparent;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+        text-align: left !important;
+      }
+
+      /* ════════════════════════════════════════════════
+         HIGH-CONTRAST DARK DESIGN SYSTEM (#ffffff text priority)
+      ════════════════════════════════════════════════ */
+
+      /* Typography — High contrast bright white text */
+      .desc-text {
+        font-size: 32px;
+        font-weight: 500;
+        color: #ffffff !important;
+        text-align: left !important;
+        line-height: 1.7;
+      }
+      .label-sm {
+        font-size: 18px;
+        font-weight: 700;
+        color: #818cf8;
+        letter-spacing: 0.06em;
+      }
+
+      /* Grid layouts */
+      .split-container {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 32px;
+        width: 100%;
+        height: 100%;
+        align-items: stretch;
+      }
+      .split-equal {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        width: 100%;
+        height: 100%;
+        align-items: stretch;
+      }
+      .split-3col {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 28px;
+        width: 100%;
+        height: 100%;
+        align-items: stretch;
+      }
+
+      /* Card variants — Dark background with pure white text */
+      .card-full {
+        width: 100%;
+        background: #18181b;
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        border-left: 8px solid #6366f1;
+        border-radius: 16px;
+        padding: 36px 44px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 24px;
+        color: #ffffff !important;
+      }
+      .card-left,
+      .card-right {
+        width: 100%;
+        background: #18181b;
+        border: 1.5px solid rgba(255, 255, 255, 0.12);
+        border-left: 8px solid #6366f1;
+        border-radius: 16px;
+        padding: 32px 38px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 20px;
+        color: #ffffff !important;
+      }
+      .card-accent {
+        width: 100%;
+        background: rgba(99, 102, 241, 0.12);
+        border: 2px solid rgba(99, 102, 241, 0.4);
+        border-radius: 16px;
+        padding: 32px 40px;
+        text-align: left !important;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        color: #ffffff !important;
+      }
+
+      /* Card header */
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 8px;
+      }
+      .card-badge {
+        background: #6366f1;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 22px;
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+        flex-shrink: 0;
+      }
+      .card-badge-lg {
+        background: #6366f1;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 32px;
+        width: 68px;
+        height: 68px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5);
+        flex-shrink: 0;
+      }
+      .card-title {
+        font-size: 30px;
+        font-weight: 700;
+        color: #ffffff !important;
+        line-height: 1.35;
+        margin: 0;
+      }
+      .card-subtitle {
+        font-size: 22px;
+        font-weight: 500;
+        color: #e2e8f0 !important;
+        line-height: 1.45;
+        margin: 0;
+      }
+
+      /* Bullet / step lists — Large white text */
+      .bullet-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        text-align: left !important;
+      }
+      .bullet-list li {
+        font-size: 26px;
+        line-height: 1.6 !important;
+        color: #ffffff !important;
+        display: flex;
+        align-items: flex-start;
+        font-family: "Be Vietnam Pro", sans-serif;
+        text-align: left !important;
+        background: transparent;
+        border: none;
+        padding: 0;
+        box-shadow: none;
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      .step-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .step-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        font-size: 24px;
+        color: #ffffff !important;
+        line-height: 1.6;
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      .step-num {
+        background: #6366f1;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 17px;
+        min-width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 3px;
+      }
+
+      /* Alert boxes — Bright high-contrast text */
+      .alert-box {
+        width: 100%;
+        border-radius: 14px;
+        padding: 28px 36px;
+        display: flex;
+        align-items: flex-start;
+        gap: 22px;
+        text-align: left !important;
+      }
+      .alert-warning {
+        background: rgba(251, 191, 36, 0.12);
+        border: 2px solid rgba(251, 191, 36, 0.5);
+      }
+      .alert-danger {
+        background: rgba(239, 68, 68, 0.12);
+        border: 2px solid rgba(239, 68, 68, 0.5);
+      }
+      .alert-success {
+        background: rgba(34, 197, 94, 0.12);
+        border: 2px solid rgba(34, 197, 94, 0.5);
+      }
+      .alert-info {
+        background: rgba(99, 102, 241, 0.12);
+        border: 2px solid rgba(99, 102, 241, 0.5);
+      }
+      .alert-icon {
+        font-size: 42px;
+        flex-shrink: 0;
+      }
+      .alert-content {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .alert-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: #ffffff !important;
+      }
+      .alert-body {
+        font-size: 23px;
+        color: #f8fafc !important;
+        line-height: 1.65;
+      }
+
+      /* Compare table — Clear large contrast */
+      .compare-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 23px;
+        font-family: "Be Vietnam Pro", sans-serif;
+      }
+      .compare-table th {
+        background: #6366f1;
+        color: #ffffff !important;
+        font-weight: 700;
+        font-size: 24px;
+        padding: 18px 24px;
+        text-align: left !important;
+        border: none;
+      }
+      .compare-table th:first-child {
+        border-radius: 12px 0 0 0;
+      }
+      .compare-table th:last-child {
+        border-radius: 0 12px 0 0;
+      }
+      .compare-table td {
+        padding: 16px 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: #ffffff !important;
+        line-height: 1.55;
+        vertical-align: top;
+        background: #18181b;
+      }
+      .compare-table tr:nth-child(even) td {
+        background: #121215;
+      }
+      .compare-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      /* Dark code panel — Large legible code (26px) */
+      .code-panel-right {
+        width: 100%;
+        background: #09090b;
+        border: 1.5px solid rgba(255, 255, 255, 0.18);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+      .code-header-bar {
+        background: #18181b;
+        padding: 15px 24px;
+        border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .mac-dots {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mac-dots .dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .mac-dots .dot.red {
+        background: #ff5f56;
+      }
+      .mac-dots .dot.yellow {
+        background: #ffbd2e;
+      }
+      .mac-dots .dot.green {
+        background: #27c93f;
+      }
+      .code-filename {
+        font-family: "Fira Code", monospace;
+        font-size: 17px;
+        font-weight: 600;
+        color: #a5b4fc;
+      }
+      .code-body {
+        padding: 28px 34px;
+        background: #09090b;
+        flex: 1;
+        margin: 0 !important;
+        overflow-x: auto;
+        white-space: pre !important;
+        word-break: normal !important;
+        font-family: "Fira Code", "JetBrains Mono", monospace;
+        font-size: 25px;
+        line-height: 1.75 !important;
+        color: #ffffff !important;
+        tab-size: 4;
+        -moz-tab-size: 4;
+        text-align: left !important;
+      }
+      .code-body code {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        font-family: inherit;
+        font-size: inherit;
+        color: inherit;
+        box-shadow: none !important;
+      }
+
+      /* Syntax highlighting — High contrast on pure black */
+      .kw {
+        color: #d8b4fe !important;
+        font-weight: 700 !important;
+      }
+      .fn {
+        color: #93c5fd !important;
+        font-weight: 700 !important;
+      }
+      .str {
+        color: #6ee7b7 !important;
+      }
+      .cm {
+        color: #64748b !important;
+        font-style: italic !important;
+      }
+      .num {
+        color: #fdba74 !important;
+        font-weight: 600 !important;
+      }
+
+      /* Flow diagram */
+      .flow-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .flow-node {
+        background: #18181b;
+        border: 1.5px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        padding: 18px 28px;
+        font-size: 21px;
+        font-weight: 700;
+        color: #ffffff;
+        text-align: center;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        flex: 1;
+      }
+      .flow-node.active {
+        border-color: #6366f1;
+        background: rgba(99, 102, 241, 0.18);
+        color: #ffffff;
+      }
+      .flow-arrow {
+        font-size: 28px;
+        color: #94a3b8;
+        flex-shrink: 0;
+      }
+
+      /* Diagram panel */
+      .diagram-panel-right {
+        width: 100%;
+        background: #18181b;
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-top: 4px solid #6366f1;
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Chips */
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(99, 102, 241, 0.18);
+        border: 1px solid rgba(99, 102, 241, 0.4);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #ffffff;
+      }
+      .tag.green {
+        background: rgba(34, 197, 94, 0.15);
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #4ade80;
+      }
+      .tag.orange {
+        background: rgba(251, 146, 60, 0.15);
+        border-color: rgba(251, 146, 60, 0.4);
+        color: #fb923c;
+      }
+      .tag.red {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #f87171;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="scene-07"
+      class="scene-root clip"
+      data-composition-id="scene-07"
+      data-start="0"
+      data-duration="24.43"
+      data-track-index="0"
+    >
+      <!-- Title bar — Pure White #ffffff -->
+      <div
+        class="scene-title-header clip"
+        data-start="0"
+        data-duration="24.43"
+        data-track-index="10"
+      >
+        <h1 class="main-title">Ngăn xếp cuộc gọi: Phân rã Call Stack & Stack Frame</h1>
+      </div>
+
+      <!-- AI Content Zone -->
+      <div
+        class="main-stage clip"
+        data-start="0.4"
+        data-duration="24.43"
+        data-track-index="20"
+      >
+        <div class="content-box"><div class="p-9 bg-zinc-950 text-white min-h-[620px] flex flex-col justify-between font-sans border border-zinc-850 rounded-xl"><div class="flex justify-between items-center"><span class="text-2xl font-medium font-semibold text-indigo-400 tracking-wider bg-indigo-950/50 px-3 py-1 rounded border border-indigo-900/40">Kiến Thức Cốt Lõi</span><span class="text-2xl font-medium text-zinc-200">Động học runtime</span></div><div class="my-auto grid grid-cols-12 gap-8"><div class="col-span-5 flex flex-col justify-end bg-zinc-900/60 p-4 rounded-xl border border-zinc-800 min-h-[220px]"><div class="border-2 border-emerald-500 bg-emerald-950/30 p-2 text-center rounded text-2xl font-medium font-mono text-emerald-400 mb-2"><div class="font-bold">Stack Frame: calculate_tax()</div><div class="text-xxs text-emerald-500/80">Income = 20M, tax = 2M</div></div><div class="border border-zinc-800 bg-zinc-950 p-2 text-center rounded text-2xl font-medium font-mono text-zinc-200"><div class="font-bold">Stack Frame: __main__</div><div class="text-xxs">Biến toàn cục hệ thống</div></div></div><div class="col-span-7 flex flex-col justify-around text-2xl font-medium leading-relaxed"><div class="p-3 bg-zinc-900 rounded border border-zinc-800"><span class="text-emerald-400 font-bold block mb-1">1. Khởi tạo Frame:</span><span class="text-white font-bold">Cấp phát bộ nhớ cục bộ cho hàm khi chuẩn bị xử lý logic.</span></div><div class="p-3 bg-zinc-900 rounded border border-zinc-800"><span class="text-cyan-400 font-bold block mb-1">2. Lưu trữ Phạm vi cục bộ:</span><span class="text-white font-bold">Độc lập hoàn toàn với các biến ngoài hàm, biến cục bộ bên trong bị cô lập.</span></div><div class="p-3 bg-zinc-900 rounded border border-zinc-800"><span class="text-rose-500 font-bold block mb-1">3. Thu hồi (Garbage Collection):</span><span class="text-white font-bold">Giải phóng toàn bộ Stack Frame ngay khi câu lệnh return kết thúc.</span></div></div></div><div class="text-2xl font-medium text-zinc-200 text-center border-t border-zinc-900 pt-2">Lỗi Stack Overflow xảy ra nếu các đệ quy gọi nhau vô tận làm đầy Call Stack.</div></div></div>
+      </div>
+    </div>
+
+    <script>
+      if (typeof mermaid !== "undefined") {
+        mermaid.initialize({
+          startOnLoad: true,
+          theme: "dark",
+          themeVariables: {
+            primaryColor: "#18181b",
+            primaryBorderColor: "#6366f1",
+            primaryTextColor: "#ffffff",
+            lineColor: "#6366f1",
+            fontFamily: "Be Vietnam Pro",
+          },
+        });
+      }
+
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["scene-07"] = tl;
+
+      const _buildTimer = setInterval(function () {
+        const root = document.getElementById("scene-07");
+        if (!root) return;
+        clearInterval(_buildTimer);
+
+        const dur =
+          parseFloat(root.getAttribute("data-duration")) || parseFloat("24.43");
+        const durEnd = Math.max(0.1, dur - 0.8);
+
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+        tl.set(".main-title", { autoAlpha: 0, x: -24 }, 0);
+        tl.set(".scene-title-header", { autoAlpha: 0 }, 0);
+        tl.set(".main-stage", { autoAlpha: 0 }, 0);
+
+        /* Title slide in */
+        tl.to(
+          ".scene-title-header",
+          { autoAlpha: 1, duration: 0.4, ease: "none" },
+          0.1,
+        );
+        tl.to(
+          ".main-title",
+          { autoAlpha: 1, x: 0, duration: 0.6, ease: "power2.out" },
+          0.15,
+        );
+
+        /* Content stage fade in */
+        tl.to(".main-stage", { autoAlpha: 1, duration: 0.35, ease: "none" }, 0.5);
+
+        /* Collect all revealable visual components inside content-box */
+        const revealElements = Array.from(
+          root.querySelectorAll(
+            ".content-box > *, .content-box .grid > div, .content-box .flex > .p-5, " +
+            ".content-box .flex > .p-6, .card-full, .card-left, .card-right, .card-accent, " +
+            ".code-panel-right, .diagram-panel-right, .alert-box, .bullet-list li, " +
+            ".step-list li, .compare-table tbody tr, .flow-node"
+          )
+        ).filter((el, idx, self) => self.indexOf(el) === idx); // deduplicate
+
+        if (revealElements.length > 0) {
+          /* Hide all components initially */
+          tl.set(revealElements, { autoAlpha: 0, y: 22 }, 0);
+
+          /* Spread entrance reveals evenly across 75% of scene voiceover duration */
+          const totalWindow = durEnd - 1.2;
+          const stepDelay = Math.max(0.35, totalWindow / Math.max(revealElements.length, 1));
+          let cursor = 0.8;
+
+          revealElements.forEach((el, i) => {
+            tl.to(
+              el,
+              { autoAlpha: 1, y: 0, duration: 0.65, ease: "power2.out" },
+              cursor + i * stepDelay
+            );
+          });
+        }
+
+        tl.to("#scene-07", { autoAlpha: 0, duration: 0.7 }, durEnd);
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
+</html>

@@ -700,17 +700,23 @@ def video_script_agent(state: AgentState) -> AgentState:
 
     print(f"\n[Video_Director_Agent] Generating HyperFrames Blueprint for {session_id} {lesson_id} (Attempt {attempt_num})")
 
-    # Load master content (shared cache)
-    content = get_lesson_content(
-        session_id=session_id,
-        lesson_id=lesson_id,
-        lesson_title=lesson_title,
-        lesson_details=lesson_details,
-        expected_output=core_ssot.get("expected_output", ""),
-        attempt_num=1,
-        core_ssot=core_ssot,
-        state=state
-    )
+    # Reading-First SSOT: Ưu tiên sử dụng Bài đọc HTML (reading.md) đã được duyệt hoàn chỉnh 100%
+    reading_html = state.get("html_content", "") or state.get("reading_material", "")
+    if reading_html:
+        print(f"  [Video_Director_Agent] Using Approved Reading Material (reading.md - {len(reading_html)} chars) as Primary SSOT!")
+        content = reading_html
+    else:
+        # Load master content (shared cache fallback)
+        content = get_lesson_content(
+            session_id=session_id,
+            lesson_id=lesson_id,
+            lesson_title=lesson_title,
+            lesson_details=lesson_details,
+            expected_output=core_ssot.get("expected_output", ""),
+            attempt_num=1,
+            core_ssot=core_ssot,
+            state=state
+        )
 
     # Load the HyperFrames composer skill for context
     hyperframes_skill = load_skill_content("hyperframes_composer")
@@ -735,28 +741,46 @@ TẦNG 1: PHÂN LOẠI SƯ PHẠM & THỜI LƯỢNG MỤC TIÊU (PEDAGOGY TAXONO
   3. CONCEPTUAL (Lý thuyết / Khái niệm cơ bản): 6 - 10 scenes, 25-35s/scene, tổng 3-5 phút, 450-700 từ thoại.
   4. SYSTEM_ARCHITECTURE (Kiến trúc / Process Flow / API): 10 - 14 scenes, 30-45s/scene, tổng 5-7 phút, 600-900 từ thoại.
 
-TẦNG 2: BẢO TOÀN NGUYÊN TẮC "WHY BEFORE HOW":
-- Mọi câu lệnh CLI, đoạn code hoặc thiết lập trên màn hình BẮT BUỘC phải đi kèm lời thuyết minh giải thích bản chất "TẠI SAO" (Ví dụ: giải thích cờ -m, giải thích lý do dùng venv, ý nghĩa từng tham số). Không bao giờ chỉ đọc suông câu lệnh.
+TẦNG 2: CẤU TRÚC BÀI TOÁN DOANH NGHIỆP (PROBLEM-FIRST NARRATIVE & WHY BEFORE HOW):
+- Mọi bài học BẮT BUỘC phải đi qua cấu trúc sư phạm: Bối cảnh doanh nghiệp -> Vấn đề/Pain Point & Rủi ro thực tế -> Giải pháp kỹ thuật -> Minh họa bằng khối code mẫu sản xuất (Production-Ready Code) có type hints, import và xử lý lỗi.
+- Mọi câu lệnh CLI, đoạn code hoặc thiết lập trên màn hình BẮT BUỘC phải đi kèm lời thuyết minh giải thích bản chất "TẠI SAO". Không bao giờ chỉ đọc suông câu lệnh hay dán code sơ sài.
 
-TẦNG 3: NARRATION CHUẨN ÂM & PHÁT ÂM TTS:
-- Viết lời thoại narration tự nhiên, khúc triết, trực diện.
-- CẤM TUYỆT ĐỐI các từ ngữ sến súa, nịnh hót hoặc suồng sã như: "nhé", "thân mến", "các em", "nha", "nhỉ", "nhé các bạn", "chúng mình".
-- Văn phong BẮT BUỘC theo chuẩn Giảng viên cao cấp / Senior Engineer: Chuyên sâu kỹ thuật, giải thích rõ cơ chế vận hành, bộ nhớ, hiệu năng và quy tắc cú pháp.
-- Tự động chuẩn hóa từ ngữ kỹ thuật cho giọng đọc TTS đọc chuẩn:
+TẦNG 3: NARRATION CHUẨN ÂM, VĂN PHONG GIẢNG VIÊN ĐẠI HỌC & CÂU NỐI MỀM MẠI:
+- BẮT BUỘC Scene 01 bắt đầu bằng: "Chào mừng các bạn đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong nội dung bài học này, chúng ta sẽ cùng tìm hiểu về {lesson_title}."
+- BẮT BUỘC Scene cuối cùng tóm tắt bài học + thông báo bài học tiếp theo và kết thúc bằng: "Như vậy, trong bài học này chúng ta đã [tóm tắt kiến thức]. Trong bài học tiếp theo, chúng ta sẽ tìm hiểu về [tên bài tiếp theo]. Xin cảm ơn và hẹn gặp lại."
+- BẮT BUỘC chèn câu chuyển mạch sư phạm tự nhiên giữa các phần: "Tiếp theo, chúng ta sẽ xem xét...", "Thế nhưng trong thực tế...", "Lưu ý quan trọng ở đây là...", "Để hiểu rõ hơn, hãy cùng phân tích...".
+- Văn phong Giảng viên Đại học chuẩn mực: Mạch lạc, chuyên sâu kỹ thuật, trung lập cảm xúc. Chỉ xưng hô bằng "chúng ta" (TUYỆT ĐỐI CẤM dùng "các em", "các bạn ơi", "nhé", "nha").
+- NGHIÊM CẤM TUYỆT ĐỐI các từ sau trong narration: nhé, nha, nhen, các em ơi, các em thân mến, bạn ơi, chết chóc, tiêu tùng, thảm họa, thảm khốc, kinh khủng, hãi hùng, đỉnh của đỉnh, huyền thoại, bá đạo, like, subscribe, đăng ký kênh.
+- Tự động chuẩn hóa từ ngữ kỹ thuật cho giọng đọc TTS:
   + Tên lệnh/cờ: "python -m venv" -> "python trừ m venv"
   + Phím tắt: "Ctrl+Shift+P" -> "phím Control Shift P"
-  + Thuật ngữ: "requirements.txt" -> "file ri-quai-mơn text"
+  + Thuật ngữ: "requirements.txt" -> "file ri-quai-mơn chấm text"
 
-TẦNG 4: ÁNH XẠ UI LAYOUT TYPOLOGY (LAYOUT_TYPE):
-Chỉ định 1 trong 5 mẫu layout chính cho mỗi scene:
-- "code_editor": Giao diện VS Code mockup hiển thị code/script.
-- "terminal_cli": Giao diện Terminal CLI gõ lệnh thực thi.
-- "comparison": Bảng so sánh 2 cột Good vs Bad / Global vs Virtual Env.
-- "process_flow": Sơ đồ quy trình từng bước có mũi tên kết nối.
-- "pitfall_alert": Thẻ cảnh báo lỗi phổ biến và giải pháp khắc phục.
-
-TẦNG 5: TRÍCH XUẤT UI CARD CLEAN:
-- "visual_description" CHỈ chứa tóm tắt kiến thức cốt lõi (Card takeaway) hiển thị cho người học. TUYỆT ĐỐI KHÔNG chứa các câu nhắc meta-prompt dàn dựng như "Màn hình hiển thị...", "Phông nền tối...".
+TẦNG 4: THIẾT KẾ GIAO DIỆN TỰ DO — DARK THEME ({tech_stack}):
+- Trường `html_structure` là HOÀN TOÀN TỰ DO. AI được toàn quyền thiết kế layout phù hợp nhất với nội dung từng scene.
+- Template: Nền đen (#0a0a0f), không logo. Chỉ cố định tiêu đề scene (màu indigo sáng #a5b4fc) góc trên trái.
+- MÀU SẮC CHUẨN DARK THEME: nền card #13131f, border rgba(255,255,255,0.08) mỏng, accent #6366f1 CHỈ dùng cho dot/step-num/highlight, chữ chính #e2e8f0, chữ phụ #94a3b8.
+- CÁC LAYOUT AI CÓ THỂ DÙNG (không bắt buộc, chỉ là gợi ý):
+  1. SPLIT CODE: `<div class="split-container"><div class="card-left">...<ul class="bullet-list">...</ul></div><div class="code-panel-right"><div class="code-header-bar">...</div><pre class="code-body"><code>...</code></pre></div></div>`
+  2. FULL BULLETS: `<div class="card-full"><h2 class="card-title">...</h2><ul class="bullet-list">...</ul></div>`
+  3. STEP LIST: `<div class="card-full"><ol class="step-list"><li><span class="step-num">1</span><span>...</span></li>...</ol></div>`
+  4. COMPARE TABLE: `<table class="compare-table"><thead><tr><th>...</th></tr></thead><tbody><tr><td>...</td></tr></tbody></table>`
+  5. ALERT BOX: `<div class="alert-box alert-warning"><div class="alert-content"><p class="alert-title">...</p><p class="alert-body">...</p></div></div>`
+  6. 3-COLUMN GRID: `<div class="split-3col"><div class="card-full">...</div>...</div>`
+  7. FLOW DIAGRAM: `<div class="flow-row"><div class="flow-node">...</div><span class="flow-arrow">→</span><div class="flow-node active">...</div></div>`
+  8. MERMAID DIAGRAM: `<pre class="mermaid">flowchart LR\n  A-->B</pre>`
+  9. CUSTOM HTML với inline styles dark — ví dụ: `background:#13131f; border:1px solid rgba(255,255,255,0.08); color:#e2e8f0`
+- QUY TẮC BẮT BUỘC CHO `html_structure`:
+  * Mọi code snippet BẮT BUỘC đúng cú pháp {tech_stack} sản xuất.
+  * TUYỆT ĐỐI CẤM tự động viết hoa tên hàm, tên biến hay định danh code (ví dụ `run_engine()`, `calc_bonus` BẮT BUỘC giữ nguyên chữ thường đúng cú pháp).
+  * TUYỆT ĐỐI CẤM `border-left` màu accent (border-left: 8px solid #6366f1 hoặc tương tự) — layout phải thoáng, không có đường viền màu sắc sặc sỡ bên cạnh.
+  * TUYỆT ĐỐI CẤM badge số thứ tự thừa (card-badge, card-badge-lg) bên trong card vì gây rối layout. Chỉ dùng step-num trong step-list.
+  * Khung layout nên thoáng sạch, KHÔNG ép buộc phải có border bọc toàn bộ bên ngoài.
+  * TUYỆT ĐỐI CẤM lặp lại tiêu đề scene bên trong card (tiêu đề lớn góc trên trái đã hiển thị đầy đủ).
+  * TUYỆT ĐỐI CẤM dùng emoji dạng text (như ❌, ⚠️, 📌, ✔). BẮT BUỘC dùng thẻ Phosphor Icons như `<i class="ph-bold ph-x-circle text-rose-500"></i>`, `<i class="ph-bold ph-warning text-amber-400"></i>`, `<i class="ph-bold ph-check-circle text-emerald-400"></i>`.
+  * TUYỆT ĐỐI CẤM placeholder text, nội dung chung chung hoặc cú pháp sai ngôn ngữ.
+  * Chọn layout phản ánh đúng loại nội dung: code → split-container + code-panel; khái niệm nhiều điểm → bullet-list; so sánh → compare-table; cảnh báo → alert-box; quy trình → step-list hoặc flow-row.
+  * Mỗi scene phải có layout KHÁC NHAU để tránh đơn điệu.
 
 Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
 {{
@@ -771,14 +795,13 @@ Output JSON BẮT BUỘC theo cấu trúc CHÍNH XÁC này:
       "start_at_root": 0,
       "duration": <số giây của scene, từ 25-45s>,
       "track_index": 1,
-      "layout_type": "code_editor|terminal_cli|comparison|process_flow|pitfall_alert",
-      "narration": "<Lời thoại giảng dạy chi tiết 60-100 từ/scene chuẩn âm TTS>",
-      "visual_description": "<Tóm tắt 1-2 câu điểm kiến thức cốt lõi hiển thị trên UI Card (KHÔNG chứa meta-prompt instruction)>",
-      "html_structure": "<Các elements HTML chính>",
+      "layout_type": "standard",
+      "narration": "<Lời thoại giảng dạy 100-180 từ/scene chuẩn âm TTS. BẮT BUỘC tuân thủ phong cách dẫn dắt: KHÔNG bắt đầu bằng câu giải thích thẳng định nghĩa. Phải dẫn dắt bằng câu hỏi gợi mở hoặc bối cảnh thực tế trước, ví dụ: 'Hãy cùng tìm hiểu về X — một trong những khái niệm vô cùng quan trọng...' thay vì 'X là một cái gì đó...'. Kết thúc scene bằng câu chốt ngắn gọn.">,
+      "visual_description": "<Tóm tắt 1-2 câu điểm kiến thức cốt lõi>",
+      "html_structure": "<HTML tự do — AI chọn layout phù hợp nhất từ các gợi ý trên hoặc sáng tạo riêng>",
       "animation_timeline": [
-        "0.2s: intro-title fade in",
-        "3.2s: intro-title fade out",
-        "4.0s: main content show"
+        "0.2s: logo + title appear",
+        "1.1s: main content reveal stagger"
       ]
     }}
   ],
@@ -790,6 +813,7 @@ CRITICAL: total_duration = tổng tất cả duration của các scenes
 CRITICAL: track_index của scenes là 1, 2, 3, ... (tăng dần)
 Return only raw JSON. Do not wrap in markdown code blocks."""
 
+
     user_prompt = f"""Tạo Production Blueprint JSON cho bài học sau:
 Session: {session_id}
 Lesson: {lesson_id} (Tiêu đề: {lesson_title})
@@ -797,10 +821,10 @@ Technology Stack: {tech_stack}
 Chi tiết bài học: {lesson_details}
 
 Nội dung bài học gốc (Master Content để bám sát):
-- Vấn đề đặt ra: {content.get('problem', '')}
+{f"- Bài đọc HTML: {content[:3500]}" if isinstance(content, str) else f"""- Vấn đề đặt ra: {content.get('problem', '')}
 - Giải pháp: {content.get('solution', '')}
 - Ví dụ/Code: {content.get('example', '')}
-- Tổng kết: {content.get('summary', '')}
+- Tổng kết: {content.get('summary', '')}"""}
 
 {feedback_context}
 Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
@@ -825,54 +849,25 @@ Trả về DUY NHẤT JSON thuần túy theo đúng cấu trúc yêu cầu."""
             # Validate required fields
             if "scenes" not in result_json or not result_json["scenes"]:
                 raise ValueError("Missing 'scenes' in blueprint JSON")
-            if "tts_scripts" not in result_json:
-                raise ValueError("Missing 'tts_scripts' in blueprint JSON")
+            # Auto-ensure tts_scripts and animation_timeline is populated for every scene
+            tts_map = result_json.get("tts_scripts", {})
+            for sc in result_json["scenes"]:
+                sc_id = sc.get("scene_id")
+                if sc_id and (sc_id not in tts_map or not tts_map[sc_id]):
+                    tts_map[sc_id] = sc.get("narration", "")
+                anim = sc.get("animation_timeline", [])
+                if not isinstance(anim, list) or len(anim) < 3:
+                    sc["animation_timeline"] = [
+                        "0.2s: intro-title fade in",
+                        "1.0s: main content show",
+                        "dur-0.8s: scene fade out"
+                    ]
+            result_json["tts_scripts"] = tts_map
             print(f"  [Video_Director_Agent] Blueprint generated: {len(result_json['scenes'])} scenes, duration {result_json.get('total_duration', 0)}s")
         except Exception as e:
             print(f"  [Video_Director_Agent] JSON parse failed: {e}. Using fallback blueprint.")
-            result_json = {
-                "lesson_slug": lesson_slug,
-                "lesson_title": lesson_title,
-                "total_duration": 60.0,
-                "scenes": [
-                    {
-                        "scene_id": "Scene_01",
-                        "scene_title": lesson_title,
-                        "start_at_root": 0,
-                        "duration": 30.0,
-                        "track_index": 1,
-                        "narration": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
-                        "visual_description": "Intro screen với tiêu đề bài học.",
-                        "html_structure": "intro-title, content area",
-                        "animation_timeline": [
-                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
-                            "0.2s: intro-title fade in",
-                            "3.2s: intro-title lên góc",
-                            "4.5s: content slide in"
-                        ]
-                    },
-                    {
-                        "scene_id": "Scene_02",
-                        "scene_title": "Kết luận",
-                        "start_at_root": 30.0,
-                        "duration": 30.0,
-                        "track_index": 2,
-                        "narration": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!",
-                        "visual_description": "Summary screen.",
-                        "html_structure": "summary card",
-                        "animation_timeline": [
-                            "0.0s: tl.set('.clip', {autoAlpha:1}, 0)",
-                            "0.2s: intro-title fade in",
-                            "3.2s: intro-title fade out",
-                            "30.0s: tl.set({}, {}, 30.0)"
-                        ]
-                    }
-                ],
-                "tts_scripts": {
-                    "Scene_01": f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Hôm nay chúng ta học về {lesson_title}.",
-                    "Scene_02": f"Cảm ơn các em đã theo dõi bài học {lesson_title}. Hẹn gặp lại trong bài học tiếp theo!"
-                }
-            }
+            details_text = lesson_details or lesson_title
+            result_json = _build_offline_fallback_blueprint(lesson_slug, lesson_title, details_text, tech_stack)
 
     # ── POST-VALIDATION: Kiểm tra chất lượng blueprint ────────────────────────
     result_json = _post_validate_blueprint(result_json, lesson_slug, lesson_title, lesson_details, tech_stack)
@@ -939,11 +934,11 @@ def _post_validate_blueprint(blueprint: dict, lesson_slug: str, lesson_title: st
         return _build_offline_fallback_blueprint(lesson_slug, lesson_title, lesson_details, tech_stack)
 
     # Recalculate start_at_root for consistency
-    cumulative = 9.24  # After intro video
+    cumulative = 0.0
     for scene in scenes:
         scene["start_at_root"] = round(cumulative, 2)
         cumulative += scene.get("duration", 30.0)
-    blueprint["total_duration"] = round(cumulative + 12.15, 2)  # + outro
+    blueprint["total_duration"] = round(cumulative, 2)
 
     print(f"  [Post-Validation] Blueprint PASSED quality check ✓")
     return blueprint
@@ -963,81 +958,92 @@ def _build_offline_fallback_blueprint(lesson_slug: str, lesson_title: str, lesso
     layouts = ["comparison", "code_editor", "terminal_cli", "process_flow", "pitfall_alert", "summary_recap"]
     scenes = []
     tts_scripts = {}
-    cumulative = 9.24
+    cumulative = 0.0
 
     # Scene 01: Intro
     intro_narration = (
-        f"Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. "
-        f"Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu chi tiết về {lesson_title}. "
-        f"Đây là một chủ đề cực kỳ quan trọng và thiết yếu trong {tech_stack}. "
+        f"Chào mừng các bạn đã quay trở lại với hệ thống Elearning của Rikkei Education. "
+        f"Trong bài học này, chúng ta sẽ cùng tìm hiểu về {lesson_title}. "
+        f"Đây là một chủ đề nền tảng cần nắm chắc trong quá trình làm việc với {tech_stack}. "
     )
     scenes.append({
         "scene_id": "Scene_01", "scene_title": f"Giới thiệu: {lesson_title}",
         "start_at_root": round(cumulative, 2), "duration": 35.0, "track_index": 1,
         "layout_type": "comparison",
+        "pacing_mode": "fast_hook",
         "narration": intro_narration,
+        "director_cues": "[stress: Rikkei Education] [zoom: intro-title] [pause: 0.5s]",
         "visual_description": f"Tổng quan mục tiêu bài học {lesson_title} và lộ trình nội dung.",
         "html_structure": "intro-title centered, badge công nghệ",
-        "animation_timeline": ["0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: content card xuất hiện"]
+        "animation_timeline": ["0.0s: tl.set('.clip', {autoAlpha:1}, 0)", "0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: content card xuất hiện"]
     })
     tts_scripts["Scene_01"] = intro_narration
     cumulative += 35.0
 
     # Scenes 02..N-1: Content scenes derived from lesson_details
-    for i, point in enumerate(detail_points[:5], start=2):
+    for i, point in enumerate(detail_points[:4], start=2):
         layout = layouts[min(i - 1, len(layouts) - 1)]
         narration = (
-            f"Tiếp theo, chúng ta sẽ tìm hiểu sâu hơn về: {point}. "
-            f"Đây là kiến thức nền tảng mà mỗi lập trình viên đều cần nắm vững khi làm việc với {tech_stack}. "
-            f"Hãy chú ý quan sát từng bước thực hiện trên màn hình và ghi nhớ những điểm mấu chốt quan trọng."
+            f"Tiếp theo, chúng ta sẽ phân tích sâu hơn về: {point}. "
+            f"Đây là kiến thức nền tảng cần nắm vững khi làm việc với {tech_stack}. "
+            f"Lưu ý quan trọng ở bước này là: hãy quan sát từng bước thực thi và ghi chú các điểm mấu chốt để áp dụng vào thực tế."
         )
         scene_id = f"Scene_{str(i).zfill(2)}"
         scenes.append({
             "scene_id": scene_id, "scene_title": point[:80],
             "start_at_root": round(cumulative, 2), "duration": 35.0, "track_index": i,
             "layout_type": layout,
+            "pacing_mode": "dense_code" if layout == "code_editor" else "normal",
             "narration": narration,
+            "director_cues": f"[stress: {point[:30]}] [zoom: content-card]",
             "visual_description": point,
             "html_structure": f"{layout} layout",
-            "animation_timeline": ["0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: content reveal"]
+            "animation_timeline": ["0.0s: tl.set('.clip', {autoAlpha:1}, 0)", "0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: content reveal"]
         })
         tts_scripts[scene_id] = narration
         cumulative += 35.0
 
-    # Đảm bảo tối thiểu 6 scenes
-    while len(scenes) < 5:
-        idx = len(scenes) + 1
-        scene_id = f"Scene_{str(idx).zfill(2)}"
-        narration = f"Chúng ta tiếp tục với một khía cạnh quan trọng khác của {lesson_title} trong {tech_stack}. Hãy quan sát và ghi nhớ các bước thực hiện."
-        scenes.append({
-            "scene_id": scene_id, "scene_title": f"Nội dung bổ sung {idx}",
-            "start_at_root": round(cumulative, 2), "duration": 30.0, "track_index": idx,
-            "layout_type": "code_editor",
-            "narration": narration,
-            "visual_description": f"Minh họa thêm về {lesson_title}.",
-            "html_structure": "code_editor layout",
-            "animation_timeline": ["0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: content reveal"]
-        })
-        tts_scripts[scene_id] = narration
-        cumulative += 30.0
+    # Scene Live-Debugging & Common Pitfall (BẮT BUỘC ÍT NHẤT 1 SCENE)
+    pitfall_idx = len(scenes) + 1
+    pitfall_id = f"Scene_{str(pitfall_idx).zfill(2)}"
+    pitfall_narration = (
+        f"Trong thực tế phát triển phần mềm với {tech_stack}, một số lỗi logic và ngoại lệ thường xuất hiện khi xử lý {lesson_title}. "
+        f"Hãy quan sát màn hình: khi không kiểm tra dữ liệu đầu vào đúng cách, ứng dụng sẽ phát sinh lỗi ngay lập tức. "
+        f"Để khắc phục, chúng ta cần bổ sung điều kiện kiểm tra dữ liệu và xử lý ngoại lệ theo đúng chuẩn sản xuất."
+    )
+    scenes.append({
+        "scene_id": pitfall_id, "scene_title": f"Bẫy Lỗi Thực Chiến & Debugging {lesson_title}",
+        "start_at_root": round(cumulative, 2), "duration": 40.0, "track_index": pitfall_idx,
+        "layout_type": "pitfall_alert",
+        "pacing_mode": "dense_code",
+        "narration": pitfall_narration,
+        "director_cues": "[stress: bẫy lỗi] [zoom: terminal-error] [pause: 1.0s]",
+        "visual_description": f"Phân tích lỗi thường gặp khi triển khai {lesson_title} và mã nguồn sửa lỗi chuẩn.",
+        "html_structure": "pitfall-alert card, error stack trace, fixed code snippet",
+        "animation_timeline": ["0.0s: tl.set('.clip', {autoAlpha:1}, 0)", "0.2s: intro-title fade in", "3.2s: error terminal popup", "8.0s: fix snippet reveal"]
+    })
+    tts_scripts[pitfall_id] = pitfall_narration
+    cumulative += 40.0
 
-    # Scene cuối: Summary
+    # Scene cuối: Summary & Next step
     last_idx = len(scenes) + 1
     last_id = f"Scene_{str(last_idx).zfill(2)}"
     summary_narration = (
-        f"Như vậy, chúng ta đã cùng nhau hoàn thành bài học về {lesson_title}. "
-        f"Hãy nhớ rằng những kiến thức này là nền tảng cực kỳ quan trọng cho các bài học tiếp theo trong khóa {tech_stack}. "
-        f"Các em hãy thực hành lại toàn bộ các bước trên máy cá nhân để củng cố kiến thức. "
-        f"Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!"
+        f"Như vậy, trong bài học này chúng ta đã cùng phân tích toàn bộ các khích thước cốt lõi của {lesson_title}. "
+        f"Kiến thức này đóng vai trò nền tảng cho các bài học tiếp theo trong khóa {tech_stack}. "
+        f"Để củng cố, hãy thực hành lại toàn bộ các bước trên máy cá nhân. "
+        f"Xin cảm ơn và hẹn gặp lại."
     )
     scenes.append({
         "scene_id": last_id, "scene_title": "Tổng Kết Bài Học",
         "start_at_root": round(cumulative, 2), "duration": 35.0, "track_index": last_idx,
         "layout_type": "summary_recap",
+        "pacing_mode": "recap_outro",
         "narration": summary_narration,
+        "director_cues": "[stress: Cảm ơn các em] [zoom: summary-card]",
         "visual_description": f"Tổng kết các điểm kiến thức trọng tâm của bài học {lesson_title}.",
         "html_structure": "summary-card, key-points list",
-        "animation_timeline": ["0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: summary card slide up"]
+        "animation_timeline": ["0.0s: tl.set('.clip', {autoAlpha:1}, 0)", "0.2s: intro-title fade in", "3.2s: intro-title lên góc", "4.5s: summary card slide up"]
     })
     tts_scripts[last_id] = summary_narration
     cumulative += 35.0
@@ -1797,7 +1803,10 @@ def convert_markdown_to_html(text: str) -> str:
             continue
             
         if in_mermaid:
-            output.append(line)
+            # Auto-sanitize mermaid syntax for v10+ compatibility!
+            # Quote unescaped special characters in edge labels |...|
+            sanitized_line = re.sub(r'\|([^"|\n]+?[\[\]\(\)\*\,:][^"|\n]*?)\|', r'|"\1"|', line)
+            output.append(sanitized_line)
             continue
             
         if in_code:
@@ -2460,6 +2469,13 @@ def clean_unwanted_text(text: str) -> str:
     text = re.sub(r"\[BEST\s+PRACTICE\]:?", "Thực hành tốt:", text, flags=re.IGNORECASE)
     text = re.sub(r"\[ANTI-PATTERN\]:?", "Mẫu nên tránh:", text, flags=re.IGNORECASE)
     text = re.sub(r"\[YÊU\s+CẦU\]:?", "Yêu cầu:", text, flags=re.IGNORECASE)
+    
+    # Strictly enforce NO ALL CAPS standard for labels and titles
+    text = re.sub(r"\bTIẾN TRÌNH LUỒNG CHẠY\b", "Tiến trình luồng chạy", text)
+    text = re.sub(r"\bTỐC ĐỘ THỰC THI\b", "Tốc độ thực thi", text)
+    text = re.sub(r"\bCODE TRACKER\b", "Code Tracker", text)
+    text = re.sub(r"\bNHẬT KÝ THUẬT TOÁN\b", "Nhật ký thuật toán", text)
+    text = re.sub(r"\bBẢNG SO SÁNH ĐẶC TÍNH KỸ THUẬT CHI TIẾT\b", "Bảng so sánh đặc tính kỹ thuật chi tiết", text)
     
     # Enforce horizontal centering on all SVGs, IMGs and media containers
     text = force_center_media(text)

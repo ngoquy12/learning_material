@@ -24,16 +24,7 @@ class UIComponentRenderer:
     to the centralized UIManager in `hyperframes/ui_manager.py`.
     """
 
-    COMPONENT_MAP = {
-        "code_editor":          "ide/vscode.html",
-        "terminal_cli":         "ide/terminal.html",
-        "comparison":           "cards/comparison.html",
-        "pitfall_alert":        "cards/warning_card.html",
-        "process_flow":         "cards/process_flow.html",
-        "architecture_diagram": "cards/architecture.html",
-        "summary_recap":        "cards/summary_recap.html",
-        "interactive_quiz":     "cards/qa_quiz.html",
-    }
+    COMPONENT_MAP = {}
 
     def __init__(self, components_root: Optional[Path] = None):
         if components_root is not None:

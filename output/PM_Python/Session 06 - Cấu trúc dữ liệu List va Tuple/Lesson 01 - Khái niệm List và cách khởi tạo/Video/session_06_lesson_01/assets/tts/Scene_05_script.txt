@@ -1,0 +1,1 @@
+Một cách khởi tạo khác rất mạnh mẽ khi các em cần chuyển đổi các cấu trúc dữ liệu như range, tuple hay string sang dạng danh sách đó là sử dụng hàm dựng list mở ngoặc đóng ngoặc. Ví dụ, gọi hàm list mở ngoặc range từ một đến sáu đóng ngoặc sẽ lập tức tạo ra một danh sách số nguyên từ một đến năm. Cú pháp này vô cùng hữu ích trong các giải thuật xử lý tập hợp dữ liệu động.

@@ -42,15 +42,16 @@ Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồ
 
 ---
 
-### 1.4. Loại bỏ Từ khóa Dư thừa & Chuẩn hóa Nhãn Thuần (Clean Pedagogical Labels):
-1. **TUYỆT ĐỐI CẤM DÙNG TỪ KHÓA W3SCHOOLS**: Không đưa từ "W3Schools" vào tiêu đề, nội dung hay bảng so sánh để tránh tạo cảm giác đi sao chép. Thay bằng các cụm từ chuẩn mực sư phạm doanh nghiệp.
-2. **TẠM TẠM BỎ CÁC TEXT BỌC TRONG NGOẶC VUÔNG `[...]`**:
-   - Thay `[NOTE]` -> `Lưu ý:`
-   - Thay `[WARNING]` -> `Cảnh báo:`
-   - Thay `[TIP]` -> `Mẹo:`
-   - Thay `[BEST PRACTICE]` -> `Thực hành tốt:`
-   - Thay `[ANTI-PATTERN]` -> `Mẫu nên tránh:`
-   - Thay `[YÊU CẦU]` -> `Yêu cầu:`
+### 1.5. 4 Quy Tắc Hệ Thống Bắt Buộc Cấp Độ Agent (4 System-Wide Agent Rules):
+1. **Độ tương phản Cao cho Code Tracker / Visualizer (Rule 1)**:
+   - Các dòng code được highlight (`.active`, `.active-line`, `.bg-yellow-200`, `.bg-amber-200`) **BẮT BUỘC** phải cài đặt màu chữ đen đậm `#0f172a !important` cho tất cả phần tử con bên trong. Tuyệt đối cấm để màu chữ trắng/xám chìm vào nền vàng nhạt.
+2. **100% Tiếng Việt Có Dấu Chuẩn Sản Xuất (Rule 2)**:
+   - Tất cả văn bản, tiêu đề, nhãn SVG diagram, comment trong mã nguồn Python/JS/Java/C++ và docstring **BẮT BUỘC** phải dùng Tiếng Việt có dấu đầy đủ và chuẩn xác. Cấm để lại các từ không dấu như `"Du Lieu Nguoi Dung"`, `"Hop le"`, `"Bao loi"`.
+3. **Đóng gói Kết quả Console Output Dạng Dark Terminal (Rule 3)**:
+   - **TUYỆT ĐỐI CẤM** xuất kết quả chạy Console / Terminal dưới dạng gạch đầu dòng thô `<li><code>...</code></li>`.
+   - **BẮT BUỘC** đóng gói kết quả Console vào Khung Mã Nguồn Console Terminal chuyên nghiệp (Dark Terminal Component) với phông `JetBrains Mono`, màu chữ xanh `#4ade80`, thanh Header `>_ Console Output` và trạng thái `● Executed Successfully`.
+4. **Cấm IN HOA TOÀN BỘ (Strict No ALL CAPS) (Rule 4)**:
+   - Tuyệt đối cấm sử dụng chữ IN HOA TOÀN BỘ trên tiêu đề, nhãn badge hay nút bấm (như `TIẾN TRÌNH`, `BẢNG SO SÁNH`, `TỔNG KẾT`). Bắt buộc dùng `Sentence case` (chỉ viết hoa chữ cái đầu hoặc từ chuyên môn/tên riêng).
 
 ---
 

@@ -1,0 +1,73 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Hệ quả nào sau đây trực tiếp dẫn đến hiện tượng dữ liệu bị mất đồng bộ trong hệ thống?",
+      "options": [
+        "Lập trình viên viết chú thích quá nhiều dòng không cần thiết.",
+        "Lập trình viên không định nghĩa hàm tái sử dụng và cập nhật thiếu hoặc bỏ sót các đoạn mã nguồn trùng lặp khi luật kinh doanh thay đổi.",
+        "Hệ thống tự động biên dịch lại toàn bộ mã nguồn mỗi khi chạy.",
+        "Kích thước tệp lớn dẫn đến bộ nhớ đệm của hệ điều hành bị quá tải."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Theo bài đọc, khi luật kinh doanh thay đổi, lập trình viên phải cập nhật thủ công từng vị trí trùng lặp. Nếu bỏ sót dù chỉ một vị trí, hệ thống sẽ rơi vào trạng thái mất đồng bộ dữ liệu."
+    },
+    {
+      "question": "Thuật ngữ chuyên ngành nào mô tả tình trạng tệp mã nguồn tăng nhanh kích thước, gây khó khăn cho việc đọc hiểu và phân tích cấu trúc tổng thể?",
+      "options": [
+        "Memory Leak",
+        "Code Bloat",
+        "Dead Code",
+        "Spaghetti Code"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Đọc kĩ định nghĩa trong bài đọc: 'Code Bloat (Phình to mã nguồn): Khiến kích thước tệp mã nguồn tăng lên nhanh chóng, gây khó khăn cho việc đọc hiểu và phân tích cấu trúc tổng thể.'"
+    },
+    {
+      "question": "Hành vi nào của lập trình viên là nguyên nhân gốc rễ dẫn đến sự xuất hiện của Code Bloat?",
+      "options": [
+        "Sử dụng các thư viện tích hợp sẵn của Python.",
+        "Viết các dòng mã nguồn quá ngắn gọn và súc tích.",
+        "Sao chép (copy-paste) cùng một đoạn logic mã nguồn đến hàng chục vị trí khác nhau thay vì tối ưu hóa bằng các phương pháp kiến trúc tái sử dụng.",
+        "Đặt tên biến và tên hàm quá dài dòng."
+      ],
+      "correct_option_index": 2,
+      "explanation": "Bài đọc chỉ ra rằng khi không áp dụng các phương pháp tối ưu hóa kiến trúc, lập trình viên có xu hướng sao chép (copy-paste) cùng một đoạn logic đến hàng chục vị trí khác nhau trong hệ thống, dẫn đến phình to mã nguồn."
+    },
+    {
+      "question": "Theo sơ đồ so sánh trực quan của bài học, cách tiếp cận mô-đun hóa với 'def' mang lại lợi ích gì so với tiếp cận không dùng hàm?",
+      "options": [
+        "Lưu trữ mã nguồn trực tiếp vào bộ nhớ tạm thời của trình duyệt.",
+        "Giúp thu gọn mã nguồn, định nghĩa logic xử lý một lần duy nhất để tái sử dụng ở nhiều nơi khác nhau thông qua lời gọi hàm.",
+        "Làm tăng số lượng tệp cần viết trong dự án.",
+        "Bắt buộc người dùng phải cài đặt thêm các thư viện bên thứ ba."
+      ],
+      "correct_option_index": 1,
+      "explanation": "Sơ đồ và bài đọc chỉ ra rằng cột 'Tái Sử Dụng Với def' mô-đun hóa logic xử lý vào một khối định nghĩa hàm thống nhất, giúp tránh lặp lại mã nguồn tại các tiến trình xử lý trung gian."
+    }
+  ],
+  "practical_lab": {
+    "title": "Xử Lý Sự Cố Nhân Bản Mã Nguồn Cho Logic Tính Thuế Bán Hàng",
+    "objectives": [
+      "Phát hiện và phân tích trạng thái bất ổn do lặp lại logic tính toán (Code Bloat).",
+      "Sử dụng kỹ thuật mô-đun hóa với từ khóa định nghĩa hàm (def) nhằm thu gom mã lặp.",
+      "Cập nhật luật kinh doanh tập trung tại một vị trí duy nhất và xác minh tính chính xác của chương trình."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Tạo một chương trình mô phỏng các hoạt động thanh toán hóa đơn tại cửa hàng ở 3 chi nhánh khác nhau. Cả 3 chi nhánh đều tự tính thuế bằng đoạn mã lặp: tax = price * 0.1 và total = price + tax.",
+        "Bước 2: Xác định khối logic trùng lặp và tiến hành định nghĩa một hàm dùng chung có tên là tinh_tien_sau_thue(price, tax_rate=0.1) bằng từ khóa def.",
+        "Bước 3: Thay thế mã nguồn tính toán trực tiếp ở 3 chi nhánh bằng cách gọi hàm tinh_tien_sau_thue().",
+        "Bước 4: Thực hành tăng mức thuế suất chung toàn hệ thống từ 0.1 (10%) lên 0.15 (15%) thông qua việc chỉ sửa đổi tham số mặc định hoặc mã xử lý bên trong hàm duy nhất vừa định nghĩa.",
+        "Bước 5: Chạy thử toàn bộ mã nguồn để chứng minh kết quả ở cả 3 chi nhánh tự động được đồng bộ mà không cần sửa đổi cục bộ tại 3 vị trí riêng lẻ."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Loại bỏ thành công các dòng mã nhân bản tính thuế (tax = price * 0.1) ra khỏi 3 khối xử lý chi nhánh riêng biệt.",
+        "Định nghĩa hàm thành công với từ khóa def, nhập đúng các đối số đầu vào (ví dụ: price) và có giá trị trả về (return value).",
+        "Chứng minh được tính dễ bảo trì bằng cách thay đổi luật thuế suất một lần duy nhất tại vị trí định nghĩa hàm mà vẫn cập nhật kết quả chính xác cho toàn bộ hệ thống."
+      ]
+    }
+  }
+}

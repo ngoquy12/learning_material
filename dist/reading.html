@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session 05 - Lesson 04: String formatting - Trực quan hóa & Tương tác Động</title>
+    <title>Session 08 - Lesson 02: Tham số và giá trị trả về - Trực quan hóa & Tương tác Động</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -798,7 +798,7 @@ sys.stderr = io.StringIO()
         <div class="max-w-[1600px] w-full mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <!-- Rikkei Logo -->
-                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" / style="display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;">
+                <img src="../../../../../resources/logo-main.png" alt="Rikkei Education Logo" class="h-9 w-auto object-contain" / style="display: block; margin-left: auto; margin-right: auto; text-align: center;">
             </div>
         </div>
     </div>
@@ -808,8 +808,8 @@ sys.stderr = io.StringIO()
         <div class="absolute -right-16 -top-16 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
         <div class="absolute -left-16 -bottom-16 w-64 h-64 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
         <div class="max-w-[1600px] w-full mx-auto relative z-10">
-            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 05</span>
-            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">String formatting</h2>
+            <span class="badge-banner inline-block px-3 py-0.5 bg-white text-[#be111c] rounded-full text-xs font-bold tracking-wider mb-3 border border-white/10">Session 08</span>
+            <h2 class="font-montserrat font-black text-2xl md:text-4xl tracking-tight leading-tight mb-2">Tham số và giá trị trả về</h2>
             <p class="max-w-2xl font-light text-xs md:text-sm border-l-2 border-white/30 pl-4" style="color: rgba(255, 255, 255, 0.9);">
                 Tài liệu học tập chuyên sâu. Trực quan hóa & Tương tác động.
             </p>
@@ -829,10 +829,10 @@ sys.stderr = io.StringIO()
                         <div class="panel-box">
                             <div class="canvas-header">
                                 <div class="canvas-title">
-                                    Minh họa Cơ chế Định dạng Chuỗi (String Formatting) trong Python
+                                    Mô Phỏng Tham Số & Giá Trị Trả Về (Packing *args, **kwargs)
                                 </div>
                                 <div class="legend-box">
-                                    <div class='flex gap-4 text-xs font-semibold'><div class='flex items-center gap-1'><span class='w-3 h-3 rounded-full bg-blue-500 inline-block'></span> Biến giá trị</div><div class='flex items-center gap-1'><span class='w-3 h-3 rounded-full bg-purple-500 inline-block'></span> Placeholder định dạng</div><div class='flex items-center gap-1'><span class='w-3 h-3 rounded-full bg-green-500 inline-block'></span> Kết quả đầu ra</div></div>
+                                    <div class='flex flex-wrap gap-2 text-xs'><span class='flex items-center gap-1'><span class='w-3 h-3 bg-blue-500 rounded-full inline-block'></span> Tham số Vị trí (Positional)</span><span class='flex items-center gap-1'><span class='w-3 h-3 bg-teal-500 rounded-full inline-block'></span> Tham số Mặc định (Default)</span><span class='flex items-center gap-1'><span class='w-3 h-3 bg-purple-500 rounded-full inline-block'></span> Gom nhóm Tuple (*args)</span><span class='flex items-center gap-1'><span class='w-3 h-3 bg-amber-500 rounded-full inline-block'></span> Gom nhóm Dict (**kwargs)</span></div>
                                 </div>
                             </div>
 
@@ -844,7 +844,7 @@ sys.stderr = io.StringIO()
                             <!-- Stepper / Execution Flow Panel -->
                             <div class="stepper-panel" id="stepper-panel" style="margin-top: 14px; background: var(--bg-canvas); border: 1.5px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;">
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                    <span class="input-label" style="font-size: 0.75rem;">TIẾN TRÌNH LUỒNG CHẠY</span>
+                                    <span class="input-label" style="font-size: 0.75rem;">Tiến trình luồng chạy</span>
                                     <span id="stepper-progress" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--primary);">Bước 0/0</span>
                                 </div>
                                 <div id="stepper-desc" style="font-size: 0.9rem; color: var(--text-main); font-weight: 500; min-height: 24px;">Sẵn sàng khởi chạy.</div>
@@ -873,17 +873,20 @@ sys.stderr = io.StringIO()
 
                                 <div class="inputs-row">
                                     <div class="input-group">
-                                        <span class="input-label">TỐC ĐỘ THỰC THI (<span id="speed-display">400</span>ms)</span>
+                                        <span class="input-label">Tốc độ thực thi (<span id="speed-display">400</span>ms)</span>
                                         <input type="range" id="slider-speed" min="100" max="1000" step="50" value="400" oninput="visualizerApp.setSpeed(this.value)">
                                     </div>
                                     <div class="input-group">
-                                        <span class="input-label">Thay đổi Dữ liệu Đầu vào (JSON)</span>
+                                        <span class="input-label">Cấu hình đầu vào (JSON format):</span>
                                         <div class="custom-input-box">
                                             <input type="text" id="custom-data-input" class="custom-input" value="{
-  &quot;product_name&quot;: &quot;Mini Laptop&quot;,
-  &quot;quantity&quot;: 5,
-  &quot;unit_price&quot;: 899.957,
-  &quot;discount_rate&quot;: 0.15
+  &quot;service_name&quot;: &quot;Grab Express&quot;,
+  &quot;base_rate&quot;: 20.0,
+  &quot;hubs&quot;: [&quot;Ha Noi&quot;, &quot;Da Nang&quot;, &quot;HCM City&quot;],
+  &quot;extra_charges&quot;: {
+    &quot;vat&quot;: 2.0,
+    &quot;express_fee&quot;: 5.5
+  }
 }" placeholder="Ví dụ: {'name': 'Rikkei'}, hoặc 1, 2, 3" onkeydown="if(event.key === 'Enter') { event.preventDefault(); visualizerApp.applyCustomData(); }">
                                             <button type="button" class="btn-apply" onclick="visualizerApp.applyCustomData()">Áp dụng</button>
                                         </div>
@@ -896,18 +899,18 @@ sys.stderr = io.StringIO()
                         <div class="right-column">
                             <!-- Real-time Stats -->
                             <div class="stats-panel">
-                                <div class='grid grid-cols-2 gap-4'><div class='bg-slate-100 p-2 rounded text-center'><div class='text-xs text-slate-500 font-semibold uppercase'>Method đang chạy</div><div id='stat-current-method' class='text-lg font-black text-blue-600'>Chưa chạy</div></div><div class='bg-slate-100 p-2 rounded text-center'><div class='text-xs text-slate-500 font-semibold uppercase'>Độ dài Chuỗi K.Quả</div><div id='stat-string-length' class='text-lg font-black text-green-600'>0 ký tự</div></div></div>
+                                <div class='grid grid-cols-2 md:grid-cols-4 gap-2 text-xs'><div class='bg-gray-100 p-2 rounded shadow-sm'><p class='text-gray-500 font-semibold'>Service Name</p><p id='stat-service' class='font-mono text-blue-600 font-bold'>-</p></div><div class='bg-gray-100 p-2 rounded shadow-sm'><p class='text-gray-500 font-semibold'>Base Rate</p><p id='stat-rate' class='font-mono text-teal-600 font-bold'>-</p></div><div class='bg-gray-100 p-2 rounded shadow-sm'><p class='text-gray-500 font-semibold'>Transit Hubs (*args)</p><p id='stat-hubs' class='font-mono text-purple-600 font-bold'>-</p></div><div class='bg-gray-100 p-2 rounded shadow-sm'><p class='text-gray-500 font-semibold'>Extra Charges (**kwargs)</p><p id='stat-charges' class='font-mono text-amber-600 font-bold'>-</p></div></div>
                             </div>
 
                             <!-- Live Code Tracker -->
                             <div class="code-tracker-panel">
                                 <div class="panel-top-bar">
-                                    <span>&lt;/&gt; CODE TRACKER (PYTHON/CORE)</span>
+                                    <span>&lt;/&gt; Code Tracker (PYTHON/CORE)</span>
                                     <span style="font-size: 0.75rem; color: #6ee7b7;">● Active Highlighting</span>
                                 </div>
                                 <div class="code-content">
                                     <pre><code id="code-tracker-box">
-<div class='code-line' id='line-0'># Khai báo thông tin sản phẩm và doanh thu thực tế</div><div class='code-line' id='line-1'>product_name = "Mini Laptop"</div><div class='code-line' id='line-2'>quantity = 5</div><div class='code-line' id='line-3'>unit_price = 899.957</div><div class='code-line' id='line-4'>discount_rate = 0.15</div><div class='code-line' id='line-5'># 1. Định dạng bằng phương pháp truyền thống % format</div><div class='code-line' id='line-6'>formatted_old = "Product: %s | Price: %.2f | Qty: %d" % (product_name, unit_price, quantity)</div><div class='code-line' id='line-7'>print(formatted_old)</div><div class='code-line' id='line-8'># 2. Định dạng bằng phương thức .format()</div><div class='code-line' id='line-9'>formatted_mid = "Product: {} | Total: {:.2f}".format(product_name, unit_price * quantity)</div><div class='code-line' id='line-10'>print(formatted_mid)</div><div class='code-line' id='line-11'># 3. Định dạng bằng f-string (Khuyên dùng)</div><div class='code-line' id='line-12'>net_total = unit_price * quantity * (1 - discount_rate)</div><div class='code-line' id='line-13'>formatted_new = f"Product: {product_name:&lt;15} | Discounted Total: ${net_total:,.2f}"</div><div class='code-line' id='line-14'>print(formatted_new)</div>
+<div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-1'><span style='color: #ff7b72; font-weight: bold;'>def</span> <span style='color: #d2a8ff;'>configure_shipping_service</span>(service_name, base_rate=<span style='color: #79c0ff;'>15.0</span>, *hubs, **extra_charges):</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200 italic' style='color: #8b949e;' id='line-2'>    """</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200 italic' style='color: #8b949e;' id='line-3'>    Xác định cấu hình và chi phí cho đối tác giao vận.</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200 italic' style='color: #8b949e;' id='line-4'>    """</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-5'>    report_summary = {</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-6'>        <span style='color: #7ee787;'>"service"</span>: service_name,</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-7'>        <span style='color: #7ee787;'>"base_cost"</span>: base_rate,</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-8'>        <span style='color: #7ee787;'>"transit_hubs"</span>: list(hubs),</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-9'>        <span style='color: #7ee787;'>"additional_fees"</span>: extra_charges</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-10'>    }</div><div class='code-line text-sm md:text-base font-mono p-1 rounded transition-colors duration-200' id='line-11'>    <span style='color: #ff7b72; font-weight: bold;'>return</span> report_summary</div>
                                     </code></pre>
                                 </div>
                             </div>
@@ -915,7 +918,7 @@ sys.stderr = io.StringIO()
                             <!-- Console Execution Log -->
                             <div class="console-log-panel">
                                 <div class="panel-top-bar" style="border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 8px;">
-                                    <span>&gt;_ NHẬT KÝ THUẬT TOÁN</span>
+                                    <span>&gt;_ Nhật ký thuật toán</span>
                                     <button type="button" onclick="visualizerApp.clearLog()" style="background: transparent; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">Xóa</button>
                                 </div>
                                 <div class="log-messages" id="log-messages">
@@ -933,40 +936,45 @@ sys.stderr = io.StringIO()
                     <div class="step">
                         <div class="badge">1</div>
                         <div class="step-body">
-                            <div class="step-loc">Thách Thức Trực Quan Hóa Dữ Liệu Và Tối Ưu Hiển Thị Chuỗi Trong Hệ Thống Báo Cáo Doanh Nghiệp</div>
+                            <div class="step-loc">Thử thách thiết kế giao diện hàm linh hoạt trong dự án phần mềm doanh nghiệp</div>
                             <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Bài toán thực tế tại doanh nghiệp</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Bối cảnh thực tế tại doanh nghiệp</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trong các hệ thống phần mềm doanh nghiệp như hệ thống xuất hóa đơn, quản lý kho hàng hoặc báo cáo tài chính, chương trình cần xử lý và hiển thị hàng ngàn dòng dữ liệu mỗi giây.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Dữ liệu thô từ cơ sở dữ liệu thường là các con số thô sơ, chưa được định dạng (ví dụ: số thực có quá nhiều chữ số thập phân, số tiền thiếu dấu phân tách hàng nghìn, hoặc các cột dữ liệu bị lệch lề khi in ra màn hình console).</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trong quá trình phát triển các hệ thống phần mềm quy mô lớn, các hàm nghiệp vụ trung tâm thường xuyên phải đối mặt với các yêu cầu thay đổi từ khách hàng và cấu trúc hạ tầng.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Một ví dụ thực tế là phát triển mô-đun gửi thông báo thông tin giao dịch khách hàng hỗ trợ đa kênh (Email, SMS, Slack) trong hệ thống ngân hàng trực tuyến.</li>
 </ul>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Hạn chế của phương pháp ghép chuỗi truyền thống</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Sự cố tắc nghẽn thiết kế</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sử dụng toán tử cộng chuỗi <code>+</code> để nối các biến và văn bản tĩnh gây ra gánh nặng lớn cho bộ nhớ do tính chất bất biến (<strong>immutability</strong>) của chuỗi trong Python. Mỗi phép cộng chuỗi sẽ tạo ra một đối tượng chuỗi hoàn toàn mới trong bộ nhớ RAM.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Code trở nên cực kỳ rối rắm, khó đọc và bảo trì khi có hàng chục biến cần ghép lại với nhau.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Không thể thực hiện các thao tác định dạng phức tạp như làm tròn số thập phân, căn lề văn bản, hoặc điền thêm các ký tự đệm trống.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Ban đầu, hàm gửi tin được thiết kế với hai tham số vị trí cố định là người nhận và nội dung tin nhắn.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Khi hệ thống mở rộng, phòng ban nghiệp vụ yêu cầu bổ sung cấu hình máy chủ gửi tin, đính kèm tệp tin tài liệu hoặc thêm các cài đặt riêng biệt cho từng kênh nhận tin khác nhau.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Nếu cố gắng sửa đổi chữ ký hàm bằng cách thêm các tham số vị trí mới, điều này sẽ trực tiếp gây đổ vỡ mã nguồn ở toàn bộ các mô-đun cũ đang hoạt động phụ thuộc vào phiên bản hàm trước đó.</li>
 </ul>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Triết lý thiết kế của Python</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Hạn chế của mô hình tham số tĩnh</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Guido van Rossum và cộng đồng thiết kế Python luôn hướng tới sự tường minh và dễ đọc của mã nguồn. Do đó, ngôn ngữ này đã tiến hóa qua nhiều thế hệ định dạng chuỗi nhằm giải quyết triệt để bài toán hiệu năng và thẩm mỹ của dữ liệu đầu ra.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Thiếu khả năng mở rộng quy mô khi số lượng tùy chọn cấu hình tăng lên theo thời gian.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Không thể lập chỉ mục rõ ràng cho định dạng dữ liệu truyền tải, dẫn đến việc lầm lẫn thứ tự giá trị truyền vào hàm.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tải trọng mã nguồn phình to do phải tạo ra nhiều biến thể hàm khác nhau để xử lý các loại tham số đầu vào.</li>
 </ul>
 </ul>
-<div style="text-align: center;">
-<svg viewBox="0 0 800 450" width="100%" height="auto" style="max-width: 600px; background-color: #1e1e1e; border-radius: 8px; font-family: sans-serif;; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;; display: block !important; margin-left: auto !important; margin-right: auto !important; text-align: center !important;">
-  <line x1="50" y1="50" x2="750" y2="50" stroke="#333" stroke-width="1"/>
-  <line x1="50" y1="400" x2="750" y2="400" stroke="#333" stroke-width="1"/>
-  <rect x="80" y="100" width="280" height="120" rx="6" fill="#4d1b1b" stroke="#f44336" stroke-width="2"/>
-  <text x="220" y="130" fill="#ff9999" font-size="14" font-weight="bold" text-anchor="middle">STRING CONCATENATION (+)</text>
-  <text x="220" y="160" fill="#fff" font-size="12" text-anchor="middle">"Total: " + str(price) + " USD"</text>
-  <text x="220" y="185" fill="#aaa" font-size="11" text-anchor="middle">Hiệu năng kém (Tạo nhiều object trung gian)</text>
-  <text x="220" y="205" fill="#aaa" font-size="11" text-anchor="middle">Không hỗ trợ định dạng số thập phân, căn lề</text>
-  <text x="400" y="225" fill="#e0e0e0" font-size="24" font-weight="bold" text-anchor="middle">VS</text>
-  <rect x="440" y="260" width="280" height="120" rx="6" fill="#1b4d24" stroke="#4caf50" stroke-width="2"/>
-  <text x="580" y="290" fill="#99ff99" font-size="14" font-weight="bold" text-anchor="middle">MODERN STRING FORMATTING</text>
-  <text x="580" y="320" fill="#fff" font-size="12" text-anchor="middle">f"Total: {price:.2f} USD"</text>
-  <text x="580" y="345" fill="#aaa" font-size="11" text-anchor="middle">Hiệu năng tối ưu (Được biên dịch trước)</text>
-  <text x="580" y="365" fill="#aaa" font-size="11" text-anchor="middle">Định dạng số và căn lề linh hoạt</text>
-</svg>
+<div align="center">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="100%" max-width="640" style="display: block; margin-left: auto; margin-right: auto; text-align: center; background-color: #1e1e1e; border-radius: 8px;">
+    <rect x="30" y="50" width="200" height="260" rx="10" fill="#2d2d2d" stroke="#4f46e5" stroke-width="2"/>
+    <text x="130" y="35" fill="#ffffff" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">Caller (Phạm vi Gọi)</text>
+    <text x="130" y="90" fill="#a5b4fc" font-family="Arial" font-size="12" text-anchor="middle">Fixed: user_id=101</text>
+    <text x="130" y="140" fill="#93c5fd" font-family="Arial" font-size="12" text-anchor="middle">Dynamic: "SMS", "Priority"</text>
+    <text x="130" y="190" fill="#c084fc" font-family="Arial" font-size="12" text-anchor="middle">Metadata: trace_id="TX99"</text>
+    <path d="M 250 180 L 370 180" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrow)" stroke-dasharray="5,5"/>
+    <rect x="390" y="50" width="220" height="260" rx="10" fill="#2d2d2d" stroke="#10b981" stroke-width="2"/>
+    <text x="500" y="35" fill="#ffffff" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle">Function (Khung Định Nghĩa)</text>
+    <text x="500" y="90" fill="#a5b4fc" font-family="Arial" font-size="12" text-anchor="middle">Positional &amp; Default Args</text>
+    <text x="500" y="140" fill="#93c5fd" font-family="Arial" font-size="12" text-anchor="middle">*args (Đóng gói Tuple)</text>
+    <text x="500" y="190" fill="#c084fc" font-family="Arial" font-size="12" text-anchor="middle"><em></em>kwargs (Đóng gói Dictionary)</text>
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8"/>
+      </marker>
+    </defs>
+  </svg>
 </div>
                         </div>
                     </div>
@@ -975,64 +983,21 @@ sys.stderr = io.StringIO()
                     <div class="step">
                         <div class="badge">2</div>
                         <div class="step-body">
-                            <div class="step-loc">Cơ Chế Nội Bộ Và Sự Tiến Hóa Của Các Phương Phương Định Dạng Chuỗi</div>
+                            <div class="step-loc">Cơ chế ánh xạ và bảng đối chiếu các kiểu đối số trong Python</div>
                             <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Các cơ chế định dạng chuỗi trong Python</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Bản chất cơ chế nạp tham số của Python</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cú pháp định dạng phần trăm (<code>% format</code>)</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trình biên dịch và máy ảo Python ánh xạ các tham số truyền vào hàm dựa trên hai cơ chế chính: định vị thứ tự vị trí (<strong>Positional</strong>) và chỉ định tên khóa (<strong>Keyword</strong>).</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Tham số mặc định (Default arguments)</strong> cho phép thiết lập trạng thái dự phòng tĩnh, tự động áp dụng giá trị mặc định được định trước nếu lời gọi hàm lược bỏ đối số tương ứng.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cơ chế đóng gói tự động (Unpacking và Packing)</strong>: Ký tự toán tử <code><em></code> đóng vai trò gom cụm các tham số vị trí dư thừa thành một cấu trúc dữ liệu <strong>tuple</strong> không thể sửa đổi. Trong khi đó, toán tử <code><strong></code> đóng vai trò thu thập các đối số dạng cặp khóa-giá trị dư thừa vào một cấu trúc </strong>dictionary</em>* để xử lý động.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Quy tắc phân cấp thứ tự nghiêm ngặt (Declaration Order)</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Đây là cơ chế nguyên thủy được kế thừa từ hàm <code>printf</code> của ngôn ngữ C.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cơ chế hoạt động: Trình biên dịch quét qua chuỗi tìm các ký tự đặc tả kiểu dữ liệu như <code>%s</code> (chuỗi), <code>%d</code> (số nguyên), <code>%f</code> (số thực) và thay thế tuần tự bằng các giá trị nằm trong bộ dữ liệu (tuple hoặc dictionary) đi kèm sau toán tử <code>%</code>.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Nhược điểm: Dễ gây lỗi runtime nếu kiểu dữ liệu truyền vào không khớp với mã định dạng hoặc số lượng biến truyền vào lệch so với số lượng ký tự đặc tả.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Máy ảo Python đòi hỏi các tham số không có giá trị mặc định phải đứng trước các tham số có giá trị mặc định.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Sau các tham số mặc định là tham số thu thập vị trí động <code><em>args</code>, tiếp nối theo sau là cấu trúc thu thập từ khóa động <code></em>*kwargs</code> ở vị trí cuối cùng.</li>
 </ul>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Phương thức <code>str.format()</code></strong>:</li>
-<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Ra mắt từ phiên bản Python 2.6 nhằm nâng cấp tính linh hoạt.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cơ chế hoạt động: Sử dụng các cặp ngoặc nhọn <code>{}</code> làm vị trí giữ chỗ (placeholders). Phương thức này tách biệt chuỗi mẫu và dữ liệu truyền vào. Dữ liệu có thể được ánh xạ theo vị trí chỉ mục số hoặc theo từ khóa tường minh.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Ưu điểm: Tái sử dụng được biến nhiều lần trong chuỗi mà không cần truyền lặp lại.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Bảng đối chiếu kỹ thuật các loại tham số trong Python</strong>:</li>
 </ul>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cú pháp định dạng trực tiếp (<code>f-string</code>)</strong>:</li>
-<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Giới thiệu từ Python 3.6 và nhanh chóng trở thành tiêu chuẩn vàng nhờ hiệu năng vượt trội.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cơ chế hoạt động: Khi trình thông dịch chạy qua chuỗi có tiền tố <code>f</code> hoặc <code>F</code>, nó không coi đây là một chuỗi tĩnh mà chuyển đổi chuỗi này thành một loạt các biểu thức thực thi trực tiếp tại runtime.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Ưu điểm: Tốc độ xử lý cực nhanh do được tối ưu hóa trực tiếp trong máy ảo Python (CPython bytecode) và cho phép viết các biểu thức toán học hoặc gọi hàm trực tiếp trong cặp ngoặc nhọn <code>{}</code>.</li>
-</ul>
-</ul>
-</ul>
-
-    <div style="margin: 20px 0; overflow-x: auto;">
-        <table class="comparison-table" style="width:100%; border-collapse:collapse; margin:16px 0; font-size:0.9rem; border:1px solid var(--border-color); border-radius:8px; overflow:hidden;">
-            <thead>
-                <tr style="background-color: #be111c; color: white;">
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Tiêu chí So sánh Kỹ thuật</th>
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">String formatting (PYTHON/CORE)</th>
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Giải pháp / Ngôn ngữ truyền thống (C/C++/Java)</th>
-                    <th style="padding:12px 16px; text-align:left; border:1px solid rgba(255,255,255,0.15);">Đánh giá bối cảnh Doanh nghiệp</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cơ chế Thực thi</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Thông dịch / Runtime linh hoạt (Bytecode/PVM)</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Biên dịch trước toàn bộ (AOT / Native Code)</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu hóa tốc độ phát triển (Time-to-Market)</td>
-                </tr>
-                <tr style="background-color: var(--bg-hover);">
-                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Cú pháp & Cấu trúc</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối giản, định kiểu động, lùi dòng làm khối lệnh</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tường minh, khai báo kiểu tĩnh, ngoặc nhọn</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Dễ đọc, dễ bảo trì và nhanh chóng thử nghiệm MVP</td>
-                </tr>
-                <tr>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color); font-weight:600;">Hiệu năng & Tài nguyên</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Overhead kiểm tra kiểu lúc runtime, quản lý bộ nhớ tự động</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Tối ưu phần cứng, kiểm tra kiểu lúc compile-time</td>
-                    <td style="padding:10px 16px; border:1px solid var(--border-color);">Đánh đổi nhẹ hiệu năng lấy năng suất kỹ sư phần mềm</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    
                         </div>
                     </div>
 
@@ -1040,32 +1005,35 @@ sys.stderr = io.StringIO()
                     <div class="step">
                         <div class="badge">3</div>
                         <div class="step-body">
-                            <div class="step-loc">Giải Pháp Kỹ Thuật Và Cú Pháp Thực Thi Định Dạng Chuỗi Chuẩn PEP 8</div>
+                            <div class="step-loc">Phương pháp triển khai cú pháp chuẩn và sơ đồ điều phối tham số</div>
                             <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Quy trình triển khai định dạng chuỗi tối ưu</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Quy trình triển khai thiết kế hàm chuẩn công nghiệp</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 1: Xác định cấu trúc dữ liệu đầu ra và các yêu cầu định dạng đi kèm (Ví dụ: làm tròn số thực, căn lề cột hiển thị).</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 2: Thiết lập chuỗi mẫu sử dụng f-string đối với các phiên bản Python hiện đại để tối ưu hiệu năng.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 3: Áp dụng các cú pháp bổ trợ bên trong dấu ngoặc nhọn <code>{variable:format_specifier}</code>:</li>
-<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><code>:.2f</code> để làm tròn số thực lấy đúng 2 chữ số thập phân.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><code>:>10</code> để căn lề phải với độ rộng cố định là 10 ký tự.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><code>:<10</code> để căn lề trái với độ rộng cố định là 10 ký tự.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><code>:,</code> để tự động thêm dấu phẩy phân tách hàng nghìn cho số lớn.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 1: Liệt kê các tham số bắt buộc để đặt ở vị trí tiên quyết trong chữ ký định nghĩa hàm.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 2: Bố trí các cấu hình phụ trợ có giá trị khởi tạo phổ biến bằng cách sử dụng tham số mặc định.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 3: Đặt biến đại diện thu thập danh sách không cố định <code>*args</code> ngay sau nhóm tham số gốc.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 4: Xếp biến nhận cấu hình động <code><em></em>kwargs</code> tại vị trí cuối cùng để thu thập thuộc tính mở rộng.</li>
 </ul>
-</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Sơ đồ phân giải luồng tham số của trình thông dịch Python</strong>:</li>
 </ul>
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;"><div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
-    A[Bắt đầu: Nhận dữ liệu thô] --> B{Lựa chọn phương pháp}
-    B -->|C-style %| C[Thay thế %s, %d theo kiểu tuple]
-    B -->|str.format| D[Ánh xạ qua {} bằng position hoặc keyword]
-    B -->|f-string| E[Đánh giá biểu thức trực tiếp trong {} tại Runtime]
-    C --> F[Áp dụng định dạng specifier: .2f, 10s...]
-    D --> F
+    A[Bắt đầu gọi hàm] --> B{Có tham số vị trí bắt buộc?}
+    B -- Có --> C[Ánh xạ tuần tự theo vị trí khai báo]
+    B -- Không --> D{Có đối số gán nhãn khóa?}
+    C --> D
+    D -- Có --> E[Ánh xạ khớp theo tên của thuộc tính]
+    D -- Không --> F{Thiếu tham số mặc định?}
     E --> F
-    F --> G[Tạo chuỗi kết quả hoàn chỉnh]
-    G --> H[Đưa ra màn hình Console / Ghi file]
+    F -- Có --> G[Tự động gán giá trị mặc định thiết lập trước]
+    F -- Không --> H{Còn đối số vị trí dư thừa?}
+    G --> H
+    H -- Có --> I[Thu gom các đối số dư thừa vào Tuple *args]
+    H -- Không --> J{Còn đối số dạng khóa dư thừa?}
+    I --> J
+    J -- Có --> K[Thu gom các đối khóa dư thừa vào Dict **kwargs]
+    J -- Không --> L[Thực thi Thân Hàm và Trả về kết quả]
+    K --> L
 </div></div>
                         </div>
                     </div>
@@ -1089,50 +1057,44 @@ flowchart TD
                     <button class="copy-btn" onclick="copyCode(this, 'code-snippet-1')">Sao chép</button>
                 </div>
                 <div class="code-body">
-                    <pre><code class="language-python" id="code-snippet-1"># Khai báo thông tin sản phẩm và doanh thu thực tế
-product_name = &quot;Mini Laptop&quot;
-quantity = 5
-unit_price = 899.957
-discount_rate = 0.15
-
-# 1. Định dạng bằng phương pháp truyền thống % format
-print(&quot;--- METHOD 1: Percent Format ---&quot;)
-formatted_old = &quot;Product: %s | Price: %.2f | Qty: %d&quot; % (product_name, unit_price, quantity)
-print(formatted_old)
-
-# 2. Định dạng bằng phương thức .format()
-print(&quot;\n--- METHOD 2: str.format() ---&quot;)
-formatted_mid = &quot;Product: {} | Total: {:.2f}&quot;.format(product_name, unit_price * quantity)
-print(formatted_mid)
-
-# 3. Định dạng bằng f-string (Khuyên dùng)
-print(&quot;\n--- METHOD 3: f-string ---&quot;)
-net_total = unit_price * quantity * (1 - discount_rate)
-formatted_new = f&quot;Product: {product_name:&lt;15} | Discounted Total: ${net_total:,.2f}&quot;
-print(formatted_new)</code></pre>
+                    <pre><code class="language-python" id="code-snippet-1">def configure_shipping_service(service_name, base_rate=15.0, *hubs, **extra_charges):
+    &quot;&quot;&quot;
+    Xac dinh cau hinh va chi phi cho he thong doi tac giao van shipping.
+    &quot;&quot;&quot;
+    report_summary = {
+        &quot;service&quot;: service_name,
+        &quot;base_cost&quot;: base_rate,
+        &quot;transit_hubs&quot;: list(hubs),
+        &quot;additional_fees&quot;: extra_charges
+    }
+    return report_summary</code></pre>
                 </div>
             </div>
         </details>
         
                             <div style="margin-top: 16px;">
                                 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Phân tích luồng thực thi hệ thống</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Kịch bản thực thi tích hợp hệ thống</strong>:</li>
 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 1: Định nghĩa các biến dữ liệu thô bao gồm tên sản phẩm, số lượng, đơn giá và phần trăm chiết khấu.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 2: Thực thi Method 1 (<code>% format</code>). Trình biên dịch phân tích <code>%s</code>, <code>%d</code>, <code>%.2f</code> rồi lấy dữ liệu trong tuple thay thế tuần tự vào chuỗi.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 3: Thực thi Method 2 (<code>str.format()</code>). Trình thông dịch khởi tạo chuỗi và gọi hàm <code>.format()</code>, gán giá trị lấy được từ việc nhân số lượng với đơn giá vào trong dấu <code>{:.2f}</code> để làm tròn thành <code>4499.78</code>.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 4: Thực thi Method 3 (<code>f-string</code>). Python tính toán biểu thức phép nhân và phép trừ chiết khấu trực tiếp tại thời điểm runtime, sau đó áp dụng định dạng <code>:,f</code> để bổ sung dấu phẩy phân tách nghìn và làm tròn 2 chữ số.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Bước 5: In toàn bộ kết quả ra màn hình console.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Chúng ta thực hiện gọi hàm <code>configure_shipping_service("Express", 25.5, "Hub A", "Hub B", tax_rate=0.1, fuel_surcharge=5.0)</code>.</li>
 </ul>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Console Output của chương trình</strong>:</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Phân đoạn phân tích luồng chạy thực tế</strong>:</li>
+<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Trình phân giải Python tiếp nhận chuỗi đối số và ánh xạ <code>"Express"</code> vào giá trị định vị <code>service_name</code> của tham số bắt buộc.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Đối số <code>25.5</code> ghi đè lên giá trị mặc định của tham số <code>base_rate</code> (từ <code>15.0</code> ban đầu thành <code>25.5</code>).</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Các giá trị vị trí tiếp theo gồm <code>"Hub A"</code> và <code>"Hub B"</code> không tìm thấy tham số đón nhận tương ứng, do đó được gom hoàn toàn vào tuple <code>hubs</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Hai cặp thuộc tính <code>tax_rate=0.1</code> và <code>fuel_surcharge=5.0</code> được kết xuất thành kiểu từ khóa động và chuyển vào dictionary <code>extra_charges</code>.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Hàm lắp ráp từ điển cấu hình và sử dụng câu lệnh <code>return</code> chuyển dữ liệu tổng hợp về lại phạm vi ngoài luồng chạy.</li>
+</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Kết quả xuất ra màn hình console</strong>:</li>
 </ul>
 <div class="code-container" style="border: 1px solid #334155; border-radius: 8px; margin: 20px 0; overflow: hidden; background: #0f172a; box-shadow: 0 4px 12px rgba(0,0,0,0.15);"><div class="code-header" style="background: #1e293b; color: #94a3b8; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155;"><span class="code-title" style="font-weight: 600; font-size: 0.88rem; color: #38bdf8; display: flex; align-items: center; gap: 6px;"><i class="ph-duotone ph-code" style="font-size: 1.1rem;"></i> TEXT Snippet</span><button type="button" onclick="copyCode(this)" style="background: #334155; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 0.75rem;">Sao chép mã</button></div><div class="code-body" style="padding: 15px; overflow-x: auto;"><pre><code class="language-text">
-  --- METHOD 1: Percent Format ---
-  Product: Mini Laptop | Price: 899.96 | Qty: 5
-  --- METHOD 2: str.format() ---
-  Product: Mini Laptop | Total: 4499.79
-  --- METHOD 3: f-string ---
-  Product: Mini Laptop    | Discounted Total: $3,824.82
+  {
+      'service': 'Express',
+      'base_cost': 25.5,
+      'transit_hubs': ['Hub A', 'Hub B'],
+      'additional_fees': {'tax_rate': 0.1, 'fuel_surcharge': 5.0}
+  }
 </code></pre></div></div>
                             </div>
                         </div>
@@ -1146,28 +1108,28 @@ print(formatted_new)</code></pre>
                             <div class="selftest-container" style="margin-top: 12px;">
         <div class="selftest-item">
             <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
-                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 1: Tại sao việc sử dụng toán tử cộng &#x27;+&#x27; để nối dữ liệu chuỗi trong Python lại gây ra gánh nặng lớn cho bộ nhớ RAM?
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 1: Tại sao việc trực tiếp thêm các tham số vị trí mới vào một hàm nghiệp vụ cũ trong hệ thống ngân hàng trực tuyến lại gây ra sự cố đổ vỡ mã nguồn toàn cục?
             </div>
             <div class="selftest-answer">
-                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Do tính chất bất biến (immutability) của chuỗi trong Python. Mỗi khi thực hiện phép cộng chuỗi, Python không thay đổi trực tiếp trên chuỗi hiện tại mà tạo ra một đối tượng chuỗi hoàn toàn mới trong bộ nhớ để lưu trữ kết quả tạm thời, làm tiêu hao tài nguyên RAM khi xử lý lượng lớn bản ghi doanh nghiệp.</p>
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Bởi vì tất cả các mô-đun cũ đang hoạt động phụ thuộc vào phiên bản hàm trước đó vẫn gọi hàm với số lượng tham số vị trí cũ. Khi ta thêm tham số vị trí mới mà không có giá trị mặc định, trình biên dịch hoặc môi trường thực thi sẽ báo lỗi không khớp số lượng tham số đầu vào (TypeError/Signature mismatch), làm dừng hoạt động của các hệ thống vệ tinh.</p>
             </div>
         </div>
         
         <div class="selftest-item">
             <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
-                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 2: Các hạn chế về định dạng dữ liệu đầu ra của phương pháp ghép chuỗi truyền thống là gì?
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 2: Mô hình tham số tĩnh (static parameters) có những hạn chế lớn nào khi doanh nghiệp liên tục mở rộng tùy chọn cấu hình hệ thống?
             </div>
             <div class="selftest-answer">
-                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Phương pháp ghép chuỗi truyền thống không hỗ trợ trực tiếp các thao tác định dạng dữ liệu phức tạp cần thiết cho báo cáo doanh nghiệp như: làm tròn chữ số thập phân, phân tách hàng nghìn cho số tiền, căn lề thẳng hàng các cột dữ liệu hoặc điền thêm các ký tự đệm trống.</p>
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Mô hình tham số tĩnh không có khả năng mở rộng quy mô khi các yêu cầu cấu hình tăng lên. Nó cũng không thể lập chỉ mục rõ ràng cho cấu trúc dữ liệu truyền tải tạo ra sự lầm lẫn thứ tự giá trị truyền vào hàm. Đồng thời, tải trọng mã nguồn phình to do phải tạo ra nhiều biến thể hàm khác nhau để xử lý các tham số khác nhau.</p>
             </div>
         </div>
         
         <div class="selftest-item">
             <div class="selftest-question" onclick="this.parentElement.classList.toggle('active')">
-                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 3: Triết lý thiết kế của Guido van Rossum và cộng đồng Python đã định hướng sự tiến hóa của các phương pháp định dạng chuỗi như thế nào?
+                <i class="ph-duotone ph-caret-right" style="margin-right: 6px;"></i> Câu 3: Trong bối cảnh bài toán được nêu, khi chuyển sang thiết kế giao diện hàm linh hoạt, cấu trúc dữ liệu nào thường được sử dụng ở phía định nghĩa hàm để gom các tham số không cố định?
             </div>
             <div class="selftest-answer">
-                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Triết lý thiết kế hướng tới sự tường minh và dễ đọc của mã nguồn. Do đó, Python tiến hóa qua nhiều thế hệ định dạng chuỗi nhằm giải quyết đồng thời hai nhu cầu: tối ưu hóa hiệu năng xử lý của bộ nhớ RAM và nâng cao tính thẩm mỹ, độ căn chỉnh chính xác của dữ liệu đầu ra.</p>
+                <p style="text-align: justify; margin-bottom: 15px; line-height: 1.6;">Theo sơ đồ thiết kế giao diện hàm linh hoạt, các tham số dynamic được đóng gói vào các cấu trúc dữ liệu linh hoạt (như bộ giá trị Tuple qua từ khóa *args hoặc các tham số mặc định/cấu hình nâng cao) để đảm bảo hàm nhận được đầy đủ dữ liệu mà không làm thay đổi bắt buộc đối với signature cũ của hàm.</p>
             </div>
         </div>
         </div>
@@ -1183,13 +1145,13 @@ print(formatted_new)</code></pre>
                             <ul style="list-style-type: none; padding-left: 0; margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
         
                                 <li>
-                                    <a href="https://docs.python.org/3/reference/lexical_analysis.html#f-strings" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Documentation - Formatted String Literals
+                                    <a href="https://docs.python.org/3/tutorial/controlflow.html#defining-functions" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python Documentation - Defining Functions and Arguments
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="https://peps.python.org/pep-0498/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Python PEP 498 - Literal String Interpolation
+                                    <a href="https://github.com/trekhleb/javascript-clean-code#functions" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        <i class="ph-duotone ph-link" style="font-size: 1.1em;"></i> Clean Code - Function Arguments Design Patterns
                                     </a>
                                 </li>
                             </ul>
@@ -1204,15 +1166,10 @@ print(formatted_new)</code></pre>
                             <div class="step-loc" style="color: var(--clay); font-weight: 700;">LƯU Ý QUAN TRỌNG <span class="range"></span></div>
                             <div class="box warning-box" style="margin-top: 14px; font-size: 0.95rem; line-height: 1.75;">
                                 <ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: disc;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Tổng kết các phương pháp: Đối với mọi dự án triển khai bằng Python 3.6 trở lên, <strong>f-string</strong> luôn là lựa chọn hàng đầu nhờ tính trực quan và hiệu năng vượt trội so với <code>% format</code> và <code>.format()</code>.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cần ghi nhớ cú pháp làm tròn số thực <code>:.Nf</code> (trong đó N là số lượng số thập phân muốn giữ lại) để đảm bảo các báo cáo đơn giá không bị sai lệch hiển thị ngoại quan.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;">Cảnh báo các sai lầm runtime thường gặp:</li>
-<ul style="margin-left: 20px; margin-bottom: 10px; list-style-type: circle;">
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>TypeError</strong>: Xảy ra khi dùng <code>% format</code> mà kiểu dữ liệu truyền vào không khớp (ví dụ truyền chuỗi chữ vào <code>%d</code>) hoặc do quên bọc các biến vào cặp ngoặc tuple khi có từ 2 biến trở lên.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>ValueError</strong>: Xảy ra khi sử dụng đặc tả định dạng không hợp lệ, ví dụ đặt cấu hình định dạng số định dạng float <code>:f</code> cho dữ liệu đầu vào vốn dĩ là một chuỗi chữ.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>IndexError</strong>: Xảy ra khi áp dụng <code>.format()</code> theo chỉ mục index dạng <code>{2}</code> nhưng tham số truyền vào hàm <code>.format()</code> chỉ có 1 phần tử.</li>
-<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>KeyError</strong>: Xảy ra khi truyền định dạng khóa <code>{key}</code> trong <code>.format()</code> nhưng không chỉ rõ giá trị tương ứng của từ khóa đó trong đối số truyền vào.</li>
-</ul>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Sự khác biệt cốt lõi</strong>: Khác biệt sâu sắc giữa tham số vị trí biểu thị việc định hình cơ cấu tĩnh và các cấu trúc biến động động <code><em>args</code> và <code></em>*kwargs</code> phục vụ tính toàn diện kiến trúc.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cảnh báo lỗi nghiêm trọng SyntaxError</strong>: Trình biên dịch ném ra biệt lệ khi sắp đặt tham số mặc định đứng trước tham số bắt buộc.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cảnh báo bẫy ngầm runtime Unintended State Sharing</strong>: Sự cố xảy ra khi sử dụng danh sách trống hoặc đối tượng có thể thay đổi để làm tham số mặc định khiến dữ liệu bị nhiễm béo chéo giữa các phiên làm việc.</li>
+<li style="margin-bottom: 6px; text-align: justify; padding-left: 5px;"><strong>Cảnh báo lỗi nghiêm trọng TypeError</strong>: Xảy ra khi cố tình truyền trùng lặp giá trị đối số vừa theo vị trí vừa theo từ khóa cho cùng một biến đích định hình trong danh mục cấu trúc hàm.</li>
 </ul>
                             </div>
                         </div>
@@ -1228,319 +1185,335 @@ print(formatted_new)</code></pre>
     <script>
         
         class InteractiveVisualizerEngine {
-    constructor() {
-        this.canvasId = 'canvas-container';
-        this.inputData = {
-            product_name: "Mini Laptop",
-            quantity: 5,
-            unit_price: 899.957,
-            discount_rate: 0.15
-        };
-        this.currentStep = 0;
-        this.isPlaying = false;
-        this.speed = 1000;
-        this.interval = null;
-        this.steps = [];
-        this.terminalOutput = [];
+  constructor() {
+    this.canvasId = 'visualizer-canvas';
+    this.logsId = document.getElementById('console-output') ? 'console-output' : (document.getElementById('log-messages') ? 'log-messages' : 'visualizer-logs');
+    this.speed = 1000;
+    this.stepIndex = 0;
+    this.isRunning = false;
+    this.timer = null;
+    this.data = null;
+    this.steps = [];
+  }
+
+  formatPython(obj) {
+    if (obj === null || obj === undefined) return 'None';
+    if (obj === true) return 'True';
+    if (obj === false) return 'False';
+    if (typeof obj === 'string') return `'${obj}'`;
+    if (typeof obj === 'number') return String(obj);
+    if (Array.isArray(obj)) {
+      return '[' + obj.map(x => this.formatPython(x)).join(', ') + ']';
+    }
+    if (typeof obj === 'object') {
+      const entries = Object.entries(obj).map(([k, v]) => `'${k}': ${this.formatPython(v)}`);
+      return '{' + entries.join(', ') + '}';
+    }
+    return String(obj);
+  }
+
+  init() {
+    this.log('Visualizer Engine initialized.');
+    this.applyCustomData();
+  }
+
+  applyCustomData() {
+    const inputEl = document.getElementById('custom-data-input') || document.getElementById('custom-input');
+    if (!inputEl) return;
+    const val = inputEl.value;
+    try {
+      const parsed = JSON.parse(val);
+      if (!parsed.service_name) {
+        throw new Error('Thiếu trường service_name!');
+      }
+      this.data = {
+        service_name: parsed.service_name,
+        base_rate: parsed.base_rate !== undefined ? parsed.base_rate : 15.0,
+        hubs: Array.isArray(parsed.hubs) ? parsed.hubs : [],
+        extra_charges: parsed.extra_charges || {}
+      };
+      this.log('Dữ liệu tùy chỉnh hợp lệ đã được áp dụng.');
+      this.reset();
+    } catch(e) {
+      this.log('Lỗi phân tích cú pháp JSON: ' + e.message + '. Sử dụng dữ liệu mặc định.');
+      this.data = {
+        service_name: 'Grab Express',
+        base_rate: 20.0,
+        hubs: ['Ha Noi', 'Da Nang', 'HCM City'],
+        extra_charges: { vat: 2.0, express_fee: 5.5 }
+      };
+      this.reset();
+    }
+  }
+
+  buildSteps() {
+    this.steps = [
+      {
+        line: 1,
+        desc: 'Bắt đầu gọi hàm configure_shipping_service với các tham số truyền vào.',
+        state: { service_name: '-', base_rate: '-', hubs: '()', extra_charges: '{}' },
+        visual: 'init'
+      },
+      {
+        line: 1,
+        desc: 'Truyền giá trị cho tham số. Đóng gói các hub dư thừa thành Tuple (*hubs) và phụ phí thành Dict (**extra_charges).',
+        state: {
+          service_name: this.data.service_name,
+          base_rate: this.data.base_rate,
+          hubs: '(' + this.data.hubs.map(h => `"${h}"`).join(', ') + ')',
+          extra_charges: JSON.stringify(this.data.extra_charges)
+        },
+        visual: 'bound'
+      },
+      {
+        line: 5,
+        desc: 'Khởi tạo dictionary report_summary để lưu trữ thông tin trực quan hóa tổng kết.',
+        state: {
+          service_name: this.data.service_name,
+          base_rate: this.data.base_rate,
+          hubs: '(' + this.data.hubs.map(h => `"${h}"`).join(', ') + ')',
+          extra_charges: JSON.stringify(this.data.extra_charges)
+        },
+        visual: 'creating_dict'
+      },
+      {
+        line: 11,
+        desc: 'Trả về giá trị report_summary và kết thúc phiên chạy của stack frame.',
+        state: {
+          service_name: this.data.service_name,
+          base_rate: this.data.base_rate,
+          hubs: '(' + this.data.hubs.map(h => `"${h}"`).join(', ') + ')',
+          extra_charges: JSON.stringify(this.data.extra_charges),
+          returned: {
+            service: this.data.service_name,
+            base_cost: this.data.base_rate,
+            transit_hubs: this.data.hubs,
+            additional_fees: this.data.extra_charges
+          }
+        },
+        visual: 'returning'
+      },
+      {
+        line: null,
+        desc: 'Hàm đã trả về kết quả thành công!',
+        state: {
+          service_name: this.data.service_name,
+          base_rate: this.data.base_rate,
+          hubs: '(' + this.data.hubs.map(h => `"${h}"`).join(', ') + ')',
+          extra_charges: JSON.stringify(this.data.extra_charges),
+          returned: {
+            service: this.data.service_name,
+            base_cost: this.data.base_rate,
+            transit_hubs: this.data.hubs,
+            additional_fees: this.data.extra_charges
+          }
+        },
+        visual: 'done'
+      }
+    ];
+  }
+
+  start() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    this.log('Simulation started.');
+    this.run();
+  }
+
+  run() {
+    if (!this.isRunning) return;
+    if (this.stepIndex >= this.steps.length) {
+      this.pause();
+      return;
+    }
+    this.step();
+    this.timer = setTimeout(() => this.run(), this.speed);
+  }
+
+  pause() {
+    this.isRunning = false;
+    if (this.timer) clearTimeout(this.timer);
+    this.log('Simulation paused.');
+  }
+
+  step() {
+    if (this.stepIndex >= this.steps.length) {
+      this.stepIndex = 0;
+    }
+    this.render();
+    this.stepIndex++;
+  }
+
+  reset() {
+    this.pause();
+    this.stepIndex = 0;
+    this.buildSteps();
+    this.render();
+    this.log('Visualizer reset to initial state.');
+  }
+
+  setSpeed(val) {
+    this.speed = parseInt(val);
+    this.log('Speed set to ' + this.speed + 'ms');
+  }
+
+  log(msg) {
+    const logsDiv = document.getElementById(this.logsId);
+    if (logsDiv) {
+      const p = document.createElement('p');
+      p.className = 'text-xs border-b border-gray-100 py-1 font-mono';
+      p.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logsDiv.appendChild(p);
+      logsDiv.scrollTop = logsDiv.scrollHeight;
+    }
+  }
+
+  highlightLines(lineId) {
+    document.querySelectorAll('.code-line').forEach(line => {
+      line.classList.remove('bg-sky-950/60', 'border-l-4', 'border-sky-400', 'text-white');
+    });
+    if (lineId) {
+      const activeLine = document.getElementById('line-' + lineId);
+      if (activeLine) {
+        activeLine.classList.add('bg-sky-950/60', 'border-l-4', 'border-sky-400', 'text-white');
+      }
+    }
+  }
+
+  render() {
+    const step = this.steps[this.stepIndex];
+    if (!step) return;
+
+    this.highlightLines(step.line);
+    this.log(step.desc);
+    this.updateStepper();
+
+    // Update Stats Pane
+    const stService = document.getElementById('stat-service');
+    const stRate = document.getElementById('stat-rate');
+    const stHubs = document.getElementById('stat-hubs');
+    const stCharges = document.getElementById('stat-charges');
+
+    if (stService) stService.innerText = step.state.service_name;
+    if (stRate) stRate.innerText = step.state.base_rate;
+    if (stHubs) stHubs.innerText = `Tuple(${this.data.hubs.length} hubs)`;
+    if (stCharges) stCharges.innerText = `Dict(${Object.keys(this.data.extra_charges).length} items)`;
+
+    // Update Main Canvas
+    const canvas = document.getElementById(this.canvasId);
+    if (!canvas) return;
+    canvas.innerHTML = '';
+
+    const visualWrapper = document.createElement('div');
+    visualWrapper.className = 'flex flex-col gap-4 p-4 h-full bg-white rounded shadow-inner overflow-auto';
+
+    // Section 1: Argument Allocation Flow
+    const sectionArguments = document.createElement('div');
+    sectionArguments.className = 'border-b pb-4';
+    sectionArguments.innerHTML = '<h4 class="text-xs font-semibold text-gray-500 mb-2">QUÁ TRÌNH GÁN BINDING THAM SỐ</h4>';
+
+    const gridArgs = document.createElement('div');
+    gridArgs.className = 'grid grid-cols-1 md:grid-cols-4 gap-2';
+
+    // Block positional parameter: service_name
+    const boxService = document.createElement('div');
+    boxService.className = `p-2 rounded border transition-all duration-300 ${step.visual !== 'init' ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 border-gray-200 opacity-50'}`;
+    boxService.innerHTML = `<p class="text-xs font-bold text-blue-700">service_name</p><p class="font-mono text-sm">${step.state.service_name}</p><span class="text-[10px] text-blue-500">Positional parameter</span>`;
+
+    // Block default parameter: base_rate
+    const boxRate = document.createElement('div');
+    boxRate.className = `p-2 rounded border transition-all duration-300 ${step.visual !== 'init' ? 'bg-teal-50 border-teal-300' : 'bg-gray-50 border-gray-200 opacity-50'}`;
+    boxRate.innerHTML = `<p class="text-xs font-bold text-teal-700">base_rate</p><p class="font-mono text-sm">${step.state.base_rate}</p><span class="text-[10px] text-teal-500">Default parameter</span>`;
+
+    // Block unpack positional args: *hubs
+    const boxHubs = document.createElement('div');
+    boxHubs.className = `p-2 rounded border transition-all duration-300 ${step.visual !== 'init' ? 'bg-purple-50 border-purple-300' : 'bg-gray-50 border-gray-200 opacity-50'}`;
+    boxHubs.innerHTML = `<p class="text-xs font-bold text-purple-700">*hubs (Tuple)</p><p class="font-mono text-xs overflow-x-auto whitespace-nowrap">${step.state.hubs}</p><span class="text-[10px] text-purple-500">Packed positional (*args)</span>`;
+
+    // Block keyword args: **extra_charges
+    const boxCharges = document.createElement('div');
+    boxCharges.className = `p-2 rounded border transition-all duration-300 ${step.visual !== 'init' ? 'bg-amber-50 border-amber-300' : 'bg-gray-50 border-gray-200 opacity-50'}`;
+    boxCharges.innerHTML = `<p class="text-xs font-bold text-amber-700">**extra_charges (Dict)</p><p class="font-mono text-xs overflow-x-auto whitespace-nowrap">${step.state.extra_charges}</p><span class="text-[10px] text-amber-500">Packed keywords (**kwargs)</span>`;
+
+    gridArgs.appendChild(boxService);
+    gridArgs.appendChild(boxRate);
+    gridArgs.appendChild(boxHubs);
+    gridArgs.appendChild(boxCharges);
+    sectionArguments.appendChild(gridArgs);
+    visualWrapper.appendChild(sectionArguments);
+
+    // Section 2: Local Scope & Object Creation
+    if (step.visual === 'creating_dict' || step.visual === 'returning' || step.visual === 'done') {
+      const sectionLocal = document.createElement('div');
+      sectionLocal.className = 'border-b pb-4 animate-fade-in';
+      sectionLocal.innerHTML = '<h4 class="text-xs font-semibold text-gray-500 mb-2">LOCAL SCOPE & BIẾN CỤC BỘ (report_summary)</h4>';
+
+      const dictDisplay = document.createElement('div');
+      dictDisplay.className = 'bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm leading-relaxed overflow-x-auto';
+      
+      let dictContent = '{\n';
+      dictContent += `  'service': '${this.data.service_name}',\n`;
+      dictContent += `  'base_cost': ${this.data.base_rate},\n`;
+      dictContent += `  'transit_hubs': [${this.data.hubs.map(h => `'${h}'`).join(', ')}],\n`;
+      dictContent += `  'additional_fees': ${this.formatPython(this.data.extra_charges)}\n`;
+      dictContent += '}';
+
+      dictDisplay.innerHTML = `<span class="text-yellow-400">report_summary</span> = ${dictContent.replace(/\n/g, '<br>').replace(/\s/g, '&nbsp;')}`;
+      sectionLocal.appendChild(dictDisplay);
+      visualWrapper.appendChild(sectionLocal);
     }
 
-    init() {
-        this.initSteps();
-        this.render();
+    // Section 3: Return Value
+    if (step.visual === 'returning' || step.visual === 'done') {
+      const sectionReturn = document.createElement('div');
+      sectionReturn.className = 'p-3 bg-green-50 border border-green-300 rounded shadow-sm';
+      sectionReturn.innerHTML = `
+        <h4 class="text-xs font-bold text-green-800 uppercase">Output trả về (Return Value)</h4>
+        <p class="font-mono text-xs text-green-700 overflow-x-auto mt-1">${this.formatPython(step.state.returned)}</p>
+      `;
+      visualWrapper.appendChild(sectionReturn);
     }
 
-    initSteps() {
-        const name = this.inputData.product_name;
-        const qty = parseInt(this.inputData.quantity);
-        const price = parseFloat(this.inputData.unit_price);
-        const rate = parseFloat(this.inputData.discount_rate);
+    canvas.appendChild(visualWrapper);
+  }
 
-        const fmtOld = `Product: ${name} | Price: ${price.toFixed(2)} | Qty: ${qty}`;
-        const fmtMid = `Product: ${name} | Total: ${(price * qty).toFixed(2)}`;
-        const netTotal = price * qty * (1 - rate);
-        const namePadded = name.padEnd(15, ' ');
-        const formattedNet = netTotal.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-        const fmtNew = `Product: ${namePadded} | Discounted Total: $${formattedNet}`;
+  clearLog() {
+    const logsDiv = document.getElementById(this.logsId);
+    if (logsDiv) logsDiv.innerHTML = '';
+  }
 
-        this.steps = [
-            {
-                line: [1, 2, 3, 4],
-                method: 'Khởi tạo',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate },
-                desc: 'Khởi tạo biến cấu hình & lưu vào bộ nhớ.',
-                len: 0,
-                term: []
-            },
-            {
-                line: [6],
-                method: '% Format',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld },
-                desc: 'Định dạng kiểu truyền thống %s (string), %.2f (float làm tròn 2 chữ số) và %d (integer).',
-                len: fmtOld.length,
-                term: []
-            },
-            {
-                line: [7],
-                method: '% Format',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld },
-                desc: 'In chuỗi formatted_old ra màn hình hệ thống.',
-                len: fmtOld.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld]
-            },
-            {
-                line: [9],
-                method: 'str.format()',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid },
-                desc: 'Sử dụng .format() với {} giữ chỗ mặc định và {:.2f} định dạng kết quả nhân thành float với 2 chữ số thập phân.',
-                len: fmtMid.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld]
-            },
-            {
-                line: [10],
-                method: 'str.format()',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid },
-                desc: 'In chuỗi formatted_mid ra cửa sổ điều khiển.',
-                len: fmtMid.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid]
-            },
-            {
-                line: [12],
-                method: 'f-string',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid, net_total: netTotal },
-                desc: 'Tính toán giá trị thực tế sau khi áp dụng chiết khấu (discount_rate).',
-                len: fmtMid.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid]
-            },
-            {
-                line: [13],
-                method: 'f-string',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid, net_total: netTotal, formatted_new: fmtNew },
-                desc: 'Sử dụng f-string biểu thức mạnh mẽ: {product_name:<15} căn lề trái rộng 15 ký tự, và {net_total:,.2f} phân tách hàng nghìn bằng dấu phẩy và làm tròn 2 phần thập phân.',
-                len: fmtNew.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid]
-            },
-            {
-                line: [14],
-                method: 'f-string',
-                vars: { product_name: name, quantity: qty, unit_price: price, discount_rate: rate, formatted_old: fmtOld, formatted_mid: fmtMid, net_total: netTotal, formatted_new: fmtNew },
-                desc: 'In chuỗi formatted_new ra màn hình console.',
-                len: fmtNew.length,
-                term: ["--- METHOD 1: Percent Format ---", fmtOld, "", "--- METHOD 2: str.format() ---", fmtMid, "", "--- METHOD 3: f-string ---", fmtNew]
-            }
-        ];
+  scrubStep(event) {
+    if (!this.steps || this.steps.length === 0) return;
+    const container = event.currentTarget;
+    const rect = container.getBoundingClientRect();
+    const clickX = event.clientX - rect.left;
+    const percentage = clickX / rect.width;
+    const targetIndex = Math.min(Math.floor(percentage * this.steps.length), this.steps.length - 1);
+    this.stepIndex = targetIndex;
+    this.render();
+  }
+
+  updateStepper() {
+    const progressText = document.getElementById('stepper-progress');
+    const descText = document.getElementById('stepper-desc');
+    const bar = document.getElementById('stepper-bar');
+    
+    if (progressText) {
+      progressText.innerText = `Bước ${this.stepIndex + 1}/${this.steps.length}`;
     }
-
-    start() {
-        if (this.isPlaying) return;
-        this.isPlaying = true;
-        this.interval = setInterval(() => {
-            this.step();
-        }, this.speed);
+    
+    const step = this.steps[this.stepIndex];
+    if (descText && step) {
+      descText.innerText = step.desc;
     }
-
-    pause() {
-        this.isPlaying = false;
-        clearInterval(this.interval);
+    
+    if (bar && this.steps.length > 0) {
+      const pct = ((this.stepIndex + 1) / this.steps.length) * 100;
+      bar.style.width = pct + '%';
     }
-
-    step() {
-        if (this.currentStep < this.steps.length - 1) {
-            this.currentStep++;
-        } else {
-            this.currentStep = 0;
-        }
-        this.render();
-    }
-
-    reset() {
-        this.currentStep = 0;
-        this.isPlaying = false;
-        clearInterval(this.interval);
-        this.render();
-    }
-
-    setSpeed(val) {
-        this.speed = val;
-        if (this.isPlaying) {
-            this.pause();
-            this.start();
-        }
-    }
-
-    applyCustomData(data) {
-        try {
-            const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-            if (!parsed.product_name || parsed.quantity === undefined || parsed.unit_price === undefined || parsed.discount_rate === undefined) {
-                 throw new Error('Dữ liệu không đúng cấu trúc key required');
-            }
-            this.inputData = parsed;
-            this.reset();
-            this.initSteps();
-            this.render();
-            this.log('Cập nhật dữ liệu tùy chỉnh thành công!');
-        } catch(e) {
-            alert('Định dạng JSON cấu hình không hợp lệ!');
-            this.log('Lỗi cập nhật dữ liệu: ' + e.message);
-        }
-    }
-
-    render() {
-        const stepData = this.steps[this.currentStep];
-        if (!stepData) return;
-
-        // Render stats
-        const statMethod = document.getElementById('stat-current-method');
-        const statLen = document.getElementById('stat-string-length');
-        if (statMethod) statMethod.innerText = stepData.method;
-        if (statLen) statLen.innerText = `${stepData.len} ký tự`;
-
-        // Highlights code lines
-        document.querySelectorAll('.code-line').forEach(el => {
-            el.classList.remove('bg-yellow-200', 'text-black', 'border-l-4', 'border-yellow-500', 'font-semibold');
-        });
-        stepData.line.forEach(lnID => {
-            const el = document.getElementById(`line-${lnID}`);
-            if (el) {
-                el.classList.add('bg-yellow-200', 'text-black', 'border-l-4', 'border-yellow-500', 'font-semibold');
-            }
-        });
-
-        // Render HTML canvas area
-        const container = document.getElementById(this.canvasId);
-        if (!container) return;
-
-        let rawVariablesHTML = '';
-        Object.keys(stepData.vars).forEach(key => {
-            let val = stepData.vars[key];
-            let valStr = typeof val === 'number' ? `<span class="text-purple-600 font-mono">${val}</span>` : `<span class="text-green-700 font-mono">"${val}"</span>`;
-            rawVariablesHTML += `
-                <div class="flex justify-between items-center bg-white p-2 border border-slate-200 rounded shadow-sm hover:shadow-md transition-shadow">
-                    <span class="font-mono font-bold text-slate-700 text-sm">${key}</span>
-                    <span class="text-sm">${valStr}</span>
-                </div>`;
-        });
-
-        let terminalLinesHTML = stepData.term.map(line => {
-            if (line.startsWith('---')) {
-                return `<div class="text-blue-400 font-bold font-mono">${line}</div>`;
-            }
-            return `<div class="text-slate-200 font-mono">${line}</div>`;
-        }).join('');
-
-        const formatSimulators = this.getFormatSimulatorsHTML(stepData);
-
-        container.innerHTML = `
-            <div class="flex flex-col gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg min-h-[420px]">
-                <div class="p-3 bg-blue-50 border-l-4 border-blue-400 rounded">
-                    <p class="text-sm text-blue-900 font-medium">💡 Bước: ${this.currentStep + 1}/${this.steps.length}</p>
-                    <p class="text-xs text-blue-800 mt-1">${stepData.desc}</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Khối Stack Bộ Nhớ -->
-                    <div class="bg-slate-100 p-3 rounded-lg border border-slate-200">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Biến Đang hoạt động</h3>
-                        <div class="flex flex-col gap-2">
-                            ${rawVariablesHTML || '<div class="text-xs text-slate-400 text-center py-4">Chưa khai báo biến</div>'}
-                        </div>
-                    </div>
-                    
-                    <!-- Khối Trực quan hóa placeholders -->
-                    <div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col justify-between">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-2">Cấu trúc chuyển vùng dữ liệu</h3>
-                        <div class="flex-1 flex flex-col justify-center gap-3">
-                            ${formatSimulators}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Terminal Module -->
-                <div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm leading-relaxed shadow-inner minimal-terminal mt-auto">
-                    <div class="flex items-center gap-2 border-b border-slate-700 pb-2 mb-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 inline-block"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>
-                        <span class="text-xs text-slate-400 ml-2 font-sans select-none">Python Console Output</span>
-                    </div>
-                    <div class="max-h-[140px] overflow-y-auto flex flex-col gap-1" id="terminal-body">
-                        ${terminalLinesHTML || '<div class="text-slate-500 text-xs italic">[Trạng thái trống]</div>'}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const termDiv = document.getElementById('terminal-body');
-        if (termDiv) termDiv.scrollTop = termDiv.scrollHeight;
-    }
-
-    getFormatSimulatorsHTML(stepData) {
-        const name = this.inputData.product_name;
-        const qty = this.inputData.quantity;
-        const price = parseFloat(this.inputData.unit_price);
-        const rate = parseFloat(this.inputData.discount_rate);
-
-        if (stepData.method === '% Format') {
-            return `
-                <div class='flex flex-col gap-2'>
-                    <div class='text-xs font-semibold text-purple-700'>Phương thức % (Truyền thống):</div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>%s</span> 👉 <span class='bg-green-100 px-1 rounded text-green-800 font-mono'>"${name}"</span>
-                    </div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>%.2f</span> 👉 <span class='bg-blue-100 px-1 rounded text-blue-800 font-mono'>${price.toFixed(2)}</span> (Làm tròn từ ${price})
-                    </div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>%d</span> 👉 <span class='bg-blue-100 px-1 rounded text-blue-800 font-mono'>${qty}</span>
-                    </div>
-                </div>
-            `;
-        } else if (stepData.method === 'str.format()') {
-            return `
-                <div class='flex flex-col gap-2'>
-                    <div class='text-xs font-semibold text-purple-700'>Phương thức str.format():</div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>{}</span> 👉 <span class='bg-green-100 px-1 rounded text-green-800 font-mono'>"${name}"</span>
-                    </div>
-                    <div class='flex flex-wrap items-center gap-1 text-xs'>
-                        <span class='bg-slate-200 px-1 rounded'>{:.2f}</span> 👉 <span class='bg-blue-100 px-1 rounded text-blue-800 font-mono'>${(price * qty).toFixed(2)}</span> (Tính toán biểu thức trước, định dạng sau)
-                    </div>
-                </div>
-            `;
-        } else if (stepData.method === 'f-string') {
-            const netTotal = price * qty * (1 - rate);
-            const formattedNet = netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            // Visualizing spacing formatting
-            let paddedText = name.padEnd(15, '.');
-            return `
-                <div class='flex flex-col gap-2'>
-                    <div class='text-xs font-semibold text-purple-700'>Phương thức f-string modern:</div>
-                    <div class='text-xs'>
-                        <span class='font-mono bg-slate-200 px-1 py-0.5 rounded'>{product_name:&lt;15}</span>
-                        <div class='mt-1 text-[11px] text-slate-500 font-mono bg-slate-50 p-1 border rounded'>
-                            Hành vi: Căn lề trái & chèn khoảng trắng cho đủ 15 ký tự:<br/>
-                            <span class='text-green-800 font-bold'>"${paddedText}"</span>
-                        </div>
-                    </div>
-                    <div class='text-xs mt-1'>
-                        <span class='font-mono bg-slate-200 px-1 py-0.5 rounded'>{net_total:,.2f}</span>
-                        <div class='mt-1 text-[11px] text-slate-500 font-mono bg-slate-50 p-1 border rounded'>
-                            Hành vi: Dấu phẩy ngăn nghìn & 2 chữ số thập phân:<br/>
-                            <span class='text-blue-800 font-bold'>$${formattedNet}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        } 
-        return `<div class='text-xs text-slate-400 italic text-center'>Đang chuẩn bị mô phỏng...</div>`;
-    }
-
-    log(msg) {
-        console.log(`[Visualizer Log]: ${msg}`);
-    }
+  }
 }
+
 
         // Fallback for missing class to prevent ReferenceError
         if (typeof InteractiveVisualizerEngine === 'undefined') {
@@ -1550,17 +1523,11 @@ print(formatted_new)</code></pre>
         function initApp() {
             try {
                 visualizerApp = new InteractiveVisualizerEngine();
+                window.visualizerApp = visualizerApp; // Gắn global để nút bấm gọi hoạt động
             } catch(e) {
+                console.error("Lỗi khởi tạo Visualizer:", e);
                 visualizerApp = {};
             }
-            
-            // Auto-stub missing methods to prevent TypeError in browser/reviewer
-            const requiredMethods = ['start', 'pause', 'step', 'reset', 'setSpeed', 'applyCustomData', 'updateStats', 'clearLog', 'scrubStep', 'updateStepper'];
-            requiredMethods.forEach(method => {
-                if (typeof visualizerApp[method] !== 'function') {
-                    visualizerApp[method] = () => console.log(`[Stub] Method ${method} called.`);
-                }
-            });
 
             // Perform initialization
             if (typeof visualizerApp.init === 'function') {

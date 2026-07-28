@@ -1,357 +1,362 @@
 <!--
-  COMPONENT: vscode.html
-  HyperFrames UI Component Library — VS Code IDE Window
-
-  SLOTS (thay thế bởi ui_component_renderer.py):
-    04         → số thứ tự scene (01, 02, ...)
-    17.3             → thời lượng scene (giây)
-    main.py        → tên file hiển thị (ví dụ: main.py)
-    python            → ngôn ngữ (python, bash, javascript...)
-    <span class="comment"># Python — Chương trình đầu tiên</span>
-<span class="function">print</span>(<span class="string">"Hello, Python!"</span>)
-
-<span class="comment"># Kiểm tra phiên bản</span>
-<span class="keyword">import</span> <span class="variable">sys</span>
-<span class="function">print</span>(<span class="string">f"Version: {sys.version}"</span>)       → code đã có syntax highlighting (HTML spans)
-    6      → số dòng code (để render line numbers)
-    1<br/>2<br/>3<br/>4<br/>5<br/>6    → HTML <br/>-separated line numbers
-    <div class="sidebar-file active">🐍 main.py</div><div class="sidebar-file muted">📄 requirements.txt</div><div class="sidebar-file muted">📄 README.md</div><div class="sidebar-file muted">📁 .venv/</div>   → HTML danh sách file sidebar (tùy chọn)
-    main      → tên nhánh git (mặc định: main)
-    3.11  → phiên bản Python (mặc định: 3.11)
-    Cấu hình Visual Studio Code và tiện ích mở rộng Python     → tiêu đề scene hiển thị intro
-    Khái Niệm Cốt Lõi   → tiêu đề card khái niệm (trái)
-    Tiếp theo là cấu hình Visual Studio Code. Làm việc với Python hiệu quả đòi hỏi cài đặt tiện ích mở rộng chính thức từ Microsoft.    → nội dung card khái niệm (trái)
-          → GSAP JS bổ sung (tùy chọn)
-    4.0              → thời điểm text-card xuất hiện
-    6.95              → thời điểm code-block xuất hiện
+  COMPONENT: process_flow.html
+  SLOTS: 04, 35.0, Thực hành Tổng quan về List trong Python,
+         Khái Niệm Cốt Lõi, Tiếp theo, chúng ta sẽ tìm hiểu sâu hơn về. Thực hành Tổng quan về List trong Python.,
+         01, Tiếp theo, chúng ta sẽ tìm hiểu sâu hơn về, Thực hành Tổng quan về List trong Python,
+         02, Đây là kiến thức nền tảng mà mỗi lập trì, Đây là kiến thức nền tảng mà mỗi lập trình viên đều cần nắm vững khi làm việc với Python Core,
+         03, Các em lưu ý phần quan trọng này nhé, hãy chú ý quan sát từng bước thực hiện trên màn hình và ghi nhớ những điểm mấu chốt,
+         04, Bước 4, Thực hiện theo hướng dẫn.,  (tùy chọn)
+         4.0, 11.38, 18.75, 26.12, 33.5,
+         
 -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scene 04 — Cấu hình Visual Studio Code và tiện ích mở rộng Python</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <style>
-    /* ── Reset ───────────────────────────────────────── */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      width: 1920px; height: 1080px; overflow: hidden;
-      background-color: #0f1117;
-      background-image: radial-gradient(rgba(255,255,255,0.18) 1.5px, transparent 1.5px);
-      background-size: 32px 32px;
-      font-family: 'Inter', sans-serif;
-    }
-    body::before {
-      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
-      top: -200px; left: -200px; width: 800px; height: 800px;
-      background: rgba(56,189,248,0.12);
-    }
-    body::after {
-      content: ''; position: absolute; border-radius: 50%; filter: blur(150px); z-index: -1;
-      bottom: -200px; right: -200px; width: 600px; height: 600px;
-      background: rgba(168,85,247,0.12);
-    }
-
-    /* ── Scene wrapper ───────────────────────────────── */
-    /* ── Scene wrapper ───────────────────────────────── */
-    .scene-root { width: 1920px; height: 1080px; position: relative; }
-    [id^="scene-"] { width: 1920px; height: 1080px; position: relative; }
-
-    /* ── Design tokens ───────────────────────────────── */
-    :root {
-      --keyword: #ff7b72; --string: #a5d6ff; --variable: #79c0ff;
-      --operator: #d2a8ff; --comment: #8b949e; --function: #d2a8ff;
-      --number: #79c0ff; --good: #3fb950; --bad: #f85149; --accent: #ffa657;
-      --text-primary: #e6edf3; --text-secondary: #c9d1d9; --text-muted: #8b949e;
-      --bg-card: rgba(9,9,11,0.75); --border-card: rgba(255,255,255,0.08);
-    }
-
-    /* ── Section badge ───────────────────────────────── */
-    .section-badge {
-      position: absolute; top: 28px; right: 40px;
-      background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.3);
-      border-radius: 999px; padding: 8px 24px;
-      font-size: 18px; font-weight: 600; color: #38bdf8; letter-spacing: 0.5px;
-    }
-
-    /* ── Intro title ─────────────────────────────────── */
-    .intro-title {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 72px; font-weight: 800; color: var(--text-primary);
-      text-align: center; white-space: nowrap; z-index: 100;
-      text-shadow: 0 0 60px rgba(56,189,248,0.4);
-    }
-
-    /* ── Main layout ─────────────────────────────────── */
-    .main-layout {
-      position: absolute; top: 80px; left: 40px;
-      display: flex; gap: 36px; width: 1840px; height: 960px; align-items: center;
-    }
-
-    /* ── Concept card (left) ─────────────────────────── */
-    .concept-card {
-      flex: 0 0 36%;
-      background: var(--bg-card); border: 1px solid var(--border-card);
-      border-radius: 20px; padding: 48px; display: flex; flex-direction: column;
-      gap: 20px; height: 680px; justify-content: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .concept-card h3 {
-      font-size: 30px; font-weight: 700; color: var(--text-primary);
-      border-bottom: 2px solid rgba(56,189,248,0.3); padding-bottom: 16px;
-    }
-    .concept-card p {
-      font-size: 22px; line-height: 1.75; color: var(--text-secondary);
-    }
-
-    /* ── VS Code window ──────────────────────────────── */
-    .vscode-window {
-      flex: 1; height: 740px;
-      border-radius: 12px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-      display: flex; flex-direction: column;
-    }
-    .vscode-titlebar {
-      background: #323233; height: 38px; padding: 0 16px;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(0,0,0,0.25); flex-shrink: 0;
-    }
-    .vscode-dots { display: flex; gap: 8px; align-items: center; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dot.red { background: #f85149; }
-    .dot.yellow { background: #ffa657; }
-    .dot.green { background: #3fb950; }
-    .vscode-title-text {
-      font-family: system-ui, sans-serif; font-size: 13px;
-      color: #cccccc; font-weight: 500;
-    }
-    .vscode-lang-badge {
-      font-family: 'Fira Code', monospace; font-size: 12px;
-      color: #858585; text-transform: uppercase; letter-spacing: 0.5px;
-    }
-    .vscode-body {
-      display: flex; flex: 1; overflow: hidden; background: #1e1e1e;
-    }
-    /* Activity bar */
-    .activity-bar {
-      width: 48px; background: #333333;
-      display: flex; flex-direction: column; align-items: center;
-      padding-top: 12px; gap: 18px;
-      border-right: 1px solid rgba(255,255,255,0.04);
-      flex-shrink: 0;
-    }
-    .activity-icon { font-size: 18px; }
-    .activity-icon.active { border-left: 2px solid #007acc; padding-left: 6px; width: 100%; text-align: center; }
-    /* Sidebar */
-    .sidebar {
-      width: 164px; background: #252526;
-      border-right: 1px solid rgba(255,255,255,0.04);
-      display: flex; flex-direction: column;
-      font-size: 13px; color: #cccccc; padding: 12px 10px;
-      flex-shrink: 0;
-    }
-    .sidebar-header {
-      font-weight: 700; text-transform: uppercase; font-size: 11px;
-      margin-bottom: 12px; color: #858585; letter-spacing: 0.8px;
-    }
-    .sidebar-project {
-      font-weight: 600; color: #ffffff; margin-bottom: 8px;
-      display: flex; align-items: center; gap: 4px;
-    }
-    .sidebar-file { margin-left: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-    .sidebar-file.active { color: #007acc; font-weight: 600; }
-    .sidebar-file.muted { color: #757575; }
-    /* Editor workspace */
-    .editor-workspace { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .tab-bar {
-      height: 36px; background: #2d2d2d;
-      display: flex; align-items: center; flex-shrink: 0;
-    }
-    .tab.active {
-      background: #1e1e1e; color: #ffffff;
-      padding: 0 16px; height: 100%;
-      display: flex; align-items: center; gap: 8px;
-      border-top: 2px solid #007acc; font-size: 13px; font-weight: 500;
-    }
-    .tab.inactive {
-      color: #858585; padding: 0 16px; height: 100%;
-      display: flex; align-items: center; gap: 8px; font-size: 13px;
-    }
-    .tab-close { opacity: 0.5; font-size: 11px; }
-    .editor-content { display: flex; flex: 1; overflow-y: auto; }
-    .line-numbers {
-      width: 48px; padding: 20px 8px 20px 0;
-      text-align: right; color: #858585;
-      font-family: 'Fira Code', monospace; font-size: 18px; line-height: 1.7;
-      background: #1e1e1e;
-      border-right: 1px solid rgba(255,255,255,0.04);
-      flex-shrink: 0; user-select: none;
-    }
-    pre.code-area {
-      padding: 20px 24px; margin: 0; background: #1e1e1e; flex: 1;
-      font-size: 18px; line-height: 1.7; overflow: hidden;
-    }
-    code { font-family: 'Fira Code', monospace; }
-    .vscode-statusbar {
-      height: 24px; background: #007acc; color: #ffffff;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 12px; font-size: 12px;
-      font-family: system-ui, sans-serif; flex-shrink: 0;
-    }
-    .status-left { display: flex; gap: 16px; }
-    .status-right { display: flex; gap: 16px; }
-
-    /* ── Syntax highlight tokens ─────────────────────── */
-    .keyword { color: var(--keyword); font-weight: 500; }
-    .string  { color: var(--string); }
-    .variable { color: var(--variable); }
-    .function { color: var(--function); }
-    .comment { color: var(--comment); font-style: italic; }
-    .number  { color: var(--number); }
-    .operator { color: var(--operator); }
-  </style>
-</head>
-<body>
-  <div id="scene-04" class="clip scene-root"
-       data-composition-id="scene-04"
-       data-start="0" data-duration="17.3" data-track-index="0">
-
-    <!-- Section badge -->
-    <div class="section-badge clip" data-start="0" data-duration="17.3" data-track-index="1">
-      Cấu hình Visual Studio Code và tiện ích mở rộng Python
-    </div>
-
-    <!-- Intro title -->
-    <div id="intro-title-04" class="intro-title clip"
-         data-start="0" data-duration="17.3" data-track-index="100">
-      <span>Cấu hình Visual Studio Code và tiện ích mở rộng Python</span>
-    </div>
-
-    <!-- Main layout -->
-    <div id="main-layout-04" class="main-layout clip"
-         data-start="0" data-duration="17.3" data-track-index="2">
-
-      <!-- Concept card (left) -->
-      <div id="concept-card-04" class="concept-card">
-        <h3>Khái Niệm Cốt Lõi</h3>
-        <p>Tiếp theo là cấu hình Visual Studio Code. Làm việc với Python hiệu quả đòi hỏi cài đặt tiện ích mở rộng chính thức từ Microsoft.</p>
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0f1117;
+        font-family: "Inter", sans-serif;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.15) 1.5px,
+          transparent 1.5px
+        );
+        background-size: 32px 32px;
+      }
+      body::before {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+        top: -100px;
+        left: -100px;
+        width: 700px;
+        height: 700px;
+        background: rgba(56, 189, 248, 0.08);
+      }
+      body::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(150px);
+        z-index: -1;
+        bottom: -100px;
+        right: -100px;
+        width: 600px;
+        height: 600px;
+        background: rgba(168, 85, 247, 0.08);
+      }
+      .scene-root {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      [id^="scene-"] {
+        width: 1920px;
+        height: 1080px;
+        position: relative;
+      }
+      .intro-title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 72px;
+        font-weight: 800;
+        color: #e6edf3;
+        z-index: 100;
+        text-align: center;
+        white-space: nowrap;
+        text-shadow: 0 0 60px rgba(56, 189, 248, 0.4);
+      }
+      .main-layout {
+        position: absolute;
+        top: 80px;
+        left: 40px;
+        display: flex;
+        gap: 36px;
+        width: 1840px;
+        height: 960px;
+        align-items: center;
+      }
+      .concept-card {
+        flex: 0 0 32%;
+        background: rgba(22, 27, 34, 0.92);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        padding: 44px;
+        height: 680px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        justify-content: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      }
+      .concept-card h3 {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ffffff;
+        border-bottom: 2px solid rgba(56, 189, 248, 0.5);
+        padding-bottom: 14px;
+      }
+      .concept-card p {
+        font-size: 21px;
+        line-height: 1.75;
+        color: #f0f6fc;
+        font-weight: 500;
+      }
+      .flow-container {
+        flex: 1;
+        height: 760px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0;
+      }
+      .flow-step {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+      .step-node {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: rgba(22, 27, 34, 0.92);
+        border: 1.5px solid rgba(255, 255, 255, 0.15);
+        border-radius: 16px;
+        padding: 24px 32px;
+        width: 100%;
+        transition: border-color 0.3s;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      .step-number {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #38bdf8, #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 800;
+        color: #0f1117;
+        flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+      }
+      .step-content {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .step-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+      .step-body {
+        font-size: 19px;
+        color: #f0f6fc;
+        line-height: 1.6;
+        font-weight: 500;
+      }
+      .flow-connector {
+        width: 4px;
+        height: 32px;
+        background: linear-gradient(
+          to bottom,
+          rgba(56, 189, 248, 0.5),
+          rgba(129, 140, 248, 0.5)
+        );
+        margin: 0 auto;
+        margin-left: 68px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="scene-04"
+      class="clip"
+      data-composition-id="scene-04"
+      data-start="0"
+      data-duration="35.0"
+      data-track-index="0"
+    >
+      <div
+        id="intro-title-04"
+        class="intro-title clip"
+        data-start="0"
+        data-duration="35.0"
+        data-track-index="100"
+      >
+        Thực hành Tổng quan về List trong Python
       </div>
 
-      <!-- VS Code window (right) -->
-      <div id="vscode-04" class="vscode-window">
-        <!-- Titlebar -->
-        <div class="vscode-titlebar">
-          <div class="vscode-dots">
-            <span class="dot red"></span>
-            <span class="dot yellow"></span>
-            <span class="dot green"></span>
-          </div>
-          <div class="vscode-title-text">Visual Studio Code — main.py</div>
-          <div class="vscode-lang-badge">python</div>
+      <div
+        class="main-layout clip"
+        data-start="0"
+        data-duration="35.0"
+        data-track-index="2"
+      >
+        <div id="concept-card-04" class="concept-card">
+          <h3>Khái Niệm Cốt Lõi</h3>
+          <p>Tiếp theo, chúng ta sẽ tìm hiểu sâu hơn về. Thực hành Tổng quan về List trong Python.</p>
         </div>
 
-        <!-- Editor body -->
-        <div class="vscode-body">
-          <!-- Activity bar -->
-          <div class="activity-bar">
-            <div class="activity-icon active">📁</div>
-            <div class="activity-icon" style="color:#858585;opacity:0.6;">🔍</div>
-            <div class="activity-icon" style="color:#858585;opacity:0.6;">🌿</div>
-            <div class="activity-icon" style="color:#858585;opacity:0.6;">🐞</div>
-            <div class="activity-icon" style="color:#858585;opacity:0.6;">⚙️</div>
-          </div>
-
-          <!-- Sidebar -->
-          <div class="sidebar">
-            <div class="sidebar-header">Explorer</div>
-            <div class="sidebar-project">📂 PROJECT</div>
-            <div class="sidebar-file active">🐍 main.py</div><div class="sidebar-file muted">📄 requirements.txt</div><div class="sidebar-file muted">📄 README.md</div><div class="sidebar-file muted">📁 .venv/</div>
-          </div>
-
-          <!-- Editor workspace -->
-          <div class="editor-workspace">
-            <!-- Tab bar -->
-            <div class="tab-bar">
-              <div class="tab active">
-                <span>🐍 main.py</span>
-                <span class="tab-close">✕</span>
-              </div>
-              <div class="tab inactive">
-                <span>📄 README.md</span>
+        <div class="flow-container">
+          <div class="flow-step">
+            <div id="step-04-1" class="step-node">
+              <div class="step-number">01</div>
+              <div class="step-content">
+                <div class="step-title">Tiếp theo, chúng ta sẽ tìm hiểu sâu hơn về</div>
+                <div class="step-body">Thực hành Tổng quan về List trong Python</div>
               </div>
             </div>
-            <!-- Code content -->
-            <div class="editor-content">
-              <div class="line-numbers">1<br/>2<br/>3<br/>4<br/>5<br/>6</div>
-              <pre class="code-area"><code id="code-04"><span class="comment"># Python — Chương trình đầu tiên</span>
-<span class="function">print</span>(<span class="string">"Hello, Python!"</span>)
-
-<span class="comment"># Kiểm tra phiên bản</span>
-<span class="keyword">import</span> <span class="variable">sys</span>
-<span class="function">print</span>(<span class="string">f"Version: {sys.version}"</span>)</code></pre>
+          </div>
+          <div id="connector-04-1" class="flow-connector"></div>
+          <div class="flow-step">
+            <div id="step-04-2" class="step-node">
+              <div class="step-number">02</div>
+              <div class="step-content">
+                <div class="step-title">Đây là kiến thức nền tảng mà mỗi lập trì</div>
+                <div class="step-body">Đây là kiến thức nền tảng mà mỗi lập trình viên đều cần nắm vững khi làm việc với Python Core</div>
+              </div>
             </div>
           </div>
-        </div>
-
-        <!-- Status bar -->
-        <div class="vscode-statusbar">
-          <div class="status-left">
-            <span>🟢 main</span>
-            <span>⚡ Python 3.11</span>
+          <div id="connector-04-2" class="flow-connector"></div>
+          <div class="flow-step">
+            <div id="step-04-3" class="step-node">
+              <div class="step-number">03</div>
+              <div class="step-content">
+                <div class="step-title">Các em lưu ý phần quan trọng này nhé</div>
+                <div class="step-body">hãy chú ý quan sát từng bước thực hiện trên màn hình và ghi nhớ những điểm mấu chốt</div>
+              </div>
+            </div>
           </div>
-          <div class="status-right">
-            <span>Ln 1, Col 1</span>
-            <span>UTF-8</span>
+          <div id="connector-04-3" class="flow-connector"></div>
+          <div class="flow-step">
+            <div id="step-04-4" class="step-node">
+              <div class="step-number">04</div>
+              <div class="step-content">
+                <div class="step-title">Bước 4</div>
+                <div class="step-body">Thực hiện theo hướng dẫn.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
 
-    </div><!-- /#main-layout -->
-  </div><!-- /#scene -->
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const sceneId = "scene-04";
+      window.__timelines[sceneId] = tl;
 
-  <script>
-    window.__timelines = window.__timelines || {};
-    const tl = gsap.timeline({ paused: true });
-    const sceneId = "scene-04";
-    window.__timelines[sceneId] = tl;
+      const _buildTimer = setInterval(function () {
+        if (!document.getElementById(sceneId)) return;
+        clearInterval(_buildTimer);
 
-    const _buildTimer = setInterval(function() {
-      const root = document.getElementById(sceneId);
-      if (!root) return;
-      clearInterval(_buildTimer);
+        const t1 = parseFloat("4.0") || 4.0;
+        const t2 = parseFloat("11.38") || 4.5;
+        const t3 = parseFloat("18.75") || 5.0;
+        const t4 = parseFloat("26.12") || 5.5;
+        const t5 = parseFloat("33.5") || 6.0;
+        const dur = parseFloat("35.0") || 30.0;
 
-      const t1 = parseFloat("4.0") || 4.0;
-      const t2 = parseFloat("6.95") || 4.5;
-      const dur = parseFloat("17.3") || 30.0;
+        tl.set(".clip", { autoAlpha: 1 }, 0);
+        tl.set(
+          "#intro-title-04",
+          { autoAlpha: 0, scale: 0.8 },
+          0,
+        );
+        tl.set("#concept-card-04", { autoAlpha: 0, x: -50 }, 0);
+        ["1", "2", "3", "4"].forEach((n) => {
+          tl.set("#step-04-" + n, { autoAlpha: 0, y: 20 }, 0);
+          if (n !== "4")
+            tl.set(
+              "#connector-04-" + n,
+              { scaleY: 0, transformOrigin: "top center" },
+              0,
+            );
+        });
+        tl.to(
+          "#intro-title-04",
+          { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" },
+          0.2,
+        );
+        tl.to(
+          "#intro-title-04",
+          {
+            scale: 0.38,
+            x: -760,
+            y: -460,
+            duration: 0.7,
+            ease: "power3.inOut",
+          },
+          3.2,
+        );
+        tl.to(
+          "#concept-card-04",
+          { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" },
+          t1,
+        );
+        tl.to(
+          "#step-04-1",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t2,
+        );
+        tl.to(
+          "#connector-04-1",
+          { scaleY: 1, duration: 0.35, ease: "power1.inOut" },
+          t3 - 0.15,
+        );
+        tl.to(
+          "#step-04-2",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t3,
+        );
+        tl.to(
+          "#connector-04-2",
+          { scaleY: 1, duration: 0.35, ease: "power1.inOut" },
+          t4 - 0.15,
+        );
+        tl.to(
+          "#step-04-3",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t4,
+        );
+        tl.to(
+          "#connector-04-3",
+          { scaleY: 1, duration: 0.35, ease: "power1.inOut" },
+          t5 - 0.15,
+        );
+        tl.to(
+          "#step-04-4",
+          { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          t5,
+        );
 
-      // STEP 1 (REQUIRED FIRST): Set all .clip elements visible
-      tl.set(".clip", { autoAlpha: 1 }, 0);
+        /*  */
 
-      // STEP 2: Set initial hidden states
-      tl.set("#intro-title-04", { autoAlpha: 0, scale: 0.8 }, 0);
-      tl.set("#concept-card-04", { autoAlpha: 0, x: -50 }, 0);
-      tl.set("#vscode-04", { autoAlpha: 0, x: 50 }, 0);
-
-      // PHASE 1: Intro title (0.2s → 3.2s) — spring in, then shrink to top-left
-      tl.to("#intro-title-04", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
-      tl.to("#intro-title-04", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
-
-      // PHASE 2: Main content (never before 4.0s)
-      tl.to("#concept-card-04", { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" }, t1);
-      tl.to("#vscode-04", { autoAlpha: 1, x: 0, duration: 0.7, ease: "power3.out" }, t2);
-
-      /*  */
-
-      // LOCK end of timeline (required by HyperFrames)
-      tl.set({}, {}, dur);
-    }, 50);
-  </script>
-</body>
-</html>
-</body>
+        // Clean scene fade-out before transition
+        tl.to("#scene-04", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+        tl.set({}, {}, dur);
+      }, 50);
+    </script>
+  </body>
 </html>

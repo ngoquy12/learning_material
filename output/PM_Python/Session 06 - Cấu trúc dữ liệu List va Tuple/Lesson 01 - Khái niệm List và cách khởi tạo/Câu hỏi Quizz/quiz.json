@@ -1,0 +1,72 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Bối cảnh thiết kế phần mềm doanh nghiệp luôn phải đối mặt với thách thức nào sau đây về mặt dữ liệu?",
+      "options": [
+        "Sự biến động không ngừng của dữ liệu thực tế theo thời gian thực",
+        "Sự nghẽn mạng khi truy cập vào các máy chủ chứa mảng tĩnh",
+        "Yêu cầu tất cả phần tử phải được mã hóa bằng thuật toán AES",
+        "Dữ liệu bắt buộc chỉ có một phần tử duy nhất trong suốt vòng đời"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Đoạn đầu của bài đọc nêu rõ: 'thiết kế hệ thống phần mềm doanh nghiệp luôn đối mặt với sự biến động không ngừng của dữ liệu thực tế' ví dụ như giỏ hàng, danh sách tài khoản đang đăng nhập..."
+    },
+    {
+      "question": "Khó khăn nào phát sinh khi muốn thay đổi kích thước của một mảng tĩnh truyền thống?",
+      "options": [
+        "Lập trình viên không thể can thiệp dưới mọi hình thức cho đến khi khởi động lại máy tính",
+        "Phát sinh chi phí lập trình lớn để phân bổ lại bộ nhớ thủ công hoặc sao chép dữ liệu sang vùng nhớ mới",
+        "Hệ thống sẽ tự động hóa hoàn toàn việc này mà không tốn CPU",
+        "Toàn bộ dữ liệu tự động chuyển thành kiểu dữ liệu logic True/False"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Bài đọc chỉ ra rằng việc thay đổi kích thước danh sách trong mảng tĩnh phát sinh chi phí rất lớn khi phải viết mã phân bổ lại bộ nhớ thủ công hoặc sao chép dữ liệu sang vùng nhớ mới."
+    },
+    {
+      "question": "Đặc điểm nào của mảng tĩnh gây trở ngại cho việc đóng gói các thông tin đa dạng của một thực thể?",
+      "options": [
+        "Mỗi phần tử chỉ có thể chứa tối đa 1 bit dữ liệu",
+        "Mảng tĩnh không cho phép truy xuất dữ liệu theo chỉ số index",
+        "Bắt buộc các phần tử bên trong phải đồng nhất một kiểu dữ liệu duy nhất",
+        "Tốc độ tìm kiếm phần tử chậm hơn mảng động gấp nhiều lần"
+      ],
+      "correct_option_index": 2,
+      "explanation": "Bài đọc nêu điểm hạn chế: 'Các mảng tĩnh này bắt buộc các phần tử bên trong phải đồng nhất một kiểu dữ liệu duy nhất, gây khó khăn cho việc đóng gói các thực thể phức tạp chứa nhiều kiểu thông tin khác nhau.'"
+    },
+    {
+      "question": "Giải pháp Python List giúp ích gì cho hiệu quả công việc của kỹ sư phần mềm?",
+      "options": [
+        "Chỉ giúp tăng tốc độ kết nối internet của phần mềm",
+        "Cắt giảm thời gian viết mã nguồn, giảm thiểu các lỗi thao tác bộ nhớ ở cấp thấp và cải thiện năng suất",
+        "Ép buộc lập trình viên phải quản lý bộ nhớ bằng con trỏ thủ công",
+        "Ngăn chặn hoàn toàn khả năng lưu trữ các kiểu dữ liệu số để chuyển sang kiểu chuỗi"
+      ],
+      "correct_option_index": 1,
+      "explanation": "Bài đọc khẳng định Python List tự động quản lý vùng nhớ và cho phép lưu trữ đa kiểu dữ liệu, qua đó 'giúp cắt giảm thời gian viết mã nguồn, giảm thiểu các lỗi thao tác bộ nhớ ở cấp thấp và cải thiện năng suất của kỹ sư phần mềm.'"
+    }
+  ],
+  "practical_lab": {
+    "title": "Mô phỏng hành vi cấp phát bộ nhớ của Mảng Tĩnh và Mảng Động",
+    "objectives": [
+      "Hiểu rõ cơ chế giới hạn kích thước và rào cản đồng nhất kiểu dữ liệu của mảng tĩnh.",
+      "Thực hành tạo cơ chế tự động resizing tăng sức chứa của mảng giả lập bằng Python.",
+      "Sử dụng Python List như một mảng động tự nhiên đa kiểu dữ liệu."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Khai báo một danh sách giả lập mảng tĩnh có kích thước cố định ban đầu là 3 phần tử (với giá trị mặc định ban đầu là None): static_array = [None] * 3.",
+        "Bước 2: Điền giá trị vào 3 ô đầu tiên. Khi muốn thêm phần tử thứ 4, hãy viết một hàm resize_copy(old_array, new_element) để trả về một mảng mới có kích thước gấp đôi, sao chép phần tử cũ sang và gắn phần tử mới vào ô tiếp theo.",
+        "Bước 3: Sử dụng Python List thông thường để lưu trữ cùng một tập dữ liệu và dùng phương thức append() để so sánh trực tiếp sự tinh gọn về mặt cú pháp.",
+        "Bước 4: Thực hiện chèn dữ liệu đa kiểu (chuỗi, số nguyên, số thực) vào Python List để chứng minh tính linh hoạt so với mảng tĩnh đồng nhất."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Tạo thành công hàm resize_copy mô phỏng thủ công bước sao chép và giãn nở dung lượng.",
+        "Chương trình chạy không có lỗi bộ nhớ hay index out of range khi gọi hàm mở rộng.",
+        "Tạo được Python List chứa ít nhất 3 kiểu dữ liệu khác nhau mô phỏng một bản ghi thực thể phức hợp."
+      ]
+    }
+  }
+}

@@ -1,0 +1,1 @@
+Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education, trong nội dung bài học này, chúng ta sẽ cùng nhau tìm hiểu về Thao tác với List (thêm, sửa, xoá phần tử). Đây là những kỹ năng cơ bản nhưng cực kỳ quan trọng giúp chúng ta làm chủ cấu trúc dữ liệu mảng trong ngôn ngữ lập trình Python.

@@ -1,0 +1,71 @@
+{
+  "lesson_quiz": [
+    {
+      "question": "Theo thống kê thực tế trong môi trường phát triển phần mềm chuyên nghiệp, thời gian đọc hiểu mã nguồn chiếm bao nhiêu phần trăm thời gian làm việc thực tế của lập trình viên?",
+      "options": [
+        "Chiếm tới 80%",
+        "Chiếm khoảng 50%",
+        "Chiếm không quá 20%",
+        "Chiếm khoảng 95%"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Theo bài đọc, thời gian lập trình viên đọc hiểu mã nguồn để thực hiện việc tiếp quản, bảo trì, phát triển chiếm tới 80% tổng thời gian làm việc thực tế."
+    },
+    {
+      "question": "Hiện tượng 'hộp đen' trong phát triển và tiếp quản mã nguồn được mô tả như thế nào?",
+      "options": [
+        "Kỹ sư tiếp quản không biết các hàm yêu cầu tham số gì, định dạng nào và trả về kết quả gì nếu không đọc chi tiết từng dòng thuật toán bên trong",
+        "Mã nguồn bị biên dịch thành dạng bytecode mã hóa không cho phép bất cứ ai can thiệp chỉnh sửa thuật toán",
+        "IDE bị treo khi cố gắng phân tích mã nguồn chứa quá nhiều dòng code giải thích bằng ký hiệu thăng #",
+        "Chương trình chạy ngắt đột ngột mà không hiển thị nhật ký lỗi (logs) ra màn hình điều khiển"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Hiện tượng 'hộp đen' xảy ra khi một hệ thống lớn chứa hàng trăm hàm nghiệp vụ không được mô tả rõ ràng, làm cho lập trình viên không nắm được giao thức đầu vào/đầu ra của hàm nếu không trực tiếp đọc mã nguồn chi tiết của hàm đó."
+    },
+    {
+      "question": "Phát biểu nào sau đây là ĐÚNG về chú thích đơn dòng dấu thăng '#' truyền thống trong Python?",
+      "options": [
+        "Bị trình biên dịch Python bỏ qua khi chuyển thành mã bytecode và không thể truy cập tại thời điểm runtime",
+        "Vẫn được giữ lại ở dạng metadata trong cấu trúc lớp và hàm khi chuyển dịch mã nguồn",
+        "Là công cụ chính giúp Sphinx thu thập mô tả tự do để xuất bản tài liệu API cho khách hàng",
+        "Hỗ trợ các IDE hiển thị popup gợi ý (tooltips) thông thái khi đưa con trỏ chuột đến lời gọi hàm"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Bài đọc chỉ rõ các chú thích bằng dấu thăng '#' bị trình biên dịch Python bỏ qua khi chuyển đổi thành mã bytecode và không thể truy cập tại runtime, làm hạn chế khả năng tạo tooltips của IDE và xuất bản API của Sphinx."
+    },
+    {
+      "question": "Tiêu chuẩn nào đề xuất cơ chế tích hợp tài liệu hướng dẫn trực tiếp vào cấu trúc thực thi của mã nguồn Python nhằm giải quyết hạn chế của chú thích thông thường?",
+      "options": [
+        "PEP 257",
+        "PEP 8",
+        "PEP 20",
+        "PEP 484"
+      ],
+      "correct_option_index": 0,
+      "explanation": "Guido van Rossum và các cộng sự đã đề xuất tiêu chuẩn PEP 257 định nghĩa quy chuẩn viết Docstring, tích hợp tài liệu trực tiếp vào metadata runtime của mã nguồn."
+    }
+  ],
+  "practical_lab": {
+    "title": "Phân tích Hiện Tượng Hộp Đen và Sự Khác Biệt Giữa Chú Thích và DocString",
+    "objectives": [
+      "Quan sát và phân tích hiện tượng khó khăn khi tiếp quản mã nguồn không được chuẩn hóa tài liệu.",
+      "Phân biệt rõ ràng hành vi của chú thích truyền thống (#) và tài liệu chuẩn PEP 257 tại thời điểm runtime."
+    ],
+    "description": {
+      "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+      "steps": [
+        "Bước 1: Viết một định nghĩa hàm tính toán nghiệp vụ phức tạp, ví dụ tính thuế thu nhập cá nhân. Sử dụng chú thích bằng dấu '#' ở trên định nghĩa hàm để mô tả danh sách đối số đầu vào và kiểu dữ liệu trả về mong đợi.",
+        "Bước 2: Mở môi trường tương tác Python (Python Shell hoặc Script mới), gọi hàm vừa viết, đồng thời sử dụng hàm help() hoặc truy cập thuộc tính __doc__ của hàm đó để kiểm tra xem hệ thống có thu thập được thông tin tài liệu hay không.",
+        "Bước 3: Chuyển đổi toàn bộ khối chú thích dấu '#' thành chuỗi tài liệu nằm ngay dưới dòng khai báo hàm (thực hiện theo khái niệm chuẩn hóa tài liệu).",
+        "Bước 4: Gọi lại thuộc tính __doc__ tại runtime hoặc sử dụng help() để kiểm chứng khả năng hiển thị chi tiết các mô tả nghiệp vụ của hàm mà không cần đọc mã nguồn giải thuật bên trong."
+      ]
+    },
+    "evaluation": {
+      "checklist": [
+        "Chứng minh được thuộc tính __doc__ của hàm trả về giá trị None khi chỉ dùng chú thích dấu thăng #.",
+        "Chứng minh được thuộc tính __doc__ lưu trữ được và in ra màn hình đúng nội dung tài liệu hướng dẫn khi chuyển sang chuỗi tài liệu.",
+        "Giải thích được nguyên lý tại sao các IDE thông minh có thể dựa vào cấu trúc metadata này để tự động hiển thị gợi ý khi di chuột lên lời gọi hàm."
+      ]
+    }
+  }
+}

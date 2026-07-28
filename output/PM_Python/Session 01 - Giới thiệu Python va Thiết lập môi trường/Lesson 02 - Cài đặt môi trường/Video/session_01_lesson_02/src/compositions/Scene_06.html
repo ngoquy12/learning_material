@@ -1,391 +1,180 @@
 <!--
-  COMPONENT: terminal.html
-  HyperFrames UI Component Library — Terminal CLI Window
-
-  SLOTS:
-    06         → số thứ tự scene
-    19.1             → thời lượng scene
-    Tạo lập môi trường ảo thông qua terminal     → tiêu đề scene
-    Khái Niệm Cốt Lõi   → tiêu đề card khái niệm
-    Để khởi tạo môi trường ảo, hãy mở cửa sổ dòng lệnh tại thư mục gốc của dự án, sau đó thực thi lệnh. python trừ m venv app gạch dưới env.    → nội dung khái niệm
-    <span class="cmd-line cmd-output">Terminal CLI gõ lệnh python -m venv app_env để tạo môi trường ảo.</span>  → HTML danh sách lệnh terminal (mỗi dòng là <div>)
-    bash      → tên shell (bash, PowerShell, zsh, cmd...)
-    ~/project        → thư mục hiện tại (ví dụ: ~/project)
-    4.0              → thời điểm concept card xuất hiện
-    7.4              → thời điểm terminal xuất hiện
-          → GSAP JS bổ sung (tùy chọn)
+  COMPONENT: summary_recap.html (Key Takeaways / Outro Summary)
+  SLOTS: 06, 35.0, Tổng Kết Bài Học,
+         Tổng Kết Bài Học,
+         Như vậy, chúng ta đã cùng nhau hoàn thành bài học về Tổng quan về List trong Python, Hãy nhớ rằng những kiến thức này là nền tảng cực kỳ quan trọng cho các bài học tiếp theo trong khóa Python Core, Các em hãy thực hành lại toàn bộ các bước trên máy cá nhân để củng cố kiến thức, Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo,
+         Tiếp tục bài học tiếp theo trong lộ trình.,
+         4.0, 11.38, 
 -->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scene 06 — Tạo lập môi trường ảo thông qua terminal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        width: 1920px;
-        height: 1080px;
-        overflow: hidden;
-        background-color: #0f1117;
-        background-image: radial-gradient(
-          rgba(255, 255, 255, 0.18) 1.5px,
-          transparent 1.5px
-        );
-        background-size: 32px 32px;
-        font-family: "Inter", sans-serif;
-      }
-      body::before {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(150px);
-        z-index: -1;
-        top: -200px;
-        left: -200px;
-        width: 800px;
-        height: 800px;
-        background: rgba(63, 185, 80, 0.08);
-      }
-      body::after {
-        content: "";
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(150px);
-        z-index: -1;
-        bottom: -200px;
-        right: -200px;
-        width: 600px;
-        height: 600px;
-        background: rgba(56, 189, 248, 0.08);
-      }
-      .scene-root {
-        width: 1920px;
-        height: 1080px;
-        position: relative;
-      }
-      [id^="scene-"] {
-        width: 1920px;
-        height: 1080px;
-        position: relative;
-      }
-      :root {
-        --text-primary: #e6edf3;
-        --text-secondary: #c9d1d9;
-        --text-muted: #8b949e;
-        --cmd-prompt: #3fb950;
-        --cmd-output: #c9d1d9;
-        --cmd-comment: #8b949e;
-        --cmd-error: #f85149;
-        --cmd-path: #79c0ff;
-      }
-      .section-badge {
-        position: absolute;
-        top: 28px;
-        right: 40px;
-        background: rgba(63, 185, 80, 0.12);
-        border: 1px solid rgba(63, 185, 80, 0.3);
-        border-radius: 999px;
-        padding: 8px 24px;
-        font-size: 18px;
-        font-weight: 600;
-        color: #3fb950;
-        letter-spacing: 0.5px;
-      }
-      .intro-title {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 72px;
-        font-weight: 800;
-        color: var(--text-primary);
-        text-align: center;
-        white-space: nowrap;
-        z-index: 100;
-        text-shadow: 0 0 60px rgba(63, 185, 80, 0.4);
-      }
-      .main-layout {
-        position: absolute;
-        top: 80px;
-        left: 40px;
-        display: flex;
-        gap: 36px;
-        width: 1840px;
-        height: 960px;
-        align-items: center;
-      }
-      .concept-card {
-        flex: 0 0 36%;
-        background: rgba(9, 9, 11, 0.75);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 48px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        height: 680px;
-        justify-content: center;
-        box-shadow:
-          0 20px 60px rgba(0, 0, 0, 0.4),
-          inset 0 1px 0 rgba(255, 255, 255, 0.05);
-      }
-      .concept-card h3 {
-        font-size: 30px;
-        font-weight: 700;
-        color: var(--text-primary);
-        border-bottom: 2px solid rgba(63, 185, 80, 0.3);
-        padding-bottom: 16px;
-      }
-      .concept-card p {
-        font-size: 22px;
-        line-height: 1.75;
-        color: var(--text-secondary);
-      }
+<head>
+  <meta charset="UTF-8" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      width: 1920px; height: 1080px; overflow: hidden;
+      background: #0f1117; font-family: 'Inter', sans-serif;
+      background-image: radial-gradient(rgba(255,255,255,0.15) 1.5px, transparent 1.5px);
+      background-size: 32px 32px;
+    }
+    body::before {
+      content:''; position:absolute; border-radius:50%; filter:blur(180px); z-index:-1;
+      top:-100px; left:50%; transform:translateX(-50%);
+      width:900px; height:600px; background:rgba(63,185,80,0.08);
+    }
+    .scene-root { width: 1920px; height: 1080px; position: relative; }
+    [id^="scene-"] { width: 1920px; height: 1080px; position: relative; }
 
-      /* ── Terminal Window ──────────────────────────────── */
-      .terminal-window {
-        flex: 1;
-        height: 740px;
-        border-radius: 12px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow:
-          0 24px 64px rgba(0, 0, 0, 0.6),
-          0 0 0 1px rgba(255, 255, 255, 0.04);
-        display: flex;
-        flex-direction: column;
-        background: #0d1117;
-      }
-      .terminal-titlebar {
-        background: #1c1c1e;
-        height: 38px;
-        padding: 0 16px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        flex-shrink: 0;
-      }
-      .terminal-dots {
-        display: flex;
-        gap: 8px;
-      }
-      .t-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-      }
-      .t-dot.red {
-        background: #f85149;
-      }
-      .t-dot.yellow {
-        background: #ffa657;
-      }
-      .t-dot.green {
-        background: #3fb950;
-      }
-      .terminal-title-text {
-        font-family: system-ui, sans-serif;
-        font-size: 13px;
-        color: #8b949e;
-        font-weight: 500;
-      }
-      .terminal-body {
-        flex: 1;
-        padding: 24px 32px;
-        overflow: hidden;
-        font-family: "Fira Code", monospace;
-        font-size: 19px;
-        line-height: 1.9;
-      }
-      /* Command line styles */
-      .cmd-line {
-        display: block;
-      }
-      .cmd-prompt-prefix {
-        color: var(--cmd-prompt);
-        font-weight: 600;
-      }
-      .cmd-path {
-        color: var(--cmd-path);
-      }
-      .cmd-text {
-        color: var(--text-primary);
-      }
-      .cmd-output {
-        color: var(--cmd-output);
-        padding-left: 0;
-      }
-      .cmd-comment {
-        color: var(--cmd-comment);
-        font-style: italic;
-      }
-      .cmd-success {
-        color: var(--cmd-prompt);
-      }
-      .cmd-error {
-        color: var(--cmd-error);
-      }
-      .cmd-separator {
-        height: 12px;
-        display: block;
-      }
-      /* Blinking cursor */
-      .cursor-blink {
-        display: inline-block;
-        width: 10px;
-        height: 20px;
-        background: #3fb950;
-        animation: none;
-        vertical-align: middle;
-        margin-left: 2px;
-      }
-      @keyframes blink {
-        0%,
-        49% {
-          opacity: 1;
-        }
-        50%,
-        100% {
-          opacity: 0;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div
-      id="scene-06"
-      class="clip"
-      data-composition-id="scene-06"
-      data-start="0"
-      data-duration="19.1"
-      data-track-index="0"
-    >
-      <div
-        class="section-badge clip"
-        data-start="0"
-        data-duration="19.1"
-        data-track-index="1"
-      >
-        Tạo lập môi trường ảo thông qua terminal
-      </div>
+    .intro-title {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      font-size: 72px; font-weight: 800; color: #e6edf3; z-index: 100;
+      text-align: center; white-space: nowrap; text-shadow: 0 0 60px rgba(63,185,80,0.4);
+    }
 
-      <div
-        id="intro-title-06"
-        class="intro-title clip"
-        data-start="0"
-        data-duration="19.1"
-        data-track-index="100"
-      >
-        Tạo lập môi trường ảo thông qua terminal
-      </div>
+    .recap-container {
+      position: absolute; top: 100px; left: 120px;
+      width: 1680px; height: 880px;
+      display: flex; flex-direction: column; justify-content: center; gap: 36px;
+    }
+    .recap-header {
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid rgba(63,185,80,0.3); padding-bottom: 24px;
+    }
+    .recap-title {
+      font-size: 44px; font-weight: 800; color: #e6edf3;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .recap-badge {
+      background: rgba(63,185,80,0.15); border: 1px solid rgba(63,185,80,0.3);
+      color: #3fb950; font-size: 18px; font-weight: 700; padding: 8px 24px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
 
-      <div
-        id="main-layout-06"
-        class="main-layout clip"
-        data-start="0"
-        data-duration="19.1"
-        data-track-index="2"
-      >
-        <!-- Concept card -->
-        <div id="concept-card-06" class="concept-card">
-          <h3>Khái Niệm Cốt Lõi</h3>
-          <p>Để khởi tạo môi trường ảo, hãy mở cửa sổ dòng lệnh tại thư mục gốc của dự án, sau đó thực thi lệnh. python trừ m venv app gạch dưới env.</p>
-        </div>
+    .takeaways-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    }
+    .takeaway-card {
+      background: rgba(9,9,11,0.75); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 32px 36px;
+      display: flex; align-items: flex-start; gap: 20px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    }
+    .takeaway-check {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(63,185,80,0.15); border: 1px solid rgba(63,185,80,0.4);
+      color: #3fb950; font-size: 22px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .takeaway-text { font-size: 24px; color: #ffffff; line-height: 1.6; font-weight: 600; }
 
-        <!-- Terminal window -->
-        <div id="terminal-06" class="terminal-window">
-          <div class="terminal-titlebar">
-            <div class="terminal-dots">
-              <span class="t-dot red"></span>
-              <span class="t-dot yellow"></span>
-              <span class="t-dot green"></span>
-            </div>
-            <div class="terminal-title-text">
-              bash — ~/project
-            </div>
-            <div style="font-size: 13px; color: #8b949e">⊕ ×</div>
-          </div>
-          <div class="terminal-body" id="terminal-body-06">
-            <span class="cmd-line cmd-output">Terminal CLI gõ lệnh python -m venv app_env để tạo môi trường ảo.</span>
-            <span class="cursor-blink" id="cursor-06">█</span>
-          </div>
-        </div>
-      </div>
+    .next-step-bar {
+      background: linear-gradient(135deg, rgba(56,189,248,0.12), rgba(168,85,247,0.12));
+      border: 1px solid rgba(56,189,248,0.25); border-radius: 16px;
+      padding: 24px 36px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .next-step-label { font-size: 20px; color: #8b949e; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .next-step-val { font-size: 24px; color: #38bdf8; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div id="scene-06" class="clip scene-root"
+       data-composition-id="scene-06"
+       data-start="0" data-duration="35.0" data-track-index="0">
+
+    <div id="intro-title-06" class="intro-title clip"
+         data-start="0" data-duration="35.0" data-track-index="100">
+      Tổng Kết Bài Học
     </div>
 
-    <script>
-      window.__timelines = window.__timelines || {};
-      const tl = gsap.timeline({ paused: true });
-      const sceneId = "scene-06";
-      window.__timelines[sceneId] = tl;
+    <div class="recap-container clip" data-start="0" data-duration="35.0" data-track-index="2">
+      <div class="recap-header">
+        <div class="recap-title" style="display:flex;align-items:center;gap:14px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          Tổng Kết Bài Học
+        </div>
+        <div class="recap-badge">KEY TAKEAWAYS</div>
+      </div>
 
-      const _buildTimer = setInterval(function () {
-        if (!document.getElementById(sceneId)) return;
-        clearInterval(_buildTimer);
+      <div class="takeaways-grid">
+        <div id="tk-1-06" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">Như vậy, chúng ta đã cùng nhau hoàn thành bài học về Tổng quan về List trong Python</div>
+        </div>
 
-        const t1 = parseFloat("4.0") || 4.0;
-        const t2 = parseFloat("7.4") || 4.5;
-        const dur = parseFloat("19.1") || 30.0;
+        <div id="tk-2-06" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">Hãy nhớ rằng những kiến thức này là nền tảng cực kỳ quan trọng cho các bài học tiếp theo trong khóa Python Core</div>
+        </div>
 
-        tl.set(".clip", { autoAlpha: 1 }, 0);
-        tl.set(
-          "#intro-title-06",
-          { autoAlpha: 0, scale: 0.8 },
-          0,
-        );
-        tl.set("#concept-card-06", { autoAlpha: 0, x: -50 }, 0);
-        tl.set("#terminal-06", { autoAlpha: 0, y: 40 }, 0);
+        <div id="tk-3-06" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">Các em hãy thực hành lại toàn bộ các bước trên máy cá nhân để củng cố kiến thức</div>
+        </div>
 
-        tl.to(
-          "#intro-title-06",
-          { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" },
-          0.2,
-        );
-        tl.to(
-          "#intro-title-06",
-          {
-            scale: 0.38,
-            x: -760,
-            y: -460,
-            duration: 0.7,
-            ease: "power3.inOut",
-          },
-          3.2,
-        );
+        <div id="tk-4-06" class="takeaway-card">
+          <div class="takeaway-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3fb950" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="takeaway-text">Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo</div>
+        </div>
+      </div>
 
-        tl.to(
-          "#concept-card-06",
-          { autoAlpha: 1, x: 0, duration: 0.6, ease: "power3.out" },
-          t1,
-        );
-        tl.to(
-          "#terminal-06",
-          { autoAlpha: 1, y: 0, duration: 0.7, ease: "back.out(1.2)" },
-          t2,
-        );
+      <div id="next-bar-06" class="next-step-bar">
+        <div class="next-step-label" style="display:flex;align-items:center;gap:10px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          BÀI HỌC TIẾP THEO
+        </div>
+        <div class="next-step-val">Tiếp tục bài học tiếp theo trong lộ trình.</div>
+      </div>
+    </div>
+  </div>
 
-        // Cursor blink after terminal appears
-        tl.to(
-          "#cursor-06",
-          { opacity: 0, duration: 0.5, repeat: -1, yoyo: true, ease: "none" },
-          t2 + 0.8,
-        );
+  <script>
+    window.__timelines = window.__timelines || {};
+    const tl = gsap.timeline({ paused: true });
+    const sceneId = "scene-06";
+    window.__timelines[sceneId] = tl;
 
-        /*  */
-        tl.set({}, {}, dur);
-      }, 50);
-    </script>
-  </body>
+    const _buildTimer = setInterval(function() {
+      if (!document.getElementById(sceneId)) return;
+      clearInterval(_buildTimer);
+
+      const t1 = parseFloat("4.0") || 4.0;
+      const t2 = parseFloat("11.38") || 5.5;
+      const dur = parseFloat("35.0") || 30.0;
+
+      tl.set(".clip", { autoAlpha: 1 }, 0);
+      tl.set("#intro-title-06", { autoAlpha: 0, scale: 0.8 }, 0);
+      ["1","2","3","4"].forEach(n => {
+        tl.set("#tk-" + n + "-06", { autoAlpha: 0, y: 24 }, 0);
+      });
+      tl.set("#next-bar-06", { autoAlpha: 0, scale: 0.96 }, 0);
+
+      tl.to("#intro-title-06", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.4)" }, 0.2);
+      tl.to("#intro-title-06", { scale: 0.38, x: -760, y: -460, duration: 0.7, ease: "power3.inOut" }, 3.2);
+
+      tl.to("#tk-1-06", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1);
+      tl.to("#tk-2-06", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1 + 0.2);
+      tl.to("#tk-3-06", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1 + 0.4);
+      tl.to("#tk-4-06", { autoAlpha: 1, y: 0, duration: 0.5, ease: "power2.out" }, t1 + 0.6);
+
+      tl.to("#next-bar-06", { autoAlpha: 1, scale: 1, duration: 0.6, ease: "back.out(1.2)" }, t2);
+
+      /*  */
+
+      // Clean scene fade-out before transition
+      tl.to("#scene-06", { autoAlpha: 0, duration: 0.8, ease: "power2.inOut" }, Math.max(0, dur - 0.8));
+      tl.set({}, {}, dur);
+    }, 50);
+  </script>
+</body>
 </html>

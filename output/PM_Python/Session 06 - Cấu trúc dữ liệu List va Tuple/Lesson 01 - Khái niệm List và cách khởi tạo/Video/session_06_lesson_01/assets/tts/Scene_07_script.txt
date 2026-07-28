@@ -1,0 +1,1 @@
+Tổng kết lại, chúng ta đã nắm vững khái niệm mảng động vô cùng linh hoạt của List trong Python cùng hai phương pháp khởi tạo chính thông qua ngoặc vuông và constructor list. Trong bài học tiếp theo, chúng ta sẽ đi sâu vào kỹ thuật truy xuất và cắt lát các phần tử của danh sách này. Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo!

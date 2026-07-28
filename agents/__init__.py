@@ -26,6 +26,7 @@ from agents.lessons_learned_agent import lessons_learned_agent
 from agents.knowledge_memory_agent import knowledge_memory_agent, get_relevant_memories_for_creator
 from agents.prerequisite_guard_agent import prerequisite_guard_agent, run_prerequisite_check_for_pm
 from agents.homework_agents import generate_session_homework
+from agents.video_qa_reviewer_agent import video_qa_reviewer_agent
 
 __all__ = [
     "objective_architect_agent",
@@ -51,6 +52,8 @@ __all__ = [
     "get_relevant_memories_for_creator",
     "prerequisite_guard_agent",
     "run_prerequisite_check_for_pm",
-    "generate_session_homework"
+    "generate_session_homework",
+    "video_qa_reviewer_agent"
 ]
+
 

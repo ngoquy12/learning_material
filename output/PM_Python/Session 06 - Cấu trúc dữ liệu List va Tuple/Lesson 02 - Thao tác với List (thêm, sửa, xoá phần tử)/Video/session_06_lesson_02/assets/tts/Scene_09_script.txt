@@ -1,0 +1,1 @@
+Khi các em chỉ biết giá trị của phần tử cần xóa chứ không biết vị trí in-đếch của nó, hãy sử dụng phương thức ri-muv. Một điểm cần hết sức lưu ý là nếu giá trị ấy xuất hiện nhiều lần trong lít, phương thức ri-muv chỉ xóa đi phần tử tìm thấy đầu tiên tính từ trái qua phải.
