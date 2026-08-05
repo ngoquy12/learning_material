@@ -1,1 +1,0 @@
-Tiếp theo, để đồng nhất cách ghi nhận dữ liệu định danh như địa chỉ email hoặc tên đăng nhập, chúng ta chuyển đổi toàn bộ chuỗi về dạng ký tự thường bằng phương thức lower hoặc dạng ký tự hoa bằng phương thức upper. Thao tác này giúp hệ thống loại bỏ sự khác biệt viết hoa viết thường khi thực thi các câu lệnh truy vấn tìm kiếm.

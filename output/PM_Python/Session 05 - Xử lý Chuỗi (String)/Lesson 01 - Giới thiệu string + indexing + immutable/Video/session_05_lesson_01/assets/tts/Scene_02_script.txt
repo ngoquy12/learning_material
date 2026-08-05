@@ -1,1 +1,0 @@
-Nếu ngôn ngữ lập trình cho phép thay đổi trực tiếp nội dung ký tự trên cùng một vùng nhớ cũ, bất kỳ mô-đun nào trong hệ thống lớn bị lỗi logic đều có thể vô tình sửa đổi ký tự đại diện. Sự thay đổi này diễn ra mà không hề tạo ra một cảnh báo lỗi nào từ trình biên dịch, làm cho dữ liệu ban đầu bị ghi đè và hư hỏng không dấu vết.

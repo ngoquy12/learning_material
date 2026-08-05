@@ -22,7 +22,7 @@ from typing import Any, Dict, Optional
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from agents.creator_agents import video_script_agent
+from agents.creator_agents import video_script_creator_agent
 from agents.reviewer_agents import video_script_reviewer_agent
 from agents.hyperframes_writer_agent import hyperframes_writer_agent
 
@@ -50,7 +50,7 @@ def run_render_pipeline(state: Dict[str, Any], max_retries: int = 3, execute_ren
     while attempts < max_retries and not approved:
         attempts += 1
         print(f"\n🎬 [STAGE 2] Script Generation (Attempt {attempts}/{max_retries})...")
-        state = video_script_agent(state)
+        state = video_script_creator_agent(state)
         
         # ── STAGE 3: Reviewer Quality Check ─────────────────────────────────
         print(f"🔍 [STAGE 3] Reviewer Quality Audit...")

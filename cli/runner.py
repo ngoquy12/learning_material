@@ -19,6 +19,12 @@ from cli.curriculum_parser import (
     project_structure_reviewer_agent,
     get_or_rename_sanitized_folder,
     format_full_folder_name,
+    parse_program_structure_from_ptit,
+)
+from agents.pm_generator_agent import (
+    generate_curriculum_pm,
+    export_pm_to_markdown,
+    export_pm_to_excel,
 )
 from cli.publisher import (
     generate_obsidian_vault,
@@ -36,7 +42,218 @@ def main_entry():
     print("Starting Multi-Agent Learning Content Factory (Antigravity Workflow)")
     print("=====================================================================")
 
+    # Run Pre-flight Environment & Prerequisites Check
+    from scripts.check_environment import run_all_checks
+    if not run_all_checks():
+        print("[CLI Warning] Pre-flight system check flagged warnings. Proceeding with caution...\n")
+
     args = parse_cli_arguments()
+
+    # --init-config: Generate a starter config file for a new course
+    if args.init_config:
+        course_id = args.init_config
+        print(f"\n>>> Khởi tạo file cấu hình cho môn {course_id}...")
+
+        # Try to find course in PTIT Excel
+        default_excel = r"CLO-PLO\PM_PTIT_2026_Chương trình đào tạo.xlsx"
+        course_info = None
+        try:
+            course_info = parse_program_structure_from_ptit(default_excel, course_id)
+        except Exception:
+            pass
+
+        course_name = course_info["course_name"] if course_info else f"Tên môn ({course_id})"
+
+        config_template = {
+            "curriculum_excel_path": default_excel,
+            "course_id": course_id,
+            "student_profile": {
+                "entry_level": "beginner",
+                "background": "non-it",
+                "cognitive_speed": 1.0
+            },
+            "session_budget": {
+                "total_sessions": 30,
+                "theory_sessions": 12,
+                "practice_sessions": 10,
+                "mini_projects": 3,
+                "final_exam": 1,
+                "capstone_project": 4
+            },
+            "class_configuration": {
+                "session_duration_hours": 2.0,
+                "delivery_mode": "offline",
+                "sessions_per_day": 2,
+                "weekly_frequency": 3
+            },
+            "tech_stack": "",
+            "tech_stack_versions": {
+                "_EXAMPLE_Library": "x.y"
+            },
+            "coding_standards": ""
+        }
+
+        safe_id = course_id.lower().replace("-", "").replace(" ", "_")
+        config_path = Path(f"config/pm_generator_config_{safe_id}.json")
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(config_template, f, ensure_ascii=False, indent=2)
+
+        print(f"✅ Đã tạo file cấu hình: {config_path}")
+        if course_info:
+            print(f"   Môn học: {course_name}")
+            print(f"   PLOs: {len(course_info.get('plos', []))}, CLOs: {len(course_info.get('clos', []))}")
+        print(f"\n📝 Hướng dẫn tiếp theo:")
+        print(f"   1. Mở file {config_path} và điều chỉnh:")
+        print(f"      - 'tech_stack': Công nghệ mục tiêu (ví dụ: 'python/core', 'typescript/nestjs', 'java/springboot')")
+        print(f"      - 'session_budget': Số buổi theo phân bổ thực tế")
+        print(f"      - 'student_profile': Trình độ đầu vào của sinh viên")
+        print(f"   2. Chạy lệnh sinh PM:")
+        print(f"      python main.py --generate-pm --pm-config {config_path} --tech-stack <tech> --output-pm-name PM_Generated_{safe_id.upper()} --approve-pm")
+        return
+
+    # Auto-generation of PM Syllabus if --generate-pm is set
+    if args.generate_pm:
+        print("\n=======================================================")
+        print(">>> Giai đoạn -1: Thiết kế Chương trình Tự động (SPGA) <<<")
+        print("=======================================================")
+        
+        config_path = Path(args.pm_config)
+        if not config_path.exists():
+            print(f"❌ Lỗi: Không tìm thấy file cấu hình tại {config_path}")
+            return
+            
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                config_data = json.load(f)
+        except Exception as err:
+            print(f"❌ Lỗi khi đọc file cấu hình: {err}")
+            return
+            
+        curriculum_excel = config_data.get("curriculum_excel_path")
+        course_id = config_data.get("course_id")
+        student_profile = config_data.get("student_profile", {})
+        session_budget = config_data.get("session_budget", {})
+        tech_stack = config_data.get("tech_stack")
+        tech_stack_versions = config_data.get("tech_stack_versions", {})
+        coding_standards = config_data.get("coding_standards", "")
+        class_configuration = config_data.get("class_configuration", {
+            "session_duration_hours": 2.0,
+            "delivery_mode": "offline",
+            "sessions_per_day": 1,
+            "weekly_frequency": 3
+        })
+
+        # Build detailed tech_stack display string with versions
+        # Example: "Python 3.12, FastAPI 0.115, SQLAlchemy 2.0 (PEP 8, Type Hints)"
+        if tech_stack_versions:
+            version_parts = [f"{lib} {ver}" for lib, ver in tech_stack_versions.items()]
+            tech_stack_display = ", ".join(version_parts)
+            if coding_standards:
+                tech_stack_display += f" ({coding_standards})"
+        else:
+            tech_stack_display = tech_stack or ""
+
+        if not tech_stack_display or not tech_stack_display.strip():
+            print("❌ Lỗi: Thiếu 'tech_stack' trong file cấu hình JSON hoặc cờ '--tech-stack'. Hệ thống TUYỆT ĐỐI KHÔNG tự động fallback công nghệ.")
+            return
+            
+        if not curriculum_excel or not course_id:
+            print("❌ Lỗi: Thiếu 'curriculum_excel_path' hoặc 'course_id' trong file cấu hình.")
+            return
+            
+        print(f"Đang trích xuất thông tin chuẩn đầu ra (PLO/CLO) cho môn {course_id}...")
+        course_info = parse_program_structure_from_ptit(curriculum_excel, course_id)
+        if not course_info:
+            print(f"❌ Không tìm thấy thông tin môn {course_id} trong tệp Excel {curriculum_excel}")
+            return
+            
+        print(f"Môn học được tìm thấy: {course_info['course_name']} ({course_info['semester_id']})")
+        print(f"Số chuẩn đầu ra đã trích xuất: PLOs={len(course_info['plos'])}, CLOs={len(course_info['clos'])}")
+        if tech_stack_versions:
+            print(f"Tech Stack (có phiên bản): {tech_stack_display}")
+        
+        output_base_dir = Path("output") / "pms"
+        output_base_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Extract Vietnamese course name inside parentheses if present
+        raw_name = course_info["course_name"]
+        match = re.search(r'\(([^)]+)\)', raw_name)
+        vi_name = match.group(1).strip() if match else raw_name.strip()
+        
+        course_dir_name = vi_name.replace(" ", "_").replace("-", "_").replace("/", "_")
+        course_dir = output_base_dir / course_dir_name
+        course_dir.mkdir(parents=True, exist_ok=True)
+        
+        output_xlsx_path = course_dir / f"{args.output_pm_name}.xlsx"
+        output_md_path = course_dir / f"{args.output_pm_name}.md"
+        
+        existing_pm = None
+        is_update = False
+        
+        # Incremental Sync & Refactor Mode
+        if output_xlsx_path.exists():
+            print(f"  [Refactor Mode] Phát hiện tệp PM cũ tại {output_xlsx_path}. Đang phân tích cấu trúc cũ...")
+            try:
+                existing_pm = parse_all_sessions(str(output_xlsx_path))
+                is_update = True
+            except Exception as parse_err:
+                print(f"  [Warning] Không thể đọc tệp PM cũ để làm mẫu: {parse_err}")
+                
+        if course_info.get("hours") and course_info["hours"].get("total", 0) > 0:
+            h = course_info["hours"]
+            session_budget = {
+                "total_sessions": h["total"],
+                "theory_sessions": h["theory"],
+                "practice_sessions": h.get("practice_total", h.get("practice_offline", 0) + h.get("practice_online", 0)),
+                "mini_projects": h.get("mini_project", 0),
+                "final_exam": h.get("exam", 0),
+                "capstone_project": h.get("project", 0)
+            }
+            print(f"Session Budget từ Excel: Total={session_budget['total_sessions']} (Lý thuyết={session_budget['theory_sessions']}, Thực hành={session_budget['practice_sessions']}, MiniProj={session_budget['mini_projects']}, Thi={session_budget['final_exam']}, Dự án={session_budget['capstone_project']})")
+
+        # Generate new syllabus via SPGA Agent — pass version-detailed tech_stack, main_content, exam_type
+        print("Đang gọi AI Agent (SCAA) để thiết kế chương trình học chi tiết...")
+        pm_data = generate_curriculum_pm(
+            course_id=course_id,
+            course_name=course_info["course_name"],
+            clos=course_info["clos"],
+            plos=course_info["plos"],
+            student_profile=student_profile,
+            session_budget=session_budget,
+            tech_stack=tech_stack_display,
+            class_configuration=class_configuration,
+            existing_pm=existing_pm,
+            main_content=course_info.get("main_content", ""),
+            exam_type=course_info.get("exam_type", "")
+        )
+        
+        if not pm_data:
+            print("❌ Lỗi: Agent không thể tạo ra chương trình học hợp lệ.")
+            return
+            
+        # Write to _Updated file if is_update is True
+        target_xlsx = str(course_dir / f"{args.output_pm_name}_Updated.xlsx") if is_update else str(output_xlsx_path)
+        target_md = str(course_dir / f"{args.output_pm_name}_Updated.md") if is_update else str(output_md_path)
+        
+        export_pm_to_markdown(pm_data, course_id, course_info["course_name"], course_info["clos"], course_info["plos"], target_md, tech_stack=tech_stack_display)
+        export_pm_to_excel(
+            pm_data, course_id, course_info["course_name"], target_xlsx,
+            template_path="templates/PM_Template_Standard.xlsx",
+            clos=course_info["clos"],
+            plos=course_info["plos"],
+            student_profile=student_profile,
+            tech_stack=tech_stack_display,
+        )
+        
+        print(f"🎉 Thiết kế chương trình học thành công!")
+        print(f"  - Bản thảo Markdown: {target_md}")
+        print(f"  - Tệp Excel PM: {target_xlsx}")
+        
+        # Return immediately after PM generation without continuing to file structure initialization
+        return
+
     excel_path = args.pm
 
     # Cache Stats (independent of PM file existence)
@@ -76,25 +293,17 @@ def main_entry():
     output_base_dir = Path("output")
     output_base_dir.mkdir(exist_ok=True)
 
-    course_dir_name = Path(excel_path).stem.strip().replace(" ", "_").replace("-", "_")
-    course_dir = output_base_dir / course_dir_name
+    excel_path_obj = Path(excel_path)
+    if excel_path_obj.parent.name != "pms" and excel_path_obj.parent.parent.name == "pms":
+        course_dir = excel_path_obj.parent
+        course_dir_name = f"pms/{excel_path_obj.parent.name}"
+    else:
+        course_dir_name = excel_path_obj.stem.strip().replace(" ", "_").replace("-", "_")
+        course_dir = output_base_dir / course_dir_name
     course_dir.mkdir(parents=True, exist_ok=True)
 
-    # Detect technology stack dynamically or strictly from args/PM metadata
+    # Detect technology stack strictly from args — NO filename-based guessing
     tech_stack = args.tech_stack.strip().lower() if getattr(args, "tech_stack", "") else ""
-    if not tech_stack:
-        fn = os.path.basename(excel_path).lower()
-        sn = course_dir_name.lower()
-        if "fastapi" in fn or "fastapi" in sn:
-            tech_stack = "python/fastapi"
-        elif "nestjs" in fn or "nestjs" in sn or "nest" in fn or "nest" in sn:
-            tech_stack = "typescript/nestjs"
-        elif "react" in fn or "react" in sn:
-            tech_stack = "typescript/react"
-        elif "java" in fn or "java" in sn or "springboot" in fn or "springboot" in sn:
-            tech_stack = "java/springboot"
-        elif "python" in fn or "python" in sn or "core" in fn or "core" in sn or "basic" in fn or "basic" in sn:
-            tech_stack = "python/core"
 
     if not tech_stack:
         raise ValueError(
@@ -223,6 +432,7 @@ def main_entry():
                 state: AgentState = {
                     "session_id": session_id,
                     "lesson_id": lesson_id,
+                    "lesson_title": lesson_title,
                     "pm_input": json.dumps(lesson, ensure_ascii=False),
                     "full_curriculum": json.dumps(get_context_curriculum(sessions, session_id), ensure_ascii=False),
                     "time_reference": {
@@ -291,7 +501,17 @@ def main_entry():
 
                 # Run the pipeline for normal lessons
                 try:
-                    final_state = workflow.run(state)
+                    from core.persistence import load_checkpoint
+                    checkpoint_key = f"{session_id}_{lesson_id}".strip("_")
+                    cached_state = load_checkpoint(checkpoint_key)
+                    if cached_state and cached_state.get("artifacts_status", {}).get("session") == "PUBLISHED" and not args.force:
+                        print(f"  [Checkpoint] Lesson {lesson_id} is already PUBLISHED. Loading from database...")
+                        final_state = cached_state
+                    else:
+                        if cached_state and not args.force:
+                            print(f"  [Checkpoint] Found intermediate checkpoint for {lesson_id}. Resuming...")
+                            state = cached_state
+                        final_state = workflow.run(state)
                     
                     session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
                     lesson_dir = get_or_rename_sanitized_folder(session_dir, lesson_id, format_full_folder_name(lesson_id, lesson_title))
@@ -327,11 +547,22 @@ def main_entry():
                         l_num_str = lesson_id.replace(" ", "")
                         excel_filename = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
                         excel_path_file = quiz_sub / excel_filename
-                        quiz_items = final_state.get("quiz_json", {}).get("lesson_quiz") or final_state.get("quiz_json", {}).get("quiz") or []
+                        quiz_data = final_state.get("quiz_json", {})
+                        if isinstance(quiz_data, dict):
+                            quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
+                        else:
+                            quiz_items = quiz_data
                         export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
                         quiz_reported_path = str(excel_path_file)
                     else:
                         quiz_reported_path = "Skipped"
+
+                    if "quiz" in requested_parts and final_state.get("lab_json"):
+                        lab_sub = lesson_dir / "Bài thực hành"
+                        lab_sub.mkdir(parents=True, exist_ok=True)
+                        lab_json_path = lab_sub / "practical_lab.json"
+                        with open(lab_json_path, "w", encoding="utf-8") as f:
+                            json.dump(final_state.get("lab_json", {}), f, ensure_ascii=False, indent=2)
 
                     if ("video" in requested_parts or "video_script" in requested_parts) and final_state.get("video_script_markdown"):
                         video_sub = lesson_dir / "Video"
@@ -356,21 +587,36 @@ def main_entry():
                         "lesson_id": lesson_id,
                         "title": lesson_title,
                         "html_file": str(html_path),
-                        "slides_file": str(slides_path),
+                        "slides_file": "Skipped (Moved to Session Level)",
                         "quiz_file": quiz_reported_path,
                         "video_script_file": str(video_script_path),
-                        "mindmap_file": str(mindmap_path),
+                        "mindmap_file": "Skipped (Moved to Session Level)",
                         "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
                         "review_count": len(final_state.get("review_logs", []))
                     })
+                    
+                    # Compile a detailed curriculum reference of what was generated
+                    master_c = final_state.get("master_content", {})
+                    rich_summary = f"Bài học: {lesson_title}\n"
+                    if isinstance(master_c, dict):
+                        if "reading_sections" in master_c:
+                            for sec in master_c["reading_sections"]:
+                                rich_summary += f"### {sec.get('title')}\n"
+                                rich_summary += f"{sec.get('content', '')[:150]}...\n"
+                        if "example" in master_c and master_c["example"]:
+                            rich_summary += f"### Cú pháp/Mã nguồn đã học:\n```python\n{master_c['example']}\n```\n"
+                    else:
+                        rich_summary += final_state.get("html_content", "")[:300]
 
                     previous_lessons.append({
                         "lesson_id": lesson_id,
                         "title": lesson_title,
-                        "html_summary": final_state.get("html_content", "")[:200]
+                        "html_summary": rich_summary
                     })
 
                 except Exception as e:
+                    import traceback
+                    traceback.print_exc()
                     print(f"❌ Error processing {session_id} - {lesson_id}: {e}")
                     summary.append({
                         "session_id": session_id,
@@ -384,6 +630,58 @@ def main_entry():
                         "status": f"FAILED ({e})",
                         "review_count": 0
                     })
+
+            # Automatically generate Session-Level Assets (Session Slides, Session Mindmap & Session Homework Exercises)
+            if args.approve_pm and not (is_project_or_hackathon or is_practice):
+                session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
+                session_dir.mkdir(parents=True, exist_ok=True)
+                
+                session_lessons_text = f"Chi tiết kiến thức thực tế đã được duyệt sản xuất trong bài học ({session_title}):\n"
+                for pl in previous_lessons:
+                    session_lessons_text += f"\n=========================================\n"
+                    session_lessons_text += f"BÀI HỌC {pl['lesson_id']}: {pl['title']}\n"
+                    session_lessons_text += f"{pl['html_summary']}\n"
+                
+                from agents.homework_agents import generate_session_homework
+                from agents.session_mindmap_agent import generate_session_mindmap
+                from agents.session_slide_agent import generate_session_slides
+                from agents.session_video_script_agent import generate_session_video_scripts
+                
+                print(f"\n  ---> [Session Generator] Tự động sinh Master Slide Session, Mindmap Session & Bộ Bài tập Session cho {session_id}...")
+                session_forbidden_scope = session.get("forbidden_scope", "")
+                generate_session_homework(
+                    session_id=session_id,
+                    session_title=session_title,
+                    session_dir_path=str(session_dir),
+                    tech_stack=tech_stack,
+                    previous_lessons_text=session_lessons_text,
+                    forbidden_scope=session_forbidden_scope
+                )
+                
+                generate_session_mindmap(
+                    session_id=session_id,
+                    session_title=session_title,
+                    session_dir_path=str(session_dir),
+                    tech_stack=tech_stack,
+                    previous_lessons_text=session_lessons_text
+                )
+
+                session_slides_html = generate_session_slides(
+                    session_id=session_id,
+                    session_title=session_title,
+                    session_dir_path=str(session_dir),
+                    tech_stack=tech_stack,
+                    previous_lessons_text=session_lessons_text
+                )
+                
+                generate_session_video_scripts(
+                    session_id=session_id,
+                    session_title=session_title,
+                    session_dir_path=str(session_dir),
+                    tech_stack=tech_stack,
+                    session_slides_html=session_slides_html,
+                    lessons_data=session.get("lessons", [])
+                )
         else:
             # Session with no sub-lessons
             state: AgentState = {
@@ -411,7 +709,17 @@ def main_entry():
             }
 
             try:
-                final_state = workflow.run(state)
+                from core.persistence import load_checkpoint
+                checkpoint_key = f"{session_id}".strip("_")
+                cached_state = load_checkpoint(checkpoint_key)
+                if cached_state and cached_state.get("artifacts_status", {}).get("session") == "PUBLISHED" and not args.force:
+                    print(f"  [Checkpoint] Session {session_id} is already PUBLISHED. Loading from database...")
+                    final_state = cached_state
+                else:
+                    if cached_state and not args.force:
+                        print(f"  [Checkpoint] Found intermediate checkpoint for {session_id}. Resuming...")
+                        state = cached_state
+                    final_state = workflow.run(state)
                 session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
                 session_dir.mkdir(parents=True, exist_ok=True)
 
@@ -444,11 +752,22 @@ def main_entry():
                     s_num_str = session_id.replace(" ", "")
                     excel_filename = f"Quizz_{s_num_str}_Thuc_hanh.xlsx"
                     excel_path_file = quiz_sub / excel_filename
-                    quiz_items = final_state.get("quiz_json", {}).get("lesson_quiz") or final_state.get("quiz_json", {}).get("quiz") or []
+                    quiz_data = final_state.get("quiz_json", {})
+                    if isinstance(quiz_data, dict):
+                        quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
+                    else:
+                        quiz_items = quiz_data
                     export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
                     quiz_reported_path = str(excel_path_file)
                 else:
                     quiz_reported_path = "Skipped"
+
+                if "quiz" in requested_parts and final_state.get("lab_json"):
+                    lab_sub = session_dir / "Bài thực hành"
+                    lab_sub.mkdir(parents=True, exist_ok=True)
+                    lab_json_path = lab_sub / "practical_lab.json"
+                    with open(lab_json_path, "w", encoding="utf-8") as f:
+                        json.dump(final_state.get("lab_json", {}), f, ensure_ascii=False, indent=2)
 
                 if ("video" in requested_parts or "video_script" in requested_parts) and final_state.get("video_script_markdown"):
                     video_sub = session_dir / "Kịch bản video"
@@ -482,13 +801,44 @@ def main_entry():
                 })
 
                 if args.approve_pm and not (is_project_or_hackathon or is_practice):
-                    session_lessons_text = f"Kiến thức tổng quan của buổi học: {session_title}"
-                    if session.get("lessons"):
-                        for idx, lesson in enumerate(session.get("lessons", [])):
-                            session_lessons_text += f"\n- {lesson['lesson_id']}: {lesson['title']} ({lesson.get('details', '')})"
+                    # Compile a detailed curriculum reference of what was generated
+                    master_c = final_state.get("master_content", {})
+                    rich_summary = f"Bài học: {session_title}\n"
+                    if isinstance(master_c, dict):
+                        if "reading_sections" in master_c:
+                            for sec in master_c["reading_sections"]:
+                                rich_summary += f"### {sec.get('title')}\n"
+                                rich_summary += f"{sec.get('content', '')[:150]}...\n"
+                        if "example" in master_c and master_c["example"]:
+                            rich_summary += f"### Cú pháp/Mã nguồn đã học:\n```python\n{master_c['example']}\n```\n"
+                    else:
+                        rich_summary += final_state.get("html_content", "")[:300]
+                        
+                    session_lessons_text = rich_summary
                     
                     from agents.homework_agents import generate_session_homework
+                    from agents.session_mindmap_agent import generate_session_mindmap
+                    from agents.session_slide_agent import generate_session_slides
+                    from agents.session_video_script_agent import generate_session_video_scripts
+                    
+                    session_forbidden_scope = session.get("forbidden_scope", "")
+                    
                     generate_session_homework(
+                        session_id=session_id,
+                        session_title=session_title,
+                        session_dir_path=str(session_dir),
+                        tech_stack=tech_stack,
+                        previous_lessons_text=session_lessons_text,
+                        forbidden_scope=session_forbidden_scope
+                    )
+                    generate_session_mindmap(
+                        session_id=session_id,
+                        session_title=session_title,
+                        session_dir_path=str(session_dir),
+                        tech_stack=tech_stack,
+                        previous_lessons_text=session_lessons_text
+                    )
+                    generate_session_slides(
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -520,9 +870,12 @@ def main_entry():
             
             from core.quiz_engine import generate_entrance_quiz, generate_exit_quiz
             from core.quiz_excel import export_quiz_to_excel
-            from agents.creator_agents import get_base_topic_key
+            from agents.creator_agents import get_base_topic_key, get_base_topic_key_for_core
             
-            current_topic = get_base_topic_key(session_id)
+            if "core" in tech_stack.lower() or "cli" in tech_stack.lower():
+                current_topic = get_base_topic_key_for_core(session_id)
+            else:
+                current_topic = get_base_topic_key(session_id)
             
             def get_previous_session_id(s_id: str) -> str:
                 match = re.search(r'\d+', s_id)
@@ -533,7 +886,10 @@ def main_entry():
                 return "Session 01"
                 
             previous_session_id = get_previous_session_id(session_id)
-            previous_topic = get_base_topic_key(previous_session_id)
+            if "core" in tech_stack.lower() or "cli" in tech_stack.lower():
+                previous_topic = get_base_topic_key_for_core(previous_session_id)
+            else:
+                previous_topic = get_base_topic_key(previous_session_id)
             
             entrance_qs = generate_entrance_quiz(session_id, current_topic, previous_topic, tech_stack)
             exit_qs = generate_exit_quiz(session_id, current_topic, tech_stack)
@@ -542,3 +898,7 @@ def main_entry():
             export_quiz_to_excel(exit_qs, str(exit_path))
 
     print_generation_summary(summary)
+
+
+if __name__ == '__main__':
+    main_entry()

@@ -1,1 +1,0 @@
-Lỗi lô-gích dễ bị bỏ qua nhất là xung đột giữa các giá trị chỉ mục sờ-tạt, sờ-tóp và hướng của sờ-tép. Nếu bạn cấu hình sờ-tép âm nhưng sờ-tạt lại nhỏ hơn sờ-tóp, trình thông dịch Python sẽ âm thầm trả về một chuỗi rỗng thay vì ném ra lỗi runtime để cảnh báo. Do đó, hãy luôn kiểm tra kỹ hướng duyệt trước khi thực thi.

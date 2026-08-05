@@ -1,1 +1,0 @@
-Cần chú ý quy tắc kỹ thuật nghiêm ngặt sau. Chỉ áp dụng toán tử ba ngôi cho các biểu thức gán giá trị đơn giản có độ dài dưới tám mươi ký tự. Tuyệt đối tránh việc lồng ghép từ hai toán tử ba ngôi trở lên trên cùng một dòng lệnh, vì điều này sẽ phá vỡ tính dễ đọc của mã nguồn Python.

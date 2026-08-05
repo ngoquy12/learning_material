@@ -77,20 +77,30 @@ class SQLiteConnectionPool:
                 except queue.Empty:
                     break
 
+_named_pools: Dict[str, SQLiteConnectionPool] = {}
+
+def get_db_pool(db_path: str = DB_PATH) -> SQLiteConnectionPool:
+    """Thread-safe access to a named connection pool for any SQLite database path."""
+    global _named_pools
+    if db_path not in _named_pools:
+        with _pool_lock:
+            if db_path not in _named_pools:
+                try:
+                    from config.settings import DB_POOL_SIZE, DB_MAX_OVERFLOW, DB_POOL_TIMEOUT
+                    pool_size, max_overflow, timeout = DB_POOL_SIZE, DB_MAX_OVERFLOW, DB_POOL_TIMEOUT
+                except Exception:
+                    pool_size, max_overflow, timeout = 5, 10, 30.0
+                _named_pools[db_path] = SQLiteConnectionPool(
+                    db_path=db_path,
+                    pool_size=pool_size,
+                    max_overflow=max_overflow,
+                    timeout=timeout
+                )
+    return _named_pools[db_path]
+
 def get_pool() -> SQLiteConnectionPool:
     """Thread-safe access to the global connection pool using double-checked locking."""
-    global _pool
-    if _pool is None:
-        with _pool_lock:
-            if _pool is None:
-                from config.settings import DB_POOL_SIZE, DB_MAX_OVERFLOW, DB_POOL_TIMEOUT
-                _pool = SQLiteConnectionPool(
-                    db_path=DB_PATH,
-                    pool_size=DB_POOL_SIZE,
-                    max_overflow=DB_MAX_OVERFLOW,
-                    timeout=DB_POOL_TIMEOUT
-                )
-    return _pool
+    return get_db_pool(DB_PATH)
 
 def _is_corrupt_error(e: Exception) -> bool:
     """Checks if an SQLite exception indicates database corruption or invalid format."""

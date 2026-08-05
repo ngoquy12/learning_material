@@ -1,1 +1,0 @@
-Khi muốn tạo một vòng lặp giảm dần các số, bạn bắt buộc phải chỉ định tham số start có giá trị lớn hơn stop, đồng thời cung cấp giá trị âm cho cấu hình tham số step. Nếu không tinh chỉnh bước nhảy âm, máy ảo sẽ không thể phát hiện chiều chuyển động và bỏ qua hoàn toàn khối code.

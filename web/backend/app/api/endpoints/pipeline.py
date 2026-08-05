@@ -289,7 +289,7 @@ async def sync_disk_to_db():
 
 @router.get("/knowledge-memory", response_model=List[KnowledgeMemoryItem], summary="Xem Knowledge Memory Store")
 async def get_knowledge_memories(
-    tech_stack: Optional[str] = Query(None, description="Lọc theo tech stack, ví dụ: python/fastapi"),
+    tech_stack: Optional[str] = Query(None, description="Lọc theo tech stack, ví dụ: python/core, typescript/nestjs"),
     scope: Optional[str] = Query(None, description="Lọc theo scope: html, quiz, slide, mindmap..."),
     category: Optional[str] = Query(None, description="Lọc theo category lỗi"),
     limit: int = Query(50, ge=1, le=200),
@@ -445,7 +445,7 @@ async def download_scorm(task_id: str):
 # ── PM Reviewer & Updater ─────────────────────────────────
 
 @router.post("/pm/review", summary="Tải lên và Thẩm định file PM")
-async def review_pm(file: UploadFile = File(...)):
+async def review_pm(file: UploadFile = File(...), tech_stack: Optional[str] = Form(None)):
     """Upload file PM Excel và chạy thẩm định qua AI (PM Reviewer)."""
     try:
         sys.path.insert(0, str(ROOT))
@@ -463,25 +463,19 @@ async def review_pm(file: UploadFile = File(...)):
         sessions = parse_all_sessions(str(file_path))
         full_curriculum_json = json.dumps(sessions, ensure_ascii=False)
         
-        # Determine tech stack strictly without silent default fallback
-        fn = file.filename.lower()
-        if "fastapi" in fn:
-            tech_stack = "python/fastapi"
-        elif "nestjs" in fn or "nest" in fn:
-            tech_stack = "typescript/nestjs"
-        elif "react" in fn:
-            tech_stack = "typescript/react"
-        elif "java" in fn or "springboot" in fn:
-            tech_stack = "java/springboot"
-        elif "python" in fn or "core" in fn or "basic" in fn:
-            tech_stack = "python/core"
-        else:
+        # Determine tech stack strictly without hardcoded guessing
+        resolved_tech = tech_stack
+        if not resolved_tech and isinstance(sessions, list) and sessions:
+            first_session = sessions[0]
+            resolved_tech = first_session.get("technology_stack") or first_session.get("tech_stack")
+
+        if not resolved_tech or not str(resolved_tech).strip():
             raise HTTPException(
                 status_code=400,
-                detail=f"Không thể tự động xác định công nghệ (Tech Stack) cho file '{file.filename}'. Tắt cơ chế fallback mặc định để tránh rò rỉ công nghệ."
+                detail=f"❌ [LỖI THIẾU TECHNOLOGY STACK] Không thể xác định Technology Stack cho file '{file.filename}'. Vui lòng truyền tham số tech_stack."
             )
             
-        report = pm_reviewer_agent(full_curriculum_json, tech_stack)
+        report = pm_reviewer_agent(full_curriculum_json, str(resolved_tech).strip())
         
         report_path = upload_dir / f"{file_path.stem}_review_report.md"
         report_path.write_text(report, encoding="utf-8")
@@ -559,12 +553,13 @@ async def export_obsidian(payload: ObsidianExportRequest, background_tasks: Back
             _obsidian_tasks[task_id]["progress"] = "Đang kiểm tra ràng buộc tiên quyết..."
             sessions = parse_all_sessions(payload.pm_path)
             
-            stack = "python/fastapi"
-            fn = payload.pm_path.lower()
-            if "nestjs" in fn or "nest" in fn: stack = "typescript/nestjs"
-            elif "core" in fn or "basic" in fn: stack = "python/core"
+            stack = payload.tech_stack if hasattr(payload, "tech_stack") and payload.tech_stack else None
+            if not stack and isinstance(sessions, list) and sessions:
+                stack = sessions[0].get("technology_stack") or sessions[0].get("tech_stack")
+            if not stack:
+                stack = "unknown"
                 
-            _, prerequisite_data = run_prerequisite_check_for_pm(sessions, stack)
+            _, prerequisite_data = run_prerequisite_check_for_pm(sessions, str(stack))
             
             _obsidian_tasks[task_id]["progress"] = "Đang tạo Knowledge Linker Vault..."
             

@@ -1,48 +1,49 @@
 ---
 name: hyperframes_composer
-description: Bộ quy chuẩn kỹ thuật sản xuất video HyperFrames cho hệ thống Elearning - bao gồm kiến trúc file, animation rules, design system và production pipeline chuẩn từ dự án dev-tutorial-video.
+description: Technical standards for HyperFrames Elearning video production — file architecture, GSAP animation rules, light theme design system, and production pipeline specs. Target output language is 100% Accented Vietnamese.
 ---
 
-# HyperFrames Composer Skill — Quy Chuẩn Sản Xuất Video E-learning
+# HyperFrames Composer Skill — Elearning Video Production Standards
 
 > [!IMPORTANT]
-> **QUY TẮC TUÂN THỦ 100% QUY TRÌNH HYPERFRAMES (STRICT HYPERFRAMES ADHERENCE - CẤM TỰ SÁNG TẠO):**
-> Tất cả các Agent (Video Director Agent, HyperFrames Writer Agent, Video Reviewer Agent) **BẮT BUỘC** tuân thủ $100\%$ quy trình, cấu trúc tệp, kịch bản, âm thanh và quy chuẩn giao diện từ thư mục gốc `hyperframes/` và tệp hướng dẫn `hyperframes/dev-tutorial-video/HYPERFRAMES_GUIDELINE.md`.
-> **NGHIÊM CẤM** bất kỳ sự tự sáng tạo tùy tiện, sửa đổi tự phát hoặc đi sai lệch khỏi hệ thống quy chuẩn đã được phê duyệt trong `hyperframes/`.
+> **STRICT HYPERFRAMES ADHERENCE DIRECTIVE (NO IMPROVISATION):**
+> All Agents (Video Director Agent, HyperFrames Writer Agent, Video Reviewer Agent) MUST strictly adhere to 100% of pipeline stages, file structures, script blueprints, audio configurations, and UI design standards specified in `hyperframes/` and `hyperframes/dev-tutorial-video/HYPERFRAMES_GUIDELINE.md`.
+> FORBIDDEN to improvise, modify, or deviate from approved standards.
 
 > [!IMPORTANT]
-> **QUY TẮC ĐƯỜNG DẪN TỆP (WORKSPACE-RELATIVE PATHS ONLY):**
-> **NGHIÊM CẤM** việc hardcode tuyệt đối các đường dẫn từ ổ đĩa máy tính (ví dụ: `d:\...`, `C:\...`, `file:///d:/...`).
-> **BẮT BUỘC** tất cả các đường dẫn tệp trong cấu hình, tài liệu, kịch bản, mã nguồn script và tham chiếu (link) PHẢI xuất phát từ thư mục gốc của dự án (ví dụ: `Kokoro-Vietnamese/configs/tech_dictionary.json`, `skills/hyperframes_composer/SKILL.md`, `hyperframes/components/`).
+> **WORKSPACE-RELATIVE PATHS DIRECTIVE:**
+> FORBIDDEN to hardcode absolute drive paths (`d:\...`, `C:\...`, `file:///d:/...`).
+> ALL file paths in configurations, scripts, markup, and links MUST originate from workspace root (`Kokoro-Vietnamese/configs/tech_dictionary.json`, `skills/hyperframes_composer/SKILL.md`, `hyperframes/components/`).
 
 > [!IMPORTANT]
-> **QUY TẮC NỐI MÃ NGUỒN HTML TRỰC TIẾP (INLINED SCENE DOM — CHỐNG MÀN HÌNH ĐEN):**
-> Khi render trên Windows với giao thức `file://`, Chrome Puppeteer sẽ chặn truy cập `iframe.contentWindow.__timelines` do chính sách bảo mật cross-origin `origin null`. Điều này khiến các animation GSAP trong `iframe` bị kẹt ở frame 0 (màn hình đen).
-> **BẮT BUỘC**: Nhúng trực tiếp container HTML của tất cả các Scene (`<div id="scene-01" class="clip scene-root">...</div>`) và mã GSAP timeline tương ứng vào tệp `index.html` duy nhất. Không sử dụng nested `<iframe>` trong `index.html`.
+> **INLINED SCENE DOM DIRECTIVE (PREVENT BLACK SCREEN):**
+> Puppeteer blocks `iframe.contentWindow.__timelines` access over `file://` protocol due to cross-origin `origin null` policy. This causes nested GSAP iframe timelines to freeze at frame 0 (black screen).
+> MANDATORY: Inline all Scene HTML containers (`<div id="scene-01" class="clip scene-root">...</div>`) and corresponding GSAP timelines directly into a single `index.html` file. Do NOT use nested `<iframe>` tags in `index.html`.
 
 > [!IMPORTANT]
-> **QUY TẮC BẮT BUỘC VỀ HÌNH ẢNH & ĐỒ HỌA MINH HỌA (DYNAMIC VISUAL ASSET & IMAGE PIPELINE):**
-> **NGHIÊM CẤM** việc dựng 100% giao diện video chỉ bằng các khung chữ HTML trần trụi, gây nhàm chán cho người xem!
-> **BẮT BUỘC**:
-> 1. **Tạo Hình Ảnh Minh Họa Đồ Họa Công Nghệ (Generated Image Assets)**:
->    - Khi sinh kịch bản cho bài học mới, Agent **BẮT BUỘC** gọi công cụ `generate_image` để tự động tạo các tệp hình ảnh minh họa 3D/Infographic công nghệ chất lượng cao (`.png` / `.jpg`) cho mỗi Scene (VD: `assets/images/scene_01_concept.png`).
->    - Các tệp ảnh sinh ra được lưu tại `Video/{lesson_slug}/assets/images/` và nhúng trực tiếp vào thẻ HTML `<img src="assets/images/scene_XX_concept.png" class="scene-illustration" />`.
-> 2. **Bố Cục Giao Diện Giàu Đồ Họa (Rich Graphical Layouts)**:
->    - Áp dụng các bố cục sinh động: **Split-Screen (Khung Ảnh Minh Họa 3D bên trái + Nội dung Thẻ bên phải)**, **Infographic Interactive Step-Cards**, **Glassmorphic Hero Showcase với Sơ Đồ Vector SVG Glowing**.
-> 3. **Cập Nhật Tự Động Toàn Hệ Thống**: Tất cả các video sinh ra từ Agent sau này sẽ tự động tích hợp quy chuẩn sinh ảnh này mà không cần đi chỉnh sửa thủ công từng video lẻ.
+> **DYNAMIC VISUAL ASSET & IMAGE PIPELINE DIRECTIVE:**
+> FORBIDDEN to build 100% text-only UI scenes.
+> MANDATORY:
+> 1. **Generated Tech Asset Images**:
+>    - Agent MUST invoke `generate_image` to create high-quality 2D/3D tech infographics (`.png` / `.jpg`) for each Scene (`assets/images/scene_01_concept.png`).
+>    - Generated images are saved at `Video/{lesson_slug}/assets/images/` and embedded via `<img src="assets/images/scene_XX_concept.png" class="scene-illustration" />`.
+> 2. **Rich Graphical Layouts**:
+>    - Apply dynamic layouts: **Split-Screen (3D Illustration on left + Card Content on right)**, **Infographic Interactive Step-Cards**, **Glassmorphic Hero Showcase with Glowing Vector SVG Diagrams**.
+> 3. **Systemic Auto-Updates**: All video agents automatically integrate this asset generation requirement.
 
 ---
 
-## 1. Kiến trúc Project (File Structure) — BẮT BUỘC
+## 1. Project Architecture & File Structure — MANDATORY
 
-Toàn bộ code dự án video phải được lưu tại thư mục `Video/{lesson_slug}` của từng Lesson (VD: `output/PM_Python/Session 01.../Lesson 01.../Video/session_01_lesson_01`), copy cấu trúc dự án mẫu chuẩn từ `hyperframes/dev-tutorial-video`:
+All video project code MUST be stored in `Video/{lesson_slug}` of each Lesson (e.g. `output/PM_Python/Session 01.../Lesson 01.../Video/session_01_lesson_01`), copied directly from `hyperframes/dev-tutorial-video`:
 
 ```
 {lesson_path}/Video/{lesson_slug}/
-├── index.html                    ← Root composition (master timeline chứa Intro/Outro/BGM/TTS/Scenes)
+├── index.html                    ← Root composition (master timeline containing Intro/Outro/BGM/TTS/Scenes)
 ├── meta.json                     ← { "id": "{slug}", "name": "{slug}" }
 ├── package.json                  ← HyperFrames CLI scripts
-├── prepare_assets.js / gen_tts.py← Script sinh voice TTS bằng Kokoro-Vietnamese (hung_thinh)
+├── prepare_assets.js / gen_tts.py← TTS voice generator using Kokoro-Vietnamese
+
 ├── assets/                       ← Tài nguyên media (Copy từ hyperframes/assets/)
 │   ├── intro.mp4                 ← Video Intro Rikkei Education (9.24s)
 │   ├── outro.mp4                 ← Video Outro Rikkei Education (12.15s)

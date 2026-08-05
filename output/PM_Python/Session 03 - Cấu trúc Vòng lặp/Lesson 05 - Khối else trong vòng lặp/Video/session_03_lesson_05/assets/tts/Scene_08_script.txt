@@ -1,1 +1,0 @@
-Cấu trúc vòng lặp eo giúp tối ưu dung lượng bộ nhớ nhờ tránh khai báo biến cờ toàn cục. Tuy nhiên, lập trình viên không nên lạm dụng lồng ghép quá nhiều vòng lặp chứa cấu trúc này để tránh làm giảm khả năng đọc hiểu và bảo trì mã nguồn về lâu dài.

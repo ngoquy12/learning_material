@@ -97,8 +97,8 @@ export default function SemesterDetailPage() {
       title: 'Công nghệ',
       dataIndex: 'technology_stack',
       render: (stack) => (
-        <Tag color="emerald" className="font-mono text-xs">
-          {stack || 'python/core'}
+        <Tag color={stack ? "emerald" : "default"} className="font-mono text-xs">
+          {stack || "Chưa thiết lập"}
         </Tag>
       ),
     },

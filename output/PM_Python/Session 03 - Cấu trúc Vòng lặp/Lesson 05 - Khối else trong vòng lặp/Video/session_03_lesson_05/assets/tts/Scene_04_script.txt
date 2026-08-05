@@ -1,1 +1,0 @@
-Hãy xem ví dụ quét mã lỗi hệ thống. Vòng lặp pho duyệt qua danh sách trạng thái. Nếu tìm thấy mã lỗi nguy hiểm năm trăm, lệnh brếch sẽ lập tức dừng vòng lặp. Khối eo chỉ chạy khi toàn bộ danh sách được duyệt mà không có lỗi nguy hiểm nào.

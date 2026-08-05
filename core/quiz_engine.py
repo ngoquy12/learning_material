@@ -29,11 +29,12 @@ def generate_quiz_batch_via_llm(topic_name: str, tech_stack: str, count: int, di
         
     from core.llm import call_llm
     from core.skills import load_skill_content
-    from core.vector_store import LightweightVectorStore
+    from core.vector_store import get_vector_store
     
     rag_context = ""
+    # Init store
     try:
-        store = LightweightVectorStore()
+        store = get_vector_store()
         matches = store.query(topic_name, k=3)
         if matches:
             rag_context = "\nNgữ cảnh tham chiếu từ Vector DB:\n" + "\n".join([m["text"] for m in matches])
@@ -66,6 +67,8 @@ RÀNG BUỘC CỦA ĐỢT SINH NÀY (BẮT BUỘC TUÂN THỦ):
   + Mọi câu hỏi CHỈ ĐƯỢC PHÉP hỏi về đúng chủ đề '{topic_name}' và công nghệ '{tech_stack}'.
   + TUYỆT ĐỐI CẤM đưa các khái niệm, cú pháp, hàm hay framework nâng cao thuộc các bài học tương lai hoặc chưa học vào câu hỏi hay bất kỳ phương án đáp án nào!
   + CẤM lạc đề, CẤM đưa từ ngữ mơ hồ ("theo slide", "trong video này"). Câu hỏi phải chính xác, khách quan như đề thi quốc tế.
+- QUY TẮC ĐỊNH DẠNG CODE TRONG QUIZ:
+  + Mọi đoạn mã nguồn (code snippet), biến, hoặc cú pháp kỹ thuật trong nội dung câu hỏi (`question_content`), đáp án (`answer_X`), hoặc phần giải thích (`explanation_answer_X`) BẮT BUỘC phải được bọc trong thẻ markdown code (Ví dụ block: ````python ... ```` hoặc inline: `code`).
 {rag_context}
 
 - BẮT BUỘC GIẢI THÍCH CHI TIẾT CẢ 4 PHƯƠNG ÁN (PROPOSAL 4):
@@ -143,8 +146,10 @@ TUYỆT ĐỐI không trả về markdown block code (như ```json), chỉ trả
         
     return questions
 
-def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: str, tech_stack: str = "python/fastapi") -> List[Dict[str, Any]]:
+def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: str, tech_stack: str) -> List[Dict[str, Any]]:
     """Generates a 45-question Entrance Quiz dynamically via LLM Agent."""
+    if not tech_stack or not str(tech_stack).strip():
+        raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] generate_entrance_quiz: Yêu cầu tham số tech_stack hợp lệ.")
     print(f"  [Quiz Engine] Generating 45-question Entrance Quiz via Agent for stack: {tech_stack}...")
     questions = []
     
@@ -180,7 +185,10 @@ def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: 
         
     return questions
 
-def generate_exit_quiz(session_id: str, current_topic: str, tech_stack: str = "python/fastapi") -> List[Dict[str, Any]]:
+def generate_exit_quiz(session_id: str, current_topic: str, tech_stack: str) -> List[Dict[str, Any]]:
+    """Generates a 45-question Exit Quiz dynamically via LLM Agent."""
+    if not tech_stack or not str(tech_stack).strip():
+        raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] generate_exit_quiz: Yêu cầu tham số tech_stack hợp lệ.")
     """Generates a 45-question Exit Quiz dynamically via LLM Agent."""
     print(f"  [Quiz Engine] Generating 45-question Exit Quiz via Agent for stack: {tech_stack}...")
     questions = []

@@ -1,1 +1,0 @@
-Trong các hệ thống thương mại điện tử thực tế, việc tính toán mức ưu đãi dựa trên cấp độ khách hàng mem-bơ-íp tia và giá trị đơn hàng o-đơ va-lu thường tạo ra các biểu thức kiểm tra phức tạp. Khi các quy định kinh doanh thay đổi liên tục, mã nguồn dễ lâm vào tình trạng phình to theo chiều ngang do lồng ghép quá nhiều câu lệnh rẽ nhánh điều kiện.

@@ -1,1 +1,0 @@
-Ở góc độ thiết kế kiến trúc hệ thống lớn, việc tận dụng hiệu quả các phép toán số học cơ bản là chìa khóa để tinh chỉnh hiệu suất. Việc thực thi phép chia lấy nguyên và lấy dư đơn giản giúp giảm bớt cấu trúc phức tạp, giảm tải chu kỳ xử lý của CPU khi phải giải quyết hàng triệu đơn hàng của hệ thống phân phối trong thời gian thực mà không phụ thuộc vào thư viện cồng kềnh ngoài.

@@ -1,1 +1,0 @@
-Sao chép thủ công các dòng lệnh cho từng đối tượng sẽ khiến mã nguồn phình to nhanh chóng. Điều này không chỉ gây lãng phí bộ nhớ mà còn làm tăng khả năng xảy ra lỗi cú pháp khi lập trình viên cần cập nhật hoặc sửa đổi logic nghiệp vụ chung của hệ thống.

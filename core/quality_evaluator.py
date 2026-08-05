@@ -26,8 +26,8 @@ def evaluate_lesson_quality(state: AgentState) -> Dict[str, Any]:
     lesson_id = state.get("lesson_id", "Lesson 01")
     html_content = state.get("html_content", "")
     slide_markdown = state.get("slide_markdown", "")
-    quiz_json = state.get("quiz_json", [])
-    tech_stack = state.get("technology_stack", "python/core")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "PQM_Engine")
     
     print(f"\n[PQM_Engine] Evaluating Pedagogical Quality for {session_id} - {lesson_id}...")
     

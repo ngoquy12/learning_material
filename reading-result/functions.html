@@ -1,0 +1,3731 @@
+<!doctype html>
+<html lang="vi" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài đọc: Hàm trong Python</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+                bgDark: "#0b0f19",
+                cardDark: "#151d30",
+                borderDark: "#1e293b",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Inter", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- Pyodide Engine for Live Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+      /* Custom highlight.js overrides for both static code blocks and editors */
+      .hljs {
+        background: #f8fafc !important; /* light slate background */
+        color: #334155 !important;
+      }
+      .dark .hljs {
+        background: #0f172a !important; /* dark slate background */
+        color: #e2e8f0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* Syntax highlighting for all code blocks in light mode */
+      .hljs-keyword {
+        color: #be111c !important; /* rikkei-red */
+        font-weight: 600 !important;
+      }
+      .hljs-string {
+        color: #0d9488 !important; /* teal-600 */
+      }
+      .hljs-comment {
+        color: #475569 !important; /* slate-600 */
+        font-style: italic !important;
+      }
+      .hljs-number {
+        color: #d97706 !important; /* amber-600 */
+      }
+      .hljs-built_in,
+      .hljs-title,
+      .hljs-params {
+        color: #2563eb !important; /* blue-600 */
+      }
+
+      /* Syntax highlighting for all code blocks in dark mode */
+      .dark .hljs-keyword {
+        color: #f43f5e !important; /* rose-400 */
+        font-weight: 600 !important;
+      }
+      .dark .hljs-string {
+        color: #2dd4bf !important; /* teal-400 */
+      }
+      .dark .hljs-comment {
+        color: #94a3b8 !important; /* slate-400 */
+        font-style: italic !important;
+      }
+      .dark .hljs-number {
+        color: #fbbf24 !important; /* amber-400 */
+      }
+      .dark .hljs-built_in,
+      .dark .hljs-title,
+      .dark .hljs-params {
+        color: #60a5fa !important; /* blue-400 */
+      }
+
+      /* SVG Diagram Adaptive Colors */
+      .rikkei-diagram svg {
+        background-color: #f8fafc;
+        transition: background-color 0.3s;
+      }
+      .dark .rikkei-diagram svg {
+        background-color: #090d16;
+      }
+
+      .rikkei-diagram-bg {
+        fill: #f8fafc !important;
+        transition: fill 0.3s;
+      }
+      .dark .rikkei-diagram-bg {
+        fill: #090d16 !important;
+      }
+
+      .rikkei-diagram-card {
+        fill: #ffffff !important;
+        stroke: #cbd5e1 !important;
+        transition:
+          fill 0.3s,
+          stroke 0.3s;
+      }
+      .dark .rikkei-diagram-card {
+        fill: #1e293b !important;
+        stroke: #334155 !important;
+      }
+
+      .rikkei-diagram-container-card {
+        fill: #ffffff !important;
+        stroke: #be111c !important;
+        transition:
+          fill 0.3s,
+          stroke 0.3s;
+      }
+      .dark .rikkei-diagram-container-card {
+        fill: #0f172a !important;
+        stroke: #be111c !important;
+      }
+
+      .rikkei-diagram-text {
+        fill: #0f172a !important;
+        transition: fill 0.3s;
+      }
+      .dark .rikkei-diagram-text {
+        fill: #ffffff !important;
+      }
+
+      .rikkei-diagram-text-muted {
+        fill: #475569 !important;
+        transition: fill 0.3s;
+      }
+      .dark .rikkei-diagram-text-muted {
+        fill: #94a3b8 !important;
+      }
+
+      /* Improve readability of muted text in light mode */
+      html:not(.dark) .text-slate-400,
+      html:not(.dark) .text-slate-500 {
+        color: #475569 !important;
+      }
+
+      path.rikkei-diagram-text-muted,
+      line.rikkei-diagram-text-muted {
+        stroke: #cbd5e1 !important;
+        transition: stroke 0.3s;
+      }
+      .dark path.rikkei-diagram-text-muted,
+      .dark line.rikkei-diagram-text-muted {
+        stroke: #475569 !important;
+      }
+
+      .rikkei-parameter-box {
+        fill: #eff6ff !important;
+        stroke: #2563eb !important;
+        stroke-width: 1;
+        transition:
+          fill 0.3s,
+          stroke 0.3s;
+      }
+      .dark .rikkei-parameter-box {
+        fill: #1e293b !important;
+        stroke: #3b82f6 !important;
+      }
+
+      .rikkei-argument-box {
+        fill: #f0fdf4 !important;
+        stroke: #10b981 !important;
+        stroke-width: 1;
+        transition:
+          fill 0.3s,
+          stroke 0.3s;
+      }
+      .dark .rikkei-argument-box {
+        fill: #064e3b !important;
+        stroke: #10b981 !important;
+      }
+
+      path.rikkei-diagram-grid {
+        stroke: #cbd5e1 !important;
+        transition: stroke 0.3s;
+      }
+      .dark path.rikkei-diagram-grid {
+        stroke: #334155 !important;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px; /* Offset for fixed header */
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
+    <!-- Fixed Header -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 dark:bg-rikkei-cardDark/95 backdrop-blur-md border-b border-slate-200 dark:border-rikkei-borderDark z-40 transition-colors duration-300"
+    >
+      <div
+        class="max-w-340 mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <!-- Logo -->
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+        </div>
+
+        <!-- Theme Switcher -->
+        <button
+          id="theme-toggle"
+          class="w-10 h-10 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-slate-600 dark:text-slate-300"
+          title="Chuyển chế độ sáng/tối"
+        >
+          <i id="theme-icon" class="ph-bold ph-moon text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Top Progress Scroll Bar -->
+      <div class="w-full h-1 bg-slate-100 dark:bg-slate-800">
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left) -->
+      <aside
+        class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
+        <div class="space-y-4">
+          <h4
+            class="font-montserrat font-bold text-sm tracking-wider text-slate-400 dark:text-slate-500"
+          >
+            Mục lục chi tiết
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 dark:border-rikkei-borderDark space-y-1"
+          >
+            <a
+              href="#problem-intro"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >1. Tại sao cần Hàm?</a
+            >
+            <a
+              href="#data-structure"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >2. Cú pháp và cơ chế hoạt động</a
+            >
+            <a
+              href="#interactive-demo"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >3. Các ví dụ ứng dụng thực tiễn</a
+            >
+            <a
+              href="#summary-notes"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >4. Tổng kết và các lưu ý</a
+            >
+            <a
+              href="#references"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >5. Tài liệu tham khảo</a
+            >
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Reading Content (Right/Center) -->
+      <article
+        class="flex-1 min-w-0 bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-rikkei-borderDark rounded-2xl p-6 sm:p-10 shadow-sm transition-colors duration-300"
+      >
+        <!-- Article Title -->
+        <div
+          class="border-b border-slate-200 dark:border-rikkei-borderDark pb-6 mb-8"
+        >
+          <h1
+            class="font-montserrat font-bold text-3xl text-slate-900 dark:text-white leading-tight"
+          >
+            Hàm trong Python
+          </h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="problem-intro" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            1. Tại sao cần Hàm?
+          </h2>
+
+          <div class="text-slate-600 dark:text-slate-300 space-y-4">
+            <p>
+              Khi phát triển một ứng dụng thực tiễn, lập trình viên thường xuyên
+              gặp phải các tác vụ cần lặp đi lặp lại nhiều lần ở nhiều nơi khác
+              nhau, chẳng hạn như tính toán số tiền thuế VAT cho sản phẩm, kiểm
+              tra tính hợp lệ của số điện thoại, hoặc gửi email thông báo cho
+              khách hàng.
+            </p>
+            <p>
+              Nếu viết lại đoạn mã xử lý này ở mọi nơi, dự án sẽ đối mặt với các
+              nguy cơ:
+            </p>
+            <ul class="list-disc pl-6 space-y-2">
+              <li>
+                <strong>Trùng lặp mã nguồn (Code Duplication):</strong> Viết lặp
+                đi lặp lại cùng một logic tính toán làm phình kích thước ứng
+                dụng một cách không cần thiết.
+              </li>
+              <li>
+                <strong>Khó bảo trì và nâng cấp:</strong> Khi công thức tính
+                thuế hoặc quy định thay đổi, lập trình viên bắt buộc phải tìm và
+                sửa đổi thủ công ở từng vị trí, dễ dẫn đến sai sót và bỏ sót.
+              </li>
+              <li>
+                <strong>Mã nguồn rối rắm, khó đọc:</strong> Không thể chia nhỏ
+                các module nghiệp vụ lớn thành các phân hệ xử lý nhỏ hơn khiến
+                mã nguồn cực kỳ khó debug.
+              </li>
+            </ul>
+            <p>
+              Để khắc phục những nhược điểm trên, lập trình viên sử dụng
+              <strong>hàm (function)</strong>. Hàm cho phép đóng gói một khối mã
+              xử lý logic có tính năng riêng biệt, gán cho khối mã đó một cái
+              tên, và tái sử dụng bất kỳ lúc nào bằng thao tác gọi hàm (function
+              call).
+            </p>
+          </div>
+
+          <!-- 16:9 Contextual Scene Image (SVG Black Box Function) -->
+          <div class="my-6">
+            <div
+              class="w-full max-w-200 mx-auto overflow-hidden rikkei-diagram"
+            >
+              <svg viewBox="0 120 800 210" class="w-full h-auto">
+                <defs>
+                  <linearGradient
+                    id="grid-grad"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stop-color="#0f172a" />
+                    <stop offset="100%" stop-color="#1e293b" />
+                  </linearGradient>
+                  <linearGradient
+                    id="card-grad"
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stop-color="#be111c" stop-opacity="0.1" />
+                    <stop
+                      offset="100%"
+                      stop-color="#be111c"
+                      stop-opacity="0.01"
+                    />
+                  </linearGradient>
+                </defs>
+
+                <!-- Function Box Flow -->
+                <g transform="translate(60, 50)">
+                  <!-- Inputs (Arguments) -->
+                  <g transform="translate(40, 110)">
+                    <rect
+                      width="150"
+                      height="130"
+                      rx="12"
+                      class="rikkei-diagram-card"
+                      stroke-width="1.5"
+                    />
+                    <text
+                      x="75"
+                      y="30"
+                      class="rikkei-diagram-text"
+                      font-family="Inter"
+                      font-weight="bold"
+                      font-size="14"
+                      text-anchor="middle"
+                    >
+                      Đầu vào (Inputs)
+                    </text>
+                    <text
+                      x="75"
+                      y="65"
+                      class="rikkei-diagram-text-muted"
+                      font-family="JetBrains Mono"
+                      font-size="12"
+                      text-anchor="middle"
+                    >
+                      Arguments:
+                    </text>
+                    <text
+                      x="75"
+                      y="90"
+                      fill="#be111c"
+                      font-family="JetBrains Mono"
+                      font-weight="bold"
+                      font-size="13"
+                      text-anchor="middle"
+                    >
+                      price = 200
+                    </text>
+                    <text
+                      x="75"
+                      y="110"
+                      fill="#be111c"
+                      font-family="JetBrains Mono"
+                      font-weight="bold"
+                      font-size="13"
+                      text-anchor="middle"
+                    >
+                      tax_rate = 0.1
+                    </text>
+                  </g>
+
+                  <!-- Arrow Input -> Black Box -->
+                  <path
+                    d="M 190,175 L 260,175"
+                    stroke="#be111c"
+                    stroke-width="2"
+                    fill="none"
+                    marker-end="url(#arrow)"
+                  />
+
+                  <!-- Function Black Box -->
+                  <g transform="translate(260, 80)">
+                    <rect
+                      width="200"
+                      height="190"
+                      rx="12"
+                      class="rikkei-diagram-container-card"
+                      stroke-width="2"
+                    />
+                    <text
+                      x="100"
+                      y="35"
+                      fill="#be111c"
+                      font-family="Inter"
+                      font-weight="bold"
+                      font-size="15"
+                      text-anchor="middle"
+                    >
+                      Hộp xử lý (Function)
+                    </text>
+                    <text
+                      x="100"
+                      y="60"
+                      class="rikkei-diagram-text"
+                      font-family="JetBrains Mono"
+                      font-weight="bold"
+                      font-size="13"
+                      text-anchor="middle"
+                    >
+                      def calculate_vat(...)
+                    </text>
+                    <rect
+                      x="20"
+                      y="90"
+                      width="160"
+                      height="70"
+                      rx="6"
+                      fill="none"
+                      stroke="#cbd5e1"
+                      stroke-width="1"
+                      stroke-dasharray="3,3"
+                    />
+                    <text
+                      x="100"
+                      y="115"
+                      class="rikkei-diagram-text-muted"
+                      font-family="JetBrains Mono"
+                      font-size="11"
+                      text-anchor="middle"
+                    >
+                      # Tính toán logic
+                    </text>
+                    <text
+                      x="100"
+                      y="135"
+                      class="rikkei-diagram-text-muted"
+                      font-family="JetBrains Mono"
+                      font-size="11"
+                      text-anchor="middle"
+                    >
+                      vat = price * tax_rate
+                    </text>
+                    <text
+                      x="100"
+                      y="150"
+                      class="rikkei-diagram-text-muted"
+                      font-family="JetBrains Mono"
+                      font-size="11"
+                      text-anchor="middle"
+                    >
+                      return price + vat
+                    </text>
+                  </g>
+
+                  <!-- Arrow Black Box -> Output -->
+                  <path
+                    d="M 460,175 L 530,175"
+                    stroke="#be111c"
+                    stroke-width="2"
+                    fill="none"
+                    marker-end="url(#arrow)"
+                  />
+
+                  <!-- Output (Return Value) -->
+                  <g transform="translate(530, 110)">
+                    <rect
+                      width="130"
+                      height="130"
+                      rx="12"
+                      class="rikkei-diagram-card"
+                      stroke-width="1.5"
+                    />
+                    <text
+                      x="65"
+                      y="30"
+                      class="rikkei-diagram-text"
+                      font-family="Inter"
+                      font-weight="bold"
+                      font-size="14"
+                      text-anchor="middle"
+                    >
+                      Đầu ra (Output)
+                    </text>
+                    <text
+                      x="65"
+                      y="65"
+                      class="rikkei-diagram-text-muted"
+                      font-family="JetBrains Mono"
+                      font-size="12"
+                      text-anchor="middle"
+                    >
+                      Return Value:
+                    </text>
+                    <text
+                      x="65"
+                      y="95"
+                      fill="#10b981"
+                      font-family="JetBrains Mono"
+                      font-weight="bold"
+                      font-size="18"
+                      text-anchor="middle"
+                    >
+                      220.0
+                    </text>
+                  </g>
+                </g>
+
+                <!-- Arrow marker -->
+                <defs>
+                  <marker
+                    id="arrow"
+                    viewBox="0 0 10 10"
+                    refX="5"
+                    refY="5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#be111c" />
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+            <p
+              class="text-center text-sm text-slate-500 dark:text-slate-400 italic mt-3"
+            >
+              Sơ đồ bối cảnh: Mô phỏng cơ chế "Hộp đen xử lý" của một Hàm trong
+              lập trình: Nhận dữ liệu đầu vào ➔ Thực thi logic ➔ Trả ra giá trị
+              đầu ra.
+            </p>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 2: Cú pháp và cơ chế -->
+        <section id="data-structure" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            2. Cú pháp và cơ chế hoạt động
+          </h2>
+
+          <div class="text-slate-600 dark:text-slate-300 space-y-4">
+            <p>
+              Trong Python, hàm được định nghĩa bằng từ khóa <code>def</code>,
+              theo sau là tên hàm, danh sách các tham số trong dấu ngoặc đơn và
+              dấu hai chấm. Toàn bộ thân hàm bên dưới phải thụt lề (indentation)
+              đồng nhất.
+            </p>
+            <ol class="list-decimal pl-6 space-y-4">
+              <li class="leading-relaxed">
+                <strong>Từ khóa def & tên hàm:</strong> Tên hàm nên đặt theo
+                dạng động từ viết bằng kiểu <code>snake_case</code> mô tả rõ
+                nhiệm vụ của hàm (ví dụ: <code>calculate_tax</code>,
+                <code>send_invoice</code>).
+
+                <!-- Diagram: Function Declaration Syntax -->
+                <div class="my-4">
+                  <svg
+                    viewBox="0 0 800 135"
+                    class="w-full h-auto bg-transparent"
+                  >
+                    <!-- Code Line -->
+                    <g
+                      transform="translate(180, 45)"
+                      font-family="JetBrains Mono"
+                      font-size="16"
+                    >
+                      <text x="0" y="0" fill="#be111c" font-weight="bold">
+                        def
+                      </text>
+                      <text
+                        x="38"
+                        y="0"
+                        class="rikkei-diagram-text"
+                        font-weight="bold"
+                      >
+                        calculate_tax
+                      </text>
+                      <text x="164" y="0" class="rikkei-diagram-text">(</text>
+                      <text x="176" y="0" fill="#2563eb" font-weight="bold">
+                        price
+                      </text>
+                      <text x="226" y="0" class="rikkei-diagram-text">,</text>
+                      <text x="244" y="0" fill="#2563eb" font-weight="bold">
+                        rate
+                      </text>
+                      <text x="284" y="0" class="rikkei-diagram-text">):</text>
+                    </g>
+
+                    <!-- Indicators & Labels -->
+                    <g
+                      font-family="Inter"
+                      font-size="11"
+                      class="rikkei-diagram-text-muted"
+                      fill="#475569"
+                    >
+                      <!-- def label (Line 1: Y=90) -->
+                      <path
+                        d="M 195,55 L 195,78"
+                        stroke="#cbd5e1"
+                        stroke-width="1"
+                        stroke-dasharray="2,2"
+                        class="rikkei-diagram-text-muted"
+                      />
+                      <text x="195" y="90" text-anchor="middle">
+                        Từ khóa khai báo
+                      </text>
+
+                      <!-- name label (Line 2: Y=115) -->
+                      <path
+                        d="M 280,55 L 280,103"
+                        stroke="#cbd5e1"
+                        stroke-width="1"
+                        stroke-dasharray="2,2"
+                        class="rikkei-diagram-text-muted"
+                      />
+                      <text x="280" y="115" text-anchor="middle">
+                        Tên hàm (snake_case)
+                      </text>
+
+                      <!-- parameters label (Line 3: Y=90) -->
+                      <path
+                        d="M 406,55 L 406,78"
+                        stroke="#cbd5e1"
+                        stroke-width="1"
+                        stroke-dasharray="2,2"
+                        class="rikkei-diagram-text-muted"
+                      />
+                      <text x="406" y="90" text-anchor="middle">
+                        Tham số (Parameters)
+                      </text>
+
+                      <!-- colon label (Line 4: Y=115) -->
+                      <path
+                        d="M 474,55 L 474,103"
+                        stroke="#cbd5e1"
+                        stroke-width="1"
+                        stroke-dasharray="2,2"
+                        class="rikkei-diagram-text-muted"
+                      />
+                      <text x="474" y="115" text-anchor="middle">
+                        Dấu hai chấm bắt buộc
+                      </text>
+                    </g>
+                  </svg>
+                </div>
+              </li>
+              <li class="leading-relaxed">
+                <strong>Tham số (Parameters) và Đối số (Arguments):</strong>
+                <ul class="list-disc pl-6 mt-2 space-y-1.5">
+                  <li>
+                    <strong>Tham số (Parameters):</strong> Là các biến ảo khai
+                    báo ở tiêu đề hàm, đại diện cho dữ liệu mà hàm sẽ nhận khi
+                    thực thi.
+                  </li>
+                  <li>
+                    <strong>Đối số (Arguments):</strong> Là các giá trị thực tế
+                    truyền vào hàm khi gọi hàm hoạt động.
+                  </li>
+                </ul>
+
+                <!-- Diagram: Parameters vs Arguments -->
+                <div class="my-6">
+                  <svg
+                    viewBox="0 0 800 240"
+                    class="w-full h-auto bg-transparent"
+                  >
+                    <!-- Left Card: Function Definition -->
+                    <g transform="translate(60, 20)">
+                      <rect
+                        width="310"
+                        height="160"
+                        rx="12"
+                        class="rikkei-diagram-card"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="155"
+                        y="30"
+                        class="rikkei-diagram-text"
+                        font-family="Inter"
+                        font-weight="bold"
+                        font-size="13"
+                        text-anchor="middle"
+                      >
+                        Khai báo hàm (Function Definition)
+                      </text>
+                      <line
+                        x1="20"
+                        y1="45"
+                        x2="290"
+                        y2="45"
+                        stroke="#cbd5e1"
+                        stroke-width="1"
+                        stroke-dasharray="2,2"
+                        class="rikkei-diagram-text-muted"
+                      />
+
+                      <!-- Code line using absolute positioned text elements -->
+                      <g
+                        transform="translate(30, 90)"
+                        font-family="JetBrains Mono"
+                        font-size="13"
+                      >
+                        <text x="0" y="0" fill="#be111c" font-weight="bold">
+                          def
+                        </text>
+                        <text x="32" y="0" class="rikkei-diagram-text">
+                          greet(
+                        </text>
+
+                        <!-- Parameter 1 box and text -->
+                        <rect
+                          x="76"
+                          y="-14"
+                          width="42"
+                          height="20"
+                          rx="4"
+                          class="rikkei-parameter-box"
+                        />
+                        <text x="81" y="0" fill="#2563eb" font-weight="bold">
+                          name
+                        </text>
+
+                        <text x="120" y="0" class="rikkei-diagram-text">,</text>
+
+                        <!-- Parameter 2 box and text -->
+                        <rect
+                          x="134"
+                          y="-14"
+                          width="34"
+                          height="20"
+                          rx="4"
+                          class="rikkei-parameter-box"
+                        />
+                        <text x="139" y="0" fill="#2563eb" font-weight="bold">
+                          age
+                        </text>
+
+                        <text x="170" y="0" class="rikkei-diagram-text">
+                          ):
+                        </text>
+                      </g>
+
+                      <!-- Label pointing to parameters -->
+                      <text
+                        x="155"
+                        y="62"
+                        class="rikkei-diagram-text-muted"
+                        font-family="Inter"
+                        font-size="11"
+                        text-anchor="middle"
+                      >
+                        Tham số (Parameters) - Biến ảo
+                      </text>
+                    </g>
+
+                    <!-- Right Card: Function Call -->
+                    <g transform="translate(430, 20)">
+                      <rect
+                        width="310"
+                        height="160"
+                        rx="12"
+                        class="rikkei-diagram-card"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="155"
+                        y="30"
+                        class="rikkei-diagram-text"
+                        font-family="Inter"
+                        font-weight="bold"
+                        font-size="13"
+                        text-anchor="middle"
+                      >
+                        Lời gọi hàm (Function Call)
+                      </text>
+                      <line
+                        x1="20"
+                        y1="45"
+                        x2="290"
+                        y2="45"
+                        stroke="#cbd5e1"
+                        stroke-width="1"
+                        stroke-dasharray="2,2"
+                        class="rikkei-diagram-text-muted"
+                      />
+
+                      <!-- Code line using absolute positioned text elements -->
+                      <g
+                        transform="translate(30, 90)"
+                        font-family="JetBrains Mono"
+                        font-size="13"
+                      >
+                        <text x="0" y="0" class="rikkei-diagram-text">
+                          greet(
+                        </text>
+
+                        <!-- Argument 1 box and text -->
+                        <rect
+                          x="46"
+                          y="-14"
+                          width="38"
+                          height="20"
+                          rx="4"
+                          class="rikkei-argument-box"
+                        />
+                        <text x="51" y="0" fill="#10b981" font-weight="bold">
+                          "An"
+                        </text>
+
+                        <text x="86" y="0" class="rikkei-diagram-text">,</text>
+
+                        <!-- Argument 2 box and text -->
+                        <rect
+                          x="100"
+                          y="-14"
+                          width="28"
+                          height="20"
+                          rx="4"
+                          class="rikkei-argument-box"
+                        />
+                        <text x="105" y="0" fill="#10b981" font-weight="bold">
+                          20
+                        </text>
+
+                        <text x="130" y="0" class="rikkei-diagram-text">)</text>
+                      </g>
+
+                      <!-- Label pointing to arguments -->
+                      <text
+                        x="155"
+                        y="62"
+                        class="rikkei-diagram-text-muted"
+                        font-family="Inter"
+                        font-size="11"
+                        text-anchor="middle"
+                      >
+                        Đối số (Arguments) - Giá trị thực tế
+                      </text>
+                    </g>
+
+                    <!-- Connecting Curves representing value passing -->
+                    <path
+                      d="M 505,116 C 505,145 147,145 147,116"
+                      fill="none"
+                      stroke="#10b981"
+                      stroke-width="1.5"
+                      marker-end="url(#arrow-green)"
+                      stroke-dasharray="3,3"
+                    />
+
+                    <path
+                      d="M 554,116 C 554,165 201,165 201,116"
+                      fill="none"
+                      stroke="#10b981"
+                      stroke-width="1.5"
+                      marker-end="url(#arrow-green)"
+                      stroke-dasharray="3,3"
+                    />
+
+                    <!-- Middle Label -->
+                    <text
+                      x="400"
+                      y="210"
+                      fill="#10b981"
+                      font-family="Inter"
+                      font-weight="bold"
+                      font-size="11"
+                      text-anchor="middle"
+                    >
+                      Truyền giá trị thực tế vào biến ảo
+                    </text>
+
+                    <!-- Green Arrow marker definition -->
+                    <defs>
+                      <marker
+                        id="arrow-green"
+                        viewBox="0 0 10 10"
+                        refX="6"
+                        refY="5"
+                        markerWidth="6"
+                        markerHeight="6"
+                        orient="auto-start-reverse"
+                      >
+                        <path d="M 0 2 L 6 5 L 0 8 z" fill="#10b981" />
+                      </marker>
+                    </defs>
+                  </svg>
+                  <p
+                    class="text-center text-sm text-slate-500 dark:text-slate-400 italic mt-3"
+                  >
+                    Sơ đồ trực quan: Cơ chế truyền giá trị của Đối số
+                    (Arguments) vào các Tham số tương ứng (Parameters) khi gọi
+                    hàm
+                  </p>
+                </div>
+              </li>
+              <li class="leading-relaxed">
+                <strong>Từ khóa return:</strong> Kết thúc việc thực thi hàm và
+                gửi lại giá trị đầu ra cho nơi gọi hàm. Nếu một hàm kết thúc mà
+                không gọi `return` hoặc gọi `return` không có giá trị kèm theo,
+                Python sẽ tự động trả về giá trị mặc định là <code>None</code>.
+
+                <!-- Diagram: Return Keyword Data Flow -->
+                <div class="my-4">
+                  <svg
+                    viewBox="0 0 800 130"
+                    class="w-full h-auto bg-transparent"
+                  >
+                    <!-- Left Block: Inside Function -->
+                    <g transform="translate(50, 20)">
+                      <rect
+                        width="260"
+                        height="90"
+                        rx="8"
+                        class="rikkei-diagram-card"
+                        stroke-dasharray="4,4"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="20"
+                        y="25"
+                        class="rikkei-diagram-text"
+                        font-family="Inter"
+                        font-weight="bold"
+                        font-size="12"
+                      >
+                        Bên trong hàm (Function Scope)
+                      </text>
+
+                      <text
+                        x="20"
+                        y="55"
+                        font-family="JetBrains Mono"
+                        font-size="13"
+                        class="rikkei-diagram-text"
+                      >
+                        result =
+                        <tspan fill="#d97706">10</tspan>
+                      </text>
+
+                      <!-- Highlight box for return variable -->
+                      <rect
+                        x="75"
+                        y="61"
+                        width="54"
+                        height="20"
+                        rx="4"
+                        class="rikkei-parameter-box"
+                      />
+                      <text
+                        x="20"
+                        y="75"
+                        font-family="JetBrains Mono"
+                        font-size="13"
+                        class="rikkei-diagram-text"
+                      >
+                        <tspan fill="#be111c" font-weight="bold">return</tspan>
+                        <tspan fill="#2563eb" font-weight="bold">result</tspan>
+                      </text>
+                    </g>
+
+                    <!-- Right Block: Caller -->
+                    <g transform="translate(490, 20)">
+                      <rect
+                        width="250"
+                        height="90"
+                        rx="8"
+                        class="rikkei-diagram-card"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="20"
+                        y="25"
+                        class="rikkei-diagram-text"
+                        font-family="Inter"
+                        font-weight="bold"
+                        font-size="12"
+                      >
+                        Lời gọi hàm (Outside / Caller)
+                      </text>
+
+                      <!-- Highlight box for receiving variable -->
+                      <rect
+                        x="20"
+                        y="41"
+                        width="38"
+                        height="20"
+                        rx="4"
+                        class="rikkei-argument-box"
+                      />
+                      <text
+                        x="20"
+                        y="55"
+                        font-family="JetBrains Mono"
+                        font-size="13"
+                        class="rikkei-diagram-text"
+                      >
+                        <tspan fill="#10b981" font-weight="bold">val</tspan>
+                        = calculate()
+                      </text>
+
+                      <text
+                        x="20"
+                        y="75"
+                        class="rikkei-diagram-text-muted"
+                        font-family="Inter"
+                        font-size="11"
+                      >
+                        Biến val sẽ nhận giá trị 10
+                      </text>
+                    </g>
+
+                    <!-- Data flow Arrow -->
+                    <path
+                      d="M 179,91 C 300,91 350,71 510,71"
+                      fill="none"
+                      stroke="#10b981"
+                      stroke-width="2"
+                      marker-end="url(#arrow-green)"
+                      stroke-dasharray="3,3"
+                    />
+                    <text
+                      x="400"
+                      y="55"
+                      fill="#10b981"
+                      font-family="Inter"
+                      font-size="11"
+                      font-weight="bold"
+                      text-anchor="middle"
+                    >
+                      Trả về giá trị (10)
+                    </text>
+                  </svg>
+                </div>
+              </li>
+            </ol>
+
+            <!-- Ví dụ 2.1: Khai báo và gọi hàm trong Python -->
+            <div class="mb-10 mt-6">
+              <h4
+                class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+              >
+                Ví dụ 2.1: Khai báo và gọi hàm trong Python:
+              </h4>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Thực hiện tạo hàm chào mừng người dùng và quan sát cơ chế nhận
+                đối số rồi hiển thị kết quả.
+              </p>
+              <div
+                class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+              >
+                <div
+                  class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+                >
+                  <!-- Floating Toolbar -->
+                  <div
+                    class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                  >
+                    <button
+                      onclick="
+                        clearSandbox(
+                          'code-2-1',
+                          'output-2-1',
+                          'status-2-1',
+                          'status-icon-2-1',
+                          'container-2-1',
+                        )
+                      "
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Khôi phục code gốc"
+                    >
+                      <i class="ph-bold ph-x text-sm"></i>
+                    </button>
+                    <button
+                      onclick="
+                        runPythonSandbox(
+                          'code-2-1',
+                          'output-2-1',
+                          'status-2-1',
+                          'status-icon-2-1',
+                          'container-2-1',
+                        )
+                      "
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Chạy chương trình"
+                    >
+                      <i class="ph-bold ph-play text-sm"></i>
+                    </button>
+
+                    <button
+                      onclick="
+                        toggleVisualizer('code-2-1', 'visualizer-container-2-1')
+                      "
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Xem trực quan động"
+                    >
+                      <i class="ph-bold ph-eye text-sm"></i>
+                    </button>
+                    <button
+                      onclick="copySandboxCode('code-2-1', this)"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Sao chép"
+                    >
+                      <i class="ph-bold ph-copy text-sm"></i>
+                    </button>
+                  </div>
+                  <pre
+                    id="code-2-1"
+                    contenteditable="true"
+                    data-original='# Định nghĩa hàm với 1 tham số username&#10;def greet_user(username):&#10;    message = f"Xin chào {username}, chúc một ngày làm việc hiệu quả!"&#10;    return message&#10;&#10;# Gọi hàm truyền đối số cụ thể&#10;welcome_msg = greet_user("Rikkei Academy")&#10;print(welcome_msg)'
+                    class="w-full min-h-24 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                    spellcheck="false"
+                  >
+# Định nghĩa hàm với 1 tham số username
+def greet_user(username):
+    message = f"Xin chào {username}, chúc một ngày làm việc hiệu quả!"
+    return message
+
+# Gọi hàm truyền đối số cụ thể
+welcome_msg = greet_user("Rikkei Academy")
+print(welcome_msg)</pre
+                  >
+                </div>
+                <div
+                  id="container-2-1"
+                  class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+                >
+                  <pre
+                    id="output-2-1"
+                    class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                  ></pre>
+                </div>
+                <div
+                  id="visualizer-container-2-1"
+                  class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+                ></div>
+              </div>
+            </div>
+
+            <ol start="4" class="list-decimal pl-6 space-y-4">
+              <li class="leading-relaxed">
+                <strong>Phạm vi biến (Variable Scope):</strong>
+                <ul class="list-disc pl-6 mt-2 space-y-1.5">
+                  <li>
+                    <strong>Biến cục bộ (Local Variable):</strong> Biến được
+                    khai báo bên trong hàm. Biến này chỉ tồn tại và sử dụng được
+                    bên trong thân hàm đó, tự hủy khi hàm kết thúc thực thi.
+                  </li>
+                  <li>
+                    <strong>Biến toàn cục (Global Variable):</strong> Biến được
+                    khai báo bên ngoài tất cả các hàm. Biến này có thể được đọc
+                    từ bên trong hàm nhưng không thể sửa đổi trực tiếp trừ khi
+                    dùng từ khóa <code>global</code>.
+                  </li>
+                </ul>
+
+                <!-- Diagram: Variable Scope Comparison -->
+                <div class="my-4">
+                  <svg
+                    viewBox="0 0 800 200"
+                    class="w-full h-auto bg-transparent"
+                  >
+                    <!-- Global Scope Box (Outer) -->
+                    <rect
+                      x="40"
+                      y="10"
+                      width="720"
+                      height="180"
+                      rx="8"
+                      class="rikkei-diagram-card"
+                      stroke-dasharray="4,4"
+                      stroke-width="1.5"
+                    />
+                    <text
+                      x="60"
+                      y="30"
+                      class="rikkei-diagram-text"
+                      font-family="Inter"
+                      font-weight="bold"
+                      font-size="12"
+                    >
+                      Phạm vi Toàn cục (Global Scope - Cả tệp tin)
+                    </text>
+
+                    <text
+                      x="60"
+                      y="65"
+                      font-family="JetBrains Mono"
+                      font-size="13"
+                      class="rikkei-diagram-text"
+                    >
+                      x =
+                      <tspan fill="#d97706">99</tspan>
+                      <tspan fill="#64748b" font-style="italic">
+                        # Biến toàn cục
+                      </tspan>
+                    </text>
+
+                    <!-- Local Scope Box (Inner Function) -->
+                    <g transform="translate(380, 45)">
+                      <rect
+                        width="350"
+                        height="85"
+                        rx="6"
+                        class="rikkei-diagram-card"
+                        stroke-width="1.5"
+                      />
+                      <text
+                        x="20"
+                        y="20"
+                        class="rikkei-diagram-text"
+                        font-family="Inter"
+                        font-weight="bold"
+                        font-size="11"
+                      >
+                        Bên trong Hàm (Local Scope of my_func)
+                      </text>
+
+                      <text
+                        x="20"
+                        y="45"
+                        font-family="JetBrains Mono"
+                        font-size="12"
+                        class="rikkei-diagram-text"
+                      >
+                        y =
+                        <tspan fill="#d97706">5</tspan>
+                        <tspan fill="#64748b" font-style="italic">
+                          # Biến cục bộ
+                        </tspan>
+                      </text>
+                      <text
+                        x="20"
+                        y="65"
+                        font-family="JetBrains Mono"
+                        font-size="12"
+                        class="rikkei-diagram-text"
+                      >
+                        print(x)
+                        <tspan fill="#10b981" font-weight="bold">
+                          # OK (Đọc biến toàn cục)
+                        </tspan>
+                      </text>
+                    </g>
+
+                    <!-- Access paths -->
+                    <text
+                      x="60"
+                      y="150"
+                      font-family="JetBrains Mono"
+                      font-size="13"
+                      fill="#ef4444"
+                      font-weight="bold"
+                    >
+                      print(y)
+                      <tspan fill="#ef4444">
+                        # LỖI! (Không thể truy xuất y từ ngoài)
+                      </tspan>
+                    </text>
+                  </svg>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Memory visualization diagram (Call stack & Scope) -->
+          <div class="mb-8 mt-10">
+            <h3
+              class="font-montserrat font-bold text-xl text-slate-900 dark:text-white mb-4"
+            >
+              Mô tả cấu trúc ngăn xếp bộ nhớ (Call Stack Memory) và Phạm vi của
+              biến
+            </h3>
+
+            <svg viewBox="0 0 800 320" class="w-full h-auto bg-transparent">
+              <!-- Global Frame Box -->
+              <g transform="translate(60, 40)">
+                <rect
+                  width="310"
+                  height="240"
+                  rx="12"
+                  class="rikkei-diagram-card"
+                  stroke-width="1.5"
+                />
+                <text
+                  x="155"
+                  y="30"
+                  class="rikkei-diagram-text"
+                  font-family="Inter"
+                  font-weight="bold"
+                  font-size="14"
+                  text-anchor="middle"
+                >
+                  Vùng nhớ Toàn cục (Global Frame)
+                </text>
+                <line
+                  x1="20"
+                  y1="45"
+                  x2="290"
+                  y2="45"
+                  stroke="#cbd5e1"
+                  stroke-width="1"
+                  stroke-dasharray="2,2"
+                />
+                <text
+                  x="30"
+                  y="80"
+                  class="rikkei-diagram-text"
+                  font-family="JetBrains Mono"
+                  font-size="13"
+                >
+                  app_name = "FinanceApp"
+                </text>
+                <text
+                  x="30"
+                  y="120"
+                  class="rikkei-diagram-text"
+                  font-family="JetBrains Mono"
+                  font-size="13"
+                >
+                  tax_rate = 0.08
+                </text>
+                <text
+                  x="30"
+                  y="180"
+                  fill="#be111c"
+                  font-family="Inter"
+                  font-size="12"
+                >
+                  * Bất kỳ hàm nào cũng có thể truy xuất
+                </text>
+                <text
+                  x="30"
+                  y="200"
+                  fill="#be111c"
+                  font-family="Inter"
+                  font-size="12"
+                >
+                  và đọc giá trị của các biến này.
+                </text>
+              </g>
+
+              <!-- Call Stack Arrow representation -->
+              <path
+                d="M 390,160 L 410,160"
+                stroke="#be111c"
+                stroke-width="2"
+                fill="none"
+                marker-end="url(#arrow)"
+              />
+
+              <!-- Local Frame Box (Hàm đang thực thi) -->
+              <g transform="translate(430, 40)">
+                <rect
+                  width="310"
+                  height="240"
+                  rx="12"
+                  class="rikkei-diagram-container-card"
+                  stroke-width="2"
+                />
+                <text
+                  x="155"
+                  y="30"
+                  fill="#be111c"
+                  font-family="Inter"
+                  font-weight="bold"
+                  font-size="14"
+                  text-anchor="middle"
+                >
+                  Ngăn xếp Hàm (Local Frame - Stack)
+                </text>
+                <line
+                  x1="20"
+                  y1="45"
+                  x2="290"
+                  y2="45"
+                  stroke="#be111c"
+                  stroke-opacity="0.3"
+                  stroke-width="1"
+                />
+                <text
+                  x="30"
+                  y="75"
+                  class="rikkei-diagram-text"
+                  font-family="JetBrains Mono"
+                  font-weight="bold"
+                  font-size="13"
+                >
+                  calculate_bill(price=200):
+                </text>
+                <text
+                  x="45"
+                  y="110"
+                  class="rikkei-diagram-text-muted"
+                  font-family="JetBrains Mono"
+                  font-size="13"
+                >
+                  - local price = 200
+                </text>
+                <text
+                  x="45"
+                  y="140"
+                  class="rikkei-diagram-text-muted"
+                  font-family="JetBrains Mono"
+                  font-size="13"
+                >
+                  - local vat = 16.0
+                </text>
+                <text
+                  x="45"
+                  y="170"
+                  class="rikkei-diagram-text-muted"
+                  font-family="JetBrains Mono"
+                  font-size="13"
+                >
+                  - local total = 216.0
+                </text>
+                <text
+                  x="30"
+                  y="215"
+                  fill="#10b981"
+                  font-family="Inter"
+                  font-size="12"
+                  font-weight="semibold"
+                >
+                  * Tự động giải phóng bộ nhớ khi return.
+                </text>
+              </g>
+            </svg>
+            <p
+              class="text-center text-sm text-slate-500 dark:text-slate-400 italic mt-3"
+            >
+              Sơ đồ phân tích: Hệ thống phân mảnh bộ nhớ của biến. Biến Local
+              được cô lập và tự hủy trong ngăn xếp Stack khi hàm chạy xong,
+              tránh rác bộ nhớ.
+            </p>
+          </div>
+
+          <!-- Ví dụ 2.2: Sự cô lập phạm vi biến (Local vs Global Scope) -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 2.2: Sự cô lập phạm vi biến (Local vs Global Scope):
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Quan sát sự thay đổi giá trị của biến toàn cục và biến cục bộ khi
+              gọi hàm.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="
+                      clearSandbox(
+                        'code-2-2',
+                        'output-2-2',
+                        'status-2-2',
+                        'status-icon-2-2',
+                        'container-2-2',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="
+                      runPythonSandbox(
+                        'code-2-2',
+                        'output-2-2',
+                        'status-2-2',
+                        'status-icon-2-2',
+                        'container-2-2',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+
+                  <button
+                    onclick="
+                      toggleVisualizer('code-2-2', 'visualizer-container-2-2')
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Xem trực quan động"
+                  >
+                    <i class="ph-bold ph-eye text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-2-2', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-2-2"
+                  contenteditable="true"
+                  data-original='# Biến toàn cục (Global variable)&#10;total_score = 100&#10;&#10;def update_score():&#10;    # Biến cục bộ (Local variable) trùng tên với biến toàn cục&#10;    total_score = 50&#10;    print("Biến score cục bộ bên trong hàm:", total_score)&#10;&#10;update_score()&#10;print("Biến score toàn cục bên ngoài hàm:", total_score)'
+                  class="w-full min-h-24 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >
+# Biến toàn cục (Global variable)
+total_score = 100
+
+def update_score():
+    # Biến cục bộ (Local variable) trùng tên với biến toàn cục
+    total_score = 50
+    print("Biến score cục bộ bên trong hàm:", total_score)
+
+update_score()
+print("Biến score toàn cục bên ngoài hàm:", total_score)</pre
+                >
+              </div>
+              <div
+                id="container-2-2"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-2-2"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+              <div
+                id="visualizer-container-2-2"
+                class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Section 5: Default Parameters -->
+          <ol start="5" class="list-decimal pl-6 space-y-4 mb-6">
+            <li class="leading-relaxed">
+              <strong>Tham số mặc định (Default Parameters):</strong>
+              Trong Python, bạn có thể gán giá trị mặc định cho các tham số khi
+              khai báo hàm. Khi gọi hàm, nếu đối số tương ứng bị khuyết, Python
+              sẽ sử dụng giá trị mặc định này để thực thi, giúp tăng tính linh
+              hoạt của mã nguồn.
+            </li>
+          </ol>
+
+          <!-- Ví dụ 2.3: Tham số mặc định -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 2.3: Thiết lập tham số mặc định (Default Parameters):
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Học cách gán giá trị mặc định cho tham số để hàm linh hoạt hơn khi
+              không có đối số truyền vào.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="
+                      clearSandbox(
+                        'code-2-3',
+                        'output-2-3',
+                        'status-2-3',
+                        'status-icon-2-3',
+                        'container-2-3',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="
+                      runPythonSandbox(
+                        'code-2-3',
+                        'output-2-3',
+                        'status-2-3',
+                        'status-icon-2-3',
+                        'container-2-3',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+
+                  <button
+                    onclick="
+                      toggleVisualizer('code-2-3', 'visualizer-container-2-3')
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Xem trực quan động"
+                  >
+                    <i class="ph-bold ph-eye text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-2-3', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-2-3"
+                  contenteditable="true"
+                  data-original='# Khai báo hàm có tham số mặc định discount=0&#10;def calculate_net_price(price, discount=0):&#10;    return price - discount&#10;&#10;# Gọi hàm không truyền discount (áp dụng giá trị mặc định 0)&#10;price_1 = calculate_net_price(100)&#10;&#10;# Gọi hàm có truyền discount&#10;price_2 = calculate_net_price(100, 15)&#10;&#10;print("Giá 1 (mặc định):", price_1)&#10;print("Giá 2 (truyền tham số):", price_2)'
+                  class="w-full min-h-24 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >
+# Khai báo hàm có tham số mặc định discount=0
+def calculate_net_price(price, discount=0):
+    return price - discount
+
+# Gọi hàm không truyền discount (áp dụng giá trị mặc định 0)
+price_1 = calculate_net_price(100)
+
+# Gọi hàm có truyền discount
+price_2 = calculate_net_price(100, 15)
+
+print("Giá 1 (mặc định):", price_1)
+print("Giá 2 (truyền tham số):", price_2)</pre
+                >
+              </div>
+              <div
+                id="container-2-3"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-2-3"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+              <div
+                id="visualizer-container-2-3"
+                class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+              ></div>
+            </div>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 3: Demo tự trải nghiệm -->
+        <section id="interactive-demo" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            3. Các ví dụ ứng dụng thực tiễn
+          </h2>
+
+          <!-- Ví dụ 3.1: Tính thuế TNCN lũy tiến -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.1: Hàm tính thuế thu nhập cá nhân lũy tiến:
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Áp dụng hàm để đóng gói logic phân bậc tính thuế phức tạp nhằm tái
+              sử dụng cho nhiều nhân sự.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="
+                      clearSandbox(
+                        'code-3-1',
+                        'output-3-1',
+                        'status-3-1',
+                        'status-icon-3-1',
+                        'container-3-1',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="
+                      runPythonSandbox(
+                        'code-3-1',
+                        'output-3-1',
+                        'status-3-1',
+                        'status-icon-3-1',
+                        'container-3-1',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+
+                  <button
+                    onclick="
+                      toggleVisualizer('code-3-1', 'visualizer-container-3-1')
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Xem trực quan động"
+                  >
+                    <i class="ph-bold ph-eye text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-1', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-1"
+                  contenteditable="true"
+                  data-original='def calculate_personal_tax(income):&#10;    # Miễn thuế nếu thu nhập dưới 11 triệu đồng&#10;    if income <= 11:&#10;        return 0&#10;    &#10;    taxable_income = income - 11&#10;    # Bậc 1: Thuế suất 5% cho phần thu nhập tính thuế đến 5 triệu&#10;    if taxable_income <= 5:&#10;        return taxable_income * 0.05&#10;    &#10;    # Bậc 2: Thuế suất 10% cho phần thu nhập từ 5 đến 10 triệu&#10;    return (5 * 0.05) + (taxable_income - 5) * 0.1&#10;&#10;print("Thuế TNCN cho mức lương 10M:", calculate_personal_tax(10))&#10;print("Thuế TNCN cho mức lương 15M:", calculate_personal_tax(15))&#10;print("Thuế TNCN cho mức lương 20M:", calculate_personal_tax(20))'
+                  class="w-full min-h-28 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >
+def calculate_personal_tax(income):
+    # Miễn thuế nếu thu nhập dưới 11 triệu đồng
+    if income <= 11:
+        return 0
+    
+    taxable_income = income - 11
+    # Bậc 1: Thuế suất 5% cho phần thu nhập tính thuế đến 5 triệu
+    if taxable_income <= 5:
+        return taxable_income * 0.05
+    
+    # Bậc 2: Thuế suất 10% cho phần thu nhập từ 5 đến 10 triệu
+    return (5 * 0.05) + (taxable_income - 5) * 0.1
+
+print("Thuế TNCN cho mức lương 10M:", calculate_personal_tax(10))
+print("Thuế TNCN cho mức lương 15M:", calculate_personal_tax(15))
+print("Thuế TNCN cho mức lương 20M:", calculate_personal_tax(20))</pre
+                >
+              </div>
+              <div
+                id="container-3-1"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-1"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+              <div
+                id="visualizer-container-3-1"
+                class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Ví dụ 3.2: Chuẩn hóa họ tên khách hàng -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.2: Hàm chuẩn hóa chuỗi văn bản dữ liệu:
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Loại bỏ khoảng trắng thừa ở hai đầu và viết hoa chữ cái đầu tiên
+              của từng từ trong họ tên.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="
+                      clearSandbox(
+                        'code-3-2',
+                        'output-3-2',
+                        'status-3-2',
+                        'status-icon-3-2',
+                        'container-3-2',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="
+                      runPythonSandbox(
+                        'code-3-2',
+                        'output-3-2',
+                        'status-3-2',
+                        'status-icon-3-2',
+                        'container-3-2',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+
+                  <button
+                    onclick="
+                      toggleVisualizer('code-3-2', 'visualizer-container-3-2')
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Xem trực quan động"
+                  >
+                    <i class="ph-bold ph-eye text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-2', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-2"
+                  contenteditable="true"
+                  data-original='def normalize_name(raw_name):&#10;    # Loại bỏ khoảng trắng thừa đầu cuối và viết hoa chữ cái đầu từng từ&#10;    cleaned_name = raw_name.strip().title()&#10;    # Loại bỏ các khoảng trắng trùng lặp ở giữa chuỗi&#10;    words = cleaned_name.split()&#10;    return " ".join(words)&#10;&#10;print(normalize_name("   nguyễn   văn   a   "))&#10;print(normalize_name("le   HOANG   vuong"))'
+                  class="w-full min-h-28 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >
+def normalize_name(raw_name):
+    # Loại bỏ khoảng trắng thừa đầu cuối và viết hoa chữ cái đầu từng từ
+    cleaned_name = raw_name.strip().title()
+    # Loại bỏ các khoảng trắng trùng lặp ở giữa chuỗi
+    words = cleaned_name.split()
+    return " ".join(words)
+
+print(normalize_name("   nguyễn   văn   a   "))
+print(normalize_name("le   HOANG   vuong"))</pre
+                >
+              </div>
+              <div
+                id="container-3-2"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-2"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+              <div
+                id="visualizer-container-3-2"
+                class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Ví dụ 3.3: Tính căn bậc 2 và kiểm tra số chính phương -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.3: Hàm tính toán và kiểm tra số chính phương:
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Áp dụng các toán tử số học và toán tử so sánh để xác định tính
+              chất số chính phương của một số nguyên.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="
+                      clearSandbox(
+                        'code-3-3',
+                        'output-3-3',
+                        'status-3-3',
+                        'status-icon-3-3',
+                        'container-3-3',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="
+                      runPythonSandbox(
+                        'code-3-3',
+                        'output-3-3',
+                        'status-3-3',
+                        'status-icon-3-3',
+                        'container-3-3',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+
+                  <button
+                    onclick="
+                      toggleVisualizer('code-3-3', 'visualizer-container-3-3')
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Xem trực quan động"
+                  >
+                    <i class="ph-bold ph-eye text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-3', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-3"
+                  contenteditable="true"
+                  data-original='def is_perfect_square(n):&#10;    # Các số âm không phải số chính phương&#10;    if n < 0:&#10;        return False&#10;    # Tính căn bậc 2 bằng toán tử số mũ 0.5&#10;    square_root = int(n ** 0.5)&#10;    # So sánh bình phương của căn bậc hai với số ban đầu&#10;    return square_root * square_root == n&#10;&#10;print("16 là số chính phương:", is_perfect_square(16))&#10;print("20 là số chính phương:", is_perfect_square(20))&#10;print("25 là số chính phương:", is_perfect_square(25))'
+                  class="w-full min-h-32 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >
+def is_perfect_square(n):
+    # Các số âm không phải số chính phương
+    if n < 0:
+        return False
+    # Tính căn bậc 2 bằng toán tử số mũ 0.5
+    square_root = int(n ** 0.5)
+    # So sánh bình phương của căn bậc hai với số ban đầu
+    return square_root * square_root == n
+
+print("16 là số chính phương:", is_perfect_square(16))
+print("20 là số chính phương:", is_perfect_square(20))
+print("25 là số chính phương:", is_perfect_square(25))</pre
+                >
+              </div>
+              <div
+                id="container-3-3"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-3"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+              <div
+                id="visualizer-container-3-3"
+                class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Ví dụ 3.4: Hàm tính trung bình cộng danh sách số -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.4: Hàm tính giá trị trung bình cộng của một danh sách số:
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Xây dựng hàm xử lý trên tập hợp phần tử, tính tổng bằng vòng lặp
+              và chia cho số lượng phần tử.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="
+                      clearSandbox(
+                        'code-3-4',
+                        'output-3-4',
+                        'status-3-4',
+                        'status-icon-3-4',
+                        'container-3-4',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="
+                      runPythonSandbox(
+                        'code-3-4',
+                        'output-3-4',
+                        'status-3-4',
+                        'status-icon-3-4',
+                        'container-3-4',
+                      )
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+
+                  <button
+                    onclick="
+                      toggleVisualizer('code-3-4', 'visualizer-container-3-4')
+                    "
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Xem trực quan động"
+                  >
+                    <i class="ph-bold ph-eye text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-4', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-4"
+                  contenteditable="true"
+                  data-original='def calculate_average(numbers):&#10;    # Bẫy lỗi danh sách trống tránh ZeroDivisionError&#10;    if len(numbers) == 0:&#10;        return 0&#10;    &#10;    total = 0&#10;    for num in numbers:&#10;        total += num&#10;    &#10;    return total / len(numbers)&#10;&#10;print("Trung bình cộng [1, 2, 3, 4, 5]:", calculate_average([1, 2, 3, 4, 5]))&#10;print("Trung bình cộng danh sách trống:", calculate_average([]))'
+                  class="w-full min-h-28 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >
+def calculate_average(numbers):
+    # Bẫy lỗi danh sách trống tránh ZeroDivisionError
+    if len(numbers) == 0:
+        return 0
+    
+    total = 0
+    for num in numbers:
+        total += num
+    
+    return total / len(numbers)
+
+print("Trung bình cộng [1, 2, 3, 4, 5]:", calculate_average([1, 2, 3, 4, 5]))
+print("Trung bình cộng danh sách trống:", calculate_average([]))</pre
+                >
+              </div>
+              <div
+                id="container-3-4"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-4"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+              <div
+                id="visualizer-container-3-4"
+                class="hidden border-t border-slate-200 dark:border-rikkei-borderDark bg-slate-50 dark:bg-slate-900/60 p-0 transition-all"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Code Comparison Cards -->
+          <div class="space-y-6 mt-10">
+            <h3
+              class="font-montserrat font-bold text-xl text-slate-900 dark:text-white"
+            >
+              So sánh thực tiễn viết mã nguồn (Best Practices)
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Bad Practice Card -->
+              <div
+                class="border border-red-200 dark:border-red-900/40 rounded-xl overflow-hidden bg-red-50/10 dark:bg-red-950/5 flex flex-col justify-between"
+              >
+                <div>
+                  <div
+                    class="bg-red-50 dark:bg-red-950/20 px-5 py-3 border-b border-red-100 dark:border-red-900/30 flex items-center justify-between text-[15px] font-bold text-rikkei-red dark:text-red-400"
+                  >
+                    <span class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-x-circle text-lg"></i> Giải pháp
+                      không tốt
+                    </span>
+                    <span
+                      class="text-xs font-semibold px-2 py-0.5 rounded bg-red-100/80 dark:bg-red-950 text-red-800 dark:text-red-300"
+                      >Dễ phát sinh lỗi</span
+                    >
+                  </div>
+                  <pre
+                    class="border-b border-red-100 dark:border-red-900/30"
+                  ><code class="language-python hljs bg-transparent dark:bg-transparent p-5!"># Dùng danh sách [] làm tham số mặc định
+def add_product(item, items_list=[]):
+    items_list.append(item)
+    return items_list
+
+print(add_product("Sữa"))   # Trả về ["Sữa"]
+print(add_product("Trứng")) # Trả về ["Sữa", "Trứng"]! (Bộ nhớ dùng chung)</code></pre>
+                </div>
+                <div class="p-5 bg-white/40 dark:bg-slate-900/10">
+                  <p
+                    class="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400"
+                  >
+                    Trong Python, các tham số mặc định dạng mutable (như List,
+                    Dict) chỉ được khởi tạo **một lần duy nhất** khi biên dịch
+                    hàm. Điều này dẫn đến việc các lần gọi hàm sau sử dụng chung
+                    một đối tượng List cũ, gây rò rỉ dữ liệu ngoài ý muốn.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Good Practice Card -->
+              <div
+                class="border border-emerald-200 dark:border-emerald-900/40 rounded-xl overflow-hidden bg-emerald-50/10 dark:bg-emerald-950/5 flex flex-col justify-between"
+              >
+                <div>
+                  <div
+                    class="bg-emerald-50 dark:bg-emerald-950/20 px-5 py-3 border-b border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between text-[15px] font-bold text-emerald-700 dark:text-emerald-400"
+                  >
+                    <span class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-check-circle text-lg"></i> Giải pháp
+                      tốt
+                    </span>
+                    <span
+                      class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100/80 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
+                      >An toàn & Tối ưu</span
+                    >
+                  </div>
+                  <pre
+                    class="border-b border-emerald-100 dark:border-emerald-900/30"
+                  ><code class="language-python hljs bg-transparent dark:bg-transparent p-5!"># Khởi tạo giá trị mặc định là None
+def add_product(item, items_list=None):
+    if items_list is None:
+        items_list = []  # Tạo một danh sách mới độc lập
+    items_list.append(item)
+    return items_list
+
+print(add_product("Sữa"))   # Trả về ["Sữa"]
+print(add_product("Trứng")) # Trả về ["Trứng"] (Đúng thực tế)</code></pre>
+                </div>
+                <div class="p-5 bg-white/40 dark:bg-slate-900/10">
+                  <p
+                    class="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400"
+                  >
+                    Sử dụng giá trị mặc định là <code>None</code> cho các tham
+                    số có kiểu dữ liệu mutable. Bên trong thân hàm, kiểm tra xem
+                    nếu là <code>None</code> thì mới khởi tạo đối tượng rỗng
+                    mới. Đây là Best Practice quy chuẩn.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="summary-notes" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            4. Tổng kết và các lưu ý
+          </h2>
+
+          <div class="space-y-6 text-slate-600 dark:text-slate-300">
+            <div>
+              <ul class="list-disc pl-6 space-y-3">
+                <li>
+                  <strong>Bẫy Shadowing biến:</strong> Tránh đặt tên biến cục bộ
+                  trùng tên với biến toàn cục hoặc trùng tên hàm dựng sẵn của hệ
+                  thống (ví dụ: đặt biến tên <code>list</code>,
+                  <code>sum</code>, <code>max</code> sẽ ghi đè lên các hàm có
+                  sẵn của Python).
+                </li>
+                <li>
+                  <strong>Tránh lạm dụng từ khóa global:</strong> Hạn chế tối đa
+                  việc sửa đổi biến toàn cục từ bên trong hàm bằng từ khóa
+                  <code>global</code> vì nó phá vỡ tính cô lập của hàm và khó
+                  kiểm soát lỗi.
+                </li>
+                <li>
+                  <strong>Quy chuẩn tài liệu (Docstrings):</strong> Khuyên khích
+                  viết chú thích ngắn gọn ngay dòng đầu tiên trong hàm để mô tả
+                  tác dụng của hàm, cấu trúc tham số đầu vào và kiểu dữ liệu trả
+                  ra.
+                </li>
+              </ul>
+            </div>
+
+            <!-- Tra cứu từ khóa liên quan -->
+            <div class="mb-6">
+              <h4 class="font-bold text-slate-900 dark:text-white mb-3">
+                Bảng tra cứu các khái niệm liên quan đến thiết kế Hàm trong
+                Python
+              </h4>
+              <div
+                class="overflow-x-auto border border-slate-200 dark:border-rikkei-borderDark rounded-xl"
+              >
+                <table class="w-full text-sm text-left border-collapse">
+                  <thead>
+                    <tr
+                      class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-rikkei-borderDark"
+                    >
+                      <th class="px-4 py-3 font-semibold">Khái niệm</th>
+                      <th class="px-4 py-3 font-semibold">Ý nghĩa tác dụng</th>
+                      <th class="px-4 py-3 font-semibold text-right">
+                        Từ khóa / Cú pháp
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="divide-y divide-slate-200 dark:divide-rikkei-borderDark text-slate-600 dark:text-slate-300 font-mono"
+                  >
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        def
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Từ khóa khai báo bắt đầu một định nghĩa hàm mới
+                      </td>
+                      <td
+                        class="px-4 py-3 text-right text-rikkei-red font-semibold"
+                      >
+                        def func_name():
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        return
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Dừng chạy hàm lập tức và trả về giá trị cho nơi gọi
+                      </td>
+                      <td class="px-4 py-3 text-right text-slate-500">
+                        return value
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        global
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Khai báo tham chiếu đến biến toàn cục bên ngoài hàm để
+                        chỉnh sửa
+                      </td>
+                      <td class="px-4 py-3 text-right text-slate-500">
+                        global var_name
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        lambda
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Hàm ẩn danh (Anonymous function) dạng ngắn gọn trong 1
+                        dòng
+                      </td>
+                      <td class="px-4 py-3 text-right text-slate-500">
+                        lambda x: x * 2
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="references" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            5. Tài liệu tham khảo
+          </h2>
+
+          <ol
+            class="list-decimal pl-6 space-y-4 text-[15px] text-slate-600 dark:text-slate-300"
+          >
+            <li class="leading-relaxed">
+              <a
+                href="https://docs.python.org/3/tutorial/controlflow.html#defining-functions"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-rikkei-red hover:underline font-semibold"
+              >
+                Tài liệu hướng dẫn khai báo và kiểm soát luồng Hàm chính thức
+                trên trang chủ Python.org
+              </a>
+            </li>
+            <li class="leading-relaxed">
+              <a
+                href="https://www.geeksforgeeks.org/python-functions/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-rikkei-red hover:underline font-semibold"
+              >
+                Cẩm nang phân tích cấu trúc Hàm và phạm vi biến trong Python
+                trên GeeksforGeeks
+              </a>
+            </li>
+            <li class="leading-relaxed">
+              <a
+                href="https://www.w3schools.com/python/python_functions.asp"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-rikkei-red hover:underline font-semibold"
+              >
+                Bài học thực hành tương tác và tra cứu cú pháp Hàm trên
+                W3Schools
+              </a>
+            </li>
+          </ol>
+        </section>
+      </article>
+    </main>
+
+    <!-- Script for Light/Dark mode, Progress Scroll Bar, TOC Active Navigation and Python Sandbox -->
+    <script>
+      // ─── THEME TOGGLE (LIGHT / DARK MODE) ───
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+
+      // Check saved choice or system preferred
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+        themeIcon.className = "ph-bold ph-sun text-lg";
+      } else {
+        document.documentElement.classList.remove("dark");
+        themeIcon.className = "ph-bold ph-moon text-lg";
+      }
+
+      themeToggleBtn.addEventListener("click", function () {
+        if (document.documentElement.classList.contains("dark")) {
+          document.documentElement.classList.remove("dark");
+          localStorage.setItem("color-theme", "light");
+          themeIcon.className = "ph-bold ph-moon text-lg";
+        } else {
+          document.documentElement.classList.add("dark");
+          localStorage.setItem("color-theme", "dark");
+          themeIcon.className = "ph-bold ph-sun text-lg";
+        }
+      });
+
+      // ─── SCROLL PROGRESS BAR ───
+      window.addEventListener("scroll", () => {
+        const scrollTop = window.scrollY;
+        const docHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        document.getElementById("scroll-progress").style.width =
+          scrollPercent + "%";
+      });
+
+      // ─── SCROLL SPY FOR TABLE OF CONTENTS (TOC) ───
+      const sections = document.querySelectorAll("section");
+      const tocLinks = document.querySelectorAll(".toc-link");
+
+      const options = {
+        root: null,
+        rootMargin: "0px 0px -60% 0px", // Active when heading enters top section of screen
+        threshold: 0,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            tocLinks.forEach((link) => {
+              if (link.getAttribute("href") === `#${id}`) {
+                link.classList.add(
+                  "border-rikkei-red",
+                  "font-bold",
+                  "text-rikkei-red",
+                );
+                link.classList.remove(
+                  "border-transparent",
+                  "text-slate-500",
+                  "dark:text-slate-400",
+                );
+              } else {
+                link.classList.remove(
+                  "border-rikkei-red",
+                  "font-bold",
+                  "text-rikkei-red",
+                );
+                link.classList.add(
+                  "border-transparent",
+                  "text-slate-500",
+                  "dark:text-slate-400",
+                );
+              }
+            });
+          }
+        });
+      }, options);
+
+      sections.forEach((section) => {
+        observer.observe(section);
+      });
+
+      // ─── PYODIDE SANDBOX CODE COMPILER ───
+      let pyodideInstance = null;
+      let pyodideLoadingPromise = null;
+
+      async function loadPyodideEngine(
+        outputId,
+        statusId,
+        iconId,
+        containerId,
+      ) {
+        const consoleOut = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+
+        container.classList.remove("hidden");
+        consoleOut.innerHTML =
+          '<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><i class="ph-bold ph-spinner animate-spin text-rikkei-red text-base"></i><span>Đang xử lý...</span></div>';
+
+        if (!pyodideLoadingPromise) {
+          pyodideLoadingPromise = (async () => {
+            const instance = await loadPyodide();
+            await instance.runPythonAsync(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+                `);
+            return instance;
+          })();
+        }
+
+        try {
+          pyodideInstance = await pyodideLoadingPromise;
+        } catch (error) {
+          pyodideLoadingPromise = null; // Cho phép tải lại nếu lỗi
+          consoleOut.innerHTML =
+            "Lỗi nạp Pyodide WASM Engine:\n" + String(error);
+          throw error;
+        }
+      }
+
+      async function runPythonSandbox(
+        textareaId,
+        outputId,
+        statusId,
+        iconId,
+        containerId,
+      ) {
+        const consoleOut = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        const codeInput = document.getElementById(textareaId).innerText;
+
+        container.classList.remove("hidden");
+
+        if (!pyodideInstance) {
+          try {
+            await loadPyodideEngine(outputId, statusId, iconId, containerId);
+          } catch (e) {
+            return; // Dừng lại nếu nạp Pyodide thất bại
+          }
+        }
+
+        consoleOut.innerHTML =
+          '<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><i class="ph-bold ph-spinner animate-spin text-rikkei-red text-base"></i><span>Đang xử lý...</span></div>';
+
+        try {
+          // Xóa bộ đệm cũ
+          pyodideInstance.runPython(`
+                sys.stdout.truncate(0)
+                sys.stdout.seek(0)
+                sys.stderr.truncate(0)
+                sys.stderr.seek(0)
+            `);
+
+          // Thực thi mã nguồn
+          const result = pyodideInstance.runPython(codeInput);
+
+          // Lấy kết quả xuất ra
+          const stdout = pyodideInstance.runPython("sys.stdout.getvalue()");
+          const stderr = pyodideInstance.runPython("sys.stderr.getvalue()");
+
+          let finalOutput = "";
+          if (stdout) finalOutput += stdout;
+          if (stderr) finalOutput += stderr;
+          if (result !== undefined && result !== null && !stdout)
+            finalOutput += String(result);
+
+          consoleOut.textContent = finalOutput;
+        } catch (error) {
+          consoleOut.textContent = String(error);
+        }
+      }
+
+      function clearSandbox(
+        textareaId,
+        outputId,
+        statusId,
+        iconId,
+        containerId,
+      ) {
+        const textarea = document.getElementById(textareaId);
+        textarea.innerText = textarea.getAttribute("data-original");
+        hljs.highlightElement(textarea);
+
+        const consoleOut = document.getElementById(outputId);
+        consoleOut.textContent = "";
+
+        const container = document.getElementById(containerId);
+        container.classList.add("hidden");
+      }
+
+      function copySandboxCode(textareaId, buttonElement) {
+        const code = document.getElementById(textareaId).innerText;
+        navigator.clipboard.writeText(code).then(() => {
+          const icon = buttonElement.querySelector("i");
+          icon.className = "ph-bold ph-check text-rikkei-red text-sm";
+          setTimeout(() => {
+            icon.className = "ph-bold ph-copy text-sm";
+          }, 2000);
+        });
+      }
+
+      // ==========================================
+      // INTERACTIVE CODE STEPPER & VISUALIZER ENGINE
+      // ==========================================
+      const visualizerTraces = {
+        "2-1": [
+          {
+            line: 2,
+            explanation:
+              "Định nghĩa hàm <code>greet_user(username)</code>. Python đăng ký hàm vào Vùng nhớ Toàn cục (Global Frame).",
+            global: { greet_user: "&lt;function greet_user&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 7,
+            explanation:
+              "Gọi hàm <code>greet_user</code> và truyền đối số <code>'Rikkei Academy'</code>. Luồng chạy chuyển vào bên trong hàm.",
+            global: { greet_user: "&lt;function greet_user&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 2,
+            explanation:
+              "Khởi tạo Vùng nhớ Cục bộ (Local Frame) cho hàm <code>greet_user</code> với tham số <code>username = 'Rikkei Academy'</code>.",
+            global: { greet_user: "&lt;function greet_user&gt;" },
+            local: {
+              name: "greet_user",
+              variables: { username: "'Rikkei Academy'" },
+            },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Tính toán chuỗi định dạng chào mừng và gán giá trị cho biến cục bộ <code>message</code>.",
+            global: { greet_user: "&lt;function greet_user&gt;" },
+            local: {
+              name: "greet_user",
+              variables: {
+                username: "'Rikkei Academy'",
+                message:
+                  "'Xin chào Rikkei Academy, chúc một ngày làm việc hiệu quả!'",
+              },
+            },
+            console: "",
+          },
+          {
+            line: 4,
+            explanation:
+              "Gặp lệnh <code>return message</code>. Trả về giá trị của biến cục bộ <code>message</code> cho nơi gọi hàm.",
+            global: { greet_user: "&lt;function greet_user&gt;" },
+            local: {
+              name: "greet_user",
+              variables: {
+                username: "'Rikkei Academy'",
+                message:
+                  "'Xin chào Rikkei Academy, chúc một ngày làm việc hiệu quả!'",
+              },
+            },
+            console: "",
+          },
+          {
+            line: 7,
+            explanation:
+              "Gán giá trị nhận được từ lời gọi hàm vào biến toàn cục <code>welcome_msg</code>. Local Frame của hàm giải phóng khỏi Stack.",
+            global: {
+              greet_user: "&lt;function greet_user&gt;",
+              welcome_msg:
+                "'Xin chào Rikkei Academy, chúc một ngày làm việc hiệu quả!'",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 8,
+            explanation:
+              "In giá trị của biến toàn cục <code>welcome_msg</code> ra màn hình.",
+            global: {
+              greet_user: "&lt;function greet_user&gt;",
+              welcome_msg:
+                "'Xin chào Rikkei Academy, chúc một ngày làm việc hiệu quả!'",
+            },
+            local: null,
+            console:
+              "Xin chào Rikkei Academy, chúc một ngày làm việc hiệu quả!\n",
+          },
+        ],
+        "2-2": [
+          {
+            line: 2,
+            explanation:
+              "Khai báo biến toàn cục <code>total_score = 100</code>.",
+            global: { total_score: "100" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 4,
+            explanation:
+              "Định nghĩa hàm <code>update_score()</code> và đăng ký vào Vùng nhớ Toàn cục.",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 9,
+            explanation:
+              "Gọi hàm <code>update_score()</code> để thực thi các câu lệnh bên trong hàm.",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 4,
+            explanation:
+              "Bắt đầu thực thi hàm <code>update_score()</code>. Khởi tạo Local Frame cục bộ trên Stack.",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: { name: "update_score", variables: {} },
+            console: "",
+          },
+          {
+            line: 6,
+            explanation:
+              "Gán giá trị <code>50</code> cho biến cục bộ <code>total_score</code> trùng tên với biến toàn cục (Tạo biến cục bộ mới).",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: { name: "update_score", variables: { total_score: "50" } },
+            console: "",
+          },
+          {
+            line: 7,
+            explanation:
+              "In giá trị biến cục bộ <code>total_score</code> ra màn hình. Khi đọc biến trùng tên, Python ưu tiên biến cục bộ trước.",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: { name: "update_score", variables: { total_score: "50" } },
+            console: "Biến score cục bộ bên trong hàm: 50\n",
+          },
+          {
+            line: 9,
+            explanation:
+              "Hàm kết thúc (không có return, tự động trả về None). Local Frame bị giải phóng khỏi Stack.",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: null,
+            console: "Biến score cục bộ bên trong hàm: 50\n",
+          },
+          {
+            line: 10,
+            explanation:
+              "In giá trị của biến toàn cục <code>total_score</code>. Giá trị biến toàn cục bên ngoài vẫn là 100, không bị thay đổi.",
+            global: {
+              total_score: "100",
+              update_score: "&lt;function update_score&gt;",
+            },
+            local: null,
+            console:
+              "Biến score cục bộ bên trong hàm: 50\nBiến score toàn cục bên ngoài hàm: 100\n",
+          },
+        ],
+        "2-3": [
+          {
+            line: 2,
+            explanation:
+              "Định nghĩa hàm <code>calculate_net_price</code> có tham số mặc định <code>discount = 0</code>.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 6,
+            explanation:
+              "Lời gọi hàm 1: Gọi <code>calculate_net_price(100)</code> không truyền tham số <code>discount</code>.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 2,
+            explanation:
+              "Bắt đầu chạy hàm. Gán <code>price = 100</code> và sử dụng giá trị mặc định <code>discount = 0</code>.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+            },
+            local: {
+              name: "calculate_net_price",
+              variables: { price: "100", discount: "0" },
+            },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Trả về kết quả <code>100 - 0 = 100</code> và thoát hàm.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+            },
+            local: {
+              name: "calculate_net_price",
+              variables: { price: "100", discount: "0" },
+            },
+            console: "",
+          },
+          {
+            line: 6,
+            explanation:
+              "Gán kết quả trả về vào biến toàn cục <code>price_1 = 100</code>. Giải phóng Local Frame.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 9,
+            explanation:
+              "Lời gọi hàm 2: Gọi <code>calculate_net_price(100, 15)</code> truyền cả hai tham số.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 2,
+            explanation:
+              "Bắt đầu chạy hàm lần 2. Gán <code>price = 100</code> và <code>discount = 15</code>.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+            },
+            local: {
+              name: "calculate_net_price",
+              variables: { price: "100", discount: "15" },
+            },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Trả về kết quả <code>100 - 15 = 85</code> và thoát hàm.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+            },
+            local: {
+              name: "calculate_net_price",
+              variables: { price: "100", discount: "15" },
+            },
+            console: "",
+          },
+          {
+            line: 9,
+            explanation:
+              "Gán kết quả trả về vào biến toàn cục <code>price_2 = 85</code>. Giải phóng Local Frame.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+              price_2: "85",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 11,
+            explanation:
+              "In kết quả của biến toàn cục <code>price_1</code> ra màn hình.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+              price_2: "85",
+            },
+            local: null,
+            console: "Giá 1 (mặc định): 100\n",
+          },
+          {
+            line: 12,
+            explanation:
+              "In kết quả của biến toàn cục <code>price_2</code> ra màn hình.",
+            global: {
+              calculate_net_price: "&lt;function calculate_net_price&gt;",
+              price_1: "100",
+              price_2: "85",
+            },
+            local: null,
+            console: "Giá 1 (mặc định): 100\nGiá 2 (truyền tham số): 85\n",
+          },
+        ],
+        "3-1": [
+          {
+            line: 1,
+            explanation:
+              "Định nghĩa hàm tính thuế thu nhập cá nhân <code>calculate_personal_tax(income)</code>.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 14,
+            explanation:
+              "Gọi hàm lần 1: Tính thuế cho mức lương 10 triệu đồng.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: null,
+            console: "",
+          },
+          {
+            line: 1,
+            explanation:
+              "Bắt đầu chạy hàm với tham số cục bộ <code>income = 10</code>.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "10" },
+            },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Kiểm tra điều kiện <code>income &lt;= 11</code> (10 &lt;= 11 là Đúng).",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "10" },
+            },
+            console: "",
+          },
+          {
+            line: 4,
+            explanation:
+              "Trả về kết quả <code>0</code> (Miễn thuế vì thu nhập dưới 11M) và thoát hàm.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "10" },
+            },
+            console: "",
+          },
+          {
+            line: 14,
+            explanation:
+              "In kết quả trả về ra màn hình. Giải phóng Local Frame.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: null,
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 15,
+            explanation:
+              "Gọi hàm lần 2: Tính thuế cho mức lương 15 triệu đồng.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: null,
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 1,
+            explanation:
+              "Bắt đầu chạy hàm lần 2 với tham số cục bộ <code>income = 15</code>.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "15" },
+            },
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 3,
+            explanation:
+              "Kiểm tra điều kiện <code>income &lt;= 11</code> (15 &lt;= 11 là Sai). Chuyển xuống các lệnh tiếp theo.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "15" },
+            },
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 6,
+            explanation:
+              "Tính thu nhập tính thuế: <code>taxable_income = 15 - 11 = 4</code>.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "15", taxable_income: "4" },
+            },
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 8,
+            explanation:
+              "Kiểm tra điều kiện <code>taxable_income &lt;= 5</code> (4 &lt;= 5 là Đúng).",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "15", taxable_income: "4" },
+            },
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 9,
+            explanation:
+              "Trả về giá trị thuế suất 5%: <code>4 * 0.05 = 0.2</code> (200,000 VND) và thoát hàm.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: {
+              name: "calculate_personal_tax",
+              variables: { income: "15", taxable_income: "4" },
+            },
+            console: "Thuế TNCN cho mức lương 10M: 0\n",
+          },
+          {
+            line: 15,
+            explanation:
+              "In kết quả trả về ra màn hình. Giải phóng Local Frame.",
+            global: {
+              calculate_personal_tax: "&lt;function calculate_personal_tax&gt;",
+            },
+            local: null,
+            console:
+              "Thuế TNCN cho mức lương 10M: 0\nThuế TNCN cho mức lương 15M: 0.2\n",
+          },
+        ],
+        "3-2": [
+          {
+            line: 1,
+            explanation:
+              "Định nghĩa hàm chuẩn hóa tên <code>normalize_name(raw_name)</code>.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 8,
+            explanation:
+              "Gọi hàm lần 1 để chuẩn hóa chuỗi nhiều khoảng trắng thừa: <code>'   nguyễn   văn   a   '</code>.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 1,
+            explanation:
+              "Khởi tạo Local Frame cho hàm với <code>raw_name = '   nguyễn   văn   a   '</code>.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: {
+              name: "normalize_name",
+              variables: { raw_name: "'   nguyễn   văn   a   '" },
+            },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Cắt khoảng trắng thừa hai đầu bằng <code>strip()</code>, và viết hoa đầu chữ cái bằng <code>title()</code>.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: {
+              name: "normalize_name",
+              variables: {
+                raw_name: "'   nguyễn   văn   a   '",
+                cleaned_name: "'Nguyễn   Văn   A'",
+              },
+            },
+            console: "",
+          },
+          {
+            line: 5,
+            explanation:
+              "Tách chuỗi dựa trên khoảng trắng bằng <code>split()</code> để thu về danh sách các từ.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: {
+              name: "normalize_name",
+              variables: {
+                raw_name: "'   nguyễn   văn   a   '",
+                cleaned_name: "'Nguyễn   Văn   A'",
+                words: "['Nguyễn', 'Văn', 'A']",
+              },
+            },
+            console: "",
+          },
+          {
+            line: 6,
+            explanation:
+              "Nối lại các từ bằng một khoảng trắng duy nhất và trả về kết quả chuỗi hoàn chỉnh.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: {
+              name: "normalize_name",
+              variables: {
+                raw_name: "'   nguyễn   văn   a   '",
+                cleaned_name: "'Nguyễn   Văn   A'",
+                words: "['Nguyễn', 'Văn', 'A']",
+              },
+            },
+            console: "",
+          },
+          {
+            line: 8,
+            explanation:
+              "In kết quả đã chuẩn hóa ra màn hình. Giải phóng Local Frame.",
+            global: { normalize_name: "&lt;function normalize_name&gt;" },
+            local: null,
+            console: "Nguyễn Văn A\n",
+          },
+        ],
+        "3-3": [
+          {
+            line: 1,
+            explanation:
+              "Định nghĩa hàm kiểm tra số chính phương <code>is_perfect_square(n)</code>.",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 10,
+            explanation: "Gọi hàm lần 1 để kiểm tra số 16.",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 1,
+            explanation: "Bắt đầu chạy hàm với <code>n = 16</code>.",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: { name: "is_perfect_square", variables: { n: "16" } },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Kiểm tra điều kiện <code>n &lt; 0</code> (16 &lt; 0 là Sai). Bỏ qua khối lệnh True.",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: { name: "is_perfect_square", variables: { n: "16" } },
+            console: "",
+          },
+          {
+            line: 6,
+            explanation:
+              "Tính căn bậc hai của 16 bằng toán tử số mũ 0.5 và ép kiểu về số nguyên: <code>square_root = int(16**0.5) = 4</code>.",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: {
+              name: "is_perfect_square",
+              variables: { n: "16", square_root: "4" },
+            },
+            console: "",
+          },
+          {
+            line: 8,
+            explanation:
+              "So sánh bình phương của căn bậc hai với số ban đầu: <code>4 * 4 == 16</code> (Đúng -> Trả về True).",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: {
+              name: "is_perfect_square",
+              variables: { n: "16", square_root: "4" },
+            },
+            console: "",
+          },
+          {
+            line: 10,
+            explanation: "In kết quả True ra màn hình. Giải phóng Local Frame.",
+            global: { is_perfect_square: "&lt;function is_perfect_square&gt;" },
+            local: null,
+            console: "16 là số chính phương: True\n",
+          },
+        ],
+        "3-4": [
+          {
+            line: 1,
+            explanation:
+              "Định nghĩa hàm tính trung bình cộng <code>calculate_average(numbers)</code>.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 12,
+            explanation:
+              "Gọi hàm tính trung bình cộng cho danh sách <code>[1, 2, 3, 4, 5]</code>.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: null,
+            console: "",
+          },
+          {
+            line: 1,
+            explanation:
+              "Khởi tạo Local Frame với đối số cục bộ <code>numbers = [1, 2, 3, 4, 5]</code>.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: {
+              name: "calculate_average",
+              variables: { numbers: "[1, 2, 3, 4, 5]" },
+            },
+            console: "",
+          },
+          {
+            line: 3,
+            explanation:
+              "Kiểm tra điều kiện danh sách rỗng <code>len(numbers) == 0</code> (Độ dài là 5 != 0 -> Sai).",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: {
+              name: "calculate_average",
+              variables: { numbers: "[1, 2, 3, 4, 5]" },
+            },
+            console: "",
+          },
+          {
+            line: 6,
+            explanation:
+              "Khởi tạo biến tích lũy cục bộ <code>total = 0</code>.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: {
+              name: "calculate_average",
+              variables: { numbers: "[1, 2, 3, 4, 5]", total: "0" },
+            },
+            console: "",
+          },
+          {
+            line: 7,
+            explanation:
+              "Dùng vòng lặp for cộng dồn từng phần tử vào biến total. Sau vòng lặp, <code>total = 15</code>.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: {
+              name: "calculate_average",
+              variables: { numbers: "[1, 2, 3, 4, 5]", total: "15" },
+            },
+            console: "",
+          },
+          {
+            line: 10,
+            explanation:
+              "Chia tổng tích lũy cho độ dài của danh sách và trả về kết quả: <code>15 / 5 = 3.0</code>.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: {
+              name: "calculate_average",
+              variables: { numbers: "[1, 2, 3, 4, 5]", total: "15" },
+            },
+            console: "",
+          },
+          {
+            line: 12,
+            explanation: "In kết quả ra màn hình. Giải phóng Local Frame.",
+            global: { calculate_average: "&lt;function calculate_average&gt;" },
+            local: null,
+            console: "Trung bình cộng [1, 2, 3, 4, 5]: 3.0\n",
+          },
+        ],
+      };
+
+      const visualizerStates = {};
+      let activeVisualizerId = null;
+
+      function toggleVisualizer(codeId, containerId) {
+        const shortId = codeId.replace("code-", "");
+
+        if (activeVisualizerId && activeVisualizerId !== shortId) {
+          stopAutoplay(activeVisualizerId);
+        }
+
+        activeVisualizerId = shortId;
+
+        if (!visualizerStates[shortId]) {
+          visualizerStates[shortId] = {
+            currentStep: 0,
+            intervalId: null,
+          };
+        }
+
+        const modal = document.getElementById("visualizer-modal");
+        const modalContent = document.getElementById("modal-content");
+
+        modalContent.innerHTML = createVisualizerDOM(codeId);
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.style.overflow = "hidden"; // Lock page scroll
+
+        renderStep(shortId);
+      }
+
+      function closeModal() {
+        const modal = document.getElementById("visualizer-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        document.body.style.overflow = ""; // Unlock page scroll
+
+        if (activeVisualizerId) {
+          stopAutoplay(activeVisualizerId);
+          activeVisualizerId = null;
+        }
+      }
+
+      function stopAutoplay(shortId) {
+        const state = visualizerStates[shortId];
+        if (state && state.intervalId) {
+          clearInterval(state.intervalId);
+          state.intervalId = null;
+        }
+      }
+
+      function escapeHTML(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function createVisualizerDOM(sandboxId) {
+        const shortId = sandboxId.replace("code-", "");
+        const originalCode = document
+          .getElementById(sandboxId)
+          .innerText.trim();
+        const codeLines = originalCode.split("\n");
+
+        let codeTrackerHTML = `<div class="code-tracker-container flex-1 bg-slate-950 text-slate-100 p-4 rounded-lg font-mono text-xs overflow-auto min-h-0 h-full border border-slate-800">`;
+        codeLines.forEach((line, index) => {
+          const lineNum = index + 1;
+          codeTrackerHTML += `
+            <div id="vis-line-${shortId}-${lineNum}" class="flex py-0.5 px-2 border-l-2 border-transparent transition-all">
+              <span class="text-slate-500 select-none w-6 text-right mr-3">${lineNum}</span>
+              <span class="whitespace-pre">${escapeHTML(line)}</span>
+            </div>
+          `;
+        });
+        codeTrackerHTML += `</div>`;
+
+        return `
+          <!-- Header Row -->
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-850 pb-3 text-left">
+            <h3 class="text-base font-bold text-slate-900 dark:text-white leading-none">Chạy từng bước thuật toán</h3>
+            <button onclick="closeModal()" class="w-8 h-8 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-950 dark:hover:text-white transition-all">
+              <i class="ph-bold ph-x text-sm"></i>
+            </button>
+          </div>
+
+          <!-- Main Grid: Code Tracker & Memory Call Stack -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 flex-1 min-h-0">
+            <!-- Left Column: Code Tracker (7 cols) -->
+            <div class="md:col-span-7 flex flex-col gap-2 h-full min-h-0">
+              ${codeTrackerHTML}
+            </div>
+
+            <!-- Right Column: Memory Call Stack (5 cols) -->
+            <div class="md:col-span-5 flex flex-col gap-2 h-full min-h-0">
+              <!-- Frame Container -->
+              <div id="memory-frames-${shortId}" class="flex-1 min-h-0 h-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 p-4 rounded-lg overflow-y-auto flex flex-col gap-3 font-sans text-xs shadow-inner">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls Row -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 dark:bg-slate-950/80 p-3 rounded-xl border border-slate-200 dark:border-slate-850/85">
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start">
+              <button onclick="prevStep('${shortId}')" class="p-2 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-sm" title="Bước trước">
+                <i class="ph-bold ph-caret-left text-sm"></i>
+              </button>
+              <button id="play-btn-${shortId}" onclick="togglePlay('${shortId}')" class="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-sm flex items-center gap-1.5 font-sans text-xs font-semibold" title="Chạy tự động">
+                <i class="ph-bold ph-play text-sm"></i>
+              </button>
+              <button onclick="nextStep('${shortId}')" class="p-2 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-sm" title="Bước tiếp">
+                <i class="ph-bold ph-caret-right text-sm"></i>
+              </button>
+              <button onclick="resetVisualizer('${shortId}')" class="p-2 rounded-lg border border-slate-200 dark:border-slate-750 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-all shadow-sm" title="Đặt lại">
+                <i class="ph-bold ph-arrows-counter-clockwise text-sm"></i>
+              </button>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="flex-1 w-full flex items-center gap-3">
+              <div class="flex-1 bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div id="stepper-bar-${shortId}" class="bg-rikkei-red h-full transition-all duration-300" style="width: 0%"></div>
+              </div>
+              <span id="stepper-progress-${shortId}" class="text-xs font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap min-w-[70px] text-right">Bước 1/1</span>
+            </div>
+          </div>
+
+          <!-- Explanation & Console (Full Width) -->
+          <div class="flex flex-col gap-3">
+            <div id="explanation-${shortId}" class="text-xs text-slate-700 dark:text-slate-300 border-l-4 border-blue-500/70 pl-3 py-2 bg-blue-500/5 rounded font-sans leading-relaxed text-left">
+              Đang khởi tạo...
+            </div>
+
+            <!-- Console Output -->
+            <div class="rounded-lg overflow-hidden border border-slate-200/50 dark:border-slate-800/40 bg-slate-950 font-mono text-xs text-left">
+              <div class="flex items-center justify-between bg-slate-900 px-4 py-2 border-b border-slate-850 text-slate-400">
+                <span class="flex items-center gap-1.5 font-semibold text-slate-300">&gt;_ Console Output</span>
+                <span class="flex items-center gap-1 text-[10px] text-emerald-400">● Executed Successfully</span>
+              </div>
+              <pre id="console-output-${shortId}" class="p-4 text-[#4ade80] whitespace-pre-wrap leading-normal min-h-[50px] max-h-[80px] overflow-y-auto text-left font-mono"></pre>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderStep(shortId) {
+        const steps = visualizerTraces[shortId];
+        if (!steps) return;
+
+        const state = visualizerStates[shortId];
+        const step = steps[state.currentStep];
+
+        const trackerLines = document.querySelectorAll(
+          `[id^="vis-line-${shortId}-"]`,
+        );
+        trackerLines.forEach((line) => {
+          line.className =
+            "flex py-0.5 px-2 border-l-2 border-transparent transition-all";
+        });
+
+        const currentLineDiv = document.getElementById(
+          `vis-line-${shortId}-${step.line}`,
+        );
+        if (currentLineDiv) {
+          currentLineDiv.className =
+            "flex py-0.5 px-2 border-l-2 border-rikkei-red bg-rikkei-red/10 font-bold transition-all text-slate-100";
+        }
+
+        const memoryFrames = document.getElementById(
+          `memory-frames-${shortId}`,
+        );
+        if (memoryFrames) {
+          let memoryHTML = "";
+
+          if (step.global && Object.keys(step.global).length > 0) {
+            memoryHTML += `
+              <div class="border border-slate-200 dark:border-slate-800 rounded-xl p-3.5 bg-slate-50 dark:bg-slate-900/40 text-left">
+                <div class="font-bold text-slate-800 dark:text-slate-200 border-b border-slate-200 dark:border-slate-800 pb-1.5 mb-2.5 text-[11px]">
+                  Vùng nhớ Toàn cục (Global Frame)
+                </div>
+                <div class="flex flex-col gap-1">
+            `;
+            for (const [key, value] of Object.entries(step.global)) {
+              let displayVal;
+              if (value.startsWith("&lt;function")) {
+                displayVal = `<span class="px-1.5 py-0.5 rounded bg-blue-50/50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-100/50 dark:border-blue-900/30 font-mono text-[9px]">Định nghĩa hàm</span>`;
+              } else {
+                displayVal = `<span class="font-mono text-blue-600 dark:text-blue-400 font-bold">${value}</span>`;
+              }
+              memoryHTML += `
+                <div class="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/40 last:border-0">
+                  <span class="text-slate-700 dark:text-slate-300 font-mono text-[11px] font-semibold">${key}</span>
+                  ${displayVal}
+                </div>
+              `;
+            }
+            memoryHTML += `
+                </div>
+              </div>
+            `;
+          }
+
+          if (step.local) {
+            memoryHTML += `
+              <div class="border border-rikkei-red/30 dark:border-rikkei-red/50 rounded-xl p-3.5 bg-rikkei-red/5 text-left">
+                <div class="font-bold text-rikkei-red border-b border-rikkei-red/20 pb-1.5 mb-2.5 text-[11px]">
+                  Vùng Cục bộ của hàm: ${step.local.name}()
+                </div>
+                <div class="flex flex-col gap-1">
+            `;
+            for (const [key, value] of Object.entries(step.local.variables)) {
+              memoryHTML += `
+                <div class="flex justify-between items-center py-1 border-b border-rikkei-red/10 last:border-0">
+                  <span class="text-slate-700 dark:text-slate-300 font-mono text-[11px] font-semibold">${key}</span>
+                  <span class="font-mono text-emerald-600 dark:text-emerald-400 font-bold">${value}</span>
+                </div>
+              `;
+            }
+            memoryHTML += `
+                </div>
+              </div>
+            `;
+          } else {
+            memoryHTML += `
+              <div class="text-slate-400 dark:text-slate-500 italic text-center my-auto p-4">
+                Không có vùng cục bộ hoạt động
+              </div>
+            `;
+          }
+
+          memoryFrames.innerHTML = memoryHTML;
+        }
+
+        const explanation = document.getElementById(`explanation-${shortId}`);
+        if (explanation) {
+          explanation.innerHTML = step.explanation;
+        }
+
+        const consoleOutput = document.getElementById(
+          `console-output-${shortId}`,
+        );
+        if (consoleOutput) {
+          consoleOutput.textContent =
+            step.console || "Chưa có đầu ra màn hình.";
+        }
+
+        const progressText = document.getElementById(
+          `stepper-progress-${shortId}`,
+        );
+        if (progressText) {
+          progressText.innerText = `Bước ${state.currentStep + 1}/${steps.length}`;
+        }
+
+        const progressBar = document.getElementById(`stepper-bar-${shortId}`);
+        if (progressBar) {
+          const percent = ((state.currentStep + 1) / steps.length) * 100;
+          progressBar.style.width = `${percent}%`;
+        }
+      }
+
+      function nextStep(shortId) {
+        const steps = visualizerTraces[shortId];
+        if (!steps) return;
+
+        const state = visualizerStates[shortId];
+        if (state.currentStep < steps.length - 1) {
+          state.currentStep++;
+          renderStep(shortId);
+        } else {
+          if (state.intervalId) {
+            togglePlay(shortId);
+          }
+        }
+      }
+
+      function prevStep(shortId) {
+        const state = visualizerStates[shortId];
+        if (state.currentStep > 0) {
+          state.currentStep--;
+          renderStep(shortId);
+        }
+      }
+
+      function togglePlay(shortId) {
+        const state = visualizerStates[shortId];
+        const steps = visualizerTraces[shortId];
+        const playBtn = document.getElementById(`play-btn-${shortId}`);
+
+        if (state.intervalId) {
+          clearInterval(state.intervalId);
+          state.intervalId = null;
+          if (playBtn)
+            playBtn.innerHTML =
+              '<i class="ph-bold ph-play text-sm"></i> Chạy tự động';
+        } else {
+          if (state.currentStep === steps.length - 1) {
+            state.currentStep = 0;
+            renderStep(shortId);
+          }
+
+          state.intervalId = setInterval(() => {
+            nextStep(shortId);
+          }, 1800);
+          if (playBtn)
+            playBtn.innerHTML = '<i class="ph-bold ph-pause text-sm"></i>';
+        }
+      }
+
+      function resetVisualizer(shortId) {
+        const state = visualizerStates[shortId];
+
+        if (state.intervalId) {
+          clearInterval(state.intervalId);
+          state.intervalId = null;
+          const playBtn = document.getElementById(`play-btn-${shortId}`);
+          if (playBtn)
+            playBtn.innerHTML =
+              '<i class="ph-bold ph-play text-sm"></i> Chạy tự động';
+        }
+
+        state.currentStep = 0;
+        renderStep(shortId);
+      }
+
+      // Initialize Highlight.js for static code elements
+      hljs.highlightAll();
+
+      // Highlight all contenteditable divs on load
+      document.querySelectorAll('[contenteditable="true"]').forEach((block) => {
+        block.classList.add("python"); // or language-python
+        hljs.highlightElement(block);
+      });
+    </script>
+
+    <!-- Global Visualizer Modal -->
+    <div
+      id="visualizer-modal"
+      class="hidden fixed inset-0 z-50 items-center justify-center p-4 sm:p-6 bg-slate-900/70 backdrop-blur-md transition-all duration-300"
+    >
+      <div
+        class="relative w-full max-w-5xl h-[92vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-250 dark:border-slate-800 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+      >
+        <div id="modal-content" class="flex flex-col h-full p-6 gap-4">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

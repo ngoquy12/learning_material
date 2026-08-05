@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bài giảng: Cấu trúc dữ liệu Python List</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
+<!-- Phosphor Icons -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+                bgDark: "#0a0a0f",
+                cardDark: "#13131f",
+                borderDark: "rgba(255, 255, 255, 0.08)",
+              },
+            },
+            fontFamily: {
+              sans: ["Montserrat", "sans-serif"],
+              mono: ["Fira Code", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+<!-- Highlight.js for Code Highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<!-- Mermaid.js for Diagrams -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "default",
+        securityLevel: "loose",
+        flowchart: { useMaxWidth: true, htmlLabels: true },
+      });
+    </script>
+<style>
+      html {
+        height: 100vh;
+        overflow: hidden !important; /* Hide scrollbars */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      html::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        margin: 0;
+        height: 100vh;
+        overflow: hidden !important;
+        background-color: #ffffff;
+      }
+      /* Custom sidebar scrollbar styling */
+      #sidebar-previews::-webkit-scrollbar {
+        width: 8px;
+      }
+      #sidebar-previews::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #sidebar-previews::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      #sidebar-previews::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      .slide-wrapper {
+        scroll-snap-align: start;
+        scroll-snap-stop: always;
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+      .slide-card {
+        width: 100% !important;
+        height: 100% !important;
+        box-shadow: none !important;
+        border-radius: 0px !important;
+        border: none !important;
+      }
+      /* Custom VS Code Dark syntax highlighting */
+            pre, pre code {
+        background-color: #f8fafc !important; /* Premium light slate background */
+        color: #0f172a !important;
+        border: none !important;
+        white-space: pre-wrap !important;
+        word-wrap: break-word !important;
+        overflow-x: hidden !important;
+      }
+      pre code.hljs {
+        background: transparent !important;
+        color: #0f172a !important; /* Dark slate text */
+      }
+      .hljs-keyword {
+        color: #be111c !important; /* Rikkei Red for keywords */
+        font-weight: 700 !important;
+      }
+      .hljs-string {
+        color: #15803d !important; /* Forest Green for strings */
+      }
+      .hljs-number {
+        color: #ea580c !important; /* Orange-red for numbers */
+      }
+      .hljs-built_in,
+      .hljs-name,
+      .hljs-title {
+        color: #1d4ed8 !important; /* Royal Blue for built-ins/functions */
+      }
+      .hljs-comment {
+        color: #64748b !important; /* Slate gray for comments */
+        font-style: italic !important;
+      } /* slate-500 */
+      .hljs-params {
+        color: #0f172a !important;
+      }
+      .hljs-variable {
+        color: #0f172a !important;
+      }
+
+      pre code {
+        font-family: "Fira Code", "JetBrains Mono", monospace !important;
+        font-size: 13px !important;
+        line-height: 1.55 !important;
+      }
+      .bento-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .bento-card:hover {
+        transform: translateY(-2px);
+      }
+      .vertical-title {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 0.12em;
+      }
+      /* Custom Animations */
+      .particle-float {
+        animation: floatRandom 4s ease-in-out infinite alternate;
+      }
+      @keyframes floatRandom {
+        0% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(6px, -8px);
+        }
+        100% {
+          transform: translate(-4px, 4px);
+        }
+      }
+      .pulse-glow {
+        animation: pulseGlow 1.5s ease-out infinite;
+      }
+      @keyframes pulseGlow {
+        0% {
+          box-shadow: 0 0 0 0 rgba(190, 17, 28, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(190, 17, 28, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(190, 17, 28, 0);
+        }
+      }
+      .console-line {
+        animation: consoleFadeIn 0.3s ease-out forwards;
+      }
+      @keyframes consoleFadeIn {
+        from {
+          opacity: 0;
+          transform: translateX(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .slide-build {
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .slide-build.build-visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+    </style>
+</head>
+<body class="font-sans antialiased text-slate-900 bg-white">
+<!-- Main Content Slides Area -->
+<div class="w-full h-full overflow-y-auto scroll-smooth relative" id="slides-container" style="scroll-snap-type: y mandatory;">
+<!-- Slides Wrapper -->
+<div class="w-full flex flex-col"><div class="slide-wrapper" data-slide-index="0">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-16 overflow-hidden">
+<!-- Left red banner decoration -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-40 bg-rikkei-red" style="clip-path: polygon(0 0, 0 100%, 100% 50%)"></div>
+<!-- Right decorative triangle grid -->
+<svg class="absolute -right-4 top-1/2 -translate-y-1/2 h-[80%] w-[35%] text-rikkei-red select-none pointer-events-none opacity-80" fill="currentColor" viewbox="0 0 200 400">
+<!-- Column 1 -->
+<polygon points="180,60 190,65 180,70"></polygon>
+<polygon points="180,90 190,95 180,100"></polygon>
+<polygon points="180,120 190,125 180,130"></polygon>
+<polygon points="180,150 190,155 180,160"></polygon>
+<polygon points="180,180 190,185 180,190"></polygon>
+<polygon points="180,210 190,215 180,220"></polygon>
+<polygon points="180,240 190,245 180,250"></polygon>
+<polygon points="180,270 190,275 180,280"></polygon>
+<polygon points="180,300 190,305 180,310"></polygon>
+<polygon points="180,330 190,335 180,340"></polygon>
+<!-- Column 2 -->
+<polygon points="160,80 170,85 160,90"></polygon>
+<polygon points="160,110 170,115 160,120"></polygon>
+<polygon points="160,140 170,145 160,150"></polygon>
+<polygon points="160,170 170,175 160,180"></polygon>
+<polygon points="160,200 170,205 160,210"></polygon>
+<polygon points="160,230 170,235 160,240"></polygon>
+<polygon points="160,260 170,265 160,270"></polygon>
+<polygon points="160,290 170,295 160,300"></polygon>
+<polygon points="160,320 170,325 160,330"></polygon>
+<!-- Column 3 -->
+<polygon points="140,100 150,105 140,110"></polygon>
+<polygon points="140,130 150,135 140,140"></polygon>
+<polygon points="140,160 150,165 140,170"></polygon>
+<polygon points="140,190 150,195 140,200"></polygon>
+<polygon points="140,220 150,225 140,230"></polygon>
+<polygon points="140,250 150,255 140,260"></polygon>
+<polygon points="140,280 150,285 140,290"></polygon>
+<polygon points="140,300 150,305 140,310"></polygon>
+<!-- Column 4 -->
+<polygon points="120,120 130,125 120,130"></polygon>
+<polygon points="120,150 130,155 120,160"></polygon>
+<polygon points="120,180 130,185 120,190"></polygon>
+<polygon points="120,210 130,215 120,220"></polygon>
+<polygon points="120,240 130,245 120,250"></polygon>
+<polygon points="120,270 130,275 120,280"></polygon>
+<!-- Column 5 -->
+<polygon opacity="0.8" points="100,140 110,145 100,150"></polygon>
+<polygon opacity="0.8" points="100,170 110,175 100,180"></polygon>
+<polygon opacity="0.8" points="100,200 110,205 100,210"></polygon>
+<polygon opacity="0.8" points="100,230 110,235 100,240"></polygon>
+<polygon opacity="0.8" points="100,260 110,265 100,270"></polygon>
+<!-- Column 6 -->
+<polygon opacity="0.6" points="80,160 90,165 80,170"></polygon>
+<polygon opacity="0.6" points="80,190 90,195 80,200"></polygon>
+<polygon opacity="0.6" points="80,220 90,225 80,230"></polygon>
+<polygon opacity="0.6" points="80,250 90,255 80,260"></polygon>
+<!-- Column 7 -->
+<polygon opacity="0.4" points="60,180 70,185 60,190"></polygon>
+<polygon opacity="0.4" points="60,210 70,215 60,220"></polygon>
+<polygon opacity="0.4" points="60,240 70,245 60,250"></polygon>
+<!-- Column 8 -->
+<polygon opacity="0.2" points="40,200 50,205 40,210"></polygon>
+<polygon opacity="0.2" points="40,230 50,235 40,240"></polygon>
+</svg>
+<!-- Text Contents -->
+<div class="my-auto ml-10 space-y-4 text-left select-none">
+<h2 class="font-montserrat font-extrabold text-[36px] text-rikkei-red">
+              Session 03:
+            </h2>
+<h1 class="font-montserrat font-extrabold text-[48px] text-black leading-tight">
+              Python List
+            </h1>
+<div class="pt-8 space-y-1.5 text-slate-600 text-[20px] font-medium">
+<p>Môn học: Python Core Programming</p>
+</div>
+</div>
+<!-- Bottom Logo & Footer -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full max-w-200 text-center">
+<img alt="Rikkei Academy Logo" class="h-10 object-contain" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+<span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Academy - Rikkei Education - All rights reserved.
+            </span>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">1</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="1">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<!-- Main Content (Header + List) -->
+<div class="w-full flex-1 flex flex-col justify-start">
+<!-- Header Area -->
+<div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+<div class="text-[30px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                NỘI DUNG BÀI HỌC
+              </div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<!-- List Content -->
+<div class="w-full flex flex-col justify-start pl-8">
+<div class="space-y-6 text-left select-none max-w-3xl">
+<!-- Item 1 -->
+<div class="flex items-start gap-4 text-[24px] font-sans font-bold text-black leading-none">
+<span class="w-8 shrink-0">1.</span>
+<span>Tổng quan về Python List</span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start gap-4 text-[24px] font-sans font-bold text-black leading-none slide-build" data-build-step="1">
+<span class="w-8 shrink-0">2.</span>
+<span>Duyệt qua các phần tử List</span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-start gap-4 text-[24px] font-sans font-bold text-black leading-none slide-build" data-build-step="2">
+<span class="w-8 shrink-0">3.</span>
+<span>Thao tác thêm phần tử</span>
+</div>
+<!-- Item 4 -->
+<div class="flex items-start gap-4 text-[24px] font-sans font-bold text-black leading-none slide-build" data-build-step="3">
+<span class="w-8 shrink-0">4.</span>
+<span>Thao tác cập nhật phần tử</span>
+</div>
+<!-- Item 5 -->
+<div class="flex items-start gap-4 text-[24px] font-sans font-bold text-black leading-none slide-build" data-build-step="4">
+<span class="w-8 shrink-0">5.</span>
+<span>Thao tác xóa phần tử</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Footer -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+<span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Academy - Rikkei Education - All rights reserved.
+            </span>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">2</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="2">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  1. Tổng quan về Python List - 1
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Đặt vấn đề & Sự cần thiết của List
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch h-110">
+<!-- Chaos Panel -->
+<div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-between relative overflow-hidden">
+<div class="select-none">
+<h5 class="font-bold text-red-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-x-circle text-lg"></i> Quản lý biến rời
+                    rạc (Bất cập)
+                  </h5>
+<p class="text-black text-[16px] mt-2">
+                    Khai báo nhiều <b>biến rời rạc</b> nằm rải rác trên RAM.
+                    Không thể gom cụm hay duyệt tự động.
+                  </p>
+</div>
+<!-- Floating Nodes Area -->
+<div class="flex-1 relative mt-4 border border-dashed border-red-200/50 rounded-lg bg-white/40" id="chaos-particle-area">
+<div class="particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm" id="p-st1" style="top: 20%; left: 15%">
+                    st_1 = "An"
+                  </div>
+<div class="particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm" id="p-st2" style="top: 55%; left: 45%">
+                    st_2 = "Bình"
+                  </div>
+<div class="particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm" id="p-st3" style="top: 15%; left: 60%">
+                    st_3 = "Cường"
+                  </div>
+<div class="particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm" id="p-st4" style="top: 60%; left: 10%">
+                    st_4 = "Dũng"
+                  </div>
+</div>
+</div>
+<!-- Ordered Panel -->
+<div class="bento-card p-6 rounded-xl border border-blue-200 bg-blue-500/5 text-left flex flex-col justify-between slide-build" data-build-step="1">
+<div class="select-none">
+<h5 class="font-bold text-blue-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-check-circle text-lg"></i> Giải pháp:
+                    Python List (Gom cụm)
+                  </h5>
+<p class="text-black text-[16px] mt-2">
+                    Một <b>biến đại diện</b> duy nhất trỏ tới vùng bộ nhớ liên
+                    tiếp. Dễ dàng sắp xếp, tìm kiếm.
+                  </p>
+</div>
+<!-- Conveyor Belt Area -->
+<div class="flex-1 flex flex-col justify-center gap-6 mt-4">
+<div class="flex items-center justify-center gap-3 bg-white/70 border border-blue-200 rounded-lg p-4 h-20 relative" id="conveyor-belt">
+<div class="text-slate-500 font-mono text-xs italic">
+                      Trạng thái: Chưa gom nhóm
+                    </div>
+</div>
+<button class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md active:scale-95" onclick="triggerGroupAnimation()">
+<i class="ph-bold ph-arrows-merge"></i>
+<span>Gom nhóm học viên vào List</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Particle Visualizer Lab -->
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">3</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="3">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  1. Tổng quan về Python List - 2
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Định nghĩa & Khai báo List
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<div class="flex flex-col justify-between text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-start">
+<h5 class="font-bold text-slate-900 text-[18px] mb-4 flex items-center gap-1.5">
+<i class="ph-bold ph-book-open text-rikkei-red"></i> Lý
+                    thuyết cơ bản
+                  </h5>
+<div class="space-y-4 text-black text-[16px]">
+<div>
+<div class="font-bold text-slate-900 text-[16px] mb-1">
+                        Định nghĩa List:
+                      </div>
+<ul class="pl-4 list-disc text-slate-600 space-y-1">
+<li>
+                          Là kiểu dữ liệu dạng chuỗi (sequence) có thứ tự.
+                        </li>
+<li>
+                          Cho phép lưu trữ nhiều phần tử và trùng lặp giá trị.
+                        </li>
+<li>
+                          Có thể chứa các phần tử có kiểu dữ liệu khác nhau.
+                        </li>
+</ul>
+</div>
+<div>
+<div class="font-bold text-slate-900 text-[16px] mb-1 mt-3">
+                        Cách khai báo:
+                      </div>
+<ul class="pl-4 list-disc text-slate-600 space-y-1">
+<li>
+                          Các phần tử đặt trong cặp ngoặc vuông
+                          <code>[...]</code>.
+                        </li>
+<li>Ngăn cách nhau bởi dấu phẩy <code>,</code>.</li>
+<li>
+                          Ví dụ: <code>my_list = [1, 2, 3]</code> hoặc list rỗng
+                          <code>[]</code>.
+                        </li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col h-full slide-build" data-build-step="2">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python"># Khai báo List rỗng
+empty_list = []
+
+# List lưu trữ danh sách học viên (String)
+students = ["An", "Bình", "Cường", "Dũng"]
+
+# List lưu trữ dữ liệu hỗn hợp (Mixed types)
+mixed_list = ["Rikkei Academy", 2026, True, 9.5]
+
+# In thử giá trị và kiểm tra kiểu dữ liệu
+print(students)
+print(type(students))  # Kết quả: <class 'list'=""></class></code></pre>
+</div>
+</div>
+</div>
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">4</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="4">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  1. Tổng quan về Python List - 3
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Chỉ mục Index trong Python
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<!-- Left: Index Pointer Interactive Area -->
+<div class="flex flex-col justify-center text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-slate-900 text-[18px] mb-1.5 flex items-center gap-1.5">
+<i class="ph-bold ph-hand-pointing text-rikkei-red"></i>
+                      Cơ chế Chỉ mục kép (Dual Indexing)
+                    </h5>
+<p class="text-black text-[16px] leading-relaxed">
+                      Minh họa cơ chế trỏ tới phần tử tương ứng trong bộ nhớ
+                      thông qua chỉ mục dương (ở trên) hoặc chỉ mục âm (ở dưới).
+                    </p>
+</div>
+<!-- Dual Indexing Diagram -->
+<div class="flex flex-col gap-3 items-center bg-white p-5 rounded-lg border border-slate-200 shadow-inner select-none my-4">
+<!-- Positive Index Row -->
+<div class="flex gap-3">
+<span class="text-[10px] font-mono w-16 text-right text-blue-500 font-bold self-center">Positive:</span>
+<button class="w-20 h-10 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center justify-center font-mono text-sm font-bold text-blue-600 transition-all active:scale-95 idx-btn" id="idx-pos-0" onclick="highlightIndex(0, 'pos')">
+                        0
+                      </button>
+<button class="w-20 h-10 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center justify-center font-mono text-sm font-bold text-blue-600 transition-all active:scale-95 idx-btn" id="idx-pos-1" onclick="highlightIndex(1, 'pos')">
+                        1
+                      </button>
+<button class="w-20 h-10 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center justify-center font-mono text-sm font-bold text-blue-600 transition-all active:scale-95 idx-btn" id="idx-pos-2" onclick="highlightIndex(2, 'pos')">
+                        2
+                      </button>
+<button class="w-20 h-10 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center justify-center font-mono text-sm font-bold text-blue-600 transition-all active:scale-95 idx-btn" id="idx-pos-3" onclick="highlightIndex(3, 'pos')">
+                        3
+                      </button>
+</div>
+<!-- Array Row -->
+<div class="flex gap-3">
+<span class="text-[10px] font-mono w-16 text-right text-slate-400 font-bold self-center">Value:</span>
+<div class="w-20 h-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center font-mono text-sm font-bold text-slate-700 element-box" id="cell-0">
+                        "An"
+                      </div>
+<div class="w-20 h-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center font-mono text-sm font-bold text-slate-700 element-box" id="cell-1">
+                        "Bình"
+                      </div>
+<div class="w-20 h-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center font-mono text-sm font-bold text-slate-700 element-box" id="cell-2">
+                        "Cường"
+                      </div>
+<div class="w-20 h-10 border border-slate-200 bg-white rounded-lg flex items-center justify-center font-mono text-sm font-bold text-slate-700 element-box" id="cell-3">
+                        "Dũng"
+                      </div>
+</div>
+<!-- Negative Index Row -->
+<div class="flex gap-3">
+<span class="text-[10px] font-mono w-16 text-right text-orange-500 font-bold self-center">Negative:</span>
+<button class="w-20 h-10 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 flex items-center justify-center font-mono text-sm font-bold text-orange-600 transition-all active:scale-95 idx-btn" id="idx-neg-0" onclick="highlightIndex(0, 'neg')">
+                        -4
+                      </button>
+<button class="w-20 h-10 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 flex items-center justify-center font-mono text-sm font-bold text-orange-600 transition-all active:scale-95 idx-btn" id="idx-neg-1" onclick="highlightIndex(1, 'neg')">
+                        -3
+                      </button>
+<button class="w-20 h-10 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 flex items-center justify-center font-mono text-sm font-bold text-orange-600 transition-all active:scale-95 idx-btn" id="idx-neg-2" onclick="highlightIndex(2, 'neg')">
+                        -2
+                      </button>
+<button class="w-20 h-10 rounded-lg border border-orange-200 bg-orange-50 hover:bg-orange-100 flex items-center justify-center font-mono text-sm font-bold text-orange-600 transition-all active:scale-95 idx-btn" id="idx-neg-3" onclick="highlightIndex(3, 'neg')">
+                        -1
+                      </button>
+</div>
+</div>
+<!-- Trace Log -->
+<div class="p-3 bg-slate-100 text-slate-800 font-mono text-xs rounded border border-slate-300 min-h-9.5 flex items-center gap-2 shadow-inner" id="index-output-log">
+<span class="text-slate-500">>_ Bấm chỉ mục để truy cập</span>
+</div>
+</div>
+</div>
+<!-- Right: Code Box -->
+<div class="flex flex-col h-full slide-build" data-build-step="1">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python"># Khai báo danh sách học viên
+students = ["An", "Bình", "Cường", "Dũng"]
+
+# Truy cập bằng chỉ mục dương (Positive Index)
+print(students[0]) # "An"
+print(students[2]) # "Cường"
+
+# Truy cập bằng chỉ mục âm (Negative Index)
+print(students[-1]) # "Dũng" (phần tử cuối)
+print(students[-3]) # "Bình"
+
+# Vượt quá chỉ mục sẽ ném lỗi IndexError
+# print(students[4]) -> IndexError: list index out of range</code></pre>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">5</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="5">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  2. Duyệt qua các phần tử List - 1
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Sơ đồ cơ chế hoạt động vòng lặp
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="w-full flex justify-center bg-slate-50 p-8 rounded-xl border border-slate-200 h-110 items-center">
+<div class="mermaid w-full max-w-3xl scale-110">
+                flowchart LR;
+                A[Bắt đầu duyệt List] --> B{Còn phần tử tiếp theo?};
+                B -- "Đúng" --> C[Lấy ra phần tử hiện tại];
+                C --> D["Thực thi mã xử lý bên trong loop"];
+                D --> E["Dịch con trỏ index + 1"];
+                E --> B;
+                B -- "Sai" --> F[Kết thúc vòng lặp];
+                style A fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e40af;
+                style B fill:#fffbeb,stroke:#f59e0b,stroke-width:2px,color:#92400e;
+                style C fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#166534;
+                style D fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#166534;
+                style F fill:#fef2f2,stroke:#ef4444,stroke-width:2px,color:#991b1b;
+              </div>
+</div>
+</div>
+<!-- Diagram Container -->
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">6</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="6">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  2. Duyệt qua các phần tử List - 2
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Các phương pháp duyệt List thực tế
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<!-- Left: Loop Simulation area -->
+<div class="flex flex-col justify-center text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-slate-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-play-circle text-green-700"></i> Loop
+                      Simulator (Duyệt phần tử)
+                    </h5>
+<p class="text-black text-[16px] mt-1">
+                      Mô phỏng cơ chế duyệt tuần tự của vòng lặp qua các ô nhớ
+                      và in kết quả ra màn hình console giả lập.
+                    </p>
+</div>
+<!-- Array to loop -->
+<div class="flex gap-4 justify-center bg-white p-4 rounded-lg border border-slate-200/50 my-4">
+<div class="px-4 py-2.5 border border-slate-200 rounded font-mono text-sm font-bold text-slate-700 relative" id="loop-box-0">
+                      "Táo"
+                      <div class="absolute -top-7 left-1/2 -translate-x-1/2 text-rikkei-red hidden animate-bounce" id="arrow-0">
+<i class="ph-bold ph-arrow-fat-down-fill text-sm"></i>
+</div>
+</div>
+<div class="px-4 py-2.5 border border-slate-200 rounded font-mono text-sm font-bold text-slate-700 relative" id="loop-box-1">
+                      "Ổi"
+                      <div class="absolute -top-7 left-1/2 -translate-x-1/2 text-rikkei-red hidden animate-bounce" id="arrow-1">
+<i class="ph-bold ph-arrow-fat-down-fill text-sm"></i>
+</div>
+</div>
+<div class="px-4 py-2.5 border border-slate-200 rounded font-mono text-sm font-bold text-slate-700 relative" id="loop-box-2">
+                      "Mận"
+                      <div class="absolute -top-7 left-1/2 -translate-x-1/2 text-rikkei-red hidden animate-bounce" id="arrow-2">
+<i class="ph-bold ph-arrow-fat-down-fill text-sm"></i>
+</div>
+</div>
+</div>
+<!-- Run Control & Console -->
+<div class="flex flex-col gap-3">
+<button class="w-full h-10 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-xs flex flex-row justify-center items-center gap-2 transition-all shadow-md active:scale-95" id="run-loop-btn" onclick="startLoopAnimation()">
+<i class="ph-bold ph-play"></i>
+<span>Chạy vòng lặp</span>
+</button>
+<div class="w-full bg-slate-100 text-slate-800 p-4 rounded-lg border border-slate-300 font-mono text-xs min-h-25 max-h-25 overflow-y-auto" id="loop-console">
+<span class="text-slate-500 font-italic">>_ Nhấn nút để khởi chạy...</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Code Block -->
+<div class="flex flex-col h-full slide-build" data-build-step="1">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python">fruits = ["Táo", "Ổi", "Mận"]
+
+# Cách 1: Duyệt trực tiếp (Khuyên dùng)
+for fruit in fruits:
+    print(fruit)
+
+# Cách 2: Duyệt bằng chỉ mục qua range()
+for i in range(len(fruits)):
+    print(f"Vị trí {i} là quả {fruits[i]}")
+
+# Cách 3: Duyệt bằng enumerate() (Pythonic Way)
+for index, value in enumerate(fruits):
+    print(f"STT {index + 1}: {value}")</code></pre>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">7</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="7">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  3. Thao tác thêm phần tử - 1
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Ba phương thức thêm phần tử vào List
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full h-100 items-center">
+<!-- Card 1: Append -->
+<div class="bento-card p-8 rounded-xl border border-slate-200 bg-slate-50 text-left space-y-4 h-75 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 text-[11px] rounded font-bold bg-blue-100 text-blue-600">Append</span>
+<span class="text-xs font-semibold text-slate-400 font-mono">O(1)</span>
+</div>
+<h5 class="font-bold text-slate-900 text-[18px]">
+                  Thêm vào cuối danh sách
+                </h5>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Phương thức
+                  <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-700">append(item)</code>
+                  chèn thẳng đối tượng vào vị trí cuối. Thao tác cực kỳ tối ưu,
+                  tốn thời gian cố định.
+                </p>
+</div>
+<!-- Card 2: Insert -->
+<div class="bento-card p-8 rounded-xl border border-blue-200 bg-blue-500/5 text-left space-y-4 h-75 flex flex-col justify-between slide-build" data-build-step="1">
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 text-[11px] rounded font-bold bg-blue-100 text-blue-600">Insert</span>
+<span class="text-xs font-semibold text-slate-400 font-mono">O(n)</span>
+</div>
+<h5 class="font-bold text-blue-900 text-[18px]">
+                  Chèn vào vị trí bất kỳ
+                </h5>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Phương thức
+                  <code class="font-mono bg-blue-100 px-1 py-0.5 rounded text-blue-600">insert(index, item)</code>
+                  chèn phần tử vào vị trí xác định, bắt buộc dịch chuyển toàn bộ
+                  phần tử phía sau sang phải.
+                </p>
+</div>
+<!-- Card 3: Extend -->
+<div class="bento-card p-8 rounded-xl border border-green-200 bg-green-500/5 text-left space-y-4 h-75 flex flex-col justify-between slide-build" data-build-step="2">
+<div class="flex items-center justify-between">
+<span class="px-3 py-1 text-[11px] rounded font-bold bg-green-100 text-green-600">Extend</span>
+<span class="text-xs font-semibold text-slate-400 font-mono">O(k)</span>
+</div>
+<h5 class="font-bold text-green-900 text-[18px]">
+                  Nối gộp danh sách khác
+                </h5>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Phương thức
+                  <code class="font-mono bg-green-100 px-1 py-0.5 rounded text-green-600">extend(iterable)</code>
+                  duyệt qua từng phần tử của danh sách mới để nạp vào cuối danh
+                  sách hiện tại.
+                </p>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">8</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="8">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  3. Thao tác thêm phần tử - 2
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Cơ chế thêm phần tử (Trực quan hóa)
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<!-- Left: Dynamic Insertion playground -->
+<div class="flex flex-col justify-center text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-slate-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-flask text-blue-500"></i> Array
+                      Mô phỏng thêm phần tử
+                    </h5>
+<p class="text-black text-[16px] mt-1">
+                      Thực thi các lệnh thêm phần tử và quan sát sự biến đổi
+                      phần tử trong bộ nhớ.
+                    </p>
+</div>
+<!-- Array state -->
+<div class="flex gap-3 items-center justify-center bg-white p-4 rounded-lg border border-slate-200 min-h-18.75 flex-wrap my-4" id="insertion-array">
+<!-- Generated dynamically in JS -->
+</div>
+<!-- Control Buttons & Reset -->
+<div class="space-y-3">
+<div class="grid grid-cols-3 gap-2">
+<button class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runInsertLab('append')">
+                        append("Dũng")
+                      </button>
+<button class="py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runInsertLab('insert')">
+                        insert(1, "Bưởi")
+                      </button>
+<button class="py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runInsertLab('extend')">
+                        extend(["Mận", "Ổi"])
+                      </button>
+</div>
+<button class="w-full py-2 border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg font-bold text-xs active:scale-95 transition-all flex justify-center items-center gap-1" onclick="resetInsertLab()">
+<i class="ph-bold ph-arrows-counter-clockwise"></i>
+<span>Khởi động lại mảng</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right: Code Block -->
+<div class="flex flex-col h-full slide-build" data-build-step="1">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python">numbers = [1, 2, 3]
+
+# 1. Thêm vào cuối bằng append() -> O(1)
+numbers.append(4)
+print(numbers) # [1, 2, 3, 4]
+
+# 2. Chèn 99 vào vị trí thứ 1 -> O(n)
+numbers.insert(1, 99)
+print(numbers) # [1, 99, 2, 3, 4]
+
+# 3. Nối gộp danh sách bằng extend() -> O(k)
+extra = [5, 6]
+numbers.extend(extra)
+print(numbers) # [1, 99, 2, 3, 4, 5, 6]</code></pre>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">9</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="9">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  4. Thao tác cập nhật phần tử - 1
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Cập nhật đơn lẻ vs Cập nhật hàng loạt
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full h-90 items-center">
+<!-- Column 1: Single Update -->
+<div class="bento-card p-8 rounded-xl border border-green-200 bg-green-500/5 text-left space-y-4 h-60 flex flex-col justify-between">
+<div class="flex items-center gap-2 text-green-600">
+<i class="ph-bold ph-pencil-simple text-2xl"></i>
+<h5 class="font-bold text-green-900 text-[18px]">
+                    Cập nhật đơn lẻ qua Index
+                  </h5>
+</div>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Sử dụng trực tiếp chỉ số của phần tử cần sửa đổi và gán giá
+                  trị mới.
+                  <br/><code class="font-mono bg-green-100 px-2 py-1 rounded text-green-700 mt-3 inline-block">list[index] = new_value</code>
+</p>
+</div>
+<!-- Column 2: Slice Update -->
+<div class="bento-card p-8 rounded-xl border border-blue-200 bg-blue-500/5 text-left space-y-4 h-60 flex flex-col justify-between slide-build" data-build-step="1">
+<div class="flex items-center gap-2 text-blue-600">
+<i class="ph-bold ph-grid-nine text-2xl"></i>
+<h5 class="font-bold text-blue-900 text-[18px]">
+                    Cập nhật hàng loạt qua Slicing
+                  </h5>
+</div>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Thay thế một đoạn danh sách con bằng cách sử dụng cú pháp cắt
+                  lát (slice) để gán cho một tập hợp mới.
+                  <br/><code class="font-mono bg-blue-100 px-2 py-1 rounded text-blue-700 mt-3 inline-block">list[start:end] = [new_items]</code>
+</p>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">10</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="10">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  4. Thao tác cập nhật phần tử - 2
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Cơ chế cập nhật giá trị (Trực quan hóa)
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<!-- Left: Update Playground -->
+<div class="flex flex-col justify-center text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-slate-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-swap text-blue-500"></i> Slicing
+                      & Mutation Laboratory
+                    </h5>
+<p class="text-black text-[16px] mt-1">
+                      Trực quan hóa hoạt động gán giá trị mới hoặc thay đổi lát
+                      cắt (slice) trên vùng bộ nhớ.
+                    </p>
+</div>
+<!-- Array representation -->
+<div class="flex gap-3 items-center justify-center bg-white p-4 rounded-lg border border-slate-200 min-h-18.75 my-4" id="mutation-array">
+<!-- Generated by JS -->
+</div>
+<!-- Action buttons & Reset -->
+<div class="space-y-3">
+<div class="grid grid-cols-2 gap-2">
+<button class="py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runMutationLab('single')">
+                        fruits[1] = "Bưởi"
+                      </button>
+<button class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runMutationLab('slice')">
+                        fruits[2:4] = ["Sầu Riêng", "Vải"]
+                      </button>
+</div>
+<button class="w-full py-2 border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg font-bold text-xs active:scale-95 transition-all flex justify-center items-center gap-1" onclick="resetMutationLab()">
+<i class="ph-bold ph-arrows-counter-clockwise"></i>
+<span>Reset mảng ban đầu</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right: Code Block -->
+<div class="flex flex-col h-full slide-build" data-build-step="1">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python">fruits = ["Cam", "Quýt", "Mít", "Dừa"]
+
+# 1. Cập nhật phần tử đơn lẻ qua index
+fruits[1] = "Bưởi"
+print(fruits) # ["Cam", "Bưởi", "Mít", "Dừa"]
+
+# 2. Cập nhật hàng loạt bằng Slicing
+fruits[2:4] = ["Sầu Riêng", "Vải"]
+print(fruits) # ["Cam", "Bưởi", "Sầu Riêng", "Vải"]
+
+# Slicing có thể mở rộng/thu hẹp mảng
+fruits[0:2] = ["Măng Cụt"]
+print(fruits) # ["Măng Cụt", "Sầu Riêng", "Vải"]</code></pre>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">11</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="11">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  5. Thao tác xóa phần tử - 1
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Các phương pháp xóa phần tử khỏi List
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full h-100 items-center">
+<!-- Card 1: Remove -->
+<div class="bento-card p-8 rounded-xl border border-orange-200 bg-orange-500/5 text-left space-y-4 h-75 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 text-[11px] rounded font-bold bg-orange-100 text-orange-700">Remove</span>
+<span class="text-xs font-semibold text-slate-400 font-mono">O(n)</span>
+</div>
+<h5 class="font-bold text-orange-800 text-[18px]">
+                  Xóa theo giá trị (Value)
+                </h5>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Phương thức
+                  <code class="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-700">remove(val)</code>
+                  quét tìm giá trị trùng khớp đầu tiên từ trái qua để xóa. Gây
+                  lỗi nếu giá trị không tồn tại.
+                </p>
+</div>
+<!-- Card 2: Pop -->
+<div class="bento-card p-8 rounded-xl border border-blue-200 bg-blue-500/5 text-left space-y-4 h-75 flex flex-col justify-between slide-build" data-build-step="1">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 text-[11px] rounded font-bold bg-blue-100 text-blue-600">Pop</span>
+<span class="text-xs font-semibold text-slate-400 font-mono">O(1)/O(n)</span>
+</div>
+<h5 class="font-bold text-blue-800 text-[18px]">
+                  Xóa theo vị trí và thu hồi trị
+                </h5>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Phương thức
+                  <code class="font-mono bg-blue-100 px-1 py-0.5 rounded text-blue-600">pop(index)</code>
+                  xóa và trả ra giá trị. Pop phần tử cuối cùng cực nhanh O(1).
+                </p>
+</div>
+<!-- Card 3: Del / Clear -->
+<div class="bento-card p-8 rounded-xl border border-red-200 bg-red-500/5 text-left space-y-4 h-75 flex flex-col justify-between slide-build" data-build-step="2">
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 text-[11px] rounded font-bold bg-red-100 text-red-600">Del/Clear</span>
+<span class="text-xs font-semibold text-slate-400 font-mono">O(n)</span>
+</div>
+<h5 class="font-bold text-red-900 text-[18px]">
+                  Xóa theo lát cắt hoặc Xóa rỗng
+                </h5>
+<p class="text-black text-[16px] leading-relaxed flex-1 mt-2">
+                  Từ khóa
+                  <code class="font-mono bg-red-100 px-1 py-0.5 rounded text-red-600">del</code>
+                  dùng để xóa vị trí/lát cắt trong khi
+                  <code class="font-mono bg-red-100 px-1 py-0.5 rounded text-red-600">clear()</code>
+                  xóa sạch toàn bộ mảng.
+                </p>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">12</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="12">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                  5. Thao tác xóa phần tử - 2
+                </div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Cơ chế xóa phần tử (Trực quan hóa)
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<!-- Left: Deletion Playground -->
+<div class="flex flex-col justify-center text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-slate-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-trash-simple text-red-500"></i>
+                      Mô phỏng xóa phần tử
+                    </h5>
+<p class="text-black text-[16px] mt-1">
+                      Trực quan hóa hoạt động xóa phần tử và sự tự động dịch
+                      chuyển vị trí của các phần tử phía sau.
+                    </p>
+</div>
+<!-- Array items -->
+<div class="flex gap-3 items-center justify-center bg-white p-4 rounded-lg border border-slate-200 min-h-18.75 my-4" id="deletion-array">
+<!-- Generated dynamically in JS -->
+</div>
+<!-- Control Buttons & Restore -->
+<div class="space-y-3">
+<div class="grid grid-cols-3 gap-2">
+<button class="py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runDeletionLab('remove')">
+                        remove("Java")
+                      </button>
+<button class="py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runDeletionLab('pop')">
+                        pop()
+                      </button>
+<button class="py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" onclick="runDeletionLab('clear')">
+                        clear()
+                      </button>
+</div>
+<button class="w-full py-2 border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg font-bold text-xs active:scale-95 transition-all flex justify-center items-center gap-1" onclick="resetDeletionLab()">
+<i class="ph-bold ph-arrows-counter-clockwise"></i>
+<span>Phục hồi mảng</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Right: Code Block -->
+<div class="flex flex-col h-full slide-build" data-build-step="1">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python">langs = ["Python", "Java", "C++", "JS"]
+
+# 1. remove() xóa theo giá trị (Ném ValueError nếu thiếu)
+if "Java" in langs:
+    langs.remove("Java")
+
+# 2. pop() xóa theo chỉ mục & trả về phần tử bị xóa
+last = langs.pop()
+print(last) # "JS"
+
+# 3. del xóa theo lát cắt & clear() xóa sạch mảng
+del langs[0] # Xóa "Python"
+langs.clear() # Mảng trở về rỗng []</code></pre>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">13</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="13">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">Tổng kết bài học - 1</div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Phép gán tham chiếu vs Sao chép đối tượng
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch h-110">
+<!-- Left: Memory Reference Visualizer -->
+<div class="flex flex-col justify-center text-left space-y-4">
+<div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex-1 flex flex-col justify-between">
+<div>
+<h5 class="font-bold text-slate-900 text-[18px] flex items-center gap-1.5">
+<i class="ph-bold ph-cpu text-red-500"></i> Memory
+                      Mô phỏng tham chiếu RAM
+                    </h5>
+<p class="text-black text-[16px] mt-1">
+                      Trực quan hóa sự khác biệt giữa phép gán tham chiếu
+                      (reference assignment) và sao chép đối tượng (object
+                      copying) trên RAM.
+                    </p>
+</div>
+<!-- Simulation area -->
+<div class="bg-white p-4 rounded-lg border border-slate-200 flex flex-col gap-4 select-none my-4">
+<!-- Option toggles -->
+<div class="grid grid-cols-2 gap-2">
+<button class="py-2.5 rounded-lg text-xs font-bold border border-red-300 bg-red-50 text-red-700 hover:bg-red-100/50 transition-all active:scale-95" id="mem-btn-assign" onclick="setMemoryMode('assign')">
+                        Chế độ gán (b = a)
+                      </button>
+<button class="py-2.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all active:scale-95" id="mem-btn-copy" onclick="setMemoryMode('copy')">
+                        Chế độ sao chép (c = a.copy())
+                      </button>
+</div>
+<!-- Memory blocks mapping visualization -->
+<div class="flex flex-col gap-4 p-3 bg-slate-50 rounded-lg relative min-h-37.5 justify-center" id="memory-map-box">
+<!-- Updated dynamically in JS -->
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs active:scale-95 transition-all shadow-sm" id="mem-mutate-btn" onclick="mutateMemoryVal()">
+                      Thay đổi giá trị biến b/c
+                    </button>
+<button class="py-2.5 border border-slate-300 hover:bg-slate-100 text-slate-600 rounded-lg font-bold text-xs active:scale-95 transition-all" onclick="resetMemoryLab()">
+                      Khởi tạo lại bộ nhớ
+                    </button>
+</div>
+</div>
+</div>
+<!-- Right: Code Demonstration -->
+<div class="flex flex-col h-full slide-build" data-build-step="1">
+<pre class="bg-slate-50 text-slate-800 p-6 rounded-xl font-mono text-[13px] overflow-auto border border-slate-200 h-full flex flex-col justify-between shadow-sm"><code class="language-python"># ❌ SAI LẦM PHỔ BIẾN: Chỉ gán tham chiếu bộ nhớ
+a = [1, 2, 3]
+b = a
+b.append(99)
+print(a) # Kết quả bị sửa đổi: [1, 2, 3, 99]
+
+# ✅ GIẢI PHÁP ĐÚNG: Nhân bản đối tượng độc lập
+a = [1, 2, 3]
+c = a.copy() # hoặc c = a[:]
+c.append(99)
+print(a) # Nguyên bản an toàn: [1, 2, 3]
+print(c) # Bản sao độc lập: [1, 2, 3, 99]</code></pre>
+</div>
+</div>
+</div>
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">14</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="14">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">Tổng kết bài học - 2</div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Bảng tổng hợp đặc tính các thao tác List
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="w-full overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 h-110 flex items-center p-4 select-none">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-100 border-b border-slate-200">
+<th class="p-4 font-bold text-slate-800 text-[18px]">
+                      Hành vi thao tác
+                    </th>
+<th class="p-4 font-bold text-slate-800 text-[18px]">
+                      Cú pháp chính
+                    </th>
+<th class="p-4 font-bold text-slate-800 text-[18px]">
+                      Thời gian (Time Complexity)
+                    </th>
+<th class="p-4 font-bold text-slate-800 text-[18px]">
+                      Hành vi thay đổi gốc
+                    </th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-slate-100 hover:bg-slate-50/50">
+<td class="p-4 font-medium text-[18px]">Thêm vào cuối</td>
+<td class="p-4 font-mono text-[18px] text-blue-600 font-semibold">
+                      list.append(x)
+                    </td>
+<td class="p-4 text-emerald-600 font-bold text-[18px]">
+                      O(1)
+                    </td>
+<td class="p-4 text-slate-900 text-[18px]">
+                      Thay đổi trực tiếp đối tượng gốc (In-place)
+                    </td>
+</tr>
+<tr class="border-b border-slate-100 hover:bg-slate-50/50">
+<td class="p-4 font-medium text-[18px]">Chèn chỉ định</td>
+<td class="p-4 font-mono text-[18px] text-blue-600 font-semibold">
+                      list.insert(i, x)
+                    </td>
+<td class="p-4 text-amber-600 font-bold text-[18px]">
+                      O(n)
+                    </td>
+<td class="p-4 text-slate-900 text-[18px]">
+                      Dịch chuyển bộ nhớ (Các ô di chuyển sang phải)
+                    </td>
+</tr>
+<tr class="border-b border-slate-100 hover:bg-slate-50/50">
+<td class="p-4 font-medium text-[18px]">Xóa theo trị</td>
+<td class="p-4 font-mono text-[18px] text-blue-600 font-semibold">
+                      list.remove(x)
+                    </td>
+<td class="p-4 text-amber-600 font-bold text-[18px]">
+                      O(n)
+                    </td>
+<td class="p-4 text-slate-900 text-[18px]">
+                      Quét tuần tự tìm phần tử khớp và xóa
+                    </td>
+</tr>
+<tr class="border-b border-slate-100 hover:bg-slate-50/50">
+<td class="p-4 font-medium text-[18px]">Xóa và lấy về</td>
+<td class="p-4 font-mono text-[18px] text-blue-600 font-semibold">
+                      list.pop(i)
+                    </td>
+<td class="p-4 text-slate-800 text-[18px]">
+                      O(1) phần tử cuối / O(n) phần tử đầu
+                    </td>
+<td class="p-4 text-slate-900 text-[18px]">
+                      Xóa phần tử và thu hồi giá trị trả về
+                    </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Table Wrapper -->
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">15</span>
+</div>
+</section>
+</div><div class="slide-wrapper" data-slide-index="15">
+<section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+<div class="w-full flex-1 flex flex-col justify-start">
+<div class="flex justify-between items-start select-none shrink-0 mb-5 w-full">
+<div>
+<div class="text-[28px] font-montserrat font-extrabold text-rikkei-red leading-none">Tổng kết bài học - 3</div>
+<div class="text-[20px] font-sans font-bold text-black mt-6">
+                  Lộ trình 4 bước làm chủ Python List
+                </div>
+</div>
+<img alt="Rikkei Academy Logo" class="h-9 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+</div>
+<div class="w-full relative flex flex-col md:flex-row justify-between items-center gap-6 max-w-4xl mx-auto py-2 h-110 select-none">
+<!-- line -->
+<div class="absolute left-1/2 md:left-4 right-1/2 md:right-4 top-4 md:top-1/2 bottom-4 md:bottom-auto h-full md:h-1 bg-slate-200 -translate-x-1/2 md:translate-x-0 md:-translate-y-1/2 z-0"></div>
+<!-- Step 1 -->
+<div class="bento-card p-6 rounded-xl border border-slate-200 bg-white text-center flex flex-col items-center justify-between max-w-50 h-55 z-10 shadow-sm">
+<div class="w-10 h-10 rounded-full bg-rikkei-red text-white flex items-center justify-center font-bold text-sm mb-2 shadow-md shrink-0">
+                  1
+                </div>
+<h6 class="font-bold text-sm text-black">
+                  Khai báo & Index
+                </h6>
+<p class="text-slate-900 text-[16px] mt-1 flex-1">
+                  Làm quen cú pháp [ ] và indexing âm/dương.
+                </p>
+</div>
+<!-- Step 2 -->
+<div class="bento-card p-6 rounded-xl border border-slate-200 bg-white text-center flex flex-col items-center justify-between max-w-50 h-55 z-10 shadow-sm slide-build" data-build-step="1">
+<div class="w-10 h-10 rounded-full bg-rikkei-red text-white flex items-center justify-center font-bold text-sm mb-2 shadow-md shrink-0">
+                  2
+                </div>
+<h6 class="font-bold text-sm text-black">
+                  Vòng lặp & Duyệt
+                </h6>
+<p class="text-slate-900 text-[16px] mt-1 flex-1">
+                  Sử dụng for, range, enumerate thuần thục.
+                </p>
+</div>
+<!-- Step 3 -->
+<div class="bento-card p-6 rounded-xl border border-slate-200 bg-white text-center flex flex-col items-center justify-between max-w-50 h-55 z-10 shadow-sm slide-build" data-build-step="2">
+<div class="w-10 h-10 rounded-full bg-rikkei-red text-white flex items-center justify-center font-bold text-sm mb-2 shadow-md shrink-0">
+                  3
+                </div>
+<h6 class="font-bold text-sm text-black">Thêm / Sửa / Xóa</h6>
+<p class="text-slate-900 text-[16px] mt-1 flex-1">
+                  Nắm vững append, extend, insert, pop, remove.
+                </p>
+</div>
+<!-- Step 4 -->
+<div class="bento-card p-6 rounded-xl border border-slate-200 bg-white text-center flex flex-col items-center justify-between max-w-50 h-55 z-10 shadow-sm slide-build" data-build-step="3">
+<div class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm mb-2 shadow-md shrink-0">
+                  4
+                </div>
+<h6 class="font-bold text-sm text-black">Làm chủ bộ nhớ</h6>
+<p class="text-slate-900 text-[16px] mt-1 flex-1">
+                  Lưu ý về tham chiếu bộ nhớ, dùng .copy() khi sao chép.
+                </p>
+</div>
+</div>
+</div>
+<!-- Timeline Component -->
+<!-- Bottom right red triangle page number -->
+<div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+<span class="absolute bottom-3 right-4.5 text-white font-montserrat font-medium text-[16px] select-none">16</span>
+</div>
+</section>
+</div></div>
+<!-- Navigation JS Logic -->
+<script>
+      const slideCards = document.querySelectorAll(".slide-card");
+      const floatingIndicator = null;
+
+            // Slide Navigation Manager
+      function goToSlide(index) {
+        const wrappers = document.querySelectorAll(".slide-wrapper");
+        if (index >= 0 && index < wrappers.length) {
+          wrappers[index].scrollIntoView({ behavior: "smooth" });
+          currentBuildSteps[index] = 0;
+          updateBuildSteps(index);
+        }
+      }
+
+      // Sequential slide build navigation manager
+      let currentBuildSteps = {};
+      let lastScrollTime = 0;
+      const scrollCooldown = 600; // ms
+
+      function updateBuildSteps(slideIndex) {
+        const slide = document.querySelector(`.slide-wrapper[data-slide-index="${slideIndex}"]`);
+        if (!slide) return;
+        const currentStep = currentBuildSteps[slideIndex] || 0;
+        const buildElements = slide.querySelectorAll('.slide-build');
+        buildElements.forEach(el => {
+          const step = parseInt(el.getAttribute('data-build-step') || '0');
+          if (step <= currentStep) {
+            el.classList.add('build-visible');
+          } else {
+            el.classList.remove('build-visible');
+          }
+        });
+      }
+
+      function handleDirectionalNav(direction) {
+        const now = Date.now();
+        if (now - lastScrollTime < scrollCooldown) return;
+
+        const wrappers = document.querySelectorAll(".slide-wrapper");
+        let activeIndex = 0;
+        let minDiff = Infinity;
+        wrappers.forEach((wrapper, index) => {
+          const rect = wrapper.getBoundingClientRect();
+          const diff = Math.abs(rect.top);
+          if (diff < minDiff) {
+            minDiff = diff;
+            activeIndex = index;
+          }
+        });
+
+        const slide = wrappers[activeIndex];
+        const buildElements = slide.querySelectorAll('.slide-build');
+        let maxStep = 0;
+        buildElements.forEach(el => {
+          const step = parseInt(el.getAttribute('data-build-step') || '0');
+          if (step > maxStep) maxStep = step;
+        });
+
+        if (currentBuildSteps[activeIndex] === undefined) {
+          currentBuildSteps[activeIndex] = 0;
+        }
+
+        if (direction === "next") {
+          if (currentBuildSteps[activeIndex] < maxStep) {
+            currentBuildSteps[activeIndex]++;
+            updateBuildSteps(activeIndex);
+            lastScrollTime = now;
+          } else {
+            if (activeIndex < wrappers.length - 1) {
+              wrappers[activeIndex + 1].scrollIntoView({ behavior: "smooth" });
+              currentBuildSteps[activeIndex + 1] = 0;
+              updateBuildSteps(activeIndex + 1);
+              lastScrollTime = now;
+            }
+          }
+        } else if (direction === "prev") {
+          if (currentBuildSteps[activeIndex] > 0) {
+            currentBuildSteps[activeIndex]--;
+            updateBuildSteps(activeIndex);
+            lastScrollTime = now;
+          } else {
+            if (activeIndex > 0) {
+              wrappers[activeIndex - 1].scrollIntoView({ behavior: "smooth" });
+              // When moving backward, we want the previous slide to be fully resolved
+              const prevSlide = wrappers[activeIndex - 1];
+              const prevBuilds = prevSlide.querySelectorAll('.slide-build');
+              let prevMax = 0;
+              prevBuilds.forEach(el => {
+                const step = parseInt(el.getAttribute('data-build-step') || '0');
+                if (step > prevMax) prevMax = step;
+              });
+              currentBuildSteps[activeIndex - 1] = prevMax;
+              updateBuildSteps(activeIndex - 1);
+              lastScrollTime = now;
+            }
+          }
+        }
+      }
+
+      // Active slide highlight on scroll (IntersectionObserver)
+      const observerOptions = {
+        root: document.getElementById("slides-container"),
+        rootMargin: "0px",
+        threshold: 0.6,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.getAttribute("data-slide-index"));
+            if (floatingIndicator) floatingIndicator.innerText = `${index + 1}/${slideCards.length}`;
+
+            if (currentBuildSteps[index] === undefined) {
+              currentBuildSteps[index] = 0;
+            }
+            updateBuildSteps(index);
+            
+
+            // Lazy render Mermaid if visual diagram enters viewport
+            const mermaidDiv = entry.target.querySelector(".mermaid");
+            if (mermaidDiv && !mermaidDiv.hasAttribute("data-processed")) {
+              setTimeout(() => {
+                mermaid.run({ nodes: [mermaidDiv] });
+              }, 50);
+            }
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".slide-wrapper").forEach((wrapper) => {
+        observer.observe(wrapper);
+      });
+
+      // Keyboard arrow keys / space navigation
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "ArrowRight" || e.key === " ") {
+          e.preventDefault();
+          handleDirectionalNav("next");
+        } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "ArrowLeft") {
+          e.preventDefault();
+          handleDirectionalNav("prev");
+        }
+      });
+
+      // Mouse wheel integration with passive: false to allow preventDefault
+      window.addEventListener("wheel", (e) => {
+        if (Math.abs(e.deltaY) > 8) {
+          e.preventDefault();
+          const direction = e.deltaY > 0 ? "next" : "prev";
+          handleDirectionalNav(direction);
+        }
+      }, { passive: false });
+
+      // 1. Grouping Particle Visualizer (Slide 3)
+      let animationGrouped = false;
+      function triggerGroupAnimation() {
+        const conveyor = document.getElementById("conveyor-belt");
+        const p1 = document.getElementById("p-st1");
+        const p2 = document.getElementById("p-st2");
+        const p3 = document.getElementById("p-st3");
+        const p4 = document.getElementById("p-st4");
+
+        if (animationGrouped) {
+          // Reset state
+          p1.style.position = "absolute";
+          p1.style.top = "20%";
+          p1.style.left = "15%";
+          p1.className =
+            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+          p1.style.opacity = "1";
+          p2.style.position = "absolute";
+          p2.style.top = "55%";
+          p2.style.left = "45%";
+          p2.className =
+            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+          p2.style.opacity = "1";
+          p3.style.position = "absolute";
+          p3.style.top = "15%";
+          p3.style.left = "60%";
+          p3.className =
+            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+          p3.style.opacity = "1";
+          p4.style.position = "absolute";
+          p4.style.top = "60%";
+          p4.style.left = "10%";
+          p4.className =
+            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+          p4.style.opacity = "1";
+
+          conveyor.innerHTML = `<div class="text-slate-500 font-mono text-xs italic">Trạng thái: Chưa gom nhóm</div>`;
+          animationGrouped = false;
+          return;
+        }
+
+        // Apply transition styling and lock position
+        [p1, p2, p3, p4].forEach((p) => {
+          p.classList.remove("particle-float");
+          p.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
+        });
+
+        // Fly particles to center of conveyor belt
+        setTimeout(() => {
+          conveyor.innerHTML = `
+            <span class="font-mono text-xs font-bold text-blue-700 mr-2 shrink-0">students = [</span>
+            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st1">"An"</div>
+            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st2">"Bình"</div>
+            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st3">"Cường"</div>
+            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st4">"Dũng"</div>
+            <span class="font-mono text-xs font-bold text-blue-700 shrink-0">]</span>
+          `;
+
+          // Trigger scale-in animations
+          setTimeout(() => {
+            document.getElementById("c-st1").classList.remove("scale-0");
+          }, 100);
+          setTimeout(() => {
+            document.getElementById("c-st2").classList.remove("scale-0");
+          }, 250);
+          setTimeout(() => {
+            document.getElementById("c-st3").classList.remove("scale-0");
+          }, 400);
+          setTimeout(() => {
+            document.getElementById("c-st4").classList.remove("scale-0");
+          }, 550);
+
+          // Hide chaotic ones
+          p1.style.opacity = "0";
+          p2.style.opacity = "0";
+          p3.style.opacity = "0";
+          p4.style.opacity = "0";
+        }, 300);
+
+        animationGrouped = true;
+      }
+
+      // 2. Dual Index Pointer (Slide 4)
+      const values = ["An", "Bình", "Cường", "Dũng"];
+      function highlightIndex(index, type) {
+        // Clear old highlights
+        document
+          .querySelectorAll(".idx-btn")
+          .forEach((btn) => {
+            btn.classList.remove(
+              "bg-rikkei-red",
+              "text-white",
+              "scale-110",
+              "border-rikkei-red",
+            );
+            // Restore default styles (including hover classes)
+            if (btn.id.includes("pos")) {
+              btn.classList.add("bg-blue-50", "text-blue-600", "hover:bg-blue-100");
+            } else {
+              btn.classList.add("bg-orange-50", "text-orange-600", "hover:bg-orange-100");
+            }
+          });
+        document
+          .querySelectorAll(".element-box")
+          .forEach((cell) =>
+            cell.classList.remove(
+              "border-rikkei-red",
+              "bg-red-50",
+              "scale-105",
+            ),
+          );
+
+        // Highlight selected
+        const btnId = `idx-${type}-${index}`;
+        const btn = document.getElementById(btnId);
+        // Remove default styles (including hover) to prevent class conflicts
+        btn.classList.remove(
+          "bg-blue-50",
+          "bg-orange-50",
+          "text-blue-600",
+          "text-orange-600",
+          "hover:bg-blue-100",
+          "hover:bg-orange-100"
+        );
+        btn.classList.add(
+          "bg-rikkei-red",
+          "text-white",
+          "scale-110",
+          "border-rikkei-red",
+        );
+
+        const cell = document.getElementById(`cell-${index}`);
+        cell.classList.add("border-rikkei-red", "bg-red-50", "scale-105");
+
+        const trace = document.getElementById("index-output-log");
+        const idxVal = type === "pos" ? index : index - 4;
+        trace.innerHTML = `
+          <i class="ph-bold ph-terminal text-sm"></i>
+          <span class="console-line">students[${idxVal}] &rarr; <b class="text-rikkei-red font-bold">"${values[index]}"</b></span>
+        `;
+      }
+
+      // 3. Loop Runner Simulation (Slide 6)
+      let loopRunning = false;
+      function startLoopAnimation() {
+        if (loopRunning) return;
+        loopRunning = true;
+
+        const consoleBox = document.getElementById("loop-console");
+        const runBtn = document.getElementById("run-loop-btn");
+        runBtn.classList.add("opacity-50", "pointer-events-none");
+        consoleBox.innerHTML = `<span class="text-slate-500 font-italic">&gt;_ Khởi tạo vòng lặp for...</span><br/>`;
+
+        const loopFruits = ["Táo", "Ổi", "Mận"];
+        let step = 0;
+
+        function runStep() {
+          if (step < loopFruits.length) {
+            // Reset arrows and backgrounds
+            document
+              .querySelectorAll("[id^='arrow-']")
+              .forEach((a) => a.classList.add("hidden"));
+            document
+              .querySelectorAll("[id^='loop-box-']")
+              .forEach((b) =>
+                b.classList.remove("bg-green-100", "border-green-400"),
+              );
+
+            // Highlight active index
+            document.getElementById(`arrow-${step}`).classList.remove("hidden");
+            const box = document.getElementById(`loop-box-${step}`);
+            box.classList.add(
+              "bg-green-100",
+              "border-green-400",
+              "scale-105",
+              "transition-all",
+            );
+            setTimeout(() => box.classList.remove("scale-105"), 200);
+
+            // Log to console
+            consoleBox.innerHTML += `<span class="console-line text-slate-800">&gt; index: ${step}, quả: "${loopFruits[step]}"</span><br/>`;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+
+            step++;
+            setTimeout(runStep, 1000);
+          } else {
+            // Done
+            document
+              .querySelectorAll("[id^='arrow-']")
+              .forEach((a) => a.classList.add("hidden"));
+            document
+              .querySelectorAll("[id^='loop-box-']")
+              .forEach((b) =>
+                b.classList.remove("bg-green-100", "border-green-400"),
+              );
+            consoleBox.innerHTML += `<span class="console-line text-green-700 font-bold">● Vòng lặp kết thúc thành công.</span>`;
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+            runBtn.classList.remove("opacity-50", "pointer-events-none");
+            loopRunning = false;
+          }
+        }
+
+        setTimeout(runStep, 400);
+      }
+
+      // 4. Element Mô phỏng thêm phần tử (Slide 8)
+      let insertArray = ["An", "Bình", "Cường"];
+      function renderInsertLab() {
+        const container = document.getElementById("insertion-array");
+        container.innerHTML = "";
+        insertArray.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className =
+            "px-4 py-2 border border-slate-200 bg-white text-slate-800 font-mono text-sm font-bold rounded shadow-sm transition-all duration-300 transform scale-100";
+          itemDiv.innerText = `"${item}"`;
+          container.appendChild(itemDiv);
+        });
+      }
+
+      function runInsertLab(action) {
+        if (action === "append") {
+          insertArray.push("Dũng");
+        } else if (action === "insert") {
+          insertArray.splice(1, 0, "Bưởi");
+        } else if (action === "extend") {
+          insertArray = insertArray.concat(["Mận", "Ổi"]);
+        }
+        renderInsertLab();
+
+        // Highlight new additions
+        const container = document.getElementById("insertion-array");
+        const items = container.children;
+        if (action === "append") {
+          const last = items[items.length - 1];
+          last.classList.add(
+            "bg-blue-50",
+            "border-blue-400",
+            "scale-110",
+            "pulse-glow",
+          );
+        } else if (action === "insert") {
+          const inserted = items[1];
+          inserted.classList.add(
+            "bg-indigo-50",
+            "border-indigo-400",
+            "scale-110",
+            "pulse-glow",
+          );
+        } else if (action === "extend") {
+          items[items.length - 2].classList.add(
+            "bg-green-50",
+            "border-green-400",
+            "scale-110",
+            "pulse-glow",
+          );
+          items[items.length - 1].classList.add(
+            "bg-green-50",
+            "border-green-400",
+            "scale-110",
+            "pulse-glow",
+          );
+        }
+      }
+
+      function resetInsertLab() {
+        insertArray = ["An", "Bình", "Cường"];
+        renderInsertLab();
+      }
+
+      // 5. Slicing & Mutation Laboratory (Slide 10)
+      let mutateArray = ["Cam", "Quýt", "Mít", "Dừa"];
+      function renderMutationLab() {
+        const container = document.getElementById("mutation-array");
+        container.innerHTML = "";
+        mutateArray.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className =
+            "px-4 py-2 border border-slate-200 bg-white text-slate-800 font-mono text-sm font-bold rounded shadow-sm transition-all duration-300";
+          itemDiv.innerText = `"${item}"`;
+          itemDiv.id = `mut-cell-${index}`;
+          container.appendChild(itemDiv);
+        });
+      }
+
+      function runMutationLab(type) {
+        if (type === "single") {
+          mutateArray[1] = "Bưởi";
+          renderMutationLab();
+          const target = document.getElementById("mut-cell-1");
+          target.classList.add(
+            "bg-green-50",
+            "border-green-400",
+            "scale-110",
+            "pulse-glow",
+          );
+        } else if (type === "slice") {
+          mutateArray.splice(2, 2, "Sầu Riêng", "Vải");
+          renderMutationLab();
+          const cell2 = document.getElementById("mut-cell-2");
+          const cell3 = document.getElementById("mut-cell-3");
+          cell2.classList.add(
+            "bg-blue-50",
+            "border-blue-400",
+            "scale-110",
+            "pulse-glow",
+          );
+          cell3.classList.add(
+            "bg-blue-50",
+            "border-blue-400",
+            "scale-110",
+            "pulse-glow",
+          );
+        }
+      }
+
+      function resetMutationLab() {
+        mutateArray = ["Cam", "Quýt", "Mít", "Dừa"];
+        renderMutationLab();
+      }
+
+      // 6. Mô phỏng xóa phần tử (Slide 12)
+      let deleteArray = ["Python", "Java", "C++", "JS"];
+      function renderDeletionLab() {
+        const container = document.getElementById("deletion-array");
+        container.innerHTML = "";
+        deleteArray.forEach((item, index) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className =
+            "px-4 py-2 border border-slate-200 bg-white text-slate-800 font-mono text-sm font-bold rounded shadow-sm transition-all duration-300 transform scale-100";
+          itemDiv.innerText = `"${item}"`;
+          itemDiv.id = `del-cell-${index}`;
+          container.appendChild(itemDiv);
+        });
+      }
+
+      function runDeletionLab(action) {
+        const container = document.getElementById("deletion-array");
+        if (action === "remove") {
+          const idx = deleteArray.indexOf("Java");
+          if (idx !== -1) {
+            const cell = document.getElementById(`del-cell-${idx}`);
+            cell.classList.add(
+              "scale-75",
+              "opacity-0",
+              "rotate-12",
+              "bg-orange-100",
+              "border-orange-400",
+            );
+            setTimeout(() => {
+              deleteArray.splice(idx, 1);
+              renderDeletionLab();
+            }, 300);
+          }
+        } else if (action === "pop") {
+          if (deleteArray.length > 0) {
+            const lastIdx = deleteArray.length - 1;
+            const cell = document.getElementById(`del-cell-${lastIdx}`);
+            cell.classList.add(
+              "scale-75",
+              "opacity-0",
+              "rotate-12",
+              "bg-blue-100",
+              "border-blue-400",
+            );
+            setTimeout(() => {
+              deleteArray.pop();
+              renderDeletionLab();
+            }, 300);
+          }
+        } else if (action === "clear") {
+          document.querySelectorAll("[id^='del-cell-']").forEach((cell) => {
+            cell.classList.add("scale-50", "opacity-0", "rotate-45");
+          });
+          setTimeout(() => {
+            deleteArray = [];
+            renderDeletionLab();
+          }, 350);
+        }
+      }
+
+      // 7. Memory Reference vs cloning Lab (Slide 13)
+      let memMode = "assign"; // 'assign' or 'copy'
+      let listA = [1, 2, 3];
+      let listB = [1, 2, 3]; // holds ref if assign mode, holds copy if copy mode
+
+      function setMemoryMode(mode) {
+        memMode = mode;
+        const btnAssign = document.getElementById("mem-btn-assign");
+        const btnCopy = document.getElementById("mem-btn-copy");
+
+        if (mode === "assign") {
+          btnAssign.className =
+            "py-2.5 rounded-lg text-xs font-bold border border-red-300 bg-red-50 text-red-700 hover:bg-red-100/50 transition-all active:scale-95";
+          btnCopy.className =
+            "py-2.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all active:scale-95";
+        } else {
+          btnCopy.className =
+            "py-2.5 rounded-lg text-xs font-bold border border-green-300 bg-green-50 text-green-700 hover:bg-green-100/50 transition-all active:scale-95";
+          btnAssign.className =
+            "py-2.5 rounded-lg text-xs font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 transition-all active:scale-95";
+        }
+
+        resetMemoryLab();
+      }
+
+      function renderMemoryLab() {
+        const box = document.getElementById("memory-map-box");
+        if (memMode === "assign") {
+          box.innerHTML = `
+            <!-- Left inputs pointers -->
+            <div class="flex justify-between items-center px-4 py-3 border border-slate-200 bg-white rounded-lg">
+              <div class="flex flex-col gap-2 font-mono text-xs text-slate-800">
+                <div><span class="text-blue-600 font-bold">a</span> = [1, 2, 3]</div>
+                <div><span class="text-red-600 font-bold">b</span> = a <span class="text-slate-400 italic">(Tham chiếu)</span></div>
+              </div>
+              <div class="text-xl text-red-500 font-bold">&rarr;</div>
+              
+              <!-- Address -->
+              <div class="p-4 bg-red-50/50 border border-red-300 text-red-700 rounded-lg text-center font-mono text-xs flex flex-col items-center shadow-inner" id="shared-mem-block">
+                <span class="text-[9px] uppercase font-bold text-red-500 tracking-wider">RAM Address: 0x7FFA</span>
+                <span class="text-sm font-extrabold mt-1 text-slate-900" id="shared-mem-val">[ ${listA.join(", ")} ]</span>
+              </div>
+            </div>
+            <p class="text-[10px] text-red-600 text-center mt-2 font-semibold">Cả hai biến a và b trỏ cùng vào 1 ô nhớ 0x7FFA.</p>
+          `;
+        } else {
+          box.innerHTML = `
+            <!-- Dual Separated Blocks -->
+            <div class="flex flex-col gap-3">
+              <div class="flex justify-between items-center px-4 py-2 border border-slate-200 bg-white rounded-lg">
+                <div class="font-mono text-xs text-slate-800"><span class="text-blue-600 font-bold">a</span> = [1, 2, 3]</div>
+                <div class="text-sm text-blue-500">&rarr;</div>
+                <div class="px-3 py-1 bg-blue-50/30 border border-blue-200 text-blue-800 rounded font-mono text-xs flex flex-col items-center">
+                  <span class="text-[8px] font-bold text-blue-400">RAM: 0x7FFA</span>
+                  <span class="font-bold text-xs text-slate-900" id="sep-mem-a">[ ${listA.join(", ")} ]</span>
+                </div>
+              </div>
+
+              <div class="flex justify-between items-center px-4 py-2 border border-slate-200 bg-white rounded-lg">
+                <div class="font-mono text-xs text-slate-800"><span class="text-green-600 font-bold">c</span> = a.copy()</div>
+                <div class="text-sm text-green-700">&rarr;</div>
+                <div class="px-3 py-1 bg-green-50/30 border border-green-200 text-green-800 rounded font-mono text-xs flex flex-col items-center" id="sep-c-block">
+                  <span class="text-[8px] font-bold text-slate-800 font-mono">RAM: 0x9FFB</span>
+                  <span class="font-bold text-xs text-green-700" id="sep-mem-c">[ ${listB.join(", ")} ]</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-[10px] text-green-600 text-center mt-2 font-semibold">Tạo thêm ô nhớ mới 0x9FFB riêng biệt độc lập.</p>
+          `;
+        }
+      }
+
+      function mutateMemoryVal() {
+        if (memMode === "assign") {
+          listA.push(99); // both modified
+          renderMemoryLab();
+          const target = document.getElementById("shared-mem-block");
+          target.classList.add("scale-105", "pulse-glow");
+          setTimeout(() => target.classList.remove("scale-105"), 300);
+        } else {
+          listB.push(99); // only c modified
+          renderMemoryLab();
+          const target = document.getElementById("sep-c-block");
+          target.classList.add("scale-105", "pulse-glow");
+          setTimeout(() => target.classList.remove("scale-105"), 300);
+        }
+      }
+
+      function resetMemoryLab() {
+        listA = [1, 2, 3];
+        listB = [1, 2, 3];
+        renderMemoryLab();
+      }
+
+      function resetDeletionLab() {
+        deleteArray = ["Python", "Java", "C++", "JS"];
+        renderDeletionLab();
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        // Backup original HTML of mermaid divs for re-rendering
+        document.querySelectorAll(".mermaid").forEach((div) => {
+          div.setAttribute("data-original-html", div.innerHTML);
+        });
+
+        hljs.highlightAll();
+
+        // Load interactive labs
+        resetInsertLab();
+        resetMutationLab();
+        resetDeletionLab();
+        resetMemoryLab();
+      });
+    </script>
+</div></body>
+</html>

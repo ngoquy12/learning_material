@@ -1,1 +1,0 @@
-Trong ngôn ngữ lập trình Python, kiểu dữ liệu chuỗi ký tự mang tính chất bất biến, hay còn gọi là i-miu-tờ-bồ. Có nghĩa là, khi gọi một phương thức biến đổi chuỗi, hệ thống không thay đổi trực tiếp giá trị tại ô nhớ ban đầu mà luôn tạo ra một vùng nhớ hoàn toàn mới để lưu trữ kết quả. Hãy ghi nhớ thuộc tính cơ bản này để tránh các lỗi logic nghiêm trọng khi gán giá trị.

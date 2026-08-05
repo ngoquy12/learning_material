@@ -1,1 +1,0 @@
-Cuối cùng, chúng ta cấu hình nhánh mặc định bằng ký tự gạch dưới đơn lẻ. Nhánh này sẽ bắt toàn bộ các trường hợp dữ liệu bất thường hoặc không hợp lệ để tránh lỗi hệ thống, gán mức phí cao là mười lăm chấm không. Sau đó, hàm trả về kết quả là một túp-pồ chứa phi và đít-khao. Toàn bộ logic nghiệp vụ được gói gọn và cực kỳ dễ hiểu.

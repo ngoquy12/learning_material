@@ -1,1 +1,0 @@
-Hãy quan sát mô hình liên kết bộ nhớ. Khi khai báo tên biến như đê-ly re-vơ-nyu hoặc tắc rết, Python không ghi trực tiếp giá trị vào tên biến. Nó tạo ra các đối tượng số thực năm nghìn và không phẩy một trong vùng nhớ híp, sau đó tạo liên kết tham chiếu từ nhãn biến trong namespace sang các đối tượng tương ứng.

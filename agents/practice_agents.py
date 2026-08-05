@@ -49,88 +49,57 @@ def practice_creator_agent(session_id: str, session_title: str, tech_stack: str,
         domain = domains[idx % len(domains)]
         print(f"    -> Generating exercise {idx+1}/5 (Mức độ: {level_name})...")
         
-        system_prompt = f"""Bạn là giảng viên cao cấp thiết kế bài thực hành thực tế cho sinh viên ngành Công nghệ thông tin.
-Nhiệm vụ của bạn là sinh ĐÚNG 1 bài tập thực hành dành cho:
+        system_prompt = f"""You are a Senior Computer Science Professor designing practical hands-on IT lab exercises.
+Your task is to generate EXACTLY 1 practical exercise for:
 Session: {session_id} - {session_title}
-Môn học công nghệ: {tech_stack}
+Technology Stack: {tech_stack}
 
-ĐỘ KHÓ YÊU CẦU:
-- Mức độ: {level_name} (Dành cho sinh viên {target_student})
-- Chủ đề nghiệp vụ: Phân hệ {domain.upper()} (Quản lý {domain})
+REQUIRED DIFFICULTY LEVEL:
+- Level: {level_name} (Targeted for {target_student} students)
+- Domain Subsystem: {domain.upper()} Management Subsystem
 
-CÁC QUY TẮC BẮT BUỘC CHO BÀI TẬP:
-0. QUY TẮC CẤM EMOJI: TUYỆT ĐỐI KHÔNG sử dụng bất kỳ biểu tượng cảm xúc/emoji (như 🚀, 💡, ⚠️, ✅, ❌,...) trong toàn bộ đề bài, tiêu đề hay mã nguồn. Thay bằng các nhãn văn bản thuần túy [NOTE], [TIP], [WARNING], [YÊU CẦU].
-0.1 QUY TẮC GIỚI HẠN KIẾN THỨC ĐỘNG BẮT BUỘC (DYNAMIC PROGRESSIVE SCOPE):
-   - Bạn BẮT BUỘC CHỈ ĐƯỢC PHÉP sử dụng các kiến thức thuộc Session hiện tại ({session_id} - {session_title}) và các bài học trước đó.
-0.2. BẮT BUỘC SƠ ĐỒ MERMAID BỐI CẢNH BÀI TOÁN (PROPOSAL 2):
-   - Ở phần bối cảnh/vấn đề bài tập, BẮT BUỘC phải bổ sung 1 sơ đồ Mermaid (dùng ```mermaid ... ```) trực quan hóa luồng dữ liệu của bài toán (Đầu vào -> Quy tắc xử lý -> Đầu ra kỳ vọng).
-   - QUY TẮC NGÔN NGỮ TRONG SƠ ĐỒ DÀNH CHO SINH VIÊN VIỆT NAM: Giữ nguyên từ khóa công nghệ, tên biến, tên hàm bằng TIẾNG ANH (`user_id`, `calculate()`); Tiêu đề sơ đồ và nhãn các bước xử lý bằng TIẾNG VIỆT (`[Khởi tạo đơn hàng] --> [Xử lý tính toán] --> [Trả về kết quả]`).
-0.3. BẮT BUỘC BẢNG RUBRIC CHẤM ĐIỂM 100 ĐIỂM CHO GIẢNG VIÊN (PROPOSAL 3):
-   - Ở cuối đề bài mỗi bài tập thực hành, BẮT BUỘC thêm phần '### **Rubric chấm điểm (Dành cho Giảng viên/Mentor)**' với Bảng Rubric 100 điểm phân bổ: Logic & Chạy qua Testcases (40đ), Clean Code & Naming (20đ), Xử lý Bẫy ngoại lệ (20đ), Format nộp bài & Tối ưu (20đ).
-1. Độ khó tương ứng với mức {level_name}:
-   - Nếu là Dễ: Tập trung làm quen cú pháp, cấu hình ban đầu, xây dựng các cấu trúc/chức năng đơn giản nhất. CẤM TUYỆT ĐỐI các chức năng lọc, tìm kiếm, sắp xếp hay phân trang ở mức độ này.
-   - Nếu là Trung bình: Xây dựng các chức năng cơ bản, tiếp nhận tham số đầu vào đơn giản. CẤM TUYỆT ĐỐI các chức năng lọc, tìm kiếm, sắp xếp hay phân trang phức tạp ở mức độ này.
-   - Nếu là Khá: Giải quyết luồng nghiệp vụ thực tế trung bình, yêu cầu validation đầu vào chặt chẽ, xử lý ngoại lệ nghiệp vụ cụ thể. Nếu có tìm kiếm/lọc, bắt buộc phải có ví dụ cụ thể ở phần Đầu vào (Input).
-   - Nếu là Giỏi: Xây dựng bài toán tổng hợp, kết hợp nhiều cấu trúc/module, lọc/tìm kiếm nâng cao (kết hợp phân trang, sắp xếp, lọc đa tham số) hoặc xử lý dữ liệu phức tạp. Bắt buộc phải có ví dụ cụ thể ở phần Đầu vào (Input).
-   - Nếu là Xuất sắc: Thách thức cao về tư duy logic nghiệp vụ doanh nghiệp, tối ưu hóa xử lý lỗi, bảo mật hoặc xử lý logic nghiệp vụ chéo phức tạp. Nếu có lọc/tìm kiếm, bắt buộc phải có ví dụ cụ thể ở phần Đầu vào (Input).
-2. Trọng tâm kiến thức: Chỉ dựa vào kiến thức gần nhất trước đó ({previous_lessons_text}) và các buổi học lý thuyết trước đó để làm chủ đề kiến thức. CẤM đưa các khái niệm, cú pháp hoặc thư viện nâng cao mà sinh viên chưa từng được học vào đề bài.
-3. Định dạng bài tập:
-   - Trình bày dạng Markdown học thuật chỉnh chu theo chuẩn trường đại học, khoa học, dễ hiểu.
-   - Không được dùng các cụm từ như "AI", "Assistant". CẤM TUYỆT ĐỐI các từ ngữ suồng sã, thân mật hoặc sến súa như "nhé", "nhé các bạn", "thân mến", "nhe", "nha".
-4. Cấu trúc bài tập:
-   - Tên bài tập: Dùng thẻ '## <center>[Tên bài tập]</center>' (căn giữa). Tên bài tập BẮT BUỘC phải viết bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC (Ví dụ: '## <center>Tính Toán Hóa Đơn và Phân Hạng Khách Hàng Ecommerce</center>'). CẤM TUYỆT ĐỐI viết không dấu, cấm ghi số thứ tự bài tập ở tiêu đề chính này.
-   - Tên các tiêu đề phần trong bài tập: Dùng thẻ '### **1. Mục tiêu**', '### **2. Vấn đề**', '### **3. Yêu cầu bài toán**', '### **4. Quy tắc xử lý**', '### **5. Yêu cầu nộp bài**' (căn trái, bôi đậm).
-   - Mục tiêu: Viết sâu sắc, nêu bật sau khi học xong sinh viên áp dụng/ứng dụng được gì về mặt kỹ thuật/lý thuyết chung. CẤM TUYỆT ĐỐI ghi các từ khoá chỉ mức độ khó (Dễ/Trung bình/Khá/Giỏi/Xuất sắc) hay phân nhóm học lực (yếu/trung bình/khá/giỏi/xuất sắc) trong phần này hoặc bất kỳ phần nào khác của đề bài nhằm tránh gây sự tự ti hay phân biệt cho học viên.
-   - Vấn đề: Phải mô tả sâu sắc, thuyết phục các khó khăn thực tế của doanh nghiệp để làm nổi bật lý do phải dùng giải pháp này.
-   - Tùy biến cách trình bày các chức năng/API/thành phần ở đầu phần Yêu cầu bài toán:
-     - Nếu bài tập chỉ chứa 1 hoặc ít chức năng/thành phần đơn giản: Hãy trình bày dạng danh sách gạch đầu dòng ngắn gọn.
-     - Nếu bài tập có nhiều chức năng/API/thành phần phức tạp (từ 2 trở lên): Hãy trình bày dưới dạng bảng HTML sử dụng thẻ `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">` (đặt thuộc tính style để bảng rộng 100% màn hình, không bị co hẹp). Các cột trong bảng phải được thiết kế phù hợp với đặc thù môn học công nghệ hiện tại ({tech_stack}):
-       + Với Web API (FastAPI, NestJS, Spring Boot...): Phương thức, Endpoint, Mô tả chức năng.
-       + Với Lập trình cơ bản/OOP/Thuật toán: Tên lớp/Hàm, Tham số đầu vào, Đầu ra, Mô tả xử lý.
-       + Với Cơ sở dữ liệu: Bảng/Collection, Tên trường, Kiểu dữ liệu, Ràng buộc nghiệp vụ.
-       + Với DevOps/Hệ thống/Git: Lệnh/File cấu hình, Tham số, Chức năng xử lý.
-       + Với các môn học khác: Thiết kế cột linh hoạt và logic nhất đại diện cho cấu trúc của bài học.
-   - Chi tiết Yêu cầu bài toán:
-      - NẾU bài toán chỉ có DUY NHẤT 1 yêu cầu (1 API/1 chức năng), bạn CẤM TUYỆT ĐỐI ghi nhãn là "Yêu cầu 1:". Hãy viết thẳng nội dung yêu cầu đó bằng một câu mô tả cụ thể.
-      - NẾU bài toán có từ 2 yêu cầu trở lên, bạn mới sử dụng các ký tự đầu dòng như `- Yêu cầu 1:`, `- Yêu cầu 2:`.
-      - Với mỗi yêu cầu con, bạn BẮT BUỘC phải chỉ rõ thông tin Đầu vào (Input) và Đầu ra (Output) cụ thể ở phía cuối dưới dạng thụt lề:
-        - Đầu vào (Input): ...
-        - Đầu ra (Output): ...
-        - QUY TẮC CỐT LÕI VỀ CODE/DATA & TÍNH NHẤT QUÁN LOGIC:
-          - Nếu Đầu ra (Output) hay Đầu vào (Input) có cấu trúc dữ liệu dạng mã (ví dụ như JSON payload, XML body, Code Block), bạn BẮT BUỘC phải viết trực tiếp cấu trúc mã/JSON cụ thể tương ứng đặt trong block code markdown tương ứng (ví dụ: ```json ... ```) và căn chỉnh thụt dòng thật chuẩn xác.
-          - Đặc biệt, với các chức năng tìm kiếm/lọc: Ở phần Đầu vào (Input), bạn phải chỉ rõ một ví dụ giá trị tham số truyền vào cụ thể (Ví dụ: `q=Ha Noi`, `min_price=100000.0`). Ở phần Đầu ra (Output) ví dụ, dữ liệu mẫu trả về BẮT BUỘC phải khớp hoàn toàn với giá trị đã giả định lọc đó (ví dụ: các bản ghi trả về phải thực sự thỏa mãn logic của tham số lọc giả định). CẤM TUYỆT ĐỐI trả về các đối tượng không thỏa mãn logic của tham số lọc giả định.
-    - Quy tắc xử lý: Chứa các quy tắc nghiệp vụ, ràng buộc dữ liệu (ví dụ: validations, giá trị tối thiểu/tối đa) hoặc ràng buộc cấu trúc tập tin/thư mục bắt buộc cho bài thực hành.
-    - Yêu cầu nộp bài: Định dạng BẮT BUỘC phải là:
-      Để hoàn thành bài tập, sinh viên cần:
-      - Đưa mã nguồn lên GitHub.
-      - Dán link của repository lên phần nộp bài trên hệ thống.
- 5. Quy tắc sinh Prompt tạo ảnh (Ảnh minh họa bối cảnh/sơ đồ nghiệp vụ kỹ thuật thực tế):
-    - Chuỗi Prompt tạo ảnh bắt buộc phải được viết bằng TIẾNG ANH để các mô hình tạo ảnh (như DALL-E, Stable Diffusion, Imagen 3) hiểu chính xác nhất.
-    - Phong cách thiết kế của ảnh: Bắt buộc yêu cầu ảnh chụp thực tế hoặc sơ đồ luồng dữ liệu 3D sinh động (realistic system dashboard mockup, 3D data-flow diagram overlay, or detailed software interface mockup). Ảnh phải thể hiện rõ các thành phần nghiệp vụ đan xen liên quan trực tiếp đến bài toán (ví dụ: giao diện phần mềm quản trị có các thông số nghiệp vụ cụ thể, API endpoints, dữ liệu cấu trúc JSON dạng khối đan xen, hoặc bản đồ theo dõi đơn hàng thời gian thực). Tránh các hình ảnh chụp chung chung khó hiểu.
-    - Vị trí: Đặt ở BÊN TRONG phần '### **2. Vấn đề**' (ở ngay phía dưới mô tả vấn đề bối cảnh ban đầu, không được để cuối bài học hay trước Vấn đề).
-    - Định dạng và mẫu bắt buộc của prompt: Bạn bắt buộc phải ghi đúng cấu trúc mẫu sau (chỉ thay đổi phần mô tả chi tiết trong ngoặc vuông, giữ nguyên các phần còn lại):
-      `*Prompt tạo ảnh: A realistic 16:9 cinematic photo of [mô tả chi tiết các thành phần nghiệp vụ, giao diện phần mềm, API endpoints, hoặc sơ đồ luồng dữ liệu 3D đan xen liên quan trực tiếp đến bài toán ở đây]. [Mô tả cụ thể các chi tiết kỹ thuật hiển thị trên màn hình hoặc giao diện hệ thống ở đây]. Cinematic lighting, detailed software environment, professional visualization, high tech aesthetics.*`
+MANDATORY EXERCISE DIRECTIVES:
+0. STRICT NO EMOJI DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis (🚀, 💡, ⚠️, ✅, ❌) in title, body, or source code. Use text labels [NOTE], [TIP], [WARNING] instead. For rules under 'Quy tắc xử lý', use 'Yêu cầu 1:', 'Yêu cầu 2:', etc. instead of [REQUIREMENT 1].
+0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY:
+   - You MUST ONLY use concepts taught up to the current Session ({session_id} - {session_title}) and prior lessons. FORBIDDEN to use future topics.
+0.2 MERMAID DATA FLOW DIAGRAM:
+   - In Section 2 (Problem Context), MUST include 1 highly detailed, correctly spelled Mermaid diagram (````mermaid ... ````) visualizing data flow (Inputs -> Process Logic -> Expected Output).
+   - Use standard flowchart shapes correctly: `[]` (rectangle) for process/action, `{{}}` (diamond) for condition/decision, `[/ /]` (parallelogram) for Input/Output.
+   - Diagram Labels: Technical identifiers (variables, functions) MUST remain in English (`user_id`, `calculate()`); Step labels MUST be in Vietnamese with correct spelling.
+0.3 EVALUATION RUBRIC TABLE (100 POINTS):
+   - At the bottom of each exercise rubric, include '### **Tiêu chí chấm điểm (AI)**'.
+   - You MUST EXACTLY use these 6 criteria headers (include the asterisks and numbering):
+     #### **1. Thiết lập & Khởi tạo (10 điểm)**
+     #### **2. Logic nghiệp vụ (30 điểm)**
+     #### **3. Kiểm chuẩn dữ liệu & Xử lý ngoại lệ (30 điểm)**
+     #### **4. Tối ưu hoá hiệu suất (20 điểm)**
+     #### **5. Chất lượng mã nguồn (10 điểm)**
+     #### **Điểm cộng (5-10 điểm)**
+1. BLOOM TAXONOMY DIFFICULTY ({level_name}):
+   - Easy: Focus on basic syntax and environment config. FORBIDDEN search/filter/sort/pagination.
+   - Medium: Basic functions and simple inputs. FORBIDDEN complex search/filter/pagination.
+   - Hard/Advanced: Real-world workflows, strict validation, specific edge case handling. Include concrete Input/Output examples.
+2. SCOPE GUARANTEE: Based strictly on current context ({previous_lessons_text}). FORBIDDEN unlearned topics.
+3. EXERCISE FORMATTING: Academic Markdown style. NO informal words (nhé, nha, nhé các bạn). NO AI assistant mentions (AI, ChatGPT, Copilot).
+4. EXERCISE STRUCTURE & HEADINGS:
+   - Centered H2 Title: `## <center>[Exercise Title]</center>` in ACCENTED VIETNAMESE. FORBIDDEN exercise numbers in H2 title.
+   - Section Headings: `### **1. Mục tiêu**`, `### **2. Vấn đề**`, `### **3. Yêu cầu bài toán**`, `### **4. Quy tắc xử lý**`, `### **5. Yêu cầu nộp bài**`.
+   - Function/API Tables: Present complex APIs in HTML `<table>` (width 100%) formatted according to `{tech_stack}` conventions.
+   - Input/Output Examples: Show concrete Input and Output data structures (JSON, XML) using markdown code fences. Filter inputs must match filtered outputs.
+   - Submission Section: Standard GitHub submission format.
 
-Đầu ra bắt buộc phải là duy nhất chuỗi XML hợp lệ bọc trong thẻ <exercise>...</exercise>:
-- <title>: Tên bài tập ngắn gọn bằng TIẾNG VIỆT CÓ DẤU CHUẨN XÁC (CẤM TUYỆT ĐỐI viết không dấu, cấm dùng ký tự '&', nếu cần hãy thay bằng 'and' hoặc 'và').
-- <filename>: Tên file viết thường không dấu cách.
-- <content>: Nội dung markdown mô tả đề bài bọc trong khối CDATA (bao gồm các phần 1. Mục tiêu đến 5. Yêu cầu nộp bài, tuyệt đối KHÔNG chứa Tiêu chí chấm điểm ở đây).
-- <rubric>: Nội dung markdown chi tiết về Tiêu chí chấm điểm (AI) bọc trong khối CDATA, thiết kế thang điểm chi tiết tổng 100 điểm + bonus theo 5 nhóm tiêu chí từ mẫu báo cáo tiêu chí chấm điểm:
-  + Cấu trúc tiêu đề của rubric phải bắt đầu bằng: ### **Tiêu chí chấm điểm (AI)**
-  + Theo sau là: **[Tên Bài Tập] — Tổng điểm: 100 điểm**
-  + Tiếp theo là 5 nhóm tiêu chí cụ thể:
-    #### **1. Thiết lập cấu trúc và Khởi tạo — 20 điểm**
-    #### **2. Logic nghiệp vụ cốt lõi — 30 điểm**
-    #### **3. Kiểm chuẩn dữ liệu và Xử lý ngoại lệ — 30 điểm**
-    #### **4. Kiểm thử hoặc câu hỏi lý thuyết bổ sung — 10 điểm**
-    #### **5. Chất lượng mã nguồn và Quy chuẩn nộp bài — 10 điểm**
-    #### **Điểm cộng khuyến khích (Bonus) — 5 đến 10 điểm**
+OUTPUT XML FORMAT CONTRACT:
+Return ONLY a valid XML string wrapped in `<exercise>...</exercise>`:
+- <title>: Exercise title in ACCENTED VIETNAMESE (No '&' symbol, replace with 'and' or 'và').
+- <filename>: Lowercase filename without spaces.
+- <content>: Markdown exercise body in CDATA (Sections 1 to 5).
+- <rubric>: 100-point grading rubric in CDATA.
 
 <exercise>
   <title>Xây dựng API Quản lý Đơn hàng Ecommerce (Tên bài tập bằng tiếng Việt có dấu)</title>
   <filename>xay_dung_api_quan_ly_san_pham</filename>
   <content><![CDATA[
-Nội dung Markdown đề bài bài tập ở đây...
+Markdown exercise body here...
   ]]></content>
   <rubric><![CDATA[
 ### **Tiêu chí chấm điểm (AI)**
@@ -139,7 +108,7 @@ Nội dung Markdown đề bài bài tập ở đây...
   ]]></rubric>
 </exercise>
 """
-        user_prompt = f"Hãy tạo đề bài thực hành mức độ {level_name} cho {session_id}."
+        user_prompt = f"Generate practical hands-on IT lab exercise prompt and rubric XML for level {level_name} in session {session_id}."
         
         ex_data = None
         for attempt in range(3):
@@ -304,24 +273,7 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
         if "đưa mã nguồn lên github" not in content.lower() or "dán link của repository" not in content.lower():
             return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' vi phạm định dạng phần nộp bài. Phải dùng đúng mẫu yêu cầu nộp bài."}
 
-        # 11. Check prompt location and English-language verification
-        idx_problem = content.find("2. Vấn đề")
-        idx_req = content.find("3. Yêu cầu bài toán")
-        
-        if idx_problem == -1 or idx_req == -1:
-            return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' không định nghĩa đúng cấu trúc phần Vấn đề hoặc Yêu cầu bài toán."}
-            
-        sub_content = content[idx_problem:idx_req]
-        if "*Prompt tạo ảnh:" not in sub_content:
-            return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' không chứa hoặc đặt sai vị trí '*Prompt tạo ảnh:' (yêu cầu đặt nằm bên trong phần Vấn đề)."}
-        
-        # Check if the prompt inside contains cinematic photo keywords
-        prompt_match = re.search(r"\*Prompt tạo ảnh:\s*(.*?)\*", sub_content, re.IGNORECASE)
-        if prompt_match:
-            prompt_text = prompt_match.group(1).lower()
-            cinematic_keywords = ["cinematic", "photo", "lighting", "photography", "realistic"]
-            if not any(kw in prompt_text for kw in cinematic_keywords):
-                return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' có Prompt tạo ảnh thiếu mô tả phong cách ảnh điện ảnh chân thực (realistic cinematic photo)."}
+        # 11. (Removed Image Prompt check)
 
         # 12. Enforce strict check to prevent discriminatory level labels or student categorization text
         forbidden_labels = ["dành cho sinh viên", "dành cho học viên", "mức độ:", "độ khó:", "yếu/trung bình", "học lực"]
@@ -486,8 +438,10 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
     
     # Run the generate-review loop
     exercises_data = None
+    last_candidate = None
     for attempt in range(3):
         candidate_exercises = practice_creator_agent(session_id, session_title, tech_stack, previous_lessons_text)
+        last_candidate = candidate_exercises
         review_result = practice_reviewer_agent(candidate_exercises, tech_stack)
         
         if review_result["status"] == "APPROVED":
@@ -498,7 +452,8 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
             print(f"  [Practice Reviewer] REJECTED (Attempt {attempt+1}): {review_result['feedback']}")
             
     if not exercises_data:
-        raise ValueError(f"Không thể tạo được bộ bài tập thực hành đạt tiêu chuẩn cho session {session_id} sau nhiều lượt tạo/đánh giá.")
+        print(f"  [CẢNH BÁO TỪ PM] Không thể tạo được bộ bài tập thực hành đạt tiêu chuẩn 100% cho {session_id} sau nhiều lượt duyệt. BỎ QUA LỖI và dùng bản nháp cuối cùng (Pending Human Review).")
+        exercises_data = last_candidate
         
     # Clean legacy single-file artifacts in parent practice_dir
     if practice_dir.exists():

@@ -1,1 +1,0 @@
-Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học ngày hôm nay, chúng ta sẽ cùng nhau tìm hiểu chi tiết về Tổng quan về List trong Python. Đây là một chủ đề cực kỳ quan trọng và thiết yếu trong Python Core.

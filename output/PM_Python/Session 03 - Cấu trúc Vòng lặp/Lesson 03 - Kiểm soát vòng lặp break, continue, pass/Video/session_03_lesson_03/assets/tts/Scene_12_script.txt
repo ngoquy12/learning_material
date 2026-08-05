@@ -1,1 +1,0 @@
-Tóm lại, quy trình tối ưu khi làm việc với vòng lặp gồm ba bước: Thứ nhất, xác định điều kiện dừng khẩn cấp bằng bờ-rếch để bảo vệ tài nguyện. Thứ hai, lọc nhanh các bản ghi lỗi bằng cần-ti-niu và luôn nhớ tăng biến đếm. Thứ ba, dùng pát để phác thảo các tính năng mở rộng sau này.

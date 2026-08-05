@@ -1,1 +1,0 @@
-Sau khi kết thúc chu kỳ xử lý của toàn bộ các cột trong một hàng, ta cần xuống dòng để chuẩn bị cho hàng kế tiếp. Viết lệnh prin rỗng ngay dưới cấp thụt lề của vòng lặp ngoài. Vị trí đặt lệnh này cực kỳ quan trọng, nó chỉ được kích hoạt sau khi vòng lặp trong đã hoàn tất chu kỳ chạy của hàng hiện tại.

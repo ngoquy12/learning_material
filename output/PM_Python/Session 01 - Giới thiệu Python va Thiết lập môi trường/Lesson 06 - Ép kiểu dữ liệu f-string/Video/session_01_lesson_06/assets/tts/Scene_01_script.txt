@@ -1,1 +1,0 @@
-Trong phát triển phần mềm doanh nghiệp, luồng dữ liệu bắt nguồn từ việc thu thập thông tin người dùng. Khi hệ thống nhận các giá trị như đơn giá hoặc số lượng qua thiết bị ngoại vi, tính chuẩn xác của kiểu dữ liệu quyết định sự ổn định của toàn bộ logic xử lý phía sau.

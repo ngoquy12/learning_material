@@ -1,93 +1,94 @@
 ---
 name: slide_generator
-description: Generate rich, interactive, W3Schools-standard master HTML slide decks with 8 dynamic layouts, Action Headlines, Mermaid diagrams, VS Code dark code boxes, clean typography, SVG icons, and Rikkei Education brand identity.
+description: Generate rich, interactive master HTML slide decks adhering to the 8 Golden Rules, 8 dynamic layouts, Action Headlines, Mermaid diagrams, VS Code dark code boxes, clean typography, SVG icons, and Rikkei Education brand identity. Target output language is 100% Accented Vietnamese.
 ---
 
-# Kỹ năng Xây dựng Slide Bài giảng Master HTML (Master Slide Generator Skill)
+# Master HTML Slide Generator Skill — Rikkei Education Standards
 
-## 1. Triết lý & 8 Quy tắc Vàng về Slide Bài giảng (8 Golden Rules)
+## 1. Pedagogical Vision & 8 Golden Rules for Lecture Slides
 
-Slide bài giảng đóng vai trò là **Công cụ Hỗ trợ Giảng dạy Trực quan (Visual Facilitation Tool)** cho Giảng viên đứng lớp trong thời lượng 1.5 giờ. Slide KHÔNG phải là một cuốn sách giáo khoa thu nhỏ (Text Heavy), mà phải cực kỳ cô đọng, chuẩn mực và sắc nét.
+Lecture slides serve as a **Visual Facilitation Tool** for instructors during a 1.5-hour session. Slides are NOT a text-heavy textbook; they must be concise, crisp, and high-impact.
 
 > [!IMPORTANT]
-> **8 QUY TẮC BẮT BUỘC KHI TẠO SLIDE VÀ BIÊN DỊCH SLIDE SESSION:**
+> **8 MANDATORY GOLDEN RULES FOR SLIDE GENERATION:**
 >
-> 1. **Kiểm Soát Tải Trọng Nhận Thức (Slide Count Limit - 15 đến 20 Slides/Session)**:
->    - **TUYỆT ĐỐI CẤM** tạo các bộ slide dài 50-70 slide vụn vặt gây quá tải nhận thức.
->    - Một Session 1.5 giờ chỉ được phép có **tối đa 15 - 20 slide trọng tâm**. Mỗi Lesson chỉ gồm **3 - 4 slide chất lượng cao**:
->      - _Slide 1: Problem & Hook (Đặt vấn đề thực tế doanh nghiệp)_.
->      - _Slide 2: Core Concept & Visual Diagram (Khái niệm & Sơ đồ luồng)_.
->      - _Slide 3: Code Demo Explainer / Live Playground (Mã nguồn thực chiến)_.
->      - _Slide 4: Pitfalls & Summary (Bẫy cú pháp & Tổng kết)_.
-> 2. **Slide Trang Bìa (Cover Slide - Slide 1)**:
->    - **Tag đỏ**: Hiển thị tên Session (ví dụ `Session 01` bằng chữ màu đỏ `#be111c`, font Montserrat/Inter).
->    - **Tiêu đề chính**: Bỏ từ "Session" trong chuỗi tiêu đề chính (ví dụ `Giới thiệu Python va Thiết lập môi trường` bằng chữ màu đen đúp đậm `#0f172a`).
->    - **Tên môn học**: Bắt buộc là tên môn học thực tế (như `Môn học: Lập trình Python`), **NGHIÊM CẤM DÙNG UPPERCASE** hoặc dùng từ sai như `RIKKEI ACADEMY`.
-> 3. **Slide Mục Lục Session (Agenda Slide - Slide 2)**:
->    - Bắt buộc liệt kê đầy đủ danh sách các Lesson trong Session dưới dạng danh sách được đánh số thứ tự (`01. Lesson 01 - ...`, `02. Lesson 02 - ...`).
->    - Tiêu đề mục lục đổi thành **`NỘI DUNG BÀI HỌC`** (Font Montserrat Bold 36px, màu đỏ `#be111c`). Các chữ tên bài học kích thước to đậm (24px - 28px) dễ quan sát từ xa.
-> 4. **Tiêu Đề Lớn Bài Học (Content Slide Large Title - Áp dụng từ Slide 3)**:
->    - Tiêu đề lớn nhất trên từng slide nội dung **BẮT BUỘC** là **Tên Lesson kèm theo số thứ tự slide của Lesson đó**, phân cách bằng dấu gạch ngang `-` (ví dụ `Lesson 01 - Giới thiệu ngôn ngữ Python - 1`).
->    - Phông chữ tiêu đề lớn: Màu đỏ thương hiệu `#be111c`, kích thước **28px** (Montserrat Bold).
-> 5. **Tiêu Đề Nhỏ / Phụ (Content Slide Subtitle)**:
->    - Tiêu đề nhỏ ngay dưới Tiêu đề lớn chính là tên chủ đề cụ thể của slide đó (ví dụ `Đặt vấn đề & Bối cảnh thực tế doanh nghiệp`).
->    - Phông chữ tiêu đề nhỏ: **BẮT BUỘC CHỮ MÀU ĐEN (`#0f172a`)**, kích thước **20px** (Inter Bold). **CẤM LẶP LẠI TIÊU ĐỀ LỚN HOẶC DÙNG DẪN 01.01 LẶP DƯ THỪA**.
-> 6. **Quy Chuẩn Kích Thước Chữ Nội Dung & Thẻ (Typography Scaling)**:
->    - **Text Body**: Kích thước **18px** (Inter Medium/Regular).
->    - **Text Con / Sub-bullets**: Kích thước **TỐI THIỂU 16px** (Cấm dùng chữ nhỏ hơn 16px).
->    - **Quy tắc 3-30-300**: Mỗi slide tối đa 3 ý chính, mỗi ý tối đa 30 từ. Tự động in đậm Keyword kỹ thuật (`<b>snake_case</b>`, `<b>PEP 8</b>`).
-> 7. **Quy Tắc Phối Màu Khối Thẻ (Card Color Coding System)**:
->    - ⚪ **Khối Mặc Định**: Nền Xám nhạt (`#f8fafc`), Viền `#e2e8f0`.
->    - 🟠 **Khối Cảnh Báo**: Nền Cam nhạt (`#fffbeb`), Viền `#f59e0b`, Chữ `#92400e`.
->    - 🔴 **Khối Lỗi / Bẫy cú pháp**: Nền Đỏ nhạt (`#fef2f2`), Viền `#ef4444`, Chữ `#991b1b`.
->    - 🟢 **Khối Thành Công / Chuẩn**: Nền Xanh lá nhạt (`#f0fdf4`), Viền `#22c55e`, Chữ `#166534`.
->    - 🔵 **Khối Đề Xuất / Thực Tế**: Nền Xanh dương nhạt (`#eff6ff`), Viền `#3b82f6`, Chữ `#1e40af`.
-> 8. **Đồ Họa, Render Markdown & Chuẩn Mực Ngôn Ngữ Sư Phạm**:
->    - **Trực quan hóa 100%**: Ưu tiên tạo Sơ đồ luồng (Mermaid Flowchart/Sequence), SVG Vector hoặc Infographic thay vì chỉ toàn chữ.
->    - **Render Markdown 100%**: Mọi cú pháp Markdown (`**bold**`, `` `code` ``) phải được render hoàn chỉnh ra HTML chuẩn.
->    - **Văn phong Học thuật & Chuyên nghiệp**: Ngôn từ chuẩn sư phạm doanh nghiệp, giàu tính kỹ thuật học thuật. **TUYỆT ĐỐI CẤM** dùng từ sến súa (_"nhé"_, _"thân mến"_, _"nha"_).
->    - **NO EMOJI**: TUYỆT ĐỐI CẤM EMOJI. Chỉ dùng Phosphor SVG icons hoặc CSS badges.
+> 1. **Cognitive Load Control (Slide Count Limit - 15 to 20 Slides/Session)**:
+>    - ABSOLUTELY FORBIDDEN to create bloated 50-70 slide decks causing cognitive overload.
+>    - A 1.5-hour Session MUST contain **maximum 15 - 20 focus slides**. Each Lesson consists of **3 - 4 high-quality slides**:
+>      - _Slide 1: Problem & Hook (Real-world enterprise scenario)_.
+>      - _Slide 2: Core Concept & Visual Diagram (Concepts & flowcharts)_.
+>      - _Slide 3: Code Demo Explainer / Live Playground (Production code)_.
+>      - _Slide 4: Pitfalls & Summary (Gotchas & Summary)_.
+> 2. **Cover Slide (Slide 1)**:
+>    - **Red Tag**: Display Session Name (e.g. `Session 01` in red `#be111c`, Montserrat/Inter font).
+>    - **Main Title**: Remove the word "Session" from title (e.g. `Giới thiệu Python và Thiết lập môi trường` in dark `#0f172a`).
+>    - **Course Name**: Actual course title (e.g., `Môn học: Lập trình Python`). FORBIDDEN uppercase or wrong branding.
+> 3. **Session Agenda Slide (Slide 2)**:
+>    - List all lessons in numbered sequence (`01. Lesson 01 - ...`, `02. Lesson 02 - ...`).
+>    - Agenda Title: **`NỘI DUNG BÀI HỌC`** (Montserrat Bold 36px, red `#be111c`). Lesson titles in large font (24px - 28px).
+> 4. **Lesson Content Large Title (From Slide 3 Onward)**:
+>    - Main title on content slides MUST be **Lesson Name hyphenated with Slide Index** (e.g. `Lesson 01 - Giới thiệu ngôn ngữ Python - 1`).
+>    - Font: Brand red `#be111c`, size **28px** (Montserrat Bold).
+> 5. **Subtitle / Sub-heading (Content Slide Subtitle)**:
+>    - Subtitle directly below main title specifies slide topic (e.g. `Đặt vấn đề & Bối cảnh thực tế doanh nghiệp`).
+>    - Font: **BLACK (`#0f172a`)**, size **20px** (Inter Bold). FORBIDDEN repeating main title or redundant prefixes.
+> 6. **Typography Scaling (3-30-300 Rule)**:
+>    - **Body Text**: Size **18px** (Inter Medium/Regular).
+>    - **Sub-bullets**: Size **MINIMUM 16px** (Never use text smaller than 16px).
+>    - **3-30-300 Rule**: Max 3 main points per slide, max 30 words per point. Auto-bold technical keywords (`<b>snake_case</b>`, `<b>PEP 8</b>`).
+> 7. **Card Color Coding System**:
+>    - ⚪ **Default Card**: Light gray background (`#f8fafc`), Border `#e2e8f0`.
+>    - 🟠 **Warning Card**: Light amber background (`#fffbeb`), Border `#f59e0b`, Text `#92400e`.
+>    - 🔴 **Error / Gotcha Card**: Light red background (`#fef2f2`), Border `#ef4444`, Text `#991b1b`.
+>    - 🟢 **Success / Best Practice Card**: Light green background (`#f0fdf4`), Border `#22c55e`, Text `#166534`.
+>    - 🔵 **Tip / Info Card**: Light blue background (`#eff6ff`), Border `#3b82f6`, Text `#1e40af`.
+> 8. **Graphics, Markdown Rendering & Language Standards**:
+>    - **100% Visualized**: Prioritize Mermaid flowcharts, SVG diagrams, or infographics over plain text.
+>    - **100% Markdown Rendered**: All Markdown formatting (`**bold**`, `` `code` ``) rendered to clean HTML.
+>    - **Academic & Professional Tone**: Production-grade academic tone. ABSOLUTELY FORBIDDEN informal words ("nhé", "thân mến", "nha").
+>    - **STRICT NO EMOJI**: ABSOLUTELY FORBIDDEN to use text emojis. Use Phosphor SVG icons or CSS badges.
 
 ---
 
-## 2. Các Tính Năng Đột Phá Tiêu Chuẩn Gamma.app & Google Slides AI
+## 2. Advanced Interactive Slide Features
 
-1. **Layout Bento Grid Modern**: Thẻ bo tròn góc 16px - 20px, bóng mờ `box-shadow: 0 20px 40px rgba(0,0,0,0.06)`, Gradient highlights.
-2. **Dual-Theme Engine (1-Click Dark 🌙 / Light ☀️ Switcher)**: Cho phép Giảng viên đổi theme Đêm/Sáng linh hoạt theo ánh sáng phòng học.
-3. **Interactive In-Slide Tabs & Accordions**: Gộp các nội dung phụ vào Tab tương tác trong 1 slide duy nhất thay vì xé nhỏ thành nhiều slide.
-4. **Split Screen Code Comparison**: Đối sánh mã nguồn vi phạm ❌ vs Mã nguồn chuẩn PEP 8 ✅.
-5. **Presenter View Mode (Phím P / Button 🎤)**: Bật hiển thị ghi chú sư phạm (Speaker Notes) & Bộ đếm giờ cho Giảng viên.
+1. **Bento Grid Layout**: Rounded card corners (16px - 20px), soft shadows `box-shadow: 0 20px 40px rgba(0,0,0,0.06)`, Gradient highlights.
+2. **Dual-Theme Engine (1-Click Dark 🌙 / Light ☀️ Switcher)**: Toggle between Dark/Light mode depending on classroom lighting.
+3. **Interactive In-Slide Tabs & Accordions**: Combine sub-topics into interactive tabs within a single slide instead of creating multiple cluttered slides.
+4. **Split Screen Code Comparison**: Side-by-side anti-pattern code ❌ vs PEP 8 standard code ✅.
+5. **Presenter View Mode (P Key / Button 🎤)**: Toggle Speaker Notes & Timer for instructors.
 
 ---
 
-## 3. Danh sách 8 Mẫu Layout Slide Dynamic Engine (8 Slide Layouts)
+## 3. Dynamic Slide Layout Archetypes (8 Layouts)
 
-| Layout Code (`layout_type`) | Mục đích & Mô tả                                    | Cấu trúc trình bày                                             |
+| Layout Code (`layout_type`) | Purpose & Description                              | Presentation Structure                                         |
 | :-------------------------- | :-------------------------------------------------- | :------------------------------------------------------------- |
-| `COVER_LAYOUT`              | Trang bìa đầu bài giảng                             | Logo Rikkei Red, Tag đỏ Session, Tiêu đề chính đen, Mã môn học |
-| `AGENDA_LAYOUT`             | Trang mục lục tiến trình bài học                    | Danh sách các Lesson kẻ số thứ tự nổi bật (Badge đỏ 24px)      |
-| `SINGLE_COLUMN_FOCUS`       | Trình bày 1 định nghĩa / nguyên lý cốt lõi          | 1 Thẻ lớn căn giữa, Typography 20px-24px, Callout Note         |
-| `TWO_COLUMN_COMPARE`        | Đối chiếu Vấn đề vs Giải pháp, Good vs Bad Code     | 2 Cột thẻ màu sắc đối sánh tương phản (Xanh vs Đỏ)             |
-| `THREE_COLUMN_CARDS`        | Trình bày 3 thành phần / 3 quy tắc / 3 bước         | Grid 3 cột thẻ song song                                       |
-| `CODE_DEMO_EXPLAINER`       | Mã nguồn chuẩn kèm giải thích chi tiết              | Trái: Khái quát & Gạch đầu dòng 18px; Phải: Khung Code VS Dark |
-| `MERMAID_DIAGRAM`           | Sơ đồ luồng/kiến trúc trực quan chiếm 80% diện tích | Sơ đồ Mermaid Flowchart/Sequence/ClassDiagram render mượt      |
-| `TABLE_COMPARISON`          | Bảng so sánh 4 cột Full-width 100% màn hình         | Bảng so sánh Markdown 4 cột (Tiêu chí, A, B, Thực tế)          |
-| `WARNING_GOTCHAS`           | Nhấn mạnh sai lầm đắt giá / Bẫy cú pháp             | Khung Cảnh báo Đỏ nhạt (`#fef2f2`, viền `#ef4444`)             |
-| `TIMELINE_RECAP`            | Trang tổng kết mốc tiến trình bài học               | Timeline 4 mốc kết nối mượt mà                                 |
+| `COVER_LAYOUT`              | Lecture Deck Cover Page                             | Rikkei Red Logo, Session Red Tag, Dark Main Title, Course Code |
+| `AGENDA_LAYOUT`             | Table of Contents Progress Page                     | List of Lessons with prominent red badges (24px)               |
+| `SINGLE_COLUMN_FOCUS`       | Single Core Principle / Definition                  | 1 Large Centered Card, Typography 20px-24px, Callout Note      |
+| `TWO_COLUMN_COMPARE`        | Problem vs Solution, Good vs Bad Code               | 2 Contrasting Side-by-Side Cards (Green vs Red)                |
+| `THREE_COLUMN_CARDS`        | 3 Components / 3 Rules / 3 Steps                    | 3 Parallel Column Cards Grid                                   |
+| `CODE_DEMO_EXPLAINER`       | Production Code Snippet with Detailed Explanations  | Left: Overview & Bullets 18px; Right: VS Dark Code Panel       |
+| `MERMAID_DIAGRAM`           | Visual Architecture Flowchart occupying 80% area    | Mermaid Flowchart/Sequence/ClassDiagram rendered smoothly      |
+| `TABLE_COMPARISON`          | 4-Column Full-width Comparison Table                | 4-Column Markdown Table (Criteria, Method A, Method B, Impact) |
+| `WARNING_GOTCHAS`           | Highlight Critical Pitfalls / Syntax Gotchas        | Light Red Warning Card (`#fef2f2`, border `#ef4444`)           |
+| `TIMELINE_RECAP`            | Session Milestone Summary                           | 4-Step Connected Timeline Component                            |
 
 ---
 
-## 4. Quy chuẩn Định dạng Code & Mermaid trong Slide
+## 4. Code & Mermaid Standards in Slides
 
-1. **Khối Mã Nguồn (Code Box)**:
-   - Sử dụng font chữ `Fira Code` hoặc `JetBrains Mono`.
-   - Màu nền đen đúa VS Code Dark (`#0f172a`), viền `#334155`.
-   - Tên biến, từ khóa chuẩn Tiếng Anh.
+1. **Code Snippet Boxes**:
+   - Use `Fira Code` or `JetBrains Mono` font.
+   - Dark background matching VS Code Dark (`#0f172a`), border `#334155`.
+   - Variable names and keywords MUST be standard English.
 
-2. **Khối Sơ đồ Mermaid (Mermaid Diagram Box)**:
-   - Bọc trong thẻ `<div class="mermaid"> ... </div>`.
-   - Dùng cú pháp Mermaid chuẩn v10: `flowchart TD`, `sequenceDiagram`, `classDiagram`.
-   - Nhãn các bước bằng Tiếng Việt giàu ý nghĩa.
+2. **Mermaid Diagram Boxes**:
+   - Wrap in `<div class="mermaid"> ... </div>`.
+   - Use Mermaid v10+ syntax: `flowchart TD`, `sequenceDiagram`, `classDiagram`.
+   - Node step labels in ACCENTED VIETNAMESE.
 
 > [!IMPORTANT]
-> Tệp đầu ra duy nhất của Agent Slide cho từng Lesson là **`slides.html`** (Nằm trong thư mục `Bài giảng/slides.html`). TUYỆT ĐỐI KHÔNG LƯU THÀNH `slides.md`.
+> The single output file for each Lesson Slide Deck is **`slides.html`** (located at `Bài giảng/slides.html`). FORBIDDEN to output as `slides.md`.
+

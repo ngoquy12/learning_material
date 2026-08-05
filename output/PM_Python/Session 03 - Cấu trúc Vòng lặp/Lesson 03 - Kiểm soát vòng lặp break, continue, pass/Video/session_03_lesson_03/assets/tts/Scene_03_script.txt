@@ -1,1 +1,0 @@
-Khi phát hiện nguy cơ bảo mật nghiêm trọng như giao dịch âm chín trăm chín mươi chín, việc tiếp tục xử lý sẽ gây nguy hiểm. Lệnh bờ-rếch được kích hoạt để dừng ngay lập tức tiến trình quét, giải phóng tài nguyên hệ thống và ngăn chặn bất kỳ hành vi phá hoại nào tiếp diễn.

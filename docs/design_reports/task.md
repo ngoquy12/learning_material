@@ -1,0 +1,23 @@
+# Danh Sách Nhiệm Vụ Triển Khai Syllabus PM Generator Agent (SPGA)
+
+- `[x]` Bước 1: Nâng cấp bộ phân tích `cli/curriculum_parser.py`
+  - `[x]` Hàm `parse_with_merged_cell_recovery` phục hồi ô gộp Excel (Fill-Forward).
+  - `[x]` Hàm `parse_program_structure_from_ptit` quét đa sheet tìm môn học và trích xuất PLO/CLO.
+- `[x]` Bước 2: Xây dựng tác nhân chính `agents/pm_generator_agent.py`
+  - `[x]` Định nghĩa các Pydantic Schemas (`StudentProfile`, `SyllabusPM`, `SessionBlock`, `LessonBlock`).
+  - `[x]` Luồng sinh 3 giai đoạn (Trích xuất KUs/DAG ➔ Tính toán PI/Session ➔ Phân rã Lessons).
+  - `[x]` Tích hợp Prerequisite Guard kiểm định tính tuần tự.
+  - `[x]` Hàm `export_pm_to_markdown` xuất file báo cáo Markdown.
+  - `[x]` Hàm `export_pm_to_excel` xuất file Excel theo format khối chuẩn PTIT 2026.
+- `[x]` Bước 3: Cập nhật cờ CLI trong `cli/args.py`
+  - `[x]` Thêm cờ `--generate-pm` để kích hoạt sinh PM tự động.
+  - `[x]` Thêm cờ `--pm-config` chỉ định tệp cấu hình hồ sơ.
+- `[x]` Bước 4: Tạo tệp cấu hình mẫu `config/pm_generator_config.json`
+  - `[x]` Khai báo các trường cấu hình sinh viên, môn học đích (`IT-106`), và tổng số buổi học.
+- `[x]` Bước 5: Tích hợp SPGA vào luồng chạy `cli/runner.py`
+  - `[x]` Kiểm tra cờ `--generate-pm` tại điểm bắt đầu của `main_entry()`.
+  - `[x]` Gọi Agent sinh tệp PM và cập nhật đường dẫn PM của runner chạy tiếp.
+- `[x]` Bước 6: Kiểm thử và xác thực hệ thống
+  - `[x]` Viết unit test tự động trong `tests/test_pm_generator.py`.
+  - `[x]` Chạy thử nghiệm CLI để sinh chương trình môn `IT-106`.
+  - `[x]` Kiểm tra chất lượng hiển thị tệp Excel đầu ra.

@@ -1,18 +1,27 @@
-import { useState } from 'react';
-import { Table, Button, Card, Tag, Popconfirm, Tooltip, Select } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { Plus, Eye, Edit, Trash2, BookOpen } from 'lucide-react';
-import { useCourses, useCreateCourse, useUpdateCourse, useDeleteCourse } from '../hooks/useCourses';
-import { useSemesters } from '../../semesters/hooks/useSemesters';
-import { CourseResponse, CourseCreate } from '../../../types/course';
-import { CourseFormModal } from '../components/CourseFormModal';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { Table, Button, Card, Tag, Popconfirm, Tooltip, Select } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { Plus, Eye, Edit, Trash2, BookOpen } from "lucide-react";
+import {
+  useCourses,
+  useCreateCourse,
+  useUpdateCourse,
+  useDeleteCourse,
+} from "../hooks/useCourses";
+import { useSemesters } from "../../semesters/hooks/useSemesters";
+import { CourseResponse, CourseCreate } from "../../../types/course";
+import { CourseFormModal } from "../components/CourseFormModal";
+import { useNavigate } from "react-router-dom";
 
 export default function CourseListPage() {
   const navigate = useNavigate();
-  const [selectedSemesterId, setSelectedSemesterId] = useState<number | undefined>(undefined);
+  const [selectedSemesterId, setSelectedSemesterId] = useState<
+    number | undefined
+  >(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(null);
+  const [editingCourse, setEditingCourse] = useState<CourseResponse | null>(
+    null,
+  );
 
   const { data: semesters } = useSemesters();
   const { data: courses, isLoading } = useCourses(selectedSemesterId);
@@ -34,7 +43,7 @@ export default function CourseListPage() {
     if (editingCourse) {
       updateCourse(
         { id: editingCourse.id, payload: data },
-        { onSuccess: () => setIsModalOpen(false) }
+        { onSuccess: () => setIsModalOpen(false) },
       );
     } else {
       createCourse(data, { onSuccess: () => setIsModalOpen(false) });
@@ -42,10 +51,15 @@ export default function CourseListPage() {
   };
 
   const columns: ColumnsType<CourseResponse> = [
-    { title: 'ID', dataIndex: 'id', width: 70, render: (id) => <Tag color="geekblue">#{id}</Tag> },
     {
-      title: 'Tên môn học',
-      dataIndex: 'name',
+      title: "ID",
+      dataIndex: "id",
+      width: 70,
+      render: (id) => <Tag color="geekblue">#{id}</Tag>,
+    },
+    {
+      title: "Tên môn học",
+      dataIndex: "name",
       render: (name, record) => (
         <div className="flex items-center gap-2">
           <BookOpen size={16} className="text-teal-600 shrink-0" />
@@ -59,29 +73,33 @@ export default function CourseListPage() {
       ),
     },
     {
-      title: 'Công nghệ',
-      dataIndex: 'technology_stack',
+      title: "Công nghệ",
+      dataIndex: "technology_stack",
       render: (tech) => (
-        <Tag color="emerald" className="font-mono text-xs">
-          {tech || 'python/core'}
+        <Tag color={tech ? "emerald" : "default"} className="font-mono text-xs">
+          {tech || "Chưa thiết lập"}
         </Tag>
       ),
     },
     {
-      title: 'Học kỳ',
-      dataIndex: 'semester_id',
+      title: "Học kỳ",
+      dataIndex: "semester_id",
       render: (sId) => {
         const sem = semesters?.find((s) => s.id === sId);
         return (
-          <Tag color="purple" className="cursor-pointer" onClick={() => navigate(`/semesters/${sId}`)}>
+          <Tag
+            color="purple"
+            className="cursor-pointer"
+            onClick={() => navigate(`/semesters/${sId}`)}
+          >
             {sem?.name || `Kỳ #${sId}`}
           </Tag>
         );
       },
     },
     {
-      title: 'Hành động',
-      key: 'action',
+      title: "Hành động",
+      key: "action",
       width: 220,
       render: (_, record) => (
         <div className="flex items-center gap-1.5">
@@ -140,7 +158,8 @@ export default function CourseListPage() {
             <BookOpen className="text-teal-600" size={26} /> Quản lý Môn Học
           </h1>
           <p className="text-slate-500 text-xs md:text-sm mt-1">
-            Quản lý các môn học trong hệ thống, lọc theo Học Kỳ và thiết lập biên dịch bài giảng AI.
+            Quản lý các môn học trong hệ thống, lọc theo Học Kỳ và thiết lập
+            biên dịch bài giảng AI.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">

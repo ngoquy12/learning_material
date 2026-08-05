@@ -80,8 +80,10 @@ async def generate_session_artifacts_task(session_id: int):
             
             result = await db.execute(select(Course).where(Course.id == session.course_id))
             course = result.scalars().first()
-            raw_tech = course.technology_stack if course else "python/fastapi"
-            tech_stack = "python/core" if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower() else raw_tech
+            if not course or not course.technology_stack:
+                print(f"[Error] Course for session {session_id} lacks technology_stack configuration.")
+                return
+            tech_stack = course.technology_stack.strip()
             
             # Determine if it's a practice session vs theory session
             is_practice_session = False
@@ -262,7 +264,7 @@ async def generate_session_artifacts_task(session_id: int):
                                 select(Lesson).where(Lesson.session_id == session_id).order_by(Lesson.order_index.asc(), Lesson.id.asc())
                             )
                             lessons = lessons_result.scalars().all()
-                        previous_lessons_text = ", ".join([l.title for l in lessons]) if lessons else "FastAPI fundamentals"
+                        previous_lessons_text = ", ".join([l.title for l in lessons]) if lessons else "Kiến thức nền tảng"
                     
                     if is_practice_session:
                         print(f"  [AI Session] Triggering PRACTICE exercises generation for Session {session_id}")
@@ -429,10 +431,10 @@ async def generate_project_session_task(session_id: int):
             for art_type in project_types:
                 await db.refresh(artifacts_map[art_type])
 
-            # Get Course Info
             course = await db.get(Course, session.course_id)
-            raw_tech = course.technology_stack if course else "python/fastapi"
-            tech_stack = "python/core" if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower() else raw_tech
+            if not course or not course.technology_stack:
+                raise HTTPException(status_code=400, detail="❌ [LỖI THIẾU TECHNOLOGY STACK] Môn học chưa được cấu hình Technology Stack.")
+            tech_stack = course.technology_stack.strip()
 
             # Resolve the actual session directory path on disk
             root_path = Path(__file__).resolve().parents[5]
@@ -592,10 +594,10 @@ async def generate_practice_session_task(session_id: int):
             await db.commit()
             await db.refresh(art)
 
-            # Get Course Info
             course = await db.get(Course, session.course_id)
-            raw_tech = course.technology_stack if course else "python/fastapi"
-            tech_stack = "python/core" if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower() else raw_tech
+            if not course or not course.technology_stack:
+                raise HTTPException(status_code=400, detail="❌ [LỖI THIẾU TECHNOLOGY STACK] Môn học chưa được cấu hình Technology Stack.")
+            tech_stack = course.technology_stack.strip()
 
             # Resolve the actual session directory path on disk
             root_path = Path(__file__).resolve().parents[5]

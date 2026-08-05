@@ -1,7 +1,0 @@
-{
-  "name": "session_01_lesson_01",
-  "version": "1.0.0",
-  "scripts": {
-    "render": "hyperframes render ."
-  }
-}

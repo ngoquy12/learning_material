@@ -30,7 +30,7 @@ from pathlib import Path
 """
 TABLE: agent_memory
   id              TEXT PRIMARY KEY     -- sha256 của (tech_stack + rule_text[:80])
-  tech_stack      TEXT NOT NULL        -- 'python/fastapi', 'python/core', '*'
+  tech_stack      TEXT NOT NULL        -- 'python/core', 'typescript/nestjs', '*'
   error_category  TEXT NOT NULL        -- xem ERROR_CATEGORIES bên dưới
   severity        TEXT NOT NULL        -- 'CRITICAL' | 'MAJOR' | 'MINOR'
   scope           TEXT                 -- 'mindmap' | 'html' | 'quiz' | 'homework' | 'pm' | 'all'
@@ -267,7 +267,8 @@ def knowledge_memory_agent(state: AgentState) -> AgentState:
 
     session_id = state.get("session_id", "")
     lesson_id = state.get("lesson_id", "")
-    tech_stack = str(state.get("technology_stack") or state.get("tech_stack") or "python/fastapi")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "knowledge_memory_agent")
     core_ssot = state.get("core_ssot", {})
     lesson_title = core_ssot.get("session_title", "")
 
@@ -281,34 +282,35 @@ def knowledge_memory_agent(state: AgentState) -> AgentState:
     ])
 
     system_prompt = (
-        "Bạn là Chuyên gia Sư phạm và Kỹ sư AI. Phân tích các lỗi và trích xuất quy tắc phòng chống lỗi.\n"
-        "Phân loại lỗi theo các category: scope_violation, syntax_error, format_violation, "
+        "You are a Lead Curriculum Quality & AI Memory Engineer at Rikkei Education.\n"
+        "Your task: Analyze review error logs and extract actionable error prevention memory rules.\n"
+        "Categorize errors into: scope_violation, syntax_error, format_violation, "
         "prerequisite_leak, pedagogical_error, image_prompt_error, structure_error, "
         "terminology_error, ai_mention_violation, other.\n"
-        "Xác định scope bị ảnh hưởng: mindmap, html, quiz, homework, pm, all.\n"
-        "Severity: CRITICAL (gây crash/reject pipeline), MAJOR (ảnh hưởng chất lượng rõ rệt), MINOR (cải thiện nhỏ)."
+        "Identify target scope: mindmap, html, quiz, homework, pm, all.\n"
+        "Severity levels: CRITICAL (causes crash/rejection), MAJOR (significant quality impact), MINOR (small enhancement)."
     )
 
-    user_prompt = f"""Nhật ký lỗi từ quá trình sinh học liệu:
-Stack: {tech_stack}
-Bài học: {source_lesson}
+    user_prompt = f"""Review error log history from curriculum generation pipeline:
+Tech Stack: {tech_stack}
+Lesson Context: {source_lesson}
 
---- NHẬT KÝ LỖI ---
+--- ERROR LOG HISTORY ---
 {logs_text}
 
-Hãy trích xuất TỐI ĐA 3 rule ngắn gọn (không trùng lặp), trả về JSON array:
+Extract up to 3 concise, non-redundant rules in JSON array format:
 [
   {{
-    "rule_text": "Quy tắc cụ thể, đo lường được, áp dụng được ngay (tiếng Việt)",
-    "error_category": "category từ danh sách trên",
+    "rule_text": "Specific, measurable, directly applicable technical rule in Accented Vietnamese",
+    "error_category": "category from above list",
     "severity": "CRITICAL|MAJOR|MINOR",
-    "scope": "scope bị ảnh hưởng",
-    "example_bad": "Ví dụ ngắn về điều SAI (tùy chọn)",
-    "example_good": "Ví dụ ngắn về điều ĐÚNG (tùy chọn)"
+    "scope": "affected scope",
+    "example_bad": "Short anti-pattern example (optional)",
+    "example_good": "Short best practice example (optional)"
   }}
 ]
 
-Chỉ trả về JSON array thuần túy. Không wrap trong markdown.
+Return ONLY raw JSON array without markdown wrappers.
 """
 
     new_rules = []

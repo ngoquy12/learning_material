@@ -1,1 +1,0 @@
-Một quy tắc bất biến trong Python là tham số stop luôn bị loại trừ khỏi tập hợp các giá trị trả về của hàm range. Tức là, nếu thiết lập stop là mười, tiến trình lặp sẽ dừng bước tại vị trí số chín. Sự tính toán này tuân theo logic định vị mảng bắt đầu từ chỉ số không.

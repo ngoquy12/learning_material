@@ -2,44 +2,101 @@
 agents/creators package — Facade for reading, slide, quiz, and media generation agents.
 """
 
-from agents.creator_agents import (
-    html_writer_agent,
-    slide_agent,
-    quiz_agent,
-    session_compiler_agent,
-    video_script_agent,
-    mindmap_agent,
+from agents.creators.common_utils import (
+    estimate_tokens,
+    log_agent_tokens,
     get_base_topic_key,
     get_base_topic_key_for_core,
     determine_visualization_strategy,
-    estimate_tokens,
-    log_agent_tokens,
     fix_raw_newlines_in_json_strings,
     robust_json_parse,
     generate_offline_master_content,
     get_lesson_content,
-    visualizer_generator_agent,
+    get_lesson_dir,
+    ensure_vietnamese_diacritics,
+    validate_and_clean_forbidden_scope,
+    clean_unwanted_text,
+)
+
+from agents.creators.reading_creator import (
+    html_writer_agent,
+    classify_reading_type,
     convert_markdown_to_html,
     unwrap_svg_and_diagrams,
+    render_table,
+    force_center_media,
+    ensure_comparison_table,
+    ensure_problem_scene_image,
+)
+
+from agents.creators.slide_creator import (
+    slide_agent,
+)
+
+from agents.creators.quiz_creator import (
+    quiz_agent,
+)
+
+from agents.creators.session_compiler_creator import (
+    session_compiler_agent,
+)
+
+from agents.creators.mini_project_creator import (
+    mini_project_generator_agent,
+)
+
+
+
+from agents.creators.mindmap_creator import (
+    mindmap_agent,
+    process_mindmap_images,
+    generate_image_api,
+    draw_mindmap_fallback_diagram,
+)
+
+from agents.creators.visualizer_creator import (
+    visualizer_generator_agent,
+    get_topic_fallback_visualizer_engine,
+)
+
+from agents.creators.reading_questions_creator import (
+    reading_questions_creator_agent,
 )
 
 __all__ = [
-    "html_writer_agent",
-    "slide_agent",
-    "quiz_agent",
-    "session_compiler_agent",
-    "video_script_agent",
-    "mindmap_agent",
+    "estimate_tokens",
+    "log_agent_tokens",
     "get_base_topic_key",
     "get_base_topic_key_for_core",
     "determine_visualization_strategy",
-    "estimate_tokens",
-    "log_agent_tokens",
     "fix_raw_newlines_in_json_strings",
     "robust_json_parse",
     "generate_offline_master_content",
     "get_lesson_content",
-    "visualizer_generator_agent",
+    "get_lesson_dir",
+    "ensure_vietnamese_diacritics",
+    "validate_and_clean_forbidden_scope",
+    "clean_unwanted_text",
+    "html_writer_agent",
+    "classify_reading_type",
     "convert_markdown_to_html",
     "unwrap_svg_and_diagrams",
+    "render_table",
+    "force_center_media",
+    "ensure_comparison_table",
+    "ensure_problem_scene_image",
+    "slide_agent",
+    "quiz_agent",
+    "session_compiler_agent",
+    "mini_project_generator_agent",
+    "video_script_creator_agent",
+    "_post_validate_blueprint",
+    "_build_offline_fallback_blueprint",
+    "mindmap_agent",
+    "process_mindmap_images",
+    "generate_image_api",
+    "draw_mindmap_fallback_diagram",
+    "visualizer_generator_agent",
+    "get_topic_fallback_visualizer_engine",
+    "reading_questions_creator_agent",
 ]

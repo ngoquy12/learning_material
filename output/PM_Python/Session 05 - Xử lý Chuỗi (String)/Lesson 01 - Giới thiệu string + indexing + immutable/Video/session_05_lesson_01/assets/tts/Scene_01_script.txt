@@ -1,1 +1,0 @@
-Trong các hệ thống phân phối cốt lõi quản lý thông tin lưu kho và chuỗi cung ứng bán lẻ, tính toàn vẹn của dữ liệu mã định danh hàng hóa giữ vai trò quyết định cấu trúc vận hành. Các mã định danh sản xuất như P-2026 liên tục được truyền dẫn và đối chiếu qua lại giữa nhiều thư viện từ khâu kiểm kho đến khâu thanh toán hóa đơn.

@@ -1,1 +1,0 @@
-Quy trình kiểm tra phê duyệt hoàn chỉnh sẽ kết hợp đồng thời cả ba toán tử logic. Đầu tiên, hệ thống gom nhóm điều kiện thu nhập tối thiểu và điểm tín dụng tốt thông qua toán tử o-lờ. Sau đó, kết quả của nhóm này được liên kết với điều kiện không có nợ xấu bằng toán tử a-n-đờ. Nếu một trong các mắt xích logic này bị vi phạm, hồ sơ sẽ lập tức bị hệ thống từ chối tự động.

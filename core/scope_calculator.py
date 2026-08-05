@@ -52,6 +52,20 @@ def calculate_lesson_scope_contract(
             else:
                 forbidden_concepts.update(concepts)
                 
+    # Remove any forbidden concepts that are substrings of any allowed concept (or vice versa)
+    final_forbidden = set()
+    for f_concept in forbidden_concepts:
+        is_allowed = False
+        for a_concept in allowed_concepts:
+            # If the forbidden concept is explicitly part of the allowed title/keywords
+            if f_concept in a_concept or a_concept in f_concept:
+                is_allowed = True
+                break
+        if not is_allowed:
+            final_forbidden.add(f_concept)
+            
+    forbidden_concepts = final_forbidden
+                
     return allowed_concepts, forbidden_concepts
 
 def validate_session_cadence_and_lesson_bounds(syllabus: Dict[str, Any]) -> List[str]:

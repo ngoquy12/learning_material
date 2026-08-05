@@ -66,6 +66,13 @@ def generate_knowledge_vault(
 
     print(f"[OKL] Tạo Knowledge Vault: {course_name} ({len(sessions)} Sessions)...")
 
+    # Map session_id to folder name (file name without extension) for proper linking
+    session_id_to_folder = {}
+    for s in sessions:
+        s_id = s["session_id"]
+        s_title = s.get("title", "")
+        session_id_to_folder[s_id] = _session_folder(s_id, s_title)
+
     # ── 1. index.md (Hub trung tâm) ──
     _write_index(vault_path, course_name, course_clean, sessions, dep_graph)
 
@@ -77,7 +84,7 @@ def generate_knowledge_vault(
         s_prereq = session_prereqs.get(s_id)
 
         s_folder_name = _session_folder(s_id, s_title)
-        s_dir = vault_path / s_id.replace(" ", "_")
+        s_dir = vault_path / s_folder_name
         s_dir.mkdir(parents=True, exist_ok=True)
 
         _write_session_note(
@@ -86,6 +93,7 @@ def generate_knowledge_vault(
             s_title=s_title,
             s_folder_name=s_folder_name,
             s_lessons=s_lessons,
+            session_id_to_folder=session_id_to_folder,
             s_prereq=s_prereq,
         )
 
@@ -101,7 +109,7 @@ def generate_knowledge_vault(
             l_expected = l.get("expected_output", "")
             l_folder_name = _lesson_folder(l_id, l_title)
 
-            l_dir = s_dir / l_id.replace(" ", "_")
+            l_dir = s_dir / l_folder_name
             l_dir.mkdir(parents=True, exist_ok=True)
 
             _write_lesson_note(
@@ -129,7 +137,7 @@ def generate_knowledge_vault(
         _write_concept_map(vault_path, course_name, prerequisite_data)
 
     # ── 4. Prerequisite Map tổng quan ──
-    _write_prerequisite_map(vault_path, course_name, sessions, session_prereqs)
+    _write_prerequisite_map(vault_path, course_name, sessions, session_prereqs, session_id_to_folder)
 
     vault_str = str(vault_path)
     print(f"[OKL] ✅ Knowledge Vault đã tạo thành công: {vault_str}")
@@ -197,7 +205,8 @@ def _write_session_note(
     s_title: str,
     s_folder_name: str,
     s_lessons: List[Dict],
-    s_prereq: Optional[Any],
+    session_id_to_folder: Dict[str, str],
+    s_prereq: Optional[Any] = None,
 ) -> None:
     """
     Viết Session note với prerequisite frontmatter và links.
@@ -236,7 +245,7 @@ def _write_session_note(
     # Frontmatter YAML với prerequisites
     requires_yaml = ""
     if requires_sessions:
-        requires_yaml = "requires:\n" + "\n".join(f'  - "{r}"' for r in requires_sessions)
+        requires_yaml = "requires:\n" + "\n".join(f'  - "{session_id_to_folder.get(r, r)}"' for r in requires_sessions)
 
     # Prerequisite section
     prereq_section = ""
@@ -244,8 +253,9 @@ def _write_session_note(
         prereq_section = "\n## 📋 Yêu cầu tiên quyết\n"
         prereq_section += "> 🔴 **Phải hoàn thành trước khi học Session này:**\n\n"
         for req in requires_sessions:
-            # Tìm title của session tiên quyết
-            prereq_section += f"- [[{req}|✅ {req}]] — Hoàn thành bắt buộc\n"
+            # Tìm title của session tiên quyết qua folder map
+            target_link = session_id_to_folder.get(req, req)
+            prereq_section += f"- [[{target_link}|✅ {req}]] — Hoàn thành bắt buộc\n"
     else:
         prereq_section = "\n## 📋 Yêu cầu tiên quyết\n"
         prereq_section += "> ✅ Đây là Session **đầu tiên**, không có yêu cầu tiên quyết.\n"
@@ -390,6 +400,7 @@ def _write_prerequisite_map(
     course_name: str,
     sessions: List[Dict],
     session_prereqs: Dict,
+    session_id_to_folder: Dict[str, str],
 ) -> None:
     """
     Viết file Prerequisite Map — Bản đồ lộ trình học tập tổng quan.
@@ -430,7 +441,7 @@ def _write_prerequisite_map(
         folder_name = _session_folder(s_id, s_title)
 
         if requires:
-            req_str = " + ".join([f"[[{r}]]" for r in requires])
+            req_str = " + ".join([f"[[{session_id_to_folder.get(r, r)}]]" for r in requires])
             lines.append(f"- {req_str} → **[[{folder_name}]]**")
         else:
             lines.append(f"- 🏁 **[[{folder_name}]]** ← Điểm bắt đầu")
@@ -482,14 +493,34 @@ def _sanitize_path(name: str) -> str:
     return name.strip().replace(" ", "_")
 
 
+def _clean_folder_name(name: str) -> str:
+    import re
+    name = name.replace("/", "_").replace("\\", "_").replace(":", "-")
+    name = re.sub(r'[*?:"<>|]', "", name)
+    return name.strip()
+
+
 def _session_folder(s_id: str, s_title: str) -> str:
-    title_clean = s_title.replace("/", "_").replace("\\", "_").replace(":", "-")
-    return f"{s_id} - {title_clean}"
+    title_clean = _clean_folder_name(s_title)
+    s_id_clean = _clean_folder_name(s_id)
+    if title_clean.lower().startswith(s_id_clean.lower()):
+        # Strip any extra hyphens or spaces immediately following the s_id
+        remainder = title_clean[len(s_id_clean):].strip()
+        if remainder.startswith("-"):
+            remainder = remainder[1:].strip()
+        return f"{s_id_clean} - {remainder}"
+    return f"{s_id_clean} - {title_clean}"
 
 
 def _lesson_folder(l_id: str, l_title: str) -> str:
-    title_clean = l_title.replace("/", "_").replace("\\", "_").replace(":", "-")
-    return f"{l_id} - {title_clean}"
+    title_clean = _clean_folder_name(l_title)
+    l_id_clean = _clean_folder_name(l_id)
+    if title_clean.lower().startswith(l_id_clean.lower()):
+        remainder = title_clean[len(l_id_clean):].strip()
+        if remainder.startswith("-"):
+            remainder = remainder[1:].strip()
+        return f"{l_id_clean} - {remainder}"
+    return f"{l_id_clean} - {title_clean}"
 
 
 def _compute_learning_chains(

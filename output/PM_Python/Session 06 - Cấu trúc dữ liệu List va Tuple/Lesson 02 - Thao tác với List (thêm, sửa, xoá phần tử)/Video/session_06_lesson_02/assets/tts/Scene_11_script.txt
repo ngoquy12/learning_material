@@ -1,1 +1,0 @@
-Các em lưu ý phần quan trọng này nhé. Khi thao tác với danh sách, các em rất dễ gặp lỗi in-đếch e-rơ hay va-liu e-rơ. Ví dụ, cố xóa bằng ri-muv một giá trị không nằm trong lít, hoặc truy cập chỉ mục vượt quá chiều dài của nó bằng póp sẽ làm chương trình bị đổ bể. Phải luôn viết mã kiểm tra hoặc sử dụng khối thử và bắt lỗi an toàn.

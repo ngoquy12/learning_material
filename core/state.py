@@ -32,3 +32,24 @@ class AgentState(TypedDict, total=False):
     hyperframes_project_path: NotRequired[str | None]
     prerequisite_data: NotRequired[Dict[str, Any]]
     prerequisite_checked: NotRequired[bool]
+
+def require_tech_stack(state: Any, caller_name: str = "Agent") -> str:
+    """
+    Strict Technology Stack Validator.
+    Extracts technology_stack from state or tech_stack key.
+    STRICTLY FORBIDS hardcoded fallback defaults (no fallback to python/fastapi, python/core, etc.).
+    If technology_stack is missing or empty, raises an explicit ValueError immediately.
+    """
+    if not state or not isinstance(state, dict):
+        raise ValueError(
+            f"❌ [LỖI THIẾU TECHNOLOGY STACK] {caller_name}: AgentState bị None hoặc không phải dict hợp lệ. "
+            f"Hệ thống TUYỆT ĐỐI KHÔNG fallback/hardcode bất kỳ công nghệ nào. Vui lòng truyền --tech-stack chính xác."
+        )
+
+    stack = state.get("technology_stack") or state.get("tech_stack")
+    if not stack or not str(stack).strip():
+        raise ValueError(
+            f"❌ [LỖI THIẾU TECHNOLOGY STACK] {caller_name}: Không tìm thấy 'technology_stack' trong AgentState. "
+            f"Hệ thống TUYỆT ĐỐI KHÔNG fallback/hardcode bất kỳ công nghệ nào. Vui lòng truyền --tech-stack chính xác."
+        )
+    return str(stack).strip()

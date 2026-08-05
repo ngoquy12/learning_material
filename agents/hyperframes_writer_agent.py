@@ -385,7 +385,7 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
         # Fallback keyword detection (safety net only)
         if any(k in desc_lower for k in ["lỗi", "cảnh báo", "pitfall", "warning", "khắc phục"]):
             layout_type = "pitfall"
-        elif any(k in desc_lower for k in ["terminal", "cli", "lệnh", "command", "pip ", "python ", "activate"]):
+        elif any(k in desc_lower for k in ["terminal", "cli", "lệnh", "command", "chạy lệnh", "thực thi lệnh", "cài đặt gói", "cài môi trường"]):
             layout_type = "terminal"
         elif any(k in desc_lower for k in ["so sánh", "global", "isolated", "client", "server"]):
             layout_type = "comparison"
@@ -422,7 +422,7 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
         narration_lines = scene.get("narration", "")
         cmd_lines = [l.strip() for l in visual_desc.split("\n") if l.strip()]
         if not cmd_lines:
-            cmd_lines = ["$ python --version", "Python 3.11.x", "$ pip --version", "pip 23.x"]
+            cmd_lines = ["$ npm install", "Packages installed", "$ node index.js", "Server running"] if "javascript" in tech_stack else ["$ run command", "Executing...", "$ build project", "Success"]
 
         def _fmt_cmd(line: str) -> str:
             if line.startswith("$") or line.startswith("#"):
@@ -565,14 +565,14 @@ def _build_scene_html(scene: Dict[str, Any], lesson_title: str) -> str:
 
     elif layout_type == "pitfall":
         # Check which lesson warning to show
-        w1, w2, w3 = "Quên kích hoạt Virtual Environment trước khi cài thư viện", "Đóng gói thiếu file requirements.txt làm sai lệch môi trường", "Nhầm lẫn cú pháp chạy script kích hoạt trên các HĐH khác nhau"
-        gp = "Luôn kiểm tra tiền tố <code>(venv)</code> trên terminal và tự động hóa lưu dependency qua lệnh <code>pip freeze &gt; requirements.txt</code>."
+        w1, w2, w3 = "Quên cài đặt hoặc cấu hình sai môi trường chạy (Environment/Path)", "Đóng gói thiếu danh sách thư viện (Dependencies) làm sai lệch môi trường", "Nhầm lẫn cú pháp chạy script hoặc lệnh khởi tạo trên các Hệ Điều Hành khác nhau"
+        gp = "Luôn kiểm tra kỹ tên biến môi trường (Path/Env) và tự động hóa lưu Dependency."
         
-        if "fastapi" in desc_lower or "khởi tạo" in desc_lower or "uvicorn" in desc_lower:
-            w1 = "Quên cài đặt hoặc không khởi chạy Uvicorn khiến Server offline"
-            w2 = "Sai lệch phương thức HTTP (Ví dụ: Khai báo POST nhưng gọi GET)"
-            w3 = "Cấu hình sai cổng Port hoặc Host IP dẫn tới lỗi kết nối mạng"
-            gp = "Luôn khởi chạy server qua <code>uvicorn main:app --reload</code>, kiểm tra chính xác method trong code và IP/cổng mặc định <code>8000</code>."
+        if "web" in tech_stack.lower() or "api" in tech_stack.lower() or "server" in desc_lower:
+            w1 = "Quên cài đặt hoặc không khởi chạy Server khiến ứng dụng báo lỗi mạng (Network Error)"
+            w2 = "Sai lệch phương thức HTTP (Ví dụ: Khai báo Route là POST nhưng gửi request GET)"
+            w3 = "Cấu hình sai cổng (Port) hoặc Host IP dẫn tới xung đột tiến trình"
+            gp = "Luôn kiểm tra console log để đảm bảo Server đã chạy, kiểm tra chính xác HTTP Method và IP/cổng mặc định."
 
         html_content = f"""
     <!-- Pitfalls / Warnings Alert Layout -->

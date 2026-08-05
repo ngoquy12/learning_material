@@ -93,8 +93,8 @@ async def generate_lesson_task(
     session_id: int,
     pm_input: str,
     title: str,
-    technology_stack: str = "python/fastapi",
-    course_dir_name: str = "Database_Course",
+    technology_stack: str,
+    course_dir_name: str = "Course_Output",
 ):
     print(f"\n[AI TRIGGER] Bắt đầu sinh học liệu cho Lesson {lesson_id} - {title}")
 
@@ -338,20 +338,18 @@ async def generate_lesson(
     await db.commit()
 
     session_res = await db.get(Session, lesson.session_id)
-    tech_stack = "python/fastapi"
-    course_dir_name = "Database_Course"
-    if session_res:
-        course_res = await db.get(Course, session_res.course_id)
-        if course_res:
-            if course_res.technology_stack:
-                raw_tech = course_res.technology_stack
-                tech_stack = (
-                    "python/core"
-                    if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower()
-                    else raw_tech
-                )
-            if course_res.name:
-                course_dir_name = course_res.name.strip().replace(" ", "_").replace("-", "_")
+    if not session_res:
+        raise HTTPException(status_code=404, detail="Session not found")
+        
+    course_res = await db.get(Course, session_res.course_id)
+    if not course_res or not course_res.technology_stack:
+        raise HTTPException(
+            status_code=400,
+            detail="❌ [LỖI THIẾU TECHNOLOGY STACK] Môn học chưa được cấu hình Technology Stack. Vui lòng cập nhật thông tin môn học trước khi sinh học liệu."
+        )
+        
+    tech_stack = course_res.technology_stack.strip()
+    course_dir_name = course_res.name.strip().replace(" ", "_").replace("-", "_") if course_res.name else "Course_Output"
 
     pm_input = lesson.details if lesson.details else "Vui lòng phân tích và sinh bài học chi tiết."
     background_tasks.add_task(

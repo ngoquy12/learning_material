@@ -1,1 +1,0 @@
-Đây là đoạn mã chuẩn để quét cơ sở dữ liệu thư rác. Khối eo được thụt lề ngang hàng với pho. Điều này đảm bảo hành động thông báo địa chỉ email an toàn chỉ thực thi một lần duy nhất sau khi đã kiểm tra toàn bộ danh sách mà không trùng khớp.

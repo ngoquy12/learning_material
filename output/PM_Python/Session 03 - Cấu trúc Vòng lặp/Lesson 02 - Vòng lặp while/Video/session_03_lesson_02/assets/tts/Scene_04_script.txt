@@ -1,1 +1,0 @@
-Để xây dựng một vòng lặp oai an toàn, lập trình viên cần tuân thủ cấu trúc bốn bước. Bước một, khởi tạo biến điều khiển trước khi khai báo vòng lặp. Bước hai, thiết lập biểu thức logic chặt chẽ ngay sau từ khóa oai. Bước ba, viết mã xử lý nghiệp vụ bên trong thân vòng lặp. Bước tư, cập nhật giá trị của biến điều khiển ở cuối chu kỳ để tiệm cận đến mốc dừng, tránh lỗi lặp vô hạn.

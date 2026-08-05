@@ -1,1 +1,0 @@
-Quan sát ví dụ khai báo for cờ-ren-tờ step viết liền in range từ một đến mười với bước nhảy là hai. Khối lệnh in ra giá trị hiện tại của biến lặp. Khi chạy dòng lệnh này trên cửa số terminal, kết quả thu được sẽ là các số lẻ một, ba, năm, bảy, chín nhờ bước nhảy hai và quy tắc loại trừ số mười.

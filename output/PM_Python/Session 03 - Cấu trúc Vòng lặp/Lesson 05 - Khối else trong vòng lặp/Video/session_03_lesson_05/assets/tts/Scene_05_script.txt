@@ -1,1 +1,0 @@
-Điểm mấu chốt khi triển khai cú pháp này là từ khóa eo phải nằm thẳng hàng và cùng cấp độ thụt lề với từ khóa pho hoặc oai. Việc thụt lề sai sẽ biến khối eo này thành của lệnh ít bên trong, gây ra các lỗi logic nghiêm trọng.

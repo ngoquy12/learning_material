@@ -1,1 +1,0 @@
-Trong thực tế phát triển phần mềm với Python Core, các em sẽ rất dễ gặp phải lỗi logic hoặc ngoại lệ khi xử lý Tổng quan về List trong Python. Hãy quan sát màn hình: nếu không kiểm tra kỹ dữ liệu đầu vào, ứng dụng sẽ báo lỗi ngay lập tức. Để khắc phục, chúng ta cần bổ sung câu lệnh kiểm tra điều kiện chặn lỗi và log thông báo rõ ràng.

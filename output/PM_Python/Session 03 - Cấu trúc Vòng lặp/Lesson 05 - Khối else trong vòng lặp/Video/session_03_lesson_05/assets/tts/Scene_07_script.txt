@@ -1,1 +1,0 @@
-Nếu thụt lề eo thẳng hàng với lệnh ít bên trong vòng lặp, chương trình sẽ kiểm tra và in ra thông báo lệch pha cho từng phần tử không khớp. Điều này dẫn đến kết quả sai lệch toàn cục do thực thi lặp đi lặp lại nhiều lần.

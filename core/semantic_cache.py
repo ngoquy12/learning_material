@@ -37,8 +37,15 @@ CACHE_ENABLED = os.getenv("SEMANTIC_CACHE_ENABLED", "true").lower() in ("true", 
 # DB Setup
 # ─────────────────────────────────────────────────────
 
-def _get_db() -> sqlite3.Connection:
-    conn = sqlite3.connect(str(CACHE_DB_PATH))
+from core.persistence import get_db_pool
+from contextlib import contextmanager
+
+_cache_db_initialized = False
+
+def _init_cache_db(conn: sqlite3.Connection):
+    global _cache_db_initialized
+    if _cache_db_initialized:
+        return
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("""
@@ -57,7 +64,16 @@ def _get_db() -> sqlite3.Connection:
         CREATE INDEX IF NOT EXISTS idx_created ON semantic_cache(created_at)
     """)
     conn.commit()
-    return conn
+    _cache_db_initialized = True
+
+@contextmanager
+def get_cache_db():
+    """Retrieves a thread-pooled connection for semantic_cache.db."""
+    pool = get_db_pool(str(CACHE_DB_PATH))
+    with pool.get_connection() as conn:
+        conn.row_factory = sqlite3.Row
+        _init_cache_db(conn)
+        yield conn
 
 
 def _make_hash(system_prompt: str, user_prompt: str) -> str:
@@ -111,8 +127,7 @@ def cache_lookup(
     if not CACHE_ENABLED:
         return None
 
-    conn = _get_db()
-    try:
+    with get_cache_db() as conn:
         prompt_hash = _make_hash(system_prompt, user_prompt)
         now = time.time()
         cutoff = now - (MAX_CACHE_AGE_DAYS * 86400)
@@ -168,8 +183,6 @@ def cache_lookup(
                 return best_row["response"]
 
         return None
-    finally:
-        conn.close()
 
 
 def cache_store(
@@ -187,31 +200,28 @@ def cache_store(
     if not response or len(response.strip()) < 10:
         return
 
-    conn = _get_db()
     try:
-        prompt_hash = _make_hash(system_prompt, user_prompt)
-        combined_prompt = f"{system_prompt[:400]} {user_prompt[:800]}"
-        entry_id = "cache_" + prompt_hash[:16]
-        now = time.time()
+        with get_cache_db() as conn:
+            prompt_hash = _make_hash(system_prompt, user_prompt)
+            combined_prompt = f"{system_prompt[:400]} {user_prompt[:800]}"
+            entry_id = "cache_" + prompt_hash[:16]
+            now = time.time()
 
-        # INSERT OR IGNORE (không ghi đè nếu đã tồn tại) + cập nhật response nếu cần
-        conn.execute("""
-            INSERT OR IGNORE INTO semantic_cache
-                (id, agent_name, prompt_hash, prompt_text, response, hit_count, created_at, last_used)
-            VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-        """, (entry_id, agent_name, prompt_hash, combined_prompt, response, now, now))
-        conn.commit()
+            # INSERT OR IGNORE (không ghi đè nếu đã tồn tại) + cập nhật response nếu cần
+            conn.execute("""
+                INSERT OR IGNORE INTO semantic_cache
+                    (id, agent_name, prompt_hash, prompt_text, response, hit_count, created_at, last_used)
+                VALUES (?, ?, ?, ?, ?, 0, ?, ?)
+            """, (entry_id, agent_name, prompt_hash, combined_prompt, response, now, now))
+            conn.commit()
     except Exception as e:
         print(f"  [SemanticCache Warning] Failed to store cache entry: {e}")
-    finally:
-        conn.close()
 
 
 
 def cache_invalidate_old() -> int:
     """Xóa các entry cache quá hạn. Trả về số lượng đã xóa."""
-    conn = _get_db()
-    try:
+    with get_cache_db() as conn:
         cutoff = time.time() - (MAX_CACHE_AGE_DAYS * 86400)
         cursor = conn.execute("DELETE FROM semantic_cache WHERE created_at < ?", (cutoff,))
         conn.commit()
@@ -219,14 +229,11 @@ def cache_invalidate_old() -> int:
         if deleted:
             print(f"  [SemanticCache] Cleaned up {deleted} expired cache entries.")
         return deleted
-    finally:
-        conn.close()
 
 
 def get_cache_stats() -> Dict:
     """Thống kê cache để monitor."""
-    conn = _get_db()
-    try:
+    with get_cache_db() as conn:
         total = conn.execute("SELECT COUNT(*) FROM semantic_cache").fetchone()[0]
         hits = conn.execute("SELECT SUM(hit_count) FROM semantic_cache").fetchone()[0] or 0
         by_agent = conn.execute(
@@ -239,8 +246,6 @@ def get_cache_stats() -> Dict:
             "estimated_tokens_saved": hits * 800,  # avg 800 tokens per call
             "by_agent": {r["agent_name"]: {"cached": r["cnt"], "hits": r["total_hits"]} for r in by_agent},
         }
-    finally:
-        conn.close()
 
 
 # ─────────────────────────────────────────────────────

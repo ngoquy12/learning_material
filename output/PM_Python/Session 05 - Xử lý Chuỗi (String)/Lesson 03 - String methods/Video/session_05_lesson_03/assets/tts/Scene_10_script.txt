@@ -1,1 +1,0 @@
-Khi sử dụng phương thức choin để liên kết các phần tử trong một danh sách, bạn phải đảm bảo tất cả các phần tử bên trong danh sách đó đều bắt buộc phải là kiểu chuỗi ký tự. Nếu danh sách chứa bất kỳ kiểu dữ liệu nào khác như số nguyên in-tơ-giơ hoặc kiểu lô-gic, trình thông dịch Python sẽ lập tức báo lỗi tai e-rơ tại thời điểm chạy ứng dụng.

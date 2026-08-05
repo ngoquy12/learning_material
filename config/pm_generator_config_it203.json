@@ -1,0 +1,31 @@
+{
+  "curriculum_excel_path": "d:\\Rikkei Education\\Elearning_Agent\\Learning-Material\\CLO-PLO\\PM_PTIT_2026_Chương trình đào tạo.xlsx",
+  "course_id": "IT-203",
+  "student_profile": {
+    "entry_level": "beginner",
+    "background": "non-it",
+    "cognitive_speed": 0.9
+  },
+  "session_budget": {
+    "total_sessions": 36,
+    "theory_sessions": 16,
+    "practice_sessions": 12,
+    "mini_projects": 3,
+    "final_exam": 1,
+    "capstone_project": 4
+  },
+  "class_configuration": {
+    "session_duration_hours": 2.0,
+    "delivery_mode": "offline",
+    "sessions_per_day": 2,
+    "weekly_frequency": 3
+  },
+  "tech_stack": "python/core",
+  "tech_stack_versions": {
+    "Python": "3.12",
+    "Pytest": "8.3",
+    "Black": "24.10",
+    "Flake8": "7.1"
+  },
+  "coding_standards": "PEP 8, Type Hints"
+}

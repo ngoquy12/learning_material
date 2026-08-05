@@ -1,1 +1,0 @@
-Trong hệ thống phần mềm doanh nghiệp như xuất hóa đơn hay báo cáo tài chính, chương trình phải xử lý dữ liệu thô liên tục. Các con số thực có quá nhiều chữ số thập phân hoặc không thẳng hàng sẽ gây khó khăn cho người xem. Việc định dạng dữ liệu đầu ra giúp chuẩn hóa hiển thị và đảm bảo tính chuyên nghiệp.

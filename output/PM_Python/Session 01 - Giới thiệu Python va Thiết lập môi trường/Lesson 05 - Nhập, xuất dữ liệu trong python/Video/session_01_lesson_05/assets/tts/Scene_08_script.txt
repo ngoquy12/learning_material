@@ -1,1 +1,0 @@
-Hàm prin-t cho phép tùy biến ký tự ngăn cách thông qua đối số từ khóa xép. Theo mặc định, đối số xép nhận giá trị một khoảng trống. Khi chúng ta thay đổi xép thành ký tự gạch đứng hoặc gạch ngang, trình thông dịch sẽ tự động chèn chuỗi này vào giữa các đối số được in ra, giúp định dạng dữ liệu đầu ra chuyên nghiệp.

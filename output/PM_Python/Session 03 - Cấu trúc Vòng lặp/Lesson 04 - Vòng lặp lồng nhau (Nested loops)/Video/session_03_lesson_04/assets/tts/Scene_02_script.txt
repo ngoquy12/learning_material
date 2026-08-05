@@ -1,1 +1,0 @@
-Nếu cố gắng giải quyết cấu trúc hai chiều bằng một vòng lặp đơn, mã nguồn sẽ trở nên vô cùng phức tạp. Lập trình viên bắt buộc phải sử dụng liên tiếp các phép chia lấy dư và chia lấy nguyên để dò tìm vị trí dòng và cột từ một chỉ số phẳng duy nhất. Điều này không chỉ gây khó khăn cho việc bảo trì mà còn dễ tạo ra các lỗi logic tiềm ẩn khi nâng cấp hệ thống.

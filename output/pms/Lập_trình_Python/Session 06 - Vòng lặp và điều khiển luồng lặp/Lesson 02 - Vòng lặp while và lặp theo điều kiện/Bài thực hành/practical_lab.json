@@ -1,0 +1,23 @@
+{
+  "title": "Xây dựng Module Dynamic Polling Kiểm tra Trạng thái Máy chủ Health Check",
+  "objectives": [
+    "Áp dụng thành thạo cấu trúc vòng lặp while để tự động thực hiện truy vấn trạng thái dịch vụ theo điều kiện.",
+    "Cập nhật biến trạng thái và số lần thử trong thân vòng lặp để ngăn chặn sự cố Vòng lặp vô hạn (Infinite Loop)."
+  ],
+  "description": {
+    "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+    "steps": [
+      "Bước 1: Khởi tạo các biến kiểm soát tiến trình gồm `retry_count = 0`, `max_retries = 5`, và `is_connected = False`.",
+      "Bước 2: Thiết lập vòng lặp `while` kiểm tra biểu thức điều kiện: số lần thử nhỏ hơn giới hạn tối đa (`retry_count < max_retries`) và chưa kết nối (`not is_connected`).",
+      "Bước 3: Bên trong thân vòng lặp, in thông báo thể hiện số lần đã thử, sau đó tăng biến `retry_count` thêm 1 đơn vị (`retry_count += 1`). Giả lập sự cố thành công ở lượt thử thứ 3 bằng cách cập nhật `is_connected = True` khi `retry_count == 3`.",
+      "Bước 4: Kiểm tra kết quả thoát vòng lặp và in ra thông báo kết quả kiểm tra trạng thái kết nối cuối cùng."
+    ]
+  },
+  "evaluation": {
+    "checklist": [
+      "[ ] Vòng lặp while dừng chính xác ngay khi `is_connected` chuyển sang giá trị True hoặc khi `retry_count` đạt mức `max_retries`.",
+      "[ ] Giá trị của `retry_count` được cập nhật tăng 1 đơn vị sau mỗi chu kỳ lặp.",
+      "[ ] Không xảy ra sự cố vòng lặp vô hạn (Infinite Loop) trong toàn bộ tiến trình."
+    ]
+  }
+}

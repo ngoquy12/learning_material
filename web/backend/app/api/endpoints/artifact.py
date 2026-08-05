@@ -159,10 +159,10 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: Option
                 print(f"[Error] Session {session_id} not found")
                 return
                 
-            result = await db.execute(select(Course).where(Course.id == session.course_id))
-            course: Any = result.scalars().first()
-            raw_tech = course.technology_stack if course else "python/fastapi"
-            tech_stack = "python/core" if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower() else raw_tech
+            if not course or not course.technology_stack:
+                print(f"[Error] Course for session {session_id} lacks technology_stack configuration.")
+                return
+            tech_stack = course.technology_stack.strip()
 
             lessons_result = await db.execute(
                 select(Lesson).where(Lesson.session_id == session_id).order_by(Lesson.order_index.asc(), Lesson.id.asc())
@@ -276,7 +276,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: Option
                         is_practice_session = True
                     
                     temp_output_dir = str(root_path / "output" / f"session_{session_id}")
-                    previous_lessons_text = ", ".join([str(l.title) for l in lessons]) if lessons else "FastAPI fundamentals"
+                    previous_lessons_text = ", ".join([str(l.title) for l in lessons]) if lessons else "Kiến thức nền tảng"
                     
                     if is_practice_session:
                         from agents.practice_agents import regenerate_single_practice_exercise, generate_practice_session_exercises

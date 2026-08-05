@@ -59,6 +59,63 @@ def parse_all_sessions(excel_path: str):
     target_sheet = "Chương trình đào tạo chi tiết"
     ws = wb[target_sheet] if target_sheet in wb.sheetnames else wb.active
     
+    # Auto-detect PTIT detailed module sheet layout
+    is_ptit_layout = False
+    header_row = 3
+    if ws.cell(row=3, column=1).value == "STT" or ws.cell(row=3, column=2).value == "Hình thức học":
+        is_ptit_layout = True
+        header_row = 3
+    elif ws.cell(row=4, column=1).value == "STT" or ws.cell(row=4, column=2).value == "Hình thức học":
+        is_ptit_layout = True
+        header_row = 4
+        
+    if is_ptit_layout:
+        sessions = []
+        current_session = None
+        rows = list(ws.iter_rows(values_only=True))
+        
+        # Start reading from row after header
+        for r_idx in range(header_row, len(rows)):
+            row = rows[r_idx]
+            if not any(row):
+                continue
+                
+            stt = row[0]
+            hinh_thuc = row[1]
+            session_title = row[4]
+            lesson_idx = row[5]
+            lesson_title = row[6]
+            note = row[7] if len(row) > 7 else ""
+            
+            # If stt is present, it's a new Session
+            if stt is not None and str(stt).strip() != "":
+                stt_str = str(stt).strip()
+                current_session = {
+                    "session_id": f"Session {stt_str.zfill(2)}" if stt_str.isdigit() else f"Session {stt_str}",
+                    "session_type": str(hinh_thuc).strip() if hinh_thuc else "Lý thuyết",
+                    "session_code": f"SESS_{stt_str}",
+                    "title": str(session_title).strip() if session_title else "",
+                    "forbidden_scope": "",
+                    "allowed_scope": "",
+                    "tech_stack_convention": "",
+                    "lessons": []
+                }
+                sessions.append(current_session)
+                
+            # If lesson_title is present and we have a session
+            if lesson_title and str(lesson_title).strip() and current_session:
+                l_id = f"Lesson {str(lesson_idx).strip()}" if lesson_idx else f"Lesson {len(current_session['lessons'])+1:02d}"
+                current_session["lessons"].append({
+                    "lesson_id": l_id,
+                    "title": str(lesson_title).strip(),
+                    "details": str(lesson_title).strip(),
+                    "expected_output": "",
+                    "forbidden_scope": "",
+                    "allowed_scope": "",
+                    "tech_stack_convention": ""
+                })
+        return sessions
+
     # 1. Identify header mapping dynamically for ALL 10 PM columns
     headers = {}
     for col_idx, cell in enumerate(next(ws.iter_rows(min_row=1, max_row=1)), start=0):
@@ -114,8 +171,8 @@ def parse_all_sessions(excel_path: str):
         allowed_val = str(row[h_allowed]).strip() if h_allowed < len(row) and row[h_allowed] else ""
         tech_val = str(row[h_tech]).strip() if h_tech < len(row) and row[h_tech] else ""
         
-        # If a new Session is found
-        if session_val.startswith("Session"):
+        # If a new Session is found (and not the table header row)
+        if session_val.startswith("Session") and session_val.lower() not in ["session", "session / stt", "stt session"]:
             # Check if we already have it
             existing = [s for s in sessions if s["session_id"] == session_val]
             if existing:
@@ -175,7 +232,7 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
     for session in sessions:
         session_id = session["session_id"]
         session_title = session.get("title", "")
-        req_sess_list = [r.strip() for r in requested_session.split(",")] if requested_session != "all" else ["all"]
+        req_sess_list = [r.strip().lower() for r in requested_session.split(",")] if requested_session != "all" else ["all"]
         if "all" not in req_sess_list and not any(rs in session_id.lower() for rs in req_sess_list):
             continue
 
@@ -222,17 +279,22 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                     sub.mkdir(parents=True, exist_ok=True)
                     with open(sub / "reading.html", "w", encoding="utf-8") as f:
                         f.write(f"<!-- Empty outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
+                    
+                    sub_q = lesson_dir / "Câu hỏi bài đọc"
+                    sub_q.mkdir(parents=True, exist_ok=True)
+                    with open(sub_q / "reading_questions.json", "w", encoding="utf-8") as f:
+                        f.write("[]\n")
                 
-                if "slide" in requested_parts:
-                    sub = lesson_dir / "Bài giảng"
-                    sub.mkdir(parents=True, exist_ok=True)
-                    with open(sub / "slides.html", "w", encoding="utf-8") as f:
-                        f.write(f"<!-- Empty slide outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
+                # Note: Lesson-level Slides removed (Moved to Session level)
                 
                 if "quiz" in requested_parts:
                     sub = lesson_dir / "Câu hỏi Quizz"
                     sub.mkdir(parents=True, exist_ok=True)
                     with open(sub / "quiz.json", "w", encoding="utf-8") as f:
+                        f.write("[]\n")
+                    sub_lab = lesson_dir / "Bài thực hành"
+                    sub_lab.mkdir(parents=True, exist_ok=True)
+                    with open(sub_lab / "practical_lab.json", "w", encoding="utf-8") as f:
                         f.write("{}\n")
                 
                 if "video" in requested_parts or "video_script" in requested_parts:
@@ -241,11 +303,7 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                     with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
                         f.write(f"<!-- Empty video script outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
                 
-                if "mindmap" in requested_parts:
-                    sub = lesson_dir / "Mindmap"
-                    sub.mkdir(parents=True, exist_ok=True)
-                    with open(sub / "mindmap.md", "w", encoding="utf-8") as f:
-                        f.write(f"<!-- Empty mindmap outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
+                # Note: Lesson-level Mindmap removed (Moved to Session level)
         else:
             if "html" in requested_parts:
                 sub = session_dir / "Bài đọc"
@@ -261,6 +319,10 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 sub = session_dir / "Câu hỏi Quizz"
                 sub.mkdir(parents=True, exist_ok=True)
                 with open(sub / "quiz.json", "w", encoding="utf-8") as f:
+                    f.write("[]\n")
+                sub_lab = session_dir / "Bài thực hành"
+                sub_lab.mkdir(parents=True, exist_ok=True)
+                with open(sub_lab / "practical_lab.json", "w", encoding="utf-8") as f:
                     f.write("{}\n")
             if "video" in requested_parts or "video_script" in requested_parts:
                 sub = session_dir / "Video"
@@ -333,25 +395,27 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
 
                 if "html" in requested_parts and not (lesson_dir / "Bài đọc" / "reading.html").exists():
                     missing_elements.append(f"Thiếu file reading.html tại {session_id} -> {lesson_id}")
-                if "slide" in requested_parts and not (lesson_dir / "Bài giảng" / "slides.html").exists():
-                    missing_elements.append(f"Thiếu file slides.html tại {session_id} -> {lesson_id}")
-                if "quiz" in requested_parts and not (lesson_dir / "Câu hỏi Quizz" / "quiz.json").exists():
-                    missing_elements.append(f"Thiếu file quiz.json tại {session_id} -> {lesson_id}")
+                if "quiz" in requested_parts:
+                    if not (lesson_dir / "Câu hỏi Quizz" / "quiz.json").exists():
+                        missing_elements.append(f"Thiếu file quiz.json tại {session_id} -> {lesson_id}")
+                    if not (lesson_dir / "Bài thực hành" / "practical_lab.json").exists():
+                        missing_elements.append(f"Thiếu file practical_lab.json tại {session_id} -> {lesson_id}")
                 if ("video" in requested_parts or "video_script" in requested_parts) and not (lesson_dir / "Video" / "SCRIPT.md").exists():
                     missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id} -> {lesson_id}")
-                if "mindmap" in requested_parts and not (lesson_dir / "Mindmap" / "mindmap.md").exists():
-                    missing_elements.append(f"Thiếu file mindmap.md tại {session_id} -> {lesson_id}")
         else:
             if "html" in requested_parts and not (session_dir / "Bài đọc" / "reading.html").exists():
                 missing_elements.append(f"Thiếu file reading.html tại {session_id}")
             if "slide" in requested_parts and not (session_dir / "Bài giảng" / "slides.html").exists():
                 missing_elements.append(f"Thiếu file slides.html tại {session_id}")
-            if "quiz" in requested_parts and not (session_dir / "Câu hỏi Quizz" / "quiz.json").exists():
-                missing_elements.append(f"Thiếu file quiz.json tại {session_id}")
+            if "quiz" in requested_parts:
+                if not (session_dir / "Câu hỏi Quizz" / "quiz.json").exists():
+                    missing_elements.append(f"Thiếu file quiz.json tại {session_id}")
+                if not (session_dir / "Bài thực hành" / "practical_lab.json").exists():
+                    missing_elements.append(f"Thiếu file practical_lab.json tại {session_id}")
             if ("video" in requested_parts or "video_script" in requested_parts) and not (session_dir / "Video" / "SCRIPT.md").exists():
                 missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id}")
-            if "mindmap" in requested_parts and not (session_dir / "Mindmap" / "mindmap.md").exists():
-                missing_elements.append(f"Thiếu file mindmap.md tại {session_id}")
+            if "mindmap" in requested_parts and not (session_dir / "Mindmap" / "session_mindmap.md").exists() and not (session_dir / "Mindmap" / "mindmap.md").exists():
+                missing_elements.append(f"Thiếu file session_mindmap.md tại {session_id}")
 
     report_path = course_dir / "structure_review_report.md"
     status = "APPROVED" if not missing_elements else "REJECTED"
@@ -425,22 +489,18 @@ def verify_previous_lessons_completed(sessions, current_session_id: str, current
             html_file = prev_dir / "Bài đọc" / "reading.html"
             if not html_file.exists() or html_file.stat().st_size < 500 or "<!-- Empty outline" in html_file.read_text(encoding="utf-8"):
                 uncompleted.append("Bài đọc/reading.html chưa được sinh nội dung chi tiết hoặc quá ngắn.")
-        if "slide" in requested_parts:
-            slide_file = prev_dir / "Bài giảng" / "slides.html"
-            if not slide_file.exists() or slide_file.stat().st_size < 500 or "<!-- Empty slide outline" in slide_file.read_text(encoding="utf-8"):
-                uncompleted.append("Bài giảng/slides.html chưa được sinh nội dung chi tiết hoặc quá ngắn.")
         if "quiz" in requested_parts:
             quiz_file = prev_dir / "Câu hỏi Quizz" / "quiz.json"
             if not quiz_file.exists() or quiz_file.stat().st_size < 20:
                 uncompleted.append("Câu hỏi Quizz/quiz.json chưa được sinh nội dung chi tiết.")
+            
+            lab_file = prev_dir / "Bài thực hành" / "practical_lab.json"
+            if not lab_file.exists() or lab_file.stat().st_size < 20:
+                uncompleted.append("Bài thực hành/practical_lab.json chưa được sinh nội dung chi tiết.")
         if "video" in requested_parts or "video_script" in requested_parts:
             video_file = prev_dir / "Video" / "SCRIPT.md"
             if not video_file.exists() or video_file.stat().st_size < 500 or "<!-- Empty video script outline" in video_file.read_text(encoding="utf-8"):
                 uncompleted.append("Video/SCRIPT.md chưa được sinh nội dung chi tiết hoặc quá ngắn.")
-        if "mindmap" in requested_parts:
-            mindmap_file = prev_dir / "Mindmap" / "mindmap.md"
-            if not mindmap_file.exists() or mindmap_file.stat().st_size < 500 or "<!-- Empty mindmap outline" in mindmap_file.read_text(encoding="utf-8"):
-                uncompleted.append("Mindmap/mindmap.md chưa được sinh nội dung chi tiết hoặc quá ngắn.")
                 
         if uncompleted:
             feedback_details = "\n".join([f"  - {item}" for item in uncompleted])
@@ -450,3 +510,86 @@ def verify_previous_lessons_completed(sessions, current_session_id: str, current
                 f"{feedback_details}\n"
                 f"Yêu cầu: AI phải tuân thủ kỷ luật sư phạm, thà làm chậm và chất lượng còn hơn làm ẩu làm nhanh!"
             )
+
+def parse_program_structure_from_ptit(excel_path: str, target_course_id: str):
+    """
+    Scans the 5 semester overview sheets to find target_course_id,
+    extracts its course metadata, PLOs, and CLOs.
+    """
+    wb = openpyxl.load_workbook(excel_path, data_only=True)
+    
+    # We will search the first 5 sheets (Semesters) for target_course_id
+    semester_sheets = [s for s in wb.sheetnames if "Khung chương trình" in s]
+    
+    course_info = None
+    
+    for sheetname in semester_sheets:
+        ws = wb[sheetname]
+        rows = list(ws.iter_rows(values_only=True))
+        
+        # We need to find PLOs first (usually in row 3, index 2)
+        # Let's search all rows for "PLO" title
+        plos = []
+        for r_idx, row in enumerate(rows[:5]):
+            if row[0] and "plo" in str(row[0]).lower():
+                # E3 is at column index 4
+                plo_val = row[4] if len(row) > 4 else ""
+                if plo_val:
+                    plos = [p.strip() for p in str(plo_val).split("\n") if p.strip()]
+                break
+                
+        # Now find the course row
+        # Col 1 is "Mã môn". Let's scan all rows starting from row index 4 (5th row)
+        current_semester_val = ""
+        for r_idx in range(4, len(rows)):
+            row = rows[r_idx]
+            if not any(row):
+                continue
+            
+            # Fill forward for semester (Col 2)
+            if len(row) > 2 and row[2] is not None:
+                current_semester_val = str(row[2]).strip()
+                
+            course_id_cell = row[1] if len(row) > 1 else None
+            if course_id_cell and str(course_id_cell).strip().lower() == target_course_id.lower().strip():
+                # Found the course!
+                course_name = str(row[3]).strip().replace("\n", " ") if len(row) > 3 and row[3] else ""
+                clos_raw = str(row[4]).strip() if len(row) > 4 and row[4] else ""
+                clos = [c.strip() for c in clos_raw.split("\n") if c.strip()]
+                
+                main_content = str(row[5]).strip() if len(row) > 5 and row[5] else ""
+                exam_type = str(row[6]).strip() if len(row) > 6 and row[6] else ""
+                
+                lt = int(row[7]) if len(row) > 7 and row[7] is not None else 0
+                th_off = int(row[8]) if len(row) > 8 and row[8] is not None else 0
+                th_on = int(row[9]) if len(row) > 9 and row[9] is not None else 0
+                mini_proj = int(row[10]) if len(row) > 10 and row[10] is not None else 0
+                exam = int(row[11]) if len(row) > 11 and row[11] is not None else 0
+                proj = int(row[12]) if len(row) > 12 and row[12] is not None else 0
+                
+                course_info = {
+                    "course_id": target_course_id.upper().strip(),
+                    "course_name": course_name,
+                    "semester_id": current_semester_val,
+                    "semester_sheet": sheetname,
+                    "plos": plos,
+                    "clos": clos,
+                    "main_content": main_content,
+                    "exam_type": exam_type,
+                    "hours": {
+                        "theory": lt,
+                        "practice_offline": th_off,
+                        "practice_online": th_on,
+                        "practice_total": th_off + th_on,
+                        "mini_project": mini_proj,
+                        "exam": exam,
+                        "project": proj,
+                        "total": lt + th_off + th_on + mini_proj + exam + proj,
+                        "hours_per_session": 2.0
+                    }
+                }
+                break
+        if course_info:
+            break
+            
+    return course_info

@@ -1,7 +1,11 @@
-"""
-main.py — Entry point for Elearning Content Factory CLI workflow.
-Re-exports core parser functions for backward compatibility with backend API.
-"""
+import sys
+import io
+
+# Reconfigure stdout/stderr encoding for Windows console compatibility immediately
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 from dotenv import load_dotenv
 load_dotenv()

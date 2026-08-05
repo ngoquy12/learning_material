@@ -1,1 +1,0 @@
-Đối với các trạng thái thất bại hoặc đang chờ xử lý, chúng ta không cần quan tâm đến phân hạng thành viên của khách hàng. Chúng ta sử dụng ký tự gạch dưới để đại diện cho bất kỳ giá trị nào. Nếu trạng thái thất bại, mức phí mặc định là hai chấm không. Nếu là đang chờ xử lý, mức phí được tính là một chấm không. Việc sử dụng ký tự đại diện giúp đơn giản hóa mã nguồn.

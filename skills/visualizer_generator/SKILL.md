@@ -1,55 +1,61 @@
 ---
 name: visualizer_generator
-description: Generate dynamic, topic-specific interactive visualizers (HTML/JS/CSS) for learning materials.
+description: Generate dynamic, topic-specific interactive visualizers (HTML/JS/CSS State Machine Engine) for learning materials. Target output language is 100% Accented Vietnamese.
 ---
 
-# Visualizer Generator Skill
+# Interactive Visualizer Generator Skill — Rikkei Education Standards
 
-## 1. Mục tiêu (Objective)
+## 1. Objective
 
-Skill này hướng dẫn Agent cách tạo ra các bộ "Interactive Visualizer" (Trực quan hóa tương tác) linh hoạt và thích ứng với **mọi tình huống/chủ đề bài học** (không bị fix cứng vào STACK/HEAP). Dựa vào `lesson_title` và `tech_stack`, Agent phải tự động thiết kế Canvas, Legend, Stats, và JavaScript State Machine Engine phù hợp nhất.
+This skill instructs the AI Agent to build "Interactive Visualizer" components that dynamically adapt to **any lesson topic** (not hardcoded strictly to Stack/Heap). Based on `lesson_title` and `tech_stack`, the Agent automatically designs Canvas layouts, Legends, Realtime Stats, and a JavaScript State Machine Engine.
 
-## 2. Các Mẫu Trực quan hóa Khuyến nghị (Visualizer Archetypes)
+---
 
-Tùy thuộc vào nội dung bài học, Agent cần chọn 1 trong các mô hình (Archetype) sau để thiết kế giao diện `Canvas`:
+## 2. Recommended Visualizer Archetypes
 
-1. **Memory & Variable Allocator (Mô hình Bộ nhớ):**
-   - **Áp dụng:** Khai báo biến, kiểu dữ liệu, con trỏ, tham chiếu.
-   - **Giao diện:** Chia 2 cột (Stack & Heap).
-2. **Logic & Branching Flow (Mô hình Rẽ nhánh):**
-   - **Áp dụng:** Toán tử, if/else, switch case.
-   - **Giao diện:** Sơ đồ khối (Flowchart) hoặc Cây quyết định (Decision Tree). Các khối sáng lên theo luồng thực thi (True/False).
-3. **Loop & Iterator Track (Mô hình Vòng lặp):**
-   - **Áp dụng:** For, While, Iterator, Array Traversal.
-   - **Giao diện:** Trục thời gian (Timeline) hoặc Mảng 1 chiều (1D Array boxes). Một con trỏ (Pointer) di chuyển qua từng phần tử.
-4. **Data Structure & Graph (Mô hình Cấu trúc dữ liệu):**
-   - **Áp dụng:** Tree, Graph, LinkedList, Dictionary.
-   - **Giao diện:** Các Node liên kết với nhau bằng mũi tên (SVG lines).
-5. **Web Service & Architecture (Mô hình Kiến trúc Web):**
-   - **Áp dụng:** FastAPI, Request/Response, Middleware, Database.
-   - **Giao diện:** Client (Trình duyệt) -> Server -> Database. Di chuyển các gói tin (Packet) giữa các tầng.
+Depending on lesson content, select 1 of the following archetypes for the `Canvas` UI:
 
-## 3. Cấu trúc Output (JSON format)
+1. **Memory & Variable Allocator (Memory Model):**
+   - **Use case:** Variable declarations, data types, pointers, references.
+   - **UI:** Two-column split layout (Stack & Heap).
+2. **Logic & Branching Flow (Flow Model):**
+   - **Use case:** Operators, if/else, switch case.
+   - **UI:** Flowchart or Decision Tree. Nodes illuminate based on execution paths (True/False).
+3. **Loop & Iterator Track (Loop Model):**
+   - **Use case:** For loops, While loops, Iterators, Array Traversal.
+   - **UI:** Timeline track or 1D Array boxes. A pointer moves across elements step-by-step.
+4. **Data Structure & Graph (Data Structure Model):**
+   - **Use case:** Trees, Graphs, LinkedLists, Dictionaries.
+   - **UI:** Interconnected Nodes linked with SVG arrows.
+5. **Web Service & Architecture (Web Model):**
+   - **Use case:** Web Frameworks, Backend API, Request/Response lifecycle, Middleware, Database.
+   - **UI:** Client (Browser) -> Server -> Database. Packets animate between layers.
 
-Agent cần sinh ra cấu trúc dữ liệu JSON chứa 6 thành phần chính để nhúng vào template HTML:
+---
+
+## 3. Output Schema (JSON Format)
+
+The Agent MUST generate a JSON data payload containing 6 core components to embed into HTML templates:
 
 ```json
 {
-  "canvas_title": "Biểu tượng + Tiêu đề Trực quan hóa (VD: 🔄 Trực quan hóa Vòng lặp For)",
-  "legend_html": "Các chú giải màu sắc (VD: <div class='legend-item'>...</div>)",
-  "stats_html": "3 thẻ hiển thị thông số realtime (VD: Số vòng lặp, Thời gian, Biến tạm)",
-  "code_tracker_html": "Mã nguồn minh họa được bọc trong <span class='code-line' id='line-X'>...</span>",
-  "input_label": "Tiêu đề cho ô input (VD: TỰ NHẬP MẢNG DỮ LIỆU)",
-  "input_default": "Giá trị mặc định của input",
-  "engine_js": "Toàn bộ mã JavaScript ES6 (Class InteractiveVisualizerEngine)"
+  "canvas_title": "Icon + Visualizer Title (e.g. 🔄 Trực quan hóa Vòng lặp For)",
+  "legend_html": "Color legend items (e.g. <div class='legend-item'>...</div>)",
+  "stats_html": "3 realtime stat cards (e.g. Iteration count, Time elapsed, Temp variables)",
+  "code_tracker_html": "Sample code snippet wrapped in <span class='code-line' id='line-X'>...</span>",
+  "input_label": "Title for input field (e.g. TỰ NHẬP MẢNG DỮ LIỆU)",
+  "input_default": "Default input value",
+  "engine_js": "Self-contained ES6 JavaScript (Class InteractiveVisualizerEngine)"
 }
 ```
 
-## 4. Nguyên tắc cốt lõi của JavaScript Engine (engine_js)
+---
 
-Mã JavaScript phải tự đóng gói (Self-contained) và tuân thủ mô hình State Machine:
+## 4. Core Principles of JavaScript State Machine Engine (`engine_js`)
 
-1. **Class Structure:**
+The JavaScript engine MUST be self-contained and adhere to a State Machine model:
+
+1. **Class Architecture:**
    ```javascript
    class InteractiveVisualizerEngine {
      constructor() {
@@ -62,24 +68,26 @@ Mã JavaScript phải tự đóng gói (Self-contained) và tuân thủ mô hìn
        this.render();
      }
      generateSteps() {
-       /* Tính toán trước toàn bộ các bước (Pre-compute states) */
+       /* Pre-compute all states for algorithm execution */
      }
      render() {
-       /* Cập nhật DOM (Canvas, Stats, Code Tracker Highlight) dựa trên this.steps[this.currentStep] */
+       /* Update DOM (Canvas, Stats, Code Tracker Highlight) based on this.steps[this.currentStep] */
      }
      step() {
-       /* Tăng currentStep và gọi render() */
+       /* Increment currentStep and call render() */
      }
-     // Các hàm play, pause, reset...
    }
    ```
-2. **Pre-computed State:** Toàn bộ quá trình chạy thuật toán phải được mô phỏng trước và lưu vào mảng `this.steps`. Mỗi `step` object chứa trạng thái UI hoàn chỉnh của bước đó (VD: Vị trí con trỏ, giá trị biến, dòng code đang active, thông báo log).
-3. **No External Dependencies:** Chỉ sử dụng Vanilla JS và thao tác DOM trực tiếp. Không dùng React/Vue. Khuyến khích dùng Template Literals để tạo HTML động bên trong hàm `render()`.
-4. **Dynamic CSS Variables:** Tái sử dụng các biến CSS có sẵn trong dự án: `var(--primary)`, `var(--bg-panel)`, `var(--text-main)`, `var(--color-idle)`, `var(--color-done)`.
+2. **Pre-computed State Array:** The entire execution process MUST be pre-computed and stored in `this.steps`. Each `step` object contains the complete UI state for that frame (e.g. pointer position, variable values, active code line ID, log message).
+3. **No External Dependencies:** Use Vanilla JS and direct DOM manipulation ONLY. FORBIDDEN to use React/Vue. Use Template Literals for dynamic HTML generation inside `render()`.
+4. **Dynamic CSS Variables:** Reuse project CSS tokens: `var(--primary)`, `var(--bg-panel)`, `var(--text-main)`, `var(--color-idle)`, `var(--color-done)`.
 
-## 5. Quy trình làm việc của Agent
+---
 
-1. **Phân tích (Analyze):** Đọc kỹ `lesson_title` và mục tiêu bài học để xác định Archetype phù hợp.
-2. **Thiết kế Kịch bản (Storyboard):** Lên kịch bản mã nguồn (`code_tracker_html`) khoảng 5-10 dòng. Xác định các bước biến đổi trạng thái.
-3. **Sinh mã JS (Implement JS):** Viết logic `generateSteps()` mô phỏng mã nguồn. Viết `render()` để vẽ giao diện đồ họa.
-4. **Trả về Output:** Đóng gói thành định dạng JSON chuẩn.
+## 5. Agent Execution Workflow
+
+1. **Analyze:** Read `lesson_title` and learning objectives to select the target Archetype.
+2. **Storyboard:** Design the 5-10 line code snippet (`code_tracker_html`) and state transformation keyframes.
+3. **Implement JS:** Write state computation in `generateSteps()` and DOM rendering in `render()`.
+4. **Return Payload:** Package into clean valid JSON.
+

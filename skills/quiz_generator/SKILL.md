@@ -1,95 +1,94 @@
-# Kỹ năng thiết kế và tạo Câu hỏi trắc nghiệm (E-learning Quiz & Session Quiz Skill)
+# E-learning Quiz & Session Assessment Design Skill — Rikkei Education Standards
 
-Bộ kỹ năng này hướng dẫn Agent cách thiết kế, chuẩn hóa và tạo ngân hàng câu hỏi trắc nghiệm (bao gồm Quiz từng bài học/Lesson và Quiz tổng hợp buổi học/Session) cho hệ thống E-learning, đáp ứng đầy đủ tiêu chuẩn sư phạm và định dạng dữ liệu xuất khẩu.
-
----
-
-## 🎯 1. Các Nguyên Tắc Cốt Lõi Thiết Kế Câu Hỏi Trắc Nghiệm (Quizz Standards)
-
-Khi tạo bất kỳ câu hỏi trắc nghiệm nào, Agent bắt buộc phải tuân thủ nghiêm ngặt 6 nguyên tắc sư phạm sau:
-
-1. **Nguyên tắc đơn nhiệm (Single Concept):** Mỗi câu hỏi chỉ tập trung đánh giá duy nhất một kiến thức hoặc một kỹ năng. Đảm bảo phần code mẫu hoặc ngữ cảnh không chứa thêm các lỗi cú pháp hay logic ngoài lề để sinh viên tập trung tối đa vào vấn đề cần kiểm tra.
-2. **Nguyên tắc ngữ cảnh hóa (Context-Driven):** Tránh các câu hỏi lý thuyết suông dạng định nghĩa ("Từ khóa break dùng để làm gì?"). Thay vào đó, hãy đặt sinh viên vào một tình huống nghiệp vụ/thực tế cụ thể (Scenario) để giải quyết vấn đề.
-3. **Nguyên tắc phương án nhiễu "Thông minh" (Plausible Distractors):** Các phương án sai (nhiễu) phải có vẻ hợp lý và dựa trên lỗi sai phổ biến của sinh viên (ví dụ: lỗi lặp vô tận, lỗi lặp thừa/thiếu 1 lần). Tuyệt đối cấm đưa ra các đáp án ngớ ngẩn hoặc dạng "Cả 3 đáp án trên đều sai/đúng".
-4. **Nguyên tắc đồng nhất (Homogeneity):** Cả 4 phương án trả lời (A, B, C, D) phải tương đồng nhau về mặt độ dài, cấu trúc ngữ pháp và phạm vi kiến thức. Tránh việc đáp án đúng thì dài và chi tiết, còn các phương án nhiễu thì ngắn cụt ngủn khiến học viên đoán mò được câu trả lời.
-5. **Nguyên tắc sắc bén (No clues):** Loại bỏ mọi dấu hiệu mách nước. Không dùng các từ khóa trong câu hỏi trùng lặp trực tiếp với từ khóa trong đáp án đúng (Keyword matching).
-6. **Nguyên tắc khách quan & có ý nghĩa (Objectivity & Contextual Integrity):** Đặt các câu hỏi có ý nghĩa chuyên môn rõ ràng. Nghiêm cấm sử dụng các từ ngữ tham chiếu bối cảnh bài học/bài giảng hay nguồn trích xuất mơ hồ như: "theo video", "trong video này", "lời giảng viên", "slide bài giảng", "slide đề cập", "từ một nguồn nào đó không rõ", v.v. Câu hỏi phải được phát biểu một cách khách quan, chính thống như một đề thi chuẩn.
-7. **Nguyên tắc Ràng buộc Phạm vi Kiến thức Động (Dynamic Progressive Scope Boundary):** 100% câu hỏi BẮT BUỘC chỉ thuộc phạm vi kiến thức đã được dạy trong bài học hiện tại và các bài học trước đó. TUYỆT ĐỐI CẤM đưa các công nghệ, framework, khái niệm hay hàm nâng cao thuộc bài học tương lai vào câu hỏi hoặc các đáp án lựa chọn. CẤM lạc đề hoặc hỏi kiến thức ngoài chương trình.
+This skill guides the AI Agent to design, standardize, and generate multiple-choice quiz question banks (including 5-question Lesson Quizzes and 45-question Session Entrance/Exit Quizzes) for E-learning platforms, strictly adhering to pedagogical standards and export schema requirements. Target output language is 100% Accented Vietnamese.
 
 ---
 
-## 📚 2. Cấu Trúc Đề Thi & Độ Khó (Difficulty) Cho Ngân Hàng Câu Hỏi
+## 🎯 1. Core Pedagogical Principles for Quiz Design
 
-Hệ thống hỗ trợ 2 cấp độ đánh giá trắc nghiệm:
+When generating any multiple-choice question, the Agent MUST strictly adhere to these 7 pedagogical principles:
 
-### 2.1. Quiz Bài học (Lesson Quiz) - 5 Câu hỏi
-Mỗi bộ Quiz bài học lý thuyết gồm đúng 5 câu hỏi theo ma trận Bloom sau:
-1. **Câu 1: Định nghĩa/Cú pháp (Nhớ)**: Kiểm tra cú pháp khai báo, tên thư viện, tham số cơ bản.
-2. **Câu 2: Luồng xử lý/Cơ chế (Hiểu)**: Kiểm tra thứ tự thực thi của máy chủ, middleware, router hoặc database query.
-3. **Câu 3: Đọc hiểu code (Vận dụng)**: Đưa ra một đoạn code ngắn và hỏi kết quả trả về hoặc lỗi cú pháp.
-4. **Câu 4: So sánh/Phân biệt (Phân tích)**: So sánh giữa hai phương pháp (ví dụ: Path parameters vs Query parameters, Async vs Sync).
-5. **Câu 5: Dự đoán kết quả với bẫy (Đánh giá)**: Đoạn code phức tạp chứa bẫy logic (trap) dễ nhầm lẫn để kiểm tra mức độ hiểu sâu sắc của học viên.
-
-### 2.2. Quiz Buổi học (Session Quiz) - 45 Câu hỏi
-Được chia làm 2 loại đề kiểm tra:
-
-#### A. Quiz Đầu Giờ (Entrance Quiz)
-*Nhằm mục đích kiểm tra kiến thức bài cũ (tập trung kỹ năng & tư duy thực chiến) kết hợp khởi động bài mới (kiểm soát kỷ luật tự học).*
-* **Phân bổ ngân hàng 45 câu**: **30 câu Bài cũ** và **15 câu Bài mới** (tỷ lệ 2:1).
-* **Nhóm 30 câu Bài cũ:**
-  1. *Câu 1 - 12 (12 câu): Vận dụng chuyên sâu (Application)*: category: `"BÀI CŨ"`, difficulty: `4`.
-  2. *Câu 13 - 21 (9 câu): Phân tích chuyên sâu (Debug)*: category: `"BÀI CŨ"`, difficulty: `6`.
-  3. *Câu 22 - 30 (9 câu): Sáng tạo (Optimization & Security)*: category: `"BÀI CŨ"`, difficulty: `8`.
-* **Nhóm 15 câu Bài mới:**
-  4. *Câu 31 - 36 (6 câu): Thông hiểu (Understand)*: category: `"BÀI MỚI"`, difficulty: `5`.
-  5. *Câu 37 - 42 (6 câu): Vận dụng sơ bộ (Basic Apply)*: category: `"BÀI MỚI"`, difficulty: `7`.
-  6. *Câu 43 - 45 (3 câu): Phân tích sơ bộ (Basic Analyze)*: category: `"BÀI MỚI"`, difficulty: `9`.
-
-#### B. Quiz Cuối Giờ (Exit Quiz)
-*Nhằm mục đích đo lường khả năng chuyển hóa kiến thức từ lý thuyết sang thực hành và độ bền vững kiến thức ngay tại lớp.*
-* **Phân bổ ngân hàng 45 câu**: Toàn bộ thuộc **Bài mới** (Category: `BÀI MỚI`).
-  1. *Câu 1 - 18 (18 câu): Vận dụng chuyên sâu (Application)*: difficulty: `6`.
-  2. *Câu 19 - 33 (15 câu): Phân tích chuyên sâu (Debug)*: difficulty: `10`.
-  3. *Câu 34 - 45 (12 câu): Sáng tạo (Create)*: difficulty: `11`.
+1. **Single Concept Principle:** Each question MUST evaluate exactly one technical concept or skill. Ensure code snippets or context do not contain unrelated syntax bugs so students focus solely on the tested issue.
+2. **Context-Driven Principle:** Avoid dry theoretical definitions ("What does the break keyword do?"). Instead, place the student in a concrete technical scenario.
+3. **Plausible Distractors Principle:** Incorrect options MUST be plausible and based on real student misconceptions (e.g. infinite loops, off-by-one errors). FORBIDDEN to use trivial distractors or "All of the above are correct/incorrect".
+4. **Homogeneity Principle:** All 4 answer choices (A, B, C, D) MUST be homogeneous in length, grammatical structure, and scope. Prevent students from guessing the correct answer based on length.
+5. **No Clues Principle:** Eliminate keyword matching clues between question text and correct answer.
+6. **Objectivity & Contextual Integrity:** Questions MUST be stated objectively like a standardized national exam. FORBIDDEN vague references ("in the video", "instructor said", "slide mentions").
+7. **Dynamic Progressive Scope Boundary:** 100% of questions MUST be strictly within the scope of currently taught and previous lessons. FORBIDDEN to include future topics, unlearned frameworks, or out-of-scope concepts.
 
 ---
 
-## 📊 3. Định Dạng Template Excel Xuất Khẩu
+## 📚 2. Exam Structure & Bloom Difficulty Matrix
 
-### 3.1. Quy ước đặt tên file Excel (Export Naming Convention)
-Khi xuất file Excel ngân hàng câu hỏi Quizz đầu giờ và Quizz cuối giờ, tên file bắt buộc phải bám sát tiêu đề của slide bài mới theo định dạng chuẩn:
-* **Quizz đầu giờ:** `SessionXX._Quizz_Dau_Gio_<Ten_slide_bai_moi>.xlsx`
-* **Quizz cuối giờ:** `SessionXX._Quizz_Cuoi_Gio_<Ten_slide_bai_moi>.xlsx`
-*(Trong đó `SessionXX.` lấy từ chỉ số buổi học trên slide, ví dụ `Session02.`, các khoảng trắng và ký tự đặc biệt trong tên slide được chuyển thành dấu gạch dưới `_`).*
+The system supports 2 levels of multiple-choice assessment:
 
-### 3.2. Cấu trúc bảng phẳng dữ liệu câu hỏi (13 cột)
+### 2.1. Lesson Quiz - 5 Questions
+Every theoretical lesson quiz deck MUST contain exactly 5 questions following this Bloom matrix:
+1. **Q1: Definition / Syntax (Remember)**: Check declaration syntax, library names, basic parameters.
+2. **Q2: Mechanism / Flow (Understand)**: Check execution order of server, middleware, router, or DB query.
+3. **Q3: Code Reading (Apply)**: Provide short code snippet and ask for return value or syntax error.
+4. **Q4: Comparison (Analyze)**: Compare two approaches (e.g. Path params vs Query params, Async vs Sync).
+5. **Q5: Edge Case Trap Prediction (Evaluate)**: Complex code snippet containing subtle logic traps to evaluate deep understanding.
 
-| STT | Tên cột trong Excel    | Kiểu dữ liệu | Mô tả                                                                   |
-| :-- | :--------------------- | :----------- | :---------------------------------------------------------------------- |
-| 1   | `STT`                  | Number       | Số thứ tự từ 1 đến 45.                                                  |
-| 2   | `question_content`     | Text         | Nội dung câu hỏi ngắn gọn, thực tế.                                     |
-| 3   | `answer_1`             | Text         | Phương án trả lời 1 (loại bỏ ký tự tiền tố A., B. nếu có).              |
-| 4   | `explanation_answer_1` | Text         | Giải thích ngắn gọn lý do vì sao phương án 1 đúng hoặc sai.             |
-| 5   | `answer_2`             | Text         | Phương án trả lời 2.                                                    |
-| 6   | `explanation_answer_2` | Text         | Giải thích ngắn gọn lý do vì sao phương án 2 đúng hoặc sai.             |
-| 7   | `answer_3`             | Text         | Phương án trả lời 3.                                                    |
-| 8   | `explanation_answer_3` | Text         | Giải thích ngắn gọn lý do vì sao phương án 3 đúng hoặc sai.             |
-| 9   | `answer_4`             | Text         | Phương án trả lời 4.                                                    |
-| 10  | `explanation_answer_4` | Text         | Giải thích ngắn gọn lý do vì sao phương án 4 đúng hoặc sai.             |
-| 11  | `isCorrect`            | Number       | Chỉ mục đáp án đúng (`1` cho A, `2` cho B, `3` cho C, `4` cho D).       |
-| 12  | `difficulty`           | Number       | Độ khó của câu hỏi theo thang từ `1` đến `11`.                         |
-| 13  | `category`             | Text         | Phân loại nguồn câu hỏi: `"BÀI CŨ"` hoặc `"BÀI MỚI"`.                   |
+### 2.2. Session Quiz - 45 Questions
+Divided into 2 exam types:
+
+#### A. Entrance Quiz
+*Evaluates previous lesson retention (practical problem-solving focus) combined with new lesson warm-up.*
+* **45-Question Distribution**: **30 Old Lesson questions** and **15 New Lesson questions** (2:1 ratio).
+* **30 Old Lesson Questions**:
+  1. *Q1 - 12 (12 questions): Advanced Application*: category: `"BÀI CŨ"`, difficulty: `4`.
+  2. *Q13 - 21 (9 questions): Deep Analysis (Debug)*: category: `"BÀI CŨ"`, difficulty: `6`.
+  3. *Q22 - 30 (9 questions): Creation (Optimization & Security)*: category: `"BÀI CŨ"`, difficulty: `8`.
+* **15 New Lesson Questions**:
+  4. *Q31 - 36 (6 questions): Understanding*: category: `"BÀI MỚI"`, difficulty: `5`.
+  5. *Q37 - 42 (6 questions): Basic Application*: category: `"BÀI MỚI"`, difficulty: `7`.
+  6. *Q43 - 45 (3 questions): Basic Analysis*: category: `"BÀI MỚI"`, difficulty: `9`.
+
+#### B. Exit Quiz
+*Measures immediate knowledge absorption and practical application durability at the end of class.*
+* **45-Question Distribution**: All 45 questions belong to **New Lesson** (Category: `BÀI MỚI`).
+  1. *Q1 - 18 (18 questions): Advanced Application*: difficulty: `6`.
+  2. *Q19 - 33 (15 questions): Deep Analysis (Debug)*: difficulty: `10`.
+  3. *Q34 - 45 (12 questions): Creation (Create)*: difficulty: `11`.
 
 ---
 
-## 💻 4. Quy tắc viết code mẫu trong câu hỏi (Code Styling Guidelines)
+## 📊 3. Export Excel Template Format
 
-Khi sinh các đoạn code mẫu trong nội dung câu hỏi (`question_content`), các đáp án hoặc phần giải thích, Agent bắt buộc phải tuân thủ nghiêm ngặt các quy tắc định dạng mã nguồn sau:
-1. **Ngôn ngữ của mã nguồn:** 100% tên biến, tên hàm, tên lớp, tên thuộc tính, và các định danh trong code phải viết bằng **Tiếng Anh**.
-2. **Quy tắc đặt tên (Naming Conventions):**
-   * Sử dụng **`snake_case`** cho tên biến, tên hàm, tên thuộc tính trong Python/Database (ví dụ: `user_id`, `get_active_users`).
-   * Sử dụng **`camelCase`** hoặc **`PascalCase`** đối với JavaScript/TypeScript/Java nếu ngôn ngữ đó quy định chuẩn như vậy (ví dụ: `userId`, `fetchData`).
-3. **Thụt lề và căn lề (Indentation):**
-   * Đảm bảo thụt lề chuẩn bằng khoảng trắng (Indent) hoặc Tab đồng nhất theo tiêu chuẩn của từng ngôn ngữ (ví dụ: Python bắt buộc thụt lề 4 khoảng trắng cho mỗi khối block logic).
-   * Không viết mã nguồn dồn cục trên một dòng duy nhất khi trình bày cấu trúc đa dòng. Dùng ký tự xuống dòng `\n` chính xác.
+### 3.1. Export Naming Convention
+Exported Excel files MUST strictly follow this naming convention:
+* **Entrance Quiz:** `SessionXX._Quizz_Dau_Gio_<New_Lesson_Slide_Title>.xlsx`
+* **Exit Quiz:** `SessionXX._Quizz_Cuoi_Gio_<New_Lesson_Slide_Title>.xlsx`
+
+### 3.2. Flat Data Table Structure (13 Columns)
+
+| # | Column Name in Excel   | Data Type | Description                                                             |
+| :- | :--------------------- | :-------- | :---------------------------------------------------------------------- |
+| 1  | `STT`                  | Number    | Sequential number 1 to 45.                                              |
+| 2  | `question_content`     | Text      | Concise, real-world question text.                                      |
+| 3  | `answer_1`             | Text      | Option 1 text (strip A., B. prefixes if present).                       |
+| 4  | `explanation_answer_1` | Text      | Explanation why option 1 is correct or incorrect.                       |
+| 5  | `answer_2`             | Text      | Option 2 text.                                                          |
+| 6  | `explanation_answer_2` | Text      | Explanation why option 2 is correct or incorrect.                       |
+| 7  | `answer_3`             | Text      | Option 3 text.                                                          |
+| 8  | `explanation_answer_3` | Text      | Explanation why option 3 is correct or incorrect.                       |
+| 9  | `answer_4`             | Text      | Option 4 text.                                                          |
+| 10 | `explanation_answer_4` | Text      | Explanation why option 4 is correct or incorrect.                       |
+| 11 | `isCorrect`            | Number    | Index of correct answer (`1` for A, `2` for B, `3` for C, `4` for D).   |
+| 12 | `difficulty`           | Number    | Question difficulty on a scale from `1` to `11`.                       |
+| 13 | `category`             | Text      | Source classification: `"BÀI CŨ"` or `"BÀI MỚI"`.                       |
+
+---
+
+## 💻 4. Code Styling Guidelines in Questions
+
+When generating code snippets inside `question_content`, options, or explanations:
+1. **Source Code Identifiers:** 100% of variable, function, class, and attribute names MUST be in **English**.
+2. **Naming Conventions:**
+   * Use **`snake_case`** for Python/Database variables and functions (`user_id`, `get_active_users`).
+   * Use **`camelCase`** or **`PascalCase`** for JavaScript/TypeScript/Java (`userId`, `fetchData`).
+3. **Indentation:**
+   * Maintain consistent 4-space indentation for block structures. Never concatenate multi-line code into a single line. Use explicit `\n` linebreaks.
+
 

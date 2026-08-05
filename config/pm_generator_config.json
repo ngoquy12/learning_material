@@ -1,0 +1,17 @@
+{
+  "curriculum_excel_path": "d:\\Rikkei Education\\Elearning_Agent\\Learning-Material\\CLO-PLO\\PM_PTIT_2026_Chương trình đào tạo.xlsx",
+  "course_id": "IT-106",
+  "student_profile": {
+    "entry_level": "beginner",
+    "background": "non-it",
+    "cognitive_speed": 0.95
+  },
+  "session_budget": {
+    "total_sessions": 25,
+    "theory_sessions": 12,
+    "practice_sessions": 10,
+    "mini_projects": 2,
+    "final_exam": 1
+  },
+  "tech_stack": "javascript/vanilla"
+}

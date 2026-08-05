@@ -1,1 +1,0 @@
-Hãy so sánh trực quan hai cơ chế chỉ mục này. Chỉ mục dương tăng dần từ không đến n trừ một từ trái sang phải, trong khi chỉ mục âm giảm dần từ trừ một đến trừ n từ phải sang trái. Việc sử dụng linh hoạt hai hướng tiếp cận này giúp mã nguồn tối ưu hóa hiệu suất và tránh được các tác vụ lặp lại khi truy xuất.

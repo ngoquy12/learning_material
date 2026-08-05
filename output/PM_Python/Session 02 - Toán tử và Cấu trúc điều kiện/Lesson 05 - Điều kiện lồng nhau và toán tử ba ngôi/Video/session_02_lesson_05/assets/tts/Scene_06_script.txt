@@ -1,1 +1,0 @@
-Sơ đồ này mô tả chi tiết đường đi của dữ liệu. Khởi đầu từ việc kiểm tra điều kiện chính, chương trình sẽ đánh giá nhánh thành công thông qua một kiểm tra phụ, hoặc chuyển ngay sang việc trả về một giá trị mặc định. Đường đi của mã lệnh sạch hơn, loại bỏ hoàn toàn các cấu trúc rẽ nhánh lồng nhau vô tận.

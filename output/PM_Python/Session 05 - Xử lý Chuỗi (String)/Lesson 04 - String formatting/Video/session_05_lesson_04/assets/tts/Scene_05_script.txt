@@ -1,1 +1,0 @@
-Phương pháp đầu tiên là pe-sen format bản chất là định dạng kiểu C. Ký hiệu phần trăm s đại diện cho chuỗi, phần trăm d đại diện cho số nguyên và phần trăm chấm hai ép đại diện cho số thực lấy hai chữ số thập phân. Các biến tương ứng được đặt bên trong một túp-pồ đi sau ký tự phần trăm.

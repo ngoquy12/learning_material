@@ -1,1 +1,0 @@
-Khi thực thi chương trình trong cửa sổ ci el ai, luồng điều khiển hoạt động như sau. Ở dòng một, vòng trong chạy bốn lần để tạo ra các cột từ một đến bốn. Khi gặp lệnh prin rỗng, hệ thống ngắt dòng. Quá trình này tiếp tục lặp lại ở dòng hai và dòng ba, tạo ra cấu trúc lưới hoàn chỉnh chứa mười hai tọa độ dữ liệu.

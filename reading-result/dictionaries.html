@@ -1,0 +1,1520 @@
+<!doctype html>
+<html lang="vi" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài đọc: Dictionary trong Python</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+                bgDark: "#0b0f19",
+                cardDark: "#151d30",
+                borderDark: "#1e293b",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Inter", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- Pyodide Engine for Live Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+    <style>
+      /* Custom highlight.js overrides for both static code blocks and editors */
+      .hljs {
+        background: #f8fafc !important; /* light slate background */
+        color: #334155 !important;
+      }
+      .dark .hljs {
+        background: #0f172a !important; /* dark slate background */
+        color: #e2e8f0 !important;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* Syntax highlighting for all code blocks in light mode */
+      .hljs-keyword {
+        color: #be111c !important; /* rikkei-red */
+        font-weight: 600 !important;
+      }
+      .hljs-string {
+        color: #0d9488 !important; /* teal-600 */
+      }
+      .hljs-comment {
+        color: #475569 !important; /* slate-600 */
+        font-style: italic !important;
+      }
+      .hljs-number {
+        color: #d97706 !important; /* amber-600 */
+      }
+      .hljs-built_in,
+      .hljs-title,
+      .hljs-params {
+        color: #2563eb !important; /* blue-600 */
+      }
+
+      /* Syntax highlighting for all code blocks in dark mode */
+      .dark .hljs-keyword {
+        color: #f43f5e !important; /* rose-400 */
+        font-weight: 600 !important;
+      }
+      .dark .hljs-string {
+        color: #2dd4bf !important; /* teal-400 */
+      }
+      .dark .hljs-comment {
+        color: #94a3b8 !important; /* slate-400 */
+        font-style: italic !important;
+      }
+      .dark .hljs-number {
+        color: #fbbf24 !important; /* amber-400 */
+      }
+      .dark .hljs-built_in,
+      .dark .hljs-title,
+      .dark .hljs-params {
+        color: #60a5fa !important; /* blue-400 */
+      }
+
+      /* SVG Diagram Adaptive Colors */
+      .rikkei-diagram svg {
+        background-color: #f8fafc;
+        transition: background-color 0.3s;
+      }
+      .dark .rikkei-diagram svg {
+        background-color: #090d16;
+      }
+
+      .rikkei-diagram-bg {
+        fill: #f8fafc !important;
+        transition: fill 0.3s;
+      }
+      .dark .rikkei-diagram-bg {
+        fill: #090d16 !important;
+      }
+
+      .rikkei-diagram-card {
+        fill: #ffffff !important;
+        stroke: #cbd5e1 !important;
+        transition:
+          fill 0.3s,
+          stroke 0.3s;
+      }
+      .dark .rikkei-diagram-card {
+        fill: #1e293b !important;
+        stroke: #334155 !important;
+      }
+
+      .rikkei-diagram-container-card {
+        fill: #ffffff !important;
+        stroke: #be111c !important;
+        transition:
+          fill 0.3s,
+          stroke 0.3s;
+      }
+      .dark .rikkei-diagram-container-card {
+        fill: #0f172a !important;
+        stroke: #be111c !important;
+      }
+
+      .rikkei-diagram-text {
+        fill: #0f172a !important;
+        transition: fill 0.3s;
+      }
+      .dark .rikkei-diagram-text {
+        fill: #ffffff !important;
+      }
+
+      .rikkei-diagram-text-muted {
+        fill: #475569 !important;
+        transition: fill 0.3s;
+      }
+      .dark .rikkei-diagram-text-muted {
+        fill: #94a3b8 !important;
+      }
+
+      /* Improve readability of muted text in light mode */
+      html:not(.dark) .text-slate-400,
+      html:not(.dark) .text-slate-500 {
+        color: #475569 !important;
+      }
+
+      path.rikkei-diagram-text-muted,
+      line.rikkei-diagram-text-muted {
+        stroke: #cbd5e1 !important;
+        transition: stroke 0.3s;
+      }
+      .dark path.rikkei-diagram-text-muted,
+      .dark line.rikkei-diagram-text-muted {
+        stroke: #475569 !important;
+      }
+
+      path.rikkei-diagram-grid {
+        stroke: #cbd5e1 !important;
+        transition: stroke 0.3s;
+      }
+      .dark path.rikkei-diagram-grid {
+        stroke: #334155 !important;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px; /* Offset for fixed header */
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
+    <!-- Fixed Header -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 dark:bg-rikkei-cardDark/95 backdrop-blur-md border-b border-slate-200 dark:border-rikkei-borderDark z-40 transition-colors duration-300"
+    >
+      <div
+        class="max-w-340 mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <!-- Logo -->
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+        </div>
+
+        <!-- Theme Switcher -->
+        <button
+          id="theme-toggle"
+          class="w-10 h-10 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-all text-slate-600 dark:text-slate-300"
+          title="Chuyển chế độ sáng/tối"
+        >
+          <i id="theme-icon" class="ph-bold ph-moon text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Top Progress Scroll Bar -->
+      <div class="w-full h-1 bg-slate-100 dark:bg-slate-800">
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left) -->
+      <aside
+        class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
+        <div class="space-y-4">
+          <h4
+            class="font-montserrat font-bold text-sm tracking-wider text-slate-400 dark:text-slate-500"
+          >
+            Mục lục chi tiết
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 dark:border-rikkei-borderDark space-y-1"
+          >
+            <a
+              href="#problem-intro"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >1. Tại sao cần Dictionary?</a
+            >
+            <a
+              href="#data-structure"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >2. Cú pháp và cơ chế</a
+            >
+            <a
+              href="#interactive-demo"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >3. Demo tự trải nghiệm</a
+            >
+            <a
+              href="#summary-notes"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >4. Tổng kết và các lưu ý</a
+            >
+            <a
+              href="#references"
+              class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              >5. Tài liệu tham khảo</a
+            >
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Reading Content -->
+      <article
+        class="flex-1 min-w-0 bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-rikkei-borderDark rounded-2xl p-6 sm:p-10 shadow-sm transition-colors duration-300"
+      >
+        <!-- Article Title -->
+        <div
+          class="border-b border-slate-200 dark:border-rikkei-borderDark pb-6 mb-8"
+        >
+          <h1
+            class="font-montserrat font-bold text-3xl text-slate-900 dark:text-white leading-tight"
+          >
+            Dictionary trong Python
+          </h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="problem-intro" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            1. Tại sao cần Dictionary?
+          </h2>
+
+          <div class="text-slate-600 dark:text-slate-300 space-y-4">
+            <p>
+              Khi phát triển một ứng dụng quản lý, chẳng hạn như danh mục 100,000 sản phẩm
+              trong kho hàng, nghiệp vụ phổ biến nhất là tìm kiếm thông tin chi tiết của
+              sản phẩm dựa trên mã vạch (Barcode) hoặc mã định danh (SKU).
+            </p>
+            <p>Nếu sử dụng cấu trúc List tuần tự để giải quyết bài toán này, hệ thống sẽ gặp các rào cản:</p>
+            <ul class="list-disc pl-6 space-y-2">
+              <li>
+                <strong>Tốc độ tìm kiếm quá chậm:</strong> Để tìm ra sản phẩm ở cuối danh sách,
+                chương trình phải chạy vòng lặp duyệt qua từng phần tử từ đầu đến cuối. Khi dữ
+                liệu tăng lên hàng triệu bản ghi, việc duyệt mảng này ($O(n)$) sẽ gây nghẽn và
+                chậm hệ thống nghiêm trọng.
+              </li>
+              <li>
+                <strong>Khó quản lý ánh xạ:</strong> Việc cố khớp thông tin giữa hai danh sách
+                độc lập (như danh sách `skus` và danh sách `prices` thông qua chỉ mục index) rất
+                dễ gây ra sai lệch dữ liệu khi một trong hai danh sách bị thay đổi vị trí.
+              </li>
+            </ul>
+            <p>
+              Để tối ưu hóa việc tìm kiếm và quản lý mối quan hệ ánh xạ, Python cung cấp cấu
+              trúc <strong>Dictionary (Từ điển)</strong>. Dictionary lưu trữ dữ liệu dưới dạng
+              các cặp <strong>Key-Value (Khóa - Giá trị)</strong>. Nhờ cơ chế bảng băm (Hash Table)
+              độc đáo, Dictionary cho phép tìm kiếm, thêm mới, hoặc xóa dữ liệu ngay lập tức
+              với độ phức tạp thời gian không đổi $O(1)$, bất kể kích thước dữ liệu lớn ra sao.
+            </p>
+          </div>
+
+          <!-- 16:9 Contextual Scene Image (Hash Table Concept) -->
+          <div class="my-6">
+            <div
+              class="w-full max-w-[800px] mx-auto overflow-hidden rikkei-diagram"
+            >
+              <svg viewBox="0 90 800 270" class="w-full h-auto">
+                <defs>
+                  <linearGradient
+                    id="grid-grad"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stop-color="#0f172a" />
+                    <stop offset="100%" stop-color="#1e293b" />
+                  </linearGradient>
+                  <linearGradient
+                    id="card-grad"
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stop-color="#be111c" stop-opacity="0.1" />
+                    <stop
+                      offset="100%"
+                      stop-color="#be111c"
+                      stop-opacity="0.01"
+                    />
+                  </linearGradient>
+                </defs>
+
+
+                <!-- Hash map visual process -->
+                <g transform="translate(60, 50)">
+
+                  <!-- Keys List (Left) -->
+                  <g transform="translate(30, 80)">
+                    <rect width="160" height="190" rx="12" class="rikkei-diagram-card" stroke-width="1.5"/>
+                    <text x="80" y="30" class="rikkei-diagram-text" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle">Khóa (Keys)</text>
+                    <text x="80" y="80" fill="#be111c" font-family="JetBrains Mono" font-weight="bold" font-size="14" text-anchor="middle">"prod_101"</text>
+                    <text x="80" y="140" class="rikkei-diagram-text-muted" font-family="JetBrains Mono" font-size="14" text-anchor="middle">"prod_102"</text>
+                  </g>
+
+                  <!-- Arrow Key -> Hash Engine -->
+                  <path d="M 190,160 L 270,160" stroke="#be111c" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+                  <!-- Hash Engine (Center) -->
+                  <g transform="translate(270, 110)">
+                    <rect width="140" height="100" rx="12" class="rikkei-diagram-container-card" stroke-width="2" />
+                    <text x="70" y="40" fill="#be111c" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle">Hàm băm</text>
+                    <text x="70" y="65" class="rikkei-diagram-text" font-family="JetBrains Mono" font-size="13" text-anchor="middle">Hash Function</text>
+                    <text x="70" y="85" class="rikkei-diagram-text-muted" font-family="Inter" font-size="10" text-anchor="middle">Chuyển Key ➔ Index</text>
+                  </g>
+
+                  <!-- Arrow Hash Engine -> Buckets -->
+                  <path d="M 410,160 L 490,160" stroke="#be111c" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+                  <!-- Buckets & Values (Right) -->
+                  <g transform="translate(490, 60)">
+                    <rect width="160" height="230" rx="12" class="rikkei-diagram-card" stroke-width="1.5"/>
+                    <text x="80" y="30" class="rikkei-diagram-text" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle">Bộ nhớ (Values)</text>
+                    
+                    <rect x="15" y="60" width="130" height="45" rx="6" fill="none" stroke="#be111c" stroke-width="1.5"/>
+                    <text x="80" y="80" fill="#be111c" font-family="JetBrains Mono" font-weight="bold" font-size="12" text-anchor="middle">"Sữa" (Index 3)</text>
+                    <text x="80" y="95" class="rikkei-diagram-text-muted" font-family="Inter" font-size="10" text-anchor="middle">Truy xuất tức thì O(1)</text>
+
+                    <rect x="15" y="125" width="130" height="45" rx="6" fill="none" stroke="#cbd5e1" stroke-width="1"/>
+                    <text x="80" y="145" class="rikkei-diagram-text-muted" font-family="JetBrains Mono" font-size="12" text-anchor="middle">"Trứng" (Index 7)</text>
+                  </g>
+                </g>
+
+                <!-- Arrow marker -->
+                <defs>
+                  <marker
+                    id="arrow"
+                    viewBox="0 0 10 10"
+                    refX="5"
+                    refY="5"
+                    markerWidth="6"
+                    markerHeight="6"
+                    orient="auto-start-reverse"
+                  >
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#be111c" />
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+            <p
+              class="text-center text-sm text-slate-500 dark:text-slate-400 italic mt-3"
+            >
+              Sơ đồ bối cảnh: Cơ chế tìm kiếm dữ liệu siêu tốc bằng bảng băm (Hash Table) của Dictionary: Chuyển đổi Khóa ➔ Vị trí chỉ mục chính xác trong bộ nhớ RAM để lấy ngay giá trị trong $O(1)$.
+            </p>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 2: Cú pháp và cơ chế -->
+        <section id="data-structure" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            2. Cú pháp và cơ chế hoạt động
+          </h2>
+
+          <div class="text-slate-600 dark:text-slate-300 space-y-4">
+            <p>
+              Dictionary trong Python được khai báo bằng cặp ngoặc nhọn `{}`.
+              Mỗi phần tử bên trong bao gồm cặp `Key: Value` phân tách nhau
+              bởi dấu hai chấm, các cặp phần tử ngăn cách bởi dấu phẩy.
+            </p>
+            <ol class="list-decimal pl-6 space-y-4">
+              <li class="leading-relaxed">
+                <strong>Quy tắc đặt Khóa (Keys Constraint):</strong>
+                <ul class="list-disc pl-6 mt-2 space-y-1.5">
+                  <li>
+                    Khóa phải là kiểu dữ liệu **bất biến (Immutable/Hashable)** như String, Number, hoặc Tuple. Tuyệt đối không được dùng List làm Key.
+                  </li>
+                  <li>
+                    Khóa là duy nhất (Unique) trong một Dictionary. Nếu gán đè một giá trị mới vào Key đã có sẵn, Python sẽ ghi đè giá trị cũ bằng giá trị mới.
+                  </li>
+                </ul>
+              </li>
+              <li class="leading-relaxed">
+                <strong>Giá trị (Values):</strong> Có thể thuộc bất kỳ kiểu dữ liệu nào (Mutable, Immutable), cho phép trùng lặp dữ liệu giữa các Key khác nhau, và cho phép lồng các Dictionary khác vào nhau.
+              </li>
+              <li class="leading-relaxed">
+                <strong>Bảng băm (Hash Table):</strong> Python chuyển đổi Key thành một mã băm nguyên (Hash code). Mã băm này đại diện trực tiếp cho chỉ mục ô nhớ của Value, cho phép truy cập trực tiếp thay vì duyệt tuần tuần từ đầu đến cuối như List.
+              </li>
+            </ol>
+          </div>
+
+          <!-- Memory visualization diagram (Nested Dict) -->
+          <div class="mb-8 mt-10">
+            <h3
+              class="font-montserrat font-bold text-xl text-slate-900 dark:text-white mb-4"
+            >
+              Mô tả cấu trúc Dictionary lồng nhau (Nested Dictionary) trong bộ nhớ
+            </h3>
+
+            <div
+              class="w-full max-w-[800px] mx-auto bg-white dark:bg-slate-950 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800/60 shadow-sm rikkei-diagram"
+            >
+              <svg viewBox="0 0 800 320" class="w-full h-auto">
+                <!-- Background Grid -->
+                <rect width="800" height="320" class="rikkei-diagram-bg" />
+
+                <!-- Left Block: Parent User Profile Dict -->
+                <g transform="translate(60, 40)">
+                  <rect width="280" height="240" rx="12" class="rikkei-diagram-container-card" stroke-width="2" />
+                  <text x="140" y="30" fill="#be111c" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle">Parent Dict: user_profile</text>
+                  <line x1="20" y1="45" x2="260" y2="45" stroke="#be111c" stroke-opacity="0.3" stroke-width="1"/>
+                  <text x="30" y="80" class="rikkei-diagram-text" font-family="JetBrains Mono" font-size="13">"username": "coder_01"</text>
+                  <text x="30" y="125" class="rikkei-diagram-text" font-family="JetBrains Mono" font-size="13">"email": "a@rikkei.edu.vn"</text>
+                  
+                  <rect x="25" y="155" width="230" height="60" rx="6" fill="none" stroke="#be111c" stroke-width="1.5" stroke-dasharray="3,3"/>
+                  <text x="35" y="180" fill="#be111c" font-family="JetBrains Mono" font-weight="bold" font-size="13">"address": trỏ tới ➔</text>
+                  <text x="35" y="200" class="rikkei-diagram-text-muted" font-family="Inter" font-size="11">Nested Dictionary</text>
+                </g>
+
+                <!-- Arrow Parent -> Nested -->
+                <path d="M 340,160 L 440,160" stroke="#be111c" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+
+                <!-- Right Block: Nested Address Dict -->
+                <g transform="translate(460, 60)">
+                  <rect width="280" height="180" rx="12" class="rikkei-diagram-card" stroke-width="1.5" />
+                  <text x="140" y="30" class="rikkei-diagram-text" font-family="Inter" font-weight="bold" font-size="14" text-anchor="middle">Nested Dict: address</text>
+                  <line x1="20" y1="45" x2="260" y2="45" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="2,2"/>
+                  <text x="30" y="85" class="rikkei-diagram-text" font-family="JetBrains Mono" font-size="13">"city": "Hà Nội"</text>
+                  <text x="30" y="130" class="rikkei-diagram-text" font-family="JetBrains Mono" font-size="13">"district": "Cầu Giấy"</text>
+                </g>
+              </svg>
+            </div>
+            <p
+              class="text-center text-sm text-slate-500 dark:text-slate-400 italic mt-3"
+            >
+              Sơ đồ phân tích: Cơ chế tham chiếu vùng nhớ của cấu trúc Dictionary lồng nhau (Nested JSON structure), cho phép biểu diễn các đối tượng dữ liệu phức tạp trong thực tế.
+            </p>
+          </div>
+
+          <!-- Interactive Sandbox Editors -->
+          <div class="space-y-8 mt-10">
+            <!-- Ví dụ 2.1: Khởi tạo và truy xuất -->
+            <div class="mb-8">
+              <h4
+                class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+              >
+                Ví dụ 2.1: Khởi tạo và đọc giá trị của Dictionary:
+              </h4>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Thực hiện tạo một từ điển sản phẩm chứa mã vạch, tên sản phẩm và đơn giá tương ứng.
+              </p>
+              <div
+                class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+              >
+                <div
+                  class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+                >
+                  <!-- Floating Toolbar -->
+                  <div
+                    class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                  >
+                    <button
+                      onclick="clearSandbox('code-2-1', 'output-2-1', 'status-2-1', 'status-icon-2-1', 'container-2-1')"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Khôi phục code gốc"
+                    >
+                      <i class="ph-bold ph-x text-sm"></i>
+                    </button>
+                    <button
+                      onclick="runPythonSandbox('code-2-1', 'output-2-1', 'status-2-1', 'status-icon-2-1', 'container-2-1')"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Chạy chương trình"
+                    >
+                      <i class="ph-bold ph-play text-sm"></i>
+                    </button>
+                    <button
+                      onclick="copySandboxCode('code-2-1', this)"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Sao chép"
+                    >
+                      <i class="ph-bold ph-copy text-sm"></i>
+                    </button>
+                  </div>
+                  <pre
+                    id="code-2-1"
+                    contenteditable="true"
+                    data-original='# Khởi tạo từ điển lưu thông tin sản phẩm&#10;product = {&#10;    "sku": "PROD_999",&#10;    "name": "Bàn phím cơ không dây",&#10;    "price": 1250,&#10;    "stock": 15&#10;}&#10;&#10;print("Tên sản phẩm:", product["name"])&#10;print("Đơn giá:", product["price"])'
+                    class="w-full min-h-[96px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                    spellcheck="false"
+                  ># Khởi tạo từ điển lưu thông tin sản phẩm
+product = {
+    "sku": "PROD_999",
+    "name": "Bàn phím cơ không dây",
+    "price": 1250,
+    "stock": 15
+}
+
+print("Tên sản phẩm:", product["name"])
+print("Đơn giá:", product["price"])</pre>
+                </div>
+                <div
+                  id="container-2-1"
+                  class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+                >
+                  <pre
+                    id="output-2-1"
+                    class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                  ></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ví dụ 2.2: CRUD operations -->
+            <div class="mb-8">
+              <h4
+                class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+              >
+                Ví dụ 2.2: Thêm, sửa, xóa các phần tử trong Dictionary:
+              </h4>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Tìm hiểu các thao tác cập nhật giá trị mới, chèn Key mới và sử dụng <code>del</code> hoặc <code>.pop()</code> để loại bỏ Key.
+              </p>
+              <div
+                class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+              >
+                <div
+                  class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+                >
+                  <!-- Floating Toolbar -->
+                  <div
+                    class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                  >
+                    <button
+                      onclick="clearSandbox('code-2-2', 'output-2-2', 'status-2-2', 'status-icon-2-2', 'container-2-2')"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Khôi phục code gốc"
+                    >
+                      <i class="ph-bold ph-x text-sm"></i>
+                    </button>
+                    <button
+                      onclick="runPythonSandbox('code-2-2', 'output-2-2', 'status-2-2', 'status-icon-2-2', 'container-2-2')"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Chạy chương trình"
+                    >
+                      <i class="ph-bold ph-play text-sm"></i>
+                    </button>
+                    <button
+                      onclick="copySandboxCode('code-2-2', this)"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Sao chép"
+                    >
+                      <i class="ph-bold ph-copy text-sm"></i>
+                    </button>
+                  </div>
+                  <pre
+                    id="code-2-2"
+                    contenteditable="true"
+                    data-original='user_roles = {"An": "Admin", "Bình": "Editor"}&#10;&#10;# 1. Thêm Key mới&#10;user_roles["Cường"] = "User"&#10;&#10;# 2. Sửa Key hiện tại&#10;user_roles["Bình"] = "Admin"&#10;&#10;# 3. Xóa Key bằng pop()&#10;deleted_role = user_roles.pop("An")&#10;&#10;print("Vai trò đã xóa của An:", deleted_role)&#10;print("Từ điển hiện tại:", user_roles)'
+                    class="w-full min-h-[96px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                    spellcheck="false"
+                  >user_roles = {"An": "Admin", "Bình": "Editor"}
+
+# 1. Thêm Key mới
+user_roles["Cường"] = "User"
+
+# 2. Sửa Key hiện tại
+user_roles["Bình"] = "Admin"
+
+# 3. Xóa Key bằng pop()
+deleted_role = user_roles.pop("An")
+
+print("Vai trò đã xóa của An:", deleted_role)
+print("Từ điển hiện tại:", user_roles)</pre>
+                </div>
+                <div
+                  id="container-2-2"
+                  class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+                >
+                  <pre
+                    id="output-2-2"
+                    class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                  ></pre>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ví dụ 2.3: Duyệt Dictionary -->
+            <div class="mb-8">
+              <h4
+                class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+              >
+                Ví dụ 2.3: Duyệt qua các phần tử của Dictionary:
+              </h4>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+                Sử dụng các phương thức <code>.keys()</code>, <code>.values()</code>, và <code>.items()</code> để lặp duyệt qua từ điển.
+              </p>
+              <div
+                class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+              >
+                <div
+                  class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+                >
+                  <!-- Floating Toolbar -->
+                  <div
+                    class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                  >
+                    <button
+                      onclick="clearSandbox('code-2-3', 'output-2-3', 'status-2-3', 'status-icon-2-3', 'container-2-3')"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Khôi phục code gốc"
+                    >
+                      <i class="ph-bold ph-x text-sm"></i>
+                    </button>
+                    <button
+                      onclick="runPythonSandbox('code-2-3', 'output-2-3', 'status-2-3', 'status-icon-2-3', 'container-2-3')"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Chạy chương trình"
+                    >
+                      <i class="ph-bold ph-play text-sm"></i>
+                    </button>
+                    <button
+                      onclick="copySandboxCode('code-2-3', this)"
+                      class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                      title="Sao chép"
+                    >
+                      <i class="ph-bold ph-copy text-sm"></i>
+                    </button>
+                  </div>
+                  <pre
+                    id="code-2-3"
+                    contenteditable="true"
+                    data-original='salaries = {"CEO": 80, "CTO": 60, "Manager": 30}&#10;&#10;print("--- Duyệt qua danh sách vị trí (Keys) ---")&#10;for role in salaries.keys():&#10;    print("Vị trí:", role)&#10;&#10;print("\n--- Duyệt qua cả Key và Value bằng items() ---")&#10;for role, salary in salaries.items():&#10;    print(f"Lương của {role} là {salary} triệu đồng")'
+                    class="w-full min-h-[96px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                    spellcheck="false"
+                  >salaries = {"CEO": 80, "CTO": 60, "Manager": 30}
+
+print("--- Duyệt qua danh sách vị trí (Keys) ---")
+for role in salaries.keys():
+    print("Vị trí:", role)
+
+print("\n--- Duyệt qua cả Key và Value bằng items() ---")
+for role, salary in salaries.items():
+    print(f"Lương của {role} là {salary} triệu đồng")</pre>
+                </div>
+                <div
+                  id="container-2-3"
+                  class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+                >
+                  <pre
+                    id="output-2-3"
+                    class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                  ></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 3: Demo tự trải nghiệm -->
+        <section id="interactive-demo" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            3. Các thao tác làm việc với Dictionary
+          </h2>
+
+          <!-- Ví dụ 3.1: Cập nhật tồn kho sản phẩm -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.1: Quản lý và cập nhật số lượng tồn kho sản phẩm:
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Mô phỏng quy trình xử lý bán hàng, kiểm tra lượng tồn và trừ trực tiếp số lượng trong Dictionary.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="clearSandbox('code-3-1', 'output-3-1', 'status-3-1', 'status-icon-3-1', 'container-3-1')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="runPythonSandbox('code-3-1', 'output-3-1', 'status-3-1', 'status-icon-3-1', 'container-3-1')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-1', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-1"
+                  contenteditable="true"
+                  data-original='inventory = {"IPHONE_15": 10, "MACBOOK_PRO": 4}&#10;&#10;def purchase_item(product_sku, buy_qty):&#10;    # Kiểm tra sản phẩm có trong kho không&#10;    if product_sku in inventory:&#10;        available_stock = inventory[product_sku]&#10;        if available_stock >= buy_qty:&#10;            inventory[product_sku] -= buy_qty&#10;            print(f"Mua thành công {buy_qty} chiếc. Kho còn lại: {inventory[product_sku]}")&#10;        else:&#10;            print("Không đủ số lượng trong kho!")&#10;    else:&#10;        print("Sản phẩm không tồn tại!")&#10;&#10;purchase_item("IPHONE_15", 3)&#10;purchase_item("GALAXY_S24", 1)'
+                  class="w-full min-h-[112px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >inventory = {"IPHONE_15": 10, "MACBOOK_PRO": 4}
+
+def purchase_item(product_sku, buy_qty):
+    # Kiểm tra sản phẩm có trong kho không
+    if product_sku in inventory:
+        available_stock = inventory[product_sku]
+        if available_stock >= buy_qty:
+            inventory[product_sku] -= buy_qty
+            print(f"Mua thành công {buy_qty} chiếc. Kho còn lại: {inventory[product_sku]}")
+        else:
+            print("Không đủ số lượng trong kho!")
+    else:
+        print("Sản phẩm không tồn tại!")
+
+purchase_item("IPHONE_15", 3)
+purchase_item("GALAXY_S24", 1)</pre>
+              </div>
+              <div
+                id="container-3-1"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-1"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ví dụ 3.2: Đếm tần suất từ -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.2: Đếm tần suất xuất hiện các từ bằng Dictionary:
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Mẫu thuật toán kinh điển sử dụng Dictionary để đếm nhanh số lần lặp lại của từng từ trong một danh sách.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="clearSandbox('code-3-2', 'output-3-2', 'status-3-2', 'status-icon-3-2', 'container-3-2')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="runPythonSandbox('code-3-2', 'output-3-2', 'status-3-2', 'status-icon-3-2', 'container-3-2')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-2', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-2"
+                  contenteditable="true"
+                  data-original='words_list = ["apple", "banana", "apple", "cherry", "banana", "apple"]&#10;word_counts = {}&#10;&#10;for word in words_list:&#10;    if word in word_counts:&#10;        word_counts[word] += 1&#10;    else:&#10;        word_counts[word] = 1&#10;&#10;print("Tần suất xuất hiện:", word_counts)'
+                  class="w-full min-h-[112px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >words_list = ["apple", "banana", "apple", "cherry", "banana", "apple"]
+word_counts = {}
+
+for word in words_list:
+    if word in word_counts:
+        word_counts[word] += 1
+    else:
+        word_counts[word] = 1
+
+print("Tần suất xuất hiện:", word_counts)</pre>
+              </div>
+              <div
+                id="container-3-2"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-2"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ví dụ 3.3: Nested JSON/Profile API -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.3: Xử lý dữ liệu cấu trúc lồng nhau (Nested JSON):
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Mô phỏng truy xuất thông tin từ API hồ sơ lập trình viên, truy xuất qua các khóa cha và con.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="clearSandbox('code-3-3', 'output-3-3', 'status-3-3', 'status-icon-3-3', 'container-3-3')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="runPythonSandbox('code-3-3', 'output-3-3', 'status-3-3', 'status-icon-3-3', 'container-3-3')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-3', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-3"
+                  contenteditable="true"
+                  data-original='profile = {&#10;    "name": "Nguyễn Coder",&#10;    "skills": ["Python", "SQL"],&#10;    "location": {&#10;        "city": "Hà Nội",&#10;        "district": "Cầu Giấy"&#10;    }&#10;}&#10;&#10;# Lấy kỹ năng lập trình đầu tiên&#10;first_skill = profile["skills"][0]&#10;# Lấy thông tin thành phố trong từ điển lồng&#10;current_city = profile["location"]["city"]&#10;&#10;print(f"Họ tên: {profile[&apos;name&apos;]}")&#10;print(f"Kỹ năng chính: {first_skill}")&#10;print(f"Địa chỉ thành phố: {current_city}")'
+                  class="w-full min-h-[128px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >profile = {
+    "name": "Nguyễn Coder",
+    "skills": ["Python", "SQL"],
+    "location": {
+        "city": "Hà Nội",
+        "district": "Cầu Giấy"
+    }
+}
+
+# Lấy kỹ năng lập trình đầu tiên
+first_skill = profile["skills"][0]
+# Lấy thông tin thành phố trong từ điển lồng
+current_city = profile["location"]["city"]
+
+print(f"Họ tên: {profile['name']}")
+print(f"Kỹ năng chính: {first_skill}")
+print(f"Địa chỉ thành phố: {current_city}")</pre>
+              </div>
+              <div
+                id="container-3-3"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-3"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ví dụ 3.4: Gộp cấu hình config -->
+          <div class="mb-10">
+            <h4
+              class="font-bold text-slate-800 dark:text-slate-300 text-sm mb-2"
+            >
+              Ví dụ 3.4: Gộp và ghi đè các cấu hình bằng phương thức update():
+            </h4>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Sử dụng <code>.update()</code> để gộp nhanh cấu hình người dùng thiết lập vào cấu hình mặc định ban đầu của ứng dụng.
+            </p>
+            <div
+              class="border border-slate-200 dark:border-rikkei-borderDark rounded-lg overflow-hidden"
+            >
+              <div
+                class="relative bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+              >
+                <!-- Floating Toolbar -->
+                <div
+                  class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                  <button
+                    onclick="clearSandbox('code-3-4', 'output-3-4', 'status-3-4', 'status-icon-3-4', 'container-3-4')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Khôi phục code gốc"
+                  >
+                    <i class="ph-bold ph-x text-sm"></i>
+                  </button>
+                  <button
+                    onclick="runPythonSandbox('code-3-4', 'output-3-4', 'status-3-4', 'status-icon-3-4', 'container-3-4')"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Chạy chương trình"
+                  >
+                    <i class="ph-bold ph-play text-sm"></i>
+                  </button>
+                  <button
+                    onclick="copySandboxCode('code-3-4', this)"
+                    class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red dark:hover:text-rikkei-red transition-all"
+                    title="Sao chép"
+                  >
+                    <i class="ph-bold ph-copy text-sm"></i>
+                  </button>
+                </div>
+                <pre
+                  id="code-3-4"
+                  contenteditable="true"
+                  data-original='default_settings = {"theme": "light", "notifications": True, "font_size": 14}&#10;user_settings = {"theme": "dark", "font_size": 16}&#10;&#10;# Gộp cấu hình: update sẽ bổ sung key mới và ghi đè giá trị key cũ&#10;default_settings.update(user_settings)&#10;&#10;print("Cấu hình sau khi gộp:", default_settings)'
+                  class="w-full min-h-[112px] bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+                  spellcheck="false"
+                >default_settings = {"theme": "light", "notifications": True, "font_size": 14}
+user_settings = {"theme": "dark", "font_size": 16}
+
+# Gộp cấu hình: update sẽ bổ sung key mới và ghi đè giá trị key cũ
+default_settings.update(user_settings)
+
+print("Cấu hình sau khi gộp:", default_settings)</pre>
+              </div>
+              <div
+                id="container-3-4"
+                class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+              >
+                <pre
+                  id="output-3-4"
+                  class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap"
+                ></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Code Comparison Cards -->
+          <div class="space-y-6 mt-10">
+            <h3
+              class="font-montserrat font-bold text-xl text-slate-900 dark:text-white"
+            >
+              So sánh thực tiễn viết mã nguồn (Best Practices)
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Bad Practice Card -->
+              <div
+                class="border border-red-200 dark:border-red-900/40 rounded-xl overflow-hidden bg-red-50/10 dark:bg-red-950/5 flex flex-col justify-between"
+              >
+                <div>
+                  <div
+                    class="bg-red-50 dark:bg-red-950/20 px-5 py-3 border-b border-red-100 dark:border-red-900/30 flex items-center justify-between text-[15px] font-bold text-rikkei-red dark:text-red-400"
+                  >
+                    <span class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-x-circle text-lg"></i> Giải pháp
+                      không tốt
+                    </span>
+                    <span
+                      class="text-xs font-semibold px-2 py-0.5 rounded bg-red-100/80 dark:bg-red-950 text-red-800 dark:text-red-300"
+                      >Dễ phát sinh lỗi</span
+                    >
+                  </div>
+                  <pre
+                    class="border-b border-red-100 dark:border-red-900/30"
+                  ><code class="language-python hljs bg-transparent dark:bg-transparent !p-5"># Truy xuất trực tiếp key có thể không tồn tại
+product = {"sku": "PROD_1", "price": 100}
+
+# Lỗi KeyError dừng ứng dụng lập tức nếu key không có
+discount = product["promo_discount"]</code></pre>
+                </div>
+                <div class="p-5 bg-white/40 dark:bg-slate-900/10">
+                  <p class="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400">
+                    Truy cập trực tiếp bằng cú pháp `dict[key]` rất nguy hiểm nếu giá trị khóa đó không có sẵn trong Dictionary (như mã giảm giá tùy chọn). Việc này làm chương trình báo lỗi `KeyError` và dừng chạy ngay lập tức.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Good Practice Card -->
+              <div
+                class="border border-emerald-200 dark:border-emerald-900/40 rounded-xl overflow-hidden bg-emerald-50/10 dark:bg-emerald-950/5 flex flex-col justify-between"
+              >
+                <div>
+                  <div
+                    class="bg-emerald-50 dark:bg-emerald-950/20 px-5 py-3 border-b border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between text-[15px] font-bold text-emerald-700 dark:text-emerald-400"
+                  >
+                    <span class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-check-circle text-lg"></i> Giải pháp
+                      tốt
+                    </span>
+                    <span
+                      class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100/80 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
+                      >An toàn & Tối ưu</span
+                    >
+                  </div>
+                  <pre
+                    class="border-b border-emerald-100 dark:border-emerald-900/30"
+                  ><code class="language-python hljs bg-transparent dark:bg-transparent !p-5"># Dùng phương thức .get() an toàn kèm giá trị dự phòng
+product = {"sku": "PROD_1", "price": 100}
+
+# Không lo KeyError, trả về 0 nếu key không tồn tại
+discount = product.get("promo_discount", 0)</code></pre>
+                </div>
+                <div class="p-5 bg-white/40 dark:bg-slate-900/10">
+                  <p class="text-[14px] leading-relaxed text-slate-600 dark:text-slate-400">
+                    Sử dụng phương thức an toàn <code>.get(key, default)</code>. Nếu khóa không tồn tại, phương thức sẽ trả về giá trị mặc định chỉ định (ví dụ là 0) thay vì sinh ra lỗi phá hỏng chương trình.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="summary-notes" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            4. Tổng kết và các lưu ý
+          </h2>
+
+          <div class="space-y-6 text-slate-600 dark:text-slate-300">
+            <div>
+              <ul class="list-disc pl-6 space-y-3">
+                <li>
+                  <strong>Độ phức tạp thời gian O(1):</strong> Thao tác tìm kiếm, chèn mới, chỉnh sửa và xóa cặp Key-Value trên Dictionary chạy tức thì với độ phức tạp $O(1)$. Đây là ưu thế tuyệt đối so với tốc độ tuyến tính $O(n)$ của cấu trúc List.
+                </li>
+                <li>
+                  <strong>Ràng buộc về Key:</strong> Chỉ sử dụng các kiểu dữ liệu Immutable làm Key (String, Number, Tuple). Không sử dụng List hoặc bất kỳ đối tượng thay đổi được (Mutable) nào làm Key vì Python sẽ báo lỗi `TypeError: unhashable type`.
+                </li>
+                <li>
+                  <strong>Lọc trùng lặp tự động:</strong> Mỗi Key trong một Dictionary là duy nhất. Việc chèn trùng một Key cũ sẽ trực tiếp cập nhật ghi đè giá trị cũ.
+                </li>
+              </ul>
+            </div>
+
+            <!-- Bảng tra cứu các phương thức Dictionary -->
+            <div class="mb-6">
+              <h4 class="font-bold text-slate-900 dark:text-white mb-3">
+                Bảng tra cứu phương thức tích hợp sẵn của Dictionary
+              </h4>
+              <div
+                class="overflow-x-auto border border-slate-200 dark:border-rikkei-borderDark rounded-xl"
+              >
+                <table class="w-full text-sm text-left border-collapse">
+                  <thead>
+                    <tr
+                      class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-rikkei-borderDark"
+                    >
+                      <th class="px-4 py-3 font-semibold">Tên phương thức</th>
+                      <th class="px-4 py-3 font-semibold">Mô tả chức năng</th>
+                      <th class="px-4 py-3 font-semibold text-right">
+                        Ví dụ cú pháp
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody
+                    class="divide-y divide-slate-200 dark:divide-rikkei-borderDark text-slate-600 dark:text-slate-300 font-mono"
+                  >
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        get(key, default)
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Lấy giá trị theo khóa an toàn, trả về default nếu khóa không có
+                      </td>
+                      <td
+                        class="px-4 py-3 text-right text-slate-500"
+                      >
+                        d.get("name", "N/A")
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        update(other_dict)
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Gộp các cặp Key-Value từ từ điển khác vào, cập nhật đè các Key trùng
+                      </td>
+                      <td class="px-4 py-3 text-right text-slate-500">
+                        d.update(new_data)
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        pop(key)
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Xóa khóa và trả lại giá trị tương ứng của nó
+                      </td>
+                      <td class="px-4 py-3 text-right text-slate-500">
+                        d.pop("age")
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                      <td
+                        class="px-4 py-3 font-semibold text-slate-950 dark:text-white"
+                      >
+                        clear()
+                      </td>
+                      <td class="px-4 py-3 font-sans">
+                        Xóa rỗng toàn bộ các phần tử trong từ điển
+                      </td>
+                      <td class="px-4 py-3 text-right text-slate-500">
+                        d.clear()
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr
+          class="border-t border-slate-200 dark:border-rikkei-borderDark my-10"
+        />
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="references" class="mb-10 scroll-mt-24">
+          <h2
+            class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-4"
+          >
+            5. Tài liệu tham khảo
+          </h2>
+
+          <ol
+            class="list-decimal pl-6 space-y-4 text-[15px] text-slate-600 dark:text-slate-300"
+          >
+            <li class="leading-relaxed">
+              <a
+                href="https://docs.python.org/3/tutorial/datastructures.html#dictionaries"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-rikkei-red hover:underline font-semibold"
+              >
+                Tài liệu hướng dẫn về cấu trúc dữ liệu Từ điển (Dictionaries) chính thức trên trang chủ Python.org
+              </a>
+            </li>
+            <li class="leading-relaxed">
+              <a
+                href="https://www.geeksforgeeks.org/python-dictionary/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-rikkei-red hover:underline font-semibold"
+              >
+                Cẩm nang tra cứu chi tiết và các phương thức thao tác của Dictionary trong Python trên GeeksforGeeks
+              </a>
+            </li>
+            <li class="leading-relaxed">
+              <a
+                href="https://www.w3schools.com/python/python_dictionaries.asp"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-rikkei-red hover:underline font-semibold"
+              >
+                Bài học thực hành tương tác và tra cứu cú pháp Dictionary trong Python trên W3Schools
+              </a>
+            </li>
+          </ol>
+        </section>
+      </article>
+    </main>
+
+    <!-- Script for Light/Dark mode, Progress Scroll Bar, TOC Active Navigation and Python Sandbox -->
+    <script>
+      // ─── THEME TOGGLE (LIGHT / DARK MODE) ───
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+
+      // Check saved choice or system preferred
+      if (
+        localStorage.getItem("color-theme") === "dark" ||
+        (!("color-theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+        themeIcon.className = "ph-bold ph-sun text-lg";
+      } else {
+        document.documentElement.classList.remove("dark");
+        themeIcon.className = "ph-bold ph-moon text-lg";
+      }
+
+      themeToggleBtn.addEventListener("click", function () {
+        if (document.documentElement.classList.contains("dark")) {
+          document.documentElement.classList.remove("dark");
+          localStorage.setItem("color-theme", "light");
+          themeIcon.className = "ph-bold ph-moon text-lg";
+        } else {
+          document.documentElement.classList.add("dark");
+          localStorage.setItem("color-theme", "dark");
+          themeIcon.className = "ph-bold ph-sun text-lg";
+        }
+      });
+
+      // ─── SCROLL PROGRESS BAR ───
+      window.addEventListener("scroll", () => {
+        const scrollTop = window.scrollY;
+        const docHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        document.getElementById("scroll-progress").style.width =
+          scrollPercent + "%";
+      });
+
+      // ─── SCROLL SPY FOR TABLE OF CONTENTS (TOC) ───
+      const sections = document.querySelectorAll("section");
+      const tocLinks = document.querySelectorAll(".toc-link");
+
+      const options = {
+        root: null,
+        rootMargin: "0px 0px -60% 0px", // Active when heading enters top section of screen
+        threshold: 0,
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("id");
+            tocLinks.forEach((link) => {
+              if (link.getAttribute("href") === `#${id}`) {
+                link.classList.add(
+                  "border-rikkei-red",
+                  "font-bold",
+                  "text-rikkei-red",
+                );
+                link.classList.remove(
+                  "border-transparent",
+                  "text-slate-500",
+                  "dark:text-slate-400",
+                );
+              } else {
+                link.classList.remove(
+                  "border-rikkei-red",
+                  "font-bold",
+                  "text-rikkei-red",
+                );
+                link.classList.add(
+                  "border-transparent",
+                  "text-slate-500",
+                  "dark:text-slate-400",
+                );
+              }
+            });
+          }
+        });
+      }, options);
+
+      sections.forEach((section) => {
+        observer.observe(section);
+      });
+
+      // ─── PYODIDE SANDBOX CODE COMPILER ───
+      let pyodideInstance = null;
+      let pyodideLoadingPromise = null;
+
+      async function loadPyodideEngine(
+        outputId,
+        statusId,
+        iconId,
+        containerId,
+      ) {
+        const consoleOut = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+
+        container.classList.remove("hidden");
+        consoleOut.innerHTML =
+          '<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><i class="ph-bold ph-spinner animate-spin text-rikkei-red text-base"></i><span>Đang xử lý...</span></div>';
+
+        if (!pyodideLoadingPromise) {
+          pyodideLoadingPromise = (async () => {
+            const instance = await loadPyodide();
+            await instance.runPythonAsync(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+                `);
+            return instance;
+          })();
+        }
+
+        try {
+          pyodideInstance = await pyodideLoadingPromise;
+        } catch (error) {
+          pyodideLoadingPromise = null; // Cho phép tải lại nếu lỗi
+          consoleOut.innerHTML =
+            "Lỗi nạp Pyodide WASM Engine:\n" + String(error);
+          throw error;
+        }
+      }
+
+      async function runPythonSandbox(
+        textareaId,
+        outputId,
+        statusId,
+        iconId,
+        containerId,
+      ) {
+        const consoleOut = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        const codeInput = document.getElementById(textareaId).innerText;
+
+        container.classList.remove("hidden");
+
+        if (!pyodideInstance) {
+          try {
+            await loadPyodideEngine(outputId, statusId, iconId, containerId);
+          } catch (e) {
+            return; // Dừng lại nếu nạp Pyodide thất bại
+          }
+        }
+
+        consoleOut.innerHTML =
+          '<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400"><i class="ph-bold ph-spinner animate-spin text-rikkei-red text-base"></i><span>Đang xử lý...</span></div>';
+
+        try {
+          // Xóa bộ đệm cũ
+          pyodideInstance.runPython(`
+                sys.stdout.truncate(0)
+                sys.stdout.seek(0)
+                sys.stderr.truncate(0)
+                sys.stderr.seek(0)
+            `);
+
+          // Thực thi mã nguồn
+          const result = pyodideInstance.runPython(codeInput);
+
+          // Lấy kết quả xuất ra
+          const stdout = pyodideInstance.runPython("sys.stdout.getvalue()");
+          const stderr = pyodideInstance.runPython("sys.stderr.getvalue()");
+
+          let finalOutput = "";
+          if (stdout) finalOutput += stdout;
+          if (stderr) finalOutput += stderr;
+          if (result !== undefined && result !== null && !stdout)
+            finalOutput += String(result);
+
+          consoleOut.textContent = finalOutput;
+        } catch (error) {
+          consoleOut.textContent = String(error);
+        }
+      }
+
+      function clearSandbox(
+        textareaId,
+        outputId,
+        statusId,
+        iconId,
+        containerId,
+      ) {
+        const textarea = document.getElementById(textareaId);
+        textarea.innerText = textarea.getAttribute("data-original");
+        hljs.highlightElement(textarea);
+
+        const consoleOut = document.getElementById(outputId);
+        consoleOut.textContent = "";
+
+        const container = document.getElementById(containerId);
+        container.classList.add("hidden");
+      }
+
+      function copySandboxCode(textareaId, buttonElement) {
+        const code = document.getElementById(textareaId).innerText;
+        navigator.clipboard.writeText(code).then(() => {
+          const icon = buttonElement.querySelector("i");
+          icon.className = "ph-bold ph-check text-rikkei-red text-sm";
+          setTimeout(() => {
+            icon.className = "ph-bold ph-copy text-sm";
+          }, 2000);
+        });
+      }
+
+      // Initialize Highlight.js for static code elements
+      hljs.highlightAll();
+
+      // Highlight all contenteditable divs on load
+      document.querySelectorAll('[contenteditable="true"]').forEach((block) => {
+        block.classList.add("python"); // or language-python
+        hljs.highlightElement(block);
+      });
+    </script>
+  </body>
+</html>

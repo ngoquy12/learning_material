@@ -19,7 +19,8 @@ def lessons_learned_agent(state: AgentState) -> AgentState:
     lesson_id = state.get("lesson_id", "")
     core_ssot = state.get("core_ssot", {})
     lesson_title = core_ssot.get("session_title", "Course Session")
-    tech_stack = state.get("technology_stack", "python/fastapi")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "lessons_learned_agent")
 
     print(f"\n[Lessons_Learned_Agent] Analyzing {len(review_logs)} feedback logs to extract new rules...")
 
@@ -42,27 +43,28 @@ def lessons_learned_agent(state: AgentState) -> AgentState:
     if gemini_key or openai_key:
         from core.llm import call_llm
         system_prompt = (
-            "Bạn là Kỹ sư Trưởng kiêm Chuyên gia Thiết kế Giáo trình tại Rikkei Education. "
-            "Nhiệm vụ của bạn là đúc rút các quy tắc kỹ thuật thực tiễn từ nhật ký sửa đổi lỗi "
-            "để bổ sung quy tắc phòng chống lỗi cho các Agent thế hệ sau."
+            "You are a Lead Curriculum Quality Engineer & System Architect at Rikkei Education. "
+            "Your task is to extract actionable, highly specific technical prevention rules "
+            "from reviewer feedback logs to update the collective agent memory repository."
         )
-        user_prompt = f"""Đã xảy ra lỗi trong quá trình tự động sinh học liệu cho bài học sau:
-- Công nghệ: {tech_stack}
-- Bài học: {lesson_id} - {lesson_title}
+        user_prompt = f"""An error occurred during curriculum generation for the following lesson:
+- Technology Stack: {tech_stack}
+- Lesson Context: {lesson_id} - {core_ssot.get('session_title', '')}
 
-Nhật ký lỗi/Feedback sửa lỗi từ Reviewer:
+Reviewer Feedback Logs:
 {logs_formatted}
 
-Mã nguồn/Nội dung đã sửa đổi và được phê duyệt (Approved):
+Approved Reference Source Code / Content:
 ```
 {approved_example}
 ```
 
-Hãy phát biểu DUY NHẤT một câu quy tắc kỹ thuật ngắn gọn, cụ thể bằng tiếng Việt để phòng tránh lỗi này trong tương lai.
-Quy tắc phải thiết thực, chi tiết kỹ thuật rõ ràng (ví dụ: tên thư viện, phương thức, cấu hình cụ thể), tránh nói chung chung.
-Ví dụ chuẩn: "Khi sử dụng FastAPI với SQLAlchemy, luôn cấu hình async_sessionmaker với expire_on_commit=False để tránh lỗi GreenletDetached khi truy cập thuộc tính trễ."
+Formulate EXACTLY ONE concise, highly specific technical rule in Accented Vietnamese to prevent this error in future generations.
+The rule MUST be actionable and technically explicit (specifying library names, exact methods, or parameters), avoiding vague generalizations.
+Standard example for python/core: "Khi khai báo vòng lặp duyệt qua danh sách, không thực hiện thay đổi kích thước danh sách (append/remove) trực tiếp trong vòng lặp để tránh lỗi IndexError."
+Standard example for web stack: "Khi cấu hình kết nối Cơ sở dữ liệu, luôn đóng phiên làm việc (session) trong khối finally hoặc dùng Context Manager để tránh rò rỉ kết nối."
 
-Chỉ trả về duy nhất dòng quy tắc đó. Không có lời chào hay lời dẫn giải nào khác.
+Return ONLY the single rule statement line without markdown wrappers or conversational filler.
 """
         try:
             response = call_llm(system_prompt, user_prompt, agent_name="Lessons_Learned_Agent", session_id=session_id, lesson_id=lesson_id)
@@ -81,7 +83,7 @@ Chỉ trả về duy nhất dòng quy tắc đó. Không có lời chào hay l�
         # Generate a rule based on the error source
         error_sources = list(set([str(log.get('source')) for log in review_logs if log.get('source')]))
         sources_str = ", ".join(error_sources)
-        rule_text = f"Cần lưu ý kiểm thử kỹ các lỗi phát sinh từ {sources_str} liên quan đến cú pháp và định dạng của {lesson_title}."
+        rule_text = f"Carefully verify syntax and layout issues originating from {sources_str} for {lesson_title}."
 
     # Write/Append to skills/lessons_learned/SKILL.md
     base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -93,7 +95,7 @@ Chỉ trả về duy nhất dòng quy tắc đó. Không có lời chào hay l�
     lesson_title_clean = lesson_title.replace("/", "_").replace("\\", "_").replace(":", "-")
     l_folder_name = f"{lesson_id} - {lesson_title_clean}" if lesson_id else lesson_title_clean
 
-    new_entry = f"* **[{tech_stack.upper()}]**: {rule_text} | Trích từ bài [[{l_folder_name}]]"
+    new_entry = f"* **[{tech_stack.upper()}]**: {rule_text} | Source: [[{l_folder_name}]]"
 
     # Read existing rules to prevent duplicates
     existing_content = ""
@@ -108,14 +110,14 @@ Chỉ trả về duy nhất dòng quy tắc đó. Không có lời chào hay l�
     if not existing_content:
         existing_content = f"""---
 name: lessons_learned
-description: Kho tri thức đúc rút kinh nghiệm phòng chống lỗi kỹ thuật từ các Agent thế hệ trước.
+description: Repository of accumulated technical error prevention rules extracted from prior agent generations.
 ---
 
-# 🧠 Kho tri thức bài học kinh nghiệm (Lessons Learned)
+# Enterprise Technical Lessons Learned Repository
 
-Dưới đây là danh sách các quy tắc chặn lỗi được các Agent thế hệ trước đúc rút ra sau khi giải quyết các phản hồi lỗi từ Reviewer:
+Repository of accumulated technical error prevention rules extracted by prior agent generations following reviewer feedback:
 
-## 📌 Quy tắc kỹ thuật tích lũy
+## Accumulated Technical Rules
 """
 
     # Check if the rule is already in the file or if we already linked this lesson

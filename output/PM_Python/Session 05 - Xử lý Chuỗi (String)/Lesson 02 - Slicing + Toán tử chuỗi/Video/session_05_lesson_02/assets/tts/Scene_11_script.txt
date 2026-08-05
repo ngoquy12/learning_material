@@ -1,1 +1,0 @@
-Một lỗi phổ biến là tai-pơ e-rờ xảy ra khi bạn cố tình dùng toán tử cộng để ghép nối chuỗi với một kiểu dữ liệu khác như số nguyên hoặc số thực mà quên ép kiểu bằng hàm ét-te-rơ. Phép nhân chuỗi cũng chỉ chấp nhận vế nhân thứ hai là một số nguyên, nhân hai chuỗi với nhau sẽ báo lỗi ngay lập tức.

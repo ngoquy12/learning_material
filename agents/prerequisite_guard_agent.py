@@ -67,7 +67,7 @@ class SessionPrerequisites:
 
 def prerequisite_guard_agent(
     sessions: List[Dict[str, Any]],
-    tech_stack: str = "python/fastapi",
+    tech_stack: str = "python/core",
     strict_mode: bool = True
 ) -> Dict[str, Any]:
     """
@@ -234,20 +234,20 @@ def _extract_concept_registry(
                 curriculum_summary.append(s_entry)
 
             system_prompt = (
-                "Bạn là Chuyên gia Thiết kế Chương trình học. "
-                "Phân tích phân đoạn chương trình và trích xuất TẤT CẢ các khái niệm kỹ thuật cốt lõi, "
-                "xác định bài học nào giới thiệu chúng lần đầu tiên."
+                "You are an Instructional Curriculum Architect and Dependency Graph Specialist. "
+                "Analyze the curriculum segment, extract ALL core technical concepts, and determine "
+                "which lesson introduces each concept for the first time."
             )
 
-            user_prompt = f"""Phân tích phân đoạn chương trình học {tech_stack} (Session {i+1} đến {i+len(session_batch)}) sau:
+            user_prompt = f"""Analyze the curriculum segment for technology stack {tech_stack} (Session {i+1} to {i+len(session_batch)}):
 
 {json.dumps(curriculum_summary, ensure_ascii=False, indent=2)}
 
-Trích xuất các khái niệm kỹ thuật cốt lõi được dạy trong phân đoạn này. Trả về JSON object:
+Extract all core technical concepts taught in this segment. Return a raw JSON object:
 {{
   "concept_id_snake_case": {{
     "concept_id": "concept_id_snake_case",
-    "concept_name": "Tên khái niệm",
+    "concept_name": "Concept Title",
     "introduced_in_session": "Session XX",
     "introduced_in_lesson": "Lesson XX",
     "tech_stack": "{tech_stack}",
@@ -256,7 +256,7 @@ Trích xuất các khái niệm kỹ thuật cốt lõi được dạy trong ph�
   }}
 }}
 
-Chỉ trả về JSON thuần túy, không kèm văn bản nào khác.
+Return ONLY raw JSON without markdown wrappers.
 """
 
             response = call_llm(

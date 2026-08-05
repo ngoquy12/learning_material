@@ -1,1 +1,0 @@
-Quy trình khởi tạo biến bắt đầu bằng bước kiểm tra tính hợp lệ của tên. Nếu tên biến vi phạm cú pháp, hệ thống sẽ lập tức báo lỗi xin-tắc e-rơ. Nếu hợp lệ, biểu thức bên phải toán tử gán được tính toán để tạo đối tượng trong vùng nhớ híp và liên kết tham chiếu với tên biến trong Namespace.

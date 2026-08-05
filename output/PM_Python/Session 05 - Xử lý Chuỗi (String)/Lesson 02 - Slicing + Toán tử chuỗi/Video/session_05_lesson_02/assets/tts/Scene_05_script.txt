@@ -1,1 +1,0 @@
-Hãy xem cách triển khai thực tế. Đoạn mã Python khởi tạo chuỗi với giá trị cố định. Sử dụng phép cắt mở ngoặc vuông không hai chấm ba đóng ngoặc vuông để lấy ba ký tự đầu làm mã giao dịch. Tương tự, lập trình viên cắt tiếp các đoạn từ ba tới bảy và từ bảy đến mười một để nhận về năm cùng với trạng thái xác thực tương ứng.

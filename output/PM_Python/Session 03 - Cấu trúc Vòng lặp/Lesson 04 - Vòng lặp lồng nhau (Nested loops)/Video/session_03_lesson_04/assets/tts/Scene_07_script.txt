@@ -1,1 +1,0 @@
-Bên trong vòng lặp con, sử dụng lệnh prin để in ra tọa độ hiện tại định dạng râu năm-bờ gạch ngang co-lum năm-bờ. Bổ sung tham số en bằng ký tự rỗng và một khoảng trắng. Tham số này ghi đè hành vi xuống dòng mặc định của hàm prin, giúp các giá trị cột trên cùng một dòng được xếp liên tiếp theo chiều ngang phẳng.

@@ -1,1 +1,0 @@
-Đặc tả định dạng nằm sau dấu hai chấm. Cụ thể, hai chấm, bé hơn mười lăm nghĩa là căn trái với độ rộng mười lăm ký tự. Còn hai chấm, dấu phẩy, chấm hai ép được dùng để thêm dấu phẩy ngăn cách hàng nghìn và làm tròn đúng hai chữ số thập phân đối với dữ liệu tiền tệ.

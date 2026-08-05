@@ -8,8 +8,8 @@ from agents.creator_agents import (
     slide_agent,
     quiz_agent,
     session_compiler_agent,
-    video_script_agent,
-    mindmap_agent
+    mindmap_agent,
+    reading_questions_creator_agent
 )
 from agents.reviewer_agents import (
     html_ux_reviewer,
@@ -26,7 +26,10 @@ from agents.lessons_learned_agent import lessons_learned_agent
 from agents.knowledge_memory_agent import knowledge_memory_agent, get_relevant_memories_for_creator
 from agents.prerequisite_guard_agent import prerequisite_guard_agent, run_prerequisite_check_for_pm
 from agents.homework_agents import generate_session_homework
-from agents.video_qa_reviewer_agent import video_qa_reviewer_agent
+from agents.session_mindmap_agent import generate_session_mindmap
+from agents.session_mindmap_agent import generate_session_mindmap
+from agents.session_slide_agent import generate_session_slides
+
 
 __all__ = [
     "objective_architect_agent",
@@ -36,8 +39,9 @@ __all__ = [
     "slide_agent",
     "quiz_agent",
     "session_compiler_agent",
-    "video_script_agent",
+    "",
     "mindmap_agent",
+    "reading_questions_creator_agent",
     "hyperframes_writer_agent",
     "html_ux_reviewer",
     "academic_reviewer",
@@ -53,7 +57,11 @@ __all__ = [
     "prerequisite_guard_agent",
     "run_prerequisite_check_for_pm",
     "generate_session_homework",
+    "generate_session_mindmap",
+    "generate_session_slides",
+    "generate_lesson_video_script",
     "video_qa_reviewer_agent"
 ]
+
 
 

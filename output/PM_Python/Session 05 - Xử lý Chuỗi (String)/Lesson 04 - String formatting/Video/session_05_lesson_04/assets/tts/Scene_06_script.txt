@@ -1,1 +1,0 @@
-Mặc dù quen thuộc, nhưng phương pháp này rất dễ gây lỗi nếu số lượng phần tử trong túp-pồ bị lệch so với số lượng placeholder. Ngoài ra, mã nguồn sẽ trở nên rất dài, khó bảo trì và không hỗ trợ căn lề linh hoạt khi có nhiều tham số.

@@ -1,0 +1,24 @@
+{
+  "title": "Tự động hóa hệ thống phát hành thông báo và tính lãi suất định kỳ",
+  "objectives": [
+    "Áp dụng cấu trúc vòng lặp for kết hợp hàm range() để thay thế phương pháp lập trình thủ công lặp lại mã nguồn.",
+    "Sử dụng thành thạo các biến dạng range(stop), range(start, stop) và range(start, stop, step) vào tác vụ thực tế.",
+    "Đảm bảo tuân thủ cú pháp Python chuẩn về dấu hai chấm và quy tắc thụt lề 4 khoảng trắng."
+  ],
+  "description": {
+    "inputs": "Dự án/môi trường phát triển python/core hiện tại và tài nguyên khóa học.",
+    "steps": [
+      "Bước 1: Viết đoạn mã tính lãi suất định kỳ cho 5 tháng liên tiếp (từ Tháng 1 đến Tháng 5) bằng vòng lặp `for` với `range(1, 6)`. Trong mỗi lần lặp, in ra dòng chữ 'Tính lãi suất cho Tháng X' (với X là số tháng).",
+      "Bước 2: Viết đoạn mã gửi 10 cảnh báo kiểm thử hệ thống với mã định danh từ 0 đến 9 bằng vòng lặp `for` sử dụng `range(10)`. In ra dòng chữ 'Gửi cảnh báo hệ thống số: Y' (với Y là mã cảnh báo).",
+      "Bước 3: Tạo một danh mục kiểm tra theo chu kỳ cách nhau 3 tháng trong năm (tháng 1, tháng 4, tháng 7, tháng 10) bằng vòng lặp `for` kết hợp `range(1, 13, 3)` và in báo cáo kết quả."
+    ]
+  },
+  "evaluation": {
+    "checklist": [
+      "[ ] Tạo đúng vòng lặp range(1, 6) in đủ thông báo từ Tháng 1 đến Tháng 5.",
+      "[ ] Tạo đúng vòng lặp range(10) gửi đủ 10 cảnh báo từ 0 đến 9.",
+      "[ ] Sử dụng bước nhảy step=3 trong range(1, 13, 3) để quét đúng 4 mốc tháng 1, 4, 7, 10.",
+      "[ ] Mã nguồn thụt lề chính xác 4 khoảng trắng và không bị lỗi cú pháp."
+    ]
+  }
+}

@@ -1,1 +1,0 @@
-Khi muốn chèn một phần tử vào một vị trí cụ thể chứ không phải ở cuối, chúng ta sử dụng phương thức in-sợt. Cú pháp yêu cầu hai đối số: đối số đầu tiên là in-đếch vị trí muốn chèn, đối số thứ hai là giá trị cần chèn. Các phần tử đứng sau vị trí này sẽ tự động dịch chuyển sang phải một đơn vị.

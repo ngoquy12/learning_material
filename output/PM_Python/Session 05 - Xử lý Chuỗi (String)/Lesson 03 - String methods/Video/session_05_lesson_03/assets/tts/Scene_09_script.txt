@@ -1,1 +1,0 @@
-Một sai lầm rất phổ biến của những nhà phát triển mới là gọi phương thức chuỗi mà quên mất việc gán lại giá trị vào biến hoặc tạo biến mới. Do chuỗi là dữ liệu bất biến, các câu lệnh như chỉ gọi hàm strip đơn độc sẽ không làm thay đổi giá trị của biến hiện tại. Hãy nhớ luôn gán đè kết quả trả về để cập nhật trạng thái mới.

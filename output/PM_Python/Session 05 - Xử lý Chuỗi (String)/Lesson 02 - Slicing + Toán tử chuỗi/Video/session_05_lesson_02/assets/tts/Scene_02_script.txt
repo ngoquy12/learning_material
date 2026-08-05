@@ -1,1 +1,0 @@
-Nếu lặp qua từng ký tự hoặc dùng các vòng lặp đơn giản để lấy chuỗi con, mã nguồn sẽ trở nên dài dòng và rất dễ phát sinh lỗi lệch chỉ mục off-by-one. Hơn thế nữa, việc khởi tạo lặp lại thủ công làm suy giảm nghiêm trọng hiệu năng thực thi khi hệ thống phải xử lý đồng thời hàng triệu bản ghi trong thực tế.

@@ -978,11 +978,9 @@ class SlideGeneratorAgent:
         else:
             session_tag_text = "Session Slide Master"
             main_title_text = clean_session_title
-
-        clean_module_name = module_name.replace("NIKKEI ACADEMY", "Lập trình Python").replace("RIKKEI ACADEMY", "Lập trình Python").strip()
+        clean_module_name = module_name.replace("NIKKEI ACADEMY", "Khóa học").replace("RIKKEI ACADEMY", "Khóa học").strip()
         if not clean_module_name or clean_module_name.isupper():
-            clean_module_name = "Lập trình Python"
-
+            clean_module_name = "Chương trình Đào tạo"
         # 1. Master Cover Slide
         all_slides_html_parts.append(f"""
     <div class="slide slide-cover active" data-type="cover" data-title="{clean_session_title}">

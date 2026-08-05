@@ -1,48 +1,48 @@
 ---
 name: obsidian_graph_view
-description: Thiết lập cấu trúc liên kết Markdown (WikiLinks) tương thích Obsidian để trực quan hóa sơ đồ toàn bộ khóa học dạng Graph View.
+description: Establish cross-linked Markdown note structure (WikiLinks) compatible with Obsidian Graph View for full course curriculum visualization. Target output language is 100% Accented Vietnamese.
 ---
 
-# Kỹ năng Xuất Bản Sơ Đồ Cấu Trúc Obsidian (Obsidian Graph View Generator)
+# Obsidian Graph View Generator Skill — Rikkei Education Standards
 
-## 1. Mục tiêu và Triết lý thiết kế
-Khi quản lý chương trình học tập đồ sộ, việc trực quan hóa sơ đồ mối quan hệ giữa các Session, Lesson, và các học phần thành phần (Bài đọc, Slide, Quiz, Kịch bản video, Sơ đồ tư duy) là cực kỳ quan trọng. 
+## 1. Objective & Architecture Vision
+When managing large academic curricula, visualizing relationships between Sessions, Lessons, and core learning materials (Readings, Slides, Quizzes, Video Scripts, Mindmaps) is essential.
 
-Obsidian là một công cụ quản lý tri thức cục bộ mạnh mẽ sử dụng các tệp Markdown liên kết chéo qua cú pháp `[[Tên Note]]`. Bằng cách tạo ra một Vault Obsidian có cấu trúc liên kết chuẩn chỉ, người dùng có thể kích hoạt tính năng **Graph View** của Obsidian để xem toàn bộ bản đồ tri thức của môn học một cách trực quan, sinh động.
-
----
-
-## 2. Quy tắc liên kết liên kết chéo (WikiLink Rules)
-Mỗi tệp Markdown trong Vault Obsidian phải tuân thủ nghiêm ngặt quy tắc đặt tên và liên kết chéo sau:
-
-### A. Trang Chủ Môn Học (`index.md`)
-- Là điểm neo trung tâm (Central Hub) của toàn bộ đồ thị.
-- Chứa các thông tin giới thiệu chung về môn học.
-- Chứa liên kết trỏ tới tất cả các Session: `[[Session 01 - Tên Session]]`, `[[Session 02 - Tên Session]]`,...
-
-### B. Note Session (`Session XX - Tên Session.md`)
-- Liên kết quay lại trang chủ: `[[index|🏠 Trang chủ môn học]]`.
-- Liên kết tới các Lesson trực thuộc: `[[Lesson XX.Y - Tên Lesson]]`.
-- Liên kết tới các đề thi trắc nghiệm của Session: `[[Session XX - Entrance Quiz]]` và `[[Session XX - Exit Quiz]]`.
-
-### C. Note Lesson (`Lesson XX.Y - Tên Lesson.md`)
-- Liên kết quay lại Session cha: `[[Session XX - Tên Session|⬅️ Session XX]]`.
-- Liên kết tới 4 tài nguyên chính của bài học:
-  - Bài đọc: `[[Lesson XX.Y - Reading]]`
-  - Bài giảng: `[[Lesson XX.Y - Slides]]`
-  - Sơ đồ tư duy: `[[Lesson XX.Y - Mindmap]]`
-  - Kịch bản Video: `[[Lesson XX.Y - Video Script]]`
-
-### D. Note Tài nguyên thành phần (Component Notes)
-- Phải có liên kết quay lại Note Lesson cha của nó: `[[Lesson XX.Y - Tên Lesson|↩️ Bài học chính]]`.
+Obsidian is a powerful local knowledge management engine leveraging cross-linked Markdown notes via `[[Note Title]]` WikiLink syntax. By generating a standardized Obsidian Vault, users can launch Obsidian's **Graph View** to dynamically inspect the course knowledge map.
 
 ---
 
-## 3. Cấu trúc thư mục của Vault
-Thư mục Vault khi xuất ra ổ đĩa sẽ có dạng phẳng (flat) hoặc dạng cây phân cấp. Obsidian hỗ trợ liên kết phẳng rất tốt bất kể cấu trúc thư mục, nhưng để giữ sự ngăn nắp, cấu trúc thư mục sẽ được phân bổ như sau:
+## 2. Cross-Linking Rules (WikiLink Architecture)
+Every Markdown file in the Obsidian Vault MUST strictly comply with these naming and cross-linking rules:
+
+### A. Course Homepage (`index.md`)
+- Central Hub anchor node for the entire curriculum graph.
+- Contains general course metadata and introduction.
+- Links to all Sessions: `[[Session 01 - Tên Session]]`, `[[Session 02 - Tên Session]]`,...
+
+### B. Session Note (`Session XX - Tên Session.md`)
+- Backlink to homepage: `[[index|🏠 Trang chủ môn học]]`.
+- Links to child lessons: `[[Lesson XX.Y - Tên Lesson]]`.
+- Links to session quizzes: `[[Session XX - Entrance Quiz]]` and `[[Session XX - Exit Quiz]]`.
+
+### C. Lesson Note (`Lesson XX.Y - Tên Lesson.md`)
+- Backlink to parent session: `[[Session XX - Tên Session|⬅️ Session XX]]`.
+- Links to 4 core lesson resources:
+  - Reading Material: `[[Lesson XX.Y - Reading]]`
+  - Lecture Deck: `[[Lesson XX.Y - Slides]]`
+  - Mindmap: `[[Lesson XX.Y - Mindmap]]`
+  - Video Script: `[[Lesson XX.Y - Video Script]]`
+
+### D. Component Resource Note
+- Backlink to parent lesson: `[[Lesson XX.Y - Tên Lesson|↩️ Bài học chính]]`.
+
+---
+
+## 3. Vault Folder Hierarchy
+
 ```text
 obsidian_vault/
-├── index.md (Trang chủ môn học)
+├── index.md (Course Homepage Hub)
 ├── Session 01 - Tên Session/
 │   ├── Session 01 - Tên Session.md
 │   ├── Session 01 - Entrance Quiz.md
@@ -57,17 +57,18 @@ obsidian_vault/
 
 ---
 
-## 4. Tiêu chuẩn giao diện và Metadata (Frontmatter)
-Mỗi tệp Markdown được tạo ra phải chứa Metadata ở đầu tệp dưới dạng YAML frontmatter:
+## 4. Metadata Standard (YAML Frontmatter)
+Every Markdown file MUST include YAML frontmatter:
 ```markdown
 ---
 type: [course | session | lesson | reading | slide | quiz | mindmap | video]
-id: [Mã ID tương ứng]
-title: [Tiêu đề đầy đủ]
+id: [Corresponding Identifier]
+title: [Full Title]
 tags:
   - learning-material
   - obsidian-graph
 ---
 ```
 
-Cách thiết lập này giúp người dùng dễ dàng lọc (Filter) và tô màu (Group Coloring) các nút trong Graph View của Obsidian theo phân loại tài nguyên (ví dụ: tất cả Slide có màu tím, tất cả Quiz có màu đỏ, tất cả bài đọc có màu xanh lá).
+This structure enables users to filter and color-code graph nodes in Obsidian Graph View by resource type (e.g. purple for Slides, red for Quizzes, green for Readings).
+

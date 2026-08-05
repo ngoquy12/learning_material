@@ -1,1 +1,0 @@
-Ngôn ngữ Python được sáng lập bởi Ghi-đô Van Rốt-xum vào năm một chín chín mốt với triết lý tối giản và tự động hóa. Trong Python, biến không phải là ô nhớ vật lý tĩnh. Bản chất của biến là một nhãn dán định danh động nằm trong vùng định danh, chỉ hướng đến các đối tượng dữ liệu được khởi tạo trong vùng nhớ híp.

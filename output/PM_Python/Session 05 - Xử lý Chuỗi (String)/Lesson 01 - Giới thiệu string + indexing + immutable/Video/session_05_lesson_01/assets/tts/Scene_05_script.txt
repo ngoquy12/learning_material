@@ -1,1 +1,0 @@
-Để truy cập các ký tự từ đầu chuỗi, ta dùng cú pháp toán tử chỉ mục dương dạng mở ngoặc vuông index đóng ngoặc vuông. Cụ thể, khi truy cập ô-ri-gi-nơl gạch dưới ai-đên-ti-phai-ơ chỉ mục không, trình thông dịch sẽ trả về ký tự đầu tiên là chữ pê viết hoa để kiểm tra logic định dạng.

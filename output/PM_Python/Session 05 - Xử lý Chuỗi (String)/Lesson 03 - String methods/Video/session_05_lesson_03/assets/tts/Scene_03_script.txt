@@ -1,1 +1,0 @@
-Để xử lý loại bỏ các khoảng trắng dư thừa ở đầu và cuối chuỗi, chúng ta sử dụng phương thức strip. Lệnh này giúp loại bỏ tất cả khoảng trắng không mong muốn, các ký tự xuống dòng hoặc tab ở biên, giúp kiểm tra tính chính xác của dữ liệu đầu vào. Hãy chắc chắn sử dụng hàm strip trước khi thực hiện các phép so sánh chuỗi.

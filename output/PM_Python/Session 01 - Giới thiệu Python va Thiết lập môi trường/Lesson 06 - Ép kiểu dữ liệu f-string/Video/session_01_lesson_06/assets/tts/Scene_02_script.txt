@@ -1,1 +1,0 @@
-Bản chất hàm in-put trong ngôn ngữ Python luôn trả về một chuỗi ký tự, hay còn gọi là dòng định dạng xtring, ngay cả khi người dùng nhập số nguyên hay số thực. Điều này tạo ra sự bất đồng nhất giữa định dạng lưu trữ vật lý và ý đồ tính toán thực tế.

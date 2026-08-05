@@ -1,1 +1,0 @@
-Với các đại lượng đo lường cần độ chính xác cao như đơn giá, tỷ lệ phần trăm hoặc thuế suất, hàm phờ-lốt là lựa chọn bắt buộc để chuyển đổi chuỗi sang định dạng số thực dấu phẩy động.

@@ -1,0 +1,46 @@
+[
+  {
+    "question": "Một module trong hệ thống quản lý giao dịch cần lọc ra các mốc thời gian kiểm toán theo các bước cách nhau 2 đơn vị, bắt đầu từ mốc 1 đến mốc 9 (gồm 1, 3, 5, 7, 9). Cấu trúc `range()` nào sau đây sẽ sinh ra đúng chuỗi giá trị này?",
+    "options": [
+      "```python\nrange(1, 10, 2)\n```",
+      "```python\nrange(1, 9, 2)\n```",
+      "```python\nrange(1, 10, 1)\n```",
+      "```python\nrange(0, 10, 2)\n```"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Cú pháp `range(start, stop, step)` tạo dãy số từ `start` đến `stop - 1` với khoảng cách `step`. Với `range(1, 10, 2)`, giá trị bắt đầu là 1, bước nhảy 2, dừng trước 10; dãy sinh ra sẽ là 1, 3, 5, 7, 9."
+  },
+  {
+    "question": "Đoạn mã Python nào dưới đây tuân thủ đúng chuẩn cú pháp về thụt lề (indentation) và dấu câu khi khai báo vòng lặp `for`?",
+    "options": [
+      "```python\nfor i in range(5)\n    print(f\"Lần lặp {i}\")\n```",
+      "```python\nfor i in range(5):\n    print(f\"Lần lặp {i}\")\n```",
+      "```python\nfor i in range(5):\nprint(f\"Lần lặp {i}\")\n```",
+      "```python\nfor i in range(5)\nprint(f\"Lần lặp {i}\")\n```"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Theo quy tắc cú pháp Python trình bày trong tài liệu, câu lệnh khai báo vòng lặp `for` phải kết thúc bằng dấu hai chấm `:` và khối lệnh thực thi bên trong phải thụt lề lùi vào (thông thường là 4 khoảng trắng)."
+  },
+  {
+    "question": "Hệ thống tự động chạy đoạn mã giám sát tiến trình sau:\n```python\nfor step in range(2, 5):\n    print(f\"Tác vụ {step}\")\n```\nKết quả hiển thị trên cửa sổ điều khiển (console) của hệ thống bao gồm những dòng nào?",
+    "options": [
+      "Tác vụ 2\nTác vụ 3\nTác vụ 4\nTác vụ 5",
+      "Tác vụ 2\nTác vụ 3\nTác vụ 4",
+      "Tác vụ 1\nTác vụ 2\nTác vụ 3\nTác vụ 4",
+      "Tác vụ 0\nTác vụ 1\nTác vụ 2\nTác vụ 3"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Hàm `range(2, 5)` nhận `start=2` và `stop=5`. Dãy số tạo ra gồm các số nguyên từ 2 tới `5 - 1` (là 4). Do đó, vòng lặp thực hiện 3 lượt tương ứng với các giá trị step là 2, 3, 4."
+  },
+  {
+    "question": "Bạn cần xây dựng một đoạn mã để gửi đúng 8 tin nhắn cảnh báo định kỳ tới người dùng. Cấu trúc hàm `range()` nào sau đây KHÔNG tạo ra đúng 8 lần lặp?",
+    "options": [
+      "```python\nrange(8)\n```",
+      "```python\nrange(1, 9)\n```",
+      "```python\nrange(0, 16, 2)\n```",
+      "```python\nrange(1, 8)\n```"
+    ],
+    "correct_option_index": 3,
+    "explanation": "`range(1, 8)` sinh dãy giá trị 1, 2, 3, 4, 5, 6, 7 — tổng cộng chỉ có 7 phần tử (tương ứng 7 lần lặp). Trong khi các lựa chọn range(8), range(1, 9) và range(0, 16, 2) đều tạo ra đúng 8 giá trị."
+  }
+]

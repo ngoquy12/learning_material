@@ -4,13 +4,16 @@ import hashlib
 from typing import Dict, Any
 from config.settings import get_agent_prompt
 from core.llm import call_llm
+from core.schemas.llm_schemas import ObjectiveOutcomeSchema
 
-def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", previous_feedback: str = "") -> Dict[str, Any]:
+def objective_architect_agent(pm_input: str, tech_stack: str, previous_feedback: str = "") -> Dict[str, Any]:
     """
     Objective Architect Agent:
     Dynamically analyzes the PM input JSON string for a specific Session and generates backward-design
-    learning outcomes tailored to the specific FastAPI / Web Services topic.
+    learning outcomes tailored to the specified technology stack.
     """
+    if not tech_stack or not tech_stack.strip():
+        raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] objective_architect_agent: Yêu cầu tham số tech_stack hợp lệ.")
     print(f"\n[Objective Architect Agent] Analyzing Session PM Input...")
     
     # Parse structured JSON if possible
@@ -19,7 +22,7 @@ def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", pr
         session_title = session_data.get("title", "Untitled Session")
         lessons = session_data.get("lessons", [])
     except Exception:
-        session_title = "FastAPI Development"
+        session_title = "Programming Session"
         lessons = []
         
     print(f"  - Session Topic: '{session_title}' ({len(lessons)} lessons)")
@@ -33,14 +36,14 @@ def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", pr
     
     The target technology stack for this course is: {tech_stack}
     
-    {f"CẢNH BÁO TỪ LẦN REVIEW TRƯỚC (Hãy sửa lỗi theo phản hồi này): {previous_feedback}" if previous_feedback else ""}
+    {f"REVIEW REVISION FEEDBACK (Fix all reported errors): {previous_feedback}" if previous_feedback else ""}
     
     Generate backward-design learning outcomes tailored specifically for this stack.
     
-    🛑 CHỈ THỊ VỀ PHẠM VI & PHÂN BẬC NHẬN THỨC (STRICT SCOPE & COGNITIVE LEVELS):
-    1. Chỉ tập trung tuyệt đối vào đúng các chủ đề, kiến thức được mô tả trong PM input. Tuyệt đối không đưa vào các khái niệm nâng cao, thư viện bên ngoài phức tạp hoặc các tính năng không được yêu cầu.
-    2. Các chuẩn đầu ra phải phù hợp với trình độ hiện tại của học viên (không đòi hỏi các kỹ năng thiết kế hệ thống, tối ưu hiệu năng cao hay kiến trúc nâng cao ở các bài nhập môn).
-    3. Không trộn lẫn hay tham chiếu đến các công nghệ thuộc stack khác.
+    STRICT SCOPE & COGNITIVE LEVELS DIRECTIVES:
+    1. Strictly focus on topics and concepts described in the PM input. FORBIDDEN to introduce unrequested advanced concepts or third-party libraries.
+    2. Outcomes MUST strictly match current student cognitive levels (do not require advanced system design, performance tuning, or complex architectures in introductory sessions).
+    3. FORBIDDEN to mix or reference concepts from other technology stacks.
     
     The response MUST be a valid JSON matching this schema:
     {{
@@ -60,29 +63,31 @@ def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", pr
         user_prompt,
         json_mode=True,
         agent_name="Objective_Architect_Agent",
-        session_id=session_title
+        session_id=session_title,
+        response_schema=ObjectiveOutcomeSchema
     )
     if response_text:
         try:
-            # Strip markdown formatting just in case
             cleaned = response_text.strip()
             if cleaned.startswith("```json"):
                 cleaned = cleaned[7:]
+            if cleaned.startswith("```"):
+                cleaned = cleaned[3:]
             if cleaned.endswith("```"):
                 cleaned = cleaned[:-3]
             cleaned = cleaned.strip()
             
             result = json.loads(cleaned)
-            print("  - Objective Architect Agent successfully invoked LLM dynamically.")
+            print("  - Objective Architect Agent successfully invoked LLM dynamically via Structured Outputs.")
             return result
         except Exception as e:
-            print(f"  [LLM Error] Failed to parse JSON response: {e}. Falling back to default rules.")
+            print(f"  [LLM Error] Failed to parse JSON response via Structured Outputs: {e}. Falling back to default rules.")
             
     # Default Rule-based Fallback
     blooms = {
         "remembering_understanding": [
             f"Recall core definitions of {session_title}.",
-            "Explain client-server request-response lifecycles."
+            "Explain core processing and logic lifecycles."
         ],
         "applying_analyzing": [],
         "evaluating_creating": []
@@ -96,8 +101,8 @@ def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", pr
             blooms["evaluating_creating"].append(f"Evaluate and debug errors during setup of {title}.")
             
     if not lessons:
-        blooms["applying_analyzing"].append("Complete practical labs and write basic REST API routes.")
-        blooms["evaluating_creating"].append("Evaluate endpoint responsiveness and troubleshoot response code errors.")
+        blooms["applying_analyzing"].append("Complete practical labs and write basic code modules.")
+        blooms["evaluating_creating"].append("Evaluate program execution and troubleshoot logic errors.")
         
     return {
         "session_title": session_title,
@@ -105,13 +110,15 @@ def objective_architect_agent(pm_input: str, tech_stack: str = "python/core", pr
         "blooms_taxonomy": blooms
     }
 
-def scheduler_agent(learning_outcomes: Dict[str, Any], time_reference: Dict[str, Any], tech_stack: str = "python/core") -> Dict[str, Any]:
+def scheduler_agent(learning_outcomes: Dict[str, Any], time_reference: Dict[str, Any], tech_stack: str) -> Dict[str, Any]:
     """
     Scheduler Agent:
     Takes learning outcomes and structures the lessons, checking cognitive load limitations.
     """
+    if not tech_stack or not tech_stack.strip():
+        raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] scheduler_agent: Yêu cầu tham số tech_stack hợp lệ.")
     print("\n[Scheduler_Agent] Balancing cognitive load schedules...")
-    session_title = learning_outcomes.get("session_title", "FastAPI Topic")
+    session_title = learning_outcomes.get("session_title", "Scheduled Topic")
     
     agent_prompt = get_agent_prompt("Scheduler_Agent")
     system_prompt = f"{agent_prompt.get('Persona', '')}\n{agent_prompt.get('Task', '')}"
@@ -123,10 +130,9 @@ def scheduler_agent(learning_outcomes: Dict[str, Any], time_reference: Dict[str,
     {json.dumps(time_reference, ensure_ascii=False)}
     
     The target technology stack for this course is: {tech_stack}
-    Structure the session lessons. Calculate and assign realistic cognitive load minutes (html_reading: max 25, video_lecture: max 15, quiz_practice: max 45).
     Response MUST be a valid JSON matching this schema:
     {{
-        "session_title": "{session_title}",
+        "session_title": "...",
         "lessons": [
             {{
                 "lesson_num": 1,
@@ -196,12 +202,14 @@ def scheduler_agent(learning_outcomes: Dict[str, Any], time_reference: Dict[str,
     print(f"  - Scheduled {len(program_structure['lessons'])} timeline lessons successfully.")
     return program_structure
 
-def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "python/core") -> Dict[str, Any]:
+def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str) -> Dict[str, Any]:
     """
     Knowledge Base Agent:
     Builds the SSOT knowledge maps, providing definitions, code examples,
-    and configurations based on the scheduled FastAPI topics.
+    and configurations based on the scheduled topics.
     """
+    if not tech_stack or not tech_stack.strip():
+        raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] knowledge_base_agent: Yêu cầu tham số tech_stack hợp lệ.")
     print("\n[Knowledge_Base_Agent] Compiling exact SSOT definitions and code snippets...")
     session_title = program_structure.get("session_title", "")
     
@@ -213,12 +221,12 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "p
     
     The target technology stack is: {tech_stack}
     
-    🛑 QUY TẮC PHẠM VI & PHÂN BẬC SƯ PHẠM NGHIÊM NGẶT (STRICT SCOPE & PEDAGOGICAL BOUNDARIES):
-    1. Chỉ cung cấp khái niệm (concepts) và mã nguồn mẫu (code_samples) thuộc phạm vi của buổi học hiện tại. Tuyệt đối không đưa trước kiến thức của các buổi học sau hay các thư viện, framework ngoài lề.
-    2. Cú pháp và cấu trúc mã nguồn mẫu phải cực kỳ đơn giản, dễ tiếp cận và tương xứng với trình độ hiện tại của học viên (ví dụ: không viết async/await, lambda phức tạp, hay kết nối database khi học lập trình căn bản).
-    3. Mã nguồn ví dụ phải tập trung giải quyết đúng 1 vấn đề cốt lõi của bài học, tránh thêm code thừa hoặc các chức năng nâng cao không có trong yêu cầu.
+    STRICT SCOPE & PEDAGOGICAL BOUNDARIES DIRECTIVES:
+    1. Provide concepts and code samples strictly within the scope of the current session. FORBIDDEN to introduce future lesson concepts, unlearned frameworks, or alien libraries.
+    2. Syntax and code structures MUST be simple, beginner-friendly, and match current student level (e.g. avoid complex async/await, lambdas, or database connections in introductory lessons).
+    3. Code samples MUST focus on solving exactly 1 core problem of the lesson without bloated or unrequested features.
     
-    Provide definitions for all key concepts and write solid, realistic code samples strictly in this stack (for example, if stack is 'python/core', all code samples must be in Python and explain Python-specific core concepts. Do NOT use JavaScript or other languages).
+    Provide definitions for all key concepts and write solid, realistic code samples strictly in the target tech_stack ('{tech_stack}'). Do NOT use other languages or unrequested frameworks.
     The response MUST be a valid JSON matching this schema:
     {{
         "session_title": "{session_title}",
@@ -275,124 +283,13 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "p
             "best_practices": "Code organization, formatting, and standard conventions for development."
         }
         
-        if lang == "python":
-            if framework == "fastapi":
-                code_samples = {
-                    "app_init": (
-                        "from fastapi import FastAPI\n\n"
-                        "app = FastAPI()\n\n"
-                        "@app.get('/')\n"
-                        "def read_root():\n"
-                        "    return {'message': 'Hello World'}"
-                    )
-                }
-            else:
-                code_samples = {
-                    "hello_world": (
-                        "def main():\n"
-                        "    print('Hello from Python Core!')\n\n"
-                        "if __name__ == '__main__':\n"
-                        "    main()"
-                    )
-                }
-        elif lang in ("typescript", "javascript"):
-            if framework == "nestjs":
-                code_samples = {
-                    "app_controller": (
-                        "import { Controller, Get } from '@nestjs/common';\n\n"
-                        "@Controller()\n"
-                        "export class AppController {\n"
-                        "  @Get()\n"
-                        "  getHello(): string {\n"
-                        "    return 'Hello World!';\n"
-                        "  }\n"
-                        "}"
-                    )
-                }
-            elif framework == "react":
-                code_samples = {
-                    "app_component": (
-                        "import React from 'react';\n\n"
-                        "export default function App() {\n"
-                        "  return (\n"
-                        "    <div>\n"
-                        "      <h1>Hello World</h1>\n"
-                        "      <p>Welcome to React</p>\n"
-                        "    </div>\n"
-                        "  );\n"
-                        "}"
-                    )
-                }
-            elif framework == "express":
-                code_samples = {
-                    "app_init": (
-                        "const express = require('express');\n"
-                        "const app = express();\n"
-                        "const port = 3000;\n\n"
-                        "app.get('/', (req, res) => {\n"
-                        "  res.send('Hello World!');\n"
-                        "});\n\n"
-                        "app.listen(port, () => {\n"
-                        "  console.log(`App listening at http://localhost:${port}`);\n"
-                        "});"
-                    )
-                }
-            else:
-                code_samples = {
-                    "hello_world": (
-                        "console.log('Hello from JS/TS Core!');"
-                    )
-                }
-        elif lang == "java":
-            if framework == "springboot":
-                code_samples = {
-                    "controller": (
-                        "package com.example.demo;\n"
-                        "import org.springframework.web.bind.annotation.GetMapping;\n"
-                        "import org.springframework.web.bind.annotation.RestController;\n\n"
-                        "@RestController\n"
-                        "public class HelloController {\n"
-                        "    @GetMapping(\"/\")\n"
-                        "    public String index() {\n"
-                        "        return \"Hello from Spring Boot!\";\n"
-                        "    }\n"
-                        "}"
-                    )
-                }
-            else:
-                code_samples = {
-                    "hello_world": (
-                        "public class Main {\n"
-                        "    public static void main(String[] args) {\n"
-                        "        System.out.println(\"Hello from Java Core!\");\n"
-                        "    }\n"
-                        "}"
-                    )
-                }
-        elif lang == "dart" or framework == "flutter":
-            code_samples = {
-                "hello_world": (
-                    "import 'package:flutter/material.dart';\n\n"
-                    "void main() => runApp(const MyApp());\n\n"
-                    "class MyApp extends StatelessWidget {\n"
-                    "  const MyApp({super.key});\n"
-                    "  @override\n"
-                    "  Widget build(BuildContext context) {\n"
-                    "    return const MaterialApp(\n"
-                    "      home: Scaffold(body: Center(child: Text('Hello Flutter'))),\n"
-                    "    );\n"
-                    "  }\n"
-                    "}"
-                )
-            }
-        else:
-            code_samples = {
-                "hello_world": (
-                    f"// Hello world sample for {tech_stack}\n"
-                    "// Dynamic fallback generated offline"
-                )
-            }
-
+        # Removed hardcoded tech stack switch statement to enforce language-agnostic logic
+        code_samples = {
+            "hello_world": (
+                f"// Core hello world structural sample for {tech_stack}\n"
+                "// Dynamic fallback generated offline"
+            )
+        }
         
     # Generate stable Hash
     hash_input = json.dumps(program_structure) + json.dumps(concepts)
@@ -410,8 +307,8 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str = "p
     
     # Seed Lightweight Vector Store with SSOT elements
     try:
-        from core.vector_store import LightweightVectorStore
-        store = LightweightVectorStore()
+        from core.vector_store import get_vector_store
+        store = get_vector_store()
         docs = []
         for name, val in concepts.items():
             docs.append({

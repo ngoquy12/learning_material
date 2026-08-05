@@ -1,10 +1,17 @@
 # core/llm.py
+import sys
 import os
 import json
 import time
 import functools
 import threading
 from typing import Optional, Any
+
+# Reconfigure stdout/stderr encoding for Windows console compatibility immediately
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # Load dotenv if available
 try:
@@ -30,13 +37,12 @@ HIGH_COMPLEXITY_AGENTS = {
 def resolve_model_name(agent_name: str, is_gemini: bool = True) -> str:
     """
     Dynamically select the LLM model based on agent complexity.
-    Defaulting 100% to Gemini 3.0 Flash as requested by user.
+    Defaulting 100% to Gemini 3.6 Flash High for maximum instruction accuracy.
     """
     if is_gemini:
-        return os.getenv("GEMINI_MODEL", "gemini-3-flash")
+        return os.getenv("GEMINI_MODEL", "gemini-3.6-flash-high")
     else:
-        return os.getenv("GEMINI_MODEL", "gemini-3-flash")
-
+        return os.getenv("GEMINI_MODEL", "gemini-3.6-flash-high")
 
 def _get_cached_generative_model(
     model_name: str,
@@ -141,7 +147,8 @@ def call_llm(
     json_mode: bool = False,
     agent_name: str = "Unknown Agent",
     session_id: str = "",
-    lesson_id: str = ""
+    lesson_id: str = "",
+    response_schema: Optional[Any] = None
 ) -> str:
     """
     Unified entry point for calling LLM (Gemini or OpenAI).
@@ -151,18 +158,72 @@ def call_llm(
     """
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
-    
+
+    if not (gemini_key or openai_key):
+        raise RuntimeError(
+            f"❌ [LỖI THIẾU API KEY] Agent '{agent_name}': Không tìm thấy GEMINI_API_KEY hoặc OPENAI_API_KEY trong .env. "
+            f"Hệ thống tuyệt đối KHÔNG chạy fallback tĩnh. Vui lòng bổ sung API Key."
+        )
+
     start_time = time.time()
     from core.observability import log_agent_call
-    
+
+    # Universal Agent Contract: Skill/Instructions in English, Output in 100% Accented Vietnamese
+    universal_directive = (
+        "UNIVERSAL AGENT CONTRACT & ROLE DIRECTIVE:\n"
+        "1. Skill Directives & System Instructions: Drafted in precise, unambiguous English for maximum instruction adherence.\n"
+        "2. 100% Accented Vietnamese Output Contract: All final generated output (reading materials, slides, exercises, video scripts, code comments, quizzes, UI text) MUST ALWAYS be written in 100% ACCENTED VIETNAMESE (Tiếng Việt có dấu chuẩn sản xuất).\n"
+    )
+    if system_prompt and "UNIVERSAL AGENT CONTRACT" not in system_prompt:
+        system_prompt = f"{universal_directive}\n\n{system_prompt}"
+
     # Acquire semaphore to prevent 429 rate limits during parallel node execution
     with _LLM_SEMAPHORE:
-        # Prioritize Gemini for Elearning Tools prompt guidelines
-        if gemini_key:
+
+        # Route OpenAI-compatible proxy endpoints (or sk- style keys) directly to OpenAI SDK for ultra-fast performance
+        base_url = os.getenv("GEMINI_BASE_URL")
+        if (gemini_key and gemini_key.startswith("sk-")) or (base_url and ("127.0.0.1" in base_url or "localhost" in base_url or ":804" in base_url)):
+            try:
+                from openai import OpenAI
+                api_endpoint = base_url.rstrip("/") if base_url else "http://127.0.0.1:8045"
+                if not api_endpoint.endswith("/v1"):
+                    api_endpoint += "/v1"
+                client = OpenAI(base_url=api_endpoint, api_key=gemini_key)
+                model_name = resolve_model_name(agent_name, is_gemini=True)
+                
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ]
+                kwargs = {"model": model_name, "messages": messages, "temperature": 0.7, "timeout": 90.0}
+                if json_mode:
+                    kwargs["response_format"] = {"type": "json_object"}
+                
+                print(f"  [LLM Router - Proxy Fast Track] {agent_name} -> Model: {model_name} @ {api_endpoint}...")
+                response = client.chat.completions.create(**kwargs)
+                if response and response.choices and response.choices[0].message.content:
+                    result_text = response.choices[0].message.content.strip()
+                    log_agent_call(
+                        agent_name=agent_name,
+                        session_id=session_id,
+                        lesson_id=lesson_id,
+                        prompt_summary=f"System: {system_prompt}\nUser: {user_prompt}",
+                        response_summary=result_text,
+                        start_time=start_time,
+                        token_cost={"total_tokens": getattr(response.usage, "total_tokens", 0) if hasattr(response, "usage") and response.usage else len(result_text) // 4}
+                    )
+                    return result_text
+                else:
+                    raise RuntimeError("Empty response from Antigravity Proxy")
+            except Exception as proxy_err:
+                print(f"  [LLM Router - Proxy Error] {proxy_err}")
+                raise proxy_err  # Re-raise to trigger with_retry instead of falling through to native SDK with sk- key!
+
+        # Prioritize Gemini Native SDK ONLY for official AI Studio keys (starting with AIzaSy)
+        if gemini_key and gemini_key.startswith("AIzaSy"):
             try:
                 import google.generativeai as genai
-                base_url = os.getenv("GEMINI_BASE_URL")
-                if base_url:
+                if base_url and not base_url.startswith("http://127.0.0.1"):
                     genai.configure(
                         api_key=gemini_key,
                         transport="rest",
@@ -174,22 +235,24 @@ def call_llm(
                 # Dynamic Model Selection based on Agent Complexity
                 model_name = resolve_model_name(agent_name, is_gemini=True)
                 
-                generation_config: dict = {"max_output_tokens": 16384}
+                generation_config: dict = {"max_output_tokens": 65536}
                 if json_mode:
                     generation_config["response_mime_type"] = "application/json"
+                if response_schema:
+                    generation_config["response_mime_type"] = "application/json"
+                    generation_config["response_schema"] = response_schema
                     
-                # Try prompt caching first
-                cached_model = _get_cached_generative_model(model_name, system_prompt, generation_config)
-                
-                print(f"  [LLM Router] {agent_name} -> Model: {model_name}...")
-                if cached_model:
-                    response = cached_model.generate_content(
-                        user_prompt,
-                        generation_config=generation_config,
-                        request_options={"timeout": 120.0}
-                    )
-                else:
-                    try:
+                # Try calling with response_schema
+                try:
+                    cached_model = _get_cached_generative_model(model_name, system_prompt, generation_config)
+                    print(f"  [LLM Router] {agent_name} -> Model: {model_name}...")
+                    if cached_model:
+                        response = cached_model.generate_content(
+                            user_prompt,
+                            generation_config=generation_config,
+                            request_options={"timeout": 300.0}
+                        )
+                    else:
                         model = genai.GenerativeModel(
                             model_name=model_name,
                             system_instruction=system_prompt,
@@ -198,24 +261,43 @@ def call_llm(
                         response = model.generate_content(
                             user_prompt,
                             generation_config=generation_config,
-                            request_options={"timeout": 120.0}
+                            request_options={"timeout": 300.0}
                         )
-                    except Exception as model_err:
-                        fallback_model_name = os.getenv("GEMINI_MODEL", "gemini-3-flash")
-                        if model_name != fallback_model_name:
-                            print(f"  [LLM Router Warning] Pro model {model_name} failed: {model_err}. Fallback to {fallback_model_name}...")
-                            model = genai.GenerativeModel(
-                                model_name=fallback_model_name,
-                                system_instruction=system_prompt,
-                                generation_config=generation_config
-                            )
-                            response = model.generate_content(
-                                user_prompt,
-                                generation_config=generation_config,
-                                request_options={"timeout": 120.0}
-                            )
-                        else:
-                            raise model_err
+                    
+                    if response and response.text:
+                        result_text = response.text.strip()
+                        if response_schema:
+                            # Verify if it parses as valid JSON
+                            cleaned_verify = result_text
+                            if cleaned_verify.startswith("```json"):
+                                cleaned_verify = cleaned_verify[7:]
+                            if cleaned_verify.startswith("```"):
+                                cleaned_verify = cleaned_verify[3:]
+                            if cleaned_verify.endswith("```"):
+                                cleaned_verify = cleaned_verify[:-3]
+                            json.loads(cleaned_verify.strip())
+                    else:
+                        if response_schema:
+                            raise ValueError("Gemini returned empty or invalid response under response_schema")
+                except Exception as schema_err:
+                    if response_schema:
+                        print(f"  [LLM Schema Fallback] Gemini Structured Output failed or returned malformed JSON: {schema_err}. Retrying WITHOUT schema...")
+                        generation_config_no = {"max_output_tokens": 65536}
+                        if json_mode:
+                            generation_config_no["response_mime_type"] = "application/json"
+                        
+                        model = genai.GenerativeModel(
+                            model_name=model_name,
+                            system_instruction=system_prompt,
+                            generation_config=generation_config_no
+                        )
+                        response = model.generate_content(
+                            user_prompt,
+                            generation_config=generation_config_no,
+                            request_options={"timeout": 300.0}
+                        )
+                    else:
+                        raise schema_err
                     
                 if response and response.text:
                     result_text = response.text.strip()
@@ -256,7 +338,7 @@ def call_llm(
                         response = model.generate_content(
                             user_prompt,
                             generation_config=generation_config,
-                            request_options={"timeout": 120.0}
+                            request_options={"timeout": 300.0}
                         )
                         if response and response.text:
                             return response.text.strip()
@@ -269,7 +351,7 @@ def call_llm(
                 from openai import OpenAI
                 client = OpenAI(
                     api_key=openai_key,
-                    timeout=120.0,
+                    timeout=300.0,
                     default_headers={
                         "HTTP-Referer": "http://localhost:3000",
                         "X-Title": "Elearning Agent"
@@ -283,16 +365,38 @@ def call_llm(
                     {"role": "user", "content": user_prompt}
                 ]
                 
-                response_format = {"type": "json_object"} if json_mode else None
-                
                 print(f"  [LLM Router] {agent_name} -> OpenAI Model: {model_name}...")
-                response = client.chat.completions.create(
-                    model=model_name,
-                    messages=messages,
-                    response_format=response_format,
-                    temperature=0.2,
-                    timeout=120.0
-                )
+                if response_schema:
+                    try:
+                        response = client.beta.chat.completions.parse(
+                            model=model_name,
+                            messages=messages,
+                            response_format=response_schema,
+                            temperature=0.2,
+                            timeout=300.0
+                        )
+                        if response and response.choices and response.choices[0].message.content:
+                            result_text = response.choices[0].message.content.strip()
+                            json.loads(result_text)
+                        else:
+                            raise ValueError("OpenAI returned empty or invalid response under response_schema")
+                    except Exception as schema_err:
+                        print(f"  [LLM Schema Fallback] OpenAI Structured Output failed: {schema_err}. Retrying WITHOUT schema...")
+                        response = client.chat.completions.create(
+                            model=model_name,
+                            messages=messages,
+                            response_format={"type": "json_object"} if json_mode else None,
+                            temperature=0.2,
+                            timeout=300.0
+                        )
+                else:
+                    response = client.chat.completions.create(
+                        model=model_name,
+                        messages=messages,
+                        response_format={"type": "json_object"} if json_mode else None,
+                        temperature=0.2,
+                        timeout=300.0
+                    )
                 if response and response.choices:
                     result_text = response.choices[0].message.content.strip()
                     
@@ -334,7 +438,10 @@ def call_llm(
         except Exception:
             pass
             
-        return ""
+        raise RuntimeError(
+            f"❌ [LỖI GỌI LLM THẤT BẠI] Agent '{agent_name}': Không thể nhận phản hồi từ LLM (Gemini/OpenAI) "
+            f"do lỗi kết nối mạng, vượt quá Quota limit hoặc hết Token. Pipeline lập tức dừng để bảo toàn dữ liệu."
+        )
 
 
 # ─────────────────────────────────────────────────────
@@ -346,3 +453,73 @@ try:
     print("  [LLM] Semantic Cache activated. Duplicate LLM calls will be served from cache.")
 except ImportError:
     pass
+
+
+# ─────────────────────────────────────────────────────
+# Gemini Vision — call_llm_with_images()
+# For multi-modal prompts that include PNG screenshots alongside text.
+# Used by reading_ui_reviewer.py to analyze HTML page UI quality.
+# ─────────────────────────────────────────────────────
+def call_llm_with_images(
+    system_prompt: str,
+    user_prompt: str,
+    image_paths: list,
+    agent_name: str = "Vision_Agent",
+    session_id: str = "",
+    lesson_id: str = ""
+) -> str:
+    """
+    Send a multi-modal request to Gemini Vision with text + PNG images.
+    image_paths: list of absolute file paths to PNG screenshots.
+    Returns LLM text response.
+    """
+    import base64
+    gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if not gemini_key:
+        return ""
+
+    try:
+        import google.generativeai as genai
+
+        base_url = os.getenv("GEMINI_BASE_URL")
+        if base_url:
+            genai.configure(api_key=gemini_key, transport="rest",
+                            client_options={"api_endpoint": base_url})
+        else:
+            genai.configure(api_key=gemini_key)
+
+        # Use same model as call_llm — ensures compatibility with local proxy
+        model_name = resolve_model_name(agent_name, is_gemini=True)
+
+        model = genai.GenerativeModel(
+            model_name=model_name,
+            system_instruction=system_prompt,
+            generation_config={"max_output_tokens": 16384}
+        )
+
+        # Build content parts: images first, then text
+        parts = []
+        for img_path in image_paths:
+            if not os.path.exists(img_path):
+                continue
+            with open(img_path, "rb") as f:
+                img_bytes = f.read()
+            parts.append({
+                "inline_data": {
+                    "mime_type": "image/png",
+                    "data": base64.b64encode(img_bytes).decode("utf-8")
+                }
+            })
+
+        parts.append({"text": user_prompt})
+
+        print(f"  [Vision LLM] {agent_name} -> Model: {model_name} | Images: {len(image_paths)}...")
+        response = model.generate_content(parts, request_options={"timeout": 120.0})
+
+        if response and response.text:
+            return response.text.strip()
+        return ""
+
+    except Exception as e:
+        print(f"  [Vision LLM Error] {agent_name}: {e}")
+        return ""

@@ -1,1 +1,0 @@
-Ngay khi thực thi, hệ thống sẽ ném ra lỗi tai-pơ-e-rơ kèm thông báo đối tượng chuỗi không hỗ trợ việc gán giá trị trực tiếp cho phần tử và lập tức dừng tiến trình. Cơ chế này bảo vệ vùng nhớ của chuỗi không bị ghi đè trái phép từ các phân nghiệp xử lý đồng thời, đảm bảo an toàn tuyệt đối cho dữ liệu gốc.

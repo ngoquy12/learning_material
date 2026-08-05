@@ -1,147 +1,613 @@
 ---
 name: reading_generator
-description: Generate rich, scientific, scannable educational reading materials with bullet/subbullet lists, centered 16:9 visual problem scene images, Mermaid flowcharts, Good vs Bad code comparison cards, Note/Warning callouts, and PEP 8 English snake_case conventions.
+description: Generate enterprise interactive HTML reading materials for programming courses — applying the 10 Mandatory Directives of AGENTS.md, fixed 5-section architecture, live sandbox, code tracker, Good/Bad comparison cards, and Anti-AI scenario questions. Target output language is 100% Accented Vietnamese.
 ---
 
-# Kỹ năng Xây dựng Bài đọc Học liệu Chuẩn Sư phạm Doanh nghiệp (Enterprise Educational Reading Skill)
+# Programming Reading Material Skill — Rikkei Education Standards
 
-## 1. Triết lý Đào tạo & Trình bày Khoa học (Educational & Pedagogical Standards)
-Tài liệu bài đọc tự học (`reading.html`) đóng vai trò là **Nguồn Sự Thật Duy Nhất (Single Source of Truth - SSOT)** cho toàn bộ môn học. Tất cả các tài nguyên khác (Slide, Quiz, Kịch bản Video, Mindmap) đều được trích xuất từ bài đọc này.
-
-### 1.1. Quy tắc Trình bày Khoa học & Ngắt Ý bằng Markdown Lists / Sublists (Scannable Bullet Structure):
-1. **CẤM VIẾT ĐOẠN VĂN DÀI DÒNG**: Tuyệt đối không viết các đoạn văn bản dài tràn lan không có ngắt ý. Mọi nội dung phân tích lý thuyết, cơ chế vận hành hay hướng dẫn kỹ thuật **BẮT BUỘC PHẢI DÙNG DẠNG LIST (`- Ý chính`) VÀ SUBLIST (`  - Chi tiết hỗ trợ`)**.
-2. **Ngắt câu rõ ràng & Bôi đậm Từ khóa**:
-   - Ý chính: Ngắn gọn từ 1 - 2 câu ngắt rõ ràng, bôi đậm (**bold**) các từ khóa chuyên môn cốt lõi.
-   - Sublist ý phụ: Làm rõ bản chất kỹ thuật, tác động tới bộ nhớ/hiệu năng hoặc lưu ý khi triển khai.
-3. **Mẫu cấu trúc List sư phạm**:
-   - **Tên Khái niệm / Cơ chế**: Mô tả bản chất trong 1 câu ngắn gọn.
-     - **Cơ chế hoạt động**: Chi tiết cách hệ thống xử lý từng bước.
-     - **Tác động thực tế**: Đánh giá ảnh hưởng tới hiệu năng và bảo trì mã nguồn.
+This document serves as the **Supreme Technical Directive** governing all agents generating HTML reading materials. Every generated reading material MUST satisfy 100% of the standards below without exception.
 
 ---
 
-### 1.2. Quy tắc Chèn Hình Ảnh Trực Quan Bối Cảnh Bài Toán (Mandatory 16:9 Centered Scene Image):
-1. **BẮT BUỘC CHÈN HÌNH ẢNH BỐ CẢNH 16:9**: Bên cạnh sơ đồ luồng Mermaid và khung chạy code, **mỗi bài đọc BẮT BUỘC phải có 1 Hình ảnh Trực quan mô tả bài toán/bối cảnh thực tế** của bài học ở ngay phần Đặt Vấn Đề (Bước 1).
-   - *Ví dụ bài Vòng lặp (Loops)*: Hình ảnh 16:9 mô tả sự vất vả khi lập trình viên phải chép đi chép lại thủ công 100 câu lệnh giống hệt nhau so với việc dùng 1 vòng lặp thông minh.
-   - *Ví dụ bài Khai báo Biến (Variables)*: Hình ảnh 16:9 mô tả các ô chứa đồ đóng nhãn trong kho hàng tương ứng với các vùng nhớ RAM.
-2. **Quy chuẩn Định dạng & Hiển thị Hình ảnh**:
-   - **Tỷ lệ khung hình**: `16:9` (`aspect-ratio: 16/9`).
-   - **Bố cục căn chỉnh**: Căn giữa chiều ngang tuyệt đối (`margin: 0 auto; display: block; max-width: 800px; width: 100%;`).
-   - **Khung chứa & Shadow**: Bo góc tròn `border-radius: 12px`, đổ bóng mờ `box-shadow: 0 4px 20px rgba(0,0,0,0.08)`, có viền nhẹ `border: 1px solid var(--border-color)`.
-   - **Chú thích ảnh (Caption)**: Đặt ngay bên dưới ảnh dạng nghiêng `font-style: italic`, chữ nhỏ màu xám nhạt căn trái.
+## 0. PEDAGOGICAL FOUNDATION (MANDATORY 10-RULE DIRECTIVES)
+
+All Agents MUST strictly implement all 10 core directives:
+
+|  #  | Directive                                                                                                        | Status    |
+| :-: | :--------------------------------------------------------------------------------------------------------------- | :-------- |
+|  1  | **Fixed 5-Section Architecture** (problem-intro → data-structure → interactive-demo → summary-notes → self-test) | MANDATORY |
+|  2  | **10-Minute Micro-Learning** — Bullet Lists & Sublists instead of monolithic text                                | MANDATORY |
+|  3  | **Problem-First Pedagogy** — Enterprise Scenario ➔ Pain Point ➔ Technical Solution                               | MANDATORY |
+|  4  | **Visual-Rich Integration** — 16:9 SVG, Syntax Anatomy, RAM Diagram, Sandbox, Code Tracker                       | MANDATORY |
+|  5  | **Scenario Questions** — Scenario-based questions, no dry theoretical regurgitation                              | MANDATORY |
+|  6  | **Anti-AI Shortcut** — Answers must strictly derive from reading material scenario data                          | MANDATORY |
+|  7  | **1-Page Self-Test Form** — Form questions + Submit/Check button at the bottom of the page                       | MANDATORY |
+|  8  | **Human-Like Quality Standard** — 100% Accented Vietnamese, no AI markers                                        | MANDATORY |
+|  9  | **Code Conventions** — English `snake_case` (Python/C), `camelCase` (JS/Java/C++)                                | MANDATORY |
+| 10  | **Dark Terminal Output** — Console output wrapped in JetBrains Mono font with `#4ade80` text                     | MANDATORY |
+| 11  | **Minimal Italic Text** — Only use italics for captions directly below images/diagrams                           | MANDATORY |
 
 ---
 
-### 1.3. Quy tắc Mã Nguồn & Coding Conventions (PEP 8 Standards):
-1. **Ràng buộc Tên biến & Tên hàm bằng Tiếng Anh `snake_case`**:
-   - Tất cả mã nguồn ví dụ (Python) **BẮT BUỘC phải dùng tên biến, tên hàm, tên hằng số bằng TIẾNG ANH CÓ Ý NGHĨA dạng `snake_case`** (ví dụ: `user_age`, `rectangle_width`, `total_price`, `calculate_area()`).
-   - **TUYỆT ĐỐI CẤM** dùng tên biến tiếng Việt không dấu (như `chieu_dai`, `nhap_chieu_rong`, `bien1`, `temp`, `a`, `b` không có ý nghĩa).
-2. **Mã nguồn Đối chiếu Chuẩn doanh nghiệp**:
-   - **Mã nguồn Đúng (GOOD Practice)**: Viết mã chuẩn Best Practice, ngắn gọn, minh bạch có comment giải thích lý do.
-   - **Mã nguồn Sai (BAD Practice / Anti-pattern)**: Viết mã nguồn dễ gây bẫy lỗi hoặc kém hiệu quả kèm comment giải thích hậu quả.
+## 0.1 CALLOUT BOX & CODE BLOCK ISOLATION STANDARD
 
----
+1. **CALLOUT BOX COLOR SYSTEM**:
+   All text note blocks, warnings, and alerts MUST follow role-based color standards:
+   - 🟠 **Warning / Note**: `<div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4">`
+   - 🔴 **Error / Gotcha**: `<div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4">`
+   - 🟢 **Success / Best Practice**: `<div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4">`
+   - 🔵 **Tip / Info**: `<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">`
 
-### 1.5. 4 Quy Tắc Hệ Thống Bắt Buộc Cấp Độ Agent (4 System-Wide Agent Rules):
-1. **Độ tương phản Cao cho Code Tracker / Visualizer (Rule 1)**:
-   - Các dòng code được highlight (`.active`, `.active-line`, `.bg-yellow-200`, `.bg-amber-200`) **BẮT BUỘC** phải cài đặt màu chữ đen đậm `#0f172a !important` cho tất cả phần tử con bên trong. Tuyệt đối cấm để màu chữ trắng/xám chìm vào nền vàng nhạt.
-2. **100% Tiếng Việt Có Dấu Chuẩn Sản Xuất (Rule 2)**:
-   - Tất cả văn bản, tiêu đề, nhãn SVG diagram, comment trong mã nguồn Python/JS/Java/C++ và docstring **BẮT BUỘC** phải dùng Tiếng Việt có dấu đầy đủ và chuẩn xác. Cấm để lại các từ không dấu như `"Du Lieu Nguoi Dung"`, `"Hop le"`, `"Bao loi"`.
-3. **Đóng gói Kết quả Console Output Dạng Dark Terminal (Rule 3)**:
-   - **TUYỆT ĐỐI CẤM** xuất kết quả chạy Console / Terminal dưới dạng gạch đầu dòng thô `<li><code>...</code></li>`.
-   - **BẮT BUỘC** đóng gói kết quả Console vào Khung Mã Nguồn Console Terminal chuyên nghiệp (Dark Terminal Component) với phông `JetBrains Mono`, màu chữ xanh `#4ade80`, thanh Header `>_ Console Output` và trạng thái `● Executed Successfully`.
-4. **Cấm IN HOA TOÀN BỘ (Strict No ALL CAPS) (Rule 4)**:
-   - Tuyệt đối cấm sử dụng chữ IN HOA TOÀN BỘ trên tiêu đề, nhãn badge hay nút bấm (như `TIẾN TRÌNH`, `BẢNG SO SÁNH`, `TỔNG KẾT`). Bắt buộc dùng `Sentence case` (chỉ viết hoa chữ cái đầu hoặc từ chuyên môn/tên riêng).
+2. **STRICT STANDALONE CODE BLOCK RULE (NO CALLOUT NESTING)**:
+   - Callout boxes are strictly reserved for short text alerts and warnings.
+   - **ABSOLUTELY FORBIDDEN** to wrap `<pre><code>` or code cards inside a callout box container (`<div class="p-4 rounded-xl border...">`).
+   - Place all syntax templates and code examples directly as standalone `<pre><code class="language-LANG">...</code></pre>` blocks.
 
----
+3. **100% ENGLISH CODE SYNTAX & IDENTIFIER STANDARD**:
+   - ALL code snippets, syntax templates, variable names, function names, parameter names, data structures, and code comments inside code blocks MUST BE 100% IN ENGLISH (e.g., `for item in sequence:`, `# Execute loop body for each item`).
+   - **ABSOLUTELY FORBIDDEN** to use Vietnamese words or diacritics inside code blocks (e.g., NEVER use `biến_đại_diện`, `tập_hợp_dữ_liệu`, or `# Khối lệnh được thi hành`).
+   - Explanations outside code blocks must be in Accented Vietnamese, but code inside code blocks is strictly 100% English.
 
-## 2. Cấu Trúc Bố Cục Bài Đọc Chuẩn Sư Phạm Doanh Nghiệp
+4. **MACBOOK DOTS & SPECIFIC CODE CARD TITLES (NO UPPER CASE)**:
+   - Code card headers MUST feature 3 macOS traffic light dots: Red (`#ff5f56`), Yellow (`#ffbd2e`), Green (`#27c93f`).
+   - Code card titles MUST be specific and descriptive in Title Case (e.g., `Cú pháp khai báo câu lệnh for trong Python`).
+   - **ABSOLUTELY FORBIDDEN** to use generic UPPERCASE titles like `PYTHON CÚ PHÁP` or `PYTHON CODE`.
 
+5. **SYNCHRONIZED SYNTAX EXPLANATION DERIVATION CONTRACT**:
+   - Every bullet item explaining code syntax MUST use the EXACT SAME identifier/parameter names as used in the code block.
+   - Example: If code uses `for item in iterable_object: statement_1`, bullet items MUST explain `item`, `iterable_object`, and `statement_1` verbatim. NEVER use mismatched terms.
+
+6. **STRICT LIGHT MODE ONLY (NO DARK PANELS / OVERRIDES)**:
+   - All generated reading materials MUST strictly use Light Mode.
+   - **ABSOLUTELY FORBIDDEN** to use dark background panels (`bg-slate-900`, `bg-black`), dark cards, or dark mode toggle logic.
+   - Maintain a balanced, professional corporate palette (`bg-white`, `bg-slate-50`, `border-slate-200`, `text-slate-900`, `text-slate-700`).
+
+7. **STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (NO UNLEARNED CONCEPTS)**:
+   - The generated reading content, examples, code blocks, and diagrams MUST strictly stay within the knowledge taught up to the current session/lesson.
+   - **ABSOLUTELY FORBIDDEN** to leak future unlearned data structures (e.g. using `List` / `[1, 2, 3]` / `.append()` / `range(len(list))` in an introductory `for`/`range` loop session before `List` is introduced), unlearned libraries, or advanced methods not introduced in previous sessions.
+   - **REVIEWER AUDIT CONTRACT**: Reviewer agents MUST audit generated HTML against current lesson details and previous session sequence. If ANY unlearned concept or future data structure is detected, the Reviewer MUST REJECT the document immediately.
+
+8. **CLEAN ARTICLE TITLE CONTRACT (NO LESSON PREFIX)**:
+   - Main article `<h1>` title MUST ONLY display the clean topic title (e.g., `Khái niệm vòng lặp và câu lệnh for`).
+   - **ABSOLUTELY FORBIDDEN** to include `Lesson 01 -`, `Lesson 02 -`, `Bài 01 -` prefix in the main article `<h1>` title.
+
+9. **SYNTAX FIRST, EXPLANATION SECOND PEDAGOGICAL ORDER**:
+   - ALWAYS present the **Syntax Card Component** FIRST, followed immediately by the **Component Explanation Bullet List**.
+   - Each keyword or placeholder in the explanation list MUST be highlighted with code badges (`<code>...</code>`) and bold font.
+
+10. **INTERACTIVE STEP-BY-STEP MECHANISM VISUALIZER & CODE CARD SEPARATION**:
+    - Section 2 MUST embed an **Interactive Step-by-Step Mechanism Visualizer** (HTML/CSS/JS) with Play/Pause/Prev/Next controls, active step line highlights, and step state updates.
+    - General syntax templates in Section 2 MUST use **Static Code Cards** (macOS dots, copy button, no run button). Executable practical code in Section 3 MUST use **Live Pyodide Sandboxes** (with run and console output buttons).
+
+11. **INTERACTIVE VISUALIZER COLOR & VIETNAMESE UI CONTRACT**:
+    - All visualizer component UI labels, headers, and buttons MUST be in clear Accented Vietnamese (Title: `Mô phỏng cơ chế vận hành từng bước`, Buttons: `Tiếp theo`, `Lùi lại`, `Thử lại`, `Tự động chạy`, Memory Panel: `Bảng bộ nhớ & Trạng thái biến`).
+    - Inactive code lines MUST use high-contrast dark slate text (`color: #475569 !important; font-weight: 500`).
+    - **ABSOLUTELY FORBIDDEN** to use faint gray, white, or low-contrast text on light backgrounds in visualizers.
+
+12. **VISUALIZER CODE SYNTAX HIGHLIGHTING & NO LINE NUMBERS CONTRACT**:
+    - Code lines displayed inside the Step-by-Step Visualizer panel MUST use syntax highlighting matching the language (e.g., `<span class="kw">for</span>`, `<span class="fn">print</span>`, `<span class="num">10</span>`, `<span class="str">"text"</span>`).
+    - **ABSOLUTELY FORBIDDEN** to include line numbers (such as `1. `, `2. `, `Dòng 1:`) inside visualizer code lines. Keep code lines clean, accurately highlighted, and syntactically correct.
+
+13. **NO INLINE SCRIPT TAGS & PRESERVE CODE NEWLINES CONTRACT**:
+    - **ABSOLUTELY FORBIDDEN** to generate raw inline `<script>...</script>` tags inside JSON response strings. Use standard button event attributes (`onclick="runVizStep(1)"`) calling framework helpers instead.
+    - Code blocks inside `<pre><code>...</code></pre>` MUST preserve literal line breaks (`\n`) for proper code indentation.
+
+## 1. STRICT 5-SECTION ARCHITECTURE
+
+Every reading material document MUST contain exactly 5 sections with fixed Anchor IDs. `<h2>` titles adapt dynamically to the lesson topic while maintaining strict pedagogical order.
+
+### Section 1: `#problem-intro` — Real-World Problem Statement
+
+**Pedagogical Objective**: Trigger "Why do I need to learn this?" before presenting theory.
+
+**Mandatory Content Structure**:
+
+1. **Real-world Business Scenario** — Place student in a developer role solving a concrete problem (e.g. VAT calculation for 1000 items, student grade management, order filtering).
+2. **Legacy Approach Drawbacks & Pain Points** — Detail 3 specific weaknesses of legacy workarounds:
+   - `Code Duplication`: Redundant logic, code bloat.
+   - `Maintenance Nightmare`: Business rule changes require manual edits in multiple files.
+   - `Monolithic & Unmodular`: High debugging friction.
+3. **New Solution (Current Lesson Concept)** — 1-2 concise sentences introducing the new concept and its benefits.
+4. **16:9 Context SVG Diagram** — Visualize "Legacy Way ❌ vs New Way ✅" or "Black Box Processor" model.
+
+**SVG 16:9 Widescreen Technical Standard**:
+
+```html
+<div class="my-6">
+  <div
+    class="w-full max-w-200 mx-auto overflow-hidden rounded-xl border border-slate-200 dark:border-rikkei-borderDark shadow-md rikkei-diagram"
+  >
+    <svg viewBox="0 0 800 450" class="w-full h-auto">
+      <!-- Light/Dark adaptive SVG content using rikkei-diagram-* classes -->
+    </svg>
+  </div>
+  <p class="text-center text-sm text-slate-500 dark:text-slate-400 italic mt-3">
+    Problem context diagram caption...
+  </p>
+</div>
 ```
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| [Header/Navbar]  TÊN MÔN HỌC & BÀI HỌC • Badges: [Chuẩn Sư Phạm • Doanh Nghiệp]               |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 1. BỐ CẢNH & BÀI TOÁN THỰC TẾ (Introduction & Context)                                        |
-|    • HÌNH ẢNH TRỰC QUAN 16:9 CĂN GIỮA (Illustration Scene Image aspect 16:9 centered)        |
-|      [Caption chú thích hình ảnh bối cảnh bài toán...]                                       |
-|    • List ngắt ý khoa học (- Ý chính, sub-bullet chi tiết) phân tích bối cảnh.              |
-|    • Lưu ý: Nhấn mạnh điểm quan trọng trong bối cảnh.                                         |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 2. PHÂN TÍCH BẢN CHẤT KỸ THUẬT & CƠ CHẾ NỘI BỘ (Technical Internals)                          |
-|    • List ngắt ý khoa học phân tích cơ chế bộ nhớ, thông dịch, Bytecode, PVM.                 |
-|    • BẢNG SO SÁNH MARKDOWN KỸ THUẬT (Technical Comparison Table full-width).                 |
-|    • Mẹo: Mẹo tối ưu cấu trúc mã nguồn.                                                      |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 3. GIẢI PHÁP KỸ THUẬT & SƠ ĐỒ LUỒNG (Architecture & Flow)                                     |
-|    • SƠ ĐỒ MERMAID DIAGRAM (flowchart TD / sequenceDiagram) giải thích luồng thực thi.        |
-|    • **BẮT BUỘC CÚ PHÁP MERMAID V10+**:                                                       |
-|      1. Mũi tên có nhãn: Dùng `A -->|Nhãn| B` (CẤM dùng `A -- Nhãn --> B`).                    |
-|      2. Node chứa toán tử `//`, `%`, `>`, `<`, `=`, `:`, `-`: BẮT BUỘC BỌC `A["label // val"]`. |
-|      3. SequenceDiagram: Tên participant KHÔNG chứa ngoặc `()` (Dùng `participant Fn as input()`). |
-|    • **BẮT BUỘC SƠ ĐỒ SVG**: CẤM lồng thẻ HTML `<p>` hay `<div>` trong thẻ `<text>` của SVG.   |
-|    • Cấu trúc mã nguồn chuẩn Best Practice vs Anti-Pattern.                                   |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 4. QUY CHUẨN MÃ NGUỒN & PHÂN TÍCH THỰC THI (Code & Console Analysis)                          |
-|    • Khối code minh họa Python tuân thủ PEP 8 English snake_case.                            |
-|    • Nút ▶ Thử chạy Pyodide WebAssembly và Nút Sao chép.                                      |
-|    • Phân tích Console Output và luồng chạy từng dòng.                                        |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 5. KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC (Self-Test Accordion)                                 |
-|    • Bộ 3 câu hỏi khảo thí tự luyện dạng thẻ nhấp mở gợi ý đáp án.                            |
-|    • **BẮT BUỘC**: Text câu hỏi và đáp án **100% TIẾNG VIỆT CÓ DẤU ĐẦY ĐỦ** (CẤM không dấu).  |
-|    • **BẮT BUỘC**: Text câu hỏi và câu trả lời **CĂN GIỮA 100%** (`text-align: center`).      |
-|    • **BẮT BUỘC**: Có tính năng **ĐÓNG / MỞ ĐỘNG** (`onclick="this.parentElement.classList.toggle('active')"`). |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 6. TÀI LIỆU THAM KHẢO CHÍNH THỨC (Official References)                                        |
-|    • Danh sách đường dẫn tài liệu chính thức (PEP, Python Docs, Official Specs).              |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
-| 7. LƯU Ý QUAN TRỌNG & BẪY LẬP TRÌNH (Important Warnings & Runtime Pitfalls)                   |
-|    • Cảnh báo: Cảnh báo các bẫy lỗi đắt giá (IndentationError, TypeError...) bôi đậm.        |
-+───────────────────────────────────────────────────────────────────────────────────────────────+
+
+---
+
+### Section 2: `#data-structure` — Syntax & Mechanism Breakdown
+
+**Pedagogical Objective**: Dissect keyword syntax + visualize underlying mechanisms so students master concepts immediately.
+
+**Context-Aware Content Structure**:
+
+1. **Context-Aware Visual Block at Subsections 2.1, 2.2, 2.3**:
+   - **For Syntax / Programming Lessons**: EVERY subsection (`2.1`, `2.2`...) embeds a **Live Code Sandbox / Syntax Illustration Block** (`<div class="my-4 rounded-xl overflow-hidden border border-slate-700 bg-slate-900"><pre><code class="hljs language-LANG">...</code></pre></div>`) for instant execution.
+   - **For Concept / Setup / Tool Lessons (Git, VS Code, Agile, Architecture)**: Do NOT force empty code sandboxes. Instead, embed **Terminal Command Blocks, Configuration Parameter Tables, or Setup Workflow Diagrams**.
+2. **Mechanism Illustration Diagrams & Full-Width Interactive Step-by-Step Visualizer**:
+   - **Mandatory 100% Full-Width Interactive Mechanism Visualizer Component**: For any technology syntax or algorithm explaining step-by-step execution mechanics, embed a **100% Full-Width Interactive Visualizer (`w-full my-8 rounded-2xl bg-slate-900 border border-slate-700 overflow-hidden shadow-xl`)**.
+   - **Required Controls & Sub-Panels**:
+     - ⏯️ **Play/Pause Button** (`visualizerTogglePlay('{ID}')`) to auto-advance steps.
+     - ⏭️ **Step Prev / Step Next Buttons** (`visualizerPrev('{ID}')` / `visualizerNext('{ID}')`).
+     - 🔄 **Reset Button** (`visualizerReset('{ID}')`).
+     - ⏱️ **Timer / Speed Selector** (`1.5s`, `1.0s`, `0.5s`).
+     - 📌 **Code Tracker Panel**: Highlights active code line being executed with high-contrast badge (`bg-emerald-500/20 border-l-4 border-emerald-500 text-white`).
+     - 🖥️ **Data/Memory State Canvas Panel**: Displays variable state transforms, RAM allocations, or array pointer updates in real time.
+     - 📟 **Console Output Panel**: Displays real-time output printed or returned at each step.
+
+3. **Component-by-Component Explanation** — Bulleted list, bold technical terms, max 1-2 sentences per point.
+4. **Code Comparison Component — GOOD vs BAD Practice**:
+
+```html
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+  <!-- BAD PRACTICE -->
+  <div
+    class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 rounded-xl p-4"
+  >
+    <div
+      class="flex items-center gap-2 text-rose-700 dark:text-rose-400 font-bold text-sm mb-3"
+    >
+      <i class="ph-bold ph-x-circle text-base"></i>
+      <span>Anti-Pattern (Avoid)</span>
+    </div>
+    <pre><code class="language-python"># BAD: Redundant tax logic duplication...</code></pre>
+    <p class="text-xs text-rose-600 dark:text-rose-400 mt-2 italic">
+      Drawback: Code duplication, hard to maintain when tax rates change.
+    </p>
+  </div>
+  <!-- GOOD PRACTICE -->
+  <div
+    class="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl p-4"
+  >
+    <div
+      class="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-bold text-sm mb-3"
+    >
+      <i class="ph-bold ph-check-circle text-base"></i>
+      <span>Best Practice (Recommended)</span>
+    </div>
+    <pre><code class="language-python"># GOOD: Encapsulated inside reusable function...</code></pre>
+    <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-2 italic">
+      Benefit: Reusable, maintainable, adheres to DRY principle.
+    </p>
+  </div>
+</div>
 ```
 
-> [!IMPORTANT]
-> **QUY TẮC CĂN GIỮA VÀ ĐÓNG MỞ PHẦN KHẢO THÍ & ĐÁNH GIÁ NĂNG LỰC TỰ HỌC:**
-> 1. **Căn Giữa Text (`text-align: center`)**:
->    - Tiêu đề câu hỏi (`.selftest-question`) và nội dung câu trả lời (`.selftest-answer`) **BẮT BUỘC** phải được căn trái chiều ngang (`text-align: left !important; justify-content: space-between !important;`).
-> 2. **Đóng / Mở Động (Collapsible Accordion Toggle)**:
->    - Khi nhấp vào tiêu đề câu hỏi, khối thẻ phải tự động bật/tắt hiển thị câu trả lời (`onclick="this.parentElement.classList.toggle('active')"` hoặc dùng `<details class="selftest-item"><summary class="selftest-question">...` ). Mũi tên indicator tự động xoay chuyển chỉ báo trạng thái.
+---
+
+### Section 3: `#interactive-demo` — Interactive Code Sandbox & Progressive Examples
+
+**Pedagogical Objective**: Hands-on interactive experimentation. Students edit code and view output instantly.
+
+**Mandatory Content Structure**:
+
+1. **Hierarchical Sub-heading Numbering (`3.1`, `3.2`, `3.3...`)**: All `<h3>` sub-headings MUST follow parent section hierarchy (Section 2 ➔ `2.1`, `2.2`; Section 3 ➔ `3.1`, `3.2`; Section 4 ➔ `4.1`, `4.2`). FORBIDDEN independent `1.`, `2.`, `3.` numbering.
+2. **Code Snippets for Every Example (`3.1`, `3.2`, `3.3`)**: EVERY EXAMPLE MUST include a `<pre><code class="hljs language-python">` code block directly below it for instant copying and execution.
+3. **Progressive Example Complexity (1 to 3 Examples from Simple ➔ Complex / Enterprise)**:
+   - **Example 3.1 (Ultra-Simple / Syntax Minimalist)**: Minimal syntax graspable in 30 seconds (e.g. 1 variable declaration, 1 line print).
+   - **Example 3.2 (Moderate / Business Scenario)**: Applied to a small business task (e.g. discounted order total calculation).
+   - **Example 3.3 (Enterprise Practical / Advanced)**: Full business scenario (e.g. HR payroll processing or ecommerce order pipeline).
+   - ⛔ **FORBIDDEN SINGLE ULTRA-COMPLEX EXAMPLE**: Never present a single overly complex or non-practical example.
+4. **Pyodide Live Wasm Sandbox & Terminal Console**: Embedded `<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>` with **Run Code** button for browser execution.
+
+**Template Pyodide Interactive Editor Sandbox chuẩn (theo `functions.html` — Style 1 Sáng/Tối Linh hoạt)**:
+
+```html
+<div
+  class="border border-slate-200 dark:border-rikkei-borderDark rounded-xl overflow-hidden shadow-sm my-6"
+>
+  <div
+    class="relative bg-slate-50/50 dark:bg-slate-900/60 text-slate-800 dark:text-slate-100 font-mono text-sm border-b border-slate-200 dark:border-rikkei-borderDark"
+  >
+    <!-- Floating Toolbar Top-Right -->
+    <div
+      class="absolute top-3 right-3 flex items-center gap-1.5 z-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+    >
+      <button
+        onclick="clearSandbox('code-1', 'output-1', 'container-1')"
+        class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red transition-all"
+        title="Khôi phục code gốc"
+      >
+        <i class="ph-bold ph-x text-sm"></i>
+      </button>
+      <button
+        onclick="runPythonCode('code-1', 'output-1', 'container-1')"
+        class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red transition-all"
+        title="Chạy chương trình"
+      >
+        <i class="ph-bold ph-play text-sm"></i>
+      </button>
+      <button
+        onclick="copySandboxCode('code-1', this)"
+        class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 dark:text-slate-500 hover:text-rikkei-red transition-all"
+        title="Sao chép"
+      >
+        <i class="ph-bold ph-copy text-sm"></i>
+      </button>
+    </div>
+    <!-- Code area -->
+    <pre
+      id="code-1"
+      contenteditable="true"
+      spellcheck="false"
+      data-original="# Code demo..."
+      class="w-full min-h-24 bg-transparent p-4 font-mono text-sm leading-relaxed outline-none pt-4 pr-28 select-text whitespace-pre-wrap break-all"
+    >
+# Code demo...</pre
+    >
+  </div>
+  <!-- Output Container -->
+  <div
+    id="container-1"
+    class="hidden bg-slate-100/80 dark:bg-slate-950/60 border-t border-slate-200 dark:border-slate-800/60 p-4"
+  >
+    <div
+      class="flex items-center justify-between text-xs text-slate-400 font-mono mb-1"
+    >
+      <span>CONSOLE OUTPUT:</span>
+    </div>
+    <pre
+      id="output-1"
+      class="font-mono text-sm text-slate-700 dark:text-slate-300 select-text whitespace-pre-wrap m-0"
+    ></pre>
+  </div>
+</div>
+```
+
+        class="p-1.5 text-slate-400 hover:text-rikkei-red rounded transition-all"
+        title="Xem mô phỏng luồng thực thi"
+      >
+        <i class="ph-bold ph-eye text-sm"></i>
+      </button>
+      <button
+        type="button"
+        onclick="copySandboxCode('code-{ID}', this)"
+        class="p-1.5 text-slate-400 hover:text-rikkei-red rounded transition-all"
+        title="Sao chép mã nguồn"
+      >
+        <i class="ph-bold ph-copy text-sm"></i>
+      </button>
+    </div>
+
+  </div>
+  <!-- Code Editable Area -->
+  <pre
+    id="code-{ID}"
+    contenteditable="true"
+    spellcheck="false"
+    class="p-4 font-mono text-sm leading-relaxed outline-none whitespace-pre-wrap text-slate-800 dark:text-slate-200 min-h-30"
+    data-original="{ESCAPED_CODE_CONTENT}"
+  >
+{CODE_CONTENT_HERE}
+  </pre>
+  <!-- Output Panel (hidden by default) -->
+  <div
+    id="output-{ID}"
+    class="hidden border-t border-slate-200 dark:border-rikkei-borderDark p-4 bg-slate-900 font-mono text-sm text-emerald-400"
+  >
+    <div class="flex items-center gap-2 text-slate-400 text-xs mb-2">
+      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      <span>Console Output</span>
+    </div>
+    <pre class="output-content"></pre>
+  </div>
+</div>
+
+<!-- Interactive Code Tracker (toggle với Eye button) -->
+<div
+  id="tracker-{ID}"
+  class="hidden my-4 rounded-xl border border-slate-200 dark:border-rikkei-borderDark overflow-hidden"
+>
+  <div
+    class="bg-slate-800 px-4 py-2 flex items-center gap-2 text-slate-300 text-xs font-semibold"
+  >
+    <i class="ph-bold ph-play-circle text-rikkei-red"></i>
+    <span>Mô phỏng luồng thực thi từng bước</span>
+  </div>
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-rikkei-borderDark"
+  >
+    <!-- Left: Code Line Highlight -->
+    <div
+      class="p-4 bg-slate-900 font-mono text-xs space-y-1"
+      id="tracker-code-{ID}"
+    >
+      <!-- JS sẽ inject các .tracker-line div tại đây -->
+    </div>
+    <!-- Right: Variable Inspector -->
+    <div class="p-4 bg-white dark:bg-rikkei-cardDark">
+      <p
+        class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2"
+      >
+        Trạng thái biến (RAM)
+      </p>
+      <table class="w-full text-xs">
+        <thead>
+          <tr
+            class="text-slate-500 border-b border-slate-200 dark:border-rikkei-borderDark"
+          >
+            <th class="text-left pb-1">Biến</th>
+            <th class="text-left pb-1">Kiểu</th>
+            <th class="text-left pb-1">Giá trị</th>
+          </tr>
+        </thead>
+        <tbody id="tracker-vars-{ID}" class="font-mono"></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Step Controls -->
+  <div
+    class="bg-slate-100 dark:bg-slate-800 px-4 py-2 flex items-center gap-3 border-t border-slate-200 dark:border-rikkei-borderDark"
+  >
+    <button
+      type="button"
+      onclick="trackerPrev('{ID}')"
+      class="px-2 py-1 text-xs bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 rounded font-mono"
+    >
+      ⏮ Trước
+    </button>
+    <button
+      type="button"
+      onclick="trackerNext('{ID}')"
+      class="px-2 py-1 text-xs bg-rikkei-red hover:bg-rikkei-darkred text-white rounded font-mono font-bold"
+    >
+      Sau ⏭
+    </button>
+    <span id="tracker-step-{ID}" class="text-xs text-slate-500 font-mono"
+      >Bước 1 / ?</span
+    >
+    <span
+      id="tracker-msg-{ID}"
+      class="text-xs text-amber-600 dark:text-amber-400 italic ml-auto"
+    ></span>
+  </div>
+</div>
+```
+
+**CSS quy chuẩn Code Tracker Highlight**:
+
+```css
+/* Dòng code đang thực thi */
+.tracker-line {
+  transition: all 0.2s ease;
+  color: #94a3b8;
+  padding: 2px 4px;
+  border-radius: 4px;
+  border-left: 3px solid transparent;
+}
+.tracker-line.active-step {
+  background-color: rgba(190, 17, 28, 0.18);
+  border-left-color: #be111c;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+/* Biến vừa cập nhật */
+.var-updated {
+  animation: pulse-var 1s ease;
+}
+@keyframes pulse-var {
+  0% {
+    background-color: rgba(16, 185, 129, 0.35);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+```
 
 ---
 
+### Section 4: `#summary-notes` — Production Gotchas & Best Practices
+
+**Pedagogical Objective**: Prevent common bugs before students proceed to independent practice.
+
+**Mandatory Content Structure**:
+
+1. **Common Pitfalls & Gotchas List** — Bulleted list with bold error names:
+   - Python: Mutable default argument, Scope LEGB, IndentationError
+   - C/C++: Dangling pointer, Memory leak, Undefined behavior
+   - Java: NullPointerException, Pass-by-value of reference
+   - JavaScript: `undefined` vs `null`, Type coercion, Closure leak
+
+2. **Decision Matrix Table** — When to use A vs B:
+
+```html
+<div class="overflow-x-auto my-6">
+  <table class="w-full text-sm border-collapse">
+    <thead class="bg-rikkei-red text-white">
+      <tr>
+        <th class="px-4 py-3 text-left font-semibold">Scenario</th>
+        <th class="px-4 py-3 text-left font-semibold">Recommended Choice</th>
+        <th class="px-4 py-3 text-left font-semibold">Rationale</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200 dark:divide-rikkei-borderDark">
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+        <td class="px-4 py-3 text-slate-700 dark:text-slate-300">...</td>
+        <td
+          class="px-4 py-3 font-mono text-emerald-700 dark:text-emerald-400 font-semibold"
+        >
+          ...
+        </td>
+        <td class="px-4 py-3 text-slate-600 dark:text-slate-400">...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
 ---
 
-## 3. Quy Chuẩn Kỹ Thuật JavaScript & Chống Reload Trang (Strict JS & Anti-Reload Rules)
-1. **Bắt buộc 100% thẻ `<button>` phải khai báo `type="button"`**:
-   - Mọi nút bấm trong giao diện bài đọc và bảng điều khiển trực quan hóa (Visualizer Panel) tuyệt đối phải ghi rõ `<button type="button" ...>` để ngăn ngừa hành vi tự động reload/submit form của trình duyệt.
-2. **Chống Reload khi click hoặc bấm Enter**:
-   - Tất cả các sự kiện click, gõ phím trong form hoặc input phải có `event.preventDefault()` để tránh làm trang bị tải lại.
-3. **Mã nguồn Trực quan hóa chi tiết (Detailed Code Visualizer Logic)**:
-   - Bộ Visualizer phải mô phỏng chính xác từng bước chạy mã nguồn theo thời gian thực (Step-by-step Execution Tracker).
-   - Phải có 3 phân vùng hiển thị đồng bộ:
-     a) **Code Tracker Box**: Highlight dòng lệnh đang chạy (`.active-line`).
-     b) **Memory State / Variable Table**: Hiển thị tên biến, kiểu dữ liệu và giá trị biến thay đổi theo từng bước.
-     c) **Console Execution Log**: Nhật ký log hiển thị kết quả in ra màn hình hoặc trạng thái hệ thống.
-4. **Cô lập Scope JavaScript**:
-   - Mã nguồn JS phải tự chứa (self-contained), khai báo biến và hàm chuẩn xác, không được dùng stub `// todo` hay dùng biến chưa khai báo.
+### Section 5: `#self-test` — 1-Page Interactive Self-Test Assessment
+
+**Pedagogical Objective**: Enable immediate self-evaluation directly on the reading page. Scenario-based questions enforce thorough reading of the material.
+
+**3 Immutable Directives**:
+
+1. **Scenario-Based**: Place student in a concrete context, querying data directly presented in reading material.
+2. **Anti-AI Shortcut**: Answers MUST cite specific sections in `reading.html`.
+3. **1-Page**: Single Check Answers button — inline feedback rendered directly below each question.
+
+**Self-Test Form Component Template**:
+
+```html
+<section id="self-test" class="mb-10 scroll-mt-24">
+  <h2
+    class="font-montserrat font-bold text-2xl text-slate-900 dark:text-white mb-6"
+  >
+    5. Khảo thí tự đánh giá
+  </h2>
+
+  <!-- Câu 1: Radio Choice -->
+  <div
+    class="border border-slate-200 dark:border-rikkei-borderDark rounded-xl p-5 mb-4 bg-slate-50 dark:bg-rikkei-cardDark/50"
+  >
+    <div class="flex items-start gap-3">
+      <span
+        class="w-7 h-7 rounded-full bg-rikkei-red text-white text-xs flex items-center justify-center font-bold shrink-0 mt-0.5"
+        >1</span
+      >
+      <div class="flex-1">
+        <p
+          class="font-semibold text-slate-900 dark:text-white text-sm leading-relaxed mb-3"
+        >
+          {SITUATION_SCENARIO_QUESTION — phải dựa trên dữ kiện cụ thể trong bài
+          đọc}
+        </p>
+        <div class="space-y-2">
+          <label
+            class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-rikkei-borderDark hover:border-rikkei-red cursor-pointer transition-all"
+          >
+            <input type="radio" name="q1" value="A" class="accent-rikkei-red" />
+            <span class="text-sm text-slate-700 dark:text-slate-300"
+              >A. {OPTION_A}</span
+            >
+          </label>
+          <label
+            class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-rikkei-borderDark hover:border-rikkei-red cursor-pointer transition-all"
+          >
+            <input type="radio" name="q1" value="B" class="accent-rikkei-red" />
+            <span class="text-sm text-slate-700 dark:text-slate-300"
+              >B. {OPTION_B}</span
+            >
+          </label>
+          <label
+            class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-rikkei-borderDark hover:border-rikkei-red cursor-pointer transition-all"
+          >
+            <input type="radio" name="q1" value="C" class="accent-rikkei-red" />
+            <span class="text-sm text-slate-700 dark:text-slate-300"
+              >C. {OPTION_C}</span
+            >
+          </label>
+          <label
+            class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-rikkei-borderDark hover:border-rikkei-red cursor-pointer transition-all"
+          >
+            <input type="radio" name="q1" value="D" class="accent-rikkei-red" />
+            <span class="text-sm text-slate-700 dark:text-slate-300"
+              >D. {OPTION_D}</span
+            >
+          </label>
+        </div>
+        <!-- Feedback (hidden by default) -->
+        <div
+          id="feedback-q1"
+          class="hidden mt-3 p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 text-sm text-emerald-800 dark:text-emerald-300"
+        >
+          <i class="ph-bold ph-check-circle mr-1"></i>
+          <strong>Đáp án: {CORRECT_OPTION}</strong> —
+          {DETAILED_EXPLANATION_REFERENCING_READING_CONTENT}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nút Submit duy nhất -->
+  <button
+    type="button"
+    id="btn-check-answers"
+    onclick="checkSelfTest()"
+    class="w-full py-3 bg-rikkei-red hover:bg-rikkei-darkred text-white font-bold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 mt-6"
+  >
+    <i class="ph-bold ph-check-square"></i>
+    Kiểm Tra Đáp Án
+  </button>
+  <div
+    id="selftest-result"
+    class="hidden mt-4 p-4 rounded-xl border border-slate-200 dark:border-rikkei-borderDark text-sm font-semibold text-center"
+  ></div>
+</section>
+```
 
 ---
 
-## 4. Quy Tắc Phân Loại 7 Dạng Bài Đọc (Smart 7-Type Rules)
-1. `SETUP_GUIDE`: Cài đặt & Môi trường -> Timeline các bước CLI, Terminal code, Version check.
-2. `TECH_COMPARISON`: So sánh công nghệ -> Bảng so sánh 4 cột Full-width, Sơ đồ so sánh luồng.
-3. `SYNTAX_OPERATIONS`: Cú pháp & Thao tác -> Syntax spec, Pyodide Sandbox, Bảng phương thức.
-4. `ALGORITHM_PATTERN`: Thuật toán & Bài toán -> Flowchart bài toán, Phân tích độ phức tạp O(N), Step tracker.
-5. `SYSTEM_WORKFLOW`: Kiến trúc hệ thống -> System diagram (Client <-> API <-> DB), Phân rã module.
-6. `DEBUG_REFACTOR`: Refactoring & Debug -> Anti-pattern vs Clean Code, Exception flow, Checklist.
-7. `THEORY_CONCEPT`: Khái niệm & Lý thuyết -> Đặt vấn đề, Internals bộ nhớ/PVM, Memory Diagram, Gotchas.
+## 2. DESIGN TOKENS & STYLE GUIDE (IMMUTABLE DESIGN TOKENS)
+
+| Token            | Light Mode                   | Dark Mode                            | Target Element Application                 |
+| :--------------- | :--------------------------- | :----------------------------------- | :----------------------------------------- |
+| Primary Accent   | `#be111c`                    | `#be111c`                            | Button, Active Link, Badge, Section border |
+| Page Background  | `bg-slate-50` (#f8fafc)      | `bg-rikkei-bgDark` (#0b0f19)         | Body container                             |
+| Card Background  | `bg-white`                   | `bg-rikkei-cardDark` (#151d30)       | Article, Section cards                     |
+| Border           | `border-slate-200` (#e2e8f0) | `border-rikkei-borderDark` (#1e293b) | Dividers, Card borders                     |
+| Text Main        | `text-slate-900` (#0f172a)   | `text-white` (#ffffff)               | Headings                                   |
+| Text Body        | `text-slate-600` (#475569)   | `text-slate-300` (#cbd5e1)           | Paragraphs                                 |
+| Text Muted       | `text-slate-500` (#64748b)   | `text-slate-400` (#94a3b8)           | Captions, Labels                           |
+| Code Font        | JetBrains Mono               | JetBrains Mono                       | All code blocks                            |
+| Console Output   | `#4ade80` on `#0f172a`       | `#4ade80` on `#0f172a`               | Dark Terminal                              |
+| Good Practice BG | `bg-emerald-50`              | `bg-emerald-950/30`                  | GOOD code card                             |
+| Bad Practice BG  | `bg-rose-50`                 | `bg-rose-950/30`                     | BAD code card                              |
 
 ---
 
-## 5. Tiêu Chuẩn Phê Duyệt Bài Đọc (Approval Rubric)
-1. **Độ chính xác ngữ cảnh**: Bài đọc chỉ tập trung 100% vào nội dung Lesson hiện tại, không rò rỉ môn khác hay kiến thức chưa học.
-2. **Độ sâu học thuật**: Bài đọc đầy đủ 800 - 1,200 từ, giải thích sâu cơ chế nội bộ.
-3. **Trình bày khoa học dạng List**: Mọi đoạn lý thuyết dài đều được ngắt ý khoa học dạng List/Sublist.
-4. **Có Hình ảnh bối cảnh 16:9 căn trái**: Có khối hình ảnh 16:9 mô tả bối cảnh bài toán ở Bước 1.
-5. **Có khối Good vs Bad Code**: Bắt buộc có khối ví dụ đối chiếu mã chuẩn Best Practice vs Mã sai Anti-pattern.
-6. **Trực quan hóa hoạt động**: Khung Pyodide / Code Tracker / Playground hoạt động tương tác thực sự trên trình duyệt, không reload trang.
+## 3. PROGRAMMING LANGUAGE MATRIX REFERENCE
+
+| Language       | Naming Convention          | Memory Anatomy Diagram (Section 2)                    | Sandbox & Tracker                                        | Language Gotchas                                             |
+| :------------- | :------------------------- | :---------------------------------------------------- | :------------------------------------------------------- | :----------------------------------------------------------- |
+| **Python**     | `snake_case`               | PyObject reference, Mutable vs Immutable, Stack frame | **Pyodide Wasm** (Real browser execution) + Code Tracker | Mutable default args, Global scope leak, IndentationError    |
+| **JavaScript** | `camelCase`                | Call Stack, Scope Chain, Event Loop, Closure          | JS Console Emulator + Scope Tracker                      | `undefined` vs `null`, Type coercion, `this` context         |
+| **Java**       | `camelCase` / `PascalCase` | Stack (Primitive) vs Heap (Reference), GC             | Java Execution Flow Tracker                              | NullPointerException, Pass-by-value of reference, Autoboxing |
+| **C**          | `snake_case`               | Stack address (0x...), Heap malloc/free, Pointer      | Memory Pointer Tracker, Address Inspector                | Dangling pointer, Memory leak, Buffer overflow               |
+| **C++**        | `camelCase` / `snake_case` | Stack vs Heap, Constructor/Destructor lifecycle       | Object Lifecycle Tracker                                 | Undefined behavior, Double free, Dangling reference          |
+
+---
+
+## 4. TECHNICAL MANDATORY RULES
+
+1. **100% `type="button"`** on all `<button>` elements in reading material to prevent accidental form submission.
+2. **`event.preventDefault()`** on click handlers in input forms.
+3. **Strictly NO ALL CAPS** on headings, buttons, or badges. Use Sentence case.
+4. **Phosphor Icons** (`ph-bold ph-*`) replacing text emojis (❌, ✅, ⚠️).
+5. **100% Accented Vietnamese** in body text, self-test questions, SVG labels, and code comments.
+6. **No AI Clichés** — FORBIDDEN fluff phrases ("hãy cùng", "như vậy chúng ta thấy", "thú vị là").
+7. **Highlight.js** auto-initialized post DOM load (`hljs.highlightAll()`).
+8. **Mermaid v10+ Syntax** — Arrow with label syntax `A -->|Label| B`, special character labels enclosed in `["label"]`.
+9. **SVG Adaptive Colors** — Use `rikkei-diagram-*` CSS utility classes instead of inline fill for Dark Mode support.
+10. **Scroll Progress Bar** — Header reading progress indicator.
+
+---
+
+## 5. QUALITY GATE APPROVAL RUBRIC (6-POINT CHECKLIST)
+
+Reading material is approved ONLY when passing all 6 audit points:
+
+|  #  | Criterion                           | Verification Method                                                               |
+| :-: | :---------------------------------- | :-------------------------------------------------------------------------------- |
+|  1  | Exactly 5 fixed Anchor IDs          | Grep `#problem-intro #data-structure #interactive-demo #summary-notes #self-test` |
+|  2  | Zero future concept leaks           | Verify `forbidden_scope` terms do not appear in content                           |
+|  3  | Executable code, zero syntax errors | Linter / Pyodide test verification                                                |
+|  4  | 16:9 Widescreen SVG in Section 1    | Grep `viewBox="0 0 800 450"` or `viewBox="0 120 800 210"`                         |
+|  5  | GOOD vs BAD Practice cards present  | Grep `ph-check-circle` and `ph-x-circle`                                          |
+|  6  | Self-Test Form with Submit button   | Grep `id="btn-check-answers"` or `checkSelfTest`                                  |

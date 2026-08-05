@@ -3,8 +3,28 @@ import os
 import json
 import math
 from typing import List, Dict, Any
+from abc import ABC, abstractmethod
 
-class LightweightVectorStore:
+class BaseVectorStore(ABC):
+    """Abstract Base Class for Vector Stores."""
+    
+    @abstractmethod
+    def load(self):
+        pass
+
+    @abstractmethod
+    def save(self):
+        pass
+
+    @abstractmethod
+    def add_documents(self, docs_with_metadata: List[Dict[str, Any]]):
+        pass
+
+    @abstractmethod
+    def query(self, query_text: str, k: int = 3, tech_stack: str | None = None) -> List[Dict[str, Any]]:
+        pass
+
+class LocalJSONVectorStore(BaseVectorStore):
     """
     A lightweight, zero-dependency Vector Store that runs locally.
     Uses Gemini or OpenAI embeddings for vector search,
@@ -132,31 +152,45 @@ class LightweightVectorStore:
 
         return score
 
-    def hybrid_query(self, query_text: str, k: int = 3, alpha: float = 0.5) -> List[Dict[str, Any]]:
+    def hybrid_query(self, query_text: str, k: int = 3, alpha: float = 0.5, tech_stack: str | None = None) -> List[Dict[str, Any]]:
         """
         Hybrid Search combining Dense Vector Cosine Similarity + Sparse BM25 Keyword Search.
-        alpha (0.0 to 1.0): Weight of Dense Vector score vs Sparse BM25 score.
+        Filters documents strictly by tech_stack if provided to prevent RAG tech leaks.
         """
         if not self.documents:
             return []
 
+        target_docs = self.documents
+        if tech_stack:
+            clean_stack = tech_stack.lower().strip()
+            filtered = []
+            for doc in self.documents:
+                doc_meta = doc.get("metadata", {})
+                doc_stack = str(doc_meta.get("tech_stack") or doc_meta.get("technology_stack") or "").lower().strip()
+                # Include document if metadata matches tech_stack, or if doc metadata has no explicit stack ("*" / "")
+                if not doc_stack or doc_stack == "*" or doc_stack in clean_stack or clean_stack in doc_stack:
+                    filtered.append(doc)
+            target_docs = filtered if filtered else self.documents
+
         query_terms = [t for t in query_text.lower().split() if len(t) > 1]
-        total_docs = len(self.documents)
+        total_docs = len(target_docs)
+        if total_docs == 0:
+            return []
         
         # Calculate collection stats for BM25
-        doc_lengths = [len(doc.get("text", "").lower().split()) for doc in self.documents]
+        doc_lengths = [len(doc.get("text", "").lower().split()) for doc in target_docs]
         avgdl = sum(doc_lengths) / max(1, total_docs)
 
         term_doc_counts: Dict[str, int] = {}
         for term in set(query_terms):
-            cnt = sum(1 for doc in self.documents if term in doc.get("text", "").lower())
+            cnt = sum(1 for doc in target_docs if term in doc.get("text", "").lower())
             term_doc_counts[term] = cnt
 
         # Get dense query vector
         query_vector = self._get_embedding(query_text)
 
         raw_scores = []
-        for doc in self.documents:
+        for doc in target_docs:
             doc_text = doc.get("text", "")
             
             # 1. Dense score
@@ -190,7 +224,12 @@ class LightweightVectorStore:
         scored_docs.sort(key=lambda x: x[0], reverse=True)
         return [doc for score, doc in scored_docs[:k]]
 
-    def query(self, query_text: str, k: int = 3) -> List[Dict[str, Any]]:
-        """Queries the vector store using Hybrid Search (Dense + BM25)."""
-        return self.hybrid_query(query_text=query_text, k=k, alpha=0.5)
+    def query(self, query_text: str, k: int = 3, tech_stack: str | None = None) -> List[Dict[str, Any]]:
+        """Queries the vector store using Hybrid Search (Dense + BM25) filtered by tech_stack."""
+        return self.hybrid_query(query_text=query_text, k=k, alpha=0.5, tech_stack=tech_stack)
+
+def get_vector_store(storage_path: str = "vector_store.json") -> BaseVectorStore:
+    """Factory function to get the configured vector store."""
+    # In the future, this can switch to QdrantVectorStore based on an env variable
+    return LocalJSONVectorStore(storage_path=storage_path)
 

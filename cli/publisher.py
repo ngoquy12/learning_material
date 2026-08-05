@@ -6,28 +6,27 @@ import os
 import re
 from pathlib import Path
 
-def generate_obsidian_vault(excel_path: str, sessions: list):
+def generate_obsidian_vault(excel_path: str, sessions: list, tech_stack: str = ""):
     """Generates Obsidian Knowledge Vault for the curriculum structure."""
     print(f"Loaded {len(sessions)} sessions for Obsidian Knowledge Vault generation.")
 
     prerequisite_data = None
     try:
         from agents.prerequisite_guard_agent import run_prerequisite_check_for_pm
-        tech_stack_for_obsidian = Path(excel_path).stem.lower()
-        stack = "python/fastapi"
-        if "nestjs" in tech_stack_for_obsidian or "nest" in tech_stack_for_obsidian:
-            stack = "typescript/nestjs"
-        elif "core" in tech_stack_for_obsidian or "basic" in tech_stack_for_obsidian:
-            stack = "python/core"
-        _, prerequisite_data = run_prerequisite_check_for_pm(sessions, stack)
-        print(f"  [Obsidian] Prerequisite analysis complete: "
-              f"{prerequisite_data.get('stats', {}).get('total_violations', 0)} violations found.")
+        stack = tech_stack.strip() if tech_stack else ""
+        if not stack and isinstance(sessions, list) and sessions:
+            stack = str(sessions[0].get("technology_stack") or sessions[0].get("tech_stack") or "").strip()
+            
+        if stack:
+            _, prerequisite_data = run_prerequisite_check_for_pm(sessions, stack)
+            print(f"  [Obsidian] Prerequisite analysis complete: "
+                  f"{prerequisite_data.get('stats', {}).get('total_violations', 0)} violations found.")
     except Exception as e:
         print(f"  [Obsidian] Prerequisite check skipped: {e}")
 
     try:
         from core.obsidian_knowledge_linker import generate_knowledge_vault
-        vault_path = generate_knowledge_vault(sessions, prerequisite_data=prerequisite_data)
+        vault_path = generate_knowledge_vault(excel_path, sessions, prerequisite_data=prerequisite_data)
         print(f"\n=====================================================================")
         print(f"  [Obsidian Vault Generated] Complete Knowledge Graph created at:")
         print(f"  --> {vault_path}")

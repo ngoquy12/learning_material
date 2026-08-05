@@ -8,7 +8,7 @@ from agents import (
     html_writer_agent, html_ux_reviewer,
     slide_agent, academic_reviewer,
     quiz_agent, sandbox_testing_agent,
-    session_compiler_agent, video_script_agent, mindmap_agent,
+    session_compiler_agent, mindmap_agent,
     lessons_learned_agent, knowledge_memory_agent, get_relevant_memories_for_creator,
     pm_reviewer_agent, objective_reviewer_agent,
     mindmap_reviewer
@@ -27,7 +27,7 @@ def write_state_artifacts_to_disk(state: AgentState):
     
     try:
         lesson_dir = get_lesson_dir(state)
-        requested_parts = state.get("requested_parts", [])
+        requested_parts = state.get("requested_parts") if state.get("requested_parts") else ["html", "slide", "quiz", "video", "mindmap"]
         
         # 1. HTML
         if "html" in requested_parts and state.get("html_content"):
@@ -55,9 +55,29 @@ def write_state_artifacts_to_disk(state: AgentState):
             l_num_str = state.get("lesson_id", "").replace(" ", "")
             excel_filename = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
             excel_path_file = quiz_sub / excel_filename
-            quiz_items = state.get("quiz_json", {}).get("lesson_quiz") or state.get("quiz_json", {}).get("quiz") or []
+            quiz_data = state.get("quiz_json", {})
+            if isinstance(quiz_data, dict):
+                quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
+            else:
+                quiz_items = quiz_data
+                
             if quiz_items:
                 export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
+                
+        # 3.2 Practical Lab
+        if "quiz" in requested_parts and state.get("lab_json"):
+            lab_sub = lesson_dir / "Bài thực hành"
+            lab_sub.mkdir(parents=True, exist_ok=True)
+            with open(lab_sub / "practical_lab.json", "w", encoding="utf-8") as f:
+                json.dump(state["lab_json"], f, ensure_ascii=False, indent=2)
+                
+
+        # 3.5 Reading Questions
+        if ("reading_questions" in requested_parts or "all" in requested_parts) and state.get("reading_questions_json"):
+            rq_sub = lesson_dir / "Câu hỏi bài đọc"
+            rq_sub.mkdir(parents=True, exist_ok=True)
+            with open(rq_sub / "reading_questions.json", "w", encoding="utf-8") as f:
+                json.dump(state["reading_questions_json"], f, ensure_ascii=False, indent=2)
                 
         # 4. Video Script
         if ("video" in requested_parts or "video_script" in requested_parts) and state.get("video_script_markdown"):
@@ -65,13 +85,6 @@ def write_state_artifacts_to_disk(state: AgentState):
             video_sub.mkdir(parents=True, exist_ok=True)
             with open(video_sub / "SCRIPT.md", "w", encoding="utf-8") as f:
                 f.write(state["video_script_markdown"])
-                
-        # 5. Mindmap
-        if "mindmap" in requested_parts and state.get("mindmap_markdown"):
-            mindmap_sub = lesson_dir / "Mindmap"
-            mindmap_sub.mkdir(parents=True, exist_ok=True)
-            with open(mindmap_sub / "mindmap.md", "w", encoding="utf-8") as f:
-                f.write(state["mindmap_markdown"])
     except Exception as e:
         print(f"  [Write Disk Warning] Failed to write artifacts to disk: {e}")
 
@@ -81,8 +94,9 @@ def node_pm_review(state: AgentState) -> AgentState:
     """Giai đoạn 0: Review PM Input trước khi cho phép chạy"""
     if not state.get("pm_approved", False):
         import os
+        from core.state import require_tech_stack
         full_curriculum = state.get("full_curriculum", state.get("pm_input"))
-        report = pm_reviewer_agent(full_curriculum, state.get("technology_stack", "python/core"))
+        report = pm_reviewer_agent(full_curriculum, require_tech_stack(state, "node_pm_review"))
         
         course_dir_name = state.get("course_dir_name", "Unknown_Course")
         out_dir = os.path.join("output", course_dir_name)
@@ -121,7 +135,8 @@ def node_prerequisite_check(state: AgentState) -> AgentState:
     if not sessions:
         return state
 
-    tech_stack = state.get("technology_stack", "python/fastapi")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "node_prerequisite_check")
     course_dir_name = state.get("course_dir_name", "Unknown_Course")
     report_path = os.path.join("output", course_dir_name, "prerequisite_report.md")
 
@@ -146,9 +161,48 @@ def node_prerequisite_check(state: AgentState) -> AgentState:
 
     return state
 
+def ensure_dynamic_scope_calculated(state: AgentState) -> AgentState:
+    """Dynamically computes allowed_scope and forbidden_scope sets from syllabus tree and attaches to state."""
+    if not state or not isinstance(state, dict):
+        return state
+    full_curriculum_str = state.get("full_curriculum", "")
+    if full_curriculum_str:
+        try:
+            import json
+            from core.scope_calculator import calculate_lesson_scope_contract
+            sessions = json.loads(full_curriculum_str) if isinstance(full_curriculum_str, str) else full_curriculum_str
+            syllabus_data = {"sessions": sessions}
+            
+            s_idx = 0
+            l_idx = 0
+            session_id_curr = state.get("session_id", "")
+            lesson_id_curr = state.get("lesson_id", "")
+            
+            for i, s in enumerate(sessions):
+                if s.get("session_id") == session_id_curr:
+                    s_idx = i
+                    for j, l in enumerate(s.get("lessons", [])):
+                        if l.get("lesson_id") == lesson_id_curr or l.get("title") == lesson_id_curr or l.get("lesson_title") == lesson_id_curr:
+                            l_idx = j
+                            break
+                    break
+                    
+            allowed, forbidden = calculate_lesson_scope_contract(syllabus_data, s_idx, l_idx)
+            state["allowed_scope"] = list(allowed)
+            state["forbidden_scope"] = list(forbidden)
+            
+            ssot = state.setdefault("core_ssot", {})
+            if isinstance(ssot, dict):
+                ssot["allowed_scope"] = ", ".join(allowed)
+                ssot["forbidden_scope"] = ", ".join(forbidden)
+        except Exception as e:
+            print(f"  [Scope Calculator Warning] Failed to compute dynamic scope bounds: {e}")
+    return state
+
 @component
 def node_init_objectives(state: AgentState) -> AgentState:
     """Giai đoạn 1: ID Agent thiết lập chuẩn đầu ra dựa trên PM (Có vòng lặp phản biện sư phạm)"""
+    state = ensure_dynamic_scope_calculated(state)
     approved = False
     for attempt in range(3):
         # Allow recovery if already approved in a previous execution
@@ -156,10 +210,12 @@ def node_init_objectives(state: AgentState) -> AgentState:
             approved = True
             break
             
+        from core.state import require_tech_stack
+        tech_stack = require_tech_stack(state, "node_init_objectives")
         previous_feedback = state.get("review_logs", [-1])[-1]["feedback"] if state.get("review_logs") and state["review_logs"][-1]["source"] == "Objective_Reviewer" else ""
-        state["learning_outcomes"] = objective_architect_agent(state["pm_input"], state.get("technology_stack", "python/core"), previous_feedback)
+        state["learning_outcomes"] = objective_architect_agent(state["pm_input"], tech_stack, previous_feedback)
         
-        review = objective_reviewer_agent(state["learning_outcomes"], state["pm_input"], state.get("technology_stack", "python/core"))
+        review = objective_reviewer_agent(state["learning_outcomes"], state["pm_input"], tech_stack)
         
         if review["status"] == "APPROVED":
             state.setdefault("artifacts_status", {})["objectives"] = "Approved"
@@ -171,26 +227,27 @@ def node_init_objectives(state: AgentState) -> AgentState:
             save_state_checkpoint(state)
             
     if not approved:
-        print(
-            f"\n[CẢNH BÁO SƯ PHẠM] Chuẩn đầu ra (Learning Outcomes) chưa hoàn toàn đạt yêu cầu ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và sử dụng bản nháp tốt nhất hiện tại để tiếp tục tiến hành!"
+        last_fb = state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'
+        raise ValueError(
+            f"❌ [LỖI SƯ PHẠM NGHIÊM TRỌNG] Chuẩn đầu ra (Learning Outcomes) bị Reviewer từ chối sau 3 lần thử tại {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+            f"Chi tiết phản hồi: {last_fb}\n"
+            f"Pipeline bị dừng theo quy tắc kiểm định nghiêm ngặt (Strict Reviewer Enforcement)."
         )
-        state.setdefault("artifacts_status", {})["objectives"] = "Approved with Warnings"
-        save_state_checkpoint(state)
     return state
 
 @component
 def node_allocate_schedule(state: AgentState) -> AgentState:
     """Giai đoạn 2: Lập lịch và bóc tách cấu trúc thời gian của Session"""
-    state["program_structure"] = scheduler_agent(state["learning_outcomes"], state["time_reference"], state.get("technology_stack", "python/core"))
+    from core.state import require_tech_stack
+    state["program_structure"] = scheduler_agent(state["learning_outcomes"], state["time_reference"], require_tech_stack(state, "node_allocate_schedule"))
     save_state_checkpoint(state)
     return state
 
 @component
 def node_lock_ssot(state: AgentState) -> AgentState:
     """Giai đoạn 3: Khóa dữ liệu gốc (SSOT) và ghi vào Persistence"""
-    kb = knowledge_base_agent(state["program_structure"], state.get("technology_stack", "python/core"))
+    from core.state import require_tech_stack
+    kb = knowledge_base_agent(state["program_structure"], require_tech_stack(state, "node_lock_ssot"))
     
     # Merge existing core_ssot with kb
     state.setdefault("core_ssot", {}).update(kb)
@@ -232,6 +289,9 @@ def pipeline_html_production(state: AgentState) -> AgentState:
                 continue
 
         state = html_writer_agent(state)
+        # Ghi đĩa bản nháp HTML lập tức kể cả khi lỗi để người dùng sửa đổi/theo dõi
+        write_state_artifacts_to_disk(state)
+        
         review = html_ux_reviewer(state)
         if review["status"] == "APPROVED":
             state["artifacts_status"]["html"] = "Approved"
@@ -246,13 +306,13 @@ def pipeline_html_production(state: AgentState) -> AgentState:
     write_state_artifacts_to_disk(state)
 
     if not approved:
-        state["artifacts_status"]["html"] = "Rejected"
-        save_state_checkpoint(state)
-        raise ValueError(
-            f"\n❌ [KIỂM ĐỊNH BÀI ĐỌC THẤT BẠI] Bài đọc HTML (reading.html) cho {state.get('session_id')} - {state.get('lesson_id')} chưa đạt chuẩn kiểm duyệt UX/Sư phạm sau 3 lần phản biện.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Bài đọc HTML (reading.html) chưa đạt chuẩn kiểm duyệt ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Bản nháp đã được xuất ra đĩa. Vui lòng xem log phản hồi, hiệu chỉnh file bài đọc trực tiếp trên đĩa, sau đó chạy lại!"
+            f"Hệ thống BỎ QUA LỖI và đánh dấu cần Review Thủ công (Pending Human Review) để tiếp tục tiến trình."
         )
+        state["artifacts_status"]["html"] = "Pending Human Review"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -285,6 +345,7 @@ def pipeline_slide_production(state: AgentState) -> AgentState:
         )
         state["artifacts_status"]["slide"] = "Approved with Warnings"
         save_state_checkpoint(state)
+    write_state_artifacts_to_disk(state)
     return state
 
 @component
@@ -300,6 +361,7 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
             approved = True
             break
         state = quiz_agent(state)
+        write_state_artifacts_to_disk(state)
         review = sandbox_testing_agent(state)
         if review["status"] == "APPROVED":
             state["artifacts_status"]["quiz"] = "Approved"
@@ -317,7 +379,24 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
         )
         state["artifacts_status"]["quiz"] = "Approved with Warnings"
         save_state_checkpoint(state)
+    write_state_artifacts_to_disk(state)
     return state
+
+@component
+def pipeline_reading_questions_production(state: AgentState) -> AgentState:
+    """Trích xuất câu hỏi bài đọc (reading questions) ra file JSON riêng biệt"""
+    if "requested_parts" in state and "reading_questions" not in state["requested_parts"] and "all" not in state["requested_parts"]:
+        state.setdefault("artifacts_status", {})["reading_questions"] = "Skipped"
+        return state
+    
+    # Import inside function to avoid circular imports
+    from agents.creator_agents import reading_questions_creator_agent
+    state = reading_questions_creator_agent(state)
+    state.setdefault("artifacts_status", {})["reading_questions"] = "Approved"
+    write_state_artifacts_to_disk(state)
+    save_state_checkpoint(state)
+    return state
+
 
 @component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
@@ -339,7 +418,7 @@ def pipeline_video_script_production(state: AgentState) -> AgentState:
             approved = True
             break
             
-        state = video_script_agent(state)
+        state =(state)
         
         # Call the video script reviewer
         from agents.reviewer_agents import video_script_reviewer_agent
@@ -358,13 +437,13 @@ def pipeline_video_script_production(state: AgentState) -> AgentState:
     write_state_artifacts_to_disk(state)
 
     if not approved:
-        state["artifacts_status"]["video_script"] = "Rejected"
-        save_state_checkpoint(state)
-        raise ValueError(
-            f"\n❌ [KIỂM ĐỊNH KỊCH BẢN THẤT BẠI] Kịch bản Video cho {state.get('session_id')} - {state.get('lesson_id')} chưa đạt chuẩn kiểm duyệt HyperFrames sau 3 lần phản biện.\n"
+        print(
+            f"\n[CẢNH BÁO TỪ PM] Kịch bản Video chưa đạt chuẩn kiểm duyệt ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
             f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Bản nháp đã được ghi ra đĩa. Vui lòng kiểm tra và chạy lại!"
+            f"Hệ thống BỎ QUA LỖI và đánh dấu cần Review Thủ công (Pending Human Review) để tiếp tục tiến trình."
         )
+        state["artifacts_status"]["video_script"] = "Pending Human Review"
+        save_state_checkpoint(state)
     return state
 
 @component
@@ -424,16 +503,10 @@ def pipeline_video_tts_and_render(state: AgentState) -> AgentState:
     lesson_slug = blueprint.get("lesson_slug", "lesson-video")
     lesson_title = blueprint.get("lesson_title", "Bài học")
 
-    print(f"\n{'='*70}")
-    print(f"🎬 VIDEO PRODUCTION PIPELINE: {lesson_title} ({len(scenes)} scenes)")
-    print(f"{'='*70}")
-
-    # ── Resolve output directory ──
-    from agents.creator_agents import get_lesson_dir
-    try:
-        lesson_dir = get_lesson_dir(state)
-    except Exception:
-        lesson_dir = Path("output") / "lessons" / lesson_slug
+    print(f"\n[Video Production] 🎬 Đã tắt sinh Video tự động bằng AI (AI Video Rendering Disabled).")
+    print(f"  ✓ Đã sinh Kịch bản Studio & Bộ Chất liệu quay Video dành cho Giảng viên & Ê-kíp Studio tại Video/SCRIPT.md.")
+    state.setdefault("artifacts_status", {})["video_render"] = "Skipped (Human Studio Blueprint Generated)"
+    return state
 
     video_dir = lesson_dir / "Video" / lesson_slug
     compositions_dir = video_dir / "src" / "compositions"
@@ -786,15 +859,13 @@ def compile_learning_content_workflow():
         import time
         from concurrent.futures import ThreadPoolExecutor, as_completed
         
-        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 4 tài nguyên dẫn xuất từ Bài đọc HTML...")
+        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 3 tài nguyên dẫn xuất từ Bài đọc HTML (Slide, Quiz, VideoScript)...")
         start_t = time.time()
         
-        # 4 Creator Pipelines dẫn xuất bám sát Bài đọc HTML
+        # 2 Creator Pipelines dẫn xuất bám sát Bài đọc HTML cho từng Lesson (Slide và Mindmap đã chuyển lên cấp Session)
         pipelines = [
-            ("Slide", pipeline_slide_production),
             ("Quiz", pipeline_quiz_production),
-            ("VideoScript", pipeline_video_script_production),
-            ("Mindmap", pipeline_mindmap_production),
+            ("ReadingQuestions", pipeline_reading_questions_production),
         ]
         
         futures_map = {}
@@ -814,12 +885,16 @@ def compile_learning_content_workflow():
                         state["slide_html"] = sub_state["slide_html"]
                     if sub_state.get("quiz_json"):
                         state["quiz_json"] = sub_state["quiz_json"]
+                    if sub_state.get("lab_json"):
+                        state["lab_json"] = sub_state["lab_json"]
                     if sub_state.get("video_script_markdown"):
                         state["video_script_markdown"] = sub_state["video_script_markdown"]
                     if sub_state.get("video_script_json"):
                         state["video_script_json"] = sub_state["video_script_json"]
                     if sub_state.get("mindmap_markdown"):
                         state["mindmap_markdown"] = sub_state["mindmap_markdown"]
+                    if sub_state.get("reading_questions_json"):
+                        state["reading_questions_json"] = sub_state["reading_questions_json"]
                     
                     if "artifacts_status" in sub_state:
                         state.setdefault("artifacts_status", {}).update(sub_state["artifacts_status"])

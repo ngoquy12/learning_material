@@ -1,1 +1,0 @@
-Khi gọi hàm sờ-plít với một ký tự phân tách không thực sự tồn tại trong chuỗi dữ liệu gốc, hệ thống sẽ không thông báo bất kỳ lỗi cú pháp nào. Tuy nhiên, nó sẽ trả về kết quả là một danh sách chỉ chứa một phần tử duy nhất chính là chuỗi chưa được sửa đổi. Lỗi logic này sẽ gây ra các hành vi sai lệch trong các cấu trúc xử lý phía sau.

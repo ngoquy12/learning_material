@@ -11,8 +11,8 @@ def parse_cli_arguments():
     parser.add_argument(
         "--pm",
         type=str,
-        default=r"d:\Rikkei Education\Elearning_Agent\Learning-Material\pms\PM_Web_Application_With_FastAPI.xlsx",
-        help="Path to PM Excel sheet"
+        default=None,
+        help="Path to PM Excel sheet (required for content generation)"
     )
     parser.add_argument(
         "--session",
@@ -55,6 +55,31 @@ def parse_cli_arguments():
         "--tech-stack",
         type=str,
         default="",
-        help="Explicit technology stack (e.g. 'python/core', 'python/fastapi', 'typescript/nestjs', 'typescript/react', 'java/springboot')"
+        help="Explicit technology stack (e.g. 'python/core', 'typescript/nestjs', 'typescript/react', 'java/springboot')"
+    )
+    parser.add_argument(
+        "--generate-pm",
+        action="store_true",
+        help="Enable automatic PM/Syllabus design from PLO/CLO via AI Agent"
+    )
+    parser.add_argument(
+        "--pm-config",
+        type=str,
+        default=r"config/pm_generator_config.json",
+        help="Path to student profile and target course configuration for PM generation"
+    )
+    parser.add_argument(
+        "--output-pm-name",
+        type=str,
+        default="PM_Generated",
+        help="Custom name for the generated Excel and Markdown files"
+    )
+    parser.add_argument(
+        "--init-config",
+        type=str,
+        metavar="COURSE_ID",
+        default=None,
+        help="Tạo file config mẫu cho môn mới (ví dụ: --init-config IT-106)"
     )
     return parser.parse_args()
+

@@ -1,1 +1,0 @@
-Như vậy, chúng ta đã hoàn thành việc tìm hiểu kỹ thuật duyệt danh sách kết hợp sử dụng hàm e-nu-mơ-rây-t và kỹ thuật rã gói dữ liệu. Ở bài học tiếp theo, chúng ta sẽ tiếp tục khám phá các phương thức nâng cao khác của cấu trúc dữ liệu List trong Python. Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo!

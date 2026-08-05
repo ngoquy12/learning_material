@@ -76,51 +76,54 @@ def project_entry_test_creator(session_id: str, session_title: str, tech_stack: 
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
     
-    system_prompt = f"""Bạn là giảng viên cao cấp kiêm Chuyên gia Lập trình Công nghệ ({tech_stack}).
-Nhiệm vụ của bạn là sinh ĐÚNG 1 đề bài kiểm tra đầu giờ (Entry Test) ngắn gọn dựa trên thông tin sau:
+    system_prompt = f"""You are a Senior Computer Science Professor and Technical Lead specializing in {tech_stack}.
+Your task is to generate EXACTLY 1 concise Entry Test complying with:
 Session: {session_id} - {session_title}
-Môn học công nghệ: {tech_stack}
-Mô hình kiến trúc: {arch_info["arch_name"]}
-Hướng kịch bản nghiệp vụ cho đề {test_idx+1}/4: {archetype}
-Độ khó: Tinh gọn (Warm-up level, làm trong 15-20 phút)
+Technology Stack: {tech_stack}
+Architecture Model: {arch_info["arch_name"]}
+Business Scenario Archetype #{test_idx+1}/4: {archetype}
+Target Difficulty: Warm-up level (15-20 minutes completion time)
 {scope_rules}
 
 {naming_convention}
 
 {error_model}
 
-CÁC QUY TẮC BẮT BUỘC:
-1. Đa dạng kịch bản & Linh hoạt 100% theo môn học:
-   - Sáng tạo 1 kịch bản ứng dụng thực tế ĐỘC LẬP phù hợp với hướng nghiệp vụ '{archetype}', mô hình '{arch_info["arch_name"]}', công nghệ '{tech_stack}' và chủ đề '{session_title}'.
-   - BẮT BUỘC kịch bản nghiệp vụ của đề {test_idx+1} phải KHÁC BIỆT HOÀN TOÀN với các đề kiểm tra khác trong cùng Session.
-2. Tinh gọn 15-20 phút (Micro-skills Warm-up):
-   - Chỉ yêu cầu sinh viên hoàn thành đúng 2 đến 3 hàm / component / thao tác nghiệp vụ cốt lõi. CẤM bắt sinh viên dựng hệ thống quá dài dòng vượt quá 20 phút.
-3. Cấm rò rỉ kiến thức chưa học: Chỉ kiểm tra kiến thức đã học trước đó: {previous_lessons_text or 'Các bài học trước'}. Tuyệt đối tuân thủ Forbidden Scope ({forbidden_scope or 'Không có'}).
-4. Ngôn từ chuyên nghiệp, học thuật: Cấm từ ngữ thân mật ("nhé", "thân mến"). Không nhắc đến "AI", "Assistant". Cấm nhãn phân loại học lực.
-5. Bảng HTML đặc tả rộng 100%: BẮT BUỘC đặc tả 2-3 hàm/chức năng trong Bảng HTML rộng 100%:
+MANDATORY EXECUTION DIRECTIVES:
+1. Scenario Diversity & 100% Subject Flexibility:
+   - Create 1 independent real-world scenario matching business archetype '{archetype}', architecture '{arch_info["arch_name"]}', tech stack '{tech_stack}', and lesson topic '{session_title}'.
+   - Test #{test_idx+1} scenario MUST be completely distinct from other entry tests in the same Session.
+2. Concise Warm-up (15-20 Minutes):
+   - Only request students to complete 2 to 3 core functions / components / operational steps. FORBIDDEN to request verbose system setups exceeding 20 minutes.
+3. Strict Knowledge Scope Protection:
+   - Only test previously taught knowledge: {previous_lessons_text or 'Prior lessons'}. Strictly comply with Forbidden Scope ({forbidden_scope or 'None'}).
+4. Academic & Professional Tone:
+   - FORBIDDEN informal words. NO AI assistant mentions. FORBIDDEN student capability labels.
+5. 100% Full-Width HTML Specification Table:
+   - Specify 2-3 functions/components in a 100% width HTML table:
    `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
-   Cột 1: Tên chức năng/Hàm (Viết Tên tiếng Việt bôi đậm + Tên hàm Tiếng Anh bọc trong `<code>`).
-   Cột 2: Tham số/Input (100% biến Tiếng Anh chuẩn).
-   Cột 3: Logic xử lý.
-   Cột 4: Output / Kết quả trả về.
-6. Cấu trúc đề bài bắt buộc:
-   - Tên bài: Dùng thẻ '## <center>[Tên đề bài tiếng Việt] ([Tên đề bài tiếng Anh])</center>' (căn giữa). Cấm đánh số thứ tự trong H2 này.
-   - Các phần bắt buộc (dùng thẻ H3 bôi đậm):
+   Column 1: Function/Component Name (Bold Vietnamese Title + English Function Name inside `<code>`).
+   Column 2: Input / Parameters (100% English variables).
+   Column 3: Processing Logic & Rules.
+   Column 4: Output / Expected Return Value.
+6. Mandatory Exercise Structure:
+   - Main Title: Centered tag `## <center>[Vietnamese Title] ([English Title])</center>`. FORBIDDEN exercise numbers in H2 title.
+   - Required Bold H3 Sections:
      ### **1. Mục tiêu**
-     ### **2. Yêu cầu** (Chứa bảng HTML đặc tả chức năng)
-     ### **3. Tiêu chí đánh giá** (Phân bổ trọng số điểm tổng 10 điểm)
-     ### **4. Yêu cầu nộp bài** (Định dạng bắt buộc 2 dòng GitHub link)
+     ### **2. Yêu cầu** (Contains 100% width HTML specification table)
+     ### **3. Tiêu chí đánh giá** (10-point rubric allocation)
+     ### **4. Yêu cầu nộp bài** (Standard GitHub submission instructions)
 
-Đầu ra bắt buộc là duy nhất chuỗi XML hợp lệ bọc trong thẻ <entry_test>...</entry_test>:
+MANDATORY OUTPUT FORMAT — SINGLE VALID XML BLOCK ENCLOSED IN <entry_test>...</entry_test>:
 <entry_test>
-  <title>Tên đề kiểm tra</title>
+  <title>Title of Entry Test in Accented Vietnamese</title>
   <filename>bai_kiem_tra_01_tieu_de</filename>
   <content><![CDATA[
-Nội dung Markdown đầy đủ của bài kiểm tra ở đây...
+Full Markdown content of the entry test here...
   ]]></content>
 </entry_test>
 """
-    user_prompt = f"Hãy tạo đề bài kiểm tra đầu giờ số {test_idx+1} cho {session_id} thuộc công nghệ {tech_stack}."
+    user_prompt = f"Author entry test prompt #{test_idx+1} for {session_id} in technology stack {tech_stack}."
     
     test_data = None
     for attempt in range(3):
@@ -170,39 +173,36 @@ def project_srs_creator(session_id: str, session_title: str, tech_stack: str, fo
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
 
-    system_prompt = f"""Bạn là Solution Architect cao cấp thiết kế tài liệu đặc tả SRS (Software Requirements Specification) cho dự án Mini Project.
+    system_prompt = f"""You are a Lead Solution Architect authoring Software Requirements Specification (SRS) documents for Enterprise Mini Projects.
 Session: {session_id} - {session_title}
-Môn học công nghệ: {tech_stack}
-Mô hình kiến trúc chỉ định: {arch_info["arch_name"]}
+Technology Stack: {tech_stack}
+Designated Architecture Model: {arch_info["arch_name"]}
 {scope_rules}
 
 {naming_convention}
 
 {error_model}
 
-CÁC QUY TẮC BẮT BUỘC:
-1. Tuân thủ 100% Mô hình Kiến trúc '{arch_info["arch_name"]}':
-   - Mô hình bài toán phải KHỚP HOÀN TOÀN với công nghệ '{tech_stack}' và chủ đề '{session_title}'.
-   - CẤM TỰ Ý đưa vào các khái niệm thuộc mô hình kiến trúc khác (VD: Nếu mô hình là Console CLI, CẤM đưa vào REST API Endpoints, HTTP Status Codes, Swagger UI, ReDoc, JSON Response Envelopes hay Backend Controllers).
-2. Ngôn từ chuyên nghiệp, học thuật: Cấm từ ngữ suồng sã ('nhé', 'thân mến'). Không nhắc đến 'AI', 'Assistant'. Cấm nhãn phân loại học lực.
-3. Bảng HTML rộng 100%: `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
-4. Sơ đồ nghiệp vụ (Prompt tạo ảnh bối cảnh nghiệp vụ):
-   - Chứa đúng 1 Prompt tạo ảnh ở BÊN TRONG phần '### **1. Tổng quan hệ thống**' hoặc '### **2. Đặc tả chức năng**'.
-   - Format TIẾNG ANH: `*Prompt tạo ảnh: A realistic 16:9 cinematic photo of [mô tả chi tiết bối cảnh sự cố nghiệp vụ/kỹ thuật kịch tính]. Cinematic lighting, detailed environment, professional photography.*`
-5. KHÔNG TỰ Ý CUNG CẤP CODE HOÀN CHỈNH: Chỉ mô tả quy tắc nghiệp vụ bằng lời, công thức toán, mã giả hoặc cấu trúc JSON/Dict mẫu. Cấm viết code thực thi đầy đủ.
-6. Cấu trúc tài liệu SRS bắt buộc (đủ 7 tiêu đề H3 bôi đậm theo mô hình kiến trúc):
-   - Tên tài liệu: Dùng thẻ '## <center>Tài liệu đặc tả Hệ thống [Tên nghiệp vụ] ([Tên tiếng Anh])</center>' (căn giữa).
+MANDATORY SPECIFICATION DIRECTIVES:
+1. Strict Architecture Model Alignment: Requirements MUST align 100% with '{tech_stack}' and '{session_title}'. FORBIDDEN to introduce alien architecture concepts (e.g. if CLI model, forbid REST endpoints, HTTP status codes, Swagger UI, Controllers).
+2. Professional Academic Tone: FORBIDDEN informal words, AI mentions, or academic tiering labels.
+3. 100% Table Width: `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
+4. Minimalist 2D Vector Diagram Prompt: Include 1 image prompt inside '### **1. Tổng quan hệ thống**' or '### **2. Đặc tả chức năng**'.
+   Format (ENGLISH): `*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [detailed system data flow description]. Minimalist infographics style, elegant layout, muted corporate color palette (navy blue, slate gray, soft emerald accents). Clear lines, no 3D elements, no glowing neon effects. All text labels must be in Sentence Case or Title Case (NEVER ALL CAPS), keeping key technical terms in English while using Vietnamese for annotations.*`
+5. NO FULL CODE: Describe business logic via narrative, math formulas, pseudocode, or sample JSON schemas.
+6. Mandatory SRS Document Structure (7 H3 headers):
+   - Document Title: '## <center>Tài liệu đặc tả Hệ thống [Tên nghiệp vụ] ([English Name])</center>' (centered).
    - {srs_headers_formatted}
 
-Đầu ra bắt buộc là duy nhất chuỗi XML hợp lệ bọc trong thẻ <srs_doc>...</srs_doc>:
+MANDATORY OUTPUT FORMAT — SINGLE VALID XML BLOCK ENCLOSED IN <srs_doc>...</srs_doc>:
 <srs_doc>
-  <title>Tài liệu đặc tả yêu cầu SRS</title>
+  <title>SRS Specification Title in Accented Vietnamese</title>
   <content><![CDATA[
-Nội dung Markdown đầy đủ của tài liệu SRS ở đây...
+Full Markdown SRS document content in Accented Vietnamese...
   ]]></content>
 </srs_doc>
 """
-    user_prompt = f"Hãy tạo tài liệu đặc tả SRS chi tiết nhưng cực kỳ cô đọng cho Mini Project của {session_id} ({session_title}) công nghệ {tech_stack}."
+    user_prompt = f"Author a comprehensive, concise SRS specification document for Mini Project in Session {session_id} ({session_title}) using technology stack {tech_stack}."
     
     srs_data = None
     for attempt in range(3):
@@ -247,39 +247,36 @@ def project_mini_project_creator(session_id: str, session_title: str, tech_stack
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
 
-    system_prompt = f"""Bạn là giảng viên cao cấp thiết kế đề bài Mini Project tinh gọn cho môn học công nghệ '{tech_stack}'.
-Nhiệm vụ của bạn là sinh 1 đề bài Mini Project ngắn gọn cho:
+    system_prompt = f"""You are a Senior Computer Science Instructor designing concise Enterprise Mini Project assignments for technology stack '{tech_stack}'.
+Your task is to author a Mini Project assignment prompt for:
 Session: {session_id} - {session_title}
-Môn học công nghệ: {tech_stack}
-Mô hình kiến trúc chỉ định: {arch_info["arch_name"]}
-Bối cảnh SRS: {srs_title}
+Technology Stack: {tech_stack}
+Designated Architecture Model: {arch_info["arch_name"]}
+SRS Context: {srs_title}
 {scope_rules}
 
 {naming_convention}
 
 {error_model}
 
-CÁC QUY TẮC BẮT BUỘC:
-0. TUYỆT ĐỐI CẤM SỬ DỤNG EMOJI. Thay bằng nhãn [NOTE], [TIP], [WARNING], [YÊU CẦU].
-1. Tuân thủ 100% Mô hình Kiến trúc '{arch_info["arch_name"]}': Đề bài phải khớp hoàn toàn với công nghệ '{tech_stack}' và chủ đề '{session_title}'.
-2. Dẫn link liên kết đến SRS: Bắt buộc ghi rõ chú thích dẫn link đến file đặc tả SRS:
-   *Ví dụ chú thích: "Học viên bắt buộc phải tự nghiên cứu và tuân thủ các quy định đặc tả chi tiết về cấu trúc dữ liệu, danh mục mã lỗi nghiệp vụ tại [Tài liệu đặc tả SRS](../Tài liệu đặc tả SRS/tai_lieu_dac_ta_yeu_cau_srs.md)."*
-3. Ngôn từ chuyên nghiệp: Cấm từ ngữ suồng sã ("nhé", "thân mến"). Không nhắc đến "AI", "Assistant". Cấm nhãn phân loại học lực.
-4. Bảng HTML rộng 100%: `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
-5. Cấu trúc đề bài bắt buộc:
-   - Tên bài: '## <center>[Mini project] [Tên nghiệp vụ] ([Tên tiếng Anh])</center>' (căn giữa).
-   - Phải chứa đầy đủ 3 tiêu đề H3 bôi đậm trong content:
+MANDATORY SPECIFICATION DIRECTIVES:
+0. STRICT NO EMOJI DIRECTIVE: FORBIDDEN to use text emojis. Use labels [NOTE], [TIP], [WARNING], [REQUIREMENT] instead.
+1. 100% Architecture Alignment: Assignment must strictly match technology stack '{tech_stack}' and '{session_title}'.
+2. SRS Document Link: Must explicitly include link reference to SRS document:
+   *Example: "Học viên bắt buộc phải tự nghiên cứu và tuân thủ các quy định đặc tả chi tiết về cấu trúc dữ liệu, danh mục mã lỗi nghiệp vụ tại [Tài liệu đặc tả SRS](../Tài liệu đặc tả SRS/tai_lieu_dac_ta_yeu_cau_srs.md)."*
+3. Professional Academic Tone: FORBIDDEN informal words, AI mentions, or tiering labels.
+4. 100% Table Width: `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
+5. Mandatory Assignment Structure:
+   - Assignment Title: '## <center>[Mini project] [Tên nghiệp vụ] ([English Name])</center>' (centered).
+   - Must contain 3 bold H3 section headers:
      ### **1. Mục tiêu dự án**
-     ### **2. Đề bài và Yêu cầu** (Liệt kê các Task 1, Task 2, Task 3... Phù hợp với công nghệ '{tech_stack}', tuân thủ nghiêm ngặt Forbidden Scope!).
-     ### **3. Yêu cầu nộp bài** (Định dạng bắt buộc y hệt 4 dòng chuẩn GitHub link).
+     ### **2. Đề bài và Yêu cầu** (Tasks matching tech stack '{tech_stack}', strictly adhering to Forbidden Scope).
+     ### **3. Yêu cầu nộp bài** (GitHub repository link format).
 
-Đầu ra bắt buộc là duy nhất chuỗi XML hợp lệ bọc trong thẻ <mini_project>...</mini_project>:
-- <title>: Tên đề bài ngắn gọn.
-- <content>: Nội dung markdown mô tả đề bài bọc trong khối CDATA.
-- <rubric>: Nội dung markdown chi tiết về Tiêu chí chấm điểm (AI) bọc trong khối CDATA (100 điểm + Bonus).
-  + Cấu trúc tiêu đề rubric bắt đầu bằng: ### **Tiêu chí chấm điểm (AI)**
-  + Theo sau: **[Tên Dự Án] — Tổng điểm: 100 điểm**
-  + 5 nhóm tiêu chí cụ thể:
+MANDATORY OUTPUT FORMAT — SINGLE VALID XML BLOCK ENCLOSED IN <mini_project>...</mini_project>:
+- <title>: Concise project title in Accented Vietnamese.
+- <content>: Markdown project prompt content wrapped in CDATA block.
+- <rubric>: Detailed 100-point Markdown grading rubric wrapped in CDATA block following 5 criteria groups:
     #### **1. Thiết lập cấu trúc và Khởi tạo — 20 điểm**
     #### **2. Logic nghiệp vụ cốt lõi — 30 điểm**
     #### **3. Kiểm chuẩn dữ liệu và Xử lý ngoại lệ — 30 điểm**
@@ -288,18 +285,18 @@ CÁC QUY TẮC BẮT BUỘC:
     #### **Điểm cộng khuyến khích (Bonus) — 5 đến 10 điểm**
 
 <mini_project>
-  <title>Đề bài Mini Project</title>
+  <title>Mini Project Title in Accented Vietnamese</title>
   <content><![CDATA[
-Nội dung Markdown đề bài...
+Markdown assignment content here...
   ]]></content>
   <rubric><![CDATA[
 ### **Tiêu chí chấm điểm (AI)**
-**[Tên Dự Án] — Tổng điểm: 100 điểm**
+**[Project Title] — Tổng điểm: 100 điểm**
 ...
   ]]></rubric>
 </mini_project>
 """
-    user_prompt = f"Hãy tạo đề bài Mini Project tinh gọn cho {session_id} ({session_title}) công nghệ {tech_stack}."
+    user_prompt = f"Author Mini Project prompt and grading rubric XML for Session {session_id} ({session_title}) in technology stack {tech_stack} based on SRS '{srs_title}'."
     
     project_data = None
     for attempt in range(3):
@@ -484,25 +481,25 @@ def generate_and_link_srs_diagram(content: str, srs_dir, filename_no_ext: str, s
         
         scope_warning = ""
         if forbidden_scope:
-            scope_warning = f"CẤM DÙNG TRONG SƠ ĐỒ (FORBIDDEN IN DIAGRAM): {forbidden_scope}. Tuyệt đối KHÔNG vẽ node File I/O, File JSON/CSV hay Database bên ngoài nếu bị cấm!"
+            scope_warning = f"FORBIDDEN IN DIAGRAM: {forbidden_scope}. ABSOLUTELY FORBIDDEN to draw File I/O, JSON/CSV files, or external Database nodes if forbidden!"
             
-        ai_diagram_prompt = f"""Bạn là AI Diagram Architect chuyên nghiệp. Hãy sinh ra MỘT sơ đồ Mermaid flowchart (flowchart TD) nguyên khối phản ánh chính xác quy trình nghiệp vụ và luồng dữ liệu của:
-Tiêu đề: {title_text}
-Chủ đề: {session_title}
-Công nghệ: {tech_stack}
-Bối cảnh: {prompt_text}
+        ai_diagram_prompt = f"""You are a Lead AI Diagram Architect. Author EXACTLY ONE monolithic Mermaid flowchart (flowchart TD) reflecting business workflow and data lifecycle:
+Title: {title_text}
+Topic: {session_title}
+Technology Stack: {tech_stack}
+Context: {prompt_text}
 {scope_warning}
 
-QUY TẮC CÚ PHÁP MERMAID BẮT BUỘC ĐỂ TRÁNH LỖI PARSE ERROR:
-1. Bọc TẤT CẢ nhãn văn bản của Node trong dấu ngoặc kép đôi `""`.
-   - ĐÚNG: `Start(["Khởi động ứng dụng Console"]):::startEnd`
-   - SAI (LỖI): `Start([Khởi động ứng dụng Console]) :::startEnd`
-2. KHÔNG ĐƯỢC CÓ KHOẢNG TRẮNG trước `:::` khi gán class style:
-   - ĐÚNG: `NodeA["Nhãn văn bản"]:::className`
-   - SAI (LỖI): `NodeA["Nhãn văn bản"] :::className`
-3. Nếu môn học cấm File I/O hoặc Database, chỉ thể hiện luồng lưu trữ trong bộ nhớ RAM (`In-memory RAM Storage`).
+MANDATORY MERMAID SYNTAX RULES TO PREVENT PARSE ERRORS:
+1. Enclose ALL Node text labels in double quotes `""`.
+   - CORRECT: `Start(["Khởi động ứng dụng Console"]):::startEnd`
+   - INCORRECT: `Start([Khởi động ứng dụng Console]) :::startEnd`
+2. FORBIDDEN spaces before `:::` when assigning class styles:
+   - CORRECT: `NodeA["Nhãn văn bản"]:::className`
+   - INCORRECT: `NodeA["Nhãn văn bản"] :::className`
+3. If forbidden scope includes File I/O or Database, strictly restrict state to in-memory RAM storage (`In-memory RAM Storage`).
 
-Chỉ trả về mã Mermaid trong thẻ html bọc:
+Return ONLY the HTML wrapper container with raw Mermaid code inside:
 <div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;">
   <div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
 flowchart TD
@@ -512,7 +509,7 @@ flowchart TD
 Return only the HTML wrapper with Mermaid code inside. Do not wrap in markdown code blocks.
 """
         ai_mermaid_code = call_llm(
-            system_prompt="Bạn là Chuyên gia thiết kế Sơ đồ Nghiệp vụ AI bằng Mermaid JS chuẩn cú pháp.",
+            system_prompt="You are a Senior AI Business Flow Diagram Architect specializing in valid syntax Mermaid JS.",
             user_prompt=ai_diagram_prompt,
             json_mode=False,
             agent_name="AI Diagram Generator"

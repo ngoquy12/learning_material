@@ -1,1 +1,0 @@
-Nhằm tối ưu hóa luồng rẽ nhánh đa hướng phức tạp, Python 3 chấm 10 đã giới thiệu cấu trúc mátch-kết. Công cụ này cho phép so khớp mẫu cấu trúc dữ liệu một cách trực quan và tường minh. Thay vì phải so sánh từng biến bằng toán tử logic, chúng ta có thể truyền một cặp giá trị túp-pồ vào mệnh đề mátch và so khớp trực tiếp trong các khối kết.

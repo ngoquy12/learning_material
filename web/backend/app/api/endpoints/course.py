@@ -606,14 +606,13 @@ async def generate_all_course_lessons(
             db.add(Artifact(lesson_id=l_id, type=p_type, status="Pending"))
     await db.commit()
     
-    tech_stack = "python/fastapi"
-    course_dir_name = "Database_Course"
-    if course:
-        if course.technology_stack:
-            raw_tech = course.technology_stack
-            tech_stack = "python/core" if "python" in raw_tech.lower() and "fastapi" not in raw_tech.lower() else raw_tech
-        if course.name:
-            course_dir_name = course.name.strip().replace(" ", "_").replace("-", "_")
+    if not course or not course.technology_stack:
+        raise HTTPException(
+            status_code=400,
+            detail="❌ [LỖI THIẾU TECHNOLOGY STACK] Môn học chưa được cấu hình Technology Stack. Vui lòng cập nhật thông tin môn học trước khi sinh học liệu."
+        )
+    tech_stack = course.technology_stack.strip()
+    course_dir_name = course.name.strip().replace(" ", "_").replace("-", "_") if course.name else "Course_Output"
 
     from app.core.process_manager import reset_cancel_flags
     reset_cancel_flags()
@@ -726,7 +725,9 @@ async def auto_fix_pm(course_id: int, request_data: PMAutoFixRequest, db: AsyncS
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
         
-    tech_stack = course.technology_stack or "python/fastapi"
+    if not course.technology_stack:
+        raise HTTPException(status_code=400, detail="❌ [LỖI THIẾU TECHNOLOGY STACK] Môn học chưa được cấu hình Technology Stack.")
+    tech_stack = course.technology_stack.strip()
     
     # Map rows to nested JSON structure
     nested_curriculum = map_pm_rows_to_json(request_data.payload)

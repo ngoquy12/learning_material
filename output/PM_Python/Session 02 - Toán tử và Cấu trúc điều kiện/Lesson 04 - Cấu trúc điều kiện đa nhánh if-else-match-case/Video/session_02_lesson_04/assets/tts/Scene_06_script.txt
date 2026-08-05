@@ -1,1 +1,0 @@
-Bây giờ, chúng ta viết luồng mátch cho cặp sta-tút và ti-ơ. Mỗi mẫu so khớp sẽ được khai báo bằng từ khóa kết. Trường hợp đầu tiên: nếu trạng thái thành công và hạng vàng, mức phí là năm chấm không và chiết khấu không chấm mười. Tiếp theo, nếu hạng bạc, mức phí là bảy chấm năm và chiết khấu không chấm không năm. Với hạng đồng, mức phí là mười chấm không và chiết khấu bằng không.

@@ -1,1 +1,0 @@
-Hai lỗi tiếp theo liên quan trực tiếp đến hàm chấm format. Lỗi in-đếc e-rơ xảy ra khi bạn gọi placeholder dạng số thứ tự tương ứng nhưng các đối số truyền vào hàm bị thiếu. Còn ki e-rơ xảy ra khi tên từ khóa được chỉ ra trong chuỗi mẫu nhưng không được truyền giá trị cụ thể.

@@ -1,1 +1,0 @@
-Một lỗi nghiêm trọng mà biên dịch viên thường gặp là áp đặt các toán tử số học trực tiếp lên chuỗi do hàm in-put trả về. Do kiểu dữ liệu mặc định là xtr, việc thực hiện nhân hai chuỗi hoặc cộng chuỗi với số nguyên sẽ kích hoạt lỗi liên kết kiểu dữ liệu Taip Ê-rơ. Hệ thống sẽ dừng lập tức vì kiểu chuỗi và các loại số nguyên không cùng biểu diễn nhị phân trong bộ nhớ.

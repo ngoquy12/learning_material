@@ -1,1 +1,0 @@
-Hãy luôn đảm bảo hướng của bước nhảy step tương thích với khoảng cách giữa start và stop. Việc thiết lập sai hướng chuyển động, ví dụ start nhỏ hơn stop nhưng step lại là số âm, hoặc ngược lại, sẽ khiến máy ảo bỏ qua toàn bộ vòng lặp ngay khi khởi tạo do không thỏa mãn tập hợp lặp.

@@ -1,1 +1,0 @@
-Để chỉnh sửa nội dung chuỗi một cách an toàn mà không ví phạm tính bất biến, ta phải tạo ra một vùng nhớ hoàn toàn mới. Chúng ta thực hiện việc ghép nối ký tự mới đê viết hoa với các phần tử từ chỉ mục cũ của chuỗi ban đầu. Vùng nhớ cũ được bảo toàn, còn biến mới sẽ tham chiếu đến chuỗi mới D-2026 một cách hợp lệ.

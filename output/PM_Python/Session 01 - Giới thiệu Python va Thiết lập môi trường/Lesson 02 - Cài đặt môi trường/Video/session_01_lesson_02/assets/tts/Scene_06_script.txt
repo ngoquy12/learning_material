@@ -1,1 +1,0 @@
-Như vậy, chúng ta đã cùng nhau hoàn thành bài học về Tổng quan về List trong Python. Hãy nhớ rằng những kiến thức này là nền tảng cực kỳ quan trọng cho các bài học tiếp theo trong khóa Python Core. Các em hãy thực hành lại toàn bộ các bước trên máy cá nhân để củng cố kiến thức. Cảm ơn các em đã theo dõi, hẹn gặp lại trong các bài học tiếp theo!

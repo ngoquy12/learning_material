@@ -1,1 +1,0 @@
-Hãy xem xét toán tử a-n-đờ. Toán tử này chỉ trả về giá trị tru khi và chỉ khi cả hai hệ thức điều kiện hai bên đều mang giá trị tru. Nếu tồn tại ít nhất một vế mang giá trị phôn, toàn bộ biểu thức sẽ lập tức nhận giá trị phôn. Trong đoạn mã trên màn hình, điều kiện kiểm tra thu nhập lớn hơn hai nghìn đô la và điểm tín dụng lớn hơn bảy trăm đều phải thỏa mãn đồng thời.

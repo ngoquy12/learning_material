@@ -1,1 +1,0 @@
-Toán tử n-o-tê là toán tử một ngôi dùng để đảo ngược trạng thái logic của biến hoặc biểu thức đứng ngay sau nó. Nếu biểu thức ban đầu là tru, toán tử n-o-tê sẽ chuyển nó thành phôn và ngược lại. Ở đây, biến biểu thị lịch sử nợ xấu đang mang giá trị phôn, khi áp dụng toán tử n-o-tê lên trước, hệ thống sẽ diễn giải trạng thái thành tru, xác nhận hồ sơ sạch về mặt công nợ.

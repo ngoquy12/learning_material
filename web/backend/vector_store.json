@@ -6318,5 +6318,61 @@
       "type": "code",
       "session": "Khởi tạo Biến và Quy chuẩn Đặt tên PEP 8 trong Python"
     }
+  },
+  {
+    "text": "Khái niệm: toan_tu_so_hoc_co_ban - Định nghĩa: Các ký hiệu dùng để thực hiện phép toán số học cơ bản gồm cộng (+), trừ (-), nhân (*), chia (/) luôn trả về số thực, chia lấy dư (%) trả về phần dư của phép chia, và chia lấy nguyên (//) trả về phần nguyên của phép chia làm tròn xuống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_cua_ket_qua - Định nghĩa: Quy tắc xác định kiểu dữ liệu trả về sau phép toán. Phép chia thường (/) luôn luôn trả về kiểu số thực (float). Đối với các phép toán (+, -, *, //, %), nếu tất cả toán hạng là số nguyên (int), kết quả sẽ là số nguyên (int); nếu có ít nhất một toán hạng là số thực (float), kết quả sẽ là số thực (float).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_chia_cho_khong - Định nghĩa: Lỗi runtime ZeroDivisionError xảy ra khi mẫu số (số chia) bằng 0 trong các phép toán chia (/), chia lấy nguyên (//), hoặc chia lấy dư (%).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_operators:\na = 15\nb = 4\nprint('Cộng:', a + b)\nprint('Trừ:', a - b)\nprint('Nhân:', a * b)\nprint('Chia thường:', a / b)\nprint('Chia lấy dư:', a % b)\nprint('Chia lấy nguyên:', a // b)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho data_type_behavior:\nx = 10\ny = 2\nprint('Kiểu dữ liệu của 10 / 2 là:', type(x / y))\nprint('Kiểu dữ liệu của 10 // 2 là:', type(x // y))\nz = 5 + 3.0\nprint('Kiểu dữ liệu của 5 + 3.0 là:', type(z))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho handle_zerodivisionerror:\nso_bi_chia = 10\nso_chia = 0\ntry:\n    ket_qua = so_bi_chia / so_chia\nexcept ZeroDivisionError:\n    print('Lỗi phát sinh: Không thể thực hiện phép chia cho số không!')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho real_world_application:\ntong_so_giay = 3725\ngio = tong_so_giay // 3600\ngiay_con_lai = tong_so_giay % 3600\nphut = giay_con_lai // 60\ngiay = giay_con_lai % 60\nprint(f'{tong_so_giay} giây đổi thành: {gio} giờ, {phut} phút, {giay} giây')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Toán tử số học trong Python"
+    }
   }
 ]

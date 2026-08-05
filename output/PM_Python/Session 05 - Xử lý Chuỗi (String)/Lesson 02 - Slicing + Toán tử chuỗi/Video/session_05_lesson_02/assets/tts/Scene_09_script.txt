@@ -1,1 +1,0 @@
-Để tối ưu giao diện báo cáo dạng dòng lệnh, toán tử nhân chuỗi cho phép lặp một hoặc một nhóm ký tự nhiều lần. Việc nhân ký tự dấu bằng với số nguyên năm mươi sẽ tự động tạo ra một thanh kẻ ngang phân tách đẹp mắt, giúp lập trình viên không phải gõ tay dài dòng dòng ký tự này trong mã nguồn.

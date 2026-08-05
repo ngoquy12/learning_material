@@ -1,1 +1,0 @@
-Một lỗi cú pháp phổ biến ở các lập trình viên mới bắt đầu là nhầm lẫn mục đích sử dụng giữa toán tử gán một dấu bằng và toán tử so sánh bằng hai dấu bằng. Toán tử gán dùng để gán giá trị ở vế phải vào vùng lưu trữ của biến ở vế trái. Trong khi đó, toán tử hai dấu bằng là phép toán quan hệ logic, thực hiện đánh giá sự tương đương giữa hai thực thể và trả về trạng thái bu-li-ân.

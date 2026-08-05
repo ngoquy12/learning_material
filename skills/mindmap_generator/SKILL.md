@@ -1,40 +1,70 @@
 ---
 name: mindmap_generator
-description: Generate clean, structured, and academic markdown suitable for Markmap visualization for 1.5-hour classroom lectures.
+description: Generate Session-Level Markmap mindmaps synthesizing all lesson knowledge across the entire session according to Rikkei Education standards. Target output language is 100% Accented Vietnamese.
 ---
 
-# Kỹ năng tạo Sơ đồ tư duy (Mindmap Generator Skill)
+# Session-Level Mindmap Generator Skill — Rikkei Education Standards
 
-## 1. Tổng quan & Thiết kế sư phạm
-Sơ đồ tư duy (Mindmap) giúp giảng viên hệ thống hóa kiến thức và hướng dẫn thảo luận lớp học trong thời lượng 1.5 giờ. Học viên đã học lý thuyết ở nhà trước qua E-learning, do đó Mindmap trên lớp phải cực kỳ cô đọng, trực quan, đi thẳng vào bản chất kỹ thuật và dễ tra cứu.
+## 1. Fixed Mindmap Heading & Branching Hierarchy
 
-## 2. Tiêu chuẩn Nội dung & Nhánh (Heading Hierarchy)
-Bọc toàn bộ sơ đồ tư duy trong duy nhất một khối mã:
+Every generated mindmap MUST strictly follow this 3-Level hierarchy in Markdown format for Markmap rendering:
+
 ```markmap
-# [Session/Lesson ID]: [Tiêu đề Bài học]
+# [Clean Topic/Content Title]
+
+## Mục tiêu bài học
+- [Objective 1: Measurable outcome]
+- [Objective 2: Measurable outcome]
+- [Objective 3: Measurable outcome]
+- [Objective 4: Measurable outcome]
+
+## Đặt tình huống
+- [Real-world business problem or motivation]
+
+## [Lesson 01 Title]
+### [Short Dynamic Title 1]
+- [Short description/mechanics, max 15 words]
+### [Short Dynamic Title 2]
+- [Short description or syntax]
+  ```python
+  # Core syntax template (1-3 lines max)
+  ```
+### [Short Dynamic Title 3]
+*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [Detailed logic/business workflow description here]. Main title in meaningful concise Vietnamese. Strictly NO text emojis. 16:9 aspect ratio, spacious layout with at least 32px safe outer margin on all sides. Minimalist infographics style, clean white background, muted corporate color palette.*
+### [Short Dynamic Title 4]
+- [Gotcha or best practice, max 15 words]
+
+## [Lesson 02 Title]
 ...
 ```
 
-### Quy tắc xây dựng nhánh:
-1. **Tiêu đề cấp 1 (#)**: Là gốc sơ đồ, có dạng `# [Lesson ID]: [Tiêu đề chính bài học]`.
-2. **Đi thẳng vào Module Kiến thức**: TUYỆT ĐỐI KHÔNG tạo nhánh `## Mục tiêu bài học`. Gốc sơ đồ (#) phân nhánh trực tiếp ra các Chủ đề Kiến thức Cốt lõi (`## Chủ đề 1`, `## Chủ đề 2`).
-3. **Chính sách không bỏ sót (Zero-drop Policy)**: Tất cả các chủ đề chính của bài học (từ PM/SSOT) đều phải có một nhánh lớn cấp 2 (##) tương ứng.
-4. **Phân nhánh động theo Bản chất Nội dung (Content-Driven Branching)**:
-   - CẤM lặp lại rập khuôn 3 nhánh `Khái niệm`, `Cú pháp`, `Lưu ý` ở tất cả các mục.
-   - **Đối với Chủ đề Lập trình / Code**: Trình bày đoạn mã mẫu cô đọng (bọc trong ` ```python ... ``` ` hoặc ` ```typescript ... ``` `) ngay bên dưới nhánh chủ đề kèm theo 1-2 điểm lưu ý thực chiến (`Gotchas`).
-   - **Đối với Chủ đề Khái niệm / Luồng vận hành**: Phân nhánh theo luồng tư duy tự nhiên (Bản chất & Nguyên lý $\rightarrow$ Cơ chế hoạt động $\rightarrow$ Ứng dụng thực tế).
-5. **Độ sâu tối đa 3-4 cấp (Max-Depth Rule)**: Không chẻ nhỏ quá 3-4 cấp thụt lề để cây sơ đồ Markmap không bị mở rộng lê thê theo chiều ngang.
+---
 
-## 3. Quy tắc hạn chế & Cấm đoán
-- **KHÔNG làm kịch bản giảng dạy**: Nghiêm cấm đưa các từ khóa kịch bản đứng lớp như: "Slide 1", "Lecture Note", "Concept Check", "Khởi động", "Live Demo", v.v. Sơ đồ chỉ tập trung vào kiến thức học thuật.
-- **TUYỆT ĐỐI KHÔNG dùng emoji**: Đảm bảo tính học thuật nghiêm túc, không chèn bất kỳ icon/emoji nào trong các nhánh.
-- **TUYỆT ĐỐI KHÔNG rò rỉ kiến thức (Scope Leakage)**: Nội dung trong mindmap không chứa cú pháp hay khái niệm vượt quá phạm vi bài học hiện tại (ví dụ: Lesson 01 chỉ giới thiệu Web API nhưng không được nhắc tới SQLite/SQLAlchemy/Database).
-- **Tránh ký tự # thừa thãi**: Không có ký tự # thừa thãi bên trong văn bản của các nút, tránh làm vỡ bố cục hiển thị của markmap. Ký tự # chỉ được sử dụng ở đầu dòng để định nghĩa tiêu đề.
-- **Hình ảnh logic trực quan (BẮT BUỘC)**: Với các kiến trúc phức tạp hoặc luồng dữ liệu khó hiểu, chèn thêm nút con: `[Prompt: <Viết prompt tiếng Anh mô tả chi tiết sơ đồ logic/sequence/architecture để AI vẽ>]` hoặc `[Tạo ảnh: <Viết prompt tiếng Anh mô tả chi tiết sơ đồ logic/sequence/architecture để AI vẽ>]`.
+## 2. Mandatory Structuring Rules
 
-## 4. Định dạng Code trong Sơ đồ tư duy
-Khi trình bày code mẫu dưới các nhánh, code phải được bọc trong block Markdown chỉ định ngôn ngữ chuẩn xác và thụt lề chuẩn bằng dấu cách (space) dưới gạch đầu dòng (-) tương ứng để hiển thị highlight sắc nét trên Markmap.
+1. **Level 1 Heading (`#`) — Clean Content Title**:
+   - MUST contain ONLY the content topic of the session/lesson.
+   - ABSOLUTELY FORBIDDEN to include prefixes like "Session XX - ", "Lesson YY - ", or codes.
+   - Example: `# Vòng lặp` (CORRECT) vs `# Session 05 - Vòng lặp` (INCORRECT).
 
-## 🌐 5. Quy tắc Song ngữ Tiếng Anh / Tiếng Việt trong Sơ đồ & Prompt Tạo ảnh (Bilingual Diagram & Image Rule)
-* **TIẾNG ANH (English)**: Giữ nguyên từ khóa công nghệ, cú pháp, tên biến, tên hàm, tên lớp (`Bytecode`, `PVM`, `Interpreter`, `id()`, `str/int/float`).
-* **TIẾNG VIỆT (Vietnamese)**: Tiêu đề sơ đồ, nhãn các nhánh và mô tả luồng diễn giải trong hình ảnh (`[Khởi tạo đối tượng]`, `[Trình thông dịch xử lý]`, `[Phân bố vùng nhớ RAM]`). Giúp sinh viên Việt Nam không bị áp lực tiếng Anh nhưng vẫn nắm chuẩn thuật ngữ chuyên ngành.
+2. **Level 2 Headings (`##`) — Structural Milestones**:
+   - Branch 1: `## Mục tiêu bài học` (MUST always be first, outlining 3-4 clear objectives).
+   - Branch 2: `## Đặt tình huống` (MUST outline the real-world business context/problem statement).
+   - Remaining branches: Each lesson/major topic in the session MUST form a Level 2 branch.
+
+3. **Level 3 Headings (`###`) — Dynamic & Ultra-Concise**:
+   - FORBIDDEN to hardcode static titles (e.g. avoid rigidly repeating "Khái niệm thực chiến", "Lưu ý thực chiến" everywhere).
+   - Titles MUST be dynamic, flexible, and as short as possible while ensuring correctness and proper spelling (e.g. `Khái niệm`, `Cú pháp`, `Cơ chế`, `Lưu ý`, `So sánh`).
+
+4. **Leaf Nodes & Content Density**:
+   - Nodes MUST be highly condensed and scannable. Keep sentences short (maximum 15 words per leaf node). No long paragraphs.
+   - Code blocks must be kept to minimal 1-3 lines of syntax patterns. Never include large, bloated code snippets.
+
+5. **2D Flat Vector Visualizations**:
+   - For difficult concepts or workflow control, embed standard English image prompts matching `image_prompt_standard`:
+     `*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [detailed logic]. Main title in concise Accented Vietnamese. Strictly NO text emojis. 16:9 aspect ratio, spacious layout...*`
+
+6. **Strict Emoji-Free Directive**:
+   - 100% FORBIDDEN to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶) anywhere in the mindmap text. Only use standard Markdown formatting.
+
+````

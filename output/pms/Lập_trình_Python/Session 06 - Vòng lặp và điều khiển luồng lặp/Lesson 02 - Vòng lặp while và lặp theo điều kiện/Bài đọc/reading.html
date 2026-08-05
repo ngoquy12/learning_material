@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vòng lặp while và lặp theo điều kiện - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Vòng lặp while và lặp theo điều kiện</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1">
+            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Vấn đề khi xử lý bài toán lặp với số lần chưa biết trước</a>
+            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Cú pháp, điều kiện dừng và cơ chế hoạt động của vòng lặp while</a>
+            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
+            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Vấn đề khi xử lý bài toán lặp với số lần chưa biết trước</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Cú pháp, điều kiện dừng và cơ chế hoạt động của vòng lặp while</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Vòng lặp while và lặp theo điều kiện</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Vấn đề khi xử lý bài toán lặp với số lần chưa biết trước</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong phát triển phần mềm doanh nghiệp, không phải lúc nào chúng ta cũng biết trước chính xác số lần một khối lệnh cần được thực thi. Ví dụ, một hệ thống xác thực cần yêu cầu người dùng nhập mật khẩu cho đến khi đúng, hoặc một dịch vụ tích hợp cổng thanh toán cần tiếp tục gửi lại yêu cầu (retry mechanism) cho đến khi nhận được phản hồi thành công từ ngân hàng.</p><p class="text-slate-600 mb-4 leading-relaxed">Nếu chỉ sử dụng các câu lệnh điều kiện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if-else</code> lồng nhau thủ công để xử lý lặp lại, mã nguồn sẽ rơi vào tình trạng nhân bản lặp đi lặp lại, vô cùng cồng kềnh và dễ nảy sinh lỗi logic khi số lần thử vượt quá dự tính ban đầu.</p><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"">Hạn chế của phương pháp rẽ nhánh thủ công</h4><ul class="list-disc pl-6 space-y-2 text-slate-700 my-2"><li><strong class="font-semibold text-slate-900">Mã nguồn bị phình to (Code Bloat):</strong> Việc lặp lại các khối <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code> liên tiếp làm mã nguồn trở nên khó đọc và khó bảo trì.</li><li><strong class="font-semibold text-slate-900">Thiếu tính linh hoạt:</strong> Không thể tự động thích ứng nếu số lần thử thay đổi theo thời gian thực (real-time).</li><li><strong class="font-semibold text-slate-900">Không quản lý được rủi ro:</strong> Dễ bỏ sót các trường hợp biên khiến chương trình bị treo hoặc kết thúc đột ngột.</li></ul></div><p class="text-slate-600 mb-4 leading-relaxed">Để giải quyết triệt để vấn đề này, vòng lặp lặp theo điều kiện logic <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code> ra đời. Cấu trúc này cho phép chương trình duy trì việc thực thi một khối lệnh liên tục chừng nào biểu thức điều kiện vẫn trả về giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code>.</p></div>
+          <div class="my-6"><div class="my-6"><svg viewBox="0 0 800 280" class="rikkei-diagram w-full h-auto" xmlns="http://www.w3.org/2000/svg"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect x="40" y="20" width="320" height="240" rx="12" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="60" y="55" font-size="15" font-weight="bold" fill="#9f1239">Cách cũ: Viết thủ công lặp if-else</text><rect x="60</div></div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cú pháp, điều kiện dừng và cơ chế hoạt động của vòng lặp while</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-cu-phap-co-ban-cua-cau-lenh-while-trong-python" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp cơ bản của câu lệnh while trong Python</h3><p class="text-slate-600 mb-4 leading-relaxed">Vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code> kiểm tra biểu thức điều kiện trước khi thực thi khối lệnh bên trong. Nếu điều kiện đánh giá là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code>, khối lệnh sẽ chạy. Sau khi chạy xong, luồng điều khiển quay lại kiểm tra điều kiện ban đầu.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">while loop_condition:
+    # Code block to execute repeatedly
+update_condition_variable()</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code>: Từ khóa khai báo vòng lặp lặp theo điều kiện logic trong Python.</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">loop_condition</code>: Biểu thức Boolean (trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>) được kiểm tra trước mỗi vòng lặp.</li><li><strong class="font-semibold text-slate-900">Khối lệnh thuộc lặp:</strong> Được thụt lùi vào đầu dòng (indentation) đúng 4 khoảng trắng theo chuẩn PEP 8.</li></ul><h3 id="sec-2-2-ieu-kien-dung-va-kiem-soat-bien-em" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Điều kiện dừng và kiểm soát biến đếm</h3><p class="text-slate-600 mb-4 leading-relaxed">Để một vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code> hoạt động an toàn và dừng lại đúng lúc, chương trình cần đảm bảo biến tham gia vào điều kiện dừng (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">loop_condition</code>) phải được khởi tạo trước vòng lặp và được cập nhật lại bên trong thân vòng lặp.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">step_counter = 1
+while step_counter &lt;= 3:
+    print(f&quot;Executing step: {step_counter}&quot;)
+    step_counter += 1</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">step_counter = 1</code>: Bước khởi tạo giá trị ban đầu cho biến kiểm soát lặp.</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">step_counter &lt;= 3</code>: Điều kiện dừng để kiểm tra xem liệu vòng lặp có tiếp tục chạy hay không.</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">step_counter += 1</code>: Lệnh cập nhật giá trị biến đếm nhằm đưa điều kiện tiến dần về trạng thái <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>.</li></ul><h3 id="sec-2-3-hiem-hoa-vong-lap-vo-han-infinite-loop-va-nguyen-nhan" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Hiểm họa vòng lặp vô hạn (Infinite Loop) và nguyên nhân</h3><p class="text-slate-600 mb-4 leading-relaxed">Vòng lặp vô hạn xảy ra khi biểu thức điều kiện luôn luôn trả về giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> và không bao giờ chuyển sang <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>. Điều này thường làm ứng dụng bị đóng băng (freeze) hoặc tiêu tốn 100% tài nguyên CPU.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Anti-pattern: Missing state update leads to infinite execution
+counter_value = 1
+while counter_value &lt;= 5:
+    print(&quot;Processing request...&quot;)
+    # Forgotten line: counter_value += 1</code></pre>
+</div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2"">Lưu ý về bộ nhớ và hiệu năng</h4><p class="text-slate-700 leading-relaxed">Nếu vô tình kích hoạt vòng lặp vô hạn trong môi trường thực thi, bạn có thể nhấn tổ hợp phím <code class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-900 font-mono text-sm">Ctrl + C</code> trong Terminal để ngắt dòng thực thi (KeyboardInterrupt).</p></div><div class="my-8 p-6 bg-slate-50 border border-slate-200 rounded-xl shadow-sm"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mô phỏng cơ chế vận hành từng bước</div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="space-y-3"><div class="text-xs font-semibold text-slate-600 uppercase">Mã nguồn đang thực thi</div><div class="bg-white border border-slate-200 rounded-lg p-4 font-mono text-sm space-y-1 shadow-inner"><div id="viz-line-1" class="px-2 py-1 rounded transition-colors duration-200 text-slate-700 font-medium"><span class="text-slate-700 select-none mr-2">1</span><span class="text-slate-800">counter = 1</span></div><div id="viz-line-2" class="px-2 py-1 rounded transition-colors duration-200 text-slate-700 font-medium"><span class="text-slate-700 select-none mr-2">2</span><span class="text-slate-800">total_sum = 0</span></div><div id="viz-line-3" class="px-2 py-1 rounded transition-colors duration-200 text-slate-700 font-medium"><span class="text-slate-700 select-none mr-2">3</span><span class="text-blue-600 font-semibold">while</span> <span class="text-slate-800">counter &lt;= 3:</span></div><div id="viz-line-4" class="px-2 py-1 rounded transition-colors duration-200 text-slate-700 font-medium pl-6"><span class="text-slate-700 select-none mr-2">4</span><span class="text-slate-800">total_sum += counter</span></div><div id="viz-line-5" class="px-2 py-1 rounded transition-colors duration-200 text-slate-700 font-medium pl-6"><span class="text-slate-700 select-none mr-2">5</span><span class="text-slate-800">counter += 1</span></div></div><div class="flex flex-wrap gap-2 pt-2"><button onclick="vizStep(-1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800">Lùi lại</button><button onclick="vizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] text-slate-700 hover:bg-[#90000a]">Tiếp theo</button><button onclick="vizReset()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800">Thử lại</button><button onclick="vizAutoPlay()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-slate-700">Tự động chạy</button></div></div><div class="space-y-4"><div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm"><div class="text-xs font-semibold text-slate-600 uppercase mb-3">Bảng bộ nhớ &amp; Trạng thái biến</div><table class="w-full text-xs text-left border-collapse"><thead><tr class="border-b border-slate-200 text-slate-500"><th class="pb-2 font-medium">Tên biến</th><th class="pb-2 font-medium">Giá trị lưu trữ</th><th class="pb-2 font-medium">Đánh giá điều kiện</th></tr></thead><tbody class="divide-y divide-slate-100"><tr class="text-slate-700"><td class="py-2 font-mono font-semibold text-slate-900">counter</td><td class="py-2 font-mono text-emerald-600 font-bold" id="viz-var-number">1</td><td class="py-2 font-mono text-slate-500" id="viz-cond-eval">counter &lt;= 3 (Chờ)</td></tr><tr class="text-slate-700"><td class="py-2 font-mono font-semibold text-slate-900">total_sum</td><td class="py-2 font-mono text-emerald-600 font-bold" id="viz-var-sum">0</td><td class="py-2 text-slate-700">-</td></tr></tbody></table></div><div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm"><div class="text-xs font-semibold text-slate-600 uppercase mb-2">Màn hình Console</div><div id="viz-console" class="font-mono text-xs text-slate-800 space-y-1 min-h-[70px] bg-slate-50 p-2.5 rounded border border-slate-200">Hệ thống đã sẵn sàng. Hãy bấm "Tiếp theo".</div></div></div></div></div></div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-vi-du-co-ban-em-so-va-cap-nhat-ieu-kien-dung" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ cơ bản: Đếm số và cập nhật điều kiện dừng</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ này minh họa cấu trúc tối giản của vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code> với một biến đếm tăng dần từ 1 đến 5.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="counter = 1&#10;while counter &lt;= 5:&#10;    print(f&quot;Current step count: {counter}&quot;)&#10;    counter += 1" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">counter = 1
+while counter &lt;= 5:
+    print(f&quot;Current step count: {counter}&quot;)
+    counter += 1</code></pre>
+  </div>
+  <div id="container-sb-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2-vi-du-thuc-te-co-che-thu-lai-ang-nhap-nguoi-dung-login-retry" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ thực tế: Cơ chế thử lại đăng nhập người dùng (Login Retry)</h3><p class="text-slate-600 mb-4 leading-relaxed">Ứng dụng vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code> kết hợp nhiều điều kiện dừng (số lần thử tối đa và trạng thái đăng nhập thành công).</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2" class="language-python" contenteditable="true" spellcheck="false" data-original="max_attempts = 3&#10;attempt_count = 0&#10;is_authenticated = False&#10;&#10;while attempt_count &lt; max_attempts and not is_authenticated:&#10;    attempt_count += 1&#10;    simulated_pin = 1234&#10;    correct_pin = 1234&#10;    &#10;    if simulated_pin == correct_pin:&#10;    is_authenticated = True&#10;        print(f&quot;Login successful on attempt {attempt_count}.&quot;)&#10;    else:&#10;    print(f&quot;Login failed on attempt {attempt_count}.&quot;)&#10;&#10;if not is_authenticated:&#10;    print(&quot;Account temporarily locked.&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">max_attempts = 3
+attempt_count = 0
+is_authenticated = False
+
+while attempt_count &lt; max_attempts and not is_authenticated:
+    attempt_count += 1
+    simulated_pin = 1234
+    correct_pin = 1234
+    
+    if simulated_pin == correct_pin:
+    is_authenticated = True
+        print(f&quot;Login successful on attempt {attempt_count}.&quot;)
+    else:
+    print(f&quot;Login failed on attempt {attempt_count}.&quot;)
+
+if not is_authenticated:
+    print(&quot;Account temporarily locked.&quot;)</code></pre>
+  </div>
+  <div id="container-sb-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3-vi-du-nang-cao-thuat-toan-quan-ly-ngan-sach-va-han-muc-chi-tieu" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ nâng cao: Thuật toán quản lý ngân sách và hạn mức chi tiêu</h3><p class="text-slate-600 mb-4 leading-relaxed">Mô phỏng bài toán cộng dồn giao dịch tài chính cho đến khi tiệm cận hạn mức ngân sách cho phép.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="budget_limit = 1000&#10;total_spent = 0&#10;transaction_amount = 250&#10;&#10;while total_spent + transaction_amount &lt;= budget_limit:&#10;    total_spent += transaction_amount&#10;    print(f&quot;Processed transaction: ${transaction_amount}. Total spent: ${total_spent}.&quot;)&#10;&#10;remaining_balance = budget_limit - total_spent&#10;print(f&quot;Final total spent: ${total_spent}. Remaining balance: ${remaining_balance}.&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">budget_limit = 1000
+total_spent = 0
+transaction_amount = 250
+
+while total_spent + transaction_amount &lt;= budget_limit:
+    total_spent += transaction_amount
+    print(f&quot;Processed transaction: ${transaction_amount}. Total spent: ${total_spent}.&quot;)
+
+remaining_balance = budget_limit - total_spent
+print(f&quot;Final total spent: ${total_spent}. Remaining balance: ${remaining_balance}.&quot;)</code></pre>
+  </div>
+  <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div>
+        </section>
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"">4.1. Lỗi phổ biến: Quên cập nhật biến điều kiện trong thân vòng lặp</h4><p class="text-slate-700 leading-relaxed">Nếu quên không tăng hoặc giảm biến điều kiện bên trong khối lệnh lặp, biểu thức sẽ mãi giữ giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code>, dẫn đến lỗi lặp vô tận (Infinite Loop).</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2"">4.2. Lỗi sai lệch một đơn vị (Off-By-One Error)</h4><p class="text-slate-700 leading-relaxed">Sử dụng nhầm toán tử so sánh như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;</code> thay vì <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;=</code> có thể khiến vòng lặp thực thi ít hơn hoặc nhiều hơn 1 lần so với yêu cầu bài toán.</p></div><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-sky-900 mb-2 flex items-center gap-2"">4.3. Best Practice: Kiểm tra điều kiện đầu vào trước khi lặp</h4><p class="text-slate-700 leading-relaxed">Luôn đảm bảo biến điều kiện được khởi tạo đầy đủ và chính xác trước dòng câu lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">while</code> để tránh trường hợp vòng lặp bị bỏ qua hoàn toàn ngoài ý muốn.</p></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://docs.python.org/3/reference/compound_stmts.html#the-while-statement" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Python Official Documentation - The while statement
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://realpython.com/python-while-loop/" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Real Python - Python while Loops
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers
+      window.vizStepMap = {};
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
+        var step = window.vizStepMap[idPrefix];
+        
+        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
+        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+        
+        if (consoleEl) {
+          if (step === 0) {
+            if (numEl) numEl.innerText = "-";
+            if (sumEl) sumEl.innerText = "0";
+            consoleEl.innerText = "Chờ thực thi...";
+          } else if (step === 1) {
+            if (numEl) numEl.innerText = "1";
+            if (sumEl) sumEl.innerText = "1";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
+          } else if (step === 2) {
+            if (numEl) numEl.innerText = "2";
+            if (sumEl) sumEl.innerText = "3";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
+          } else {
+            if (numEl) numEl.innerText = "3";
+            if (sumEl) sumEl.innerText = "6";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+          }
+        }
+      }
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = 0;
+        runVizStep(0, idPrefix);
+      }
+
+      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
+      function vizReset() { resetViz(); }
+      var vizAutoTimer = null;
+      function vizToggleAuto() {
+        if (vizAutoTimer) {
+          clearInterval(vizAutoTimer);
+          vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Tự động chạy";
+        } else {
+          vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Dừng tự động";
+        }
+      }
+    </script>
+  </body>
+</html>

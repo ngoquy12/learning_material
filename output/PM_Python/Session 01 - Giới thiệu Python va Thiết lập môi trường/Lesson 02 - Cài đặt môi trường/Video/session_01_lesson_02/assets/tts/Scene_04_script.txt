@@ -1,1 +1,0 @@
-Tiếp theo, chúng ta sẽ tìm hiểu sâu hơn về: Thực hành Tổng quan về List trong Python. Đây là kiến thức nền tảng mà mỗi lập trình viên đều cần nắm vững khi làm việc với Python Core. Các em lưu ý phần quan trọng này nhé: hãy chú ý quan sát từng bước thực hiện trên màn hình và ghi nhớ những điểm mấu chốt.

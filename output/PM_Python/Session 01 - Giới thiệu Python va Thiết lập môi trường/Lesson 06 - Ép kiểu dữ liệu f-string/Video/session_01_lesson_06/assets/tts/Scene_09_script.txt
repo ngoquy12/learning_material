@@ -1,1 +1,0 @@
-Cú pháp ép-xtring ra đời như một giải pháp thay thế hoàn hảo cho phương thức chấm pho-mát truyền thống hay toán tử phần trăm kiểu ngôn ngữ C cổ điển. Ép-xtring giúp nhúng trực tiếp các biểu thức lô-gíc vào chuỗi với hiệu năng vượt trội.

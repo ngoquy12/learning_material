@@ -157,6 +157,57 @@ def check_structural_completeness(html_text: str) -> str:
     if ("mã nguồn" in text_lower or "chi tiết mã nguồn" in text_lower) and ("<code" not in text_lower and "code-container" not in text_lower):
         return "Nội dung bài đọc xuất hiện câu dẫn 'chi tiết mã nguồn' nhưng bị thiếu khối hiển thị mã nguồn (code container / live playground)."
         
+    # Check that syntax blocks in non-interactive sections (like Section 2 and Section 4) do not contain interactive play buttons or editors
+    import re
+    # Extract all <section> elements along with their opening tag
+    sections = re.findall(r'(<section\b[^>]*>)(.*?)</section>', html_text, re.DOTALL)
+    for start_tag, sec_content in sections:
+        if 'id="interactive-demo"' in start_tag or 'id="interactive_demo"' in start_tag or 'id="section-3"' in start_tag:
+            continue
+        # If a non-demo section has play/run buttons or sandbox editor styling/attributes
+        if 'onclick="runPythonCode' in sec_content or 'contenteditable="true"' in sec_content or 'sandbox-editor' in sec_content:
+            return (
+                "Phát hiện block code cú pháp tĩnh trong mục Giới thiệu kiến thức (Phần 2) hoặc Lưu ý (Phần 4) đang hiển thị ở dạng editor chạy thử (IDE sandbox). "
+                "Cú pháp lý thuyết không dùng để thực thi trực tiếp, bắt buộc phải sử dụng block code tĩnh (static block code) có màu sắc giống VS Code (không có nút Chạy/Play và Reset)."
+            )
+        
+    # Check for double-wrapped code cards (nested macOS header structures)
+    if re.search(
+        r'<div[^>]*class="[^"]*(?:bg-slate-50|rounded-xl|border-slate-200)[^"]*"[^>]*>\s*'
+        r'(?:<div[^>]*>(?:(?!</div>).){0,200}</div>\s*)?'
+        r'<div[^>]*class="[^"]*(?:my-5|rounded-xl|border-slate-200)[^"]*"[^>]*>\s*'
+        r'<div[^>]*class="[^"]*(?:px-3\.5|bg-slate-100/90)[^"]*"', 
+        html_text, 
+        re.DOTALL
+    ):
+        return "Phát hiện khối code bị lồng khung kép (nested double-wrapped code containers). Vui lòng unwrap khung ngoài và chỉ giữ lại khung macOS bên trong."
+
+    # Check for dummy placeholder code cards inside the visualizer
+    if "Mã nguồn thi hành" in html_text or "Màn hình Console" in html_text or "Màn hình in kết quả" in html_text:
+        # Only trigger if the label is wrapped in a <pre><code> block or a macOS title span
+        if re.search(r'<pre[^>]*>\s*<code[^>]*>[^<]*(?:Mã nguồn thi hành|Màn hình Console|Màn hình in kết quả)', html_text) or \
+           re.search(r'<span[^>]*class="[^"]*font-semibold[^"]*"[^>]*>(?:Mã nguồn thi hành|Màn hình Console|Màn hình in kết quả)</span>', html_text):
+            return "Phát hiện nhãn mô tả của Visualizer (Mã nguồn thi hành / Màn hình Console) đang bị biến thành hộp code macOS giả. Vui lòng sử dụng thẻ div thông thường và không bọc chúng bằng thẻ pre/code."
+
+    # Check for wrong button colors (like bg-sky-600 or bg-blue-600) in visualizer
+    if "bg-sky-600" in html_text or "bg-blue-600" in html_text or "bg-sky-500" in html_text or "bg-blue-500" in html_text:
+        return "Phát hiện nút bấm trong phần mô phỏng (Visualizer) sử dụng class màu không đúng tông Rikkei Red (ví dụ: bg-sky-600, bg-blue-600). Hãy dùng màu Rikkei Red bg-[#be111c] cho nút bấm chính và bg-slate-200 cho các nút phụ."
+
+    # Check for double class attributes in any HTML tag
+    if re.search(r'class="[^"]*"\s+class="[^"]*"', html_text):
+        return "Phát hiện lỗi cú pháp HTML: một thẻ chứa thuộc tính class kép (double class attributes class=... class=...)."
+        
+    # Check for SVG overlapping text in middle column
+    if "<svg" in html_text:
+        svg_matches = re.findall(r'<svg\b[^>]*>(.*?)</svg>', html_text, re.DOTALL)
+        for svg_content in svg_matches:
+            if "Tối ưu" in svg_content or "Tự động" in svg_content:
+                if 'text-anchor="middle"' not in svg_content:
+                    return (
+                        "Phát hiện hình ảnh so sánh SVG có văn bản ở giữa cột (Tối ưu mã nguồn, Tự động hóa) bị lệch tọa độ hoặc thiếu thuộc tính text-anchor=\"middle\". "
+                        "Yêu cầu đặt text-anchor=\"middle\" tại tọa độ x=\"400\" để tránh chồng chéo lên các hộp mã nguồn."
+                    )
+
     return ""
 
 def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
@@ -171,7 +222,8 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
     
     print(f"\n[Pedagogical_UX_Reviewer] Evaluating {session_id} HTML layout...")
     
-    tech_stack = state.get("technology_stack", "python/core")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "html_ux_reviewer")
     
     # 1. Programmatic Master Resource Validator (HTML DOM, JS Linter, 5-Step Walkthrough)
     is_valid_master, master_errs = validate_resource("READING", html_content, {"tech_stack": tech_stack})
@@ -198,14 +250,21 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
         print(f"  - Result: REJECTED (Emoji Prohibition check failed). Feedback: '{emoji_feedback}'")
         return {"status": "REJECTED", "feedback": emoji_feedback}
 
+    import re
+    # Strip HTML tags, CSS and JS for strict textual knowledge checks
+    text_for_scope = re.sub(r'<style[^>]*>.*?</style>', ' ', html_content, flags=re.DOTALL | re.IGNORECASE)
+    text_for_scope = re.sub(r'<script[^>]*>.*?</script>', ' ', text_for_scope, flags=re.DOTALL | re.IGNORECASE)
+    text_for_scope = re.sub(r'<[^>]+>', ' ', text_for_scope)
+
     # 2. Programmatic Knowledge Scope Boundary Check
-    scope_feedback = check_knowledge_scope_violations(html_content, session_id, state=state)
+    scope_feedback = check_knowledge_scope_violations(text_for_scope, session_id, state=state)
     if scope_feedback:
         print(f"  - Result: REJECTED (Knowledge Scope Check Failed). Feedback: '{scope_feedback}'")
         return {"status": "REJECTED", "feedback": scope_feedback}
 
-    # 3. Programmatic stack isolation check
-    forbidden_feedback = check_forbidden_keywords(html_content, tech_stack)
+    # 3. Programmatic stack isolation & dynamic forbidden scope check
+    forbidden_scope = state.get("forbidden_scope") if state else None
+    forbidden_feedback = check_forbidden_keywords(text_for_scope, tech_stack, forbidden_scope)
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}
@@ -237,44 +296,48 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
             "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
         ]) or not lesson_id
 
-        user_prompt = f"""
-        Review the following HTML reading content for Session: {session_id}, Lesson: {lesson_id}.
-        Attempt Number: {attempt_num}
-        Target Technology Stack: {tech_stack}
-        Is Theory/Diagram Only Lesson (No Code visualizer needed): {is_theory_only}
-        
-        PM Lesson Details: {json.dumps(pm_lesson_details, ensure_ascii=False)}
-        Previous Lessons Info: {json.dumps(prev_lessons, ensure_ascii=False)}
-        
-        HTML Content:
-        {html_content}
-        
-        IMPORTANT CRITERIA TO INSPECT:
-        1. Tiêu chuẩn Trực quan hóa & Tương tác Web Động (Interactive Web Visualizer & Step-by-Step Playground):
-           - LƯU Ý QUAN TRỌNG: Nếu đây là bài lý thuyết/giới thiệu/tổng quan (Is Theory/Diagram Only Lesson = True), bài đọc KHÔNG CẦN và KHÔNG ĐƯỢC có Code Tracker hay bảng điều khiển chạy từng bước (Start, Pause, Step, Reset). Trình kiểm duyệt tuyệt đối không được phạt lỗi thiếu các thành phần tương tác này. Chỉ cần bố cục đẹp, rõ ràng, sư phạm, có thể có sơ đồ tĩnh/hình vẽ minh họa.
-           - Nếu đây KHÔNG phải là bài lý thuyết (Is Theory/Diagram Only Lesson = False), bài đọc BẮT BUỘC phải được xây dựng như một Ứng dụng Web Trực quan hóa Động ngay trên trình duyệt (theo chuẩn `skills/reading_generator/SKILL.md`), phải có Khung Trực quan hóa (`visualizer-canvas`), Bảng điều khiển tương tác (các nút bấm `▶ Bắt đầu`, `⏸ Tạm dừng`, `⏭ Từng bước`, `↻ Đặt lại`), Sliders & ô tự nhập tham số, Code Tracker highlight đồng bộ từng dòng thực thi (`active-line`), và Terminal Console Log thời gian thực.
-           - LƯU Ý ĐẶC BIỆT DÀNH CHO BẠN: BẠN TUYỆT ĐỐI KHÔNG ĐƯỢC bắt lỗi runtime JavaScript (như TypeError, missing function), cũng KHÔNG ĐƯỢC reject nếu mã JS Engine thiếu các hàm pause(), step(), reset()... Việc tiêm logic JS điều khiển hoàn chỉnh sẽ do Server Backend đảm nhiệm ghi đè ở giai đoạn sau! Nhiệm vụ của bạn chỉ là kiểm tra xem Cấu trúc thẻ HTML có tồn tại hay không. Nếu có thẻ HTML là ĐẠT, bỏ qua mọi lỗi logic JS.
-        2. Trọng tâm bài học & Không lan man (Lesson Focus & No Digression):
-           - Nội dung bài đọc phải BÁM SÁT 100% vào tiêu đề và mô tả bài học PM Lesson Details ở trên.
-           - TUYỆT ĐỐI không viết lan man sang bài khác hoặc nội dung môn học/lesson khác làm bài đọc quá dài dòng.
-        3. Ràng buộc Công nghệ, Phạm vi & Kế thừa Kiến thức (Technology Stack & Scope Isolation):
-           - Đối chiếu chặt chẽ với Target Technology Stack là: "{tech_stack}".
-           - BẤT KỲ sự "đá xéo", nhầm lẫn hoặc trộn lẫn công nghệ của môn học này với môn học khác đều PHẢI BỊ REJECT.
-           - Kiểm tra kỹ xem bài đọc có chứa mã nguồn, thư viện, hoặc khái niệm nâng cao nào vượt quá nội dung PM Lesson Details và Previous Lessons Info hay không. Bất kỳ đoạn code hoặc khái niệm nào chưa được học ở các bài học trước đều PHẢI BỊ REJECT để tránh quá tải nhận thức của học viên.
-        4. Trình bày Khoa học & Cấu trúc (Scientific Presentation & Aesthetics):
-           - Cách trình bày phải có tính sư phạm cao, khoa học, các phần lý thuyết chi tiết được đóng gói gọn gàng trong khối Accordion bên dưới Khung Trực quan hóa để không gây ngợp mắt.
-        5. Quy tắc Code Minh họa (Code Snippet Rules):
-           - ĐỐI VỚI BÀI LÝ THUYẾT (Is Theory/Diagram Only Lesson = True): Trình kiểm duyệt TUYỆT ĐỐI KHÔNG ĐƯỢC REJECT khi bài đọc không chứa mã nguồn hoặc không dùng code samples! Việc bỏ trống mã nguồn ở bài lý thuyết là ĐÚNG QUY LUẬT. KHÔNG bắt lỗi thiếu code!
-           
-        If the content fails any of these criteria, you MUST reject it!
-        
-        Response MUST be a valid JSON matching this schema:
-        {{
-            "status": "APPROVED" or "REJECTED",
-            "feedback": "Detailed feedback in Vietnamese highlighting the exact reason (e.g. stack mismatch, digression, unscientific layout, missing interactive visualizer components, etc.) to help the creator fix it."
-        }}
-        Return only raw JSON. Do not wrap in markdown code blocks.
-        """
+        _prompt_header = (
+            f"        Review the following HTML reading content for Session: {session_id}, Lesson: {lesson_id}.\n"
+            f"        Attempt Number: {attempt_num}\n"
+            f"        Target Technology Stack: {tech_stack}\n"
+            f"        Is Theory/Diagram Only Lesson (No Code visualizer needed): {is_theory_only}\n"
+            f"        \n"
+            f"        PM Lesson Details: {json.dumps(pm_lesson_details, ensure_ascii=False)}\n"
+            f"        Previous Lessons Info: {json.dumps(prev_lessons, ensure_ascii=False)}\n"
+            f"        \n"
+            f"        HTML Content:\n"
+        )
+        _prompt_footer = (
+            "\n"
+            "        IMPORTANT CRITERIA TO INSPECT:\n"
+            "        1. Dynamic Web Visualizer & Interactive Playground Standard:\n"
+            "           - IMPORTANT NOTE: If this is a theory/intro/overview lesson (Is Theory/Diagram Only Lesson = True), the reading material DOES NOT need and MUST NOT have Code Tracker or step-by-step control panels (Start, Pause, Step, Reset). The reviewer MUST NOT penalize missing interactive components. Beautiful, clear, pedagogical layout with static diagrams/flowcharts is sufficient.\n"
+            "           - If this is NOT a theory lesson (Is Theory/Diagram Only Lesson = False), reading material MUST be constructed as an Interactive Web Visualizer Application directly in the browser (complying with `skills/reading_generator/SKILL.md`), including Visualizer Canvas (`visualizer-canvas`), Interactive Control Panel (`▶ Start`, `⏸ Pause`, `⏭ Step`, `↻ Reset` buttons), Sliders & custom input fields, Code Tracker highlighting line-by-line execution (`active-line`), and real-time Terminal Console Log.\n"
+            "           - SPECIAL REVIEWER NOTE: ABSOLUTELY DO NOT reject due to JS runtime logic errors or missing JS functions (pause(), step(), reset()). Full JS engine injection will be handled server-side at a later stage! Your task is strictly to verify if HTML tags exist. If HTML tags exist, PASS IT and ignore JS logic errors.\n"
+            "        2. Lesson Focus & No Digression:\n"
+            "           - Reading content MUST adhere 100% to lesson title and PM Lesson Details above.\n"
+            "           - ABSOLUTELY NO digression into other lessons or unlearned topics.\n"
+            f"        3. Technology Stack & Knowledge Scope Boundary Isolation (CRITICAL):\n"
+            f"           - Cross-check strictly with Target Technology Stack: \"{tech_stack}\". ANY technology confusion or stack mismatch MUST BE REJECTED.\n"
+            "           - STRICT KNOWLEDGE SCOPE BOUNDARY AUDIT: Verify if content contains code, data structures, libraries, or concepts exceeding PM Lesson Details and Previous Lessons Info.\n"
+            '           - EXPLICIT SCOPE BREACH RULE: If a data structure (such as List `[1,2,3]`, Dict `{"a": 1}`, Tuple, Set, Class/OOP) or method has NOT been taught in previous lessons and is NOT in current lesson details (e.g. using List in an introductory `for` loop / `range()` lesson before List is introduced), YOU MUST REJECT THE CONTENT IMMEDIATELY. State clearly in feedback: "REJECTED: Vượt phạm vi kiến thức - Sử dụng cấu trúc dữ liệu / kiến thức chưa học (List/Dict/Method...) trong bài học này."\n'
+            "        4. Scientific Presentation & Aesthetics:\n"
+            "           - Layout must be pedagogical, balanced, and strictly Light Mode.\n"
+            "           - ABSOLUTELY REJECT if dark background panels (`bg-slate-900`, `bg-black`), dark container cards, or dark mode overrides are used.\n"
+            "        5. Code Snippet Rules:\n"
+            "           - FOR THEORY LESSONS (Is Theory/Diagram Only Lesson = True): Reviewer MUST NOT REJECT when material lacks code or code samples! Omission of code samples in theory lessons is CORRECT behavior. DO NOT flag missing code!\n"
+            "           \n"
+            "        If the content fails any of these criteria, you MUST reject it!\n"
+            "        \n"
+            "        Response MUST be a valid JSON matching this schema:\n"
+            '        {\n'
+            '            "status": "APPROVED" or "REJECTED",\n'
+            '            "feedback": "Detailed feedback in Vietnamese highlighting the exact reason (e.g. stack mismatch, digression, unscientific layout, missing interactive visualizer components, etc.) to help the creator fix it."\n'
+            "        }\n"
+            "        Return only raw JSON. Do not wrap in markdown code blocks.\n"
+        )
+        user_prompt = _prompt_header + html_content + _prompt_footer
+
         
         response_text = call_llm(
             system_prompt,
@@ -318,7 +381,8 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
     
     print(f"\n[Academic_Reviewer] Checking academic correctness for {session_id}...")
     
-    tech_stack = state.get("technology_stack", "python/core")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "academic_reviewer")
     
     # 1. Programmatic emoji check
     emoji_feedback = check_forbidden_emojis(slide_markdown)
@@ -342,8 +406,9 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
             "critical_errors": ["Knowledge scope boundary violation"]
         }
 
-    # 3. Programmatic stack isolation check
-    forbidden_feedback = check_forbidden_keywords(slide_markdown, tech_stack)
+    # 3. Programmatic stack isolation & dynamic forbidden scope check
+    forbidden_scope = state.get("forbidden_scope") if state else None
+    forbidden_feedback = check_forbidden_keywords(slide_markdown, tech_stack, forbidden_scope)
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {
@@ -384,16 +449,16 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
         {slide_markdown}
         
         IMPORTANT RULES TO INSPECT:
-        1. Trọng tâm bài giảng & Không lan man (Lesson Focus & No Digression):
-           - Slide (dạng Markdown hoặc HTML Slide) phải bám sát tuyệt đối nội dung và chuẩn đầu ra của bài học. Không viết lan man sang bài khác hay các chủ đề không được yêu cầu trong SSOT.
-        2. Ràng buộc Công nghệ, Phạm vi & Kế thừa Kiến thức (Technology Stack & Scope Isolation):
-           - Đối chiếu chặt chẽ với Target Technology Stack là: "{tech_stack}".
-           - BẤT KỲ sự "đá xéo", nhầm lẫn hoặc trộn lẫn công nghệ của môn học này với môn học khác đều PHẢI BỊ REJECT.
-           - Đảm bảo nội dung bài giảng không chứa bất kỳ khái niệm nâng cao, thư viện ngoài hoặc cú pháp code phức tạp nào vượt quá nội dung yêu cầu trong SSOT và danh sách Previous Lessons Info. Nếu xuất hiện các đoạn code hoặc chủ đề chưa được học, hoặc không có trong SSOT, hoặc quá phức tạp so với trình độ hiện tại, bạn PHẢI REJECT ngay lập tức.
-        3. Trình bày Khoa học (Scientific Layout & Template Standard):
-           - Bố cục slide (HTML/Markdown) phải khoa học, súc tích, phân cấp rõ ràng, dễ theo dõi, không lạm dụng đoạn văn quá dài.
-        4. Độ chính xác học thuật:
-           - Xác minh tính chính xác của các thuật ngữ kỹ thuật, không có lỗi ảo tưởng kiến thức (hallucinations).
+        1. Lesson Focus & No Digression:
+           - Slide Markdown/HTML MUST adhere strictly to session outcomes and SSOT definitions. FORBIDDEN to digress or write about other lessons or unrequested topics.
+        2. Technology Stack, Scope Isolation & Knowledge Prerequisite flow:
+           - Strictly cross-check against Target Technology Stack: "{tech_stack}".
+           - ANY technology confusion, stack mismatch, or alien library imports MUST BE REJECTED.
+           - Ensure the slides do not introduce advanced concepts, external libraries, or complex syntax exceeding the SSOT or Previous Lessons Info. If unlearned, out-of-scope, or overly complex concepts/code snippets appear, REJECT immediately to avoid cognitive overload.
+        3. Scientific Layout & Presentation Standards:
+           - Markdown/HTML slides must be concise, scannable, cleanly structured, and avoid overly long text blocks.
+        4. Academic Accuracy:
+           - Verify technical terminology accuracy with zero hallucinations.
            
         If the content fails any of these criteria, or if there is a severe mismatch/hallucination, reject it!
         
@@ -460,17 +525,18 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     import re
     from core.sandbox import execute_code_safely
     
-    # Extract code between code block tags
-    code_match = re.search(r'<code[^>]*class="[^"]*language-python[^"]*"[^>]*>(.*?)</code>', html_content, re.DOTALL)
+    # Extract code between code block tags (agnostic to language)
+    code_match = re.search(r'<code[^>]*class="[^"]*language-[a-zA-Z0-9]+[^"]*"[^>]*>(.*?)</code>', html_content, re.DOTALL)
     if code_match:
         raw_code = code_match.group(1)
         # Decode HTML entities
         code = raw_code.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("&quot;", '"').replace("&#x27;", "'")
-        # Check if code block contains actual python syntax keywords
-        is_actual_python = any(keyword in code for keyword in ["import ", "def ", "class ", " = ", "print("])
+        
+        # Determine if there's actual code logic (at least some minimum length/content)
+        has_logic = len(code.strip()) > 10
 
-        if code.strip() and is_actual_python and (gemini_key or openai_key):
-            print(f"  [Sandbox] Found Python code block. Running compilation and execution check...")
+        if code.strip() and has_logic and (gemini_key or openai_key):
+            print(f"  [Sandbox] Found code block. Running compilation and execution check...")
             sandbox_result = execute_code_safely(code)
             if sandbox_result["status"] == "FAILED":
                 feedback = f"Mã nguồn chạy thử thất bại trên Sandbox thực tế ({sandbox_result['engine']}):\n{sandbox_result['error']}"
@@ -482,12 +548,14 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
             else:
                 print(f"  - Result: Sandbox execution PASSED (Engine: {sandbox_result['engine']})")
         else:
-            print(f"  - Result: Sandbox execution SKIPPED (not actual Python code or running offline fallback template)")
+            print(f"  - Result: Sandbox execution SKIPPED (not enough actual code or offline fallback template)")
 
-    tech_stack = state.get("technology_stack", "python/core")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "mindmap_reviewer")
     
-    # 1. Programmatic stack isolation check first!
-    forbidden_feedback = check_forbidden_keywords(html_content + " " + json.dumps(quiz_json, ensure_ascii=False), tech_stack)
+    # 1. Programmatic stack isolation & dynamic forbidden scope check first!
+    forbidden_scope = state.get("forbidden_scope") if state else None
+    forbidden_feedback = check_forbidden_keywords(html_content + " " + json.dumps(quiz_json, ensure_ascii=False), tech_stack, forbidden_scope)
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}
@@ -732,57 +800,58 @@ def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:
         raise RuntimeError("ERROR: API key for LLM is missing. PM Reviewer Agent requires an active LLM.")
 
     system_prompt = (
-        "Bạn là một Giám đốc Đào tạo (Chief Learning Officer) kiêm Kiến trúc sư phần mềm (Principal Architect) tại một tập đoàn công nghệ giáo dục hàng đầu. "
-        "Nhiệm vụ của bạn là 'thẩm định gắt gao' khung chương trình học (PM Input) được gửi đến. Nếu chương trình hời hợt, "
-        "thiếu tính liên kết hoặc vi phạm nguyên tắc sư phạm, hệ thống tự động sinh học liệu sẽ tạo ra rác. Do đó, bạn phải đóng vai trò là 'người gác cổng' cực kỳ khắt khe."
+        "You are a Chief Learning Officer (CLO) and Principal Software Architect at a leading EdTech enterprise. "
+        "Your mission is to perform a rigorous audit of the incoming Curriculum PM Input. If the curriculum is shallow, "
+        "lacks logical cohesion, or violates pedagogical principles, the automated material generation pipeline will fail. "
+        "Act as an unyielding, high-standard gatekeeper."
     )
     user_prompt = f"""
-    Dưới đây là nội dung khung chương trình môn học (PM Input) thuộc hệ sinh thái công nghệ: {tech_stack}.
+    Review the following curriculum syllabus framework (PM Input) for technology stack: {tech_stack}.
     
-    Chương trình (PM Input):
+    Curriculum framework (PM Input):
     {pm_input}
     
-    HÃY THỰC HIỆN ĐÁNH GIÁ CHUYÊN SÂU THEO CÁC TIÊU CHÍ SAU. BẠN TUYỆT ĐỐI KHÔNG SỬA TRỰC TIẾP VÀO FILE PM, MÀ PHẢI XUẤT RA MỘT BẢN BÁO CÁO (MARKDOWN) ĐỂ YÊU CẦU PM (PROJECT MANAGER) CHỈNH SỬA:
+    PERFORM A RIGOROUS AUDIT ACCORDING TO THE FOLLOWING PEDAGOGICAL CRITERIA. Output a detailed audit report in Markdown format requesting revisions from the Project Manager (PM) if necessary:
     
-    1. Đánh giá Mức độ Chi tiết (Granularity & Resolution):
-       - Các Lesson đã phân rã đủ sâu chưa? Chỉ có tiêu đề chung chung (ví dụ: "Học về API") là KHÔNG THỂ CHẤP NHẬN.
-       - Mỗi bài học đã định nghĩa rõ ràng 'Chuẩn đầu ra' (Learning Outcomes) chưa? Mức độ chi tiết phải đủ để truyền cho AI tự động sinh bài giảng.
-       - LƯU Ý ĐẶC BIỆT: Đối với các buổi học mang tính chất "Hackathon", "Project", "Mini Project", "Dự án cuối môn", "Đồ án", "Luyện tập tổng hợp", hãy BỎ QUA việc kiểm tra mức độ chi tiết và KHÔNG phạt lỗi thiếu nội dung (vì các buổi này chỉ cần để trống, sinh viên tự code, hệ thống không cần sinh học liệu).
+    1. Granularity & Resolution Audit:
+       - Are the Lessons decomposed deeply enough? Vague/shallow lesson titles (e.g. "Learn about API") are UNACCEPTABLE.
+       - Does each lesson clearly define measurable 'Expected Outcomes'? The resolution must be detailed enough to guide the downstream AI generator.
+       - SPECIAL NOTE: For sessions designated as "Hackathon", "Project", "Mini Project", "Capstone", "General Practice", or "Lab Exam", skip the granularity check and DO NOT flag missing lessons (these sessions are student-driven coding sessions without generated lesson materials).
        
-    2. Phân tích Dòng chảy Nhận thức & Tải lượng (Cognitive Flow & Load):
-       - Độ khó của các bài học có tăng dần một cách mượt mà không? 
-       - Có bài học nào nhồi nhét quá nhiều khái niệm phức tạp trong một buổi học (gây quá tải nhận thức cho học viên) không?
+    2. Cognitive Flow & Cognitive Load Balancing:
+       - Does lesson difficulty progress smoothly?
+       - Does any single session cram too many complex concepts, risking student cognitive overload?
        
-    3. Đồ thị Phụ thuộc Kế thừa (Dependency Progression & Prerequisites) - TIÊU CHÍ QUAN TRỌNG NHẤT:
-       - Tính logic móc xích: Kiến thức của Lesson N có THỰC SỰ được xây dựng dựa trên Lesson (N-1) không?
-       - Có khái niệm nào bị "nhảy cóc" không? (Ví dụ: Yêu cầu học sinh làm việc với Route Middleware trước khi dạy họ về cơ chế HTTP Request/Response cơ bản).
-
-    4. Ràng buộc đặc biệt cho Session Thực hành (Practice Session) & Mini Project / Project Session:
-       - Bất kỳ session nào có tên hoặc tiêu đề chứa từ khóa 'thực hành', 'practice', 'mini project', 'project', hoặc 'dự án' BẮT BUỘC KHÔNG ĐƯỢC có bất kỳ bài học (Lesson) con nào đi kèm. Toàn bộ nội dung của session thực hành và session project chỉ tập trung vào việc tạo bài tập thực hành độc lập hoặc Mini Project / Entry Tests / tài liệu SRS, không có bài học con. Nếu phát hiện Session Thực hành hoặc Session Project có chứa bài học con, bạn PHẢI đánh giá đây là điểm chưa tốt hoặc lỗi nghiêm trọng (Critical Issue) và đề xuất xóa bỏ các bài học con đó khỏi session.
+    3. Prerequisite Progression & Dependency Graphs (CRITICAL CRITERIA):
+       - Prerequisite logic check: Does Lesson N build logically on concepts taught in Lesson N-1?
+       - Are there any knowledge leaps (e.g., asking students to implement route middleware before teaching HTTP request-response basics)?
        
-    BẮT BUỘC TRẢ VỀ TOÀN BỘ ĐÁNH GIÁ DƯỚI ĐỊNH DẠNG MARKDOWN (.md) THEO CẤU TRÚC CHUẨN SAU:
+    4. Session Constraints for Practice Labs & Project Sessions:
+       - Any session with a title containing 'practice', 'thực hành', 'project', 'mini project', or 'dự án' MUST NOT contain any child Lessons. The entire session is dedicated to hands-on exercises, SRS documents, and entry tests. If child lessons are found, raise a Critical Issue requesting their deletion.
+       
+    MANDATORY OUTPUT FORMAT: Return the audit evaluation report strictly in Markdown (.md) matching this template (in Vietnamese so Project Managers can read it):
     
     # 📑 BÁO CÁO THẨM ĐỊNH CHƯƠNG TRÌNH HỌC (PM REVIEW)
     **Công nghệ mục tiêu:** `{tech_stack}`
     
     ## 1. 📊 Tổng Quan & Điểm Đánh Giá
-    - **Điểm sẵn sàng (Readiness Score):** [Chấm điểm từ 1-10]
-    - **Nhận định chung:** [Tóm tắt 2-3 câu về chất lượng của khung chương trình hiện tại]
+    - **Điểm sẵn sàng (Readiness Score):** [Score from 1-10]
+    - **Nhận định chung:** [2-3 sentence summary of current curriculum quality]
     
     ## 2. 🧠 Phân Tích Dòng Chảy Nhận Thức & Kế Thừa
-    - **Điểm sáng:** [Chỉ ra những chuỗi bài học có tính liên kết tốt]
-    - **Lỗ hổng "Nhảy cóc" (Missing Prerequisites):** [Phân tích cực kỳ chi tiết bài nào đang bị thiếu kiến thức nền tảng từ bài trước]
+    - **Điểm sáng:** [Highlight well-structured lesson sequences]
+    - **Lỗ hổng "Nhảy cóc" (Missing Prerequisites):** [Detailed analysis of missing prerequisites or logical gaps]
     
     ## 3. ⚠️ Các Điểm Yếu Cần Khắc Phục Khẩn Cấp (Critical Issues)
-    - [Ghi rõ: Lesson số mấy, Tiêu đề là gì, Vấn đề là gì]
-    - [Hậu quả nếu đưa nội dung này vào hệ thống tự động sinh học liệu]
+    - [Lesson number, Title, and exact issue description]
+    - [Pedagogical consequence of this issue]
     
     ## 4. 🛠 Đề Xuất Chỉnh Sửa Cụ Thể Gửi PM
-    - **Yêu cầu 1:** [Gợi ý nội dung cần thêm/bớt cụ thể cho Lesson X]
-    - **Yêu cầu 2:** [Gợi ý cách tổ chức lại luồng bài học]
+    - **Yêu cầu 1:** [Specific action item for Lesson X]
+    - **Yêu cầu 2:** [Specific action item for sequence restructuring]
     
     ## 5. 🛑 Kết Luận (Verdict)
-    - **[APPROVED / REJECTED]** (Chỉ được ghi APPROVED nếu điểm sẵn sàng >= 8/10, và không có lỗ hổng "nhảy cóc" nghiêm trọng nào).
+    - **[APPROVED / REJECTED]** (APPROVED only if Readiness Score >= 8/10 and no critical dependency leaps remain).
     """
     
     response_text = call_llm(
@@ -858,37 +927,37 @@ def pm_updater_agent(pm_json: str, review_report: str, tech_stack: str) -> str:
     print(f"\n[PM_Updater_Agent] Đang tự động cập nhật chương trình PM 10 cột dựa trên báo cáo...")
     
     system_prompt = (
-        "Bạn là Chuyên gia Cập nhật Cấu trúc PM Chuẩn 10 Cột Sư Phạm Quốc Tế (Curriculum Updater Agent). "
-        "Nhiệm vụ của bạn là nhận vào file cấu trúc JSON của một chương trình học PM và một Bản báo cáo kiểm định lỗi (Review Report). "
-        "Dựa vào các đề xuất chỉnh sửa trong báo cáo, "
-        "hãy sinh ra một cấu trúc JSON MỚI HOÀN TOÀN đã được tự động vá lỗi và BẮT BUỘC BỔ SUNG ĐẦY ĐỦ 100% 'expected_outcome' (Kết Quả Mong Đợi) cho tất cả bài học."
+        "You are a Lead Curriculum Updater Agent specializing in maintaining standard curriculum structure. "
+        "Your task is to take the JSON curriculum syllabus of a course and an AI audit review report. "
+        "Apply all corrections recommended in the review report to generate a fully updated curriculum JSON "
+        "containing complete, measurable 'expected_outcome' fields for all lessons."
     )
     
     user_prompt = f"""
-    Công nghệ: {tech_stack}
+    Target Technology Stack: {tech_stack}
     
-    Báo cáo lỗi kiểm định (Review Report):
+    Pedagogical Review Report:
     {review_report}
     
-    Chương trình học ban đầu (JSON 10 Cột):
+    Original PM JSON Curriculum:
     {pm_json}
     
-    YÊU CẦU ĐỊNH DẠNG ĐẦU RA (RẤT QUAN TRỌNG):
-    - Trả về DUY NHẤT một mảng JSON các Session. Mỗi Session chứa danh sách `lessons`.
-    - Không chứa bất kỳ văn bản giải thích hay markdown code block ```json nào.
-    - Mỗi Session CỦA MẢNG PHẢI GIỮ ĐỦ 4 TRƯỜNG THÔNG TIN SESSION:
-        + "session_id": "Session 01" (Ví dụ: Session 01, Session 02...)
-        + "session_type_vn": "Bài lý thuyết + thực hành" (hoặc "Bài thực hành / Lab", "Bài kiểm tra / Thi")
-        + "session_code": "S01" (hoặc S02, S03...)
-        + "session_title": "Tên tiêu đề session"
-    - Mỗi Lesson TRONG MẢNG `lessons` PHẢI GIỮ ĐỦ 6 TRƯỜNG THÔNG TIN LESSON (Chuẩn PM 10 cột):
-        + "lesson_title": "Tên bài học / Lesson"
-        + "details": "Nội dung chi tiết kiến thức (Lesson Scope)"
-        + "expected_outcome": "Kết quả mong đợi (BẮT BUỘC KHÔNG ĐƯỢC RỖNG: Viết theo Thang tư duy Bloom's Taxonomy - Sản phẩm / Năng lực sinh viên tự viết/làm/đạt được sau bài học này)"
-        + "forbidden_scope": "Phạm vi CẤM DÙNG (BẮT BUỘC liệt kê: CẤM dùng các kiến thức của các bài học & session PHÍA SAU trong chương trình + CẤM các kiến thức BÊN NGOÀI môn học)"
-        + "allowed_scope": "Phạm vi ĐÃ HỌC (Output kiến thức đã đạt được từ các session trước)"
+    MANDATORY OUTPUT FORMAT RULES (CRITICAL):
+    - Return ONLY a raw JSON array of sessions.
+    - DO NOT wrap in markdown code blocks like ```json or include conversational text.
+    - Each Session in the array MUST contain exactly these 4 keys:
+        + "session_id": "Session 01" (e.g. Session 01, Session 02...)
+        + "session_type_vn": "Bài lý thuyết + thực hành" or "Bài thực hành / Lab" or "Bài kiểm tra / Thi"
+        + "session_code": "S01", "S02"...
+        + "session_title": "Session Title"
+    - Each Lesson within the `lessons` list of a Session MUST contain exactly these 6 keys:
+        + "lesson_title": "Lesson title/name"
+        + "details": "Detailed syllabus content scope for the lesson"
+        + "expected_outcome": "Measurable outcome using Bloom's action verbs in Accented Vietnamese (MUST NOT BE EMPTY)"
+        + "forbidden_scope": "Forbidden scope/concepts (concepts from future lessons or external frameworks) (MUST NOT BE EMPTY)"
+        + "allowed_scope": "Prior taught concepts list (concepts inherited from previous sessions)"
         + "tech_stack": "{tech_stack}"
-    - Cập nhật chính xác các vị trí được chỉ ra trong Báo cáo lỗi (đặc biệt BẮT BUỘC sinh đầy đủ 'expected_outcome' và 'forbidden_scope' nếu đang bị rỗng).
+    - Fully update the target nodes mentioned in the review report (ensure 'expected_outcome' and 'forbidden_scope' are populated).
     """
     
     from core.llm import call_llm
@@ -925,14 +994,14 @@ def objective_reviewer_agent(learning_outcomes: dict, pm_input: str, tech_stack:
     user_prompt = f"""
     Technology Stack: {tech_stack}
     
-    PM Input Gốc:
+    Original PM Input:
     {pm_input}
     
-    Learning Outcomes cần kiểm định:
+    Learning Outcomes to Audit:
     {json.dumps(learning_outcomes, ensure_ascii=False, indent=2)}
     
-    Yêu cầu: 
-    Trả về JSON duy nhất theo định dạng: {{"status": "APPROVED" | "REJECTED", "score": 1-10, "feedback": "Chi tiết lỗi nếu có"}}
+    Mandatory Output Contract:
+    Return ONLY a valid JSON object matching: {{"status": "APPROVED" | "REJECTED", "score": 1-10, "feedback": "Detailed feedback in Vietnamese if rejected"}}
     """
     
     from core.llm import call_llm
@@ -961,12 +1030,14 @@ def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
     mindmap_markdown = state.get("mindmap_markdown", "")
-    tech_stack = state.get("technology_stack", "python/core")
+    from core.state import require_tech_stack
+    tech_stack = require_tech_stack(state, "video_qa_reviewer")
     
     print(f"\n[Mindmap_Reviewer] Evaluating {session_id} {lesson_id} Mindmap structure...")
     
-    # 1. Programmatic Stack Isolation Check
-    forbidden_feedback = check_forbidden_keywords(mindmap_markdown, tech_stack)
+    # 1. Programmatic Stack Isolation & Dynamic Forbidden Scope Check
+    forbidden_scope = state.get("forbidden_scope") if state else None
+    forbidden_feedback = check_forbidden_keywords(mindmap_markdown, tech_stack, forbidden_scope)
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}
@@ -977,8 +1048,17 @@ def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
         print(f"  - Result: REJECTED. Feedback: '{feedback}'")
         return {"status": "REJECTED", "feedback": feedback}
         
-    # Extract H2 headings
+    # Extract H1 & check prefix
     lines = mindmap_markdown.splitlines()
+    h1_line = next((line.strip() for line in lines if line.strip().startswith("# ")), None)
+    if h1_line:
+        h1_title = h1_line.replace("# ", "").strip()
+        if re.match(r'^(session|lesson|chu\u01a1ng|b\u00e0i)\s*\d+[:\s-]*', h1_title, re.IGNORECASE):
+            feedback = f"Tiêu đề cấp 1 (#) '{h1_title}' không được chứa tiền tố như 'Session XX' hay 'Lesson YY'. Hãy đặt tiêu đề thuần túy làm chủ đề cốt lõi của bài học."
+            print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+            return {"status": "REJECTED", "feedback": feedback}
+            
+    # Extract H2 headings
     h2s = [line.strip().replace("## ", "").strip() for line in lines if line.strip().startswith("## ")]
         
     # Ensure H2s exists
@@ -987,11 +1067,25 @@ def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
         print(f"  - Result: REJECTED. Feedback: '{feedback}'")
         return {"status": "REJECTED", "feedback": feedback}
 
-    # Reject if 'Mục tiêu bài học' is present as an H2 branch (we require going straight to knowledge topics)
-    if any("mục tiêu bài học" in h2.lower() for h2 in h2s):
-        feedback = "Sơ đồ tư duy không được chứa nhánh 'Mục tiêu bài học'. Hãy để tiêu đề cấp 1 (#) phân nhánh trực tiếp ra các chủ đề kiến thức cốt lõi (##)."
+    # Ensure 'Mục tiêu bài học' is present
+    if not any("mục tiêu bài học" in h2.lower() for h2 in h2s):
+        feedback = "Sơ đồ tư duy bắt buộc phải có tiêu đề cấp 2 là '## Mục tiêu bài học'."
         print(f"  - Result: REJECTED. Feedback: '{feedback}'")
         return {"status": "REJECTED", "feedback": feedback}
+        
+    # Ensure 'Đặt tình huống' is present
+    if not any("đặt tình huống" in h2.lower() for h2 in h2s):
+        feedback = "Sơ đồ tư duy bắt buộc phải có tiêu đề cấp 2 là '## Đặt tình huống'."
+        print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+        return {"status": "REJECTED", "feedback": feedback}
+        
+    # Ensure Level 3 titles (###) do not contain verbose hardcoded words
+    h3s = [line.strip().replace("### ", "").strip() for line in lines if line.strip().startswith("### ")]
+    for h3 in h3s:
+        if "thực chiến" in h3.lower() or "lập trình" in h3.lower():
+            feedback = f"Tiêu đề cấp 3 (###) '{h3}' dùng từ ngữ rườm rà. Hãy viết ngắn gọn như 'Cú pháp', 'Lưu ý', 'Cơ chế'."
+            print(f"  - Result: REJECTED. Feedback: '{feedback}'")
+            return {"status": "REJECTED", "feedback": feedback}
             
     # Check for image prompt or image markdown link
     has_image_prompt = re.search(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", mindmap_markdown) is not None
@@ -1013,10 +1107,10 @@ def mindmap_reviewer(state: AgentState) -> Dict[str, Any]:
     from core.skills import load_skill_content
     mindmap_skill = load_skill_content("mindmap_generator")
     
-    system_prompt = f"""Bạn là một chuyên gia Thẩm định Chương trình Đào tạo và Sư phạm tại Rikkei Education.
-Nhiệm vụ của bạn là thẩm định sơ đồ tư duy (Mindmap/Markmap) được gửi tới xem có tuân thủ đúng chuẩn sư phạm và định dạng không.
+    system_prompt = f"""You are a Lead Academic Director & Pedagogy Reviewer at Rikkei Education.
+Your task is to audit the provided Markmap Mindmap against pedagogical excellence and structural formatting standards.
 
-Quy định chuẩn của sơ đồ tư duy:
+MANDATORY MINDMAP PEDAGOGICAL SPECIFICATIONS:
 {mindmap_skill}
 """
     pm_lesson_details = state.get("core_ssot", {})
@@ -1030,19 +1124,20 @@ Quy định chuẩn của sơ đồ tư duy:
     Mindmap Content:
     {mindmap_markdown}
     
-    IMPORTANT CRITERIA TO INSPECT:
-    1. Zero-drop Policy: Sơ đồ đã có đầy đủ nhánh cấp 2 (##) cho tất cả các chủ đề chính được nêu trong PM Lesson Details chưa?
-    2. Phân nhánh động linh hoạt: Sơ đồ KHÔNG chứa nhánh 'Mục tiêu bài học' và KHÔNG bị lặp lại rập khuôn 3 nhánh con 'Khái niệm', 'Cú pháp', 'Lưu ý' ở tất cả các mục chưa?
-    3. Định dạng code: Ví dụ mã nguồn có được thụt lề bằng dấu cách (space) chính xác dưới gạch đầu dòng (-) tương ứng chưa?
-    4. Không có kịch bản giảng dạy: Có từ khóa meta nào như "Slide 1", "Concept Check", v.v. xuất hiện không?
-    5. Không dùng Emoji: Có icon hay emoji nào không?
-    6. Scope Leakage: Có chứa kiến thức, cú pháp nào nằm ngoài phạm vi của bài học hiện tại không?
-    7. Hình ảnh minh họa: Mọi đường dẫn hình ảnh dạng `![](../images/...)` trong sơ đồ đều là hợp lệ vì hệ thống đã tự động chuyển đổi từ prompt ảnh dạng `[Prompt: ...]` hoặc `[Tạo ảnh: ...]` của người dùng. Không được từ chối (REJECT) vì lý do sử dụng đường dẫn hình ảnh dạng này.
+    CRITICAL AUDIT CRITERIA TO INSPECT:
+    1. Zero-drop Policy: Does the mindmap contain dedicated Level-2 branches (##) for all main concepts listed in PM Lesson Details?
+    2. Mandatory H2 Branches: Verify that '## Mục tiêu bài học' and '## Đặt tình huống' branches exist.
+    3. Clean Root Heading: Ensure the Level-1 heading (#) contains only the clean content title of the lesson/session and strips any session/lesson prefixes.
+    4. Code Formatting: Are code snippets properly fenced and space-indented under bullet points?
+    5. No Emojis: Are text emojis completely absent?
+    6. Dynamic & Short H3s: Ensure Level-3 headings are dynamic and very short, avoiding long phrases like "Lưu ý thực chiến" or "Cú pháp lập trình".
+    7. No Scope Leakage: Is content strictly scoped to taught concepts without unlearned future topics?
+    8. Image Nodes: Verify the existence of English image prompts matching the image standard. All image paths `![](../images/...)` are VALID conversions. Do not reject due to valid image paths.
     
     Response MUST be a valid JSON matching this schema:
     {{
         "status": "APPROVED" or "REJECTED",
-        "feedback": "Detailed feedback in Vietnamese explaining why it failed or what to improve."
+        "feedback": "Detailed feedback in Accented Vietnamese explaining why it failed or what to improve."
     }}
     Return only raw JSON. Do not wrap in markdown code blocks.
     """

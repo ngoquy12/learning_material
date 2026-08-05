@@ -1,1 +1,0 @@
-Để khắc phục, chúng ta cần một cấu trúc điều khiển tinh gọn cho phép máy ảo lặp qua miền dữ liệu xác định trước. Vòng lặp for giúp quản lý hiệu quả tài nguyên tính toán của vi xử lý và hỗ trợ thay đổi khoảng giá trị lặp một cách nhanh chóng.

@@ -1,1 +1,0 @@
-Chúng ta bắt đầu bằng việc khởi tạo trình soạn thảo code và khai báo chuỗi định danh chuẩn. Ta gán giá trị P-2026 vào biến viết theo chuẩn snây-kây là ô-ri-gi-nơl gạch dưới ai-đên-ti-phai-ơ để lưu trữ thông tin sản phẩm một cách tường minh và an toàn.

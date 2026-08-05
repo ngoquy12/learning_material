@@ -1,1 +1,0 @@
-Một nguy cơ tiềm ẩn khác là bẫy logic vòng lặp vô hạn khi kết hợp các cấu trúc oai lồng nhau. Hãy chắc chắn rằng biến dừng của cả hai vòng lặp đều được cập nhật ở cuối mỗi chu kỳ. Ngoài ra, hạn chế tối đa thiết kế cấu trúc lồng nhau vượt quá ba cấp để tránh quá tải tài nguyên tính toán và suy giảm hiệu năng hệ thống.

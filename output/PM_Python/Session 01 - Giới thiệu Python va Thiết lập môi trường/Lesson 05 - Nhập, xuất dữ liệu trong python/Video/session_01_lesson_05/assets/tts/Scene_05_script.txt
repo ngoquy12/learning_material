@@ -1,1 +1,0 @@
-Để khắc phục, chúng ta sử dụng ép kiểu tường minh. Hàm in-t nhận tham số là một chuỗi văn bản và cố gắng biên dịch chuỗi đó thành cấu trúc số nguyên hệ cơ số mười. Quá trình này cấp phát lại không gian bộ nhớ mới cho kiểu số nguyên, cho phép máy ảo Python thực thi các phép toán toán học giống như phép cộng hoặc phép nhân truyền thống.

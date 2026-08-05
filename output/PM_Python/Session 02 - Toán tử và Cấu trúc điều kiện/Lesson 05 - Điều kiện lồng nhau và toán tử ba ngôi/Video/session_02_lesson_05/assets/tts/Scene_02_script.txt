@@ -1,1 +1,0 @@
-Cách tiếp cận truyền thống sử dụng các khối lệnh íp lồng nhau để xử lý logic này. Cấu trúc lồng nhau tạo ra hiện tượng gọi là pi-ra-mít óp dum. Điều này tăng độ phức tạp thuật toán, cản trở việc kiểm thử tự động, đồng thời gây lãng phí chu kỳ xử lý của luồng điều khiển khi phải duyệt qua nhiều cấu trúc cây quyết định sâu.

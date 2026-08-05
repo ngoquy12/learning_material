@@ -1,1 +1,0 @@
-Nếu muốn gộp toàn bộ các phần tử của một lít khác vào lít hiện tại, ta nên dùng ếch-xten để tối ưu hiệu năng thay vì sử dụng vòng lặp. Nó sẽ duyệt qua toàn bộ các phần tử của đối tượng truyền vào và lần lượt thêm chúng vào cuối danh sách đích.

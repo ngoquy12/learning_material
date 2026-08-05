@@ -1,1 +1,0 @@
-Khối lệnh eo của vòng lặp hoạt động theo nguyên tắc: chỉ thực thi khi vòng lặp hoàn thành tuần tự và trọn vẹn mà không bị gián đoạn giữa chừng. Nếu vòng lặp gặp câu lệnh brếch và thoát ra sớm, toàn bộ khối eo sẽ bị trình biên dịch bỏ qua.

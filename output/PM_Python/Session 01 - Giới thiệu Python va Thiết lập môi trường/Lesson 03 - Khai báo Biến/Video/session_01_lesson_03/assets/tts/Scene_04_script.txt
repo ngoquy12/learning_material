@@ -1,1 +1,0 @@
-Để chương trình hoạt động ổn định, tên biến phải tuân thủ nghiêm ngặt các quy chuẩn cú pháp của Python. Tên biến chỉ được bắt đầu bằng chữ cái tiếng Anh từ a đến z hoặc dấu gạch dưới. Các ký tự tiếp theo có thể chứa chữ số từ không đến chín. Lưu ý quan trọng là Python phân biệt rõ ràng giữa chữ hoa và chữ thường.

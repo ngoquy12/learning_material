@@ -1,1 +1,0 @@
-Một lỗi runtime phổ biến là lỗi cú pháp xin-tắc e-rơ khi thiếu thành phần eo-sơ trong biểu thức toán tử ba ngôi. Trình biên dịch của Python yêu cầu bắt buộc phải có đầy đủ giá trị cho cả hai trường hợp đúng và sai để đảm bảo tính toàn vẹn của kết quả trả về trong quá trình gán.

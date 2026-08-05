@@ -1,1 +1,0 @@
-Một lỗi cực kỳ phổ biến của lập trình viên là sử dụng cần-ti-niu trong vòng lặp oai mà quên cập nhật biến đếm. Điều này làm cho điều kiện lặp luôn đúng ở giá trị lỗi, dẫn đến hiện tượng treo chương trình và tràn bộ nhớ. Bạn luôn phải tăng biến chỉ mục trước khi gọi cần-ti-niu.

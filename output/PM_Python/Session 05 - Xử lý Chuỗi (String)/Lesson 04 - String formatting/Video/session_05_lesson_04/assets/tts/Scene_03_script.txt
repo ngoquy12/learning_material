@@ -1,1 +1,0 @@
-Để nâng cao hiệu năng và độ tường minh, Python đã phát triển ba thế hệ định dạng: từ phần trăm format thừa kế từ ngôn ngữ C, qua phương thức chấm format ở các phiên bản Python tiếp theo, và cuối cùng là ép-string hiện đại ở phiên bản Python ba chấm sáu. Quy trình tiến hóa này trực tiếp giải quyết bài toán tối ưu hóa tài nguyên.

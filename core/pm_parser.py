@@ -94,9 +94,12 @@ def parse_pm_excel(excel_path: Union[str, Path]) -> Dict[str, Any]:
         if val_lesson:
             lesson_entry = {
                 "lesson_title": val_lesson,
+                "title": val_lesson,
                 "details": val_details,
+                "description": val_details,
                 "forbidden_scope": val_forbidden,
                 "allowed_scope": val_allowed,
+                "expected_output": val_allowed,
                 "tech_stack": val_tech_stack
             }
             sessions_dict[curr_session_id]["lessons"].append(lesson_entry)

@@ -1,1 +1,0 @@
-Hãy tưởng tượng các em đang xây dựng một hệ thống giỏ hàng cho một trang thương mại điện tử. Giỏ hàng này liên tục thay đổi: khách hàng thêm sản phẩm mới vào cuối, chèn một quà tặng khuyến mãi vào vị trí bất kỳ, gộp danh sách sản phẩm quà tặng, cập nhật số lượng, hoặc xóa một mặt hàng khỏi giỏ. Làm thế nào để chúng ta xử lý danh sách động này một cách tối ưu hiệu năng bộ nhớ?

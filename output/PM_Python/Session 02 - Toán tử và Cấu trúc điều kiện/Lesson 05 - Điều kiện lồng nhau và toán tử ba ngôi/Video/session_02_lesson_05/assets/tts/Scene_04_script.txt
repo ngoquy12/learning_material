@@ -1,1 +1,0 @@
-Toán tử ba ngôi chính là công cụ đắc lực để làm phẳng mã nguồn trong Python. Cú pháp cơ bản bao gồm biến gán, giá trị trả về nếu điều kiện đúng, từ khóa íp, biểu thức lô-gíc, và từ khóa eo-sơ đi kèm giá trị trả về nếu điều kiện sai. Toàn bộ biểu thức được gói gọn trên một dòng lệnh duy nhất.

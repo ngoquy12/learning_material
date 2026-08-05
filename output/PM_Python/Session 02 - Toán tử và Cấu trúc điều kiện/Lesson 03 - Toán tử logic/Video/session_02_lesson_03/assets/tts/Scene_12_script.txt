@@ -1,1 +1,0 @@
-Tổng kết lại, chìa khóa để làm chủ logic trong Python là hiểu rõ cách hoạt động của ba toán tử a-n-đờ, o-lờ, n-o-tê, ghi nhớ quy tắc ngắn mạch để gia tăng hiệu năng chương trình, và luôn dùng cặp dấu ngoặc đơn để tường minh hóa các biểu thức phức tạp. Hãy luôn thiết kế các khối logic rõ ràng để xây dựng các cấu trúc điều kiện an toàn, dễ bảo trì cho mọi nền tảng phần mềm.

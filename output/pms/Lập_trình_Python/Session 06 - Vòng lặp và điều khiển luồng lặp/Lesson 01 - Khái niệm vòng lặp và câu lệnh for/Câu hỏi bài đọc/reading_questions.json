@@ -1,0 +1,44 @@
+[
+  {
+    "id": "q1",
+    "type": "situational",
+    "question": "Bạn đang phát triển hệ thống kiểm tra tự động tại kho vận FastCart. Để phát lệnh tới 5 trạm đóng gói theo đúng thứ tự từ 1 đến 5, một lập trình viên đã viết đoạn mã: for i in range(1, 5): print(f'Kiểm tra trạm {i}'). Khi vận hành thực tế, hệ thống sẽ gặp sự cố gì?",
+    "reading_section": "Cấu trúc vòng lặp for và cơ chế hoạt động của hàm range()",
+    "options": [
+      "Hệ thống chỉ gửi thông báo kiểm tra đến trạm 4 và bỏ sót trạm 5 do giá trị stop trong range(1, 5) không được bao gồm.",
+      "Hệ thống báo lỗi cú pháp do hàm range() bắt buộc phải khai báo đủ 3 tham số start, stop và step.",
+      "Hệ thống gửi lệnh kiểm tra đủ 5 trạm nhưng thứ tự bị đảo ngược từ trạm 5 về trạm 1.",
+      "Vòng lặp chạy vô tận do biến đếm i không tự động tăng sau mỗi lượt lặp."
+    ],
+    "correct_index": 0,
+    "explanation": "Theo mục 'Cấu trúc vòng lặp for và cơ chế hoạt động của hàm range()', hàm range(start, stop) sẽ tạo ra chuỗi số bắt đầu từ start và kết thúc tại stop - 1 (không bao gồm giá trị stop). Do đó, range(1, 5) chỉ tạo ra các số 1, 2, 3, 4 làm cho trạm 5 bị bỏ sót. Để duyệt đủ 5 trạm, tham số stop phải là 6."
+  },
+  {
+    "id": "q2",
+    "type": "application",
+    "question": "Trong đợt bảo trì hệ thống FastCart, bạn cần in danh sách kiểm tra dành riêng cho các trạm mang số lẻ từ trạm 1 đến trạm 9 (gồm trạm 1, 3, 5, 7, 9). Đoạn mã nào dưới đây áp dụng chính xác quy tắc tham số của hàm range()?",
+    "reading_section": "Cấu trúc vòng lặp for và cơ chế hoạt động của hàm range()",
+    "options": [
+      "for i in range(1, 9, 2): print(f'Kiểm tra trạm {i}')",
+      "for i in range(1, 10, 2): print(f'Kiểm tra trạm {i}')",
+      "for i in range(1, 10, 1): print(f'Kiểm tra trạm {i}')",
+      "for i in range(1, 9, 1): print(f'Kiểm tra trạm {i}')"
+    ],
+    "correct_index": 1,
+    "explanation": "Theo quy tắc tham số range(start, stop, step) trong phần 'Cấu trúc vòng lặp for và cơ chế hoạt động của hàm range()', để sinh ra dãy số 1, 3, 5, 7, 9 ta cần giá trị bắt đầu start=1, bước nhảy step=2 và cận trên stop=10 (để lấy được giá trị 9 vì 9 < 10)."
+  },
+  {
+    "id": "q3",
+    "type": "reasoning",
+    "question": "Khi FastCart mở rộng quy mô từ 5 trạm đóng gói lên 100 trạm, nếu đội ngũ kỹ thuật vẫn tiếp tục sử dụng phương pháp viết thủ công lặp đi lặp lại các câu lệnh print() thay vì dùng vòng lặp for, rủi ro kỹ thuật nào lớn nhất sẽ xảy ra?",
+    "reading_section": "Nhược điểm của giải pháp thủ công",
+    "options": [
+      "Chương trình bị dừng đột ngột do Python giới hạn số lượng câu lệnh print trong một tập tin.",
+      "Hàm range() bị lỗi quá tải dung lượng bộ nhớ khi xử lý số lượng trạm lớn.",
+      "Mã nguồn bị phình to (Code Bloat), gây rủi ro cao về sai sót dữ liệu khi sao chép và mất hoàn toàn khả năng mở rộng (Scalability).",
+      "Tốc độ thực thi của vòng lặp thủ công chậm hơn 1000 lần so với vòng lặp tự động."
+    ],
+    "correct_index": 2,
+    "explanation": "Theo mục 'Nhược điểm của giải pháp thủ công', việc copy-paste các câu lệnh in thủ công làm phát sinh mã nguồn dư thừa (Code Bloat), tăng rủi ro sai sót dữ liệu và làm mất khả năng mở rộng (Scalability) khi quy mô hệ thống tăng lên hàng trăm hoặc hàng nghìn trạm."
+  }
+]

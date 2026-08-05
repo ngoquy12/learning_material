@@ -1,34 +1,37 @@
 ---
 name: lab_generator
-description: Structure practical hands-on labs with clear objectives, sequential execution tasks, and quantitative evaluation checklists.
+description: Structure practical hands-on labs with clear objectives, sequential execution tasks, dynamic stack adaptation, and quantitative evaluation checklists. Target output language is 100% Accented Vietnamese.
 ---
 
-# Kỹ năng tạo Bài thực hành Lab (Lab Generator Skill)
+# Hands-on Lab Generator Skill — Rikkei Education Standards
 
-## 1. Tổng quan
-Bài thực hành (Hands-on Lab) là xương sống giúp học viên phát triển kỹ năng code thực tế và tích lũy các cấu phần cho dự án cuối khóa. Mỗi bài Lab phải có mục tiêu rõ ràng và hướng dẫn từng bước chi tiết.
+## 1. Overview & Pedagogical Vision
+Hands-on Labs serve as the practical backbone for students to develop real-world coding skills and build modular components for enterprise projects. Every Lab MUST adapt strictly to the lesson's target `tech_stack`, featuring clear objectives and step-by-step executable instructions.
 
-## 2. Cấu trúc 3 Phần chuẩn hóa
-Mỗi bài Lab bắt buộc tuân theo bố cục sau:
-1. **Mục tiêu (Objectives)**:
-   - Nêu rõ 2-3 kỹ năng cụ thể học viên sẽ làm chủ (ví dụ: Tạo được Model SQLAlchemy, liên kết quan hệ 1-N).
-   - Xác định rõ đầu ra kỳ vọng: *"Đạt chuẩn đầu ra kỳ vọng: hoạt động ổn định, không lỗi logic."*
-2. **Mô tả & Các bước thực hiện (Description & Steps)**:
-   - Nêu rõ tài nguyên đầu vào (ví dụ: *"Dự án FastAPI hiện tại và cơ sở dữ liệu PostgreSQL đã được cấu hình"*).
-   - Liệt kê danh sách các bước thực hiện theo thứ tự tăng dần (Bước 1, Bước 2, Bước 3...) chi tiết và rõ ràng. Tránh các hướng dẫn chung chung không thể thực thi.
-3. **Checklist Đánh giá (Evaluation Checklist)**:
-   - Cung cấp bảng kiểm checklist định lượng rõ ràng để học viên tự kiểm tra trước khi nộp bài.
-   - Ví dụ:
-     - `[ ] API GET /items trả về danh sách đầy đủ dữ liệu.`
-     - `[ ] Middleware CORS cấu hình đúng danh sách Origin cho phép.`
-     - `[ ] Bắt lỗi HTTP 404 khi không tìm thấy thực thể.`
+## 2. Standardized 3-Part Architecture
+Every Lab exercise MUST strictly follow this 3-part layout:
+1. **Objectives (Mục tiêu)**:
+   - State 2-3 specific technical skills the student will master matching the target `tech_stack` (e.g. For `python/core`: "Modularize data validation using Functions"; For Web Frameworks: "Establish DTO Schemas and Route Handlers").
+   - State expected output benchmark: *"Expected outcome: runs stably without logic or execution errors."*
+2. **Description & Step-by-Step Instructions (Mô tả & Các bước thực hiện)**:
+   - State input resources matching the course stack (e.g., *"Configured project environment and sample dataset in RAM"* for Core CLI courses; *"Existing project workspace and database config"* for Web Framework courses).
+   - List execution steps in progressive order (Step 1, Step 2, Step 3...) clearly and explicitly. Avoid vague, non-actionable instructions.
+3. **Evaluation Checklist (Checklist Đánh giá)**:
+   - Provide a quantitative checklist for students to self-verify before submission.
+   - Examples (Core CLI):
+     - `[ ] Function `process_inventory_batch()` correctly validates item quantities.`
+     - `[ ] Raises ValueError when encountering negative quantities.`
+     - `[ ] Returns complete processed item summary list.`
+   - Examples (Web Framework):
+     - `[ ] GET endpoint returns complete data roster.`
+     - `[ ] Request DTO schema correctly validates incoming JSON fields.`
+     - `[ ] Raises HTTP 404 Exception when entity is not found.`
 
-## 💻 3. Quy tắc viết code mẫu trong bài thực hành (Code Styling Guidelines)
-Khi viết hoặc cung cấp các đoạn mã nguồn mẫu, hướng dẫn trong bài thực hành Lab, Agent bắt buộc phải tuân thủ nghiêm ngặt các quy tắc định dạng mã nguồn sau:
-* **Ngôn ngữ của mã nguồn:** 100% tên biến, tên hàm, tên lớp, tên thuộc tính, và các định danh trong code phải viết bằng **Tiếng Anh**.
-* **Quy tắc đặt tên (Naming Conventions):**
-  - Sử dụng **`snake_case`** cho tên biến, tên hàm, tên thuộc tính trong Python/Database (ví dụ: `database_connection`, `get_user_by_email`).
-  - Sử dụng **`camelCase`** hoặc **`PascalCase`** đối với JavaScript/TypeScript/Java nếu ngôn ngữ đó quy định chuẩn như vậy (ví dụ: `databaseConnection`, `getUserByEmail`).
-* **Thụt lề và căn lề (Indentation):**
-  - Đảm bảo thụt lề chuẩn bằng khoảng trắng (Indent) hoặc Tab đồng nhất theo tiêu chuẩn của từng ngôn ngữ (ví dụ: Python bắt buộc thụt lề 4 khoảng trắng cho mỗi khối block logic).
-  - Không viết mã nguồn dồn cục trên một dòng duy nhất khi trình bày cấu trúc đa dòng. Dùng ký tự xuống dòng `\n` chính xác.
+## 💻 3. Code Styling Guidelines in Labs
+When providing code snippets or step-by-step code guidance:
+* **Identifiers**: 100% of variable, function, class, and property names MUST be in **English**.
+* **Naming Conventions**:
+  - Use **`snake_case`** for Python / C / SQL (`database_connection`, `get_user_by_email`).
+  - Use **`camelCase`** or **`PascalCase`** for JavaScript / TypeScript / Java (`databaseConnection`, `getUserByEmail`).
+* **Indentation**:
+  - Ensure consistent 4-space indentation for block structures (2 spaces for JS/HTML). Use explicit linebreaks.

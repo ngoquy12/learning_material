@@ -1,1 +1,0 @@
-Nhằm giải quyết triệt để rủi ro ghi đè dữ liệu, Guido van Rossum khi thiết kế Python vào năm một chín chín mốt đã định nghĩa kiểu dữ liệu chuỗi là một cấu trúc bất biến tức im-miu-tơ-bơ trong bộ nhớ. Hãy quan sát cách chuỗi P-2026 được phân bổ trên các ô nhớ liên tiếp cùng với hệ thống chỉ mục tương ứng để hiểu rõ cơ chế quản lý dữ liệu này.

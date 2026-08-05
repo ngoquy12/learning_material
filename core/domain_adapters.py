@@ -13,12 +13,12 @@ DOMAIN_RULES = {
 4. Modern Python 3.10+ Features: Favor type union syntax `int | str` over `Optional[Union[int, str]]`.
 """,
 
-    "python/fastapi": """
-=== INDUSTRY CODING ADAPTER: PYTHON FASTAPI & BACKEND ===
-1. Pydantic v2 Models: Use BaseModel with explicit Field descriptions and type validations.
-2. Dependency Injection: Use `Depends()` for database sessions and authentication guards.
-3. Asynchronous Handlers: Prefer `async def` for I/O bound endpoints.
-4. HTTP Status Codes: Always pass explicit status codes (e.g., `status_code=status.HTTP_201_CREATED`).
+    "web_framework/backend": """
+=== INDUSTRY CODING ADAPTER: WEB FRAMEWORK & RESTFUL BACKEND ===
+1. Validation Schemas / DTOs: Use explicit DTO schemas with field validation.
+2. Dependency Injection / Middleware: Use dependency injection for database sessions and auth guards.
+3. Asynchronous Handlers: Prefer async non-blocking handlers for I/O bound endpoints.
+4. HTTP Status Codes: Always pass explicit status codes (e.g. 200 OK, 201 Created, 400 Bad Request, 404 Not Found).
 """,
 
     "web/frontend": """
@@ -31,17 +31,17 @@ DOMAIN_RULES = {
 
     "database/sql": """
 === INDUSTRY CODING ADAPTER: DATABASE & SQL ===
-1. ANSI SQL Standard: Capitalize SQL keywords (`SELECT`, `FROM`, `WHERE`, `JOIN`, `GROUP BY`).
-2. Normalization & Constraints: Enforce 3NF, declare Primary Keys (`PK`) and Foreign Keys (`FK`) explicitly.
-3. Security: Highlight Parameterized Queries to prevent SQL Injection attacks.
-4. Indexing: Mention B-Tree index optimization for high-frequency filter columns.
+1. Parameterized Queries: Always use prepared statements or ORM binding to prevent SQL injection.
+2. Indexing Strategy: Create explicit indexes on foreign keys and frequently queried columns.
+3. Transactional Integrity: Wrap multi-table mutations inside explicit ACID transactions.
+4. Schema Normalization: Ensure table schemas adhere to 3NF standards.
 """,
 
     "devops/docker": """
 === INDUSTRY CODING ADAPTER: DEVOPS & DOCKER ===
 1. Multi-Stage Builds: Use multi-stage Dockerfiles to minimize production image footprint.
 2. Security Practices: Never run container as root user (`USER 1000:1000`).
-3. Explicit Tagging: Avoid `latest` tag; pin base image versions (e.g. `python:3.10-slim`).
+3. Explicit Tagging: Avoid `latest` tag; pin base image versions.
 4. Layer Caching: Copy dependencies before source code to optimize build cache.
 """
 }
@@ -51,15 +51,13 @@ def get_domain_rules(tech_stack: str) -> str:
     Returns industrial coding rules matching the provided tech stack.
     """
     if not tech_stack:
-        return DOMAIN_RULES["python/core"]
+        return ""
         
     stack_lower = tech_stack.lower().strip()
     
-    for key, rules in DOMAIN_RULES.items():
-        if key in stack_lower:
-            return rules
-            
-    if "python" in stack_lower:
+    if any(kw in stack_lower for kw in ["fastapi", "express", "spring", "flask", "django", "nest", "web api", "rest api"]):
+        return DOMAIN_RULES["web_framework/backend"]
+    elif "python" in stack_lower:
         return DOMAIN_RULES["python/core"]
     elif any(kw in stack_lower for kw in ["html", "css", "js", "react", "frontend", "vue"]):
         return DOMAIN_RULES["web/frontend"]
@@ -68,4 +66,4 @@ def get_domain_rules(tech_stack: str) -> str:
     elif any(kw in stack_lower for kw in ["docker", "k8s", "devops", "ci/cd"]):
         return DOMAIN_RULES["devops/docker"]
         
-    return DOMAIN_RULES["python/core"]
+    return ""
