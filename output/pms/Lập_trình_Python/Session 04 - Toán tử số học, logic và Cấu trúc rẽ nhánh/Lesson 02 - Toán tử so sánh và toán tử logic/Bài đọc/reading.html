@@ -1,1 +1,760 @@
-<!-- Empty outline for Session 04 - Lesson 02: Toán tử so sánh và toán tử logic -->
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toán tử so sánh và toán tử logic - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Toán tử so sánh và toán tử logic</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1">
+            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Tại sao hệ thống doanh nghiệp cần toán tử so sánh và logic?</a>
+            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Cú pháp toán tử so sánh, toán tử logic và cơ chế Short-Circuit</a>
+            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
+            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Tại sao hệ thống doanh nghiệp cần toán tử so sánh và logic?</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Cú pháp toán tử so sánh, toán tử logic và cơ chế Short-Circuit</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Toán tử so sánh và toán tử logic</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Tại sao hệ thống doanh nghiệp cần toán tử so sánh và logic?</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong các hệ thống phân quyền và xử lý giao dịch thương mại điện tử lớn, chương trình liên tục phải đưa ra các quyết định kiểm tra điều kiện dựa trên dữ liệu thực tế. Ví dụ, một hệ thống thanh toán cần xác định xem người dùng có đủ số dư tài khoản không, tài khoản có đang bị khóa hay không, và giao dịch có vượt quá hạn mức hàng ngày hay không.</p><p class="text-slate-600 mb-4 leading-relaxed">Nếu không sử dụng các <strong class="font-semibold text-slate-900">toán tử so sánh</strong> và <strong class="font-semibold text-slate-900">toán tử logic</strong>, lập trình viên sẽ phải viết các khối lệnh kiểm tra lồng nhau rất phức tạp. Điều này làm tăng nguy cơ phát sinh lỗi, làm cho mã nguồn trở nên rối rắm (spaghetti code) và đặc biệt là suy giảm hiệu năng do phải thực hiện các truy vấn cơ sở dữ liệu tốn kém ngay cả khi các điều kiện cơ bản ban đầu đã thất bại.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><p class="text-sm leading-relaxed"><strong class="font-semibold text-slate-900">Bối cảnh thực tế:</strong> Một biểu thức điều kiện tối ưu không chỉ giúp mã nguồn ngắn gọn, dễ đọc mà còn bảo vệ hệ thống khỏi việc truy vấn tài nguyên dư thừa nhờ vào cơ chế đánh giá ngắn mạch (Short-circuit Evaluation).</p></div></div>
+          <div class="my-6">
+            <svg viewBox="0 0 800 240" class="rikkei-diagram w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+              <style>
+                text, tspan { font-family: "Inter", system-ui, sans-serif !important; }
+                .font-mono { font-family: "JetBrains Mono", monospace !important; }
+              </style>
+              <!-- Left Panel: Cách cũ -->
+              <rect x="20" y="20" width="350" height="200" rx="12" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/>
+              <rect x="40" y="36" width="90" height="24" rx="12" fill="#be111c"/>
+              <text x="85" y="52" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">Cách cũ</text>
+              <text x="40" y="85" font-size="15" font-weight="bold" fill="#9f1239">Kiểm tra lồng nhau &amp; Truy vấn thừa</text>
+              
+              <rect x="40" y="100" width="310" height="42" rx="8" fill="#ffffff" stroke="#fda4af" stroke-width="1"/>
+              <text x="52" y="126" font-size="12" class="font-mono" fill="#be111c">if check_user(): if heavy_db_query():</text>
+              
+              <text x="40" y="166" font-size="12" fill="#881337">• Cầu kềnh (Spaghetti code), nhiều tầng if</text>
+              <text x="40" y="188" font-size="12" fill="#881337">• Vẫn gọi hàm nặng ngay cả khi user ngắt kết nối</text>
+
+              <!-- Center Arrow -->
+              <path d="M 385 120 L 415 120" stroke="#94a3b8" stroke-width="3" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+                </marker>
+              </defs>
+
+              <!-- Right Panel: Cách mới -->
+              <rect x="430" y="20" width="350" height="200" rx="12" fill="#f0fdf4" stroke="#a7f3d0" stroke-width="2"/>
+              <rect x="450" y="36" width="90" height="24" rx="12" fill="#059669"/>
+              <text x="495" y="52" font-size="11" font-weight="bold" fill="#ffffff" text-anchor="middle">Cách mới</text>
+              <text x="450" y="85" font-size="15" font-weight="bold" fill="#065f46">Toán tử logic &amp; Short-Circuit</text>
+
+              <rect x="450" y="100" width="310" height="42" rx="8" fill="#ffffff" stroke="#6ee7b7" stroke-width="1"/>
+              <text x="462" y="126" font-size="12" class="font-mono" fill="#047857">if is_valid and heavy_db_query():</text>
+
+              <text x="450" y="166" font-size="12" fill="#064e3b">• Ngắn gọn 1 dòng, mạch lạc dễ bảo trì</text>
+              <text x="450" y="188" font-size="12" fill="#064e3b">• Tự động ngắt (Short-circuit) giúp tiết kiệm RAM/CPU</text>
+            </svg>
+          </div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cú pháp toán tử so sánh, toán tử logic và cơ chế Short-Circuit</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-cu-phap-va-co-che-hoat-ong-cua-cac-toan-tu-so-sanh" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp và cơ chế hoạt động của các toán tử so sánh</h3><p class="text-slate-600 mb-4 leading-relaxed">Toán tử so sánh được sử dụng để đối chiếu giữa hai giá trị và luôn trả về một kết quả thuộc kiểu Boolean (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>).</p><div class="mb-4"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Cú pháp khai báo tổng quát</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">result = left_operand operator right_operand</code></pre>
+</div></div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Toán tử bằng (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">==</code>):</strong> Trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> nếu giá trị của hai vế bằng nhau.</li><li><strong class="font-semibold text-slate-900">Toán tử khác (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">!=</code>):</strong> Trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> nếu giá trị của hai vế khác nhau.</li><li><strong class="font-semibold text-slate-900">Toán tử lớn hơn (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&gt;</code>) và lớn hơn hoặc bằng (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&gt;=</code>):</strong> So sánh giá trị vế trái với vế phải.</li><li><strong class="font-semibold text-slate-900">Toán tử nhỏ hơn (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;</code>) và nhỏ hơn hoặc bằng (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;=</code>):</strong> So sánh thứ tự nhỏ hơn giữa hai toán hạng.</li></ul><div class="mb-4"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn minh họa các toán tử so sánh</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">account_balance = 500
+withdrawal_amount = 200
+
+is_equal = (account_balance == withdrawal_amount)
+is_sufficient = (account_balance &gt;= withdrawal_amount)
+print(is_sufficient) # Output: True</code></pre>
+</div></div><h3 id="sec-2-2-cac-toan-tu-logic-va-bang-gia-tri-chan-ly-truth-table" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Các toán tử logic và Bảng giá trị chân lý (Truth Table)</h3><p class="text-slate-600 mb-4 leading-relaxed">Toán tử logic giúp kết hợp nhiều biểu thức so sánh để tạo thành các điều kiện phức tạp hơn. Trong Python bao gồm 3 toán tử chính: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">and</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">or</code>, và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">not</code>.</p><div class="overflow-x-auto my-4"><table class="w-full text-sm border-collapse border border-slate-200 text-left"><thead class="bg-slate-100 text-slate-800 font-semibold"><tr><th class="p-2.5 border border-slate-200">Biểu thức A</th><th class="p-2.5 border border-slate-200">Biểu thức B</th><th class="p-2.5 border border-slate-200">A and B</th><th class="p-2.5 border border-slate-200">A or B</th><th class="p-2.5 border border-slate-200">not A</th></tr></thead><tbody class="divide-y divide-slate-200 text-slate-700"><tr><td class="p-2.5 border border-slate-200 font-mono">True</td><td class="p-2.5 border border-slate-200 font-mono">True</td><td class="p-2.5 border border-slate-200 font-mono text-emerald-600 font-bold">True</td><td class="p-2.5 border border-slate-200 font-mono text-emerald-600 font-bold">True</td><td class="p-2.5 border border-slate-200 font-mono text-rose-600 font-bold">False</td></tr><tr><td class="p-2.5 border border-slate-200 font-mono">True</td><td class="p-2.5 border border-slate-200 font-mono">False</td><td class="p-2.5 border border-slate-200 font-mono text-rose-600 font-bold">False</td><td class="p-2.5 border border-slate-200 font-mono text-emerald-600 font-bold">True</td><td class="p-2.5 border border-slate-200 font-mono text-rose-600 font-bold">False</td></tr><tr><td class="p-2.5 border border-slate-200 font-mono">False</td><td class="p-2.5 border border-slate-200 font-mono">True</td><td class="p-2.5 border border-slate-200 font-mono text-rose-600 font-bold">False</td><td class="p-2.5 border border-slate-200 font-mono text-emerald-600 font-bold">True</td><td class="p-2.5 border border-slate-200 font-mono text-emerald-600 font-bold">True</td></tr><tr><td class="p-2.5 border border-slate-200 font-mono">False</td><td class="p-2.5 border border-slate-200 font-mono">False</td><td class="p-2.5 border border-slate-200 font-mono text-rose-600 font-bold">False</td><td class="p-2.5 border border-slate-200 font-mono text-rose-600 font-bold">False</td><td class="p-2.5 border border-slate-200 font-mono text-emerald-600 font-bold">True</td></tr></tbody></table></div><h3 id="sec-2-3-co-che-anh-gia-ngan-mach-short-circuit-evaluation" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Cơ chế đánh giá ngắn mạch (Short-circuit Evaluation)</h3><p class="text-slate-600 mb-4 leading-relaxed">Python áp dụng cơ chế đánh giá ngắn mạch để tối ưu tốc độ xử lý câu lệnh điều kiện:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li>Đối với phép toán <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">and</code>: Nếu vế trái là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>, Python lập tức trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code> mà không cần tính toán vế phải.</li><li>Đối với phép toán <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">or</code>: Nếu vế trái là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code>, Python lập tức trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> mà không cần kiểm tra vế phải.</li></ul><div class="my-6 p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 shadow-sm">
+  <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mô phỏng cơ chế Short-circuit Evaluation từng bước</div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div class="bg-white p-3 rounded-lg border border-slate-200">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn đang thực thi</div>
+      <div class="font-mono text-xs space-y-1.5" id="viz-code-lines">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all"><span class="text-slate-700">has_permission = False</span></div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all"><span class="text-slate-700">is_admin = check_database_role()</span></div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all"><span class="text-slate-700">access_granted = has_permission and is_admin</span></div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all"><span class="text-slate-700">print(f"Access: {access_granted}")</span></div>
+      </div>
+    </div>
+    <div class="bg-white p-3 rounded-lg border border-slate-200">
+      <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Bảng bộ nhớ &amp; Trạng thái biến</div>
+      <table class="w-full text-xs text-left text-slate-700 border-collapse">
+        <tbody>
+          <tr class="border-b border-slate-100">
+            <td class="py-1.5 font-mono text-slate-500">has_permission:</td>
+            <td id="viz-var-permission" class="py-1.5 font-mono font-bold text-rose-600">-</td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="py-1.5 font-mono text-slate-500">check_database_role():</td>
+            <td id="viz-var-db" class="py-1.5 font-mono font-bold text-amber-600">CHƯA GỌI</td>
+          </tr>
+          <tr>
+            <td class="py-1.5 font-mono text-slate-500">access_granted:</td>
+            <td id="viz-var-granted" class="py-1.5 font-mono font-bold text-slate-600">-</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="mt-3">
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Màn hình Console (Lưu lịch sử log)</div>
+        <div id="viz-console" class="p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-lg h-28 overflow-y-auto whitespace-pre-wrap leading-relaxed shadow-inner select-text">[Sẵn sàng thực thi...]</div>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <button onclick="runVizStep(1)" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-rikkei-red text-white hover:bg-rikkei-darkred flex items-center gap-1">
+      <i class="ph-bold ph-caret-right"></i> Tiếp theo
+    </button>
+    <button onclick="runVizStep(-1)" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800 flex items-center gap-1">
+      <i class="ph-bold ph-caret-left"></i> Lùi lại
+    </button>
+    <button onclick="resetViz()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800 flex items-center gap-1">
+      <i class="ph-bold ph-arrow-counter-clockwise"></i> Thử lại
+    </button>
+    <button id="viz-auto-btn" onclick="vizToggleAuto()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1">
+      <i class="ph-bold ph-play"></i> Tự động chạy
+    </button>
+  </div>
+</div></div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-vi-du-cu-phap-co-ban-cua-toan-tu-so-sanh-va-logic" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ cú pháp cơ bản của toán tử so sánh và logic</h3><p class="text-slate-600 mb-4 leading-relaxed">Kiểm tra điều kiện độ tuổi và giấy phép lái xe đơn giản trong hệ thống thuê xe tự động.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="user_age = 22&#10;has_driver_license = True&#10;&#10;# Check basic rules&#10;is_adult = user_age &gt;= 18&#10;can_rent_car = is_adult and has_driver_license&#10;print(f&quot;Can rent car: {can_rent_car}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">user_age = 22
+has_driver_license = True
+
+# Check basic rules
+is_adult = user_age &gt;= 18
+can_rent_car = is_adult and has_driver_license
+print(f&quot;Can rent car: {can_rent_car}&quot;)</code></pre>
+  </div>
+  <div id="container-sb-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2-giai-quyet-bai-toan-nghiep-vu-xet-duyet-ho-so-vay-tin-dung" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Giải quyết bài toán nghiệp vụ: Xét duyệt hồ sơ vay tín dụng</h3><p class="text-slate-600 mb-4 leading-relaxed">Kết hợp nhiều toán tử so sánh và logic (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">and</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">not</code>) để đánh giá hồ sơ tài chính của khách hàng dựa trên thu nhập, điểm tín dụng và nợ hiện tại.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2" class="language-python" contenteditable="true" spellcheck="false" data-original="monthly_income = 3500.0&#10;credit_score = 720&#10;existing_debt = 400.0&#10;&#10;is_eligible_for_loan = (&#10;    (monthly_income &gt; 2000.0) and &#10;    (credit_score &gt;= 700) and &#10;    not (existing_debt &gt; 1000.0)&#10;)&#10;print(f&quot;Loan eligibility: {is_eligible_for_loan}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">monthly_income = 3500.0
+credit_score = 720
+existing_debt = 400.0
+
+is_eligible_for_loan = (
+    (monthly_income &gt; 2000.0) and 
+    (credit_score &gt;= 700) and 
+    not (existing_debt &gt; 1000.0)
+)
+print(f&quot;Loan eligibility: {is_eligible_for_loan}&quot;)</code></pre>
+  </div>
+  <div id="container-sb-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3-ap-dung-nang-cao-trong-moi-truong-san-xuat-toi-uu-truy-van-bang-short-circuit" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Áp dụng nâng cao trong môi trường sản xuất: Tối ưu truy vấn bằng Short-Circuit</h3><p class="text-slate-600 mb-4 leading-relaxed">Tận dụng tính chất đánh giá ngắn mạch để chặn các thao tác gọi hàm hoặc truy vấn cơ sở dữ liệu đắt đỏ khi biến cờ cơ bản đã trả về kết quả quyết định.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="def check_heavy_database_record():&#10;    print(&quot;--- Querying database record ---&quot;)&#10;    return True&#10;&#10;is_active_account = False&#10;# Short-circuit avoids executing check_heavy_database_record()&#10;is_authorized = is_active_account and check_heavy_database_record()&#10;print(f&quot;Authorized: {is_authorized}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def check_heavy_database_record():
+    print(&quot;--- Querying database record ---&quot;)
+    return True
+
+is_active_account = False
+# Short-circuit avoids executing check_heavy_database_record()
+is_authorized = is_active_account and check_heavy_database_record()
+print(f&quot;Authorized: {is_authorized}&quot;)</code></pre>
+  </div>
+  <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div>
+        </section>
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-warning-circle text-rose-600"></i> 4.1. Nhầm lẫn giữa toán tử gán (=) và toán tử so sánh (==)</h4><p class="text-sm leading-relaxed text-slate-700">Toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">=</code> dùng để gán giá trị cho biến, trong khi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">==</code> dùng để so sánh hai giá trị. Việc nhầm lẫn giữa hai toán tử này trong các câu lệnh điều kiện sẽ gây ra lỗi cú pháp hoặc lỗi logic nghiêm trọng.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-warning text-amber-600"></i> 4.2. Sai lệch độ chính xác khi so sánh số thực (Floating-point)</h4><p class="text-sm leading-relaxed text-slate-700">Do cách biểu diễn số thực trong máy tính, biểu thức như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">0.1 + 0.2 == 0.3</code> sẽ trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>. Trong môi trường doanh nghiệp, hãy sử dụng hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">math.isclose()</code> hoặc thư viện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">decimal</code> để so sánh số thực.</p></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-emerald-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-check-circle text-emerald-600"></i> 4.3. Tận dụng Short-circuit để tránh lỗi runtime</h4><p class="text-sm leading-relaxed text-slate-700">Bạn có thể dùng biểu thức ngắn mạch để kiểm tra biến có tồn tại/khác <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">None</code> trước khi truy cập thuộc tính của nó, ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">user is not None and user.is_active</code> giúp ngăn chặn triệt để lỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">AttributeError</code>.</p></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://docs.python.org/3/reference/expressions.html#comparisons" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Python Official Documentation - Comparisons
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://docs.python.org/3/reference/expressions.html#boolean-operations" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Python Official Documentation - Boolean Operations
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers (Lesson 02: Short-circuit Evaluation)
+      window.vizStepMap = {};
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
+        if (window.vizStepMap[idPrefix] > 4) window.vizStepMap[idPrefix] = 4;
+        var step = window.vizStepMap[idPrefix];
+        
+        var permEl = document.getElementById("viz-var-permission");
+        var dbEl = document.getElementById("viz-var-db");
+        var grantedEl = document.getElementById("viz-var-granted");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+
+        // Clear active line highlights
+        for (var i = 1; i <= 4; i++) {
+          var lineEl = document.getElementById("viz-line-" + i);
+          if (lineEl) {
+            lineEl.className = "p-1.5 rounded transition-all text-slate-600";
+          }
+        }
+        
+        var activeLine = document.getElementById("viz-line-" + Math.max(1, step));
+        if (activeLine && step > 0) {
+          activeLine.className = "p-1.5 rounded transition-all bg-amber-100 text-amber-900 font-semibold border-l-4 border-amber-500";
+        }
+        
+        var stepLogs = [
+          "[Sẵn sàng thực thi...]",
+          "Bước 1: Khởi tạo cờ has_permission = False",
+          "Bước 2: Khai báo hàm check_database_role() (truy vấn CSDL nặng)",
+          "Bước 3: Đánh giá (has_permission and is_admin) -> Vì vế trái has_permission = False nên Python BỎ QUA hàm check_database_role() và gán ngay access_granted = False (Short-circuit Evaluation!)",
+          "Bước 4: print(f\"Access: {access_granted}\")\nConsole output:\nAccess: False\n(Hoàn tất thực thi chương trình! Đã tiết kiệm 1 truy vấn CSDL nặng!)"
+        ];
+
+        if (consoleEl) {
+          if (step === 0) {
+            if (permEl) permEl.innerText = "-";
+            if (dbEl) { dbEl.innerText = "CHƯA GỌI"; dbEl.className = "py-1.5 font-mono font-bold text-amber-600"; }
+            if (grantedEl) grantedEl.innerText = "-";
+            consoleEl.innerText = stepLogs[0];
+          } else {
+            if (step === 1) {
+              if (permEl) permEl.innerText = "False";
+              if (dbEl) { dbEl.innerText = "CHƯA GỌI"; dbEl.className = "py-1.5 font-mono font-bold text-amber-600"; }
+              if (grantedEl) grantedEl.innerText = "-";
+            } else if (step === 2) {
+              if (permEl) permEl.innerText = "False";
+              if (dbEl) { dbEl.innerText = "CHƯA GỌI"; dbEl.className = "py-1.5 font-mono font-bold text-amber-600"; }
+              if (grantedEl) grantedEl.innerText = "-";
+            } else if (step === 3) {
+              if (permEl) permEl.innerText = "False";
+              if (dbEl) { dbEl.innerText = "SKIPPED (Đã bỏ qua!)"; dbEl.className = "py-1.5 font-mono font-bold text-emerald-600"; }
+              if (grantedEl) grantedEl.innerText = "False";
+            } else if (step >= 4) {
+              if (permEl) permEl.innerText = "False";
+              if (dbEl) { dbEl.innerText = "SKIPPED (Đã bỏ qua!)"; dbEl.className = "py-1.5 font-mono font-bold text-emerald-600"; }
+              if (grantedEl) grantedEl.innerText = "False";
+            }
+
+            var accumulatedLogs = [];
+            for (var s = 1; s <= step; s++) {
+              accumulatedLogs.push(stepLogs[s]);
+            }
+            consoleEl.innerText = accumulatedLogs.join("\n");
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+          }
+        }
+      }
+
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = 0;
+        runVizStep(0, idPrefix);
+      }
+
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      function vizReset() { resetViz(); }
+      var vizAutoTimer = null;
+      function vizToggleAuto() {
+        if (vizAutoTimer) {
+          clearInterval(vizAutoTimer);
+          vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.innerHTML = '<i class="ph-bold ph-play"></i> Tự động chạy';
+        } else {
+          vizAutoTimer = setInterval(function() {
+            if (window.vizStepMap["viz"] >= 4) {
+              clearInterval(vizAutoTimer);
+              vizAutoTimer = null;
+              var btn = document.getElementById("viz-auto-btn");
+              if (btn) btn.innerHTML = '<i class="ph-bold ph-play"></i> Tự động chạy';
+            } else {
+              runVizStep(1);
+            }
+          }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.innerHTML = '<i class="ph-bold ph-pause"></i> Dừng tự động';
+        }
+      }
+    </script>
+  </body>
+</html>
