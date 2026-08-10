@@ -238,8 +238,12 @@ def is_exam_session(session: dict) -> bool:
     if session_code in ["MIDTERM", "FINAL", "EXAM"]:
         return True
 
-    exam_keywords = ["thi giữa kỳ", "thi thực hành", "thi cuối kỳ", "midterm", "final", "bài thi", "thực hành thi"]
-    if any(kw in session_title for kw in exam_keywords) or any(kw in session_type for kw in exam_keywords):
+    exam_keywords = ["thi giữa kỳ", "thi thực hành", "thi cuối kỳ", "thi giữa môn", "thi cuối môn", "midterm exam", "final exam"]
+    if any(kw in session_type for kw in exam_keywords):
+        return True
+
+    # Avoid substring collision with 'thực hành thiết lập' by checking explicit exam title phrases
+    if any(kw in session_title for kw in ["thi giữa kỳ", "thi cuối kỳ", "thi thực hành cuối kỳ", "thi thực hành giữa kỳ", "thi giữa môn", "thi cuối môn", "bài thi thực hành", "midterm exam", "final exam"]):
         return True
 
     return False
@@ -303,7 +307,7 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
         is_practice = is_practice_session(session)
 
         if is_exam:
-            (session_dir / "Đề thi tự luận").mkdir(parents=True, exist_ok=True)
+            (session_dir / "Đề thi thực hành").mkdir(parents=True, exist_ok=True)
             (session_dir / "Đề thi trắc nghiệm").mkdir(parents=True, exist_ok=True)
             (session_dir / "Câu hỏi vấn đáp").mkdir(parents=True, exist_ok=True)
             continue
@@ -420,8 +424,8 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
         is_practice = is_practice_session(session)
 
         if is_exam:
-            if not (session_dir / "Đề thi thực hành").exists() and not (session_dir / "Đề thi thực hành").exists():
-                missing_elements.append(f"Thiếu thư mục 'Đề thi tự luận' tại {session_id}")
+            if not (session_dir / "Đề thi thực hành").exists():
+                missing_elements.append(f"Thiếu thư mục 'Đề thi thực hành' tại {session_id}")
             if not (session_dir / "Đề thi trắc nghiệm").exists():
                 missing_elements.append(f"Thiếu thư mục 'Đề thi trắc nghiệm' tại {session_id}")
             if not (session_dir / "Câu hỏi vấn đáp").exists():
