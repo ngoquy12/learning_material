@@ -441,13 +441,11 @@ print(f&quot;Loan eligibility: {is_eligible_for_loan}&quot;)</code></pre>
         <i class="ph-bold ph-copy text-xs"></i>
       </button>
     </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="def check_heavy_database_record():&#10;    print(&quot;--- Querying database record ---&quot;)&#10;    return True&#10;&#10;is_active_account = False&#10;# Short-circuit avoids executing check_heavy_database_record()&#10;is_authorized = is_active_account and check_heavy_database_record()&#10;print(f&quot;Authorized: {is_authorized}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def check_heavy_database_record():
-    print(&quot;--- Querying database record ---&quot;)
-    return True
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="is_active_account = False&#10;has_valid_permission = True&#10;&#10;# Short-circuit avoids evaluating right side when is_active_account is False&#10;is_authorized = is_active_account and has_valid_permission&#10;print(f&quot;Authorized: {is_authorized}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">is_active_account = False
+has_valid_permission = True
 
-is_active_account = False
-# Short-circuit avoids executing check_heavy_database_record()
-is_authorized = is_active_account and check_heavy_database_record()
+# Short-circuit avoids evaluating right side when is_active_account is False
+is_authorized = is_active_account and has_valid_permission
 print(f&quot;Authorized: {is_authorized}&quot;)</code></pre>
   </div>
   <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
