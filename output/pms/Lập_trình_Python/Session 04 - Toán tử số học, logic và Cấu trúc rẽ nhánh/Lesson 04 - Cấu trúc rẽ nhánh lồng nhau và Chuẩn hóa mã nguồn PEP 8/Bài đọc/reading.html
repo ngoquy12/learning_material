@@ -296,15 +296,15 @@
   </div>
   <pre class="m-0 overflow-x-auto"><code class="hljs language-python">if outer_condition:
     # Executed if outer_condition is True
-if inner_condition:
-    # Executed only if both outer_condition and inner_condition are True
-pass
+    if inner_condition:
+        # Executed only if both outer_condition and inner_condition are True
+        pass
     else:
-    # Executed if outer_condition is True but inner_condition is False
-pass
+        # Executed if outer_condition is True but inner_condition is False
+        pass
 else:
     # Executed if outer_condition is False
-pass</code></pre>
+    pass</code></pre>
 </div><p class="text-xs font-semibold text-slate-500 uppercase tracking-wider my-2">Mã nguồn minh họa rẽ nhánh lồng nhau</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
   <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
     <span class="flex items-center gap-2">
@@ -320,9 +320,9 @@ has_license = True
 
 if user_age &gt;= 18:
     if has_license:
-    print(&quot;Allowed to drive.&quot;)
+        print(&quot;Allowed to drive.&quot;)
     else:
-    print(&quot;Must obtain a driving license.&quot;)
+        print(&quot;Must obtain a driving license.&quot;)
 else:
     print(&quot;Underage for driving.&quot;)</code></pre>
 </div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">outer_condition</code></strong>: Biểu thức điều kiện tầng ngoài cùng, được hệ thống kiểm tra trước tiên.</li><li><strong class="font-semibold text-slate-900"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">inner_condition</code></strong>: Biểu thức điều kiện tầng trong, chỉ được đánh giá khi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">outer_condition</code> có kết quả là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code>.</li></ul><h3 id="sec-2-2-toi-uu-hoa-ieu-kien-bang-toan-tu-logic-and-or-not" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Tối ưu hóa điều kiện bằng toán tử logic (and, or, not)</h3><p class="text-slate-600 mb-4 leading-relaxed">Thay vì lồng nhiều tầng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, ta có thể kết hợp nhiều biểu thức điều kiện trên cùng một dòng bằng các toán tử logic <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">and</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">or</code>, và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">not</code>. Kỹ thuật này làm giảm độ sâu của thụt lề và đưa cấu trúc về dạng phẳng (Flat structure).</p><p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Cú pháp tối ưu bằng toán tử logic</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
@@ -471,13 +471,13 @@ if is_admin and user_age &gt;= 18:
         <i class="ph-bold ph-copy text-xs"></i>
       </button>
     </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="def check_driving_eligibility(age: int, has_license: bool) -&gt; str:&#10;    if age &gt;= 18 and has_license:&#10;    return &quot;Eligible to drive standard vehicles.&quot;&#10;    elif age &gt;= 18 and not has_license:&#10;    return &quot;Age requirement met, but driving license is missing.&quot;&#10;    else:&#10;    return &quot;Ineligible to drive due to age restriction.&quot;&#10;&#10;# Execution test&#10;result = check_driving_eligibility(20, True)&#10;print(result)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def check_driving_eligibility(age: int, has_license: bool) -&gt; str:
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="def check_driving_eligibility(age: int, has_license: bool) -&gt; str:&#10;    if age &gt;= 18 and has_license:&#10;        return &quot;Eligible to drive standard vehicles.&quot;&#10;    elif age &gt;= 18 and not has_license:&#10;        return &quot;Age requirement met, but driving license is missing.&quot;&#10;    else:&#10;        return &quot;Ineligible to drive due to age restriction.&quot;&#10;&#10;# Execution test&#10;result = check_driving_eligibility(20, True)&#10;print(result)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def check_driving_eligibility(age: int, has_license: bool) -&gt; str:
     if age &gt;= 18 and has_license:
-    return &quot;Eligible to drive standard vehicles.&quot;
+        return &quot;Eligible to drive standard vehicles.&quot;
     elif age &gt;= 18 and not has_license:
-    return &quot;Age requirement met, but driving license is missing.&quot;
+        return &quot;Age requirement met, but driving license is missing.&quot;
     else:
-    return &quot;Ineligible to drive due to age restriction.&quot;
+        return &quot;Ineligible to drive due to age restriction.&quot;
 
 # Execution test
 result = check_driving_eligibility(20, True)
@@ -536,15 +536,15 @@ print(f&quot;Loan application approval status: {is_approved}&quot;)</code></pre>
         <i class="ph-bold ph-copy text-xs"></i>
       </button>
     </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="def process_order_checkout(cart_items: list, user_authenticated: bool, payment_verified: bool) -&gt; str:&#10;    if not user_authenticated:&#10;    return &quot;Error: User must be logged in to checkout.&quot;&#10;    &#10;    if not cart_items:&#10;    return &quot;Error: Shopping cart cannot be empty.&quot;&#10;        &#10;    if not payment_verified:&#10;    return &quot;Error: Payment verification failed.&quot;&#10;        &#10;    return &quot;Success: Order placed successfully.&quot;&#10;&#10;# Execution test&#10;order_status = process_order_checkout([&quot;Laptop&quot;, &quot;Mouse&quot;], True, True)&#10;print(order_status)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def process_order_checkout(cart_items: list, user_authenticated: bool, payment_verified: bool) -&gt; str:
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="def process_order_checkout(cart_items: list, user_authenticated: bool, payment_verified: bool) -&gt; str:&#10;    if not user_authenticated:&#10;        return &quot;Error: User must be logged in to checkout.&quot;&#10;    &#10;    if not cart_items:&#10;        return &quot;Error: Shopping cart cannot be empty.&quot;&#10;    &#10;    if not payment_verified:&#10;        return &quot;Error: Payment verification failed.&quot;&#10;    &#10;    return &quot;Success: Order placed successfully.&quot;&#10;&#10;# Execution test&#10;order_status = process_order_checkout([&quot;Laptop&quot;, &quot;Mouse&quot;], True, True)&#10;print(order_status)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def process_order_checkout(cart_items: list, user_authenticated: bool, payment_verified: bool) -&gt; str:
     if not user_authenticated:
-    return &quot;Error: User must be logged in to checkout.&quot;
+        return &quot;Error: User must be logged in to checkout.&quot;
     
     if not cart_items:
-    return &quot;Error: Shopping cart cannot be empty.&quot;
+        return &quot;Error: Shopping cart cannot be empty.&quot;
         
     if not payment_verified:
-    return &quot;Error: Payment verification failed.&quot;
+        return &quot;Error: Payment verification failed.&quot;
         
     return &quot;Success: Order placed successfully.&quot;
 
@@ -567,7 +567,7 @@ print(order_status)</code></pre>
         <section id="section-4" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
           <div class="space-y-4">
-            <h3 class="font-montserrat font-bold class="text-xl font-bold text-slate-900 mb-3"">4. Tổng kết &amp; Cạm bẫy doanh nghiệp (Enterprise Gotchas)</h3><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-warning-circle text-rose-600"></i> 4.1. Cạm bẫy "Pyramid of Doom" (Arrow Anti-Pattern)</h4><p class="text-sm leading-relaxed">Khi viết lồng nhau quá 3 tầng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, mã nguồn sẽ tạo thành hình mũi tên hướng sang phải. Đây là một chống cấu trúc nghiêm trọng khiến việc bảo trì cực kỳ khó khăn. Luôn ưu tiên dùng toán tử logic hoặc áp dụng kỹ thuật Guard Clauses để giải phóng thụt lề.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-warning text-amber-600"></i> 4.2. Nhầm lẫn về độ ưu tiên toán tử logic (Precedence Trap)</h4><p class="text-sm leading-relaxed">Trong Python, toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">and</code> có độ ưu tiên cao hơn toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">or</code>. Viết <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if a or b and c</code> sẽ được hiểu tương đương với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if a or (b and c)</code>. Để đảm bảo tính rõ ràng theo PEP 8, luôn chủ động bọc các nhóm biểu thức trong dấu ngoặc đơn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">()</code>.</p></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-emerald-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-check-circle text-emerald-600"></i> 4.3. Quy tắc khoảng trắng PEP 8 cần nằm lòng</h4><p class="text-sm leading-relaxed">Luôn dùng 4 khoảng trắng (4 spaces) cho 1 cấp thụt lề. Đặt đúng 1 khoảng trắng quanh các toán tử hai ngôi. Tuyệt đối không dùng Tab trộn lẫn với Space trong cùng một tập tin mã nguồn.</p></div>
+            <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">4. Tổng kết &amp; Cạm bẫy doanh nghiệp (Enterprise Gotchas)</h3><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold text-lg text-rose-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-warning-circle text-rose-600"></i> 4.1. Cạm bẫy "Pyramid of Doom" (Arrow Anti-Pattern)</h4><p class="text-sm leading-relaxed">Khi viết lồng nhau quá 3 tầng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, mã nguồn sẽ tạo thành hình mũi tên hướng sang phải. Đây là một chống cấu trúc nghiêm trọng khiến việc bảo trì cực kỳ khó khăn. Luôn ưu tiên dùng toán tử logic hoặc áp dụng kỹ thuật Guard Clauses để giải phóng thụt lề.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold text-lg text-amber-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-warning text-amber-600"></i> 4.2. Nhầm lẫn về độ ưu tiên toán tử logic (Precedence Trap)</h4><p class="text-sm leading-relaxed">Trong Python, toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">and</code> có độ ưu tiên cao hơn toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">or</code>. Viết <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if a or b and c</code> sẽ được hiểu tương đương với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if a or (b and c)</code>. Để đảm bảo tính rõ ràng theo PEP 8, luôn chủ động bọc các nhóm biểu thức trong dấu ngoặc đơn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">()</code>.</p></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold text-lg text-emerald-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-check-circle text-emerald-600"></i> 4.3. Quy tắc khoảng trắng PEP 8 cần nằm lòng</h4><p class="text-sm leading-relaxed">Luôn dùng 4 khoảng trắng (4 spaces) cho 1 cấp thụt lề. Đặt đúng 1 khoảng trắng quanh các toán tử hai ngôi. Tuyệt đối không dùng Tab trộn lẫn với Space trong cùng một tập tin mã nguồn.</p></div>
           </div>
         </section>
 
