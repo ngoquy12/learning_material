@@ -93,7 +93,11 @@ MANDATORY OUTPUT CONTRACT:
         markmap_content = f"```markmap\n# {session_id}: {session_title}\n## Tổng quan Session\n- Nội dung sơ đồ tư duy tổng hợp Session.\n```"
 
     # Post-process image prompts inside the mindmap and generate 2D flat vector diagrams
-    state_mock = {"course_dir_name": session_dir.name, "technology_stack": tech_stack}
+    state_mock = {
+        "course_dir_name": session_dir.name, 
+        "technology_stack": tech_stack,
+        "images_dir": session_dir / "images"
+    }
     processed_content = process_mindmap_images(markmap_content, state_mock)
     
     out_file = mindmap_dir / "session_mindmap.md"

@@ -1,46 +1,46 @@
 [
   {
-    "question": "Giả sử bạn đang phát triển tính năng xác thực mã OTP. Khi phát hiện mã OTP người dùng nhập sai định dạng ở lượt thử hiện tại, hệ thống cần bỏ qua ngay các bước kiểm tra chữ ký số phức tạp phía sau để chuyển sang cho nhập lại ở lượt tiếp theo. Từ khóa nào phù hợp nhất để đạt mục đích này?",
+    "question": "Lập trình viên khởi tạo tập tin cấu hình `storage.config` trong thư mục dự án Rikkei Logistics. Khi thực hiện lệnh `git status`, giao diện hiển thị tập tin này nằm ở mục \"Untracked files\". Trạng thái này thể hiện điều gì về tập tin?",
     "options": [
-      "Từ khóa continue để bỏ qua các câu lệnh phía sau trong lượt hiện tại và chuyển sang lượt mới.",
-      "Từ khóa break để thoát khỏi hệ thống và khóa tài khoản người dùng ngay lập tức.",
-      "Từ khóa pass để tạm dừng tiến trình xử lý trong 5 giây.",
-      "Mệnh đề else để kích hoạt chuông báo động hệ thống."
-    ],
-    "correct_option_index": 0,
-    "explanation": "Theo bài học, từ khóa continue được dùng để bỏ qua toàn bộ các câu lệnh xử lý phía sau trong lượt lặp hiện tại khi gặp dữ liệu không hợp lệ và chuyển ngay sang lượt lặp tiếp theo."
-  },
-  {
-    "question": "Xét chương trình Python kiểm tra trạng thái kết nối sau:\n```python\nattempts = 0\nwhile attempts < 3:\n    attempts += 1\n    if attempts == 2:\n        continue\n    print(attempts)\nelse:\n    print(\"Kiểm tra hoàn tất\")\n```\nKết quả in ra màn hình lần lượt là gì?",
-    "options": [
-      "1, 2, 3, Kiểm tra hoàn tất",
-      "1, 3, Kiểm tra hoàn tất",
-      "1, 3 (không in dòng Kiểm tra hoàn tất)",
-      "2, 3, Kiểm tra hoàn tất"
+      "Tập tin đã được lưu an toàn trong Local Repository nhưng chưa được đặt tên mốc snapshot.",
+      "Tập tin tồn tại trong Working Directory nhưng chưa từng được lệnh git add đưa vào hệ thống theo dõi.",
+      "Tập tin đang nằm ở vùng Staging Area và đang chờ lệnh đóng gói cuối cùng của Git.",
+      "Tập tin bị lỗi định dạng dữ liệu nên Git không thể phân tích cấu trúc mã nguồn."
     ],
     "correct_option_index": 1,
-    "explanation": "Ở lượt 1: in 1. Ở lượt 2: gặp continue nên bỏ qua lệnh print(2). Ở lượt 3: in 3. Sau lượt 3, điều kiện attempts < 3 trở thành False (kết thúc tự nhiên, không bị break), do đó khối else được thực thi và in 'Kiểm tra hoàn tất'."
+    "explanation": "Trạng thái Untracked chỉ ra rằng tập tin hiện mới chỉ xuất hiện tại Working Directory cục bộ và Git chưa thực hiện theo dõi vết thay đổi của tập tin này do chưa chạy lệnh git add."
   },
   {
-    "question": "Hạn chế chính của việc dùng các biến cờ hiệu (flag variables) để kiểm soát vòng lặp thử lại nhiều lần so với việc dùng `break` và `continue` được nêu trong bài học là gì?",
+    "question": "Xét quy trình lưu vết 3 bước trong Git, hành động thực hiện lệnh `git add calculator.js` mang lại tác động kỹ thuật nào đối với tập tin `calculator.js`?",
     "options": [
-      "Biến cờ hiệu tốn dung lượng bộ nhớ lớn hơn nhiều so với các từ khóa điều hướng.",
-      "Biến cờ hiệu chỉ hoạt động được trong vòng lặp for chứ không dùng được trong vòng lặp while.",
-      "Biến cờ hiệu làm mã nguồn trở nên chằng chịt, rườm rà và khó bảo trì do phải duy trì các điều kiện lồng nhau.",
-      "Python không cho phép khai báo biến cờ hiệu kiểu Boolean bên trong thân vòng lặp."
+      "Dịch chuyển các thay đổi của calculator.js từ Working Directory vào vùng Staging Area.",
+      "Tạo một mốc lưu trữ vĩnh viễn cho calculator.js trực tiếp tại kho chứa Local Repository.",
+      "Xóa sạch các chỉnh sửa tạm thời của calculator.js và đưa mã nguồn về trạng thái ban đầu.",
+      "Chuyển trực tiếp dữ liệu tập tin calculator.js lên máy chủ lưu trữ từ xa của doanh nghiệp."
     ],
-    "correct_option_index": 2,
-    "explanation": "Theo Phần 1 — Hạn chế của cách làm cũ, việc dùng các biến cờ hiệu buộc chương trình vẫn phải chạy qua các bước hoặc phải kiểm tra điều kiện phức tạp, khiến mã nguồn rườm rà, chằng chịt và khó bảo trì."
+    "correct_option_index": 0,
+    "explanation": "Lệnh git add đóng vai trò chuyển tiếp các tập tin đã được tạo mới hoặc chỉnh sửa từ khu vực làm việc (Working Directory) sang vùng đệm chuẩn bị đóng gói (Staging Area)."
   },
   {
-    "question": "Trong kịch bản gửi thông báo báo động cho quản trị viên khi hệ thống đã thử lại đủ 5 lần mà không lượt nào thành công (không bị ngắt bởi `break`), cách tổ chức mã nguồn nào tối ưu và đúng chuẩn Python nhất?",
+    "question": "Xét câu lệnh đóng gói mốc lịch sử sau:\n```bash\ngit commit -m \"Nang cap thuat toan tinh phi trong calculator.js\"\n```\nTác dụng chính của lệnh này trong chu trình quản lý mã nguồn cục bộ là gì?",
     "options": [
-      "Viết câu lệnh báo động ở cuối chương trình mà không cần gắn với vòng lặp.",
-      "Tạo một hàm đếm số lần xuất hiện của từ khóa break.",
-      "Sử dụng khối try...except bao bọc bên ngoài toàn bộ vòng lặp.",
-      "Đặt câu lệnh báo động bên trong mệnh đề else gắn liền ngay sau vòng lặp."
+      "Tự động phát hiện và sửa các lỗi logic tính toán phát sinh trong tập tin calculator.js.",
+      "Đẩy toàn bộ mã nguồn của dự án lên hệ thống máy chủ lưu trữ trung tâm để làm việc nhóm.",
+      "Xóa các tập tin cấu hình cũ trong Working Directory để giải phóng dung lượng bộ nhớ máy tính.",
+      "Tạo một ảnh chụp snapshot lưu trữ an toàn trạng thái dự án từ Staging Area vào Local Repository."
     ],
     "correct_option_index": 3,
-    "explanation": "Mệnh đề else đính kèm vòng lặp chỉ thực thi khi vòng lặp hoàn thành tất cả các lượt lặp một cách tự nhiên mà không gặp lệnh break. Đây là cấu trúc chuẩn và gọn gàng nhất để xử lý kịch bản tất cả các lượt thử đều thất bại."
+    "explanation": "Lệnh git commit thực hiện đóng gói toàn bộ trạng thái tập tin hiện có trong Staging Area thành một bản chụp snapshot cố định lưu vào Local Repository, tạo mốc lịch sử an toàn tại máy cục bộ."
+  },
+  {
+    "question": "Trong quá trình nâng cấp hệ thống, lập trình viên vô tình làm phát sinh lỗi logic nghiêm trọng trong `calculator.js` khiến toàn bộ kết quả tính phí lưu kho bị sai. Trình soạn thảo mã nguồn đã bị đóng nên không thể Ctrl+Z. Nhờ đã thực hiện chu trình `git add` và `git commit` trước đó, lập trình viên nên chọn giải pháp nào?",
+    "options": [
+      "Viết lại toàn bộ thuật toán tính phí từ đầu trong một tập tin mới để thay thế calculator.js.",
+      "Xóa tập tin cấu hình storage.config để hệ thống tự khôi phục về thuật toán tính phí mặc định.",
+      "Sử dụng mốc snapshot an toàn đã đóng gói trong Local Repository để khôi phục trạng thái mã nguồn chuẩn.",
+      "Thực hiện đóng mở lại trình soạn thảo mã nguồn để khôi phục thao tác Ctrl+Z thủ công."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Khi đã lưu vết định kỳ bằng git add và git commit, mọi mốc an toàn đều được ghi lại dưới dạng snapshot trong Local Repository. Khi xảy ra sự cố logic và không thể Ctrl+Z, lập trình viên hoàn toàn có thể khôi phục lại trạng thái mã nguồn chuẩn từ snapshot đã lưu mà không mất thời gian viết lại từ đầu."
   }
 ]

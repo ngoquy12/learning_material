@@ -51,7 +51,6 @@ from agents.creators.mindmap_creator import (
     mindmap_agent,
     process_mindmap_images,
     generate_image_api,
-    draw_mindmap_fallback_diagram,
 )
 
 from agents.creators.visualizer_creator import (
@@ -61,6 +60,10 @@ from agents.creators.visualizer_creator import (
 
 from agents.creators.reading_questions_creator import (
     reading_questions_creator_agent,
+)
+
+from agents.creators.practical_lab_creator import (
+    practical_lab_creator_agent,
 )
 
 __all__ = [
@@ -95,8 +98,8 @@ __all__ = [
     "mindmap_agent",
     "process_mindmap_images",
     "generate_image_api",
-    "draw_mindmap_fallback_diagram",
     "visualizer_generator_agent",
     "get_topic_fallback_visualizer_engine",
     "reading_questions_creator_agent",
+    "practical_lab_creator_agent",
 ]

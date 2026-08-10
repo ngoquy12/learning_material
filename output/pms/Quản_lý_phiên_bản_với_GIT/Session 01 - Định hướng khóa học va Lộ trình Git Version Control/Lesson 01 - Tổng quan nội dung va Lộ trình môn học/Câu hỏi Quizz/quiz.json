@@ -1,0 +1,46 @@
+[
+  {
+    "question": "Khi lập kế hoạch thực hiện dự án theo đúng 3 giai đoạn của môn học IT-105, trình tự triển khai chính xác của các mốc thời gian từ Buổi 01 đến Buổi 09 là gì?",
+    "options": [
+      "Nắm bắt lộ trình & quy định (Buổi 01) -> Xây dựng giao diện Web responsive (Buổi 02-05) -> Phát triển logic dự án với JS Framework (Buổi 06-09).",
+      "Phát triển logic dự án với JS Framework (Buổi 01-04) -> Xây dựng giao diện Web responsive (Buổi 05-08) -> Đánh giá quy định môn học (Buổi 09).",
+      "Xây dựng giao diện Web responsive (Buổi 01-04) -> Định hướng chuẩn CLO/PLO (Buổi 05) -> Phát triển logic dự án với JS Framework (Buổi 06-09).",
+      "Nắm bắt lộ trình môn học (Buổi 01) -> Phát triển logic dự án với JS Framework (Buổi 02-05) -> Xây dựng giao diện Web responsive (Buổi 06-09)."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Lộ trình môn IT-105 gồm 3 giai đoạn: Giai đoạn 1 (Buổi 01: Lộ trình & Quy định), Giai đoạn 2 (Buổi 02-05: Web responsive chuẩn CLO2), Giai đoạn 3 (Buổi 06-09: Logic dự án với JS Framework chuẩn CLO3)."
+  },
+  {
+    "question": "Trong hệ thống quản lý chất lượng đào tạo môn IT-105, bộ chỉ số CLO (Course Learning Outcomes) đóng vai trò chính nào sau đây?",
+    "options": [
+      "Đo lường chi tiết khả năng ghi nhớ tất cả các cú pháp lệnh quản lý kho chứa mã nguồn trong môi trường doanh nghiệp.",
+      "Định nghĩa chuẩn đầu ra chi tiết của môn học bao gồm kiến thức giao diện, tư duy framework và kỹ năng bảo vệ dự án.",
+      "Đánh giá trình độ ngoại ngữ và kỹ năng giao tiếp thuyết trình tự do của học viên trong các buổi thảo luận nhóm.",
+      "Cấp chứng chỉ hoàn thành dự án phần mềm chuyên nghiệp cho học viên ngay sau khi hoàn thành buổi học đầu tiên."
+    ],
+    "correct_option_index": 1,
+    "explanation": "CLO (Course Learning Outcomes) là chuẩn đầu ra chi tiết của môn học, bao gồm các tiêu chí cụ thể về kiến thức giao diện Web responsive, tư duy áp dụng JS Framework và kỹ năng thực hành bảo vệ dự án."
+  },
+  {
+    "question": "Cột mốc đánh giá nào trong môn học IT-105 đảm nhận tỷ trọng 30% tổng điểm đánh giá kết quả học tập của học viên?",
+    "options": [
+      "Tổng điểm đánh giá chuyên cần và các bài tập nhỏ làm hàng tuần trên lớp.",
+      "Điểm bài thi thực hành lập trình và bảo vệ đồ án sản phẩm vào Buổi 10.",
+      "Điểm bài kiểm tra giữa kỳ đánh giá năng lực xây dựng Web responsive hoàn chỉnh.",
+      "Điểm bài báo cáo định hướng lộ trình học tập và cam kết chuẩn đầu ra tại Buổi 01."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Bài kiểm tra giữa kỳ đánh giá năng lực xây dựng Web responsive hoàn chỉnh chiếm 30% tổng điểm. Chuyên cần & bài tập nhỏ chiếm 20%, bài thi thực hành cuối môn chiếm 50%."
+  },
+  {
+    "question": "Để đủ điều kiện đạt môn học IT-105 và đáp ứng chuẩn đầu ra chương trình đào tạo (PLO), học viên cần đạt được tiêu chí bắt buộc nào về điểm số?",
+    "options": [
+      "Bài thi thực hành cuối môn phải đạt điểm tuyệt đối 10.0/10.0 và không bỏ buổi học nào.",
+      "Điểm bài kiểm tra giữa kỳ phải đạt tối thiểu từ 8.0/10.0 trở lên để bù đắp điểm chuyên cần.",
+      "Điểm bài tập lớn hàng tuần phải vượt qua 9.0/10.0 ở tất cả các giai đoạn của môn học.",
+      "Điểm tổng kết môn học tính theo ma trận trọng số đánh giá phải đạt từ 5.0 / 10.0 trở lên."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Điều kiện đạt môn học IT-105 được xác định rõ ràng: Điểm tổng kết quy đổi theo ma trận trọng số (20% chuyên cần, 30% giữa kỳ, 50% cuối kỳ) phải đạt từ 5.0 / 10.0 trở lên."
+  }
+]

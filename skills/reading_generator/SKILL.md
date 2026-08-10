@@ -29,6 +29,23 @@ All Agents MUST strictly implement all 10 core directives:
 
 ---
 
+## 0.2 SESSION 01 ORIENTATION LESSON SPECIAL DIRECTIVE
+
+For **Session 01 (Orientation & Course Overview)**:
+1. **Consolidated Single Lesson**: Session 01 is structured into **1 consolidated lesson** titled `Tổng quan lộ trình và Demo sản phẩm`.
+2. **3 Core Sub-sections**:
+   - **Part 1: `1. Tổng quan nội dung & Lộ trình môn học`**: Summarize course modules and roadmap using a visual connected Timeline component (`<div class="timeline-track">...</div>`) or a clean structured List.
+   - **Part 2: `2. Phương pháp học tập hiệu quả & Kiến thức tiền đề`**: Detail proactive learning methodologies, AI Pair-Programming workflow (Cursor/Windsurf), and prerequisite skills required.
+   - **Part 3: `3. Demo sản phẩm dự án đầu ra`**: Present specifications, features, and outcomes of the capstone project / product students will complete by course end.
+3. **STRICT NO CODE DEMO / NO EMPTY SANDBOX RULE**:
+   - **ABSOLUTELY FORBIDDEN** to generate code demo snippets, executable sandboxes, or empty code blocks for Session 01.
+4. **Flexible Bố cục & Tiêu đề**:
+   - Do NOT force rigid 5-section IDs (`#problem-intro`, `#data-structure`, etc.) on orientation lessons. Flexible titles matching the 3 main parts are encouraged.
+5. **Artifact Scope**:
+   - Session 01 produces ONLY **Reading Material** (`reading.html`), **Presentation Slides** (`slides.html`), and **Video Studio Script** (`SCRIPT.md` / `video_script.html`). Quizzes, Homework, and Practical Labs are automatically skipped.
+
+---
+
 ## 0.1 CALLOUT BOX & CODE BLOCK ISOLATION STANDARD
 
 1. **CALLOUT BOX COLOR SYSTEM**:
@@ -189,20 +206,25 @@ Every reading material document MUST contain exactly 5 sections with fixed Ancho
 
 ---
 
-### Section 3: `#interactive-demo` — Interactive Code Sandbox & Progressive Examples
+### Section 3: `#interactive-demo` — Practical Application Examples & Adaptive Code Block Standard
 
-**Pedagogical Objective**: Hands-on interactive experimentation. Students edit code and view output instantly.
+**Pedagogical Objective**: Hands-on practical application. Students inspect, analyze, or execute code/commands to master real-world usage.
+
+**SUBJECT NATURE ANALYSIS CONTRACT (EXECUTABLE PROGRAMMING VS PURE CONCEPT / TOOLING / CLI / ARCHITECTURE)**:
+
+- **For Executable Programming Courses (Python, JavaScript, Java, C++, SQL...)**: Embed Pyodide Wasm Sandbox / Live JS Runner with "Run Code" button and live console output.
+- **For Pure Concept / Tooling / Process / CLI / Architecture Courses (Git, VS Code, Linux/Bash CLI, Docker CLI, Agile/Scrum, Software Architecture, System Design, UML Analysis & Design...)**: ABSOLUTELY FORBIDDEN to force live Pyodide Wasm sandboxes or run buttons. Section 3 MUST use static Terminal Command Blocks (`<pre><code class="language-bash">...</code></pre>`), Command Flow Comparison Cards, or Config/Diagram Parameter Cards.
 
 **Mandatory Content Structure**:
 
 1. **Hierarchical Sub-heading Numbering (`3.1`, `3.2`, `3.3...`)**: All `<h3>` sub-headings MUST follow parent section hierarchy (Section 2 ➔ `2.1`, `2.2`; Section 3 ➔ `3.1`, `3.2`; Section 4 ➔ `4.1`, `4.2`). FORBIDDEN independent `1.`, `2.`, `3.` numbering.
-2. **Code Snippets for Every Example (`3.1`, `3.2`, `3.3`)**: EVERY EXAMPLE MUST include a `<pre><code class="hljs language-python">` code block directly below it for instant copying and execution.
+2. **Code Snippets for Every Example (`3.1`, `3.2`, `3.3`)**: EVERY EXAMPLE MUST include a code block directly below it (`<pre><code class="hljs language-LANG">`). Replace `LANG` with appropriate language (e.g. `bash` for Git/CLI, `python` for Python, `sql` for SQL).
 3. **Progressive Example Complexity (1 to 3 Examples from Simple ➔ Complex / Enterprise)**:
-   - **Example 3.1 (Ultra-Simple / Syntax Minimalist)**: Minimal syntax graspable in 30 seconds (e.g. 1 variable declaration, 1 line print).
-   - **Example 3.2 (Moderate / Business Scenario)**: Applied to a small business task (e.g. discounted order total calculation).
-   - **Example 3.3 (Enterprise Practical / Advanced)**: Full business scenario (e.g. HR payroll processing or ecommerce order pipeline).
+   - **Example 3.1 (Ultra-Simple / Syntax Minimalist)**: Minimal syntax/command graspable in 30 seconds (e.g. 1 variable declaration, or basic `git status` command).
+   - **Example 3.2 (Moderate / Business Scenario)**: Applied to a small business task (e.g. discounted order total, or feature branching workflow).
+   - **Example 3.3 (Enterprise Practical / Advanced)**: Full business scenario (e.g. HR payroll processing or production release merge conflict resolution).
    - ⛔ **FORBIDDEN SINGLE ULTRA-COMPLEX EXAMPLE**: Never present a single overly complex or non-practical example.
-4. **Pyodide Live Wasm Sandbox & Terminal Console**: Embedded `<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>` with **Run Code** button for browser execution.
+4. **Pyodide Live Wasm Sandbox & Terminal Console (Only for Runnable Programming Languages)**: Embedded `<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>` with **Run Code** button for browser execution. (Skipped for Git/CLI/Theory subjects).
 
 **Template Pyodide Interactive Editor Sandbox chuẩn (theo `functions.html` — Style 1 Sáng/Tối Linh hoạt)**:
 

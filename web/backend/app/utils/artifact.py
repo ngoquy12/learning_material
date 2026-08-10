@@ -315,6 +315,10 @@ async def write_artifact_to_disk(db: AsyncSession, artifact) -> None:
             file_path = target_dir / "Tài liệu đặc tả SRS" / "tai_lieu_dac_ta_yeu_cau_srs.md"
         elif artifact.type == "project_mini_project":
             file_path = target_dir / "Mini project" / "de_bai_mini_project.md"
+        elif artifact.type == "practical_lab":
+            file_path = target_dir / "Bài thực hành" / "practical_lab.md"
+        elif artifact.type == "reading_questions":
+            file_path = target_dir / "Câu hỏi bài đọc" / "reading_questions.md"
 
         if not file_path:
             print(f"[Sync Disk Info] Unknown or unsupported artifact type: {artifact.type}. Skipping disk sync.")

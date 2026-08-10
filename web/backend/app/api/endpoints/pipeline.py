@@ -252,8 +252,8 @@ async def sync_disk_to_db():
                             art.status = "Completed"
                         stats["artifacts_updated"] += 1
 
-                    # Quiz
-                    quiz_file = lesson_path / "quiz.json"
+                    # Quiz & Practical Lab
+                    quiz_file = lesson_path / "quiz.json" if (lesson_path / "quiz.json").exists() else lesson_path / "Câu hỏi Quizz" / "quiz.json"
                     if quiz_file.exists():
                         try:
                             qdata = json.loads(quiz_file.read_text(encoding="utf-8"))
@@ -268,8 +268,38 @@ async def sync_disk_to_db():
                             stats["artifacts_updated"] += 1
                         except: pass
 
+                    lab_file = lesson_path / "practical_lab.md" if (lesson_path / "practical_lab.md").exists() else lesson_path / "Bài thực hành" / "practical_lab.md"
+                    if lab_file.exists():
+                        try:
+                            lcontent = lab_file.read_text(encoding="utf-8")
+                            res = await db.execute(select(Artifact).where(Artifact.lesson_id == lesson.id, Artifact.type == "practical_lab"))
+                            art = res.scalars().first()
+                            if not art:
+                                art = Artifact(lesson_id=lesson.id, type="practical_lab", status="Completed", content=lcontent)
+                                db.add(art)
+                            else:
+                                art.content = lcontent
+                                art.status = "Completed"
+                            stats["artifacts_updated"] += 1
+                        except: pass
+
+                    rq_file = lesson_path / "reading_questions.md" if (lesson_path / "reading_questions.md").exists() else lesson_path / "Câu hỏi bài đọc" / "reading_questions.md"
+                    if rq_file.exists():
+                        try:
+                            rqcontent = rq_file.read_text(encoding="utf-8")
+                            res = await db.execute(select(Artifact).where(Artifact.lesson_id == lesson.id, Artifact.type == "reading_questions"))
+                            art = res.scalars().first()
+                            if not art:
+                                art = Artifact(lesson_id=lesson.id, type="reading_questions", status="Completed", content=rqcontent)
+                                db.add(art)
+                            else:
+                                art.content = rqcontent
+                                art.status = "Completed"
+                            stats["artifacts_updated"] += 1
+                        except: pass
+
                     # Mindmap
-                    md_file = lesson_path / "outline.md"
+                    md_file = lesson_path / "outline.md" if (lesson_path / "outline.md").exists() else lesson_path / "Mindmap" / "mindmap.md"
                     if md_file.exists():
                         res = await db.execute(select(Artifact).where(Artifact.lesson_id == lesson.id, Artifact.type == "outline"))
                         art = res.scalars().first()

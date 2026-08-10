@@ -225,6 +225,63 @@ def get_context_curriculum(sessions: list, current_session_id: str) -> list:
     end = min(len(sessions), idx + 2)
     return sessions[start:end]
 
+
+def is_exam_session(session: dict) -> bool:
+    """Kiểm tra xem session có phải là dạng bài thi (Thi giữa kỳ, Thi thực hành, Thi cuối kỳ...)"""
+    session_code = str(session.get("session_code", "")).strip().upper()
+    session_title = str(session.get("title", "")).strip().lower()
+    session_type = str(session.get("session_type", "")).strip().lower()
+
+    if "ôn tập" in session_title or "ôn tập" in session_type:
+        return False
+
+    if session_code in ["MIDTERM", "FINAL", "EXAM"]:
+        return True
+
+    exam_keywords = ["thi giữa kỳ", "thi thực hành", "thi cuối kỳ", "midterm", "final", "bài thi", "thực hành thi"]
+    if any(kw in session_title for kw in exam_keywords) or any(kw in session_type for kw in exam_keywords):
+        return True
+
+    return False
+
+
+def is_project_or_hackathon_session(session: dict) -> bool:
+    """Kiểm tra xem session có phải là dạng Mini Project / Capstone Project / Hackathon hay không"""
+    session_code = str(session.get("session_code", "")).strip().upper()
+    session_title = str(session.get("title", "")).strip().lower()
+    session_type = str(session.get("session_type", "")).strip().lower()
+
+    if session_code in ["MINI_PROJECT", "FINAL_PROJECT", "PROJECT", "HACKATHON"]:
+        return True
+
+    if session_type in ["mini project", "dự án cuối khóa", "đồ án", "hackathon"]:
+        return True
+
+    project_keywords = ["mini project", "hackathon", "dự án cuối khóa", "đồ án môn học", "đồ án tốt nghiệp", "capstone project"]
+    if any(kw in session_title for kw in project_keywords) or any(kw in session_type for kw in project_keywords):
+        return True
+
+    return False
+
+
+def is_practice_session(session: dict) -> bool:
+    """Kiểm tra xem session có phải là dạng Thực hành (Practice Lab) hay không"""
+    if is_exam_session(session) or is_project_or_hackathon_session(session):
+        return False
+
+    session_code = str(session.get("session_code", "")).strip().upper()
+    session_title = str(session.get("title", "")).strip().lower()
+    session_type = str(session.get("session_type", "")).strip().lower()
+
+    if session_code == "PRACTICE":
+        return True
+
+    if "thực hành" in session_type or "thực hành" in session_title:
+        return True
+
+    return False
+
+
 def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: list, requested_session: str):
     print("\n=====================================================================")
     print(">>> GIAI ĐOẠN 1.1: KHỞI TẠO KHUNG CẤU TRÚC THƯ MỤC & FILE RỖNG <<<")
@@ -241,10 +298,16 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
         session_dir.mkdir(parents=True, exist_ok=True)
         print(f"  [Folder] Khởi tạo session: {session_folder_name}")
 
-        is_project_or_hackathon = any(kw in session_title.lower() for kw in ["hackathon", "project", "đồ án", "dự án", "mini project"])
-        is_practice = "thực hành" in session_title.lower()
+        is_exam = is_exam_session(session)
+        is_project_or_hackathon = is_project_or_hackathon_session(session)
+        is_practice = is_practice_session(session)
 
-        if is_project_or_hackathon:
+        if is_exam:
+            (session_dir / "Đề thi tự luận").mkdir(parents=True, exist_ok=True)
+            (session_dir / "Đề thi trắc nghiệm").mkdir(parents=True, exist_ok=True)
+            (session_dir / "Câu hỏi vấn đáp").mkdir(parents=True, exist_ok=True)
+            continue
+        elif is_project_or_hackathon:
             (session_dir / "Bài kiểm tra đầu giờ").mkdir(parents=True, exist_ok=True)
             (session_dir / "Tài liệu đặc tả SRS").mkdir(parents=True, exist_ok=True)
             (session_dir / "Mini project").mkdir(parents=True, exist_ok=True)
@@ -352,10 +415,19 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
             missing_elements.append(f"Thiếu thư mục session: {session_id}")
             continue
 
-        is_project_or_hackathon = any(kw in session_title.lower() for kw in ["hackathon", "project", "đồ án", "dự án", "mini project"])
-        is_practice = "thực hành" in session_title.lower()
+        is_exam = is_exam_session(session)
+        is_project_or_hackathon = is_project_or_hackathon_session(session)
+        is_practice = is_practice_session(session)
 
-        if is_project_or_hackathon:
+        if is_exam:
+            if not (session_dir / "Đề thi thực hành").exists() and not (session_dir / "Đề thi thực hành").exists():
+                missing_elements.append(f"Thiếu thư mục 'Đề thi tự luận' tại {session_id}")
+            if not (session_dir / "Đề thi trắc nghiệm").exists():
+                missing_elements.append(f"Thiếu thư mục 'Đề thi trắc nghiệm' tại {session_id}")
+            if not (session_dir / "Câu hỏi vấn đáp").exists():
+                missing_elements.append(f"Thiếu thư mục 'Câu hỏi vấn đáp' tại {session_id}")
+            continue
+        elif is_project_or_hackathon:
             if not (session_dir / "Bài kiểm tra đầu giờ").exists():
                 missing_elements.append(f"Thiếu thư mục 'Bài kiểm tra đầu giờ' tại {session_id}")
             if not (session_dir / "Tài liệu đặc tả SRS").exists():
@@ -593,3 +665,53 @@ def parse_program_structure_from_ptit(excel_path: str, target_course_id: str):
             break
             
     return course_info
+
+
+def detect_tech_stack_from_curriculum(sessions: list, excel_path: str) -> str:
+    """
+    Dynamically extracts technology stack and pedagogical domain for ANY course 
+    by reading Excel metadata or querying the LLM Router.
+    ABSOLUTELY NO hardcoded course names, keywords, or language arrays.
+    Works dynamically for any subject (Git, Agile/Scrum, System Analysis & Design, AI Tools, Testing, UI/UX, etc.).
+    """
+    if not sessions:
+        return "general/software_engineering"
+
+    # 1. Read explicit tech_stack_convention from Excel PM metadata if provided by author
+    for sess in sessions:
+        if sess.get("tech_stack_convention"):
+            return sess["tech_stack_convention"].strip().lower()
+
+    # 2. Extract curriculum outline summary for dynamic LLM domain classification
+    course_name = Path(excel_path).stem.replace("PM_Generated_", "").replace("_Updated", "").replace("_", " ")
+    session_titles = [s.get("title", "") for s in sessions[:5] if s.get("title")]
+    outline_summary = f"Môn học: {course_name}\nCác session tiêu biểu: " + ", ".join(session_titles)
+
+    try:
+        from core.llm_router import call_llm
+        prompt = f"""Bạn là Chuyên gia Kiến trúc Sư phạm (Curriculum Domain Architect).
+Hãy phân tích thông tin môn học và xuất ra ĐÚNG 1 TỪ KHÓA ĐỊNH DẠNG DOMAIN/TECH-STACK ngắn gọn đại diện cho công nghệ/miền tri thức chính của môn học này.
+
+Ví dụ định dạng trả về (chỉ trả về 1 chuỗi dạng category/domain, không giải thích):
+- Môn Quản lý phiên bản Git -> vcs/git
+- Môn Phân tích thiết kế hệ thống -> system_analysis/uml
+- Môn Phương pháp Agile Scrum -> agile_scrum
+- Môn Ứng dụng AI trong học tập -> ai_tools/prompting
+- Môn Lập trình Python -> python/core
+- Môn Cơ sở dữ liệu SQL -> database/sql
+- Môn Lập trình Web Frontend -> web/frontend
+- Môn Kiểm thử phần mềm -> software_testing/qa
+
+Thông tin môn học:
+{outline_summary}
+
+Chỉ trả về 1 chuỗi domain/tech-stack dạng category/technology ngắn gọn:"""
+        
+        domain = call_llm(prompt, temperature=0.0).strip().lower()
+        domain = domain.replace("`", "").replace('"', '').replace("'", "").strip()
+        if domain and len(domain) < 50:
+            return domain
+    except Exception as e:
+        print(f"  [Warning] Dynamic LLM domain detection fallback: {e}")
+
+    return "general/software_engineering"

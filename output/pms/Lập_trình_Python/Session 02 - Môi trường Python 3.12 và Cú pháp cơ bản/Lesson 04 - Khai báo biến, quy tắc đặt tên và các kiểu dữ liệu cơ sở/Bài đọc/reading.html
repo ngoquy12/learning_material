@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1">
+            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Tại sao cần khai báo biến đúng cách và tuân thủ chuẩn đặt tên PEP 8?</a>
+            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Cú pháp khai báo biến, quy tắc PEP 8 và các kiểu dữ liệu cơ sở trong Python</a>
+            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
+            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Tại sao cần khai báo biến đúng cách và tuân thủ chuẩn đặt tên PEP 8?</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Cú pháp khai báo biến, quy tắc PEP 8 và các kiểu dữ liệu cơ sở trong Python</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Tại sao cần khai báo biến đúng cách và tuân thủ chuẩn đặt tên PEP 8?</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong các dự án phần mềm doanh nghiệp, mã nguồn không chỉ được viết cho máy tính thực thi mà còn để các kỹ sư trong team cùng đọc, bảo trì và phát triển tiếp. Xét ví dụ thực tế tại một hệ thống quản lý kho và bán hàng thương mại điện tử: khi lập trình viên cũ viết mã nguồn sử dụng các tên biến viết tắt tùy tiện, không theo chuẩn mực và không nắm rõ kiểu dữ liệu, hệ thống sẽ nhanh chóng rơi vào tình trạng hỗn loạn.</p><p class="text-slate-600 mb-4 leading-relaxed">Những cách làm cũ thiếu chuẩn hóa thường gặp phải các điểm đau (pain points) nghiêm trọng sau:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Tên biến mơ hồ, thiếu ngữ cảnh:</strong> Đặt tên biến ngắn ngủi như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">a</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">x1</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">temp_val</code> khiến người đọc không thể hiểu biến đó đại diện cho số lượng hàng trong kho, đơn giá hay trạng thái tài khoản.</li><li><strong class="font-semibold text-slate-900">Phong cách đặt tên không thống nhất:</strong> Trộn lẫn giữa các quy tắc khác nhau như CamelCase (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">totalPrice</code>), PascalCase (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">UserAge</code>) và gạch nối bất hợp lệ (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">user-status</code>), làm vi phạm quy chuẩn cộng đồng Python (<strong class="font-semibold text-slate-900">PEP 8</strong>).</li><li><strong class="font-semibold text-slate-900">Trôi kiểu dữ liệu ngầm định (Implicit Type Confusion):</strong> Nhầm lẫn giữa số nguyên (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">int</code>), số thực (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code>), chuỗi ký tự (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">str</code>) và kiểu luận lý (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">bool</code>). Ví dụ: lưu số tiền dưới dạng chuỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"150000"</code> dẫn đến việc tính toán sai lệch hoặc lỗi chương trình đột ngột.</li></ul><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><p class="text-sm leading-relaxed"><strong class="font-semibold text-sky-900">Giải pháp Pythonic:</strong> Áp dụng chuẩn đặt tên <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">snake_case</code> theo tài liệu hướng dẫn PEP 8 và xác định rõ kiểu dữ liệu ngay khi khai báo biến giúp mã nguồn trở nên tự giải thích (self-documenting), giảm thiểu 90% lỗi logic liên quan đến dữ liệu.</p></div></div>
+          <div class="my-6"><div class="my-6"><svg viewBox="0 0 800 280" class="rikkei-diagram w-full h-auto" xmlns="http://www.w3.org/2000/svg"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect x="40" y="20" width="320" height="240" rx="12" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="60" y="50" font-size="14" font-weight="bold" fill="#991b1b">Cách cũ: Đặt tên tự do & Lỗi kiểu</text><rect x="60" y="70" width="280" height="35" rx="6" fill="#ffffff" stroke="#fda4af" stroke-width="1"/><text x="75" y="92" font-family="monospace" font-size="12" fill="#be123c">a = "150000"  # Chuỗi thay vì số</text><rect x="60" y="115" width="280" height="35" rx="6" fill="#ffffff" stroke="#fda4af" stroke-width="1"/><text x="75" y="137" font-family="monospace" font-size="12" fill="#be123c">userAge = 25  # Lỗi chuẩn PEP 8</text><rect x="60" y="160" width="280" height="35" rx="6" fill="#ffffff" stroke="#fda4af" stroke-width="1"/><text x="75" y="182" font-family="monospace" font-size="12" fill="#be123c">st = True     # Mơ hồ, khó hiểu</text><text font-family="Inter, system-ui, sans-serif"  x="60" y="225" font-size="11" fill="#9f1239">Hệ quả: Khó bảo trì, sai phép toán</text><rect x="440" y="20" width="320" height="240" rx="12" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="460" y="50" font-size="14" font-weight="bold" fill="#065f46">Cách mới: Chuẩn PEP 8 & Kiểu dữ liệu</text><rect x="460" y="70" width="280" height="35" rx="6" fill="#ffffff" stroke="#6ee7b7" stroke-width="1"/><text x="475" y="92" font-family="monospace" font-size="12" fill="#047857">product_price = 150000  # int</text><rect x="460" y="115" width="280" height="35" rx="6" fill="#ffffff" stroke="#6ee7b7" stroke-width="1"/><text x="475" y="137" font-family="monospace" font-size="12" fill="#047857">user_age = 25           # int</text><rect x="460" y="160" width="280" height="35" rx="6" fill="#ffffff" stroke="#6ee7b7" stroke-width="1"/><text x="475" y="182" font-family="monospace" font-size="12" fill="#047857">is_account_active = True# bool</text><text font-family="Inter, system-ui, sans-serif"  x="460" y="225" font-size="11" fill="#064e3b">Ưu điểm: Tự giải thích, chuẩn hóa</text><g transform="translate(360, 0)"><text font-family="Inter, system-ui, sans-serif"  x="40" y="95" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369a1">Chuẩn hóa PEP 8</text><path d="M 15 125 L 50 125 L 50 115 L 65 130 L 50 145 L 50 135 L 15 135 Z" fill="#0284c7"/><text font-family="Inter, system-ui, sans-serif"  x="40" y="175" text-anchor="middle" font-size="11" fill="#0284c7">Quản lý bộ nhớ</text><text font-family="Inter, system-ui, sans-serif"  x="40" y="190" text-anchor="middle" font-size="11" fill="#0284c7">& Tăng tính bảo trì</text></g></svg></div></div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cú pháp khai báo biến, quy tắc PEP 8 và các kiểu dữ liệu cơ sở trong Python</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-cu-phap-khai-bao-bien-va-co-che-luu-tru-bo-nho-trong-python" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp khai báo biến và cơ chế lưu trữ bộ nhớ trong Python</h3><p class="text-slate-600 mb-4 leading-relaxed">Trong Python, biến (variable) là tên gọi đại diện cho một vùng nhớ lưu trữ giá trị. Khác với các ngôn ngữ biên dịch như C/C++ hay Java, Python sử dụng cơ chế <strong class="font-semibold text-slate-900">gán động (Dynamic Typing)</strong>. Người lập trình không cần khai báo từ khóa kiểu dữ liệu trước tên biến, Python sẽ tự động xác định kiểu dựa trên giá trị được gán.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">variable_name = value</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Declare integer and float variables
+item_count = 10
+item_price = 29.99</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">variable_name</code>: Tên của biến, đóng vai trò là nhãn tham chiếu đến đối tượng trong bộ nhớ.</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">=</code>: Toán tử gán (assignment operator), đưa giá trị từ vế phải vào địa chỉ ô nhớ mà tên biến ở vế trái trỏ tới.</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">value</code>: Giá trị cụ thể thuộc một kiểu dữ liệu xác định (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">int</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">str</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">bool</code>).</li></ul><h3 id="sec-2-2-quy-tac-at-ten-bien-snake-case-theo-chuan-pep-8" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Quy tắc đặt tên biến snake_case theo chuẩn PEP 8</h3><p class="text-slate-600 mb-4 leading-relaxed">PEP 8 (Python Enhancement Proposal 8) là quy chuẩn viết mã nguồn chính thức của ngôn ngữ Python. Theo PEP 8, tên biến phải sử dụng phong cách <strong class="font-semibold text-slate-900">snake_case</strong>: viết thường toàn bộ các chữ cái và nối giữa các từ bằng dấu gạch dưới <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">_</code>.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">snake_case_variable = value</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Standard PEP 8 variable naming examples
+total_user_count = 500
+is_order_completed = True</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">snake_case_variable</code>: Tên biến kết hợp nhiều từ bằng dấu gạch dưới, giúp tên biến danh từ hóa rõ nghĩa.</li><li>Ký tự đầu tiên phải là chữ cái (a-z, A-Z) hoặc dấu gạch dưới (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">_</code>). Tuyệt đối không bắt đầu bằng chữ số.</li><li>Tên biến chỉ chứa các chữ cái, chữ số (0-9) và dấu gạch dưới. Không chứa ký tự đặc biệt như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">@</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">$</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">%</code> hay dấu gạch nối <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">-</code>.</li><li>Không trùng với các từ khóa hệ thống (Reserved Keywords) của Python như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">class</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">import</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">return</code>.</li></ul><h3 id="sec-2-3-cac-kieu-du-lieu-co-so-trong-python-basic-data-types" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Các kiểu dữ liệu cơ sở trong Python (Basic Data Types)</h3><p class="text-slate-600 mb-4 leading-relaxed">Python hỗ trợ 4 kiểu dữ liệu cơ sở cơ bản nhất để biểu diễn thông tin trong ứng dụng:</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Demonstration of basic Python data types
+age = 30                  # int
+temperature = 36.6        # float
+user_name = &quot;Alice&quot;       # str
+is_verified = True        # bool</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">int</code> (Integer): Kiểu số nguyên âm hoặc dương, không chứa phần thập phân (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">10</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">-5</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">0</code>).</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code> (Floating-point number): Kiểu số thực chứa dấu chấm thập phân (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">3.14</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">-0.5</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">2.0</code>).</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">str</code> (String): Kiểu chuỗi ký tự được đặt trong cặp dấu ngoặc đơn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'...'</code> hoặc ngoặc kép <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"..."</code> (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"Hello World"</code>).</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">bool</code> (Boolean): Kiểu luận lý chỉ nhận 1 trong 2 giá trị: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> (Đúng) hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code> (Sai). Lưu ý viết hoa chữ cái đầu.</li></ul><h3 id="sec-2-4-kiem-tra-kieu-du-lieu-voi-ham-type" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Kiểm tra kiểu dữ liệu với hàm type()</h3><p class="text-slate-600 mb-4 leading-relaxed">Để xác định chính xác kiểu dữ liệu của một biến đang lưu trữ trong quá trình thực thi, Python cung cấp hàm tích hợp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">type()</code>.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">type(object)</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Inspecting variable data types
+data_value = 100
+data_type = type(data_value)</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">object</code>: Biến hoặc giá trị cần kiểm tra kiểu dữ liệu.</li><li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">data_type</code>: Kết quả trả về dưới dạng lớp kiểu dữ liệu (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;class 'int'&gt;</code>).</li></ul><div class="bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-4 my-6 shadow-sm"><div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4"><div class="flex items-center gap-2"><span class="w-3 h-3 bg-rose-500 inline-block"></span><span class="w-3 h-3 bg-amber-500 inline-block"></span><span class="w-3 h-3 bg-emerald-500 inline-block"></span><span class="text-xs font-bold text-slate-700 uppercase tracking-wider ml-2">Mô phỏng cơ chế khai báo biến & bộ nhớ từng bước</span></div><div class="flex gap-2"><button id="btn-prev" onclick="vizStepPrev()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all">Lùi lại</button><button id="btn-next" onclick="vizStepNext()" class="bg-[#be111c] text-slate-700 hover:bg-[#90000a] px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all">Tiếp theo</button><button id="btn-auto" onclick="vizToggleAuto()" class="bg-emerald-600 hover:bg-emerald-700 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all">Tự động chạy</button><button id="btn-reset" onclick="vizReset()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all">Thử lại</button></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-white rounded-lg p-3 border border-slate-200"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn đang thực thi</div><div id="viz-code-lines" class="font-mono text-xs space-y-1"><div id="viz-line-1" class="text-slate-600 px-2 py-1 transition-colors rounded" style="color: #475569 !important; font-weight: 500;"><span class="text-blue-600">product_quantity</span> = <span class="text-amber-600">10</span></div><div id="viz-line-2" class="text-slate-600 px-2 py-1 transition-colors rounded" style="color: #475569 !important; font-weight: 500;"><span class="text-blue-600">unit_price</span> = <span class="text-amber-600">15.5</span></div><div id="viz-line-3" class="text-slate-600 px-2 py-1 transition-colors rounded" style="color: #475569 !important; font-weight: 500;"><span class="text-blue-600">total_cost</span> = product_quantity * unit_price</div><div id="viz-line-4" class="text-slate-600 px-2 py-1 transition-colors rounded" style="color: #475569 !important; font-weight: 500;"><span class="text-blue-600">product_name</span> = <span class="text-emerald-700">"Keyboard"</span></div><div id="viz-line-5" class="text-slate-600 px-2 py-1 transition-colors rounded" style="color: #475569 !important; font-weight: 500;"><span class="text-blue-600">is_in_stock</span> = <span class="text-purple-600">True</span></div></div></div><div class="space-y-4"><div class="bg-white rounded-lg p-3 border border-slate-200"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Bảng bộ nhớ & Trạng thái biến</div><table class="w-full text-xs text-left"><thead class="bg-slate-100 text-slate-700"><tr><th class="p-1.5 border-b">Tên biến</th><th class="p-1.5 border-b">Giá trị</th><th class="p-1.5 border-b">Kiểu dữ liệu</th></tr></thead><tbody class="divide-y divide-slate-100 font-mono"><tr><td class="p-1.5 font-bold text-slate-800">product_quantity</td><td id="viz-var-number" class="p-1.5 text-amber-700">None</td><td id="viz-type-1" class="p-1.5 text-slate-500">-</td></tr><tr><td class="p-1.5 font-bold text-slate-800">unit_price</td><td id="viz-var-price" class="p-1.5 text-amber-700">None</td><td id="viz-type-2" class="p-1.5 text-slate-500">-</td></tr><tr><td class="p-1.5 font-bold text-slate-800">total_cost</td><td id="viz-var-sum" class="p-1.5 text-amber-700">None</td><td id="viz-type-3" class="p-1.5 text-slate-500">-</td></tr><tr><td class="p-1.5 font-bold text-slate-800">product_name</td><td id="viz-var-name" class="p-1.5 text-emerald-700">None</td><td id="viz-type-4" class="p-1.5 text-slate-500">-</td></tr><tr><td class="p-1.5 font-bold text-slate-800">is_in_stock</td><td id="viz-var-stock" class="p-1.5 text-purple-700">None</td><td id="viz-type-5" class="p-1.5 text-slate-500">-</td></tr></tbody></table></div><div class="bg-white rounded-lg p-3 border border-slate-200"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Màn hình Console</div><div id="viz-console" class="font-mono text-xs text-slate-700 bg-slate-100 p-2 rounded min-h-[50px]">Sẵn sàng chạy mô phỏng. Sẽ thực thi từng dòng lệnh...</div></div></div></div></div></div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-vi-du-3-1-khai-bao-bien-co-ban-va-kiem-tra-kieu-du-lieu-basic-syntax" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ 3.1: Khai báo biến cơ bản và kiểm tra kiểu dữ liệu (Basic Syntax)</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ này minh họa cách khai báo 4 kiểu dữ liệu cơ sở và sử dụng hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">type()</code> để xác định chính xác kiểu dữ liệu được lưu trữ.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="# Example 3.1: Basic Variable Declaration &amp; Type Inspection&#10;item_quantity = 25&#10;item_price = 49.99&#10;store_name = &quot;Rikkei Shop&quot;&#10;is_store_open = True&#10;&#10;print(type(item_quantity))&#10;print(type(item_price))&#10;print(type(store_name))&#10;print(type(is_store_open))" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;"># Example 3.1: Basic Variable Declaration &amp; Type Inspection
+item_quantity = 25
+item_price = 49.99
+store_name = &quot;Rikkei Shop&quot;
+is_store_open = True
+
+print(type(item_quantity))
+print(type(item_price))
+print(type(store_name))
+print(type(is_store_open))</code></pre>
+  </div>
+  <div id="container-sb-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2-vi-du-3-2-bai-toan-tinh-tong-hoa-on-theo-chuan-pep-8-business-billing-calculation" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ 3.2: Bài toán tính tổng hóa đơn theo chuẩn PEP 8 (Business Billing Calculation)</h3><p class="text-slate-600 mb-4 leading-relaxed">Áp dụng quy tắc đặt tên <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">snake_case</code> theo chuẩn PEP 8 để xây dựng mã nguồn tính toán tiền đơn hàng bao gồm thuế GTGT một cách minh bạch và tự giải thích.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Example 3.2: Order Billing Calculation using PEP 8 Naming&#10;product_unit_price = 150.0&#10;ordered_quantity = 3&#10;tax_rate = 0.08&#10;&#10;subtotal = product_unit_price * ordered_quantity&#10;tax_amount = subtotal * tax_rate&#10;grand_total = subtotal + tax_amount&#10;&#10;print(subtotal)&#10;print(tax_amount)&#10;print(grand_total)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;"># Example 3.2: Order Billing Calculation using PEP 8 Naming
+product_unit_price = 150.0
+ordered_quantity = 3
+tax_rate = 0.08
+
+subtotal = product_unit_price * ordered_quantity
+tax_amount = subtotal * tax_rate
+grand_total = subtotal + tax_amount
+
+print(subtotal)
+print(tax_amount)
+print(grand_total)</code></pre>
+  </div>
+  <div id="container-sb-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3-vi-du-3-3-xu-ly-thong-tin-nguoi-dung-he-thong-enterprise-enterprise-metadata" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ 3.3: Xử lý thông tin người dùng hệ thống Enterprise (Enterprise Metadata)</h3><p class="text-slate-600 mb-4 leading-relaxed">Minh họa cách biểu diễn tập thuộc tính người dùng trong hệ thống phần mềm doanh nghiệp, kết hợp đủ các kiểu dữ liệu <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">int</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">str</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code>, và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">bool</code>.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="# Example 3.3: Enterprise User Profile Data Representation&#10;user_id = 10089&#10;username = &quot;alex_developer&quot;&#10;account_balance = 1250.75&#10;is_premium_member = True&#10;&#10;print(user_id)&#10;print(username)&#10;print(account_balance)&#10;print(is_premium_member)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;"># Example 3.3: Enterprise User Profile Data Representation
+user_id = 10089
+username = &quot;alex_developer&quot;
+account_balance = 1250.75
+is_premium_member = True
+
+print(user_id)
+print(username)
+print(account_balance)
+print(is_premium_member)</code></pre>
+  </div>
+  <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div>
+        </section>
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-warning-circle text-rose-600"></i> 4.1. Các lỗi phổ biến khi đặt tên biến và vi phạm PEP 8</h4><ul class="list-disc pl-6 space-y-2 text-slate-700 my-2"><li><strong class="font-semibold text-slate-900">Đặt tên bắt đầu bằng chữ số:</strong> Khai báo như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">1st_user = "John"</code> sẽ gây ra lỗi cú pháp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">SyntaxError: invalid syntax</code>.</li><li><strong class="font-semibold text-slate-900">Sử dụng từ khóa bảo lưu (Reserved Keywords):</strong> Đặt tên biến trùng với từ khóa hệ thống như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">class = "Math"</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">import = 10</code> bị cấm tuyệt đối.</li><li><strong class="font-semibold text-slate-900">Dùng ký tự gạch nối thay cho gạch dưới:</strong> Khai báo <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">user-age = 20</code> khiến Python hiểu nhầm là phép trừ giữa hai biến <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">user</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">age</code>.</li></ul></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2""><i class="ph-bold ph-warning text-amber-600"></i> 4.2. Cạm bẫy trôi kiểu dữ liệu ngầm định và nhầm lẫn Boolean</h4><ul class="list-disc pl-6 space-y-2 text-slate-700 my-2"><li><strong class="font-semibold text-slate-900">Nối chuỗi số thay vì cộng số:</strong> Thực hiện toán tử cộng giữa hai chuỗi chứa số <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"10" + "20"</code> trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"1020"</code> (kiểu chuỗi), không phải <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">30</code> (kiểu số nguyên).</li><li><strong class="font-semibold text-slate-900">Viết thường giá trị Boolean:</strong> Viết <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">is_active = true</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">is_active = false</code> dẫn đến lỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">NameError</code> vì Python phân biệt chữ hoa chữ thường và bắt buộc ghi là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">True</code> hay <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">False</code>.</li></ul></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://peps.python.org/pep-0008/#naming-conventions" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> PEP 8 – Style Guide for Python Code (Naming Conventions)
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://docs.python.org/3/library/stdtypes.html" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Python Documentation - Built-in Basic Types (int, float, str, bool)
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers
+      window.vizStepMap = {};
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
+        var step = window.vizStepMap[idPrefix];
+        
+        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
+        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+        
+        if (consoleEl) {
+          if (step === 0) {
+            if (numEl) numEl.innerText = "-";
+            if (sumEl) sumEl.innerText = "0";
+            consoleEl.innerText = "Chờ thực thi...";
+          } else if (step === 1) {
+            if (numEl) numEl.innerText = "1";
+            if (sumEl) sumEl.innerText = "1";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
+          } else if (step === 2) {
+            if (numEl) numEl.innerText = "2";
+            if (sumEl) sumEl.innerText = "3";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
+          } else {
+            if (numEl) numEl.innerText = "3";
+            if (sumEl) sumEl.innerText = "6";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+          }
+        }
+      }
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = 0;
+        runVizStep(0, idPrefix);
+      }
+
+      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
+      function vizReset() { resetViz(); }
+      var vizAutoTimer = null;
+      function vizToggleAuto() {
+        if (vizAutoTimer) {
+          clearInterval(vizAutoTimer);
+          vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Tự động chạy";
+        } else {
+          vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Dừng tự động";
+        }
+      }
+    </script>
+  </body>
+</html>

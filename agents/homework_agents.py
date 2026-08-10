@@ -45,8 +45,10 @@ def homework_creator_agent(
         raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] homework_creator_agent: Yêu cầu tham số tech_stack hợp lệ.")
 
     # Determine stack category & technology boundaries
+    from agents.practice_agents import is_cli_or_tooling_tech
     stack_lower = tech_stack.lower().strip()
     is_web_framework = any(kw in stack_lower for kw in ["fastapi", "express", "spring", "flask", "django", "nest", "web api", "rest api"])
+    is_tooling = is_cli_or_tooling_tech(tech_stack)
     domain_adapter_rules = get_domain_rules(tech_stack)
 
     # Technology isolation instructions
@@ -57,9 +59,17 @@ def homework_creator_agent(
   + Use framework-appropriate validation and HTTP status codes (e.g. 400 Bad Request, 409 Conflict, 500 Internal Error).
 """
         example_repo_prefix = f"HNKS25CNTT1_WebAPI_Session"
+    elif is_tooling:
+        stack_tech_directives = f"""
+- TECHNOLOGY DIRECTIVES (CLI / TOOLING / PROCESS / ARCHITECTURE COURSE):
+  + This course is a CLI / Tooling / Version Control / Process / Architecture subject ({tech_stack}), NOT a programming language class writing OOP application code.
+  + ABSOLUTELY FORBIDDEN to force students to write complex OOP programming code (e.g., Python classes, exception handling like ValueError/KeyError, API endpoints in Python/Java/JS) unless the lesson explicitly asks for simple automation scripts.
+  + Focus on real-world operational scenarios, CLI command workflows, repository/branch/config setup, system state validation, and troubleshooting/conflict resolution.
+"""
+        example_repo_prefix = f"HNKS25CNTT1_Tooling_Session"
     else:
         stack_tech_directives = """
-- TECHNOLOGY ISOLATION DIRECTIVES (CORE / CLI COURSE):
+- TECHNOLOGY ISOLATION DIRECTIVES (CORE PROGRAMMING COURSE):
   + ABSOLUTELY FORBIDDEN to use any web frameworks, external database libraries, HTTP status codes, routing decorators, or REST API concepts.
   + MUST use native language features only: CLI input/output, in-memory data structures (lists, dicts, arrays, structs, objects), native exception handling (e.g. `raise ValueError`, `raise KeyError` in Python; native Exception classes in Java; error return codes in C/C++).
 """
@@ -70,7 +80,42 @@ def homework_creator_agent(
     rubric_guidelines = ""
     
     if idx in [1, 2]:
-        level_guidelines = f"""
+        if is_tooling:
+            level_guidelines = f"""
+- Difficulty Level: 'Basic Application {idx}'.
+- MUST provide a realistic buggy CLI script, broken configuration file, or flawed repository scenario in section '### **3. Mã nguồn hiện tại**' (or '### **3. Mô tả kịch bản hiện tại**').
+- Legacy scenario MUST contain a specific operational flaw (e.g. broken configuration, missing tracked files, wrong branch checkout, merge conflict, flawed CLI flow).
+- Student Execution Directives:
+  + Part 1: Write a diagnostic report table (minimum 3 test cases specifying Input CLI operations, actual buggy behavior, and expected correct result).
+  + Part 2: Fix the operational flaw using standard '{tech_stack}' CLI commands and tool operations.
+- ABSOLUTELY FORBIDDEN to force writing complex Python OOP class exceptions.
+"""
+            rubric_guidelines = f"""
+Mandatory 5 Rubric Criteria Groups:
+#### **1. Phân tích & Phát hiện lỗi vận hành (Báo cáo Test Case) — 30 điểm**
+*   **[15 điểm] Xác định chính xác lỗi:** Correctly pinpoint the operational or configuration flaw.
+*   **[15 điểm] Xây dựng bảng Test Case chứng minh:** Provide minimum 3 concrete test cases (Input, buggy Output, and expected Output).
+
+#### **2. Thao tác khắc phục sự cố & Lệnh thực thi — 40 điểm**
+*   **[20 điểm] Thao tác đúng lệnh nghiệp vụ:** Successfully resolve operational flaws using correct '{tech_stack}' commands.
+*   **[20 điểm] Xử lý tình huống hệ thống:** Execute proper workflow commands and maintain clean system state.
+
+#### **3. Kiểm chuẩn quy trình & Trạng thái hệ thống — 20 điểm**
+*   **[10 điểm] Validate cấu hình cơ bản:** Block invalid configurations or unsafe operations.
+*   **[10 điểm] Bắt lỗi an toàn hệ thống:** Ensure repository and workflow state remain consistent without data loss.
+
+#### **4. Lý thuyết mở rộng và tối ưu — 10 điểm**
+*   **[10 điểm] Câu hỏi tự luận bổ sung:** Explain why this operational flaw occurs in production and how to prevent it.
+
+#### **5. Chất lượng quy trình và Quy chuẩn nộp bài — 10 điểm**
+*   **[5 điểm] Nhật ký thao tác sạch:** Clear command history, standard workflow formatting.
+*   **[5 điểm] Tuân thủ nộp bài GitHub:** Push repository to GitHub following required directory structure.
+
+#### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
+*   **[10 điểm] Tự động hóa quy trình:** Write automated script testing or validating the fix.
+"""
+        else:
+            level_guidelines = f"""
 - Difficulty Level: 'Basic Application {idx}'.
 - MUST provide runnable legacy source code adhering strictly to '{tech_stack}' syntax in section '### **3. Mã nguồn hiện tại**'.
 - Legacy code MUST contain a specific business logic flaw or missing input validation (e.g. missing duplicate check, capacity bound overflow, wrong status state).
@@ -79,7 +124,7 @@ def homework_creator_agent(
   + Part 2: Fix legacy source code to enforce in-memory business constraints using standard '{tech_stack}' error handling patterns.
 - ABSOLUTELY FORBIDDEN to provide completed solution code or pre-fixed source code.
 """
-        rubric_guidelines = f"""
+            rubric_guidelines = f"""
 Mandatory 5 Rubric Criteria Groups:
 #### **1. Phân tích & Phát hiện lỗi logic (Báo cáo Test Case) — 30 điểm**
 *   **[15 điểm] Xác định chính xác vị trí dòng lỗi:** Correctly pinpoint the exact line in sample code handling flawed logic.
@@ -626,11 +671,18 @@ def session_homework_pipeline(
         
     # Clean legacy artifacts in homework_dir
     if homework_dir.exists():
-        for old_folder in homework_dir.glob("*_*"):
-            if old_folder.is_dir():
-                import shutil
+        import shutil
+        for item in homework_dir.glob("*"):
+            if item.name == "images":
+                continue
+            if item.is_dir():
                 try:
-                    shutil.rmtree(old_folder)
+                    shutil.rmtree(item)
+                except Exception:
+                    pass
+            elif item.is_file() and item.name.startswith("bai_"):
+                try:
+                    item.unlink()
                 except Exception:
                     pass
 
@@ -639,14 +691,15 @@ def session_homework_pipeline(
         title = ex.get("title", "Bài tập")
         clean_name = sanitize_vietnamese_filename(title).replace(".md", "")
         ex_folder = homework_dir / f"{idx+1}_{clean_name}"
-        ex_folder.mkdir(exist_ok=True)
+        ex_folder.mkdir(parents=True, exist_ok=True)
         
         filename_no_ext = f"bai_{idx+1:02d}_{clean_name}"
         content = ex.get("content", "")
         rubric = ex.get("rubric", "")
         
-        # Post-process content to link/generate diagram image
-        processed_content = generate_and_link_diagram(content, homework_dir, filename_no_ext)
+        # Post-process content to link/generate diagram image and sanitize math formulas
+        from agents.creators.common_utils import clean_markdown_formulas
+        processed_content = clean_markdown_formulas(generate_and_link_diagram(content, homework_dir, filename_no_ext))
         
         # Save de_bai_bai_tap.md
         desc_file_path = ex_folder / "de_bai_bai_tap.md"

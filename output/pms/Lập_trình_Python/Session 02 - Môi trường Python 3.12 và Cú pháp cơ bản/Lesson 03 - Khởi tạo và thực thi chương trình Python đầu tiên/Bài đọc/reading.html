@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Khởi tạo và thực thi chương trình Python đầu tiên - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Khởi tạo và thực thi chương trình Python đầu tiên</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1">
+            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Tại sao cần Chuẩn hóa Cấu trúc Script Python và Ghi chú Mã nguồn?</a>
+            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Cấu trúc Script Python Tiêu chuẩn, Cú pháp Ghi chú và Quy trình Thực thi CLI</a>
+            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
+            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Tại sao cần Chuẩn hóa Cấu trúc Script Python và Ghi chú Mã nguồn?</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Cấu trúc Script Python Tiêu chuẩn, Cú pháp Ghi chú và Quy trình Thực thi CLI</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Khởi tạo và thực thi chương trình Python đầu tiên</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Tại sao cần Chuẩn hóa Cấu trúc Script Python và Ghi chú Mã nguồn?</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong môi trường phát triển phần mềm doanh nghiệp, các chương trình Python không chỉ hoạt động đơn lẻ trên máy tính cá nhân của lập trình viên mà được tự động hóa triển khai trên máy chủ Linux, hệ thống CI/CD hoặc các container Docker. Khi lập trình viên mới bắt đầu viết mã nguồn tự do, thiếu cấu trúc định sẵn, không có các phần ghi chú thích hợp (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">#</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"""..."""</code>) và chỉ phụ thuộc vào nút Run trên giao diện IDE mà không nắm vững câu lệnh chạy từ Terminal/CLI, dự án sẽ nhanh chóng rơi vào trạng thái bế tắc khi mở rộng.</p><p class="text-slate-600 mb-4 leading-relaxed">Cách viết mã thiếu chuẩn hóa dẫn đến nhiều hệ lụy nghiêm trọng trong vận hành thực tế:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Tốn chi phí bảo trì và đọc hiểu:</strong> Đồng nghiệp hoặc kỹ sư tiếp quản không thể hiểu mục đích của tệp mã nguồn nếu thiếu phần mô tả tổng quan (Module Docstring) và giải thích logic phức tạp.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Thất bại trong quy trình tự động hóa:</strong> Các hệ thống máy chủ sản xuất (Production Server) không có giao diện đồ họa (GUI). Nếu không biết cách thực thi lệnh qua Terminal/CLI (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">python script.py</code>), hệ thống không thể kích hoạt mã tự động.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Xung đột trình thông dịch:</strong> Thiếu hiểu biết về môi trường dòng lệnh khiến việc chỉ định sai phiên bản Python (Python 2 vs Python 3) gây lỗi cú pháp nghiêm trọng khi vận hành.</li></ul></div>
+          <div class="my-6"><div class="my-6"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" class="rikkei-diagram w-full h-auto"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect x="40" y="20" width="320" height="240" rx="12" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="60" y="50" font-size="14" font-weight="bold" fill="#9f1239">Mã tự do (Thiếu chuẩn hóa)</text><rect x="60" y="70" width="280" height="35" rx="6" fill="#ffffff" stroke="#ffe4e6"/><text font-family="Inter, system-ui, sans-serif"  x="75" y="92" font-mono="true" font-size="11" fill="#e11d48">print("Application Started")</text><rect x="60" y="115" width="280" height="35" rx="6" fill="#ffffff" stroke="#ffe4e6"/><text font-family="Inter, system-ui, sans-serif"  x="75" y="137" font-mono="true" font-size="11" fill="#e11d48">x = 100</text><rect x="60" y="160" width="280" height="35" rx="6" fill="#ffffff" stroke="#ffe4e6"/><text font-family="Inter, system-ui, sans-serif"  x="75" y="182" font-mono="true" font-size="11" fill="#e11d48">print(x)</text><rect x="60" y="205" width="280" height="25" rx="4" fill="#fecdd3"/><text font-family="Inter, system-ui, sans-serif"  x="200" y="222" text-anchor="middle" font-size="10" font-weight="bold" fill="#9f1239">Thiếu ghi chú - Không thể chạy CLI tự động</text><rect x="440" y="20" width="320" height="240" rx="12" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="460" y="50" font-size="14" font-weight="bold" fill="#065f46">Script Enterprise Tiêu chuẩn (.py)</text><rect x="460" y="70" width="280" height="35" rx="6" fill="#ffffff" stroke="#d1fae5"/><text font-family="Inter, system-ui, sans-serif"  x="475" y="92" font-mono="true" font-size="11" fill="#047857">"""Module: app.py"""</text><rect x="460" y="115" width="280" height="35" rx="6" fill="#ffffff" stroke="#d1fae5"/><text font-family="Inter, system-ui, sans-serif"  x="475" y="137" font-mono="true" font-size="11" fill="#047857"># System Configuration</text><rect x="460" y="160" width="280" height="35" rx="6" fill="#ffffff" stroke="#d1fae5"/><text font-family="Inter, system-ui, sans-serif"  x="475" y="182" font-mono="true" font-size="11" fill="#047857">app_status = "READY"</text><rect x="460" y="205" width="280" height="25" rx="4" fill="#a7f3d0"/><text font-family="Inter, system-ui, sans-serif"  x="600" y="222" text-anchor="middle" font-size="10" font-weight="bold" fill="#065f46">Có Docstring - Sẵn sàng chạy CLI</text><text font-family="Inter, system-ui, sans-serif"  x="400" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369a1">Chuẩn hóa Mã nguồn</text><path d="M 375 130 L 410 130 L 410 120 L 425 135 L 410 150 L 410 140 L 375 140 Z" fill="#0284c7"/><text font-family="Inter, system-ui, sans-serif"  x="400" y="180" text-anchor="middle" font-size="11" fill="#0284c7">Thực thi qua CLI</text></svg></div></div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cấu trúc Script Python Tiêu chuẩn, Cú pháp Ghi chú và Quy trình Thực thi CLI</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-cau-truc-mot-file-script-python-py-tieu-chuan" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cấu trúc một File Script Python (.py) Tiêu chuẩn</h3><p class="text-slate-600 mb-4 leading-relaxed">Tệp mã nguồn Python là tệp văn bản thuần có phần mở rộng là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.py</code>. Trình thông dịch Python sẽ đọc và thực thi các câu lệnh theo thứ tự từ trên xuống dưới, từ trái sang phải. Một script tiêu chuẩn dùng trong môi trường doanh nghiệp thường bao gồm các thành phần cốt lõi sau:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Header Docstring:</strong> Khối ghi chú nằm ở ngay dòng đầu tiên của file nhằm mô tả tên module, tác giả, phiên bản và mục đích của script.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Khai báo Biến & Hằng số cấu hình:</strong> Định nghĩa các giá trị khởi tạo ban đầu phục vụ cho chương trình.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Khối lệnh Thực thi chính:</strong> Các câu lệnh tính toán, hiển thị kết quả ra màn hình thông qua hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">print()</code>.</li></ul><p class="text-slate-600 mb-2 font-semibold">Dưới đây là mẫu khung kịch bản (Boilerplate) tiêu chuẩn cho một script Python:</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">&quot;&quot;&quot;
+Module: system_health_check.py
+Description: Checks server status and initialization parameters.
+Author: Enterprise Engineering Team
+&quot;&quot;&quot;
+
+# System Configuration Parameters
+service_name = &quot;AuthService&quot;
+retry_limit = 3
+
+# Execution Logic
+print(&quot;Starting service monitor...&quot;)
+print(service_name)
+print(retry_limit)</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"""..."""</code>: Khối chuỗi nhiều dòng làm Module Docstring giải thích chức năng toàn tệp.</li><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">service_name</code>: Biến kiểu chuỗi (String) lưu tên dịch vụ được theo dõi.</li><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">retry_limit</code>: Biến kiểu số nguyên (Integer) lưu số lần thử lại tối đa.</li><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">print()</code>: Lệnh xuất dữ liệu ra cửa sổ màn hình điều khiển (Console/Terminal).</li></ul><h3 id="sec-2-2-cu-phap-ghi-chu-trong-python-comment-dong-va-docstring" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Cú pháp Ghi chú trong Python: Comment Dòng và Docstring</h3><p class="text-slate-600 mb-4 leading-relaxed">Ghi chú (Comment) là phần văn bản trong mã nguồn giúp lập trình viên giải thích ý nghĩa đoạn mã. Trình thông dịch Python sẽ hoàn toàn bỏ qua các đoạn ghi chú này trong quá trình thực thi chương trình.</p><h4 class="font-montserrat font-bold class="text-lg font-bold text-slate-800 mb-2"">a. Ghi chú Đơn dòng (Single-line Comment)</h4><p class="text-slate-600 mb-4 leading-relaxed">Sử dụng ký tự dấu thăng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">#</code>. Tất cả nội dung đứng sau ký tự <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">#</code> trên cùng một dòng đều được coi là ghi chú.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Define initial active user status
+is_active = True # Active status flag</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">#</code>: Ký tự bắt đầu ghi chú đơn dòng.</li><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">is_active</code>: Biến cờ kiểu đúng/sai (Boolean) ghi nhận trạng thái hoạt động.</li></ul><h4 class="font-montserrat font-bold class="text-lg font-bold text-slate-800 mb-2"">b. Chuỗi Ghi chú Nhiều dòng (Docstring)</h4><p class="text-slate-600 mb-4 leading-relaxed">Sử dụng cặp 3 dấu ngoặc kép <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"""..."""</code> hoặc 3 dấu ngoặc đơn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'''...'''</code>. Docstring thường được dùng để giải thích chi tiết khối logic hoặc cung cấp tài liệu cho toàn bộ module.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">&quot;&quot;&quot;
+This block represents the system payload setup.
+It configures primary connection timeouts.
+&quot;&quot;&quot;
+timeout_seconds = 30
+print(timeout_seconds)</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"""</code>: Cặp dấu mở và đóng khối ghi chú nhiều dòng.</li><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">timeout_seconds</code>: Biến kiểu số nguyên lưu khoảng thời gian chờ kết nối.</li></ul><h3 id="sec-2-3-quy-trinh-thuc-thi-script-python-tu-terminal-command-line-interface-cli" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Quy trình Thực thi Script Python từ Terminal / Command Line Interface (CLI)</h3><p class="text-slate-600 mb-4 leading-relaxed">Để chạy một script Python bằng giao diện dòng lệnh Terminal (macOS/Linux) hoặc Command Prompt / PowerShell (Windows), lập trình viên thực hiện theo cú pháp:</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">python script_name.pyHoặc sử dụng python3 trên hệ điều hành Linux/macOS khi cài đặt đồng thời nhiều phiên bản:python3 script_name.py</code></pre>
+</div><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-sky-900 mb-2 flex items-center gap-2"">Quy trình thực thi 4 bước của Trình thông dịch Python từ CLI</h4><ol class="list-decimal pl-6 space-y-1 text-slate-700"><li class="leading-relaxed">Mở ứng dụng Terminal/CLI và chuyển thư mục làm việc đến nơi chứa file <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.py</code> bằng lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">cd</code>.</li><li class="leading-relaxed">Gõ lệnh thực thi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">python script_name.py</code>.</li><li class="leading-relaxed">Trình thông dịch Python khởi chạy, đọc file nguồn từ trên xuống dưới, phân tích cú pháp và dịch thành mã Bytecode tạm thời.</li><li class="leading-relaxed">Máy ảo Python (PVM - Python Virtual Machine) chạy Bytecode và xuất kết quả ra cửa sổ Terminal.</li></ol></div><div class="my-8 p-6 bg-slate-50 border border-slate-200 rounded-xl shadow-sm"><div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-3"><h4 class="font-montserrat font-bold class="text-base font-bold text-slate-800 flex items-center gap-2"">Mô phỏng cơ chế vận hành từng bước</h4><span class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-200 text-slate-700">CLI Execution Flow</span></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-6"><div class="bg-white border border-slate-200 rounded-lg p-4 shadow-sm"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn đang thực thi</div><div class="font-mono text-sm space-y-1.5"><div id="viz-line-1" class="p-2 rounded transition-colors duration-200 border-l-4 border-transparent" style="color: #475569 !important; font-weight: 500;"><span class=</div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-vi-du-co-ban-khoi-tao-script-python-on-gian-hello-banner" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ Cơ bản: Khởi tạo Script Python Đơn giản (Hello & Banner)</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ này minh họa cách khai báo các thông số cơ bản của ứng dụng và in ra thông điệp chào mừng tiêu chuẩn.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="# My first Python script&#10;&quot;&quot;&quot;Simple script to print application startup banner.&quot;&quot;&quot;&#10;&#10;app_name = &quot;Rikkei Payment Gateway&quot;&#10;version = &quot;1.0.0&quot;&#10;&#10;print(&quot;=== SYSTEM INITIALIZATION ===&quot;)&#10;print(app_name)&#10;print(version)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;"># My first Python script
+&quot;&quot;&quot;Simple script to print application startup banner.&quot;&quot;&quot;
+
+app_name = &quot;Rikkei Payment Gateway&quot;
+version = &quot;1.0.0&quot;
+
+print(&quot;=== SYSTEM INITIALIZATION ===&quot;)
+print(app_name)
+print(version)</code></pre>
+  </div>
+  <div id="container-sb-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2-vi-du-ung-dung-thuc-te-script-cau-hinh-tham-so-co-so-du-lieu" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ Ứng dụng Thực tế: Script Cấu hình Tham số Cơ sở Dữ liệu</h3><p class="text-slate-600 mb-4 leading-relaxed">Trong ứng dụng doanh nghiệp, script khởi tạo cần xác định các hằng số cấu hình như địa chỉ máy chủ, cổng mạng và giới hạn kết nối.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2" class="language-python" contenteditable="true" spellcheck="false" data-original="&quot;&quot;&quot;&#10;Script: system_config.py&#10;Purpose: Initialize database configuration values for application deployment.&#10;&quot;&quot;&quot;&#10;&#10;# Database connection settings&#10;db_host = &quot;localhost&quot;&#10;db_port = 5432&#10;max_connections = 20&#10;&#10;# Print deployment metrics&#10;print(&quot;Connecting to database host:&quot;)&#10;print(db_host)&#10;print(&quot;Port number:&quot;)&#10;print(db_port)&#10;print(&quot;Max active connections allowed:&quot;)&#10;print(max_connections)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">&quot;&quot;&quot;
+Script: system_config.py
+Purpose: Initialize database configuration values for application deployment.
+&quot;&quot;&quot;
+
+# Database connection settings
+db_host = &quot;localhost&quot;
+db_port = 5432
+max_connections = 20
+
+# Print deployment metrics
+print(&quot;Connecting to database host:&quot;)
+print(db_host)
+print(&quot;Port number:&quot;)
+print(db_port)
+print(&quot;Max active connections allowed:&quot;)
+print(max_connections)</code></pre>
+  </div>
+  <div id="container-sb-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3-vi-du-nang-cao-script-bao-cao-trang-thai-van-hanh-may-chu-enterprise" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ Nâng cao: Script Báo cáo Trạng thái Vận hành Máy chủ Enterprise</h3><p class="text-slate-600 mb-4 leading-relaxed">Script tổng hợp các thông số hiệu năng máy chủ (CPU, RAM, Trạng thái hoạt động) và in định dạng báo cáo cho kỹ sư vận hành (DevOps).</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="&quot;&quot;&quot;&#10;Module: server_status_report.py&#10;Description: Generates a system health summary report for operational monitoring.&#10;&quot;&quot;&quot;&#10;&#10;# Define server state indicators&#10;server_id = &quot;SRV-SEOUL-01&quot;&#10;cpu_usage_percent = 45&#10;memory_usage_percent = 68&#10;is_operational = True&#10;&#10;# Output report layout&#10;print(&quot;----------------------------------------&quot;)&#10;print(&quot;       SERVER STATUS REPORT             &quot;)&#10;print(&quot;----------------------------------------&quot;)&#10;print(&quot;Server ID:&quot;)&#10;print(server_id)&#10;print(&quot;CPU Usage (%):&quot;)&#10;print(cpu_usage_percent)&#10;print(&quot;Memory Usage (%):&quot;)&#10;print(memory_usage_percent)&#10;print(&quot;System Operational Status:&quot;)&#10;print(is_operational)&#10;print(&quot;----------------------------------------&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">&quot;&quot;&quot;
+Module: server_status_report.py
+Description: Generates a system health summary report for operational monitoring.
+&quot;&quot;&quot;
+
+# Define server state indicators
+server_id = &quot;SRV-SEOUL-01&quot;
+cpu_usage_percent = 45
+memory_usage_percent = 68
+is_operational = True
+
+# Output report layout
+print(&quot;----------------------------------------&quot;)
+print(&quot;       SERVER STATUS REPORT             &quot;)
+print(&quot;----------------------------------------&quot;)
+print(&quot;Server ID:&quot;)
+print(server_id)
+print(&quot;CPU Usage (%):&quot;)
+print(cpu_usage_percent)
+print(&quot;Memory Usage (%):&quot;)
+print(memory_usage_percent)
+print(&quot;System Operational Status:&quot;)
+print(is_operational)
+print(&quot;----------------------------------------&quot;)</code></pre>
+  </div>
+  <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div>
+        </section>
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"">4.1. Lỗi Không tìm thấy File Script từ Terminal (CLI Gotchas)</h4><p class="text-slate-700 leading-relaxed mb-2">Khi chạy lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">python script.py</code>, nếu xuất hiện lỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">[Errno 2] No such file or directory</code>, nguyên nhân là do cửa sổ Terminal chưa chuyển hướng đúng đến thư mục lưu tệp mã nguồn. Hãy sử dụng lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">cd path/to/folder</code> trước khi thực thi script.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2"">4.2. Tránh Lạm dụng Docstring thay cho Single-line Comment</h4><p class="text-slate-700 leading-relaxed mb-2">Docstring (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"""..."""</code>) được Python lưu trữ vào thuộc tính đặc biệt <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">__doc__</code> trong bộ nhớ. Tuyệt đối không lạm dụng Docstring để ghi chú các dòng code thông thường; thay vào đó hãy dùng dấu thăng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">#</code> để tránh tiêu tốn tài nguyên bộ nhớ vô ích.</p></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-emerald-900 mb-2 flex items-center gap-2"">4.3. Quy tắc Đặt tên File Script chuẩn PEP 8</h4><p class="text-slate-700 leading-relaxed mb-2">Tên tệp script Python bắt buộc phải sử dụng chữ cái viết thường, phân tách bằng dấu gạch dưới (chuẩn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">snake_case</code>, ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">system_config.py</code>). Không dùng khoảng trắng, ký tự Tiếng Việt có dấu hoặc ký tự đặc biệt trong tên tệp để tránh lỗi không tương thích trên máy chủ Linux.</p></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://docs.python.org/3/tutorial/introduction.html" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Python Official Tutorial - An Informal Introduction to Python
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://peps.python.org/pep-0008/#comments" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> PEP 8 – Style Guide for Python Code: Comments &amp; Documentation Strings
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://peps.python.org/pep-0257/" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> PEP 257 – Docstring Conventions Standard
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers
+      window.vizStepMap = {};
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
+        var step = window.vizStepMap[idPrefix];
+        
+        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
+        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+        
+        if (consoleEl) {
+          if (step === 0) {
+            if (numEl) numEl.innerText = "-";
+            if (sumEl) sumEl.innerText = "0";
+            consoleEl.innerText = "Chờ thực thi...";
+          } else if (step === 1) {
+            if (numEl) numEl.innerText = "1";
+            if (sumEl) sumEl.innerText = "1";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
+          } else if (step === 2) {
+            if (numEl) numEl.innerText = "2";
+            if (sumEl) sumEl.innerText = "3";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
+          } else {
+            if (numEl) numEl.innerText = "3";
+            if (sumEl) sumEl.innerText = "6";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+          }
+        }
+      }
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = 0;
+        runVizStep(0, idPrefix);
+      }
+
+      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
+      function vizReset() { resetViz(); }
+      var vizAutoTimer = null;
+      function vizToggleAuto() {
+        if (vizAutoTimer) {
+          clearInterval(vizAutoTimer);
+          vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Tự động chạy";
+        } else {
+          vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Dừng tự động";
+        }
+      }
+    </script>
+  </body>
+</html>

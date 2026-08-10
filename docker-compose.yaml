@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Local Arize Phoenix (OTLP Tracing and evaluation)
@@ -6,9 +6,9 @@ services:
     image: arizephoenix/phoenix:latest
     container_name: elearning_phoenix
     ports:
-      - "6006:6006"   # Web UI
-      - "4317:4317"   # gRPC OTLP receiver
-      - "4318:4318"   # HTTP OTLP receiver
+      - "6006:6006" # Web UI
+      - "4317:4317" # gRPC OTLP receiver
+      - "4318:4318" # HTTP OTLP receiver
     environment:
       - PHOENIX_PORT=6006
       - PHOENIX_HOST=0.0.0.0
@@ -41,6 +41,23 @@ services:
       - LANGFUSE_INIT_PROJECT_NAME=Elearning_Agent
     depends_on:
       - langfuse-db
+    restart: unless-stopped
+
+  # Elearning Content Factory Runner App
+  factory-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elearning_factory_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./storage:/app/storage
+      - ./output:/app/output
+    depends_on:
+      - phoenix
     restart: unless-stopped
 
 volumes:

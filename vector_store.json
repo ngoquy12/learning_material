@@ -13670,5 +13670,2053 @@
       "type": "code",
       "session": "Điều khiển vòng lặp với break và continue"
     }
+  },
+  {
+    "text": "Khái niệm: triet_ly_thiet_ke_zen_of_python - Định nghĩa: Triết lý thiết kế cốt lõi của Python được thể hiện qua 19 nguyên tắc trong 'The Zen of Python' (PEP 20), ưu tiên sự rõ ràng, dễ đọc, đơn giản và tính minh bạch (ví dụ: 'Readability counts', 'Explicit is better than implicit').",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: ngon_ngu_bac_cao_high_level_language - Định nghĩa: Đặc tính của Python giúp lập trình viên không phải quản lý bộ nhớ thủ công (nhờ cơ chế Garbage Collection tự động) và ẩn đi các chi tiết phức tạp của kiến trúc phần cứng máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: cpython_interpreter - Định nghĩa: Trình thông dịch mặc định và tiêu chuẩn của Python được viết bằng ngôn ngữ C. CPython chịu trách nhiệm phân tích cú pháp mã nguồn, biên dịch thành Bytecode và thực thi Bytecode trên Virtual Machine.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: bytecode_pyc - Định nghĩa: Mã trung gian (intermediate code) độc lập với phần cứng, được CPython biên dịch từ mã nguồn (.py) và lưu tạm thời trong các file `.pyc` thuộc thư mục `__pycache__` nhằm tối ưu tốc độ cho các lần chạy sau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: cpython_virtual_machine_pvm - Định nghĩa: Trình ảo hóa thuộc CPython đảm nhận nhiệm vụ đọc từng chỉ thị Bytecode trong vòng lặp thực thi (Evaluation Loop) và chuyển đổi chúng thành các thao tác lệnh thực sự ở cấp độ CPU.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: dynamic_typing_kieu_du_lieu_dong - Định nghĩa: Cơ chế quản lý kiểu dữ liệu trong Python, nơi kiểu dữ liệu được gắn liền với đối tượng (value/object) trong bộ nhớ tại thời điểm thực thi (runtime) chứ không gắn với tên biến. Tên biến chỉ là một nhãn tham chiếu (reference tag).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: static_typing_vs_dynamic_typing - Định nghĩa: Sự khác biệt cốt lõi: Static Typing (C/C++, Java) kiểm tra và cố định kiểu của biến tại thời điểm biên dịch (compile-time); Dynamic Typing (Python) xác định kiểu linh hoạt tại thời điểm chạy (runtime), cho phép một biến trỏ tới nhiều kiểu đối tượng khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: tinh_doc_lap_nen_tang_cross_platform - Định nghĩa: Khả năng chạy cùng một file mã nguồn Python trên nhiều hệ điều hành khác nhau (Windows, macOS, Linux) mà không cần sửa đổi mã nguồn, nhờ vào các phiên bản CPython Interpreter được xây dựng riêng cho từng nền tảng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_zen_of_python_va_phien_ban:\nimport sys\nimport this\n\n# Hiển thị phiên bản Python 3.12 hiện tại\nprint('--- Thông tin phiên bản Python ---')\nprint(f'Phien ban Python đang dung: {sys.version}')\nassert sys.version_info >= (3, 12), 'Yeu cau Python 3.12 tro len'\nprint('Đa xac nhan chay tren Python 3.12+')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho mo_phong_dynamic_typing_va_dinh_danh_bien:\n# Minh họa cơ chế Dynamic Typing và nhãn tham chiếu đối tượng trong Python\n\n# Khởi tạo biến 'x' trỏ tới đối tượng số nguyên\nx = 100\nprint(f'Gia tri x: {x} | Kieu: {type(x).__name__} | Đia chi bo nho (id): {id(x)}')\n\n# Gán lại 'x' trỏ tới một đối tượng chuỗi ký tự mới\nx = 'Ngon ngu Python 3.12'\nprint(f'Gia tri x moi: {x} | Kieu: {type(x).__name__} | Đia chi bo nho (id): {id(x)}')\n\n# Hai biến cùng trỏ đến một đối tượng\na = [1, 2, 3]\nb = a\nprint(f'a va b co cung trỏ den 1 doi tuong trong bo nho? {a is b}')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phan_tich_bytecode_voi_dis_module:\nimport dis\n\n# Định nghĩa một hàm đơn giản để phân tích Bytecode\ndef tinh_tong(a, b):\n    ket_qua = a + b\n    return ket_qua\n\n# Trích xuất chỉ thị Bytecode mà CPython Virtual Machine sẽ thực thi\nprint('--- Cac chi thi Bytecode cua ham tinh_tong ---')\ndis.dis(tinh_tong)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_tinh_doc_lap_nen_tang:\nimport os\nimport sys\n\n# Kiểm tra thông tin hệ điều hành và môi trường thực thi CPython\nprint(f'He đieu hanh hien tai: {os.name}')\nprint(f'Nen tang chi tiet: {sys.platform}')\nprint(f'Trinh thong dich Python binary: {sys.executable}')\n\n# Mã nguồn mã hóa đường dẫn an toàn trên các OS khác nhau\npath_sample = os.path.join('project', 'venv', 'Scripts')\nprint(f'Duong dan chuan hoa cho hệ dieu hanh hien tai: {path_sample}')",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Tổng quan về ngôn ngữ Python 3.12"
+    }
+  },
+  {
+    "text": "Khái niệm: python_312_sdk - Định nghĩa: Bộ công cụ phát triển phần mềm Python phiên bản 3.12, bao gồm trình biên dịch bytecode, trình thực thi runtime và thư viện chuẩn được tối ưu hiệu năng thực thi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: virtual_environment_venv - Định nghĩa: Môi trường ảo cô lập trong Python, cho phép cài đặt các gói phụ thuộc riêng biệt cho từng dự án mà không ảnh hưởng đến môi trường toàn cục của hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: pip_package_manager - Định nghĩa: Trình quản lý gói thư viện tiêu chuẩn cho Python, dùng để cài đặt, cập nhật, liệt kê và gỡ bỏ các gói phụ thuộc từ PyPI (Python Package Index).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: requirements_txt - Định nghĩa: Tệp tin văn bản liệt kê danh sách tên và phiên bản chính xác của các thư viện cần thiết, giúp tái tạo môi trường thực thi đồng nhất trên các máy tính khác nhau.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: black_code_formatter - Định nghĩa: Công cụ tự động định dạng mã nguồn Python theo chuẩn định dạng nhất quán và nghiêm ngặt, giúp tối ưu hóa tính đồng bộ mã nguồn trong dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: flake8_linter - Định nghĩa: Công cụ phân tích mã nguồn tĩnh (static analysis) giúp phát hiện lỗi cú pháp, biến chưa sử dụng và các vi phạm quy chuẩn trình bày PEP 8.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: pep8_standard - Định nghĩa: Tập hợp các quy tắc chuẩn mực về phong cách lập trình Python (như cách đặt tên, thụt lề, khoảng trắng) nhằm tối ưu tính dễ đọc và dễ bảo trì mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: ai_ide_integration - Định nghĩa: Việc thiết lập các môi trường phát triển tích hợp trí tuệ nhân tạo (như Cursor hay Windsurf) kết hợp với các tệp cấu hình quy tắc (.cursorrules) để AI hiểu đúng ngữ cảnh dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: interactive_debugging_breakpoint - Định nghĩa: Kỹ thuật tạm dừng thực thi chương trình tại vị trí chỉ định bằng hàm tích hợp breakpoint() để kiểm tra giá trị của biến và dòng chảy điều khiển qua trình gỡ lỗi PDB.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_moi_truong_venv:\nimport sys\nimport os\n\n\ndef kiem_tra_trang_thai_moi_truong() -> None:\n    \"\"\"Kiểm tra chương trình đang chạy trong venv hay môi trường hệ thống.\"\"\"\n    in_venv = sys.prefix != sys.base_prefix\n    duong_dan_hien_tai = sys.prefix\n    \n    print(f\"Phiên bản Python: {sys.version_info.major}.{sys.version_info.minor}\")\n    print(f\"Đang chạy trong môi trường ảo (venv): {in_venv}\")\n    print(f\"Đường dẫn môi trường: {duong_dan_hien_tai}\")\n\n\nif __name__ == \"__main__\":\n    kiem_tra_trang_thai_moi_truong()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho doc_va_kiem_tra_requirements:\nimport os\n\n\ndef kiem_tra_tep_requirements(duong_dan_tep: str = \"requirements.txt\") -> bool:\n    \"\"\"Đọc và kiểm tra sự tồn tại của tệp quản lý phụ thuộc requirements.txt.\"\"\"\n    if not os.path.exists(duong_dan_tep):\n        print(f\"Không tìm thấy tệp {duong_dan_tep}.\")\n        return False\n        \n    with open(duong_dan_tep, \"r\", encoding=\"utf-8\") as f:\n        thu_vien = [dong.strip() for dong in f if dong.strip() and not dong.startswith(\"#\")]\n        \n    print(f\"Tìm thấy {len(thu_vien)} thư viện khai báo trong {duong_dan_tep}:\")\n    for ten_tv in thu_vien:\n        print(f\" - {ten_tv}\")\n    return True\n\n\nif __name__ == \"__main__\":\n    kiem_tra_tep_requirements()",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dinh_dang_chuan_pep8:\ndef tinh_tong_va_trung_binh(danh_sach_so: list[float]) -> tuple[float, float]:\n    \"\"\"Tính tổng và trung bình cộng của một danh sách số thực.\n    \n    Đảm bảo tuân thủ PEP 8: thụt lề 4 dấu cách, đặt tên snake_case,\n    khoảng trống chuẩn xung quanh toán tử và cách 2 dòng giữa các hàm.\n    \"\"\"\n    if not danh_sach_so:\n        return 0.0, 0.0\n        \n    tong_cong = sum(danh_sach_so)\n    trung_binh = tong_cong / len(danh_sach_so)\n    return tong_cong, trung_binh\n\n\nif __name__ == \"__main__\":\n    cac_so_mau = [12.5, 45.0, 67.8, 23.2]\n    tong, tb = tinh_tong_va_trung_binh(cac_so_mau)\n    print(f\"Tổng: {tong:.2f} | Trung bình: {tb:.2f}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho go_loi_co_ban_voi_breakpoint:\ndef tinh_gia_sau_thue(gia_goc: float, thue_suat: float) -> float:\n    \"\"\"Tính giá trị sản phẩm sau thuế và minh họa kỹ thuật debug.\"\"\"\n    if gia_goc < 0 or thue_suat < 0:\n        print(\"Cảnh báo: Giá trị đầu vào không hợp lệ!\")\n        return 0.0\n        \n    tien_thue = gia_goc * thue_suat\n    \n    # Kích hoạt trình gỡ lỗi tương tác PDB để kiểm tra biến tại thời điểm thực thi\n    # Bỏ comment dòng bên dưới khi muốn bật breakpoint:\n    # breakpoint()\n    \n    tong_chi_phi = gia_goc + tien_thue\n    return tong_chi_phi\n\n\nif __name__ == \"__main__\":\n    gia_ban = 500000.0\n    thue = 0.1\n    ket_qua = tinh_gia_sau_thue(gia_ban, thue)\n    print(f\"Thành tiền: {ket_qua:,.0f} VNĐ\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thiết lập môi trường làm việc và công cụ hỗ trợ AI"
+    }
+  },
+  {
+    "text": "Khái niệm: core_python_concept - Định nghĩa: Introduction to fundamental concepts of Python within Khởi tạo và thực thi chương trình Python đầu tiên.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khởi tạo và thực thi chương trình Python đầu tiên"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho hello_world:\n// Core hello world structural sample for python/core\n// Dynamic fallback generated offline",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khởi tạo và thực thi chương trình Python đầu tiên"
+    }
+  },
+  {
+    "text": "Khái niệm: bien_va_phep_gan - Định nghĩa: Biên là vùng nhớ dùng để lưu trữ dữ liệu trong chương trình. Phép gán (sử dụng toán tử `=`) được dùng để đưa một giá trị cụ thể vào biến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_int - Định nghĩa: Kiểu số nguyên (Integer) biểu diễn các số nguyên âm, số 0 hoặc số nguyên dương (ví dụ: -10, 0, 25) mà không có phần thập phân.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_float - Định nghĩa: Kiểu số thực (Float) biểu diễn các số có phần thập phân (ví dụ: 3.14, -0.5, 2.0).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_str - Định nghĩa: Kiểu chuỗi ký tự (String) dùng để lưu trữ văn bản, được đặt trong cặp dấu ngoặc đơn `''` hoặc ngoặc kép `\"\"`.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: kieu_du_lieu_bool - Định nghĩa: Kiểu luận lý (Boolean) đại diện cho một trong hai giá trị đúng/sai, bao gồm `True` hoặc `False`.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: chuan_pep8_snake_case - Định nghĩa: Quy tắc đặt tên biến chuẩn trong Python quy định tên biến phải viết bằng chữ cái thường, các từ cách nhau bằng dấu gạch dưới `_` (ví dụ: `ho_va_ten`).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: tu_khoa_he_thong - Định nghĩa: Các từ dành riêng cho ngữ pháp hệ thống của Python (như `if`, `for`, `class`, `import`, `True`, `False`), không được dùng để đặt tên cho biến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: mo_hinh_hoa_doi_tuong - Định nghĩa: Kỹ thuật sử dụng một tập hợp các biến có kiểu dữ liệu cơ sở để miêu tả đầy đủ các thuộc tính của một đối tượng ngoài đời thực.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khai_bao_va_kieu_du_lieu_co_so:\n# Khai báo các biến thuộc 4 kiểu dữ liệu cơ sở trong Python\ntuoi = 20                 # Kiểu số nguyên (int)\nchieu_cao = 1.75          # Kiểu số thực (float)\nho_ten = \"Nguyễn Văn A\"   # Kiểu chuỗi ký tự (str)\nla_sinh_vien = True       # Kiểu luận lý (bool)\n\n# In giá trị và kiểm tra kiểu dữ liệu của từng biến\nprint(\"Họ tên:\", ho_ten, \"- Kiểu dữ liệu:\", type(ho_ten))\nprint(\"Tuổi:\", tuoi, \"- Kiểu dữ liệu:\", type(tuoi))\nprint(\"Chiều cao:\", chieu_cao, \"- Kiểu dữ liệu:\", type(chieu_cao))\nprint(\"Là sinh viên:\", la_sinh_vien, \"- Kiểu dữ liệu:\", type(la_sinh_vien))",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho dat_ten_bien_chuan_pep8:\n# Khai báo tên biến tuân thủ quy tắc snake_case theo chuẩn PEP 8\nten_nguoi_dung = \"le_van_b\"\ndiem_trung_binh = 8.5\nso_luong_ton_kho = 150\nda_thanhtoan_hoc_phi = False\n\n# In ra thông tin các biến đã khởi tạo\nprint(\"Tên người dùng:\", ten_nguoi_dung)\nprint(\"Điểm trung bình:\", diem_trung_binh)\nprint(\"Số lượng tồn kho:\", so_luong_ton_kho)\nprint(\"Đã thanh toán học phí:\", da_thanhtoan_hoc_phi)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho mo_hinh_hoa_doi_tuong_thuc_te:\n# Mô hình hóa đối tượng 'Sách' thực tế bằng bộ biến khởi tạo\nten_sach = \"Lập trình Python Căn Bản\"\ngia_bia = 125000.0\nso_trang = 320\ncon_hang = True\n\n# Hiển thị thông tin đối tượng đã được mô hình hóa\nprint(\"=== THÔNG TIN SÁCH ===\")\nprint(\"Tên sách:\", ten_sach)\nprint(\"Giá bìa:\", gia_bia, \"VND\")\nprint(\"Số trang:\", so_trang)\nprint(\"Trạng thái còn hàng:\", con_hang)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Khai báo biến, quy tắc đặt tên và các kiểu dữ liệu cơ sở"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_print - Định nghĩa: Hàm xuất dữ liệu chuẩn ra màn hình console trong Python, hỗ trợ các tham số tùy biến như sep và end cùng định dạng chuỗi f-string.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_input - Định nghĩa: Hàm nhận dữ liệu đầu vào từ người dùng qua dòng lệnh (console), luôn trả về kết quả thuộc kiểu dữ liệu chuỗi (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: tham_so_sep - Định nghĩa: Tham số trong hàm print() quy định ký tự phân cách giữa các giá trị được in ra (mặc định là khoảng trắng ' ').",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: tham_so_end - Định nghĩa: Tham số trong hàm print() quy định ký tự được thêm vào cuối dòng sau khi in hết các giá trị (mặc định là ký tự xuống dòng \\n).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: ep_kieu_ep_buoc - Định nghĩa: Kỹ thuật chủ động chuyển đổi một giá trị từ kiểu dữ liệu này sang kiểu dữ liệu khác bằng các hàm dựng sẵn như int(), float(), str().",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_int - Định nghĩa: Hàm chuyển đổi một giá trị (chuỗi số nguyên hoặc số thực) thành kiểu số nguyên (int), ném ra lỗi ValueError nếu chuỗi không hợp lệ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_float - Định nghĩa: Hàm chuyển đổi một giá trị thành kiểu số thực (float), cho phép thực hiện các phép tính đại số có phần thập phân.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: ham_str - Định nghĩa: Hàm chuyển đổi bất kỳ biểu thức hoặc kiểu dữ liệu nào (như int, float, bool) thành kiểu chuỗi ký tự (str).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: loi_logic_chuoi_va_so - Định nghĩa: Lỗi xảy ra khi thực hiện phép toán cộng (+) giữa hai chuỗi số chưa qua ép kiểu, dẫn đến hành vi ghép chuỗi thay vì cộng số học.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: quy_chuan_pep8 - Định nghĩa: Quy chuẩn viết mã nguồn chuẩn mực trong Python, quy định cách đặt tên biến kiểu snake_case, khoảng trắng quanh toán tử và cấu trúc kịch bản dòng lệnh rõ ràng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_print_custom_sep_end:\nten = \"Alice\"\ntuoi = 20\nchuyen_nganh = \"Khoa học máy tính\"\n\n# Sử dụng sep để phân cách và end để không xuống dòng ngay\nprint(\"Thông tin\", ten, tuoi, chuyen_nganh, sep=\" - \", end=\" | \")\nprint(f\"Chào mừng {ten} đến với ngôn ngữ Python!\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_ep_kieu_explicit:\nstr_nam_sinh = \"2005\"\nstr_diem_tb = \"8.5\"\n\n# Ép kiểu ép buộc từ str sang int và float\nnam_sinh = int(str_nam_sinh)\ndiem_tb = float(str_diem_tb)\nnam_hien_tai = 2026\n\ntuoi = nam_hien_tai - nam_sinh\nthong_bao = \"Sinh viên \" + str(tuoi) + \" tuổi có điểm TB là \" + str(diem_tb)\n\nprint(f\"Tuổi: {tuoi} (Kiểu: {type(tuoi)})\")\nprint(f\"Điểm TB: {diem_tb} (Kiểu: {type(diem_tb)})\")\nprint(thong_bao)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_loi_logic_chuoi_so:\n# Minh họa phân biệt giữa ghép chuỗi và cộng số học\nso_a_raw = input(\"Nhập số thứ nhất: \")\nso_b_raw = input(\"Nhập số thứ hai: \")\n\n# Lỗi logic: chưa ép kiểu khiến toán tử '+' biến thành ghép chuỗi\nket_qua_sai = so_a_raw + so_b_raw\nprint(f\"[LỖI LOGIC] Ghép chuỗi nguyên bản: {so_a_raw} + {so_b_raw} = {ket_qua_sai}\")\n\n# Khắc phục: Ép kiểu dữ liệu sang int trước khi tính toán\nso_a = int(so_a_raw)\nso_b = int(so_b_raw)\nket_qua_dung = so_a + so_b\nprint(f\"[ĐÚNG LOGIC] Cộng số học sau ép kiểu: {so_a} + {so_b} = {ket_qua_dung}\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_kich_ban_console_pep8:\n# Kịch bản tính tiền hóa đơn console tuân thủ quy chuẩn PEP 8 (Python 3.12)\nprint(\"=== HỆ THỐNG TÍNH HOÁ ĐƠN ĐƠN GIẢN ===\")\n\nten_san_pham = input(\"Nhập tên sản phẩm: \")\ndon_gia_raw = input(\"Nhập đơn giá (VNĐ): \")\nso_luong_raw = input(\"Nhập số lượng mua: \")\n\n# Ép kiểu dữ liệu đầu vào\ndon_gia = float(don_gia_raw)\nso_luong = int(so_luong_raw)\n\ntong_tien = don_gia * so_luong\n\nprint(\"\\n--- KẾT QUẢ HOÁ ĐƠN ---\")\nprint(f\"Sản phẩm: {ten_san_pham}\")\nprint(f\"Số lượng: {so_luong}\", end=\" | \")\nprint(f\"Đơn giá: {don_gia:,.0f} VNĐ\")\nprint(f\"Tổng thành tiền: {tong_tien:,.0f} VNĐ\")\nprint(\"=======================================\")",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thao tác nhập xuất dữ liệu console và chuyển đổi kiểu dữ liệu"
+    }
+  },
+  {
+    "text": "Khái niệm: VCS (Version Control System) - Định nghĩa: Hệ thống quản lý phiên bản cho phép ghi lại và theo dõi các thay đổi của tệp tin theo thời gian, giúp khôi phục các trạng thái cụ thể của mã nguồn và hỗ trợ nhiều người làm việc chung trên một dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Centralized VCS (CVCS) - Định nghĩa: Mô hình quản lý phiên bản tập trung dựa vào một máy chủ duy nhất chứa toàn bộ lịch sử tệp tin. Các máy trạm làm việc chỉ tải về bản sao tệp hiện tại và phải kết nối mạng tới máy chủ để ghi lại thay đổi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Distributed VCS (DVCS) - Định nghĩa: Mô hình quản lý phiên bản phân tán trong đó mỗi máy trạm của lập trình viên đều sở hữu một bản sao hoàn chỉnh (Full Repository) bao gồm toàn bộ lịch sử thay đổi, cho phép làm việc ngoại tuyến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Git (Local) - Định nghĩa: Công cụ quản lý phiên bản phân tán chạy trực tiếp trên máy tính cá nhân (Local), thực thi các lệnh theo dõi thay đổi, quản lý nhánh và lưu trữ lịch sử commit mà không phụ thuộc vào kết nối mạng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: GitHub Cloud - Định nghĩa: Nền tảng lưu trữ đám mây quản lý các kho lưu trữ từ xa (Remote Repository), cung cấp giao diện quản lý trên web, công cụ cộng tác nhóm và kiểm duyệt mã nguồn dựa trên nền tảng Git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Bash - Định nghĩa: Ứng dụng dòng lệnh (CLI) giả lập môi trường Unix/Bash trên hệ điều hành Windows, cho phép người dùng chạy các lệnh Git và các câu lệnh hệ thống tiêu chuẩn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho check_git_version:\ngit --version",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho verify_git_installation_path:\nwhich git",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho configure_global_user_identity:\ngit config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"nguyenvana@example.com\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho check_global_config_list:\ngit config --global --list",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho check_config_origin_file:\ngit config --list --show-origin",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: VCS_Version_Control_System - Định nghĩa: Hệ thống quản lý phiên bản (VCS) là giải pháp phần mềm giúp ghi lại lịch sử thay đổi của tập tin mã nguồn theo thời gian, hỗ trợ khôi phục các phiên bản cũ và quản lý làm việc nhóm hiệu quả.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Manual_Backup - Định nghĩa: Sao lưu thủ công là phương pháp lưu trữ dự án bằng việc sao chép thủ công các thư mục và đổi tên (như project_v1, project_final), gây lãng phí bộ nhớ, khó theo dõi chi tiết chỉnh sửa và dễ dẫn đến nhầm lẫn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Local_VCS - Định nghĩa: Mô hình Git cục bộ (Local VCS) quản lý và lưu trữ toàn bộ dữ liệu lịch sử commit trực tiếp trên ổ đĩa máy tính cá nhân, giúp lập trình viên thao tác nhanh chóng ngay cả khi không có kết nối Internet.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Cloud_VCS_GitHub - Định nghĩa: Dịch vụ đám mây (GitHub Cloud) là nền tảng máy chủ trực tuyến lưu trữ các kho chứa (repository) Git từ xa, hỗ trợ sao lưu dữ liệu an toàn và chia sẻ mã nguồn giữa nhiều máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Git_Bash - Định nghĩa: Git Bash là ứng dụng giao diện dòng lệnh (CLI) dành cho hệ điều hành Windows, cung cấp môi trường mô phỏng Unix Shell để thực thi các câu lệnh Git chuẩn xác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Git_Global_Identity - Định nghĩa: Cấu hình danh tính toàn cục (user.name và user.email) là thao tác đăng ký thông tin người dùng với hệ thống Git trên máy tính, đảm bảo mọi commit đều được ghi nhận đúng tác giả.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: VS_Code_Source_Control - Định nghĩa: Giao diện Source Control trong VS Code là công cụ đồ họa (GUI) tích hợp sẵn, giúp trực quan hóa trạng thái tập tin và hỗ trợ thao tác với kho chứa Git một cách dễ dàng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho check_git_version:\n# Kiểm tra phiên bản Git đã được cài đặt trên máy tính\ngit --version",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho set_global_git_user:\n# Cấu hình tên người dùng toàn cục trên Git Bash\ngit config --global user.name \"Nguyen Van A\"\n\n# Cấu hình email người dùng toàn cục trên Git Bash\ngit config --global user.email \"nguyenvana@example.com\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho verify_git_config:\n# Hiển thị toàn bộ danh sách cấu hình Git hiện tại\ngit config --list\n\n# Kiểm tra chi tiết thông tin tên người dùng toàn cục\ngit config --global user.name",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho init_local_repository:\n# Khởi tạo một kho chứa Git cục bộ mới cho dự án\ngit init",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Kien_truc_3_cay_Git - Định nghĩa: Mô hình kiến trúc cốt lõi của Git quản lý dữ liệu qua 3 vùng chính: Working Directory (Thư mục làm việc), Staging Area (Khu vực lưu tạm), và Repository (Kho lưu trữ commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Working_Directory - Định nghĩa: Cây thứ nhất đại diện cho không gian làm việc thực tế trên đĩa cứng, chứa các tập tin vật lý người dùng đang trực tiếp tạo mới hoặc chỉnh sửa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Staging_Area - Định nghĩa: Cây thứ hai (còn gọi là Index), đóng vai trò vùng đệm chuẩn bị chứa các thay đổi được chọn lọc để sẵn sàng cho lần commit tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Repository_Commit_History - Định nghĩa: Cây thứ ba chứa toàn bộ cơ sở dữ liệu lịch sử dự án dưới dạng các ảnh chụp (snapshots) đã ghi nhận chính thức qua lệnh git commit.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Vong_doi_trang_thai_tap_tin - Định nghĩa: Chu trình chuyển đổi trạng thái của tập tin trong Git bao gồm: Untracked (chưa quản lý), Unmodified (chưa sửa), Modified (đã sửa ở Working Directory), và Staged (đã đưa vào Staging Area).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Workflow_3_buoc - Định nghĩa: Quy trình làm việc chuẩn hóa gồm 3 thao tác nối tiếp: Edit (Sửa tệp ở Working Directory) -> Stage (Đưa tệp vào Staging Area qua git add) -> Commit (Ghi lại snapshot vào Repository qua git commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Git_Status - Định nghĩa: Lệnh kiểm tra trạng thái hiện tại của Working Directory và Staging Area, cho biết tập tin nào đang ở dạng Untracked, Modified hay Staged.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Git_Diff - Định nghĩa: Lệnh so sánh sự khác biệt chi tiết từng dòng mã giữa các cây trong kiến trúc Git (như so sánh Working Directory với Staging Area, hoặc Staging Area với Repository).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_va_kiem_tra_trang_thai:\ngit init\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho chuyen_doi_trang_thai_untracked_sang_staged:\necho \"Console.WriteLine(\\\"Hello Git 3-Tree\\\");\" > App.cs\ngit status\ngit add App.cs\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_trinh_3_buoc_edit_stage_commit:\n# Step 1: Edit\necho \"// Cap nhat tinh nang moi\" >> App.cs\n\n# Step 2: Stage\ngit add App.cs\n\n# Step 3: Commit\ngit commit -m \"feat: cap nhat tinh nang trong App.cs\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho phan_tich_thay_doi_voi_git_diff:\n# So sanh thay doi o Working Directory so voi Staging Area\necho \"// Dong ma thu nghiem\" >> App.cs\ngit diff\n\n# So sanh thay doi o Staging Area so voi Commit gan nhat\ngit add App.cs\ngit diff --staged",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: VCS (Version Control System) - Định nghĩa: Hệ thống quản lý phiên bản phần mềm giúp theo dõi, ghi nhận và lưu trữ lịch sử các thay đổi của mã nguồn theo thời gian, cho phép khôi phục lại các trạng thái cũ khi cần.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Git - Định nghĩa: Hệ thống quản lý phiên bản phân tán (DVCS) mã nguồn mở, cho phép lập trình viên theo dõi lịch sử chỉnh sửa mã nguồn trực tiếp và làm việc độc lập trên máy tính cục bộ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: GitHub Cloud - Định nghĩa: Nền tảng điện toán đám mây cung cấp dịch vụ lưu trữ kho mã nguồn từ xa (Remote Repository) dựa trên công nghệ Git, hỗ trợ lưu trữ, chia sẻ và hợp tác phát triển phần mềm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Bash - Định nghĩa: Công cụ giao diện dòng lệnh (CLI) trên hệ điều hành Windows, giả lập môi trường Bash Shell của Linux giúp người dùng thực thi các câu lệnh Git một cách linh hoạt.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Kho lưu trữ cục bộ (Local Repository) - Định nghĩa: Thư mục dự án trên máy tính cá nhân được Git quản lý, chứa toàn bộ mã nguồn cùng thư mục ẩn .git dùng để lưu trữ toàn bộ lịch sử commit.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu hình Git (Git Config) - Định nghĩa: Thao tác thiết lập các thông tin định danh toàn cục (global) như tên người dùng và email để ghi nhận tác giả của mỗi lượt lưu trữ commit.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Working Directory (Khu vực làm việc) - Định nghĩa: Thư mục hiện tại chứa các tệp tin dự án mà lập trình viên đang trực tiếp tạo mới, chỉnh sửa hoặc xóa bỏ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Staging Area (Khu vực chuẩn bị) - Định nghĩa: Khu vực trung gian (Index) lưu trữ danh sách các thay đổi tệp tin đã được chọn lọc bằng lệnh git add, chuẩn bị cho lượt lưu vết tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái tệp tin (File Lifecycle States) - Định nghĩa: Các giai đoạn chuyển đổi của tệp tin trong Git bao gồm: Untracked (chưa được theo dõi), Modified (đã chỉnh sửa), Staged (đã đưa vào hàng chờ), và Committed (đã lưu an toàn vào kho).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Commit (Lượt lưu vết) - Định nghĩa: Thao tác chụp và ghi lại bản ảnh (snapshot) trạng thái của toàn bộ tệp tin trong Staging Area vào kho lưu trữ cục bộ kèm theo một thông điệp (commit message) giải thích.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: Kho lưu trữ từ xa (Remote Repository) - Định nghĩa: Phiên bản kho lưu trữ được đặt trên máy chủ trực tuyến như GitHub Cloud, đóng vai trò là nguồn lưu trữ tập trung để đồng bộ dữ liệu dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Source Control - Định nghĩa: Giao diện quản lý mã nguồn đồ họa (GUI) được tích hợp sẵn trong trình soạn thảo Visual Studio Code, giúp thao tác với Git bằng các nút bấm trực quan mà không cần gõ lệnh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_phien_ban_git:\n# Kiểm tra phiên bản Git đã cài đặt trên hệ thống\ngit --version",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cau_hinh_nguoi_dung_va_khoi_tao_repo:\n# Cấu hình tên tác giả toàn cục\ngit config --global user.name \"Nguyen Van A\"\n\n# Cấu hình email tác giả toàn cục\ngit config --global user.email \"nguyenvana@example.com\"\n\n# Kiểm tra lại danh sách cấu hình toàn cục\ngit config --global --list\n\n# Tạo thư mục dự án mới và di chuyển vào thư mục\nmkdir du_an_vcs_dau_tien\ncd du_an_vcs_dau_tien\n\n# Khởi tạo kho lưu trữ Git cục bộ (tạo thư mục ẩn .git)\ngit init",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thao_tac_chu_trinh_trang_thai_tep:\n# 1. Kiểm tra trạng thái hiện tại của các tệp tin trong dự án\ngit status\n\n# 2. Đưa tệp index.html cụ thể vào khu vực Staging Area\ngit add index.html\n\n# Hoặc đưa tất cả tệp có thay đổi vào Staging Area\ngit add .\n\n# 3. Thực hiện commit lưu lại trạng thái kèm thông điệp rõ ràng\ngit commit -m \"Khoi tao trang index.html va cau truc thu muc\"\n\n# 4. Xem lại lịch sử các commit đã lưu dưới dạng tóm tắt một dòng\ngit log --oneline",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ket_noi_va_day_code_len_github:\n# 1. Đổi tên nhánh mặc định hiện tại thành main\ngit branch -M main\n\n# 2. Liên kết kho lưu trữ cục bộ với repository từ xa trên GitHub Cloud\ngit remote add origin https://github.com/username/du_an_vcs_dau_tien.git\n\n# 3. Kiểm tra các địa chỉ URL của remote đã cấu hình\ngit remote -v\n\n# 4. Đẩy mã nguồn từ nhánh main cục bộ lên GitHub Cloud và đặt làm nhánh mặc định theo dõi\ngit push -u origin main",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Giới thiệu Hệ thống quản lý phiên bản VCS"
+    }
+  },
+  {
+    "text": "Khái niệm: khai_nhiem_3_vung_khong_gian_git - Định nghĩa: Ba khu vực quản lý file trong Git bao gồm Working Directory (thư mục làm việc thực tế nơi chỉnh sửa code), Staging Area (vùng chờ chứa các thay đổi chuẩn bị commit), và Local Repository (kho lưu trữ chứa toàn bộ lịch sử commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: khai_nhiem_4_trang_thai_file - Định nghĩa: Bốn trạng thái vòng đời của file trong Git: Untracked (chưa được Git theo dõi), Unmodified (đã commit và chưa có sửa đổi mới), Modified (đã sửa đổi nhưng chưa đưa vào vùng chờ), và Staged (đã đưa vào vùng chờ để chuẩn bị commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: lenh_git_status - Định nghĩa: Câu lệnh trong Git Bash dùng để kiểm tra và hiển thị trạng thái hiện tại của các file trong thư mục làm việc và vùng chờ Staging Area.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: lenh_git_add - Định nghĩa: Câu lệnh chuyển các thay đổi của file từ trạng thái Untracked hoặc Modified sang trạng thái Staged (đưa vào Staging Area).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: lenh_git_commit - Định nghĩa: Câu lệnh đóng gói và ghi lại bản chụp snapshot các thay đổi đang có trong Staging Area vào Local Repository kèm theo thông điệp ghi chú.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: vscode_source_control_interface - Định nghĩa: Giao diện quản lý mã nguồn tích hợp trong VS Code cho phép xem danh sách file thay đổi, so sánh nội dung (Diff), bấm nút '+' để Stage, nút '-' để Unstage và nhập thông điệp commit trực quan.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: quy_trinh_atomic_commit - Định nghĩa: Quy tắc thiết lập commit nguyên tử (Atomic Commit) bằng cách chọn lọc chính xác các file liên quan (Selective Staging) để đóng gói thành từng commit nhỏ, hoàn chỉnh và có ý nghĩa rõ ràng.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_git_bash_file_lifecycle:\n# 1. Khởi tạo kho lưu trữ mới\nmkdir project-demo\ncd project-demo\ngit init\n\n# 2. Tạo file mới (Trạng thái: Untracked)\necho \"Noi dung ban dau\" > index.html\ngit status\n\n# 3. Đưa file vào Staging Area (Trạng thái: Staged)\ngit add index.html\ngit status\n\n# 4. Lưu thay đổi vào Local Repository (Trạng thái: Unmodified)\ngit commit -m \"feat: khoi tao file index.html\"\ngit status\n\n# 5. Chỉnh sửa nội dung file (Trạng thái: Modified)\necho \"Cap nhat noi dung\" >> index.html\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_selective_staging_git_bash:\n# 1. Giả sử có 2 file thay đổi cho 2 tính năng khác nhau\necho \"body { margin: 0; }\" > style.css\necho \"console.log('App started');\" > app.js\n\n# 2. Kiểm tra trạng thái các file dạng ngắn gọn\ngit status -s\n\n# 3. Chỉ đưa file style.css vào Staging Area (Selective Staging)\ngit add style.css\ngit status -s\n\n# 4. Commit phần giao diện trước (Atomic Commit 1)\ngit commit -m \"style: thiet lap margin cho trang\"\n\n# 5. Tiếp tục đưa file app.js vào Staging Area và commit (Atomic Commit 2)\ngit add app.js\ngit commit -m \"feat: them ghi log khoi chay ung dung\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho demo_git_status_short_format:\n# Kiểm tra trạng thái tập tin dạng rút gọn trong Git Bash (Git 2.45+)\ngit status -s\n\n# Ý nghĩa các ký hiệu hiển thị:\n# ?? : File mới chưa được theo dõi (Untracked)\n#  M : File bị chỉnh sửa ở Working Directory nhưng chưa Stage\n# M  : File đã được đưa vào Staging Area (Staged)\n# AM : File mới đã Stage nhưng tiếp tục bị chỉnh sửa thêm",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Working Directory - Định nghĩa: Thư mục làm việc (Working Tree) trên đĩa cứng vật lý, chứa toàn bộ thư mục và tệp tin của dự án mà người dùng đang trực tiếp thao tác, thêm, sửa hoặc xóa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Staging Area - Định nghĩa: Vùng chuẩn bị (còn gọi là Index), đóng vai trò là vùng đệm tạm thời ghi nhận các thay đổi được chọn lọc thông qua lệnh `git add` trước khi chính thức ghi lại lịch sử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Repository - Định nghĩa: Kho chứa chính thức (thư mục ẩn `.git`), nơi Git lưu trữ toàn bộ cơ sở dữ liệu đối tượng (blobs, trees, commits), lịch sử phiên bản và con trỏ nhánh của dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Untracked - Định nghĩa: Trạng thái của một tệp tin mới được tạo trong Working Directory nhưng chưa từng được đưa vào Staging Area và chưa được Git theo dõi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Modified - Định nghĩa: Trạng thái của một tệp tin đã được Git theo dõi nhưng có sự thay đổi nội dung ở Working Directory so với phiên bản trong commit gần nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Staged - Định nghĩa: Trạng thái của tệp tin đã có sự thay đổi và được đánh dấu/đưa vào Staging Area, sẵn sàng để đóng gói vào commit tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Committed - Định nghĩa: Trạng thái dữ liệu đã được ghi nhận an toàn và lưu trữ vĩnh viễn trong cơ sở dữ liệu Git Repository với một mã định danh hash duy nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: So sánh Git Diff - Định nghĩa: Thao tác kiểm tra sự khác biệt chi tiết theo từng dòng dòng mã giữa các không gian lưu trữ (Working Directory vs Staging Area hoặc Staging Area vs Repository).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Atomic Commit - Định nghĩa: Nguyên tắc thiết kế commit nguyên tử, yêu cầu mỗi commit chỉ giải quyết đúng một đơn vị thay đổi độc lập, nhỏ gọn và hoàn chỉnh để tối ưu hóa quy trình theo dõi lịch sử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_va_kiem_tra_3_cay:\n# Khởi tạo kho chứa Git mới trong Git Bash\ngit init demo-project\ncd demo-project\n\n# Kiểm tra trạng thái hiện tại của 3 vùng kiến trúc\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho luong_chuyen_trang_thai_tep:\n# 1. Tạo tệp mới (Trạng thái: Untracked)\necho \"console.log('Hello Git');\" > app.js\ngit status\n\n# 2. Đưa tệp vào Staging Area (Trạng thái: Untracked -> Staged)\ngit add app.js\ngit status\n\n# 3. Lưu vết vào Repository (Trạng thái: Staged -> Committed)\ngit commit -m \"feat: Khoi tao file app.js\"\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho so_sanh_thay_doi_git_diff:\n# Chỉnh sửa nội dung tệp (Trạng thái: Committed -> Modified)\necho \"console.log('Update feature');\" >> app.js\n\n# So sánh thay đổi giữa Working Directory và Staging Area\ngit diff\n\n# Đưa thay đổi vào Staging Area\ngit add app.js\n\n# So sánh thay đổi giữa Staging Area và Commit gần nhất (HEAD)\ngit diff --staged",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho huy_thay_doi_va_khoi_phuc:\n# Bỏ một tệp ra khỏi Staging Area về lại Working Directory\ngit restore --staged app.js\n\n# Loại bỏ toàn bộ thay đổi ở Working Directory, khôi phục về trạng thái commit gần nhất\ngit restore app.js",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_trinh_atomic_commit:\n# Thao tác commit nguyên tử cho từng đơn vị thay đổi riêng biệt\n\n# Bước 1: Chỉ chọn lọc tệp liên quan đến tính năng đăng nhập\ngit add src/auth.js\ngit commit -m \"feat: Them chuc nang dang nhap nguoi dung\"\n\n# Bước 2: Chọn lọc tệp liên quan đến sửa giao diện\ngit add src/styles.css\ngit commit -m \"fix: Sua loi hien thi nut dang nhap\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Kiến trúc 3 cây của Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Git - Định nghĩa: Hệ thống quản lý phiên bản phân tán (Distributed Version Control System - DVCS) giúp theo dõi và lưu trữ lịch sử thay đổi của mã nguồn theo thời gian.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Bash - Định nghĩa: Ứng dụng dòng lệnh (CLI) dành cho hệ điều hành Windows, cung cấp môi trường Bash giả lập để chạy các câu lệnh Git tương tự trên Linux/macOS.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu hình Global (Global Config) - Định nghĩa: Thiết lập cấu hình Git áp dụng cho toàn bộ các repository trên máy tính của người dùng hiện tại, được lưu trữ trong tệp ~/.gitconfig.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấu hình Local (Local Config) - Định nghĩa: Thiết lập cấu hình Git chỉ áp dụng cho một repository cụ thể, được lưu trong tệp .git/config và có độ ưu tiên cao hơn cấu hình Global.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Định danh tác giả (user.name & user.email) - Định nghĩa: Thông tin định danh bắt buộc được đính kèm vào mỗi lịch sử lưu trữ để xác định chính xác ai là người thực hiện thay đổi mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Source Control - Định nghĩa: Giao diện quản lý mã nguồn trực quan được tích hợp sẵn trong Visual Studio Code, cho phép thực hiện các thao tác Git trực tiếp trên môi trường lập trình.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: GitHub Cloud - Định nghĩa: Nền tảng dịch vụ đám mây lưu trữ kho chứa Git từ xa (Remote Repository), hỗ trợ quản lý dự án và đồng bộ mã nguồn giữa các thiết bị.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Lệnh git config --list - Định nghĩa: Lệnh dòng lệnh dùng để kiểm tra và liệt kê toàn bộ các thông số cấu hình Git hiện có cùng phạm vi áp dụng (System, Global, Local).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cau_hinh_dinh_danh_global:\n# Cấu hình tên và email toàn cục trên máy tính\ngit config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"nguyenvana@example.com\"\n\n# Kiểm tra giá trị cấu hình Global đã thiết lập\ngit config --global user.name\ngit config --global user.email",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho cau_hinh_dinh_danh_local:\n# Chuyển vào thư mục dự án và khởi tạo kho chứa cục bộ\ncd my-project\ngit init\n\n# Cấu hình tên và email riêng cho dự án hiện tại (đè lên cấu hình Global)\ngit config --local user.name \"A Nguyen Project\"\ngit config --local user.email \"anguyen@company.com\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tich_hop_git_bash_vs_code:\n{\n  \"terminal.integrated.profiles.windows\": {\n    \"Git Bash\": {\n      \"path\": \"C:\\\\Program Files\\\\Git\\\\bin\\\\bash.exe\",\n      \"icon\": \"terminal-bash\"\n    }\n  },\n  \"terminal.integrated.defaultProfile.windows\": \"Git Bash\"\n}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_va_go_loi_cau_hinh:\n# Hiển thị danh sách tất cả cấu hình hiện có kèm nguồn gốc tệp tin\ngit config --list --show-origin\n\n# Xóa bỏ thông tin cấu hình bị đặt sai ở mức Global\ngit config --unset --global user.name\n\n# Xóa bỏ thông tin cấu hình bị đặt sai ở mức Local\ngit config --unset --local user.email",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_dong_bo_github_cloud:\n# Kiểm tra phiên bản Git đã cài đặt trên hệ thống (yêu cầu Git 2.45+)\ngit --version\n\n# Kiểm tra kết nối định danh tới GitHub Cloud qua giao thức SSH\nssh -T git@github.com",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Untracked - Định nghĩa: Trạng thái của tập tin mới được tạo trong thư mục làm việc (Working Directory) mà Git chưa từng theo dõi hoặc ghi nhận trong lịch sử commit.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Unmodified - Định nghĩa: Trạng thái của tập tin đã được Git theo dõi (Tracked) và nội dung hiện tại hoàn toàn trùng khớp với phiên bản trong commit gần nhất (HEAD).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Modified - Định nghĩa: Trạng thái của tập tin đã được Git theo dõi nhưng nội dung đã bị thay đổi so với commit gần nhất và chưa được đưa vào vùng chờ (Staging Area).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Staged - Định nghĩa: Trạng thái của tập tin (dù là mới tạo hay đã chỉnh sửa) đã được đưa vào vùng chờ (Staging Area/Index) để sẵn sàng đóng gói cho lần commit tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Working Directory - Định nghĩa: Thư mục làm việc chứa toàn bộ các tập tin và thư mục dự án trên đĩa cứng mà lập trình viên trực tiếp thao tác và chỉnh sửa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Staging Area - Định nghĩa: Vùng lưu trữ tạm thời (còn gọi là Index) chứa danh sách các thay đổi được lựa chọn để chuẩn bị ghi nhận vào lịch sử phiên bản của Git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: git_status - Định nghĩa: Lệnh trong Git Bash dùng để kiểm tra chi tiết trạng thái hiện tại của thư mục làm việc và vùng chờ, liệt kê các tập tin Untracked, Modified và Staged.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: git_add - Định nghĩa: Lệnh trong Git Bash dùng để chuyển trạng thái của tập tin từ Untracked hoặc Modified sang Staged.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: VS_Code_Source_Control - Định nghĩa: Giao diện đồ họa trực quan tích hợp trong VS Code giúp theo dõi trạng thái tập tin (U - Untracked, M - Modified, A - Added) và thực hiện các thao tác Git bằng click chuột.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Commit_Packaging_Workflow - Định nghĩa: Quy trình đóng gói commit chuẩn xác bao gồm các bước: kiểm tra trạng thái thư mục (`git status`), lựa chọn các thay đổi liên quan đưa vào vùng chờ (`git add`), kiểm tra lại và đóng gói (`git commit`).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho check_status_full:\n# Kiểm tra chi tiết trạng thái thư mục làm việc và vùng chờ\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho check_status_short:\n# Kiểm tra trạng thái rút gọn (hiển thị ký hiệu U, M, A trực quan)\ngit status -s",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho stage_single_file:\n# Chuyển một tập tin cụ thể từ trạng thái Untracked/Modified sang Staged\ngit add index.html",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho stage_multiple_files:\n# Chuyển nhiều tập tin được chọn lọc sang trạng thái Staged\ngit add index.html style.css script.js",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho stage_all_changes:\n# Đưa toàn bộ các tập tin thay đổi và tập tin mới trong thư mục hiện tại vào vùng chờ\ngit add .",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho complete_packaging_workflow:\n# Quy trình đóng gói commit chuẩn xác từ Git Bash\n# 1. Kiểm tra trạng thái hiện tại\ngit status\n\n# 2. Đưa các tập tin hoàn thiện vào vùng chờ (Staging Area)\ngit add index.html style.css\n\n# 3. Kiểm tra lại trạng thái để xác nhận các file đã ở màu xanh (Staged)\ngit status\n\n# 4. Thực hiện đóng gói commit với thông điệp rõ ràng\ngit commit -m \"feat: Xaydung trang chu va dinh dang CSS co ban\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Vòng đời file trong Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Working Directory (Thư mục làm việc) - Định nghĩa: Vùng không gian lưu trữ trên đĩa cứng chứa toàn bộ các tập tin và thư mục thực tế của dự án mà người dùng đang trực tiếp thao tác, chỉnh sửa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Staging Area (Vùng chuẩn bị / Index) - Định nghĩa: Vùng không gian đệm trung gian của Git dùng để chứa danh sách các thay đổi được chọn lọc cẩn thận trước khi chính thức đóng gói thành một điểm lưu vết (Commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Local Repository (Kho lưu trữ cục bộ) - Định nghĩa: Cơ sở dữ liệu nội bộ của Git nằm trong thư mục ẩn .git, chứa toàn bộ lịch sử các bản đóng gói (Commit), các nhánh và metadata của dự án trên máy cá nhân.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Vòng đời trạng thái tập tin (File Lifecycle States) - Định nghĩa: Chu kỳ chuyển dịch trạng thái của tập tin trong Git gồm 4 giai đoạn chính: Untracked (Chưa theo dõi), Unmodified (Chưa thay đổi), Modified (Đã thay đổi), và Staged (Đã đưa vào vùng chuẩn bị).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Atomic Commit (Commit nguyên tử) - Định nghĩa: Nguyên tắc thiết kế điểm lưu vết trong đó mỗi commit chỉ chứa các thay đổi đại diện cho đúng một nhiệm vụ độc lập, hoàn chỉnh và không làm phá vỡ khả năng thực thi của mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Conventional Commits (Chuẩn hóa thông điệp Commit) - Định nghĩa: Quy ước đặt tên thông điệp commit theo cấu trúc rõ ràng dạng `<type>: <description>` (ví dụ: `feat:`, `fix:`, `docs:`) giúp lịch sử phát triển dễ đọc và hỗ trợ tự động hóa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Source Control View - Định nghĩa: Giao diện đồ họa tích hợp sẵn trong trình soạn thảo VS Code cho phép theo dõi thay đổi tập tin, trực quan hóa diff, đưa tệp vào Staging và commit thao tác nhanh bằng nút bấm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Diff (So sánh thay đổi) - Định nghĩa: Cơ chế và lệnh hiển thị sự khác biệt chi tiết theo từng dòng mã giữa Thư mục làm việc, Vùng chuẩn bị và Lịch sử lưu vết.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_trang_thai_va_dua_tep_vao_staging:\n# Kiểm tra trạng thái hiện tại của các tập tin trong thư mục làm việc\ngit status\n\n# Đưa một tập tin cụ thể vào Staging Area (Vùng chuẩn bị)\ngit add index.html\n\n# Đưa toàn bộ các tập tin thay đổi vào Staging Area\ngit add .",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho tao_commit_theo_chuan_conventional_commits:\n# Thực hiện lưu vết các thay đổi trong Staging Area với thông điệp chuẩn hóa\ngit commit -m \"feat: thêm cấu trúc trang chủ index.html\"\n\n# Thực hiện commit khắc phục lỗi nhỏ\ngit commit -m \"fix: sửa lỗi chính tả trong tệp README.md\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho so_sanh_thay_doi_ma_nguon:\n# Xem chi tiết thay đổi giữa Working Directory và Staging Area\ngit diff\n\n# Xem chi tiết thay đổi giữa Staging Area và Commit gần nhất (HEAD)\ngit diff --staged",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_trinh_atomic_commit_truc_tiep_cli:\n# Bước 1: Kiểm tra các tệp vừa sửa\ngit status\n\n# Bước 2: Chỉ add tệp liên quan đến 1 tính năng duy nhất (Atomic Commit)\ngit add styles/main.css\n\n# Bước 3: Commit đúng phạm vi tính năng đó\ngit commit -m \"style: cập nhật màu nền cho thanh điều hướng\"\n\n# Bước 4: Kiểm tra lại nhật ký commit vừa tạo\ngit log -n 1 --oneline",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Git - Định nghĩa: Hệ thống quản lý phiên bản phân tán (Distributed Version Control System - DVCS) giúp ghi lại và theo dõi lịch sử thay đổi của mã nguồn theo thời gian.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Bash - Định nghĩa: Ứng dụng dòng lệnh (CLI) dành cho hệ điều hành Windows, cung cấp môi trường chạy các câu lệnh Bash shell của Linux để thao tác với Git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấp độ cấu hình System - Định nghĩa: Cấp độ cấu hình rộng nhất (`--system`), áp dụng thiết lập cho tất cả người dùng và tất cả các repository trên toàn bộ máy tính.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấp độ cấu hình Global - Định nghĩa: Cấp độ cấu hình áp dụng (`--global`) cho tất cả các repository thuộc về tài khoản người dùng hiện tại đang đăng nhập trên hệ thống.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Cấp độ cấu hình Local - Định nghĩa: Cấp độ cấu hình có độ ưu tiên cao nhất (`--local`), chỉ áp dụng riêng cho một repository cụ thể đang làm việc.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Thông tin định danh (User Identity) - Định nghĩa: Bao gồm `user.name` và `user.email`, được đính kèm vào mỗi commit để xác định rõ ai là tác giả của thay đổi đó.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Source Control - Định nghĩa: Giao diện đồ họa (GUI) quản lý mã nguồn được tích hợp sẵn trong Visual Studio Code, cho phép thực hiện các thao tác Git trực quan.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Lỗi Author Identity Unknown - Định nghĩa: Lỗi xảy ra khi thực hiện câu lệnh `git commit` mà hệ thống chưa ghi nhận thông tin `user.name` hoặc `user.email` trong bất kỳ cấp độ cấu hình nào.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Kiem_tra_phien_ban_va_danh_sach_cau_hinh_Git:\n# Kiểm tra phiên bản Git đã cài đặt\ngit --version\n\n# Xem danh sách cấu hình toàn cục (Global)\ngit config --global --list\n\n# Xem tất cả các cấu hình kèm theo nguồn lưu trữ (System, Global hay Local)\ngit config --list --show-origin",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Thiet_lap_thong_tin_dinh_danh_nguoi_dung:\n# Thiết lập thông tin định danh toàn cục (Global)\ngit config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"nguyenvana@example.com\"\n\n# Kiểm tra lại thiết lập Global\ngit config --global user.name\ngit config --global user.email\n\n# Thiết lập thông tin định danh riêng cho dự án hiện tại (Local)\ngit config --local user.name \"Nguyen Van A (Project X)\"\ngit config --local user.email \"anguyen@projectx.com\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Tich_hop_Git_Bash_voi_VS_Code_settings_json:\n{\n  \"terminal.integrated.profiles.windows\": {\n    \"Git Bash\": {\n      \"path\": \"C:\\\\Program Files\\\\Git\\\\bin\\\\bash.exe\"\n    }\n  },\n  \"terminal.integrated.defaultProfile.windows\": \"Git Bash\",\n  \"git.path\": \"C:\\\\Program Files\\\\Git\\\\cmd\\\\git.exe\",\n  \"git.enabled\": true,\n  \"git.autofetch\": true\n}",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Khac_phuc_loi_thieu_thong_tin_dinh_danh_truoc_khi_commit:\n# Bước 1: Kiểm tra thông tin định danh xem có bị thiếu không\ngit config user.name\ngit config user.email\n\n# Bước 2: Bổ sung thông tin định danh nếu bị trống (nguyên nhân gây lỗi commit)\ngit config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"nguyenvana@example.com\"\n\n# Bước 3: Tạo commit thử nghiệm để xác minh hết lỗi\ngit add .\ngit commit -m \"Initial commit: Khoi tao du an va thiet lap dinh danh\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Cài đặt và cấu hình Git"
+    }
+  },
+  {
+    "text": "Khái niệm: Kho lưu trữ từ xa (Remote Repository) - Định nghĩa: Là phiên bản của dự án được lưu trữ trên một máy chủ đám mây trực tuyến (như GitHub Cloud), cho phép sao lưu an toàn, truy cập từ nhiều máy tính và chia sẻ mã nguồn với người khác.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: GitHub Cloud - Định nghĩa: Nền tảng dịch vụ dựa trên đám mây cung cấp không gian lưu trữ các kho kho Git từ xa, tích hợp các công cụ hỗ trợ quản lý dự án và theo dõi lịch sử phát triển phần mềm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Lệnh git remote - Định nghĩa: Lệnh trong Git Bash dùng để quản lý các liên kết giữa kho lưu trữ cục bộ (Local Repository) và các kho lưu trữ từ xa (Remote Repository).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Địa chỉ Remote URL - Định nghĩa: Đường dẫn URL duy nhất (dạng HTTPS hoặc SSH) định danh vị trí kho lưu trữ trên GitHub Cloud, ví dụ: https://github.com/user/repository.git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Lệnh git push - Định nghĩa: Lệnh thực hiện việc truyền tải các commit và thông tin lịch sử từ một nhánh ở Local Repository lên kho lưu trữ Remote Repository tương ứng trên đám mây.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Tham số -u (--set-upstream) - Định nghĩa: Tùy chọn đi kèm với lệnh git push lần đầu tiên, giúp liên kết cố định nhánh cục bộ với nhánh trên remote, cho phép các lần push/pull sau chỉ cần gõ 'git push' ngắn gọn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Source Control Panel - Định nghĩa: Giao diện trực quan tích hợp trong Visual Studio Code cho phép người dùng thao tác add, commit, thêm remote và push code lên GitHub Cloud thông qua các nút bấm mà không cần gõ lệnh thủ công.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Đối chiếu trạng thái đồng bộ (Git Status & Git Log) - Định nghĩa: Việc sử dụng các lệnh kiểm tra để xác định xem Local Repository đang đi trước, đi sau hay đã hoàn toàn đồng bộ với Remote Repository.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_va_lien_ket_remote_git_bash:\n# 1. Khởi tạo kho lưu trữ local và tạo nhánh chính 'main'\ngit init\ngit branch -M main\n\n# 2. Tạo file mẫu và tạo commit đầu tiên\necho \"# Du an dau tien\" > README.md\ngit add README.md\ngit commit -m \"feat: khoi tao du an va them README\"\n\n# 3. Liên kết Local Repository với Remote Repository trên GitHub\ngit remote add origin https://github.com/ten-user/ten-repo.git\n\n# 4. Kiểm tra danh sách Remote URL đã thiết lập\ngit remote -v",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho day_ma_nguon_len_github_cloud:\n# 1. Push mã nguồn lên GitHub và thiết lập upstream branch lần đầu\ngit push -u origin main\n\n# 2. Thêm chỉnh sửa mới, commit và push ở các lần tiếp theo\ngit add .\ngit commit -m \"docs: cap nhat mo ta du an\"\ngit push",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho kiem_tra_va_doi_chieu_lich_su_dong_bo:\n# Kiểm tra sự chênh lệch commit giữa local và remote\ngit status\n\n# Xem lịch sử commit ngắn gọn kèm thông tin nhánh remote\ngit log --oneline --graph --all",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_trinh_thuc_hien_tren_vs_code:\n// Quy trình thao tác trên giao diện VS Code Source Control (Ctrl+Shift+G):\n// Bước 1: Mở giao diện Source Control, nhấp vào biểu tượng 3 chấm (...) -> chọn Remote -> Add Remote.\n// Bước 2: Dán đường dẫn Remote URL (https://github.com/ten-user/ten-repo.git) và nhập tên gợi nhớ là 'origin'.\n// Bước 3: Nhập thông điệp commit vào ô text và nhấn nút 'Commit'.\n// Bước 4: Nhấn nút 'Publish Branch' hoặc nút 'Sync Changes' ở góc dưới thanh trạng thái để Push code lên GitHub Cloud.",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: working_directory - Định nghĩa: Thu mục làm việc vật lý trên đĩa cứng chứa toàn bộ tập tin dự án mà lập trình viên thao tác chỉnh sửa trực tiếp.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: staging_area - Định nghĩa: Vùng lưu trữ trung gian (Index) ghi lại các thay đổi được chọn lọc từ Working Directory trước khi đóng gói thành một Snapshot chính thức.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: git_repository - Định nghĩa: Cơ sở dữ liệu lưu trữ toàn bộ lịch sử thay đổi, metadata và các bản chụp snapshot của dự án dưới thư mục ẩn .git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: untracked_status - Định nghĩa: Trạng thái của các tập tin mới tạo ra trong Working Directory nhưng chưa từng được Git quản lý hay đưa vào Staging Area.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: tracked_status - Định nghĩa: Trạng thái của các tập tin đã được Git ghi nhận trong lịch sử, bao gồm 3 phân loại: Unmodified (chưa sửa), Modified (đã sửa), Staged (đã sẵn sàng commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: git_status_command - Định nghĩa: Lệnh dòng lệnh dùng để kiểm tra chi tiết trạng thái của tất cả tập tin trong Working Directory và Staging Area.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: git_add_command - Định nghĩa: Lệnh chuyển các tập tin hoặc thư mục có sự thay đổi từ Working Directory vào Staging Area.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: git_commit_command - Định nghĩa: Lệnh lưu cố định ảnh chụp (snapshot) của vùng Staging Area vào lịch sử Git Repository cùng với thông điệp giải thích.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: conventional_commits - Định nghĩa: Quy chuẩn đặt thông điệp commit theo cấu trúc tiền tố chuẩn hóa (như feat:, fix:, docs:, style:) nhằm minh bạch hóa lịch sử phát triển dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: vscode_source_control_indicators - Định nghĩa: Các ký tự hiển thị trên giao diện VS Code đại diện cho trạng thái tệp: U (Untracked - Chưa theo dõi), M (Modified - Đã chỉnh sửa), A (Added - Đã đưa vào Staging), D (Deleted - Đã xóa).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho khoi_tao_va_kiem_tra_trang_thai:\n# 1. Khởi tạo kho lưu trữ Git local tại thư mục hiện tại\ngit init\n\n# 2. Tạo một tập tin mới index.html\necho \"<h1>Trang chủ dự án</h1>\" > index.html\n\n# 3. Kiểm tra trạng thái tập tin trong Working Directory\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho thao_tac_staging_tap_tin:\n# 1. Đưa một tập tin cụ thể vào Staging Area\ngit add index.html\n\n# 2. Tạo thêm các tập tin mới\necho \"body { margin: 0; }\" > style.css\necho \"console.log('App loaded');\" > app.js\n\n# 3. Đưa toàn bộ tập tin bị thay đổi vào Staging Area cùng lúc\ngit add .\n\n# 4. Kiểm tra lại trạng thái để xác nhận các tệp đã ở trạng thái Staged\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho ghi_nhan_commit_chuan_hoa:\n# 1. Commit các thay đổi đã Staged với thông điệp chuẩn Conventional Commits\ngit commit -m \"feat: bổ sung trang chủ và cấu hình giao diện cơ bản\"\n\n# 2. Chỉnh sửa nội dung file style.css\necho \"h1 { color: blue; }\" >> style.css\n\n# 3. Đưa thay đổi mới vào Staging và commit phiên bản tiếp theo\ngit add style.css\ngit commit -m \"style: cập nhật màu sắc hiển thị cho thẻ h1\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho doc_trang_thai_ngan_gon_git_bash:\n# 1. Tạo tập tin mới và chỉnh sửa tập tin cũ để kiểm tra ký hiệu\necho \"Contact Info\" > contact.html\necho \"// Cập nhật logic\" >> app.js\n\n# 2. Xem trạng thái định dạng ngắn gọn trên Git Bash\ngit status -s\n\n# Kết quả hiển thị:\n# ?? contact.html  (Ký hiệu U/Untracked)\n#  M app.js          (Ký hiệu M/Modified ở Working Directory)",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho quy_trinh_luu_vet_tong_hop:\n# Bước 1: Kiểm tra trạng thái hiện tại của toàn bộ dự án\ngit status\n\n# Bước 2: Đưa tất cả các thay đổi hoàn chỉnh vào Staging Area\ngit add .\n\n# Bước 3: Ghi nhận snapshot vào Repository kèm theo commit message chuẩn\ngit commit -m \"docs: thêm tập tin README hướng dẫn vận hành dự án\"\n\n# Bước 4: Truy vấn lịch sử lưu vết dạng dòng rút gọn\ngit log --oneline",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Chu trình lưu vết cốt lõi"
+    }
+  },
+  {
+    "text": "Khái niệm: Remote Repository - Định nghĩa: Kho lưu trữ mã nguồn được đặt trên máy chủ đám mây (như GitHub Cloud), giúp sao lưu dự phòng, bảo vệ dữ liệu và hỗ trợ chia sẻ mã nguồn.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: origin - Định nghĩa: Tên định danh (alias) mặc định do Git sử dụng để đại diện cho địa chỉ URL của kho lưu trữ từ xa được liên kết với dự án cục bộ.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: git remote add - Định nghĩa: Lệnh dùng để khởi tạo mối liên kết giữa kho lưu trữ cục bộ (Local Repository) và kho lưu trữ từ xa (Remote Repository).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: git push - Định nghĩa: Lệnh đẩy toàn bộ các commit và dữ liệu lịch sử từ một nhánh ở kho lưu trữ cục bộ lên kho lưu trữ từ xa tương ứng trên GitHub Cloud.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Upstream Branch (-u) - Định nghĩa: Tùy chọn thiết lập mối liên kết theo dõi (tracking) giữa nhánh cục bộ và nhánh từ xa, cho phép thực hiện lệnh push hoặc pull ở các lần sau mà không cần chỉ định lại tên remote và tên nhánh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: VS Code Source Control - Định nghĩa: Giao diện quản lý mã nguồn trực quan (GUI) được tích hợp sẵn trong VS Code, cho phép thực hiện thao tác Git như commit, thêm remote và push code mà không cần gõ lệnh.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Publish Branch - Định nghĩa: Tính năng trên giao diện VS Code Source Control hỗ trợ tự động tạo nhánh tương ứng trên GitHub Cloud, thiết lập upstream và tải toàn bộ commit lên từ xa.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: git remote -v - Định nghĩa: Lệnh kiểm tra danh sách chi tiết các liên kết remote bao gồm tên định danh và đường dẫn URL (đối với cả hai quyền đọc fetch và ghi push).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho git_remote_add_origin:\ngit remote add origin https://github.com/nguyenvana/du-an-dau-tien.git",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho git_remote_check:\ngit remote -v",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho git_push_first_time:\ngit push -u origin main",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho git_push_standard:\ngit push",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho complete_project_push_flow:\ngit init\ngit add .\ngit commit -m \"Initial commit: Khoi tao du an moi\"\ngit branch -M main\ngit remote add origin https://github.com/nguyenvana/du-an-dau-tien.git\ngit push -u origin main",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho verify_push_integrity:\ngit status\ngit log --oneline -n 3",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Liên kết Remote và Push code"
+    }
+  },
+  {
+    "text": "Khái niệm: Git - Định nghĩa: Hệ thống quản lý phiên bản phân tán (Distributed Version Control System - DVCS) giúp ghi vết và quản lý toàn bộ lịch sử thay đổi của tệp tin trong dự án phần mềm.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Working Directory - Định nghĩa: Khu vực làm việc trực tiếp trên thư mục máy tính, nơi người dùng tạo mới, chỉnh sửa hoặc xóa nội dung các tệp tin dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Staging Area - Định nghĩa: Vùng đệm trung gian (Index) lưu trữ danh sách các thay đổi tệp tin đã được lựa chọn để chuẩn bị đóng gói vào bản chụp (commit) tiếp theo.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Local Repository - Định nghĩa: Kho lưu trữ cục bộ nằm trong thư mục ẩn .git trên máy cá nhân, nơi lưu trữ toàn bộ các cơ sở dữ liệu lịch sử commit và cấu hình của dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Untracked - Định nghĩa: Trạng thái của các tệp tin mới tạo trong Working Directory chưa từng được hệ thống Git ghi nhận và theo dõi lịch sử.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Modified - Định nghĩa: Trạng thái của tệp tin đã được Git quản lý nhưng đang có sự thay đổi nội dung ở Working Directory và chưa được đưa vào Staging Area.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Trạng thái Staged - Định nghĩa: Trạng thái của tệp tin đã được di chuyển vào Staging Area thông qua lệnh git add, sẵn sàng để thực thi ghi dữ liệu vào Local Repository.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Config - Định nghĩa: Công cụ cho phép thiết lập và quản lý các tham số cấu hình của Git ở cấp độ hệ thống, toàn cục (global) hoặc cấp độ dự án (local).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Init - Định nghĩa: Lệnh khởi tạo một kho lưu trữ Git mới bằng cách tạo ra thư mục ẩn chứa dữ liệu quản lý phiên bản tên là .git tại thư mục làm việc hiện tại.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Status - Định nghĩa: Lệnh tra cứu và hiển thị trạng thái hiện tại của các tệp tin trong Working Directory và Staging Area.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Add - Định nghĩa: Lệnh chuyển giao các tệp tin có sự thay đổi từ khu vực làm việc (Working Directory) vào khu vực đệm (Staging Area).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Commit - Định nghĩa: Lệnh chụp và lưu trữ cố định trạng thái các tệp tin từ Staging Area vào Local Repository kèm theo thông điệp (commit message) giải thích nội dung thay đổi.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: GitHub Cloud - Định nghĩa: Nền tảng dịch vụ lưu trữ đám mây cung cấp không gian quản lý các kho lưu trữ từ xa (Remote Repositories), phục vụ sao lưu và chia sẻ mã nguồn trực tuyến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Remote - Định nghĩa: Lệnh thiết lập và quản lý danh sách các liên kết nối giữa kho lưu trữ cục bộ (Local Repository) với các kho lưu trữ từ xa (Remote Repositories).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Push - Định nghĩa: Lệnh tải toàn bộ các bản đóng gói commit từ kho lưu trữ cục bộ lên kho lưu trữ từ xa trên máy chủ GitHub Cloud.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: Git Log - Định nghĩa: Lệnh xem lại chuỗi lịch sử các commit đã được ghi nhận trong kho lưu trữ cục bộ theo thứ tự thời gian từ mới nhất đến cũ nhất.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Cau_hinh_thong_tin_tac_gia_git:\n# Cấu hình tên người dùng toàn cục trên hệ thống\ngit config --global user.name \"Nguyen Van A\"\n\n# Cấu hình địa chỉ email toàn cục cho người dùng\ngit config --global user.email \"nguyenvana@example.com\"\n\n# Kiểm tra danh sách các thiết lập cấu hình Git hiện tại\ngit config --list",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Khoi_tao_kho_luu_tru_cuc_bo:\n# Khởi tạo kho lưu trữ Git mới tại thư mục hiện tại\ngit init\n\n# Kiểm tra trạng thái hiện tại của kho lưu trữ vừa khởi tạo\ngit status",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Thuc_thi_chu_trinh_staging_va_commit:\n# 1. Kiểm tra trạng thái các tệp tin chưa được theo dõi hoặc đã chỉnh sửa\ngit status\n\n# 2. Đưa tệp tin cụ thể index.html vào Staging Area\ngit add index.html\n\n# 3. Đưa toàn bộ các tệp tin thay đổi vào Staging Area\ngit add .\n\n# 4. Đóng gói các thay đổi từ Staging Area vào Local Repository kèm thông điệp rõ ràng\ngit commit -m \"feat: Khoi tao cau truc trang web cơ ban voi index.html\"",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Ket_noi_va_day_ma_nguon_len_GitHub:\n# Đổi tên nhánh mặc định hiện tại thành main\ngit branch -M main\n\n# Liên kết kho lưu trữ cục bộ với kho lưu trữ từ xa trên GitHub Cloud\ngit remote add origin https://github.com/ten-tai-khoan/ten-du-an.git\n\n# Kiểm tra danh sách đường dẫn remote đã cấu hình\ngit remote -v\n\n# Đẩy mã nguồn từ nhánh main ở Local Repository lên remote origin\ngit push -u origin main",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho Truy_van_lich_su_commit_du_an:\n# Xem lịch sử commit đầy đủ thông tin tác giả và thời gian\ngit log\n\n# Xem lịch sử commit dưới dạng rút gọn 1 dòng cho mỗi commit\ngit log --oneline\n\n# Xem 3 commit mới nhất kèm chi tiết số dòng thay đổi trên các tệp\ngit log -n 3 --stat",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: git_dvcs - Định nghĩa: Git là hệ thống quản lý phiên bản phân tán (Distributed Version Control System) cho phép theo dõi sự thay đổi của mã nguồn, hỗ trợ lưu vết lịch sử và khôi phục các phiên bản cũ của dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: working_directory - Định nghĩa: Working Directory (Thư mục làm việc) là không gian đĩa cục bộ chứa các tệp tin dự án đang được lập trình viên trực tiếp chỉnh sửa trước khi đưa vào hệ thống theo dõi của Git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: staging_area - Định nghĩa: Staging Area (Vùng chờ) là khu vực đệm trung gian lưu trữ danh sách các thay đổi đã được chọn lọc (qua lệnh git add) để chuẩn bị đóng gói thành một commit.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: local_repository - Định nghĩa: Local Repository (Kho lưu trữ cục bộ) là cơ sở dữ liệu ẩn (thư mục .git) nằm trên máy tính cá nhân, lưu trữ toàn bộ lịch sử commit và các nhánh của dự án.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: remote_repository - Định nghĩa: Remote Repository (Kho lưu trữ từ xa) là bản sao của kho lưu trữ được lưu trữ trên dịch vụ đám mây (như GitHub Cloud) giúp sao lưu và chia sẻ mã nguồn trực tuyến.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: file_lifecycle_states - Định nghĩa: Vòng đời trạng thái tệp tin trong Git gồm 4 trạng thái chính: Untracked (chưa theo dõi), Unmodified (chưa chỉnh sửa), Modified (đã chỉnh sửa), và Staged (đã sẵn sàng commit).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: git_bash - Định nghĩa: Git Bash là môi trường dòng lệnh (CLI) giả lập terminal Bash trên hệ điều hành Windows, cung cấp các công cụ và lệnh Unix/Linux để làm việc với Git.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: vscode_source_control - Định nghĩa: VS Code Source Control là giao diện người dùng trực quan (GUI) tích hợp sẵn trong VS Code, cho phép thực hiện chu trình Git (add, commit, push, diff) thông qua các thao tác click chuột.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: git_config - Định nghĩa: Git Config là tập hợp các lệnh cấu hình môi trường Git, dùng để định danh thông tin tác giả (user.name, user.email) gắn liền với mọi bản lưu trữ commit.",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Khái niệm: git_push - Định nghĩa: Git Push là thao tác đẩy toàn bộ các bản commit mới nhất từ kho lưu trữ cục bộ (Local Repo) lên kho lưu trữ từ xa (Remote Repo trên GitHub Cloud).",
+    "vector": [],
+    "metadata": {
+      "type": "concept",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho config_git_identity:\n# Cấu hình thông tin tác giả toàn cục trên Git Bash\ngit config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"nguyenvana@example.com\"\n\n# Kiểm tra lại các thông số cấu hình đã thiết lập\ngit config --global user.name\ngit config --global user.email",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho basic_git_workflow_bash:\n# Khởi tạo kho lưu trữ Git cục bộ mới\ngit init\n\n# Tạo tệp tin README.md mới\necho \"# Du an Git Co ban\" > README.md\n\n# Kiểm tra trạng thái các tệp tin trong thư mục làm việc\ngit status\n\n# Đưa tệp tin README.md vào Staging Area\ngit add README.md\n\n# Đóng gói thay đổi thành một commit kèm thông điệp rõ ràng\ngit commit -m \"docs: Khoi tao du an va them tep README.md\"\n\n# Xem danh sách các commit đã thực hiện dưới dạng thu gọn\ngit log --oneline",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho vscode_source_control_workflow:\n# Các thao tác tương đương sử dụng VS Code Source Control GUI:\n# 1. Mở dự án trong VS Code: gõ 'code .' trên terminal.\n# 2. Mở tab Source Control (phím tắt Ctrl+Shift+G hoặc Cmd+Shift+G).\n# 3. Nhấp nút 'Initialize Repository' nếu dự án chưa có Git.\n# 4. Khi tệp bị sửa đổi, bấm dấu '+' (Stage Changes) cạnh tệp để đưa vào Staging Area.\n# 5. Nhập thông điệp commit vào ô 'Message' và bấm nút 'Commit' (hoặc Ctrl+Enter).\n# 6. Xem lịch sử khác biệt mã nguồn trực tiếp bằng cách click vào tệp trong danh sách Changes.",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho connect_and_push_github:\n# Đổi tên nhánh mặc định hiện tại thành 'main'\ngit branch -M main\n\n# Liên kết kho lưu trữ cục bộ với kho lưu trữ từ xa trên GitHub Cloud\ngit remote add origin https://github.com/username/du-an-demo.git\n\n# Kiểm tra danh sách đường dẫn kho lưu trữ từ xa đã liên kết\ngit remote -v\n\n# Tải toàn bộ commit lên nhánh main của GitHub và thiết lập theo dõi mặc định (-u)\ngit push -u origin main",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
+  },
+  {
+    "text": "Mã nguồn mẫu cho end_to_end_production_workflow:\n# Bước 1: Tạo tệp tin mã nguồn mới index.html\necho \"<!DOCTYPE html><html><head><title>Demo Git</title></head><body><h1>Trang chu</h1></body></html>\" > index.html\n\n# Bước 2: Kiểm tra sự thay đổi của tệp tin chưa được theo dõi\ngit status\n\n# Bước 3: Đưa toàn bộ các tệp thay đổi vào Staging Area\ngit add .\n\n# Bước 4: Tạo commit với chuẩn thông điệp Conventional Commits\ngit commit -m \"feat: Them trang chu index.html ban dau\"\n\n# Bước 5: Đẩy mã nguồn đã commit lên kho lưu trữ từ xa trên GitHub\ngit push origin main",
+    "vector": [],
+    "metadata": {
+      "type": "code",
+      "session": "Thực hành tổng hợp - Luyện tập chu trình GIT cơ bản"
+    }
   }
 ]

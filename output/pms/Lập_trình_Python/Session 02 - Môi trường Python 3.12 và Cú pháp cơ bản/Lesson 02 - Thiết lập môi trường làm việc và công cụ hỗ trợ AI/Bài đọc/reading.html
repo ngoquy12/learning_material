@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thiết lập môi trường làm việc và công cụ hỗ trợ AI - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Thiết lập môi trường làm việc và công cụ hỗ trợ AI</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1">
+            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Tại sao cần Môi trường ảo và Công cụ AI IDE trong Phát triển Phần mềm?</a>
+            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Cấu trúc Môi trường ảo venv, Quản lý Thư viện pip và Tích hợp AI IDE</a>
+            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
+            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Tại sao cần Môi trường ảo và Công cụ AI IDE trong Phát triển Phần mềm?</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Cấu trúc Môi trường ảo venv, Quản lý Thư viện pip và Tích hợp AI IDE</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Thiết lập môi trường làm việc và công cụ hỗ trợ AI</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Tại sao cần Môi trường ảo và Công cụ AI IDE trong Phát triển Phần mềm?</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong các dự án phần mềm doanh nghiệp, phát triển mã nguồn trực tiếp trên môi trường Python toàn cục (Global Python Environment) tạo ra rủi ro cực kỳ lớn về xung đột phụ thuộc (Dependency Hell). Giả sử doanh nghiệp triển khai đồng thời hai hệ thống: Dự án A yêu cầu phiên bản thư viện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">requests==2.25.0</code> và Dự án B yêu cầu phiên bản <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">requests==2.31.0</code>. Việc ghi đè thư viện toàn cục khiến một trong hai ứng dụng ngừng hoạt động hoàn toàn ngay khi khởi chạy.</p><p class="text-slate-600 mb-4 leading-relaxed">Bên cạnh đó, việc theo dõi luồng thực thi bằng các câu lệnh in vết thủ công (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">print()</code>) làm tốn thời gian phát triển và làm bẩn mã nguồn. Việc thiếu hụt môi trường cô lập kết hợp với quy trình kiểm thử thủ công dẫn đến giảm 40% năng suất làm việc của kỹ sư phần mềm.</p><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2""><svg class="w-5 h-5 text-rose-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> 1.1. Tác hại của kiến trúc cũ không sử dụng Virtual Environment và Trình Debugger</h4><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Ô nhiễm môi trường toàn cục (Global Scope Pollution):</strong> Cài đặt tất cả các gói thư viện vào đường dẫn hệ thống làm mất kiểm soát phiên bản chính xác của dự án.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Xung đột thư viện chéo (Cross-Project Conflict):</strong> Không thể vận hành song song các dự án có cùng phụ thuộc nhưng khác phiên bản trên cùng một máy tính.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Duy vết lỗi thủ công kém hiệu quả:</strong> Chèn mã log tạm thời gây lãng phí tài nguyên và tạo ra nguy cơ rò rỉ thông tin dữ liệu trong sản phẩm thật.</li></ul></div></div>
+          <div class="my-6"></div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cấu trúc Môi trường ảo venv, Quản lý Thư viện pip và Tích hợp AI IDE</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-cau-truc-va-nguyen-ly-hoat-ong-cua-moi-truong-ao-virtual-environment-venv" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cấu trúc và nguyên lý hoạt động của môi trường ảo Virtual Environment (venv)</h3><p class="text-slate-600 mb-4 leading-relaxed">Môi trường ảo <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">venv</code> tạo ra một thư mục cô lập chứa bản sao liên kết hoặc bản sao trực tiếp của trình thông dịch Python cùng hệ thống các gói phụ thuộc riêng biệt cho từng dự án.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Cú pháp khởi tạo môi trường ảo chuẩn trong Python 3.12
+python -m venv .venv
+
+# Lệnh kích hoạt môi trường ảo trên Linux/macOS
+source .venv/bin/activate
+
+# Lệnh kích hoạt môi trường ảo trên Windows (PowerShell)
+.\.venv\Scripts\Activate.ps1</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Tệp tin cấu hình <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">pyvenv.cfg</code>:</strong> Lưu trữ đường dẫn trỏ đến Python SDK gốc (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">home</code>) và cờ khai báo trạng thái cô lập (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">include-system-site-packages = false</code>).</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Thư mục chứa thư viện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">site-packages</code>:</strong> Nơi lưu trữ tất cả các gói phụ thuộc tải về thông qua <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">pip</code>, hoàn toàn tách biệt với thư viện hệ thống.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Cơ chế ghi đè biến môi trường <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">PATH</code>:</strong> Khi kích hoạt, kịch bản activate sẽ đưa đường dẫn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.venv/bin</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.venv/Scripts</code> lên đầu biến <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">PATH</code>.</li></ul><h3 id="sec-2-2-cau-hinh-python-3-12-sdk-va-quan-ly-thu-vien-voi-pip" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Cấu hình Python 3.12 SDK và Quản lý Thư viện với pip</h3><p class="text-slate-600 mb-4 leading-relaxed">Trình quản lý gói <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">pip</code> đóng vai trò tải, cập nhật và gỡ bỏ các thư viện từ PyPI (Python Package Index).</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python"># Khởi tạo tệp khai báo danh sách phụ thuộc dự án
+pip freeze &gt; requirements.txt
+
+# Cài đặt đồng bộ tất cả phụ thuộc vào môi trường mới
+pip install -r requirements.txt</code></pre>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">pip freeze</code>:</strong> Liệt kê danh sách tất cả gói thư viện kèm định danh phiên bản chính xác hiện đang cài đặt trong môi trường ảo active.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Tệp tin <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">requirements.txt</code>:</strong> Bản thiết kế phụ thuộc (Dependency manifest) giúp tái lập môi trường đồng nhất giữa các máy tính lập trình viên và hệ thống Server Production.</li></ul><h3 id="sec-2-3-tich-hop-ai-ide-cursor-windsurf-va-trinh-debugger-tich-hop" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Tích hợp AI IDE (Cursor/Windsurf) và Trình Debugger Tích hợp</h3><p class="text-slate-600 mb-4 leading-relaxed">Các AI IDE hiện đại như Cursor và Windsurf tích hợp mô hình ngôn ngữ lớn (LLM) vào trực tiếp không gian làm việc. Kết hợp tính năng trợ lý AI với bộ công cụ theo dõi mã nguồn (Interactive Debugger) mang lại khả năng phân tích lỗi vượt trội.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-sky-900 mb-2 flex items-center gap-2""><svg class="w-5 h-5 text-sky-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Khái niệm cốt lõi trong công cụ Debugger</h4><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Breakpoint (Điểm dừng):</strong> Vị trí đánh dấu dòng lệnh mà trình biên dịch/thông dịch sẽ tạm dừng thực thi để kỹ sư kiểm tra trạng thái bộ nhớ.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Step Over (Chạy qua - F10):</strong> Thực thi dòng lệnh hiện tại và chuyển sang dòng tiếp theo mà không đi sâu vào chi tiết bên trong hàm.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Step Into (Đi vào - F11):</strong> Truy cập trực tiếp vào bên trong nội hàm đang được gọi để kiểm tra từng dòng mã nội bộ.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Variables Window &amp; Call Stack:</strong> Bảng hiển thị giá trị thời gian thực của các biến và thứ tự lời gọi hàm trong bộ nhớ RAM.</li></ul></div><h3 id="sec-2-4-mo-phong-co-che-thuc-thi-va-debug-tung-buoc-trong-python" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế thực thi và Debug từng bước trong Python</h3><div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-800 my-6 shadow-sm"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Mô phỏng cơ chế vận hành từng bước</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"><div class="bg-white p-4 rounded-xl border border-slate-200 font-mono text-sm leading-relaxed"><div id="viz-line-1" class="px-2 py-1 rounded bg-amber-100 text-slate-900 font-bold"><span class="text-slate-500">1.</span> <span class="text-purple-600">total_amount</span> = <span class="text-blue-600">1000</span></div><div id="viz-line-2" class="px-2 py-1 rounded text-slate-600"><span class="text-slate-500">2.</span> <span class="text-purple-600">tax_rate</span> = <span class="text-blue-600">0.1</span></div><div id="viz-line-3" class="px-2 py-1 rounded text-slate-600"><span class="text-slate-500">3.</span> <span class="text-purple-600">calculated_tax</span> = <span class="text-purple-600">total_amount</span> * <span class="text-purple-600">tax_rate</span></div><div id="viz-line-4" class="px-2 py-1 rounded text-slate-600"><span class="text-slate-500">4.</span> <span class="text-purple-600">final_price</span> = <span class="text-purple-600">total_amount</span> + <span class="text-purple-600">calculated_tax</span></div></div><div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Bảng bộ nhớ &amp; Trạng thái biến</div><table class="w-full text-xs text-left border-collapse"><thead><tr class="border-b border-slate-200 text-slate-500"><th class="py-1.5 font-semibold">Tên biến</th><th class="py-1.5 font-semibold">Giá trị hiện tại</th></tr></thead><tbody class="divide-y divide-slate-100 font-mono"><tr><td class="py-1.5 text-slate-700">total_amount (<span id="viz-var-number">number</span>)</td><td class="py-1.5 text-emerald-600 font-bold" id="val-total">None</td></tr><tr><td class="py-1.5 text-slate-700">tax_rate</td><td class="py-1.5 text-emerald-600 font-bold" id="val-rate">None</td></tr><tr><td class="py-1.5 text-slate-700">calculated_tax (<span id="viz-var-sum">sum</span>)</td><td class="py-1.5 text-emerald-600 font-bold" id="val-tax">None</td></tr><tr><td class="py-1.5 text-slate-700">final_price</td><td class="py-1.5 text-emerald-600 font-bold" id="val-final">None</td></tr></tbody></table></div></div><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Màn hình Console kết quả</div><div id="viz-console" class="bg-slate-900 text-emerald-400 font-mono text-xs p-3 rounded-lg min-h-[48px] mb-4">Ready for step execution...</div><div class="flex flex-wrap gap-2"><button onclick="runNextStep()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] text-slate-700 hover:bg-[#90000a]">Tiếp theo</button><button onclick="resetStep()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800">Thử lại</button><button onclick="autoRunSteps()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-slate-700">Tự động chạy</button></div></div></div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-kiem-tra-trang-thai-moi-truong-ao-cu-phap-co-ban" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Kiểm tra trạng thái Môi trường ảo (Cú pháp cơ bản)</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ mã nguồn kiểm tra xem kịch bản Python đang thực thi bên trong môi trường ảo <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">venv</code> hay môi trường hệ thống toàn cục thông qua thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">sys.prefix</code>.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="import sys&#10;&#10;def verify_environment():&#10;    in_venv = sys.prefix != sys.base_prefix&#10;    print(f&quot;Active Virtual Environment: {in_venv}&quot;)&#10;    print(f&quot;Active SDK Path: {sys.prefix}&quot;)&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    verify_environment()" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">import sys
+
+def verify_environment():
+    in_venv = sys.prefix != sys.base_prefix
+    print(f&quot;Active Virtual Environment: {in_venv}&quot;)
+    print(f&quot;Active SDK Path: {sys.prefix}&quot;)
+
+if __name__ == &quot;__main__&quot;:
+    verify_environment()</code></pre>
+  </div>
+  <div id="container-sb-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2-kiem-tra-danh-sach-phu-thuoc-a-cai-at-bai-toan-doanh-nghiep" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Kiểm tra danh sách phụ thuộc đã cài đặt (Bài toán Doanh nghiệp)</h3><p class="text-slate-600 mb-4 leading-relaxed">Kịch bản tự động kiểm tra sự tồn tại của gói phụ thuộc bắt buộc trước khi khởi chạy dịch vụ chính của hệ thống.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2" class="language-python" contenteditable="true" spellcheck="false" data-original="import importlib.util&#10;import sys&#10;&#10;def check_package_installed(package_name):&#10;    package_spec = importlib.util.find_spec(package_name)&#10;    has_package = package_spec is not None&#10;    return has_package&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    required_packages = [&quot;requests&quot;, &quot;json&quot;, &quot;sys&quot;]&#10;    for pkg in required_packages:&#10;    status = check_package_installed(pkg)&#10;        print(f&quot;Package &#x27;{pkg}&#x27; availability status: {status}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">import importlib.util
+import sys
+
+def check_package_installed(package_name):
+    package_spec = importlib.util.find_spec(package_name)
+    has_package = package_spec is not None
+    return has_package
+
+if __name__ == &quot;__main__&quot;:
+    required_packages = [&quot;requests&quot;, &quot;json&quot;, &quot;sys&quot;]
+    for pkg in required_packages:
+    status = check_package_installed(pkg)
+        print(f&quot;Package &#x27;{pkg}&#x27; availability status: {status}&quot;)</code></pre>
+  </div>
+  <div id="container-sb-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3-luong-xu-ly-tinh-toan-co-ho-tro-vi-tri-breakpoint-chinh-thuc-enterprise" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Luồng xử lý tính toán có hỗ trợ vị trí Breakpoint (Chính thức Enterprise)</h3><p class="text-slate-600 mb-4 leading-relaxed">Chương trình hoàn chỉnh tính toán chiết khấu đơn hàng được thiết kế tối ưu để kỹ sư đặt Breakpoint và theo dõi sự thay đổi biến bằng bộ công cụ Debugger trên AI IDE (Cursor/Windsurf).</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="def process_single_item(item_id, unit_price, quantity, discount_rate):&#10;    # Set Breakpoint on the next line to inspect initial argument values&#10;subtotal = unit_price * quantity&#10;    tax_amount = subtotal * 0.1&#10;    discount_amount = subtotal * discount_rate&#10;    &#10;    # Debugger Step Over to trace step-by-step memory updates&#10;final_amount = subtotal + tax_amount - discount_amount&#10;    &#10;    return {&#10;        &quot;item_id&quot;: item_id,&#10;        &quot;subtotal&quot;: subtotal,&#10;        &quot;tax_amount&quot;: tax_amount,&#10;        &quot;discount_amount&quot;: discount_amount,&#10;        &quot;final_amount&quot;: final_amount&#10;    }&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    sample_item_id = &quot;PROD-9982&quot;&#10;    price = 150000&#10;    qty = 3&#10;    discount = 0.05&#10;    &#10;    result = process_single_item(sample_item_id, price, qty, discount)&#10;    print(f&quot;Order Summary Result: {result}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">def process_single_item(item_id, unit_price, quantity, discount_rate):
+    # Set Breakpoint on the next line to inspect initial argument values
+subtotal = unit_price * quantity
+    tax_amount = subtotal * 0.1
+    discount_amount = subtotal * discount_rate
+    
+    # Debugger Step Over to trace step-by-step memory updates
+final_amount = subtotal + tax_amount - discount_amount
+    
+    return {
+        &quot;item_id&quot;: item_id,
+        &quot;subtotal&quot;: subtotal,
+        &quot;tax_amount&quot;: tax_amount,
+        &quot;discount_amount&quot;: discount_amount,
+        &quot;final_amount&quot;: final_amount
+    }
+
+if __name__ == &quot;__main__&quot;:
+    sample_item_id = &quot;PROD-9982&quot;
+    price = 150000
+    qty = 3
+    discount = 0.05
+    
+    result = process_single_item(sample_item_id, price, qty, discount)
+    print(f&quot;Order Summary Result: {result}&quot;)</code></pre>
+  </div>
+  <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div>
+        </section>
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <div class="space-y-4">
+            <h3 class="font-montserrat font-bold class="text-xl font-bold text-slate-900 mb-3"">4.1. Những lỗi phổ biến khi quản lý môi trường venv và pip</h3><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2""><svg class="w-5 h-5 text-rose-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Lỗi quên kích hoạt Môi trường ảo trước khi thao tác pip</h4><p class="text-slate-600 mb-2 leading-relaxed">Kỹ sư quên chạy lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">activate</code> dẫn đến việc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">pip</code> tự động tải thư viện trực tiếp vào Python hệ thống.</p><p class="text-slate-600 font-semibold leading-relaxed">Cách phòng tránh:</p><p class="text-slate-600 leading-relaxed">Luôn quan sát phần đầu dấu nhắc lệnh terminal (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">(.venv) user@machine</code>) hoặc cấu hình trình soạn thảo tự động chọn Interpreter từ thư mục <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.venv</code>.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2""><svg class="w-5 h-5 text-amber-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Lỗi đẩy cả thư mục .venv lên hệ thống quản lý mã nguồn Git</h4><p class="text-slate-600 mb-2 leading-relaxed">Thư mục <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.venv</code> chứa hàng ngàn tệp nhị phân có dung lượng lớn và phụ thuộc chặt chẽ vào hệ điều hành cục bộ.</p><p class="text-slate-600 font-semibold leading-relaxed">Cách khắc phục:</p><p class="text-slate-600 leading-relaxed">Thêm từ khóa <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.venv/</code> vào tệp tin <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.gitignore</code> ngay sau khi khởi tạo dự án.</p></div><h3 class="font-montserrat font-bold class="text-xl font-bold text-slate-900 mb-3"">4.2. Best Practices khi kết hợp AI IDE và Trình Debugger</h3><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-emerald-900 mb-2 flex items-center gap-2""><svg class="w-5 h-5 text-emerald-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Quy trình kiểm thử mã nguồn được hỗ trợ bởi AI</h4><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed">Không chấp nhận hoàn toàn mã nguồn được sinh ra từ AI IDE mà không đặt Breakpoint để theo dõi luồng dữ liệu thực tế.</li><li class="leading-relaxed">Sử dụng tính năng phân tích câu lệnh của AI IDE kết hợp với thông tin lỗi từ bảng console của Debugger để khắc phục sự cố nhanh chóng.</li><li class="leading-relaxed">Tạo tệp cấu hình <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.vscode/launch.json</code> tiêu chuẩn để định nghĩa sẵn các cấu hình Debugger cho toàn bộ đội ngũ phát triển.</li></ul></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://docs.python.org/3.12/library/venv.html" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Tài liệu chính thức về môi trường ảo Python venv
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://pip.pypa. Choose/en/stable/user_guide/" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Hướng dẫn quản lý gói phụ thuộc với pip và requirements.txt
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://docs.cursor.com/get-started/welcome" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Hướng dẫn cấu hình Python Debugger trên IDE Cursor
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers
+      window.vizStepMap = {};
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
+        var step = window.vizStepMap[idPrefix];
+        
+        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
+        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+        
+        if (consoleEl) {
+          if (step === 0) {
+            if (numEl) numEl.innerText = "-";
+            if (sumEl) sumEl.innerText = "0";
+            consoleEl.innerText = "Chờ thực thi...";
+          } else if (step === 1) {
+            if (numEl) numEl.innerText = "1";
+            if (sumEl) sumEl.innerText = "1";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
+          } else if (step === 2) {
+            if (numEl) numEl.innerText = "2";
+            if (sumEl) sumEl.innerText = "3";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
+          } else {
+            if (numEl) numEl.innerText = "3";
+            if (sumEl) sumEl.innerText = "6";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+          }
+        }
+      }
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = 0;
+        runVizStep(0, idPrefix);
+      }
+
+      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
+      function vizReset() { resetViz(); }
+      var vizAutoTimer = null;
+      function vizToggleAuto() {
+        if (vizAutoTimer) {
+          clearInterval(vizAutoTimer);
+          vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Tự động chạy";
+        } else {
+          vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Dừng tự động";
+        }
+      }
+    </script>
+  </body>
+</html>

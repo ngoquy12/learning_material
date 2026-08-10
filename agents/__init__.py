@@ -9,7 +9,8 @@ from agents.creator_agents import (
     quiz_agent,
     session_compiler_agent,
     mindmap_agent,
-    reading_questions_creator_agent
+    reading_questions_creator_agent,
+    practical_lab_creator_agent
 )
 from agents.reviewer_agents import (
     html_ux_reviewer,

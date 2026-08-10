@@ -14,7 +14,16 @@ Lecture slides serve as a **Visual Facilitation Tool** for instructors during a 
 >
 > 1. **Cognitive Load Control (Slide Count Limit - 15 to 20 Slides/Session)**:
 >    - ABSOLUTELY FORBIDDEN to create bloated 50-70 slide decks causing cognitive overload.
->    - A 1.5-hour Session MUST contain **maximum 15 - 20 focus slides**. Each Lesson consists of **3 - 4 high-quality slides**:
+>    - A 1.5-hour Session MUST contain **maximum 15 - 20 focus slides**.
+>    - **For Session 01 Orientation**: The single consolidated lesson (`Lesson 01: Tổng quan lộ trình và Demo sản phẩm`) consists of 6 slides:
+>      - _Slide 1: Cover Page (`COVER_LAYOUT`)_.
+>      - _Slide 2: Agenda (`AGENDA_LAYOUT`) — 3 main parts_.
+>      - _Slide 3: Part 1 - Tổng quan nội dung & Lộ trình môn học (Timeline/List layout)_.
+>      - _Slide 4: Part 2 - Phương pháp học tập hiệu quả & Kiến thức tiền đề_.
+>      - _Slide 5: Part 3 - Demo sản phẩm dự án đầu ra_.
+>      - _Slide 6: Summary & Action Plan_.
+>      - **STRICT NO CODE SNIPPETS** on Session 01 slides.
+>    - For standard technical lessons, each Lesson consists of **3 - 4 high-quality slides**:
 >      - _Slide 1: Problem & Hook (Real-world enterprise scenario)_.
 >      - _Slide 2: Core Concept & Visual Diagram (Concepts & flowcharts)_.
 >      - _Slide 3: Code Demo Explainer / Live Playground (Production code)_.
@@ -47,6 +56,7 @@ Lecture slides serve as a **Visual Facilitation Tool** for instructors during a 
 >    - **100% Markdown Rendered**: All Markdown formatting (`**bold**`, `` `code` ``) rendered to clean HTML.
 >    - **Academic & Professional Tone**: Production-grade academic tone. ABSOLUTELY FORBIDDEN informal words ("nhé", "thân mến", "nha").
 >    - **STRICT NO EMOJI**: ABSOLUTELY FORBIDDEN to use text emojis. Use Phosphor SVG icons or CSS badges.
+>    - **100% DYNAMIC TECH STACK (ZERO HARDCODING RULE)**: ABSOLUTELY FORBIDDEN to hardcode static technology commands (`git init`, `git status`, `python .venv`, etc.) or fixed course names. All code fallbacks, diagrams, comparison cards, and terminology MUST dynamically adapt to the target `{tech_stack}` and lesson content.
 
 ---
 

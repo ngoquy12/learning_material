@@ -22,7 +22,7 @@ def generate_image_api(prompt_text: str, image_path) -> bool:
                     "n": 1,
                     "size": "1024x576"
                 }
-                response = requests.post(url, headers=headers, json=data, timeout=40)
+                response = requests.post(url, headers=headers, json=data, timeout=90)
                 if response.status_code == 200:
                     resp_json = response.json()
                     img_data = resp_json.get("data", [])
@@ -34,7 +34,7 @@ def generate_image_api(prompt_text: str, image_path) -> bool:
                         return True
                     elif img_data and "url" in img_data[0]:
                         img_url = img_data[0]["url"]
-                        img_resp = requests.get(img_url, timeout=20)
+                        img_resp = requests.get(img_url, timeout=30)
                         if img_resp.status_code == 200:
                             with open(image_path, "wb") as f:
                                 f.write(img_resp.content)
@@ -55,7 +55,7 @@ def generate_image_api(prompt_text: str, image_path) -> bool:
                     "outputMimeType": "image/png"
                 }
             }
-            response = requests.post(url, headers=headers, json=data, timeout=30)
+            response = requests.post(url, headers=headers, json=data, timeout=90)
             if response.status_code == 200:
                 resp_json = response.json()
                 if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
@@ -72,9 +72,6 @@ def generate_image_api(prompt_text: str, image_path) -> bool:
             print(f"  [Image Generator Warning] Dynamic image generation error: {e}")
     return False
 
-def draw_mindmap_fallback_diagram(prompt_text: str, image_path: Path, title: str):
-    raise NotImplementedError("Fallback mindmap diagram generation is disabled. All images must be generated dynamically by AI.")
-
 def process_mindmap_images(markmap_content: str, state: AgentState) -> str:
     brackets = re.findall(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", markmap_content)
     asterisks = re.findall(r"\*Prompt tạo ảnh:\s*([^*]+)\*", markmap_content, flags=re.IGNORECASE)
@@ -90,26 +87,31 @@ def process_mindmap_images(markmap_content: str, state: AgentState) -> str:
     if not all_prompts:
         return markmap_content
         
-    try:
-        lesson_dir = get_lesson_dir(state)
-        images_dir = lesson_dir / "images"
+    images_dir = None
+    if state and isinstance(state, dict) and "images_dir" in state and state["images_dir"]:
+        images_dir = Path(state["images_dir"])
         images_dir.mkdir(parents=True, exist_ok=True)
-    except Exception as e:
-        print(f"  [Image Processing Warning] Could not resolve lesson directory: {e}")
-        return markmap_content
+    else:
+        try:
+            lesson_dir = get_lesson_dir(state)
+            images_dir = lesson_dir / "images"
+            images_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            print(f"  [Image Processing Error] Could not resolve lesson/images directory: {e}")
+            return markmap_content
         
     new_content = markmap_content
     for idx, prompt_text in enumerate(all_prompts, 1):
         image_name = f"mindmap_img_{idx}.png"
         image_path = images_dir / image_name
         
-        print(f"  [Mindmap Image] Processing prompt {idx}: '{prompt_text[:50]}...'")
+        print(f"  [Mindmap Image] Processing prompt {idx}: '{prompt_text[:50]}...' -> {image_path}")
         
-        force_rebuild = state.get("force_rebuild", False)
+        force_rebuild = state.get("force_rebuild", False) if isinstance(state, dict) else False
         if force_rebuild or not image_path.exists():
             success = generate_image_api(prompt_text, image_path)
-            if not success:
-                print(f"  [Mindmap Image Warning] AI image generation failed for prompt '{prompt_text[:50]}...'. Default fallback diagram is disabled.")
+            if not success or not image_path.exists():
+                raise RuntimeError(f"Lỗi sinh ảnh AI Imagen 3 cho mindmap prompt '{prompt_text}'. Chế độ fallback đã bị loại bỏ hoàn toàn.")
         
         search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
         new_content = re.sub(search_bracket, f"![](../images/{image_name})", new_content)

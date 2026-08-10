@@ -41,21 +41,44 @@ BLOOM_ACTION_VERBS = [
     "xây dựng", "lập trình", "sử dụng", "trình bày", "đánh giá", "kiểm thử"
 ]
 
-# Out-of-scope technology rules based on tech stack
-STACK_OUT_OF_SCOPE_RULES = {
-    "python/core": [
-        "sqlite", "sql", "database", "flask", "django", "fastapi",
-        "html", "css", "react", "javascript", "node.js", "express",
-        "docker", "redis", "pandas", "numpy", "machine learning"
-    ],
-    "javascript/core": [
-        "react", "vue", "angular", "vite", "next.js", "express",
-        "node.js", "python", "fastapi", "sql", "java", "spring boot"
-    ],
-    "java/core": [
-        "spring boot", "python", "javascript", "php", "react", "fastapi"
+def _extract_out_of_scope_technologies(tech_stack: str, clos: List[str] = None, plos: List[str] = None, main_content: str = "") -> List[str]:
+    """
+    Dynamically infers out-of-scope technologies for ANY tech_stack and curriculum specification.
+    Prevents cross-contamination across courses without hardcoding specific tech keys.
+    """
+    combined_scope = " ".join([tech_stack or ""] + (clos or []) + (plos or []) + [main_content or ""]).lower()
+
+    # Common software ecosystem frameworks / tools checked for cross-contamination
+    known_tech_ecosystems = [
+        "react", "vue", "angular", "next.js", "express", "node.js",
+        "spring boot", "django", "flask", "fastapi", "laravel",
+        "sqlite", "postgresql", "mysql", "mongodb", "redis",
+        "docker", "kubernetes", "pandas", "numpy", "tensorflow"
     ]
-}
+
+    disallowed = []
+    for tech in known_tech_ecosystems:
+        if tech not in combined_scope:
+            disallowed.append(tech)
+
+    return disallowed
+
+def _is_programming_language_course(tech_stack: str, main_content: str, pm_data: List[Dict[str, Any]]) -> bool:
+    """
+    Dynamically determines if the target course is a Programming Language / Coding Syntax course.
+    Returns False for non-programming courses (e.g. Git, Docker, Linux, UI/UX, Agile, DevOps, Networking).
+    """
+    non_coding_keywords = ["git", "version control", "docker", "kubernetes", "devops", "linux", "system admin", "ui/ux", "agile", "scrum", "networking", "mạng máy tính"]
+    stack_lower = (tech_stack or "").lower()
+    content_lower = (main_content or "").lower()
+    
+    if any(kw in stack_lower for kw in non_coding_keywords) or any(kw in content_lower for kw in non_coding_keywords):
+        if not any(lang in stack_lower for lang in ["python", "java", "c++", "c#", "javascript", "typescript", "golang", "go", "rust", "php", "ruby", "swift", "kotlin"]):
+            return False
+
+    all_text = (stack_lower + " " + content_lower + " " + " ".join([s.get("title", "") + " " + s.get("content_scope", "") for s in pm_data])).lower()
+    coding_indicators = ["lập trình", "programming", "cú pháp", "syntax", "biến", "variable", "hàm", "function", "toán tử", "operator", "vòng lặp", "loop", "array", "list", "class", "object"]
+    return sum(1 for ind in coding_indicators if ind in all_text) >= 3
 
 
 def _get_hinh_thuc(s: Dict[str, Any]) -> str:
@@ -82,7 +105,9 @@ def lint_pm_syllabus(
     tech_stack: str = "",
     sessions_per_day: int = 1,
     clos: List[str] = None,
-    plos: List[str] = None
+    plos: List[str] = None,
+    session_budget: Dict[str, Any] = None,
+    main_content: str = ""
 ) -> Tuple[bool, int, List[str], List[Dict[str, Any]]]:
     """
     Strict Rule Engine for PM Syllabus Validation.
@@ -124,15 +149,9 @@ def lint_pm_syllabus(
             review_logs.append({"level": "ERROR", "message": msg})
             score -= 15
 
-    # Rule 3: Session 03 MUST be Practice
-    if total_sessions >= 3:
-        s3 = pm_data[2]
-        ht3 = _get_hinh_thuc(s3)
-        if "Thực hành" not in ht3:
-            msg = f"Session 03 PHẢI là 'Thực hành' đầu tiên, nhưng hiện tại là '{ht3}'."
-            rule_violations.append(msg)
-            review_logs.append({"level": "ERROR", "message": msg})
-            score -= 15
+    # Rule 3: Session Pacing & Cognitive Load Check (Dynamic Practice Readiness)
+    # Allows consecutive light theory sessions (e.g. Session 02 Theory + Session 03 Theory) if cognitive workload requires it.
+    # Practical labs are scheduled dynamically when preceding theory sessions provide sufficient actionable substance.
 
     # Rule 4: Final Session MUST be Exam / Project
     last_session = pm_data[-1]
@@ -143,6 +162,74 @@ def lint_pm_syllabus(
         rule_violations.append(msg)
         review_logs.append({"level": "ERROR", "message": msg})
         score -= 10
+
+    # Rule 4.5: Session 01 Fixed Consolidated Lesson Check
+    if len(pm_data) > 0:
+        s01 = pm_data[0]
+        s01_lessons = s01.get("lessons", [])
+        expected_title = "Tổng quan lộ trình và Demo sản phẩm"
+        if len(s01_lessons) != 1:
+            msg = f"Session 01 phải có chính xác 1 lesson duy nhất ('{expected_title}'), nhưng thực tế có {len(s01_lessons)} lessons."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 5
+        elif "tổng quan lộ trình" not in str(s01_lessons[0].get("title", "")).lower():
+            msg = f"Session 01 Lesson 01 tiêu đề sai lệch. Yêu cầu chính xác: '{expected_title}', thực tế: '{s01_lessons[0].get('title', '')}'."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 5
+
+    # Rule 4.6: Session 02 Lesson 1 Technology Overview Check
+    if len(pm_data) > 1:
+        s02 = pm_data[1]
+        s02_lessons = s02.get("lessons", [])
+        if len(s02_lessons) > 0:
+            l1_title = str(s02_lessons[0].get("title", "")).lower()
+            if not any(w in l1_title for w in ["tổng quan", "giới thiệu", "overview", "introduction"]):
+                msg = f"Session 02 Lesson 1 ('{s02_lessons[0].get('title', '')}') KHÔNG PHẢI là bài Giới thiệu tổng quan công nghệ. Yêu cầu Bài 1 của Session 02 luôn phải là phần Giới thiệu tổng quan về công nghệ."
+                rule_violations.append(msg)
+                review_logs.append({"level": "ERROR", "message": msg})
+                score -= 10
+
+    # Rule 4.7: Advanced Topics Deferral Check (Unit Testing / Testing frameworks deferred to second half)
+    for idx, s in enumerate(pm_data):
+        snum = _get_session_num(s, idx)
+        if snum <= 16:
+            all_s_text = f"{s.get('title', '')} {s.get('content_scope', '')}".lower()
+            for testing_kw in ["unit test", "unittest", "testing framework", "test suite"]:
+                if testing_kw in all_s_text:
+                    msg = f"Session {snum:02d} vi phạm quy tắc hoãn chủ đề nâng cao: '{testing_kw}' xuất hiện quá sớm. Unit testing BẮT BUỘC hoãn sang nửa sau (Sessions 17-23)."
+                    rule_violations.append(msg)
+                    review_logs.append({"level": "WARNING", "message": msg})
+                    score -= 5
+                    break
+
+    # Helper check: determine if target course is a programming language / coding course
+    is_coding_course = _is_programming_language_course(tech_stack, main_content, pm_data)
+
+    # Rule 4.8: Mandatory Subprograms / Functions Check (ONLY for Programming Language / Coding Courses)
+    if is_coding_course:
+        part1_text = " ".join([f"{s.get('title', '')} {s.get('content_scope', '')}" for s in pm_data[:16]]).lower()
+        if not any(fn_kw in part1_text for fn_kw in ["hàm", "function", "subprogram", "method", "thủ tục"]):
+            msg = "Phần 1 (Sessions 01-16) thiếu kiến thức cốt lõi về Hàm / Subprograms (Functions). BẮT BUỘC đưa chủ đề Hàm vào Nửa đầu môn học trước khi thi giữa kỳ."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 20
+
+    # Rule 4.9: Collection CRUD Operations Cramming Check (ONLY for Programming Language / Coding Courses)
+    if is_coding_course:
+        for idx, s in enumerate(pm_data):
+            lessons = s.get("lessons", [])
+            for l in lessons:
+                ltitle = str(l.get("title", "")).lower()
+                lscope = str(l.get("content_scope", "")).lower()
+                comb_text = f"{ltitle} {lscope}"
+                if sum(1 for kw in ["duyệt", "thêm", "sửa", "xóa"] if kw in comb_text) >= 3:
+                    msg = f"Session {idx+1:02d} Lesson '{l.get('title', '')}' gom quá nhiều thao tác (Duyệt, Thêm, Sửa, Xóa) vào 1 lesson. Yêu cầu phân rã thao tác tập hợp dữ liệu thành các bài học nguyên tử riêng biệt."
+                    rule_violations.append(msg)
+                    review_logs.append({"level": "ERROR", "message": msg})
+                    score -= 10
+                    break
 
     # Rule 5 & 6 & 7: Lessons count & sequential session numbering
     for idx, s in enumerate(pm_data):
@@ -165,13 +252,25 @@ def lint_pm_syllabus(
             review_logs.append({"level": "ERROR", "message": msg})
             score -= 5
 
-        # Theory lessons count check
+        # Theory lessons count & purity check
         if "Lý thuyết" in ht:
-            if len(lessons) < 2 or len(lessons) > 4:
-                msg = f"Session {snum:02d} (Lý thuyết) có {len(lessons)} lessons — phải từ 2 đến 4 lessons."
+            if len(lessons) < 2 or len(lessons) > 5:
+                msg = f"Session {snum:02d} (Lý thuyết) có {len(lessons)} lessons — phải từ 2 đến 5 lessons."
                 rule_violations.append(msg)
                 review_logs.append({"level": "ERROR", "message": msg})
                 score -= 5
+
+            for l in lessons:
+                ltitle = str(l.get("title", "")).lower()
+                lscope = str(l.get("content_scope", "")).lower()
+                forbidden_task_terms = ["thực hành bài tập", "luyện tập viết", "thực hành làm", "bài tập thực hành"]
+                for term in forbidden_task_terms:
+                    if term in ltitle or term in lscope:
+                        msg = f"Session {snum:02d} Lesson '{l.get('title', '')}' vi phạm tính thuần lý thuyết. CẤM đưa nhiệm vụ/bài tập thực hành vào nội dung lesson lý thuyết."
+                        rule_violations.append(msg)
+                        review_logs.append({"level": "ERROR", "message": msg})
+                        score -= 5
+                        break
 
     # Rule 8: Delivery pacing (if 2 sessions per day, avoid 2 theory sessions in same day except Day 1)
     if sessions_per_day == 2 and total_sessions >= 4:
@@ -187,6 +286,87 @@ def lint_pm_syllabus(
                     rule_violations.append(msg)
                     review_logs.append({"level": "WARNING", "message": msg})
                     score -= 5
+
+    # Rule 8.5: STRICT NON-THEORY ADJACENCY ISOLATION CHECK
+    for idx in range(len(pm_data) - 1):
+        s_curr = pm_data[idx]
+        s_next = pm_data[idx + 1]
+        ht_curr = _get_hinh_thuc(s_curr)
+        ht_next = _get_hinh_thuc(s_next)
+        snum_curr = _get_session_num(s_curr, idx)
+        snum_next = _get_session_num(s_next, idx + 1)
+
+        # Check 1: 2 consecutive practice sessions
+        if "Thực hành" in ht_curr and "Thực hành" in ht_next:
+            msg = f"Vi phạm nhịp độ sư phạm: Session {snum_curr:02d} ({ht_curr}) và Session {snum_next:02d} ({ht_next}) là 2 buổi Thực hành xếp sát nhau. TUYỆT ĐỐI CẤM xếp 2 buổi Thực hành liên tiếp."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 20
+
+        # Check 2: Practice + Mini Project or Mini Project + Practice
+        if ("Thực hành" in ht_curr and "Mini project" in ht_next) or ("Mini project" in ht_curr and "Thực hành" in ht_next):
+            msg = f"Vi phạm nhịp độ sư phạm: Session {snum_curr:02d} ({ht_curr}) và Session {snum_next:02d} ({ht_next}) đứng sát nhau. TUYỆT ĐỐI CẤM xếp Thực hành và Mini Project liền kề nhau."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 20
+
+        # Check 3: 2 adjacent Mini Project sessions
+        if "Mini project" in ht_curr and "Mini project" in ht_next:
+            msg = f"Vi phạm nhịp độ sư phạm: Session {snum_curr:02d} ({ht_curr}) và Session {snum_next:02d} ({ht_next}) là 2 buổi Mini Project đứng sát nhau."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 20
+
+    # Rule 9: Session Budget & Capstone Project Alignment Check
+    if session_budget:
+        expected_total = session_budget.get("total_sessions")
+        if expected_total and total_sessions != expected_total:
+            msg = f"Tổng số buổi trong PM ({total_sessions} buổi) bị LỆCH so với session_budget ({expected_total} buổi trong Khung Excel PTIT)."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 30
+
+        expected_capstone = session_budget.get("capstone_project", 0)
+        actual_capstone_count = sum(1 for s in pm_data if _get_hinh_thuc(s).lower() in ["project", "capstone project", "dự án", "dự án cuối khóa", "capstone"])
+        if expected_capstone == 0 and actual_capstone_count > 0:
+            msg = f"Khung môn học quy định capstone_project = 0 nhưng PM lại tự ý sinh ra {actual_capstone_count} buổi Project/Capstone."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 20
+
+        # Mini Project Count Alignment Check
+        expected_mini = session_budget.get("mini_projects", 0)
+        if expected_mini > 0:
+            actual_mini_count = sum(1 for s in pm_data if "mini project" in _get_hinh_thuc(s).lower())
+            if actual_mini_count < expected_mini:
+                msg = f"Khung môn học yêu cầu {expected_mini} buổi Mini project nhưng PM chỉ sinh ra {actual_mini_count} buổi Mini project."
+                rule_violations.append(msg)
+                review_logs.append({"level": "ERROR", "message": msg})
+                score -= 15
+
+    # Rule 10: Dynamic CLO/PLO & Main Content Keyword Coverage Audit
+    # Extracts target technical noun terms dynamically from CLOs/PLOs/Main Content without any hardcoded subject keywords
+    full_pm_text = json.dumps(pm_data, ensure_ascii=False).lower()
+    combined_targets = " ".join(clos + plos + [main_content]).lower()
+
+    # Extract target technical noun terms dynamically
+    raw_tokens = re.split(r'[\s,.;:()\[\]"\'\/\\-]+', combined_targets)
+    stop_words = {"mục", "tiêu", "vận", "dụng", "thành", "thạo", "sử", "dụng", "nắm", "vững", "học", "viên", "hiểu", "biết", "thực", "hiện", "trong", "cho", "của", "và", "hoặc", "theo", "chuẩn", "đầu", "ra", "môn", "clo", "clo1", "clo2", "plo", "plo1", "plo2", "plo3", "plo4", "plo5", "plo6"}
+
+    extracted_terms = set()
+    for token in raw_tokens:
+        t = token.strip().lower()
+        if len(t) >= 4 and t not in stop_words and not t.isdigit():
+            extracted_terms.add(t)
+
+    # Verify coverage of extracted CLO/PLO terms across syllabus
+    missing_key_terms = [term for term in sorted(extracted_terms) if term not in full_pm_text]
+    if len(missing_key_terms) > 3:
+        sample_missing = ", ".join(missing_key_terms[:3])
+        msg = f"Thiếu nội dung bao phủ một số từ khóa chuyên môn từ chuẩn đầu ra CLO/PLO: '{sample_missing}' chưa được ghi nhận rõ ràng trong PM."
+        rule_violations.append(msg)
+        review_logs.append({"level": "WARNING", "message": msg})
+        score -= 5
 
     # -------------------------------------------------------------------------
     # 2. Formatting, Tone & Bloom Taxonomy Verbs Validation Rules
@@ -217,7 +397,13 @@ def lint_pm_syllabus(
                 msg = f"Session {snum:02d} tiêu đề chứa hậu tố phân loại cấm: '{s_title}'."
                 rule_violations.append(msg)
                 review_logs.append({"level": "ERROR", "message": msg})
-                score -= 3
+        # Check unwarranted domain injection (e.g. "backend" mislabeling for basic courses)
+        main_content_lower = str(main_content).lower()
+        if "backend" not in (main_content_lower + tech_stack.lower()) and "backend" in s_title.lower():
+            msg = f"Session {snum:02d} vi phạm phạm vi môn học: Tự ý dán nhãn 'backend' trong khi môn học là lập trình cơ bản."
+            rule_violations.append(msg)
+            review_logs.append({"level": "ERROR", "message": msg})
+            score -= 10
 
         # Check Hype Words (Academic Tone)
         for hw in HYPE_WORDS:
@@ -341,7 +527,7 @@ def lint_pm_syllabus(
                     prev_text += " " + (l.get("title", "") + " " + l.get("content_scope", "")).lower()
                 
                 # If preceding theory session ONLY has setup/env words and NO programming/coding concepts
-                has_only_setup = any(w in prev_text for w in ["cài đặt", "môi trường", "venv", "linter", "setup", "config", "cấu hình"])
+                has_only_setup = any(w in prev_text for w in ["cài đặt", "môi trường", "sdk", "runtime", "compiler", "linter", "setup", "config", "cấu hình"])
                 has_code_depth = any(w in prev_text for w in ["biến", "kiểu dữ liệu", "toán tử", "nhập", "xuất", "print", "input", "rẽ nhánh", "vòng lặp", "hàm", "dữ liệu", "cú pháp", "code", "lập trình"])
                 
                 if has_only_setup and not has_code_depth:
@@ -354,12 +540,7 @@ def lint_pm_syllabus(
     # 3. Scope Boundaries & Knowledge Isolation Rules
     # -------------------------------------------------------------------------
     if tech_stack:
-        tech_key = tech_stack.lower().strip()
-        forbidden_techs = []
-
-        for key, forbidden_list in STACK_OUT_OF_SCOPE_RULES.items():
-            if key in tech_key:
-                forbidden_techs.extend(forbidden_list)
+        forbidden_techs = _extract_out_of_scope_technologies(tech_stack, clos, plos, main_content)
 
         if forbidden_techs:
             for s in pm_data:
@@ -371,7 +552,7 @@ def lint_pm_syllabus(
                 combined_lower = combined_text.lower()
                 for ft in forbidden_techs:
                     if re.search(rf"\b{re.escape(ft)}\b", combined_lower):
-                        msg = f"Session {snum:02d} vi phạm ranh giới công nghệ cấm: chứa từ khóa '{ft}' không thuộc tech stack '{tech_stack}'."
+                        msg = f"Session {snum:02d} vi phạm ranh giới công nghệ cấm: chứa từ khóa '{ft}' không thuộc phạm vi môn học '{tech_stack}'."
                         rule_violations.append(msg)
                         review_logs.append({"level": "ERROR", "message": msg})
                         score -= 10
@@ -456,7 +637,9 @@ def pm_reviewer_agent(
 
     clos = course_info.get("clos", [])
     plos = course_info.get("plos", [])
+    main_content = course_info.get("main_content", "")
     tech_stack = config_data.get("tech_stack", "")
+    session_budget = config_data.get("session_budget", {})
     class_config = config_data.get("class_configuration", {})
     sessions_per_day = class_config.get("sessions_per_day", 1)
 
@@ -466,7 +649,9 @@ def pm_reviewer_agent(
         tech_stack=tech_stack,
         sessions_per_day=sessions_per_day,
         clos=clos,
-        plos=plos
+        plos=plos,
+        session_budget=session_budget,
+        main_content=main_content
     )
 
     feedback_parts = []

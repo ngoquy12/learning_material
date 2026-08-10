@@ -40,14 +40,11 @@ def test_llm_as_a_judge():
     )
 
     assert response is not None, "LLM returned empty response."
-    
     try:
-        data = json.loads(response)
+        clean_resp = response.replace("```json", "").replace("```", "").strip()
+        data = json.loads(clean_resp)
         assert "status" in data, "'status' key missing from LLM JSON response"
         assert "feedback" in data, "'feedback' key missing from LLM JSON response"
         assert data["status"] in ["APPROVED", "REJECTED"], "Status must be APPROVED or REJECTED"
-        
-        # We expect a good learning material matching the syllabus to be approved
-        # But even if it's rejected by the LLM for some reason, the test logic of parsing is what matters most here.
     except json.JSONDecodeError:
         pytest.fail(f"LLM did not return a valid JSON string. Response: {response}")

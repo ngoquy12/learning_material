@@ -1,0 +1,24 @@
+{
+  "title": "Bài thực hành: Ghi đè phương thức Method Overriding và Tính đa hình",
+  "objectives": [
+    "Nắm vững cú pháp và cơ chế vận hành của Ghi đè phương thức Method Overriding và Tính đa hình",
+    "Thành thạo kỹ năng lập trình và kiểm thử bài tập với Python 3.12 Core",
+    "Xây dựng tư duy xử lý logic nghiệp vụ và phòng ngừa lỗi thực chiến"
+  ],
+  "description": {
+    "inputs": "Môi trường phát triển Python 3.12 Core (VS Code, Python 3.12 interpreter) và tài liệu bài đọc.",
+    "steps": [
+      "Bước 1: Khởi tạo tệp tin mã nguồn Python (.py) cho bài học Ghi đè phương thức Method Overriding và Tính đa hình.",
+      "Bước 2: Viết mã nguồn triển khai theo các yêu cầu chi tiết trong bài đọc.",
+      "Bước 3: Thực thi mã nguồn trên Terminal/Console và kiểm tra kết quả hiển thị.",
+      "Bước 4: Thử nghiệm với các dữ liệu đầu vào đặc biệt và kiểm thử bẫy lỗi."
+    ]
+  },
+  "evaluation": {
+    "checklist": [
+      "Mã nguồn tuân thủ chuẩn PEP 8 (đặt tên snake_case, thụt lùi 4 dấu cách).",
+      "Kết quả hiển thị trên Console khớp 100% với yêu cầu bài toán.",
+      "Xử lý thành công các ngoại lệ dữ liệu đầu vào."
+    ]
+  }
+}

@@ -43,8 +43,11 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
 5. **Scenario-Based Questioning Standard**:
    - Never ask rote-memorization theory questions. 100% of questions must target **business scenarios, practical applications, and real-world problem solving**.
 
-6. **Anti-AI Shortcut Questioning**:
-   - Answers must rely directly on specific scenario data, numbers, or code snippets provided in the reading material, preventing learners from using external AI shortcuts without reading the document.
+6. **Anti-AI & Anti-Search Shortcut Reading Questions (Strict Mandatory Contract)**:
+   - Reading Comprehension Questions (`reading_questions.md` / `self_test`) MUST be specifically designed to verify that students have **ACTUALLY READ and DEEPLY UNDERSTOOD the lesson article**.
+   - ABSOLUTELY FORBIDDEN to ask high-level generic textbook questions (e.g. "What is Git?", "Explain why virtual environments are important", "Present syntax of loop", "List PEP 8 rules").
+   - EVERY question MUST be tightly bound to **specific concrete data, code snippets, numbers, step sequences, gotchas, or business scenario parameters** present within THAT SPECIFIC lesson article.
+   - External search engines (Google) or generic AI queries MUST NOT be able to solve the question without relying on the exact scenario details given only in the reading text.
 
 7. **1-Page Embedded Interactive Self-Test**:
    - Include an interactive assessment form / accordion component at the end of the reading material. Learners answer directly on the page with a single "Check Answers" button.
@@ -64,10 +67,12 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
     - FORBIDDEN to use dark mode panels, black backgrounds, or dark container cards in reading materials.
     - All containers, code cards, callout boxes, and sidebars must use clean, balanced, high-contrast Light Mode colors (`bg-white`, `bg-slate-50`, `border-slate-200`, `text-slate-900`, `text-slate-700`).
 
-12. **Strict Knowledge Scope Boundary (No Future / Unlearned Concepts Leakage)**:
+12. **Strict Knowledge Scope Boundary (No Future / Unlearned Concepts & Commands Leakage)**:
     - All generated learning materials (reading, code snippets, exercises, quizzes) MUST strictly stay within the knowledge scope taught up to the current session/lesson.
-    - FORBIDDEN to introduce future unlearned data structures (e.g. using `List` or `Dict` in introductory loop sessions before `List` is taught), unlearned libraries, or advanced methods not introduced in previous sessions.
-    - **Reviewer Agent Contract**: Reviewer agents MUST audit and REJECT any content that breaches knowledge scope boundaries.
+    - **Introductory Lesson Strict Scope Directive**: For Introductory / Overview / Theory / Concept lessons (e.g. Lesson 01 "Giới thiệu Hệ thống quản lý phiên bản VCS", "Overview", "Concepts", "Architecture", "Agile Overview", "Python Overview"):
+      - ABSOLUTELY FORBIDDEN to introduce concrete execution command sequences (e.g. `git init`, `git add`, `git commit`, `git push`, `docker run`, `try-except`, `class MyClass`, etc.) that belong to future dedicated lessons!
+      - Introductory lessons MUST focus 100% on **Conceptual Rationale, High-Level Problem Statements, 2D Flat Vector Infographics, SVG Process Diagrams, and Parameter/Concept Comparison Tables**.
+    - **Reviewer Agent Contract**: Reviewer agents MUST audit and REJECT any content that breaches knowledge scope boundaries or leaks future execution commands into introductory lessons.
 
 13. **Clean Article Title (No `Lesson 0X -` Prefix)**:
     - Main article title (`<h1>`) MUST ONLY display the clean lesson topic name (e.g., `Khái niệm vòng lặp và câu lệnh for`).
@@ -77,9 +82,16 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
     - When introducing technical syntax, ALWAYS present the **Syntax Card Component** FIRST, followed immediately by a **Component Explanation Bullet List**.
     - Each keyword or placeholder in the explanation list MUST be highlighted using code badges (`<code>...</code>`) and bold font.
 
-15. **Interactive Step-by-Step Mechanism Visualizer & Code Card Separation**:
-    - Section 2 (Mechanism Breakdown) MUST include an **Interactive Step-by-Step Mechanism Visualizer** (HTML/CSS/JS) with Play/Pause/Prev/Next controls, active line highlights, and step state updates.
-    - General syntax templates in Section 2 MUST use **Static Code Cards** (3 macOS dots, copy button, no run button). Executable practical code examples in Section 3 MUST use **Live Pyodide Sandboxes** (with run and console output buttons).
+15. **Adaptive Visuals & Visualizer Hiding Standard (Subject Nature & Lesson Type Adaptive)**:
+    - Analyze lesson nature and topic before building Section 2:
+      - _For Pure Concept / Overview / Architecture / Methodology / Intro Lessons_ (where step-by-step interactive code execution or step-by-step CLI tracking is NOT applicable or where no execution commands/code exist yet):
+        - ABSOLUTELY FORBIDDEN to force fake/empty Interactive Code Step-Tracker Visualizers. **HIDE / OMIT the Interactive Step-Tracker Visualizer widget entirely** for these lessons!
+        - INSTEAD: Embed **Rich 2D Flat Vector Technical Illustrations, SVG Process Flowcharts, Mermaid Diagrams, or High-Contrast Concept Comparison Cards**!
+      - _For Executable / Operational / Algorithm / Workflow Execution Lessons_ (where actual code/commands are executed step-by-step):
+        - Embed the **100% Runnable Step-by-Step Interactive Mechanism Visualizer** with Play/Pause/Step controls and line highlighting.
+    - **Adaptive Code Block Standard**: Analyze subject nature before rendering Section 3:
+      - _For Executable Programming Courses (Python, JS, Java, C++, SQL...)_: Section 3 uses **Live Code Sandboxes** (Pyodide WASM / JS runner with run & console output buttons).
+      - _For Pure Concept / Tooling / CLI / Process / Architecture Courses (Git, VS Code, Linux/Bash CLI, Docker CLI, Agile/Scrum, Software Architecture, System Design, UML Analysis & Design...)_: ABSOLUTELY FORBIDDEN to force live executable Pyodide sandboxes or run buttons. Section 3 MUST use static Terminal Command Blocks (`<pre><code class="language-bash">...</code></pre>`), Command Flow Comparison Cards, or Config/Diagram Parameter Cards.
 
 ---
 
@@ -138,15 +150,19 @@ Practical Labs serve as the backbone for hands-on skill development and componen
 
 ## 4. ASSESSMENT & QUIZ STANDARDS
 
-### 4.1. 7 Pedagogical Principles of Quizzes
+### 4.1. 9 Mandatory Principles of E-Learning Quiz Design
 
-1. **Single Concept**: Each question evaluates exactly 1 knowledge point or skill.
-2. **Context-Driven**: Place student in a concrete business scenario, no dry regurgitation.
-3. **Plausible Distractors**: Wrong options based on actual common student mistakes. FORBIDDEN options like _"All of the above/below are correct/wrong"_.
-4. **Homogeneity**: All 4 options (A, B, C, D) are equivalent in length, structure, and scope.
-5. **No Clues**: Remove keyword matching or hint clues between question stem and options.
-6. **Objective & Official**: Forbidden vague references like _"according to the video"_, _"instructor's lecture"_, _"in the slide"_.
-7. **Dynamic Scope Boundary**: 100% of questions MUST ONLY cover knowledge taught up to the current session. FORBIDDEN to reference future unlearned concepts.
+1. **Single Concept & Professional Significance**: Each question evaluates exactly 1 technical concept or skill, directly targeting core technical knowledge taught in the lesson.
+2. **Anti-Generic / Non-Googleable**: ABSOLUTELY FORBIDDEN to ask generic outside trivia that students can answer via Google without taking the lesson.
+3. **Concrete Practical Scenarios**: Questions must revolve around specific technical examples or real-world developer situations taught in the course.
+4. **STRICT OBJECTIVE DOMAIN PRESENTATION (NO CONTEXT REFERENCING)**:
+   - ABSOLUTELY FORBIDDEN to use intermediate context or source referral phrases in questions, options, or explanations: `"ở slide"`, `"trong slide"`, `"slide bài giảng"`, `"slide đề cập"`, `"trong bài giảng"`, `"theo bài giảng"`, `"theo video"`, `"trong video"`, `"từ lời giảng viên"`, `"theo lời giảng viên"`, `"Theo Phần ..."`, `"trong kịch bản doanh nghiệp..."`, `"từ một nguồn nào đó không rõ"`.
+   - All questions, options, and explanations MUST be stated 100% objectively, independently, and professionally.
+5. **Plausible Distractors**: Wrong options MUST be designed based on real-world common student misconceptions or subtle syntax traps. FORBIDDEN options: _"Tất cả đều đúng"_, _"Tất cả đều sai"_.
+6. **Option Homogeneity (Equal Length)**: All 4 choices (A, B, C, D) MUST have comparable text lengths and grammatical structures.
+7. **No Clues**: Remove keyword matching or hint clues between question stem and correct answer choice.
+8. **Random Correct Option Placement**: Randomly distribute correct answer indices across choices (A, B, C, D) for each question.
+9. **Dynamic Scope Boundary**: 100% of questions MUST ONLY cover knowledge taught up to the current session. FORBIDDEN to reference future unlearned concepts.
 
 ---
 

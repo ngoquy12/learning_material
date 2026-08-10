@@ -30,8 +30,11 @@ class LocalJSONVectorStore(BaseVectorStore):
     Uses Gemini or OpenAI embeddings for vector search,
     with a fallback TF-IDF/BM25 keyword search if no API keys are present.
     """
-    def __init__(self, storage_path: str = "vector_store.json"):
+    def __init__(self, storage_path: str = os.path.join("storage", "vector_store.json")):
         self.storage_path = storage_path
+        dirname = os.path.dirname(self.storage_path)
+        if dirname:
+            os.makedirs(dirname, exist_ok=True)
         self.documents = []  # List[Dict[str, Any]] -> {"text": str, "vector": List[float], "metadata": Dict}
         self.load()
 
@@ -228,7 +231,7 @@ class LocalJSONVectorStore(BaseVectorStore):
         """Queries the vector store using Hybrid Search (Dense + BM25) filtered by tech_stack."""
         return self.hybrid_query(query_text=query_text, k=k, alpha=0.5, tech_stack=tech_stack)
 
-def get_vector_store(storage_path: str = "vector_store.json") -> BaseVectorStore:
+def get_vector_store(storage_path: str = os.path.join("storage", "vector_store.json")) -> BaseVectorStore:
     """Factory function to get the configured vector store."""
     # In the future, this can switch to QdrantVectorStore based on an env variable
     return LocalJSONVectorStore(storage_path=storage_path)

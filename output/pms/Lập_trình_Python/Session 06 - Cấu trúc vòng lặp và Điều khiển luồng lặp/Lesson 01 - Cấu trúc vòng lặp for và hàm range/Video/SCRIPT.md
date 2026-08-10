@@ -1,0 +1,1 @@
+<!-- Empty video script outline for Session 06 - Lesson 01: Cấu trúc vòng lặp for và hàm range -->

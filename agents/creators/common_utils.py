@@ -585,15 +585,16 @@ Task: Analyze the complete Stage 1 reading material and generate a high-quality 
 - FORBIDDEN to introduce concepts from other unlearned topics.
 - FORBIDDEN to ask about out-of-scope topics: {forbidden_scope or 'none'}.
 
-[STANDARD 4 — ANTI-AI SHORTCUT GUARANTEE]
-- Questions and explanations MUST explicitly cite which section of the reading contains the answer.
-- E.g., '...according to the Decision Matrix in Section 4...' or '...as presented in the Code Example...'.
-- Field reading_section: Title of the reading section containing the answer (e.g., 'Section 2 — Syntax & Mechanism').
+[STANDARD 4 — STRICT OBJECTIVE DOMAIN PRESENTATION (NO CONTEXT REFERENCING)]
+- ABSOLUTELY FORBIDDEN to use intermediate context or source referral phrases in questions, answer choices, or explanations: 'in the slide', 'on slide', 'lecture slide', 'slide mentions', 'in the lecture', 'according to the lecture', 'according to the video', 'in the video', 'from the instructor', 'instructor said', 'According to Section ...', 'in enterprise scenario ...', 'in the scenario', 'from an unknown source', etc.
+- All questions, options, and explanations MUST be stated 100% objectively, independently, and professionally as standard domain knowledge.
 
-[STANDARD 5 — HIGH-QUALITY MULTIPLE CHOICE (MCQ)]
-- 4 options (A/B/C/D): 1 correct, 3 intelligent distractors based on REAL student misconceptions.
-- FORBIDDEN to use 'All of the above are correct/incorrect'. Options must be homogeneous in length and structure.
-- explanation: Detailed explanation citing reading material evidence.
+[STANDARD 5 — HIGH-QUALITY MULTIPLE CHOICE (MCQ & HOMOGENEITY)]
+- 4 options (A/B/C/D): 1 correct answer, 3 sophisticated distractors based on common student misconceptions or syntax traps.
+- OPTION HOMOGENEITY (CRITICAL): All 4 choices (A, B, C, D) MUST have comparable text length, grammatical structure, and detail level.
+- FORBIDDEN: 'All of the above are correct' or 'All of the above are incorrect'.
+- RANDOM CORRECT INDEX: Randomly distribute correct answer positions across A, B, C, D (indices 0, 1, 2, 3) for each question.
+- explanation: Detailed objective technical analysis explaining why the correct answer is right and why distractors are wrong (never write 'According to Section 2...' or 'In the slide...').
 - TARGET OUTPUT LANGUAGE: 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất), no emojis, no ALL CAPS.
 
 [STANDARD 6 — PURE TECH STACK CONTEXT (ANTI-HALLUCINATION)]
@@ -742,13 +743,13 @@ Return only raw JSON.
 
     final_result = dict(stage1_result)
     final_result["self_test"] = stage2_result.get("self_test") or [
-        {"question": f"Giải thích bản chất và nguyên lý hoạt động cốt lõi của {lesson_title}?", "answer": f"Hiểu rõ bản chất giúp vận dụng đúngBest Practice."},
-        {"question": f"Liệt kê các cú pháp hoặc lỗi thường gặp khi làm việc với {lesson_title} và cách phòng tránh?", "answer": f"Tuân thủ quy tắc lùi lề và định dạng kiểu dữ liệu."},
-        {"question": f"Trình bày ứng dụng thực tế của {lesson_title} trong dự án?", "answer": f"Vận dụng để xử lý luồng logic và tính toán dữ liệu."}
+        {"question": f"Trong kịch bản quản lý dự án với {tech_stack} ở bài đọc, hãy phân tích rủi ro hệ thống khi không áp dụng {lesson_title} và đề xuất giải pháp xử lý.", "answer": f"Thiếu {lesson_title} dễ gây ra xung đột phiên bản hoặc sai lệch dữ liệu. Việc áp dụng đúng quy trình giúp cô lập thay đổi và bảo vệ tính toàn vẹn hệ thống."},
+        {"question": f"Dựa vào ví dụ mã nguồn/lệnh CLI trong bài đọc, hãy chỉ ra điểm không tối ưu trong kịch bản cũ và giải thích các bước tái cấu trúc chuẩn Best Practice.", "answer": f"Kịch bản cũ chưa rà soát trạng thái hoặc thiếu cờ phạm vi. Cần bổ sung bước kiểm tra và sử dụng đúng tham số theo quy chuẩn công nghệ."},
+        {"question": f"Phân tích lỗi Gotcha phổ biến được đề cập ở Phần 4 và trình bày cơ chế kiểm tra tự động để ngăn ngừa sự cố trên môi trường Production.", "answer": f"Lỗi Gotcha thường phát sinh do thao tác thiếu kiểm soát. Cần áp dụng danh sách kiểm tra và các công cụ rà soát tự động trước khi triển khai."}
     ]
     final_result["references"] = stage2_result.get("references") or [
         {"title": f"Tài liệu hướng dẫn chính thức {tech_stack.upper()}", "url": "https://docs.python.org/3/"},
-        {"title": "W3Schools Online Web Tutorials", "url": "https://www.w3schools.com"}
+        {"title": f"Trang chủ tài nguyên đào tạo Rikkei Education", "url": "https://rikkei.edu.vn"}
     ]
     final_result["quiz"] = stage2_result.get("quiz") or []
     final_result["lab"] = stage2_result.get("lab") or {"title": f"Lab {lesson_title}", "objectives": [], "steps": [], "checklist": []}
@@ -758,23 +759,17 @@ Return only raw JSON.
     if state is not None:
         state["master_content"] = final_result
 
-    return final_result
-
 def get_lesson_dir(state: AgentState) -> Path:
     course_dir_name = state.get("course_dir_name")
-    if not course_dir_name:
-        pms_dir = Path("pms")
-        xlsx_files = list(pms_dir.glob("*.xlsx")) if pms_dir.exists() else []
-        xlsx_files = [f for f in xlsx_files if not f.name.startswith("~$")]
-        if xlsx_files:
-            course_dir_name = xlsx_files[0].stem.strip().replace(" ", "_").replace("-", "_")
-        else:
-            course_dir_name = "default_course"
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
-    
-    output_base_dir = Path(__file__).resolve().parent.parent.parent / "output"
-    course_dir = output_base_dir / course_dir_name
+
+    output_base_dir = Path(__file__).resolve().parent.parent.parent / "output" / "pms"
+    if course_dir_name:
+        clean_name = course_dir_name.replace("pms/", "").strip()
+        course_dir = output_base_dir / clean_name
+    else:
+        course_dir = output_base_dir / "default_course"
     
     full_curr_str = state.get("full_curriculum", "[]")
     try:
@@ -824,6 +819,46 @@ def get_lesson_dir(state: AgentState) -> Path:
                     break
                     
     return lesson_dir
+
+def clean_markdown_formulas(text: str) -> str:
+    """
+    Sanitizes LaTeX and dollar-sign math formulas in Markdown to clean code-badged programming expressions.
+    Prevents backslash escaping bugs (\frac, \text), underscore-italic collisions ($var_name$), and unrendered LaTeX tags.
+    """
+    if not text:
+        return text
+
+    # Remove \text{...} -> ...
+    text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
+    
+    # Replace \frac{A}{B} -> (A) / (B)
+    text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1) / (\2)', text)
+    
+    # Replace \times -> * and \cdot -> *
+    text = re.sub(r'\\times', '*', text)
+    text = re.sub(r'\\cdot', '*', text)
+    
+    # Process $$ formula $$ -> `formula`
+    def repl_block(m):
+        f = m.group(1).strip()
+        f = re.sub(r'\\_', '_', f)
+        return f'`{f}`'
+    text = re.sub(r'\$\$(.*?)\$\$', repl_block, text, flags=re.DOTALL)
+    
+    # Process single dollar $var_name$ or $var\_name$ -> `var_name`
+    def repl_inline(m):
+        v = m.group(1).strip()
+        v = re.sub(r'\\_', '_', v)
+        return f'`{v}`'
+    text = re.sub(r'\$([a-zA-Z_\\][a-zA-Z0-9_\\\_]*)\$', repl_inline, text)
+
+    # Clean remaining \_ inside inline code backticks `...`
+    def repl_code(m):
+        c = m.group(1)
+        return f'`{c.replace(r"\_", "_")}`'
+    text = re.sub(r'`([^`]+)`', repl_code, text)
+    
+    return text
 
 def ensure_vietnamese_diacritics(text: str) -> str:
     if not text or not isinstance(text, str):

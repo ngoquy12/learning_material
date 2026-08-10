@@ -1,0 +1,46 @@
+[
+  {
+    "question": "Một lập trình viên gặp lỗi khi thao tác trên giao diện dòng lệnh. Nhân sự này định nghĩa prompt cho AI như sau:\n```text\nBạn là Chuyên gia kỹ thuật Git CLI (Role). Dự án của tôi đang dùng phiên bản Git CLI 2.45+ (Context).\nHãy phân tích nguyên nhân thông báo lỗi terminal dưới đây và nêu giải pháp khắc phục (Task).\nChỉ trình bày trong tối đa 3 dòng ngắn gọn, không giải thích lan man (Constraint).\n```\nCách đặt câu hỏi này đem lại hiệu quả rõ rệt nhất ở điểm nào?",
+    "options": [
+      "Giúp AI xác định chuẩn xác phạm vi chuyên môn, bối cảnh công nghệ và định dạng đầu ra, từ đó sinh ra giải pháp tập trung, tiết kiệm thời gian tra cứu.",
+      "Tự động đồng bộ mã nguồn của dự án lên máy chủ lưu trữ mà không cần người dùng thao tác thực tế.",
+      "Giúp loại bỏ hoàn toàn việc kiểm thử thực tế và không cần lưu trữ thông tin vào kho tri thức cá nhân.",
+      "Thay thế hoàn toàn vai trò quản lý tiến độ của Senior Developer trong suốt vòng đời dự án."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Việc cấu trúc prompt theo đầy đủ mô hình RCTC giúp mô hình AI khoanh vùng chính xác tri thức cần lấy, tuân thủ bối cảnh phiên bản Git CLI 2.45+ và ràng buộc độ dài, mang lại câu trả lời ngắn gọn, đúng trọng tâm."
+  },
+  {
+    "question": "Một lập trình viên tập sự liên tục sa lầy vào việc tự sửa một lỗi kỹ thuật duy nhất suốt 3 giờ liền nhưng không thể giải quyết, dẫn đến gián đoạn công việc chung. Theo phương pháp làm việc nhóm và tự học hiệu quả, lập trình viên này nên tuân thủ quy tắc nào?",
+    "options": [
+      "Tiếp tục tự mày mò một mình đến hết ngày làm việc để tránh làm phiền các thành viên khác trong nhóm.",
+      "Áp dụng Quy tắc 15 phút: tự nỗ lực tra cứu và thử nghiệm trong 15 phút; nếu vẫn bế tắc, tổng hợp bối cảnh kỹ thuật để tìm kiếm sự trợ giúp từ nhóm.",
+      "Yêu cầu Senior Developer tiếp quản hoàn toàn công việc và ngồi cạnh hướng dẫn từng thao tác nhỏ.",
+      "Ngừng làm việc và chờ đợi cho đến khi có thành viên khác trong dự án chủ động hỏi thăm."
+    ],
+    "correct_option_index": 1,
+    "explanation": "Quy tắc 15 phút giúp lập trình viên rèn luyện tính tự chủ (dành 15 phút tự phân tích, tìm kiếm giải pháp) nhưng đồng thời biết dừng đúng lúc để yêu cầu hỗ trợ, tránh lãng phí thời gian và không làm gián đoạn tiến độ công việc chung."
+  },
+  {
+    "question": "Trong quy trình tự học và xử lý sự cố với sự hỗ trợ của AI, sau khi đánh giá câu trả lời của AI đạt độ chính xác và rõ ràng cao, hành động tiếp theo đúng chuẩn quy trình là gì?",
+    "options": [
+      "Tiếp tục gửi thêm các bối cảnh giả định khác để thử thách khả năng trả lời của AI.",
+      "Đưa thẳng đoạn mã gợi ý lên hệ thống vận hành thực tế mà không cần kiểm thử lại.",
+      "Lưu trữ giải pháp vào Knowledge Base cá nhân, sau đó áp dụng thực hành và kiểm chứng thực tế.",
+      "Xóa toàn bộ lịch sử trò chuyện với AI để bảo mật dữ liệu cá nhân."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Sau khi nhận được câu trả lời chính xác từ AI, quy trình khép kín quy định tri thức cần được lưu trữ vào Knowledge Base để tái sử dụng về sau, đồng thời tiến hành áp dụng thực hành và kiểm chứng thực tế nhằm đảm bảo tính chính xác."
+  },
+  {
+    "question": "Khi quản lý thời gian cá nhân trong môi trường phát triển phần mềm có áp lực tiến độ cao, kỹ thuật Time-blocking mang lại lợi ích cốt lõi nào?",
+    "options": [
+      "Tự động phân bổ lại hạ tầng máy chủ cho các dịch vụ lưu trữ dữ liệu của dự án.",
+      "Giới hạn số lượng truy vấn mà lập trình viên được phép gửi cho các mô hình AI trong ngày.",
+      "Tự động loại bỏ các thông báo lỗi phát sinh từ giao diện dòng lệnh.",
+      "Chia nhỏ thời gian làm việc thành các khối thời gian cố định cho nhiệm vụ cụ thể, giúp duy trì sự tập trung sâu và tránh sa lầy vào bế tắc."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Kỹ thuật Time-blocking giúp lập trình viên ấn định các khoảng thời gian tập trung (focus blocks) rõ ràng cho từng công việc cụ thể, giảm bớt sự phân tán tư tưởng và ngăn ngừa việc sa lầy quá lâu vào một vấn đề kỹ thuật duy nhất."
+  }
+]

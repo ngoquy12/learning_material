@@ -12,12 +12,14 @@ from datetime import datetime, timezone
 sys.stdout.reconfigure(encoding='utf-8')
 
 PORT = 8888
-TRACE_FILE = Path("trace_logs.jsonl")
+TRACE_FILE_PRIMARY = Path("storage/trace_logs.jsonl")
+TRACE_FILE_FALLBACK = Path("trace_logs.jsonl")
 HTML_FILE = Path("token_dashboard.html")
 
 def parse_trace_logs():
     """Reads trace_logs.jsonl and calculates real-time analytics."""
-    if not TRACE_FILE.exists():
+    trace_files = [f for f in [TRACE_FILE_PRIMARY, TRACE_FILE_FALLBACK] if f.exists()]
+    if not trace_files:
         return {
             "total_calls": 0,
             "total_input": 0,
@@ -42,60 +44,63 @@ def parse_trace_logs():
     timeline_map = {}
     logs = []
 
-    with open(TRACE_FILE, "r", encoding="utf-8", errors="ignore") as f:
-        for line in f:
-            if not line.strip():
-                continue
-            try:
-                data = json.loads(line)
-                total_calls += 1
+    for tf in trace_files:
+        with open(tf, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                if not line.strip():
+                    continue
+                try:
+                    data = json.loads(line)
+                    total_calls += 1
+                    
+                    inp = data.get("gen_ai.usage.input_tokens") or 0
+                    outp = data.get("gen_ai.usage.output_tokens") or 0
+                    tot = data.get("gen_ai.usage.total_tokens") or (inp + outp)
+                    dur = float(data.get("duration_seconds") or 0.0)
+                    if dur > 86400 or dur < 0:
+                        dur = 0.0
+                    
+                    total_input += inp
+                    total_output += outp
+                    total_tokens += tot
+                    total_duration += dur
                 
-                inp = data.get("gen_ai.usage.input_tokens") or 0
-                outp = data.get("gen_ai.usage.output_tokens") or 0
-                tot = data.get("gen_ai.usage.total_tokens") or (inp + outp)
-                dur = float(data.get("duration_seconds") or 0.0)
-                
-                total_input += inp
-                total_output += outp
-                total_tokens += tot
-                total_duration += dur
-                
-                agent = data.get("agent_name") or "Unknown Agent"
-                if agent not in agents_map:
-                    agents_map[agent] = {"tokens": 0, "calls": 0, "input": 0, "output": 0}
-                agents_map[agent]["tokens"] += tot
-                agents_map[agent]["calls"] += 1
-                agents_map[agent]["input"] += inp
-                agents_map[agent]["output"] += outp
-                
-                model = data.get("gen_ai.response.model") or data.get("gen_ai.request.model") or "gemini-3.6-flash"
-                models_map[model] = models_map.get(model, 0) + tot
-                
-                ts_str = data.get("timestamp", "")
-                if ts_str:
-                    hour_key = ts_str[:13] + ":00"
-                    if hour_key not in timeline_map:
-                        timeline_map[hour_key] = {"input": 0, "output": 0, "total": 0, "calls": 0}
-                    timeline_map[hour_key]["input"] += inp
-                    timeline_map[hour_key]["output"] += outp
-                    timeline_map[hour_key]["total"] += tot
-                    timeline_map[hour_key]["calls"] += 1
-                
-                logs.append({
-                    "timestamp": ts_str,
-                    "agent_name": agent,
-                    "session_id": data.get("session_id", ""),
-                    "lesson_id": data.get("lesson_id", ""),
-                    "model": model,
-                    "duration_seconds": round(dur, 2),
-                    "input_tokens": inp,
-                    "output_tokens": outp,
-                    "total_tokens": tot,
-                    "prompt_summary": (data.get("prompt_summary") or "")[:200],
-                    "response_summary": (data.get("response_summary") or "")[:200]
-                })
-            except Exception:
-                continue
+                    agent = data.get("agent_name") or "Unknown Agent"
+                    if agent not in agents_map:
+                        agents_map[agent] = {"tokens": 0, "calls": 0, "input": 0, "output": 0}
+                    agents_map[agent]["tokens"] += tot
+                    agents_map[agent]["calls"] += 1
+                    agents_map[agent]["input"] += inp
+                    agents_map[agent]["output"] += outp
+                    
+                    model = data.get("gen_ai.response.model") or data.get("gen_ai.request.model") or "gemini-3.6-flash"
+                    models_map[model] = models_map.get(model, 0) + tot
+                    
+                    ts_str = data.get("timestamp", "")
+                    if ts_str:
+                        hour_key = ts_str[:13] + ":00"
+                        if hour_key not in timeline_map:
+                            timeline_map[hour_key] = {"input": 0, "output": 0, "total": 0, "calls": 0}
+                        timeline_map[hour_key]["input"] += inp
+                        timeline_map[hour_key]["output"] += outp
+                        timeline_map[hour_key]["total"] += tot
+                        timeline_map[hour_key]["calls"] += 1
+                    
+                    logs.append({
+                        "timestamp": ts_str,
+                        "agent_name": agent,
+                        "session_id": data.get("session_id", ""),
+                        "lesson_id": data.get("lesson_id", ""),
+                        "model": model,
+                        "duration_seconds": round(dur, 2),
+                        "input_tokens": inp,
+                        "output_tokens": outp,
+                        "total_tokens": tot,
+                        "prompt_summary": (data.get("prompt_summary") or "")[:200],
+                        "response_summary": (data.get("response_summary") or "")[:200]
+                    })
+                except Exception:
+                    continue
 
     avg_duration = round(total_duration / total_calls, 2) if total_calls > 0 else 0.0
 
@@ -171,17 +176,35 @@ class TokenDashboardHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(filtered_logs[:limit], ensure_ascii=False).encode("utf-8"))
             return
 
+        if path == "/api/status":
+            storage_dir = Path("storage")
+            status = {
+                "storage_exists": storage_dir.exists(),
+                "trace_log_size": TRACE_FILE_PRIMARY.stat().st_size if TRACE_FILE_PRIMARY.exists() else 0,
+                "state_db_exists": (storage_dir / "state_store_v2.db").exists(),
+                "knowledge_db_exists": (storage_dir / "knowledge_store.db").exists(),
+                "vector_store_exists": (storage_dir / "vector_store.json").exists(),
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps(status, ensure_ascii=False).encode("utf-8"))
+            return
+
         # Fallback to static files
         super().do_GET()
 
 
 def run_server():
     socketserver.TCPServer.allow_reuse_address = True
+    active_trace = TRACE_FILE_PRIMARY if TRACE_FILE_PRIMARY.exists() else TRACE_FILE_FALLBACK
     with socketserver.TCPServer(("127.0.0.1", PORT), TokenDashboardHandler) as httpd:
         print(f"=========================================================")
         print(f"🟢 REALTIME TOKEN DASHBOARD SERVER STARTED AT:")
         print(f"   http://127.0.0.1:{PORT}")
-        print(f"   Reading live trace data from: {TRACE_FILE.resolve()}")
+        print(f"   Reading live trace data from: {active_trace.resolve()}")
         print(f"=========================================================")
         httpd.serve_forever()
 

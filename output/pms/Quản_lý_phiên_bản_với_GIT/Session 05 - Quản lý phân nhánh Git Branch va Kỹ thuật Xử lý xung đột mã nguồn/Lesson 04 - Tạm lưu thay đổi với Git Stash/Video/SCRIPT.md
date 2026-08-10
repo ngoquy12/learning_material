@@ -1,0 +1,1 @@
+<!-- Empty video script outline for Session 05 - Lesson 04: Tạm lưu thay đổi với Git Stash -->

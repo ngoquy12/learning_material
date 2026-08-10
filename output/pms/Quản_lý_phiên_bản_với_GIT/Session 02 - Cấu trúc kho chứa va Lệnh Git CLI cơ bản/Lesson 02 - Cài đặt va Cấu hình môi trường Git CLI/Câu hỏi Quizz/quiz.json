@@ -1,0 +1,46 @@
+[
+  {
+    "question": "Một dự án phần mềm có đội ngũ phát triển làm việc trên cả 3 hệ điều hành Windows, macOS và Linux. Khi kiểm tra lịch sử chỉnh sửa, quản trị viên phát hiện thông tin tác giả bị hiển thị thành admin hoặc tên máy tính cá nhân. Nguyên nhân chính dẫn đến tình trạng này là gì?",
+    "options": [
+      "Lập trình viên chưa cấu hình thông tin danh tính user.name và user.email sau khi cài đặt Git CLI.",
+      "Lập trình viên sử dụng trình soạn thảo Vim mặc định khiến thông tin tác giả bị mã hóa tự động.",
+      "Hệ điều hành Windows và macOS không tương thích về cơ chế lưu trữ lịch sử chỉnh sửa mã nguồn.",
+      "Hệ thống chưa được nâng cấp lên phiên bản Git CLI 2.45+ nên tự động gán tên tài khoản hệ điều hành."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Khi hệ thống công cụ Git CLI mới được cài đặt mà chưa thiết lập thuộc tính user.name và user.email, lịch sử lưu trữ sẽ lấy tên mặc định của hệ điều hành hoặc tài khoản máy tính (như admin hay user@laptop-123), dẫn đến tình trạng thông tin tác giả bị vô danh."
+  },
+  {
+    "question": "Lập trình viên A sử dụng hệ điều hành Windows mở tệp tin mã nguồn và lưu lại. Dù chỉ sửa một dòng mã, hệ thống lại đánh dấu toàn bộ các dòng trong tệp tin đều bị thay đổi. Hiện tượng này phát sinh do nguyên nhân kỹ thuật nào?",
+    "options": [
+      "Trình biên tập mặc định Vim đã tự động chèn thêm thông tin cấu hình danh tính cá nhân vào cuối tệp.",
+      "Sự khác biệt giữa ký tự xuống dòng CRLF trên Windows và ký tự LF trên macOS/Linux làm sai lệch dữ liệu.",
+      "Tệp tin mã nguồn chưa được đăng ký cấu hình user.email hợp lệ nên bị hệ thống mã hóa toàn bộ.",
+      "Phiên bản Git CLI trên máy trạm Windows chưa được tích hợp giao diện điều khiển dòng lệnh VS Code."
+    ],
+    "correct_option_index": 1,
+    "explanation": "Trên Windows, hệ thống tệp tin mặc định sử dụng cặp ký tự CRLF (Carriage Return + Line Feed) để kết thúc dòng, trong khi macOS và Linux sử dụng LF. Sự bất đồng định dạng này khiến Git CLI hiểu nhầm rằng mọi dòng trong tệp tin đều đã bị sửa đổi."
+  },
+  {
+    "question": "Đội ngũ phát triển muốn thống nhất trình soạn thảo mặc định khi làm việc với Git CLI trên máy trạm để tránh việc nhân sự bị vướng vào giao diện dòng lệnh Vim. Thao tác cấu hình chuẩn xác cần thực hiện là gì?",
+    "options": [
+      "Cấu hình thuộc tính core.autocrlf = true để trình biên tập tự động khởi chạy khi phát sinh sự kiện.",
+      "Cấu hình thông tin user.name liên kết trực tiếp với đường dẫn thực thi của phần mềm VS Code.",
+      "Cấu hình thuộc tính core.editor liên kết với trình soạn thảo VS Code làm giao diện nhập liệu mặc định.",
+      "Cấu hình tham số hệ điều hành để vô hiệu hóa toàn bộ các ứng dụng soạn thảo văn bản mặc định."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Thuộc tính core.editor trong cấu hình Git CLI quy định phần mềm soạn thảo được kích hoạt khi hệ thống yêu cầu nhập dữ liệu văn bản. Cấu hình core.editor chỉ định đến VS Code giúp thay thế trình biên tập dòng lệnh cổ điển Vim."
+  },
+  {
+    "question": "Trong dự án quy mô 50 lập trình viên, nếu một thành viên không thực hiện cấu hình danh tính toàn cục (Global Identity) ngay sau khi trang bị Git CLI 2.45+, tác động trực tiếp tới quy trình quản trị là gì?",
+    "options": [
+      "Máy trạm cá nhân của lập trình viên đó sẽ không thể khởi chạy được giao diện lập trình phần mềm VS Code.",
+      "Toàn bộ các tệp tin do lập trình viên đó khởi tạo sẽ bị tự động mã hóa chuyển sang dạng dữ liệu CRLF.",
+      "Trình biên tập Vim trên máy trạm bị khóa hoàn toàn khiến mọi phản hồi trên dòng lệnh bị gián đoạn.",
+      "Nhật ký ghi nhận thông tin tác giả vô danh khiến quản trị viên không thể xác định được người làm phát sinh lỗi."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Việc thiếu cấu hình Global Identity sẽ làm cho thông tin người thực hiện chỉnh sửa không được định danh rõ ràng. Trong nhật ký hệ thống, tên tác giả sẽ xuất hiện dạng vô danh hoặc tên máy trạm, gây bất khả thi cho quản trị viên trong việc truy vết tác giả khi sự cố phát sinh."
+  }
+]

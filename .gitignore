@@ -19,3 +19,5 @@ web/frontend/build/
 *.wav
 *.log
 trace_logs.jsonl
+vector_store.json
+storage/

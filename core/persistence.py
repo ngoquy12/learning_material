@@ -7,7 +7,9 @@ import threading
 from contextlib import contextmanager
 from typing import Dict, Any, Mapping, Generator
 
-DB_PATH = "state_store_v2.db"
+STORAGE_DIR = "storage"
+os.makedirs(STORAGE_DIR, exist_ok=True)
+DB_PATH = os.path.join(STORAGE_DIR, "state_store_v2.db")
 _db_initialized = False
 _pool = None
 _pool_lock = threading.Lock()

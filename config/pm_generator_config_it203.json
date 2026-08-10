@@ -7,12 +7,12 @@
     "cognitive_speed": 0.9
   },
   "session_budget": {
-    "total_sessions": 36,
-    "theory_sessions": 16,
-    "practice_sessions": 12,
-    "mini_projects": 3,
-    "final_exam": 1,
-    "capstone_project": 4
+    "total_sessions": 24,
+    "theory_sessions": 10,
+    "practice_sessions": 10,
+    "mini_projects": 2,
+    "final_exam": 2,
+    "capstone_project": 0
   },
   "class_configuration": {
     "session_duration_hours": 2.0,

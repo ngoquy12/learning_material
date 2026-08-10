@@ -106,10 +106,22 @@ LANGUAGE_MAPPING_REGISTRY = {
 def resolve_language_info(tech_stack: str) -> Dict[str, str]:
     """Resolve language metadata from tech_stack string."""
     tech_lower = (tech_stack or "python").lower().strip()
-    # Check if the tech stack is a known non-coding subject
-    non_coding_keywords = ["agile", "scrum", "diagram", "uml", "design", "word", "excel", "powerpoint", "office", "tin học văn phòng", "phân tích thiết kế", "system analysis", "management", "devops", "pm", "theory", "concept", "process"]
+    # Check if the tech stack is a known non-coding / CLI / tooling / theory subject
+    non_coding_keywords = [
+        "git", "vcs", "github", "gitlab", "terminal", "bash", "shell", "cli", "cmd",
+        "powershell", "docker", "kubernetes", "devops", "linux", "unix",
+        "agile", "scrum", "diagram", "uml", "design", "word", "excel", "powerpoint",
+        "office", "tin học văn phòng", "phân tích", "thiết kế", "phân tích và thiết kế",
+        "phân tích thiết kế", "system analysis", "software architecture", "kiến trúc",
+        "management", "devops", "pm", "theory", "concept", "process", "quy trình"
+    ]
     if any(kw in tech_lower for kw in non_coding_keywords):
-        return {"hljs": "language-plaintext", "engine": "static", "name": tech_stack or "Theory"}
+        is_cli = any(kw in tech_lower for kw in ["git", "vcs", "github", "gitlab", "terminal", "bash", "shell", "cli", "cmd", "powershell", "docker", "devops", "linux", "unix"])
+        return {
+            "hljs": "language-bash" if is_cli else "language-plaintext",
+            "engine": "static",
+            "name": tech_stack or ("Git/CLI" if is_cli else "Theory")
+        }
         
     for key, info in LANGUAGE_MAPPING_REGISTRY.items():
         if key in tech_lower:
@@ -206,22 +218,96 @@ def guard_svg_syntax(svg_str: str) -> str:
     return svg_clean
 
 
-def guard_mermaid_syntax(html_str: str) -> str:
+def sanitize_mermaid_code(code: str) -> str:
     """
-    Guards Mermaid syntax:
-    Ensures node labels with parentheses [Label (text)] are properly quoted ["Label (text)"]
-    to prevent 'Syntax error in text' crashes in Mermaid JS.
+    Sanitizes raw Mermaid diagram code to prevent 'Syntax error in text' in Mermaid JS:
+    1. Fixes transition labels: 'D -- Gặp lỗi build -- > C' or 'D -- Gặp lỗi build --> C' -> 'D -->|Gặp lỗi build| C'
+    2. Fixes broken arrows with spaces: '-- >' or '- ->' -> '-->'
+    3. Quotes unquoted node labels containing special chars (/, :, (, ), ?, &, %, etc.)
     """
-    if not html_str or ("mermaid" not in html_str and "<pre" not in html_str):
-        return html_str
+    if not code:
+        return code
 
-    def fix_mermaid_block(match):
-        content = match.group(0)
-        # Fix unquoted node labels with parens or brackets: e.g. A[Input (data)] -> A["Input (data)"]
-        fixed = re.sub(r'(\[\s*)([^"\n\[\]]+?\([^"\n\[\]]+?\)[^"\n\[\]]*?)(\s*\])', r'["\2"]', content)
-        return fixed
+    lines = code.split("\n")
+    cleaned_lines = []
+    for line in lines:
+        l = line
+        
+        # 1. Fix transition labels: e.g. 'D -- Gặp lỗi build --> C' or 'D -- Gặp lỗi build -- > C' -> 'D -->|Gặp lỗi build| C'
+        l = re.sub(r'(\b\w+|[}\]\)])\s*--\s+([^->\n|]+?)\s*--*\s*>\s*(\b\w+|[{\[\(])', r'\1 -->|\2| \3', l)
+        
+        # 2. Fix broken arrow with spaces before >: e.g. '-- >', '- ->', '--  >'
+        l = re.sub(r'--+\s+>', '-->', l)
+        l = re.sub(r'-\s+->', '-->', l)
 
-    return re.sub(r'(<pre[^>]*class="[^"]*mermaid[^"]*"[^>]*>.*?</pre>)', fix_mermaid_block, html_str, flags=re.DOTALL)
+        # 3. Clean up malformed parallelogram nodes A["[/Label/]"] or A["/Label/"] -> A[/"Label"/]
+        l = re.sub(r'(\b[A-Za-z0-9_-]+)\["/*\s*([^"\n]+?)\s*/*"\]', r'\1[/"\2"/]', l)
+
+        # 4. Quote unquoted parallelogram nodes [/Label/] -> [/"Label"/]
+        def quote_para(m):
+            nid, lbl = m.group(1), m.group(2).strip()
+            if lbl.startswith('"') and lbl.endswith('"'):
+                return f'{nid}[/{lbl}/]'
+            safe_lbl = lbl.replace('"', "'")
+            return f'{nid}[/"{safe_lbl}"/]'
+        l = re.sub(r'(\b[A-Za-z0-9_-]+)\[/([^"\n/]+)/\]', quote_para, l)
+
+        # 5. Quote unquoted rectangular nodes [Label] -> ["Label"]
+        def quote_rect(m):
+            nid, lbl = m.group(1), m.group(2)
+            if lbl.startswith('/') or lbl.startswith('"'):
+                return m.group(0)
+            if re.search(r'[/:\(\)&?\*\+%,;=\'\s-]', lbl):
+                safe_lbl = lbl.replace('"', "'")
+                return f'{nid}["{safe_lbl}"]'
+            return m.group(0)
+        l = re.sub(r'(\b[A-Za-z0-9_-]+)\[([^"\n\[\]]+)\]', quote_rect, l)
+
+        # 6. Quote unquoted rhombus / diamond nodes {Label} -> {"Label"}
+        def quote_rhombus(m):
+            nid, lbl = m.group(1), m.group(2)
+            if lbl.startswith('"') and lbl.endswith('"'):
+                return f'{nid}{{{lbl}}}'
+            if re.search(r'[/:\(\)&?\*\+%,;=\'\s-]', lbl):
+                safe_lbl = lbl.replace('"', "'")
+                return f'{nid}{{"{safe_lbl}"}}'
+            return m.group(0)
+        l = re.sub(r'(\b[A-Za-z0-9_-]+)\{([^"\n\{\}]+)\}', quote_rhombus, l)
+
+        cleaned_lines.append(l)
+
+    return "\n".join(cleaned_lines)
+
+
+def guard_mermaid_syntax(text: str) -> str:
+    """
+    Guards Mermaid syntax across HTML (<pre/div class="mermaid">) and Markdown (```mermaid ... ```).
+    Applies sanitize_mermaid_code to all Mermaid diagram blocks in the text.
+    """
+    if not text or "mermaid" not in text.lower():
+        return text
+
+    # Process Markdown blocks: ```mermaid ... ```
+    def fix_md_mermaid(match):
+        fence_start = match.group(1)
+        code = match.group(2)
+        fence_end = match.group(3)
+        sanitized = sanitize_mermaid_code(code)
+        return f"{fence_start}\n{sanitized}\n{fence_end}"
+
+    text = re.sub(r'(```\s*mermaid[\r\n]+)(.*?)(```)', fix_md_mermaid, text, flags=re.DOTALL | re.IGNORECASE)
+
+    # Process HTML blocks: <pre class="...mermaid...">...</pre> or <div class="...mermaid...">...div>
+    def fix_html_mermaid(match):
+        open_tag = match.group(1)
+        code = match.group(2)
+        close_tag = match.group(3)
+        sanitized = sanitize_mermaid_code(code)
+        return f"{open_tag}{sanitized}{close_tag}"
+
+    text = re.sub(r'(<(?:pre|div)[^>]*class="[^"]*mermaid[^"]*"[^>]*>)(.*?)(</(?:pre|div)>)', fix_html_mermaid, text, flags=re.DOTALL | re.IGNORECASE)
+
+    return text
 
 
 def slugify_id(text: str) -> str:
@@ -405,19 +491,29 @@ MANDATORY RULES & DIRECTIVES:
     - All generated content MUST be 100% in Light Mode with balanced, pleasant corporate colors (`bg-white`, `bg-slate-50`, `border-slate-200`, `text-slate-900`, `text-slate-700`).
     - ABSOLUTELY FORBIDDEN to use dark background panels (`bg-slate-900`, `bg-black`), dark container cards, or dark mode overrides.
 
-16. STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (NO FUTURE/UNLEARNED CONCEPTS):
-    - All concepts, explanations, code snippets, data structures, and diagrams MUST strictly stay within the knowledge taught up to the current session/lesson (`lesson_details` and `previous_lessons`).
-    - ABSOLUTELY FORBIDDEN to use or introduce future unlearned concepts or data structures (e.g., using `List` / `[1, 2, 3]` / `.append()` / `range(len(list))` in an introductory `for` loop session before `List` is introduced in syllabus). Limit code to primitive integers, strings, and basic iteration taught up to this lesson.
+16. STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (NO FUTURE/UNLEARNED CONCEPTS & NO COMMAND LEAKS):
+    - All concepts, explanations, code snippets, CLI commands, data structures, and diagrams MUST strictly stay within the knowledge taught up to the current session/lesson (`lesson_details` and `previous_lessons`).
+    - CRITICAL INTRODUCTORY LESSON SCOPE RULE: For Introductory / Overview / Theory / Concept lessons (e.g. Lesson 01 "Giới thiệu Hệ thống quản lý phiên bản VCS", "Overview", "Concepts", "Architecture", "Agile Overview", "Python Overview"):
+      * The lesson's purpose is ONLY to introduce high-level concepts, business pain points, architectural comparisons (Centralized vs Distributed, Manual ZIP vs Version Control), and high-level 2D/SVG diagrams.
+      * ABSOLUTELY FORBIDDEN to introduce concrete execution command sequences (e.g., `git init`, `git add`, `git commit`, `git push`, `docker run`, `try-except`, `class MyClass`, etc.) that belong to future dedicated lessons!
+      * Content MUST focus 100% on Conceptual Rationale, High-Level Problem Statements, 2D Flat Vector Infographics, SVG Process Diagrams, and Parameter/Concept Comparison Tables.
 
 17. SYNTAX PRESENTATION ORDER & HIGHLIGHTED EXPLANATION CONTRACT:
     - ALWAYS present the Syntax Card Component FIRST, followed immediately by the Component Explanation Bullet List.
     - Each keyword or placeholder in the explanation list MUST be highlighted with code badges (`<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">...</code>`) and bold font.
 
-18. 100% RUNNABLE INTERACTIVE STEP-BY-STEP MECHANISM VISUALIZER (SECTION 2):
-    - In Section 2, embed a 100% runnable, interactive Step-by-Step Mechanism Visualizer widget (HTML/CSS/JS) with Play/Pause, Step Next, Step Prev, Reset buttons, active code line highlights, variable state memory table, and live console output.
+18. ADAPTIVE VISUALS & VISUALIZER HIDING CONTRACT (SUBJECT NATURE & LESSON TYPE ADAPTIVE):
+    - Analyze the lesson's nature before generating Section 2 (`knowledge_html`):
+      * FOR PURE CONCEPT / OVERVIEW / ARCHITECTURE / METHODOLOGY / INTRO LESSONS (where step-by-step interactive code execution or step-by-step CLI tracking is NOT applicable or where no execution commands/code exist yet):
+        - ABSOLUTELY FORBIDDEN to force fake/empty Interactive Code Step-Tracker Visualizers. HIDE / OMIT the Interactive Step-Tracker Visualizer widget entirely for these lessons!
+        - INSTEAD: Embed Rich 2D Flat Vector Technical Illustrations, SVG Process Flowcharts, Mermaid Diagrams, or High-Contrast Concept Comparison Cards!
+      * FOR EXECUTABLE PROGRAMMING / OPERATIONAL / ALGORITHM / WORKFLOW EXECUTION LESSONS (where actual code/commands are executed step-by-step):
+        - Embed the 100% Runnable Step-by-Step Interactive Mechanism Visualizer with Play/Pause/Step controls and line highlighting.
 
-19. CODE CARD SEPARATION (GENERAL SYNTAX VS PRACTICAL EXAMPLES):
-    - General syntax templates in Section 2 MUST use static code cards (`force_static=True`, 3 macOS dots, copy button, no run button). Executable practical code in Section 3 MUST use live Pyodide sandboxes (`is_python=True`, with run and console output buttons).
+19. SUBJECT NATURE & CODE CARD ADAPTATION CONTRACT (EXECUTABLE PROGRAMMING VS PURE CONCEPT / TOOLING / CLI / ARCHITECTURE):
+    - You MUST analyze the course and lesson nature:
+      * FOR EXECUTABLE PROGRAMMING LANGUAGES (Python, JavaScript, Java, C++, SQL...): Section 3 practical examples use Live Executable Code Sandboxes (with Run & Console Output buttons).
+      * FOR PURE CONCEPT / TOOLING / PROCESS / CLI / ARCHITECTURE (Git, VS Code, Linux/Bash CLI, Docker CLI, Agile/Scrum, Software Architecture, System Design, UML Analysis & Design...): ABSOLUTELY FORBIDDEN to force live executable Pyodide sandboxes or run buttons. Section 3 MUST use static Terminal Command Blocks (`<pre><code class="language-bash">...</code></pre>`), Command Execution Flow Tables, or Workflow Diagram Cards.
 
 20. MANDATORY CODE DEMO FOR ALL SYNTAX VARIANTS CONTRACT:
     - EVERY subsection in Section 2 (`2.1`, `2.2`, `2.3`, `2.4`) introducing syntax variants MUST present:
@@ -729,7 +825,12 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
             escaped_code = html_lib.escape(raw_code)
             attr_code = escaped_code.replace('\n', '&#10;').replace('\r', '')
 
-            if is_python:
+            # Detect CLI / Terminal / Non-Python snippet inside Python code block
+            is_cli_cmd = any(raw_code.strip().startswith(prefix) for prefix in [
+                "git ", "$ git", "$git", "docker ", "npm ", "npx ", "pip ", "cd ", "mkdir ", "curl ", "wget ", "sudo ", "chmod ", "apt ", "yum ", "systemctl ", "python -m "
+            ]) or any(cmd in raw_code.lower() for cmd in ["git commit", "git push", "git pull", "git checkout", "git branch", "git status", "git add", "git init", "git clone"])
+
+            if is_python and not is_cli_cmd:
                 return f'''<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
   <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
     <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
@@ -1501,6 +1602,27 @@ def classify_reading_type(lesson_title: str, lesson_details: str) -> Dict[str, s
     MUST always include: type, name, prompt_guideline.
     """
     text_to_check = (lesson_title + " " + lesson_details).lower()
+    
+    orientation_signals = ["tổng quan lộ trình", "định hướng", "tổng quan môn học", "demo sản phẩm", "lộ trình và demo"]
+    is_orientation = any(sig in text_to_check for sig in orientation_signals)
+    
+    if is_orientation:
+        return {
+            "type": "ORIENTATION_LESSON",
+            "name": lesson_title,
+            "prompt_guideline": (
+                "Author a Session 01 Orientation lesson titled 'Tổng quan lộ trình và Demo sản phẩm'.\n"
+                "Structure the document into exactly 3 clear main sub-sections:\n"
+                "1. '1. Tổng quan nội dung & Lộ trình môn học': Summarize course modules and learning milestones as a visual connected Timeline component (<div class='timeline-track'>...) or a structured list.\n"
+                "2. '2. Phương pháp học tập hiệu quả & Kiến thức tiền đề': Detail proactive learning strategies, AI Pair-Programming workflow (Cursor/Windsurf), and prerequisite skills/knowledge required.\n"
+                "3. '3. Demo sản phẩm dự án đầu ra': Present demo specifications, features, and outcomes of the capstone/mini-project students will build upon course completion.\n"
+                "STRICT DIRECTIVES:\n"
+                "- ABSOLUTELY FORBIDDEN to generate code demo snippets, executable sandboxes, or empty code blocks for this lesson.\n"
+                "- Flexible titles and layout allowed (do NOT force rigid 5-section IDs).\n"
+                "- Use 100% Accented Vietnamese for text and 2D Flat Vector Infographics/Timeline visual components."
+            )
+        }
+        
     coding_keywords = ["python", "javascript", "c++", "cpp", "java", "sql", "react", "html", "css", "c#", "typescript", "programming", "code", "syntax", "array", "variable", "loop", "function", "struct", "class", "pointer", "oop"]
     
     is_coding = any(kw in text_to_check for kw in coding_keywords)

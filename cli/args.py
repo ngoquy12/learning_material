@@ -81,5 +81,16 @@ def parse_cli_arguments():
         default=None,
         help="Tạo file config mẫu cho môn mới (ví dụ: --init-config IT-106)"
     )
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        help="Enable async parallel batch execution of independent lessons within sessions"
+    )
+    parser.add_argument(
+        "--concurrency",
+        type=int,
+        default=4,
+        help="Maximum concurrent worker threads for parallel batch execution (default: 4)"
+    )
     return parser.parse_args()
 

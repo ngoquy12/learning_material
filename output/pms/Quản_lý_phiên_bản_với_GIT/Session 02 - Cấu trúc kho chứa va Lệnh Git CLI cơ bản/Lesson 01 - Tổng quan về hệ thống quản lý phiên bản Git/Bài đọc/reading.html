@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tổng quan về hệ thống quản lý phiên bản Git - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Tổng quan về hệ thống quản lý phiên bản Git</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1">
+            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Tại sao các dự án phần mềm Enterprise bắt buộc phải áp dụng Hệ thống Quản lý Phiên bản (VCS)?</a>
+            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Kiến trúc Hệ thống Quản lý Phiên bản và Cơ chế Lưu trữ Snapshot trong Git</a>
+            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
+            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Tại sao các dự án phần mềm Enterprise bắt buộc phải áp dụng Hệ thống Quản lý Phiên bản (VCS)?</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Kiến trúc Hệ thống Quản lý Phiên bản và Cơ chế Lưu trữ Snapshot trong Git</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Tổng quan về hệ thống quản lý phiên bản Git</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Tại sao các dự án phần mềm Enterprise bắt buộc phải áp dụng Hệ thống Quản lý Phiên bản (VCS)?</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong các dự án phần mềm thực tế tại doanh nghiệp, việc quản lý mã nguồn thủ công theo cách truyền thống luôn là nguyên nhân hàng đầu dẫn đến rủi ro sụp đổ hệ thống. Khi đội ngũ kỹ sư mở rộng từ 5 lên 50 người, phương pháp lưu trữ tệp tin nén dạng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">project_v1.zip</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">project_v2_final.zip</code> hay <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">project_v2_FIXED.zip</code> trên các mạng chia sẻ nội bộ nhanh chóng bộc lộ những điểm yếu chết người.</p><p class="text-slate-600 mb-4 leading-relaxed">Doanh nghiệp phải đối mặt với 4 bài toán hóc chuẩn bị xuất hiện trong quy trình vận hành:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Mất vết lịch sử chỉnh sửa (Loss of Audit Trail):</strong> Không thể xác định chính xác ai đã thay đổi dòng mã nguồn gây lỗi sản xuất (Production Bug) vào lúc nào và với mục đích gì.</li><li><strong class="font-semibold text-slate-900">Xung đột mã nguồn nghiêm trọng (Code Overwrite Conflicts):</strong> Hai lập trình viên cùng chỉnh sửa một tệp tin trên máy chủ chia sẻ sẽ dẫn đến việc người lưu sau ghi đè hoàn toàn công sức của người lưu trước.</li><li><strong class="font-semibold text-slate-900">Không có khả năng khôi phục (Lack of Rollback Capability):</strong> Khi một tính năng mới gây hư hỏng toàn bộ hệ thống, việc quay lại phiên bản ổn định trước đó mất hàng giờ hoặc hàng ngày do phải rà soát thủ công.</li><li><strong class="font-semibold text-slate-900">Điểm thất bại đơn lẻ (Single Point of Failure - SPOF):</strong> Nếu máy chủ lưu trữ tệp tin nén bị hỏng ổ cứng, toàn bộ tài sản mã nguồn của doanh nghiệp sẽ bị xóa vĩnh viễn.</li></ul><p class="text-slate-600 mb-4 leading-relaxed">Sự ra đời của Hệ thống Quản lý Phiên bản (Version Control System - VCS) và đặc biệt là Git CLI giúp giải quyết triệt để các rủi ro trên, mang lại quy trình làm việc song song, minh bạch và an toàn tuyệt đối cho doanh nghiệp.</p></div>
+          <div class="my-6"><div class="my-6"><svg viewBox="0 0 800 280" class="rikkei-diagram w-full h-auto" xmlns="http://www.w3.org/2000/svg"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect x="40" y="20" width="320" height="240" rx="12" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="60" y="50" font-size="14" font-weight="bold" fill="#9f1239">Thủ công: Quản lý tệp nén ZIP</text><rect x="60" y="70" width="280" height="35" rx="6" fill="#ffffff" stroke="#ffe4e6"/><text x="75" y="92" font-size="11" font-family="monospace" fill="#be123c">project_v1.zip (2024-01-01)</text><rect x="60" y="115" width="280" height="35" rx="6" fill="#ffffff" stroke="#ffe4e6"/><text x="75" y="137" font-size="11" font-family="monospace" fill="#be123c">project_v2_final.zip (Ghi đè)</text><rect x="60" y="160" width="280" height="35" rx="6" fill="#ffffff" stroke="#ffe4e6"/><text x="75" y="182" font-size="11" font-family="monospace" fill="#be123c">project_v2_fix_final2.zip</text><text font-family="Inter, system-ui, sans-serif"  x="60" y="225" font-size="11" fill="#881337">Risk: Mất lịch sử, dễ ghi đè, SPOF</text><rect x="440" y="20" width="320" height="240" rx="12" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="460" y="50" font-size="14" font-weight="bold" fill="#065f46">Hiện đại: Git DVCS &amp; Snapshot</text><rect x="460" y="70" width="280" height="35" rx="6" fill="#ffffff" stroke="#d1fae5"/><text x="475" y="92" font-size="11" font-family="monospace" fill="#047857">Commit A: Initial (Snapshot 1)</text><rect x="460" y="115" width="280" height="35" rx="6" fill="#ffffff" stroke="#d1fae5"/><text x="475" y="137" font-size="11" font-family="monospace" fill="#047857">Commit B: Auth Feature (Snapshot 2)</text><rect x="460" y="160" width="280" height="35" rx="6" fill="#ffffff" stroke="#d1fae5"/><text x="475" y="182" font-size="11" font-family="monospace" fill="#047857">Commit C: Fix Payment (Snapshot 3)</text><text font-family="Inter, system-ui, sans-serif"  x="460" y="225" font-size="11" fill="#064e3b">Value: Lịch sử toàn vẹn, Phân tán</text><text font-family="Inter, system-ui, sans-serif"  x="400" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369a1">Chuyển đổi quy trình</text><path d="M 375 130 L 410 130 L 410 120 L 425 135 L 410 150 L 410 140 L 375 140 Z" fill="#0284c7"/><text font-family="Inter, system-ui, sans-serif"  x="400" y="180" text-anchor="middle" font-size="11" fill="#0284c7">Cơ chế Snapshot 2.45+</text></svg></div></div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Kiến trúc Hệ thống Quản lý Phiên bản và Cơ chế Lưu trữ Snapshot trong Git</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-inh-nghia-va-vai-tro-cua-version-control-system-vcs" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Định nghĩa và Vai trò của Version Control System (VCS).</h3><p class="text-slate-600 mb-4 leading-relaxed">Hệ thống Quản lý Phiên bản (Version Control System - VCS) là cơ sở hạ tầng phần mềm chuyên biệt có nhiệm vụ ghi lại những thay đổi của một hoặc nhiều tệp tin theo thời gian. Cơ chế này cho phép kỹ sư khôi phục các tệp tin về trạng thái trước đó, quay ngược toàn bộ dự án, so sánh sự thay đổi theo thời gian và xác định tác giả của từng dòng mã nguồn.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><p class="text-slate-700 leading-relaxed">VCS đóng vai trò là "máy thời gian" của dự án phần mềm. Mọi hành động thêm, sửa, xóa mã nguồn đều được mã hóa và lưu trữ kèm theo thông tin ngữ cảnh đầy đủ.</p></div><h3 id="sec-2-2-so-sanh-kien-truc-centralized-vcs-cvcs-va-distributed-vcs-dvcs" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. So sánh Kiến trúc Centralized VCS (CVCS) và Distributed VCS (DVCS).</h3><p class="text-slate-600 mb-4 leading-relaxed">Trong lịch sử phát triển phần mềm, kiến trúc quản lý phiên bản được chia làm hai trường phái chính:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Centralized VCS (VCS Tập trung - ví dụ: SVN, Perforce, CVS):</strong> Sử dụng một máy chủ trung tâm duy nhất chứa toàn bộ lịch sử phiên bản. Kỹ sư kết nối đến máy chủ này để tải về phiên bản làm việc (working copy). Nếu máy chủ gặp sự cố hoặc mất kết nối mạng, toàn bộ hoạt động lưu trữ phiên bản và kết hợp mã nguồn đều bị đình trệ.</li><li><strong class="font-semibold text-slate-900">Distributed VCS (VCS Phân tán - ví dụ: Git, Mercurial):</strong> Mỗi lập trình viên khi sao chép (clone) kho chứa sẽ sở hữu một bản sao hoàn chỉnh của toàn bộ lịch sử dự án trên máy cục bộ. Máy chủ đám mây (như GitHub) đóng vai trò là điểm hội tụ dữ liệu chứ không phải điểm thất bại duy nhất. Lập trình viên có thể thực hiện mọi thao tác ghi lịch sử hoàn toàn ngoại tuyến (offline).</li></ul><div class="overflow-x-auto my-6"><table class="w-full text-sm text-left border-collapse border border-slate-200"><thead class="bg-slate-100 text-slate-700"><tr><th class="border border-slate-200 px-4 py-2.5 font-bold">Tiêu chí đánh giá</th><th class="border border-slate-200 px-4 py-2.5 font-bold">Centralized VCS (SVN)</th><th class="border border-slate-200 px-4 py-2.5 font-bold">Distributed VCS (Git)</th></tr></thead><tbody class="divide-y divide-slate-200 text-slate-600"><tr><td class="border border-slate-200 px-4 py-2 font-semibold">Lưu trữ lịch sử</td><td class="border border-slate-200 px-4 py-2">Chỉ lưu trên Server trung tâm.</td><td class="border border-slate-200 px-4 py-2">Sao lưu đầy đủ trên từng máy cục bộ.</td></tr><tr><td class="border border-slate-200 px-4 py-2 font-semibold">Hoạt động Offline</td><td class="border border-slate-200 px-4 py-2">Không thể thực hiện commit.</td><td class="border border-slate-200 px-4 py-2">Commit, rẽ nhánh, xem lịch sử 100% offline.</td></tr><tr><td class="border border-slate-200 px-4 py-2 font-semibold">Rủi ro mất dữ liệu (SPOF)</td><td class="border border-slate-200 px-4 py-2">Rất cao nếu máy chủ Server hỏng.</td><td class="border border-slate-200 px-4 py-2">Cực thấp vì mọi client đều là bản sao dự phòng.</td></tr><tr><td class="border border-slate-200 px-4 py-2 font-semibold">Tốc độ xử lý rẽ nhánh</td><td class="border border-slate-200 px-4 py-2">Chậm do phải tương tác qua mạng.</td><td class="border border-slate-200 px-4 py-2">Tức thì (Instantaneous) nhờ thao tác pointer cục bộ.</td></tr></tbody></table></div><h3 id="sec-2-3-nguyen-ly-luu-tru-du-lieu-dang-snapshot-cua-git-vs-delta-based" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Nguyên lý Lưu trữ dữ liệu dạng Snapshot của Git vs Delta-based.</h3><p class="text-slate-600 mb-4 leading-relaxed">Sự khác biệt cốt lõi nhất giữa Git và các hệ thống VCS truyền thống nằm ở tư duy xử lý dữ liệu:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Mô hình Delta-based (Lưu trữ biến động):</strong> Các hệ thống như Subversion (SVN) quản lý thông tin dưới dạng danh sách các tệp tin và các thay đổi tích lũy (delta/diff) theo thời gian. Khi cần tái thiết lập một phiên bản, hệ thống phải tính toán lại chuỗi biến động từ bản khởi tạo đầu tiên.</li><li><strong class="font-semibold text-slate-900">Mô hình Snapshot-based (Lưu trữ ảnh chụp):</strong> Git coi dữ liệu như một tập hợp các ảnh chụp (snapshots) của một hệ thống tệp tin nhỏ. Mỗi khi ghi nhận phiên bản mới, Git chụp lại bức ảnh toàn bộ trạng thái hệ thống tại thời điểm đó. Nhằm tối ưu dung lượng, nếu một tệp tin không có sự thay đổi, Git sẽ không lưu lại tệp mới mà chỉ tạo một đường dẫn liên kết (reference pointer) tới tệp tin trùng lặp đã lưu trước đó.</li></ul><h3 id="sec-2-4-uu-the-cua-git-cli-2-45-trong-quy-trinh-phat-trien-phan-mem-hien-ai" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Ưu thế của Git CLI 2.45+ trong Quy trình Phát triển Phần mềm Hiện đại.</h3><p class="text-slate-600 mb-4 leading-relaxed">Giao diện dòng lệnh Git CLI (từ phiên bản 2.45+) cung cấp hiệu năng tối ưu vượt trội nhờ các cải tiến hạ tầng:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Định dạng Reftable mới:</strong> Tăng tốc độ truy vấn hàng vạn nhánh (branches) và thẻ (tags) trong các dự án Enterprise siêu lớn.</li><li><strong class="font-semibold text-slate-900">Thuật toán Merge cải tiến:</strong> Tối ưu hóa việc phát hiện file bị đổi tên và giảm thiểu tối đa xung đột mã nguồn.</li><li><strong class="font-semibold text-slate-900">Chuẩn hóa Quy trình làm việc:</strong> Hỗ trợ hoàn hảo cho các mô hình <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">Git Flow</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">Semantic Branching</code> và chuẩn cam kết <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">Conventional Commits</code>.</li></ul></div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-phan-tich-kich-ban-phoi-phuc-tham-hoa-giua-dvcs-va-cvcs" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Phân tích kịch bản Phôi phục Thảm họa giữa DVCS và CVCS.</h3><p class="text-slate-600 mb-4 leading-relaxed">Trong mô hình làm việc doanh nghiệp, sự cố sập máy chủ trung tâm có thể làm ngưng trệ toàn bộ dự án. Với kiến trúc phân tán của Git, mọi lập trình viên đều giữ một bản sao lưu toàn vẹn có khả năng khôi phục lại máy chủ trung tâm mà không mất bất kỳ lịch sử commit nào.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Mã nguồn minh họa Git cli 2.45+, github cloud (conventional commits, git flow, semantic branching)</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-bash"># Visual Representation of DVCS Distributed Recovery Architecture
+# [Central Server Crashed - Data Lost]
+#
+│
+#
+├──► Developer A Local Repo (100% History Backup)
+#
+├──► Developer B Local Repo (100% History Backup)
+#
+└──► Developer C Local Repo (100% History Backup)
+#
+# Action: Restore Central Server by pushing full repository from Developer A.</code></pre>
+</div><h3 id="sec-3-2-co-cau-inh-danh-snapshot-bang-ma-bam-sha-trong-git" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Cơ cấu Định danh Snapshot bằng Mã băm SHA trong Git.</h3><p class="text-slate-600 mb-4 leading-relaxed">Git sử dụng thuật toán mã băm cryptographic (SHA-1 hoặc SHA-256) để gán cho mỗi Snapshot một chuỗi định danh duy nhất dài 40 ký tự. Cơ chế này đảm bảo dữ liệu không bao giờ bị biến đổi ẩn danh hoặc hư hỏng mà không bị phát hiện.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Mã nguồn minh họa Git cli 2.45+, github cloud (conventional commits, git flow, semantic branching)</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-bash"># Snapshot State Hash Addressing Mechanics
+# Commit Object: e83a21f7c... (Points to Root Tree)
+#   ├── Tree Object: 8f2b10a... (Project Directory Snapshot)
+#   │
+├── Blob Object: a19f2c... (index.html Content State)
+#   │
+└── Blob Object: f45e8d... (app.js Content State)
+#   └── Parent Commit: d91c33b... (Previous Snapshot Reference)</code></pre>
+</div><h3 id="sec-3-3-chuan-hoa-phan-nhanh-semantic-branching-amp-conventional-commits" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Chuẩn hóa Phân nhánh Semantic Branching &amp; Conventional Commits.</h3><p class="text-slate-600 mb-4 leading-relaxed">Doanh nghiệp áp dụng quy tắc đặt tên nhánh theo ngữ cảnh (Semantic Branching) giúp phân tách rõ ràng trách nhiệm của từng thành viên và luồng phát hành sản phẩm.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Mã nguồn minh họa Git cli 2.45+, github cloud (conventional commits, git flow, semantic branching)</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-bash"># Semantic Branching Standard Patterns
+# Feature Branch:
+feature/JIRA-101-google-oauth-login
+# Bugfix Branch:
+bugfix/JIRA-204-fix-null-pointer-exception
+# Hotfix Branch:
+hotfix/CVE-2024-vulnerability-patch
+# Release Branch:
+release/v2.5.0-rc1
+
+# Conventional Commit Message Examples
+# feat(shopping-cart): add checkout button animation
+# fix(security): sanitize user input query strings</code></pre>
+</div></div>
+        </section>
+
+        <!-- Section 4: Tổng kết và các lưu ý -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <div class="space-y-4">
+            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"">4.1. Những Sai lầm Phổ biến khi Tiếp cận Git và VCS.</h4><ul class="list-disc pl-6 space-y-2 text-slate-700"><li><strong class="font-semibold text-slate-900">Nhầm lẫn giữa Git và GitHub:</strong> Git là công cụ quản lý phiên bản dòng lệnh (CLI) chạy cục bộ; trong khi GitHub là dịch vụ lưu trữ đám mây (Cloud Hosting Service) cho các kho chứa Git.</li><li><strong class="font-semibold text-slate-900">Coi Git là dịch vụ sao lưu tệp tin thông thường:</strong> Tải các tệp tin biên dịch nặng (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.exe</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">node_modules</code>) hoặc mã mật (API Keys) vào Git làm phình to dung lượng snapshot và rò rỉ bảo mật.</li><li><strong class="font-semibold text-slate-900">Tư duy Delta-based khi viết commit:</strong> Viết nội dung commit chung chung như "fix bug", "update code" khiến khả năng tra cứu lại lịch sử snapshot bị vô hiệu hóa.</li></ul></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-emerald-900 mb-2 flex items-center gap-2"">4.2. Khuyến nghị Thực thi Best Practices cho Dự án Enterprise.</h4><ul class="list-disc pl-6 space-y-2 text-slate-700"><li><strong class="font-semibold text-slate-900">Luôn khai báo .gitignore ngay từ đầu:</strong> Loại bỏ các tệp tin tạm, build artifacts trước khi tạo snapshot đầu tiên.</li><li><strong class="font-semibold text-slate-900">Tuân thủ nghiêm ngặt Conventional Commits:</strong> Định dạng tin nhắn commit giúp tự động hóa việc sinh nhật ký thay đổi (Changelog) và tính toán phiên bản ngữ nghĩa (Semantic Versioning).</li><li><strong class="font-semibold text-slate-900">Nâng cấp phiên bản Git CLI 2.45+:</strong> Tận dụng thuật toán xử lý luồng ghi dữ liệu và quản lý Reftable tiên tiến để tăng tốc hiệu năng làm việc hàng ngày.</li></ul></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://git-scm.com/book/en/v2/Getting-Started-About-Version-Control" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Pro Git Book - Structural Fundamentals &amp; Snapshot Mechanism (Official Documentation)
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://github.com/git/git/blob/master/Documentation/RelNotes/2.45.0.txt" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Git 2.45 Release Notes &amp; Architecture Enhancements
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://www.conventionalcommits.org/en/v1.0.0/" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Conventional Commits Specification v1.0.0
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers
+      window.vizStepMap = {};
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
+        var step = window.vizStepMap[idPrefix];
+        
+        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
+        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+        
+        if (consoleEl) {
+          if (step === 0) {
+            if (numEl) numEl.innerText = "-";
+            if (sumEl) sumEl.innerText = "0";
+            consoleEl.innerText = "Chờ thực thi...";
+          } else if (step === 1) {
+            if (numEl) numEl.innerText = "1";
+            if (sumEl) sumEl.innerText = "1";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
+          } else if (step === 2) {
+            if (numEl) numEl.innerText = "2";
+            if (sumEl) sumEl.innerText = "3";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
+          } else {
+            if (numEl) numEl.innerText = "3";
+            if (sumEl) sumEl.innerText = "6";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+          }
+        }
+      }
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        window.vizStepMap[idPrefix] = 0;
+        runVizStep(0, idPrefix);
+      }
+
+      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
+      function vizReset() { resetViz(); }
+      var vizAutoTimer = null;
+      function vizToggleAuto() {
+        if (vizAutoTimer) {
+          clearInterval(vizAutoTimer);
+          vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Tự động chạy";
+        } else {
+          vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Dừng tự động";
+        }
+      }
+    </script>
+  </body>
+</html>

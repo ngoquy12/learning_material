@@ -1,8 +1,14 @@
 # core/domain_adapters.py
 """
 Domain-Specific Prompt Adapters for Elearning Content Factory.
-Injects industrial coding standards into System Prompts based on tech stack.
+Injects industrial coding standards and enterprise business scenarios into System Prompts.
+Supports Local SLM (vLLM / Ollama) endpoints for offline fine-tuned model execution.
 """
+
+import os
+import urllib.request
+import json
+from typing import Dict, Any, Optional
 
 DOMAIN_RULES = {
     "python/core": """
@@ -46,6 +52,41 @@ DOMAIN_RULES = {
 """
 }
 
+# 6 Enterprise Business Scenario Templates (Real-World High-Scale Architecture)
+ENTERPRISE_SCENARIOS: Dict[str, str] = {
+    "ecommerce_checkout": """
+=== ENTERPRISE BUSINESS SCENARIO: E-COMMERCE ORDER PROCESSING ===
+- Context: High-concurrency checkout pipeline processing 10,000+ orders/min.
+- Focus: Idempotent transaction handling, Inventory atomic deduction, Order state machine (Pending -> Paid -> Shipped).
+""",
+    "lms_assessment": """
+=== ENTERPRISE BUSINESS SCENARIO: LMS AUTOMATED GRADING & ASSESSMENT ===
+- Context: Enterprise E-learning Assessment Engine handling 50,000+ concurrent students.
+- Focus: Automated testcase evaluation, Plagiarism score thresholding, Learning outcome mapping (CLO/PLO).
+""",
+    "payment_webhook": """
+=== ENTERPRISE BUSINESS SCENARIO: PAYMENT GATEWAY WEBHOOK INTEGRATION ===
+- Context: Asynchronous Stripe/PayPal webhook receiver with cryptographic signature verification.
+- Focus: Signature validation, Anti-replay attack timestamp check, Idempotent event processing.
+""",
+    "microservices_ratelimit": """
+=== ENTERPRISE BUSINESS SCENARIO: MICROSERVICES RATE LIMITER GATEWAY ===
+- Context: API Gateway managing 1M+ requests/sec across distributed microservices.
+- Focus: Token Bucket / Sliding Window Algorithm using Redis atomic Lua scripts.
+""",
+    "security_auth": """
+=== ENTERPRISE BUSINESS SCENARIO: ENTERPRISE AUTH & RBAC GUARD ===
+- Context: Zero-Trust Security Module with JWT Bearer authentication and Role-Based Access Control.
+- Focus: Token validation, Claims extraction, Refresh Token rotation, Cryptographic hashing.
+""",
+    "cache_redis": """
+=== ENTERPRISE BUSINESS SCENARIO: DISTRIBUTED REDIS CACHING ===
+- Context: High-throughput Cache-Aside Architecture for heavy database reads.
+- Focus: Cache Stampede protection (SingleFlight/Mutex), TTL Expiration, Cache Invalidation strategies.
+"""
+}
+
+
 def get_domain_rules(tech_stack: str) -> str:
     """
     Returns industrial coding rules matching the provided tech stack.
@@ -67,3 +108,49 @@ def get_domain_rules(tech_stack: str) -> str:
         return DOMAIN_RULES["devops/docker"]
         
     return ""
+
+
+def get_enterprise_domain_prompt(tech_stack: str, lesson_topic: str = "") -> str:
+    """
+    Combines domain rules with relevant Enterprise Real-World Business Scenario blueprints.
+    """
+    base_rules = get_domain_rules(tech_stack)
+    topic_lower = (lesson_topic or "").lower().strip()
+    
+    selected_scenario = ""
+    if any(kw in topic_lower for kw in ["payment", "webhook", "thanhtoan"]):
+        selected_scenario = ENTERPRISE_SCENARIOS["payment_webhook"]
+    elif any(kw in topic_lower for kw in ["auth", "jwt", "baomat", "login", "role", "rbac"]):
+        selected_scenario = ENTERPRISE_SCENARIOS["security_auth"]
+    elif any(kw in topic_lower for kw in ["cache", "redis", "bophodem"]):
+        selected_scenario = ENTERPRISE_SCENARIOS["cache_redis"]
+    elif any(kw in topic_lower for kw in ["rate", "limit", "gateway", "microservice"]):
+        selected_scenario = ENTERPRISE_SCENARIOS["microservices_ratelimit"]
+    elif any(kw in topic_lower for kw in ["order", "checkout", "donhang", "cart", "sales"]):
+        selected_scenario = ENTERPRISE_SCENARIOS["ecommerce_checkout"]
+    else:
+        selected_scenario = ENTERPRISE_SCENARIOS["lms_assessment"]
+        
+    return f"{base_rules}\n{selected_scenario}".strip()
+
+
+def resolve_slm_endpoint() -> Optional[str]:
+    """
+    Checks if a local SLM server (Ollama or vLLM) is active on default ports (11434 or 8000).
+    Returns the endpoint URL string or None if unaccessible.
+    """
+    slm_url = os.getenv("LOCAL_SLM_URL")
+    if slm_url:
+        return slm_url
+
+    for port, path in [(11434, "/api/version"), (8000, "/v1/models")]:
+        url = f"http://127.0.0.1:{port}{path}"
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "AntigravitySLMCheck"})
+            with urllib.request.urlopen(req, timeout=0.5) as resp:
+                if resp.status == 200:
+                    return f"http://127.0.0.1:{port}"
+        except Exception:
+            continue
+
+    return None

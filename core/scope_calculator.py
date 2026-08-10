@@ -102,9 +102,10 @@ def validate_text_against_scope(text: str, forbidden_scope: Set[str]) -> List[st
     violations = []
     
     for concept in forbidden_scope:
-        if len(concept.strip()) < 3:
+        c_clean = concept.strip().lower()
+        if len(c_clean) < 3:
             continue # Ignore trivial words
-        pattern = r"\b" + re.escape(concept.strip()) + r"\b"
+        pattern = r"\b" + re.escape(c_clean) + r"\b"
         if re.search(pattern, text_lower):
             violations.append(concept)
             

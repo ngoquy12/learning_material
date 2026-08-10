@@ -63,21 +63,30 @@ def write_state_artifacts_to_disk(state: AgentState):
                 
             if quiz_items:
                 export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
-                
-        # 3.2 Practical Lab
-        if "quiz" in requested_parts and state.get("lab_json"):
+                # 3.2 Practical Lab (Markdown)
+        if state.get("practical_lab_markdown") or state.get("lab_json"):
             lab_sub = lesson_dir / "Bài thực hành"
             lab_sub.mkdir(parents=True, exist_ok=True)
-            with open(lab_sub / "practical_lab.json", "w", encoding="utf-8") as f:
-                json.dump(state["lab_json"], f, ensure_ascii=False, indent=2)
+            lab_md = state.get("practical_lab_markdown")
+            if not lab_md and state.get("lab_json"):
+                from agents.creators.practical_lab_creator import format_lab_to_markdown
+                lab_md = format_lab_to_markdown(state["lab_json"])
+            if lab_md:
+                with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
+                    f.write(lab_md)
                 
 
-        # 3.5 Reading Questions
-        if ("reading_questions" in requested_parts or "all" in requested_parts) and state.get("reading_questions_json"):
+        # 3.5 Reading Questions (Markdown)
+        if state.get("reading_questions_markdown") or state.get("reading_questions_json"):
             rq_sub = lesson_dir / "Câu hỏi bài đọc"
             rq_sub.mkdir(parents=True, exist_ok=True)
-            with open(rq_sub / "reading_questions.json", "w", encoding="utf-8") as f:
-                json.dump(state["reading_questions_json"], f, ensure_ascii=False, indent=2)
+            rq_md = state.get("reading_questions_markdown")
+            if not rq_md and state.get("reading_questions_json"):
+                from agents.creators.reading_questions_creator import format_reading_questions_to_markdown
+                rq_md = format_reading_questions_to_markdown(state["reading_questions_json"])
+            if rq_md:
+                with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
+                    f.write(rq_md)
                 
         # 4. Video Script
         if ("video" in requested_parts or "video_script" in requested_parts) and state.get("video_script_markdown"):
@@ -98,11 +107,6 @@ def node_pm_review(state: AgentState) -> AgentState:
         full_curriculum = state.get("full_curriculum", state.get("pm_input"))
         report = pm_reviewer_agent(full_curriculum, require_tech_stack(state, "node_pm_review"))
         
-        course_dir_name = state.get("course_dir_name", "Unknown_Course")
-        out_dir = os.path.join("output", course_dir_name)
-        os.makedirs(out_dir, exist_ok=True)
-        
-        report_path = os.path.join(out_dir, "pm_review_report.md")
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
         raise ValueError(
@@ -348,11 +352,30 @@ def pipeline_slide_production(state: AgentState) -> AgentState:
     write_state_artifacts_to_disk(state)
     return state
 
+def _is_session_01_orientation(state: AgentState) -> bool:
+    """Check if current session is Session 01 Orientation."""
+    session_str = str(state.get("session_id", "")).upper()
+    lesson_type = str(state.get("lesson_type", "")).upper()
+    core_ssot = state.get("core_ssot", {}) if isinstance(state.get("core_ssot"), dict) else {}
+    lesson_title = str(core_ssot.get("session_title", "")).lower() + " " + str(state.get("lesson_id", "")).lower()
+    return (
+        "SESSION 01" in session_str
+        or "ORIENTATION" in lesson_type
+        or "tổng quan lộ trình" in lesson_title
+        or "định hướng" in lesson_title
+    )
+
+
 @component
 def pipeline_quiz_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện cơ chế Sandbox cho cấu phần Quiz & Lab bài tập"""
+    if _is_session_01_orientation(state):
+        print("  [Session 01 Orientation] SKIPPED Quiz generation (Only Reading, Slides, and Video Script allowed for Session 01).")
+        state.setdefault("artifacts_status", {})["quiz"] = "Skipped (Session 01 Orientation)"
+        return state
+
     if "requested_parts" in state and "quiz" not in state["requested_parts"]:
-        state["artifacts_status"]["quiz"] = "Skipped"
+        state.setdefault("artifacts_status", {})["quiz"] = "Skipped"
         return state
     approved = False
     for attempt in range(3):
@@ -364,12 +387,12 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
         write_state_artifacts_to_disk(state)
         review = sandbox_testing_agent(state)
         if review["status"] == "APPROVED":
-            state["artifacts_status"]["quiz"] = "Approved"
+            state.setdefault("artifacts_status", {})["quiz"] = "Approved"
             save_state_checkpoint(state)
             approved = True
             break
         else:
-            state["review_logs"].append({"source": "Sandbox_Agent", "feedback": review["feedback"]})
+            state.setdefault("review_logs", []).append({"source": "Sandbox_Agent", "feedback": review["feedback"]})
             save_state_checkpoint(state)
     if not approved:
         print(
@@ -377,7 +400,7 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
             f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
-        state["artifacts_status"]["quiz"] = "Approved with Warnings"
+        state.setdefault("artifacts_status", {})["quiz"] = "Approved with Warnings"
         save_state_checkpoint(state)
     write_state_artifacts_to_disk(state)
     return state
@@ -385,7 +408,12 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
 @component
 def pipeline_reading_questions_production(state: AgentState) -> AgentState:
     """Trích xuất câu hỏi bài đọc (reading questions) ra file JSON riêng biệt"""
-    if "requested_parts" in state and "reading_questions" not in state["requested_parts"] and "all" not in state["requested_parts"]:
+    if _is_session_01_orientation(state):
+        state.setdefault("artifacts_status", {})["reading_questions"] = "Skipped (Session 01 Orientation)"
+        return state
+
+    requested = state.get("requested_parts", ["all"])
+    if "reading_questions" not in requested and "all" not in requested and "html" not in requested and "quiz" not in requested:
         state.setdefault("artifacts_status", {})["reading_questions"] = "Skipped"
         return state
     
@@ -399,8 +427,34 @@ def pipeline_reading_questions_production(state: AgentState) -> AgentState:
 
 
 @component
+def pipeline_practical_lab_production(state: AgentState) -> AgentState:
+    """Tự động biên soạn nội dung Bài thực hành (Hands-on Practical Lab) ra file practical_lab.json"""
+    if _is_session_01_orientation(state):
+        print("  [Session 01 Orientation] SKIPPED Practical Lab / Homework generation for Session 01.")
+        state.setdefault("artifacts_status", {})["practical_lab"] = "Skipped (Session 01 Orientation)"
+        return state
+
+    requested = state.get("requested_parts", ["all"])
+    if "practical_lab" not in requested and "quiz" not in requested and "all" not in requested and "html" not in requested:
+        state.setdefault("artifacts_status", {})["practical_lab"] = "Skipped"
+        return state
+        
+    from agents.creator_agents import practical_lab_creator_agent
+    state = practical_lab_creator_agent(state)
+    state.setdefault("artifacts_status", {})["practical_lab"] = "Approved"
+    write_state_artifacts_to_disk(state)
+    save_state_checkpoint(state)
+    return state
+
+
+@component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện (Critique Loop) tự động cho Video Script theo chuẩn HyperFrames"""
+    requested = state.get("requested_parts", ["all"])
+    if "video" not in requested and "video_script" not in requested and "all" not in requested:
+        state.setdefault("artifacts_status", {})["video_script"] = "Skipped"
+        return state
+
     # ── ĐẢM BẢO PHỤ THUỘC TẦN THỨC: Bài đọc HTML (reading.md) BẮT BUỘC xong 100% trước khi tạo Video ──
     html_status = state.get("artifacts_status", {}).get("html", "")
     has_reading = bool(state.get("html_content") or state.get("reading_material"))
@@ -785,6 +839,41 @@ def lessons_learned_refiner(state: AgentState) -> AgentState:
     save_state_checkpoint(state)
     return state
 
+
+def _merge_sub_state(state: Dict[str, Any], name: str, sub_state: Dict[str, Any]):
+    """Helper to merge artifacts and statuses from a sub-state into main state."""
+    if not isinstance(sub_state, dict):
+        return
+    if sub_state.get("slide_markdown"):
+        state["slide_markdown"] = sub_state["slide_markdown"]
+    if sub_state.get("slide_html"):
+        state["slide_html"] = sub_state["slide_html"]
+    if sub_state.get("quiz_json"):
+        state["quiz_json"] = sub_state["quiz_json"]
+    if sub_state.get("lab_json"):
+        state["lab_json"] = sub_state["lab_json"]
+    if sub_state.get("practical_lab_markdown"):
+        state["practical_lab_markdown"] = sub_state["practical_lab_markdown"]
+    if sub_state.get("video_script_markdown"):
+        state["video_script_markdown"] = sub_state["video_script_markdown"]
+    if sub_state.get("video_script_json"):
+        state["video_script_json"] = sub_state["video_script_json"]
+    if sub_state.get("mindmap_markdown"):
+        state["mindmap_markdown"] = sub_state["mindmap_markdown"]
+    if sub_state.get("reading_questions_json"):
+        state["reading_questions_json"] = sub_state["reading_questions_json"]
+    if sub_state.get("reading_questions_markdown"):
+        state["reading_questions_markdown"] = sub_state["reading_questions_markdown"]
+
+    if "artifacts_status" in sub_state:
+        state.setdefault("artifacts_status", {}).update(sub_state["artifacts_status"])
+    if sub_state.get("review_logs"):
+        for log in sub_state["review_logs"]:
+            if log not in state.setdefault("review_logs", []):
+                state["review_logs"].append(log)
+    print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
+
+
 def compile_learning_content_workflow():
     workflow = Workflow()
 
@@ -857,55 +946,72 @@ def compile_learning_content_workflow():
         """
         import copy
         import time
+        import asyncio
         from concurrent.futures import ThreadPoolExecutor, as_completed
         
-        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 3 tài nguyên dẫn xuất từ Bài đọc HTML (Slide, Quiz, VideoScript)...")
+        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 5 tài nguyên dẫn xuất từ Bài đọc HTML (Slide, Quiz, VideoScript, Lab, ReadingQuestions)...")
         start_t = time.time()
         
-        # 2 Creator Pipelines dẫn xuất bám sát Bài đọc HTML cho từng Lesson (Slide và Mindmap đã chuyển lên cấp Session)
+        # 5 Creator Pipelines dẫn xuất bám sát Bài đọc HTML cho từng Lesson
         pipelines = [
+            ("Slide", pipeline_slide_production),
+            ("VideoScript", pipeline_video_script_production),
             ("Quiz", pipeline_quiz_production),
+            ("PracticalLab", pipeline_practical_lab_production),
             ("ReadingQuestions", pipeline_reading_questions_production),
         ]
         
-        futures_map = {}
-        with ThreadPoolExecutor(max_workers=4) as executor:
-            for name, fn in pipelines:
+        async def _run_async_pipeline():
+            async def _run_one(name, fn):
                 state_copy = copy.deepcopy(state)
-                future = executor.submit(fn, state_copy)
-                futures_map[future] = name
-                
-            for future in as_completed(futures_map):
-                name = futures_map[future]
-                try:
-                    sub_state = future.result()
-                    if sub_state.get("slide_markdown"):
-                        state["slide_markdown"] = sub_state["slide_markdown"]
-                    if sub_state.get("slide_html"):
-                        state["slide_html"] = sub_state["slide_html"]
-                    if sub_state.get("quiz_json"):
-                        state["quiz_json"] = sub_state["quiz_json"]
-                    if sub_state.get("lab_json"):
-                        state["lab_json"] = sub_state["lab_json"]
-                    if sub_state.get("video_script_markdown"):
-                        state["video_script_markdown"] = sub_state["video_script_markdown"]
-                    if sub_state.get("video_script_json"):
-                        state["video_script_json"] = sub_state["video_script_json"]
-                    if sub_state.get("mindmap_markdown"):
-                        state["mindmap_markdown"] = sub_state["mindmap_markdown"]
-                    if sub_state.get("reading_questions_json"):
-                        state["reading_questions_json"] = sub_state["reading_questions_json"]
-                    
-                    if "artifacts_status" in sub_state:
-                        state.setdefault("artifacts_status", {}).update(sub_state["artifacts_status"])
-                    if sub_state.get("review_logs"):
-                        for log in sub_state["review_logs"]:
-                            if log not in state.setdefault("review_logs", []):
-                                state["review_logs"].append(log)
-                    print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
-                except Exception as e:
-                    print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
-                    
+                res_state = await asyncio.to_thread(fn, state_copy)
+                return name, res_state
+
+            tasks = [_run_one(name, fn) for name, fn in pipelines]
+            return await asyncio.gather(*tasks, return_exceptions=True)
+
+        try:
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
+
+            if loop and loop.is_running():
+                # Loop is already running, run with ThreadPoolExecutor
+                futures_map = {}
+                with ThreadPoolExecutor(max_workers=5) as executor:
+                    for name, fn in pipelines:
+                        state_copy = copy.deepcopy(state)
+                        future = executor.submit(fn, state_copy)
+                        futures_map[future] = name
+                    for future in as_completed(futures_map):
+                        name = futures_map[future]
+                        sub_state = future.result()
+                        _merge_sub_state(state, name, sub_state)
+            else:
+                results = asyncio.run(_run_async_pipeline())
+                for res in results:
+                    if isinstance(res, Exception):
+                        print(f"  ❌ [Parallel Async Engine] Exception: {res}")
+                        continue
+                    name, sub_state = res
+                    _merge_sub_state(state, name, sub_state)
+        except Exception as err:
+            print(f"  ⚠️ [Parallel Engine Fallback] Async execution fallback to ThreadPool: {err}")
+            futures_map = {}
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                for name, fn in pipelines:
+                    state_copy = copy.deepcopy(state)
+                    future = executor.submit(fn, state_copy)
+                    futures_map[future] = name
+                for future in as_completed(futures_map):
+                    name = futures_map[future]
+                    try:
+                        sub_state = future.result()
+                        _merge_sub_state(state, name, sub_state)
+                    except Exception as e:
+                        print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
+
         elapsed = time.time() - start_t
         print(f"[Parallel Engine] ✅ Tất cả tài nguyên dẫn xuất đã hoàn tất song song trong {elapsed:.2f}s!\n")
         save_state_checkpoint(state)

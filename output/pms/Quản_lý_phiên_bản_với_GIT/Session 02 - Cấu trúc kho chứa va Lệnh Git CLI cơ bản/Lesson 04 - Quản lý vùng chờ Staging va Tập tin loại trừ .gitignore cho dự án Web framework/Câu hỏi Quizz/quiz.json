@@ -1,0 +1,46 @@
+[
+  {
+    "question": "Trong kiến trúc quản lý phiên bản dự án Web Framework, vùng đệm trung gian Staging Area đảm nhận vai trò chính nào sau đây?",
+    "options": [
+      "Ghi nhận trạng thái và giữ nhiệm vụ cho phép người phát triển chủ động rà soát, lựa chọn chính xác các tệp tin an toàn trước khi lưu trữ chính thức.",
+      "Tự động biên dịch mã nguồn JavaScript từ thư mục `src/` thành các tệp tĩnh và lưu trữ trực tiếp vào thư mục `dist/`.",
+      "Cung cấp không gian lưu trữ điện toán đám mây cho các thành viên trong đội ngũ phát triển truy cập vào cơ sở dữ liệu.",
+      "Mã hóa các tham số cấu hình hệ thống và khóa API bí mật được khai báo bên trong tệp `.env` trước khi lưu vào đĩa cứng."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Vùng đệm Staging Area đóng vai trò trung gian giữ nhiệm vụ ghi nhận trạng thái và cho phép lập trình viên rà soát, chủ động chọn lọc những thay đổi cần đưa vào phiên bản mới thay vì đóng gói toàn bộ thư mục làm việc."
+  },
+  {
+    "question": "Giả sử Working Directory của dự án gồm các tệp: `.env`, `node_modules/`, `dist/`, `src/App.jsx` và `package.json`. Sau khi tệp `.gitignore` được cấu hình chuẩn xác, những tệp nào sẽ vượt qua bộ lọc để tiến vào Staging Area?",
+    "options": [
+      "Tệp `.env` và thư mục `node_modules/`",
+      "Tệp `src/App.jsx` và tệp `package.json`",
+      "Thư mục `dist/` và thư mục `node_modules/`",
+      "Tệp `.env` và thư mục `dist/`"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Theo quy tắc loại trừ trong `.gitignore`, tệp nhạy cảm `.env`, thư mục phụ thuộc `node_modules/` và thư mục biên dịch tạm `dist/` bị chặn lại. Chỉ các tệp mã nguồn và cấu hình an toàn như `src/App.jsx` và `package.json` mới được đi vào Staging Area."
+  },
+  {
+    "question": "Tại sao việc đưa thư mục phụ thuộc `node_modules/` (dung lượng hơn 500MB) vào hệ thống quản lý phiên bản lại bị coi là một vi phạm quy chuẩn nghiêm trọng trong các dự án Web Framework?",
+    "options": [
+      "Vì làm ngăn cản tệp mã nguồn `src/App.jsx` thực thi trên môi trường máy chủ thử nghiệm cục bộ.",
+      "Vì làm ghi đè các tham số biến môi trường được định nghĩa trong tệp `.env` như `DATABASE_URL`.",
+      "Vì làm lãng phí bộ nhớ lưu trữ với hàng nghìn tệp phụ thuộc có thể khôi phục dễ dàng thông qua tệp cấu hình `package.json`.",
+      "Vì làm hệ thống tự động xóa các tệp biên dịch tạm thời trong thư mục `dist/` mỗi khi có thay đổi mã nguồn."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Thư mục `node_modules/` chứa hàng nghìn tệp phụ thuộc nặng nề có thể tái tạo lại bất kỳ lúc nào thông qua tệp cấu hình `package.json`. Việc đưa thư mục này vào quản lý phiên bản gây lãng phí tài nguyên lưu trữ và giảm hiệu năng xử lý của hệ thống."
+  },
+  {
+    "question": "Trong kịch bản tệp `.gitignore` đã khai báo các dòng loại trừ `.env`, `node_modules/` và `dist/`, điều gì xảy ra khi lập trình viên thực hiện chỉnh sửa nội dung trong tệp `src/App.jsx`?",
+    "options": [
+      "Thay đổi trong `src/App.jsx` bị bỏ qua vì bộ lọc `.gitignore` tự động chặn tất cả các tệp nằm trong thư mục `src/`.",
+      "Tệp `src/App.jsx` bị đánh dấu là thư mục phụ thuộc không hợp lệ và tự động chuyển sang thư mục `dist/`.",
+      "Tệp `.env` bị buộc phải chuyển vào Staging Area để xác thực lại thông tin cấu hình cho tệp `src/App.jsx`.",
+      "Tệp `src/App.jsx` đã sửa đổi vượt qua bộ lọc `.gitignore` và sẵn sàng được đưa vào vùng đệm Staging Area."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Do `src/App.jsx` không nằm trong danh sách các đường dẫn bị loại trừ bởi tệp `.gitignore`, mọi thay đổi trên tệp này đều hợp lệ, vượt qua bộ lọc và có thể được chọn lọc đưa vào vùng đệm Staging Area."
+  }
+]

@@ -108,7 +108,7 @@ def check_unaccented_vietnamese(text: str) -> str:
 
 def check_knowledge_scope_violations(text: str, session_id: str = "", state: Dict[str, Any] = None) -> str:
     """
-    Dynamically checks if content incorporates concepts from FUTURE lessons
+    Dynamically checks if content incorporates concepts or CLI commands from FUTURE lessons
     without hardcoding any specific language, framework, or lesson numbers.
     """
     if not text or not state:
@@ -119,24 +119,36 @@ def check_knowledge_scope_violations(text: str, session_id: str = "", state: Dic
         return ""
 
     text_lower = text.lower()
+    
+    # Common stop words to exclude from keyword comparison
+    stop_words = {
+        "nguon", "dieu", "trong", "chuan", "thong", "chua", "khong", "danh", "trinh",
+        "about", "where", "after", "before", "which", "there", "their", "other", "first",
+        "setup", "basic", "lesson", "session", "overview", "intro", "tong", "quan"
+    }
+
+    prev_text = " ".join([f"{p.get('title','')} {p.get('details','')}" for p in state.get("previous_lessons", [])]).lower()
+    curr_title = state.get("lesson_title", "").lower()
+    curr_details = state.get("lesson_details", "").lower()
+    combined_current_context = f"{prev_text} {curr_title} {curr_details}"
+
     for fut in future_lessons:
         fut_title = fut.get("title", "").strip().lower()
         fut_details = fut.get("details", "").strip().lower()
         
-        # Extract keywords (words with length >= 5) from future lesson title & details
+        # Extract technical tokens (length >= 3) from future lesson title & details
         import re
-        fut_keywords = set(re.findall(r'\b[a-zA-Z0-9_\-]{5,}\b', f"{fut_title} {fut_details}"))
+        tokens = re.findall(r'\b[a-zA-Z0-9_\-]{3,}\b', f"{fut_title} {fut_details}")
         
-        # Check if future core topics are being taught prematurely
-        for kw in fut_keywords:
-            if kw in text_lower and len(kw) >= 6:
-                # Check if this keyword is NOT present in previous lessons or current lesson
-                prev_text = " ".join([f"{p.get('title','')} {p.get('details','')}" for p in state.get("previous_lessons", [])]).lower()
-                curr_title = state.get("lesson_title", "").lower()
-                curr_details = state.get("lesson_details", "").lower()
-                
-                if kw not in prev_text and kw not in curr_title and kw not in curr_details:
-                    return f"Cảnh báo vi phạm phạm vi kiến thức động: Nội dung xuất hiện thuật ngữ '{kw}' thuộc bài học tương lai '{fut.get('title')}' chưa được dạy."
+        for kw in tokens:
+            if kw in stop_words:
+                continue
+            # If the keyword is explicitly in future details but missing in current scope
+            if kw not in combined_current_context and len(kw) >= 3:
+                # Check for explicit code/CLI usage of future command/term
+                command_pattern = rf"\b{re.escape(kw)}\b"
+                if re.search(command_pattern, text_lower):
+                    return f"Cảnh báo vi phạm phạm vi kiến thức động: Bài học xuất hiện lệnh/thuật ngữ '{kw}' thuộc bài học tương lai '{fut.get('title')}' chưa được học."
     return ""
 
 def check_structural_completeness(html_text: str) -> str:
@@ -559,6 +571,14 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}
+
+    # 1.1 Programmatic Quiz Referral Violations Audit
+    from core.quiz_engine import check_quiz_referral_violations
+    ref_violations = check_quiz_referral_violations(json.dumps(quiz_json, ensure_ascii=False))
+    if ref_violations:
+        ref_feedback = f"Quiz JSON contains forbidden intermediate context referral terms ({', '.join(ref_violations)}). Re-formulate questions, options, and explanations 100% objectively."
+        print(f"  - Result: REJECTED (Quiz Referral Audit failed). Feedback: '{ref_feedback}'")
+        return {"status": "REJECTED", "feedback": ref_feedback}
 
     # Fail fast when offline
     if not (gemini_key or openai_key):

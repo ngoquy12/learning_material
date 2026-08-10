@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "fc8e06f4581406c0",
+        "id": "1f0bff87387f897b",
         "type": "tabs",
         "children": [
           {
-            "id": "aec66cf5298ebc57",
+            "id": "d191b70e9893350f",
             "type": "leaf",
             "state": {
               "type": "empty",
@@ -181,6 +181,8 @@
       "bases:Tạo cơ sở mới": false
     }
   },
-  "active": "aec66cf5298ebc57",
-  "lastOpenFiles": []
+  "active": "d191b70e9893350f",
+  "lastOpenFiles": [
+    "Lập_trình_Python"
+  ]
 }

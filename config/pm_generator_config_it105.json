@@ -1,10 +1,10 @@
 {
-  "curriculum_excel_path": "d:\\Rikkei Education\\Elearning_Agent\\Learning-Material\\CLO-PLO\\PM_PTIT_2026_Chương trình đào tạo.xlsx",
+  "curriculum_excel_path": "CLO-PLO\\PM_PTIT_2026_Chương trình đào tạo.xlsx",
   "course_id": "IT-105",
   "student_profile": {
     "entry_level": "beginner",
     "background": "non-it",
-    "cognitive_speed": 0.9
+    "cognitive_speed": 1.0
   },
   "session_budget": {
     "total_sessions": 10,
@@ -20,12 +20,10 @@
     "sessions_per_day": 2,
     "weekly_frequency": 3
   },
-  "tech_stack": "git/github",
+  "tech_stack": "git/vcs",
   "tech_stack_versions": {
-    "Git": "2.45+",
-    "GitHub": "Web & CLI",
-    "Git Flow": "Standard Branching Model",
-    "SSH / GPG": "Standard Authentication"
+    "Git CLI": "2.45+",
+    "GitHub": "Cloud"
   },
-  "coding_standards": "Conventional Commits, Clean Git History, .gitignore Best Practices"
+  "coding_standards": "Conventional Commits, Git Flow, Semantic Branching"
 }

@@ -36,13 +36,11 @@ HIGH_COMPLEXITY_AGENTS = {
 
 def resolve_model_name(agent_name: str, is_gemini: bool = True) -> str:
     """
-    Dynamically select the LLM model based on agent complexity.
-    Defaulting 100% to Gemini 3.6 Flash High for maximum instruction accuracy.
+    Dynamically select the LLM model based on Antigravity LLM Router agent tier mapping.
     """
-    if is_gemini:
-        return os.getenv("GEMINI_MODEL", "gemini-3.6-flash-high")
-    else:
-        return os.getenv("GEMINI_MODEL", "gemini-3.6-flash-high")
+    from core.llm_router import resolve_model_tier_for_agent
+    model_name, _ = resolve_model_tier_for_agent(agent_name)
+    return model_name
 
 def _get_cached_generative_model(
     model_name: str,
@@ -199,7 +197,9 @@ def call_llm(
                 if json_mode:
                     kwargs["response_format"] = {"type": "json_object"}
                 
-                print(f"  [LLM Router - Proxy Fast Track] {agent_name} -> Model: {model_name} @ {api_endpoint}...")
+                from core.llm_router import AntigravityLLMRouter
+                tier = AntigravityLLMRouter.classify_agent_tier(agent_name)
+                print(f"  [LLM Router - Antigravity Tier ({tier})] {agent_name} -> Model: {model_name} @ {api_endpoint}...")
                 response = client.chat.completions.create(**kwargs)
                 if response and response.choices and response.choices[0].message.content:
                     result_text = response.choices[0].message.content.strip()

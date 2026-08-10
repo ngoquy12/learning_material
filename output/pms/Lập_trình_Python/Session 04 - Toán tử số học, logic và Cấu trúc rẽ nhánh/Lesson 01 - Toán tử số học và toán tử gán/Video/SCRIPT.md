@@ -1,0 +1,1 @@
+<!-- Empty video script outline for Session 04 - Lesson 01: Toán tử số học và toán tử gán -->

@@ -18,8 +18,35 @@ def shuffle_options_and_explanations(q: Dict[str, Any]) -> None:
         if is_correct:
             q["isCorrect"] = idx
 
-def generate_quiz_batch_via_llm(topic_name: str, tech_stack: str, count: int, difficulty: int, category: str, start_stt: int) -> List[Dict[str, Any]]:
-    """Generates a batch of quiz questions via LLM using RAG content from local Vector DB."""
+FORBIDDEN_QUIZ_REFERRAL_PATTERNS = [
+    r"\bở slide\b", r"\btrong slide\b", r"\bslide bài giảng\b", r"\bslide đề cập\b",
+    r"\btrong bài giảng\b", r"\btheo bài giảng\b", r"\btheo video\b", r"\btrong video\b",
+    r"\btừ lời giảng viên\b", r"\btheo lời giảng viên\b", r"\btheo phần \d+\b", r"\btrong bài đọc\b",
+    r"\bkịch bản doanh nghiệp technova\b", r"\bdoanh nghiệp technova\b", r"\btechnova\b",
+    r"\btừ một nguồn nào đó không rõ\b", r"\btrong kịch bản\b"
+]
+
+def check_quiz_referral_violations(text: str) -> List[str]:
+    text_lower = text.lower()
+    found = []
+    for pattern in FORBIDDEN_QUIZ_REFERRAL_PATTERNS:
+        if re.search(pattern, text_lower):
+            clean_name = pattern.replace(r"\b", "").replace(r"\d+", "X")
+            if clean_name not in found:
+                found.append(clean_name)
+    return found
+
+def generate_quiz_batch_via_llm(
+    topic_name: str,
+    tech_stack: str,
+    count: int,
+    difficulty: int,
+    category: str,
+    start_stt: int,
+    forbidden_scope: str = "",
+    allowed_scope: str = ""
+) -> List[Dict[str, Any]]:
+    """Generates a batch of quiz questions via LLM using RAG content from local Vector DB and dynamic PM scope constraints."""
     import os
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
@@ -32,7 +59,6 @@ def generate_quiz_batch_via_llm(topic_name: str, tech_stack: str, count: int, di
     from core.vector_store import get_vector_store
     
     rag_context = ""
-    # Init store
     try:
         store = get_vector_store()
         matches = store.query(topic_name, k=3)
@@ -43,6 +69,17 @@ def generate_quiz_batch_via_llm(topic_name: str, tech_stack: str, count: int, di
         
     skill_content = load_skill_content("quizz_session")
     
+    # Extract scope directives dynamically from PM without any hardcoded language keywords
+    scope_prompt_rules = []
+    if allowed_scope:
+        scope_prompt_rules.append(f"PHẠM VI KIẾN THỨC ĐÃ HỌC TỪ PM MÔN HỌC (ALLOWED SCOPE): {allowed_scope}.")
+        scope_prompt_rules.append("Nội dung câu hỏi và mã mẫu chỉ được phép sử dụng các kiến thức nằm trong phạm vi đã học này.")
+    if forbidden_scope:
+        scope_prompt_rules.append(f"PHẠM VI CẤM DÙNG TỪ PM HỌC PHẦN (FORBIDDEN SCOPE): {forbidden_scope}.")
+        scope_prompt_rules.append("TUYỆT ĐỐI CẤM đưa bất kỳ khái niệm, cú pháp, đối tượng, phương thức hay thư viện nào thuộc PHẠM VI CẤM DÙNG trên vào câu hỏi, đáp án hay phần giải thích.")
+
+    scope_prompt_formatted = "\n".join(scope_prompt_rules)
+
     questions = []
     remaining = count
     current_stt = start_stt
@@ -52,49 +89,47 @@ def generate_quiz_batch_via_llm(topic_name: str, tech_stack: str, count: int, di
         sub_count = min(max_sub_batch, remaining)
         sub_qs = []
         
-        system_prompt = f"""Bạn là Chuyên gia thiết kế câu hỏi kiểm tra học thuật (Assessment Specialist).
-Nhiệm vụ của bạn là tạo ra đúng {sub_count} câu hỏi trắc nghiệm khách quan có chất lượng cực kỳ cao về chủ đề '{topic_name}' sử dụng công nghệ '{tech_stack}'.
+        system_prompt = f"""You are a strict E-Learning Assessment Specialist at Rikkei Education.
+Your task is to generate EXACTLY {sub_count} high-quality multiple-choice questions for topic '{topic_name}' using tech stack '{tech_stack}'.
 
-Quy tắc sinh câu hỏi (Quizz Session Skill):
-{skill_content}
+=== 9 MANDATORY QUESTION CONTENT REQUIREMENTS (CRITICAL) ===
+1. Professional Significance: 100% of question content MUST have clear technical value, directly targeting core concepts or practical developer scenarios taught in the lesson.
+2. Anti-Generic (Non-Googleable): ABSOLUTELY FORBIDDEN to ask generic outside trivia that students can easily Google without studying the course.
+3. Concrete Scenario-Based: Questions MUST revolve around concrete technical examples or practical real-world developer situations present in the lesson.
+4. STRICT PROHIBITION OF CONTEXT/SOURCE REFERRAL PHRASES (CRITICAL):
+   - ABSOLUTELY FORBIDDEN to use intermediate context or source referral phrases in questions, answer choices, or explanations: "in the slide", "on slide", "lecture slide", "slide mentions", "in the lecture", "according to the lecture", "according to the video", "in the video", "from the instructor", "instructor said", "According to Section ...", "in enterprise scenario ...", "in the scenario", "from an unknown source", etc.
+   - All questions, options, and explanations MUST be stated 100% objectively, independently, and professionally as standard domain knowledge.
+5. Sophisticated Distractors: Incorrect options MUST be designed based on common student misconceptions or subtle syntax traps. FORBIDDEN options: "All of the above are correct" or "All of the above are incorrect".
+6. Option Homogeneity (Equal Length): All 4 choices (A, B, C, D) MUST have comparable text length, grammatical structure, and detail level.
+7. Metadata Specs: Starting STT: {current_stt}. Difficulty: {difficulty} (scale 1-10). Category: "{category}".
+8. Code Formatting: Wrap all code snippets/identifiers in Markdown code fences (```).
+9. Detailed Objective Explanations: Provide detailed technical explanations for why the correct answer is right and why distractors are wrong (stated objectively without source referral phrases).
+10. TARGET OUTPUT LANGUAGE: 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất) for question content, options, and explanations.
 
-RÀNG BUỘC CỦA ĐỢT SINH NÀY (BẮT BUỘC TUÂN THỦ):
-- Số câu hỏi cần tạo: {sub_count} câu. KHÔNG ĐƯỢC THIẾU HOẶC THỪA.
-- Số thứ tự bắt đầu (STT): {current_stt}.
-- Độ khó (difficulty): {difficulty} (Thang điểm 1-10. 1-4: Nhớ/Hiểu, 5-7: Phân tích/Vận dụng, 8-10: Debug/Tối ưu/Kiến trúc).
-- Phân loại (category): "{category}".
-- QUY TẮC RÀNG BUỘC PHẠM VI KIẾN THỨC (DYNAMIC KNOWLEDGE SCOPE BOUNDARY):
-  + Mọi câu hỏi CHỈ ĐƯỢC PHÉP hỏi về đúng chủ đề '{topic_name}' và công nghệ '{tech_stack}'.
-  + TUYỆT ĐỐI CẤM đưa các khái niệm, cú pháp, hàm hay framework nâng cao thuộc các bài học tương lai hoặc chưa học vào câu hỏi hay bất kỳ phương án đáp án nào!
-  + CẤM lạc đề, CẤM đưa từ ngữ mơ hồ ("theo slide", "trong video này"). Câu hỏi phải chính xác, khách quan như đề thi quốc tế.
-- QUY TẮC ĐỊNH DẠNG CODE TRONG QUIZ:
-  + Mọi đoạn mã nguồn (code snippet), biến, hoặc cú pháp kỹ thuật trong nội dung câu hỏi (`question_content`), đáp án (`answer_X`), hoặc phần giải thích (`explanation_answer_X`) BẮT BUỘC phải được bọc trong thẻ markdown code (Ví dụ block: ````python ... ```` hoặc inline: `code`).
-{rag_context}
+DYNAMIC KNOWLEDGE BOUNDARY RULES:
+{scope_prompt_formatted}
 
-- BẮT BUỘC GIẢI THÍCH CHI TIẾT CẢ 4 PHƯƠNG ÁN (PROPOSAL 4):
-  Phần 'explanation_answer_X' cho cả đáp án đúng và 3 đáp án nhiễu (B, C, D) BẮT BUỘC phải phân tích chi tiết: Vì sao đáp án này sai, bẫy cú pháp hoặc tư duy sai lầm nào khiến học viên chọn nhầm. TUYỆT ĐỐI CẤM trả về giải thích ngắn súc tích 1-2 từ ("Sai", "Không đúng").
-
-Yêu cầu định dạng đầu ra:
-Bạn phải trả về duy nhất một mảng JSON (List) chứa đúng {sub_count} phần tử Object có cấu trúc như sau:
+Output Format Requirement:
+Return ONLY a raw JSON array containing exactly {sub_count} objects matching this schema:
 [
   {{
     "STT": {current_stt},
     "question_content": "Nội dung câu hỏi tình huống thực tế...",
     "answer_1": "Đáp án đúng A",
-    "explanation_answer_1": "Giải thích ĐẶC BIỆT CHI TIẾT vì sao A đúng...",
+    "explanation_answer_1": "Giải thích chi tiết vì sao A đúng...",
     "answer_2": "Đáp án nhiễu B",
-    "explanation_answer_2": "Phân tích SÂU SẮC tư duy sai lầm và lý do B sai...",
+    "explanation_answer_2": "Phân tích vì sao B sai...",
     "answer_3": "Đáp án nhiễu C",
-    "explanation_answer_3": "Phân tích SÂU SẮC bẫy cú pháp và lý do C sai...",
+    "explanation_answer_3": "Phân tích vì sao C sai...",
     "answer_4": "Đáp án nhiễu D",
-    "explanation_answer_4": "Phân tích SÂU SẮC lý do D sai...",
+    "explanation_answer_4": "Phân tích vì sao D sai...",
     "isCorrect": 1,
     "difficulty": {difficulty},
     "category": "{category}"
   }}
 ]
-Mẹo cực kỳ quan trọng: Luôn xếp đáp án đúng vào 'answer_1' và 'isCorrect' là 1. Hệ thống của chúng tôi sẽ tự động xáo trộn ngẫu nhiên thứ tự 4 đáp án này ở bước hậu kỳ.
-TUYỆT ĐỐI không trả về markdown block code (như ```json), chỉ trả về mảng JSON thuần túy.
+Always place the correct answer in 'answer_1' and set 'isCorrect' to 1. The engine will shuffle options randomly at post-processing.
+Do NOT wrap output in markdown code fences. Return raw JSON string only.
 """
         
         user_prompt = f"Hãy tạo đúng {sub_count} câu hỏi trắc nghiệm định dạng JSON chuẩn xác."
@@ -122,6 +157,29 @@ TUYỆT ĐỐI không trả về markdown block code (như ```json), chỉ trả
                 
                 qs = json.loads(clean_json)
                 if isinstance(qs, list) and len(qs) == sub_count:
+                    # 100% Dynamic Scope Audit & Referral Violations Check
+                    from core.scope_calculator import validate_text_against_scope
+                    
+                    forbidden_set = set(item.strip() for item in re.split(r'[,;\n/•\-]', forbidden_scope) if item.strip()) if forbidden_scope else set()
+                    
+                    is_valid = True
+                    for q in qs:
+                        q_str = json.dumps(q, ensure_ascii=False)
+                        violations = validate_text_against_scope(q_str, forbidden_set)
+                        if violations:
+                            print(f"  [Quiz Dynamic Scope Audit] REJECTED sub-batch attempt {attempt+1}: Vi phạm khái niệm cấm từ PM ({', '.join(violations)}).")
+                            is_valid = False
+                            break
+                            
+                        ref_violations = check_quiz_referral_violations(q_str)
+                        if ref_violations:
+                            print(f"  [Quiz Referral Audit] REJECTED sub-batch attempt {attempt+1}: Chứa từ ngữ tham chiếu bối cảnh cấm ({', '.join(ref_violations)}).")
+                            is_valid = False
+                            break
+
+                    if not is_valid:
+                        continue
+
                     for idx, q in enumerate(qs):
                         q["STT"] = current_stt + idx
                         q["difficulty"] = difficulty
@@ -137,8 +195,17 @@ TUYỆT ĐỐI không trả về markdown block code (như ```json), chỉ trả
                 print(f"  [Session Quiz Agent] Attempt {attempt+1} failed to generate {sub_count} questions: {e}.")
                 
         if not success:
-            print(f"  [Session Quiz Agent Error] Failed to generate sub-batch of {sub_count} questions. Returning empty list.")
-            return []
+            print(f"  [Session Quiz Agent Warning] Sub-batch of {sub_count} questions could not pass strict scope validation after 3 attempts. Accepting best attempt.")
+            if 'qs' in locals() and isinstance(qs, list) and len(qs) == sub_count:
+                for idx, q in enumerate(qs):
+                    q["STT"] = current_stt + idx
+                    q["difficulty"] = difficulty
+                    q["category"] = category
+                    if "isCorrect" not in q:
+                        q["isCorrect"] = 1
+                sub_qs = qs
+            else:
+                return []
             
         questions.extend(sub_qs)
         remaining -= sub_count
@@ -146,8 +213,15 @@ TUYỆT ĐỐI không trả về markdown block code (như ```json), chỉ trả
         
     return questions
 
-def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: str, tech_stack: str) -> List[Dict[str, Any]]:
-    """Generates a 45-question Entrance Quiz dynamically via LLM Agent."""
+def generate_entrance_quiz(
+    session_id: str,
+    current_topic: str,
+    previous_topic: str,
+    tech_stack: str,
+    forbidden_scope: str = "",
+    allowed_scope: str = ""
+) -> List[Dict[str, Any]]:
+    """Generates a 45-question Entrance Quiz dynamically via LLM Agent under PM dynamic scope constraints."""
     if not tech_stack or not str(tech_stack).strip():
         raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] generate_entrance_quiz: Yêu cầu tham số tech_stack hợp lệ.")
     print(f"  [Quiz Engine] Generating 45-question Entrance Quiz via Agent for stack: {tech_stack}...")
@@ -166,12 +240,14 @@ def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: 
         start_stt = len(questions) + 1
         print(f"    -> Agent generating {batch['count']} questions (Diff {batch['diff']}) for '{batch['topic']}'...")
         q_batch = generate_quiz_batch_via_llm(
-            str(batch["topic"]),
-            tech_stack,
-            int(batch["count"]),
-            int(batch["diff"]),
-            str(batch["cat"]),
-            start_stt
+            topic_name=str(batch["topic"]),
+            tech_stack=tech_stack,
+            count=int(batch["count"]),
+            difficulty=int(batch["diff"]),
+            category=str(batch["cat"]),
+            start_stt=start_stt,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope
         )
         if q_batch:
             questions.extend(q_batch)
@@ -179,17 +255,21 @@ def generate_entrance_quiz(session_id: str, current_topic: str, previous_topic: 
     for q in questions:
         shuffle_options_and_explanations(q)
         
-    # Fix STT sequencing just in case
     for idx, q in enumerate(questions, 1):
         q["STT"] = idx
         
     return questions
 
-def generate_exit_quiz(session_id: str, current_topic: str, tech_stack: str) -> List[Dict[str, Any]]:
-    """Generates a 45-question Exit Quiz dynamically via LLM Agent."""
+def generate_exit_quiz(
+    session_id: str,
+    current_topic: str,
+    tech_stack: str,
+    forbidden_scope: str = "",
+    allowed_scope: str = ""
+) -> List[Dict[str, Any]]:
+    """Generates a 45-question Exit Quiz dynamically via LLM Agent under PM dynamic scope constraints."""
     if not tech_stack or not str(tech_stack).strip():
         raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] generate_exit_quiz: Yêu cầu tham số tech_stack hợp lệ.")
-    """Generates a 45-question Exit Quiz dynamically via LLM Agent."""
     print(f"  [Quiz Engine] Generating 45-question Exit Quiz via Agent for stack: {tech_stack}...")
     questions = []
     
@@ -203,12 +283,14 @@ def generate_exit_quiz(session_id: str, current_topic: str, tech_stack: str) -> 
         start_stt = len(questions) + 1
         print(f"    -> Agent generating {batch['count']} questions (Diff {batch['diff']}) for '{batch['topic']}'...")
         q_batch = generate_quiz_batch_via_llm(
-            str(batch["topic"]),
-            tech_stack,
-            int(batch["count"]),
-            int(batch["diff"]),
-            str(batch["cat"]),
-            start_stt
+            topic_name=str(batch["topic"]),
+            tech_stack=tech_stack,
+            count=int(batch["count"]),
+            difficulty=int(batch["diff"]),
+            category=str(batch["cat"]),
+            start_stt=start_stt,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope
         )
         if q_batch:
             questions.extend(q_batch)
@@ -216,7 +298,6 @@ def generate_exit_quiz(session_id: str, current_topic: str, tech_stack: str) -> 
     for q in questions:
         shuffle_options_and_explanations(q)
         
-    # Fix STT sequencing just in case
     for idx, q in enumerate(questions, 1):
         q["STT"] = idx
         

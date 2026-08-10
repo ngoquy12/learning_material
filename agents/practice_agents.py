@@ -23,6 +23,17 @@ def sanitize_vietnamese_filename(text: str) -> str:
     text = re.sub(r'\s+', '_', text)
     return text.strip('_') + ".md"
 
+def is_cli_or_tooling_tech(tech_stack: str) -> bool:
+    """Check if the tech stack is a CLI, Version Control, Container, Shell, OS, DevOps, Agile/Scrum, or System Architecture subject."""
+    tech_lower = (tech_stack or "").lower().strip()
+    tooling_keywords = [
+        "git", "vcs", "github", "gitlab", "terminal", "bash", "shell", "cli", "cmd",
+        "powershell", "docker", "kubernetes", "devops", "linux", "unix",
+        "agile", "scrum", "diagram", "uml", "design", "system analysis",
+        "software architecture", "kiến trúc", "process", "quy trình"
+    ]
+    return any(kw in tech_lower for kw in tooling_keywords)
+
 def practice_creator_agent(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str, only_index: int | None = None) -> Dict[str, Any]:
     print(f"  [Practice Creator] Designing exercises for {session_id} - {session_title}...")
     
@@ -43,6 +54,26 @@ def practice_creator_agent(session_id: str, session_title: str, tech_stack: str,
     domains = ["ecommerce", "crm", "logistics", "warehouse", "fintech"]
     exercises = []
     
+    is_tooling = is_cli_or_tooling_tech(tech_stack)
+    
+    if is_tooling:
+        subject_directive = f"""SUBJECT NATURE DIRECTIVE (CLI / TOOLING / PROCESS / ARCHITECTURE SUBJECT):
+This course is a CLI / Tooling / Version Control / Process / Architecture subject ({tech_stack}), NOT a programming language class writing OOP application code.
+- ABSOLUTELY FORBIDDEN to force students to write complex OOP programming code (e.g., Python classes, exception handling classes like ValueError/KeyError, API endpoints in Python/Java/JS) unless the lesson explicitly asks for simple automation scripts.
+- The exercise MUST focus on: Real-world operational scenarios, CLI command workflows, Repository/Branch/Config setup, Git/CLI status verification, System State transitions, and Troubleshooting / Conflict resolution.
+- Input & Output: Present 'Đầu vào (Input)' as initial system state / scenario context / CLI operations, and 'Đầu ra (Output)' as expected system state, CLI log/graph output, or repository status.
+"""
+        rubric_group_3 = "#### **3. Thao tác lệnh & Xử lý sự cố (30 điểm)**"
+        example_title = "Thực hành Thao tác Quản lý Kho lưu trữ và Phân nhánh Dự án (Tên bài tập bằng tiếng Việt có dấu)"
+    else:
+        subject_directive = f"""SUBJECT NATURE DIRECTIVE (PROGRAMMING / CODING SUBJECT):
+This course is a programming language / backend engineering subject ({tech_stack}).
+- Focus on business logic, data validation, algorithms, error handling, and clean code principles.
+- Input & Output: Show concrete Input and Output data structures (JSON, XML, or parameters).
+"""
+        rubric_group_3 = "#### **3. Kiểm chuẩn dữ liệu & Xử lý ngoại lệ (30 điểm)**"
+        example_title = "Xây dựng Module Quản lý Đơn hàng Ecommerce (Tên bài tập bằng tiếng Việt có dấu)"
+    
     for idx, (level_name, target_student) in enumerate(levels):
         if only_index is not None and (idx + 1) != only_index:
             continue
@@ -58,6 +89,8 @@ REQUIRED DIFFICULTY LEVEL:
 - Level: {level_name} (Targeted for {target_student} students)
 - Domain Subsystem: {domain.upper()} Management Subsystem
 
+{subject_directive}
+
 MANDATORY EXERCISE DIRECTIVES:
 0. STRICT NO EMOJI DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis (🚀, 💡, ⚠️, ✅, ❌) in title, body, or source code. Use text labels [NOTE], [TIP], [WARNING] instead. For rules under 'Quy tắc xử lý', use 'Yêu cầu 1:', 'Yêu cầu 2:', etc. instead of [REQUIREMENT 1].
 0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY:
@@ -65,27 +98,35 @@ MANDATORY EXERCISE DIRECTIVES:
 0.2 MERMAID DATA FLOW DIAGRAM:
    - In Section 2 (Problem Context), MUST include 1 highly detailed, correctly spelled Mermaid diagram (````mermaid ... ````) visualizing data flow (Inputs -> Process Logic -> Expected Output).
    - Use standard flowchart shapes correctly: `[]` (rectangle) for process/action, `{{}}` (diamond) for condition/decision, `[/ /]` (parallelogram) for Input/Output.
-   - Diagram Labels: Technical identifiers (variables, functions) MUST remain in English (`user_id`, `calculate()`); Step labels MUST be in Vietnamese with correct spelling.
+   - ALWAYS double-quote node labels containing parens, slashes, or Vietnamese text: e.g., `A["Input: Data (v1)"] -->|Success| B["Process / Build"]`.
+   - FORBIDDEN syntax: NEVER use `-- label -->` or `-- label -- >` with spaces before `>`. ALWAYS use `-->|label|`.
+   - Diagram Labels: Technical identifiers (variables, functions, git commands) MUST remain in English (`git commit`, `git checkout`); Step labels MUST be in Vietnamese with correct spelling.
+0.4 MANDATORY MATHEMATICAL & FINANCIAL FORMULA FORMATTING DIRECTIVE:
+   - ABSOLUTELY FORBIDDEN to use LaTeX syntax (`\\frac`, `\\text`, `\\times`), double dollar signs (`$$...$$`), or single dollar signs (`$var_name$`) for math or financial formulas. Single dollars containing variable names with underscores (e.g. `$Total_Payable$`) collide with Markdown italic syntax (`_..._`) and cause broken rendering artifacts.
+   - ALL mathematical, financial, or calculation formulas MUST be formatted as clean programming expressions wrapped in Markdown code badges (`code` / `` `code` ``):
+     * GOOD: `- Lãi suất tháng (r): r = annual_rate / (100 * 12)`
+     * GOOD: `- Số tiền trả hàng tháng (PMT): PMT = P * (r * (1 + r)^n) / ((1 + r)^n - 1)`
+     * BAD: `- Lãi suất tháng ($r$): $$r = \\frac{{\\text{{annual_rate}}}}{{{{100 \\times 12}}}}$$`
 0.3 EVALUATION RUBRIC TABLE (100 POINTS):
    - At the bottom of each exercise rubric, include '### **Tiêu chí chấm điểm (AI)**'.
    - You MUST EXACTLY use these 6 criteria headers (include the asterisks and numbering):
      #### **1. Thiết lập & Khởi tạo (10 điểm)**
      #### **2. Logic nghiệp vụ (30 điểm)**
-     #### **3. Kiểm chuẩn dữ liệu & Xử lý ngoại lệ (30 điểm)**
+     {rubric_group_3}
      #### **4. Tối ưu hoá hiệu suất (20 điểm)**
      #### **5. Chất lượng mã nguồn (10 điểm)**
      #### **Điểm cộng (5-10 điểm)**
 1. BLOOM TAXONOMY DIFFICULTY ({level_name}):
-   - Easy: Focus on basic syntax and environment config. FORBIDDEN search/filter/sort/pagination.
-   - Medium: Basic functions and simple inputs. FORBIDDEN complex search/filter/pagination.
-   - Hard/Advanced: Real-world workflows, strict validation, specific edge case handling. Include concrete Input/Output examples.
+   - Easy: Focus on basic syntax/commands and environment config. FORBIDDEN complex search/filter/sort/pagination.
+   - Medium: Basic operations and simple inputs/workflows. FORBIDDEN complex search/filter/pagination.
+   - Hard/Advanced: Real-world workflows, strict validation, specific edge case handling (e.g., merge conflicts, complex branching). Include concrete Input/Output examples.
 2. SCOPE GUARANTEE: Based strictly on current context ({previous_lessons_text}). FORBIDDEN unlearned topics.
 3. EXERCISE FORMATTING: Academic Markdown style. NO informal words (nhé, nha, nhé các bạn). NO AI assistant mentions (AI, ChatGPT, Copilot).
 4. EXERCISE STRUCTURE & HEADINGS:
    - Centered H2 Title: `## <center>[Exercise Title]</center>` in ACCENTED VIETNAMESE. FORBIDDEN exercise numbers in H2 title.
    - Section Headings: `### **1. Mục tiêu**`, `### **2. Vấn đề**`, `### **3. Yêu cầu bài toán**`, `### **4. Quy tắc xử lý**`, `### **5. Yêu cầu nộp bài**`.
-   - Function/API Tables: Present complex APIs in HTML `<table>` (width 100%) formatted according to `{tech_stack}` conventions.
-   - Input/Output Examples: Show concrete Input and Output data structures (JSON, XML) using markdown code fences. Filter inputs must match filtered outputs.
+   - Function/Command Tables: Present complex commands or parameters in HTML `<table>` (width 100%) formatted according to `{tech_stack}` conventions.
+   - Input/Output Examples: Show concrete Input and Output scenarios using markdown code fences. Filter inputs must match filtered outputs.
    - Submission Section: Standard GitHub submission format.
 
 OUTPUT XML FORMAT CONTRACT:
@@ -96,8 +137,8 @@ Return ONLY a valid XML string wrapped in `<exercise>...</exercise>`:
 - <rubric>: 100-point grading rubric in CDATA.
 
 <exercise>
-  <title>Xây dựng API Quản lý Đơn hàng Ecommerce (Tên bài tập bằng tiếng Việt có dấu)</title>
-  <filename>xay_dung_api_quan_ly_san_pham</filename>
+  <title>{example_title}</title>
+  <filename>xay_dung_lab_thuc_hanh_chuyen_nghiep</filename>
   <content><![CDATA[
 Markdown exercise body here...
   ]]></content>
@@ -152,6 +193,8 @@ Markdown exercise body here...
                 rubric = rubric_node.text.strip() if rubric_node is not None and rubric_node.text else ""
                 
                 if title and filename and content and rubric:
+                    from agents.creators.reading_creator import guard_mermaid_syntax
+                    content = guard_mermaid_syntax(content)
                     ex_data = {
                         "title": title,
                         "filename": filename,
@@ -177,6 +220,7 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
     print("  [Practice Reviewer] Verifying practice exercises...")
     
     exercises = exercises_json.get("exercises", [])
+    is_tooling = is_cli_or_tooling_tech(tech_stack)
     
     # 1. Check quantity must be exactly 5
     if len(exercises) != 5:
@@ -189,10 +233,11 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
         
         combined_text = content + "\n" + rubric
         
-        # 2. Check forbidden words in content and rubric
         forbidden_words = ["nhé", "thân mến", "nhé các bạn", "nhe", "nha", "assistant", "chatgpt", "openai", "gemini", "llm", "copilot"]
+        vn_boundary = r"(?<![a-zA-Z0-9_àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđĐ])"
+        vn_boundary_end = r"(?![a-zA-Z0-9_àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđĐ])"
         for word in forbidden_words:
-            pattern = rf"\b{word}\b"
+            pattern = rf"{vn_boundary}{re.escape(word)}{vn_boundary_end}"
             if re.search(pattern, combined_text, re.IGNORECASE):
                 return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' chứa từ cấm suồng sã hoặc liên quan đến AI: '{word}'."}
                 
@@ -237,7 +282,7 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
         rubric_required = [
             r"#### \*\*1\.\s+Thiết lập",
             r"#### \*\*2\.\s+Logic nghiệp vụ",
-            r"#### \*\*3\.\s+Kiểm chuẩn dữ liệu",
+            r"#### \*\*3\.\s+(Kiểm chuẩn dữ liệu|Thao tác lệnh|Kiểm chuẩn quy trình|Xử lý sự cố)",
             r"#### \*\*4\.\s+",
             r"#### \*\*5\.\s+Chất lượng mã nguồn",
             r"#### \*\*Điểm cộng"
@@ -248,15 +293,21 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
                 return {"status": "REJECTED", "feedback": f"Tiêu chí chấm điểm Bài tập {idx+1} '{title}' thiếu nhóm tiêu chí bắt buộc: '{r_hdr_clean}'."}
 
         # 5. Check input/output details in Yêu cầu bài toán
-        if "đầu vào" not in content.lower() or "đầu ra" not in content.lower():
-            return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' vi phạm quy định Yêu cầu bài toán: Phải mô tả rõ Đầu vào (Input) và Đầu ra (Output) cho từng yêu cầu."}
+        if not is_tooling:
+            if "đầu vào" not in content.lower() or "đầu ra" not in content.lower():
+                return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' vi phạm quy định Yêu cầu bài toán: Phải mô tả rõ Đầu vào (Input) và Đầu ra (Output) cho từng yêu cầu."}
+        else:
+            has_in = any(kw in content.lower() for kw in ["đầu vào", "kịch bản", "trạng thái ban đầu", "yêu cầu thao tác", "input"])
+            has_out = any(kw in content.lower() for kw in ["đầu ra", "kết quả kỳ vọng", "trạng thái kết quả", "output"])
+            if not (has_in and has_out):
+                return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' vi phạm quy định Yêu cầu bài toán: Phải mô tả rõ Đầu vào / Kịch bản thao tác và Đầu ra / Kết quả kỳ vọng."}
 
         # 6. Check single requirement formatting: Cấm dùng "Yêu cầu 1:" nếu chỉ có 1 yêu cầu trong bài
         if "yêu cầu 1:" in content.lower() and "yêu cầu 2:" not in content.lower():
             return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' chỉ có 1 yêu cầu nhưng lại ghi nhãn 'Yêu cầu 1:'. Hãy bỏ nhãn đánh số này."}
 
         # 7. Check code format in output/input: JSON outputs should have fenced code block
-        if "đầu ra" in content.lower() and "{" in content and "```" not in content:
+        if not is_tooling and "đầu ra" in content.lower() and "{" in content and "```" not in content:
             return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' mô tả cấu trúc JSON nhưng chưa định dạng trong block code."}
 
         # 8. Check that if there is a table, it has style width 100%
@@ -264,7 +315,7 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
             return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' sử dụng bảng HTML nhưng chưa cấu hình chiều rộng 100% màn hình."}
 
         # 9. Verify logical consistency of mock parameters & JSON output values
-        if idx >= 2 and ("lọc" in content.lower() or "tìm kiếm" in content.lower() or "search" in content.lower()):
+        if not is_tooling and idx >= 2 and ("lọc" in content.lower() or "tìm kiếm" in content.lower() or "search" in content.lower()):
             has_example = any(kw in content.lower() for kw in ["ví dụ", "vi du", "query", "tham số", "parameter", "?", "url", "uri", "get /"])
             if not has_example:
                 return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' lọc dữ liệu nhưng thiếu ví dụ truy vấn cụ thể ở phần Đầu vào để sinh viên dễ hình dung."}
@@ -272,8 +323,6 @@ def practice_reviewer_agent(exercises_json: Dict[str, Any], tech_stack: str) -> 
         # 10. Check submission text format
         if "đưa mã nguồn lên github" not in content.lower() or "dán link của repository" not in content.lower():
             return {"status": "REJECTED", "feedback": f"Bài tập {idx+1} '{title}' vi phạm định dạng phần nộp bài. Phải dùng đúng mẫu yêu cầu nộp bài."}
-
-        # 11. (Removed Image Prompt check)
 
         # 12. Enforce strict check to prevent discriminatory level labels or student categorization text
         forbidden_labels = ["dành cho sinh viên", "dành cho học viên", "mức độ:", "độ khó:", "yếu/trung bình", "học lực"]
@@ -318,10 +367,6 @@ def parse_diagram_info(prompt_text: str, content: str = ""):
         
     return endpoints[:4], storage
 
-def draw_fallback_diagram(prompt_text: str, content: str, title_text: str, image_path):
-    print("  [Image Generator Info] AI Image generation skipped due to API quota. Proceeding without optional diagram.")
-    return
-
 def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) -> str:
     from pathlib import Path
     images_dir = Path(practice_dir) / "images"
@@ -348,78 +393,90 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
             title_text = filename_no_ext.replace("bai_", "").replace("_", " ").title()
             
     api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-    if api_key and not image_path.exists():
+    if not api_key:
+        raise ValueError("Cần cấu hình API key (GEMINI_API_KEY hoặc GOOGLE_API_KEY) để sinh ảnh sơ đồ AI. Chế độ fallback đã bị loại bỏ hoàn toàn.")
+
+    if not image_path.exists():
         print(f"  [Image Generator] Generating diagram for '{filename_no_ext}' using Imagen 3...")
-        try:
-            import requests
-            import base64
-            base_url = os.getenv("GEMINI_BASE_URL")
-            if base_url:
-                # Use OpenAI image generation format through proxy
-                url = f"{base_url.rstrip('/')}/v1/images/generations"
-                headers = {
-                    "Authorization": f"Bearer {api_key}",
-                    "Content-Type": "application/json"
-                }
-                data = {
-                    "prompt": prompt_text,
-                    "n": 1,
-                    "size": "1024x576"
-                }
-                response = requests.post(url, headers=headers, json=data, timeout=40)
-                if response.status_code == 200:
-                    resp_json = response.json()
-                    img_data = resp_json.get("data", [])
-                    if img_data and "b64_json" in img_data[0]:
-                        img_b64 = img_data[0]["b64_json"]
-                        with open(image_path, "wb") as f:
-                            f.write(base64.b64decode(img_b64))
-                        print(f"  [Image Generator] Successfully saved generated diagram to: {image_path}")
-                    elif img_data and "url" in img_data[0]:
-                        img_url = img_data[0]["url"]
-                        img_resp = requests.get(img_url, timeout=20)
-                        if img_resp.status_code == 200:
-                            with open(image_path, "wb") as f:
-                                f.write(img_resp.content)
-                            print(f"  [Image Generator] Successfully saved downloaded diagram to: {image_path}")
-                        else:
-                            print(f"  [Image Generator Warning] Failed to download image from url: {img_url}")
-                            draw_fallback_diagram(prompt_text, content, title_text, image_path)
-                    else:
-                        print(f"  [Image Generator Warning] Response did not contain images: {resp_json}")
-                        draw_fallback_diagram(prompt_text, content, title_text, image_path)
-                else:
-                    print(f"  [Image Generator Warning] API returned status {response.status_code}: {response.text}")
-                    draw_fallback_diagram(prompt_text, content, title_text, image_path)
-            else:
-                # Fallback to direct Google GenerativeAI API
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
-                headers = {"Content-Type": "application/json"}
-                data = {
-                    "instances": [{"prompt": prompt_text}],
-                    "parameters": {
-                        "sampleCount": 1,
-                        "aspectRatio": "16:9",
-                        "outputMimeType": "image/png"
+        import requests
+        import base64
+        import time
+        base_url = os.getenv("GEMINI_BASE_URL")
+        
+        success = False
+        last_error = None
+        for attempt in range(1, 4):
+            try:
+                if base_url:
+                    url = f"{base_url.rstrip('/')}/v1/images/generations"
+                    headers = {
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json"
                     }
-                }
-                response = requests.post(url, headers=headers, json=data, timeout=30)
-                if response.status_code == 200:
-                    resp_json = response.json()
-                    if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
-                        img_b64 = resp_json["predictions"][0]["bytesBase64Encoded"]
-                        with open(image_path, "wb") as f:
-                            f.write(base64.b64decode(img_b64))
-                        print(f"  [Image Generator] Successfully saved generated diagram to: {image_path}")
+                    data = {
+                        "prompt": prompt_text,
+                        "n": 1,
+                        "size": "1024x576"
+                    }
+                    response = requests.post(url, headers=headers, json=data, timeout=120)
+                    if response.status_code == 200:
+                        resp_json = response.json()
+                        img_data = resp_json.get("data", [])
+                        if img_data and "b64_json" in img_data[0]:
+                            img_b64 = img_data[0]["b64_json"]
+                            with open(image_path, "wb") as f:
+                                f.write(base64.b64decode(img_b64))
+                            print(f"  [Image Generator] Successfully saved generated diagram to: {image_path}")
+                            success = True
+                            break
+                        elif img_data and "url" in img_data[0]:
+                            img_url = img_data[0]["url"]
+                            img_resp = requests.get(img_url, timeout=45)
+                            if img_resp.status_code == 200:
+                                with open(image_path, "wb") as f:
+                                    f.write(img_resp.content)
+                                print(f"  [Image Generator] Successfully saved downloaded diagram to: {image_path}")
+                                success = True
+                                break
+                            else:
+                                raise RuntimeError(f"Failed to download generated image from URL: {img_url}")
+                        else:
+                            raise RuntimeError(f"API response did not contain image data: {resp_json}")
                     else:
-                        print(f"  [Image Generator Warning] Response did not contain predictions: {resp_json}")
-                        draw_fallback_diagram(prompt_text, content, title_text, image_path)
+                        raise RuntimeError(f"Image Generation API returned error status {response.status_code}: {response.text}")
                 else:
-                    print(f"  [Image Generator Warning] API returned status {response.status_code}: {response.text}")
-                    draw_fallback_diagram(prompt_text, content, title_text, image_path)
-        except Exception as e:
-            print(f"  [Image Generator Warning] Failed to dynamically generate diagram: {e}")
-            draw_fallback_diagram(prompt_text, content, title_text, image_path)
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
+                    headers = {"Content-Type": "application/json"}
+                    data = {
+                        "instances": [{"prompt": prompt_text}],
+                        "parameters": {
+                            "sampleCount": 1,
+                            "aspectRatio": "16:9",
+                            "outputMimeType": "image/png"
+                        }
+                    }
+                    response = requests.post(url, headers=headers, json=data, timeout=120)
+                    if response.status_code == 200:
+                        resp_json = response.json()
+                        if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
+                            img_b64 = resp_json["predictions"][0]["bytesBase64Encoded"]
+                            with open(image_path, "wb") as f:
+                                f.write(base64.b64decode(img_b64))
+                            print(f"  [Image Generator] Successfully saved generated diagram to: {image_path}")
+                            success = True
+                            break
+                        else:
+                            raise RuntimeError(f"GenerativeAI API response did not contain predictions: {resp_json}")
+                    else:
+                        raise RuntimeError(f"GenerativeAI API returned error status {response.status_code}: {response.text}")
+            except Exception as e:
+                last_error = e
+                print(f"  [Image Generator Warning] Attempt {attempt}/3 failed for '{filename_no_ext}': {e}")
+                if attempt < 3:
+                    time.sleep(3 * attempt)
+                    
+        if not success:
+            print(f"  [Image Generator Warning] All 3 attempts failed to generate image for '{filename_no_ext}': {last_error}. Continuing without image.")
             
     markdown_image_tag = ""
     if image_path.exists():
@@ -455,12 +512,20 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
         print(f"  [CẢNH BÁO TỪ PM] Không thể tạo được bộ bài tập thực hành đạt tiêu chuẩn 100% cho {session_id} sau nhiều lượt duyệt. BỎ QUA LỖI và dùng bản nháp cuối cùng (Pending Human Review).")
         exercises_data = last_candidate
         
-    # Clean legacy single-file artifacts in parent practice_dir
+    # Clean up all legacy exercise subfolders (e.g. 1_*, 2_*, etc.) and legacy files in practice_dir
     if practice_dir.exists():
-        for old_file in practice_dir.glob("bai_*"):
-            if old_file.is_file():
+        import shutil
+        for item in practice_dir.glob("*"):
+            if item.name == "images":
+                continue
+            if item.is_dir():
                 try:
-                    old_file.unlink()
+                    shutil.rmtree(item)
+                except Exception as e:
+                    print(f"  [Warning] Could not remove old practice folder {item}: {e}")
+            elif item.is_file() and item.name.startswith("bai_"):
+                try:
+                    item.unlink()
                 except Exception:
                     pass
 
@@ -477,8 +542,9 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
         content = ex.get("content", "")
         rubric = ex.get("rubric", "")
         
-        # Post-process content to link/generate diagram image
-        processed_content = generate_and_link_diagram(content, practice_dir, filename_no_ext)
+        # Post-process content to link/generate diagram image and sanitize math formulas
+        from agents.creators.common_utils import clean_markdown_formulas
+        processed_content = clean_markdown_formulas(generate_and_link_diagram(content, practice_dir, filename_no_ext))
         
         # Write exercise description file
         desc_file_path = ex_folder / "de_bai_thuc_hanh.md"
@@ -530,15 +596,25 @@ def regenerate_single_practice_exercise(session_id: str, session_title: str, ses
     title = ex_data.get("title", "Bài tập")
     clean_name = sanitize_vietnamese_filename(title).replace(".md", "")
     
+    # Remove any existing folder for this specific exercise index (e.g. 1_*) to prevent stale duplicate folders
+    for old_item in practice_dir.glob(f"{exercise_index}_*"):
+        if old_item.is_dir():
+            import shutil
+            try:
+                shutil.rmtree(old_item)
+            except Exception:
+                pass
+
     # Folder name: {idx+1}_{clean_name}
     ex_folder = practice_dir / f"{idx+1}_{clean_name}"
-    ex_folder.mkdir(exist_ok=True)
+    ex_folder.mkdir(parents=True, exist_ok=True)
     
     filename_no_ext = f"bai_{idx+1:02d}_{clean_name}"
     content = ex_data.get("content", "")
     rubric = ex_data.get("rubric", "")
     
-    processed_content = generate_and_link_diagram(content, practice_dir, filename_no_ext)
+    from agents.creators.common_utils import clean_markdown_formulas
+    processed_content = clean_markdown_formulas(generate_and_link_diagram(content, practice_dir, filename_no_ext))
     
     # Write exercise description file
     desc_file_path = ex_folder / "de_bai_thuc_hanh.md"

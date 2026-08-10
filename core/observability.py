@@ -6,7 +6,9 @@ import uuid
 from datetime import datetime
 from typing import Dict, Optional
 
-TRACE_LOG_PATH = "trace_logs.jsonl"
+STORAGE_DIR = "storage"
+os.makedirs(STORAGE_DIR, exist_ok=True)
+TRACE_LOG_PATH = os.path.join(STORAGE_DIR, "trace_logs.jsonl")
 
 # 1. Try importing Langfuse SDK
 _langfuse_client = None
@@ -78,7 +80,16 @@ def log_agent_call(
     2. Sends tracing spans to OpenTelemetry collectors (e.g. Phoenix, Honeycomb) if active.
     3. Logs generations to Langfuse if configured.
     """
-    duration = time.time() - start_time
+    now = time.time()
+    if isinstance(start_time, (int, float)) and start_time > 1_000_000_000:
+        duration = max(0.0, now - start_time)
+    elif isinstance(start_time, (int, float)) and 0 <= start_time < 86400:
+        duration = float(start_time)
+    else:
+        duration = 0.0
+
+    if duration > 86400:
+        duration = 0.0
     tokens = token_cost or {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
     
     # 1. Generate unique identifier for this span / trace segment

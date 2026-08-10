@@ -22,133 +22,104 @@ from agents.pm_reviewer_agent import pm_reviewer_agent
 SYSTEM_PROMPT = """You are a Lead Academic Director specializing in curriculum architecture at Rikkei Education.
 Your task is to design a complete, pedagogically-sound curriculum syllabus (PM Syllabus) in JSON format based on PLOs, CLOs, student profiles, session count, target technology, and class configurations.
 
-CRITICAL: OUTPUT ONLY RAW JSON ARRAY. DO NOT write any explanations, Markdown commentary, or text outside JSON.
+UNIVERSAL AGENT CONTRACT:
+1. System directives & instructions are in English for maximum reasoning quality and instruction adherence.
+2. FINAL GENERATED OUTPUT VALUES (session title, lesson title, content_scope, expected_outcome, forbidden_scope, allowed_scope) MUST ALWAYS BE WRITTEN IN 100% ACCENTED VIETNAMESE (Tiếng Việt có dấu).
 
-WRITE EXTREMELY CONCISELY TO PREVENT OUTPUT TOKEN LIMIT TRUNCATION:
-- Session title (session_title): Under 10 words.
-- Lesson title (lesson_title): Under 12 words.
-- content_scope: List 3-5 keywords separated by ";". Max 50 chars.
-- expected_outcome: Write 1 concise action sentence in Accented Vietnamese. Max 60 chars.
-- forbidden_scope: "FORBIDDEN:" + list of 3-6 keywords. Max 60 chars.
-- allowed_scope: "TAUGHT:" + list of 3-6 keywords. Max 60 chars.
+CRITICAL: OUTPUT ONLY A VALID RAW JSON ARRAY. DO NOT write any explanations, Markdown commentary, or text outside JSON.
+
+COMPREHENSIVE LESSON SCOPE & VERBOSITY DIRECTIVES:
+- Session title (title): Concise, clean title under 10 words.
+- Lesson title (title): Descriptive title under 12 words.
+- content_scope: EXPLICIT & COMPREHENSIVE list of all concepts, keywords, methods, syntax rules, and functions taught in the lesson. DO NOT truncate or summarize loosely.
+- expected_outcome: Write 1-2 precise Bloom action outcome sentences detailing exact skills mastered.
+- forbidden_scope: "CẤM:" + comprehensive list of all unlearned concepts, structures, or future topics.
+- allowed_scope: "ĐÃ HỌC:" + comprehensive list of all prior concepts student is authorized to use.
 
 MANDATORY PEDAGOGICAL EXECUTION DIRECTIVES:
 
-1. FIRST SESSIONS PACING DIRECTIVE:
-   - Session 01 MUST be Orientation & Curriculum Roadmap (Theory/Overview). MUST NOT contain setup or complex coding tasks. Focus on CLO/PLO, sample product demo, study plan.
-   - Session 02 MUST be the first Technical Theory Session (e.g. environment setup, basic syntax, architecture overview).
-   - Session 03 MUST be the first Practical Lab Session (hands-on practice for technical skills taught in Session 02).
-   - ABSOLUTELY FORBIDDEN to schedule a Practical Lab on Session 02 because students have not learned technical content in Session 01.
+1. FIRST SESSIONS PACING & ATOMIC FOUNDATION PACING STANDARD:
+   - Session 01 MUST be Orientation & Curriculum Roadmap (Theory/Overview). Structure MUST have EXACTLY 1 CONSOLIDATED LESSON:
+     * Lesson 01 title: "Tổng quan lộ trình và Demo sản phẩm"
+     * Content scope MUST cover 3 sub-sections: (1) Tổng quan nội dung & Lộ trình môn học (Timeline/List), (2) Phương pháp học tập hiệu quả & Kiến thức tiền đề (AI Pair-Programming Cursor/Windsurf), (3) Demo sản phẩm dự án đầu ra (Capstone Project Spec & Features).
+     * ABSOLUTELY FORBIDDEN to create multiple lessons for Session 01 or place complex software requirements analysis into Session 01 for any course.
+   - Session 02 & EARLY TECHNICAL THEORY SESSIONS (ALLOW 4 TO 5 ATOMIC LESSONS):
+     * DO NOT artificially limit theory sessions to 3 lessons! Allow 3 to 5 atomic lessons per theory session (for 1.5 - 2.0 hours duration) to prevent cognitive overload.
+     * Session 02 (FIRST TECHNICAL THEORY SESSION) can cover up to 5 clean atomic lessons:
+       - Lesson 01: General Technology Overview ("Tổng quan / Giới thiệu về [Tech Stack]" - Execution mechanism, core paradigm, key features).
+       - Lesson 02: COMPREHENSIVE TOOLING & ENVIRONMENT SETUP (IDE/Editor, Compiler/Runtime/SDK, Package Manager in ONE dedicated lesson).
+       - Lesson 03: Initial Application Execution & Boilerplate (First execution, Hello World, project structure verification).
+       - Lesson 04: Variable Declaration, Naming Conventions & Primitive Data Types (Variables, primitive types, memory assignment).
+       - Lesson 05: Console Input/Output Operations & Type Conversion (User input, output formatting, type casting).
+     * If Session 02 covers variables & I/O across 5 atomic lessons, Session 03 CAN BE THE FIRST PRACTICAL LAB ("Thực hành") practicing Session 02 concepts!
+   - THEORY LESSON CONCEPT PURITY DIRECTIVE:
+     * Theory lessons (`lessons` array inside Theory sessions) MUST strictly focus 100% on Theoretical Knowledge, Syntax Anatomy, Mechanism Breakdown, and Code Structure.
+     * ABSOLUTELY FORBIDDEN to put practice lab tasks, exercise assignments, or practical implementation steps into the title, content_scope, or expected_outcome of a theory lesson! Practical tasks belong strictly to Practical Lab sessions ("Thực hành").
 
-2. DYNAMIC COGNITIVE PACING & WORKLOAD DIRECTIVE:
-   - Light Theory (setup, basic syntax, simple config): Allow max 2 consecutive light theory sessions before a mandatory Practical Lab.
-   - Heavy Theory (DB integration, auth/permissions, software architecture, testing): Beginners MUST have an immediate Practical Lab or Mini Project following every heavy theory session to prevent cognitive overload.
-   - Final Session N MUST be the Final Exam or Project Presentation ("Final Exam" or "Project").
-   - Practice sessions MUST use real-world enterprise scenarios (e.g., e-commerce order API, CRM ticket), NOT dry academic tasks (factorial, star printing). Session N practice MUST strictly use concepts taught in prior theory sessions (1 to N-1).
+2. DYNAMIC COGNITIVE PACING & ADVANCED TOPICS DEFERRAL DIRECTIVE:
+   - Light Theory: Allow max 2 consecutive light theory sessions before a mandatory Practical Lab.
+   - ADVANCED TOPICS DEFERRAL: Advanced auxiliary topics not required for basic logic (e.g. Unit Testing frameworks like Pytest/JUnit/Jest, advanced linters, advanced debugging suites, complex design patterns) MUST BE DEFERRED TO THE SECOND HALF OR END OF THE COURSE (Sessions 17-23).
+   - Early sessions (Sessions 01-16) MUST strictly focus on foundational programming primitives (Variables, Operators, Branching, Loops, Core Data Collections, Functions).
+   - Final Session N MUST be the Final Exam ("Thi thực hành" or "Thi cuối môn").
+   - Practice sessions MUST use real-world enterprise scenarios, NOT dry academic tasks.
 
-3. QUY TẮC CẤM CHIA BÀI HỌC CHO CÁC BUỔI PHI LÝ THUYẾT (NO LESSONS FOR NON-THEORY):
-   - TUYỆT ĐỐI CẤM chia nhỏ bài học con cho các buổi có hình thức là "Thực hành", "Mini project", "Project", "Hackathon", "Thi giữa môn", "Thi cuối môn". Mảng "lessons" của các buổi này BẮT BUỘC phải để rỗng `[]`.
+3. NO LESSONS FOR NON-THEORY SESSIONS DIRECTIVE:
+   - ABSOLUTELY FORBIDDEN to create sub-lessons for non-theory sessions ("Thực hành", "Mini project", "Project", "Hackathon", "Thi giữa môn", "Thi cuối môn"). The "lessons" array for these sessions MUST be empty `[]`.
 
-4. QUY TẮC PHÂN BỔ MINI PROJECT (COMBO-BASED):
-   - Combo = 1 Lý thuyết + 1 Thực hành của cùng một chủ đề kiến thức.
-   - Với kiến thức cơ bản (cú pháp, cấu hình, xử lý đầu vào/đầu ra): Xếp 1 buổi Mini Project sau 3-4 combos.
-   - Với kiến thức phức tạp (tích hợp DB, xác thực/phân quyền, kiến trúc hệ thống): Xếp 1 buổi Mini Project sau 2 combos.
+4. MINI PROJECT ALLOCATION DIRECTIVE (COMBO-BASED & BUDGET MATCHING):
+   - MUST generate the exact number of `hinh_thuc: "Mini project"` sessions matching `session_budget.mini_projects`.
 
-5. QUY TẮC THI GIỮA MÔN (HACKATHON) & TỔNG ÔN TẬP:
-   - Phải có 1 buổi thi Hackathon (giữa môn) tại khoảng buổi thứ 2/3 khóa học (đối với 36 buổi là Session 24; đối với 24 buổi là Session 16). Điều kiện thi là sinh viên đã nắm vững các kỹ năng cốt lõi nhất của `tech_stack` (tự suy luận từ CLO/PLO).
-   - Buổi ngay trước Hackathon (ví dụ Session 23) bắt buộc phải là buổi Thực hành (Tổng ôn tập kiến thức nâng cao và luyện đề).
+5. MIDTERM EXAM PACING & SINGLE-REVIEW DIRECTIVE:
+   - Schedule 1 Midterm / Hackathon exam session at Session 16 (for 24-session budget).
+   - EXACTLY ONE Practical Review Session (Session 15) MUST precede the Midterm exam. The session prior to review (Session 14) MUST be a Theory session. ABSOLUTELY FORBIDDEN to schedule 2 consecutive practice sessions before Midterm!
 
-6. QUY TẮC PHÂN PHỐI LÊN LỚP (DELIVERY CONFIGURATION):
-   - `sessions_per_day`: Nếu là 2 (học 2 ca/ngày):
-     * Ngày 1 (Session 01 + Session 02): Session 01 là Định hướng (Lý thuyết), Session 02 BẮT BUỘC là Lý thuyết kỹ thuật đầu tiên (cài đặt môi trường / kiến trúc cơ bản).
-     * Ngày 2 (Session 03 + Session 04): Session 03 bắt buộc là Thực hành (luyện tập cho Session 02), Session 04 bắt buộc là Lý thuyết kỹ thuật tiếp theo.
-     * Ngày 3 (Session 05 + Session 06): Session 05 bắt buộc là Thực hành (luyện tập cho Session 04), Session 06 bắt buộc là Lý thuyết kỹ thuật tiếp theo.
-     * Các ngày tiếp theo (cặp 7-8, 9-10...): Bố trí xen kẽ sao cho mỗi ngày học chỉ chứa tối đa 1 buổi Lý thuyết và 1 buổi Thực hành/Mini project. TUYỆT ĐỐI CẤM xếp 2 buổi Lý thuyết liên tiếp trong cùng một ngày học (ngoại trừ Ngày 1).
-   - `session_duration_hours`:
-     * Đối với thời lượng học ngắn và trung bình (1.5 - 2.0 giờ): Cho phép mỗi buổi Lý thuyết chứa từ 2 đến 4 bài học nhỏ (lessons). Phân bổ số lượng lessons PHẢI thay đổi linh hoạt theo ĐỘ KHÓ và KHỐI LƯỢNG của chủ đề:
-       + Chủ đề nhẹ, ít khái niệm mới (cài đặt môi trường, cú pháp cơ bản, cấu hình đơn giản): 2-3 lessons là đủ.
-       + Chủ đề trung bình (kiểm định dữ liệu, xử lý file, cấu trúc mã nguồn): 3 lessons.
-       + Chủ đề nặng, nhiều khái niệm mới và phức tạp (tích hợp cơ sở dữ liệu, xử lý quan hệ dữ liệu, xác thực/phân quyền, kiểm thử tự động): BẮT BUỘC dùng 4 lessons để trải đều nội dung, tránh nhồi nhét.
-     * Đối với thời lượng học dài (3.0 giờ): Cho phép từ 4-5 bài học nhỏ.
-     * TUYỆT ĐỐI CẤM fix cứng tất cả sessions lý thuyết đều cùng 1 số lessons (ví dụ: cấm để tất cả đều đúng 3 lessons). Số lessons phải dao động tự nhiên giữa 2-4 tùy nội dung.
-     * KIỂM TRA DỒN NÉN (COMPRESSION CHECK): Trước khi chốt số lessons, tự hỏi: "Nếu dồn nội dung chủ đề này vào ít hơn 4 lessons, liệu sinh viên có bị quá tải khi xem 1 video 12 phút?" — Nếu CÓ → TÁCH thêm lesson, tối đa 4.
+6. STRICT CANONICAL DATA COLLECTIONS COVERAGE & OPERATIONAL GRANULARITY:
+   - For ANY programming language / technology in `tech_stack`, the curriculum MUST systematically introduce and dedicate scope to ALL 4 canonical data collection paradigms of that target stack:
+     1. Sequential Mutable Collections (e.g., dynamic lists, arrays, vectors).
+     2. Immutable / Fixed Collections (e.g., tuples, fixed arrays, immutable records).
+     3. Key-Value Association Collections (e.g., dictionaries, maps, hash tables, key-value stores).
+     4. Unique Set Collections (e.g., sets, hash sets, unique collections).
+   - COLLECTION CRUD & ITERATION OPERATIONAL GRANULARITY:
+     * ABSOLUTELY FORBIDDEN to cram Traversal/Iteration, Addition, Mutation/Updating, and Deletion of a collection into a single 1-hour lesson!
+     * Break collection operations into separate atomic lessons (e.g., Lesson A: Initialization & Indexing; Lesson B: Iteration & Traversal; Lesson C: Addition & Insertion; Lesson D: Mutation & Deletion).
 
-7. QUY TẮC MẠCH LẠC SƯ PHẠM & LIÊN KẾT NỀN TẢNG (PREREQUISITE CHAIN):
-   - Cấm nhảy cóc kiến thức: Nội dung bài trước (Lesson N-1) bắt buộc phải là nền tảng lý thuyết trực tiếp cho bài sau (Lesson N).
-   - Tiến trình sư phạm luôn đi từ: Khái niệm cơ bản ➔ Cơ chế hoạt động ➔ Cú pháp khai báo ➔ Xử lý lỗi/Ứng dụng thực tế.
-   - Các bài học nhỏ trong cùng một buổi phải có liên kết chặt chẽ xung quanh một chủ đề thống nhất.
+7. MANDATORY SUBPROGRAMS / FUNCTIONS PILLAR IN PART 1:
+   - For ANY target programming language, Subprograms / Functions (function definition, parameters, arguments, return values, local/global variable scope) ARE A MANDATORY CORE PILLAR.
+   - ABSOLUTELY FORBIDDEN to omit Subprograms / Functions from Part 1 (Sessions 01-16)! Subprograms / Functions MUST be assigned dedicated theory and practice sessions before the Midterm Exam.
 
-8. QUY TẮC TRÌNH BÀY & LÀM SẠCH TIÊU ĐỀ:
-   - CẤM chèn bất kỳ hậu tố phân loại độ khó hoặc hình thức học nào như (HEAVY), (LIGHT), (Lý thuyết Nhẹ) vào tiêu đề Session hoặc Lesson. Tiêu đề phải sạch sẽ 100%.
-   - KHÔNG DÙNG CHỮ IN HOA TOÀN BỘ (NO ALL CAPS): Tiêu đề viết thường dạng Sentence case.
-   - KHÔNG DÙNG EMOJI: Cấm dùng emoji.
-   - 100% tiếng Việt có dấu chuẩn xác. Tên biến/hàm trong code ví dụ dùng tiếng Anh có nghĩa.
+8. STRICT CORE VS ADVANCED SEQUENCING MATRIX:
+   - Part 1 (Sessions 01-16) MUST strictly prioritize Foundational Pillars in sequential order:
+     * Pillar 1: Orientation & Curriculum Roadmap
+     * Pillar 2: Technology Setup & First Application Execution
+     * Pillar 3: Variables, Primitive Types & Console Input/Output
+     * Pillar 4: Arithmetic, Logical & Comparison Operators with Conditional Branching
+     * Pillar 5: Iteration Controls & Loops
+     * Pillar 6: Dynamic Mutable Collections & Immutable Collections (with atomic CRUD breakdown)
+     * Pillar 7: Key-Value Association Maps & Unique Sets
+     * Pillar 8: Subprograms, Modular Functions, Parameters & Return Values
+     * Pillar 9: Midterm Review & Midterm Exam
+   - Advanced topics (e.g., File I/O, Exception Handling, Object-Oriented Programming, Unit Testing frameworks) MUST BE DEFERRED to Part 2 (Sessions 17-24).
 
-9. QUY TẮC NGÔN NGỮ CHUẨN SƯ PHẠM (ACADEMIC TONE):
-   - Sử dụng thuật ngữ khoa học chuyên ngành CNTT, khách quan, trung tính và chuyên nghiệp.
-   - TUYỆT ĐỐI CẤM sử dụng các từ ngữ phóng đại, giật tít, quảng cáo, sến sẩm (như: 'Làm chủ...', 'Sức mạnh của...', 'Chìa khóa...', 'Bí quyết...', 'Tận dụng...', 'Cực chất', 'Tuyệt vời', 'Thực chiến', 'Tối thượng', 'Thần tốc', 'Lợi ích kép', 'Bứt phá').
-   - Thay vào đó dùng các từ trung tính: 'Cấu hình...', 'Thiết lập...', 'Lập trình...', 'Tích hợp...', 'Triển khai...', 'Ứng dụng...', 'Phân tích...', 'Hệ thống hóa...'.
+9. FORBIDDEN DOMAIN INJECTION DIRECTIVE:
+   - ABSOLUTELY FORBIDDEN to inject terms like 'backend', 'frontend', 'web api', 'microservices', 'restful' into titles or scopes unless explicitly declared in course_name or CLOS/PLOS!
+   - For introductory programming courses (e.g. basic language syntax), titles MUST strictly focus on foundational programming concepts ("Lập trình cơ bản", "Cú pháp ngôn ngữ", "Cấu trúc dữ liệu").
 
-10. QUY TẮC BAO PHỦ BẢN ĐỒ TRI THỨC ĐỘNG (DYNAMIC ROADMAP COMPLETENESS):
-   - Căn cứ vào công nghệ mục tiêu (`tech_stack`) và chuẩn đầu ra CLO/PLO, bạn phải tự suy luận ra toàn bộ danh sách các chủ đề kiến thức cốt lõi cần học.
-   - BẮT BUỘC thiết kế chương trình bao phủ đầy đủ toàn bộ lộ trình này, đi từ cơ bản đến nâng cao. Tuyệt đối không được bỏ sót các chủ đề nền tảng và không được nhảy cóc sang kiến thức nâng cao khi chưa học kiến thức nền.
-   - Phạm vi bao phủ PHẢI phù hợp với năng lực tiếp thu của sinh viên (`student_profile`). Với `difficulty_level: "beginner"`, chỉ đưa vào những công nghệ/công cụ trực tiếp phục vụ CLO/PLO. TUYỆT ĐỐI CẤM đưa các nội dung ngoài phạm vi CLO/PLO chỉ vì chúng "thường đi kèm" trong thực tế — nếu CLO/PLO không yêu cầu rõ ràng thì không được đưa vào.
+10. STRICT NON-THEORY SESSION ADJACENCY ISOLATION DIRECTIVE:
+    - ABSOLUTELY FORBIDDEN to schedule 2 consecutive Practice sessions ("Thực hành" + "Thực hành")!
+    - ABSOLUTELY FORBIDDEN to schedule a Practice session adjacent to a Mini Project session ("Thực hành" + "Mini project" OR "Mini project" + "Thực hành")!
+    - ABSOLUTELY FORBIDDEN to schedule 2 adjacent Mini Project sessions ("Mini project" + "Mini project")!
+    - Every Practical Lab ("Thực hành") or Mini Project ("Mini project") MUST be separated by a Theory session ("Lý thuyết") (or Exam)!
+    - Required Flow: Theory -> Practice -> Theory -> Mini Project -> Theory -> Practice.
 
-11. QUY TẮC THIẾT KẾ BÀI HỌC NHỎ CHO VIDEO (VIDEO-UNIT LESSON DESIGN):
-   - Mỗi bài học nhỏ (lesson) tương ứng với 1 video bài giảng dài tối đa 12 phút.
-   - TÁCH LESSON KHI BỊ DỒN NÉN: Nếu nội dung của một lesson bị ép quá nhiều khái niệm vào 1 video, BẮT BUỘC tách thành các lesson độc lập, tối đa 4 lessons/session. Không được để 1 lesson ôm quá nhiều thứ chỉ vì muốn giữ số lesson ít.
-   - THỨ TỰ BẮT BUỘC trong 1 session (trật tự dẫn dắt cụ thể):
-     * Lesson đầu: Đặt vấn đề thực tế + giải thích khái niệm ("Tại sao cần?", "Vấn đề gì cần giải?")
-     * Lesson giữa: Khai báo cú pháp + cơ chế hoạt động nội bộ
-     * Lesson cuối: Ứng dụng vào kịch bản thực tế dự án (gắn với doanh nghiệp)
-   - TÍNH NỀN TẢNG (PREREQUISITE CHAIN): Lesson N-1 phải là tiền đề trực tiếp cho Lesson N. CẤM đặt lesson không có sự kế tiếp logic với lesson trước trong cùng session.
-   - TÍNH THỰC TẾ BẮT BUỘC (REAL-WORLD APPLICABILITY): Mỗi lesson PHẢI có ít nhất 1 ứng dụng thực tế rõ ràng trong học tập hoặc đi làm. CẤM lesson thuần lý thuyết trừu tượng không gắn với bài toán thực tiễn.
-   - Ví dụ SAI: 3 lesson rời rạc — Lesson 1 "Giới thiệu class", Lesson 2 "Giới thiệu method", Lesson 3 "Giới thiệu inheritance" (chỉ liệt kê khái niệm, không dẫn dắt, không ứng dụng).
-   - Ví dụ ĐÚNG: Lesson 1 "Vấn đề code lặp và giải pháp OOP" → Lesson 2 "Khai báo class, thuộc tính và phương thức" → Lesson 3 "Kế thừa và tái sử dụng code trong dự án" → Lesson 4 "Áp dụng OOP vào module quản lý người dùng" (có nền tảng, có thứ tự, có thực tế).
+14. MANDATORY KEYWORD EXTRACTION FROM CLO/PLO & MAIN CONTENT:
+   - Read every sentence in CLO, PLO, and Main Content carefully.
+   - Extract environment tools (SDK / Runtime / Compiler / Virtual Environment / Package Manager corresponding to target tech_stack), AI tools (AI IDE / Code Editor), and domain continuity contexts and place them into the correct sessions.
 
-12. QUY TẮC ĐẶT MÌNH VÀO VỊ TRÍ SINH VIÊN (STUDENT-FIRST PERSPECTIVE):
-   - Khi thiết kế mỗi lesson, hãy tự hỏi: "Nếu tôi là sinh viên mới học chủ đề này lần đầu, tôi sẽ hiểu ngay không? Tôi có bị quá tải không?".
-   - Với mỗi chủ đề khó và mới (lần đầu sinh viên tiếp xúc), lesson đầu tiên của chủ đề PHẢI là bài dẫn nhập: giải thích vấn đề cần giải quyết, tại sao cần công cụ/kỹ thuật này, trước khi đi vào cú pháp.
-   - Ví dụ: Khi dạy một thư viện/framework mới, Lesson 1 không được bắt đầu bằng cú pháp khai báo. Phải bắt đầu bằng giải thích vấn đề thực tế cần giải quyết và lý do cần công cụ này.
+15. ZERO CAPSTONE PROJECT DIRECTIVE:
+   - IF `capstone_project` in `session_budget` is 0, ABSOLUTELY FORBIDDEN to generate Capstone Project sessions.
+   - The final session MUST be a Practical Exam / Final Exam ("Thi thực hành" or "Thi cuối môn").
 
-13. QUY TẮC CẤM FIX CỨNG CÔNG NGHỆ (TECHNOLOGY-AGNOSTIC DESIGN):
-   - TUYỆT ĐỐI CẤM fix cứng hay fallback nội dung cho bất kỳ công nghệ, framework, thư viện, hoặc ngôn ngữ cụ thể nào trong quy tắc sư phạm.
-   - Toàn bộ nội dung chương trình học PHẢI được suy luận động 100% từ `tech_stack`, CLO/PLO, và `student_profile` được truyền vào.
-   - Nội dung sinh ra cho từng môn học phải khác nhau hoàn toàn tùy vào `tech_stack` — KHÔNG được dùng chung template nội dung cho mọi tech stack.
-   - CẤM đặt tên thư viện, framework, hay công cụ cụ thể trong quy tắc sư phạm hệ thống. Chỉ được dùng tên công nghệ cụ thể trong NỘI DUNG sinh ra cho từng môn cụ thể (dựa trên `tech_stack` đầu vào).
-
-15. QUY TẮC BIÊN GIỚI NỘI DUNG TUYỆT ĐỐI (STRICT CONTENT BOUNDARY):
-   - TUYỆT ĐỐI CẤM đưa bất kỳ công nghệ, thư viện, framework, khái niệm, hay cú pháp nào KHÔNG được liệt kê rõ ràng trong `tech_stack` và `tech_stack_versions` vào nội dung lesson.
-   - Đây là vi phạm nghiêm trọng nhất. Ví dụ vi phạm tiêu biểu:
-     * Môn Python Core → CẤM xuất hiện: SQLite, SQL, Database, Flask, Django, FastAPI, HTML, CSS, React, JavaScript, API, Docker, Redis, Pandas, NumPy, Machine Learning (trừ khi nằm trong `tech_stack_versions`)
-     * Môn JavaScript Frontend thuần → CẤM xuất hiện: React, Vue, Angular, Vite, Next.js, Express, Node.js, Python, FastAPI, SQL, Java (trừ khi nằm trong `tech_stack_versions`)
-     * Môn Java Spring Boot → CẤM xuất hiện: Python, JavaScript, PHP (trừ khi nằm trong `tech_stack_versions`)
-   - QUY TẮC VÀNG: Trước khi điền nội dung cho từng lesson, hãy kiểm tra bắt buộc: "Công nghệ này có trong `tech_stack` hay `tech_stack_versions` đã cung cấp không?" — Nếu KHÔNG → TUYỆT ĐỐI CẤM đưa vào.
-   - Ranh giới nội dung phải được bảo vệ nghiêm ngặt suốt toàn bộ 36 buổi. Không có ngoại lệ.
-
-16. QUY TẮC ĐỐI SOÁT CHẶT CHẼ CLO, PLO VÀ NỘI DUNG CHÍNH (STRICT CLO/PLO/MAIN CONTENT ALIGNMENT):
-   - TUYỆT ĐỐI CẤM đưa nội dung/công nghệ của các môn học tương lai hoặc các framework nâng cao vào môn học nếu CLO, PLO và Nội dung chính từ Khung chương trình đào tạo chỉ yêu cầu kiến thức nền tảng/ngôn ngữ thuần.
-   - Ví dụ cụ thể: Môn học có CLO/PLO yêu cầu 'Lập trình các tương tác Web bằng Javascript thuần' (Vanilla JS, DOM API, Fetch API) ➔ TUYỆT ĐỐI CẤM đưa React, Vue, Angular, Vite, Next.js, Node.js, Express hay Database vào bài học! Môn học nào CHỈ ĐƯỢC TẬP TRUNG ĐÚNG CÔNG NGHỆ CỦA MÔN HỌC ĐÓ.
-   - BẮT BUỘC đọc kỹ cột CLO, PLO và Nội dung chính từ Khung chương trình được truyền vào ở từng cuộc gọi để xác định đúng ranh giới công nghệ tối đa được phép dạy.
-
-17. QUY TẮC ĐẢM BẢO HÀM LƯỢNG THỰC HÀNH (PRACTICE SUBSTANCE & DEPTH GUARANTEE):
-   - TUYỆT ĐỐI CẤM thiết kế một Session Thực hành (2h) bị nông hoặc rỗng nội dung do Session Lý thuyết tiền đề quá ít kiến thức (ví dụ: Session Lý thuyết 2 chỉ có cài đặt môi trường/venv/linter mà chưa dạy bất kỳ kiến thức lập trình nào).
-   - ĐỂ KHẮC PHỤC RỦI RO BUỔI THỰC HÀNH BỊ RỖNG:
-     * GIẢI PHÁP 1 (TĂNG HÀM LƯỢNG - KHUYÊN DÙNG): Khi thiết kế Session Lý thuyết có nội dung Cài đặt/Cấu hình (Session 02), BẮT BUỘC đưa ngay các kiến thức lập trình/cú pháp cơ bản đầu tiên (Khai báo biến, Kiểu dữ liệu cơ bản, Nhập xuất dữ liệu input/print, Toán tử số học) vào Session Lý thuyết đó, để Session Thực hành liền sau có bài tập viết script, tính toán và xử lý logic thực tế cho sinh viên thực hành suốt 2h.
-     * GIẢI PHÁP 2 (ĐIỀU CHỈNH LOẠI SESSION): Nếu một chủ đề thuần thao tác cài đặt chưa có kiến thức code, hãy thiết kế thành 2 buổi Lý thuyết liên tiếp trước khi đến buổi Thực hành tổng hợp.
-
-14. QUY TẮC SINH PHẠM VI SƯ PHẠM (SCOPE COLUMNS):
-   Mỗi lesson (hoặc mỗi session phi lý thuyết) BẮT BUỘC phải có 4 trường phạm vi chi tiết:
-   a. `content_scope`: Liệt kê cụ thể từng khái niệm, cú pháp, công cụ sẽ học trong lesson này. Viết dạng liệt kê ngắn phân cách bằng dấu ";". Ví dụ: "Khái niệm biến và ô nhớ; Biến int, float, str, bool; Quy tắc snake_case; Kiểm tra type() và id()."
-   b. `expected_outcome`: Mô tả kết quả mong đợi sau lesson — sinh viên CÓ THỂ LÀM ĐƯỢC GÌ cụ thể. Viết 1-2 câu hành động (dùng động từ: "Khai báo thành công...", "Viết được...", "Phân biệt được...").
-   c. `forbidden_scope`: Liệt kê các khái niệm/công nghệ CHƯA ĐƯỢC HỌC và CẤM sử dụng trong lesson này. Viết dạng: "CẤM: <danh sách khái niệm chưa học>". Phải cập nhật tích lũy — forbidden_scope ở lesson sau phải bớt đi các khái niệm vừa học ở lesson trước.
-   d. `allowed_scope`: Liệt kê tích lũy các khái niệm ĐÃ HỌC từ tất cả các lesson/session trước đó. Viết dạng: "ĐÃ HỌC: <danh sách tích lũy>". Phải cập nhật cộng dồn — allowed_scope ở lesson sau = allowed_scope lesson trước + nội dung lesson trước.
-   - CÁC QUY TẮC QUAN TRỌNG CHO SCOPE:
-     * `forbidden_scope` và `allowed_scope` PHẢI NHẤT QUÁN LOGIC: Nếu khái niệm X có trong `allowed_scope` thì KHÔNG được có trong `forbidden_scope`.
-     * Session 01 (Định hướng): `allowed_scope` = "ĐÃ HỌC: Chưa có (Buổi mở đầu).", `forbidden_scope` liệt kê toàn bộ kiến thức kỹ thuật của khóa.
-     * Các session phi lý thuyết (Thực hành/Mini project): Ghi scope ở cấp session (không ở lesson).
-
-ĐỊNH DẠNG ĐẦU RA JSON BẮT BUỘC (TRẢ VỀ DUY NHẤT 1 MẢNG JSON HỢP LỆ, KHÔNG CHỨA BLOCK MARKDOWN):
+REQUIRED JSON OUTPUT FORMAT (RETURN ONLY A VALID RAW JSON ARRAY):
 [
   {
     "session_num": 1,
@@ -371,7 +342,9 @@ def generate_curriculum_pm(
     Splits into two parts for long courses to avoid token truncation limits.
     Applies prerequisite guard with up to 3 self-correction rounds.
     """
-    total_sessions = session_budget.get("total_sessions", 25)
+    total_sessions = session_budget.get("total_sessions")
+    if not total_sessions or total_sessions <= 0:
+        raise ValueError(f"Lỗi cấu hình PM: Thiếu 'total_sessions' hợp lệ trong session_budget ({session_budget}). Không cho phép fallback tự ý.")
     hackathon_sess = int(total_sessions * 2 / 3)
     review_sess = hackathon_sess - 1
 
@@ -382,12 +355,15 @@ def generate_curriculum_pm(
         # Part 1: sessions 1 to half
         part1_instruction = f"""Design PART 1: EXACTLY the first {half} Sessions (Session 01 to Session {half:02d}).
 MANDATORY Course Opening Session Allocation Rules:
-- Session 01 is Course Orientation (Theory), no technical coding or environment setup.
-- Session 02 MUST be the first Technical Theory session (e.g. environment setup, project structure).
-- Session 03 MUST be the first Practical Lab session (practicing Session 02 concepts).
-- ABSOLUTELY FORBIDDEN to place Practical Lab at Session 02.
-Apply Theory-Practice pairing rules (sessions_per_day = {class_configuration.get('sessions_per_day', 1)}).
-Allocate Mini Projects after every 3-4 basic combos (or 2 advanced combos)."""
+- Session 01 is Orientation & Roadmap (Theory), no technical coding or SRS parsing. Lesson 03 MUST be "Demo sản phẩm thực tế sẽ đạt được sau khi kết thúc môn học & Kỳ vọng đầu ra".
+- Session 02 MUST be Technical Theory Session 1 (ALLOW UP TO 4-5 ATOMIC LESSONS): Lesson 01 (Technology Overview), Lesson 02 (Comprehensive Tooling Setup), Lesson 03 (First Application Execution & Hello World Boilerplate), Lesson 04 (Variable Declaration, Naming Conventions & Primitive Data Types), Lesson 05 (Console Input/Output Operations & Type Conversion).
+- Session 03 is the FIRST Practical Lab Session ("Thực hành") practicing Session 02 foundational concepts (Tooling Setup, Variables & Console I/O).
+- ADVANCED TOPIC DEFERRAL: Unit Testing frameworks, advanced linters, and testing suites MUST BE DEFERRED to the second half (Sessions 17-23). Early sessions MUST strictly focus on basic syntax and primitives.
+- THEORY LESSON PURITY: Theory lessons MUST focus 100% on theoretical syntax & concepts. FORBIDDEN to put practical lab tasks or exercises into theory lessons!
+- MANDATORY SUBPROGRAMS / FUNCTIONS PILLAR: Part 1 MUST include dedicated Theory + Practice sessions covering Subprograms / Functions (definition, parameters, arguments, return values, variable scope) BEFORE the Midterm Exam!
+- COLLECTION CRUD & ITERATION OPERATIONAL GRANULARITY: DO NOT cram Traversal, Addition, Mutation, and Deletion of a collection into 1 lesson! Break CRUD operations across separate atomic lessons (e.g. Lesson A: Concept & Indexing, Lesson B: Iteration & Traversal, Lesson C: Insertion & Appending, Lesson D: Updating & Deletion).
+- NON-THEORY ADJACENCY ISOLATION: ABSOLUTELY FORBIDDEN to schedule 2 Practice sessions ("Thực hành") adjacent to each other! ABSOLUTELY FORBIDDEN to schedule a Practice session ("Thực hành") adjacent to a Mini Project ("Mini project")! ABSOLUTELY FORBIDDEN to schedule 2 Mini Projects adjacent to each other! Every Practice or Mini Project MUST be separated by a Theory session ("Lý thuyết")!
+- Apply Theory-Practice pairing rules. Allocate Mini Projects after combos as budgeted."""
 
         pm_part1 = _call_generator_agent(
             course_id, course_name, clos, plos, student_profile, session_budget, tech_stack, class_configuration,
@@ -401,6 +377,9 @@ Allocate Mini Projects after every 3-4 basic combos (or 2 advanced combos)."""
 
         print(f"  [SPGA] Đã sinh xong Phân 1 ({len(pm_part1)} sessions). Đang sinh Phần 2...")
 
+        capstone_count = session_budget.get("capstone_project", 0)
+        final_sess_desc = f"Thi thực hành / Thi cuối môn (Practical Final Exam: {exam_type}). ABSOLUTELY FORBIDDEN to generate any Capstone Project or Project sessions since capstone_project budget is 0." if capstone_count == 0 else "Capstone Project Defense."
+
         # Part 2: sessions half + 1 to total_sessions
         part2_instruction = f"""Design PART 2: Remaining Sessions from Session {half + 1:02d} to Session {total_sessions:02d} (total {total_sessions - half} sessions).
 Here is the list of Sessions generated in PART 1 for reference and continuity:
@@ -409,8 +388,8 @@ Here is the list of Sessions generated in PART 1 for reference and continuity:
 MANDATORY DIRECTIVES:
 - Continue curriculum design starting precisely at Session {half + 1:02d} through Session {total_sessions:02d}.
 - Ensure knowledge continuity and prerequisite flow from prior sessions.
-- Place Midterm Exam / Hackathon at Session {hackathon_sess:02d}, and the session immediately preceding it (Session {review_sess:02d}) MUST be a Practical Review Lab.
-- Final Session (Session {total_sessions:02d}) MUST be Capstone Project Defense."""
+- Place Midterm Exam at Session {hackathon_sess:02d}. EXACTLY ONE Practical Review Session (Session {review_sess:02d}) MUST precede the Midterm exam. The session prior to review (Session {review_sess - 1:02d}) MUST be a Theory session. FORBIDDEN to schedule 2 consecutive practice sessions before Midterm!
+- Final Session (Session {total_sessions:02d}) MUST be {final_sess_desc}"""
 
         pm_part2 = _call_generator_agent(
             course_id, course_name, clos, plos, student_profile, session_budget, tech_stack, class_configuration,
@@ -435,13 +414,16 @@ MANDATORY DIRECTIVES:
         pm_data = merged
     else:
         # Standard single call
+        capstone_count = session_budget.get("capstone_project", 0)
+        final_sess_desc = f"Thi thực hành / Thi cuối môn (Practical Final Exam: {exam_type}). ABSOLUTELY FORBIDDEN to generate any Capstone Project or Project sessions since capstone_project budget is 0." if capstone_count == 0 else "Capstone Project Defense."
+
         single_instruction = f"""Design entire curriculum syllabus containing EXACTLY {total_sessions} Sessions (Session 01 to Session {total_sessions:02d}).
 MANDATORY Course Opening Session Allocation Rules:
 - Session 01 is Course Orientation (Theory), no technical coding or setup.
 - Session 02 MUST be the first Technical Theory session.
 - Session 03 MUST be the first Practical Lab session.
 - ABSOLUTELY FORBIDDEN to place Practical Lab at Session 02.
-Final Session (Session {total_sessions:02d}) MUST be Final Exam / Capstone Project Defense.
+Final Session (Session {total_sessions:02d}) MUST be {final_sess_desc}
 If total sessions >= 16: place Midterm Hackathon Exam at Session {hackathon_sess:02d} and Practical Review Lab at Session {review_sess:02d}."""
 
         res = _call_generator_agent(
@@ -469,6 +451,9 @@ If total sessions >= 16: place Midterm Hackathon Exam at Session {hackathon_sess
         "plos": plos
     }
 
+    # Standardize Session 01 lessons to fixed titles
+    pm_data = _normalize_session_01_lessons(pm_data)
+
     for round_num in range(1, MAX_CORRECTION_ROUNDS + 1):
         review_result = pm_reviewer_agent(pm_data, config_dict, course_info_dict)
         score = review_result["score"]
@@ -488,6 +473,7 @@ If total sessions >= 16: place Midterm Hackathon Exam at Session {hackathon_sess
             course_id, course_name, clos, plos,
             student_profile, session_budget, tech_stack, class_configuration,
         )
+        pm_data = _normalize_session_01_lessons(pm_data)
         # Re-enforce non-theory empty lessons after correction
         for s in pm_data:
             ht = str(s.get("hinh_thuc", "")).strip()
@@ -498,6 +484,25 @@ If total sessions >= 16: place Midterm Hackathon Exam at Session {hackathon_sess
         final_review = pm_reviewer_agent(pm_data, config_dict, course_info_dict)
         print(f"  [PM Reviewer] Hoàn tất {MAX_CORRECTION_ROUNDS} vòng tối ưu. Điểm chất lượng cuối cùng: {final_review['score']}/100.")
 
+    return _normalize_session_01_lessons(pm_data)
+
+
+def _normalize_session_01_lessons(pm_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Enforces 1 single consolidated lesson for Session 01 as requested by pedagogical standards."""
+    if not pm_data:
+        return pm_data
+
+    for s in pm_data:
+        if s.get("session_num") == 1 or "Session 01" in str(s.get("title", "")):
+            s["lessons"] = [{
+                "lesson_num": 1,
+                "title": "Tổng quan lộ trình và Demo sản phẩm",
+                "content_scope": "1. Tổng quan nội dung & Lộ trình môn học (Timeline/List) | 2. Phương pháp học tập hiệu quả & Kiến thức tiền đề (AI Pair-Programming Cursor/Windsurf) | 3. Demo sản phẩm dự án đầu ra (Capstone Project Spec & Features)",
+                "expected_outcome": "Nắm vững toàn bộ cấu trúc lộ trình môn học, áp dụng phương pháp học tập kết hợp công cụ AI IDE và hiểu rõ các tiêu chuẩn sản phẩm dự án đầu ra.",
+                "forbidden_scope": "CẤM: Gõ lệnh CLI, cài đặt phần mềm, viết mã nguồn, tạo code demo hay code sandbox rỗng.",
+                "allowed_scope": "ĐÃ HỌC: Bài mở đầu (Chưa có).",
+            }]
+            break
     return pm_data
 
 
@@ -693,7 +698,14 @@ def export_pm_to_excel(
             effective_template = candidate
 
     if effective_template and os.path.exists(effective_template):
-        shutil.copy2(effective_template, filepath)
+        try:
+            shutil.copy2(effective_template, filepath)
+        except PermissionError:
+            base, ext = os.path.splitext(filepath)
+            filepath = f"{base}_New{ext}"
+            shutil.copy2(effective_template, filepath)
+            print(f"  [Export Warning] File gốc đang mở trong Excel. Đã lưu sang tệp mới: {filepath}")
+
         wb = openpyxl.load_workbook(filepath)
         ws = wb.active
         print(f"  [Export] Loaded template: {effective_template}")
@@ -832,6 +844,12 @@ def export_pm_to_excel(
                         end_row=end_row, end_column=merge_col
                     )
 
-    wb.save(filepath)
-    print(f"  [Export] Saved Excel syllabus to: {filepath}")
+    try:
+        wb.save(filepath)
+        print(f"  [Export] Saved Excel syllabus to: {filepath}")
+    except PermissionError:
+        base, ext = os.path.splitext(filepath)
+        fallback = f"{base}_New{ext}"
+        wb.save(fallback)
+        print(f"  [Export Warning] File đang bị khóa bởi tiến trình Excel khác. Đã lưu thành công sang tệp: {fallback}")
 

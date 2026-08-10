@@ -26,6 +26,7 @@ def generate_knowledge_vault(
     sessions: List[Dict[str, Any]],
     prerequisite_data: Optional[Dict[str, Any]] = None,
     output_dir: str = "obsidian_vault",
+    course_name: Optional[str] = None,
 ) -> str:
     """
     Tạo Obsidian Knowledge Vault đầy đủ với liên kết tiên quyết.
@@ -35,17 +36,27 @@ def generate_knowledge_vault(
         sessions: Danh sách session đã parse
         prerequisite_data: Kết quả từ prerequisite_guard_agent (có thể None)
         output_dir: Thư mục đầu ra
+        course_name: Tên môn học tùy chỉnh (nếu None sẽ lấy từ Excel hoặc tên thư mục)
     
     Returns:
         Đường dẫn tới vault đã tạo
     """
-    import openpyxl
-    wb = openpyxl.load_workbook(excel_path)
-    ws = wb.active
-    if ws is None:
-        raise ValueError("Workbook has no active worksheet.")
-    course_name = ws.title.strip()
-    wb.close()
+    if not course_name:
+        import openpyxl
+        wb = openpyxl.load_workbook(excel_path)
+        ws = wb.active
+        if ws is None:
+            raise ValueError("Workbook has no active worksheet.")
+        raw_title = ws.title.strip()
+        wb.close()
+        if raw_title == "PM_Syllabus" or raw_title.startswith("Sheet"):
+            parent_dir_name = Path(excel_path).parent.name
+            if parent_dir_name and parent_dir_name != "pms":
+                course_name = parent_dir_name
+            else:
+                course_name = raw_title
+        else:
+            course_name = raw_title
 
     course_clean = _sanitize_path(course_name)
     vault_path = Path(output_dir) / course_clean
@@ -77,11 +88,14 @@ def generate_knowledge_vault(
     _write_index(vault_path, course_name, course_clean, sessions, dep_graph)
 
     # ── 2. Session notes với prerequisite links ──
-    for s in sessions:
+    for idx, s in enumerate(sessions):
         s_id = s["session_id"]
         s_title = s.get("title", "")
         s_lessons = s.get("lessons", [])
         s_prereq = session_prereqs.get(s_id)
+
+        prev_s_id = sessions[idx - 1]["session_id"] if idx > 0 else None
+        next_s_id = sessions[idx + 1]["session_id"] if idx < len(sessions) - 1 else None
 
         s_folder_name = _session_folder(s_id, s_title)
         s_dir = vault_path / s_folder_name
@@ -95,6 +109,8 @@ def generate_knowledge_vault(
             s_lessons=s_lessons,
             session_id_to_folder=session_id_to_folder,
             s_prereq=s_prereq,
+            prev_s_id=prev_s_id,
+            next_s_id=next_s_id,
         )
 
         # Quiz stubs
@@ -139,8 +155,14 @@ def generate_knowledge_vault(
     # ── 4. Prerequisite Map tổng quan ──
     _write_prerequisite_map(vault_path, course_name, sessions, session_prereqs, session_id_to_folder)
 
+    # ── 5. Graph View Settings (.obsidian/graph.json) ──
+    _write_obsidian_graph_config(vault_path)
+
+    # ── 6. Visual Canvas Flowchart (Bản_đồ_Tri_thức_Visual.canvas) ──
+    _write_obsidian_canvas(vault_path, course_name, sessions, session_id_to_folder)
+
     vault_str = str(vault_path)
-    print(f"[OKL] ✅ Knowledge Vault đã tạo thành công: {vault_str}")
+    print(f"[OKL] ✅ Knowledge Vault đã tạo thành công với Graph Config & Visual Canvas: {vault_str}")
     return vault_str
 
 
@@ -184,13 +206,16 @@ tags:
 
 Chào mừng đến với **Bản đồ Tri thức** môn học. Đây là điểm neo trung tâm liên kết toàn bộ tài nguyên học tập.
 
-> 💡 **Cách dùng**: Mở **Graph View** (Ctrl+G) để xem bản đồ lộ trình học tập trực quan. Các đường nối thể hiện mối quan hệ tiên quyết giữa các Session.
+> 💡 **Cách dùng**: 
+> 1. Mở **Graph View** (`Ctrl+G`) để xem bản đồ lộ trình học tập trực quan với phân màu tự động.
+> 2. Mở file **`Bản_đồ_Tri_thức_Visual.canvas`** để xem sơ đồ dòng chảy (Flowchart spatial view) tương tác.
 
 ## 📅 Danh sách Sessions
 
 {session_links}
 
-## 🔍 Công cụ điều hướng
+## 🔍 Công cụ điều hướng & Bản đồ Visual
+- [[Bản_đồ_Tri_thức_Visual.canvas|🗺️ Bản đồ Visual Flowchart Canvas]]
 - [[Prerequisite Map|📊 Bản đồ Tiên quyết Tri thức]]
 - [[Concept Map|🧩 Bản đồ Khái niệm]]
 {learning_path}
@@ -207,15 +232,11 @@ def _write_session_note(
     s_lessons: List[Dict],
     session_id_to_folder: Dict[str, str],
     s_prereq: Optional[Any] = None,
+    prev_s_id: Optional[str] = None,
+    next_s_id: Optional[str] = None,
 ) -> None:
     """
     Viết Session note với prerequisite frontmatter và links.
-    
-    ĐIỂM CẢI TIẾN CHÍNH: Thêm:
-    - frontmatter `requires:` danh sách Session tiên quyết
-    - Section "📋 Yêu cầu tiên quyết" rõ ràng
-    - Section "🎯 Kiến thức sẽ học" (introduces)
-    - WikiLinks hai chiều đến Session trước
     """
     requires_sessions = []
     introduces_concepts = []
@@ -224,7 +245,6 @@ def _write_session_note(
     violations_text = ""
 
     if s_prereq:
-        # s_prereq có thể là dataclass hoặc dict
         if hasattr(s_prereq, "requires_sessions"):
             requires_sessions = s_prereq.requires_sessions
             introduces_concepts = s_prereq.introduces_concepts
@@ -242,23 +262,28 @@ def _write_session_note(
                 v_dict = v if isinstance(v, dict) else vars(v)
                 violations_text += f"> - [{v_dict.get('severity')}] {v_dict.get('concept_used')} chưa được giới thiệu\n"
 
+    # Fallback to sequential previous session if no explicit prerequisite
+    if not requires_sessions and prev_s_id:
+        requires_sessions = [prev_s_id]
+
     # Frontmatter YAML với prerequisites
     requires_yaml = ""
     if requires_sessions:
         requires_yaml = "requires:\n" + "\n".join(f'  - "{session_id_to_folder.get(r, r)}"' for r in requires_sessions)
 
     # Prerequisite section
-    prereq_section = ""
+    prereq_section = "\n## 📋 Yêu cầu tiên quyết & Luồng luân chuyển\n"
     if requires_sessions:
-        prereq_section = "\n## 📋 Yêu cầu tiên quyết\n"
-        prereq_section += "> 🔴 **Phải hoàn thành trước khi học Session này:**\n\n"
+        prereq_section += "> 🔴 **Cần hoàn thành trước khi học Session này:**\n\n"
         for req in requires_sessions:
-            # Tìm title của session tiên quyết qua folder map
             target_link = session_id_to_folder.get(req, req)
-            prereq_section += f"- [[{target_link}|✅ {req}]] — Hoàn thành bắt buộc\n"
+            prereq_section += f"- [[{target_link}|✅ {req}]] — Yêu cầu tiên quyết\n"
     else:
-        prereq_section = "\n## 📋 Yêu cầu tiên quyết\n"
-        prereq_section += "> ✅ Đây là Session **đầu tiên**, không có yêu cầu tiên quyết.\n"
+        prereq_section += "> 🏁 Đây là Session **đầu tiên** của khóa học.\n"
+
+    if next_s_id:
+        next_link = session_id_to_folder.get(next_s_id, next_s_id)
+        prereq_section += f"\n> ➡️ **Session kế tiếp:** [[{next_link}|🚀 {next_s_id}]]\n"
 
     # Introduces section
     introduces_section = ""
@@ -280,6 +305,7 @@ title: "{s_title}"
 tags:
   - learning-material
   - obsidian-graph
+  - session
 ---
 
 # 🗓️ {s_id}: {s_title}
@@ -554,3 +580,144 @@ def _compute_learning_chains(
         chains.append(chain)
 
     return chains
+
+
+def _write_obsidian_graph_config(vault_path: Path) -> None:
+    """Cấu hình trực quan hóa Graph View (.obsidian/graph.json) trong Obsidian."""
+    import json
+    obsidian_dir = vault_path / ".obsidian"
+    obsidian_dir.mkdir(parents=True, exist_ok=True)
+    
+    graph_config = {
+        "collapse-filter": False,
+        "search": "",
+        "showTags": True,
+        "showAttachments": False,
+        "hideUnresolved": False,
+        "showOrphans": True,
+        "collapse-color-groups": False,
+        "colorGroups": [
+            {
+                "query": "type: course",
+                "color": {"a": 1, "rgb": 4258688}  # Vibrant Green (#410000 -> Emerald)
+            },
+            {
+                "query": "type: session",
+                "color": {"a": 1, "rgb": 3900150}  # Royal Blue (#3b82f6)
+            },
+            {
+                "query": "type: lesson",
+                "color": {"a": 1, "rgb": 9133302}  # Purple (#8b5cf6)
+            },
+            {
+                "query": "type: quiz",
+                "color": {"a": 1, "rgb": 16097035}  # Amber Gold (#f59e0b)
+            },
+            {
+                "query": "type: reading or type: slide or type: mindmap or type: video",
+                "color": {"a": 1, "rgb": 4390356}  # Cyan/Teal (#06b6d4)
+            }
+        ],
+        "collapse-display": False,
+        "showArrow": True,
+        "textScale": 1.1,
+        "showLineNode": True,
+        "nodeSizeMultiplier": 1.5,
+        "lineSizeMultiplier": 1.8,
+        "collapse-forces": False,
+        "centerStrength": 0.45,
+        "repellingStrength": 16,
+        "linkStrength": 0.85,
+        "linkDistance": 240,
+        "scale": 0.75
+    }
+    
+    with open(obsidian_dir / "graph.json", "w", encoding="utf-8") as f:
+        json.dump(graph_config, f, ensure_ascii=False, indent=2)
+
+
+def _write_obsidian_canvas(
+    vault_path: Path,
+    course_name: str,
+    sessions: List[Dict],
+    session_id_to_folder: Dict[str, str],
+) -> None:
+    """Tạo file Obsidian Canvas Flowchart (Bản_đồ_Tri_thức_Visual.canvas) trực quan không gian."""
+    import json
+    nodes = []
+    edges = []
+
+    # Hub node ở đầu
+    nodes.append({
+        "id": "hub_course",
+        "type": "file",
+        "file": "index.md",
+        "x": -450,
+        "y": 200,
+        "width": 380,
+        "height": 280,
+        "color": "1"
+    })
+
+    col_width = 440
+    row_height = 240
+
+    for idx, s in enumerate(sessions):
+        s_id = s["session_id"]
+        s_title = s.get("title", "")
+        s_folder = session_id_to_folder.get(s_id, s_id)
+        s_file_path = f"{s_folder}/{s_folder}.md"
+
+        col = idx // 6
+        row = idx % 6
+
+        x = col * col_width
+        y = row * row_height
+
+        color_code = str((col % 5) + 2)  # Colors 2..6
+
+        node_id = f"node_{s_id.replace(' ', '_')}"
+        nodes.append({
+            "id": node_id,
+            "type": "file",
+            "file": s_file_path,
+            "x": x,
+            "y": y,
+            "width": 380,
+            "height": 200,
+            "color": color_code
+        })
+
+        if idx == 0:
+            edges.append({
+                "id": "edge_hub_s01",
+                "fromNode": "hub_course",
+                "fromSide": "right",
+                "toNode": node_id,
+                "toSide": "left"
+            })
+
+        if idx > 0:
+            prev_s = sessions[idx - 1]
+            prev_node_id = f"node_{prev_s['session_id'].replace(' ', '_')}"
+
+            from_side = "bottom" if (idx % 6 != 0) else "right"
+            to_side = "top" if (idx % 6 != 0) else "left"
+
+            edges.append({
+                "id": f"edge_{prev_node_id}_{node_id}",
+                "fromNode": prev_node_id,
+                "fromSide": from_side,
+                "toNode": node_id,
+                "toSide": to_side,
+                "label": "Tiên quyết →"
+            })
+
+    canvas_data = {
+        "nodes": nodes,
+        "edges": edges
+    }
+
+    with open(vault_path / "Bản_đồ_Tri_thức_Visual.canvas", "w", encoding="utf-8") as f:
+        json.dump(canvas_data, f, ensure_ascii=False, indent=2)
+

@@ -32,10 +32,8 @@ from agents.creators import (
     mindmap_agent,
     process_mindmap_images,
     generate_image_api,
-    draw_mindmap_fallback_diagram,
-    visualizer_generator_agent,
-    get_topic_fallback_visualizer_engine,
     reading_questions_creator_agent,
+    practical_lab_creator_agent,
 )
 
 __all__ = [
@@ -64,14 +62,11 @@ __all__ = [
     "quiz_agent",
     "session_compiler_agent",
     "mini_project_generator_agent",
-    "",
-    "",
-    "",
     "mindmap_agent",
     "process_mindmap_images",
     "generate_image_api",
-    "draw_mindmap_fallback_diagram",
     "visualizer_generator_agent",
     "get_topic_fallback_visualizer_engine",
     "reading_questions_creator_agent",
+    "practical_lab_creator_agent",
 ]

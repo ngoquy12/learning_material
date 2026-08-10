@@ -1,29 +1,15 @@
 """
 agents/slide_generator_agent.py
 
-Slide Generator Agent (Rikkei Academy PPTX Master Replay — Clean Google Slides UI with Live Previews)
-===================================================================================================
-Tự động sinh Slide bài giảng tương tác HTML/CSS/JS tái hiện 100% bố cục
-thực tế từ ảnh mẫu PPTX Master & Google Slides UI:
-
-1. Clean Sidebar Menu:
-   - Loại bỏ tiêu đề 'Slides Overview' và icon thừa.
-   - Thanh cuộn xám nhẹ bo tròn sang trọng (Slim Light Scrollbar).
-   - Card Thumbnail chứa **Miniature Live Preview** thu nhỏ thực sự của từng loại Slide.
-
-2. Page Numbering Badge (.corner-page-badge):
-   - **Tất cả các slide** đều hiển thị badge đỏ chứa số trang ở góc dưới bên phải.
-   - Số trang được đánh liên tục bắt đầu từ **trang 1** (Cover = 1, Agenda = 2, Content 1 = 3,...).
-
-3. Floating Navigation Bar (Dark Navy Glassmorphism Style):
-   - Tông màu **Đen Mờ Kính Thủy Tinh (Dark Navy Glassmorphism `rgba(15, 23, 42, 0.94)`)** kết hợp hiệu ứng `backdrop-filter: blur(20px)` và viền sáng tinh tế.
-   - Nhãn nút tiếng Việt chuẩn **'Toàn màn hình ⛶'**.
-
-4. Fullscreen Presentation Mode:
-   - Khi bấm 'Toàn màn hình ⛶' (hoặc bấm phím F), Menu Sidebar bên trái tự động **ẨN ĐI**, phần Main Stage & Deck Container mở rộng tràn toàn bộ màn hình (100vw x 100vh).
-
-5. Cô lập tuyệt đối cấu trúc Slide (.slide Isolation):
-   - Đảm bảo 100% không bao giờ xảy ra lỗi slide dính/chồng lấn lên nhau (`position: absolute; display: none !important; opacity: 0; pointer-events: none`). Chỉ slide có `.active` mới bật `display: flex !important; z-index: 10; opacity: 1`.
+Master HTML Slide Presentation Compiler (Rikkei Academy Golden Standard)
+========================================================================
+Generates 100% compliant HTML presentation decks matching slide_result/index.html:
+- Tailwind CSS CDN with custom Rikkei palette (rikkei.red = #be111c, rikkei.dark = #0f172a)
+- Phosphor Icons + Highlight.js + Mermaid.js v10
+- Scroll-Snap 100vh full-screen deck (#slides-container with scroll-snap-type: y mandatory)
+- Standard Cover Slide, Agenda Slide, Content Slides (Bento Cards, Theory/Code 2-column, Mermaid diagrams, 3-Card Columns)
+- Bottom-right red triangle page number badge on every slide
+- Bottom copyright footer & logo
 """
 
 from __future__ import annotations
@@ -32,514 +18,90 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 class SlideGeneratorAgent:
-    """Agent thiết kế Slide bài giảng chuẩn Rikkei Academy Master PPTX & Google Slides UI."""
+    """Master Slide Generator Agent enforcing slide_result/index.html standards across all courses."""
 
     LOGO_URL = "https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
 
     def __init__(self):
         pass
 
-    def _build_css(self) -> str:
-        return """
-    :root {
-      --bg-main: #f1f5f9;
-      --bg-sidebar: #ffffff;
-      --bg-slide: #ffffff;
-      --brand-red: #c01e23;
-      --brand-pink-bg: #fdeaea;
-      --brand-dark: #000000;
-      --text-gray: #475569;
-      --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-code: 'Fira Code', monospace;
-    }
+    def sanitize_slide_text(self, text: str) -> str:
+        """
+        Enforces slide pedagogical language rules:
+        1. Forbids AI/academic buzzwords ('thách thức kỹ thuật', 'phân tích thực tế', etc.)
+        2. Strips hyperbolic words ('nhất', 'quá', 'vô cùng', 'tuyệt vời', 'bậc nhất', 'triệt để', 'khám phá', 'khai phá')
+        3. Enforces Sentence Case (capitalizes first letter & proper technical terms, lowercase rest).
+        """
+        if not text:
+            return ""
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100vw; height: 100vh; overflow: hidden;
-      background: var(--bg-main); color: var(--brand-dark);
-      font-family: var(--font-main);
-      display: flex; flex-direction: row;
-    }
+        # 1. Replace AI buzzwords & academic boilerplate phrases with clean dev terms
+        buzzwords_map = [
+            (r"bối cảnh thực tế\s*&\s*thách thức kỹ thuật", "Bối cảnh dự án & vấn đề cần giải quyết"),
+            (r"trực quan hóa luồng kiến trúc\s*&\s*thao tác cốt lõi", "Sơ đồ kiến trúc & quy trình vận hành"),
+            (r"quy chuẩn thực thi chuẩn\s*vs\s*anti-pattern", "Lỗi thường gặp & cách xử lý chuẩn"),
+            (r"thách thức\s*&\s*bối cảnh thực tế", "Vấn đề thực tế"),
+            (r"giải pháp hiện đại chuẩn doanh nghiệp", "Giải pháp áp dụng thực tế"),
+            (r"thách thức kỹ thuật", "vấn đề kỹ thuật"),
+            (r"bối cảnh\s*&\s*phân tích thực tế", "Bối cảnh & phân tích dự án"),
+            (r"chuẩn hóa quy trình kỹ thuật\s*&\s*tự động hóa vận hành doanh nghiệp", "Quy trình vận hành & tự động hóa hệ thống"),
+            (r"kiến trúc cốt lõi", "Kiến trúc hệ thống"),
+            (r"khai phá", "Tìm hiểu"),
+            (r"khám phá", "Tìm hiểu"),
+        ]
 
-    /* Sidebar Thumbnails Menu */
-    #sidebar {
-      width: 240px; height: 100vh;
-      background: var(--bg-sidebar);
-      border-right: 1px solid #e2e8f0;
-      display: flex; flex-direction: column;
-      flex-shrink: 0; z-index: 100;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.03);
-      transition: all 0.2s ease;
-    }
-    
-    .sidebar-scroll {
-      flex: 1; overflow-y: auto; padding: 20px 14px;
-      display: flex; flex-direction: column; gap: 18px;
-    }
+        for pattern, replacement in buzzwords_map:
+            text = re.sub(pattern, replacement, text, flags=re.IGNORECASE)
 
-    .sidebar-scroll::-webkit-scrollbar { width: 6px; }
-    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
-    .sidebar-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-    .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        # 2. Strip hyperbolic words (nhất, quá, vô cùng, tuyệt vời, bậc nhất, triệt để)
+        hyperboles = [
+            r"\bnhất\b",
+            r"\bquá\b",
+            r"\bvô cùng\b",
+            r"\btuyệt vời\b",
+            r"\bbậc nhất\b",
+            r"\btriệt để\b",
+        ]
+        for pattern in hyperboles:
+            text = re.sub(pattern, "", text, flags=re.IGNORECASE)
 
-    .thumb-item {
-      display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
-      padding: 4px; border-radius: 8px; transition: all 0.2s ease;
-    }
-    .thumb-item:hover { background: #f8fafc; }
-    .thumb-item.active { background: #fef2f2; }
+        # Clean multi-spaces
+        text = re.sub(r"\s+", " ", text).strip()
 
-    .thumb-idx {
-      font-size: 13px; font-weight: 700; color: #94a3b8; width: 16px; text-align: right; margin-top: 6px;
-    }
-    .thumb-item.active .thumb-idx { color: var(--brand-red); font-weight: 800; }
-
-    .thumb-card {
-      flex: 1; aspect-ratio: 16 / 9; background: #ffffff;
-      border: 1.5px solid #cbd5e1; border-radius: 6px; overflow: hidden;
-      position: relative; transition: all 0.2s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
-      display: flex; flex-direction: column; justify-content: space-between;
-    }
-    .thumb-item:hover .thumb-card { border-color: #94a3b8; }
-    .thumb-item.active .thumb-card {
-      border-color: var(--brand-red);
-      box-shadow: 0 0 0 2px rgba(192, 30, 35, 0.25), 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    /* Miniature Live Preview Designs */
-    .thumb-mini-stage {
-      width: 100%; height: 100%; position: relative; background: #ffffff;
-      padding: 6px 8px; display: flex; flex-direction: column; justify-content: space-between;
-      overflow: hidden; pointer-events: none; user-select: none;
-    }
-
-    .thumb-mini-stage.mini-cover { justify-content: center; padding-left: 20px; }
-    .mini-cover-tri {
-      position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-      width: 12px; height: 24px; background: var(--brand-red);
-      clip-path: polygon(0 0, 0 100%, 100% 50%);
-    }
-    .mini-cover-tag { font-size: 7px; font-weight: 800; color: var(--brand-red); }
-    .mini-cover-title { font-size: 8px; font-weight: 800; color: #000; line-height: 1.1; margin-top: 2px; }
-
-    .thumb-mini-stage.mini-agenda { padding: 6px 8px; }
-    .mini-agenda-h { font-size: 7px; font-weight: 900; color: var(--brand-red); margin-bottom: 4px; }
-    .mini-agenda-lines { display: flex; flex-direction: column; gap: 3px; }
-    .mini-agenda-line { height: 3px; background: #e2e8f0; border-radius: 2px; width: 85%; }
-    .mini-agenda-line:nth-child(2) { width: 70%; }
-    .mini-agenda-line:nth-child(3) { width: 90%; }
-
-    .thumb-mini-stage.mini-content { padding: 6px 8px; }
-    .mini-top-bar { position: absolute; top: 0; left: 8px; width: 24px; height: 3px; background: var(--brand-red); }
-    .mini-content-h { font-size: 7px; font-weight: 800; color: #000; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mini-content-grid { display: flex; gap: 4px; height: 32px; margin-top: 4px; }
-    .mini-col-pink { flex: 1; background: var(--brand-pink-bg); border-radius: 3px; padding: 3px; }
-    .mini-col-code { flex: 1; background: #0f172a; border-radius: 3px; padding: 3px; }
-    .mini-code-line { height: 2px; background: #38bdf8; width: 60%; margin-bottom: 2px; border-radius: 1px; }
-    .mini-code-line.w80 { width: 80%; background: #4ade80; }
-
-    .thumb-mini-stage.mini-summary { padding: 6px 8px; }
-    .mini-summary-h { font-size: 7px; font-weight: 900; color: var(--brand-red); }
-    .mini-timeline-bar { position: absolute; top: 55%; left: 8px; right: 8px; height: 1.5px; background: var(--brand-red); }
-    .mini-timeline-dots { display: flex; justify-content: space-around; position: relative; z-index: 2; margin-top: 8px; }
-    .mini-dot-box { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-red); border: 1px solid #fff; }
-
-    /* Main Stage */
-    #main-stage {
-      flex: 1; height: 100vh; position: relative;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--bg-main); padding: 24px; overflow: hidden;
-      transition: all 0.2s ease;
-    }
-
-    #deck-container {
-      width: 100%; height: 100%;
-      max-width: 1400px; max-height: 787.5px;
-      position: relative; overflow: hidden;
-      background: var(--bg-slide); border-radius: 8px;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-      transition: all 0.2s ease;
-    }
-
-    /* Fullscreen Mode Styles */
-    body.fullscreen-mode #sidebar,
-    :fullscreen #sidebar {
-      display: none !important;
-    }
-
-    body.fullscreen-mode #main-stage,
-    :fullscreen #main-stage {
-      padding: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      background: #000000 !important;
-    }
-
-    body.fullscreen-mode #deck-container,
-    :fullscreen #deck-container {
-      max-width: 100vw !important;
-      max-height: 100vh !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-    }
-
-    /* Strictly Isolated Slide Frame */
-    .slide {
-      display: none !important;
-      position: absolute; top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: var(--bg-slide); overflow: hidden;
-      flex-direction: column; padding: 40px 60px;
-      z-index: 1; opacity: 0; pointer-events: none;
-    }
-
-    .slide.active {
-      display: flex !important;
-      z-index: 10; opacity: 1; pointer-events: auto;
-    }
-
-    .footer-copyright {
-      position: absolute; bottom: 18px; left: 0; right: 0;
-      text-align: center; font-size: 15px; color: var(--text-gray); font-weight: 500;
-      z-index: 20; pointer-events: none;
-    }
-
-    .top-right-logo {
-      position: absolute; top: 24px; right: 48px; height: 42px; width: auto; object-fit: contain;
-      z-index: 20;
-    }
-
-    .corner-page-badge {
-      position: absolute; bottom: 0; right: 0; width: 100px; height: 100px;
-      background: var(--brand-red); clip-path: polygon(100% 0, 100% 100%, 0 100%);
-      display: flex; align-items: flex-end; justify-content: flex-end;
-      padding: 10px 14px; color: #ffffff; font-size: 20px; font-weight: 800;
-      font-family: var(--font-code); z-index: 30;
-    }
-
-    /* Cover Slide */
-    .slide-cover {
-      position: relative; background: #ffffff; padding: 0 !important;
-      justify-content: center; align-items: flex-start;
-    }
-    .cover-left-triangle-svg {
-      position: absolute; left: 0; top: 40%; transform: translateY(-50%);
-      width: 90px; height: 160px; z-index: 5;
-    }
-    .cover-content-box {
-      margin-left: 160px; max-width: 1100px; z-index: 10;
-    }
-    .cover-session-tag {
-      font-size: 38px; font-weight: 800; color: var(--brand-red); margin-bottom: 8px;
-    }
-    .cover-main-title {
-      font-size: 48px; font-weight: 800; color: #000000; line-height: 1.25; margin-bottom: 28px;
-    }
-    .cover-meta-text {
-      font-size: 22px; color: var(--text-gray); font-weight: 600;
-    }
-    .cover-bottom-logo {
-      position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
-      height: 44px; width: auto; object-fit: contain; z-index: 10;
-    }
-
-    /* Agenda Slide */
-    .slide-agenda {
-      position: relative; background: #ffffff; padding: 50px 70px !important;
-    }
-    .agenda-top-left-title {
-      font-size: 44px; font-weight: 900; color: var(--brand-red); margin-bottom: 40px;
-      letter-spacing: 1px; z-index: 10;
-    }
-    .agenda-list-box {
-      margin-left: 20px; max-width: 1100px;
-      display: flex; flex-direction: column; gap: 28px; z-index: 10;
-    }
-    .agenda-item-row {
-      font-size: 32px; font-weight: 800; color: #000000; display: flex; align-items: center; gap: 16px;
-    }
-
-    
-    /* Card Color Coding System */
-    .card-default { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; }
-    .card-warning { background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 12px; padding: 20px; color: #92400e; }
-    .card-error { background: #fef2f2; border: 1.5px solid #ef4444; border-radius: 12px; padding: 20px; color: #991b1b; }
-    .card-success { background: #f0fdf4; border: 1.5px solid #22c55e; border-radius: 12px; padding: 20px; color: #166534; }
-    .card-info { background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 12px; padding: 20px; color: #1e40af; }
-
-    /* Content Slide */
-    .slide-content-layout {
-      position: relative; padding: 40px 60px !important; background: #ffffff;
-    }
-    .content-top-accent-bar {
-      position: absolute; top: 0; left: 60px; width: 220px; height: 20px;
-      background: var(--brand-red); z-index: 10;
-    }
-    .content-header-title {
-      font-size: 32px; font-weight: 800; margin-top: 10px; margin-bottom: 24px;
-      color: var(--brand-red); display: flex; align-items: center; gap: 10px; z-index: 10;
-    }
-    .content-header-title .num { color: var(--brand-red); font-weight: 800; }
-
-    .cards-container-row {
-      display: flex; gap: 28px; width: 100%; flex: 1; margin-bottom: 40px; z-index: 10;
-    }
-    .card-column-box {
-      flex: 1; background: var(--brand-pink-bg); border-radius: 12px;
-      padding: 24px; display: flex; flex-direction: column; gap: 16px; overflow: hidden;
-    }
-    .column-title {
-      font-size: 24px; font-weight: 800; color: #000000; margin-bottom: 4px;
-    }
-    .inner-white-card {
-      background: #ffffff; border-radius: 10px; padding: 16px 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-    }
-    .inner-white-card h4 { font-size: 20px; font-weight: 800; color: #000000; margin-bottom: 6px; }
-    .inner-white-card p { font-size: 18px; color: #334155; line-height: 1.6; }
-    .inner-white-card small, .inner-white-card ul li { font-size: 16px; }
-
-    .academic-code-box {
-      background: #0f172a; border-radius: 10px; padding: 22px;
-      font-family: var(--font-code); font-size: 17px; color: #f8fafc;
-      line-height: 1.6; height: 100%; overflow: auto;
-    }
-    .kw { color: #38bdf8; font-weight: 600; }
-    .fn { color: #c084fc; }
-    .str { color: #4ade80; }
-    .cm { color: #94a3b8; font-style: italic; }
-    .num-lit { color: #facc15; }
-
-    /* Timeline Summary Slide */
-    .slide-summary-timeline {
-      position: relative; padding: 50px 70px !important; background: #ffffff;
-      display: flex; flex-direction: column; justify-content: flex-start;
-    }
-    .summary-top-left-title {
-      font-size: 44px; font-weight: 900; color: var(--brand-red); margin-bottom: 20px;
-      letter-spacing: 1px; z-index: 10;
-    }
-    .timeline-container {
-      width: 100%; flex: 1; position: relative; display: flex; flex-direction: column; justify-content: center; z-index: 10;
-      margin-top: -20px;
-    }
-    .timeline-line {
-      position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: var(--brand-red);
-      transform: translateY(-50%); z-index: 1;
-    }
-    .timeline-nodes-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; position: relative; z-index: 2;
-    }
-    .timeline-node {
-      display: flex; flex-direction: column; align-items: center; text-align: center;
-    }
-    .timeline-dot {
-      width: 18px; height: 18px; border-radius: 50%; background: var(--brand-red);
-      border: 4px solid #ffffff; box-shadow: 0 0 0 2px var(--brand-red); margin: 16px 0;
-    }
-    .node-card {
-      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06); min-height: 150px; display: flex; flex-direction: column; justify-content: center; width: 100%;
-    }
-    .node-card h5 { font-size: 18px; font-weight: 800; color: #000000; margin-bottom: 6px; }
-    .node-card p { font-size: 14px; color: var(--text-gray); line-height: 1.5; }
-
-    /* Floating Controls Navigation Bar */
-    #hover-trigger-zone {
-      position: absolute; bottom: 0; left: 0; width: 100%; height: 90px; z-index: 999;
-    }
-    #controls {
-      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: rgba(15, 23, 42, 0.94); border: 1px solid rgba(255, 255, 255, 0.18);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-radius: 999px; padding: 6px 18px;
-      display: flex; align-items: center; gap: 14px; z-index: 1000;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
-      opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
-    }
-    #hover-trigger-zone:hover + #controls, #controls:hover {
-      opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0);
-    }
-    .btn-ctrl {
-      background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.1); color: #ffffff;
-      padding: 7px 18px; border-radius: 999px; cursor: pointer; font-size: 13.5px; font-weight: 600;
-      transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
-    }
-    .btn-ctrl:hover { background: var(--brand-red); border-color: var(--brand-red); transform: translateY(-1px); }
-    #slide-indicator { font-size: 14px; font-weight: 700; color: #ffffff; font-family: var(--font-code); padding: 0 4px; }
-"""
-
-    def _build_js(self) -> str:
-        return """
-    let currentIndex = 0;
-    const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    const indicator = document.getElementById('slide-indicator');
-    const thumbnailList = document.getElementById('thumbnail-list');
-
-    function renderMiniaturePreview(slide, type, title) {
-      if (type === 'cover') {
-        return `
-          <div class="thumb-mini-stage mini-cover">
-            <div class="mini-cover-tri"></div>
-            <div class="mini-cover-tag">Session 01</div>
-            <div class="mini-cover-title">${title}</div>
-          </div>`;
-      } else if (type === 'agenda') {
-        return `
-          <div class="thumb-mini-stage mini-agenda">
-            <div class="mini-agenda-h">NỘI DUNG BÀI HỌC</div>
-            <div class="mini-agenda-lines">
-              <div class="mini-agenda-line"></div>
-              <div class="mini-agenda-line"></div>
-              <div class="mini-agenda-line"></div>
-            </div>
-          </div>`;
-      } else if (type === 'summary') {
-        return `
-          <div class="thumb-mini-stage mini-summary">
-            <div class="mini-summary-h">TỔNG KẾT BÀI HỌC</div>
-            <div class="mini-timeline-bar"></div>
-            <div class="mini-timeline-dots">
-              <div class="mini-dot-box"></div>
-              <div class="mini-dot-box"></div>
-              <div class="mini-dot-box"></div>
-              <div class="mini-dot-box"></div>
-            </div>
-          </div>`;
-      } else {
-        return `
-          <div class="thumb-mini-stage mini-content">
-            <div class="mini-top-bar"></div>
-            <div class="mini-content-h">${title}</div>
-            <div class="mini-content-grid">
-              <div class="mini-col-pink"></div>
-              <div class="mini-col-code">
-                <div class="mini-code-line"></div>
-                <div class="mini-code-line w80"></div>
-              </div>
-            </div>
-          </div>`;
-      }
-    }
-
-    function buildSidebarThumbnails() {
-      if (!thumbnailList) return;
-      thumbnailList.innerHTML = '';
-      slides.forEach((slide, idx) => {
-        const title = slide.getAttribute('data-title') || `Slide ${idx + 1}`;
-        const type = slide.getAttribute('data-type') || 'content';
-        const item = document.createElement('div');
-        item.className = `thumb-item ${idx === currentIndex ? 'active' : ''}`;
-        item.onclick = () => goToSlide(idx);
-        
-        item.innerHTML = `
-          <div class="thumb-idx">${idx + 1}</div>
-          <div class="thumb-card">
-            ${renderMiniaturePreview(slide, type, title)}
-          </div>
-        `;
-        thumbnailList.appendChild(item);
-      });
-    }
-
-    function goToSlide(index) {
-      if (index >= 0 && index < totalSlides) {
-        currentIndex = index;
-        updateDeck();
-      }
-    }
-
-    function updateDeck() {
-      slides.forEach((slide, idx) => {
-        if (idx === currentIndex) {
-          slide.classList.add('active');
-        } else {
-          slide.classList.remove('active');
+        # 3. Enforce Sentence Case (Capitalize 1st letter & proper technical terms, rest lowercase)
+        proper_tech_terms = {
+            "Git", "VCS", "CLI", "Python", "JS", "JavaScript", "TypeScript", "Java", "SQL", "HTML", "CSS",
+            "Docker", "Linux", "Windows", "MacOS", "VS", "Code", "WASM", "Pyodide", "API", "REST", "JSON",
+            "Anti-Pattern", "Best", "Practice", "Conventional", "Commits", "CI/CD", "RAM", "CPU", "Bento", "Rikkei",
+            "Staging", "Area", "Commit", "Log", "Tree", "Working", "Restore", "Branch", "Merge", "Pull", "Push", "Rebase"
         }
-      });
 
-      const thumbItems = document.querySelectorAll('.thumb-item');
-      thumbItems.forEach((item, idx) => {
-        if (idx === currentIndex) {
-          item.classList.add('active');
-          item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-          item.classList.remove('active');
-        }
-      });
+        words = text.split()
+        if len(words) > 1:
+            title_cased_words = sum(1 for w in words if w[0].isupper() and w not in proper_tech_terms)
+            if title_cased_words >= len(words) * 0.4:
+                res_words = []
+                for idx, w in enumerate(words):
+                    clean_w = re.sub(r"[^\w\-\/]", "", w)
+                    if idx == 0:
+                        res_words.append(w[0].upper() + w[1:].lower())
+                    elif clean_w in proper_tech_terms or clean_w.isupper():
+                        res_words.append(w)
+                    else:
+                        res_words.append(w.lower())
+                text = " ".join(res_words)
 
-      if (indicator) {
-        indicator.textContent = `${currentIndex + 1} / ${totalSlides}`;
-      }
-    }
+        if text:
+            text = text[0].upper() + text[1:]
 
-    function nextSlide(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      if (currentIndex < totalSlides - 1) {
-        currentIndex++;
-        updateDeck();
-      }
-    }
-
-    function prevSlide(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateDeck();
-      }
-    }
-
-    function toggleFullscreen(e) {
-      if (e && e.preventDefault) e.preventDefault();
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().then(() => {
-          document.body.classList.add('fullscreen-mode');
-        }).catch(err => {
-          console.error(err);
-        });
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      }
-    }
-
-    document.addEventListener('fullscreenchange', () => {
-      if (document.fullscreenElement) {
-        document.body.classList.add('fullscreen-mode');
-      } else {
-        document.body.classList.remove('fullscreen-mode');
-      }
-    });
-
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-        nextSlide();
-      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-        prevSlide();
-      } else if (e.key === 'Home') {
-        goToSlide(0);
-      } else if (e.key === 'End') {
-        goToSlide(totalSlides - 1);
-      } else if (e.key.toLowerCase() === 'f') {
-        toggleFullscreen();
-      }
-    });
-
-    buildSidebarThumbnails();
-    updateDeck();
-"""
+        return text
 
     def clean_title_string(self, text: str) -> str:
-        """Chuyển đổi chuỗi tên/khóa thô (snake_case, identifier) thành tiêu đề Tiếng Việt đẹp, có khoảng trắng và viết hoa chuẩn."""
+        """Clean raw identifier/snake_case titles into formatted Vietnamese title strings."""
         if not text:
             return ""
         clean = text.strip()
@@ -548,25 +110,96 @@ class SlideGeneratorAgent:
             clean_words = []
             for w in words:
                 w_lower = w.lower()
-                if w_lower in ['py', 'pvm', 'cli', 'api', 'http', 'crud', 'sql', 'orm', 'json', 'url', 'id', 'vs', 'code', 'wasm']:
+                if w_lower in ['py', 'pvm', 'cli', 'api', 'http', 'crud', 'sql', 'orm', 'json', 'url', 'id', 'vs', 'code', 'wasm', 'git', 'vcs', 'pr', 'ui', 'ux']:
                     clean_words.append(w.upper())
-                elif w_lower in ['va', 'va_triet_ly']:
+                elif w_lower in ['va']:
                     clean_words.append("và")
                 else:
                     clean_words.append(w.capitalize())
             clean = " ".join(clean_words)
-        return clean
+        return self.sanitize_slide_text(clean)
 
-    def truncate_title(self, title: str, max_chars: int = 55) -> str:
-        """Rút gọn tiêu đề slide nếu quá dài để hiển thị súc tích trên header."""
+    def extract_session_summary_bullets(self, lessons_data: List[Dict[str, Any]], core_ssot: Optional[Dict[str, Any]] = None) -> List[str]:
+        """
+        Dynamically extracts concise, fluid, high-impact summary key points (12-25 words each)
+        directly from actual lesson scenes and content.
+        NO static prefixes (no 'Nguyên lý...', 'Phòng tránh rủi ro...', 'Bẫy lỗi...').
+        100% dynamic, flexible, and concise.
+        """
+        raw_bullets = []
+        seen_keys = set()
+
+        def clean_and_add(txt: str):
+            if not txt:
+                return
+            cleaned = str(txt).strip()
+            # Strip bullet markers and any HTML tags
+            cleaned = re.sub(r'^\s*[\-\•\*\d\.]+\s*', '', cleaned).strip()
+            cleaned = re.sub(r'<[^>]+>', '', cleaned).strip()
+            # Strip static prefixes like "Nguyên lý...", "Phòng tránh...", "Gotchas:", "Bẫy lỗi:"
+            cleaned = re.sub(r'^\s*(Nguyên lý|Quy chuẩn|Phòng tránh|Chuẩn hóa|Bẫy lỗi|Gotchas|Lưu ý)\s*[\&A-Za-z\s]*\:\s*', '', cleaned, flags=re.IGNORECASE).strip()
+            
+            # Ensure single closing period
+            cleaned = re.sub(r'\.+$', '', cleaned) + '.'
+
+            # Cap length to keep bullet items crisp and readable on slide (max 28 words)
+            words = cleaned.split()
+            if len(words) > 28:
+                cleaned = " ".join(words[:28]) + "..."
+
+            key = cleaned.lower()[:30]
+            if len(cleaned) > 10 and key not in seen_keys:
+                seen_keys.add(key)
+                raw_bullets.append(cleaned)
+
+        # 1. Extract directly from actual lesson scenes (bullets and key points)
+        for l_data in lessons_data:
+            if not isinstance(l_data, dict):
+                continue
+            scenes = l_data.get("scenes", [])
+            for scene in scenes:
+                if not isinstance(scene, dict):
+                    continue
+                sc_bullets = scene.get("bullets") or scene.get("summary_bullets") or scene.get("key_takeaways")
+                if isinstance(sc_bullets, list):
+                    for b in sc_bullets:
+                        b_str = str(b).strip()
+                        if ':' in b_str and not b_str.startswith("http"):
+                            parts = b_str.split(':', 1)
+                            clean_and_add(f"{parts[0].strip()} - {parts[1].strip()}")
+                        else:
+                            clean_and_add(b_str)
+
+        # 2. Extract concepts from core_ssot if needed
+        if len(raw_bullets) < 3 and core_ssot and isinstance(core_ssot, dict):
+            concepts = core_ssot.get("concepts")
+            if isinstance(concepts, dict):
+                for cname, cdesc in concepts.items():
+                    clean_and_add(f"{cname}: {cdesc}")
+            elif isinstance(concepts, list):
+                for c in concepts:
+                    clean_and_add(str(c))
+
+        # 3. Fallback synthesis from actual lesson titles if bullets are short
+        if len(raw_bullets) < 3:
+            for l_data in lessons_data:
+                l_title = l_data.get("lesson_title") or ""
+                clean_lt = self.clean_title_string(l_title)
+                clean_lt = re.sub(r'^\s*(Session\s*\d+|Lesson\s*\d+|Bài\s*\d+|\[\d+\.\d+\]|\d+\.)\s*[\:\-]?\s*', '', clean_lt, flags=re.IGNORECASE).strip()
+                clean_lt = re.sub(r'^(Session\s*\d+\s*[\:\-]?\s*)+', '', clean_lt, flags=re.IGNORECASE).strip()
+                if clean_lt:
+                    clean_and_add(f"Thực hành thành thạo: {clean_lt}")
+
+        return raw_bullets[:4]
+
+    def truncate_title(self, title: str, max_chars: int = 60) -> str:
+        """Truncate overly long titles gracefully for header presentation."""
         if not title:
             return "Nội dung bài học"
         clean = self.clean_title_string(title)
-        # Loại bỏ các tiền tố số thứ tự lặp lại nếu có
         clean = re.sub(r'^\d+[\.\:]\s*', '', clean)
         if len(clean) <= max_chars:
             return clean
-        # Cắt gọn theo từ
         words = clean.split()
         short_words = []
         char_count = 0
@@ -577,67 +210,11 @@ class SlideGeneratorAgent:
             char_count += len(w) + 1
         return " ".join(short_words) + "..." if short_words else clean[:max_chars] + "..."
 
-    def _get_dynamic_column_titles_and_cards(self, scene: Dict[str, Any], short_stitle: str, narration: str, bullets: List[str]):
-        """Sinh tiêu đề cột và tiêu đề thẻ linh hoạt dựa trên dữ liệu AI truyền hoặc suy luận ngữ cảnh."""
-        # 1. Ưu tiên lấy trực tiếp nếu AI / Scene đã cung cấp
-        col1_title = scene.get("col1_title")
-        col2_title = scene.get("col2_title")
+    def _render_scene_content_html(self, scene: Dict[str, Any], clean_stitle: str, is_cli_or_tooling: bool = False) -> str:
+        """Renders inner HTML slide content matching slide_result/index.html layout archetypes."""
+        layout_type = str(scene.get("layout_type") or "").upper()
         
-        # 2. Nếu chưa có, suy luận dựa trên từ khóa trong tiêu đề slide hoặc nội dung
-        title_lower = short_stitle.lower()
-
-        if any(k in title_lower for k in ["vấn đề", "trở ngại", "lỗi", "conflict", "problem"]):
-            c1_t = col1_title or "Vấn Đề & Tác Động"
-            c2_t = col2_title or "Giải Pháp & Cách Khắc Phục"
-            h1 = "Trở Ngại Hệ Thống"
-            h2 = "Hướng Xử Lý Triệt Để"
-        elif any(k in title_lower for k in ["phân tích", "nguyên lý", "cơ chế", "so sánh", "concept"]):
-            c1_t = col1_title or "Phân Tích Cơ Chế"
-            c2_t = col2_title or "Đặc Điểm & Ứng Dụng"
-            h1 = "Nguyên Lý Hoạt Động"
-            h2 = "Bối Cảnh Áp Dụng"
-        elif any(k in title_lower for k in ["thành phần", "cấu hình", "môi trường", "biến", "thiết lập"]):
-            c1_t = col1_title or "Thành Phần Hệ Thống"
-            c2_t = col2_title or "Cấu Hình & Tương Tác"
-            h1 = "Thông Số Khởi Tạo"
-            h2 = "Quy Tắc Thiết Lập"
-        elif any(k in title_lower for k in ["quy trình", "bước", "lệnh", "step", "cli"]):
-            c1_t = col1_title or "Các Bước Thực Hiện"
-            c2_t = col2_title or "Mã Lệnh & Lưu Ý"
-            h1 = "Thao Tác Triển Khai"
-            h2 = "Lệnh CLI Tương Tác"
-        elif any(k in title_lower for k in ["tổng kết", "sai lầm", "summary"]):
-            c1_t = col1_title or "Tổng Kết Kiến Thức"
-            c2_t = col2_title or "Sai Lầm Cần Tránh"
-            h1 = "Điểm Cốt Lõi"
-            h2 = "Lưu Ý Thực Chiến"
-        else:
-            c1_t = col1_title or "Trọng Tâm Bài Học"
-            c2_t = col2_title or "Phân Tích Chi Tiết"
-            h1 = "Nội Dung Chính"
-            h2 = "Ứng Dụng Thực Tế"
-
-        # Dựng HTML danh sách thẻ cho từng cột
-        col1_cards_html = ""
-        col2_cards_html = ""
-
-        if len(bullets) >= 2:
-            mid = len(bullets) // 2
-            for idx, b in enumerate(bullets[:mid]):
-                card_tag = f"{h1} #{idx+1}" if len(bullets[:mid]) > 1 else h1
-                col1_cards_html += f'<div class="inner-white-card"><h4>{card_tag}</h4><p>{b}</p></div>\n'
-            for idx, b in enumerate(bullets[mid:4]):
-                card_tag = f"{h2} #{idx+1}" if len(bullets[mid:4]) > 1 else h2
-                col2_cards_html += f'<div class="inner-white-card"><h4>{card_tag}</h4><p>{b}</p></div>\n'
-        else:
-            col1_cards_html = f'<div class="inner-white-card"><h4>{h1}</h4><p>{narration[:200] if narration else "Nội dung phân tích nguyên lý kỹ thuật."}</p></div>'
-            col2_cards_html = f'<div class="inner-white-card"><h4>{h2}</h4><p>{narration[200:400] if len(narration) > 200 else "Áp dụng vào xây dựng ứng dụng thực chiến."}</p></div>'
-
-        return c1_t, c2_t, col1_cards_html, col2_cards_html
-
-    def _render_scene_content_html(self, scene: Dict[str, Any], clean_stitle: str) -> str:
-        """Hàm dựng nội dung HTML cho 1 slide linh hoạt và đầy đủ thông tin giảng dạy."""
-        layout_type = (scene.get("layout_type") or "").upper()
+        # 1. CUSTOM RAW HTML
         if layout_type == "CUSTOM_RAW" and scene.get("html_content"):
             return scene.get("html_content")
 
@@ -645,471 +222,723 @@ class SlideGeneratorAgent:
         bullets = scene.get("bullets", [])
         code_sample = scene.get("code_sample") or scene.get("code") or ""
         mermaid_code = scene.get("mermaid") or scene.get("diagram") or ""
-        layout_type = (scene.get("layout_type") or "").upper()
+        image_url = scene.get("image_url") or scene.get("image_path") or scene.get("image") or ""
+        image_caption = scene.get("image_caption") or scene.get("caption") or "Hình minh họa bối cảnh kỹ thuật thực tế"
 
         if not bullets and narration:
             raw_sentences = [s.strip() for s in re.split(r'[\.\;\n]', narration) if len(s.strip()) > 10]
             bullets = raw_sentences[:4]
 
-        # 1. MERMAID DIAGRAM
-        if "MERMAID" in layout_type or mermaid_code:
-            return f"""
-        <div style="width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px;">
-          <div class="mermaid" style="width: 100%; max-height: 480px; overflow: auto; background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155;">
-{mermaid_code}
-          </div>
-        </div>
-"""
-        # 2. SINGLE COLUMN FOCUS
-        elif "SINGLE_COLUMN" in layout_type:
-            bullet_cards_html = "".join([f'<div class="inner-white-card" style="margin-bottom: 12px;"><p>{b}</p></div>' for b in bullets[:4]])
-            return f"""
-        <div style="max-width: 900px; margin: 0 auto; width: 100%; padding: 20px;">
-          <div class="inner-white-card" style="background: #ffffff; border: 2px solid var(--brand-red); border-radius: 12px; padding: 24px;">
-            <h3 style="font-size: 22px; font-weight: 800; color: var(--brand-red); margin-bottom: 16px;">{clean_stitle}</h3>
-            {bullet_cards_html}
-          </div>
-        </div>
-"""
-        # 3. THREE COLUMN CARDS
-        elif "THREE_COLUMN" in layout_type and len(bullets) >= 3:
-            cols_html = "".join([f'<div class="card-column-box" style="flex: 1; background: #ffffff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;"><h4 style="font-size: 18px; font-weight: 700; color: var(--brand-red); margin-bottom: 10px;">Mục #{idx+1}</h4><p>{b}</p></div>' for idx, b in enumerate(bullets[:3])])
-            return f"""
-        <div class="cards-container-row" style="gap: 16px;">
-          {cols_html}
-        </div>
-"""
-        # 4. WARNING GOTCHAS
-        elif "WARNING" in layout_type or "GOTCHAS" in layout_type:
-            bullet_cards_html = "".join([f'<div class="inner-white-card" style="margin-bottom: 12px; border-left: 5px solid #ef4444;"><p>{b}</p></div>' for b in bullets[:4]])
-            return f"""
-        <div style="max-width: 950px; margin: 0 auto; width: 100%; padding: 20px;">
-          <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 24px;">
-            <h3 style="font-size: 22px; font-weight: 800; color: #991b1b; margin-bottom: 14px;">⚠️ [CẢNH BÁO] Bẫy Cú Pháp &amp; Anti-Pattern</h3>
-            {bullet_cards_html}
-          </div>
-        </div>
-"""
-        # 5. CODE DEMO EXPLAINER WITH INPUT/OUTPUT & TRICKS FOR LECTURERS
-        elif code_sample or "CODE" in layout_type:
-            bullet_cards_html = ""
+        # 2. IMAGE EXPLAINER LAYOUT (16:9 Technical Image + Explainer Notes)
+        if "IMAGE" in layout_type or image_url:
+            bullet_items_html = ""
             if bullets:
-                for b in bullets[:3]:
-                    bullet_cards_html += f'<div class="inner-white-card" style="margin-bottom: 8px;"><p>{b}</p></div>'
+                for b in bullets[:4]:
+                    parts = b.split(':', 1) if ':' in b else [b, ""]
+                    title_p = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', parts[0]).strip())
+                    desc_p = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', parts[1] if len(parts) > 1 else parts[0]).strip())
+                    bullet_items_html += f"""
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">{title_p}</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">{desc_p}</p>
+                  </div>
+                </div>"""
             else:
-                bullet_cards_html = f'<div class="inner-white-card"><p>{narration[:250] if narration else "Mã nguồn minh họa khái niệm cốt lõi của bài học."}</p></div>'
-
-            lecturer_trick = scene.get("lecturer_trick") or scene.get("trick")
-            trick_box_html = ""
-            if lecturer_trick:
-                trick_box_html = f"""
-                <div style="background: #fffbeb; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 8px 12px; margin-top: 8px; color: #92400e; font-size: 13px;">
-                  <strong style="color: #d97706;">💡 Mẹo Giảng Dạy &amp; Trick:</strong> {lecturer_trick}
+                bullet_items_html = f"""
+                <div class="text-slate-700 text-[15px] leading-relaxed">
+                  {self.sanitize_slide_text(narration[:300]) if narration else 'Hình ảnh minh họa bối cảnh thực tế và quy trình vận hành hệ thống.'}
                 </div>"""
 
-            ent_scenario = scene.get("enterprise_scenario") or scene.get("scenario")
-            scenario_box_html = ""
-            if ent_scenario:
-                scenario_box_html = f"""
-                <div style="background: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 8px 12px; margin-top: 6px; color: #1e40af; font-size: 13px;">
-                  <strong style="color: #2563eb;">🏢 Bối Cảnh Thực Tế:</strong> {ent_scenario}
+            image_caption_clean = self.sanitize_slide_text(image_caption)
+            return f"""
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="{image_url}" alt="{clean_stitle}" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">{image_caption_clean}</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  {bullet_items_html}
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+"""
+
+        # 3. VISUAL MINDMAP LAYOUT (Sơ đồ tư duy dạng khối trực quan)
+        elif "MINDMAP" in layout_type or scene.get("mindmap_branches"):
+            center_title = scene.get("mindmap_center") or clean_stitle or "Kiến trúc hệ thống"
+            center_title = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', center_title).strip())
+            branches = scene.get("mindmap_branches") or []
+            if not branches and bullets:
+                branches = []
+                icons = ["ph-tree-structure", "ph-arrows-left-right", "ph-database", "ph-shield-check"]
+                for idx, b in enumerate(bullets[:4]):
+                    parts = b.split(':', 1) if ':' in b else [b, ""]
+                    branches.append({
+                        "title": re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', parts[0]).strip(),
+                        "icon": icons[idx % len(icons)],
+                        "description": re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', parts[1] if len(parts) > 1 else parts[0]).strip()
+                    })
+
+            branch_cards_html = ""
+            for br in branches[:4]:
+                b_title = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', br.get("title") or "Thành phần").strip())
+                b_icon = br.get("icon") or "ph-diamonds-four"
+                b_desc = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', br.get("description") or "").strip())
+                branch_cards_html += f"""
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold {b_icon} text-rikkei-red text-lg"></i> {b_title}
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">{b_desc}</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>"""
+
+            return f"""
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">{center_title}</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              {branch_cards_html}
+            </div>
+          </div>
+"""
+
+        # 4. MERMAID DIAGRAM LAYOUT
+        elif "MERMAID" in layout_type or mermaid_code:
+            clean_mermaid = mermaid_code.strip()
+            return f"""
+          <div class="w-full flex justify-center bg-slate-50 p-6 rounded-xl border border-slate-200 mt-9 mb-auto items-center h-fit">
+            <div class="mermaid w-full max-w-4xl scale-105">
+              {clean_mermaid}
+            </div>
+          </div>
+"""
+
+        # 5. CODE / COMMAND EXPLAINER LAYOUT (Theory + Code Box)
+        elif code_sample or "CODE" in layout_type:
+            lang = "bash" if is_cli_or_tooling else "python"
+            bullet_items_html = ""
+            if bullets:
+                for b in bullets[:4]:
+                    parts = b.split(':', 1) if ':' in b else [b, ""]
+                    title_p = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', parts[0]).strip())
+                    desc_p = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', parts[1] if len(parts) > 1 else parts[0]).strip())
+                    bullet_items_html += f"""
+                <div>
+                  <div class="font-bold text-slate-900 text-[17px] mb-1 flex items-center gap-2">
+                    <i class="ph-bold ph-caret-right text-rikkei-red"></i> {title_p}:
+                  </div>
+                  <p class="text-slate-600 text-[14px] leading-relaxed pl-5">{desc_p}</p>
+                </div>"""
+            else:
+                bullet_items_html = f"""
+                <div>
+                  <div class="font-bold text-slate-900 text-[17px] mb-1 flex items-center gap-2">
+                    <i class="ph-bold ph-caret-right text-rikkei-red"></i> Nguyên lý thực thi thực tế:
+                  </div>
+                  <p class="text-slate-600 text-[14px] leading-relaxed pl-5">{self.sanitize_slide_text(narration[:240]) if narration else 'Mã nguồn minh họa cơ chế hoạt động của hệ thống.'}</p>
                 </div>"""
 
             safe_code = code_sample.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-            code_lines = safe_code.splitlines()
-            formatted_code_lines = []
-            for line in code_lines:
-                if line.strip().startswith('#'):
-                    formatted_code_lines.append(f'<span class="cm">{line}</span>')
-                elif any(kw in line for kw in ['def ', 'class ', 'import ', 'from ', 'return ', 'if ', 'else:', 'elif ']):
-                    line_esc = line.replace('def ', '<span class="kw">def</span> ').replace('return ', '<span class="kw">return</span> ').replace('import ', '<span class="kw">import</span> ')
-                    formatted_code_lines.append(line_esc)
-                else:
-                    formatted_code_lines.append(line)
-            code_display_html = "<br/>".join(formatted_code_lines) if formatted_code_lines else safe_code
+            return f"""
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-book-open text-rikkei-red text-2xl"></i> Nguyên lý &amp; lưu ý thực thi
+                </h5>
+                <div class="space-y-4 text-slate-800 text-[15px]">
+                  {bullet_items_html}
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-terminal-window text-rikkei-red text-lg shrink-0"></i>
+                <span>Thao tác thực thi theo quy chuẩn kỹ thuật.</span>
+              </div>
+            </div>
+            <div class="flex flex-col h-fit">
+              <pre class="bg-slate-900 text-emerald-400 p-6 rounded-xl font-mono text-[14px] overflow-auto border border-slate-800 shadow-xl leading-relaxed max-h-[380px] h-fit"><code class="language-{lang}">{safe_code}</code></pre>
+            </div>
+          </div>
+"""
 
-            code_output = scene.get("code_output") or scene.get("output")
-            output_box_html = ""
-            if code_output:
-                output_box_html = f"""
-                <div style="background: #090d16; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 12px; margin-top: 6px; font-family: var(--font-code); font-size: 12px; color: #10b981;">
-                  <strong style="color: #38bdf8;">🖥️ KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</strong>
-                  <pre style="margin: 4px 0 0 0; font-family: inherit; color: #34d399; white-space: pre-wrap;">{code_output}</pre>
-                </div>"""
+        # 6. GOOD VS BAD PRACTICE COMPARISON LAYOUT
+        elif "COMPARISON" in layout_type or scene.get("bad_practice") or scene.get("good_practice"):
+            bad = scene.get("bad_practice") or {}
+            good = scene.get("good_practice") or {}
+            
+            bad_raw = bad.get("title") or "Thao tác thủ công"
+            bad_clean = self.sanitize_slide_text(re.sub(r'^(Anti-Pattern|Cách làm sai)\s*[\:\-]?\s*', '', re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', bad_raw).strip(), flags=re.IGNORECASE).strip())
+            bad_code = bad.get("code") or (bullets[0] if len(bullets) > 0 else "Thao tác thủ công không qua kiểm thử")
+            bad_reason = self.sanitize_slide_text(bad.get("reason") or "Dễ phát sinh lỗi hệ thống và rò rỉ dữ liệu.")
+
+            good_raw = good.get("title") or "Quy trình tự động hóa"
+            good_clean = self.sanitize_slide_text(re.sub(r'^(Best Practice|Quy chuẩn đúng)\s*[\:\-]?\s*', '', re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', good_raw).strip(), flags=re.IGNORECASE).strip())
+            good_code = good.get("code") or (bullets[1] if len(bullets) > 1 else "Chuẩn hóa quy trình vận hành tự động")
+            good_reason = self.sanitize_slide_text(good.get("reason") or "Đảm bảo tính ổn định và tối ưu hiệu năng làm việc.")
 
             return f"""
-        <div class="cards-container-row">
-          <div class="card-column-box" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 20px;">
-            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--brand-red);">Khái niệm &amp; Phân tích</h3>
-            {bullet_cards_html}
-            {trick_box_html}
-            {scenario_box_html}
-          </div>
-          <div class="card-column-box" style="background: transparent; padding: 0; display: flex; flex-direction: column;">
-            <div class="academic-code-box">
-              {code_display_html}
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: {bad_clean}</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>{bad_code}</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  {bad_reason}
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
             </div>
-            {output_box_html}
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: {good_clean}</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>{good_code}</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  {good_reason}
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
           </div>
-        </div>
 """
-        # 6. TWO COLUMN COMPARE / DEFAULT
+
+        # 7. DEFAULT 2-COLUMN BENTO GRID CARDS LAYOUT
         else:
-            c1_title, c2_title, col1_cards, col2_cards = self._get_dynamic_column_titles_and_cards(
-                scene=scene,
-                short_stitle=clean_stitle,
-                narration=narration,
-                bullets=bullets
-            )
+            p_text1 = self.sanitize_slide_text(bullets[0] if len(bullets) > 0 else (narration[:240] if narration else f"Hạn chế khi phát triển hệ thống với {clean_stitle}."))
+            p_text2 = self.sanitize_slide_text(bullets[1] if len(bullets) > 1 else (narration[240:480] if len(narration) > 240 else f"Giải pháp quy trình cho {clean_stitle}."))
+            
+            c1_title = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', scene.get("col1_title") or "Vấn đề thực tế").strip())
+            c2_title = self.sanitize_slide_text(re.sub(r'[\u274c\u2705\u26a0\ufe0f]', '', scene.get("col2_title") or "Giải pháp áp dụng").strip())
 
             return f"""
-        <div class="cards-container-row">
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-red);">{c1_title}</div>
-            {col1_cards}
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>{c1_title}</span>
+                </h5>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  {p_text1}
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Rủi ro phát sinh lỗi và chậm tiến độ.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>{c2_title}</span>
+                </h5>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  {p_text2}
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Tối ưu hiệu năng và quy trình làm việc.</span>
+              </div>
+            </div>
           </div>
-          <div class="card-column-box">
-            <div class="column-title" style="color: var(--brand-dark);">{c2_title}</div>
-            {col2_cards}
-          </div>
-        </div>
 """
 
-    def generate_deck_html(self, lesson_title: str, module_name: str, scenes: List[Dict[str, Any]]) -> str:
-        slides_html_parts = []
-        total_pages = len(scenes) + 3
+    def generate_session_deck_html(self, session_title: str, module_name: str, lessons_data: List[Dict[str, Any]], core_ssot: Optional[Dict[str, Any]] = None) -> str:
+        """Master HTML Slide Presentation Deck Compiler for 1 Session matching slide_result/index.html."""
         current_year = datetime.now().year
-        copyright_text = f"© {current_year} By Rikkei Academy - All rights reserved."
-
-        cover_triangle_svg = """<svg class="cover-left-triangle-svg" viewBox="0 0 100 160"><polygon points="0,0 0,160 100,80" fill="#c01e23"/></svg>"""
-
-        # Tách Session Tag và Tiêu đề bài học thuần túy
-        session_match = re.search(r'(Session\s*\d+)', lesson_title, re.IGNORECASE)
-        session_tag = f"{session_match.group(1).title()}:" if session_match else "Session 01:"
-
-        # Loại bỏ "Session XX", "Lesson YY", dấu gạch nối ra khỏi tiêu đề chính
-        pure_lesson_title = re.sub(r'Session\s*\d+\s*[\:\-]?\s*', '', lesson_title, flags=re.IGNORECASE)
-        pure_lesson_title = re.sub(r'Lesson\s*\d+\s*[\:\-]?\s*', '', pure_lesson_title, flags=re.IGNORECASE).strip()
-        if pure_lesson_title.startswith('-'):
-            pure_lesson_title = pure_lesson_title.lstrip('- ').strip()
-        if not pure_lesson_title:
-            pure_lesson_title = lesson_title
-
-        clean_cover_title = self.truncate_title(pure_lesson_title, max_chars=65)
-
-        # 1. Cover Slide (Trang 1)
-        slides_html_parts.append(f"""
-    <div class="slide slide-cover active" data-type="cover" data-title="{clean_cover_title}">
-      {cover_triangle_svg}
-      <div class="cover-content-box">
-        <div class="cover-session-tag">{session_tag}</div>
-        <div class="cover-main-title">{clean_cover_title}</div>
-        <div class="cover-meta-text">Môn học: {module_name}</div>
-      </div>
-      <img src="{self.LOGO_URL}" alt="Rikkei Academy Logo" class="cover-bottom-logo" />
-      <div class="corner-page-badge">1</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-
-        # 2. Agenda Slide (Trang 2)
-        agenda_items_html = ""
-        agenda_display_scenes = scenes[:6]  # Tối đa 6 mục chính trên Agenda
-        for i, scene in enumerate(agenda_display_scenes, 1):
-            raw_stitle = scene.get("short_title") or scene.get("scene_title") or f"Mục {i}"
-            stitle_short = self.truncate_title(raw_stitle, max_chars=50)
-            agenda_items_html += f'<div class="agenda-item-row"><span>{i}.</span> <span>{stitle_short}</span></div>\n'
-
-        slides_html_parts.append(f"""
-    <div class="slide slide-agenda" data-type="agenda" data-title="Nội dung bài học">
-      <div class="agenda-top-left-title">NỘI DUNG BÀI HỌC</div>
-      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="agenda-list-box">
-        {agenda_items_html}
-      </div>
-      <div class="corner-page-badge">2</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-
-        # 3..N. Content Slides (Trang 3, 4, ..., N+2)
-        for i, scene in enumerate(scenes, 1):
-            raw_action_title = scene.get("action_title") or scene.get("scene_title") or scene.get("short_title") or f"Trọng tâm {i}"
-            clean_action_title = self.truncate_title(raw_action_title, max_chars=60)
-            slide_heading = f"{i:02d}. {clean_action_title}"
-            page_num = i + 2
-
-            content_inner_html = self._render_scene_content_html(scene, clean_action_title)
-
-            slides_html_parts.append(f"""
-    <div class="slide slide-content-layout" data-type="content" data-title="{slide_heading}">
-      <div class="content-top-accent-bar"></div>
-      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="content-header-title">
-        {slide_heading}
-      </div>
-      {content_inner_html}
-      <div class="corner-page-badge">{page_num}</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-
-        # Timeline Summary Slide (Trang cuối N+3)
-        recap_page_num = len(scenes) + 3
-        timeline_nodes_html = ""
-        summary_scenes = scenes[:4]
-        for idx, sc in enumerate(summary_scenes, 1):
-            raw_stitle = sc.get("short_title") or sc.get("scene_title") or f"Mục {idx}"
-            stitle_short = self.truncate_title(raw_stitle, max_chars=35)
-            narration_snippet = (sc.get("narration") or "Tóm tắt điểm cốt lõi bài học.")[:90]
-            is_top = (idx % 2 == 1)
-            if is_top:
-                timeline_nodes_html += f"""
-          <div class="timeline-node">
-            <div class="node-card" style="margin-bottom: 24px;">
-              <h5>{idx}. {stitle_short}</h5>
-              <p>{narration_snippet}...</p>
-            </div>
-            <div class="timeline-dot"></div>
-          </div>"""
-            else:
-                timeline_nodes_html += f"""
-          <div class="timeline-node">
-            <div class="timeline-dot" style="margin-top: 60px;"></div>
-            <div class="node-card" style="margin-top: 24px;">
-              <h5>{idx}. {stitle_short}</h5>
-              <p>{narration_snippet}...</p>
-            </div>
-          </div>"""
-
-        slides_html_parts.append(f"""
-    <div class="slide slide-summary-timeline" data-type="summary" data-title="Tổng kết bài học">
-      <div class="summary-top-left-title">TỔNG KẾT BÀI HỌC</div>
-      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="timeline-container">
-        <div class="timeline-line"></div>
-        <div class="timeline-nodes-grid">
-          {timeline_nodes_html}
-        </div>
-      </div>
-      <div class="corner-page-badge">{recap_page_num}</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-
-        full_html = f"""<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{clean_cover_title} — Rikkei Master Slide Presentation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {{
-      if (window.mermaid) {{
-        mermaid.initialize({{ startOnLoad: true, theme: 'dark', securityLevel: 'loose' }});
-      }}
-    }});
-  </script>
-  <style>
-{self._build_css()}
-  </style>
-</head>
-<body>
-
-  <div id="sidebar">
-    <div class="sidebar-scroll" id="thumbnail-list"></div>
-  </div>
-
-  <div id="main-stage">
-    <div id="deck-container">
-{"".join(slides_html_parts)}
-    </div>
-
-    <div id="hover-trigger-zone"></div>
-    <div id="controls">
-      <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
-      <span id="slide-indicator">1 / {total_pages}</span>
-      <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
-      <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
-    </div>
-  </div>
-
-  <script>
-{self._build_js()}
-  </script>
-</body>
-</html>"""
-        return full_html
-
-    
-    def _clean_inner_html(self, html_str: str) -> str:
-        if not html_str:
-            return ""
-        # Strip style, script, head, html, body tags completely
-        html_str = re.sub(r'<style[^>]*>.*?</style>', '', html_str, flags=re.DOTALL | re.IGNORECASE)
-        html_str = re.sub(r'<script[^>]*>.*?</script>', '', html_str, flags=re.DOTALL | re.IGNORECASE)
-        html_str = re.sub(r'<!DOCTYPE[^>]*>', '', html_str, flags=re.IGNORECASE)
-        html_str = re.sub(r'</?(html|head|body|meta|title|link)[^>]*>', '', html_str, flags=re.IGNORECASE)
-        return html_str.strip()
-
-    def generate_session_deck_html(self, session_title: str, module_name: str, lessons_data: List[Dict[str, Any]]) -> str:
-        """Sinh duy nhất một file Master Slide HTML tổng hợp toàn bộ các Lesson trong một Session.
-        lessons_data: List[{ 'lesson_id': 'Lesson 01', 'lesson_title': '...', 'scenes': [...] }, ...]
-        """
-        all_slides_html_parts = []
-        total_pages = 2  # Cover + Session Agenda
-
-        for l_data in lessons_data:
-            total_pages += len(l_data.get("scenes", []))
-
-        current_year = datetime.now().year
-        copyright_text = f"© {current_year} By Rikkei Academy - All rights reserved."
-        cover_triangle_svg = """<svg class="cover-left-triangle-svg" viewBox="0 0 100 160"><polygon points="0,0 0,160 100,80" fill="#be111c"/></svg>"""
+        copyright_text = f"© {current_year} By Rikkei Education - All rights reserved."
 
         clean_session_title = self.clean_title_string(session_title)
+        # Clean duplicate Session XX / Lesson YY prefixes
+        clean_session_title = re.sub(r'^(Session\s*\d+\s*[\:\-]?\s*Lesson\s*\d+\s*[\:\-]?\s*)+', '', clean_session_title, flags=re.IGNORECASE).strip()
+        clean_session_title = re.sub(r'^(Session\s*\d+\s*[\:\-]\s*)+', r'\1', clean_session_title, flags=re.IGNORECASE).strip()
         
-        # Parse Session prefix vs main topic name
-        m_sess = re.search(r'^(Session\s*\d+)\s*[:-]\s*(.*)', clean_session_title, re.IGNORECASE)
+        # Parse Session Tag (e.g. Session 01, Session 02)
+        m_sess = re.search(r'^(Session\s*\d+)\s*[:-]?\s*(.*)', clean_session_title, re.IGNORECASE)
         if m_sess:
             session_tag_text = m_sess.group(1).strip()
             main_title_text = m_sess.group(2).strip()
         else:
-            session_tag_text = "Session Slide Master"
+            session_tag_text = "Session 01"
             main_title_text = clean_session_title
-        clean_module_name = module_name.replace("NIKKEI ACADEMY", "Khóa học").replace("RIKKEI ACADEMY", "Khóa học").strip()
-        if not clean_module_name or clean_module_name.isupper():
-            clean_module_name = "Chương trình Đào tạo"
-        # 1. Master Cover Slide
-        all_slides_html_parts.append(f"""
-    <div class="slide slide-cover active" data-type="cover" data-title="{clean_session_title}">
-      {cover_triangle_svg}
-      <div class="cover-content-box">
-        <div class="cover-session-tag" style="color: #be111c; font-size: 22px; font-weight: 800; text-transform: none; margin-bottom: 8px;">{session_tag_text}</div>
-        <div class="cover-main-title" style="color: #0f172a; font-size: 34px; font-weight: 900; text-transform: none; line-height: 1.25;">{main_title_text}</div>
-        <div class="cover-meta-text" style="color: #475569; font-size: 14px; text-transform: none; margin-top: 12px;">Môn học: {clean_module_name} — Tổng số bài học: {len(lessons_data)}</div>
-      </div>
-      <img src="{self.LOGO_URL}" alt="Rikkei Education Logo" class="cover-bottom-logo" />
-      <div class="corner-page-badge">1</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
 
-        # 2. Master Session Agenda Slide (NỘI DUNG BÀI HỌC)
-        session_agenda_items_html = ""
-        font_size = "24px" if len(lessons_data) <= 6 else "20px"
-        badge_size = "42px" if len(lessons_data) <= 6 else "36px"
-        gap_size = "22px" if len(lessons_data) <= 6 else "14px"
-        
-        for i, l_data in enumerate(lessons_data, 1):
-            l_title = l_data.get("lesson_title", f"Bài học {i}")
-            clean_l_title = self.clean_title_string(l_title)
-            session_agenda_items_html += f"""
-            <div class="agenda-item-row" style="display: flex; align-items: center; gap: 20px;">
-              <span style="display: inline-flex; align-items: center; justify-content: center; width: {badge_size}; height: {badge_size}; border-radius: 12px; background: #fef2f2; color: #be111c; font-weight: 900; font-size: 18px; border: 1.5px solid #fee2e2; flex-shrink: 0;">
-                {i:02d}
-              </span>
-              <span style="font-weight: 800; color: #0f172a; font-size: {font_size}; line-height: 1.3;">
-                {clean_l_title}
-              </span>
+        # Preserve course name cleanly without fallback to generic "Chương trình Đào tạo Doanh nghiệp"
+        clean_module_name = module_name.strip()
+        if not clean_module_name or clean_module_name.upper() in ["PYTHON", "GIT", "WEB", "IT"]:
+            clean_module_name = "Chương trình Đào tạo Công nghệ Thông tin"
+
+        ts_lower = (session_title + " " + module_name).lower()
+        is_cli_or_tooling = any(k in ts_lower for k in ["git", "vcs", "terminal", "cli", "bash", "docker", "agile", "scrum", "uml", "figma", "ui", "design"])
+
+        slide_wrappers_html = []
+
+        # ── 1. COVER SLIDE (Slide Index 0, Page 1) ─────────────────────────────
+        slide_wrappers_html.append(f"""
+      <!-- Slide 0: Cover Slide -->
+      <div class="slide-wrapper" id="slide-1" data-slide-index="0">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-16 overflow-hidden">
+          <!-- Left red banner decoration -->
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-40 bg-rikkei-red" style="clip-path: polygon(0 0, 0 100%, 100% 50%)"></div>
+          <!-- Right decorative triangle grid -->
+          <svg class="absolute -right-4 top-1/2 -translate-y-1/2 h-[80%] w-[35%] text-rikkei-red select-none pointer-events-none opacity-80" fill="currentColor" viewBox="0 0 200 400">
+            <polygon points="180,60 190,65 180,70"></polygon>
+            <polygon points="180,90 190,95 180,100"></polygon>
+            <polygon points="180,120 190,125 180,130"></polygon>
+            <polygon points="180,150 190,155 180,160"></polygon>
+            <polygon points="180,180 190,185 180,190"></polygon>
+            <polygon points="180,210 190,215 180,220"></polygon>
+            <polygon points="180,240 190,245 180,250"></polygon>
+            <polygon points="180,270 190,275 180,280"></polygon>
+            <polygon points="180,300 190,305 180,310"></polygon>
+            <polygon points="180,330 190,335 180,340"></polygon>
+            <polygon points="160,80 170,85 160,90"></polygon>
+            <polygon points="160,110 170,115 160,120"></polygon>
+            <polygon points="160,140 170,145 160,150"></polygon>
+            <polygon points="160,170 170,175 160,180"></polygon>
+            <polygon points="160,200 170,205 160,210"></polygon>
+            <polygon points="160,230 170,235 160,240"></polygon>
+            <polygon points="160,260 170,265 160,270"></polygon>
+            <polygon points="160,290 170,295 160,300"></polygon>
+            <polygon points="160,320 170,325 160,330"></polygon>
+            <polygon points="140,100 150,105 140,110"></polygon>
+            <polygon points="140,130 150,135 140,140"></polygon>
+            <polygon points="140,160 150,165 140,170"></polygon>
+            <polygon points="140,190 150,195 140,200"></polygon>
+            <polygon points="140,220 150,225 140,230"></polygon>
+            <polygon points="140,250 150,255 140,260"></polygon>
+            <polygon points="140,280 150,285 140,290"></polygon>
+            <polygon points="140,300 150,305 140,310"></polygon>
+            <polygon points="120,120 130,125 120,130"></polygon>
+            <polygon points="120,150 130,155 120,160"></polygon>
+            <polygon points="120,180 130,185 120,190"></polygon>
+            <polygon points="120,210 130,215 120,220"></polygon>
+            <polygon points="120,240 130,245 120,250"></polygon>
+            <polygon points="120,270 130,275 120,280"></polygon>
+          </svg>
+          <!-- Text Contents -->
+          <div class="my-auto ml-10 space-y-5 text-left select-none max-w-none w-full pr-12">
+            <h2 class="font-montserrat font-extrabold text-[38px] text-rikkei-red">
+              {session_tag_text}:
+            </h2>
+            <h1 class="font-montserrat font-extrabold text-[52px] text-black leading-tight break-words w-full">
+              {main_title_text}
+            </h1>
+            <div class="pt-8 space-y-2 text-slate-600 text-[22px] font-medium">
+              <p>Môn học: {clean_module_name}</p>
             </div>
-"""
+          </div>
+          <!-- Bottom Logo & Footer -->
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full max-w-200 text-center">
+            <img alt="Rikkei Academy Logo" class="h-10 object-contain" src="{self.LOGO_URL}"/>
+            <span class="text-[16px] text-black font-normal">
+              {copyright_text}
+            </span>
+          </div>
+          <!-- Bottom right red triangle page number -->
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">1</span>
+          </div>
+        </section>
+      </div>""")
 
-        all_slides_html_parts.append(f"""
-    <div class="slide slide-agenda" data-type="agenda" data-title="Nội dung bài học">
-      <div class="agenda-top-left-title" style="color: #be111c; font-weight: 900; font-size: 38px; letter-spacing: 1px; margin-bottom: 28px; font-family: 'Montserrat', sans-serif;">NỘI DUNG BÀI HỌC</div>
-      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="agenda-list-box" style="margin-top: 24px; display: flex; flex-direction: column; gap: {gap_size}; max-width: 1100px;">
-        {session_agenda_items_html}
-      </div>
-      <div class="corner-page-badge">2</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-
-        current_page = 3
-        # Iteration across lessons & scenes
-        for l_idx, l_data in enumerate(lessons_data, 1):
-            l_title = l_data.get("lesson_title", f"Bài học {l_idx}")
+        # ── 2. AGENDA SLIDE (Slide Index 1, Page 2) ────────────────────────────
+        agenda_items_html = ""
+        agenda_index = 1
+        for l_data in lessons_data:
+            l_title = l_data.get("lesson_title") or f"Bài học {agenda_index}"
             clean_l_title = self.clean_title_string(l_title)
-            scenes = l_data.get("scenes", [])
+            # Strip ALL prefixes: Session XX, Lesson YY, Bài XX, [01.01], digits + dot, colons
+            clean_l_title = re.sub(r'^\s*(Session\s*\d+|Lesson\s*\d+|Bài\s*\d+|\[\d+\.\d+\]|\d+\.)\s*[\:\-]?\s*', '', clean_l_title, flags=re.IGNORECASE).strip()
+            clean_l_title = re.sub(r'^(Session\s*\d+\s*[\:\-]?\s*)+', '', clean_l_title, flags=re.IGNORECASE).strip()
+            agenda_items_html += f"""
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">{agenda_index}.</span>
+              <span class="flex-1 break-words">{clean_l_title}</span>
+            </div>"""
+            agenda_index += 1
 
+        slide_wrappers_html.append(f"""
+      <!-- Slide 1: Agenda Slide -->
+      <div class="slide-wrapper" id="slide-2" data-slide-index="1">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start">
+            <!-- Header Area -->
+            <div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+              <div class="text-[36px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                NỘI DUNG BÀI HỌC
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="{self.LOGO_URL}"/>
+            </div>
+            <!-- List Content -->
+            <div class="w-full flex flex-col justify-start pl-4 pr-4">
+              <div class="space-y-8 text-left select-none w-full max-w-none">
+                {agenda_items_html}
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              {copyright_text}
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">2</span>
+          </div>
+        </section>
+      </div>""")
+
+        # ── 3..N. CONTENT SLIDES (Slide Index 2..N, Pages 3..N+2) ─────────────
+        page_counter = 3
+        slide_wrapper_idx = 2
+
+        for l_idx, l_data in enumerate(lessons_data, 1):
+            l_title = l_data.get("lesson_title") or f"Bài học {l_idx}"
+            clean_l_title = self.clean_title_string(l_title)
+            # Strip ALL Session XX, Lesson YY, Bài XX prefixes from main title
+            clean_l_title = re.sub(r'^\s*(Session\s*\d+|Lesson\s*\d+|Bài\s*\d+|\[\d+\.\d+\]|\d+\.)\s*[\:\-]?\s*', '', clean_l_title, flags=re.IGNORECASE).strip()
+            clean_l_title = re.sub(r'^(Session\s*\d+\s*[\:\-]?\s*)+', '', clean_l_title, flags=re.IGNORECASE).strip()
+
+            scenes = l_data.get("scenes", [])
             for s_idx, scene in enumerate(scenes, 1):
                 raw_stitle = scene.get("action_title") or scene.get("short_title") or scene.get("scene_title") or f"Chủ đề {s_idx}"
                 clean_stitle = self.clean_title_string(raw_stitle)
-                
-                # Strip duplicate "01.", "[01.01]" prefixes from clean_stitle
                 clean_stitle = re.sub(r'^\s*(\[\d+\.\d+\]|\d+\.)\s*', '', clean_stitle).strip()
+                # Sanitize action sub-title: keep short & punchy, strip trailing 'Trong ...' repeating lesson name
+                clean_stitle = re.sub(r'\s+(Trong|Dành cho|Với)\s+.*$', '', clean_stitle, flags=re.IGNORECASE).strip()
+                
+                main_large_title = f"{l_idx}. {clean_l_title}"
+                inner_content = self._render_scene_content_html(scene, clean_stitle, is_cli_or_tooling=is_cli_or_tooling)
 
-                main_large_title = f"{clean_l_title} - {s_idx}"
-                slide_heading_attr = f"{main_large_title} - {clean_stitle}"
+                slide_wrappers_html.append(f"""
+      <!-- Slide {slide_wrapper_idx}: Content Slide -->
+      <div class="slide-wrapper" id="slide-{page_counter}" data-slide-index="{slide_wrapper_idx}">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  {main_large_title}
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  {clean_stitle}
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="{self.LOGO_URL}"/>
+            </div>
+            {inner_content}
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              {copyright_text}
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">{page_counter}</span>
+          </div>
+        </section>
+      </div>""")
+                page_counter += 1
+                slide_wrapper_idx += 1
 
-                content_inner_html = self._render_scene_content_html(scene, clean_stitle)
-                all_slides_html_parts.append(f"""
-    <div class="slide slide-content-layout" data-type="content" data-title="{slide_heading_attr}">
-      <div class="content-top-accent-bar" style="background: #be111c;"></div>
-      <img src="{self.LOGO_URL}" alt="Logo" class="top-right-logo" />
-      <div class="content-header-box" style="margin-bottom: 16px;">
-        <h2 style="font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 28px; color: #be111c; margin: 0; line-height: 1.2; text-transform: none; font-family: 'Montserrat', sans-serif;">
-          {main_large_title}
-        </h2>
-        <h3 style="font-family: 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: #0f172a; margin-top: 6px; line-height: 1.3; text-transform: none; font-family: 'Inter', sans-serif;">
-          {clean_stitle}
-        </h3>
-      </div>
-      {content_inner_html}
-      <div class="corner-page-badge">{current_page}</div>
-      <div class="footer-copyright">{copyright_text}</div>
-    </div>
-""")
-                current_page += 1
+        # ── 4. SUMMARY SLIDE (Final Slide) ──────────────────────────────────
+        summary_bullets = self.extract_session_summary_bullets(lessons_data, core_ssot)
+
+        summary_items_html = ""
+        for s_bullet in summary_bullets:
+            summary_items_html += f"""
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">{s_bullet}</span>
+            </div>"""
+
+        slide_wrappers_html.append(f"""
+      <!-- Slide {slide_wrapper_idx}: Summary Slide -->
+      <div class="slide-wrapper" id="slide-{page_counter}" data-slide-index="{slide_wrapper_idx}">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start">
+            <!-- Header Area -->
+            <div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+              <div class="text-[36px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                TỔNG KẾT BÀI HỌC
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="{self.LOGO_URL}"/>
+            </div>
+            <!-- List Content -->
+            <div class="w-full flex flex-col justify-start pl-4 pr-4">
+              <div class="space-y-6 text-left select-none w-full max-w-none">
+                {summary_items_html}
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              {copyright_text}
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">{page_counter}</span>
+          </div>
+        </section>
+      </div>""")
 
         full_html = f"""<!DOCTYPE html>
-<html lang="vi">
+<html class="scroll-smooth" lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{clean_session_title} — Presentation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800;900&family=Fira+Code:wght@500;600&display=swap" rel="stylesheet" />
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>{clean_session_title} — Rikkei Master Presentation</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {{
+      theme: {{
+        extend: {{
+          colors: {{
+            rikkei: {{
+              red: "#be111c",
+              darkred: "#90000a",
+              dark: "#0f172a",
+              bgDark: "#0a0a0f",
+              cardDark: "#13131f",
+              borderDark: "rgba(255, 255, 255, 0.08)",
+            }},
+          }},
+          fontFamily: {{
+            sans: ["Montserrat", "sans-serif"],
+            mono: ["Fira Code", "monospace"],
+          }},
+        }},
+      }},
+    }};
+  </script>
+  <!-- Highlight.js for Code Highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <!-- Mermaid.js for Diagrams -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {{
-      if (window.mermaid) {{
-        mermaid.initialize({{ startOnLoad: true, theme: 'dark', securityLevel: 'loose' }});
-      }}
+    mermaid.initialize({{
+      startOnLoad: false,
+      theme: "default",
+      securityLevel: "loose",
+      flowchart: {{ useMaxWidth: true, htmlLabels: true }},
     }});
   </script>
   <style>
-{self._build_css()}
+    html {{
+      height: 100vh;
+      overflow: hidden !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }}
+    html::-webkit-scrollbar {{
+      display: none;
+    }}
+    body {{
+      margin: 0;
+      height: 100vh;
+      overflow: hidden !important;
+      background-color: #ffffff;
+    }}
+    .slide-wrapper {{
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }}
+    .slide-card {{
+      width: 100% !important;
+      height: 100% !important;
+      box-shadow: none !important;
+      border-radius: 0px !important;
+      border: none !important;
+    }}
+    pre, pre code {{
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border: none !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
+      overflow-x: hidden !important;
+    }}
+    pre code.hljs {{
+      background: transparent !important;
+      color: #0f172a !important;
+    }}
+    .hljs-keyword {{
+      color: #be111c !important;
+      font-weight: 700 !important;
+    }}
+    .hljs-string {{
+      color: #15803d !important;
+    }}
+    .hljs-number {{
+      color: #ea580c !important;
+    }}
+    .hljs-built_in, .hljs-name, .hljs-title {{
+      color: #1d4ed8 !important;
+    }}
+    .hljs-comment {{
+      color: #64748b !important;
+      font-style: italic !important;
+    }}
+    pre code {{
+      font-family: "Fira Code", "JetBrains Mono", monospace !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+    }}
+    .bento-card {{
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }}
+    .bento-card:hover {{
+      transform: translateY(-2px);
+    }}
   </style>
 </head>
-<body>
-
-  <div id="sidebar">
-    <div class="sidebar-scroll" id="thumbnail-list"></div>
-  </div>
-
-  <div id="main-stage">
-    <div id="deck-container">
-{"".join(all_slides_html_parts)}
-    </div>
-
-    <div id="hover-trigger-zone"></div>
-    <div id="controls">
-      <button type="button" class="btn-ctrl" onclick="prevSlide(event)">◀ Trước</button>
-      <span id="slide-indicator">1 / {total_pages}</span>
-      <button type="button" class="btn-ctrl" onclick="nextSlide(event)">Sau ▶</button>
-      <button type="button" class="btn-ctrl" onclick="toggleFullscreen(event)">Toàn màn hình ⛶</button>
+<body class="font-sans antialiased text-slate-900 bg-white">
+  <!-- Main Content Slides Container -->
+  <div id="slides-container" class="w-full h-full overflow-y-auto scroll-smooth relative" style="scroll-snap-type: y mandatory;">
+    <div class="w-full flex flex-col">
+{"".join(slide_wrappers_html)}
     </div>
   </div>
-
   <script>
-{self._build_js()}
+    document.addEventListener("DOMContentLoaded", () => {{
+      if (window.hljs) {{
+        hljs.highlightAll();
+      }}
+      if (window.mermaid) {{
+        try {{ mermaid.run(); }} catch(e) {{}}
+      }}
+
+      const container = document.getElementById("slides-container");
+      if (!container) return;
+
+      // 1. Restore slide position from URL hash on load (e.g. #slide-3 or #3)
+      function restoreSlideFromHash() {{
+        const hash = window.location.hash;
+        if (hash) {{
+          const match = hash.match(/#slide-(\\d+)/i) || hash.match(/#(\\d+)/i);
+          if (match) {{
+            const pageNum = parseInt(match[1], 10);
+            const targetSlide = document.getElementById("slide-" + pageNum);
+            if (targetSlide) {{
+              setTimeout(() => {{
+                targetSlide.scrollIntoView({{ behavior: "instant", block: "start" }});
+              }}, 50);
+            }}
+          }}
+        }}
+      }}
+
+      restoreSlideFromHash();
+
+      // 2. Dynamic Scroll Observer: Sync current slide to URL hash as user scrolls
+      let isScrollingTimer = null;
+      container.addEventListener("scroll", () => {{
+        if (isScrollingTimer) clearTimeout(isScrollingTimer);
+        isScrollingTimer = setTimeout(() => {{
+          const slideHeight = window.innerHeight;
+          const currentSlideIdx = Math.round(container.scrollTop / slideHeight);
+          const activeSlide = container.querySelectorAll(".slide-wrapper")[currentSlideIdx];
+          if (activeSlide) {{
+            const pageNum = activeSlide.id ? activeSlide.id.replace("slide-", "") : (currentSlideIdx + 1);
+            const newHash = "#slide-" + pageNum;
+            if (window.location.hash !== newHash) {{
+              history.replaceState(null, "", newHash);
+            }}
+          }}
+        }}, 100);
+      }});
+    }});
+
+    window.addEventListener("keydown", (e) => {{
+      const container = document.getElementById("slides-container");
+      if (!container) return;
+      const slideHeight = window.innerHeight;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {{
+        e.preventDefault();
+        container.scrollBy({{ top: slideHeight, behavior: "smooth" }});
+      }} else if (e.key === "ArrowUp" || e.key === "PageUp") {{
+        e.preventDefault();
+        container.scrollBy({{ top: -slideHeight, behavior: "smooth" }});
+      }} else if (e.key === "Home") {{
+        e.preventDefault();
+        container.scrollTo({{ top: 0, behavior: "smooth" }});
+      }} else if (e.key === "End") {{
+        e.preventDefault();
+        container.scrollTo({{ top: container.scrollHeight, behavior: "smooth" }});
+      }}
+    }});
   </script>
 </body>
 </html>"""
         return full_html
 
+    def generate_deck_html(self, lesson_title: str, module_name: str, scenes: List[Dict[str, Any]], lessons_data: Optional[List[Dict[str, Any]]] = None, core_ssot: Optional[Dict[str, Any]] = None) -> str:
+        """Lesson deck wrapper delegates to generate_session_deck_html."""
+        clean_title = re.sub(r'^(Session\s*\d+\s*[\:\-]?\s*Lesson\s*\d+\s*[\:\-]?\s*)+', '', lesson_title, flags=re.IGNORECASE).strip()
+        if not lessons_data:
+            lessons_data = [{
+                "lesson_id": "Lesson 01",
+                "lesson_title": clean_title,
+                "scenes": scenes
+            }]
+        return self.generate_session_deck_html(session_title=clean_title, module_name=module_name, lessons_data=lessons_data, core_ssot=core_ssot)
+
+    def generate_deck_pptx(self, lesson_title: str, module_name: str, scenes: List[Dict[str, Any]], output_path: Optional[str] = None, lessons_data: Optional[List[Dict[str, Any]]] = None, core_ssot: Optional[Dict[str, Any]] = None) -> bytes:
+        """Generates native Microsoft PowerPoint (.pptx) deck delegating to PPTXGeneratorAgent."""
+        from agents.pptx_generator_agent import pptx_generator_agent
+        clean_title = re.sub(r'^(Session\s*\d+\s*[\:\-]?\s*Lesson\s*\d+\s*[\:\-]?\s*)+', '', lesson_title, flags=re.IGNORECASE).strip()
+        if not lessons_data:
+            lessons_data = [{
+                "lesson_id": "Lesson 01",
+                "lesson_title": clean_title,
+                "scenes": scenes
+            }]
+        return pptx_generator_agent.generate_deck_pptx(session_title=clean_title, module_name=module_name, lessons_data=lessons_data, output_path=output_path, core_ssot=core_ssot)
+
 
 slide_generator_agent = SlideGeneratorAgent()
+

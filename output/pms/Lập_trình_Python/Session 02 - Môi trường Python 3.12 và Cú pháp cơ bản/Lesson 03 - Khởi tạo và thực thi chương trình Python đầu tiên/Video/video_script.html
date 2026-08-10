@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khởi tạo và thực thi chương trình Python đầu tiên - Studio Teleprompter</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+            montserrat: ["Montserrat", "Inter", "sans-serif"],
+            mono: ["JetBrains Mono", "Fira Code", "monospace"],
+          },
+          colors: {
+            rikkei: {
+              red: "#be111c",
+              darkred: "#90000a",
+              dark: "#0f172a",
+              bgDark: "#0b0f19",
+              cardDark: "#151d30",
+              borderDark: "#1e293b",
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #334155;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Teleprompter Text Styling */
+    .teleprompter-text {
+      transition: font-size 0.2s ease, line-height 0.2s ease;
+    }
+    .highlight-emphasis {
+      color: #be111c;
+      font-weight: 800;
+    }
+    .dark .highlight-emphasis {
+      color: #ff4d5a;
+      font-weight: 800;
+    }
+    .highlight-keyword {
+      color: #0284c7;
+      font-weight: 800;
+    }
+    .dark .highlight-keyword {
+      color: #38bdf8;
+      font-weight: 800;
+    }
+    .pause-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72em;
+      font-weight: 700;
+      padding: 0.1em 0.45em;
+      margin: 0 0.25em;
+      border-radius: 0.375rem;
+      background-color: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      vertical-align: middle;
+      line-height: 1.2;
+    }
+    .dark .pause-tag {
+      background-color: #1e293b;
+      color: #cbd5e1;
+      border-color: #334155;
+    }
+
+    /* Glassmorphism utility */
+    .glass-header {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased bg-slate-100 dark:bg-rikkei-bgDark text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex flex-col transition-colors duration-300">
+
+  <!-- Header / Studio Topbar -->
+  <header class="bg-white/95 dark:bg-rikkei-cardDark/95 border-b border-slate-200 dark:border-slate-800 px-4 md:px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm glass-header select-none">
+    <!-- Left Logo & Session Meta -->
+    <div class="flex items-center gap-3">
+      <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-8 md:h-9 object-contain">
+      <span class="h-6 w-[1px] bg-slate-200 dark:bg-slate-700 hidden sm:block"></span>
+      <div class="hidden sm:flex flex-col">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/80 text-rikkei-red dark:text-rose-400 text-[11px] font-bold">
+            <span class="w-2 h-2 rounded-full bg-rikkei-red animate-pulse"></span>
+            Chế độ Studio Quay
+          </span>
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-mono font-medium">Session 01 • Python Core</span>
+        </div>
+        <h1 class="text-sm font-bold text-slate-800 dark:text-slate-100 font-montserrat mt-0.5 truncate max-w-md">
+          Khởi tạo và thực thi chương trình Python đầu tiên
+        </h1>
+      </div>
+    </div>
+
+    <!-- Center/Right Master Control Bar -->
+    <div class="flex items-center gap-2 md:gap-3">
+      <!-- Auto-scroll Teleprompter Controller -->
+      <div class="flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold">
+        <button id="btn-toggle-scroll" onclick="toggleAutoScroll()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rikkei-red hover:bg-rikkei-darkred active:scale-95 text-white font-bold transition-all shadow-sm" title="Bắt đầu / Tạm dừng tự động cuộn">
+          <i id="icon-scroll-state" class="ph-bold ph-play text-sm"></i>
+          <span id="text-scroll-state" class="hidden sm:inline">Tự động cuộn</span>
+        </button>
+        <div class="h-4 w-[1px] bg-slate-300 dark:bg-slate-700 mx-1"></div>
+        <span class="px-1 text-slate-500 dark:text-slate-400 text-[11px] font-mono hidden md:inline">Tốc độ:</span>
+        <button onclick="setScrollSpeed(1)" id="speed-1" class="speed-btn px-2 py-1 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 font-bold transition-all bg-white dark:bg-slate-700 shadow-xs">1x</button>
+        <button onclick="setScrollSpeed(1.5)" id="speed-1.5" class="speed-btn px-2 py-1 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 font-bold transition-all">1.5x</button>
+        <button onclick="setScrollSpeed(2)" id="speed-2" class="speed-btn px-2 py-1 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 font-bold transition-all">2x</button>
+      </div>
+
+      <!-- Teleprompter Font Size Scale -->
+      <div class="flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold gap-0.5">
+        <button onclick="changeFontSize(-2)" class="w-8 h-8 rounded-lg hover:bg-white dark:hover:bg-slate-700 active:scale-95 transition-all text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold" title="Giảm cỡ chữ">
+          <i class="ph-bold ph-text-minus text-base"></i>
+        </button>
+        <span id="font-size-display" class="px-1.5 text-slate-600 dark:text-slate-300 font-mono text-xs font-semibold">20px</span>
+        <button onclick="changeFontSize(2)" class="w-8 h-8 rounded-lg hover:bg-white dark:hover:bg-slate-700 active:scale-95 transition-all text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold" title="Tăng cỡ chữ">
+          <i class="ph-bold ph-text-plus text-base"></i>
+        </button>
+      </div>
+
+      <!-- Dark/Light Teleprompter Mode Toggle -->
+      <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-xs" title="Chuyển chế độ phòng thu Sáng/Tối">
+        <i id="theme-toggle-icon" class="ph-bold ph-moon text-lg"></i>
+      </button>
+
+      <!-- Copy All Script -->
+      <button onclick="copyFullScript()" class="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700 transition-all">
+        <i class="ph-bold ph-copy text-sm text-rikkei-red dark:text-rose-400"></i>
+        <span>Sao chép kịch bản</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Studio Main Dashboard Layout -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- Left Navigation & Timeline Sidebar -->
+    <aside class="w-80 bg-white dark:bg-rikkei-cardDark border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col shrink-0 select-none transition-colors duration-300">
+      
+      <!-- Lesson Tabs Filter -->
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="ph-bold ph-books text-rikkei-red dark:text-rose-400"></i>
+            Danh sách bài học
+          </span>
+          <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400">5 bài</span>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 bg-slate-200/70 dark:bg-slate-800 p-1 rounded-xl">
+          <a href="video_script_lesson_1.html" class="py-1.5 rounded-lg text-center font-bold text-xs bg-rikkei-red text-white shadow-xs transition-all">1</a>
+          <a href="video_script_lesson_2.html" class="py-1.5 rounded-lg text-center font-bold text-xs text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700 transition-all">2</a>
+          <a href="video_script_lesson_3.html" class="py-1.5 rounded-lg text-center font-bold text-xs text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700 transition-all">3</a>
+          <a href="video_script_lesson_4.html" class="py-1.5 rounded-lg text-center font-bold text-xs text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700 transition-all">4</a>
+          <a href="video_script_lesson_5.html" class="py-1.5 rounded-lg text-center font-bold text-xs text-slate-600 dark:text-slate-400 hover:bg-white/50 dark:hover:bg-slate-700 transition-all">5</a>
+        </div>
+      </div>
+
+      <!-- Teleprompter Progress Bar -->
+      <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-rikkei-cardDark flex flex-col gap-1.5">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-slate-500 dark:text-slate-400 font-medium">Tiến độ kịch bản:</span>
+          <span id="scroll-progress-percent" class="font-mono font-bold text-rikkei-red dark:text-rose-400">0%</span>
+        </div>
+        <div class="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div id="scroll-progress-bar" class="bg-rikkei-red h-full w-0 transition-all duration-150 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- Slide Steps Timeline Navigation -->
+      <div class="flex-1 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar">
+        <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block px-2 my-1">
+          Mạch phân cảnh studio
+        </span>
+
+        
+        <!-- Nav Item 0 -->
+        <button onclick="scrollToScene(0)" id="nav-item-0" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-rikkei-red bg-rose-50/70 dark:bg-rose-950/40 text-rikkei-red dark:text-rose-400 font-bold shadow-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 1</span>
+            <span class="font-mono text-[11px] opacity-80">00:00 - 01:15</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Script Python đầu tiên & PEP 8 Docstring</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400"></i>
+            <span>Cam 1 (Close-up)</span>
+          </div>
+        </button>
+        <!-- Nav Item 1 -->
+        <button onclick="scrollToScene(1)" id="nav-item-1" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 2</span>
+            <span class="font-mono text-[11px] opacity-80">01:15 - 02:30</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Cạm bẫy lỗi thường gặp khi thực thi Script</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400"></i>
+            <span>Cam 2 (IDE Screen)</span>
+          </div>
+        </button>
+        <!-- Nav Item 2 -->
+        <button onclick="scrollToScene(2)" id="nav-item-2" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 3</span>
+            <span class="font-mono text-[11px] opacity-80">02:30 - 03:45</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Khai báo biến & Quy tắc đặt tên PEP 8</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400"></i>
+            <span>Cam 1 (Close-up)</span>
+          </div>
+        </button>
+        <!-- Nav Item 3 -->
+        <button onclick="scrollToScene(3)" id="nav-item-3" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 4</span>
+            <span class="font-mono text-[11px] opacity-80">03:45 - 05:00</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Các kiểu dữ liệu cơ sở (Primitive Data Types)</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400"></i>
+            <span>Cam 2 (IDE Screen)</span>
+          </div>
+        </button>
+        <!-- Nav Item 4 -->
+        <button onclick="scrollToScene(4)" id="nav-item-4" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 5</span>
+            <span class="font-mono text-[11px] opacity-80">05:00 - 06:15</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Phân tích đặt tên biến: Good vs Bad</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400"></i>
+            <span>Cam 1 (Close-up)</span>
+          </div>
+        </button>
+        <!-- Nav Item 5 -->
+        <button onclick="scrollToScene(5)" id="nav-item-5" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 6</span>
+            <span class="font-mono text-[11px] opacity-80">06:15 - 07:30</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Nhập xuất dữ liệu Console (Input & Print)</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400"></i>
+            <span>Cam 2 (IDE Screen)</span>
+          </div>
+        </button>
+        <!-- Nav Item 6 -->
+        <button onclick="scrollToScene(6)" id="nav-item-6" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 7</span>
+            <span class="font-mono text-[11px] opacity-80">07:30 - 08:45</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Bẫy lỗi: Ghép chuỗi và Ép kiểu dữ liệu</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400"></i>
+            <span>Cam 1 (Close-up)</span>
+          </div>
+        </button>
+        <!-- Nav Item 7 -->
+        <button onclick="scrollToScene(7)" id="nav-item-7" class="nav-item w-full text-left p-3 rounded-xl border-l-4 transition-all flex flex-col gap-1.5 border-transparent text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[11px] font-bold">Phân cảnh 8</span>
+            <span class="font-mono text-[11px] opacity-80">08:45 - 10:00</span>
+          </div>
+          <span class="text-xs font-bold leading-snug">Định dạng Console nâng cao với sep và end</span>
+          <div class="flex items-center gap-1.5 text-[10px] opacity-80 font-medium">
+            <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400"></i>
+            <span>Cam 2 (IDE Screen)</span>
+          </div>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Right Workspace Panel (Studio Teleprompter Cards) -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 flex flex-col gap-6 custom-scrollbar" id="teleprompter-container">
+      
+      
+      <!-- Scene Block 0 -->
+      <div id="scene-0" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 01
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 00:00 - 01:15
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Script Python đầu tiên & PEP 8 Docstring</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400 text-base"></i>
+                <span>Cam 1 (Close-up)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  <i class="ph-bold ph-presentation"></i> Hiển thị Slide 1 - Script Python đầu tiên
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-code"></i> Highlight Docstring và ghi chú đơn dòng
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python">"""
+Module: system_checker.py
+Mô tả: Tệp script khởi tạo và kiểm tra 
+       trạng thái dịch vụ hệ thống.
+Tác giả: Kỹ sư vận hành Rikkei Education
+"""
+
+# Hiển thị thông điệp khởi động tiêu chuẩn
+print("Hệ thống doanh nghiệp đã sẵn sàng vận hành.")</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Chào mừng các bạn <span class="pause-tag">/</span> đã quay trở lại với hệ thống Elearning của Rikkei Education. Trong bài học này, chúng ta sẽ cùng tìm hiểu về Khởi tạo và thực thi chương trình Python đầu tiên. <span class="pause-tag">//</span> Trong tệp <span class="highlight-keyword">main.py</span> đầu tiên, <span class="pause-tag">/</span> chuẩn <span class="highlight-emphasis">PEP 8</span> quy định chúng ta nên bắt đầu bằng một <span class="highlight-keyword">Module Docstring</span> nằm trong cặp dấu ba nháy kép <span class="highlight-keyword">"""..."""</span> để mô tả mục đích và ngữ cảnh của script. <span class="pause-tag">//</span> Bên cạnh đó, <span class="pause-tag">/</span> các ghi chú đơn dòng bắt đầu bằng dấu <span class="highlight-keyword">#</span> nên tập trung giải thích <span class="highlight-emphasis">tại sao (Why)</span> chúng ta viết code như vậy <span class="pause-tag">/</span> thay vì lặp lại logic cú pháp đơn thuần.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 1 -->
+      <div id="scene-1" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 02
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 01:15 - 02:30
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Cạm bẫy lỗi thường gặp khi thực thi Script</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400 text-base"></i>
+                <span>Cam 2 (IDE Screen)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                  <i class="ph-bold ph-bug"></i> Hiển thị 3 thẻ cạm bẫy thực thi
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                  <i class="ph-bold ph-warning-circle"></i> Highlight FileNotFoundError & ModuleNotFoundError
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python"># Terminal Trap Examples:
+$ python script.py
+# FileNotFoundError: [Errno 2] No such file or directory
+
+# Forgot .venv:
+# ModuleNotFoundError: No module named '...'</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Khi chạy script Python, <span class="pause-tag">/</span> lập trình viên thường gặp phải <span class="highlight-emphasis">3 cạm bẫy phổ biến</span>. <span class="pause-tag">//</span> Thứ nhất là <span class="highlight-keyword">Lỗi Sai Đường Dẫn (FileNotFoundError)</span> <span class="pause-tag">/</span> xảy ra khi Terminal đang đứng ở ngoài thư mục chứa tệp script. <span class="pause-tag">//</span> Thứ hai là <span class="highlight-keyword">Nhầm lẫn Môi trường (ModuleNotFoundError)</span> <span class="pause-tag">/</span> do quên kích hoạt môi trường ảo <span class="highlight-keyword">.venv</span>. <span class="pause-tag">//</span> Và cuối cùng là viết <span class="highlight-emphasis">Comment thừa thãi</span> <span class="pause-tag">/</span> vi phạm nguyên tắc Clean Code khi giải thích lại những điều quá hiển nhiên.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 2 -->
+      <div id="scene-2" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 03
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 02:30 - 03:45
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Khai báo biến & Quy tắc đặt tên PEP 8</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400 text-base"></i>
+                <span>Cam 1 (Close-up)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  <i class="ph-bold ph-text-aa"></i> Hiển thị quy tắc snake_case & Case-Sensitive
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-code"></i> Demo khai báo biến customer_id, customer_full_name
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python">customer_id = 10928
+customer_full_name = "Tran Thi Mai"
+account_balance = 4500000.75
+monthly_interest_rate = 0.045
+is_account_active = True
+is_identity_verified = False
+
+print(type(customer_id))          # <class 'int'>
+print(type(account_balance))      # <class 'float'>
+print(type(is_account_active))    # <class 'bool'></code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Tiếp theo, <span class="pause-tag">/</span> chúng ta tìm hiểu về <span class="highlight-keyword">Khai báo biến</span> và quy tắc đặt tên chuẩn <span class="highlight-emphasis">PEP 8</span>. <span class="pause-tag">//</span> Python bắt buộc sử dụng chuẩn <span class="highlight-keyword">snake_case</span>, <span class="pause-tag">/</span> nghĩa là tất cả chữ cái viết thường và các từ phân cách bằng dấu gạch dưới như <span class="highlight-keyword">customer_full_name</span>. <span class="pause-tag">//</span> Hãy lưu ý tính <span class="highlight-emphasis">Case-Sensitive</span>: <span class="highlight-keyword">total_amount</span> và <span class="highlight-keyword">Total_Amount</span> là hai biến hoàn toàn khác nhau trong bộ nhớ. <span class="pause-tag">//</span> Quy tắc cú pháp bắt buộc là tên biến không được bắt đầu bằng chữ số <span class="pause-tag">/</span> và không trùng từ khóa hệ thống.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 3 -->
+      <div id="scene-3" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 04
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 03:45 - 05:00
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Các kiểu dữ liệu cơ sở (Primitive Data Types)</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400 text-base"></i>
+                <span>Cam 2 (IDE Screen)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                  <i class="ph-bold ph-database"></i> Hiển thị 4 thẻ kiểu dữ liệu: int, float, str, bool
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-brackets-curly"></i> Highlight ví dụ code tương ứng từng kiểu
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python"># int: Số nguyên
+user_age = 25
+item_count = 150
+
+# float: Số thực
+price = 99.99
+interest = 0.05
+
+# str: Chuỗi ký tự
+name = "Rikkei"
+code = 'OK-99'
+
+# bool: Luận lý (True/False)
+is_active = True
+is_paid = False</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Python cung cấp <span class="highlight-emphasis">4 kiểu dữ liệu cơ sở</span> tích hợp sẵn. <span class="pause-tag">//</span> Thứ nhất là <span class="highlight-keyword">int</span> biểu diễn số nguyên như <span class="highlight-keyword">user_age = 25</span>. <span class="pause-tag">//</span> Thứ hai là <span class="highlight-keyword">float</span> biểu diễn số thực có dấu chấm thập phân như <span class="highlight-keyword">price = 99.99</span>. <span class="pause-tag">//</span> Thứ ba là <span class="highlight-keyword">str</span> dành cho tập hợp chuỗi ký tự đặt trong dấu nháy đơn hoặc nháy kép. <span class="pause-tag">//</span> Và cuối cùng là <span class="highlight-keyword">bool</span> chỉ mang hai giá trị logic duy nhất là <span class="highlight-emphasis">True</span> hoặc <span class="highlight-emphasis">False</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 4 -->
+      <div id="scene-4" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 05
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 05:00 - 06:15
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Phân tích đặt tên biến: Good vs Bad</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400 text-base"></i>
+                <span>Cam 1 (Close-up)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                  <i class="ph-bold ph-arrows-left-right"></i> So sánh 2 cột Bad Code vs Good Code
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-check-circle"></i> Highlight các lỗi vi phạm và cách sửa chuẩn Enterprise
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python"># VI PHẠM (BAD)
+UserAge = "25"         # Sai: PascalCase + str
+account-balance = 100  # Lỗi cú pháp: chứa dấu -
+1st_name = "Nam"       # Lỗi cú pháp: bắt đầu bằng số
+is_vip = "True"        # Sai: bool bị lưu dạng str
+x = 50000.0            # Sai: tên biến vô nghĩa
+
+# CHUẨN ENTERPRISE (GOOD)
+user_age = 25              # snake_case + int
+account_balance = 100.0    # snake_case + float
+first_name = "Nam"         # Bắt đầu bằng chữ
+is_vip = True              # Kiểu boolean chuẩn
+total_loan_amount = 50000.0# Tên rõ mục đích</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Hãy cùng phân tích bảng so sánh <span class="highlight-emphasis">Good vs Bad</span> khi đặt tên biến. <span class="pause-tag">//</span> Các lỗi thường gặp như dùng PascalCase <span class="highlight-keyword">UserAge</span>, <span class="pause-tag">/</span> sử dụng dấu gạch ngang <span class="highlight-keyword">account-balance</span>, <span class="pause-tag">/</span> hay bắt đầu bằng chữ số <span class="highlight-keyword">1st_name</span> sẽ gây lỗi ngay lập tức. <span class="pause-tag">//</span> Để đạt chuẩn doanh nghiệp, <span class="pause-tag">/</span> bạn phải dùng <span class="highlight-keyword">user_age</span>, <span class="highlight-keyword">account_balance</span> và đặt tên mang đúng ý nghĩa nghiệp vụ như <span class="highlight-emphasis">total_loan_amount</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 5 -->
+      <div id="scene-5" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 06
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 06:15 - 07:30
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Nhập xuất dữ liệu Console (Input & Print)</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400 text-base"></i>
+                <span>Cam 2 (IDE Screen)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  <i class="ph-bold ph-keyboard"></i> Hiển thị cơ chế hoạt động của hàm input()
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-printer"></i> Hiển thị hàm print() với tham số sep và end
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python">user_name = input("Nhập họ tên khách hàng: ")
+raw_age = input("Nhập tuổi: ")
+
+print(type(user_name)) # Output: <class 'str'>
+print(type(raw_age))   # Output: <class 'str'> (Cần ép kiểu!)
+
+print("Khách hàng:", user_name, " - Tuổi chuỗi:", raw_age)</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Để tương tác với người dùng qua màn hình Console, <span class="pause-tag">/</span> chúng ta sử dụng hai hàm <span class="highlight-keyword">input()</span> và <span class="highlight-keyword">print()</span>. <span class="pause-tag">//</span> Một lưu ý cực kỳ quan trọng: <span class="highlight-emphasis">mọi dữ liệu thu được từ hàm input() luôn ở dạng chuỗi ký tự (str)</span>. <span class="pause-tag">//</span> Do đó, <span class="pause-tag">/</span> nếu người dùng nhập số như <span class="highlight-keyword">raw_age</span>, <span class="pause-tag">/</span> giá trị này vẫn mang kiểu <span class="highlight-keyword">str</span> và bắt buộc chúng ta phải tiến hành ép kiểu trước khi thực hiện tính toán.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 6 -->
+      <div id="scene-6" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 07
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 07:30 - 08:45
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Bẫy lỗi: Ghép chuỗi và Ép kiểu dữ liệu</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-video-camera text-rikkei-red dark:text-rose-400 text-base"></i>
+                <span>Cam 1 (Close-up)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+                  <i class="ph-bold ph-warning"></i> Cảnh báo bẫy ghép chuỗi khi cộng 2 string
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-check-circle"></i> Demo giải pháp Ép kiểu rõ ràng (Explicit Type Casting)
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python"># LỖI: Quên ép kiểu -> Phép + bị hiểu nhầm thành ghép chuỗi
+quantity = input("Số lượng mã CK: ") # "10"
+price = input("Đơn giá cổ phiếu: ")     # "50.5"
+total = quantity + price             # "1050.5" (SAI!)
+
+# CHUẨN: Ép kiểu rõ ràng (Explicit Casting)
+quantity = int(input("Số lượng mã CK: ")) # Ép sang int
+price = float(input("Đơn giá cổ phiếu: "))   # Ép sang float
+total = quantity * price                     # 505.0 (ĐÚNG!)</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Đây là một <span class="highlight-emphasis">bẫy lỗi vô cùng nguy hiểm</span> trong các ứng dụng thực tế! <span class="pause-tag">//</span> Nếu quên ép kiểu, <span class="pause-tag">/</span> phép cộng giữa hai chuỗi <span class="highlight-keyword">"10"</span> và <span class="highlight-keyword">"50.5"</span> sẽ gây ra kết quả ghép chuỗi là <span class="highlight-emphasis">"1050.5"</span> thay vì phép toán số học. <span class="pause-tag">//</span> Giải pháp là áp dụng <span class="highlight-keyword">Explicit Type Casting</span>: <span class="pause-tag">/</span> bọc các hàm <span class="highlight-keyword">int()</span> hoặc <span class="highlight-keyword">float()</span> trực tiếp bên ngoài hàm <span class="highlight-keyword">input()</span> để chuyển đổi kiểu dữ liệu chính xác.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scene Block 7 -->
+      <div id="scene-7" class="scene-block bg-white dark:bg-rikkei-cardDark border border-slate-200 dark:border-slate-800 rounded-2xl p-5 md:p-7 shadow-xs scroll-mt-24 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-[400px] shrink-0 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-100 dark:bg-rose-950/70 text-rikkei-red dark:text-rose-400 text-xs font-bold font-mono">
+                <i class="ph-bold ph-film-strip"></i> Phân cảnh 08
+              </span>
+              <span class="text-slate-500 dark:text-slate-400 font-mono text-xs font-bold flex items-center gap-1">
+                <i class="ph-bold ph-clock text-slate-400"></i> 08:45 - 10:00
+              </span>
+            </div>
+            <div>
+              <h3 class="text-slate-900 dark:text-slate-100 font-montserrat font-bold text-base leading-snug">Định dạng Console nâng cao với sep và end</h3>
+            </div>
+            <div class="flex flex-col gap-2 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+              <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Chỉ dẫn thao tác studio</span>
+              <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                <i class="ph-bold ph-desktop text-amber-500 dark:text-amber-400 text-base"></i>
+                <span>Cam 2 (IDE Screen)</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  <i class="ph-bold ph-sliders"></i> Demo cấu hình tham số sep và end trong print()
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="ph-bold ph-terminal-window"></i> Hiển thị output Console định dạng doanh nghiệp
+                </span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  <i class="ph-bold ph-hand-waving"></i> Kết thúc bài học và cảm ơn học viên
+                </span>
+              </div>
+            </div>
+            
+            <div class="bg-slate-900 dark:bg-slate-950 rounded-xl p-4 border border-slate-800 font-mono text-xs text-slate-200 relative group shadow-inner mt-4">
+              <pre class="whitespace-pre text-emerald-400 text-xs leading-relaxed"><code class="language-python">quantity = int(input("Nhập số lượng mã chứng khoán: "))
+price = float(input("Nhập đơn giá cổ phiếu: "))
+total = quantity * price
+
+# Tùy biến phân cách (sep) và nối dòng (end)
+print("MÃ GIAO DỊCH", "OK-9921", sep=" -> ", end=" | ")
+print("SỐ LƯỢNG", quantity, sep=": ", end=" | ")
+print("ĐƠN GIÁ", price, sep=": ", end=" USD\n")
+print("TỔNG GIÁ TRỊ", str(total), sep=": ", end=" USD\n")</code></pre>
+            </div>
+          </div>
+          <div class="flex-1 bg-slate-50 dark:bg-slate-900/70 p-5 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4 select-none">
+                <span class="text-xs text-slate-600 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                  <i class="ph-bold ph-microphone-stage text-emerald-600 dark:text-emerald-400 text-base"></i>
+                  Lời thoại Teleprompter
+                </span>
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-mono font-medium hidden sm:inline">
+                  / : ngắt nhịp ngắn &bull; // : ngắt hơi nghỉ
+                </span>
+              </div>
+              <p class="teleprompter-text text-slate-900 dark:text-slate-100 text-[20px] leading-[1.85] font-semibold tracking-wide">
+                Để định dạng đầu ra chuyên nghiệp, <span class="pause-tag">/</span> hàm <span class="highlight-keyword">print()</span> cho phép chúng ta tùy biến hai tham số: <span class="highlight-keyword">sep</span> để quy định ký tự phân cách <span class="pause-tag">/</span> và <span class="highlight-keyword">end</span> để quy định ký tự kết thúc dòng. <span class="pause-tag">//</span> Nhờ đó, <span class="pause-tag">/</span> dữ liệu giao dịch có thể hiển thị gọn gàng trên một hàng Console theo đúng tiêu chuẩn báo cáo hệ thống. <span class="pause-tag">//</span> Cảm ơn các bạn đã theo dõi bài học. Hẹn gặp lại các bạn trong các bài học tiếp theo trên hệ thống Rikkei Education!
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- JavaScript Controls & Interactive Engine -->
+  <script>
+    // State management
+    let isAutoScrolling = false;
+    let scrollSpeed = 1; // 1x = ~1.5px/frame, 1.5x = ~2.25px/frame, 2x = ~3px/frame
+    let baseFontSize = 20;
+    let scrollAnimationId = null;
+
+    const container = document.getElementById("teleprompter-container");
+    const scenes = document.querySelectorAll(".scene-block");
+    const navItems = document.querySelectorAll(".nav-item");
+    const scrollProgressBar = document.getElementById("scroll-progress-bar");
+    const scrollProgressPercent = document.getElementById("scroll-progress-percent");
+
+    // Scroll handling to highlight active navigation item & update progress bar
+    container.addEventListener("scroll", () => {
+      let currentIdx = 0;
+      let minDiff = Infinity;
+      const containerTop = container.getBoundingClientRect().top;
+
+      scenes.forEach((scene, idx) => {
+        const diff = Math.abs(scene.getBoundingClientRect().top - containerTop - 24);
+        if (diff < minDiff) {
+          minDiff = diff;
+          currentIdx = idx;
+        }
+      });
+
+      // Update sidebar nav highlights
+      navItems.forEach((item, idx) => {
+        if (idx === currentIdx) {
+          item.classList.add("border-rikkei-red", "bg-rose-50/70", "dark:bg-rose-950/40", "text-rikkei-red", "dark:text-rose-400", "font-bold", "shadow-xs");
+          item.classList.remove("border-transparent", "text-slate-700", "dark:text-slate-300");
+        } else {
+          item.classList.remove("border-rikkei-red", "bg-rose-50/70", "dark:bg-rose-950/40", "text-rikkei-red", "dark:text-rose-400", "font-bold", "shadow-xs");
+          item.classList.add("border-transparent", "text-slate-700", "dark:text-slate-300");
+        }
+      });
+
+      // Calculate progress percentage
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      const progress = maxScroll > 0 ? Math.round((container.scrollTop / maxScroll) * 100) : 0;
+      scrollProgressBar.style.width = progress + "%";
+      scrollProgressPercent.textContent = progress + "%";
+    });
+
+    // Scroll smoothly to specific scene
+    function scrollToScene(idx) {
+      const scene = document.getElementById("scene-" + idx);
+      if (scene) {
+        scene.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Auto-scroll engine
+    function toggleAutoScroll() {
+      isAutoScrolling = !isAutoScrolling;
+      const btn = document.getElementById("btn-toggle-scroll");
+      const icon = document.getElementById("icon-scroll-state");
+      const text = document.getElementById("text-scroll-state");
+
+      if (isAutoScrolling) {
+        icon.className = "ph-bold ph-pause text-sm";
+        if (text) text.textContent = "Tạm dừng";
+        btn.classList.replace("bg-rikkei-red", "bg-slate-700");
+        stepScroll();
+      } else {
+        icon.className = "ph-bold ph-play text-sm";
+        if (text) text.textContent = "Tự động cuộn";
+        btn.classList.replace("bg-slate-700", "bg-rikkei-red");
+        if (scrollAnimationId) cancelAnimationFrame(scrollAnimationId);
+      }
+    }
+
+    function stepScroll() {
+      if (!isAutoScrolling) return;
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      if (container.scrollTop >= maxScroll) {
+        toggleAutoScroll(); // Stop at bottom
+        return;
+      }
+      container.scrollTop += (1.2 * scrollSpeed);
+      scrollAnimationId = requestAnimationFrame(stepScroll);
+    }
+
+    function setScrollSpeed(speed) {
+      scrollSpeed = speed;
+      document.querySelectorAll(".speed-btn").forEach(btn => {
+        btn.classList.remove("bg-white", "dark:bg-slate-700", "shadow-xs");
+      });
+      const activeBtn = document.getElementById("speed-" + speed);
+      if (activeBtn) {
+        activeBtn.classList.add("bg-white", "dark:bg-slate-700", "shadow-xs");
+      }
+    }
+
+    // Font size controls
+    function changeFontSize(delta) {
+      baseFontSize += delta;
+      if (baseFontSize < 14) baseFontSize = 14;
+      if (baseFontSize > 36) baseFontSize = 36;
+      
+      document.getElementById("font-size-display").textContent = baseFontSize + "px";
+      document.querySelectorAll(".teleprompter-text").forEach(el => {
+        el.style.fontSize = baseFontSize + "px";
+      });
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById("theme-toggle-icon");
+      if (html.classList.contains("dark")) {
+        html.classList.remove("dark");
+        html.classList.add("light");
+        themeIcon.className = "ph-bold ph-moon text-lg";
+      } else {
+        html.classList.remove("light");
+        html.classList.add("dark");
+        themeIcon.className = "ph-bold ph-sun text-lg text-amber-400";
+      }
+    }
+
+    // Copy Code Helper
+    function copyCode(btn) {
+      const pre = btn.closest('div').querySelector('code');
+      const textToCopy = pre ? pre.textContent : '';
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        const origHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="ph-bold ph-check text-emerald-400"></i> Đã chép!';
+        setTimeout(() => {
+          btn.innerHTML = origHTML;
+        }, 2000);
+      });
+    }
+
+    // Copy Full Teleprompter Script Helper
+    function copyFullScript() {
+      let fullScript = "";
+      document.querySelectorAll(".scene-block").forEach((scene, i) => {
+        const title = scene.querySelector("h3") ? scene.querySelector("h3").innerText.trim() : `Phân cảnh ${i + 1}`;
+        const speech = scene.querySelector(".teleprompter-text") ? scene.querySelector(".teleprompter-text").innerText.trim() : "";
+        fullScript += `--- PHÂN CẢNH ${i + 1}: ${title} ---\n${speech}\n\n`;
+      });
+
+      navigator.clipboard.writeText(fullScript).then(() => {
+        alert("Đã sao chép toàn bộ kịch bản lời thoại Studio Teleprompter vào bộ nhớ tạm!");
+      });
+    }
+  </script>
+
+</body>
+</html>
