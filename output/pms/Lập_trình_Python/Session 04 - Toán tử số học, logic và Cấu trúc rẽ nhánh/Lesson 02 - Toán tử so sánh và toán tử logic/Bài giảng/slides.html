@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Toán tử so sánh và toán tử logic — Rikkei Master Presentation</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rikkei: {
+              red: "#be111c",
+              darkred: "#90000a",
+              dark: "#0f172a",
+              bgDark: "#0a0a0f",
+              cardDark: "#13131f",
+              borderDark: "rgba(255, 255, 255, 0.08)",
+            },
+          },
+          fontFamily: {
+            sans: ["Montserrat", "sans-serif"],
+            mono: ["Fira Code", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+  <!-- Highlight.js for Code Highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+    });
+  </script>
+  <style>
+    html {
+      height: 100vh;
+      overflow: hidden !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    html::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden !important;
+      background-color: #ffffff;
+    }
+    .slide-wrapper {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .slide-card {
+      width: 100% !important;
+      height: 100% !important;
+      box-shadow: none !important;
+      border-radius: 0px !important;
+      border: none !important;
+    }
+    pre, pre code {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border: none !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
+      overflow-x: hidden !important;
+    }
+    pre code.hljs {
+      background: transparent !important;
+      color: #0f172a !important;
+    }
+    .hljs-keyword {
+      color: #be111c !important;
+      font-weight: 700 !important;
+    }
+    .hljs-string {
+      color: #15803d !important;
+    }
+    .hljs-number {
+      color: #ea580c !important;
+    }
+    .hljs-built_in, .hljs-name, .hljs-title {
+      color: #1d4ed8 !important;
+    }
+    .hljs-comment {
+      color: #64748b !important;
+      font-style: italic !important;
+    }
+    pre code {
+      font-family: "Fira Code", "JetBrains Mono", monospace !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+    }
+    .bento-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bento-card:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-slate-900 bg-white">
+  <!-- Main Content Slides Container -->
+  <div id="slides-container" class="w-full h-full overflow-y-auto scroll-smooth relative" style="scroll-snap-type: y mandatory;">
+    <div class="w-full flex flex-col">
+
+      <!-- Slide 0: Cover Slide -->
+      <div class="slide-wrapper" id="slide-1" data-slide-index="0">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-16 overflow-hidden">
+          <!-- Left red banner decoration -->
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-40 bg-rikkei-red" style="clip-path: polygon(0 0, 0 100%, 100% 50%)"></div>
+          <!-- Right decorative triangle grid -->
+          <svg class="absolute -right-4 top-1/2 -translate-y-1/2 h-[80%] w-[35%] text-rikkei-red select-none pointer-events-none opacity-80" fill="currentColor" viewBox="0 0 200 400">
+            <polygon points="180,60 190,65 180,70"></polygon>
+            <polygon points="180,90 190,95 180,100"></polygon>
+            <polygon points="180,120 190,125 180,130"></polygon>
+            <polygon points="180,150 190,155 180,160"></polygon>
+            <polygon points="180,180 190,185 180,190"></polygon>
+            <polygon points="180,210 190,215 180,220"></polygon>
+            <polygon points="180,240 190,245 180,250"></polygon>
+            <polygon points="180,270 190,275 180,280"></polygon>
+            <polygon points="180,300 190,305 180,310"></polygon>
+            <polygon points="180,330 190,335 180,340"></polygon>
+            <polygon points="160,80 170,85 160,90"></polygon>
+            <polygon points="160,110 170,115 160,120"></polygon>
+            <polygon points="160,140 170,145 160,150"></polygon>
+            <polygon points="160,170 170,175 160,180"></polygon>
+            <polygon points="160,200 170,205 160,210"></polygon>
+            <polygon points="160,230 170,235 160,240"></polygon>
+            <polygon points="160,260 170,265 160,270"></polygon>
+            <polygon points="160,290 170,295 160,300"></polygon>
+            <polygon points="160,320 170,325 160,330"></polygon>
+            <polygon points="140,100 150,105 140,110"></polygon>
+            <polygon points="140,130 150,135 140,140"></polygon>
+            <polygon points="140,160 150,165 140,170"></polygon>
+            <polygon points="140,190 150,195 140,200"></polygon>
+            <polygon points="140,220 150,225 140,230"></polygon>
+            <polygon points="140,250 150,255 140,260"></polygon>
+            <polygon points="140,280 150,285 140,290"></polygon>
+            <polygon points="140,300 150,305 140,310"></polygon>
+            <polygon points="120,120 130,125 120,130"></polygon>
+            <polygon points="120,150 130,155 120,160"></polygon>
+            <polygon points="120,180 130,185 120,190"></polygon>
+            <polygon points="120,210 130,215 120,220"></polygon>
+            <polygon points="120,240 130,245 120,250"></polygon>
+            <polygon points="120,270 130,275 120,280"></polygon>
+          </svg>
+          <!-- Text Contents -->
+          <div class="my-auto ml-10 space-y-5 text-left select-none max-w-none w-full pr-12">
+            <h2 class="font-montserrat font-extrabold text-[38px] text-rikkei-red">
+              Session 01:
+            </h2>
+            <h1 class="font-montserrat font-extrabold text-[52px] text-black leading-tight break-words w-full">
+              Toán tử so sánh và toán tử logic
+            </h1>
+            <div class="pt-8 space-y-2 text-slate-600 text-[22px] font-medium">
+              <p>Môn học: Chương trình đào tạo Python</p>
+            </div>
+          </div>
+          <!-- Bottom Logo & Footer -->
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full max-w-200 text-center">
+            <img alt="Rikkei Academy Logo" class="h-10 object-contain" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <!-- Bottom right red triangle page number -->
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">1</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 1: Agenda Slide -->
+      <div class="slide-wrapper" id="slide-2" data-slide-index="1">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start">
+            <!-- Header Area -->
+            <div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+              <div class="text-[36px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                NỘI DUNG BÀI HỌC
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            <!-- List Content -->
+            <div class="w-full flex flex-col justify-start pl-4 pr-4">
+              <div class="space-y-8 text-left select-none w-full max-w-none">
+                
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">1.</span>
+              <span class="flex-1 break-words">Toan tu so sanh</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">2.</span>
+              <span class="flex-1 break-words">Toan tu logic</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">3.</span>
+              <span class="flex-1 break-words">Bang gia tri chan ly</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">4.</span>
+              <span class="flex-1 break-words">Thu tu uu tien toan tu</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">5.</span>
+              <span class="flex-1 break-words">Danh gia ngan mach</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">6.</span>
+              <span class="flex-1 break-words">Bieu thuc boolean pep8</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">7.</span>
+              <span class="flex-1 break-words">Ghep chuoi so sanh</span>
+            </div>
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">8.</span>
+              <span class="flex-1 break-words">Kiem thu pytest boolean</span>
+            </div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">2</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 2: Content Slide -->
+      <div class="slide-wrapper" id="slide-3" data-slide-index="2">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Toan tu so sanh
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_01.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 1.1: Bối cảnh sự cố và bối cảnh dự án cho toan_tu_so_sanh</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với toan_tu_so_sanh.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">3</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 3: Content Slide -->
+      <div class="slide-wrapper" id="slide-4" data-slide-index="3">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Toan tu so sanh
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc toan_tu_so_sanh</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho toan_tu_so_sanh.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">4</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 4: Content Slide -->
+      <div class="slide-wrapper" id="slide-5" data-slide-index="4">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Toan tu so sanh
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">5</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 5: Content Slide -->
+      <div class="slide-wrapper" id="slide-6" data-slide-index="5">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  2. Toan tu logic
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_02.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 2.1: Bối cảnh sự cố và bối cảnh dự án cho toan_tu_logic</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với toan_tu_logic.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">6</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 6: Content Slide -->
+      <div class="slide-wrapper" id="slide-7" data-slide-index="6">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  2. Toan tu logic
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc toan_tu_logic</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho toan_tu_logic.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">7</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 7: Content Slide -->
+      <div class="slide-wrapper" id="slide-8" data-slide-index="7">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  2. Toan tu logic
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">8</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 8: Content Slide -->
+      <div class="slide-wrapper" id="slide-9" data-slide-index="8">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  3. Bang gia tri chan ly
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_03.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 3.1: Bối cảnh sự cố và bối cảnh dự án cho bang_gia_tri_chan_ly</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với bang_gia_tri_chan_ly.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">9</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 9: Content Slide -->
+      <div class="slide-wrapper" id="slide-10" data-slide-index="9">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  3. Bang gia tri chan ly
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc bang_gia_tri_chan_ly</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho bang_gia_tri_chan_ly.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">10</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 10: Content Slide -->
+      <div class="slide-wrapper" id="slide-11" data-slide-index="10">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  3. Bang gia tri chan ly
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">11</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 11: Content Slide -->
+      <div class="slide-wrapper" id="slide-12" data-slide-index="11">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  4. Thu tu uu tien toan tu
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_04.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 4.1: Bối cảnh sự cố và bối cảnh dự án cho thu_tu_uu_tien_toan_tu</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với thu_tu_uu_tien_toan_tu.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">12</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 12: Content Slide -->
+      <div class="slide-wrapper" id="slide-13" data-slide-index="12">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  4. Thu tu uu tien toan tu
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc thu_tu_uu_tien_toan_tu</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho thu_tu_uu_tien_toan_tu.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">13</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 13: Content Slide -->
+      <div class="slide-wrapper" id="slide-14" data-slide-index="13">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  4. Thu tu uu tien toan tu
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">14</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 14: Content Slide -->
+      <div class="slide-wrapper" id="slide-15" data-slide-index="14">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  5. Danh gia ngan mach
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_05.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 5.1: Bối cảnh sự cố và bối cảnh dự án cho danh_gia_ngan_mach</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với danh_gia_ngan_mach.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">15</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 15: Content Slide -->
+      <div class="slide-wrapper" id="slide-16" data-slide-index="15">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  5. Danh gia ngan mach
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc danh_gia_ngan_mach</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho danh_gia_ngan_mach.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">16</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 16: Content Slide -->
+      <div class="slide-wrapper" id="slide-17" data-slide-index="16">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  5. Danh gia ngan mach
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">17</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 17: Content Slide -->
+      <div class="slide-wrapper" id="slide-18" data-slide-index="17">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  6. Bieu thuc boolean pep8
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_06.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 6.1: Bối cảnh sự cố và bối cảnh dự án cho bieu_thuc_boolean_pep8</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với bieu_thuc_boolean_pep8.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">18</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 18: Content Slide -->
+      <div class="slide-wrapper" id="slide-19" data-slide-index="18">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  6. Bieu thuc boolean pep8
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc bieu_thuc_boolean_pep8</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho bieu_thuc_boolean_pep8.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">19</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 19: Content Slide -->
+      <div class="slide-wrapper" id="slide-20" data-slide-index="19">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  6. Bieu thuc boolean pep8
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">20</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 20: Content Slide -->
+      <div class="slide-wrapper" id="slide-21" data-slide-index="20">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  7. Ghep chuoi so sanh
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_07.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 7.1: Bối cảnh sự cố và bối cảnh dự án cho ghep_chuoi_so_sanh</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với ghep_chuoi_so_sanh.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">21</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 21: Content Slide -->
+      <div class="slide-wrapper" id="slide-22" data-slide-index="21">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  7. Ghep chuoi so sanh
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc ghep_chuoi_so_sanh</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho ghep_chuoi_so_sanh.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">22</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 22: Content Slide -->
+      <div class="slide-wrapper" id="slide-23" data-slide-index="22">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  7. Ghep chuoi so sanh
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">23</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 23: Content Slide -->
+      <div class="slide-wrapper" id="slide-24" data-slide-index="23">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  8. Kiem thu pytest boolean
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối Cảnh & vấn đề kỹ thuật
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_08.png" alt="Bối Cảnh & vấn đề kỹ thuật" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 8.1: Bối cảnh sự cố và bối cảnh dự án cho kiem_thu_pytest_boolean</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Thách thức thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Hạn chế của phương pháp thủ công khi làm việc với kiem_thu_pytest_boolean.</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp doanh nghiệp</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal">Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">24</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 24: Content Slide -->
+      <div class="slide-wrapper" id="slide-25" data-slide-index="24">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  8. Kiem thu pytest boolean
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ tư duy & luồng kiến trúc
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Core kiến trúc kiem_thu_pytest_boolean</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Thiết lập không gian làm việc chuẩn cho kiem_thu_pytest_boolean.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Kiểm soát trạng thái tệp và lưu vết chọn lọc.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Lưu trữ snapshot lịch sử an toàn.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Kiểm thử
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5">Phòng tránh lỗi rủi ro hệ thống.</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">25</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 25: Content Slide -->
+      <div class="slide-wrapper" id="slide-26" data-slide-index="25">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  8. Kiem thu pytest boolean
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  So sánh quy chuẩn vs Anti-Pattern
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công & Bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Ghi đè thủ công hoặc không kiểm tra ràng buộc an toàn.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Dễ gây mất dữ liệu và rủi ro sự cố khi triển khai dự án.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn doanh nghiệp & Tự động hóa</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Sử dụng công cụ tự động hóa và Semantic Standards.</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Tối ưu hóa 300% hiệu năng và đảm bảo an toàn tuyệt đối.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">26</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 26: Summary Slide -->
+      <div class="slide-wrapper" id="slide-27" data-slide-index="26">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start">
+            <!-- Header Area -->
+            <div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+              <div class="text-[36px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                TỔNG KẾT BÀI HỌC
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            <!-- List Content -->
+            <div class="w-full flex flex-col justify-start pl-4 pr-4">
+              <div class="space-y-6 text-left select-none w-full max-w-none">
+                
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">Thách thức thực tế - Hạn chế của phương pháp thủ công khi làm việc với toan_tu_so_sanh.</span>
+            </div>
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">Giải pháp doanh nghiệp - Tự động hóa và chuẩn hóa quy trình xử lý dữ liệu.</span>
+            </div>
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">toan_tu_so_sanh: Các ký hiệu dùng để so sánh hai giá trị trong Python 3.12 (như ==, !=, >, =, <=), trả về kết quả thuộc kiểu dữ liệu...</span>
+            </div>
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">toan_tu_logic: Các từ khóa (and, or, not) dùng để kết hợp hoặc đảo ngược một hay nhiều biểu thức điều kiện Boolean.</span>
+            </div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">27</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.hljs) {
+        hljs.highlightAll();
+      }
+      if (window.mermaid) {
+        try { mermaid.run(); } catch(e) {}
+      }
+
+      const container = document.getElementById("slides-container");
+      if (!container) return;
+
+      // 1. Restore slide position from URL hash on load (e.g. #slide-3 or #3)
+      function restoreSlideFromHash() {
+        const hash = window.location.hash;
+        if (hash) {
+          const match = hash.match(/#slide-(\d+)/i) || hash.match(/#(\d+)/i);
+          if (match) {
+            const pageNum = parseInt(match[1], 10);
+            const targetSlide = document.getElementById("slide-" + pageNum);
+            if (targetSlide) {
+              setTimeout(() => {
+                targetSlide.scrollIntoView({ behavior: "instant", block: "start" });
+              }, 50);
+            }
+          }
+        }
+      }
+
+      restoreSlideFromHash();
+
+      // 2. Dynamic Scroll Observer: Sync current slide to URL hash as user scrolls
+      let isScrollingTimer = null;
+      container.addEventListener("scroll", () => {
+        if (isScrollingTimer) clearTimeout(isScrollingTimer);
+        isScrollingTimer = setTimeout(() => {
+          const slideHeight = window.innerHeight;
+          const currentSlideIdx = Math.round(container.scrollTop / slideHeight);
+          const activeSlide = container.querySelectorAll(".slide-wrapper")[currentSlideIdx];
+          if (activeSlide) {
+            const pageNum = activeSlide.id ? activeSlide.id.replace("slide-", "") : (currentSlideIdx + 1);
+            const newHash = "#slide-" + pageNum;
+            if (window.location.hash !== newHash) {
+              history.replaceState(null, "", newHash);
+            }
+          }
+        }, 100);
+      });
+    });
+
+    window.addEventListener("keydown", (e) => {
+      const container = document.getElementById("slides-container");
+      if (!container) return;
+      const slideHeight = window.innerHeight;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+        e.preventDefault();
+        container.scrollBy({ top: slideHeight, behavior: "smooth" });
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        container.scrollBy({ top: -slideHeight, behavior: "smooth" });
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        container.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (e.key === "End") {
+        e.preventDefault();
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      }
+    });
+  </script>
+</body>
+</html>

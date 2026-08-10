@@ -1,1 +1,46 @@
-[]
+[
+  {
+    "question": "Quy trình thẩm định tín dụng tự động yêu cầu hồ sơ đáp ứng cả 3 tiêu chí: độ tuổi từ 18 đến 65, thu nhập tối thiểu 15 triệu VNĐ và điểm tín dụng đạt từ 650 điểm. Đoạn mã Python nào dưới đây thể hiện cách viết phẳng hóa điều kiện chính xác và tuân thủ PEP 8?",
+    "options": [
+      "```python\nif age >= 18 and age <= 65 and income >= 15 and credit_score >= 650:\n    print(\"Duyệt hồ sơ\")\n```",
+      "```python\nif age >= 18:\n    if age <= 65:\n        if income >= 15:\n            if credit_score >= 650:\n                print(\"Duyệt hồ sơ\")\n```",
+      "```python\nif age>=18 and age<=65 and income>=15 and credit_score>=650:\n  print(\"Duyệt hồ sơ\")\n```",
+      "```python\nif age >= 18 or age <= 65 or income >= 15 or credit_score >= 650:\n    print(\"Duyệt hồ sơ\")\n```"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Đoạn mã phẳng hóa sử dụng toán tử `and` để liên kết tất cả điều kiện cần thỏa mãn đồng thời. Ngoài ra, việc đặt khoảng trắng đơn xung quanh các toán tử so sánh/logic và thụt lề 4 khoảng trắng cho câu lệnh thực thi tuân thủ tuyệt đối chuẩn PEP 8."
+  },
+  {
+    "question": "Một kỹ sư phần mềm thực hiện kiểm tra mã nguồn (Code Review) đối với khối lệnh rẽ nhánh trong hệ thống ngân hàng. Nguyên tắc định dạng nào dưới đây bắt buộc phải tuân thủ theo chuẩn PEP 8 của Python?",
+    "options": [
+      "Sử dụng phím Tab tự do để thụt lề và không sử dụng khoảng trắng xung quanh các toán tử so sánh.",
+      "Sử dụng đúng 4 khoảng trắng cho mỗi cấp thụt lề và giữ khoảng trắng đơn xung quanh các toán tử so sánh cũng như toán tử logic.",
+      "Sử dụng 2 khoảng trắng cho mỗi cấp thụt lề và gộp tất cả biểu thức điều kiện vào một dòng không có khoảng cách.",
+      "Sử dụng độ thụt lề linh hoạt tùy thuộc vào độ dài tên biến và không đặt khoảng trắng phía trước dấu hai chấm."
+    ],
+    "correct_option_index": 1,
+    "explanation": "Theo chuẩn PEP 8, mỗi cấp thụt lề trong Python bắt buộc phải sử dụng 4 khoảng trắng (4 spaces). Đồng thời, các toán tử so sánh (như `==`, `>=`, `<=`) và toán tử logic (như `and`, `or`) phải có chính xác 1 khoảng trắng đơn ở hai bên để đảm bảo tính minh bạch và nhất quán của mã nguồn."
+  },
+  {
+    "question": "Trường hợp nào dưới đây là ngữ cảnh hợp lý để sử dụng cấu trúc rẽ nhánh lồng nhau (Nested If) thay vì phẳng hóa điều kiện bằng toán tử logic?",
+    "options": [
+      "Khi tất cả các điều kiện kiểm tra hoàn toàn độc lập và chỉ cần xác minh tính đúng đắn đồng thời.",
+      "Khi lập trình viên muốn tạo hiệu ứng mã thụt lề dạng hình mũi tên để phân biệt các luồng xử lý.",
+      "Khi điều kiện kiểm tra bên trong phụ thuộc vào kết quả xử lý hoặc giá trị trung gian được tính toán từ điều kiện bên ngoài.",
+      "Khi hệ thống yêu cầu tối ưu hóa tốc độ bằng cách loại bỏ toán tử logic `and` khỏi câu lệnh điều kiện."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Cấu trúc rẽ nhánh lồng nhau (Nested If) chỉ nên được áp dụng khi biểu thức điều kiện bên trong phụ thuộc trực tiếp vào kết quả xử lý hoặc dữ liệu trung gian thu được từ bước kiểm tra điều kiện phía ngoài. Nếu các điều kiện hoàn toàn độc lập, việc phẳng hóa bằng toán tử logic luôn là giải pháp tối ưu."
+  },
+  {
+    "question": "Giả sử hệ thống thẩm định nhận các tham số dữ liệu đầu vào: `age = 25`, `income = 10`, `credit_score = 700`. Khi chạy đoạn mã bên dưới, kết quả xử lý của chương trình sẽ ra sao?\n```python\nif age >= 18 and income >= 15 and credit_score >= 650:\n    print(\"Hồ sơ đạt yêu cầu\")\n```",
+    "options": [
+      "In ra chuỗi chữ 'Hồ sơ đạt yêu cầu' vì điều kiện tuổi và điểm tín dụng đã thỏa mãn.",
+      "Báo lỗi SyntaxError do toán tử `and` không thể kết hợp nhiều hơn hai biểu thức so sánh cùng lúc.",
+      "Báo lỗi RuntimeError do khối lệnh rẽ nhánh thiếu câu lệnh xử lý trường hợp ngoại lệ.",
+      "Không in ra bất kỳ kết quả nào vì biểu thức `income >= 15` trả về False, làm cho toàn bộ chuỗi điều kiện logic `and` nhận giá trị False."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Toán tử logic `and` yêu cầu TẤT CẢ các biểu thức con phải đạt giá trị True để toàn bộ biểu thức nhận giá trị True. Trong trường hợp này, `income = 10` khiến biểu thức `income >= 15` bị False, do đó biểu thức tổng nhận giá trị False và khối lệnh `print` bên trong không được thực thi."
+  }
+]
