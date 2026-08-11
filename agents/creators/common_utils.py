@@ -274,10 +274,34 @@ def generate_offline_master_content(session_id: str, lesson_id: str, lesson_titl
         ],
         "quiz": [
             {
-                "question": f"Đâu là đặc tả chính của {lesson_title}?",
-                "options": ["Giải pháp chuẩn", "Cấu hình mặc định", "Không có", "Cả A và B"],
-                "correct_option_index": 3,
-                "explanation": "Cả A và B đều đúng vì nó cung cấp giải pháp chuẩn cùng với cấu hình mặc định."
+                "question": f"Khi khởi tạo cấu hình cho {lesson_title} trong ứng dụng {tech_stack}, cú pháp nào sau đây là bắt buộc và đúng chuẩn?",
+                "options": [f"Khai báo theo đúng quy chuẩn đặt tên của {tech_stack}", "Sử dụng từ khóa không thuộc phạm vi hỗ trợ", "Bỏ qua các tham số khởi tạo quan trọng", "Đặt tên biến chứa ký tự bị cấm"],
+                "correct_option_index": 0,
+                "explanation": f"Cú pháp khai báo trong {tech_stack} bắt buộc tuân thủ đúng quy ước đặt tên và các thành phần khởi tạo chuẩn."
+            },
+            {
+                "question": f"Trong luồng thực thi của {lesson_title}, điều gì xảy ra với khối lệnh khi điều kiện rẽ nhánh chính trả về kết quả False?",
+                "options": ["Bỏ qua khối lệnh đó và chuyển sang nhánh tiếp theo", "Dừng toàn bộ chương trình và báo lỗi crash", "Thực thi khối lệnh lặp đi lặp lại vô tận", "Tự động đổi điều kiện thành True"],
+                "correct_option_index": 0,
+                "explanation": "Khi điều kiện trả về False, luồng chạy sẽ bỏ qua khối lệnh rẽ nhánh đó và chuyển sang kiểm tra nhánh kế tiếp."
+            },
+            {
+                "question": f"Cho đoạn mã nguồn minh họa {lesson_title}. Kết quả giá trị đầu ra trả về khi chương trình chạy hoàn tất là gì?",
+                "options": ["Trả về kết quả tính toán chính xác theo đúng nhánh được kích hoạt", "Trả về giá trị chưa khởi tạo do lỗi cú pháp", "Báo lỗi NullPointerException/AttributeError", "Giá trị bị giữ nguyên không thay đổi"],
+                "correct_option_index": 0,
+                "explanation": "Chương trình thực thi trơn tru và trả về kết quả tính toán chính xác theo đúng nhánh điều kiện được kích hoạt."
+            },
+            {
+                "question": f"Điểm khác biệt bản chất về tính ứng dụng giữa cấu trúc rẽ nhánh cơ bản và cấu trúc nâng cao trong {lesson_title} là gì?",
+                "options": ["Cấu trúc nâng cao cho phép xử lý các quy tắc nghiệp vụ đa mốc phức tạp", "Cấu trúc cơ bản chạy nhanh hơn gấp nhiều lần", "Cấu trúc nâng cao chỉ dành cho kiểu dữ liệu số", "Không có bất kỳ điểm khác biệt nào"],
+                "correct_option_index": 0,
+                "explanation": "Cấu trúc rẽ nhánh nâng cao được thiết kế để phân loại các mốc dữ liệu nghiệp vụ phức tạp."
+            },
+            {
+                "question": f"Khi lập trình viên thiết lập điều kiện trong {lesson_title} nhưng quên không cập nhật biến tham gia điều kiện, bẫy lỗi (Pitfall) nào sẽ xảy ra?",
+                "options": ["Chương trình rơi vào bẫy lặp vô tận hoặc giữ nguyên kết quả cũ", "Ngôn ngữ tự động bổ sung câu lệnh cập nhật biến", "Chương trình tự động bỏ qua khối lệnh rẽ nhánh", "Biến tự động giải phóng khỏi bộ nhớ RAM"],
+                "correct_option_index": 0,
+                "explanation": "Nếu biến tham gia điều kiện không thay đổi giá trị trong thân khối lệnh, biểu thức điều kiện luôn giữ nguyên giá trị dẫn đến lặp vô tận."
             }
         ],
         "lab": {

@@ -1,21 +1,22 @@
-# Bài thực hành: Xây dựng công cụ dự toán ngân sách dự án phần mềm
+# Bài thực hành: Khởi tạo và Chuẩn hóa Kho lưu trữ Mã nguồn Doanh nghiệp với Git CLI và GitHub Cloud
 
 ## 1. Mục tiêu
-- Xây dựng kịch bản tương tác dữ liệu cơ bản qua giao diện dòng lệnh bằng Python 3.12.
-- Thực hành chuyển đổi kiểu dữ liệu tường minh và định dạng chuỗi f-string xuất báo cáo tài chính doanh nghiệp.
-- Nắm vững quy chuẩn mã nguồn và mô hình sản phẩm đầu ra theo yêu cầu doanh nghiệp.
+- Vận dụng kiến thức Git CLI 2.45+ và GitHub Cloud để khởi tạo cấu trúc kho lưu trữ mã nguồn chuẩn doanh nghiệp cho dự án Web Responsive JavaScript.
+- Thực thi luồng làm việc Git Flow, thiết lập quy tắc đặt tên nhánh Semantic Branching (main, develop, feature/*) và chuẩn hóa lịch sử commit theo Conventional Commits.
+- Thành thạo thao tác khởi tạo Pull Request, thực hiện Code Review và kiểm chuẩn cấu trúc kho lưu trữ đạt tiêu chuẩn đầu ra dự án.
 
 ## 2. Mô tả & Các bước thực hiện
-- **Tài nguyên đầu vào**: Dữ liệu đầu vào thu thập qua giao diện dòng lệnh (CLI): Tên dự án, số lượng lập trình viên, tổng số giờ phát triển, đơn giá nhân công theo giờ và chi phí dự phòng.
+- **Tài nguyên đầu vào**: Môi trường phát triển Git CLI 2.45+, tài khoản GitHub Cloud, trình duyệt web và thư mục mã nguồn khởi tạo cho dự án Web Responsive JavaScript.
 
 ### Các bước thực hiện:
-1. Bước 1: Khởi tạo tệp mã nguồn main.py và định nghĩa thông báo chào mừng hệ thống quản lý dự án.
-2. Bước 2: Thu thập thông tin dự toán từ người dùng và thực hiện ép kiểu dữ liệu tường minh (str, int, float).
-3. Bước 3: Thực hiện tính toán tổng chi phí nhân sự, chi phí dự phòng rủi ro và tổng ngân sách dự án.
-4. Bước 4: Định dạng và hiển thị bảng báo cáo dự toán ngân sách chi tiết ra màn hình dòng lệnh bằng f-string.
+1. Bước 1: Khởi tạo repository cục bộ bằng lệnh git init -b main trên Git CLI 2.45+, cấu hình thông tin git user và thiết lập tệp .gitignore chuẩn cho dự án JavaScript.
+2. Bước 2: Tạo commit khởi tạo tuân thủ Conventional Commits (feat: initial project setup) và đẩy mã nguồn lên GitHub Cloud qua lệnh git remote add origin và git push.
+3. Bước 3: Thiết lập mô hình Git Flow bằng cách tạo nhánh develop từ main và khởi tạo nhánh tính năng Semantic Branching feature/responsive-header từ develop.
+4. Bước 4: Thực thi các thao tác lập trình giao diện header, thực hiện các commit chi tiết tuân thủ Conventional Commits (feat(header): add navigation bar layout).
+5. Bước 5: Đẩy nhánh tính năng lên GitHub Cloud, khởi tạo Pull Request vào nhánh develop, thực hiện quy trình Code Review giả định và hoàn tất Merge Pull Request.
 
 ## 3. Checklist đánh giá
-- [ ] Mã nguồn thực thi thành công không phát sinh lỗi cú pháp hoặc lỗi runtime trên Python 3.12.
-- [ ] Thực hiện ép kiểu dữ liệu đầu vào chính xác từ chuỗi sang kiểu số nguyên và số thực.
-- [ ] Đầu ra báo cáo hiển thị đầy đủ thông tin dự án và chỉ số tài chính được định dạng rõ ràng.
-- [ ] Tên biến tuân thủ đúng quy tắc snake_case theo chuẩn PEP 8.
+- [ ] Kho lưu trữ trên GitHub Cloud có đầy đủ các nhánh cốt lõi (main, develop, feature/*) tuân thủ đúng quy tắc Git Flow và Semantic Branching.
+- [ ] Tất cả các commit message đều tuân thủ 100% quy chuẩn Conventional Commits (feat, fix, docs, chore).
+- [ ] Quy trình tạo Pull Request, Code Review và Merge PR trên GitHub Cloud được thực hiện chính xác, không có xung đột mã nguồn.
+- [ ] Cấu trúc kho lưu trữ đạt chuẩn doanh nghiệp với đầy đủ tệp .gitignore, README.md mô tả rõ ràng kỳ vọng sản phẩm.

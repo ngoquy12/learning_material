@@ -213,7 +213,19 @@ def guard_svg_syntax(svg_str: str) -> str:
         svg_clean
     )
     # 10. Strip stray '|' characters from SVG text elements
-    svg_clean = re.sub(r'\|\s*</text>', '</text>', svg_clean)
+    svg_clean = re.sub(r'(<text\b[^>]*>)\s*\|+\s*', r'\1', svg_clean)
+
+    # 11. Ensure all <text...> tags are properly closed with </text> and contain no broken HTML tags
+    def sanitize_svg_text_tag(match):
+        open_tag = match.group(1)
+        body = match.group(2)
+        close_tag = match.group(3) if match.group(3) else "</text>"
+        # Remove any stray HTML tags like </div> or <p> inside SVG text body
+        clean_body = re.sub(r'</?(?:div|p|span|section|h[1-6])\b[^>]*>', '', body)
+        return f"{open_tag}{clean_body}{close_tag}"
+
+    svg_clean = re.sub(r'(<text\b[^>]*>)(.*?)(</text>|(?=<text\b|</svg>|$))', sanitize_svg_text_tag, svg_clean, flags=re.DOTALL | re.IGNORECASE)
+
     svg_clean = re.sub(r'\|\s*</tspan>', '</tspan>', svg_clean)
     return svg_clean
 
@@ -420,7 +432,7 @@ MANDATORY RULES & DIRECTIVES:
 1. 5-SECTION PEDAGOGICAL FLOW:
    - Section 1 - DYNAMIC TITLE: You MUST create a context-aware Section 1 title matching the lesson topic (e.g., "Why use Functions?", "Problems without Loops", "Why Virtual Environments?"). Never use generic titles like "Introduction". Save title in `section1_title`.
    - Section 2 - DYNAMIC TITLE: You MUST create a context-aware Section 2 title detailing the knowledge concept (e.g., "Syntax & Operational Mechanism of Functions", "Installation & Environment Setup"). Save title in `section2_title`.
-   - Section 1 CONTENT: Enterprise real-world scenario, pain points of legacy approaches in HTML format.
+   - Section 1 CONTENT: Detailed & specific enterprise real-world scenario (e.g. ShopeeFood order checkout engine). Analyze the technical conflict and financial/business risks of running code sequentially line-by-line without conditional checks (e.g. negative revenue from small freeship orders vs user churn from overcharging shipping). Introduce current lesson concept as the dynamic decision solution.
    - Section 2 CONTENT: Core concepts, technical breakdown in HTML format using `<ul class="...">` and `<strong class="...">` for keywords.
    - Section 3: Practical Application Examples (Execution code snippet + HTML explanation).
    - Section 4: Summary & Enterprise Gotchas (Common pitfalls in HTML format).
@@ -435,16 +447,10 @@ MANDATORY RULES & DIRECTIVES:
      * 🟢 **Success/Best Practice**: Green -> `<div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4">`
      * 🔵 **Tip/Info**: Blue -> `<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">`
 
-3. 2D FLAT SVG DIAGRAM STANDARD (SECTION 1 - CODE COMPARISON DIAGRAM):
-   - In Section 1, MUST include a 2D flat SVG diagram demonstrating a direct CODE COMPARISON:
-     * SVG `viewBox` MUST be exactly: `viewBox="0 0 800 280"` (16:9 ratio). Add `class="rikkei-diagram w-full h-auto"` to `<svg>`.
-     * Left Box (Red Theme): `x = 40`, `y = 20`, `width = 320`, `height = 240`, `rx = 12`, `fill = "#fff1f2"`, `stroke = "#fecdd3"`, `stroke-width = 2`. Title at `x = 60`, `y = 50`.
-     * Right Box (Green Theme): `x = 440`, `y = 20`, `width = 320`, `height = 240`, `rx = 12`, `fill = "#ecfdf5"`, `stroke = "#a7f3d0"`, `stroke-width = 2`. Title at `x = 460`, `y = 50`.
-     * Center Arrow and Text: MUST be placed in the center gap (`x = 360` to `440`).
-       * Use `<text x="400" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369a1">Tối ưu mã nguồn</text>`
-       * Use `<text x="400" y="180" text-anchor="middle" font-size="11" fill="#0284c7">Tự động hóa vòng lặp</text>`
-       * Draw the center arrow (e.g. `<path d="M 375 130 L 410 130 L 410 120 L 425 135 L 410 150 L 410 140 L 375 140 Z" fill="#0284c7" />` or similar arrow path centered at x=400).
-     * This precise layout ensures no overlapping, no text truncation, and beautiful alignment.
+3. 2D FLAT VECTOR DIAGRAM / IMAGE STANDARD (SECTION 1):
+   - In Section 1, MUST include a 2D Flat Vector Technical Illustration / Diagram (16:9 widescreen ratio) depicting a direct comparison (e.g. Legacy manual approach vs New optimized approach).
+   - Supports clean 2D Flat Vector Images (`<img src="images/..." alt="..." class="w-full max-w-4xl aspect-[16/9] object-cover mx-auto rounded-xl border border-slate-200 shadow-sm" />`) created via image generation tools following `image_prompt_standard` skill, or clean 16:9 SVG (`viewBox="0 0 800 280"`).
+   - Ensures ultra-high visual quality, prevents UI text truncation or layout breakage, and delivers modern 2D flat technical graphics.
 {image_skill}
 
 4. STRICT NO EMOJI TEXT:
@@ -477,8 +483,8 @@ MANDATORY RULES & DIRECTIVES:
     - GOOD: `<pre><code class="language-python">...</code></pre>` (Place directly as standalone, the system will automatically wrap it in a card later).
 
 12. 100% ENGLISH CODE SYNTAX & IDENTIFIERS CONTRACT:
-    - ALL code snippets, syntax templates, variable names, function names, parameter names, data structures, and code comments inside code blocks MUST BE 100% IN ENGLISH (e.g., `for item in sequence:`, `# Execute loop body for each item`).
-    - ABSOLUTELY FORBIDDEN to use Vietnamese words or diacritics inside code blocks (e.g., NEVER use `biến_đại_diện`, `tập_hợp_dữ_liệu`, or `# Khối lệnh được thi hành`).
+    - ALL code snippets, syntax templates, variable names, function names, parameter names, data structures, syntax placeholders (e.g., `condition`, `statement_block`), and code comments inside code blocks MUST BE 100% IN ENGLISH using standard language conventions (`snake_case` for Python e.g. `order_amount`, `shipping_fee`, `is_vip_customer`, `discount_amount`, `total_payment`).
+    - ABSOLUTELY FORBIDDEN to use Vietnamese words, transliterated Vietnamese, or diacritics inside code blocks or placeholders (e.g., NEVER use `don_hang`, `phi_ship`, `la_khach_vip`, `giam_gia`, `thanh_tien`, `đieu_kien`, `khoi_lenh_thuc_thi`).
 
 13. CODE CARD TITLES STANDARD (NO ALL CAPS):
     - Titles on code cards MUST be specific and written in Title Case / Sentence Case (e.g., `Cú pháp khai báo câu lệnh for trong Python`).
@@ -518,9 +524,9 @@ MANDATORY RULES & DIRECTIVES:
 20. MANDATORY CODE DEMO FOR ALL SYNTAX VARIANTS CONTRACT:
     - EVERY subsection in Section 2 (`2.1`, `2.2`, `2.3`, `2.4`) introducing syntax variants MUST present:
       1. The Syntax Code Card for that variant.
-      2. A concrete Code Demo Snippet.
-      3. The Component Explanation Bullet List with highlighted terms (`<code>...</code>`).
-    - ABSOLUTELY FORBIDDEN to list bullet explanations for syntax variants without providing their syntax cards and code snippets!
+      2. The Enterprise Business Problem Callout Box placed directly BEFORE the code sandbox.
+      3. The concrete Code Demo Sandbox Snippet.
+      4. The Component Explanation Bullet List with highlighted terms (`<code>...</code>`).
 
 21. INTERACTIVE VISUALIZER COLOR & VIETNAMESE UI CONTRACT:
     - Visualizer component MUST use Light Mode colors: `bg-slate-50 border border-slate-200 text-slate-800`.
@@ -546,6 +552,35 @@ MANDATORY RULES & DIRECTIVES:
 23. JSON ESCAPING CONTRACT FOR MULTI-LINE CODE:
     - When writing multi-line code inside JSON string values (like `example_code` or `knowledge_html`), you MUST use explicit `\\n` to preserve line breaks.
     - DO NOT compress multi-line code into a single line. Example BAD: `"for x in range(3):    print(x)"`. Example GOOD: `"for x in range(3):\\n    print(x)"`.
+
+24. UNIFIED THREADED REAL-WORLD SCENARIO CONTRACT (XUYÊN SUỐT TOÀN BỘ BÀI HỌC):
+    - BEFORE writing Section 1, you MUST select ONE SINGLE, REALISTIC ENTERPRISE SCENARIO appropriate for the lesson topic and tech stack (e.g. Student Grade & Passing Qualification System, E-commerce Order Shipping & Discount, Bank Credit Approval, User Authentication Role, Inventory Stock Alert).
+    - This EXACT SAME scenario MUST thread continuously through ALL sections: Section 1 (Problem), Section 2 (Syntax & Progressive Sub-heading Sandboxes), Section 3 (Practical Examples), Section 4 (Gotchas), and Section 5 (Self-Test).
+    - ABSOLUTELY FORBIDDEN to switch to unrelated random examples across sections.
+
+25. CONCISE & PUNCHY SECTION 1 PROBLEM STATEMENT CONTRACT:
+    - Section 1 MUST be short, punchy, direct, and easy to understand (max 2-3 brief paragraphs/bullets).
+    - Follow pedagogical flow: Real-World Business Context ➔ Practical Pain Point ➔ Legacy Drawbacks ➔ Introduce New Solution Concept.
+    - Accompanied by a 16:9 widescreen 2D flat vector context diagram representing the real-world scenario.
+    - ABSOLUTELY FORBIDDEN to write long-winded, dry academic walls of text or preamble fluff.
+
+26. PROGRESSIVE SYNTAX CODE DEMO SANDBOX UNDER EVERY SUBSECTION:
+    - EVERY subsection in Section 2 (`2.1`, `2.2`, `2.3`...) MUST present its own concise Live Code Sandbox / Illustration block directly under the subsection.
+    - The code demo snippet under each subsection MUST progressively expand on the unified real-world scenario chosen for the lesson:
+      * For Conditional Statements: `2.1 if` (Pass check) ➔ `2.2 if-else` (Pass vs Retake) ➔ `2.3 if-elif-else` (Grade classification).
+      * For For Loops: `2.1 range()` (Index loop) ➔ `2.2 list loop` (Iterate score list) ➔ `2.3 enumerate()` (Student name and score pairs).
+
+27. PLAIN DEVELOPER LANGUAGE & ZERO ACADEMIC JARGON CONTRACT:
+    - 100% FORBIDDEN to use dry academic formulas, unverified claims, or hyperbolic AI fluff ("khám phá", "vô cùng", "bậc nhất", "tuyệt vời").
+    - Use clear, practical, learner-friendly language ("Giúp bạn kiểm tra...", "Xử lý khi...", "Tránh lỗi...").
+
+28. DOMAIN-AGNOSTIC & ZERO HARDCODING CONTRACT:
+    - All rules apply dynamically to whatever target `tech_stack` is passed in (`python`, `javascript`, `java`, `cpp`, `sql`, `html/css`, `git`, `docker`, `agile`, etc.).
+    - ABSOLUTELY NO hardcoded course titles, fixed grade examples, or single-technology fallbacks in prompt instructions.
+
+29. MANDATORY VALID CODE SYNTAX & INDENTATION CONTRACT:
+    - ALL code snippets and sandboxes MUST satisfy 100% syntactically valid code in the target technology language.
+    - For Python: MUST enforce exact 4-space indentation for blocks inside `if`, `elif`, `else`, `def`, `for`, `while`, `try`, `except`. NEVER omit indentation inside nested statements! All indentation errors (`IndentationError`) are FATAL.
 
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
@@ -710,10 +745,22 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
 
     def clean_stray_chars(html_str: str) -> str:
         if not html_str: return ""
-        # Strip all dark: Tailwind classes completely
-        c = re.sub(r'\bdark:[a-zA-Z0-9_-]+\b', '', html_str)
-        # Strip light text classes meant for dark backgrounds
+        # Strip all dark: Tailwind classes completely (e.g. dark:bg-slate-900, dark:text-slate-200, dark:bg-rikkei-bgDark)
+        c = re.sub(r'\bdark:[a-zA-Z0-9_/-]+\b', '', html_str)
+        # Strip light text classes inside normal text blocks meant for dark backgrounds
         c = re.sub(r'\b(text-slate-100|text-slate-200|text-slate-300|text-slate-400|text-white)\b', 'text-slate-700', c)
+
+        # Fix duplicate class="..." attributes on HTML tags: e.g. <h4 class="a b" class="c d"> -> <h4 class="a b c d">
+        def deduplicate_class_attributes(m):
+            tag_name = m.group(1)
+            full_tag = m.group(0)
+            classes = re.findall(r'class=["\']([^"\']*)["\']', full_tag)
+            merged = " ".join(classes).strip()
+            # Remove all class attributes from full_tag except the first one
+            tag_without_classes = re.sub(r'\s*class=["\'][^"\']*["\']', '', full_tag)
+            tag_open = tag_without_classes[:-1].rstrip()
+            return f'{tag_open} class="{merged}">'
+        c = re.sub(r'<(h[1-6]|div|p|span|button|section)\b[^>]*\bclass=["\'][^"\']*["\'][^>]*\bclass=["\'][^"\']*["\'][^>]*>', deduplicate_class_attributes, c, flags=re.IGNORECASE)
 
         c = re.sub(r'(<h[1-6]\b[^>]*>)\s*(?:&gt;|>|\|)+\s*', r'\1', c)
         c = re.sub(r'(<p\b[^>]*>)\s*(?:&gt;|>|\|)+\s*', r'\1', c)
@@ -733,13 +780,40 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         c = re.sub(r'id="mem-(?:number|bien[_-]?lap|counter|so)"', 'id="viz-var-number"', c)
         c = re.sub(r'id="viz-console-out(?:put)?"', 'id="viz-console"', c)
 
-        # Strip line numbers from visualizer code lines: e.g. "1. for item in sequence:" -> "for item in sequence:"
-        def strip_visualizer_line_numbers(m):
-            tag_open = m.group(1)
-            content = m.group(2)
-            clean_content = re.sub(r'^\s*(?:\d+\.|\b(?:Dòng|Line)\s*\d+[:.]?)\s*', '', content, flags=re.IGNORECASE)
-            return f'<{tag_open}>{clean_content}</div>'
-        c = re.sub(r'<(div\s+id="[^"]*(?:mech-line|line-)[^"]*"[^>]*)>(.*?)</div>', strip_visualizer_line_numbers, c, flags=re.DOTALL)
+        # Enforce Light Mode console box: replace bg-slate-900 / bg-black on console with bg-slate-100 border border-slate-200 text-emerald-800
+        c = re.sub(r'(id="viz-console"[^>]*class="[^"]*)\bbg-slate-900\b([^"]*")', r'\1bg-slate-100 border border-slate-200 text-emerald-800\2', c)
+        c = re.sub(r'(id="viz-console"[^>]*class="[^"]*)\btext-emerald-400\b([^"]*")', r'\1text-emerald-800 font-semibold\2', c)
+        c = re.sub(r'class="([^"]*)\bbg-slate-900\b([^"]*viz-console[^"]*)"', r'class="\1bg-slate-100 border border-slate-200 text-emerald-800\2"', c)
+
+        # Enforce standard 4-button visualizer control panel layout using Phosphor Icons (No text emoji)
+        def normalize_viz_button_panel(m):
+            panel_content = m.group(0)
+            if "Bắt đầu" not in panel_content or "Tạm dừng" not in panel_content:
+                return '''<div class="flex items-center gap-2">
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-play text-xs"></i> Bắt đầu</button>
+  <button type="button" onclick="runVizStep(0)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-pause text-xs"></i> Tạm dừng</button>
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#be111c] hover:bg-[#90000a] text-white shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-step-forward text-xs"></i> Từng bước</button>
+  <button type="button" onclick="runVizStep(-999)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i> Đặt lại</button>
+</div>'''
+            return panel_content
+        c = re.sub(r'<div\s+class="flex\s+items-center\s+gap-2">\s*<button\b.*?</button>\s*</div>', normalize_viz_button_panel, c, flags=re.DOTALL | re.IGNORECASE)
+
+        # Auto-attach onclick handlers to visualizer buttons if missing
+        c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Lùi lại|Quay lại|Trở về)\s*</button>', r'\1 onclick="runVizStep(-1)">Lùi lại</button>', c, flags=re.IGNORECASE)
+        c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tiếp theo|Kế tiếp|Chạy tiếp)\s*</button>', r'\1 onclick="runVizStep(1)">Tiếp theo</button>', c, flags=re.IGNORECASE)
+        c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tự động chạy|Auto Play)\s*</button>', r'\1 onclick="runVizStep(1)">Tự động chạy</button>', c, flags=re.IGNORECASE)
+        c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Thử lại|Đặt lại|Reset)\s*</button>', r'\1 onclick="runVizStep(-999)">Thử lại</button>', c, flags=re.IGNORECASE)
+
+        # Auto-wrap raw <table> elements in <div class="overflow-x-auto my-4"> to satisfy visual_linter
+        def wrap_unwrapped_table(m):
+            tbl_str = m.group(0)
+            if "overflow-x" in tbl_str or "overflow-x-auto" in tbl_str or "table-responsive" in tbl_str:
+                return tbl_str
+            return f'<div class="overflow-x-auto my-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">\n{tbl_str}\n</div>'
+        c = re.sub(r'<table\b[^>]*>.*?</table>', wrap_unwrapped_table, c, flags=re.DOTALL | re.IGNORECASE)
+
+        # Strip line numbers from visualizer code lines safely without breaking HTML tags
+        c = re.sub(r'(id="[^"]*(?:mech-line|line-)[^"]*"[^>]*>)\s*(?:<span[^>]*>)?\s*(?:\d+\.|\b(?:Dòng|Line)\s*\d+[:.]?)\s*(?:</span>)?\s*', r'\1', c, flags=re.IGNORECASE)
 
         # Strip font-mono from h1-h6 headings and ensure font-montserrat font-bold
         def sanitize_heading_fonts(m):
@@ -747,7 +821,12 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
             attrs = m.group(2)
             clean_attrs = re.sub(r'\bfont-mono\b', 'font-montserrat', attrs)
             if 'font-montserrat' not in clean_attrs:
-                clean_attrs = f'class="font-montserrat font-bold {clean_attrs}"'
+                if 'class="' in clean_attrs:
+                    clean_attrs = clean_attrs.replace('class="', 'class="font-montserrat font-bold ')
+                elif "class='" in clean_attrs:
+                    clean_attrs = clean_attrs.replace("class='", "class='font-montserrat font-bold ")
+                else:
+                    clean_attrs = f'class="font-montserrat font-bold" {clean_attrs}'
             return f'<{tag_name} {clean_attrs}>'
         c = re.sub(r'<(h[1-6])\s+([^>]*)>', sanitize_heading_fonts, c)
 
@@ -844,7 +923,7 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         <i class="ph-bold ph-copy text-xs"></i>
       </button>
     </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-{counter}" class="{hljs_class}" contenteditable="true" spellcheck="false" data-original="{attr_code}" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none; white-space:pre; overflow-x:auto;">{escaped_code}</code></pre>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-{counter}" class="{hljs_class}" contenteditable="true" spellcheck="false" data-original="{attr_code}" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">{escaped_code}</code></pre>
   </div>
   <div id="container-sb-{counter}" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
     <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
@@ -1485,14 +1564,41 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
       window.vizStepMap = {{}};
       function runVizStep(delta, idPrefix) {{
         idPrefix = idPrefix || "viz";
-        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        if (delta === -999) {{
+          window.vizStepMap[idPrefix] = 0;
+        }} else {{
+          window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+        }}
         if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
         var step = window.vizStepMap[idPrefix];
         
         var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
         var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var amtEl = document.getElementById(idPrefix + "-var-amount") || document.getElementById("viz-var-amount");
+        var rateEl = document.getElementById(idPrefix + "-var-rate") || document.getElementById("viz-var-rate");
         var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
         
+        if (amtEl || rateEl) {{
+          if (step === 0) {{
+            if (amtEl) amtEl.innerText = "650000";
+            if (rateEl) rateEl.innerText = "0.0";
+            if (consoleEl) consoleEl.innerText = "Chờ thực thi cấu trúc rẽ nhánh...";
+          }} else if (step === 1) {{
+            if (amtEl) amtEl.innerText = "650000";
+            if (rateEl) rateEl.innerText = "0.0";
+            if (consoleEl) consoleEl.innerText = "Bước 1: if order_amount >= 1000000 -> False";
+          }} else if (step === 2) {{
+            if (amtEl) amtEl.innerText = "650000";
+            if (rateEl) rateEl.innerText = "0.10";
+            if (consoleEl) consoleEl.innerText = "Bước 2: elif order_amount >= 500000 -> True! Áp dụng chiết khấu 10.0%";
+          }} else {{
+            if (amtEl) amtEl.innerText = "650000";
+            if (rateEl) rateEl.innerText = "0.10";
+            if (consoleEl) consoleEl.innerText = "Applied discount rate: 10.0%\\nBỏ qua các nhánh còn lại. Đã hoàn thành rẽ nhánh.";
+          }}
+          return;
+        }}
+
         if (consoleEl) {{
           if (step === 0) {{
             if (numEl) numEl.innerText = "-";

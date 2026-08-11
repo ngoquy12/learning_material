@@ -23,6 +23,23 @@ def sanitize_vietnamese_filename(text: str) -> str:
     text = re.sub(r'\s+', '_', text)
     return text.strip('_') + ".md"
 
+def clean_exercise_content(content: str) -> str:
+    if not content:
+        return ""
+    # 1. Remove bracket tags like [NOTE], [WARNING], [TIP], [REQUIREMENT], [ERROR], [INFO], [CAUTION]
+    content = re.sub(r'\[(NOTE|WARNING|TIP|REQUIREMENT|ERROR|INFO|CAUTION)\]\s*', '', content, flags=re.IGNORECASE)
+    # 2. Ensure all HTML <table> tags enforce 100% full width
+    def fix_table_tag(match):
+        tag = match.group(0)
+        if 'style=' in tag:
+            if 'width:' not in tag and 'width :' not in tag:
+                tag = re.sub(r'style=["\']', 'style="width: 100%; ', tag, count=1)
+        else:
+            tag = tag.replace('<table', '<table style="width: 100%; border-collapse: collapse;"')
+        return tag
+    content = re.sub(r'<table[^>]*>', fix_table_tag, content, flags=re.IGNORECASE)
+    return content
+
 def is_cli_or_tooling_tech(tech_stack: str) -> bool:
     """Check if the tech stack is a CLI, Version Control, Container, Shell, OS, DevOps, Agile/Scrum, or System Architecture subject."""
     tech_lower = (tech_stack or "").lower().strip()
@@ -69,7 +86,7 @@ This course is a CLI / Tooling / Version Control / Process / Architecture subjec
         subject_directive = f"""SUBJECT NATURE DIRECTIVE (PROGRAMMING / CODING SUBJECT):
 This course is a programming language / backend engineering subject ({tech_stack}).
 - Focus on business logic, data validation, algorithms, error handling, and clean code principles.
-- Input & Output: Show concrete Input and Output data structures (JSON, XML, or parameters).
+- Input & Output: Strictly respect the current Session's knowledge boundary! ABSOLUTELY FORBIDDEN to use JSON, Dict, List, or complex objects if those data structures have NOT been taught yet in prior lessons. For early sessions (e.g. Session 01 to 07 before List/Dict topics), Input & Output MUST use standard primitive variables (int, float, str, bool) and formatted text console lines.
 """
         rubric_group_3 = "#### **3. Kiểm chuẩn dữ liệu & Xử lý ngoại lệ (30 điểm)**"
         example_title = "Xây dựng Module Quản lý Đơn hàng Ecommerce (Tên bài tập bằng tiếng Việt có dấu)"
@@ -92,12 +109,19 @@ REQUIRED DIFFICULTY LEVEL:
 {subject_directive}
 
 MANDATORY EXERCISE DIRECTIVES:
-0. STRICT NO EMOJI DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis (🚀, 💡, ⚠️, ✅, ❌) in title, body, or source code. Use text labels [NOTE], [TIP], [WARNING] instead. For rules under 'Quy tắc xử lý', use 'Yêu cầu 1:', 'Yêu cầu 2:', etc. instead of [REQUIREMENT 1].
-0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY:
-   - You MUST ONLY use concepts taught up to the current Session ({session_id} - {session_title}) and prior lessons. FORBIDDEN to use future topics.
+0. STRICT NO EMOJI & NO BRACKET TAGS DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis (🚀, 💡, ⚠️, ✅, ❌) OR bracket tags like [NOTE], [TIP], [WARNING], [REQUIREMENT], [ERROR] in titles, notes, body, or source code. For notes/warnings, use clean bold labels like '**Lưu ý:**', '**Ghi chú:**', or '**Cảnh báo:**'. For rules under 'Quy tắc xử lý', use 'Yêu cầu 1:', 'Yêu cầu 2:', etc. instead of bracket tags.
+0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY (STRICT NO SCOPE LEAKAGE):
+   - You MUST ONLY use concepts, syntax, data structures, and commands taught up to the current Session ({session_id} - {session_title}) as listed in prior context ({previous_lessons_text}).
+   - ABSOLUTELY FORBIDDEN to leak future unlearned topics, unlearned data structures (e.g., Dict/List/Set/Classes/Async before their respective dedicated sessions), or unlearned execution commands for any technology stack ({tech_stack}).
 0.2 MERMAID DATA FLOW DIAGRAM:
    - In Section 2 (Problem Context), MUST include 1 highly detailed, correctly spelled Mermaid diagram (````mermaid ... ````) visualizing data flow (Inputs -> Process Logic -> Expected Output).
-   - Use standard flowchart shapes correctly: `[]` (rectangle) for process/action, `{{}}` (diamond) for condition/decision, `[/ /]` (parallelogram) for Input/Output.
+   - MANDATORY FLOWCHART SHAPE STANDARDS (STRICT FUNCTIONAL MATCHING):
+     * Terminator (Start / End): Oval / Stadium shape `([Bắt đầu quy trình])` or `([Kết thúc: Dừng chương trình])`.
+     * Input / Output: Parallelogram `[/Đầu vào: .../]` or `[/Đầu ra: .../]`.
+     * Decision (Condition check): Diamond `{"Kiểm tra điều kiện?"}`.
+     * Process (Action / Calculation): Rectangle `["Thực hiện tính toán / Xử lý dữ liệu"]`.
+     * Flowline: Arrow `-->` or `-->|Đúng|` / `-->|Sai|`.
+     * ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for actions or calculations! Use Rectangle `[" "]` for actions/calculations, and Parallelogram `[/ /]` ONLY for Input/Output.
    - ALWAYS double-quote node labels containing parens, slashes, or Vietnamese text: e.g., `A["Input: Data (v1)"] -->|Success| B["Process / Build"]`.
    - FORBIDDEN syntax: NEVER use `-- label -->` or `-- label -- >` with spaces before `>`. ALWAYS use `-->|label|`.
    - Diagram Labels: Technical identifiers (variables, functions, git commands) MUST remain in English (`git commit`, `git checkout`); Step labels MUST be in Vietnamese with correct spelling.
@@ -107,6 +131,8 @@ MANDATORY EXERCISE DIRECTIVES:
      * GOOD: `- Lãi suất tháng (r): r = annual_rate / (100 * 12)`
      * GOOD: `- Số tiền trả hàng tháng (PMT): PMT = P * (r * (1 + r)^n) / ((1 + r)^n - 1)`
      * BAD: `- Lãi suất tháng ($r$): $$r = \\frac{{\\text{{annual_rate}}}}{{{{100 \\times 12}}}}$$`
+0.5 MANDATORY 100% FULL-WIDTH HTML TABLE DIRECTIVE:
+   - ALL HTML tables (e.g., parameter tables, command tables, input/output specifications) MUST be 100% full-width using '<table border="1" style="width: 100%; border-collapse: collapse;">' (or '<table class="w-full" style="width: 100%; border-collapse: collapse;">'). ABSOLUTELY FORBIDDEN to omit width 100% or use narrow tables.
 0.3 EVALUATION RUBRIC TABLE (100 POINTS):
    - At the bottom of each exercise rubric, include '### **Tiêu chí chấm điểm (AI)**'.
    - You MUST EXACTLY use these 6 criteria headers (include the asterisks and numbering):
@@ -125,7 +151,7 @@ MANDATORY EXERCISE DIRECTIVES:
 4. EXERCISE STRUCTURE & HEADINGS:
    - Centered H2 Title: `## <center>[Exercise Title]</center>` in ACCENTED VIETNAMESE. FORBIDDEN exercise numbers in H2 title.
    - Section Headings: `### **1. Mục tiêu**`, `### **2. Vấn đề**`, `### **3. Yêu cầu bài toán**`, `### **4. Quy tắc xử lý**`, `### **5. Yêu cầu nộp bài**`.
-   - Function/Command Tables: Present complex commands or parameters in HTML `<table>` (width 100%) formatted according to `{tech_stack}` conventions.
+   - Function/Command Tables: Present complex commands or parameters in HTML `<table style="width: 100%; border-collapse: collapse;">` formatted according to `{tech_stack}` conventions.
    - Input/Output Examples: Show concrete Input and Output scenarios using markdown code fences. Filter inputs must match filtered outputs.
    - Submission Section: Standard GitHub submission format.
 
@@ -542,9 +568,9 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
         content = ex.get("content", "")
         rubric = ex.get("rubric", "")
         
-        # Post-process content to link/generate diagram image and sanitize math formulas
+        # Post-process content to link/generate diagram image and sanitize math formulas, bracket tags & table width
         from agents.creators.common_utils import clean_markdown_formulas
-        processed_content = clean_markdown_formulas(generate_and_link_diagram(content, practice_dir, filename_no_ext))
+        processed_content = clean_exercise_content(clean_markdown_formulas(generate_and_link_diagram(content, practice_dir, filename_no_ext)))
         
         # Write exercise description file
         desc_file_path = ex_folder / "de_bai_thuc_hanh.md"
@@ -614,7 +640,7 @@ def regenerate_single_practice_exercise(session_id: str, session_title: str, ses
     rubric = ex_data.get("rubric", "")
     
     from agents.creators.common_utils import clean_markdown_formulas
-    processed_content = clean_markdown_formulas(generate_and_link_diagram(content, practice_dir, filename_no_ext))
+    processed_content = clean_exercise_content(clean_markdown_formulas(generate_and_link_diagram(content, practice_dir, filename_no_ext)))
     
     # Write exercise description file
     desc_file_path = ex_folder / "de_bai_thuc_hanh.md"

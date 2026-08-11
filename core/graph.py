@@ -36,12 +36,12 @@ def write_state_artifacts_to_disk(state: AgentState):
             with open(html_sub / "reading.html", "w", encoding="utf-8") as f:
                 f.write(state["html_content"])
                 
-        # 2. Slide
-        if "slide" in requested_parts and state.get("slide_markdown"):
-            slide_sub = lesson_dir / "Bài giảng"
-            slide_sub.mkdir(parents=True, exist_ok=True)
-            with open(slide_sub / "slides.html", "w", encoding="utf-8") as f:
-                f.write(state["slide_markdown"])
+        # TẠM THỜI COMMENT LUỒNG GHI SLIDE RA ĐĨA
+        # if "slide" in requested_parts and state.get("slide_markdown"):
+        #     slide_sub = lesson_dir / "Bài giảng"
+        #     slide_sub.mkdir(parents=True, exist_ok=True)
+        #     with open(slide_sub / "slides.html", "w", encoding="utf-8") as f:
+        #         f.write(state["slide_markdown"])
                 
         # 3. Quiz
         if "quiz" in requested_parts and state.get("quiz_json"):
@@ -74,6 +74,13 @@ def write_state_artifacts_to_disk(state: AgentState):
             if lab_md:
                 with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
                     f.write(lab_md)
+            lab_html = state.get("practical_lab_html")
+            if not lab_html and state.get("lab_json"):
+                from agents.creators.practical_lab_creator import format_lab_to_html
+                lab_html = format_lab_to_html(state["lab_json"], state.get("tech_stack", "python"))
+            if lab_html:
+                with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
+                    f.write(lab_html)
                 
 
         # 3.5 Reading Questions (Markdown)
@@ -88,12 +95,12 @@ def write_state_artifacts_to_disk(state: AgentState):
                 with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
                     f.write(rq_md)
                 
-        # 4. Video Script
-        if ("video" in requested_parts or "video_script" in requested_parts) and state.get("video_script_markdown"):
-            video_sub = lesson_dir / "Video"
-            video_sub.mkdir(parents=True, exist_ok=True)
-            with open(video_sub / "SCRIPT.md", "w", encoding="utf-8") as f:
-                f.write(state["video_script_markdown"])
+        # TẠM THỜI COMMENT LUỒNG GHI VIDEO SCRIPT RA ĐĨA
+        # if ("video" in requested_parts or "video_script" in requested_parts) and state.get("video_script_markdown"):
+        #     video_sub = lesson_dir / "Video"
+        #     video_sub.mkdir(parents=True, exist_ok=True)
+        #     with open(video_sub / "SCRIPT.md", "w", encoding="utf-8") as f:
+        #         f.write(state["video_script_markdown"])
     except Exception as e:
         print(f"  [Write Disk Warning] Failed to write artifacts to disk: {e}")
 
@@ -275,7 +282,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             
         # Nếu đây là lần đầu chạy và đã nạp sẵn html_content từ đĩa (qua sync)
         # thì ưu tiên kiểm định trực tiếp nội dung trên đĩa trước
-        if attempt == 0 and state.get("html_content"):
+        if attempt == 0 and state.get("html_content") and "Empty outline" not in state["html_content"] and "ĐANG KHỞI TẠO" not in state["html_content"]:
             print("  [HTML_Production] Phát hiện nội dung bài đọc từ đĩa. Đang kiểm định trực tiếp...")
             review = html_ux_reviewer(state)
             if review["status"] == "APPROVED":
@@ -321,36 +328,32 @@ def pipeline_html_production(state: AgentState) -> AgentState:
 
 @component
 def pipeline_slide_production(state: AgentState) -> AgentState:
-    """Vòng lặp phản biện (Critique Loop) tự động cho Slide bài giảng"""
-    if "requested_parts" in state and "slide" not in state["requested_parts"]:
-        state["artifacts_status"]["slide"] = "Skipped"
-        return state
-    approved = False
-    for attempt in range(3):
-        # Allow recovery if already approved in a previous execution
-        if state.get("artifacts_status", {}).get("slide") == "Approved":
-            approved = True
-            break
-        state = slide_agent(state)
-        review = academic_reviewer(state)
-        if review["status"] == "APPROVED":
-            state["artifacts_status"]["slide"] = "Approved"
-            save_state_checkpoint(state)
-            approved = True
-            break
-        else:
-            state["review_logs"].append({"source": "Academic_Reviewer", "feedback": review["feedback"]})
-            save_state_checkpoint(state)
-    if not approved:
-        print(
-            f"\n[CẢNH BÁO TỪ PM] Nội dung học thuật Slide chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
-        )
-        state["artifacts_status"]["slide"] = "Approved with Warnings"
-        save_state_checkpoint(state)
-    write_state_artifacts_to_disk(state)
+    """TẠM THỜI COMMENT LUỒNG TẠO SLIDE - BỎ QUA TẠO SLIDE"""
+    state.setdefault("artifacts_status", {})["slide"] = "Skipped (Temporarily Commented Out)"
     return state
+    # if "requested_parts" in state and "slide" not in state["requested_parts"]:
+    #     state["artifacts_status"]["slide"] = "Skipped"
+    #     return state
+    # approved = False
+    # for attempt in range(3):
+    #     if state.get("artifacts_status", {}).get("slide") == "Approved":
+    #         approved = True
+    #         break
+    #     state = slide_agent(state)
+    #     review = academic_reviewer(state)
+    #     if review["status"] == "APPROVED":
+    #         state["artifacts_status"]["slide"] = "Approved"
+    #         save_state_checkpoint(state)
+    #         approved = True
+    #         break
+    #     else:
+    #         state["review_logs"].append({"source": "Academic_Reviewer", "feedback": review["feedback"]})
+    #         save_state_checkpoint(state)
+    # if not approved:
+    #     state["artifacts_status"]["slide"] = "Approved with Warnings"
+    #     save_state_checkpoint(state)
+    # write_state_artifacts_to_disk(state)
+    # return state
 
 def _is_session_01_orientation(state: AgentState) -> bool:
     """Check if current session is Session 01 Orientation."""
@@ -449,11 +452,13 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
 
 @component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
-    """Vòng lặp phản biện (Critique Loop) tự động cho Video Script theo chuẩn HyperFrames"""
-    requested = state.get("requested_parts", ["all"])
-    if "video" not in requested and "video_script" not in requested and "all" not in requested:
-        state.setdefault("artifacts_status", {})["video_script"] = "Skipped"
-        return state
+    """TẠM THỜI COMMENT LUỒNG TẠO VIDEO SCRIPT - BỎ QUA TẠO VIDEO SCRIPT"""
+    state.setdefault("artifacts_status", {})["video_script"] = "Skipped (Temporarily Commented Out)"
+    return state
+    # requested = state.get("requested_parts", ["all"])
+    # if "video" not in requested and "video_script" not in requested and "all" not in requested:
+    #     state.setdefault("artifacts_status", {})["video_script"] = "Skipped"
+    #     return state
 
     # ── ĐẢM BẢO PHỤ THUỘC TẦN THỨC: Bài đọc HTML (reading.md) BẮT BUỘC xong 100% trước khi tạo Video ──
     html_status = state.get("artifacts_status", {}).get("html", "")
@@ -901,16 +906,17 @@ def compile_learning_content_workflow():
         try:
             lesson_dir = get_lesson_dir(state)
             html_path = lesson_dir / "Bài đọc" / "reading.html"
-            if html_path.exists() and html_path.stat().st_size > 100:
+            if html_path.exists() and html_path.stat().st_size > 300:
                 with open(html_path, "r", encoding="utf-8") as f:
                     disk_html = f.read()
-                # Chỉ nạp nếu nội dung trong state trống hoặc khác với đĩa
-                if not state.get("html_content") or state["html_content"] != disk_html:
-                    print(f"  [Sync] Tự động nạp file reading.html từ đĩa: {html_path} ({len(disk_html)} ký tự)")
-                    state["html_content"] = disk_html
-                    # Đặt lại status của html thành Pending nếu nó chưa được duyệt Approved trong state cũ
-                    if state.get("artifacts_status", {}).get("html") != "Approved":
-                        state.setdefault("artifacts_status", {})["html"] = "Pending"
+                if "Empty outline" not in disk_html and "ĐANG KHỞI TẠO" not in disk_html:
+                    # Chỉ nạp nếu nội dung trong state trống hoặc khác với đĩa
+                    if not state.get("html_content") or state["html_content"] != disk_html:
+                        print(f"  [Sync] Tự động nạp file reading.html từ đĩa: {html_path} ({len(disk_html)} ký tự)")
+                        state["html_content"] = disk_html
+                        # Đặt lại status của html thành Pending nếu nó chưa được duyệt Approved trong state cũ
+                        if state.get("artifacts_status", {}).get("html") != "Approved":
+                            state.setdefault("artifacts_status", {})["html"] = "Pending"
         except Exception as e:
             print(f"  [Sync Warning] Lỗi khi nạp bài đọc từ đĩa: {e}")
         
@@ -952,10 +958,10 @@ def compile_learning_content_workflow():
         print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 5 tài nguyên dẫn xuất từ Bài đọc HTML (Slide, Quiz, VideoScript, Lab, ReadingQuestions)...")
         start_t = time.time()
         
-        # 5 Creator Pipelines dẫn xuất bám sát Bài đọc HTML cho từng Lesson
+        # TẠM THỜI COMMENT LUỒNG SLIDE VÀ VIDEO SCRIPT TRONG NGUYÊN TẮC THỰC THI SONG SONG
         pipelines = [
-            ("Slide", pipeline_slide_production),
-            ("VideoScript", pipeline_video_script_production),
+            # ("Slide", pipeline_slide_production),
+            # ("VideoScript", pipeline_video_script_production),
             ("Quiz", pipeline_quiz_production),
             ("PracticalLab", pipeline_practical_lab_production),
             ("ReadingQuestions", pipeline_reading_questions_production),

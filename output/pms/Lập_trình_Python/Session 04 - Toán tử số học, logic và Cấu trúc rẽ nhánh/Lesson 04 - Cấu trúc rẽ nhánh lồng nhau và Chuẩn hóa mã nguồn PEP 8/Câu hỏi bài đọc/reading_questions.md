@@ -1,45 +1,52 @@
-# Bộ câu hỏi tự luận kiểm tra bài đọc (Reading Comprehension Essay Questions)
+# Bộ câu hỏi kiểm tra bài đọc (Reading Comprehension Questions)
 
-### Câu 1: Dựa vào bối cảnh hệ thống tự động hóa thẩm định hồ sơ vay tại RikkeiBank, hãy phân tích nguyên nhân tạo ra hiện tượng "Arrow Anti-pattern" trong mã nguồn ban đầu. Việc lồng liên tiếp các câu lệnh kiểm tra biến `age`, `income` và `credit_score` gây ra những khó khăn và nguy cơ gì cho hệ thống vận hành?
-> **Gợi ý trả lời & Định hướng đáp án:** Đánh giá khả năng hiểu bối cảnh doanh nghiệp và điểm nghẽn vận hành (Operational Pain Point):
-- Nguyên nhân: Đội ngũ phát triển lồng nhiều câu lệnh rẽ nhánh liên tiếp (`if age >= 18:` -> `if income >= 15:` -> `if credit_score >= 650:`), khiến mã nguồn bị thụt lùi sâu vào bên trong theo dạng hình mũi tên.
-- Tác hại/Rủi ro: Làm mã nguồn trở nên cực kỳ phức tạp và khó đọc, gia tăng rủi ro bỏ sót logic kiểm định trong quá trình bảo trì, đồng thời vi phạm nghiêm trọng chuẩn định dạng PEP 8 của Python.
+## Tình huống & Mã nguồn kiểm tra
+Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
----
+```python
+# Mã nguồn minh họa nghiệp vụ cho bài học: Cấu trúc rẽ nhánh lồng nhau và Chuẩn hóa mã nguồn PEP 8
+score = 8.5
 
-### Câu 2: Để khắc phục mã nguồn cũ của RikkeiBank, phương pháp "Phẳng hóa điều kiện" (Condition Flattening) đã được áp dụng như thế nào? Trình bày đoạn mã điều kiện tối ưu kiểm tra đồng thời ba biến `age`, `income`, `credit_score` và phân tích quy chuẩn khoảng trắng toán tử, thụt lề theo tiêu chuẩn PEP 8.
-> **Gợi ý trả lời & Định hướng đáp án:** Đánh giá kiến thức tái cấu trúc mã nguồn (Refactoring) và chuẩn PEP 8:
-- Giải pháp: Kết hợp cả 3 điều kiện thẩm định độc lập trên cùng một cấp độ bằng cách sử dụng toán tử logic `and`.
-- Đoạn mã tối ưu:
-  `if age >= 18 and income >= 15 and credit_score >= 650:`
-      `# Phê duyệt hồ sơ`
-- Phân tích chuẩn PEP 8:
-  + Thụt lề (Indentation): Sử dụng đúng 4 khoảng trắng (spaces) cho khối lệnh xử lý bên trong `if`, loại bỏ các cấp thụt lề thừa.
-  + Khoảng trắng toán tử: Đặt đúng 1 khoảng trắng đơn trước và sau các toán tử so sánh (`>=`) và toán tử logic (`and`) để tăng tính dễ đọc.
+if score >= 9.0:
+    rank = "Xuất sắc"
+elif score >= 8.0:
+    rank = "Giỏi"
+elif score >= 6.5:
+    rank = "Khá"
+else:
+    rank = "Trung bình"
 
----
-
-### Câu 3: Dựa vào sơ đồ quy trình xét duyệt tín dụng (Mermaid Diagram) trong bài đọc, hãy phân tích luồng thực thi và xác định thông báo phản hồi chính xác của hệ thống RikkeiBank cho 2 trường hợp hồ sơ sau:
-- Hồ sơ A: `age` = 17, `income` = 25 (triệu VNĐ), `credit_score` = 720.
-- Hồ sơ B: `age` = 30, `income` = 12 (triệu VNĐ), `credit_score` = 690.
-> **Gợi ý trả lời & Định hướng đáp án:** Đánh giá khả năng đọc hiểu sơ đồ luồng điều khiển và logic rẽ nhánh:
-- Hồ sơ A:
-  + Kiểm tra điều kiện 1: `18 <= age <= 65`. Vì `age` = 17 (< 18), luồng điều khiển rẽ sang nhánh 'Không'.
-  + Kết quả phản hồi: Hệ thống trả về thông báo "Từ chối: Không đủ tuổi".
-- Hồ sơ B:
-  + Kiểm tra điều kiện 1: `18 <= age <= 65` (`age` = 30) -> Thỏa mãn, rẽ sang nhánh 'Có'.
-  + Kiểm tra điều kiện 2: `income >= 15` VÀ `credit_score >= 650`. Mặc dù `credit_score` = 690 (>= 650) nhưng `income` = 12 (< 15 triệu), khiến điều kiện kết hợp toán tử VÀ bị sai.
-  + Kết quả phản hồi: Hệ thống trả về thông báo "Từ chối: Tiêu chí tài chính không đạt".
+print(f"Học lực: {rank}")
+```
 
 ---
 
-### Câu 4: Trích dẫn bảng quy chuẩn định dạng PEP 8 trong bài đọc, hãy cho biết quy định kỹ thuật cụ thể đối với việc dùng phím Tab, khoảng trắng và độ sâu rẽ nhánh lồng nhau tối đa. Việc trộn lẫn Tab và Space hoặc lồng vượt quá 2 cấp rẽ nhánh sẽ gây ra hậu quả gì?
-> **Gợi ý trả lời & Định hướng đáp án:** Đánh giá khả năng ghi nhớ bẫy lỗi (Gotcha) và quy chuẩn kỹ thuật PEP 8:
-- Quy định kỹ thuật PEP 8 trong bài:
-  + Thụt lề: Bắt buộc dùng 4 khoảng trắng (Spaces) cho mỗi cấp. Tuyệt đối không dùng phím Tab hoặc trộn lẫn Tab và Space.
-  + Độ sâu rẽ nhánh: Khuyên dùng tối đa 1 - 2 cấp lồng nhau.
-- Hậu quả vi phạm:
-  + Việc trộn lẫn Tab và Space sẽ làm mất tính nhất quán của mã nguồn trên các trình biên dịch/hệ điều hành khác nhau, dễ phát sinh lỗi cú pháp (IndentationError).
-  + Việc lồng quá 2 cấp rẽ nhánh làm tái diễn lỗi Arrow Anti-pattern, khiến mã bị thụt lùi sâu, rất khó đọc và khó bảo trì.
+### Câu 1 (Xung hướng - Tính toán kết quả với dữ liệu X): Nếu giá trị đầu vào là `score = 8.5`, chương trình sẽ thực thi qua những câu lệnh rẽ nhánh nào và in kết quả `rank` ra màn hình là gì?
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - Điều kiện `score >= 9.0` (8.5 >= 9.0) trả về `False`.
+> - Điều kiện `score >= 8.0` (8.5 >= 8.0) trả về `True`.
+> - Gán `rank = 'Giỏi'` và kết quả in ra màn hình là `Học lực: Giỏi`.
+
+---
+
+### Câu 2 (Xung hướng - Thử nghiệm với mốc dữ liệu Y): Nếu sửa giá trị thành `score = 7.0`, nhánh rẽ nào sẽ được kích hoạt và kết quả `rank` thay đổi ra sao?
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - Các điều kiện `>= 9.0` và `>= 8.0` đều `False`.
+> - Điều kiện `score >= 6.5` (7.0 >= 6.5) trả về `True`.
+> - Gán `rank = 'Khá'` và in ra màn hình `Học lực: Khá`.
+
+---
+
+### Câu 3 (Nghịch hướng - Suy luận dữ liệu đầu vào từ kết quả Z): Để hệ thống xếp loại `rank = 'Giỏi'`, giá trị biến `score` phải thỏa mãn khoảng giá trị toán học nào?
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - Biến `score` phải thỏa mãn điều kiện `8.0 <= score < 9.0` (từ 8.0 đến dưới 9.0).
+
+---
+
+### Câu 4 (Phân tích bẫy lỗi & Trường hợp biên): Nếu nhập `score = -1.0` hoặc `score = 11.0`, hãy chỉ ra điểm bất hợp lý của mã nguồn hiện tại và đề xuất cách cải tiến.
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - Mã nguồn chưa có nhánh kiểm tra tính hợp lệ dữ liệu (0 <= score <= 10).
+> - Khi `score = 11.0`, hệ thống vẫn xếp loại 'Xuất sắc', khi `score = -1.0` xếp loại 'Trung bình'.
+> - Cần bổ sung câu lệnh `if score < 0 or score > 10:` ở đầu để báo lỗi dữ liệu không hợp lệ.
 
 ---

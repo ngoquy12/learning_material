@@ -71,6 +71,9 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
     # 4. Media Bounds & Italicized Caption Inspection
     img_matches = re.finditer(r'<img\s+([^>]*?)>', content, re.IGNORECASE)
     for match in img_matches:
+        img_attr = match.group(1).lower()
+        if any(kw in img_attr for kw in ["logo", "brand", "header", "icon", "h-9", "h-8", "h-10", "h-12", "nav"]):
+            continue
         pos = match.end()
         following_snippet = content[pos:pos+300]
         has_italic_caption = bool(re.search(r'<(figcaption|i|em)\b', following_snippet, re.IGNORECASE))

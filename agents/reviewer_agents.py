@@ -332,12 +332,17 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
             f"        3. Technology Stack & Knowledge Scope Boundary Isolation (CRITICAL):\n"
             f"           - Cross-check strictly with Target Technology Stack: \"{tech_stack}\". ANY technology confusion or stack mismatch MUST BE REJECTED.\n"
             "           - STRICT KNOWLEDGE SCOPE BOUNDARY AUDIT: Verify if content contains code, data structures, libraries, or concepts exceeding PM Lesson Details and Previous Lessons Info.\n"
-            '           - EXPLICIT SCOPE BREACH RULE: If a data structure (such as List `[1,2,3]`, Dict `{"a": 1}`, Tuple, Set, Class/OOP) or method has NOT been taught in previous lessons and is NOT in current lesson details (e.g. using List in an introductory `for` loop / `range()` lesson before List is introduced), YOU MUST REJECT THE CONTENT IMMEDIATELY. State clearly in feedback: "REJECTED: Vượt phạm vi kiến thức - Sử dụng cấu trúc dữ liệu / kiến thức chưa học (List/Dict/Method...) trong bài học này."\n'
+            '           - EXPLICIT SCOPE BREACH RULE: If a data structure (such as List `[1,2,3]`, Dict `{"a": 1}`, Tuple, Set or method has NOT been taught in previous lessons and is NOT in current lesson details (e.g. using List in an introductory `for` loop / `range()` lesson before List is introduced), YOU MUST REJECT THE CONTENT IMMEDIATELY. State clearly in feedback: "REJECTED: Vượt phạm vi kiến thức - Sử dụng cấu trúc dữ liệu / kiến thức chưa học (List/Dict/Method...) trong bài học này."\n'
             "        4. Scientific Presentation & Aesthetics:\n"
             "           - Layout must be pedagogical, balanced, and strictly Light Mode.\n"
             "           - ABSOLUTELY REJECT if dark background panels (`bg-slate-900`, `bg-black`), dark container cards, or dark mode overrides are used.\n"
             "        5. Code Snippet Rules:\n"
             "           - FOR THEORY LESSONS (Is Theory/Diagram Only Lesson = True): Reviewer MUST NOT REJECT when material lacks code or code samples! Omission of code samples in theory lessons is CORRECT behavior. DO NOT flag missing code!\n"
+            "        6. Unified Threaded Real-World Scenario, Concise Problem Statement & Plain Language Audit:\n"
+            "           - Verify Section 1 is concise, punchy, and direct (max 2-3 brief paragraphs/bullets + 16:9 2D flat SVG diagram). Reject if Section 1 is long-winded, dry, or academic.\n"
+            "           - Verify a single unified real-world scenario is threaded continuously across Section 1, Section 2 (syntax variants), Section 3, Section 4, and Section 5.\n"
+            "           - For coding/syntax lessons, verify every syntax subsection in Section 2 (`2.1`, `2.2`...) contains a code sandbox snippet demonstrating that syntax variation progressively expanding on the unified scenario.\n"
+            "           - Verify language is clear, practical, plain developer Vietnamese. Reject if content uses dry academic jargon, unverified formulas, or hyperbolic AI fluff (\"khám phá\", \"vô cùng\", \"bậc nhất\", \"tuyệt vời\").\n"
             "           \n"
             "        If the content fails any of these criteria, you MUST reject it!\n"
             "        \n"

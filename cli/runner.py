@@ -536,14 +536,16 @@ def main_entry():
                     else:
                         html_path = "Skipped"
 
-                    if "slide" in requested_parts and final_state.get("slide_markdown"):
-                        slide_sub = lesson_dir / "Bài giảng"
-                        slide_sub.mkdir(parents=True, exist_ok=True)
-                        slides_path = slide_sub / "slides.html"
-                        with open(slides_path, "w", encoding="utf-8") as f:
-                            f.write(final_state.get("slide_markdown", ""))
-                    else:
-                        slides_path = "Skipped"
+                    # TẠM THỜI COMMENT LUỒNG LƯU SLIDE BÀI GIẢNG PARALLEL
+                    # if "slide" in requested_parts and final_state.get("slide_markdown"):
+                    #     slide_sub = lesson_dir / "Bài giảng"
+                    #     slide_sub.mkdir(parents=True, exist_ok=True)
+                    #     slides_path = slide_sub / "slides.html"
+                    #     with open(slides_path, "w", encoding="utf-8") as f:
+                    #         f.write(final_state.get("slide_markdown", ""))
+                    # else:
+                    #     slides_path = "Skipped"
+                    slides_path = "Skipped (Temporarily Commented Out)"
 
                     if "quiz" in requested_parts and final_state.get("quiz_json"):
                         quiz_sub = lesson_dir / "Câu hỏi Quizz"
@@ -577,6 +579,13 @@ def main_entry():
                         if lab_md:
                             with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
                                 f.write(lab_md)
+                        lab_html = final_state.get("practical_lab_html")
+                        if not lab_html and final_state.get("lab_json"):
+                            from agents.creators.practical_lab_creator import format_lab_to_html
+                            lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("tech_stack", "python"))
+                        if lab_html:
+                            with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
+                                f.write(lab_html)
 
                     if final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"):
                         rq_sub = lesson_dir / "Câu hỏi bài đọc"
@@ -744,14 +753,16 @@ def main_entry():
                     else:
                         html_path = "Skipped"
 
-                    if "slide" in requested_parts and final_state.get("slide_markdown"):
-                        slide_sub = lesson_dir / "Bài giảng"
-                        slide_sub.mkdir(parents=True, exist_ok=True)
-                        slides_path = slide_sub / "slides.html"
-                        with open(slides_path, "w", encoding="utf-8") as f:
-                            f.write(final_state.get("slide_markdown", ""))
-                    else:
-                        slides_path = "Skipped"
+                    # TẠM THỜI COMMENT LUỒNG LƯU SLIDE BÀI GIẢNG SEQUENTIAL
+                    # if "slide" in requested_parts and final_state.get("slide_markdown"):
+                    #     slide_sub = lesson_dir / "Bài giảng"
+                    #     slide_sub.mkdir(parents=True, exist_ok=True)
+                    #     slides_path = slide_sub / "slides.html"
+                    #     with open(slides_path, "w", encoding="utf-8") as f:
+                    #         f.write(final_state.get("slide_markdown", ""))
+                    # else:
+                    #     slides_path = "Skipped"
+                    slides_path = "Skipped (Temporarily Commented Out)"
 
                     if "quiz" in requested_parts and final_state.get("quiz_json"):
                         quiz_sub = lesson_dir / "Câu hỏi Quizz"
@@ -785,6 +796,13 @@ def main_entry():
                         if lab_md:
                             with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
                                 f.write(lab_md)
+                        lab_html = final_state.get("practical_lab_html")
+                        if not lab_html and final_state.get("lab_json"):
+                            from agents.creators.practical_lab_creator import format_lab_to_html
+                            lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("tech_stack", "python"))
+                        if lab_html:
+                            with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
+                                f.write(lab_html)
 
                     if final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"):
                         rq_sub = lesson_dir / "Câu hỏi bài đọc"
@@ -899,22 +917,23 @@ def main_entry():
                     previous_lessons_text=session_lessons_text
                 )
 
-                session_slides_html = generate_session_slides(
-                    session_id=session_id,
-                    session_title=session_title,
-                    session_dir_path=str(session_dir),
-                    tech_stack=tech_stack,
-                    previous_lessons_text=session_lessons_text
-                )
-                
-                generate_session_video_scripts(
-                    session_id=session_id,
-                    session_title=session_title,
-                    session_dir_path=str(session_dir),
-                    tech_stack=tech_stack,
-                    session_slides_html=session_slides_html,
-                    lessons_data=session.get("lessons", [])
-                )
+                # TẠM THỜI COMMENT LUỒNG TẠO SLIDE VÀ VIDEO SCRIPT SESSION
+                # session_slides_html = generate_session_slides(
+                #     session_id=session_id,
+                #     session_title=session_title,
+                #     session_dir_path=str(session_dir),
+                #     tech_stack=tech_stack,
+                #     previous_lessons_text=session_lessons_text
+                # )
+                # 
+                # generate_session_video_scripts(
+                #     session_id=session_id,
+                #     session_title=session_title,
+                #     session_dir_path=str(session_dir),
+                #     tech_stack=tech_stack,
+                #     session_slides_html=session_slides_html,
+                #     lessons_data=session.get("lessons", [])
+                # )
         else:
             # Session with no sub-lessons
             state: AgentState = {
@@ -965,14 +984,16 @@ def main_entry():
                 else:
                     html_path = "Skipped"
 
-                if "slide" in requested_parts and final_state.get("slide_markdown"):
-                    slide_sub = session_dir / "Bài giảng"
-                    slide_sub.mkdir(parents=True, exist_ok=True)
-                    slides_path = slide_sub / "slides.html"
-                    with open(slides_path, "w", encoding="utf-8") as f:
-                        f.write(final_state.get("slide_markdown", ""))
-                else:
-                    slides_path = "Skipped"
+                # TẠM THỜI COMMENT LUỒNG LƯU SLIDE CẤP SESSION SINGLE-LESSON
+                # if "slide" in requested_parts and final_state.get("slide_markdown"):
+                #     slide_sub = session_dir / "Bài giảng"
+                #     slide_sub.mkdir(parents=True, exist_ok=True)
+                #     slides_path = slide_sub / "slides.html"
+                #     with open(slides_path, "w", encoding="utf-8") as f:
+                #         f.write(final_state.get("slide_markdown", ""))
+                # else:
+                #     slides_path = "Skipped"
+                slides_path = "Skipped (Temporarily Commented Out)"
 
                 if "quiz" in requested_parts and final_state.get("quiz_json"):
                     quiz_sub = session_dir / "Câu hỏi Quizz"
@@ -1005,6 +1026,13 @@ def main_entry():
                     if lab_md:
                         with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
                             f.write(lab_md)
+                    lab_html = final_state.get("practical_lab_html")
+                    if not lab_html and final_state.get("lab_json"):
+                        from agents.creators.practical_lab_creator import format_lab_to_html
+                        lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("tech_stack", "python"))
+                    if lab_html:
+                        with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
+                            f.write(lab_html)
 
                 if final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"):
                     rq_sub = session_dir / "Câu hỏi bài đọc"
@@ -1017,14 +1045,16 @@ def main_entry():
                         with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
                             f.write(rq_md)
 
-                if ("video" in requested_parts or "video_script" in requested_parts) and final_state.get("video_script_markdown"):
-                    video_sub = session_dir / "Kịch bản video"
-                    video_sub.mkdir(parents=True, exist_ok=True)
-                    video_script_path = video_sub / "video_script.md"
-                    with open(video_script_path, "w", encoding="utf-8") as f:
-                        f.write(final_state.get("video_script_markdown", ""))
-                else:
-                    video_script_path = "Skipped"
+                # TẠM THỜI COMMENT LUỒNG LƯU SCRIPT VIDEO CẤP SESSION
+                # if ("video" in requested_parts or "video_script" in requested_parts) and final_state.get("video_script_markdown"):
+                #     video_sub = session_dir / "Kịch bản video"
+                #     video_sub.mkdir(parents=True, exist_ok=True)
+                #     video_script_path = video_sub / "video_script.md"
+                #     with open(video_script_path, "w", encoding="utf-8") as f:
+                #         f.write(final_state.get("video_script_markdown", ""))
+                # else:
+                #     video_script_path = "Skipped"
+                video_script_path = "Skipped (Temporarily Commented Out)"
 
                 if "mindmap" in requested_parts and final_state.get("mindmap_markdown"):
                     mindmap_sub = session_dir / "Mindmap"

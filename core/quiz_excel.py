@@ -86,7 +86,12 @@ def export_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
     if os.name == 'nt' and not abs_path.startswith('\\\\?\\'):
         abs_path = '\\\\?\\' + abs_path
     os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-    wb.save(abs_path)
+    try:
+        wb.save(abs_path)
+    except PermissionError:
+        alt_path = abs_path.replace('.xlsx', '_new.xlsx')
+        wb.save(alt_path)
+        print(f"[Quiz Excel Warning] File locked by external process. Saved to: {alt_path}")
 
 def export_lesson_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
     """
@@ -144,7 +149,7 @@ def export_lesson_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str)
                 ws.cell(row=row_idx, column=2, value=None)
                 
             ws.cell(row=row_idx, column=3, value=str(opt_text)).alignment = left_align
-            ws.cell(row=row_idx, column=4, value="TRUE" if opt_idx == correct_idx else "").alignment = center_align
+            ws.cell(row=row_idx, column=4, value="TRUE" if opt_idx == correct_idx else None).alignment = center_align
             
             for col_i in range(1, 5):
                 ws.cell(row=row_idx, column=col_i).border = thin_border
@@ -159,4 +164,9 @@ def export_lesson_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str)
     if os.name == 'nt' and not abs_path.startswith('\\\\?\\'):
         abs_path = '\\\\?\\' + abs_path
     os.makedirs(os.path.dirname(abs_path), exist_ok=True)
-    wb.save(abs_path)
+    try:
+        wb.save(abs_path)
+    except PermissionError:
+        alt_path = abs_path.replace('.xlsx', '_new.xlsx')
+        wb.save(alt_path)
+        print(f"[Quiz Excel Warning] File locked by external process. Saved to: {alt_path}")

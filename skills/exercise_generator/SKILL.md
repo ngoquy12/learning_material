@@ -97,8 +97,12 @@ The student exercise problem statement MUST be formatted in clean Markdown with 
 - Specify concrete CLO skills mastered from session SSOT.
 
 ### **2. Bối cảnh & Vấn đề** (or ### **2. Vấn đề**)
-- Enterprise scenario context and business pain point.
-- **MANDATORY MERMAID DIAGRAM**: Highly detailed, correctly spelled Mermaid flowchart visualizing data flow or logic process. Use standard flowchart shapes correctly: `[]` (rectangle) for process/action, `{}` (diamond) for condition/decision, `[/ /]` (parallelogram) for Input/Output.
+- **MANDATORY MERMAID DIAGRAM**: Highly detailed, correctly spelled Mermaid flowchart visualizing data flow or logic process. Use standard flowchart shapes correctly:
+  - `([ ])` (oval/stadium) for Terminator (Start / End)
+  - `[/ /]` (parallelogram) ONLY for Input / Output
+  - `{}` (diamond) for Condition / Decision branching
+  - `[]` (rectangle) ONLY for Process / Action / Calculation
+  - `-->` (arrow) for Flowline
 
 ### **3. Quy tắc nghiệp vụ** (or ### **3. Mã nguồn hiện tại** for Debug Ex 1 & 2)
 - State business rules, validation constraints, or provide flawed legacy code.

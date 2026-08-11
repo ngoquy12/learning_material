@@ -1,55 +1,59 @@
 ```markmap
-# Toán tử số học, logic và Cấu trúc rẽ nhánh
+# Toán tử và Cấu trúc rẽ nhánh
 
 ## Mục tiêu bài học
-- Vận dụng thành thạo các toán tử số học và toán tử logic trong Python.
-- Thao tác thành thạo cấu trúc rẽ nhánh if, elif, else để điều hướng chương trình.
-- Tối ưu hóa cấu trúc rẽ nhánh lồng nhau phức tạp thành biểu thức điều kiện gộp.
-- Viết mã nguồn Python chuẩn quy cách PEP 8 về thụt lề và khoảng trắng.
+- Sử dụng thành thạo các toán tử số học và toán tử logic trong Python
+- Làm chủ cấu trúc rẽ nhánh if-elif-else để điều khiển luồng chương trình
+- Tối ưu rẽ nhánh lồng nhau bằng kỹ thuật phẳng hóa điều kiện
+- Áp dụng chuẩn quy tắc mã nguồn PEP 8 tránh lỗi Arrow Anti-Pattern
 
 ## Đặt tình huống
-- Xây dựng hệ thống tự động duyệt khoản vay 50,000,000 VND cho hồ sơ khách hàng.
-- Cần kiểm tra đồng thời nhiều chỉ số: độ tuổi, thu nhập hàng tháng và điểm tín dụng.
-- Viết điều kiện lồng nhau 4 cấp gây khó đọc, dễ phát sinh lỗi và vi phạm PEP 8.
+- Xây dựng hệ thống tự động xét duyệt hồ sơ vay tín dụng ngân hàng
+- Bài toán: Kiểm tra điều kiện về tuổi (18-65), thu nhập (>=15tr) và điểm tín dụng (>=650)
+- Thách thức: Viết mã nguồn lồng nhau quá sâu làm code rối rắm và khó bảo trì
 
 ## Toán tử số học và logic
 ### Toán tử số học
-- Phép tính số học: cộng (+), trừ (-), nhân (*), chia (/), chia lấy nguyên (//), chia lấy dư (%), lũy thừa (**).
+- Tính toán dữ liệu số: +, -, *, /, // (chia nguyên), % (chia dư), ** (lũy thừa)
+```python
+total_score = (math_mark * 2 + english_mark) % 10
+```
 ### Toán tử logic
-- Kết hợp điều kiện: and (tất cả đúng), or (ít nhất một đúng), not (đảo ngược giá trị).
-- Cơ chế Short-circuit: dừng đánh giá ngay khi kết quả biểu thức đã được xác định.
+- Kết hợp nhiều điều kiện: and (đồng thời đúng), or (một trong hai đúng), not (đảo ngược)
+```python
+is_eligible = (age >= 18) and (income >= 15 or credit_score >= 650)
+```
+### Thứ tự ưu tiên
+- Ưu tiên thực hiện: Ngoặc () -> Số học -> So sánh (==, !=, >) -> Logic (not -> and -> or)
 
-## Cấu trúc rẽ nhánh điều kiện
-### Cú pháp if-elif-else
-- Điều hướng luồng thực thi dựa trên kết quả của biểu thức điều kiện boolean.
-  ```python
-  if condition_1:
-      # Thực thi khi condition_1 đúng
-  elif condition_2:
-      # Thực thi khi condition_2 đúng
-  else:
-      # Thực thi khi tất cả điều kiện sai
-  ```
-### Quy tắc luồng thực thi
-- Kiểm tra điều kiện từ trên xuống dưới, chỉ thực thi duy nhất khối lệnh đúng đầu tiên.
+## Cấu trúc rẽ nhánh if-elif-else
+### Cú pháp cơ bản
+- Đánh giá điều kiện Boolean để quyết định khối lệnh được thực thi
+```python
+if score >= 90:
+    grade = "Xuat sac"
+elif score >= 75:
+    grade = "Gioi"
+else:
+    grade = "Kha"
+```
+### Cơ chế thực thi
+- Luồng chạy từ trên xuống, dừng lại ngay khi gặp điều kiện đầu tiên thỏa mãn
 
-## Tối ưu rẽ nhánh lồng nhau
-### Bẫy lập trình rẽ nhánh sâu
-- Viết điều kiện lồng nhau nhiều cấp (Pyramid of Doom) khiến mã nguồn phức tạp, khó bảo trì.
-### Phương pháp gộp điều kiện
-- Làm phẳng cấu trúc mã nguồn bằng cách nối các điều kiện độc lập bằng toán tử and.
-  ```python
-  if age >= 18 and age <= 60 and income >= 15000000 and credit_score >= 650:
-      is_approved = True
-  ```
-### Trực quan hóa tối ưu rẽ nhánh
+## Rẽ nhánh lồng nhau và Chuẩn PEP 8
+### Arrow Anti-Pattern
+- Lồng quá nhiều khối if lồng nhau làm mã nguồn thụt lề dạng mũi tên sâu
+### Phẳng hóa điều kiện
+- Gom nhóm điều kiện logic bằng and/or giúp giảm độ phức tạp mã nguồn
+```python
+if age < 18 or age > 65:
+    print("Tu choi: Do tuoi khong phu hop")
+elif income >= 15 and credit_score >= 650:
+    print("Phe duyet: Du dieu kien vay")
+```
+### Minh họa trực quan
 ![](../images/mindmap_img_1.png)
-
-## Chuẩn hóa mã nguồn PEP 8
-### Quy tắc thụt lề (Indentation)
-- Quy chuẩn bắt buộc: Dùng đúng 4 khoảng trắng (spaces) cho mỗi cấp thụt lề, không dùng Phím Tab.
-### Quy tắc khoảng trắng (Whitespace)
-- Đặt 1 khoảng trắng xung quanh toán tử gán (=), so sánh (>=, <=, ==) và từ khóa logic.
-### Đặt tên biến chuẩn Python
-- Sử dụng quy tắc snake_case cho tên biến: age, income, credit_score, is_approved.
+### Quy chuẩn PEP 8
+- Thụt lề chính xác 4 khoảng trắng (Spaces) cho mỗi cấp độ lồng nhau
+- Thêm khoảng trắng quanh toán tử: age >= 18 thay vì age>=18
 ```

@@ -35,6 +35,13 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
 
 4. **Visual-Rich & Image Standard**:
    - Mandatory inclusion: **Mermaid diagrams (flowchart/sequence), 16:9 widescreen context illustrations, GSAP animations, Code Trackers, Pyodide Interactive Demos**. Never publish plain text documents.
+   - **Mermaid Flowchart Shape Standardization Contract**: All generated Mermaid flowcharts MUST strictly use the standardized 5 shapes according to their technical function:
+     - **Terminator (Start / End)**: Oval / Stadium shape `([Bắt đầu quy trình])` / `([Kết thúc quy trình])`.
+     - **Input / Output**: Parallelogram `[/Đầu vào: .../]` / `[/Đầu ra: .../]`.
+     - **Decision (Condition Check)**: Diamond `{"Kiểm tra điều kiện?"}`.
+     - **Process (Action / Calculation)**: Rectangle `["Thực hiện hành động / Tính toán"]`.
+     - **Flowline**: Arrow `-->` or `-->|Đúng|` / `-->|Sai|`.
+     ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for actions/calculations! Use Rectangle `[" "]` for Process actions, and Parallelogram `[/ /]` ONLY for Input/Output.
    - **Image Prompt Standard**: Background illustrations MUST be **Clean 2D Flat Vector Technical Illustrations / Minimalist Infographics** with pleasant corporate palettes (Corporate Navy `#0f172a`, Slate Gray, Soft Emerald).
    - ⛔ **STRICT NO TEXT EMOJI DIRECTIVE**: 100% forbidden to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶). Use **Clean 2D Flat Vector Icons / SVG Symbols** only.
    - ⛔ **STRICT NO HYPERBOLIC AI ART DIRECTIVE**: Absolutely forbidden to generate 3D sci-fi, glowing neon factories, cyberpunk isometric scenes, or dramatic cinematic lighting.

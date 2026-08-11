@@ -190,7 +190,22 @@ MANDATORY SPECIFICATION DIRECTIVES:
 4. Minimalist 2D Vector Diagram Prompt: Include 1 image prompt inside '### **1. Tổng quan hệ thống**' or '### **2. Đặc tả chức năng**'.
    Format (ENGLISH): `*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [detailed system data flow description]. Minimalist infographics style, elegant layout, muted corporate color palette (navy blue, slate gray, soft emerald accents). Clear lines, no 3D elements, no glowing neon effects. All text labels must be in Sentence Case or Title Case (NEVER ALL CAPS), keeping key technical terms in English while using Vietnamese for annotations.*`
 5. NO FULL CODE: Describe business logic via narrative, math formulas, pseudocode, or sample JSON schemas.
-6. Mandatory SRS Document Structure (7 H3 headers):
+6. Modular Per-Feature Flowcharts Directive:
+   - ABSOLUTELY FORBIDDEN to create one giant unreadable monolithic flowchart.
+   - Under '### **2. Đặc tả chức năng (Functional Requirements)**', include concise, modular Mermaid flowcharts (4-8 nodes each) directly embedded for each core function, titled clearly:
+     e.g., `##### **Sơ đồ 2.X: Luồng nghiệp vụ [Tên Chức Năng]**`
+     ```mermaid
+     flowchart TD
+       ...
+     ```
+   - MANDATORY 5-SHAPE FLOWCHART STANDARDS:
+     * Terminator (Start / End): Oval / Stadium shape `([Bắt đầu quy trình])` or `([Kết thúc...])`.
+     * Input / Output: Parallelogram `[/Đầu vào: .../]` or `[/Đầu ra: .../]`.
+     * Decision (Condition check): Diamond `{"Kiểm tra điều kiện?"}`.
+     * Process (Action / Calculation): Rectangle `["Thực hiện tính toán / Xử lý dữ liệu"]`.
+     * Flowline: Arrow `-->` or `-->|Đúng|` / `-->|Sai|`.
+     * ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for actions or calculations! Use Rectangle `[" "]` for Process actions, and Parallelogram `[/ /]` ONLY for Input/Output.
+7. Mandatory SRS Document Structure (7 H3 headers):
    - Document Title: '## <center>Tài liệu đặc tả Hệ thống [Tên nghiệp vụ] ([English Name])</center>' (centered).
    - {srs_headers_formatted}
 
@@ -479,50 +494,9 @@ def generate_and_link_srs_diagram(content: str, srs_dir, filename_no_ext: str, s
         markdown_image_tag = f"\n\n<p align=\"center\">\n  <img src=\"./images/{image_name}\" alt=\"Sơ đồ nghiệp vụ\" width=\"80%\">\n</p>\n\n"
         new_content = re.sub(r"\*Prompt tạo ảnh:\s*.*?\*", lambda m: markdown_image_tag, content, flags=re.IGNORECASE)
     else:
-        # 100% AI GENERATED MERMAID DIAGRAM (Zero local fallback code!)
-        print(f"  [AI Diagram Agent] Generating 100% AI Mermaid Architecture Diagram for '{title_text}'...")
-        
-        scope_warning = ""
-        if forbidden_scope:
-            scope_warning = f"FORBIDDEN IN DIAGRAM: {forbidden_scope}. ABSOLUTELY FORBIDDEN to draw File I/O, JSON/CSV files, or external Database nodes if forbidden!"
-            
-        ai_diagram_prompt = f"""You are a Lead AI Diagram Architect. Author EXACTLY ONE monolithic Mermaid flowchart (flowchart TD) reflecting business workflow and data lifecycle:
-Title: {title_text}
-Topic: {session_title}
-Technology Stack: {tech_stack}
-Context: {prompt_text}
-{scope_warning}
-
-MANDATORY MERMAID SYNTAX RULES TO PREVENT PARSE ERRORS:
-1. Enclose ALL Node text labels in double quotes `""`.
-   - CORRECT: `Start(["Khởi động ứng dụng Console"]):::startEnd`
-   - INCORRECT: `Start([Khởi động ứng dụng Console]) :::startEnd`
-2. FORBIDDEN spaces before `:::` when assigning class styles:
-   - CORRECT: `NodeA["Nhãn văn bản"]:::className`
-   - INCORRECT: `NodeA["Nhãn văn bản"] :::className`
-3. If forbidden scope includes File I/O or Database, strictly restrict state to in-memory RAM storage (`In-memory RAM Storage`).
-
-Return ONLY the HTML wrapper container with raw Mermaid code inside:
-<div class="mermaid-diagram-container" style="background: #0f172a; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin: 20px 0; overflow-x: auto;">
-  <div class="mermaid" style="display: flex; justify-content: center; color: #f8fafc;">
-flowchart TD
-  ...
-</div>
-</div>
-Return only the HTML wrapper with Mermaid code inside. Do not wrap in markdown code blocks.
-"""
-        ai_mermaid_code = call_llm(
-            system_prompt="You are a Senior AI Business Flow Diagram Architect specializing in valid syntax Mermaid JS.",
-            user_prompt=ai_diagram_prompt,
-            json_mode=False,
-            agent_name="AI Diagram Generator"
-        )
-        if ai_mermaid_code:
-            ai_mermaid_code = ai_mermaid_code.strip().lstrip("```html").lstrip("```xml").lstrip("```mermaid").lstrip("```").rstrip("```").strip()
-        else:
-            raise ValueError(f"AI Diagram Generator failed to generate Mermaid diagram for session {session_title}. Offline fallbacks are completely disabled.")
-        
-        new_content = re.sub(r"\*Prompt tạo ảnh:\s*.*?\*", lambda m: ai_mermaid_code, content, flags=re.IGNORECASE)
+        # Hide/omit heavy Mermaid flowchart from SRS document as per user preference (keeping SRS text specification clean and readable)
+        new_content = re.sub(r"\*Prompt tạo ảnh:\s*.*?\*", "", content, flags=re.IGNORECASE)
+        new_content = re.sub(r'<div class="mermaid-diagram-container".*?</div>\s*</div>', "", new_content, flags=re.DOTALL)
         
     return new_content
 

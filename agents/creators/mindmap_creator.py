@@ -111,7 +111,12 @@ def process_mindmap_images(markmap_content: str, state: AgentState) -> str:
         if force_rebuild or not image_path.exists():
             success = generate_image_api(prompt_text, image_path)
             if not success or not image_path.exists():
-                raise RuntimeError(f"Lỗi sinh ảnh AI Imagen 3 cho mindmap prompt '{prompt_text}'. Chế độ fallback đã bị loại bỏ hoàn toàn.")
+                print(f"  [Mindmap Image Warning] Imagen 3 image generation failed/unavailable for prompt '{prompt_text[:50]}...'. Continuing without image tag.")
+                search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
+                new_content = re.sub(search_bracket, "", new_content)
+                search_asterisk = r"\*Prompt tạo ảnh:\s*" + re.escape(prompt_text) + r"\*"
+                new_content = re.sub(search_asterisk, "", new_content, flags=re.IGNORECASE)
+                continue
         
         search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
         new_content = re.sub(search_bracket, f"![](../images/{image_name})", new_content)

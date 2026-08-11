@@ -15,15 +15,15 @@ All Agents MUST strictly implement all 10 core directives:
 
 |  #  | Directive                                                                                                        | Status    |
 | :-: | :--------------------------------------------------------------------------------------------------------------- | :-------- |
-|  1  | **Fixed 5-Section Architecture** (problem-intro → data-structure → interactive-demo → summary-notes → self-test) | MANDATORY |
+|  1  | **Fixed 5-Section Architecture** (Problem Statement ➔ Syntax & Mechanism ➔ Practical Examples ➔ Gotchas ➔ Self-Test) | MANDATORY |
 |  2  | **10-Minute Micro-Learning** — Bullet Lists & Sublists instead of monolithic text                                | MANDATORY |
-|  3  | **Problem-First Pedagogy** — Enterprise Scenario ➔ Pain Point ➔ Technical Solution                               | MANDATORY |
-|  4  | **Visual-Rich Integration** — 16:9 SVG, Syntax Anatomy, RAM Diagram, Sandbox, Code Tracker                       | MANDATORY |
-|  5  | **Scenario Questions** — Scenario-based questions, no dry theoretical regurgitation                              | MANDATORY |
-|  6  | **Anti-AI Shortcut** — Answers must strictly derive from reading material scenario data                          | MANDATORY |
-|  7  | **1-Page Self-Test Form** — Form questions + Submit/Check button at the bottom of the page                       | MANDATORY |
-|  8  | **Human-Like Quality Standard** — 100% Accented Vietnamese, no AI markers                                        | MANDATORY |
-|  9  | **Code Conventions** — English `snake_case` (Python/C), `camelCase` (JS/Java/C++)                                | MANDATORY |
+|  3  | **Concise Problem Statement & Unified Threaded Scenario** — Punchy Section 1 (max 2-3 paragraphs + 16:9 SVG) ➔ 1 single continuous scenario threaded across ALL sections | MANDATORY |
+|  4  | **Visual-Rich Integration** — 16:9 2D Flat Vector Technical Illustration / Image (via `image_prompt_standard` skill) or SVG, Code Sandboxes per sub-section (2.1, 2.2...), Step Code Visualizer | MANDATORY |
+|  5  | **Plain Developer Language & No Academic Jargon** — Plain Vietnamese, NO dry textbook formulas or unverified claims, NO text emojis, Phosphor SVG icons ONLY | MANDATORY |
+|  6  | **100% English Code Identifiers (`snake_case`)** — Variables/placeholders MUST be English (`order_amount`, etc.) | MANDATORY |
+|  7  | **Progressive Syntax Code Sandbox per Sub-section** — Every sub-section (2.1, 2.2, 2.3...) includes a concrete Live Code Sandbox demonstrating that specific syntax variation expanding on the unified scenario | MANDATORY |
+|  8  | **Human-Like Quality Standard & Domain Agnostic** — 100% Accented Vietnamese, no AI markers, zero hardcoding for any specific tech stack | MANDATORY |
+|  9  | **Callout & Gotchas System** — Key Takeaways, Best Practices & Pitfalls in strict role-based Callout boxes       | MANDATORY |
 | 10  | **Dark Terminal Output** — Console output wrapped in JetBrains Mono font with `#4ade80` text                     | MANDATORY |
 | 11  | **Minimal Italic Text** — Only use italics for captions directly below images/diagrams                           | MANDATORY |
 
@@ -115,17 +115,16 @@ Every reading material document MUST contain exactly 5 sections with fixed Ancho
 
 ### Section 1: `#problem-intro` — Real-World Problem Statement
 
-**Pedagogical Objective**: Trigger "Why do I need to learn this?" before presenting theory.
+**Pedagogical Objective**: Trigger "Why do I need to learn this?" before presenting theory by analyzing concrete business impact.
 
 **Mandatory Content Structure**:
 
-1. **Real-world Business Scenario** — Place student in a developer role solving a concrete problem (e.g. VAT calculation for 1000 items, student grade management, order filtering).
-2. **Legacy Approach Drawbacks & Pain Points** — Detail 3 specific weaknesses of legacy workarounds:
-   - `Code Duplication`: Redundant logic, code bloat.
-   - `Maintenance Nightmare`: Business rule changes require manual edits in multiple files.
-   - `Monolithic & Unmodular`: High debugging friction.
-3. **New Solution (Current Lesson Concept)** — 1-2 concise sentences introducing the new concept and its benefits.
-4. **16:9 Context SVG Diagram** — Visualize "Legacy Way ❌ vs New Way ✅" or "Black Box Processor" model.
+1. **Real-world Business Scenario** — Place student in a developer role solving a concrete system problem (e.g. ShopeeFood order checkout engine, banking loan interest calculation, VAT billing).
+2. **Sequential Line-by-Line Execution Drawbacks & Financial/Business Risk**:
+   - Detail why running code statically line-by-line fails for different inputs.
+   - Highlight 2 concrete business risks: *Financial Loss* (e.g., granting freeship to small 20k orders, causing negative revenue) and *User Churn* (e.g., overcharging shipping on 100k+ orders).
+3. **Conditional Branching Solution (`if`, `elif`, `else`)** — Introduce current lesson concept as an automated cashier decision engine evaluating runtime parameters (`order_amount`).
+4. **16:9 Context SVG Diagram** — Visualize input order flow ➔ decision diamond ➔ TRUE vs FALSE execution branches.
 
 **SVG 16:9 Widescreen Technical Standard**:
 

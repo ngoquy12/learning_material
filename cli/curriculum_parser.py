@@ -116,31 +116,39 @@ def parse_all_sessions(excel_path: str):
                 })
         return sessions
 
-    # 1. Identify header mapping dynamically for ALL 10 PM columns
+    # 1. Identify header mapping dynamically for ALL 10 PM columns by scanning first 15 rows
     headers = {}
-    for col_idx, cell in enumerate(next(ws.iter_rows(min_row=1, max_row=1)), start=0):
-        if cell.value:
-            val = str(cell.value).strip().lower()
-            if val == "session" or val == "stt session":
-                headers["session"] = col_idx
-            elif "loại session" in val or "loại" in val:
-                headers["session_type"] = col_idx
-            elif "mã session" in val:
-                headers["session_code"] = col_idx
-            elif "tên tiêu đề" in val or "tiêu đề session" in val or "chủ đề" in val:
-                headers["session_title"] = col_idx
-            elif "tên lesson" in val or val == "lesson" or val == "bài học":
-                headers["lesson"] = col_idx
-            elif "chi tiết" in val or "lesson scope" in val:
-                headers["details"] = col_idx
-            elif "kết quả mong đợi" in val or "expected" in val or "sản phẩm" in val:
-                headers["expected_output"] = col_idx
-            elif "cấm" in val or "forbidden" in val:
-                headers["forbidden_scope"] = col_idx
-            elif "đã học" in val or "allowed" in val:
-                headers["allowed_scope"] = col_idx
-            elif "tech stack" in val or "quy chuẩn" in val or "convention" in val:
-                headers["tech_stack_convention"] = col_idx
+    header_row_idx = 1
+    for r_idx, row_cells in enumerate(ws.iter_rows(min_row=1, max_row=15), start=1):
+        for col_idx, cell in enumerate(row_cells, start=0):
+            if cell.value and "session" in str(cell.value).strip().lower():
+                header_row_idx = r_idx
+                for c_idx, c_cell in enumerate(row_cells, start=0):
+                    if c_cell.value:
+                        val = str(c_cell.value).strip().lower()
+                        if val == "session" or val == "stt session":
+                            headers["session"] = c_idx
+                        elif "loại session" in val or "loại" in val:
+                            headers["session_type"] = c_idx
+                        elif "mã session" in val:
+                            headers["session_code"] = c_idx
+                        elif "tên tiêu đề" in val or "tiêu đề session" in val or "chủ đề" in val:
+                            headers["session_title"] = c_idx
+                        elif "tên lesson" in val or val == "lesson" or val == "bài học":
+                            headers["lesson"] = c_idx
+                        elif "chi tiết" in val or "lesson scope" in val:
+                            headers["details"] = c_idx
+                        elif "kết quả mong đợi" in val or "expected" in val or "sản phẩm" in val:
+                            headers["expected_output"] = c_idx
+                        elif "cấm" in val or "forbidden" in val:
+                            headers["forbidden_scope"] = c_idx
+                        elif "đã học" in val or "allowed" in val:
+                            headers["allowed_scope"] = c_idx
+                        elif "tech stack" in val or "quy chuẩn" in val or "convention" in val:
+                            headers["tech_stack_convention"] = c_idx
+                break
+        if headers:
+            break
 
     # Fallback to hardcoded indexes matching PM_Python.xlsx standard columns [0..9]
     h_sess = headers.get("session", 0)
@@ -157,7 +165,7 @@ def parse_all_sessions(excel_path: str):
     sessions = []
     current_session = None
     
-    for row in ws.iter_rows(min_row=2, values_only=True):
+    for row in ws.iter_rows(min_row=header_row_idx + 1, values_only=True):
         if not any(row): continue # Skip empty rows
         
         session_val = str(row[h_sess]).strip() if h_sess < len(row) and row[h_sess] else ""
@@ -364,11 +372,12 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                     with open(sub_lab / "practical_lab.json", "w", encoding="utf-8") as f:
                         f.write("{}\n")
                 
-                if "video" in requested_parts or "video_script" in requested_parts:
-                    sub = lesson_dir / "Video"
-                    sub.mkdir(parents=True, exist_ok=True)
-                    with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
-                        f.write(f"<!-- Empty video script outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
+                # TẠM THỜI COMMENT LUỒNG TẠO SCRIPT VIDEO LESSON
+                # if "video" in requested_parts or "video_script" in requested_parts:
+                #     sub = lesson_dir / "Video"
+                #     sub.mkdir(parents=True, exist_ok=True)
+                #     with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
+                #         f.write(f"<!-- Empty video script outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
                 
                 # Note: Lesson-level Mindmap removed (Moved to Session level)
         else:
@@ -377,11 +386,12 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 sub.mkdir(parents=True, exist_ok=True)
                 with open(sub / "reading.html", "w", encoding="utf-8") as f:
                     f.write(f"<!-- Empty outline for {session_id} -->\n")
-            if "slide" in requested_parts:
-                sub = session_dir / "Bài giảng"
-                sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "slides.html", "w", encoding="utf-8") as f:
-                    f.write(f"<!-- Empty slide outline for {session_id} -->\n")
+            # TẠM THỜI COMMENT LUỒNG TẠO BÀI GIẢNG SLIDE SESSION
+            # if "slide" in requested_parts:
+            #     sub = session_dir / "Bài giảng"
+            #     sub.mkdir(parents=True, exist_ok=True)
+            #     with open(sub / "slides.html", "w", encoding="utf-8") as f:
+            #         f.write(f"<!-- Empty slide outline for {session_id} -->\n")
             if "quiz" in requested_parts:
                 sub = session_dir / "Câu hỏi Quizz"
                 sub.mkdir(parents=True, exist_ok=True)
@@ -391,11 +401,12 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 sub_lab.mkdir(parents=True, exist_ok=True)
                 with open(sub_lab / "practical_lab.json", "w", encoding="utf-8") as f:
                     f.write("{}\n")
-            if "video" in requested_parts or "video_script" in requested_parts:
-                sub = session_dir / "Video"
-                sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
-                    f.write(f"<!-- Empty video script outline for {session_id} -->\n")
+            # TẠM THỜI COMMENT LUỒNG TẠO SCRIPT VIDEO SESSION
+            # if "video" in requested_parts or "video_script" in requested_parts:
+            #     sub = session_dir / "Video"
+            #     sub.mkdir(parents=True, exist_ok=True)
+            #     with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
+            #         f.write(f"<!-- Empty video script outline for {session_id} -->\n")
             if "mindmap" in requested_parts:
                 sub = session_dir / "Mindmap"
                 sub.mkdir(parents=True, exist_ok=True)
@@ -476,20 +487,22 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
                         missing_elements.append(f"Thiếu file quiz.json tại {session_id} -> {lesson_id}")
                     if not (lesson_dir / "Bài thực hành" / "practical_lab.json").exists():
                         missing_elements.append(f"Thiếu file practical_lab.json tại {session_id} -> {lesson_id}")
-                if ("video" in requested_parts or "video_script" in requested_parts) and not (lesson_dir / "Video" / "SCRIPT.md").exists():
-                    missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id} -> {lesson_id}")
+                # TẠM THỜI COMMENT KIỂM TRA SCRIPT VIDEO LESSON
+                # if ("video" in requested_parts or "video_script" in requested_parts) and not (lesson_dir / "Video" / "SCRIPT.md").exists():
+                #     missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id} -> {lesson_id}")
         else:
             if "html" in requested_parts and not (session_dir / "Bài đọc" / "reading.html").exists():
                 missing_elements.append(f"Thiếu file reading.html tại {session_id}")
-            if "slide" in requested_parts and not (session_dir / "Bài giảng" / "slides.html").exists():
-                missing_elements.append(f"Thiếu file slides.html tại {session_id}")
+            # TẠM THỜI COMMENT KIỂM TRA BÀI GIẢNG SLIDE VÀ SCRIPT VIDEO SESSION
+            # if "slide" in requested_parts and not (session_dir / "Bài giảng" / "slides.html").exists():
+            #     missing_elements.append(f"Thiếu file slides.html tại {session_id}")
             if "quiz" in requested_parts:
                 if not (session_dir / "Câu hỏi Quizz" / "quiz.json").exists():
                     missing_elements.append(f"Thiếu file quiz.json tại {session_id}")
                 if not (session_dir / "Bài thực hành" / "practical_lab.json").exists():
                     missing_elements.append(f"Thiếu file practical_lab.json tại {session_id}")
-            if ("video" in requested_parts or "video_script" in requested_parts) and not (session_dir / "Video" / "SCRIPT.md").exists():
-                missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id}")
+            # if ("video" in requested_parts or "video_script" in requested_parts) and not (session_dir / "Video" / "SCRIPT.md").exists():
+            #     missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id}")
             if "mindmap" in requested_parts and not (session_dir / "Mindmap" / "session_mindmap.md").exists() and not (session_dir / "Mindmap" / "mindmap.md").exists():
                 missing_elements.append(f"Thiếu file session_mindmap.md tại {session_id}")
 
