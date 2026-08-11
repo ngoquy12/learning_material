@@ -449,7 +449,7 @@ MANDATORY RULES & DIRECTIVES:
 
 3. 2D FLAT VECTOR DIAGRAM / IMAGE STANDARD (SECTION 1):
    - In Section 1, MUST include a 2D Flat Vector Technical Illustration / Diagram (16:9 widescreen ratio) depicting a direct comparison (e.g. Legacy manual approach vs New optimized approach).
-   - Supports clean 2D Flat Vector Images (`<img src="images/..." alt="..." class="w-full max-w-4xl aspect-[16/9] object-cover mx-auto rounded-xl border border-slate-200 shadow-sm" />`) created via image generation tools following `image_prompt_standard` skill, or clean 16:9 SVG (`viewBox="0 0 800 280"`).
+   - Supports clean 2D Flat Vector Images (`<img src="images/..." alt="..." class="w-full h-auto mx-auto rounded-xl" />`) created via image generation tools following `image_prompt_standard` skill, or clean 16:9 SVG (`viewBox="0 0 800 280"`). No outer border, no shadow boxes, no forced object-cover cropping that clips text.
    - Ensures ultra-high visual quality, prevents UI text truncation or layout breakage, and delivers modern 2D flat technical graphics.
 {image_skill}
 
