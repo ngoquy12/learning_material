@@ -579,8 +579,9 @@ MANDATORY RULES & DIRECTIVES:
     - ABSOLUTELY NO hardcoded course titles, fixed grade examples, or single-technology fallbacks in prompt instructions.
 
 29. MANDATORY VALID CODE SYNTAX & INDENTATION CONTRACT:
-    - ALL code snippets and sandboxes MUST satisfy 100% syntactically valid code in the target technology language.
-    - For Python: MUST enforce exact 4-space indentation for blocks inside `if`, `elif`, `else`, `def`, `for`, `while`, `try`, `except`. NEVER omit indentation inside nested statements! All indentation errors (`IndentationError`) are FATAL.
+    - ALL code snippets, examples, and sandboxes MUST satisfy 100% syntactically complete and valid code in the target technology language.
+    - NEVER truncate or leave code statements incomplete (e.g. NEVER write incomplete statements like `if attendance_percentage`). Always include full conditions, colons, indented blocks, and print calls.
+    - For Python: MUST enforce exact 4-space indentation for blocks inside `if`, `elif`, `else`, `def`, `for`, `while`, `try`, `except`. NEVER omit indentation inside nested statements! All indentation errors (`IndentationError`) and syntax errors (`SyntaxError`) are FATAL.
 
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
@@ -804,6 +805,9 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tự động chạy|Auto Play)\s*</button>', r'\1 onclick="runVizStep(1)">Tự động chạy</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Thử lại|Đặt lại|Reset)\s*</button>', r'\1 onclick="runVizStep(-999)">Thử lại</button>', c, flags=re.IGNORECASE)
 
+        # Fix text contrast on colored/dark buttons: replace text-slate-700 / text-slate-800 on dark backgrounds with text-white
+        c = re.sub(r'class="([^"]*\b(?:bg-\[#[a-fA-F0-9]+\]|bg-emerald-\d+|bg-rose-\d+|bg-blue-\d+|bg-rikkei-\w+|bg-amber-\d+)\b[^"]*)\btext-slate-[678]00\b', r'class="\1text-white', c)
+
         # Auto-wrap raw <table> elements in <div class="overflow-x-auto my-4"> to satisfy visual_linter
         def wrap_unwrapped_table(m):
             tbl_str = m.group(0)
@@ -878,7 +882,7 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
     lang_info = resolve_language_info(tech_stack)
 
     # Auto-convert code blocks: Live Pyodide Sandbox for Python (Section 3), Static VS Code-styled code card for syntax/gotchas (Section 2 & 4)
-    def convert_code_to_live_sandbox(html_text: str, lang_meta: Dict[str, str], force_static: bool = False) -> str:
+    def convert_code_to_live_sandbox(html_text: str, lang_meta: Dict[str, str], force_static: bool = False, sb_prefix: str = "sb") -> str:
         if not html_text: return ""
         import re, html as html_lib
         counter = 0
@@ -889,6 +893,7 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         def create_sandbox(code_str: str) -> str:
             nonlocal counter
             counter += 1
+            sb_id = f"{sb_prefix}-{counter}"
             code_clean = re.sub(r'<[^>]+>', '', code_str)
             raw_code = html_lib.unescape(code_clean.strip())
             
@@ -898,8 +903,8 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
                 return f'<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{raw_code}</div>'
                 
             # Fix 1b: Restore newlines in compressed Python code (LLM JSON loses \n)
-            raw_code = re.sub(r'(:)\s{4,}(\S)', r':\n    \2', raw_code)
-            raw_code = re.sub(r'(#[^\n]*?)\s{4,}(\S)', r'\1\n\2', raw_code)
+            raw_code = re.sub(r'(:)[ \t]{4,}(\S)', r':\n    \2', raw_code)
+            raw_code = re.sub(r'(#[^\n]*?)[ \t]{4,}(\S)', r'\1\n\2', raw_code)
 
             escaped_code = html_lib.escape(raw_code)
             attr_code = escaped_code.replace('\n', '&#10;').replace('\r', '')
@@ -909,29 +914,35 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
                 "git ", "$ git", "$git", "docker ", "npm ", "npx ", "pip ", "cd ", "mkdir ", "curl ", "wget ", "sudo ", "chmod ", "apt ", "yum ", "systemctl ", "python -m "
             ]) or any(cmd in raw_code.lower() for cmd in ["git commit", "git push", "git pull", "git checkout", "git branch", "git status", "git add", "git init", "git clone"])
 
-            if is_python and not is_cli_cmd:
+            # Detect abstract syntax template vs executable code snippet
+            is_abstract_syntax = force_static or any(kw in raw_code for kw in [
+                "statement_block", "if_statement_block", "else_statement_block", "default_statement_block",
+                "condition_1", "condition_2", "condition_3", "if condition:"
+            ])
+
+            if is_python and not is_cli_cmd and not is_abstract_syntax:
                 return f'''<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
   <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
     <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button onclick="clearSandbox('code-sb-{counter}', 'output-sb-{counter}', 'container-sb-{counter}')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+      <button onclick="clearSandbox('code-sb-{sb_id}', 'output-sb-{sb_id}', 'container-sb-{sb_id}')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
         <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
       </button>
-      <button onclick="runPythonCode('code-sb-{counter}', 'output-sb-{counter}', 'container-sb-{counter}')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+      <button onclick="runPythonCode('code-sb-{sb_id}', 'output-sb-{sb_id}', 'container-sb-{sb_id}')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
         <i class="ph-bold ph-play text-xs"></i>
       </button>
-      <button onclick="copySandboxCode('code-sb-{counter}', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+      <button onclick="copySandboxCode('code-sb-{sb_id}', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
         <i class="ph-bold ph-copy text-xs"></i>
       </button>
     </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-{counter}" class="{hljs_class}" contenteditable="true" spellcheck="false" data-original="{attr_code}" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">{escaped_code}</code></pre>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-{sb_id}" class="{hljs_class}" contenteditable="true" spellcheck="false" data-original="{attr_code}" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">{escaped_code}</code></pre>
   </div>
-  <div id="container-sb-{counter}" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+  <div id="container-sb-{sb_id}" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
     <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
       <span class="text-slate-700 font-bold flex items-center gap-1.5">
         <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
       </span>
     </div>
-    <pre id="output-sb-{counter}" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+    <pre id="output-sb-{sb_id}" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
   </div>
 </div>'''
             else:
@@ -1100,9 +1111,9 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         result = strip_llm_card_wrappers(result)
         return result
 
-    know_html = convert_code_to_live_sandbox(know_html, lang_info, force_static=True)
-    ex_text = convert_code_to_live_sandbox(ex_text, lang_info, force_static=False)
-    notes_html = convert_code_to_live_sandbox(notes_html, lang_info, force_static=True)
+    know_html = convert_code_to_live_sandbox(know_html, lang_info, force_static=False, sb_prefix="sec2")
+    ex_text = convert_code_to_live_sandbox(ex_text, lang_info, force_static=False, sb_prefix="sec3")
+    notes_html = convert_code_to_live_sandbox(notes_html, lang_info, force_static=True, sb_prefix="sec4")
 
     # Problem 2.4: Strip LLM hallucinated line numbers inside mechanism visualizer code block
     know_html = re.sub(r'(<div[^>]*id="line-\d+"[^>]*>)\s*\d+\.\s*', r'\1', know_html)

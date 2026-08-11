@@ -174,13 +174,14 @@ def check_structural_completeness(html_text: str) -> str:
     # Extract all <section> elements along with their opening tag
     sections = re.findall(r'(<section\b[^>]*>)(.*?)</section>', html_text, re.DOTALL)
     for start_tag, sec_content in sections:
-        if 'id="interactive-demo"' in start_tag or 'id="interactive_demo"' in start_tag or 'id="section-3"' in start_tag:
+        # Section 2 (Knowledge & Examples) and Section 3 (Practical Demos) allow Live Code Sandboxes for runnable examples!
+        if any(sec_id in start_tag for sec_id in ['id="interactive-demo"', 'id="interactive_demo"', 'id="section-2"', 'id="section-3"']):
             continue
-        # If a non-demo section has play/run buttons or sandbox editor styling/attributes
+        # Section 4 (Gotchas & Anti-patterns) must keep static code cards
         if 'onclick="runPythonCode' in sec_content or 'contenteditable="true"' in sec_content or 'sandbox-editor' in sec_content:
             return (
-                "Phát hiện block code cú pháp tĩnh trong mục Giới thiệu kiến thức (Phần 2) hoặc Lưu ý (Phần 4) đang hiển thị ở dạng editor chạy thử (IDE sandbox). "
-                "Cú pháp lý thuyết không dùng để thực thi trực tiếp, bắt buộc phải sử dụng block code tĩnh (static block code) có màu sắc giống VS Code (không có nút Chạy/Play và Reset)."
+                "Phát hiện block code trong mục Lưu ý / Gotchas (Phần 4) đang hiển thị ở dạng editor chạy thử (IDE sandbox). "
+                "Mục Gotchas bắt buộc phải sử dụng block code tĩnh (static block code) có màu sắc giống VS Code (không có nút Chạy/Play và Reset)."
             )
         
     # Check for double-wrapped code cards (nested macOS header structures)
