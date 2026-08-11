@@ -33,14 +33,14 @@ Clean 2D flat vector diagrams and minimalist technical infographics. Clean lines
    - **Layer 2 (Secondary)**: Inline arrow annotations, concrete variable values, array indices.
    - **Layer 3 (Tertiary)**: Mini State Table or Legend explaining color codes in corner.
 
-### 1.3. Direct Real-World Problem Scenario Illustration (No 'Cách cũ / Cách mới' Comparison Split)
+### 1.3. Ultra-Intuitive Student-Friendly Problem Scenario Illustration (Direct & 100% Accented Vietnamese)
 
-- 🎯 **Direct Scenario Illustration**: Section 1 image MUST illustrate the **concrete real-world business problem scenario directly** (e.g., E-commerce Order Checkout Rules Engine, Student Qualification Flow, User Credit Check).
-- ⛔ **FORBIDDEN FORMULAIC COMPARISON SPLITS**: ABSOLUTELY FORBIDDEN to create artificial formulaic 'Cách cũ' vs 'Cách mới' comparison boxes or split panels.
-- 🇻🇳 **Mandatory Preference**: Panel text, labels, and status badges MUST be in **concise, accented Vietnamese** so students immediately understand the pedagogical message.
-  - GOOD Examples: `Luồng xử lý chiết khấu đơn hàng Shopee`, `Quy trình kiểm tra điều kiện qua môn`, `Cơ chế xác thực tài khoản VIP`.
-  - BAD Examples: `Cách cũ vs Cách mới` (Formulaic comparison), `Flowchart diagram` (Abstract English).
-- 📌 *Note*: Programming keywords and tech stack names (`if`, `else`, `for`, `while`, `range()`, `FastAPI`, `PostgreSQL`) remain in standard lowercase English.
+- 🎯 **3-Second Immediate Comprehension Contract**: Section 1 image MUST be **ultra-intuitive, clean, and immediately understandable by beginner students at first glance (nhìn vào hiểu ngay ý bài toán trong 3 giây)**.
+- 🛍️ **Real-World Flat Vector Objects & Metaphors**: Use friendly visual objects (shopping cart, invoice receipt, discount voucher, shipping truck, pass/fail badge) representing the real-world business context directly.
+- 🇻🇳 **100% Accented Vietnamese Labels**: All main headers, decision check nodes, and branch outcomes MUST be in **clear, friendly, accented Vietnamese**:
+  - GOOD Node Titles: `Đơn hàng 1.500.000 VNĐ`, `Kiểm tra: Đơn hàng >= 1 triệu?`, `Đúng ➔ Giảm 15% & Freeship`, `Sai ➔ Phí ship 30.000 VNĐ`.
+  - BAD Node Titles: `CUSTOMER ORDERS INPUT`, `DECISION RULES ENGINE`, `CALCULATED CHECKOUT RESULTS` (Abstract English).
+- ⛔ **STRICT PROHIBITION OF COMPLEX ARCHITECTURAL JARGON & CIRCUIT TRACES**: 100% FORBIDDEN complex gears, abstract circuit board lines, dark curly-brace code boxes, or formulaic 'Cách cũ vs Cách mới' split boxes. Keep the diagram minimal, friendly, high-contrast, and visually storytelling.
 
 ### 1.4. Strict Text Emoji Prohibition Directive (Vector/SVG Icons Only)
 
