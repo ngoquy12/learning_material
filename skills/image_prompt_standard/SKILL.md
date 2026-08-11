@@ -57,9 +57,10 @@ Clean 2D flat vector diagrams and minimalist technical infographics. Clean lines
 3. 💻 **IDE-STYLE CODE WINDOW CARDS**:
    - Code snippets MUST be enclosed inside **IDE Code Window Cards** (with 3 window dots at top-left: red, yellow, green) using monospace font.
    - Prompt keyword: `Enclose code snippets inside a clean IDE editor window card with 3 subtle window dots at top left. Use crisp monospace font for code text.`
-4. 📐 **SAFE OUTER MARGIN (NO EDGE CLIPPING)**:
-   - Ensure a safe outer margin of at least 32px around the diagram to prevent text or shapes from being clipped.
-   - Prompt keyword: `Spacious layout with at least 32px safe outer margin on all sides. No text or shapes clipped at image edges.`
+4. 📐 **FULL-FRAME TIGHT COMPOSITION (NO EXCESSIVE EMPTY WHITE SPACE)**:
+   - Ensure a full-frame tight composition where visual diagram panels, flowcharts, and text fill the entire 16:9 image canvas vertically and horizontally with minimal 8px edge padding.
+   - ABSOLUTELY FORBIDDEN giant empty white background borders, massive blank margins, or small visual elements floating inside a huge white void.
+   - Prompt keyword: `Full-frame tight composition filling the entire image canvas vertically and horizontally, minimal 8px tight edge padding, no large empty white background borders, large readable typography and large diagram elements.`
 
 ### 1.6. Mandatory 16:9 Widescreen Aspect Ratio
 MUST use `16:9 aspect ratio` matching `reading.html` `max-w-4xl` image containers and Marp slide decks.

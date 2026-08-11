@@ -450,6 +450,7 @@ MANDATORY RULES & DIRECTIVES:
 3. 2D FLAT VECTOR SCENE IMAGE STANDARD (SECTION 1 - PROBLEM STATEMENT):
    - In Section 1 (Problem Statement / Đặt vấn đề), ABSOLUTELY DO NOT force manual HTML, CSS, or raw inline SVG code diagrams.
    - Instead, use a 2D Flat Vector Technical Illustration / Scene Image generated via `image_prompt_standard` skill describing the concrete real-world problem statement of the lesson.
+   - FULL-FRAME TIGHT COMPOSITION DIRECTIVE: Visual diagram panels, flowcharts, and text inside the image MUST fill the entire 16:9 canvas height and width tightly with minimal tight padding (~8px). ABSOLUTELY FORBIDDEN giant empty white background spaces, massive blank margins, or small visual elements floating inside a huge white void!
    - Embed the image tag cleanly: `<div class="my-6 text-center"><img src="images/..." alt="..." class="w-full h-auto mx-auto rounded-xl" /><p class="text-center text-sm text-slate-500 italic mt-3">Caption in Accented Vietnamese...</p></div>`.
    - ABSOLUTELY FORBIDDEN outer borders (`border`), shadow boxes (`shadow-sm`), background wrapper frames (`bg-slate-900`/`bg-white`), or pixel cropping (`object-cover`/`aspect-[16/9]`). The image MUST span 100% full responsive width (`w-full h-auto rounded-xl`) cleanly without image truncation or blurry text.
 {image_skill}
