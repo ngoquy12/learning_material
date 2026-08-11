@@ -453,9 +453,9 @@ MANDATORY RULES & DIRECTIVES:
    - ULTRA-INTUITIVE STUDENT-FRIENDLY DIRECTIVE: The image MUST be ultra-clean, minimal, friendly, and immediately understandable by beginner students at first glance (nhìn vào hiểu ngay ý bài toán trong 3 giây). Use real-world 2D flat vector objects (shopping cart, receipt, discount voucher, pass badge) with 100% Accented Vietnamese node titles (e.g., 'Đơn hàng 1.500.000 VNĐ', 'Kiểm tra: Đơn hàng >= 1 triệu?', 'Đúng ➔ Giảm 15% & Freeship').
    - STRICT PROHIBITION OF COMPLEX ARCHITECTURAL JARGON: 100% FORBIDDEN complex gears, abstract circuit board lines, dark curly-brace code boxes, English column titles ('CUSTOMER ORDERS INPUT', 'RULES ENGINE'), or formulaic 'Cách cũ vs Cách mới' split boxes!
    - CROPPED TIGHT EDGE-TO-EDGE CANVAS FILLING DIRECTIVE: Visual diagram elements, flowchart nodes, and text inside the image MUST stretch and fill 100% edge-to-edge across the entire PNG image canvas horizontally and vertically. ABSOLUTELY FORBIDDEN giant empty white background borders, top/bottom/left/right padding spaces, or small visual elements floating inside a huge white void!
-   - COMPACT VIEWPORT HEIGHT DIRECTIVE (NO SCROLLING NEEDED): The image display height MUST be strictly capped to a compact ~300px so the entire image, diagram flow, and caption fit 100% within the screen viewport without requiring any page scrolling!
-   - Embed the image tag cleanly: `<div class="my-5 text-center"><img src="images/..." alt="..." class="max-h-[300px] max-w-2xl w-auto h-auto mx-auto rounded-xl object-contain" /><p class="text-center text-sm text-slate-500 italic mt-2.5">Caption in Accented Vietnamese...</p></div>`.
-   - ABSOLUTELY FORBIDDEN outer borders (`border`), shadow boxes (`shadow-sm`), background wrapper frames (`bg-slate-900`/`bg-white`), or pixel cropping (`object-cover`).
+   - AUTOMATIC IMAGE MARGIN CROPPING CONTRACT: All generated scene images are automatically cropped around their active non-background bounding box using color thresholding to strip away top/bottom blank margins before embedding.
+   - Embed the image tag cleanly: `<div class="my-6 text-center"><img src="images/..." alt="..." class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm" /><p class="text-center text-sm text-slate-500 italic mt-3">Caption in Accented Vietnamese...</p></div>`.
+   - ABSOLUTELY FORBIDDEN outer borders (`border`), background wrapper frames (`bg-slate-900`/`bg-white`), or pixel cropping (`object-cover`).
 {image_skill}
 
 4. STRICT NO EMOJI TEXT:
