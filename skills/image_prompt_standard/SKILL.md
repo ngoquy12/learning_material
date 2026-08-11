@@ -64,8 +64,11 @@ Clean 2D flat vector diagrams and minimalist technical infographics. Clean lines
    - ABSOLUTELY FORBIDDEN giant empty white background borders, top/bottom/left/right padding spaces, or small graphics floating in a large white void.
    - Prompt keyword: `Cropped tight, edge-to-edge 2D flat vector technical illustration filling 100% of the image canvas with NO blank white outer margins, NO top or bottom empty borders. Visual elements span edge-to-edge across the full image area.`
 
-### 1.6. Mandatory 16:9 Widescreen Aspect Ratio
-MUST use `16:9 aspect ratio` matching `reading.html` `max-w-4xl` image containers and Marp slide decks.
+### 1.6. Mandatory Wide 16:9 Horizontal Landscape Aspect Ratio
+
+- 📐 **STRICT WIDE 16:9 LANDSCAPE FORMAT**: All scene images MUST be generated in **wide 16:9 horizontal widescreen landscape aspect ratio (aspect ratio 16:9, wide horizontal orientation, compact height)**.
+- ➡️ **LEFT-TO-RIGHT HORIZONTAL FLOW**: The visual story/flow MUST move horizontally from left to right (Input ➔ Decision Check ➔ Outcomes) to keep vertical height low, balanced, and elegant inside reading materials (`max-w-3xl` container).
+- Prompt keyword: `Wide horizontal 16:9 widescreen landscape orientation (aspect ratio 16:9), horizontal left-to-right flow, compact vertical height.`
 
 ### 1.7. Top-to-Bottom Vertical Flow Priority
 - Default: `top-to-bottom vertical flowchart layout`.
