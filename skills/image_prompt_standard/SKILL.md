@@ -33,11 +33,13 @@ Clean 2D flat vector diagrams and minimalist technical infographics. Clean lines
    - **Layer 2 (Secondary)**: Inline arrow annotations, concrete variable values, array indices.
    - **Layer 3 (Tertiary)**: Mini State Table or Legend explaining color codes in corner.
 
-### 1.3. Concise & Meaningful Vietnamese Main Image Title
+### 1.3. Direct Real-World Problem Scenario Illustration (No 'Cách cũ / Cách mới' Comparison Split)
 
-- 🇻🇳 **Mandatory Preference**: Image Main Title and Panel Headers MUST be in **concise, accented Vietnamese** so students immediately understand the pedagogical message.
-  - GOOD Examples: `Cách cũ: Viết thủ công 100 dòng`, `Cách mới: Vòng lặp for 2 dòng`, `Luồng xử lý điều kiện if-else`, `Cơ chế biên dịch vs Thông dịch`.
-  - BAD Examples: `Without loop vs With loop`, `Flowchart diagram`, `Execution lifecycle` (Abstract English).
+- 🎯 **Direct Scenario Illustration**: Section 1 image MUST illustrate the **concrete real-world business problem scenario directly** (e.g., E-commerce Order Checkout Rules Engine, Student Qualification Flow, User Credit Check).
+- ⛔ **FORBIDDEN FORMULAIC COMPARISON SPLITS**: ABSOLUTELY FORBIDDEN to create artificial formulaic 'Cách cũ' vs 'Cách mới' comparison boxes or split panels.
+- 🇻🇳 **Mandatory Preference**: Panel text, labels, and status badges MUST be in **concise, accented Vietnamese** so students immediately understand the pedagogical message.
+  - GOOD Examples: `Luồng xử lý chiết khấu đơn hàng Shopee`, `Quy trình kiểm tra điều kiện qua môn`, `Cơ chế xác thực tài khoản VIP`.
+  - BAD Examples: `Cách cũ vs Cách mới` (Formulaic comparison), `Flowchart diagram` (Abstract English).
 - 📌 *Note*: Programming keywords and tech stack names (`if`, `else`, `for`, `while`, `range()`, `FastAPI`, `PostgreSQL`) remain in standard lowercase English.
 
 ### 1.4. Strict Text Emoji Prohibition Directive (Vector/SVG Icons Only)
@@ -57,10 +59,10 @@ Clean 2D flat vector diagrams and minimalist technical infographics. Clean lines
 3. 💻 **IDE-STYLE CODE WINDOW CARDS**:
    - Code snippets MUST be enclosed inside **IDE Code Window Cards** (with 3 window dots at top-left: red, yellow, green) using monospace font.
    - Prompt keyword: `Enclose code snippets inside a clean IDE editor window card with 3 subtle window dots at top left. Use crisp monospace font for code text.`
-4. 📐 **FULL-FRAME TIGHT COMPOSITION (NO EXCESSIVE EMPTY WHITE SPACE)**:
-   - Ensure a full-frame tight composition where visual diagram panels, flowcharts, and text fill the entire 16:9 image canvas vertically and horizontally with minimal 8px edge padding.
-   - ABSOLUTELY FORBIDDEN giant empty white background borders, massive blank margins, or small visual elements floating inside a huge white void.
-   - Prompt keyword: `Full-frame tight composition filling the entire image canvas vertically and horizontally, minimal 8px tight edge padding, no large empty white background borders, large readable typography and large diagram elements.`
+4. 📐 **CROPPED TIGHT EDGE-TO-EDGE CANVAS FILLING (ZERO BLANK BACKGROUND MARGINS)**:
+   - Visual illustration elements MUST stretch and fill 100% edge-to-edge across the entire image canvas horizontally and vertically.
+   - ABSOLUTELY FORBIDDEN giant empty white background borders, top/bottom/left/right padding spaces, or small graphics floating in a large white void.
+   - Prompt keyword: `Cropped tight, edge-to-edge 2D flat vector technical illustration filling 100% of the image canvas with NO blank white outer margins, NO top or bottom empty borders. Visual elements span edge-to-edge across the full image area.`
 
 ### 1.6. Mandatory 16:9 Widescreen Aspect Ratio
 MUST use `16:9 aspect ratio` matching `reading.html` `max-w-4xl` image containers and Marp slide decks.
