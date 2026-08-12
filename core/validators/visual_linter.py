@@ -88,13 +88,11 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
         img_attr = match.group(1).lower()
         if any(kw in img_attr for kw in ["logo", "brand", "header", "icon", "h-9", "h-8", "h-10", "h-12", "nav"]):
             continue
-        pos = match.end()
-        following_snippet = content[pos:pos+300]
-        has_italic_caption = bool(re.search(r'<(figcaption|i|em)\b', following_snippet, re.IGNORECASE))
+        has_italic_caption = bool(re.search(r'<(figcaption|i|em)\b|\bclass=["\'][^"\']*\bitalic\b', following_snippet, re.IGNORECASE))
         if not has_italic_caption:
             preceding_snippet = content[max(0, match.start()-100):match.start()]
             if "<figure" not in preceding_snippet.lower():
-                errors.append("Thẻ <img> minh họa thiếu chú thích in nghiêng <i>...</i> hoặc <figcaption> trực tiếp bên dưới.")
+                errors.append("Thẻ <img> minh họa thiếu chú thích in nghiêng (<i>...</i>, <figcaption> hoặc class 'italic') trực tiếp bên dưới.")
 
     # 7. Code Comment Vietnamese Standard Inspection
     english_comment_patterns = [
