@@ -1596,7 +1596,11 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
 
       function runVizStep(delta, idPrefix) {{
         idPrefix = idPrefix || "viz";
-        var maxSteps = 5;
+
+        var lines = document.querySelectorAll(
+          '[id^="' + idPrefix + '-line-"], [id*="-line-"], [id^="viz-line-"], [id^="mech-line-"]'
+        );
+        var maxSteps = lines.length > 0 ? lines.length : 1;
 
         if (delta === -999) {{
           window.vizStepMap[idPrefix] = 0;
@@ -1622,11 +1626,7 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
 
         var step = window.vizStepMap[idPrefix];
 
-        // 1. Clear highlight from all code lines
-        var lines = document.querySelectorAll(
-          '[id^="' + idPrefix + '-line-"], [id^="viz-line-"], [id^="mech-line-"]'
-        );
-
+        // 1. Highlight active code line dynamically across any lesson or tech stack
         lines.forEach(function(el) {{
           el.style.backgroundColor = '';
           el.style.borderLeft = '4px solid transparent';
@@ -1635,58 +1635,30 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
           el.classList.remove('active-line');
         }});
 
-        // Map execution steps to specific line IDs
-        var lineIdMap = {{
-          1: idPrefix + "-line-1",
-          2: idPrefix + "-line-2",
-          3: idPrefix + "-line-4",
-          4: idPrefix + "-line-5",
-          5: idPrefix + "-line-5"
-        }};
+        if (step > 0 && lines.length >= step) {{
+          var activeEl = lines[step - 1];
+          if (activeEl) {{
+            activeEl.classList.add('active-line');
+            activeEl.style.backgroundColor = '#d1fae5'; // Soft emerald highlight
+            activeEl.style.borderLeft = '4px solid #059669'; // Bold emerald left bar
+            activeEl.style.fontWeight = 'bold';
+            activeEl.style.color = '#064e3b';
 
-        var targetId = lineIdMap[step] || (idPrefix + "-line-" + step);
-        var activeEl = document.getElementById(targetId) ||
-                       document.getElementById("viz-line-" + step) ||
-                       (lines[step - 1]);
-
-        if (activeEl && step > 0) {{
-          activeEl.classList.add('active-line');
-          activeEl.style.backgroundColor = '#d1fae5'; // Soft emerald highlight
-          activeEl.style.borderLeft = '4px solid #059669'; // Bold emerald left bar
-          activeEl.style.fontWeight = 'bold';
-          activeEl.style.color = '#064e3b';
-        }}
-
-        // 2. Update Memory Table & Console Log
-        var amtEl = document.getElementById(idPrefix + "-var-amount") || document.getElementById("viz-var-amount");
-        var discEl = document.getElementById(idPrefix + "-var-discount") || document.getElementById(idPrefix + "-var-rate") || document.getElementById("viz-var-discount") || document.getElementById("viz-var-rate");
-        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
-
-        if (amtEl || discEl) {{
-          if (step === 0) {{
-            if (amtEl) amtEl.innerText = "750000";
-            if (discEl) discEl.innerText = "0.00";
-            if (consoleEl) consoleEl.innerText = "Sẵn sàng chạy mô phỏng. Bấm \"Tiếp theo\" để bắt đầu.";
-          }} else if (step === 1) {{
-            if (amtEl) amtEl.innerText = "750000";
-            if (discEl) discEl.innerText = "0.00";
-            if (consoleEl) consoleEl.innerText = "Bước 1: Khởi tạo biến order_amount = 750000";
-          }} else if (step === 2) {{
-            if (amtEl) amtEl.innerText = "750000";
-            if (discEl) discEl.innerText = "0.00";
-            if (consoleEl) consoleEl.innerText = "Bước 2: Kiểm tra if order_amount >= 2000000 ➔ 750000 >= 2000000 là SAI (False). Chuyển sang elif.";
-          }} else if (step === 3) {{
-            if (amtEl) amtEl.innerText = "750000";
-            if (discEl) discEl.innerText = "0.00";
-            if (consoleEl) consoleEl.innerText = "Bước 3: Kiểm tra elif order_amount >= 500000 ➔ 750000 >= 500000 là ĐÚNG (True)!";
-          }} else if (step === 4) {{
-            if (amtEl) amtEl.innerText = "750000";
-            if (discEl) discEl.innerText = "0.10";
-            if (consoleEl) consoleEl.innerText = "Bước 4: Thực thi khối elif ➔ Gán discount_rate = 0.10 (Giảm 10%).";
-          }} else if (step === 5) {{
-            if (amtEl) amtEl.innerText = "750000";
-            if (discEl) discEl.innerText = "0.10";
-            if (consoleEl) consoleEl.innerText = "Hoàn thành! Bỏ qua khối else. Kết quả discount_rate = 0.10 (Tiết kiệm 75.000 VNĐ).";
+            var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+            if (consoleEl) {{
+              var customMsg = activeEl.getAttribute('data-console');
+              if (customMsg) {{
+                consoleEl.innerText = customMsg;
+              }} else {{
+                var lineText = (activeEl.innerText || activeEl.textContent || "").trim();
+                consoleEl.innerText = "Bước " + step + "/" + maxSteps + ": Thực thi " + lineText;
+              }}
+            }}
+          }}
+        }} else if (step === 0) {{
+          var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+          if (consoleEl) {{
+            consoleEl.innerText = "Sẵn sàng chạy mô phỏng. Bấm \"Tiếp theo\" để bắt đầu.";
           }}
         }}
       }}
