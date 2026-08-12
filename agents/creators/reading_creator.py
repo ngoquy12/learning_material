@@ -620,6 +620,10 @@ MANDATORY RULES & DIRECTIVES:
     - 🚨 NO ENGLISH COMMENTS IN CODE DEMOS 🚨: 100% of code comments (`# ...`, `// ...`) and console print messages inside ALL code snippets, sandboxes, and visualizers MUST be written in clear, friendly, learner-understandable Accented Vietnamese ("# 1. Kiểm tra chính sách miễn phí ship", "# Khối lệnh chạy khi điều kiện True").
     - ABSOLUTELY FORBIDDEN to use English code comments (e.g., `# Progressive Demo`, `# Executed if condition is True`, `# Production call demo`).
 
+35. INTERACTIVE STEP VISUALIZER UX STANDARD CONTRACT:
+    - 🚨 STRICT LIGHT THEME & NO LINE NUMBERS 🚨: Step-by-Step Execution Visualizers in Section 2.4 MUST use clean Light Theme (`bg-slate-50 border border-slate-200 shadow-sm text-slate-800`), NO line numbers in code display, high-contrast light emerald line highlights (`#d1fae5` bg, `#059669` left border).
+    - 🎛️ LIVE VALUE SLIDER & BADGES 🎛️: Include a smooth Range Slider (`<input type="range">`) for input value adjustments, dynamic True/False condition badges (`🟢 True - KHỚP!`, `❌ False - Bỏ qua`), and Speed Selectors (`1.5s`, `1.0s`, `0.5s`).
+
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
   "section1_title": "Dynamic Section 1 title matching lesson topic in Accented Vietnamese (e.g., 'Tại sao cần dùng hàm?')",
