@@ -383,45 +383,17 @@
         <!-- Section 1: Đặt vấn đề -->
         <section id="section-1" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            1. Vấn đề khi xử lý luồng đơn hàng không có rẽ nhánh điều khiển
+            1. Tại sao máy tính cần khả năng đưa ra quyết định?
           </h2>
           <div class="space-y-4">
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Trong các hệ thống giao dịch thương mại điện tử như Shopee hay
-              Tiki, mã nguồn chương trình không thể chạy tuyến tính từ trên
-              xuống dưới theo cùng một quy tắc cố định cho mọi đơn hàng. Mỗi
-              giao dịch có giá trị khác nhau, cấp độ tài khoản người dùng khác
-              nhau và yêu cầu chính sách ưu đãi riêng biệt.
+              Hãy tưởng tượng bạn đang viết tính năng thanh toán cho một ứng dụng mua sắm trực tuyến như Shopee hay Tiki. Khi khách hàng nhấn nút thanh toán, ứng dụng phải tự động tính toán phí giao hàng và mã giảm giá phù hợp cho từng đơn hàng.
             </p>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Xung đột kỹ thuật phát sinh khi mã nguồn chạy dòng-theo-dòng mà
-              không có kiểm tra điều kiện. Nếu một hàm tính toán tự động trừ
-              50,000 VNĐ phí vận chuyển cho mọi đơn hàng mà không kiểm tra hạn
-              mức, doanh nghiệp sẽ chịu rủi ro thất thoát tài chính nghiêm trọng
-              đối với các đơn hàng giá trị nhỏ. Ngược lại, nếu áp đặt thu phí
-              giao hàng cho cả đơn hàng của thành viên VIP có giá trị trên
-              2,000,000 VNĐ, trải nghiệm người dùng sẽ bị ảnh hưởng tiêu cực dẫn
-              đến việc hủy dịch vụ.
+              Nếu chương trình máy tính áp đặt cùng một quy tắc cho tất cả mọi người, rắc rối sẽ lập tức xuất hiện! Khách hàng mua đơn lớn 1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng. Ngược lại, nếu miễn phí vận chuyển cho tất cả mọi đơn, những đơn hàng nhỏ chỉ 20.000 VNĐ sẽ khiến ứng dụng bị lỗ nặng vì tiền phí ship còn cao hơn cả tiền sản phẩm.
             </p>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Cấu trúc rẽ nhánh điều khiển với
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >if</code
-              >,
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >elif</code
-              >
-              và
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >else</code
-              >
-              trong Python là giải pháp cốt lõi. Cấu trúc này cho phép chương
-              trình đưa ra các quyết định loại trừ độc quyền (Mutually Exclusive
-              Decisions) tại thời điểm thực thi dựa trên dữ liệu đầu vào thực tế
-              của từng đơn hàng.
+              Làm sao để máy tính biết tự kiểm tra giá trị từng đơn hàng và đưa ra quyết định phù hợp? Đó chính là lý do chúng ta cần đến các câu lệnh rẽ nhánh điều khiển (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">elif</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">else</code>) trong Python.
             </p>
           </div>
           <div class="my-6 text-center">

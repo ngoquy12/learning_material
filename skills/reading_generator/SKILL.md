@@ -17,7 +17,7 @@ All Agents MUST strictly implement all 10 core directives:
 | :-: | :--------------------------------------------------------------------------------------------------------------- | :-------- |
 |  1  | **Fixed 5-Section Architecture** (Problem Statement ➔ Syntax & Mechanism ➔ Practical Examples ➔ Gotchas ➔ Self-Test) | MANDATORY |
 |  2  | **10-Minute Micro-Learning** — Bullet Lists & Sublists instead of monolithic text                                | MANDATORY |
-|  3  | **Concise Problem Statement & Unified Threaded Scenario** — Punchy Section 1 (max 2-3 paragraphs + 2D Flat Vector Image describing problem statement) ➔ 1 single continuous scenario threaded across ALL sections | MANDATORY |
+|  3  | **Ultra-Simple Conversational Storytelling for Section 1** — Friendly real-world story (max 3 short paragraphs: Scenario ➔ Conflict ➔ Need for new concept) with ZERO academic jargon ("Xung đột kỹ thuật", "chạy tuyến tính", "loại trừ độc quyền"), accompanied by a 2D Flat Vector Image | MANDATORY |
 |  4  | **2D Flat Vector Image Integration (No HTML/CSS SVG Manual Code)** — 2D Flat Vector Technical Scene Image (via `image_prompt_standard` skill) auto-cropped around visual bounding box (`w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm`) with NO border, NO background box, NO text clipping, ZERO blank margins, Code Sandboxes per sub-section (2.1, 2.2...), Step Code Visualizer | MANDATORY |
 |  5  | **Plain Developer Language & No Academic Jargon** — Plain Vietnamese, NO dry textbook formulas or unverified claims, NO text emojis, Phosphor SVG icons ONLY | MANDATORY |
 |  6  | **100% English Code Identifiers (`snake_case`)** — Variables/placeholders MUST be English (`order_amount`, etc.) | MANDATORY |
