@@ -1247,8 +1247,7 @@ print(f&quot;Shipping fee: {shipping_fee} VND&quot;)</code></pre>
                   <span
                     class="text-slate-700 font-bold flex items-center gap-1.5"
                   >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ
-                    THỰC THI (CONSOLE OUTPUT):
+                    <i class="ph-bold ph-terminal text-rikkei-red"></i> Kết quả chạy chương trình (Console):
                   </span>
                 </div>
                 <pre
@@ -1335,8 +1334,7 @@ print(f&quot;Total checkout amount: {total_checkout} VND&quot;)</code></pre>
                   <span
                     class="text-slate-700 font-bold flex items-center gap-1.5"
                   >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ
-                    THỰC THI (CONSOLE OUTPUT):
+                    <i class="ph-bold ph-terminal text-rikkei-red"></i> Kết quả chạy chương trình (Console):
                   </span>
                 </div>
                 <pre
@@ -1349,13 +1347,10 @@ print(f&quot;Total checkout amount: {total_checkout} VND&quot;)</code></pre>
               id="sec-3-3-kich-ban-enterprise-ong-co-tinh-giam-gia-on-hang-phuc-hop-voi-if-elif-else"
               class="font-montserrat font-bold text-xl text-slate-900 mb-3"
             >
-              3.3. Kịch bản Enterprise: Động cơ tính giảm giá đơn hàng phức hợp
-              với if-elif-else
+              3.3. Ví dụ hoàn chỉnh: Tính giảm giá đơn hàng thực tế với if-elif-else
             </h3>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Xây dựng hàm xử lý giao dịch sản xuất hoàn chỉnh trong các hệ
-              thống E-commerce, tích hợp logic phân hạng giảm giá đa cấp độ và
-              chính sách miễn phí vận chuyển cho tài khoản VIP.
+              Xây dựng tính năng tính tiền đơn hàng hoàn chỉnh, tự động áp dụng mức giảm giá và chính sách miễn phí vận chuyển cho tài khoản VIP.
             </p>
             <div
               class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
@@ -1795,7 +1790,9 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
         idPrefix = idPrefix || "viz";
 
         var lines = document.querySelectorAll(
-          '[id^="' + idPrefix + '-line-"], [id*="-line-"], [id^="viz-line-"], [id^="mech-line-"]'
+          '[id^="' +
+            idPrefix +
+            '-line-"], [id*="-line-"], [id^="viz-line-"], [id^="mech-line-"]',
         );
         var maxSteps = lines.length > 0 ? lines.length : 1;
 
@@ -1824,38 +1821,48 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
         var step = window.vizStepMap[idPrefix];
 
         // 1. Highlight active code line dynamically across any lesson or tech stack
-        lines.forEach(function(el) {
-          el.style.backgroundColor = '';
-          el.style.borderLeft = '4px solid transparent';
-          el.style.fontWeight = 'normal';
-          el.style.color = '';
-          el.classList.remove('active-line');
+        lines.forEach(function (el) {
+          el.style.backgroundColor = "";
+          el.style.borderLeft = "4px solid transparent";
+          el.style.fontWeight = "normal";
+          el.style.color = "";
+          el.classList.remove("active-line");
         });
 
         if (step > 0 && lines.length >= step) {
           var activeEl = lines[step - 1];
           if (activeEl) {
-            activeEl.classList.add('active-line');
-            activeEl.style.backgroundColor = '#d1fae5'; // Soft emerald green highlight
-            activeEl.style.borderLeft = '4px solid #059669'; // Bold emerald left bar
-            activeEl.style.fontWeight = 'bold';
-            activeEl.style.color = '#064e3b';
+            activeEl.classList.add("active-line");
+            activeEl.style.backgroundColor = "#d1fae5"; // Soft emerald green highlight
+            activeEl.style.borderLeft = "4px solid #059669"; // Bold emerald left bar
+            activeEl.style.fontWeight = "bold";
+            activeEl.style.color = "#064e3b";
 
-            var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+            var consoleEl =
+              document.getElementById(idPrefix + "-console") ||
+              document.getElementById("viz-console");
             if (consoleEl) {
-              var customMsg = activeEl.getAttribute('data-console');
+              var customMsg = activeEl.getAttribute("data-console");
               if (customMsg) {
                 consoleEl.innerText = customMsg;
               } else {
-                var lineText = (activeEl.innerText || activeEl.textContent || "").trim();
-                consoleEl.innerText = "Bước " + step + "/" + maxSteps + ": Thực thi " + lineText;
+                var lineText = (
+                  activeEl.innerText ||
+                  activeEl.textContent ||
+                  ""
+                ).trim();
+                consoleEl.innerText =
+                  "Bước " + step + "/" + maxSteps + ": Thực thi " + lineText;
               }
             }
           }
         } else if (step === 0) {
-          var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+          var consoleEl =
+            document.getElementById(idPrefix + "-console") ||
+            document.getElementById("viz-console");
           if (consoleEl) {
-            consoleEl.innerText = "Sẵn sàng chạy mô phỏng. Bấm \"Tiếp theo\" để bắt đầu.";
+            consoleEl.innerText =
+              'Sẵn sàng chạy mô phỏng. Bấm "Tiếp theo" để bắt đầu.';
           }
         }
       }
@@ -1866,38 +1873,96 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
       }
 
       // Universal Adapter Aliases bridging ALL LLM-generated button handlers to visualizer API
-      function vizAutoRun() { vizToggleAuto(); }
-      function vizAutoStart() { vizToggleAuto(); }
-      function vizStartAuto() { vizToggleAuto(); }
-      function vizRunAuto() { vizToggleAuto(); }
-      function vizStart() { runVizStep(1); }
-      function vizPlay() { vizToggleAuto(); }
-      function vizTogglePlay() { vizToggleAuto(); }
+      function vizAutoRun() {
+        vizToggleAuto();
+      }
+      function vizAutoStart() {
+        vizToggleAuto();
+      }
+      function vizStartAuto() {
+        vizToggleAuto();
+      }
+      function vizRunAuto() {
+        vizToggleAuto();
+      }
+      function vizStart() {
+        runVizStep(1);
+      }
+      function vizPlay() {
+        vizToggleAuto();
+      }
+      function vizTogglePlay() {
+        vizToggleAuto();
+      }
 
-      function vizStepNext() { runVizStep(1); }
-      function vizStepPrev() { runVizStep(-1); }
-      function vizNextStep() { runVizStep(1); }
-      function vizPrevStep() { runVizStep(-1); }
-      function vizNext() { runVizStep(1); }
-      function vizPrev() { runVizStep(-1); }
-      function vizStepForward() { runVizStep(1); }
-      function vizStepBackward() { runVizStep(-1); }
-      function vizForward() { runVizStep(1); }
-      function vizBackward() { runVizStep(-1); }
-      function vizStep() { runVizStep(1); }
-      function vizRun() { runVizStep(1); }
+      function vizStepNext() {
+        runVizStep(1);
+      }
+      function vizStepPrev() {
+        runVizStep(-1);
+      }
+      function vizNextStep() {
+        runVizStep(1);
+      }
+      function vizPrevStep() {
+        runVizStep(-1);
+      }
+      function vizNext() {
+        runVizStep(1);
+      }
+      function vizPrev() {
+        runVizStep(-1);
+      }
+      function vizStepForward() {
+        runVizStep(1);
+      }
+      function vizStepBackward() {
+        runVizStep(-1);
+      }
+      function vizForward() {
+        runVizStep(1);
+      }
+      function vizBackward() {
+        runVizStep(-1);
+      }
+      function vizStep() {
+        runVizStep(1);
+      }
+      function vizRun() {
+        runVizStep(1);
+      }
 
-      function stepNext() { runVizStep(1); }
-      function stepPrev() { runVizStep(-1); }
-      function nextStep() { runVizStep(1); }
-      function prevStep() { runVizStep(-1); }
-      function autoRun() { vizToggleAuto(); }
-      function autoPlay() { vizToggleAuto(); }
-      function toggleAuto() { vizToggleAuto(); }
+      function stepNext() {
+        runVizStep(1);
+      }
+      function stepPrev() {
+        runVizStep(-1);
+      }
+      function nextStep() {
+        runVizStep(1);
+      }
+      function prevStep() {
+        runVizStep(-1);
+      }
+      function autoRun() {
+        vizToggleAuto();
+      }
+      function autoPlay() {
+        vizToggleAuto();
+      }
+      function toggleAuto() {
+        vizToggleAuto();
+      }
 
-      function vizReset() { resetViz(); }
-      function vizRestart() { resetViz(); }
-      function resetVisualizer() { resetViz(); }
+      function vizReset() {
+        resetViz();
+      }
+      function vizRestart() {
+        resetViz();
+      }
+      function resetVisualizer() {
+        resetViz();
+      }
 
       function vizToggleAuto() {
         if (window.vizAutoTimer) {

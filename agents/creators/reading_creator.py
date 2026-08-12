@@ -576,8 +576,9 @@ MANDATORY RULES & DIRECTIVES:
       * For For Loops: `2.1 range()` (Index loop) ➔ `2.2 list loop` (Iterate score list) ➔ `2.3 enumerate()` (Student name and score pairs).
 
 27. PLAIN DEVELOPER LANGUAGE & ZERO ACADEMIC JARGON CONTRACT:
-    - 100% FORBIDDEN to use dry academic formulas, textbook jargon, unverified claims, or hyperbolic AI fluff ("khám phá", "vô cùng", "bậc nhất", "tuyệt vời").
-    - Use clear, practical, learner-friendly language ("Giúp bạn kiểm tra...", "Xử lý khi...", "Tránh lỗi...").
+    - 100% FORBIDDEN to use dry academic textbook formulas, overly complex enterprise jargon ('Kịch bản Enterprise', 'Động cơ tính toán', 'Thi hành tuyến tính', 'Thực thi sản xuất'), unverified claims, or hyperbolic AI fluff ("khám phá", "vô cùng", "bậc nhất", "tuyệt vời").
+    - 🚨 STRICT PROHIBITION OF OVERLY FORMAL / TECH-OVERFLOW WORDS 🚨: NEVER use words like "Kịch bản Enterprise", "Động cơ", "Thi hành", "Tuyến tính", "Loại trừ độc quyền", "Nhiệm vụ sản xuất".
+    - Use clear, practical, friendly, learner-friendly developer Vietnamese ("Ví dụ thực tế", "Ví dụ hoàn chỉnh", "Chương trình", "Chạy code", "Giúp bạn kiểm tra...").
 
 28. DOMAIN-AGNOSTIC & ZERO HARDCODING CONTRACT:
     - All rules apply dynamically to whatever target `tech_stack` is passed in (`python`, `javascript`, `java`, `cpp`, `sql`, `html/css`, `git`, `docker`, `agile`, etc.).
