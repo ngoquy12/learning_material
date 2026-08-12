@@ -60,6 +60,22 @@
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 
     <style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      #viz-terminal-log::-webkit-scrollbar {
+        width: 5px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-track {
+        background: #020617;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
       html {
         scroll-behavior: smooth;
         scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
@@ -1346,9 +1362,9 @@ print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></
                     </div>
                   </div>
 
-                  <!-- Terminal Log Console Output (Tự động dãn chiều cao flex-1) -->
+                  <!-- Terminal Log Console Output (Thanh cuộn nhỏ tinh tế) -->
                   <div
-                    class="flex-1 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden flex flex-col shadow-inner min-h-[180px]"
+                    class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden flex flex-col shadow-inner"
                   >
                     <div
                       class="bg-slate-800 px-3.5 py-1.5 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700 shrink-0"
@@ -1368,7 +1384,7 @@ print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></
                     </div>
                     <div
                       id="viz-terminal-log"
-                      class="p-3 font-mono text-[12px] space-y-1 flex-1 min-h-[140px] overflow-y-auto bg-slate-950 text-slate-200 leading-relaxed select-text"
+                      class="p-3 font-mono text-[12px] space-y-1 h-[140px] overflow-y-auto bg-slate-950 text-slate-200 leading-relaxed select-text"
                     >
                       <div class="text-slate-400 italic">
                         Bấm "Tiếp theo" hoặc "Tự động chạy" để bắt đầu...
