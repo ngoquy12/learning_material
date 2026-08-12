@@ -1,1 +1,710 @@
-<!-- Empty outline for Session 06 - Lesson 01: Cấu trúc vòng lặp for và hàm range -->
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 01 - Khái niệm vòng lặp và câu lệnh for - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1360px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+
+    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
+
+    <style>
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram, svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text, svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg, section svg, article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      th, td {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f172a !important;
+      }
+      p, li, td, th {
+        color: #334155 !important;
+      }
+      .toc-link, .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover, .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw { color: #cf222e !important; font-weight: bold !important; }
+      .str { color: #0a3069 !important; }
+      .num { color: #0550ae !important; font-weight: 600 !important; }
+      .fn { color: #8250df !important; font-weight: 600 !important; }
+      .cmt { color: #6e7781 !important; font-style: italic !important; }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span, code span {
+        background-color: transparent !important;
+      }
+
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Session 06 - Vòng lặp và điều khiển luồng lặp</span>
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+        <div class="space-y-4">
+          <h4 class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2">
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài đọc
+          </h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1 text-sm">
+            <a href="#section-1" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">1. Tại sao cần sử dụng vòng lặp trong lập trình?</a>
+            <a href="#section-2" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">2. Cú pháp và cơ chế hoạt động của vòng lặp for</a>
+            <a href="#section-3" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">4. Tổng kết bài học</a>
+            <a href="#section-5" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">5. Tài liệu tham khảo</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
+        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
+              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            </div>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">1. Tại sao cần sử dụng vòng lặp trong lập trình?</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">2. Cú pháp và cơ chế hoạt động của vòng lặp for</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">4. Tổng kết bài học</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">5. Tài liệu tham khảo</a>
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+        </div>
+      </div>
+
+      <!-- Reading Content (Right/Center) -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Article Title -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Khái niệm vòng lặp và câu lệnh for</h1>
+        </div>
+
+        <!-- Section 1: Đặt vấn đề -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Tại sao cần sử dụng vòng lặp trong lập trình?</h2>
+          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Hãy tưởng tượng bạn đang lập trình tính năng tính tổng tiền hóa đơn cho một siêu thị tiện lợi. Khi giỏ hàng của khách chỉ có 3 sản phẩm, bạn có thể dễ dàng viết mã thủ công bằng cách cộng từng giá trị sản phẩm vào tổng tiền.</p><p class="text-slate-600 mb-4 leading-relaxed">Tuy nhiên, thử thách thực tế xuất hiện khi siêu thị xử lý hàng nghìn đơn hàng mỗi ngày với số lượng sản phẩm thay đổi liên tục — có đơn hàng chỉ 2 món, nhưng có đơn lên đến 50 món. Nếu áp dụng cách làm thủ công lặp đi lặp lại từng dòng lệnh, bạn sẽ phải viết hàng trăm dòng mã tương tự nhau, vừa tốn thời gian, vừa cực kỳ dễ xảy ra sai sót và không thể mở rộng chương trình.</p><p class="text-slate-600 mb-4 leading-relaxed">Làm sao để máy tính tự động duyệt qua từng sản phẩm và thực hiện hành động tính tiền một cách ngắn gọn, linh hoạt nhất? Đó chính là lý do chúng ta cần đến cấu trúc vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code> trong Python.</p></div>
+          <div class="my-6"><div class="my-6 text-center rikkei-diagram"><svg viewBox="0 0 800 240" class="w-full h-auto mx-auto max-w-3xl rounded-xl shadow-sm bg-slate-50 border border-slate-200" xmlns="http://www.w3.org/2000/svg"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect x="20" y="20" width="340" height="200" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><text x="190" y="48" font-family="sans-serif" font-size="15" font-weight="bold" fill="#e11d48" text-anchor="middle">Cách thủ công (Copy-Paste lặp lại)</text><rect x="40" y="65" width="300" height="32" rx="6" fill="#fff1f2" stroke="#fecdd3"/><text x="50" y="86" font-family="monospace" font-size="13" fill="#9f1239">total = total + item_1</text><rect x="40" y="105" width="300" height="32" rx="6" fill="#fff1f2" stroke="#fecdd3"/><text x="50" y="126" font-family="monospace" font-size="13" fill="#9f1239">total = total + item_2</text><rect x="40" y="145" width="300" height="32" rx="6" fill="#fff1f2" stroke="#fecdd3"/><text x="50" y="166" font-family="monospace" font-size="13" fill="#9f1239">total = total + item_3 ... (N lần)</text><text x="190" y="204" font-family="sans-serif" font-size="12" fill="#e11d48" text-anchor="middle">Lãng phí mã nguồn &amp; Dễ phát sinh lỗi</text><path d="M 375 120 L 425 120" stroke="#0284c7" stroke-width="4" stroke-dasharray="6 4"/><polygon points="425,113 440,120 425,127" fill="#0284c7"/><rect x="440" y="20" width="340" height="200" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><text x="610" y="48" font-family="sans-serif" font-size="15" font-weight="bold" fill="#059669" text-anchor="middle">Cách tối ưu (Vòng lặp for tự động)</text><rect x="460" y="65" width="300" height="40" rx="6" fill="#ecfdf5" stroke="#a7f3d0"/><text x="475" y="90" font-family="monospace" font-size="13" font-weight="bold" fill="#047857">for item in cart_items:</text><rect x="460" y="115" width="300" height="40" rx="6" fill="#ecfdf5" stroke="#a7f3d0"/><text x="505" y="140" font-family="monospace" font-size="13" font-weight="bold" fill="#047857">total_amount += item</text><text x="610" y="195" font-family="sans-serif" font-size="12" fill="#059669" text-anchor="middle">Chỉ cần 2 dòng mã - Tự động duyệt N phần tử</text></svg><p class="text-center text-sm text-slate-500 italic mt-3">So sánh giữa việc viết mã thủ công lặp lại và sử dụng vòng lặp for tự động hóa quy trình xử lý.</p></div></div>
+        </section>
+
+        <!-- Section 2: Giới thiệu kiến thức -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cú pháp và cơ chế hoạt động của vòng lặp for</h2>
+          <div class="space-y-4"><h3 id="sec-2-1-cu-phap-co-ban-cua-vong-lap-for-trong-python" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp cơ bản của vòng lặp for trong Python</h3><p class="text-slate-600 mb-4 leading-relaxed">Vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code> được sử dụng để duyệt qua từng phần tử trong một chuỗi hoặc một danh sách dữ liệu theo thứ tự từ đầu đến cuối.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-1" class="language-python" contenteditable="true" spellcheck="false" data-original="for item in sequence:&#10;    # Khối lệnh xử lý lặp lại&#10;    statement_1&#10;    statement_2" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">for item in sequence:
+    # Khối lệnh xử lý lặp lại
+    statement_1
+    statement_2</code></pre>
+  </div>
+  <div id="container-sb-sec2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">item</code>: Biến đại diện, nhận giá trị của phần tử hiện tại trong mỗi lần lặp.</li><li class="leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">sequence</code>: Tập hợp dữ liệu cần duyệt (như danh sách list, chuỗi ký tự string, hoặc dải số range).</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Khối lệnh con (Indentation)</strong>: Tất cả các dòng lệnh nằm bên trong vòng lặp phải được thụt lề vào đúng <strong class="font-semibold text-slate-900">4 khoảng trắng (4 spaces)</strong>.</li></ul><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class=</div>
+        </section>
+
+        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
+          <div class="space-y-6"><h3 id="sec-3-1-vi-du-1-duyet-danh-sach-on-gian-va-tinh-tong-gia-tri-hang-hoa" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ 1: Duyệt danh sách đơn giản và tính tổng giá trị hàng hóa</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ này minh họa cách sử dụng vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code> để tính tổng giá trị tiền của các món hàng trong một hóa đơn mua sắm.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Tính tổng số tiền của 5 món hàng trong danh sách đơn giá bằng vòng lặp for cơ bản.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="# Danh sách đơn giá các mặt hàng vừa quét mã&#10;item_prices = [12000, 45000, 89000, 15000, 35000]&#10;total_bill = 0&#10;&#10;# Tính tổng giá trị giỏ hàng&#10;for price in item_prices:&#10;    total_bill += price&#10;&#10;print(&quot;Tổng thanh toán đơn hàng:&quot;, total_bill, &quot;VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Danh sách đơn giá các mặt hàng vừa quét mã
+item_prices = [12000, 45000, 89000, 15000, 35000]
+total_bill = 0
+
+# Tính tổng giá trị giỏ hàng
+for price in item_prices:
+    total_bill += price
+
+print(&quot;Tổng thanh toán đơn hàng:&quot;, total_bill, &quot;VNĐ&quot;)</code></pre>
+  </div>
+  <div id="container-sb-sec3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><p class="text-slate-600 mb-4 leading-relaxed">Ở mỗi vòng lặp, biến <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">price</code> sẽ lần lượt nhận các giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">12000</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">45000</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">89000</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">15000</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">35000</code> và cộng dồn vào biến tích lũy <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">total_bill</code>.</p><h3 id="sec-3-2-vi-du-2-kiem-tra-ton-kho-va-loc-cac-on-hang-u-ieu-kien-mien-phi-giao-hang" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ 2: Kiểm tra tồn kho và lọc các đơn hàng đủ điều kiện miễn phí giao hàng</h3><p class="text-slate-600 mb-4 leading-relaxed">Kết hợp cấu trúc rẽ nhánh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if-else</code> bên trong vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code> để kiểm tra điều kiện áp dụng ưu đãi cho từng đơn hàng.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Duyệt danh sách các đơn hàng trong ngày, in ra trạng thái Freeship cho các đơn đạt từ 500.000 VNĐ trở lên và đếm số lượng đơn hợp lệ.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Danh sách giá trị các đơn hàng trong ngày&#10;order_values = [250000, 600000, 150000, 800000, 450000]&#10;freeship_threshold = 500000&#10;eligible_count = 0&#10;&#10;# Duyệt và kiểm tra điều kiện miễn phí vận chuyển&#10;for order in order_values:&#10;    if order &gt;= freeship_threshold:&#10;        print(&quot;Đơn hàng&quot;, order, &quot;VNĐ: Đủ điều kiện Freeship!&quot;)&#10;        eligible_count += 1&#10;    else:&#10;        print(&quot;Đơn hàng&quot;, order, &quot;VNĐ: Tính phí vận chuyển tiêu chuẩn.&quot;)&#10;&#10;print(&quot;Tổng số đơn được Freeship:&quot;, eligible_count)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Danh sách giá trị các đơn hàng trong ngày
+order_values = [250000, 600000, 150000, 800000, 450000]
+freeship_threshold = 500000
+eligible_count = 0
+
+# Duyệt và kiểm tra điều kiện miễn phí vận chuyển
+for order in order_values:
+    if order &gt;= freeship_threshold:
+        print(&quot;Đơn hàng&quot;, order, &quot;VNĐ: Đủ điều kiện Freeship!&quot;)
+        eligible_count += 1
+    else:
+        print(&quot;Đơn hàng&quot;, order, &quot;VNĐ: Tính phí vận chuyển tiêu chuẩn.&quot;)
+
+print(&quot;Tổng số đơn được Freeship:&quot;, eligible_count)</code></pre>
+  </div>
+  <div id="container-sb-sec3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><p class="text-slate-600 mb-4 leading-relaxed">Chương trình kiểm tra từng đơn hàng trong danh sách. Nếu giá trị đơn lớn hơn hoặc bằng ngưỡng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">freeship_threshold</code>, hệ thống sẽ đưa ra thông báo ưu đãi và tăng biến đếm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">eligible_count</code> lên 1.</p><h3 id="sec-3-3-vi-du-3-xu-ly-va-in-hoa-on-chi-tiet-kem-thue-vat-cho-sieu-thi" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ 3: Xử lý và in hóa đơn chi tiết kèm thuế VAT cho siêu thị</h3><p class="text-slate-600 mb-4 leading-relaxed">Sử dụng hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">range(len())</code> để vừa truy cập vào phần tử danh sách, vừa lấy được chỉ số thứ tự của từng sản phẩm.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">In ra hóa đơn siêu thị bao gồm số thứ tự từng món, giá gốc, tiền thuế VAT 10% và tổng tiền thanh toán cuối cùng.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runPythonCode('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="# Danh sách giá sản phẩm chưa thuế&#10;base_prices = [100000, 200000, 50000]&#10;vat_rate = 0.10&#10;grand_total = 0&#10;&#10;print(&quot;--- HÓA ĐƠN THANH TOÁN ---&quot;)&#10;for index in range(len(base_prices)):&#10;    price = base_prices[index]&#10;    vat_amount = price * vat_rate&#10;    final_price = price + vat_amount&#10;    grand_total += final_price&#10;    print(&quot;Sản phẩm số&quot;, index + 1, &quot;- Giá gốc:&quot;, price, &quot;VNĐ | Giá sau thuế VAT:&quot;, final_price, &quot;VNĐ&quot;)&#10;&#10;print(&quot;--------------------------&quot;)&#10;print(&quot;Tổng tiền thanh toán cuối cùng:&quot;, grand_total, &quot;VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Danh sách giá sản phẩm chưa thuế
+base_prices = [100000, 200000, 50000]
+vat_rate = 0.10
+grand_total = 0
+
+print(&quot;--- HÓA ĐƠN THANH TOÁN ---&quot;)
+for index in range(len(base_prices)):
+    price = base_prices[index]
+    vat_amount = price * vat_rate
+    final_price = price + vat_amount
+    grand_total += final_price
+    print(&quot;Sản phẩm số&quot;, index + 1, &quot;- Giá gốc:&quot;, price, &quot;VNĐ | Giá sau thuế VAT:&quot;, final_price, &quot;VNĐ&quot;)
+
+print(&quot;--------------------------&quot;)
+print(&quot;Tổng tiền thanh toán cuối cùng:&quot;, grand_total, &quot;VNĐ&quot;)</code></pre>
+  </div>
+  <div id="container-sb-sec3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><p class="text-slate-600 mb-4 leading-relaxed">Kết hợp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">range(len(base_prices))</code> cho phép lập trình viên truy cập vị trí <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">index</code> từ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">0</code> đến <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">2</code>, giúp dễ dàng tính số thứ tự sản phẩm (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">index + 1</code>) và truy xuất chính xác từng giá trị tương ứng.</p></div>
+        </section>
+
+        <!-- Section 4: Tổng kết bài học -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết bài học</h2>
+          <div class="space-y-4">
+            <h3 class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-4">4. Tổng kết bài học</h3><h4 class="font-montserrat font-bold text-lg font-bold text-slate-800 mb-2">4.1. Kiến thức trọng tâm</h4><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed">Vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code> giúp tự động hóa các công việc lặp đi lặp lại trên một tập hợp phần tử.</li><li class="leading-relaxed">Hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">range(start, stop, step)</code> dùng để sinh dải số tự động, với giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">stop</code> luôn không được bao gồm.</li><li class="leading-relaxed">Vòng lặp có thể duyệt trực tiếp qua các cấu trúc dữ liệu chuỗi (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">str</code>) hoặc danh sách (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">list</code>).</li></ul><h4 class="font-montserrat font-bold text-lg font-bold text-slate-800 mb-2 mt-6">4.2. Các lỗi thường gặp &amp; Lưu ý thực tế</h4><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4 shadow-sm"><h4 class="font-montserrat font-bold text-base font-bold text-rose-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-warning-circle text-rose-600"></i> Lỗi thụt lề (IndentationError)</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Tất cả các dòng mã nằm trong thân vòng lặp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code> bắt buộc phải thụt lề lùi vào 4 khoảng trắng. Quên thụt lề sẽ khiến Python báo lỗi cú pháp lập tức.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-white my-4 shadow-sm"><h4 class="font-montserrat font-bold text-base font-bold text-amber-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-warning-circle text-amber-600"></i> Lỗi giá trị biên cận trên trong hàm range()</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">stop</code> trong <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">range(1, 5)</code> là 5, nhưng vòng lặp chỉ chạy đến số 4. Để lặp đủ 5 phần tử từ 1 đến 5, bạn phải truyền tham số <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">range(1, 6)</code>.</p></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white my-4 shadow-sm"><h4 class="font-montserrat font-bold text-base font-bold text-emerald-900 mb-2 flex items-center gap-2"><i class="ph-bold ph-check-circle text-emerald-600"></i> Quy tắc đặt tên biến lặp rõ ràng</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Nên sử dụng danh từ số ít cho biến lặp và danh từ số nhiều cho danh sách (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for item in items:</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for price in prices:</code>) để mã nguồn dễ đọc và chuẩn mực.</p></div>
+          </div>
+        </section>
+
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-6 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+        <li>
+          <a href="https://docs.python.org/3/tutorial/controlflow.html#for-statements" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Tài liệu chính thức về câu lệnh for trong Python (Official Python Documentation)
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://docs.python.org/3/library/stdtypes.html#range" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+            <i class="ph-bold ph-link text-sm"></i> Tài liệu hướng dẫn sử dụng hàm range() trong Python
+          </a>
+        </li>
+        </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        if (drawer) drawer.classList.toggle("hidden");
+      }
+
+      // (HLJS initialization moved to second DOMContentLoaded handler below)
+
+      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
+      const themeToggleBtn = document.getElementById("theme-toggle");
+      const themeIcon = document.getElementById("theme-icon");
+      const hljsLightTheme = document.getElementById("hljs-light-theme");
+      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
+
+      function applyHljsTheme(isDark) {
+        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
+        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
+        // Re-highlight all code blocks so new theme tokens take effect immediately
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      }
+
+      themeToggleBtn?.addEventListener("click", () => {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
+        applyHljsTheme(isDark);
+      });
+
+      // Scroll progress script
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        const progress = document.getElementById("scroll-progress");
+        if (progress) progress.style.width = scrolled + "%";
+      });
+
+      // Table of Contents Active Scroll Observer
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
+        const sections = document.querySelectorAll("article section[id]");
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              tocLinks.forEach((link) => {
+                const href = link.getAttribute("href");
+                if (href === `#${id}`) {
+                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else {
+                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
+                  link.classList.add("border-transparent", "text-slate-600");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => observer.observe(section));
+
+        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
+        if (window.hljs) {
+          document.querySelectorAll('pre code').forEach((block) => {
+            block.removeAttribute('data-highlighted');
+            hljs.highlightElement(block);
+          });
+        }
+      });
+
+      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
+          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+
+          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute('data-highlighted');
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+      // Global Dynamic Visualizer Runner Helpers
+      window.vizStepMap = {};
+      window.vizAutoTimer = null;
+
+      function runVizStep(delta, idPrefix) {
+        idPrefix = idPrefix || "viz";
+
+        var lines = document.querySelectorAll(
+          '[id^="' + idPrefix + '-line-"], [id*="-line-"], [id^="viz-line-"], [id^="mech-line-"]'
+        );
+        var maxSteps = lines.length > 0 ? lines.length : 1;
+
+        if (delta === -999) {
+          window.vizStepMap[idPrefix] = 0;
+          if (window.vizAutoTimer) {
+            clearInterval(window.vizAutoTimer);
+            window.vizAutoTimer = null;
+            var btn = document.getElementById("viz-auto-btn");
+            if (btn) btn.textContent = "Tự động chạy";
+          }
+        } else if (delta === 0) {
+          if (window.vizAutoTimer) {
+            clearInterval(window.vizAutoTimer);
+            window.vizAutoTimer = null;
+            var btn = document.getElementById("viz-auto-btn");
+            if (btn) btn.textContent = "Tự động chạy";
+          }
+        } else {
+          var curr = (window.vizStepMap[idPrefix] || 0) + delta;
+          if (curr > maxSteps) curr = 0;
+          if (curr < 0) curr = 0;
+          window.vizStepMap[idPrefix] = curr;
+        }
+
+        var step = window.vizStepMap[idPrefix];
+
+        // 1. Highlight active code line dynamically across any lesson or tech stack
+        lines.forEach(function(el) {
+          el.style.backgroundColor = '';
+          el.style.borderLeft = '4px solid transparent';
+          el.style.fontWeight = 'normal';
+          el.style.color = '';
+          el.classList.remove('active-line');
+        });
+
+        if (step > 0 && lines.length >= step) {
+          var activeEl = lines[step - 1];
+          if (activeEl) {
+            activeEl.classList.add('active-line');
+            activeEl.style.backgroundColor = '#d1fae5'; // Soft emerald highlight
+            activeEl.style.borderLeft = '4px solid #059669'; // Bold emerald left bar
+            activeEl.style.fontWeight = 'bold';
+            activeEl.style.color = '#064e3b';
+
+            var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+            if (consoleEl) {
+              var customMsg = activeEl.getAttribute('data-console');
+              if (customMsg) {
+                consoleEl.innerText = customMsg;
+              } else {
+                var lineText = (activeEl.innerText || activeEl.textContent || "").trim();
+                consoleEl.innerText = "Bước " + step + "/" + maxSteps + ": Thực thi " + lineText;
+              }
+            }
+          }
+        } else if (step === 0) {
+          var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+          if (consoleEl) {
+            consoleEl.innerText = "Sẵn sàng chạy mô phỏng. Bấm "Tiếp theo" để bắt đầu.";
+          }
+        }
+      }
+
+      function resetViz(idPrefix) {
+        idPrefix = idPrefix || "viz";
+        runVizStep(-999, idPrefix);
+      }
+
+      // Universal Adapter Aliases bridging ALL LLM-generated button handlers to visualizer API
+      function vizAutoRun() { vizToggleAuto(); }
+      function vizAutoStart() { vizToggleAuto(); }
+      function vizStartAuto() { vizToggleAuto(); }
+      function vizRunAuto() { vizToggleAuto(); }
+      function vizStart() { runVizStep(1); }
+      function vizPlay() { vizToggleAuto(); }
+      function vizTogglePlay() { vizToggleAuto(); }
+
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizNext() { runVizStep(1); }
+      function vizPrev() { runVizStep(-1); }
+      function vizStepForward() { runVizStep(1); }
+      function vizStepBackward() { runVizStep(-1); }
+      function vizForward() { runVizStep(1); }
+      function vizBackward() { runVizStep(-1); }
+      function vizStep() { runVizStep(1); }
+      function vizRun() { runVizStep(1); }
+
+      function stepNext() { runVizStep(1); }
+      function stepPrev() { runVizStep(-1); }
+      function nextStep() { runVizStep(1); }
+      function prevStep() { runVizStep(-1); }
+      function autoRun() { vizToggleAuto(); }
+      function autoPlay() { vizToggleAuto(); }
+      function toggleAuto() { vizToggleAuto(); }
+
+      function vizReset() { resetViz(); }
+      function vizRestart() { resetViz(); }
+      function resetVisualizer() { resetViz(); }
+
+      function vizToggleAuto() {
+        if (window.vizAutoTimer) {
+          clearInterval(window.vizAutoTimer);
+          window.vizAutoTimer = null;
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Tự động chạy";
+        } else {
+          window.vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
+          var btn = document.getElementById("viz-auto-btn");
+          if (btn) btn.textContent = "Dừng tự động";
+        }
+      }
+    </script>
+  </body>
+</html>

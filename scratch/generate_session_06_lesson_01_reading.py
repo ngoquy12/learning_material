@@ -38,7 +38,7 @@ def main():
         state=state
     )
     
-    lesson_dir = Path(r"d:\Rikkei Education\Elearning_Agent\Learning-Material\output\pms\Lập_trình_Python\Session 06 - Vòng lặp và điều khiển luồng lặp\Lesson 01 - Khái niệm vòng lặp và câu lệnh for")
+    lesson_dir = Path(r"d:\Rikkei Education\Elearning_Agent\Learning-Material\output\pms\Lập_trình_Python\Session 06 - Cấu trúc vòng lặp và Điều khiển luồng lặp\Lesson 01 - Cấu trúc vòng lặp for và hàm range")
     lesson_dir.mkdir(parents=True, exist_ok=True)
     
     baidoc_dir = lesson_dir / "Bài đọc"
