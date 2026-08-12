@@ -1793,18 +1793,22 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
 
       function runVizStep(delta, idPrefix) {
         idPrefix = idPrefix || "viz";
-        
-        var lines = document.querySelectorAll(
-          '[id^="' + idPrefix + '-line-"], [id^="viz-line-"], [id^="mech-line-"]'
-        );
-        var maxSteps = lines.length > 0 ? lines.length : 4;
-        
+        var maxSteps = 5;
+
         if (delta === -999) {
           window.vizStepMap[idPrefix] = 0;
+          if (window.vizAutoTimer) {
+            clearInterval(window.vizAutoTimer);
+            window.vizAutoTimer = null;
+            var btn = document.getElementById("viz-auto-btn");
+            if (btn) btn.textContent = "Tự động chạy";
+          }
         } else if (delta === 0) {
           if (window.vizAutoTimer) {
             clearInterval(window.vizAutoTimer);
             window.vizAutoTimer = null;
+            var btn = document.getElementById("viz-auto-btn");
+            if (btn) btn.textContent = "Tự động chạy";
           }
         } else {
           var curr = (window.vizStepMap[idPrefix] || 0) + delta;
@@ -1812,80 +1816,81 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
           if (curr < 0) curr = 0;
           window.vizStepMap[idPrefix] = curr;
         }
+
         var step = window.vizStepMap[idPrefix];
 
-        // 1. Active Line Highlighting (Highlight dòng code đang thi hành)
+        // 1. Clear highlight from all code lines
+        var lines = document.querySelectorAll(
+          '[id^="' + idPrefix + '-line-"], [id^="viz-line-"], [id^="mech-line-"]'
+        );
+
         lines.forEach(function(el) {
-          el.classList.remove(
-            'active-line', 'bg-emerald-100', 'bg-emerald-100/90', 'border-emerald-600',
-            'border-l-4', 'font-bold', 'text-slate-900', 'shadow-sm', 'bg-emerald-500/20',
-            'border-emerald-500', 'text-white'
-          );
-          el.classList.add('border-transparent');
+          el.style.backgroundColor = '';
+          el.style.borderLeft = '4px solid transparent';
+          el.style.fontWeight = 'normal';
+          el.style.color = '';
+          el.classList.remove('active-line');
         });
 
-        var activeEl = document.getElementById(idPrefix + '-line-' + step) ||
-                       document.getElementById('viz-line-' + step) ||
-                       document.getElementById('mech-line-' + step) ||
+        // Map execution steps to specific line IDs
+        var lineIdMap = {
+          1: idPrefix + "-line-1",
+          2: idPrefix + "-line-2",
+          3: idPrefix + "-line-4",
+          4: idPrefix + "-line-5",
+          5: idPrefix + "-line-5"
+        };
+
+        var targetId = lineIdMap[step] || (idPrefix + "-line-" + step);
+        var activeEl = document.getElementById(targetId) ||
+                       document.getElementById("viz-line-" + step) ||
                        (lines[step - 1]);
 
         if (activeEl && step > 0) {
-          activeEl.classList.remove('border-transparent');
-          activeEl.classList.add(
-            'active-line', 'bg-emerald-100/90', 'border-l-4', 'border-emerald-600',
-            'text-slate-900', 'font-bold', 'shadow-sm', 'rounded-r-lg'
-          );
+          activeEl.classList.add('active-line');
+          activeEl.style.backgroundColor = '#d1fae5'; // Soft emerald green highlight
+          activeEl.style.borderLeft = '4px solid #059669'; // Bold emerald left bar
+          activeEl.style.fontWeight = 'bold';
+          activeEl.style.color = '#064e3b';
         }
 
-        // 2. Memory State & Console Updates
-        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
-        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        // 2. Update Memory Table & Console Log
         var amtEl = document.getElementById(idPrefix + "-var-amount") || document.getElementById("viz-var-amount");
         var discEl = document.getElementById(idPrefix + "-var-discount") || document.getElementById(idPrefix + "-var-rate") || document.getElementById("viz-var-discount") || document.getElementById("viz-var-rate");
         var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
 
         if (amtEl || discEl) {
           if (step === 0) {
-            if (amtEl) amtEl.innerText = "750.000 VNĐ";
-            if (discEl) discEl.innerText = "0%";
-            if (consoleEl) consoleEl.innerText = "Chờ thực thi cấu trúc rẽ nhánh...";
+            if (amtEl) amtEl.innerText = "750000";
+            if (discEl) discEl.innerText = "0.00";
+            if (consoleEl) consoleEl.innerText = "Sẵn sàng chạy mô phỏng. Bấm \"Tiếp theo\" để bắt đầu.";
           } else if (step === 1) {
-            if (amtEl) amtEl.innerText = "750.000 VNĐ";
-            if (discEl) discEl.innerText = "0%";
-            if (consoleEl) consoleEl.innerText = "Bước 1: if order_amount >= 1.000.000 ➔ False";
-          } else if (step === 2 || step === 3) {
-            if (amtEl) amtEl.innerText = "750.000 VNĐ";
-            if (discEl) discEl.innerText = "10%";
-            if (consoleEl) consoleEl.innerText = "Bước 2: elif order_amount >= 500.000 ➔ True! Áp dụng chiết khấu 10%";
-          } else {
-            if (amtEl) amtEl.innerText = "750.000 VNĐ";
-            if (discEl) discEl.innerText = "10%";
-            if (consoleEl) consoleEl.innerText = "Hoàn thành rẽ nhánh! Tổng chiết khấu: 10%";
-          }
-        } else if (consoleEl) {
-          if (step === 0) {
-            if (numEl) numEl.innerText = "-";
-            if (sumEl) sumEl.innerText = "0";
-            consoleEl.innerText = "Chờ thực thi...";
-          } else if (step === 1) {
-            if (numEl) numEl.innerText = "1";
-            if (sumEl) sumEl.innerText = "1";
-            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
+            if (amtEl) amtEl.innerText = "750000";
+            if (discEl) discEl.innerText = "0.00";
+            if (consoleEl) consoleEl.innerText = "Bước 1: Khởi tạo biến order_amount = 750000";
           } else if (step === 2) {
-            if (numEl) numEl.innerText = "2";
-            if (sumEl) sumEl.innerText = "3";
-            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
-          } else {
-            if (numEl) numEl.innerText = "3";
-            if (sumEl) sumEl.innerText = "6";
-            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+            if (amtEl) amtEl.innerText = "750000";
+            if (discEl) discEl.innerText = "0.00";
+            if (consoleEl) consoleEl.innerText = "Bước 2: Kiểm tra if order_amount >= 2000000 ➔ 750000 >= 2000000 là SAI (False). Chuyển sang elif.";
+          } else if (step === 3) {
+            if (amtEl) amtEl.innerText = "750000";
+            if (discEl) discEl.innerText = "0.00";
+            if (consoleEl) consoleEl.innerText = "Bước 3: Kiểm tra elif order_amount >= 500000 ➔ 750000 >= 500000 là ĐÚNG (True)!";
+          } else if (step === 4) {
+            if (amtEl) amtEl.innerText = "750000";
+            if (discEl) discEl.innerText = "0.10";
+            if (consoleEl) consoleEl.innerText = "Bước 4: Thực thi khối elif ➔ Gán discount_rate = 0.10 (Giảm 10%).";
+          } else if (step === 5) {
+            if (amtEl) amtEl.innerText = "750000";
+            if (discEl) discEl.innerText = "0.10";
+            if (consoleEl) consoleEl.innerText = "Hoàn thành! Bỏ qua khối else. Kết quả discount_rate = 0.10 (Tiết kiệm 75.000 VNĐ).";
           }
         }
       }
+
       function resetViz(idPrefix) {
         idPrefix = idPrefix || "viz";
-        window.vizStepMap[idPrefix] = 0;
-        runVizStep(0, idPrefix);
+        runVizStep(-999, idPrefix);
       }
 
       function vizStepNext() { runVizStep(1); }
