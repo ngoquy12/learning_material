@@ -597,6 +597,13 @@ MANDATORY RULES & DIRECTIVES:
       * Paragraph 3 (Lý do cần kiến thức mới): State clearly why the program needs a decision check (e.g., "Làm sao để máy tính tự kiểm tra giá trị từng đơn hàng để đưa ra quyết định phù hợp? Đó là lý do chúng ta cần đến cấu trúc rẽ nhánh `if`, `elif`, `else`.").
     - 🚨 ABSOLUTELY FORBIDDEN ACADEMIC JARGON IN SECTION 1 🚨: 100% FORBIDDEN dry textbook phrases like "Xung đột kỹ thuật phát sinh...", "mã nguồn chạy tuyến tính...", "quyết định loại trừ độc quyền (Mutually Exclusive Decisions)", "thực thi dòng-theo-dòng...", "biến đổi trạng thái hệ thống...".
 
+31. SECTION 5 COMPREHENSIVE SUMMARY, TIPS & TRICKS CONTRACT:
+    - Section 5 MUST be structured as "5. Tổng kết bài học & Bài tự đánh giá", containing:
+      * 5.1. Tóm tắt các ý chính: Concise key takeaways bullet points summarizing 3-5 fundamental concepts.
+      * 5.2. Các lưu ý & Mẹo lập trình (Tips & Tricks): Practical developer tips, shortcuts, and gotchas to avoid in clean callout cards.
+      * 5.3. Bài tự đánh giá nhanh: 1-page interactive self-test assessment form with check button.
+      * 5.4. Tài liệu tham khảo: External references and documentation links.
+
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
   "section1_title": "Dynamic Section 1 title matching lesson topic in Accented Vietnamese (e.g., 'Tại sao cần dùng hàm?')",

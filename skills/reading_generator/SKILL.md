@@ -23,6 +23,7 @@ All Agents MUST strictly implement all 10 core directives:
 |  6  | **100% English Code Identifiers (`snake_case`)** — Variables/placeholders MUST be English (`order_amount`, etc.) | MANDATORY |
 |  7  | **Progressive Syntax Code Sandbox per Sub-section** — Every sub-section (2.1, 2.2, 2.3...) includes a concrete Live Code Sandbox demonstrating that specific syntax variation expanding on the unified scenario | MANDATORY |
 |  8  | **Human-Like Quality Standard & Domain Agnostic** — 100% Accented Vietnamese, no AI markers, zero hardcoding for any specific tech stack | MANDATORY |
+|  9  | **Section 5 Comprehensive Summary, Tips & Tricks** — Section 5 contains 5.1 Key Takeaways, 5.2 Developer Tips & Tricks, 5.3 1-Page Interactive Self-Test, 5.4 References | MANDATORY |
 |  9  | **Callout & Gotchas System** — Key Takeaways, Best Practices & Pitfalls in strict role-based Callout boxes       | MANDATORY |
 | 10  | **Dark Terminal Output** — Console output wrapped in JetBrains Mono font with `#4ade80` text                     | MANDATORY |
 | 11  | **Minimal Italic Text** — Only use italics for captions directly below images/diagrams                           | MANDATORY |
