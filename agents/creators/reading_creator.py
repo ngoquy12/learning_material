@@ -563,13 +563,11 @@ MANDATORY RULES & DIRECTIVES:
     - This EXACT SAME scenario MUST thread continuously through ALL sections: Section 1 (Problem), Section 2 (Syntax & Progressive Sub-heading Sandboxes), Section 3 (Practical Examples), Section 4 (Gotchas), and Section 5 (Self-Test).
     - ABSOLUTELY FORBIDDEN to switch to unrelated random examples across sections.
 
-25. ULTRA-SIMPLE CONVERSATIONAL STORYTELLING FOR SECTION 1 (ĐẶT VẤN ĐỀ BẰNG CÂU CHUYỆN THỰC TẾ GIẢN DỊ):
-    - Section 1 MUST be a simple, short, friendly, and conversational real-world story that any beginner student understands in 5 seconds.
-    - Pedagogical flow (max 3 short, punchy paragraphs):
-      * Paragraph 1 (Tình huống thực tế): Introduce an everyday shopping/app scenario in simple terms (e.g., "Hãy tưởng tượng bạn đang lập trình tính năng tính phí giao hàng cho một ứng dụng mua sắm...").
-      * Paragraph 2 (Vấn đề phát sinh): Show the exact practical dilemma if all cases are treated identically (e.g., "Nếu đơn nào cũng tính phí ship 30.000 VNĐ, khách mua đơn lớn 1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng. Ngược lại, nếu miễn phí cho tất cả, đơn hàng nhỏ 20.000 VNĐ sẽ khiến cửa hàng bị lỗ nặng!").
-      * Paragraph 3 (Lý do cần kiến thức mới): State clearly why the program needs a decision check (e.g., "Làm sao để máy tính tự kiểm tra giá trị từng đơn hàng để đưa ra quyết định phù hợp? Đó là lý do chúng ta cần đến cấu trúc rẽ nhánh `if`, `elif`, `else`.").
-    - 🚨 ABSOLUTELY FORBIDDEN ACADEMIC JARGON IN SECTION 1 🚨: 100% FORBIDDEN dry textbook phrases like "Xung đột kỹ thuật phát sinh...", "mã nguồn chạy tuyến tính...", "quyết định loại trừ độc quyền (Mutually Exclusive Decisions)", "thực thi dòng-theo-dòng...", "biến đổi trạng thái hệ thống...".
+25. CONCISE SECTION 1 PROBLEM STATEMENT & MANDATORY 2D SCENE DIAGRAM CONTRACT:
+    - Section 1 MUST be short, punchy, direct, and easy to understand (max 2-3 brief paragraphs).
+    - Pedagogical flow: Real-World Business Context ➔ Practical Dilemma ➔ Need for New Concept.
+    - MANDATORY 2D FLAT VECTOR SCENE DIAGRAM: Section 1 MUST be accompanied by a wide 16:9 2D flat vector context diagram/image representing the real-world scenario (generated via `image_prompt_standard` skill).
+    - ABSOLUTELY FORBIDDEN to write long-winded, dry academic walls of text or preamble fluff.
 
 26. PROGRESSIVE SYNTAX CODE DEMO SANDBOX UNDER EVERY SUBSECTION:
     - EVERY subsection in Section 2 (`2.1`, `2.2`, `2.3`...) MUST present its own concise Live Code Sandbox / Illustration block directly under the subsection.
@@ -589,6 +587,14 @@ MANDATORY RULES & DIRECTIVES:
     - ALL code snippets, examples, and sandboxes MUST satisfy 100% syntactically complete and valid code in the target technology language.
     - NEVER truncate or leave code statements incomplete (e.g. NEVER write incomplete statements like `if attendance_percentage`). Always include full conditions, colons, indented blocks, and print calls.
     - For Python: MUST enforce exact 4-space indentation for blocks inside `if`, `elif`, `else`, `def`, `for`, `while`, `try`, `except`. NEVER omit indentation inside nested statements! All indentation errors (`IndentationError`) and syntax errors (`SyntaxError`) are FATAL.
+
+30. ULTRA-SIMPLE CONVERSATIONAL STORYTELLING CONTRACT (NO ACADEMIC JARGON):
+    - Section 1 MUST be written as a simple, short, friendly, and conversational real-world story that any beginner student understands in 5 seconds.
+    - Pedagogical story flow (max 3 short, punchy paragraphs):
+      * Paragraph 1 (Tình huống thực tế): Introduce an everyday shopping/app scenario in simple terms (e.g., "Hãy tưởng tượng bạn đang lập trình tính năng tính phí giao hàng cho một ứng dụng mua sắm...").
+      * Paragraph 2 (Vấn đề phát sinh): Show the exact practical dilemma if all cases are treated identically (e.g., "Nếu đơn nào cũng tính phí ship 30.000 VNĐ, khách mua đơn lớn 1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng. Ngược lại, nếu miễn phí cho tất cả, đơn hàng nhỏ 20.000 VNĐ sẽ khiến cửa hàng bị lỗ nặng!").
+      * Paragraph 3 (Lý do cần kiến thức mới): State clearly why the program needs a decision check (e.g., "Làm sao để máy tính tự kiểm tra giá trị từng đơn hàng để đưa ra quyết định phù hợp? Đó là lý do chúng ta cần đến cấu trúc rẽ nhánh `if`, `elif`, `else`.").
+    - 🚨 ABSOLUTELY FORBIDDEN ACADEMIC JARGON IN SECTION 1 🚨: 100% FORBIDDEN dry textbook phrases like "Xung đột kỹ thuật phát sinh...", "mã nguồn chạy tuyến tính...", "quyết định loại trừ độc quyền (Mutually Exclusive Decisions)", "thực thi dòng-theo-dòng...", "biến đổi trạng thái hệ thống...".
 
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
