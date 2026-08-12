@@ -1401,46 +1401,40 @@ print(f&quot;Total checkout amount: {total_checkout} VND&quot;)</code></pre>
                 </div>
                 <pre
                   class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="def process_checkout_pricing(order_amount: float, is_vip_customer: bool) -&gt; dict:&#10;    # 1. Determine shipping fee policy&#10;    if order_amount &gt;= 500000 or is_vip_customer:&#10;        shipping_fee = 0&#10;        shipping_status = &quot;Free Shipping&quot;&#10;    else:&#10;        shipping_fee = 30000&#10;        shipping_status = &quot;Standard Shipping&quot;&#10;&#10;    # 2. Mutually exclusive discount evaluation&#10;    if order_amount &gt;= 2000000:&#10;        discount_rate = 0.20&#10;        tier_name = &quot;Tier Gold (20% Off)&quot;&#10;    elif order_amount &gt;= 1000000:&#10;        discount_rate = 0.10&#10;        tier_name = &quot;Tier Silver (10% Off)&quot;&#10;    elif order_amount &gt;= 500000:&#10;        discount_rate = 0.05&#10;        tier_name = &quot;Tier Bronze (5% Off)&quot;&#10;    else:&#10;        discount_rate = 0.00&#10;        tier_name = &quot;Standard (No Discount)&quot;&#10;&#10;    # 3. Calculate final amounts&#10;    discount_value = order_amount * discount_rate&#10;    final_total = (order_amount - discount_value) + shipping_fee&#10;&#10;    return {&#10;        &quot;tier_name&quot;: tier_name,&#10;        &quot;discount_value&quot;: discount_value,&#10;        &quot;shipping_fee&quot;: shipping_fee,&#10;        &quot;shipping_status&quot;: shipping_status,&#10;        &quot;final_total&quot;: final_total&#10;    }&#10;&#10;# Production call demo&#10;result = process_checkout_pricing(order_amount=1500000, is_vip_customer=False)&#10;print(f&quot;Order Status: {result[&#x27;tier_name&#x27;]}&quot;)&#10;print(f&quot;Discount: {result[&#x27;discount_value&#x27;]} VND&quot;)&#10;print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">def process_checkout_pricing(order_amount: float, is_vip_customer: bool) -&gt; dict:
-    # 1. Determine shipping fee policy
-    if order_amount &gt;= 500000 or is_vip_customer:
-        shipping_fee = 0
-        shipping_status = &quot;Free Shipping&quot;
-    else:
-        shipping_fee = 30000
-        shipping_status = &quot;Standard Shipping&quot;
+                ><code id="code-sb-sec3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 3.3: Tính giảm giá và phí giao hàng cho đơn hàng&#10;order_amount = 1500000&#10;is_vip_customer = False&#10;&#10;# 1. Kiểm tra chính sách miễn phí giao hàng&#10;if order_amount &gt;= 500000 or is_vip_customer:&#10;    shipping_fee = 0&#10;    shipping_status = &quot;Miễn phí giao hàng&quot;&#10;else:&#10;    shipping_fee = 30000&#10;    shipping_status = &quot;Phí giao hàng tiêu chuẩn&quot;&#10;&#10;# 2. Xử lý mức giảm giá theo hạn mức đơn hàng&#10;if order_amount &gt;= 2000000:&#10;    discount_rate = 0.20&#10;    tier_name = &quot;Hạng Vàng (Giảm 20%)&quot;&#10;elif order_amount &gt;= 1000000:&#10;    discount_rate = 0.10&#10;    tier_name = &quot;Hạng Bạc (Giảm 10%)&quot;&#10;elif order_amount &gt;= 500000:&#10;    discount_rate = 0.05&#10;    tier_name = &quot;Hạng Đồng (Giảm 5%)&quot;&#10;else:&#10;    discount_rate = 0.00&#10;    tier_name = &quot;Hạng Tiêu chuẩn (Không giảm giá)&quot;&#10;&#10;# 3. Tính toán số tiền thanh toán cuối cùng&#10;discount_value = order_amount * discount_rate&#10;final_total = (order_amount - discount_value) + shipping_fee&#10;&#10;print(f&quot;Hạng ưu đãi: {tier_name}&quot;)&#10;print(f&quot;Số tiền giảm: {discount_value} VNĐ&quot;)&#10;print(f&quot;Phí vận chuyển: {shipping_fee} VNĐ ({shipping_status})&quot;)&#10;print(f&quot;Tổng tiền thanh toán: {final_total} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 3.3: Tính giảm giá và phí giao hàng cho đơn hàng
+order_amount = 1500000
+is_vip_customer = False
 
-    # 2. Mutually exclusive discount evaluation
-    if order_amount &gt;= 2000000:
-        discount_rate = 0.20
-        tier_name = &quot;Tier Gold (20% Off)&quot;
-    elif order_amount &gt;= 1000000:
-        discount_rate = 0.10
-        tier_name = &quot;Tier Silver (10% Off)&quot;
-    elif order_amount &gt;= 500000:
-        discount_rate = 0.05
-        tier_name = &quot;Tier Bronze (5% Off)&quot;
-    else:
-        discount_rate = 0.00
-        tier_name = &quot;Standard (No Discount)&quot;
+# 1. Kiểm tra chính sách miễn phí giao hàng
+if order_amount >= 500000 or is_vip_customer:
+    shipping_fee = 0
+    shipping_status = "Miễn phí giao hàng"
+else:
+    shipping_fee = 30000
+    shipping_status = "Phí giao hàng tiêu chuẩn"
 
-    # 3. Calculate final amounts
-    discount_value = order_amount * discount_rate
-    final_total = (order_amount - discount_value) + shipping_fee
+# 2. Xử lý mức giảm giá theo hạn mức đơn hàng
+if order_amount >= 2000000:
+    discount_rate = 0.20
+    tier_name = "Hạng Vàng (Giảm 20%)"
+elif order_amount >= 1000000:
+    discount_rate = 0.10
+    tier_name = "Hạng Bạc (Giảm 10%)"
+elif order_amount >= 500000:
+    discount_rate = 0.05
+    tier_name = "Hạng Đồng (Giảm 5%)"
+else:
+    discount_rate = 0.00
+    tier_name = "Hạng Tiêu chuẩn (Không giảm giá)"
 
-    return {
-        &quot;tier_name&quot;: tier_name,
-        &quot;discount_value&quot;: discount_value,
-        &quot;shipping_fee&quot;: shipping_fee,
-        &quot;shipping_status&quot;: shipping_status,
-        &quot;final_total&quot;: final_total
-    }
+# 3. Tính toán số tiền thanh toán cuối cùng
+discount_value = order_amount * discount_rate
+final_total = (order_amount - discount_value) + shipping_fee
 
-# Production call demo
-result = process_checkout_pricing(order_amount=1500000, is_vip_customer=False)
-print(f&quot;Order Status: {result[&#x27;tier_name&#x27;]}&quot;)
-print(f&quot;Discount: {result[&#x27;discount_value&#x27;]} VND&quot;)
-print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></pre>
+print(f"Hạng ưu đãi: {tier_name}")
+print(f"Số tiền giảm: {discount_value} VNĐ")
+print(f"Phí vận chuyển: {shipping_fee} VNĐ ({shipping_status})")
+print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
               </div>
               <div
                 id="container-sb-sec3-3"

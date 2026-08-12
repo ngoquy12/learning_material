@@ -606,6 +606,12 @@ MANDATORY RULES & DIRECTIVES:
       * Standalone section containing external authoritative documentation links.
     - 🚨 ABSOLUTELY FORBIDDEN TO CREATE SELF-TEST QUIZ WIDGETS 🚨: DO NOT embed interactive self-test quiz forms in reading.html (reading questions are strictly separated into dedicated `reading_questions.md` files).
 
+32. STRICT SCOPE BOUNDARY & UNLEARNED SYNTAX BAN CONTRACT:
+    - ALWAYS strictly check session knowledge scope (`session_id`) before generating code snippets.
+    - 🚨 ABSOLUTELY FORBIDDEN TO LEAK UNLEARNED FUTURE SYNTAX 🚨:
+      * For early sessions (Sessions 01-05): 100% FORBIDDEN to use `def` function declarations, type annotations (`: float`), `return` statements, `class` objects, or advanced data structures (`dict`/`set`) that have NOT been taught yet!
+      * Code examples MUST use plain linear variables, basic conditionals (`if/elif/else`), simple arithmetic, and `print()` calls matching student progress level.
+
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
   "section1_title": "Dynamic Section 1 title matching lesson topic in Accented Vietnamese (e.g., 'Tại sao cần dùng hàm?')",
