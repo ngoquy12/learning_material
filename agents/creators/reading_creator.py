@@ -1362,7 +1362,7 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
   <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
     <!-- Fixed Header -->
     <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
-      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+      <div class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between">
         <div class="flex items-center gap-4">
           <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
           <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">{session_title_display}</span>
@@ -1374,17 +1374,19 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
       <!-- Sidebar Table of Contents (Left Desktop) -->
-      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+      <aside class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
         <div class="space-y-4">
-          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
-          <nav class="flex flex-col border-l border-slate-200 space-y-1">
-            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. {section1_title}</a>
-            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. {section2_title}</a>
-            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
-            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
-            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          <h4 class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2">
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài đọc
+          </h4>
+          <nav class="flex flex-col border-l border-slate-200 space-y-1 text-sm">
+            <a href="#section-1" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">1. {section1_title}</a>
+            <a href="#section-2" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">2. {section2_title}</a>
+            <a href="#section-3" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+            <a href="#section-4" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">4. Tổng kết bài học</a>
+            <a href="#section-5" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">5. Tài liệu tham khảo</a>
           </nav>
         </div>
       </aside>
@@ -1402,12 +1404,12 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
               <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
               <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
             </div>
-            <nav class="flex flex-col space-y-2">
-              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. {section1_title}</a>
-              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. {section2_title}</a>
-              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
-              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
-              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">1. {section1_title}</a>
+              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">2. {section2_title}</a>
+              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">3. Các ví dụ ứng dụng thực tiễn</a>
+              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">4. Tổng kết bài học</a>
+              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">5. Tài liệu tham khảo</a>
             </nav>
           </div>
           <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
@@ -1440,9 +1442,9 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
           <div class="space-y-6">{ex_text}</div>
         </section>
 
-        <!-- Section 4: Tổng kết và các lưu ý -->
+        <!-- Section 4: Tổng kết bài học -->
         <section id="section-4" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết bài học</h2>
           <div class="space-y-4">
             {notes_html}
           </div>

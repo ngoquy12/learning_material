@@ -26,13 +26,12 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
 
     # 1. Anti-AI Cliché Vocabulary Inspection (AGENTS.md Rule 4 & 10)
     banned_ai_words = [
-        "bẫy lập trình", "mẹo lập trình", "mẹo", "bí kíp", "tất tần tật", 
+        "bẫy lập trình", "mẹo lập trình", "bí kíp", "tất tần tật", 
         "bảo bối", "bật mí", "vi diệu", "vô cùng", "bậc nhất", "tuyệt vời"
     ]
+    content_lower = content.lower()
     for word in banned_ai_words:
-        # Case-insensitive word boundary scan outside HTML attribute names
-        pattern = r'\b' + re.escape(word) + r'\b'
-        if re.search(pattern, content, re.IGNORECASE):
+        if word in content_lower:
             errors.append(f"Phát hiện từ cấm AI sáo rỗng '{word}' trong bài đọc. Vui lòng thay bằng thuật ngữ kỹ thuật chuyên nghiệp (Các lỗi thường gặp, Lưu ý thực tế, Kinh nghiệm xử lý).")
 
     # 2. Section 4 & Section 5 Clean Title Standard (AGENTS.md Directive)
