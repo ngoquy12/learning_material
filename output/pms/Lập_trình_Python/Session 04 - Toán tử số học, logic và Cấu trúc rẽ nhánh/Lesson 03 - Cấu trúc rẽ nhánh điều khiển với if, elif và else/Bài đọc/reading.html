@@ -546,6 +546,20 @@
                 4 khoảng trắng là bắt buộc để Python xác định mã lệnh thuộc về
                 nhánh nào.
               </p>
+            <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm">
+              <h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2">
+                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán (Ví dụ minh họa 2.1):
+              </h4>
+              <p class="text-sm text-slate-700 leading-relaxed m-0">
+                Cho đơn hàng trị giá <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">600.000 VNĐ</code>. Kiểm tra nếu giá trị đơn hàng đạt từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">500.000 VNĐ</code> trở lên thì cập nhật phí giao hàng về <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">0 VNĐ</code> và in phí giao hàng ra màn hình.
+              </p>
+            <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm">
+              <h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2">
+                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán (Ví dụ minh họa 2.2):
+              </h4>
+              <p class="text-sm text-slate-700 leading-relaxed m-0">
+                Cho đơn hàng mua sắm trị giá <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">320.000 VNĐ</code>. Nếu đơn hàng từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">500.000 VNĐ</code> trở lên thì miễn phí giao hàng (<code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">0 VNĐ</code>), ngược lại áp dụng phí ship tiêu chuẩn <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">30.000 VNĐ</code>. Tính và in ra tổng tiền thanh toán.
+              </p>
             </div>
             <div
               class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
@@ -908,6 +922,14 @@ else:
                 nào khớp.
               </li>
             </ul>
+            <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm">
+              <h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2">
+                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán (Ví dụ minh họa 2.3):
+              </h4>
+              <p class="text-sm text-slate-700 leading-relaxed m-0">
+                Cho đơn hàng trị giá <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">1.200.000 VNĐ</code>. Áp dụng chính sách giảm giá nhiều cấp độ: từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">2 triệu</code> trở lên giảm <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">20%</code>, từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">1 triệu</code> trở lên giảm <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">10%</code>, từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">500k</code> trở lên giảm <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">5%</code>, dưới <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">500k</code> giảm <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">0%</code>. Xác định tỷ lệ giảm giá phù hợp và in ra màn hình.
+              </p>
+            </div>
             <div
               class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
             >
@@ -1184,6 +1206,14 @@ print(f&quot;Applied discount rate: {discount_rate * 100}%&quot;)</code></pre>
               Ví dụ dưới đây thể hiện cú pháp kiểm tra cơ bản cho trường hợp áp
               dụng ưu đãi đặc biệt nếu người dùng là khách hàng VIP.
             </p>
+            <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm">
+              <h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2">
+                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán (Ví dụ ứng dụng 3.1):
+              </h4>
+              <p class="text-sm text-slate-700 leading-relaxed m-0">
+                Cho khách hàng là tài khoản VIP (<code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">is_vip_customer = True</code>). Hãy kiểm tra điều kiện nếu là tài khoản VIP thì cập nhật phí giao hàng về <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">0 VNĐ</code> và in ra kết quả.
+              </p>
+            </div>
             <div
               class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
             >
@@ -1267,6 +1297,14 @@ print(f&quot;Shipping fee: {shipping_fee} VND&quot;)</code></pre>
               Tính toán phí giao hàng dựa trên ngưỡng giá trị đơn hàng 500,000
               VNĐ. Khách hàng sẽ nhận mức phí ship tương ứng chính xác.
             </p>
+            <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm">
+              <h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2">
+                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán (Ví dụ ứng dụng 3.2):
+              </h4>
+              <p class="text-sm text-slate-700 leading-relaxed m-0">
+                Cho đơn hàng trị giá <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">320.000 VNĐ</code>. Nếu đơn hàng từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">500.000 VNĐ</code> trở lên thì miễn phí ship (<code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">0 VNĐ</code>), ngược lại tính phí ship tiêu chuẩn <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">30.000 VNĐ</code>. Tính toán tổng chi phí đơn hàng.
+              </p>
+            </div>
             <div
               class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
             >
@@ -1356,6 +1394,14 @@ print(f&quot;Total checkout amount: {total_checkout} VND&quot;)</code></pre>
               Xây dựng tính năng tính tiền đơn hàng hoàn chỉnh, tự động áp dụng
               mức giảm giá và chính sách miễn phí vận chuyển cho tài khoản VIP.
             </p>
+            <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm">
+              <h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2">
+                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán (Ví dụ ứng dụng 3.3):
+              </h4>
+              <p class="text-sm text-slate-700 leading-relaxed m-0">
+                Lập trình tính năng tính tiền hoàn chỉnh cho đơn hàng <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">1.500.000 VNĐ</code>: vừa kiểm tra miễn phí vận chuyển (nếu từ <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">500k</code> trở lên hoặc là khách VIP), vừa tự động phân hạng giảm giá (<code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">5%</code>, <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">10%</code>, <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold">20%</code>), sau đó in hóa đơn thanh toán chi tiết.
+              </p>
+            </div>
             <div
               class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
             >
