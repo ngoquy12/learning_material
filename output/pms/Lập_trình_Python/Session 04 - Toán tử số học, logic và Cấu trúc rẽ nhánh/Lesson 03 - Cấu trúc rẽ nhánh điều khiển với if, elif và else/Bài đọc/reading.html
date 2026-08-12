@@ -1934,7 +1934,7 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
         if (slider) slider.value = amount;
         if (displayEl) displayEl.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
         vizReset();
-        vizLogTerminal("✏️ Đã chọn kịch bản <code>order_amount</code> = <b>" + amount.toLocaleString("vi-VN") + " VNĐ</b>", "assign");
+        vizLogTerminal("✏️ Đã chọn order_amount = " + amount.toLocaleString("vi-VN") + " VNĐ", "assign");
       }
 
       function vizSetSpeed(ms, btn) {
@@ -1952,7 +1952,7 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
       function vizClearLog() {
         var logBox = document.getElementById("viz-terminal-log");
         if (logBox) {
-          logBox.innerHTML = '<div class="text-slate-500 italic text-xs">🧹 Đã xóa lịch sử nhật ký. Bấm "Tiếp theo" để tiếp tục...</div>';
+          logBox.innerHTML = '<div class="text-slate-500 italic text-xs">🧹 Đã xóa lịch sử. Bấm "Tiếp theo" để bắt đầu...</div>';
         }
       }
 
@@ -1963,16 +1963,16 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
         var now = new Date();
         var timeStr = now.toTimeString().split(" ")[0];
 
-        var colorStyle = "color:#e2e8f0";
+        var colorStyle = "color:#94a3b8";
         if (type === "success") colorStyle = "color:#4ade80; font-weight:bold";
         if (type === "true") colorStyle = "color:#34d399; font-weight:bold";
         if (type === "false") colorStyle = "color:#fbbf24";
-        if (type === "assign") colorStyle = "color:#38bdf8; font-weight:bold";
+        if (type === "assign") colorStyle = "color:#38bdf8";
         if (type === "print") colorStyle = "color:#c084fc; font-weight:bold";
 
         var entry = document.createElement("div");
-        entry.style.cssText = "padding:2px 0; border-bottom:1px solid rgba(51,65,85,0.4); " + colorStyle;
-        entry.innerHTML = '<span style="color:#64748b; margin-right:6px;">[' + timeStr + "]</span> " + msg;
+        entry.style.cssText = "padding:1.5px 0; border-bottom:1px solid rgba(51,65,85,0.3); font-family:monospace; font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; " + colorStyle;
+        entry.innerHTML = '<span style="color:#64748b; margin-right:4px;">[' + timeStr + "]</span> " + msg;
 
         logBox.appendChild(entry);
         logBox.scrollTop = logBox.scrollHeight;
@@ -2078,7 +2078,7 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
           vizUpdateBadges("reset", "reset", "reset");
           if (varAmt) varAmt.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
           if (status) status.innerText = "Khởi tạo order_amount = " + amount.toLocaleString("vi-VN") + " VNĐ";
-          vizLogTerminal("▶ <b>[Bước 1/5]</b> Khởi tạo <code>order_amount</code> = <b>" + amount.toLocaleString("vi-VN") + " VNĐ</b>", "assign");
+          vizLogTerminal("▶ <b>[Bước 1/5]</b> Gán order_amount = " + amount.toLocaleString("vi-VN") + " VNĐ", "assign");
         } 
         else if (step === 2) {
           vizHighlightLine(2);
@@ -2086,11 +2086,11 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
           if (isCond1) {
             vizUpdateBadges("true", "reset", "reset");
             if (status) status.innerText = "Nhánh 1 KHỚP (>= " + tier1.toLocaleString("vi-VN") + ")";
-            vizLogTerminal("🔍 <b>[Bước 2/5]</b> Kiểm tra <code>if order_amount >= " + tier1.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier1.toLocaleString("vi-VN") + ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>", "true");
+            vizLogTerminal("🔍 <b>[Bước 2/5]</b> if (" + amount.toLocaleString("vi-VN") + " >= " + tier1.toLocaleString("vi-VN") + ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>", "true");
           } else {
             vizUpdateBadges("false", "reset", "reset");
             if (status) status.innerText = "Nhánh 1 KHÔNG KHỚP. Chuyển sang elif";
-            vizLogTerminal("🔍 <b>[Bước 2/5]</b> Kiểm tra <code>if order_amount >= " + tier1.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier1.toLocaleString("vi-VN") + ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>", "false");
+            vizLogTerminal("🔍 <b>[Bước 2/5]</b> if (" + amount.toLocaleString("vi-VN") + " >= " + tier1.toLocaleString("vi-VN") + ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>", "false");
           }
         } 
         else if (step === 3) {
@@ -2100,18 +2100,18 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
             vizUpdateBadges("true", "reset", "reset");
             if (varDisc) varDisc.innerText = "0.20 (20%)";
             if (status) status.innerText = "Gán discount_rate = 0.20 (Giảm 20%)";
-            vizLogTerminal("⚡ <b>[Bước 3/5]</b> Gán <code>discount_rate = 0.20</code> (Giảm 20%). Bỏ qua các nhánh elif/else!", "assign");
+            vizLogTerminal("⚡ <b>[Bước 3/5]</b> Gán discount_rate = 0.20 (Giảm 20%)", "assign");
           } else {
             vizHighlightLine(4);
             var isCond2 = amount >= tier2;
             if (isCond2) {
               vizUpdateBadges("false", "true", "reset");
               if (status) status.innerText = "Nhánh elif KHỚP (>= " + tier2.toLocaleString("vi-VN") + ")";
-              vizLogTerminal("🔍 <b>[Bước 3/5]</b> Kiểm tra <code>elif order_amount >= " + tier2.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier2.toLocaleString("vi-VN") + ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>", "true");
+              vizLogTerminal("🔍 <b>[Bước 3/5]</b> elif (" + amount.toLocaleString("vi-VN") + " >= " + tier2.toLocaleString("vi-VN") + ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>", "true");
             } else {
               vizUpdateBadges("false", "false", "reset");
               if (status) status.innerText = "Nhánh elif KHÔNG KHỚP. Chuyển sang else";
-              vizLogTerminal("🔍 <b>[Bước 3/5]</b> Kiểm tra <code>elif order_amount >= " + tier2.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier2.toLocaleString("vi-VN") + ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>", "false");
+              vizLogTerminal("🔍 <b>[Bước 3/5]</b> elif (" + amount.toLocaleString("vi-VN") + " >= " + tier2.toLocaleString("vi-VN") + ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>", "false");
             }
           }
         } 
@@ -2122,19 +2122,19 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
             vizHighlightLine(8);
             vizUpdateBadges("true", "reset", "reset");
             if (status) status.innerText = "Hoàn thành nhánh 1";
-            vizLogTerminal("🎯 <b>[Bước 4/5]</b> In kết quả ➔ <code>'Tỷ lệ giảm giá: 20%'</code>", "print");
+            vizLogTerminal("🎯 <b>[Bước 4/5]</b> In ➔ 'Tỷ lệ giảm giá: 20%'", "print");
           } else if (isCond2) {
             vizHighlightLine(5);
             vizUpdateBadges("false", "true", "reset");
             if (varDisc) varDisc.innerText = "0.05 (5%)";
             if (status) status.innerText = "Gán discount_rate = 0.05 (Giảm 5%)";
-            vizLogTerminal("⚡ <b>[Bước 4/5]</b> Gán <code>discount_rate = 0.05</code> (Giảm 5%). Bỏ qua nhánh else!", "assign");
+            vizLogTerminal("⚡ <b>[Bước 4/5]</b> Gán discount_rate = 0.05 (Giảm 5%)", "assign");
           } else {
             vizHighlightLine(7);
             vizUpdateBadges("false", "false", "active-else");
             if (varDisc) varDisc.innerText = "0.00 (0%)";
             if (status) status.innerText = "Rơi vào nhánh else mặc định (0%)";
-            vizLogTerminal("⚡ <b>[Bước 4/5]</b> Nhánh else mặc định: Gán <code>discount_rate = 0.00</code> (Không giảm giá)", "assign");
+            vizLogTerminal("⚡ <b>[Bước 4/5]</b> Nhánh else: Gán discount_rate = 0.00", "assign");
           }
         } 
         else if (step === 5) {
@@ -2145,8 +2145,8 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
           else finalRate = 0;
 
           if (status) status.innerText = "Hoàn thành mô phỏng rẽ nhánh!";
-          vizLogTerminal("🎯 <b>[Bước 5/5]</b> In kết quả ➔ <code>'Tỷ lệ giảm giá áp dụng: " + finalRate + "%'</code>", "print");
-          vizLogTerminal("✅ <b>HOÀN THÀNH LUỒNG THỰC THI THÀNH CÔNG!</b>", "success");
+          vizLogTerminal("🎯 <b>[Bước 5/5]</b> In ➔ 'Tỷ lệ giảm giá áp dụng: " + finalRate + "%'", "print");
+          vizLogTerminal("✅ <b>HOÀN THÀNH LUỒNG MÔ PHỎNG!</b>", "success");
         }
       }
 
