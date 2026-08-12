@@ -1017,179 +1017,141 @@ print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></
               id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc-step-by-step-execution-visualizer"
               class="font-montserrat font-bold text-xl text-slate-900 mb-3"
             >
-              2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution
-              Visualizer)
+              2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer & Live Editor)
             </h3>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Công cụ trực quan dưới đây mô phỏng thứ tự kiểm tra từ trên xuống
-              dưới của luồng điều khiển
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >if-elif-else</code
-              >
-              khi tính mức giảm giá cho đơn hàng 750,000 VNĐ.
+              Công cụ trực quan dưới đây cho phép bạn <strong>chỉnh sửa giá trị mã nguồn trực tiếp trong Editor</strong> (thử thay đổi giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">order_amount</code>). Khi bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong>, hệ thống sẽ tự động highlight từng dòng mã lệnh đang thực thi và ghi lịch sử chạy chi tiết từng bước vào <strong>Terminal Console Log</strong>!
             </p>
-            <div
-              class="p-5 rounded-xl bg-slate-50 border border-slate-200 my-6 text-slate-800"
-            >
-              <div
-                class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3"
-              >
-                Mô phỏng cơ chế rẽ nhánh theo thời gian thực
+
+            <!-- Trình mô phỏng trực quan tương tác có Editor chỉnh sửa được -->
+            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl my-6 text-slate-100 overflow-hidden">
+              
+              <!-- Header Bar & Preset Buttons -->
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                  <span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm"></span>
+                  <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span>
+                  <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm"></span>
+                  <span class="text-xs font-mono font-bold text-slate-300 ml-2 flex items-center gap-1.5">
+                    <i class="ph-bold ph-code text-rikkei-red"></i> LIVE EXECUTION VISUALIZER & TRACER
+                  </span>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-sans">
+                  <span class="text-slate-400">Thử nhanh kịch bản:</span>
+                  <button onclick="vizSetPreset(750000)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">Đơn 750k (5%)</button>
+                  <button onclick="vizSetPreset(2500000)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">Đơn 2.5Tr (20%)</button>
+                  <button onclick="vizSetPreset(300000)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">Đơn 300k (0%)</button>
+                </div>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div
-                  class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm"
-                >
-                  <div
-                    class="text-xs font-semibold text-slate-500 uppercase mb-2"
-                  >
-                    Mã nguồn đang thực thi
+
+              <!-- Main Grid: Code Editor (Left) & Variable Table + Terminal Log (Right) -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+                
+                <!-- Left Column: Editable Code Editor -->
+                <div class="flex flex-col bg-slate-950/80 rounded-xl border border-slate-800 overflow-hidden shadow-inner">
+                  <div class="bg-slate-800/80 px-4 py-2 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700">
+                    <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+                      <i class="ph-bold ph-pencil-line"></i> BẢNG CHỈNH SỬA CODE (LIVE EDITOR)
+                    </span>
+                    <span class="text-[11px] text-slate-400 italic">Nhấp vào số tiền để chỉnh sửa</span>
                   </div>
-                  <div class="font-mono text-xs space-y-1.5">
-                    <div
-                      id="viz-line-1"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700"
-                    >
-                      <span class="text-purple-600 font-semibold"
-                        >order_amount</span
-                      >
-                      = 750000
+                  <div id="viz-code-display" class="p-3 font-mono text-xs text-slate-200 space-y-1 overflow-x-auto min-h-[220px]">
+                    <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
+                      <span class="text-slate-600 select-none w-4 text-right">1</span>
+                      <span class="text-slate-300">order_amount = <span id="viz-edit-amount" contenteditable="true" spellcheck="false" class="bg-slate-800 px-1.5 py-0.5 rounded text-emerald-300 font-bold border border-emerald-500/50 outline-none">750000</span></span>
                     </div>
-                    <div
-                      id="viz-line-2"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700"
-                    >
-                      <span class="text-blue-600 font-semibold">if</span>
-                      order_amount &gt;= 2000000:
+                    <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
+                      <span class="text-slate-600 select-none w-4 text-right">2</span>
+                      <span class="text-purple-400 font-bold">if</span> <span class="text-slate-200">order_amount &gt;= <span id="viz-edit-tier1" contenteditable="true" spellcheck="false" class="bg-slate-800 px-1 py-0.5 rounded text-sky-300 outline-none">2000000</span>:</span>
                     </div>
-                    <div
-                      id="viz-line-3"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700 pl-6"
-                    >
-                      discount_rate = 0.20
+                    <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2 pl-6">
+                      <span class="text-slate-600 select-none w-4 text-right">3</span>
+                      <span class="text-slate-300">discount_rate = 0.20</span>
                     </div>
-                    <div
-                      id="viz-line-4"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700"
-                    >
-                      <span class="text-blue-600 font-semibold">elif</span>
-                      order_amount &gt;= 500000:
+                    <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
+                      <span class="text-slate-600 select-none w-4 text-right">4</span>
+                      <span class="text-purple-400 font-bold">elif</span> <span class="text-slate-200">order_amount &gt;= <span id="viz-edit-tier2" contenteditable="true" spellcheck="false" class="bg-slate-800 px-1 py-0.5 rounded text-sky-300 outline-none">500000</span>:</span>
                     </div>
-                    <div
-                      id="viz-line-5"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700 pl-6"
-                    >
-                      discount_rate = 0.10
+                    <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2 pl-6">
+                      <span class="text-slate-600 select-none w-4 text-right">5</span>
+                      <span class="text-slate-300">discount_rate = 0.05</span>
                     </div>
-                    <div
-                      id="viz-line-6"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700"
-                    >
-                      <span class="text-blue-600 font-semibold">else</span>:
+                    <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
+                      <span class="text-slate-600 select-none w-4 text-right">6</span>
+                      <span class="text-purple-400 font-bold">else</span><span class="text-slate-200">:</span>
                     </div>
-                    <div
-                      id="viz-line-7"
-                      class="p-1.5 rounded transition-colors duration-200 text-slate-700 pl-6"
-                    >
-                      discount_rate = 0.00
+                    <div id="viz-line-7" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2 pl-6">
+                      <span class="text-slate-600 select-none w-4 text-right">7</span>
+                      <span class="text-slate-300">discount_rate = 0.00</span>
+                    </div>
+                    <div id="viz-line-8" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
+                      <span class="text-slate-600 select-none w-4 text-right">8</span>
+                      <span class="text-yellow-300">print</span><span class="text-slate-200">(f"Tỷ lệ giảm giá: {discount_rate * 100}%")</span>
                     </div>
                   </div>
                 </div>
-                <div class="space-y-4">
-                  <div
-                    class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm"
-                  >
-                    <div
-                      class="text-xs font-semibold text-slate-500 uppercase mb-2"
-                    >
-                      Bảng bộ nhớ &amp; Trạng thái biến
+
+                <!-- Right Column: Memory Table + Terminal Console Log History -->
+                <div class="flex flex-col space-y-4">
+                  
+                  <!-- Variable Memory Table -->
+                  <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 shadow-inner">
+                    <div class="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                      <span class="flex items-center gap-1.5"><i class="ph-bold ph-database"></i> BẢNG BỘ NHỚ RAM (VARIABLES)</span>
+                      <span id="viz-step-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[11px] font-normal">Chưa khởi chạy</span>
                     </div>
-                    <div
-                      class="overflow-x-auto my-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden"
-                    >
-                      <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                          <tr class="border-b border-slate-200">
-                            <th class="py-1 font-semibold text-slate-600">
-                              Tên biến
-                            </th>
-                            <th class="py-1 font-semibold text-slate-600">
-                              Giá trị
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr class="border-b border-slate-100">
-                            <td class="py-1.5 font-mono text-slate-700">
-                              order_amount
-                            </td>
-                            <td
-                              class="py-1.5 font-mono text-slate-900 font-bold"
-                              id="viz-var-amount"
-                            >
-                              750000
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="py-1.5 font-mono text-slate-700">
-                              discount_rate
-                            </td>
-                            <td
-                              class="py-1.5 font-mono text-emerald-600 font-bold"
-                              id="viz-var-discount"
-                            >
-                              0.00
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                    <div class="grid grid-cols-2 gap-2 text-xs font-mono">
+                      <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                        <span class="text-slate-400 block text-[11px]">order_amount</span>
+                        <span id="viz-var-amount" class="text-emerald-400 font-bold text-sm">750,000 VNĐ</span>
+                      </div>
+                      <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
+                        <span class="text-slate-400 block text-[11px]">discount_rate</span>
+                        <span id="viz-var-discount" class="text-amber-400 font-bold text-sm">0.00 (0%)</span>
+                      </div>
                     </div>
                   </div>
-                  <div
-                    class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm"
-                  >
-                    <div
-                      class="text-xs font-semibold text-slate-500 uppercase mb-2"
-                    >
-                      Màn hình Console Nhật ký
+
+                  <!-- Terminal Console History Log -->
+                  <div class="flex-1 bg-slate-950/90 rounded-xl border border-slate-800 overflow-hidden flex flex-col shadow-inner">
+                    <div class="bg-slate-800/80 px-3.5 py-2 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700">
+                      <span class="font-bold text-purple-400 flex items-center gap-1.5">
+                        <i class="ph-bold ph-terminal-window"></i> TERMINAL LOG LỊCH SỬ CHẠY TỪNG BƯỚC
+                      </span>
+                      <button onclick="vizClearLog()" class="hover:text-rose-400 text-slate-400 text-[11px] transition-colors flex items-center gap-1">
+                        <i class="ph-bold ph-trash"></i> Xóa log
+                      </button>
                     </div>
-                    <div
-                      id="viz-console"
-                      class="font-mono text-xs text-slate-700 bg-slate-50 p-2.5 rounded border border-slate-200 min-h-[70px]"
-                    >
-                      Sẵn sàng chạy mô phỏng. Bấm "Tiếp theo" để bắt đầu.
+                    <div id="viz-terminal-log" class="p-3 font-mono text-[12px] space-y-1.5 max-h-[160px] overflow-y-auto bg-black/40 leading-relaxed select-text">
+                      <div class="text-slate-400 italic">🚀 Bấm "Tiếp theo" hoặc "Tự động chạy" để ghi lịch sử chạy...</div>
                     </div>
                   </div>
+
+                </div>
+
+              </div>
+
+              <!-- Control Buttons Bar -->
+              <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-3">
+                <div class="text-xs text-slate-400 font-mono">
+                  Trạng thái: <span id="viz-status-text" class="text-emerald-400 font-semibold">Sẵn sàng mô phỏng</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button id="viz-btn-prev" onclick="vizStepPrev()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1">
+                    <i class="ph-bold ph-caret-left"></i> Lùi lại
+                  </button>
+                  <button id="viz-btn-next" onclick="vizStepNext()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] hover:bg-red-700 text-white flex items-center gap-1">
+                    <i class="ph-bold ph-caret-right"></i> Tiếp theo
+                  </button>
+                  <button id="viz-btn-auto" onclick="vizAutoRun()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1">
+                    <i class="ph-bold ph-play"></i> Tự động chạy
+                  </button>
+                  <button id="viz-btn-reset" onclick="vizReset()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1">
+                    <i class="ph-bold ph-arrow-counter-clockwise"></i> Đặt lại
+                  </button>
                 </div>
               </div>
-              <div class="flex flex-wrap gap-2 justify-end">
-                <button
-                  id="viz-btn-prev"
-                  onclick="vizStepPrev()"
-                  class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800 disabled:opacity-50"
-                >
-                  Lùi lại</button
-                ><button
-                  id="viz-btn-next"
-                  onclick="vizStepNext()"
-                  class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] text-slate-700 hover:bg-[#90000a]"
-                >
-                  Tiếp theo</button
-                ><button
-                  id="viz-btn-auto"
-                  onclick="vizAutoRun()"
-                  class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-white"
-                >
-                  Tự động chạy</button
-                ><button
-                  id="viz-btn-reset"
-                  onclick="vizReset()"
-                  class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800"
-                >
-                  Thử lại
-                </button>
-              </div>
+
             </div>
           </div>
         </section>
@@ -1914,85 +1876,196 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
       // Global Dynamic Visualizer Runner Helpers
       window.vizStepMap = {};
       window.vizAutoTimer = null;
+      window.vizStepIndex = 0;
+
+      function getVizAmount() {
+        var el = document.getElementById("viz-edit-amount");
+        if (!el) return 750000;
+        var val = parseInt(el.innerText.replace(/[^0-9]/g, ""), 10);
+        return isNaN(val) ? 750000 : val;
+      }
+
+      function getVizTier1() {
+        var el = document.getElementById("viz-edit-tier1");
+        if (!el) return 2000000;
+        var val = parseInt(el.innerText.replace(/[^0-9]/g, ""), 10);
+        return isNaN(val) ? 2000000 : val;
+      }
+
+      function getVizTier2() {
+        var el = document.getElementById("viz-edit-tier2");
+        if (!el) return 500000;
+        var val = parseInt(el.innerText.replace(/[^0-9]/g, ""), 10);
+        return isNaN(val) ? 500000 : val;
+      }
+
+      function vizSetPreset(amount) {
+        var editEl = document.getElementById("viz-edit-amount");
+        if (editEl) editEl.innerText = amount.toString();
+        vizReset();
+        vizLogTerminal("✏️ Đã cập nhật <code>order_amount</code> = <b>" + amount.toLocaleString("vi-VN") + " VNĐ</b>", "assign");
+      }
+
+      function vizClearLog() {
+        var logBox = document.getElementById("viz-terminal-log");
+        if (logBox) {
+          logBox.innerHTML = '<div class="text-slate-500 italic text-xs">🧹 Đã xóa lịch sử nhật ký. Bấm "Tiếp theo" để tiếp tục...</div>';
+        }
+      }
+
+      function vizLogTerminal(msg, type) {
+        var logBox = document.getElementById("viz-terminal-log");
+        if (!logBox) return;
+
+        var now = new Date();
+        var timeStr = now.toTimeString().split(" ")[0];
+
+        var colorStyle = "color:#e2e8f0";
+        if (type === "success") colorStyle = "color:#4ade80; font-weight:bold";
+        if (type === "true") colorStyle = "color:#34d399; font-weight:bold";
+        if (type === "false") colorStyle = "color:#fbbf24";
+        if (type === "assign") colorStyle = "color:#38bdf8; font-weight:bold";
+        if (type === "print") colorStyle = "color:#c084fc; font-weight:bold";
+
+        var entry = document.createElement("div");
+        entry.style.cssText = "padding:2px 0; border-bottom:1px solid rgba(51,65,85,0.4); " + colorStyle;
+        entry.innerHTML = '<span style="color:#64748b; margin-right:6px;">[' + timeStr + "]</span> " + msg;
+
+        logBox.appendChild(entry);
+        logBox.scrollTop = logBox.scrollHeight;
+      }
+
+      function vizHighlightLine(lineNo) {
+        for (var i = 1; i <= 8; i++) {
+          var el = document.getElementById("viz-line-" + i);
+          if (el) {
+            el.style.backgroundColor = "";
+            el.style.borderLeft = "4px solid transparent";
+            el.style.fontWeight = "normal";
+          }
+        }
+        if (lineNo > 0) {
+          var activeEl = document.getElementById("viz-line-" + lineNo);
+          if (activeEl) {
+            activeEl.style.backgroundColor = "rgba(16, 185, 129, 0.25)";
+            activeEl.style.borderLeft = "4px solid #10b981";
+            activeEl.style.fontWeight = "bold";
+          }
+        }
+      }
 
       function runVizStep(delta, idPrefix) {
-        idPrefix = idPrefix || "viz";
-
-        var lines = document.querySelectorAll(
-          '[id^="' +
-            idPrefix +
-            '-line-"], [id*="-line-"], [id^="viz-line-"], [id^="mech-line-"]',
-        );
-        var maxSteps = lines.length > 0 ? lines.length : 1;
-
-        if (delta === -999) {
-          window.vizStepMap[idPrefix] = 0;
-          if (window.vizAutoTimer) {
-            clearInterval(window.vizAutoTimer);
-            window.vizAutoTimer = null;
-            var btn = document.getElementById("viz-auto-btn");
-            if (btn) btn.textContent = "Tự động chạy";
-          }
-        } else if (delta === 0) {
-          if (window.vizAutoTimer) {
-            clearInterval(window.vizAutoTimer);
-            window.vizAutoTimer = null;
-            var btn = document.getElementById("viz-auto-btn");
-            if (btn) btn.textContent = "Tự động chạy";
-          }
-        } else {
-          var curr = (window.vizStepMap[idPrefix] || 0) + delta;
-          if (curr > maxSteps) curr = 0;
-          if (curr < 0) curr = 0;
-          window.vizStepMap[idPrefix] = curr;
+        if (idPrefix && idPrefix !== "viz") {
+          return;
         }
 
-        var step = window.vizStepMap[idPrefix];
+        var amount = getVizAmount();
+        var tier1 = getVizTier1();
+        var tier2 = getVizTier2();
 
-        // 1. Highlight active code line dynamically across any lesson or tech stack
-        lines.forEach(function (el) {
-          el.style.backgroundColor = "";
-          el.style.borderLeft = "4px solid transparent";
-          el.style.fontWeight = "normal";
-          el.style.color = "";
-          el.classList.remove("active-line");
-        });
+        if (delta === -999) {
+          window.vizStepIndex = 0;
+          if (window.vizAutoTimer) {
+            clearInterval(window.vizAutoTimer);
+            window.vizAutoTimer = null;
+            var btn = document.getElementById("viz-btn-auto");
+            if (btn) btn.innerHTML = '<i class="ph-bold ph-play"></i> Tự động chạy';
+          }
+          vizHighlightLine(0);
+          var varAmt = document.getElementById("viz-var-amount");
+          var varDisc = document.getElementById("viz-var-discount");
+          var badge = document.getElementById("viz-step-badge");
+          var status = document.getElementById("viz-status-text");
 
-        if (step > 0 && lines.length >= step) {
-          var activeEl = lines[step - 1];
-          if (activeEl) {
-            activeEl.classList.add("active-line");
-            activeEl.style.backgroundColor = "#d1fae5"; // Soft emerald green highlight
-            activeEl.style.borderLeft = "4px solid #059669"; // Bold emerald left bar
-            activeEl.style.fontWeight = "bold";
-            activeEl.style.color = "#064e3b";
+          if (varAmt) varAmt.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
+          if (varDisc) varDisc.innerText = "0.00 (0%)";
+          if (badge) badge.innerText = "Chưa khởi chạy";
+          if (status) status.innerText = "Sẵn sàng mô phỏng";
+          return;
+        }
 
-            var consoleEl =
-              document.getElementById(idPrefix + "-console") ||
-              document.getElementById("viz-console");
-            if (consoleEl) {
-              var customMsg = activeEl.getAttribute("data-console");
-              if (customMsg) {
-                consoleEl.innerText = customMsg;
-              } else {
-                var lineText = (
-                  activeEl.innerText ||
-                  activeEl.textContent ||
-                  ""
-                ).trim();
-                consoleEl.innerText =
-                  "Bước " + step + "/" + maxSteps + ": Thực thi " + lineText;
-              }
+        var maxSteps = 5;
+        if (delta > 0) {
+          window.vizStepIndex += 1;
+          if (window.vizStepIndex > maxSteps) window.vizStepIndex = 1;
+        } else if (delta < 0) {
+          window.vizStepIndex -= 1;
+          if (window.vizStepIndex < 1) window.vizStepIndex = maxSteps;
+        }
+
+        var step = window.vizStepIndex;
+        var badge = document.getElementById("viz-step-badge");
+        var status = document.getElementById("viz-status-text");
+        var varAmt = document.getElementById("viz-var-amount");
+        var varDisc = document.getElementById("viz-var-discount");
+
+        if (badge) badge.innerText = "Bước " + step + "/5";
+
+        if (step === 1) {
+          vizHighlightLine(1);
+          if (varAmt) varAmt.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
+          if (status) status.innerText = "Khởi tạo order_amount = " + amount.toLocaleString("vi-VN") + " VNĐ";
+          vizLogTerminal("▶ <b>[Bước 1/5]</b> Khởi tạo <code>order_amount</code> = <b>" + amount.toLocaleString("vi-VN") + " VNĐ</b>", "assign");
+        } 
+        else if (step === 2) {
+          vizHighlightLine(2);
+          var isCond1 = amount >= tier1;
+          if (isCond1) {
+            if (status) status.innerText = "Nhánh 1 KHỚP (>= " + tier1.toLocaleString("vi-VN") + ")";
+            vizLogTerminal("🔍 <b>[Bước 2/5]</b> Kiểm tra <code>if order_amount >= " + tier1.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier1.toLocaleString("vi-VN") + ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>", "true");
+          } else {
+            if (status) status.innerText = "Nhánh 1 KHÔNG KHỚP. Chuyển sang elif";
+            vizLogTerminal("🔍 <b>[Bước 2/5]</b> Kiểm tra <code>if order_amount >= " + tier1.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier1.toLocaleString("vi-VN") + ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>", "false");
+          }
+        } 
+        else if (step === 3) {
+          var isCond1 = amount >= tier1;
+          if (isCond1) {
+            vizHighlightLine(3);
+            if (varDisc) varDisc.innerText = "0.20 (20%)";
+            if (status) status.innerText = "Gán discount_rate = 0.20 (Giảm 20%)";
+            vizLogTerminal("⚡ <b>[Bước 3/5]</b> Gán <code>discount_rate = 0.20</code> (Giảm 20%). Bỏ qua các nhánh elif/else!", "assign");
+          } else {
+            vizHighlightLine(4);
+            var isCond2 = amount >= tier2;
+            if (isCond2) {
+              if (status) status.innerText = "Nhánh elif KHỚP (>= " + tier2.toLocaleString("vi-VN") + ")";
+              vizLogTerminal("🔍 <b>[Bước 3/5]</b> Kiểm tra <code>elif order_amount >= " + tier2.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier2.toLocaleString("vi-VN") + ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>", "true");
+            } else {
+              if (status) status.innerText = "Nhánh elif KHÔNG KHỚP. Chuyển sang else";
+              vizLogTerminal("🔍 <b>[Bước 3/5]</b> Kiểm tra <code>elif order_amount >= " + tier2.toLocaleString("vi-VN") + "</code> (" + amount.toLocaleString("vi-VN") + " >= " + tier2.toLocaleString("vi-VN") + ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>", "false");
             }
           }
-        } else if (step === 0) {
-          var consoleEl =
-            document.getElementById(idPrefix + "-console") ||
-            document.getElementById("viz-console");
-          if (consoleEl) {
-            consoleEl.innerText =
-              'Sẵn sàng chạy mô phỏng. Bấm "Tiếp theo" để bắt đầu.';
+        } 
+        else if (step === 4) {
+          var isCond1 = amount >= tier1;
+          var isCond2 = amount >= tier2;
+          if (isCond1) {
+            vizHighlightLine(8);
+            if (status) status.innerText = "Hoàn thành nhánh 1";
+            vizLogTerminal("🎯 <b>[Bước 4/5]</b> In kết quả ➔ <code>'Tỷ lệ giảm giá: 20%'</code>", "print");
+          } else if (isCond2) {
+            vizHighlightLine(5);
+            if (varDisc) varDisc.innerText = "0.05 (5%)";
+            if (status) status.innerText = "Gán discount_rate = 0.05 (Giảm 5%)";
+            vizLogTerminal("⚡ <b>[Bước 4/5]</b> Gán <code>discount_rate = 0.05</code> (Giảm 5%). Bỏ qua nhánh else!", "assign");
+          } else {
+            vizHighlightLine(7);
+            if (varDisc) varDisc.innerText = "0.00 (0%)";
+            if (status) status.innerText = "Rơi vào nhánh else mặc định (0%)";
+            vizLogTerminal("⚡ <b>[Bước 4/5]</b> Nhánh else mặc định: Gán <code>discount_rate = 0.00</code> (Không giảm giá)", "assign");
           }
+        } 
+        else if (step === 5) {
+          vizHighlightLine(8);
+          var finalRate = 0;
+          if (amount >= tier1) finalRate = 20;
+          else if (amount >= tier2) finalRate = 5;
+          else finalRate = 0;
+
+          if (status) status.innerText = "Hoàn thành mô phỏng rẽ nhánh!";
+          vizLogTerminal("🎯 <b>[Bước 5/5]</b> In kết quả ➔ <code>'Tỷ lệ giảm giá áp dụng: " + finalRate + "%'</code>", "print");
+          vizLogTerminal("✅ <b>HOÀN THÀNH LUỒNG THỰC THI THÀNH CÔNG!</b>", "success");
         }
       }
 
