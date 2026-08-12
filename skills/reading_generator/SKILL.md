@@ -19,12 +19,11 @@ All Agents MUST strictly implement all 10 core directives:
 |  2  | **10-Minute Micro-Learning** — Bullet Lists & Sublists instead of monolithic text                                | MANDATORY |
 |  3  | **Ultra-Simple Conversational Storytelling for Section 1** — Friendly real-world story (max 3 short paragraphs: Scenario ➔ Conflict ➔ Need for new concept) with ZERO academic jargon ("Xung đột kỹ thuật", "chạy tuyến tính", "loại trừ độc quyền"), accompanied by a 2D Flat Vector Image | MANDATORY |
 |  4  | **2D Flat Vector Image Integration (No HTML/CSS SVG Manual Code)** — 2D Flat Vector Technical Scene Image (via `image_prompt_standard` skill) auto-cropped around visual bounding box (`w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm`) with NO border, NO background box, NO text clipping, ZERO blank margins, Code Sandboxes per sub-section (2.1, 2.2...), Step Code Visualizer | MANDATORY |
-|  5  | **Plain Developer Language & No Academic Jargon** — Plain Vietnamese, NO dry textbook formulas or unverified claims, NO text emojis, Phosphor SVG icons ONLY | MANDATORY |
+|  5  | **Plain Developer Language & Banned Jargon** — Plain engineering Vietnamese, NO juvenile/AI cliché words ("bẫy lập trình", "mẹo", "bí kíp", "tất tần tật", "bảo bối"). Use "Các lỗi thường gặp", "Lưu ý thực tế", "Kinh nghiệm xử lý" | MANDATORY |
 |  6  | **100% English Code Identifiers (`snake_case`)** — Variables/placeholders MUST be English (`order_amount`, etc.) | MANDATORY |
 |  7  | **Progressive Syntax Code Sandbox per Sub-section** — Every sub-section (2.1, 2.2, 2.3...) includes a concrete Live Code Sandbox demonstrating that specific syntax variation expanding on the unified scenario | MANDATORY |
 |  8  | **Human-Like Quality Standard & Domain Agnostic** — 100% Accented Vietnamese, no AI markers, zero hardcoding for any specific tech stack | MANDATORY |
-|  9  | **Section 5 Strict Summary & Tips (No Self-Test Quiz Form)** — Section 5 title MUST BE EXACTLY "5. Tổng kết và các lưu ý", containing 5.1 Key Takeaways, 5.2 Developer Tips & Tricks, 5.3 References. ABSOLUTELY FORBIDDEN to include self-test quiz forms (separated into `reading_questions.md`) | MANDATORY |
-|  9  | **Callout & Gotchas System** — Key Takeaways, Best Practices & Pitfalls in strict role-based Callout boxes       | MANDATORY |
+|  9  | **Section 4 & Section 5 Architecture Standard** — Section 4 is "4. Tổng kết bài học" (Key Takeaways + Common Pitfalls callout cards). Section 5 is "5. Tài liệu tham khảo" (Standalone references). ABSOLUTELY FORBIDDEN self-test quiz forms inside reading.html | MANDATORY |
 | 10  | **Dark Terminal Output** — Console output wrapped in JetBrains Mono font with `#4ade80` text                     | MANDATORY |
 | 11  | **Minimal Italic Text** — Only use italics for captions directly below images/diagrams                           | MANDATORY |
 

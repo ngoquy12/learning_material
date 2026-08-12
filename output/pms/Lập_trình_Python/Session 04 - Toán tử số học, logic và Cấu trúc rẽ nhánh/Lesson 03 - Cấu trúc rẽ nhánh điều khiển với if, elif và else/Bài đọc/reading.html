@@ -1465,108 +1465,16 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
           </div>
         </section>
 
-        <!-- Section 4: Các lỗi thường gặp và bẫy lập trình -->
+        <!-- Section 4: Tổng kết bài học -->
         <section id="section-4" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            4. Các lỗi thường gặp và bẫy lập trình
-          </h2>
-          <div class="space-y-4">
-            <div
-              class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-warning-circle text-rose-600"></i> 4.1. Lỗi
-                logic đặt sai thứ tự điều kiện trong chuỗi if-elif-else
-              </h4>
-              <p class="text-sm leading-relaxed mb-2">
-                Vì Python đánh giá biểu thức từ trên xuống dưới, việc xếp điều
-                kiện tổng quát (nhỏ hơn) lên trước điều kiện cụ thể (lớn hơn) sẽ
-                làm vô hiệu hóa các nhánh phía sau.
-              </p>
-              <p
-                class="text-sm leading-relaxed font-mono bg-white p-2 rounded border border-rose-200 text-rose-900"
-              >
-                # LỖI: Đơn hàng 2,500,000 VNĐ sẽ bị lọt vào nhánh &gt;= 500k và
-                dừng lại (chỉ giảm 5% thay vì 20%) if order_amount &gt;= 500000:
-                discount_rate = 0.05 elif order_amount &gt;= 2000000:
-                discount_rate = 0.20
-              </p>
-            </div>
-            <div
-              class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-x-circle text-rose-600"></i> 4.2. Tránh lặp
-                code và kiểm tra điều kiện dư thừa (Redundant Conditions)
-              </h4>
-              <p class="text-sm leading-relaxed mb-2">
-                Khi các nhánh đã mang tính loại trừ độc quyền, không cần lặp lại
-                điều kiện cận trên ở các câu lệnh
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >elif</code
-                >
-                tiếp theo.
-              </p>
-              <p
-                class="text-sm leading-relaxed font-mono bg-white p-2 rounded border border-rose-200 text-rose-900"
-              >
-                # KHÔNG TỐI ƯU: Điều kiện order_amount &lt; 2000000 là dư thừa
-                vì elif chỉ chạy khi if trước đó False elif order_amount &gt;=
-                1000000 and order_amount &lt; 2000000: discount_rate = 0.10
-              </p>
-            </div>
-            <div
-              class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-white my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg font-bold text-amber-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-warning text-amber-600"></i> 4.3. Quên thụt
-                lùi dòng (IndentationError) và lồng ghép quá sâu (Deep Nesting)
-              </h4>
-              <p class="text-sm leading-relaxed">
-                Quên thụt lùi dòng sau dấu hai chấm
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >:</code
-                >
-                sẽ trực tiếp gây ra lỗi
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >IndentationError</code
-                >
-                làm dừng chương trình. Ngoài ra, việc lồng quá 3 cấp
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >if</code
-                >
-                bên trong một
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >if</code
-                >
-                khác (Deep Nesting) sẽ làm suy giảm nghiêm trọng tính dễ đọc và
-                bảo trì của mã nguồn.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 5: Tổng kết bài học và tài liệu tham khảo -->
-        <section id="section-5" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            5. Tổng kết bài học và tài liệu tham khảo
+            4. Tổng kết bài học
           </h2>
 
-          <!-- 5.1. Tóm tắt các ý chính -->
+          <!-- Tóm tắt kiến thức trọng tâm -->
           <div class="mb-6">
             <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              5.1. Tóm tắt các ý chính
+              Kiến thức trọng tâm
             </h3>
             <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
               <li>
@@ -1578,7 +1486,7 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
                   >
                   đơn:</strong
                 >
-                Sử dụng khi chỉ muốn chạy một khối lệnh khi điều kiện đúng
+                Sử dụng khi chỉ muốn thực hiện một khối lệnh khi điều kiện đúng
                 (<code
                   class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs"
                   >True</code
@@ -1623,91 +1531,116 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
             </ul>
           </div>
 
-          <!-- 5.2. Các lưu ý & Mẹo lập trình (Tips & Tricks) -->
-          <div class="mb-6">
+          <!-- Các lỗi thường gặp và lưu ý thực tế -->
+          <div class="space-y-4">
             <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              5.2. Các lưu ý & Mẹo lập trình (Tips & Tricks)
+              Các lỗi thường gặp & Lưu ý thực tế
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-              <div
-                class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800"
+            <div
+              class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"
+            >
+              <h4
+                class="font-montserrat font-bold text-lg text-rose-900 mb-2 flex items-center gap-2"
               >
-                <h4
-                  class="font-montserrat font-bold text-base text-emerald-900 mb-2 flex items-center gap-2"
-                >
-                  <i class="ph-bold ph-lightbulb text-emerald-600"></i> Mẹo 1:
-                  Viết điều kiện Boolean chuẩn Pythonic
-                </h4>
-                <p class="text-sm leading-relaxed text-slate-700">
-                  Viết
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs"
-                    >if is_vip:</code
-                  >
-                  thay vì
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-white text-slate-600 font-mono text-xs"
-                    >if is_vip == True:</code
-                  >. Mã nguồn vừa ngắn gọn vừa mượt mà.
-                </p>
-              </div>
-              <div
-                class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800"
+                <i class="ph-bold ph-warning-circle text-rose-600"></i> Lỗi
+                logic đặt sai thứ tự điều kiện trong chuỗi if-elif-else
+              </h4>
+              <p class="text-sm leading-relaxed mb-2">
+                Vì Python đánh giá biểu thức từ trên xuống dưới, việc xếp điều
+                kiện tổng quát (nhỏ hơn) lên trước điều kiện cụ thể (lớn hơn) sẽ
+                làm vô hiệu hóa các nhánh phía sau.
+              </p>
+              <p
+                class="text-sm leading-relaxed font-mono bg-white p-2 rounded border border-rose-200 text-rose-900"
               >
-                <h4
-                  class="font-montserrat font-bold text-base text-sky-900 mb-2 flex items-center gap-2"
+                # LỖI: Đơn hàng 2.500.000 VNĐ sẽ bị lọt vào nhánh &gt;= 500k và
+                dừng lại (chỉ giảm 5% thay vì 20%)<br />
+                if order_amount &gt;= 500000:<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;discount_rate = 0.05<br />
+                elif order_amount &gt;= 2000000:<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;discount_rate = 0.20
+              </p>
+            </div>
+            <div
+              class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"
+            >
+              <h4
+                class="font-montserrat font-bold text-lg text-rose-900 mb-2 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-x-circle text-rose-600"></i> Tránh lặp
+                code và kiểm tra điều kiện dư thừa
+              </h4>
+              <p class="text-sm leading-relaxed mb-2">
+                Khi các nhánh đã mang tính loại trừ, không cần lặp lại
+                điều kiện cận trên ở các câu lệnh
+                <code
+                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                  >elif</code
                 >
-                  <i class="ph-bold ph-check-circle text-sky-600"></i> Mẹo 2:
-                  Đặt điều kiện ngặt nghèo lên trước
-                </h4>
-                <p class="text-sm leading-relaxed text-slate-700">
-                  Luôn đặt hạn mức giá trị lớn nhất (ví dụ
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs"
-                    >>= 2.000.000</code
-                  >) ở đầu chuỗi
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs"
-                    >if</code
-                  >
-                  để không bị lọt nhánh giảm giá nhỏ hơn.
-                </p>
-              </div>
+                tiếp theo.
+              </p>
+              <p
+                class="text-sm leading-relaxed font-mono bg-white p-2 rounded border border-rose-200 text-rose-900"
+              >
+                # KHÔNG TỐI ƯU: Điều kiện order_amount &lt; 2000000 là dư thừa<br />
+                elif order_amount &gt;= 1000000 and order_amount &lt; 2000000:<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;discount_rate = 0.10
+              </p>
             </div>
             <div
               class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"
             >
               <h4
-                class="font-montserrat font-bold text-base text-amber-900 mb-2 flex items-center gap-2"
+                class="font-montserrat font-bold text-lg text-amber-900 mb-2 flex items-center gap-2"
               >
-                <i class="ph-bold ph-warning text-amber-600"></i> Lưu ý: Tránh
-                điều kiện dư thừa ở elif
+                <i class="ph-bold ph-warning text-amber-600"></i> Quên thụt
+                lùi dòng (IndentationError) và lồng ghép quá sâu
               </h4>
-              <p class="text-sm leading-relaxed text-slate-700">
-                Vì nhánh
+              <p class="text-sm leading-relaxed">
+                Quên thụt lùi dòng sau dấu hai chấm
                 <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs"
-                  >elif</code
+                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                  >:</code
                 >
-                chỉ chạy khi
+                sẽ trực tiếp gây ra lỗi
                 <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs"
+                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                  >IndentationError</code
+                >
+                làm dừng chương trình. Ngoài ra, việc lồng quá 3 cấp
+                <code
+                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
                   >if</code
                 >
-                trước đó bị sai, bạn không cần lặp lại vế cận trên (tránh viết
+                bên trong một
                 <code
-                  class="px-1.5 py-0.5 rounded bg-white text-slate-600 font-mono text-xs"
-                  >elif amount >= 500000 and amount &lt; 2000000:</code
-                >).
+                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                  >if</code
+                >
+                khác (Deep Nesting) sẽ làm suy giảm tính dễ đọc và bảo trì của mã nguồn.
+              </p>
+            </div>
+            <div
+              class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"
+            >
+              <h4
+                class="font-montserrat font-bold text-lg text-emerald-900 mb-2 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-lightbulb text-emerald-600"></i> Viết điều kiện Boolean chuẩn Pythonic
+              </h4>
+              <p class="text-sm leading-relaxed">
+                Nên viết <code class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs">if is_vip:</code> thay vì <code class="px-1.5 py-0.5 rounded bg-white text-slate-600 font-mono text-xs">if is_vip == True:</code>. Mã nguồn vừa ngắn gọn, vừa đúng phong cách lập trình chuyên nghiệp.
               </p>
             </div>
           </div>
+        </section>
 
-          <!-- 5.3. Tài liệu tham khảo -->
+        <!-- Section 5: Tài liệu tham khảo -->
+        <section id="section-5" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            5. Tài liệu tham khảo
+          </h2>
           <div class="pt-2">
-            <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              5.3. Tài liệu tham khảo
-            </h3>
             <ul class="space-y-2 list-none pl-0">
               <li>
                 <a

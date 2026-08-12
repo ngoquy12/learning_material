@@ -575,9 +575,9 @@ MANDATORY RULES & DIRECTIVES:
       * For Conditional Statements: `2.1 if` (Pass check) ➔ `2.2 if-else` (Pass vs Retake) ➔ `2.3 if-elif-else` (Grade classification).
       * For For Loops: `2.1 range()` (Index loop) ➔ `2.2 list loop` (Iterate score list) ➔ `2.3 enumerate()` (Student name and score pairs).
 
-27. PLAIN DEVELOPER LANGUAGE & ZERO ACADEMIC JARGON CONTRACT:
+27. PLAIN DEVELOPER LANGUAGE & BANNED JARGON CONTRACT:
     - 100% FORBIDDEN to use dry academic textbook formulas, overly complex enterprise jargon ('Kịch bản Enterprise', 'Động cơ tính toán', 'Thi hành tuyến tính', 'Thực thi sản xuất'), unverified claims, or hyperbolic AI fluff ("khám phá", "vô cùng", "bậc nhất", "tuyệt vời").
-    - 🚨 STRICT PROHIBITION OF OVERLY FORMAL / TECH-OVERFLOW WORDS 🚨: NEVER use words like "Kịch bản Enterprise", "Động cơ", "Thi hành", "Tuyến tính", "Loại trừ độc quyền", "Nhiệm vụ sản xuất",...
+    - 🚨 STRICT PROHIBITION OF JUVENILE / AI CLICHÉ WORDS 🚨: ABSOLUTELY FORBIDDEN to use words like "bẫy lập trình", "mẹo", "mẹo lập trình", "bí kíp", "tất tần tật", "bảo bối", "bật mí", "vi diệu"! These sound juvenile and artificial. Use clean, professional engineering terms instead: "Các lỗi thường gặp", "Lưu ý thực tế", "Kinh nghiệm xử lý", "Quy tắc tối ưu".
     - Use clear, practical, friendly, learner-friendly developer Vietnamese ("Ví dụ thực tế", "Ví dụ hoàn chỉnh", "Chương trình", "Chạy code", "Giúp bạn kiểm tra...").
 
 28. DOMAIN-AGNOSTIC & ZERO HARDCODING CONTRACT:
@@ -597,14 +597,14 @@ MANDATORY RULES & DIRECTIVES:
       * Paragraph 3 (Lý do cần kiến thức mới): State clearly why the program needs a decision check (e.g., "Làm sao để máy tính tự kiểm tra giá trị từng đơn hàng để đưa ra quyết định phù hợp? Đó là lý do chúng ta cần đến cấu trúc rẽ nhánh `if`, `elif`, `else`.").
     - 🚨 ABSOLUTELY FORBIDDEN ACADEMIC JARGON IN SECTION 1 🚨: 100% FORBIDDEN dry textbook phrases like "Xung đột kỹ thuật phát sinh...", "mã nguồn chạy tuyến tính...", "quyết định loại trừ độc quyền (Mutually Exclusive Decisions)", "thực thi dòng-theo-dòng...", "biến đổi trạng thái hệ thống...".
 
-31. SECTION 4 & SECTION 5 STRICT NON-DUPLICATE TITLES CONTRACT:
-    - Section 4 Title MUST BE EXACTLY: "4. Các lỗi thường gặp và bẫy lập trình".
-    - Section 5 Title MUST BE EXACTLY: "5. Tổng kết bài học và tài liệu tham khảo".
-    - 🚨 ABSOLUTELY FORBIDDEN TO REPEAT SECTION TITLES 🚨: Section 4 and Section 5 MUST NOT use duplicate titles like "Tổng kết và các lưu ý"!
-    - Section 5 MUST strictly contain:
-      * 5.1. Tóm tắt các ý chính: Concise key takeaways bullet points summarizing 3-5 fundamental concepts taught in the lesson.
-      * 5.2. Các mẹo lập trình hay (Tips & Tricks): Practical developer tips, shortcuts, and gotchas to avoid in clean callout cards.
-      * 5.3. Tài liệu tham khảo: External authoritative documentation links.
+31. SECTION 4 & SECTION 5 STRICT ARCHITECTURE CONTRACT:
+    - Section 4 Title MUST BE EXACTLY: "4. Tổng kết bài học".
+      * Sub-structure inside Section 4:
+        1. Kiến thức trọng tâm: Concise key takeaways bullet points summarizing 3-5 fundamental concepts.
+        2. Các lỗi thường gặp & Lưu ý thực tế: Common pitfalls and gotchas in clean callout cards (NO "bẫy lập trình", NO "mẹo"!).
+    - Section 5 Title MUST BE EXACTLY: "5. Tài liệu tham khảo".
+      * Standalone section containing external authoritative documentation links.
+    - 🚨 ABSOLUTELY FORBIDDEN TO CREATE SELF-TEST QUIZ WIDGETS 🚨: DO NOT embed interactive self-test quiz forms in reading.html (reading questions are strictly separated into dedicated `reading_questions.md` files).
 
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
