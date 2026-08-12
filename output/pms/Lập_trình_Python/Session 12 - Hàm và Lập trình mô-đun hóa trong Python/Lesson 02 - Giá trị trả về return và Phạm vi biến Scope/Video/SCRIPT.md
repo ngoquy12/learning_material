@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 12 - Lesson 02: Giá trị trả về return và Phạm vi biến Scope -->

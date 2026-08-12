@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 08 - Lesson 01: Khởi tạo List, Tuple và Khái niệm Chỉ số Indexing -->

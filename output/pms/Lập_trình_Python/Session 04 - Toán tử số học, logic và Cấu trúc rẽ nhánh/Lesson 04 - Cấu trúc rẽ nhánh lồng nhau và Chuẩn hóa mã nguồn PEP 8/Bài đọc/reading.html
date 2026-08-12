@@ -413,7 +413,7 @@
 Trong quy trình duyệt voucher đặc quyền tại ShopeeFood, hệ thống phải trải qua 2 cấp xác thực: Đầu tiên kiểm tra tài khoản người dùng đã đăng nhập và hoạt động bình thường hay chưa; Tiếp theo nếu tài khoản hợp lệ mới tiến hành kiểm tra giá trị đơn hàng có đạt từ 500.000 VNĐ trở lên để tặng voucher giảm giá 50.000 VNĐ.
 </p>
 <p class="text-slate-600 mb-4 leading-relaxed">
-Việc lồng ghép <code>if</code> bên trong <code>if</code> được gọi là <strong>Cấu trúc rẽ nhánh lồng nhau (Nested if)</strong>. Đồng thời, lập trình viên cần tuân thủ quy tắc <strong>Chuẩn hóa mã nguồn PEP 8</strong> để giữ mã nguồn sạch đẹp.
+Việc lồng ghép một câu lệnh <code>if</code> bên trong một câu lệnh <code>if</code> khác được gọi là <strong>Cấu trúc rẽ nhánh lồng nhau (Nested if)</strong>. Tuy nhiên, việc lồng quá sâu sẽ làm cho mã nguồn trở nên rối rắm. Do đó, kỹ sư phần mềm cần tuân thủ quy tắc <strong>Chuẩn hóa mã nguồn PEP 8</strong> để giữ cho mã nguồn sạch đẹp, dễ đọc và dễ bảo trì.
 </p>
 
           </div>
@@ -433,40 +433,56 @@ Việc lồng ghép <code>if</code> bên trong <code>if</code> được gọi l�
           <div class="space-y-4">
             
 <h3 id="sec-2-1-cau-truc-re-nhanh-long-nhau" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp và cơ chế hoạt động của Cấu trúc rẽ nhánh lồng nhau (Nested if)</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Một câu lệnh <code>if</code> có thể chứa câu lệnh <code>if</code> khác bên trong. Độ thụt lùi dòng tăng thêm 4 khoảng trắng cho mỗi cấp.</p>
+<p class="text-slate-600 mb-4 leading-relaxed">
+Một câu lệnh <code>if</code> có thể chứa một hoặc nhiều câu lệnh <code>if</code> khác bên trong khối lệnh của nó. Mức độ thụt lùi dòng sẽ tăng thêm 4 khoảng trắng cho mỗi cấp lồng nhau.
+</p>
 
-<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
-  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Duyệt Voucher đặc quyền ShopeeFood 2 cấp):</div>
-  <p class="text-sm text-slate-700">Tài khoản active = True và đơn từ 500.000 VNĐ mới tặng voucher 50.000 VNĐ.</p>
+<!-- Syntax Card -->
+<div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp cấu trúc rẽ nhánh lồng nhau (Nested if)</span>
+    </span>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">if outer_condition:
+    # Khối lệnh cấp 1 (Thụt lùi 4 spaces)
+    if inner_condition:
+        # Khối lệnh cấp 2 (Thụt lùi 8 spaces)
+        print("Cả 2 điều kiện đều True")</code></pre>
 </div>
+
+<!-- Live Code Sandbox -->
 <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
   <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
     <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button type="button" onclick="clearSandbox('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
-      <button type="button" onclick="runPythonCode('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
-      <button type="button" onclick="copySandboxCode('code-sb-2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+      <button onclick="clearSandbox('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button onclick="runPythonCode('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button onclick="copySandboxCode('code-sb-2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
     </div>
     <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2-1" class="language-python" contenteditable="true" spellcheck="false" data-original="is_user_active = True
 order_amount = 600000
 
 if is_user_active:
-    print('Tài khoản hợp lệ.')
+    print('Tài khoản hoạt động hợp lệ.')
     if order_amount >= 500000:
-        print('Đơn hàng đủ điều kiện: Tặng voucher 50.000 VNĐ!')
+        print('Đơn hàng đủ điều kiện ➔ Tặng voucher đặc quyền 50.000 VNĐ!')
     else:
-        print('Đơn hàng chưa đủ 500k.')
+        print('Đơn hàng chưa đủ 500k ➔ Không áp dụng voucher.')
 else:
-    print('Tài khoản bị khóa.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_user_active = True
+    print('Tài khoản bị khóa hoặc chưa đăng nhập.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_user_active = True
 order_amount = 600000
 
 if is_user_active:
-    print('Tài khoản hợp lệ.')
+    print('Tài khoản hoạt động hợp lệ.')
     if order_amount >= 500000:
-        print('Đơn hàng đủ điều kiện: Tặng voucher 50.000 VNĐ!')
+        print('Đơn hàng đủ điều kiện ➔ Tặng voucher đặc quyền 50.000 VNĐ!')
     else:
-        print('Đơn hàng chưa đủ 500k.')
+        print('Đơn hàng chưa đủ 500k ➔ Không áp dụng voucher.')
 else:
-    print('Tài khoản bị khóa.')</code></pre>
+    print('Tài khoản bị khóa hoặc chưa đăng nhập.')</code></pre>
   </div>
   <div id="container-sb-2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
     <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
@@ -477,42 +493,14 @@ else:
 </div>
 
 <h3 id="sec-2-2-chuan-hoa-ma-nguon-pep8" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Quy tắc chuẩn hóa mã nguồn Python theo tiêu chuẩn PEP 8</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Hướng dẫn chuẩn hóa cách viết mã nguồn Python đồng nhất trong doanh nghiệp.</p>
-
-<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
-  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Phẳng hóa mã nguồn theo chuẩn PEP 8):</div>
-  <p class="text-sm text-slate-700">Sử dụng toán tử and để phẳng hóa câu lệnh if lồng nhau rối rắm.</p>
-</div>
-<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
-  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
-    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button type="button" onclick="clearSandbox('code-sb-2-2', 'output-sb-2-2', 'container-sb-2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
-      <button type="button" onclick="runPythonCode('code-sb-2-2', 'output-sb-2-2', 'container-sb-2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
-      <button type="button" onclick="copySandboxCode('code-sb-2-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
-    </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2-2" class="language-python" contenteditable="true" spellcheck="false" data-original="is_user_active = True
-order_amount = 600000
-
-# Tối ưu phẳng hóa theo chuẩn PEP 8
-if is_user_active and order_amount >= 500000:
-    print('Áp dụng voucher đặc quyền thành công!')
-else:
-    print('Không đủ điều kiện nhận voucher.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_user_active = True
-order_amount = 600000
-
-# Tối ưu phẳng hóa theo chuẩn PEP 8
-if is_user_active and order_amount >= 500000:
-    print('Áp dụng voucher đặc quyền thành công!')
-else:
-    print('Không đủ điều kiện nhận voucher.')</code></pre>
-  </div>
-  <div id="container-sb-2-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
-    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
-      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
-    </div>
-    <pre id="output-sb-2-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
-  </div>
-</div>
+<p class="text-slate-600 mb-4 leading-relaxed">
+<strong>PEP 8</strong> là tài liệu hướng dẫn quy chuẩn viết mã chính thức cho ngôn ngữ Python. Tuân thủ PEP 8 giúp mã nguồn đồng nhất và chuyên nghiệp trong các dự án phần mềm doanh nghiệp:
+</p>
+<ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
+  <li><strong class="text-slate-900">Thụt lùi dòng (Indentation)</strong>: Bắt buộc dùng 4 khoảng trắng (spaces) cho mỗi cấp độ lồng nhau. Không trộn lẫn phím Tab và phím Space.</li>
+  <li><strong class="text-slate-900">Khoảng trắng xung quanh toán tử</strong>: Sử dụng đúng 1 khoảng trắng trước và sau các toán tử gán (<code>=</code>) và so sánh (<code>==</code>, <code>>=</code>).</li>
+  <li><strong class="text-slate-900">Quy tắc đặt tên biến</strong>: Sử dụng kiểu <code>snake_case</code> chữ thường phân cách bằng dấu gạch dưới (ví dụ: <code>order_total_amount</code>).</li>
+</ul>
 
           </div>
 
@@ -680,113 +668,39 @@ else:
           <div class="space-y-6">
             
 <h3 id="sec-3-1-xac-thuc-giao-dich-duyet-voucher-pep8" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Tối ưu hóa xác thực duyệt voucher ShopeeFood chuẩn PEP 8</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Duyệt voucher bằng điều kiện kết hợp chuẩn PEP 8.</p>
-<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
-  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.1 - Duyệt Voucher chuẩn PEP 8):</div>
-  <p class="text-sm text-slate-700">Duyệt voucher cho người dùng active và đơn từ 500k.</p>
-</div>
+<p class="text-slate-600 mb-4 leading-relaxed">
+Thay vì lồng ghép quá nhiều cấp <code>if</code>, sử dụng toán tử logic <code>and</code> để phẳng hóa cấu trúc mã nguồn theo đúng khuyến nghị của PEP 8.
+</p>
+
+<!-- Live Sandbox 3.1 -->
 <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
   <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
     <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button type="button" onclick="clearSandbox('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
-      <button type="button" onclick="runPythonCode('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
-      <button type="button" onclick="copySandboxCode('code-sb-3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+      <button onclick="clearSandbox('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button onclick="runPythonCode('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button onclick="copySandboxCode('code-sb-3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
     </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="is_active = True
-order_val = 600000
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="is_user_active = True
+order_amount = 600000
 
-if is_active and order_val >= 500000:
-    print('Áp mã voucher thành công!')
+# Tối ưu phẳng hóa điều kiện theo chuẩn PEP 8
+if is_user_active and order_amount >= 500000:
+    print('Tài khoản hợp lệ & Đơn từ 500k ➔ Áp dụng voucher thành công!')
 else:
-    print('Không đủ điều kiện.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_active = True
-order_val = 600000
+    print('Không đủ điều kiện nhận voucher đặc quyền.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_user_active = True
+order_amount = 600000
 
-if is_active and order_val >= 500000:
-    print('Áp mã voucher thành công!')
+# Tối ưu phẳng hóa điều kiện theo chuẩn PEP 8
+if is_user_active and order_amount >= 500000:
+    print('Tài khoản hợp lệ & Đơn từ 500k ➔ Áp dụng voucher thành công!')
 else:
-    print('Không đủ điều kiện.')</code></pre>
+    print('Không đủ điều kiện nhận voucher đặc quyền.')</code></pre>
   </div>
   <div id="container-sb-3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
     <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
       <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
     </div>
     <pre id="output-sb-3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
-  </div>
-</div>
-
-<h3 id="sec-3-2-kiem-tra-gian-lan-don-hang" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Cấu trúc lồng nhau kiểm tra rủi ro gian lận đơn hàng</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Kiểm tra địa chỉ IP nghi vấn và số lượng đơn hàng trong ngày.</p>
-<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
-  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.2 - Phát hiện gian lận ShopeeFood):</div>
-  <p class="text-sm text-slate-700">Nếu IP không bị cảnh báo (is_suspicious_ip = False) mới kiểm tra số đơn trong ngày < 10.</p>
-</div>
-<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
-  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
-    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button type="button" onclick="clearSandbox('code-sb-3-2', 'output-sb-3-2', 'container-sb-3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
-      <button type="button" onclick="runPythonCode('code-sb-3-2', 'output-sb-3-2', 'container-sb-3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
-      <button type="button" onclick="copySandboxCode('code-sb-3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
-    </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="is_suspicious_ip = False
-daily_orders_count = 4
-
-if not is_suspicious_ip:
-    if daily_orders_count < 10:
-        print('Đơn hàng an toàn: Cho phép đặt hàng.')
-    else:
-        print('Cảnh báo: Đặt quá 10 đơn/ngày.')
-else:
-    print('Từ chối đơn: IP thuộc danh sách đen.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_suspicious_ip = False
-daily_orders_count = 4
-
-if not is_suspicious_ip:
-    if daily_orders_count < 10:
-        print('Đơn hàng an toàn: Cho phép đặt hàng.')
-    else:
-        print('Cảnh báo: Đặt quá 10 đơn/ngày.')
-else:
-    print('Từ chối đơn: IP thuộc danh sách đen.')</code></pre>
-  </div>
-  <div id="container-sb-3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
-    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
-      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
-    </div>
-    <pre id="output-sb-3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
-  </div>
-</div>
-
-<h3 id="sec-3-3-chuan-hoa-ten-bien-pep8" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Chuẩn hóa tên biến và thụt lùi dòng theo quy định PEP 8</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Áp dụng đặt tên biến `snake_case` và thụt lùi 4 spaces chuẩn xác.</p>
-<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
-  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.3 - Chuẩn hóa mã nguồn đơn hàng):</div>
-  <p class="text-sm text-slate-700">Đặt tên biến theo chuẩn snake_case như total_order_amount và user_discount_code.</p>
-</div>
-<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
-  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
-    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button type="button" onclick="clearSandbox('code-sb-3-3', 'output-sb-3-3', 'container-sb-3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
-      <button type="button" onclick="runPythonCode('code-sb-3-3', 'output-sb-3-3', 'container-sb-3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
-      <button type="button" onclick="copySandboxCode('code-sb-3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
-    </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="total_order_amount = 450000
-user_discount_code = 'SUMMER2026'
-
-if total_order_amount >= 300000 and user_discount_code == 'SUMMER2026':
-    print('Mã hợp lệ: Giảm 50.000 VNĐ!')
-else:
-    print('Mã không hợp lệ.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">total_order_amount = 450000
-user_discount_code = 'SUMMER2026'
-
-if total_order_amount >= 300000 and user_discount_code == 'SUMMER2026':
-    print('Mã hợp lệ: Giảm 50.000 VNĐ!')
-else:
-    print('Mã không hợp lệ.')</code></pre>
-  </div>
-  <div id="container-sb-3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
-    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
-      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
-    </div>
-    <pre id="output-sb-3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
   </div>
 </div>
 
@@ -804,15 +718,15 @@ else:
 <div class="space-y-4">
   <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4">
     <div class="font-bold text-rose-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-warning-circle text-rose-600"></i> Lỗi thường gặp 1: Lồng ghép điều kiện quá sâu (Deep Nesting)</div>
-    <p class="text-sm text-slate-700">Lồng quá 3 cấp <code>if</code> bên trong nhau sẽ tạo ra mã nguồn dạng kim tự tháp (Pyramid of Doom).</p>
+    <p class="text-sm text-slate-700">Lồng quá 3 cấp <code>if</code> bên trong nhau sẽ tạo ra mã nguồn dạng kim tự tháp (Pyramid of Doom), khiến mã cực kỳ khó đọc và dễ bỏ sót trường hợp kiểm tra. Hãy gộp điều kiện bằng toán tử <code>and</code>.</p>
   </div>
   <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4">
     <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-lightning text-amber-600"></i> Lỗi thường gặp 2: Trộn lẫn phím Tab và phím Space</div>
-    <p class="text-sm text-slate-700">Vi phạm quy tắc PEP 8 khi trộn lẫn phím Tab và 4 phím Space gây lỗi <code>TabError</code>.</p>
+    <p class="text-sm text-slate-700">Vi phạm quy tắc PEP 8 khi trộn lẫn phím Tab và 4 phím Space trong cùng một tập tin sẽ làm trình biên dịch Python 3 báo lỗi <code>TabError: inconsistent use of tabs and spaces in indentation</code>.</p>
   </div>
   <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
-    <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-brackets-curly text-sky-600"></i> Lỗi thường gặp 3: Đặt tên biến sai quy chuẩn PEP 8</div>
-    <p class="text-sm text-slate-700">Đặt tên biến bằng kiểu CamelCase thay vì <code>snake_case</code> vi phạm quy chuẩn PEP 8.</p>
+    <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-brackets-curly text-sky-600"></i> Lỗi thường gặp 3: Đặt tên biến viết hoa sai quy chuẩn PEP 8</div>
+    <p class="text-sm text-slate-700">Đặt tên biến bằng kiểu CamelCase (như <code>OrderAmount</code>) thay vì <code>snake_case</code> (như <code>order_amount</code>) vi phạm quy chuẩn PEP 8 dành cho biến số trong Python.</p>
   </div>
 </div>
 

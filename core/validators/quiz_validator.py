@@ -57,6 +57,11 @@ def validate_quiz_json(quiz_data: List[Dict[str, Any]], lesson_scope_rules: Dict
         if re.search(r"```[a-z]*[\s\S]+?```[a-z]+", question) or any(re.search(r"```[a-z]*[\s\S]+?```[a-z]+", opt) for opt in options):
             errors.append(f"Câu {i}: Vi phạm Cú pháp - Thẻ đóng code block bị lỗi nhầm thành ```python thay vì ```")
 
+        # Check 5: Instant Feedback Quality Check for E-Learning
+        instant_fb = item.get("instant_feedback")
+        if instant_fb is not None and not str(instant_fb).strip():
+            errors.append(f"Câu {i}: Vi phạm Quy chuẩn Quiz E-Learning - Trường instant_feedback bị để rỗng")
+
     return len(errors) == 0, errors
 
 

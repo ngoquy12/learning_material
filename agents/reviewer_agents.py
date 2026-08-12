@@ -81,7 +81,7 @@ def check_unaccented_vietnamese(text: str) -> str:
     unaccented_patterns = [
         r"\bphan mem\b", r"\bthuc te\b", r"\bdoanh nghiep\b", r"\bky su\b",
         r"\bdong thoi\b", r"\bphien ban\b", r"\bthu vien\b", r"\btren mot\b",
-        r"\bneu nguoi\b", r"\btoan cuc\b", r"\bcua python\b", r"\bdu an\b",
+        r"\bneu nguoi\b", r"\btoan cuc\b", r"\bngon ngu\b", r"\bdu an\b",
         r"\bnghiem trong\b", r"\bgiai quyet\b", r"\btriet de\b", r"\bnha phat trien\b",
         r"\bnam ro\b", r"\bco che\b", r"\bvan hanh\b", r"\bhe thong\b",
         r"\bbien path\b", r"\bcommand line\b", r"\bhe dieu hanh\b", r"\bkhong tim\b",

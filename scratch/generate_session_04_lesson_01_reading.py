@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-base_dir = Path(r"d:\Rikkei Education\Elearning_Agent\Learning-Material")
+base_dir = Path(__file__).resolve().parent.parent
 if str(base_dir) not in sys.path:
     sys.path.insert(0, str(base_dir))
 
@@ -14,8 +14,8 @@ from core.renderers.reading_renderer import assemble_reading_html
 from core.validators.reading_validator import validate_reading_material
 
 def generate_lesson_01():
-    base_dir = Path(r"d:\Rikkei Education\Elearning_Agent\Learning-Material")
-    target_dir = base_dir / r"output\pms\Lập_trình_Python\Session 04 - Toán tử số học, logic và Cấu trúc rẽ nhánh\Lesson 01 - Toán tử số học và toán tử gán\Bài đọc"
+    base_dir = Path(__file__).resolve().parent.parent
+    target_dir = base_dir / r"output\pms\Lập_trình_Python\Session 04 - Toán tử Số học, Toán tử So sánh và Toán tử Logic trong Python\Lesson 01 - Toán tử Số học và Toán tử Gán\Bài đọc"
     target_dir.mkdir(parents=True, exist_ok=True)
     
     img_dir = target_dir / "images"

@@ -1,11 +1,18 @@
-import os
-import re
-from typing import List, Dict, Any, Optional
-from pptx import Presentation
-from pptx.util import Inches, Pt
-from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.enum.shapes import MSO_SHAPE
+try:
+    from pptx import Presentation
+    from pptx.util import Inches, Pt
+    from pptx.dml.color import RGBColor
+    from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+    from pptx.enum.shapes import MSO_SHAPE
+    HAS_PPTX = True
+except ImportError:
+    HAS_PPTX = False
+    Presentation = None
+    RGBColor = lambda *a: None
+    Inches = Pt = lambda *a: None
+    class _DummyEnum:
+        def __getattr__(self, name): return None
+    PP_ALIGN = MSO_ANCHOR = MSO_SHAPE = _DummyEnum()
 
 class PPTXGeneratorAgent:
     """
@@ -115,6 +122,9 @@ class PPTXGeneratorAgent:
         """
         Generates a 16:9 Widescreen PowerPoint Presentation (.pptx).
         """
+        if not HAS_PPTX:
+            print("  [PPTX Generator Warning] python-pptx is not installed. Skipping PPTX generation.")
+            return b""
         prs = self._create_base_presentation()
         blank_layout = prs.slide_layouts[6]
         copyright_text = "© 2026 By Rikkei Education - All rights reserved."

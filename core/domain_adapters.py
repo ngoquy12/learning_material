@@ -49,6 +49,14 @@ DOMAIN_RULES = {
 2. Security Practices: Never run container as root user (`USER 1000:1000`).
 3. Explicit Tagging: Avoid `latest` tag; pin base image versions.
 4. Layer Caching: Copy dependencies before source code to optimize build cache.
+""",
+
+    "office/productivity": """
+=== INDUSTRY ADAPTER: OFFICE PRODUCTIVITY & BUSINESS APPLICATION (EXCEL / WORD / POWERPOINT) ===
+1. Professional Document & Data Formatting: Follow official administrative document standards (Nghị định 30/2020/NĐ-CP for Word), clean typography, proper margins, and high-contrast color palettes.
+2. Robust Excel Formula Design: Favor uppercase standard functions (`IF`, `AND`, `OR`, `VLOOKUP`, `XLOOKUP`, `SUMIFS`, `INDEX/MATCH`). Use relative and absolute cell references (`$A$1`) correctly.
+3. Logical Data Organization: Structure Excel tables cleanly with clear headers, proper data types (Date, Currency, Number), and Conditional Formatting.
+4. Presentation Mastery (PowerPoint): Use 16:9 widescreen layout, 3-30-300 rule (max 3 keypoints per slide, max 30 words per keypoint), Master Slide layout consistency, and clear data visualization charts.
 """
 }
 
@@ -104,10 +112,20 @@ def get_domain_rules(tech_stack: str) -> str:
         return DOMAIN_RULES["web/frontend"]
     elif any(kw in stack_lower for kw in ["sql", "postgres", "mysql", "db", "database"]):
         return DOMAIN_RULES["database/sql"]
+    elif any(kw in stack_lower for kw in ["office", "excel", "word", "powerpoint", "tinhocvanphong", "workspace"]):
+        return DOMAIN_RULES["office/productivity"]
     elif any(kw in stack_lower for kw in ["docker", "k8s", "devops", "ci/cd"]):
         return DOMAIN_RULES["devops/docker"]
         
-    return ""
+    # Universal Dynamic Fallback for ANY arbitrary CLO/PLO course (Data Science, UI/UX, Cybersecurity, Mobile, Networking...)
+    stack_clean = tech_stack.upper().strip()
+    return f"""
+=== GENERAL INDUSTRY ADAPTER: {stack_clean} ===
+1. Professional Standards & Best Practices: Follow official industry standards, production guidelines, and clean design patterns for {stack_clean}.
+2. Modular & Structured Approach: Organize deliverables logically into clear components, modules, or sequential steps.
+3. Edge Case & Exception Handling: Identify potential risk scenarios, invalid inputs, or failure states and incorporate proactive guards.
+4. Clear Documentation & Identifiers: Use standard English technical terms for identifiers/components and 100% Accented Vietnamese for explanations.
+"""
 
 
 def get_enterprise_domain_prompt(tech_stack: str, lesson_topic: str = "") -> str:

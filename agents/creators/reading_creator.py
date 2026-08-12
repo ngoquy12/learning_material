@@ -30,7 +30,7 @@ def convert_markdown_to_html(md_text: str) -> str:
     
     # Process code blocks
     def _replace_code_block(match):
-        lang = match.group(1) or "python"
+        lang = match.group(1) or "text"
         code_content = html.escape(match.group(2).strip())
         return f'<div class="my-4 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm"><div class="px-4 py-2 bg-slate-100 text-xs font-mono text-slate-700 border-b border-slate-200 flex justify-between"><span>{lang.upper()} CODE</span></div><pre class="p-4 m-0 overflow-x-auto"><code class="hljs language-{lang}">{code_content}</code></pre></div>'
 

@@ -25,7 +25,7 @@ def generate_lesson_02_reading():
     lesson_title = "Toán tử so sánh và toán tử logic"
     tech_stack = "python"
 
-    out_dir = PROJECT_ROOT / "output" / "pms" / "Lập_trình_Python" / "Session 04 - Toán tử số học, logic và Cấu trúc rẽ nhánh" / "Lesson 02 - Toán tử so sánh và toán tử logic" / "Bài đọc"
+    out_dir = PROJECT_ROOT / "output" / "pms" / "Lập_trình_Python" / "Session 04 - Toán tử Số học, Toán tử So sánh và Toán tử Logic trong Python" / "Lesson 02 - Cơ chế so sánh và Biểu thức logic Boolean" / "Bài đọc"
     out_dir.mkdir(parents=True, exist_ok=True)
     images_dir = out_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)

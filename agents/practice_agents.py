@@ -398,7 +398,7 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
     images_dir = Path(practice_dir) / "images"
     images_dir.mkdir(exist_ok=True)
     
-    prompt_match = re.search(r"\*Prompt tạo ảnh:\s*(.*?)\*", content, re.IGNORECASE)
+    prompt_match = re.search(r"\*?\s*Prompt tạo ảnh:\s*(.*?)(?:\*|\n\n|\n(?=###)|$)", content, re.IGNORECASE | re.DOTALL)
     if not prompt_match:
         return content
         
@@ -419,11 +419,9 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
             title_text = filename_no_ext.replace("bai_", "").replace("_", " ").title()
             
     api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        raise ValueError("Cần cấu hình API key (GEMINI_API_KEY hoặc GOOGLE_API_KEY) để sinh ảnh sơ đồ AI. Chế độ fallback đã bị loại bỏ hoàn toàn.")
 
-    if not image_path.exists():
-        print(f"  [Image Generator] Generating diagram for '{filename_no_ext}' using Imagen 3...")
+    if not image_path.exists() and api_key:
+        print(f"  [Image Generator] Generating 2D diagram for '{filename_no_ext}'...")
         import requests
         import base64
         import time
@@ -502,13 +500,13 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
                     time.sleep(3 * attempt)
                     
         if not success:
-            print(f"  [Image Generator Warning] All 3 attempts failed to generate image for '{filename_no_ext}': {last_error}. Continuing without image.")
+            print(f"  [Image Generator Warning] Could not generate image via API for '{filename_no_ext}': {last_error}. Bypassing image file creation.")
             
     markdown_image_tag = ""
     if image_path.exists():
         markdown_image_tag = f"\n\n<p align=\"center\">\n  <img src=\"../images/{image_name}\" alt=\"Sơ đồ luồng nghiệp vụ\" width=\"80%\">\n</p>\n\n"
     
-    new_content = re.sub(r"\*Prompt tạo ảnh:\s*.*?\*", markdown_image_tag, content, flags=re.IGNORECASE)
+    new_content = re.sub(r"\*?\s*Prompt tạo ảnh:\s*(.*?)(?:\*|\n\n|\n(?=###)|$)", markdown_image_tag, content, flags=re.IGNORECASE | re.DOTALL)
     return new_content
 
 def generate_practice_session_exercises(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str):

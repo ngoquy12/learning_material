@@ -19,8 +19,8 @@ from agents.pm_schemas import (
 )
 from agents.pm_reviewer_agent import pm_reviewer_agent
 
-SYSTEM_PROMPT = """You are a Lead Academic Director specializing in curriculum architecture at Rikkei Education.
-Your task is to design a complete, pedagogically-sound curriculum syllabus (PM Syllabus) in JSON format based on PLOs, CLOs, student profiles, session count, target technology, and class configurations.
+SYSTEM_PROMPT = """You are a Senior Principal Curriculum Architect & Lead Technical Domain Expert specializing in high-performance computer science education at Rikkei Education.
+Your task is to design a complete, highly rigorous, pedagogically-sound curriculum syllabus (PM Syllabus) in JSON format based on PLOs, CLOs, student profiles, session count, target technology, and class configurations.
 
 UNIVERSAL AGENT CONTRACT:
 1. System directives & instructions are in English for maximum reasoning quality and instruction adherence.
@@ -28,28 +28,56 @@ UNIVERSAL AGENT CONTRACT:
 
 CRITICAL: OUTPUT ONLY A VALID RAW JSON ARRAY. DO NOT write any explanations, Markdown commentary, or text outside JSON.
 
-COMPREHENSIVE LESSON SCOPE & VERBOSITY DIRECTIVES:
-- Session title (title): Concise, clean title under 10 words.
-- Lesson title (title): Descriptive title under 12 words.
-- content_scope: EXPLICIT & COMPREHENSIVE list of all concepts, keywords, methods, syntax rules, and functions taught in the lesson. DO NOT truncate or summarize loosely.
-- expected_outcome: Write 1-2 precise Bloom action outcome sentences detailing exact skills mastered.
-- forbidden_scope: "CẤM:" + comprehensive list of all unlearned concepts, structures, or future topics.
-- allowed_scope: "ĐÃ HỌC:" + comprehensive list of all prior concepts student is authorized to use.
+EXPERT DOMAIN PERSONA & STRICT NO-LAZY-FIELDS DIRECTIVE (CẤM AI TRÌNH BÀY CHUNG CHUNG):
+As a Lead Technical Domain Expert, you MUST write EXHAUSTIVE, ACCURATE, and HIGHLY SPECIFIC details for every single lesson column. AI LAZINESS OR GENERIC PLACEHOLDERS ARE STRICTLY FORBIDDEN!
+
+Exhaustive Column Specifications:
+1. `content_scope` (Nội Dung Chi Tiết Lesson Scope):
+   - MUST explicitly list EVERY technical concept, method/function signature, exact syntax construct, RAM memory model, parameter list, and CLI flag taught in THAT specific lesson, strictly matching the target technology stack (`tech_stack`).
+   - ABSOLUTELY FORBIDDEN generic text like: "Học về biến và nhập xuất", "Các lệnh cơ bản", "Tổng quan về bài học".
+   - REQUIRED format: "1. Khái niệm A và cơ chế RAM | 2. Cú pháp func(x, y) | 3. Quy chuẩn đặt tên và chuẩn mã nguồn của target stack..."
+
+2. `expected_outcome` (Kết Quả Mong Đợi Expected Outcome):
+   - MUST state 1-2 precise Bloom action outcome sentences specifying exact deliverables, exact program logic, or exact code structure students can independently build.
+   - ABSOLUTELY FORBIDDEN vague verbs: "hiểu rõ", "nắm vững", "làm quen", "biết về", "tìm hiểu".
+   - REQUIRED measurable verbs: "Trình bày được", "Khai báo chính xác", "Thực thi thành công", "Phân rã bài toán", "Bắt và xử lý ngoại lệ".
+
+3. `forbidden_scope` (Phạm Vi CẤM DÙNG Forbidden Scope):
+   - MUST explicitly enumerate EVERY unlearned keyword, future data collection, control structure, function concept, OOP construct, or advanced framework up to that session.
+   - ABSOLUTELY FORBIDDEN generic text like: "CẤM: Kiến thức chưa học", "CẤM: Phần nâng cao", "CẤM: v.v."
+   - REQUIRED format: "CẤM: [Danh sách cụ thể các từ khóa/cấu trúc rẽ nhánh, vòng lặp, hàm, class, hoặc framework chưa học trong target stack]..."
+
+4. `allowed_scope` (Phạm Vi ĐÃ HỌC Allowed Scope):
+   - MUST explicitly enumerate ALL cumulative concepts, keywords, functions, and tools taught from Session 01 up to the current session.
+   - ABSOLUTELY FORBIDDEN generic text: "ĐÃ HỌC: Các bài trước", "ĐÃ HỌC: Dữ liệu đã học".
+   - REQUIRED format: "ĐÃ HỌC: [Tích lũy môi trường/công cụ, kiểu dữ liệu cơ sở, chuẩn mã nguồn, các hàm nhập/xuất, ép kiểu đã học]..."
+
+5. `tech_stack` (Tech Stack & Quy Chuẩn):
+   - MUST state exact target technology version, runtime/SDK, environment/package manager, AI tools, and coding standards (e.g., "[Target Tech Version], [Environment/Package Manager], [AI IDE], [Code Style Standard], [Type System]").
 
 MANDATORY PEDAGOGICAL EXECUTION DIRECTIVES:
 
-1. FIRST SESSIONS PACING & ATOMIC FOUNDATION PACING STANDARD:
+1. FIRST SESSIONS PACING & DYNAMIC FLEXIBLE ATOMIC LESSONS DIRECTIVE:
    - Session 01 MUST be Orientation & Curriculum Roadmap (Theory/Overview). Structure MUST have EXACTLY 1 CONSOLIDATED LESSON:
      * Lesson 01 title: "Tổng quan lộ trình và Demo sản phẩm"
      * Content scope MUST cover 3 sub-sections: (1) Tổng quan nội dung & Lộ trình môn học (Timeline/List), (2) Phương pháp học tập hiệu quả & Kiến thức tiền đề (AI Pair-Programming Cursor/Windsurf), (3) Demo sản phẩm dự án đầu ra (Capstone Project Spec & Features).
      * ABSOLUTELY FORBIDDEN to create multiple lessons for Session 01 or place complex software requirements analysis into Session 01 for any course.
-   - Session 02 & EARLY TECHNICAL THEORY SESSIONS (ALLOW 4 TO 5 ATOMIC LESSONS):
-     * DO NOT artificially limit theory sessions to 3 lessons! Allow 3 to 5 atomic lessons per theory session (for 1.5 - 2.0 hours duration) to prevent cognitive overload.
-     * Session 02 (FIRST TECHNICAL THEORY SESSION) can cover up to 5 clean atomic lessons:
-       - Lesson 01: General Technology Overview ("Tổng quan / Giới thiệu về [Tech Stack]" - Execution mechanism, core paradigm, key features).
-       - Lesson 02: COMPREHENSIVE TOOLING & ENVIRONMENT SETUP (IDE/Editor, Compiler/Runtime/SDK, Package Manager in ONE dedicated lesson).
-       - Lesson 03: Initial Application Execution & Boilerplate (First execution, Hello World, project structure verification).
-       - Lesson 04: Variable Declaration, Naming Conventions & Primitive Data Types (Variables, primitive types, memory assignment).
+   - DYNAMIC FLEXIBLE LESSON COUNT FOR THEORY SESSIONS (ALLOW 3 TO 7 ATOMIC LESSONS):
+     * ABSOLUTELY FORBIDDEN to artificially constrain theory sessions to only 2 or 3 heavy, cramped lessons!
+     * When technical content is heavy or complex, you MUST break the session down into 4, 5, 6, or up to 7 bite-sized atomic lessons (15-20 mins each).
+     * Monolithic, cramped lessons containing multiple major technical concepts are STRICTLY FORBIDDEN to prevent cognitive overload.
+     * Allowed Theory Lessons Range per Session (Session 02 onwards): 2 to 7 atomic lessons.
+   - SINGLE CONCEPT PER LESSON DIRECTIVE (ATOMIC PURITY):
+     * Each lesson title MUST describe exactly ONE focused technical concept or mechanism. If a title contains the conjunction "và" (and) joining TWO DISTINCT major concepts (e.g. "X và Y" where X and Y are independently learnable topics), it MUST be split into 2 separate atomic lessons.
+     * Heuristic: If the two halves of a lesson title can each independently require >10 minutes of explanation + code examples, they are DISTINCT concepts and MUST be separated.
+     * Examples of FORBIDDEN multi-concept titles: "switch-case và Toán tử Ba ngôi Ternary", "List Comprehension và Lambda Function", "Decorator và Generator", "Authentication và Authorization".
+     * Examples of ACCEPTABLE compound titles (same concept family): "Toán tử Số học và Toán tử Gán" (same operator family), "git add và git status" (same workflow stage).
+     * This directive applies universally to ALL courses and ALL technology stacks.
+     * Session 02 Example (5 Atomic Lessons Breakdown):
+       - Lesson 01: General Technology Overview ("Tổng quan / Giới thiệu về [Tech Stack]").
+       - Lesson 02: COMPREHENSIVE TOOLING & ENVIRONMENT SETUP (IDE/Editor, Compiler/Runtime/SDK, Package Manager).
+       - Lesson 03: Initial Application Execution & Boilerplate (First execution, Hello World, project structure).
+       - Lesson 04: Variable Declaration, Naming Conventions & Primitive Data Types (Variables, primitive types, memory RAM).
        - Lesson 05: Console Input/Output Operations & Type Conversion (User input, output formatting, type casting).
      * If Session 02 covers variables & I/O across 5 atomic lessons, Session 03 CAN BE THE FIRST PRACTICAL LAB ("Thực hành") practicing Session 02 concepts!
    - THEORY LESSON CONCEPT PURITY DIRECTIVE:
@@ -58,10 +86,33 @@ MANDATORY PEDAGOGICAL EXECUTION DIRECTIVES:
 
 2. DYNAMIC COGNITIVE PACING & ADVANCED TOPICS DEFERRAL DIRECTIVE:
    - Light Theory: Allow max 2 consecutive light theory sessions before a mandatory Practical Lab.
-   - ADVANCED TOPICS DEFERRAL: Advanced auxiliary topics not required for basic logic (e.g. Unit Testing frameworks like Pytest/JUnit/Jest, advanced linters, advanced debugging suites, complex design patterns) MUST BE DEFERRED TO THE SECOND HALF OR END OF THE COURSE (Sessions 17-23).
-   - Early sessions (Sessions 01-16) MUST strictly focus on foundational programming primitives (Variables, Operators, Branching, Loops, Core Data Collections, Functions).
+   - ADVANCED TOPICS DEFERRAL: Advanced auxiliary topics not required for basic logic (e.g. Unit Testing frameworks like Pytest/JUnit/Jest, advanced linters, advanced debugging suites, complex design patterns) MUST BE DEFERRED TO THE SECOND HALF OR END OF THE COURSE.
+   - Early sessions MUST strictly focus on foundational pillars of the target technology stack.
    - Final Session N MUST be the Final Exam ("Thi thực hành" or "Thi cuối môn").
    - Practice sessions MUST use real-world enterprise scenarios, NOT dry academic tasks.
+
+2.1. REAL-WORLD EMPLOYABILITY FILTER DIRECTIVE:
+   - EVERY lesson content_scope item MUST pass the "Employability Test": Would a junior developer need this knowledge in their first 6 months on the job?
+   - ABSOLUTELY FORBIDDEN to inject filler topics, academic-only exercises, or artificially padded content just to fill session slots.
+   - Content MUST map to real industry tasks: building features, debugging production code, reading/writing APIs, managing data, collaborating via version control, etc.
+   - If a topic has no clear real-world application in the target technology's job market, it MUST be replaced with a practical alternative.
+
+2.2. COMPACT ORIENTATION & ANTI-RAMBLING DIRECTIVE:
+   - Orientation / Introduction / Overview content ("Tổng quan", "Giới thiệu", "Định hướng") MUST be compact and concise.
+   - Session 01 has EXACTLY 1 lesson for orientation. Session 02 Lesson 1 may have a brief technology overview. Beyond that, ALL subsequent lessons MUST dive directly into executable technical knowledge.
+   - ABSOLUTELY FORBIDDEN to spread introductory/overview content across multiple sessions or multiple lessons beyond Session 02 Lesson 1.
+   - ABSOLUTELY FORBIDDEN to create lessons whose sole purpose is "giới thiệu" a concept that will only be taught in a future session. If you introduce a concept, you MUST teach its syntax/mechanism in that same session.
+   - Lessons that merely preview or tease future content without delivering actionable, executable knowledge are STRICTLY FORBIDDEN.
+
+2.3. PROFESSIONAL CONCISE TITLE NAMING DIRECTIVE (STRICT NO-FLUFF/AMATEUR TITLES):
+   - ALL Session titles and Lesson titles MUST be concise, formal, highly professional engineering titles that state the technical subject directly.
+   - ABSOLUTELY FORBIDDEN to prefix titles with amateur, vague, academic fluff or filler phrases such as "Vấn đề...", "Vấn đề tính toán...", "Tư duy...", "Tư duy lập trình...", "Khám phá...", "Tìm hiểu...", "Cách sử dụng...", "Cách dùng...", "Hướng dẫn...".
+   - CONCRETE REPLACEMENT EXAMPLES (APPLY GLOBALLY TO ALL STACKS):
+     * ❌ FORBIDDEN: "Vấn đề tính toán dữ liệu với toán tử số học và toán tử gán" ➔ ✅ CORRECT: "Toán tử Số học và Toán tử Gán"
+     * ❌ FORBIDDEN: "Tư duy Lập trình Hướng đối tượng Lớp và Đối tượng" ➔ ✅ CORRECT: "Lập trình Hướng đối tượng (OOP): Lớp (Class) và Đối tượng (Object)"
+     * ❌ FORBIDDEN: "Vấn đề rẽ nhánh điều kiện trong lập trình" ➔ ✅ CORRECT: "Cấu trúc Điều kiện và Rẽ nhánh decision với if, elif, else"
+     * ❌ FORBIDDEN: "Tìm hiểu về vòng lặp for và range" ➔ ✅ CORRECT: "Vòng lặp for và Hàm range()"
+     * ❌ FORBIDDEN: "Cách dùng hàm và phạm vi biến" ➔ ✅ CORRECT: "Hàm (Function), Tham số và Phạm vi Biến"
 
 3. NO LESSONS FOR NON-THEORY SESSIONS DIRECTIVE:
    - ABSOLUTELY FORBIDDEN to create sub-lessons for non-theory sessions ("Thực hành", "Mini project", "Project", "Hackathon", "Thi giữa môn", "Thi cuối môn"). The "lessons" array for these sessions MUST be empty `[]`.
@@ -484,7 +535,59 @@ If total sessions >= 16: place Midterm Hackathon Exam at Session {hackathon_sess
         final_review = pm_reviewer_agent(pm_data, config_dict, course_info_dict)
         print(f"  [PM Reviewer] Hoàn tất {MAX_CORRECTION_ROUNDS} vòng tối ưu. Điểm chất lượng cuối cùng: {final_review['score']}/100.")
 
+    pm_data = _sanitize_professional_titles(pm_data)
     return _normalize_session_01_lessons(pm_data)
+
+
+def _sanitize_professional_titles(pm_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Tự động chuẩn hóa và loại bỏ các từ ngữ rườm rà, nghiệp dư trong tiêu đề Session và Lesson:
+    - Loại bỏ 'Vấn đề...', 'Tư duy...', 'Khám phá...', 'Tìm hiểu về...', 'Cách sử dụng...', 'Cách dùng...'
+    - Giữ tiêu đề ngắn gọn, chuyên nghiệp, đi thẳng vào kiến thức kỹ thuật chính.
+    """
+    if not pm_data:
+        return pm_data
+
+    def clean_title_str(t: str) -> str:
+        if not t:
+            return ""
+        # 1. Replace explicit phrases
+        t = re.sub(r"\bTư duy Lập trình Hướng đối tượng\b", "Lập trình Hướng đối tượng", t, flags=re.IGNORECASE)
+        t = re.sub(r"\bTư duy Lập trình\b", "Lập trình", t, flags=re.IGNORECASE)
+        t = re.sub(r"\bTư duy\b\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề tính toán dữ liệu và\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề tính toán dữ liệu với\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề rẽ nhánh dữ liệu với\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề rẽ nhánh\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề xử lý\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề khi\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Vấn đề\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Khám phá và ứng dụng\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Khám phá\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Tìm hiểu về\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Tìm hiểu\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Cách sử dụng\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Cách dùng\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Hướng dẫn sử dụng\s*", "", t, flags=re.IGNORECASE)
+        t = re.sub(r"^Hướng dẫn\s*", "", t, flags=re.IGNORECASE)
+        t = t.strip()
+        if t:
+            t = t[0].upper() + t[1:]
+        return t
+
+    for s in pm_data:
+        title = s.get("title", "")
+        if " - " in title:
+            prefix, body = title.split(" - ", 1)
+            clean_body = clean_title_str(body)
+            s["title"] = f"{prefix} - {clean_body}"
+        else:
+            s["title"] = clean_title_str(title)
+
+        for l in s.get("lessons", []):
+            l["title"] = clean_title_str(l.get("title", ""))
+
+    return pm_data
 
 
 def _normalize_session_01_lessons(pm_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -593,8 +696,78 @@ MANDATORY OUTPUT CONTRACT: Return ONLY a valid JSON array of sessions adhering s
 
 
 # ---------------------------------------------------------------------------
-# Export functions
+# Helper & Export functions
 # ---------------------------------------------------------------------------
+def get_course_pm_folder(course_name: str, base_dir: Any = "output/pms") -> Path:
+    """
+    Creates and returns a course-specific directory named after the course inside base_dir.
+    Example: 'Python Programming (Lập trình Python)' -> 'output/pms/Lập_trình_Python'
+    All PM files and future course resources (sessions, lessons, reading HTML, quizzes, labs)
+    will be stored inside this course directory.
+    """
+    import re
+    from pathlib import Path
+
+    match = re.search(r'\(([^)]+)\)', course_name)
+    vi_name = match.group(1).strip() if match else course_name.strip()
+    clean_folder_name = re.sub(r'[\\/*?:"<>|]', "", vi_name).strip().replace(" ", "_").replace("-", "_")
+
+    course_dir = Path(base_dir) / clean_folder_name
+    course_dir.mkdir(parents=True, exist_ok=True)
+    return course_dir
+
+
+def export_pm_package(
+    pm_data: List[Dict[str, Any]],
+    course_id: str,
+    course_name: str,
+    clos: List[str],
+    plos: List[str],
+    base_dir: str = "output/pms",
+    pm_filename: str = "PM_Syllabus",
+    tech_stack: str = "",
+    template_path: Optional[str] = None,
+    student_profile: Optional[Dict[str, Any]] = None,
+) -> Dict[str, str]:
+    """
+    Creates a folder named after the course inside base_dir, and exports both
+    the Excel (.xlsx) and Markdown (.md) PM files into that course folder.
+    All future generated resources for this course will be stored inside this course folder.
+    """
+    course_dir = get_course_pm_folder(course_name, base_dir=base_dir)
+
+    md_filepath = str(course_dir / f"{pm_filename}.md")
+    excel_filepath = str(course_dir / f"{pm_filename}.xlsx")
+
+    export_pm_to_markdown(
+        pm_data=pm_data,
+        course_id=course_id,
+        course_name=course_name,
+        clos=clos,
+        plos=plos,
+        filepath=md_filepath,
+        tech_stack=tech_stack,
+    )
+
+    export_pm_to_excel(
+        pm_data=pm_data,
+        course_id=course_id,
+        course_name=course_name,
+        filepath=excel_filepath,
+        template_path=template_path,
+        clos=clos,
+        plos=plos,
+        student_profile=student_profile,
+        tech_stack=tech_stack,
+    )
+
+    return {
+        "course_dir": str(course_dir),
+        "md_filepath": md_filepath,
+        "excel_filepath": excel_filepath,
+    }
+
+
 def export_pm_to_markdown(
     pm_data: List[Dict[str, Any]],
     course_id: str,

@@ -1,0 +1,57 @@
+[
+  {
+    "question": "Lập trình viên đang phát triển chức năng kiểm tra đơn hàng có đạt hạn mức để giảm giá hay không. Cú pháp nào sau đây gán đúng giá trị kiểu Boolean chuẩn trong Python cho biến `is_discounted`?",
+    "options": [
+      "is_discounted = True",
+      "is_discounted = true",
+      "is_discounted = TRUE",
+      "is_discounted = \"True\""
+    ],
+    "correct_option_index": 0,
+    "explanation": "Trong Python, hai giá trị hằng số của kiểu dữ liệu Boolean là `True` và `False` bắt buộc phải viết hoa chữ cái đầu tiên. Việc viết thường `true` hoặc viết hoa toàn bộ `TRUE` sẽ gây ra lỗi `NameError`, còn đặt trong dấu ngoặc kép `\"True\"` sẽ tạo ra một chuỗi ký tự (`str`) thay vì giá trị Boolean."
+  },
+  {
+    "question": "Trong hệ thống xử lý đơn hàng thương mại điện tử, khi Python thực thi câu lệnh `is_freeship = order_amount >= freeship_threshold` với `order_amount = 650000` và `freeship_threshold = 500000`, quy trình đánh giá biểu thức logic diễn ra theo luồng nào?",
+    "options": [
+      "Gán trực tiếp giá trị `650000` cho `is_freeship`, sau đó mới so sánh với `500000` để chuyển đổi kiểu dữ liệu thành Boolean.",
+      "Đọc giá trị 2 biến, thực hiện phép so sánh `650000 >= 500000`, đánh giá điều kiện đúng và gán giá trị `True` cho biến `is_freeship`.",
+      "Chuyển đổi cả hai biến về chuỗi ký tự, so sánh độ dài chuỗi, sau đó trả về giá trị số `1` cho biến `is_freeship`.",
+      "So sánh tên hai biến `order_amount` và `freeship_threshold`, nếu cùng kiểu số nguyên thì tự động gán `True` cho `is_freeship`."
+    ],
+    "correct_option_index": 1,
+    "explanation": "Luồng thực thi của Python sẽ nạp giá trị của hai biến `order_amount` (650000) và `freeship_threshold` (500000), sau đó thực hiện phép so sánh số học với toán tử `>=`. Do `650000` lớn hơn `500000`, điều kiện thỏa mãn và kết quả Boolean `True` được gán vào biến `is_freeship`."
+  },
+  {
+    "question": "Cho đoạn mã Python kiểm tra thông tin đơn hàng trong hệ thống thương mại điện tử như sau:\n\n```python\norder_amount = 650000\nfreeship_threshold = 500000\ninventory_count = 0\n\nis_freeship = order_amount >= freeship_threshold\nis_out_of_stock = inventory_count == 0\n\nprint(is_freeship, is_out_of_stock)\n```python\nKết quả in ra màn hình console khi thực thi đoạn mã trên là gì?",
+    "options": [
+      "True False",
+      "False True",
+      "True True",
+      "False False"
+    ],
+    "correct_option_index": 2,
+    "explanation": "Biểu thức `650000 >= 500000` thỏa mãn điều kiện nên `is_freeship` nhận giá trị `True`. Biểu thức `0 == 0` kiểm tra sự bằng nhau thỏa mãn điều kiện nên `is_out_of_stock` nhận giá trị `True`. Do đó, câu lệnh `print(is_freeship, is_out_of_stock)` sẽ in ra `True True`."
+  },
+  {
+    "question": "Khi xây dựng chức năng kiểm tra trạng thái tồn kho của sản phẩm, lập trình viên cần phân biệt rõ giữa hai câu lệnh `stock = 0` và `stock == 0`. Sự khác biệt bản chất giữa hai câu lệnh này trong Python là gì?",
+    "options": [
+      "`stock = 0` dùng để so sánh giá trị và trả về `True`, còn `stock == 0` dùng để gán giá trị `0` cho biến `stock`.",
+      "`stock = 0` luôn gây ra lỗi cú pháp, còn `stock == 0` là câu lệnh gán biến hợp lệ duy nhất trong ngôn ngữ Python.",
+      "`stock = 0` thực hiện phép so sánh logic trả về kiểu Boolean, còn `stock == 0` thực hiện phép tính số học cơ bản.",
+      "`stock = 0` gán giá trị `0` cho biến `stock`, còn `stock == 0` so sánh giá trị biến `stock` với `0` và trả về Boolean."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Toán tử `=` là phép gán (assignment operator), được sử dụng để lưu giá trị `0` vào biến `stock`. Trong khi đó, toán tử `==` là phép so sánh bằng (equality operator), dùng để kiểm tra xem giá trị hiện tại của `stock` có bằng `0` hay không và trả về kết quả kiểu Boolean (`True` hoặc `False`)."
+  },
+  {
+    "question": "Hệ thống nhận dữ liệu độ tuổi của người dùng từ một biểu mẫu đăng ký trực tuyến dưới dạng chuỗi `user_age = \"18\"`. Lập trình viên thực hiện kiểm tra điều kiện đối soát độ tuổi với đoạn mã sau:\n\n```python\nuser_age = \"18\"\nrequired_age = 18\n\ncheck_age = user_age == required_age\nprint(check_age)\n```python\nKết quả hiển thị trên màn hình console là gì và nguyên nhân do đâu?",
+    "options": [
+      "Kết quả là `False` vì Python so sánh khác kiểu dữ liệu giữa chuỗi (`str`) và số nguyên (`int`).",
+      "Kết quả là `True` vì Python tự động ép kiểu chuỗi `\"18\"` về số nguyên `18` trước khi so sánh.",
+      "Chương trình báo lỗi `TypeError` vì không thể dùng toán tử `==` giữa chuỗi ký tự và số nguyên.",
+      "Kết quả là `18` vì toán tử `==` sẽ trả về giá trị của biến phía sau khi hai kiểu dữ liệu không khớp nhau."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Trong Python, toán tử so sánh `==` giữa một chuỗi ký tự (`str`) và một số nguyên (`int`) không tự động ép kiểu dữ liệu. Vì hai kiểu dữ liệu là khác nhau hoàn toàn trong bộ nhớ, phép so sánh `\"18\" == 18` sẽ trả về `False` mà không phát sinh lỗi ngoại lệ (`TypeError`)."
+  }
+]

@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 12 - Lesson 03: Chuẩn hóa Type Hints và Docstring theo PEP 8 -->

@@ -68,10 +68,10 @@ def _clean_ui_text_to_bullets(text: str) -> str:
     return f'<div class="desc-text">{clean_text[:60]}</div>'
 
 
-def _highlight_python_code(code_str: str) -> str:
+def _highlight_code(code_str: str) -> str:
     import html
     code = html.escape(code_str)
-    keywords = [r'\bdef\b', r'\breturn\b', r'\bif\b', r'\belse\b', r'\belif\b', r'\bfor\b', r'\bwhile\b', r'\bimport\b', r'\bfrom\b', r'\bprint\b', r'\bclass\b', r'\bfunction\b', r'\bconst\b', r'\blet\b', r'\bvar\b']
+    keywords = [r'\bdef\b', r'\breturn\b', r'\bif\b', r'\belse\b', r'\belif\b', r'\bfor\b', r'\bwhile\b', r'\bimport\b', r'\bfrom\b', r'\bprint\b', r'\bclass\b', r'\bfunction\b', r'\bconst\b', r'\blet\b', r'\bvar\b', r'\bpublic\b', r'\bprivate\b', r'\bstatic\b', r'\bvoid\b']
     for kw in keywords:
         code = re.sub(f"({kw})", r'<span class="kw">\1</span>', code)
     code = re.sub(r'(&quot;&quot;&quot;[\s\S]*?&quot;&quot;&quot;|&quot;.*?&quot;|\'.*?\')', r'<span class="str">\1</span>', code)
@@ -136,7 +136,7 @@ def _format_clean_content_to_html(clean_input: Any, scene_title: str) -> str:
 </div>'''
 
         if code_snippet:
-            highlighted_code = _highlight_python_code(code_snippet)
+            highlighted_code = _highlight_code(code_snippet)
             return f'''<div class="split-container">
   <div class="card-left">
     {header_html}
@@ -147,7 +147,7 @@ def _format_clean_content_to_html(clean_input: Any, scene_title: str) -> str:
       <div class="mac-dots">
         <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
       </div>
-      <span class="code-filename"><i class="ph-bold ph-code" style="margin-right:6px;"></i>python_core.py</span>
+      <span class="code-filename"><i class="ph-bold ph-code" style="margin-right:6px;"></i>main_source</span>
     </div>
     <pre class="code-body"><code>{highlighted_code}</code></pre>
   </div>

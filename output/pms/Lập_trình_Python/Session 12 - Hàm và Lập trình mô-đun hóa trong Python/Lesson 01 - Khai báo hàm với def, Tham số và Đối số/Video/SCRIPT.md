@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 12 - Lesson 01: Khai báo hàm với def, Tham số và Đối số -->

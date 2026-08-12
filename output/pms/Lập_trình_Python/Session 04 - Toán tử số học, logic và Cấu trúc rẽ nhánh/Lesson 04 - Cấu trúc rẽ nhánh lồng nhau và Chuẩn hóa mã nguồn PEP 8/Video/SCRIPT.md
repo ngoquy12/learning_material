@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 04 - Lesson 04: Cấu trúc rẽ nhánh lồng nhau và Chuẩn hóa mã nguồn PEP 8 -->

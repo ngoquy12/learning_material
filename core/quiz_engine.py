@@ -302,3 +302,148 @@ def generate_exit_quiz(
         q["STT"] = idx
         
     return questions
+
+
+def extract_15_question_entrance_exam(entrance_bank_45: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Rút chính xác 15 câu hỏi bài thi Đầu giờ (Entrance Exam) cho sinh viên từ Ngân hàng 45 câu
+    tuân thủ đúng tỉ lệ ma trận pedagogical ratio từ RE_Tiêu chuẩn quizz.pdf:
+    - 10 câu Bài cũ: 4 Vận dụng (STT 1-12), 3 Phân tích/Debug (STT 13-21), 3 Tối ưu/Bảo mật (STT 22-30).
+    - 5 câu Bài mới: 2 Thông hiểu (STT 31-36), 2 Vận dụng (STT 37-42), 1 Phân tích (STT 43-45).
+    """
+    if not entrance_bank_45 or len(entrance_bank_45) < 45:
+        # Fallback if bank has fewer than 45 questions
+        return entrance_bank_45[:15]
+
+    old_app = entrance_bank_45[0:12]      # 12 questions
+    old_dbg = entrance_bank_45[12:21]     # 9 questions
+    old_opt = entrance_bank_45[21:30]     # 9 questions
+
+    new_und = entrance_bank_45[30:36]     # 6 questions
+    new_app = entrance_bank_45[36:42]     # 6 questions
+    new_ana = entrance_bank_45[42:45]     # 3 questions
+
+    selected = []
+    selected.extend(random.sample(old_app, min(4, len(old_app))))
+    selected.extend(random.sample(old_dbg, min(3, len(old_dbg))))
+    selected.extend(random.sample(old_opt, min(3, len(old_opt))))
+
+    selected.extend(random.sample(new_und, min(2, len(new_und))))
+    selected.extend(random.sample(new_app, min(2, len(new_app))))
+    selected.extend(random.sample(new_ana, min(1, len(new_ana))))
+
+    # Re-number STT 1 to 15
+    exam_15 = []
+    for idx, q in enumerate(selected, 1):
+        item = dict(q)
+        item["STT"] = idx
+        exam_15.append(item)
+
+    return exam_15
+
+
+def extract_15_question_exit_exam(exit_bank_45: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Rút chính xác 15 câu hỏi bài thi Cuối giờ (Exit Exam) cho sinh viên từ Ngân hàng 45 câu bài mới
+    tuân thủ đúng tỉ lệ ma trận pedagogical ratio từ RE_Tiêu chuẩn quizz.pdf:
+    - 6 câu Vận dụng (STT 1-18)
+    - 5 câu Phân tích / Debug (STT 19-33)
+    - 4 câu Sáng tạo / Best Practice (STT 34-45)
+    """
+    if not exit_bank_45 or len(exit_bank_45) < 45:
+        return exit_bank_45[:15]
+
+    app_qs = exit_bank_45[0:18]    # 18 questions
+    dbg_qs = exit_bank_45[18:33]   # 15 questions
+    opt_qs = exit_bank_45[33:45]   # 12 questions
+
+    selected = []
+    selected.extend(random.sample(app_qs, min(6, len(app_qs))))
+    selected.extend(random.sample(dbg_qs, min(5, len(dbg_qs))))
+    selected.extend(random.sample(opt_qs, min(4, len(opt_qs))))
+
+    # Re-number STT 1 to 15
+    exam_15 = []
+    for idx, q in enumerate(selected, 1):
+        item = dict(q)
+        item["STT"] = idx
+        exam_15.append(item)
+
+    return exam_15
+
+
+class StudentClassifier:
+    """
+    Module tự động Phân loại Năng lực Sinh viên và Xuất đề xuất chiến thuật giảng dạy (Actionable Pedagogy)
+    tuân thủ 100% Ma trận 5 nhóm (Đầu giờ) và 4 nhóm (Cuối giờ) từ RE_Tiêu chuẩn quizz.pdf.
+    """
+
+    @staticmethod
+    def classify_entrance_student(student_name: str, total_score: int, new_lesson_score: int) -> Dict[str, Any]:
+        """
+        Phân loại 1 sinh viên bài thi Đầu giờ (15 câu = 10 bài cũ + 5 bài mới).
+        """
+        if total_score >= 13 and new_lesson_score == 5:
+            group = "Gương mẫu"
+            level = "Xuất sắc"
+            strategy = "Cho làm Leader nhóm hoặc giao các bài tập Sáng tạo khó hơn."
+        elif total_score >= 10 and new_lesson_score >= 3:
+            group = "Ổn định"
+            level = "Trung bình - Khá"
+            strategy = "Cần động lực (Push) để bước lên nhóm Gương mẫu."
+        elif total_score >= 10 and new_lesson_score < 3:
+            group = "Tư duy tốt"
+            level = "Thực chiến tốt nhưng lười tự học"
+            strategy = "Cảnh cáo về kỷ luật tự học và yêu cầu xem lại tài liệu bài mới ngay tại lớp."
+        elif 7 <= total_score <= 9 and new_lesson_score >= 3:
+            group = "Nỗ lực"
+            level = "Chăm chỉ nhưng hổng kiến thức nền"
+            strategy = "Tập trung bổ trợ lại bài cũ ngay tại lớp để không bị hổng kiến thức hệ thống."
+        elif 7 <= total_score <= 9 and new_lesson_score < 3:
+            group = "Ẩn mình"
+            level = "Có tư duy nhưng thiếu kỷ luật"
+            strategy = "Yêu cầu xem lại tài liệu bài mới ngay tại lớp."
+        else:
+            group = "Nguy cơ"
+            level = "Mất gốc bài cũ và không chuẩn bị bài mới"
+            strategy = "Cần kèm cặp riêng 1:1 bởi Trợ giảng hoặc Giảng viên ngay sau buổi học."
+
+        return {
+            "student_name": student_name,
+            "total_score": f"{total_score}/15",
+            "new_lesson_score": f"{new_lesson_score}/5",
+            "group": group,
+            "level": level,
+            "recommended_strategy": strategy
+        }
+
+    @staticmethod
+    def classify_exit_student(student_name: str, score: int) -> Dict[str, Any]:
+        """
+        Phân loại 1 sinh viên bài thi Cuối giờ (15 câu bài mới).
+        """
+        if score >= 13:
+            group = "Làm chủ"
+            level = "Xuất sắc (Hiểu bản chất, code sạch, xử lý bẫy logic)"
+            strategy = "Giao bài tập về nhà mức xuất sắc (Project-based), chỉ định làm Mentor hỗ trợ nhóm yếu ở buổi sau, miễn bài tập lặp lại cơ bản."
+        elif 10 <= score <= 12:
+            group = "Đạt"
+            level = "Khá (Nắm vững cú pháp, chưa tối ưu câu Phân tích)"
+            strategy = "Yêu cầu viết Comment/Documentation giải thích luồng code bài tập, giao bài tập về nhà rèn luyện độ tỉ mỉ."
+        elif 7 <= score <= 9:
+            group = "Cơ bản"
+            level = "Trung bình (Chỉ dừng ở mức copy-paste hoặc shadowing theo thầy)"
+            strategy = "Yêu cầu làm lại bài tập từ đầu (không nhìn code mẫu), bắt buộc xem lại Record buổi học tại các đoạn giảng logic."
+        else:
+            group = "Cần kèm"
+            level = "Yếu (Chưa hiểu luồng chạy của code, gặp khó khăn vận dụng)"
+            strategy = "Kèm cặp 1:1 bởi Trợ giảng hoặc Giảng viên ngay sau buổi học, rà soát lại kiến thức nền."
+
+        return {
+            "student_name": student_name,
+            "score": f"{score}/15",
+            "group": group,
+            "level": level,
+            "recommended_strategy": strategy
+        }
+

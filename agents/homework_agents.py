@@ -13,8 +13,15 @@ import random
 import xml.etree.ElementTree as ET
 from typing import Dict, Any, List
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 from core.llm import call_llm
 from core.domain_adapters import get_domain_rules
+from core.domain_knowledge import (
+    BUSINESS_DOMAINS,
+    get_domain_blueprint,
+    select_random_domain,
+    format_domain_rules_for_prompt
+)
 from agents.practice_agents import sanitize_vietnamese_filename, generate_and_link_diagram
 from agents.reviewer_agents import check_forbidden_keywords
 
@@ -32,8 +39,9 @@ def homework_creator_agent(
     Homework Creator Agent:
     Generates a single homework assignment XML block (de_bai_content and tieu_chi_content)
     tailored specifically to the target tech_stack and Bloom cognitive taxonomy level.
+    Supports a 15-exercise suite per session (6 Basic, 3 Advanced, 3 Analysis, 3 Creative).
     """
-    print(f"    -> [LLM Generation] Creating exercise {idx}/6 ({level_name}) for domain: {chosen_domain.upper()}...")
+    print(f"    -> [LLM Generation] Creating exercise {idx}/15 ({level_name}) for domain: {chosen_domain.upper()}...")
     
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
@@ -75,20 +83,21 @@ def homework_creator_agent(
 """
         example_repo_prefix = f"HNKS25CNTT1_Core_Session"
 
-    # Define level specific guidelines
+    # Define level specific guidelines for 15-exercise suite (1..6 Basic, 7..9 Advanced, 10..12 Analysis, 13..15 Creative)
     level_guidelines = ""
     rubric_guidelines = ""
     
-    if idx in [1, 2]:
+    if 1 <= idx <= 6:
         if is_tooling:
             level_guidelines = f"""
 - Difficulty Level: 'Basic Application {idx}'.
+- PRINCIPLE: CLOSED HOW - OPEN WHAT & WHY. Keep description crisp, concise, and direct to the point.
 - MUST provide a realistic buggy CLI script, broken configuration file, or flawed repository scenario in section '### **3. Mã nguồn hiện tại**' (or '### **3. Mô tả kịch bản hiện tại**').
 - Legacy scenario MUST contain a specific operational flaw (e.g. broken configuration, missing tracked files, wrong branch checkout, merge conflict, flawed CLI flow).
+- DO NOT list step-by-step algorithm resolution instructions. Keep hints minimal.
 - Student Execution Directives:
-  + Part 1: Write a diagnostic report table (minimum 3 test cases specifying Input CLI operations, actual buggy behavior, and expected correct result).
+  + Part 1: Diagnostic report table (minimum 3 test cases specifying Input CLI operations, actual buggy behavior, and expected correct result).
   + Part 2: Fix the operational flaw using standard '{tech_stack}' CLI commands and tool operations.
-- ABSOLUTELY FORBIDDEN to force writing complex Python OOP class exceptions.
 """
             rubric_guidelines = f"""
 Mandatory 5 Rubric Criteria Groups:
@@ -117,12 +126,19 @@ Mandatory 5 Rubric Criteria Groups:
         else:
             level_guidelines = f"""
 - Difficulty Level: 'Basic Application {idx}'.
-- MUST provide runnable legacy source code adhering strictly to '{tech_stack}' syntax in section '### **3. Mã nguồn hiện tại**'.
-- Legacy code MUST contain a specific business logic flaw or missing input validation (e.g. missing duplicate check, capacity bound overflow, wrong status state).
-- Student Execution Directives:
-  + Part 1: Write a test case report table (minimum 3 test cases specifying Input, actual buggy Output, and expected correct Output).
-  + Part 2: Fix legacy source code to enforce in-memory business constraints using standard '{tech_stack}' error handling patterns.
-- ABSOLUTELY FORBIDDEN to provide completed solution code or pre-fixed source code.
+- PRINCIPLE: STRICT NO SPOILER & CLOSED HOW - OPEN WHAT & WHY (MANDATORY RE_STANDARDS).
+- Section 2 ('Bối cảnh & Vấn đề'):
+  + State the CORRECT business rules of the system clearly.
+  + State ONLY the customer's complaint or observed symptom (e.g. "Khách hàng phàn nàn rằng tổng tiền thanh toán bị sai khi chọn vị trí ghế VIP", "Người dùng phản ánh tài khoản dưới 18 tuổi vẫn mua được vé").
+  + ABSOLUTELY FORBIDDEN to explain the technical cause of the bug, reveal why it happens, or point out which line/operator is broken!
+- Section 3 ('Mã nguồn hiện tại'):
+  + MUST provide 100% syntactically valid and runnable legacy source code in '{tech_stack}' that contains a subtle logic/validation flaw.
+  + ABSOLUTELY FORBIDDEN to put spoiler comments in code pointing out bugs (FORBIDDEN: `# LỖI LOGIC 1: ...`, `# LỖI Ở ĐÂY`, `# TRỪ SAI PHÍ...`). All comments in code MUST be standard neutral developer comments (e.g. `# Tính tổng tiền thanh toán`, `# Kiểm tra điều kiện`).
+- Student Execution Directives (MANDATORY 2 PARTS):
+  + Part 1 - Code Tracing & Bug Discovery (Test Case Report Table):
+    * Student MUST trace code, pinpoint the exact bug line, and complete a 3-testcase table (Input, Buggy Output, Expected Output, Logic Note) proving where and why the code fails.
+    * MANDATORY TEST CASE TABLE STRUCTURE CONTRACT: The HTML Test Case table in Section 4 MUST contain EXACTLY 1 FULLY FILLED SAMPLE TEST CASE in Row 1 (STT 1) as a guide/reference example. Row 2, Row 3, and subsequent rows MUST BE LEFT INCOMPLETE (using `...` placeholders) for the student to trace and fill out! ABSOLUTELY FORBIDDEN to complete all test case rows for the student!
+  + Part 2 - Source Code Correction: Student MUST fix the legacy source code to enforce correct business logic.
 """
             rubric_guidelines = f"""
 Mandatory 5 Rubric Criteria Groups:
@@ -148,25 +164,29 @@ Mandatory 5 Rubric Criteria Groups:
 #### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
 *   **[10 điểm] Viết Unit Test tự động:** Write automated unit test script testing the error scenarios.
 """
-    elif idx == 3:
+    elif 7 <= idx <= 9:
         level_guidelines = f"""
-- Difficulty Level: 'Advanced Application'.
-- Requirements: Student MUST design data handling flow and write functions/classes from scratch for enterprise entity relationships (e.g. student registration, duplicate check, capacity bounds).
+- Difficulty Level: 'Advanced Application {idx-6}'.
+- PRINCIPLE: CLOSED HOW - OPEN WHAT & WHY (MANDATORY RE_STANDARDS).
+- Present 1 realistic enterprise business scenario with detailed rules and edge-case constraints so student fully understands the context.
+- ABSOLUTELY FORBIDDEN to provide step-by-step algorithm solution instructions (e.g. forbid writing "Bước 1: dùng vòng lặp for, Bước 2: dùng câu lệnh if...").
 - NO-CODE HINTING POLICY: ABSOLUTELY FORBIDDEN to provide skeleton code, empty function signatures, or hint code blocks.
-- Only visual data examples are allowed (e.g. sample data payloads, parameter lists, or error log messages).
-- Student Execution Directives:
-  + Part 1: Solution analysis and design report (Input/Output schema specification, pseudocode or flowchart).
-  + Part 2: Implement code from scratch based on personal design.
+- Student Execution Directives (MANDATORY 2 PARTS):
+  + Part 1 - Solution Analysis & Design Report:
+    * Autonomously specify Input/Output parameters & data types (Phân tích I/O).
+    * Autonomously propose a technical logic solution (Tự sinh viên đề xuất giải pháp).
+    * Autonomously design sequential processing steps (Lập các bước thực hiện / sơ đồ luồng).
+  + Part 2 - Implementation & Error Guards (Coding): Write clean modular code strictly matching designed steps and catching edge cases.
 """
         rubric_guidelines = f"""
 Mandatory 5 Rubric Criteria Groups:
-#### **1. Báo cáo phân tích và Thiết kế giải pháp — 20 điểm**
-*   **[10 điểm] Xác định cấu trúc I/O:** List complete data types and structures for Input/Output parameters.
-*   **[10 điểm] Mô tả giải thuật xử lý nghiệp vụ:** Write pseudocode or flowchart describing validation steps prior to data mutation.
+#### **1. Báo cáo Phân tích I/O & Đề xuất giải pháp — 20 điểm**
+*   **[10 điểm] Phân tích I/O chi tiết:** Specify complete data types and structures for Input/Output parameters.
+*   **[10 điểm] Tự đề xuất giải pháp & Thiết kế các bước:** Autonomously present logic solution and sequential processing steps (pseudocode/flowchart).
 
 #### **2. Lập trình logic nghiệp vụ cốt lõi — 30 điểm**
 *   **[15 điểm] Khởi tạo dữ liệu RAM và Schema:** Define entity models/structures and maintain in-memory state.
-*   **[15 điểm] Hàm/Module xử lý nghiệp vụ tích hợp:** Implement core business operations operating smoothly.
+*   **[15 điểm] Hàm/Module xử lý nghiệp vụ tích hợp:** Implement core business operations matching designed steps.
 
 #### **3. Kiểm chuẩn dữ liệu và Chặn bẫy biên (Edge Cases) — 30 điểm**
 *   **[15 điểm] Chặn bẫy dữ liệu trùng lặp / Vượt ngưỡng:** Enforce business constraints and raise exceptions on duplicate/limit violations.
@@ -182,15 +202,17 @@ Mandatory 5 Rubric Criteria Groups:
 #### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
 *   **[10 điểm] Xử lý tối ưu bộ nhớ:** Propose optimized memory management or conflict handling.
 """
-    elif idx == 4:
+    elif 10 <= idx <= 12:
         level_guidelines = f"""
-- Difficulty Level: 'Analysis'.
-- Requirements: Student MUST research and propose at least 2 distinct technical solutions for the same business problem (e.g., sequential list search vs direct dictionary key mapping for lookup optimization).
-- NO-CODE HINTING POLICY: ABSOLUTELY FORBIDDEN to provide skeleton code, empty function signatures, or hint code blocks.
-- Student Execution Directives:
-  + Part 1: Trade-off comparison report table comparing the 2 proposed solutions (Memory, Speed, Readability, Maintainability, Suitability).
-  + Part 2: Justification for optimal choice and algorithm flowchart/pseudocode.
-  + Part 3: Implement source code for the chosen optimal solution.
+- Difficulty Level: 'Analysis {idx-9}'.
+- PRINCIPLE: STRICT NO-SPOILER & NO PRE-PACKAGED SOLUTIONS (MANDATORY RE_STANDARDS).
+- Requirements: Present a clear business scenario, rules, and edge-case constraints in the {chosen_domain.upper()} domain.
+- ABSOLUTELY FORBIDDEN to pre-write, suggest, or describe the 2 technical solutions in the prompt (e.g. FORBIDDEN to write 'Phương án A: ...', 'Phương án B: ...'). The student MUST autonomously discover, propose, and describe at least 2 distinct technical solutions themselves!
+- STRICT SCOPE BOUNDARY MANDATE: ABSOLUTELY FORBIDDEN to mention or use unlearned advanced concepts (such as lists, dicts, classes, databases, ORM, web frameworks, FastAPI) if they are not yet taught!
+- Student Execution Directives (MANDATORY 3 PARTS):
+  + Part 1 - Multi-Solution Proposal & Analysis Report: Student MUST independently discover and propose at least 2 distinct technical solutions from scratch & build a Trade-off comparison report table (Speed, Memory, Maintainability, Readability, Suitability).
+  + Part 2 - Trade-off Justification & Flowchart Design: Student MUST justify their choice of the optimal solution and design sequential logic steps (flowchart/pseudocode).
+  + Part 3 - Implementation & Bug Prevention: Implement source code for the chosen optimal solution catching edge cases.
 """
         rubric_guidelines = f"""
 Mandatory 5 Rubric Criteria Groups:
@@ -216,10 +238,12 @@ Mandatory 5 Rubric Criteria Groups:
 #### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
 *   **[10 điểm] Viết Benchmark Script:** Write benchmark script measuring runtime of both solutions on large dataset.
 """
-    elif idx == 5:
+    else:
         level_guidelines = f"""
-- Difficulty Level: 'Creative Synthesis'.
-- Open-ended business expansion request (e.g. Soft Delete vs Hard Delete for audit trail, dynamic status workflow).
+- Difficulty Level: 'Creative Synthesis {idx-12}'.
+- PRINCIPLE: CLOSED HOW - OPEN WHAT & WHY.
+- Open-ended business pain point request strictly within allowed scope ({previous_lessons_text}).
+- STRICT SCOPE BOUNDARY MANDATE: ABSOLUTELY FORBIDDEN to introduce unlearned future concepts or frameworks!
 - CREATIVE PROACTIVITY DIRECTIVE:
   + ABSOLUTELY FORBIDDEN to provide sample Input/Output data or pre-made parameter lists.
   + ABSOLUTELY FORBIDDEN to list detailed edge cases for the student.
@@ -254,38 +278,13 @@ Mandatory 5 Rubric Criteria Groups:
 #### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
 *   **[10 điểm] Triển khai cơ chế Restore / Auditing dữ liệu:** Add data recovery or audit logging module.
 """
-    elif idx == 6:
-        level_guidelines = f"""
-- Difficulty Level: 'Synthesis Exercise'. Must combine basic session skills into a single cohesive project module.
-- DIFFICULTY BOUNDS: Basic level achievable within 40 minutes by listening in class.
-- Content: Integrate 2-3 core functional features (Create, Read, Delete/Update) operating on in-memory RAM data.
-- NO-CODE HINTING POLICY: ABSOLUTELY FORBIDDEN to provide skeleton code or empty function signatures.
-- Student Execution Requirement: Implement all required features and test execution successfully.
-"""
-        rubric_guidelines = f"""
-Mandatory 5 Rubric Criteria Groups:
-#### **1. Khởi tạo Dự án & Schema dữ liệu — 20 điểm**
-*   **[10 điểm] Thiết lập môi trường và cấu trúc dự án:** Setup project environment, dependencies, and entry point.
-*   **[10 điểm] Xây dựng Cấu trúc dữ liệu:** Define accurate data schemas/classes with proper types.
 
-#### **2. Hiện thực hóa các Chức năng cơ bản — 40 điểm**
-*   **[20 điểm] Chức năng Đọc/Xem danh sách:** Implement module fetching all in-memory records.
-*   **[20 điểm] Chức năng Ghi/Thêm mới:** Implement module creating new entity in RAM with unique identifier generation.
-
-#### **3. Kiểm chuẩn logic & Chặn bẫy dữ liệu cơ bản — 20 điểm**
-*   **[10 điểm] Xử lý trùng lặp:** Block duplicate unique fields and raise clear exceptions.
-*   **[10 điểm] Xử lý bản ghi không tồn tại:** Validate entity existence on operations and handle errors.
-
-#### **4. Chất lượng mã nguồn và Đóng gói Response — 10 điểm**
-*   **[10 điểm] Định dạng dữ liệu đầu ra sạch:** Ensure output matches specification, English domain identifiers.
-
-#### **5. Quy chuẩn nộp bài GitHub — 10 điểm**
-*   **[10 điểm] Nộp bài GitHub:** Push repository to GitHub following required directory naming format.
-"""
+    domain_blueprint = get_domain_blueprint(chosen_domain)
+    domain_prompt_block = format_domain_rules_for_prompt(domain_blueprint)
 
     forbidden_scope_instruction = ""
     if forbidden_scope:
-        forbidden_scope_instruction = f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM SỬ DỤNG CÁC KIẾN THỨC/TỪ KHÓA BỊ CẤM SAU ĐÂY VÀO BÀI TẬP.\n"
+        forbidden_scope_instruction = f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM SỬ DỤNG CÁC KIẾN THỨC/TỪ KHÓA BỊ CẤM NÀY VÀO BÀI TẬP (BAO GỒM CẢ CÁC BÀI PHÂN TÍCH VÀ SÁNG TẠO).\n"
 
     system_prompt = f"""You are a Senior Computer Science Professor specializing in designing standardized college-level essay & code homework assignments.
 Your task is to generate EXACTLY 1 homework exercise formatted in clean XML complying with strict pedagogical and domain standards.
@@ -295,24 +294,37 @@ COURSE & SESSION CONTEXT:
 - Target Technology Stack: {tech_stack}
 - Allowed Knowledge Boundary: {previous_lessons_text}{forbidden_scope_instruction}
 
+{domain_prompt_block}
+
 INDUSTRY CODING RULES FOR THIS STACK:
 {domain_adapter_rules}
 
 {stack_tech_directives}
 
 EXERCISE REQUIREMENTS:
-- Exercise Index in Session: Exercise #{idx} / 6.
+- Exercise Index in Session: Exercise #{idx} / 15.
 - Cognitive Bloom Taxonomy Level: {level_name}
-- Required Enterprise Subsystem Domain: {chosen_domain.upper()} domain (e.g., ecommerce, crm, logistics, warehouse, fintech).
+- Required Enterprise Subsystem Domain: {domain_blueprint.get('name_vi', chosen_domain.upper())} ({chosen_domain.upper()}).
+- UNIFIED DOMAIN ECOSYSTEM DIRECTIVE (MANDATORY): All 15 exercises in this session MUST be set in the SAME '{domain_blueprint.get('name_vi', chosen_domain.upper())}' ({chosen_domain.upper()}) domain. Exercise #{idx} is a progressive module in this system. Lower-level exercises (Exercises 1-6) serve as building blocks/premises for higher-level exercises (Exercises 7-15).
+- SIMPLICITY & RELATABILITY DIRECTIVE: Present the business scenario using practical, intuitive rules that students can relate to immediately (e.g. food delivery order, ride booking, cinema ticketing, coffee POS). Avoid overly complex mathematical formulas or dense academic jargon.
 
 DIFFICULTY LEVEL GUIDELINES ({level_name.upper()}):
 {level_guidelines}
 
 MANDATORY FORMATTING & LANGUAGE DIRECTIVES:
-0. STRICT NO EMOJI DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis (🚀, 💡, ⚠️, ✅, ❌) in title, body, or source code. Use text labels [NOTE], [TIP], [WARNING], [REQUIREMENT] instead.
+0. STRICT NO EMOJI DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis in title, body, or source code. Use text labels [NOTE], [TIP], [WARNING], [REQUIREMENT] instead.
 0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY:
 - You MUST ONLY use concepts taught up to the current Session ({session_id} - {session_title}) and prior lessons: {previous_lessons_text}.
-- ABSOLUTELY FORBIDDEN to introduce concepts, syntax, functions, libraries, or structures from future lessons in the curriculum!
+- ABSOLUTELY FORBIDDEN to introduce concepts, syntax, functions, libraries, or structures from future lessons or forbidden scope: {forbidden_scope_instruction}!
+- FORBIDDEN KEYWORDS BAN FOR CORE/CLI COURSES ({tech_stack}): ABSOLUTELY FORBIDDEN to mention or write any of the following terms anywhere in exercise body, titles, or rubric: fastapi, uvicorn, pydantic, sqlalchemy, express, springboot, rest api, database, orm!
+0.3 MERMAID FLOWCHART SHAPE STANDARDIZATION CONTRACT:
+- Whenever generating a Mermaid flowchart, you MUST strictly use the 5 standardized shapes according to technical function:
+  1. Terminator (Start / End): Oval / Stadium shape `([Bắt đầu quy trình])` / `([Kết thúc quy trình])`.
+  2. Input / Output: Parallelogram `[/Đầu vào: .../]` / `[/Đầu ra: .../]`.
+  3. Decision (Condition Check): Diamond `{"Kiểm tra điều kiện?"}` with `-->|Đúng|` / `-->|Sai|` branches.
+  4. Process (Action / Calculation): Rectangle `["Thực hiện hành động / Tính toán"]`.
+  5. Flowline: Arrow `-->` or labelled arrow `-->|Đúng|`.
+- ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for Process actions/calculations! Use Rectangle `[" "]` for Process actions, and Parallelogram `[/ /]` ONLY for Input/Output.
 0.2 CODE FORMATTING & SYNTAX DIRECTIVE ({tech_stack}):
 - All code snippets MUST strictly follow syntax, naming, indentation, and code fence standards of '{tech_stack}'.
 - Specify proper code fence tag (e.g. ```python, ```c, ```cpp, ```java, ```javascript, ```typescript, ```sql, ```html).
@@ -336,14 +348,13 @@ MANDATORY FORMATTING & LANGUAGE DIRECTIVES:
    ### **5. Yêu cầu nộp bài**
    Học viên cần nộp:
    *   Phần phân tích/báo cáo và mã nguồn triển khai.
-   *   Đẩy mã nguồn lên GitHub theo định dạng thư mục: `[Tên Lớp]_[Môn Học]_Session{session_id[-2:]}_Ex0{idx}`.
-       Ví dụ: `{example_repo_prefix}{session_id[-2:]}_Ex0{idx}`
+   *   Đẩy mã nguồn lên GitHub theo định dạng thư mục: [Tên Lớp]_[Môn Học]_Session{session_id}_Ex{idx}.
+       Ví dụ: {example_repo_prefix}_{session_id}_Ex{idx}
 5. IMAGE PROMPT SPECIFICATION (Clean 2D Flat Vector & NO ALL CAPS):
-   - Place inside section '### **2. Vấn đề**' (directly below scenario description).
-   - Mandatory format (in English):
-     `*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [detailed business logic/flow description here]. Minimalist infographics style, elegant layout, muted corporate color palette (navy blue, slate gray, soft emerald accents). Clear lines, no 3D elements, no glowing neon effects. All text labels must be in Sentence Case or Title Case (NEVER ALL CAPS), keeping key technical terms in English while using Vietnamese for annotations.*`
+   - MUST include in section '### **2. Vấn đề**' (directly below scenario description) in EVERY exercise:
+     Prompt tạo ảnh: A clean 2D flat vector technical illustration of [detailed business logic/flow description here]. Minimalist infographics style, elegant layout, muted corporate color palette (navy blue, slate gray, soft emerald accents). Clear lines, no 3D elements, no glowing neon effects. All text labels must be in Sentence Case or Title Case (NEVER ALL CAPS), keeping key technical terms in English while using Vietnamese for annotations.
 6. HTML TABLE STYLING REQUIREMENT:
-   - Any HTML table MUST include attribute: `style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%"`.
+   - Any HTML table MUST include attribute: style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%".
 7. DYNAMIC KNOWLEDGE BOUNDARY SCOPING (MANDATORY):
    All required knowledge in the exercise MUST be strictly scoped within taught lessons. ABSOLUTELY FORBIDDEN to request unlearned technologies or frameworks outside taught scope.
 
@@ -468,11 +479,13 @@ def homework_reviewer_agent(
         
         # 1.1 Forbidden Scope Contract Check
         if forbidden_scope:
-            forbidden_feedback = check_forbidden_keywords(combined_text, tech_stack, set([forbidden_scope]))
+            raw_forb = str(forbidden_scope).replace("CẤM:", "").strip()
+            forb_set = set(item.strip().lower() for item in raw_forb.split(",") if item.strip())
+            forbidden_feedback = check_forbidden_keywords(combined_text, tech_stack, forb_set)
             if forbidden_feedback:
                 feedback_msg = f"Exercise #{idx+1} '{title}' vi phạm FORBIDDEN SCOPE: {forbidden_feedback} Yêu cầu sinh lại không dùng các từ khóa này."
                 print(f"  [Homework Reviewer REJECT] {feedback_msg}")
-                return {"status": "REJECTED", "feedback": feedback_msg}
+                return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
         
         # 2. Technology Stack Boundary Isolation Guard: Block unrequested web frameworks in Core/CLI courses
         if is_core_cli:
@@ -484,7 +497,7 @@ def homework_reviewer_agent(
                     f"for a Core/CLI technology stack ({tech_stack}). Re-generate using pure native language features without web APIs."
                 )
                 print(f"  [Homework Reviewer REJECT] {feedback_msg}")
-                return {"status": "REJECTED", "feedback": feedback_msg}
+                return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
 
         # 3. Check forbidden informal words (case-insensitive)
         forbidden_words = ["nhé", "thân mến", "nhé các bạn", "nhe", "nha", "assistant", "chatgpt", "openai", "gemini", "llm", "copilot"]
@@ -506,29 +519,7 @@ def homework_reviewer_agent(
             if fl in combined_text.lower():
                 print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' contains difficulty label '{fl}'. Bypassing minor warning.")
                 
-        # 6. Check layout structure of content (H2 title centering and NO numbering)
-        if "## <center>" not in content:
-            print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' lacks centered H2 title. Auto-formatting.")
-            lines = content.split('\n')
-            has_h2 = False
-            for i, line in enumerate(lines):
-                if line.strip().startswith('##') or line.strip().startswith('#'):
-                    raw_title = line.replace('##', '').replace('#', '').replace('<center>', '').replace('</center>', '').strip()
-                    lines[i] = f"## <center>{raw_title}</center>"
-                    has_h2 = True
-                    break
-            if not has_h2:
-                lines.insert(0, f"## <center>{title}</center>\n")
-            content = '\n'.join(lines)
-            ex["content"] = content
-            
-        h2_match = re.search(r"## <center>(.*?)</center>", content)
-        if h2_match:
-            header_text = h2_match.group(1).lower()
-            if any(kw in header_text for kw in ["bai tap", "bài tập", "exercise"]) and re.search(r"\d+", header_text):
-                print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' has numbered H2 title. Bypassing minor warning.")
-                
-        # 7. Verify H3 section headings in content
+        # 6. Verify H3 section headings in content (MANDATORY GATE)
         required_headers = [
             r"###\s*(\*\*|\*|)?1\.\s*Mục tiêu(\*\*|\*|)?[\s:]*",
             r"###\s*(\*\*|\*|)?2\.\s*(Bối cảnh & )?Vấn đề(\*\*|\*|)?[\s:]*",
@@ -538,45 +529,75 @@ def homework_reviewer_agent(
         ]
         for header in required_headers:
             if not re.search(header, content):
-                print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' lacks required H3 section header matching '{header}'. Bypassing minor warning.")
+                feedback_msg = f"Exercise #{idx+1} '{title}' lacks mandatory H3 section header matching pattern '{header}'."
+                print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
 
-        # 8. Check prompt location and format (must be inside Section 2 Vấn đề)
-        idx_problem = content.find("2. Vấn đề")
-        if idx_problem == -1:
-            idx_problem = content.find("2. Bối cảnh & Vấn đề")
-            
-        idx_req = content.find("3. Quy tắc nghiệp vụ")
-        if idx_req == -1:
-            idx_req = content.find("3. Mã nguồn hiện tại")
-            
-        if idx_problem != -1 and idx_req != -1:
-            sub_content = content[idx_problem:idx_req]
-            if "*Prompt tạo ảnh:" not in sub_content:
-                print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' missing '*Prompt tạo ảnh:' inside Section 2. Bypassing minor warning.")
+        # 7. Verify Rubric format in tieu_chi_cham_diem_ai.md (MANDATORY GATE)
+        if not rubric or not rubric.startswith("### **Tiêu chí chấm điểm (AI)**"):
+            feedback_msg = f"Exercise #{idx+1} '{title}' missing grading rubric or rubric does not start with '### **Tiêu chí chấm điểm (AI)**'!"
+            print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+            return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
 
-        # 9. Verify Table styling
-        if "<table" in content and "width: 100%" not in content and 'width="100%"' not in content:
-            print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' contains HTML table without 100% width attribute. Bypassing minor warning.")
+        # 8. Check Mermaid Flowchart shape standard compliance (MANDATORY GATE)
+        if "```mermaid" in content:
+            mermaid_blocks = re.findall(r"```mermaid\n?(.*?)```", content, re.DOTALL)
+            for m_block in mermaid_blocks:
+                if re.search(r"\[/\s*(?:tính|gán|thực hiện|xử lý|khởi tạo|cập nhật)\b", m_block, re.IGNORECASE):
+                    feedback_msg = f"Exercise #{idx+1} '{title}' uses Parallelogram [/ /] for calculation/action in Mermaid flowchart. Parallelogram is ONLY for Input/Output; use Rectangle [' '] for Process actions!"
+                    print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                    return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
 
-        # 10. Check Rubric format in tieu_chi_cham_diem_ai.md
-        if not rubric:
-            print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' missing grading rubric content.")
-        elif not rubric.startswith("### **Tiêu chí chấm điểm (AI)**"):
-            print(f"  [Homework Reviewer Warning] Rubric for Exercise #{idx+1} '{title}' does not start with '### **Tiêu chí chấm điểm (AI)**'. Bypassing minor warning.")
+        # Determine global exercise number (1 to 15) correctly even during retry subsets
+        ex_level_num = ex.get("level_num")
+        if not ex_level_num:
+            match_num = re.search(r"^(\d+)_", folder_name)
+            if match_num:
+                ex_level_num = int(match_num.group(1))
+            else:
+                ex_level_num = idx + 1
 
-        # 11. ENFORCE STRICT NO-CODE HINTING POLICY FOR ADVANCED LEVELS (3-6)
-        if idx+1 in [1, 2]:
+        # 9. ENFORCE STRICT NO-SPOILER POLICY PER LEVEL
+        if ex_level_num in range(1, 7):
             if "```" not in content:
-                print(f"  [Homework Reviewer Warning] Debug Exercise #{idx+1} '{title}' missing legacy code snippet.")
-        else:
-            # For levels 3-6, forbid full solution code skeletons
-            python_code_blocks = re.findall(r"```python(.*?)```", content, re.DOTALL)
-            for block in python_code_blocks:
-                if "def " in block or "class " in block:
-                    if len(block.strip().split("\n")) > 10:
-                        print(f"  [Homework Reviewer Warning] Exercise #{idx+1} '{title}' contains pre-made function/class code implementation for students. Bypassing minor warning.")
+                feedback_msg = f"Debug Exercise #{ex_level_num} '{title}' missing legacy code snippet in Section 3!"
+                print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
 
-    return {"status": "APPROVED", "feedback": "All 6 session exercises successfully passed pedagogical and technology scope review."}
+            # Check for spoiler comments in legacy code
+            code_blocks = re.findall(r"```(?:[a-zA-Z0-9_+#-]+)?\n?(.*?)```", content, re.DOTALL)
+            for block in code_blocks:
+                if re.search(r"#\s*(lỗi|bug|sai ở đây|lỗi logic|bị lỗi)", block, re.IGNORECASE):
+                    feedback_msg = f"Exercise #{ex_level_num} '{title}' contains spoiler comment in legacy code (e.g. '# LỖI LOGIC'). Legacy code comments must be neutral and not reveal the bug!"
+                    print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                    return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
+
+            # Verify Test Case table structure for Basic Application exercises (1-6)
+            if "<table" in content:
+                tr_list = re.findall(r"<tr[^>]*>(.*?)</tr>", content, re.DOTALL | re.IGNORECASE)
+                table_has_placeholders = any("..." in tr for tr in tr_list[1:]) if len(tr_list) > 1 else False
+                if not table_has_placeholders and len(tr_list) >= 3:
+                    feedback_msg = f"Exercise #{ex_level_num} '{title}' has all test case rows fully completed in prompt table. Row 1 MUST be a sample testcase, while Row 2 & 3 MUST be left incomplete ('...') for students!"
+                    print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                    return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
+        else:
+            # For Analysis exercises (10-12), forbid pre-packaged solution option descriptions in prompt (e.g. 'Phương án A:', 'Phương án B:')
+            if 10 <= ex_level_num <= 12:
+                if re.search(r"(phương án a:|phương án b:|giải pháp a:|giải pháp b:)", content, re.IGNORECASE):
+                    feedback_msg = f"Exercise #{ex_level_num} '{title}' contains pre-packaged solution hints (e.g. 'Phương án A: / Phương án B:'). Prompt must not spoil solution options! Let students propose solutions."
+                    print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                    return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
+
+            # For levels 7-15, forbid full solution code skeletons
+            all_code_blocks = re.findall(r"```(?:[a-zA-Z0-9_+#-]+)?\n?(.*?)```", content, re.DOTALL)
+            for block in all_code_blocks:
+                if any(kw in block for kw in ["def ", "class ", "function ", "public class ", "struct ", "interface "]):
+                    if len(block.strip().split("\n")) > 10:
+                        feedback_msg = f"Exercise #{ex_level_num} '{title}' contains pre-made solution code implementation (>10 lines) in prompt! Prompt must not spoil implementation code for students."
+                        print(f"  [Homework Reviewer REJECT] {feedback_msg}")
+                        return {"status": "REJECTED", "feedback": feedback_msg, "failed_idx": idx}
+
+    return {"status": "APPROVED", "feedback": "All session exercises successfully passed pedagogical and technology scope review."}
 
 def session_homework_pipeline(
     session_id: str,
@@ -589,11 +610,13 @@ def session_homework_pipeline(
 ) -> List[Dict[str, Any]]:
     """
     Session Homework Pipeline:
-    Coordinates the 6-exercise creation and review loop for a single session,
+    Coordinates the 15-exercise creation and review loop for a single session,
     saving the resulting Markdown files and diagram prompts into session output directory.
+    (6 Basic Application, 3 Advanced Application, 3 Analysis, 3 Creative Synthesis).
+    Features per-exercise resilience (retrying only failed individual exercises).
     """
     print(f"\n==================================================")
-    print(f" 📝 [SESSION HOMEWORK FACTORY] Generating 6 Exercises for Session: {session_id} - {session_title}")
+    print(f" 📝 [SESSION HOMEWORK FACTORY] Generating 15 Exercises for Session: {session_id} - {session_title}")
     print(f"    - Target Tech Stack: {tech_stack}")
     print(f"==================================================")
     
@@ -608,66 +631,86 @@ def session_homework_pipeline(
     homework_dir = session_dir / "Bài tập"
     homework_dir.mkdir(exist_ok=True)
     
-    # Randomly select the unified enterprise domain context
-    domains = ["ecommerce", "crm", "logistics", "warehouse", "fintech"]
-    chosen_domain = random.choice(domains)
-    print(f"  [Homework Pipeline] Selected Unified Domain Context: {chosen_domain.upper()}")
+    # Select a relatable open-ended enterprise business domain from our rich registry
+    domain_info = select_random_domain()
+    chosen_domain = domain_info["domain_id"]
+    print(f"  [Homework Pipeline] Selected Unified Relatable Domain Context: {domain_info['name_vi']} ({chosen_domain})")
     
     levels = [
         ("Vận dụng cơ bản 1", 1),
         ("Vận dụng cơ bản 2", 2),
-        ("Vận dụng chuyên sâu", 3),
-        ("Phân tích", 4),
-        ("Sáng tạo", 5),
-        ("Bài tập tổng hợp", 6)
+        ("Vận dụng cơ bản 3", 3),
+        ("Vận dụng cơ bản 4", 4),
+        ("Vận dụng cơ bản 5", 5),
+        ("Vận dụng cơ bản 6", 6),
+        ("Vận dụng nâng cao 1", 7),
+        ("Vận dụng nâng cao 2", 8),
+        ("Vận dụng nâng cao 3", 9),
+        ("Phân tích 1", 10),
+        ("Phân tích 2", 11),
+        ("Phân tích 3", 12),
+        ("Sáng tạo 1", 13),
+        ("Sáng tạo 2", 14),
+        ("Sáng tạo 3", 15)
     ]
     
-    exercises_data = []
-    
-    # Run the generate-review critique loop
-    for attempt in range(3):
-        print(f"  [Homework Pipeline] Attempt {attempt+1}/3 to generate session homework suite...")
-        candidate_exercises = []
-        try:
-            from concurrent.futures import ThreadPoolExecutor
-            with ThreadPoolExecutor(max_workers=6) as executor:
-                futures = [
-                    executor.submit(
-                        homework_creator_agent,
-                        session_id=session_id,
-                        session_title=session_title,
-                        tech_stack=tech_stack,
-                        previous_lessons_text=previous_lessons_text,
-                        idx=idx,
-                        level_name=level_name,
-                        chosen_domain=chosen_domain,
-                        forbidden_scope=forbidden_scope
-                    )
-                    for level_name, idx in levels
-                ]
-                candidate_exercises = [f.result() for f in futures]
-            
-            # Review the entire batch of 6 exercises
-            review_result = homework_reviewer_agent(
-                candidate_exercises, 
+    candidate_exercises = [None] * len(levels)
+    pending_indices = list(range(len(levels)))
+
+    # Per-exercise resilient retry loop (up to 10 rounds)
+    for round_num in range(10):
+        if not pending_indices:
+            break
+        print(f"  [Homework Pipeline] Round {round_num+1}: Generating {len(pending_indices)} exercises (Indices: {[i+1 for i in pending_indices]})...")
+        with ThreadPoolExecutor(max_workers=min(len(pending_indices), 10)) as executor:
+            futures = {
+                executor.submit(
+                    homework_creator_agent,
+                    session_id=session_id,
+                    session_title=session_title,
+                    tech_stack=tech_stack,
+                    previous_lessons_text=previous_lessons_text,
+                    idx=levels[i][1],
+                    level_name=levels[i][0],
+                    chosen_domain=chosen_domain,
+                    forbidden_scope=forbidden_scope
+                ): i
+                for i in pending_indices
+            }
+            for fut in futures:
+                i = futures[fut]
+                try:
+                    candidate_exercises[i] = fut.result()
+                except Exception as e:
+                    print(f"  [Homework Warning] Exercise #{i+1} generation exception: {e}")
+
+        # Review candidate exercises individually
+        new_pending = []
+        for i in range(len(levels)):
+            ex = candidate_exercises[i]
+            if not ex:
+                new_pending.append(i)
+                continue
+            review_res = homework_reviewer_agent(
+                [ex], 
                 tech_stack, 
                 chosen_domain, 
                 previous_lessons_text,
                 session_id,
                 forbidden_scope
             )
-            
-            if review_result["status"] == "APPROVED":
-                exercises_data = candidate_exercises
-                print(f"  [Homework Reviewer] APPROVED: {review_result['feedback']}")
-                break
-            else:
-                print(f"  [Homework Reviewer] REJECTED (Attempt {attempt+1}): {review_result['feedback']}")
-        except Exception as e:
-            print(f"  [Homework Warning] Attempt {attempt+1} failed due to exception: {e}")
-            
-    if not exercises_data:
-        raise ValueError(f"Unable to generate standardized homework exercises for session {session_id} after 3 attempts.")
+            if review_res["status"] != "APPROVED":
+                print(f"  [Homework Reviewer] Exercise #{i+1} REJECTED: {review_res['feedback']}. Scheduling re-generation...")
+                candidate_exercises[i] = None
+                new_pending.append(i)
+
+        pending_indices = new_pending
+
+    exercises_data = [ex for ex in candidate_exercises if ex is not None]
+    if len(exercises_data) < len(levels):
+        raise ValueError(f"Unable to generate all 15 exercises for session {session_id}. Only generated {len(exercises_data)}/15.")
+        
+    print(f"  [Homework Reviewer] ALL {len(exercises_data)} EXERCISES APPROVED SUCCESSFULLY!")
         
     # Clean legacy artifacts in homework_dir
     if homework_dir.exists():
@@ -689,7 +732,7 @@ def session_homework_pipeline(
     # Save the 6 exercises in their respective subfolders
     for idx, ex in enumerate(exercises_data):
         title = ex.get("title", "Bài tập")
-        clean_name = sanitize_vietnamese_filename(title).replace(".md", "")
+        clean_name = sanitize_vietnamese_filename(title).replace(".md", "")[:45].rstrip("_")
         ex_folder = homework_dir / f"{idx+1}_{clean_name}"
         ex_folder.mkdir(parents=True, exist_ok=True)
         
@@ -712,64 +755,315 @@ def session_homework_pipeline(
             f.write(rubric)
             
         print(f"  [Success] Saved homework folder: {ex_folder}")
-    # Tự động sinh Bài tập Mindmap (Yêu cầu mới)
-    mindmap_folder = homework_dir / "Hệ thống kiến thức Mindmap"
-    mindmap_folder.mkdir(exist_ok=True)
+
+    # -------------------------------------------------------------------------
+    # 1. Tự động sinh Bài tập Tổng hợp Session (Giảng viên Demo trên lớp)
+    # -------------------------------------------------------------------------
+    demo_synthesis_folder = homework_dir / "16_tong_hop_demo_giang_vien_tren_lop"
+    demo_synthesis_folder.mkdir(exist_ok=True, parents=True)
     
-    # We call LLM to extract keywords for the mindmap objectives
-    mindmap_prompt = f"""Dựa vào nội dung Session {session_id} - {session_title}:
-{previous_lessons_text}
+    print(f"  [Homework Pipeline] Generating Instructor Demo Synthesis Assignment for {session_id}...")
+    demo_prompt = f"""You are a Master Technical Trainer and Lead Curriculum Architect at Rikkei Education.
+Generate a COMPLETE, Standardized Instructor Live-Demo Synthesis Assignment for Session: {session_id} - {session_title}.
+Target System Domain: {chosen_domain.upper()}
+Target Technology Stack: {tech_stack}
+Session Scope: {previous_lessons_text}
+Forbidden Scope: {forbidden_scope}
 
-Hãy liệt kê khoảng 5-10 keyword trọng tâm nhất của bài học này để sinh viên làm Mindmap. Trả về đúng định dạng Markdown sau, KHÔNG thêm gì khác:
-## <center>[Bài tập] Hệ thống kiến thức Mindmap</center>
+This synthesis assignment is designed FOR THE INSTRUCTOR TO LIVE-DEMO IN CLASS, synthesizing ALL core concepts taught in Session {session_id}.
 
-### 1. Mục tiêu
-- Hiểu được tổng quan đến chi tiết của buổi học thông qua các từ khóa:
-  - {{KEYWORD_1}}
-  - {{KEYWORD_2}}
-  - ...
+Return your response in EXACTLY the following XML schema (no conversational text outside XML):
+<exercise>
+<de_bai_content>
+## <center>[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session {session_id} (Dành cho Giảng viên Demo trên lớp)</center>
 
-### 2. Yêu cầu nộp bài
-- Nộp file ảnh xuất ra từ Xmind/Mindmeister (định dạng .png hoặc .jpg)
-- Nộp file nguồn của Mindmap (ví dụ file .xmind)
+### **1. Mục tiêu**
+* Tổng hợp toàn bộ kiến thức cốt lõi của {session_id} trong 1 bài toán thực tế thuộc hệ thống {chosen_domain.upper()}.
+* Hướng dẫn Giảng viên thực hiện Live Coding demo trực tiếp trên lớp để sinh viên quan sát tư duy thiết kế, trace code và bắt bẫy dữ liệu.
 
-### 3. Tiêu chí đánh giá
-- **Độ chi tiết (40 điểm)**: Thể hiện đầy đủ các khái niệm, phân nhánh sâu đến các thuộc tính hoặc ví dụ cụ thể.
-- **Tính logic và liên kết (30 điểm)**: Các nhánh được nhóm đúng theo quan hệ cha - con, sử dụng mũi tên liên kết giữa các nhánh liên quan.
-- **Màu sắc và hình ảnh (30 điểm)**: Sử dụng màu sắc nhất quán cho các nhánh chính, có các icon minh họa sinh động, rõ ràng dễ nhớ.
+### **2. Bối cảnh & Vấn đề (Dành cho Demo trên lớp)**
+Hệ thống {chosen_domain.upper()} yêu cầu triển khai một phân hệ tổng hợp tích hợp toàn bộ các quy tắc nghiệp vụ của bài học {session_title}. 
+
+Prompt tạo ảnh: A clean 2D flat vector technical illustration of a computer science professor live coding an enterprise synthesis system module on class projector screen for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+
+### **3. Quy tắc nghiệp vụ & Luồng xử lý tích hợp**
+Phân hệ tổng hợp xử lý theo các quy tắc nghiệp vụ sau:
+1. **Kiến thức áp dụng tích hợp**: {previous_lessons_text}.
+2. **Quy tắc tính toán & Thứ tự ưu tiên**: Thực hiện chính xác biểu thức logic và công thức tính toán.
+3. **Bẫy dữ liệu & Ngoại lệ (Edge Cases)**: Xử lý an toàn các trường hợp biên và dữ liệu bất thường.
+
+### **4. Hướng dẫn Giảng viên Live-Demo & Mã nguồn Mẫu**
+#### **Bước 1: Phân tích I/O & Sơ đồ luồng thuật toán**
+- Input: Thông tin đầu vào từ hệ thống.
+- Output: Kết quả xử lý nghiệp vụ.
+- Sơ đồ luồng Mermaid chuẩn (sử dụng đúng 5 hình chuẩn: Oval cho Start/End, Parallelogram cho Input/Output, Diamond cho Decision, Rectangle cho Process, Flowline cho Arrow).
+
+#### **Bước 2: Mã nguồn Mẫu hoàn chỉnh (Master Demo Code)**
+Mã nguồn Python/C/Java mẫu chuẩn chỉnh 100% runnable có comment giải thích chi tiết để Giảng viên vừa gõ code vừa giải thích cho sinh viên trên lớp.
+
+#### **Bước 3: Nhấn mạnh Bẫy dữ liệu & Kỹ năng bắt lỗi (Instructor Teaching Notes)**
+- Điểm nhấn 1: Hướng dẫn sinh viên quan sát bẫy dữ liệu biên.
+- Điểm nhấn 2: Giải thích lý do chọn cấu trúc toán tử/thuật toán tối ưu.
+
+### **5. Yêu cầu nộp bài (Dành cho Sinh viên thực hành mở rộng)**
+Học viên theo dõi bài giảng demo của Giảng viên, thực hiện lại bài tập tổng hợp và mở rộng thêm tính năng chặn lỗi, nộp lên GitHub theo chuẩn: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Demo_Synthesis`.
+</de_bai_content>
+<tieu_chi_content>
+### **Tiêu chí chấm điểm (AI / Mentor)**
+
+**[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session — Tổng điểm: 100 điểm**
+
+#### **1. Phân tích luồng & Sơ đồ thuật toán — 20 điểm**
+*   **[20 điểm] Phân tích I/O và Sơ đồ Mermaid chuẩn:** Sơ đồ vẽ đúng 5 hình chuẩn, phân tích đủ Input/Output.
+
+#### **2. Hiện thực hóa mã nguồn tích hợp — 40 điểm**
+*   **[40 điểm] Mã nguồn chạy thông suốt:** Tích hợp đầy đủ tất cả toán tử và quy tắc nghiệp vụ của Session.
+
+#### **3. Xử lý bẫy dữ liệu & Ngoại lệ — 20 điểm**
+*   **[20 điểm] Bắt lỗi biên an toàn:** Xử lý triệt để bẫy dữ liệu số âm, vượt ngưỡng, sai định dạng.
+
+#### **4. Clean Code & Quy chuẩn nộp bài — 20 điểm**
+*   **[10 điểm] Đặt tên tiếng Anh chuẩn Clean Code:** Tên biến/hàm tiếng Anh rõ nghĩa, comment tiếng Việt chuẩn.
+*   **[10 điểm] Nộp bài GitHub:** Cấu trúc bài nộp trên GitHub đúng quy định.
+</tieu_chi_content>
+</exercise>
 """
-    mindmap_content = call_llm(
-        system_prompt="Bạn là chuyên gia thiết kế bài tập Mindmap.",
-        user_prompt=mindmap_prompt,
+    demo_response = call_llm(
+        system_prompt="Bạn là Chuyên gia thiết kế bài tập Demo tổng hợp cho Giảng viên Rikkei Education.",
+        user_prompt=demo_prompt,
         json_mode=False,
-        agent_name="Mindmap_Exercise_Agent"
+        agent_name="Demo_Synthesis_Exercise_Agent",
+        session_id=session_id
     )
     
-    if not mindmap_content:
-        mindmap_content = """## <center>[Bài tập] Hệ thống kiến thức Mindmap</center>
+    demo_de_bai = ""
+    demo_rubric = ""
+    if demo_response:
+        xml_clean = demo_response.strip()
+        if xml_clean.startswith("```xml"):
+            xml_clean = xml_clean[6:]
+        if xml_clean.startswith("```"):
+            xml_clean = xml_clean[3:]
+        if xml_clean.endswith("```"):
+            xml_clean = xml_clean[:-3]
+        xml_clean = xml_clean.strip()
+        
+        start_idx = xml_clean.find("<exercise>")
+        end_idx = xml_clean.rfind("</exercise>")
+        if start_idx != -1 and end_idx != -1:
+            xml_clean = xml_clean[start_idx:end_idx + 11]
+            try:
+                root = ET.fromstring(xml_clean)
+                de_bai_node = root.find("de_bai_content")
+                tieu_chi_node = root.find("tieu_chi_content")
+                if de_bai_node is not None and de_bai_node.text:
+                    demo_de_bai = de_bai_node.text.strip()
+                if tieu_chi_node is not None and tieu_chi_node.text:
+                    demo_rubric = tieu_chi_node.text.strip()
+            except Exception as e:
+                print(f"  [Warning] Demo Synthesis XML parsing fallback: {e}")
 
-### 1. Mục tiêu
-- Hiểu được tổng quan đến chi tiết của buổi học
+    if not demo_de_bai:
+        demo_de_bai = f"""## <center>[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session {session_id} (Dành cho Giảng viên Demo trên lớp)</center>
 
-### 2. Yêu cầu nộp bài
-- Nộp file ảnh xuất ra từ Xmind/Mindmeister (định dạng .png hoặc .jpg)
-- Nộp file nguồn của Mindmap (ví dụ file .xmind)
+### **1. Mục tiêu**
+* Tổng hợp toàn bộ kiến thức cốt lõi của {session_id} trong 1 bài toán thực tế thuộc hệ thống {chosen_domain.upper()}.
+* Hướng dẫn Giảng viên thực hiện Live Coding demo trực tiếp trên lớp.
 
-### 3. Tiêu chí đánh giá
-- **Độ chi tiết (40 điểm)**: Thể hiện đầy đủ các khái niệm, phân nhánh sâu.
-- **Tính logic và liên kết (30 điểm)**: Các nhánh được nhóm đúng theo quan hệ cha - con.
-- **Màu sắc và hình ảnh (30 điểm)**: Sử dụng màu sắc nhất quán cho các nhánh chính.
+### **2. Bối cảnh & Vấn đề (Dành cho Demo trên lớp)**
+Hệ thống {chosen_domain.upper()} yêu cầu triển khai một phân hệ tổng hợp tích hợp toàn bộ các quy tắc nghiệp vụ của bài học {session_title}.
+
+Prompt tạo ảnh: A clean 2D flat vector technical illustration of a computer science professor live coding an enterprise synthesis system module for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+
+### **3. Quy tắc nghiệp vụ & Luồng xử lý tích hợp**
+Phạm vi kiến thức tích hợp: {previous_lessons_text}.
+
+### **4. Hướng dẫn Giảng viên Live-Demo & Mã nguồn Mẫu**
+#### **Bước 1: Phân tích I/O & Sơ đồ luồng thuật toán**
+Sơ đồ luồng thuật toán tích hợp.
+
+#### **Bước 2: Mã nguồn Mẫu hoàn chỉnh (Master Demo Code)**
+Mã nguồn mẫu hoàn chỉnh cho Giảng viên demo trên lớp.
+
+### **5. Yêu cầu nộp bài**
+Đẩy lên GitHub Repository: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Demo_Synthesis`.
 """
-    else:
-        mindmap_content = mindmap_content.replace('```markdown', '').replace('```', '').strip()
+    if not demo_rubric:
+        demo_rubric = """### **Tiêu chí chấm điểm (AI / Mentor)**
+
+**[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session — Tổng điểm: 100 điểm**
+
+#### **1. Phân tích luồng & Sơ đồ thuật toán — 20 điểm**
+#### **2. Hiện thực hóa mã nguồn tích hợp — 40 điểm**
+#### **3. Xử lý bẫy dữ liệu & Ngoại lệ — 20 điểm**
+#### **4. Clean Code & Quy chuẩn nộp bài — 20 điểm**
+"""
+
+    from agents.creators.common_utils import clean_markdown_formulas
+    processed_demo_de_bai = clean_markdown_formulas(generate_and_link_diagram(demo_de_bai, homework_dir, "bai_16_tong_hop_demo_giang_vien"))
+
+    demo_file_path = demo_synthesis_folder / "de_bai_bai_tap.md"
+    with open(demo_file_path, "w", encoding="utf-8") as f:
+        f.write(processed_demo_de_bai)
+
+    demo_rubric_path = demo_synthesis_folder / "tieu_chi_cham_diem_ai.md"
+    with open(demo_rubric_path, "w", encoding="utf-8") as f:
+        f.write(demo_rubric)
+        
+    print(f"  [Success] Saved instructor demo synthesis homework folder: {demo_synthesis_folder}")
+
+    # -------------------------------------------------------------------------
+    # 2. Tự động sinh Bài tập Hệ thống hóa Mindmap (Cho Sinh viên)
+    # -------------------------------------------------------------------------
+    mindmap_folder = homework_dir / "17_tong_hop_he_thong_kien_thuc_mindmap"
+    mindmap_folder.mkdir(exist_ok=True, parents=True)
+    
+    print(f"  [Homework Pipeline] Generating Student Mindmap Assignment for {session_id}...")
+    mindmap_prompt = f"""Bạn là Chuyên gia Đào tạo Lập trình. Hãy tạo 1 Bài tập Tổng hợp Kiến thức (Mindmap & System Synthesis Assignment) hoàn chỉnh cho Buổi học: {session_id} - {session_title}.
+Lĩnh vực dự án áp dụng: {chosen_domain.upper()}
+Phạm vi kiến thức buổi học: {previous_lessons_text}
+
+Yêu cầu trả về đúng cấu trúc XML sau:
+<exercise>
+<de_bai_content>
+## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - {session_title}</center>
+
+### **1. Mục tiêu**
+* Hệ thống hóa toàn bộ kiến thức cốt lõi, các quy tắc toán tử/nghiệp vụ và bẫy lỗi thường gặp trong {session_id}.
+* Rèn luyện tư duy tổng quan (Big Picture) và khả năng phân tầng kiến thức logic bằng phương pháp Sơ đồ tư duy.
+
+### **2. Bối cảnh & Yêu cầu tổng hợp**
+Trong hệ thống phân hệ {chosen_domain.upper()}, việc nắm vững toàn bộ kiến thức nền tảng là điều kiện bắt buộc trước khi bàn giao module cho khách hàng. Học viên đóng vai trò Kỹ sư Lập trình chính, thực hiện xây dựng Sơ đồ Tư duy (Mindmap) bao phủ toàn bộ các chủ đề kỹ thuật của bài học.
+
+Prompt tạo ảnh: A clean 2D flat vector technical illustration of a software developer mapping out technical knowledge mindmap diagram for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+
+### **3. Quy tắc nghiệp vụ & Từ khóa trọng tâm**
+Sơ đồ tư duy của học viên BẮT BUỘC phải bao phủ đầy đủ các nhóm từ khóa và khái niệm trọng tâm sau:
+1. **Kiến thức cốt lõi**: {previous_lessons_text}.
+2. **Quy tắc tính toán & Thứ tự ưu tiên**: Phân tầng rõ ràng thứ tự thực thi của toán tử và biểu thức.
+3. **Bẫy lỗi nghiệp vụ & Biên dữ liệu (Edge Cases)**: Liệt kê các sai sót thường gặp khi lập trình.
+
+### **4. Yêu cầu bài toán (Sản phẩm nộp)**
+Học viên thực hiện bài tập tổng hợp và nộp các sản phẩm sau:
+1. **File ảnh Sơ đồ tư duy**: Xuất file dạng `.png` hoặc `.jpg` từ các công cụ Mindmap (Xmind, Mindmeister, Draw.io) thể hiện tối thiểu 3 tầng phân nhánh.
+2. **File thiết kế gốc**: Nộp file gốc (ví dụ `.xmind`, `.drawio`, hoặc `.pdf`).
+3. **Bản tóm tắt Markdown (summary.md)**: Viết bản tóm tắt tóm lược 5-7 dòng giải thích các điểm nhấn chính của sơ đồ.
+
+### **5. Yêu cầu nộp bài**
+Học viên nộp bài theo quy chuẩn GitHub:
+* Đẩy mã nguồn và sơ đồ lên GitHub Repository theo cấu trúc: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Mindmap`.
+</de_bai_content>
+<tieu_chi_content>
+### **Tiêu chí chấm điểm (AI / Mentor)**
+
+**[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) — Tổng điểm: 100 điểm**
+
+#### **1. Độ bao phủ kiến thức & Tính đầy đủ của từ khóa — 30 điểm**
+*   **[15 điểm] Bao phủ toàn bộ khái niệm cốt lõi:** Mindmap chứa đầy đủ các từ khóa trọng tâm đã học trong Session.
+*   **[15 điểm] Nhận diện các bẫy dữ liệu (Edge Cases):** Có nhánh riêng tổng hợp các lỗi thường gặp và bẫy dữ liệu.
+
+#### **2. Phân tầng logic & Liên kết đa chiều — 30 điểm**
+*   **[15 điểm] Phân nhánh chuẩn xác (Tối thiểu 3 tầng):** Cấu trúc phân nhánh Cha - Con logic, không bị chồng chéo.
+*   **[15 điểm] Mối liên kết đa chiều (Cross-link):** Sử dụng các mũi tên liên kết giữa các nhánh có quan hệ nghiệp vụ.
+
+#### **3. Trực quan hóa & Định dạng sơ đồ — 20 điểm**
+*   **[10 điểm] Sử dụng màu sắc và Icon minh họa:** Phối màu rõ ràng theo từng nhánh chính, có icon hỗ trợ trí nhớ.
+*   **[10 điểm] Xuất file ảnh nét cao (.png/.jpg):** File ảnh đọc rõ chữ, layout cân đối không bị đứt đoạn.
+
+#### **4. Bản tóm tắt giải trình (summary.md) — 10 điểm**
+*   **[10 điểm] Tóm tắt súc tích:** Viết bản tóm tắt bằng Markdown giải thích các điểm nhấn chính của sơ đồ.
+
+#### **5. Quy chuẩn nộp bài GitHub — 10 điểm**
+*   **[10 điểm] Đúng cấu trúc repository:** Đẩy đủ file ảnh, file gốc và summary.md lên GitHub theo chuẩn đặt tên.
+
+#### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
+*   **[10 điểm] Sơ đồ tương tác hoặc Code Mermaid:** Vẽ bổ sung 1 sơ đồ Mermaid Flowchart minh họa luồng xử lý tổng hợp trong bài.
+</tieu_chi_content>
+</exercise>
+"""
+    mindmap_response = call_llm(
+        system_prompt="Bạn là Chuyên gia thiết kế bài tập Lập trình chuẩn hóa của Rikkei Education.",
+        user_prompt=mindmap_prompt,
+        json_mode=False,
+        agent_name="Mindmap_Exercise_Agent",
+        session_id=session_id
+    )
+    
+    mindmap_de_bai = ""
+    mindmap_rubric = ""
+    if mindmap_response:
+        xml_clean = mindmap_response.strip()
+        if xml_clean.startswith("```xml"):
+            xml_clean = xml_clean[6:]
+        if xml_clean.startswith("```"):
+            xml_clean = xml_clean[3:]
+        if xml_clean.endswith("```"):
+            xml_clean = xml_clean[:-3]
+        xml_clean = xml_clean.strip()
+        
+        start_idx = xml_clean.find("<exercise>")
+        end_idx = xml_clean.rfind("</exercise>")
+        if start_idx != -1 and end_idx != -1:
+            xml_clean = xml_clean[start_idx:end_idx + 11]
+            try:
+                root = ET.fromstring(xml_clean)
+                de_bai_node = root.find("de_bai_content")
+                tieu_chi_node = root.find("tieu_chi_content")
+                if de_bai_node is not None and de_bai_node.text:
+                    mindmap_de_bai = de_bai_node.text.strip()
+                if tieu_chi_node is not None and tieu_chi_node.text:
+                    mindmap_rubric = tieu_chi_node.text.strip()
+            except Exception as e:
+                print(f"  [Warning] Mindmap XML parsing fallback: {e}")
+
+    if not mindmap_de_bai:
+        mindmap_de_bai = f"""## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - {session_title}</center>
+
+### **1. Mục tiêu**
+* Hệ thống hóa toàn bộ kiến thức cốt lõi và các bẫy lỗi nghiệp vụ trong {session_id}.
+* Trực quan hóa cấu trúc dữ liệu và luồng thực thi bằng Sơ đồ Tư duy.
+
+### **2. Bối cảnh & Yêu cầu tổng hợp**
+Học viên đóng vai trò Kỹ sư Lập trình chính, thực hiện xây dựng Sơ đồ Tư duy (Mindmap) tổng hợp kiến thức đã học.
+
+Prompt tạo ảnh: A clean 2D flat vector technical illustration of a developer mapping out technical knowledge mindmap diagram for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+
+### **3. Quy tắc nghiệp vụ & Từ khóa trọng tâm**
+Sơ đồ tư duy BẮT BUỘC bao phủ các từ khóa: {previous_lessons_text}.
+
+### **4. Yêu cầu bài toán (Sản phẩm nộp)**
+1. File ảnh Sơ đồ tư duy (.png hoặc .jpg).
+2. File thiết kế gốc (.xmind hoặc .pdf).
+3. Bản tóm tắt tóm lược Markdown (summary.md).
+
+### **5. Yêu cầu nộp bài**
+Đẩy lên GitHub Repository theo chuẩn: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Mindmap`.
+"""
+    if not mindmap_rubric:
+        mindmap_rubric = """### **Tiêu chí chấm điểm (AI / Mentor)**
+
+**[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) — Tổng điểm: 100 điểm**
+
+#### **1. Độ bao phủ kiến thức & Từ khóa trọng tâm — 30 điểm**
+#### **2. Phân tầng logic & Mối liên kết — 30 điểm**
+#### **3. Trực quan hóa & Định dạng xuất file — 20 điểm**
+#### **4. Bản tóm tắt giải trình (summary.md) — 10 điểm**
+#### **5. Quy chuẩn nộp bài GitHub — 10 điểm**
+"""
+
+    processed_mindmap_de_bai = clean_markdown_formulas(generate_and_link_diagram(mindmap_de_bai, homework_dir, "bai_17_tong_hop_mindmap"))
 
     mindmap_file_path = mindmap_folder / "de_bai_bai_tap.md"
     with open(mindmap_file_path, "w", encoding="utf-8") as f:
-        f.write(mindmap_content)
+        f.write(processed_mindmap_de_bai)
+
+    mindmap_rubric_path = mindmap_folder / "tieu_chi_cham_diem_ai.md"
+    with open(mindmap_rubric_path, "w", encoding="utf-8") as f:
+        f.write(mindmap_rubric)
         
     print(f"  [Success] Saved mindmap homework folder: {mindmap_folder}")
     
-    print(f"  [Homework Pipeline] Successfully completed all 6 homework assignments + 1 Mindmap assignment for Session {session_id}!")
+    print(f"  [Homework Pipeline] Successfully completed all 15 homework assignments + 1 Demo Synthesis + 1 Mindmap Synthesis for Session {session_id}!")
     return exercises_data
 
 # Alias for backwards compatibility

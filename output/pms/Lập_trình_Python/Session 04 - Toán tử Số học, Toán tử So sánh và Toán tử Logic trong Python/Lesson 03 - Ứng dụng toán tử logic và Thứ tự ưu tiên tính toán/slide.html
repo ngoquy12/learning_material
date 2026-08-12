@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán — Rikkei Master Presentation</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rikkei: {
+              red: "#be111c",
+              darkred: "#90000a",
+              dark: "#0f172a",
+              bgDark: "#0a0a0f",
+              cardDark: "#13131f",
+              borderDark: "rgba(255, 255, 255, 0.08)",
+            },
+          },
+          fontFamily: {
+            sans: ["Montserrat", "sans-serif"],
+            mono: ["Fira Code", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+  <!-- Highlight.js for Code Highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+    });
+  </script>
+  <style>
+    html {
+      height: 100vh;
+      overflow: hidden !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    html::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden !important;
+      background-color: #ffffff;
+    }
+    .slide-wrapper {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+    }
+    .slide-card {
+      width: 100% !important;
+      height: 100% !important;
+      box-shadow: none !important;
+      border-radius: 0px !important;
+      border: none !important;
+    }
+    pre, pre code {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border: none !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
+      overflow-x: hidden !important;
+    }
+    pre code.hljs {
+      background: transparent !important;
+      color: #0f172a !important;
+    }
+    .hljs-keyword {
+      color: #be111c !important;
+      font-weight: 700 !important;
+    }
+    .hljs-string {
+      color: #15803d !important;
+    }
+    .hljs-number {
+      color: #ea580c !important;
+    }
+    .hljs-built_in, .hljs-name, .hljs-title {
+      color: #1d4ed8 !important;
+    }
+    .hljs-comment {
+      color: #64748b !important;
+      font-style: italic !important;
+    }
+    pre code {
+      font-family: "Fira Code", "JetBrains Mono", monospace !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+    }
+    .bento-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bento-card:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-slate-900 bg-white">
+  <!-- Main Content Slides Container -->
+  <div id="slides-container" class="w-full h-full overflow-y-auto scroll-smooth relative" style="scroll-snap-type: y mandatory;">
+    <div class="w-full flex flex-col">
+
+      <!-- Slide 0: Cover Slide -->
+      <div class="slide-wrapper" id="slide-1" data-slide-index="0">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-16 overflow-hidden">
+          <!-- Left red banner decoration -->
+          <div class="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-40 bg-rikkei-red" style="clip-path: polygon(0 0, 0 100%, 100% 50%)"></div>
+          <!-- Right decorative triangle grid -->
+          <svg class="absolute -right-4 top-1/2 -translate-y-1/2 h-[80%] w-[35%] text-rikkei-red select-none pointer-events-none opacity-80" fill="currentColor" viewBox="0 0 200 400">
+            <polygon points="180,60 190,65 180,70"></polygon>
+            <polygon points="180,90 190,95 180,100"></polygon>
+            <polygon points="180,120 190,125 180,130"></polygon>
+            <polygon points="180,150 190,155 180,160"></polygon>
+            <polygon points="180,180 190,185 180,190"></polygon>
+            <polygon points="180,210 190,215 180,220"></polygon>
+            <polygon points="180,240 190,245 180,250"></polygon>
+            <polygon points="180,270 190,275 180,280"></polygon>
+            <polygon points="180,300 190,305 180,310"></polygon>
+            <polygon points="180,330 190,335 180,340"></polygon>
+            <polygon points="160,80 170,85 160,90"></polygon>
+            <polygon points="160,110 170,115 160,120"></polygon>
+            <polygon points="160,140 170,145 160,150"></polygon>
+            <polygon points="160,170 170,175 160,180"></polygon>
+            <polygon points="160,200 170,205 160,210"></polygon>
+            <polygon points="160,230 170,235 160,240"></polygon>
+            <polygon points="160,260 170,265 160,270"></polygon>
+            <polygon points="160,290 170,295 160,300"></polygon>
+            <polygon points="160,320 170,325 160,330"></polygon>
+            <polygon points="140,100 150,105 140,110"></polygon>
+            <polygon points="140,130 150,135 140,140"></polygon>
+            <polygon points="140,160 150,165 140,170"></polygon>
+            <polygon points="140,190 150,195 140,200"></polygon>
+            <polygon points="140,220 150,225 140,230"></polygon>
+            <polygon points="140,250 150,255 140,260"></polygon>
+            <polygon points="140,280 150,285 140,290"></polygon>
+            <polygon points="140,300 150,305 140,310"></polygon>
+            <polygon points="120,120 130,125 120,130"></polygon>
+            <polygon points="120,150 130,155 120,160"></polygon>
+            <polygon points="120,180 130,185 120,190"></polygon>
+            <polygon points="120,210 130,215 120,220"></polygon>
+            <polygon points="120,240 130,245 120,250"></polygon>
+            <polygon points="120,270 130,275 120,280"></polygon>
+          </svg>
+          <!-- Text Contents -->
+          <div class="my-auto ml-10 space-y-5 text-left select-none max-w-none w-full pr-12">
+            <h2 class="font-montserrat font-extrabold text-[38px] text-rikkei-red">
+              Session 01:
+            </h2>
+            <h1 class="font-montserrat font-extrabold text-[52px] text-black leading-tight break-words w-full">
+              Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+            </h1>
+            <div class="pt-8 space-y-2 text-slate-600 text-[22px] font-medium">
+              <p>Môn học: Chương trình đào tạo Python</p>
+            </div>
+          </div>
+          <!-- Bottom Logo & Footer -->
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 w-full max-w-200 text-center">
+            <img alt="Rikkei Academy Logo" class="h-10 object-contain" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <!-- Bottom right red triangle page number -->
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">1</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 1: Agenda Slide -->
+      <div class="slide-wrapper" id="slide-2" data-slide-index="1">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start">
+            <!-- Header Area -->
+            <div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+              <div class="text-[36px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                NỘI DUNG BÀI HỌC
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            <!-- List Content -->
+            <div class="w-full flex flex-col justify-start pl-4 pr-4">
+              <div class="space-y-8 text-left select-none w-full max-w-none">
+                
+            <div class="flex items-start gap-5 text-[30px] font-sans font-bold text-black leading-snug w-full">
+              <span class="w-10 shrink-0 text-black">1.</span>
+              <span class="flex-1 break-words">Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán</span>
+            </div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">2</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 2: Content Slide -->
+      <div class="slide-wrapper" id="slide-3" data-slide-index="2">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Bối cảnh dự án &amp; vấn đề cần giải quyết
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="flex flex-col justify-start items-center w-full h-fit">
+              <img src="images/slide_lesson_01.png" alt="Bối cảnh dự án &amp; vấn đề cần giải quyết" class="w-full max-h-[440px] object-contain rounded-xl" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';"/>
+              <p class="text-slate-500 text-[14px] italic mt-3 text-center font-medium">Hình 1.1: Bối cảnh quy trình thực tế khi vận hành Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán</p>
+            </div>
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-lightbulb text-rikkei-red text-2xl"></i> Bối cảnh &amp; phân tích dự án
+                </h5>
+                <div class="space-y-4">
+                  
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Vấn đề thực tế</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal"><p>Trong các hệ thống thương mại điện tử quy mô lớn, việc xác minh điều kiện áp dụng mã giảm giá (Voucher) cho đơn hàng đòi hỏi sự chính xác tuyệt đối. Hệ thống cần đánh giá đồng thời nhiều tiêu chí từ tài khoản người dùng, giá trị đơn hàng cho đến trạng thái thành viên.</p> <ul> <li><strong>Bối cảnh thực tế:</strong> Doanh nghiệp triển khai chương trình khuyến mãi Super Sale. Một đơn hàng chỉ được giảm giá 20% khi thỏa mãn đồng thời các quy tắc: <ul> <li>Tài khoản người dùng phải ở trạng thái đang hoạt động (<strong>is_account_active</strong>).</li> <li>Khách hàng phải có điểm tích lũy lớn hơn hoặc bằng 1000 điểm HOẶC tổng giá trị đơn hàng phải từ 2,000,000 VND trở lên.</li> <li>Tài khoản tuyệt đối KHÔNG nằm trong danh sách cảnh báo gian lận (<strong>is_blacklisted</strong>).</li> </ul> </li> <li><strong>Vấn đề phát sinh (Pain Point):</strong> Lập trình viên ban đầu viết các câu lệnh điều kiện lồng nhau (Nested IF) hoặc viết biểu thức logic nối dài không sử dụng dấu ngoặc đơn <code>()</code>. <ul> <li>Python xử lý biểu thức từ trái qua phải theo bảng ưu tiên mặc định, khiến toán tử <code>and</code> được thực hiện trước toán tử <code>or</code>.</li> <li>Hệ thống tính toán sai lệch điều kiện, dẫn đến việc tài khoản bị khóa gian lận vẫn nhận được ưu đãi, gây thất thoát tài chính nghiêm trọng cho doanh nghiệp.</li> </ul> </li> <li><strong>Giải pháp mới:</strong> Ứng dụng kết hợp chuẩn xác các toán tử logic <code>and</code>, <code>or</code>, <code>not</code> cùng việc đóng ngoặc đơn <code>()</code> chủ động để tái cấu trúc thứ tự ưu tiên tính toán, giúp biểu thức mạch lạc và đảm bảo tính đóng bọc dữ liệu.</li> </ul> <svg viewBox="0 0 800 450" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"> <rect width="800" height="450" fill="#0f172a" rx="10"/> <rect x="30" y="30" width="740" height="60" fill="#1e293b" stroke="#334155" stroke-width="2" rx="8"/> <text x="50" y="65" fill="#38bdf8" font-family="monospace" font-size="18" font-weight="bold">PROBLEM CONTEXT: ENTERPRISE DISCOUNT VERIFICATION</text> <rect x="50" y="120" width="210" height="120" fill="#1e293b" stroke="#ef4444" stroke-width="2" rx="8"/> <text x="65" y="150" fill="#f8fafc" font-family="sans-serif" font-size="14" font-weight="bold">Biểu thức lỗi (Không ngoặc)</text> <text x="65" y="180" fill="#94a3b8" font-family="monospace" font-size="12">active and vip or total &gt; 2M</text> <text x="65" y="205" fill="#ef4444" font-family="sans-serif" font-size="12"> and chạy trước or</text> <text x="65" y="225" fill="#ef4444" font-family="sans-serif" font-size="12">Lỗi lọt tài khoản bị khóa</text> <path d="M 270 180 L 330 180" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/> <rect x="340" y="120" width="410" height="120" fill="#1e293b" stroke="#22c55e" stroke-width="2" rx="8"/> <text x="355" y="150" fill="#f8fafc" font-family="sans-serif" font-size="14" font-weight="bold">Biểu thức chuẩn Enterprise (Có ngoặc control)</text> <text x="355" y="180" fill="#38bdf8" font-family="monospace" font-size="13">active and (vip or total &gt; 2M) and not blacklisted</text> <text x="355" y="210" fill="#22c55e" font-family="sans-serif" font-size="12">✓ Nhóm điều kiện logic rõ ràng bằng dấu ngoặc ()</text> <text x="355" y="228" fill="#22c55e" font-family="sans-serif" font-size="12">✓ Bảo mật và chính xác 100% theo nghiệp vụ</text> <g transform="translate(50, 270)"> <rect width="700" height="140" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="8"/> <text x="20" y="35" fill="#f1f5f9" font-family="sans-serif" font-size="14" font-weight="bold">Luồng xử lý ngắn mạch (Short-Circuit Evaluation Execution Path):</text> <rect x="20" y="55" width="190" height="60" fill="#0f172a" stroke="#38bdf8" rx="6"/> <text x="30" y="80" fill="#38bdf8" font-family="monospace" font-size="12">Step 1: not blacklisted</text> <text x="30" y="100" fill="#94a3b8" font-family="sans-serif" font-size="11">Nếu False -&gt; Dừng ngay</text> <text x="220" y="90" fill="#64748b" font-size="16" font-weight="bold">➔</text> <rect x="245" y="55" width="190" height="60" fill="#0f172a" stroke="#38bdf8" rx="6"/> <text x="255" y="80" fill="#38bdf8" font-family="monospace" font-size="12">Step 2: is_account_active</text> <text x="255" y="100" fill="#94a3b8" font-family="sans-serif" font-size="11">Nếu False -&gt; Dừng ngay</text> <text x="445" y="90" fill="#64748b" font-size="16" font-weight="bold">➔</text> <rect x="470" y="55" width="210" height="60" fill="#0f172a" stroke="#22c55e" rx="6"/> <text x="480" y="80" fill="#22c55e" font-family="monospace" font-size="12">Step 3: (vip or total &gt; 2M)</text> <text x="480" y="100" fill="#94a3b8" font-family="sans-serif" font-size="11">Đánh giá nhóm biểu thức phụ</text> </g> </svg>", "analysis_title": "Phân tích cú pháp, Cơ chế Short-Circuit và Thứ tự ưu tiên toán tử</p>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3">
+                  <i class="ph-bold ph-check-circle text-rikkei-red text-xl shrink-0 mt-0.5"></i>
+                  <div>
+                    <div class="font-bold text-slate-900 text-[17px] mb-1">Giải pháp áp dụng</div>
+                    <p class="text-slate-700 text-[15px] leading-relaxed font-normal"><p>Để giải quyết bài toán kiểm tra mã giảm giá chính xác và tối ưu, biểu thức logic phải được nhóm bằng ngoặc đơn <code>()</code> dựa trên độ ưu tiên nghiệp vụ và lợi dụng cơ chế Short-Circuit để đưa các điều kiện kiểm tra nhẹ (như kiểm tra cờ Boolean) lên trước.</p> <pre class="mermaid"> flowchart TD Start([Bắt đầu kiểm tra đơn hàng]) --&gt; CheckBlacklist{"not is_blacklisted?"} CheckBlacklist --&gt;|False - Gian lận| Reject["Từ chối khuyến mãi (Result: False)"] CheckBlacklist --&gt;|True - Hợp lệ| CheckActive{"is_account_active?"} CheckActive --&gt;|False - Tài khoản khóa| Reject CheckActive --&gt;|True - Tài khoản mở| CheckCondition{"is_vip_member OR order_total &gt;= 2000000?"} CheckCondition --&gt;|True| Accept["Chấp nhận áp dụng mã Super Sale (Result: True)"] CheckCondition --&gt;|False| Reject classDef reject fill:#ef4444,stroke:#dc2626,color:#ffffff; classDef accept fill:#22c55e,stroke:#16a34a,color:#ffffff; classDef check fill:#1e293b,stroke:#38bdf8,color:#f8fafc; class Reject reject; class Accept accept; class CheckBlacklist,CheckActive,CheckCondition check; </pre> <ul> <li><strong>Các bước xây dựng biểu thức tối ưu:</strong> <ul> <li><strong>Bước 1:</strong> Phủ định cờ cảnh báo gian lận bằng <code>not is_blacklisted</code> làm điều kiện tiên quyết.</li> <li><strong>Bước 2:</strong> Kết hợp điều kiện tài khoản hoạt động bằng toán tử <code>and</code>.</li> <li><strong>Bước 3:</strong> Nhóm các điều kiện ưu đãi phụ bằng ngoặc đơn <code>(reward_points &gt;= 1000 or order_total_amount &gt;= 2000000)</code> để ép Python đánh giá phép <code>or</code> nội bộ trước khi thực hiện phép <code>and</code> tổng thể.</li> </ul> </li> </ul></p>
+                  </div>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-shield-check text-emerald-600 text-lg shrink-0"></i>
+                <span>Quy trình vận hành &amp; tự động hóa hệ thống.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">3</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 3: Content Slide -->
+      <div class="slide-wrapper" id="slide-4" data-slide-index="3">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Sơ đồ kiến trúc &amp; quy trình vận hành Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="flex flex-col gap-5 w-full mt-9 mb-auto justify-start">
+            <div class="w-full bg-slate-900 text-white p-4 rounded-xl text-center shadow-md border border-slate-800 flex items-center justify-center gap-3">
+              <i class="ph-bold ph-brain text-rikkei-red text-2xl"></i>
+              <span class="font-montserrat font-extrabold text-[20px] tracking-wide">Quy trình core ứng dụng toán tử logic và thứ</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 w-full items-start">
+              
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-laptop text-rikkei-red text-lg"></i> Môi trường thực thi
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5"><p>Trong các hệ thống thương mại điện tử quy mô lớn, việc xác minh điều kiện áp dụng mã gi</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-arrows-left-right text-rikkei-red text-lg"></i> Luồng xử lý dữ liệu
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5"><p>Để giải quyết bài toán kiểm tra mã giảm giá chính xác và tối ưu, biểu thức logic phải đ</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-database text-rikkei-red text-lg"></i> Quy chuẩn đóng gói
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5"><ul> <li><strong>Thứ tự ưu tiên toán tử (Operator Precedence) trong Python:</strong> Khi</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+              <div class="bento-card p-5 rounded-xl border border-slate-200 bg-white text-left flex flex-col justify-start gap-3 shadow-sm h-fit">
+                <div>
+                  <h6 class="font-bold text-slate-900 text-[18px] mb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-shield-check text-rikkei-red text-lg"></i> Phòng tránh lỗi
+                  </h6>
+                  <p class="text-slate-600 text-[14px] leading-relaxed mt-1.5"><ul> <li><strong>Tóm tắt cốt lõi:</strong> <ul> <li>Luôn sử dụng dấu ngoặc đơn</p>
+                </div>
+                <div class="mt-2 pt-2.5 border-t border-slate-100 flex items-center gap-1.5 text-rikkei-red text-[11px] font-bold uppercase tracking-wider">
+                  <i class="ph-bold ph-check text-xs"></i> Core Standard
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">4</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 4: Content Slide -->
+      <div class="slide-wrapper" id="slide-5" data-slide-index="4">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Thực thi mã nguồn &amp; quy trình vận hành Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-start gap-4 text-left h-fit shadow-sm">
+              <div>
+                <h5 class="font-bold text-slate-900 text-[20px] mb-4 flex items-center gap-2.5">
+                  <i class="ph-bold ph-book-open text-rikkei-red text-2xl"></i> Nguyên lý &amp; lưu ý thực thi
+                </h5>
+                <div class="space-y-4 text-slate-800 text-[15px]">
+                  
+                <div>
+                  <div class="font-bold text-slate-900 text-[17px] mb-1 flex items-center gap-2">
+                    <i class="ph-bold ph-caret-right text-rikkei-red"></i> Quy tắc vận hành chuẩn:
+                  </div>
+                  <p class="text-slate-600 text-[14px] leading-relaxed pl-5"><ul> <li><strong>Thứ tự ưu tiên toán tử (Operator Precedence) trong Python:</strong> Khi một biểu thức chứa nhiều loại toán tử, Python đánh giá theo thứ tự từ cao đến thấp: <ul> <li><strong>Nhóm 1 (Cao ):</strong> Dấu ngoặc đơn <code>()</code> dùng để thay đổi thứ tự mặc định.</li> <li><strong>Nhóm 2:</strong> Toán tử số học mũ <code>**</code>.</li> <li><strong>Nhóm 3:</strong> Toán tử số học <code>*</code>, <code>/</code>, <code>//</code>, <code>%</code>.</li> <li><strong>Nhóm 4:</strong> Toán tử số học <code>+</code>, <code>-</code>.</li> <li><strong>Nhóm 5:</strong> Toán tử so sánh <code>==</code>, <code>!=</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code>.</li> <li><strong>Nhóm 6:</strong> Toán tử logic <code>not</code> (phép phủ định).</li> <li><strong>Nhóm 7:</strong> Toán tử logic <code>and</code> (phép hội).</li> <li><strong>Nhóm 8 (Thấp ):</strong> Toán tử logic <code>or</code> (phép tuyển).</li> </ul> </li> <li><strong>Cơ chế Đánh giá ngắn mạch (Short-Circuit Evaluation):</strong> <ul> <li>Đối với phép tính <code>A and B</code>: Nếu <code>A</code> có giá trị là <code>False</code>, Python trả về <code>False</code> ngay lập tức mà <strong>không cần kiểm tra</strong> mệnh đề <code>B</code>.</li> <li>Đối với phép tính <code>A or B</code>: Nếu <code>A</code> có giá trị là <code>True</code>, Python trả về <code>True</code> ngay lập tức mà <strong>không cần kiểm tra</strong> mệnh đề <code>B</code>.</li> <li><strong>Lợi ích Enterprise:</strong> Giúp tối ưu hóa tốc độ xử lý thanh toán và tránh lỗi truy xuất dữ liệu khi vế <code>B</code> là một phép tính phức tạp.</li> </ul> </li> </ul> <svg viewBox="0 0 800 400" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"> <rect width="800" height="400" fill="#0f172a" rx="10"/> <rect x="30" y="30" width="740" height="50" fill="#1e293b" rx="6"/> <text x="50" y="62" fill="#38bdf8" font-family="monospace" font-size="16" font-weight="bold">RAM STACK MEMORY &amp; SHORT-CIRCUIT EVALUATION</text> <!-- Stack Frame Area --> <g transform="translate(50, 100)"> <!-- Box 1 --> <rect x="0" y="0" width="210" height="250" fill="#1e293b" stroke="#334155" stroke-width="2" rx="8"/> <rect x="10" y="10" width="190" height="35" fill="#0f172a" rx="4"/> <text x="20" y="32" fill="#f8fafc" font-family="sans-serif" font-size="13" font-weight="bold">1. Evaluate: is_active</text> <text x="20" y="75" fill="#ef4444" font-family="monospace" font-size="16" font-weight="bold">Value: False</text> <text x="20" y="110" fill="#94a3b8" font-family="sans-serif" font-size="12">Nằm trong bộ nhớ RAM</text> <rect x="15" y="170" width="180" height="60" fill="#ef4444" fill-opacity="0.15" stroke="#ef4444" rx="4"/> <text x="25" y="195" fill="#ef4444" font-family="sans-serif" font-size="12" font-weight="bold">Trạng thái: STOP</text> <text x="25" y="215" fill="#ef4444" font-family="sans-serif" font-size="11">Kích hoạt Short-Circuit</text> <!-- Arrow --> <path d="M 220 125 L 270 125" stroke="#ef4444" stroke-width="3" stroke-dasharray="5,5"/> <!-- Box 2 (Skipped) --> <rect x="280" y="0" width="430" height="250" fill="#1e293b" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" rx="8"/> <rect x="295" y="10" width="400" height="35" fill="#0f172a" rx="4"/> <text x="310" y="32" fill="#64748b" font-family="sans-serif" font-size="13" font-weight="bold">2. Evaluated Expression (SKIPPED BY CPU)</text> <rect x="300" y="65" width="390" height="60" fill="#0f172a" stroke="#334155" rx="4"/> <text x="315" y="90" fill="#64748b" font-family="monospace" font-size="13">order_total_amount &gt;= 2000000</text> <text x="315" y="110" fill="#ef4444" font-family="sans-serif" font-size="11">[Bỏ qua - Không nạp vào CPU Registers]</text> <rect x="300" y="145" width="390" height="60" fill="#0f172a" stroke="#334155" rx="4"/> <text x="315" y="170" fill="#64748b" font-family="monospace" font-size="13">reward_points &gt;= 1000</text> <text x="315" y="190" fill="#ef4444" font-family="sans-serif" font-size="11">[Bỏ qua - Tiết kiệm chu kỳ máy tính]</text> </g> </svg>", "analysis_title_2": "", "solution_title": "Giải pháp thiết kế biểu thức logic chuẩn Enterprise và Sơ đồ luồng</p>
+                </div>
+                <div>
+                  <div class="font-bold text-slate-900 text-[17px] mb-1 flex items-center gap-2">
+                    <i class="ph-bold ph-caret-right text-rikkei-red"></i> Phòng tránh sự cố thực tế:
+                  </div>
+                  <p class="text-slate-600 text-[14px] leading-relaxed pl-5"><ul> <li><strong>Tóm tắt cốt lõi:</strong> <ul> <li>Luôn sử dụng dấu ngoặc đơn <code>()</code> để nhóm các điều kiện logic khi phối hợp <code>and</code>, <code>or</code>, <code>not</code> nhằm kiểm soát thứ tự ưu tiên tính toán chính xác và minh bạch code.</li> <li>Hiểu rõ bảng ưu tiên: Số học -&gt; So sánh -&gt; <code>not</code> -&gt; <code>and</code> -&gt; <code>or</code>.</li> <li>Tận dụng cơ chế Short-Circuit (đánh giá ngắn mạch) bằng cách đưa các điều kiện kiểm tra Boolean nhẹ lên đầu biểu thức để tối ưu năng suất hệ thống.</li> </ul> </li> </ul></p>
+                </div>
+                </div>
+              </div>
+              <div class="mt-2 p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-800 text-[14px] font-semibold shadow-sm">
+                <i class="ph-bold ph-terminal-window text-rikkei-red text-lg shrink-0"></i>
+                <span>Thao tác thực thi theo quy chuẩn kỹ thuật.</span>
+              </div>
+            </div>
+            <div class="flex flex-col h-fit">
+              <pre class="bg-slate-900 text-emerald-400 p-6 rounded-xl font-mono text-[14px] overflow-auto border border-slate-800 shadow-xl leading-relaxed max-h-[380px] h-fit"><code class="language-python"># Mã nguồn thực chiến: Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+def execute_enterprise_module(config_data: dict) -&gt; bool:
+    """Thực thi quy trình xử lý dữ liệu chuẩn doanh nghiệp."""
+    print(f"--- Khởi chạy module: Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán ---")
+    if not config_data:
+        raise ValueError("Cấu hình không hợp lệ!")
+    
+    processed_status = True
+    return processed_status
+
+if __name__ == "__main__":
+    init_config = {"env": "production", "status": "active"}
+    execute_enterprise_module(init_config)</code></pre>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">5</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 5: Content Slide -->
+      <div class="slide-wrapper" id="slide-6" data-slide-index="5">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start h-full">
+            <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
+              <div class="w-full pr-8">
+                <div class="text-[34px] font-montserrat font-extrabold text-rikkei-red leading-snug w-full break-words">
+                  1. Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán
+                </div>
+                <div class="text-[24px] font-sans font-bold text-black mt-3 w-full break-words">
+                  Lỗi thường gặp &amp; cách xử lý chuẩn
+                </div>
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full mt-9 mb-auto items-start">
+            <div class="bento-card p-6 rounded-xl border border-red-200 bg-red-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-red-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-x-circle text-2xl text-red-600 shrink-0"></i> <span>Anti-Pattern: Thao tác thủ công &amp; bỏ qua ràng buộc</span>
+                </h5>
+                <pre class="bg-red-100/60 text-red-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-red-200 shadow-sm"><code>Bỏ qua các bước kiểm tra ràng buộc khi triển khai Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Gây mất vết lịch sử chỉnh sửa và khó kiểm soát khi có sự cố.
+                </p>
+              </div>
+              <div class="p-3 bg-red-100/70 border border-red-200 rounded-xl text-red-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-warning text-red-600 text-base shrink-0"></i>
+                <span>Cảnh báo rủi ro phát sinh sự cố.</span>
+              </div>
+            </div>
+            <div class="bento-card p-6 rounded-xl border border-emerald-200 bg-emerald-500/5 text-left flex flex-col justify-start gap-4 relative overflow-hidden h-fit shadow-sm">
+              <div class="select-none">
+                <h5 class="font-bold text-emerald-900 text-[20px] flex items-center gap-2.5 mb-3.5">
+                  <i class="ph-bold ph-check-circle text-2xl text-emerald-600 shrink-0"></i> <span>Best Practice: Chuẩn hóa &amp; tự động hóa quy trình</span>
+                </h5>
+                <pre class="bg-emerald-100/60 text-emerald-950 p-4 rounded-xl font-mono text-sm mb-3.5 border border-emerald-200 shadow-sm"><code>Tuân thủ quy trình kiểm thử và tự động hóa cho Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán</code></pre>
+                <p class="text-slate-800 text-[15px] leading-relaxed font-medium">
+                  Đảm bảo tính ổn định và tối ưu năng suất làm việc nhóm.
+                </p>
+              </div>
+              <div class="p-3 bg-emerald-100/70 border border-emerald-200 rounded-xl text-emerald-900 text-xs font-semibold flex items-center gap-2 mt-1">
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base shrink-0"></i>
+                <span>Quy trình chuẩn hóa thực tế.</span>
+              </div>
+            </div>
+          </div>
+
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">6</span>
+          </div>
+        </section>
+      </div>
+      <!-- Slide 6: Summary Slide -->
+      <div class="slide-wrapper" id="slide-7" data-slide-index="6">
+        <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
+          <div class="w-full flex-1 flex flex-col justify-start">
+            <!-- Header Area -->
+            <div class="flex justify-between items-start select-none shrink-0 mb-9 w-full">
+              <div class="text-[36px] font-montserrat font-extrabold text-rikkei-red leading-none">
+                TỔNG KẾT BÀI HỌC
+              </div>
+              <img alt="Rikkei Academy Logo" class="h-10 object-contain shrink-0 mt-0.5" src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"/>
+            </div>
+            <!-- List Content -->
+            <div class="w-full flex flex-col justify-start pl-4 pr-4">
+              <div class="space-y-6 text-left select-none w-full max-w-none">
+                
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">Vấn đề thực tế - Trong các hệ thống thương mại điện tử quy mô lớn, việc xác minh điều kiện áp dụng mã giảm giá (Voucher) cho...</span>
+            </div>
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">Giải pháp áp dụng - Để giải quyết bài toán kiểm tra mã giảm giá chính xác và tối ưu, biểu thức logic phải được nhóm bằng ngoặc...</span>
+            </div>
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">Quy tắc vận hành chuẩn - Thứ tự ưu tiên toán tử (Operator Precedence) trong Python: Khi một biểu thức chứa nhiều loại toán tử, Python đánh giá...</span>
+            </div>
+            <div class="flex items-start gap-4 text-[26px] font-sans font-bold text-black leading-relaxed w-full">
+              <i class="ph-bold ph-check-circle text-rikkei-red text-3xl shrink-0 mt-1"></i>
+              <span class="flex-1 break-words">Phòng tránh sự cố thực tế - Tóm tắt cốt lõi: Luôn sử dụng dấu ngoặc đơn () để nhóm các điều kiện logic khi phối hợp and,...</span>
+            </div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center w-full max-w-200">
+            <span class="text-[16px] text-black font-normal">
+              © 2026 By Rikkei Education - All rights reserved.
+            </span>
+          </div>
+          <div class="absolute right-0 bottom-0 w-24 h-24 bg-rikkei-red z-30" style="clip-path: polygon(100% 0, 0 100%, 100% 100%)">
+            <span class="absolute text-white font-montserrat font-bold text-[18px] select-none z-40" style="right: 14px; bottom: 10px;">7</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.hljs) {
+        hljs.highlightAll();
+      }
+      if (window.mermaid) {
+        try { mermaid.run(); } catch(e) {}
+      }
+
+      const container = document.getElementById("slides-container");
+      if (!container) return;
+
+      // 1. Restore slide position from URL hash on load (e.g. #slide-3 or #3)
+      function restoreSlideFromHash() {
+        const hash = window.location.hash;
+        if (hash) {
+          const match = hash.match(/#slide-(\d+)/i) || hash.match(/#(\d+)/i);
+          if (match) {
+            const pageNum = parseInt(match[1], 10);
+            const targetSlide = document.getElementById("slide-" + pageNum);
+            if (targetSlide) {
+              setTimeout(() => {
+                targetSlide.scrollIntoView({ behavior: "instant", block: "start" });
+              }, 50);
+            }
+          }
+        }
+      }
+
+      restoreSlideFromHash();
+
+      // 2. Dynamic Scroll Observer: Sync current slide to URL hash as user scrolls
+      let isScrollingTimer = null;
+      container.addEventListener("scroll", () => {
+        if (isScrollingTimer) clearTimeout(isScrollingTimer);
+        isScrollingTimer = setTimeout(() => {
+          const slideHeight = window.innerHeight;
+          const currentSlideIdx = Math.round(container.scrollTop / slideHeight);
+          const activeSlide = container.querySelectorAll(".slide-wrapper")[currentSlideIdx];
+          if (activeSlide) {
+            const pageNum = activeSlide.id ? activeSlide.id.replace("slide-", "") : (currentSlideIdx + 1);
+            const newHash = "#slide-" + pageNum;
+            if (window.location.hash !== newHash) {
+              history.replaceState(null, "", newHash);
+            }
+          }
+        }, 100);
+      });
+    });
+
+    window.addEventListener("keydown", (e) => {
+      const container = document.getElementById("slides-container");
+      if (!container) return;
+      const slideHeight = window.innerHeight;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+        e.preventDefault();
+        container.scrollBy({ top: slideHeight, behavior: "smooth" });
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+        e.preventDefault();
+        container.scrollBy({ top: -slideHeight, behavior: "smooth" });
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        container.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (e.key === "End") {
+        e.preventDefault();
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      }
+    });
+  </script>
+</body>
+</html>

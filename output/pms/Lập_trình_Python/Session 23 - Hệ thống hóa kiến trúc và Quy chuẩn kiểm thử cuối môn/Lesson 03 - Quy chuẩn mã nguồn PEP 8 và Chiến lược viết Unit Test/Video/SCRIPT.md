@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 23 - Lesson 03: Quy chuẩn mã nguồn PEP 8 và Chiến lược viết Unit Test -->

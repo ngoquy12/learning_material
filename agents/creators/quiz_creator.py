@@ -90,6 +90,8 @@ def generate_fallback_5_question_quiz(lesson_title: str, tech_stack: str) -> Lis
     lang_tag = extract_lang_tag(tech_stack)
     return [
         {
+            "stt": 1,
+            "question_type": "SYNTAX",
             "question": f"Khi triển khai {lesson_title} trong dự án `{clean_stack}`, cú pháp khai báo nào sau đây đúng quy chuẩn và đảm bảo chương trình biên dịch/thực thi không báo lỗi?",
             "options": [
                 f"Khai báo cú pháp chuẩn theo quy ước đặt tên của `{clean_stack}`",
@@ -98,9 +100,13 @@ def generate_fallback_5_question_quiz(lesson_title: str, tech_stack: str) -> Lis
                 f"Đặt tên biến bằng ký tự đặc biệt không được ngôn ngữ hỗ trợ"
             ],
             "correct_option_index": 0,
-            "explanation": f"Cú pháp khai báo trong `{clean_stack}` bắt buộc tuân thủ đúng quy ước đặt tên và các thành phần khởi tạo của ngôn ngữ."
+            "explanation": f"Cú pháp khai báo trong `{clean_stack}` bắt buộc tuân thủ đúng quy ước đặt tên và các thành phần khởi tạo của ngôn ngữ.",
+            "instant_feedback": f"Chưa chính xác! Bạn hãy xem lại Mục 2.1 trong bài đọc để nắm vững cú pháp chuẩn của `{clean_stack}`.",
+            "time_limit_sec": 30
         },
         {
+            "stt": 2,
+            "question_type": "EXECUTION_FLOW",
             "question": f"Trong cơ chế vận hành của {lesson_title}, luồng thực thi của hệ thống sẽ xử lý như thế nào khi gặp điều kiện rẽ nhánh trả về `False`?",
             "options": [
                 "Bỏ qua khối lệnh phụ thuộc và tiếp tục thực thi các câu lệnh kế tiếp",
@@ -109,9 +115,13 @@ def generate_fallback_5_question_quiz(lesson_title: str, tech_stack: str) -> Lis
                 "Tự động sửa đổi giá trị dữ liệu đầu vào cho phù hợp"
             ],
             "correct_option_index": 0,
-            "explanation": "Khi điều kiện không thỏa mãn (`False`), luồng điều khiển sẽ bỏ qua khối lệnh được bảo vệ và tiếp tục luồng chạy tuần tự tiếp theo."
+            "explanation": "Khi điều kiện không thỏa mãn (`False`), luồng điều khiển sẽ bỏ qua khối lệnh được bảo vệ và tiếp tục luồng chạy tuần tự tiếp theo.",
+            "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.2 trong bài đọc để hiểu rõ hơn về luồng thực thi điều kiện.",
+            "time_limit_sec": 30
         },
         {
+            "stt": 3,
+            "question_type": "CODE_TRACE",
             "question": f"Cho đoạn mã nguồn minh họa {lesson_title} trong `{clean_stack}`:\n\n```{lang_tag}\n# Đoạn mã nguồn minh họa luồng xử lý\nresult = process_data(input_val=100)\nprint(result)\n```\n\nKết quả giá trị đầu ra nhận được là bao nhiêu khi dữ liệu đầu vào hợp lệ?",
             "options": [
                 "Giá trị được tính toán chính xác theo đúng nhánh rẽ được kích hoạt",
@@ -120,9 +130,13 @@ def generate_fallback_5_question_quiz(lesson_title: str, tech_stack: str) -> Lis
                 "Trả về giá trị `None`/`null` do logic rẽ nhánh bị thiếu"
             ],
             "correct_option_index": 0,
-            "explanation": "Với dữ liệu đầu vào hợp lệ, chương trình sẽ kích hoạt đúng nhánh điều kiện tương ứng và trả về giá trị tính toán chuẩn xác."
+            "explanation": "Với dữ liệu đầu vào hợp lệ, chương trình sẽ kích hoạt đúng nhánh điều kiện tương ứng và trả về giá trị tính toán chuẩn xác.",
+            "instant_feedback": "Chưa chính xác! Bạn hãy xem lại ví dụ mẫu mã nguồn trong Mục 3.1 của bài đọc để trace giá trị biến.",
+            "time_limit_sec": 30
         },
         {
+            "stt": 4,
+            "question_type": "COMPARISON",
             "question": f"Điểm khác biệt lớn nhất về tính ứng dụng giữa cấu trúc rẽ nhánh cơ bản và cấu trúc lồng nhau trong {lesson_title} là gì?",
             "options": [
                 "Cấu trúc lồng nhau cho phép kiểm tra thêm các điều kiện phụ thuộc khi điều kiện cha thỏa mãn",
@@ -131,18 +145,24 @@ def generate_fallback_5_question_quiz(lesson_title: str, tech_stack: str) -> Lis
                 "Cấu trúc rẽ nhánh cơ bản không cho phép sử dụng các toán tử so sánh"
             ],
             "correct_option_index": 0,
-            "explanation": "Cấu trúc rẽ nhánh lồng nhau được thiết kế để phân cấp các điều kiện phụ thuộc (nested logic), giúp xử lý các quy tắc nghiệp vụ phức tạp."
+            "explanation": "Cấu trúc rẽ nhánh lồng nhau được thiết kế để phân cấp các điều kiện phụ thuộc (nested logic), giúp xử lý các quy tắc nghiệp vụ phức tạp.",
+            "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 2.3 trong bài đọc để phân biệt cấu trúc rẽ nhánh cơ bản và lồng nhau.",
+            "time_limit_sec": 30
         },
         {
-            "question": f"Giả sử lập trình viên viết điều kiện trong {lesson_title} nhưng quên không cập nhật biến đếm hoặc biến điều kiện trong thân khối lệnh. Bẫy lỗi (Pitfall) nào sẽ xảy ra?",
+            "stt": 5,
+            "question_type": "TRAP_PREDICTION",
+            "question": f"Giả sử lập trình viên viết điều kiện trong {lesson_title} nhưng quên không cập nhật biến đếm hoặc biến điều kiện trong thân khối lệnh. Lỗi thường gặp (Common Pitfall) nào sẽ xảy ra?",
             "options": [
-                "Chương trình rơi vào bẫy lặp vô tận (Infinite Loop) hoặc kết quả bị treo",
+                "Chương trình rơi vào lỗi lặp vô tận (Infinite Loop) hoặc kết quả bị treo",
                 "Ngôn ngữ tự động bổ sung câu lệnh cập nhật biến ở background",
                 "Chương trình tự động bỏ qua khối lệnh và hoàn tất thực thi ngay",
                 "Hệ thống sẽ tự động chuyển đổi sang cấu trúc điều khiển khác"
             ],
             "correct_option_index": 0,
-            "explanation": "Nếu biến tham gia điều kiện không thay đổi giá trị trong thân khối lệnh, biểu thức điều kiện luôn giữ nguyên giá trị dẫn đến lặp vô tận hoặc treo hệ thống."
+            "explanation": "Nếu biến tham gia điều kiện không thay đổi giá trị trong thân khối lệnh, biểu thức điều kiện luôn giữ nguyên giá trị dẫn đến lặp vô tận hoặc treo hệ thống.",
+            "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 4 trong bài đọc để nhận biết các lỗi thường gặp phổ biến.",
+            "time_limit_sec": 30
         }
     ]
 
@@ -150,14 +170,12 @@ def quiz_agent(state: AgentState) -> AgentState:
     """
     Quiz Agent (Tuân thủ chuẩn RE_Tiêu chuẩn quizz.pdf & Định dạng Code Markdown):
     Tự động biên soạn Bộ 5 câu hỏi trắc nghiệm Lesson Quiz chuẩn 100% Ma trận 5 câu:
-    - Câu 1: Định nghĩa / Cú pháp (Remember)
-    - Câu 2: Luồng thực thi (Understand)
-    - Câu 3: Đoạn mã mẫu (Apply - Code Trace với ```{lang_tag} và `inline_code`)
-    - Câu 4: Phân biệt / So sánh (Analyze)
-    - Câu 5: Dự đoán kết quả có bẫy (Evaluate - Trap Prediction)
-
-    Đảm bảo 100% Domain-Agnostic, thích ứng linh hoạt theo tech_stack và lesson_title.
-    Lưu dữ liệu vào state['quiz_json'].
+    - STT 1 (SYNTAX): Định nghĩa / Cú pháp
+    - STT 2 (EXECUTION_FLOW): Luồng thực thi
+    - STT 3 (CODE_TRACE): Đoạn mã mẫu (Trace với ```{lang_tag} và `inline_code`)
+    - STT 4 (COMPARISON): Phân biệt / So sánh
+    - STT 5 (TRAP_PREDICTION): Dự đoán kết quả có bẫy
+    Bổ sung instant_feedback (định hướng vị trí xem lại khi sai) & time_limit_sec (30s).
     """
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
@@ -174,7 +192,7 @@ def quiz_agent(state: AgentState) -> AgentState:
     attempt_num = len(sandbox_logs) + 1
     feedback = sandbox_logs[-1]["feedback"] if sandbox_logs else ""
 
-    print(f"\n[Quiz_Agent] Formulating Strict 5-Question Lesson Quiz with Markdown Code Formatting (tech_stack: {tech_stack}, lang_tag: {lang_tag}) for {session_id} {lesson_id}: {lesson_title}")
+    print(f"\n[Quiz_Agent] Formulating Strict 5-Question Lesson Quiz with Enhanced Schema & Markdown Code (tech_stack: {tech_stack}, lang_tag: {lang_tag}) for {session_id} {lesson_id}: {lesson_title}")
 
     # Retrieve lesson content / article text for context-driven quiz formulation
     content = state.get("lesson_content")
@@ -198,29 +216,34 @@ def quiz_agent(state: AgentState) -> AgentState:
 Your task is to generate EXACTLY 5 multiple-choice quiz questions for a single lesson according to the official Rikkei Education Quiz Standards (RE_Tiêu chuẩn quizz.pdf).
 
 CRITICAL 5-QUESTION LESSON MATRIX (EXACTLY 5 QUESTIONS):
-- Câu 1 (Định nghĩa / Cú pháp): Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ ({tech_stack}).
-- Câu 2 (Luồng thực thi): Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình.
-- Câu 3 (Đoạn mã mẫu): Đọc hiểu code cơ bản, cung cấp đoạn code ngắn và yêu cầu trace giá trị biến / đầu ra.
-- Câu 4 (Phân biệt / So sánh): Tránh nhầm lẫn giữa các cấu trúc, lệnh hoặc tính ứng dụng của các giải pháp.
-- Câu 5 (Dự đoán kết quả có bẫy): Kiểm tra sự tỉ mỉ, phát hiện bẫy logic / bẫy cú pháp / lỗi lặp vô tận / biến không thay đổi.
+- STT 1 (SYNTAX): Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ ({tech_stack}).
+- STT 2 (EXECUTION_FLOW): Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình.
+- STT 3 (CODE_TRACE): Đọc hiểu code cơ bản, cung cấp đoạn code ngắn và yêu cầu trace giá trị biến / đầu ra.
+- STT 4 (COMPARISON): Tránh nhầm lẫn giữa các cấu trúc, lệnh hoặc tính ứng dụng của các giải pháp.
+- STT 5 (TRAP_PREDICTION): Kiểm tra sự tỉ mỉ, phát hiện bẫy logic / bẫy cú pháp / lỗi lặp vô tận / biến không thay đổi.
+
+REQUIRED ENHANCED SCHEMA PER QUESTION:
+- `stt`: Integer from 1 to 5.
+- `question_type`: Enum ("SYNTAX", "EXECUTION_FLOW", "CODE_TRACE", "COMPARISON", "TRAP_PREDICTION").
+- `question`: Scenario-based question text with backticks for code identifiers.
+- `options`: Array of 4 homogeneous answer strings.
+- `correct_option_index`: Integer index (0, 1, 2, or 3).
+- `explanation`: Technical explanation of why the correct option is right.
+- `instant_feedback`: Short, encouraging feedback when student picks wrong option, pointing to relevant lesson section (e.g. "Chưa chính xác! Bạn hãy xem lại Mục 2.1 trong bài đọc...").
+- `time_limit_sec`: 30
 
 MANDATORY MARKDOWN CODE FORMATTING DIRECTIVES:
-1. MULTI-LINE CODE BLOCKS: Whenever multi-line code snippets are included in question stems, options, or explanations, MUST format them in Markdown fenced code blocks using language tag ````{lang_tag}` and explicit `\\n` linebreaks:
-   ```{lang_tag}
-   # Multi-line code statement
-   ```
-2. INLINE CODE SYMBOLS: Wrap all inline variable names, function names, keywords, parameter names, and syntax tokens in single backticks (e.g. `order_amount`, `is_vip`, `if-else`).
-3. DOMAIN AGNOSTIC: Adapt dynamically to the target tech stack ({tech_stack}). DO NOT hardcode a single technology.
+1. MULTI-LINE CODE BLOCKS: Format multi-line code inside Markdown fenced code blocks using ````{lang_tag}` and explicit `\\n` linebreaks.
+2. INLINE CODE SYMBOLS: Wrap all inline variable names, function names, keywords, parameter names in single backticks.
+3. DOMAIN AGNOSTIC: Adapt dynamically to target tech stack ({tech_stack}). DO NOT hardcode a single technology.
 
 MANDATORY PEDAGOGICAL RULES (RE_Tiêu chuẩn quizz.pdf):
 1. Single Concept: Evaluate EXACTLY 1 skill or concept per question.
-2. Context-Driven: Frame every question inside a realistic developer scenario. ABSOLUTELY FORBIDDEN to ask dry theoretical definitions (e.g. FORBIDDEN: "What is break used for?").
-3. Plausible Distractors: Incorrect choices must represent real common student mistakes or traps. FORBIDDEN choices: "All of the above", "None of the above", "Cả 3 đáp án trên đều sai", "Tất cả đều đúng".
+2. Context-Driven: Frame every question inside a realistic developer scenario. ABSOLUTELY FORBIDDEN to ask dry theoretical definitions.
+3. Plausible Distractors: Incorrect choices must represent real common student mistakes. FORBIDDEN: "All of the above", "None of the above", "Cả 3 đáp án trên đều sai", "Tất cả đều đúng".
 4. Homogeneity: All 4 answer choices (A, B, C, D) must have equal text lengths and parallel grammatical structures.
 5. No Clues: Avoid keyword matching between question stem and correct choice.
-6. Instant Feedback: Include a short, clear explanation for why the correct choice is right.
-7. 30-Second Rule: Questions must be clear and concise so students who studied can answer within 30 seconds.
-8. NO CONTEXT REFERRAL PHRASES: FORBIDDEN to write "in the slide", "according to lecture", "in the video", "from instructor". State 100% objectively as domain knowledge.
+6. NO CONTEXT REFERRAL PHRASES: FORBIDDEN to write "in the slide", "according to lecture", "in the video", "from instructor". State 100% objectively.
 
 OUTPUT FORMAT: Return ONLY a valid JSON array of 5 question objects.
 """
@@ -237,34 +260,54 @@ Reading Article Context (Extract real scenarios and code examples from this text
 OUTPUT JSON SCHEMA (Array of EXACTLY 5 objects):
 [
   {{
-    "question": "Câu 1 (Định nghĩa/Cú pháp): Scenario-based syntax question with `inline_code`...",
+    "stt": 1,
+    "question_type": "SYNTAX",
+    "question": "Câu 1: Scenario-based syntax question with `inline_code`...",
     "options": ["Phương án A...", "Phương án B...", "Phương án C...", "Phương án D..."],
     "correct_option_index": 0,
-    "explanation": "Giải thích ngắn gọn với `inline_code`..."
+    "explanation": "Giải thích ngắn gọn...",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 2.1...",
+    "time_limit_sec": 30
   }},
   {{
-    "question": "Câu 2 (Luồng thực thi): Scenario-based execution flow question...",
+    "stt": 2,
+    "question_type": "EXECUTION_FLOW",
+    "question": "Câu 2: Execution flow question...",
     "options": ["Phương án A...", "Phương án B...", "Phương án C...", "Phương án D..."],
     "correct_option_index": 1,
-    "explanation": "Giải thích ngắn gọn luồng chạy..."
+    "explanation": "Giải thích luồng chạy...",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 2.2...",
+    "time_limit_sec": 30
   }},
   {{
-    "question": "Câu 3 (Đoạn mã mẫu): Cho đoạn code:\\n\\n```{lang_tag}\\n# Code snippet\\n```\\n\\nTrace output value...",
+    "stt": 3,
+    "question_type": "CODE_TRACE",
+    "question": "Cho đoạn code:\\n\\n```{lang_tag}\\n# Code snippet\\n```\\n\\nTrace output...",
     "options": ["Phương án A...", "Phương án B...", "Phương án C...", "Phương án D..."],
     "correct_option_index": 2,
-    "explanation": "Giải thích kết quả giá trị biến..."
+    "explanation": "Giải thích giá trị...",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 3.1...",
+    "time_limit_sec": 30
   }},
   {{
-    "question": "Câu 4 (Phân biệt/So sánh): Compare 2 structures or commands...",
+    "stt": 4,
+    "question_type": "COMPARISON",
+    "question": "Compare 2 structures...",
     "options": ["Phương án A...", "Phương án B...", "Phương án C...", "Phương án D..."],
     "correct_option_index": 3,
-    "explanation": "Giải thích điểm khác biệt..."
+    "explanation": "Giải thích khác biệt...",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 2.3...",
+    "time_limit_sec": 30
   }},
   {{
-    "question": "Câu 5 (Dự đoán kết quả có bẫy): Detect trap/bug/infinite loop...",
+    "stt": 5,
+    "question_type": "TRAP_PREDICTION",
+    "question": "Detect trap/infinite loop...",
     "options": ["Phương án A...", "Phương án B...", "Phương án C...", "Phương án D..."],
     "correct_option_index": 0,
-    "explanation": "Giải thích bẫy logic..."
+    "explanation": "Giải thích bẫy...",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 4...",
+    "time_limit_sec": 30
   }}
 ]
 """

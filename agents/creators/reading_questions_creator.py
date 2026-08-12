@@ -3,7 +3,7 @@ from core.state import AgentState
 from core.llm import call_llm
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
 
-def format_reading_questions_to_markdown(data, tech_stack: str = "python") -> str:
+def format_reading_questions_to_markdown(data, tech_stack: str = "") -> str:
     """
     Format bộ câu hỏi bài đọc đa trường hợp (Multi-case Code Tracing) theo chuẩn Markdown.
     """
@@ -22,7 +22,7 @@ def format_reading_questions_to_markdown(data, tech_stack: str = "python") -> st
     if code_snippet:
         md_lines.append("## Tình huống & Mã nguồn kiểm tra")
         md_lines.append("Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:\n")
-        lang = tech_stack.lower() if tech_stack else "python"
+        lang = tech_stack.split("/")[0].lower() if tech_stack else "text"
         md_lines.append(f"```{lang}\n{code_snippet.strip()}\n```\n")
         md_lines.append("---\n")
 
@@ -66,7 +66,7 @@ def reading_questions_creator_agent(state: AgentState) -> AgentState:
     tech_stack = require_tech_stack(state, "reading_questions_creator_agent")
 
     core_ssot = state.get("core_ssot", {})
-    lesson_title = core_ssot.get("session_title") or core_ssot.get("lesson_title") or "Lập trình Python Doanh Nghiệp"
+    lesson_title = core_ssot.get("session_title") or core_ssot.get("lesson_title") or "Lập trình Ứng dụng Doanh Nghiệp"
     lesson_details = core_ssot.get("lesson_details", "")
     expected_output = core_ssot.get("expected_output", "")
 

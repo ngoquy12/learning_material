@@ -25,6 +25,14 @@ def format_full_folder_name(item_id: str, item_title: str) -> str:
         return item_title
     return f"{item_id} - {item_title}"
 
+import os
+
+def _to_long_path(path: Path) -> Path:
+    abs_path = os.path.abspath(str(path))
+    if os.name == 'nt' and not abs_path.startswith('\\\\?\\'):
+        abs_path = '\\\\?\\' + abs_path
+    return Path(abs_path)
+
 def get_or_rename_sanitized_folder(parent_dir: Path, prefix: str, full_name: str) -> Path:
     """
     Looks for an existing folder starting with prefix (e.g. 'Session 01').
@@ -32,10 +40,11 @@ def get_or_rename_sanitized_folder(parent_dir: Path, prefix: str, full_name: str
     This prevents duplicate session/lesson folders when titles change.
     """
     target_name = sanitize_folder_name(full_name)
-    target_path = parent_dir / target_name
+    target_path = _to_long_path(parent_dir / target_name)
+    parent_dir_long = _to_long_path(parent_dir)
     
-    if parent_dir.exists():
-        for item in parent_dir.iterdir():
+    if parent_dir_long.exists():
+        for item in parent_dir_long.iterdir():
             if item.is_dir():
                 if item.name == target_name:
                     return target_path

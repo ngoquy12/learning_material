@@ -189,34 +189,13 @@ def sync_curriculum_to_pms_excel(course_name: str, payload: List[PMRow]) -> None
     import re
     from pathlib import Path
     
-    # ROOT is resolved as the project root (Learning-Material)
-    pms_dir = ROOT / "pms"
+    # ROOT is resolved as the project root
+    sanitized_name = re.sub(r'[\\/*?:"<>|]', "", course_name).strip().replace(" ", "_").replace("-", "_")
+    pms_dir = ROOT / "output" / "pms" / sanitized_name
     pms_dir.mkdir(parents=True, exist_ok=True)
     
     # 1. Resolve Excel file path
-    target_excel = None
-    xlsx_files = list(pms_dir.glob("*.xlsx")) if pms_dir.exists() else []
-    xlsx_files = [f for f in xlsx_files if not f.name.startswith("~$")]
-    
-    if xlsx_files:
-        clean_course_words = set(re.findall(r'\w+', course_name.lower()))
-        best_match = None
-        best_overlap = 0
-        for f in xlsx_files:
-            file_words = set(re.findall(r'\w+', f.stem.lower()))
-            overlap = len(clean_course_words.intersection(file_words))
-            if overlap > best_overlap:
-                best_overlap = overlap
-                best_match = f
-                
-        if best_match and best_overlap > 0:
-            target_excel = best_match
-        elif len(xlsx_files) == 1:
-            target_excel = xlsx_files[0]
-            
-    if not target_excel:
-        sanitized_name = re.sub(r'[\\/*?:"<>|]', "", course_name).strip().replace(" ", "_").replace("-", "_")
-        target_excel = pms_dir / f"PM_{sanitized_name}.xlsx"
+    target_excel = pms_dir / f"PM_{sanitized_name}.xlsx"
         
     print(f"  [PM Excel Sync] Writing curriculum to: {target_excel}")
     

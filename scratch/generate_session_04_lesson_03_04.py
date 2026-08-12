@@ -5,7 +5,7 @@ import io
 from pathlib import Path
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-base_dir = Path(r"d:\Rikkei Education\Elearning_Agent\Learning-Material")
+base_dir = Path(__file__).resolve().parent.parent
 if str(base_dir) not in sys.path:
     sys.path.insert(0, str(base_dir))
 
@@ -14,7 +14,7 @@ from core.validators.reading_validator import validate_reading_material
 from core.validators.quiz_validator import validate_quiz_json, validate_reading_questions_md
 
 def generate_lesson_03():
-    target_dir = base_dir / r"output\pms\Lập_trình_Python\Session 04 - Toán tử số học, logic và Cấu trúc rẽ nhánh\Lesson 03 - Cấu trúc rẽ nhánh điều khiển với if, elif và else"
+    target_dir = base_dir / r"output\pms\Lập_trình_Python\Session 04 - Toán tử Số học, Toán tử So sánh và Toán tử Logic trong Python\Lesson 03 - Ứng dụng toán tử logic và Thứ tự ưu tiên tính toán"
     rd_dir = target_dir / "Bài đọc"
     img_dir = rd_dir / "images"
     rq_dir = target_dir / "Câu hỏi bài đọc"

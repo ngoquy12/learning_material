@@ -67,7 +67,7 @@ class SessionPrerequisites:
 
 def prerequisite_guard_agent(
     sessions: List[Dict[str, Any]],
-    tech_stack: str = "python/core",
+    tech_stack: str = "",
     strict_mode: bool = True
 ) -> Dict[str, Any]:
     """

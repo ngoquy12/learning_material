@@ -11,9 +11,8 @@ def export_quiz_to_excel(questions: List[Dict[str, Any]], file_path: str):
     Exports a list of quiz questions to a standardized E-learning Excel format.
     Validates and shuffles option positions before exporting to ensure balanced answer keys.
     """
-    is_valid, processed_qs, errs = validate_and_shuffle_quiz(questions)
-    if processed_qs:
-        questions = processed_qs
+    is_valid, errs = validate_and_shuffle_quiz(questions)
+    processed_qs = questions
         
     wb = openpyxl.Workbook()
     ws = wb.active

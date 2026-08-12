@@ -328,8 +328,8 @@ def pipeline_html_production(state: AgentState) -> AgentState:
 
 @component
 def pipeline_slide_production(state: AgentState) -> AgentState:
-    """TẠM THỜI COMMENT LUỒNG TẠO SLIDE - BỎ QUA TẠO SLIDE"""
-    state.setdefault("artifacts_status", {})["slide"] = "Skipped (Temporarily Commented Out)"
+    """LUỒNG TẠO SLIDE BÀI GIẢNG ĐÃ BỊ LOẠI BỎ KHỎI WORKFLOW"""
+    state.setdefault("artifacts_status", {})["slide"] = "Skipped (Slide Agent removed from workflow)"
     return state
     # if "requested_parts" in state and "slide" not in state["requested_parts"]:
     #     state["artifacts_status"]["slide"] = "Skipped"
@@ -452,8 +452,8 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
 
 @component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
-    """TẠM THỜI COMMENT LUỒNG TẠO VIDEO SCRIPT - BỎ QUA TẠO VIDEO SCRIPT"""
-    state.setdefault("artifacts_status", {})["video_script"] = "Skipped (Temporarily Commented Out)"
+    """LUỒNG TẠO KỊCH BẢN VIDEO ĐÃ BỊ LOẠI BỎ KHỎI WORKFLOW"""
+    state.setdefault("artifacts_status", {})["video_script"] = "Skipped (Video Script Agent removed from workflow)"
     return state
     # requested = state.get("requested_parts", ["all"])
     # if "video" not in requested and "video_script" not in requested and "all" not in requested:
@@ -1026,7 +1026,6 @@ def compile_learning_content_workflow():
     workflow.add_node("generate_master_content", node_generate_master_content)
     workflow.add_node("html_first_production", node_html_first_production)
     workflow.add_node("parallel_derived_production", node_parallel_derived_production)
-    workflow.add_node("video_tts_and_render", pipeline_video_tts_and_render)
     workflow.add_node("final_compiler_and_publish", session_compiler_node)
     workflow.add_node("lessons_learned_refiner", lessons_learned_refiner)
 
@@ -1038,11 +1037,10 @@ def compile_learning_content_workflow():
     workflow.add_edge("allocate_schedule", "lock_ssot")
     workflow.add_edge("lock_ssot", "generate_master_content")
     
-    # BẮT BUỘC: Bài đọc HTML sản xuất & kiểm duyệt ĐẦU TIÊN -> sau đó 4 tài nguyên dẫn xuất chạy song song
+    # BẮT BUỘC: Bài đọc HTML sản xuất & kiểm duyệt ĐẦU TIÊN -> sau đó các tài nguyên dẫn xuất chạy song song
     workflow.add_edge("generate_master_content", "html_first_production")
     workflow.add_edge("html_first_production", "parallel_derived_production")
-    workflow.add_edge("parallel_derived_production", "video_tts_and_render")
-    workflow.add_edge("video_tts_and_render", "final_compiler_and_publish")
+    workflow.add_edge("parallel_derived_production", "final_compiler_and_publish")
     workflow.add_edge("final_compiler_and_publish", "lessons_learned_refiner")
 
     return workflow.compile()

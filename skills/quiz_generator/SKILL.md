@@ -24,23 +24,36 @@ When generating any multiple-choice question (Lesson Quiz or Session Entrance/Ex
 
 ---
 
-## 📚 2. Lesson Quiz Standard — 5 Questions Matrix
+---
+
+## 📚 2. Lesson Quiz Standard — 5 Questions Matrix & Enhanced Schema
 
 Every theoretical lesson quiz deck MUST contain **EXACTLY 5 questions** strictly adhering to the 5 STT structure defined in `RE_Tiêu chuẩn quizz.pdf`:
 
-| STT | Loại câu hỏi (Question Type) | Mục tiêu đánh giá (Pedagogical Goal) | Ví dụ minh họa (Domain-Agnostic Example) |
+| STT | Dạng câu (question_type) | Mục tiêu đánh giá (Pedagogical Goal) | Ví dụ minh họa (Domain-Agnostic Example) |
 | :-: | :--- | :--- | :--- |
-| **Câu 1** | **Định nghĩa / Cú pháp** | Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ. | "Đâu là cú pháp khởi tạo đúng của [Công nghệ X]?" |
-| **Câu 2** | **Luồng thực thi** | Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình. | "Trong cấu trúc X, khối lệnh Y được thực thi mấy lần / khi nào nếu điều kiện Z?" |
-| **Câu 3** | **Đoạn mã mẫu** | Đọc hiểu code cơ bản, trace biến và xác định giá trị đầu ra của đoạn code mẫu. | "Cho đoạn code `int i=0; while(i<3){ i++; }`. Giá trị của `i` sau khi kết thúc là bao nhiêu?" |
-| **Câu 4** | **Phân biệt / So sánh** | Tránh nhầm lẫn giữa các cấu trúc, lệnh hoặc tính ứng dụng. | "Điểm khác biệt lớn nhất giữa A và B khi giải quyết bài toán Y là gì?" |
-| **Câu 5** | **Dự đoán kết quả có bẫy** | Kiểm tra sự tỉ mỉ, phát hiện bẫy logic / bẫy cú pháp / lỗi lặp vô tận / biến không thay đổi. | "Chuyện gì xảy ra nếu các biến tham gia điều kiện vòng lặp không thay đổi giá trị trong thân vòng lặp?" |
+| **1** | `SYNTAX` | Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ. | "Đâu là cú pháp khởi tạo đúng của [Công nghệ X]?" |
+| **2** | `EXECUTION_FLOW` | Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình. | "Trong cấu trúc X, khối lệnh Y được thực thi mấy lần / khi nào nếu điều kiện Z?" |
+| **3** | `CODE_TRACE` | Đọc hiểu code cơ bản, trace biến và xác định giá trị đầu ra của đoạn code mẫu. | "Cho đoạn code `int i=0; while(i<3){ i++; }`. Giá trị của `i` sau khi kết thúc là bao nhiêu?" |
+| **4** | `COMPARISON` | Tránh nhầm lẫn giữa các cấu trúc, lệnh hoặc tính ứng dụng. | "Điểm khác biệt lớn nhất giữa A và B khi giải quyết bài toán Y là gì?" |
+| **5** | `TRAP_PREDICTION` | Kiểm tra sự tỉ mỉ, phát hiện bẫy logic / bẫy cú pháp / lỗi lặp vô tận / biến không thay đổi. | "Chuyện gì xảy ra nếu các biến tham gia điều kiện vòng lặp không thay đổi giá trị trong thân vòng lặp?" |
+
+### 2.1. Required JSON Schema Fields for Each Question
+
+1. `stt`: Integer from `1` to `5`.
+2. `question_type`: Enum string (`SYNTAX`, `EXECUTION_FLOW`, `CODE_TRACE`, `COMPARISON`, `TRAP_PREDICTION`).
+3. `question`: String containing scenario-based question stem with Markdown code fences/backticks.
+4. `options`: List of 4 homogeneous string options.
+5. `correct_option_index`: Integer `0`, `1`, `2`, or `3`.
+6. `explanation`: Detailed technical explanation of why the correct option is right.
+7. `instant_feedback`: Short, punchy pedagogical guidance when a student picks an incorrect option, explicitly pointing them back to the relevant section or concept in the lesson reading text (e.g., *"Chưa chính xác! Bạn hãy tham khảo lại Mục 2.1 trong bài đọc để hiểu rõ hơn về cú pháp khai báo..."*).
+8. `time_limit_sec`: Fixed integer `30` (30 seconds per question rule).
 
 ---
 
 ## 💻 3. Code Styling & Markdown Formatting Guidelines in Questions
 
-When generating code snippets or code symbols inside `question`, `options`, or `explanation`:
+When generating code snippets or code symbols inside `question`, `options`, `explanation`, or `instant_feedback`:
 
 1. **Fenced Multi-Line Code Blocks (` ```{lang}\n ... \n``` `)**:
    - All multi-line code snippets MUST be formatted inside Markdown fenced code blocks specifying the exact target language tag `{lang}` (dynamically derived from `tech_stack`, e.g., ````python ... ``` `, ````javascript ... ``` `, ````java ... ``` `, ````sql ... ``` `, ````bash ... ``` `).
@@ -53,3 +66,4 @@ When generating code snippets or code symbols inside `question`, `options`, or `
 4. **Naming Conventions:**
    - Use **`snake_case`** for Python/Database variables and functions (`user_id`, `order_amount`).
    - Use **`camelCase`** or **`PascalCase`** for JavaScript/TypeScript/Java (`userId`, `fetchData`).
+

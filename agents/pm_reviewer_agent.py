@@ -252,10 +252,10 @@ def lint_pm_syllabus(
             review_logs.append({"level": "ERROR", "message": msg})
             score -= 5
 
-        # Theory lessons count & purity check
-        if "Lý thuyết" in ht:
-            if len(lessons) < 2 or len(lessons) > 5:
-                msg = f"Session {snum:02d} (Lý thuyết) có {len(lessons)} lessons — phải từ 2 đến 5 lessons."
+        # Theory lessons count & purity check (Session 01 is governed by Rule 4.5 for 1 consolidated lesson)
+        if "Lý thuyết" in ht and snum > 1:
+            if len(lessons) < 2 or len(lessons) > 7:
+                msg = f"Session {snum:02d} (Lý thuyết) có {len(lessons)} lessons — phải từ 2 đến 7 lessons linh động."
                 rule_violations.append(msg)
                 review_logs.append({"level": "ERROR", "message": msg})
                 score -= 5
@@ -466,6 +466,148 @@ def lint_pm_syllabus(
                     review_logs.append({"level": "ERROR", "message": msg})
                     score -= 3
                     break
+
+            # Rule 11: Granularity & Anti-Laziness Check for 5 Core PM Columns
+            l_scope = l.get("content_scope", "").strip()
+            l_outcome_raw = l.get("expected_outcome", "").strip()
+            l_forbidden = l.get("forbidden_scope", "").strip()
+            l_allowed = l.get("allowed_scope", "").strip()
+
+            # Check 1: content_scope lazy/short
+            if len(l_scope) < 20 or any(lazy in l_scope.lower() for lazy in ["nói chung", "các lệnh cơ bản", "bài trước", "v.v.", "..."]):
+                msg = f"Session {snum:02d} Lesson {lnum} 'Nội Dung Chi Tiết (Lesson Scope)' quá ngắn hoặc trình bày chung chung lười biếng ('{l_scope}'). Bắt buộc liệt kê chính xác các khái niệm, cú pháp và hàm."
+                rule_violations.append(msg)
+                review_logs.append({"level": "ERROR", "message": msg})
+                score -= 5
+
+            # Check 2: expected_outcome lazy/short
+            if len(l_outcome_raw) < 20:
+                msg = f"Session {snum:02d} Lesson {lnum} 'Kết Quả Mong Đợi' quá ngắn gọn thiếu chi tiết ('{l_outcome_raw}')."
+                rule_violations.append(msg)
+                review_logs.append({"level": "ERROR", "message": msg})
+                score -= 5
+
+            # Check 3: forbidden_scope lazy/missing/placeholder
+            if len(l_forbidden) < 15 or not l_forbidden.startswith("CẤM:") or any(lazy in l_forbidden.lower() for lazy in ["kiến thức chưa học", "kiến thức nâng cao", "phần nâng cao", "các phần khác"]):
+                msg = f"Session {snum:02d} Lesson {lnum} 'Phạm Vi CẤM DÙNG' trình bày chung chung hoặc thiếu tiền tố 'CẤM:' ('{l_forbidden}'). Bắt buộc liệt kê danh sách cụ thể các từ khóa/cú pháp cấm."
+                rule_violations.append(msg)
+                review_logs.append({"level": "ERROR", "message": msg})
+                score -= 5
+
+            # Check 4: allowed_scope lazy/missing/placeholder
+            if len(l_allowed) < 15 or not l_allowed.startswith("ĐÃ HỌC:") or any(lazy in l_allowed.lower() for lazy in ["các bài trước", "kiến thức cũ", "đã học ở trên", "kiến thức đã học"]):
+                msg = f"Session {snum:02d} Lesson {lnum} 'Phạm Vi ĐÃ HỌC' trình bày chung chung hoặc thiếu tiền tố 'ĐÃ HỌC:' ('{l_allowed}'). Bắt buộc liệt kê chính xác tích lũy các kiến thức/hàm đã học."
+                rule_violations.append(msg)
+                review_logs.append({"level": "ERROR", "message": msg})
+                score -= 5
+
+            # Rule 12: Single Concept Per Lesson (Atomic Purity Check)
+            # Detects lesson titles containing "và" joining TWO DISTINCT major concepts
+            if snum > 1:
+                conjunction_parts = re.split(r'\s+và\s+', ltitle, flags=re.IGNORECASE)
+                if len(conjunction_parts) >= 2:
+                    part_a = conjunction_parts[0].strip()
+                    part_b = conjunction_parts[-1].strip()
+                    # Heuristic: both parts are independently substantial (>8 chars each)
+                    # AND they don't belong to the same concept family
+                    same_family_markers = [
+                        ("toán tử", "toán tử"), ("operator", "operator"),
+                        ("git ", "git "), ("hàm ", "hàm "),
+                        ("kiểu ", "kiểu "), ("biến ", "biến "),
+                        ("câu lệnh ", "câu lệnh "),
+                        # I/O family: input/output and type conversion are related
+                        ("nhập", "xuất"), ("xuất", "nhập"),
+                        ("nhập", "chuyển đổi"), ("xuất", "chuyển đổi"),
+                        ("input", "output"), ("output", "input"),
+                        # Setup/Install family
+                        ("cài đặt", "cấu hình"), ("cấu hình", "cài đặt"),
+                        ("cài đặt", "môi trường"), ("môi trường", "cài đặt"),
+                        ("cài đặt", "thiết lập"), ("thiết lập", "cài đặt"),
+                        ("setup", "config"), ("install", "setup"),
+                        # Declaration family: variables + naming + types
+                        ("khai báo", "quy tắc"), ("khai báo", "kiểu"),
+                        ("biến", "kiểu"), ("variable", "type"),
+                        # Database family
+                        ("select", "insert"), ("create", "alter"),
+                        ("bảng", "cột"), ("table", "column"),
+                    ]
+                    is_same_family = any(
+                        m_a in part_a.lower() and m_b in part_b.lower()
+                        for m_a, m_b in same_family_markers
+                    )
+                    if len(part_a) > 8 and len(part_b) > 8 and not is_same_family:
+                        msg = (f"Session {snum:02d} Lesson {lnum} tiêu đề ôm đồm 2 khái niệm lớn riêng biệt: "
+                               f"'{ltitle}'. Bắt buộc tách thành 2 bài học nguyên tử riêng biệt "
+                               f"(Lesson A: '{part_a}', Lesson B: '{part_b}').")
+                        rule_violations.append(msg)
+                        review_logs.append({"level": "WARNING", "message": msg})
+                        score -= 3
+
+            # Rule 13: Filler / Non-Employable Content Detection
+            filler_indicators = [
+                "lịch sử phát triển", "history of", "triết lý lập trình",
+                "so sánh ngôn ngữ", "language comparison", "lý thuyết thuần túy",
+                "tiểu sử", "biography", "sự ra đời", "origin story"
+            ]
+            combined_scope_text = f"{ltitle} {l_scope}".lower()
+            for filler in filler_indicators:
+                if filler in combined_scope_text:
+                    msg = (f"Session {snum:02d} Lesson {lnum} có dấu hiệu nội dung nhồi nhét / không ứng dụng thực tế: "
+                           f"'{filler}' trong '{ltitle}'. Nội dung phải có giá trị thực tế giúp sinh viên đi làm được.")
+                    rule_violations.append(msg)
+                    review_logs.append({"level": "WARNING", "message": msg})
+                    score -= 3
+                    break
+
+            # Rule 14: Anti-Rambling Orientation Check
+            # Detect lessons beyond Session 02 Lesson 1 that are purely introductory/overview
+            if snum > 2 or (snum == 2 and lnum > 1):
+                intro_only_markers = ["giới thiệu tổng quan", "tổng quan về", "overview of", "introduction to"]
+                is_intro_only = any(m in ltitle.lower() for m in intro_only_markers)
+                # Also check if lesson scope has NO executable content (no syntax, no commands, no code)
+                has_executable_content = any(
+                    kw in l_scope.lower() for kw in [
+                        "cú pháp", "syntax", "lệnh", "command", "khai báo", "declare",
+                        "hàm", "function", "def ", "class ", "create ", "select ",
+                        "insert", "git ", "npm ", "pip ", "import"
+                    ]
+                )
+                if is_intro_only and not has_executable_content:
+                    msg = (f"Session {snum:02d} Lesson {lnum} lan man giới thiệu tổng quan mà không chứa kiến thức kỹ thuật thực thi được: "
+                           f"'{ltitle}'. Bài học sau Session 02 Lesson 1 phải đi thẳng vào kiến thức thực hành.")
+                    rule_violations.append(msg)
+                    review_logs.append({"level": "WARNING", "message": msg})
+                    score -= 3
+
+            # Rule 15: Professional Title Naming Check (Fluff/Amateur Word Detection)
+            title_fluff_keywords = [
+                "vấn đề tính toán", "vấn đề rẽ nhánh", "vấn đề xử lý", "vấn đề khi", "vấn đề ",
+                "tư duy lập trình", "tư duy ", "khám phá ", "tìm hiểu về ", "cách sử dụng ", "cách dùng "
+            ]
+            ltitle_lower = ltitle.lower()
+            for fluff in title_fluff_keywords:
+                if fluff in ltitle_lower:
+                    msg = (f"Session {snum:02d} Lesson {lnum} chứa từ rườm rà/nghiệp dư cấm trong tiêu đề ('{fluff.strip()}'): "
+                           f"'{ltitle}'. Tiêu đề bài học phải chuẩn chỉnh, chuyên nghiệp và đi thẳng vào kiến thức kỹ thuật chính.")
+                    rule_violations.append(msg)
+                    review_logs.append({"level": "WARNING", "message": msg})
+                    score -= 4
+                    break
+
+        # Session level title fluff check
+        s_title_lower = s_title.lower()
+        sess_fluff_keywords = [
+            "vấn đề tính toán", "vấn đề rẽ nhánh", "vấn đề xử lý", "vấn đề khi", "vấn đề ",
+            "tư duy lập trình", "tư duy ", "khám phá ", "tìm hiểu về ", "cách sử dụng ", "cách dùng "
+        ]
+        for s_fluff in sess_fluff_keywords:
+            if s_fluff in s_title_lower:
+                msg = (f"Session {snum:02d} tiêu đề chứa từ rườm rà/nghiệp dư cấm ('{s_fluff.strip()}'): "
+                       f"'{s_title}'. Tiêu đề Session phải chuẩn chỉnh, chuyên nghiệp và đi thẳng vào kiến thức kỹ thuật chính.")
+                rule_violations.append(msg)
+                review_logs.append({"level": "WARNING", "message": msg})
+                score -= 4
+                break
 
         # Check Adaptive Pedagogical Structure for Theory Sessions based on Topic Classification
         if "Lý thuyết" in _get_hinh_thuc(s) and len(lessons) >= 3 and snum > 1:

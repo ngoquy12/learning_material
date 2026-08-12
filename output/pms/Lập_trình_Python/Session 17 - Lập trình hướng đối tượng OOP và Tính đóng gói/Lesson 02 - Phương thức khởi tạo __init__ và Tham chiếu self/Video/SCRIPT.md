@@ -1,1 +1,0 @@
-<!-- Empty video script outline for Session 17 - Lesson 02: Phương thức khởi tạo __init__ và Tham chiếu self -->

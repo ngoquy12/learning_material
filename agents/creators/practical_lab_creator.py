@@ -30,7 +30,9 @@ def format_lab_to_markdown(lab_data: dict) -> str:
     steps_md = "\n".join(formatted_steps) if formatted_steps else "1. Bước 1: Khởi tạo môi trường.\n2. Bước 2: Viết mã nguồn và kiểm thử."
     
     ref_code = lab_data.get("reference_code") or lab_data.get("code_demo") or ""
-    code_block_lang = lab_data.get("tech_stack_lang", "python")
+    tech_stack = lab_data.get("tech_stack") or ""
+    default_lang = tech_stack.split("/")[0].lower() if tech_stack else "text"
+    code_block_lang = lab_data.get("tech_stack_lang") or default_lang
     code_md = f"\n## 4. Mã nguồn tham khảo (Code Demo)\n\n```{code_block_lang}\n{ref_code.strip()}\n```\n" if ref_code else ""
     
     eval_data = lab_data.get("evaluation", {})
@@ -63,7 +65,7 @@ def format_lab_to_markdown(lab_data: dict) -> str:
 """
     return md_content.strip()
 
-def format_lab_to_html(lab_data: dict, tech_stack: str = "python") -> str:
+def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
     raw_title = lab_data.get("title", "Bài thực hành").replace("#", "").strip()
     objectives = lab_data.get("objectives", [])
     obj_items = "\n".join([f'<li>{o}</li>' for o in objectives]) if objectives else '<li>Nắm vững kiến thức bài học và thực hành mã nguồn.</li>'
@@ -104,6 +106,12 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "python") -> str:
 </label>''')
     checklist_html = "\n".join(check_items) if check_items else '<div>Mã nguồn thực thi không có lỗi.</div>'
 
+    stack_clean = tech_stack.lower().strip()
+    is_python_stack = "python" in stack_clean
+    lang_class = stack_clean.split("/")[0] if stack_clean else "text"
+
+    pyodide_script = '<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>' if is_python_stack else ''
+
     return f"""<!DOCTYPE html>
 <html lang="vi">
   <head>
@@ -132,8 +140,7 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "python") -> str:
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    {pyodide_script}
     <style>
       code:not(.hljs):not([class*="language"]) {{
         background-color: #f1f5f9 !important;
@@ -194,12 +201,12 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "python") -> str:
               <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
                 Khôi phục mã gốc
               </button>
-              <button onclick="runLabPythonCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
+              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
                 Chạy chương trình
               </button>
             </div>
             <div class="p-4 bg-slate-50 font-mono text-sm">
-              <pre class="m-0"><code id="lab-code-editor" class="language-python" contenteditable="true" spellcheck="false">{ref_code_escaped}</code></pre>
+              <pre class="m-0"><code id="lab-code-editor" class="language-{lang_class}" contenteditable="true" spellcheck="false">{ref_code_escaped}</code></pre>
             </div>
             <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
               <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
@@ -224,21 +231,26 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "python") -> str:
         if (!pyodideInstance && window.loadPyodide) pyodideInstance = await window.loadPyodide();
         return pyodideInstance;
       }}
-      async function runLabPythonCode() {{
+      async function runLabCode() {{
         const editor = document.getElementById("lab-code-editor");
         const output = document.getElementById("lab-console-output");
         if (!editor || !output) return;
         const code = editor.innerText || editor.textContent;
-        output.innerText = "⏳ Đang nạp Pyodide WASM Engine và thực thi...";
-        try {{
-          const pyodide = await getPyodide();
-          let buffer = "";
-          pyodide.setStdout({{ batched: (str) => {{ buffer += str + "\\n"; }} }});
-          pyodide.setStderr({{ batched: (str) => {{ buffer += "ERROR: " + str + "\\n"; }} }});
-          await pyodide.runPythonAsync(code);
-          output.innerText = buffer.trim() || "Thực thi hoàn tất!";
-        }} catch (err) {{
-          output.innerText = "❌ LỖI THỰC THI:\\n" + err;
+        const isPython = "{'true' if is_python_stack else 'false'}" === "true";
+        if (isPython) {{
+          output.innerText = "⏳ Đang nạp Pyodide WASM Engine và thực thi...";
+          try {{
+            const pyodide = await getPyodide();
+            let buffer = "";
+            pyodide.setStdout({{ batched: (str) => {{ buffer += str + "\\n"; }} }});
+            pyodide.setStderr({{ batched: (str) => {{ buffer += "ERROR: " + str + "\\n"; }} }});
+            await pyodide.runPythonAsync(code);
+            output.innerText = buffer.trim() || "Thực thi hoàn tất!";
+          }} catch (err) {{
+            output.innerText = "❌ LỖI THỰC THI:\\n" + err;
+          }}
+        }} else {{
+          output.innerText = "▶ Kiểm tra cú pháp mã nguồn {lang_class}: Đã ghi nhận mã nguồn thực hành!";
         }}
       }}
     </script>
@@ -258,7 +270,7 @@ def practical_lab_creator_agent(state: AgentState) -> AgentState:
     tech_stack = require_tech_stack(state, "practical_lab_creator_agent")
     
     core_ssot = state.get("core_ssot", {})
-    lesson_title = core_ssot.get("session_title") or core_ssot.get("lesson_title") or "Lập trình Python Doanh Nghiệp"
+    lesson_title = core_ssot.get("session_title") or core_ssot.get("lesson_title") or "Lập trình Ứng dụng Doanh Nghiệp"
     lesson_details = core_ssot.get("lesson_details", "")
     expected_output = core_ssot.get("expected_output", "")
     

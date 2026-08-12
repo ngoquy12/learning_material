@@ -33,6 +33,32 @@ Measures immediate in-class knowledge absorption and application for the new les
   - `STT 19-33 (15 questions)`: Debug & Code Fixes | difficulty: `10`.
   - `STT 34-45 (12 questions)`: Creation & Optimization | difficulty: `11`.
 
+### 2.3. 15-Question Student Exam Extractor Standard
+
+While the system generates a full 45-question bank for archiving and randomized testing, the **actual student exam paper administered in class consists of EXACTLY 15 questions** extracted according to fixed pedagogical ratios:
+
+1. **Entrance Exam (15 Questions)**:
+   - **10 Old Lesson Questions**: 4 Deep Application (from STT 1-12) + 3 Deep Analysis/Debug (from STT 13-21) + 3 Optimization/Security (from STT 22-30).
+   - **5 New Lesson Questions**: 2 Mechanical Understanding (from STT 31-36) + 2 Basic Application (from STT 37-42) + 1 Basic Analysis (from STT 43-45).
+2. **Exit Exam (15 Questions)**:
+   - **15 New Lesson Questions**: 6 Application (from STT 1-18) + 5 Analysis/Debug (from STT 19-33) + 4 Creation/Optimization (from STT 34-45).
+
+### 2.4. Student Capability Classification Matrices
+
+#### A. Entrance Quiz 5-Group Classification Matrix (Total 15 Questions):
+- **Gương mẫu (Model Student)**: Score $\ge 13/15$ AND New Lesson $= 5/5$ $\rightarrow$ Outstanding! Assign as Team Leader or assign hard Creative tasks.
+- **Nỗ lực (Diligent but Gap)**: Score $7-9/15$ AND New Lesson $\ge 3/5$ $\rightarrow$ Hardworking but gaps in old foundation $\rightarrow$ Remediate old knowledge in class.
+- **Tư duy tốt (High Logic, Lazy)**: Score $10-12/15$ AND New Lesson $< 3/5$ $\rightarrow$ Good logic but lazy $\rightarrow$ Warning on self-study discipline.
+- **Nguy cơ (At-Risk)**: Score $< 7/15$ $\rightarrow$ Weak in both $\rightarrow$ Require 1:1 Mentoring or TA support.
+- **Ổn định (Stable/Average)**: Score $10-12/15$ AND New Lesson $\ge 3/5$ $\rightarrow$ Average group $\rightarrow$ Push to Model group.
+- **Ẩn mình (Hidden Potential)**: Score $7-9/15$ AND New Lesson $< 3/5$ $\rightarrow$ Smart but lacks discipline $\rightarrow$ Re-read materials in class.
+
+#### B. Exit Quiz 4-Group Classification Matrix (Total 15 Questions):
+- **Làm chủ (Mastery)**: Score $13-15/15$ $\rightarrow$ Assign project-based homework, assign as TA mentor for weak group.
+- **Đạt (Proficient)**: Score $10-12/15$ $\rightarrow$ Require writing code comments/documentation, assign advanced homework.
+- **Cơ bản (Basic)**: Score $7-9/15$ $\rightarrow$ Require re-doing lab from scratch without sample code.
+- **Cần kèm (Needs Mentoring)**: Score $< 7/15$ $\rightarrow$ 1:1 mentoring by TA/Instructor immediately after class.
+
 ## 3. Mandatory Quiz Directives & Tone
 
 When generating any question for entrance or exit quizzes, the AI MUST strictly obey these 9 requirements:
@@ -61,3 +87,4 @@ When generating code snippets inside `question_content`, options, or explanation
   - Use **`camelCase`** or **`PascalCase`** for JavaScript/TypeScript/Java (`userId`, `fetchData`).
 - **Indentation**:
   - Ensure consistent 4-space indentation. Never concatenate multi-line code into a single line. Use explicit `\n` linebreaks.
+
