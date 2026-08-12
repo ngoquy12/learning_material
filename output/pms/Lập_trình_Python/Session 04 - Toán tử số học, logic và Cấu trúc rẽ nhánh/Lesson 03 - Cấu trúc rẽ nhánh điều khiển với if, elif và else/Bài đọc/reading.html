@@ -1017,113 +1017,99 @@ print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></
               id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc-step-by-step-execution-visualizer"
               class="font-montserrat font-bold text-xl text-slate-900 mb-3"
             >
-              2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer & Live Editor)
+              2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)
             </h3>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Công cụ trực quan dưới đây cho phép bạn <strong>chỉnh sửa giá trị mã nguồn trực tiếp trong Editor</strong> (thử thay đổi giá trị <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">order_amount</code>). Khi bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong>, hệ thống sẽ tự động highlight từng dòng mã lệnh đang thực thi và ghi lịch sử chạy chi tiết từng bước vào <strong>Terminal Console Log</strong>!
+              Nhấp trực tiếp vào số tiền trong mã nguồn dưới đây để chỉnh sửa giá trị đơn hàng, sau đó bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để quan sát luồng rẽ nhánh và lịch sử thực thi từng bước.
             </p>
 
-            <!-- Trình mô phỏng trực quan tương tác có Editor chỉnh sửa được -->
-            <div class="p-5 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl my-6 text-slate-100 overflow-hidden">
+            <!-- Trình mô phỏng trực quan nền sáng (Light Theme) -->
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
               
-              <!-- Header Bar & Preset Buttons -->
-              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+              <!-- Thanh điều khiển thử nhanh kịch bản -->
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3 mb-4">
                 <div class="flex items-center gap-2">
-                  <span class="w-3 h-3 rounded-full bg-rose-500 inline-block shadow-sm"></span>
-                  <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span>
-                  <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm"></span>
-                  <span class="text-xs font-mono font-bold text-slate-300 ml-2 flex items-center gap-1.5">
-                    <i class="ph-bold ph-code text-rikkei-red"></i> LIVE EXECUTION VISUALIZER & TRACER
+                  <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
+                    <i class="ph-bold ph-pencil-line text-rikkei-red"></i> Mã nguồn minh họa (nhấp số tiền để sửa):
                   </span>
                 </div>
                 <div class="flex items-center gap-2 text-xs font-sans">
-                  <span class="text-slate-400">Thử nhanh kịch bản:</span>
-                  <button onclick="vizSetPreset(750000)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">Đơn 750k (5%)</button>
-                  <button onclick="vizSetPreset(2500000)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">Đơn 2.5Tr (20%)</button>
-                  <button onclick="vizSetPreset(300000)" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all">Đơn 300k (0%)</button>
+                  <span class="text-slate-500 font-medium">Thử nhanh:</span>
+                  <button onclick="vizSetPreset(750000)" class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm transition-all font-medium">Đơn 750k (5%)</button>
+                  <button onclick="vizSetPreset(2500000)" class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm transition-all font-medium">Đơn 2.5Tr (20%)</button>
+                  <button onclick="vizSetPreset(300000)" class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm transition-all font-medium">Đơn 300k (0%)</button>
                 </div>
               </div>
 
-              <!-- Main Grid: Code Editor (Left) & Variable Table + Terminal Log (Right) -->
+              <!-- Nội dung 2 cột nền sáng -->
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
                 
-                <!-- Left Column: Editable Code Editor -->
-                <div class="flex flex-col bg-slate-950/80 rounded-xl border border-slate-800 overflow-hidden shadow-inner">
-                  <div class="bg-slate-800/80 px-4 py-2 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700">
-                    <span class="font-bold text-emerald-400 flex items-center gap-1.5">
-                      <i class="ph-bold ph-pencil-line"></i> BẢNG CHỈNH SỬA CODE (LIVE EDITOR)
-                    </span>
-                    <span class="text-[11px] text-slate-400 italic">Nhấp vào số tiền để chỉnh sửa</span>
+                <!-- Cột trái: Mã nguồn editable (Nền trắng, KHÔNG SỐ DÒNG) -->
+                <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+                    <span>MÃ NGUỒN THỰC THI</span>
+                    <span id="viz-step-badge" class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
                   </div>
-                  <div id="viz-code-display" class="p-3 font-mono text-xs text-slate-200 space-y-1 overflow-x-auto min-h-[220px]">
-                    <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
-                      <span class="text-slate-600 select-none w-4 text-right">1</span>
-                      <span class="text-slate-300">order_amount = <span id="viz-edit-amount" contenteditable="true" spellcheck="false" class="bg-slate-800 px-1.5 py-0.5 rounded text-emerald-300 font-bold border border-emerald-500/50 outline-none">750000</span></span>
+                  <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-1.5 overflow-x-auto min-h-[200px]">
+                    <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200">
+                      order_amount = <span id="viz-edit-amount" contenteditable="true" spellcheck="false" class="bg-slate-100 px-1.5 py-0.5 rounded text-rikkei-red font-bold border border-slate-300 outline-none">750000</span>
                     </div>
-                    <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
-                      <span class="text-slate-600 select-none w-4 text-right">2</span>
-                      <span class="text-purple-400 font-bold">if</span> <span class="text-slate-200">order_amount &gt;= <span id="viz-edit-tier1" contenteditable="true" spellcheck="false" class="bg-slate-800 px-1 py-0.5 rounded text-sky-300 outline-none">2000000</span>:</span>
+                    <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200">
+                      <span class="text-blue-600 font-bold">if</span> order_amount &gt;= <span id="viz-edit-tier1" contenteditable="true" spellcheck="false" class="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-bold outline-none">2000000</span>:
                     </div>
-                    <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2 pl-6">
-                      <span class="text-slate-600 select-none w-4 text-right">3</span>
-                      <span class="text-slate-300">discount_rate = 0.20</span>
+                    <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 pl-6">
+                      discount_rate = 0.20
                     </div>
-                    <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
-                      <span class="text-slate-600 select-none w-4 text-right">4</span>
-                      <span class="text-purple-400 font-bold">elif</span> <span class="text-slate-200">order_amount &gt;= <span id="viz-edit-tier2" contenteditable="true" spellcheck="false" class="bg-slate-800 px-1 py-0.5 rounded text-sky-300 outline-none">500000</span>:</span>
+                    <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200">
+                      <span class="text-blue-600 font-bold">elif</span> order_amount &gt;= <span id="viz-edit-tier2" contenteditable="true" spellcheck="false" class="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-bold outline-none">500000</span>:
                     </div>
-                    <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2 pl-6">
-                      <span class="text-slate-600 select-none w-4 text-right">5</span>
-                      <span class="text-slate-300">discount_rate = 0.05</span>
+                    <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 pl-6">
+                      discount_rate = 0.05
                     </div>
-                    <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
-                      <span class="text-slate-600 select-none w-4 text-right">6</span>
-                      <span class="text-purple-400 font-bold">else</span><span class="text-slate-200">:</span>
+                    <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200">
+                      <span class="text-blue-600 font-bold">else</span>:
                     </div>
-                    <div id="viz-line-7" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2 pl-6">
-                      <span class="text-slate-600 select-none w-4 text-right">7</span>
-                      <span class="text-slate-300">discount_rate = 0.00</span>
+                    <div id="viz-line-7" class="p-1.5 rounded transition-all duration-200 pl-6">
+                      discount_rate = 0.00
                     </div>
-                    <div id="viz-line-8" class="p-1.5 rounded transition-all duration-200 flex items-center gap-2">
-                      <span class="text-slate-600 select-none w-4 text-right">8</span>
-                      <span class="text-yellow-300">print</span><span class="text-slate-200">(f"Tỷ lệ giảm giá: {discount_rate * 100}%")</span>
+                    <div id="viz-line-8" class="p-1.5 rounded transition-all duration-200">
+                      print(f"Tỷ lệ giảm giá: {discount_rate * 100}%")
                     </div>
                   </div>
                 </div>
 
-                <!-- Right Column: Memory Table + Terminal Console Log History -->
+                <!-- Cột phải: Bộ nhớ biến & Nhật ký Console -->
                 <div class="flex flex-col space-y-4">
                   
-                  <!-- Variable Memory Table -->
-                  <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 shadow-inner">
-                    <div class="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-                      <span class="flex items-center gap-1.5"><i class="ph-bold ph-database"></i> BẢNG BỘ NHỚ RAM (VARIABLES)</span>
-                      <span id="viz-step-badge" class="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 text-[11px] font-normal">Chưa khởi chạy</span>
+                  <!-- Bảng biến bộ nhớ (Nền trắng) -->
+                  <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+                    <div class="text-xs font-mono font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                      <i class="ph-bold ph-database text-sky-600"></i> BIẾN BỘ NHỚ RAM
                     </div>
                     <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-                      <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
-                        <span class="text-slate-400 block text-[11px]">order_amount</span>
-                        <span id="viz-var-amount" class="text-emerald-400 font-bold text-sm">750,000 VNĐ</span>
+                      <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <span class="text-slate-500 block text-[11px]">order_amount</span>
+                        <span id="viz-var-amount" class="text-slate-900 font-bold text-sm">750,000 VNĐ</span>
                       </div>
-                      <div class="bg-slate-900 p-2 rounded-lg border border-slate-800">
-                        <span class="text-slate-400 block text-[11px]">discount_rate</span>
-                        <span id="viz-var-discount" class="text-amber-400 font-bold text-sm">0.00 (0%)</span>
+                      <div class="bg-slate-50 p-2 rounded-lg border border-slate-200">
+                        <span class="text-slate-500 block text-[11px]">discount_rate</span>
+                        <span id="viz-var-discount" class="text-emerald-600 font-bold text-sm">0.00 (0%)</span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Terminal Console History Log -->
-                  <div class="flex-1 bg-slate-950/90 rounded-xl border border-slate-800 overflow-hidden flex flex-col shadow-inner">
-                    <div class="bg-slate-800/80 px-3.5 py-2 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700">
-                      <span class="font-bold text-purple-400 flex items-center gap-1.5">
-                        <i class="ph-bold ph-terminal-window"></i> TERMINAL LOG LỊCH SỬ CHẠY TỪNG BƯỚC
+                  <!-- Terminal Log (Nền tối chuẩn Terminal Console Output) -->
+                  <div class="flex-1 bg-slate-900 rounded-xl border border-slate-700 overflow-hidden flex flex-col shadow-inner">
+                    <div class="bg-slate-800 px-3.5 py-1.5 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700">
+                      <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="ph-bold ph-terminal text-xs"></i> NHẬT KÝ THỰC THI (CONSOLE LOG)
                       </span>
                       <button onclick="vizClearLog()" class="hover:text-rose-400 text-slate-400 text-[11px] transition-colors flex items-center gap-1">
-                        <i class="ph-bold ph-trash"></i> Xóa log
+                        <i class="ph-bold ph-trash text-xs"></i> Xóa
                       </button>
                     </div>
-                    <div id="viz-terminal-log" class="p-3 font-mono text-[12px] space-y-1.5 max-h-[160px] overflow-y-auto bg-black/40 leading-relaxed select-text">
-                      <div class="text-slate-400 italic">🚀 Bấm "Tiếp theo" hoặc "Tự động chạy" để ghi lịch sử chạy...</div>
+                    <div id="viz-terminal-log" class="p-3 font-mono text-[12px] space-y-1 max-h-[150px] overflow-y-auto bg-slate-950 text-slate-200 leading-relaxed select-text">
+                      <div class="text-slate-400 italic">Bấm "Tiếp theo" hoặc "Tự động chạy" để bắt đầu...</div>
                     </div>
                   </div>
 
@@ -1131,13 +1117,13 @@ print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></
 
               </div>
 
-              <!-- Control Buttons Bar -->
-              <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-3">
-                <div class="text-xs text-slate-400 font-mono">
-                  Trạng thái: <span id="viz-status-text" class="text-emerald-400 font-semibold">Sẵn sàng mô phỏng</span>
+              <!-- Nút điều khiển -->
+              <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3">
+                <div class="text-xs text-slate-600 font-mono">
+                  Trạng thái: <span id="viz-status-text" class="text-slate-900 font-semibold">Sẵn sàng mô phỏng</span>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                  <button id="viz-btn-prev" onclick="vizStepPrev()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1">
+                  <button id="viz-btn-prev" onclick="vizStepPrev()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
                     <i class="ph-bold ph-caret-left"></i> Lùi lại
                   </button>
                   <button id="viz-btn-next" onclick="vizStepNext()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] hover:bg-red-700 text-white flex items-center gap-1">
@@ -1146,7 +1132,7 @@ print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></
                   <button id="viz-btn-auto" onclick="vizAutoRun()" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1">
                     <i class="ph-bold ph-play"></i> Tự động chạy
                   </button>
-                  <button id="viz-btn-reset" onclick="vizReset()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 flex items-center gap-1">
+                  <button id="viz-btn-reset" onclick="vizReset()" class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
                     <i class="ph-bold ph-arrow-counter-clockwise"></i> Đặt lại
                   </button>
                 </div>
@@ -1947,8 +1933,8 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
         if (lineNo > 0) {
           var activeEl = document.getElementById("viz-line-" + lineNo);
           if (activeEl) {
-            activeEl.style.backgroundColor = "rgba(16, 185, 129, 0.25)";
-            activeEl.style.borderLeft = "4px solid #10b981";
+            activeEl.style.backgroundColor = "#d1fae5"; // Light emerald highlight
+            activeEl.style.borderLeft = "4px solid #059669"; // Emerald bold left border
             activeEl.style.fontWeight = "bold";
           }
         }
