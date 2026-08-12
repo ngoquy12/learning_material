@@ -1553,10 +1553,10 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
           </div>
         </section>
 
-        <!-- Section 5: Tổng kết bài học & Bài tự đánh giá -->
+        <!-- Section 5: Tổng kết và các lưu ý -->
         <section id="section-5" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            5. Tổng kết bài học & Bài tự đánh giá
+            5. Tổng kết và các lưu ý
           </h2>
 
           <!-- 5.1. Tóm tắt các ý chính -->
@@ -1610,41 +1610,10 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
             </div>
           </div>
 
-          <!-- 5.3. Bài tự đánh giá 1 trang -->
-          <div class="mb-6">
-            <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              5.3. Bài tự đánh giá 1 trang
-            </h3>
-            <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 my-4 shadow-sm" id="selftest-box">
-              <div class="space-y-4">
-                <div>
-                  <p class="font-semibold text-slate-900 mb-2">Câu 1: Điều gì xảy ra nếu bạn quên dấu hai chấm (:) ở cuối dòng câu lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs">if</code>?</p>
-                  <div class="space-y-1.5 pl-2 text-sm text-slate-700">
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="st_q1" value="A"> A. Chương trình tự động bổ sung dấu hai chấm</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="st_q1" value="B"> B. Python báo lỗi SyntaxError ngay khi chạy</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="st_q1" value="C"> C. Chương trình bỏ qua khối lệnh bên trong</label>
-                  </div>
-                </div>
-                <div>
-                  <p class="font-semibold text-slate-900 mb-2">Câu 2: Trong chuỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs">if-elif-else</code>, nếu câu lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs">if</code> đầu tiên trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs">True</code> thì Python sẽ làm gì tiếp theo?</p>
-                  <div class="space-y-1.5 pl-2 text-sm text-slate-700">
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="st_q2" value="A"> A. Chạy khối lệnh if rồi bỏ qua toàn bộ các khối elif và else phía sau</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="st_q2" value="B"> B. Tiếp tục kiểm tra các điều kiện elif ở dưới</label>
-                    <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="st_q2" value="C"> C. Chạy cả khối lệnh if và khối else</label>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
-                <button onclick="checkSelfTest()" class="px-4 py-2 rounded-lg bg-rikkei-red hover:bg-rikkei-darkred text-white text-xs font-semibold shadow-sm transition-all">Kiểm tra kết quả</button>
-                <span id="selftest-result" class="text-xs font-semibold text-slate-600"></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 5.4. Tài liệu tham khảo -->
+          <!-- 5.3. Tài liệu tham khảo -->
           <div class="pt-2">
             <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              5.4. Tài liệu tham khảo
+              5.3. Tài liệu tham khảo
             </h3>
             <ul class="space-y-2 list-none pl-0">
               <li>
@@ -2063,28 +2032,6 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
           }, 1500);
           var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Dừng tự động";
-        }
-      }
-
-      function checkSelfTest() {
-        var q1 = document.querySelector('input[name="st_q1"]:checked');
-        var q2 = document.querySelector('input[name="st_q2"]:checked');
-        var resEl = document.getElementById("selftest-result");
-        if (!resEl) return;
-        if (!q1 || !q2) {
-          resEl.innerText = "Vui lòng chọn đầy đủ đáp án cho tất cả câu hỏi!";
-          resEl.style.color = "#e11d48";
-          return;
-        }
-        var score = 0;
-        if (q1.value === "B") score++;
-        if (q2.value === "A") score++;
-        if (score === 2) {
-          resEl.innerText = "Chính xác 100%! Bạn đã nắm vững kiến thức bài học (2/2).";
-          resEl.style.color = "#059669";
-        } else {
-          resEl.innerText = "Bạn trả lời đúng " + score + "/2 câu. Hãy kiểm tra lại lưu ý bài học!";
-          resEl.style.color = "#d97706";
         }
       }
     </script>
