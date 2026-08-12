@@ -616,6 +616,10 @@ MANDATORY RULES & DIRECTIVES:
     - 🚨 SINGLE UNIFIED SCENARIO 🚨: 100% of code examples in Section 2 and Section 3 MUST progressively build on the EXACT SAME UNIFIED REAL-WORLD SCENARIO chosen in Section 1 (e.g., E-commerce order checkout & discount calculation). ABSOLUTELY FORBIDDEN to switch to unrelated random examples!
     - 🎯 PROBLEM REQUIREMENT BOX ABOVE EVERY DEMO 🎯: Directly ABOVE every Live Code Sandbox (in Section 2 and Section 3), you MUST insert a clear Problem Requirement Callout Box (`<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Description...</p></div>`) explaining exactly what the upcoming code demo requires and aims to accomplish.
 
+34. 100% ACCENTED VIETNAMESE CODE COMMENTS CONTRACT:
+    - 🚨 NO ENGLISH COMMENTS IN CODE DEMOS 🚨: 100% of code comments (`# ...`, `// ...`) and console print messages inside ALL code snippets, sandboxes, and visualizers MUST be written in clear, friendly, learner-understandable Accented Vietnamese ("# 1. Kiểm tra chính sách miễn phí ship", "# Khối lệnh chạy khi điều kiện True").
+    - ABSOLUTELY FORBIDDEN to use English code comments (e.g., `# Progressive Demo`, `# Executed if condition is True`, `# Production call demo`).
+
 Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
 {{
   "section1_title": "Dynamic Section 1 title matching lesson topic in Accented Vietnamese (e.g., 'Tại sao cần dùng hàm?')",

@@ -25,6 +25,7 @@ All Agents MUST strictly implement all 10 core directives:
 |  8  | **Human-Like Quality Standard & Domain Agnostic** — 100% Accented Vietnamese, no AI markers, zero hardcoding for any specific tech stack | MANDATORY |
 |  9  | **Section 4 & Section 5 Architecture Standard** — Section 4 is "4. Tổng kết bài học" (Key Takeaways + Common Pitfalls callout cards). Section 5 is "5. Tài liệu tham khảo" (Standalone references). ABSOLUTELY FORBIDDEN self-test quiz forms inside reading.html | MANDATORY |
 | 10  | **Problem Requirement Box Above Every Demo & Single Unified Scenario** — Insert a clear "Yêu cầu bài toán" callout box directly above every Code Demo Sandbox. ALL demos in Section 2 and Section 3 MUST build on the EXACT SAME UNIFIED REAL-WORLD SCENARIO | MANDATORY |
+| 11  | **100% Accented Vietnamese Code Comments** — 100% of code comments (`# ...`, `// ...`) and console output strings inside ALL code demos MUST be written in friendly, clear Accented Vietnamese | MANDATORY |
 | 10  | **Dark Terminal Output** — Console output wrapped in JetBrains Mono font with `#4ade80` text                     | MANDATORY |
 | 11  | **Minimal Italic Text** — Only use italics for captions directly below images/diagrams                           | MANDATORY |
 

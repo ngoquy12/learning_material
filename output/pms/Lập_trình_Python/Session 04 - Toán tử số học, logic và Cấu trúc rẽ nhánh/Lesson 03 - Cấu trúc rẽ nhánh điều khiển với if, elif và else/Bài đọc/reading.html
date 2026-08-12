@@ -499,7 +499,7 @@
               <pre
                 class="m-0 overflow-x-auto"
               ><code class="hljs language-python">if condition:
-    # Executed only if condition is True
+    # Khối lệnh chỉ chạy khi điều kiện là True
     statement_block</code></pre>
             </div>
             <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
@@ -600,14 +600,15 @@
                 </div>
                 <pre
                   class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec2-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Progressive Demo 2.1: Single If Statement&#10;order_amount = 600000&#10;shipping_fee = 30000&#10;&#10;if order_amount &gt;= 500000:&#10;    shipping_fee = 0&#10;&#10;print(f&quot;Shipping fee: {shipping_fee} VND&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Progressive Demo 2.1: Single If Statement
+                ><code id="code-sb-sec2-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 2.1: Cấu trúc câu lệnh if đơn&#10;order_amount = 600000&#10;shipping_fee = 30000&#10;&#10;# Kiểm tra nếu đơn hàng từ 500.000 VNĐ trở lên thì miễn phí ship&#10;if order_amount &gt;= 500000:&#10;    shipping_fee = 0&#10;&#10;print(f&quot;Phí giao hàng: {shipping_fee} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 2.1: Cấu trúc câu lệnh if đơn
 order_amount = 600000
 shipping_fee = 30000
 
-if order_amount &gt;= 500000:
+# Kiểm tra nếu đơn hàng từ 500.000 VNĐ trở lên thì miễn phí ship
+if order_amount >= 500000:
     shipping_fee = 0
 
-print(f&quot;Shipping fee: {shipping_fee} VND&quot;)</code></pre>
+print(f"Phí giao hàng: {shipping_fee} VNĐ")</code></pre>
               </div>
               <div
                 id="container-sb-sec2-2"
@@ -678,10 +679,10 @@ print(f&quot;Shipping fee: {shipping_fee} VND&quot;)</code></pre>
               <pre
                 class="m-0 overflow-x-auto"
               ><code class="hljs language-python">if condition:
-    # Executed if condition is True
+    # Khối lệnh thực thi nếu điều kiện là True
     statement_block_1
 else:
-    # Executed if condition is False
+    # Khối lệnh thực thi nếu điều kiện là False
     statement_block_2</code></pre>
             </div>
             <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
@@ -784,15 +785,15 @@ else:
                 </div>
                 <pre
                   class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec2-4" class="language-python" contenteditable="true" spellcheck="false" data-original="# Progressive Demo 2.2: Dual Branch If-Else&#10;order_amount = 350000&#10;&#10;if order_amount &gt;= 500000:&#10;    shipping_fee = 0&#10;else:&#10;    shipping_fee = 30000&#10;&#10;print(f&quot;Final shipping fee: {shipping_fee} VND&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Progressive Demo 2.2: Dual Branch If-Else
-order_amount = 350000
+                ><code id="code-sb-sec2-4" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 2.2: Cấu trúc 2 nhánh if-else&#10;order_amount = 320000&#10;&#10;if order_amount &gt;= 500000:&#10;    shipping_fee = 0&#10;else:&#10;    shipping_fee = 30000&#10;&#10;print(f&quot;Phí giao hàng áp dụng: {shipping_fee} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 2.2: Cấu trúc 2 nhánh if-else
+order_amount = 320000
 
-if order_amount &gt;= 500000:
+if order_amount >= 500000:
     shipping_fee = 0
 else:
     shipping_fee = 30000
 
-print(f&quot;Final shipping fee: {shipping_fee} VND&quot;)</code></pre>
+print(f"Phí giao hàng áp dụng: {shipping_fee} VNĐ")</code></pre>
               </div>
               <div
                 id="container-sb-sec2-4"
@@ -977,19 +978,20 @@ else:
                 </div>
                 <pre
                   class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec2-6" class="language-python" contenteditable="true" spellcheck="false" data-original="# Progressive Demo 2.3: Multi-tier Discount Calculation&#10;order_amount = 1200000&#10;&#10;if order_amount &gt;= 2000000:&#10;    discount_rate = 0.20&#10;elif order_amount &gt;= 1000000:&#10;    discount_rate = 0.10&#10;elif order_amount &gt;= 500000:&#10;    discount_rate = 0.05&#10;else:&#10;    discount_rate = 0.00&#10;&#10;print(f&quot;Applied discount rate: {discount_rate * 100}%&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Progressive Demo 2.3: Multi-tier Discount Calculation
+                ><code id="code-sb-sec2-6" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 2.3: Tính giảm giá đơn hàng nhiều cấp độ&#10;order_amount = 1200000&#10;&#10;# Phân loại tỷ lệ giảm giá theo giá trị đơn hàng&#10;if order_amount &gt;= 2000000:&#10;    discount_rate = 0.20&#10;elif order_amount &gt;= 1000000:&#10;    discount_rate = 0.10&#10;elif order_amount &gt;= 500000:&#10;    discount_rate = 0.05&#10;else:&#10;    discount_rate = 0.00&#10;&#10;print(f&quot;Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 2.3: Tính giảm giá đơn hàng nhiều cấp độ
 order_amount = 1200000
 
-if order_amount &gt;= 2000000:
+# Phân loại tỷ lệ giảm giá theo giá trị đơn hàng
+if order_amount >= 2000000:
     discount_rate = 0.20
-elif order_amount &gt;= 1000000:
+elif order_amount >= 1000000:
     discount_rate = 0.10
-elif order_amount &gt;= 500000:
+elif order_amount >= 500000:
     discount_rate = 0.05
 else:
     discount_rate = 0.00
 
-print(f&quot;Applied discount rate: {discount_rate * 100}%&quot;)</code></pre>
+print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></pre>
               </div>
               <div
                 id="container-sb-sec2-6"
@@ -1261,13 +1263,15 @@ print(f&quot;Applied discount rate: {discount_rate * 100}%&quot;)</code></pre>
                 </div>
                 <pre
                   class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="is_vip_customer = True&#10;shipping_fee = 30000&#10;&#10;if is_vip_customer:&#10;    shipping_fee = 0&#10;&#10;print(f&quot;Shipping fee: {shipping_fee} VND&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">is_vip_customer = True
+                ><code id="code-sb-sec3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 3.1: Kiểm tra khách hàng VIP&#10;is_vip_customer = True&#10;shipping_fee = 30000&#10;&#10;# Nếu là tài khoản VIP thì miễn phí giao hàng&#10;if is_vip_customer:&#10;    shipping_fee = 0&#10;&#10;print(f&quot;Phí giao hàng: {shipping_fee} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 3.1: Kiểm tra khách hàng VIP
+is_vip_customer = True
 shipping_fee = 30000
 
+# Nếu là tài khoản VIP thì miễn phí giao hàng
 if is_vip_customer:
     shipping_fee = 0
 
-print(f&quot;Shipping fee: {shipping_fee} VND&quot;)</code></pre>
+print(f"Phí giao hàng: {shipping_fee} VNĐ")</code></pre>
               </div>
               <div
                 id="container-sb-sec3-1"
@@ -1352,18 +1356,19 @@ print(f&quot;Shipping fee: {shipping_fee} VND&quot;)</code></pre>
                 </div>
                 <pre
                   class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="order_amount = 320000&#10;standard_shipping_rate = 30000&#10;&#10;if order_amount &gt;= 500000:&#10;    actual_shipping_fee = 0&#10;    print(&quot;Qualified for free shipping.&quot;)&#10;else:&#10;    actual_shipping_fee = standard_shipping_rate&#10;    print(f&quot;Standard shipping rate applied: {actual_shipping_fee} VND.&quot;)&#10;&#10;total_checkout = order_amount + actual_shipping_fee&#10;print(f&quot;Total checkout amount: {total_checkout} VND&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">order_amount = 320000
+                ><code id="code-sb-sec3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 3.2: Phân loại phí giao hàng&#10;order_amount = 320000&#10;standard_shipping_rate = 30000&#10;&#10;if order_amount &gt;= 500000:&#10;    actual_shipping_fee = 0&#10;    print(&quot;Đủ điều kiện miễn phí giao hàng.&quot;)&#10;else:&#10;    actual_shipping_fee = standard_shipping_rate&#10;    print(f&quot;Áp dụng phí giao hàng tiêu chuẩn: {actual_shipping_fee} VNĐ.&quot;)&#10;&#10;total_checkout = order_amount + actual_shipping_fee&#10;print(f&quot;Tổng tiền thanh toán: {total_checkout} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 3.2: Phân loại phí giao hàng
+order_amount = 320000
 standard_shipping_rate = 30000
 
-if order_amount &gt;= 500000:
+if order_amount >= 500000:
     actual_shipping_fee = 0
-    print(&quot;Qualified for free shipping.&quot;)
+    print("Đủ điều kiện miễn phí giao hàng.")
 else:
     actual_shipping_fee = standard_shipping_rate
-    print(f&quot;Standard shipping rate applied: {actual_shipping_fee} VND.&quot;)
+    print(f"Áp dụng phí giao hàng tiêu chuẩn: {actual_shipping_fee} VNĐ.")
 
 total_checkout = order_amount + actual_shipping_fee
-print(f&quot;Total checkout amount: {total_checkout} VND&quot;)</code></pre>
+print(f"Tổng tiền thanh toán: {total_checkout} VNĐ")</code></pre>
               </div>
               <div
                 id="container-sb-sec3-2"
