@@ -16,6 +16,7 @@ from typing import Tuple, List, Dict, Any
 def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates HTML layout for visual regression defects, overflow risks, and styling standards.
+    Universal Mass-Production Multi-Rule Auditor (Zero-Defect Enterprise Standards).
     Returns (is_valid, list_of_errors).
     """
     if not content or not content.strip():
@@ -23,16 +24,32 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
 
     errors: List[str] = []
 
-    # 1. Horizontal Overflow Risk Inspection: Tables without overflow wrappers
+    # 1. Anti-AI Cliché Vocabulary Inspection (AGENTS.md Rule 4 & 10)
+    banned_ai_words = [
+        "bẫy lập trình", "mẹo lập trình", "mẹo", "bí kíp", "tất tần tật", 
+        "bảo bối", "bật mí", "vi diệu", "vô cùng", "bậc nhất", "tuyệt vời"
+    ]
+    for word in banned_ai_words:
+        # Case-insensitive word boundary scan outside HTML attribute names
+        pattern = r'\b' + re.escape(word) + r'\b'
+        if re.search(pattern, content, re.IGNORECASE):
+            errors.append(f"Phát hiện từ cấm AI sáo rỗng '{word}' trong bài đọc. Vui lòng thay bằng thuật ngữ kỹ thuật chuyên nghiệp (Các lỗi thường gặp, Lưu ý thực tế, Kinh nghiệm xử lý).")
+
+    # 2. Section 4 & Section 5 Clean Title Standard (AGENTS.md Directive)
+    if "section-4" in content:
+        if "4. Tổng kết và các lưu ý" in content:
+            errors.append("Tiêu đề Section 4 vi phạm quy chuẩn: Phải dùng chính xác '4. Tổng kết bài học' (Không dùng '4. Tổng kết và các lưu ý').")
+    if "section-5" in content:
+        if "5. Tài liệu tham khảo và mở rộng" in content or "5. Các nguồn tham khảo" in content:
+            errors.append("Tiêu đề Section 5 vi phạm quy chuẩn: Phải dùng chính xác '5. Tài liệu tham khảo'.")
+
+    # 3. Horizontal Overflow Risk Inspection: Tables without overflow wrappers
     table_matches = re.findall(r'(<table.*?>.*?</table>)', content, re.DOTALL | re.IGNORECASE)
     for table_code in table_matches:
-        # Check if table is wrapped in an overflow-x container
         has_wrapper = False
-        # Look for surrounding wrapper pattern
         if "overflow-x" in table_code or "overflow-x-auto" in table_code or "table-responsive" in table_code:
             has_wrapper = True
         else:
-            # Check context before table match
             pos = content.find(table_code)
             if pos > 0:
                 preceding_snippet = content[max(0, pos-200):pos]
@@ -42,8 +59,7 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
         if not has_wrapper:
             errors.append("Phát hiện thẻ <table> thiếu wrapper 'overflow-x-auto', có nguy cơ vỡ layout cuộn ngang trên mobile.")
 
-    # 2. Strict Light Mode Enforcement (AGENTS.md Rule 11)
-    # Check for dark background cards outside allowed code/terminal blocks
+    # 4. Strict Light Mode Enforcement (AGENTS.md Rule 11)
     content_without_code = re.sub(r'<pre.*?>.*?</pre>', '', content, flags=re.DOTALL | re.IGNORECASE)
     content_without_code = re.sub(r'<code.*?>.*?</code>', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
     content_without_code = re.sub(r'class=["\'].*?terminal.*?["\']', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
@@ -58,17 +74,15 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
             errors.append("Vi phạm Quy tắc 11 AGENTS.md (Strict Light Mode): Khung bài đọc chứa thẻ container Nền Đen/Tối (Dark Mode). Tất cả container bài đọc phải dùng màu sáng (bg-white / bg-slate-50).")
             break
 
-    # 3. Typography Standard & ALL CAPS Headings Inspection (AGENTS.md Rule 3)
+    # 5. Typography Standard & ALL CAPS Headings Inspection (AGENTS.md Rule 3)
     heading_matches = re.findall(r'<(h[1-3])[^>]*>(.*?)</\1>', content, re.DOTALL | re.IGNORECASE)
     for tag_name, heading_raw in heading_matches:
-        # Strip internal tags (like <code>, <span>, <i>)
         heading_text = re.sub(r'<.*?>', '', heading_raw).strip()
-        # Check if heading text consists of >= 5 letters and is ALL CAPS
         alpha_text = re.sub(r'[^a-zA-ZàáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđĐ]', '', heading_text)
         if len(alpha_text) >= 5 and alpha_text.isupper():
             errors.append(f"Vi phạm Quy tắc 3 AGENTS.md: Tiêu đề '<{tag_name}> {heading_text[:30]}...' sử dụng chữ IN HOA TOÀN BỘ (ALL CAPS). Vui lòng dùng Title Case hoặc Sentence Case.")
 
-    # 4. Media Bounds & Italicized Caption Inspection
+    # 6. Media Bounds & Italicized Caption Inspection
     img_matches = re.finditer(r'<img\s+([^>]*?)>', content, re.IGNORECASE)
     for match in img_matches:
         img_attr = match.group(1).lower()
@@ -78,10 +92,17 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
         following_snippet = content[pos:pos+300]
         has_italic_caption = bool(re.search(r'<(figcaption|i|em)\b', following_snippet, re.IGNORECASE))
         if not has_italic_caption:
-            # Check parent figure
             preceding_snippet = content[max(0, match.start()-100):match.start()]
             if "<figure" not in preceding_snippet.lower():
                 errors.append("Thẻ <img> minh họa thiếu chú thích in nghiêng <i>...</i> hoặc <figcaption> trực tiếp bên dưới.")
+
+    # 7. Code Comment Vietnamese Standard Inspection
+    english_comment_patterns = [
+        r'#\s*Progressive Demo', r'#\s*Executed if condition', r'#\s*Production call demo', r'//\s*Progressive Demo'
+    ]
+    for ep in english_comment_patterns:
+        if re.search(ep, content, re.IGNORECASE):
+            errors.append("Phát hiện comment code bằng Tiếng Anh. Tất cả comment trong code snippets phải viết bằng Tiếng Việt có dấu dễ hiểu.")
 
     return len(errors) == 0, errors
 

@@ -64,10 +64,10 @@ For **Session 01 (Orientation & Course Overview)**:
    - **ABSOLUTELY FORBIDDEN** to wrap `<pre><code>` or code cards inside a callout box container (`<div class="p-4 rounded-xl border...">`).
    - Place all syntax templates and code examples directly as standalone `<pre><code class="language-LANG">...</code></pre>` blocks.
 
-3. **100% ENGLISH CODE SYNTAX & IDENTIFIER STANDARD**:
-   - ALL code snippets, syntax templates, variable names, function names, parameter names, data structures, and code comments inside code blocks MUST BE 100% IN ENGLISH (e.g., `for item in sequence:`, `# Execute loop body for each item`).
-   - **ABSOLUTELY FORBIDDEN** to use Vietnamese words or diacritics inside code blocks (e.g., NEVER use `biến_đại_diện`, `tập_hợp_dữ_liệu`, or `# Khối lệnh được thi hành`).
-   - Explanations outside code blocks must be in Accented Vietnamese, but code inside code blocks is strictly 100% English.
+3. **100% ENGLISH CODE IDENTIFIERS & 100% VIETNAMESE CODE COMMENTS**:
+   - Variables, function names, class names, and syntax keywords inside code blocks MUST use clean English `snake_case` / `camelCase` (e.g. `order_amount`, `discount_rate`).
+   - 🚨 **100% ACCENTED VIETNAMESE CODE COMMENTS & PRINT STRINGS** 🚨: All code comments (`# ...`, `// ...`) and console output strings inside ALL code demos MUST be written in friendly, clear Accented Vietnamese (e.g., `# 1. Kiểm tra đơn hàng từ 500k trở lên`, `print(f"Phí giao hàng: {shipping_fee} VNĐ")`).
+   - Explanations outside code blocks must also be in 100% Accented Vietnamese.
 
 4. **MACBOOK DOTS & SPECIFIC CODE CARD TITLES (NO UPPER CASE)**:
    - Code card headers MUST feature 3 macOS traffic light dots: Red (`#ff5f56`), Yellow (`#ffbd2e`), Green (`#27c93f`).
