@@ -1893,24 +1893,36 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
         runVizStep(-999, idPrefix);
       }
 
+      // Adapter functions bridging all possible LLM visualizer button onclick aliases
       function vizStepNext() { runVizStep(1); }
       function vizStepPrev() { runVizStep(-1); }
       function vizNextStep() { runVizStep(1); }
       function vizPrevStep() { runVizStep(-1); }
+      function vizNext() { runVizStep(1); }
+      function vizPrev() { runVizStep(-1); }
+      function vizBack() { runVizStep(-1); }
+      function vizStart() { runVizStep(1); }
+      function vizPlay() { vizToggleAuto(); }
       function vizTogglePlay() { vizToggleAuto(); }
+      function vizAuto() { vizToggleAuto(); }
+      function vizAutoRun() { vizToggleAuto(); }
+      function vizRunAuto() { vizToggleAuto(); }
       function vizReset() { resetViz(); }
+      function runStep(d) { runVizStep(d || 1); }
+      function nextStep() { runVizStep(1); }
+      function prevStep() { runVizStep(-1); }
 
       function vizToggleAuto() {
         if (window.vizAutoTimer) {
           clearInterval(window.vizAutoTimer);
           window.vizAutoTimer = null;
-          var btn = document.getElementById("viz-auto-btn");
+          var btn = document.getElementById("viz-auto-btn") || document.getElementById("viz-btn-auto");
           if (btn) btn.textContent = "Tự động chạy";
         } else {
           window.vizAutoTimer = setInterval(function () {
             runVizStep(1);
           }, 1500);
-          var btn = document.getElementById("viz-auto-btn");
+          var btn = document.getElementById("viz-auto-btn") || document.getElementById("viz-btn-auto");
           if (btn) btn.textContent = "Dừng tự động";
         }
       }
