@@ -387,13 +387,34 @@
           </h2>
           <div class="space-y-4">
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Hãy tưởng tượng bạn đang viết tính năng thanh toán cho một ứng dụng mua sắm trực tuyến như Shopee hay Tiki. Khi khách hàng nhấn nút thanh toán, ứng dụng phải tự động tính toán phí giao hàng và mã giảm giá phù hợp cho từng đơn hàng.
+              Hãy tưởng tượng bạn đang viết tính năng thanh toán cho một ứng
+              dụng mua sắm trực tuyến như Shopee hay Tiki. Khi khách hàng nhấn
+              nút thanh toán, ứng dụng phải tự động tính toán phí giao hàng và
+              mã giảm giá phù hợp cho từng đơn hàng.
             </p>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Nếu chương trình máy tính áp đặt cùng một quy tắc cho tất cả mọi người, rắc rối sẽ lập tức xuất hiện! Khách hàng mua đơn lớn 1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng. Ngược lại, nếu miễn phí vận chuyển cho tất cả mọi đơn, những đơn hàng nhỏ chỉ 20.000 VNĐ sẽ khiến ứng dụng bị lỗ nặng vì tiền phí ship còn cao hơn cả tiền sản phẩm.
+              Nếu chương trình máy tính áp đặt cùng một quy tắc cho tất cả mọi
+              người, rắc rối sẽ lập tức xuất hiện! Khách hàng mua đơn lớn
+              1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng.
+              Ngược lại, nếu miễn phí vận chuyển cho tất cả mọi đơn, những đơn
+              hàng nhỏ chỉ 20.000 VNĐ sẽ khiến ứng dụng bị lỗ nặng vì tiền phí
+              ship còn cao hơn cả tiền sản phẩm.
             </p>
             <p class="text-slate-600 mb-4 leading-relaxed">
-              Làm sao để máy tính biết tự kiểm tra giá trị từng đơn hàng và đưa ra quyết định phù hợp? Đó chính là lý do chúng ta cần đến các câu lệnh rẽ nhánh điều khiển (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">elif</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">else</code>) trong Python.
+              Làm sao để máy tính biết tự kiểm tra giá trị từng đơn hàng và đưa
+              ra quyết định phù hợp? Đó chính là lý do chúng ta cần đến các câu
+              lệnh rẽ nhánh điều khiển (<code
+                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                >if</code
+              >,
+              <code
+                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                >elif</code
+              >,
+              <code
+                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
+                >else</code
+              >) trong Python.
             </p>
           </div>
           <div class="my-6 text-center">
@@ -403,7 +424,8 @@
               class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm"
             />
             <p class="text-center text-sm text-slate-500 italic mt-3">
-              Hình 1.1: Sơ đồ luồng quyết định xử lý hạn mức đơn hàng và ưu đãi trong hệ thống e-commerce.
+              Hình 1.1: Sơ đồ luồng quyết định xử lý hạn mức đơn hàng và ưu đãi
+              trong hệ thống e-commerce.
             </p>
           </div>
         </section>
@@ -1767,62 +1789,80 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
 
       // Global Dynamic Visualizer Runner Helpers
       window.vizStepMap = {};
+      window.vizAutoTimer = null;
+
       function runVizStep(delta, idPrefix) {
         idPrefix = idPrefix || "viz";
+        
+        var lines = document.querySelectorAll(
+          '[id^="' + idPrefix + '-line-"], [id^="viz-line-"], [id^="mech-line-"]'
+        );
+        var maxSteps = lines.length > 0 ? lines.length : 4;
+        
         if (delta === -999) {
           window.vizStepMap[idPrefix] = 0;
+        } else if (delta === 0) {
+          if (window.vizAutoTimer) {
+            clearInterval(window.vizAutoTimer);
+            window.vizAutoTimer = null;
+          }
         } else {
-          window.vizStepMap[idPrefix] =
-            (window.vizStepMap[idPrefix] || 0) + delta;
+          var curr = (window.vizStepMap[idPrefix] || 0) + delta;
+          if (curr > maxSteps) curr = 0;
+          if (curr < 0) curr = 0;
+          window.vizStepMap[idPrefix] = curr;
         }
-        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
         var step = window.vizStepMap[idPrefix];
 
-        var numEl =
-          document.getElementById(idPrefix + "-var-number") ||
-          document.getElementById("viz-var-number");
-        var sumEl =
-          document.getElementById(idPrefix + "-var-sum") ||
-          document.getElementById("viz-var-sum");
-        var amtEl =
-          document.getElementById(idPrefix + "-var-amount") ||
-          document.getElementById("viz-var-amount");
-        var rateEl =
-          document.getElementById(idPrefix + "-var-rate") ||
-          document.getElementById("viz-var-rate");
-        var consoleEl =
-          document.getElementById(idPrefix + "-console") ||
-          document.getElementById("viz-console");
+        // 1. Active Line Highlighting (Highlight dòng code đang thi hành)
+        lines.forEach(function(el) {
+          el.classList.remove(
+            'active-line', 'bg-emerald-100', 'bg-emerald-100/90', 'border-emerald-600',
+            'border-l-4', 'font-bold', 'text-slate-900', 'shadow-sm', 'bg-emerald-500/20',
+            'border-emerald-500', 'text-white'
+          );
+          el.classList.add('border-transparent');
+        });
 
-        if (amtEl || rateEl) {
-          if (step === 0) {
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.0";
-            if (consoleEl)
-              consoleEl.innerText = "Chờ thực thi cấu trúc rẽ nhánh...";
-          } else if (step === 1) {
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.0";
-            if (consoleEl)
-              consoleEl.innerText =
-                "Bước 1: if order_amount >= 1000000 -> False";
-          } else if (step === 2) {
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.10";
-            if (consoleEl)
-              consoleEl.innerText =
-                "Bước 2: elif order_amount >= 500000 -> True! Áp dụng chiết khấu 10.0%";
-          } else {
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.10";
-            if (consoleEl)
-              consoleEl.innerText =
-                "Applied discount rate: 10.0%\nBỏ qua các nhánh còn lại. Đã hoàn thành rẽ nhánh.";
-          }
-          return;
+        var activeEl = document.getElementById(idPrefix + '-line-' + step) ||
+                       document.getElementById('viz-line-' + step) ||
+                       document.getElementById('mech-line-' + step) ||
+                       (lines[step - 1]);
+
+        if (activeEl && step > 0) {
+          activeEl.classList.remove('border-transparent');
+          activeEl.classList.add(
+            'active-line', 'bg-emerald-100/90', 'border-l-4', 'border-emerald-600',
+            'text-slate-900', 'font-bold', 'shadow-sm', 'rounded-r-lg'
+          );
         }
 
-        if (consoleEl) {
+        // 2. Memory State & Console Updates
+        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
+        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
+        var amtEl = document.getElementById(idPrefix + "-var-amount") || document.getElementById("viz-var-amount");
+        var discEl = document.getElementById(idPrefix + "-var-discount") || document.getElementById(idPrefix + "-var-rate") || document.getElementById("viz-var-discount") || document.getElementById("viz-var-rate");
+        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
+
+        if (amtEl || discEl) {
+          if (step === 0) {
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "0%";
+            if (consoleEl) consoleEl.innerText = "Chờ thực thi cấu trúc rẽ nhánh...";
+          } else if (step === 1) {
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "0%";
+            if (consoleEl) consoleEl.innerText = "Bước 1: if order_amount >= 1.000.000 ➔ False";
+          } else if (step === 2 || step === 3) {
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "10%";
+            if (consoleEl) consoleEl.innerText = "Bước 2: elif order_amount >= 500.000 ➔ True! Áp dụng chiết khấu 10%";
+          } else {
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "10%";
+            if (consoleEl) consoleEl.innerText = "Hoàn thành rẽ nhánh! Tổng chiết khấu: 10%";
+          }
+        } else if (consoleEl) {
           if (step === 0) {
             if (numEl) numEl.innerText = "-";
             if (sumEl) sumEl.innerText = "0";
@@ -1834,13 +1874,11 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
           } else if (step === 2) {
             if (numEl) numEl.innerText = "2";
             if (sumEl) sumEl.innerText = "3";
-            consoleEl.innerText =
-              "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
           } else {
             if (numEl) numEl.innerText = "3";
             if (sumEl) sumEl.innerText = "6";
-            consoleEl.innerText =
-              "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
+            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
           }
         }
       }
@@ -1850,35 +1888,21 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
         runVizStep(0, idPrefix);
       }
 
-      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
-      function vizStepNext() {
-        runVizStep(1);
-      }
-      function vizStepPrev() {
-        runVizStep(-1);
-      }
-      function vizNextStep() {
-        runVizStep(1);
-      }
-      function vizPrevStep() {
-        runVizStep(-1);
-      }
-      function vizTogglePlay() {
-        vizToggleAuto();
-      }
-      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
-      function vizReset() {
-        resetViz();
-      }
-      var vizAutoTimer = null;
+      function vizStepNext() { runVizStep(1); }
+      function vizStepPrev() { runVizStep(-1); }
+      function vizNextStep() { runVizStep(1); }
+      function vizPrevStep() { runVizStep(-1); }
+      function vizTogglePlay() { vizToggleAuto(); }
+      function vizReset() { resetViz(); }
+
       function vizToggleAuto() {
-        if (vizAutoTimer) {
-          clearInterval(vizAutoTimer);
-          vizAutoTimer = null;
+        if (window.vizAutoTimer) {
+          clearInterval(window.vizAutoTimer);
+          window.vizAutoTimer = null;
           var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Tự động chạy";
         } else {
-          vizAutoTimer = setInterval(function () {
+          window.vizAutoTimer = setInterval(function () {
             runVizStep(1);
           }, 1500);
           var btn = document.getElementById("viz-auto-btn");

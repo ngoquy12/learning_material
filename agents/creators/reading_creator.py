@@ -1586,44 +1586,80 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
 
       // Global Dynamic Visualizer Runner Helpers
       window.vizStepMap = {{}};
+      window.vizAutoTimer = null;
+
       function runVizStep(delta, idPrefix) {{
         idPrefix = idPrefix || "viz";
+        
+        var lines = document.querySelectorAll(
+          '[id^="' + idPrefix + '-line-"], [id^="viz-line-"], [id^="mech-line-"]'
+        );
+        var maxSteps = lines.length > 0 ? lines.length : 4;
+        
         if (delta === -999) {{
           window.vizStepMap[idPrefix] = 0;
+        }} else if (delta === 0) {{
+          if (window.vizAutoTimer) {{
+            clearInterval(window.vizAutoTimer);
+            window.vizAutoTimer = null;
+          }}
         }} else {{
-          window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
+          var curr = (window.vizStepMap[idPrefix] || 0) + delta;
+          if (curr > maxSteps) curr = 0;
+          if (curr < 0) curr = 0;
+          window.vizStepMap[idPrefix] = curr;
         }}
-        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
         var step = window.vizStepMap[idPrefix];
-        
+
+        // 1. Line Highlighting (Active step indicator)
+        lines.forEach(function(el) {{
+          el.classList.remove(
+            'active-line', 'bg-emerald-100', 'bg-emerald-100/90', 'border-emerald-600',
+            'border-l-4', 'font-bold', 'text-slate-900', 'shadow-sm', 'bg-emerald-500/20',
+            'border-emerald-500', 'text-white'
+          );
+          el.classList.add('border-transparent');
+        }});
+
+        var activeEl = document.getElementById(idPrefix + '-line-' + step) ||
+                       document.getElementById('viz-line-' + step) ||
+                       document.getElementById('mech-line-' + step) ||
+                       (lines[step - 1]);
+
+        if (activeEl && step > 0) {{
+          activeEl.classList.remove('border-transparent');
+          activeEl.classList.add(
+            'active-line', 'bg-emerald-100/90', 'border-l-4', 'border-emerald-600',
+            'text-slate-900', 'font-bold', 'shadow-sm', 'rounded-r-lg'
+          );
+        }}
+
+        // 2. Memory State & Console Updates
         var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
         var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
         var amtEl = document.getElementById(idPrefix + "-var-amount") || document.getElementById("viz-var-amount");
-        var rateEl = document.getElementById(idPrefix + "-var-rate") || document.getElementById("viz-var-rate");
+        var discEl = document.getElementById(idPrefix + "-var-discount") || document.getElementById(idPrefix + "-var-rate") || document.getElementById("viz-var-discount") || document.getElementById("viz-var-rate");
         var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
-        
-        if (amtEl || rateEl) {{
+
+        if (amtEl || discEl) {{
           if (step === 0) {{
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.0";
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "0%";
             if (consoleEl) consoleEl.innerText = "Chờ thực thi cấu trúc rẽ nhánh...";
           }} else if (step === 1) {{
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.0";
-            if (consoleEl) consoleEl.innerText = "Bước 1: if order_amount >= 1000000 -> False";
-          }} else if (step === 2) {{
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.10";
-            if (consoleEl) consoleEl.innerText = "Bước 2: elif order_amount >= 500000 -> True! Áp dụng chiết khấu 10.0%";
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "0%";
+            if (consoleEl) consoleEl.innerText = "Bước 1: if order_amount >= 1.000.000 ➔ False";
+          }} else if (step === 2 || step === 3) {{
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "10%";
+            if (consoleEl) consoleEl.innerText = "Bước 2: elif order_amount >= 500.000 ➔ True! Áp dụng chiết khấu 10%";
           }} else {{
-            if (amtEl) amtEl.innerText = "650000";
-            if (rateEl) rateEl.innerText = "0.10";
-            if (consoleEl) consoleEl.innerText = "Applied discount rate: 10.0%\\nBỏ qua các nhánh còn lại. Đã hoàn thành rẽ nhánh.";
+            if (amtEl) amtEl.innerText = "750.000 VNĐ";
+            if (discEl) discEl.innerText = "10%";
+            if (consoleEl) consoleEl.innerText = "Hoàn thành rẽ nhánh! Tổng chiết khấu: 10%";
           }}
-          return;
-        }}
-
-        if (consoleEl) {{
+        }} else if (consoleEl) {{
           if (step === 0) {{
             if (numEl) numEl.innerText = "-";
             if (sumEl) sumEl.innerText = "0";
@@ -1649,23 +1685,21 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         runVizStep(0, idPrefix);
       }}
 
-      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
       function vizStepNext() {{ runVizStep(1); }}
       function vizStepPrev() {{ runVizStep(-1); }}
       function vizNextStep() {{ runVizStep(1); }}
       function vizPrevStep() {{ runVizStep(-1); }}
       function vizTogglePlay() {{ vizToggleAuto(); }}
-      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
       function vizReset() {{ resetViz(); }}
-      var vizAutoTimer = null;
+
       function vizToggleAuto() {{
-        if (vizAutoTimer) {{
-          clearInterval(vizAutoTimer);
-          vizAutoTimer = null;
+        if (window.vizAutoTimer) {{
+          clearInterval(window.vizAutoTimer);
+          window.vizAutoTimer = null;
           var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Tự động chạy";
         }} else {{
-          vizAutoTimer = setInterval(function() {{ runVizStep(1); }}, 1500);
+          window.vizAutoTimer = setInterval(function() {{ runVizStep(1); }}, 1500);
           var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Dừng tự động";
         }}
