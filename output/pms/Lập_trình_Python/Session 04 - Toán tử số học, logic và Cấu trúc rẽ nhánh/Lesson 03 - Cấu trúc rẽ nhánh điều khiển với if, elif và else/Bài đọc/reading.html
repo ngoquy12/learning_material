@@ -1893,36 +1893,51 @@ print(f&quot;Final Amount: {result[&#x27;final_total&#x27;]} VND&quot;)</code></
         runVizStep(-999, idPrefix);
       }
 
-      // Adapter functions bridging all possible LLM visualizer button onclick aliases
+      // Universal Adapter Aliases bridging ALL LLM-generated button handlers to visualizer API
+      function vizAutoRun() { vizToggleAuto(); }
+      function vizAutoStart() { vizToggleAuto(); }
+      function vizStartAuto() { vizToggleAuto(); }
+      function vizRunAuto() { vizToggleAuto(); }
+      function vizStart() { runVizStep(1); }
+      function vizPlay() { vizToggleAuto(); }
+      function vizTogglePlay() { vizToggleAuto(); }
+
       function vizStepNext() { runVizStep(1); }
       function vizStepPrev() { runVizStep(-1); }
       function vizNextStep() { runVizStep(1); }
       function vizPrevStep() { runVizStep(-1); }
       function vizNext() { runVizStep(1); }
       function vizPrev() { runVizStep(-1); }
-      function vizBack() { runVizStep(-1); }
-      function vizStart() { runVizStep(1); }
-      function vizPlay() { vizToggleAuto(); }
-      function vizTogglePlay() { vizToggleAuto(); }
-      function vizAuto() { vizToggleAuto(); }
-      function vizAutoRun() { vizToggleAuto(); }
-      function vizRunAuto() { vizToggleAuto(); }
-      function vizReset() { resetViz(); }
-      function runStep(d) { runVizStep(d || 1); }
+      function vizStepForward() { runVizStep(1); }
+      function vizStepBackward() { runVizStep(-1); }
+      function vizForward() { runVizStep(1); }
+      function vizBackward() { runVizStep(-1); }
+      function vizStep() { runVizStep(1); }
+      function vizRun() { runVizStep(1); }
+
+      function stepNext() { runVizStep(1); }
+      function stepPrev() { runVizStep(-1); }
       function nextStep() { runVizStep(1); }
       function prevStep() { runVizStep(-1); }
+      function autoRun() { vizToggleAuto(); }
+      function autoPlay() { vizToggleAuto(); }
+      function toggleAuto() { vizToggleAuto(); }
+
+      function vizReset() { resetViz(); }
+      function vizRestart() { resetViz(); }
+      function resetVisualizer() { resetViz(); }
 
       function vizToggleAuto() {
         if (window.vizAutoTimer) {
           clearInterval(window.vizAutoTimer);
           window.vizAutoTimer = null;
-          var btn = document.getElementById("viz-auto-btn") || document.getElementById("viz-btn-auto");
+          var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Tự động chạy";
         } else {
           window.vizAutoTimer = setInterval(function () {
             runVizStep(1);
           }, 1500);
-          var btn = document.getElementById("viz-auto-btn") || document.getElementById("viz-btn-auto");
+          var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Dừng tự động";
         }
       }

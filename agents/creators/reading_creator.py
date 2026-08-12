@@ -812,10 +812,16 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
             return panel_content
         c = re.sub(r'<div\s+class="flex\s+items-center\s+gap-2">\s*<button\b.*?</button>\s*</div>', normalize_viz_button_panel, c, flags=re.DOTALL | re.IGNORECASE)
 
+        # Systemically normalize all LLM-generated onclick handlers on buttons to runVizStep / vizToggleAuto / resetViz
+        c = re.sub(r'onclick="(?:\s*javascript:)?\s*(?:vizAutoRun|vizAutoStart|vizStartAuto|vizRunAuto|autoRun|autoPlay|toggleAuto|vizTogglePlay|vizPlay)\s*\(\s*\)"', 'onclick="vizToggleAuto()"', c, flags=re.IGNORECASE)
+        c = re.sub(r'onclick="(?:\s*javascript:)?\s*(?:vizStepNext|vizNextStep|vizNext|vizStepForward|vizForward|stepNext|nextStep|vizStep|vizStart|vizRun)\s*\(\s*\)"', 'onclick="runVizStep(1)"', c, flags=re.IGNORECASE)
+        c = re.sub(r'onclick="(?:\s*javascript:)?\s*(?:vizStepPrev|vizPrevStep|vizPrev|vizStepBackward|vizBackward|stepPrev|prevStep)\s*\(\s*\)"', 'onclick="runVizStep(-1)"', c, flags=re.IGNORECASE)
+        c = re.sub(r'onclick="(?:\s*javascript:)?\s*(?:vizReset|vizRestart|resetVisualizer|resetViz)\s*\(\s*\)"', 'onclick="runVizStep(-999)"', c, flags=re.IGNORECASE)
+
         # Auto-attach onclick handlers to visualizer buttons if missing
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Lùi lại|Quay lại|Trở về)\s*</button>', r'\1 onclick="runVizStep(-1)">Lùi lại</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tiếp theo|Kế tiếp|Chạy tiếp)\s*</button>', r'\1 onclick="runVizStep(1)">Tiếp theo</button>', c, flags=re.IGNORECASE)
-        c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tự động chạy|Auto Play)\s*</button>', r'\1 onclick="runVizStep(1)">Tự động chạy</button>', c, flags=re.IGNORECASE)
+        c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tự động chạy|Auto Play)\s*</button>', r'\1 onclick="vizToggleAuto()">Tự động chạy</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Thử lại|Đặt lại|Reset)\s*</button>', r'\1 onclick="runVizStep(-999)">Thử lại</button>', c, flags=re.IGNORECASE)
 
         # Fix text contrast on colored/dark buttons: replace text-slate-700 / text-slate-800 on dark backgrounds with text-white
@@ -1690,34 +1696,49 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         runVizStep(-999, idPrefix);
       }}
 
-      // Adapter functions bridging all possible LLM visualizer button onclick aliases
+      // Universal Adapter Aliases bridging ALL LLM-generated button handlers to visualizer API
+      function vizAutoRun() {{ vizToggleAuto(); }}
+      function vizAutoStart() {{ vizToggleAuto(); }}
+      function vizStartAuto() {{ vizToggleAuto(); }}
+      function vizRunAuto() {{ vizToggleAuto(); }}
+      function vizStart() {{ runVizStep(1); }}
+      function vizPlay() {{ vizToggleAuto(); }}
+      function vizTogglePlay() {{ vizToggleAuto(); }}
+
       function vizStepNext() {{ runVizStep(1); }}
       function vizStepPrev() {{ runVizStep(-1); }}
       function vizNextStep() {{ runVizStep(1); }}
       function vizPrevStep() {{ runVizStep(-1); }}
       function vizNext() {{ runVizStep(1); }}
       function vizPrev() {{ runVizStep(-1); }}
-      function vizBack() {{ runVizStep(-1); }}
-      function vizStart() {{ runVizStep(1); }}
-      function vizPlay() {{ vizToggleAuto(); }}
-      function vizTogglePlay() {{ vizToggleAuto(); }}
-      function vizAuto() {{ vizToggleAuto(); }}
-      function vizAutoRun() {{ vizToggleAuto(); }}
-      function vizRunAuto() {{ vizToggleAuto(); }}
-      function vizReset() {{ resetViz(); }}
-      function runStep(d) {{ runVizStep(d || 1); }}
+      function vizStepForward() {{ runVizStep(1); }}
+      function vizStepBackward() {{ runVizStep(-1); }}
+      function vizForward() {{ runVizStep(1); }}
+      function vizBackward() {{ runVizStep(-1); }}
+      function vizStep() {{ runVizStep(1); }}
+      function vizRun() {{ runVizStep(1); }}
+
+      function stepNext() {{ runVizStep(1); }}
+      function stepPrev() {{ runVizStep(-1); }}
       function nextStep() {{ runVizStep(1); }}
       function prevStep() {{ runVizStep(-1); }}
+      function autoRun() {{ vizToggleAuto(); }}
+      function autoPlay() {{ vizToggleAuto(); }}
+      function toggleAuto() {{ vizToggleAuto(); }}
+
+      function vizReset() {{ resetViz(); }}
+      function vizRestart() {{ resetViz(); }}
+      function resetVisualizer() {{ resetViz(); }}
 
       function vizToggleAuto() {{
         if (window.vizAutoTimer) {{
           clearInterval(window.vizAutoTimer);
           window.vizAutoTimer = null;
-          var btn = document.getElementById("viz-auto-btn") || document.getElementById("viz-btn-auto");
+          var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Tự động chạy";
         }} else {{
           window.vizAutoTimer = setInterval(function() {{ runVizStep(1); }}, 1500);
-          var btn = document.getElementById("viz-auto-btn") || document.getElementById("viz-btn-auto");
+          var btn = document.getElementById("viz-auto-btn");
           if (btn) btn.textContent = "Dừng tự động";
         }}
       }}
