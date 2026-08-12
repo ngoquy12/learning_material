@@ -1,14 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Toán tử số học và toán tử gán trong Python - Rikkei Education</title>
+    <title>
+      Toán tử số học và toán tử gán - Rikkei Education
+    </title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -32,7 +37,7 @@
               mono: ["JetBrains Mono", "monospace"],
             },
             maxWidth: {
-              340: "1360px",
+              340: "1680px",
             },
           },
         },
@@ -40,19 +45,32 @@
     </script>
 
     <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
 
     <!-- Pyodide Engine for Live Wasm Python Sandbox -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
 
-
     <style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      #viz-terminal-log::-webkit-scrollbar {
+        width: 5px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-track {
+        background: #020617;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
 
       html {
         scroll-behavior: smooth;
@@ -60,13 +78,15 @@
       }
 
       /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
-      .rikkei-diagram, svg.rikkei-diagram {
+      .rikkei-diagram,
+      svg.rikkei-diagram {
         max-width: 100%;
         height: auto;
         display: block;
         overflow: hidden;
       }
-      .rikkei-diagram text, svg.rikkei-diagram text {
+      .rikkei-diagram text,
+      svg.rikkei-diagram text {
         font-family: "Inter", system-ui, sans-serif;
         overflow: hidden;
       }
@@ -76,7 +96,9 @@
         overflow: hidden;
         border-radius: 0.75rem;
       }
-      div.my-6 svg, section svg, article svg {
+      div.my-6 svg,
+      section svg,
+      article svg {
         max-width: 100%;
         height: auto;
         overflow: hidden;
@@ -88,45 +110,91 @@
         border-collapse: collapse;
         table-layout: fixed;
         word-wrap: break-word;
-        overflow-wrap: break-word;
       }
-      th, td {
-        word-break: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* 3. CODE BLOCK FIXES */
+      pre code {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
       }
 
       /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
-      h1, h2, h3, h4, h5, h6 {
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
         color: #0f172a !important;
       }
-      p, li, td, th {
+      p,
+      li,
+      td,
+      th {
         color: #334155 !important;
       }
-      .toc-link, .mobile-toc-link {
+      .toc-link,
+      .mobile-toc-link {
         color: #475569 !important;
       }
-      .toc-link:hover, .mobile-toc-link:hover {
+      .toc-link:hover,
+      .mobile-toc-link:hover {
         color: #0f172a !important;
       }
-      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {
+      .bg-amber-50 *,
+      .bg-rose-50 *,
+      .bg-emerald-50 *,
+      .bg-sky-50 * {
         color: #1e293b !important;
       }
 
       /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
-      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {
+      [id*="mech"] p,
+      [id*="mech"] div,
+      [id*="visualizer"] div {
         color: #1e293b;
       }
-      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {
+      [id*="mech-line"]:not(.active-line),
+      [id*="line-"]:not(.active-line) {
         color: #475569 !important;
         opacity: 1 !important;
         font-weight: 500 !important;
       }
-      .kw { color: #cf222e !important; font-weight: bold !important; }
-      .str { color: #0a3069 !important; }
-      .num { color: #0550ae !important; font-weight: 600 !important; }
-      .fn { color: #8250df !important; font-weight: 600 !important; }
-      .cmt { color: #6e7781 !important; font-style: italic !important; }
+      .kw {
+        color: #cf222e !important;
+        font-weight: bold !important;
+      }
+      .str {
+        color: #0a3069 !important;
+      }
+      .num {
+        color: #0550ae !important;
+        font-weight: 600 !important;
+      }
+      .fn {
+        color: #8250df !important;
+        font-weight: 600 !important;
+      }
+      .cmt {
+        color: #6e7781 !important;
+        font-style: italic !important;
+      }
 
       code:not(.hljs):not([class*="language"]) {
         background-color: #f1f5f9 !important;
@@ -156,10 +224,10 @@
         background: #f8fafc !important;
       }
 
-      pre span, code span {
+      pre span,
+      code span {
         background-color: transparent !important;
       }
-
 
       pre {
         white-space: pre-wrap;
@@ -167,350 +235,653 @@
         overflow-wrap: break-word;
       }
 
-
       /* 9. STRAY CHARACTER PREVENTION */
-      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {
+      body
+        > *:not(header):not(main):not(script):not(style):not(
+          #mobile-toc-toggle
+        ):not(#mobile-toc-drawer) {
         display: none !important;
       }
     </style>
   </head>
-  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+  <body
+    class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
     <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
-      <div class="max-w-340 mx-auto h-full px-6 flex items-center justify-between">
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40"
+    >
+      <div
+        class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between"
+      >
         <div class="flex items-center gap-4">
-          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
-          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Toán tử số học và toán tử gán trong Python</span>
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+          <span
+            class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4"
+            >Toán tử số học và toán tử gán</span
+          >
         </div>
       </div>
       <div class="w-full h-1 bg-slate-100">
-        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
       </div>
     </header>
 
     <!-- Main Container -->
-    <main class="max-w-340 mx-auto px-6 pt-24 pb-16 flex gap-8">
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
       <!-- Sidebar Table of Contents (Left Desktop) -->
-      <aside class="w-72 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+      <aside
+        class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
         <div class="space-y-4">
-          <h4 class="font-montserrat font-bold text-sm text-slate-700">Mục lục chi tiết</h4>
-          <nav class="flex flex-col border-l border-slate-200 space-y-1">
-            <a href="#section-1" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">1. Thách thức tính toán doanh thu & hóa đơn thủ công khi thiếu chuẩn hóa toán tử</a>
-            <a href="#section-2" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">2. Cấu trúc, cú pháp và cơ chế vận hành của toán tử số học & gán trong Python</a>
-            <a href="#section-3" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
-            <a href="#section-4" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">4. Tổng kết và các lưu ý</a>
-            <a href="#section-5" class="toc-link pl-4 py-2 border-l-2 border-transparent text-[15px] text-slate-600 hover:text-slate-900 font-medium transition-all">5. Tài liệu tham khảo</a>
+          <h4
+            class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2"
+          >
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài
+            đọc
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 space-y-1 text-sm"
+          >
+            <a
+              href="#section-1"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >1. Tại sao cần toán tử số học và toán tử gán trong hệ thống ShopeeFood?</a
+            >
+            <a
+              href="#section-2"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >2. Cú pháp và cơ chế hoạt động của toán tử số học & toán tử gán</a
+            >
+            <a
+              href="#section-3"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >3. Các ví dụ ứng dụng thực tiễn trong hệ thống ShopeeFood</a
+            >
+            <a
+              href="#section-4"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >4. Tổng kết bài học & Các lỗi thường gặp</a
+            >
+            <a
+              href="#section-5"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >5. Tài liệu tham khảo</a
+            >
           </nav>
         </div>
       </aside>
 
       <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
-      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
+      <button
+        id="mobile-toc-toggle"
+        onclick="toggleMobileToc()"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20"
+        title="Mở mục lục bài đọc"
+      >
         <i class="ph-bold ph-list text-xl"></i>
       </button>
 
       <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
-      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
-        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+      <div
+        id="mobile-toc-drawer"
+        class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300"
+      >
+        <div
+          class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between"
+        >
           <div>
-            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
-              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
-              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
+            <div
+              class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200"
+            >
+              <h4
+                class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC
+                BÀI ĐỌC
+              </h4>
+              <button
+                onclick="toggleMobileToc()"
+                class="p-1 rounded text-slate-400 hover:text-slate-600"
+              >
+                <i class="ph-bold ph-x text-lg"></i>
+              </button>
             </div>
-            <nav class="flex flex-col space-y-2">
-              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">1. Thách thức tính toán doanh thu & hóa đơn thủ công khi thiếu chuẩn hóa toán tử</a>
-              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">2. Cấu trúc, cú pháp và cơ chế vận hành của toán tử số học & gán trong Python</a>
-              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">3. Các ví dụ ứng dụng thực tiễn</a>
-              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">4. Tổng kết và các lưu ý</a>
-              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2.5 rounded-lg text-sm text-slate-600 hover:bg-slate-100 font-medium">5. Tài liệu tham khảo</a>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a
+                href="#section-1"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >1. Tại sao cần toán tử số học và toán tử gán trong hệ thống ShopeeFood?</a
+              >
+              <a
+                href="#section-2"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >2. Cú pháp và cơ chế hoạt động của toán tử số học & toán tử gán</a
+              >
+              <a
+                href="#section-3"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >3. Các ví dụ ứng dụng thực tiễn trong hệ thống ShopeeFood</a
+              >
+              <a
+                href="#section-4"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >4. Tổng kết bài học & Các lỗi thường gặp</a
+              >
+              <a
+                href="#section-5"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >5. Tài liệu tham khảo</a
+              >
             </nav>
           </div>
-          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+            Rikkei Education - Learning Material
+          </div>
         </div>
       </div>
 
-      <!-- Reading Content (Right/Center) -->
+      <!-- Main Reading Article Content -->
       <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
-        <!-- Article Title -->
+        <!-- Main Title Header (Exact Match to Benchmark Lesson 03) -->
         <div class="border-b border-slate-200 pb-6 mb-8">
-          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">Toán tử số học và toán tử gán trong Python</h1>
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">
+            Toán tử số học và toán tử gán
+          </h1>
         </div>
 
-        <!-- Section 1: Đặt vấn đề -->
+        <!-- SECTION 1: PROBLEM STATEMENT -->
         <section id="section-1" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Thách thức tính toán doanh thu & hóa đơn thủ công khi thiếu chuẩn hóa toán tử</h2>
-          <div class="space-y-4"><p class="text-slate-600 mb-4 leading-relaxed">Trong các hệ thống thương mại điện tử quy mô lớn như Shopee, Tiki hay Lazada, motor tính toán đơn hàng (Checkout Engine) phải xử lý hàng trăm nghìn giao dịch mỗi phút. Mỗi đơn hàng bao gồm nhiều thành phần tiền tệ phức tạp: giá gốc sản phẩm, tỷ lệ chiết khấu voucher, phí vận chuyển, thuế giá trị gia tăng (VAT) và phân bổ sản phẩm vào các thùng hàng đóng gói. Nếu lập trình viên không làm chủ các toán tử số học và toán tử gán trong Python, hệ thống sẽ đối mặt với những thảm họa về tài chính và vận hành.</p><p class="text-slate-600 mb-4 leading-relaxed">Một xung đột kỹ thuật điển hình xảy ra khi tính toán số lượng thùng carton cần thiết để đóng gói đơn hàng. Nếu sử dụng phép chia số thực thông thường (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/</code>) thay vì phép chia lấy phần nguyên (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>), kết quả trả về sẽ là số thực (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">2.4</code> thùng hàng). Khi truyền dữ liệu này sang dịch vụ quản lý kho (Warehouse Service), hệ thống sẽ gặp lỗi tràn kiểu dữ liệu hoặc không thể xuất kho nửa thùng hàng, dẫn đến tắc nghẽn toàn bộ luồng đóng gói tự động.</p><p class="text-slate-600 mb-4 leading-relaxed">Bên cạnh đó, việc bỏ qua quy tắc thứ tự ưu tiên của toán tử (Operator Precedence) hoặc lạm dụng phép gán thủ công lặp đi lặp lại khiến mã nguồn trở nên cồng kềnh, dễ phát sinh lỗi tính sai tiền VAT và thất thoát doanh thu nghiêm trọng. Việc nắm vững tập hợp toán tử số học (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">+</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">-</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">*</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">%</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">**</code>) và toán tử gán kết hợp chính là giải pháp nền tảng giúp xây dựng các thuật toán tính toán tài chính chính xác tuyệt đối.</p></div>
-          <div class="my-6"><div class="my-6"><svg viewBox="0 0 800 280" class="rikkei-diagram w-full h-auto" xmlns="http://www.w3.org/2000/svg"><style>
-      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
-      .font-mono { font-family: "JetBrains Mono", monospace !important; }
-      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
-    </style><rect x="40" y="20" width="320" height="240" rx="12" fill="#fff1f2" stroke="#fecdd3" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="60" y="50" font-size="14" font-weight="bold" fill="#991b1b">Cách cũ: Tính toán thủ công &amp; Lỗi kiểu</text><text x="60" y="85" font-size="12" font-family="monospace" fill="#991b1b">total = total + price</text><text x="60" y="115" font-size="12" font-family="monospace" fill="#991b1b">boxes = 12 / 5 # Kết quả: 2.4 (Float)</text><text x="60" y="145" font-size="12" font-family="monospace" fill="#991b1b">vat = total - discount * 0.1 # Sai ưu tiên</text><rect x="60" y="185" width="280" height="50" rx="8" fill="#ffe4e6"/><text font-family="Inter, system-ui, sans-serif"  x="70" y="215" font-size="11" font-weight="semibold" fill="#9f1239">Rủi ro: Lỗi kho vận &amp; Sai lệch số tiền</text><path d="M 375 140 L 410 140 L 410 130 L 425 145 L 410 160 L 410 150 L 375 150 Z" fill="#0284c7"/><text font-family="Inter, system-ui, sans-serif"  x="400" y="100" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369a1">Tối ưu toán tử</text><text font-family="Inter, system-ui, sans-serif"  x="400" y="180" text-anchor="middle" font-size="11" fill="#0284c7">Chuẩn hóa tính toán</text><rect x="440" y="20" width="320" height="240" rx="12" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2"/><text font-family="Inter, system-ui, sans-serif"  x="460" y="50" font-size="14" font-weight="bold" fill="#065f46">Cách mới: Toán tử chuẩn hóa &amp; Đóng ngoặc</text><text x="460" y="85" font-size="12" font-family="monospace" fill="#065f46">total += price</text><text x="460" y="115" font-size="12" font-family="monospace" fill="#065f46">boxes = 12 // 5 # Kết quả: 2 (Integer)</text><text x="460" y="145" font-size="12" font-family="monospace" fill="#065f46">vat = (total - discount) * 0.1 # Đúng ưu tiên</text><rect x="460" y="185" width="280" height="50" rx="8" fill="#d1fae5"/><text font-family="Inter, system-ui, sans-serif"  x="470" y="215" font-size="11" font-weight="semibold" fill="#047857">Tối ưu: Đóng gói chuẩn &amp; Thuế chính xác</text></svg></div></div>
-        </section>
-
-        <!-- Section 2: Giới thiệu kiến thức -->
-        <section id="section-2" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. Cấu trúc, cú pháp và cơ chế vận hành của toán tử số học & gán trong Python</h2>
-          <div class="space-y-4"><h3 id="sec-2-1-tap-hop-cac-toan-tu-so-hoc-co-ban-trong-python" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Tập hợp các toán tử số học cơ bản trong Python</h3><p class="text-slate-600 mb-4 leading-relaxed">Python hỗ trợ đầy đủ các phép toán số học từ cơ bản đến nâng cao. Mỗi toán tử đảm nhận một vai trò riêng biệt trong các công thức tính toán tài chính và logic kinh doanh.</p><div class="mb-4"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Cú pháp các toán tử số học trong Python</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
-  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
-    <span class="flex items-center gap-2">
-      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
-      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
-      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
-      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
-    </span>
-    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
-  </div>
-  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">addition_result = number_a + number_b
-subtraction_result = number_a - number_b
-multiplication_result = number_a * number_b
-float_division_result = number_a / number_b
-floor_division_result = number_a // number_b
-modulo_result = number_a % number_b
-exponentiation_result = base_number ** exponent_number</code></pre>
-</div></div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Toán tử cộng (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">+</code>) và trừ (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">-</code>):</strong> Thực hiện cộng hoặc trừ giá trị giữa hai biến số hoặc hằng số.</li><li><strong class="font-semibold text-slate-900">Toán tử nhân (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">*</code>):</strong> Tính tích của hai số, thường dùng để tính tổng giá tiền theo số lượng sản phẩm.</li><li><strong class="font-semibold text-slate-900">Phép chia số thực (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/</code>):</strong> Luôn trả về một số thực (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code>), ngay cả khi hai số chia hết cho nhau. Ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">10 / 2</code> cho kết quả là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">5.0</code>.</li><li><strong class="font-semibold text-slate-900">Phép chia lấy phần nguyên (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>):</strong> Chia và làm tròn xuống số nguyên gần nhất (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">floor division</code>), trả về kiểu <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">int</code> nếu cả hai toán hạng đều là số nguyên. Thích hợp cho bài toán chia nhóm, phân số lượng đóng gói.</li><li><strong class="font-semibold text-slate-900">Phép chia lấy phần dư (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">%</code>):</strong> Trả về phần dư của phép chia, ứng dụng trong việc kiểm tra số chẵn/lẻ, tính lượt quay thưởng hoặc số sản phẩm dư thừa sau khi đóng thùng.</li><li><strong class="font-semibold text-slate-900">Toán tử lũy thừa (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">**</code>):</strong> Tính số mũ cơ số, phục vụ tính lãi suất kép hoặc thuật toán mã hóa dữ liệu.</li></ul><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><p class="font-semibold mb-1">Lưu ý quan trọng về phép chia số thực:</p><p class="text-sm text-slate-700">Trong Python, toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/</code> luôn luôn trả về kiểu dữ liệu số thực (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code>). Nếu bạn cần một số nguyên để làm chỉ số mảng hoặc số lượng sản phẩm, hãy luôn sử dụng toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>.</p></div><h3 id="sec-2-2-co-che-toan-tu-gan-va-toan-tu-gan-ket-hop" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Cơ chế toán tử gán và toán tử gán kết hợp</h3><p class="text-slate-600 mb-4 leading-relaxed">Toán tử gán được dùng để lưu trữ giá trị của một biểu thức vào trong biến. Python cung cấp các toán tử gán kết hợp giúp viết mã nguồn ngắn gọn và tối ưu hiệu năng hơn.</p><div class="mb-4"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Cú pháp các toán tử gán kết hợp trong Python</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
-  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
-    <span class="flex items-center gap-2">
-      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
-      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
-      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
-      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Python</span>
-    </span>
-    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
-  </div>
-  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">target_variable = initial_value
-target_variable += step_value  # Tương đương: target_variable = target_variable + step_value
-target_variable -= step_value  # Tương đương: target_variable = target_variable - step_value
-target_variable *= factor_value # Tương đương: target_variable = target_variable * factor_value
-target_variable /= factor_value # Tương đương: target_variable = target_variable / factor_value
-target_variable %= mod_value    # Tương đương: target_variable = target_variable % mod_value</code></pre>
-</div></div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">target_variable</code>:</strong> Biến lưu trữ giá trị sau khi thực hiện phép toán.</li><li><strong class="font-semibold text-slate-900"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">step_value</code> / <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">factor_value</code>:</strong> Hằng số hoặc biểu thức số học được tính toán trước khi gán tích lũy vào biến target.</li></ul><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"><p class="font-semibold mb-1">Lợi ích của toán tử gán kết hợp:</p><p class="text-sm text-slate-700">Toán tử gán kết hợp giúp giảm thiểu việc lặp lại tên biến, tránh các lỗi gõ sai tên biến (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">typo</code>) và giúp Python Interpreter tối ưu hóa việc truy cập ô nhớ trực tiếp.</p></div><h3 id="sec-2-3-thu-tu-uu-tien-cua-toan-tu-operator-precedence-trong-bai-toan-tai-chinh" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Thứ tự ưu tiên của toán tử (Operator Precedence) trong bài toán tài chính</h3><p class="text-slate-600 mb-4 leading-relaxed">Khi một biểu thức chứa nhiều toán tử khác nhau, Python sẽ thực hiện các phép toán theo thứ tự ưu tiên nghiêm ngặt từ trên xuống dưới theo quy tắc toán học (PEMDAS).</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Mức 1 (Cao nhất):</strong> Dấu ngoặc đơn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">( )</code> dùng để nhóm các biểu thức cần ưu tiên tính trước.</li><li><strong class="font-semibold text-slate-900">Mức 2:</strong> Phép lũy thừa <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">**</code>.</li><li><strong class="font-semibold text-slate-900">Mức 3:</strong> Phép nhân, chia số thực, chia lấy nguyên, chia lấy dư <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">*</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">%</code> (Tính từ trái qua phải).</li><li><strong class="font-semibold text-slate-900">Mức 4 (Thấp nhất):</strong> Phép cộng và phép trừ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">+</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">-</code> (Tính từ trái qua phải).</li></ul><h3 id="sec-2-4-mo-phong-co-che-tinh-toan-tich-luy-tong-tien-on-hang" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế tính toán tích lũy tổng tiền đơn hàng</h3><p class="text-slate-600 mb-4 leading-relaxed">Dưới đây là công cụ mô phỏng từng bước quá trình Python thực thi các phép toán số học và toán tử gán tích lũy trong một chu kỳ tính tổng tiền đơn hàng.</p><div class="p-4 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 my-4"><div class="flex items-center justify-between mb-3"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Mô phỏng cơ chế vận hành từng bước</div><div class="flex gap-2"><button class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-slate-200 hover:bg-slate-300 text-slate-800" onclick="stepViz(-1)">Lùi lại</button><button class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] text-slate-700 hover:bg-[#90000a]" onclick="stepViz(1)">Tiếp theo</button><button class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-slate-700" onclick="autoViz()">Tự động chạy</button></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-white p-3 rounded-lg border border-slate-200"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn thi hành</div><div class="font-mono text-xs space-y-1 flex flex-col"><div id="viz-line-1" class="p-1 rounded text-slate-700 bg-yellow-100 font-semibold"><span class="text-slate-700 mr-2">1</span>subtotal = 100000</div><div id="viz-line-2" class="p-1 rounded text-slate-700"><span class="text-slate-700 mr-2">2</span>item_price = 50000</div><div id="viz-line-3" class="p-1 rounded text-slate-700"><span class="text-slate-700 mr-2">3</span>subtotal += item_price</div><div id="viz-line-4" class="p-1 rounded text-slate-700"><span class="text-slate-700 mr-2">4</span>vat_amount = subtotal * 0.1</div><div id="viz-line-5" class="p-1 rounded text-slate-700"><span class="text-slate-700 mr-2">5</span>final_total = subtotal + vat_amount</div></div></div><div class="bg-white p-3 rounded-lg border border-slate-200 flex flex-col justify-between"><div class="mb-3"><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Bảng bộ nhớ &amp; Trạng thái biến</div><table class="w-full text-xs text-left border-collapse"><thead class="bg-slate-100 text-slate-700"><tr><th class="p-1.5 border border-slate-200">Tên biến</th><th class="p-1.5 border border-slate-200">Giá trị ô nhớ</th><th class="p-1.5 border border-slate-200">Kiểu dữ liệu</th></tr></thead><tbody><tr><td class="p-1.5 border border-slate-200 font-mono text-rikkei-red">subtotal</td><td class="p-1.5 border border-slate-200 font-mono" id="viz-var-sum">100000</td><td class="p-1.5 border border-slate-200 font-mono">int</td></tr><tr><td class="p-1.5 border border-slate-200 font-mono text-rikkei-red">item_price</td><td class="p-1.5 border border-slate-200 font-mono" id="viz-var-number">0</td><td class="p-1.5 border border-slate-200 font-mono">int</td></tr></tbody></table></div><div><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Màn hình Console</div><div id="viz-console" class="bg-slate-900 text-emerald-400 p-2 rounded text-xs font-mono min-h-[48px]">Đang khởi tạo biến subtotal...</div></div></div></div></div></div>
-        </section>
-
-        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
-        <section id="section-3" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
-          <div class="space-y-6"><h3 id="sec-3-1-vi-du-co-ban-thao-tac-toan-tu-so-hoc-va-toan-tu-gan-on-gian" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ cơ bản: Thao tác toán tử số học và toán tử gán đơn giản</h3><p class="text-slate-600 mb-4 leading-relaxed">Đoạn mã bên dưới minh họa cách khai báo các giá trị đơn hàng cơ bản và áp dụng toán tử gán kết hợp để cập nhật tổng tiền sau chiết khấu.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
-  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
-    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button onclick="clearSandbox('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
-        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-      </button>
-      <button onclick="runPythonCode('code-sb-1', 'output-sb-1', 'container-sb-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
-        <i class="ph-bold ph-play text-xs"></i>
-      </button>
-      <button onclick="copySandboxCode('code-sb-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
-        <i class="ph-bold ph-copy text-xs"></i>
-      </button>
-    </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-1" class="language-python" contenteditable="true" spellcheck="false" data-original="unit_price = 150000&#10;quantity = 3&#10;discount_amount = 50000&#10;&#10;subtotal = unit_price * quantity&#10;subtotal -= discount_amount&#10;vat_amount = subtotal * 0.1&#10;final_total = subtotal + vat_amount&#10;&#10;print(f&quot;Subtotal: {subtotal}&quot;)&#10;print(f&quot;Final Total: {final_total}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">unit_price = 150000
-quantity = 3
-discount_amount = 50000
-
-subtotal = unit_price * quantity
-subtotal -= discount_amount
-vat_amount = subtotal * 0.1
-final_total = subtotal + vat_amount
-
-print(f&quot;Subtotal: {subtotal}&quot;)
-print(f&quot;Final Total: {final_total}&quot;)</code></pre>
-  </div>
-  <div id="container-sb-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
-    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
-      <span class="text-slate-700 font-bold flex items-center gap-1.5">
-        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
-      </span>
-    </div>
-    <pre id="output-sb-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
-  </div>
-</div><h3 id="sec-3-2-vi-du-thuc-te-tinh-toan-so-luong-thung-ong-goi-va-hang-du-thua" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ thực tế: Tính toán số lượng thùng đóng gói và hàng dư thừa</h3><p class="text-slate-600 mb-4 leading-relaxed">Sử dụng kết hợp phép chia lấy phần nguyên (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>) và phép chia lấy phần dư (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">%</code>) để chia đều sản phẩm vào các thùng carton tiêu chuẩn.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
-  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
-    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button onclick="clearSandbox('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
-        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-      </button>
-      <button onclick="runPythonCode('code-sb-2', 'output-sb-2', 'container-sb-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
-        <i class="ph-bold ph-play text-xs"></i>
-      </button>
-      <button onclick="copySandboxCode('code-sb-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
-        <i class="ph-bold ph-copy text-xs"></i>
-      </button>
-    </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2" class="language-python" contenteditable="true" spellcheck="false" data-original="total_items = 47&#10;items_per_box = 10&#10;&#10;full_boxes = total_items // items_per_box&#10;remaining_items = total_items % items_per_box&#10;&#10;print(f&quot;Full boxes count: {full_boxes}&quot;)&#10;print(f&quot;Remaining items count: {remaining_items}&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">total_items = 47
-items_per_box = 10
-
-full_boxes = total_items // items_per_box
-remaining_items = total_items % items_per_box
-
-print(f&quot;Full boxes count: {full_boxes}&quot;)
-print(f&quot;Remaining items count: {remaining_items}&quot;)</code></pre>
-  </div>
-  <div id="container-sb-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
-    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
-      <span class="text-slate-700 font-bold flex items-center gap-1.5">
-        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
-      </span>
-    </div>
-    <pre id="output-sb-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
-  </div>
-</div><h3 id="sec-3-3-vi-du-doanh-nghiep-engine-tinh-toan-thanh-toan-thuong-mai-ien-tu-chuan-hoa" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ doanh nghiệp: Engine tính toán thanh toán thương mại điện tử chuẩn hóa</h3><p class="text-slate-600 mb-4 leading-relaxed">Kịch bản doanh nghiệp xử lý dữ liệu đầu vào dạng chuỗi từ form đăng ký mua hàng, chuyển đổi kiểu dữ liệu an toàn và tính toán chính xác tổng số tiền phải thanh toán bao gồm VAT và chiết khấu voucher.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
-  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
-    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      <button onclick="clearSandbox('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
-        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-      </button>
-      <button onclick="runPythonCode('code-sb-3', 'output-sb-3', 'container-sb-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
-        <i class="ph-bold ph-play text-xs"></i>
-      </button>
-      <button onclick="copySandboxCode('code-sb-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
-        <i class="ph-bold ph-copy text-xs"></i>
-      </button>
-    </div>
-    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3" class="language-python" contenteditable="true" spellcheck="false" data-original="raw_price_str = &quot;250000&quot;&#10;raw_quantity_str = &quot;4&quot;&#10;coupon_discount_rate = 0.15&#10;vat_rate = 0.10&#10;shipping_fee = 30000&#10;&#10;unit_price_val = float(raw_price_str)&#10;quantity_val = int(raw_quantity_str)&#10;&#10;gross_amount = unit_price_val * quantity_val&#10;discount_value = gross_amount * coupon_discount_rate&#10;net_amount = gross_amount - discount_value&#10;&#10;taxable_amount = net_amount + shipping_fee&#10;vat_value = taxable_amount * vat_rate&#10;grand_total = taxable_amount + vat_value&#10;&#10;print(f&quot;Gross Amount: {gross_amount:,.0f} VND&quot;)&#10;print(f&quot;Discount Value: {discount_value:,.0f} VND&quot;)&#10;print(f&quot;VAT Tax: {vat_value:,.0f} VND&quot;)&#10;print(f&quot;Grand Total: {grand_total:,.0f} VND&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">raw_price_str = &quot;250000&quot;
-raw_quantity_str = &quot;4&quot;
-coupon_discount_rate = 0.15
-vat_rate = 0.10
-shipping_fee = 30000
-
-unit_price_val = float(raw_price_str)
-quantity_val = int(raw_quantity_str)
-
-gross_amount = unit_price_val * quantity_val
-discount_value = gross_amount * coupon_discount_rate
-net_amount = gross_amount - discount_value
-
-taxable_amount = net_amount + shipping_fee
-vat_value = taxable_amount * vat_rate
-grand_total = taxable_amount + vat_value
-
-print(f&quot;Gross Amount: {gross_amount:,.0f} VND&quot;)
-print(f&quot;Discount Value: {discount_value:,.0f} VND&quot;)
-print(f&quot;VAT Tax: {vat_value:,.0f} VND&quot;)
-print(f&quot;Grand Total: {grand_total:,.0f} VND&quot;)</code></pre>
-  </div>
-  <div id="container-sb-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
-    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
-      <span class="text-slate-700 font-bold flex items-center gap-1.5">
-        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
-      </span>
-    </div>
-    <pre id="output-sb-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
-  </div>
-</div></div>
-        </section>
-
-        <!-- Section 4: Tổng kết và các lưu ý -->
-        <section id="section-4" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết và các lưu ý</h2>
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            1. Tại sao cần toán tử số học và toán tử gán trong hệ thống ShopeeFood?
+          </h2>
           <div class="space-y-4">
-            <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"">4.1. Cạm bẫy lỗi chia cho số không (ZeroDivisionError)</h4><p class="text-sm text-slate-700 leading-relaxed">Trong Python, thực hiện bất kỳ phép chia nào (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">//</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">%</code>) với số chia bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">0</code> đều sẽ khiến chương trình dừng đột ngột và ném ra ngoại lệ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">ZeroDivisionError</code>. Luôn kiểm tra điều kiện số chia khác 0 trước khi thực hiện phép tính.</p></div><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-amber-900 mb-2 flex items-center gap-2"">4.2. Sai số của số thực (Floating-Point Inaccuracy) trong tính tiền</h4><p class="text-sm text-slate-700 leading-relaxed">Do cách biểu diễn số thực theo chuẩn IEEE 754, các phép tính với số thực có thể gây ra sai số nhỏ. Ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">0.1 + 0.2</code> trả về <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">0.30000000000000004</code>. Trong các ứng dụng ngân hàng hoặc thương mại điện tử thực tế, lập trình viên nên quy đổi tiền tệ về đơn vị số nguyên (ví dụ: Xu, Cents) hoặc dùng thư viện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">decimal.Decimal</code> để tính toán.</p></div><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"><h4 class="font-montserrat font-bold class="text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"">4.3. Bẫy nối chuỗi thay vì phép cộng số học</h4><p class="text-sm text-slate-700 leading-relaxed">Dữ liệu nhận từ hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">input()</code> luôn ở dạng chuỗi (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">str</code>). Nếu không ép kiểu sang <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">int</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">float</code>, toán tử <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">+</code> sẽ thực hiện ghép chuỗi thay vì cộng số học (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&quot;100&quot; + &quot;50&quot;</code> tạo ra <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&quot;10050&quot;</code>).</p></div>
+            
+<p class="text-slate-600 mb-4 leading-relaxed">
+Hãy hình dung bạn đang xây dựng hệ thống tính toán đơn hàng cho ứng dụng đặt đồ ăn trực tuyến <strong>ShopeeFood</strong>. Khi một khách hàng đặt 3 phần cơm tấm có giá 45.000 VNĐ, hệ thống phải nhân giá tiền với số lượng, cộng thêm 20.000 VNĐ phí giao hàng, trừ đi 15.000 VNĐ voucher giảm giá, và cộng dồn điểm thưởng vào ví.
+</p>
+<p class="text-slate-600 mb-4 leading-relaxed">
+Tất cả quy trình tài chính này đều dựa trên <strong>Toán tử số học</strong> và <strong>Toán tử gán</strong> trong Python.
+</p>
+
+          </div>
+
+          <div class="my-6 text-center">
+            <img src="images/illustration_lesson_01.svg" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" />
+            <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: Toán tử số học và toán tử gán</p>
           </div>
         </section>
 
-        <!-- Section 5: Tài liệu tham khảo -->
-        <section id="section-5" class="mb-6 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
+        <!-- SECTION 2: SYNTAX & MECHANISM BREAKDOWN -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            2. Cú pháp và cơ chế hoạt động của toán tử số học & toán tử gán
+          </h2>
+
+          <div class="space-y-4">
+            
+<h3 id="sec-2-1-toan-tu-so-hoc-co-ban" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp và giải thích Toán tử số học (Arithmetic Operators)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Toán tử số học thực hiện các phép tính đại số cơ bản và nâng cao trong Python.</p>
+
+<div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 font-semibold">Cú pháp toán tử số học trong Python</div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-python">result = operand_a operator operand_b</code></pre>
+</div>
+
+<div class="space-y-2 text-slate-700 my-4 pl-2">
+  <p class="font-semibold text-slate-900 mb-2">Chi tiết thành phần cú pháp:</p>
+  <ul class="list-disc pl-6 space-y-2 text-slate-600">
+    <li><strong class="text-slate-900"><code>operator</code></strong>: Bao gồm <code class="text-rikkei-red font-mono">+</code> (Cộng), <code class="text-rikkei-red font-mono">-</code> (Trừ), <code class="text-rikkei-red font-mono">*</code> (Nhân), <code class="text-rikkei-red font-mono">/</code> (Chia số thực), <code class="text-rikkei-red font-mono">//</code> (Chia nguyên), <code class="text-rikkei-red font-mono">%</code> (Chia lấy dư), <code class="text-rikkei-red font-mono">**</code> (Lũy thừa).</li>
+  </ul>
+</div>
+
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Tính tổng tiền hàng ShopeeFood):</div>
+  <p class="text-sm text-slate-700">Tính tổng chi phí 3 phần cơm tấm giá 45.000 VNĐ, cộng 20.000 VNĐ phí ship và trừ 15.000 VNĐ voucher.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2-1" class="language-python" contenteditable="true" spellcheck="false" data-original="unit_price = 45000
+quantity = 3
+shipping_fee = 20000
+discount_voucher = 15000
+
+subtotal = unit_price * quantity
+total_payment = subtotal + shipping_fee - discount_voucher
+
+print('Tiền hàng:', subtotal, 'VNĐ')
+print('Tổng thanh toán:', total_payment, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">unit_price = 45000
+quantity = 3
+shipping_fee = 20000
+discount_voucher = 15000
+
+subtotal = unit_price * quantity
+total_payment = subtotal + shipping_fee - discount_voucher
+
+print('Tiền hàng:', subtotal, 'VNĐ')
+print('Tổng thanh toán:', total_payment, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-2-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-2-2-toan-tu-gan-phuc-hop" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Cú pháp và giải thích Toán tử gán phức hợp (Compound Assignment Operators)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Toán tử gán kết hợp tính toán số học với việc cập nhật giá trị biến bộ nhớ RAM.</p>
+
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Cập nhật điểm thưởng ShopeePay):</div>
+  <p class="text-sm text-slate-700">Cập nhật dồn 50 điểm thưởng và trừ 140.000 VNĐ khỏi số dư ví sau khi giao dịch thành công.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-2-2', 'output-sb-2-2', 'container-sb-2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-2-2', 'output-sb-2-2', 'container-sb-2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-2-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2-2" class="language-python" contenteditable="true" spellcheck="false" data-original="reward_points = 120
+wallet_balance = 500000
+
+reward_points += 50
+wallet_balance -= 140000
+
+print('Điểm mới:', reward_points)
+print('Ví còn lại:', wallet_balance, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">reward_points = 120
+wallet_balance = 500000
+
+reward_points += 50
+wallet_balance -= 140000
+
+print('Điểm mới:', reward_points)
+print('Ví còn lại:', wallet_balance, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-2-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-2-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+          </div>
+
+          <!-- Domain Adaptive Step-by-Step Visualizer -->
+          <div class="my-8">
+            
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>Toán tử số học và toán tử gán</strong>!</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 flex flex-wrap items-center justify-between gap-2">
+    <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
+      <i class="ph-bold ph-sliders-horizontal text-rikkei-red"></i> ĐIỀU KHIỂN MÔ PHỎNG LUỒNG THỰC THI (PYTHON):
+    </span>
+    <div class="flex items-center gap-2 text-xs">
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all shadow-sm flex items-center gap-1">
+        <i class="ph-bold ph-arrow-right text-xs"></i> Tiếp theo
+      </button>
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3.5 py-1.5 rounded bg-rikkei-red text-white font-medium hover:bg-rikkei-darkred transition-all shadow-sm flex items-center gap-1">
+        <i class="ph-bold ph-play text-xs"></i> Tự động chạy
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>MÃ NGUỒN THỰC THI CHUẨN</span>
+        <span id="viz-step-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[180px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div># 1. Khai báo tham số đầu vào cho Toán tử số học và toán tử gán</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>input_data = load_input_parameters()</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>is_valid = validate_conditions(input_data)</div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>execution_result = process_business_logic(is_valid)</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
+          <div>print(f"Kết quả xử lý {clean_title}: {execution_result}")</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>BIẾN BỘ NHỚ RAM</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      </div>
+      <div class="p-4 space-y-2 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Môi trường thực thi:</span>
+          <span class="font-bold text-slate-900">PYTHON Engine</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">is_valid (Kiểm tra điều kiện):</span>
+          <span id="viz-var-valid" class="font-bold text-slate-400">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">execution_result (Trạng thái kết quả):</span>
+          <span id="viz-var-result" class="font-bold text-slate-400">---</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-900 rounded-xl p-3.5 font-mono text-xs text-emerald-400 flex items-center gap-2 overflow-x-auto">
+    <span class="text-slate-500 font-bold shrink-0">CONSOLE &gt;</span>
+    <span id="viz-terminal-log">Bấm 'Tiếp theo' hoặc 'Tự động chạy' để bắt đầu mô phỏng luồng.</span>
+  </div>
+</div>
+
+<script>
+  let currentVizStep = 0;
+  let vizAutoInterval = null;
+  function runVizStep(stepNum) {
+    if (stepNum === undefined || stepNum === null) {
+      currentVizStep += 1;
+      if (currentVizStep > 5) currentVizStep = 1;
+    } else {
+      currentVizStep = stepNum;
+    }
+
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById("viz-line-" + i);
+      if (el) {
+        if (i === currentVizStep) {
+          el.style.backgroundColor = "#d1fae5";
+          el.style.borderLeft = "4px solid #059669";
+          el.style.fontWeight = "bold";
+        } else {
+          el.style.backgroundColor = "";
+          el.style.borderLeft = "4px solid transparent";
+          el.style.fontWeight = "normal";
+        }
+      }
+    }
+
+    const badge = document.getElementById("viz-step-badge");
+    const b1 = document.getElementById("viz-badge-cond1");
+    const vValid = document.getElementById("viz-var-valid");
+    const vResult = document.getElementById("viz-var-result");
+    const term = document.getElementById("viz-terminal-log");
+
+    if (badge) badge.innerText = "Bước " + currentVizStep + "/5";
+
+    if (currentVizStep === 1) {
+      if (term) term.innerText = "[BƯỚC 1/5] Khởi tạo tham số đầu vào cho Toán tử số học và toán tử gán";
+    } else if (currentVizStep === 2) {
+      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào input_data";
+    } else if (currentVizStep === 3) {
+      if (b1) {
+        b1.className = "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
+        b1.innerText = "True - KHỚP!";
+      }
+      if (vValid) {
+        vValid.className = "font-bold text-emerald-600";
+        vValid.innerText = "True";
+      }
+      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện validate_conditions() -> True";
+    } else if (currentVizStep === 4) {
+      if (vResult) {
+        vResult.className = "font-bold text-emerald-600";
+        vResult.innerText = "SUCCESS";
+      }
+      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ process_business_logic() -> SUCCESS";
+    } else if (currentVizStep === 5) {
+      if (term) term.innerText = "[KẾT QUẢ 5/5] CONSOLE OUTPUT: Hoàn tất xử lý Toán tử số học và toán tử gán: SUCCESS";
+    }
+  }
+
+  function vizToggleAuto() {
+    const btn = document.getElementById("viz-auto-btn");
+    if (vizAutoInterval) {
+      clearInterval(vizAutoInterval);
+      vizAutoInterval = null;
+      if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
+    } else {
+      if (btn) btn.innerHTML = '<i class="ph-bold ph-pause text-xs"></i> Tạm dừng';
+      runVizStep();
+      vizAutoInterval = setInterval(() => {
+        runVizStep();
+      }, 1500);
+    }
+  }
+</script>
+
+          </div>
+        </section>
+
+        <!-- SECTION 3: PROGRESSIVE EXAMPLES -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            3. Các ví dụ ứng dụng thực tiễn trong hệ thống ShopeeFood
+          </h2>
+
+          <div class="space-y-6">
+            
+<h3 id="sec-3-1-tinh-tong-don-hang-shopeefood" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Tính tổng chi phí đơn hàng ShopeeFood bao gồm phụ phí và chiết khấu</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Tính toán chi tiết giá trị thanh toán cho đơn hàng gồm trà sữa và phí vận chuyển.</p>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.1 - Tính tiền đơn trà sữa):</div>
+  <p class="text-sm text-slate-700">Tính tổng tiền 2 ly trà sữa giá 30.000 VNĐ, giảm 10% và cộng 15.000 VNĐ phí ship.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="item_price = 30000
+item_qty = 2
+shipping_fee = 15000
+discount_percent = 0.10
+
+subtotal = item_price * item_qty
+discount_amount = subtotal * discount_percent
+final_amount = (subtotal - discount_amount) + shipping_fee
+
+print('Tiền hàng gốc:', subtotal, 'VNĐ')
+print('Số tiền giảm:', discount_amount, 'VNĐ')
+print('Thành tiền:', final_amount, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">item_price = 30000
+item_qty = 2
+shipping_fee = 15000
+discount_percent = 0.10
+
+subtotal = item_price * item_qty
+discount_amount = subtotal * discount_percent
+final_amount = (subtotal - discount_amount) + shipping_fee
+
+print('Tiền hàng gốc:', subtotal, 'VNĐ')
+print('Số tiền giảm:', discount_amount, 'VNĐ')
+print('Thành tiền:', final_amount, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-3-2-cap-nhat-tich-luy-diem-thuong" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Cập nhật tích lũy điểm thưởng và số dư ví bằng toán tử gán</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Khấu trừ tiền hàng và tích lũy điểm thưởng ShopeePay.</p>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.2 - Tích lũy điểm thưởng 5%):</div>
+  <p class="text-sm text-slate-700">Trừ 165.000 VNĐ tiền đơn hàng khỏi ví và tích dồn 5% giá trị đơn thành điểm thưởng.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-3-2', 'output-sb-3-2', 'container-sb-3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-3-2', 'output-sb-3-2', 'container-sb-3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="wallet_balance = 350000
+user_points = 80
+bill_total = 165000
+
+wallet_balance -= bill_total
+earned_points = int(bill_total * 0.05)
+user_points += earned_points
+
+print('Ví còn lại:', wallet_balance, 'VNĐ')
+print('Điểm mới:', user_points)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">wallet_balance = 350000
+user_points = 80
+bill_total = 165000
+
+wallet_balance -= bill_total
+earned_points = int(bill_total * 0.05)
+user_points += earned_points
+
+print('Ví còn lại:', wallet_balance, 'VNĐ')
+print('Điểm mới:', user_points)</code></pre>
+  </div>
+  <div id="container-sb-3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-3-3-chia-tien-hoa-don-nhom" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Chia tiền hóa đơn nhóm và tính số tiền lẻ dư</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Sử dụng phép chia nguyên // và chia dư % để chia tiền hóa đơn nhóm.</p>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.3 - Phân chia hóa đơn ăn nhóm):</div>
+  <p class="text-sm text-slate-700">Chia đều hóa đơn 355.000 VNĐ cho nhóm 4 người và tính tiền dư lẻ còn lại.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-3-3', 'output-sb-3-3', 'container-sb-3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-3-3', 'output-sb-3-3', 'container-sb-3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="group_bill = 355000
+num_people = 4
+
+share_per_person = group_bill // num_people
+remaining_change = group_bill % num_people
+
+print('Mỗi người đóng:', share_per_person, 'VNĐ')
+print('Tiền dư lẻ:', remaining_change, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">group_bill = 355000
+num_people = 4
+
+share_per_person = group_bill // num_people
+remaining_change = group_bill % num_people
+
+print('Mỗi người đóng:', share_per_person, 'VNĐ')
+print('Tiền dư lẻ:', remaining_change, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+          </div>
+        </section>
+
+        <!-- SECTION 4: GOTCHAS & PITFALLS -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            4. Tổng kết bài học & Các lỗi thường gặp
+          </h2>
+
+          <div class="space-y-4">
+            
+<div class="space-y-4">
+  <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4">
+    <div class="font-bold text-rose-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-warning-circle text-rose-600"></i> Lỗi thường gặp 1: Lỗi chia cho số 0 (ZeroDivisionError)</div>
+    <p class="text-sm text-slate-700">Chia cho số 0 sẽ làm chương trình dừng và báo lỗi <code>ZeroDivisionError</code>.</p>
+  </div>
+  <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4">
+    <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-lightning text-amber-600"></i> Lỗi thường gặp 2: Sai số số thực (Floating-Point Precision)</div>
+    <p class="text-sm text-slate-700">Phép tính <code>0.1 + 0.2</code> cho kết quả <code>0.30000000000000004</code> do cách máy tính lưu số thực.</p>
+  </div>
+  <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+    <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-brackets-curly text-sky-600"></i> Lỗi thường gặp 3: Khác biệt giữa chia / và chia lấy phần nguyên //</div>
+    <p class="text-sm text-slate-700">Toán tử <code>/</code> luôn trả về số thực <code>float</code>, còn <code>//</code> cắt bỏ phần thập phân trả về <code>int</code>.</p>
+  </div>
+</div>
+
+          </div>
+        </section>
+
+        <!-- SECTION 5: REFERENCES -->
+        <section id="section-5" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            5. Tài liệu tham khảo
+          </h2>
+
           <div class="pt-2">
             <ul class="space-y-2 list-none pl-0">
-        <li>
-          <a href="https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
-            <i class="ph-bold ph-link text-sm"></i> Official Python Documentation - Numeric Types (int, float)
-          </a>
-        </li>
-        
-        <li>
-          <a href="https://docs.python.org/3/reference/expressions.html#operator-precedence" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
-            <i class="ph-bold ph-link text-sm"></i> Official Python Documentation - Operator Precedence in Expressions
-          </a>
-        </li>
-        </ul>
+              <li>
+                <a href="https://docs.python.org/3/library/stdtypes.html#numeric-types-int-float-complex" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> Tài liệu chính thức Python 3 - Numeric Types (int, float)
+                </a>
+              </li>
+              <li>
+                <a href="https://www.w3schools.com/python/python_operators.asp" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> W3Schools Python Arithmetic Operators & Precedence Guide
+                </a>
+              </li>
+            </ul>
           </div>
         </section>
       </article>
     </main>
 
+    <!-- Scripts -->
     <script>
-      function toggleMobileToc() {
-        const drawer = document.getElementById("mobile-toc-drawer");
-        if (drawer) drawer.classList.toggle("hidden");
-      }
+      hljs.highlightAll();
 
-      // (HLJS initialization moved to second DOMContentLoaded handler below)
-
-      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
-      const themeToggleBtn = document.getElementById("theme-toggle");
-      const themeIcon = document.getElementById("theme-icon");
-      const hljsLightTheme = document.getElementById("hljs-light-theme");
-      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
-
-      function applyHljsTheme(isDark) {
-        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
-        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
-        // Re-highlight all code blocks so new theme tokens take effect immediately
-        if (window.hljs) {
-          document.querySelectorAll('pre code').forEach((block) => {
-            block.removeAttribute('data-highlighted');
-            hljs.highlightElement(block);
-          });
-        }
-      }
-
-      themeToggleBtn?.addEventListener("click", () => {
-        document.documentElement.classList.toggle("dark");
-        const isDark = document.documentElement.classList.contains("dark");
-        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
-        applyHljsTheme(isDark);
-      });
-
-      // Scroll progress script
       window.addEventListener("scroll", () => {
         const winScroll = document.documentElement.scrollTop;
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (winScroll / height) * 100;
-        const progress = document.getElementById("scroll-progress");
-        if (progress) progress.style.width = scrolled + "%";
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
       });
 
-      // Table of Contents Active Scroll Observer
-      document.addEventListener("DOMContentLoaded", () => {
-        const observerOptions = {
-          root: null,
-          rootMargin: "-20% 0px -60% 0px",
-          threshold: 0
-        };
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        drawer.classList.toggle("hidden");
+      }
 
-        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
-        const sections = document.querySelectorAll("article section[id]");
-
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const id = entry.target.getAttribute("id");
-              tocLinks.forEach((link) => {
-                const href = link.getAttribute("href");
-                if (href === `#${id}`) {
-                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
-                  link.classList.remove("border-transparent", "text-slate-600");
-                } else {
-                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
-                  link.classList.add("border-transparent", "text-slate-600");
-                }
-              });
-            }
-          });
-        }, observerOptions);
-
-        sections.forEach((section) => observer.observe(section));
-
-        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
-        if (window.hljs) {
-          document.querySelectorAll('pre code').forEach((block) => {
-            block.removeAttribute('data-highlighted');
-            hljs.highlightElement(block);
-          });
-        }
-      });
-
-      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      // Pyodide Live Wasm Sandbox Engine
       let pyodideInstance = null;
       async function getPyodide() {
         if (!pyodideInstance && window.loadPyodide) {
@@ -536,16 +907,19 @@ print(f&quot;Grand Total: {grand_total:,.0f} VND&quot;)</code></pre>
             return;
           }
           let outputBuffer = "";
-          pyodide.setStdout({ batched: (str) => { outputBuffer += str + "\n"; } });
-          pyodide.setStderr({ batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; } });
+          pyodide.setStdout({
+            batched: (str) => { outputBuffer += str + "\n"; }
+          });
+          pyodide.setStderr({
+            batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; }
+          });
 
-          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
           try {
             await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
           } catch(e) {}
 
           await pyodide.runPythonAsync(code);
-          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+          output.innerText = outputBuffer.trim() ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
         } catch (err) {
           output.innerText = "LỖI THỰC THI:\n" + err;
         }
@@ -559,21 +933,21 @@ print(f&quot;Grand Total: {grand_total:,.0f} VND&quot;)</code></pre>
           const orig = editor._originalText || editor.getAttribute("data-original");
           if (orig) {
             editor.textContent = orig;
-            editor.removeAttribute('data-highlighted');
+            editor.removeAttribute("data-highlighted");
             if (window.hljs) hljs.highlightElement(editor);
           }
         }
         if (output) output.innerText = "";
         if (container) container.classList.add("hidden");
       }
+
       document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll('code[data-original]').forEach(codeEl => {
+        document.querySelectorAll("code[data-original]").forEach((codeEl) => {
           if (!codeEl._originalText) {
             codeEl._originalText = codeEl.textContent;
           }
         });
       });
-
 
       function copySandboxCode(editorId, btn) {
         const editor = document.getElementById(editorId);
@@ -588,65 +962,6 @@ print(f&quot;Grand Total: {grand_total:,.0f} VND&quot;)</code></pre>
         });
       }
 
-      // Global Dynamic Visualizer Runner Helpers
-      window.vizStepMap = {};
-      function runVizStep(delta, idPrefix) {
-        idPrefix = idPrefix || "viz";
-        window.vizStepMap[idPrefix] = (window.vizStepMap[idPrefix] || 0) + delta;
-        if (window.vizStepMap[idPrefix] < 0) window.vizStepMap[idPrefix] = 0;
-        var step = window.vizStepMap[idPrefix];
-        
-        var numEl = document.getElementById(idPrefix + "-var-number") || document.getElementById("viz-var-number");
-        var sumEl = document.getElementById(idPrefix + "-var-sum") || document.getElementById("viz-var-sum");
-        var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
-        
-        if (consoleEl) {
-          if (step === 0) {
-            if (numEl) numEl.innerText = "-";
-            if (sumEl) sumEl.innerText = "0";
-            consoleEl.innerText = "Chờ thực thi...";
-          } else if (step === 1) {
-            if (numEl) numEl.innerText = "1";
-            if (sumEl) sumEl.innerText = "1";
-            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1";
-          } else if (step === 2) {
-            if (numEl) numEl.innerText = "2";
-            if (sumEl) sumEl.innerText = "3";
-            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3";
-          } else {
-            if (numEl) numEl.innerText = "3";
-            if (sumEl) sumEl.innerText = "6";
-            consoleEl.innerText = "Lần lặp 1: number = 1, total_sum = 1\nLần lặp 2: number = 2, total_sum = 3\nLần lặp 3: number = 3, total_sum = 6\nHoàn thành vòng lặp! Total = 6";
-          }
-        }
-      }
-      function resetViz(idPrefix) {
-        idPrefix = idPrefix || "viz";
-        window.vizStepMap[idPrefix] = 0;
-        runVizStep(0, idPrefix);
-      }
-
-      // Fix 2a: Adapter functions bridging LLM-generated onclick handlers to visualizer API
-      function vizStepNext() { runVizStep(1); }
-      function vizStepPrev() { runVizStep(-1); }
-      function vizNextStep() { runVizStep(1); }
-      function vizPrevStep() { runVizStep(-1); }
-      function vizTogglePlay() { vizToggleAuto(); }
-      // Override vizReset to call resetViz (LLM uses vizReset, template defines resetViz)
-      function vizReset() { resetViz(); }
-      var vizAutoTimer = null;
-      function vizToggleAuto() {
-        if (vizAutoTimer) {
-          clearInterval(vizAutoTimer);
-          vizAutoTimer = null;
-          var btn = document.getElementById("viz-auto-btn");
-          if (btn) btn.textContent = "Tự động chạy";
-        } else {
-          vizAutoTimer = setInterval(function() { runVizStep(1); }, 1500);
-          var btn = document.getElementById("viz-auto-btn");
-          if (btn) btn.textContent = "Dừng tự động";
-        }
-      }
     </script>
   </body>
 </html>

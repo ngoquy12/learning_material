@@ -42,7 +42,10 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
      - **Process (Action / Calculation)**: Rectangle `["Thực hiện hành động / Tính toán"]`.
      - **Flowline**: Arrow `-->` or `-->|Đúng|` / `-->|Sai|`.
      ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for actions/calculations! Use Rectangle `[" "]` for Process actions, and Parallelogram `[/ /]` ONLY for Input/Output.
-   - **Image Prompt Standard**: Background illustrations MUST be **Clean 2D Flat Vector Technical Illustrations / Minimalist Infographics** with pleasant corporate palettes (Corporate Navy `#0f172a`, Slate Gray, Soft Emerald).
+   - **Image Prompt & Vector Graphic Standard**: Background illustrations MUST be **Clean 2D Flat Vector Technical Illustrations / Minimalist Infographics** with pleasant corporate palettes (Corporate Navy `#0f172a`, Slate Gray, Soft Emerald).
+   - ⛔ **STRICT NO EMBEDDED TITLE BANNER DIRECTIVE**: ABSOLUTELY FORBIDDEN to render huge text title banners (e.g. "QUY TRÌNH TÍNH TOÁN...", "PYTHON OPERATORS") inside the image graphic canvas. The image canvas MUST focus 100% on the **pure visual workflow graphic, domain visual cards, and state diagrams**. Article section titles belong strictly to HTML `<h2>` headers and `Hình 1.1...` captions!
+   - 🇻🇳 **100% UNIFIED ACCENTED VIETNAMESE LABELS DIRECTIVE**: 100% of explanatory text labels, step names, node titles, and branch outcomes inside the graphic MUST be in **100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất)**. ABSOLUTELY FORBIDDEN to mix English jargon (`INPUT ORDER`, `NET TOTAL`, `SUBTOTAL`, `PAYMENT RESULT`). Use pure natural Vietnamese (`Đầu vào đơn hàng`, `Tổng thanh toán`, `Thành tiền hàng`, `Kết quả giao dịch`). Standard code syntax expressions (`price * quantity`, `if age >= 18`) remain in standard programming syntax.
+   - 🎨 **ENHANCED VISUAL DEPTH & LAYERED ARCHITECTURE**: Every visual graphic MUST feature **Rich 3-Tier Layering**: (1) Domain Context Card (shopping cart, receipt, voucher), (2) Technical State Transformation & Data Flow, (3) Final Outcome Result Card with high-contrast color fills. No large empty void spaces or stray text artifacts.
    - ⛔ **STRICT NO TEXT EMOJI DIRECTIVE**: 100% forbidden to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶). Use **Clean 2D Flat Vector Icons / SVG Symbols** only.
    - ⛔ **STRICT NO HYPERBOLIC AI ART DIRECTIVE**: Absolutely forbidden to generate 3D sci-fi, glowing neon factories, cyberpunk isometric scenes, or dramatic cinematic lighting.
    - ⛔ **STRICT NO ALL CAPS DIRECTIVE**: 100% forbidden to use ALL CAPS text on diagram labels (`INPUT PARSER` ➔ `Input parser`, `ERROR LOG` ➔ `Error log & alerts`). Use Sentence Case or Title Case only.
@@ -67,8 +70,11 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
    - **Human Instructor**: Performs on camera, delivers live coding demos, explains concepts, and provides emotional connection.
    - **Goal**: Preserve instructor personal branding, maintain professional depth, and foster student engagement.
 
-10. **Human-Like Quality Standard**:
-    - All resources must be clear, complete, visual, fast-paced, practical, and have explicit learning outcomes. **ABSOLUTELY NO AI MARKERS** (no text emojis, no hyperbolic fluff like "khám phá", "vô cùng", "tuyệt vời", "nhất", no W3Schools tags or square bracket tags).
+10. **Human-Like Quality Standard & Strict AI Cliché / Buzzword Ban**:
+    - All resources must be clear, complete, visual, fast-paced, practical, and have explicit learning outcomes.
+    - **ABSOLUTELY FORBIDDEN AI MARKERS & CLICHE BUZZWORDS**:
+      - ⛔ **Forbidden Cliché Words**: `"bẫy"`, `"bẫy lập trình"`, `"bẫy lỗi"`, `"bẫy cú pháp"`, `"gotcha"`, `"anti-pattern"`. Replace with formal technical terms: `"Lỗi thường gặp"`, `"Sai sót phổ biến"`, `"Ngoại lệ cần lưu ý"`.
+      - ⛔ **Forbidden Fluff & Hyperbole**: `"khám phá"`, `"tìm hiểu ngay"`, `"bí kíp"`, `"tất tần tật"`, `"thần thánh"`, `"tuyệt vời"`, `"bậc nhất"`, `"vô cùng"`, `"viên ngọc"`. Replace with clear, neutral professional engineering language.
 
 11. **Strict Light Mode Only (No Dark Panels / Backgrounds)**:
     - FORBIDDEN to use dark mode panels, black backgrounds, or dark container cards in reading materials.
@@ -99,6 +105,11 @@ All Agents in the system MUST strictly follow these 10 guiding principles when c
     - **Adaptive Code Block Standard**: Analyze subject nature before rendering Section 3:
       - _For Executable Programming Courses (Python, JS, Java, C++, SQL...)_: Section 3 uses **Live Code Sandboxes** (Pyodide WASM / JS runner with run & console output buttons).
       - _For Pure Concept / Tooling / CLI / Process / Architecture Courses (Git, VS Code, Linux/Bash CLI, Docker CLI, Agile/Scrum, Software Architecture, System Design, UML Analysis & Design...)_: ABSOLUTELY FORBIDDEN to force live executable Pyodide sandboxes or run buttons. Section 3 MUST use static Terminal Command Blocks (`<pre><code class="language-bash">...</code></pre>`), Command Flow Comparison Cards, or Config/Diagram Parameter Cards.
+
+16. **Mandatory Single Unified Real-World Demo Scenario Contract**:
+    - Every generated lesson MUST establish exactly **ONE unified concrete real-world business scenario** in Section 1 (e.g. ShopeeFood Order Checkout & Voucher System, E-commerce Shopping Cart, Student Scholarship Evaluation, or Banking Fraud Detection).
+    - **100% of code snippets, live sandboxes, syntax cards, and step visualizers** across Section 2 (2.1, 2.2, 2.3, 2.4) and Section 3 (3.1, 3.2, 3.3...) MUST progressively expand on THAT EXACT SAME UNIFIED SCENARIO using consistent variable names and domain logic.
+    - **ABSOLUTELY FORBIDDEN** to switch to disjointed, random example topics (e.g., Cinema age check in 3.1, Student scholarship in 3.2, Banking Fraud in 3.3) within the same lesson!
 
 ---
 
@@ -213,10 +224,16 @@ Strictly follow the 8-stage video production pipeline and interactive studio tel
 5. **Mandatory Sentence Ending Period Directive**:
    - All sentences, bullet items (`- item`), questions, explanations, and sub-headings MUST end with a closing period (`.`).
 6. **Mandatory Section 3 Progressive Examples Directive**:
-   - Section 3 MUST provide 1 to 3 progressive code examples (Simple ➔ Business ➔ Enterprise). Every example MUST include an executable code block.
+   - Section 3 MUST provide **AT LEAST 3 progressive real-world examples** (`3.1`, `3.2`, `3.3` - Simple ➔ Business ➔ Enterprise).
+   - Every example in Section 3 MUST include:
+     - Clear `<h3>` sub-heading with hierarchical numbering (`3.1. ...`, `3.2. ...`, `3.3. ...`).
+     - **Requirement Callout Component (`p-4 rounded-xl border border-sky-200 bg-sky-50/60...`)** stating the concise problem name and requirement BEFORE the code demo.
+     - Runnable Code Sandbox with complete sample code.
 7. **Hierarchical Sub-heading Numbering Directive**:
-   - All `<h3>` sub-headings MUST follow parent section hierarchy (Section 2 ➔ `2.1`, `2.2`; Section 3 ➔ `3.1`, `3.2`; Section 4 ➔ `4.1`, `4.2`). FORBIDDEN independent `1.`, `2.`, `3.` numbering.
-8. **Interactive Wasm Sandbox & Code Tracker Integration Directive**:
+   - All `<h3>` sub-headings MUST follow parent section hierarchy (Section 2 ➔ `2.1`, `2.2`; Section 3 ➔ `3.1`, `3.2`, `3.3`; Section 4 ➔ `4.1`, `4.2`). FORBIDDEN independent `1.`, `2.`, `3.` numbering.
+8. **Mandatory Sandbox Requirement Callout Directive**:
+   - BEFORE EVERY Runnable Code Sandbox (across Section 2 and Section 3), there MUST be a **Requirement Callout Box** (`p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4`) explicitly stating the concise business problem requirement (e.g. `Yêu cầu bài toán thực hành: Kiểm tra đơn hàng ShopeeFood có được miễn phí giao hàng khi...`) BEFORE rendering the code demo card.
+9. **Interactive Wasm Sandbox & Code Tracker Integration Directive**:
    - Include **Pyodide Live Wasm Sandbox** (`https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js`) with **Run Code** button and step-by-step Interactive Code Tracker Visualizer.
 9. **Minimal Italic Text Standard**:
    - Minimize italic text (`*italic*`, `<i>`, `<em>`). Only use italics for **captions directly below images or diagrams**.

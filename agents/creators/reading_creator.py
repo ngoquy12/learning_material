@@ -12,6 +12,7 @@ from agents.creators.common_utils import (
     clean_unwanted_text,
     ensure_vietnamese_diacritics
 )
+from core.renderers.reading_renderer import assemble_reading_html
 
 def ensure_sentence_ending_period(text: str) -> str:
     """Ensures text string ends with a proper punctuation mark (., ?, !, :, >)."""
@@ -104,8 +105,11 @@ LANGUAGE_MAPPING_REGISTRY = {
 }
 
 def resolve_language_info(tech_stack: str) -> Dict[str, str]:
-    """Resolve language metadata from tech_stack string."""
-    tech_lower = (tech_stack or "python").lower().strip()
+    """Resolve language metadata from tech_stack string without hardcoded fallbacks."""
+    if not tech_stack or not str(tech_stack).strip():
+        raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] resolve_language_info: 'tech_stack' bị trống. Vui lòng truyền --tech-stack chính xác từ PM.")
+    
+    tech_lower = str(tech_stack).lower().strip()
     # Check if the tech stack is a known non-coding / CLI / tooling / theory subject
     non_coding_keywords = [
         "git", "vcs", "github", "gitlab", "terminal", "bash", "shell", "cli", "cmd",
@@ -120,13 +124,13 @@ def resolve_language_info(tech_stack: str) -> Dict[str, str]:
         return {
             "hljs": "language-bash" if is_cli else "language-plaintext",
             "engine": "static",
-            "name": tech_stack or ("Git/CLI" if is_cli else "Theory")
+            "name": tech_stack
         }
         
     for key, info in LANGUAGE_MAPPING_REGISTRY.items():
         if key in tech_lower:
             return info
-    return {"hljs": "language-python", "engine": "pyodide", "name": tech_stack or "Code"}
+    return {"hljs": "language-plaintext", "engine": "static", "name": tech_stack}
 
 
 def sanitize_llm_json_text(raw_text: str) -> str:
@@ -386,9 +390,121 @@ CANONICAL_DOC_LINKS = {
     ]
 }
 
+
+def generate_universal_step_visualizer(lesson_title: str, tech_stack: str, code_snippet: str = "") -> str:
+    """Dynamically construct a Section 2.4 Step-by-Step Execution Visualizer component 
+    for any technology stack and lesson topic without hardcoding.
+    """
+    clean_title = lesson_title.split(" - ")[-1] if " - " in lesson_title else lesson_title
+    tech_upper = (tech_stack or "Code").upper()
+    
+    return f"""
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Kéo thanh trượt điều chỉnh dữ liệu đầu vào hoặc bấm nút <strong>"Tiếp theo"</strong> / <strong>"Tự động chạy"</strong> để quan sát dòng mã được tô sáng màu ngọc bảo (<code class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-xs">#d1fae5</code>) và biến đổi trạng thái trong bộ nhớ RAM từng bước!</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 space-y-3">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <label for="viz-step-slider" class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
+        <i class="ph-bold ph-sliders-horizontal text-rikkei-red"></i> ĐIỀU CHỈNH THAM SỐ ĐẦU VÀO (INPUT VALUE):
+      </label>
+      <div class="flex items-center gap-1.5 text-xs">
+        <span class="text-slate-500">Mẫu nhanh:</span>
+        <button type="button" onclick="runVizStep(1)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all">Mẫu A</button>
+        <button type="button" onclick="runVizStep(2)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all">Mẫu B</button>
+        <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-2 py-0.5 rounded bg-rikkei-red text-white font-medium hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>MÃ NGUỒN THỰC THI ({tech_upper})</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px]">Sẵn sàng</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[200px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 1/4: Khởi tạo ngữ cảnh dữ liệu cho {clean_title}">
+          <div># 1. Khởi tạo ngữ cảnh dữ liệu thực thi cho {clean_title}</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 2/4: Đánh giá điều kiện nghiệp vụ ➔ Trả về True (Khớp)">
+          <div>input_data = process_context()</div>
+          <span class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">🟢 True - KHỚP!</span>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between pl-6" data-console="Bước 3/4: Thi hành khối lệnh xử lý tích lũy biến trong RAM">
+          <div>execute_step_logic()</div>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 4/4: Hoàn tất chu trình thực thi và xuất kết quả ra màn hình">
+          <div>print(f"Xử lý thành công {clean_title}")</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>TRẠNG THÁI BIẾN TRONG BỘ NHỚ (RAM)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      </div>
+      <div class="p-4 space-y-3 flex-1">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs flex justify-between">
+          <span class="text-slate-500">Trạng thái luồng:</span>
+          <span id="viz-ram-status" class="font-bold text-emerald-600">Đang hoạt động (Active)</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs flex justify-between">
+          <span class="text-slate-500">Môi trường thực thi:</span>
+          <span class="font-bold text-rikkei-red">{tech_upper} Engine</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 font-mono text-xs flex justify-between">
+          <span class="text-slate-500">Bài học:</span>
+          <span class="font-bold text-slate-800 truncate max-w-[200px]">{clean_title}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="runVizStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-all">
+        <i class="ph-bold ph-caret-left"></i> Bước trước
+      </button>
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs flex items-center gap-1 hover:bg-rikkei-darkred transition-all shadow-sm">
+        Tiếp theo <i class="ph-bold ph-caret-right"></i>
+      </button>
+      <button type="button" onclick="runVizStep(-999)" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs transition-all" title="Reset">
+        <i class="ph-bold ph-arrow-counter-clockwise"></i> Đặt lại
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-3 bg-slate-950 rounded-xl p-3 border border-slate-800 shadow-inner">
+    <div class="text-[11px] font-mono text-slate-400 mb-1 flex items-center gap-1.5">
+      <i class="ph-bold ph-terminal text-emerald-400"></i> NHẬT KÝ THỰC THI (SINGLE-LINE TERMINAL CONSOLE):
+    </div>
+    <div id="viz-terminal-log" class="h-[140px] overflow-y-auto bg-slate-950 text-emerald-400 font-mono text-xs p-2 rounded border border-slate-800">
+      > Sẵn sàng chạy mô phỏng từng bước cho {clean_title}. Bấm "Tiếp theo" để bắt đầu...
+    </div>
+  </div>
+</div>
+"""
+
+
+def extract_2tier_toc(know_html: str, ex_text: str, section1_title: str, section2_title: str) -> str:
+    """Generate clean 5-section Table of Contents navigation listing strictly main sections 1 to 5 without sub-items."""
+    clean_sec1 = re.sub(r'^\s*1\.\s*', '', section1_title).strip()
+    clean_sec2 = re.sub(r'^\s*2\.\s*', '', section2_title).strip()
+    
+    return f"""
+    <a href="#section-1" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">1. {clean_sec1}</a>
+    <a href="#section-2" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">2. {clean_sec2}</a>
+    <a href="#section-3" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
+    <a href="#section-4" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">4. Tổng kết bài học</a>
+    <a href="#section-5" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">5. Tài liệu tham khảo</a>
+    """
+
+
 def sanitize_references(refs: List[Dict[str, str]], tech_stack: str) -> List[Dict[str, str]]:
     """
-    Problem 3.3: Sanitize reference links, replacing hallucinated or empty URLs with canonical official docs.
+    Sanitize reference links, replacing hallucinated or empty URLs with canonical official docs.
     """
     valid_refs = []
     if isinstance(refs, list):
@@ -401,11 +517,13 @@ def sanitize_references(refs: List[Dict[str, str]], tech_stack: str) -> List[Dic
 
     # If LLM returned no valid URLs, inject canonical links based on tech stack
     if not valid_refs:
-        tech_key = (tech_stack or "python").lower().strip()
+        if not tech_stack or not str(tech_stack).strip():
+            raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] sanitize_references: 'tech_stack' bị trống.")
+        tech_key = str(tech_stack).lower().strip()
         for k, links in CANONICAL_DOC_LINKS.items():
             if k in tech_key:
                 return links
-        return CANONICAL_DOC_LINKS["python"]
+        return [{"title": f"Tài liệu chính thức {tech_stack}", "url": f"https://www.google.com/search?q={tech_stack}+official+documentation"}]
     return valid_refs
 
 
@@ -471,8 +589,10 @@ MANDATORY RULES & DIRECTIVES:
 7. HIERARCHICAL SUB-HEADING NUMBERING DIRECTIVE:
    - All `<h3>` sub-headings MUST match parent numbering: Section 2 sub-headings MUST be `2.1`, `2.2`, `2.3...`; Section 3 sub-headings MUST be `3.1`, `3.2`, `3.3...`; Section 4 sub-headings MUST be `4.1`, `4.2...`.
 
-8. MINIMAL ITALIC TEXT DIRECTIVE:
-   - Minimize italic text (`<i>`, `<em>`). Only use italics for captions directly below images/diagrams (e.g., `<p class="text-center text-sm text-slate-500 italic mt-3">Diagram caption...</p>`).
+8. STRICT UNNECESSARY ITALIC BAN & CLEAN CAPTION CONTRACT:
+   - 🚨 100% BAN ON UNNECESSARY ITALIC TEXT 🚨: 100% FORBIDDEN to use italics (`<i>`, `<em>`, `*text*`) in paragraphs, bullet lists, sub-headings, bold technical terms, or callouts. Italics are ONLY allowed in image captions directly below images (`<p class="text-center text-sm text-slate-500 italic mt-3">...</p>`).
+   - 🚨 NO META-TEXT IN IMAGE CAPTIONS 🚨: Image captions MUST NOT contain meta phrases like "Sơ đồ 2D flat vector minh họa...", "Hình ảnh 2D...". Write direct, clear, professional descriptions (e.g., `Hình 1.1: Quy trình xử lý tự động hàng loạt đơn hàng trong hệ thống siêu thị SuperMart.`).
+   - 🚨 NO TITLE BANNERS OVERLAID ON IMAGES 🚨: Image prompts MUST NOT render big title banners, course names, or lesson header text on top of visual illustrations. Keep generated visual images focused purely on visual infographics, scene illustrations, and workflow graphics!
 
 9. CONTEXT-AWARE THEORY INTEGRATION DIRECTIVE:
    - In Section 2 (`knowledge_html`), integrate visual snippets matching topic nature:
@@ -548,6 +668,11 @@ MANDATORY RULES & DIRECTIVES:
 22. VISUALIZER CODE SYNTAX HIGHLIGHTING & NO LINE NUMBERS CONTRACT:
     - Code lines displayed inside the Step-by-Step Visualizer panel MUST use syntax highlighting matching the language (e.g., `<span class="kw">for</span>`, `<span class="fn">print</span>`, `<span class="num">10</span>`, `<span class="str">"text"</span>`).
     - 🚨 FATAL UX ERROR 🚨: ABSOLUTELY FORBIDDEN to wrap visualizer section headers (like 'Mã nguồn thi hành', 'Màn hình Console') inside `<pre><code>` tags or fake macOS code cards (`bg-slate-800` / `bg-slate-900`)! 
+
+23. MANDATORY SINGLE UNIFIED REAL-WORLD DEMO SCENARIO CONTRACT:
+    - 🚨 SINGLE UNIFIED DEMO SCENARIO CONTRACT 🚨: You MUST select ONE unified concrete real-world business scenario in Section 1 (e.g. ShopeeFood Order Checkout & Voucher System, E-commerce Cart Calculation, Student Scholarship Evaluation, or Banking Fraud Detection).
+    - 100% of code snippets, live sandboxes, syntax cards, and step visualizers across Section 2 (2.1, 2.2, 2.3, 2.4) and Section 3 (3.1, 3.2, 3.3...) MUST progressively expand on THAT EXACT SAME UNIFIED SCENARIO using consistent variable names and domain logic.
+    - ABSOLUTELY FORBIDDEN to switch to disjointed, random example topics (e.g., Cinema age check in 3.1, Student scholarship in 3.2, Banking Fraud in 3.3) within the same lesson!
       BAD: `<pre><code>Mã nguồn đang thực thi</code></pre>`
       BAD: `<div class="bg-slate-900 ...">Mã nguồn đang thực thi</div>`
       GOOD: `<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn đang thực thi</div>`
@@ -606,14 +731,15 @@ MANDATORY RULES & DIRECTIVES:
       * Standalone section containing external authoritative documentation links.
     - 🚨 ABSOLUTELY FORBIDDEN TO CREATE SELF-TEST QUIZ WIDGETS 🚨: DO NOT embed interactive self-test quiz forms in reading.html (reading questions are strictly separated into dedicated `reading_questions.md` files).
 
-32. STRICT SCOPE BOUNDARY & UNLEARNED SYNTAX BAN CONTRACT:
-    - ALWAYS strictly check session knowledge scope (`session_id`) before generating code snippets.
+32. STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (MULTI-SUBJECT & TECH-AGNOSTIC):
+    - ALWAYS strictly evaluate the current session knowledge scope (`session_id`, `lesson_id`, `lesson_title`, `tech_stack`).
     - 🚨 ABSOLUTELY FORBIDDEN TO LEAK UNLEARNED FUTURE SYNTAX 🚨:
-      * For early sessions (Sessions 01-05): 100% FORBIDDEN to use `def` function declarations, type annotations (`: float`), `return` statements, `class` objects, or advanced data structures (`dict`/`set`) that have NOT been taught yet!
-      * Code examples MUST use plain linear variables, basic conditionals (`if/elif/else`), simple arithmetic, and `print()` calls matching student progress level.
+      * For early or introductory lessons of ANY subject or tech stack (e.g., Session 01-05 of Python, JS, Java, C++, SQL, Git, Docker, System Design):
+        - 100% FORBIDDEN to use advanced data structures (e.g. List, Dict, Map, Pointer, Struct, Class, Async/Await), complex framework methods, or untaught helper functions that have NOT been covered in earlier lessons.
+        - All code examples MUST strictly use only the fundamental keywords, basic types, and primitives taught up to the current lesson.
 
 33. MANDATORY PROBLEM REQUIREMENT BOX ABOVE EVERY CODE DEMO & SINGLE UNIFIED SCENARIO CONTRACT:
-    - 🚨 SINGLE UNIFIED SCENARIO 🚨: 100% of code examples in Section 2 and Section 3 MUST progressively build on the EXACT SAME UNIFIED REAL-WORLD SCENARIO chosen in Section 1 (e.g., E-commerce order checkout & discount calculation). ABSOLUTELY FORBIDDEN to switch to unrelated random examples!
+    - 🚨 SINGLE UNIFIED SCENARIO 🚨: 100% of code examples in Section 2 and Section 3 MUST progressively build on the EXACT SAME UNIFIED REAL-WORLD SCENARIO chosen in Section 1 (e.g., E-commerce order checkout, Student Grade Evaluation, Bank Loan Qualification, Inventory Alert). ABSOLUTELY FORBIDDEN to switch to unrelated random examples!
     - 🎯 PROBLEM REQUIREMENT BOX ABOVE EVERY DEMO 🎯: Directly ABOVE every Live Code Sandbox (in Section 2 and Section 3), you MUST insert a clear Problem Requirement Callout Box (`<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Description...</p></div>`) explaining exactly what the upcoming code demo requires and aims to accomplish.
 
 34. 100% ACCENTED VIETNAMESE CODE COMMENTS CONTRACT:
@@ -621,32 +747,58 @@ MANDATORY RULES & DIRECTIVES:
     - ABSOLUTELY FORBIDDEN to use English code comments (e.g., `# Progressive Demo`, `# Executed if condition is True`, `# Production call demo`).
 
 35. INTERACTIVE STEP VISUALIZER UX STANDARD CONTRACT:
-    - 🚨 STRICT LIGHT THEME & NO LINE NUMBERS 🚨: Step-by-Step Execution Visualizers in Section 2.4 MUST use clean Light Theme (`bg-slate-50 border border-slate-200 shadow-sm text-slate-800`), NO line numbers in code display, high-contrast light emerald line highlights (`#d1fae5` bg, `#059669` left border).
-    - 🎛️ LIVE VALUE SLIDER & BADGES 🎛️: Include a smooth Range Slider (`<input type="range">`) for input value adjustments, dynamic True/False condition badges (`🟢 True - KHỚP!`, `❌ False - Bỏ qua`), and Speed Selectors (`1.5s`, `1.0s`, `0.5s`).
+    - 🚨 MANDATORY SECTION 2.4 STEP VISUALIZER 🚨: Every executable lesson MUST include Section 2.4 HTML in `section2_4_html` containing a complete, high-contrast Step-by-Step Execution Visualizer (`<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>...`).
+    - 🚨 STRICT LIGHT THEME & NO LINE NUMBERS 🚨: Step-by-Step Execution Visualizers MUST use clean Light Theme (`bg-slate-50 border border-slate-200 shadow-sm text-slate-800`), NO line numbers in code display, high-contrast light emerald line highlights (`#d1fae5` bg, `#059669` left border).
+    - 🎛️ LIVE VALUE SLIDER & BADGES 🎛️: Include a smooth Range Slider (`<input type="range">`) for input value adjustments, dynamic True/False condition badges (`🟢 True - KHỚP!`, `❌ False - Bỏ qua`), preset sample buttons, and Speed Selectors (`1.5s`, `1.0s`, `0.5s`).
 
-Return pure JSON data with fields (MUST NOT omit `section1_title` and `section2_title`):
+36. ENTERPRISE IT IMAGE GENERATION SKILL CONTRACT (5 GOLDEN RULES):
+    - 🚫 RULE 1: ZERO BIG TITLE BANNERS & ZERO DETAILED CODE SNIPPETS 🚫:
+      * NO BIG TITLE OVERLAYS: ABSOLUTELY FORBIDDEN to render giant title headers (e.g. `HỆ THỐNG XỬ LÝ ĐƠN HÀNG`) at the top of generated images.
+      * NO DETAILED CODE BLOCKS: ABSOLUTELY FORBIDDEN to show long code snippets (`for order_number in range(5)...`) inside pixel graphics! Code inside images causes spelling artifacts (e.g. `teraton`, `stem`) and clutter. Code belongs exclusively inside HTML code sandboxes.
+    - 🎯 RULE 2: FOCUS ON BUSINESS PROBLEM & WORKFLOW SCENARIO 🎯:
+      * Graphics MUST illustrate the **Real-World Business Context / Problem Scenario** (e.g. Supermarket Checkout Conveyor ➔ Scanner ➔ Invoice Payment ➔ Delivery) or **Input ➔ Process ➔ Output (I-P-O)** workflow.
+      * Use clean visual icons, numbered step badges (`1`, `2`, `3`), and short labels instead of code lines.
+    - 🛠️ RULE 3: TECH-STACK ADAPTIVE ILLUSTRATION DESIGN PATTERNS 🛠️:
+      * Programming (Python, JS, Java, C++): 2D real-world business object workflow (Orders, Accounts, Inventory, Tax Engine).
+      * Databases (SQL, NoSQL): 2D Data Pipelines, Schema Tables, B-Tree Indexing, Query Flow.
+      * DevOps & Cloud (Git, Docker, CI/CD): 2D Container Docks, Git Branch Trees, Pipeline Stages (Build ➔ Test ➔ Deploy).
+      * Web/APIs (REST, Microservices): 2D Request-Response Flow between Client App, API Gateway, and Backend Services.
+      * Security & Architecture (Redis, Auth, Load Balancer): 2D Traffic Distribution, Cache Hit/Miss, Authentication Handshake.
+    - 🎨 RULE 4: HARMONIOUS 2D FLAT VECTOR PALETTE & TYPOGRAPHY 🎨:
+      * 100% Clean 2D Flat Vector Corporate Infographic style.
+      * Palette: Corporate Navy `#0f172a`, Slate Gray `#64748b`, Soft Emerald `#059669`, Accent Red `#be111c` on clean light background (`#f8fafc`).
+    - 🔤 RULE 5: BILINGUAL BALANCE CONTRACT 🔤:
+      * Step descriptions & UI labels inside graphics: 100% Accented Vietnamese (`QUÉT MÃ SẢN PHẨM`, `KIỂM TRA HÀNG TỒN`, `IN HÓA ĐƠN`, `GIỜ GIAO HÀNG`).
+      * Technical terms & keywords only: Standard English (`Python`, `range()`, `RAM`, `CPU`, `SQL`, `Docker`, `API`).
+
+Return pure JSON data with fields (MUST NOT omit `section1_title`, `section2_title`, and `section2_4_html`):
 {{
   "section1_title": "Dynamic Section 1 title matching lesson topic in Accented Vietnamese (e.g., 'Tại sao cần dùng hàm?')",
-  "section2_title": "Dynamic Section 2 title detailing knowledge concept in Accented Vietnamese (e.g., 'Cú pháp và cơ chế hoạt động của hàm')",
-  "problem_html": "<p class=\"text-slate-600 dark:text-slate-300 mb-4 leading-relaxed\">Section 1 HTML content in Accented Vietnamese...</p>",
+  "section2_title": "Dynamic Section 2 title detailing knowledge concept in Accented Vietnamese (e.g., 'Cú pháp và cơ chế hoạt động')",
+  "problem_html": "<p class=\"text-slate-600 mb-4 leading-relaxed\">Section 1 HTML content in Accented Vietnamese...</p>",
   "diagram_svg": "<svg viewBox=\"0 0 800 250\" class=\"w-full h-auto rikkei-diagram\">...</svg>",
-  "knowledge_html": "<h3 class=\"text-xl font-bold text-slate-900 dark:text-white mb-3\">2.1. Subheading title...</h3><p class=\"text-slate-600 dark:text-slate-300 mb-4 leading-relaxed\">Section 2 HTML content in Accented Vietnamese...</p>",
+  "knowledge_html": "<h3 id=\"sec-2-1\" class=\"text-xl font-bold text-slate-900 mb-3\">2.1. Subheading title...</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Section 2 HTML content in Accented Vietnamese...</p>",
+  "section2_4_html": "<h3 id=\"sec-2-4-mo-phong-co-che-van-hanh-tung-buoc\" class=\"font-montserrat font-bold text-xl text-slate-900 mb-3\">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Mô tả...</p><div class=\"p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800\">...</div>",
   "example_code": "Combined executable code snippet in target tech stack language",
-  "example_html": "<h3 class=\"text-xl font-bold text-slate-900 dark:text-white mb-3\">3.1. Example 1 (Minimal syntax)...</h3><p class=\"text-slate-600 dark:text-slate-300 mb-4 leading-relaxed\">Explanation in Accented Vietnamese...</p><pre><code class=\"language-TECH\">Code snippet 1</code></pre>",
-  "notes_html": "<div class=\"p-4 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/60 dark:bg-rose-950/30 my-4\"><h4 class=\"text-lg font-bold text-rose-900 dark:text-rose-200 mb-2 flex items-center gap-2\"><i class=\"ph-bold ph-warning-circle text-rose-600\"></i> 4.1. Common Gotchas & Pitfalls...</h4></div>",
+  "example_html": "<h3 id=\"sec-3-1\" class=\"text-xl font-bold text-slate-900 mb-3\">3.1. Example 1 (Minimal syntax)...</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Explanation in Accented Vietnamese...</p><pre><code class=\"language-{tech_stack}\">Code snippet 1</code></pre>",
+  "notes_html": "<div class=\"p-4 rounded-xl border border-rose-200 bg-rose-50/60 my-4\"><h4 class=\"text-lg font-bold text-rose-900 mb-2 flex items-center gap-2\"><i class=\"ph-bold ph-warning-circle text-rose-600\"></i> 4.1. Common Gotchas & Pitfalls...</h4></div>",
   "references": [
     {{"title": "Official authoritative documentation title", "url": "https://..."}}
   ]
 }}"""
 
-    user_prompt = f"""Author detailed reading material content for:
+    user_prompt = f"""Author detailed, exhaustive reading material content for:
 Session: {session_id}
 Lesson: {lesson_id} - {lesson_title}
 Lesson Details: {lesson_details}
 Expected Output: {expected_output}
 Target Technology Stack: {tech_stack}
 
-MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content strictly adhering to the schema."""
+MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
+1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants, mechanism breakdowns, and bullet point explanations. Under each sub-section, include an enterprise problem callout box and a code sandbox snippet in {tech_stack}.
+2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax, 3.2 Business logic, 3.3 Enterprise scenario). Each example MUST contain an executable code block (`<pre><code class="language-{tech_stack}">...</code></pre>`).
+3. STRICT SCOPE BOUNDARY RULE: Check the current session/lesson title. For Session 06 Lesson 01 ("Khái niệm vòng lặp và câu lệnh for và hàm range"), ABSOLUTELY DO NOT use List data structures (`[...]`), List iteration (`for x in my_list`), Dictionaries (`{...}`), or `enumerate()`. Lists/Dicts are taught in later sessions. All code examples for Session 06 Lesson 01 MUST strictly use `range()` and string character iteration ONLY.
+4. Return ONLY raw pure JSON strictly adhering to the schema."""
 
     llm_resp = call_llm(
         system_prompt,
@@ -789,6 +941,11 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         if not html_str: return ""
         # Strip all dark: Tailwind classes completely (e.g. dark:bg-slate-900, dark:text-slate-200, dark:bg-rikkei-bgDark)
         c = re.sub(r'\bdark:[a-zA-Z0-9_/-]+\b', '', html_str)
+        # Auto-sanitize AI cliché words
+        c = re.sub(r'\bvô cùng\b', 'cực kỳ', c, flags=re.IGNORECASE)
+        c = re.sub(r'\btuyệt vời\b', 'hiệu quả', c, flags=re.IGNORECASE)
+        c = re.sub(r'\bbậc nhất\b', 'hàng đầu', c, flags=re.IGNORECASE)
+        c = re.sub(r'\bbí kíp\b', 'quy tắc', c, flags=re.IGNORECASE)
         # Strip light text classes inside normal text blocks meant for dark backgrounds
         c = re.sub(r'\b(text-slate-100|text-slate-200|text-slate-300|text-slate-400|text-white)\b', 'text-slate-700', c)
 
@@ -846,11 +1003,22 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         c = re.sub(r'onclick="(?:\s*javascript:)?\s*(?:vizStepPrev|vizPrevStep|vizPrev|vizStepBackward|vizBackward|stepPrev|prevStep)\s*\(\s*\)"', 'onclick="runVizStep(-1)"', c, flags=re.IGNORECASE)
         c = re.sub(r'onclick="(?:\s*javascript:)?\s*(?:vizReset|vizRestart|resetVisualizer|resetViz)\s*\(\s*\)"', 'onclick="runVizStep(-999)"', c, flags=re.IGNORECASE)
 
+        # Fix unescaped quotes inside Javascript script tags that cause syntax error "Unexpected keyword or identifier"
+        c = re.sub(r'consoleEl\.innerText\s*=\s*"> Sẵn sàng chạy mô phỏng[^"]*";', "consoleEl.innerText = '> Sẵn sàng chạy mô phỏng từng bước. Bấm \\'Tiếp theo\\' để bắt đầu...';", c)
+        
         # Auto-attach onclick handlers to visualizer buttons if missing
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Lùi lại|Quay lại|Trở về)\s*</button>', r'\1 onclick="runVizStep(-1)">Lùi lại</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tiếp theo|Kế tiếp|Chạy tiếp)\s*</button>', r'\1 onclick="runVizStep(1)">Tiếp theo</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tự động chạy|Auto Play)\s*</button>', r'\1 onclick="vizToggleAuto()">Tự động chạy</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Thử lại|Đặt lại|Reset)\s*</button>', r'\1 onclick="runVizStep(-999)">Thử lại</button>', c, flags=re.IGNORECASE)
+
+        # 🚨 ABSOLUTE ZERO ITALICS CONTRACT 🚨: Strip all <i> and <em> tags completely everywhere
+        c = re.sub(r'<(?:i|em)\b[^>]*>(.*?)</(?:i|em)>', r'\1', c, flags=re.IGNORECASE)
+        # Strip Tailwind 'italic' class from all elements
+        c = re.sub(r'\bitalic\b', '', c)
+
+        # Clean meta-phrases from image captions (replace "Sơ đồ 2D flat vector..." with clean "Hình 1.1: Quy trình...")
+        c = re.sub(r'(?:Sơ đồ 2D flat vector minh họa|Hình ảnh 2D flat vector minh họa|Minh họa 2D flat vector|Sơ đồ 2D|Minh họa 2D|Sơ đồ minh họa)\s*(?:quy trình|ngữ cảnh thực tế cho bài học|cho)?\s*', 'Hình 1.1: Quy trình ', c, flags=re.IGNORECASE)
 
         # Fix text contrast on colored/dark buttons: replace text-slate-700 / text-slate-800 on dark backgrounds with text-white
         c = re.sub(r'class="([^"]*\b(?:bg-\[#[a-fA-F0-9]+\]|bg-emerald-\d+|bg-rose-\d+|bg-blue-\d+|bg-rikkei-\w+|bg-amber-\d+)\b[^"]*)\btext-slate-[678]00\b', r'class="\1text-white', c)
@@ -913,17 +1081,43 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
         return c
 
 
+
+
+
     # Apply Diagram & Syntax Guards (Problem 1 Requirement 1.3)
     prob_html = clean_stray_chars(guard_mermaid_syntax(ensure_html(data.get("problem_html") or data.get("problem_text", ""))))
+    # Strip any LLM-hallucinated <img> tags and image wrappers inside prob_html to prevent duplicate/broken images
+    prob_html = re.sub(r'<div\s+class="[^"]*my-6[^"]*text-center[^"]*">\s*<img\b.*?</p>\s*</div>', '', prob_html, flags=re.DOTALL | re.IGNORECASE)
+    prob_html = re.sub(r'<img\b[^>]*>', '', prob_html, flags=re.IGNORECASE)
     diagram_svg = guard_svg_syntax(data.get("diagram_svg", ""))
     
-    # Prevent duplicate SVG diagrams if LLM put SVG in both prob_html and diagram_svg
-    if diagram_svg and ("<svg" in prob_html or "diagram-wrap" in prob_html or "rikkei-diagram" in prob_html):
-        diagram_svg = ""
+    # 2D Flat Vector Technical Illustration Scene Image (AGENTS.md Directive 4)
+    # Section 1 MUST use clean 2D Flat Vector PNG image dynamically matching the lesson title and tech stack
+    clean_lesson_slug = slugify_id(lesson_title)
+    dynamic_img_name = f"scene_{clean_lesson_slug}.png"
+    
+    # Check if a custom generated image exists in images/ folder, otherwise fallback to dynamic vector infographic tag
+    diagram_svg = f"""<div class="my-6 text-center">
+  <img src="images/{dynamic_img_name}" alt="Hình minh họa cho {lesson_title}" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" onerror="this.onerror=null; this.src='images/lesson01_for_loop_scene.png';" />
+  <p class="text-center text-sm text-slate-600 font-medium mt-3">Hình 1.1: Quy trình xử lý tự động thực tế trong bài học {lesson_title}.</p>
+</div>"""
 
     know_html = clean_stray_chars(inject_subheading_ids(guard_mermaid_syntax(ensure_html(data.get("knowledge_html") or data.get("knowledge_text", "")))))
+    
+    # Ensure Section 2.4 Step Visualizer is present in know_html
+    section2_4 = data.get("section2_4_html", "").strip()
+    if not section2_4 or "sec-2-4" not in section2_4:
+        section2_4 = generate_universal_step_visualizer(lesson_title, tech_stack, data.get("example_code", ""))
+    know_html = know_html + "\n" + clean_stray_chars(inject_subheading_ids(section2_4))
+
     ex_text = clean_stray_chars(inject_subheading_ids(guard_mermaid_syntax(ensure_html(data.get("example_html") or data.get("example_text", "")))))
     notes_html = clean_stray_chars(ensure_html(data.get("notes_html") or data.get("notes_text", "")))
+
+    # Strip LLM hallucinated duplicate main section headers inside section payloads
+    prob_html = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:1\.|\bSection\s+1\b)?\s*(?:Đặt vấn đề|Problem Statement)?\s*</(?:h1|h2|h3)>', '', prob_html, flags=re.IGNORECASE).strip()
+    know_html = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:2\.|\bSection\s+2\b)?\s*(?:Giới thiệu kiến thức|Cú pháp)?\s*</(?:h1|h2|h3)>', '', know_html, flags=re.IGNORECASE).strip()
+    ex_text = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:3\.|\bSection\s+3\b)?\s*(?:Các ví dụ ứng dụng thực tiễn|Ví dụ)?\s*</(?:h1|h2|h3)>', '', ex_text, flags=re.IGNORECASE).strip()
+    notes_html = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:4\.|\bSection\s+4\b)?\s*(?:Tổng kết bài học|Tổng kết)?\s*</(?:h1|h2|h3)>', '', notes_html, flags=re.IGNORECASE).strip()
 
     # Resolve Language Info from Tech Stack (Problem 1 Requirement 1.2)
     lang_info = resolve_language_info(tech_stack)
@@ -1165,591 +1359,38 @@ MANDATORY OUTPUT CONTRACT: Return ONLY raw pure JSON containing HTML content str
     # Problem 2.4: Strip LLM hallucinated line numbers inside mechanism visualizer code block
     know_html = re.sub(r'(<div[^>]*id="line-\d+"[^>]*>)\s*\d+\.\s*', r'\1', know_html)
 
+    # Dynamic 2-Tier Sidebar TOC navigation links
+    sidebar_toc_nav = extract_2tier_toc(know_html, ex_text, section1_title, section2_title)
+
     # Problem 3.3: Sanitize References and inject canonical docs if missing
     refs_items = sanitize_references(data.get("references", []), tech_stack)
-    refs_html = ""
-    for ref in refs_items:
-        r_title = html.escape(ref.get("title", ""))
-        r_url = ref.get("url", "#")
-        refs_html += f"""
-        <li>
-          <a href="{r_url}" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
-            <i class="ph-bold ph-link text-sm"></i> {r_title}
-          </a>
-        </li>
-        """
-
-    core_ssot = state.get("core_ssot", {}) if isinstance(state, dict) else {}
-    session_title_display = state.get("session_title") or core_ssot.get("session_title") or session_id
-    clean_h1_title = re.sub(r'^(?:Session\s+\d+\s*[-:]\s*)?(?:Lesson|Bài)\s+\d+\s*[-:]\s*', '', lesson_title, flags=re.IGNORECASE).strip()
-
-    full_html = f"""<!DOCTYPE html>
-<html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{lesson_title} - Rikkei Education</title>
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {{
-        theme: {{
-          extend: {{
-            colors: {{
-              rikkei: {{
-                red: "#be111c",
-                darkred: "#90000a",
-                dark: "#0f172a",
-              }},
-            }},
-            fontFamily: {{
-              sans: ["Inter", "system-ui", "sans-serif"],
-              montserrat: ["Montserrat", "sans-serif"],
-              mono: ["JetBrains Mono", "monospace"],
-            }},
-            maxWidth: {{
-              340: "1360px",
-            }},
-          }},
-        }},
-      }};
-    </script>
-
-    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
-
-    <!-- Pyodide Engine for Live Wasm Python Sandbox -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
-
-
-    <style>
-
-      html {{
-        scroll-behavior: smooth;
-        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
-      }}
-
-      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
-      .rikkei-diagram, svg.rikkei-diagram {{
-        max-width: 100%;
-        height: auto;
-        display: block;
-        overflow: hidden;
-      }}
-      .rikkei-diagram text, svg.rikkei-diagram text {{
-        font-family: "Inter", system-ui, sans-serif;
-        overflow: hidden;
-      }}
-      .diagram-wrap {{
-        width: 100%;
-        max-width: 100%;
-        overflow: hidden;
-        border-radius: 0.75rem;
-      }}
-      div.my-6 svg, section svg, article svg {{
-        max-width: 100%;
-        height: auto;
-        overflow: hidden;
-      }}
-
-      /* 2. TABLE - Prevent table overflow on all screens */
-      table {{
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-      }}
-      th, td {{
-        word-break: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-      }}
-
-      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
-      h1, h2, h3, h4, h5, h6 {{
-        color: #0f172a !important;
-      }}
-      p, li, td, th {{
-        color: #334155 !important;
-      }}
-      .toc-link, .mobile-toc-link {{
-        color: #475569 !important;
-      }}
-      .toc-link:hover, .mobile-toc-link:hover {{
-        color: #0f172a !important;
-      }}
-      .bg-amber-50 *, .bg-rose-50 *, .bg-emerald-50 *, .bg-sky-50 * {{
-        color: #1e293b !important;
-      }}
-
-      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
-      [id*="mech"] p, [id*="mech"] div, [id*="visualizer"] div {{
-        color: #1e293b;
-      }}
-      [id*="mech-line"]:not(.active-line), [id*="line-"]:not(.active-line) {{
-        color: #475569 !important;
-        opacity: 1 !important;
-        font-weight: 500 !important;
-      }}
-      .kw {{ color: #cf222e !important; font-weight: bold !important; }}
-      .str {{ color: #0a3069 !important; }}
-      .num {{ color: #0550ae !important; font-weight: 600 !important; }}
-      .fn {{ color: #8250df !important; font-weight: 600 !important; }}
-      .cmt {{ color: #6e7781 !important; font-style: italic !important; }}
-
-      code:not(.hljs):not([class*="language"]) {{
-        background-color: #f1f5f9 !important;
-        color: #be111c !important;
-        padding: 0.125rem 0.375rem !important;
-        border-radius: 0.25rem !important;
-        font-family: "JetBrains Mono", monospace !important;
-        font-size: 0.875rem !important;
-      }}
-
-      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
-      .sandbox-editor {{
-        min-height: 6rem;
-        font-family: "JetBrains Mono", monospace;
-        font-size: 0.875rem;
-        line-height: 1.6;
-        background-color: #f8fafc;
-        color: #0f172a;
-      }}
-
-      pre code.hljs {{
-        padding: 1.25rem !important;
-        border-radius: 0.75rem !important;
-        font-family: "JetBrains Mono", monospace !important;
-        font-size: 0.875rem !important;
-        line-height: 1.6 !important;
-        background: #f8fafc !important;
-      }}
-
-      pre span, code span {{
-        background-color: transparent !important;
-      }}
-
-
-      pre {{
-        white-space: pre-wrap;
-        word-break: break-all;
-        overflow-wrap: break-word;
-      }}
-
-
-      /* 9. STRAY CHARACTER PREVENTION */
-      body > *:not(header):not(main):not(script):not(style):not(#mobile-toc-toggle):not(#mobile-toc-drawer) {{
-        display: none !important;
-      }}
-    </style>
-  </head>
-  <body class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
-    <!-- Fixed Header -->
-    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
-      <div class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
-          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">{session_title_display}</span>
-        </div>
-      </div>
-      <div class="w-full h-1 bg-slate-100">
-        <div id="scroll-progress" class="h-full w-0 bg-rikkei-red transition-all duration-75"></div>
-      </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
-      <!-- Sidebar Table of Contents (Left Desktop) -->
-      <aside class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
-        <div class="space-y-4">
-          <h4 class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2">
-            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài đọc
-          </h4>
-          <nav class="flex flex-col border-l border-slate-200 space-y-1 text-sm">
-            <a href="#section-1" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">1. {section1_title}</a>
-            <a href="#section-2" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">2. {section2_title}</a>
-            <a href="#section-3" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">3. Các ví dụ ứng dụng thực tiễn</a>
-            <a href="#section-4" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">4. Tổng kết bài học</a>
-            <a href="#section-5" class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all">5. Tài liệu tham khảo</a>
-          </nav>
-        </div>
-      </aside>
-
-      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
-      <button id="mobile-toc-toggle" onclick="toggleMobileToc()" class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" title="Mở mục lục bài đọc">
-        <i class="ph-bold ph-list text-xl"></i>
-      </button>
-
-      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
-      <div id="mobile-toc-drawer" class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300">
-        <div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
-              <h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC</h4>
-              <button onclick="toggleMobileToc()" class="p-1 rounded text-slate-400 hover:text-slate-600"><i class="ph-bold ph-x text-lg"></i></button>
-            </div>
-            <nav class="flex flex-col space-y-2 text-sm">
-              <a href="#section-1" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">1. {section1_title}</a>
-              <a href="#section-2" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">2. {section2_title}</a>
-              <a href="#section-3" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">3. Các ví dụ ứng dụng thực tiễn</a>
-              <a href="#section-4" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">4. Tổng kết bài học</a>
-              <a href="#section-5" onclick="toggleMobileToc()" class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100">5. Tài liệu tham khảo</a>
-            </nav>
-          </div>
-          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">Rikkei Education - Learning Material</div>
-        </div>
-      </div>
-
-      <!-- Reading Content (Right/Center) -->
-      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
-        <!-- Article Title -->
-        <div class="border-b border-slate-200 pb-6 mb-8">
-          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">{clean_h1_title}</h1>
-        </div>
-
-        <!-- Section 1: Đặt vấn đề -->
-        <section id="section-1" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. {section1_title}</h2>
-          <div class="space-y-4">{prob_html}</div>
-          <div class="my-6">{diagram_svg}</div>
-        </section>
-
-        <!-- Section 2: Giới thiệu kiến thức -->
-        <section id="section-2" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. {section2_title}</h2>
-          <div class="space-y-4">{know_html}</div>
-        </section>
-
-        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
-        <section id="section-3" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ ứng dụng thực tiễn</h2>
-          <div class="space-y-6">{ex_text}</div>
-        </section>
-
-        <!-- Section 4: Tổng kết bài học -->
-        <section id="section-4" class="mb-10 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Tổng kết bài học</h2>
-          <div class="space-y-4">
-            {notes_html}
-          </div>
-        </section>
-
-        <!-- Section 5: Tài liệu tham khảo -->
-        <section id="section-5" class="mb-6 scroll-mt-24">
-          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo</h2>
-          <div class="pt-2">
-            <ul class="space-y-2 list-none pl-0">{refs_html}</ul>
-          </div>
-        </section>
-      </article>
-    </main>
-
-    <script>
-      function toggleMobileToc() {{
-        const drawer = document.getElementById("mobile-toc-drawer");
-        if (drawer) drawer.classList.toggle("hidden");
-      }}
-
-      // (HLJS initialization moved to second DOMContentLoaded handler below)
-
-      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
-      const themeToggleBtn = document.getElementById("theme-toggle");
-      const themeIcon = document.getElementById("theme-icon");
-      const hljsLightTheme = document.getElementById("hljs-light-theme");
-      const hljsDarkTheme  = document.getElementById("hljs-dark-theme");
-
-      function applyHljsTheme(isDark) {{
-        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
-        if (hljsDarkTheme)  hljsDarkTheme.disabled  = !isDark;
-        // Re-highlight all code blocks so new theme tokens take effect immediately
-        if (window.hljs) {{
-          document.querySelectorAll('pre code').forEach((block) => {{
-            block.removeAttribute('data-highlighted');
-            hljs.highlightElement(block);
-          }});
-        }}
-      }}
-
-      themeToggleBtn?.addEventListener("click", () => {{
-        document.documentElement.classList.toggle("dark");
-        const isDark = document.documentElement.classList.contains("dark");
-        themeIcon.className = isDark ? "ph-bold ph-sun text-lg text-amber-400" : "ph-bold ph-moon text-lg text-slate-600";
-        applyHljsTheme(isDark);
-      }});
-
-      // Scroll progress script
-      window.addEventListener("scroll", () => {{
-        const winScroll = document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        const progress = document.getElementById("scroll-progress");
-        if (progress) progress.style.width = scrolled + "%";
-      }});
-
-      // Table of Contents Active Scroll Observer
-      document.addEventListener("DOMContentLoaded", () => {{
-        const observerOptions = {{
-          root: null,
-          rootMargin: "-20% 0px -60% 0px",
-          threshold: 0
-        }};
-
-        const tocLinks = document.querySelectorAll(".toc-link, .mobile-toc-link");
-        const sections = document.querySelectorAll("article section[id]");
-
-        const observer = new IntersectionObserver((entries) => {{
-          entries.forEach((entry) => {{
-            if (entry.isIntersecting) {{
-              const id = entry.target.getAttribute("id");
-              tocLinks.forEach((link) => {{
-                const href = link.getAttribute("href");
-                if (href === `#${{id}}`) {{
-                  link.classList.add("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
-                  link.classList.remove("border-transparent", "text-slate-600");
-                }} else {{
-                  link.classList.remove("!border-rikkei-red", "!text-rikkei-red", "font-semibold");
-                  link.classList.add("border-transparent", "text-slate-600");
-                }}
-              }});
-            }}
-          }});
-        }}, observerOptions);
-
-        sections.forEach((section) => observer.observe(section));
-
-        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
-        if (window.hljs) {{
-          document.querySelectorAll('pre code').forEach((block) => {{
-            block.removeAttribute('data-highlighted');
-            hljs.highlightElement(block);
-          }});
-        }}
-      }});
-
-      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
-      let pyodideInstance = null;
-      async function getPyodide() {{
-        if (!pyodideInstance && window.loadPyodide) {{
-          pyodideInstance = await window.loadPyodide();
-        }}
-        return pyodideInstance;
-      }}
-
-      async function runPythonCode(editorId, outputId, containerId) {{
-        const editor = document.getElementById(editorId);
-        const output = document.getElementById(outputId);
-        const container = document.getElementById(containerId);
-        if (!editor || !output) return;
-
-        if (container) container.classList.remove("hidden");
-        const code = editor.innerText || editor.textContent;
-        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
-
-        try {{
-          const pyodide = await getPyodide();
-          if (!pyodide) {{
-            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
-            return;
-          }}
-          let outputBuffer = "";
-          pyodide.setStdout({{ batched: (str) => {{ outputBuffer += str + "\\n"; }} }});
-          pyodide.setStderr({{ batched: (str) => {{ outputBuffer += "ERROR: " + str + "\\n"; }} }});
-
-          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
-          try {{
-            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
-          }} catch(e) {{}}
-
-          await pyodide.runPythonAsync(code);
-          output.innerText = outputBuffer.trim ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
-        }} catch (err) {{
-          output.innerText = "LỖI THỰC THI:\\n" + err;
-        }}
-      }}
-
-      function clearSandbox(editorId, outputId, containerId) {{
-        const editor = document.getElementById(editorId);
-        const output = document.getElementById(outputId);
-        const container = document.getElementById(containerId);
-        if (editor) {{
-          const orig = editor._originalText || editor.getAttribute("data-original");
-          if (orig) {{
-            editor.textContent = orig;
-            editor.removeAttribute('data-highlighted');
-            if (window.hljs) hljs.highlightElement(editor);
-          }}
-        }}
-        if (output) output.innerText = "";
-        if (container) container.classList.add("hidden");
-      }}
-      document.addEventListener("DOMContentLoaded", () => {{
-        document.querySelectorAll('code[data-original]').forEach(codeEl => {{
-          if (!codeEl._originalText) {{
-            codeEl._originalText = codeEl.textContent;
-          }}
-        }});
-      }});
-
-
-      function copySandboxCode(editorId, btn) {{
-        const editor = document.getElementById(editorId);
-        if (!editor) return;
-        const text = editor.innerText || editor.textContent;
-        navigator.clipboard.writeText(text).then(() => {{
-          const origContent = btn.innerHTML;
-          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
-          setTimeout(() => {{ btn.innerHTML = origContent; }}, 2000);
-        }}).catch(err => {{
-          console.error("Lỗi copy code:", err);
-        }});
-      }}
-
-      // Global Dynamic Visualizer Runner Helpers
-      window.vizStepMap = {{}};
-      window.vizAutoTimer = null;
-
-      function runVizStep(delta, idPrefix) {{
-        idPrefix = idPrefix || "viz";
-
-        var lines = document.querySelectorAll(
-          '[id^="' + idPrefix + '-line-"], [id*="-line-"], [id^="viz-line-"], [id^="mech-line-"]'
-        );
-        var maxSteps = lines.length > 0 ? lines.length : 1;
-
-        if (delta === -999) {{
-          window.vizStepMap[idPrefix] = 0;
-          if (window.vizAutoTimer) {{
-            clearInterval(window.vizAutoTimer);
-            window.vizAutoTimer = null;
-            var btn = document.getElementById("viz-auto-btn");
-            if (btn) btn.textContent = "Tự động chạy";
-          }}
-        }} else if (delta === 0) {{
-          if (window.vizAutoTimer) {{
-            clearInterval(window.vizAutoTimer);
-            window.vizAutoTimer = null;
-            var btn = document.getElementById("viz-auto-btn");
-            if (btn) btn.textContent = "Tự động chạy";
-          }}
-        }} else {{
-          var curr = (window.vizStepMap[idPrefix] || 0) + delta;
-          if (curr > maxSteps) curr = 0;
-          if (curr < 0) curr = 0;
-          window.vizStepMap[idPrefix] = curr;
-        }}
-
-        var step = window.vizStepMap[idPrefix];
-
-        // 1. Highlight active code line dynamically across any lesson or tech stack
-        lines.forEach(function(el) {{
-          el.style.backgroundColor = '';
-          el.style.borderLeft = '4px solid transparent';
-          el.style.fontWeight = 'normal';
-          el.style.color = '';
-          el.classList.remove('active-line');
-        }});
-
-        if (step > 0 && lines.length >= step) {{
-          var activeEl = lines[step - 1];
-          if (activeEl) {{
-            activeEl.classList.add('active-line');
-            activeEl.style.backgroundColor = '#d1fae5'; // Soft emerald highlight
-            activeEl.style.borderLeft = '4px solid #059669'; // Bold emerald left bar
-            activeEl.style.fontWeight = 'bold';
-            activeEl.style.color = '#064e3b';
-
-            var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
-            if (consoleEl) {{
-              var customMsg = activeEl.getAttribute('data-console');
-              if (customMsg) {{
-                consoleEl.innerText = customMsg;
-              }} else {{
-                var lineText = (activeEl.innerText || activeEl.textContent || "").trim();
-                consoleEl.innerText = "Bước " + step + "/" + maxSteps + ": Thực thi " + lineText;
-              }}
-            }}
-          }}
-        }} else if (step === 0) {{
-          var consoleEl = document.getElementById(idPrefix + "-console") || document.getElementById("viz-console");
-          if (consoleEl) {{
-            consoleEl.innerText = "Sẵn sàng chạy mô phỏng. Bấm \"Tiếp theo\" để bắt đầu.";
-          }}
-        }}
-      }}
-
-      function resetViz(idPrefix) {{
-        idPrefix = idPrefix || "viz";
-        runVizStep(-999, idPrefix);
-      }}
-
-      // Universal Adapter Aliases bridging ALL LLM-generated button handlers to visualizer API
-      function vizAutoRun() {{ vizToggleAuto(); }}
-      function vizAutoStart() {{ vizToggleAuto(); }}
-      function vizStartAuto() {{ vizToggleAuto(); }}
-      function vizRunAuto() {{ vizToggleAuto(); }}
-      function vizStart() {{ runVizStep(1); }}
-      function vizPlay() {{ vizToggleAuto(); }}
-      function vizTogglePlay() {{ vizToggleAuto(); }}
-
-      function vizStepNext() {{ runVizStep(1); }}
-      function vizStepPrev() {{ runVizStep(-1); }}
-      function vizNextStep() {{ runVizStep(1); }}
-      function vizPrevStep() {{ runVizStep(-1); }}
-      function vizNext() {{ runVizStep(1); }}
-      function vizPrev() {{ runVizStep(-1); }}
-      function vizStepForward() {{ runVizStep(1); }}
-      function vizStepBackward() {{ runVizStep(-1); }}
-      function vizForward() {{ runVizStep(1); }}
-      function vizBackward() {{ runVizStep(-1); }}
-      function vizStep() {{ runVizStep(1); }}
-      function vizRun() {{ runVizStep(1); }}
-
-      function stepNext() {{ runVizStep(1); }}
-      function stepPrev() {{ runVizStep(-1); }}
-      function nextStep() {{ runVizStep(1); }}
-      function prevStep() {{ runVizStep(-1); }}
-      function autoRun() {{ vizToggleAuto(); }}
-      function autoPlay() {{ vizToggleAuto(); }}
-      function toggleAuto() {{ vizToggleAuto(); }}
-
-      function vizReset() {{ resetViz(); }}
-      function vizRestart() {{ resetViz(); }}
-      function resetVisualizer() {{ resetViz(); }}
-
-      function vizToggleAuto() {{
-        if (window.vizAutoTimer) {{
-          clearInterval(window.vizAutoTimer);
-          window.vizAutoTimer = null;
-          var btn = document.getElementById("viz-auto-btn");
-          if (btn) btn.textContent = "Tự động chạy";
-        }} else {{
-          window.vizAutoTimer = setInterval(function() {{ runVizStep(1); }}, 1500);
-          var btn = document.getElementById("viz-auto-btn");
-          if (btn) btn.textContent = "Dừng tự động";
-        }}
-      }}
-    </script>
-  </body>
-</html>
-"""
-    print(f"  [Success] Compiled SSOT Master Reading HTML for {session_id} - {lesson_id}")
+    
+    json_payload = {
+        "section_titles": {
+            "sec1": section1_title,
+            "sec2": section2_title,
+            "sec3": "Các ví dụ ứng dụng thực tiễn",
+            "sec4": "Tổng kết bài học & Các lỗi thường gặp",
+            "sec5": "Tài liệu tham khảo & Self-Test"
+        },
+        "sec1_html": prob_html,
+        "sec2_html": know_html,
+        "sec3_html": ex_text,
+        "sec4_html": notes_html,
+        "context_image_url": f"images/{dynamic_img_name}",
+        "reference_links": refs_items,
+        "show_visualizer": True
+    }
+    metadata = {
+        "lesson_title": lesson_title,
+        "tech_stack": tech_stack,
+        "session_id": session_id,
+        "lesson_id": lesson_id
+    }
+    full_html = assemble_reading_html(json_payload, metadata)
+    print(f"  [Success] Compiled SSOT Master Reading HTML via Jinja2 Engine for {session_id} - {lesson_id}")
     return full_html
+
 
 
 def html_writer_agent(state: AgentState) -> AgentState:

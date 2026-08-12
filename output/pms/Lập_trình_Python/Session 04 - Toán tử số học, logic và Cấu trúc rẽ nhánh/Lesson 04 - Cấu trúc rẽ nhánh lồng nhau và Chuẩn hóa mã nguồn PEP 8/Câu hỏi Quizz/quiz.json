@@ -1,57 +1,57 @@
 [
   {
-    "question": "Trong hệ thống thẩm định khoản vay tự động của RikkeiBank, lập trình viên cần viết cấu trúc rẽ nhánh lồng nhau (`if` lồng nhau) để kiểm tra hồ sơ khách hàng. Theo quy chuẩn trình bày mã nguồn PEP 8 của Python, quy định bắt buộc nào sau đây phải được tuân thủ về mặt thụt lề (indentation)?",
+    "question": "Theo quy chuẩn đặt tên biến dành cho Python trong tài liệu PEP 8, cách đặt tên biến nào dưới đây tuân thủ đúng định dạng `snake_case`?",
     "options": [
-      "Sử dụng đúng 4 khoảng trắng (4 spaces) cho mỗi cấp lồng nhau và tuyệt đối không trộn lẫn với phím Tab.",
-      "Sử dụng đúng 2 khoảng trắng (2 spaces) cho mỗi cấp lồng nhau và có thể dùng phím Tab nếu thống nhất.",
-      "Sử dụng phím Tab mặc định cho tất cả các khối lệnh lồng nhau để tối ưu hóa kích thước của tệp mã nguồn.",
-      "Sử dụng linh hoạt từ 2 đến 8 khoảng trắng miễn là các khối lệnh trong cùng một cấp thụt lề bằng nhau."
+      "total_order_amount",
+      "TotalOrderAmount",
+      "totalOrderAmount",
+      "TOTAL_ORDER_AMOUNT"
     ],
     "correct_option_index": 0,
-    "explanation": "Quy chuẩn PEP 8 quy định bắt buộc sử dụng đúng 4 khoảng trắng (4 spaces) cho mỗi cấp thụt lề trong Python. Việc trộn lẫn giữa phím Tab và khoảng trắng hoặc sử dụng sai số lượng space sẽ dẫn đến lỗi cú pháp `IndentationError` khi vận hành."
+    "explanation": "Quy chuẩn PEP 8 quy định tên biến trong Python phải viết bằng chữ cái thường và phân cách giữa các từ bằng dấu gạch dưới `snake_case`."
   },
   {
-    "question": "Trong hệ thống xét duyệt tín dụng, chương trình sử dụng cấu trúc `if` lồng nhau để kiểm tra độ tuổi và thu nhập. Cơ chế thực thi (Execution flow) của trình phiên dịch Python sẽ hoạt động như thế nào khi biểu thức điều kiện `if` ở tầng ngoài cùng đánh giá ra kết quả `False`?",
+    "question": "Theo quy định của chuẩn PEP 8, độ dài thụt lùi dòng (Indentation) tiêu chuẩn cho mỗi cấp khối lệnh rẽ nhánh trong Python là bao nhiêu khoảng trắng?",
     "options": [
-      "Trình phiên dịch dừng chương trình và phát ra cảnh báo mâu thuẫn dữ liệu.",
-      "Trình phiên dịch bỏ qua toàn bộ khối `if` lồng bên trong và chuyển xuống dưới.",
-      "Trình phiên dịch vẫn kiểm tra các điều kiện bên trong rồi mới đưa ra kết luận.",
-      "Trình phiên dịch tạm lưu các điều kiện con vào RAM và chờ bổ sung thông tin."
+      "2 khoảng trắng (spaces)",
+      "4 khoảng trắng (spaces)",
+      "8 khoảng trắng (spaces)",
+      "1 phím Tab tùy chỉnh"
     ],
     "correct_option_index": 1,
-    "explanation": "Theo cơ chế ngắn mạch (short-circuiting) và luồng chạy từ trên xuống, nếu điều kiện `if` ở tầng ngoài trả về `False`, trình phiên dịch Python lập tức bỏ qua toàn bộ khối lệnh lồng bên trong mà không cần đánh giá thêm, giúp tiết kiệm chu kỳ xử lý của CPU."
+    "explanation": "PEP 8 quy định rõ ràng sử dụng đúng 4 khoảng trắng (spaces) cho mỗi cấp độ thụt lùi dòng trong Python."
   },
   {
-    "question": "Kỹ sư phần mềm chạy đoạn mã phân loại gói tín dụng cho một khách hàng cá nhân tại RikkeiBank với các thông số dữ liệu như sau:\n\n```python\nage = 25\ncredit_score = 720\nmonthly_income = 12\n\nstatus = \"REJECTED\"\nif age >= 18:\n    if credit_score >= 700:\n        if monthly_income >= 15:\n            status = \"APPROVED_HIGH\"\n        else:\n            status = \"APPROVED_STANDARD\"\n    else:\n        status = \"NEED_COLLATERAL\"\n\nprint(status)\n```python\nGiá trị của biến `status` được in ra màn hình sau khi đoạn mã trên kết thúc là gì?",
+    "question": "Cho đoạn mã rẽ nhánh lồng nhau trong ShopeeFood như sau:\n\n```python\nis_active = True\namount = 300000\nif is_active:\n    if amount >= 500000:\n        result = \"A\"\n    else:\n        result = \"B\"\nelse:\n    result = \"C\"\n```\n\nGiá trị của biến `result` thu được là bao nhiêu?",
     "options": [
-      "\"REJECTED\"",
-      "\"APPROVED_HIGH\"",
-      "\"APPROVED_STANDARD\"",
-      "\"NEED_COLLATERAL\""
+      "A",
+      "B",
+      "C",
+      "None"
     ],
-    "correct_option_index": 2,
-    "explanation": "Ta lần lượt kiểm tra: `age >= 18` (25 >= 18 là `True`), tiếp tục vào tầng trong `credit_score >= 700` (720 >= 700 là `True`), vào tầng tiếp `monthly_income >= 15` (12 >= 15 là `False`). Do đó nhánh `else` của tầng này được thực thi, gán `status = \"APPROVED_STANDARD\"`."
+    "correct_option_index": 1,
+    "explanation": "`is_active = True` vào vòng trong. Tại vòng trong: `amount >= 500000` (300000 >= 500000) trả về False, do đó thực thi nhánh `else` bên trong và gán `result = 'B'`."
   },
   {
-    "question": "Khi tái cấu trúc (refactoring) mã nguồn hệ thống thẩm định tín dụng, kỹ sư muốn thay thế một cấu trúc rẽ nhánh lồng sâu 4-5 tầng bằng cách sử dụng các câu lệnh kiểm tra điều kiện thoát sớm (Guard Clause). Điểm khác biệt quan trọng nhất về mặt thiết kế mã nguồn giữa hai cách tiếp cận này là gì?",
+    "question": "Kỹ thuật nào dưới đây được khuyến nghị trong PEP 8 để xử lý hiện tượng lồng ghép quá nhiều cấp lệnh `if` (Pyramid of Doom)?",
     "options": [
-      "Cấu trúc lồng sâu bắt buộc Python phải biên dịch lại toàn bộ mã nguồn mỗi khi thực thi biểu thức rẽ nhánh.",
-      "Kỹ thuật Guard Clause giúp chương trình chiếm ít dung lượng RAM hơn hẳn so với việc lồng nhiều khối lệnh `if`.",
-      "Cấu trúc lồng sâu đảm bảo tất cả các trường hợp ngoại lệ đều được hệ thống tự động xử lý mà không cần `else`.",
-      "Kỹ thuật Guard Clause thoát sớm khi điều kiện không thỏa mãn, giúp giảm độ sâu thụt lề và tránh mã vô hiệu."
+      "Bỏ hẳn dấu hai chấm và câu lệnh rẽ nhánh trong chương trình.",
+      "Kết hợp các điều kiện bằng toán tử logic `and` hoặc sử dụng Guard Clauses để phẳng hóa luồng mã nguồn.",
+      "Tăng độ thụt lùi dòng từ 4 khoảng trắng lên 8 khoảng trắng cho mỗi cấp.",
+      "Chuyển toàn bộ các biến điều kiện sang kiểu dữ liệu danh sách list."
     ],
-    "correct_option_index": 3,
-    "explanation": "Kỹ thuật Guard Clause giúp xử lý các điều kiện không hợp lệ ngay từ đầu để thoát hàm/chương trình sớm, từ đó giảm độ sâu lồng nhau (nesting depth) xuống mức tối thiểu (tuân thủ PEP 8), giúp mã nguồn phẳng hơn, dễ đọc và loại bỏ mã vô hiệu (unreachable code)."
+    "correct_option_index": 1,
+    "explanation": "Sử dụng toán tử logic `and` để gộp điều kiện giúp phẳng hóa mã nguồn, tránh lồng ghép câu lệnh quá sâu."
   },
   {
-    "question": "Lập trình viên kiểm thử đoạn mã kiểm tra tài khoản định danh tại ngân hàng RikkeiBank với các câu lệnh điều kiện lồng nhau như sau:\n\n```python\napplicant_age = 22\naccount_status = \"PENDING\"\n\nif applicant_age >= 18:\n    account_status = \"ELIGIBLE\"\n    if applicant_age < 18:\n        account_status = \"UNDERAGE\"\n\nprint(account_status)\n```python\nKết quả hiển thị ra màn hình khi chạy đoạn mã trên là gì?",
+    "question": "Theo quy chuẩn PEP 8, cách đặt khoảng trắng xung quanh toán tử gán `=` nào dưới đây là chuẩn xác nhất?",
     "options": [
-      "\"ELIGIBLE\"",
-      "\"UNDERAGE\"",
-      "\"PENDING\"",
-      "IndentationError"
+      "order_amount=1500000",
+      "order_amount = 1500000",
+      "order_amount  =  1500000",
+      "order_amount =1500000"
     ],
-    "correct_option_index": 0,
-    "explanation": "Đoạn mã chứa bẫy logic mã vô hiệu (unreachable code). Đầu tiên `applicant_age >= 18` (`22 >= 18` là `True`), biến `account_status` được gán giá trị `\"ELIGIBLE\"`. Khi vào khối lệnh lồng bên trong, điều kiện `if applicant_age < 18` (`22 < 18` là `False`) bị bỏ qua hoàn toàn. Vì vậy giá trị cuối cùng của `account_status` giữ nguyên là `\"ELIGIBLE\"`."
+    "correct_option_index": 1,
+    "explanation": "PEP 8 khuyến nghị luôn luôn đặt đúng 1 khoảng trắng ở cả hai bên toán tử gán `=` (ví dụ: `order_amount = 1500000`)."
   }
 ]

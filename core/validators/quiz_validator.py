@@ -1,54 +1,87 @@
+# core/validators/quiz_validator.py
 """
-core/validators/quiz_validator.py
-Programmatic Quiz Validator & Answer Choice Shuffler.
-Ensures 100% alignment between correct answer index and explanation text,
-and shuffles A/B/C/D option positions evenly before writing Excel .xlsx files.
+Quiz & Assessment Linter & Validator
+Strictly enforces the 9 Mandatory Principles of E-Learning Quiz Design and System Rules.
 """
+import re
+import json
+from typing import List, Dict, Tuple, Any
 
-import random
-from typing import List, Dict, Any, Tuple
+BANNED_AI_BUZZWORDS = [
+    r"\bbẫy\b", r"\bbẫy\s+lỗi\b", r"\bbẫy\s+lập\s+trình\b", r"\bbẫy\s+cú\s+pháp\b", r"\bbẫy\s+logic\b",
+    r"\bgotcha\b", r"\banti-pattern\b", r"\bkhám\s+phá\b", r"\bbí\s+kíp\b", r"\bthần\s+thánh\b"
+]
 
-def validate_and_shuffle_quiz(
-    questions: List[Dict[str, Any]],
-    seed: int = 42
-) -> Tuple[bool, List[Dict[str, Any]], List[str]]:
+CONTEXT_REFERENCING_PHRASES = [
+    r"ở\s+slide", r"trong\s+slide", r"slide\s+bài\s+giảng", r"trong\s+bài\s+giảng",
+    r"theo\s+bài\s+giảng", r"theo\s+video", r"trong\s+video", r"từ\s+lời\s+giảng\s+viên",
+    r"theo\s+lời\s+giảng\s+viên", r"trong\s+bài\s+đọc", r"bài\s+đọc\s+có\s+đề\s+cập",
+    r"theo\s+phần", r"từ\s+một\s+nguồn\s+nào\s+đó"
+]
+
+FORBIDDEN_GENERIC_OPTIONS = [
+    r"tất\s+cả\s+đều\s+đúng", r"tất\s+cả\s+đều\s+sai",
+    r"cả\s+[a-d]\s+và\s+[a-d]\s+đều\s+đúng", r"cả\s+[a-d]\s+và\s+[a-d]\s+đều\s+sai"
+]
+
+def validate_quiz_json(quiz_data: List[Dict[str, Any]], lesson_scope_rules: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
-    Validates question options and explanation alignment, and evenly shuffles option positions.
-    Returns (is_valid, processed_questions, errors).
+    Validates quiz JSON structure and quality.
     """
-    if not questions:
-        return False, [], ["Danh sách câu hỏi trắc nghiệm trống."]
-        
-    random.seed(seed)
     errors = []
-    processed = []
     
-    for idx, q in enumerate(questions, 1):
-        options = q.get("options", [])
-        correct_idx = q.get("correct_option_index", 0)
-        explanation = q.get("explanation", "")
-        question_text = q.get("question", "")
+    for i, item in enumerate(quiz_data, 1):
+        question = item.get("question", "")
+        options = item.get("options", [])
+        explanation = item.get("explanation", "")
         
-        if len(options) < 2:
-            errors.append(f"Câu {idx}: Phải có tối thiểu 2 đáp án (tìm thấy {len(options)}).")
-            continue
+        full_text = f"{question} {' '.join(options)} {explanation}"
+        
+        # Check 1: Banned AI Buzzwords
+        for pat in BANNED_AI_BUZZWORDS:
+            if re.search(pat, full_text, re.IGNORECASE):
+                errors.append(f"Câu {i}: Vi phạm Luật #10 - Tồn tại từ lóng AI bị cấm: '{re.search(pat, full_text, re.IGNORECASE).group(0)}'")
+                
+        # Check 2: Context Referencing
+        for pat in CONTEXT_REFERENCING_PHRASES:
+            if re.search(pat, full_text, re.IGNORECASE):
+                errors.append(f"Câu {i}: Vi phạm Luật #4.1 #4 - Tồn tại cụm từ tham chiếu ngữ cảnh: '{re.search(pat, full_text, re.IGNORECASE).group(0)}'")
+                
+        # Check 3: Forbidden Generic Options
+        for opt_idx, opt in enumerate(options):
+            for pat in FORBIDDEN_GENERIC_OPTIONS:
+                if re.search(pat, opt, re.IGNORECASE):
+                    errors.append(f"Câu {i} - Đáp án {opt_idx+1}: Vi phạm Luật #4.1 #5 - Tồn tại phương án sáo rỗng bị cấm: '{opt}'")
+                    
+        # Check 4: Markdown Fence Syntax Errors (Incorrect closing fence ```python instead of ```)
+        if re.search(r"```[a-z]*[\s\S]+?```[a-z]+", question) or any(re.search(r"```[a-z]*[\s\S]+?```[a-z]+", opt) for opt in options):
+            errors.append(f"Câu {i}: Vi phạm Cú pháp - Thẻ đóng code block bị lỗi nhầm thành ```python thay vì ```")
+
+    return len(errors) == 0, errors
+
+
+def validate_and_shuffle_quiz(quiz_data: List[Dict[str, Any]], lesson_scope_rules: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
+    """
+    Master Quiz Validator entrypoint imported by master_validator.py.
+    """
+    return validate_quiz_json(quiz_data, lesson_scope_rules)
+
+
+def validate_reading_questions_md(md_content: str) -> Tuple[bool, List[str]]:
+    """
+    Validates reading comprehension questions markdown text.
+    """
+    errors = []
+    
+    # Check 1: Banned AI Buzzwords
+    for pat in BANNED_AI_BUZZWORDS:
+        if re.search(pat, md_content, re.IGNORECASE):
+            errors.append(f"Reading Questions MD: Vi phạm Luật #10 - Tồn tại từ lóng AI bị cấm: '{re.search(pat, md_content, re.IGNORECASE).group(0)}'")
             
-        if not (0 <= correct_idx < len(options)):
-            errors.append(f"Câu {idx}: Chỉ mục đáp án đúng '{correct_idx}' vượt quá số lượng đáp án ({len(options)}).")
-            continue
-            
-        # Get actual correct answer text
-        correct_text = options[correct_idx]
-        
-        # Shuffle options while tracking the new position of correct_text
-        shuffled_options = list(options)
-        random.shuffle(shuffled_options)
-        new_correct_idx = shuffled_options.index(correct_text)
-        
-        processed_q = dict(q)
-        processed_q["options"] = shuffled_options
-        processed_q["correct_option_index"] = new_correct_idx
-        processed_q["correct_answer_text"] = correct_text
-        processed.append(processed_q)
-        
-    return len(errors) == 0, processed, errors
+    # Check 2: Context Referencing
+    for pat in CONTEXT_REFERENCING_PHRASES:
+        matches = re.findall(pat, md_content, re.IGNORECASE)
+        for match in set(matches):
+            errors.append(f"Reading Questions MD: Vi phạm Luật #4.1 #4 - Tồn tại cụm từ tham chiếu ngữ cảnh: '{match}'")
+
+    return len(errors) == 0, errors

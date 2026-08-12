@@ -1036,6 +1036,19 @@ def clean_unwanted_text(text: str) -> str:
     text = re.sub(r"\[ANTI-PATTERN\]:?", "Mẫu nên tránh:", text, flags=re.IGNORECASE)
     text = re.sub(r"\[YÊU\s+CẦU\]:?", "Yêu cầu:", text, flags=re.IGNORECASE)
     
+    # Scrub AI cliché words and buzzwords
+    text = re.sub(r"\bbẫy lập trình\b", "Lỗi thường gặp", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bbẫy cú pháp\b", "Lỗi cú pháp phổ biến", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bbẫy logic\b", "Lỗi logic phổ biến", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bbẫy lỗi\b", "Lỗi thường gặp", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bbẫy\b", "lỗi thường gặp", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bBẫy\b", "Lỗi thường gặp", text)
+    text = re.sub(r"\bGotcha\b", "Lỗi thường gặp", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bAnti-pattern\b", "Mẫu nên tránh", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bbí kíp\b", "mẹo thực hành", text, flags=re.IGNORECASE)
+    text = re.sub(r"\bthần thánh\b", "hiệu quả", text, flags=re.IGNORECASE)
+    text = re.sub(r"\btất tần tật\b", "tổng quan đầy đủ", text, flags=re.IGNORECASE)
+
     text = re.sub(r"\bTIẾN TRÌNH LUỒNG CHẠY\b", "Tiến trình luồng chạy", text)
     text = re.sub(r"\bTỐC ĐỘ THỰC THI\b", "Tốc độ thực thi", text)
     text = re.sub(r"\bCODE TRACKER\b", "Code Tracker", text)

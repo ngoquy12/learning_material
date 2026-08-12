@@ -1,6 +1,6 @@
 [
   {
-    "question": "Hệ thống kho của Techmart Enterprise cần xác định chính xác số lượng thùng hàng nguyên vẹn khi đóng gói `items_count` sản phẩm vào các thùng có sức chứa `box_capacity`. Cú pháp nào dưới đây sử dụng đúng toán tử số học trong Python để trả về kết quả dưới dạng số nguyên `int`?",
+    "question": "Hệ thống đơn hàng ShopeeFood cần xác định chính số lượng thùng hàng nguyên vẹn khi đóng gói `items_count` sản phẩm vào các thùng có sức chứa `box_capacity`. Cú pháp nào dưới đây sử dụng đúng toán tử số học trong Python để trả về kết quả dưới dạng số nguyên `int`?",
     "options": [
       "full_boxes = items_count // box_capacity",
       "full_boxes = items_count / box_capacity",
@@ -8,21 +8,21 @@
       "full_boxes = items_count ** box_capacity"
     ],
     "correct_option_index": 0,
-    "explanation": "Toán tử chia lấy phần nguyên `//` chia hai số và tự động loại bỏ phần thập phân, trả về kết quả kiểu số nguyên `int` phù hợp cho việc tính số thùng hàng. Trong khi đó, toán tử `/` trả về `float`, toán tử `%` trả về phần dư, và `**` thực hiện phép lũy thừa."
+    "explanation": "Toán tử chia lấy phần nguyên `//` chia hai số và tự động loại bỏ phần thập phân, trả về kết quả kiểu số nguyên `int` phù hợp cho việc tính số thùng hàng."
   },
   {
-    "question": "Khi hệ thống thanh toán Techmart Enterprise xử lý câu lệnh gán `total = base_price * quantity - discount + shipping`, luồng thực thi các phép toán trong biểu thức bên phải dấu `=` sẽ diễn ra theo thứ tự ưu tiên nào?",
+    "question": "Khi hệ thống ShopeeFood xử lý câu lệnh gán `total = base_price * quantity - discount + shipping`, luồng thực thi các phép toán trong biểu thức bên phải dấu `=` sẽ diễn ra theo thứ tự ưu tiên nào?",
     "options": [
-      "Phép cộng `+` được tính trước, tiếp theo là phép trừ `-`, cuối cùng là phép nhân `*` thực hiện từ phải sang trái.",
-      "Phép nhân `*` được tính trước, tiếp theo là phép trừ `-`, cuối cùng là phép cộng `+` thực hiện từ trái sang phải.",
-      "Phép trừ `-` được tính trước, tiếp theo là phép cộng `+`, cuối cùng là phép nhân `*` thực hiện từ trái sang phải.",
-      "Phép nhân `*` được tính trước, tiếp theo là phép cộng `+`, cuối cùng là phép trừ `-` thực hiện từ phải sang trái."
+      "Phép cộng `+` được tính trước, tiếp theo là phép trừ `-`, cuối cùng là phép nhân `*` từ phải sang trái.",
+      "Phép nhân `*` được tính trước, tiếp theo là phép trừ `-`, cuối cùng là phép cộng `+` từ trái sang phải.",
+      "Phép trừ `-` được tính trước, tiếp theo là phép cộng `+`, cuối cùng là phép nhân `*` từ trái sang phải.",
+      "Phép nhân `*` được tính trước, tiếp theo là phép cộng `+`, cuối cùng là phép trừ `-` từ phải sang trái."
     ],
     "correct_option_index": 1,
-    "explanation": "Theo quy tắc ưu tiên toán tử PEMDAS trong Python, phép nhân `*` có độ ưu tiên cao hơn phép cộng `+` và phép trừ `-`. Khi các toán tử có cùng độ ưu tiên như `-` và `+`, Python sẽ thực hiện lần lượt từ trái sang phải. Do đó thứ tự thực hiện là `*` trước, sau đó đến `-`, rồi đến `+`."
+    "explanation": "Theo quy tắc ưu tiên PEMDAS trong Python, phép nhân `*` có độ ưu tiên cao hơn phép cộng `+` và phép trừ `-`. Các toán tử cùng độ ưu tiên thực hiện lần lượt từ trái sang phải."
   },
   {
-    "question": "Cho đoạn mã xử lý cập nhật tổng số tiền thanh toán đơn hàng tại Techmart Enterprise như sau:\n\n```python\ntotal_payment = 500000\ntotal_payment *= 2\ntotal_payment -= 100000\ntotal_payment += 50000\n```python\nGiá trị cuối cùng của biến `total_payment` sau khi hoàn tất đoạn mã trên là bao nhiêu?",
+    "question": "Cho đoạn mã cập nhật tổng số tiền thanh toán đơn hàng ShopeeFood như sau:\n\n```python\ntotal_payment = 500000\ntotal_payment *= 2\ntotal_payment -= 100000\ntotal_payment += 50000\n```\n\nGiá trị cuối cùng của biến `total_payment` sau khi hoàn tất đoạn mã trên là bao nhiêu?",
     "options": [
       "1050000",
       "900000",
@@ -30,28 +30,28 @@
       "1000000"
     ],
     "correct_option_index": 2,
-    "explanation": "Khởi tạo `total_payment = 500000`. Dòng 2: `total_payment *= 2` thành `1000000`. Dòng 3: `total_payment -= 100000` thành `900000`. Dòng 4: `total_payment += 50000` thành `950000`."
+    "explanation": "Khởi tạo `500000`. Dòng 2: `total_payment *= 2` thành `1000000`. Dòng 3: `total_payment -= 100000` thành `900000`. Dòng 4: `total_payment += 50000` thành `950000`."
   },
   {
-    "question": "Trong hệ thống Techmart Enterprise, lập trình viên cần phân biệt kết quả giữa toán tử chia số thực `/` và toán tử chia lấy phần nguyên `//`. Phát biểu nào sau đây phản ánh đúng sự khác biệt về kiểu dữ liệu và cách hoạt động của hai toán tử này?",
+    "question": "Trong hệ thống ShopeeFood, lập trình viên cần phân biệt kết quả giữa toán tử chia số thực `/` và toán tử chia lấy phần nguyên `//`. Phát biểu nào sau đây phản ánh đúng sự khác biệt về kiểu dữ liệu và cách hoạt động của hai toán tử này?",
     "options": [
       "Toán tử `/` trả về số nguyên `int` làm tròn, còn toán tử `//` luôn trả về số thực `float` có phần thập phân.",
-      "Toán tử `/` chỉ áp dụng cho số nguyên, còn toán tử `//` bắt buộc phải áp dụng cho số thực `float` trong biểu thức.",
+      "Toán tử `/` chỉ áp dụng cho số nguyên, còn toán tử `//` bắt buộc áp dụng cho số thực `float` trong biểu thức.",
       "Toán tử `/` trả về số thực `float` làm tròn lên, còn toán tử `//` trả về số nguyên `int` làm tròn lên.",
-      "Toán tử `/` luôn trả về kiểu số thực `float`, trong khi toán tử `//` bỏ qua phần thập phân và trả về kết quả số nguyên `int` (khi hai toán hạng là số nguyên)."
+      "Toán tử `/` luôn trả về số thực `float`, còn toán tử `//` bỏ phần thập phân và trả về số nguyên `int`."
     ],
     "correct_option_index": 3,
-    "explanation": "Trong Python, toán tử chia `/` luôn luôn trả về kiểu số thực `float` (kể cả phép chia hết như `4 / 2` cho `2.0`). Ngược lại, toán tử chia lấy phần nguyên `//` sẽ cắt bỏ toàn bộ phần thập phân và trả về số nguyên `int` khi hai toán hạng đều là số nguyên."
+    "explanation": "Trong Python, toán tử chia `/` luôn luôn trả về kiểu số thực `float`. Toán tử chia lấy phần nguyên `//` loại bỏ phần thập phân và trả về kết quả số nguyên `int`."
   },
   {
-    "question": "Lập trình viên viết đoạn mã tính tổng tiền sau chiết khấu cho đơn hàng Techmart Enterprise như sau:\n\n```python\nprice = 500000\nquantity = 3\ndiscount = 0.1\ntotal = price * quantity - discount\n```python\nĐoạn mã trên gặp lỗi bẫy logic nào khiến giá trị `total` nhận kết quả là `1499999.9` thay vì `1350000.0` như kỳ vọng?",
+    "question": "Lập trình viên viết đoạn mã tính tổng tiền sau chiết khấu cho đơn hàng ShopeeFood như sau:\n\n```python\nprice = 500000\nquantity = 3\ndiscount = 0.1\ntotal = price * quantity - discount\n```\n\nĐoạn mã trên gặp sai sót logic nào khiến giá trị `total` nhận kết quả là `1499999.9` thay vì `1350000.0` như kỳ vọng?",
     "options": [
-      "Thiếu dấu ngoặc đơn để nhóm biểu thức tỷ lệ còn lại `(1 - discount)`, dẫn đến việc lấy tổng tiền hàng trừ trực tiếp giá trị số thực `0.1` thay vì giảm `10%`.",
-      "Phép nhân `price * quantity` bị lỗi kiểu dữ liệu do biến `discount` mang kiểu số thực `float` đứng ở vị trí cuối biểu thức toán học.",
-      "Toán tử `-` không thể thực hiện phép tính giữa một kết quả phép nhân kiểu số nguyên `int` và một biến kiểu số thực `float` trong Python.",
-      "Ngôn ngữ Python tự động thay đổi thứ tự ưu tiên, thực hiện phép trừ `quantity - discount` trước phép nhân `price * quantity`."
+      "Thiếu dấu ngoặc đơn `(1 - discount)`, dẫn đến việc lấy tổng tiền hàng trừ trực tiếp giá trị số thực `0.1`.",
+      "Phép nhân `price * quantity` bị lỗi kiểu dữ liệu do biến `discount` mang kiểu số thực `float` đứng cuối.",
+      "Toán tử `-` không thể thực hiện phép tính giữa kết quả phép nhân kiểu `int` và biến kiểu `float`.",
+      "Ngôn ngữ Python tự động thay đổi thứ tự ưu tiên, thực hiện phép trừ `quantity - discount` trước phép nhân."
     ],
     "correct_option_index": 0,
-    "explanation": "Do thiếu dấu ngoặc đơn để ưu tiên tính `(1 - discount)`, Python thực hiện phép nhân `price * quantity` trước (ra `1500000`), sau đó trừ đi `discount` (`0.1`), dẫn đến kết quả `1499999.9`. Để giảm `10%`, biểu thức chuẩn phải là `total = price * quantity * (1 - discount)`."
+    "explanation": "Do thiếu dấu ngoặc đơn để ưu tiên tính `(1 - discount)`, Python thực hiện phép nhân `price * quantity` trước (ra `1500000`), sau đó trừ đi `discount` (`0.1`), dẫn đến kết quả `1499999.9`."
   }
 ]

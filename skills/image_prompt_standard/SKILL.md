@@ -105,6 +105,12 @@ Corporate Navy `#0f172a`, Slate Gray `#334155`, Soft Emerald `#10b981`, Teal `#0
 ### 1.15. STRICT NO ALL CAPS DIRECTIVE
 ⛔ FORBIDDEN: ALL CAPS text labels (`RAW INPUT STREAM`, `ERROR LOG`). Use **Sentence case** or **Title case**.
 
+### 1.16. STRICT NO EMBEDDED TITLE BANNER DIRECTIVE (NO REDUNDANT BANNER TEXT)
+⛔ ABSOLUTELY FORBIDDEN to render huge text title banners (e.g., "SƠ ĐỒ TÍNH TOÁN...", "PYTHON OPERATORS PROCESS") across the top of the image graphic canvas. The image canvas MUST focus 100% on the **pure visual workflow graphic, domain visual cards, and state diagrams**. Article section titles belong strictly to HTML `<h2>` headers and `Hình 1.1...` captions!
+
+### 1.17. 100% UNIFIED ACCENTED VIETNAMESE LABELS DIRECTIVE (ZERO MIXED JARGON)
+🇻🇳 100% of explanatory text labels, step names, node titles, and branch outcomes inside the graphic MUST be in **100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất)**. ABSOLUTELY FORBIDDEN to mix English jargon (`INPUT ORDER`, `NET TOTAL`, `SUBTOTAL`, `PAYMENT RESULT`). Use pure natural Vietnamese (`Đầu vào đơn hàng`, `Tổng thanh toán`, `Thành tiền hàng`, `Kết quả giao dịch`). Standard code syntax expressions (`price * quantity`, `if age >= 18`) remain in standard programming syntax.
+
 ---
 
 ## 2. Master Image Prompt Blueprint Formula
@@ -112,7 +118,7 @@ Corporate Navy `#0f172a`, Slate Gray `#334155`, Soft Emerald `#10b981`, Teal `#0
 Every generated English image prompt MUST strictly follow this blueprint formula:
 
 ```text
-*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [Detailed logic/business workflow description here]. Main title in meaningful concise Vietnamese (e.g. 'Cách cũ: Viết thủ công 100 dòng vs Cách mới: Vòng lặp for 2 dòng'). Strictly NO text emojis (never use emoji characters like ❌, ✅, ⚠️, 🔴, 🟢, ▶). Only use clean 2D flat vector icons, symbols, and Phosphor-style vector graphics. 16:9 aspect ratio, spacious layout with at least 32px safe outer margin on all sides. Code snippets enclosed inside clean IDE editor window cards with 3 window dots at top left, using crisp monospace font. Sequential numbers in code examples follow strict logical sequence (1, 2, 3, 4, 5... 100). Each status badge appears EXACTLY ONCE at the bottom of its panel (never duplicate badges). Rich in technical detail: concrete data values in nodes, color-coded zones, active element highlighted with bold border, inline micro-annotations on arrows. Standard diagram geometry: diamond shapes for decision nodes, rectangles for process blocks, cylinders for databases, rounded ovals for start/end. Solid lines for main control flow, dashed lines for auxiliary data flow. Ultra-concise minimal 1-3 word labels ('Bắt đầu', 'if age >= 18', 'Đúng', 'Sai', 'if block', 'else block', 'Kết thúc'). Exact syntax case-sensitive code keywords ('if', 'else', 'for', 'range()'). Minimalist infographics style, clean white background, muted corporate color palette (navy blue, slate gray, soft emerald for True path, subtle rose red for False path). Clean sans-serif font, no 3D elements, no glowing neon effects. All labels in Sentence Case or Title Case (NEVER ALL CAPS).*
+*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [Detailed logic/business workflow description here]. Strictly NO embedded title text banners at the top of the canvas (focus 100% on pure graphic visual cards and flow diagrams). All explanatory text labels and node titles in 100% Accented Vietnamese ('Đầu vào đơn hàng', 'Đúng', 'Sai', 'Thành tiền hàng'). Strictly NO mixed English jargon (never use 'INPUT ORDER', 'NET TOTAL', 'SUBTOTAL'). Strictly NO text emojis (never use emoji characters like ❌, ✅, ⚠️, 🔴, 🟢, ▶). Only use clean 2D flat vector icons, symbols, and Phosphor-style vector graphics. 16:9 aspect ratio, spacious layout with at least 32px safe outer margin on all sides. Code snippets enclosed inside clean IDE editor window cards with 3 window dots at top left, using crisp monospace font. Sequential numbers in code examples follow strict logical sequence (1, 2, 3, 4, 5... 100). Each status badge appears EXACTLY ONCE at the bottom of its panel (never duplicate badges). Rich in technical detail: concrete data values in nodes, color-coded zones, active element highlighted with bold border, inline micro-annotations on arrows. Standard diagram geometry: diamond shapes for decision nodes, rectangles for process blocks, cylinders for databases, rounded ovals for start/end. Solid lines for main control flow, dashed lines for auxiliary data flow. Ultra-concise minimal 1-3 word labels ('Bắt đầu', 'if age >= 18', 'Đúng', 'Sai', 'if block', 'else block', 'Kết thúc'). Exact syntax case-sensitive code keywords ('if', 'else', 'for', 'range()'). Minimalist infographics style, clean white background, muted corporate color palette (navy blue, slate gray, soft emerald for True path, subtle rose red for False path). Clean sans-serif font, no 3D elements, no glowing neon effects. All labels in Sentence Case or Title Case (NEVER ALL CAPS).*
 ```
 
 ---
@@ -121,13 +127,14 @@ Every generated English image prompt MUST strictly follow this blueprint formula
 
 | Criterion | BAD Prompt (REJECTED) ❌ | GOOD Prompt (APPROVED) ✅ |
 | :--- | :--- | :--- |
+| **Title Banners** | Embeds giant text title header across top of image (`SƠ ĐỒ TÍNH TOÁN...`) | **ZERO TITLE BANNERS BAKED IN GRAPHIC**. Focus 100% on visual workflow nodes & cards |
+| **Language Consistency** | Mixes English & Vietnamese (`INPUT ORDER`, `Thành tiền`, `NET TOTAL`) | **100% ACCENTED VIETNAMESE LABELS** (`Đầu vào đơn hàng`, `Tổng thanh toán`, `Đúng`, `Sai`) |
 | **Icons & Emojis** | Embeds text emojis (`❌`, `✅`, `⚠️`, `▶`) making images look unprofessional | **100% TEXT EMOJI PROHIBITED**. Use **2D Vector Icons / SVG Symbols** (`clean flat vector checkmark icon`, `warning triangle symbol`) |
 | **Status Badges** | Duplicates same badge 2-3 times across panel | Each status badge appears **EXACTLY ONCE** at panel bottom |
 | **Sequential Code Numbers** | Random out-of-order sequence (`1, 2, 3... 10, 10, 17`) | Ascending sequential numbers (`1, 2, 3, 4, 5... 100`) |
 | **Code Display** | Plain text floating over shapes | Code enclosed inside **IDE Editor Window Cards** (Monospace font + 3 dots) |
 | **Outer Margins** | Text clipped at image edges | **Safe outer margin at least 32px** on all sides |
-| **Main Image Title** | Abstract English title | **Meaningful concise Accented Vietnamese title** (`Cách cũ: Viết thủ công 100 dòng vs Cách mới: Vòng lặp for 2 dòng`) |
-| **Detail Level** | Shallow with 3 empty boxes | Rich detail: concrete values (`[72, 85, 91]`), variable state tables, color-coded zones |
+| **Detail Level** | Shallow with 3 empty boxes | Rich 3-tier detail: concrete values (`150.000 VNĐ`), domain object cards, color-coded zones |
 | **Aspect Ratio** | Square (1:1) or Vertical (9:16) | **16:9 Widescreen aspect ratio** (`16:9 aspect ratio`) |
 | **Code Syntax** | `IF`, `Else`, `PRINT("Lỗi")` | 100% exact syntax: `if`, `else`, `print()`, `user_input` |
 | **Visual Style & Text Case** | 3D neon, ALL CAPS labels | 2D flat, muted corporate colors, Sentence Case / Title Case labels |
@@ -136,18 +143,20 @@ Every generated English image prompt MUST strictly follow this blueprint formula
 
 ## 4. Image Prompt Quality Gate Checklist
 
-Every image prompt MUST pass all 12 quality criteria:
+Every image prompt MUST pass all 14 quality criteria:
 
-1. `[ ]` Strictly NO text emojis (❌, ✅, ⚠️, ▶); vector icons/SVG symbols ONLY.
-2. `[ ]` Main title in meaningful concise Accented Vietnamese.
-3. `[ ]` Code snippets enclosed in IDE Editor Window Cards with monospace font.
-4. `[ ]` Each status badge appears EXACTLY ONCE at bottom.
-5. `[ ]` Sequential numbers in code examples follow strict logical sequence (1, 2, 3, 4, 5... 100).
-6. `[ ]` Safe outer margin of at least 32px.
-7. `[ ]` Style: `clean 2D flat vector technical illustration / minimalist infographics`.
-8. `[ ]` Aspect ratio: `16:9 aspect ratio`.
-9. `[ ]` Rich technical detail: concrete values, color-coded zones, inline arrow annotations.
-10. `[ ]` NO 3D or glowing neon effects (`no 3D`, `no glowing neon`).
-11. `[ ]` Strictly NO ALL CAPS (`NEVER ALL CAPS` / `Sentence Case`).
-12. `[ ]` Exact case-sensitive syntax code keywords (`if`, `else`, `range()`, `print()`).
+1. `[ ]` Strictly NO embedded title banners baked at top of canvas.
+2. `[ ]` 100% Accented Vietnamese explanatory labels (zero mixed English/Vietnamese jargon like NET TOTAL or INPUT ORDER).
+3. `[ ]` Strictly NO text emojis (❌, ✅, ⚠️, ▶); vector icons/SVG symbols ONLY.
+4. `[ ]` Code snippets enclosed in IDE Editor Window Cards with monospace font.
+5. `[ ]` Each status badge appears EXACTLY ONCE at bottom.
+6. `[ ]` Sequential numbers in code examples follow strict logical sequence (1, 2, 3, 4, 5... 100).
+7. `[ ]` Safe outer margin of at least 32px.
+8. `[ ]` Style: `clean 2D flat vector technical illustration / minimalist infographics`.
+9. `[ ]` Aspect ratio: `16:9 aspect ratio`.
+10. `[ ]` Rich 3-tier technical detail: domain context card, state transformation, final outcome result card.
+11. `[ ]` NO 3D or glowing neon effects (`no 3D`, `no glowing neon`).
+12. `[ ]` Strictly NO ALL CAPS (`NEVER ALL CAPS` / `Sentence Case`).
+13. `[ ]` Exact case-sensitive syntax code keywords (`if`, `else`, `range()`, `print()`).
+14. `[ ]` Left-to-right horizontal landscape workflow movement.
 

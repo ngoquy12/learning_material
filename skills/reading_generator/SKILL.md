@@ -23,12 +23,21 @@ All Agents MUST strictly implement all 10 core directives:
 |  6  | **100% English Code Identifiers (`snake_case`)** — Variables/placeholders MUST be English (`order_amount`, etc.)                                                                                                                                                                                                                                                                           | MANDATORY |
 |  7  | **Progressive Syntax Code Sandbox per Sub-section** — Every sub-section (2.1, 2.2, 2.3...) includes a concrete Live Code Sandbox demonstrating that specific syntax variation expanding on the unified scenario                                                                                                                                                                            | MANDATORY |
 |  8  | **Human-Like Quality Standard & Domain Agnostic** — 100% Accented Vietnamese, no AI markers, zero hardcoding for any specific tech stack                                                                                                                                                                                                                                                   | MANDATORY |
-|  9  | **Section 4 & Section 5 Architecture Standard** — Section 4 is "4. Tổng kết bài học" (Key Takeaways + Common Pitfalls callout cards). Section 5 is "5. Tài liệu tham khảo" (Standalone references). ABSOLUTELY FORBIDDEN self-test quiz forms inside reading.html                                                                                                                          | MANDATORY |
+|  9  | **JSON Payload Output & Jinja2 Template Engine** — Output structured JSON payload (`LessonReadingContent`), while `templates/reading_master.html.j2` renders 100% gold-standard HTML matching `templates/reading.html`                                                                                                                                                                     | MANDATORY |
+| 10  | **Domain-Adaptive Component Registry** — Python WASM / JS Worker for coding, AlaSQL for SQL, Terminal Simulator for CLI, SVG Process Cards for Theory/Architecture                                                                                                                                                                                                                         | MANDATORY |
 | 10  | **Problem Requirement Box Above Every Demo & Single Unified Scenario** — Insert a clear "Yêu cầu bài toán" callout box directly above every Code Demo Sandbox. ALL demos in Section 2 and Section 3 MUST build on the EXACT SAME UNIFIED REAL-WORLD SCENARIO                                                                                                                               | MANDATORY |
 | 11  | **100% Accented Vietnamese Code Comments** — 100% of code comments (`# ...`, `// ...`) and console output strings inside ALL code demos MUST be written in friendly, clear Accented Vietnamese                                                                                                                                                                                             | MANDATORY |
 | 12  | **Interactive Step Visualizer UX Standard** — Section 2.4 step visualizers MUST use clean Light Theme, NO line numbers in code display, Live Range Slider for value inputs, dynamic True/False condition badges (`🟢 True - KHỚP!`, `❌ False - Bỏ qua`), and Speed Selectors (`1.5s`, `1.0s`, `0.5s`)                                                                                     | MANDATORY |
 | 10  | **Dark Terminal Output** — Console output wrapped in JetBrains Mono font with `#4ade80` text                                                                                                                                                                                                                                                                                               | MANDATORY |
 | 11  | **Minimal Italic Text** — Only use italics for captions directly below images/diagrams                                                                                                                                                                                                                                                                                                     | MANDATORY |
+| 37  | **STRICT DOMAIN ISOLATION & ZERO HARDCODED FALLBACK CONTRACT** — `tech_stack` MUST ALWAYS be dynamically passed from PM/State. ABSOLUTELY FORBIDDEN to hardcode fallback defaults (no default to Python, Java, etc.) or leak Python Pyodide AST/WASM checks into non-Python subjects (Java, JavaScript, SQL, DevOps)                                                                       | MANDATORY |
+| 38  | **100% LIVE EXECUTABLE CODE SANDBOXES** — All code examples in Section 2 and Section 3 MUST use Live Executable Code Sandboxes (`runPythonCode` / Pyodide WASM / JS Worker) with Play, Reset, Copy buttons and Output Console                                                                                                                                                              | MANDATORY |
+| 39  | **PEDAGOGICAL ORDER: SYNTAX ➔ BREAKDOWN ➔ EXAMPLE** — Section 2 sub-sections MUST present: (1) Syntax Card FIRST, (2) Component Explanation List SECOND, (3) Live Executable Sandbox THIRD                                                                                                                                                                                                 | MANDATORY |
+| 40  | **VIETNAMESE TECHNICAL TERMINOLOGY (NO UNEXPLAINED JARGON)** — Banned unexplained English jargon like "Gotcha", "Anti-pattern". Use "Bẫy lỗi thường gặp", "Mô hình sai cần tránh". Always append Vietnamese translations in parentheses                                                                                                                                                    | MANDATORY |
+| 41  | **CLEAN SUB-HEADINGS (NO PREFIX FLUFF)** — ABSOLUTELY FORBIDDEN to use prefixes `Ví dụ cơ bản:`, `Ví dụ nghiệp vụ:`, `Ví dụ doanh nghiệp:` in Section 3 sub-headings. Use clean, direct titles                                                                                                                                                                                             | MANDATORY |
+| 42  | **2D FLAT VECTOR INFOGRAPHIC ASSETS** — Section 1 context illustrations MUST use clean 2D Flat Vector Infographics or SVG process diagrams matching lesson topics                                                                                                                                                                                                                          | MANDATORY |
+| 43  | **SINGLE UNIFIED REAL-WORLD DEMO SCENARIO CONTRACT** — 100% of code snippets, sandboxes, and visualizers across Section 2 and Section 3 MUST progressively expand on the EXACT SAME UNIFIED SCENARIO established in Section 1. ABSOLUTELY FORBIDDEN to switch to unrelated example topics within the same lesson                                                                           | MANDATORY |
+| 44  | **STRICT BANNED AI BUZZWORDS CONTRACT** — ABSOLUTELY FORBIDDEN to use AI cliché words `"bẫy"`, `"bẫy lập trình"`, `"bẫy lỗi"`, `"gotcha"`, `"khám phá"`, `"bí kíp"`, `"tất tần tật"`, `"thần thánh"`. ALWAYS use formal technical terms: `"Lỗi thường gặp"`, `"Sai sót phổ biến"`, `"Ngoại lệ cần lưu ý"`                                                                                  | MANDATORY |
 
 ---
 
@@ -112,6 +121,27 @@ For **Session 01 (Orientation & Course Overview)**:
 13. **NO INLINE SCRIPT TAGS & PRESERVE CODE NEWLINES CONTRACT**:
     - **ABSOLUTELY FORBIDDEN** to generate raw inline `<script>...</script>` tags inside JSON response strings. Use standard button event attributes (`onclick="runVizStep(1)"`) calling framework helpers instead.
     - Code blocks inside `<pre><code>...</code></pre>` MUST preserve literal line breaks (`\n`) for proper code indentation.
+
+14. **ENTERPRISE IT IMAGE GENERATION SKILL STANDARD (5 GOLDEN RULES FOR IT LEARNING GRAPHICS)**:
+    - 🚨 **RULE 1: ZERO BIG TITLE BANNERS & ZERO DETAILED CODE SNIPPETS** 🚨:
+      - **NO BIG TITLE OVERLAYS**: ABSOLUTELY FORBIDDEN to render large title headers (e.g. `HỆ THỐNG XỬ LÝ ĐƠN HÀNG`, `PYTHON COURSE`) at the top of generated images. Headers occupy prime space and duplicate the HTML section title.
+      - **NO DETAILED CODE BLOCKS**: ABSOLUTELY FORBIDDEN to show long code snippets (`for order_number in range(5): process_order()`) inside pixel graphics! Code inside images causes spelling artifacts (e.g. `teraton`, `stem`) and clutter. Code belongs exclusively inside HTML code sandboxes.
+    - 🎯 **RULE 2: FOCUS ON BUSINESS PROBLEM & WORKFLOW SCENARIO (PROBLEM-FIRST VISUAL)** 🎯:
+      - Graphics MUST illustrate the **Real-World Business Context / Problem Scenario** (e.g. Supermarket Checkout Conveyor ➔ Scanner ➔ Invoice Payment ➔ Delivery) or **Input ➔ Process ➔ Output (I-P-O)** workflow.
+      - Use clean visual icons, numbered step badges (`1`, `2`, `3`), and short labels instead of code lines.
+    - 🛠️ **RULE 3: TECH-STACK ADAPTIVE ILLUSTRATION DESIGN PATTERNS** 🛠️:
+      - _Programming & Algorithms (Python, JS, Java, C++)_: 2D real-world business object workflow (Orders, Accounts, Inventory, Tax Engine).
+      - _Databases & Data (SQL, NoSQL)_: 2D Data Pipelines, Schema Tables, B-Tree Indexing, Query Flow.
+      - _DevOps & Cloud (Git, Docker, CI/CD)_: 2D Container Docks, Git Branch Trees, Pipeline Stages (Build ➔ Test ➔ Deploy).
+      - _Web / Mobile / APIs (REST, Microservices)_: 2D Request-Response Flow between Client App, API Gateway, and Backend Services.
+      - _Architecture & Security (Redis, Auth, Load Balancer)_: 2D Traffic Distribution, Cache Hit/Miss, Authentication Handshake.
+    - 🎨 **RULE 4: HARMONIOUS 2D FLAT VECTOR PALETTE & TYPOGRAPHY** 🎨:
+      - 100% Clean 2D Flat Vector Corporate Infographic style.
+      - Palette: Corporate Navy `#0f172a`, Slate Gray `#64748b`, Soft Emerald `#059669`, Accent Red `#be111c` on a clean light background (`#f8fafc`).
+      - ABSOLUTELY FORBIDDEN to use 3D sci-fi, dark neon backgrounds, or cluttered text overlays.
+    - 🔤 **RULE 5: BILINGUAL BALANCE CONTRACT** 🔤:
+      - Step descriptions & UI labels inside graphics: **100% Accented Vietnamese** (`QUÉT MÃ SẢN PHẨM`, `KIỂM TRA HÀNG TỒN`, `IN HÓA ĐƠN`, `GIỜ GIAO HÀNG`).
+      - Technical terms & keywords only: **Standard English** (`Python`, `range()`, `RAM`, `CPU`, `SQL`, `Docker`, `API`).
 
 ## 1. STRICT 5-SECTION ARCHITECTURE
 
@@ -621,6 +651,11 @@ Every reading material document MUST contain exactly 5 sections with fixed Ancho
 8. **Mermaid v10+ Syntax** — Arrow with label syntax `A -->|Label| B`, special character labels enclosed in `["label"]`.
 9. **SVG Adaptive Colors** — Use `rikkei-diagram-*` CSS utility classes instead of inline fill for Dark Mode support.
 10. **Scroll Progress Bar** — Header reading progress indicator.
+11. **No Embedded Title Banner in Images** — 100% FORBIDDEN to render text title banners inside the image canvas graphic. Image canvas focuses 100% on pure visual flow cards and state graphics.
+12. **100% Unified Accented Vietnamese Labels in Images** — Zero mixed English/Vietnamese jargon inside visual graphics (`INPUT ORDER` ➔ `Đầu vào đơn hàng`, `NET TOTAL` ➔ `Tổng thanh toán`).
+13. **At Least 3 Progressive Examples in Section 3** — Section 3 MUST contain at least 3 progressive sub-sections (`3.1`, `3.2`, `3.3`) with title, problem requirement box, and sample code sandbox.
+14. **Mandatory Requirement Callout Before Sandboxes** — BEFORE EVERY live code sandbox, embed a clean Requirement Callout Component (`p-4 rounded-xl border border-sky-200 bg-sky-50/60...`) stating the concise problem description.
+15. **Prioritize 2D Flat Vector Image Assets** — Prioritize 2D Flat Vector Image assets (`.png` / `.webp` / referenced `.svg` inside `<img>` tags) over raw inline SVG code blocks.
 
 ---
 

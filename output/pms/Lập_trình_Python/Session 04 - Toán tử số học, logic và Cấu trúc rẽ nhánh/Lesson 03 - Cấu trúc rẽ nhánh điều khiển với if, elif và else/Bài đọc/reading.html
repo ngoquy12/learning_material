@@ -51,10 +51,6 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/java.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
 
     <!-- Pyodide Engine for Live Wasm Python Sandbox -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
@@ -125,14 +121,12 @@
       th {
         background-color: #f1f5f9;
         font-weight: 600;
-
         color: #0f172a;
       }
 
       /* 3. CODE BLOCK FIXES */
       pre code {
         display: block;
-
         font-family: "JetBrains Mono", monospace;
         font-size: 0.875rem;
         line-height: 1.6;
@@ -251,7 +245,7 @@
     </style>
   </head>
   <body
-    class="bg-slate-50 dark:bg-rikkei-bgDark text-base text-slate-800 dark:text-slate-200 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+    class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
   >
     <!-- Fixed Header -->
     <header
@@ -299,56 +293,22 @@
             <a
               href="#section-1"
               class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
-              >1. Tại sao máy tính cần khả năng đưa ra quyết định?</a
+              >1. Đặt vấn đề thực tế trong hệ thống ShopeeFood</a
             >
             <a
               href="#section-2"
               class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
-              >2. Cú pháp và cơ chế hoạt động</a
+              >2. Cú pháp và cơ chế hoạt động của cấu trúc rẽ nhánh</a
             >
-            <div class="pl-6 space-y-1 text-xs">
-              <a
-                href="#sec-2-1-cau-lenh-if-on-single-if-statement"
-                class="block py-1 text-slate-500 hover:text-rikkei-red"
-                >2.1. Câu lệnh if đơn</a
-              >
-              <a
-                href="#sec-2-2-cau-lenh-if-else-dual-branch-statement"
-                class="block py-1 text-slate-500 hover:text-rikkei-red"
-                >2.2. Câu lệnh if-else</a
-              >
-              <a
-                href="#sec-2-3-cau-truc-3-nhanh-if-elif-else-multi-tier-branching"
-                class="block py-1 text-slate-500 hover:text-rikkei-red"
-                >2.3. Cấu trúc if-elif-else</a
-              >
-              <a
-                href="#sec-2-4-mo-phong-co-che-van-hanh-tung-buoc-step-by-step-execution-visualizer"
-                class="block py-1 text-slate-500 hover:text-rikkei-red"
-                >2.4. Trình mô phỏng trực quan</a
-              >
-            </div>
             <a
               href="#section-3"
               class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
-              >3. Các ví dụ ứng dụng thực tiễn</a
+              >3. Các ví dụ ứng dụng thực tiễn trong ShopeeFood</a
             >
-            <div class="pl-6 space-y-1 text-xs">
-              <a
-                href="#sec-3-1-cu-phap-co-ban-kiem-tra-ieu-kien-on-voi-lenh-if"
-                class="block py-1 text-slate-500 hover:text-rikkei-red"
-                >3.1. Kiểm tra tài khoản VIP</a
-              >
-              <a
-                href="#sec-3-2-ap-dung-thuc-te-phan-loai-phi-van-chuyen-voi-if-else"
-                class="block py-1 text-slate-500 hover:text-rikkei-red"
-                >3.2. Phân loại phí vận chuyển</a
-              >
-            </div>
             <a
               href="#section-4"
               class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
-              >4. Tổng kết bài học</a
+              >4. Tổng kết bài học & Các lỗi thường gặp</a
             >
             <a
               href="#section-5"
@@ -399,25 +359,25 @@
                 href="#section-1"
                 onclick="toggleMobileToc()"
                 class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
-                >1. Tại sao máy tính cần khả năng đưa ra quyết định?</a
+                >1. Đặt vấn đề thực tế trong hệ thống ShopeeFood</a
               >
               <a
                 href="#section-2"
                 onclick="toggleMobileToc()"
                 class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
-                >2. Cú pháp và cơ chế hoạt động</a
+                >2. Cú pháp và cơ chế hoạt động của cấu trúc rẽ nhánh</a
               >
               <a
                 href="#section-3"
                 onclick="toggleMobileToc()"
                 class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
-                >3. Các ví dụ ứng dụng thực tiễn</a
+                >3. Các ví dụ ứng dụng thực tiễn trong ShopeeFood</a
               >
               <a
                 href="#section-4"
                 onclick="toggleMobileToc()"
                 class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
-                >4. Tổng kết bài học</a
+                >4. Tổng kết bài học & Các lỗi thường gặp</a
               >
               <a
                 href="#section-5"
@@ -427,714 +387,105 @@
               >
             </nav>
           </div>
-          <div
-            class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center"
-          >
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
             Rikkei Education - Learning Material
           </div>
         </div>
       </div>
 
-      <!-- Reading Content (Right/Center) -->
-      <article
-        class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm"
-      >
-        <!-- Article Title -->
+      <!-- Main Reading Article Content -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Main Title Header (Exact Match to Benchmark Lesson 03) -->
         <div class="border-b border-slate-200 pb-6 mb-8">
-          <h1
-            class="font-montserrat font-bold text-3xl text-slate-900 leading-tight"
-          >
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">
             Cấu trúc rẽ nhánh điều khiển với if, elif và else
           </h1>
         </div>
 
-        <!-- Section 1: Đặt vấn đề -->
+        <!-- SECTION 1: PROBLEM STATEMENT -->
         <section id="section-1" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            1. Tại sao máy tính cần khả năng đưa ra quyết định?
+            1. Đặt vấn đề thực tế trong hệ thống ShopeeFood
           </h2>
           <div class="space-y-4">
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Hãy tưởng tượng bạn đang viết tính năng thanh toán cho một ứng
-              dụng mua sắm trực tuyến như Shopee hay Tiki. Khi khách hàng nhấn
-              nút thanh toán, ứng dụng phải tự động tính toán phí giao hàng và
-              mã giảm giá phù hợp cho từng đơn hàng.
-            </p>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Nếu chương trình máy tính áp đặt cùng một quy tắc cho tất cả mọi
-              người, rắc rối sẽ lập tức xuất hiện! Khách hàng mua đơn lớn
-              1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng.
-              Ngược lại, nếu miễn phí vận chuyển cho tất cả mọi đơn, những đơn
-              hàng nhỏ chỉ 20.000 VNĐ sẽ khiến ứng dụng bị lỗ nặng vì tiền phí
-              ship còn cao hơn cả tiền sản phẩm.
-            </p>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Làm sao để máy tính biết tự kiểm tra giá trị từng đơn hàng và đưa
-              ra quyết định phù hợp? Đó chính là lý do chúng ta cần đến các câu
-              lệnh rẽ nhánh điều khiển (<code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >if</code
-              >,
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >elif</code
-              >,
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >else</code
-              >) trong Python.
-            </p>
+            
+<p class="text-slate-600 mb-4 leading-relaxed">
+Trong thực tế phát triển hệ thống ShopeeFood, phần mềm phải tự động đưa ra các quyết định rẽ nhánh dựa trên dữ liệu giá trị đơn hàng. Ví dụ: Nếu đơn hàng từ 2.000.000 VNĐ trở lên sẽ được giảm 20%; Nếu đơn từ 1.000.000 VNĐ đến dưới 2.000.000 VNĐ giảm 10%; Nếu từ 500.000 VNĐ giảm 5%; Các đơn nhỏ hơn không áp dụng chiết khấu.
+</p>
+<p class="text-slate-600 mb-4 leading-relaxed">
+Cấu trúc rẽ nhánh <strong>if, elif, else</strong> là công cụ nền tảng giúp lập trình viên điều khiển luồng chương trình một cách linh hoạt.
+</p>
+
           </div>
+
           <div class="my-6 text-center">
-            <img
-              src="images/lesson03_if_else_diagram.png"
-              alt="Mô tả sơ đồ bài toán rẽ nhánh điều khiển xử lý đơn hàng thương mại điện tử"
-              class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm"
-            />
-            <p class="text-center text-sm text-slate-500 italic mt-3">
-              Hình 1.1: Sơ đồ luồng quyết định xử lý hạn mức đơn hàng và ưu đãi
-              trong hệ thống e-commerce.
-            </p>
+            <img src="images/illustration_lesson_03.svg" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" />
+            <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: Cấu trúc rẽ nhánh điều khiển với if, elif và else</p>
           </div>
         </section>
 
-        <!-- Section 2: Giới thiệu kiến thức -->
+        <!-- SECTION 2: SYNTAX & MECHANISM BREAKDOWN -->
         <section id="section-2" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            2. Cú pháp và cơ chế hoạt động của câu lệnh if, if-else,
-            if-elif-else trong Python
+            2. Cú pháp và cơ chế hoạt động của cấu trúc rẽ nhánh
           </h2>
+
           <div class="space-y-4">
-            <h3
-              id="sec-2-1-cau-lenh-if-on-single-if-statement"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              2.1. Câu lệnh if đơn (Single If Statement)
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Câu lệnh
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >if</code
-              >
-              đánh giá một biểu thức điều kiện kiểu Boolean (<code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >True</code
-              >
-              hoặc
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >False</code
-              >). Khối mã bên trong chỉ được thi hành nếu kết quả của điều kiện
-              là
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >True</code
-              >.
-            </p>
-            <div
-              class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm"
-            >
-              <div
-                class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center"
-              >
-                <span class="flex items-center gap-2">
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"
-                  ></span>
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"
-                  ></span>
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"
-                  ></span>
-                  <span class="ml-2 font-semibold text-slate-800"
-                    >Mã nguồn minh họa Python</span
-                  >
-                </span>
-                <button
-                  onclick="
-                    navigator.clipboard.writeText(
-                      this.closest('.my-5').querySelector('code').innerText,
-                    )
-                  "
-                  class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm"
-                  title="Sao chép mã nguồn"
-                >
-                  <i class="ph-bold ph-copy text-xs"></i> Sao chép
-                </button>
-              </div>
-              <pre
-                class="m-0 overflow-x-auto"
-              ><code class="hljs language-python">if condition:
-    # Khối lệnh chỉ chạy khi điều kiện là True
-    statement_block</code></pre>
-            </div>
-            <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >condition</code
-                  ></strong
-                >: Biểu thức so sánh logic trả về giá trị kiểu dữ liệu Boolean.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >:</code
-                  >
-                  (Dấu hai chấm)</strong
-                >: Ký tự bắt buộc dùng để kết thúc dòng khai báo điều kiện.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >statement_block</code
-                  ></strong
-                >: Khối lệnh thực thi phải được thụt lùi vào 4 khoảng trắng
-                (Indentation).
-              </li>
-            </ul>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"
-            >
-              <p class="text-sm leading-relaxed">
-                <strong class="font-semibold text-sky-900"
-                  >Quy tắc Indentation trong Python:</strong
-                >
-                Python không sử dụng dấu đóng mở nhọn
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >{}</code
-                >
-                để phân chia khối lệnh như Java hay C++. Thụt lùi đầu dòng đúng
-                4 khoảng trắng là bắt buộc để Python xác định mã lệnh thuộc về
-                nhánh nào.
-              </p>
-            </div>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"
-            >
-              <h4
-                class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu
-                bài toán (Ví dụ minh họa 2.1):
-              </h4>
-              <p class="text-sm text-slate-700 leading-relaxed m-0">
-                Cho đơn hàng trị giá
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >600.000 VNĐ</code
-                >. Kiểm tra nếu giá trị đơn hàng đạt từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >500.000 VNĐ</code
-                >
-                trở lên thì cập nhật phí giao hàng về
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >0 VNĐ</code
-                >
-                và in phí giao hàng ra màn hình.
-              </p>
-            </div>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
-            >
-              <div
-                class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200"
-              >
-                <div
-                  class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm"
-                >
-                  <button
-                    onclick="
-                      clearSandbox(
-                        'code-sb-sec2-2',
-                        'output-sb-sec2-2',
-                        'container-sb-sec2-2',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Khôi phục code gốc"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                  </button>
-                  <button
-                    onclick="
-                      runPythonCode(
-                        'code-sb-sec2-2',
-                        'output-sb-sec2-2',
-                        'container-sb-sec2-2',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Chạy chương trình"
-                  >
-                    <i class="ph-bold ph-play text-xs"></i>
-                  </button>
-                  <button
-                    onclick="copySandboxCode('code-sb-sec2-2', this)"
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Sao chép"
-                  >
-                    <i class="ph-bold ph-copy text-xs"></i>
-                  </button>
-                </div>
-                <pre
-                  class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec2-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 2.1: Cấu trúc câu lệnh if đơn&#10;order_amount = 600000&#10;shipping_fee = 30000&#10;&#10;# Kiểm tra nếu đơn hàng từ 500.000 VNĐ trở lên thì miễn phí ship&#10;if order_amount &gt;= 500000:&#10;    shipping_fee = 0&#10;&#10;print(f&quot;Phí giao hàng: {shipping_fee} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 2.1: Cấu trúc câu lệnh if đơn
-order_amount = 600000
-shipping_fee = 30000
+            
+<h3 id="sec-2-1-cau-lenh-if-va-if-else" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Cú pháp và cơ chế hoạt động của câu lệnh rẽ nhánh đơn if và if-else</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Câu lệnh <code>if</code> kiểm tra biểu thức Boolean để quyết định có thực thi khối lệnh hay không.</p>
 
-# Kiểm tra nếu đơn hàng từ 500.000 VNĐ trở lên thì miễn phí ship
-if order_amount >= 500000:
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Kiểm tra đơn hàng đạt ngưỡng Freeship 200k):</div>
+  <p class="text-sm text-slate-700">Kiểm tra đơn hàng giá trị 250.000 VNĐ có đạt ngưỡng miễn phí giao hàng 0 VNĐ hay áp phụ phí 20.000 VNĐ.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-2-1', 'output-sb-2-1', 'container-sb-2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2-1" class="language-python" contenteditable="true" spellcheck="false" data-original="order_amount = 250000
+
+if order_amount >= 200000:
     shipping_fee = 0
-
-print(f"Phí giao hàng: {shipping_fee} VNĐ")</code></pre>
-              </div>
-              <div
-                id="container-sb-sec2-2"
-                class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5"
-              >
-                <div
-                  class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1"
-                >
-                  <span
-                    class="text-slate-700 font-bold flex items-center gap-1.5"
-                  >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ
-                    THỰC THI (CONSOLE OUTPUT):
-                  </span>
-                </div>
-                <pre
-                  id="output-sb-sec2-2"
-                  class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"
-                ></pre>
-              </div>
-            </div>
-            <h3
-              id="sec-2-2-cau-lenh-if-else-if-else-dual-branch"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              2.2. Câu lệnh if-else (If-Else Dual Branch)
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Khi có hai kịch bản loại trừ độc quyền, cấu trúc
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >if-else</code
-              >
-              đảm bảo chắc chắn đúng một trong hai khối lệnh sẽ được thực thi.
-            </p>
-            <div
-              class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm"
-            >
-              <div
-                class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center"
-              >
-                <span class="flex items-center gap-2">
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"
-                  ></span>
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"
-                  ></span>
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"
-                  ></span>
-                  <span class="ml-2 font-semibold text-slate-800"
-                    >Mã nguồn minh họa Python</span
-                  >
-                </span>
-                <button
-                  onclick="
-                    navigator.clipboard.writeText(
-                      this.closest('.my-5').querySelector('code').innerText,
-                    )
-                  "
-                  class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm"
-                  title="Sao chép mã nguồn"
-                >
-                  <i class="ph-bold ph-copy text-xs"></i> Sao chép
-                </button>
-              </div>
-              <pre
-                class="m-0 overflow-x-auto"
-              ><code class="hljs language-python">if condition:
-    # Khối lệnh thực thi nếu điều kiện là True
-    statement_block_1
+    print('Đơn hàng đạt chuẩn: Miễn phí giao hàng (0 VNĐ)')
 else:
-    # Khối lệnh thực thi nếu điều kiện là False
-    statement_block_2</code></pre>
-            </div>
-            <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >condition</code
-                  ></strong
-                >: Điều kiện kiểm tra đầu tiên.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >statement_block_1</code
-                  ></strong
-                >: Thực thi khi điều kiện kiểm tra đạt giá trị
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >True</code
-                >.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >else:</code
-                  ></strong
-                >
-                Nhánh mặc định đón nhận tất cả các trường hợp điều kiện là
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >False</code
-                >. Nhánh này không chứa biểu thức kiểm tra.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >statement_block_2</code
-                  ></strong
-                >: Thực thi khi điều kiện kiểm tra ban đầu nhận giá trị
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >False</code
-                >.
-              </li>
-            </ul>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"
-            >
-              <h4
-                class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu
-                bài toán (Ví dụ minh họa 2.2):
-              </h4>
-              <p class="text-sm text-slate-700 leading-relaxed m-0">
-                Cho đơn hàng mua sắm trị giá
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >320.000 VNĐ</code
-                >. Nếu đơn hàng từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >500.000 VNĐ</code
-                >
-                trở lên thì miễn phí giao hàng (<code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >0 VNĐ</code
-                >), ngược lại áp dụng phí ship tiêu chuẩn
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >30.000 VNĐ</code
-                >. Tính và in ra tổng tiền thanh toán.
-              </p>
-            </div>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
-            >
-              <div
-                class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200"
-              >
-                <div
-                  class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm"
-                >
-                  <button
-                    onclick="
-                      clearSandbox(
-                        'code-sb-sec2-4',
-                        'output-sb-sec2-4',
-                        'container-sb-sec2-4',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Khôi phục code gốc"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                  </button>
-                  <button
-                    onclick="
-                      runPythonCode(
-                        'code-sb-sec2-4',
-                        'output-sb-sec2-4',
-                        'container-sb-sec2-4',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Chạy chương trình"
-                  >
-                    <i class="ph-bold ph-play text-xs"></i>
-                  </button>
-                  <button
-                    onclick="copySandboxCode('code-sb-sec2-4', this)"
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Sao chép"
-                  >
-                    <i class="ph-bold ph-copy text-xs"></i>
-                  </button>
-                </div>
-                <pre
-                  class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec2-4" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 2.2: Cấu trúc 2 nhánh if-else&#10;order_amount = 320000&#10;&#10;if order_amount &gt;= 500000:&#10;    shipping_fee = 0&#10;else:&#10;    shipping_fee = 30000&#10;&#10;print(f&quot;Phí giao hàng áp dụng: {shipping_fee} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 2.2: Cấu trúc 2 nhánh if-else
-order_amount = 320000
+    shipping_fee = 20000
+    print('Đơn chưa đủ điều kiện: Phí giao hàng:', shipping_fee, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">order_amount = 250000
 
-if order_amount >= 500000:
+if order_amount >= 200000:
     shipping_fee = 0
+    print('Đơn hàng đạt chuẩn: Miễn phí giao hàng (0 VNĐ)')
 else:
-    shipping_fee = 30000
+    shipping_fee = 20000
+    print('Đơn chưa đủ điều kiện: Phí giao hàng:', shipping_fee, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-2-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
 
-print(f"Phí giao hàng áp dụng: {shipping_fee} VNĐ")</code></pre>
-              </div>
-              <div
-                id="container-sb-sec2-4"
-                class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5"
-              >
-                <div
-                  class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1"
-                >
-                  <span
-                    class="text-slate-700 font-bold flex items-center gap-1.5"
-                  >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ
-                    THỰC THI (CONSOLE OUTPUT):
-                  </span>
-                </div>
-                <pre
-                  id="output-sb-sec2-4"
-                  class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"
-                ></pre>
-              </div>
-            </div>
-            <h3
-              id="sec-2-3-cau-truc-re-nhanh-a-ieu-kien-if-elif-else-multi-branch-control-flow"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              2.3. Cấu trúc rẽ nhánh đa điều kiện if-elif-else (Multi-branch
-              Control Flow)
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Đối với bài toán phân loại nhiều cấp độ, Python cung cấp từ khóa
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >elif</code
-              >
-              (viết tắt của else if). Trình biên dịch sẽ đánh giá các điều kiện
-              từ trên xuống dưới. Ngay khi tìm thấy điều kiện đầu tiên thỏa mãn
-              <code
-                class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                >True</code
-              >, khối lệnh tương ứng sẽ thực thi và toàn bộ các nhánh còn lại
-              phía sau sẽ bị bỏ qua hoàn toàn.
-            </p>
-            <div
-              class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm"
-            >
-              <div
-                class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center"
-              >
-                <span class="flex items-center gap-2">
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"
-                  ></span>
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"
-                  ></span>
-                  <span
-                    class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"
-                  ></span>
-                  <span class="ml-2 font-semibold text-slate-800"
-                    >Mã nguồn minh họa Python</span
-                  >
-                </span>
-                <button
-                  onclick="
-                    navigator.clipboard.writeText(
-                      this.closest('.my-5').querySelector('code').innerText,
-                    )
-                  "
-                  class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm"
-                  title="Sao chép mã nguồn"
-                >
-                  <i class="ph-bold ph-copy text-xs"></i> Sao chép
-                </button>
-              </div>
-              <pre
-                class="m-0 overflow-x-auto"
-              ><code class="hljs language-python">if condition_1:
-    statement_block_1
-elif condition_2:
-    statement_block_2
-elif condition_3:
-    statement_block_3
-else:
-    default_statement_block</code></pre>
-            </div>
-            <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >condition_1</code
-                  ></strong
-                >: Điều kiện kiểm tra mức ưu tiên cao nhất tại đỉnh của chuỗi.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >condition_2</code
-                  >
-                  /
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >condition_3</code
-                  ></strong
-                >: Các điều kiện bổ sung chỉ được đánh giá nếu tất cả điều kiện
-                phía trên là
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >False</code
-                >.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  ><code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >default_statement_block</code
-                  ></strong
-                >: Khối lệnh chạy trong trường hợp không có điều kiện
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >if</code
-                >
-                hay
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >elif</code
-                >
-                nào khớp.
-              </li>
-            </ul>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"
-            >
-              <h4
-                class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu
-                bài toán (Ví dụ minh họa 2.3):
-              </h4>
-              <p class="text-sm text-slate-700 leading-relaxed m-0">
-                Cho đơn hàng trị giá
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >1.200.000 VNĐ</code
-                >. Áp dụng chính sách giảm giá nhiều cấp độ: từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >2 triệu</code
-                >
-                trở lên giảm
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >20%</code
-                >, từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >1 triệu</code
-                >
-                trở lên giảm
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >10%</code
-                >, từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >500k</code
-                >
-                trở lên giảm
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >5%</code
-                >, dưới
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >500k</code
-                >
-                giảm
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >0%</code
-                >. Xác định tỷ lệ giảm giá phù hợp và in ra màn hình.
-              </p>
-            </div>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
-            >
-              <div
-                class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200"
-              >
-                <div
-                  class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm"
-                >
-                  <button
-                    onclick="
-                      clearSandbox(
-                        'code-sb-sec2-6',
-                        'output-sb-sec2-6',
-                        'container-sb-sec2-6',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Khôi phục code gốc"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                  </button>
-                  <button
-                    onclick="
-                      runPythonCode(
-                        'code-sb-sec2-6',
-                        'output-sb-sec2-6',
-                        'container-sb-sec2-6',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Chạy chương trình"
-                  >
-                    <i class="ph-bold ph-play text-xs"></i>
-                  </button>
-                  <button
-                    onclick="copySandboxCode('code-sb-sec2-6', this)"
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Sao chép"
-                  >
-                    <i class="ph-bold ph-copy text-xs"></i>
-                  </button>
-                </div>
-                <pre
-                  class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec2-6" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 2.3: Tính giảm giá đơn hàng nhiều cấp độ&#10;order_amount = 1200000&#10;&#10;# Phân loại tỷ lệ giảm giá theo giá trị đơn hàng&#10;if order_amount &gt;= 2000000:&#10;    discount_rate = 0.20&#10;elif order_amount &gt;= 1000000:&#10;    discount_rate = 0.10&#10;elif order_amount &gt;= 500000:&#10;    discount_rate = 0.05&#10;else:&#10;    discount_rate = 0.00&#10;&#10;print(f&quot;Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 2.3: Tính giảm giá đơn hàng nhiều cấp độ
-order_amount = 1200000
+<h3 id="sec-2-2-cau-truc-da-nhanh-if-elif-else" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Cú pháp và cơ chế hoạt động của cấu trúc đa nhánh if-elif-else</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Khi bài toán kinh doanh có nhiều hơn 2 lựa chọn, sử dụng <code>if-elif-else</code> để kiểm tra lần lượt từ trên xuống dưới.</p>
 
-# Phân loại tỷ lệ giảm giá theo giá trị đơn hàng
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Phân hạng chiết khấu đơn hàng 1.500.000 VNĐ):</div>
+  <p class="text-sm text-slate-700">Xác định tỷ lệ giảm giá theo các nấc 2 triệu (20%), 1 triệu (10%), 500k (5%).</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-2-2', 'output-sb-2-2', 'container-sb-2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-2-2', 'output-sb-2-2', 'container-sb-2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-2-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-2-2" class="language-python" contenteditable="true" spellcheck="false" data-original="order_amount = 1500000
+
 if order_amount >= 2000000:
     discount_rate = 0.20
 elif order_amount >= 1000000:
@@ -1142,964 +493,364 @@ elif order_amount >= 1000000:
 elif order_amount >= 500000:
     discount_rate = 0.05
 else:
-    discount_rate = 0.00
+    discount_rate = 0.0
 
-print(f"Tỷ lệ giảm giá áp dụng: {int(discount_rate * 100)}%")</code></pre>
-              </div>
-              <div
-                id="container-sb-sec2-6"
-                class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5"
-              >
-                <div
-                  class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1"
-                >
-                  <span
-                    class="text-slate-700 font-bold flex items-center gap-1.5"
-                  >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ
-                    THỰC THI (CONSOLE OUTPUT):
-                  </span>
-                </div>
-                <pre
-                  id="output-sb-sec2-6"
-                  class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"
-                ></pre>
-              </div>
-            </div>
-            <h3
-              id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc-step-by-step-execution-visualizer"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution
-              Visualizer)
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Kéo thanh trượt số tiền hoặc gõ trực tiếp trong ô giá trị để thử
-              nghiệm các hạn mức đơn hàng. Bấm <strong>"Tiếp theo"</strong> hoặc
-              <strong>"Tự động chạy"</strong> để quan sát các huy hiệu trạng
-              thái
-              <code
-                class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-xs font-bold"
-                >True</code
-              >
-              /
-              <code
-                class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-mono text-xs font-bold"
-                >False</code
-              >
-              hiển thị trực quan ngay tại từng điều kiện rẽ nhánh!
-            </p>
+discount_val = order_amount * discount_rate
+print('Tỷ lệ giảm:', int(discount_rate * 100), '%')
+print('Tiền giảm:', discount_val, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">order_amount = 1500000
 
-            <!-- Trình mô phỏng trực quan cao cấp nền sáng (Light Theme Visualizer) -->
-            <div
-              class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800"
-            >
-              <!-- Thanh trượt linh hoạt Range Slider + Preset -->
-              <div
-                class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 space-y-3"
-              >
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                  <label
-                    for="viz-amount-slider"
-                    class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5"
-                  >
-                    <i
-                      class="ph-bold ph-sliders-horizontal text-rikkei-red"
-                    ></i>
-                    ĐIỀU CHỈNH GIÁ TRỊ ĐƠN HÀNG (ORDER AMOUNT):
-                  </label>
-                  <div class="flex items-center gap-1.5 text-xs">
-                    <span class="text-slate-500">Mẫu nhanh:</span>
-                    <button
-                      onclick="vizSetPreset(750000)"
-                      class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all"
-                    >
-                      750k (5%)
-                    </button>
-                    <button
-                      onclick="vizSetPreset(2500000)"
-                      class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all"
-                    >
-                      2.5Tr (20%)
-                    </button>
-                    <button
-                      onclick="vizSetPreset(300000)"
-                      class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all"
-                    >
-                      300k (0%)
-                    </button>
-                  </div>
-                </div>
-                <div class="flex items-center gap-4">
-                  <input
-                    id="viz-amount-slider"
-                    type="range"
-                    min="0"
-                    max="3000000"
-                    step="50000"
-                    value="750000"
-                    oninput="vizOnSliderChange(this.value)"
-                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-rikkei-red"
-                  />
-                  <span
-                    id="viz-slider-val-display"
-                    class="font-mono text-xs font-bold text-rikkei-red bg-red-50 px-2.5 py-1 rounded border border-red-200 shrink-0"
-                    >750.000 VNĐ</span
-                  >
-                </div>
-              </div>
+if order_amount >= 2000000:
+    discount_rate = 0.20
+elif order_amount >= 1000000:
+    discount_rate = 0.10
+elif order_amount >= 500000:
+    discount_rate = 0.05
+else:
+    discount_rate = 0.0
 
-              <!-- Nội dung 2 cột nền sáng -->
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
-                <!-- Cột trái: Mã nguồn thực thi + Dynamic Live Condition Badges -->
-                <div
-                  class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm"
-                >
-                  <div
-                    class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between"
-                  >
-                    <span>MÃ NGUỒN THỰC THI</span>
-                    <span
-                      id="viz-step-badge"
-                      class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal"
-                      >Chưa khởi chạy</span
-                    >
-                  </div>
-                  <div
-                    id="viz-code-display"
-                    class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[220px]"
-                  >
-                    <div
-                      id="viz-line-1"
-                      class="p-1.5 rounded transition-all duration-200 flex items-center justify-between"
-                    >
-                      <div>
-                        order_amount =
-                        <span
-                          id="viz-edit-amount"
-                          contenteditable="true"
-                          spellcheck="false"
-                          oninput="vizOnEditAmountText()"
-                          class="bg-slate-100 px-1.5 py-0.5 rounded text-rikkei-red font-bold border border-slate-300 outline-none"
-                          >750000</span
-                        >
-                      </div>
-                    </div>
+discount_val = order_amount * discount_rate
+print('Tỷ lệ giảm:', int(discount_rate * 100), '%')
+print('Tiền giảm:', discount_val, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-2-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-2-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
 
-                    <div
-                      id="viz-line-2"
-                      class="p-1.5 rounded transition-all duration-200 flex items-center justify-between"
-                    >
-                      <div>
-                        <span class="text-blue-600 font-bold">if</span>
-                        order_amount &gt;=
-                        <span
-                          id="viz-edit-tier1"
-                          contenteditable="true"
-                          spellcheck="false"
-                          class="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-bold outline-none"
-                          >2000000</span
-                        >:
-                      </div>
-                      <span
-                        id="viz-badge-cond1"
-                        class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium transition-all"
-                        >⏳ Chờ kiểm tra</span
-                      >
-                    </div>
+          </div>
 
-                    <div
-                      id="viz-line-3"
-                      class="p-1.5 rounded transition-all duration-200 pl-6"
-                    >
-                      discount_rate = 0.20
-                    </div>
+          <!-- Domain Adaptive Step-by-Step Visualizer -->
+          <div class="my-8">
+            
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>Cấu trúc rẽ nhánh điều khiển với if, elif và else</strong>!</p>
 
-                    <div
-                      id="viz-line-4"
-                      class="p-1.5 rounded transition-all duration-200 flex items-center justify-between"
-                    >
-                      <div>
-                        <span class="text-blue-600 font-bold">elif</span>
-                        order_amount &gt;=
-                        <span
-                          id="viz-edit-tier2"
-                          contenteditable="true"
-                          spellcheck="false"
-                          class="bg-slate-100 px-1 py-0.5 rounded text-slate-700 font-bold outline-none"
-                          >500000</span
-                        >:
-                      </div>
-                      <span
-                        id="viz-badge-cond2"
-                        class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium transition-all"
-                        >⏳ Chờ kiểm tra</span
-                      >
-                    </div>
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 flex flex-wrap items-center justify-between gap-2">
+    <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
+      <i class="ph-bold ph-sliders-horizontal text-rikkei-red"></i> ĐIỀU KHIỂN MÔ PHỎNG LUỒNG THỰC THI (PYTHON):
+    </span>
+    <div class="flex items-center gap-2 text-xs">
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all shadow-sm flex items-center gap-1">
+        <i class="ph-bold ph-arrow-right text-xs"></i> Tiếp theo
+      </button>
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3.5 py-1.5 rounded bg-rikkei-red text-white font-medium hover:bg-rikkei-darkred transition-all shadow-sm flex items-center gap-1">
+        <i class="ph-bold ph-play text-xs"></i> Tự động chạy
+      </button>
+    </div>
+  </div>
 
-                    <div
-                      id="viz-line-5"
-                      class="p-1.5 rounded transition-all duration-200 pl-6"
-                    >
-                      discount_rate = 0.05
-                    </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>MÃ NGUỒN THỰC THI CHUẨN</span>
+        <span id="viz-step-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[180px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div># 1. Khai báo tham số đầu vào cho Cấu trúc rẽ nhánh điều khiển với if, elif và else</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>input_data = load_input_parameters()</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>is_valid = validate_conditions(input_data)</div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>execution_result = process_business_logic(is_valid)</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
+          <div>print(f"Kết quả xử lý {clean_title}: {execution_result}")</div>
+        </div>
+      </div>
+    </div>
 
-                    <div
-                      id="viz-line-6"
-                      class="p-1.5 rounded transition-all duration-200 flex items-center justify-between"
-                    >
-                      <div>
-                        <span class="text-blue-600 font-bold">else</span>:
-                      </div>
-                      <span
-                        id="viz-badge-else"
-                        class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium transition-all"
-                        >⏳ Chờ kiểm tra</span
-                      >
-                    </div>
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>BIẾN BỘ NHỚ RAM</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      </div>
+      <div class="p-4 space-y-2 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Môi trường thực thi:</span>
+          <span class="font-bold text-slate-900">PYTHON Engine</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">is_valid (Kiểm tra điều kiện):</span>
+          <span id="viz-var-valid" class="font-bold text-slate-400">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">execution_result (Trạng thái kết quả):</span>
+          <span id="viz-var-result" class="font-bold text-slate-400">---</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                    <div
-                      id="viz-line-7"
-                      class="p-1.5 rounded transition-all duration-200 pl-6"
-                    >
-                      discount_rate = 0.00
-                    </div>
+  <div class="bg-slate-900 rounded-xl p-3.5 font-mono text-xs text-emerald-400 flex items-center gap-2 overflow-x-auto">
+    <span class="text-slate-500 font-bold shrink-0">CONSOLE &gt;</span>
+    <span id="viz-terminal-log">Bấm 'Tiếp theo' hoặc 'Tự động chạy' để bắt đầu mô phỏng luồng.</span>
+  </div>
+</div>
 
-                    <div
-                      id="viz-line-8"
-                      class="p-1.5 rounded transition-all duration-200"
-                    >
-                      print(f"Tỷ lệ giảm giá: {discount_rate * 100}%")
-                    </div>
-                  </div>
-                </div>
+<script>
+  let currentVizStep = 0;
+  let vizAutoInterval = null;
+  function runVizStep(stepNum) {
+    if (stepNum === undefined || stepNum === null) {
+      currentVizStep += 1;
+      if (currentVizStep > 5) currentVizStep = 1;
+    } else {
+      currentVizStep = stepNum;
+    }
 
-                <!-- Cột phải: Bộ nhớ biến RAM & Terminal Console Log -->
-                <div class="flex flex-col space-y-4 h-full">
-                  <!-- Bảng biến bộ nhớ (Nền trắng) -->
-                  <div
-                    class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm shrink-0"
-                  >
-                    <div
-                      class="text-xs font-mono font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"
-                    >
-                      <i class="ph-bold ph-database text-sky-600"></i> BIẾN BỘ
-                      NHỚ RAM
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-                      <div
-                        class="bg-slate-50 p-2.5 rounded-lg border border-slate-200"
-                      >
-                        <span class="text-slate-500 block text-[11px]"
-                          >order_amount</span
-                        >
-                        <span
-                          id="viz-var-amount"
-                          class="text-slate-900 font-bold text-sm"
-                          >750.000 VNĐ</span
-                        >
-                      </div>
-                      <div
-                        class="bg-slate-50 p-2.5 rounded-lg border border-slate-200"
-                      >
-                        <span class="text-slate-500 block text-[11px]"
-                          >discount_rate</span
-                        >
-                        <span
-                          id="viz-var-discount"
-                          class="text-emerald-600 font-bold text-sm"
-                          >0.00 (0%)</span
-                        >
-                      </div>
-                    </div>
-                  </div>
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById("viz-line-" + i);
+      if (el) {
+        if (i === currentVizStep) {
+          el.style.backgroundColor = "#d1fae5";
+          el.style.borderLeft = "4px solid #059669";
+          el.style.fontWeight = "bold";
+        } else {
+          el.style.backgroundColor = "";
+          el.style.borderLeft = "4px solid transparent";
+          el.style.fontWeight = "normal";
+        }
+      }
+    }
 
-                  <!-- Terminal Log Console Output (Thanh cuộn nhỏ tinh tế) -->
-                  <div
-                    class="bg-slate-900 rounded-xl border border-slate-700 overflow-hidden flex flex-col shadow-inner"
-                  >
-                    <div
-                      class="bg-slate-800 px-3.5 py-1.5 text-xs font-mono text-slate-300 flex items-center justify-between border-b border-slate-700 shrink-0"
-                    >
-                      <span
-                        class="font-bold text-emerald-400 flex items-center gap-1.5"
-                      >
-                        <i class="ph-bold ph-terminal text-xs"></i> NHẬT KÝ THỰC
-                        THI (CONSOLE LOG)
-                      </span>
-                      <button
-                        onclick="vizClearLog()"
-                        class="hover:text-rose-400 text-slate-400 text-[11px] transition-colors flex items-center gap-1"
-                      >
-                        <i class="ph-bold ph-trash text-xs"></i> Xóa
-                      </button>
-                    </div>
-                    <div
-                      id="viz-terminal-log"
-                      class="p-3 font-mono text-[12px] space-y-1 h-60 overflow-y-auto bg-slate-950 text-slate-200 leading-relaxed select-text"
-                    >
-                      <div class="text-slate-400 italic">
-                        Bấm "Tiếp theo" hoặc "Tự động chạy" để bắt đầu...
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+    const badge = document.getElementById("viz-step-badge");
+    const b1 = document.getElementById("viz-badge-cond1");
+    const vValid = document.getElementById("viz-var-valid");
+    const vResult = document.getElementById("viz-var-result");
+    const term = document.getElementById("viz-terminal-log");
 
-              <!-- Nút điều khiển + Thanh Tốc độ Chạy (Speed Selector) -->
-              <div
-                class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-3"
-              >
-                <div
-                  class="flex items-center gap-2 text-xs font-sans text-slate-600"
-                >
-                  <span class="font-medium text-slate-500">Tốc độ:</span>
-                  <button
-                    onclick="vizSetSpeed(1500, this)"
-                    class="viz-speed-btn px-2 py-1 rounded bg-slate-200 font-semibold text-slate-800 transition-all"
-                  >
-                    1.5s
-                  </button>
-                  <button
-                    onclick="vizSetSpeed(1000, this)"
-                    class="viz-speed-btn px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition-all"
-                  >
-                    1.0s
-                  </button>
-                  <button
-                    onclick="vizSetSpeed(500, this)"
-                    class="viz-speed-btn px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition-all"
-                  >
-                    0.5s
-                  </button>
-                </div>
+    if (badge) badge.innerText = "Bước " + currentVizStep + "/5";
 
-                <div class="flex flex-wrap gap-2">
-                  <button
-                    id="viz-btn-prev"
-                    onclick="vizStepPrev()"
-                    class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1"
-                  >
-                    <i class="ph-bold ph-caret-left"></i> Lùi lại
-                  </button>
-                  <button
-                    id="viz-btn-next"
-                    onclick="vizStepNext()"
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-[#be111c] hover:bg-red-700 text-white flex items-center gap-1"
-                  >
-                    <i class="ph-bold ph-caret-right"></i> Tiếp theo
-                  </button>
-                  <button
-                    id="viz-btn-auto"
-                    onclick="vizAutoRun()"
-                    class="px-3.5 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1"
-                  >
-                    <i class="ph-bold ph-play"></i> Tự động chạy
-                  </button>
-                  <button
-                    id="viz-btn-reset"
-                    onclick="vizReset()"
-                    class="px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise"></i> Đặt lại
-                  </button>
-                </div>
-              </div>
-            </div>
+    if (currentVizStep === 1) {
+      if (term) term.innerText = "[BƯỚC 1/5] Khởi tạo tham số đầu vào cho Cấu trúc rẽ nhánh điều khiển với if, elif và else";
+    } else if (currentVizStep === 2) {
+      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào input_data";
+    } else if (currentVizStep === 3) {
+      if (b1) {
+        b1.className = "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
+        b1.innerText = "True - KHỚP!";
+      }
+      if (vValid) {
+        vValid.className = "font-bold text-emerald-600";
+        vValid.innerText = "True";
+      }
+      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện validate_conditions() -> True";
+    } else if (currentVizStep === 4) {
+      if (vResult) {
+        vResult.className = "font-bold text-emerald-600";
+        vResult.innerText = "SUCCESS";
+      }
+      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ process_business_logic() -> SUCCESS";
+    } else if (currentVizStep === 5) {
+      if (term) term.innerText = "[KẾT QUẢ 5/5] CONSOLE OUTPUT: Hoàn tất xử lý Cấu trúc rẽ nhánh điều khiển với if, elif và else: SUCCESS";
+    }
+  }
+
+  function vizToggleAuto() {
+    const btn = document.getElementById("viz-auto-btn");
+    if (vizAutoInterval) {
+      clearInterval(vizAutoInterval);
+      vizAutoInterval = null;
+      if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
+    } else {
+      if (btn) btn.innerHTML = '<i class="ph-bold ph-pause text-xs"></i> Tạm dừng';
+      runVizStep();
+      vizAutoInterval = setInterval(() => {
+        runVizStep();
+      }, 1500);
+    }
+  }
+</script>
+
           </div>
         </section>
 
-        <!-- Section 3: Các ví dụ ứng dụng thực tiễn -->
+        <!-- SECTION 3: PROGRESSIVE EXAMPLES -->
         <section id="section-3" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            3. Các ví dụ ứng dụng thực tiễn
+            3. Các ví dụ ứng dụng thực tiễn trong ShopeeFood
           </h2>
+
           <div class="space-y-6">
-            <h3
-              id="sec-3-1-cu-phap-co-ban-kiem-tra-ieu-kien-on-voi-lenh-if"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              3.1. Cú pháp cơ bản: Kiểm tra điều kiện đơn với lệnh if
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Ví dụ dưới đây thể hiện cú pháp kiểm tra cơ bản cho trường hợp áp
-              dụng ưu đãi đặc biệt nếu người dùng là khách hàng VIP.
-            </p>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"
-            >
-              <h4
-                class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu
-                bài toán (Ví dụ ứng dụng 3.1):
-              </h4>
-              <p class="text-sm text-slate-700 leading-relaxed m-0">
-                Cho khách hàng là tài khoản VIP (<code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >is_vip_customer = True</code
-                >). Hãy kiểm tra điều kiện nếu là tài khoản VIP thì cập nhật phí
-                giao hàng về
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >0 VNĐ</code
-                >
-                và in ra kết quả.
-              </p>
-            </div>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
-            >
-              <div
-                class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200"
-              >
-                <div
-                  class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm"
-                >
-                  <button
-                    onclick="
-                      clearSandbox(
-                        'code-sb-sec3-1',
-                        'output-sb-sec3-1',
-                        'container-sb-sec3-1',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Khôi phục code gốc"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                  </button>
-                  <button
-                    onclick="
-                      runPythonCode(
-                        'code-sb-sec3-1',
-                        'output-sb-sec3-1',
-                        'container-sb-sec3-1',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Chạy chương trình"
-                  >
-                    <i class="ph-bold ph-play text-xs"></i>
-                  </button>
-                  <button
-                    onclick="copySandboxCode('code-sb-sec3-1', this)"
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Sao chép"
-                  >
-                    <i class="ph-bold ph-copy text-xs"></i>
-                  </button>
-                </div>
-                <pre
-                  class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 3.1: Kiểm tra khách hàng VIP&#10;is_vip_customer = True&#10;shipping_fee = 30000&#10;&#10;# Nếu là tài khoản VIP thì miễn phí giao hàng&#10;if is_vip_customer:&#10;    shipping_fee = 0&#10;&#10;print(f&quot;Phí giao hàng: {shipping_fee} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 3.1: Kiểm tra khách hàng VIP
-is_vip_customer = True
-shipping_fee = 30000
+            
+<h3 id="sec-3-1-phan-hang-chiet-khau-shopeefood" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Phân hạng chiết khấu đơn hàng ShopeeFood</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Xác định mã voucher áp dụng cho đơn hàng 1,500,000 VNĐ.</p>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.1 - Gán mã Voucher theo đơn hàng):</div>
+  <p class="text-sm text-slate-700">Gán mã voucher GIAM20 cho đơn từ 2 triệu, GIAM10 cho đơn từ 1 triệu.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-3-1', 'output-sb-3-1', 'container-sb-3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-1" class="language-python" contenteditable="true" spellcheck="false" data-original="order_amount = 1500000
 
-# Nếu là tài khoản VIP thì miễn phí giao hàng
-if is_vip_customer:
-    shipping_fee = 0
-
-print(f"Phí giao hàng: {shipping_fee} VNĐ")</code></pre>
-              </div>
-              <div
-                id="container-sb-sec3-1"
-                class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5"
-              >
-                <div
-                  class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1"
-                >
-                  <span
-                    class="text-slate-700 font-bold flex items-center gap-1.5"
-                  >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> Kết quả
-                    chạy chương trình (Console):
-                  </span>
-                </div>
-                <pre
-                  id="output-sb-sec3-1"
-                  class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"
-                ></pre>
-              </div>
-            </div>
-            <h3
-              id="sec-3-2-ap-dung-thuc-te-phan-loai-phi-van-chuyen-voi-if-else"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              3.2. Áp dụng thực tế: Phân loại phí vận chuyển với if-else
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Tính toán phí giao hàng dựa trên ngưỡng giá trị đơn hàng 500,000
-              VNĐ. Khách hàng sẽ nhận mức phí ship tương ứng chính xác.
-            </p>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"
-            >
-              <h4
-                class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu
-                bài toán (Ví dụ ứng dụng 3.2):
-              </h4>
-              <p class="text-sm text-slate-700 leading-relaxed m-0">
-                Cho đơn hàng trị giá
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >320.000 VNĐ</code
-                >. Nếu đơn hàng từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >500.000 VNĐ</code
-                >
-                trở lên thì miễn phí ship (<code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >0 VNĐ</code
-                >), ngược lại tính phí ship tiêu chuẩn
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >30.000 VNĐ</code
-                >. Tính toán tổng chi phí đơn hàng.
-              </p>
-            </div>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
-            >
-              <div
-                class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200"
-              >
-                <div
-                  class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm"
-                >
-                  <button
-                    onclick="
-                      clearSandbox(
-                        'code-sb-sec3-2',
-                        'output-sb-sec3-2',
-                        'container-sb-sec3-2',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Khôi phục code gốc"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                  </button>
-                  <button
-                    onclick="
-                      runPythonCode(
-                        'code-sb-sec3-2',
-                        'output-sb-sec3-2',
-                        'container-sb-sec3-2',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Chạy chương trình"
-                  >
-                    <i class="ph-bold ph-play text-xs"></i>
-                  </button>
-                  <button
-                    onclick="copySandboxCode('code-sb-sec3-2', this)"
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Sao chép"
-                  >
-                    <i class="ph-bold ph-copy text-xs"></i>
-                  </button>
-                </div>
-                <pre
-                  class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 3.2: Phân loại phí giao hàng&#10;order_amount = 320000&#10;standard_shipping_rate = 30000&#10;&#10;if order_amount &gt;= 500000:&#10;    actual_shipping_fee = 0&#10;    print(&quot;Đủ điều kiện miễn phí giao hàng.&quot;)&#10;else:&#10;    actual_shipping_fee = standard_shipping_rate&#10;    print(f&quot;Áp dụng phí giao hàng tiêu chuẩn: {actual_shipping_fee} VNĐ.&quot;)&#10;&#10;total_checkout = order_amount + actual_shipping_fee&#10;print(f&quot;Tổng tiền thanh toán: {total_checkout} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 3.2: Phân loại phí giao hàng
-order_amount = 320000
-standard_shipping_rate = 30000
-
-if order_amount >= 500000:
-    actual_shipping_fee = 0
-    print("Đủ điều kiện miễn phí giao hàng.")
-else:
-    actual_shipping_fee = standard_shipping_rate
-    print(f"Áp dụng phí giao hàng tiêu chuẩn: {actual_shipping_fee} VNĐ.")
-
-total_checkout = order_amount + actual_shipping_fee
-print(f"Tổng tiền thanh toán: {total_checkout} VNĐ")</code></pre>
-              </div>
-              <div
-                id="container-sb-sec3-2"
-                class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5"
-              >
-                <div
-                  class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1"
-                >
-                  <span
-                    class="text-slate-700 font-bold flex items-center gap-1.5"
-                  >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> Kết quả
-                    chạy chương trình (Console):
-                  </span>
-                </div>
-                <pre
-                  id="output-sb-sec3-2"
-                  class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"
-                ></pre>
-              </div>
-            </div>
-            <h3
-              id="sec-3-3-kich-ban-enterprise-ong-co-tinh-giam-gia-on-hang-phuc-hop-voi-if-elif-else"
-              class="font-montserrat font-bold text-xl text-slate-900 mb-3"
-            >
-              3.3. Ví dụ hoàn chỉnh: Tính giảm giá đơn hàng thực tế với
-              if-elif-else
-            </h3>
-            <p class="text-slate-600 mb-4 leading-relaxed">
-              Xây dựng tính năng tính tiền đơn hàng hoàn chỉnh, tự động áp dụng
-              mức giảm giá và chính sách miễn phí vận chuyển cho tài khoản VIP.
-            </p>
-            <div
-              class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"
-            >
-              <h4
-                class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu
-                bài toán (Ví dụ ứng dụng 3.3):
-              </h4>
-              <p class="text-sm text-slate-700 leading-relaxed m-0">
-                Lập trình tính năng tính tiền hoàn chỉnh cho đơn hàng
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >1.500.000 VNĐ</code
-                >: vừa kiểm tra miễn phí vận chuyển (nếu từ
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >500k</code
-                >
-                trở lên hoặc là khách VIP), vừa tự động phân hạng giảm giá
-                (<code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >5%</code
-                >,
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >10%</code
-                >,
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs font-semibold"
-                  >20%</code
-                >), sau đó in hóa đơn thanh toán chi tiết.
-              </p>
-            </div>
-            <div
-              class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50"
-            >
-              <div
-                class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200"
-              >
-                <div
-                  class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm"
-                >
-                  <button
-                    onclick="
-                      clearSandbox(
-                        'code-sb-sec3-3',
-                        'output-sb-sec3-3',
-                        'container-sb-sec3-3',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Khôi phục code gốc"
-                  >
-                    <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
-                  </button>
-                  <button
-                    onclick="
-                      runPythonCode(
-                        'code-sb-sec3-3',
-                        'output-sb-sec3-3',
-                        'container-sb-sec3-3',
-                      )
-                    "
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Chạy chương trình"
-                  >
-                    <i class="ph-bold ph-play text-xs"></i>
-                  </button>
-                  <button
-                    onclick="copySandboxCode('code-sb-sec3-3', this)"
-                    class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all"
-                    title="Sao chép"
-                  >
-                    <i class="ph-bold ph-copy text-xs"></i>
-                  </button>
-                </div>
-                <pre
-                  class="m-0 p-0 bg-transparent"
-                ><code id="code-sb-sec3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="# Ví dụ 3.3: Tính giảm giá và phí giao hàng cho đơn hàng&#10;order_amount = 1500000&#10;is_vip_customer = False&#10;&#10;# 1. Kiểm tra chính sách miễn phí giao hàng&#10;if order_amount &gt;= 500000 or is_vip_customer:&#10;    shipping_fee = 0&#10;    shipping_status = &quot;Miễn phí giao hàng&quot;&#10;else:&#10;    shipping_fee = 30000&#10;    shipping_status = &quot;Phí giao hàng tiêu chuẩn&quot;&#10;&#10;# 2. Xử lý mức giảm giá theo hạn mức đơn hàng&#10;if order_amount &gt;= 2000000:&#10;    discount_rate = 0.20&#10;    tier_name = &quot;Hạng Vàng (Giảm 20%)&quot;&#10;elif order_amount &gt;= 1000000:&#10;    discount_rate = 0.10&#10;    tier_name = &quot;Hạng Bạc (Giảm 10%)&quot;&#10;elif order_amount &gt;= 500000:&#10;    discount_rate = 0.05&#10;    tier_name = &quot;Hạng Đồng (Giảm 5%)&quot;&#10;else:&#10;    discount_rate = 0.00&#10;    tier_name = &quot;Hạng Tiêu chuẩn (Không giảm giá)&quot;&#10;&#10;# 3. Tính toán số tiền thanh toán cuối cùng&#10;discount_value = order_amount * discount_rate&#10;final_total = (order_amount - discount_value) + shipping_fee&#10;&#10;print(f&quot;Hạng ưu đãi: {tier_name}&quot;)&#10;print(f&quot;Số tiền giảm: {discount_value} VNĐ&quot;)&#10;print(f&quot;Phí vận chuyển: {shipping_fee} VNĐ ({shipping_status})&quot;)&#10;print(f&quot;Tổng tiền thanh toán: {final_total} VNĐ&quot;)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;"># Ví dụ 3.3: Tính giảm giá và phí giao hàng cho đơn hàng
-order_amount = 1500000
-is_vip_customer = False
-
-# 1. Kiểm tra chính sách miễn phí giao hàng
-if order_amount >= 500000 or is_vip_customer:
-    shipping_fee = 0
-    shipping_status = "Miễn phí giao hàng"
-else:
-    shipping_fee = 30000
-    shipping_status = "Phí giao hàng tiêu chuẩn"
-
-# 2. Xử lý mức giảm giá theo hạn mức đơn hàng
 if order_amount >= 2000000:
-    discount_rate = 0.20
-    tier_name = "Hạng Vàng (Giảm 20%)"
+    voucher = 'GIAM20'
 elif order_amount >= 1000000:
-    discount_rate = 0.10
-    tier_name = "Hạng Bạc (Giảm 10%)"
-elif order_amount >= 500000:
-    discount_rate = 0.05
-    tier_name = "Hạng Đồng (Giảm 5%)"
+    voucher = 'GIAM10'
 else:
-    discount_rate = 0.00
-    tier_name = "Hạng Tiêu chuẩn (Không giảm giá)"
+    voucher = 'KHONG'
 
-# 3. Tính toán số tiền thanh toán cuối cùng
-discount_value = order_amount * discount_rate
-final_total = (order_amount - discount_value) + shipping_fee
+print('Mã giảm giá áp dụng:', voucher)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">order_amount = 1500000
 
-print(f"Hạng ưu đãi: {tier_name}")
-print(f"Số tiền giảm: {discount_value} VNĐ")
-print(f"Phí vận chuyển: {shipping_fee} VNĐ ({shipping_status})")
-print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
-              </div>
-              <div
-                id="container-sb-sec3-3"
-                class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5"
-              >
-                <div
-                  class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1"
-                >
-                  <span
-                    class="text-slate-700 font-bold flex items-center gap-1.5"
-                  >
-                    <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ
-                    THỰC THI (CONSOLE OUTPUT):
-                  </span>
-                </div>
-                <pre
-                  id="output-sb-sec3-3"
-                  class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"
-                ></pre>
-              </div>
-            </div>
+if order_amount >= 2000000:
+    voucher = 'GIAM20'
+elif order_amount >= 1000000:
+    voucher = 'GIAM10'
+else:
+    voucher = 'KHONG'
+
+print('Mã giảm giá áp dụng:', voucher)</code></pre>
+  </div>
+  <div id="container-sb-3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-3-2-tinh-phi-ship-theo-khoang-cach" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Tính phí giao hàng ShopeeFood theo khoảng cách địa lý</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Tính phí giao hàng dựa trên khoảng cách km từ nhà hàng đến người nhận.</p>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.2 - Tính phí ship theo km):</div>
+  <p class="text-sm text-slate-700">Dưới 3km phí 15k, 3km-7km phí 25k, trên 7km phí 40k.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-3-2', 'output-sb-3-2', 'container-sb-3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-3-2', 'output-sb-3-2', 'container-sb-3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-2" class="language-python" contenteditable="true" spellcheck="false" data-original="distance_km = 5.2
+
+if distance_km <= 3.0:
+    ship_fee = 15000
+elif distance_km <= 7.0:
+    ship_fee = 25000
+else:
+    ship_fee = 40000
+
+print('Khoảng cách:', distance_km, 'km')
+print('Phí ship:', ship_fee, 'VNĐ')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">distance_km = 5.2
+
+if distance_km <= 3.0:
+    ship_fee = 15000
+elif distance_km <= 7.0:
+    ship_fee = 25000
+else:
+    ship_fee = 40000
+
+print('Khoảng cách:', distance_km, 'km')
+print('Phí ship:', ship_fee, 'VNĐ')</code></pre>
+  </div>
+  <div id="container-sb-3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-3-3-kiem-tra-so-du-vi-shopeepay" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Kiểm tra số dư ví ShopeePay trước khi thanh toán</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Xác nhận giao dịch thành công nếu số dư ví đủ trang trải tổng tiền đơn hàng.</p>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+  <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-push-pin text-sky-600"></i> Yêu cầu bài toán thực hành (Bài toán 3.3 - Thanh toán ví ShopeePay):</div>
+  <p class="text-sm text-slate-700">Số dư ví 300.000 VNĐ thanh toán đơn 220.000 VNĐ.</p>
+</div>
+<div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button type="button" onclick="clearSandbox('code-sb-3-3', 'output-sb-3-3', 'container-sb-3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i></button>
+      <button type="button" onclick="runPythonCode('code-sb-3-3', 'output-sb-3-3', 'container-sb-3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình"><i class="ph-bold ph-play text-xs"></i></button>
+      <button type="button" onclick="copySandboxCode('code-sb-3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép"><i class="ph-bold ph-copy text-xs"></i></button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-3-3" class="language-python" contenteditable="true" spellcheck="false" data-original="wallet_balance = 300000
+order_total = 220000
+
+if wallet_balance >= order_total:
+    wallet_balance -= order_total
+    print('Thanh toán thành công! Số dư còn lại:', wallet_balance, 'VNĐ')
+else:
+    print('Thanh toán thất bại! Số dư ví không đủ.')" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">wallet_balance = 300000
+order_total = 220000
+
+if wallet_balance >= order_total:
+    wallet_balance -= order_total
+    print('Thanh toán thành công! Số dư còn lại:', wallet_balance, 'VNĐ')
+else:
+    print('Thanh toán thất bại! Số dư ví không đủ.')</code></pre>
+  </div>
+  <div id="container-sb-3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5"><i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+    </div>
+    <pre id="output-sb-3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
           </div>
         </section>
 
-        <!-- Section 4: Tổng kết bài học -->
+        <!-- SECTION 4: GOTCHAS & PITFALLS -->
         <section id="section-4" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            4. Tổng kết bài học
+            4. Tổng kết bài học & Các lỗi thường gặp
           </h2>
 
-          <!-- Tóm tắt kiến thức trọng tâm -->
-          <div class="mb-6">
-            <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              Kiến thức trọng tâm
-            </h3>
-            <ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  >Câu lệnh
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >if</code
-                  >
-                  đơn:</strong
-                >
-                Sử dụng khi chỉ muốn thực hiện một khối lệnh khi điều kiện đúng
-                (<code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs"
-                  >True</code
-                >), nếu sai chương trình sẽ bỏ qua.
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  >Câu lệnh
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >if-else</code
-                  >:</strong
-                >
-                Sử dụng khi bài toán chia làm đúng 2 luồng đối lập (Đúng ➔ Làm
-                nhánh
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs"
-                  >if</code
-                >, Sai ➔ Làm nhánh
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs"
-                  >else</code
-                >).
-              </li>
-              <li>
-                <strong class="font-semibold text-slate-900"
-                  >Chuỗi
-                  <code
-                    class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                    >if-elif-else</code
-                  >:</strong
-                >
-                Sử dụng khi kiểm tra nhiều trường hợp từ trên xuống dưới. Ngay
-                khi tìm thấy điều kiện
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-xs"
-                  >True</code
-                >
-                đầu tiên, Python sẽ chạy nhánh đó và dừng kiểm tra các nhánh
-                sau.
-              </li>
-            </ul>
-          </div>
-
-          <!-- Các lỗi thường gặp và lưu ý thực tế -->
           <div class="space-y-4">
-            <h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3">
-              Các lỗi thường gặp & Lưu ý thực tế
-            </h3>
-            <div
-              class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg text-rose-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-warning-circle text-rose-600"></i> Lỗi
-                logic đặt sai thứ tự điều kiện trong chuỗi if-elif-else
-              </h4>
-              <p class="text-sm leading-relaxed mb-2">
-                Vì Python đánh giá biểu thức từ trên xuống dưới, việc xếp điều
-                kiện tổng quát (nhỏ hơn) lên trước điều kiện cụ thể (lớn hơn) sẽ
-                làm vô hiệu hóa các nhánh phía sau.
-              </p>
-              <p
-                class="text-sm leading-relaxed font-mono bg-white p-2 rounded border border-rose-200 text-rose-900"
-              >
-                # LỖI: Đơn hàng 2.500.000 VNĐ sẽ bị lọt vào nhánh &gt;= 500k và
-                dừng lại (chỉ giảm 5% thay vì 20%)<br />
-                if order_amount &gt;= 500000:<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;discount_rate = 0.05<br />
-                elif order_amount &gt;= 2000000:<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;discount_rate = 0.20
-              </p>
-            </div>
-            <div
-              class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg text-rose-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-x-circle text-rose-600"></i> Tránh lặp code
-                và kiểm tra điều kiện dư thừa
-              </h4>
-              <p class="text-sm leading-relaxed mb-2">
-                Khi các nhánh đã mang tính loại trừ, không cần lặp lại điều kiện
-                cận trên ở các câu lệnh
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >elif</code
-                >
-                tiếp theo.
-              </p>
-              <p
-                class="text-sm leading-relaxed font-mono bg-white p-2 rounded border border-rose-200 text-rose-900"
-              >
-                # KHÔNG TỐI ƯU: Điều kiện order_amount &lt; 2000000 là dư
-                thừa<br />
-                elif order_amount &gt;= 1000000 and order_amount &lt;
-                2000000:<br />
-                &nbsp;&nbsp;&nbsp;&nbsp;discount_rate = 0.10
-              </p>
-            </div>
-            <div
-              class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg text-amber-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-warning text-amber-600"></i> Quên thụt lùi
-                dòng (IndentationError) và lồng ghép quá sâu
-              </h4>
-              <p class="text-sm leading-relaxed">
-                Quên thụt lùi dòng sau dấu hai chấm
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >:</code
-                >
-                sẽ trực tiếp gây ra lỗi
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >IndentationError</code
-                >
-                làm dừng chương trình. Ngoài ra, việc lồng quá 3 cấp
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >if</code
-                >
-                bên trong một
-                <code
-                  class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm"
-                  >if</code
-                >
-                khác (Deep Nesting) sẽ làm suy giảm tính dễ đọc và bảo trì của
-                mã nguồn.
-              </p>
-            </div>
-            <div
-              class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4"
-            >
-              <h4
-                class="font-montserrat font-bold text-lg text-emerald-900 mb-2 flex items-center gap-2"
-              >
-                <i class="ph-bold ph-lightbulb text-emerald-600"></i> Viết điều
-                kiện Boolean chuẩn Pythonic
-              </h4>
-              <p class="text-sm leading-relaxed">
-                Nên viết
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-rikkei-red font-mono text-xs"
-                  >if is_vip:</code
-                >
-                thay vì
-                <code
-                  class="px-1.5 py-0.5 rounded bg-white text-slate-600 font-mono text-xs"
-                  >if is_vip == True:</code
-                >. Mã nguồn vừa ngắn gọn, vừa đúng phong cách lập trình chuyên
-                nghiệp.
-              </p>
-            </div>
+            
+<div class="space-y-4">
+  <div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4">
+    <div class="font-bold text-rose-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-warning-circle text-rose-600"></i> Lỗi thường gặp 1: Quên dấu hai chấm (:) gây SyntaxError</div>
+    <p class="text-sm text-slate-700">Mỗi dòng khai báo <code>if</code>, <code>elif</code>, hoặc <code>else</code> bắt buộc phải kết thúc bằng dấu hai chấm <code>:</code>.</p>
+  </div>
+  <div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4">
+    <div class="font-bold text-amber-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-lightning text-amber-600"></i> Lỗi thường gặp 2: Thụt lùi dòng không thống nhất (IndentationError)</div>
+    <p class="text-sm text-slate-700">Các dòng lệnh bên trong một khối rẽ nhánh phải thụt lùi vào đúng 4 khoảng trắng.</p>
+  </div>
+  <div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+    <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5"><i class="ph-bold ph-brackets-curly text-sky-600"></i> Lỗi thường gặp 3: Sai thứ tự điều kiện trong chuỗi if-elif</div>
+    <p class="text-sm text-slate-700">Nếu đặt điều kiện nhỏ hơn lên trước, đơn hàng lớn sẽ bị khớp nhầm vào nhánh điều kiện nhỏ hơn.</p>
+  </div>
+</div>
+
           </div>
         </section>
 
-        <!-- Section 5: Tài liệu tham khảo -->
+        <!-- SECTION 5: REFERENCES -->
         <section id="section-5" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
             5. Tài liệu tham khảo
           </h2>
+
           <div class="pt-2">
             <ul class="space-y-2 list-none pl-0">
               <li>
-                <a
-                  href="https://docs.python.org/3/tutorial/controlflow.html#if-statements"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium"
-                >
-                  <i class="ph-bold ph-link text-sm"></i> Python Documentation:
-                  More Control Flow Tools (if Statements)
+                <a href="https://docs.python.org/3/tutorial/controlflow.html#if-statements" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> Tài liệu chính thức Python 3 - Control Flow Tools (if statements)
                 </a>
               </li>
-
               <li>
-                <a
-                  href="https://realpython.com/python-conditional-statements/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium"
-                >
-                  <i class="ph-bold ph-link text-sm"></i> Real Python:
-                  Conditional Statements in Python (if/elif/else)
+                <a href="https://realpython.com/python-conditional-statements/" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> Real Python: Conditional Statements in Python (if/elif/else)
                 </a>
               </li>
             </ul>
@@ -2108,103 +859,23 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
       </article>
     </main>
 
+    <!-- Scripts -->
     <script>
-      function toggleMobileToc() {
-        const drawer = document.getElementById("mobile-toc-drawer");
-        if (drawer) drawer.classList.toggle("hidden");
-      }
+      hljs.highlightAll();
 
-      // (HLJS initialization moved to second DOMContentLoaded handler below)
-
-      // Theme toggle script — also swaps hljs stylesheet for proper syntax colors in both modes
-      const themeToggleBtn = document.getElementById("theme-toggle");
-      const themeIcon = document.getElementById("theme-icon");
-      const hljsLightTheme = document.getElementById("hljs-light-theme");
-      const hljsDarkTheme = document.getElementById("hljs-dark-theme");
-
-      function applyHljsTheme(isDark) {
-        if (hljsLightTheme) hljsLightTheme.disabled = isDark;
-        if (hljsDarkTheme) hljsDarkTheme.disabled = !isDark;
-        // Re-highlight all code blocks so new theme tokens take effect immediately
-        if (window.hljs) {
-          document.querySelectorAll("pre code").forEach((block) => {
-            block.removeAttribute("data-highlighted");
-            hljs.highlightElement(block);
-          });
-        }
-      }
-
-      themeToggleBtn?.addEventListener("click", () => {
-        document.documentElement.classList.toggle("dark");
-        const isDark = document.documentElement.classList.contains("dark");
-        themeIcon.className = isDark
-          ? "ph-bold ph-sun text-lg text-amber-400"
-          : "ph-bold ph-moon text-lg text-slate-600";
-        applyHljsTheme(isDark);
-      });
-
-      // Scroll progress script
       window.addEventListener("scroll", () => {
         const winScroll = document.documentElement.scrollTop;
-        const height =
-          document.documentElement.scrollHeight -
-          document.documentElement.clientHeight;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (winScroll / height) * 100;
-        const progress = document.getElementById("scroll-progress");
-        if (progress) progress.style.width = scrolled + "%";
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
       });
 
-      // Table of Contents Active Scroll Observer
-      document.addEventListener("DOMContentLoaded", () => {
-        const observerOptions = {
-          root: null,
-          rootMargin: "-20% 0px -60% 0px",
-          threshold: 0,
-        };
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        drawer.classList.toggle("hidden");
+      }
 
-        const tocLinks = document.querySelectorAll(
-          ".toc-link, .mobile-toc-link",
-        );
-        const sections = document.querySelectorAll("article section[id]");
-
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const id = entry.target.getAttribute("id");
-              tocLinks.forEach((link) => {
-                const href = link.getAttribute("href");
-                if (href === `#${id}`) {
-                  link.classList.add(
-                    "!border-rikkei-red",
-                    "!text-rikkei-red",
-                    "font-semibold",
-                  );
-                  link.classList.remove("border-transparent", "text-slate-600");
-                } else {
-                  link.classList.remove(
-                    "!border-rikkei-red",
-                    "!text-rikkei-red",
-                    "font-semibold",
-                  );
-                  link.classList.add("border-transparent", "text-slate-600");
-                }
-              });
-            }
-          });
-        }, observerOptions);
-
-        sections.forEach((section) => observer.observe(section));
-
-        // Syntax highlighting: highlight all code blocks (static + sandbox editors)
-        if (window.hljs) {
-          document.querySelectorAll("pre code").forEach((block) => {
-            block.removeAttribute("data-highlighted");
-            hljs.highlightElement(block);
-          });
-        }
-      });
-
-      // Pyodide Live Wasm Sandbox Engine (Style 1 Editor)
+      // Pyodide Live Wasm Sandbox Engine
       let pyodideInstance = null;
       async function getPyodide() {
         if (!pyodideInstance && window.loadPyodide) {
@@ -2231,28 +902,18 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
           }
           let outputBuffer = "";
           pyodide.setStdout({
-            batched: (str) => {
-              outputBuffer += str + "\n";
-            },
+            batched: (str) => { outputBuffer += str + "\n"; }
           });
           pyodide.setStderr({
-            batched: (str) => {
-              outputBuffer += "ERROR: " + str + "\n";
-            },
+            batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; }
           });
 
-          // Problem 3.2: Reset Pyodide global scope to prevent variable state leakage across sandboxes
           try {
-            await pyodide.runPythonAsync(
-              "import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]",
-            );
-          } catch (e) {}
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
 
           await pyodide.runPythonAsync(code);
-          output.innerText = outputBuffer.trim
-            ? outputBuffer.trim()
-            : outputBuffer ||
-              "Thực thi thành công (Không có kết quả xuất console).";
+          output.innerText = outputBuffer.trim() ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
         } catch (err) {
           output.innerText = "LỖI THỰC THI:\n" + err;
         }
@@ -2263,8 +924,7 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
         const output = document.getElementById(outputId);
         const container = document.getElementById(containerId);
         if (editor) {
-          const orig =
-            editor._originalText || editor.getAttribute("data-original");
+          const orig = editor._originalText || editor.getAttribute("data-original");
           if (orig) {
             editor.textContent = orig;
             editor.removeAttribute("data-highlighted");
@@ -2274,6 +934,7 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
         if (output) output.innerText = "";
         if (container) container.classList.add("hidden");
       }
+
       document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll("code[data-original]").forEach((codeEl) => {
           if (!codeEl._originalText) {
@@ -2286,502 +947,15 @@ print(f"Tổng tiền thanh toán: {final_total} VNĐ")</code></pre>
         const editor = document.getElementById(editorId);
         if (!editor) return;
         const text = editor.innerText || editor.textContent;
-        navigator.clipboard
-          .writeText(text)
-          .then(() => {
-            const origContent = btn.innerHTML;
-            btn.innerHTML =
-              '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
-            setTimeout(() => {
-              btn.innerHTML = origContent;
-            }, 2000);
-          })
-          .catch((err) => {
-            console.error("Lỗi copy code:", err);
-          });
-      }
-
-      // Global Dynamic Visualizer Runner Helpers
-      window.vizStepMap = {};
-      window.vizAutoTimer = null;
-      window.vizStepIndex = 0;
-      window.vizSpeedMs = 1500;
-
-      function getVizAmount() {
-        var el = document.getElementById("viz-edit-amount");
-        if (!el) return 750000;
-        var val = parseInt(el.innerText.replace(/[^0-9]/g, ""), 10);
-        return isNaN(val) ? 750000 : val;
-      }
-
-      function getVizTier1() {
-        var el = document.getElementById("viz-edit-tier1");
-        if (!el) return 2000000;
-        var val = parseInt(el.innerText.replace(/[^0-9]/g, ""), 10);
-        return isNaN(val) ? 2000000 : val;
-      }
-
-      function getVizTier2() {
-        var el = document.getElementById("viz-edit-tier2");
-        if (!el) return 500000;
-        var val = parseInt(el.innerText.replace(/[^0-9]/g, ""), 10);
-        return isNaN(val) ? 500000 : val;
-      }
-
-      function vizOnSliderChange(val) {
-        var num = parseInt(val, 10);
-        var editEl = document.getElementById("viz-edit-amount");
-        var displayEl = document.getElementById("viz-slider-val-display");
-        if (editEl) editEl.innerText = num.toString();
-        if (displayEl)
-          displayEl.innerText = num.toLocaleString("vi-VN") + " VNĐ";
-        vizReset();
-      }
-
-      function vizOnEditAmountText() {
-        var amount = getVizAmount();
-        var slider = document.getElementById("viz-amount-slider");
-        var displayEl = document.getElementById("viz-slider-val-display");
-        if (slider && amount <= 3000000) slider.value = amount;
-        if (displayEl)
-          displayEl.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
-        vizReset();
-      }
-
-      function vizSetPreset(amount) {
-        var editEl = document.getElementById("viz-edit-amount");
-        var slider = document.getElementById("viz-amount-slider");
-        var displayEl = document.getElementById("viz-slider-val-display");
-        if (editEl) editEl.innerText = amount.toString();
-        if (slider) slider.value = amount;
-        if (displayEl)
-          displayEl.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
-        vizReset();
-        vizLogTerminal(
-          "✏️ Đã chọn order_amount = " +
-            amount.toLocaleString("vi-VN") +
-            " VNĐ",
-          "assign",
-        );
-      }
-
-      function vizSetSpeed(ms, btn) {
-        window.vizSpeedMs = ms;
-        document.querySelectorAll(".viz-speed-btn").forEach(function (b) {
-          b.className =
-            "viz-speed-btn px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium transition-all";
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
         });
-        if (btn)
-          btn.className =
-            "viz-speed-btn px-2 py-1 rounded bg-slate-200 font-semibold text-slate-800 transition-all";
-        if (window.vizAutoTimer) {
-          clearInterval(window.vizAutoTimer);
-          window.vizAutoTimer = setInterval(function () {
-            runVizStep(1);
-          }, window.vizSpeedMs);
-        }
       }
 
-      function vizClearLog() {
-        var logBox = document.getElementById("viz-terminal-log");
-        if (logBox) {
-          logBox.innerHTML =
-            '<div class="text-slate-500 italic text-xs">🧹 Đã xóa lịch sử. Bấm "Tiếp theo" để bắt đầu...</div>';
-        }
-      }
-
-      function vizLogTerminal(msg, type) {
-        var logBox = document.getElementById("viz-terminal-log");
-        if (!logBox) return;
-
-        var now = new Date();
-        var timeStr = now.toTimeString().split(" ")[0];
-
-        var colorStyle = "color:#94a3b8";
-        if (type === "success") colorStyle = "color:#4ade80; font-weight:bold";
-        if (type === "true") colorStyle = "color:#34d399; font-weight:bold";
-        if (type === "false") colorStyle = "color:#fbbf24";
-        if (type === "assign") colorStyle = "color:#38bdf8";
-        if (type === "print") colorStyle = "color:#c084fc; font-weight:bold";
-
-        var entry = document.createElement("div");
-        entry.style.cssText =
-          "padding:1.5px 0; border-bottom:1px solid rgba(51,65,85,0.3); font-family:monospace; font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; " +
-          colorStyle;
-        entry.innerHTML =
-          '<span style="color:#64748b; margin-right:4px;">[' +
-          timeStr +
-          "]</span> " +
-          msg;
-
-        logBox.appendChild(entry);
-        logBox.scrollTop = logBox.scrollHeight;
-      }
-
-      function vizUpdateBadges(b1State, b2State, elseState) {
-        var b1 = document.getElementById("viz-badge-cond1");
-        var b2 = document.getElementById("viz-badge-cond2");
-        var be = document.getElementById("viz-badge-else");
-
-        function setBadge(el, state) {
-          if (!el) return;
-          if (state === "true") {
-            el.className =
-              "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
-            el.innerText = "🟢 True - KHỚP!";
-          } else if (state === "false") {
-            el.className =
-              "text-[10px] font-sans px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200 font-medium";
-            el.innerText = "❌ False - Bỏ qua";
-          } else if (state === "active-else") {
-            el.className =
-              "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
-            el.innerText = "⚡ Nhánh mặc định";
-          } else {
-            el.className =
-              "text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium";
-            el.innerText = "⏳ Chờ kiểm tra";
-          }
-        }
-
-        setBadge(b1, b1State);
-        setBadge(b2, b2State);
-        setBadge(be, elseState);
-      }
-
-      function vizHighlightLine(lineNo) {
-        for (var i = 1; i <= 8; i++) {
-          var el = document.getElementById("viz-line-" + i);
-          if (el) {
-            el.style.backgroundColor = "";
-            el.style.borderLeft = "4px solid transparent";
-            el.style.fontWeight = "normal";
-          }
-        }
-        if (lineNo > 0) {
-          var activeEl = document.getElementById("viz-line-" + lineNo);
-          if (activeEl) {
-            activeEl.style.backgroundColor = "#d1fae5"; // Light emerald highlight
-            activeEl.style.borderLeft = "4px solid #059669"; // Emerald bold left border
-            activeEl.style.fontWeight = "bold";
-          }
-        }
-      }
-
-      function runVizStep(delta, idPrefix) {
-        if (idPrefix && idPrefix !== "viz") {
-          return;
-        }
-
-        var amount = getVizAmount();
-        var tier1 = getVizTier1();
-        var tier2 = getVizTier2();
-
-        if (delta === -999) {
-          window.vizStepIndex = 0;
-          if (window.vizAutoTimer) {
-            clearInterval(window.vizAutoTimer);
-            window.vizAutoTimer = null;
-            var btn = document.getElementById("viz-btn-auto");
-            if (btn)
-              btn.innerHTML = '<i class="ph-bold ph-play"></i> Tự động chạy';
-          }
-          vizHighlightLine(0);
-          vizUpdateBadges("reset", "reset", "reset");
-
-          var varAmt = document.getElementById("viz-var-amount");
-          var varDisc = document.getElementById("viz-var-discount");
-          var badge = document.getElementById("viz-step-badge");
-          var status = document.getElementById("viz-status-text");
-
-          if (varAmt)
-            varAmt.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
-          if (varDisc) varDisc.innerText = "0.00 (0%)";
-          if (badge) badge.innerText = "Chưa khởi chạy";
-          if (status) status.innerText = "Sẵn sàng mô phỏng";
-          return;
-        }
-
-        var maxSteps = 5;
-        if (delta > 0) {
-          window.vizStepIndex += 1;
-          if (window.vizStepIndex > maxSteps) window.vizStepIndex = 1;
-        } else if (delta < 0) {
-          window.vizStepIndex -= 1;
-          if (window.vizStepIndex < 1) window.vizStepIndex = maxSteps;
-        }
-
-        var step = window.vizStepIndex;
-        var badge = document.getElementById("viz-step-badge");
-        var status = document.getElementById("viz-status-text");
-        var varAmt = document.getElementById("viz-var-amount");
-        var varDisc = document.getElementById("viz-var-discount");
-
-        if (badge) badge.innerText = "Bước " + step + "/5";
-
-        if (step === 1) {
-          vizHighlightLine(1);
-          vizUpdateBadges("reset", "reset", "reset");
-          if (varAmt)
-            varAmt.innerText = amount.toLocaleString("vi-VN") + " VNĐ";
-          if (status)
-            status.innerText =
-              "Khởi tạo order_amount = " +
-              amount.toLocaleString("vi-VN") +
-              " VNĐ";
-          vizLogTerminal(
-            "▶ <b>[Bước 1/5]</b> Gán order_amount = " +
-              amount.toLocaleString("vi-VN") +
-              " VNĐ",
-            "assign",
-          );
-        } else if (step === 2) {
-          vizHighlightLine(2);
-          var isCond1 = amount >= tier1;
-          if (isCond1) {
-            vizUpdateBadges("true", "reset", "reset");
-            if (status)
-              status.innerText =
-                "Nhánh 1 KHỚP (>= " + tier1.toLocaleString("vi-VN") + ")";
-            vizLogTerminal(
-              "🔍 <b>[Bước 2/5]</b> if (" +
-                amount.toLocaleString("vi-VN") +
-                " >= " +
-                tier1.toLocaleString("vi-VN") +
-                ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>",
-              "true",
-            );
-          } else {
-            vizUpdateBadges("false", "reset", "reset");
-            if (status)
-              status.innerText = "Nhánh 1 KHÔNG KHỚP. Chuyển sang elif";
-            vizLogTerminal(
-              "🔍 <b>[Bước 2/5]</b> if (" +
-                amount.toLocaleString("vi-VN") +
-                " >= " +
-                tier1.toLocaleString("vi-VN") +
-                ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>",
-              "false",
-            );
-          }
-        } else if (step === 3) {
-          var isCond1 = amount >= tier1;
-          if (isCond1) {
-            vizHighlightLine(3);
-            vizUpdateBadges("true", "reset", "reset");
-            if (varDisc) varDisc.innerText = "0.20 (20%)";
-            if (status)
-              status.innerText = "Gán discount_rate = 0.20 (Giảm 20%)";
-            vizLogTerminal(
-              "⚡ <b>[Bước 3/5]</b> Gán discount_rate = 0.20 (Giảm 20%)",
-              "assign",
-            );
-          } else {
-            vizHighlightLine(4);
-            var isCond2 = amount >= tier2;
-            if (isCond2) {
-              vizUpdateBadges("false", "true", "reset");
-              if (status)
-                status.innerText =
-                  "Nhánh elif KHỚP (>= " + tier2.toLocaleString("vi-VN") + ")";
-              vizLogTerminal(
-                "🔍 <b>[Bước 3/5]</b> elif (" +
-                  amount.toLocaleString("vi-VN") +
-                  " >= " +
-                  tier2.toLocaleString("vi-VN") +
-                  ") ➔ <span style='color:#4ade80'>True (THỎA MÃN!)</span>",
-                "true",
-              );
-            } else {
-              vizUpdateBadges("false", "false", "reset");
-              if (status)
-                status.innerText = "Nhánh elif KHÔNG KHỚP. Chuyển sang else";
-              vizLogTerminal(
-                "🔍 <b>[Bước 3/5]</b> elif (" +
-                  amount.toLocaleString("vi-VN") +
-                  " >= " +
-                  tier2.toLocaleString("vi-VN") +
-                  ") ➔ <span style='color:#fbbf24'>False (Bỏ qua)</span>",
-                "false",
-              );
-            }
-          }
-        } else if (step === 4) {
-          var isCond1 = amount >= tier1;
-          var isCond2 = amount >= tier2;
-          if (isCond1) {
-            vizHighlightLine(8);
-            vizUpdateBadges("true", "reset", "reset");
-            if (status) status.innerText = "Hoàn thành nhánh 1";
-            vizLogTerminal(
-              "🎯 <b>[Bước 4/5]</b> In ➔ 'Tỷ lệ giảm giá: 20%'",
-              "print",
-            );
-          } else if (isCond2) {
-            vizHighlightLine(5);
-            vizUpdateBadges("false", "true", "reset");
-            if (varDisc) varDisc.innerText = "0.05 (5%)";
-            if (status) status.innerText = "Gán discount_rate = 0.05 (Giảm 5%)";
-            vizLogTerminal(
-              "⚡ <b>[Bước 4/5]</b> Gán discount_rate = 0.05 (Giảm 5%)",
-              "assign",
-            );
-          } else {
-            vizHighlightLine(7);
-            vizUpdateBadges("false", "false", "active-else");
-            if (varDisc) varDisc.innerText = "0.00 (0%)";
-            if (status) status.innerText = "Rơi vào nhánh else mặc định (0%)";
-            vizLogTerminal(
-              "⚡ <b>[Bước 4/5]</b> Nhánh else: Gán discount_rate = 0.00",
-              "assign",
-            );
-          }
-        } else if (step === 5) {
-          vizHighlightLine(8);
-          var finalRate = 0;
-          if (amount >= tier1) finalRate = 20;
-          else if (amount >= tier2) finalRate = 5;
-          else finalRate = 0;
-
-          if (status) status.innerText = "Hoàn thành mô phỏng rẽ nhánh!";
-          vizLogTerminal(
-            "🎯 <b>[Bước 5/5]</b> In ➔ 'Tỷ lệ giảm giá áp dụng: " +
-              finalRate +
-              "%'",
-            "print",
-          );
-          vizLogTerminal("✅ <b>HOÀN THÀNH LUỒNG MÔ PHỎNG!</b>", "success");
-        }
-      }
-
-      function vizToggleAuto() {
-        if (window.vizAutoTimer) {
-          clearInterval(window.vizAutoTimer);
-          window.vizAutoTimer = null;
-          var btn = document.getElementById("viz-btn-auto");
-          if (btn)
-            btn.innerHTML = '<i class="ph-bold ph-play"></i> Tự động chạy';
-        } else {
-          runVizStep(1);
-          window.vizAutoTimer = setInterval(function () {
-            runVizStep(1);
-          }, window.vizSpeedMs || 1500);
-          var btn = document.getElementById("viz-btn-auto");
-          if (btn) btn.innerHTML = '<i class="ph-bold ph-pause"></i> Tạm dừng';
-        }
-      }
-
-      function resetViz(idPrefix) {
-        idPrefix = idPrefix || "viz";
-        runVizStep(-999, idPrefix);
-      }
-
-      // Universal Adapter Aliases bridging ALL LLM-generated button handlers to visualizer API
-      function vizAutoRun() {
-        vizToggleAuto();
-      }
-      function vizAutoStart() {
-        vizToggleAuto();
-      }
-      function vizStartAuto() {
-        vizToggleAuto();
-      }
-      function vizRunAuto() {
-        vizToggleAuto();
-      }
-      function vizStart() {
-        runVizStep(1);
-      }
-      function vizPlay() {
-        vizToggleAuto();
-      }
-      function vizTogglePlay() {
-        vizToggleAuto();
-      }
-
-      function vizStepNext() {
-        runVizStep(1);
-      }
-      function vizStepPrev() {
-        runVizStep(-1);
-      }
-      function vizNextStep() {
-        runVizStep(1);
-      }
-      function vizPrevStep() {
-        runVizStep(-1);
-      }
-      function vizNext() {
-        runVizStep(1);
-      }
-      function vizPrev() {
-        runVizStep(-1);
-      }
-      function vizStepForward() {
-        runVizStep(1);
-      }
-      function vizStepBackward() {
-        runVizStep(-1);
-      }
-      function vizForward() {
-        runVizStep(1);
-      }
-      function vizBackward() {
-        runVizStep(-1);
-      }
-      function vizStep() {
-        runVizStep(1);
-      }
-      function vizRun() {
-        runVizStep(1);
-      }
-
-      function stepNext() {
-        runVizStep(1);
-      }
-      function stepPrev() {
-        runVizStep(-1);
-      }
-      function nextStep() {
-        runVizStep(1);
-      }
-      function prevStep() {
-        runVizStep(-1);
-      }
-      function autoRun() {
-        vizToggleAuto();
-      }
-      function autoPlay() {
-        vizToggleAuto();
-      }
-      function toggleAuto() {
-        vizToggleAuto();
-      }
-
-      function vizReset() {
-        resetViz();
-      }
-      function vizRestart() {
-        resetViz();
-      }
-      function resetVisualizer() {
-        resetViz();
-      }
-
-      function vizToggleAuto() {
-        if (window.vizAutoTimer) {
-          clearInterval(window.vizAutoTimer);
-          window.vizAutoTimer = null;
-          var btn = document.getElementById("viz-auto-btn");
-          if (btn) btn.textContent = "Tự động chạy";
-        } else {
-          window.vizAutoTimer = setInterval(function () {
-            runVizStep(1);
-          }, 1500);
-          var btn = document.getElementById("viz-auto-btn");
-          if (btn) btn.textContent = "Dừng tự động";
-        }
-      }
     </script>
   </body>
 </html>
