@@ -1,0 +1,1166 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trực Quan Hóa Toán Tử Python - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS (Tailwind CDN is allowed for web apps) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      /* Premium custom styling */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #be111c 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .active-dot {
+        transform: scale(1.3);
+        background-color: #be111c !important;
+      }
+      .short-circuit-active {
+        animation: pulseGreen 1.5s infinite;
+      }
+      @keyframes pulseGreen {
+        0% {
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+      }
+      /* Hide scrollbar */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      /* Scale up small texts to at least 16px (text-base) for visual readability */
+      main .text-xs {
+        font-size: 1rem !important; /* 16px */
+        line-height: 1.625rem !important;
+      }
+      main .text-sm {
+        font-size: 1rem !important; /* 16px */
+        line-height: 1.625rem !important;
+      }
+      main .text-\[10px\] {
+        font-size: 0.875rem !important; /* 14px */
+        line-height: 1.25rem !important;
+      }
+      main label {
+        font-size: 1rem !important; /* 16px */
+        font-weight: 700 !important;
+        color: #475569 !important; /* slate-600 */
+      }
+      main input, main select {
+        font-size: 1rem !important; /* 16px */
+        padding: 0.625rem 0.875rem !important;
+      }
+      main .font-mono {
+        font-size: 1.05rem !important; /* 16.8px */
+      }
+      main h2 {
+        font-size: 1.875rem !important; /* 30px */
+        line-height: 2.25rem !important;
+      }
+      main h3 {
+        font-size: 1.25rem !important; /* 20px */
+        line-height: 1.75rem !important;
+      }
+      main ul {
+        padding-left: 1.5rem !important;
+      }
+      main li {
+        margin-bottom: 0.5rem !important;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white"
+  >
+    <!-- ===== FIXED HEADER WITH LOGO & NAV ===== -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm"
+    >
+      <div
+        class="max-w-6xl mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+          <span
+            class="text-sm font-semibold text-slate-700 border-l border-slate-300 pl-4 hidden sm:inline"
+            >Trực quan hóa Toán tử Python</span
+          >
+        </div>
+        <!-- Fixed Nav Links -->
+        <nav
+          class="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold text-slate-600"
+        >
+          <a
+            id="nav-s1"
+            href="#s1"
+            class="hover:text-rikkei-red transition-all border-b-2 border-transparent pb-1 text-slate-600"
+          >
+            Toán tử Số học
+          </a>
+          <a
+            id="nav-s2"
+            href="#s2"
+            class="hover:text-rikkei-red transition-all border-b-2 border-transparent pb-1 text-slate-600"
+          >
+            Toán tử So sánh
+          </a>
+          <a
+            id="nav-s3"
+            href="#s3"
+            class="hover:text-rikkei-red transition-all border-b-2 border-transparent pb-1 text-slate-600"
+          >
+            Toán tử Logic
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto p-4 sm:p-8 pt-24 space-y-12">
+      <!-- ===== SECTION 1: ARITHMETIC OPERATORS (PEMDAS) ===== -->
+      <section id="s1" class="space-y-6 scroll-mt-6">
+        <div class="border-b border-slate-200 pb-4">
+          <h2
+            class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900"
+          >
+            Toán tử Số học &amp; Thứ tự ưu tiên
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Hiểu sâu cách thức Python giải quyết các biểu thức toán học và sự
+            khác biệt giữa các phép chia.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Theory panel -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-card p-5 rounded-2xl">
+              <h3 class="font-bold text-sm text-slate-900 mb-3">
+                Thứ tự ưu tiên toán tử
+              </h3>
+              <ul
+                class="text-xs text-slate-600 space-y-2.5 list-disc pl-4 leading-relaxed"
+              >
+                <li>
+                  <strong>Ngoặc đơn `()`</strong>: Mức ưu tiên cao nhất, tính
+                  toán trước.
+                </li>
+                <li>
+                  <strong>Phép lũy thừa `**`</strong>: Được tính tiếp theo sau
+                  dấu ngoặc.
+                </li>
+                <li>
+                  <strong
+                    >Nhân, chia, chia nguyên, chia dư (`*`, `/`, `//`,
+                    `%`)</strong
+                  >: Cùng mức ưu tiên, thực hiện từ trái qua phải.
+                </li>
+                <li>
+                  <strong>Phép cộng và trừ (`+`, `-`)</strong>: Mức ưu tiên thấp
+                  nhất, thực hiện sau cùng.
+                </li>
+              </ul>
+            </div>
+
+            <div class="glass-card p-5 rounded-2xl bg-sky-50/40 border-sky-100">
+              <h3 class="font-bold text-sm text-sky-950 mb-3">
+                Phân biệt 3 phép chia
+              </h3>
+              <ul class="text-xs text-sky-900 space-y-2.5 leading-relaxed">
+                <li>
+                  <code class="bg-sky-100 text-sky-800 px-1 py-0.5 rounded"
+                    >/</code
+                  >
+                  <strong>Chia thực:</strong> Luôn luôn trả về kiểu
+                  <code class="font-semibold">float</code> (Ví dụ: `10 / 2 =
+                  5.0`).
+                </li>
+                <li>
+                  <code class="bg-sky-100 text-sky-800 px-1 py-0.5 rounded"
+                    >//</code
+                  >
+                  <strong>Chia lấy nguyên:</strong> Làm tròn xuống số nguyên gần
+                  nhất (`int`).
+                </li>
+                <li>
+                  <code class="bg-sky-100 text-sky-800 px-1 py-0.5 rounded"
+                    >%</code
+                  >
+                  <strong>Chia lấy dư:</strong> Tìm số dư còn lại của phép chia.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Simulator Panel -->
+          <div class="lg:col-span-8 glass-card p-6 rounded-3xl space-y-6">
+            <h3 class="font-montserrat font-bold text-base text-slate-900">
+              Bộ mô phỏng tính toán số học
+            </h3>
+
+            <!-- Controller inputs -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Giá trị X (int):</label
+                >
+                <input
+                  type="number"
+                  id="math-x"
+                  value="15"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-rikkei-red"
+                  oninput="calculateMath()"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Giá trị Y (int):</label
+                >
+                <input
+                  type="number"
+                  id="math-y"
+                  value="4"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-rikkei-red"
+                  oninput="calculateMath()"
+                />
+              </div>
+              <div class="col-span-2">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Chọn Biểu thức mẫu:</label
+                >
+                <select
+                  id="math-expr"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red"
+                  onchange="calculateMath()"
+                >
+                  <option value="x + y * 2">x + y * 2 (Nhân trước cộng)</option>
+                  <option value="(x + y) * 2">
+                    (x + y) * 2 (Ngoặc đơn trước)
+                  </option>
+                  <option value="x // y">x // y (Chia lấy phần nguyên)</option>
+                  <option value="x % y">x % y (Chia lấy phần dư)</option>
+                  <option value="x / y">x / y (Chia thực -> float)</option>
+                  <option value="x ** y">x ** y (Lũy thừa x^y)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Code rendering -->
+            <div
+              class="p-4 bg-slate-900 rounded-2xl font-mono text-sm text-slate-200 relative"
+            >
+              <span
+                class="absolute top-2.5 right-3 text-[10px] text-slate-500 uppercase font-semibold"
+                >Python Script</span
+              >
+              <div class="space-y-1.5">
+                <div>
+                  <span class="text-rose-400">x</span> =
+                  <span class="text-amber-300" id="code-math-x">15</span>
+                </div>
+                <div>
+                  <span class="text-rose-400">y</span> =
+                  <span class="text-amber-300" id="code-math-y">4</span>
+                </div>
+                <div>
+                  <span class="text-rose-400">result</span> =
+                  <span class="text-sky-300" id="code-math-expr"
+                    >x + y * 2</span
+                  >
+                </div>
+                <div>
+                  <span class="text-purple-400">print</span>(<span
+                    class="text-rose-400"
+                    >result</span
+                  >, <span class="text-purple-400">type</span>(<span
+                    class="text-rose-400"
+                    >result</span
+                  >))
+                </div>
+              </div>
+            </div>
+
+            <!-- Output Trace -->
+            <div
+              class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3"
+            >
+              <div
+                class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2"
+              >
+                TIẾN TRÌNH BIÊN DỊCH CỦA PYTHON
+              </div>
+              <div class="space-y-2 font-mono text-xs" id="math-trace">
+                <!-- Dynamic trace content -->
+              </div>
+
+              <div
+                class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100 mt-2"
+              >
+                <div>
+                  <span
+                    class="text-[10px] text-slate-400 font-semibold block uppercase"
+                    >Kết quả</span
+                  >
+                  <span
+                    class="font-mono text-base font-bold text-slate-800"
+                    id="math-res-val"
+                    >23</span
+                  >
+                </div>
+                <div class="text-right">
+                  <span
+                    class="text-[10px] text-slate-400 font-semibold block uppercase"
+                    >Kiểu dữ liệu (Type)</span
+                  >
+                  <span
+                    class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full font-semibold"
+                    id="math-res-type"
+                    >int</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION 2: COMPARISON & TYPE ISSUES ===== -->
+      <section id="s2" class="space-y-6 scroll-mt-6">
+        <div class="border-b border-slate-200 pb-4">
+          <h2
+            class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 flex items-center gap-2"
+          >
+            <i class="ph-bold ph-scales text-indigo-600"></i> Toán tử So sánh
+            &amp; Bản chất Đối chiếu Kiểu
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            So sánh bằng `==` giữa các kiểu dữ liệu khác nhau và lỗi so sánh
+            không đồng nhất kiểu.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Theory panel -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-card p-5 rounded-2xl">
+              <h3 class="font-bold text-sm text-slate-900 mb-3">
+                Bản chất của phép so sánh ==
+              </h3>
+              <ul
+                class="text-xs text-slate-600 space-y-2.5 list-disc pl-4 leading-relaxed"
+              >
+                <li>
+                  Không tự động ép kiểu: Python so sánh giá trị và kiểm tra loại
+                  bộ nhớ. Khác kiểu (ví dụ: `18 == "18"`) luôn cho ra
+                  <code class="font-semibold text-rose-600">False</code>.
+                </li>
+                <li>
+                  So sánh số nguyên và số thực: Cho phép đối chiếu bình đẳng (ví
+                  dụ: `5 == 5.0` là
+                  <code class="font-semibold text-emerald-600">True</code>).
+                </li>
+              </ul>
+            </div>
+
+            <div
+              class="glass-card p-5 rounded-2xl bg-amber-50/40 border-amber-100"
+            >
+              <h3 class="font-bold text-sm text-amber-950 mb-3">
+                Phân biệt phép gán (=) và so sánh (==)
+              </h3>
+              <p class="text-xs text-amber-900 leading-relaxed">
+                - Dấu
+                <code class="bg-amber-100 text-amber-800 px-1 py-0.5 rounded"
+                  >=</code
+                >
+                dùng để <strong>GÁN</strong> giá trị vào biến số.<br />
+                - Dấu
+                <code class="bg-amber-100 text-amber-800 px-1 py-0.5 rounded"
+                  >==</code
+                >
+                dùng để <strong>SO SÁNH</strong> xem hai vế có bằng nhau không,
+                trả về kiểu Boolean.
+              </p>
+            </div>
+          </div>
+
+          <!-- Simulator Panel -->
+          <div class="lg:col-span-8 glass-card p-6 rounded-3xl space-y-6">
+            <h3 class="font-montserrat font-bold text-base text-slate-900">
+              Bộ đối chiếu so sánh động
+            </h3>
+
+            <!-- Controller inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Giá trị Vế Trái (A):</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="comp-left"
+                    value="18"
+                    class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-indigo-500"
+                    oninput="compareValues()"
+                  />
+                  <select
+                    id="comp-left-type"
+                    class="px-2 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
+                    onchange="compareValues()"
+                  >
+                    <option value="int">int</option>
+                    <option value="str">str</option>
+                    <option value="float">float</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Toán tử so sánh:</label
+                >
+                <select
+                  id="comp-op"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-indigo-500"
+                  onchange="compareValues()"
+                >
+                  <option value="==">== (Bằng)</option>
+                  <option value="!=">!= (Khác)</option>
+                  <option value=">">&gt; (Lớn hơn)</option>
+                  <option value="<">&lt; (Nhỏ hơn)</option>
+                  <option value=">=">&gt;= (Lớn hơn bằng)</option>
+                  <option value="<=">&lt;= (Nhỏ hơn bằng)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Giá trị Vế Phải (B):</label
+                >
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="comp-right"
+                    value="18"
+                    class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-indigo-500"
+                    oninput="compareValues()"
+                  />
+                  <select
+                    id="comp-right-type"
+                    class="px-2 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-indigo-500"
+                    onchange="compareValues()"
+                  >
+                    <option value="str">str</option>
+                    <option value="int" selected>int</option>
+                    <option value="float">float</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Code rendering -->
+            <div
+              class="p-4 bg-slate-900 rounded-2xl font-mono text-sm text-slate-200 relative"
+            >
+              <span
+                class="absolute top-2.5 right-3 text-[10px] text-slate-500 uppercase font-semibold"
+                >Python Script</span
+              >
+              <div class="space-y-1.5">
+                <div>
+                  <span class="text-rose-400">val_a</span> =
+                  <span class="text-amber-300" id="code-comp-a">18</span>
+                  <span class="text-slate-500" id="code-comp-a-comment"
+                    ># int</span
+                  >
+                </div>
+                <div>
+                  <span class="text-rose-400">val_b</span> =
+                  <span class="text-amber-300" id="code-comp-b">"18"</span>
+                  <span class="text-slate-500" id="code-comp-b-comment"
+                    ># str</span
+                  >
+                </div>
+                <div>
+                  <span class="text-rose-400">check</span> =
+                  <span class="text-rose-400">val_a</span>
+                  <span class="text-sky-300" id="code-comp-op">==</span>
+                  <span class="text-rose-400">val_b</span>
+                </div>
+                <div>
+                  <span class="text-purple-400">print</span>(<span
+                    class="text-rose-400"
+                    >check</span
+                  >)
+                </div>
+              </div>
+            </div>
+
+            <!-- Comparison output -->
+            <div
+              class="p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border"
+              id="comp-result-card"
+            >
+              <div>
+                <span
+                  class="text-[10px] text-slate-400 font-semibold block uppercase"
+                  >Kết quả đánh giá</span
+                >
+                <span
+                  class="font-montserrat font-extrabold text-xl text-slate-900"
+                  id="comp-res-val"
+                  >False</span
+                >
+              </div>
+              <div class="sm:text-right max-w-md">
+                <span
+                  class="text-[10px] text-slate-400 font-semibold block uppercase mb-1"
+                  >Giải thích chi tiết</span
+                >
+                <p
+                  class="text-xs text-slate-600 leading-relaxed"
+                  id="comp-res-explanation"
+                >
+                  Không cùng kiểu dữ liệu (int và str), Python trả về False mà
+                  không ép kiểu.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== SECTION 3: LOGICAL OPERATORS & SHORT-CIRCUIT ===== -->
+      <section id="s3" class="space-y-6 scroll-mt-6">
+        <div class="border-b border-slate-200 pb-4">
+          <h2
+            class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 flex items-center gap-2"
+          >
+            <i class="ph-bold ph-tree-structure text-emerald-600"></i> Toán tử
+            Logic &amp; Cơ chế Đánh giá Ngắn mạch
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Trực quan hóa hoạt động của `and`, `or`, `not` và cách Python bỏ qua
+            biểu thức dư thừa.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <!-- Theory panel -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="glass-card p-5 rounded-2xl">
+              <h3 class="font-bold text-sm text-slate-900 mb-3">
+                Đánh giá ngắn mạch là gì?
+              </h3>
+              <ul
+                class="text-xs text-slate-600 space-y-2.5 list-disc pl-4 leading-relaxed"
+              >
+                <li>
+                  <strong>Phép `and` (Ngắn mạch khi gặp False):</strong> Nếu
+                  biểu thức bên trái là `False`, Python kết luận ngay kết quả là
+                  `False` mà không bao giờ tính biểu thức bên phải.
+                </li>
+                <li>
+                  <strong>Phép `or` (Ngắn mạch khi gặp True):</strong> Nếu biểu
+                  thức bên trái là `True`, Python kết luận ngay kết quả là
+                  `True` mà không bao giờ tính biểu thức bên phải.
+                </li>
+                <li>
+                  <strong>Lợi ích:</strong> Tăng tốc độ thực thi và tránh được
+                  các lỗi run-time (Ví dụ: kiểm tra mẫu số khác 0 trước khi
+                  chia).
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Simulator Panel -->
+          <div class="lg:col-span-8 glass-card p-6 rounded-3xl space-y-6">
+            <h3 class="font-montserrat font-bold text-base text-slate-900">
+              Trình mô phỏng luồng thực thi ngắn mạch
+            </h3>
+
+            <!-- Controller inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Vế trái A:</label
+                >
+                <select
+                  id="logic-a"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500"
+                  onchange="runLogicSimulation()"
+                >
+                  <option value="true">True</option>
+                  <option value="false" selected>False</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Toán tử logic:</label
+                >
+                <select
+                  id="logic-op"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500"
+                  onchange="runLogicSimulation()"
+                >
+                  <option value="and">and</option>
+                  <option value="or">or</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5"
+                  >Vế phải B (Nguy cơ lỗi):</label
+                >
+                <select
+                  id="logic-b"
+                  class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500"
+                  onchange="runLogicSimulation()"
+                >
+                  <option value="safe_true">True (An toàn)</option>
+                  <option value="safe_false">False (An toàn)</option>
+                  <option value="error">10 / 0 == 0 (Lỗi chia cho 0!)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Simulation Flow Graph -->
+            <div
+              class="p-6 bg-slate-50 border border-slate-200 rounded-2xl space-y-4"
+            >
+              <div
+                class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2"
+              >
+                LUỒNG ĐÁNH GIÁ THỰC TẾ
+              </div>
+
+              <div
+                class="flex flex-col sm:flex-row items-center justify-center gap-4 py-4"
+              >
+                <!-- Block A -->
+                <div
+                  id="sim-block-a"
+                  class="px-5 py-3 rounded-xl border font-mono text-sm font-semibold transition-all"
+                >
+                  Vế trái A: False
+                </div>
+
+                <!-- Operator -->
+                <div
+                  id="sim-operator"
+                  class="px-3 py-1 bg-slate-200 text-slate-700 font-mono text-xs rounded-full font-bold"
+                >
+                  and
+                </div>
+
+                <!-- Block B -->
+                <div
+                  id="sim-block-b"
+                  class="px-5 py-3 rounded-xl border font-mono text-sm font-semibold transition-all"
+                >
+                  Vế phải B
+                </div>
+              </div>
+
+              <!-- Short circuit callout -->
+              <div
+                id="short-circuit-callout"
+                class="p-3.5 rounded-xl border text-xs leading-relaxed hidden"
+              >
+                <!-- Dynamic alert text -->
+              </div>
+            </div>
+
+            <!-- Final outcome -->
+            <div
+              class="flex items-center justify-between p-4 bg-slate-900 rounded-2xl font-mono text-sm text-slate-100"
+            >
+              <div>
+                <span
+                  class="text-[10px] text-slate-500 uppercase block font-semibold mb-1"
+                  >Kết quả biểu thức</span
+                >
+                <span
+                  class="text-base font-bold text-amber-400"
+                  id="logic-res-val"
+                  >False</span
+                >
+              </div>
+              <div class="text-right">
+                <span
+                  class="text-[10px] text-slate-500 uppercase block font-semibold mb-1"
+                  >Lỗi sinh ra?</span
+                >
+                <span
+                  class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                  id="logic-res-status"
+                  >Không bị lỗi</span
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="bg-white border-t border-slate-200 py-8 px-6 mt-12 text-center text-xs text-slate-400"
+    >
+      <div
+        class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4"
+      >
+        <p>
+          Bản quyền thuộc về Dự án Phát triển Học liệu Số Rikkei Education — Lập
+          trình ứng dụng Python Core.
+        </p>
+      </div>
+    </footer>
+
+    <!-- ===== INTERACTIVE JAVASCRIPT LOGIC ===== -->
+    <script>
+      // 1. MATH SIMULATOR LOGIC
+      function calculateMath() {
+        const x = parseInt(document.getElementById("math-x").value) || 0;
+        const y = parseInt(document.getElementById("math-y").value) || 0;
+        const expr = document.getElementById("math-expr").value;
+
+        document.getElementById("code-math-x").innerText = x;
+        document.getElementById("code-math-y").innerText = y;
+        document.getElementById("code-math-expr").innerText = expr;
+
+        const traceContainer = document.getElementById("math-trace");
+        traceContainer.innerHTML = "";
+
+        let result = 0;
+        let resType = "int";
+        let errorOccurred = false;
+
+        try {
+          if (expr === "x + y * 2") {
+            const step1 = y * 2;
+            result = x + step1;
+            resType = "int";
+            traceContainer.innerHTML = `
+            <div class="text-slate-400">> Thực hiện phép nhân trước: <span class="text-amber-400">y * 2</span> = ${y} * 2 = <span class="text-sky-400">${step1}</span></div>
+            <div class="text-slate-400">> Thực hiện phép cộng sau: <span class="text-amber-400">x + ${step1}</span> = ${x} + ${step1} = <span class="text-emerald-400">${result}</span></div>
+          `.replace(/\\\$/g, "$");
+          } else if (expr === "(x + y) * 2") {
+            const step1 = x + y;
+            result = step1 * 2;
+            resType = "int";
+            traceContainer.innerHTML = `
+            <div class="text-slate-400">> Ngoặc đơn ưu tiên trước: <span class="text-amber-400">(x + y)</span> = ${x} + ${y} = <span class="text-sky-400">${step1}</span></div>
+            <div class="text-slate-400">> Thực hiện phép nhân sau: <span class="text-amber-400">${step1} * 2</span> = ${step1} * 2 = <span class="text-emerald-400">${result}</span></div>
+          `.replace(/\\\$/g, "$");
+          } else if (expr === "x // y") {
+            if (y === 0) throw new Error("ZeroDivisionError");
+            result = Math.floor(x / y);
+            resType = "int";
+            traceContainer.innerHTML = `
+            <div class="text-slate-400">> Phép chia lấy phần nguyên: làm tròn xuống số nguyên nhỏ hơn gần nhất.</div>
+            <div class="text-slate-400">> <span class="text-amber-400">${x} // ${y}</span> = <span class="text-emerald-400">${result}</span></div>
+          `.replace(/\\\$/g, "$");
+          } else if (expr === "x % y") {
+            if (y === 0) throw new Error("ZeroDivisionError");
+            result = x % y;
+            resType = "int";
+            traceContainer.innerHTML = `
+            <div class="text-slate-400">> Phép chia lấy phần dư (modulus).</div>
+            <div class="text-slate-400">> <span class="text-amber-400">${x} % ${y}</span> = <span class="text-emerald-400">${result}</span></div>
+          `.replace(/\\\$/g, "$");
+          } else if (expr === "x / y") {
+            if (y === 0) throw new Error("ZeroDivisionError");
+            result = (x / y).toFixed(2);
+            resType = "float";
+            traceContainer.innerHTML = `
+            <div class="text-slate-400">> Phép chia thực trong Python luôn sinh ra kết quả kiểu <span class="text-emerald-400 font-semibold">float</span>.</div>
+            <div class="text-slate-400">> <span class="text-amber-400">${x} / \dots</span> = <span class="text-emerald-400">${result}</span></div>
+          `.replace(/\\\$/g, "$");
+          } else if (expr === "x ** y") {
+            result = Math.pow(x, y);
+            resType = "int";
+            traceContainer.innerHTML = `
+            <div class="text-slate-400">> Phép toán lũy thừa (x mũ y).</div>
+            <div class="text-slate-400">> <span class="text-amber-400">${x} ** ${y}</span> = <span class="text-emerald-400">${result}</span></div>
+          `.replace(/\\\$/g, "$");
+          }
+        } catch (err) {
+          errorOccurred = true;
+          result = "ZeroDivisionError: division by zero";
+          resType = "error";
+          traceContainer.innerHTML = `
+          <div class="text-red-500 font-semibold">> LỖI: Chia cho số không!</div>
+          <div class="text-slate-400">> y = 0 nên phép toán không thể thực thi.</div>
+        `;
+        }
+
+        const resValSpan = document.getElementById("math-res-val");
+        const resTypeSpan = document.getElementById("math-res-type");
+
+        resValSpan.innerText = result;
+        resTypeSpan.innerText = resType;
+
+        if (errorOccurred) {
+          resValSpan.className = "font-mono text-sm font-bold text-red-600";
+          resTypeSpan.className =
+            "font-mono text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-100 rounded-full font-semibold";
+        } else {
+          resValSpan.className = "font-mono text-base font-bold text-slate-800";
+          resTypeSpan.className =
+            "font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full font-semibold";
+        }
+      }
+
+      // 2. COMPARISON LOGIC
+      function compareValues() {
+        let valAInput = document.getElementById("comp-left").value.trim();
+        let valBInput = document.getElementById("comp-right").value.trim();
+        const typeA = document.getElementById("comp-left-type").value;
+        const typeB = document.getElementById("comp-right-type").value;
+        const op = document.getElementById("comp-op").value;
+
+        // Parse types
+        let valA, valB, codeValA, codeValB;
+        if (typeA === "int") {
+          valA = parseInt(valAInput) || 0;
+          codeValA = valA;
+        } else if (typeA === "float") {
+          valA = parseFloat(valAInput) || 0.0;
+          codeValA = valA;
+        } else {
+          valA = valAInput;
+          codeValA = '"' + valA + '"';
+        }
+
+        if (typeB === "int") {
+          valB = parseInt(valBInput) || 0;
+          codeValB = valB;
+        } else if (typeB === "float") {
+          valB = parseFloat(valBInput) || 0.0;
+          codeValB = valB;
+        } else {
+          valB = valBInput;
+          codeValB = '"' + valB + '"';
+        }
+
+        document.getElementById("code-comp-a").innerText = codeValA;
+        document.getElementById("code-comp-b").innerText = codeValB;
+        document.getElementById("code-comp-a-comment").innerText = "# " + typeA;
+        document.getElementById("code-comp-b-comment").innerText = "# " + typeB;
+        document.getElementById("code-comp-op").innerText = op;
+
+        // Evaluate comparison
+        let result = false;
+        let explanation = "";
+
+        // Check if comparing different types
+        const isDifferentTypes =
+          (typeA === "str" && typeB !== "str") ||
+          (typeA !== "str" && typeB === "str");
+
+        if (op === "==") {
+          if (isDifferentTypes) {
+            result = false;
+            explanation =
+              "Vế trái là <strong>" +
+              typeA +
+              "</strong>, vế phải là <strong>" +
+              typeB +
+              "</strong>. Python không tự động ép kiểu giữa chuỗi và số nên phép so sánh bằng luôn trả về <strong>False</strong>.";
+          } else {
+            result = valA == valB;
+            explanation =
+              "Cả hai vế đều là kiểu số hoặc kiểu chuỗi tương ứng. Giá trị " +
+              valA +
+              " so sánh bằng với " +
+              valB +
+              " trả về <strong>" +
+              result +
+              "</strong>.";
+          }
+        } else if (op === "!=") {
+          if (isDifferentTypes) {
+            result = true;
+            explanation =
+              "Vì hai vế thuộc hai kiểu dữ liệu khác nhau (<strong>" +
+              typeA +
+              "</strong> và <strong>" +
+              typeB +
+              "</strong>), chúng chắc chắn khác nhau. Kết quả so sánh khác là <strong>True</strong>.";
+          } else {
+            result = valA != valB;
+            explanation =
+              "So sánh xem " +
+              valA +
+              " có khác " +
+              valB +
+              " hay không. Trả về <strong>" +
+              result +
+              "</strong>.";
+          }
+        } else {
+          // Inequality operators: can raise TypeError in Python if different types
+          if (isDifferentTypes) {
+            result = "TypeError";
+            explanation =
+              '<span class="text-red-600 font-semibold">Lỗi TypeError:</span> Python tuyệt đối không cho phép sử dụng toán tử so sánh lớn hơn/nhỏ hơn giữa chuỗi và số. Chương trình sẽ bị crash.</span>';
+          } else {
+            if (op === ">") result = valA > valB;
+            else if (op === "<") result = valA < valB;
+            else if (op === ">=") result = valA >= valB;
+            else if (op === "<=") result = valA <= valB;
+            explanation =
+              "Thực hiện phép so sánh số học hoặc so sánh thứ tự bảng chữ cái: " +
+              valA +
+              " " +
+              op +
+              " " +
+              valB +
+              " trả về <strong>" +
+              result +
+              "</strong>.";
+          }
+        }
+
+        const resValSpan = document.getElementById("comp-res-val");
+        const resExpP = document.getElementById("comp-res-explanation");
+        const resultCard = document.getElementById("comp-result-card");
+
+        resValSpan.innerHTML = result;
+        resExpP.innerHTML = explanation;
+
+        if (result === "TypeError") {
+          resultCard.className =
+            "p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-red-200 bg-red-50/50";
+          resValSpan.className =
+            "font-montserrat font-extrabold text-xl text-red-600";
+        } else if (result === true) {
+          resultCard.className =
+            "p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-200 bg-emerald-50/40";
+          resValSpan.className =
+            "font-montserrat font-extrabold text-xl text-emerald-600";
+        } else {
+          resultCard.className =
+            "p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-200 bg-slate-50/50";
+          resValSpan.className =
+            "font-montserrat font-extrabold text-xl text-slate-600";
+        }
+      }
+
+      // 3. LOGIC SHORT-CIRCUIT LOGIC
+      function runLogicSimulation() {
+        const aVal = document.getElementById("logic-a").value === "true";
+        const op = document.getElementById("logic-op").value;
+        const bOption = document.getElementById("logic-b").value;
+
+        const blockA = document.getElementById("sim-block-a");
+        const blockB = document.getElementById("sim-block-b");
+        const opDiv = document.getElementById("sim-operator");
+        const alertDiv = document.getElementById("short-circuit-callout");
+        const resVal = document.getElementById("logic-res-val");
+        const resStatus = document.getElementById("logic-res-status");
+
+        blockA.innerText = "Vế trái A: " + (aVal ? "True" : "False");
+        blockA.className = aVal
+          ? "px-5 py-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 font-mono text-sm font-semibold transition-all"
+          : "px-5 py-3 rounded-xl border border-red-200 bg-red-50 text-red-700 font-mono text-sm font-semibold transition-all";
+
+        opDiv.innerText = op;
+
+        let isShortCircuit = false;
+        let finalResult = false;
+        let raisedError = false;
+
+        // Check short circuit conditions
+        if (op === "and") {
+          if (!aVal) {
+            isShortCircuit = true;
+            finalResult = false;
+          } else {
+            isShortCircuit = false;
+          }
+        } else if (op === "or") {
+          if (aVal) {
+            isShortCircuit = true;
+            finalResult = true;
+          } else {
+            isShortCircuit = false;
+          }
+        }
+
+        if (isShortCircuit) {
+          // Under short circuit, block B is skipped
+          blockB.innerText = "Vế phải B (Bị bỏ qua)";
+          blockB.className =
+            "px-5 py-3 rounded-xl border border-slate-200 bg-slate-100 text-slate-400 font-mono text-sm font-semibold opacity-40 transition-all";
+
+          alertDiv.className =
+            "p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 text-emerald-800 text-xs leading-relaxed block short-circuit-active";
+          alertDiv.innerHTML =
+            '<div class="font-bold flex items-center gap-1"><i class="ph-bold ph-lightning"></i> CƠ CHẾ NGẮN MẠCH KÍCH HOẠT</div>' +
+            "<div>Python phát hiện vế trái A là <strong>" +
+            (aVal ? "True" : "False") +
+            "</strong> nên dừng ngay lập tức. Phép chia hiểm họa ở vế phải B <strong>không bao giờ chạy</strong>, giúp hệ thống tránh được lỗi chia cho 0!</div>";
+          raisedError = false;
+        } else {
+          // Block B is evaluated
+          if (bOption === "error") {
+            raisedError = true;
+            blockB.innerText = "Vế phải B: 10 / 0 == 0 (LỖI!)";
+            blockB.className =
+              "px-5 py-3 rounded-xl border border-red-300 bg-red-100 text-red-700 font-mono text-sm font-semibold transition-all";
+
+            alertDiv.className =
+              "p-3.5 rounded-xl border border-red-200 bg-red-50/50 text-red-800 text-xs leading-relaxed block";
+            alertDiv.innerHTML =
+              '<div class="font-bold flex items-center gap-1"><i class="ph-bold ph-warning-octagon"></i> HỆ THỐNG GẶP LỖI RUN-TIME</div>' +
+              "<div>Do không kích hoạt ngắn mạch, Python bắt buộc phải nhảy sang đánh giá vế phải B. Thực thi <code>10 / 0</code> gây ra lỗi chia cho 0 crash ứng dụng.</div>";
+            finalResult = "ZeroDivisionError";
+          } else {
+            const bVal = bOption === "safe_true";
+            blockB.innerText = "Vế phải B: " + (bVal ? "True" : "False");
+            blockB.className = bVal
+              ? "px-5 py-3 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 font-mono text-sm font-semibold transition-all"
+              : "px-5 py-3 rounded-xl border border-red-200 bg-red-50 text-red-700 font-mono text-sm font-semibold transition-all";
+
+            alertDiv.className =
+              "p-3.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-xs leading-relaxed block";
+            alertDiv.innerHTML =
+              '<div class="font-semibold">Cả hai vế đều được đánh giá.</div>' +
+              "<div>Vế trái A là <strong>" +
+              (aVal ? "True" : "False") +
+              "</strong> không đủ để quyết định nên Python chuyển sang đánh giá vế phải B.</div>";
+            finalResult = op === "and" ? aVal && bVal : aVal || bVal;
+            raisedError = false;
+          }
+        }
+
+        resVal.innerText = finalResult;
+        if (raisedError) {
+          resVal.className = "text-base font-bold text-red-500";
+          resStatus.innerText = "Bị Lỗi ZeroDivisionError!";
+          resStatus.className =
+            "text-xs font-semibold px-2 py-0.5 rounded bg-red-100 text-red-600 border border-red-200";
+        } else {
+          resVal.className = "text-base font-bold text-amber-400";
+          resStatus.innerText = "Không bị lỗi (An toàn)";
+          resStatus.className =
+            "text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/20";
+        }
+      }
+
+      // INITIALIZE ALL
+      window.onload = function () {
+        calculateMath();
+        compareValues();
+        runLogicSimulation();
+        initScrollSpy();
+      };
+
+      function initScrollSpy() {
+        const sections = document.querySelectorAll("section[id]");
+        const navLinks = {
+          s1: document.getElementById("nav-s1"),
+          s2: document.getElementById("nav-s2"),
+          s3: document.getElementById("nav-s3"),
+        };
+
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px", // Detect active section in viewport center
+          threshold: 0,
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              // Reset all link styles
+              Object.values(navLinks).forEach((link) => {
+                if (link) {
+                  link.classList.remove("text-rikkei-red", "border-rikkei-red");
+                  link.classList.add("text-slate-600", "border-transparent");
+                }
+              });
+              // Set active link style
+              const activeLink = navLinks[id];
+              if (activeLink) {
+                activeLink.classList.remove(
+                  "text-slate-600",
+                  "border-transparent",
+                );
+                activeLink.classList.add(
+                  "text-rikkei-red",
+                  "border-rikkei-red",
+                );
+              }
+            }
+          });
+        }, observerOptions);
+
+        sections.forEach((section) => {
+          observer.observe(section);
+        });
+      }
+    </script>
+  </body>
+</html>

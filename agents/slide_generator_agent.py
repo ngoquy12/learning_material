@@ -639,7 +639,7 @@ class SlideGeneratorAgent:
 
                 slide_wrappers_html.append(f"""
       <!-- Slide {slide_wrapper_idx}: Content Slide -->
-      <div class="slide-wrapper" id="slide-{page_counter}" data-slide-index="{slide_wrapper_idx}">
+      <div class="slide-wrapper" id="slide-{page_counter}" data-slide-index="{slide_wrapper_idx}" data-lesson-id="lesson-{l_idx}">
         <section class="slide-card relative bg-white border border-slate-200 rounded-2xl flex flex-col justify-between p-12 overflow-hidden">
           <div class="w-full flex-1 flex flex-col justify-start h-full">
             <div class="flex justify-between items-start select-none shrink-0 mb-0 w-full">
@@ -709,212 +709,38 @@ class SlideGeneratorAgent:
         </section>
       </div>""")
 
-        full_html = f"""<!DOCTYPE html>
-<html class="scroll-smooth" lang="vi">
-<head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>{clean_session_title} — Rikkei Master Presentation</title>
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
-  <!-- Phosphor Icons -->
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {{
-      theme: {{
-        extend: {{
-          colors: {{
-            rikkei: {{
-              red: "#be111c",
-              darkred: "#90000a",
-              dark: "#0f172a",
-              bgDark: "#0a0a0f",
-              cardDark: "#13131f",
-              borderDark: "rgba(255, 255, 255, 0.08)",
-            }},
-          }},
-          fontFamily: {{
-            sans: ["Montserrat", "sans-serif"],
-            mono: ["Fira Code", "monospace"],
-          }},
-        }},
-      }},
-    }};
-  </script>
-  <!-- Highlight.js for Code Highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
-  <!-- Mermaid.js for Diagrams -->
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>
-    mermaid.initialize({{
-      startOnLoad: false,
-      theme: "default",
-      securityLevel: "loose",
-      flowchart: {{ useMaxWidth: true, htmlLabels: true }},
-    }});
-  </script>
-  <style>
-    html {{
-      height: 100vh;
-      overflow: hidden !important;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }}
-    html::-webkit-scrollbar {{
-      display: none;
-    }}
-    body {{
-      margin: 0;
-      height: 100vh;
-      overflow: hidden !important;
-      background-color: #ffffff;
-    }}
-    .slide-wrapper {{
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-      height: 100vh;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }}
-    .slide-card {{
-      width: 100% !important;
-      height: 100% !important;
-      box-shadow: none !important;
-      border-radius: 0px !important;
-      border: none !important;
-    }}
-    pre, pre code {{
-      background-color: #f8fafc !important;
-      color: #0f172a !important;
-      border: none !important;
-      white-space: pre-wrap !important;
-      word-wrap: break-word !important;
-      overflow-x: hidden !important;
-    }}
-    pre code.hljs {{
-      background: transparent !important;
-      color: #0f172a !important;
-    }}
-    .hljs-keyword {{
-      color: #be111c !important;
-      font-weight: 700 !important;
-    }}
-    .hljs-string {{
-      color: #15803d !important;
-    }}
-    .hljs-number {{
-      color: #ea580c !important;
-    }}
-    .hljs-built_in, .hljs-name, .hljs-title {{
-      color: #1d4ed8 !important;
-    }}
-    .hljs-comment {{
-      color: #64748b !important;
-      font-style: italic !important;
-    }}
-    pre code {{
-      font-family: "Fira Code", "JetBrains Mono", monospace !important;
-      font-size: 13px !important;
-      line-height: 1.55 !important;
-    }}
-    .bento-card {{
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }}
-    .bento-card:hover {{
-      transform: translateY(-2px);
-    }}
-  </style>
-</head>
-<body class="font-sans antialiased text-slate-900 bg-white">
-  <!-- Main Content Slides Container -->
-  <div id="slides-container" class="w-full h-full overflow-y-auto scroll-smooth relative" style="scroll-snap-type: y mandatory;">
-    <div class="w-full flex flex-col">
-{"".join(slide_wrappers_html)}
-    </div>
-  </div>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {{
-      if (window.hljs) {{
-        hljs.highlightAll();
-      }}
-      if (window.mermaid) {{
-        try {{ mermaid.run(); }} catch(e) {{}}
-      }}
-
-      const container = document.getElementById("slides-container");
-      if (!container) return;
-
-      // 1. Restore slide position from URL hash on load (e.g. #slide-3 or #3)
-      function restoreSlideFromHash() {{
-        const hash = window.location.hash;
-        if (hash) {{
-          const match = hash.match(/#slide-(\\d+)/i) || hash.match(/#(\\d+)/i);
-          if (match) {{
-            const pageNum = parseInt(match[1], 10);
-            const targetSlide = document.getElementById("slide-" + pageNum);
-            if (targetSlide) {{
-              setTimeout(() => {{
-                targetSlide.scrollIntoView({{ behavior: "instant", block: "start" }});
-              }}, 50);
-            }}
-          }}
-        }}
-      }}
-
-      restoreSlideFromHash();
-
-      // 2. Dynamic Scroll Observer: Sync current slide to URL hash as user scrolls
-      let isScrollingTimer = null;
-      container.addEventListener("scroll", () => {{
-        if (isScrollingTimer) clearTimeout(isScrollingTimer);
-        isScrollingTimer = setTimeout(() => {{
-          const slideHeight = window.innerHeight;
-          const currentSlideIdx = Math.round(container.scrollTop / slideHeight);
-          const activeSlide = container.querySelectorAll(".slide-wrapper")[currentSlideIdx];
-          if (activeSlide) {{
-            const pageNum = activeSlide.id ? activeSlide.id.replace("slide-", "") : (currentSlideIdx + 1);
-            const newHash = "#slide-" + pageNum;
-            if (window.location.hash !== newHash) {{
-              history.replaceState(null, "", newHash);
-            }}
-          }}
-        }}, 100);
-      }});
-    }});
-
-    window.addEventListener("keydown", (e) => {{
-      const container = document.getElementById("slides-container");
-      if (!container) return;
-      const slideHeight = window.innerHeight;
-      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {{
-        e.preventDefault();
-        container.scrollBy({{ top: slideHeight, behavior: "smooth" }});
-      }} else if (e.key === "ArrowUp" || e.key === "PageUp") {{
-        e.preventDefault();
-        container.scrollBy({{ top: -slideHeight, behavior: "smooth" }});
-      }} else if (e.key === "Home") {{
-        e.preventDefault();
-        container.scrollTo({{ top: 0, behavior: "smooth" }});
-      }} else if (e.key === "End") {{
-        e.preventDefault();
-        container.scrollTo({{ top: container.scrollHeight, behavior: "smooth" }});
-      }}
-    }});
-  </script>
-</body>
-</html>"""
-        return full_html
+        # Read from templates/slide_template.html to prevent hardcoding HTML
+        template_file = Path("templates/slide_template.html")
+        if template_file.exists():
+            template_content = template_file.read_text(encoding="utf-8")
+            
+            # Dynamically build Navigation links based on lessons
+            nav_links_list = []
+            current_slide_idx = 2  # Cover is 0, Agenda is 1, Lesson 1 starts at 2
+            for idx, l_data in enumerate(lessons_data, 1):
+                l_title = l_data.get("lesson_title") or f"Bài học {idx}"
+                clean_l_title = self.clean_title_string(l_title)
+                clean_l_title = re.sub(r'^\s*(Session\s*\d+|Lesson\s*\d+|Bài\s*\d+|\[\d+\.\d+\]|\d+\.)\s*[\:\-]?\s*', '', clean_l_title, flags=re.IGNORECASE).strip()
+                
+                nav_links_list.append(f"""
+          <a id="nav-lesson-{idx}" href="#slide-{current_slide_idx + 1}" class="hover:text-rikkei-red transition-all border-b-2 border-transparent pb-1 text-slate-600">
+            {clean_l_title}
+          </a>""")
+                num_scenes = len(l_data.get("scenes", [])) or 3
+                current_slide_idx += num_scenes
+                
+            nav_links_html = "".join(nav_links_list)
+            
+            # Replacements
+            full_html = template_content
+            full_html = full_html.replace("{{SESSION_TITLE}}", f"{clean_session_title} — Rikkei Master Presentation")
+            full_html = full_html.replace("{{MODULE_NAME}}", clean_module_name)
+            full_html = full_html.replace("{{NAV_LINKS}}", nav_links_html)
+            full_html = full_html.replace("{{SLIDES_CONTENT}}", "".join(slide_wrappers_html))
+            
+            return full_html
+        else:
+            raise FileNotFoundError("Master slide template file not found at templates/slide_template.html")
 
     def generate_deck_html(self, lesson_title: str, module_name: str, scenes: List[Dict[str, Any]], lessons_data: Optional[List[Dict[str, Any]]] = None, core_ssot: Optional[Dict[str, Any]] = None) -> str:
         """Lesson deck wrapper delegates to generate_session_deck_html."""

@@ -1,592 +1,679 @@
 <!DOCTYPE html>
-
 <html class="scroll-smooth" lang="vi">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>{{SESSION_TITLE}}</title>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
-<!-- Phosphor Icons -->
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-<!-- Tailwind CSS CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              rikkei: {
-                red: "#be111c",
-                darkred: "#90000a",
-                dark: "#0f172a",
-                bgDark: "#0a0a0f",
-                cardDark: "#13131f",
-                borderDark: "rgba(255, 255, 255, 0.08)",
-              },
-            },
-            fontFamily: {
-              sans: ["Montserrat", "sans-serif"],
-              mono: ["Fira Code", "monospace"],
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>{{SESSION_TITLE}}</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            rikkei: {
+              red: "#be111c",
+              darkred: "#90000a",
+              dark: "#0f172a",
+              bgDark: "#0a0a0f",
+              cardDark: "#13131f",
+              borderDark: "rgba(255, 255, 255, 0.08)",
             },
           },
+          fontFamily: {
+            sans: ["Montserrat", "sans-serif"],
+            mono: ["Fira Code", "monospace"],
+          },
         },
-      };
-    </script>
-<!-- Highlight.js for Code Highlighting -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
-<!-- Mermaid.js for Diagrams -->
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "default",
-        securityLevel: "loose",
-        flowchart: { useMaxWidth: true, htmlLabels: true },
-      });
-    </script>
-<style>
-      html {
-        height: 100vh;
-        overflow: hidden !important; /* Hide scrollbars */
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-      html::-webkit-scrollbar {
-        display: none;
-      }
-      body {
-        margin: 0;
-        height: 100vh;
-        overflow: hidden !important;
-        background-color: #ffffff;
-      }
-      /* Custom sidebar scrollbar styling */
-      #sidebar-previews::-webkit-scrollbar {
-        width: 8px;
-      }
-      #sidebar-previews::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      #sidebar-previews::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-      }
-      #sidebar-previews::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-      .slide-wrapper {
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        height: 100vh;
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-sizing: border-box;
-      }
-      .slide-card {
-        width: 100% !important;
-        height: 100% !important;
-        box-shadow: none !important;
-        border-radius: 0px !important;
-        border: none !important;
-      }
-      /* Custom VS Code Dark syntax highlighting */
-            pre, pre code {
-        background-color: #f8fafc !important; /* Premium light slate background */
-        color: #0f172a !important;
-        border: none !important;
-        white-space: pre-wrap !important;
-        word-wrap: break-word !important;
-        overflow-x: hidden !important;
-      }
-      pre code.hljs {
-        background: transparent !important;
-        color: #0f172a !important; /* Dark slate text */
-      }
-      .hljs-keyword {
-        color: #be111c !important; /* Rikkei Red for keywords */
-        font-weight: 700 !important;
-      }
-      .hljs-string {
-        color: #15803d !important; /* Forest Green for strings */
-      }
-      .hljs-number {
-        color: #ea580c !important; /* Orange-red for numbers */
-      }
-      .hljs-built_in,
-      .hljs-name,
-      .hljs-title {
-        color: #1d4ed8 !important; /* Royal Blue for built-ins/functions */
-      }
-      .hljs-comment {
-        color: #64748b !important; /* Slate gray for comments */
-        font-style: italic !important;
-      } /* slate-500 */
-      .hljs-params {
-        color: #0f172a !important;
-      }
-      .hljs-variable {
-        color: #0f172a !important;
-      }
+      },
+    };
+  </script>
+  <!-- Highlight.js for Code Highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs.min.css" id="hljs-theme" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <!-- Mermaid.js for Diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "default",
+      securityLevel: "loose",
+      flowchart: { useMaxWidth: true, htmlLabels: true },
+    });
+  </script>
+  <style>
+    html {
+      height: 100vh;
+      overflow: hidden !important; /* Hide scrollbars */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    html::-webkit-scrollbar {
+      display: none;
+    }
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden !important;
+      background-color: #ffffff;
+    }
+    /* Custom sidebar scrollbar styling */
+    #sidebar-previews::-webkit-scrollbar {
+      width: 8px;
+    }
+    #sidebar-previews::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #sidebar-previews::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    #sidebar-previews::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .slide-wrapper {
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      padding-top: 4rem; /* h-16 spacer for fixed header */
+    }
+    .slide-card {
+      width: 100% !important;
+      height: 100% !important;
+      box-shadow: none !important;
+      border-radius: 0px !important;
+      border: none !important;
+    }
+    /* Custom VS Code Light syntax highlighting */
+    pre, pre code {
+      background-color: #f8fafc !important; /* Premium light slate background */
+      color: #0f172a !important;
+      border: none !important;
+      white-space: pre-wrap !important;
+      word-wrap: break-word !important;
+      overflow-x: hidden !important;
+    }
+    pre code.hljs {
+      background: transparent !important;
+      color: #0f172a !important; /* Dark slate text */
+    }
+    .hljs-keyword {
+      color: #be111c !important; /* Rikkei Red for keywords */
+      font-weight: 700 !important;
+    }
+    .hljs-string {
+      color: #15803d !important; /* Forest Green for strings */
+    }
+    .hljs-number {
+      color: #ea580c !important; /* Orange-red for numbers */
+    }
+    .hljs-built_in,
+    .hljs-name,
+    .hljs-title {
+      color: #1d4ed8 !important; /* Royal Blue for built-ins/functions */
+    }
+    .hljs-comment {
+      color: #64748b !important; /* Slate gray for comments */
+      font-style: italic !important;
+    } /* slate-500 */
+    .hljs-params {
+      color: #0f172a !important;
+    }
+    .hljs-variable {
+      color: #0f172a !important;
+    }
 
-      pre code {
-        font-family: "Fira Code", "JetBrains Mono", monospace !important;
-        font-size: 13px !important;
-        line-height: 1.55 !important;
+    pre code {
+      font-family: "Fira Code", "JetBrains Mono", monospace !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+    }
+    .bento-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .bento-card:hover {
+      transform: translateY(-2px);
+    }
+    .vertical-title {
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      letter-spacing: 0.12em;
+    }
+    /* Custom Animations */
+    .particle-float {
+      animation: floatRandom 4s ease-in-out infinite alternate;
+    }
+    @keyframes floatRandom {
+      0% {
+        transform: translate(0, 0);
       }
-      .bento-card {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      50% {
+        transform: translate(6px, -8px);
       }
-      .bento-card:hover {
-        transform: translateY(-2px);
+      100% {
+        transform: translate(-4px, 4px);
       }
-      .vertical-title {
-        writing-mode: vertical-rl;
-        text-orientation: upright;
-        letter-spacing: 0.12em;
+    }
+    .pulse-glow {
+      animation: pulseGlow 1.5s ease-out infinite;
+    }
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(190, 17, 28, 0.4);
       }
-      /* Custom Animations */
-      .particle-float {
-        animation: floatRandom 4s ease-in-out infinite alternate;
+      70% {
+        box-shadow: 0 0 0 10px rgba(190, 17, 28, 0);
       }
-      @keyframes floatRandom {
-        0% {
-          transform: translate(0, 0);
-        }
-        50% {
-          transform: translate(6px, -8px);
-        }
-        100% {
-          transform: translate(-4px, 4px);
-        }
+      100% {
+        box-shadow: 0 0 0 0 rgba(190, 17, 28, 0);
       }
-      .pulse-glow {
-        animation: pulseGlow 1.5s ease-out infinite;
-      }
-      @keyframes pulseGlow {
-        0% {
-          box-shadow: 0 0 0 0 rgba(190, 17, 28, 0.4);
-        }
-        70% {
-          box-shadow: 0 0 0 10px rgba(190, 17, 28, 0);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(190, 17, 28, 0);
-        }
-      }
-      .console-line {
-        animation: consoleFadeIn 0.3s ease-out forwards;
-      }
-      @keyframes consoleFadeIn {
-        from {
-          opacity: 0;
-          transform: translateX(-5px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-      .slide-build {
+    }
+    .console-line {
+      animation: consoleFadeIn 0.3s ease-out forwards;
+    }
+    @keyframes consoleFadeIn {
+      from {
         opacity: 0;
-        transform: translateY(20px);
-        pointer-events: none;
-        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: translateX(-5px);
       }
-      .slide-build.build-visible {
+      to {
         opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
+        transform: translateX(0);
       }
-    </style>
+    }
+    .slide-build {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .slide-build.build-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Scale up small texts to at least 16px (text-base) for visual readability on slides */
+    .slide-card .text-xs {
+      font-size: 1rem !important; /* 16px */
+      line-height: 1.625rem !important;
+    }
+    .slide-card .text-sm {
+      font-size: 1rem !important; /* 16px */
+      line-height: 1.625rem !important;
+    }
+    .slide-card .text-\[10px\] {
+      font-size: 0.875rem !important; /* 14px */
+      line-height: 1.25rem !important;
+    }
+    .slide-card label {
+      font-size: 1rem !important; /* 16px */
+      font-weight: 700 !important;
+      color: #475569 !important; /* slate-600 */
+    }
+    .slide-card input, .slide-card select {
+      font-size: 1rem !important; /* 16px */
+      padding: 0.625rem 0.875rem !important;
+    }
+    .slide-card .font-mono {
+      font-size: 1.05rem !important; /* 16.8px */
+    }
+    .slide-card h2 {
+      font-size: 1.875rem !important; /* 30px */
+      line-height: 2.25rem !important;
+    }
+    .slide-card h3 {
+      font-size: 1.25rem !important; /* 20px */
+      line-height: 1.75rem !important;
+    }
+    .slide-card ul {
+      padding-left: 1.5rem !important;
+    }
+    .slide-card li {
+      margin-bottom: 0.5rem !important;
+    }
+  </style>
 </head>
 <body class="font-sans antialiased text-slate-900 bg-white">
-<!-- Main Content Slides Area -->
-<div class="w-full h-full overflow-y-auto scroll-smooth relative" id="slides-container" style="scroll-snap-type: y mandatory;">
-<!-- Slides Wrapper -->
-<div class="w-full flex flex-col">
-{{SLIDES_CONTENT}}
-</div>
-<!-- Navigation JS Logic -->
-<script>
-      const slideCards = document.querySelectorAll(".slide-card");
-      const floatingIndicator = null;
+  <!-- ===== FIXED HEADER WITH LOGO & NAV ===== -->
+  <header
+    class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm"
+  >
+    <div
+      class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between"
+    >
+      <div class="flex items-center gap-4">
+        <img
+          src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+          alt="Rikkei Academy Logo"
+          class="h-9 object-contain"
+        />
+        <span
+          class="text-sm font-semibold text-slate-700 border-l border-slate-300 pl-4 hidden sm:inline"
+          >{{MODULE_NAME}}</span
+        >
+      </div>
+      <!-- Fixed Nav Links -->
+      <nav
+        class="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm font-bold text-slate-600"
+      >
+        {{NAV_LINKS}}
+      </nav>
+    </div>
+  </header>
 
-            // Slide Navigation Manager
-      function goToSlide(index) {
-        const wrappers = document.querySelectorAll(".slide-wrapper");
-        if (index >= 0 && index < wrappers.length) {
-          wrappers[index].scrollIntoView({ behavior: "smooth" });
-          currentBuildSteps[index] = 0;
+  <!-- Main Content Slides Area -->
+  <div class="w-full h-full overflow-y-auto scroll-smooth relative" id="slides-container" style="scroll-snap-type: y mandatory;">
+    <!-- Slides Wrapper -->
+    <div class="w-full flex flex-col">
+      {{SLIDES_CONTENT}}
+    </div>
+  </div>
+
+  <!-- Navigation JS Logic -->
+  <script>
+    const slideCards = document.querySelectorAll(".slide-card");
+    const floatingIndicator = null;
+
+    // Slide Navigation Manager
+    function goToSlide(index) {
+      const wrappers = document.querySelectorAll(".slide-wrapper");
+      if (index >= 0 && index < wrappers.length) {
+        wrappers[index].scrollIntoView({ behavior: "smooth" });
+        currentBuildSteps[index] = 0;
+        updateBuildSteps(index);
+      }
+    }
+
+    // Sequential slide build navigation manager
+    let currentBuildSteps = {};
+    let lastScrollTime = 0;
+    const scrollCooldown = 600; // ms
+
+    function updateBuildSteps(slideIndex) {
+      const slide = document.querySelector(`.slide-wrapper[data-slide-index="${slideIndex}"]`);
+      if (!slide) return;
+      const currentStep = currentBuildSteps[slideIndex] || 0;
+      const buildElements = slide.querySelectorAll('.slide-build');
+      buildElements.forEach(el => {
+        const step = parseInt(el.getAttribute('data-build-step') || '0');
+        if (step <= currentStep) {
+          el.classList.add('build-visible');
+        } else {
+          el.classList.remove('build-visible');
+        }
+      });
+    }
+
+    function handleDirectionalNav(direction) {
+      const now = Date.now();
+      if (now - lastScrollTime < scrollCooldown) return;
+
+      const wrappers = document.querySelectorAll(".slide-wrapper");
+      let activeIndex = 0;
+      let minDiff = Infinity;
+      wrappers.forEach((wrapper, index) => {
+        const rect = wrapper.getBoundingClientRect();
+        const diff = Math.abs(rect.top);
+        if (diff < minDiff) {
+          minDiff = diff;
+          activeIndex = index;
+        }
+      });
+
+      const slide = wrappers[activeIndex];
+      const buildElements = slide.querySelectorAll('.slide-build');
+      let maxStep = 0;
+      buildElements.forEach(el => {
+        const step = parseInt(el.getAttribute('data-build-step') || '0');
+        if (step > maxStep) maxStep = step;
+      });
+
+      if (currentBuildSteps[activeIndex] === undefined) {
+        currentBuildSteps[activeIndex] = 0;
+      }
+
+      if (direction === "next") {
+        if (currentBuildSteps[activeIndex] < maxStep) {
+          currentBuildSteps[activeIndex]++;
+          updateBuildSteps(activeIndex);
+          lastScrollTime = now;
+        } else {
+          if (activeIndex < wrappers.length - 1) {
+            wrappers[activeIndex + 1].scrollIntoView({ behavior: "smooth" });
+            currentBuildSteps[activeIndex + 1] = 0;
+            updateBuildSteps(activeIndex + 1);
+            lastScrollTime = now;
+          }
+        }
+      } else if (direction === "prev") {
+        if (currentBuildSteps[activeIndex] > 0) {
+          currentBuildSteps[activeIndex]--;
+          updateBuildSteps(activeIndex);
+          lastScrollTime = now;
+        } else {
+          if (activeIndex > 0) {
+            wrappers[activeIndex - 1].scrollIntoView({ behavior: "smooth" });
+            // When moving backward, we want the previous slide to be fully resolved
+            const prevSlide = wrappers[activeIndex - 1];
+            const prevBuilds = prevSlide.querySelectorAll('.slide-build');
+            let prevMax = 0;
+            prevBuilds.forEach(el => {
+              const step = parseInt(el.getAttribute('data-build-step') || '0');
+              if (step > prevMax) prevMax = step;
+            });
+            currentBuildSteps[activeIndex - 1] = prevMax;
+            updateBuildSteps(activeIndex - 1);
+            lastScrollTime = now;
+          }
+        }
+      }
+    }
+
+    // Active slide highlight on scroll (IntersectionObserver)
+    const observerOptions = {
+      root: document.getElementById("slides-container"),
+      rootMargin: "0px",
+      threshold: 0.6,
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = parseInt(entry.target.getAttribute("data-slide-index"));
+          if (floatingIndicator) floatingIndicator.innerText = `${index + 1}/${slideCards.length}`;
+
+          if (currentBuildSteps[index] === undefined) {
+            currentBuildSteps[index] = 0;
+          }
           updateBuildSteps(index);
-        }
-      }
 
-      // Sequential slide build navigation manager
-      let currentBuildSteps = {};
-      let lastScrollTime = 0;
-      const scrollCooldown = 600; // ms
-
-      function updateBuildSteps(slideIndex) {
-        const slide = document.querySelector(`.slide-wrapper[data-slide-index="${slideIndex}"]`);
-        if (!slide) return;
-        const currentStep = currentBuildSteps[slideIndex] || 0;
-        const buildElements = slide.querySelectorAll('.slide-build');
-        buildElements.forEach(el => {
-          const step = parseInt(el.getAttribute('data-build-step') || '0');
-          if (step <= currentStep) {
-            el.classList.add('build-visible');
+          // Scrollspy logic to highlight header nav tab based on data-lesson-id
+          const lessonId = entry.target.getAttribute("data-lesson-id");
+          if (lessonId) {
+            const activeLink = document.getElementById("nav-" + lessonId);
+            // Reset all link styles
+            document.querySelectorAll("nav a").forEach((link) => {
+              link.classList.remove("text-rikkei-red", "border-rikkei-red");
+              link.classList.add("text-slate-600", "border-transparent");
+            });
+            if (activeLink) {
+              activeLink.classList.remove("text-slate-600", "border-transparent");
+              activeLink.classList.add("text-rikkei-red", "border-rikkei-red");
+            }
           } else {
-            el.classList.remove('build-visible');
+            // If cover or agenda slide is active, clear all highlight tabs
+            document.querySelectorAll("nav a").forEach((link) => {
+              link.classList.remove("text-rikkei-red", "border-rikkei-red");
+              link.classList.add("text-slate-600", "border-transparent");
+            });
           }
-        });
-      }
 
-      function handleDirectionalNav(direction) {
-        const now = Date.now();
-        if (now - lastScrollTime < scrollCooldown) return;
-
-        const wrappers = document.querySelectorAll(".slide-wrapper");
-        let activeIndex = 0;
-        let minDiff = Infinity;
-        wrappers.forEach((wrapper, index) => {
-          const rect = wrapper.getBoundingClientRect();
-          const diff = Math.abs(rect.top);
-          if (diff < minDiff) {
-            minDiff = diff;
-            activeIndex = index;
+          // Lazy render Mermaid if visual diagram enters viewport
+          const mermaidDiv = entry.target.querySelector(".mermaid");
+          if (mermaidDiv && !mermaidDiv.hasAttribute("data-processed")) {
+            setTimeout(() => {
+              mermaid.run({ nodes: [mermaidDiv] });
+            }, 50);
           }
-        });
-
-        const slide = wrappers[activeIndex];
-        const buildElements = slide.querySelectorAll('.slide-build');
-        let maxStep = 0;
-        buildElements.forEach(el => {
-          const step = parseInt(el.getAttribute('data-build-step') || '0');
-          if (step > maxStep) maxStep = step;
-        });
-
-        if (currentBuildSteps[activeIndex] === undefined) {
-          currentBuildSteps[activeIndex] = 0;
-        }
-
-        if (direction === "next") {
-          if (currentBuildSteps[activeIndex] < maxStep) {
-            currentBuildSteps[activeIndex]++;
-            updateBuildSteps(activeIndex);
-            lastScrollTime = now;
-          } else {
-            if (activeIndex < wrappers.length - 1) {
-              wrappers[activeIndex + 1].scrollIntoView({ behavior: "smooth" });
-              currentBuildSteps[activeIndex + 1] = 0;
-              updateBuildSteps(activeIndex + 1);
-              lastScrollTime = now;
-            }
-          }
-        } else if (direction === "prev") {
-          if (currentBuildSteps[activeIndex] > 0) {
-            currentBuildSteps[activeIndex]--;
-            updateBuildSteps(activeIndex);
-            lastScrollTime = now;
-          } else {
-            if (activeIndex > 0) {
-              wrappers[activeIndex - 1].scrollIntoView({ behavior: "smooth" });
-              // When moving backward, we want the previous slide to be fully resolved
-              const prevSlide = wrappers[activeIndex - 1];
-              const prevBuilds = prevSlide.querySelectorAll('.slide-build');
-              let prevMax = 0;
-              prevBuilds.forEach(el => {
-                const step = parseInt(el.getAttribute('data-build-step') || '0');
-                if (step > prevMax) prevMax = step;
-              });
-              currentBuildSteps[activeIndex - 1] = prevMax;
-              updateBuildSteps(activeIndex - 1);
-              lastScrollTime = now;
-            }
-          }
-        }
-      }
-
-      // Active slide highlight on scroll (IntersectionObserver)
-      const observerOptions = {
-        root: document.getElementById("slides-container"),
-        rootMargin: "0px",
-        threshold: 0.6,
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = parseInt(entry.target.getAttribute("data-slide-index"));
-            if (floatingIndicator) floatingIndicator.innerText = `${index + 1}/${slideCards.length}`;
-
-            if (currentBuildSteps[index] === undefined) {
-              currentBuildSteps[index] = 0;
-            }
-            updateBuildSteps(index);
-            
-
-            // Lazy render Mermaid if visual diagram enters viewport
-            const mermaidDiv = entry.target.querySelector(".mermaid");
-            if (mermaidDiv && !mermaidDiv.hasAttribute("data-processed")) {
-              setTimeout(() => {
-                mermaid.run({ nodes: [mermaidDiv] });
-              }, 50);
-            }
-          }
-        });
-      }, observerOptions);
-
-      document.querySelectorAll(".slide-wrapper").forEach((wrapper) => {
-        observer.observe(wrapper);
-      });
-
-      // Keyboard arrow keys / space navigation
-      document.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "ArrowRight" || e.key === " ") {
-          e.preventDefault();
-          handleDirectionalNav("next");
-        } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "ArrowLeft") {
-          e.preventDefault();
-          handleDirectionalNav("prev");
         }
       });
+    }, observerOptions);
 
-      // Mouse wheel integration with passive: false to allow preventDefault
-      window.addEventListener("wheel", (e) => {
-        if (Math.abs(e.deltaY) > 8) {
-          e.preventDefault();
-          const direction = e.deltaY > 0 ? "next" : "prev";
-          handleDirectionalNav(direction);
-        }
-      }, { passive: false });
+    document.querySelectorAll(".slide-wrapper").forEach((wrapper) => {
+      observer.observe(wrapper);
+    });
 
-      // 1. Grouping Particle Visualizer (Slide 3)
-      let animationGrouped = false;
-      function triggerGroupAnimation() {
-        const conveyor = document.getElementById("conveyor-belt");
-        const p1 = document.getElementById("p-st1");
-        const p2 = document.getElementById("p-st2");
-        const p3 = document.getElementById("p-st3");
-        const p4 = document.getElementById("p-st4");
+    // Keyboard arrow keys / space navigation
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        handleDirectionalNav("next");
+      } else if (e.key === "ArrowUp" || e.key === "PageUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        handleDirectionalNav("prev");
+      }
+    });
 
-        if (animationGrouped) {
-          // Reset state
-          p1.style.position = "absolute";
-          p1.style.top = "20%";
-          p1.style.left = "15%";
-          p1.className =
-            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
-          p1.style.opacity = "1";
-          p2.style.position = "absolute";
-          p2.style.top = "55%";
-          p2.style.left = "45%";
-          p2.className =
-            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
-          p2.style.opacity = "1";
-          p3.style.position = "absolute";
-          p3.style.top = "15%";
-          p3.style.left = "60%";
-          p3.className =
-            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
-          p3.style.opacity = "1";
-          p4.style.position = "absolute";
-          p4.style.top = "60%";
-          p4.style.left = "10%";
-          p4.className =
-            "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
-          p4.style.opacity = "1";
+    // Mouse wheel integration with passive: false to allow preventDefault
+    window.addEventListener("wheel", (e) => {
+      if (Math.abs(e.deltaY) > 8) {
+        e.preventDefault();
+        const direction = e.deltaY > 0 ? "next" : "prev";
+        handleDirectionalNav(direction);
+      }
+    }, { passive: false });
 
-          conveyor.innerHTML = `<div class="text-slate-500 font-mono text-xs italic">Trạng thái: Chưa gom nhóm</div>`;
-          animationGrouped = false;
-          return;
-        }
+    // 1. Grouping Particle Visualizer (Slide 3)
+    let animationGrouped = false;
+    function triggerGroupAnimation() {
+      const conveyor = document.getElementById("conveyor-belt");
+      const p1 = document.getElementById("p-st1");
+      const p2 = document.getElementById("p-st2");
+      const p3 = document.getElementById("p-st3");
+      const p4 = document.getElementById("p-st4");
 
-        // Apply transition styling and lock position
-        [p1, p2, p3, p4].forEach((p) => {
-          p.classList.remove("particle-float");
-          p.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
-        });
+      if (animationGrouped) {
+        // Reset state
+        p1.style.position = "absolute";
+        p1.style.top = "20%";
+        p1.style.left = "15%";
+        p1.className =
+          "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+        p1.style.opacity = "1";
+        p2.style.position = "absolute";
+        p2.style.top = "55%";
+        p2.style.left = "45%";
+        p2.className =
+          "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+        p2.style.opacity = "1";
+        p3.style.position = "absolute";
+        p3.style.top = "15%";
+        p3.style.left = "60%";
+        p3.className =
+          "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+        p3.style.opacity = "1";
+        p4.style.position = "absolute";
+        p4.style.top = "60%";
+        p4.style.left = "10%";
+        p4.className =
+          "particle-float absolute bg-red-100 border border-red-200 text-red-700 font-mono text-xs px-3 py-1.5 rounded shadow-sm";
+        p4.style.opacity = "1";
 
-        // Fly particles to center of conveyor belt
-        setTimeout(() => {
-          conveyor.innerHTML = `
-            <span class="font-mono text-xs font-bold text-blue-700 mr-2 shrink-0">students = [</span>
-            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st1">"An"</div>
-            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st2">"Bình"</div>
-            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st3">"Cường"</div>
-            <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st4">"Dũng"</div>
-            <span class="font-mono text-xs font-bold text-blue-700 shrink-0">]</span>
-          `;
-
-          // Trigger scale-in animations
-          setTimeout(() => {
-            document.getElementById("c-st1").classList.remove("scale-0");
-          }, 100);
-          setTimeout(() => {
-            document.getElementById("c-st2").classList.remove("scale-0");
-          }, 250);
-          setTimeout(() => {
-            document.getElementById("c-st3").classList.remove("scale-0");
-          }, 400);
-          setTimeout(() => {
-            document.getElementById("c-st4").classList.remove("scale-0");
-          }, 550);
-
-          // Hide chaotic ones
-          p1.style.opacity = "0";
-          p2.style.opacity = "0";
-          p3.style.opacity = "0";
-          p4.style.opacity = "0";
-        }, 300);
-
-        animationGrouped = true;
+        conveyor.innerHTML = `<div class="text-slate-500 font-mono text-xs italic">Trạng thái: Chưa gom nhóm</div>`;
+        animationGrouped = false;
+        return;
       }
 
-      // 2. Dual Index Pointer (Slide 4)
-      const values = ["An", "Bình", "Cường", "Dũng"];
-      function highlightIndex(index, type) {
-        // Clear old highlights
-        document
-          .querySelectorAll(".idx-btn")
-          .forEach((btn) => {
-            btn.classList.remove(
-              "bg-rikkei-red",
-              "text-white",
-              "scale-110",
-              "border-rikkei-red",
-            );
-            // Restore default styles (including hover classes)
-            if (btn.id.includes("pos")) {
-              btn.classList.add("bg-blue-50", "text-blue-600", "hover:bg-blue-100");
-            } else {
-              btn.classList.add("bg-orange-50", "text-orange-600", "hover:bg-orange-100");
-            }
-          });
-        document
-          .querySelectorAll(".element-box")
-          .forEach((cell) =>
-            cell.classList.remove(
-              "border-rikkei-red",
-              "bg-red-50",
-              "scale-105",
-            ),
-          );
+      // Apply transition styling and lock position
+      [p1, p2, p3, p4].forEach((p) => {
+        p.classList.remove("particle-float");
+        p.style.transition = "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
+      });
 
-        // Highlight selected
-        const btnId = `idx-${type}-${index}`;
-        const btn = document.getElementById(btnId);
-        // Remove default styles (including hover) to prevent class conflicts
-        btn.classList.remove(
-          "bg-blue-50",
-          "bg-orange-50",
-          "text-blue-600",
-          "text-orange-600",
-          "hover:bg-blue-100",
-          "hover:bg-orange-100"
-        );
-        btn.classList.add(
-          "bg-rikkei-red",
-          "text-white",
-          "scale-110",
-          "border-rikkei-red",
-        );
-
-        const cell = document.getElementById(`cell-${index}`);
-        cell.classList.add("border-rikkei-red", "bg-red-50", "scale-105");
-
-        const trace = document.getElementById("index-output-log");
-        const idxVal = type === "pos" ? index : index - 4;
-        trace.innerHTML = `
-          <i class="ph-bold ph-terminal text-sm"></i>
-          <span class="console-line">students[${idxVal}] &rarr; <b class="text-rikkei-red font-bold">"${values[index]}"</b></span>
+      // Fly particles to center of conveyor belt
+      setTimeout(() => {
+        conveyor.innerHTML = `
+          <span class="font-mono text-xs font-bold text-blue-700 mr-2 shrink-0">students = [</span>
+          <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st1">"An"</div>
+          <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st2">"Bình"</div>
+          <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st3">"Cường"</div>
+          <div class="px-3 py-1.5 border border-blue-200 bg-blue-50 text-blue-700 font-mono text-xs rounded scale-0 transition-transform duration-500 font-bold" id="c-st4">"Dũng"</div>
+          <span class="font-mono text-xs font-bold text-blue-700 shrink-0">]</span>
         `;
-      }
 
-      // 3. Loop Runner Simulation (Slide 6)
-      let loopRunning = false;
-      function startLoopAnimation() {
-        if (loopRunning) return;
-        loopRunning = true;
+        // Trigger scale-in animations
+        setTimeout(() => {
+          document.getElementById("c-st1").classList.remove("scale-0");
+        }, 100);
+        setTimeout(() => {
+          document.getElementById("c-st2").classList.remove("scale-0");
+        }, 250);
+        setTimeout(() => {
+          document.getElementById("c-st3").classList.remove("scale-0");
+        }, 400);
+        setTimeout(() => {
+          document.getElementById("c-st4").classList.remove("scale-0");
+        }, 550);
 
-        const consoleBox = document.getElementById("loop-console");
-        const runBtn = document.getElementById("run-loop-btn");
-        runBtn.classList.add("opacity-50", "pointer-events-none");
-        consoleBox.innerHTML = `<span class="text-slate-500 font-italic">&gt;_ Khởi tạo vòng lặp for...</span><br/>`;
+        // Hide chaotic ones
+        p1.style.opacity = "0";
+        p2.style.opacity = "0";
+        p3.style.opacity = "0";
+        p4.style.opacity = "0";
+      }, 300);
 
-        const loopFruits = ["Táo", "Ổi", "Mận"];
-        let step = 0;
+      animationGrouped = true;
+    }
 
-        function runStep() {
-          if (step < loopFruits.length) {
-            // Reset arrows and backgrounds
-            document
-              .querySelectorAll("[id^='arrow-']")
-              .forEach((a) => a.classList.add("hidden"));
-            document
-              .querySelectorAll("[id^='loop-box-']")
-              .forEach((b) =>
-                b.classList.remove("bg-green-100", "border-green-400"),
-              );
-
-            // Highlight active index
-            document.getElementById(`arrow-${step}`).classList.remove("hidden");
-            const box = document.getElementById(`loop-box-${step}`);
-            box.classList.add(
-              "bg-green-100",
-              "border-green-400",
-              "scale-105",
-              "transition-all",
-            );
-            setTimeout(() => box.classList.remove("scale-105"), 200);
-
-            // Log to console
-            consoleBox.innerHTML += `<span class="console-line text-slate-800">&gt; index: ${step}, quả: "${loopFruits[step]}"</span><br/>`;
-            consoleBox.scrollTop = consoleBox.scrollHeight;
-
-            step++;
-            setTimeout(runStep, 1000);
+    // 2. Dual Index Pointer (Slide 4)
+    const values = ["An", "Bình", "Cường", "Dũng"];
+    function highlightIndex(index, type) {
+      // Clear old highlights
+      document
+        .querySelectorAll(".idx-btn")
+        .forEach((btn) => {
+          btn.classList.remove(
+            "bg-rikkei-red",
+            "text-white",
+            "scale-110",
+            "border-rikkei-red",
+          );
+          // Restore default styles (including hover classes)
+          if (btn.id.includes("pos")) {
+            btn.classList.add("bg-blue-50", "text-blue-600", "hover:bg-blue-100");
           } else {
-            // Done
-            document
-              .querySelectorAll("[id^='arrow-']")
-              .forEach((a) => a.classList.add("hidden"));
-            document
-              .querySelectorAll("[id^='loop-box-']")
-              .forEach((b) =>
-                b.classList.remove("bg-green-100", "border-green-400"),
-              );
-            consoleBox.innerHTML += `<span class="console-line text-green-700 font-bold">● Vòng lặp kết thúc thành công.</span>`;
-            consoleBox.scrollTop = consoleBox.scrollHeight;
-            runBtn.classList.remove("opacity-50", "pointer-events-none");
-            loopRunning = false;
+            btn.classList.add("bg-orange-50", "text-orange-600", "hover:bg-orange-100");
           }
-        }
+        });
+      document
+        .querySelectorAll(".element-box")
+        .forEach((cell) =>
+          cell.classList.remove(
+            "border-rikkei-red",
+            "bg-red-50",
+            "scale-105",
+          ),
+        );
 
-        setTimeout(runStep, 400);
+      // Highlight selected
+      const btnId = `idx-${type}-${index}`;
+      const btn = document.getElementById(btnId);
+      // Remove default styles (including hover) to prevent class conflicts
+      btn.classList.remove(
+        "bg-blue-50",
+        "bg-orange-50",
+        "text-blue-600",
+        "text-orange-600",
+        "hover:bg-blue-100",
+        "hover:bg-orange-100"
+      );
+      btn.classList.add(
+        "bg-rikkei-red",
+        "text-white",
+        "scale-110",
+        "border-rikkei-red",
+      );
+
+      const cell = document.getElementById(`cell-${index}`);
+      cell.classList.add("border-rikkei-red", "bg-red-50", "scale-105");
+
+      const trace = document.getElementById("index-output-log");
+      const idxVal = type === "pos" ? index : index - 4;
+      trace.innerHTML = `
+        <i class="ph-bold ph-terminal text-sm"></i>
+        <span class="console-line">students[${idxVal}] &rarr; <b class="text-rikkei-red font-bold">"${values[index]}"</b></span>
+      `;
+    }
+
+    // 3. Loop Runner Simulation (Slide 6)
+    let loopRunning = false;
+    function startLoopAnimation() {
+      if (loopRunning) return;
+      loopRunning = true;
+
+      const consoleBox = document.getElementById("loop-console");
+      const runBtn = document.getElementById("run-loop-btn");
+      runBtn.classList.add("opacity-50", "pointer-events-none");
+      consoleBox.innerHTML = `<span class="text-slate-500 font-italic">&gt;_ Khởi tạo vòng lặp for...</span><br/>`;
+
+      const loopFruits = ["Táo", "Ổi", "Mận"];
+      let step = 0;
+
+      function runStep() {
+        if (step < loopFruits.length) {
+          // Reset arrows and backgrounds
+          document
+            .querySelectorAll("[id^='arrow-']")
+            .forEach((a) => a.classList.add("hidden"));
+          document
+            .querySelectorAll("[id^='loop-box-']")
+            .forEach((b) =>
+              b.classList.remove("bg-green-100", "border-green-400"),
+            );
+
+          // Highlight active index
+          document.getElementById(`arrow-${step}`).classList.remove("hidden");
+          const box = document.getElementById(`loop-box-${step}`);
+          box.classList.add(
+            "bg-green-100",
+            "border-green-400",
+            "scale-105",
+            "transition-all",
+          );
+          setTimeout(() => box.classList.remove("scale-105"), 200);
+
+          // Log to console
+          consoleBox.innerHTML += `<span class="console-line text-slate-800">&gt; index: ${step}, quả: "${loopFruits[step]}"</span><br/>`;
+          consoleBox.scrollTop = consoleBox.scrollHeight;
+
+          step++;
+          setTimeout(runStep, 1000);
+        } else {
+          // Done
+          document
+            .querySelectorAll("[id^='arrow-']")
+            .forEach((a) => a.classList.add("hidden"));
+          document
+            .querySelectorAll("[id^='loop-box-']")
+            .forEach((b) =>
+              b.classList.remove("bg-green-100", "border-green-400"),
+            );
+          consoleBox.innerHTML += `<span class="console-line text-green-700 font-bold">● Vòng lặp kết thúc thành công.</span>`;
+          consoleBox.scrollTop = consoleBox.scrollHeight;
+          runBtn.classList.remove("opacity-50", "pointer-events-none");
+          loopRunning = false;
+        }
       }
 
-      // 4. Element Mô phỏng thêm phần tử (Slide 8)
-      let insertArray = ["An", "Bình", "Cường"];
-      
+      setTimeout(runStep, 400);
+    }
 
-      // Initialize
-      document.addEventListener("DOMContentLoaded", () => {
-        // Backup original HTML of mermaid divs for re-rendering
-        document.querySelectorAll(".mermaid").forEach((div) => {
-          div.setAttribute("data-original-html", div.innerHTML);
-        });
-
-        hljs.highlightAll();
-
-        
+    // Initialize
+    document.addEventListener("DOMContentLoaded", () => {
+      // Backup original HTML of mermaid divs for re-rendering
+      document.querySelectorAll(".mermaid").forEach((div) => {
+        div.setAttribute("data-original-html", div.innerHTML);
       });
-    </script>
-</div></body>
+
+      if (window.hljs) {
+        hljs.highlightAll();
+      }
+    });
+  </script>
+</body>
 </html>
