@@ -1,0 +1,59 @@
+{
+  "lesson_slug": "ung-dung-toan-tu-logic-va-thu-tu-uu-tien",
+  "lesson_title": "Ứng dụng Toán tử Logic và Thứ tự Ưu tiên Tính toán",
+  "real_world_scenario": {
+    "name": "Hệ thống Kiểm tra Điều kiện Ưu đãi Đặt vé Máy bay",
+    "description": "Xây dựng mô-đun tự động xác thực điều kiện áp dụng ưu đãi cho hành khách (hành lý miễn phí, quyền vào phòng chờ VIP, mã giảm giá vé) bằng cách kết hợp nhiều biểu thức logic phức tạp mà không sử dụng câu lệnh rẽ nhánh if-else."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Toán tử Logic (and, or, not)",
+      "description": "Kết hợp nhiều điều kiện so sánh thành một mệnh đề boolean duy nhất. Toán tử 'and' trả về True khi tất cả điều kiện đúng, 'or' trả về True khi có ít nhất một điều kiện đúng, và 'not' dùng để đảo ngược giá trị logic.",
+      "raw_code_snippet": "# Xác thực hành khách đủ điều kiện giảm giá sinh viên\npassenger_age: int = 22\nis_student: bool = True\nhas_vip_pass: bool = False\n\n# Kết hợp toán tử and và or\nis_eligible_for_discount: bool = (passenger_age < 25 and is_student) or has_vip_pass\nprint(\"Đủ điều kiện giảm giá:\", is_eligible_for_discount)"
+    },
+    {
+      "concept_name": "Cơ chế Đánh giá Ngắn mạch (Short-circuit Evaluation)",
+      "description": "CPython dừng đánh giá biểu thức ngay khi kết quả cuối cùng được quyết định. Trong phép 'and', nếu mệnh đề đầu là False, các mệnh đề sau bị bỏ qua. Trong phép 'or', nếu mệnh đề đầu là True, các mệnh đề sau không cần tính toán.",
+      "raw_code_snippet": "# Phòng ngừa lỗi chia cho 0 (ZeroDivisionError) nhờ đánh giá ngắn mạch\ntotal_seats: int = 0\nbooked_seats: int = 15\n\n# Nếu total_seats == 0 là False, phép tính chia vế sau sẽ KHÔNG được thực hiện\nis_occupancy_valid: bool = (total_seats > 0) and (booked_seats / total_seats <= 1.0)\nprint(\"Tỷ lệ lấp đầy hợp lệ:\", is_occupancy_valid)"
+    },
+    {
+      "concept_name": "Thứ tự Ưu tiên Toán tử trong Python",
+      "description": "Python thực thi biểu thức theo thứ tự: Số học (*, /, +, -) -> So sánh (==, >, <) -> Logic 'not' -> Logic 'and' -> Logic 'or'. Cần dùng ngoặc đơn () để thay đổi thứ tự ưu tiên hoặc tăng tính rõ ràng cho mã nguồn.",
+      "raw_code_snippet": "# Tính toán biểu thức kết hợp số học, so sánh và logic\nbase_ticket_price: float = 1200.0\ntax_rate: float = 0.1\nis_blacklisted: bool = False\nis_promo_active: bool = True\n\n# Thứ tự: Tính tiền sau thuế -> So sánh >= 1000 -> not -> and\nis_valid_deal: bool = not is_blacklisted and is_promo_active and base_ticket_price * (1 + tax_rate) >= 1300.0\nprint(\"Ưu đãi hợp lệ:\", is_valid_deal)"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Kiểm tra Điều kiện Miễn phí Hành lý Ký gửi",
+      "requirement": "Xác định xem hành khách có được miễn phí hành lý hay không. Điều kiện miễn phí: Hành khách là thành viên VIP, HOẶC hành lý ký gửi từ 20kg trở xuống VÀ không bay trong khung giờ cao điểm.",
+      "raw_code": "# Thông tin hành khách và chuyến bay\nis_vip_member: bool = False\nbaggage_weight_kg: float = 18.5\nis_peak_hour: bool = False\n\n# Kiểm tra điều kiện miễn phí hành lý\n# Sử dụng ngoặc đơn để ưu tiên phép 'and' trước khi thực hiện 'or'\nis_free_baggage: bool = is_vip_member or (baggage_weight_kg <= 20.0 and not is_peak_hour)\n\nprint(\"=== KIỂM TRA QUYỀN LỢI HÀNH LÝ ===\")\nprint(\"Thành viên VIP:\", is_vip_member)\nprint(\"Trọng lượng hành lý (kg):\", baggage_weight_kg)\nprint(\"Giờ cao điểm:\", is_peak_hour)\nprint(\"-> Được miễn phí hành lý:\", is_free_baggage)"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Xác thực Quyền Truy cập Phòng chờ Thương gia",
+      "requirement": "Mở rộng hệ thống để kiểm tra quyền truy cập phòng chờ (Business Lounge). Điều kiện: (Là thành viên VIP VÀ bay hạng Thương gia) HOẶC (Có mua thẻ Lounge Pass VÀ KHÔNG PHẢI ngày lễ VÀ bay hạng Phổ thông).",
+      "raw_code": "# Thông tin vé và hạng thành viên\nticket_class: str = \"ECONOMY\"\nis_vip_member: bool = False\nhas_lounge_pass: bool = True\nis_holiday: bool = False\n\n# Tạo các biến cờ kiểm tra hạng vé\nis_business_class: bool = ticket_class == \"BUSINESS\"\nis_economy_class: bool = ticket_class == \"ECONOMY\"\n\n# Điều kiện 1: Khách VIP đi hạng thương gia\ncondition_vip_business: bool = is_vip_member and is_business_class\n\n# Điều kiện 2: Khách mua thẻ riêng, không phải ngày lễ, đi hạng phổ thông\ncondition_pass_economy: bool = has_lounge_pass and not is_holiday and is_economy_class\n\n# Tổng hợp điều kiện truy cập phòng chờ\nis_lounge_allowed: bool = condition_vip_business or condition_pass_economy\n\nprint(\"=== KIỂM TRA QUYỀN VÀO PHÒNG CHỜ VIP ===\")\nprint(\"Hạng vé:\", ticket_class)\nprint(\"Có thẻ Lounge Pass:\", has_lounge_pass)\nprint(\"Ngày lễ:\", is_holiday)\nprint(\"-> Quyền truy cập phòng chờ:\", is_lounge_allowed)"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Tổng hợp Phê duyệt Đặt vé và Tự động Tính Phần trăm Giảm giá",
+      "requirement": "Xây dựng logic phê duyệt đơn đặt vé và tính phần trăm giảm giá tổng hợp. Khách hàng được giảm 10% nếu là VIP, giảm thêm 15% nếu là đối tượng ưu tiên (người cao tuổi >= 60 hoặc sinh viên <= 22) ngoài mùa cao điểm. Đơn đặt vé chỉ được duyệt nếu tuổi hợp lệ (2 đến 120), số lượng đặt > 0 và tận dụng ngắn mạch để tránh chia cho số ghế bằng 0.",
+      "raw_code": "# Thông tin chi tiết đơn đặt vé\npassenger_age: int = 65\nis_student: bool = False\nis_vip: bool = True\nbooking_seat_count: int = 3\ntotal_available_seats: int = 50\nis_peak_season: bool = False\n\n# 1. Kiểm tra tính hợp lệ của độ tuổi\nis_valid_age: bool = passenger_age >= 2 and passenger_age <= 120\n\n# 2. Điều kiện hưởng ưu đãi tuổi/sinh viên (ngoài mùa cao điểm)\nis_special_priority: bool = (passenger_age >= 60 or (passenger_age <= 22 and is_student)) and not is_peak_season\n\n# 3. Tính toán tổng phần trăm giảm giá dựa trên giá trị Boolean (True = 1, False = 0)\ntotal_discount_rate: float = (is_vip * 0.10) + (is_special_priority * 0.15)\n\n# 4. Kiểm tra khả dụng chuyến bay sử dụng Short-circuit tránh lỗi chia 0\nis_capacity_available: bool = (total_available_seats > 0) and (booking_seat_count / total_available_seats <= 1.0)\n\n# 5. Phê duyệt đơn hàng tổng hợp\nis_booking_approved: bool = is_valid_age and is_capacity_available and (booking_seat_count > 0)\n\nprint(\"=== HỆ THỐNG PHÊ DUYỆT VÉ TỰ ĐỘNG ===\")\nprint(\"Tuổi hợp lệ:\", is_valid_age)\nprint(\"Thuộc đối tượng ưu tiên:\", is_special_priority)\nprint(\"Tỷ lệ giảm giá áp dụng:\", total_discount_rate * 100, \"%\")\nprint(\"Sức chứa chuyến bay hợp lệ:\", is_capacity_available)\nprint(\"-> Trạng thái phê duyệt đơn vé:\", is_booking_approved)"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Nhầm lẫn thứ tự ưu tiên giữa toán tử AND và OR",
+      "explanation": "Trong Python, toán tử 'and' có độ ưu tiên cao hơn 'or'. Nếu không sử dụng dấu ngoặc đơn (), Python sẽ tự động gom các biểu thức có 'and' trước, dẫn đến sai lệch logic nghiệp vụ so với mong đợi.",
+      "code_bad": "# Nghiệp vụ: Chuyến bay được duyệt nếu (Là VIP hoặc Mua gói bổ sung) VÀ Không quá tải trọng\nis_vip: bool = True\nhas_addon: bool = False\nis_overweight: bool = True\n\n# LỖI: Thiếu ngoặc đơn làm 'and' chạy trước 'or'. Python hiểu: is_vip or (has_addon and not is_overweight)\nis_approved: bool = is_vip or has_addon and not is_overweight\nprint(\"Duyệt đơn khi quá tải (SAI):\", is_approved)  # Trả về True vì is_vip = True",
+      "code_good": "# Khắc phục: Bắt buộc dùng ngoặc đơn () để ép nhóm toán tử OR thực hiện trước\nis_vip: bool = True\nhas_addon: bool = False\nis_overweight: bool = True\n\nis_approved: bool = (is_vip or has_addon) and not is_overweight\nprint(\"Duyệt đơn khi quá tải (ĐÚNG):\", is_approved)  # Trả về False đúng nghiệp vụ"
+    },
+    {
+      "error_name": "Sử dụng nhầm Toán tử Bitwise (&, |) thay cho Toán tử Logic (and, or)",
+      "explanation": "Toán tử Bitwise (&, |) thực hiện phép toán trên từng bit dữ liệu và có độ ưu tiên cao hơn các toán tử so sánh (>, <, ==). Khi dùng thay cho 'and'/'or', chúng sẽ gây ra lỗi TypeError hoặc kết quả logic hoàn toàn sai.",
+      "code_bad": "is_vip: bool = True\nticket_price: float = 500.0\n\n# LỖI: Dùng & thay cho 'and'. Python sẽ thực hiện (is_vip & ticket_price) trước dẫn đến TypeError\nis_valid: bool = is_vip & ticket_price > 100.0",
+      "code_good": "is_vip: bool = True\nticket_price: float = 500.0\n\n# Khắc phục: Sử dụng chính xác toán tử logic 'and'\nis_valid: bool = is_vip and ticket_price > 100.0\nprint(\"Kết quả kiểm tra hợp lệ:\", is_valid)  # Trả về True"
+    }
+  ]
+}

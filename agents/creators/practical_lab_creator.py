@@ -327,7 +327,18 @@ MANDATORY DIRECTIVES:
 4. Return ONLY a single valid JSON object matching the required structure.
 """
 
-    user_prompt = f"""Formulate Practical Lab for:
+    blueprint = state.get("lesson_blueprint")
+    if blueprint:
+        blueprint_context = f"""Dữ liệu phác thảo bài học (Lesson Blueprint):
+- Kịch bản thống nhất: {json.dumps(blueprint.get('real_world_scenario', {}), ensure_ascii=False)}
+- Ví dụ thực tế nâng cao (Hãy thiết kế bài Lab thực hành tương tự hoặc nâng cấp từ ví dụ 3.3 này): {json.dumps(blueprint.get('progressive_examples', [])[-1], ensure_ascii=False) if blueprint.get('progressive_examples') else ''}
+- Lỗi thường gặp: {json.dumps(blueprint.get('gotchas_and_errors', []), ensure_ascii=False)}
+"""
+    else:
+        blueprint_context = ""
+
+    user_prompt = f"""{blueprint_context}
+Formulate Practical Lab for:
 Session: {session_id}
 Lesson: {lesson_id} - {lesson_title}
 Curriculum Context: {lesson_details}

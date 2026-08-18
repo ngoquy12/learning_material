@@ -82,6 +82,11 @@ def parse_cli_arguments():
         help="Tạo file config mẫu cho môn mới (ví dụ: --init-config IT-106)"
     )
     parser.add_argument(
+        "--scaffold",
+        action="store_true",
+        help="Khởi tạo nhanh toàn bộ cây cấu trúc thư mục và tài nguyên rỗng cho môn học từ file PM Excel mà không chạy LLM sinh chi tiết."
+    )
+    parser.add_argument(
         "--parallel",
         action="store_true",
         help="Enable async parallel batch execution of independent lessons within sessions"

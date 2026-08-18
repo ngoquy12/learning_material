@@ -170,11 +170,7 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: Option
             lessons = lessons_result.scalars().all()
             lesson_ids = [l.id for l in lessons]
 
-            is_core = "core" in tech_stack.lower()
-            if is_core:
-                current_topic = get_base_topic_key_for_core(session.name)
-            else:
-                current_topic = get_base_topic_key(session.name)
+            current_topic = session.title
 
             prev_session_stmt = select(Session).where(
                 Session.course_id == session.course_id,
@@ -184,12 +180,9 @@ async def generate_single_artifact_task(artifact_id: int, exercise_index: Option
             prev_session: Any = prev_sess_res.scalars().first()
             
             if prev_session:
-                if is_core:
-                    previous_topic = get_base_topic_key_for_core(prev_session.name)
-                else:
-                    previous_topic = get_base_topic_key(prev_session.name)
+                previous_topic = prev_session.title
             else:
-                previous_topic = "core_intro" if is_core else "intro"
+                previous_topic = "Tổng quan"
 
             generated_content = None
             generated_json = None

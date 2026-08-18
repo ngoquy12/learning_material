@@ -1,52 +1,58 @@
-# Bộ câu hỏi kiểm tra bài đọc (Reading Comprehension Questions)
+# Bộ câu hỏi kiểm tra bài đọc (Reading Comprehension Questions) - Lesson 01
 
 ## Tình huống & Mã nguồn kiểm tra
-Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
+
+Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc về tính toán đơn hàng ShopeeFood:
 
 ```python
-# Mã nguồn minh họa nghiệp vụ cho bài học: Toán tử Số học và Toán tử Gán
-score = 8.5
+# Thông số đơn hàng cơm tấm
+price = 55000        # Đơn giá một phần cơm tấm (VNĐ)
+quantity = 3         # Số lượng mua
+shipping = 22000     # Phí giao hàng (VNĐ)
+voucher = 15000      # Mã giảm giá voucher (VNĐ)
+wallet = 100000      # Số dư ví điện tử ban đầu (VNĐ)
 
-if score >= 9.0:
-    rank = "Xuất sắc"
-elif score >= 8.0:
-    rank = "Giỏi"
-elif score >= 6.5:
-    rank = "Khá"
-else:
-    rank = "Trung bình"
-
-print(f"Học lực: {rank}")
+# Tính toán các chỉ số thanh toán
+subtotal = price * quantity
+discounted_subtotal = subtotal - voucher
+total_payment = discounted_subtotal + shipping
+cashback = subtotal * 0.1
+wallet += cashback
 ```
 
 ---
 
-### Câu 1 (Xung hướng - Tính toán kết quả với dữ liệu X): Nếu giá trị đầu vào là `score = 8.5`, chương trình sẽ thực thi qua những câu lệnh rẽ nhánh nào và in kết quả `rank` ra màn hình là gì?
+### Câu 1: Tính toán giá trị của `subtotal` và `total_payment` từ đoạn mã trên. Giải thích các phép toán đã sử dụng.
+
 > **Gợi ý trả lời & Định hướng đáp án:**
-> - Điều kiện `score >= 9.0` (8.5 >= 9.0) trả về `False`.
-> - Điều kiện `score >= 8.0` (8.5 >= 8.0) trả về `True`.
-> - Gán `rank = 'Giỏi'` và kết quả in ra màn hình là `Học lực: Giỏi`.
+>
+> - `subtotal = 55000 * 3 = 165000` VNĐ (Sử dụng toán tử nhân `*`).
+> - `discounted_subtotal = 165000 - 15000 = 150000` VNĐ.
+> - `total_payment = 150000 + 22000 = 172000` VNĐ (Sử dụng toán tử cộng `+` và trừ `-`).
 
 ---
 
-### Câu 2 (Xung hướng - Thử nghiệm với mốc dữ liệu Y): Nếu sửa giá trị thành `score = 7.0`, nhánh rẽ nào sẽ được kích hoạt và kết quả `rank` thay đổi ra sao?
+### Câu 2: Giá trị của biến `cashback` là bao nhiêu và nó mang kiểu dữ liệu gì trong Python? Tại sao?
+
 > **Gợi ý trả lời & Định hướng đáp án:**
-> - Các điều kiện `>= 9.0` và `>= 8.0` đều `False`.
-> - Điều kiện `score >= 6.5` (7.0 >= 6.5) trả về `True`.
-> - Gán `rank = 'Khá'` và in ra màn hình `Học lực: Khá`.
+>
+> - `cashback = 165000 * 0.1 = 16500.0`.
+> - Kiểu dữ liệu của `cashback` là `float`. Nguyên nhân là do phép nhân giữa một số nguyên (`int`) và một số thực (`0.1`) luôn trả về kiểu số thực (`float`) trong Python.
 
 ---
 
-### Câu 3 (Nghịch hướng - Suy luận dữ liệu đầu vào từ kết quả Z): Để hệ thống xếp loại `rank = 'Giỏi'`, giá trị biến `score` phải thỏa mãn khoảng giá trị toán học nào?
+### Câu 3: Sau khi thực thi toàn bộ đoạn mã trên, số dư ví điện tử `wallet` cuối cùng của khách hàng là bao nhiêu? Giải thích cơ chế hoạt động của toán tử gán gộp `+=`.
+
 > **Gợi ý trả lời & Định hướng đáp án:**
-> - Biến `score` phải thỏa mãn điều kiện `8.0 <= score < 9.0` (từ 8.0 đến dưới 9.0).
+>
+> - Số dư cuối cùng là `116500.0` VNĐ.
+> - Toán tử gán gộp `wallet += cashback` tương đương với `wallet = wallet + cashback`. Nó lấy giá trị hiện tại của `wallet` (`100000`), cộng thêm `cashback` (`16500.0`) rồi gán ngược lại kết quả cho biến `wallet`.
 
 ---
 
-### Câu 4 (Phân tích bẫy lỗi & Trường hợp biên): Nếu nhập `score = -1.0` hoặc `score = 11.0`, hãy chỉ ra điểm bất hợp lý của mã nguồn hiện tại và đề xuất cách cải tiến.
-> **Gợi ý trả lời & Định hướng đáp án:**
-> - Mã nguồn chưa có nhánh kiểm tra tính hợp lệ dữ liệu (0 <= score <= 10).
-> - Khi `score = 11.0`, hệ thống vẫn xếp loại 'Xuất sắc', khi `score = -1.0` xếp loại 'Trung bình'.
-> - Cần bổ sung câu lệnh `if score < 0 or score > 10:` ở đầu để báo lỗi dữ liệu không hợp lệ.
+### Câu 4: Nếu khách hàng tăng số lượng mua thêm 2 phần cơm tấm nữa (`quantity += 2`), hãy viết biểu thức sử dụng toán tử gán gộp để cập nhật lại biến `quantity`.
 
----
+> **Gợi ý trả lời & Định hướng đáp án:**
+>
+> - Biểu thức cập nhật: `quantity += 2`.
+> - Dòng lệnh này giúp tăng giá trị hiện tại của `quantity` từ `3` lên `5` trước khi thực hiện các bước tính toán tiếp theo.

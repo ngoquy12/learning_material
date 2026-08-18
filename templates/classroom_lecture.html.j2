@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ session_title }} — Trực quan hóa Bài giảng - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #be111c 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      /* Custom light active state for TOC links */
+      .toc-link.active {
+        background-color: #fff1f2 !important; /* bg-rose-50 */
+        border-left-color: #be111c !important; /* border-l-2 border-rikkei-red */
+        color: #be111c !important;
+        border-radius: 0.5rem !important;
+      }
+      .toc-link.active .toc-title {
+        color: #be111c !important;
+        font-weight: 600 !important;
+      }
+
+      /* Realtime pulse animations for visual state flow */
+      .pulse-active {
+        animation: pulseEmerald 1.5s infinite;
+      }
+      @keyframes pulseEmerald {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+      .pulse-warning {
+        animation: pulseAmber 1.5s infinite;
+      }
+      @keyframes pulseAmber {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      }
+
+      /* Code block scrollbars */
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0f172a;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white">
+    <!-- ===== FIXED TOP HEADER (EXPANDED TO MAX 1680px) ===== -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
+      <div class="max-w-[1680px] w-full mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src="{{ logo_url | default('https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png') }}"
+            alt="Rikkei Academy Logo"
+            class="h-8 sm:h-9 object-contain shrink-0"
+          />
+          <span class="text-xs sm:text-sm font-bold text-slate-800 border-l border-slate-300 pl-3 sm:pl-4 truncate">
+            {{ session_title }}
+          </span>
+        </div>
+        <!-- Right Counter Badge -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+            {{ sections | length }} Bài học
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== MAIN WRAPPER (EXPANDED TO MAX 1680px FOR FULL DESKTOP BREADTH) ===== -->
+    <div class="max-w-[1680px] w-full mx-auto px-4 sm:px-8 pt-24 pb-16 flex gap-8 items-start flex-1">
+      <!-- ===== LEFT STICKY SIDEBAR TOC (CLEAN TEXT, NO BADGES, LIGHT BORDER) ===== -->
+      <aside class="w-80 shrink-0 sticky top-24 hidden lg:block">
+        <div class="glass-card p-4 rounded-2xl space-y-3 shadow-sm border border-slate-200/80 h-auto">
+          <!-- TOC Header -->
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+            <i class="ph-bold ph-list-dashes text-rikkei-red text-base"></i>
+            <span>Mục lục Bài giảng</span>
+          </div>
+
+          <!-- Vertical Navigation Links (Clean Text, No Number Badges, Light Border) -->
+          <nav class="space-y-1" id="toc-nav">
+            {% for nav in nav_items %}
+            <a
+              id="nav-{{ nav.id }}"
+              href="#{{ nav.id }}"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                {{ loop.index }}. {{ nav.title }}
+              </span>
+            </a>
+            {% endfor %}
+          </nav>
+        </div>
+      </aside>
+
+      <!-- ===== MAIN DASHBOARD CONTENT AREA (EXPANDED FLUID RIGHT) ===== -->
+      <main class="flex-1 min-w-0 space-y-14">
+        {% for sec in sections %}
+        <!-- ===== SECTION {{ loop.index }}: {{ sec.title }} ===== -->
+        <section id="{{ sec.id }}" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              {{ loop.index }}. {{ sec.title }}
+            </h2>
+            {% if sec.lesson_category %}
+            <span class="hidden sm:inline-block px-3 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-full border border-slate-200">
+              {{ sec.lesson_category }}
+            </span>
+            {% endif %}
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              {% if sec.knowledge_cards %}
+                {% for card in sec.knowledge_cards %}
+                <div class="glass-card p-5 rounded-2xl border {{ card.border_color | default('border-slate-200/80') }} {{ card.bg_color | default('bg-white') }} space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b {{ card.header_border | default('border-slate-100') }}">
+                    <h3 class="font-bold text-sm {{ card.title_color | default('text-slate-900') }} flex items-center gap-2">
+                      <i class="{{ card.icon | default('ph-bold ph-lightbulb text-amber-500') }} text-base"></i>
+                      <span>{{ card.title }}</span>
+                    </h3>
+                    {% if card.badge %}
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full {{ card.badge_style | default('bg-slate-100 text-slate-700 border border-slate-200') }}">
+                      {{ card.badge }}
+                    </span>
+                    {% endif %}
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    {{ card.content_html | safe }}
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <!-- Fallback if knowledge_cards is not yet supplied -->
+                <div class="glass-card p-5 rounded-2xl">
+                  <h3 class="font-bold text-sm text-slate-900 mb-3 flex items-center gap-1.5">
+                    <i class="ph-bold ph-lightbulb text-amber-500"></i> Nguyên lý & Cú pháp Cốt lõi
+                  </h3>
+                  <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4 leading-relaxed break-words">
+                    {% for bullet in sec.theory_bullets %}
+                    <li class="mb-1.5">{{ bullet | safe }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+
+                <div class="glass-card p-5 rounded-2xl bg-sky-50/40 border-sky-100">
+                  <h3 class="font-bold text-sm text-sky-950 mb-3 flex items-center gap-1.5">
+                    <i class="ph-bold ph-shield-check text-sky-600"></i> Quy chuẩn & Lưu ý Kỹ thuật
+                  </h3>
+                  <div class="text-xs text-sky-900 leading-relaxed break-words">
+                    {{ sec.gotcha_text | safe }}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> {{ sec.sim_title }}
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                {{ sec.controllers_html | safe }}
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">{{ sec.snippet_filename | default('demo_snippet.code') }}</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="{{ sec.id }}-code-box">
+                    {{ sec.code_box_html | safe }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="{{ sec.id }}-trace-box">
+                  {{ sec.initial_trace_html | safe }}
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="{{ sec.id }}-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="{{ sec.id }}-res-val">
+                      {{ sec.default_res_val | default('Ready') }}
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="{{ sec.id }}-res-badge">
+                      {{ sec.default_res_badge | default('Success') }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {% endfor %}
+      </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+      <div class="max-w-[1680px] mx-auto px-4 sm:px-8">
+        <p>@{{ current_year | default('2026') }} Rikkei Education — @copyright All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- ===== INTERACTIVE CLIENT-SIDE JAVASCRIPT ENGINE ===== -->
+    <script>
+      {{ client_scripts | safe }}
+
+      // ROBUST ACTIVE SCROLLSPY WITH BOUNDING RECT & CLICK HANDLER
+      function setActiveNav(id) {
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.classList.remove("active");
+        });
+        const activeLink = document.getElementById("nav-" + id);
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
+
+      function initScrollSpy() {
+        const sections = document.querySelectorAll("section[id]");
+        if (!sections.length) return;
+
+        // Activate first section by default on load
+        const firstId = sections[0].getAttribute("id");
+        setActiveNav(firstId);
+
+        // Instant active highlight on click
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.addEventListener("click", function () {
+            const targetId = this.getAttribute("href").replace("#", "");
+            setActiveNav(targetId);
+          });
+        });
+
+        // Realtime scroll position tracker using BoundingClientRect
+        function handleScroll() {
+          const triggerOffset = 200; // Trigger zone near top of viewport
+          let currentId = firstId;
+
+          sections.forEach((sec) => {
+            const rect = sec.getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentId = sec.getAttribute("id");
+            }
+          });
+
+          setActiveNav(currentId);
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+      }
+
+      // INITIALIZE ALL SIMULATORS & SCROLLSPY SAFELY
+      function initApp() {
+        try {
+          {{ init_calls | safe }}
+        } catch (e) {
+          console.warn("Simulator init warning:", e);
+        }
+        try {
+          initScrollSpy();
+        } catch (e) {
+          console.error("ScrollSpy init error:", e);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+      window.addEventListener("load", initApp);
+    </script>
+  </body>
+</html>

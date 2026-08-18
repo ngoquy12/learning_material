@@ -1,0 +1,54 @@
+{
+  "lesson_slug": "bieu-thuc-dieu-kien-ba-ngoi-ternary-operator",
+  "lesson_title": "Biểu thức Điều kiện Ba ngôi (Ternary Operator) trong JavaScript",
+  "real_world_scenario": {
+    "name": "Hệ thống Xử lý Thanh toán và Phụ phí Đơn hàng E-commerce",
+    "description": "Xây dựng module kiểm tra điều kiện tự động để gán phí vận chuyển, tính toán mức giảm giá dựa theo hạng khách hàng và phân loại độ ưu tiên xử lý đơn hàng trực tuyến."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Cú pháp cơ bản của Toán tử Ba ngôi (Ternary Operator)",
+      "description": "Toán tử ba ngôi là dạng viết rút gọn của câu lệnh if-else đơn giản. Biểu thức nhận vào 3 toán hạng: điều kiện kiểm tra, giá trị trả về nếu điều kiện đúng (true), và giá trị trả về nếu điều kiện sai (false).",
+      "raw_code_snippet": "const orderTotal = 600000;\n// Giá trị đơn hàng từ 500,000 VNĐ trở lên được miễn phí vận chuyển\nconst shippingFee = orderTotal >= 500000 ? 0 : 30000;\nconsole.log(shippingFee); // Kết quả: 0"
+    },
+    {
+      "concept_name": "Toán tử Ba ngôi lồng nhau (Nested Ternary Operator)",
+      "description": "Cho phép kiểm tra nhiều nhánh điều kiện nối tiếp bằng cách thay thế biểu thức kết quả bằng một toán tử ba ngôi khác. Cần trình bày xuống dòng rõ ràng để duy trì khả năng đọc mã nguồn.",
+      "raw_code_snippet": "const customerTier = \"GOLD\";\n// Tỷ lệ giảm giá theo hạng thành viên\nconst discountRate = customerTier === \"DIAMOND\" ? 0.15 : customerTier === \"GOLD\" ? 0.10 : 0.05;\nconsole.log(discountRate); // Kết quả: 0.10"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Tính phí vận chuyển dựa trên giá trị đơn hàng",
+      "requirement": "Khởi tạo biến cartAmount đại diện cho tổng tiền giỏ hàng. Sử dụng toán tử ba ngôi để tính phí vận chuyển shippingFee: nếu giỏ hàng từ 500,000 VNĐ trở lên thì phí giao hàng là 0 VNĐ, ngược lại là 30,000 VNĐ.",
+      "raw_code": "// Khai báo giá trị giỏ hàng (VNĐ)\nconst cartAmount = 650000;\n\n// Tính phí vận chuyển bằng toán tử ba ngôi\nconst shippingFee = cartAmount >= 500000 ? 0 : 30000;\n\n// In thông tin thanh toán\nconsole.log(\"Giá trị đơn hàng:\", cartAmount, \"VNĐ\");\nconsole.log(\"Phí vận chuyển áp dụng:\", shippingFee, \"VNĐ\");"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Áp dụng mã giảm giá và tính tổng tiền thanh toán",
+      "requirement": "Bổ sung thông tin hạng thành viên customerTier. Xác định tỷ lệ giảm giá discountRate bằng toán tử ba ngôi (VIP giảm 10%, các hạng khác giảm 5%). Tính số tiền giảm giá và tổng chi phí hóa đơn sau khi cộng phí giao hàng.",
+      "raw_code": "// Khai báo thông tin giỏ hàng và hạng thành viên\nconst cartAmount = 650000;\nconst customerTier = \"VIP\";\n\n// Tính phí vận chuyển (Miễn phí nếu đơn từ 500,000 VNĐ)\nconst shippingFee = cartAmount >= 500000 ? 0 : 30000;\n\n// Tính tỷ lệ giảm giá theo hạng thành viên\nconst discountRate = customerTier === \"VIP\" ? 0.10 : 0.05;\n\n// Tính toán các khoản tiền\nconst discountAmount = cartAmount * discountRate;\nconst finalTotal = cartAmount - discountAmount + shippingFee;\n\nconsole.log(\"Hạng khách hàng:\", customerTier);\nconsole.log(\"Số tiền được giảm:\", discountAmount, \"VNĐ\");\nconsole.log(\"Phí vận chuyển:\", shippingFee, \"VNĐ\");\nconsole.log(\"Tổng tiền cần thanh toán:\", finalTotal, \"VNĐ\");"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Xử lý phụ phí thanh toán và phân loại ưu tiên xử lý đơn hàng",
+      "requirement": "Xây dựng luồng tính toán thanh toán hoàn chỉnh: Kiểm tra trạng thái hủy đơn isOrderCancelled. Nếu đơn chưa bị hủy và giá trị giỏ hàng hợp lệ (>0), tính phí giao hàng, giảm giá theo 3 hạng (DIAMOND: 15%, VIP: 10%, STANDARD: 5%), cộng phụ phí paymentMethod ('COD' thu thêm 20,000 VNĐ, ngược lại là 0 VNĐ) và xác định độ ưu tiên đơn hàng processingPriority ('HIGH' nếu là VIP/DIAMOND hoặc đơn trên 1,000,000 VNĐ, ngược lại là 'NORMAL').",
+      "raw_code": "// Thông tin dữ liệu đơn hàng thực tế\nconst cartAmount = 1200000;\nconst customerTier = \"VIP\";\nconst paymentMethod = \"COD\";\nconst isOrderCancelled = false;\n\n// 1. Kiểm tra điều kiện hợp lệ của đơn hàng bằng toán tử ba ngôi lồng nhau\nconst orderValidationMessage = isOrderCancelled\n  ? \"Đơn hàng đã bị hủy, không thể xử lý thanh toán.\"\n  : cartAmount <= 0\n  ? \"Giá trị giỏ hàng không hợp lệ.\"\n  : \"Đơn hàng hợp lệ sẵn sàng tính toán.\";\n\nconsole.log(\"Trạng thái kiểm tra:\", orderValidationMessage);\n\n// 2. Tiến hành tính toán nếu đơn hàng hợp lệ\nif (!isOrderCancelled && cartAmount > 0) {\n  // Tính phí vận chuyển\n  const shippingFee = cartAmount >= 500000 ? 0 : 30000;\n\n  // Tính tỷ lệ giảm giá theo 3 cấp hạng thành viên\n  const discountRate = customerTier === \"DIAMOND\"\n    ? 0.15\n    : customerTier === \"VIP\"\n    ? 0.10\n    : 0.05;\n\n  // Tính phụ phí thanh toán dựa trên phương thức\n  const paymentSurcharge = paymentMethod === \"COD\" ? 20000 : 0;\n\n  // Số tiền giảm giá\n  const discountAmount = cartAmount * discountRate;\n\n  // Tổng số tiền thanh toán cuối cùng\n  const finalTotal = cartAmount - discountAmount + shippingFee + paymentSurcharge;\n\n  // Xác định độ ưu tiên xử lý đơn hàng\n  const processingPriority = (customerTier === \"VIP\" || customerTier === \"DIAMOND\" || cartAmount >= 1000000)\n    ? \"HIGH\"\n    : \"NORMAL\";\n\n  console.log(\"Tỷ lệ giảm giá áp dụng:\", discountRate * 100 + \"%\");\n  console.log(\"Số tiền được giảm:\", discountAmount, \"VNĐ\");\n  console.log(\"Phụ phí phương thức thanh toán:\", paymentSurcharge, \"VNĐ\");\n  console.log(\"Phí vận chuyển:\", shippingFee, \"VNĐ\");\n  console.log(\"Tổng tiền thanh toán cuối cùng:\", finalTotal, \"VNĐ\");\n  console.log(\"Độ ưu tiên xử lý đơn hàng:\", processingPriority);\n}"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lạm dụng toán tử ba ngôi để thực thi câu lệnh có tác dụng phụ (Side-effects)",
+      "explanation": "Toán tử ba ngôi được thiết kế để đóng vai trò là một biểu thức (expression) trả về giá trị. Việc dùng toán tử ba ngôi thay thế câu lệnh điều khiển luồng (như gọi hàm hay thực hiện nhiều lệnh gán biến) khiến mã nguồn bị rối, khó bảo trì và vi phạm nguyên tắc mã sạch.",
+      "code_bad": "const isVip = true;\nlet discount = 0;\n\n// Sai lầm: Dùng toán tử ba ngôi để thực thi nhiều câu lệnh side-effect\nisVip ? (discount = 0.1, console.log(\"Áp dụng VIP\")) : (discount = 0.05, console.log(\"Áp dụng Standard\"));",
+      "code_good": "const isVip = true;\n\n// Đúng chuẩn: Dùng toán tử ba ngôi để gán trực tiếp giá trị trả về cho biến\nconst discount = isVip ? 0.1 : 0.05;\nconst statusMessage = isVip ? \"Áp dụng VIP\" : \"Áp dụng Standard\";\n\nconsole.log(statusMessage);\nconsole.log(\"Mức giảm giá:\", discount);"
+    },
+    {
+      "error_name": "Lồng quá nhiều toán tử ba ngôi gây khó đọc và sai lệch logic ưu tiên",
+      "explanation": "Khi lồng quá nhiều cấp toán tử ba ngôi trên cùng một dòng, mã nguồn trở nên cực kỳ phức tạp và dễ gây ra sai sót về thứ tự ưu tiên đánh giá logic. Với các trường hợp có từ 3 nhánh điều kiện trở lên, nên trình bày xuống dòng cẩn thận hoặc chuyển sang cấu trúc if-else / switch-case.",
+      "code_bad": "const amount = 450000;\n// Sai lầm: Viết lồng nhiều điều kiện trên 1 dòng gây khó đọc\nconst fee = amount > 1000000 ? 0 : amount > 500000 ? 15000 : amount > 200000 ? 30000 : 50000;",
+      "code_good": "const amount = 450000;\n\n// Cách 1: Xuống dòng rõ ràng nếu bắt buộc dùng toán tử ba ngôi lồng nhau\nconst feeTernary = amount > 1000000\n  ? 0\n  : amount > 500000\n  ? 15000\n  : amount > 200000\n  ? 30000\n  : 50000;\n\n// Cách 2: Sử dụng if-else chuẩn cho logic nhiều nhánh phức tạp\nlet fee;\nif (amount > 1000000) {\n  fee = 0;\n} else if (amount > 500000) {\n  fee = 15000;\n} else if (amount > 200000) {\n  fee = 30000;\n} else {\n  fee = 50000;\n}\n\nconsole.log(\"Phí giao hàng:\", fee);"
+    }
+  ]
+}

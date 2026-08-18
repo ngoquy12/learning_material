@@ -6,7 +6,9 @@ Uses Python AST parser to check solution code syntax and validates exercise stru
 
 import ast
 from typing import Tuple, List, Dict, Any
+from core.validators.master_validator import register_validator
 
+@register_validator("PRACTICE", "HOMEWORK")
 def validate_practice_exercise(lab_data: Dict[str, Any], metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates practical exercise structure, steps, checklist, and code syntax.

@@ -145,19 +145,24 @@ def compile_session_slides(session_dir: Path, session_title: str):
     Khử hoàn toàn các thẻ HTML lồng <!DOCTYPE html>, <head>, <style> gây trắng màn hình.
     """
     lesson_dirs = sorted(
-        [d for d in session_dir.iterdir() if d.is_dir() and (d / "Bài giảng").exists()],
+        [d for d in session_dir.iterdir() if d.is_dir() and ((d / "Bài giảng").exists() or (d / "Bài giảng trên lớp").exists())],
         key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.name, re.IGNORECASE)) else 999
     )
     if not lesson_dirs:
         return
 
     print(f"  [Session Compiler] Merging {len(lesson_dirs)} lesson slide decks into session_slides.html...")
-    from agents.slide_generator_agent import slide_generator_agent
+    from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
 
     lessons_data = []
     for idx, l_dir in enumerate(lesson_dirs, 1):
-        slide_html_p = l_dir / "Bài giảng" / "slides.html"
-        slide_md_p = l_dir / "Bài giảng" / "slides.md"
+        slide_html_p = l_dir / "Bài giảng trên lớp" / "slides.html"
+        if not slide_html_p.exists():
+            slide_html_p = l_dir / "Bài giảng" / "slides.html"
+            
+        slide_md_p = l_dir / "Bài giảng trên lớp" / "slides.md"
+        if not slide_md_p.exists():
+            slide_md_p = l_dir / "Bài giảng" / "slides.md"
         
         file_to_read = slide_html_p if slide_html_p.exists() else (slide_md_p if slide_md_p.exists() else None)
         if not file_to_read:
@@ -239,7 +244,7 @@ def compile_session_slides(session_dir: Path, session_title: str):
         })
 
     if lessons_data:
-        master_slide_html = slide_generator_agent.generate_session_deck_html(
+        master_slide_html = classroom_lecture_generator_agent.generate_session_deck_html(
             session_title=session_title,
             module_name="",
             lessons_data=lessons_data
@@ -323,19 +328,24 @@ def compile_session_slides(session_dir: Path, session_title: str):
     Khử hoàn toàn các thẻ HTML lồng <!DOCTYPE html>, <head>, <style> gây trắng màn hình.
     """
     lesson_dirs = sorted(
-        [d for d in session_dir.iterdir() if d.is_dir() and (d / "Bài giảng").exists()],
+        [d for d in session_dir.iterdir() if d.is_dir() and ((d / "Bài giảng").exists() or (d / "Bài giảng trên lớp").exists())],
         key=lambda p: int(m.group(1)) if (m := re.search(r'Lesson\s*(\d+)', p.name, re.IGNORECASE)) else 999
     )
     if not lesson_dirs:
         return
 
     print(f"  [Session Compiler] Merging {len(lesson_dirs)} lesson slide decks into session_slides.html...")
-    from agents.slide_generator_agent import slide_generator_agent
+    from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
 
     lessons_data = []
     for idx, l_dir in enumerate(lesson_dirs, 1):
-        slide_html_p = l_dir / "Bài giảng" / "slides.html"
-        slide_md_p = l_dir / "Bài giảng" / "slides.md"
+        slide_html_p = l_dir / "Bài giảng trên lớp" / "slides.html"
+        if not slide_html_p.exists():
+            slide_html_p = l_dir / "Bài giảng" / "slides.html"
+            
+        slide_md_p = l_dir / "Bài giảng trên lớp" / "slides.md"
+        if not slide_md_p.exists():
+            slide_md_p = l_dir / "Bài giảng" / "slides.md"
         
         file_to_read = slide_html_p if slide_html_p.exists() else (slide_md_p if slide_md_p.exists() else None)
         if not file_to_read:
@@ -417,7 +427,7 @@ def compile_session_slides(session_dir: Path, session_title: str):
         })
 
     if lessons_data:
-        master_slide_html = slide_generator_agent.generate_session_deck_html(
+        master_slide_html = classroom_lecture_generator_agent.generate_session_deck_html(
             session_title=session_title,
             module_name="",
             lessons_data=lessons_data

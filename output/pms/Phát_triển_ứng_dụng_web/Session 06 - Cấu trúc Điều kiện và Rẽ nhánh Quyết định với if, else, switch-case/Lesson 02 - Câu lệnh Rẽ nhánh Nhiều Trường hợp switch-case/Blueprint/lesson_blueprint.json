@@ -1,0 +1,59 @@
+{
+  "lesson_slug": "cau-lenh-re-nhanh-nhieu-truong-hop-switch-case",
+  "lesson_title": "Câu lệnh Rẽ nhánh Nhiều Trường hợp switch-case",
+  "real_world_scenario": {
+    "name": "Hệ thống Xử lý Trạng thái và Phí Vận chuyển Đơn hàng E-commerce",
+    "description": "Xây dựng module quản lý và kiểm tra trạng thái đơn hàng (PENDING, PROCESSING, SHIPPING, DELIVERED, CANCELLED) để hiển thị thông báo phản hồi, tính toán thời gian giao hàng dự kiến và áp dụng phí vận chuyển theo từng khu vực cho hệ thống thương mại điện tử."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Cú pháp và cơ chế hoạt động của switch-case",
+      "description": "Cấu trúc switch-case so sánh giá trị của một biểu thức với nhiều trường hợp (case) bằng phép so sánh nghiêm ngặt (===). Khi tìm thấy trường hợp khớp, khối lệnh tương ứng sẽ được kích hoạt và thực thi.",
+      "raw_code_snippet": "const orderStatus = \"SHIPPING\";\n\nswitch (orderStatus) {\n  case \"PENDING\":\n    console.log(\"Đơn hàng đang chờ xác nhận.\");\n    break;\n  case \"SHIPPING\":\n    console.log(\"Đơn hàng đang được vận chuyển.\");\n    break;\n}"
+    },
+    {
+      "concept_name": "Từ khóa break và hiện tượng Fall-through",
+      "description": "Từ khóa break dùng để kết thúc việc thực thi bên trong khối switch và thoát ra ngoài. Nếu không có break, chương trình sẽ tiếp tục chạy xuống các case bên dưới (hiện tượng fall-through) cho đến khi gặp break hoặc hết khối switch.",
+      "raw_code_snippet": "const userRole = \"ADMIN\";\n\nswitch (userRole) {\n  case \"MODERATOR\":\n  case \"ADMIN\":\n    // Cả MODERATOR và ADMIN đều chạy vào đoạn mã này nhờ fall-through cố ý\n    console.log(\"Có quyền truy cập trang quản trị.\");\n    break;\n  case \"CUSTOMER\":\n    console.log(\"Chỉ có quyền xem thông tin cá nhân.\");\n    break;\n}"
+    },
+    {
+      "concept_name": "Nhánh mặc định default",
+      "description": "Nhánh default đóng vai trò xử lý các trường hợp còn lại khi không có bất kỳ giá trị case nào trùng khớp với biểu thức điều kiện. Nhánh này giúp tránh lỗi ứng dụng và xử lý dữ liệu không hợp lệ.",
+      "raw_code_snippet": "const shippingZone = \"UNKNOWN_ZONE\";\n\nswitch (shippingZone) {\n  case \"INNER_CITY\":\n    console.log(\"Phí giao hàng: 15.000 VNĐ\");\n    break;\n  default:\n    console.log(\"Khu vực không hợp lệ hoặc chưa hỗ trợ giao hàng.\");\n}"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Kiểm tra trạng thái đơn hàng cơ bản",
+      "requirement": "Viết đoạn mã nhận vào mã trạng thái đơn hàng và hiển thị thông báo trạng thái tương ứng cho người dùng.",
+      "raw_code": "// Khai báo trạng thái đơn hàng cần kiểm tra\nconst orderStatusCode = \"SHIPPING\";\nlet statusMessage = \"\";\n\n// Kiểm tra trạng thái bằng cấu trúc switch-case\nswitch (orderStatusCode) {\n  case \"PENDING\":\n    statusMessage = \"Đơn hàng của bạn đã được ghi nhận và chờ xác nhận.\";\n    break;\n  case \"PROCESSING\":\n    statusMessage = \"Đơn hàng đang được đóng gói tại kho.\";\n    break;\n  case \"SHIPPING\":\n    statusMessage = \"Đơn hàng đang trên đường giao đến bạn.\";\n    break;\n  case \"DELIVERED\":\n    statusMessage = \"Giao hàng thành công!\";\n    break;\n}\n\nconsole.log(statusMessage);"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Gom nhóm trường hợp (Grouped Cases) và xử lý nhánh default",
+      "requirement": "Nâng cấp hệ thống để gom các trạng thái có cùng quy trình xử lý vào chung một nhóm thông báo, đồng thời xử lý trường hợp mã trạng thái nhập vào không hợp lệ bằng nhánh default.",
+      "raw_code": "const statusCode = \"PROCESSING\";\nlet statusGroupMessage = \"\";\n\nswitch (statusCode) {\n  // Gom nhóm các trạng thái ở bước chuẩn bị\n  case \"PENDING\":\n  case \"PROCESSING\":\n  case \"APPROVED\":\n    statusGroupMessage = \"Đơn hàng đang trong giai đoạn xử lý nội bộ.\";\n    break;\n  \n  // Gom nhóm các trạng thái vội/đang vận chuyển\n  case \"SHIPPING\":\n  case \"IN_TRANSIT\":\n    statusGroupMessage = \"Đơn hàng đang được vận chuyển bởi đối tác giao hàng.\";\n    break;\n  \n  case \"DELIVERED\":\n    statusGroupMessage = \"Đơn hàng đã giao thành công.\";\n    break;\n    \n  case \"CANCELLED\":\n  case \"REFUNDED\":\n    statusGroupMessage = \"Đơn hàng đã hủy hoặc được hoàn tiền.\";\n    break;\n\n  // Xử lý khi mã trạng thái không khớp với bất kỳ case nào ở trên\n  default:\n    statusGroupMessage = \"[WARNING] Mã trạng thái đơn hàng không hợp lệ trên hệ thống.\";\n    break;\n}\n\nconsole.log(statusGroupMessage);"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Ứng dụng thực tế tính phí vận chuyển và thời gian giao hàng",
+      "requirement": "Xây dựng logic tính tổng chi phí giao hàng và ước tính số ngày nhận hàng dựa trên khu vực giao hàng và phương thức giao hàng của khách hàng.",
+      "raw_code": "const regionCode = \"SUBURBAN\"; // Khu vực: INNER_CITY (Nội thành), SUBURBAN (Ngoại thành), PROVINCIAL (Tỉnh)\nconst isExpress = true; // Giao hàng hỏa tốc\n\nlet baseShippingFee = 0;\nlet estimatedDays = 0;\nlet isValidRegion = true;\n\n// Xử lý mức phí cơ bản và số ngày giao theo khu vực\nswitch (regionCode) {\n  case \"INNER_CITY\":\n    baseShippingFee = 15000;\n    estimatedDays = 1;\n    break;\n  case \"SUBURBAN\":\n    baseShippingFee = 30000;\n    estimatedDays = 2;\n    break;\n  case \"PROVINCIAL\":\n    baseShippingFee = 50000;\n    estimatedDays = 4;\n    break;\n  default:\n    isValidRegion = false;\n    console.log(\"[ERROR] Đơn hàng không thể tính phí do vùng giao hàng không hợp lệ.\");\n    break;\n}\n\n// Nếu khu vực hợp lệ, tiến hành tính toán phụ phí hỏa tốc nếu có\nif (isValidRegion) {\n  let totalShippingFee = baseShippingFee;\n  \n  if (isExpress) {\n    totalShippingFee = baseShippingFee + 20000;\n    estimatedDays = estimatedDays - 1;\n    if (estimatedDays < 1) {\n      estimatedDays = 1;\n    }\n  }\n\n  console.log(\"--- THÔNG TIN VẬN CHUYỂN --- \");\n  console.log(\"Khu vực giao:\", regionCode);\n  console.log(\"Tổng phí vận chuyển:\", totalShippingFee, \"VNĐ\");\n  console.log(\"Thời gian giao dự kiến:\", estimatedDays, \"ngày\");\n}"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Quên từ khóa break gây ra hiện tượng Fall-through không mong muốn",
+      "explanation": "Khi quên sử dụng từ khóa break ở cuối mỗi case, chương trình sẽ không thoát khỏi switch mà tiếp tục thực thi các lệnh ở các case bên dưới. Điều này dẫn đến việc giá trị biến bị ghi đè sai lệch.",
+      "code_bad": "const orderStatus = \"PENDING\";\nlet fee = 0;\n\nswitch (orderStatus) {\n  case \"PENDING\":\n    fee = 10000; // Thiếu break ở đây\n  case \"SHIPPING\":\n    fee = 20000;\n    break;\n}\n// Kết quả fee sẽ bị mang giá trị 20000 thay vì 10000",
+      "code_good": "const orderStatus = \"PENDING\";\nlet fee = 0;\n\nswitch (orderStatus) {\n  case \"PENDING\":\n    fee = 10000;\n    break; // Đã thêm break để thoát khỏi khối switch đúng lúc\n  case \"SHIPPING\":\n    fee = 20000;\n    break;\n}\n// Kết quả fee chính xác là 10000"
+    },
+    {
+      "error_name": "Sai lệch kiểu dữ liệu khi so sánh (So sánh nghiêm ngặt ===)",
+      "explanation": "Cấu trúc switch-case luôn sử dụng phép so sánh nghiêm ngặt (===) bao gồm cả so sánh giá trị và kiểu dữ liệu. Nếu biểu thức truyền vào là chuỗi nhưng giá trị ở case là kiểu số, trường hợp đó sẽ bị bỏ qua.",
+      "code_bad": "const optionCode = \"1\"; // Kiểu dữ liệu Chuỗi (String)\n\nswitch (optionCode) {\n  case 1: // Kiểu dữ liệu Số (Number) -> Không trùng khớp vì '1' !== 1\n    console.log(\"Chọn phương thức thanh toán COD\");\n    break;\n  default:\n    console.log(\"Lựa chọn không hợp lệ\"); // Chương trình nhảy vào đây!\n}",
+      "code_good": "const optionCode = \"1\";\n\nswitch (optionCode) {\n  case \"1\": // Đồng nhất kiểu dữ liệu Chuỗi (String)\n    console.log(\"Chọn phương thức thanh toán COD\");\n    break;\n  default:\n    console.log(\"Lựa chọn không hợp lệ\");\n}"
+    }
+  ]
+}

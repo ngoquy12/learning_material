@@ -34,8 +34,7 @@ SESSION_DELIVERABLES: Dict[SessionType, List[str]] = {
         "6. Bài kiểm tra trắc nghiệm cuối giờ (Exit Quiz / Đúng 45 câu Excel .xlsx)",
         "7. Bài tập về nhà Session (5 bài tập phân 5 cấp độ + 1 bài tập tổng hợp)",
         "8. File gộp bài đọc Session (reading_all.html)",
-        "9. File gộp Slide Session (session_slides.html)",
-        "10. Kịch bản lời giảng Video (Hyperframes Script)"
+        "9. File gộp Slide Session (session_slides.html)"
     ],
     SessionType.PRACTICE: [
         "1. Bộ bài tập thực hành phân cấp (Phân loại Nhận biết -> Vận dụng cao)",

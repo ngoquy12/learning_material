@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cú pháp Biến và Cấu trúc Điều khiển trong Python — Trực quan hóa Bài giảng - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #be111c 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      /* Custom light active state for TOC links */
+      .toc-link.active {
+        background-color: #fff1f2 !important; /* bg-rose-50 */
+        border-left-color: #be111c !important; /* border-l-2 border-rikkei-red */
+        color: #be111c !important;
+        border-radius: 0.5rem !important;
+      }
+      .toc-link.active .toc-title {
+        color: #be111c !important;
+        font-weight: 600 !important;
+      }
+
+      /* Realtime pulse animations for visual state flow */
+      .pulse-active {
+        animation: pulseEmerald 1.5s infinite;
+      }
+      @keyframes pulseEmerald {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+      .pulse-warning {
+        animation: pulseAmber 1.5s infinite;
+      }
+      @keyframes pulseAmber {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      }
+
+      /* Code block scrollbars */
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0f172a;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white">
+    <!-- ===== FIXED TOP HEADER (EXPANDED TO MAX 1680px) ===== -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
+      <div class="max-w-[1680px] w-full mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-8 sm:h-9 object-contain shrink-0"
+          />
+          <span class="text-xs sm:text-sm font-bold text-slate-800 border-l border-slate-300 pl-3 sm:pl-4 truncate">
+            Cú pháp Biến và Cấu trúc Điều khiển trong Python
+          </span>
+        </div>
+        <!-- Right Counter Badge -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+            2 Bài học
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== MAIN WRAPPER (EXPANDED TO MAX 1680px FOR FULL DESKTOP BREADTH) ===== -->
+    <div class="max-w-[1680px] w-full mx-auto px-4 sm:px-8 pt-24 pb-16 flex gap-8 items-start flex-1">
+      <!-- ===== LEFT STICKY SIDEBAR TOC (CLEAN TEXT, NO BADGES, LIGHT BORDER) ===== -->
+      <aside class="w-80 shrink-0 sticky top-24 hidden lg:block">
+        <div class="glass-card p-4 rounded-2xl space-y-3 shadow-sm border border-slate-200/80 h-auto">
+          <!-- TOC Header -->
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+            <i class="ph-bold ph-list-dashes text-rikkei-red text-base"></i>
+            <span>Mục lục Bài giảng</span>
+          </div>
+
+          <!-- Vertical Navigation Links (Clean Text, No Number Badges, Light Border) -->
+          <nav class="space-y-1" id="toc-nav">
+            
+            <a
+              id="nav-s1"
+              href="#s1"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                1. Cú pháp Biến và Kiểu dữ liệu cơ bản trong Python
+              </span>
+            </a>
+            
+            <a
+              id="nav-s2"
+              href="#s2"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                2. Cấu trúc Điều kiện if-elif-else và Toán tử Logic
+              </span>
+            </a>
+            
+          </nav>
+        </div>
+      </aside>
+
+      <!-- ===== MAIN DASHBOARD CONTENT AREA (EXPANDED FLUID RIGHT) ===== -->
+      <main class="flex-1 min-w-0 space-y-14">
+        
+        <!-- ===== SECTION 1: Cú pháp Biến và Kiểu dữ liệu cơ bản trong Python ===== -->
+        <section id="s1" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              1. Cú pháp Biến và Kiểu dữ liệu cơ bản trong Python
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-lightbulb text-amber-500 text-base"></i>
+                      <span>Khái niệm & Cú pháp Cốt lõi</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      KHÁI NIỆM & CÚ PHÁP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    <ul class='space-y-2 list-disc pl-4 text-slate-700'><li>Python là ngôn ngữ định kiểu động (dynamic typing); biến được khởi tạo tự động khi gán giá trị mà không cần khai báo từ khóa kiểu dữ liệu, tuân thủ quy chuẩn PEP 8 về đặt tên dạng snake_case.</li><li>Tận dụng Type Hinting (Python 3.11+) khi khai báo các kiểu dữ liệu cơ bản (int, float, str, bool) giúp VS Code gợi ý mã nguồn IntelliSense chính xác và hạn chế sai sót dữ liệu.</li></ul>
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Lưu ý & Bẫy lỗi Thường gặp</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LƯU Ý THỰC HÀNH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    <div class='space-y-2 text-rose-950 leading-relaxed'><p>Lỗi TypeError do ghép nối chuỗi (str) với số (int/float) trực tiếp thay vì ép kiểu qua hàm str() hoặc dùng f-string.</p><p>Bẫy gán lại khác kiểu dữ liệu tự do cho biến đã khai báo làm sai lệch logic thực thi khi biến được truyền qua nhiều hàm xử lý.</p></div>
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Trình diễn trực quan: Cú pháp Biến và Ép kiểu Dữ liệu An toàn trong Python
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Kịch bản Thử nghiệm (Scenario):</label>
+                <select id="s1-scenario" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-medium truncate" onchange="run_s1_sim()">
+                  <option value="scen_0">1. Trường hợp Chuẩn (Standard)</option>
+<option value="scen_1">2. Trường hợp Biên (Edge Case)</option>
+<option value="scen_2">3. Tình huống Ngoại lệ (Gotcha / Error)</option>
+
+                </select>
+              </div>
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Giá trị Tham số (Input Value):</label>
+                <input type="text" id="s1-val" value=""25"" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s1_sim()" />
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">main.py</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s1-code-box">
+                    <pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="s1-code-snippet">def parse_data(raw_input: str) -&gt; dict:
+    # Khai báo biến với Type Hinting theo chuẩn PEP 8
+    val_int: int = int(raw_input) if raw_input.isdigit() else -1
+    is_valid: bool = val_int &gt;= 0
+    message: str = f"Xử lý: {val_int}" if is_valid else "Lỗi kiểu dữ liệu"
+    return {"value": val_int, "status": is_valid, "msg": message}</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s1-trace-box">
+                  <div class='text-slate-400'>> 1. Nhận chuỗi dữ liệu đầu vào hợp lệ: "25"</div><div class='text-slate-400'>> 2. Kiểm tra .isdigit() trả về True, chuyển đổi kiểu dữ liệu str -> int thành 25</div><div class='text-slate-400'>> 3. Đánh giá is_valid = True và trả về kết quả dạng dictionary chuẩn</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s1-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s1-res-val">
+                      {'value': 25, 'status': True, 'msg': 'Xử lý: 25'}
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s1-res-badge">
+                      Thành công
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ===== SECTION 2: Cấu trúc Điều kiện if-elif-else và Toán tử Logic ===== -->
+        <section id="s2" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              2. Cấu trúc Điều kiện if-elif-else và Toán tử Logic
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-lightbulb text-amber-500 text-base"></i>
+                      <span>Khái niệm & Cú pháp Cốt lõi</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      KHÁI NIỆM & CÚ PHÁP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    <ul class='space-y-2 list-disc pl-4 text-slate-700'><li>Cấu trúc if-elif-else điều khiển luồng rẽ nhánh của chương trình dựa trên giá trị Boolean (True/False); PEP 8 quy định bắt buộc lùi lề chuẩn 4 dấu cách (4 spaces).</li><li>Toán tử logic (and, or, not) kết hợp nhiều điều kiện và áp dụng cơ chế Đánh giá ngắn (Short-Circuit Evaluation): dừng kiểm tra ngay khi kết quả toàn bộ biểu thức đã được xác định.</li></ul>
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Lưu ý & Bẫy lỗi Thường gặp</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LƯU Ý THỰC HÀNH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    <div class='space-y-2 text-rose-950 leading-relaxed'><p>Nhầm lẫn giữa toán tử so sánh (==) và toán tử gán (=), hoặc quên dấu ngoặc đơn () khi kết hợp `and` và `or` dẫn đến sai thứ tự ưu tiên biểu thức.</p><p>Bỏ quên dấu hai chấm (:) ở cuối dòng điều kiện hoặc trộn lẫn Tab và Space gây lỗi IndentationError trên môi trường Pyodide / VS Code.</p></div>
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Trình diễn trực quan: Cấu trúc Điều kiện if-elif-else và Toán tử Logic
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Kịch bản Thử nghiệm (Scenario):</label>
+                <select id="s2-scenario" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-medium truncate" onchange="run_s2_sim()">
+                  <option value="scen_0">1. Trường hợp Chuẩn (Standard)</option>
+<option value="scen_1">2. Trường hợp Biên (Edge Case)</option>
+<option value="scen_2">3. Tình huống Ngoại lệ (Gotcha / Error)</option>
+
+                </select>
+              </div>
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Giá trị Tham số (Input Value):</label>
+                <input type="text" id="s2-val" value="age = 65, is_member = True" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s2_sim()" />
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">main.py</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s2-code-box">
+                    <pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="s2-code-snippet">def evaluate_discount(age: int, is_member: bool) -&gt; str:
+    if age &lt; 0 or age &gt; 120:
+        return "Dữ liệu tuổi không hợp lệ"
+    elif is_member and age &gt;= 60:
+        return "Giảm 50% (Hội viên cao tuổi)"
+    elif is_member or age &lt; 12:
+        return "Giảm 20% (Ưu đãi tiêu chuẩn)"
+    else:
+        return "Không giảm giá"</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s2-trace-box">
+                  <div class='text-slate-400'>> 1. Kiểm tra biên (65 < 0 or 65 > 120) -> False, chuyển sang nhánh elif đầu tiên</div><div class='text-slate-400'>> 2. Kiểm tra (is_member and 65 >= 60) -> True and True -> True</div><div class='text-slate-400'>> 3. Khớp điều kiện ưu đãi cao nhất và trả về kết quả ngay lập tức</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s2-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s2-res-val">
+                      Giảm 50% (Hội viên cao tuổi)
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s2-res-badge">
+                      Thành công
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+      </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+      <div class="max-w-[1680px] mx-auto px-4 sm:px-8">
+        <p>@2026 Rikkei Education — @copyright All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- ===== INTERACTIVE CLIENT-SIDE JAVASCRIPT ENGINE ===== -->
+    <script>
+      
+      function run_s1_sim() {
+        const scenSelect = document.getElementById("s1-scenario");
+        const valInput = document.getElementById("s1-val");
+        const traceBox = document.getElementById("s1-trace-box");
+        const resVal = document.getElementById("s1-res-val");
+        const resBadge = document.getElementById("s1-res-badge");
+
+        if (!scenSelect || !valInput || !traceBox || !resVal || !resBadge) return;
+
+        const scenMap = {"scen_0": {"val": "\"25\"", "trace": "<div class='text-slate-400'>> 1. Nhận chuỗi dữ liệu đầu vào hợp lệ: \"25\"</div><div class='text-slate-400'>> 2. Kiểm tra .isdigit() trả về True, chuyển đổi kiểu dữ liệu str -> int thành 25</div><div class='text-slate-400'>> 3. Đánh giá is_valid = True và trả về kết quả dạng dictionary chuẩn</div>", "res": "{'value': 25, 'status': True, 'msg': 'Xử lý: 25'}", "badge": "Thành công"}, "scen_1": {"val": "\"0\"", "trace": "<div class='text-slate-400'>> 1. Nhận dữ liệu biên \"0\" dạng chuỗi</div><div class='text-slate-400'>> 2. Thực hiện chuyển đổi kiểu dữ liệu an toàn sang số nguyên 0</div><div class='text-slate-400'>> 3. Kiểm tra điều kiện val_int >= 0 thỏa mãn, duy trì luồng chạy ổn định</div>", "res": "{'value': 0, 'status': True, 'msg': 'Xử lý: 0'}", "badge": "Biên an toàn"}, "scen_2": {"val": "\"abc\"", "trace": "<div class='text-slate-400'>> 1. Nhận chuỗi không phải chữ số: \"abc\"</div><div class='text-slate-400'>> 2. Hàm .isdigit() trả về False, kích hoạt cơ chế fallback gán val_int = -1 ngăn ngừa ValueError crash ứng dụng</div><div class='text-slate-400'>> 3. Trả về thông điệp thông báo lỗi kiểu dữ liệu an toàn</div>", "res": "{'value': -1, 'status': False, 'msg': 'Lỗi kiểu dữ liệu'}", "badge": "Cảnh báo Lỗi"}};
+        const currentScen = scenSelect.value;
+        const scenData = scenMap[currentScen] || scenMap["scen_0"];
+
+        traceBox.innerHTML = scenData.trace;
+        resVal.innerText = scenData.res;
+        resBadge.innerText = scenData.badge;
+        resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
+      }
+
+
+      function run_s2_sim() {
+        const scenSelect = document.getElementById("s2-scenario");
+        const valInput = document.getElementById("s2-val");
+        const traceBox = document.getElementById("s2-trace-box");
+        const resVal = document.getElementById("s2-res-val");
+        const resBadge = document.getElementById("s2-res-badge");
+
+        if (!scenSelect || !valInput || !traceBox || !resVal || !resBadge) return;
+
+        const scenMap = {"scen_0": {"val": "age = 65, is_member = True", "trace": "<div class='text-slate-400'>> 1. Kiểm tra biên (65 < 0 or 65 > 120) -> False, chuyển sang nhánh elif đầu tiên</div><div class='text-slate-400'>> 2. Kiểm tra (is_member and 65 >= 60) -> True and True -> True</div><div class='text-slate-400'>> 3. Khớp điều kiện ưu đãi cao nhất và trả về kết quả ngay lập tức</div>", "res": "Giảm 50% (Hội viên cao tuổi)", "badge": "Thành công"}, "scen_1": {"val": "age = 12, is_member = False", "trace": "<div class='text-slate-400'>> 1. Kiểm tra hợp lệ (12 < 0 or 12 > 120) -> False</div><div class='text-slate-400'>> 2. Kiểm tra (False and 12 >= 60) -> False</div><div class='text-slate-400'>> 3. Kiểm tra (False or 12 < 12) -> False (điều kiện biên < 12 không bao gồm 12), chuyển sang else</div>", "res": "Không giảm giá", "badge": "Biên an toàn"}, "scen_2": {"val": "age = -5, is_member = True", "trace": "<div class='text-slate-400'>> 1. Kiểm tra điều kiện đầu (-5 < 0) -> True</div><div class='text-slate-400'>> 2. Áp dụng Short-Circuit: kết quả của 'or' là True ngay mà không cần kiểm tra -5 > 120</div><div class='text-slate-400'>> 3. Kích hoạt Guard Clause để chặn giá trị tuổi âm sai thực tế</div>", "res": "Dữ liệu tuổi không hợp lệ", "badge": "Cảnh báo Lỗi"}};
+        const currentScen = scenSelect.value;
+        const scenData = scenMap[currentScen] || scenMap["scen_0"];
+
+        traceBox.innerHTML = scenData.trace;
+        resVal.innerText = scenData.res;
+        resBadge.innerText = scenData.badge;
+        resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
+      }
+
+      // ROBUST ACTIVE SCROLLSPY WITH BOUNDING RECT & CLICK HANDLER
+      function setActiveNav(id) {
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.classList.remove("active");
+        });
+        const activeLink = document.getElementById("nav-" + id);
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
+
+      function initScrollSpy() {
+        const sections = document.querySelectorAll("section[id]");
+        if (!sections.length) return;
+
+        // Activate first section by default on load
+        const firstId = sections[0].getAttribute("id");
+        setActiveNav(firstId);
+
+        // Instant active highlight on click
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.addEventListener("click", function () {
+            const targetId = this.getAttribute("href").replace("#", "");
+            setActiveNav(targetId);
+          });
+        });
+
+        // Realtime scroll position tracker using BoundingClientRect
+        function handleScroll() {
+          const triggerOffset = 200; // Trigger zone near top of viewport
+          let currentId = firstId;
+
+          sections.forEach((sec) => {
+            const rect = sec.getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentId = sec.getAttribute("id");
+            }
+          });
+
+          setActiveNav(currentId);
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+      }
+
+      // INITIALIZE ALL SIMULATORS & SCROLLSPY SAFELY
+      function initApp() {
+        try {
+          run_s1_sim();
+        run_s2_sim();
+        } catch (e) {
+          console.warn("Simulator init warning:", e);
+        }
+        try {
+          initScrollSpy();
+        } catch (e) {
+          console.error("ScrollSpy init error:", e);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+      window.addEventListener("load", initApp);
+    </script>
+  </body>
+</html>

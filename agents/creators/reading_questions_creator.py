@@ -1,7 +1,25 @@
+import os
 import json
-from core.state import AgentState
+from pathlib import Path
+import jinja2
+from core.state import AgentState, require_tech_stack
 from core.llm import call_llm
+from core.utils.text_sanitizer import extract_and_parse_json, strip_markdown_fence
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
+
+_TEMPLATE_DIR = Path(__file__).resolve().parent.parent.parent / "templates" / "prompts"
+
+def _load_system_prompt(tech_stack: str) -> str:
+    """Loads system prompt from Jinja2 template or fallback."""
+    template_path = _TEMPLATE_DIR / "reading_questions_system.j2"
+    if template_path.exists():
+        with open(template_path, "r", encoding="utf-8") as f:
+            template = jinja2.Template(f.read())
+            return template.render(tech_stack=tech_stack)
+    return (
+        "You are a Senior E-Learning Pedagogical QA Specialist at Rikkei Education.\n"
+        "Your task is to generate a multi-case reading comprehension question set anchored strictly on 1 code snippet."
+    )
 
 def format_reading_questions_to_markdown(data, tech_stack: str = "") -> str:
     """
@@ -36,7 +54,6 @@ def format_reading_questions_to_markdown(data, tech_stack: str = "") -> str:
             q_text = str(q)
             explanation = "Phân tích và giải thích chi tiết dựa trên mã nguồn bài đọc."
 
-        # Avoid repeating title prefix if already in question text
         clean_text = q_text.strip()
         if clean_text.startswith(q_title):
             full_heading = clean_text
@@ -44,8 +61,6 @@ def format_reading_questions_to_markdown(data, tech_stack: str = "") -> str:
             full_heading = f"{q_title} {clean_text}".strip()
 
         md_lines.append(f"### {full_heading}")
-        
-        # Format multi-line explanation nicely
         exp_lines = explanation.strip().split("\n")
         formatted_exp = "\n> ".join(exp_lines)
         md_lines.append(f"> **Gợi ý trả lời & Định hướng đáp án:**\n> {formatted_exp}\n")
@@ -62,7 +77,6 @@ def reading_questions_creator_agent(state: AgentState) -> AgentState:
     """
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
-    from core.state import require_tech_stack
     tech_stack = require_tech_stack(state, "reading_questions_creator_agent")
 
     core_ssot = state.get("core_ssot", {})
@@ -94,21 +108,7 @@ def reading_questions_creator_agent(state: AgentState) -> AgentState:
 
     full_article_context = f"{problem_text}\n\n{analysis_text}\n\n{solution_text}\n\n{example_text}\n\n{summary_text}".strip()
 
-    system_prompt = f"""You are a Senior E-Learning Pedagogical QA Specialist at Rikkei Education.
-Your task is to generate a multi-case reading comprehension question set (Bộ câu hỏi kiểm tra bài đọc theo ví dụ thực tế) anchored strictly on 1 code snippet / scenario extracted from the provided lesson reading article.
-
-CRITICAL DIRECTIVES & MULTI-CASE CODE TRACING CONTRACT:
-1. NO HIGH-LEVEL ABSTRACT TEXTBOOK QUESTIONS: Absolutely forbidden to ask generic theoretical essay questions like "Explain why loops are used" or "List PEP 8 rules".
-2. SINGLE ANCHORED CODE SNIPPET / SCENARIO: Extract 1 concrete code snippet or CLI/config scenario card directly from the provided reading text (Section 2 or Section 3).
-3. 4-CASE EVALUATION STRUCTURE (Chia thành 4 trường hợp thử nghiệm):
-   - Case 1 (Xung hướng - Forward Tracing Input X1): Provide specific input X1 -> Ask student which lines/branches execute and what output/variable value is produced.
-   - Case 2 (Xung hướng - Alternative Input Tracing Input X2): Provide alternative input X2 -> Ask student how execution flow and output change.
-   - Case 3 (Nghịch hướng - Reverse Deduction Target Output Y3): Provide target output Y3 -> Ask student what input value / condition range is required.
-   - Case 4 (Trường hợp biên / Bẫy lỗi Gotcha): Provide boundary/invalid input or code mutation (wrong condition order / operator trap) -> Ask student to analyze the logic bug, unreachable code, or error output and state the fix.
-4. DOMAIN AGNOSTIC: Works for all tech stacks ({tech_stack}). DO NOT hardcode Git or unrelated topics unless the lesson is specifically about Git.
-5. LANGUAGE: 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất). No text emojis, no ALL CAPS.
-6. OUTPUT FORMAT: Return strictly a valid JSON object matching the requested schema.
-"""
+    system_prompt = _load_system_prompt(tech_stack)
 
     user_prompt = f"""Full Lesson Reading Article Content:
 === LESSON READING ARTICLE CONTENT ===
@@ -160,15 +160,12 @@ OUTPUT JSON SCHEMA:
         lesson_id=lesson_id
     )
 
-    try:
-        data = json.loads(response_str)
-        if isinstance(data, list):
-            reading_data = {"code_snippet": "", "questions": data}
-        elif isinstance(data, dict):
-            reading_data = data
-        else:
-            raise ValueError("Invalid JSON output format")
-    except Exception:
+    data = extract_and_parse_json(response_str, default=None)
+    if isinstance(data, list):
+        reading_data = {"code_snippet": "", "questions": data}
+    elif isinstance(data, dict):
+        reading_data = data
+    else:
         reading_data = {
             "code_snippet": f"""# Mã nguồn minh họa nghiệp vụ cho bài học: {lesson_title}
 score = 8.5

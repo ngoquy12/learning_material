@@ -49,10 +49,13 @@ class LocalJSONVectorStore(BaseVectorStore):
 
     def save(self):
         try:
-            with open(self.storage_path, "w", encoding="utf-8") as f:
+            tmp_path = f"{self.storage_path}.tmp"
+            with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(self.documents, f, ensure_ascii=False, indent=2)
+            os.replace(tmp_path, self.storage_path)
         except Exception as e:
             print(f"  [VectorStore Warning] Failed to save store: {e}")
+
 
     def _get_embedding(self, text: str) -> List[float]:
         """Call Gemini or OpenAI to get vector embedding, or return empty list for local TF-IDF search."""

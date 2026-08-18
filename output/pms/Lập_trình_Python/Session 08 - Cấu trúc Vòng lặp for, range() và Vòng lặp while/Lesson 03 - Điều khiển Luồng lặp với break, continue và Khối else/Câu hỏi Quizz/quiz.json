@@ -1,1 +1,77 @@
-[]
+[
+  {
+    "stt": 1,
+    "question_type": "SYNTAX",
+    "question": "Trong hệ thống tìm kiếm thông tin đơn hàng, khi đã tìm thấy đơn hàng cần kiểm tra, lập trình viên muốn dừng ngay vòng lặp để tiết kiệm tài nguyên. Câu lệnh điều khiển luồng lặp nào sau đây thực hiện đúng yêu cầu này?",
+    "options": [
+      "Sử dụng câu lệnh `break` để thoát vòng lặp ngay lập tức.",
+      "Sử dụng câu lệnh `continue` để bỏ qua lượt lặp hiện tại.",
+      "Sử dụng câu lệnh `pass` để tạm thời giữ cấu trúc điều kiện.",
+      "Sử dụng câu lệnh `exit()` để thoát toàn bộ chương trình."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Khi tìm thấy phần tử thỏa mãn, câu lệnh `break` sẽ ngắt và chấm dứt vòng lặp ngay lập tức, tránh việc duyệt qua các phần tử còn lại vô ích.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.1 trong bài đọc về câu lệnh break.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 2,
+    "question_type": "EXECUTION_FLOW",
+    "question": "Hệ thống kiểm tra an ninh đơn hàng đang duyệt danh sách từ 1 đến 10. Khi phát hiện một đơn hàng bị thiếu thông tin địa chỉ (lỗi nhẹ), hệ thống thực thi câu lệnh `continue`. Luồng chạy của chương trình sẽ tiếp diễn như thế nào?",
+    "options": [
+      "Bỏ qua các lệnh còn lại của đơn hiện tại và chuyển ngay sang đơn tiếp theo.",
+      "Thoát hoàn toàn khỏi vòng lặp và kết thúc chương trình.",
+      "Tạm dừng toàn bộ tiến trình hệ thống và yêu cầu người dùng nhập lại.",
+      "Quay trở lại thực thi lại tiến trình từ đơn hàng đầu tiên trong danh sách."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Khi lệnh `continue` được gọi, con trỏ điều khiển sẽ lập tức bỏ qua toàn bộ các câu lệnh còn lại trong lượt lặp hiện tại và quay về đầu vòng lặp để chuyển sang phần tử/lượt lặp tiếp theo.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.2 trong bài đọc về cơ chế hoạt động của câu lệnh continue.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 3,
+    "question_type": "CODE_TRACE",
+    "question": "Cho đoạn mã nguồn Python xử lý danh sách đơn hàng sau:\n\n```python\norders = [1, 2, 3, 4, 5]\ntotal_processed = 0\n\nfor order_id in orders:\n    if order_id == 3:\n        continue\n    if order_id == 5:\n        break\n    total_processed += 1\n\nprint(total_processed)\n```\nGiá trị của biến `total_processed` được in ra màn hình là bao nhiêu?",
+    "options": [
+      "Giá trị in ra màn hình là 3.",
+      "Giá trị in ra màn hình là 4.",
+      "Giá trị in ra màn hình là 5.",
+      "Giá trị in ra màn hình là 2."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Vòng lặp duyệt các phần tử:\n- `order_id` = 1: `total_processed` tăng lên 1.\n- `order_id` = 2: `total_processed` tăng lên 2.\n- `order_id` = 3: gặp `continue`, bỏ qua đoạn mã phía sau.\n- `order_id` = 4: `total_processed` tăng lên 3.\n- `order_id` = 5: gặp `break`, ngắt vòng lặp ngay lập tức. Kết quả in ra là 3.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 3.1 trong bài đọc về quy vết luồng thực thi khi kết hợp break và continue.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 4,
+    "question_type": "COMPARISON",
+    "question": "Trong bài toán xử lý danh sách đơn hàng, lập trình viên cần phân biệt hành vi giữa `break` và `continue`. Phát biểu nào sau đây so sánh chính xác nhất sự khác nhau giữa hai lệnh này?",
+    "options": [
+      "Lệnh `break` chấm dứt toàn bộ vòng lặp, lệnh `continue` chỉ bỏ qua lượt hiện tại.",
+      "Lệnh `break` chỉ bỏ qua lượt lặp hiện tại, lệnh `continue` chấm dứt toàn bộ vòng lặp.",
+      "Lệnh `break` chỉ dùng trong vòng lặp lồng nhau, lệnh `continue` dùng cho vòng lặp đơn.",
+      "Lệnh `break` chỉ dùng trong vòng lặp `while`, lệnh `continue` chỉ dùng trong vòng lặp `for`."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Lệnh `break` ngắt và chấm dứt toàn bộ tiến trình lặp ngay lập tức, trong khi lệnh `continue` chỉ bỏ qua phần mã còn lại của lượt lặp hiện tại và nhảy sang lượt lặp tiếp theo.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.3 trong bài đọc về sự khác biệt giữa câu lệnh break và continue.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 5,
+    "question_type": "TRAP_PREDICTION",
+    "question": "Một lập trình viên viết đoạn mã xử lý đơn hàng bằng vòng lặp `while` như sau:\n\n```python\norder_id = 1\nwhile order_id <= 5:\n    if order_id == 3:\n        continue\n    print(order_id)\n    order_id += 1\n```python\nChương trình trên sẽ gặp sự cố gì khi vận hành?",
+    "options": [
+      "Vòng lặp bị treo vô tận tại `order_id` bằng 3 do biến đếm không được tăng.",
+      "Vòng lặp bị lỗi cú pháp `SyntaxError` tại câu lệnh `continue` do thiếu khối `else`.",
+      "Vòng lặp tự động bỏ qua `order_id` bằng 3 và tiếp tục in ra các giá trị 1, 2, 4, 5.",
+      "Vòng lặp lập tức kết thúc chương trình và kích hoạt báo cáo sự cố hệ thống."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Khi `order_id` bằng 3, câu lệnh `continue` được thực thi và quay lại kiểm tra điều kiện của `while` mà bỏ qua câu lệnh tăng biến đếm `order_id += 1`. Do đó `order_id` giữ nguyên giá trị 3 mãi mãi, gây ra lỗi lặp vô hạn (infinite loop).",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 4 trong bài đọc về sai sót lặp vô hạn khi dùng continue trong vòng lặp while.",
+    "time_limit_sec": 30
+  }
+]

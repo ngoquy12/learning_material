@@ -1,0 +1,77 @@
+[
+  {
+    "stt": 1,
+    "question_type": "SYNTAX",
+    "question": "Khi cấu hình tệp `index.html` cho dự án TechMart, lập trình viên cần nhúng tệp mã nguồn xử lý `app.js` nằm cùng thư mục gốc. Cú pháp thẻ HTML nào dưới đây là đúng chuẩn?",
+    "options": [
+      "<script src=\"app.js\"></script>",
+      "<script href=\"app.js\"></script>",
+      "<link rel=\"script\" href=\"app.js\">",
+      "<script source=\"app.js\"></script>"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Cú pháp HTML5 chuẩn để liên kết tệp JavaScript bên ngoài là sử dụng thẻ `<script>` kèm theo thuộc tính `src=\"đường_dẫn_tệp\"` và có thẻ đóng `</script>` đầy đủ.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.2 trong bài đọc để nắm rõ cú pháp thẻ script liên kết tệp JavaScript vào HTML.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 2,
+    "question_type": "EXECUTION_FLOW",
+    "question": "Lập trình viên đang phát triển giao diện trang quản lý TechMart và mở ứng dụng thông qua tiện ích Live Server trên Cursor/VS Code. Luồng thực thi nào diễn ra tự động ngay sau khi lập trình viên thực hiện thao tác lưu tệp (Ctrl+S / Cmd+S)?",
+    "options": [
+      "Live Server thực thi lại lệnh `node index.html` ở Terminal và hiển thị kết quả ra tab Output của trình biên tập.",
+      "Live Server tự động biên dịch tệp HTML thành file `.exe` và khởi chạy ứng dụng desktop trên hệ điều hành.",
+      "Live Server phát hiện tệp tin vừa thay đổi và tự động tải lại (reload) trang web trên trình duyệt ngay lập tức.",
+      "Live Server gửi mã nguồn đến máy chủ từ xa để lưu trữ và yêu cầu người dùng mở tab trình duyệt mới thủ công."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Cơ chế hoạt động của Live Server là lắng nghe sự thay đổi của các tệp tin trong dự án; khi có thao tác lưu tệp, nó tự động tải lại (auto-reload) trang web trên trình duyệt để phản ánh ngay giao diện mới.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.2 trong bài đọc để hiểu rõ luồng tự động làm mới giao diện của tiện ích Live Server.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 3,
+    "question_type": "CODE_TRACE",
+    "question": "Trong tệp `check-system.js` của hệ thống TechMart, kỹ sư viết đoạn mã sau:\n\n```javascript\nlet storeStatus = \"ONLINE\";\nlet activeTerminal = true;\n\nif (activeTerminal) {\n    storeStatus = \"READY\";\n}\n\nconsole.log(`TechMart System: ${storeStatus}`);\n```javascript\nKhi chạy lệnh `node check-system.js` trong Terminal, kết quả hiển thị trên Console là gì?",
+    "options": [
+      "TechMart System: ONLINE",
+      "TechMart System: READY",
+      "TechMart System: undefined",
+      "TechMart System: storeStatus"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Biến `storeStatus` khởi tạo với giá trị `\"ONLINE\"`. Vì `activeTerminal` có giá trị `true`, điều kiện trong `if` thỏa mãn nên `storeStatus` bị gán lại thành `\"READY\"`. Câu lệnh `console.log` in ra chuỗi mẫu kết hợp giá trị biến mới là `TechMart System: READY`.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 3.1 trong bài đọc để trace luồng gán biến và đầu ra của lệnh console log.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 4,
+    "question_type": "COMPARISON",
+    "question": "Kỹ sư phân tích sự khác biệt khi chạy mã JavaScript bằng môi trường Node.js Runtime qua Terminal với khi chạy ứng dụng trên trình duyệt web qua Live Server. Phát biểu nào sau đây phản ánh đúng bản chất?",
+    "options": [
+      "Môi trường Node.js Runtime có thể truy cập được các đối tượng DOM như `document` còn trình duyệt web thì không thể.",
+      "Trình duyệt web có thể truy cập trực tiếp hệ thống tệp tin local (File System) mà không cần cấp quyền bảo mật.",
+      "Môi trường Node.js Runtime hỗ trợ chạy mã ngoài trình duyệt, trong khi trình duyệt web chạy mã gắn với giao diện trang.",
+      "Trình duyệt web bắt buộc phải biên dịch mã JavaScript sang C++ trước khi thực thi, còn Node.js Runtime thì không."
+    ],
+    "correct_option_index": 2,
+    "explanation": "Node.js Runtime là môi trường thực thi JavaScript độc lập ngoài trình duyệt (chạy trực tiếp qua Terminal), không có đối tượng DOM như `document` hay `window`. Trong khi đó, trình duyệt web chạy mã JavaScript gắn liền với giao diện người dùng HTML/CSS.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.1 và Mục 2.2 trong bài đọc để so sánh sự khác biệt giữa Node.js Runtime và môi trường Trình duyệt.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 5,
+    "question_type": "TRAP_PREDICTION",
+    "question": "Kỹ sư nhúng tệp JavaScript vào tệp `index.html` của TechMart. Tệp mã nguồn JavaScript lưu trên đĩa có tên thực tế là `app.js`. Tuy nhiên, khi xem giao diện qua Live Server, trang web không có phản ứng và Developer Tools báo lỗi `GET http://127.0.0.1:5500/main.js 404 (Not Found)`. Nguyên nhân gây lỗi sự cố là gì?",
+    "options": [
+      "Thẻ `<script>` trong `index.html` bị trỏ sai thuộc tính `src=\"main.js\"` trong khi tên tệp thực tế là `app.js`.",
+      "Lập trình viên chưa cài đặt tiện ích Live Server nên trình duyệt không nhận diện được tên tệp JavaScript.",
+      "Tiện ích Cursor AI chưa tự động biên dịch tệp `app.js` thành tệp `main.js` trước khi tải lên trang web.",
+      "Môi trường Node.js Runtime chưa được bật sẵn trên Terminal khiến trình duyệt không tải được tệp script."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Lỗi `404 (Not Found)` xuất hiện khi trình duyệt không tìm thấy tệp tài nguyên theo đường dẫn khai báo. Trong trường hợp này, tệp thực tế đặt tên là `app.js` nhưng thẻ `<script>` lại ghi `src=\"main.js\"`, dẫn đến sai đường dẫn hoặc sai tên tệp.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại phần Lỗi thường gặp trong bài đọc để nhận biết sự cố sai đường dẫn tệp script.",
+    "time_limit_sec": 30
+  }
+]

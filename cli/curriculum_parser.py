@@ -9,10 +9,15 @@ import openpyxl
 
 def sanitize_folder_name(name: str) -> str:
     """Loại bỏ các ký tự không hợp lệ cho tên thư mục trên mọi hệ điều hành và an toàn cho URL."""
-    name = name.replace("&", "va").replace("%", "").replace("^", "").replace("#", "")
+    name = name.replace("\n", " ").replace("\r", " ").replace("&", "va").replace("%", "").replace("^", "").replace("#", "")
     sanitized = re.sub(r'[\\/*?:"<>|]', "", name).strip()
     # Loại bỏ dấu gạch nối/dấu gạch thừa ở cuối (ví dụ "Session 01 -" -> "Session 01")
     sanitized = re.sub(r'[\s\-_]+$', '', sanitized).strip()
+    # Thay thế nhiều khoảng trắng liên tiếp bằng một khoảng trắng duy nhất
+    sanitized = re.sub(r'\s+', ' ', sanitized)
+    # Giới hạn độ dài tối đa để tránh lỗi WinError 123 / MAX_PATH trên Windows
+    if len(sanitized) > 80:
+        sanitized = sanitized[:77] + "..."
     return sanitized
 
 def format_full_folder_name(item_id: str, item_title: str) -> str:
@@ -61,8 +66,37 @@ def get_or_rename_sanitized_folder(parent_dir: Path, prefix: str, full_name: str
 def parse_all_sessions(excel_path: str):
     """
     Parses all sessions and their corresponding lessons
-    from the PM software engineering spreadsheet using dynamic column mapping.
+    from the PM software engineering spreadsheet or a JSON syllabus template.
     """
+    if excel_path.endswith(".json"):
+        import json
+        with open(excel_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        sessions = []
+        for s in data.get("sessions", []):
+            sess = {
+                "session_id": s.get("session_id", ""),
+                "session_type": s.get("session_type", "THEORY"),
+                "session_code": s.get("session_id", ""),
+                "title": s.get("session_title", ""),
+                "forbidden_scope": "",
+                "allowed_scope": "",
+                "tech_stack_convention": "",
+                "lessons": []
+            }
+            for l in s.get("lessons", []):
+                sess["lessons"].append({
+                    "lesson_id": l.get("lesson_id", ""),
+                    "title": l.get("title", ""),
+                    "details": ", ".join(l.get("topics", [])),
+                    "expected_output": "",
+                    "forbidden_scope": "",
+                    "allowed_scope": "",
+                    "tech_stack_convention": ""
+                })
+            sessions.append(sess)
+        return sessions
+
     wb = openpyxl.load_workbook(excel_path)
     
     target_sheet = "Chương trình đào tạo chi tiết"
@@ -225,7 +259,7 @@ def parse_all_sessions(excel_path: str):
                 "forbidden_scope": forbidden_val,
                 "allowed_scope": allowed_val,
                 "tech_stack_convention": tech_val,
-                "session_type": type_val
+                "session_type": current_session["session_type"]
             })
             
     return sessions
@@ -372,55 +406,56 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 # Note: Lesson-level Slides removed (Moved to Session level)
                 
                 if "quiz" in requested_parts:
-                    sub = lesson_dir / "Câu hỏi Quizz"
+                    sub = lesson_dir / "Quizz lesson"
                     sub.mkdir(parents=True, exist_ok=True)
-                    with open(sub / "quiz.json", "w", encoding="utf-8") as f:
-                        f.write("[]\n")
+                    q_json = sub / "quiz.json"
+                    if not q_json.exists():
+                        with open(q_json, "w", encoding="utf-8") as f:
+                            f.write("[]\n")
+                    q_md = sub / "quiz.md"
+                    if not q_md.exists():
+                        with open(q_md, "w", encoding="utf-8") as f:
+                            f.write(f"# Quizz lesson: {lesson_title}\n")
+
                     sub_lab = lesson_dir / "Bài thực hành"
                     sub_lab.mkdir(parents=True, exist_ok=True)
-                    with open(sub_lab / "practical_lab.json", "w", encoding="utf-8") as f:
-                        f.write("{}\n")
-                
-                # TẠM THỜI COMMENT LUỒNG TẠO SCRIPT VIDEO LESSON
-                # if "video" in requested_parts or "video_script" in requested_parts:
-                #     sub = lesson_dir / "Video"
-                #     sub.mkdir(parents=True, exist_ok=True)
-                #     with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
-                #         f.write(f"<!-- Empty video script outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
-                
-                # Note: Lesson-level Mindmap removed (Moved to Session level)
+                    lab_json = sub_lab / "practical_lab.json"
+                    if not lab_json.exists():
+                        with open(lab_json, "w", encoding="utf-8") as f:
+                            f.write("{}\n")
+                    lab_md = sub_lab / "practical_lab.md"
+                    if not lab_md.exists():
+                        with open(lab_md, "w", encoding="utf-8") as f:
+                            f.write(f"# Bài thực hành: {lesson_title}\n")
         else:
             if "html" in requested_parts:
                 sub = session_dir / "Bài đọc"
                 sub.mkdir(parents=True, exist_ok=True)
                 with open(sub / "reading.html", "w", encoding="utf-8") as f:
                     f.write(f"<!-- Empty outline for {session_id} -->\n")
-            # TẠM THỜI COMMENT LUỒNG TẠO BÀI GIẢNG SLIDE SESSION
-            # if "slide" in requested_parts:
-            #     sub = session_dir / "Bài giảng"
-            #     sub.mkdir(parents=True, exist_ok=True)
-            #     with open(sub / "slides.html", "w", encoding="utf-8") as f:
-            #         f.write(f"<!-- Empty slide outline for {session_id} -->\n")
+            if "slide" in requested_parts:
+                sub = session_dir / "Bài giảng trên lớp"
+                sub.mkdir(parents=True, exist_ok=True)
+                with open(sub / "slides.html", "w", encoding="utf-8") as f:
+                    f.write(f"<!-- Empty slide outline for {session_id} -->\n")
             if "quiz" in requested_parts:
-                sub = session_dir / "Câu hỏi Quizz"
+                sub = session_dir / "Quizz session"
                 sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "quiz.json", "w", encoding="utf-8") as f:
-                    f.write("[]\n")
-                sub_lab = session_dir / "Bài thực hành"
-                sub_lab.mkdir(parents=True, exist_ok=True)
-                with open(sub_lab / "practical_lab.json", "w", encoding="utf-8") as f:
-                    f.write("{}\n")
-            # TẠM THỜI COMMENT LUỒNG TẠO SCRIPT VIDEO SESSION
-            # if "video" in requested_parts or "video_script" in requested_parts:
-            #     sub = session_dir / "Video"
-            #     sub.mkdir(parents=True, exist_ok=True)
-            #     with open(sub / "SCRIPT.md", "w", encoding="utf-8") as f:
-            #         f.write(f"<!-- Empty video script outline for {session_id} -->\n")
+                q_dau = sub / "quizz_dau_gio.md"
+                if not q_dau.exists():
+                    with open(q_dau, "w", encoding="utf-8") as f:
+                        f.write(f"# Quizz đầu giờ: {session_id}\n")
+                q_cuoi = sub / "quizz_cuoi_gio.md"
+                if not q_cuoi.exists():
+                    with open(q_cuoi, "w", encoding="utf-8") as f:
+                        f.write(f"# Quizz cuối giờ: {session_id}\n")
             if "mindmap" in requested_parts:
-                sub = session_dir / "Mindmap"
+                sub = session_dir / "Sơ đồ tư duy"
                 sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "mindmap.md", "w", encoding="utf-8") as f:
-                    f.write(f"<!-- Empty mindmap outline for {session_id} -->\n")
+                mm_file = sub / "mindmap.md"
+                if not mm_file.exists():
+                    with open(mm_file, "w", encoding="utf-8") as f:
+                        f.write(f"# Sơ đồ tư duy: {session_id}\n")
 
 def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts: list, requested_session: str):
     print("\n=====================================================================")
@@ -492,28 +527,23 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
                 if "html" in requested_parts and not (lesson_dir / "Bài đọc" / "reading.html").exists():
                     missing_elements.append(f"Thiếu file reading.html tại {session_id} -> {lesson_id}")
                 if "quiz" in requested_parts:
-                    if not (lesson_dir / "Câu hỏi Quizz" / "quiz.json").exists():
-                        missing_elements.append(f"Thiếu file quiz.json tại {session_id} -> {lesson_id}")
-                    if not (lesson_dir / "Bài thực hành" / "practical_lab.json").exists():
-                        missing_elements.append(f"Thiếu file practical_lab.json tại {session_id} -> {lesson_id}")
-                # TẠM THỜI COMMENT KIỂM TRA SCRIPT VIDEO LESSON
-                # if ("video" in requested_parts or "video_script" in requested_parts) and not (lesson_dir / "Video" / "SCRIPT.md").exists():
-                #     missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id} -> {lesson_id}")
+                    has_quiz = (lesson_dir / "Quizz lesson" / "quiz.json").exists() or (lesson_dir / "Quizz lesson" / "quiz.md").exists() or (lesson_dir / "Câu hỏi Quizz" / "quiz.json").exists()
+                    if not has_quiz:
+                        missing_elements.append(f"Thiếu file quiz tại {session_id} -> {lesson_id}")
+                    has_lab = (lesson_dir / "Bài thực hành" / "practical_lab.json").exists() or (lesson_dir / "Bài thực hành" / "practical_lab.md").exists()
+                    if not has_lab:
+                        missing_elements.append(f"Thiếu file practical_lab tại {session_id} -> {lesson_id}")
         else:
             if "html" in requested_parts and not (session_dir / "Bài đọc" / "reading.html").exists():
                 missing_elements.append(f"Thiếu file reading.html tại {session_id}")
-            # TẠM THỜI COMMENT KIỂM TRA BÀI GIẢNG SLIDE VÀ SCRIPT VIDEO SESSION
-            # if "slide" in requested_parts and not (session_dir / "Bài giảng" / "slides.html").exists():
-            #     missing_elements.append(f"Thiếu file slides.html tại {session_id}")
+            if "slide" in requested_parts and not (session_dir / "Bài giảng trên lớp" / "slides.html").exists():
+                missing_elements.append(f"Thiếu file slides.html tại {session_id}")
             if "quiz" in requested_parts:
-                if not (session_dir / "Câu hỏi Quizz" / "quiz.json").exists():
-                    missing_elements.append(f"Thiếu file quiz.json tại {session_id}")
-                if not (session_dir / "Bài thực hành" / "practical_lab.json").exists():
-                    missing_elements.append(f"Thiếu file practical_lab.json tại {session_id}")
-            # if ("video" in requested_parts or "video_script" in requested_parts) and not (session_dir / "Video" / "SCRIPT.md").exists():
-            #     missing_elements.append(f"Thiếu file SCRIPT.md tại {session_id}")
-            if "mindmap" in requested_parts and not (session_dir / "Mindmap" / "session_mindmap.md").exists() and not (session_dir / "Mindmap" / "mindmap.md").exists():
-                missing_elements.append(f"Thiếu file session_mindmap.md tại {session_id}")
+                has_session_quiz = (session_dir / "Quizz session" / "quizz_dau_gio.md").exists() or (session_dir / "Quizz session" / "quiz.json").exists() or (session_dir / "Câu hỏi Quizz" / "quiz.json").exists()
+                if not has_session_quiz:
+                    missing_elements.append(f"Thiếu file quiz tại {session_id}")
+            if "mindmap" in requested_parts and not (session_dir / "Sơ đồ tư duy" / "mindmap.md").exists() and not (session_dir / "Mindmap" / "session_mindmap.md").exists() and not (session_dir / "Mindmap" / "mindmap.md").exists():
+                missing_elements.append(f"Thiếu file mindmap.md tại {session_id}")
 
     report_path = course_dir / "structure_review_report.md"
     status = "APPROVED" if not missing_elements else "REJECTED"

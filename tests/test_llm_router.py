@@ -27,8 +27,7 @@ class TestAntigravityLLMRouter(unittest.TestCase):
 
         # Tier 3 (Deep Context & Code)
         self.assertEqual(AntigravityLLMRouter.classify_agent_tier("enterprise_code_section_3"), TIER_3_DEEP_CONTEXT)
-        self.assertEqual(AntigravityLLMRouter.classify_agent_tier("hyperframes_writer_agent"), TIER_3_DEEP_CONTEXT)
-        self.assertEqual(AntigravityLLMRouter.classify_agent_tier("session_video_script_agent"), TIER_3_DEEP_CONTEXT)
+        self.assertEqual(AntigravityLLMRouter.classify_agent_tier("section_3_code_generator"), TIER_3_DEEP_CONTEXT)
 
     def test_model_resolution(self):
         """Verify model resolution and context caching flag output."""
@@ -40,7 +39,7 @@ class TestAntigravityLLMRouter(unittest.TestCase):
         self.assertEqual(model_t2, "gemini-3.6-flash-high")
         self.assertFalse(cache_t2)
 
-        model_t3, cache_t3 = AntigravityLLMRouter.resolve_model("hyperframes_writer_agent")
+        model_t3, cache_t3 = AntigravityLLMRouter.resolve_model("enterprise_code_section_3")
         self.assertEqual(model_t3, "gemini-3.6-flash-high")
         self.assertTrue(cache_t3)
 

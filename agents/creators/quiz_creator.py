@@ -194,23 +194,30 @@ def quiz_agent(state: AgentState) -> AgentState:
 
     print(f"\n[Quiz_Agent] Formulating Strict 5-Question Lesson Quiz with Enhanced Schema & Markdown Code (tech_stack: {tech_stack}, lang_tag: {lang_tag}) for {session_id} {lesson_id}: {lesson_title}")
 
-    # Retrieve lesson content / article text for context-driven quiz formulation
-    content = state.get("lesson_content")
-    if not content:
-        content = get_lesson_content(
-            session_id=session_id,
-            lesson_id=lesson_id,
-            lesson_title=lesson_title,
-            lesson_details=lesson_details,
-            expected_output=expected_output,
-            attempt_num=attempt_num,
-            core_ssot=core_ssot,
-            feedback=feedback,
-            state=state
-        )
-
-    # Extract reading article context
-    article_context = f"{content.get('problem', '')}\n\n{content.get('analysis', '')}\n\n{content.get('solution', '')}\n\n{content.get('example', '')}".strip()
+    # Prioritize using lesson_blueprint for unified context, fallback to lesson_content
+    blueprint = state.get("lesson_blueprint")
+    if blueprint:
+        article_context = f"""Kịch bản thực tế thống nhất: {json.dumps(blueprint.get('real_world_scenario', {}), ensure_ascii=False)}
+Các khái niệm cốt lõi: {json.dumps(blueprint.get('key_concepts', []), ensure_ascii=False)}
+Các ví dụ thực tế lũy tiến: {json.dumps(blueprint.get('progressive_examples', []), ensure_ascii=False)}
+Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_errors', []), ensure_ascii=False)}
+"""
+        content = state.get("lesson_content") or {}
+    else:
+        content = state.get("lesson_content")
+        if not content:
+            content = get_lesson_content(
+                session_id=session_id,
+                lesson_id=lesson_id,
+                lesson_title=lesson_title,
+                lesson_details=lesson_details,
+                expected_output=expected_output,
+                attempt_num=attempt_num,
+                core_ssot=core_ssot,
+                feedback=feedback,
+                state=state
+            )
+        article_context = f"{content.get('problem', '')}\n\n{content.get('analysis', '')}\n\n{content.get('solution', '')}\n\n{content.get('example', '')}".strip()
 
     system_prompt = f"""You are a Senior E-Learning Pedagogical QA Specialist at Rikkei Education.
 Your task is to generate EXACTLY 5 multiple-choice quiz questions for a single lesson according to the official Rikkei Education Quiz Standards (RE_Tiêu chuẩn quizz.pdf).

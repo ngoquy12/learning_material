@@ -1,12 +1,11 @@
 # core/graph.py
 from typing import Dict, Any
-from antigravity import Workflow, parallel, component
-from core.state import AgentState
+from core.dag_engine import Workflow, parallel, component
+from core.state import AgentState, DEFAULT_LESSON_PARTS
 from core.persistence import save_checkpoint
 from agents import (
     objective_architect_agent, scheduler_agent, knowledge_base_agent,
     html_writer_agent, html_ux_reviewer,
-    slide_agent, academic_reviewer,
     quiz_agent, sandbox_testing_agent,
     session_compiler_agent, mindmap_agent,
     lessons_learned_agent, knowledge_memory_agent, get_relevant_memories_for_creator,
@@ -27,25 +26,21 @@ def write_state_artifacts_to_disk(state: AgentState):
     
     try:
         lesson_dir = get_lesson_dir(state)
-        requested_parts = state.get("requested_parts") if state.get("requested_parts") else ["html", "slide", "quiz", "video", "mindmap"]
+        requested_parts = state.get("requested_parts") if state.get("requested_parts") else DEFAULT_LESSON_PARTS
         
-        # 1. HTML
+        # 1. HTML Reading
         if "html" in requested_parts and state.get("html_content"):
             html_sub = lesson_dir / "Bài đọc"
             html_sub.mkdir(parents=True, exist_ok=True)
             with open(html_sub / "reading.html", "w", encoding="utf-8") as f:
                 f.write(state["html_content"])
+
                 
-        # TẠM THỜI COMMENT LUỒNG GHI SLIDE RA ĐĨA
-        # if "slide" in requested_parts and state.get("slide_markdown"):
-        #     slide_sub = lesson_dir / "Bài giảng"
-        #     slide_sub.mkdir(parents=True, exist_ok=True)
-        #     with open(slide_sub / "slides.html", "w", encoding="utf-8") as f:
-        #         f.write(state["slide_markdown"])
-                
-        # 3. Quiz
+        # 3. Quiz (Quizz lesson)
         if "quiz" in requested_parts and state.get("quiz_json"):
-            quiz_sub = lesson_dir / "Câu hỏi Quizz"
+            quiz_sub = lesson_dir / "Quizz lesson"
+            if not quiz_sub.exists() and (lesson_dir / "Câu hỏi Quizz").exists():
+                quiz_sub = lesson_dir / "Câu hỏi Quizz"
             quiz_sub.mkdir(parents=True, exist_ok=True)
             with open(quiz_sub / "quiz.json", "w", encoding="utf-8") as f:
                 json.dump(state["quiz_json"], f, ensure_ascii=False, indent=2)
@@ -94,13 +89,6 @@ def write_state_artifacts_to_disk(state: AgentState):
             if rq_md:
                 with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
                     f.write(rq_md)
-                
-        # TẠM THỜI COMMENT LUỒNG GHI VIDEO SCRIPT RA ĐĨA
-        # if ("video" in requested_parts or "video_script" in requested_parts) and state.get("video_script_markdown"):
-        #     video_sub = lesson_dir / "Video"
-        #     video_sub.mkdir(parents=True, exist_ok=True)
-        #     with open(video_sub / "SCRIPT.md", "w", encoding="utf-8") as f:
-        #         f.write(state["video_script_markdown"])
     except Exception as e:
         print(f"  [Write Disk Warning] Failed to write artifacts to disk: {e}")
 
@@ -282,7 +270,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             
         # Nếu đây là lần đầu chạy và đã nạp sẵn html_content từ đĩa (qua sync)
         # thì ưu tiên kiểm định trực tiếp nội dung trên đĩa trước
-        if attempt == 0 and state.get("html_content") and "Empty outline" not in state["html_content"] and "ĐANG KHỞI TẠO" not in state["html_content"]:
+        if attempt == 0 and not state.get("force_rebuild", False) and state.get("html_content") and "Empty outline" not in state["html_content"] and "ĐANG KHỞI TẠO" not in state["html_content"]:
             print("  [HTML_Production] Phát hiện nội dung bài đọc từ đĩa. Đang kiểm định trực tiếp...")
             review = html_ux_reviewer(state)
             if review["status"] == "APPROVED":
@@ -326,34 +314,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
         save_state_checkpoint(state)
     return state
 
-@component
-def pipeline_slide_production(state: AgentState) -> AgentState:
-    """LUỒNG TẠO SLIDE BÀI GIẢNG ĐÃ BỊ LOẠI BỎ KHỎI WORKFLOW"""
-    state.setdefault("artifacts_status", {})["slide"] = "Skipped (Slide Agent removed from workflow)"
-    return state
-    # if "requested_parts" in state and "slide" not in state["requested_parts"]:
-    #     state["artifacts_status"]["slide"] = "Skipped"
-    #     return state
-    # approved = False
-    # for attempt in range(3):
-    #     if state.get("artifacts_status", {}).get("slide") == "Approved":
-    #         approved = True
-    #         break
-    #     state = slide_agent(state)
-    #     review = academic_reviewer(state)
-    #     if review["status"] == "APPROVED":
-    #         state["artifacts_status"]["slide"] = "Approved"
-    #         save_state_checkpoint(state)
-    #         approved = True
-    #         break
-    #     else:
-    #         state["review_logs"].append({"source": "Academic_Reviewer", "feedback": review["feedback"]})
-    #         save_state_checkpoint(state)
-    # if not approved:
-    #     state["artifacts_status"]["slide"] = "Approved with Warnings"
-    #     save_state_checkpoint(state)
-    # write_state_artifacts_to_disk(state)
-    # return state
+
 
 def _is_session_01_orientation(state: AgentState) -> bool:
     """Check if current session is Session 01 Orientation."""
@@ -450,60 +411,7 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
     return state
 
 
-@component
-def pipeline_video_script_production(state: AgentState) -> AgentState:
-    """LUỒNG TẠO KỊCH BẢN VIDEO ĐÃ BỊ LOẠI BỎ KHỎI WORKFLOW"""
-    state.setdefault("artifacts_status", {})["video_script"] = "Skipped (Video Script Agent removed from workflow)"
-    return state
-    # requested = state.get("requested_parts", ["all"])
-    # if "video" not in requested and "video_script" not in requested and "all" not in requested:
-    #     state.setdefault("artifacts_status", {})["video_script"] = "Skipped"
-    #     return state
 
-    # ── ĐẢM BẢO PHỤ THUỘC TẦN THỨC: Bài đọc HTML (reading.md) BẮT BUỘC xong 100% trước khi tạo Video ──
-    html_status = state.get("artifacts_status", {}).get("html", "")
-    has_reading = bool(state.get("html_content") or state.get("reading_material"))
-    
-    # Chỉ chấp nhận trạng thái Approved hoặc Skipped
-    if html_status not in ("Approved", "Skipped") and not has_reading:
-        print(f"\n[Video_Script_Agent] CHỜ BÀI ĐỌC — Bài đọc HTML (reading.md) chưa đạt chuẩn Approved (Trạng thái hiện tại: {html_status}). Trì hoãn tạo video.")
-        state.setdefault("artifacts_status", {})["video_script"] = "Deferred"
-        return state
-
-    approved = False
-    for attempt in range(3):
-        # Allow recovery if already approved in a previous execution
-        if state.get("artifacts_status", {}).get("video_script") == "Approved" and not state.get("force_rebuild", False):
-            approved = True
-            break
-            
-        state =(state)
-        
-        # Call the video script reviewer
-        from agents.reviewer_agents import video_script_reviewer_agent
-        review = video_script_reviewer_agent(state)
-        
-        if review["status"] == "APPROVED":
-            state["artifacts_status"]["video_script"] = "Approved"
-            save_state_checkpoint(state)
-            approved = True
-            break
-        else:
-            state.setdefault("review_logs", []).append({"source": "Video_Script_Reviewer", "feedback": review["feedback"]})
-            save_state_checkpoint(state)
-            
-    # Ghi đĩa bản nháp SCRIPT.md ngay khi hoàn thành vòng lặp
-    write_state_artifacts_to_disk(state)
-
-    if not approved:
-        print(
-            f"\n[CẢNH BÁO TỪ PM] Kịch bản Video chưa đạt chuẩn kiểm duyệt ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và đánh dấu cần Review Thủ công (Pending Human Review) để tiếp tục tiến trình."
-        )
-        state["artifacts_status"]["video_script"] = "Pending Human Review"
-        save_state_checkpoint(state)
-    return state
 
 @component
 def pipeline_mindmap_production(state: AgentState) -> AgentState:
@@ -538,254 +446,14 @@ def pipeline_mindmap_production(state: AgentState) -> AgentState:
         save_state_checkpoint(state)
     return state
 
-@component
-def pipeline_video_tts_and_render(state: AgentState) -> AgentState:
-    """
-    Cổng 3-7: TTS Audio Generation + HyperFrames Composition + Lint + Render + QA
-    Tự động sản xuất video MP4 hoàn chỉnh từ blueprint đã được duyệt.
-    """
-    import subprocess
-    import shutil
-    from pathlib import Path
-
-    if "requested_parts" in state and "video" not in state["requested_parts"]:
-        state.setdefault("artifacts_status", {})["video_render"] = "Skipped"
-        return state
-
-    blueprint = state.get("video_script_json", {})
-    if not blueprint or "scenes" not in blueprint:
-        print("\n[Video_TTS_Render] SKIPPED — No approved blueprint in state.")
-        state.setdefault("artifacts_status", {})["video_render"] = "Skipped"
-        return state
-
-    scenes = blueprint.get("scenes", [])
-    lesson_slug = blueprint.get("lesson_slug", "lesson-video")
-    lesson_title = blueprint.get("lesson_title", "Bài học")
-
-    print(f"\n[Video Production] 🎬 Đã tắt sinh Video tự động bằng AI (AI Video Rendering Disabled).")
-    print(f"  ✓ Đã sinh Kịch bản Studio & Bộ Chất liệu quay Video dành cho Giảng viên & Ê-kíp Studio tại Video/SCRIPT.md.")
-    state.setdefault("artifacts_status", {})["video_render"] = "Skipped (Human Studio Blueprint Generated)"
-    return state
-
-    video_dir = lesson_dir / "Video" / lesson_slug
-    compositions_dir = video_dir / "src" / "compositions"
-    assets_dir = video_dir / "assets"
-    assets_tts_dir = assets_dir / "tts"
-
-    # Clean and recreate
-    if video_dir.exists():
-        shutil.rmtree(video_dir, ignore_errors=True)
-    compositions_dir.mkdir(parents=True, exist_ok=True)
-    assets_tts_dir.mkdir(parents=True, exist_ok=True)
-
-    # Copy template media assets (intro.mp4, outro.mp4, bg-music.mp3) into assets_dir
-    project_root = Path(__file__).resolve().parent.parent
-    asset_search_paths = [
-        project_root / "hyperframes" / "dev-tutorial-video" / "courses" / "fundamental_python" / "assets",
-        project_root / "assets"
-    ]
-    for p in asset_search_paths:
-        if p.exists():
-            for asset_name in ["intro.mp4", "outro.mp4", "bg-music.mp3"]:
-                src_file = p / asset_name
-                dest_file = assets_dir / asset_name
-                if src_file.exists() and not dest_file.exists():
-                    try:
-                        shutil.copy2(src_file, dest_file)
-                        print(f"  ✓ Copied media asset: {asset_name}")
-                    except Exception as e:
-                        print(f"  ⚠️ Failed to copy asset {asset_name}: {e}")
-
-    # ── GATE 3: TTS Audio Generation with Async Parallel Batching ──
-    print("\n[Gate 3/7] Sinh giọng đọc TTS Audio song song (Async Batching)...")
-    from core.tts_normalizer import normalize_tts_text
-    import json
-    import asyncio
-
-    try:
-        import edge_tts
-        use_edge = True
-    except ImportError:
-        use_edge = False
-        print("  ⚠️ edge_tts not available, using silent fallback")
-
-    # Helper async task cho từng scene
-    async def _async_gen_scene_tts(scene_item, voice="vi-VN-NamMinhNeural"):
-        sc_id = scene_item["scene_id"]
-        raw_text = scene_item.get("narration", "")
-        norm_text = normalize_tts_text(raw_text)
-        mp3 = assets_tts_dir / f"{sc_id}.mp3"
-        if use_edge and norm_text:
-            try:
-                communicate = edge_tts.Communicate(norm_text, voice)
-                await communicate.save(str(mp3))
-                return sc_id, mp3, True
-            except Exception as e:
-                print(f"  ⚠️ TTS failed for {sc_id}: {e}, creating silent")
-                _create_silent_mp3(mp3, max(8.0, len(raw_text.split()) / 2.5))
-                return sc_id, mp3, False
-        else:
-            _create_silent_mp3(mp3, max(8.0, len(raw_text.split()) / 2.5))
-            return sc_id, mp3, False
-
-    async def _async_batch_tts_all():
-        tasks = [_async_gen_scene_tts(s) for s in scenes]
-        return await asyncio.gather(*tasks, return_exceptions=True)
-
-    try:
-        asyncio.run(_async_batch_tts_all())
-    except Exception as batch_err:
-        print(f"  ⚠️ Batch TTS fallback: {batch_err}")
-        for scene in scenes:
-            scene_id = scene["scene_id"]
-            raw_narration = scene.get("narration", "")
-            mp3_path = assets_tts_dir / f"{scene_id}.mp3"
-            if not mp3_path.exists():
-                _create_silent_mp3(mp3_path, max(8.0, len(raw_narration.split()) / 2.5))
-
-    durations = {}
-    cumulative_root = 9.24  # After intro
-
-    for scene in scenes:
-        scene_id = scene["scene_id"]
-        mp3_path = assets_tts_dir / f"{scene_id}.mp3"
-        dur = _probe_audio_duration(mp3_path)
-        scene["duration"] = round(dur, 2)
-        scene["start_at_root"] = round(cumulative_root, 2)
-        durations[scene_id] = round(dur, 2)
-        cumulative_root += round(dur, 2)
-
-    # Write durations.json with actual TTS timings
-    with open(assets_tts_dir / "durations.json", "w", encoding="utf-8") as f:
-        json.dump(durations, f, indent=2, ensure_ascii=False)
-
-    # Update blueprint total_duration
-    blueprint["total_duration"] = round(cumulative_root + 12.15, 2)
-    state["video_script_json"] = blueprint
-
-    # Write TTS narration scripts as reference
-    for scene in scenes:
-        scene_id = scene["scene_id"]
-        script_path = assets_tts_dir / f"{scene_id}_script.txt"
-        script_path.write_text(scene.get("narration", ""), encoding="utf-8")
-
-    print(f"  ✓ TTS hoàn tất song song: {len(durations)} audio files, tổng {sum(durations.values()):.1f}s")
-
-    # ── GATE 4: HyperFrames Composition Writing ──
-    print("\n[Gate 4/7] Dựng HyperFrames Project (Master Timeline + Sub-compositions)...")
-    from agents.hyperframes_writer_agent import (
-        _build_root_index_html, _build_scene_html,
-        _build_meta_json, _build_package_json
-    )
-
-    # Root index.html
-    root_html = _build_root_index_html(blueprint, lesson_slug)
-    (video_dir / "index.html").write_text(root_html, encoding="utf-8")
-
-    # Sub-compositions
-    for scene in scenes:
-        scene_html = _build_scene_html(scene, lesson_title)
-        (compositions_dir / f"{scene['scene_id']}.html").write_text(scene_html, encoding="utf-8")
-
-    # meta.json & package.json
-    (video_dir / "meta.json").write_text(_build_meta_json(lesson_slug, lesson_title), encoding="utf-8")
-    (video_dir / "package.json").write_text(_build_package_json(lesson_slug), encoding="utf-8")
-    print(f"  ✓ HyperFrames Project scaffolded: {len(scenes)} scenes")
-
-    # ── GATE 5: Lint Validation ──
-    print("\n[Gate 5/7] Kiểm tra Validation (hyperframes lint)...")
-    try:
-        lint_res = subprocess.run(
-            "npx --yes hyperframes@0.6.63 lint",
-            shell=True, cwd=str(video_dir),
-            capture_output=True, text=True, timeout=60
-        )
-        if lint_res.returncode == 0:
-            print("  ✓ Lint PASSED")
-        else:
-            print(f"  ⚠️ Lint warnings (non-blocking): {lint_res.stdout[:200]}")
-    except Exception as e:
-        print(f"  ⚠️ Lint skipped due to timeout/error (non-blocking): {e}")
-
-    # ── GATE 6: Controlled Heavy Render Execution ──
-    import os
-    enable_heavy_render = (
-        os.getenv("ENABLE_HEAVY_VIDEO_RENDER", "false").lower() in ("true", "1", "yes")
-        or state.get("render_video_mp4", False)
-        or ("requested_parts" in state and "video_render" in state.get("requested_parts", []))
-    )
-
-    if not enable_heavy_render:
-        print("\n[Gate 6/7] Bỏ qua Render MP4 nặng (Dự án HyperFrames HTML/TTS đã sẵn sàng cho Render khi cần).")
-        print(f"  ✓ HyperFrames Scaffold hoàn tất tại: {video_dir}")
-        state.setdefault("artifacts_status", {})["video_render"] = "SCAFFOLDED_READY"
-        state["hyperframes_project_path"] = str(video_dir.resolve())
-        save_state_checkpoint(state)
-        return state
-
-    print("\n[Gate 6/7] Render Video bằng HyperFrames Chromium Engine...")
-    try:
-        render_res = subprocess.run(
-            "npx --yes hyperframes@0.6.63 render -o out.mp4",
-            shell=True, cwd=str(video_dir),
-            capture_output=True, text=True, timeout=600
-        )
-        out_mp4 = video_dir / "out.mp4"
-        final_mp4 = video_dir / "final_render.mp4"
-
-        if out_mp4.exists() and out_mp4.stat().st_size > 100000:
-            shutil.copy(out_mp4, final_mp4)
-            print(f"  ✓ Render SUCCESS: {final_mp4} ({final_mp4.stat().st_size / 1024 / 1024:.2f} MB)")
-
-            # ── GATE 7: Post-render QA ──
-            print("\n[Gate 7/7] Kiểm tra QA cuối cùng...")
-            if final_mp4.stat().st_size > 500000:
-                print("  ✓ QA PASSED — Video đạt chuẩn chất lượng")
-                state.setdefault("artifacts_status", {})["video_render"] = "RENDERED"
-            else:
-                print("  ⚠️ QA WARNING — Video quá nhỏ, có thể thiếu nội dung")
-                state.setdefault("artifacts_status", {})["video_render"] = "RENDERED_WITH_WARNINGS"
-        else:
-            print(f"  ❌ Render FAILED — output file missing or too small")
-            state.setdefault("artifacts_status", {})["video_render"] = "RENDER_FAILED"
-    except subprocess.TimeoutExpired:
-        print("  ❌ Render TIMEOUT — exceeded 10 minutes")
-        state.setdefault("artifacts_status", {})["video_render"] = "RENDER_TIMEOUT"
-    except Exception as e:
-        print(f"  ❌ Render ERROR: {e}")
-        state.setdefault("artifacts_status", {})["video_render"] = "RENDER_ERROR"
-
-    state["hyperframes_project_path"] = str(video_dir.resolve())
-    save_state_checkpoint(state)
-    return state
-
-
-def _create_silent_mp3(path, dur: float):
-    """Create a silent MP3 file of specified duration."""
-    import subprocess
-    cmd = f'ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=mono -t {dur} -q:a 2 "{path}"'
-    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def _probe_audio_duration(path) -> float:
-    """Get audio duration using ffprobe."""
-    import subprocess
-    try:
-        cmd = f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{path}"'
-        probe = subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
-        return float(probe) + 0.5
-    except Exception:
-        return 8.0
-
 
 @component
 def session_compiler_node(state: AgentState) -> AgentState:
-    """Node 7: Tiến hành thu gom dữ liệu, tự động tạo cấu trúc cây thư mục vật lý bằng thư viện os, ghi file bài đọc HTML, ghi file Slide Markdown và dùng subprocess.run để gọi lệnh Marp CLI biên dịch slide ra HTML, xuất tệp câu hỏi JSON sạch ra ổ đĩa tại thư mục dist/"""
+    """Node 7: Tiến hành thu gom dữ liệu, biên dịch bài đọc và xuất tệp câu hỏi JSON sạch ra ổ đĩa tại thư mục dist/"""
     state = session_compiler_agent(state)
     
     import os
     import json
-    import subprocess
     
     # Create dist folder
     os.makedirs("dist", exist_ok=True)
@@ -795,31 +463,6 @@ def session_compiler_node(state: AgentState) -> AgentState:
     if html_content:
         with open(os.path.join("dist", "reading.html"), "w", encoding="utf-8") as f:
             f.write(html_content)
-            
-    # Write slides.html
-    slide_md = state.get("slide_markdown", "")
-    if slide_md:
-        slides_path = os.path.join("dist", "slides.html")
-        with open(slides_path, "w", encoding="utf-8") as f:
-            f.write(slide_md)
-        # Call Marp CLI to compile slide markdown to HTML
-        try:
-            print("  [Compiler] Compiling slide.md to slide.html via Marp CLI...")
-            result = subprocess.run(
-                "npx --yes @marp-team/marp-cli --no-stdin dist/slides.html -o dist/slides.html",
-                shell=True,
-                capture_output=True,
-                encoding="utf-8",
-                timeout=10
-            )
-            if result.returncode == 0:
-                print("  [Compiler] Marp compiled slides successfully.")
-            else:
-                print(f"  [Compiler] Marp CLI exited with error code {result.returncode}: {result.stderr}")
-        except subprocess.TimeoutExpired:
-            print("  [Compiler] Marp CLI compilation timed out after 10 seconds.")
-        except Exception as e:
-            print(f"  [Compiler] Marp CLI execution failed: {e}")
             
     # Write quiz.json
     quiz_data = state.get("quiz_json", {})
@@ -849,20 +492,18 @@ def _merge_sub_state(state: Dict[str, Any], name: str, sub_state: Dict[str, Any]
     """Helper to merge artifacts and statuses from a sub-state into main state."""
     if not isinstance(sub_state, dict):
         return
+    if sub_state.get("html_content"):
+        state["html_content"] = sub_state["html_content"]
     if sub_state.get("slide_markdown"):
         state["slide_markdown"] = sub_state["slide_markdown"]
-    if sub_state.get("slide_html"):
-        state["slide_html"] = sub_state["slide_html"]
+    if sub_state.get("video_script_markdown"):
+        state["video_script_markdown"] = sub_state["video_script_markdown"]
     if sub_state.get("quiz_json"):
         state["quiz_json"] = sub_state["quiz_json"]
     if sub_state.get("lab_json"):
         state["lab_json"] = sub_state["lab_json"]
     if sub_state.get("practical_lab_markdown"):
         state["practical_lab_markdown"] = sub_state["practical_lab_markdown"]
-    if sub_state.get("video_script_markdown"):
-        state["video_script_markdown"] = sub_state["video_script_markdown"]
-    if sub_state.get("video_script_json"):
-        state["video_script_json"] = sub_state["video_script_json"]
     if sub_state.get("mindmap_markdown"):
         state["mindmap_markdown"] = sub_state["mindmap_markdown"]
     if sub_state.get("reading_questions_json"):
@@ -877,6 +518,7 @@ def _merge_sub_state(state: Dict[str, Any], name: str, sub_state: Dict[str, Any]
             if log not in state.setdefault("review_logs", []):
                 state["review_logs"].append(log)
     print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
+
 
 
 def compile_learning_content_workflow():
@@ -906,7 +548,7 @@ def compile_learning_content_workflow():
         try:
             lesson_dir = get_lesson_dir(state)
             html_path = lesson_dir / "Bài đọc" / "reading.html"
-            if html_path.exists() and html_path.stat().st_size > 300:
+            if not state.get("force_rebuild", False) and html_path.exists() and html_path.stat().st_size > 300:
                 with open(html_path, "r", encoding="utf-8") as f:
                     disk_html = f.read()
                 if "Empty outline" not in disk_html and "ĐANG KHỞI TẠO" not in disk_html:
@@ -936,32 +578,32 @@ def compile_learning_content_workflow():
 
     @component
     def node_html_first_production(state: AgentState) -> AgentState:
-        """
-        Giai đoạn Reading-First:
-        Tạo và duyệt Bài đọc HTML (`reading.html`) ĐẦU TIÊN làm cơ sở chuẩn ngữ cảnh cho tất cả tài nguyên dẫn xuất.
-        """
-        print("\n[Reading-First Pipeline] 📖 Đang khởi tạo sản xuất Bài đọc HTML chính làm Nguồn Sự Thật...")
-        return pipeline_html_production(state)
+        """Đã chuyển sang chạy song song trong parallel_derived_production"""
+        return state
+
+    @component
+    def node_generate_blueprint(state: AgentState) -> AgentState:
+        """Giai đoạn 3.6: Sinh JSON Blueprint chứa kịch bản thống nhất trước khi chạy song song"""
+        from agents.creator_agents import blueprint_creator_agent
+        return blueprint_creator_agent(state)
 
     @component
     def node_parallel_derived_production(state: AgentState) -> AgentState:
         """
         Giai đoạn Parallel Derived Production:
-        Cho phép 4 Creator Pipelines dẫn xuất (Slide, Quiz, Video Script, Mindmap)
-        chạy song song sau khi Bài đọc HTML đã được phê duyệt làm SSOT.
+        Cho phép 4 Creator Pipelines dẫn xuất (HTML Reading, Slide, Quiz, Lab, Questions)
+        chạy song song sau khi Blueprint đã được sinh làm SSOT ngữ cảnh.
         """
         import copy
         import time
         import asyncio
         from concurrent.futures import ThreadPoolExecutor, as_completed
         
-        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song 5 tài nguyên dẫn xuất từ Bài đọc HTML (Slide, Quiz, VideoScript, Lab, ReadingQuestions)...")
+        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song tất cả tài nguyên từ JSON Blueprint (HTML Reading, Quiz, Lab, ReadingQuestions)...")
         start_t = time.time()
         
-        # TẠM THỜI COMMENT LUỒNG SLIDE VÀ VIDEO SCRIPT TRONG NGUYÊN TẮC THỰC THI SONG SONG
         pipelines = [
-            # ("Slide", pipeline_slide_production),
-            # ("VideoScript", pipeline_video_script_production),
+            ("HTML", pipeline_html_production),
             ("Quiz", pipeline_quiz_production),
             ("PracticalLab", pipeline_practical_lab_production),
             ("ReadingQuestions", pipeline_reading_questions_production),
@@ -1019,11 +661,12 @@ def compile_learning_content_workflow():
                         print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
 
         elapsed = time.time() - start_t
-        print(f"[Parallel Engine] ✅ Tất cả tài nguyên dẫn xuất đã hoàn tất song song trong {elapsed:.2f}s!\n")
+        print(f"[Parallel Engine] ✅ Tất cả tài nguyên đã hoàn tất song song trong {elapsed:.2f}s!\n")
         save_state_checkpoint(state)
         return state
 
     workflow.add_node("generate_master_content", node_generate_master_content)
+    workflow.add_node("generate_blueprint", node_generate_blueprint)
     workflow.add_node("html_first_production", node_html_first_production)
     workflow.add_node("parallel_derived_production", node_parallel_derived_production)
     workflow.add_node("final_compiler_and_publish", session_compiler_node)
@@ -1037,8 +680,9 @@ def compile_learning_content_workflow():
     workflow.add_edge("allocate_schedule", "lock_ssot")
     workflow.add_edge("lock_ssot", "generate_master_content")
     
-    # BẮT BUỘC: Bài đọc HTML sản xuất & kiểm duyệt ĐẦU TIÊN -> sau đó các tài nguyên dẫn xuất chạy song song
-    workflow.add_edge("generate_master_content", "html_first_production")
+    # Cấu trúc mới: generate_master_content -> generate_blueprint -> html_first_production (pass-through) -> parallel_derived_production (song song tất cả)
+    workflow.add_edge("generate_master_content", "generate_blueprint")
+    workflow.add_edge("generate_blueprint", "html_first_production")
     workflow.add_edge("html_first_production", "parallel_derived_production")
     workflow.add_edge("parallel_derived_production", "final_compiler_and_publish")
     workflow.add_edge("final_compiler_and_publish", "lessons_learned_refiner")

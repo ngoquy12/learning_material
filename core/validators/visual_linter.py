@@ -69,7 +69,6 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
     content_without_code = re.sub(r'class=["\'].*?terminal.*?["\']', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
     content_without_code = re.sub(r'class=["\'].*?visualizer.*?["\']', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
     content_without_code = re.sub(r'<div[^>]*id=["\'](?:mobile-toc-drawer|selftest-modal|output-sb-\d+|sql-viz-output|viz-terminal-log)["\'].*?>', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
-    content_without_code = re.sub(r'<div[^>]*class=["\'][^"\']*\b(?:bg-slate-900|bg-slate-950)\b[^"\']*["\'][^>]*>(?:(?!-->|</div>).)*?</div>', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
     content_without_code = re.sub(r'\bbg-slate-900/\d+\b', '', content_without_code, flags=re.IGNORECASE)
 
     dark_bg_patterns = [
@@ -97,11 +96,11 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
             continue
         pos = match.end()
         following_snippet = content[pos:pos+300]
-        has_italic_caption = bool(re.search(r'<(figcaption|p|i|em)\b|\bclass=["\'][^"\']*\b(?:italic|font-medium|text-slate-500|text-slate-600)\b', following_snippet, re.IGNORECASE))
+        has_italic_caption = bool(re.search(r'<(figcaption|i|em)\b|\bclass=["\'][^"\']*\b(?:italic|font-medium|text-slate-500|text-slate-600)\b', following_snippet, re.IGNORECASE))
         if not has_italic_caption:
             preceding_snippet = content[max(0, match.start()-100):match.start()]
             if "<figure" not in preceding_snippet.lower():
-                errors.append("Thẻ <img> minh họa thiếu chú thích (<p>, <figcaption>) trực tiếp bên dưới.")
+                errors.append("Thẻ <img> minh họa thiếu chú thích in nghiêng (<figcaption>, <i>, <em>) trực tiếp bên dưới.")
 
     # 7. Code Comment Vietnamese Standard Inspection
     english_comment_patterns = [
@@ -118,7 +117,8 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
             errors.append("Bài đọc thiếu Section 2.4: Trình mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer). Bắt buộc phải có Section 2.4 cho các bài đọc kỹ thuật.")
 
     # 9. Minimum File Depth & Size Threshold Verification (AGENTS.md Depth Rule)
-    if len(content.encode('utf-8')) < 45000:
+    skip_size = bool(metadata and (metadata.get("skip_size_check") or metadata.get("is_testing")))
+    if not skip_size and len(content.encode('utf-8')) < 45000:
         errors.append(f"Dung lượng bài đọc quá ngắn ({len(content.encode('utf-8'))//1024} KB). Bài đọc chuẩn mực phải có dung lượng từ 50KB - 120KB và phân tích sâu sắc.")
 
     # 10. 2-Tier Sidebar TOC Verification

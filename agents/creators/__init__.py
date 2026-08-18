@@ -29,10 +29,6 @@ from agents.creators.reading_creator import (
     ensure_problem_scene_image,
 )
 
-from agents.creators.slide_creator import (
-    slide_agent,
-)
-
 from agents.creators.quiz_creator import (
     quiz_agent,
 )
@@ -66,6 +62,16 @@ from agents.creators.practical_lab_creator import (
     practical_lab_creator_agent,
 )
 
+from agents.creators.blueprint_creator import (
+    blueprint_creator_agent,
+)
+
+from agents.creators.classroom_lecture_creator import (
+    classroom_lecture_agent,
+    classroom_lecture_generator_agent,
+    slide_agent,
+)
+
 __all__ = [
     "estimate_tokens",
     "log_agent_tokens",
@@ -88,11 +94,9 @@ __all__ = [
     "force_center_media",
     "ensure_comparison_table",
     "ensure_problem_scene_image",
-    "slide_agent",
     "quiz_agent",
     "session_compiler_agent",
     "mini_project_generator_agent",
-    "video_script_creator_agent",
     "_post_validate_blueprint",
     "_build_offline_fallback_blueprint",
     "mindmap_agent",
@@ -102,4 +106,5 @@ __all__ = [
     "get_topic_fallback_visualizer_engine",
     "reading_questions_creator_agent",
     "practical_lab_creator_agent",
+    "blueprint_creator_agent",
 ]

@@ -1,0 +1,59 @@
+{
+  "lesson_slug": "javascript-if-else-conditional-statements",
+  "lesson_title": "Câu lệnh Điều kiện if và Cấu trúc if-else",
+  "real_world_scenario": {
+    "name": "Hệ thống Kiểm tra Thanh toán và Tính Giảm giá Đơn hàng E-commerce",
+    "description": "Xây dựng module xử lý logic thanh toán cho website bán hàng trực tuyến. Module có nhiệm vụ kiểm tra trạng thái tồn kho của sản phẩm, tính toán phí vận chuyển tự động và áp dụng tỷ lệ giảm giá dựa trên hạng thành viên của khách hàng."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Câu lệnh điều kiện if và khối lệnh {}",
+      "description": "Cấu trúc if đánh giá một biểu thức điều kiện (trả về true hoặc false). Nếu điều kiện đúng (true), toàn bộ các câu lệnh nằm trong cặp ngoặc nhọn {} sẽ được thực thi.",
+      "raw_code_snippet": "// Kiểm tra số lượng tồn kho sản phẩm\nlet stockQuantity = 5;\n\nif (stockQuantity > 0) {\n  // Khối lệnh chạy khi điều kiện đúng\n  console.log('Sản phẩm còn hàng, có thể thêm vào giỏ hàng.');\n}"
+    },
+    {
+      "concept_name": "Cấu trúc rẽ nhánh if-else",
+      "description": "Cung cấp một nhánh xử lý dự phòng. Khi điều kiện trong if sai (false), chương trình sẽ tự động chuyển sang thực thi các câu lệnh bên trong khối else.",
+      "raw_code_snippet": "let stockQuantity = 0;\n\nif (stockQuantity > 0) {\n  console.log('Sản phẩm còn hàng.');\n} else {\n  // Khối lệnh chạy khi điều kiện trong if trả về false\n  console.log('Sản phẩm đã hết hàng. Vui lòng quay lại sau.');\n}"
+    },
+    {
+      "concept_name": "Rẽ nhánh nhiều trường hợp với if ... else if ... else",
+      "description": "Cho phép kiểm tra lần lượt nhiều điều kiện khác nhau từ trên xuống dưới. Ngay khi tìm thấy điều kiện đầu tiên thỏa mãn (true), khối lệnh tương ứng sẽ chạy và chương trình bỏ qua tất cả các điều kiện phía sau.",
+      "raw_code_snippet": "let orderTotal = 350000;\nlet shippingFee = 0;\n\nif (orderTotal >= 500000) {\n  shippingFee = 0; // Miễn phí vận chuyển\n} else if (orderTotal >= 200000) {\n  shippingFee = 15000; // Phí vận chuyển ưu đãi\n} else {\n  shippingFee = 30000; // Phí vận chuyển tiêu chuẩn\n}\n\nconsole.log('Phí vận chuyển:', shippingFee);"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Cơ bản - Kiểm tra điều kiện đặt hàng",
+      "requirement": "Viết chương trình kiểm tra số lượng tồn kho của một mặt hàng trong giỏ hàng. Nếu số lượng lớn hơn 0, in ra thông báo đặt hàng thành công. Ngược lại, thông báo sản phẩm out of stock.",
+      "raw_code": "// Khai báo số lượng tồn kho thực tế của mặt hàng\nconst productStock = 3;\n\n// Kiểm tra điều kiện còn hàng\nif (productStock > 0) {\n  console.log('[THÔNG BÁO] Đủ điều kiện mua hàng. Hệ thống đang chuyển sang trang thanh toán.');\n} else {\n  console.log('[THÔNG BÁO] Sản phẩm tạm thời hết hàng. Quý khách vui lòng chọn sản phẩm khác.');\n}"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Nâng cấp nghiệp vụ - Tính phí giao hàng theo tổng đơn",
+      "requirement": "Nâng cấp tính năng thanh toán: Kiểm tra số lượng tồn kho, sau đó tính phí vận chuyển dựa vào giá trị đơn hàng. Nếu đơn trên 500,000 VND được freeship. Đơn từ 200,000 VND đến dưới 500,000 VND tính phí 15,000 VND. Đơn dưới 200,000 VND tính phí 30,000 VND.",
+      "raw_code": "const productStock = 10;\nconst orderTotal = 320000; // Tổng tiền sản phẩm (VND)\nlet shippingFee = 0;\n\n// Bước 1: Kiểm tra tồn kho\nif (productStock > 0) {\n  console.log('Xác nhận: Sản phẩm còn hàng.');\n  \n  // Bước 2: Tính phí vận chuyển rẽ nhánh nhiều mức giá\n  if (orderTotal >= 500000) {\n    shippingFee = 0;\n    console.log('Đơn hàng đạt từ 500.000 VND: Miễn phí vận chuyển.');\n  } else if (orderTotal >= 200000) {\n    shippingFee = 15000;\n    console.log('Đơn hàng từ 200.000 VND: Phí vận chuyển là 15.000 VND.');\n  } else {\n    shippingFee = 30000;\n    console.log('Đơn hàng dưới 200.000 VND: Phí vận chuyển là 30.000 VND.');\n  }\n  \n  const finalAmount = orderTotal + shippingFee;\n  console.log('Tổng số tiền khách hàng cần thanh toán:', finalAmount, 'VND');\n} else {\n  console.log('Lỗi: Sản phẩm đã hết hàng, không thể tính toán đơn hàng.');\n}"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Ứng dụng thực tế doanh nghiệp - Phân hạng thành viên và bắt lỗi đầu vào",
+      "requirement": "Hoàn thiện module thanh toán cấp doanh nghiệp: Kiểm tra tính hợp lệ của dữ liệu đầu vào (tổng tiền phải lớn hơn 0). Tính mức giảm giá theo hạng thành viên ('VIP' giảm 20%, 'GOLD' giảm 10%, 'SILVER' giảm 5%, khác giảm 0%). Sau đó kiểm tra điều kiện hỗ trợ phí ship và in ra hóa đơn chi tiết.",
+      "raw_code": "// Dữ liệu đầu vào từ yêu cầu thanh toán của người dùng\nconst orderTotal = 450000;\nconst customerRank = 'GOLD';\nconst productStock = 5;\n\n// Kiểm tra và xử lý lỗi dữ liệu không hợp lệ (Edge Cases / Defensive Programming)\nif (orderTotal <= 0) {\n  console.log('[ERROR] Giá trị đơn hàng không hợp lệ. Số tiền phải lớn hơn 0.');\n} else if (productStock <= 0) {\n  console.log('[ERROR] Sản phẩm trong giỏ hàng đã hết. Vui lòng cập nhật lại giỏ hàng.');\n} else {\n  // Dữ liệu hợp lệ, tiến hành tính toán nghiệp vụ chính\n  let discountRate = 0;\n  \n  // Xác định tỷ lệ giảm giá theo hạng thành viên\n  if (customerRank === 'VIP') {\n    discountRate = 0.20; // Giảm 20%\n  } else if (customerRank === 'GOLD') {\n    discountRate = 0.10; // Giảm 10%\n  } else if (customerRank === 'SILVER') {\n    discountRate = 0.05; // Giảm 5%\n  } else {\n    discountRate = 0;    // Thành viên phổ thông không giảm giá\n  }\n  \n  // Tính toán số tiền chiết khấu\n  const discountAmount = orderTotal * discountRate;\n  const amountAfterDiscount = orderTotal - discountAmount;\n  \n  // Tính phí vận chuyển dựa trên giá trị sau giảm giá\n  let shippingFee = 0;\n  if (amountAfterDiscount >= 500000) {\n    shippingFee = 0;\n  } else if (amountAfterDiscount >= 200000) {\n    shippingFee = 15000;\n  } else {\n    shippingFee = 30000;\n  }\n  \n  const finalPayment = amountAfterDiscount + shippingFee;\n  \n  // In hóa đơn thanh toán chi tiết\n  console.log('=== HÓA ĐƠN THANH TOÁN ===');\n  console.log('Giá gốc đơn hàng:', orderTotal, 'VND');\n  console.log('Hạng khách hàng:', customerRank);\n  console.log('Số tiền được giảm:', discountAmount, 'VND');\n  console.log('Phí giao hàng:', shippingFee, 'VND');\n  console.log('TỔNG TIỀN PHẢI THANH TOÁN:', finalPayment, 'VND');\n}"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Quên cặp ngoặc nhọn {} khi khối lệnh có nhiều hơn một dòng",
+      "explanation": "Nếu không dùng cặp ngoặc nhọn {}, câu lệnh if chỉ làm chủ duy nhất 1 dòng lệnh nằm ngay kề dưới nó. Các dòng lệnh phía sau sẽ luôn luôn được chạy bất kể điều kiện đúng hay sai, gây ra lỗi logic nghiêm trọng.",
+      "code_bad": "let stockQuantity = 0;\n\n// KHÔNG NÊN: Thiếu cặp ngoặc nhọn {}\nif (stockQuantity > 0)\n  console.log('Còn hàng trong kho.');\n  console.log('Cho phép bấm nút Mua ngay.'); // Dòng này LUÔN CHẠY ngay cả khi hết hàng!",
+      "code_good": "let stockQuantity = 0;\n\n// NÊN: Luôn luôn dùng cặp ngoặc nhọn {} đầy đủ\nif (stockQuantity > 0) {\n  console.log('Còn hàng trong kho.');\n  console.log('Cho phép bấm nút Mua ngay.');\n}"
+    },
+    {
+      "error_name": "Dùng nhầm toán tử gán (=) thay vì toán tử so sánh (===) trong điều kiện",
+      "explanation": "Sử dụng 1 dấu bằng (=) trong biểu thức điều kiện của if sẽ thực hiện phép gán giá trị chứ không phải so sánh. Phép gán này trả về chính giá trị vừa gán, khiến điều kiện if luôn được ép kiểu thành boolean (thường là true nếu giá trị khác 0 hoặc không rỗng).",
+      "code_bad": "let customerRank = 'SILVER';\n\n// KHÔNG NÊN: Dùng dấu gán = trong điều kiện if\nif (customerRank = 'VIP') { // Biến customerRank bị gán thành 'VIP', điều kiện bị biến thành true!\n  console.log('Áp dụng mức giảm giá 20% cho VIP.');\n}",
+      "code_good": "let customerRank = 'SILVER';\n\n// NÊN: Dùng toán tử so sánh bằng nghiêm ngặt (===)\nif (customerRank === 'VIP') {\n  console.log('Áp dụng mức giảm giá 20% cho VIP.');\n} else {\n  console.log('Không thuộc hạng VIP.');\n}"
+    }
+  ]
+}

@@ -8,9 +8,11 @@ def test_llm_as_a_judge():
     Test Evaluation using LLM-as-a-judge pattern to verify the quality of generated learning materials.
     Requires GEMINI_API_KEY or OPENAI_API_KEY in the environment.
     """
-    # Skip test if no API keys are present to avoid failing in CI environments without keys
-    if not os.getenv("GEMINI_API_KEY") and not os.getenv("OPENAI_API_KEY") and not os.getenv("GOOGLE_API_KEY"):
-        pytest.skip("No LLM API keys configured. Skipping LLM-as-a-judge test.")
+    # Skip test if offline mode or no API keys are present
+    if os.getenv("SKIP_LIVE_LLM_TESTS", "").lower() in ("1", "true", "yes") or (
+        not os.getenv("GEMINI_API_KEY") and not os.getenv("OPENAI_API_KEY") and not os.getenv("GOOGLE_API_KEY")
+    ):
+        pytest.skip("No LLM API keys configured or SKIP_LIVE_LLM_TESTS enabled. Skipping LLM-as-a-judge test.")
 
     # A mock syllabus context and a mock generated learning material
     mock_syllabus = "Lesson: Python Variables. Topics covered: Declaration, integer, float, string."

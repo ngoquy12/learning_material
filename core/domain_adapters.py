@@ -8,7 +8,7 @@ Supports Local SLM (vLLM / Ollama) endpoints for offline fine-tuned model execut
 import os
 import urllib.request
 import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Set, List
 
 DOMAIN_RULES = {
     "python/core": """
@@ -118,15 +118,111 @@ def get_domain_rules(tech_stack: str) -> str:
         return DOMAIN_RULES["devops/docker"]
         
     # Universal Dynamic Fallback for ANY arbitrary CLO/PLO course (Data Science, UI/UX, Cybersecurity, Mobile, Networking...)
-    stack_clean = tech_stack.upper().strip()
-    return f"""
-=== GENERAL INDUSTRY ADAPTER: {stack_clean} ===
-1. Professional Standards & Best Practices: Follow official industry standards, production guidelines, and clean design patterns for {stack_clean}.
-2. Modular & Structured Approach: Organize deliverables logically into clear components, modules, or sequential steps.
-3. Edge Case & Exception Handling: Identify potential risk scenarios, invalid inputs, or failure states and incorporate proactive guards.
-4. Clear Documentation & Identifiers: Use standard English technical terms for identifiers/components and 100% Accented Vietnamese for explanations.
+    # Generic default for unspecified tech stacks
+    return """
+=== GENERAL INDUSTRY CODING STANDARDS ===
+1. Clean Code & Modular Design: Keep functions small, single-responsibility, and well-documented.
+2. Robust Error Handling: Validate inputs, handle boundary conditions, and provide meaningful error logs.
+3. Industry Naming Conventions: Follow standard naming conventions and architectural patterns for the domain.
 """
 
+# Universal multi-stack programming construct registry (Zero-Hardcode Mapping Matrix)
+ABSTRACT_PROGRAMMING_CONSTRUCTS: Dict[str, Dict[str, Any]] = {
+    "control_flow": {
+        "keywords_vi": ["điều kiện", "rẽ nhánh", "if", "else", "switch", "case", "toán tử 3 ngôi", "ternary"],
+        "tokens": {
+            "python": ["if", "elif", "else", "match"],
+            "javascript": ["if", "else", "switch", "case"],
+            "typescript": ["if", "else", "switch", "case"],
+            "java": ["if", "else", "switch", "case"],
+            "c": ["if", "else", "switch", "case"],
+            "cpp": ["if", "else", "switch", "case"],
+            "csharp": ["if", "else", "switch", "case"],
+            "golang": ["if", "else", "switch", "case"],
+            "php": ["if", "else", "switch", "case"]
+        }
+    },
+    "loops": {
+        "keywords_vi": ["vòng lặp", "lặp", "for", "while", "do-while", "loop", "duyệt"],
+        "tokens": {
+            "python": ["for", "while"],
+            "javascript": ["for", "while", "do-while"],
+            "typescript": ["for", "while", "do-while"],
+            "java": ["for", "while", "do"],
+            "c": ["for", "while", "do"],
+            "cpp": ["for", "while", "do"],
+            "csharp": ["for", "while", "do", "foreach"],
+            "golang": ["for", "range"],
+            "php": ["for", "while", "do", "foreach"]
+        }
+    },
+    "functions": {
+        "keywords_vi": ["hàm", "function", "phương thức", "method", "thủ tục", "arrow function", "lambda"],
+        "tokens": {
+            "python": ["def", "lambda"],
+            "javascript": ["function", "=>"],
+            "typescript": ["function", "=>"],
+            "java": ["public static", "private static", "void"],
+            "c": ["void", "int main"],
+            "cpp": ["void", "int main", "auto"],
+            "csharp": ["void", "async"],
+            "golang": ["func"],
+            "php": ["function", "fn"]
+        }
+    },
+    "data_structures": {
+        "keywords_vi": ["mảng", "array", "danh sách", "list", "đối tượng", "object", "từ điển", "dict", "json", "cấu trúc dữ liệu"],
+        "tokens": {
+            "python": ["list", "dict", "set", "tuple"],
+            "javascript": ["Array", "Object", "push(", "pop(", "splice("],
+            "typescript": ["Array", "Object", "push(", "pop(", "splice(", "interface", "type"],
+            "java": ["ArrayList", "HashMap", "List", "Map"],
+            "c": ["struct", "malloc", "free"],
+            "cpp": ["vector", "map", "set", "struct", "class"],
+            "csharp": ["List", "Dictionary"],
+            "golang": ["slice", "map", "struct"],
+            "php": ["array()", "[]"]
+        }
+    },
+    "async_and_dom": {
+        "keywords_vi": ["bất đồng bộ", "async", "await", "promise", "dom", "document", "addeventlistener", "fetch", "ajax", "localstorage"],
+        "tokens": {
+            "javascript": ["async", "await", "Promise", "document.", "window.", "addEventListener", "fetch", "localStorage"],
+            "typescript": ["async", "await", "Promise", "document.", "window.", "addEventListener", "fetch", "localStorage"],
+            "python": ["async", "await", "asyncio"],
+            "java": ["CompletableFuture", "Thread"]
+        }
+    }
+}
+
+def get_forbidden_syntax_for_scope(tech_stack: str, forbidden_concepts: Set[str]) -> List[str]:
+    """
+    Dynamically maps forbidden syllabus concepts into language-specific syntax tokens
+    based on the multi-stack construct registry.
+    """
+    if not tech_stack or not forbidden_concepts:
+        return []
+        
+    tech_lower = tech_stack.lower().strip()
+    # Find matching stack key
+    matched_stack = None
+    for stack_key in ["javascript", "typescript", "python", "java", "csharp", "golang", "cpp", "c", "php"]:
+        if stack_key in tech_lower:
+            matched_stack = stack_key
+            break
+            
+    if not matched_stack:
+        return []
+        
+    forbidden_tokens: Set[str] = set()
+    for concept in forbidden_concepts:
+        c_lower = str(concept).lower()
+        for category, cat_data in ABSTRACT_PROGRAMMING_CONSTRUCTS.items():
+            if any(kw in c_lower for kw in cat_data["keywords_vi"]):
+                tokens = cat_data["tokens"].get(matched_stack, [])
+                forbidden_tokens.update(tokens)
+                
+    return sorted(list(forbidden_tokens))
 
 def get_enterprise_domain_prompt(tech_stack: str, lesson_topic: str = "") -> str:
     """

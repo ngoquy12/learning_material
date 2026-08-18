@@ -25,7 +25,6 @@ from agents.creators import (
     force_center_media,
     ensure_comparison_table,
     ensure_problem_scene_image,
-    slide_agent,
     quiz_agent,
     session_compiler_agent,
     mini_project_generator_agent,
@@ -34,6 +33,7 @@ from agents.creators import (
     generate_image_api,
     reading_questions_creator_agent,
     practical_lab_creator_agent,
+    blueprint_creator_agent,
 )
 
 __all__ = [
@@ -58,7 +58,6 @@ __all__ = [
     "force_center_media",
     "ensure_comparison_table",
     "ensure_problem_scene_image",
-    "slide_agent",
     "quiz_agent",
     "session_compiler_agent",
     "mini_project_generator_agent",
@@ -69,4 +68,5 @@ __all__ = [
     "get_topic_fallback_visualizer_engine",
     "reading_questions_creator_agent",
     "practical_lab_creator_agent",
+    "blueprint_creator_agent",
 ]

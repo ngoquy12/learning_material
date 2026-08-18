@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài thực hành: Xây dựng Module Tính toán và Xử lý Đơn hàng E-commerce với Biến ES6 - Rikkei Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: { red: "#be111c", darkred: "#90000a", dark: "#0f172a" }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+      [contenteditable="true"], [contenteditable="true"] *, code[contenteditable="true"], code[contenteditable="true"] * {
+        outline: none !important; border: none !important; box-shadow: none !important; background-color: transparent !important;
+      }
+      code[contenteditable="true"] {
+        display: block !important; white-space: pre !important; overflow-x: auto !important;
+        font-family: "JetBrains Mono", monospace !important; font-size: 0.875rem !important;
+        line-height: 1.6 !important; color: #0f172a !important; padding: 1rem !important; background: #f8fafc !important; border-radius: 0.5rem !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed min-h-screen">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Bài thực hành: Xây dựng Module Tính toán và Xử lý Đơn hàng E-commerce với Biến ES6</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 pt-24 pb-16">
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">Bài thực hành: Xây dựng Module Tính toán và Xử lý Đơn hàng E-commerce với Biến ES6</h1>
+          <p class="text-sm text-slate-500 mt-2">Thực hành chỉnh sửa dữ liệu và chạy trực tiếp mã nguồn ngay trên trình duyệt.</p>
+        </div>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">1. Mục tiêu bài học</h2>
+          <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm"><li>Vận dụng kiến thức JavaScript Vanilla (ES6+), HTML5/CSS3, DOM API và Cursor AI IDE để khai báo, phân biệt và quản lý chính xác phạm vi của let, const và var.</li>
+<li>Thực hành áp dụng chuẩn đặt tên Naming Convention (camelCase cho biến, UPPER_SNAKE_CASE cho hằng số cố định) và phân biệt đúng các kiểu dữ liệu nguyên thủy (number, string, boolean, null, undefined).</li>
+<li>Thành thạo thao tác tính toán dòng tiền đơn hàng và render thông tin kết quả lên giao diện HTML bằng DOM API.</li></ul>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">2. Yêu cầu bài toán</h2>
+          <div class="p-5 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 text-sm leading-relaxed">
+            Trong hệ thống thương mại điện tử, việc tính toán giá trị đơn hàng yêu cầu độ chính xác tuyệt đối và mã nguồn phải tuân thủ nghiêm ngặt chuẩn đặt tên để dễ bảo trì. Bạn được giao nhiệm vụ khởi tạo một module quản lý đơn hàng. Module này cần lưu trữ cấu hình hằng số hệ thống (tỷ lệ thuế VAT, mã cửa hàng), các thông tin đơn hàng biến đổi (số lượng, phí vận chuyển, chiết khấu), xử lý các trạng thái dữ liệu nguyên thủy (bao gồm trạng thái chưa nhập địa chỉ undefined và trạng thái không dùng mã giảm giá null), sau đó tính toán tổng chi phí và hiển thị kết quả chi tiết lên giao diện người dùng thông qua DOM API.
+          </div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">3. Các bước thực hiện</h2>
+          <div class="space-y-3"><div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+  <div>
+    <strong class="text-slate-900">Bước 1</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Khởi tạo thư mục dự án trong Cursor AI IDE, tạo hai tệp `index.html` và `app.js`. Liên kết tệp `app.js` vào tệp HTML.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+  <div>
+    <strong class="text-slate-900">Bước 2</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Trong tệp `app.js`, khai báo các hằng số hệ thống cố định (VAT_RATE, STORE_ID) bằng từ khóa `const` theo chuẩn UPPER_SNAKE_CASE.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+  <div>
+    <strong class="text-slate-900">Bước 3</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Khai báo các thông tin giỏ hàng (tên sản phẩm, đơn giá, số lượng, phí vận chuyển, mã chiết khấu) bằng `const` hoặc `let` theo chuẩn camelCase. Đảm bảo phân biệt rõ biến có thể thay đổi và biến hằng số.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+  <div>
+    <strong class="text-slate-900">Bước 4</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Khởi tạo biến `customerAddress` không gán giá trị (để mang giá trị `undefined`) và biến `couponCode` gán giá trị `null` để biểu thị việc khách hàng không áp dụng mã giảm giá.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">5</span>
+  <div>
+    <strong class="text-slate-900">Bước 5</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Thực hiện các phép tính toán tài chính: Tạm tính (subtotal), Tổng tiền sau chiết khấu (totalAfterDiscount), Tiền thuế VAT (taxAmount) và Tổng tiền thanh toán cuối cùng (finalAmount).</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">6</span>
+  <div>
+    <strong class="text-slate-900">Bước 6</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Sử dụng DOM API (`document.getElementById` và `innerHTML`) để truy xuất phần tử trên trang HTML và hiển thị toàn bộ hóa đơn đơn hàng cùng trạng thái xử lý.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">7</span>
+  <div>
+    <strong class="text-slate-900">Bước 7</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Kiểm tra Console log để xác nhận kiểu dữ liệu (`typeof`) của các biến `customerAddress` và `couponCode`, đảm bảo mã chạy không có lỗi runtime.</p>
+  </div>
+</div></div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Mã nguồn tham khảo &amp; Thực thi trực tiếp</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50">
+            <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 flex justify-end items-center text-xs font-semibold text-slate-700 gap-2">
+              <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
+                Khôi phục mã gốc
+              </button>
+              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
+                Chạy chương trình
+              </button>
+            </div>
+            <div class="p-4 bg-slate-50 font-mono text-sm">
+              <pre class="m-0"><code id="lab-code-editor" class="language-python" contenteditable="true" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="vi"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Hệ thống Quản lý Giỏ hàng E-commerce&lt;/title&gt;
+    &lt;style&gt;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .order-card {
+            background-color: #ffffff;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 480px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .order-card h2 {
+            margin-top: 0;
+            color: #333333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .total-price {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #d9534f;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="order-card"&gt;
+        &lt;h2&gt;Chi Tiết Đơn Hàng&lt;/h2&gt;
+        &lt;div id="order-content"&gt;Đang tải dữ liệu đơn hàng...&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        // 1. Hằng số cấu hình hệ thống cố định (UPPER_SNAKE_CASE)
+        const VAT_RATE = 0.1;
+        const STORE_ID = "STORE-VN-01";
+
+        // 2. Thông tin sản phẩm và giỏ hàng (camelCase, let/const phù hợp)
+        const productName = "Laptop Gaming X Pro";
+        const unitPrice = 25000000;
+        let quantity = 2;
+
+        // 3. Phí vận chuyển và chiết khấu (let vì giá trị có thể cập nhật sau)
+        let shippingFee = 50000;
+        let discountAmount = 1000000;
+        let isVipCustomer = true;
+
+        // 4. Quản lý trạng thái dữ liệu nguyên thủy: undefined và null
+        let customerAddress; // Chưa gán giá trị -&gt; undefined
+        let couponCode = null; // Chủ động gán null -&gt; không áp dụng mã giảm giá
+
+        // 5. Tính toán các giá trị tài chính của đơn hàng
+        let subtotal = unitPrice * quantity;
+        let totalAfterDiscount = subtotal - discountAmount;
+        let taxAmount = totalAfterDiscount * VAT_RATE;
+        let finalAmount = totalAfterDiscount + taxAmount + shippingFee;
+
+        // 6. Trạng thái xử lý đơn hàng (boolean)
+        let isOrderConfirmed = true;
+        let isOrderShipped = false;
+
+        // 7. Hiển thị dữ liệu lên giao diện HTML bằng DOM API
+        const orderContentEl = document.getElementById("order-content");
+
+        orderContentEl.innerHTML = `
+            &lt;div class="detail-row"&gt;&lt;span&gt;Mã cửa hàng:&lt;/span&gt; &lt;strong&gt;${STORE_ID}&lt;/strong&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Sản phẩm:&lt;/span&gt; &lt;strong&gt;${productName}&lt;/strong&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Đơn giá:&lt;/span&gt; &lt;span&gt;${unitPrice.toLocaleString('vi-VN')} VNĐ&lt;/span&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Số lượng:&lt;/span&gt; &lt;span&gt;${quantity}&lt;/span&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Tạm tính:&lt;/span&gt; &lt;span&gt;${subtotal.toLocaleString('vi-VN')} VNĐ&lt;/span&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Giảm giá:&lt;/span&gt; &lt;span&gt;-${discountAmount.toLocaleString('vi-VN')} VNĐ&lt;/span&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Thuế VAT (${VAT_RATE * 100}%):&lt;/span&gt; &lt;span&gt;+${taxAmount.toLocaleString('vi-VN')} VNĐ&lt;/span&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Phí vận chuyển:&lt;/span&gt; &lt;span&gt;+${shippingFee.toLocaleString('vi-VN')} VNĐ&lt;/span&gt;&lt;/div&gt;
+            &lt;div class="detail-row total-price"&gt;&lt;span&gt;Tổng thanh toán:&lt;/span&gt; &lt;span&gt;${finalAmount.toLocaleString('vi-VN')} VNĐ&lt;/span&gt;&lt;/div&gt;
+            &lt;hr&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Địa chỉ giao hàng:&lt;/span&gt; &lt;i&gt;${customerAddress === undefined ? "Chưa nhập địa chỉ (undefined)" : customerAddress}&lt;/i&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Mã giảm giá:&lt;/span&gt; &lt;i&gt;${couponCode === null ? "Không áp dụng (null)" : couponCode}&lt;/i&gt;&lt;/div&gt;
+            &lt;div class="detail-row"&gt;&lt;span&gt;Trạng thái:&lt;/span&gt; &lt;span class="badge badge-success"&gt;${isOrderConfirmed ? "Đã xác nhận" : "Đang chờ"}&lt;/span&gt;&lt;/div&gt;
+        `;
+
+        // Kiểm tra log ra DevTools Console
+        console.log("=== ĐƠN HÀNG ĐÃ ĐƯỢC TÍNH TOÁN ===");
+        console.log("Kiểu dữ liệu của customerAddress:", typeof customerAddress);
+        console.log("Kiểu dữ liệu của couponCode:", typeof couponCode);
+        console.log("Kiểu dữ liệu của isOrderConfirmed:", typeof isOrderConfirmed);
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+            <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
+              <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
+                <span>KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+              </div>
+              <pre id="lab-console-output" class="m-0 text-emerald-400 whitespace-pre-wrap leading-relaxed">[Nhấn 'Chạy chương trình' để thực thi mã nguồn trên trình duyệt...]</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="mb-6">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">5. Checklist đánh giá kết quả</h2>
+          <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-3"><label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Khai báo chính xác từ khóa `const` cho các hằng số không đổi và `let` cho các biến có thay đổi giá trị; tuyệt đối không gán lại giá trị cho biến `const`.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Đặt tên biến tuân thủ đúng quy tắc Naming Convention (camelCase cho tên biến thường, UPPER_SNAKE_CASE cho hằng số cấu hình hệ thống), không sử dụng Tiếng Việt có dấu hay ký tự đặc biệt.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Phân biệt đúng cách sử dụng và hiển thị của kiểu dữ liệu nguyên thủy `undefined` (biến chưa gán giá trị) và `null` (chủ động rỗng).</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Tính toán chính xác tổng chi phí đơn hàng (gồm tạm tính, giảm giá, thuế VAT và phí giao hàng).</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Thao tác thành công với DOM API (`getElementById`, `innerHTML`) để render giao diện đẹp mắt và chính xác.</span>
+</label></div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => { if (window.hljs) window.hljs.highlightAll(); });
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) pyodideInstance = await window.loadPyodide();
+        return pyodideInstance;
+      }
+      async function runLabCode() {
+        const editor = document.getElementById("lab-code-editor");
+        const output = document.getElementById("lab-console-output");
+        if (!editor || !output) return;
+        const code = editor.innerText || editor.textContent;
+        const isPython = "true" === "true";
+        if (isPython) {
+          output.innerText = "⏳ Đang nạp Pyodide WASM Engine và thực thi...";
+          try {
+            const pyodide = await getPyodide();
+            let buffer = "";
+            pyodide.setStdout({ batched: (str) => { buffer += str + "\n"; } });
+            pyodide.setStderr({ batched: (str) => { buffer += "ERROR: " + str + "\n"; } });
+            await pyodide.runPythonAsync(code);
+            output.innerText = buffer.trim() || "Thực thi hoàn tất!";
+          } catch (err) {
+            output.innerText = "❌ LỖI THỰC THI:\n" + err;
+          }
+        } else {
+          output.innerText = "▶ Kiểm tra cú pháp mã nguồn python: Đã ghi nhận mã nguồn thực hành!";
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+[
+  {
+    "stt": 1,
+    "question_type": "SYNTAX",
+    "question": "Trong Hệ thống Quản lý Sản phẩm E-commerce, lập trình viên muốn khai báo một đối tượng `productInfo` lưu trữ các thông tin cơ bản của một mặt hàng bằng cú pháp Object Literal. Cú pháp khai báo nào sau đây đúng chuẩn JavaScript (ES6+)?",
+    "options": [
+      "const productInfo = { productId: \"PRD-10293\", productName: \"Tai nghe Bluetooth\", price: 1500000 };",
+      "const productInfo = ( productId: \"PRD-10293\", productName: \"Tai nghe Bluetooth\", price: 1500000 );",
+      "const productInfo = { productId = \"PRD-10293\", productName = \"Tai nghe Bluetooth\", price = 1500000 };",
+      "const productInfo = [ productId: \"PRD-10293\", productName: \"Tai nghe Bluetooth\", price = 1500000 ];"
+    ],
+    "correct_option_index": 0,
+    "explanation": "Object Literal trong JavaScript được định nghĩa bằng cặp dấu ngoặc nhọn `{}` với các cặp khóa - giá trị phân tách bằng dấu hai chấm `:` và cách nhau bởi dấu phẩy `,`.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.1 về Cấu trúc Object Literal và cặp Key-Value trong bài đọc.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 2,
+    "question_type": "EXECUTION_FLOW",
+    "question": "Trong ứng dụng bán hàng, hàm truy vấn thuộc tính `getProductAttribute(product, attributeKey)` chứa câu lệnh `const attributeValue = product[attributeKey];`. Luồng xử lý của trình biên dịch JavaScript diễn ra như thế nào khi câu lệnh này được thực thi?",
+    "options": [
+      "JavaScript tìm kiếm thuộc tính có tên chính xác là \"attributeKey\" trên đối tượng product mà không quan tâm giá trị của biến.",
+      "JavaScript tính toán giá trị chuỗi của biến attributeKey trước, sau đó mới tìm thuộc tính tương ứng trên đối tượng product.",
+      "JavaScript chuyển đối tượng product thành danh sách mảng index, sau đó truy xuất thuộc tính theo số thứ tự của biến.",
+      "JavaScript kiểm tra kiểu dữ liệu của biến attributeKey và tự động gán giá trị mặc định undefined trước khi tìm kiếm."
+    ],
+    "correct_option_index": 1,
+    "explanation": "Khi sử dụng Bracket Notation `[]` với một biến không nằm trong cặp dấu ngoặc báo chuỗi, JavaScript sẽ thực hiện luồng đánh giá (evaluation) giá trị của biến đó trước để lấy tên khóa thực sự, sau đó mới truy xuất vào thuộc tính của đối tượng.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.3 về Truy cập thuộc tính bằng Bracket Notation trong bài đọc.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 3,
+    "question_type": "CODE_TRACE",
+    "question": "Cho đoạn mã xử lý dữ liệu sản phẩm laptop trong hệ thống e-commerce như sau:\n\n```javascript\nconst laptopProduct = {\n  id: \"LAPTOP-PRO-16\",\n  name: \"Laptop Pro 16 inch\",\n  price: 32000000,\n  \"shipping-fee\": 50000\n};\n\nconst keyName = \"price\";\nconsole.log(laptopProduct.keyName, laptopProduct[\"shipping-fee\"]);\n```javascript\nGiá trị in ra màn hình `console` là gì?",
+    "options": [
+      "32000000 50000",
+      "undefined undefined",
+      "undefined 50000",
+      "32000000 undefined"
+    ],
+    "correct_option_index": 2,
+    "explanation": "`laptopProduct.keyName` sẽ tìm kiếm thuộc tính tên là `keyName` trên đối tượng `laptopProduct`. Do thuộc tính này không tồn tại nên kết quả là `undefined`. Trong khi đó `laptopProduct[\"shipping-fee\"]` truy xuất đúng khóa `\"shipping-fee\"` và trả về `50000`.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Ví dụ 3.1 và 3.2 về Dot Notation và Bracket Notation.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 4,
+    "question_type": "COMPARISON",
+    "question": "Khi phát triển Hệ thống Quản lý Sản phẩm E-commerce, trường hợp nào dưới đây BẮT BUỘC phải dùng cú pháp ngoặc vuông (Bracket Notation `[]`) thay vì cú pháp dấu chấm (Dot Notation `.`)?",
+    "options": [
+      "Khi thuộc tính của sản phẩm lưu trữ giá trị kiểu số nguyên hoặc kiểu dữ liệu boolean.",
+      "Khi đối tượng sản phẩm được khởi tạo bằng từ khóa const thay vì từ khóa let hoặc var.",
+      "Khi tên thuộc tính chỉ gồm các chữ cái viết thường và không chứa ký tự đặc biệt nào.",
+      "Khi tên thuộc tính chứa khoảng trắng, gạch ngang hoặc được truyền qua một biến động."
+    ],
+    "correct_option_index": 3,
+    "explanation": "Dot Notation (`.`) chỉ hoạt động với tên khóa tuân theo quy tắc đặt tên biến chuẩn. Bracket Notation (`[]`) bắt buộc phải được dùng khi khóa chứa ký tự đặc biệt (dấu gạch ngang, khoảng trắng...), bắt đầu bằng chữ số, hoặc khi tên khóa được lưu trữ trong một biến dynamic.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục 2.2 và 2.3 để so sánh Dot Notation và Bracket Notation.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 5,
+    "question_type": "TRAP_PREDICTION",
+    "question": "Lập trình viên muốn đọc mã SKU của sản phẩm nhập khẩu trong hệ thống e-commerce nhưng viết đoạn mã như sau:\n\n```javascript\nconst importedProduct = {\n  id: \"IMP-8892\",\n  \"product-sku-code\": \"SKU-VN-2026-X\",\n  price: 25000000\n};\n\nconsole.log(importedProduct[product-sku-code]);\n```javascript\nChương trình sẽ gặp phải hiện tượng nào khi thực thi?",
+    "options": [
+      "Phát sinh lỗi ReferenceError do JavaScript hiểu product-sku-code là biến chưa khai báo.",
+      "Chương trình in ra chuỗi giá trị \"SKU-VN-2026-X\" bình thường mà không gặp bất kỳ lỗi nào.",
+      "Chương trình trả về giá trị undefined do không tìm thấy tên thuộc tính khớp trong đối tượng.",
+      "Chương trình tự động ép kiểu product-sku-code thành chuỗi và truy xuất được giá trị mã SKU."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Khi không dùng dấu ngoặc đơn/kép bao quanh tên khóa bên trong Bracket Notation `[]`, JavaScript sẽ hiểu `product-sku-code` là một biểu thức biến. Do biến `product` chưa được định nghĩa trong phạm vi truy cập, chương trình sẽ ném ra lỗi `ReferenceError: product is not defined`.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy xem lại Mục Lỗi thường gặp và Anti-patterns để tránh bẫy nhầm lẫn giữa biến và chuỗi trong Bracket Notation.",
+    "time_limit_sec": 30
+  }
+]

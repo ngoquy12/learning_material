@@ -27,3 +27,8 @@ extraPaths = ["web/backend"]
 pythonVersion = "3.10"
 pythonPlatform = "Windows"
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+

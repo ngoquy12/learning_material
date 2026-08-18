@@ -174,11 +174,7 @@ async def generate_session_artifacts_task(session_id: int):
                     print(f"[Error] Failed to compile session mindmap: {e}")
 
             # Determine current and previous topic key
-            is_core = "core" in tech_stack.lower()
-            if is_core:
-                current_topic = get_base_topic_key_for_core(session.name)
-            else:
-                current_topic = get_base_topic_key(session.name)
+            current_topic = session.title
                 
             # Determine previous session in the same course
             prev_session_stmt = select(Session).where(
@@ -189,12 +185,9 @@ async def generate_session_artifacts_task(session_id: int):
             prev_session = prev_sess_res.scalars().first()
             
             if prev_session:
-                if is_core:
-                    previous_topic = get_base_topic_key_for_core(prev_session.name)
-                else:
-                    previous_topic = get_base_topic_key(prev_session.name)
+                previous_topic = prev_session.title
             else:
-                previous_topic = "core_intro" if is_core else "intro"
+                previous_topic = "Tổng quan"
 
             # Generate Entrance and Exit Quizzes only if pending
             pre_quiz_json = None

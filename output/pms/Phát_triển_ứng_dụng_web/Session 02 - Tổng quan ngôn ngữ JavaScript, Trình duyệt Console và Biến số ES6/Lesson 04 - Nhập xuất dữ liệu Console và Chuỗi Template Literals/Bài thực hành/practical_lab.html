@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài thực hành: Xây dựng Phân hệ Nhập xuất Dữ liệu và Tính Hóa đơn Đặt vé Xem phim TRUEMAX - Rikkei Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: { red: "#be111c", darkred: "#90000a", dark: "#0f172a" }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+      [contenteditable="true"], [contenteditable="true"] *, code[contenteditable="true"], code[contenteditable="true"] * {
+        outline: none !important; border: none !important; box-shadow: none !important; background-color: transparent !important;
+      }
+      code[contenteditable="true"] {
+        display: block !important; white-space: pre !important; overflow-x: auto !important;
+        font-family: "JetBrains Mono", monospace !important; font-size: 0.875rem !important;
+        line-height: 1.6 !important; color: #0f172a !important; padding: 1rem !important; background: #f8fafc !important; border-radius: 0.5rem !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed min-h-screen">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Bài thực hành: Xây dựng Phân hệ Nhập xuất Dữ liệu và Tính Hóa đơn Đặt vé Xem phim TRUEMAX</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 pt-24 pb-16">
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">Bài thực hành: Xây dựng Phân hệ Nhập xuất Dữ liệu và Tính Hóa đơn Đặt vé Xem phim TRUEMAX</h1>
+          <p class="text-sm text-slate-500 mt-2">Thực hành chỉnh sửa dữ liệu và chạy trực tiếp mã nguồn ngay trên trình duyệt.</p>
+        </div>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">1. Mục tiêu bài học</h2>
+          <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm"><li>Vận dụng kiến thức JavaScript Vanilla (ES6+), HTML5/CSS3 và Cursor AI IDE để thu thập, xử lý và hiển thị dữ liệu người dùng.</li>
+<li>Thành thạo việc nhận dữ liệu từ prompt(), xử lý giá trị mặc định chuỗi và ép kiểu dữ liệu an toàn bằng parseInt(), parseFloat().</li>
+<li>Kiểm soát các bẫy dữ liệu (NaN, số âm) với Number.isNaN() và đưa ra cảnh báo console.warn() / console.error() thích hợp.</li>
+<li>Ứng dụng chuỗi Template Literals (backticks), các phương thức xử lý chuỗi (toUpperCase), toLocaleString() và console.table() để định dạng và in hóa đơn thanh toán chuyên nghiệp.</li>
+<li>Thành thạo thao tác thực hành và kiểm chuẩn kết quả trên môi trường Trình duyệt và Console của Cursor AI IDE.</li></ul>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">2. Yêu cầu bài toán</h2>
+          <div class="p-5 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 text-sm leading-relaxed">
+            Doanh nghiệp rạp chiếu phim TRUEMAX yêu cầu xây dựng phân hệ nhập xuất dữ liệu và tính toán hóa đơn tự động cho khách hàng. Hệ thống cần nhận 5 tham số đầu vào từ khách hàng thông qua hàm prompt(): Tên khách hàng, Tên phim, Số lượng vé, Đơn giá vé (VNĐ), và Tỷ lệ giảm giá (%).
+
+Nghiệp vụ hệ thống yêu cầu cài đặt các logic sau:
+1. Thu thập dữ liệu: Nếu người dùng không nhập hoặc nhấn Hủy (Cancel), hệ thống phải tự động gán giá trị mặc định chuỗi an toàn (Ví dụ: Tên khách hàng = 'Khách hàng vô danh', Tên phim = 'Chưa chọn phim').
+2. Ép kiểu và Kiểm tra dữ liệu: Chuyển đổi dữ liệu Số lượng vé sang số nguyên (parseInt), Đơn giá vé và Tỷ lệ giảm giá sang số thực (parseFloat). Kiểm tra nếu dữ liệu không phải là số (NaN) hoặc là số âm, hệ thống phải tự động đưa về 0 và phát cảnh báo console.warn() ra Console.
+3. Tính toán tài chính: Tổng tiền gốc = Số lượng vé * Đơn giá vé. Số tiền giảm giá = Tổng tiền gốc * (Tỷ lệ giảm giá / 100). Tổng chi phí thanh toán = Tổng tiền gốc - Số tiền giảm giá.
+4. Xuất dữ liệu theo dõi: Hiển thị bảng tổng quan dữ liệu đặt vé bằng hàm console.table().
+5. Xuất hóa đơn chi tiết: Sử dụng chuỗi Template Literals (cặp dấu backticks `` ` ``) để định dạng và in ra hóa đơn thanh toán hoàn chỉnh. Tên khách hàng phải được in hoa (.toUpperCase()), các giá trị tiền tệ được định dạng theo chuẩn Việt Nam (.toLocaleString('vi-VN')), và hiển thị trạng thái hóa đơn dựa trên tổng chi phí thanh toán.
+          </div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">3. Các bước thực hiện</h2>
+          <div class="space-y-3"><div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+  <div>
+    <strong class="text-slate-900">Bước 1</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Mở Cursor AI IDE, khởi tạo cấu trúc thư mục bài thực hành bao gồm tệp index.html và tệp script.js. Nhúng tệp script.js vào trang HTML bằng thẻ <script>.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+  <div>
+    <strong class="text-slate-900">Bước 2</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Khai báo các biến và sử dụng hàm prompt() để nhận dữ liệu đầu vào. Áp dụng toán tử logic OR (||) để thiết lập giá trị mặc định cho chuỗi.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+  <div>
+    <strong class="text-slate-900">Bước 3</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Thực hiện ép kiểu dữ liệu từ Chuỗi sang Số. Sử dụng hàm Number.isNaN() và câu lệnh điều kiện để kiểm tra dữ liệu hợp lệ, đưa ra thông báo console.warn() nếu phát hiện dữ liệu lỗi.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+  <div>
+    <strong class="text-slate-900">Bước 4</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Thực hiện các phép tính tài chính (Tổng tiền gốc, Tiền giảm giá, Tổng thanh toán thực tế).</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">5</span>
+  <div>
+    <strong class="text-slate-900">Bước 5</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Tạo đối tượng chứa dữ liệu hóa đơn và hiển thị dạng bảng trong Console bằng hàm console.table().</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">6</span>
+  <div>
+    <strong class="text-slate-900">Bước 6</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Xây dựng chuỗi Template Literals đa dòng thể hiện hóa đơn thanh toán chuyên nghiệp, áp dụng các hàm định dạng chuỗi và tiền tệ toLocaleString('vi-VN'), sau đó xuất kết quả ra Console và hiển thị thông báo alert() cho người dùng.</p>
+  </div>
+</div></div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Mã nguồn tham khảo &amp; Thực thi trực tiếp</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50">
+            <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 flex justify-end items-center text-xs font-semibold text-slate-700 gap-2">
+              <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
+                Khôi phục mã gốc
+              </button>
+              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
+                Chạy chương trình
+              </button>
+            </div>
+            <div class="p-4 bg-slate-50 font-mono text-sm">
+              <pre class="m-0"><code id="lab-code-editor" class="language-python" contenteditable="true" spellcheck="false">// ==========================================
+// HỆ THỐNG TÍNH HÓA ĐƠN ĐẶT VÉ XEM PHIM TRUEMAX
+// Bài thực hành: Nhập xuất dữ liệu Console &amp; Template Literals
+// ==========================================
+
+// Bước 1: Thu thập dữ liệu đầu vào với giá trị mặc định an toàn
+const rawCustomerName = prompt("Nhập tên khách hàng:") || "Khách hàng vô danh";
+const rawMovieName = prompt("Nhập tên phim chiếu:") || "Chưa chọn phim";
+const rawTicketQuantity = prompt("Nhập số lượng vé đặt:");
+const rawTicketPrice = prompt("Nhập đơn giá vé (VNĐ):");
+const rawDiscountRate = prompt("Nhập tỷ lệ giảm giá (%):") || "0";
+
+// Bước 2: Ép kiểu dữ liệu và kiểm soát bẫy NaN / Số âm
+const parsedQuantity = parseInt(rawTicketQuantity, 10);
+const parsedPrice = parseFloat(rawTicketPrice);
+const parsedDiscount = parseFloat(rawDiscountRate);
+
+// Gán giá trị fallback an toàn nếu nhập sai định dạng hoặc nhập số âm
+const safeQuantity = Number.isNaN(parsedQuantity) || parsedQuantity &lt; 0 ? 0 : parsedQuantity;
+const safePrice = Number.isNaN(parsedPrice) || parsedPrice &lt; 0 ? 0 : parsedPrice;
+const safeDiscount = Number.isNaN(parsedDiscount) || parsedDiscount &lt; 0 || parsedDiscount &gt; 100 ? 0 : parsedDiscount;
+
+// Phát cảnh báo trên Console nếu phát hiện dữ liệu bất thường
+if (safeQuantity === 0 || safePrice === 0) {
+  console.warn("[CẢNH BÁO HỆ THỐNG] Phát hiện số lượng hoặc đơn giá vé không hợp lệ! Đã tự động điều chỉnh về 0.");
+}
+
+// Bước 3: Tính toán các thông số tài chính
+const originalTotal = safeQuantity * safePrice;
+const discountAmount = originalTotal * (safeDiscount / 100);
+const finalPayment = originalTotal - discountAmount;
+
+// Bước 4: Hiển thị dữ liệu dạng bảng tổng quan bằng console.table()
+const bookingSummary = {
+  "Tên khách hàng": rawCustomerName,
+  "Phim đặt vé": rawMovieName,
+  "Số lượng vé": safeQuantity,
+  "Đơn giá (VNĐ)": safePrice,
+  "Mức giảm (%)": safeDiscount,
+  "Tổng thanh toán (VNĐ)": finalPayment
+};
+
+console.log("[HỆ THỐNG TRUEMAX] Dữ liệu đặt vé ghi nhận thành công:");
+console.table(bookingSummary);
+
+// Bước 5: Định dạng chuỗi và xuất hóa đơn chi tiết bằng Template Literals
+const formattedCustomerName = rawCustomerName.toUpperCase();
+const formattedOriginalTotal = originalTotal.toLocaleString("vi-VN");
+const formattedDiscountAmount = discountAmount.toLocaleString("vi-VN");
+const formattedFinalPayment = finalPayment.toLocaleString("vi-VN");
+const paymentStatus = finalPayment &gt; 0 ? "HỢP LỆ (ĐÃ XÁC NHẬN)" : "CẦN CẢNH BÁO / KIỂM TRA LẠI";
+
+const finalReceipt = `
+==================================================
+           HÓA ĐƠN ĐẶT VÉ TRUEMAX CINEMA          
+==================================================
++ Khách hàng         : ${formattedCustomerName}
++ Phim chiếu         : ${rawMovieName}
++ Số lượng vé đặt    : ${safeQuantity} vé
++ Đơn giá niêm yết   : ${safePrice.toLocaleString("vi-VN")} VNĐ
+--------------------------------------------------
++ Tổng tiền gốc      : ${formattedOriginalTotal} VNĐ
++ Giảm giá (${safeDiscount}%)     : -${formattedDiscountAmount} VNĐ
++ Tổng tiền thanh toán: ${formattedFinalPayment} VNĐ
+--------------------------------------------------
++ Trạng thái hóa đơn : ${paymentStatus}
+==================================================
+`;
+
+// Bước 6: In hóa đơn ra Console và hiển thị thông báo alert
+console.log(finalReceipt);
+alert(`Đặt vé thành công cho khách hàng: ${formattedCustomerName}\nTỔNG TIỀN THANH TOÁN: ${formattedFinalPayment} VNĐ`);</code></pre>
+            </div>
+            <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
+              <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
+                <span>KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+              </div>
+              <pre id="lab-console-output" class="m-0 text-emerald-400 whitespace-pre-wrap leading-relaxed">[Nhấn 'Chạy chương trình' để thực thi mã nguồn trên trình duyệt...]</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="mb-6">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">5. Checklist đánh giá kết quả</h2>
+          <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-3"><label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Khởi tạo đúng cấu trúc thư mục và liên kết tệp JavaScript thành công trên Cursor AI IDE.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Thu thập đầy đủ 5 trường thông tin đầu vào thông qua hàm prompt() và xử lý giá trị mặc định bằng toán tử OR (||).</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Ép kiểu dữ liệu chuỗi sang kiểu số chính xác (parseInt, parseFloat), tránh hoàn toàn lỗi cộng nối chuỗi ngoài ý muốn.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Kiểm tra bẫy NaN và số âm bằng Number.isNaN(), xuất cảnh báo cảnh báo console.warn() chính xác khi dữ liệu đầu vào bị lỗi.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Sử dụng đúng cú pháp Template Literals (bao bọc bởi cặp dấu backticks ` `) để nội suy biến ${} và định dạng hóa đơn đa dòng.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Định dạng thành công tiền tệ bằng toLocaleString('vi-VN'), chuyển chữ hoa với toUpperCase(), và hiển thị danh mục dạng bảng qua console.table().</span>
+</label></div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => { if (window.hljs) window.hljs.highlightAll(); });
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) pyodideInstance = await window.loadPyodide();
+        return pyodideInstance;
+      }
+      async function runLabCode() {
+        const editor = document.getElementById("lab-code-editor");
+        const output = document.getElementById("lab-console-output");
+        if (!editor || !output) return;
+        const code = editor.innerText || editor.textContent;
+        const isPython = "true" === "true";
+        if (isPython) {
+          output.innerText = "⏳ Đang nạp Pyodide WASM Engine và thực thi...";
+          try {
+            const pyodide = await getPyodide();
+            let buffer = "";
+            pyodide.setStdout({ batched: (str) => { buffer += str + "\n"; } });
+            pyodide.setStderr({ batched: (str) => { buffer += "ERROR: " + str + "\n"; } });
+            await pyodide.runPythonAsync(code);
+            output.innerText = buffer.trim() || "Thực thi hoàn tất!";
+          } catch (err) {
+            output.innerText = "❌ LỖI THỰC THI:\n" + err;
+          }
+        } else {
+          output.innerText = "▶ Kiểm tra cú pháp mã nguồn python: Đã ghi nhận mã nguồn thực hành!";
+        }
+      }
+    </script>
+  </body>
+</html>

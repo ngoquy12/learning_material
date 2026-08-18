@@ -782,6 +782,8 @@ Return only raw JSON.
 
     if state is not None:
         state["master_content"] = final_result
+    return final_result
+
 
 def get_lesson_dir(state: AgentState) -> Path:
     course_dir_name = state.get("course_dir_name")
@@ -1058,3 +1060,30 @@ def clean_unwanted_text(text: str) -> str:
     from agents.creators.reading_creator import force_center_media
     text = force_center_media(text)
     return text
+
+def normalize_markdown_headers(content: str) -> str:
+    """
+    Ensures every Markdown heading (#, ##, ###, ####, #####, ######)
+    has a proper blank line before it if it was attached to preceding text.
+    Protects code blocks inside code fences (```).
+    """
+    if not content or not isinstance(content, str):
+        return content
+    
+    parts = content.split("```")
+    for i in range(0, len(parts), 2):
+        text = parts[i]
+        # Break any heading stuck directly after non-newline characters
+        text = re.sub(r'([^\n])\s*(#{1,6}\s+)', r'\1\n\n\2', text)
+        
+        lines = text.splitlines()
+        fixed_lines = []
+        for idx, line in enumerate(lines):
+            stripped = line.strip()
+            if re.match(r'^#{1,6}\s+', stripped) and idx > 0:
+                if fixed_lines and fixed_lines[-1].strip() != "":
+                    fixed_lines.append("")
+            fixed_lines.append(line)
+        parts[i] = "\n".join(fixed_lines)
+        
+    return "```".join(parts)

@@ -231,16 +231,18 @@ Target Technology Stack: {tech_stack}
 
 MANDATORY OUTPUT CONTRACT:
 - Return ONLY a single Markdown code block: ` ```markmap ... ` ```.
-- Target Output Language: All mindmap nodes, objectives, problems, and notes MUST be written in 100% Accented Vietnamese.
+- Target Output Language: All mindmap nodes and notes MUST be written in 100% Accented Vietnamese.
 - The mindmap must be extremely concise, rich in technical depth but visually clean, with no long paragraphs.
 - Level 1 Heading (#) MUST contain ONLY the clean content/topic title, stripping any prefixes like "{lesson_id} - " or "{lesson_id}: ". For example, if lesson is "Lesson 02 - Vòng lặp for", the H1 MUST be "# Vòng lặp for".
-- Level 2 Headings (##) MUST follow this strict sequence:
-  1. First branch MUST be "## Mục tiêu bài học" (outlining 3-4 generalized goals in Accented Vietnamese).
-  2. Second branch MUST be "## Đặt tình huống" (outlining real-world business context/problem statement).
-  3. Subsequent branches MUST represent the actual child lessons or core technical topics of this lesson.
-- Level 3 Headings (###) MUST be dynamic and ultra-short (e.g. use "### Cú pháp" instead of "### Cú pháp lập trình", and "### Lưu ý" instead of "### Các lưu ý thực chiến").
-- For difficult concepts or workflow control, embed a standard English image generation prompt matching: *Prompt tạo ảnh: A clean 2D flat vector technical illustration of [logic]. Main title in concise Accented Vietnamese. Strictly NO text emojis. 16:9 aspect ratio...*
+- Level 2 Headings (##) MUST contain exactly these 5 structural branches:
+  1. "## Khái niệm & Vai trò" (outlining brief definition and technical purpose)
+  2. "## Cú pháp & Giải nghĩa" (standard syntax code block with brief explanations of components)
+  3. "## Ví dụ thực hành" (runnable example of 5-8 lines max using realistic variable names, no 'a', 'b', 'x', 'temp')
+  4. "## Lưu ý triển khai" (Gotchas, common mistakes, style guide formatting, NO AI clichés like "thực chiến" or "gotcha")
+  5. "## Liên kết hệ thống" (logical connections, data flow, or dependency channelling)
+- ABSOLUTELY FORBIDDEN to include "Mục tiêu bài học", "Bài toán", or "Đặt tình huống" branches anywhere in the mindmap.
 - ABSOLUTELY FORBIDDEN to use any text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶) anywhere in the mindmap content.
+- STRICT KNOWLEDGE SCOPING: Only reference concepts within allowed taught lessons; do not leak unlearned future topics.
 
 {feedback_context}
 """

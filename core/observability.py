@@ -3,7 +3,7 @@ import os
 import json
 import time
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
 
 STORAGE_DIR = "storage"
@@ -102,7 +102,7 @@ def log_agent_call(
 
     # 2. Local OpenTelemetry Semantic Log entry creation
     log_entry = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "trace_id": trace_id,
         "span_id": span_id,
         "agent_name": agent_name,

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài thực hành: Xử lý và Phân tích Nhật ký Đơn hàng E-commerce bằng List, Indexing và Slicing - Rikkei Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: { red: "#be111c", darkred: "#90000a", dark: "#0f172a" }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+      [contenteditable="true"], [contenteditable="true"] *, code[contenteditable="true"], code[contenteditable="true"] * {
+        outline: none !important; border: none !important; box-shadow: none !important; background-color: transparent !important;
+      }
+      code[contenteditable="true"] {
+        display: block !important; white-space: pre !important; overflow-x: auto !important;
+        font-family: "JetBrains Mono", monospace !important; font-size: 0.875rem !important;
+        line-height: 1.6 !important; color: #0f172a !important; padding: 1rem !important; background: #f8fafc !important; border-radius: 0.5rem !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed min-h-screen">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Bài thực hành: Xử lý và Phân tích Nhật ký Đơn hàng E-commerce bằng List, Indexing và Slicing</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 pt-24 pb-16">
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">Bài thực hành: Xử lý và Phân tích Nhật ký Đơn hàng E-commerce bằng List, Indexing và Slicing</h1>
+          <p class="text-sm text-slate-500 mt-2">Thực hành chỉnh sửa dữ liệu và chạy trực tiếp mã nguồn ngay trên trình duyệt.</p>
+        </div>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">1. Mục tiêu bài học</h2>
+          <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm"><li>Vận dụng kiến thức Python về kiểu dữ liệu List để khởi tạo và quản lý chuỗi dữ liệu nhật ký giao dịch thương mại điện tử.</li>
+<li>Thành thạo kỹ thuật truy cập Indexing với chỉ số dương và chỉ số âm để lấy thông tin đơn hàng cụ thể, đồng thời phân biệt chính xác kiểu dữ liệu trả về giữa Indexing và Slicing.</li>
+<li>Sử dụng thành thạo kỹ thuật cắt lát Slicing (start:stop:step) để đảo ngược danh sách và xử lý bài toán phân trang tĩnh (Pagination) cho Dashboard quản trị.</li>
+<li>Rèn luyện kỹ năng kiểm tra độ dài danh sách (len()) nhằm phòng tránh lỗi IndexError phổ biến trong môi trường sản xuất.</li></ul>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">2. Yêu cầu bài toán</h2>
+          <div class="p-5 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 text-sm leading-relaxed">
+            Bạn được giao nhiệm vụ phát triển module xử lý dữ liệu cho hệ thống Dashboard quản trị thương mại điện tử. Hệ thống nhận danh sách nhật ký đơn hàng dạng chuỗi và danh sách giá trị doanh thu tương ứng theo thứ tự thời gian phát sinh.
+
+Yêu cầu nghiệp vụ:
+1. Khởi tạo danh sách order_logs gồm 6 trạng thái giao dịch và order_amounts chứa 6 giá trị tương ứng (đơn vị: VNĐ).
+2. Truy vấn đơn hàng đầu tiên (chỉ số dương) và đơn hàng mới nhất (chỉ số âm). Lấy doanh thu của đơn hàng đầu tiên bằng Indexing để cộng thêm phí dịch vụ 20,000 VNĐ.
+3. Trích xuất danh sách Top 3 đơn hàng sớm nhất bằng Slicing (lưu ý quy tắc loại trừ cận trên 'stop').
+4. Đảo ngược danh sách nhật ký giao dịch sử dụng bước nhảy step = -1 để hiển thị đơn hàng mới nhất lên đầu danh sách.
+5. Lập trình tính năng phân trang tĩnh: Trích xuất dữ liệu hiển thị cho Trang 2 với quy mô 2 phần tử/trang.
+6. Kiểm tra an toàn chỉ số trước truy cập để tránh lỗi hỏng chương trình (IndexError).
+          </div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">3. Các bước thực hiện</h2>
+          <div class="space-y-3"><div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+  <div>
+    <strong class="text-slate-900">Bước 1</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Khởi tạo danh sách order_logs và order_amounts chứa dữ liệu 6 giao dịch mẫu.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+  <div>
+    <strong class="text-slate-900">Bước 2</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Sử dụng Indexing chỉ số 0 để lấy đơn hàng đầu tiên và chỉ số -1 để lấy đơn hàng mới nhất. Tính tổng doanh thu đơn đầu tiên với phụ phí.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+  <div>
+    <strong class="text-slate-900">Bước 3</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Thực hiện cắt lát Slicing [0:3] để trích xuất Top 3 đơn hàng đầu tiên và Slicing [::-1] để thu được danh sách đảo ngược thứ tự thời gian.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+  <div>
+    <strong class="text-slate-900">Bước 4</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Tính toán vị trí start và stop theo công thức phân trang, thực hiện cắt lát [start:stop] để thu được dữ liệu hiển thị cho Trang 2.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">5</span>
+  <div>
+    <strong class="text-slate-900">Bước 5</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Thêm đoạn mã kiểm tra độ dài danh sách bằng len() trước khi truy cập chỉ số vượt ngưỡng để minh họa việc phòng ngừa lỗi IndexError.</p>
+  </div>
+</div></div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Mã nguồn tham khảo &amp; Thực thi trực tiếp</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50">
+            <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 flex justify-end items-center text-xs font-semibold text-slate-700 gap-2">
+              <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
+                Khôi phục mã gốc
+              </button>
+              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
+                Chạy chương trình
+              </button>
+            </div>
+            <div class="p-4 bg-slate-50 font-mono text-sm">
+              <pre class="m-0"><code id="lab-code-editor" class="language-python" contenteditable="true" spellcheck="false"># ========================================== 
+# THỰC HÀNH: XỬ LÝ NHẬT KÝ ĐƠN HÀNG E-COMMERCE
+# ========================================== 
+
+# Bước 1: Khởi tạo danh sách nhật ký đơn hàng và giá trị doanh thu
+order_logs = [
+    "Đơn #101: Đã thanh toán",
+    "Đơn #102: Đang vận chuyển",
+    "Đơn #103: Đã hoàn tiền",
+    "Đơn #104: Đã thanh toán",
+    "Đơn #105: Đã giao hàng",
+    "Đơn #106: Chờ xử lý"
+]
+
+order_amounts = [150000, 320000, 500000, 120000, 450000, 210000]
+
+# Bước 2: Truy cập phần tử bằng Indexing (Dương &amp; Âm)
+first_order = order_logs[0]
+latest_order = order_logs[-1]
+
+# Truy cập doanh thu đơn đầu tiên bằng Indexing (kết quả trả về kiểu int)
+first_amount = order_amounts[0]
+service_fee = 20000
+total_first_order = first_amount + service_fee
+
+print("=== BÁO CÁO ĐƠN HÀNG ĐƠN LẺ ===")
+print("Đơn hàng đầu tiên (Chỉ số 0):", first_order)
+print("Đơn hàng mới nhất (Chỉ số -1):", latest_order)
+print("Tổng giá trị đơn đầu tiên (+ Phụ phí):", total_first_order, "VNĐ\n")
+
+# Bước 3: Trích xuất và đảo ngược dữ liệu bằng Slicing
+# 3.1. Top 3 đơn hàng đầu tiên (lấy chỉ số 0, 1, 2 -&gt; stop = 3)
+top_3_orders = order_logs[0:3]
+
+# 3.2. Đảo ngược danh sách nhật ký (mới nhất lên đầu)
+reversed_logs = order_logs[::-1]
+
+# 3.3. Phân trang tĩnh cho Trang 2 (kích thước mỗi trang: 2 phần tử)
+items_per_page = 2
+page_number = 2
+start_index = (page_number - 1) * items_per_page  # 2
+stop_index = start_index + items_per_page          # 4
+page_2_logs = order_logs[start_index:stop_index]
+
+print("=== BÁO CÁO DANH SÁCH &amp; SLICING ===")
+print("Top 3 đơn hàng khởi tạo sớm nhất:", top_3_orders)
+print("Nhật ký xem từ mới nhất tới cũ nhất:", reversed_logs)
+print("Dữ liệu hiển thị tại Trang 2:", page_2_logs)
+print("")
+
+# Bước 4: Kiểm tra và xử lý an toàn lỗi IndexError
+target_index = 6
+print("=== KIỂM TRA AN TOÀN CHỈ SỐ ===")
+if target_index &lt; len(order_logs):
+    print(f"Đơn hàng tại chỉ số {target_index}:", order_logs[target_index])
+else:
+    print(f"Cảnh báo: Chỉ số {target_index} vượt quá giới hạn danh sách (Độ dài tối đa: {len(order_logs)})")</code></pre>
+            </div>
+            <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
+              <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
+                <span>KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+              </div>
+              <pre id="lab-console-output" class="m-0 text-emerald-400 whitespace-pre-wrap leading-relaxed">[Nhấn 'Chạy chương trình' để thực thi mã nguồn trên trình duyệt...]</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="mb-6">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">5. Checklist đánh giá kết quả</h2>
+          <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-3"><label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Khởi tạo đúng cấu trúc danh sách order_logs và order_amounts theo yêu cầu bài toán.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Sử dụng đúng chỉ số 0 và -1 để lấy chính xác dữ liệu phần tử đầu tiên và cuối cùng.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Thực hiện phép tính toán số học trên phần tử lấy từ Indexing mà không gặp lỗi TypeError (phân biệt đúng giữa Indexing và Slicing).</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Sử dụng đúng cú pháp Slicing [0:3] lấy trọn vẹn 3 phần tử đầu tiên và [::-1] để đảo ngược danh sách.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Tính toán chính sở bộ chỉ số start, stop và cắt lát đúng 2 phần tử của Trang 2.</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Chương trình chạy thành công, không phát sinh lỗi IndexError hay lỗi cú pháp Python.</span>
+</label></div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => { if (window.hljs) window.hljs.highlightAll(); });
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) pyodideInstance = await window.loadPyodide();
+        return pyodideInstance;
+      }
+      async function runLabCode() {
+        const editor = document.getElementById("lab-code-editor");
+        const output = document.getElementById("lab-console-output");
+        if (!editor || !output) return;
+        const code = editor.innerText || editor.textContent;
+        const isPython = "true" === "true";
+        if (isPython) {
+          output.innerText = "⏳ Đang nạp Pyodide WASM Engine và thực thi...";
+          try {
+            const pyodide = await getPyodide();
+            let buffer = "";
+            pyodide.setStdout({ batched: (str) => { buffer += str + "\n"; } });
+            pyodide.setStderr({ batched: (str) => { buffer += "ERROR: " + str + "\n"; } });
+            await pyodide.runPythonAsync(code);
+            output.innerText = buffer.trim() || "Thực thi hoàn tất!";
+          } catch (err) {
+            output.innerText = "❌ LỖI THỰC THI:\n" + err;
+          }
+        } else {
+          output.innerText = "▶ Kiểm tra cú pháp mã nguồn python: Đã ghi nhận mã nguồn thực hành!";
+        }
+      }
+    </script>
+  </body>
+</html>

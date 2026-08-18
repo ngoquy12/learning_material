@@ -119,7 +119,7 @@ async def generate_lesson_task(
         for kw in ["thực hành", "thuc hanh", "practice", "project", "dự án"]
     )
 
-    lesson_requested_parts = ["html"] if is_practical else ["html", "quiz", "video_script", "mindmap"]
+    lesson_requested_parts = ["html", "quiz", "lab", "reading_questions"]
 
     def run_sync_workflow():
         workflow = compile_learning_content_workflow()
@@ -133,9 +133,9 @@ async def generate_lesson_task(
             "core_ssot": {},
             "artifacts_status": {},
             "html_content": "",
-            "slide_markdown": "",
             "quiz_json": {},
-            "video_script_markdown": "",
+            "practical_lab_markdown": "",
+            "reading_questions_markdown": "",
             "mindmap_markdown": "",
             "review_logs": [],
             "technology_stack": technology_stack,
@@ -176,13 +176,13 @@ async def generate_lesson_task(
                 artifacts_to_save = {
                     "reading": (state.get("html_content"), state.get("artifacts_status", {}).get("html")),
                     "quiz": (state.get("quiz_json"), state.get("artifacts_status", {}).get("quiz")),
-                    "outline": (
-                        state.get("mindmap_markdown") or state.get("slide_markdown"),
-                        state.get("artifacts_status", {}).get("mindmap"),
+                    "lab": (
+                        state.get("practical_lab_markdown") or state.get("practical_lab_html"),
+                        state.get("artifacts_status", {}).get("practical_lab"),
                     ),
-                    "walkthrough": (
-                        state.get("video_script_markdown") or state.get("html_content"),
-                        state.get("artifacts_status", {}).get("video_script"),
+                    "reading_questions": (
+                        state.get("reading_questions_markdown") or state.get("reading_questions_json"),
+                        state.get("artifacts_status", {}).get("reading_questions"),
                     ),
                 }
 
@@ -220,8 +220,8 @@ async def generate_lesson_task(
             artifacts_to_save = {
                 "reading": final_state.get("html_content"),
                 "quiz": final_state.get("quiz_json"),
-                "outline": final_state.get("mindmap_markdown") or final_state.get("slide_markdown"),
-                "walkthrough": final_state.get("video_script_markdown") or final_state.get("html_content"),
+                "lab": final_state.get("practical_lab_markdown") or final_state.get("practical_lab_html"),
+                "reading_questions": final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"),
             }
 
             for artifact_type, content in artifacts_to_save.items():

@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đối tượng (Object) trong JavaScript, Cấu trúc JSON và Thao tác CRUD — Trực quan hóa Bài giảng - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card:hover {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      }
+      .toc-link.active {
+        background-color: #fff1f2 !important;
+        border-left-color: #be111c !important;
+        color: #be111c !important;
+        border-radius: 0.5rem !important;
+      }
+      .toc-link.active .toc-title {
+        color: #be111c !important;
+        font-weight: 700 !important;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0f172a;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white">
+    <!-- ===== FIXED TOP HEADER ===== -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-xs">
+      <div class="max-w-[1680px] w-full mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-8 sm:h-9 object-contain shrink-0"
+          />
+          <div class="border-l border-slate-300 pl-3 sm:pl-4 min-w-0">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-600 block leading-tight">Session 12 — Trực quan hóa Bài giảng</span>
+            <h1 class="text-sm sm:text-base font-extrabold text-slate-900 truncate leading-tight">
+              Đối tượng (Object) trong JavaScript, Cấu trúc JSON và Thao tác CRUD
+            </h1>
+          </div>
+        </div>
+        <!-- Right Counter Badge -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="px-3 py-1 bg-rose-50 text-rikkei-red rounded-full text-xs font-bold border border-rose-200">
+            2 Bài học Trọng tâm
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== MAIN WRAPPER ===== -->
+    <div class="max-w-[1680px] w-full mx-auto px-4 sm:px-8 pt-24 pb-16 flex gap-8 items-start flex-1">
+      <!-- ===== LEFT STICKY SIDEBAR TOC ===== -->
+      <aside class="w-80 shrink-0 sticky top-24 hidden lg:block">
+        <div class="glass-card p-4 rounded-2xl space-y-3 shadow-xs border border-slate-200">
+          <!-- TOC Header -->
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+            <i class="ph-bold ph-list-dashes text-rikkei-red text-base"></i>
+            <span>Mục lục Bài giảng</span>
+          </div>
+
+          <!-- Vertical Navigation Links -->
+          <nav class="space-y-1.5" id="toc-nav">
+            <a
+              id="nav-lesson-01"
+              href="#lesson-01"
+              class="toc-link block px-3 py-2.5 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all"
+            >
+              <div class="font-bold text-slate-900 text-xs mb-0.5">Lesson 01</div>
+              <span class="toc-title font-medium transition-colors line-clamp-2">
+                Khái niệm Object Literal & Bản chất Vùng nhớ (Stack vs Heap)
+              </span>
+            </a>
+
+            <a
+              id="nav-lesson-02"
+              href="#lesson-02"
+              class="toc-link block px-3 py-2.5 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all"
+            >
+              <div class="font-bold text-slate-900 text-xs mb-0.5">Lesson 02</div>
+              <span class="toc-title font-medium transition-colors line-clamp-2">
+                Thao tác CRUD Thuộc tính, Nested Object & Đóng gói JSON
+              </span>
+            </a>
+          </nav>
+
+          <!-- Quick Tip Callout in Sidebar -->
+          <div class="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
+            <span class="font-bold flex items-center gap-1 mb-1 text-amber-950">
+              <i class="ph-bold ph-lightbulb text-amber-600 text-sm"></i> Lời khuyên Giảng viên:
+            </span>
+            Hãy thay đổi trực tiếp giá trị trong bảng Simulator bên phải để quan sát mã JavaScript thực thi và phân tích cơ chế vùng nhớ RAM thời gian thực.
+          </div>
+        </div>
+      </aside>
+
+      <!-- ===== MAIN DASHBOARD CONTENT AREA ===== -->
+      <main class="flex-1 min-w-0 space-y-16">
+
+        <!-- ========================================================================= -->
+        <!-- ===== LESSON 01: KHÁI NIỆM OBJECT LITERAL & MÔ HÌNH BỘ NHỚ THAM CHIẾU ===== -->
+        <!-- ========================================================================= -->
+        <section id="lesson-01" class="space-y-6 scroll-mt-24">
+          <!-- Section Title Header -->
+          <div class="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold text-rose-600 uppercase tracking-widest block">Chương 1 — Nền tảng Khoa học Máy tính</span>
+              <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900">
+                1. Khái niệm Object Literal & Bản chất Vùng nhớ (Stack vs Heap)
+              </h2>
+            </div>
+            <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold self-start sm:self-auto border border-slate-200">
+              Lesson 01
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+              <!-- Card 1: Khái niệm Cốt lõi -->
+              <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <i class="ph-bold ph-brackets-curly text-indigo-600 text-base"></i>
+                    <span>Cấu trúc Object Literal & Truy xuất</span>
+                  </h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    CÚ PHÁP
+                  </span>
+                </div>
+                <div class="text-xs text-slate-700 leading-relaxed space-y-2">
+                  <p><strong>Object Literal</strong> là cấu trúc dữ liệu lưu trữ dưới dạng các cặp <code>Key: Value</code>, được khai báo thuận tiện bằng cặp ngoặc nhọn <code>{}</code>.</p>
+                  <ul class="space-y-1.5 list-disc pl-4 text-slate-700">
+                    <li><strong>Dot Notation (<code>obj.key</code>)</strong>: Dùng khi biết trước tên thuộc tính cố định hợp lệ (không chứa ký tự đặc biệt hay khoảng trắng).</li>
+                    <li><strong>Bracket Notation (<code>obj[dynamicVar]</code>)</strong>: Bắt buộc khi tên key nằm trong biến động hoặc chứa ký tự đặc biệt (ví dụ: <code>obj["ma-nhan-su"]</code>).</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Card 2: Bản chất Bộ nhớ Stack vs Heap -->
+              <div class="glass-card p-5 rounded-2xl border border-sky-200 bg-sky-50/40 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-sky-100">
+                  <h3 class="font-bold text-sm text-sky-950 flex items-center gap-2">
+                    <i class="ph-bold ph-cpu text-sky-600 text-base"></i>
+                    <span>Bản chất Vùng nhớ: Stack vs Heap</span>
+                  </h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
+                    BỘ NHỚ RAM
+                  </span>
+                </div>
+                <div class="text-xs text-sky-950 leading-relaxed space-y-2">
+                  <p>Object trong JavaScript là <strong>Kiểu dữ liệu tham chiếu (Reference Type)</strong>:</p>
+                  <ul class="space-y-1.5 list-disc pl-4">
+                    <li><strong>Call Stack</strong>: Chỉ lưu địa chỉ con trỏ vùng nhớ (Pointer Address, ví dụ: <code>0x7FFE01</code>).</li>
+                    <li><strong>Memory Heap</strong>: Nơi thực sự lưu trữ toàn bộ Payload dữ liệu của Object.</li>
+                    <li><strong>Tại sao <code>const</code> vẫn sửa được thuộc tính?</strong> Vì <code>const</code> chỉ khóa địa chỉ con trỏ trên Stack không cho trỏ đi nơi khác; nội dung bên trong Heap vẫn có thể thay đổi linh hoạt.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Card 3: Bẫy lỗi Tham chiếu & So sánh Đối tượng -->
+              <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-rose-100">
+                  <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                    <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                    <span>Bẫy lỗi Tham chiếu (Mutation Bug)</span>
+                  </h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                    LƯU Ý THỰC CHIẾN
+                  </span>
+                </div>
+                <div class="text-xs text-rose-950 leading-relaxed space-y-2">
+                  <p><strong>Bẫy sao chép tham chiếu</strong>: Khi thực hiện <code>let b = a</code>, hai biến cùng trỏ vào 1 địa chỉ Heap. Mọi thay đổi qua <code>b</code> sẽ làm biến dạng dữ liệu của <code>a</code>!</p>
+                  <p><strong>So sánh đối tượng</strong>: <code>{} === {}</code> luôn trả về <code>false</code> vì JavaScript so sánh 2 địa chỉ vùng nhớ khác nhau, không so sánh nội dung bên trong.</p>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-xs sticky top-24">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                  <i class="ph-bold ph-sliders text-indigo-600"></i> Simulator Thực thi & Trực quan Vùng nhớ RAM
+                </h3>
+                <span class="text-[11px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full border border-indigo-200">
+                  LIVE ENGINE
+                </span>
+              </div>
+
+              <!-- Controllers -->
+              <div class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Chọn Kịch bản Giảng dạy (Scenario Preset):</label>
+                  <select id="s1-preset" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-semibold" onchange="applyS1Preset()">
+                    <option value="scen_standard">1. Trường hợp Chuẩn — Khởi tạo & Tính toán KPI qua Dot Notation</option>
+                    <option value="scen_mutation">2. Bẫy Đột biến Tham chiếu — let b = a (Mutation Trap)</option>
+                    <option value="scen_dynamic">3. Thuộc tính Động — Bracket Notation & Kiểm tra Undefined</option>
+                  </select>
+                </div>
+
+                <!-- Live Dynamic Input Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 pt-1">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">Tên nhân viên:</label>
+                    <input type="text" id="s1-name" value="Nguyễn Văn A" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-indigo-600 bg-white" oninput="runS1Engine()" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">Điểm đạt được:</label>
+                    <input type="number" id="s1-completed" value="85" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-indigo-600 bg-white" oninput="runS1Engine()" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">Mục tiêu giao:</label>
+                    <input type="number" id="s1-target" value="100" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-indigo-600 bg-white" oninput="runS1Engine()" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">Key động Bracket:</label>
+                    <input type="text" id="s1-dynKey" value="department" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-indigo-600 bg-white" oninput="runS1Engine()" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Interactive Visual Memory RAM Architecture (Stack vs Heap) -->
+              <div class="p-4 bg-slate-900 rounded-2xl border border-slate-800 text-slate-100 space-y-3">
+                <div class="flex items-center justify-between text-[11px] font-bold tracking-wider text-slate-400 uppercase border-b border-slate-800 pb-2">
+                  <span class="flex items-center gap-1.5 text-sky-400">
+                    <i class="ph-bold ph-hard-drives"></i> Mô hình Bộ nhớ RAM Thời gian thực (Memory Layout)
+                  </span>
+                  <span class="font-mono text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                    POINTER: 0x7FFE01
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                  <!-- Stack Region -->
+                  <div class="md:col-span-5 p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <span class="text-[10px] font-mono font-bold text-amber-400 uppercase block">1. Call Stack (Biến tham chiếu)</span>
+                    <div class="p-2 bg-slate-900 rounded-lg border border-slate-700 font-mono text-xs space-y-1">
+                      <div class="flex justify-between text-slate-300">
+                        <span>const empA</span>
+                        <span class="text-emerald-400 font-bold">➔ 0x7FFE01</span>
+                      </div>
+                      <div class="flex justify-between text-slate-300 pt-1 border-t border-slate-800" id="s1-stack-refB">
+                        <span>let empB = empA</span>
+                        <span class="text-rose-400 font-bold">➔ 0x7FFE01</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Arrow Link Indicator -->
+                  <div class="md:col-span-2 text-center text-slate-500 font-mono text-xs flex md:flex-col justify-center items-center gap-1">
+                    <i class="ph-bold ph-arrow-right text-emerald-400 text-lg hidden md:block"></i>
+                    <i class="ph-bold ph-arrow-down text-emerald-400 text-lg md:hidden"></i>
+                    <span class="text-[10px] text-slate-400 font-bold">Tham chiếu</span>
+                  </div>
+
+                  <!-- Heap Region -->
+                  <div class="md:col-span-5 p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                    <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase block">2. Memory Heap (Payload Thực tế)</span>
+                    <div class="p-2 bg-slate-900 rounded-lg border border-slate-700 font-mono text-[11px] text-slate-200 space-y-1" id="s1-heap-preview">
+                      <div><span class="text-sky-300">fullName:</span> <span class="text-amber-300" id="s1-heap-name">"Nguyễn Văn A"</span></div>
+                      <div><span class="text-sky-300">completedKPI:</span> <span class="text-purple-300" id="s1-heap-completed">85</span></div>
+                      <div><span class="text-sky-300">targetKPI:</span> <span class="text-purple-300" id="s1-heap-target">100</span></div>
+                      <div><span class="text-sky-300" id="s1-heap-dynKey">department:</span> <span class="text-amber-300">"Kỹ thuật"</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dedicated IDE Code Preview Block -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">memory_lesson1.js</span>
+                  </div>
+                  <span class="text-[10px] text-emerald-400 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                    EXECUTED REALTIME
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-xs text-slate-200 overflow-x-auto custom-scrollbar">
+                  <pre class="leading-relaxed whitespace-pre-wrap"><code id="s1-live-code">// Mã nguồn đang thực thi đồng bộ với Input...</code></pre>
+                </div>
+              </div>
+
+              <!-- Output Runtime Trace -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-xs">
+                <div class="text-xs font-bold text-slate-600 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-bold ph-terminal-window text-indigo-600"></i> Tiến trình Thực thi Thời gian thực (Runtime Trace)
+                  </span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    REALTIME OUTPUT
+                  </span>
+                </div>
+                <div class="space-y-1.5 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s1-trace-box">
+                  <!-- Injected via JavaScript -->
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200 mt-2">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Kết quả Tổng hợp</span>
+                    <span class="font-mono text-xs sm:text-sm font-bold text-slate-900" id="s1-result-val">
+                      Đang tính toán...
+                    </span>
+                  </div>
+                  <span class="font-mono text-xs px-3 py-1 rounded-full font-bold" id="s1-result-badge">
+                    Thành công
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- ===== LESSON 02: THAO TÁC CRUD, NESTED OBJECT VÀ ĐÓNG GÓI JSON ====== -->
+        <!-- ========================================================================= -->
+        <section id="lesson-02" class="space-y-6 scroll-mt-24">
+          <!-- Section Title Header -->
+          <div class="border-b border-slate-200 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span class="text-xs font-bold text-rose-600 uppercase tracking-widest block">Chương 2 — Thao tác Đối tượng & Trao đổi Dữ liệu</span>
+              <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900">
+                2. Thao tác CRUD Thuộc tính, Nested Object & Đóng gói JSON
+              </h2>
+            </div>
+            <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold self-start sm:self-auto border border-slate-200">
+              Lesson 02
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+              <!-- Card 1: Thao tác CRUD & Từ khóa Delete -->
+              <div class="glass-card p-5 rounded-2xl border border-slate-200 bg-white space-y-3 shadow-xs">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                    <i class="ph-bold ph-pencil-simple-line text-emerald-600 text-base"></i>
+                    <span>Thao tác CRUD Thuộc tính & Delete</span>
+                  </h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    CRUD OBJECT
+                  </span>
+                </div>
+                <div class="text-xs text-slate-700 leading-relaxed space-y-2">
+                  <ul class="space-y-1.5 list-disc pl-4">
+                    <li><strong>Create / Update</strong>: Gán giá trị mới qua dấu chấm hoặc ngoặc vuông (<code>emp.bonus = 15; emp['role'] = 'Lead';</code>).</li>
+                    <li><strong>Delete</strong>: Sử dụng toán tử <code>delete emp.tempNote;</code> để xóa triệt để cả Key lẫn Value khỏi Object.</li>
+                    <li><strong>Phân biệt</strong>: Gán <code>emp.tempNote = null</code> hoặc <code>undefined</code> chỉ đổi giá trị nhưng <strong>Key vẫn tồn tại</strong> trong Object!</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Card 2: Nested Object & Optional Chaining -->
+              <div class="glass-card p-5 rounded-2xl border border-indigo-200 bg-indigo-50/40 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-indigo-100">
+                  <h3 class="font-bold text-sm text-indigo-950 flex items-center gap-2">
+                    <i class="ph-bold ph-tree-structure text-indigo-600 text-base"></i>
+                    <span>Đối tượng Lồng nhau & Optional Chaining</span>
+                  </h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200">
+                    NESTED OBJECT
+                  </span>
+                </div>
+                <div class="text-xs text-indigo-950 leading-relaxed space-y-2">
+                  <p>Dữ liệu doanh nghiệp luôn có dạng cây phân cấp (Object chứa Object con hoặc Mảng):</p>
+                  <p class="font-mono bg-white/80 p-2 rounded-lg border border-indigo-200">
+                    emp.department?.manager?.email
+                  </p>
+                  <p>Sử dụng <strong>Optional Chaining (<code>?.</code>)</strong> giúp truy xuất an toàn. Nếu <code>department</code> là <code>undefined</code>, biểu thức trả về <code>undefined</code> thay vì làm sụp đổ ứng dụng với lỗi <code>TypeError: Cannot read properties of undefined</code>.</p>
+                </div>
+              </div>
+
+              <!-- Card 3: Chuẩn Trao đổi Dữ liệu JSON & Bẫy Cú pháp -->
+              <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between gap-2 pb-2 border-b border-rose-100">
+                  <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                    <i class="ph-bold ph-file-code text-rose-600 text-base"></i>
+                    <span>Cấu trúc JSON & Bẫy Chuyển đổi</span>
+                  </h3>
+                  <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                    JSON chuẩn
+                  </span>
+                </div>
+                <div class="text-xs text-rose-950 leading-relaxed space-y-2">
+                  <ul class="space-y-1.5 list-disc pl-4">
+                    <li><strong>JSON.stringify(obj)</strong>: Chuyển Object thành chuỗi JSON để gửi qua HTTP Request. <em>Lưu ý: Function và thuộc tính <code>undefined</code> sẽ bị bỏ qua; <code>NaN</code> và <code>Infinity</code> bị ép thành <code>null</code>.</em></li>
+                    <li><strong>JSON.parse(str)</strong>: Giải mã chuỗi JSON thành Object. Key trong JSON <strong>bắt buộc phải có nháy kép <code>"key"</code></strong>. Luôn bọc <code>JSON.parse</code> trong khối <code>try...catch</code> để tránh SyntaxError.</li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-xs sticky top-24">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                  <i class="ph-bold ph-code text-emerald-600"></i> Simulator Xử lý CRUD & JSON Parser
+                </h3>
+                <span class="text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full border border-emerald-200">
+                  INTERACTIVE PARSER
+                </span>
+              </div>
+
+              <!-- Controllers -->
+              <div class="space-y-3.5">
+                <div>
+                  <label class="block text-xs font-bold text-slate-600 mb-1.5">Chọn Kịch bản Giảng dạy (Scenario Preset):</label>
+                  <select id="s2-preset" class="w-full px-3 py-2 border border-slate-300 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-semibold" onchange="applyS2Preset()">
+                    <option value="scen_json_valid">1. Trường hợp Chuẩn — Cập nhật CRUD & Stringify JSON hợp lệ</option>
+                    <option value="scen_nested_opt">2. Dữ liệu Phân cấp — Nested Object & Optional Chaining</option>
+                    <option value="scen_json_error">3. Bẫy Lỗi JSON — Chuỗi thiếu nháy kép & Bắt lỗi try...catch</option>
+                  </select>
+                </div>
+
+                <!-- Live Dynamic Input Fields -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">Mã NV:</label>
+                    <input type="text" id="s2-id" value="NV-2026" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-emerald-600 bg-white" oninput="runS2Engine()" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">KPI Cơ bản:</label>
+                    <input type="number" id="s2-baseKpi" value="80" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-emerald-600 bg-white" oninput="runS2Engine()" />
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">KPI Thưởng:</label>
+                    <input type="number" id="s2-bonusKpi" value="15" class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-emerald-600 bg-white" oninput="runS2Engine()" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-semibold text-slate-500 mb-1">Chuỗi JSON Payload từ Server (Thử sửa sai cú pháp để xem try...catch):</label>
+                  <input type="text" id="s2-jsonString" value='{"reward": 5000000, "approved": true}' class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-emerald-600 bg-white" oninput="runS2Engine()" />
+                </div>
+              </div>
+
+              <!-- Dedicated IDE Code Preview Block -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">crud_json_lesson2.js</span>
+                  </div>
+                  <span class="text-[10px] text-emerald-400 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                    REALTIME EVALUATION
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-xs text-slate-200 overflow-x-auto custom-scrollbar">
+                  <pre class="leading-relaxed whitespace-pre-wrap"><code id="s2-live-code">// Đang cập nhật mã nguồn...</code></pre>
+                </div>
+              </div>
+
+              <!-- Output Runtime Trace -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-xs">
+                <div class="text-xs font-bold text-slate-600 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ph-bold ph-terminal-window text-emerald-600"></i> Tiến trình Thực thi CRUD & JSON (Runtime Trace)
+                  </span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    REALTIME OUTPUT
+                  </span>
+                </div>
+                <div class="space-y-1.5 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s2-trace-box">
+                  <!-- Injected via JavaScript -->
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-200 gap-2 mt-2">
+                  <div class="min-w-0 flex-1">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">Chuỗi JSON Kết quả (JSON.stringify)</span>
+                    <span class="font-mono text-xs font-bold text-slate-800 break-all" id="s2-result-json">
+                      Đang xử lý...
+                    </span>
+                  </div>
+                  <span class="font-mono text-xs px-3 py-1 rounded-full font-bold self-start sm:self-auto shrink-0" id="s2-result-badge">
+                    Thành công
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+      <div class="max-w-[1680px] mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <span>© 2026 Rikkei Education — Bộ tiêu chuẩn Học liệu Giảng dạy Đại học & Kỹ sư Doanh nghiệp.</span>
+        <span class="font-semibold text-slate-600">Session 12 — JavaScript Object & JSON Master Slide Visualizer</span>
+      </div>
+    </footer>
+
+    <!-- ===== CLIENT-SIDE REALTIME EVALUATION JAVASCRIPT ENGINE ===== -->
+    <script>
+      // =========================================================================
+      // LESSON 01 ENGINE: OBJECT LITERAL & STACK VS HEAP MEMORY EVALUATION
+      // =========================================================================
+      function applyS1Preset() {
+        const preset = document.getElementById("s1-preset").value;
+        if (preset === "scen_standard") {
+          document.getElementById("s1-name").value = "Nguyễn Văn A";
+          document.getElementById("s1-completed").value = "85";
+          document.getElementById("s1-target").value = "100";
+          document.getElementById("s1-dynKey").value = "department";
+        } else if (preset === "scen_mutation") {
+          document.getElementById("s1-name").value = "Trần Thị B";
+          document.getElementById("s1-completed").value = "120";
+          document.getElementById("s1-target").value = "100";
+          document.getElementById("s1-dynKey").value = "branch";
+        } else if (preset === "scen_dynamic") {
+          document.getElementById("s1-name").value = "Lê Văn C";
+          document.getElementById("s1-completed").value = "60";
+          document.getElementById("s1-target").value = "0"; // Trigger divide by 0 gotcha
+          document.getElementById("s1-dynKey").value = "ma-so-thue";
+        }
+        runS1Engine();
+      }
+
+      function runS1Engine() {
+        const name = (document.getElementById("s1-name").value || "Ẩn danh").trim();
+        const completed = parseFloat(document.getElementById("s1-completed").value) || 0;
+        const target = parseFloat(document.getElementById("s1-target").value);
+        const dynKey = (document.getElementById("s1-dynKey").value || "role").trim();
+        const preset = document.getElementById("s1-preset").value;
+
+        // Update Memory RAM Layout UI
+        document.getElementById("s1-heap-name").innerText = `"${name}"`;
+        document.getElementById("s1-heap-completed").innerText = completed;
+        document.getElementById("s1-heap-target").innerText = isNaN(target) ? 0 : target;
+        document.getElementById("s1-heap-dynKey").innerText = `${dynKey}:`;
+
+        // Calculate Realtime Logic
+        let ratio = 0;
+        let isPass = false;
+        let isDivZero = (target === 0 || isNaN(target));
+
+        if (!isDivZero) {
+          ratio = (completed / target) * 100;
+          isPass = ratio >= 80;
+        }
+
+        // Generate Live Code
+        let codeText = `// 1. Khai báo Object Literal lưu trên Heap (Địa chỉ 0x7FFE01)\n`;
+        codeText += `const employee = {\n`;
+        codeText += `  fullName: "${name}",\n`;
+        codeText += `  completedKPI: ${completed},\n`;
+        codeText += `  targetKPI: ${isNaN(target) ? 0 : target}\n`;
+        codeText += `};\n\n`;
+        codeText += `// 2. Gán thuộc tính động bằng Bracket Notation\n`;
+        codeText += `employee["${dynKey}"] = "Phòng Kỹ thuật";\n\n`;
+        if (preset === "scen_mutation") {
+          codeText += `// 3. MINH HỌA BẪY THAM CHIẾU (Pass-by-reference):\n`;
+          codeText += `let shadowCopy = employee; // Cùng trỏ vào địa chỉ 0x7FFE01!\n`;
+          codeText += `shadowCopy.completedKPI = ${completed + 10}; // Làm biến đổi dữ liệu của employee gốc!\n`;
+        } else {
+          codeText += `// 3. Tính toán tỷ lệ hoàn thành KPI\n`;
+          codeText += `const ratio = (employee.completedKPI / employee.targetKPI) * 100;\n`;
+          codeText += `const isPass = ratio >= 80; // Kết quả: ${isPass ? 'Đạt' : 'Chưa đạt'}\n`;
+        }
+        document.getElementById("s1-live-code").innerText = codeText;
+
+        // Generate Dynamic Trace
+        let traceHtml = "";
+        traceHtml += `<div class="text-slate-700">> [Bước 1 - Heap Allocation]: Cấp phát đối tượng cho '${name}' tại vùng nhớ Heap (Pointer: 0x7FFE01).</div>`;
+        traceHtml += `<div class="text-slate-700">> [Bước 2 - Bracket Notation]: Gán động thuộc tính employee['${dynKey}'] = 'Phòng Kỹ thuật'.</div>`;
+        
+        if (preset === "scen_mutation") {
+          traceHtml += `<div class="text-rose-600 font-bold">> [Bước 3 - Mutation Trap]: Biến shadowCopy tham chiếu cùng ô nhớ 0x7FFE01. Sửa shadowCopy khiến điểm KPI gốc tăng lên ${completed + 10}!</div>`;
+        } else if (isDivZero) {
+          traceHtml += `<div class="text-amber-600 font-bold">> [Bước 3 - Gotcha Boundary]: Mục tiêu KPI = 0 khiến phép chia cho ra 'Infinity'. Cần kiểm tra điều kiện an toàn!</div>`;
+        } else {
+          traceHtml += `<div class="text-emerald-700">> [Bước 3 - KPI Ratio]: Tính toán tỷ lệ đạt ${ratio.toFixed(1)}% (${isPass ? 'ĐẠT CHỈ TIÊU' : 'CHƯA ĐẠT'}).</div>`;
+        }
+        document.getElementById("s1-trace-box").innerHTML = traceHtml;
+
+        // Update Evaluation Result
+        const resVal = document.getElementById("s1-result-val");
+        const resBadge = document.getElementById("s1-result-badge");
+
+        if (preset === "scen_mutation") {
+          resVal.innerText = `${name} | KPI Gốc Bị Đột Biến: ${completed + 10} | Pointer: 0x7FFE01`;
+          resBadge.innerText = "Bẫy Tham chiếu";
+          resBadge.className = "font-mono text-xs px-3 py-1 rounded-full font-bold bg-rose-100 text-rose-800 border border-rose-200";
+        } else if (isDivZero) {
+          resVal.innerText = `${name} | Tỷ lệ KPI: Infinity% (Mục tiêu 0)`;
+          resBadge.innerText = "Cảnh báo Lỗi";
+          resBadge.className = "font-mono text-xs px-3 py-1 rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-200";
+        } else {
+          resVal.innerText = `${name} | Đạt: ${ratio.toFixed(1)}% | Trạng thái: ${isPass ? 'Đạt' : 'Chưa đạt'}`;
+          resBadge.innerText = isPass ? "Đạt KPI" : "Chưa đạt";
+          resBadge.className = isPass
+            ? "font-mono text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"
+            : "font-mono text-xs px-3 py-1 rounded-full font-bold bg-slate-100 text-slate-800 border border-slate-300";
+        }
+      }
+
+      // =========================================================================
+      // LESSON 02 ENGINE: CRUD OPERATIONS, NESTED OBJECT & REAL JSON PARSER
+      // =========================================================================
+      function applyS2Preset() {
+        const preset = document.getElementById("s2-preset").value;
+        if (preset === "scen_json_valid") {
+          document.getElementById("s2-id").value = "NV-2026";
+          document.getElementById("s2-baseKpi").value = "80";
+          document.getElementById("s2-bonusKpi").value = "15";
+          document.getElementById("s2-jsonString").value = '{"reward": 5000000, "approved": true}';
+        } else if (preset === "scen_nested_opt") {
+          document.getElementById("s2-id").value = "NV-LEAD";
+          document.getElementById("s2-baseKpi").value = "90";
+          document.getElementById("s2-bonusKpi").value = "20";
+          document.getElementById("s2-jsonString").value = '{"department": {"name": "R&D", "lead": "Mr. Nam"}, "skills": ["JS", "React"]}';
+        } else if (preset === "scen_json_error") {
+          document.getElementById("s2-id").value = "NV-ERR";
+          document.getElementById("s2-baseKpi").value = "75";
+          document.getElementById("s2-bonusKpi").value = "10";
+          document.getElementById("s2-jsonString").value = '{reward: 5000000, approved: true}'; // Missing double quotes
+        }
+        runS2Engine();
+      }
+
+      function runS2Engine() {
+        const empId = (document.getElementById("s2-id").value || "NV-001").trim();
+        const baseKpi = parseFloat(document.getElementById("s2-baseKpi").value) || 0;
+        const bonusKpi = parseFloat(document.getElementById("s2-bonusKpi").value) || 0;
+        const jsonStr = document.getElementById("s2-jsonString").value;
+        const preset = document.getElementById("s2-preset").value;
+
+        const totalKpi = baseKpi + bonusKpi;
+
+        // Build Javascript Code Representation
+        let codeText = `// 1. Thao tác CRUD Thuộc tính\n`;
+        codeText += `const employee = {\n`;
+        codeText += `  id: "${empId}",\n`;
+        codeText += `  baseKpi: ${baseKpi},\n`;
+        codeText += `  tempNote: "Cần duyệt lại"\n`;
+        codeText += `};\n`;
+        codeText += `employee.bonusKpi = ${bonusKpi}; // Thêm thuộc tính mới\n`;
+        codeText += `employee.totalKpi = ${totalKpi};  // Cập nhật tổng KPI\n`;
+        codeText += `delete employee.tempNote;       // Xóa thuộc tính tạm thời\n\n`;
+
+        codeText += `// 2. Giải mã JSON với Khối Phòng vệ try...catch\n`;
+        codeText += `let serverData = {};\n`;
+        codeText += `try {\n`;
+        codeText += `  serverData = JSON.parse('${jsonStr.replace(/'/g, "\\'")}');\n`;
+        codeText += `  employee.serverPayload = serverData;\n`;
+        codeText += `} catch (err) {\n`;
+        codeText += `  console.error("Lỗi cú pháp JSON:", err.message);\n`;
+        codeText += `  employee.parseError = true;\n`;
+        codeText += `}\n\n`;
+
+        codeText += `// 3. Đóng gói ngược lại sang JSON Chuẩn\n`;
+        codeText += `const exportedJSON = JSON.stringify(employee);`;
+        document.getElementById("s2-live-code").innerText = codeText;
+
+        // Execute Real JSON Parse & Handle Real SyntaxError
+        let parseSuccess = false;
+        let parsedObj = null;
+        let parseErrMsg = "";
+
+        try {
+          parsedObj = JSON.parse(jsonStr);
+          parseSuccess = true;
+        } catch (e) {
+          parseErrMsg = e.message;
+        }
+
+        // Build Payload Object
+        const finalEmployeeObj = {
+          id: empId,
+          baseKpi: baseKpi,
+          bonusKpi: bonusKpi,
+          totalKpi: totalKpi,
+        };
+
+        if (parseSuccess && parsedObj) {
+          finalEmployeeObj.serverPayload = parsedObj;
+        } else {
+          finalEmployeeObj.error = "Invalid_JSON_Syntax";
+        }
+
+        const serializedOutput = JSON.stringify(finalEmployeeObj);
+
+        // Render Trace
+        let traceHtml = "";
+        traceHtml += `<div class="text-slate-700">> [CRUD Update]: Cập nhật totalKpi = ${totalKpi} (Cơ bản: ${baseKpi} + Thưởng: ${bonusKpi}).</div>`;
+        traceHtml += `<div class="text-slate-700">> [CRUD Delete]: Thực thi toán tử 'delete employee.tempNote' xóa hoàn toàn key khỏi Heap.</div>`;
+
+        if (parseSuccess) {
+          traceHtml += `<div class="text-emerald-700">> [JSON.parse Thành công]: Đã giải mã Payload từ Server an toàn vào đối tượng.</div>`;
+          if (preset === "scen_nested_opt") {
+            const deptName = parsedObj?.department?.name || "Chưa xác định";
+            traceHtml += `<div class="text-indigo-700">> [Optional Chaining (?.)]: emp.serverPayload?.department?.name ➔ '${deptName}'.</div>`;
+          }
+        } else {
+          traceHtml += `<div class="text-rose-600 font-bold">> [JSON.parse Thất bại]: Bắt được SyntaxError: ${parseErrMsg}. Khối try...catch đã ngăn sụp đổ ứng dụng!</div>`;
+        }
+
+        document.getElementById("s2-trace-box").innerHTML = traceHtml;
+        document.getElementById("s2-result-json").innerText = serializedOutput;
+
+        const resBadge = document.getElementById("s2-result-badge");
+        if (parseSuccess) {
+          resBadge.innerText = "JSON Hợp lệ";
+          resBadge.className = "font-mono text-xs px-3 py-1 rounded-full font-bold bg-emerald-100 text-emerald-800 border border-emerald-200";
+        } else {
+          resBadge.innerText = "Bắt lỗi try...catch";
+          resBadge.className = "font-mono text-xs px-3 py-1 rounded-full font-bold bg-rose-100 text-rose-800 border border-rose-200";
+        }
+      }
+
+      // =========================================================================
+      // SCROLLSPY & NAVIGATION HIGHLIGHT
+      // =========================================================================
+      function initScrollSpy() {
+        const sections = document.querySelectorAll("section[id]");
+        const navLinks = document.querySelectorAll("#toc-nav .toc-link");
+
+        function highlightNav() {
+          let scrollY = window.scrollY;
+          sections.forEach((sec) => {
+            const top = sec.offsetTop - 120;
+            const height = sec.offsetHeight;
+            const id = sec.getAttribute("id");
+
+            if (scrollY >= top && scrollY < top + height) {
+              navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href") === "#" + id) {
+                  link.classList.add("active");
+                }
+              });
+            }
+          });
+        }
+
+        window.addEventListener("scroll", highlightNav, { passive: true });
+        highlightNav();
+      }
+
+      // DOM Initialization
+      document.addEventListener("DOMContentLoaded", () => {
+        runS1Engine();
+        runS2Engine();
+        initScrollSpy();
+      });
+    </script>
+  </body>
+</html>

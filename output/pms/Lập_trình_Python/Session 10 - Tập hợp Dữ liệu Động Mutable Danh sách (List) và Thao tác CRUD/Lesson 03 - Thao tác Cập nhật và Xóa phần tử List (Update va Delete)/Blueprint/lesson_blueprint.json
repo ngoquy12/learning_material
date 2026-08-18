@@ -1,0 +1,65 @@
+{
+  "lesson_slug": "thao-tac-cap-nhat-va-xoa-phan-tu-list",
+  "lesson_title": "Thao tác Cập nhật và Xóa phần tử List (Update & Delete)",
+  "real_world_scenario": {
+    "name": "Hệ thống Quản lý Giỏ hàng E-commerce",
+    "description": "Trong các ứng dụng thương mại điện tử, danh sách sản phẩm trong giỏ hàng liên tục biến động. Người dùng có thể thay đổi số lượng hoặc phiên bản sản phẩm (cập nhật qua chỉ số), xóa sản phẩm không mong muốn (xóa theo giá trị với remove() hoặc theo vị trí với pop(), del), dọn dẹp toàn bộ giỏ hàng sau khi thanh toán (clear()), cũng như sắp xếp lại thứ tự hiển thị ưu tiên sản phẩm (sort(), reverse())."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Cập nhật giá trị phần tử qua chỉ số (Index Assignment)",
+      "description": "Truy cập trực tiếp vào vị trí phần tử thông qua chỉ số (index) và gán giá trị mới bằng toán tử gán (=). Giá trị cũ tại vị trí đó sẽ bị ghi đè hoàn toàn.",
+      "raw_code_snippet": "cart_prices = [1500, 25, 75, 50]\n# Cập nhật giá sản phẩm tại chỉ số 2 từ 75 thành 85\ncart_prices[2] = 85\nprint(cart_prices)  # Output: [1500, 25, 85, 50]"
+    },
+    {
+      "concept_name": "Các phương thức và từ khóa xóa phần tử (remove, pop, del, clear)",
+      "description": "Python cung cấp nhiều cơ chế xóa tùy theo mục đích: remove(x) xóa phần tử đầu tiên có giá trị x; pop(i) xóa phần tử tại chỉ số i và trả về giá trị bị xóa; del lst[i] xóa phần tử tại chỉ số i mà không trả về giá trị; clear() xóa sạch toàn bộ các phần tử trong danh sách.",
+      "raw_code_snippet": "cart_items = [\"Laptop\", \"Mouse\", \"Keyboard\", \"Headphones\"]\n\n# Xóa theo giá trị cụ thể\ncart_items.remove(\"Mouse\")\n\n# Xóa phần tử cuối cùng và lấy ra giá trị\nlast_item = cart_items.pop()\n\n# Xóa phần tử theo chỉ số vị trí bằng del\ndel cart_items[0]\n\n# Xóa sạch toàn bộ list\ncart_items.clear()\nprint(cart_items)  # Output: []"
+    },
+    {
+      "concept_name": "Các hàm và phương thức hỗ trợ sắp xếp và đo chiều dài (len, sort, reverse)",
+      "description": "Hàm len() trả về số lượng phần tử hiện có trong list. Phương thức sort() sắp xếp danh sách trực tiếp (in-place) theo thứ tự tăng dần hoặc giảm dần (với tham số reverse=True). Phương thức reverse() đảo ngược thứ tự các phần tử hiện tại trong list.",
+      "raw_code_snippet": "cart_prices = [45, 1200, 80, 25]\nprint(\"Số lượng:\", len(cart_prices))\n\n# Sắp xếp tăng dần\ncart_prices.sort()\nprint(\"Tăng dần:\", cart_prices)\n\n# Sắp xếp giảm dần\ncart_prices.sort(reverse=True)\nprint(\"Giảm dần:\", cart_prices)"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Thao tác cập nhật và xóa cơ bản trong giỏ hàng",
+      "requirement": "Khởi tạo danh sách sản phẩm và giá tương ứng trong giỏ hàng. Cập nhật lại giá cho một sản phẩm bị thay đổi thông tin, xóa một sản phẩm theo tên khỏi giỏ hàng, và lấy ra sản phẩm cuối cùng vừa được thêm.",
+      "raw_code": "# Danh sách tên sản phẩm và giá trong giỏ hàng\ncart_items = [\"Laptop\", \"Chuột không dây\", \"Bàn phím cơ\", \"Tai nghe\"]\ncart_prices = [1500, 25, 75, 50]\n\n# 1. Cập nhật giá sản phẩm \"Bàn phím cơ\" (ở chỉ số 2) lên 85 USD\ncart_prices[2] = 85\nprint(\"Danh sách giá sau khi cập nhật:\", cart_prices)\n\n# 2. Người dùng xóa sản phẩm \"Tai nghe\" khỏi giỏ hàng bằng remove()\ncart_items.remove(\"Tai nghe\")\nprint(\"Danh sách sản phẩm sau khi xóa 'Tai nghe':\", cart_items)\n\n# 3. Người dùng hoàn tác sản phẩm vừa thêm cuối cùng bằng pop()\nremoved_last_item = cart_items.pop()\nprint(f\"Đã xóa sản phẩm mới nhất: {removed_last_item}\")\nprint(\"Danh sách sản phẩm còn lại:\", cart_items)"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Kiểm tra an toàn trước khi xóa và áp dụng mã giảm giá",
+      "requirement": "Viết chương trình kiểm tra xem một sản phẩm có tồn tại trong giỏ hàng hay không trước khi xóa để tránh lỗi. Đồng thời cập nhật giảm giá 10% cho toàn bộ sản phẩm và sắp xếp lại danh sách giá giảm dần.",
+      "raw_code": "cart_items = [\"Laptop\", \"Chuột không dây\", \"Bàn phím cơ\", \"Màn hình 4K\"]\ncart_prices = [1500.0, 25.0, 85.0, 400.0]\n\ntarget_item = \"Chuột không dây\"\n\n# Kiểm tra tồn tại trước khi xóa tránh lỗi ValueError\nif target_item in cart_items:\n    index_to_remove = cart_items.index(target_item)\n    cart_items.remove(target_item)\n    removed_price = cart_prices.pop(index_to_remove)\n    print(f\"Đã xóa '{target_item}' có giá {removed_price} USD thành công.\")\nelse:\n    print(f\"Sản phẩm '{target_item}' không có trong giỏ hàng.\")\n\n# Áp dụng voucher giảm giá 10% cho tất cả sản phẩm còn lại\nfor i in range(len(cart_prices)):\n    cart_prices[i] = cart_prices[i] * 0.9\n\n# Sắp xếp danh sách giá theo thứ tự giảm dần để hiển thị giá đắt nhất lên đầu\ncart_prices.sort(reverse=True)\n\nprint(\"Danh sách sản phẩm:\", cart_items)\nprint(\"Danh sách giá sau giảm 10% (giảm dần):\", cart_prices)"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Quy trình lọc giỏ hàng và thanh toán đơn hàng hoàn chỉnh",
+      "requirement": "Xử lý giỏ hàng chứa các sản phẩm không hợp lệ (giá bằng 0 hoặc bị hỏng). Duyệt danh sách để lọc xóa các sản phẩm lỗi, đảo ngược danh sách theo thứ tự hiển thị gian hàng, kiểm tra độ dài tổng quát và làm sạch (clear) giỏ hàng sau khi hoàn thành đơn thanh toán.",
+      "raw_code": "cart_items = [\"Laptop\", \"Tai nghe hỏng\", \"Bàn phím cơ\", \"Quà tặng hết hàng\", \"Màn hình 4K\"]\ncart_prices = [1500, 0, 85, 0, 400]\n\nprint(f\"Tổng số sản phẩm ban đầu: {len(cart_items)}\")\n\n# Duyệt ngược danh sách từ cuối lên đầu để xóa an toàn các sản phẩm có giá bằng 0\ni = len(cart_prices) - 1\nwhile i >= 0:\n    if cart_prices[i] == 0:\n        invalid_product = cart_items.pop(i)\n        cart_prices.pop(i)\n        print(f\"[CẢNH BÁO] Đã tự động loại bỏ sản phẩm không hợp lệ: {invalid_product}\")\n    i -= 1\n\n# Đảo ngược danh sách sản phẩm để hiển thị mặt hàng mới nhất lên trên\ncart_items.reverse()\ncart_prices.reverse()\n\nprint(\"\\n--- THÔNG TIN GIỎ HÀNG XÁC NHẬN ---\")\nprint(\"Sản phẩm:\", cart_items)\nprint(\"Đơn giá tương ứng:\", cart_prices)\nprint(\"Số lượng mặt hàng thanh toán:\", len(cart_items))\n\n# Giả lập hành vi khách hàng nhấn nút 'Thanh toán thành công'\ncart_items.clear()\ncart_prices.clear()\n\nprint(\"\\nTrạng thái giỏ hàng sau thanh toán:\")\nprint(\"Mặt hàng:\", cart_items)\nprint(\"Đơn giá:\", cart_prices)"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lỗi ValueError khi xóa phần tử không tồn tại bằng remove()",
+      "explanation": "Khi gọi phương thức remove(x), nếu giá trị x không nằm trong danh sách, Python sẽ lập tức tung ra lỗi ValueError và dừng chương trình. Cần dùng toán tử 'in' để kiểm tra trước khi thực hiện xóa.",
+      "code_bad": "cart_items = [\"Laptop\", \"Mouse\"]\n# Sản phẩm 'Camera' không có trong list -> Gây ra ValueError!\ncart_items.remove(\"Camera\")",
+      "code_good": "cart_items = [\"Laptop\", \"Mouse\"]\ntarget = \"Camera\"\nif target in cart_items:\n    cart_items.remove(target)\nelse:\n    print(f\"Không tìm thấy {target} để xóa.\")"
+    },
+    {
+      "error_name": "Lỗi IndexError khi truy cập hoặc pop() chỉ số nằm ngoài phạm vi",
+      "explanation": "Truy cập cart_items[index] hoặc cart_items.pop(index) với index >= len(cart_items) hoặc index < -len(cart_items) sẽ gây lỗi IndexError.",
+      "code_bad": "cart_items = [\"Laptop\", \"Mouse\"]\n# List chỉ có 2 phần tử (chỉ số 0 và 1), truy cập chỉ số 5 gây lỗi!\ncart_items[5] = \"Keyboard\"",
+      "code_good": "cart_items = [\"Laptop\", \"Mouse\"]\nindex = 5\nif index < len(cart_items):\n    cart_items[index] = \"Keyboard\"\nelse:\n    print(f\"Chỉ số {index} vượt quá chiều dài danh sách ({len(cart_items)}).\")"
+    },
+    {
+      "error_name": "Hiểu lầm giá trị trả về của phương thức sort() và reverse()",
+      "explanation": "Các phương thức sort() và reverse() thực hiện biến đổi trực tiếp trên list gốc (in-place) và trả về None. Nếu gán kết quả của chúng cho một biến khác, biến đó sẽ nhận giá trị None thay vì danh sách đã sắp xếp.",
+      "code_bad": "cart_prices = [100, 50, 200]\n# Gán thế này làm biến sorted_prices nhận giá trị None!\nsorted_prices = cart_prices.sort()\nprint(sorted_prices)  # Output: None",
+      "code_good": "cart_prices = [100, 50, 200]\n# Sắp xếp trực tiếp trên list gốc\ncart_prices.sort()\nprint(cart_prices)  # Output: [50, 100, 200]"
+    }
+  ]
+}

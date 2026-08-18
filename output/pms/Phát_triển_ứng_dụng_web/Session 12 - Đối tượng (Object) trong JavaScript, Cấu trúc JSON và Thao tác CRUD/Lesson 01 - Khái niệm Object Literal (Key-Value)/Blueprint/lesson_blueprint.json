@@ -1,0 +1,65 @@
+{
+  "lesson_slug": "khai-niem-object-literal-key-value",
+  "lesson_title": "Khái niệm Object Literal (Key-Value)",
+  "real_world_scenario": {
+    "name": "Hệ thống Quản lý Sản phẩm E-commerce",
+    "description": "Xây dựng cấu trúc dữ liệu lưu trữ và truy cập thông tin chi tiết của một sản phẩm trong ứng dụng bán hàng trực tuyến (bao gồm mã sản phẩm, tên, giá bán, thông số kỹ thuật và các thuộc tính động)."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Cấu trúc Object Literal và cặp Key-Value",
+      "description": "Object Literal là một tập hợp các cặp khóa (key) và giá trị (value) được bao bọc bởi cặp dấu ngoặc nhọn {}. Khóa là một chuỗi (hoặc symbol), còn giá trị có thể là bất kỳ kiểu dữ liệu nào trong JavaScript.",
+      "raw_code_snippet": "// Khai báo đối tượng thông tin sản phẩm\nconst productInfo = {\n  productId: \"PRD-10293\",\n  productName: \"Tai nghe Bluetooth Wireless X\",\n  originalPrice: 1500000,\n  inStock: true\n};\n\nconsole.log(productInfo);"
+    },
+    {
+      "concept_name": "Truy cập thuộc tính bằng Dot Notation (.)",
+      "description": "Cú pháp dấu chấm được sử dụng để truy cập trực tiếp giá trị của thuộc tính khi tên khóa tuân theo quy tắc đặt tên biến chuẩn trong JavaScript (không chứa khoảng trắng hay ký tự đặc biệt).",
+      "raw_code_snippet": "const productInfo = {\n  productId: \"PRD-10293\",\n  productName: \"Tai nghe Bluetooth Wireless X\",\n  price: 1500000\n};\n\n// Truy cập thuộc tính bằng Dot Notation\nconsole.log(\"Tên sản phẩm:\", productInfo.productName);\nconsole.log(\"Giá bán:\", productInfo.price);"
+    },
+    {
+      "concept_name": "Truy cập thuộc tính bằng Bracket Notation ([])",
+      "description": "Cú pháp ngoặc vuông được sử dụng khi tên khóa chứa ký tự đặc biệt, khoảng trắng, bắt đầu bằng chữ số hoặc khi tên khóa được truyền dưới dạng một biến số (truy cập động).",
+      "raw_code_snippet": "const productInfo = {\n  \"product-code\": \"PRD-10293\",\n  \"shipping fee\": 30000,\n  price: 1500000\n};\n\n// Truy cập khóa có ký tự đặc biệt hoặc khoảng trắng\nconsole.log(\"Mã sản phẩm:\", productInfo[\"product-code\"]);\n\n// Truy cập thuộc tính thông qua tên biến động\nconst targetField = \"shipping fee\";\nconsole.log(\"Phí vận chuyển:\", productInfo[targetField]);"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Khai báo và truy cập dữ liệu sản phẩm cơ bản",
+      "requirement": "Khai báo một đối tượng sản phẩm laptop với các thuộc tính định danh và giá trị cơ bản, sau đó in các thông tin này ra màn hình console bằng Dot Notation.",
+      "raw_code": "// Khai báo đối tượng sản phẩm laptop\nconst laptopProduct = {\n  id: \"LAPTOP-PRO-16\",\n  name: \"Laptop Pro 16 inch\",\n  brand: \"TechBrand\",\n  price: 32000000,\n  isAvailable: true\n};\n\n// Truy cập các thuộc tính bằng Dot Notation\nconsole.log(\"--- THÔNG TIN SẢN PHẨM ---\");\nconsole.log(\"Mã sản phẩm:\", laptopProduct.id);\nconsole.log(\"Tên sản phẩm:\", laptopProduct.name);\nconsole.log(\"Thương hiệu:\", laptopProduct.brand);\nconsole.log(\"Giá niêm yết:\", laptopProduct.price);\nconsole.log(\"Trạng thái còn hàng:\", laptopProduct.isAvailable);"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Truy cập thuộc tính có ký tự đặc biệt và sử dụng biến động",
+      "requirement": "Mở rộng đối tượng sản phẩm nhập khẩu với các thuộc tính chứa ký tự đặc biệt (gạch ngang, khoảng trắng) và thực hành truy cập thông qua tên biến dynamic.",
+      "raw_code": "// Khai báo sản phẩm nhập khẩu có các thuộc tính đặc thù\nconst importedProduct = {\n  id: \"IMP-8892\",\n  \"product-sku-code\": \"SKU-VN-2026-X\",\n  \"import tax percentage\": 10,\n  price: 25000000\n};\n\n// 1. Truy cập thuộc tính chứa ký tự đặc biệt bằng Bracket Notation\nconsole.log(\"Mã SKU:\", importedProduct[\"product-sku-code\"]);\nconsole.log(\"Thuế nhập khẩu (%):\", importedProduct[\"import tax percentage\"]);\n\n// 2. Truy cập thuộc tính động thông qua một biến chứa tên khóa\nconst queryKey = \"import tax percentage\";\nconsole.log(\"Giá trị truy vấn động cho '\" + queryKey + \"':\", importedProduct[queryKey]);"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Hàm truy vấn thuộc tính sản phẩm an toàn cho hệ thống",
+      "requirement": "Viết một hàm nhận vào đối tượng sản phẩm và tên thuộc tính cần đọc, trả về giá trị thuộc tính tương ứng hoặc thông báo lỗi an toàn nếu thuộc tính đó chưa được định nghĩa (undefined).",
+      "raw_code": "// Đối tượng dữ liệu sản phẩm chi tiết trong hệ thống\nconst detailProduct = {\n  id: \"PHONE-FLAGSHIP-01\",\n  name: \"Điện thoại Flagship Ultra\",\n  price: 29990000,\n  \"warranty-period\": \"24 tháng\",\n  \"warehouse-location\": \"Kho A - Tầng 2\"\n};\n\n// Hàm truy cập thuộc tính an toàn dùng Bracket Notation\nfunction getProductAttribute(product, attributeKey) {\n  const attributeValue = product[attributeKey];\n\n  // Kiểm tra nếu thuộc tính không tồn tại trong đối tượng\n  if (attributeValue === undefined) {\n    return \"[WARNING] Thuộc tính '\" + attributeKey + \"' không tồn tại trên sản phẩm.\";\n  }\n\n  return attributeValue;\n}\n\n// Kiểm tra với các thuộc tính hợp lệ\nconsole.log(\"Thời gian bảo hành:\", getProductAttribute(detailProduct, \"warranty-period\"));\nconsole.log(\"Vị trí kho:\", getProductAttribute(detailProduct, \"warehouse-location\"));\n\n// Kiểm tra trường hợp thuộc tính không tồn tại\nconsole.log(\"Mô tả sản phẩm:\", getProductAttribute(detailProduct, \"description\"));"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lỗi cú pháp khi dùng Dot Notation với tên khóa chứa ký tự đặc biệt",
+      "explanation": "Cú pháp Dot Notation (.) chỉ hợp lệ khi tên khóa đúng quy tắc đặt tên biến (không có khoảng trắng, dấu gạch ngang hoặc bắt đầu bằng số). Sử dụng Dot Notation với các tên khóa này sẽ gây ra lỗi SyntaxError.",
+      "code_bad": "const product = {\n  \"product-id\": \"PRD-01\"\n};\n\n// LỖI: SyntaxError: Unexpected token '-'\nconsole.log(product.product-id);",
+      "code_good": "const product = {\n  \"product-id\": \"PRD-01\"\n};\n\n// ĐÚNG: Sử dụng Bracket Notation cho tên khóa có dấu gạch ngang\nconsole.log(product[\"product-id\"]);"
+    },
+    {
+      "error_name": "Nhầm lẫn giữa tên biến và chuỗi ký tự trong Bracket Notation",
+      "explanation": "Khi truyền một từ vào trong cặp ngoặc vuông `[]` mà không có dấu báo chuỗi (báo bằng `\"\"` hoặc `''`), JavaScript sẽ coi đó là tên một biến. Nếu biến đó chưa được khai báo, chương trình sẽ báo lỗi `ReferenceError`.",
+      "code_bad": "const product = {\n  price: 500000\n};\n\n// LỖI: ReferenceError: price is not defined\nconsole.log(product[price]);",
+      "code_good": "const product = {\n  price: 500000\n};\n\n// ĐÚNG: Đặt tên khóa trong dấu ngoặc báo chuỗi\nconsole.log(product[\"price\"]);\n\n// HOẶC ĐÚNG: Khai báo biến chứa chuỗi tên khóa trước khi truyền vào\nconst priceKey = \"price\";\nconsole.log(product[priceKey]);"
+    },
+    {
+      "error_name": "Gọi phương thức hoặc thuộc tính con trên giá trị undefined",
+      "explanation": "Truy cập một thuộc tính không tồn tại trên Object sẽ trả về `undefined`. Nếu tiếp tục truy cập thuộc tính con hoặc gọi phương thức trên giá trị `undefined` đó, chương trình sẽ phát sinh lỗi `TypeError` làm dừng ứng dụng.",
+      "code_bad": "const product = {\n  name: \"Áo sơ mi\"\n};\n\n// LỖI: TypeError: Cannot read properties of undefined (reading 'toUpperCase')\nconsole.log(product.category.toUpperCase());",
+      "code_good": "const product = {\n  name: \"Áo sơ mi\"\n};\n\n// ĐÚNG: Kiểm tra thuộc tính tồn tại trước khi thao tác\nif (product.category !== undefined) {\n  console.log(product.category.toUpperCase());\n} else {\n  console.log(\"[NOTE] Thuộc tính 'category' không tồn tại.\");\n}"
+    }
+  ]
+}

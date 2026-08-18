@@ -4,7 +4,7 @@ Dynamic Model Tier Router for Antigravity API Proxy Infrastructure.
 Automatically maps agent tasks into 3 execution tiers:
 - Tier 1 (Fast & Light): Fast validation, linting, keyword extraction, summaries.
 - Tier 2 (High Reasoning): Pedagogical creation (reading, slides, quizzes, scope calculation).
-- Tier 3 (Deep Context & Code): Enterprise code generation & HyperFrames GSAP video scripts (with Context Caching).
+- Tier 3 (Deep Context & Code): Enterprise code generation (with Context Caching).
 
 STRICT CONTRACT: Transparent infrastructure optimization only. ZERO mutation to Agent business logic.
 """
@@ -41,19 +41,18 @@ AGENT_TIER_REGISTRY: Dict[str, str] = {
     "syntax_linter": TIER_1_FAST,
     "tts_normalizer": TIER_1_FAST,
     "session_compiler_validator": TIER_1_FAST,
-    "hyperframes_validator": TIER_1_FAST,
     "html_ux_reviewer": TIER_1_FAST,
     "mindmap_reviewer": TIER_1_FAST,
     
-    # Tier 3: High Context & Complex Code / Video Scripts (gemini-3.6-flash-high / gemini-3.1-pro)
+    # Tier 3: High Context & Complex Code (gemini-3.6-flash-high / gemini-3.1-pro)
     "enterprise_code_section_3": TIER_3_DEEP_CONTEXT,
-    "hyperframes_writer_agent": TIER_3_DEEP_CONTEXT,
-    "video_script_generator": TIER_3_DEEP_CONTEXT,
-    "session_video_script_agent": TIER_3_DEEP_CONTEXT,
     
     # Tier 2: Standard & Pro Pedagogical Creators (gemini-3.6-flash-high / gemini-3.1-pro)
     "reading_creator": TIER_2_REASONING,
     "html_writer_agent": TIER_2_REASONING,
+    "classroom_lecture_generator": TIER_2_REASONING,
+    "classroom_lecture_creator": TIER_2_REASONING,
+    "classroom_lecture_agent": TIER_2_REASONING,
     "slide_creator": TIER_2_REASONING,
     "slide_agent": TIER_2_REASONING,
     "quiz_creator": TIER_2_REASONING,
@@ -101,7 +100,7 @@ class AntigravityLLMRouter:
             return TIER_1_FAST
             
         # Deep context keywords for Tier 3
-        if any(kw in normalized_name for kw in ["video_script", "hyperframe", "section_3_code"]):
+        if any(kw in normalized_name for kw in ["section_3_code", "enterprise_code"]):
             return TIER_3_DEEP_CONTEXT
             
         return TIER_2_REASONING

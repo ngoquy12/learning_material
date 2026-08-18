@@ -70,7 +70,7 @@ MANDATORY PEDAGOGICAL EXECUTION DIRECTIVES:
    - SINGLE CONCEPT PER LESSON DIRECTIVE (ATOMIC PURITY):
      * Each lesson title MUST describe exactly ONE focused technical concept or mechanism. If a title contains the conjunction "và" (and) joining TWO DISTINCT major concepts (e.g. "X và Y" where X and Y are independently learnable topics), it MUST be split into 2 separate atomic lessons.
      * Heuristic: If the two halves of a lesson title can each independently require >10 minutes of explanation + code examples, they are DISTINCT concepts and MUST be separated.
-     * Examples of FORBIDDEN multi-concept titles: "switch-case và Toán tử Ba ngôi Ternary", "List Comprehension và Lambda Function", "Decorator và Generator", "Authentication và Authorization".
+     * Examples of FORBIDDEN multi-concept titles: "switch-case và Toán tử Ba ngôi Ternary", "Higher-Order Functions và Lambda Expressions", "Decorator / Annotations và Reflection", "Authentication và Authorization".
      * Examples of ACCEPTABLE compound titles (same concept family): "Toán tử Số học và Toán tử Gán" (same operator family), "git add và git status" (same workflow stage).
      * This directive applies universally to ALL courses and ALL technology stacks.
      * Session 02 Example (5 Atomic Lessons Breakdown):
@@ -86,7 +86,7 @@ MANDATORY PEDAGOGICAL EXECUTION DIRECTIVES:
 
 2. DYNAMIC COGNITIVE PACING & ADVANCED TOPICS DEFERRAL DIRECTIVE:
    - Light Theory: Allow max 2 consecutive light theory sessions before a mandatory Practical Lab.
-   - ADVANCED TOPICS DEFERRAL: Advanced auxiliary topics not required for basic logic (e.g. Unit Testing frameworks like Pytest/JUnit/Jest, advanced linters, advanced debugging suites, complex design patterns) MUST BE DEFERRED TO THE SECOND HALF OR END OF THE COURSE.
+   - ADVANCED TOPICS DEFERRAL: Advanced auxiliary topics not required for basic logic (e.g. Unit Testing frameworks like Pytest/JUnit/Jest/Mocha, advanced linters, advanced debugging suites, complex design patterns) MUST BE DEFERRED TO THE SECOND HALF OR END OF THE COURSE.
    - Early sessions MUST strictly focus on foundational pillars of the target technology stack.
    - Final Session N MUST be the Final Exam ("Thi thực hành" or "Thi cuối môn").
    - Practice sessions MUST use real-world enterprise scenarios, NOT dry academic tasks.
@@ -110,9 +110,9 @@ MANDATORY PEDAGOGICAL EXECUTION DIRECTIVES:
    - CONCRETE REPLACEMENT EXAMPLES (APPLY GLOBALLY TO ALL STACKS):
      * ❌ FORBIDDEN: "Vấn đề tính toán dữ liệu với toán tử số học và toán tử gán" ➔ ✅ CORRECT: "Toán tử Số học và Toán tử Gán"
      * ❌ FORBIDDEN: "Tư duy Lập trình Hướng đối tượng Lớp và Đối tượng" ➔ ✅ CORRECT: "Lập trình Hướng đối tượng (OOP): Lớp (Class) và Đối tượng (Object)"
-     * ❌ FORBIDDEN: "Vấn đề rẽ nhánh điều kiện trong lập trình" ➔ ✅ CORRECT: "Cấu trúc Điều kiện và Rẽ nhánh decision với if, elif, else"
-     * ❌ FORBIDDEN: "Tìm hiểu về vòng lặp for và range" ➔ ✅ CORRECT: "Vòng lặp for và Hàm range()"
-     * ❌ FORBIDDEN: "Cách dùng hàm và phạm vi biến" ➔ ✅ CORRECT: "Hàm (Function), Tham số và Phạm vi Biến"
+     * ❌ FORBIDDEN: "Vấn đề rẽ nhánh điều kiện trong lập trình" ➔ ✅ CORRECT: "Cấu trúc Điều kiện và Rẽ nhánh (if/else, switch-case, match)"
+     * ❌ FORBIDDEN: "Tìm hiểu về vòng lặp for và range" ➔ ✅ CORRECT: "Cấu trúc Vòng lặp và Cơ chế Lặp tuần tự (for, while, foreach)"
+     * ❌ FORBIDDEN: "Cách dùng hàm và phạm vi biến" ➔ ✅ CORRECT: "Hàm và Chương trình con (Functions / Methods), Tham số và Phạm vi Biến (Scope)"
 
 3. NO LESSONS FOR NON-THEORY SESSIONS DIRECTIVE:
    - ABSOLUTELY FORBIDDEN to create sub-lessons for non-theory sessions ("Thực hành", "Mini project", "Project", "Hackathon", "Thi giữa môn", "Thi cuối môn"). The "lessons" array for these sessions MUST be empty `[]`.
@@ -294,17 +294,16 @@ def _validate_prerequisite_chain(pm_data: List[Dict[str, Any]]) -> tuple:
                 f"Session {s.get('session_num', '?')} là Thực hành nhưng chưa có buổi Lý thuyết kỹ thuật nào trước đó."
             )
 
-    # Rule 7: Theory sessions must not exceed 4 lessons
+    # Rule 7: Theory sessions must not exceed 7 lessons
     for s in pm_data:
         ht = str(s.get("hinh_thuc", "")).strip()
         lessons = s.get("lessons", [])
-        if "Lý thuyết" in ht and len(lessons) > 4:
+        if "Lý thuyết" in ht and len(lessons) > 7:
             errors.append(
-                f"Session {s.get('session_num', '?')} (Lý thuyết) có {len(lessons)} lessons — vượt quá giới hạn tối đa 4."
+                f"Session {s.get('session_num', '?')} (Lý thuyết) có {len(lessons)} lessons — vượt quá giới hạn tối đa 7."
             )
 
     # Rule 8: Session numbers must be strictly sequential (1, 2, 3, ...)
-    # This catches Part1+Part2 merge bugs where sessions restart numbering
     expected_num = 1
     for s in pm_data:
         actual = s.get("session_num", -1)
@@ -315,6 +314,84 @@ def _validate_prerequisite_chain(pm_data: List[Dict[str, Any]]) -> tuple:
             )
             break
         expected_num += 1
+
+    # Rule 9: Strict Non-Theory Adjacency Isolation
+    prev_ht = ""
+    for s in pm_data:
+        ht = str(s.get("hinh_thuc", "")).strip()
+        snum = s.get("session_num", "?")
+        if "Thực hành" in ht and "Thực hành" in prev_ht:
+            errors.append(f"Session {snum} vi phạm: Không được xếp 2 buổi Thực hành liên tiếp ({prev_ht} -> {ht}).")
+        if ("Thực hành" in ht and "Mini project" in prev_ht) or ("Mini project" in ht and "Thực hành" in prev_ht):
+            errors.append(f"Session {snum} vi phạm: Buổi Thực hành và Mini Project không được đứng kề nhau.")
+        if "Mini project" in ht and "Mini project" in prev_ht:
+            errors.append(f"Session {snum} vi phạm: Không được xếp 2 buổi Mini Project liên tiếp.")
+        prev_ht = ht
+
+    # Rule 10: Topological Canonical Concept Sequencing (Language & Domain Agnostic)
+    known_concepts = set()
+    for s in pm_data:
+        snum = s.get("session_num", 0)
+        for l in s.get("lessons", []):
+            ltitle = l.get("title", "").lower()
+            lscope = l.get("content_scope", "").lower()
+            full_text = f"{ltitle} {lscope}"
+
+            # Check: Conditionals / Branching require Variables / Primitives / Setup
+            if any(k in full_text for k in ["rẽ nhánh", "điều kiện", "conditional", "branching", "if/else", "switch", "case", "match"]):
+                if not any(k in known_concepts for k in ["variable", "biến", "primitive", "environment", "setup", "môi trường"]):
+                    errors.append(f"Session {snum} (Lesson {l.get('lesson_num')}): Dạy cấu trúc rẽ nhánh/điều kiện nhưng chưa học Biến, Kiểu dữ liệu hoặc Môi trường cơ bản trước đó.")
+                known_concepts.add("conditional")
+
+            # Check: Loops / Iteration require Variables or Basic Control Flow
+            if any(k in full_text for k in ["vòng lặp", "cấu trúc lặp", "loop", "iteration", "for", "while"]):
+                if not any(k in known_concepts for k in ["variable", "biến", "primitive", "toán tử", "operator"]):
+                    errors.append(f"Session {snum} (Lesson {l.get('lesson_num')}): Dạy Vòng lặp/Iteration nhưng chưa học Biến & Toán tử trước đó.")
+                known_concepts.add("loop")
+
+            # Check: Functions / Methods / Procedures require Syntax & Flow
+            if any(k in full_text for k in ["hàm", "function", "chương trình con", "method", "subprogram", "procedure"]):
+                if not any(k in known_concepts for k in ["variable", "biến", "conditional", "loop", "cú pháp", "primitive"]):
+                    errors.append(f"Session {snum} (Lesson {l.get('lesson_num')}): Dạy Hàm/Chương trình con nhưng chưa học Cú pháp & Luồng điều khiển cơ bản trước đó.")
+                known_concepts.add("function")
+
+            # Check: OOP / Classes require Modular Foundations
+            if any(k in full_text for k in ["hướng đối tượng", "oop", "lớp", "class", "đối tượng", "object-oriented", "kế thừa", "đa hình"]):
+                if not any(k in known_concepts for k in ["function", "hàm", "cấu trúc dữ liệu", "collection", "variable", "biến"]):
+                    errors.append(f"Session {snum} (Lesson {l.get('lesson_num')}): Dạy Lập trình Hướng đối tượng (OOP) nhưng chưa học Cấu trúc dữ liệu hoặc Hàm trước đó.")
+                known_concepts.add("oop")
+
+            if any(k in full_text for k in ["biến", "kiểu dữ liệu", "khởi tạo biến", "nhập xuất", "variable", "primitive", "data type", "cài đặt môi trường", "setup"]):
+                known_concepts.add("variable")
+
+    # Rule 11: Measurable Bloom Verbs in expected_outcome
+    vague_verbs = ["hiểu rõ", "nắm vững", "làm quen", "biết về", "tìm hiểu", "nghiên cứu"]
+    for s in pm_data:
+        snum = s.get("session_num", "?")
+        for l in s.get("lessons", []):
+            outcome = l.get("expected_outcome", "").lower()
+            for vv in vague_verbs:
+                if vv in outcome:
+                    errors.append(
+                        f"Session {snum} (Lesson {l.get('lesson_num')}): expected_outcome chứa động từ mơ hồ '{vv}'. "
+                        f"Bắt buộc thay bằng động từ Bloom đo lường được ('Khai báo...', 'Thực thi...', 'Phân tích...', 'Xử lý...')."
+                    )
+
+    # Rule 12: Non-empty & Non-generic Allowed/Forbidden Scope
+    for s in pm_data:
+        snum = s.get("session_num", "?")
+        for l in s.get("lessons", []):
+            lnum = l.get("lesson_num", "?")
+            f_scope = l.get("forbidden_scope", "").strip()
+            a_scope = l.get("allowed_scope", "").strip()
+            if not f_scope:
+                errors.append(f"Session {snum} (Lesson {lnum}): forbidden_scope bị bỏ trống.")
+            elif any(gen in f_scope.lower() for gen in ["kiến thức chưa học", "phần nâng cao", "v.v"]):
+                errors.append(f"Session {snum} (Lesson {lnum}): forbidden_scope chứa cụm từ chung chung. Bắt buộc liệt kê cụ thể các từ khóa/khái niệm cấm.")
+            if not a_scope:
+                errors.append(f"Session {snum} (Lesson {lnum}): allowed_scope bị bỏ trống.")
+            elif "các bài trước" in a_scope.lower():
+                errors.append(f"Session {snum} (Lesson {lnum}): allowed_scope chứa cụm từ chung chung. Bắt buộc liệt kê cụ thể các kiến thức đã tích lũy.")
 
     is_valid = len(errors) == 0
     return is_valid, errors
@@ -406,7 +483,7 @@ def generate_curriculum_pm(
         # Part 1: sessions 1 to half
         part1_instruction = f"""Design PART 1: EXACTLY the first {half} Sessions (Session 01 to Session {half:02d}).
 MANDATORY Course Opening Session Allocation Rules:
-- Session 01 is Orientation & Roadmap (Theory), no technical coding or SRS parsing. Lesson 03 MUST be "Demo sản phẩm thực tế sẽ đạt được sau khi kết thúc môn học & Kỳ vọng đầu ra".
+- Session 01 is Orientation & Roadmap (Theory), no technical coding or SRS parsing. EXACTLY 1 consolidated lesson: "Tổng quan lộ trình và Demo sản phẩm".
 - Session 02 MUST be Technical Theory Session 1 (ALLOW UP TO 4-5 ATOMIC LESSONS): Lesson 01 (Technology Overview), Lesson 02 (Comprehensive Tooling Setup), Lesson 03 (First Application Execution & Hello World Boilerplate), Lesson 04 (Variable Declaration, Naming Conventions & Primitive Data Types), Lesson 05 (Console Input/Output Operations & Type Conversion).
 - Session 03 is the FIRST Practical Lab Session ("Thực hành") practicing Session 02 foundational concepts (Tooling Setup, Variables & Console I/O).
 - ADVANCED TOPIC DEFERRAL: Unit Testing frameworks, advanced linters, and testing suites MUST BE DEFERRED to the second half (Sessions 17-23). Early sessions MUST strictly focus on basic syntax and primitives.
@@ -761,10 +838,21 @@ def export_pm_package(
         tech_stack=tech_stack,
     )
 
+    # 3. Export Prerequisite Guard DAG Report
+    prereq_filepath = str(course_dir / "prerequisite_report.md")
+    try:
+        from agents.prerequisite_guard_agent import prerequisite_guard_agent
+        guard_res = prerequisite_guard_agent(pm_data, tech_stack=tech_stack, strict_mode=False)
+        with open(prereq_filepath, "w", encoding="utf-8") as f:
+            f.write(guard_res.get("report", ""))
+    except Exception as e:
+        print(f"  [Warning] Prerequisite report export error: {e}")
+
     return {
         "course_dir": str(course_dir),
         "md_filepath": md_filepath,
         "excel_filepath": excel_filepath,
+        "prereq_filepath": prereq_filepath,
     }
 
 

@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Tổng quan JavaScript và Cơ chế V8 Engine - Rikkei Education
+    </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1680px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+
+    <style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      #viz-terminal-log::-webkit-scrollbar {
+        width: 5px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-track {
+        background: #020617;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram,
+      svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text,
+      svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg,
+      section svg,
+      article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* 3. CODE BLOCK FIXES */
+      pre code {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: #0f172a !important;
+      }
+      p,
+      li,
+      td,
+      th {
+        color: #334155 !important;
+      }
+      .toc-link,
+      .mobile-toc-link {
+        color: #475569 !important;
+      }
+      .toc-link:hover,
+      .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *,
+      .bg-rose-50 *,
+      .bg-emerald-50 *,
+      .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p,
+      [id*="mech"] div,
+      [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line),
+      [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw {
+        color: #cf222e !important;
+        font-weight: bold !important;
+      }
+      .str {
+        color: #0a3069 !important;
+      }
+      .num {
+        color: #0550ae !important;
+        font-weight: 600 !important;
+      }
+      .fn {
+        color: #8250df !important;
+        font-weight: 600 !important;
+      }
+      .cmt {
+        color: #6e7781 !important;
+        font-style: italic !important;
+      }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span,
+      code span {
+        background-color: transparent !important;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body
+        > *:not(header):not(main):not(script):not(style):not(
+          #mobile-toc-toggle
+        ):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
+    <!-- Fixed Header -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40"
+    >
+      <div
+        class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+          <span
+            class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4"
+            >Tổng quan JavaScript và Cơ chế V8 Engine</span
+          >
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside
+        class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
+        <div class="space-y-4">
+          <h4
+            class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2"
+          >
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài
+            đọc
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 space-y-1 text-sm"
+          >
+            <a
+              href="#section-1"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >1. Tại sao cần hiểu về JavaScript và Cơ chế V8 Engine trong Hệ thống E-commerce?</a
+            >
+            <a
+              href="#section-2"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >2. Kiến trúc V8 Engine và Đặc trưng Ngôn ngữ JavaScript</a
+            >
+            <a
+              href="#section-3"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >3. Các ví dụ ứng dụng thực tiễn</a
+            >
+            <a
+              href="#section-4"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >4. Tổng kết bài học & Các lỗi thường gặp</a
+            >
+            <a
+              href="#section-5"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+            >
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button
+        id="mobile-toc-toggle"
+        onclick="toggleMobileToc()"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20"
+        title="Mở mục lục bài đọc"
+      >
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div
+        id="mobile-toc-drawer"
+        class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300"
+      >
+        <div
+          class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between"
+        >
+          <div>
+            <div
+              class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200"
+            >
+              <h4
+                class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC
+                BÀI ĐỌC
+              </h4>
+              <button
+                onclick="toggleMobileToc()"
+                class="p-1 rounded text-slate-400 hover:text-slate-600"
+              >
+                <i class="ph-bold ph-x text-lg"></i>
+              </button>
+            </div>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a
+                href="#section-1"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >1. Tại sao cần hiểu về JavaScript và Cơ chế V8 Engine trong Hệ thống E-commerce?</a
+              >
+              <a
+                href="#section-2"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >2. Kiến trúc V8 Engine và Đặc trưng Ngôn ngữ JavaScript</a
+              >
+              <a
+                href="#section-3"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >3. Các ví dụ ứng dụng thực tiễn</a
+              >
+              <a
+                href="#section-4"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >4. Tổng kết bài học & Các lỗi thường gặp</a
+              >
+              <a
+                href="#section-5"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+              >
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+            Rikkei Education - Learning Material
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Reading Article Content -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Main Title Header (Exact Match to Benchmark Lesson 03) -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">
+            Tổng quan JavaScript và Cơ chế V8 Engine
+          </h1>
+        </div>
+
+        <!-- SECTION 1: PROBLEM STATEMENT -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            1. Tại sao cần hiểu về JavaScript và Cơ chế V8 Engine trong Hệ thống E-commerce?
+          </h2>
+          <div class="space-y-4">
+            <p class="text-slate-600 mb-4 leading-relaxed">Hãy tưởng tượng bạn đang chịu trách nhiệm phát triển hệ thống tính toán hóa đơn và giám sát đơn hàng cho một nền tảng thương mại điện tử lớn. Mỗi giây, hệ thống phải tiếp nhận hàng nghìn yêu cầu từ người dùng, từ bước kiểm tra tồn kho, áp mã giảm giá VIP, tính phí vận chuyển đến xác nhận thanh toán.</p><p class="text-slate-600 mb-4 leading-relaxed">Nếu lập trình viên không thấu hiểu cơ chế vận hành của trình duyệt, việc viết các đoạn mã đệ quy tính giảm giá không có điểm dừng sẽ làm cạn kiệt bộ nhớ Call Stack của V8 Engine, khiến trình duyệt bị treo hoàn toàn và khách hàng không thể hoàn tất đơn hàng. Ngược lại, khi nắm rõ cách V8 Engine chuyển đổi mã nguồn JavaScript thành mã máy và quản lý bộ nhớ, bạn sẽ tối ưu hóa được tốc độ xử lý giao dịch và ngăn ngừa các sự cố tràn bộ nhớ nghiêm trọng trong môi trường thực tế.</p><p class="text-slate-600 mb-4 leading-relaxed">Để giải quyết bài toán quản lý và giám sát luồng thực thi mã nguồn một cách an toàn, hiệu quả, chúng ta cần tìm hiểu sâu về đặc trưng đơn luồng của JavaScript và kiến trúc vận hành của trình thông dịch V8 Engine.</p>
+<div class="my-6"><svg viewBox="0 0 800 280" class="w-full h-auto rikkei-diagram" xmlns="http://www.w3.org/2000/svg"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect width="800" height="280" rx="12" fill="#f8fafc"/><g transform="translate(20, 30)"><rect width="220" height="220" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/><text x="110" y="30" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a" text-anchor="middle">JavaScript Source Code</text><rect x="20" y="50" width="180" height="35" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/><text x="110" y="72" font-family="monospace" font-size="11" fill="#0369a1" text-anchor="middle">calculateCartTotal()</text><rect x="20" y="95" width="180" height="35" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/><text x="110" y="117" font-family="monospace" font-size="11" fill="#0369a1" text-anchor="middle">processPayment()</text><rect x="20" y="140" width="180" height="35" rx="6" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/><text x="110" y="162" font-family="monospace" font-size="11" fill="#0369a1" text-anchor="middle">checkInventory()</text></g><path d="M 250 140 L 290 140" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/><defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/></marker></defs><g transform="translate(300, 30)"><rect width="230" height="220" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/><text x="115" y="30" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a" text-anchor="middle">V8 Engine Execution</text><rect x="20" y="50" width="190" height="60" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1"/><text x="115" y="75" font-family="sans-serif" font-size="12" font-weight="bold" fill="#92400e" text-anchor="middle">Ignition Interpreter</text><text x="115" y="95" font-family="sans-serif" font-size="10" fill="#b45309" text-anchor="middle">Sinh mã Bytecode ban đầu</text><rect x="20" y="125" width="190" height="60" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="1"/><text x="115" y="150" font-family="sans-serif" font-size="12" font-weight="bold" fill="#065f46" text-anchor="middle">TurboFan Compiler</text><text x="115" y="170" font-family="sans-serif" font-size="10" fill="#047857" text-anchor="middle">Tối ưu thành Machine Code</text></g><path d="M 540 140 L 580 140" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/><g transform="translate(590, 30)"><rect width="190" height="220" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/><text x="95" y="30" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a" text-anchor="middle">Call Stack (LIFO)</text><rect x="15" y="155" width="160" height="30" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/><text x="95" y="175" font-family="monospace" font-size="10" fill="#991b1b" text-anchor="middle">checkInventory()</text><rect x="15" y="120" width="160" height="30" rx="4" fill="#ffedd5" stroke="#ea580c" stroke-width="1"/><text x="95" y="140" font-family="monospace" font-size="10" fill="#9a3412" text-anchor="middle">processPayment()</text><rect x="15" y="85" width="160" height="30" rx="4" fill="#fef9c3" stroke="#ca8a04" stroke-width="1"/><text x="95" y="105" font-family="monospace" font-size="10" fill="#854d0e" text-anchor="middle">calculateCartTotal()</text><text x="95" y="60" font-family="sans-serif" font-size="10" fill="#64748b" text-anchor="middle">▲ Đỉnh Stack (Đang chạy)</text></g></svg></div>
+          </div>
+
+          <div class="my-6 text-center">
+            <img src="images/scene_sec-tong-quan-javascript-va-co-che-v8-engine.png" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" />
+            <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: Tổng quan JavaScript và Cơ chế V8 Engine</p>
+          </div>
+        </section>
+
+        <!-- SECTION 2: SYNTAX & MECHANISM BREAKDOWN -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            2. Kiến trúc V8 Engine và Đặc trưng Ngôn ngữ JavaScript
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-2-1" class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-3">2.1. Đặc trưng cơ bản của ngôn ngữ JavaScript</h3><p class="text-slate-600 mb-4 leading-relaxed">JavaScript là một ngôn ngữ lập trình đa nền tảng, giữ vai trò cốt lõi trong việc tạo ra tính tương tác trên các ứng dụng Web hiện đại. Ngôn ngữ này sở hữu ba đặc tính kiến trúc quan trọng mà mọi lập trình viên cần nắm vững.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class=
+
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Bấm nút <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để quan sát dòng mã thực tế được tô sáng màu ngọc bảo và biến đổi trạng thái của biến trong bộ nhớ RAM từng bước!</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>MÃ NGUỒN THỰC THI (JAVASCRIPT VANILLA (ES6+), HTML5/CSS3, DOM API, FETCH API, ASYNC/AWAIT, CURSOR AI IDE)</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px]">Sẵn sàng</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[160px]">
+        
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 1/4: Khởi tạo ngữ cảnh dữ liệu cho Tổng quan JavaScript và Cơ chế V8 Engine">
+          <div># 1. Khởi tạo ngữ cảnh dữ liệu thực thi</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 2/4: Đánh giá điều kiện nghiệp vụ ➔ Trả về True (Khớp)">
+          <div>input_data = process_context()</div>
+          <span class="text-[10px] font-sans px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold">🟢 True</span>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between pl-6" data-console="Bước 3/4: Thi hành khối lệnh xử lý tích lũy biến trong RAM">
+          <div>execute_step_logic()</div>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 4/4: Hoàn tất chu trình thực thi và xuất kết quả">
+          <div>print(f"Xử lý thành công Tổng quan JavaScript và Cơ chế V8 Engine")</div>
+        </div>
+    
+      </div>
+    </div>
+
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>TRẠNG THÁI BIẾN TRONG BỘ NHỚ (RAM)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      </div>
+      <div class="p-4 space-y-3 flex-1 text-xs font-mono">
+        
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Trạng thái luồng:</span>
+          <span id="viz-ram-status" class="font-bold text-emerald-600">Đang hoạt động (Active)</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Môi trường thực thi:</span>
+          <span class="font-bold text-rikkei-red">JAVASCRIPT VANILLA (ES6+), HTML5/CSS3, DOM API, FETCH API, ASYNC/AWAIT, CURSOR AI IDE Engine</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Bài học:</span>
+          <span class="font-bold text-slate-800 truncate max-w-[200px]">Tổng quan JavaScript và Cơ chế V8 Engine</span>
+        </div>
+    
+      </div>
+    </div>
+  </div>
+
+  <!-- Nút điều khiển -->
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-2">
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center gap-1"> Bắt đầu</button>
+  <button type="button" onclick="runVizStep(0)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-all flex items-center gap-1"> Tạm dừng</button>
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#be111c] hover:bg-[#90000a] text-white shadow-sm transition-all flex items-center gap-1"> Từng bước</button>
+  <button type="button" onclick="runVizStep(-999)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-sm transition-all flex items-center gap-1"> Đặt lại</button>
+</div>
+    <div class="flex items-center gap-1.5">
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+    </div>
+  </div>
+
+  <!-- Terminal log -->
+  <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
+    <div class="text-[11px] font-mono text-slate-500 mb-1 flex items-center gap-1.5">
+       NHẬT KÝ THỰC THI (SINGLE-LINE TERMINAL CONSOLE):
+    </div>
+    <div id="viz-terminal-log" class="h-[100px] overflow-y-auto bg-white text-emerald-800 font-mono text-xs p-2 rounded border border-slate-200 font-semibold">Sẵn sàng chạy mô phỏng từng bước cho Tổng quan JavaScript và Cơ chế V8 Engine. Bấm "Tiếp theo" để bắt đầu...
+    </div>
+  </div>
+</div>
+          </div>
+
+          <!-- Domain Adaptive Step-by-Step Visualizer -->
+          <div class="my-8">
+            
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>Tổng quan JavaScript và Cơ chế V8 Engine</strong>!</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 flex flex-wrap items-center justify-between gap-2">
+    <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
+      <i class="ph-bold ph-sliders-horizontal text-rikkei-red"></i> ĐIỀU KHIỂN MÔ PHỎNG LUỒNG THỰC THI (JAVASCRIPT VANILLA (ES6+), HTML5/CSS3, DOM API, FETCH API, ASYNC/AWAIT, CURSOR AI IDE):
+    </span>
+    <div class="flex items-center gap-2 text-xs">
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all shadow-sm flex items-center gap-1">
+        <i class="ph-bold ph-arrow-right text-xs"></i> Tiếp theo
+      </button>
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3.5 py-1.5 rounded bg-rikkei-red text-white font-medium hover:bg-rikkei-darkred transition-all shadow-sm flex items-center gap-1">
+        <i class="ph-bold ph-play text-xs"></i> Tự động chạy
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>MÃ NGUỒN THỰC THI CHUẨN</span>
+        <span id="viz-step-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[180px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div># 1. Khai báo tham số đầu vào cho Tổng quan JavaScript và Cơ chế V8 Engine</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>input_data = load_input_parameters()</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>is_valid = validate_conditions(input_data)</div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>execution_result = process_business_logic(is_valid)</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
+          <div>print(f"Kết quả xử lý {clean_title}: {execution_result}")</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>BIẾN BỘ NHỚ RAM</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      </div>
+      <div class="p-4 space-y-2 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Môi trường thực thi:</span>
+          <span class="font-bold text-slate-900">JAVASCRIPT VANILLA (ES6+), HTML5/CSS3, DOM API, FETCH API, ASYNC/AWAIT, CURSOR AI IDE Engine</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">is_valid (Kiểm tra điều kiện):</span>
+          <span id="viz-var-valid" class="font-bold text-slate-400">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">execution_result (Trạng thái kết quả):</span>
+          <span id="viz-var-result" class="font-bold text-slate-400">---</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-900 rounded-xl p-3.5 font-mono text-xs text-emerald-400 flex items-center gap-2 overflow-x-auto">
+    <span class="text-slate-500 font-bold shrink-0">CONSOLE &gt;</span>
+    <span id="viz-terminal-log">Bấm 'Tiếp theo' hoặc 'Tự động chạy' để bắt đầu mô phỏng luồng.</span>
+  </div>
+</div>
+
+<script>
+  var currentVizStep = 0;
+  var vizAutoInterval = null;
+  function runVizStep(stepNum) {
+    if (stepNum === undefined || stepNum === null) {
+      currentVizStep += 1;
+      if (currentVizStep > 5) currentVizStep = 1;
+    } else {
+      currentVizStep = stepNum;
+    }
+
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById("viz-line-" + i);
+      if (el) {
+        if (i === currentVizStep) {
+          el.style.backgroundColor = "#d1fae5";
+          el.style.borderLeft = "4px solid #059669";
+          el.style.fontWeight = "bold";
+        } else {
+          el.style.backgroundColor = "";
+          el.style.borderLeft = "4px solid transparent";
+          el.style.fontWeight = "normal";
+        }
+      }
+    }
+
+    const badge = document.getElementById("viz-step-badge");
+    const b1 = document.getElementById("viz-badge-cond1");
+    const vValid = document.getElementById("viz-var-valid");
+    const vResult = document.getElementById("viz-var-result");
+    const term = document.getElementById("viz-terminal-log");
+
+    if (badge) badge.innerText = "Bước " + currentVizStep + "/5";
+
+    if (currentVizStep === 1) {
+      if (term) term.innerText = "[BƯỚC 1/5] Khởi tạo tham số đầu vào cho Tổng quan JavaScript và Cơ chế V8 Engine";
+    } else if (currentVizStep === 2) {
+      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào input_data";
+    } else if (currentVizStep === 3) {
+      if (b1) {
+        b1.className = "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
+        b1.innerText = "True - KHỚP!";
+      }
+      if (vValid) {
+        vValid.className = "font-bold text-emerald-600";
+        vValid.innerText = "True";
+      }
+      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện validate_conditions() -> True";
+    } else if (currentVizStep === 4) {
+      if (vResult) {
+        vResult.className = "font-bold text-emerald-600";
+        vResult.innerText = "SUCCESS";
+      }
+      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ process_business_logic() -> SUCCESS";
+    } else if (currentVizStep === 5) {
+      if (term) term.innerText = "[KẾT QUẢ 5/5] CONSOLE OUTPUT: Hoàn tất xử lý Tổng quan JavaScript và Cơ chế V8 Engine: SUCCESS";
+    }
+  }
+
+  function vizToggleAuto() {
+    const btn = document.getElementById("viz-auto-btn");
+    if (vizAutoInterval) {
+      clearInterval(vizAutoInterval);
+      vizAutoInterval = null;
+      if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
+    } else {
+      if (btn) btn.innerHTML = '<i class="ph-bold ph-pause text-xs"></i> Tạm dừng';
+      runVizStep();
+      vizAutoInterval = setInterval(() => {
+        runVizStep();
+      }, 1500);
+    }
+  }
+</script>
+
+          </div>
+        </section>
+
+        <!-- SECTION 3: PROGRESSIVE EXAMPLES -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            3. Các ví dụ ứng dụng thực tiễn
+          </h2>
+
+          <div class="space-y-6">
+            <h3 id="sec-3-1" class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-3">3.1. Ví dụ 3.1: Kiểm tra Luồng Thực thi Đơn hàng Tuần tự trong Call Stack</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ cơ bản minh họa thứ tự V8 Engine đẩy các hàm khởi tạo và xác thực đơn hàng vào ngăn xếp Call Stack.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Viết các hàm mô phỏng quy trình tiếp nhận và xác nhận đơn hàng E-commerce để quan sát thứ tự đẩy vào và lấy ra khỏi Call Stack của V8 Engine.</p></div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Mã nguồn minh họa Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Tệp script.js - Mô phỏng xử lý luồng thực thi đơn hàng E-commerce
+
+// Hàm kiểm tra thông tin kho hàng
+function validateStock() {
+    // Hàm này thực thi và kết thúc cuối cùng trong chuỗi lời gọi
+    return &quot;Hàng còn trong kho&quot;;
+}
+
+// Hàm tạo mã hóa đơn
+function generateInvoice() {
+    // V8 đẩy validateStock() vào đỉnh Call Stack
+    return validateStock();
+}
+
+// Hàm khởi tạo đơn hàng E-commerce
+function createOrder() {
+    // V8 đẩy generateInvoice() vào Call Stack
+    let stockResult = generateInvoice();
+    console.log(&quot;Xác nhận đơn hàng thành công:&quot;, stockResult);
+}
+
+// Điểm bắt đầu thực thi chương trình
+createOrder();</code></pre>
+</div><p class="text-slate-600 mb-4 leading-relaxed">Khi câu lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">createOrder()</code> được gọi, V8 sẽ đẩy <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">createOrder</code> vào Call Stack đầu tiên, tiếp theo là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">generateInvoice</code> và cuối cùng là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">validateStock</code> ở đỉnh ngăn xếp.</p><h3 id="sec-3-2" class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-3">3.2. Ví dụ 3.2: Tối ưu hóa Biên dịch JIT và Bộ nhớ Memory Heap</h3><p class="text-slate-600 mb-4 leading-relaxed">Mở rộng tính năng tính toán tiền hóa đơn và chiết khấu thanh toán, mô phỏng cách V8 lưu trữ dữ liệu và tối ưu hóa qua trình biên dịch TurboFan.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Nâng cấp hệ thống bằng cách phân chia dữ liệu tính toán tổng tiền đơn hàng và kiểm tra chính sách giảm giá. Quan sát cách V8 Engine lưu trữ dữ liệu trên Memory Heap và tối ưu mã máy thông qua TurboFan Compiler.</p></div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Mã nguồn minh họa Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Tệp script.js - Nâng cấp tính toán đơn hàng và phân bổ bộ nhớ V8
+
+// Hàm tính tiền sản phẩm
+function calculateSubtotal() {
+    return 500000; // Giá trị đơn hàng cố định
+}
+
+// Hàm tính tiền chiết khấu E-commerce
+function calculateDiscount() {
+    return 50000; // Tiền giảm giá VIP
+}
+
+// Hàm tổng hợp hóa đơn thanh toán
+function processFinalCheckout() {
+    // V8 cấp phát bộ nhớ cho các phép toán và đẩy hàm vào Call Stack
+    let subtotalAmount = calculateSubtotal();
+    let discountAmount = calculateDiscount();
+    let finalPayable = subtotalAmount - discountAmount;
+    
+    console.log(&quot;Hóa đơn chi tiết - Tiền hàng:&quot;, subtotalAmount, &quot;Giảm giá:&quot;, discountAmount);
+    return finalPayable;
+}
+
+// Thực thi quy trình thanh toán đơn hàng
+let totalAmountPaid = processFinalCheckout();
+console.log(&quot;Thành tiền thanh toán cuối cùng:&quot;, totalAmountPaid);</code></pre>
+</div><p class="text-slate-600 mb-4 leading-relaxed">Trong quá trình thực thi, biến <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">finalPayable</code> được lưu trữ trong khung lưu trữ của Call Stack, trong khi các hàm được bộ biên dịch TurboFan tối ưu hóa thành mã máy nếu thực thi liên tục nhiều lần.</p><h3 id="sec-3-3" class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-3">3.3. Ví dụ 3.3: Kiểm soát Sự cố Tràn Ngăn xếp (Call Stack Overflow) trong Xử lý Giảm giá Đa tầng</h3><p class="text-slate-600 mb-4 leading-relaxed">Kịch bản doanh nghiệp xử lý áp dụng mã giảm giá đệ quy bậc thang cho đơn hàng lớn, kiểm soát điều kiện dừng an toàn để tránh nổ ngăn xếp Call Stack.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Phát hiện và sửa lỗi trong thuật toán tính mã giảm giá lặp vô hạn gây tràn nổ Call Stack của V8 Engine (Maximum call stack size exceeded) trong ứng dụng E-commerce thực tế.</p></div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Mã nguồn minh họa Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Tệp script.js - Xử lý tính toán giảm giá bậc thang an toàn
+
+// Hàm tính giảm giá cho đơn hàng doanh nghiệp với điều kiện dừng an toàn
+function applyTieredDiscount(totalAmount, tierLevel) {
+    // Điều kiện dừng (Base Case) để ngăn chặn lỗi nổ Call Stack (Stack Overflow)
+    if (tierLevel</code></pre>
+</div><p class="text-slate-600 mb-4 leading-relaxed">Nếu thiếu câu lệnh điều kiện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if (tierLevel &lt;= 0)</code>, các lời gọi hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">applyTieredDiscount</code> sẽ liên tục xếp chồng lên Call Stack cho đến khi vượt quá giới hạn dung lượng của trình duyệt, gây ra lỗi văng ứng dụng.</p>
+          </div>
+        </section>
+
+        <!-- SECTION 4: GOTCHAS & PITFALLS -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            4. Tổng kết bài học & Các lỗi thường gặp
+          </h2>
+
+          <div class="space-y-4">
+            <h3 class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-3">4.1. Kiến thức trọng tâm</h3><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li>JavaScript vận hành theo cơ chế đơn luồng (Single-threaded) và kiểu dữ liệu động (Dynamically Typed).</li><li>V8 Engine biên dịch mã JavaScript thành Bytecode thông qua bộ thông dịch Ignition và tối ưu thành Mã máy bằng bộ biên dịch TurboFan.</li><li>Call Stack quản lý luồng thực thi hàm theo cơ chế LIFO (Last In, First Out). Memory Heap chịu trách nhiệm cấp phát bộ nhớ cho đối tượng và biến.</li><li>Luôn đặt thẻ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;script src="script.js"&gt;&lt;/script&gt;</code> ở cuối thẻ body để tối ưu hóa tốc độ tải trang web.</li></ul><h3 class="font-montserrat font-bold text-xl font-bold text-slate-900 mb-3">4.2. Các lỗi thường gặp & Lưu ý thực tế</h3><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><h4 class="font-montserrat font-bold text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"> Lỗi Tràn Ngăn xếp Call Stack (RangeError: Maximum call stack size exceeded)</h4><p class="text-sm text-slate-700 leading-relaxed mb-3">Xảy ra khi một hàm tự gọi lại chính nó (đệ quy) mà không có điểm dừng hợp lệ, khiến bộ nhớ Call Stack của V8 Engine vượt quá dung lượng cấp phát và làm sụp đổ chương trình.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// LỖI: Hàm gọi đệ quy liên tục không có điều kiện dừng
+function processOrderLoop() {
+    processOrderLoop(); // Gây lỗi Maximum call stack size exceeded
+}
+processOrderLoop();</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// CHUẨN: Bổ sung điều kiện dừng (Base case) cho luồng thực thi
+function processOrderLoop(count) {
+    if (count</code></pre>
+</div></div></div><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><h4 class="font-montserrat font-bold text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"> Lỗi Chặn Luồng Thực thi Duy nhất (Blocking Main Thread)</h4><p class="text-sm text-slate-700 leading-relaxed mb-3">Do JavaScript vận hành theo cơ chế đơn luồng (Single-threaded), các câu lệnh hoặc vòng lặp vô hạn sẽ chiếm giữ Call Stack liên tục, chặn đứng mọi thao tác khác trên giao diện web.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// LỖI: Vòng lặp vô hạn làm treo toàn bộ luồng duy nhất của V8 Engine
+function processCartItems() {
+    while (true) {
+        // Vòng lặp không dừng chặn đứng trình duyệt
+    }
+}
+processCartItems();</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// CHUẨN: Giới hạn số lần duyệt theo quy mô danh sách xác định
+function processCartItems(totalItems) {
+    for (let i = 0; i</code></pre>
+</div></div></div><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><h4 class="font-montserrat font-bold text-lg font-bold text-rose-900 mb-2 flex items-center gap-2"> Lỗi Sai Vị trí Nhúng Tệp script.js Gây Chặn Dựng Giao Diện DOM</h4><p class="text-sm text-slate-700 leading-relaxed mb-3">Đặt thẻ script tải mã JavaScript ở đầu tệp HTML mà không có thuộc tính điều hướng sẽ khiến trình duyệt tạm dừng việc dựng giao diện HTML để tải và thông dịch mã JS, làm giảm trải nghiệm người dùng.</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">&lt;!-- LỖI: Đặt script ở head chặn luồng hiển thị HTML --&gt;
+&lt;head&gt;
+    &lt;script src=&quot;script.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Hệ thống Đơn hàng&lt;/h1&gt;
+&lt;/body&gt;</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">&lt;!-- CHUẨN: Đặt script ở cuối thẻ body --&gt;
+&lt;body&gt;
+    &lt;h1&gt;Hệ thống Đơn hàng&lt;/h1&gt;
+    &lt;script src=&quot;script.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;</code></pre>
+</div></div></div>
+          </div>
+        </section>
+
+        <!-- SECTION 5: REFERENCES -->
+        <section id="section-5" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            5. Tài liệu tham khảo & Câu hỏi ôn tập
+          </h2>
+
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Language_overview" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - JavaScript Language Overview
+                </a>
+              </li>
+              <li>
+                <a href="https://v8.dev/docs" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> V8 Engine Official Documentation - Ignition & TurboFan
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Self-Test Component -->
+        </section>
+      </article>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+      hljs.highlightAll();
+
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
+      });
+
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        drawer.classList.toggle("hidden");
+      }
+
+      // Pyodide Live Wasm Sandbox Engine
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({
+            batched: (str) => { outputBuffer += str + "\n"; }
+          });
+          pyodide.setStderr({
+            batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; }
+          });
+
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim() ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute("data-highlighted");
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("code[data-original]").forEach((codeEl) => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+
+
+      // Visualizer logic for 2.4
+      var currentVizStep = 0;
+      var vizAutoInterval = null;
+
+      function runVizStep(stepNum) {
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = window.vizSteps ? window.vizSteps.length : linesCount;
+
+        if (stepNum === -999) {
+          currentVizStep = 0;
+          if (vizAutoInterval) {
+            clearInterval(vizAutoInterval);
+            vizAutoInterval = null;
+            const autoBtn = document.getElementById("viz-auto-btn");
+            if (autoBtn) autoBtn.innerText = "Tự động chạy";
+          }
+        } else if (stepNum === -1) {
+          currentVizStep = Math.max(0, currentVizStep - 1);
+        } else if (stepNum === 1) {
+          currentVizStep = Math.min(totalSteps, currentVizStep + 1);
+        } else {
+          currentVizStep = stepNum;
+        }
+
+        // Reset highlights
+        lineDivs.forEach((el) => {
+          el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between";
+        });
+
+        const term = document.getElementById("viz-terminal-log");
+        const badge = document.getElementById("viz-step-badge");
+
+        if (currentVizStep === 0) {
+          if (term) term.innerHTML = `&gt; Sẵn sàng chạy mô phỏng từng bước. Bấm 'Tiếp theo' để bắt đầu...`;
+          if (badge) badge.innerText = "Sẵn sàng";
+          updateRamMonitor(0);
+          return;
+        }
+
+        if (badge) badge.innerText = `Bước ${currentVizStep}/${totalSteps}`;
+
+        if (window.vizSteps && window.vizSteps[currentVizStep - 1]) {
+          const stepData = window.vizSteps[currentVizStep - 1];
+          const el = document.getElementById("viz-line-" + stepData.line);
+          if (el) {
+            el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between bg-emerald-50 border-l-4 border-emerald-500 font-semibold";
+          }
+          updateRamMonitor(currentVizStep);
+          if (term) {
+            term.innerHTML = "";
+            for (let step = 1; step <= currentVizStep; step++) {
+              const sData = window.vizSteps[step - 1];
+              if (sData.log) {
+                term.innerHTML += sData.log;
+              }
+            }
+            term.scrollTop = term.scrollHeight;
+          }
+        } else {
+          const activeEl = document.getElementById("viz-line-" + currentVizStep);
+          if (activeEl) {
+            activeEl.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between bg-emerald-50 border-l-4 border-emerald-500 font-semibold";
+            if (term) {
+              const logMsg = activeEl.getAttribute("data-console") || `Đang thực thi dòng lệnh ${currentVizStep}`;
+              term.innerHTML += `<div>&gt; ${logMsg}</div>`;
+              term.scrollTop = term.scrollHeight;
+            }
+          }
+        }
+      }
+
+      function updateRamMonitor(stepIdx) {
+        if (!window.vizSteps) return;
+        
+        // Reset all RAM entries to --- if stepIdx is 0
+        if (stepIdx === 0) {
+          const ramEls = document.querySelectorAll("[id^='viz-ram-']");
+          ramEls.forEach((el) => {
+            if (el.id !== "viz-ram-status" && el.id !== "viz-ram-env" && el.id !== "viz-ram-lesson") {
+              el.innerText = "---";
+            }
+          });
+          return;
+        }
+
+        const stepData = window.vizSteps[stepIdx - 1];
+        if (stepData && stepData.ram) {
+          for (const [key, val] of Object.entries(stepData.ram)) {
+            const ramEl = document.getElementById("viz-ram-" + key);
+            if (ramEl) ramEl.innerText = val;
+          }
+        }
+      }
+
+      function vizToggleAuto() {
+        const btn = document.getElementById("viz-auto-btn");
+        if (!btn) return;
+        
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const linesCount = codeDisplay.querySelectorAll("div[id^='viz-line-']").length;
+        const totalSteps = window.vizSteps ? window.vizSteps.length : linesCount;
+
+        if (vizAutoInterval) {
+          clearInterval(vizAutoInterval);
+          vizAutoInterval = null;
+          btn.innerText = "Tự động chạy";
+        } else {
+          btn.innerText = "Tạm dừng";
+          if (currentVizStep >= totalSteps) runVizStep(-999);
+          runVizStep(1);
+          vizAutoInterval = setInterval(() => {
+            if (currentVizStep >= totalSteps) {
+              clearInterval(vizAutoInterval);
+              vizAutoInterval = null;
+              btn.innerText = "Tự động chạy";
+            } else {
+              runVizStep(1);
+            }
+          }, 1800);
+        }
+      }
+
+      // Active TOC link on scroll using IntersectionObserver
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              // Deactivate all TOC links in sidebar and drawer
+              document.querySelectorAll(".toc-link, .mobile-toc-link").forEach((link) => {
+                link.classList.remove("border-rikkei-red", "text-rikkei-red", "font-bold", "bg-slate-100");
+                link.classList.add("border-transparent", "text-slate-600");
+              });
+              // Activate current links
+              const activeLinks = document.querySelectorAll(`a[href="#${id}"]`);
+              activeLinks.forEach((link) => {
+                if (link.classList.contains("toc-link")) {
+                  link.classList.add("border-rikkei-red", "text-rikkei-red", "font-bold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else if (link.classList.contains("mobile-toc-link")) {
+                  link.classList.add("text-rikkei-red", "bg-slate-100");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll("section[id^='section-']").forEach((section) => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>

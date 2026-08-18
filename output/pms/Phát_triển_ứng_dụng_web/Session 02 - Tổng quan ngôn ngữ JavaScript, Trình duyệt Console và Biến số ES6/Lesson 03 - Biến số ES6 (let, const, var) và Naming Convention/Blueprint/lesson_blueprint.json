@@ -1,0 +1,65 @@
+{
+  "lesson_slug": "bien-so-es6-let-const-var-va-naming-convention",
+  "lesson_title": "Biến số ES6 (let, const, var), Quy tắc đặt tên và Kiểu dữ liệu nguyên thủy",
+  "real_world_scenario": {
+    "name": "Hệ thống Quản lý Giỏ hàng E-commerce",
+    "description": "Trong hệ thống thương mại điện tử, thông tin đơn hàng như mã đơn hàng, đơn giá, số lượng, trạng thái khuyến mãi và trạng thái thanh toán cần được lưu trữ và quản lý chính xác bằng các loại biến và kiểu dữ liệu phù hợp."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Phân biệt let, const và var",
+      "description": "ES6 giới thiệu let và const với phạm vi khối (block scope). const dùng cho các giá trị hằng số không thay đổi, let dùng cho biến có thể gán lại giá trị. var có phạm vi hàm (function scope) và dễ gây lỗi hoisting nên hạn chế sử dụng trong lập trình ES6+.",
+      "raw_code_snippet": "// Khai báo hằng số không thể thay đổi\nconst storeName = \"Rikkei Shop\";\n\n// Khai báo biến có thể gán lại giá trị\nlet cartQuantity = 2;\ncartQuantity = 3;\n\n// Khai báo theo chuẩn cũ var (không khuyến khích sử dụng)\nvar legacyTaxRate = 0.1;"
+    },
+    {
+      "concept_name": "Quy tắc đặt tên camelCase và Naming Convention",
+      "description": "Đặt tên biến sử dụng tiếng Anh rõ nghĩa theo dạng lạc đà (camelCase): chữ cái đầu của từ đầu tiên viết thường, các từ tiếp theo viết hoa chữ cái đầu. Biến dạng boolean thường bắt đầu bằng các tiền tố như is, has, can.",
+      "raw_code_snippet": "// Tên biến chuẩn camelCase bằng tiếng Anh rõ nghĩa\nconst productUnitPrice = 1500000;\nlet isPaymentCompleted = false;\nlet hasDiscountCoupon = true;"
+    },
+    {
+      "concept_name": "Các kiểu dữ liệu nguyên thủy (Primitive Types)",
+      "description": "JavaScript cung cấp 5 kiểu dữ liệu nguyên thủy cơ bản: number (số), string (chuỗi ký tự), boolean (đúng/sai), undefined (chưa gán giá trị) và null (giá trị rỗng cố ý).",
+      "raw_code_snippet": "const orderId = \"ORD-8892\"; // string\nconst itemPrice = 250000; // number\nlet isAvailable = true; // boolean\nlet discountCode = null; // null (không áp dụng mã)\nlet customerNote; // undefined (chưa khởi tạo giá trị)"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Khai báo thông tin giỏ hàng cơ bản",
+      "requirement": "Khai báo các thông tin ban đầu của một sản phẩm trong giỏ hàng bao gồm: mã đơn hàng cố định, tên sản phẩm, đơn giá, số lượng mua ban đầu và trạng thái thanh toán.",
+      "raw_code": "// Khai báo thông tin cố định của đơn hàng bằng const\nconst orderId = \"ORD-2026-001\";\nconst productName = \"Tai nghe Bluetooth Pro\";\nconst productUnitPrice = 1200000;\n\n// Khai báo các thông tin có thể thay đổi bằng let\nlet orderQuantity = 1;\nlet isPaid = false;\n\n// Tính tổng tiền thanh toán ban đầu\nlet initialTotal = productUnitPrice * orderQuantity;"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Cập nhật số lượng và quản lý trạng thái dữ liệu rỗng",
+      "requirement": "Cập nhật lại số lượng sản phẩm trong giỏ hàng khi người dùng thay đổi số lượng, đồng thời khai báo trạng thái mã giảm giá (không áp dụng) và ghi chú đơn hàng (chưa nhập).",
+      "raw_code": "const orderId = \"ORD-2026-001\";\nconst productName = \"Tai nghe Bluetooth Pro\";\nconst productUnitPrice = 1200000;\n\n// Khách hàng cập nhật số lượng mua từ 1 lên 3\nlet orderQuantity = 1;\norderQuantity = 3;\n\n// Trạng thái mã giảm giá (null thể hiện cố ý không có mã)\nlet appliedCouponCode = null;\n\n// Biến ghi chú giao hàng chưa gán giá trị (undefined)\nlet deliveryNote;\n\n// Trạng thái còn hàng trong kho\nlet isProductInStock = true;\n\n// Tính tổng tiền sau khi cập nhật số lượng mới\nlet updatedTotal = productUnitPrice * orderQuantity;"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Tính toán hoàn chỉnh đơn hàng cấp doanh nghiệp",
+      "requirement": "Quản lý các thông số cấu hình hệ thống bằng hằng số, tính toán tổng tiền đơn hàng bao gồm phí vận chuyển, giảm giá và thuế VAT, đồng thời theo dõi trạng thái đơn hàng.",
+      "raw_code": "// Hằng số cấu hình hệ thống cố định\nconst VAT_RATE = 0.1;\nconst STORE_ID = \"STORE-VN-01\";\n\n// Thông tin sản phẩm và giỏ hàng\nconst productName = \"Laptop Gaming X\";\nconst unitPrice = 25000000;\nlet quantity = 2;\n\n// Phí vận chuyển và chiết khấu\nlet shippingFee = 50000;\nlet discountAmount = 1000000;\nlet isVipCustomer = true;\n\n// Thông tin bổ sung của đơn hàng\nlet specialInstructions = null;\nlet secondaryPhoneNumber;\n\n// Tính toán các giá trị tiền tệ của đơn hàng\nlet subtotal = unitPrice * quantity;\nlet totalAfterDiscount = subtotal - discountAmount;\nlet taxAmount = totalAfterDiscount * VAT_RATE;\nlet finalAmount = totalAfterDiscount + taxAmount + shippingFee;\n\n// Trạng thái tiến trình xử lý đơn hàng\nlet isOrderConfirmed = true;\nlet isOrderShipped = false;"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Gán lại giá trị cho biến hằng số (const)",
+      "explanation": "Biến khai báo bằng từ khóa const đại diện cho một hằng số và không thể gán lại giá trị sau khi đã khởi tạo. Việc cố tình gán lại giá trị mới sẽ dẫn đến lỗi runtime TypeError.",
+      "code_bad": "const maxDiscountRate = 0.2;\n// Lỗi: TypeError: Assignment to constant variable.\nmaxDiscountRate = 0.3;",
+      "code_good": "let maxDiscountRate = 0.2;\n// Khai báo bằng let nếu giá trị có thể thay đổi trong quá trình chạy\nmaxDiscountRate = 0.3;"
+    },
+    {
+      "error_name": "Đặt tên biến vi phạm quy tắc Naming Convention",
+      "explanation": "Đặt tên biến bằng tiếng Việt có dấu, bắt đầu bằng chữ số, chứa ký tự đặc biệt hoặc đặt tên không rõ nghĩa (a, b, temp) sẽ làm cho mã nguồn dễ gặp lỗi cú pháp và khó bảo trì trong dự án thực tế.",
+      "code_bad": "// Sai quy tắc: dùng tiếng Việt không dấu, bắt đầu bằng số, tên viết tắt khó hiểu\nlet gia_ban = 500000;\nlet 1stProduct = \"Áo phông\";\nlet x = true;",
+      "code_good": "// Đúng quy tắc: camelCase bằng tiếng Anh rõ nghĩa\nlet productPrice = 500000;\nlet firstProductName = \"Áo phông\";\nlet isProductAvailable = true;"
+    },
+    {
+      "error_name": "Nhầm lẫn giữa hai giá trị undefined và null",
+      "explanation": "undefined xuất hiện tự động khi một biến đã được khai báo nhưng chưa gán giá trị ban đầu. null là một giá trị đặc biệt được lập trình viên chủ động gán để biểu thị biến đó hiện tại 'không chứa giá trị nào'.",
+      "code_bad": "let customerAddress;\n// Biến customerAddress mang giá trị undefined\n// Nhầm lẫn coi undefined là một giá trị rỗng đã chủ động xử lý.",
+      "code_good": "// Khai báo biến chưa xác định giá trị ban đầu\nlet customerAddress;\n\n// Chủ động gán null để xác nhận khách hàng không dùng mã giảm giá\nlet couponCode = null;"
+    }
+  ]
+}

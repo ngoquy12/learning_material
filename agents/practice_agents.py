@@ -51,7 +51,14 @@ def is_cli_or_tooling_tech(tech_stack: str) -> bool:
     ]
     return any(kw in tech_lower for kw in tooling_keywords)
 
-def practice_creator_agent(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str, only_index: int | None = None) -> Dict[str, Any]:
+def practice_creator_agent(
+    session_id: str,
+    session_title: str,
+    tech_stack: str,
+    previous_lessons_text: str,
+    only_index: int | None = None,
+    latest_theory_session: str = ""
+) -> Dict[str, Any]:
     print(f"  [Practice Creator] Designing exercises for {session_id} - {session_title}...")
     
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -101,6 +108,7 @@ This course is a programming language / backend engineering subject ({tech_stack
 Your task is to generate EXACTLY 1 practical exercise for:
 Session: {session_id} - {session_title}
 Technology Stack: {tech_stack}
+Latest Preceding Theory Session: {latest_theory_session or session_title}
 
 REQUIRED DIFFICULTY LEVEL:
 - Level: {level_name} (Targeted for {target_student} students)
@@ -110,9 +118,14 @@ REQUIRED DIFFICULTY LEVEL:
 
 MANDATORY EXERCISE DIRECTIVES:
 0. STRICT NO EMOJI & NO BRACKET TAGS DIRECTIVE: ABSOLUTELY FORBIDDEN to use text emojis (🚀, 💡, ⚠️, ✅, ❌) OR bracket tags like [NOTE], [TIP], [WARNING], [REQUIREMENT], [ERROR] in titles, notes, body, or source code. For notes/warnings, use clean bold labels like '**Lưu ý:**', '**Ghi chú:**', or '**Cảnh báo:**'. For rules under 'Quy tắc xử lý', use 'Yêu cầu 1:', 'Yêu cầu 2:', etc. instead of bracket tags.
-0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY (STRICT NO SCOPE LEAKAGE):
-   - You MUST ONLY use concepts, syntax, data structures, and commands taught up to the current Session ({session_id} - {session_title}) as listed in prior context ({previous_lessons_text}).
-   - ABSOLUTELY FORBIDDEN to leak future unlearned topics, unlearned data structures (e.g., Dict/List/Set/Classes/Async before their respective dedicated sessions), or unlearned execution commands for any technology stack ({tech_stack}).
+0.1 DYNAMIC PROGRESSIVE KNOWLEDGE BOUNDARY & PEDAGOGICAL WEIGHTING (70% NEW + 30% CUMULATIVE):
+   - 70-80% CORE FOCUS (LATEST THEORY TOPIC):
+     * The main problem statement, algorithms, and core requirements MUST focus directly and deeply on the immediately preceding Theory Session: {latest_theory_session or session_title}.
+   - 20-30% CUMULATIVE INTEGRATION (PRIOR FOUNDATIONS):
+     * Seamlessly integrate foundational concepts and tools from prior sessions ({previous_lessons_text}) to form realistic, cohesive business problems.
+   - STRICT NO SCOPE LEAKAGE:
+     * ABSOLUTELY FORBIDDEN to leak future unlearned topics, unlearned data structures (e.g., Dict/List/Set/Classes/Async before their respective dedicated sessions), or unlearned execution commands for any technology stack ({tech_stack}).
+
 0.2 MERMAID DATA FLOW DIAGRAM:
    - In Section 2 (Problem Context), MUST include 1 highly detailed, correctly spelled Mermaid diagram (````mermaid ... ````) visualizing data flow (Inputs -> Process Logic -> Expected Output).
    - MANDATORY FLOWCHART SHAPE STANDARDS (STRICT FUNCTIONAL MATCHING):
@@ -393,7 +406,10 @@ def parse_diagram_info(prompt_text: str, content: str = ""):
         
     return endpoints[:4], storage
 
+_IMAGE_GENERATION_DISABLED = False
+
 def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) -> str:
+    global _IMAGE_GENERATION_DISABLED
     from pathlib import Path
     images_dir = Path(practice_dir) / "images"
     images_dir.mkdir(exist_ok=True)
@@ -406,6 +422,11 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
     image_name = f"{filename_no_ext}_diagram.png"
     image_path = images_dir / image_name
     
+    # Circuit breaker: skip generating if previous calls timed out or failed
+    if _IMAGE_GENERATION_DISABLED:
+        new_content = re.sub(r"\*?\s*Prompt tạo ảnh:\s*(.*?)(?:\*|\n\n|\n(?=###)|$)", "", content, flags=re.IGNORECASE | re.DOTALL)
+        return new_content
+        
     # Extract title from content
     title_text = "API WORKFLOW DIAGRAM"
     title_match = re.search(r"##\s*<center>(.*?)</center>", content, re.IGNORECASE)
@@ -442,7 +463,8 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
                         "n": 1,
                         "size": "1024x576"
                     }
-                    response = requests.post(url, headers=headers, json=data, timeout=120)
+                    # Lowered timeout to 10s for fast circuit breaker action
+                    response = requests.post(url, headers=headers, json=data, timeout=10)
                     if response.status_code == 200:
                         resp_json = response.json()
                         img_data = resp_json.get("data", [])
@@ -455,7 +477,7 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
                             break
                         elif img_data and "url" in img_data[0]:
                             img_url = img_data[0]["url"]
-                            img_resp = requests.get(img_url, timeout=45)
+                            img_resp = requests.get(img_url, timeout=15)
                             if img_resp.status_code == 200:
                                 with open(image_path, "wb") as f:
                                     f.write(img_resp.content)
@@ -479,7 +501,8 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
                             "outputMimeType": "image/png"
                         }
                     }
-                    response = requests.post(url, headers=headers, json=data, timeout=120)
+                    # Lowered timeout to 10s for fast circuit breaker action
+                    response = requests.post(url, headers=headers, json=data, timeout=10)
                     if response.status_code == 200:
                         resp_json = response.json()
                         if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
@@ -495,9 +518,17 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
                         raise RuntimeError(f"GenerativeAI API returned error status {response.status_code}: {response.text}")
             except Exception as e:
                 last_error = e
+                err_str = str(e).lower()
                 print(f"  [Image Generator Warning] Attempt {attempt}/3 failed for '{filename_no_ext}': {e}")
+                
+                # Check for network error/timeout to activate circuit breaker immediately
+                if "timeout" in err_str or "connection" in err_str or "connect" in err_str or "read time out" in err_str or "unreachable" in err_str:
+                    print("  [Image Generator Circuit Breaker] Connection error or timeout detected. Disabling image generation for this run to avoid hangs.")
+                    _IMAGE_GENERATION_DISABLED = True
+                    break
+                    
                 if attempt < 3:
-                    time.sleep(3 * attempt)
+                    time.sleep(1)
                     
         if not success:
             print(f"  [Image Generator Warning] Could not generate image via API for '{filename_no_ext}': {last_error}. Bypassing image file creation.")
@@ -509,7 +540,7 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
     new_content = re.sub(r"\*?\s*Prompt tạo ảnh:\s*(.*?)(?:\*|\n\n|\n(?=###)|$)", markdown_image_tag, content, flags=re.IGNORECASE | re.DOTALL)
     return new_content
 
-def generate_practice_session_exercises(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str):
+def generate_practice_session_exercises(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str, latest_theory_session: str = ""):
     import pathlib
     session_dir = pathlib.Path(session_dir_path)
     session_dir.mkdir(parents=True, exist_ok=True)
@@ -521,7 +552,13 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
     exercises_data = None
     last_candidate = None
     for attempt in range(3):
-        candidate_exercises = practice_creator_agent(session_id, session_title, tech_stack, previous_lessons_text)
+        candidate_exercises = practice_creator_agent(
+            session_id=session_id,
+            session_title=session_title,
+            tech_stack=tech_stack,
+            previous_lessons_text=previous_lessons_text,
+            latest_theory_session=latest_theory_session
+        )
         last_candidate = candidate_exercises
         review_result = practice_reviewer_agent(candidate_exercises, tech_stack)
         

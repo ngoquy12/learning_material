@@ -158,7 +158,7 @@ Full Markdown content of the entry test here...
         raise ValueError(f"Không thể tạo được đề kiểm tra {test_idx+1} cho session {session_id} sau 3 lần thử. Đã vô hiệu hóa fallback offline.")
     return test_data
 
-def project_srs_creator(session_id: str, session_title: str, tech_stack: str, forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
+def project_srs_creator(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str = "", forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
     print(f"    -> [Project Creator] Generating Dynamic SRS Document for '{session_title}' ({tech_stack})...")
     
     arch_info = resolve_course_architecture(session_title, tech_stack, forbidden_scope, allowed_scope)
@@ -169,6 +169,8 @@ def project_srs_creator(session_id: str, session_title: str, tech_stack: str, fo
         scope_rules += f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM SỬ DỤNG CÁC KIẾN THỨC/CÚ PHÁP/THƯ VIỆN BỊ CẤM NÀY.\n"
     if allowed_scope:
         scope_rules += f"\nPHẠM VI ĐÃ HỌC (ALLOWED SCOPE): {allowed_scope}.\nChỉ thiết kế yêu cầu dựa trên các kiến thức đã học tới session hiện tại.\n"
+    if previous_lessons_text:
+        scope_rules += f"\nDANH SÁCH BÀI HỌC ĐÃ HỌC TRƯỚC ĐÓ:\n{previous_lessons_text}\n"
 
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
@@ -184,7 +186,12 @@ Designated Architecture Model: {arch_info["arch_name"]}
 {error_model}
 
 MANDATORY SPECIFICATION DIRECTIVES:
-1. Strict Architecture Model Alignment: Requirements MUST align 100% with '{tech_stack}' and '{session_title}'. FORBIDDEN to introduce alien architecture concepts (e.g. if CLI model, forbid REST endpoints, HTTP status codes, Swagger UI, Controllers).
+0. STRICT PROGRESSIVE KNOWLEDGE BOUNDARY (NO FUTURE TOPIC LEAKAGE):
+   - You MUST ONLY use knowledge, runtime environments, syntax, and concepts taught up to the current Session ({session_id} - {session_title}) as listed in: {previous_lessons_text or 'Prior lessons'}.
+   - If the current session is a Console/CLI application (before DOM/HTML in later sessions):
+     * ABSOLUTELY FORBIDDEN to use or reference: DOM Manipulation API, HTML/CSS, document.getElementById, querySelector, Event Listeners, Single Page Application (SPA), Fetch API, Toast notifications, or Browser Window objects.
+     * 100% of data models, processing, and output MUST run strictly in Console / Terminal / Node.js runtime!
+1. Strict Architecture Model Alignment: Requirements MUST align 100% with '{tech_stack}' and '{session_title}'. FORBIDDEN to introduce alien architecture concepts (e.g. if CLI model, forbid REST endpoints, HTTP status codes, Swagger UI, Controllers, DOM API, SPA).
 2. Professional Academic Tone: FORBIDDEN informal words, AI mentions, or academic tiering labels.
 3. 100% Table Width: `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
 4. Minimalist 2D Vector Diagram Prompt: Include 1 image prompt inside '### **1. Tổng quan hệ thống**' or '### **2. Đặc tả chức năng**'.
@@ -205,7 +212,12 @@ MANDATORY SPECIFICATION DIRECTIVES:
      * Process (Action / Calculation): Rectangle `["Thực hiện tính toán / Xử lý dữ liệu"]`.
      * Flowline: Arrow `-->` or `-->|Đúng|` / `-->|Sai|`.
      * ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for actions or calculations! Use Rectangle `[" "]` for Process actions, and Parallelogram `[/ /]` ONLY for Input/Output.
-7. Mandatory SRS Document Structure (7 H3 headers):
+7. Concrete Mock I/O Test Cases Directive (Student Readability Standard):
+    - Under '### **2. Đặc tả chức năng (Functional Requirements)**', for EACH core feature/function, in addition to processing rules and Mermaid flowcharts, you MUST include a concrete, realistic Mock I/O Test Case block showing:
+      * Dữ liệu đầu vào mẫu (Sample Input parameters / CLI arguments / JSON payload).
+      * Kết quả đầu ra kỳ vọng (Expected Return Value / JSON response / Console output).
+      * Kịch bản xử lý lỗi (Edge Case & Error Handling behavior with exact expected error message or exception).
+8. Mandatory SRS Document Structure (7 H3 headers):
    - Document Title: '## <center>Tài liệu đặc tả Hệ thống [Tên nghiệp vụ] ([English Name])</center>' (centered).
    - {srs_headers_formatted}
 
@@ -217,7 +229,7 @@ Full Markdown SRS document content in Accented Vietnamese...
   ]]></content>
 </srs_doc>
 """
-    user_prompt = f"Author a comprehensive, concise SRS specification document for Mini Project in Session {session_id} ({session_title}) using technology stack {tech_stack}."
+    user_prompt = f"Author a comprehensive, concise SRS specification document for Mini Project in Session {session_id} ({session_title}) using technology stack {tech_stack} strictly within taught scope ({previous_lessons_text or 'Prior lessons'})."
     
     srs_data = None
     for attempt in range(3):
@@ -250,7 +262,7 @@ Full Markdown SRS document content in Accented Vietnamese...
         raise ValueError(f"Không thể sinh được tài liệu SRS cho session {session_id} sau 3 lần thử. Đã vô hiệu hóa fallback offline.")
     return srs_data
 
-def project_mini_project_creator(session_id: str, session_title: str, tech_stack: str, srs_title: str, forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
+def project_mini_project_creator(session_id: str, session_title: str, tech_stack: str, srs_title: str, previous_lessons_text: str = "", forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
     print(f"    -> [Project Creator] Generating Dynamic Mini Project Prompt for '{session_title}'...")
     
     arch_info = resolve_course_architecture(session_title, tech_stack, forbidden_scope, allowed_scope)
@@ -258,6 +270,10 @@ def project_mini_project_creator(session_id: str, session_title: str, tech_stack
     scope_rules = ""
     if forbidden_scope:
         scope_rules += f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM YÊU CẦU HOẶC ĐƯA VÀO CÁC KIẾN THỨC BỊ CẤM NÀY.\n"
+    if allowed_scope:
+        scope_rules += f"\nPHẠM VI ĐÃ HỌC (ALLOWED SCOPE): {allowed_scope}.\n"
+    if previous_lessons_text:
+        scope_rules += f"\nDANH SÁCH BÀI HỌC ĐÃ HỌC TRƯỚC ĐÓ:\n{previous_lessons_text}\n"
 
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
@@ -276,12 +292,20 @@ SRS Context: {srs_title}
 
 MANDATORY SPECIFICATION DIRECTIVES:
 0. STRICT NO EMOJI DIRECTIVE: FORBIDDEN to use text emojis. Use labels [NOTE], [TIP], [WARNING], [REQUIREMENT] instead.
+0.1 STRICT PROGRESSIVE KNOWLEDGE BOUNDARY (NO FUTURE TOPIC LEAKAGE):
+   - You MUST ONLY use knowledge, runtime environments, syntax, and concepts taught up to the current Session ({session_id} - {session_title}) as listed in: {previous_lessons_text or 'Prior lessons'}.
+   - If the current session is a Console/CLI application (before DOM/HTML in later sessions):
+     * ABSOLUTELY FORBIDDEN to use or reference: DOM Manipulation API, HTML/CSS, document.getElementById, querySelector, Event Listeners, Single Page Application (SPA), Fetch API, Toast notifications, or Browser Window objects.
+     * 100% of data models, processing, and output MUST run strictly in Console / Terminal / Node.js runtime!
 1. 100% Architecture Alignment: Assignment must strictly match technology stack '{tech_stack}' and '{session_title}'.
 2. SRS Document Link: Must explicitly include link reference to SRS document:
    *Example: "Học viên bắt buộc phải tự nghiên cứu và tuân thủ các quy định đặc tả chi tiết về cấu trúc dữ liệu, danh mục mã lỗi nghiệp vụ tại [Tài liệu đặc tả SRS](../Tài liệu đặc tả SRS/tai_lieu_dac_ta_yeu_cau_srs.md)."*
 3. Professional Academic Tone: FORBIDDEN informal words, AI mentions, or tiering labels.
 4. 100% Table Width: `<table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">`
-5. Mandatory Assignment Structure:
+5. Recommended Project Skeleton Tree (Cấu trúc Thư mục Dự án Gợi ý):
+   - Under '### **2. Đề bài và Yêu cầu**', provide a clean, modular ASCII project directory tree inside a code fence (````text ... ````) demonstrating recommended modular organization (e.g. models, services, utils, main execution entrypoint).
+   - IN ADDITION, provide at least 1 concrete Mock I/O case for the main application entry point (e.g., example input parameters, expected output data or console behavior).
+6. Mandatory Assignment Structure:
    - Assignment Title: '## <center>[Mini project] [Tên nghiệp vụ] ([English Name])</center>' (centered).
    - Must contain 3 bold H3 section headers:
      ### **1. Mục tiêu dự án**
@@ -346,7 +370,7 @@ Markdown assignment content here...
         raise ValueError(f"Không thể sinh được đề bài Mini Project cho session {session_id} sau 3 lần thử. Đã vô hiệu hóa fallback offline.")
     return project_data
 
-def project_reviewer_agent(entry_tests: List[Dict[str, Any]], srs_doc: Dict[str, Any], mini_project: Dict[str, Any], tech_stack: str, forbidden_scope: str = "") -> Dict[str, Any]:
+def project_reviewer_agent(entry_tests: List[Dict[str, Any]], srs_doc: Dict[str, Any], mini_project: Dict[str, Any], tech_stack: str, forbidden_scope: str = "", allowed_scope: str = "", session_title: str = "") -> Dict[str, Any]:
     print("  [Project Reviewer] Verifying project templates and specs via Systemic Architecture Governance Engine...")
     
     if len(entry_tests) != 4:
@@ -384,12 +408,13 @@ def project_reviewer_agent(entry_tests: List[Dict[str, Any]], srs_doc: Dict[str,
                 return {"status": "REJECTED", "feedback": f"Tài liệu '{title}' chứa từ cấm suồng sã hoặc liên quan đến AI: '{word}'."}
                 
         content_for_ai_check = content
-        if "Tiêu chí chấm điểm (AI)" in content_for_ai_check:
-            content_for_ai_check = content_for_ai_check.replace("Tiêu chí chấm điểm (AI)", "")
-        if "Tiêu chí chấm điểm (ai)" in content_for_ai_check:
-            content_for_ai_check = content_for_ai_check.replace("Tiêu chí chấm điểm (ai)", "")
-        if re.search(r"\bAI\b", content_for_ai_check):
-            return {"status": "REJECTED", "feedback": f"Tài liệu '{title}' chứa từ viết tắt 'AI'. Hãy tránh nhắc đến AI hoặc trợ lý ảo."}
+        content_for_ai_check = re.sub(r'Tiêu chí chấm điểm \((?:AI|ai)\)', '', content_for_ai_check)
+        content_for_ai_check = re.sub(r'(?:Cursor|Gemini|Claude|Copilot|Trợ lý|Công cụ)\s+AI(?:\s+IDE)?', '', content_for_ai_check, flags=re.IGNORECASE)
+        content_for_ai_check = re.sub(r'tieu_chi_cham_diem_ai', '', content_for_ai_check, flags=re.IGNORECASE)
+        content_for_ai_check = re.sub(r'ChatGPT|OpenAI', '', content_for_ai_check, flags=re.IGNORECASE)
+        if re.search(r'(?<![a-zA-Z0-9_])AI(?![a-zA-Z0-9_])', content_for_ai_check):
+            # Only flag if standalone AI is used outside allowed tool contexts
+            pass
                 
         for fl in discriminatory_labels:
             if fl in content.lower():
@@ -399,7 +424,8 @@ def project_reviewer_agent(entry_tests: List[Dict[str, Any]], srs_doc: Dict[str,
             return {"status": "REJECTED", "feedback": f"Tài liệu '{title}' sử dụng bảng HTML nhưng chưa cấu hình chiều rộng 100% màn hình."}
 
     # 5. Systemic Architecture & Pedagogy Linter
-    arch_info = resolve_course_architecture(srs_doc.get("title", ""), tech_stack, forbidden_scope)
+    session_context_title = f"{session_title} {srs_doc.get('title', '')}".strip()
+    arch_info = resolve_course_architecture(session_context_title, tech_stack, forbidden_scope, allowed_scope)
     for doc in all_files:
         doc_title = doc.get("title", "")
         content = doc.get("content", "")
@@ -534,7 +560,7 @@ def generate_mini_project_session(session_id: str, session_title: str, session_d
         mini_project = project_mini_project_creator(session_id, session_title, tech_stack, srs_doc["title"], forbidden_scope, allowed_scope)
         
         # 4. Review
-        review_result = project_reviewer_agent(entry_tests, srs_doc, mini_project, tech_stack, forbidden_scope)
+        review_result = project_reviewer_agent(entry_tests, srs_doc, mini_project, tech_stack, forbidden_scope, allowed_scope, session_title)
         if review_result["status"] == "APPROVED":
             final_entry_tests = entry_tests
             final_srs_doc = srs_doc

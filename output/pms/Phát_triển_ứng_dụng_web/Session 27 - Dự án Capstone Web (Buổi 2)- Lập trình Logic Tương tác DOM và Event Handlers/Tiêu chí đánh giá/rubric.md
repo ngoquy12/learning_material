@@ -1,0 +1,1 @@
+# Rubric Tiêu chí đánh giá Capstone Project: Session 27 - Dự án Capstone Web (Buổi 2)- Lập trình Logic Tương tác DOM và Event Handlers

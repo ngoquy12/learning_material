@@ -1,22 +1,23 @@
 """
 core/validators/master_validator.py
 Unified Master Validator Engine for Elearning Agent Architecture.
-Provides a single orchestrator function `validate_resource` covering all 5 resource types:
-- READING
-- SLIDE
-- QUIZ
-- PRACTICE
-- PROJECT
+Provides a plug-in based registry for pedagogical and technical validators.
 """
 
-from typing import Tuple, List, Dict, Any, Union
-from core.validators.reading_validator import validate_reading_material
-from core.validators.slide_validator import validate_slide_presentation
-from core.validators.quiz_validator import validate_and_shuffle_quiz
-from core.validators.practice_validator import validate_practice_exercise
-from core.validators.project_validator import validate_project_spec
-from core.validators.session_compiler_validator import validate_compiled_session_html
-from core.validators.hyperframes_validator import validate_hyperframes_script
+from typing import Tuple, List, Dict, Any, Union, Callable
+
+# Global registry mapping resource type strings to validator functions
+VALIDATOR_REGISTRY: Dict[str, Callable[[Any, Dict[str, Any]], Tuple[bool, List[str]]]] = {}
+
+def register_validator(*resource_types: str):
+    """
+    Decorator to register a validator function for specific resource types.
+    """
+    def decorator(func: Callable[[Any, Dict[str, Any]], Tuple[bool, List[str]]]):
+        for rt in resource_types:
+            VALIDATOR_REGISTRY[rt.upper().strip()] = func
+        return func
+    return decorator
 
 def validate_resource(
     resource_type: str,
@@ -24,48 +25,35 @@ def validate_resource(
     metadata: Dict[str, Any] = None
 ) -> Tuple[bool, List[str]]:
     """
-    Unified master entrypoint for programmatic validation across all learning material types.
-    Returns (is_valid, list_of_error_strings).
+    Unified master entrypoint for validation.
+    Dynamically routes validation to registered plugins.
     """
     res_type = (resource_type or "").upper().strip()
     metadata = metadata or {}
     
-    if res_type in ["VIDEO_SCRIPT", "HYPERFRAMES"]:
-        if isinstance(content_data, dict):
-            return validate_hyperframes_script(content_data, metadata)
-            
-    elif res_type in ["COMPILED_SESSION", "READING_ALL", "SESSION_SLIDES"]:
-        return validate_compiled_session_html(content_data)
+    # Return True by default if no validator is registered for this type
+    validator_func = VALIDATOR_REGISTRY.get(res_type)
+    if not validator_func:
+        # Fallback dynamic imports to ensure modules are loaded and registered
+        _ensure_validators_imported()
+        validator_func = VALIDATOR_REGISTRY.get(res_type)
         
-    elif res_type == "READING":
-        if isinstance(content_data, str):
-            return validate_reading_material(content_data, metadata)
-        elif isinstance(content_data, dict):
-            content_str = content_data.get("html") or str(content_data)
-            return validate_reading_material(content_str, metadata)
-            
-    elif res_type == "SLIDE":
-        if isinstance(content_data, list):
-            return validate_slide_presentation(content_data, metadata)
-        elif isinstance(content_data, dict):
-            scenes = content_data.get("scenes", [])
-            return validate_slide_presentation(scenes, metadata)
-            
-    elif res_type == "QUIZ":
-        if isinstance(content_data, list):
-            is_ok, _, errs = validate_and_shuffle_quiz(content_data)
-            return is_ok, errs
-        elif isinstance(content_data, dict):
-            qs = content_data.get("questions", [])
-            is_ok, _, errs = validate_and_shuffle_quiz(qs)
-            return is_ok, errs
-            
-    elif res_type in ["PRACTICE", "HOMEWORK"]:
-        if isinstance(content_data, dict):
-            return validate_practice_exercise(content_data, metadata)
-            
-    elif res_type in ["PROJECT", "MINI_PROJECT"]:
-        if isinstance(content_data, dict):
-            return validate_project_spec(content_data, metadata)
+    if validator_func:
+        try:
+            return validator_func(content_data, metadata)
+        except Exception as e:
+            return False, [f"Lỗi khi thực thi Validator cho {res_type}: {str(e)}"]
             
     return True, []
+
+def _ensure_validators_imported():
+    """Import modules to trigger their @register_validator decorations."""
+    try:
+        import core.validators.reading_validator
+        import core.validators.quiz_validator
+        import core.validators.practice_validator
+        import core.validators.project_validator
+        import core.validators.session_compiler_validator
+    except ImportError as e:
+        print(f"  [Validator Warning] Failed to import sub-validators: {e}")
+

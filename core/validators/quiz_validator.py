@@ -5,7 +5,8 @@ Strictly enforces the 9 Mandatory Principles of E-Learning Quiz Design and Syste
 """
 import re
 import json
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Tuple, Any, Union
+from core.validators.master_validator import register_validator
 
 BANNED_AI_BUZZWORDS = [
     r"\bbẫy\b", r"\bbẫy\s+lỗi\b", r"\bbẫy\s+lập\s+trình\b", r"\bbẫy\s+cú\s+pháp\b", r"\bbẫy\s+logic\b",
@@ -65,10 +66,15 @@ def validate_quiz_json(quiz_data: List[Dict[str, Any]], lesson_scope_rules: Dict
     return len(errors) == 0, errors
 
 
-def validate_and_shuffle_quiz(quiz_data: List[Dict[str, Any]], lesson_scope_rules: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
+@register_validator("QUIZ")
+def validate_and_shuffle_quiz(quiz_data: Union[List[Dict[str, Any]], Dict[str, Any]], lesson_scope_rules: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
-    Master Quiz Validator entrypoint imported by master_validator.py.
+    Master Quiz Validator entrypoint.
     """
+    if isinstance(quiz_data, dict):
+        quiz_data = quiz_data.get("questions") or quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
+    if not isinstance(quiz_data, list):
+        return False, ["Dữ liệu Quiz không đúng định dạng (yêu cầu danh sách câu hỏi)."]
     return validate_quiz_json(quiz_data, lesson_scope_rules)
 
 

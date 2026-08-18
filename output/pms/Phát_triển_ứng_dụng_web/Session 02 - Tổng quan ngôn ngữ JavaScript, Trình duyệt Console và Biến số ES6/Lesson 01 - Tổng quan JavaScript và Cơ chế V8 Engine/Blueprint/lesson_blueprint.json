@@ -1,0 +1,65 @@
+{
+  "lesson_slug": "tong-quan-javascript-va-co-che-v8-engine",
+  "lesson_title": "Tổng quan JavaScript và Cơ chế V8 Engine",
+  "real_world_scenario": {
+    "name": "Hệ thống Nhật ký Giám sát Đơn hàng E-commerce",
+    "description": "Xây dựng và phân tích luồng thực thi mã nguồn của Hệ thống Giám sát Đơn hàng E-commerce trên nền tảng V8 Engine. Kịch bản giúp học viên thấu hiểu cách trình duyệt biên dịch JIT, quản lý Call Stack và xử lý các câu lệnh nghiệp vụ từ mã thô đến mã máy thực tế."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Đặc trưng ngôn ngữ JavaScript",
+      "description": "JavaScript là ngôn ngữ kịch bản đơn luồng (single-threaded), có kiểu dữ liệu động (dynamically typed), kết hợp giữa cơ chế thông dịch và biên dịch JIT (Just-In-Time) để thực thi mã nguồn.",
+      "raw_code_snippet": "// Thao tác tính toán giá trị đơn hàng E-commerce đơn giản\nfunction calculateCartTotal() {\n  return 150000 + 30000; // Tổng tiền hàng + Phí vận chuyển\n}\n\ncalculateCartTotal();"
+    },
+    {
+      "concept_name": "Cơ chế hoạt động của V8 Engine",
+      "description": "V8 Engine bao gồm Bộ thông dịch Ignition (chuyển đổi code thành Bytecode) và Bộ biên dịch TurboFan (tối ưu mã Bytecode thành Machine Code). V8 quản lý bộ nhớ thông qua Call Stack (ngăn xếp lời gọi hàm theo cơ chế LIFO) và Memory Heap (vùng nhớ cấp phát động).",
+      "raw_code_snippet": "// Minh họa luồng thực thi Call Stack trong V8 Engine\nfunction checkInventory() {\n  return true;\n}\n\nfunction processPayment() {\n  checkInventory(); // checkInventory được đẩy vào đỉnh Call Stack\n}\n\nprocessPayment(); // processPayment được đẩy vào Call Stack đầu tiên"
+    },
+    {
+      "concept_name": "Môi trường thực thi Browser Console và Tệp script.js",
+      "description": "Mã JavaScript có thể thực thi trực tiếp trên Browser Console để thử nghiệm nhanh các biểu thức, hoặc lưu trữ trong tệp script.js và nhúng vào giao diện HTML thông qua thẻ script.",
+      "raw_code_snippet": "<!-- File index.html liên kết tệp script.js xử lý đơn hàng -->\n<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Hệ thống Đơn hàng E-commerce</title>\n</head>\n<body>\n    <h1>Giám sát Hệ thống Đơn hàng</h1>\n    <script src=\"script.js\"></script>\n</body>\n</html>"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Kiểm tra Luồng Thực thi Đơn hàng Tuần tự trong Call Stack",
+      "requirement": "Viết các hàm mô phỏng quy trình tiếp nhận và xác nhận đơn hàng E-commerce để quan sát thứ tự đẩy vào và lấy ra khỏi Call Stack của V8 Engine.",
+      "raw_code": "// Tệp script.js - Mô phỏng xử lý luồng thực thi đơn hàng E-commerce\n\n// Hàm kiểm tra thông tin kho hàng\nfunction validateStock() {\n    // [NOTE] Hàm này thực thi và kết thúc cuối cùng trong chuỗi lời gọi\n    return \"Hàng còn trong kho\";\n}\n\n// Hàm tạo mã hóa đơn\nfunction generateInvoice() {\n    validateStock(); // V8 đẩy validateStock() vào đỉnh Call Stack\n}\n\n// Hàm khởi tạo đơn hàng E-commerce\nfunction createOrder() {\n    generateInvoice(); // V8 đẩy generateInvoice() vào Call Stack\n}\n\n// Điểm bắt đầu thực thi chương trình\ncreateOrder();"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Tối ưu hóa Biên dịch JIT và Bộ nhớ Memory Heap",
+      "requirement": "Nâng cấp hệ thống bằng cách phân chia dữ liệu tính toán tổng tiền đơn hàng và kiểm tra chính sách giảm giá. Quan sát cách V8 Engine lưu trữ dữ liệu trên Memory Heap và tối ưu mã máy thông qua TurboFan Compiler.",
+      "raw_code": "// Tệp script.js - Nâng cấp tính toán đơn hàng và phân bổ bộ nhớ V8\n\n// Hàm tính tiền sản phẩm\nfunction calculateSubtotal() {\n    return 500000; // Giá trị đơn hàng cố định\n}\n\n// Hàm tính tiền chiết khấu E-commerce\nfunction calculateDiscount() {\n    return 50000; // Tiền giảm giá VIP\n}\n\n// Hàm tổng hợp hóa đơn thanh toán\nfunction processFinalCheckout() {\n    // V8 cấp phát bộ nhớ cho các phép toán và đẩy hàm vào Call Stack\n    function getFinalAmount() {\n        return calculateSubtotal() - calculateDiscount();\n    }\n    \n    return getFinalAmount();\n}\n\n// Thực thi quy trình thanh toán đơn hàng\nprocessFinalCheckout();"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Kiểm soát Sự cố Tràn Ngăn xếp (Call Stack Overflow) trong Xử lý Giảm giá Đa tầng",
+      "requirement": "Phát hiện và sửa lỗi trong thuật toán tính mã giảm giá lặp vô hạn gây tràn nổ Call Stack của V8 Engine (Maximum call stack size exceeded) trong ứng dụng E-commerce thực tế.",
+      "raw_code": "// Tệp script.js - Xử lý tính toán giảm giá bậc thang an toàn\n\n// Hàm tính giảm giá cho đơn hàng doanh nghiệp với điều kiện dừng an toàn\nfunction applyTieredDiscount(totalAmount, tierLevel) {\n    // [NOTE] Điều kiện dừng để ngăn chặn lỗi nổ Call Stack (Stack Overflow)\n    if (tierLevel <= 0) {\n        return totalAmount;\n    }\n\n    // Giảm 5% cho mỗi cấp độ VIP\n    function calculateDiscountedValue() {\n        return totalAmount * 0.95;\n    }\n\n    // Lời gọi đệ quy tiến về điểm dừng\n    return applyTieredDiscount(calculateDiscountedValue(), tierLevel - 1);\n}\n\n// Thực thi áp dụng 3 cấp độ giảm giá cho đơn hàng 1,000,000 VND\napplyTieredDiscount(1000000, 3);"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lỗi Tràn Ngăn xếp Call Stack (RangeError: Maximum call stack size exceeded)",
+      "explanation": "Xảy ra khi một hàm tự gọi lại chính nó (đệ quy) mà không có điểm dừng hợp lệ, khiến bộ nhớ Call Stack của V8 Engine vượt quá dung lượng cấp phát và làm sụp đổ chương trình.",
+      "code_bad": "// LỖI: Hàm gọi đệ quy liên tục không có điều kiện dừng\nfunction processOrderLoop() {\n    processOrderLoop(); // Gây lỗi Maximum call stack size exceeded\n}\nprocessOrderLoop();",
+      "code_good": "// CHUẨN: Bổ sung điều kiện dừng (Base case) cho luồng thực thi\nfunction processOrderLoop(count) {\n    if (count <= 0) {\n        return \"Hoàn tất xử lý đơn hàng\";\n    }\n    return processOrderLoop(count - 1);\n}\nprocessOrderLoop(5);"
+    },
+    {
+      "error_name": "Lỗi Chặn Luồng Thực thi Duy nhất (Blocking Main Thread)",
+      "explanation": "Do JavaScript vận hành theo cơ chế đơn luồng (Single-threaded), các câu lệnh hoặc vòng lặp vô hạn sẽ chiếm giữ Call Stack liên tục, chặn đứng mọi thao tác khác trên giao diện web.",
+      "code_bad": "// LỖI: Vòng lặp vô hạn làm treo toàn bộ luồng duy nhất của V8 Engine\nfunction processCartItems() {\n    while (true) {\n        // Vòng lặp không dừng chặn đứng trình duyệt\n    }\n}\nprocessCartItems();",
+      "code_good": "// CHUẨN: Giới hạn số lần duyệt theo quy mô danh sách xác định\nfunction processCartItems(totalItems) {\n    for (var i = 0; i < totalItems; i++) {\n        // Xử lý từng sản phẩm hợp lệ\n    }\n}\nprocessCartItems(10);"
+    },
+    {
+      "error_name": "Lỗi Sai Vị trí Nhúng Tệp script.js Gây Chặn Dựng Giao Diện DOM",
+      "explanation": "Đặt thẻ script tải mã JavaScript ở đầu tệp HTML mà không có thuộc tính điều hướng sẽ khiến trình duyệt tạm dừng việc dựng giao diện HTML để tải và thông dịch mã JS, làm giảm trải nghiệm người dùng.",
+      "code_bad": "<!-- LỖI: Đặt script ở head chặn luồng hiển thị HTML của trang web -->\n<head>\n    <script src=\"script.js\"></script>\n</head>\n<body>\n    <h1>Hệ thống Đơn hàng</h1>\n</body>",
+      "code_good": "<!-- CHUẨN: Đặt script ở cuối thẻ body để giao diện hiển thị xong trước -->\n<body>\n    <h1>Hệ thống Đơn hàng</h1>\n    <script src=\"script.js\"></script>\n</body>"
+    }
+  ]
+}

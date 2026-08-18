@@ -1,0 +1,65 @@
+{
+  "lesson_slug": "khai-niem-list-indexing-va-slicing",
+  "lesson_title": "Khái niệm List, Indexing và Slicing trong Python",
+  "real_world_scenario": {
+    "name": "Hệ thống Xử lý Nhật ký Đơn hàng E-commerce",
+    "description": "Trong ứng dụng thương mại điện tử, danh sách giá trị đơn hàng và tên sản phẩm được lưu trữ dưới dạng List. Cần truy cập nhanh đơn hàng đầu tiên, đơn hàng mới nhất (Indexing) và trích xuất danh sách đơn hàng theo trang hoặc chu kỳ báo cáo (Slicing) mà không làm biến đổi dữ liệu gốc."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Khái niệm List và Khởi tạo",
+      "description": "List trong Python là kiểu dữ liệu cho phép lưu trữ một dãy các phần tử có thứ tự. List hỗ trợ chứa nhiều kiểu dữ liệu khác nhau (số nguyên, số thực, chuỗi, boolean) trong cùng một biến.",
+      "raw_code_snippet": "# Khởi tạo danh sách thông tin giao dịch hỗn hợp\norder_info = [101, \"Sản phẩm A\", 250000.0, True]\nprint(\"Dữ liệu đơn hàng:\", order_info)\nprint(\"Số lượng phần tử trong danh sách:\", len(order_info))"
+    },
+    {
+      "concept_name": "Truy cập phần tử qua Chỉ số (Indexing)",
+      "description": "Mỗi phần tử trong List có một vị trí xác định. Chỉ số dương (Positive Index) bắt đầu từ 0 cho phần tử đầu tiên. Chỉ số âm (Negative Index) bắt đầu từ -1 cho phần tử cuối cùng.",
+      "raw_code_snippet": "# Khởi tạo danh sách giá trị giao dịch (Đơn vị: VNĐ)\ntransaction_amounts = [150000, 320000, 85000, 500000, 210000]\n\n# Indexing dương\nfirst_transaction = transaction_amounts[0]\n\n# Indexing âm\nlatest_transaction = transaction_amounts[-1]\n\nprint(\"Giao dịch đầu tiên:\", first_transaction)\nprint(\"Giao dịch mới nhất:\", latest_transaction)"
+    },
+    {
+      "concept_name": "Cắt lát danh sách (Slicing [start:stop:step])",
+      "description": "Slicing cho phép trích xuất một danh sách con từ danh sách ban đầu theo công thức [start:stop:step]. Vị trí 'stop' không được bao gồm trong kết quả trả về (cận trên bị loại trừ).",
+      "raw_code_snippet": "order_ids = [1001, 1002, 1003, 1004, 1005, 1006, 1007]\n\n# Lấy từ chỉ số 1 đến trước 4 (chỉ số 1, 2, 3)\nsub_orders = order_ids[1:4]\n\n# Lấy các phần tử nhảy cách bước (step = 2)\neven_step_orders = order_ids[0:7:2]\n\nprint(\"Danh sách con:\", sub_orders)\nprint(\"Danh sách lấy cách bước:\", even_step_orders)"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Khởi tạo và truy xuất đơn hàng đơn giản",
+      "requirement": "Tạo danh sách lưu trữ giá trị 5 đơn hàng vừa hoàn tất. Trích xuất giá trị của đơn hàng đầu tiên (đơn mở hàng) và đơn hàng mới nhất.",
+      "raw_code": "# Danh sách giá trị 5 đơn hàng trong ca làm việc (VNĐ)\norder_values = [120000, 450000, 89000, 310000, 670000]\n\n# Truy xuất đơn hàng đầu tiên bằng chỉ số dương 0\nfirst_order = order_values[0]\n\n# Truy xuất đơn hàng mới nhất bằng chỉ số âm -1\nlatest_order = order_values[-1]\n\n# In kết quả\nprint(\"Tổng số đơn hàng ghi nhận:\", len(order_values))\nprint(\"Giá trị đơn hàng đầu tiên:\", first_order, \"VNĐ\")\nprint(\"Giá trị đơn hàng mới nhất:\", latest_order, \"VNĐ\")"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Nâng cấp nghiệp vụ - Phân đoạn dữ liệu báo cáo",
+      "requirement": "Từ danh sách 8 mã đơn hàng phát sinh trong ngày, thực hiện trích xuất: Top 3 đơn hàng đầu tiên, 3 đơn hàng mới nhất, và các đơn hàng ở vị trí chỉ số chẵn.",
+      "raw_code": "# Danh sách mã đơn hàng phát sinh theo thứ tự thời gian\nall_order_ids = [501, 502, 503, 504, 505, 506, 507, 508]\n\n# Trích xuất Top 3 đơn hàng đầu tiên (start=0 mặc định, stop=3)\ntop_3_first_orders = all_order_ids[:3]\n\n# Trích xuất 3 đơn hàng mới nhất (dùng chỉ số âm từ -3 đến hết)\ntop_3_latest_orders = all_order_ids[-3:]\n\n# Trích xuất các đơn hàng ở chỉ số chẵn (0, 2, 4, 6) dùng step = 2\neven_indexed_orders = all_order_ids[::2]\n\n# In kết quả báo cáo\nprint(\"Top 3 đơn hàng đầu tiên:\", top_3_first_orders)\nprint(\"3 đơn hàng mới nhất:\", top_3_latest_orders)\nprint(\"Danh sách đơn hàng ở chỉ số chẵn:\", even_indexed_orders)"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Ứng dụng thực tế - Đảo ngược dữ liệu và Phân trang tĩnh",
+      "requirement": "Xử lý nhật ký 6 giao dịch thương mại điện tử. Thực hiện đảo ngược chuỗi nhật ký để ưu tiên xem giao dịch mới nhất và mô phỏng việc hiển thị dữ liệu trang 2 (mỗi trang 2 phần tử).",
+      "raw_code": "# Nhật ký mô tả đơn hàng dạng chuỗi\ntransaction_logs = [\n    \"Đơn #101: Đã thanh toán\",\n    \"Đơn #102: Đang vận chuyển\",\n    \"Đơn #103: Đã hoàn tiền\",\n    \"Đơn #104: Đã thanh toán\",\n    \"Đơn #105: Đã giao hàng\",\n    \"Đơn #106: Chờ xử lý\"\n]\n\n# Đảo ngược nhật ký giao dịch bằng slicing với step = -1 (mới nhất lên đầu)\nreversed_logs = transaction_logs[::-1]\n\n# Phân trang dữ liệu tĩnh: Lấy Trang 2 (Giả định Trang 1: phần tử 0,1; Trang 2: phần tử 2,3)\nitems_per_page = 2\npage_2_start = 2\npage_2_stop = page_2_start + items_per_page\npage_2_logs = transaction_logs[page_2_start:page_2_stop]\n\n# In kết quả hiển thị cho Dashboard quản trị\nprint(\"Nhật ký giao dịch gốc:\", transaction_logs)\nprint(\"Nhật ký xem từ mới nhất tới cũ nhất:\", reversed_logs)\nprint(\"Dữ liệu hiển thị tại Trang 2:\", page_2_logs)"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lỗi vượt quá phạm vi chỉ số (IndexError: list index out of range)",
+      "explanation": "Lỗi này xuất hiện khi bạn cố gắng truy cập một chỉ số không tồn tại trong List (ví dụ: List có 5 phần tử thì chỉ số hợp lệ chỉ từ 0 đến 4 hoặc từ -1 đến -5).",
+      "code_bad": "orders = [101, 102, 103]\n# Danh sách chỉ có 3 phần tử (chỉ số 0, 1, 2)\n# Truy cập chỉ số 3 sẽ gây ra lỗi lập trình\ninvalid_order = orders[3]",
+      "code_good": "orders = [101, 102, 103]\n# Cách 1: Truy cập đúng trong khoảng 0 -> len(orders) - 1\nvalid_order = orders[2]\n# Cách 2: Sử dụng chỉ số âm để lấy phần tử cuối an toàn\nlatest_order = orders[-1]\nprint(\"Đơn hàng hợp lệ:\", valid_order)"
+    },
+    {
+      "error_name": "Hiểu sai cận trên trong Slicing (Loại trừ vị trí stop)",
+      "explanation": "Trong thao tác slicing [start:stop], phần tử tại chỉ số 'stop' KHÔNG bao giờ được đưa vào danh sách kết quả. Nếu muốn lấy phần tử tại chỉ số N, bạn phải đặt 'stop' là N + 1.",
+      "code_bad": "items = [\"Áo\", \"Quần\", \"Giày\", \"Nón\"]\n# Muốn lấy 3 phần tử đầu tiên (chỉ số 0, 1, 2) nhưng đặt stop = 2\nsubset = items[0:2] # Kết quả chỉ nhận được ['Áo', 'Quần']",
+      "code_good": "items = [\"Áo\", \"Quần\", \"Giày\", \"Nón\"]\n# Đúng: Đặt stop = 3 để lấy trọn vẹn các phần tử tại chỉ số 0, 1, 2\nsubset = items[0:3]\nprint(\"Đã lấy đủ 3 phần tử:\", subset)"
+    },
+    {
+      "error_name": "Nhầm lẫn kết quả trả về giữa Indexing và Slicing",
+      "explanation": "Indexing (ví dụ: list[0]) trả về chính giá trị/kiểu dữ liệu của phần tử đó. Slicing (ví dụ: list[0:1]) luôn trả về một List mới chứa phần tử đó.",
+      "code_bad": "prices = [100000, 200000, 300000]\n# Slicing tạo ra một list [100000], không phải giá trị số nguyên 100000\nprice_slice = prices[0:1]\n# Thực hiện cộng trực tiếp số nguyên với list sẽ bị lỗi TypeError\n# total = price_slice + 50000",
+      "code_good": "prices = [100000, 200000, 300000]\n# Dùng Indexing để lấy giá trị dạng số nguyên\nsingle_price = prices[0]\ntotal = single_price + 50000\nprint(\"Tổng tiền hợp lệ:\", total)"
+    }
+  ]
+}

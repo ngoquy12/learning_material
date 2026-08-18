@@ -1,52 +1,53 @@
-# Bộ câu hỏi kiểm tra bài đọc (Reading Comprehension Questions)
+# Bộ câu hỏi kiểm tra bài đọc (Reading Comprehension Questions) - Lesson 02
 
 ## Tình huống & Mã nguồn kiểm tra
-Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
+
+Dựa trên mã nguồn nghiệp vụ xét duyệt ưu đãi vận chuyển và quà tặng đơn hàng ShopeeFood:
 
 ```python
-# Mã nguồn minh họa nghiệp vụ cho bài học: Cơ chế so sánh và Biểu thức logic Boolean
-score = 8.5
+# Thông số đơn hàng hiện tại
+order_amount = 350000    # Tổng tiền đơn hàng (VNĐ)
+distance = 4.5           # Khoảng cách giao hàng (km)
+is_vip = True            # Khách hàng là thành viên VIP
 
-if score >= 9.0:
-    rank = "Xuất sắc"
-elif score >= 8.0:
-    rank = "Giỏi"
-elif score >= 6.5:
-    rank = "Khá"
-else:
-    rank = "Trung bình"
-
-print(f"Học lực: {rank}")
+# Kiểm tra các điều kiện logic
+is_freeship = (order_amount >= 300000) or (is_vip and distance <= 5.0)
+is_high_value = order_amount > 500000
+is_near = distance < 2.0
 ```
 
 ---
 
-### Câu 1 (Xung hướng - Tính toán kết quả với dữ liệu X): Nếu giá trị đầu vào là `score = 8.5`, chương trình sẽ thực thi qua những câu lệnh rẽ nhánh nào và in kết quả `rank` ra màn hình là gì?
+### Câu 1: Xác định giá trị Boolean (True/False) của biến `is_freeship` trong trường hợp này. Giải thích cụ thể luồng tính toán.
+
 > **Gợi ý trả lời & Định hướng đáp án:**
-> - Điều kiện `score >= 9.0` (8.5 >= 9.0) trả về `False`.
-> - Điều kiện `score >= 8.0` (8.5 >= 8.0) trả về `True`.
-> - Gán `rank = 'Giỏi'` và kết quả in ra màn hình là `Học lực: Giỏi`.
+>
+> - Biểu thức thứ nhất: `order_amount >= 300000` (350000 >= 300000) trả về `True`.
+> - Do toán tử `or` có tính chất đánh giá ngắn mạch, khi vế trái đã là `True`, Python ngay lập tức kết luận kết quả chung của `is_freeship` là `True` mà không cần tính toán tiếp vế phải.
 
 ---
 
-### Câu 2 (Xung hướng - Thử nghiệm với mốc dữ liệu Y): Nếu sửa giá trị thành `score = 7.0`, nhánh rẽ nào sẽ được kích hoạt và kết quả `rank` thay đổi ra sao?
+### Câu 2: Xác định giá trị Boolean của `is_high_value` và `is_near` trên bộ dữ liệu mẫu này.
+
 > **Gợi ý trả lời & Định hướng đáp án:**
-> - Các điều kiện `>= 9.0` và `>= 8.0` đều `False`.
-> - Điều kiện `score >= 6.5` (7.0 >= 6.5) trả về `True`.
-> - Gán `rank = 'Khá'` và in ra màn hình `Học lực: Khá`.
+>
+> - `is_high_value = 350000 > 500000` trả về `False`.
+> - `is_near = 4.5 < 2.0` trả về `False`.
 
 ---
 
-### Câu 3 (Nghịch hướng - Suy luận dữ liệu đầu vào từ kết quả Z): Để hệ thống xếp loại `rank = 'Giỏi'`, giá trị biến `score` phải thỏa mãn khoảng giá trị toán học nào?
+### Câu 3: Nếu khách hàng đổi trạng thái VIP thành thường (`is_vip = False`), giá trị của `is_freeship` có bị thay đổi không? Tại sao?
+
 > **Gợi ý trả lời & Định hướng đáp án:**
-> - Biến `score` phải thỏa mãn điều kiện `8.0 <= score < 9.0` (từ 8.0 đến dưới 9.0).
+>
+> - Giá trị của `is_freeship` **không thay đổi** (vẫn là `True`).
+> - Vì điều kiện thứ nhất `order_amount >= 300000` vẫn thỏa mãn (`True`). Với toán tử `or`, chỉ cần một trong hai vế đúng thì kết quả là `True`.
 
 ---
 
-### Câu 4 (Phân tích bẫy lỗi & Trường hợp biên): Nếu nhập `score = -1.0` hoặc `score = 11.0`, hãy chỉ ra điểm bất hợp lý của mã nguồn hiện tại và đề xuất cách cải tiến.
-> **Gợi ý trả lời & Định hướng đáp án:**
-> - Mã nguồn chưa có nhánh kiểm tra tính hợp lệ dữ liệu (0 <= score <= 10).
-> - Khi `score = 11.0`, hệ thống vẫn xếp loại 'Xuất sắc', khi `score = -1.0` xếp loại 'Trung bình'.
-> - Cần bổ sung câu lệnh `if score < 0 or score > 10:` ở đầu để báo lỗi dữ liệu không hợp lệ.
+### Câu 4: Hãy giải thích tại sao biểu thức kiểm tra `order_amount == "350000"` lại trả về kết quả `False` mặc dù giá trị đơn hàng là 350.000?
 
----
+> **Gợi ý trả lời & Định hướng đáp án:**
+>
+> - Trong Python, toán tử so sánh bằng `==` kiểm tra cả giá trị và sự tương đương kiểu dữ liệu.
+> - Biến `order_amount` là kiểu số (`int` hoặc `float`), trong khi `"350000"` là kiểu chuỗi ký tự (`str`). Python so sánh khác kiểu dữ liệu nên luôn trả về `False` mà không tự động ép kiểu ngầm định.

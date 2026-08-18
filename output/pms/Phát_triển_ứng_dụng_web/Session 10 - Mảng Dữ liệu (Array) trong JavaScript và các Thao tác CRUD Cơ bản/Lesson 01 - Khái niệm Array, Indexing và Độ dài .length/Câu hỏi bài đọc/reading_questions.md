@@ -1,0 +1,1 @@
+# Câu hỏi bài đọc: Lesson 01 - Khái niệm Array, Indexing và Độ dài .length

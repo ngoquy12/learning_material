@@ -4,8 +4,9 @@ Programmatic Validation Layer for Reading Materials.
 Checks HTML structure, JS syntax, Mermaid diagram syntax, and link validity.
 """
 
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Union
 from core.validators.syntax_linter import lint_html_syntax
+from core.validators.master_validator import register_validator
 
 def validate_reading_json_payload(payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """Validates structured JSON payload before rendering Jinja2 HTML."""
@@ -20,10 +21,14 @@ def validate_reading_json_payload(payload: Dict[str, Any]) -> Tuple[bool, List[s
             
     return len(errors) == 0, errors
 
-def validate_reading_material(content: str, metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
+@register_validator("READING")
+def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates a generated reading material for structural integrity, syntax, and pedagogical standards.
     """
+    if isinstance(content, dict):
+        content = content.get("html") or str(content)
+        
     if not content:
         return False, ["Nội dung bài đọc bị trống."]
         

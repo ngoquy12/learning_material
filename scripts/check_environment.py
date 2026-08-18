@@ -43,7 +43,7 @@ def check_nodejs() -> bool:
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         print("  [WARN] Node.js is not installed or not in PATH.")
-        print("         HyperFrames Video Render Engine requires Node.js 18+ and Puppeteer.")
+        print("         Marp CLI Slide Engine requires Node.js 18+.")
         return False
 
 def check_ffmpeg() -> bool:
@@ -57,7 +57,6 @@ def check_ffmpeg() -> bool:
     except FileNotFoundError:
         pass
     print("  [WARN] FFmpeg not found in PATH.")
-    print("         Audio/video merging in HyperFrames will require FFmpeg.")
     return False
 
 def check_env_config() -> bool:

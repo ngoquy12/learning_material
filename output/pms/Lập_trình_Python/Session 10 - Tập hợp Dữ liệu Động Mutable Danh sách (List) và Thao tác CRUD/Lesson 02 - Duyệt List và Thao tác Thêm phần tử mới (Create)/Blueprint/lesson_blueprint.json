@@ -1,0 +1,67 @@
+{
+  "lesson_slug": "duyet-list-va-them-phan-tu-moi",
+  "lesson_title": "Duyệt List và Thao tác Thêm phần tử mới (Create)",
+  "real_world_scenario": {
+    "name": "Hệ thống Quản lý Giỏ hàng E-commerce",
+    "description": "Trong các ứng dụng thương mại điện tử, giỏ hàng trực tuyến liên tục biến động khi khách hàng chọn mua thêm sản phẩm, nhận quà tặng kèm theo vị trí ưu tiên hoặc gộp danh sách ưu đãi. Bài học này sử dụng bài toán xử lý danh sách sản phẩm trong giỏ hàng để minh họa các thao tác duyệt dữ liệu và thêm sản phẩm mới chuẩn nghiệp vụ."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Duyệt List bằng vòng lặp for và hàm enumerate()",
+      "description": "Vòng lặp for giúp truy cập lần lượt từng phần tử trong List. Khi cần lấy cả vị trí (index) và giá trị của từng mặt hàng trong giỏ, hàm enumerate() cung cấp giải pháp ngắn gọn và tối ưu.",
+      "raw_code_snippet": "# Danh sách các sản phẩm trong giỏ hàng\ncart_items = [\"Laptop\", \"Chuột không dây\", \"Tai nghe\"]\n\n# Duyệt list cơ bản với vòng lặp for\nfor item in cart_items:\n    print(\"Sản phẩm trong giỏ:\", item)\n\n# Duyệt list lấy kèm chỉ số vị trí với enumerate()\nfor index, item in enumerate(cart_items, start=1):\n    print(f\"Vị trí {index}: {item}\")"
+    },
+    {
+      "concept_name": "Thêm phần tử vào cuối List bằng append()",
+      "description": "Phương thức append() bổ sung đúng một phần tử mới vào vị trí cuối cùng của List. Thao tác này tương ứng với việc người dùng bấm nút 'Thêm vào giỏ hàng'.",
+      "raw_code_snippet": "cart_items = [\"Laptop\", \"Chuột không dây\"]\n\n# Thêm một sản phẩm mới vào cuối giỏ hàng\ncart_items.append(\"Bàn phím cơ\")\n\nprint(\"Giỏ hàng sau khi thêm:\", cart_items)"
+    },
+    {
+      "concept_name": "Chèn phần tử vào vị trí bất kỳ bằng insert()",
+      "description": "Phương thức insert(index, item) cho phép đưa một phần tử vào vị trí index cụ thể trong List. Các phần tử đứng đằng sau vị trí chèn sẽ tự động dời về phía sau.",
+      "raw_code_snippet": "cart_items = [\"Laptop\", \"Tai nghe\"]\n\n# Chèn món quà ưu tiên vào ngay đầu giỏ hàng (chỉ số 0)\ncart_items.insert(0, \"Móc khóa tặng kèm\")\n\nprint(\"Giỏ hàng sau khi chèn ưu tiên:\", cart_items)"
+    },
+    {
+      "concept_name": "Gộp danh sách bằng extend()",
+      "description": "Phương thức extend() nối toàn bộ phần tử của một List khác vào cuối List hiện tại. Phù hợp cho thao tác mua theo gói combo hoặc gộp các danh sách gợi ý.",
+      "raw_code_snippet": "cart_items = [\"Laptop\"]\naccessory_combo = [\"Túi chống sốc\", \"Tấm lót chuột\"]\n\n# Gộp toàn bộ sản phẩm trong combo vào giỏ hàng\ncart_items.extend(accessory_combo)\n\nprint(\"Giỏ hàng sau khi gộp combo:\", cart_items)"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Duyệt danh sách giỏ hàng và thêm sản phẩm mới",
+      "requirement": "Khởi tạo danh sách giỏ hàng ban đầu. Khi người dùng chọn mua sản phẩm mới, thêm từng sản phẩm vào giỏ bằng append() và in danh sách giỏ hàng kèm số thứ tự.",
+      "raw_code": "# Khởi tạo danh sách giỏ hàng ban đầu\ncart_items = [\"Laptop Gaming\", \"Chuột Bluetooth\"]\n\n# Khách hàng chọn thêm từng sản phẩm mới\nfirst_new_item = \"Bàn phím cơ RGB\"\ncart_items.append(first_new_item)\n\nsecond_new_item = \"Tai nghe Chống ồn\"\ncart_items.append(second_new_item)\n\n# Duyệt và hiển thị danh sách giỏ hàng cho khách hàng\nprint(\"--- DANH SÁCH SẢN PHẨM TRONG GIỎ HÀNG ---\")\nfor index, item in enumerate(cart_items, start=1):\n    print(f\"{index}. {item}\")"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Ưu tiên quà tặng khuyến mãi và bổ sung combo phụ kiện",
+      "requirement": "Nếu tổng giá trị đơn hàng đạt điều kiện, tự động chèn quà tặng 'Voucher Giảm 500k' vào đầu giỏ hàng (chỉ số 0) bằng insert(), sau đó nối thêm danh sách quà tặng kèm bằng extend() và đếm số lượng mặt hàng.",
+      "raw_code": "# Danh sách sản phẩm hiện tại và tổng tiền giỏ hàng\ncart_items = [\"Laptop Gaming\", \"Bàn phím cơ RGB\"]\norder_total = 18000000\n\n# Danh sách gói quà tặng kèm theo\ngift_pack = [\"Túi chống sốc\", \"Lót chuột cỡ lớn\"]\n\n# Kiểm tra giá trị đơn hàng để chèn voucher vào vị trí ưu tiên đầu tiên\nif order_total >= 15000000:\n    cart_items.insert(0, \"Voucher Giảm 500k\")\n\n# Gộp toàn bộ gói quà tặng vào cuối giỏ hàng\ncart_items.extend(gift_pack)\n\n# Duyệt giỏ hàng và tính tổng số lượng món hàng hiện có\nprint(\"=== CHUYỂN BƯỚC XỬ LÝ ĐƠN HÀNG ===\")\nitem_count = 0\nfor position, item in enumerate(cart_items, start=1):\n    print(f\"Mục {position}: {item}\")\n    item_count = item_count + 1\n\nprint(f\"Tổng số lượng mặt hàng và ưu đãi trong giỏ: {item_count}\")"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Lọc dữ liệu, kiểm tra trùng lặp và phân loại thêm vào giỏ hàng",
+      "requirement": "Duyệt qua danh sách sản phẩm yêu cầu thêm. Bỏ qua tên sản phẩm rỗng, kiểm tra nếu sản phẩm đã có trong giỏ thì không thêm trùng, nếu là thẻ quà VIP thì chèn ở vị trí ưu tiên bằng insert(), sản phẩm thông thường thêm vào cuối bằng append(), cuối cùng gộp phụ kiện bằng extend().",
+      "raw_code": "# Giỏ hàng hiện tại của người dùng\ncart_items = [\"Laptop Gaming\", \"Chuột Bluetooth\"]\n\n# Danh sách yêu cầu thêm sản phẩm từ giao diện người dùng\nincoming_items = [\"Bàn phím cơ RGB\", \"VIP Promo Code\", \"\", \"Chuột Bluetooth\", \"Màn hình 27 inch\"]\n\n# Danh sách quà tặng combo cố định của hệ thống\npromo_combo = [\"Cáp HDMI 2.1\", \"Khăn lau màn hình\"]\n\n# Duyệt danh sách yêu cầu thêm và phân loại xử lý\nfor item in incoming_items:\n    if item == \"\":\n        print(\"Cảnh báo: Bỏ qua dữ liệu tên sản phẩm rỗng.\")\n    else:\n        if item in cart_items:\n            print(f\"Thông báo: '{item}' đã tồn tại trong giỏ hàng.\")\n        else:\n            if item == \"VIP Promo Code\":\n                cart_items.insert(0, item)\n                print(f\"-> Ưu tiên chèn quà tặng VIP: {item}\")\n            else:\n                cart_items.append(item)\n                print(f\"-> Đã thêm sản phẩm mới: {item}\")\n\n# Gộp combo phụ kiện vào giỏ hàng\ncart_items.extend(promo_combo)\n\n# Hiển thị hóa đơn giỏ hàng hoàn chỉnh\nprint(\"\\n=== GIỎ HÀNG HOÀN CHỈNH SAU KHI XỬ LÝ ===\")\nfor index, product in enumerate(cart_items, start=1):\n    print(f\"[{index}] {product}\")"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Nhầm lẫn giữa append() và extend() khi thêm danh sách",
+      "explanation": "Khi truyền một danh sách B vào phương thức append(), toàn bộ danh sách B sẽ bị thêm vào như một phần tử đơn lẻ (tạo thành danh sách lồng nhau). Trong khi đó, extend() sẽ giải nén từng phần tử của danh sách B để nối tiếp vào danh sách A.",
+      "code_bad": "cart_items = [\"Laptop\", \"Chuột\"]\nnew_items = [\"Bàn phím\", \"Tai nghe\"]\n\n# SAI: Tự tạo list lồng nhau thay vì thêm từng món hàng\ncart_items.append(new_items)\nprint(cart_items)\n# Kết quả: ['Laptop', 'Chuột', ['Bàn phím', 'Tai nghe']]"
+    },
+    {
+      "error_name": "Gán biến bằng kết quả của phương thức append(), insert(), extend() (Lỗi nhận giá trị None)",
+      "explanation": "Các phương thức làm thay đổi trực tiếp danh sách (in-place) như append(), insert(), extend() đều trả về giá trị None. Việc gán lại danh sách bằng các hàm này sẽ khiến biến bị chuyển thành None và làm mất dữ liệu.",
+      "code_bad": "cart_items = [\"Laptop\", \"Chuột\"]\n\n# SAI: Gán kết quả trả về của append() làm biến cart_items bị biến thành None\ncart_items = cart_items.append(\"Bàn phím\")\nprint(cart_items)\n# Kết quả: None"
+    },
+    {
+      "error_name": "Lỗi vượt quá chỉ số phần tử IndexError khi duyệt hoặc truy cập",
+      "explanation": "Khi truy cập trực tiếp bằng chỉ số index vượt ngoài độ dài hiện tại của List, chương trình sẽ ngưng hoạt động do lỗi IndexError. Việc duyệt List bằng vòng lặp for hoặc enumerate() là phương án an toàn nhất.",
+      "code_bad": "cart_items = [\"Laptop\", \"Chuột\"]\n\n# SAI: Truy cập vị trí index 2 trong khi list chỉ có độ dài là 2 (index 0 và 1)\nprint(cart_items[2])\n# Kết quả: IndexError: list index out of range"
+    }
+  ]
+}

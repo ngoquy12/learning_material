@@ -161,7 +161,72 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
   </div>
 </div>"""
 
-    # Default Programming RAM Visualizer (Python / JS / Java)
+    # Default Programming RAM Visualizer (Adaptive by Language: JavaScript, Python, Java, C++)
+    tech_lower = (tech_stack or "").lower()
+    if any(k in tech_lower for k in ["javascript", "js", "typescript", "ts", "node", "react"]):
+        code_lines_html = f"""
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>// 1. Khai báo tham số đầu vào cho {clean_title}</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div><span class="text-purple-600 font-bold">const</span> inputData = loadInputParameters();</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div><span class="text-purple-600 font-bold">const</span> isValid = validateConditions(inputData);</div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div><span class="text-purple-600 font-bold">const</span> executionResult = processBusinessLogic(isValid);</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
+          <div>console.log(<span class="text-green-600">`Kết quả xử lý {clean_title}: ${{executionResult}}`</span>);</div>
+        </div>
+        """
+        var_valid_label = "isValid (Kiểm tra điều kiện):"
+        var_result_label = "executionResult (Trạng thái kết quả):"
+    elif any(k in tech_lower for k in ["java", "cpp", "c++", "c#", "c"]):
+        code_lines_html = f"""
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>// 1. Khai báo tham số đầu vào cho {clean_title}</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div><span class="text-blue-600 font-bold">String</span> inputData = loadInputParameters();</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div><span class="text-blue-600 font-bold">boolean</span> isValid = validateConditions(inputData);</div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div><span class="text-blue-600 font-bold">String</span> executionResult = processBusinessLogic(isValid);</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
+          <div>System.out.println(<span class="text-green-600">"Kết quả xử lý {clean_title}: "</span> + executionResult);</div>
+        </div>
+        """
+        var_valid_label = "isValid (Kiểm tra điều kiện):"
+        var_result_label = "executionResult (Trạng thái kết quả):"
+    else:
+        code_lines_html = f"""
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div># 1. Khai báo tham số đầu vào cho {clean_title}</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>input_data = load_input_parameters()</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>is_valid = validate_conditions(input_data)</div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>execution_result = process_business_logic(is_valid)</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
+          <div>print(f<span class="text-green-600">"Kết quả xử lý {clean_title}: {{execution_result}}"</span>)</div>
+        </div>
+        """
+        var_valid_label = "is_valid (Kiểm tra điều kiện):"
+        var_result_label = "execution_result (Trạng thái kết quả):"
+
     return f"""
 <h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
 <p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>{clean_title}</strong>!</p>
@@ -182,33 +247,16 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
-    <!-- Cột trái: Mã nguồn thực thi -->
     <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
         <span>MÃ NGUỒN THỰC THI CHUẨN</span>
         <span id="viz-step-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
       </div>
       <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[180px]">
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div># 1. Khai báo tham số đầu vào cho {clean_title}</div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>input_data = load_input_parameters()</div>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>is_valid = validate_conditions(input_data)</div>
-          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>execution_result = process_business_logic(is_valid)</div>
-        </div>
-        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
-          <div>print(f"Kết quả xử lý {{clean_title}}: {{execution_result}}")</div>
-        </div>
+        {code_lines_html}
       </div>
     </div>
 
-    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
     <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
         <span>BIẾN BỘ NHỚ RAM</span>
@@ -220,11 +268,11 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
           <span class="font-bold text-slate-900">{tech_upper} Engine</span>
         </div>
         <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">is_valid (Kiểm tra điều kiện):</span>
+          <span class="text-slate-500">{var_valid_label}</span>
           <span id="viz-var-valid" class="font-bold text-slate-400">---</span>
         </div>
         <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">execution_result (Trạng thái kết quả):</span>
+          <span class="text-slate-500">{var_result_label}</span>
           <span id="viz-var-result" class="font-bold text-slate-400">---</span>
         </div>
       </div>
@@ -238,8 +286,8 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
 </div>
 
 <script>
-  let currentVizStep = 0;
-  let vizAutoInterval = null;
+  var currentVizStep = 0;
+  var vizAutoInterval = null;
   function runVizStep(stepNum) {{
     if (stepNum === undefined || stepNum === null) {{
       currentVizStep += 1;
@@ -274,7 +322,7 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
     if (currentVizStep === 1) {{
       if (term) term.innerText = "[BƯỚC 1/5] Khởi tạo tham số đầu vào cho {clean_title}";
     }} else if (currentVizStep === 2) {{
-      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào input_data";
+      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào";
     }} else if (currentVizStep === 3) {{
       if (b1) {{
         b1.className = "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
@@ -284,13 +332,13 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
         vValid.className = "font-bold text-emerald-600";
         vValid.innerText = "True";
       }}
-      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện validate_conditions() -> True";
+      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện kiểm tra -> True";
     }} else if (currentVizStep === 4) {{
       if (vResult) {{
         vResult.className = "font-bold text-emerald-600";
         vResult.innerText = "SUCCESS";
       }}
-      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ process_business_logic() -> SUCCESS";
+      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ logic -> SUCCESS";
     }} else if (currentVizStep === 5) {{
       if (term) term.innerText = "[KẾT QUẢ 5/5] CONSOLE OUTPUT: Hoàn tất xử lý {clean_title}: SUCCESS";
     }}
@@ -313,39 +361,33 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
 </script>
 """
 
-def sanitize_and_repair_dom(html_content: str) -> str:
+def extract_h3_subsections(html_content: str) -> List[Dict[str, str]]:
     """
-    Fast offline AST DOM Sanitizer using BeautifulSoup4 / Regex.
-    Guarantees Section IDs and TOC link consistency in < 50ms.
+    Extracts all <h3> subheadings with IDs for TOC generation.
     """
     if not html_content:
-        return html_content
-
-    # Ensure all 5 Section IDs exist
-    for sec_num in range(1, 6):
-        sec_id = f'section-{sec_num}'
-        if f'id="{sec_id}"' not in html_content and f"id='{sec_id}'" not in html_content:
-            # Inject section ID if missing
-            html_content = re.sub(
-                rf'(<h2[^>]*>\s*{sec_num}\.)',
-                rf'<section id="{sec_id}"></section>\1',
-                html_content,
-                count=1
-            )
-
-    return html_content
-
-
-def extract_h3_subsections(html_text: str) -> List[Dict[str, str]]:
-    """Extract h3 anchor IDs and titles for 2-tier sidebar TOC tree navigation."""
-    if not html_text:
         return []
-    matches = re.findall(r'<h3\s+id=["\']([^"\']+)["\'][^>]*>(.*?)</h3>', html_text, re.DOTALL | re.IGNORECASE)
-    subs = []
-    for sid, stitle in matches:
-        clean_text = re.sub(r'<.*?>', '', stitle).strip()
-        subs.append({"id": sid, "title": clean_text})
-    return subs
+    
+    matches = re.findall(r'<h3\s+id="([^"]+)"[^>]*>(.*?)</h3>', html_content, re.DOTALL)
+    subsections = []
+    for anchor_id, title in matches:
+        clean_title = re.sub(r'<[^>]+>', '', title).strip()
+        subsections.append({"id": anchor_id, "title": clean_title})
+    return subsections
+
+
+def sanitize_and_repair_dom(raw_html: str) -> str:
+    """
+    Sanitizes and repairs common HTML structure flaws.
+    """
+    if not raw_html:
+        return ""
+    
+    # Strip forbidden markdown code markers if any leaked
+    cleaned = re.sub(r'```html\s*', '', raw_html)
+    cleaned = re.sub(r'```\s*$', '', cleaned)
+    
+    return cleaned
 
 
 def assemble_reading_html(json_payload: Dict[str, Any], metadata: Dict[str, Any]) -> str:
@@ -365,8 +407,17 @@ def assemble_reading_html(json_payload: Dict[str, Any], metadata: Dict[str, Any]
     # Section Titles
     sec_titles = json_payload.get("section_titles") or {}
 
+    # Check if sec2_html already contains Section 2.4 visualizer (prevent duplicate injection)
+    sec2_raw = json_payload.get("sec2_html", "")
+    has_existing_viz = (
+        'id="sec-2-4' in sec2_raw
+        or 'viz-step-badge' in sec2_raw
+        or 'viz-code-display' in sec2_raw
+        or 'Mô phỏng cơ chế vận hành từng bước' in sec2_raw
+    )
+
     # Visualizer
-    show_viz = json_payload.get("show_visualizer", True)
+    show_viz = json_payload.get("show_visualizer", True) and not has_existing_viz
     viz_html = ""
     if show_viz:
         viz_html = generate_domain_visualizer_html(
@@ -377,7 +428,7 @@ def assemble_reading_html(json_payload: Dict[str, Any], metadata: Dict[str, Any]
         )
 
     # Subsections for TOC navigation (auto-extract from HTML if not provided)
-    sec2_subs = json_payload.get("sec2_subsections") or extract_h3_subsections(json_payload.get("sec2_html", ""))
+    sec2_subs = json_payload.get("sec2_subsections") or extract_h3_subsections(sec2_raw)
     sec3_subs = json_payload.get("sec3_subsections") or extract_h3_subsections(json_payload.get("sec3_html", ""))
 
     # Self-test questions JSON serialization for JS handler
@@ -404,7 +455,8 @@ def assemble_reading_html(json_payload: Dict[str, Any], metadata: Dict[str, Any]
         "show_visualizer": show_viz,
         "visualizer_component_html": viz_html,
         "sec1_html": json_payload.get("sec1_html", "<p>Nội dung đang được cập nhật...</p>"),
-        "sec2_html": json_payload.get("sec2_html", "<p>Nội dung cú pháp đang được cập nhật...</p>"),
+        "sec1_visual_html": json_payload.get("sec1_visual_html"),
+        "sec2_html": sec2_raw or "<p>Nội dung cú pháp đang được cập nhật...</p>",
         "sec3_html": json_payload.get("sec3_html", "<p>Ví dụ thực hành đang được cập nhật...</p>"),
         "sec4_html": json_payload.get("sec4_html", "<p>Tổng kết đang được cập nhật...</p>"),
         "context_image_url": json_payload.get("context_image_url"),

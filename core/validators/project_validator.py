@@ -5,7 +5,9 @@ Ensures grading rubric scale sums to exactly 100 points and validates project sp
 """
 
 from typing import Tuple, List, Dict, Any
+from core.validators.master_validator import register_validator
 
+@register_validator("PROJECT", "MINI_PROJECT")
 def validate_project_spec(project_data: Dict[str, Any], metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates project specifications, rubric grading scale (must sum to 100 pts), and requirements.

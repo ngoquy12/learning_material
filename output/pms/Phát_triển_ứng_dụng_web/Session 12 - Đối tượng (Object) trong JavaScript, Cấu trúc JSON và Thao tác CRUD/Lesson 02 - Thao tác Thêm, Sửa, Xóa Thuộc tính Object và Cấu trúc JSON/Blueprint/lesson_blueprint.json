@@ -1,0 +1,59 @@
+{
+  "lesson_slug": "thao-tac-object-va-cau-truc-json",
+  "lesson_title": "Thao tác Thêm, Sửa, Xóa Thuộc tính Object và Cấu trúc JSON",
+  "real_world_scenario": {
+    "name": "Hệ thống Quản lý Đơn hàng E-commerce",
+    "description": "Trong ứng dụng bán hàng trực tuyến, mỗi đơn hàng được biểu diễn dưới dạng một đối tượng JavaScript chứa các thông tin như mã đơn hàng, danh sách sản phẩm, trạng thái và chi tiết thanh toán. Hệ thống cần thường xuyên cập nhật trạng thái giao hàng (thêm/sửa thuộc tính), dọn dẹp các thông tin tạm thời (xóa thuộc tính), và chuyển đổi đối tượng này thành chuỗi JSON để lưu vào bộ nhớ trình duyệt hoặc gửi lên Server."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Thêm và Sửa thuộc tính của Object",
+      "description": "Sử dụng Dot Notation (object.key = value) hoặc Bracket Notation (object['key'] = value). Nếu key chưa tồn tại, thuộc tính mới sẽ được thêm vào. Nếu key đã tồn tại, giá trị tương ứng sẽ được cập nhật mới.",
+      "raw_code_snippet": "// Khởi tạo đối tượng đơn hàng ban đầu\nconst order = {\n  orderId: \"ORD-10293\",\n  customerName: \"Nguyen Van A\",\n  totalAmount: 500000\n};\n\n// Thêm thuộc tính mới\norder.shippingAddress = \"123 Đường Lê Lợi, Quận 1, TP.HCM\";\norder[\"paymentMethod\"] = \"COD\";\n\n// Cập nhật giá trị thuộc tính đã tồn tại\norder.totalAmount = 450000; // Áp dụng giảm giá\n\nconsole.log(order);"
+    },
+    {
+      "concept_name": "Xóa thuộc tính với toán tử delete",
+      "description": "Toán tử delete xóa hoàn toàn cặp key-value khỏi đối tượng. Sau khi xóa, thuộc tính đó sẽ trở thành undefined khi truy cập và không còn xuất hiện khi duyệt qua đối tượng.",
+      "raw_code_snippet": "const order = {\n  orderId: \"ORD-10293\",\n  totalAmount: 450000,\n  tempCouponCode: \"SUMMER2024\"\n};\n\n// Xóa thuộc tính mã giảm giá tạm thời sau khi tính tiền\ndelete order.tempCouponCode;\n\nconsole.log(order.tempCouponCode); // Kết quả: undefined\nconsole.log(order);"
+    },
+    {
+      "concept_name": "Chuyển đổi dữ liệu với JSON.stringify() và JSON.parse()",
+      "description": "JSON.stringify() chuyển đổi một đối tượng JavaScript thành chuỗi định dạng JSON (dùng để lưu trữ hoặc truyền qua mạng). JSON.parse() giải mã một chuỗi JSON chuẩn ngược lại thành đối tượng JavaScript.",
+      "raw_code_snippet": "const order = {\n  orderId: \"ORD-10293\",\n  totalAmount: 450000,\n  isPaid: true\n};\n\n// Chuyển đối tượng thành chuỗi JSON\nconst jsonString = JSON.stringify(order);\nconsole.log(typeof jsonString); // \"string\"\nconsole.log(jsonString); // '{\"orderId\":\"ORD-10293\",\"totalAmount\":450000,\"isPaid\":true}'\n\n// Giải mã chuỗi JSON trở lại thành Object\nconst parsedOrder = JSON.parse(jsonString);\nconsole.log(parsedOrder.orderId); // \"ORD-10293\""
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Thao tác cơ bản Thêm, Sửa, Xóa thuộc tính đơn hàng",
+      "requirement": "Khởi tạo đối tượng đơn hàng với các thông tin cơ bản. Thực hiện thêm phương thức thanh toán, cập nhật tổng tiền sau phí vận chuyển, và xóa thuộc tính ghi chú nội bộ trước khi hiển thị cho khách hàng.",
+      "raw_code": "// Khởi tạo đơn hàng cơ bản\nconst ecommerceOrder = {\n  orderId: \"ORD-8821\",\n  customerName: \"Tran Thi B\",\n  subtotal: 1200000,\n  internalNote: \"Khách hàng ưu tiên giao buổi sáng\"\n};\n\n// 1. Thêm thuộc tính phương thức thanh toán và phí vận chuyển\necommerceOrder.paymentMethod = \"Momo\";\necommerceOrder.shippingFee = 30000;\n\n// 2. Sửa (Cập nhật) tổng tiền bao gồm cả phí vận chuyển\necommerceOrder.totalAmount = ecommerceOrder.subtotal + ecommerceOrder.shippingFee;\n\n// 3. Xóa thuộc tính ghi chú nội bộ bảo mật\ndelete ecommerceOrder.internalNote;\n\n// Hiển thị kết quả đơn hàng đã được cập nhật\nconsole.log(\"[INFO] Đơn hàng sau khi dọn dẹp và cập nhật:\", ecommerceOrder);"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Lưu trữ và Khôi phục đơn hàng với JSON",
+      "requirement": "Chuyển đổi dữ liệu đơn hàng đã cập nhật ở Ví dụ 3.1 thành chuỗi JSON để lưu trữ vào bộ nhớ (mô phỏng Web Storage). Sau đó thực hiện đọc lại chuỗi JSON này và khôi phục thành đối tượng JavaScript để sử dụng tiếp.",
+      "raw_code": "const orderData = {\n  orderId: \"ORD-8821\",\n  customerName: \"Tran Thi B\",\n  totalAmount: 1230000,\n  status: \"PENDING\"\n};\n\n// Bước 1: Mã hóa đối tượng đơn hàng thành chuỗi JSON để gửi/lưu trữ\nconst serializedOrder = JSON.stringify(orderData);\nconsole.log(\"[INFO] Chuỗi JSON chuẩn bị gửi lên Server:\");\nconsole.log(serializedOrder);\n\n// Bước 2: Mô phỏng nhận chuỗi JSON từ Server/Storage và giải mã thành JS Object\nconst deserializedOrder = JSON.parse(serializedOrder);\n\n// Bước 3: Đổi trạng thái đơn hàng trên đối tượng vừa khôi phục\ndeserializedOrder.status = \"CONFIRMED\";\ndeserializedOrder.confirmedAt = \"2024-10-24 14:30:00\";\n\nconsole.log(\"[INFO] Đơn hàng sau khi khôi phục từ JSON và cập nhật trạng thái:\", deserializedOrder);"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Xử lý dữ liệu đơn hàng hoàn chỉnh và đóng gói an toàn",
+      "requirement": "Xây dựng hàm chuẩn hóa payload đơn hàng nhận dữ liệu thô. Hàm cần kiểm tra dữ liệu, thêm mốc thời gian, sửa trạng thái xử lý, xóa các thuộc tính tạm thời (như draftToken, internalFlag), mã hóa sang JSON và bắt lỗi bằng try...catch nếu dữ liệu JSON đầu vào không hợp lệ.",
+      "raw_code": "/**\n * Hàm chuẩn hóa và đóng gói dữ liệu đơn hàng gửi lên hệ thống trung tâm\n * @param {Object} rawOrderData - Dữ liệu đơn hàng thô từ giao diện\n * @returns {string|null} Chuỗi JSON hợp lệ hoặc null nếu có lỗi\n */\nfunction prepareOrderPayload(rawOrderData) {\n  try {\n    // Đảm bảo tham số truyền vào là một object hợp lệ\n    if (!rawOrderData || typeof rawOrderData !== \"object\") {\n      throw new Error(\"Dữ liệu đơn hàng đầu vào không hợp lệ.\");\n    }\n\n    // 1. Tạo bản sao để tránh thay đổi trực tiếp dữ liệu gốc (Immutability pattern)\n    const processedOrder = { ...rawOrderData };\n\n    // 2. Thêm thuộc tính hệ thống\n    processedOrder.updatedAt = new Date().toISOString();\n    processedOrder.platform = \"WEB_APP\";\n\n    // 3. Cập nhật trạng thái nghiệp vụ\n    processedOrder.status = \"PROCESSING\";\n\n    // 4. Xóa thuộc tính mã bảo mật tạm thời và cờ kiểm thử nội bộ\n    delete processedOrder.draftToken;\n    delete processedOrder.isTestOrder;\n\n    // 5. Chuyển đổi sang JSON String\n    const jsonPayload = JSON.stringify(processedOrder);\n    return jsonPayload;\n  } catch (error) {\n    console.error(\"[ERROR] Rủi ro khi đóng gói đơn hàng:\", error.message);\n    return null;\n  }\n}\n\n// Chạy thử nghiệm với dữ liệu đơn hàng thô từ client\nconst rawCart = {\n  orderId: \"ORD-9954\",\n  customerName: \"Le Van C\",\n  itemsCount: 3,\n  draftToken: \"xyz-temp-token-123\",\n  isTestOrder: true\n};\n\nconst finalPayload = prepareOrderPayload(rawCart);\nconsole.log(\"[RESULT] Payload JSON sẵn sàng gửi đi API:\", finalPayload);\n\n// Chạy thử nghiệm trường hợp chuỗi JSON hỏng với JSON.parse an toàn\nfunction safeParseOrderJson(jsonString) {\n  try {\n    return JSON.parse(jsonString);\n  } catch (error) {\n    console.warn(\"[WARNING] Lỗi định dạng JSON không hợp lệ:\", error.message);\n    return null;\n  }\n}\n\nconst corruptedJson = '{\"orderId\": \"ORD-9954\", \"status\": PROCESSING}'; // Thiếu dấu ngoặc kép ở PROCESSING\nsafeParseOrderJson(corruptedJson);"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Nhầm lẫn giữa gán giá trị undefined/null và dùng toán tử delete",
+      "explanation": "Khi bạn gán object.key = undefined hoặc object.key = null, thuộc tính (key) đó vẫn tồn tại trong đối tượng và vẫn xuất hiện khi sử dụng Object.keys() hoặc vòng lặp for...in. Chỉ có toán tử delete mới loại bỏ hoàn toàn thuộc tính khỏi đối tượng.",
+      "code_bad": "const order = {\n  orderId: \"ORD-101\",\n  tempCoupon: \"DISCOUNT10\"\n};\n\n// SAI: Gán undefined không thực sự xóa key khỏi object\norder.tempCoupon = undefined;\n\nconsole.log(\"tempCoupon\" in order); // Kết quả: true (Vẫn tồn tại key!)\nconsole.log(Object.keys(order)); // Kết quả: [\"orderId\", \"tempCoupon\"]",
+      "code_good": "const order = {\n  orderId: \"ORD-101\",\n  tempCoupon: \"DISCOUNT10\"\n};\n\n// ĐÚNG: Dùng toán tử delete để xóa triệt để thuộc tính\ndelete order.tempCoupon;\n\nconsole.log(\"tempCoupon\" in order); // Kết quả: false\nconsole.log(Object.keys(order)); // Kết quả: [\"orderId\"]"
+    },
+    {
+      "error_name": "Lỗi parse chuỗi JSON sai định dạng cú pháp (SyntaxError)",
+      "explanation": "Hàm JSON.parse() đòi hỏi chuỗi truyền vào phải tuân thủ nghiêm ngặt cú pháp JSON (dùng dấu ngoặc kép cho cả key và giá trị chuỗi, không có dấu phẩy thừa ở phần tử cuối cùng). Nếu truyền vào chuỗi không hợp lệ hoặc bị undefined/null mà không bọc trong try...catch, ứng dụng sẽ bị ngắt đột ngột.",
+      "code_bad": "const invalidJsonString = \"{ 'orderId': 'ORD-101', }\"; // Dùng dấu nháy đơn và thừa dấu phẩy cuối\n\n// SAI: Gọi JSON.parse trực tiếp mà không bắt lỗi\nconst orderData = JSON.parse(invalidJsonString); // Quăng lỗi Uncaught SyntaxError làm ngắt chương trình",
+      "code_good": "const invalidJsonString = \"{ 'orderId': 'ORD-101', }\";\n\n// ĐÚNG: Luôn bọc JSON.parse trong khối try...catch để xử lý an toàn\ntry {\n  const orderData = JSON.parse(invalidJsonString);\n  console.log(orderData);\n} catch (error) {\n  console.error(\"[WARNING] Không thể giải mã JSON do sai định dạng:\", error.message);\n  // Thực hiện phương án dự phòng (fallback)\n}"
+    }
+  ]
+}

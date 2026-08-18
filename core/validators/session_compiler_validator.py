@@ -7,10 +7,12 @@ ID isolation, sidebar button alignment, and zero JS class/variable redeclaration
 
 import re
 from pathlib import Path
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Dict, Any
 from bs4 import BeautifulSoup
+from core.validators.master_validator import register_validator
 
-def validate_compiled_session_html(file_or_content: Union[Path, str]) -> Tuple[bool, List[str]]:
+@register_validator("COMPILED_SESSION", "READING_ALL", "SESSION_SLIDES")
+def validate_compiled_session_html(file_or_content: Union[Path, str], metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates compiled merged session HTML (reading_all.html / session_slides.html).
     Returns (is_valid, list_of_errors).

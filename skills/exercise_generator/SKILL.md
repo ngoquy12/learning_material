@@ -39,6 +39,7 @@ The 15 exercises are distributed across 4 Bloom taxonomy cognitive levels:
     - *Flawed Legacy Code*: Provide runnable, syntactically valid legacy code with subtle logic flaws. **ABSOLUTELY FORBIDDEN to put bug-spoiler comments in code** (e.g. FORBIDDEN: `# LOGIC ERROR: ...`, `# BROKEN HERE`). Code comments MUST be neutral developer notes.
     - *Output Deliverables*: (1) Test Case Report (minimum 3 test cases) pinpointing flawed logic, (2) Corrected source code.
     - *Test Case Table Format Rule*: The HTML Test Case table MUST contain EXACTLY 1 fully filled sample test case in Row 1 (STT 1) as a reference example. Row 2, Row 3, and subsequent rows MUST be left incomplete with `...` placeholders for students to trace and fill out themselves. ABSOLUTELY FORBIDDEN to complete all test case rows for the student!
+    - *Required Table Columns*: Every Test Case table for Basic Application exercises MUST include these exact columns: `STT`, `Dữ liệu đầu vào (Input)`, `Kết quả thực tế bị lỗi (Buggy Output)`, `Kết quả kỳ vọng đúng (Expected Output)`, `Dòng code gây lỗi (Failing Line of Code)`, and `Giải thích nguyên nhân (Logic Note)`.
 
 - **II. ADVANCED APPLICATION (Exercises 7 to 9 - 3 Advanced Application Exercises)**
   - **Objective**: Provide 1 realistic enterprise problem statement. **Students MUST autonomously propose 1 technical solution**, design sequential processing steps, and write implementation code.

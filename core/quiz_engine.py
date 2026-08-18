@@ -132,7 +132,7 @@ Always place the correct answer in 'answer_1' and set 'isCorrect' to 1. The engi
 Do NOT wrap output in markdown code fences. Return raw JSON string only.
 """
         
-        user_prompt = f"Hãy tạo đúng {sub_count} câu hỏi trắc nghiệm định dạng JSON chuẩn xác."
+        user_prompt = f"Hãy tạo đúng {sub_count} câu hỏi trắc nghiệm định dạng JSON chuẩn xác dựa trên ngữ cảnh kiến thức sau:\n{rag_context}"
         
         success = False
         for attempt in range(3):

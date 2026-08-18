@@ -1,8 +1,8 @@
 # core/course_architecture.py
 """
 Systemic Course Architecture & Pedagogy Governance Engine.
-Classifies sessions into strict Architecture Patterns and enforces 
-architecture boundaries to prevent concept leakage between courses.
+Dynamically resolves architecture archetypes from syllabus metadata and
+strictly enforces scope boundaries to prevent concept leakage between courses and sessions.
 """
 
 import re
@@ -19,37 +19,41 @@ ARCH_DEVOPS_CLOUD = "DEVOPS_CLOUD"
 def resolve_course_architecture(session_title: str, tech_stack: str, forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
     """
     Classifies a session into a specific Architecture Pattern and returns
-    strict architectural rules, dynamic SRS headers, and forbidden concepts.
+    generalized architectural rules, dynamic SRS headers, and forbidden concepts.
+    Prioritizes session-specific scope and title over course-wide tech stack
+    to prevent premature leakage of future topics.
     """
     title_lower = (session_title or "").lower()
     stack_lower = (tech_stack or "").lower()
     forbidden_lower = (forbidden_scope or "").lower()
     allowed_lower = (allowed_scope or "").lower()
     
-    # Combined context for classification
-    context = f"{title_lower} {stack_lower} {allowed_lower}"
+    # 1. Determine Architecture Pattern based on Session Context & Allowed Scope
+    is_explicit_cli = any(kw in title_lower for kw in ["console", "cli", "terminal", "cốt lõi", "core"]) and not any(kw in title_lower for kw in ["web", "dashboard", "fetch", "api", "dom", "frontend", "ui", "giao diện"])
     
-    # 1. Determine Architecture Pattern
-    if any(kw in context for kw in ["fastapi", "express", "spring boot", "django rest", "nest", "asp.net", "rest api", "backend api"]):
+    if is_explicit_cli:
+        pattern = ARCH_CLI_CORE
+    elif any(kw in title_lower for kw in ["backend", "fastapi", "express", "spring boot", "django rest", "nest", "asp.net", "microservice"]):
         pattern = ARCH_WEB_BACKEND
-    elif any(kw in context for kw in ["react", "vue", "angular", "html", "css", "frontend", "dom", "ui component"]):
+    elif any(kw in title_lower for kw in ["frontend", "ui", "ux", "react", "vue", "angular", "dom", "web", "dashboard", "giao diện", "single page", "spa", "fetch"]):
         pattern = ARCH_WEB_FRONTEND
-    elif any(kw in context for kw in ["flutter", "react native", "android", "ios", "mobile"]):
+    elif any(kw in title_lower for kw in ["mobile", "app", "flutter", "react native", "android", "ios"]):
         pattern = ARCH_MOBILE_APP
-    elif any(kw in context for kw in ["sql", "postgres", "mysql", "database management", "csdl"]):
+    elif any(kw in title_lower for kw in ["sql", "database", "postgres", "mysql", "csdl", "truy vấn"]):
         pattern = ARCH_DATABASE_SQL
-    elif any(kw in context for kw in ["docker", "k8s", "kubernetes", "devops", "aws", "ci/cd"]):
+    elif any(kw in title_lower for kw in ["devops", "cloud", "docker", "k8s", "kubernetes", "aws", "ci/cd"]):
         pattern = ARCH_DEVOPS_CLOUD
+    elif any(kw in title_lower for kw in ["api", "rest api"]):
+        pattern = ARCH_WEB_BACKEND
+    elif any(kw in stack_lower for kw in ["fastapi", "express", "spring boot", "nest", "django rest"]) and "backend" in allowed_lower:
+        pattern = ARCH_WEB_BACKEND
+    elif any(kw in stack_lower for kw in ["react", "vue", "angular"]) and ("frontend" in allowed_lower or "dom" in allowed_lower):
+        pattern = ARCH_WEB_FRONTEND
     else:
-        # Default to CLI Core for foundational programming sessions (Python Core, Java Core, C++ Core, C# Core)
+        # Default to CLI Core for foundational programming sessions across all languages
         pattern = ARCH_CLI_CORE
-        
-    # Check if REST API / Web / File I/O / Class are explicitly forbidden in PM
-    is_rest_forbidden = any(kw in forbidden_lower for kw in ["rest api", "web api", "fastapi", "swagger", "file i/o", "class"])
-    if is_rest_forbidden and pattern == ARCH_WEB_BACKEND:
-        pattern = ARCH_CLI_CORE
-        
-    # 2. Build Naming Conventions
+
+    # 2. Build Naming Conventions dynamically based on tech stack
     if any(k in stack_lower for k in ["javascript", "js", "typescript", "ts", "java", "c#", "csharp", "dart", "flutter", "go", "golang", "kotlin", "swift"]):
         case_style = "camelCase (hoặc PascalCase cho Class/Type/Component)"
         fn_example = "addItem(), filterByCategory(), calculateTotal()"
@@ -73,7 +77,7 @@ def resolve_course_architecture(session_title: str, tech_stack: str, forbidden_s
    - CẤM viết tên chức năng bằng tiếng Việt không dấu dạng hàm (VD CẤM: 'them_san_pham', 'loc_theo_loai').
 """
 
-    # 3. Define Architecture-Specific Guidelines, SRS Headers & Forbidden Leakage Concepts
+    # 3. Define Architecture Guidelines, SRS Headers & Generic Runtime Error Models
     if pattern == ARCH_CLI_CORE:
         arch_name = "Ứng dụng Console / Lập trình Cốt lõi (CLI Core Application)"
         srs_headers = [
@@ -85,15 +89,15 @@ def resolve_course_architecture(session_title: str, tech_stack: str, forbidden_s
             "### **6. Bảng tổng hợp tình huống lỗi (Edge Cases Mapping)**",
             "### **7. Quy trình chạy thử nghiệm Console (Console Execution & Test Scenarios)**"
         ]
-        error_model = """MÔ HÌNH KIỂM SOÁT LỖI MÔN CONSOLE CLI:
-- Sử dụng các ngoại lệ ngôn ngữ nguyên bản (Native Language Exceptions: ValueError, KeyError, TypeError...) hoặc giá trị trả về (booleans/tuples/dicts/messages).
-- TUYỆT ĐỐI CẤM sử dụng JSON Response Envelope của REST API (VD CẤM: {"status": "success", "code": "ERR_xxx", "data": {}}).
-- TUYỆT ĐỐI CẤM sử dụng HTTP Status Codes (200, 400, 404, 500), Swagger UI, ReDoc, Controllers, DTO Mappings, Web Service Endpoints.
-- Phản hồi lỗi ra màn hình Console bằng thông báo văn bản (print) rõ nghĩa và khôi phục luồng qua `try-except`.
+        error_model = """MÔ HÌNH KIỂM SOÁT LỖI MÔI TRƯỜNG DÒNG LỆNH (CLI / RUNTIME CORE):
+- Sử dụng các ngoại lệ ngôn ngữ nguyên bản (Native Language Exceptions: ValueError, KeyError, TypeError, Error...) hoặc giá trị trả về (booleans/tuples/objects/messages).
+- Tương tác nhập xuất và hiển thị phản hồi trực tiếp qua màn hình Console/Terminal chuẩn.
+- Bắt lỗi và khôi phục luồng an toàn qua cấu trúc try-catch / try-except nguyên bản của ngôn ngữ.
+- TUYỆT ĐỐI CẤM sử dụng các kiến trúc hạ tầng chưa được học hoặc nằm trong danh mục CẤM DÙNG (FORBIDDEN SCOPE).
 """
         forbidden_concepts = [
             "response_envelope", "status_code", "http status", "swagger", "redoc", "dto mapping",
-            "controller", "endpoint", "rest api", "fastapi", "flask", "django rest", "express.js"
+            "controller", "endpoint", "rest api"
         ]
         
     elif pattern == ARCH_WEB_BACKEND:
@@ -152,38 +156,24 @@ def resolve_course_architecture(session_title: str, tech_stack: str, forbidden_s
         "srs_headers": srs_headers,
         "error_model": error_model,
         "naming_guidelines": naming_guidelines,
-        "forbidden_concepts": forbidden_concepts
+        "forbidden_concepts": forbidden_concepts,
+        "allowed_scope": allowed_scope,
+        "tech_stack": tech_stack
     }
 
 def lint_document_architecture(doc_title: str, content: str, arch_info: Dict[str, Any], forbidden_scope: str = "") -> List[str]:
     """
-    Systemically lints generated markdown content against forbidden architecture concepts
-    and forbidden PM scope. Returns a list of explicit violation error messages.
+    Systemically lints generated markdown content against dynamically provided forbidden scope
+    and general architecture principles without rigid hardcoded technology lists.
     """
     violations = []
     c_text = content or ""
     c_text_lower = c_text.lower()
-    pattern = arch_info["pattern"]
     
-    # 1. Check Architecture Leakage
-    if pattern == ARCH_CLI_CORE:
-        # Prevent Web REST API / FastAPI leakage into CLI Core
-        web_leakage_terms = [
-            ("response_envelope", "Cấu trúc JSON Response Envelope của Web REST API (status, code, data, message)"),
-            ("swagger", "Giao diện Swagger UI / ReDoc của Web REST API"),
-            ("redoc", "Giao diện ReDoc của Web REST API"),
-            ("dto mapping", "Mô hình DTO Mapping của Web Service"),
-            ("http status", "Mã trạng thái HTTP Status (200, 400, 500)"),
-            ("post /api", "Web REST API Endpoints (POST /api)"),
-            ("get /api", "Web REST API Endpoints (GET /api)"),
-            ("delete /api", "Web REST API Endpoints (DELETE /api)"),
-            ("put /api", "Web REST API Endpoints (PUT /api)"),
-        ]
-        for term, desc in web_leakage_terms:
-            if term in c_text_lower:
-                violations.append(f"Tài liệu '{doc_title}' vi phạm rò rỉ kiến thức: Chứa {desc} không phù hợp với môn Console CLI Core.")
-                
-    # 2. Check Unaccented Vietnamese Code Identifiers
+    # 1. Clean disclaimers/prohibitions so sentences like "Cấm sử dụng DOM/Class" don't trigger false positives
+    clean_text = re.sub(r'(?:cấm|không|tuyệt đối|chưa được|lưu ý|chú ý|note|forbid|forbidden|without|do not use)[^.\n]*', '', c_text_lower, flags=re.IGNORECASE)
+    
+    # 2. Check Unaccented Vietnamese Code Identifiers (English naming rule)
     vi_unaccented_patterns = [
         (r"\bthem_[a-z0-9_]+\b", "them_..."),
         (r"\bcap_nhat_[a-z0-9_]+\b", "cap_nhat_..."),
@@ -202,28 +192,35 @@ def lint_document_architecture(doc_title: str, content: str, arch_info: Dict[str
         m = re.search(pat, c_text, re.IGNORECASE)
         if m:
             matched_str = m.group(0)
-            # Avoid triggering if it's inside an explicit warning/forbidden notice string
             if not re.search(rf"(?:cấm|không|ví dụ cấm|vd cấm).*?{re.escape(matched_str)}", c_text, re.IGNORECASE):
                 violations.append(f"Tài liệu '{doc_title}' chứa tên biến/hàm tiếng Việt không dấu ('{matched_str}'). Quy chuẩn mã nguồn yêu cầu 100% TIẾNG ANH CÓ NGHĨA.")
                 break
 
-    # 3. Check Forbidden Scope keywords from PM spreadsheet
+    # 3. Dynamic Scope Checks (Derived from Syllabus / PM metadata)
+    allowed_text_lower = (arch_info.get("allowed_scope") or "").lower()
+    stack_text_lower = (arch_info.get("tech_stack") or "").lower()
+    common_allowlist = {"css", "html", "js", "web", "dom", "api", "code", "app", "ui", "ux", "data", "file", "json", "giao diện", "hệ thống", "dữ liệu", "bài tập", "dự án"}
+
     if forbidden_scope:
-        forbidden_lower = forbidden_scope.lower()
-        clean_text = re.sub(r'class\s*=\s*"[^"]*"', '', c_text)
-        clean_text = re.sub(r'class\s*=\s*\'[^\']*\'', '', clean_text)
-        clean_text = re.sub(r'(?:cấm|không sử dụng|không được dùng|tránh)\s+class', '', clean_text, flags=re.IGNORECASE)
-        
-        terms = [t.strip().lower() for t in re.split(r'[,;\n/•\-]', forbidden_scope) if t.strip() and len(t.strip()) > 2]
+        terms = [t.strip().lower() for t in re.split(r'[,;\n/•\-]', forbidden_scope) if t.strip() and len(t.strip()) > 3]
         for term in terms:
-            if term in ["class", "oop", "đối tượng"]:
-                if re.search(r"\bclass\s+[A-Z][a-zA-Z0-9_]*\b", clean_text) or re.search(r"xây dựng (các |)class\b", clean_text, re.IGNORECASE) or re.search(r"tư duy lập trình hướng đối tượng", clean_text, re.IGNORECASE):
-                    violations.append(f"Tài liệu '{doc_title}' chứa thiết kế Class/OOP vi phạm CẤM DÙNG ({forbidden_scope}) của PM.")
-            elif term in ["file i/o", "file", "tệp tin"]:
-                if re.search(r"đọc\s*[/và]*\s*ghi\s+tệp", clean_text, re.IGNORECASE) or re.search(r"tệp\s+tin\s+(json|csv)", clean_text, re.IGNORECASE) or re.search(r"\btasks\.json\b", clean_text, re.IGNORECASE):
-                    violations.append(f"Tài liệu '{doc_title}' chứa thao tác đọc ghi tệp vi phạm CẤM DÙNG ({forbidden_scope}) của PM.")
-            elif term in ["third-party modules", "third-party", "pydantic"]:
-                if "pydantic" in clean_text.lower():
-                    violations.append(f"Tài liệu '{doc_title}' chứa thư viện Pydantic vi phạm CẤM DÙNG ({forbidden_scope}) của PM.")
+            if "kiến thức buổi sau" in term or "tuyệt đối chưa được dùng" in term:
+                continue
+            if term in common_allowlist:
+                continue
+            # If the term is already introduced in prior taught sessions (allowed_scope) or course tech stack, ignore it
+            if allowed_text_lower and term in allowed_text_lower:
+                continue
+            if stack_text_lower and term in stack_text_lower:
+                continue
+            # Regex word-boundary search in cleaned text
+            pattern_term = r"\b" + re.escape(term) + r"\b"
+            if re.search(pattern_term, clean_text):
+                violations.append(f"Tài liệu '{doc_title}' vi phạm phạm vi kiến thức: Chứa khái niệm '{term}' bị cấm trong phạm vi buổi học hiện tại.")
+
+    # 4. Pattern-specific forbidden concepts
+    for concept in arch_info.get("forbidden_concepts", []):
+        if concept in clean_text:
+            violations.append(f"Tài liệu '{doc_title}' vi phạm kiến trúc: Chứa khái niệm '{concept}' không phù hợp với mô hình {arch_info['arch_name']}.")
 
     return violations

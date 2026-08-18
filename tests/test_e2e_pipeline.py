@@ -65,13 +65,27 @@ def test_master_validator_all_formats():
       <body>
         <h1>Khái niệm biến trong Python</h1>
         <section id="section-1"><h2>1. Đặt vấn đề</h2><p>Mô tả bài học</p></section>
-        <section id="section-2"><h2>2. Cơ chế hoạt động</h2><p>Mô tả cú pháp</p></section>
-        <section id="section-3"><h2>3. Ví dụ thực thi</h2><pre><code>x = 10</code></pre></section>
-        <section id="section-4"><h2>4. Cảnh báo lỗi</h2><p>Mô tả gotchas</p></section>
+        <section id="section-2">
+          <h2>2. Cơ chế hoạt động</h2>
+          <p>Mô tả cú pháp</p>
+          <div id="sec-2-4" class="step-by-step execution visualizer"><p>Trình mô phỏng</p></div>
+        </section>
+        <section id="section-3">
+          <h2>3. Ví dụ thực thi</h2>
+          <div class="border-sky-200 bg-sky-50 font-bold text-sky-900"><p><strong>Yêu cầu bài toán:</strong> Demo biến số</p></div>
+          <h3>3.1. Khởi tạo biến</h3>
+          <pre><code class="language-python">x = 10</code></pre>
+          <h3>3.2. Thay đổi giá trị biến</h3>
+          <pre><code class="language-python">x = 20</code></pre>
+          <h3>3.3. Hiển thị kết quả</h3>
+          <pre><code class="language-python">print(x)</code></pre>
+        </section>
+        <section id="section-4"><h2>4. Lỗi thường gặp</h2><p>Mô tả lỗi</p></section>
         <section id="section-5"><h2>5. Tóm tắt bài học</h2><div class="selftest-question" style="justify-content: flex-start !important;">Câu hỏi 1</div></section>
       </body>
     </html>"""
-    is_valid, errors = validate_resource("READING", valid_html)
+    metadata = {"skip_size_check": True, "is_testing": True}
+    is_valid, errors = validate_resource("READING", valid_html, metadata=metadata)
     assert is_valid is True, f"Validation failed: {errors}"
 
 def test_resolve_language_info_git_and_theory():

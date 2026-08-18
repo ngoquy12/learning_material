@@ -426,9 +426,11 @@
             {{ sec1_html | safe }}
           </div>
 
-          {% if context_image_url %}
+          {% if sec1_visual_html %}
+          {{ sec1_visual_html | safe }}
+          {% elif context_image_url %}
           <div class="my-6 text-center">
-            <img src="{{ context_image_url }}" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" />
+            <img src="{{ context_image_url }}" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" onerror="this.closest('.my-6').style.display='none';" />
             <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: {{ lesson_clean_title }}</p>
           </div>
           {% endif %}
@@ -444,7 +446,7 @@
             {{ sec2_html | safe }}
           </div>
 
-          {% if visualizer_component_html %}
+          {% if visualizer_component_html and not ('id="sec-2-4' in sec2_html or 'viz-step-badge' in sec2_html or 'viz-code-display' in sec2_html or 'Mô phỏng cơ chế vận hành từng bước' in sec2_html) %}
           <!-- Domain Adaptive Step-by-Step Visualizer -->
           <div class="my-8">
             {{ visualizer_component_html | safe }}
@@ -491,6 +493,46 @@
               {% endfor %}
             </ul>
           </div>
+
+          <!-- Self-Test Component -->
+          {% if self_test_questions %}
+          <div id="selftest-section" class="mt-8 pt-6 border-t border-slate-200">
+            <h3 class="font-montserrat font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+              <i class="ph-bold ph-checks text-rikkei-red"></i> Câu hỏi ôn tập
+            </h3>
+            <p class="text-sm text-slate-600 mb-6">Trả lời các câu hỏi nhanh dưới đây để kiểm tra mức độ hiểu biết của bạn về kịch bản và ví dụ thực tế trong bài đọc này!</p>
+
+            <form id="self-test-form" onsubmit="event.preventDefault(); checkSelfTest();" class="space-y-6">
+              {% for q in self_test_questions %}
+              {% set q_idx = loop.index %}
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">{{ q_idx }}</span>
+                  <span>{{ q.question }}</span>
+                </p>
+                <div class="space-y-2">
+                  {% for opt in q.options %}
+                  {% set opt_letter = opt[:1] %}
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q{{ q_idx }}" value="{{ opt_letter }}" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">{{ opt }}</span>
+                  </label>
+                  {% endfor %}
+                </div>
+                <div id="q{{ q_idx }}-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              {% endfor %}
+
+              <!-- Button Submit -->
+              <div class="flex items-center justify-between gap-4">
+                <button type="submit" id="btn-check-selftest" class="px-5 py-2.5 rounded-lg bg-rikkei-red hover:bg-rikkei-darkred text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+                  <i class="ph-bold ph-check text-base"></i> Kiểm tra kết quả
+                </button>
+                <div id="self-test-score" class="hidden text-sm font-semibold text-slate-700"></div>
+              </div>
+            </form>
+          </div>
+          {% endif %}
         </section>
       </article>
     </main>
@@ -509,6 +551,58 @@
       function toggleMobileToc() {
         const drawer = document.getElementById("mobile-toc-drawer");
         drawer.classList.toggle("hidden");
+      }
+
+      // JavaScript Live In-Browser Sandbox Engine
+      function runJsCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const rawCode = editor.innerText || editor.textContent;
+        output.innerText = "";
+
+        let logs = [];
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const originalInfo = console.info;
+
+        try {
+          console.log = function(...args) {
+            logs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalLog.apply(console, args);
+          };
+          console.info = console.log;
+          console.warn = function(...args) {
+            logs.push("[CẢNH BÁO] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalWarn.apply(console, args);
+          };
+          console.error = function(...args) {
+            logs.push("[LỖI] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalError.apply(console, args);
+          };
+
+          const result = new Function(rawCode)();
+          if (result !== undefined && logs.length === 0) {
+            logs.push(String(result));
+          }
+
+          if (logs.length > 0) {
+            output.innerText = logs.join('\n');
+          } else {
+            output.innerText = "Thực thi thành công (Không có dữ liệu xuất console).";
+          }
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI JAVASCRIPT:\n" + (err && err.stack ? err.stack : err);
+        } finally {
+          console.log = originalLog;
+          console.warn = originalWarn;
+          console.error = originalError;
+          console.info = originalInfo;
+        }
       }
 
       // Pyodide Live Wasm Sandbox Engine
@@ -607,6 +701,211 @@
         }
       }
       {% endif %}
+
+      {% if self_test_questions %}
+      function checkSelfTest() {
+        const answers = {{ self_test_answers_json | safe }};
+        const explanations = {{ self_test_explanations_json | safe }};
+
+        let score = 0;
+        const total = Object.keys(answers).length;
+
+        for (let i = 1; i <= total; i++) {
+          const qId = "q" + i;
+          const selected = document.querySelector(`input[name="${qId}"]:checked`);
+          const expDiv = document.getElementById(`${qId}-explanation`);
+          
+          if (!expDiv) continue;
+          expDiv.classList.remove("hidden");
+          
+          const correctAns = answers[i];
+          const explainText = explanations[i];
+          
+          if (selected) {
+            const val = selected.value;
+            if (val === correctAns) {
+              score++;
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-check-circle text-emerald-600 mr-1.5 text-sm align-middle"></i> <strong>Đúng!</strong> ${explainText}`;
+            } else {
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-rose-50 text-rose-800 border border-rose-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-x-circle text-rose-600 mr-1.5 text-sm align-middle"></i> <strong>Sai!</strong> Đáp án đúng là <strong>${correctAns}</strong>. ${explainText}`;
+            }
+          } else {
+            expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-medium text-left";
+            expDiv.innerHTML = `<i class="ph-bold ph-warning text-amber-600 mr-1.5 text-sm align-middle"></i> Bạn chưa chọn câu trả lời cho câu này.`;
+          }
+        }
+
+        const scoreDiv = document.getElementById("self-test-score");
+        if (scoreDiv) {
+          scoreDiv.classList.remove("hidden");
+          scoreDiv.innerText = `Kết quả: ${score}/${total} câu trả lời đúng.`;
+        }
+      }
+      {% endif %}
+
+      // Visualizer logic for 2.4
+      var currentVizStep = 0;
+      var vizAutoInterval = null;
+
+      function runVizStep(stepNum) {
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = window.vizSteps ? window.vizSteps.length : linesCount;
+
+        if (stepNum === -999) {
+          currentVizStep = 0;
+          if (vizAutoInterval) {
+            clearInterval(vizAutoInterval);
+            vizAutoInterval = null;
+            const autoBtn = document.getElementById("viz-auto-btn");
+            if (autoBtn) autoBtn.innerText = "Tự động chạy";
+          }
+        } else if (stepNum === -1) {
+          currentVizStep = Math.max(0, currentVizStep - 1);
+        } else if (stepNum === 1) {
+          currentVizStep = Math.min(totalSteps, currentVizStep + 1);
+        } else {
+          currentVizStep = stepNum;
+        }
+
+        // Reset highlights
+        lineDivs.forEach((el) => {
+          el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between";
+        });
+
+        const term = document.getElementById("viz-terminal-log");
+        const badge = document.getElementById("viz-step-badge");
+
+        if (currentVizStep === 0) {
+          if (term) term.innerHTML = `&gt; Sẵn sàng chạy mô phỏng từng bước. Bấm 'Tiếp theo' để bắt đầu...`;
+          if (badge) badge.innerText = "Sẵn sàng";
+          updateRamMonitor(0);
+          return;
+        }
+
+        if (badge) badge.innerText = `Bước ${currentVizStep}/${totalSteps}`;
+
+        if (window.vizSteps && window.vizSteps[currentVizStep - 1]) {
+          const stepData = window.vizSteps[currentVizStep - 1];
+          const el = document.getElementById("viz-line-" + stepData.line);
+          if (el) {
+            el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between bg-emerald-50 border-l-4 border-emerald-500 font-semibold";
+          }
+          updateRamMonitor(currentVizStep);
+          if (term) {
+            term.innerHTML = "";
+            for (let step = 1; step <= currentVizStep; step++) {
+              const sData = window.vizSteps[step - 1];
+              if (sData.log) {
+                term.innerHTML += sData.log;
+              }
+            }
+            term.scrollTop = term.scrollHeight;
+          }
+        } else {
+          const activeEl = document.getElementById("viz-line-" + currentVizStep);
+          if (activeEl) {
+            activeEl.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between bg-emerald-50 border-l-4 border-emerald-500 font-semibold";
+            if (term) {
+              const logMsg = activeEl.getAttribute("data-console") || `Đang thực thi dòng lệnh ${currentVizStep}`;
+              term.innerHTML += `<div>&gt; ${logMsg}</div>`;
+              term.scrollTop = term.scrollHeight;
+            }
+          }
+        }
+      }
+
+      function updateRamMonitor(stepIdx) {
+        if (!window.vizSteps) return;
+        
+        // Reset all RAM entries to --- if stepIdx is 0
+        if (stepIdx === 0) {
+          const ramEls = document.querySelectorAll("[id^='viz-ram-']");
+          ramEls.forEach((el) => {
+            if (el.id !== "viz-ram-status" && el.id !== "viz-ram-env" && el.id !== "viz-ram-lesson") {
+              el.innerText = "---";
+            }
+          });
+          return;
+        }
+
+        const stepData = window.vizSteps[stepIdx - 1];
+        if (stepData && stepData.ram) {
+          for (const [key, val] of Object.entries(stepData.ram)) {
+            const ramEl = document.getElementById("viz-ram-" + key);
+            if (ramEl) ramEl.innerText = val;
+          }
+        }
+      }
+
+      function vizToggleAuto() {
+        const btn = document.getElementById("viz-auto-btn");
+        if (!btn) return;
+        
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const linesCount = codeDisplay.querySelectorAll("div[id^='viz-line-']").length;
+        const totalSteps = window.vizSteps ? window.vizSteps.length : linesCount;
+
+        if (vizAutoInterval) {
+          clearInterval(vizAutoInterval);
+          vizAutoInterval = null;
+          btn.innerText = "Tự động chạy";
+        } else {
+          btn.innerText = "Tạm dừng";
+          if (currentVizStep >= totalSteps) runVizStep(-999);
+          runVizStep(1);
+          vizAutoInterval = setInterval(() => {
+            if (currentVizStep >= totalSteps) {
+              clearInterval(vizAutoInterval);
+              vizAutoInterval = null;
+              btn.innerText = "Tự động chạy";
+            } else {
+              runVizStep(1);
+            }
+          }, 1800);
+        }
+      }
+
+      // Active TOC link on scroll using IntersectionObserver
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              // Deactivate all TOC links in sidebar and drawer
+              document.querySelectorAll(".toc-link, .mobile-toc-link").forEach((link) => {
+                link.classList.remove("border-rikkei-red", "text-rikkei-red", "font-bold", "bg-slate-100");
+                link.classList.add("border-transparent", "text-slate-600");
+              });
+              // Activate current links
+              const activeLinks = document.querySelectorAll(`a[href="#${id}"]`);
+              activeLinks.forEach((link) => {
+                if (link.classList.contains("toc-link")) {
+                  link.classList.add("border-rikkei-red", "text-rikkei-red", "font-bold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else if (link.classList.contains("mobile-toc-link")) {
+                  link.classList.add("text-rikkei-red", "bg-slate-100");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll("section[id^='section-']").forEach((section) => {
+          observer.observe(section);
+        });
+      });
     </script>
   </body>
 </html>

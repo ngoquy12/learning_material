@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, Dict, Any, Union, List
 from datetime import datetime
 
@@ -17,9 +17,7 @@ class ArtifactResponse(ArtifactBase):
     id: int
     created_at: Optional[datetime] = None
     versions: Optional[Any] = None
-    
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ArtifactUpdate(BaseModel):
     content: Optional[str] = None

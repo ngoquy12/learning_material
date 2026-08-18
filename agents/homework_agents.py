@@ -136,7 +136,7 @@ Mandatory 5 Rubric Criteria Groups:
   + ABSOLUTELY FORBIDDEN to put spoiler comments in code pointing out bugs (FORBIDDEN: `# LỖI LOGIC 1: ...`, `# LỖI Ở ĐÂY`, `# TRỪ SAI PHÍ...`). All comments in code MUST be standard neutral developer comments (e.g. `# Tính tổng tiền thanh toán`, `# Kiểm tra điều kiện`).
 - Student Execution Directives (MANDATORY 2 PARTS):
   + Part 1 - Code Tracing & Bug Discovery (Test Case Report Table):
-    * Student MUST trace code, pinpoint the exact bug line, and complete a 3-testcase table (Input, Buggy Output, Expected Output, Logic Note) proving where and why the code fails.
+    * Student MUST trace code, pinpoint the exact bug line, and complete a 3-testcase table with columns: STT, Input, Buggy Output, Expected Output, Failing Line of Code (Dòng code gây lỗi), and Logic Note (Giải thích nguyên nhân) proving where and why the code fails.
     * MANDATORY TEST CASE TABLE STRUCTURE CONTRACT: The HTML Test Case table in Section 4 MUST contain EXACTLY 1 FULLY FILLED SAMPLE TEST CASE in Row 1 (STT 1) as a guide/reference example. Row 2, Row 3, and subsequent rows MUST BE LEFT INCOMPLETE (using `...` placeholders) for the student to trace and fill out! ABSOLUTELY FORBIDDEN to complete all test case rows for the student!
   + Part 2 - Source Code Correction: Student MUST fix the legacy source code to enforce correct business logic.
 """
@@ -599,6 +599,86 @@ def homework_reviewer_agent(
 
     return {"status": "APPROVED", "feedback": "All session exercises successfully passed pedagogical and technology scope review."}
 
+def sanitize_homework_markdown(content: str, level_name: str = "") -> str:
+    if not content:
+        return content
+        
+    import re
+    # 1. Clean JSON artifacts/noise from code block fence closures
+    content = re.sub(r'```",\s*$', '```', content, flags=re.MULTILINE)
+    content = re.sub(r'```",\s*\n\s*\.', '```', content, flags=re.MULTILINE)
+    
+    from agents.creators.common_utils import normalize_markdown_headers
+    content = normalize_markdown_headers(content)
+
+    # Split content by markdown code blocks to avoid corrupting code segments
+    parts = content.split("```")
+    for i in range(len(parts)):
+        # Even indices (0, 2, 4...) are non-code markdown text segments
+        if i % 2 == 0:
+            parts[i] = parts[i].replace('",\n  "example_good": "Thực hành tốt:', '\n\n#### **Thực hành tốt:**\n')
+            parts[i] = parts[i].replace('",\n  "example_good": "Thực hành tốt: ', '\n\n#### **Thực hành tốt:**\n')
+            parts[i] = parts[i].replace('",\n  "example_bad": "Thực hành sai:', '\n\n#### **Thực hành sai:**\n')
+            parts[i] = parts[i].replace('",\n  "example_bad": "Thực hành sai: ', '\n\n#### **Thực hành sai:**\n')
+            parts[i] = parts[i].replace('",\n  "resolve_title": "Quản trị rủi ro và Nguyên tắc thực hành tốt nhất khi thao tác List', '\n\n#### **Cách phòng ngừa & Xử lý:**\n')
+            parts[i] = parts[i].replace('",\n  "resolve_title": "Quản trị rủi ro', '\n\n#### **Cách phòng ngừa & Xử lý:**\n')
+            parts[i] = parts[i].replace('",\n  ', '\n\n')
+            parts[i] = parts[i].replace('",', '')
+            
+            # Sửa lỗi rác của resolve_title trong bài 16/17
+            parts[i] = parts[i].replace('#### **Cách phòng ngừa & Xử lý:**\n\n```\n\n.\n\n### **4. Yêu cầu bài toán**', '### **4. Yêu cầu bài toán**')
+            parts[i] = parts[i].replace('#### **Cách phòng ngừa & Xử lý:**\n\n```\n\n.', '')
+
+    content = "```".join(parts)
+    
+    # 2. Restore broken python print statements
+    content = re.sub(
+        r'print\("# Danh sách sau khi xử lý thành công:\s*([\w_]+)\)', 
+        r'print("# Danh sách sau khi xử lý thành công:", \1)', 
+        content
+    )
+    content = re.sub(
+        r'print\("# Số lượng phần tử còn lại:\s*(len\([\w_]+\))\)', 
+        r'print("# Số lượng phần tử còn lại:", \1)', 
+        content
+    )
+    
+    # 3. Standardize H3 Headers & Ensure clean linebreaks
+    content = normalize_markdown_headers(content)
+    
+    # 4. Standardize H3 Headers
+    content = re.sub(r'### \*\*2\. Vấn đề\*\*|### \*\*2\. Bối cảnh & Yêu cầu tổng hợp\*\*|### \*\*2\. Bối cảnh & Vấn đề (Dành cho Demo trên lớp)\*\*', '### **2. Bối cảnh & Vấn đề**', content)
+    if level_name and "cơ bản" in level_name.lower():
+        content = re.sub(r'### \*\*3\. Quy tắc nghiệp vụ\*\*|### \*\*3\. Quy tắc nghiệp vụ & Luồng xử lý tích hợp\*\*|### \*\*3\. Quy tắc nghiệp vụ & Từ khóa trọng tâm\*\*', '### **3. Mã nguồn hiện tại**', content)
+    else:
+        content = re.sub(r'### \*\*3\. Mã nguồn hiện tại\*\*|### \*\*3\. Quy tắc nghiệp vụ & Luồng xử lý tích hợp\*\*|### \*\*3\. Quy tắc nghiệp vụ & Từ khóa trọng tâm\*\*', '### **3. Quy tắc nghiệp vụ**', content)
+        
+    content = re.sub(r'### \*\*4\. Yêu cầu đầu ra\*\*|### \*\*4\. Hướng dẫn Giảng viên Live-Demo & Mã nguồn Mẫu\*\*|### \*\*4\. Yêu cầu bài toán (Sản phẩm nộp)\*\*', '### **4. Yêu cầu bài toán**', content)
+    content = re.sub(r'### \*\*5\. Hướng dẫn nộp bài\*\*', '### **5. Yêu cầu nộp bài**', content)
+    
+    # 5. Standardize H1 Header prefix
+    if level_name:
+        h1_match = re.search(r'## <center>(.*?)</center>', content)
+        if h1_match:
+            h1_text = h1_match.group(1).strip()
+            if level_name not in h1_text:
+                new_h1_text = f"[{level_name}] {h1_text}"
+                new_h1_text = re.sub(r'\[.*?\]\s*\[.*?\]', f"[{level_name}]", new_h1_text)
+                content = content.replace(h1_match.group(0), f"## <center>{new_h1_text}</center>")
+                
+    # 6. Remove banned emojis/symbols
+    content = content.replace("➔", "->")
+    content = content.replace("▶", "")
+    content = content.replace("❌", "[LỖI]")
+    content = content.replace("✅", "[ĐÚNG]")
+    content = content.replace("⚠️", "[CẢNH BÁO]")
+    
+    # Sửa lỗi rác của resolve_title trong bài 16/17
+    content = content.replace('#### **Cách phòng ngừa & Xử lý:**\n\n```\n\n.\n\n### **4. Yêu cầu bài toán**', '### **4. Yêu cầu bài toán**')
+    content = content.replace('#### **Cách phòng ngừa & Xử lý:**\n\n```\n\n.', '')
+    
+    return normalize_markdown_headers(content)
+
 def session_homework_pipeline(
     session_id: str,
     session_title: str,
@@ -743,10 +823,16 @@ def session_homework_pipeline(
         # Post-process content to link/generate diagram image and sanitize math formulas
         from agents.creators.common_utils import clean_markdown_formulas
         processed_content = clean_markdown_formulas(generate_and_link_diagram(content, homework_dir, filename_no_ext))
+        processed_content = sanitize_homework_markdown(processed_content, level_name=levels[idx][0])
         
         # Save de_bai_bai_tap.md
         desc_file_path = ex_folder / "de_bai_bai_tap.md"
         with open(desc_file_path, "w", encoding="utf-8") as f:
+            f.write(processed_content)
+            
+        # Save direct bai_tap_{idx+1}.md in homework_dir
+        direct_file_path = homework_dir / f"bai_tap_{idx+1}.md"
+        with open(direct_file_path, "w", encoding="utf-8") as f:
             f.write(processed_content)
             
         # Save tieu_chi_cham_diem_ai.md
@@ -770,43 +856,31 @@ Target Technology Stack: {tech_stack}
 Session Scope: {previous_lessons_text}
 Forbidden Scope: {forbidden_scope}
 
-This synthesis assignment is designed FOR THE INSTRUCTOR TO LIVE-DEMO IN CLASS, synthesizing ALL core concepts taught in Session {session_id}.
+This synthesis assignment is designed FOR THE INSTRUCTOR TO LIVE-DEMO IN CLASS, synthesizing ALL core concepts taught in Session {session_id} at a basic level (approx. 30 minutes execution time). It must NOT contain any solution code, skeleton code, or code snippets in the description.
 
 Return your response in EXACTLY the following XML schema (no conversational text outside XML):
 <exercise>
 <de_bai_content>
-## <center>[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session {session_id} (Dành cho Giảng viên Demo trên lớp)</center>
+## <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp ({chosen_domain.upper()})</center>
 
 ### **1. Mục tiêu**
-* Tổng hợp toàn bộ kiến thức cốt lõi của {session_id} trong 1 bài toán thực tế thuộc hệ thống {chosen_domain.upper()}.
-* Hướng dẫn Giảng viên thực hiện Live Coding demo trực tiếp trên lớp để sinh viên quan sát tư duy thiết kế, trace code và bắt bẫy dữ liệu.
+- **Kiến thức**: [Objectives for integration of all session concepts]
+- **Kỹ năng**: [Skills to trace execution and handle basic logic]
+- **Vai trò**: Hướng dẫn Giảng viên thực hiện Live Coding trực quan hóa luồng chạy thực tế để học viên dễ tiếp thu.
 
 ### **2. Bối cảnh & Vấn đề (Dành cho Demo trên lớp)**
-Hệ thống {chosen_domain.upper()} yêu cầu triển khai một phân hệ tổng hợp tích hợp toàn bộ các quy tắc nghiệp vụ của bài học {session_title}. 
+- Describe a realistic business scenario in {chosen_domain.upper()} system that integrates all core session lessons.
 
-Prompt tạo ảnh: A clean 2D flat vector technical illustration of a computer science professor live coding an enterprise synthesis system module on class projector screen for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+### **3. Quy tắc nghiệp vụ & 3 Chức năng cốt lõi cần làm**
+- Design exactly 3 simple functions representing the workflow.
+- Format EACH function using exactly these 3 lines:
+  - **Nghiệp vụ**: [Clear business logic description]
+  - **Đầu vào (Input)**: [What inputs are required]
+  - **Đầu ra (Output)**: [What is the printed status/output]
 
-### **3. Quy tắc nghiệp vụ & Luồng xử lý tích hợp**
-Phân hệ tổng hợp xử lý theo các quy tắc nghiệp vụ sau:
-1. **Kiến thức áp dụng tích hợp**: {previous_lessons_text}.
-2. **Quy tắc tính toán & Thứ tự ưu tiên**: Thực hiện chính xác biểu thức logic và công thức tính toán.
-3. **Bẫy dữ liệu & Ngoại lệ (Edge Cases)**: Xử lý an toàn các trường hợp biên và dữ liệu bất thường.
-
-### **4. Hướng dẫn Giảng viên Live-Demo & Mã nguồn Mẫu**
-#### **Bước 1: Phân tích I/O & Sơ đồ luồng thuật toán**
-- Input: Thông tin đầu vào từ hệ thống.
-- Output: Kết quả xử lý nghiệp vụ.
-- Sơ đồ luồng Mermaid chuẩn (sử dụng đúng 5 hình chuẩn: Oval cho Start/End, Parallelogram cho Input/Output, Diamond cho Decision, Rectangle cho Process, Flowline cho Arrow).
-
-#### **Bước 2: Mã nguồn Mẫu hoàn chỉnh (Master Demo Code)**
-Mã nguồn Python/C/Java mẫu chuẩn chỉnh 100% runnable có comment giải thích chi tiết để Giảng viên vừa gõ code vừa giải thích cho sinh viên trên lớp.
-
-#### **Bước 3: Nhấn mạnh Bẫy dữ liệu & Kỹ năng bắt lỗi (Instructor Teaching Notes)**
-- Điểm nhấn 1: Hướng dẫn sinh viên quan sát bẫy dữ liệu biên.
-- Điểm nhấn 2: Giải thích lý do chọn cấu trúc toán tử/thuật toán tối ưu.
-
-### **5. Yêu cầu nộp bài (Dành cho Sinh viên thực hành mở rộng)**
-Học viên theo dõi bài giảng demo của Giảng viên, thực hiện lại bài tập tổng hợp và mở rộng thêm tính năng chặn lỗi, nộp lên GitHub theo chuẩn: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Demo_Synthesis`.
+### **4. Yêu cầu nộp bài**
+Bài tập này là phần thực hành Live Coding trên lớp. Học viên lưu mã nguồn và sơ đồ phân tích vào thư mục: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Demo`.
+Ví dụ: `HNKS25CNTT1_Core_{session_id.replace(' ', '')}_Demo`
 </de_bai_content>
 <tieu_chi_content>
 ### **Tiêu chí chấm điểm (AI / Mentor)**
@@ -814,19 +888,16 @@ Học viên theo dõi bài giảng demo của Giảng viên, thực hiện lại
 **[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session — Tổng điểm: 100 điểm**
 
 #### **1. Phân tích luồng & Sơ đồ thuật toán — 20 điểm**
-*   **[20 điểm] Phân tích I/O và Sơ đồ Mermaid chuẩn:** Sơ đồ vẽ đúng 5 hình chuẩn, phân tích đủ Input/Output.
-
 #### **2. Hiện thực hóa mã nguồn tích hợp — 40 điểm**
-*   **[40 điểm] Mã nguồn chạy thông suốt:** Tích hợp đầy đủ tất cả toán tử và quy tắc nghiệp vụ của Session.
-
 #### **3. Xử lý bẫy dữ liệu & Ngoại lệ — 20 điểm**
-*   **[20 điểm] Bắt lỗi biên an toàn:** Xử lý triệt để bẫy dữ liệu số âm, vượt ngưỡng, sai định dạng.
-
 #### **4. Clean Code & Quy chuẩn nộp bài — 20 điểm**
-*   **[10 điểm] Đặt tên tiếng Anh chuẩn Clean Code:** Tên biến/hàm tiếng Anh rõ nghĩa, comment tiếng Việt chuẩn.
-*   **[10 điểm] Nộp bài GitHub:** Cấu trúc bài nộp trên GitHub đúng quy định.
 </tieu_chi_content>
 </exercise>
+
+CRITICAL RULES:
+- ABSOLUTELY NO Python/C/Java code samples, skeleton code, or solutions in the output. The student must write all code from scratch.
+- The 3 functions in Section 3 must strictly have the bold titles **Nghiệp vụ**, **Đầu vào (Input)**, **Đầu ra (Output)**.
+- All text in de_bai_content must be in 100% Accented Vietnamese.
 """
     demo_response = call_llm(
         system_prompt="Bạn là Chuyên gia thiết kế bài tập Demo tổng hợp cho Giảng viên Rikkei Education.",
@@ -848,52 +919,53 @@ Học viên theo dõi bài giảng demo của Giảng viên, thực hiện lại
             xml_clean = xml_clean[:-3]
         xml_clean = xml_clean.strip()
         
-        start_idx = xml_clean.find("<exercise>")
-        end_idx = xml_clean.rfind("</exercise>")
-        if start_idx != -1 and end_idx != -1:
-            xml_clean = xml_clean[start_idx:end_idx + 11]
-            try:
-                root = ET.fromstring(xml_clean)
-                de_bai_node = root.find("de_bai_content")
-                tieu_chi_node = root.find("tieu_chi_content")
-                if de_bai_node is not None and de_bai_node.text:
-                    demo_de_bai = de_bai_node.text.strip()
-                if tieu_chi_node is not None and tieu_chi_node.text:
-                    demo_rubric = tieu_chi_node.text.strip()
-            except Exception as e:
-                print(f"  [Warning] Demo Synthesis XML parsing fallback: {e}")
+        import re
+        # Extract de_bai_content using robust regex
+        de_bai_match = re.search(r"<de_bai_content>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</de_bai_content>", xml_clean, re.DOTALL | re.IGNORECASE)
+        if de_bai_match:
+            demo_de_bai = de_bai_match.group(1).strip()
+            
+        # Extract tieu_chi_content using robust regex
+        rubric_match = re.search(r"<tieu_chi_content>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</tieu_chi_content>", xml_clean, re.DOTALL | re.IGNORECASE)
+        if rubric_match:
+            demo_rubric = rubric_match.group(1).strip()
 
     if not demo_de_bai:
-        demo_de_bai = f"""## <center>[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session {session_id} (Dành cho Giảng viên Demo trên lớp)</center>
+        demo_de_bai = f"""## <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp ({chosen_domain.upper()})</center>
 
 ### **1. Mục tiêu**
-* Tổng hợp toàn bộ kiến thức cốt lõi của {session_id} trong 1 bài toán thực tế thuộc hệ thống {chosen_domain.upper()}.
-* Hướng dẫn Giảng viên thực hiện Live Coding demo trực tiếp trên lớp.
+- **Kiến thức**: Tổng hợp toàn bộ kiến thức cốt lõi của {session_id} trong 1 bài toán thực tế thuộc hệ thống {chosen_domain.upper()}.
+- **Kỹ năng**: Áp dụng các cấu trúc rẽ nhánh, vòng lặp và thao tác tập hợp dữ liệu động mức cơ bản.
+- **Vai trò**: Hướng dẫn Giảng viên thực hiện Live Coding demo trực tiếp trên lớp.
 
 ### **2. Bối cảnh & Vấn đề (Dành cho Demo trên lớp)**
 Hệ thống {chosen_domain.upper()} yêu cầu triển khai một phân hệ tổng hợp tích hợp toàn bộ các quy tắc nghiệp vụ của bài học {session_title}.
 
-Prompt tạo ảnh: A clean 2D flat vector technical illustration of a computer science professor live coding an enterprise synthesis system module for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+### **3. Quy tắc nghiệp vụ & 3 Chức năng cốt lõi cần làm**
+#### **Chức năng 1: Khởi tạo và Thiết lập phân hệ**
+- **Nghiệp vụ**: Thiết lập các giá trị ban đầu và tham số quét cho hệ thống.
+- **Đầu vào (Input)**: Các tham số thiết lập từ bàn phím.
+- **Đầu ra (Output)**: Thông điệp khởi tạo lô dữ liệu thành công.
 
-### **3. Quy tắc nghiệp vụ & Luồng xử lý tích hợp**
-Phạm vi kiến thức tích hợp: {previous_lessons_text}.
+#### **Chức năng 2: Xử lý lô dữ liệu và Rà soát điều kiện**
+- **Nghiệp vụ**: Duyệt qua danh sách, kiểm tra điều kiện an toàn, lọc bỏ các bản ghi không hợp lệ hoặc kích hoạt lệnh dừng khẩn cấp.
+- **Đầu vào (Input)**: Giá trị của các bản ghi dữ liệu.
+- **Đầu ra (Output)**: Các thông điệp trạng thái xử lý cho từng bản ghi.
 
-### **4. Hướng dẫn Giảng viên Live-Demo & Mã nguồn Mẫu**
-#### **Bước 1: Phân tích I/O & Sơ đồ luồng thuật toán**
-Sơ đồ luồng thuật toán tích hợp.
+#### **Chức năng 3: Báo cáo kết quả**
+- **Nghiệp vụ**: Tổng hợp kết quả, đếm số bản ghi hợp lệ và tính tổng các khoản tiền phát sinh nếu hoàn thành trọn vẹn.
+- **Đầu vào (Input)**: Kết quả tích lũy từ tiến trình xử lý.
+- **Đầu ra (Output)**: Bảng báo cáo kết quả an toàn hoặc cảnh báo niêm phong hệ thống.
 
-#### **Bước 2: Mã nguồn Mẫu hoàn chỉnh (Master Demo Code)**
-Mã nguồn mẫu hoàn chỉnh cho Giảng viên demo trên lớp.
-
-### **5. Yêu cầu nộp bài**
-Đẩy lên GitHub Repository: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Demo_Synthesis`.
+### **4. Yêu cầu nộp bài**
+Đẩy lên GitHub Repository: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Demo`.
 """
     if not demo_rubric:
         demo_rubric = """### **Tiêu chí chấm điểm (AI / Mentor)**
 
 **[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session — Tổng điểm: 100 điểm**
 
-#### **1. Phân tích luồng & Sơ đồ thuật toán — 20 điểm**
+#### **1. Phân tích luồng & Sò đồ thuật toán — 20 điểm**
 #### **2. Hiện thực hóa mã nguồn tích hợp — 40 điểm**
 #### **3. Xử lý bẫy dữ liệu & Ngoại lệ — 20 điểm**
 #### **4. Clean Code & Quy chuẩn nộp bài — 20 điểm**
@@ -901,9 +973,14 @@ Mã nguồn mẫu hoàn chỉnh cho Giảng viên demo trên lớp.
 
     from agents.creators.common_utils import clean_markdown_formulas
     processed_demo_de_bai = clean_markdown_formulas(generate_and_link_diagram(demo_de_bai, homework_dir, "bai_16_tong_hop_demo_giang_vien"))
+    processed_demo_de_bai = sanitize_homework_markdown(processed_demo_de_bai, level_name="Tổng hợp Demo")
 
     demo_file_path = demo_synthesis_folder / "de_bai_bai_tap.md"
     with open(demo_file_path, "w", encoding="utf-8") as f:
+        f.write(processed_demo_de_bai)
+        
+    direct_demo_path = homework_dir / "bai_tap_tong_hop.md"
+    with open(direct_demo_path, "w", encoding="utf-8") as f:
         f.write(processed_demo_de_bai)
 
     demo_rubric_path = demo_synthesis_folder / "tieu_chi_cham_diem_ai.md"
@@ -920,64 +997,46 @@ Mã nguồn mẫu hoàn chỉnh cho Giảng viên demo trên lớp.
     
     print(f"  [Homework Pipeline] Generating Student Mindmap Assignment for {session_id}...")
     mindmap_prompt = f"""Bạn là Chuyên gia Đào tạo Lập trình. Hãy tạo 1 Bài tập Tổng hợp Kiến thức (Mindmap & System Synthesis Assignment) hoàn chỉnh cho Buổi học: {session_id} - {session_title}.
-Lĩnh vực dự án áp dụng: {chosen_domain.upper()}
+Lĩnh vực áp dụng: {chosen_domain.upper()}
 Phạm vi kiến thức buổi học: {previous_lessons_text}
 
 Yêu cầu trả về đúng cấu trúc XML sau:
 <exercise>
 <de_bai_content>
-## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - {session_title}</center>
+## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session {session_id}</center>
 
 ### **1. Mục tiêu**
-* Hệ thống hóa toàn bộ kiến thức cốt lõi, các quy tắc toán tử/nghiệp vụ và bẫy lỗi thường gặp trong {session_id}.
-* Rèn luyện tư duy tổng quan (Big Picture) và khả năng phân tầng kiến thức logic bằng phương pháp Sơ đồ tư duy.
+- Hệ thống hóa toàn bộ kiến thức cốt lõi và các bẫy lỗi nghiệp vụ trong {session_id}.
+- Trực quan hóa cấu trúc dữ liệu và luồng thực thi bằng Sơ đồ Tư duy (Mindmap).
+- Rèn luyện kỹ năng phân tầng logic và kết nối tri thức hệ thống một cách khoa học.
 
 ### **2. Bối cảnh & Yêu cầu tổng hợp**
-Trong hệ thống phân hệ {chosen_domain.upper()}, việc nắm vững toàn bộ kiến thức nền tảng là điều kiện bắt buộc trước khi bàn giao module cho khách hàng. Học viên đóng vai trò Kỹ sư Lập trình chính, thực hiện xây dựng Sơ đồ Tư duy (Mindmap) bao phủ toàn bộ các chủ đề kỹ thuật của bài học.
-
-Prompt tạo ảnh: A clean 2D flat vector technical illustration of a software developer mapping out technical knowledge mindmap diagram for {session_title}. Minimalist infographics style, corporate Navy and Emerald palette.
+- Describe the student's role (Software Engineer) mapping out technical knowledge mindmap diagram for {session_title} to onboard new members in {chosen_domain.upper()} project.
 
 ### **3. Quy tắc nghiệp vụ & Từ khóa trọng tâm**
-Sơ đồ tư duy của học viên BẮT BUỘC phải bao phủ đầy đủ các nhóm từ khóa và khái niệm trọng tâm sau:
-1. **Kiến thức cốt lõi**: {previous_lessons_text}.
-2. **Quy tắc tính toán & Thứ tự ưu tiên**: Phân tầng rõ ràng thứ tự thực thi của toán tử và biểu thức.
-3. **Bẫy lỗi nghiệp vụ & Biên dữ liệu (Edge Cases)**: Liệt kê các sai sót thường gặp khi lập trình.
+Sơ đồ tư duy BẮT BUỘC bao phủ các từ khóa trọng tâm của buổi học này:
+{previous_lessons_text}
 
 ### **4. Yêu cầu bài toán (Sản phẩm nộp)**
-Học viên thực hiện bài tập tổng hợp và nộp các sản phẩm sau:
-1. **File ảnh Sơ đồ tư duy**: Xuất file dạng `.png` hoặc `.jpg` từ các công cụ Mindmap (Xmind, Mindmeister, Draw.io) thể hiện tối thiểu 3 tầng phân nhánh.
-2. **File thiết kế gốc**: Nộp file gốc (ví dụ `.xmind`, `.drawio`, hoặc `.pdf`).
-3. **Bản tóm tắt Markdown (summary.md)**: Viết bản tóm tắt tóm lược 5-7 dòng giải thích các điểm nhấn chính của sơ đồ.
+1. File ảnh Sơ đồ tư duy (.png hoặc .jpg).
+2. File thiết kế gốc (.xmind hoặc .pdf).
+3. Bản tóm tắt tóm lược Markdown (summary.md) giải thích các nhánh liên kết chính trong sơ đồ.
 
 ### **5. Yêu cầu nộp bài**
 Học viên nộp bài theo quy chuẩn GitHub:
 * Đẩy mã nguồn và sơ đồ lên GitHub Repository theo cấu trúc: `[Tên Lớp]_[Môn Học]_{session_id.replace(' ', '')}_Mindmap`.
+  Ví dụ: `HNKS25CNTT1_Core_{session_id.replace(' ', '')}_Mindmap`
 </de_bai_content>
 <tieu_chi_content>
 ### **Tiêu chí chấm điểm (AI / Mentor)**
 
 **[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) — Tổng điểm: 100 điểm**
 
-#### **1. Độ bao phủ kiến thức & Tính đầy đủ của từ khóa — 30 điểm**
-*   **[15 điểm] Bao phủ toàn bộ khái niệm cốt lõi:** Mindmap chứa đầy đủ các từ khóa trọng tâm đã học trong Session.
-*   **[15 điểm] Nhận diện các bẫy dữ liệu (Edge Cases):** Có nhánh riêng tổng hợp các lỗi thường gặp và bẫy dữ liệu.
-
-#### **2. Phân tầng logic & Liên kết đa chiều — 30 điểm**
-*   **[15 điểm] Phân nhánh chuẩn xác (Tối thiểu 3 tầng):** Cấu trúc phân nhánh Cha - Con logic, không bị chồng chéo.
-*   **[15 điểm] Mối liên kết đa chiều (Cross-link):** Sử dụng các mũi tên liên kết giữa các nhánh có quan hệ nghiệp vụ.
-
-#### **3. Trực quan hóa & Định dạng sơ đồ — 20 điểm**
-*   **[10 điểm] Sử dụng màu sắc và Icon minh họa:** Phối màu rõ ràng theo từng nhánh chính, có icon hỗ trợ trí nhớ.
-*   **[10 điểm] Xuất file ảnh nét cao (.png/.jpg):** File ảnh đọc rõ chữ, layout cân đối không bị đứt đoạn.
-
+#### **1. Độ bao phủ kiến thức & Từ khóa trọng tâm — 30 điểm**
+#### **2. Phân tầng logic & Mối liên kết — 30 điểm**
+#### **3. Trực quan hóa & Định dạng xuất file — 20 điểm**
 #### **4. Bản tóm tắt giải trình (summary.md) — 10 điểm**
-*   **[10 điểm] Tóm tắt súc tích:** Viết bản tóm tắt bằng Markdown giải thích các điểm nhấn chính của sơ đồ.
-
 #### **5. Quy chuẩn nộp bài GitHub — 10 điểm**
-*   **[10 điểm] Đúng cấu trúc repository:** Đẩy đủ file ảnh, file gốc và summary.md lên GitHub theo chuẩn đặt tên.
-
-#### **Điểm cộng khuyến khích (Bonus) — 10 điểm**
-*   **[10 điểm] Sơ đồ tương tác hoặc Code Mermaid:** Vẽ bổ sung 1 sơ đồ Mermaid Flowchart minh họa luồng xử lý tổng hợp trong bài.
 </tieu_chi_content>
 </exercise>
 """
@@ -1001,20 +1060,16 @@ Học viên nộp bài theo quy chuẩn GitHub:
             xml_clean = xml_clean[:-3]
         xml_clean = xml_clean.strip()
         
-        start_idx = xml_clean.find("<exercise>")
-        end_idx = xml_clean.rfind("</exercise>")
-        if start_idx != -1 and end_idx != -1:
-            xml_clean = xml_clean[start_idx:end_idx + 11]
-            try:
-                root = ET.fromstring(xml_clean)
-                de_bai_node = root.find("de_bai_content")
-                tieu_chi_node = root.find("tieu_chi_content")
-                if de_bai_node is not None and de_bai_node.text:
-                    mindmap_de_bai = de_bai_node.text.strip()
-                if tieu_chi_node is not None and tieu_chi_node.text:
-                    mindmap_rubric = tieu_chi_node.text.strip()
-            except Exception as e:
-                print(f"  [Warning] Mindmap XML parsing fallback: {e}")
+        import re
+        # Extract de_bai_content using robust regex
+        de_bai_match = re.search(r"<de_bai_content>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</de_bai_content>", xml_clean, re.DOTALL | re.IGNORECASE)
+        if de_bai_match:
+            mindmap_de_bai = de_bai_match.group(1).strip()
+            
+        # Extract tieu_chi_content using robust regex
+        rubric_match = re.search(r"<tieu_chi_content>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</tieu_chi_content>", xml_clean, re.DOTALL | re.IGNORECASE)
+        if rubric_match:
+            mindmap_rubric = rubric_match.group(1).strip()
 
     if not mindmap_de_bai:
         mindmap_de_bai = f"""## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - {session_title}</center>
@@ -1052,9 +1107,14 @@ Sơ đồ tư duy BẮT BUỘC bao phủ các từ khóa: {previous_lessons_text
 """
 
     processed_mindmap_de_bai = clean_markdown_formulas(generate_and_link_diagram(mindmap_de_bai, homework_dir, "bai_17_tong_hop_mindmap"))
+    processed_mindmap_de_bai = sanitize_homework_markdown(processed_mindmap_de_bai, level_name="Tổng hợp Mindmap")
 
     mindmap_file_path = mindmap_folder / "de_bai_bai_tap.md"
     with open(mindmap_file_path, "w", encoding="utf-8") as f:
+        f.write(processed_mindmap_de_bai)
+        
+    direct_mindmap_path = homework_dir / "bai_tap_mindmap.md"
+    with open(direct_mindmap_path, "w", encoding="utf-8") as f:
         f.write(processed_mindmap_de_bai)
 
     mindmap_rubric_path = mindmap_folder / "tieu_chi_cham_diem_ai.md"
@@ -1062,6 +1122,16 @@ Sơ đồ tư duy BẮT BUỘC bao phủ các từ khóa: {previous_lessons_text
         f.write(mindmap_rubric)
         
     print(f"  [Success] Saved mindmap homework folder: {mindmap_folder}")
+
+    # Compile all rubrics into tieu_chi_danh_gia.md
+    all_rubrics = []
+    for idx, ex in enumerate(exercises_data):
+        clean_title = ex.get("title", f"Bài tập {idx+1}")
+        all_rubrics.append(f"## {clean_title}\n\n" + ex.get("rubric", "") + "\n\n---\n")
+    all_rubrics.append("## [Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session\n\n" + demo_rubric + "\n\n---\n")
+    all_rubrics.append("## [Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap)\n\n" + mindmap_rubric + "\n\n---\n")
+    with open(homework_dir / "tieu_chi_danh_gia.md", "w", encoding="utf-8") as f:
+        f.write("\n".join(all_rubrics))
     
     print(f"  [Homework Pipeline] Successfully completed all 15 homework assignments + 1 Demo Synthesis + 1 Mindmap Synthesis for Session {session_id}!")
     return exercises_data

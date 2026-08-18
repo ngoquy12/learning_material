@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tổng quan ngôn ngữ JavaScript, Trình duyệt Console và Biến số ES6 — Trực quan hóa Bài giảng - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #be111c 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      /* Custom light active state for TOC links */
+      .toc-link.active {
+        background-color: #fff1f2 !important; /* bg-rose-50 */
+        border-left-color: #be111c !important; /* border-l-2 border-rikkei-red */
+        color: #be111c !important;
+        border-radius: 0.5rem !important;
+      }
+      .toc-link.active .toc-title {
+        color: #be111c !important;
+        font-weight: 600 !important;
+      }
+
+      /* Realtime pulse animations for visual state flow */
+      .pulse-active {
+        animation: pulseEmerald 1.5s infinite;
+      }
+      @keyframes pulseEmerald {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+      .pulse-warning {
+        animation: pulseAmber 1.5s infinite;
+      }
+      @keyframes pulseAmber {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      }
+
+      /* Code block scrollbars */
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0f172a;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white">
+    <!-- ===== FIXED TOP HEADER (EXPANDED TO MAX 1680px) ===== -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
+      <div class="max-w-[1680px] w-full mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-8 sm:h-9 object-contain shrink-0"
+          />
+          <span class="text-xs sm:text-sm font-bold text-slate-800 border-l border-slate-300 pl-3 sm:pl-4 truncate">
+            Tổng quan ngôn ngữ JavaScript, Trình duyệt Console và Biến số ES6
+          </span>
+        </div>
+        <!-- Right Counter Badge -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+            4 Bài học
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== MAIN WRAPPER (EXPANDED TO MAX 1680px FOR FULL DESKTOP BREADTH) ===== -->
+    <div class="max-w-[1680px] w-full mx-auto px-4 sm:px-8 pt-24 pb-16 flex gap-8 items-start flex-1">
+      <!-- ===== LEFT STICKY SIDEBAR TOC (CLEAN TEXT, NO BADGES, LIGHT BORDER) ===== -->
+      <aside class="w-80 shrink-0 sticky top-24 hidden lg:block">
+        <div class="glass-card p-4 rounded-2xl space-y-3 shadow-sm border border-slate-200/80 h-auto">
+          <!-- TOC Header -->
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+            <i class="ph-bold ph-list-dashes text-rikkei-red text-base"></i>
+            <span>Mục lục Bài giảng</span>
+          </div>
+
+          <!-- Vertical Navigation Links (Clean Text, No Number Badges, Light Border) -->
+          <nav class="space-y-1" id="toc-nav">
+            
+            <a
+              id="nav-s1"
+              href="#s1"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                1. Tổng quan JavaScript và Cơ chế V8 Engine
+              </span>
+            </a>
+            
+            <a
+              id="nav-s2"
+              href="#s2"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                2. Cài đặt Môi trường VS Code Cursor và Node.js Runtime
+              </span>
+            </a>
+            
+            <a
+              id="nav-s3"
+              href="#s3"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                3. Biến số ES6 (let, const, var) và Naming Convention
+              </span>
+            </a>
+            
+            <a
+              id="nav-s4"
+              href="#s4"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                4. Nhập xuất dữ liệu Console và Chuỗi Template Literals
+              </span>
+            </a>
+            
+          </nav>
+        </div>
+      </aside>
+
+      <!-- ===== MAIN DASHBOARD CONTENT AREA (EXPANDED FLUID RIGHT) ===== -->
+      <main class="flex-1 min-w-0 space-y-14">
+        
+        <!-- ===== SECTION 1: Tổng quan JavaScript và Cơ chế V8 Engine ===== -->
+        <section id="s1" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              1. Tổng quan JavaScript và Cơ chế V8 Engine
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-cpu text-indigo-600 text-base"></i>
+                      <span>Kiến trúc 2 Tầng V8 Engine: Ignition Interpreter & TurboFan Compiler</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      KIẾN TRÚC V8
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                      <li><strong>Tầng 1 (Ignition Interpreter):</strong> Phân tích AST và chuyển đổi thành <strong>Bytecode</strong> để thực thi ngay lập tức mà không phải chờ đợi compile.</li>
+                      <li><strong>Tầng 2 (TurboFan JIT Compiler):</strong> Theo dõi các hàm được gọi lặp lại nhiều lần (Hot Functions), kết hợp <em>Type Feedback</em> để biên dịch thẳng thành <strong>Machine Code</strong> tối ưu tốc độ phần cứng cực đại.</li>
+                    </ul>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-blue-100 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-steps text-blue-600 text-base"></i>
+                      <span>Quy trình Thực thi: Source Code -> AST -> Bytecode -> Machine Code</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      QUY TRÌNH BIÊN DỊCH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="p-3 bg-slate-900 rounded-xl text-slate-200 font-mono text-[11px] space-y-1">
+                      <div><span class="text-rose-400">1. Parser:</span> JavaScript Text Code ➔ Abstract Syntax Tree (AST)</div>
+                      <div><span class="text-sky-300">2. Ignition:</span> AST ➔ Bytecode (Cold Execution)</div>
+                      <div><span class="text-amber-300">3. Profiler:</span> Thu thập Type Feedback trong Inline Cache (IC)</div>
+                      <div><span class="text-emerald-400">4. TurboFan:</span> Bytecode + Type Feedback ➔ Highly Optimized Machine Code</div>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Bẫy Deoptimization (Bailout): Khi Kiểu Dữ Liệu Bị Thay Đổi Bất Thường</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      BẪY HIỆU NĂNG
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-rose-950">
+                      <p><strong>Cơ chế Deopt:</strong> Nếu TurboFan đã tối ưu một hàm với giả định tham số là số (Number), nhưng code bất ngờ truyền vào một chuỗi (String), V8 buộc phải <strong>Deoptimize</strong> (hủy Machine Code và quay về chạy Bytecode), làm tụt giảm hiệu năng tới 10-100 lần!</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-emerald-200 bg-emerald-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+                      <i class="ph-bold ph-sparkle text-emerald-600 text-base"></i>
+                      <span>Senior Pro Tips: Viết Code Monomorphic Tối Ưu cho V8 Engine</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      PRO TRICK
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-emerald-950">
+                      <p><strong>Monomorphic Code:</strong> Luôn truyền cùng một kiểu dữ liệu và cấu trúc object cố định (cùng Hidden Class / Shape) vào hàm để V8 tối ưu hóa Inline Cache tối đa.</p>
+                      <p><strong>Node.js vs Browser:</strong> Node.js dùng V8 kết hợp với Libuv (C++) để xử lý Non-blocking I/O và Event Loop trên Server.</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Bộ mô phỏng Cơ chế V8 Engine (Ignition Interpreter -> TurboFan Compiler)
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Số lần gọi hàm lặp lại (Execution Frequency):</label>
+                <select id="s1-freq" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white" onchange="run_s1_sim()">
+                  <option value="1">1 lần (Cold Code - Chạy thông dịch Bytecode)</option>
+                  <option value="100">100 lần (Warm Code - Thu thập Type Feedback)</option>
+                  <option value="10000">10,000 lần (Hot Function - Kích hoạt TurboFan)</option>
+                  <option value="deopt">10,000 lần + Thay đổi kiểu dữ liệu (Deoptimization!)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Môi trường thực thi:</label>
+                <select id="s1-env" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white" onchange="run_s1_sim()">
+                  <option value="chrome">Google Chrome V8 Browser</option>
+                  <option value="node">Node.js Runtime (Server-side)</option>
+                </select>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">editor_snippet.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s1-code-box">
+                    
+                <div><span class="text-purple-400">function</span> <span class="text-sky-300">calculateTax</span>(<span class="text-rose-400">price</span>) {</div>
+                <div class="pl-4"><span class="text-rose-400">return</span> <span class="text-rose-400">price</span> * <span class="text-amber-300">0.1</span>;</div>
+                <div>}</div>
+                <div id="s1-code-invoke" class="text-emerald-400">// Gọi hàm calculateTax(100000)...</div>
+            
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s1-trace-box">
+                  <div class='text-slate-400'>> Trình phân tích cú pháp (Parser) tạo Abstract Syntax Tree (AST).</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s1-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s1-res-val">
+                      Ignition Bytecode Executed
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s1-res-badge">
+                      Cold Code
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ===== SECTION 2: Cài đặt Môi trường VS Code Cursor và Node.js Runtime ===== -->
+        <section id="s2" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              2. Cài đặt Môi trường VS Code Cursor và Node.js Runtime
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-cpu text-indigo-600 text-base"></i>
+                      <span>Cơ chế Node.js Runtime (V8 + Libuv) vs Môi trường Trình duyệt</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      CƠ CHẾ RUNTIME
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                      <li><strong>Node.js:</strong> Môi trường thực thi JavaScript ngoài trình duyệt, tích hợp <strong>V8 Engine</strong> của Google và thư viện <strong>Libuv (C++)</strong> để xử lý Non-blocking I/O và Event Loop.</li>
+                      <li><strong>Sự khác biệt cốt lõi:</strong> Node.js dùng để viết Backend API, truy cập hệ thống file (fs), database; còn Trình duyệt có <strong>DOM API (document, window)</strong> để tương tác giao diện.</li>
+                    </ul>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-blue-100 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-terminal-window text-blue-600 text-base"></i>
+                      <span>Bảng Lệnh Terminal & CLI Quản lý Phiên bản Thiết yếu</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      BẢNG LỆNH CLI
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="overflow-x-auto custom-scrollbar">
+                      <table class="w-full text-[11px] border-collapse font-mono">
+                        <thead>
+                          <tr class="bg-slate-100/80 text-slate-700 text-left border-b border-slate-200">
+                            <th class="p-1.5 font-semibold">Lệnh CLI</th>
+                            <th class="p-1.5 font-semibold">Mục đích thực thi</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-[11px]">
+                          <tr>
+                            <td class="p-1.5 text-rose-600 font-bold">node -v</td>
+                            <td class="p-1.5 font-sans">Kiểm tra phiên bản Node.js hiện tại (Khuyên dùng LTS)</td>
+                          </tr>
+                          <tr>
+                            <td class="p-1.5 text-rose-600 font-bold">node app.js</td>
+                            <td class="p-1.5 font-sans">Chạy trực tiếp file mã nguồn JavaScript qua terminal</td>
+                          </tr>
+                          <tr>
+                            <td class="p-1.5 text-rose-600 font-bold">npm -v</td>
+                            <td class="p-1.5 font-sans">Kiểm tra trình quản lý thư viện Node Package Manager</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Bẫy Môi Trường: Gọi Window/DOM trong Node.js (ReferenceError)</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LỖI THƯỜNG GẶP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-rose-950">
+                      <p><strong>Lỗi kinh điển:</strong> Gọi <code>document.getElementById()</code> hoặc <code>alert()</code> trong file chạy bằng <code>node app.js</code> sẽ ném lỗi <code>ReferenceError: document is not defined</code> vì Node.js không có giao diện DOM.</p>
+                      <p><strong>Ngược lại:</strong> Trình duyệt web không thể truy cập biến <code>process.env</code> hay thư viện <code>fs</code> (File System) do cơ chế bảo mật Sandbox.</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-emerald-200 bg-emerald-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+                      <i class="ph-bold ph-sparkle text-emerald-600 text-base"></i>
+                      <span>Senior Pro Tips: Thiết lập Cursor AI Rules & Phím Tắt Năng Suất</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      PRO TRICK
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-emerald-950">
+                      <p><strong>Cursor AI Rule:</strong> Tạo file <code>.cursorrules</code> trong thư mục dự án để hướng dẫn AI tuân thủ chuẩn ES6+, Clean Code và không dùng cú pháp lỗi thời (var, ==).</p>
+                      <p><strong>Extensions khuyên dùng:</strong> Prettier (Auto-format khi Ctrl+S), ESLint (Bắt lỗi realtime), Live Server (Hot-reload web).</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Bộ mô phỏng Môi trường Thực thi (Terminal CLI vs Browser DevTools)
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Môi trường Thực thi (Execution Target):</label>
+                <select id="s2-target" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-medium" onchange="run_s2_sim()">
+                  <option value="node_cli">Node.js Terminal ($ node app.js)</option>
+                  <option value="browser_console">Browser DevTools Console (F12)</option>
+                  <option value="live_server">VS Code Live Server (localhost:5500)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Lệnh / Thao tác thực thi:</label>
+                <select id="s2-action" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white" onchange="run_s2_sim()">
+                  <option value="hello">In thông điệp: console.log("Hello JS")</option>
+                  <option value="check_global">Kiểm tra đối tượng toàn cục (Global Object)</option>
+                  <option value="version">Kiểm tra phiên bản Runtime ($ node -v)</option>
+                </select>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">editor_snippet.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s2-code-box">
+                    
+                <div id="s2-code-snippet"><span class="text-sky-300">console</span>.<span class="text-emerald-400">log</span>(<span class="text-amber-300">"Hello from Modern JavaScript Runtime!"</span>);</div>
+            
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s2-trace-box">
+                  <div class='text-slate-400'>> Sẵn sàng thực thi trong Terminal CLI / Browser Console.</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s2-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s2-res-val">
+                      Node.js v20.11.0 Ready
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s2-res-badge">
+                      Terminal Ready
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ===== SECTION 3: Biến số ES6 (let, const, var) và Naming Convention ===== -->
+        <section id="s3" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              3. Biến số ES6 (let, const, var) và Naming Convention
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-cpu text-indigo-600 text-base"></i>
+                      <span>Bản chất Vùng nhớ RAM, Hoisting & Temporal Dead Zone (TDZ)</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      BẢN CHẤT BỘ NHỚ
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                      <li><strong>Bộ nhớ Stack vs Heap:</strong> Kiểu nguyên thủy (Primitive: number, string, boolean) lưu trực tiếp trên <strong>Call Stack</strong>; Kiểu tham chiếu (Reference: Object, Array) lưu trên <strong>Memory Heap</strong> và con trỏ lưu trên Stack.</li>
+                      <li><strong>Hoisting & TDZ:</strong> <code>var</code> được đưa lên đầu phạm vi và gán <code>undefined</code>. Còn <code>let</code> và <code>const</code> cũng được hoisted nhưng nằm trong <strong>Temporal Dead Zone (TDZ)</strong> — truy cập trước khi khai báo sẽ ném lỗi <code>ReferenceError</code>.</li>
+                    </ul>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-teal-100 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-table text-teal-600 text-base"></i>
+                      <span>Bảng So sánh Phạm vi: const vs let vs var</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                      BẢNG SO SÁNH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="overflow-x-auto custom-scrollbar">
+                      <table class="w-full text-[11px] border-collapse">
+                        <thead>
+                          <tr class="bg-slate-100/80 text-slate-700 text-left border-b border-slate-200">
+                            <th class="p-1.5 font-semibold">Từ khóa</th>
+                            <th class="p-1.5 font-semibold">Phạm vi (Scope)</th>
+                            <th class="p-1.5 font-semibold">Gán lại (Reassign)</th>
+                            <th class="p-1.5 font-semibold">Khai báo lại</th>
+                            <th class="p-1.5 font-semibold">Hoisting</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-mono text-[11px]">
+                          <tr>
+                            <td class="p-1.5 text-emerald-600 font-bold">const</td>
+                            <td class="p-1.5 font-sans">Block Scope { }</td>
+                            <td class="p-1.5 text-rose-600 font-bold">Không</td>
+                            <td class="p-1.5 text-rose-600 font-bold">Không</td>
+                            <td class="p-1.5 font-sans">TDZ (Bảo vệ)</td>
+                          </tr>
+                          <tr>
+                            <td class="p-1.5 text-sky-600 font-bold">let</td>
+                            <td class="p-1.5 font-sans">Block Scope { }</td>
+                            <td class="p-1.5 text-emerald-600 font-bold">Có</td>
+                            <td class="p-1.5 text-rose-600 font-bold">Không</td>
+                            <td class="p-1.5 font-sans">TDZ (Bảo vệ)</td>
+                          </tr>
+                          <tr>
+                            <td class="p-1.5 text-rose-600 font-bold">var</td>
+                            <td class="p-1.5 font-sans">Function / Global</td>
+                            <td class="p-1.5 text-emerald-600 font-bold">Có</td>
+                            <td class="p-1.5 text-emerald-600 font-bold">Có (Nguy hiểm)</td>
+                            <td class="p-1.5 font-sans">undefined</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Bẫy Rò rỉ Biến với 'var' trong Vòng lặp & Naming Convention</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      BẪY THỰC TẾ
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-rose-950">
+                      <p><strong>Bẫy rò rỉ:</strong> Dùng <code>var i</code> trong vòng lặp <code>for</code> làm biến <code>i</code> rò rỉ ra toàn bộ hàm hoặc window. Khi gọi callback/setTimeout, tất cả đều nhận giá trị cuối cùng của <code>i</code>.</p>
+                      <p><strong>Naming Convention chuẩn:</strong> Sử dụng <code>camelCase</code> cho biến (ví dụ: <code>totalOrderAmount</code>), <code>UPPER_SNAKE_CASE</code> cho hằng số cấu hình hệ thống (ví dụ: <code>MAX_RETRY_COUNT</code>).</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-emerald-200 bg-emerald-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+                      <i class="ph-bold ph-sparkle text-emerald-600 text-base"></i>
+                      <span>Senior Pro Tips: Clean Code với Quy tắc Bất biến (Immutability)</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      BEST PRACTICE
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-emerald-950">
+                      <p><strong>Nguyên tắc vàng:</strong> Luôn khai báo <code>const</code> theo mặc định cho 95% biến số. Chỉ chuyển sang <code>let</code> khi biến đó bắt buộc phải thay đổi trong vòng lặp hoặc thuật toán.</p>
+                      <p><strong>Bảo vệ Object:</strong> <code>const</code> chỉ ngăn gán lại con trỏ, không ngăn sửa đổi thuộc tính con (mutation). Dùng <code>Object.freeze(obj)</code> khi cần bất biến tuyệt đối.</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Bộ mô phỏng Khai báo Biến số & Phạm vi (Scope / Mutation)
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Từ khóa khai báo:</label>
+                <select id="s3-kw" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white" onchange="run_s3_sim()">
+                  <option value="const">const (Hằng số bất biến)</option>
+                  <option value="let">let (Biến số Block Scope)</option>
+                  <option value="var">var (Biến số Function Scope)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Giá trị khởi tạo:</label>
+                <input type="text" id="s3-init-val" value="150000" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-rikkei-red" oninput="run_s3_sim()" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Thao tác gán lại (Re-assign):</label>
+                <select id="s3-reassign" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white" onchange="run_s3_sim()">
+                  <option value="no">Không gán lại</option>
+                  <option value="reassign_val">Gán lại = 200000</option>
+                  <option value="redeclare">Khai báo lại (Re-declare)</option>
+                </select>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">editor_snippet.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s3-code-box">
+                    
+                <div><span class="text-rose-400" id="s3-code-kw">const</span> <span class="text-sky-300">productPrice</span> = <span class="text-amber-300" id="s3-code-init">150000</span>;</div>
+                <div id="s3-code-reassign-line" class="text-slate-400">// Chưa thực hiện gán lại</div>
+                <div><span class="text-purple-400">console</span>.<span class="text-sky-300">log</span>(<span class="text-sky-300">productPrice</span>);</div>
+            
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s3-trace-box">
+                  <div class='text-slate-400'>> Khởi tạo biến productPrice trên bộ nhớ.</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s3-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s3-res-val">
+                      150000
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s3-res-badge">
+                      Valid (Hợp lệ)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ===== SECTION 4: Nhập xuất dữ liệu Console và Chuỗi Template Literals ===== -->
+        <section id="s4" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              4. Nhập xuất dữ liệu Console và Chuỗi Template Literals
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-brackets-curly text-indigo-600 text-base"></i>
+                      <span>Cơ chế Xử lý Chuỗi & Nội suy Biểu thức (String Interpolation)</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                      CƠ CHẾ THỰC THI
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                      <li><strong>Template Literals (Backtick <code>` `</code>):</strong> Cho phép chèn trực tiếp biểu thức JS qua cú pháp <code>${expression}</code> mà không cần ngắt chuỗi và nối dấu <code>+</code>.</li>
+                      <li><strong>Hỗ trợ Multi-line String:</strong> Viết chuỗi nhiều dòng và định dạng HTML template trực tiếp mà không cần ký tự escape <code>\n</code> phức tạp.</li>
+                    </ul>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-blue-100 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-terminal-window text-blue-600 text-base"></i>
+                      <span>Giải phẫu Cú pháp Backtick & Các Phương thức Console Chuyên nghiệp</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                      CÚ PHÁP & CONSOLE API
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 font-mono text-[11px]">
+                      <div class="p-2.5 bg-slate-900 rounded-xl text-slate-200">
+                        <span class="text-sky-300">console</span>.<span class="text-emerald-400">table</span>(userList); <span class="text-slate-400">// In mảng/object dạng bảng trực quan</span><br/>
+                        <span class="text-sky-300">console</span>.<span class="text-rose-400">error</span>(<span class="text-emerald-300">`Lỗi API: ${err.message}`</span>); <span class="text-slate-400">// In lỗi màu đỏ</span><br/>
+                        <span class="text-sky-300">console</span>.<span class="text-amber-400">time</span>(<span class="text-emerald-300">"RenderTimer"</span>); ... <span class="text-sky-300">console</span>.<span class="text-amber-400">timeEnd</span>(<span class="text-emerald-300">"RenderTimer"</span>);
+                      </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Bẫy Nối Chuỗi Thủ Công (+) & Lỗi Format Dữ Liệu</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LỖI THƯỜNG GẶP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-rose-950">
+                      <p><strong>Bẫy dấu cách & ép kiểu ngầm:</strong> Nối chuỗi bằng <code>"Xin chào " + name + " bạn có " + count + 1 + " tin nhắn"</code> sẽ in ra <code>"bạn có 51 tin nhắn"</code> do <code>count + 1</code> bị coi là nối chuỗi.</p>
+                      <p><strong>Khắc phục:</strong> Sử dụng Template Literals <code>`bạn có ${count + 1} tin nhắn`</code> để biểu thức số học được tính toán chính xác trước khi đưa vào chuỗi.</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-emerald-200 bg-emerald-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-emerald-950 flex items-center gap-2">
+                      <i class="ph-bold ph-sparkle text-emerald-600 text-base"></i>
+                      <span>Senior Pro Tips: Tagged Template Literals & CSS-in-JS</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      PRO TRICK
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                    <div class="space-y-2 text-emerald-950">
+                      <p><strong>Ứng dụng nâng cao:</strong> Tagged Templates cho phép gắn hàm xử lý tùy biến trước chuỗi (nền tảng của các thư viện lớn như <code>styled-components</code>, <code>graphql-tag</code>).</p>
+                      <p><strong>Debug hiệu quả:</strong> Dùng <code>console.log({ user, cart, total })</code> (bọc object) để console in ra kèm tên biến tự động!</p>
+                    </div>
+                    
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Bộ mô phỏng Nhập xuất & Chuỗi Nội suy (Template Literals)
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Tên người dùng (Name):</label>
+                <input type="text" id="s4-name" value="Nguyễn Văn A" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-rikkei-red" oninput="run_s4_sim()" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Số lượng mua (Qty):</label>
+                <input type="number" id="s4-qty" value="3" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-sm focus:outline-none focus:border-rikkei-red" oninput="run_s4_sim()" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Cách nối chuỗi:</label>
+                <select id="s4-mode" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white" onchange="run_s4_sim()">
+                  <option value="template">Template Literals (`${...}`)</option>
+                  <option value="concat">Nối chuỗi cổ điển (+)</option>
+                </select>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">editor_snippet.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s4-code-box">
+                    
+                <div><span class="text-rose-400">const</span> <span class="text-sky-300">userName</span> = <span class="text-amber-300" id="s4-code-name">"Nguyễn Văn A"</span>;</div>
+                <div><span class="text-rose-400">const</span> <span class="text-sky-300">unitPrice</span> = <span class="text-amber-300">50000</span>;</div>
+                <div><span class="text-rose-400">const</span> <span class="text-sky-300">quantity</span> = <span class="text-amber-300" id="s4-code-qty">3</span>;</div>
+                <div id="s4-code-str-line"><span class="text-rose-400">const</span> <span class="text-sky-300">msg</span> = <span class="text-emerald-300">`Khách ${userName} mua ${quantity} món, tổng: ${unitPrice * quantity}đ`</span>;</div>
+                <div><span class="text-purple-400">console</span>.<span class="text-sky-300">log</span>(<span class="text-sky-300">msg</span>);</div>
+            
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s4-trace-box">
+                  <div class='text-slate-400'>> Trình duyệt nội suy biểu thức trong chuỗi backtick.</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s4-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s4-res-val">
+                      Khách Nguyễn Văn A mua 3 món, tổng: 150000đ
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s4-res-badge">
+                      string
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+      </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+      <div class="max-w-[1680px] mx-auto px-4 sm:px-8">
+        <p>@2026 Rikkei Education — @copyright All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- ===== INTERACTIVE CLIENT-SIDE JAVASCRIPT ENGINE ===== -->
+    <script>
+      
+      function run_s1_sim() {
+        const freq = document.getElementById("s1-freq").value;
+        const env = document.getElementById("s1-env").value;
+        const traceBox = document.getElementById("s1-trace-box");
+        const resVal = document.getElementById("s1-res-val");
+        const resBadge = document.getElementById("s1-res-badge");
+
+        if (freq === "1") {
+          traceBox.innerHTML = `
+            <div class="text-slate-400">> 1. Parser phân tích mã nguồn JavaScript tạo AST.</div>
+            <div class="text-slate-400">> 2. Ignition Interpreter biên dịch AST thành <strong>Bytecode</strong> thực thi ngay lập tức.</div>
+          `;
+          resVal.innerText = "Ignition Bytecode (Cold Code)";
+          resVal.className = "font-mono text-base font-bold text-slate-800";
+          resBadge.innerText = "Thông dịch";
+          resBadge.className = "font-mono text-xs px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded-full font-semibold";
+        } else if (freq === "100") {
+          traceBox.innerHTML = `
+            <div class="text-slate-400">> 1. Hàm được thực thi 100 lần với kiểu dữ liệu Number.</div>
+            <div class="text-slate-400">> 2. V8 thu thập Type Feedback và lưu vào Inline Cache (IC).</div>
+          `;
+          resVal.innerText = "Type Feedback Collected (Warm)";
+          resVal.className = "font-mono text-base font-bold text-sky-600";
+          resBadge.innerText = "Warm Code";
+          resBadge.className = "font-mono text-xs px-2.5 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded-full font-semibold";
+        } else if (freq === "10000") {
+          traceBox.innerHTML = `
+            <div class="text-emerald-600 font-semibold">> KÍCH HOẠT TURBOFAN JIT COMPILER!</div>
+            <div class="text-slate-400">> V8 biên dịch hàm trực tiếp thành mã máy <strong>Machine Code</strong> tối ưu tốc độ phần cứng cực đại!</div>
+          `;
+          resVal.innerText = "Optimized Machine Code (TurboFan)";
+          resVal.className = "font-mono text-base font-bold text-emerald-600";
+          resBadge.innerText = "JIT Optimized";
+          resBadge.className = "font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold";
+        } else {
+          traceBox.innerHTML = `
+            <div class="text-rose-600 font-semibold">> PHÁT SINH DEOPTIMIZATION (BAILOUT)!</div>
+            <div class="text-slate-400">> Truyền sai kiểu dữ liệu ('100000' dạng chuỗi) khiến giả định kiểu bị phá vỡ. TurboFan phải hủy Machine Code và quay về thông dịch Bytecode!</div>
+          `;
+          resVal.innerText = "Deoptimized -> Revert to Bytecode";
+          resVal.className = "font-mono text-base font-bold text-rose-600";
+          resBadge.innerText = "Deopt Bailout";
+          resBadge.className = "font-mono text-xs px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full font-semibold";
+        }
+      }
+
+
+      function run_s2_sim() {
+        const target = document.getElementById("s2-target").value;
+        const action = document.getElementById("s2-action").value;
+        const traceBox = document.getElementById("s2-trace-box");
+        const resVal = document.getElementById("s2-res-val");
+        const resBadge = document.getElementById("s2-res-badge");
+        const codeSnippet = document.getElementById("s2-code-snippet");
+
+        if (target === "node_cli") {
+          if (action === "hello") {
+            if (codeSnippet) codeSnippet.innerHTML = '<span class="text-sky-300">console</span>.<span class="text-emerald-400">log</span>(<span class="text-amber-300">"Hello from Node.js CLI Backend!"</span>);';
+            traceBox.innerHTML = '<div class="text-slate-400">> $ node app.js</div><div class="text-emerald-400">> Hello from Node.js CLI Backend!</div>';
+            resVal.innerText = "Exit Code 0 (Success)";
+            resBadge.innerText = "Node CLI";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold";
+          } else if (action === "check_global") {
+            if (codeSnippet) codeSnippet.innerHTML = '<span class="text-sky-300">console</span>.<span class="text-emerald-400">log</span>(<span class="text-purple-400">global</span>.<span class="text-sky-300">process</span>.<span class="text-amber-300">version</span>);';
+            traceBox.innerHTML = '<div class="text-slate-400">> Trong Node.js, đối tượng toàn cục là <strong>global</strong> (không có <strong>window</strong>).</div><div class="text-emerald-400">> Process ID: 14082, Node Version: v20.11.0</div>';
+            resVal.innerText = "global.process verified";
+            resBadge.innerText = "Backend Global";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded-full font-semibold";
+          } else {
+            if (codeSnippet) codeSnippet.innerHTML = '<span class="text-slate-400">$ node -v && npm -v</span>';
+            traceBox.innerHTML = '<div class="text-slate-400">> $ node -v && npm -v</div><div class="text-emerald-400">> v20.11.0 (LTS)\n> 10.2.4 (NPM Package Manager)</div>';
+            resVal.innerText = "Node v20.11.0 LTS";
+            resBadge.innerText = "LTS Active";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold";
+          }
+        } else if (target === "browser_console") {
+          if (action === "hello") {
+            if (codeSnippet) codeSnippet.innerHTML = '<span class="text-sky-300">console</span>.<span class="text-emerald-400">log</span>(<span class="text-amber-300">"Hello from Chrome DevTools Console!"</span>);';
+            traceBox.innerHTML = '<div class="text-slate-400">> [DevTools Console] Nhấn F12 hoặc Cmd+Opt+I</div><div class="text-emerald-400">> "Hello from Chrome DevTools Console!"</div>';
+            resVal.innerText = "Console Log Dispatched";
+            resBadge.innerText = "DevTools";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-semibold";
+          } else if (action === "check_global") {
+            if (codeSnippet) codeSnippet.innerHTML = '<span class="text-sky-300">console</span>.<span class="text-emerald-400">log</span>(<span class="text-purple-400">window</span>.<span class="text-sky-300">document</span>.<span class="text-amber-300">title</span>);';
+            traceBox.innerHTML = '<div class="text-slate-400">> Trong Trình duyệt, đối tượng toàn cục là <strong>window</strong> chứa toàn bộ DOM Tree.</div><div class="text-emerald-400">> window.location.href = "http://127.0.0.1:5500/index.html"</div>';
+            resVal.innerText = "window.document Active";
+            resBadge.innerText = "DOM Ready";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full font-semibold";
+          } else {
+            if (codeSnippet) codeSnippet.innerHTML = '<span class="text-sky-300">console</span>.<span class="text-emerald-400">log</span>(<span class="text-purple-400">navigator</span>.<span class="text-sky-300">userAgent</span>);';
+            traceBox.innerHTML = '<div class="text-slate-400">> Trình duyệt Client Browser Engine</div><div class="text-emerald-400">> Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/122.0.0.0</div>';
+            resVal.innerText = "Chrome V8 Browser";
+            resBadge.innerText = "Client Engine";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-semibold";
+          }
+        } else {
+          if (codeSnippet) codeSnippet.innerHTML = '<span class="text-slate-400">&lt;!-- Live Server Hot Reload: localhost:5500 --&gt;</span>\n<span class="text-rose-400">&lt;script</span> <span class="text-sky-300">src</span>=<span class="text-emerald-300">"app.js"</span><span class="text-rose-400">&gt;&lt;/script&gt;</span>';
+          traceBox.innerHTML = '<div class="text-slate-400">> VS Code Live Server Extension khởi động HTTP Server tại cổng 5500.</div><div class="text-emerald-400">> WebSocket tự động Hot-Reload trang web ngay khi lưu file (Ctrl+S)!</div>';
+          resVal.innerText = "Live Server 127.0.0.1:5500";
+          resBadge.innerText = "Hot Reload";
+          resBadge.className = "font-mono text-xs px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-semibold";
+        }
+      }
+
+
+      function run_s3_sim() {
+        const kw = document.getElementById("s3-kw").value;
+        const initVal = document.getElementById("s3-init-val").value.trim();
+        const reassign = document.getElementById("s3-reassign").value;
+
+        document.getElementById("s3-code-kw").innerText = kw;
+        document.getElementById("s3-code-init").innerText = initVal || "0";
+
+        const reLine = document.getElementById("s3-code-reassign-line");
+        const traceBox = document.getElementById("s3-trace-box");
+        const resVal = document.getElementById("s3-res-val");
+        const resBadge = document.getElementById("s3-res-badge");
+
+        if (reassign === "reassign_val") {
+          reLine.innerHTML = `<span class="text-sky-300">productPrice</span> = <span class="text-amber-300">200000</span>;`;
+          if (kw === "const") {
+            traceBox.innerHTML = `
+              <div class="text-red-600 font-semibold">> LỖI RUNTIME: TypeError: Assignment to constant variable.</div>
+              <div class="text-slate-400">> Không thể gán lại giá trị cho biến được khai báo bằng const!</div>
+            `;
+            resVal.innerText = "TypeError: Assignment to const";
+            resVal.className = "font-mono text-sm font-bold text-red-600";
+            resBadge.innerText = "Lỗi Runtime (Crash)";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full font-semibold";
+          } else {
+            traceBox.innerHTML = '<div class="text-slate-400">> 1. Khởi tạo <strong>' + kw + '</strong> productPrice = ' + (initVal || '0') + ' trong bộ nhớ.</div>' +
+                                 '<div class="text-slate-400">> 2. Gán lại giá trị mới = 200000 thành công.</div>';
+            resVal.innerText = "200000";
+            resVal.className = "font-mono text-base font-bold text-emerald-600";
+            resBadge.innerText = "Hợp lệ (" + kw.toUpperCase() + ")";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold";
+          }
+        } else if (reassign === "redeclare") {
+          reLine.innerHTML = '<span class="text-rose-400">' + kw + '</span> <span class="text-sky-300">productPrice</span> = <span class="text-amber-300">999000</span>;';
+          if (kw === "const" || kw === "let") {
+            traceBox.innerHTML = `
+              <div class="text-red-600 font-semibold">> LỖI SYNTAX: SyntaxError: Identifier 'productPrice' has already been declared.</div>
+              <div class="text-slate-400">> ES6 cấm tuyệt đối khai báo lại biến trong cùng một scope!</div>
+            `;
+            resVal.innerText = "SyntaxError: Already declared";
+            resVal.className = "font-mono text-sm font-bold text-red-600";
+            resBadge.innerText = "Lỗi Cú pháp (ES6)";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-red-50 text-red-700 border border-red-200 rounded-full font-semibold";
+          } else {
+            traceBox.innerHTML = `
+              <div class="text-amber-600 font-semibold">> CẢNH BÁO: var cho phép khai báo đè (Shadowing / Leak).</div>
+              <div class="text-slate-400">> Biến bị ghi đè không an toàn. Đây là lý do ES6 ra đời let/const để thay thế var.</div>
+            `;
+            resVal.innerText = "999000 (Rủi ro cao)";
+            resVal.className = "font-mono text-base font-bold text-amber-600";
+            resBadge.innerText = "Cảnh báo Lỗi";
+            resBadge.className = "font-mono text-xs px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-semibold";
+          }
+        } else {
+          reLine.innerHTML = `<span class="text-slate-500">// Không gán lại</span>`;
+          traceBox.innerHTML = '<div class="text-slate-400">> Khởi tạo biến <strong>' + kw + '</strong> productPrice = ' + (initVal || '0') + '.</div>' +
+                               '<div class="text-slate-400">> Giá trị được lưu trữ ổn định trên bộ nhớ.</div>';
+          resVal.innerText = initVal || "0";
+          resVal.className = "font-mono text-base font-bold text-slate-800";
+          resBadge.innerText = "Thành công";
+          resBadge.className = "font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold";
+        }
+      }
+
+
+      function run_s4_sim() {
+        const nameInput = document.getElementById("s4-name");
+        const qtyInput = document.getElementById("s4-qty");
+        const modeInput = document.getElementById("s4-mode");
+        if (!nameInput || !qtyInput || !modeInput) return;
+
+        const name = nameInput.value.trim() || "Khách hàng";
+        const qty = parseInt(qtyInput.value) || 1;
+        const mode = modeInput.value;
+        const unitPrice = 50000;
+        const total = unitPrice * qty;
+
+        const codeName = document.getElementById("s4-code-name");
+        const codeQty = document.getElementById("s4-code-qty");
+        if (codeName) codeName.innerText = '"' + name + '"';
+        if (codeQty) codeQty.innerText = qty;
+
+        const strLine = document.getElementById("s4-code-str-line");
+        const traceBox = document.getElementById("s4-trace-box");
+        const resVal = document.getElementById("s4-res-val");
+
+        let renderedMsg = "";
+        if (mode === "template") {
+          if (strLine) strLine.innerHTML = '<span class="text-rose-400">const</span> <span class="text-sky-300">msg</span> = <span class="text-emerald-300">`Khách ${userName} mua ${quantity} món, tổng: ${unitPrice * quantity}đ`</span>;';
+          renderedMsg = "Khách " + name + " mua " + qty + " món, tổng: " + total + "đ";
+          if (traceBox) {
+            traceBox.innerHTML = '<div class="text-slate-400">> 1. Đọc biến ${userName} = \"' + name + '\"</div>' +
+                                 '<div class="text-slate-400">> 2. Tính toán biểu thức ${unitPrice * quantity} = ' + unitPrice + ' * ' + qty + ' = ' + total + '</div>' +
+                                 '<div class="text-slate-400">> 3. Tự động chuyển đổi thành chuỗi hoàn chỉnh (ES6 Template String).</div>';
+          }
+        } else {
+          if (strLine) strLine.innerHTML = '<span class="text-rose-400">const</span> <span class="text-sky-300">msg</span> = <span class="text-emerald-300">\"Khách \"</span> + <span class="text-sky-300">userName</span> + <span class="text-emerald-300">\" mua \"</span> + <span class="text-sky-300">quantity</span> + <span class="text-emerald-300">\" món, tổng: \"</span> + (<span class="text-sky-300">unitPrice</span> * <span class="text-sky-300">quantity</span>) + <span class="text-emerald-300">\"đ\"</span>;';
+          renderedMsg = "Khách " + name + " mua " + qty + " món, tổng: " + total + "đ";
+          if (traceBox) {
+            traceBox.innerHTML = '<div class="text-slate-400">> Sử dụng toán tử cộng chuỗi (+) thủ công. Dễ gây nhầm lẫn khoảng trắng và khó bảo trì.</div>';
+          }
+        }
+
+        if (resVal) resVal.innerText = renderedMsg;
+      }
+
+      // ROBUST ACTIVE SCROLLSPY WITH BOUNDING RECT & CLICK HANDLER
+      function setActiveNav(id) {
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.classList.remove("active");
+        });
+        const activeLink = document.getElementById("nav-" + id);
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
+
+      function initScrollSpy() {
+        const sections = document.querySelectorAll("section[id]");
+        if (!sections.length) return;
+
+        // Activate first section by default on load
+        const firstId = sections[0].getAttribute("id");
+        setActiveNav(firstId);
+
+        // Instant active highlight on click
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.addEventListener("click", function () {
+            const targetId = this.getAttribute("href").replace("#", "");
+            setActiveNav(targetId);
+          });
+        });
+
+        // Realtime scroll position tracker using BoundingClientRect
+        function handleScroll() {
+          const triggerOffset = 200; // Trigger zone near top of viewport
+          let currentId = firstId;
+
+          sections.forEach((sec) => {
+            const rect = sec.getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentId = sec.getAttribute("id");
+            }
+          });
+
+          setActiveNav(currentId);
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+      }
+
+      // INITIALIZE ALL SIMULATORS & SCROLLSPY SAFELY
+      function initApp() {
+        try {
+          run_s1_sim();
+        run_s2_sim();
+        run_s3_sim();
+        run_s4_sim();
+        } catch (e) {
+          console.warn("Simulator init warning:", e);
+        }
+        try {
+          initScrollSpy();
+        } catch (e) {
+          console.error("ScrollSpy init error:", e);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+      window.addEventListener("load", initApp);
+    </script>
+  </body>
+</html>

@@ -1,41 +1,44 @@
 ---
 name: mindmap_generator
-description: Generate Session-Level Markmap mindmaps synthesizing all lesson knowledge across the entire session according to Rikkei Education standards. Target output language is 100% Accented Vietnamese.
+description: Generate Lesson-Level Markmap mindmaps synthesizing all lesson knowledge according to Rikkei Education standards. Target output language is 100% Accented Vietnamese.
 ---
 
-# Session-Level Mindmap Generator Skill — Rikkei Education Standards
+# Lesson-Level Mindmap Generator Skill — Rikkei Education Standards
 
 ## 1. Fixed Mindmap Heading & Branching Hierarchy
 
-Every generated mindmap MUST strictly follow this 3-Level hierarchy in Markdown format for Markmap rendering:
+Every generated mindmap MUST strictly follow this 2-Level hierarchy in Markdown format for Markmap rendering:
 
 ```markmap
 # [Clean Topic/Content Title]
 
-## Mục tiêu bài học
-- [Objective 1: Measurable outcome]
-- [Objective 2: Measurable outcome]
-- [Objective 3: Measurable outcome]
-- [Objective 4: Measurable outcome]
+## Khái niệm & Vai trò
+- Định nghĩa ngắn gọn: [Bản chất khái niệm, max 10 từ]
+- Vai trò: [Giải quyết vấn đề gì?]
 
-## Đặt tình huống
-- [Real-world business problem or motivation]
-
-## [Lesson 01 Title]
-### [Short Dynamic Title 1]
-- [Short description/mechanics, max 15 words]
-### [Short Dynamic Title 2]
-- [Short description or syntax]
-  ```python
-  # Core syntax template (1-3 lines max)
+## Cú pháp & Giải nghĩa
+- Khai báo cú pháp chuẩn:
+  ```language
+  # Cú pháp chuẩn của ngôn ngữ/công nghệ
   ```
-### [Short Dynamic Title 3]
-*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [Detailed logic/business workflow description here]. Main title in meaningful concise Vietnamese. Strictly NO text emojis. 16:9 aspect ratio, spacious layout with at least 32px safe outer margin on all sides. Minimalist infographics style, clean white background, muted corporate color palette.*
-### [Short Dynamic Title 4]
-- [Gotcha or best practice, max 15 words]
+- Giải thích thành phần:
+  - [Tên thành phần 1]: [Ý nghĩa, kiểu dữ liệu]
+  - [Tên thành phần 2]: [Ý nghĩa]
 
-## [Lesson 02 Title]
-...
+## Ví dụ thực hành
+- Kịch bản áp dụng: [Mô tả bối cảnh nghiệp vụ thực tế nhỏ]
+  ```language
+  # Mã nguồn ví dụ thực tế chạy được (5-8 dòng)
+  ```
+- Giải thích ví dụ: [Phân tích nhanh luồng chạy]
+
+## Lưu ý triển khai
+- **[Tên lỗi phổ biến]**: Tác động/cách khắc phục (cấm dùng từ "thực chiến", "gotcha", "bẫy lỗi").
+- **Lưu ý định dạng**: Quy chuẩn đặt tên và thụt lề theo style guide của công nghệ.
+
+## Liên kết hệ thống
+- Mối quan hệ logic: [Nội dung này kế thừa hay bổ trợ cho nội dung nào?]
+- Luồng chạy thực tế: [Cách kết hợp các thành phần để hoàn thành luồng dữ liệu]
 ```
 
 ---
@@ -43,28 +46,24 @@ Every generated mindmap MUST strictly follow this 3-Level hierarchy in Markdown 
 ## 2. Mandatory Structuring Rules
 
 1. **Level 1 Heading (`#`) — Clean Content Title**:
-   - MUST contain ONLY the content topic of the session/lesson.
-   - ABSOLUTELY FORBIDDEN to include prefixes like "Session XX - ", "Lesson YY - ", or codes.
-   - Example: `# Vòng lặp` (CORRECT) vs `# Session 05 - Vòng lặp` (INCORRECT).
+   - MUST contain ONLY the content topic of the lesson.
+   - ABSOLUTELY FORBIDDEN to include prefixes like "Lesson YY - ", "Session XX - ", or codes.
+   - Example: `# Vòng lặp for` (CORRECT) vs `# Lesson 02 - Vòng lặp for` (INCORRECT).
 
-2. **Level 2 Headings (`##`) — Structural Milestones**:
-   - Branch 1: `## Mục tiêu bài học` (MUST always be first, outlining 3-4 clear objectives).
-   - Branch 2: `## Đặt tình huống` (MUST outline the real-world business context/problem statement).
-   - Remaining branches: Each lesson/major topic in the session MUST form a Level 2 branch.
+2. **Level 2 Headings (`##`) — Structural Branches**:
+   - MUST contain exactly the 5 structural branches: `## Khái niệm & Vai trò`, `## Cú pháp & Giải nghĩa`, `## Ví dụ thực hành`, `## Lưu ý triển khai`, and `## Liên kết hệ thống`.
+   - ABSOLUTELY FORBIDDEN to include "Mục tiêu bài học", "Bài toán", or "Đặt tình huống" branches.
 
-3. **Level 3 Headings (`###`) — Dynamic & Ultra-Concise**:
-   - FORBIDDEN to hardcode static titles (e.g. avoid rigidly repeating "Khái niệm thực chiến", "Lưu ý thực chiến" everywhere).
-   - Titles MUST be dynamic, flexible, and as short as possible while ensuring correctness and proper spelling (e.g. `Khái niệm`, `Cú pháp`, `Cơ chế`, `Lưu ý`, `So sánh`).
-
-4. **Leaf Nodes & Content Density**:
+3. **Leaf Nodes & Content Density**:
    - Nodes MUST be highly condensed and scannable. Keep sentences short (maximum 15 words per leaf node). No long paragraphs.
-   - Code blocks must be kept to minimal 1-3 lines of syntax patterns. Never include large, bloated code snippets.
+   - Code blocks must be kept to minimal 5-8 lines of syntax/examples. Never include large, bloated code snippets.
 
-5. **2D Flat Vector Visualizations**:
-   - For difficult concepts or workflow control, embed standard English image prompts matching `image_prompt_standard`:
-     `*Prompt tạo ảnh: A clean 2D flat vector technical illustration of [detailed logic]. Main title in concise Accented Vietnamese. Strictly NO text emojis. 16:9 aspect ratio, spacious layout...*`
+4. **Strict Technology Stack Isolation & Naming Conventions**:
+   - 100% of code syntax in mindmaps MUST comply with the target `tech_stack` coding rules.
+   - For Python: Use `snake_case` for variables/functions, `PascalCase` for classes.
+   - For Java/JS: Use `camelCase` for variables/methods, `PascalCase` for classes.
+   - ABSOLUTELY FORBIDDEN to use arbitrary variable names like `a`, `b`, `x`, `y`, `temp`. Variable names must represent real business context.
 
-6. **Strict Emoji-Free Directive**:
-   - 100% FORBIDDEN to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶) anywhere in the mindmap text. Only use standard Markdown formatting.
-
-````
+5. **AI Cliché & Academic Jargon Ban**:
+   - ABSOLUTELY FORBIDDEN to use informal words ("nhé", "nha", "nhé các bạn") or AI assistant clichés ("thực chiến", "thần thánh", "gotcha", "anti-pattern", "bẫy lập trình"). Use formal, neutral technical language.
+   - Keep technical keywords in English (e.g. `function`, `parameter`, `IndentationError`), and write explanations in 100% Accented Vietnamese.

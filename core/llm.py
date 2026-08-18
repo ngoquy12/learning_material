@@ -23,9 +23,63 @@ except ImportError:
 # Caching registry for Gemini Context Caching
 _GEMINI_PROMPT_CACHES = {}
 
+# OpenAI Client Registry for Connection Pooling & Keep-Alive over Proxy
+_OPENAI_CLIENT_POOL: dict = {}
+_OPENAI_CLIENT_LOCK = threading.Lock()
+
+def get_openai_client(api_endpoint: str, api_key: str):
+    """
+    Returns a thread-safe singleton OpenAI client instance for the given endpoint & key.
+    Maintains persistent HTTP Keep-Alive connection pools to eliminate TCP handshake latency.
+    """
+    cache_key = f"{api_endpoint}::{api_key}"
+    with _OPENAI_CLIENT_LOCK:
+        if cache_key not in _OPENAI_CLIENT_POOL:
+            from openai import OpenAI
+            _OPENAI_CLIENT_POOL[cache_key] = OpenAI(base_url=api_endpoint, api_key=api_key)
+        return _OPENAI_CLIENT_POOL[cache_key]
+
+
 # Concurrency Limiter for parallel execution (default max 4 concurrent LLM requests)
 MAX_CONCURRENT = int(os.getenv("MAX_CONCURRENT_LLM_CALLS", "4"))
 _LLM_SEMAPHORE = threading.Semaphore(MAX_CONCURRENT)
+
+class TokenBucketRateLimiter:
+    """
+    Thread-safe Token Bucket Rate Limiter for Gemini / OpenAI API Calls.
+    Controls requests per minute (RPM) and prevents burst 429 quota exhaustion.
+    """
+    def __init__(self, rate_per_minute: float = 60.0, capacity: float = 10.0):
+        self.rate = rate_per_minute / 60.0  # tokens per second
+        self.capacity = capacity
+        self.tokens = capacity
+        self.last_update = time.time()
+        self._lock = threading.Lock()
+
+    def acquire(self, tokens: float = 1.0, timeout: float = 30.0) -> bool:
+        start_wait = time.time()
+        while True:
+            with self._lock:
+                now = time.time()
+                elapsed = now - self.last_update
+                self.last_update = now
+                self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
+
+                if self.tokens >= tokens:
+                    self.tokens -= tokens
+                    return True
+
+                needed = tokens - self.tokens
+                wait_time = min(needed / max(self.rate, 0.001), 1.0)
+
+            if time.time() - start_wait > timeout:
+                return False
+            time.sleep(wait_time)
+
+_GLOBAL_RATE_LIMITER = TokenBucketRateLimiter(
+    rate_per_minute=float(os.getenv("MAX_LLM_RPM", "60")),
+    capacity=float(os.getenv("MAX_LLM_BURST_CAPACITY", "10"))
+)
 
 # High-complexity agents requiring deeper reasoning (Pro models)
 HIGH_COMPLEXITY_AGENTS = {
@@ -175,25 +229,25 @@ def call_llm(
     if system_prompt and "UNIVERSAL AGENT CONTRACT" not in system_prompt:
         system_prompt = f"{universal_directive}\n\n{system_prompt}"
 
-    # Acquire semaphore to prevent 429 rate limits during parallel node execution
+    # Acquire rate limiter token & semaphore to prevent 429 rate limits during parallel node execution
+    _GLOBAL_RATE_LIMITER.acquire()
     with _LLM_SEMAPHORE:
 
         # Route OpenAI-compatible proxy endpoints (or sk- style keys) directly to OpenAI SDK for ultra-fast performance
         base_url = os.getenv("GEMINI_BASE_URL")
         if (gemini_key and gemini_key.startswith("sk-")) or (base_url and ("127.0.0.1" in base_url or "localhost" in base_url or ":804" in base_url)):
             try:
-                from openai import OpenAI
                 api_endpoint = base_url.rstrip("/") if base_url else "http://127.0.0.1:8045"
                 if not api_endpoint.endswith("/v1"):
                     api_endpoint += "/v1"
-                client = OpenAI(base_url=api_endpoint, api_key=gemini_key)
+                client = get_openai_client(api_endpoint, gemini_key)
                 model_name = resolve_model_name(agent_name, is_gemini=True)
                 
                 messages = [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ]
-                kwargs = {"model": model_name, "messages": messages, "temperature": 0.7, "timeout": 90.0}
+                kwargs = {"model": model_name, "messages": messages, "temperature": 0.7, "timeout": 120.0}
                 if json_mode:
                     kwargs["response_format"] = {"type": "json_object"}
                 
@@ -203,6 +257,15 @@ def call_llm(
                 response = client.chat.completions.create(**kwargs)
                 if response and response.choices and response.choices[0].message.content:
                     result_text = response.choices[0].message.content.strip()
+                    
+                    # Extract detailed token usage if provided by Proxy
+                    usage_obj = getattr(response, "usage", None)
+                    token_cost = {
+                        "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) if usage_obj else 0,
+                        "completion_tokens": getattr(usage_obj, "completion_tokens", 0) if usage_obj else 0,
+                        "total_tokens": getattr(usage_obj, "total_tokens", 0) if usage_obj else len(result_text) // 3
+                    }
+                    
                     log_agent_call(
                         agent_name=agent_name,
                         session_id=session_id,
@@ -210,7 +273,7 @@ def call_llm(
                         prompt_summary=f"System: {system_prompt}\nUser: {user_prompt}",
                         response_summary=result_text,
                         start_time=start_time,
-                        token_cost={"total_tokens": getattr(response.usage, "total_tokens", 0) if hasattr(response, "usage") and response.usage else len(result_text) // 4}
+                        token_cost=token_cost
                     )
                     return result_text
                 else:

@@ -1,37 +1,56 @@
-from typing import List, Dict, Any
+# core/state.py
+from typing import List, Dict, Any, Optional
 from typing_extensions import TypedDict, NotRequired
 
+# 2-Tier Standard Resource Constants
+DEFAULT_LESSON_PARTS = ["html", "quiz", "lab", "reading_questions"]
+DEFAULT_SESSION_PARTS = ["classroom_lecture", "quiz_session", "homework", "mindmap"]
+ALL_REQUESTED_PARTS = DEFAULT_LESSON_PARTS + DEFAULT_SESSION_PARTS
+
 class AgentState(TypedDict, total=False):
+    # Core Session & Lesson Identity
     session_id: str                     # Mã Session hiện tại (ví dụ: Session 01)
-    lesson_id: str                      # Mã Lesson hiện tại (nếu có)
+    lesson_id: str                      # Mã Lesson hiện tại (ví dụ: Lesson 01)
     pm_input: str                       # Văn bản PM thô đầu vào hoặc mô tả môn học
     time_reference: Dict[str, Any]      # Thời gian tham khảo (ví dụ: số tuần, số giờ)
     learning_outcomes: Dict[str, Any]   # Chuẩn đầu ra (Bloom's Taxonomy)
     program_structure: Dict[str, Any]   # Cấu trúc cây thư mục môn học
     core_ssot: Dict[str, Any]           # Bản đồ tri thức gốc trung tâm của Session
     artifacts_status: Dict[str, str]    # Trạng thái từng tài nguyên (Pending/Approved/Outdated)
-    html_content: str                   # Mã nguồn HTML hiện tại
-    slide_markdown: str                 # Cấu trúc slide hiện tại
-    quiz_json: Dict[str, Any]           # Dữ liệu câu hỏi hiện tại
-    video_script_markdown: str          # Kịch bản quay video cho từng lesson
-    mindmap_markdown: str               # Sơ đồ tư duy cho từng lesson
+    
+    # Tier 2: Lesson-level Core Artifacts
+    html_content: str                   # Mã nguồn Bài đọc HTML (reading.html)
+    quiz_json: Dict[str, Any]           # Dữ liệu Quizz trắc nghiệm Lesson (quiz.json)
+    practical_lab_markdown: str         # Nội dung Bài thực hành Lab (practical_lab.md)
+    practical_lab_html: str             # Mã nguồn HTML Bài thực hành Lab
+    lab_json: Dict[str, Any]            # Cấu trúc JSON bài thực hành
+    reading_questions_markdown: str     # Nội dung Câu hỏi bài đọc (reading_questions.md)
+    reading_questions_json: Dict[str, Any] # Cấu trúc JSON câu hỏi bài đọc
+    
+    # Tier 1: Session-level Core Artifacts & Shared Components
+    classroom_lecture_html: str         # Bài giảng trực quan trên lớp (classroom_lecture.html)
+    session_quizzes_json: Dict[str, Any]# Quizz đầu giờ & Quizz cuối giờ Session
+    homework_markdown: str              # 15 Bài tập phân cấp độ + 1 Bài tổng hợp trên lớp
+    mindmap_markdown: str               # Sơ đồ tư duy Markmap cho Lesson/Session
+    
+    # Reviewer Logs & Metadata
     review_logs: List[Dict[str, Any]]   # Nhật ký sửa đổi và feedback của Reviewers
-
-    # Optional / transient pipeline keys
     previous_lessons: NotRequired[List[Dict[str, Any]]]
     master_content: NotRequired[Dict[str, Any]]
-    video_script_json: NotRequired[Dict[str, Any]]
-    video_lesson_slug: NotRequired[str]
-    self_test_markdown: NotRequired[str]
     course_dir_name: NotRequired[str]
     technology_stack: NotRequired[str]
     force_rebuild: NotRequired[bool]
     pm_approved: NotRequired[bool]
     requested_parts: NotRequired[List[str]]
     full_curriculum: NotRequired[str]
-    hyperframes_project_path: NotRequired[str | None]
     prerequisite_data: NotRequired[Dict[str, Any]]
     prerequisite_checked: NotRequired[bool]
+    self_test_markdown: NotRequired[str]
+
+    # Legacy compatibility fields (soft-deprecated)
+    slide_markdown: NotRequired[str]
+    video_script_markdown: NotRequired[str]
+
 
 def require_tech_stack(state: Any, caller_name: str = "Agent") -> str:
     """

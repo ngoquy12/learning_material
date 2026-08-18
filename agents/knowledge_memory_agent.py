@@ -18,10 +18,75 @@ import os
 import sqlite3
 import json
 import hashlib
+import re
+import math
+from collections import Counter
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from core.state import AgentState
 from pathlib import Path
+
+# ─────────────────────────────────────────────
+# TF-IDF + Cosine Similarity Engine (Semantic Fallback)
+# ─────────────────────────────────────────────
+class TFIDFMatcher:
+    def __init__(self, documents: List[str]):
+        self.documents = documents
+        self.num_docs = len(documents)
+        
+        # Tokenize all documents
+        self.tokenized_docs = [self._tokenize(doc) for doc in documents]
+        
+        # Compute IDF
+        self.vocab = set()
+        for doc in self.tokenized_docs:
+            self.vocab.update(doc)
+            
+        self.idf = {}
+        for term in self.vocab:
+            # Number of documents containing term
+            df = sum(1 for doc in self.tokenized_docs if term in doc)
+            self.idf[term] = math.log((1 + self.num_docs) / (1 + df)) + 1
+            
+        # Compute TF-IDF vectors for documents
+        self.doc_vectors = []
+        for doc in self.tokenized_docs:
+            vector = self._compute_vector(doc)
+            self.doc_vectors.append(vector)
+            
+    def _tokenize(self, text: str) -> List[str]:
+        # Simple lowercase tokenizer
+        text = text.lower()
+        # Keep only alphanumeric words
+        words = re.findall(r'\w+', text)
+        return words
+        
+    def _compute_vector(self, words: List[str]) -> Dict[str, float]:
+        tf = Counter(words)
+        vector = {}
+        for term, count in tf.items():
+            if term in self.idf:
+                vector[term] = count * self.idf[term]
+        # Normalize vector (make it unit length)
+        sq_sum = sum(v ** 2 for v in vector.values())
+        norm = math.sqrt(sq_sum)
+        if norm > 0:
+            for term in vector:
+                vector[term] /= norm
+        return vector
+
+    def get_similarity(self, query: str) -> List[float]:
+        if not self.vocab or not query:
+            return [0.0] * self.num_docs
+        query_words = self._tokenize(query)
+        query_vector = self._compute_vector(query_words)
+        
+        scores = []
+        for doc_vector in self.doc_vectors:
+            # Cosine similarity is the dot product since vectors are normalized
+            dot_product = sum(query_vector.get(term, 0.0) * doc_vector.get(term, 0.0) for term in query_vector)
+            scores.append(dot_product)
+        return scores
 
 
 # ─────────────────────────────────────────────
@@ -152,6 +217,7 @@ def recall_memories(
     error_categories: Optional[List[str]] = None,
     severity_filter: Optional[List[str]] = None,
     limit: int = 15,
+    query: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
     Truy vấn các rule liên quan để inject vào prompt của Creator Agent.
@@ -162,6 +228,7 @@ def recall_memories(
         error_categories: Lọc theo loại lỗi
         severity_filter: ['CRITICAL', 'MAJOR'] để lọc theo mức độ
         limit: Số rule tối đa trả về
+        query: Chuỗi văn bản ngữ cảnh để so khớp độ tương đồng ngữ nghĩa TF-IDF
     
     Returns:
         Danh sách dict chứa các rule liên quan
@@ -190,7 +257,11 @@ def recall_memories(
             params.extend(severity_filter)
 
         where = " AND ".join(conditions) if conditions else "1=1"
-        query = f"""
+        
+        # Nếu dùng Semantic Search, ta không dùng LIMIT cứng trong SQL để lấy được tập ứng viên rộng hơn trước khi xếp hạng
+        sql_limit = limit * 4 if query else limit
+        
+        sql_query = f"""
             SELECT * FROM agent_memory
             WHERE {where}
             ORDER BY 
@@ -203,20 +274,48 @@ def recall_memories(
                 created_at DESC
             LIMIT ?
         """
-        params.append(limit)
+        params.append(sql_limit)
 
-        rows = conn.execute(query, params).fetchall()
+        rows = conn.execute(sql_query, params).fetchall()
+        memories = [dict(r) for r in rows]
+
+        # ── ÁP DỤNG TF-IDF COSINE SIMILARITY ĐỂ XẾP HẠNG NGỮ NGHĨA ──
+        if query and memories:
+            doc_texts = [f"{m.get('rule_text', '')} {m.get('error_category', '')}" for m in memories]
+            try:
+                matcher = TFIDFMatcher(doc_texts)
+                scores = matcher.get_similarity(query)
+                # Ghép điểm số tương đồng vào từng memory
+                for idx, score in enumerate(scores):
+                    memories[idx]["_sim_score"] = score
+                
+                # Sắp xếp lại danh sách memories:
+                # 1. Độ nghiêm trọng (CRITICAL lên trước)
+                # 2. Điểm số tương đồng ngữ nghĩa (giảm dần)
+                # 3. Hit count / Ngày tạo
+                memories.sort(
+                    key=lambda m: (
+                        0 if m.get("severity") == "CRITICAL" else (1 if m.get("severity") == "MAJOR" else 2),
+                        -m.get("_sim_score", 0.0),
+                        -m.get("hit_count", 0)
+                    )
+                )
+            except Exception as e:
+                print(f"  [Semantic KMA Warning] Lỗi so khớp TF-IDF: {e}. Fallback về sắp xếp SQL mặc định.")
+
+        # Chỉ lấy số lượng theo limit yêu cầu
+        final_memories = memories[:limit]
 
         # Cập nhật hit_count để ưu tiên rule hay được dùng
-        if rows:
-            ids = [r["id"] for r in rows]
+        if final_memories:
+            ids = [r["id"] for r in final_memories]
             conn.execute(
                 f"UPDATE agent_memory SET hit_count = hit_count + 1 WHERE id IN ({','.join('?'*len(ids))})",
                 ids
             )
             conn.commit()
 
-        return [dict(r) for r in rows]
+        return final_memories
     finally:
         conn.close()
 
@@ -364,7 +463,7 @@ Return ONLY raw JSON array without markdown wrappers.
     return state
 
 
-def get_relevant_memories_for_creator(tech_stack: str, scope: str, limit: int = 10) -> str:
+def get_relevant_memories_for_creator(tech_stack: str, scope: str, limit: int = 10, query: Optional[str] = None) -> str:
     """
     Hàm tiện ích cho Creator Agent gọi để lấy context kinh nghiệm.
     Trả về chuỗi text sẵn sàng inject vào system prompt.
@@ -373,7 +472,8 @@ def get_relevant_memories_for_creator(tech_stack: str, scope: str, limit: int = 
         tech_stack=tech_stack,
         scope=scope,
         severity_filter=["CRITICAL", "MAJOR"],
-        limit=limit
+        limit=limit,
+        query=query
     )
     return format_memories_for_prompt(memories)
 

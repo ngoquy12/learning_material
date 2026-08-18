@@ -419,7 +419,7 @@ Nếu chỉ sử dụng phép tính số học đơn thuần, chương trình s�
           </div>
 
           <div class="my-6 text-center">
-            <img src="images/illustration_lesson_03.svg" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" />
+            <img src="images/illustration_lesson_03.jpg" alt="Minh họa bối cảnh thực tế" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" />
             <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: Cấu trúc rẽ nhánh điều khiển với if, elif và else</p>
           </div>
         </section>
@@ -568,153 +568,223 @@ print('Số tiền giảm:', discount_val, 'VNĐ')</code></pre>
           <div class="my-8">
             
 <h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>Cấu trúc rẽ nhánh điều khiển với if, elif và else</strong>!</p>
+            <p class="text-slate-600 mb-4 leading-relaxed">Bấm nút <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để quan sát dòng mã thực tế được tô sáng màu ngọc bảo và biến đổi trạng thái của biến trong bộ nhớ RAM từng bước!</p>
 
-<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
-  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 flex flex-wrap items-center justify-between gap-2">
-    <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
-      <i class="ph-bold ph-sliders-horizontal text-rikkei-red"></i> ĐIỀU KHIỂN MÔ PHỎNG LUỒNG THỰC THI (PYTHON):
-    </span>
-    <div class="flex items-center gap-2 text-xs">
-      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all shadow-sm flex items-center gap-1">
-        <i class="ph-bold ph-arrow-right text-xs"></i> Tiếp theo
-      </button>
-      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3.5 py-1.5 rounded bg-rikkei-red text-white font-medium hover:bg-rikkei-darkred transition-all shadow-sm flex items-center gap-1">
-        <i class="ph-bold ph-play text-xs"></i> Tự động chạy
-      </button>
-    </div>
-  </div>
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+                <!-- Cột trái: Mã nguồn thực thi -->
+                <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+                    <span>MÃ NGUỒN THỰC THI (PYTHON)</span>
+                    <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px]">Sẵn sàng</span>
+                  </div>
+                  <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[160px]">
+                    <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div><span class="text-blue-600">order_amount</span> = <span class="text-amber-600">1500000</span></div>
+                    </div>
+                    <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div><span class="text-purple-600 font-bold">if</span> <span class="text-blue-600">order_amount</span> &gt;= <span class="text-amber-600">2000000</span>:</div>
+                    </div>
+                    <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600">voucher</span> = <span class="text-green-600">"GIAM20"</span></div>
+                    </div>
+                    <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div><span class="text-purple-600 font-bold">elif</span> <span class="text-blue-600">order_amount</span> &gt;= <span class="text-amber-600">1000000</span>:</div>
+                    </div>
+                    <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600">voucher</span> = <span class="text-green-600">"GIAM10"</span></div>
+                    </div>
+                    <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div><span class="text-purple-600 font-bold">else</span>:</div>
+                    </div>
+                    <div id="viz-line-7" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600">voucher</span> = <span class="text-green-600">"KHONG"</span></div>
+                    </div>
+                    <div id="viz-line-8" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+                      <div><span class="text-cyan-600">print</span>(<span class="text-green-600">"Mã giảm giá áp dụng:"</span>, <span class="text-blue-600">voucher</span>)</div>
+                    </div>
+                  </div>
+                </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
-    <!-- Cột trái: Mã nguồn thực thi -->
-    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
-        <span>MÃ NGUỒN THỰC THI CHUẨN</span>
-        <span id="viz-step-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
-      </div>
-      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[180px]">
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div># 1. Khai báo tham số đầu vào cho Cấu trúc rẽ nhánh điều khiển với if, elif và else</div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>input_data = load_input_parameters()</div>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>is_valid = validate_conditions(input_data)</div>
-          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>execution_result = process_business_logic(is_valid)</div>
-        </div>
-        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
-          <div>print(f"Kết quả xử lý {clean_title}: {execution_result}")</div>
-        </div>
-      </div>
-    </div>
+                <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+                <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+                    <span>TRẠNG THÁI BIẾN TRONG BỘ NHỚ (RAM)</span>
+                    <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+                  </div>
+                  <div class="p-4 space-y-3 flex-1 text-xs font-mono">
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+                      <span class="text-slate-500">Môi trường thực thi:</span>
+                      <span class="font-bold text-rikkei-red">PYTHON Engine</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+                      <span class="text-slate-500">Biến order_amount:</span>
+                      <span id="viz-ram-amount" class="font-bold text-slate-600">---</span>
+                    </div>
+                    <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+                      <span class="text-slate-500">Biến voucher:</span>
+                      <span id="viz-ram-voucher" class="font-bold text-slate-600">---</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
-    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
-        <span>BIẾN BỘ NHỚ RAM</span>
-        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
-      </div>
-      <div class="p-4 space-y-2 flex-1 text-xs font-mono">
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Môi trường thực thi:</span>
-          <span class="font-bold text-slate-900">PYTHON Engine</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">is_valid (Kiểm tra điều kiện):</span>
-          <span id="viz-var-valid" class="font-bold text-slate-400">---</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">execution_result (Trạng thái kết quả):</span>
-          <span id="viz-var-result" class="font-bold text-slate-400">---</span>
-        </div>
-      </div>
-    </div>
-  </div>
+              <!-- Nút điều khiển -->
+              <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="runVizStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-all">
+                    <i class="ph-bold ph-caret-left"></i> Bước trước
+                  </button>
+                  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs flex items-center gap-1 hover:bg-rikkei-darkred transition-all shadow-sm">
+                    Tiếp theo <i class="ph-bold ph-caret-right"></i>
+                  </button>
+                  <button type="button" onclick="runVizStep(-999)" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs transition-all" title="Reset">
+                    <i class="ph-bold ph-arrow-counter-clockwise"></i> Đặt lại
+                  </button>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+                </div>
+              </div>
 
-  <div class="bg-slate-900 rounded-xl p-3.5 font-mono text-xs text-emerald-400 flex items-center gap-2 overflow-x-auto">
-    <span class="text-slate-500 font-bold shrink-0">CONSOLE &gt;</span>
-    <span id="viz-terminal-log">Bấm 'Tiếp theo' hoặc 'Tự động chạy' để bắt đầu mô phỏng luồng.</span>
-  </div>
-</div>
+              <!-- Terminal log -->
+              <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
+                <div class="text-[11px] font-mono text-slate-500 mb-1 flex items-center gap-1.5">
+                  <i class="ph-bold ph-terminal text-emerald-800"></i> NHẬT KÝ THỰC THI (SINGLE-LINE TERMINAL CONSOLE):
+                </div>
+                <div id="viz-terminal-log" class="h-[100px] overflow-y-auto bg-white text-emerald-800 font-mono text-xs p-2 rounded border border-slate-200 font-semibold">
+                  &gt; Sẵn sàng chạy mô phỏng từng bước. Bấm "Tiếp theo" để bắt đầu...
+                </div>
+              </div>
+            </div>
 
-<script>
-  let currentVizStep = 0;
-  let vizAutoInterval = null;
-  function runVizStep(stepNum) {
-    if (stepNum === undefined || stepNum === null) {
-      currentVizStep += 1;
-      if (currentVizStep > 5) currentVizStep = 1;
-    } else {
-      currentVizStep = stepNum;
-    }
+            <script>
+              let currentVizStep = 0;
+              let vizAutoInterval = null;
+              
+              window.vizSteps = [
+                { line: 1, ram: { "amount": "1500000", "voucher": "---" }, log: "<div>&gt; order_amount = 1500000 <span class='text-slate-400'># Khởi tạo giá trị đơn hàng</span></div>" },
+                { line: 2, ram: { "amount": "1500000", "voucher": "---" }, log: "<div>&gt; Kiểm tra: 1500000 &gt;= 2000000 là False <span class='text-slate-400'># Nhánh if Sai</span></div>" },
+                { line: 4, ram: { "amount": "1500000", "voucher": "---" }, log: "<div>&gt; Kiểm tra: 1500000 &gt;= 1000000 là True <span class='text-slate-400'># Nhánh elif Đúng</span></div>" },
+                { line: 5, ram: { "amount": "1500000", "voucher": "GIAM10" }, log: "<div>&gt; voucher = 'GIAM10' <span class='text-slate-400'># Nhập mã giảm giá 10%</span></div>" },
+                { line: 8, ram: { "amount": "1500000", "voucher": "GIAM10" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Mã giảm giá áp dụng: GIAM10</div>" }
+              ];
 
-    for (let i = 1; i <= 5; i++) {
-      const el = document.getElementById("viz-line-" + i);
-      if (el) {
-        if (i === currentVizStep) {
-          el.style.backgroundColor = "#d1fae5";
-          el.style.borderLeft = "4px solid #059669";
-          el.style.fontWeight = "bold";
-        } else {
-          el.style.backgroundColor = "";
-          el.style.borderLeft = "4px solid transparent";
-          el.style.fontWeight = "normal";
-        }
-      }
-    }
+              function runVizStep(direction) {
+                if (direction === -999) {
+                  currentVizStep = 0;
+                  resetVizState();
+                  return;
+                }
+                
+                if (direction === 1) {
+                  currentVizStep += 1;
+                  if (currentVizStep > window.vizSteps.length) {
+                    currentVizStep = window.vizSteps.length;
+                    return;
+                  }
+                } else if (direction === -1) {
+                  currentVizStep -= 1;
+                  if (currentVizStep < 1) {
+                    resetVizState();
+                    return;
+                  }
+                } else {
+                  currentVizStep += 1;
+                  if (currentVizStep > window.vizSteps.length) currentVizStep = 1;
+                }
 
-    const badge = document.getElementById("viz-step-badge");
-    const b1 = document.getElementById("viz-badge-cond1");
-    const vValid = document.getElementById("viz-var-valid");
-    const vResult = document.getElementById("viz-var-result");
-    const term = document.getElementById("viz-terminal-log");
+                updateVizUI();
+              }
 
-    if (badge) badge.innerText = "Bước " + currentVizStep + "/5";
+              function updateVizUI() {
+                const stepData = window.vizSteps[currentVizStep - 1];
+                if (!stepData) return;
 
-    if (currentVizStep === 1) {
-      if (term) term.innerText = "[BƯỚC 1/5] Khởi tạo tham số đầu vào cho Cấu trúc rẽ nhánh điều khiển với if, elif và else";
-    } else if (currentVizStep === 2) {
-      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào input_data";
-    } else if (currentVizStep === 3) {
-      if (b1) {
-        b1.className = "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
-        b1.innerText = "True - KHỚP!";
-      }
-      if (vValid) {
-        vValid.className = "font-bold text-emerald-600";
-        vValid.innerText = "True";
-      }
-      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện validate_conditions() -> True";
-    } else if (currentVizStep === 4) {
-      if (vResult) {
-        vResult.className = "font-bold text-emerald-600";
-        vResult.innerText = "SUCCESS";
-      }
-      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ process_business_logic() -> SUCCESS";
-    } else if (currentVizStep === 5) {
-      if (term) term.innerText = "[KẾT QUẢ 5/5] CONSOLE OUTPUT: Hoàn tất xử lý Cấu trúc rẽ nhánh điều khiển với if, elif và else: SUCCESS";
-    }
-  }
+                // Highlight lines
+                for (let i = 1; i <= 8; i++) {
+                  const el = document.getElementById("viz-line-" + i);
+                  if (el) {
+                    if (i === stepData.line) {
+                      el.style.backgroundColor = "#d1fae5";
+                      el.style.borderLeft = "4px solid #059669";
+                      el.style.fontWeight = "bold";
+                    } else {
+                      el.style.backgroundColor = "";
+                      el.style.borderLeft = "4px solid transparent";
+                      el.style.fontWeight = "normal";
+                    }
+                  }
+                }
 
-  function vizToggleAuto() {
-    const btn = document.getElementById("viz-auto-btn");
-    if (vizAutoInterval) {
-      clearInterval(vizAutoInterval);
-      vizAutoInterval = null;
-      if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
-    } else {
-      if (btn) btn.innerHTML = '<i class="ph-bold ph-pause text-xs"></i> Tạm dừng';
-      runVizStep();
-      vizAutoInterval = setInterval(() => {
-        runVizStep();
-      }, 1500);
-    }
-  }
-</script>
+                // Update badge
+                const badge = document.getElementById("viz-step-badge");
+                if (badge) badge.innerText = "Bước " + currentVizStep + "/" + window.vizSteps.length;
+
+                // Update RAM
+                const ramAmount = document.getElementById("viz-ram-amount");
+                const ramVoucher = document.getElementById("viz-ram-voucher");
+
+                if (ramAmount) ramAmount.innerText = stepData.ram["amount"] || "---";
+                if (ramVoucher) ramVoucher.innerText = stepData.ram["voucher"] || "---";
+
+                // Update Terminal Log (Append style)
+                const term = document.getElementById("viz-terminal-log");
+                if (term) {
+                  let accumHtml = "";
+                  for (let s = 0; s < currentVizStep; s++) {
+                    accumHtml += window.vizSteps[s].log;
+                  }
+                  term.innerHTML = accumHtml;
+                  term.scrollTop = term.scrollHeight;
+                }
+              }
+
+              function resetVizState() {
+                currentVizStep = 0;
+                const badge = document.getElementById("viz-step-badge");
+                if (badge) badge.innerText = "Sẵn sàng";
+
+                const ramAmount = document.getElementById("viz-ram-amount");
+                const ramVoucher = document.getElementById("viz-ram-voucher");
+
+                if (ramAmount) ramAmount.innerText = "---";
+                if (ramVoucher) ramVoucher.innerText = "---";
+
+                const term = document.getElementById("viz-terminal-log");
+                if (term) term.innerHTML = '&gt; Sẵn sàng chạy mô phỏng từng bước. Bấm "Tiếp theo" để bắt đầu...';
+
+                for (let i = 1; i <= 8; i++) {
+                  const el = document.getElementById("viz-line-" + i);
+                  if (el) {
+                    el.style.backgroundColor = "";
+                    el.style.borderLeft = "4px solid transparent";
+                    el.style.fontWeight = "normal";
+                  }
+                }
+              }
+
+              function vizToggleAuto() {
+                const btn = document.getElementById("viz-auto-btn");
+                if (vizAutoInterval) {
+                  clearInterval(vizAutoInterval);
+                  vizAutoInterval = null;
+                  if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
+                } else {
+                  if (btn) btn.innerHTML = '<i class="ph-bold ph-pause text-xs"></i> Tạm dừng';
+                  runVizStep(1);
+                  vizAutoInterval = setInterval(() => {
+                    if (currentVizStep >= window.vizSteps.length) {
+                      clearInterval(vizAutoInterval);
+                      vizAutoInterval = null;
+                      if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
+                    } else {
+                      runVizStep(1);
+                    }
+                  }, 1500);
+                }
+              }
+            </script>
 
           </div>
         </section>
@@ -771,7 +841,7 @@ print('Mã giảm giá áp dụng:', voucher)</code></pre>
           </div>
         </section>
 
-        <!-- SECTION 4: GOTCHAS & PITFALLS -->
+        <!-- SECTION 4: lỗi thường gặp & PITFALLS -->
         <section id="section-4" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
             4. Tổng kết bài học & Các lỗi thường gặp
@@ -800,7 +870,7 @@ print('Mã giảm giá áp dụng:', voucher)</code></pre>
         <!-- SECTION 5: REFERENCES -->
         <section id="section-5" class="mb-10 scroll-mt-24">
           <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
-            5. Tài liệu tham khảo
+            5. Tài liệu tham khảo & Câu hỏi ôn tập
           </h2>
 
           <div class="pt-2">
@@ -816,6 +886,98 @@ print('Mã giảm giá áp dụng:', voucher)</code></pre>
                 </a>
               </li>
             </ul>
+          </div>
+
+          <!-- Self-Test Component -->
+          <div id="selftest-section" class="mt-8 pt-6 border-t border-slate-200">
+            <h3 class="font-montserrat font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+              <i class="ph-bold ph-checks text-rikkei-red"></i> Câu hỏi ôn tập
+            </h3>
+            <p class="text-sm text-slate-600 mb-6">Trả lời các câu hỏi nhanh dưới đây để kiểm tra mức độ hiểu biết của bạn về cấu trúc rẽ nhánh điều khiển!</p>
+
+            <form id="self-test-form" onsubmit="event.preventDefault(); checkSelfTest();" class="space-y-6">
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">1</span>
+                  <span>Cho đoạn mã sau: score = 85. Nếu thực hiện khối lệnh: if score &gt;= 90: grade = 'A' elif score &gt;= 80: grade = 'B' else: grade = 'C'. Giá trị của biến grade là gì?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. 'A'.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. 'B'.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. 'C'.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Báo lỗi cú pháp.</span>
+                  </label>
+                </div>
+                <div id="q1-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">2</span>
+                  <span>Trong ngôn ngữ Python, từ khóa nào sau đây tương đương với "else if" và dùng để kiểm tra điều kiện bổ sung nếu điều kiện trước đó sai?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. elseif</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. else if</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. elif</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. otherwise</span>
+                  </label>
+                </div>
+                <div id="q2-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">3</span>
+                  <span>Nguyên nhân phổ biến nhất gây ra lỗi IndentationError khi lập trình cấu trúc rẽ nhánh trong Python là gì?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Quên không thụt lề đầu dòng (hoặc thụt lề không đồng đều) cho khối lệnh thuộc nhánh.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Quên dấu hai chấm (:) ở cuối dòng điều kiện.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Sử dụng dấu nháy kép thay cho dấu nháy đơn.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Đặt biến có chứa ký tự in hoa.</span>
+                  </label>
+                </div>
+                <div id="q3-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+
+              <div class="flex justify-start">
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-rikkei-red text-white font-semibold text-sm hover:bg-rikkei-darkred transition-all shadow-sm">Nộp bài tự đánh giá</button>
+              </div>
+            </form>
           </div>
         </section>
       </article>
@@ -918,6 +1080,45 @@ print('Mã giảm giá áp dụng:', voucher)</code></pre>
         });
       }
 
-    </script>
+    
+      function checkSelfTest() {
+        const answers = {"1": "B", "2": "C", "3": "A"};
+        const explanations = {
+          "1": "Biến score = 85. Điều kiện thứ hai score >= 80 thỏa mãn (85 >= 80 là True), nên khối lệnh tương ứng gán grade = 'B' được thực hiện.",
+          "2": "Trong Python, từ khóa 'elif' là viết tắt của 'else if', dùng để kiểm tra nhánh điều kiện tiếp theo.",
+          "3": "Lỗi IndentationError trong Python đặc thù liên quan đến việc thụt lề dòng lệnh (như trong khối if/else) không thẳng hàng hoặc không thụt lề."
+        };
+
+        let score = 0;
+        const total = Object.keys(answers).length;
+
+        for (let i = 1; i <= total; i++) {
+          const form = document.getElementById("self-test-form");
+          const selected = form.querySelector(`input[name="q${i}"]:checked`);
+          const expDiv = document.getElementById(`q${i}-explanation`);
+
+          if (expDiv) {
+            expDiv.className = "text-xs p-3 rounded-lg mt-2 leading-relaxed text-left block";
+            if (selected) {
+              const val = selected.value;
+              if (val === answers[i]) {
+                score++;
+                expDiv.style.backgroundColor = "#f0fdf4";
+                expDiv.style.color = "#15803d";
+                expDiv.innerHTML = `<span class="font-bold flex items-center gap-1"><i class="ph-bold ph-check-circle"></i> Chính xác!</span> ${explanations[i]}`;
+              } else {
+                expDiv.style.backgroundColor = "#fef2f2";
+                expDiv.style.color = "#b91c1c";
+                expDiv.innerHTML = `<span class="font-bold flex items-center gap-1"><i class="ph-bold ph-x-circle"></i> Chưa chính xác. Đáp án đúng là ${answers[i]}.</span> ${explanations[i]}`;
+              }
+            } else {
+              expDiv.style.backgroundColor = "#fffbeb";
+              expDiv.style.color = "#b45309";
+              expDiv.innerHTML = `<span class="font-bold flex items-center gap-1"><i class="ph-bold ph-warning"></i> Bạn chưa trả lời câu này!</span> Đáp án đúng: ${answers[i]}. ${explanations[i]}`;
+            }
+          }
+        }
+      }
+</script>
   </body>
 </html>

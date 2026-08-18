@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="vi" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toán tử Số học, Toán tử So sánh và Biểu thức Logic trong JavaScript — Trực quan hóa Bài giảng - Rikkei Education</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .glass-card {
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .glass-card:hover {
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+        transform: translateY(-2px);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #be111c 0%, #4f46e5 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      /* Custom light active state for TOC links */
+      .toc-link.active {
+        background-color: #fff1f2 !important; /* bg-rose-50 */
+        border-left-color: #be111c !important; /* border-l-2 border-rikkei-red */
+        color: #be111c !important;
+        border-radius: 0.5rem !important;
+      }
+      .toc-link.active .toc-title {
+        color: #be111c !important;
+        font-weight: 600 !important;
+      }
+
+      /* Realtime pulse animations for visual state flow */
+      .pulse-active {
+        animation: pulseEmerald 1.5s infinite;
+      }
+      @keyframes pulseEmerald {
+        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+      }
+      .pulse-warning {
+        animation: pulseAmber 1.5s infinite;
+      }
+      @keyframes pulseAmber {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+      }
+
+      /* Code block scrollbars */
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #0f172a;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white">
+    <!-- ===== FIXED TOP HEADER (EXPANDED TO MAX 1680px) ===== -->
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
+      <div class="max-w-[1680px] w-full mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-8 sm:h-9 object-contain shrink-0"
+          />
+          <span class="text-xs sm:text-sm font-bold text-slate-800 border-l border-slate-300 pl-3 sm:pl-4 truncate">
+            Toán tử Số học, Toán tử So sánh và Biểu thức Logic trong JavaScript
+          </span>
+        </div>
+        <!-- Right Counter Badge -->
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+            3 Bài học
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== MAIN WRAPPER (EXPANDED TO MAX 1680px FOR FULL DESKTOP BREADTH) ===== -->
+    <div class="max-w-[1680px] w-full mx-auto px-4 sm:px-8 pt-24 pb-16 flex gap-8 items-start flex-1">
+      <!-- ===== LEFT STICKY SIDEBAR TOC (CLEAN TEXT, NO BADGES, LIGHT BORDER) ===== -->
+      <aside class="w-80 shrink-0 sticky top-24 hidden lg:block">
+        <div class="glass-card p-4 rounded-2xl space-y-3 shadow-sm border border-slate-200/80 h-auto">
+          <!-- TOC Header -->
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+            <i class="ph-bold ph-list-dashes text-rikkei-red text-base"></i>
+            <span>Mục lục Bài giảng</span>
+          </div>
+
+          <!-- Vertical Navigation Links (Clean Text, No Number Badges, Light Border) -->
+          <nav class="space-y-1" id="toc-nav">
+            
+            <a
+              id="nav-s1"
+              href="#s1"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                1. Toán tử Số học và Toán tử
+              </span>
+            </a>
+            
+            <a
+              id="nav-s2"
+              href="#s2"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                2. Toán tử So sánh Bằng nghiêm ngặt
+              </span>
+            </a>
+            
+            <a
+              id="nav-s3"
+              href="#s3"
+              class="toc-link block px-3 py-2 rounded-lg text-xs leading-relaxed text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent transition-all group"
+            >
+              <span class="toc-title font-medium transition-colors">
+                3. Toán tử Logic and (&&), or (||),
+              </span>
+            </a>
+            
+          </nav>
+        </div>
+      </aside>
+
+      <!-- ===== MAIN DASHBOARD CONTENT AREA (EXPANDED FLUID RIGHT) ===== -->
+      <main class="flex-1 min-w-0 space-y-14">
+        
+        <!-- ===== SECTION 1: Toán tử Số học và Toán tử Gán gộp ===== -->
+        <section id="s1" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              1. Toán tử Số học và Toán tử Gán gộp
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-lightbulb text-amber-500 text-base"></i>
+                      <span>Khái niệm & Cú pháp Cốt lõi</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      KHÁI NIỆM & CÚ PHÁP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                        <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                          <li>Toán tử số học (+, -, *, /, %, **): Thực hiện tính toán giá trị số trong giỏ hàng (tổng tiền hàng, tính dư quà tặng với phép chia lấy dư %, lũy thừa điểm thưởng **).</li><li>Toán tử gán gộp (+=, -=, *=, /=): Viết ngắn gọn thao tác cập nhật biến (ví dụ: grandTotal += shippingFee để cộng bù phí vận chuyển, -= để trừ voucher).</li><li>Toán tử tăng/giảm (++ / --): Thay đổi nhanh số lượng sản phẩm trong giỏ (phân biệt ++x tăng trước khi gán và x++ tăng sau khi trả về giá trị).</li>
+                        </ul>
+                        
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Lưu ý & Bẫy lỗi Thường gặp</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LƯU Ý THỰC HÀNH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                        <div class="space-y-2 text-rose-950 leading-relaxed">
+                          <p>Bẫy toán tử + và nối chuỗi: Khi nhận dữ liệu từ input HTML (dạng string), phép cộng `+` sẽ thực hiện nối chuỗi thay vì cộng số (ví dụ: '150000' + 30000 = '15000030000'). Lỗi này khiến tổng thanh toán tăng vọt bất thường.</p><p>Bẫy tiền tố/hậu tố trong biểu thức (++x vs x++): Sử dụng `currentCartCount++` trong biểu thức tính toán sẽ lấy giá trị cũ trước khi tăng 1 đơn vị, dẫn đến tính sai số lượng sản phẩm thanh toán thực tế.</p>
+                        </div>
+                        
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Trực quan: Tính toán Đơn hàng Checkout
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="space-y-3.5">
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Kịch bản Thử nghiệm (Scenario):</label>
+                <select id="s1-scenario" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-medium truncate" onchange="on_change_s1_scenario()">
+                  <option value="scen_0">1. Trường hợp Chuẩn (Standard Checkout)</option>
+<option value="scen_1">2. Trường hợp Biên (Đơn 1 sản phẩm - Phí Ship nhỏ)</option>
+<option value="scen_2">3. Tình huống Ngoại lệ (Bẫy Nối Chuỗi do quên ép kiểu)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Đơn giá sản phẩm (VNĐ):</label>
+                    <input type="number" id="s1-unitPrice" value="150000" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s1_sim()" />
+                  </div>
+
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Số lượng đặt mua:</label>
+                    <input type="number" id="s1-quantity" value="3" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s1_sim()" />
+                  </div>
+
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Phí vận chuyển (VNĐ):</label>
+                    <input type="number" id="s1-shippingFee" value="30000" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s1_sim()" />
+                  </div>
+
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Voucher giảm giá (VNĐ):</label>
+                    <input type="number" id="s1-voucherDiscount" value="50000" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s1_sim()" />
+                  </div>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">script.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s1-code-box">
+                    <pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="s1-code-snippet">// --- Bước 1: Khai báo & Phép toán số học cơ bản (*, %, **) ---
+let unitPrice = Number(params.unitPrice); // Đơn giá sản phẩm (VNĐ)
+let quantity = Number(params.quantity);   // Số lượng đặt mua
+let subtotal = unitPrice * quantity;      // Tính tiền hàng cơ bản
+let comboRemainder = quantity % 2;        // Chia dư kiểm tra mua theo cặp quà tặng
+let rewardPoints = quantity ** 2;         // Điểm thưởng tích lũy (lũy thừa)
+
+// --- Bước 2: Áp dụng gán gộp cập nhật phí & giảm giá (+=, -=) ---
+let grandTotal = subtotal;
+let shippingFee = Number(params.shippingFee);
+let voucherDiscount = Number(params.voucherDiscount);
+
+grandTotal += shippingFee;     // Gán gộp: Cộng thêm phí ship vào tổng thanh toán
+grandTotal -= voucherDiscount; // Gán gộp: Trừ tiền voucher giảm giá
+
+// --- Bước 3: Thao tác tăng/giảm số lượng & Chốt bill (++ / --) ---
+let currentCartCount = quantity;
+currentCartCount++; // Thêm 1 sản phẩm dùng thử tặng kèm tự động
+let finalBill = grandTotal; // Tổng thanh toán đơn hàng thành công</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s1-trace-box">
+                  <div class='text-slate-400'>> 1. Bước 1: Tính subtotal = 150.000 * 3 = 450.000 VNĐ. Phép dư 3 % 2 = 1 (dư 1 sản phẩm). Điểm thưởng 3 ** 2 = 9 điểm.</div><div class='text-slate-400'>> 2. Bước 2: Gán gộp grandTotal += 30.000 (thành 480.000 VNĐ), sau đó grandTotal -= 50.000 (còn 430.000 VNĐ).</div><div class='text-slate-400'>> 3. Bước 3: Tăng currentCartCount++ thành 4 món (gồm 1 món tặng). Kết quả thanh toán finalBill = 430.000 VNĐ.</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s1-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s1-res-val">
+                      430,000 VNĐ (Tổng 4 sản phẩm)
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s1-res-badge">
+                      Thành công
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ===== SECTION 2: Toán tử So sánh Bằng nghiêm ngặt (===) và Khác (!==) ===== -->
+        <section id="s2" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              2. Toán tử So sánh Bằng nghiêm ngặt (===) và Khác (!==)
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-lightbulb text-amber-500 text-base"></i>
+                      <span>Khái niệm & Cú pháp Cốt lõi</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      KHÁI NIỆM & CÚ PHÁP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                        <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                          <li>Toán tử so sánh bằng nghiêm ngặt (===) và khác nghiêm ngặt (!==) kiểm tra đồng thời cả Giá trị (Value) lẫn Kiểu dữ liệu (Data Type) của hai vế.</li><li>Khác với so sánh lỏng lẻo (==, !=), toán tử nghiêm ngặt KHÔNG thực hiện ép kiểu ngầm định (Type Coercion), giúp đảm bảo tính chính xác tuyệt đối khi xác thực dữ liệu giỏ hàng.</li>
+                        </ul>
+                        
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Lưu ý & Bẫy lỗi Thường gặp</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LƯU Ý THỰC HÀNH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                        <div class="space-y-2 text-rose-950 leading-relaxed">
+                          <p>Bẫy dữ liệu từ DOM HTML Input: Giá trị thu được từ ô nhập liệu luôn là kiểu String (vd: "2"). Nếu so sánh trực tiếp "2" === 2 sẽ trả về false, dẫn đến lỗi logic kiểm tra điều kiện thanh toán.</p><p>Bẫy ép kiểu ngầm định của toán tử lỏng lẻo (==): Sử dụng == có thể dẫn đến kết quả sai lệch ngoài ý muốn như 0 == "" (true) hoặc false == "0" (true), dễ gây ra lỗ hổng khi kiểm tra mã giảm giá hoặc số lượng sản phẩm.</p>
+                        </div>
+                        
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Trực quan: So sánh Strict (===) Đơn hàng
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="space-y-3.5">
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Kịch bản Thử nghiệm (Scenario):</label>
+                <select id="s2-scenario" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-medium truncate" onchange="on_change_s2_scenario()">
+                  <option value="scen_0">1. Trường hợp Chuẩn (Standard)</option>
+<option value="scen_1">2. Trường hợp Biên (Edge Case)</option>
+<option value="scen_2">3. Tình huống Ngoại lệ (Gotcha / Error)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+                
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Số lượng nhập (Form HTML):</label>
+                    <input type="number" id="s2-inputQty" value="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s2_sim()" />
+                  </div>
+
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Số lượng yêu cầu (Hệ thống):</label>
+                    <input type="number" id="s2-targetQty" value="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s2_sim()" />
+                  </div>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">script.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s2-code-box">
+                    <pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="s2-code-snippet">// --- Bước 1: Tiếp nhận dữ liệu giỏ hàng từ form và hệ thống --- 
+let rawInput = String(inputQty); // Dữ liệu từ HTML Input luôn là String
+let stockQty = Number(targetQty); // Số lượng điều kiện/tồn kho dạng Number
+
+// --- Bước 2: So sánh nghiêm ngặt (===) và khác nghiêm ngặt (!==) ---
+let isDirectMatch = (rawInput === stockQty); // false vì String !== Number
+let isStrictNotEqual = (rawInput !== stockQty); // true vì khác kiểu dữ liệu
+
+// --- Bước 3: Chuyển đổi kiểu dữ liệu chuẩn hóa & Xác nhận thanh toán ---
+let parsedInput = Number(rawInput);
+let canProceedCheckout = (parsedInput === stockQty) && (parsedInput > 0);</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s2-trace-box">
+                  <div class='text-slate-400'>> 1. Bước 1: Khai báo rawInput = "2" (kiểu String từ DOM) và stockQty = 2 (kiểu Number từ kho).</div><div class='text-slate-400'>> 2. Bước 2: Thao tác "2" === 2 trả về false do lệch kiểu; "2" !== 2 trả về true.</div><div class='text-slate-400'>> 3. Bước 3: Ép kiểu parsedInput = 2. So sánh 2 === 2 và 2 > 0 trả về true -> Cho phép thanh toán.</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s2-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s2-res-val">
+                      canProceedCheckout: true (Hợp lệ sau khi chuẩn hóa kiểu)
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s2-res-badge">
+                      Thành công
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- ===== SECTION 3: Toán tử Logic and (&&), or (||), not (!) và Ngắn mạch ===== -->
+        <section id="s3" class="space-y-6 scroll-mt-24">
+          <div class="border-b border-slate-200 pb-3 flex items-center justify-between gap-4">
+            <h2 class="font-montserrat font-bold text-xl sm:text-2xl text-slate-900 break-words">
+              3. Toán tử Logic and (&&), or (||), not (!) và Ngắn mạch
+            </h2>
+            
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+            <!-- Left Dynamic Knowledge Cards Panel (xl:col-span-5: 3-4 chuyên sâu cards) -->
+            <div class="xl:col-span-5 space-y-4 min-w-0">
+              
+                
+                <div class="glass-card p-5 rounded-2xl border border-slate-200/80 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                      <i class="ph-bold ph-lightbulb text-amber-500 text-base"></i>
+                      <span>Khái niệm & Cú pháp Cốt lõi</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                      KHÁI NIỆM & CÚ PHÁP
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                        <ul class="space-y-2 list-disc pl-4 text-slate-700">
+                          <li>Toán tử Logic bao gồm AND (&&), OR (||) và NOT (!): dùng để kết hợp và đảo ngược các điều kiện logic trong biểu thức.</li><li>Cơ chế Ngắn mạch (Short-circuit Evaluation): biểu thức dừng đánh giá ngay khi kết quả được xác định — `&&` dừng khi gặp giá trị Falsy đầu tiên, `||` dừng khi gặp giá trị Truthy đầu tiên.</li><li>Ứng dụng thực tế: Thiết lập giá trị mặc định (dùng `||`), kiểm tra điều kiện an toàn trước khi thực thi (dùng `&&`) và kiểm tra trạng thái phủ định (dùng `!`).</li>
+                        </ul>
+                        
+                  </div>
+                </div>
+                
+                <div class="glass-card p-5 rounded-2xl border border-rose-200 bg-rose-50/40 bg-white space-y-3 shadow-sm">
+                  <div class="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                    <h3 class="font-bold text-sm text-rose-950 flex items-center gap-2">
+                      <i class="ph-bold ph-warning-octagon text-rose-600 text-base"></i>
+                      <span>Lưu ý & Bẫy lỗi Thường gặp</span>
+                    </h3>
+                    
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                      LƯU Ý THỰC HÀNH
+                    </span>
+                    
+                  </div>
+                  <div class="text-xs text-slate-700 leading-relaxed space-y-2.5 break-words">
+                    
+                        <div class="space-y-2 text-rose-950 leading-relaxed">
+                          <p>Bẫy Falsy với toán tử `||`: Khi viết `value || defaultValue`, nếu `value` chứa giá trị hợp lệ là `0` hoặc `""` (chuỗi rỗng), JS vẫn coi là Falsy và lấy `defaultValue` ngoài ý muốn (ví dụ: phí ship 0 VNĐ bị biến thành 30.000 VNĐ).</p><p>Bẫy thứ tự ưu tiên toán tử: Toán tử `&&` có độ ưu tiên cao hơn `||`. Biểu thức `A || B && C` sẽ được tính là `A || (B && C)`, có thể gây sai logic kiểm tra nếu không đóng bọc ngoặc đơn `()` rõ ràng.</p>
+                        </div>
+                        
+                  </div>
+                </div>
+                
+              
+            </div>
+
+            <!-- Right Simulator Panel (xl:col-span-7) -->
+            <div class="xl:col-span-7 glass-card p-5 sm:p-6 rounded-3xl space-y-6 min-w-0 overflow-hidden shadow-sm sticky top-24">
+              <h3 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-sliders text-indigo-600"></i> Trực quan: Điều kiện Freeship & Short-Circuit
+              </h3>
+
+              <!-- Controllers -->
+              <div class="w-full min-w-0">
+                
+            <div class="space-y-3.5">
+              <div class="min-w-0">
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Kịch bản Thử nghiệm (Scenario):</label>
+                <select id="s3-scenario" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-white font-medium truncate" onchange="on_change_s3_scenario()">
+                  <option value="scen_0">1. Trường hợp Chuẩn (Khách VIP mua đơn 200k)</option>
+<option value="scen_1">2. Trường hợp Biên (Đơn đúng 300k - Ngắn mạch ||)</option>
+<option value="scen_2">3. Tình huống Ngoại lệ (Bẫy phí ship 0đ với ngắn mạch ||)</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Tổng tiền giỏ hàng (VNĐ):</label>
+                    <input type="number" id="s3-cartTotal" value="200000" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s3_sim()" />
+                  </div>
+
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Khách hàng VIP (1: Có, 0: Không):</label>
+                    <input type="number" id="s3-isVipMember" value="1" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s3_sim()" />
+                  </div>
+
+                  <div class="min-w-0">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1.5 truncate">Phí vận chuyển nhập vào (VNĐ):</label>
+                    <input type="number" id="s3-customShippingFee" value="30000" class="w-full px-3 py-2 border border-slate-200 rounded-xl font-mono text-xs focus:outline-none focus:border-rikkei-red bg-slate-50/50" oninput="run_s3_sim()" />
+                  </div>
+              </div>
+            </div>
+              </div>
+
+              <!-- Dedicated Window Code Block Header & Body (NO TEXT OVERLAP) -->
+              <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-inner border border-slate-800">
+                <div class="px-4 py-2.5 bg-slate-950/90 border-b border-slate-800/80 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500/80"></div>
+                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80"></div>
+                    <span class="text-xs font-mono font-medium text-slate-400 pl-2">script.js</span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase font-semibold font-mono bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
+                    LIVE PREVIEW
+                  </span>
+                </div>
+                <div class="p-4 font-mono text-sm text-slate-200 overflow-x-auto custom-scrollbar">
+                  <div class="space-y-1.5 min-w-[320px]" id="s3-code-box">
+                    <pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="s3-code-snippet">// --- Bước 1: Kiểm tra điều kiện Freeship (Toán tử &&, ||) ---
+// Đơn hàng >= 300k HOẶC (Là khách VIP VÀ Đơn hàng >= 150k)
+const isEligibleFreeship = cartTotal >= 300000 || (isVipMember === 1 && cartTotal >= 150000);
+
+// --- Bước 2: Xử lý phí vận chuyển & bẫy ngắn mạch (||) ---
+// Nếu không được Freeship, lấy phí nhập vào hoặc mặc định 30000 VNĐ
+const finalShippingFee = isEligibleFreeship ? 0 : (customShippingFee || 30000);
+
+// --- Bước 3: Đánh giá điều kiện cho phép Thanh toán (Toán tử !) ---
+const isCartEmpty = cartTotal <= 0;
+const canCheckout = !isCartEmpty && (isEligibleFreeship || finalShippingFee > 0);</code></pre>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Output Trace & Visual Evaluation -->
+              <div class="border border-slate-200 rounded-2xl p-4 bg-white space-y-3 shadow-sm min-w-0">
+                <div class="text-xs font-semibold text-slate-500 border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>TIẾN TRÌNH THỰC THI (RUNTIME TRACE)</span>
+                  <span class="text-[10px] text-emerald-600 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">REALTIME</span>
+                </div>
+                <div class="space-y-2 font-mono text-xs text-slate-700 overflow-x-auto custom-scrollbar" id="s3-trace-box">
+                  <div class='text-slate-400'>> 1. Bước 1: Đánh giá 200000 >= 300000 (false) || (1 === 1 && 200000 >= 150000 -> true) => isEligibleFreeship = true.</div><div class='text-slate-400'>> 2. Bước 2: Do đủ điều kiện Freeship (isEligibleFreeship = true), finalShippingFee = 0 VNĐ.</div><div class='text-slate-400'>> 3. Bước 3: Đánh giá !isCartEmpty (true) && true => canCheckout = true (Đủ điều kiện thanh toán).</div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2" id="s3-result-card">
+                  <div>
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Kết quả đánh giá</span>
+                    <span class="font-mono text-base font-bold text-slate-800" id="s3-res-val">
+                      Freeship VIP: 0 VNĐ - Đủ điều kiện thanh toán
+                    </span>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-[10px] text-slate-400 font-semibold block uppercase">Trạng thái</span>
+                    <span class="font-mono text-xs px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-semibold" id="s3-res-badge">
+                      Thành công
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+      </main>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
+      <div class="max-w-[1680px] mx-auto px-4 sm:px-8">
+        <p>@2026 Rikkei Education — @copyright All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <!-- ===== INTERACTIVE CLIENT-SIDE JAVASCRIPT ENGINE ===== -->
+    <script>
+      
+      const s1_scenMap = {"scen_0": {"params": {"unitPrice": "150000", "quantity": "3", "shippingFee": "30000", "voucherDiscount": "50000"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Tính subtotal = 150.000 * 3 = 450.000 VNĐ. Phép dư 3 % 2 = 1 (dư 1 sản phẩm). Điểm thưởng 3 ** 2 = 9 điểm.</div><div class='text-slate-400'>> 2. Bước 2: Gán gộp grandTotal += 30.000 (thành 480.000 VNĐ), sau đó grandTotal -= 50.000 (còn 430.000 VNĐ).</div><div class='text-slate-400'>> 3. Bước 3: Tăng currentCartCount++ thành 4 món (gồm 1 món tặng). Kết quả thanh toán finalBill = 430.000 VNĐ.</div>", "res": "430,000 VNĐ (Tổng 4 sản phẩm)", "badge": "Thành công"}, "scen_1": {"params": {"unitPrice": "50000", "quantity": "1", "shippingFee": "15000", "voucherDiscount": "50000"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: subtotal = 50.000 * 1 = 50.000 VNĐ. Phép dư 1 % 2 = 1. Điểm thưởng 1 ** 2 = 1 điểm.</div><div class='text-slate-400'>> 2. Bước 2: Gán gộp grandTotal += 15.000 (thành 65.000 VNĐ), sau đó grandTotal -= 50.000 (còn 15.000 VNĐ).</div><div class='text-slate-400'>> 3. Bước 3: Tăng currentCartCount++ thành 2 món. Tiền hàng được voucher tài trợ 100%, khách chỉ trả 15.000 VNĐ ship.</div>", "res": "15,000 VNĐ (Miễn tiền hàng)", "badge": "Biên an toàn"}, "scen_2": {"params": {"unitPrice": "150000", "quantity": "2", "shippingFee": "30000", "voucherDiscount": "20000"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Nếu đơn giá lỡ bị giữ nguyên dạng Chuỗi '150000', phép nhân * tự ép kiểu sang số thành 300.000 VNĐ.</div><div class='text-slate-400'>> 2. Bước 2: Nếu phí ship là chuỗi '30000', grandTotal += '30000' sẽ bị toán tử + nối chuỗi thành '30000030000'.</div><div class='text-slate-400'>> 3. Bước 3: Phép trừ voucher -= 20000 ép kiểu ngược lại làm sai số tổng hóa đơn nghiêm trọng. Cần dùng Number() để xử lý an toàn.</div>", "res": "Lỗi sai lệch tổng tiền do nối chuỗi", "badge": "Cảnh báo Lỗi"}};
+
+      function on_change_s1_scenario() {
+        const scenSelect = document.getElementById("s1-scenario");
+        if (!scenSelect) return;
+        const scenData = s1_scenMap[scenSelect.value] || s1_scenMap["scen_0"];
+        if (scenData && scenData.params) {
+          for (const [k, v] of Object.entries(scenData.params)) {
+            const el = document.getElementById("s1-" + k);
+            if (el) el.value = v;
+          }
+        }
+        run_s1_sim();
+      }
+
+      function run_s1_sim() {
+        const scenSelect = document.getElementById("s1-scenario");
+        const traceBox = document.getElementById("s1-trace-box");
+        const resVal = document.getElementById("s1-res-val");
+        const resBadge = document.getElementById("s1-res-badge");
+
+        if (!scenSelect || !traceBox || !resVal || !resBadge) return;
+
+        const currentScen = scenSelect.value;
+        const scenData = s1_scenMap[currentScen] || s1_scenMap["scen_0"];
+
+        traceBox.innerHTML = scenData.trace;
+        resVal.innerText = scenData.res;
+        resBadge.innerText = scenData.badge;
+        resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
+      }
+
+
+      const s2_scenMap = {"scen_0": {"params": {"inputQty": "2", "targetQty": "2"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Khai báo rawInput = \"2\" (kiểu String từ DOM) và stockQty = 2 (kiểu Number từ kho).</div><div class='text-slate-400'>> 2. Bước 2: Thao tác \"2\" === 2 trả về false do lệch kiểu; \"2\" !== 2 trả về true.</div><div class='text-slate-400'>> 3. Bước 3: Ép kiểu parsedInput = 2. So sánh 2 === 2 và 2 > 0 trả về true -> Cho phép thanh toán.</div>", "res": "canProceedCheckout: true (Hợp lệ sau khi chuẩn hóa kiểu)", "badge": "Thành công"}, "scen_1": {"params": {"inputQty": "0", "targetQty": "0"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Tiếp nhận rawInput = \"0\" (String) và stockQty = 0 (Number - hết hàng).</div><div class='text-slate-400'>> 2. Bước 2: So sánh \"0\" === 0 nhận false (lệch kiểu dữ liệu); \"0\" !== 0 nhận true.</div><div class='text-slate-400'>> 3. Bước 3: Ép kiểu parsedInput = 0. Kiểm tra (0 === 0) && (0 > 0) trả về false -> Chặn thanh toán do số lượng bằng 0.</div>", "res": "canProceedCheckout: false (Giỏ hàng rỗng / Hết hàng)", "badge": "Biên an toàn"}, "scen_2": {"params": {"inputQty": "-5", "targetQty": "5"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Tiếp nhận rawInput = \"-5\" (do người dùng cố tình can thiệp số âm) và stockQty = 5.</div><div class='text-slate-400'>> 2. Bước 2: So sánh \"-5\" === 5 nhận false cả về giá trị lẫn kiểu dữ liệu.</div><div class='text-slate-400'>> 3. Bước 3: Ép kiểu parsedInput = -5. Kiểm tra (-5 === 5) && (-5 > 0) trả về false -> Phát hiện sai lệch và ngăn chặn gian lận.</div>", "res": "canProceedCheckout: false (Dữ liệu không hợp lệ)", "badge": "Cảnh báo Lỗi"}};
+
+      function on_change_s2_scenario() {
+        const scenSelect = document.getElementById("s2-scenario");
+        if (!scenSelect) return;
+        const scenData = s2_scenMap[scenSelect.value] || s2_scenMap["scen_0"];
+        if (scenData && scenData.params) {
+          for (const [k, v] of Object.entries(scenData.params)) {
+            const el = document.getElementById("s2-" + k);
+            if (el) el.value = v;
+          }
+        }
+        run_s2_sim();
+      }
+
+      function run_s2_sim() {
+        const scenSelect = document.getElementById("s2-scenario");
+        const traceBox = document.getElementById("s2-trace-box");
+        const resVal = document.getElementById("s2-res-val");
+        const resBadge = document.getElementById("s2-res-badge");
+
+        if (!scenSelect || !traceBox || !resVal || !resBadge) return;
+
+        const currentScen = scenSelect.value;
+        const scenData = s2_scenMap[currentScen] || s2_scenMap["scen_0"];
+
+        traceBox.innerHTML = scenData.trace;
+        resVal.innerText = scenData.res;
+        resBadge.innerText = scenData.badge;
+        resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
+      }
+
+
+      const s3_scenMap = {"scen_0": {"params": {"cartTotal": "200000", "isVipMember": "1", "customShippingFee": "30000"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Đánh giá 200000 >= 300000 (false) || (1 === 1 && 200000 >= 150000 -> true) => isEligibleFreeship = true.</div><div class='text-slate-400'>> 2. Bước 2: Do đủ điều kiện Freeship (isEligibleFreeship = true), finalShippingFee = 0 VNĐ.</div><div class='text-slate-400'>> 3. Bước 3: Đánh giá !isCartEmpty (true) && true => canCheckout = true (Đủ điều kiện thanh toán).</div>", "res": "Freeship VIP: 0 VNĐ - Đủ điều kiện thanh toán", "badge": "Thành công"}, "scen_1": {"params": {"cartTotal": "300000", "isVipMember": "0", "customShippingFee": "30000"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: Vế đầu (300000 >= 300000) trả về true. Nhờ ngắn mạch ||, JS dừng lại ngay và kết luận isEligibleFreeship = true mà không kiểm tra vế sau.</div><div class='text-slate-400'>> 2. Bước 2: Miễn phí vận chuyển finalShippingFee = 0 VNĐ.</div><div class='text-slate-400'>> 3. Bước 3: Kiểm tra giỏ hàng không rỗng (!isCartEmpty), xác nhận đơn hàng hợp lệ.</div>", "res": "Freeship Đạt mốc: 0 VNĐ - Ngắn mạch thành công", "badge": "Biên an toàn"}, "scen_2": {"params": {"cartTotal": "100000", "isVipMember": "0", "customShippingFee": "0"}, "val": "", "trace": "<div class='text-slate-400'>> 1. Bước 1: 100000 < 300000 và không phải VIP => isEligibleFreeship = false.</div><div class='text-slate-400'>> 2. Bước 2: Đánh giá (customShippingFee || 30000). Vì customShippingFee = 0 (falsy), JS bỏ qua 0 và lấy 30000 VNĐ!</div><div class='text-slate-400'>> 3. Bước 3: Phí ship bị nhảy từ 0 VNĐ lên 30.000 VNĐ ngoài ý muốn do bẫy giá trị Falsy của toán tử ||.</div>", "res": "Cảnh báo: Phí ship 0đ bị đè thành 30.000đ do bẫy Falsy ||", "badge": "Cảnh báo Lỗi"}};
+
+      function on_change_s3_scenario() {
+        const scenSelect = document.getElementById("s3-scenario");
+        if (!scenSelect) return;
+        const scenData = s3_scenMap[scenSelect.value] || s3_scenMap["scen_0"];
+        if (scenData && scenData.params) {
+          for (const [k, v] of Object.entries(scenData.params)) {
+            const el = document.getElementById("s3-" + k);
+            if (el) el.value = v;
+          }
+        }
+        run_s3_sim();
+      }
+
+      function run_s3_sim() {
+        const scenSelect = document.getElementById("s3-scenario");
+        const traceBox = document.getElementById("s3-trace-box");
+        const resVal = document.getElementById("s3-res-val");
+        const resBadge = document.getElementById("s3-res-badge");
+
+        if (!scenSelect || !traceBox || !resVal || !resBadge) return;
+
+        const currentScen = scenSelect.value;
+        const scenData = s3_scenMap[currentScen] || s3_scenMap["scen_0"];
+
+        traceBox.innerHTML = scenData.trace;
+        resVal.innerText = scenData.res;
+        resBadge.innerText = scenData.badge;
+        resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
+      }
+
+      // ROBUST ACTIVE SCROLLSPY WITH BOUNDING RECT & CLICK HANDLER
+      function setActiveNav(id) {
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.classList.remove("active");
+        });
+        const activeLink = document.getElementById("nav-" + id);
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
+
+      function initScrollSpy() {
+        const sections = document.querySelectorAll("section[id]");
+        if (!sections.length) return;
+
+        // Activate first section by default on load
+        const firstId = sections[0].getAttribute("id");
+        setActiveNav(firstId);
+
+        // Instant active highlight on click
+        document.querySelectorAll("#toc-nav .toc-link").forEach((link) => {
+          link.addEventListener("click", function () {
+            const targetId = this.getAttribute("href").replace("#", "");
+            setActiveNav(targetId);
+          });
+        });
+
+        // Realtime scroll position tracker using BoundingClientRect
+        function handleScroll() {
+          const triggerOffset = 200; // Trigger zone near top of viewport
+          let currentId = firstId;
+
+          sections.forEach((sec) => {
+            const rect = sec.getBoundingClientRect();
+            if (rect.top <= triggerOffset) {
+              currentId = sec.getAttribute("id");
+            }
+          });
+
+          setActiveNav(currentId);
+        }
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+      }
+
+      // INITIALIZE ALL SIMULATORS & SCROLLSPY SAFELY
+      function initApp() {
+        try {
+          run_s1_sim();
+        run_s2_sim();
+        run_s3_sim();
+        } catch (e) {
+          console.warn("Simulator init warning:", e);
+        }
+        try {
+          initScrollSpy();
+        } catch (e) {
+          console.error("ScrollSpy init error:", e);
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+      window.addEventListener("load", initApp);
+    </script>
+  </body>
+</html>

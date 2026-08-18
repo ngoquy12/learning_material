@@ -42,19 +42,40 @@ def check_forbidden_keywords(text: str, tech_stack: str, forbidden_scope: set = 
         if "core" in tech_lower and any(kw in text.lower() for kw in ["fastapi", "uvicorn", "pydantic", "sqlalchemy", "express", "springboot"]):
             return f"Nội dung môn {tech_stack.upper()} bị lẫn khái niệm framework/database nâng cao không thuộc phạm vi core."
 
+    # 3. Dynamic Multi-Stack Syntax Scope Check (Zero-Hardcode Policy)
+    if forbidden_scope and tech_stack:
+        from core.domain_adapters import get_forbidden_syntax_for_scope
+        forbidden_syntax = get_forbidden_syntax_for_scope(tech_stack, forbidden_scope)
+        if forbidden_syntax:
+            code_blocks = re.findall(r'```(?:[a-zA-Z0-9_\-]+)?\n(.*?)```', text, re.DOTALL)
+            code_corpus = "\n".join(code_blocks) if code_blocks else ""
+            if code_corpus:
+                found_tokens = []
+                for token in forbidden_syntax:
+                    tok_clean = token.rstrip('(').rstrip('.').strip()
+                    if tok_clean:
+                        tok_pattern = r'\b' + re.escape(tok_clean) + r'\b'
+                        if re.search(tok_pattern, code_corpus):
+                            found_tokens.append(token)
+                if found_tokens:
+                    return f"Mã nguồn chứa cú pháp vượt cấp '{', '.join(found_tokens[:3])}' chưa được học trong phạm vi buổi này ({tech_stack})."
+
     return ""
 
 def check_forbidden_emojis(text: str) -> str:
     """
     Checks if text contains actual emoji characters.
     Emojis are strictly forbidden across all educational content.
-    Standard typographical bullet points '•' are allowed.
+    Standard typographical bullet points '•' and pedagogical directional arrows are allowed.
     """
     if not text:
         return ""
+    # Normalize allowable pedagogical and directional arrows before scanning for emojis
+    text_clean = re.sub(r'[\u2794\u279C\u27A1\u27A4\u2190-\u2199\u27F5-\u27FF]', '->', text)
+
     emoji_pattern = re.compile(
         "[\u2600-\u26FF"          # Warning ⚠️, symbols
-        "\u2700-\u27BF"          # Dingbats 💡, Checkmarks ✅, Crosses ❌
+        "\u2700-\u2793\u2795-\u27BF" # Dingbats (excluding technical arrows)
         "\u2139"                 # Info ℹ️
         "\u25B6"                 # Play ▶
         "\U0001F600-\U0001F64F" # Emoticons
@@ -65,7 +86,7 @@ def check_forbidden_emojis(text: str) -> str:
         "\U0001FA70-\U0001FAFF" # Symbols and Pictographs Extended-A
         "]+", flags=re.UNICODE
     )
-    match = emoji_pattern.search(text)
+    match = emoji_pattern.search(text_clean)
     if match:
         return f"Nội dung vi phạm quy tắc: TUYỆT ĐỐI CẤM sử dụng icon/biểu tượng cảm xúc (emoji). Ký tự vi phạm: '{match.group(0)}'. Hãy thay bằng văn bản nhãn [NOTE], [TIP], [WARNING] hoặc Phosphor Icons <i class='ph-...'>."
     return ""
@@ -640,174 +661,6 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     # Default Rule-based Fallback (if LLM fails)
     print("  - Sandbox Agent fallback to Auto-Approval.")
     return {"status": "APPROVED", "feedback": "Auto-approved due to JSON parse fallback."}
-
-def video_script_reviewer_agent(state: AgentState) -> Dict[str, Any]:
-    """
-    Video Script Reviewer (HyperFrames Standard):
-    Validates the Production Blueprint JSON from video_script_agent against the
-    dev-tutorial-video production standards and hyperframes_composer/SKILL.md rules.
-    Checks: scene structure, timing continuity, narration length, animation timeline rules,
-    HyperFrames data attributes, and pedagogical requirements.
-    """
-    session_id = state.get("session_id", "Session 01")
-    lesson_id = state.get("lesson_id", "")
-    blueprint = state.get("video_script_json", {})
-
-    print(f"\n[Video_Script_Reviewer] Validating HyperFrames Blueprint for {session_id} {lesson_id}...")
-
-    # ── KIỂM TRA 1: Cấu trúc JSON cơ bản ─────────────────────────────────
-    if not blueprint or not isinstance(blueprint, dict):
-        msg = "Blueprint JSON rỗng hoặc không hợp lệ."
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    required_top_fields = ["lesson_slug", "lesson_title", "total_duration", "scenes", "tts_scripts"]
-    missing = [f for f in required_top_fields if f not in blueprint]
-    if missing:
-        msg = f"Blueprint thiếu các trường bắt buộc: {missing}. Đây là Production Blueprint JSON chuẩn HyperFrames, PHẢI có đủ các trường: {required_top_fields}."
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    scenes = blueprint.get("scenes", [])
-    tts_scripts = blueprint.get("tts_scripts", {})
-
-    # ── KIỂM TRA 2: Đủ số scenes ──────────────────────────────────────────
-    if len(scenes) < 4:
-        msg = f"Blueprint chỉ có {len(scenes)} scenes. Yêu cầu tối thiểu 4 đến 12 scenes để đạt nội dung truyền tải sâu sắc theo chuẩn HyperFrames."
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # ── KIỂM TRA 3: Cấu trúc từng scene ──────────────────────────────────
-    required_scene_fields = ["scene_id", "scene_title", "start_at_root", "duration", "track_index", "narration", "animation_timeline"]
-
-    for i, scene in enumerate(scenes):
-        missing_scene = [f for f in required_scene_fields if f not in scene]
-        if missing_scene:
-            msg = f"Scene #{i+1} ('{scene.get('scene_id', '?')}') thiếu các trường bắt buộc: {missing_scene}."
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
-
-        # Auto-ensure animation_timeline has at least 3 steps
-        anim = scene.get("animation_timeline", [])
-        if not isinstance(anim, list) or len(anim) < 3:
-            scene["animation_timeline"] = [
-                "0.2s: intro-title fade in",
-                "1.0s: main content show",
-                "dur-0.8s: scene fade out"
-            ]
-
-        # Kiểm tra html_structure không chứa placeholder rác
-        html_struct = scene.get("html_structure", "")
-        if any(kw in html_struct.lower() for kw in ["mô tả giao diện", "khung code mẫu", "placeholder", "tự định nghĩa"]):
-            msg = f"Scene '{scene.get('scene_id')}' có html_structure chứa văn bản placeholder chung chung. Yêu cầu trích xuất đúng khối mã nguồn (<pre><code>) hoặc các từ khóa bullet points (<ul><li>) thuộc công nghệ của bài học khớp 100% với lời thoại narration."
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
-
-    # ── KIỂM TRA 4: Tính liên tục của timeline & Giới hạn thời lượng scene ────────────────────────────
-    cumulative = 0.0
-    pedagogy_type = blueprint.get("pedagogy_type", "CONCEPTUAL")
-    
-    for scene in scenes:
-        start = scene.get("start_at_root", -1)
-        dur = scene.get("duration", 0)
-        
-        # Enforce max 45s per scene for optimal visuals
-        if dur > 45.0:
-            msg = (f"Scene '{scene.get('scene_id')}' có thời lượng {dur}s (vượt quá giới hạn 45.0s). "
-                   f"Hãy phân chia nội dung của scene này thành các sub-scenes nhỏ hơn (từ 25 đến 40 giây) "
-                   f"để tăng tính động cho video và tránh stagnation hình ảnh.")
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
-            
-        expected_start = round(cumulative, 2)
-        if abs(start - expected_start) > 0.1:
-            msg = (f"Timeline không liên tục! Scene '{scene.get('scene_id')}' có start_at_root={start}s, "
-                   f"nhưng phải là {expected_start}s (start_at_root của scene trước + duration). "
-                   f"Hãy tính lại: start_at_root[N] = sum(duration[0..N-1]).")
-            print(f"  - Result: REJECTED — {msg}")
-            return {"status": "REJECTED", "feedback": msg}
-        cumulative += dur
-
-    # Kiểm tra total_duration
-    total_dur = blueprint.get("total_duration", 0)
-    if abs(total_dur - cumulative) > 0.5:
-        msg = (f"total_duration={total_dur}s không khớp với tổng duration các scenes={cumulative:.2f}s. "
-               f"total_duration phải bằng chính xác tổng duration của tất cả scenes.")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # KIỂM TRA THỜI LƯỢNG THEO PHÂN LOẠI SƯ PHẠM (PEDAGOGY TAXONOMY)
-    if pedagogy_type in ["HANDSON_SETUP", "LIVE_CODING"] and total_dur < 300.0:
-        msg = (f"Bài học loại '{pedagogy_type}' (Thực hành/Cài đặt) hiện chỉ dài {total_dur:.1f}s (dưới 5 phút). "
-               f"Quy chuẩn sư phạm yêu cầu bài học loại này phải kéo dài từ 5 đến 8+ phút (>= 300 giây, 10-16 scenes) "
-               f"để giải thích chi tiết từng câu lệnh, thao tác trên VS Code, kiểm thử và xử lý lỗi phổ biến. "
-               f"Hãy đào sâu kiến thức và bổ sung thêm các scenes thực hành chi tiết.")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # ── KIỂM TRA 5: Độ dài narration ────────────────────────────────────
-    total_words = 0
-    for scene in scenes:
-        narration = scene.get("narration", "")
-        words = len(narration.split())
-        total_words += words
-
-    print(f"  - Narration word count: {total_words} words (Pedagogy Type: {pedagogy_type}, Total Duration: {total_dur:.1f}s)")
-
-    if total_words > 1600:
-        msg = (f"Tổng narration quá dài: {total_words} từ (tối đa 1600 từ cho video 8-10 phút). "
-               f"Hãy cắt bớt phần giải thích trùng lặp, chỉ giữ lại những điểm quan trọng nhất.")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # ── KIỂM TRA 6: Quy tắc sư phạm (Intro/Outro) ───────────────────────
-    all_narration = " ".join([s.get("narration", "") for s in scenes]).lower()
-
-    has_intro = any(phrase in all_narration for phrase in [
-        "chào mừng các em", "chào mừng bạn", "xin chào", "quay trở lại"
-    ])
-    if not has_intro:
-        msg = ("Kịch bản thiếu câu mở đầu sư phạm chuẩn. Scene đầu tiên BẮT BUỘC phải bắt đầu bằng: "
-               "'Chào mừng các em đã quay trở lại với hệ thống Elearning của Rikkei Education, trong bài học hôm nay...'")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    has_outro = any(phrase in all_narration for phrase in [
-        "cảm ơn các em", "hẹn gặp lại", "cảm ơn bạn", "đến đây là hết"
-    ])
-    if not has_outro:
-        msg = ("Kịch bản thiếu câu kết thúc sư phạm. Scene cuối cùng BẮT BUỘC phải kết bằng: "
-               "'Cảm ơn các em đã theo dõi, hẹn gặp lại trong bài học tiếp theo!'")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # ── KIỂM TRA 7: TTS scripts khớp với scenes ──────────────────────────
-    scene_ids = {s.get("scene_id") for s in scenes}
-    tts_keys = set(tts_scripts.keys())
-    missing_tts = scene_ids - tts_keys
-    if missing_tts:
-        msg = (f"tts_scripts thiếu audio script cho các scene: {missing_tts}. "
-               f"Mỗi scene_id trong 'scenes' phải có entry tương ứng trong 'tts_scripts'.")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # ── KIỂM TRA 8: Track index tăng dần ─────────────────────────────────
-    track_indices = [s.get("track_index", 0) for s in scenes]
-    expected_indices = list(range(1, len(scenes) + 1))
-    if track_indices != expected_indices:
-        msg = (f"track_index của scenes phải tăng dần từ 1: {expected_indices}. "
-               f"Hiện tại: {track_indices}. Audio tracks sẽ dùng index từ 20+.")
-        print(f"  - Result: REJECTED — {msg}")
-        return {"status": "REJECTED", "feedback": msg}
-
-    # ── TẤT CẢ ĐẠT ───────────────────────────────────────────────────────
-    print(f"  - Result: APPROVED — {len(scenes)} scenes, {total_words} words, {total_dur:.1f}s total, timeline continuous.")
-    return {
-        "status": "APPROVED",
-        "feedback": (f"Blueprint HyperFrames đạt chuẩn. {len(scenes)} scenes, {total_words} từ narration, "
-                     f"total {total_dur:.1f}s. Timeline liên tục, animation_timeline hợp lệ, sư phạm chuẩn.")
-    }
-
 
 
 def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:

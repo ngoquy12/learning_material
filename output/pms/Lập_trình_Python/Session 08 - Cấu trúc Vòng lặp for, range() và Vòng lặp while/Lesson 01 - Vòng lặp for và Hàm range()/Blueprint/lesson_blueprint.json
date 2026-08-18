@@ -1,0 +1,59 @@
+{
+  "lesson_slug": "vong-lap-for-va-ham-range",
+  "lesson_title": "Vòng lặp for và Hàm range()",
+  "real_world_scenario": {
+    "name": "Hệ thống In Hóa đơn & Kiểm tra Mã giảm giá Siêu thị MartX",
+    "description": "Siêu thị MartX cần xây dựng module tự động để in danh sách thứ tự mặt hàng trên hóa đơn thanh toán, tính toán các mức chiết khấu tích lũy theo chu kỳ sản phẩm và kiểm tra từng ký tự trong mã giảm giá (coupon code) để xác định ưu đãi cho khách hàng tại quầy thu ngân."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Cú pháp vòng lặp for cơ bản với range(stop)",
+      "description": "Vòng lặp for giúp lặp lại một khối lệnh với số lần xác định trước. Khi kết hợp với range(stop), vòng lặp sẽ sinh ra một dãy số nguyên bắt đầu từ 0 và kết thúc trước giá trị stop.",
+      "raw_code_snippet": "# In số thứ tự từ 0 đến 4 cho 5 sản phẩm\nfor item_index in range(5):\n    print(\"Sản phẩm số:\", item_index)"
+    },
+    {
+      "concept_name": "Hàm range(start, stop, step) tùy chỉnh",
+      "description": "Hàm range cho phép tùy chỉnh điểm bắt đầu (start), điểm kết thúc (stop - không bao gồm), và khoảng cách giữa các số (step - bước nhảy, có thể tăng hoặc giảm).",
+      "raw_code_snippet": "# Lặp các số lẻ từ 1 đến 9 đại diện cho các quầy thanh toán đang mở\nfor counter_number in range(1, 10, 2):\n    print(\"Quầy đang hoạt động:\", counter_number)"
+    },
+    {
+      "concept_name": "Duyệt từng ký tự trong chuỗi (String Iteration)",
+      "description": "Trong Python, chuỗi ký tự là một tập hợp các ký tự có thứ tự. Vòng lặp for có thể duyệt qua từng ký tự trong chuỗi từ trái sang phải một cách dễ dàng.",
+      "raw_code_snippet": "# Duyệt từng ký tự trong mã khuyến mãi\ncoupon_code = \"MART\"\nfor char in coupon_code:\n    print(\"Ký tự mã:\", char)"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: In số thứ tự đơn hàng trên hóa đơn",
+      "requirement": "In ra danh sách số thứ tự hóa đơn từ 1 đến 5 để dán nhãn theo dõi cho khách hàng tại quầy thanh toán.",
+      "raw_code": "# Khai báo tổng số lượng hóa đơn cần in nhãn\ntotal_receipts = 5\n\nprint(\"--- DANH SÁCH MÃ IN HÓA ĐƠN ---\")\n# Sử dụng range(1, total_receipts + 1) để lặp từ 1 đến 5\nfor receipt_number in range(1, total_receipts + 1):\n    print(\"Đang in nhãn hóa đơn số:\", receipt_number)"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Tính tổng điểm thưởng cho các mặt hàng ở vị trí ưu đãi",
+      "requirement": "Siêu thị áp dụng chương trình nhân đôi điểm thưởng cho các sản phẩm nằm ở vị trí thứ 1, 3, 5... (vị trí lẻ) trong đơn hàng gồm 6 sản phẩm. Hãy tính điểm thưởng tích lũy cho từng sản phẩm này.",
+      "raw_code": "# Khai báo tổng số sản phẩm trong đơn hàng\ntotal_items = 6\nbase_points_per_item = 10\n\nprint(\"--- TÍNH ĐIỂM THƯỞNG X2 CHO SẢN PHẨM VỊ TRÍ LẺ ---\")\n# Lặp từ 1 đến 6 với bước nhảy step = 2 (chỉ lấy vị trí 1, 3, 5)\nfor item_position in range(1, total_items + 1, 2):\n    reward_points = item_position * base_points_per_item * 2\n    print(\"Sản phẩm vị trí\", item_position, \"được thưởng:\", reward_points, \"điểm\")"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Phân tích mã giảm giá voucher siêu thị",
+      "requirement": "Khách hàng nhập mã giảm giá dạng chuỗi ký tự (ví dụ: 'SALE2024'). Kiểm tra từng ký tự trong mã, tính tổng các chữ số xuất hiện trong mã voucher để xác định phần trăm giảm giá thực tế.",
+      "raw_code": "# Khai báo mã voucher của khách hàng\nvoucher_code = \"SUPER2024\"\ntotal_discount_percent = 0\n\nprint(\"--- PHÂN TÍCH MÃ GIẢM GIÁ:\", voucher_code, \"---\")\n\n# Duyệt qua từng ký tự trong chuỗi mã voucher\nfor char in voucher_code:\n    # Kiểm tra nếu ký tự là chữ số\n    if char.isdigit():\n        digit_value = int(char)\n        total_discount_percent += digit_value\n        print(\"Phát hiện chữ số ưu đãi:\", digit_value)\n    else:\n        print(\"Ký tự định danh:\", char)\n\nprint(\"----------------------------------------\")\nprint(\"Tổng số phần trăm giảm giá nhận được:\", total_discount_percent, \"%\")"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lỗi thiếu giá trị cuối cùng (Off-by-one Error) với hàm range()",
+      "explanation": "Hàm range(start, stop) dừng lại NGAY TRƯỚC giá trị stop (không bao gồm stop). Nếu muốn lặp từ 1 đến 5 mà viết range(1, 5) thì vòng lặp chỉ chạy từ 1 đến 4.",
+      "code_bad": "# Muốn in số thứ tự từ 1 đến 5 nhưng viết sai range(1, 5)\nfor item_id in range(1, 5):\n    print(\"Mặt hàng số:\", item_id)  # Chỉ in đến 4",
+      "code_good": "# Khắc phục: Tăng giá trị stop lên 1 đơn vị hoặc ghi 5 + 1\nfor item_id in range(1, 5 + 1):\n    print(\"Mặt hàng số:\", item_id)  # In đủ từ 1 đến 5"
+    },
+    {
+      "error_name": "Không tạo ra vòng lặp khi bước nhảy step không phù hợp với chiều lặp",
+      "explanation": "Khi muốn lặp lùi (giảm dần từ số lớn về số nhỏ), nếu quên truyền tham số step âm (ví dụ: -1), hàm range() sẽ trả về dãy rỗng và vòng lặp sẽ bị bỏ qua hoàn toàn.",
+      "code_bad": "# Muốn đếm ngược từ 5 về 1 nhưng không truyền step = -1\nfor countdown in range(5, 1):\n    print(\"Đếm ngược:\", countdown)  # Khối lệnh này sẽ KHÔNG bao giờ chạy",
+      "code_good": "# Khắc phục: Thêm tham số step âm (-1) để đếm lùi đúng cách\nfor countdown in range(5, 0, -1):\n    print(\"Đếm ngược:\", countdown)  # Chạy đúng từ 5 về 1"
+    }
+  ]
+}

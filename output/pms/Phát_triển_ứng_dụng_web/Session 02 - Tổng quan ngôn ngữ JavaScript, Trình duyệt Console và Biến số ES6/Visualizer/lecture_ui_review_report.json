@@ -1,0 +1,18 @@
+{
+  "html_file": "output\\pms\\Phát_triển_ứng_dụng_web\\Session 02 - Tổng quan ngôn ngữ JavaScript, Trình duyệt Console và Biến số ES6\\Visualizer\\index.html",
+  "session_title": "Session 02 - Tổng quan ngôn ngữ JavaScript, Trình duyệt Console và Biến số ES6",
+  "tech_stack": "JavaScript Vanilla (ES6+)",
+  "ui_score": 98,
+  "passed": true,
+  "body_overflow": false,
+  "console_errors": [],
+  "raw_tag_leak": false,
+  "screenshot_path": "output\\pms\\Phát_triển_ứng_dụng_web\\Session 02 - Tổng quan ngôn ngữ JavaScript, Trình duyệt Console và Biến số ES6\\Visualizer\\screenshots\\index_preview.png",
+  "summary": "Giao diện bài giảng tương tác được thiết kế vô cùng chuyên nghiệp, chuẩn chỉnh về bố cục, màu sắc và typography. Các bộ mô phỏng trực quan và thẻ lý thuyết phân bổ khoa học, đáp ứng hoàn hảo 10 tiêu chuẩn Rikkei Education.",
+  "detected_strengths": [
+    "Bố cục tổng thể cân đối với max-width chuẩn, tích hợp Sidebar mục lục bài giảng trực quan kèm trạng thái active rõ ràng.",
+    "Hệ thống thẻ lý thuyết, Bẫy thường gặp (Gotchas) và Senior Pro Tips thiết kế dạng Glassmorphism hiện đại, phân loại badge màu sắc chuẩn xác.",
+    "Bộ mô phỏng Simulator cột phải sử dụng trình chỉnh sửa mã nguồn dark-mode tương phản cao, dòng tiến trình thực thi (Runtime Trace) và đánh giá kết quả diễn giải bằng 100% tiếng Việt có dấu chi tiết, mạch lạc."
+  ],
+  "issues": []
+}

@@ -1,0 +1,59 @@
+{
+  "lesson_slug": "nhap-xuat-console-template-literals-ep-kieu",
+  "lesson_title": "Nhập xuất dữ liệu Console, Chuỗi Template Literals và Ép kiểu dữ liệu trong JavaScript",
+  "real_world_scenario": {
+    "name": "Hệ thống Tính hóa đơn Đặt vé Xem phim TRUEMAX",
+    "description": "Xây dựng phân hệ nhập xuất dữ liệu và xuất hóa đơn thanh toán cho rạp chiếu phim TRUEMAX. Hệ thống nhận thông tin đầu vào từ khách hàng (Tên khách hàng, Tên phim, Số lượng vé, Giá vé, Tỷ lệ giảm giá), chuyển đổi các dữ liệu từ chuỗi nhập vào sang kiểu số chính xác, thực hiện tính toán tài chính và xuất kết quả hóa đơn được định dạng chuyên nghiệp ra Console và màn hình thông qua Template Literals."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Nhập và xuất dữ liệu với Browser I/O và Console",
+      "description": "Sử dụng prompt() để nhận dữ liệu dạng chuỗi từ người dùng, alert() để hiển thị thông báo popup, và các hàm console (console.log, console.warn, console.error, console.table) để ghi log debug chi tiết trong môi trường phát triển.",
+      "raw_code_snippet": "// Nhận thông tin từ người dùng (luôn trả về kiểu String)\nconst customerName = prompt(\"Nhập tên khách hàng:\");\n\n// Xuất thông báo thông thường và xuất cảnh báo ra console\nconsole.log(\"Đã nhận thông tin khách hàng:\", customerName);\nconsole.warn(\"[WARNING] Kiểm tra kỹ thông tin trước khi thanh toán.\");\nalert(\"Chào mừng \" + customerName + \" đến với rạp phim TRUEMAX!\");"
+    },
+    {
+      "concept_name": "Ép kiểu dữ liệu (Type Casting / Conversion)",
+      "description": "Chuyển đổi dữ liệu chuỗi (String) thu được từ prompt() hoặc API thành dữ liệu dạng số (Number) bằng hàm Number(), parseInt(), parseFloat(), hoặc toán tử cộng 1 ngôi (+) để thực hiện các phép tính toán số học chính xác.",
+      "raw_code_snippet": "const rawPrice = prompt(\"Nhập giá vé đơn lẻ:\"); // Trả về dạng chuỗi, ví dụ: \"120000\"\nconst rawQuantity = prompt(\"Nhập số lượng vé:\"); // Trả về dạng chuỗi, ví dụ: \"2\"\n\n// Ép kiểu chuỗi sang số thực và số nguyên\nconst ticketPrice = parseFloat(rawPrice);\nconst ticketQuantity = parseInt(rawQuantity, 10);\n\n// Tính tổng tiền chính xác sau khi ép kiểu\nconst totalPrice = ticketPrice * ticketQuantity;\nconsole.log(\"Tổng tiền:\", totalPrice);"
+    },
+    {
+      "concept_name": "Chuỗi Template Literals và Nội suy biểu thức (${expression})",
+      "description": "Cú pháp chuỗi hiện đại trong ES6 sử dụng cặp dấu backtick (` `). Cho phép viết chuỗi trên nhiều dòng (multi-line) và nhúng trực tiếp biến hoặc biểu thức tính toán thông qua cú pháp ${...} giúp mã nguồn sạch và dễ đọc.",
+      "raw_code_snippet": "const filmTitle = \"Avatar: The Way of Water\";\nconst seats = 3;\nconst pricePerSeat = 110000;\n\n// Sử dụng Template Literals với nhúng biểu thức tính toán trực tiếp\nconst receiptText = `\n=== HÓA ĐƠN ĐẶT VÉ ===\nPhim: ${filmTitle}\nSố ghế: ${seats}\nĐơn giá: ${pricePerSeat.toLocaleString(\"vi-VN\")} VNĐ\n----------------------\nThành tiền: ${(seats * pricePerSeat).toLocaleString(\"vi-VN\")} VNĐ\n`;\n\nconsole.log(receiptText);"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Nhận thông tin đặt vé và in xác nhận đơn giản",
+      "requirement": "Yêu cầu người dùng nhập tên khách hàng và số lượng vé muốn mua qua prompt(). Ép kiểu số lượng vé sang kiểu số nguyên, sau đó in ra thông báo xác nhận đặt vé đơn giản bằng console.log() và Template Literals.",
+      "raw_code": "// Bước 1: Nhận dữ liệu đầu vào từ người dùng qua prompt()\nconst inputCustomerName = prompt(\"Mời bạn nhập tên khách hàng:\");\nconst inputTicketCount = prompt(\"Mời bạn nhập số lượng vé cần mua:\");\n\n// Bước 2: Ép kiểu dữ liệu từ String sang Number bằng parseInt()\nconst ticketCount = parseInt(inputTicketCount, 10);\n\n// Bước 3: Tạo thông báo xác nhận bằng Template Literals\nconst confirmationMessage = `[XÁC NHẬN VÉ] Khách hàng ${inputCustomerName} đã đăng ký mua ${ticketCount} vé thành công.`;\n\n// Bước 4: Xuất kết quả ra Console\nconsole.log(confirmationMessage);"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Tính toán hóa đơn đặt vé nhiều dòng với chiết khấu",
+      "requirement": "Mở rộng hệ thống: Nhận thêm tên phim, đơn giá vé, và tỷ lệ giảm giá (%) từ người dùng. Thực hiện ép kiểu đầy đủ cho các số liệu, tính tổng tiền trước thuế, số tiền được giảm giá và tổng tiền thanh toán cuối cùng. Xuất hóa đơn đẹp dạng bảng nhiều dòng bằng Template Literals.",
+      "raw_code": "// Bước 1: Thu thập thông tin đầu vào\nconst customerName = prompt(\"Nhập tên khách hàng:\");\nconst movieTitle = prompt(\"Nhập tên phim:\");\nconst rawQuantity = prompt(\"Nhập số lượng vé:\");\nconst rawUnitPrice = prompt(\"Nhập giá vé đơn lẻ (VNĐ):\");\nconst rawDiscountRate = prompt(\"Nhập tỷ lệ giảm giá (%):\");\n\n// Bước 2: Ép kiểu dữ liệu đầu vào sang kiểu số\nconst quantity = parseInt(rawQuantity, 10);\nconst unitPrice = parseFloat(rawUnitPrice);\nconst discountRate = parseFloat(rawDiscountRate);\n\n// Bước 3: Thực hiện tính toán nghiệp vụ\nconst subTotal = quantity * unitPrice;\nconst discountAmount = subTotal * (discountRate / 100);\nconst finalTotal = subTotal - discountAmount;\n\n// Bước 4: Dựng hóa đơn chi tiết sử dụng Template Literals nhiều dòng\nconst detailedReceipt = `\n========================================\n       RẠP CHẾU PHIM TRUEMAX CINEMA      \n========================================\nKhách hàng   : ${customerName}\nPhim         : ${movieTitle}\n----------------------------------------\nSố lượng vé  : ${quantity} vé\nĐơn giá      : ${unitPrice.toLocaleString(\"vi-VN\")} VNĐ\nTạm tính     : ${subTotal.toLocaleString(\"vi-VN\")} VNĐ\nGiảm giá     : -${discountAmount.toLocaleString(\"vi-VN\")} VNĐ (${discountRate}%)\n----------------------------------------\nTỔNG THANH TOÁN: ${finalTotal.toLocaleString(\"vi-VN\")} VNĐ\n========================================\n`;\n\n// Bước 5: In kết quả ra Console và hiển thị alert\nconsole.log(detailedReceipt);\nalert(`Đặt vé thành công! Tổng tiền cần thanh toán: ${finalTotal.toLocaleString(\"vi-VN\")} VNĐ`);"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Xử lý dữ liệu đầu vào an toàn và cảnh báo lỗi hệ thống",
+      "requirement": "Hoàn thiện phân hệ đặt vé doanh nghiệp: Kiểm tra xem các giá trị nhập vào có hợp lệ hay không (tránh lỗi NaN khi ép kiểu thất bại). Sử dụng giá trị mặc định bằng toán tử OR (||) hoặc kiểm tra NaN với Number.isNaN(). Nếu dữ liệu nhập sai, xuất cảnh báo console.warn() / console.error(). Ngược lại, xuất bảng thống kê chi tiết bằng console.table() và Template Literals.",
+      "raw_code": "// Bước 1: Nhận đầu vào với giá trị mặc định nếu người dùng bỏ qua prompt()\nconst rawCustomer = prompt(\"Tên khách hàng:\") || \"Khách vô danh\";\nconst rawMovie = prompt(\"Tên phim:\") || \"Phim chưa chọn\";\nconst rawQuantity = prompt(\"Số lượng vé:\");\nconst rawPrice = prompt(\"Giá vé (VNĐ):\");\n\n// Bước 2: Ép kiểu và gán giá trị mặc định an toàn (Fallback)\nconst parsedQuantity = parseInt(rawQuantity, 10);\nconst parsedPrice = parseFloat(rawPrice);\n\n// Kiểm tra giá trị hợp lệ (nếu nhập chữ hoặc NaN sẽ đưa về 0)\nconst safeQuantity = Number.isNaN(parsedQuantity) || parsedQuantity < 0 ? 0 : parsedQuantity;\nconst safePrice = Number.isNaN(parsedPrice) || parsedPrice < 0 ? 0 : parsedPrice;\n\n// Bước 3: Cảnh báo nếu phát hiện dữ liệu bất thường\nif (safeQuantity === 0 || safePrice === 0) {\n  console.warn(\"[WARNING] Phát hiện dữ liệu số lượng hoặc giá vé không hợp lệ! Đã tự động điều chỉnh về 0.\");\n}\n\n// Bước 4: Tính toán tài chính\nconst totalAmount = safeQuantity * safePrice;\n\n// Bước 5: Hiển thị dữ liệu tổng quan dạng bảng bằng console.table()\nconst bookingSummary = {\n  \"Khách hàng\": rawCustomer,\n  \"Phim\": rawMovie,\n  \"Số lượng\": safeQuantity,\n  \"Đơn giá (VNĐ)\": safePrice,\n  \"Tổng tiền (VNĐ)\": totalAmount\n};\n\nconsole.log(\"[HỆ THỐNG TRUEMAX] Dữ liệu đặt vé ghi nhận:\");\nconsole.table(bookingSummary);\n\n// Bước 6: Xuất kết quả hóa đơn tổng kết\nconst finalReceipt = `\n[CHI TIẾT HÓA ĐƠN TRUEMAX]\n+ Khách hàng: ${rawCustomer.toUpperCase()}\n+ Phim: ${rawMovie}\n+ Trạng thái: ${totalAmount > 0 ? \"HỢP LỆ\" : \"CẦN KIỂM TRA LẠI\"}\n+ Tổng thanh toán: ${totalAmount.toLocaleString(\"vi-VN\")} VNĐ\n`;\n\nconsole.log(finalReceipt);"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Lỗi cộng chuỗi ngoài ý muốn do quên ép kiểu dữ liệu từ prompt()",
+      "explanation": "Hàm prompt() luôn luôn trả về một giá trị thuộc kiểu String (Chuỗi). Khi dùng toán tử cộng (+) giữa hai chuỗi số, JavaScript sẽ thực hiện phép nối chuỗi (String Concatenation) thay vì phép cộng số học, dẫn đến kết quả tính toán sai lệch nghiêm trọng.",
+      "code_bad": "// Dữ liệu prompt() nhập vào là \"100000\" và \"15000\"\nconst ticketPrice = prompt(\"Nhập giá vé:\"); \nconst surcharge = prompt(\"Nhập phụ thu:\");\n\n// Kết quả thu được là \"10000015000\" thay vì 115000\nconst totalCost = ticketPrice + surcharge; \nconsole.log(\"Tổng tiền:\", totalCost); // In ra: \"Tổng tiền: 10000015000\"",
+      "code_good": "const ticketPrice = prompt(\"Nhập giá vé:\");\nconst surcharge = prompt(\"Nhập phụ thu:\");\n\n// Khắc phục: Ép kiểu dữ liệu đầu vào sang kiểu Number trước khi thực hiện phép cộng\nconst totalCost = Number(ticketPrice) + Number(surcharge);\nconsole.log(\"Tổng tiền:\", totalCost); // In ra: \"Tổng tiền: 115000\""
+    },
+    {
+      "error_name": "Dùng sai dấu nháy khiến Template Literals không hoạt động",
+      "explanation": "Cú pháp nội suy ${expression} chỉ hoạt động khi chuỗi được bao bọc bởi cặp dấu Backtick (` `). Nếu sử dụng nháy đơn (' ') hoặc nháy kép (\" \"), JavaScript sẽ coi ${...} là một chuỗi ký tự thông thường và không thay thế giá trị của biến.",
+      "code_bad": "const customerName = \"Nguyễn Văn A\";\n\n// Dùng nháy kép làm cho ${customerName} bị giữ nguyên dạng chữ\nconst message = \"Xin chào ${customerName}, chúc bạn xem phim vui vẻ!\";\nconsole.log(message); // In ra: \"Xin chào ${customerName}, chúc bạn xem phim vui vẻ!\"",
+      "code_good": "const customerName = \"Nguyễn Văn A\";\n\n// Khắc phục: Sử dụng cặp dấu Backtick (` `)\nconst message = `Xin chào ${customerName}, chúc bạn xem phim vui vẻ!`;\nconsole.log(message); // In ra: \"Xin chào Nguyễn Văn A, chúc bạn xem phim vui vẻ!\""
+    }
+  ]
+}

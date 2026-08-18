@@ -77,32 +77,7 @@ class ObjectiveOutcomeSchema(BaseModel):
     blooms_taxonomy: BloomTaxonomySchema = Field(..., description="Phân bổ ma trận Bloom's Taxonomy")
 
 # =============================================================================
-# 4. Video Blueprint Schema (HyperFrames Script)
-# =============================================================================
-class VideoSceneItem(BaseModel):
-    scene_id: str = Field(..., description="Mã phân cảnh duy nhất, ví dụ Scene_01, Scene_02...")
-    scene_title: str = Field(..., description="Tiêu đề phân cảnh hiển thị")
-    start_at_root: float = Field(..., description="Thời điểm bắt đầu của scene trên tổng trục thời gian (giây)")
-    duration: float = Field(..., description="Thời lượng giây của scene đó (từ 25 đến 50 giây)")
-    track_index: int = Field(..., description="Chỉ mục track hiển thị tăng dần tuần tự từ 1")
-    layout_type: str = Field(..., description="Layout sử dụng: comparison, code_editor, terminal_cli, process_flow, pitfall_alert, summary_recap")
-    pacing_mode: str = Field(..., description="Chế độ nhịp điệu của scene: fast_hook, dense_code, normal, recap_outro")
-    narration: str = Field(..., description="Kịch bản lời giảng chi tiết chuẩn giọng đọc TTS (100-180 từ)")
-    director_cues: str = Field(..., description="Chỉ dẫn đạo diễn hình ảnh/âm thanh như nhấn âm, phóng to...")
-    visual_description: str = Field(..., description="Mô tả chi tiết hình ảnh sẽ hiển thị trên canvas")
-    html_structure: str = Field(..., description="Mã HTML tự do thiết kế của card nội dung trong scene")
-    animation_timeline: List[str] = Field(..., description="Danh sách các bước diễn hoạt timeline GSAP")
-
-class VideoBlueprintSchema(BaseModel):
-    lesson_slug: str = Field(..., description="Mã định danh slug của bài học")
-    lesson_title: str = Field(..., description="Tiêu đề chính của bài học")
-    pedagogy_type: str = Field(..., description="Phân loại sư phạm: HANDSON_SETUP, LIVE_CODING, CONCEPTUAL, SYSTEM_ARCHITECTURE")
-    total_duration: float = Field(..., description="Tổng thời lượng của toàn bộ video (bằng tổng duration các scenes)")
-    scenes: List[VideoSceneItem] = Field(..., description="Danh sách toàn bộ các scene chi tiết")
-    tts_scripts: Dict[str, str] = Field(..., description="Bản đồ ánh xạ scene_id tương ứng với narration thoại")
-
-# =============================================================================
-# 5. Visualizer Payload Schema
+# 4. Visualizer Payload Schema
 # =============================================================================
 class VisualizerPayloadSchema(BaseModel):
     canvas_title: str = Field(..., description="Tiêu đề khung trực quan hóa")
@@ -112,3 +87,4 @@ class VisualizerPayloadSchema(BaseModel):
     input_label: str = Field(..., description="Nhãn ô nhập liệu test")
     input_default: str = Field(..., description="Giá trị mặc định test")
     engine_js: str = Field(..., description="Mã JavaScript chứa class InteractiveVisualizerEngine hoàn chỉnh")
+
