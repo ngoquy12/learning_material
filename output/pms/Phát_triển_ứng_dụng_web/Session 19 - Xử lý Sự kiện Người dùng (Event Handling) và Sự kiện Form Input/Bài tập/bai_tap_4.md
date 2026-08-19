@@ -1,35 +1,31 @@
-# Bài tập 4: Healthcare (Nâng cao 2 - Nghiệp vụ phức tạp)
+# Bài tập 4: Healthcare (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thiện bài tập này, học viên có khả năng:
-- **Xử lý sự kiện Form & Input chuyên sâu**: Sử dụng thành thạo `addEventListener` với các sự kiện `submit`, `input`, `change`, `blur`, `click`, và `dblclick` để tạo giao diện tương tác thời gian thực.
-- **Ngăn chặn hành vi mặc định**: Áp dụng `event.preventDefault()` chính xác để kiểm soát luồng gửi dữ liệu của thẻ `<form>`.
-- **Validation dữ liệu đa tầng**: Triển khai cơ chế kiểm tra dữ liệu theo từng trường khi mất tiêu điểm (`blur`) và kiểm tra toàn cục khi người dùng nộp form (`submit`).
-- **Tính toán nghiệp vụ động (Real-time calculation)**: Lắng nghe sự kiện `input` và `change` trên nhiều phần tử điều khiển (radio, checkbox, input number) để cập nhật chi phí gói khám sức khỏe tức thì.
-- **Điều khiển trạng thái DOM mượt mà**: Thay đổi động các class (`classList.toggle`, `classList.add`), ẩn/hiện thông báo lỗi, disable/enable phần tử giao diện theo trạng thái nghiệp vụ.
+- **Thao tác sự kiện Form:** Sử dụng thành thạo `addEventListener` để lắng nghe các sự kiện `submit`, `input`, và `change` trên các phần tử HTML Form.
+- **Ngăn chặn hành vi mặc định:** Áp dụng `e.preventDefault()` để xử lý dữ liệu form mà không làm tải lại trang (page reload).
+- **Kiểm thử I/O & Validation:** Xây dựng logic kiểm tra tính hợp lệ của dữ liệu đầu vào (Input Validation) và hiển thị thông báo lỗi/kết quả phản hồi tức thì trên giao diện (Output Rendering).
+- **Ứng dụng logic nghiệp vụ:** Mô phỏng bài toán đăng ký gói dịch vụ chăm sóc sức khỏe trực tuyến (HealthCare SaaS Subscription) áp dụng công thức tính phí và phân quyền tính năng.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bệnh viện Đa khoa Quốc tế MedCare đang triển khai module **"Đăng ký Gói Chăm sóc Sức khỏe Gia đình Trực tuyến"** (MedCare Family Health Subscription). Hệ thống này cho phép bệnh nhân hoặc đại diện gia đình tùy chọn gói khám sức khỏe định kỳ, điền thông tin các thành viên, đăng ký thêm các dịch vụ xét nghiệm phụ trợ và xem tổng chi phí cập nhật theo thời gian thực trước khi xác nhận.
+Nền tảng Y tế Số **MedCare+** đang triển khai hệ thống cho phép bệnh nhân đăng ký các gói tư vấn và theo dõi sức khỏe trực tuyến theo định kỳ (SaaS Healthcare Subscription). 
 
-Bạn được giao nhiệm vụ viết toàn bộ mã nguồn xử lý tương tác giao diện và logic form (Client-side Form Handling) bằng HTML/CSS và JavaScript thuần.
+Bạn được giao nhiệm vụ triển khai mô-đun xử lý phía Front-end (Vanilla JavaScript) cho **Form Đăng ký Gói Sức khỏe**. Hệ thống cần bắt các sự kiện người dùng tương tác với form, tự động tính toán tổng chi phí hiển thị theo thời gian thực (Real-time), kiểm tra dữ liệu đầu vào và hiển thị thẻ xác nhận đăng ký thành công khi submit form.
 
+
+#### Sơ đồ luồng xử lý sự kiện (Event Handling Flow)
 ```mermaid
 graph TD
-    A[Bệnh nhân truy cập Form] --> B[Chọn gói dịch vụ & Số người]
-    B --> C{Sự kiện input/change}
-    C -->|Cập nhật dữ liệu| D[Tính toán Tổng chi phí thời gian thực]
-    A --> E[Nhập thông tin cá nhân]
-    E --> F{Sự kiện blur từng input}
-    F -->|Dữ liệu sai| G[Hiển thị lỗi đỏ dưới Input]
-    F -->|Dữ liệu đúng| H[Xóa lỗi & Đánh dấu hợp lệ]
-    A --> I[Bấm Đăng ký Khám - Submit]
-    I --> J{Sự kiện submit - preventDefault}
-    J -->|Kiểm tra toàn bộ Form| K{Có lỗi?}
-    K -->|Có| L[Focus ô lỗi đầu tiên & Hiện thông báo tổng]
-    K -->|Không| M[Khóa Form + Hiển thị Thẻ xác nhận đăng ký]
+    A[Người dùng nhập/chọn dữ liệu trên Form] --> B{Sự kiện change/input}
+    B --> C[Tính toán tạm tính tổng tiền Real-time]
+    B --> D[Bật/Tắt ô nhập số lượng thành viên]
+    A --> E{Sự kiện Submit Form}
+    E --> F[e.preventDefault]
+    F --> G{Kiểm tra Validation}
+    G -- Không hợp lệ --> H[Hiển thị lỗi dưới từng Input]
+    G -- Hợp lệ --> I[Render Thẻ Xác Nhận Đăng Ký]
 ```
 
 ---
@@ -38,43 +34,27 @@ graph TD
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
 
-#### A. Quy tắc Gói Dịch vụ & Giới hạn Thành viên
-Hệ thống cung cấp 3 gói khám chính:
-1. **Gói Cá Nhân (BASIC)**:
-   - Chi phí: `500,000 VNĐ / tháng`
-   - Số lượng người đăng ký tối đa: Đúng **1 người**.
-2. **Gói Gia Đình Standard (FAMILY_STD)**:
-   - Chi phí: `1,200,000 VNĐ / tháng`
-   - Số lượng người đăng ký tối đa: Từ **2 đến 4 người**.
-3. **Gói Gia Đình VIP (FAMILY_VIP)**:
-   - Chi phí: `2,500,000 VNĐ / tháng`
-   - Số lượng người đăng ký tối đa: Từ **5 đến 8 người**.
-
-> **Ràng buộc số lượng người**: 
-> - Nếu người dùng chọn **Gói Cá nhân** nhưng nhập số người `> 1`, hoặc chọn **Gói Standard** nhưng nhập số người ngoài khoảng `[2, 4]`, hoặc chọn **Gói VIP** nhưng nhập ngoài khoảng `[5, 8]` -> Hiển thị thông báo lỗi ngay dưới ô nhập số lượng: `"Số lượng thành viên không phù hợp với gói đã chọn!"`.
+#### A. Danh sách gói dịch vụ (`SubscriptionPlan`)
+1. **Gói Cá nhân (`BASIC`):**
+   - Đơn giá: `200,000 VNĐ / tháng`.
+   - Giới hạn: Tối đa 01 người dùng (Chỉ áp dụng cho chủ tài khoản).
+   - Khi chọn gói này: Ô nhập số lượng thành viên phụ (`memberCount`) bị **Disable** và tự động gán giá trị = `1`.
+2. **Gói Gia đình (`FAMILY`):**
+   - Đơn giá: `600,000 VNĐ / tháng`.
+   - Giới hạn: Cho phép đăng ký tối đa `5` thành viên (bao gồm cả chủ tài khoản).
+   - Khi chọn gói này: Ô nhập số lượng thành viên phụ (`memberCount`) được **Enable** để người dùng chọn từ `1` đến `5`.
 
 
-#### B. Quy tắc Dịch vụ Bổ sung (Add-on Services) & Chu kỳ Thanh toán
-- **Chu kỳ thanh toán**:
-  - `Theo tháng` (`billing-cycle = 1`): Chi phí gói = Giá gói gốc * 1.
-  - `Theo năm` (`billing-cycle = 12`): Chi phí gói = (Giá gói gốc * 12) * `0.9` (Giảm 10% tổng tiền gói chính khi đăng ký 1 năm).
-- **Dịch vụ bổ sung (Checkbox)**:
-  - `Xét nghiệm tổng quát tại nhà` (`#addon-testing`): `+300,000 VNĐ / 1 người`.
-  - `Tầm soát ung thư sớm` (`#addon-cancer`): `+1,500,000 VNĐ / 1 người`.
-- **Công thức tính Tổng tiền thanh toán dự tính**:
-  $$\text{Tổng tiền} = (\text{Giá gói} \times \text{Số tháng} \times \text{Hệ số giảm giá}) + [(\text{Tổng tiền các Add-on}) \times \text{Số lượng người}]$$
+#### B. Chu kỳ thanh toán (`BillingCycle`)
+1. **Theo tháng (`MONTHLY`):** Tổng tiền = `Đơn giá gói x 1`.
+2. **Theo năm (`ANNUAL`):** Tổng tiền = `Đơn giá gói x 12 x 0.8` (Áp dụng chính sách giảm giá 20% khi đăng ký 1 năm).
 
 
-#### C. Quy tắc Validation Thông tin Đại diện (Sự kiện `blur` và `submit`)
-- **Họ và tên (`#fullname`)**: Không được rỗng, độ dài tối thiểu 3 ký tự (sau khi loại bỏ khoảng trắng dư thừa `.trim()`).
-- **Số điện thoại (`#phone`)**: Không rỗng, phải đúng 10 chữ số và bắt đầu bằng số `0` (Ví dụ: `0912345678`).
-- **Số CCCD / BHYT (`#identity`)**: Không rỗng, phải đúng 12 chữ số.
-- **Email (`#email`)**: Phải chứa ký tự `@` và ít nhất một dấu chấm `.` sau ký tự `@`.
-
-
-#### D. Tương tác Thẻ Gói Dịch vụ (Card Interaction)
-- Khi **`click`** vào một thẻ thông tin gói y tế (`.package-card`), hệ thống tự động chọn radio button tương ứng của gói đó và kích hoạt tính toán lại chi phí.
-- Khi **`dblclick`** (nhấp đúp chuột) vào thẻ thông tin gói, bật/tắt class `.expanded` trên thẻ đó để mở rộng/thu gọn danh sách chi tiết các quyền lợi bác sĩ.
+#### C. Quy định Validation dữ liệu đầu vào
+- **Họ và tên (`fullName`):** Không được để trống, độ dài từ 3 ký tự trở lên.
+- **Email (`email`):** Đúng định dạng email (ví dụ: `nguyenvana@gmail.com`).
+- **Số điện thoại (`phone`):** Đúng định dạng số điện thoại Việt Nam (10 chữ số, bắt đầu bằng số `0`).
+- **Số lượng thành viên (`memberCount`):** Nếu là gói `FAMILY`, giá trị phải trong khoảng từ `1` đến `5`.
 
 ---
 
@@ -82,157 +62,60 @@ Hệ thống cung cấp 3 gói khám chính:
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc Giao diện HTML (Mẫu chuẩn giao diện)
-Tạo file `index.html` với danh sách id và class chuẩn như sau:
-
-```html
-<form id="healthForm" novalidate>
-  <!-- Các thẻ Package Card tương tác -->
-  <div class="package-cards">
-    <div class="package-card" data-package="BASIC">
-      <input type="radio" name="package" id="pkg-basic" value="BASIC" checked>
-      <label for="pkg-basic">Gói Cá Nhân (500k/tháng)</label>
-      <div class="details">Miễn phí 1 lần xét nghiệm máu, tư vấn online 24/7.</div>
-    </div>
-    <div class="package-card" data-package="FAMILY_STD">
-      <input type="radio" name="package" id="pkg-std" value="FAMILY_STD">
-      <label for="pkg-std">Gói Gia Đình Standard (1.2Tr/tháng)</label>
-      <div class="details">Dành cho 2-4 thành viên, khám định kỳ 2 lần/năm.</div>
-    </div>
-    <div class="package-card" data-package="FAMILY_VIP">
-      <input type="radio" name="package" id="pkg-vip" value="FAMILY_VIP">
-      <label for="pkg-vip">Gói Gia Đình VIP (2.5Tr/tháng)</label>
-      <div class="details">Dành cho 5-8 thành viên, bác sĩ thăm khám tận nhà.</div>
-    </div>
-  </div>
-
-  <!-- Thông tin đại diện -->
-  <div class="form-group">
-    <label for="fullname">Họ và tên người đại diện (*):</label>
-    <input type="text" id="fullname" placeholder="Nguyễn Văn A">
-    <small class="error-msg" id="err-fullname"></small>
-  </div>
-
-  <div class="form-group">
-    <label for="phone">Số điện thoại (*):</label>
-    <input type="text" id="phone" placeholder="0912345678">
-    <small class="error-msg" id="err-phone"></small>
-  </div>
-
-  <div class="form-group">
-    <label for="identity">Mã CCCD / BHYT (12 số) (*):</label>
-    <input type="text" id="identity" placeholder="001099123456">
-    <small class="error-msg" id="err-identity"></small>
-  </div>
-
-  <div class="form-group">
-    <label for="email">Email liên hệ (*):</label>
-    <input type="email" id="email" placeholder="example@medcare.vn">
-    <small class="error-msg" id="err-email"></small>
-  </div>
-
-  <!-- Số lượng thành viên & Chu kỳ -->
-  <div class="form-group">
-    <label for="memberCount">Số lượng thành viên tham gia (*):</label>
-    <input type="number" id="memberCount" value="1" min="1" max="10">
-    <small class="error-msg" id="err-memberCount"></small>
-  </div>
-
-  <div class="form-group">
-    <label for="billingCycle">Chu kỳ thanh toán:</label>
-    <select id="billingCycle">
-      <option value="1">Thanh toán hàng tháng</option>
-      <option value="12">Thanh toán theo năm (Giảm 10% gói chính)</option>
-    </select>
-  </div>
-
-  <!-- Add-on Services -->
-  <div class="form-group">
-    <label>Dịch vụ bổ sung:</label>
-    <div>
-      <input type="checkbox" id="addon-testing" value="300000">
-      <label for="addon-testing">Xét nghiệm tổng quát tại nhà (+300.000đ/người)</label>
-    </div>
-    <div>
-      <input type="checkbox" id="addon-cancer" value="1500000">
-      <label for="addon-cancer">Tầm soát ung thư sớm (+1.500.000đ/người)</label>
-    </div>
-  </div>
-
-  <!-- Hiển thị tổng tiền -->
-  <div class="price-summary">
-    <h3>Tổng chi phí dự tính: <span id="totalPrice">500,000</span> VNĐ</h3>
-  </div>
-
-  <button type="submit" id="btnSubmit">Xác Nhận Đăng Ký Gói Y Tế</button>
-</form>
-
-<!-- Thẻ hiển thị kết quả sau khi đăng ký thành công -->
-<div id="confirmationCard" class="hidden">
-  <h2>ĐĂNG KÝ THÀNH CÔNG!</h2>
-  <p id="summaryText"></p>
-  <button id="btnReset">Đăng ký hồ sơ mới</button>
-</div>
-```
+#### A. Cấu trúc HTML giao diện (Tham khảo / Yêu cầu chuẩn ID)
+File `index.html` cần chứa các thẻ HTML với các `id` chính xác sau:
+- Form đăng ký: `<form id="subscriptionForm">`
+- Các ô input: `#fullName`, `#email`, `#phone`, `#planSelect`, `#cycleSelect`, `#memberCount`
+- Vùng hiển thị lỗi: `#fullNameError`, `#emailError`, `#phoneError`, `#memberCountError`
+- Vùng hiển thị tạm tính tổng tiền: `<span id="totalPricePreview">0 VNĐ</span>`
+- Vùng hiển thị kết quả xác nhận: `<div id="confirmationCard">`
 
 
-#### B. Yêu cầu xử lý Logic JavaScript (`script.js`)
+#### B. Yêu cầu xử lý JavaScript (`script.js`)
 
-1. **Đăng ký sự kiện tính toán tổng tiền tự động**:
-   - Lắng nghe các sự kiện `change` hoặc `input` trên:
-     - Các radio button chọn gói khám (`input[name="package"]`).
-     - Ô chọn số lượng người (`#memberCount`).
-     - Thẻ select chọn chu kỳ (`#billingCycle`).
-     - Các checkbox dịch vụ bổ sung (`#addon-testing`, `#addon-cancer`).
-   - Tạo hàm `calculateTotalPrice()` thực hiện đúng công thức nghiệp vụ và cập nhật chuỗi định dạng tiền tệ vào phần tử `#totalPrice` (Ví dụ: `1,500,000`).
+1. **Xử lý sự kiện `change` trên `#planSelect`:**
+   - Nếu chọn `BASIC`: Đặt `memberCount.disabled = true`, gán `memberCount.value = 1`.
+   - Nếu chọn `FAMILY`: Đặt `memberCount.disabled = false`.
 
-2. **Đăng ký sự kiện `blur` để Validation từng Input**:
-   - Gán `addEventListener("blur", ...)` cho các ô `#fullname`, `#phone`, `#identity`, `#email`, `#memberCount`.
-   - Viết hàm trợ giúp `validateField(inputElement, regexPattern, errorElement, customMsg)`:
-     - Lấy giá trị input và loại bỏ khoảng trắng bằng `.trim()`.
-     - Nếu dữ liệu không hợp lệ: Thêm class `.invalid` cho input, hiển thị thông báo lỗi vào `errorElement`.
-     - Nếu dữ liệu hợp lệ: Xóa class `.invalid`, xóa văn bản lỗi.
+2. **Xử lý sự kiện `input` / `change` trên các trường `#planSelect`, `#cycleSelect`:**
+   - Tự động tính toán lại `totalPricePreview` và hiển thị dạng tiền tệ Việt Nam (VD: `5,760,000 VNĐ`).
 
-3. **Đăng ký sự kiện `click` và `dblclick` trên Thẻ Gói Dịch Vụ**:
-   - Duyệt qua danh sách các phần tử `.package-card`:
-     - Lắng nghe sự kiện `click`: Chọn radio button bên trong thẻ đó, kích hoạt lại hàm tính tổng tiền.
-     - Lắng nghe sự kiện `dblclick`: Gọi `classList.toggle('expanded')` để hiện/ẩn phần thông tin chi tiết `.details`.
+3. **Xử lý sự kiện `submit` trên `#subscriptionForm`:**
+   - Gọi `e.preventDefault()` để ngăn reload trang.
+   - Xóa toàn bộ thông báo lỗi cũ trên giao diện.
+   - Thực hiện Validation từng trường dữ liệu:
+     - Nếu có lỗi: Hiển thị nội dung lỗi tương ứng vào các thẻ chứa lỗi (`#...Error`) và thêm border màu đỏ cho ô input đó.
+     - Nếu tất cả hợp lệ: Ẩn form hoặc xóa form, hiển thị thẻ xác nhận `#confirmationCard` chứa đầy đủ thông tin:
+       - Họ tên, Email, Số điện thoại.
+       - Tên gói dịch vụ đã chọn (Cá nhân / Gia đình).
+       - Chu kỳ thanh toán (Theo tháng / Theo năm).
+       - Tổng tiền cần thanh toán.
 
-4. **Đăng ký sự kiện `submit` trên Form (`#healthForm`)**:
-   - Gọi `event.preventDefault()` đầu tiên để chống reload trang.
-   - Chạy lại kiểm tra toàn bộ tất cả các ô input.
-   - Nếu có ít nhất 1 ô dữ liệu sai:
-     - Hiển thị đầy đủ thông báo lỗi bên dưới các ô bị sai.
-     - Sử dụng `.focus()` để đưa con trỏ chuột đến ô bị lỗi đầu tiên.
-   - Nếu toàn bộ Form hợp lệ:
-     - Ẩn form `#healthForm` (thêm class `.hidden` hoặc `display: none`).
-     - Hiển thị phần tử `#confirmationCard`.
-     - Tạo một mã đăng ký ngẫu nhiên dạng `MED-XXXXXX` (trong đó XXXXXX là 6 chữ số ngẫu nhiên) và hiển thị tóm tắt thông tin: Họ tên đại diện, Tên gói đăng ký, Số người, Tổng tiền thanh toán cuối cùng.
 
-5. **Đăng ký sự kiện `click` trên nút Làm mới (`#btnReset`)**:
-   - Khi bấm nút này, reset form về trạng thái ban đầu (`healthForm.reset()`), ẩn thẻ `#confirmationCard` và hiển thị lại form đăng ký.
+####  Phạm vi nghiêm cấm (Forbidden Scope)
+- Không sử dụng `Fetch API` hoặc `Async/Await` (Kiến thức Bài 21).
+- Không sử dụng `LocalStorage` / `SessionStorage` (Kiến thức Bài 23).
+- Không sử dụng thư viện ngoài (jQuery, React, Bootstrap JS,...). Chỉ dùng Pure JavaScript / DOM API.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục dự án**:
+- **Cấu trúc thư mục:**
   ```text
-  student-id_assignment4/
+  bai_tap_19/
   ├── index.html
-  ├── styles.css
+  ├── style.css
   └── script.js
   ```
-- **Quy định đặt tên**:
-  - Hàm JavaScript sử dụng camelCase (VD: `calculateTotalPrice`, `validateField`, `checkMemberLimit`).
-  - Đảm bảo mã nguồn có chú thích (comment) giải thích luồng xử lý cho từng sự kiện.
-  - Không sử dụng các thư viện ngoài (JQuery, React, lodash, v.v.), chỉ dùng JavaScript thuần (Vanilla JS DOM API).
+- **Đặt tên file:** Đúng chuẩn chữ thường, không khoảng trắng, không dấu.
+- Mã nguồn JavaScript phải có comment giải thích rõ từng hàm xử lý sự kiện và đoạn logic tính toán.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã nguồn HTML/CSS/JS sạch sẻ, phân tách rõ ràng.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, mô tả đúng ý nghĩa nghiệp vụ y tế.<br>- Thụt lề chuẩn xác, có chú thích đầy đủ cho các hàm xử lý sự kiện. |
-| **Xử lý Sự kiện Form & Tính toán Động** | **30đ** | - Sử dụng đúng `addEventListener` cho các sự kiện `submit`, `input`, `change`, `click`, `dblclick`.<br>- Gọi `event.preventDefault()` chính xác trên sự kiện submit form.<br>- Tính toán chính xác tổng chi phí gói y tế + add-on + giảm giá chu kỳ theo thời gian thực. |
-| **Validation Dữ liệu & Kiểm soát Biên** | **30đ** | - Validate đúng tất cả các quy tắc nghiệp vụ (Số điện thoại 10 số, CCCD 12 số, Email, Họ tên dài >= 3 ký tự).<br>- Xử lý sự kiện `blur` kiểm tra từng trường độc lập.<br>- Kiểm tra chính xác giới hạn số lượng thành viên tương ứng với từng hạng gói (Basic, Standard, VIP).<br>- Tự động `.focus()` vào ô input lỗi đầu tiên khi submit thất bại. |
-| **Cập nhật Giao diện & Tương tác Nâng cao** | **20đ** | - Xử lý sự kiện `click` và `dblclick` trên thẻ Package Card mượt mà (toggle class `.expanded`, tự kích hoạt radio button).<br>- Hiển thị/Ẩn thành công thẻ `#confirmationCard` kèm mã đăng ký ngẫu nhiên `MED-XXXXXX` khi submit hợp lệ.<br>- Nút `Reset` khôi phục form về trạng thái ban đầu chính xác. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase`, phân tách file HTML/CSS/JS rõ ràng (5đ).<br>- Comment mã nguồn đầy đủ, giải thích rõ các sự kiện DOM (5đ).<br>- Thụt lề chuẩn xác, mã nguồn sạch sẽ, không dư thừa code rác (10đ). |
+| **Xử lý Logic nghiệp vụ & DOM Event** | **40đ** | - Sử dụng đúng `e.preventDefault()` trong sự kiện `submit` (10đ).<br>- Xử lý đúng sự kiện `change` bật/tắt ô nhập thành viên theo gói dịch vụ (10đ).<br>- Tính toán chính xác tổng chi phí (áp dụng giảm 20% cho năm) và hiển thị định dạng tiền tệ (10đ).<br>- Render chính xác Thẻ Xác Nhận thông tin khi tất cả dữ liệu hợp lệ (10đ). |
+| **Xử lý Biên & Validation Input** | **20đ** | - Validate đúng tất cả các trường: Họ tên, Email (regex), Số điện thoại Việt Nam, Số lượng thành viên (1-5) (15đ).<br>- Hiển thị/xóa thông báo lỗi trực quan đúng vị trí bên dưới ô input khi dữ liệu không hợp lệ (5đ). |
+| **Trải nghiệm người dùng (UX) & Tối ưu** | **20đ** | - Cập nhật tạm tính tổng tiền Real-time khi người dùng thay đổi Lựa chọn (10đ).<br>- Đơn giản, giao diện trực quan, không gặp lỗi console khi thao tác liên tục (10đ). |

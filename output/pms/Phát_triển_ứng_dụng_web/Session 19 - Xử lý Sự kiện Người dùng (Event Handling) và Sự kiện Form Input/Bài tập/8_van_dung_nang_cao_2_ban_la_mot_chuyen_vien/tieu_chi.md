@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML5 semantic, CSS sắp xếp khoa học.<br>- Mã JS sạch sẽ, chia hàm nhỏ gọn theo đúng nguyên tắc Single Responsibility.<br>- Đặt tên biến/hàm gợi nhớ, có comment giải thích các đoạn xử lý logic phức tạp. |
+| **Xử lý Logic & Nghiệp vụ Gói Dịch vụ** | **40đ** | - Tính toán chính xác giá tiền theo từng Gói (Personal, Business, Enterprise) và Chu kỳ thanh toán (Monthly/Yearly - giảm 15%).<br>- Xử lý đúng hạn ngạch số lượng tài khoản con theo từng gói (Personal = 1, Business <= 5, Enterprise > 20 tính phụ trội $15/tài khoản).<br>- Render chính xác thẻ đăng ký thành công lên DOM bằng JS. |
+| **Xử lý Sự kiện & Real-time Validation** | **20đ** | - Sử dụng thành thạo `addEventListener` cho các sự kiện `submit`, `input`, `blur`, `change`.<br>- Sử dụng `preventDefault()` để ngăn reload trang.<br>- Áp dụng **Event Delegation** chuẩn xác cho thao tác Xóa tài khoản con dynamic.<br>- Báo lỗi thời gian thực chi tiết (Email sai định dạng, trùng mã GPS ID, thiếu thông tin). |
+| **Tối ưu Hiệu năng & Trải nghiệm Người dùng** | **20đ** | - Cập nhật giá Real-time không giật lag.<br>- Disable/Enable thông minh các nút bấm (Ví dụ: vô hiệu hóa nút thêm tài khoản khi đạt giới hạn gói).<br>- Xử lý trạng thái thông báo rõ ràng, trực quan cho người dùng. |

@@ -1,27 +1,28 @@
-# Bài tập 6: EdTech (Sáng tạo - Thiết kế Mini Module)
+# Bài tập 6: EdTech (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-- **Thao tác sự kiện Form chuẩn hóa**: Làm chủ kỹ thuật xử lý sự kiện `submit` trên Form, bắt buộc sử dụng `event.preventDefault()` để kiểm soát luồng tải trang và thu thập dữ liệu bằng `.trim()`.
-- **Đăng ký sự kiện tương tác đa dạng**: Thành thạo việc đăng ký nhiều lắng nghe sự kiện độc lập (`click`, `dblclick`, `input`, `mouseover`, `mouseleave`) thông qua `addEventListener` mà không gây ghi đè logic.
-- **Tương tác và cập nhật DOM động**: Thực hành cập nhật danh sách bản ghi, tính toán tổng hợp dữ liệu real-time và thay đổi trạng thái giao diện (DOM manipulation) dựa trên phản hồi của người dùng.
-- **Thiết kế Mini Module nghiệp vụ thực tế**: Xây dựng hoàn chỉnh module **EduShift & Payroll Manager** - Quản lý Chấm công & Tính thù lao cho Giảng viên/Trợ giảng trong hệ thống EduTech với các quy tắc kinh doanh phức tạp.
+Sau khi hoàn thiện bài tập này, học viên sẽ đạt được các mục tiêu kỹ năng:
+- **Xử lý sự kiện Form**: Bắt và xử lý sự kiện `submit` của Form, áp dụng `e.preventDefault()` để ngăn chặn hành vi load lại trang mặc định của trình duyệt.
+- **Lắng nghe sự kiện Input/Change**: Sử dụng `addEventListener` để lắng nghe sự kiện thay đổi dữ liệu trên các ô nhập liệu (`input`, `select`, `checkbox`).
+- **Thao tác DOM Dynamic**: Đọc dữ liệu từ form, thực hiện tính toán nghiệp vụ và cập nhật kết quả hiển thị giao diện động (DOM Manipulation).
+- **Kiểm lỗi dữ liệu đầu vào (Validation)**: Kiểm tra ràng buộc dữ liệu cơ bản trước khi xử lý logic nghiệp vụ.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Tập đoàn Giáo dục **EduTech Global** đang nâng cấp hệ thống Quản trị Trung tâm (EdTech ERP). Bạn được giao nhiệm vụ phát triển **Mini Module Client-side Chấm công & Tính Thù lao Giảng dạy (EduShift Payroll Module)**. Module này cho phép Quản lý trung tâm nhập thông tin ca dạy của Giảng viên/Trợ giảng, tự động kiểm tra giờ đi muộn, tính thù lao ca dạy, tiền thưởng OT và tiền phạt vi phạm, đồng thời hiển thị bảng tổng hợp lương thời gian thực.
+Hệ thống **Quản lý Phòng tập Gym & Fitness (GYM_FITNESS)** cần phát triển mô-đun **Đăng ký Gói tập Hội viên**. Lễ tân sẽ nhập thông tin đăng ký của khách hàng trên giao diện Web. Hệ thống phải tự động tính toán tổng số tháng sử dụng (bao gồm các tháng tặng kèm theo chương trình ưu đãi), tổng chi phí cần thanh toán và hiển thị các quyền lợi đi kèm (như dịch vụ VIP).
 
 ```mermaid
 graph TD
-    A[Người dùng nhập Form Chấm công] -->|Sự kiện input/change| B[Tính toán preview Đi muộn & Tiền phạt]
-    A -->|Sự kiện submit Form| C{Validate Dữ liệu}
-    C -->|Dữ liệu LỖI| D[Hiển thị thông báo lỗi màu đỏ trên UI]
-    C -->|Dữ liệu HỢP LỆ| E[Tính Thù lao Ca + Lương OT - Tiền phạt]
-    E --> F[Thêm bản ghi mới vào Bảng Chấm công DOM]
-    F --> G[Cập nhật Thống kê Tổng chi trả trên UI]
-    F -->|Sự kiện click nút Xóa| H[Xóa bản ghi & Trừ tiền khỏi Tổng chi trả]
-    F -->|Sự kiện dblclick trên dòng| I[Toggle trạng thái 'Đã duyệt' - Thêm class .approved]
+    A[Khách hàng / Lễ tân nhập Form] --> B{Sự kiện Submit Form}
+    B --> C[e.preventDefault]
+    C --> D[Lấy dữ liệu: Họ tên, SĐT, Gói tập, VIP]
+    D --> E{Validate Dữ liệu}
+    E -- Không hợp lệ --> F[Hiển thị thông báo lỗi ra UI]
+    E -- Hợp lệ --> G[Tính toán Số tháng SD & Tổng chi phí]
+    G --> H[Kiểm tra Quyền lợi VIP]
+    H --> I[Render Kết quả Đăng ký ra DOM]
 ```
 
 ---
@@ -29,39 +30,32 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
+1. **Ràng buộc Đầu vào (Validation Rules)**:
+   - **Họ và tên (`fullname`)**: Không được để trống (sau khi xóa khoảng trắng đầu/cuối bằng `.trim()`).
+   - **Số điện thoại (`phone`)**: Phải là chuỗi gồm đúng 10 chữ số và bắt đầu bằng số `0` (Ví dụ hợp lệ: `0912345678`).
 
-#### A. Ràng buộc Dữ liệu Đầu vào (Validation Rules)
-1. **Mã nhân sự (`staffId`)**: Không được để rỗng, loại bỏ khoảng trắng thừa. Phải đúng định dạng `ET-xxxx` (trong đó `xxxx` là 4 chữ số, ví dụ: `ET-1024`).
-2. **Họ và tên (`fullname`)**: Không được để rỗng sau khi `.trim()`.
-3. **Vai trò (`role`)**: Chọn giữa `Giảng viên` hoặc `Trợ giảng`.
-4. **Giờ vào ca dự kiến (`scheduledTime`) & Giờ điểm danh thực tế (`actualTime`)**: Nhập theo chuẩn `HH:mm` (ví dụ: `18:00` và `18:20`). Giờ thực tế không được để rỗng.
-5. **Loại ngày làm việc (`dayType`)**: `Ngày thường` hoặc `Ngày Lễ/Tết`.
-6. **Số phút OT (`otMinutes`)**: Phải là số nguyên lớn hơn hoặc bằng 0.
+2. **Bảng giá & Ưu đãi Gói tập (`package-type`)**:
+   - **Gói 1 tháng (`1_MONTH`)**: 
+     - Giá gốc: `500,000` VNĐ
+     - Số tháng sử dụng thực tế: `1` tháng.
+   - **Gói 6 tháng (`6_MONTH`)**: 
+     - Giá gốc: `2,700,000` VNĐ
+     - Số tháng sử dụng thực tế: `6` tháng.
+   - **Gói 12 tháng (`12_MONTH`)**: 
+     - Giá gốc: `4,800,000` VNĐ
+     - **Ưu đãi đặc biệt**: Tặng thêm **2 tháng** sử dụng miễn phí $\rightarrow$ Tổng thời hạn sử dụng là **14 tháng**.
 
+3. **Hạng VIP (`is-vip`)**:
+   - Nếu tích chọn VIP (`is-vip = true`): 
+     - Phụ phí VIP: Cộng thêm `500,000` VNĐ vào tổng chi phí.
+     - Quà tặng/Quyền lợi đi kèm: `"Tủ đồ cá nhân & Khăn tắm miễn phí"`.
+   - Nếu không tích chọn VIP (`is-vip = false`):
+     - Phụ phí VIP: `0` VNĐ.
+     - Quà tặng/Quyền lợi đi kèm: `"Không có"`.
 
-#### B. Quy tắc Tính toán Thù lao & Phạt Đi muộn
-1. **Tính phút đi muộn (`lateMinutes`)**:
-   - Khoảng cách thời gian = `actualTime` - `scheduledTime` (tính theo phút).
-   - Nếu `lateMinutes > 15` phút: Nhân viên bị tính đi muộn và bị **Phạt 50.000 VNĐ / ca**.
-   - Nếu `lateMinutes <= 15` phút: Được tính là đúng giờ (không bị phạt).
-
-2. **Mức thù lao cơ bản theo ca (Giả định mỗi ca chuẩn = 2 giờ)**:
-   - **Giảng viên**: 200.000 VNĐ / giờ (Tương đương **400.000 VNĐ / ca**).
-   - **Trợ giảng**: 100.000 VNĐ / giờ (Tương đương **200.000 VNĐ / ca**).
-
-3. **Hệ số Lượng ca làm theo Ngày (`dayType`)**:
-   - `Ngày thường`: 100% Lương ca cơ bản.
-   - `Ngày Lễ/Tết`: 300% Lương ca cơ bản (gấp 3 lần).
-
-4. **Tính Thù lao OT (`otPay`)**:
-   - Đơn giá 1 phút OT cơ bản = `(Thù lao giờ cơ bản) / 60`.
-   - `Ngày thường`: OT tính **150%** đơn giá phút cơ bản.
-   - `Ngày Lễ/Tết`: OT tính **300%** đơn giá phút cơ bản.
-   - Công thức: `otPay = otMinutes * Đơn giá phút cơ bản * Hệ số OT`.
-
-5. **Tổng thù lao thực nhận ca đó (`netSalary`)**:
-   - `netSalary = (Lương ca làm) + otPay - (Tiền phạt đi muộn)`.
-   - Nếu `netSalary < 0`, quy về `0 VNĐ`.
+4. **Công thức tính toán**:
+   - $\text{Tổng tiền} = \text{Giá gốc gói tập} + \text{Phụ phí VIP (nếu có)}$.
+   - $\text{Tổng số tháng} = \text{Số tháng đăng ký} + \text{Số tháng tặng (2 tháng nếu chọn gói 12 tháng)}$.
 
 ---
 
@@ -69,61 +63,59 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc Giao diện HTML (Mẫu chuẩn)
-Yêu cầu tạo các phần tử DOM có ID và Class cụ thể:
-- Form đăng ký: `<form id="payrollForm">`
-- Các ô nhập liệu: `#staffId`, `#fullname`, `#role`, `#scheduledTime`, `#actualTime`, `#dayType`, `#otMinutes`.
-- Thẻ hiển thị lỗi Form: `<div id="formErrorMessage" class="error-msg"></div>`
-- Thẻ hiển thị xem trước phạt: `<span id="latePreview"></span>`
-- Bảng hiển thị kết quả: `<table id="payrollTable">` chứa `<tbody id="payrollList"></tbody>`
-- Phần tử hiển thị Tổng chi trả: `<h3 id="totalBudget">Tổng chi trả: 0 VNĐ</h3>`
+#### 4.1. Cấu trúc Giao diện HTML
+Tạo file `index.html` chứa thẻ Form và các thẻ hiển thị với đúng các `id` sau:
+- Thẻ `<form id="member-form">` chứa toàn bộ input.
+- Input họ tên: `<input type="text" id="fullname">`
+- Input số điện thoại: `<input type="text" id="phone">`
+- Select chọn gói tập: `<select id="package-type">` với các option `value="1_MONTH"`, `value="6_MONTH"`, `value="12_MONTH"`.
+- Checkbox VIP: `<input type="checkbox" id="is-vip">`
+- Nút Submit: `<button type="submit" id="btn-submit">Đăng ký</button>`
+- Thẻ thẻ div hiển thị thông báo lỗi: `<div id="error-message" style="color: red;"></div>`
+- Thẻ div hiển thị kết quả xác nhận: `<div id="result-container"></div>`
 
 
-#### B. Các Sự kiện bắt buộc phải Đăng ký & Xử lý (Event Handling Requirements)
+#### 4.2. Xử lý JavaScript (`main.js`)
+- Lắng nghe sự kiện `submit` trên thẻ `#member-form`.
+- Gọi `e.preventDefault()` để chặn hành vi reload trang mặc định.
+- Lấy giá trị từ các trường input, thực hiện kiểm tra lỗi. Nếu có lỗi, ẩn thẻ `#result-container`, hiển thị câu thông báo lỗi chi tiết vào `#error-message`.
+- Nếu dữ liệu hợp lệ, ẩn thẻ `#error-message`, tính toán các thông số và chèn đoạn HTML xác nhận vào `#result-container`.
 
-1. **Sự kiện `submit` trên `#payrollForm`**:
-   - Phải gọi `event.preventDefault()` đầu tiên.
-   - Trích xuất dữ liệu, gọi `.trim()` cho các ô nhập văn bản.
-   - Validate dữ liệu theo Quy tắc nghiệp vụ A. Nếu sai, hiển thị lỗi vào `#formErrorMessage` (chữ màu đỏ) và dừng xử lý (không dùng `alert`).
-   - Nếu đúng: Xóa sạch thông báo lỗi, tính toán thù lao, chèn một dòng `<tr>` mới vào `#payrollList`, cập nhật tổng tiền chi trả `#totalBudget` và reset form.
-
-2. **Sự kiện `input` hoặc `change` trên `#actualTime` & `#scheduledTime` (Live Preview)**:
-   - Ngay khi người dùng nhập hoặc thay đổi thời gian thực tế/dự kiến, tự động tính số phút lệch.
-   - Hiển thị trực tiếp dòng chữ cảnh báo tại `#latePreview`:
-     - *Ví dụ 1*: `"Đi muộn 20 phút (Bị phạt 50.000 VNĐ)"` (nếu > 15 phút, chữ màu đỏ).
-     - *Ví dụ 2*: `"Đúng giờ (0 VNĐ phạt)"` (nếu <= 15 phút, chữ màu xanh).
-
-3. **Sự kiện `click` trên nút "Xóa" của từng dòng**:
-   - Mỗi dòng `<tr>` trong bảng có 1 nút bấm `<button class="btn-delete">Xóa</button>`.
-   - Khi bấm "Xóa", xóa dòng `<tr>` tương ứng ra khỏi DOM và tự động **trừ số tiền của ca đó** khỏi `#totalBudget`.
-
-4. **Sự kiện `dblclick` trên thẻ `<tr>` (Duyệt bảng lương)**:
-   - Lắng nghe sự kiện `dblclick` trên mỗi dòng ca dạy.
-   - Khi `dblclick`, toggle class `.approved` trên dòng đó (giúp đổi màu nền dòng sang màu xanh lá nhạt và hiển thị nhãn `"Đã duyệt"`).
-
-5. **Sự kiện `mouseover` và `mouseleave` trên ô Tổng thù lao**:
-   - Khi rê chuột (`mouseover`) vào ô hiển thị số tiền của dòng: Hiển thị một Tooltip hoặc đoạn chú thích nhỏ liệt kê chi tiết: `[Lương ca: X | OT: Y | Phạt: Z]`.
-   - Khi di chuột ra ngoài (`mouseleave`): Ẩn đoạn chú thích đó.
+> **LƯU Ý NGHIÊM CẤM**: Không sử dụng Fetch API, Async/Await hoặc LocalStorage trong bài tập này.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục**:
+- Cấu trúc thư mục dự án:
   ```text
-  student_id_session19/
+  gym-member-registration/
   ├── index.html
-  ├── styles.css
-  └── script.js
+  ├── style.css
+  └── main.js
   ```
-- File HTML phải liên kết đúng file CSS và JS độc lập.
-- Tất cả các thao tác sự kiện phải dùng `addEventListener` trong file `script.js`. **Tuyệt đối không** dùng thuộc tính HTML inline event như `onclick="..."`, `onsubmit="..."`.
+- Nộp file nén `.zip` với tên theo định dạng: `HoTen_MSSV_Session19.zip`.
+
+---
+
+
+### 6. Kịch bản kiểm thử I/O (Test Cases)
+
+Hệ thống của bạn phải vượt qua các test cases sau:
+
+| Mã TC | Đầu vào (Input) | Kết quả kỳ vọng (Expected Output) |
+| :--- | :--- | :--- |
+| **TC-01** | `fullname`: `"   "`<br>`phone`: `"0912345678"`<br>`package`: `"1_MONTH"` | `#error-message`: `"Họ và tên không được để trống!"`<br>`#result-container`: Trống |
+| **TC-02** | `fullname`: `"Nguyễn Văn A"`<br>`phone`: `"123456789"` (9 số, không bắt đầu bằng 0)<br>`package`: `"6_MONTH"` | `#error-message`: `"Số điện thoại phải có đúng 10 chữ số và bắt đầu bằng số 0!"`<br>`#result-container`: Trống |
+| **TC-03** | `fullname`: `"Lê Văn B"`<br>`phone`: `"0901234567"`<br>`package`: `"1_MONTH"`<br>`isVIP`: `false` | `#error-message`: Trống<br>`#result-container` chứa nội dung:<br>- Họ tên: Lê Văn B<br>- SĐT: 0901234567<br>- Gói đăng ký: Gói 1 tháng<br>- Thời gian sử dụng: 1 tháng<br>- Tổng tiền thanh toán: 500,000 VNĐ<br>- Quà tặng: Không có |
+| **TC-04** | `fullname`: `"Phạm Thị C"`<br>`phone`: `"0988776655"`<br>`package`: `"12_MONTH"`<br>`isVIP`: `false` | `#error-message`: Trống<br>`#result-container` chứa nội dung:<br>- Họ tên: Phạm Thị C<br>- SĐT: 0988776655<br>- Gói đăng ký: Gói 12 tháng (Tặng 2 tháng)<br>- Thời gian sử dụng: 14 tháng<br>- Tổng tiền thanh toán: 4,800,000 VNĐ<br>- Quà tặng: Không có |
+| **TC-05** | `fullname`: `"Hoàng Anh D"`<br>`phone`: `"0911223344"`<br>`package`: `"12_MONTH"`<br>`isVIP`: `true` | `#error-message`: Trống<br>`#result-container` chứa nội dung:<br>- Họ tên: Hoàng Anh D<br>- SĐT: 0911223344<br>- Gói đăng ký: Gói 12 tháng (Tặng 2 tháng)<br>- Thời gian sử dụng: 14 tháng<br>- Tổng tiền thanh toán: 5,300,000 VNĐ<br>- Quà tặng: Tủ đồ cá nhân & Khăn tắm miễn phí |
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML/CSS/JS tách biệt rõ ràng.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, danh xưng tiếng Anh chuẩn nghiệp vụ EdTech (`staffId`, `calculatePayroll`, `renderRow`).<br>- Code sạch, có comment giải thích các bước xử lý sự kiện. |
-| **Xử lý Sự kiện Form & Validation** | **40đ** | - Sử dụng đúng sự kiện `submit` trên Form và ngăn tải lại trang bằng `event.preventDefault()` (**10đ**).<br>- Thu thập và chuẩn hóa dữ liệu bằng `.trim()`, kiểm tra định dạng Mã nhân sự `ET-xxxx` (**15đ**).<br>- Lắng nghe sự kiện `input`/`change` để tính toán và hiển thị preview đi muộn live mượt mà (**15đ**). |
-| **Xử lý Logic Nghiệp vụ & DOM Dynamic** | **20đ** | - Tính đúng 100% công thức thù lao ca, thù lao OT, hệ số ngày Lễ/Tết và tiền phạt đi muộn (**10đ**).<br>- Thêm dòng mới vào DOM, cập nhật chính xác tổng chi trả `#totalBudget` thời gian thực (**10đ**). |
-| **Xử lý Sự kiện Tương tác Nâng cao** | **20đ** | - Đăng ký thành công sự kiện `click` để xóa dòng và trừ tiền tổng chi trả (**10đ**).<br>- Đăng ký sự kiện `dblclick` để toggle class `.approved` đổi trạng thái dòng (**5đ**).<br>- Đăng ký sự kiện `mouseover`/`mouseleave` hiển thị tooltip chi tiết lương (**5đ**). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt đúng các ID HTML theo yêu cầu bài toán (5đ).<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, mã nguồn sạch sẻ, thụt lề chuẩn (10đ).<br>- Có ghi chú (comments) giải thích các đoạn xử lý logic (5đ). |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Sử dụng đúng `addEventListener` và `e.preventDefault()` để chặn submit form (10đ).<br>- Tính toán chính xác ưu đãi tặng 2 tháng cho gói 12 tháng (10đ).<br>- Tính đúng tổng chi phí khi có/không có phụ phí VIP (10đ).<br>- Đạt 100% kết quả từ bảng Kịch bản kiểm thử Test Cases (10đ). |
+| **Xử lý Biên & Ngoại lệ (Validation)** | **20đ** | - Kiểm tra lỗi chuỗi rỗng/khoảng trắng đối với Họ và tên (10đ).<br>- Kiểm tra chính xác định dạng số điện thoại (10 chữ số, bắt đầu bằng số 0) (10đ). |
+| **Tối ưu & Tương tác DOM** | **20đ** | - Hiển thị/ẩn chính xác các thẻ thông báo lỗi (`#error-message`) và kết quả (`#result-container`) tương ứng với từng trạng thái (10đ).<br>- Định dạng số tiền hiển thị rõ ràng, dễ đọc (VD: `5,300,000 VNĐ` hoặc `5.300.000 VNĐ`) (10đ). |

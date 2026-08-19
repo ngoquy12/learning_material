@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| :--- | :--- | :--- |
+| **1. Cấu trúc HTML/CSS & Phong cách mã nguồn** | **20đ** | - Đầy đủ thẻ HTML, đúng `id` theo yêu cầu bài toán.<br>- Code JS được tổ chức sạch sẽ, áp dụng chuẩn CamelCase, phân chia hàm rõ ràng (`renderTable`, `validateForm`, `updateGauge`).<br>- Thêm comment giải thích chi tiết logic xử lý sự kiện. |
+| **2. Xử lý Sự kiện Form & Real-time Input** | **40đ** | - Sử dụng đúng `e.preventDefault()` để chặn reload trang.<br>- Sự kiện `input` trên ô cân nặng phản hồi tức thì lên thanh tải trọng `#shelfUsageBar` mà không làm giật Lag UI.<br>- Sự kiện `change` trên `#shelfType` thay đổi động luật kiểm tra nhiệt độ.<br>- Sự kiện `blur` kiểm tra đúng lỗi và hiển thị thông báo lỗi từng trường. |
+| **3. Kiểm soát Quy tắc Nghiệp vụ Logistics & Biên** | **20đ** | - Chặn chính xác khi tổng tải trọng kệ vượt quá **500 kg**.<br>- Kiểm tra chính xác dải nhiệt độ Kệ Kho Lạnh (-18°C đến 5°C) và Kệ Thường (15°C đến 40°C).<br>- Validate định dạng mã Pallet (`PL-XXXX`) và chặn trùng lặp mã.<br>- Tính đúng phụ phí 25% cho Kệ Kho Lạnh và hiển thị tổng chi phí chính xác. |
+| **4. Ủy quyền Sự kiện & Thao tác DOM** | **20đ** | - Áp dụng đúng kỹ thuật **Event Delegation** trên `tbody` để xử lý nút Xóa Pallet.<br>- Cập nhật trạng thái bộ nhớ (Mảng JS) đồng bộ 100% với hiển thị trên DOM sau khi thêm/xóa.<br>- Không sử dụng các công nghệ bị cấm (`fetch`, `async/await`, `localStorage`). |

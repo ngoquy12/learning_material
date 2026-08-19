@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| :--- | :--- | :--- |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML semantics, CSS sạch sẽ dễ nhìn (5đ).<br>- Code JS đặt tên rõ nghĩa (`camelCase`), có comment giải thích luồng xử lý sự kiện (5đ).<br>- Phân chia hàm hợp lý (Modular pattern/Clean Code), không viết toàn bộ logic trong event handler (10đ). |
+| **Xử lý Logic & Đăng ký Sự kiện (Event Handling)** | **40đ** | - Sử dụng đúng `preventDefault()` ngăn reload trang khi submit (5đ).<br>- Lắng nghe và xử lý chuẩn xác các sự kiện `input`, `change`, `blur` để tính toán real-time preview (10đ).<br>- Thực hiện đúng kỹ thuật Event Delegation (`click`) trên container cha cho các nút động (15đ).<br>- Tính toán chính xác đơn giá điện (AC/DC) và công thức phí phạt đỗ quá giờ (10đ). |
+| **Xử lý Biên & Ngoại lệ (Edge Cases & Validation)** | **20đ** | - Validate đúng định dạng biển số xe và các khoảng giá trị % pin (5đ).<br>- Ngăn chặn submit khi Pin mục tiêu <= Pin hiện tại (5đ).<br>- Xử lý chuẩn an toàn quá nhiệt (> 70°C): vô hiệu hóa nút submit và hiển thị cảnh báo trực quan (5đ).<br>- Kiểm soát số phút quá giờ (nhập số âm, nhập chữ, hoặc chưa ngắt sạc đã bấm xuất hóa đơn) (5đ). |
+| **Tối ưu Hiệu năng & Trải nghiệm Người dùng (UX)** | **20đ** | - Áp dụng Event Delegation tối ưu tài nguyên bộ nhớ thay vì gán nhiều listeners (10đ).<br>- Trải nghiệm UI/UX mượt mà: Thông báo lỗi hiển thị rõ ràng bên dưới input, tự động cập nhật preview không trễ (10đ). |

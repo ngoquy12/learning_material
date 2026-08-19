@@ -1,40 +1,36 @@
-# Bài tập 3: FinTech (Nâng cao 1 - Tính năng mới)
+# Bài tập 3: FinTech (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập này, học viên có khả năng:
-- Áp dụng thành thạo `addEventListener` để bắt các sự kiện tương tác người dùng (`click`, `input`, `change`, `submit`).
-- Xử lý các quy trình của Form trong ứng dụng thực tế: ngăn chặn hành vi mặc định bằng `event.preventDefault()`, trích xuất và làm sạch dữ liệu với `.trim()`.
-- Lắng nghe và xử lý sự kiện realtime (`input`/`change`) để tính toán chi phí và cập nhật giao diện người dùng (UI) động trước khi người dùng gửi Form.
-- Quản lý trạng thái dữ liệu phía Frontend (mảng đối tượng Bác sĩ, danh sách lượt khám) và kiểm soát ràng buộc điều kiện (Validation / Slot Capacity Limit).
-- Render hóa đơn thanh toán và phiếu cấp số thứ tự động vào giao diện DOM sau khi đăng ký thành công.
+Sau khi hoàn thành bài tập này, học viên sẽ có khả năng:
+- **Phát hiện và sửa lỗi (Debug)** các sự kiện lắng nghe người dùng trên Web Form (`submit`, `input`, `change`).
+- Khắc phục sự cố trang bị nạp lại (reload) bằng việc sử dụng chính xác phương thức `event.preventDefault()`.
+- Xử lý và ép kiểu dữ liệu từ form input (`DOM element.value`) đúng định dạng số để tính toán tài chính xác thực, tránh lỗi nối chuỗi.
+- Áp dụng các quy tắc kiểm tra an toàn (Validation) và hiển thị phản hồi thời gian thực (Real-time Feedback) cho ứng dụng quản lý trạm sạc xe điện VinFast.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Trong hệ thống quản lý phòng khám tích hợp thanh toán tự động (**FinTech HealthPay Portal**), việc đăng ký khám bệnh không chỉ là lưu thông tin mà còn đi kèm tính năng tính toán chi phí tự động dựa trên chính sách Bảo hiểm Y tế (BHYT), phân hạng ưu tiên cho bệnh nhân và kiểm soát hạn mức số lượng lượt khám trong ngày của từng Bác sĩ chuyên khoa.
+Hệ thống trạm sạc xe điện thông minh **VinFast EV Charging Station** đang triển khai giao diện màn hình sạc nhanh tại các trạm dừng nghỉ. Nhóm phát triển Junior đã viết bản phác thảo code HTML/JavaScript cho tính năng **"Tính toán Hóa đơn & Kiểm tra An toàn Phiên sạc"** (`VehicleSession` & `ChargingInvoice`). 
 
-Bạn được giao nhiệm vụ phát triển module Frontend cho **Hệ thống Đặt lịch & Thanh toán Chi phí Khám bệnh Tự động**. Module này có nhiệm vụ:
-1. Cho phép bệnh nhân điền thông tin cá nhân và chọn Bác sĩ chuyên khoa.
-2. Tự động tính toán tổng chi phí thanh toán tạm tính theo thời gian thực (Real-time) ngay khi người dùng thay đổi thông tin BHYT, Tuổi hoặc Phụ nữ mang thai.
-3. Kiểm tra tính hợp lệ của thông tin và kiểm tra xem Bác sĩ được chọn có còn suất tiếp nhận hay không trước khi cấp số thứ tự.
-4. Xuất phiếu số thứ tự khám (`Queue Ticket`) kèm hóa đơn thanh toán giao dịch (`Payment Receipt`) lên màn hình console/UI và cập nhật số lượt còn lại của Bác sĩ.
+Tuy nhiên, phiên bản này đang gặp nhiều lỗi nghiêm trọng:
+1. Khi nhấn nút "Xác nhận & Tính hóa đơn", trang web lập tức bị tải lại làm mất hết dữ liệu đã nhập.
+2. Tổng tiền thanh toán bị tính sai do lỗi nối chuỗi thay vì phép cộng số.
+3. Phí đỗ xe quá giờ không tính chính xác thời gian miễn phí.
+4. Cảnh báo nhiệt độ quá tải của cổng sạc không hoạt động khi người dùng đang nhập dữ liệu.
 
-
-#### Sơ đồ luồng xử lý sự kiện (Event-driven Workflow):
+Nhiệm vụ của bạn là kiểm tra, phát hiện các lỗi trong mã nguồn ban đầu, sau đó sửa lại để hệ thống hoạt động chính xác theo quy trình nghiệp vụ.
 
 ```mermaid
 graph TD
-    A[Bệnh nhân nhập thông tin trên Form] --> B[Sự kiện input/change phát động]
-    B --> C[Hàm tính toán tạm tính chi phí Real-time]
-    C --> D[Cập nhật UI Chi phí tạm tính & Nhãn Ưu tiên]
-    A --> E[Bệnh nhân bấm Đăng ký & Thanh toán]
-    E --> F[Sự kiện submit - Gọi event.preventDefault]
-    F --> G{Kiểm tra Validation & Hạn mức Slot Bác sĩ}
-    G -- Lỗi dữ liệu / Hết chỗ --> H[Hiển thị thông báo lỗi màu đỏ trên UI]
-    G -- Hợp lệ --> I[Trừ slot Bác sĩ & Cấp mã STT PRIO/NORM]
-    I --> J[Render Hóa đơn & Phiếu khám lên UI]
-    J --> K[Reset Form về trạng thái ban đầu]
+    A[Người dùng chọn Cổng sạc & Nhập số kWh] --> B[Nhập Thời gian đỗ & Nhiệt độ Cổng sạc]
+    B --> C{Kiểm tra Nhiệt độ thời gian thực}
+    C -- Nhiệt độ > 70°C -- > D[Hiển thị Cảnh báo Nguy hiểm & Khóa Form]
+    C -- Nhiệt độ <= 70°C -- > E[Cho phép nhấn Xác nhận]
+    E --> F[Sự kiện Submit Form]
+    F --> G[Chặn Reload Trang: preventDefault]
+    G --> H[Tính Tiền điện + Phí phạt quá giờ]
+    H --> I[Hiển thị Hóa đơn ChargingInvoice]
 ```
 
 ---
@@ -42,104 +38,191 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
+1. **Đơn giá điện sạc năng lượng (`ChargingPort`):**
+   - Cổng sạc Thường (`STANDARD`): **3.850 VNĐ / kWh**
+   - Cổng sạc Siêu nhanh (`FAST`): **4.500 VNĐ / kWh**
 
-#### A. Cấu trúc dữ liệu khởi tạo (State Management)
-Hệ thống khởi tạo sẵn danh sách bác sĩ làm việc trong ngày:
-```javascript
-const doctorList = [
-  { id: "DOC01", name: "BS. Nguyễn Văn An (Nội khoa)", maxSlot: 5, bookedSlot: 4 },
-  { id: "DOC02", name: "BS. Trần Thị Bình (Nhi khoa)", maxSlot: 5, bookedSlot: 5 },
-  { id: "DOC03", name: "BS. Lê Hoàng Cường (Tim mạch)", maxSlot: 5, bookedSlot: 2 }
-];
-```
+2. **Quy tắc Phí đỗ xe sau khi sạc xong (`VehicleSession`):**
+   - Tối đa **30 phút đầu** sau khi sạc đầy được **miễn phí đỗ**.
+   - Từ phút thứ **31** trở đi, tính phí phạt đỗ xe là **1.000 VNĐ / phút**.
+   - *Công thức tính phí phạt*: `Phí phạt = max(0, Tổng_số_phút_đỗ - 30) * 1000`
 
+3. **Quy tắc Cảnh báo An toàn Trạm sạc (`KwhMeter`):**
+   - Nếu nhiệt độ cổng sạc (`portTemp`) **vượt quá 70°C**:
+     - Hiển thị ngay cảnh báo lỗi thời gian thực: `"CẢNH BÁO: Nhiệt độ cổng sạc quá cao (>70°C). Tự động ngắt kết nối!"`.
+     - Vùng hiển thị hóa đơn bị ẩn hoặc xóa kết quả tính.
+   - Nếu nhiệt độ **<= 70°C**: Ẩn thông báo cảnh báo và cho phép tính hóa đơn bình thường.
 
-#### B. Quy tắc tính toán chi phí thanh toán (Fee Calculation Matrix)
-1. **Phí khám gốc**: $300,000$ VNĐ / lượt khám.
-2. **Phí sổ khám & dịch vụ tiện ích số**: $20,000$ VNĐ / lần đăng ký.
-3. **Giảm giá theo Bảo hiểm Y tế (BHYT)**:
-   - Nếu bệnh nhân tích chọn "Có BHYT": Được miễn $80\%$ phí khám gốc (Chi phí khám gốc còn lại: $300,000 \times 20\% = 60,000$ VNĐ).
-   - Nếu không chọn "Có BHYT": Chi trả $100\%$ phí khám gốc ($300,000$ VNĐ).
-4. **Diện Ưu tiên (Priority Pass)**:
-   - Bệnh nhân thỏa mãn ít nhất một trong 2 điều kiện: **Tuổi $\ge 70$** HOẶC tích chọn **"Đang mang thai"**.
-   - Bệnh nhân thuộc diện Ưu tiên sẽ được **Miễn phí 100% phí sổ khám & dịch vụ tiện ích số** (Tiết kiệm $20,000$ VNĐ).
-   - Mã số thứ tự sẽ mang tiền tố `PRIO-` (Ví dụ: `PRIO-101`). Nếu không thuộc diện ưu tiên, tiền tố là `NORM-` (Ví dụ: `NORM-102`).
-5. **Công thức tính tổng tiền thanh toán**:
-$$\text{Tổng thanh toán} = \text{Tiền khám sau BHYT} + \text{Phí dịch vụ tiện ích (nếu không ưu tiên)}$$
-
-
-#### C. Quy tắc Validation & Ràng buộc khi Submit
-1. **Họ tên**: Không được rỗng, tối thiểu $3$ ký tự sau khi loại bỏ khoảng trắng thừa bằng `.trim()`.
-2. **Số điện thoại**: Không được rỗng, phải gồm đúng $10$ chữ số và bắt đầu bằng số `0`.
-3. **Tuổi**: Phải là số nguyên hợp lệ trong khoảng từ $1$ đến $120$.
-4. **Bác sĩ khám**: Bắt buộc phải chọn 1 bác sĩ từ danh sách.
-5. **Kiểm tra Slot (Hạn mức Bác sĩ)**:
-   - Nếu `bookedSlot >= maxSlot` của Bác sĩ được chọn: Chặn đăng ký, hiển thị thông báo lỗi màu đỏ: `"Bác sĩ [Tên Bác sĩ] đã hết lượt khám trong ngày! Vui lòng chọn bác sĩ khác."`
+4. **Ràng buộc Dữ liệu Đầu vào (Validation):**
+   - Điện lượng tiêu thụ (`kwh`) phải là số dương lớn hơn 0.
+   - Thời gian đỗ xe (`parkingMinutes`) và Nhiệt độ (`portTemp`) không được để trống hoặc mang giá trị âm.
 
 ---
 
 
-### 4. Yêu cầu kỹ thuật & Triển khai
+### 4. Yêu cầu kỹ thuật & Mã nguồn bị lỗi (Broken Starter Code)
 
 
-#### A. Giao diện người dùng (HTML Structure Required)
-Tạo tệp `index.html` với cấu trúc form và danh sách hiển thị như sau:
-- Thẻ `<form id="clinicForm">`:
-  - Input `#fullname` (text): Họ và tên bệnh nhân.
-  - Input `#phone` (text): Số điện thoại.
-  - Input `#age` (number): Tuổi.
-  - Checkbox `#hasInsurance`: Có BHYT hay không.
-  - Checkbox `#isPregnant`: Đang mang thai hay không.
-  - Select `#doctorSelect`: Danh sách lựa chọn bác sĩ (được render động hoặc khởi tạo ứng với `doctorList`).
-  - Container `#previewFee` (div/p): Hiển thị chi phí tạm tính realtime và trạng thái ưu tiên.
-  - Button `type="submit"`: Nút "Đăng ký & Thanh toán".
-  - Thẻ `<p id="errorMessage">`: Hiển thị thông báo lỗi validation.
-- Container `#receiptContainer`: Vùng hiển thị phiếu khám và hóa đơn sau khi submit thành công.
-- Container `#doctorStatusList`: Vùng hiển thị danh sách bác sĩ và số slot còn lại.
+#### 4.1. Mã nguồn hiện tại bị lỗi
+
+Dưới đây là mã nguồn HTML và JavaScript hiện tại do lập trình viên thử việc bàn giao. Hãy đưa đoạn mã này vào dự án của bạn và tiến hành debug.
+
+**File `index.html`:**
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>VinFast EV Charging Station - Debug Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; }
+        input, select { padding: 8px; width: 300px; margin-top: 5px; }
+        button { padding: 10px 20px; background-color: #0066cc; color: white; border: none; cursor: pointer; }
+        .error { color: red; font-weight: bold; margin-top: 10px; display: none; }
+        .invoice-card { margin-top: 20px; padding: 15px; border: 2px solid #0066cc; background-color: #f4f8fc; display: none; }
+    </style>
+</head>
+<body>
+    <h2>Hệ thống Trạm sạc Xe điện VinFast - Tính Hóa đơn</h2>
+    
+    <div id="dangerAlert" class="error"></div>
+
+    <form id="chargingForm">
+        <div class="form-group">
+            <label for="portType">Loại cổng sạc:</label>
+            <select id="portType">
+                <option value="3850">Sạc Thường (STANDARD) - 3.850đ/kWh</option>
+                <option value="4500">Sạc Siêu nhanh (FAST) - 4.500đ/kWh</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="kwhInput">Điện lượng sạc (kWh):</label>
+            <input type="number" id="kwhInput" placeholder="Nhập số kWh ví dụ: 25.5">
+        </div>
+
+        <div class="form-group">
+            <label for="parkingMinutes">Thời gian đỗ thêm sau khi sạc (Phút):</label>
+            <input type="number" id="parkingMinutes" placeholder="Nhập số phút đỗ xe">
+        </div>
+
+        <div class="form-group">
+            <label for="portTemp">Nhiệt độ Cổng sạc (°C):</label>
+            <input type="number" id="portTemp" placeholder="Nhập nhiệt độ hiện tại">
+        </div>
+
+        <button type="submit" id="btnCalculate">Xác nhận & Tính hóa đơn</button>
+    </form>
+
+    <div id="invoiceResult" class="invoice-card">
+        <h3>HÓA ĐƠN DỊCH VỤ SẠC XE (ChargingInvoice)</h3>
+        <p>Tiền điện tiêu thụ: <span id="kwhCostText">0</span> VNĐ</p>
+        <p>Phí phạt đỗ quá giờ: <span id="penaltyCostText">0</span> VNĐ</p>
+        <hr>
+        <p><strong>TỔNG THỦ TIỀN: <span id="totalCostText">0</span> VNĐ</strong></p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+```
+
+**File `script.js` (Mã nguồn chứa lỗi):**
+```javascript
+// Mã nguồn bị lỗi do lập trình viên thử việc bàn giao
+const chargingForm = document.getElementById('chargingForm');
+const portType = document.getElementById('portType');
+const kwhInput = document.getElementById('kwhInput');
+const parkingMinutes = document.getElementById('parkingMinutes');
+const portTemp = document.getElementById('portTemp');
+
+const dangerAlert = document.getElementById('dangerAlert');
+const invoiceResult = document.getElementById('invoiceResult');
+const kwhCostText = document.getElementById('kwhCostText');
+const penaltyCostText = document.getElementById('penaltyCostText');
+const totalCostText = document.getElementById('totalCostText');
+
+// LỖI 1: Lắng nghe sự kiện change thay vì input trên ô nhiệt độ
+portTemp.addEventListener('change', function() {
+    if (portTemp.value > 70) {
+        dangerAlert.innerText = "CẢNH BÁO: Nhiệt độ cổng sạc quá cao (>70°C). Tự động ngắt kết nối!";
+        dangerAlert.style.display = "block";
+    } else {
+        dangerAlert.style.display = "none";
+    }
+});
+
+// LỖI 2: Sự kiện submit form bị reload trang và xử lý tính toán dữ liệu sai kiểu
+chargingForm.addEventListener('submit', function(e) {
+    // Quên ngăn chặn hành vi mặc định của form
+
+    let pricePerKwh = portType.value;
+    let kwhAmount = kwhInput.value;
+    let extraMinutes = parkingMinutes.value;
+
+    // LỖI 3: Tính toán phí phạt đỗ xe bị sai công thức (Chưa trừ 30 phút miễn phí)
+    let penaltyFee = extraMinutes * 1000;
+
+    // LỖI 4: Phép tính tiền bị lỗi cộng chuỗi thay vì phép cộng số
+    let kwhTotalCost = kwhAmount * pricePerKwh;
+    let finalTotal = kwhTotalCost + penaltyFee; // Xảy ra lỗi nếu penaltyFee bị hiểu sai kiểu dữ liệu
+
+    // Hiển thị kết quả
+    kwhCostText.innerText = kwhTotalCost.toLocaleString('vi-VN');
+    penaltyCostText.innerText = penaltyFee.toLocaleString('vi-VN');
+    totalCostText.innerText = finalTotal.toLocaleString('vi-VN');
+
+    invoiceResult.style.display = "block";
+});
+```
+
+---
 
 
-#### B. Yêu cầu xử lý JavaScript (`app.js`)
-1. **Khởi tạo giao diện**:
-   - Viết hàm `renderDoctorOptions()` để đổ danh sách Bác sĩ vào thẻ `<select id="doctorSelect">` và hiển thị thông tin trạng thái số chỗ còn lại (`maxSlot - bookedSlot`) ở khu vực `#doctorStatusList`.
-2. **Xử lý sự kiện Realtime (`input` / `change`)**:
-   - Lắng nghe các sự kiện `input` hoặc `change` trên các ô nhập liệu: `#age`, `#hasInsurance`, `#isPregnant`.
-   - Viết hàm `calculateFeePreview()` tính toán số tiền tạm tính dựa theo Quy tắc BHYT & Diện ưu tiên.
-   - Cập nhật thông tin tạm tính ngay lập tức lên element `#previewFee` (Ví dụ: *"Tạm tính: 60,000 VNĐ | Hạng: ƯU TIÊN"*).
-3. **Xử lý sự kiện Submit Form (`submit`)**:
-   - Bắt sự kiện `submit` trên `#clinicForm`. Gọi `event.preventDefault()` để ngừng việc tải lại trang.
-   - Thu thập toàn bộ giá trị dữ liệu từ Form, tiến hành làm sạch dữ liệu chuỗi bằng `.trim()`.
-   - Kiểm tra các quy tắc Validation dữ liệu đầu vào. Nếu có lỗi, hiển thị nội dung lỗi vào `#errorMessage` và dừng xử lý (`return`).
-   - Kiểm tra xem bác sĩ đã hết slot hay chưa.
-   - Nếu hợp lệ:
-     - Tăng `bookedSlot` của bác sĩ thêm 1.
-     - Sinh mã số thứ tự (Ví dụ: `PRIO-101` hoặc `NORM-102`).
-     - Tạo phần tử HTML hóa đơn mới và chèn vào `#receiptContainer`.
-     - Cập nhật lại giao diện số slot của các bác sĩ.
-     - Gọi phương thức `.reset()` trên form để làm sạch dữ liệu nhập, đồng thời cập nhật lại vùng hiển thị tạm tính chi phí.
+#### 4.2. Danh mục Bug cần sửa (Debug Checklist)
+
+Bạn hãy phân tích mã nguồn trên, tìm và khắc phục triệt để các lỗi sau:
+
+1. **Lỗi Reload Trang (Form Submission Bug):**
+   - Khi bấm submit, trang web nạp lại và xóa sạch kết quả. Cần bổ sung `event.preventDefault()` đúng vị trí trong callback của sự kiện `submit`.
+
+2. **Lỗi Cập nhật Cảnh báo Nhiệt độ (Real-time Input Bug):**
+   - Sự kiện `change` chỉ kích hoạt khi blur (rời khỏi ô input). Hãy đổi sang lắng nghe sự kiện `input` để cảnh báo hiển thị ngay lập tức khi người dùng nhập số > 70.
+   - Thêm xử lý: Nếu nhiệt độ > 70°C, không được cho phép tính và hiển thị hóa đơn khi submit form.
+
+3. **Lỗi Tính Phí đỗ xe quá giờ (Business Logic Bug):**
+   - Mã nguồn cũ đang tính `extraMinutes * 1000` mà không trừ đi 30 phút miễn phí. Hãy cập nhật công thức: nếu phút đỗ <= 30 thì phí phạt = 0; nếu > 30 thì tính `(extraMinutes - 30) * 1000`.
+
+4. **Lỗi Nối chuỗi & Ép kiểu dữ liệu (Data Type Bug):**
+   - Giá trị lấy từ `input.value` luôn là chuỗi (`string`). Cần ép kiểu dữ liệu sang dạng số (`parseFloat` hoặc `Number`) trước khi thực hiện các phép tính toán tài chính.
+
+5. **Lỗi Xử lý Dữ liệu Rống / Không hợp lệ (Validation Exception):**
+   - Nếu số kWh <= 0 hoặc để trống, hiển thị thông báo lỗi bằng `alert()` hoặc hiển thị thẻ `dangerAlert` báo người dùng nhập lại, không xuất hóa đơn rác.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
 
-- **Cấu trúc thư mục dự án**:
+- **Cấu trúc thư mục dự án:**
   ```text
-  clinic-fintech-app/
+  ev-charging-debug/
   ├── index.html
-  ├── style.css
-  └── app.js
+  └── script.js
   ```
-- **Quy định đặt tên**:
-  - Tên biến, tên hàm sử dụng kiểu `camelCase` (Ví dụ: `calculateFeePreview`, `doctorSelect`, `handleSubmit`).
-  - Hằng số cấu hình dùng `UPPER_SNAKE_CASE` (Ví dụ: `BASE_EXAM_FEE = 300000`).
-  - Mã nguồn phải chứa comment giải thích rõ từng bước xử lý sự kiện và DOM logic.
+- **Quy định nộp bài:**
+  - File HTML và JS phải được liên kết đúng chuẩn.
+  - Trong file `script.js`, học viên cần viết comment rõ ràng các vị trí đã tiến hành Debug (ví dụ: `// FIX BUG 1: Ngăn chặn reload trang bằng event.preventDefault()`).
+  - Không sử dụng Fetch API, Async/Await hay LocalStorage.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **1. Đăng ký & Xử lý Sự kiện DOM** | **25đ** | - Đăng ký đúng sự kiện `submit` cho Form, dùng `event.preventDefault()` chính xác.<br>- Lắng nghe đúng sự kiện `input`/`change` trên các thẻ input để tính tiền realtime.<br>- Không sử dụng thuộc tính `onclick`/`onsubmit` trực tiếp trong thẻ HTML. |
-| **2. Validation Dữ liệu & Xử lý Biên** | **20đ** | - Kiểm tra đầy đủ điều kiện: Họ tên rỗng/quá ngắn, Số điện thoại không đủ 10 chữ số hoặc không bắt đầu bằng số 0, Tuổi không hợp lệ.<br>- Làm sạch chuỗi đầu vào bằng `.trim()`. Hiển thị lỗi rõ ràng trên UI. |
-| **3. Logic Nghiệp vụ FinTech & Hạn mức Slot** | **25đ** | - Tính đúng tiền khám khi có BHYT (giảm 80%) và không có BHYT.<br>- Nhận diện đúng diện ưu tiên (Tuổi $\ge 70$ hoặc Mang thai) để miễn phí dịch vụ và cấp mã `PRIO-`.<br>- Chặn chính xác khi Bác sĩ đã đầy chỗ (`bookedSlot >= maxSlot`). |
-| **4. Cập nhật Giao diện (DOM Manipulation)** | **20đ** | - Cập nhật thông tin tạm tính realtime mượt mà.<br>- Render hóa đơn thanh toán chi tiết (Số STT, Họ tên, Bác sĩ, Số tiền) đẹp mắt vào `#receiptContainer`.<br>- Cập nhật hiển thị số slot còn lại của Bác sĩ sau khi đặt thành công. |
-| **5. Cấu trúc Mã nguồn & Reset Form** | **10đ** | - Mã nguồn tổ chức sạch sẻ, chia hàm rõ ràng (`render`, `validate`, `calculate`).<br>- Reset Form đúng cách về trạng thái ban đầu sau khi đăng ký thành công. |
+| **1. Đã sửa xong lỗi Reload Trang & Sự kiện Form** | 20đ | - Sử dụng chính xác `event.preventDefault()` trong callback sự kiện `submit`.<br>- Lắng nghe đúng sự kiện `submit` trên thẻ `<form>`. |
+| **2. Đã sửa lỗi Phản hồi Thời gian thực (Real-time Input)** | 20đ | - Đổi sự kiện trên `portTemp` từ `change` sang `input`.<br>- Cảnh báo ẩn/hiện tức thì theo giá trị nhiệt độ nhập vào.<br>- Chặn không cho phép tính toán hóa đơn nếu nhiệt độ > 70°C. |
+| **3. Xử lý Đúng Logic Nghiệp vụ & Ép kiểu** | 40đ | - Ép kiểu số (`parseFloat`/`Number`) chính xác cho các giá trị từ input.<br>- Tính đúng tiền điện theo từng loại cổng sạc (3.850đ hoặc 4.500đ).<br>- Tính đúng phí đỗ xe theo quy tắc miễn phí 30 phút đầu.<br>- Hiển thị đúng tổng tiền hóa đơn (`ChargingInvoice`). |
+| **4. Xử lý Biên & Validation dữ liệu đầu vào** | 10đ | - Kiểm tra số kWh phải là số dương lớn hơn 0.<br>- Xử lý trường hợp người dùng nhập chữ hoặc để trống thông tin. |
+| **5. Cấu trúc mã nguồn & Comment Debug** | 10đ | - Mã nguồn trình bày sạch sẻ, thụt lề chuẩn.<br>- Đặt tên biến rõ ràng, có ghi chú (comment) giải thích những điểm bị lỗi và cách khắc phục. |

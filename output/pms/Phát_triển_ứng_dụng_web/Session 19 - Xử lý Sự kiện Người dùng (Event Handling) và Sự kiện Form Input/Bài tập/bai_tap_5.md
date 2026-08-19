@@ -1,34 +1,33 @@
-# Bài tập 5: CRM (Tối ưu hóa - Tái cấu trúc)
+# Bài tập 5: CRM (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập tái cấu trúc này, học viên có khả năng:
-- **Nhận diện & Khắc phục Anti-patterns**: Phát hiện các lỗi tư duy phổ biến trong xử lý sự kiện JS (gán trực tiếp `onclick`, đọc `.value` ngoài scope sự kiện, lắng nghe `click` trên Button thay vì `submit` trên Form).
-- **Tái cấu trúc mã nguồn theo chuẩn Event Handling**: Sử dụng thành thạo `addEventListener`, kiểm soát luồng `event.preventDefault()`, loại bỏ dữ liệu thừa với `.trim()`.
-- **Tối ưu kiến trúc xử lý sự kiện (Event Architecture)**: Tách biệt rõ ràng giữa logic Validation, logic Tính toán Nghiệp vụ (Business Calculation) và logic Cập nhật Giao diện (UI Rendering).
-- **Thực thi Quy tắc Nghiệp vụ ShopeeFood CRM**: Áp dụng tính toán phụ phí giờ cao điểm, giảm giá phí giao hàng theo giá trị đơn, chặn đơn khi cửa hàng đóng cửa trên giao diện CRM.
+Sau khi hoàn thành bài tập này, học viên có thể:
+- Làm chủ kỹ thuật đăng ký và xử lý sự kiện Form Input (`submit`, `input`, `change`) bằng `addEventListener`.
+- Áp dụng thành thạo `event.preventDefault()` để kiểm soát hành vi mặc định của Form trong ứng dụng Web Single Page.
+- Đọc, chuyển đổi kiểu dữ liệu (data parsing) và validate các trường nhập liệu từ DOM Elements (`<input>`, `<select>`).
+- Triển khai thuật toán tính toán cước phí dịch vụ đặt xe công nghệ GrabRide theo đúng quy tắc nghiệp vụ thực tế.
+- Hiển thị kết quả tính toán và phản hồi lỗi linh hoạt trên giao diện người dùng (DOM Manipulation) mà không cần tải lại trang.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
+Trong hệ thống quản lý và chăm sóc khách hàng của ứng dụng gọi xe công nghệ **GrabRide (GRAB_RIDE CRM)**, bộ phận CSKH cần một công cụ **Tính Cước Phí Dự Kiến (Trip Fare Estimator)** trực tiếp trên trình duyệt. Công cụ này giúp tổng đài viên nhanh chóng tra cứu và báo giá cho hành khách trước khi xác nhận chuyến đi.
 
-Hệ thống CRM Chăm sóc Khách hàng & Tiếp nhận Đơn hàng của **ShopeeFood** đang gặp một sự cố nghiêm trọng trên giao diện tạo đơn thủ công do các Lập trình viên tập sự để lại. Mã nguồn hiện tại dính nhiều chống mẫu (anti-pattern):
-1. Nhân viên CSKH bấm nút "Tạo đơn" thì trang web lập tức reload làm mất sạch dữ liệu đang nhập.
-2. Nút bấm bị gán thuộc tính `onclick` chồng chéo khiến logic ghi log thao tác bị mất.
-3. Khi thay đổi ô nhập liệu, giá trị không được cập nhật do code lấy `.value` ngay khi trang web vừa tải xong.
-
-Bộ phận kỹ thuật yêu cầu bạn **Tái cấu trúc (Refactor) toàn bộ mô-đun Xử lý Sự kiện Form CRM** này để đảm bảo mã nguồn hoạt động chính xác, tối ưu hiệu năng và dễ bảo trì.
+Hành khách hoặc nhân viên CRM sẽ nhập số km dự định di chuyển, chọn tình trạng giao thông/thời tiết hiện tại và nhập mã giảm giá (nếu có). Hệ thống sẽ ngay lập tức lắng nghe sự kiện từ giao diện và hiển thị cước phí chính xác.
 
 ```mermaid
 graph TD
-    A[Người dùng tương tác Form CRM] --> B{Sự kiện Trigger}
-    B -->|Submit Form| C[event.preventDefault]
-    C --> D[Lấy & Làm sạch Dữ liệu .trim]
-    D --> E{Validation Dữ liệu}
-    E -->|Không hợp lệ| F[Hiển thị Thông báo Lỗi UI]
-    E -->|Hợp lệ| G[Tính toán Phí Ship & Giảm giá ShopeeFood]
-    G --> H[Render Kết quả Đơn hàng lên DOM]
-    B -->|Change/Input| I[Tự động Tính & Cập nhật Tổng tiền Nháp]
+    A[Người dùng nhập dữ liệu Form] --> B[Nhấn nút 'Tính Cước Phí']
+    B --> C{Lắng nghe sự kiện 'submit'}
+    C --> D[Gọi event.preventDefault]
+    D --> E[Lấy giá trị từ Input & Select]
+    E --> F{Validate dữ liệu đầu vào}
+    F -- Không hợp lệ --> G[Hiển thị thông báo lỗi trên UI]
+    F -- Hợp lệ --> H[Tính Base Fare dựa trên km]
+    H --> I[Áp dụng hệ số phụ phí Surge Factor]
+    I --> J[Áp dụng mã giảm giá Promo Code]
+    J --> K[Format tiền tệ & Hiển thị kết quả ra DOM]
 ```
 
 ---
@@ -36,27 +35,32 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-Hệ thống CRM ShopeeFood yêu cầu áp dụng các quy tắc nghiệp vụ sau khi người dùng tương tác:
 
-1. **Trạng thái Quán ăn (Store Status)**:
-   - Nếu trạng thái là `CLOSED` (Đóng cửa), **chặn ngay** hành vi submit và hiển thị lỗi: `"Cửa hàng hiện đang đóng cửa, không thể tạo đơn!"`.
+#### 3.1. Quy tắc tính cước phí nền tảng (Base Fare)
+Cước phí gốc được tính lũy tiến dựa trên tổng khoảng cách di chuyển $d$ (đơn vị: km, chấp nhận số thực):
+- **2 km đầu tiên**: Giá cố định **12.000 VNĐ**. (Dù di chuyển dưới 2 km, ví dụ $0.5$ km hay $1.8$ km vẫn tính là $12.000$ VNĐ).
+- **Từ km thứ 3 trở đi ($d > 2$)**: Mức giá là **4.500 VNĐ / km** cho toàn bộ số km vượt quá 2 km.
+  $$\text{Base Fare} = 12.000 + (d - 2) \times 4.500 \quad (\text{VNĐ})$$
 
-2. **Tính toán Phí Giao hàng (Delivery Fee)**:
-   - Khoảng cách $\le 3\text{km}$: Phí cố định là $15.000\,\text{VNĐ}$.
-   - Khoảng cách $> 3\text{km}$: Cứ mỗi km tiếp theo (hoặc phần lẻ km) tính thêm $5.000\,\text{VNĐ/km}$.
-     *(Ví dụ: 4.2 km = 3 km đầu + 1.2 km vượt = 15.000 + 2 * 5.000 = 25.000 VNĐ)*.
 
-3. **Phụ phí Khung giờ Cao điểm (Peak Hour Surcharge)**:
-   - Khung giờ cao điểm: `11:00 - 13:00` hoặc `18:00 - 20:00`.
-   - Nếu đơn hàng rơi vào khung giờ này: Cộng thêm phụ phí $10.000\,\text{VNĐ}$ vào phí giao hàng.
+#### 3.2. Quy tắc phụ phí theo điều kiện (Surge Pricing)
+Tùy thuộc vào thời tiết và khung giờ được chọn trong dropdown `<select>`:
+- **Thời tiết / Giờ bình thường (`normal`)**: Hệ số $1.0\times$ (Không tăng giá).
+- **Mưa lớn / Giờ cao điểm (`surge`)**: Áp dụng hệ số nhân **$1.2\times$** trên cước phí gốc.
+  $$\text{Fare After Surge} = \text{Base Fare} \times 1.2$$
 
-4. **Ưu đãi Phí Giao hàng (Order Threshold Discount)**:
-   - Giá trị tiền món ăn $\ge 100.000\,\text{VNĐ}$: Giảm $15.000\,\text{VNĐ}$ phí giao hàng (Phí ship sau giảm không được nhỏ hơn $0\,\text{VNĐ}$).
 
-5. **Quy tắc Kiểm tra Dữ liệu (Form Validation)**:
-   - **Số điện thoại khách**: Không rỗng, phải đúng 10 chữ số và bắt đầu bằng số `0`.
-   - **Giá trị tiền món ăn**: Phải là số $> 0$.
-   - **Khoảng cách giao hàng**: Phải là số $> 0$.
+#### 3.3. Quy tắc áp dụng Mã giảm giá (Promo Code)
+Sau khi tính toán cước phí đã bao gồm phụ phí, hệ thống kiểm tra chuỗi mã ưu đãi nhập vào (không phân biệt chữ hoa/chữ thường, tự động xóa khoảng trắng thừa ở 2 đầu):
+- Mã **`GRABNEW`**: Giảm trực tiếp **10.000 VNĐ** vào tổng cước phí.
+- Mã **`TIETKIEM`**: Giảm **10%** trên cước phí (sau phụ phí).
+- Trường hợp mã không đúng hoặc để trống: Không áp dụng giảm giá.
+- **Ràng buộc**: Tổng cước phí thanh toán cuối cùng không được phép nhỏ hơn **0 VNĐ** (nếu cước phí sau khi giảm < 0 thì lấy bằng 0 VNĐ).
+
+
+#### 3.4. Ràng buộc kiểm tra dữ liệu (Input Validation)
+- Khoảng cách di chuyển ($d$): Không được để trống, không được là chuỗi ký tự không phải số, và phải **hơn 0 km** ($d > 0$).
+- Nếu dữ liệu không hợp lệ: Hiển thị thông báo lỗi tương ứng tại khu vực hiển thị lỗi, ẩn khu vực kết quả.
 
 ---
 
@@ -64,121 +68,77 @@ Hệ thống CRM ShopeeFood yêu cầu áp dụng các quy tắc nghiệp vụ s
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Mã nguồn legacy bị lỗi (CẦN TÁI CẤU TRÚC)
-
-Học viên nghiên cứu đoạn code kém chất lượng dưới đây để hiểu các lỗi sai và thực hiện viết mới/tái cấu trúc lại trong file `app.js`:
-
+#### 4.1. Cấu trúc HTML bắt buộc
+Tạo file `index.html` chứa các thẻ với đúng `id` và `name` theo quy định sau:
 ```html
-<!-- index.html (Mã nguồn cũ dính Anti-pattern) -->
-<form id="crmOrderForm">
-  <div>
-    <label>Tên khách hàng:</label>
-    <input type="text" id="customerName">
-  </div>
-  <div>
-    <label>Số điện thoại:</label>
-    <input type="text" id="customerPhone">
-  </div>
-  <div>
-    <label>Trạng thái quán:</label>
-    <select id="storeStatus">
-      <option value="OPEN">Đang mở cửa</option>
-      <option value="CLOSED">Đã đóng cửa</option>
-    </select>
-  </div>
-  <div>
-    <label>Giá trị món ăn (VNĐ):</label>
-    <input type="number" id="subtotal">
-  </div>
-  <div>
-    <label>Khoảng cách (km):</label>
-    <input type="number" id="distance" step="0.1">
-  </div>
-  <div>
-    <label>Khung giờ đặt:</label>
-    <select id="timeSlot">
-      <option value="NORMAL">Giờ thường</option>
-      <option value="PEAK_LUNCH">11:00 - 13:00 (Cao điểm trưa)</option>
-      <option value="PEAK_DINNER">18:00 - 20:00 (Cao điểm tối)</option>
-    </select>
-  </div>
+<form id="fare-form">
+  <!-- Input khoảng cách -->
+  <input type="number" id="distance" step="0.1" placeholder="Nhập số km (VD: 5.5)">
+  
+  <!-- Select điều kiện chuyến đi -->
+  <select id="condition">
+    <option value="normal">Thời tiết bình thường</option>
+    <option value="surge">Mưa lớn / Giờ cao điểm (1.2x)</option>
+  </select>
 
-  <button type="submit" id="btnSubmit">Tạo Đơn Hàng ShopeeFood</button>
+  <!-- Input mã giảm giá -->
+  <input type="text" id="promo-code" placeholder="Mã giảm giá (nếu có)">
+
+  <!-- Nút Submit -->
+  <button type="submit" id="btn-submit">Tính Cước Phí</button>
 </form>
 
-<div id="errorMessage" style="color: red;"></div>
-<div id="orderSummary"></div>
+<!-- Khu vực hiển thị thông báo lỗi -->
+<div id="error-message" class="hidden"></div>
 
-<script>
-  //  ANTI-PATTERN 1: Đọc giá trị ngay khi file load -> Luôn luôn rỗng!
-  const nameVal = document.querySelector("#customerName").value;
-  const phoneVal = document.querySelector("#customerPhone").value;
-  const btnSubmit = document.querySelector("#btnSubmit");
-
-  //  ANTI-PATTERN 2: Đăng ký sự kiện click trên Button thay vì submit trên Form
-  //  ANTI-PATTERN 3: Sử dụng onclick gây ghi đè logic
-  btnSubmit.onclick = function() {
-    console.log("Log: Đang xử lý tạo đơn...");
-  }
-
-  btnSubmit.onclick = function() { // Vô tình ghi đè hàm log phía trên!
-    if(nameVal === "") {
-      alert("Lỗi nhập tên!"); // Sử dụng alert gây gián đoạn UX
-    }
-    // Thiếu event.preventDefault() -> Trang bị reload lại ngay lập tức!
-  }
-</script>
+<!-- Khu vực hiển thị kết quả -->
+<div id="result-box" class="hidden">
+  <p>Cước phí dự kiến: <span id="final-fare">0 VNĐ</span></p>
+</div>
 ```
 
----
+
+#### 4.2. Yêu cầu xử lý JavaScript (`js/app.js`)
+1. Lắng nghe sự kiện `submit` trên `<form id="fare-form">`.
+2. Sử dụng `event.preventDefault()` để chặn sự kiện gửi form mặc định của trình duyệt.
+3. Viết hàm `calculateTripFare(distance, condition, promoCode)` nhận vào 3 tham số và trả về số tiền cước cuối cùng.
+4. Định dạng hiển thị số tiền theo chuẩn Việt Nam (ví dụ: `27.540 VNĐ` hoặc `27.540đ`).
+5. Quản lý trạng thái giao diện: Hiển thị/Ẩn khối lỗi `#error-message` và khối kết quả `#result-box` bằng cách thêm/bớt class CSS hoặc thuộc tính `style.display`.
 
 
-#### B. Nhiệm vụ Tái cấu trúc & Triển khai chi tiết
+#### 4.3. Bảng dữ liệu Kiểm thử I/O (Test Cases)
 
-Viết lại toàn bộ logic JavaScript trong file `js/app.js` thỏa mãn các yêu cầu:
-
-1. **Loại bỏ hoàn toàn thuộc tính `onclick` trực tiếp**:
-   - Chuyển sang sử dụng `addEventListener` cho tất cả các sự kiện.
-   - Đăng ký **nhiều listener độc lập** trên cùng một phần tử nếu có nhu cầu (ví dụ: 1 listener để ghi log thao tác hệ thống, 1 listener xử lý nghiệp vụ chính).
-
-2. **Kiểm soát Sự kiện Form Submit chuẩn hóa**:
-   - Đăng ký sự kiện `'submit'` trên thẻ `<form id="crmOrderForm">`.
-   - Gọi `event.preventDefault()` ở ngay dòng đầu tiên của hàm xử lý submit.
-   - Truy xuất và làm sạch dữ liệu đầu vào bằng `.trim()` bên trong scope của hàm xử lý sự kiện.
-
-3. **Cấu trúc lại Mã nguồn thành các Hàm chức năng độc lập**:
-   - `validateFormInputs(formData)`: Kiểm tra tính hợp lệ của dữ liệu đầu vào. Trả về object `{ isValid: boolean, message: string }`.
-   - `calculateShopeeFoodFee(subtotal, distance, timeSlot)`: Tính toán tổng chi phí đơn hàng, phí giao hàng, phụ phí và số tiền được giảm theo đúng **Quy tắc nghiệp vụ**. Trả về object chứa chi tiết tiền.
-   - `renderOrderSummary(summaryData)`: Cập nhật thông tin chi tiết đơn hàng lên thẻ `<div id="orderSummary">`.
-   - `renderErrorMessage(message)`: Hiển thị lỗi lên thẻ `<div id="errorMessage">` (xóa thông báo lỗi nếu dữ liệu hợp lệ).
-
-4. **Tính năng Nâng cao (Real-time Preview Event)**:
-   - Đăng ký sự kiện `'change'` hoặc `'input'` trên các input số tiền, khoảng cách và khung giờ để tự động tính toán và hiển thị trước (preview) phí giao hàng tạm tính bên cạnh ô nhập liệu mà không cần bấm submit.
+| STT | Khoảng cách (`distance`) | Điều kiện (`condition`) | Mã giảm giá (`promoCode`) | Kết quả mong đợi (`final-fare`) | Ghi chú |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **TC1** | `1.5` | `normal` | `""` | `12.000 VNĐ` | Dưới 2km, giá cố định 12.000đ |
+| **TC2** | `5` | `normal` | `""` | `25.500 VNĐ` | $12.000 + (5-2) \times 4.500 = 25.500$ |
+| **TC3** | `5` | `surge` | `""` | `30.600 VNĐ` | $25.500 \times 1.2 = 30.600$ |
+| **TC4** | `5` | `surge` | `"GRABNEW"` | `20.600 VNĐ` | $30.600 - 10.000 = 20.600$ |
+| **TC5** | `5` | `surge` | `"TIETKIEM"` | `27.540 VNĐ` | $30.600 \times 0.9 = 27.540$ |
+| **TC6** | `0` hoặc `-3` | `normal` | `""` | Lỗi: "Khoảng cách di chuyển phải lớn hơn 0 km!" | Xử lý dữ liệu biên không hợp lệ |
+| **TC7** | `""` (trống) | `normal` | `""` | Lỗi: "Vui lòng nhập khoảng cách di chuyển!" | Xử lý input rỗng |
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-
-- **Cấu trúc thư mục dự án**:
-  ```text
-  shopeefood-crm-refactor/
-  ├── index.html
-  ├── css/
-  │   └── style.css
-  └── js/
-      └── app.js
-  ```
-- **Quy tắc đặt tên**: Nén toàn bộ thư mục dự án thành file `.zip` theo định dạng: `[HO_TEN]_[MSNV]_HW19.zip` (Ví dụ: `NGUYEN_VAN_A_NV0123_HW19.zip`).
-- **Yêu cầu mã nguồn**:
-  - Không sử dụng bất kỳ thư viện ngoài (jQuery, React, Bootstrap...). Sử dụng JavaScript Vanilla thuần.
-  - Mã nguồn phải có comment giải thích các vị trí đã tái cấu trúc và lý do (Ví dụ: `// REFACTORED: Sử dụng addEventListener thay cho onclick để tránh ghi đè logic`).
+- Cấu trúc thư mục dự án:
+```text
+exercise-5-grabride/
+├── index.html
+├── css/
+│   └── style.css
+└── js/
+    └── app.js
+```
+- File `app.js` phải chứa mã nguồn được comment giải thích rõ ràng từng bước (đọc DOM, validate, tính toán, render).
+- Không sử dụng Fetch API, Async/Await hoặc LocalStorage trong bài tập này.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách Tái cấu trúc Mã nguồn** | **20đ** | - Loại bỏ hoàn toàn `onclick` và gán handler trực tiếp.<br>- Đăng ký sự kiện đúng chuẩn bằng `addEventListener`.<br>- Tách biệt hàm rõ ràng (`validate`, `calculate`, `render`).<br>- Đặt tên biến/hàm theo chuẩn camelCase, comment giải thích lý do refactor. |
-| **Xử lý Sự kiện Form & Tương tác DOM** | **40đ** | - Bắt đúng sự kiện `'submit'` trên thẻ `<form>` và gọi `event.preventDefault()` thành công.<br>- Đọc giá trị `.value` động bên trong handler sự kiện, loại bỏ khoảng trắng bằng `.trim()`.<br>- Triển khai thành công tính năng preview tính phí thời gian thực bằng sự kiện `'input'` hoặc `'change'`. |
-| **Tính đúng đắn của Logic Nghiệp vụ ShopeeFood** | **20đ** | - Chặn đặt đơn chính xác khi trạng thái cửa hàng là `CLOSED`.<br>- Tính chuẩn phí giao hàng gốc theo khoảng cách (15k cho 3km đầu, 5k/km tiếp theo).<br>- Tính chính xác phụ phí cao điểm 10k và giảm giá ship 15k cho đơn $\ge 100\text{k}$. |
-| **Xử lý Biên & Validation Ngoại lệ** | **20đ** | - Kiểm tra định dạng số điện thoại (10 chữ số, bắt đầu bằng 0).<br>- Xử lý chuẩn các trường hợp nhập khoảng trắng, số âm, khoảng cách bằng 0.<br>- Hiển thị thông báo lỗi thân thiện trên giao diện UI (không dùng `alert()`), tự động xóa lỗi khi submit thành công. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML/CSS/JS tách biệt rõ ràng.<br>- Đặt tên biến, hàm theo chuẩn `camelCase` (ví dụ: `calculateTripFare`, `distanceInput`).<br>- Sử dụng `const`/`let` đúng phạm vi, không dùng `var`.<br>- Code được comment đầy đủ, thụt lề chuẩn. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Sử dụng đúng `event.preventDefault()` khi submit form (10đ).<br>- Tính toán chính xác Base Fare theo khoảng cách lũy tiến (10đ).<br>- Áp dụng chính xác hệ số phụ phí cao điểm / mưa (10đ).<br>- Xử lý chuẩn xác các trường hợp mã giảm giá `GRABNEW`, `TIETKIEM` và đưa tiền về tối thiểu 0 VNĐ (10đ). |
+| **Xử lý Biên & Ngoại lệ** | **20đ** | - Bắt chính xác lỗi khi khoảng cách trống, bằng 0 hoặc số âm (10đ).<br>- Hiển thị thông báo lỗi rõ ràng trên UI và ẩn khối kết quả khi gặp lỗi (10đ). |
+| **Tối ưu hiệu năng & Thao tác DOM** | **20đ** | - Truy xuất phần tử DOM chính xác thông qua ID/Class.<br>- Render kết quả hiển thị mượt mà, định dạng tiền tệ Việt Nam (`VNĐ`) trực quan.<br>- Xử lý chuỗi mã giảm giá linh hoạt (loại bỏ khoảng trắng `trim()`, chuyển thành chữ hoa `toUpperCase()`). |

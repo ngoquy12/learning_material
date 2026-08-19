@@ -1,154 +1,199 @@
-# Bài tập 1: E-Commerce (Cơ bản 1 - Debug lỗi)
+# Bài tập 1: E-Commerce (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-- **Phát hiện và sửa lỗi xử lý sự kiện (Event Handling)**: Nhận biết anti-pattern khi gắn sự kiện trực tiếp bằng thuộc tính (VD: `onclick`) và chuyển sang sử dụng `addEventListener` chuẩn hóa.
-- **Xử lý Form & Ngăn chặn hành vi mặc định**: Kiểm soát sự kiện `submit` trên thẻ `<form>` và sử dụng `event.preventDefault()` để tránh làm reload trang web.
-- **Quản lý thời điểm đọc dữ liệu DOM**: Sửa lỗi phổ biến đọc thuộc tính `.value` ngoài phạm vi Event Handler làm sai lệch dữ liệu.
-- **Làm sạch & Ép kiểu dữ liệu**: Sử dụng `.trim()` và hàm chuyển đổi kiểu dữ liệu (`parseFloat`/`Number`) trước khi tính toán nghiệp vụ.
+Sau khi hoàn thành bài tập này, học viên có khả năng:
+- **Phát hiện và sửa lỗi (Debug)** các lỗi phổ biến liên quan đến xử lý sự kiện trong JavaScript (`submit`, `input`, `change`).
+- **Khắc phục lỗi reload trang**: Sử dụng `event.preventDefault()` đúng cách trong sự kiện submit form.
+- **Xử lý sự kiện thời gian thực (Real-time)**: Gán sự kiện `input` và `change` trên các thẻ `<input>` và `<select>` để cập nhật kết quả tính toán chi phí sạc ngay lập tức.
+- **Chuyển đổi kiểu dữ liệu & Ép kiểu**: Xử lý triệt để lỗi nối chuỗi ngoài ý muốn khi lấy `value` từ thẻ HTML Input.
+- **Ràng buộc nghiệp vụ đầu vào (Validation)**: Kiểm tra hợp lệ dữ liệu sạc điện thoại/xe điện và hiển thị thông báo lỗi thân thiện trên DOM.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống **GrabRide** đang phát triển mô-đun tính cước phí dự kiến cho hành khách trên giao diện Web. Khi người dùng nhập quãng đường (km) và chọn trạng thái thời tiết/giờ cao điểm, hệ thống sẽ tự động tính toán tổng số tiền cước mà hành khách phải trả.
+Trạm sạc xe điện **VinFast EV Charging** đang vận hành ứng dụng Web giúp tài xế ước tính hóa đơn sạc xe điện (`ChargingInvoice`) dựa trên loại cổng sạc (`ChargingPort`) và thời gian đỗ xe sau khi sạc xong tại trạm (`VehicleSession`).
 
-Tuy nhiên, lập trình viên Junior vừa đẩy đoạn mã nguồn thử nghiệm nhưng ứng dụng liên tục gặp lỗi:
-1. Khi nhấn nút tính tiền, trang web lập tức bị tải lại (reload) làm mất toàn bộ kết quả.
-2. Giá trị cước phí hiển thị luôn bằng `0` hoặc báo kết quả không chính xác (`NaN`).
-3. Logic kiểm tra điều kiện phụ phí giờ cao điểm không hoạt động đúng.
+Lập trình viên Junior trước đó đã xây dựng giao diện tính tiền nhưng mã JavaScript hiện đang gặp nhiều lỗi nghiêm trọng:
+1. Mỗi khi nhấn nút "Xác nhận hóa đơn", trang web bị tải lại (reload) và mất sạch dữ liệu.
+2. Khi nhập số kWh điện tiêu thụ (`KwhMeter`), kết quả tính toán ra chuỗi ký tự kỳ lạ (`NaN` hoặc nối chuỗi thay vì phép cộng/nhân).
+3. Đổi loại cổng sạc hoặc nhập thời gian quá giờ nhưng chi phí không tự động cập nhật real-time.
+4. Phí phạt đỗ quá giờ bị tính âm tiền nếu khách hàng rời đi trước 30 phút.
 
-Dưới đây là sơ đồ luồng chuẩn mà hệ thống GrabRide cần đạt được:
+Nhiệm vụ của bạn là **tìm lỗi (Debug), sửa lại đoạn mã hỏng (Buggy Code)** và viết lại chương trình hoạt động chuẩn xác theo sơ đồ luồng sự kiện bên dưới.
 
+
+#### Sơ đồ luồng sự kiện (Event Flow)
 ```mermaid
 graph TD
-    A[Người dùng nhập số km & chọn Giờ cao điểm] --> B[Nhấn nút Submit Form]
-    B --> C[Bắt sự kiện submit & event.preventDefault]
-    C --> D[Đọc dữ liệu từ Input & .trim]
-    D --> E{Kiểm tra dữ liệu hợp lệ?}
-    E -- Không hợp lệ --> F[Hiển thị lỗi màu đỏ]
-    E -- Hợp lệ --> G[Ép kiểu số & Tính toán cước phí]
-    G --> H[Cập nhật Cước phí lên giao diện]
+    A[Người dùng nhập số kWh / Chọn cổng sạc / Nhập phút đỗ] -->|Sự kiện: input / change| B(Lắng nghe Event Listener)
+    B --> C{Kiểm tra dữ liệu đầu vào?}
+    C -- Dữ liệu hợp lệ --> D[Tính toán Chi phí Điện + Phí phạt Đỗ quá giờ]
+    C -- Không hợp lệ --> E[Hiển thị thông báo lỗi ra UI]
+    D --> F[Cập nhật DOM Real-time]
+    G[Người dùng click submit Form] -->|Sự kiện: submit| H[e.preventDefault]
+    H --> I[Xuất Hóa đơn ChargingInvoice hoàn chỉnh]
 ```
-
-Bạn được giao nhiệm vụ **đóng vai trò Senior Engineer**: Phân tích đoạn mã nguồn bị lỗi bên dưới, chỉ rõ ít nhất 4 lỗi kỹ thuật/nghiệp vụ và viết lại đoạn mã đã refactor hoàn chỉnh.
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-Hệ thống tính cước GrabRide áp dụng các quy tắc sau:
-1. **Quãng đường di chuyển ($d$)**: Phải là một số hợp lệ lớn hơn 0 ($d > 0$).
-2. **Giá cước cơ bản (Base Fare)**:
-   - $d \le 2$ km: Giá cố định **12.000 VNĐ**.
-   - $d > 2$ km: 2 km đầu tiên tính **12.000 VNĐ**, từ km thứ 3 trở đi tính **4.500 VNĐ/km**.
-   - *Công thức tính cước gốc*: $\text{Cước gốc} = 12.000 + (d - 2) \times 4.500$
-3. **Phụ phí Thời tiết xấu / Giờ cao điểm**:
-   - Nếu checkbox "Giờ cao điểm / Mưa" được tích chọn: $\text{Tổng cước} = \text{Cước gốc} \times 1.2$.
-4. **Hiển thị & Validation**:
-   - Khoảng cách rỗng, chứa ký tự không phải số, hoặc $\le 0$: Hiển thị lỗi màu đỏ `"Vui lòng nhập quãng đường hợp lệ (số lớn hơn 0)!"`.
-   - Kết quả hợp lệ: Làm tròn cước phí và hiển thị màu xanh với định dạng text rõ ràng.
+1. **Đơn giá sạc theo loại cổng (`ChargingPort`)**:
+   - Cổng sạc Thường (`STANDARD`): **3.850 VNĐ / kWh**
+   - Cổng sạc Siêu nhanh (`FAST`): **4.500 VNĐ / kWh**
+2. **Phí phạt đỗ xe quá giờ (Overtime Fee)**:
+   - **30 phút đầu tiên** sau khi sạc đầy: Miễn phí.
+   - Từ **phút thứ 31 trở đi**: Phạt **1.000 VNĐ / phút**.
+   - *Công thức tính phút quá giờ*: $\text{Phút phạt} = \max(0, \text{Tổng phút đỗ} - 30)$.
+3. **Công thức hóa đơn (`ChargingInvoice`)**:
+   - $\text{Tiền điện} = \text{Số kWh} \times \text{Đơn giá cổng sạc}$
+   - $\text{Phí phạt} = \text{Phút phạt} \times 1.000\text{ VNĐ}$
+   - $\text{Tổng thanh toán} = \text{Tiền điện} + \text{Phí phạt}$
+4. **Quy tắc Kiểm tra dữ liệu (Validation)**:
+   - Số kWh sạc phải là số thực $> 0$. Nếu $\le 0$ hoặc để trống $\rightarrow$ Báo lỗi *"Số kWh sạc phải lớn hơn 0"*.
+   - Phút đỗ quá giờ phải là số nguyên $\ge 0$. Nếu $< 0$ hoặc để trống $\rightarrow$ Báo lỗi *"Thời gian đỗ xe không được nhỏ hơn 0"*.
 
 ---
 
 
-### 4. Mã nguồn bị lỗi (Buggy Code) & Yêu cầu kỹ thuật
+### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### Đoạn mã nguồn bị lỗi do Lập trình viên Junior bàn giao:
+#### 4.1. Mã nguồn hiện tại bị lỗi (Buggy Starter Code)
+Hãy copy đoạn mã dưới đây và sửa lại cho đúng:
+
+**`index.html`**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-
-  <title>Tính Cước Phí GrabRide</title>
-  <style>
-    .error { color: red; }
-    .success { color: green; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <title>VinFast EV Charging Station - Hóa đơn sạc xe</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .card { border: 1px solid #ccc; padding: 20px; width: 400px; border-radius: 8px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        .error { color: red; font-size: 0.85em; display: none; }
+        .result-box { background: #f4f4f4; padding: 10px; margin-top: 15px; border-radius: 4px; }
+        button { background: #0056b3; color: white; border: none; padding: 10px 15px; cursor: pointer; width: 100%; font-size: 16px; }
+    </style>
 </head>
 <body>
-  <h2>Hệ Thống Tính Cước Phí GrabRide</h2>
+    <div class="card">
+        <h2>Trạm Sạc Xe Điện VinFast</h2>
+        <form id="charging-form">
+            <div class="form-group">
+                <label for="port-type">Loại cổng sạc:</label>
+                <select id="port-type">
+                    <option value="STANDARD">Sạc thường (3.850 đ/kWh)</option>
+                    <option value="FAST">Sạc siêu nhanh (4.500 đ/kWh)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="kwh-meter">Điện năng tiêu thụ (kWh):</label>
+                <input type="number" id="kwh-meter" placeholder="Nhập số kWh...">
+                <span id="kwh-error" class="error"></span>
+            </div>
 
-  <form id="fareForm">
-    <div>
-      <label for="distance">Quãng đường (km):</label>
-      <input type="text" id="distance" placeholder="Nhập số km (VD: 5.5)">
+            <div class="form-group">
+                <label for="overtime-minutes">Thời gian đỗ thêm (phút):</label>
+                <input type="number" id="overtime-minutes" value="0">
+                <span id="overtime-error" class="error"></span>
+            </div>
+
+            <button type="submit" id="btn-submit">Xác Nhận Hóa Đơn</button>
+        </form>
+
+        <div class="result-box">
+            <p>Tiền điện: <strong id="electricity-cost">0</strong> VNĐ</p>
+            <p>Phí đỗ quá giờ: <strong id="penalty-cost">0</strong> VNĐ</p>
+            <h3>Tổng tiền: <strong id="total-cost">0</strong> VNĐ</h3>
+        </div>
     </div>
-    <div>
-      <label>
-        <input type="checkbox" id="isPeakHour"> Thời tiết xấu / Giờ cao điểm (+20%)
-      </label>
-    </div>
-    <button type="submit" id="btnCalculate">Tính Cước Phí</button>
-    <p id="resultMessage"></p>
-  </form>
 
-  <script>
-    // Truy vấn phần tử DOM
-    const fareForm = document.querySelector("#fareForm");
-    const distanceInput = document.querySelector("#distance");
-    const isPeakHourInput = document.querySelector("#isPeakHour");
-    const resultMessage = document.querySelector("#resultMessage");
-
-    // LỖI 1: Lấy giá trị input ngay khi script vừa nạp
-    const distanceValue = distanceInput.value;
-
-    // LỖI 2: Đăng ký sự kiện bằng gán thuộc tính onclick trên button
-    const btnCalculate = document.querySelector("#btnCalculate");
-    
-    btnCalculate.onclick = function() {
-      // LỖI 3: Không ngăn chặn hành vi reload trang mặc định của Form
-
-      // LỖI 4: Dùng dữ liệu sai thời điểm và sai logic phụ phí
-      let totalFare = 0;
-      
-      if (distanceValue <= 2) {
-        totalFare = 12000;
-      } else {
-        totalFare = distanceValue * 4500; // Lỗi logic nghiệp vụ
-      }
-
-      // LỖI 5: Sai thuộc tính kiểm tra trạng thái checkbox
-      if (isPeakHourInput.value === "true") {
-        totalFare = totalFare * 1.2;
-      }
-
-      resultMessage.className = "success";
-      resultMessage.innerText = "Cước phí dự kiến: " + totalFare + " VNĐ";
-    };
-  </script>
+    <script src="script.js"></script>
 </body>
 </html>
 ```
 
+**`script.js` (Mã nguồn chứa lỗi cần Debug)**
+```javascript
+// Ghi chú: Mã nguồn này đang chứa ít nhất 5 lỗi logic và xử lý sự kiện!
+var formEl = document.getElementById("charging-form");
+var portTypeEl = document.getElementById("port-type");
+var kwhMeterEl = document.getElementById("kwh-meter");
+var overtimeEl = document.getElementById("overtime-minutes");
 
-#### Yêu cầu bài nộp:
-1. **Phần 1: Báo cáo Debug (Text / Markdown)**
-   - Liệt kê tối thiểu **4 lỗi** xuất hiện trong đoạn mã trên.
-   - Giải thích nguyên nhân kỹ thuật tại sao đoạn mã bị lỗi và hậu quả của từng lỗi đối với ứng dụng.
-2. **Phần 2: Mã nguồn đã sửa hoàn chỉnh (Refactoring Code)**
-   - Viết lại toàn bộ đoạn mã HTML + JavaScript chuẩn hóa.
-   - Phải lắng nghe sự kiện `'submit'` trên thẻ `<form>` bằng `addEventListener`.
-   - Gọi `event.preventDefault()` đúng vị trí.
-   - Lấy giá trị input và `.trim()` bên trong hàm xử lý sự kiện.
-   - Ép kiểu dữ liệu sang `Number` (hoặc `parseFloat`), kiểm tra tính hợp lệ (`isNaN`, `<= 0`).
-   - Kiểm tra trạng thái checkbox bằng thuộc tính `.checked`.
-   - Tính toán chính xác giá cước theo đúng Quy tắc nghiệp vụ GrabRide.
+// Lỗi 1: Gán sự kiện submit sai cách làm trang web bị reload
+formEl.onsubmit = function() {
+    calculateInvoice();
+}
+
+// Lỗi 2: Không lắng nghe sự kiện input/change để tính toán real-time
+kwhMeterEl.addEventListener("change", calculateInvoice()); 
+
+function calculateInvoice() {
+    var kwh = kwhMeterEl.value; // Lỗi 3: Chưa ép kiểu dữ liệu
+    var minutes = overtimeEl.value;
+    var port = portTypeEl.value;
+
+    // Lỗi 4: Phí phạt đỗ quá giờ bị tính âm nếu minutes < 30
+    var penaltyMinutes = minutes - 30; 
+    var penaltyCost = penaltyMinutes * 1000;
+
+    var pricePerKwh = 0;
+    if (port = "STANDARD") { // Lỗi 5: Toán tử gán thay vì so sánh
+        pricePerKwh = 3850;
+    } else {
+        pricePerKwh = 4500;
+    }
+
+    var electricityCost = kwh * pricePerKwh;
+    var totalCost = electricityCost + penaltyCost;
+
+    // Hiển thị kết quả
+    document.getElementById("electricity-cost").innerText = electricityCost;
+    document.getElementById("penalty-cost").innerText = penaltyCost;
+    document.getElementById("total-cost").innerText = totalCost;
+}
+```
+
+
+#### 4.2. Yêu cầu Nhiệm vụ
+1. **Debug & Sửa lỗi**:
+   - Sửa lỗi ngăn cản form làm reload trang web khi click nút submit (sử dụng `e.preventDefault()`).
+   - Sửa lỗi toán tử so sánh chuỗi trong câu lệnh `if`.
+   - Chuyển đổi dữ liệu từ `input.value` sang kiểu số (`parseFloat` / `parseInt`).
+   - Xử lý lại logic tính `penaltyMinutes`: Nếu `minutes <= 30` thì phí phạt phải là `0`.
+   - Lắng nghe đúng các sự kiện `input` (cho ô nhập số kWh, thời gian đỗ) và `change` (cho dropdown chọn cổng sạc) để ứng dụng tự động tính tiền ngay khi người dùng gõ/chọn mà không cần đợi ấn button.
+2. **Thêm Validation**:
+   - Nếu `kwh <= 0` hoặc rỗng: Hiển thị thẻ `#kwh-error` nội dung *"Số kWh sạc phải lớn hơn 0"*, ẩn kết quả tính toán.
+   - Nếu `minutes < 0` hoặc rỗng: Hiển thị thẻ `#overtime-error` nội dung *"Thời gian đỗ xe không được nhỏ hơn 0"*, ẩn kết quả tính toán.
+   - Nếu dữ liệu hợp lệ: Phải ẩn các thẻ báo lỗi (`display: none`) và hiển thị kết quả đã được định dạng (Format số có phân tách hàng nghìn như `15.000` hoặc dùng `Number.prototype.toLocaleString('vi-VN')`).
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- Đặt tên file mã nguồn: `debug_grabride_fare.html` (chứa cả HTML và thẻ `<script>` đã sửa lỗi).
-- Đặt tên file báo cáo giải thích lỗi: `debug_report.md` (hoặc ghi phần giải thích dạng comment phía trên cùng của file `.html`).
-- Mã nguồn JavaScript phải tuân thủ chuẩn CamelCase cho biến/hàm, thụt lề 2 spaces rõ ràng.
+- Cấu trúc thư mục nộp bài:
+  ```text
+  EV_Charging_Calculator/
+  ├── index.html
+  ├── script.js
+  └── debug_report.md
+  ```
+- File `debug_report.md`: Trình bày ngắn gọn ít nhất **4 lỗi** bạn đã tìm thấy trong file `script.js` ban đầu, giải thích nguyên nhân gây ra lỗi và cách bạn đã khắc phục lỗi đó.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Phát hiện Lỗi (Debug Analysis)** | 20đ | - Chỉ ra chính xác từ 4 lỗi trở lên có trong đoạn mã mẫu.<br>- Giải thích nguyên nhân rõ ràng (VD: Đọc `.value` ngoài Handler, thiếu `preventDefault`, truy cập `.value` thay vì `.checked` của checkbox, công thức tính sai). |
-| **Xử lý Sự kiện Form chuẩn chuẩn JS** | 20đ | - Đăng ký sự kiện `'submit'` trên thẻ `<form>` thông qua `addEventListener`.<br>- Gọi `event.preventDefault()` ngăn làm làm mới trang thành công.<br>- Đọc và xử lý `.value` đúng thời điểm bên trong Callback function. |
-| **Xử lý Logic Nghiệp vụ (GrabRide Fare)** | 30đ | - Tính đúng cước gốc $d \le 2$ km (12.000 VNĐ).<br>- Tính đúng cước $d > 2$ km ($12.000 + (d-2) \times 4.500$).<br>- Áp dụng chính xác hệ số 1.2x khi `isPeakHourInput.checked === true`. |
-| **Xử lý Biên & Validation dữ liệu** | 15đ | - Gọi `.trim()` loại bỏ khoảng trắng thừa.<br>- Ép kiểu sang số chính xác bằng `parseFloat` hoặc `Number`.<br>- Bắt lỗi đầu vào rỗng, không phải số (`isNaN`), hoặc số âm/bằng 0 và hiển thị thông báo lỗi màu đỏ. |
-| **Cấu trúc & Phong cách mã nguồn** | 15đ | - Mã nguồn viết sạch sẻ, đặt tên biến có ý nghĩa (`distanceVal`, `totalFare`, `resultMsg`).<br>- Định dạng giao diện kết quả đẹp mắt, hiển thị giá tiền kèm đơn vị VNĐ rõ ràng. |
+| **Cấu trúc & Debug Report** | **20đ** | - Tổ chức thư mục chuẩn theo yêu cầu.<br>- Viết file `debug_report.md` liệt kê chính xác nguyên nhân và giải pháp sửa ít nhất 4 lỗi trong bài gốc. |
+| **Sự kiện DOM & Prevent Default** | **25đ** | - Sử dụng `addEventListener('submit', ...)` chuẩn xác.<br>- Gọi `e.preventDefault()` để chặn hành vi reload trang.<br>- Đăng ký đúng sự kiện `input` và `change` trên các phần tử DOM. |
+| **Xử lý Logic Nghiệp vụ** | **25đ** | - Ép kiểu số chuẩn xác cho `kwh` và `minutes`.<br>- Tính đúng phí đỗ quá giờ (Miễn phí 30p đầu, không bị âm tiền).<br>- Tính đúng tiền điện theo cổng sạc `STANDARD` (3.850đ) và `FAST` (4.500đ). |
+| **Xử lý Biên & Validation** | **15đ** | - Catch lỗi đầu vào: số kWh $\le 0$, số phút $< 0$ hoặc để trống.<br>- Hiển thị/Ẩn thông báo lỗi trên UI phù hợp với trạng thái người dùng nhập. |
+| **Trải nghiệm người dùng (UX) & Format** | **15đ** | - Tính toán real-time mượt mà khi gõ phím/thay đổi option.<br>- Định dạng số tiền có dấu phân cách hàng nghìn (ví dụ: `150,000 VNĐ` hoặc `150.000 VNĐ`). |
