@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **1. Cấu trúc & Thao tác DOM API** | **20đ** | - Sử dụng chính xác các hàm truy xuất DOM (`getElementById`, `querySelector`).<br>- Thao tác đúng thuộc tính DOM (`textContent` cho văn bản thuần, `innerHTML` cho thẻ danh sách `<li>`).<br>- Sử dụng đúng `classList` (`add`/`remove`) và `style.display` để ẩn/hiện element theo trạng thái nghiệp vụ. |
-| **2. Logic Nghiệp vụ & Khái toán Cước phí** | **40đ** | - Tính đúng Base Fare theo mốc 2 km đầu (12.000 VNĐ) và các km tiếp theo (4.500 VNĐ/km).<br>- Tính đúng Surge Multiplier khi mưa (`1.2`), giờ cao điểm (`1.2`) hoặc cả 2 (`1.44`).<br>- Áp dụng đúng quy tắc tính mã giảm giá (`GRABXANH`, `TEACHERCHILL` max 15.000 VNĐ).<br>- Định dạng chuẩn tiền tệ VNĐ trên giao diện. |
-| **3. Xử lý Trạng thái & Fallback UI (Biên/Ngoại lệ)** | **20đ** | - Ẩn/Hiện đúng giữa `#error-banner` và `#trip-card` khi `distanceKm` không hợp lệ ($\le 0$ hoặc không phải số).<br>- Hiển thị đúng trạng thái tài xế: Khi có tên -> đổi class thành màu xanh `text-success`; Khi thiếu tên tài xế -> hiển thị `"Đang tìm tài xế..."` kèm class cảnh báo `text-warning`. |
-| **4. Tối ưu mã nguồn & Kiến trúc Module** | **20đ** | - Code sạch sẽ, chia nhỏ logic xử lý tính toán và logic DOM thành các hàm helper (ví dụ: `calculateFare`, `formatVND`).<br>- Tuân thủ 100% phạm vi kiến thức (Không vi phạm các kiến thức cấm như Event Listener hay LocalStorage).<br>- Comment code rõ ràng, chuyên nghiệp. |

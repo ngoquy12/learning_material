@@ -577,21 +577,13 @@ def generate_session_homework_suite(
             ex_folder = target_homework_dir / folder_name
             ex_folder.mkdir(parents=True, exist_ok=True)
 
-            # Write standard student assignment files (both names supported)
+            # Write standard student assignment file
             with open(ex_folder / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
                 f.write(ex["de_bai_content"])
-            with open(ex_folder / "de_bai.md", "w", encoding="utf-8") as f:
-                f.write(ex["de_bai_content"])
 
-            # Write standard grading rubric files (both names supported)
+            # Write standard grading rubric file
             with open(ex_folder / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
                 f.write(ex["tieu_chi_content"])
-            with open(ex_folder / "tieu_chi.md", "w", encoding="utf-8") as f:
-                f.write(ex["tieu_chi_content"])
-
-            # Backward-compatible individual bài tập markdown in Bài tập root
-            with open(target_homework_dir / f"bai_tap_{idx}.md", "w", encoding="utf-8") as f:
-                f.write(f"# {ex['title']}\n\n{ex['de_bai_content']}\n\n{ex['tieu_chi_content']}")
 
         # 3. Export folder 16: In-Class Synthesis Exercise
         if inclass_ex_content:
@@ -600,8 +592,6 @@ def generate_session_homework_suite(
             folder_16 = target_homework_dir / folder_16_name
             folder_16.mkdir(parents=True, exist_ok=True)
             with open(folder_16 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
-                f.write(inclass_ex_content)
-            with open(folder_16 / "de_bai.md", "w", encoding="utf-8") as f:
                 f.write(inclass_ex_content)
             rubric_16 = f"""### Tiêu chuẩn Đánh giá Bài tập Tổng hợp Trên lớp (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
@@ -612,12 +602,6 @@ def generate_session_homework_suite(
 """
             with open(folder_16 / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
                 f.write(rubric_16)
-            with open(folder_16 / "tieu_chi.md", "w", encoding="utf-8") as f:
-                f.write(rubric_16)
-
-            # Save in root as well
-            with open(target_homework_dir / "bai_tap_tong_hop.md", "w", encoding="utf-8") as f:
-                f.write(inclass_ex_content)
 
         # 4. Export folder 17: Mindmap Architecture Exercise
         if mindmap_ex_content:
@@ -626,8 +610,6 @@ def generate_session_homework_suite(
             folder_17 = target_homework_dir / folder_17_name
             folder_17.mkdir(parents=True, exist_ok=True)
             with open(folder_17 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
-                f.write(mindmap_ex_content)
-            with open(folder_17 / "de_bai.md", "w", encoding="utf-8") as f:
                 f.write(mindmap_ex_content)
             rubric_17 = f"""### Tiêu chuẩn Đánh giá Bài tập Sơ đồ Tư duy Mindmap (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
@@ -638,16 +620,12 @@ def generate_session_homework_suite(
 """
             with open(folder_17 / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
                 f.write(rubric_17)
-            with open(folder_17 / "tieu_chi.md", "w", encoding="utf-8") as f:
-                f.write(rubric_17)
 
-            # Save in root as well
-            with open(target_homework_dir / "bai_tap_mindmap.md", "w", encoding="utf-8") as f:
-                f.write(mindmap_ex_content)
-
-        # 5. Save aggregated tieu_chi_danh_gia.md for all exercises
+        # 5. Save aggregated tieu_chi_danh_gia.md for all exercises (ONLY root file)
         with open(target_homework_dir / "tieu_chi_danh_gia.md", "w", encoding="utf-8") as f:
             f.write(f"# BẢNG TIÊU CHÍ ĐÁNH GIÁ TỔNG HỢP (100đ) - {session_title}\n\n")
+            for ex in exercises_data:
+                f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
             for ex in exercises_data:
                 f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
 

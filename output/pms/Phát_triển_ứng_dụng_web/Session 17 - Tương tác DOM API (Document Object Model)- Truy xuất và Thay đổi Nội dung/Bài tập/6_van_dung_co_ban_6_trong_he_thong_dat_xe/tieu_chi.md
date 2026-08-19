@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến rõ ràng, tuân thủ camelCase (`baseFare`, `totalFare`, `isSurge`).<br>- Thụt lề chuẩn, comment giải thích logic ngắn gọn.<br>- Truy xuất DOM đúng phương thức (`getElementById` / `querySelector`). |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Test Case 1 (15đ)**: $S = 1.5$ km, `surge = false` $\rightarrow$ Base: `12.000 VNĐ`, Surge: `0 VNĐ`, Total: `12.000 VNĐ`.<br>- **Test Case 2 (15đ)**: $S = 5$ km, `surge = true` $\rightarrow$ Base: `25.500 VNĐ`, Surge: `5.100 VNĐ`, Total: `30.600 VNĐ`.<br>- **Test Case 3 (10đ)**: $S = 20$ km, `surge = true` $\rightarrow$ Total: `111.600 VNĐ` (Tính đúng cước lũy tiến). |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - **Test Case 4 (10đ)**: $S = 0$ hoặc $S = -3$ hoặc $S = "abc"$ $\rightarrow$ Hiển thị `"Dữ liệu khoảng cách không hợp lệ"` tại `#total-fare` và gắn class `error`.<br>- **Test Case 5 (10đ)**: Khi Tổng tiền $> 100.000$ VNĐ $\rightarrow$ Thêm class `high-fare` vào phần tử `#total-fare`. |
-| **Thao tác DOM & Định dạng** | **20đ** | - Sử dụng đúng `innerText`/`textContent` để cập nhật nội dung.<br>- Thao tác class chuẩn xác bằng `classList.add()`.<br>- Định dạng đơn vị tiền tệ rõ ràng, không làm biến đổi cấu trúc HTML ban đầu.<br>- Tuyệt đối không dùng Event Listener hay Form Submit. |

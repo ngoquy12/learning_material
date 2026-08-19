@@ -129,14 +129,11 @@ def scaffold_course_resources(excel_path: str, output_base_dir: str = None):
             create_empty_file(quizz_session_dir / "quizz_dau_gio.md", f"# Quizz đầu giờ: {session_folder_name}\n")
             create_empty_file(quizz_session_dir / "quizz_cuoi_gio.md", f"# Quizz cuối giờ: {session_folder_name}\n")
 
-            # Homework exercises (15 bài phân tầng Bloom + 1 bài tổng hợp + 1 bài mindmap + tiêu chí)
+            # Homework exercises (17 folders: 15 tiered + 1 in-class synthesis + 1 mindmap + 1 root aggregated rubric)
             hw_dir = session_dir / "Bài tập"
-            for i in range(1, 16):
-                create_empty_file(hw_dir / f"bai_tap_{i}.md", f"# Bài tập {i}: {session_folder_name}\n")
-            create_empty_file(hw_dir / "bai_tap_tong_hop.md", f"# Bài tập tổng hợp: {session_folder_name}\n")
-            create_empty_file(hw_dir / "bai_tap_mindmap.md", f"# Bài tập sơ đồ tư duy mindmap: {session_folder_name}\n")
-            create_empty_file(hw_dir / "tieu_chi_danh_gia.md", f"# Tiêu chí đánh giá bài tập: {session_folder_name}\n")
-            total_files_created += 18
+            hw_dir.mkdir(parents=True, exist_ok=True)
+            create_empty_file(hw_dir / "tieu_chi_danh_gia.md", f"# Bảng tiêu chí đánh giá tổng hợp: {session_folder_name}\n")
+            total_files_created += 1
 
             # Lesson-level files (4 folders chuẩn: Bài đọc, Câu hỏi bài đọc, Quizz lesson, Bài thực hành)
             for l_idx, lesson_title in enumerate(lessons, 1):

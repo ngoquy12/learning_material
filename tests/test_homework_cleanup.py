@@ -20,14 +20,10 @@ class TestHomeworkCleanup(unittest.TestCase):
         self.hw_path = Path(self.test_dir) / "Bài tập"
         self.hw_path.mkdir(parents=True, exist_ok=True)
 
-        # Create valid 18 root files
-        for i in range(1, 16):
-            (self.hw_path / f"bai_tap_{i}.md").write_text("# Bài tập " + "x" * 400, encoding="utf-8")
-        (self.hw_path / "bai_tap_tong_hop.md").write_text("# Bài tập Tổng hợp " + "x" * 400, encoding="utf-8")
-        (self.hw_path / "bai_tap_mindmap.md").write_text("# Bài tập Mindmap " + "x" * 400, encoding="utf-8")
+        # Create single valid root file
         (self.hw_path / "tieu_chi_danh_gia.md").write_text("# Tiêu chí " + "x" * 400, encoding="utf-8")
 
-        # Create 17 valid subfolders
+        # Create 17 valid subfolders (each having de_bai_bai_tap.md and tieu_chi_cham_diem_ai.md)
         self.valid_folders = []
         for i in range(1, 16):
             f_name = f"{i}_van_dung_co_ban_test_{i}"
@@ -35,27 +31,21 @@ class TestHomeworkCleanup(unittest.TestCase):
             sub = self.hw_path / f_name
             sub.mkdir(parents=True, exist_ok=True)
             (sub / "de_bai_bai_tap.md").write_text("# Đề bài " + "x" * 300, encoding="utf-8")
-            (sub / "de_bai.md").write_text("# Đề bài " + "x" * 300, encoding="utf-8")
             (sub / "tieu_chi_cham_diem_ai.md").write_text("# Tiêu chí " + "x" * 300, encoding="utf-8")
-            (sub / "tieu_chi.md").write_text("# Tiêu chí " + "x" * 300, encoding="utf-8")
 
         f16 = "16_tong_hop_demo_giang_vien_tren_lop"
         self.valid_folders.append(f16)
         sub16 = self.hw_path / f16
         sub16.mkdir(parents=True, exist_ok=True)
         (sub16 / "de_bai_bai_tap.md").write_text("# Đề bài 16 " + "x" * 300, encoding="utf-8")
-        (sub16 / "de_bai.md").write_text("# Đề bài 16 " + "x" * 300, encoding="utf-8")
         (sub16 / "tieu_chi_cham_diem_ai.md").write_text("# Tiêu chí 16 " + "x" * 300, encoding="utf-8")
-        (sub16 / "tieu_chi.md").write_text("# Tiêu chí 16 " + "x" * 300, encoding="utf-8")
 
         f17 = "17_tong_hop_he_thong_kien_thuc_mindmap"
         self.valid_folders.append(f17)
         sub17 = self.hw_path / f17
         sub17.mkdir(parents=True, exist_ok=True)
         (sub17 / "de_bai_bai_tap.md").write_text("# Đề bài 17 " + "x" * 300, encoding="utf-8")
-        (sub17 / "de_bai.md").write_text("# Đề bài 17 " + "x" * 300, encoding="utf-8")
         (sub17 / "tieu_chi_cham_diem_ai.md").write_text("# Tiêu chí 17 " + "x" * 300, encoding="utf-8")
-        (sub17 / "tieu_chi.md").write_text("# Tiêu chí 17 " + "x" * 300, encoding="utf-8")
 
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
@@ -65,6 +55,10 @@ class TestHomeworkCleanup(unittest.TestCase):
         # Inject junk files
         junk_root = self.hw_path / "temp_scratch.tmp"
         junk_root.write_text("junk", encoding="utf-8")
+
+        # Inject loose redundant bai_tap_1.md in root
+        loose_bai_tap = self.hw_path / "bai_tap_1.md"
+        loose_bai_tap.write_text("redundant loose file", encoding="utf-8")
         
         legacy_folder = self.hw_path / "bai_01"
         legacy_folder.mkdir()
@@ -79,10 +73,11 @@ class TestHomeworkCleanup(unittest.TestCase):
 
         # Run cleanup
         res = cleanup_redundant_homework_assets(self.hw_path, valid_folder_names=self.valid_folders)
-        self.assertTrue(len(res["deleted_files"]) >= 2)
+        self.assertTrue(len(res["deleted_files"]) >= 3)
         self.assertTrue(len(res["deleted_folders"]) >= 2)
 
         self.assertFalse(junk_root.exists())
+        self.assertFalse(loose_bai_tap.exists())
         self.assertFalse(legacy_folder.exists())
         self.assertFalse(junk_subfolder.exists())
         self.assertFalse(tiny_stub.exists())
@@ -96,7 +91,7 @@ class TestHomeworkCleanup(unittest.TestCase):
         self.assertEqual(review_res["status"], "PASSED")
         self.assertEqual(review_res["score"], 100)
         self.assertEqual(review_res["total_folders"], 17)
-        self.assertEqual(review_res["total_root_files"], 18)
+        self.assertEqual(review_res["total_root_files"], 1)
 
 if __name__ == "__main__":
     unittest.main()

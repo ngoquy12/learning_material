@@ -15,17 +15,13 @@ import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union, Set
 
-ALLOWED_ROOT_FILES: Set[str] = {f"bai_tap_{i}.md" for i in range(1, 16)} | {
-    "bai_tap_tong_hop.md",
-    "bai_tap_mindmap.md",
+ALLOWED_ROOT_FILES: Set[str] = {
     "tieu_chi_danh_gia.md"
 }
 
 ALLOWED_SUBFOLDER_FILES: Set[str] = {
     "de_bai_bai_tap.md",
-    "de_bai.md",
-    "tieu_chi_cham_diem_ai.md",
-    "tieu_chi.md"
+    "tieu_chi_cham_diem_ai.md"
 }
 
 def cleanup_redundant_homework_assets(
@@ -34,9 +30,9 @@ def cleanup_redundant_homework_assets(
 ) -> Dict[str, List[str]]:
     """
     Rà soát và xóa sạch 100% các tệp tin và thư mục rác/dư thừa trong thư mục Bài tập:
-    - Tại thư mục gốc: Chỉ giữ lại 18 files chuẩn (bai_tap_1..15.md, bai_tap_tong_hop.md, bai_tap_mindmap.md, tieu_chi_danh_gia.md). Xóa tất cả file lạ/dư thừa khác.
-    - Tại các thư mục con: Xóa các thư mục rác (bai_01..15 cũ, thư mục không thuộc 17 bài đã tạo).
-    - Bên trong từng thư mục con: Chỉ giữ lại 4 files chuẩn, xóa file rỗng/file tạm (< 200 bytes).
+    - Tại thư mục gốc: Chỉ giữ duy nhất file tổng hợp tieu_chi_danh_gia.md. Xóa sạch mọi file bài tập lẻ bai_tap_*.md.
+    - Tại các thư mục con: Chỉ giữ đúng 17 thư mục bài tập chuẩn (1..15, 16, 17). Xóa mọi thư mục cũ hoặc thư mục rác.
+    - Bên trong từng thư mục con: Chỉ giữ đúng 2 files chuẩn (de_bai_bai_tap.md, tieu_chi_cham_diem_ai.md). Xóa file alias trùng lặp (de_bai.md, tieu_chi.md), file rỗng/tạm.
     """
     hw_path = Path(homework_dir)
     if not hw_path.exists() or not hw_path.is_dir():
@@ -45,7 +41,7 @@ def cleanup_redundant_homework_assets(
     deleted_files = []
     deleted_folders = []
 
-    # 1. Dọn dẹp các file rác ở thư mục gốc Bài tập/
+    # 1. Dọn dẹp các file rác ở thư mục gốc Bài tập/ (xóa sạch các file bai_tap_*.md thừa)
     for file_item in list(hw_path.iterdir()):
         if file_item.is_file():
             if file_item.name not in ALLOWED_ROOT_FILES or file_item.stat().st_size < 200:
@@ -99,7 +95,7 @@ def cleanup_redundant_homework_assets(
             except Exception:
                 pass
 
-    # 3. Dọn dẹp bên trong từng thư mục con hợp lệ
+    # 3. Dọn dẹp bên trong từng thư mục con hợp lệ (chỉ giữ de_bai_bai_tap.md và tieu_chi_cham_diem_ai.md)
     active_subdirs = [d for d in hw_path.iterdir() if d.is_dir() and d.name != "images" and not d.name.startswith(".")]
     for sub in active_subdirs:
         for sub_file in list(sub.iterdir()):
@@ -146,32 +142,17 @@ def review_session_homework(
     errors = []
     warnings = []
 
-    # 2. Check root files (chính xác 18 files)
+    # 2. Check root files: Chỉ duy nhất tieu_chi_danh_gia.md ở thư mục gốc
     root_files = {f.name: f for f in hw_path.iterdir() if f.is_file()}
-    for i in range(1, 16):
-        expected_root_file = f"bai_tap_{i}.md"
-        if expected_root_file not in root_files:
-            errors.append(f"Thiếu file bài tập ở thư mục gốc: {expected_root_file}")
-        elif root_files[expected_root_file].stat().st_size < 300:
-            errors.append(f"File bài tập rỗng hoặc quá ngắn (<300 bytes): {expected_root_file}")
-
-    if "bai_tap_tong_hop.md" not in root_files:
-        errors.append("Thiếu file Bài tập tổng hợp trên lớp: bai_tap_tong_hop.md")
-    elif root_files["bai_tap_tong_hop.md"].stat().st_size < 300:
-        errors.append("File bai_tap_tong_hop.md rỗng hoặc quá ngắn")
-
-    if "bai_tap_mindmap.md" not in root_files:
-        errors.append("Thiếu file Bài tập sơ đồ tư duy mindmap: bai_tap_mindmap.md")
-    elif root_files["bai_tap_mindmap.md"].stat().st_size < 300:
-        errors.append("File bai_tap_mindmap.md rỗng hoặc quá ngắn")
-
     if "tieu_chi_danh_gia.md" not in root_files:
-        errors.append("Thiếu file Bảng tiêu chí đánh giá tổng hợp: tieu_chi_danh_gia.md")
+        errors.append("Thiếu file Bảng tiêu chí đánh giá tổng hợp ở thư mục gốc: tieu_chi_danh_gia.md")
+    elif root_files["tieu_chi_danh_gia.md"].stat().st_size < 300:
+        errors.append("File tieu_chi_danh_gia.md rỗng hoặc quá ngắn (<300 bytes)")
 
-    # Kiểm tra xem còn file thừa nào ở root không
+    # Kiểm tra xem còn file thừa nào ở root không (không được để file lẻ bai_tap_*.md ở root)
     surplus_root_files = [f for f in root_files.keys() if f not in ALLOWED_ROOT_FILES]
     if surplus_root_files:
-        warnings.append(f"Phát hiện file không theo chuẩn ở thư mục gốc: {surplus_root_files}")
+        errors.append(f"Phát hiện file thừa không theo cấu trúc ở thư mục gốc (các bài tập phải nằm trong thư mục con tương ứng): {surplus_root_files}")
 
     # 3. Check subfolders (chính xác 17 subfolders)
     subdirs = [d for d in hw_path.iterdir() if d.is_dir() and d.name != "images" and not d.name.startswith(".")]
@@ -194,22 +175,34 @@ def review_session_homework(
             errors.append(f"Thiếu thư mục bài tập số {i} theo chuẩn định danh (ví dụ: {i}_van_dung_...)")
         else:
             folder = numbered_folders[i]
-            # Check de_bai
-            has_de_bai = (folder / "de_bai_bai_tap.md").exists() or (folder / "de_bai.md").exists()
+            # Check de_bai_bai_tap.md
+            has_de_bai = (folder / "de_bai_bai_tap.md").exists()
             if not has_de_bai:
-                errors.append(f"Thư mục {folder.name} thiếu file đề bài (de_bai_bai_tap.md hoặc de_bai.md)")
-            # Check tieu_chi
-            has_tieu_chi = (folder / "tieu_chi_cham_diem_ai.md").exists() or (folder / "tieu_chi.md").exists()
+                errors.append(f"Thư mục {folder.name} thiếu file đề bài chuẩn (de_bai_bai_tap.md)")
+            # Check tieu_chi_cham_diem_ai.md
+            has_tieu_chi = (folder / "tieu_chi_cham_diem_ai.md").exists()
             if not has_tieu_chi:
-                errors.append(f"Thư mục {folder.name} thiếu file tiêu chí chấm (tieu_chi_cham_diem_ai.md hoặc tieu_chi.md)")
+                errors.append(f"Thư mục {folder.name} thiếu file tiêu chí chấm chuẩn (tieu_chi_cham_diem_ai.md)")
 
     # Check folder 16 (in-class synthesis)
     if 16 not in numbered_folders:
-        warnings.append("Khuyến nghị có thư mục riêng cho Bài tập tổng hợp trên lớp (16_tong_hop_demo_giang_vien_tren_lop)")
+        errors.append("Thiếu thư mục Bài tập tổng hợp trên lớp (16_tong_hop_demo_giang_vien_tren_lop)")
+    else:
+        folder_16 = numbered_folders[16]
+        if not (folder_16 / "de_bai_bai_tap.md").exists():
+            errors.append("Thư mục 16_tong_hop_demo_giang_vien_tren_lop thiếu file de_bai_bai_tap.md")
+        if not (folder_16 / "tieu_chi_cham_diem_ai.md").exists():
+            errors.append("Thư mục 16_tong_hop_demo_giang_vien_tren_lop thiếu file tieu_chi_cham_diem_ai.md")
 
     # Check folder 17 (mindmap)
     if 17 not in numbered_folders:
-        warnings.append("Khuyến nghị có thư mục riêng cho Bài tập sơ đồ tư duy mindmap (17_tong_hop_he_thong_kien_thuc_mindmap)")
+        errors.append("Thiếu thư mục Bài tập sơ đồ tư duy mindmap (17_tong_hop_he_thong_kien_thuc_mindmap)")
+    else:
+        folder_17 = numbered_folders[17]
+        if not (folder_17 / "de_bai_bai_tap.md").exists():
+            errors.append("Thư mục 17_tong_hop_he_thong_kien_thuc_mindmap thiếu file de_bai_bai_tap.md")
+        if not (folder_17 / "tieu_chi_cham_diem_ai.md").exists():
+            errors.append("Thư mục 17_tong_hop_he_thong_kien_thuc_mindmap thiếu file tieu_chi_cham_diem_ai.md")
 
     # 4. Check for emoji or bad content
     for f in hw_path.glob("**/*.md"):

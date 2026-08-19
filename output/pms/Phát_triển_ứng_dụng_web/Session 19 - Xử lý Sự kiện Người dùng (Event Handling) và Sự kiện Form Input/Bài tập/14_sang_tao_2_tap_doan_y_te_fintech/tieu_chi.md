@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến, hàm theo chuẩn CamelCase (e.g., `calculateFee`, `renderQueueTable`).<br>- Cấu trúc HTML/CSS chuẩn hóa, giao diện sạch sẽ, thân thiện.<br>- Phân chia rõ ràng giữa dữ liệu (State), xử lý sự kiện (Events) và thao tác DOM (Render). |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Tính toán BHYT (10đ):** Giảm đúng 80% khi tích chọn BHYT.<br>- **Phân loại ưu tiên (10đ):** Cấp mã `PRIO-xxx` chuẩn xác cho người $\ge 70$ tuổi hoặc phụ nữ mang thai.<br>- **Quản lý Slot Capacity (10đ):** Tính chính xác số lượng lịch đặt theo Bác sĩ + Khung giờ, chặn thành công khi đạt giới hạn 5/5.<br>- **Quản lý Hàng chờ (10đ):** Render danh sách cuộc hẹn chính xác sau mỗi lần đăng ký thành công. |
-| **Xử lý Tương tác Sự kiện & Validation** | **20đ** | - Sử dụng đúng `preventDefault()` để ngăn reload trang.<br>- Xử lý chuẩn xác các sự kiện `input`, `change` cho preview chi phí và hiển thị/ẩn ô Checkbox mang thai.<br>- Thống kê slot khả dụng cập nhật linh hoạt thời gian thực.<br>- Báo lỗi rõ ràng khi input không hợp lệ hoặc slot đã đầy. |
-| **Tối ưu hiệu năng & Trải nghiệm (UX)** | **20đ** | - Tổ chức mã nguồn thành các hàm nhỏ có tính tái sử dụng (Clean code, No duplicate code).<br>- Không lạm dụng truy vấn DOM nhiều lần (Lưu trữ DOM Element vào biến/const).<br>- Reset Form đúng cách và cập nhật lại toàn bộ chỉ số Real-time sau khi đặt lịch thành công. |
