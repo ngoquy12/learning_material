@@ -469,7 +469,10 @@ def generate_session_deck_html(session_title: str, module_name: str, lessons_dat
     </section>
   </div>""")
 
-    template_file = Path("templates/slide_template.html")
+    template_file = Path("templates/html/slide_template.html")
+    if not template_file.exists():
+        template_file = Path("templates/slide_template.html")
+
     if template_file.exists():
         template_content = template_file.read_text(encoding="utf-8")
         nav_links_list = []
@@ -496,4 +499,4 @@ def generate_session_deck_html(session_title: str, module_name: str, lessons_dat
         
         return full_html
     else:
-        raise FileNotFoundError("Master slide template file not found at templates/slide_template.html")
+        raise FileNotFoundError("Master slide template file not found at templates/html/slide_template.html")

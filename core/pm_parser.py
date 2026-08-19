@@ -125,7 +125,9 @@ def parse_pm_excel(excel_path: Union[str, Path]) -> Dict[str, Any]:
 if __name__ == "__main__":
     import sys
     sys.stdout.reconfigure(encoding="utf-8")
-    sample_excel = Path(__file__).resolve().parent.parent / "templates" / "PM_Template_Standard.xlsx"
+    sample_excel = Path(__file__).resolve().parent.parent / "templates" / "documents" / "PM_Template_Standard.xlsx"
+    if not sample_excel.exists():
+        sample_excel = Path(__file__).resolve().parent.parent / "templates" / "PM_Template_Standard.xlsx"
     parsed = parse_pm_excel(sample_excel)
     print("--- PARSED PM EXCEL SYLLABUS SUMMARY ---")
     print(f"Total Sessions: {parsed['total_sessions']}")

@@ -801,7 +801,9 @@ def export_pm_to_excel(
     if not effective_template or not os.path.exists(effective_template):
         # Try standard location relative to project root
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        candidate = os.path.join(project_root, "templates", "PM_Template_Standard.xlsx")
+        candidate = os.path.join(project_root, "templates", "documents", "PM_Template_Standard.xlsx")
+        if not os.path.exists(candidate):
+            candidate = os.path.join(project_root, "templates", "PM_Template_Standard.xlsx")
         if os.path.exists(candidate):
             effective_template = candidate
 

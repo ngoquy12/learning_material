@@ -14,7 +14,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 def generate_standard_pm_template():
-    templates_dir = Path(__file__).resolve().parent.parent / "templates"
+    templates_dir = Path(__file__).resolve().parent.parent / "templates" / "documents"
     templates_dir.mkdir(parents=True, exist_ok=True)
     output_path = templates_dir / "PM_Template_Standard.xlsx"
 

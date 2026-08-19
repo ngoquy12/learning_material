@@ -13,14 +13,15 @@ from typing import Dict, Any, List, Optional
 import jinja2
 
 # Directory containing templates
-TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
+TEMPLATES_HTML_DIR = Path(__file__).resolve().parent.parent.parent / "templates" / "html"
+TEMPLATES_ROOT_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
 
 class ReadingTemplateRenderer:
     """Master Jinja2 Renderer for Reading Materials."""
 
     def __init__(self):
         self.env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(str(TEMPLATES_DIR)),
+            loader=jinja2.FileSystemLoader([str(TEMPLATES_HTML_DIR), str(TEMPLATES_ROOT_DIR)]),
             autoescape=jinja2.select_autoescape(['html', 'xml']),
             trim_blocks=True,
             lstrip_blocks=True

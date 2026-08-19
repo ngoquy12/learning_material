@@ -714,7 +714,10 @@ def generate_interactive_visualizer_html(
         js_functions.append(sec_dict["js_code"])
         init_calls.append(sec_dict["init_call"])
 
-    template_file = Path("templates/classroom_lecture.html.j2")
+    template_file = Path("templates/html/classroom_lecture.html.j2")
+    if not template_file.exists():
+        template_file = Path("templates/classroom_lecture.html.j2")
+
     if template_file.exists():
         template_str = template_file.read_text(encoding="utf-8")
         j2_template = jinja2.Template(template_str)
@@ -730,4 +733,4 @@ def generate_interactive_visualizer_html(
         )
         return full_html
     else:
-        raise FileNotFoundError("Classroom lecture Jinja2 template not found at templates/classroom_lecture.html.j2")
+        raise FileNotFoundError("Classroom lecture Jinja2 template not found at templates/html/classroom_lecture.html.j2")

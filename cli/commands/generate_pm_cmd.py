@@ -135,7 +135,7 @@ def handle_generate_pm(args):
     export_pm_to_markdown(pm_data, course_id, course_info["course_name"], course_info["clos"], course_info["plos"], target_md, tech_stack=tech_stack_display)
     export_pm_to_excel(
         pm_data, course_id, course_info["course_name"], target_xlsx,
-        template_path="templates/PM_Template_Standard.xlsx",
+        template_path="templates/documents/PM_Template_Standard.xlsx",
         clos=course_info["clos"],
         plos=course_info["plos"],
         student_profile=student_profile,
