@@ -1,5 +1,3 @@
-# Bài tập 1: E-Commerce (Cơ bản 1 - Debug lỗi)
-
 ### 1. Mục tiêu bài tập
 - **Nhận biết và sửa lỗi (Debug)** các sai sót phổ biến khi làm việc với DOM API: truy xuất element sai selector (`getElementById` thừa dấu `#`, `querySelector` thiếu dấu `.`, chọn sai HTMLCollection vs Element).
 - **Thao tác thay đổi nội dung & thuộc tính**: Sử dụng đúng các thuộc tính/phương thức DOM cơ bản (`innerText`, `textContent`, `setAttribute`, `style`, `classList`) thay vì dùng sai thuộc tính `.value` trên các thẻ HTML không phải thẻ input.
@@ -172,12 +170,3 @@ if (currentTrip.isSurge) {
   └── debug-report.md      # Báo cáo danh sách các lỗi đã tìm thấy & cách khắc phục
   ```
 - File `debug-report.md` cần trình bày theo định dạng Bảng gồm các cột: `STT | Mã lỗi / Vị trí | Nguyên nhân | Cách khắc phục`.
-
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Phân tích & Phát hiện Lỗi (Debug Report)** | **20đ** | - Phát hiện đầy đủ và chính xác ít nhất 5 lỗi trong file `script.js`.<br>- Giải thích rõ ràng bản chất kỹ thuật của lỗi (VD: `getElementById` truyền dư `#`, `getElementsByClassName` trả về `HTMLCollection` chứ không phải 1 element, thẻ `span`/`strong` không có thuộc tính `.value`...). |
-| **Xử lý Logic đúng Nghiệp vụ GrabRide** | **40đ** | - Tính chuẩn cước phí gốc cho 2km đầu ($12.000$ VNĐ) và các km tiếp theo ($4.500$ VNĐ/km).<br>- Áp dụng đúng công thức nhân hệ số $1.2$ khi `isSurge = true`.<br>- Kết quả tính toán chính xác tuyệt đối với các bộ test cases (ví dụ 1.5km, 5.5km, 10km). |
-| **Thao tác DOM API & Chuẩn hóa UI** | **20đ** | - Truy xuất đúng DOM element mà không gây lỗi `null` hoặc `undefined`.<br>- Sử dụng đúng `innerText`/`textContent` để cập nhật văn bản.<br>- Đặt thuộc tính `src` cho ảnh thành công.<br>- Thay đổi style/class hiển thị đúng bằng `classList.add()` mà không làm phá vỡ CSS nền. |
-| **Cấu trúc Mã nguồn & Quy chuẩn Nộp bài** | **20đ** | - Mã nguồn viết sạch sẻ, có comment giải thích rõ ràng.<br>- Đặt tên biến/hàm theo chuẩn camelCase (`calculateTripFare`, `totalFareEl`).<br>- Tuân thủ đúng cấu trúc thư mục nộp bài và các ràng buộc phạm vi kỹ thuật (không dùng event/fetch). |

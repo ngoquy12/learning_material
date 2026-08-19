@@ -1,0 +1,9 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| **Cấu trúc & Mô đun hóa Mã nguồn** | **20đ** | - Mã nguồn JS được thiết kế dạng Module/Class sạch sẻ, phân tách rõ ràng trách nhiệm từng hàm (`renderUserProfile`, `renderBilling`,...<br>- Đặt tên biến, hàm theo chuẩn Camel-case, comment giải thích logic nghiệp vụ đầy đủ.<br>- Khung HTML ngữ nghĩa, CSS định hình giao diện rõ ràng. |
+| **Thao tác DOM API & Rendering** | **20đ** | - Sử dụng đúng và tối ưu các truy xuất DOM (`getElementById`, `querySelector`, `querySelectorAll`).<br>- Cập nhật chính xác `textContent`, `innerHTML`, `classList` và thuộc tính DOM theo trạng thái dữ liệu.<br>- Không để lọt các lỗi đè dữ liệu hoặc render sót node. |
+| **Xử lý Logic Nghiệp vụ & Grace Period** | **30đ** | - Tính toán chính xác giá tiền gói năm (chiết khấu 20%) và định dạng tiền tệ `VNĐ`.<br>- Thực hiện chuẩn xác logic Grace Period: `daysOverdue > 3` phải ép downgrade giao diện về `FREE` và đổi trạng thái Alert sang màu đỏ.<br>- Nếu `daysOverdue <= 3` hiển thị thông báo màu vàng cảnh báo số ngày còn lại. |
+| **Quản lý Hạn ngạch & Feature Matrix** | **20đ** | - Render chính xác ma trận đặc quyền (locked/unlocked) cho cả 4 hạng gói.<br>- Xử lý đúng hạn ngạch tài khoản con: Ẩn/Vô hiệu hóa với gói Free/Individual; Đánh dấu nhãn vượt hạn ngạch (`.exceeded-limit`) từ tài khoản thứ 6 trở đi với gói Family. |
+| **Kiểm soát Ngoại lệ & Dữ liệu Biên** | **10đ** | - Xử lý an toàn khi mảng tài khoản con bị rỗng (`[]` hoặc `null`).<br>- Xử lý khi dữ liệu gói nhập vào không hợp lệ (mặc định trả về gói `FREE`).<br>- Không vi phạm danh mục cấm (Không dùng Event Listener, Fetch, LocalStorage). |

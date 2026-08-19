@@ -1,5 +1,3 @@
-# Bài tập 5: CRM (Tối ưu hóa - Tái cấu trúc)
-
 ### 1. Mục tiêu bài tập
 - **Tối ưu hóa thao tác DOM API (DOM Performance Optimization):** Khắc phục lỗi Layout Thrashing (Reflow/Repaint liên tục) bằng cách hạn chế truy vấn DOM trùng lặp và loại bỏ việc ghi trực tiếp `innerHTML` trong vòng lặp bằng giải pháp `DocumentFragment` hoặc nối chuỗi template trong bộ nhớ.
 - **Tái cấu trúc mã nguồn (Code Refactoring & Clean Code):** Tách biệt hoàn toàn phần logic tính toán nghiệp vụ (Pure Business Logic) và phần cập nhật giao diện (DOM Rendering/Mutation).
@@ -156,12 +154,3 @@ const sampleCartItems = [
 - **Quy định đặt tên:**
   - Tên thư mục gốc: `[MãSinhViên]_Session17_HW5` (Ví dụ: `B8899_Session17_HW5`).
   - Đảm bảo file `app.js` được liên kết đúng chuẩn ở cuối thẻ `<body>` trong `index.html`.
-
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Tối ưu hóa DOM (DOM Refactoring)** | **20đ** | - Áp dụng thành công caching cho các phần tử DOM, không để lặp lại việc truy xuất phần tử DOM.<br>- Sử dụng `DocumentFragment` hoặc gom chuỗi HTML để thao tác `innerHTML` đúng 1 lần.<br>- Sử dụng `textContent` hợp lý thay cho `innerHTML` cho các đoạn text tĩnh/tiền tệ. |
-| **Xử lý Logic đúng Nghiệp vụ ShopeeFood** | **40đ** | - Tính đúng Subtotal (bỏ qua sản phẩm `stock === 0`).<br>- Áp dụng đúng quy tắc giảm 15k phí ship cho đơn $\ge 100\text{k}$ (phí ship không âm).<br>- Tính chuẩn phụ phí giờ cao điểm $10\text{k}$ (11h-13h, 18h-20h).<br>- Tính chính xác tổng thanh toán cuối cùng. |
-| **Xử lý Trạng thái & Trường hợp Biên** | **20đ** | - Xử lý chuẩn xác khi quán đóng cửa (`isStoreOpen = false`): Hiển thị banner lỗi, ẩn khu vực checkout.<br>- Phân biệt rõ món còn hàng/hết hàng trên giao diện bằng class CSS và nhãn tương ứng.<br>- Xử lý an toàn trường hợp giỏ hàng rỗng (`cartItems = []`). |
-| **Tái cấu trúc Mã nguồn & Clean Code** | **20đ** | - Tách biệt logic nghiệp vụ tính toán (Pure Functions) và logic thao tác DOM (Impure Functions).<br>- Đặt tên hàm, biến chuẩn CamelCase, tự giải thích (self-documenting).<br>- Định dạng tiền tệ chính xác (`xxx.xxxđ`). Mã nguồn không chứa Event Listeners hay API cấm. |

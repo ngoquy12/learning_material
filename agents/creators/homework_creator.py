@@ -248,6 +248,28 @@ def generate_session_homework_suite(
             with open(target_homework_dir / f"bai_tap_{idx}.md", "w", encoding="utf-8") as f:
                 f.write(f"# {ex['title']}\n\n{ex['de_bai_content']}\n\n{ex['tieu_chi_content']}")
 
+        # Save aggregated tieu_chi_danh_gia.md
+        with open(target_homework_dir / "tieu_chi_danh_gia.md", "w", encoding="utf-8") as f:
+            f.write(f"# BẢNG TIÊU CHÍ ĐÁNH GIÁ TỔNG HỢP (100đ) - {session_title}\n\n")
+            for ex in exercises_data:
+                f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
+
+        # Cleanup leftover empty scaffold placeholder stubs (e.g. bai_tap_7.md - bai_tap_15.md, bai_tap_tong_hop.md)
+        for old_file in target_homework_dir.glob("bai_tap_*.md"):
+            match = re.match(r"bai_tap_(\d+)\.md", old_file.name)
+            if match and int(match.group(1)) > len(exercises_data) and old_file.stat().st_size < 200:
+                try:
+                    old_file.unlink()
+                except Exception:
+                    pass
+        for stub_name in ["bai_tap_tong_hop.md", "bai_tap_mindmap.md"]:
+            stub_path = target_homework_dir / stub_name
+            if stub_path.exists() and stub_path.stat().st_size < 200:
+                try:
+                    stub_path.unlink()
+                except Exception:
+                    pass
+
         print(f"  ✓ Đã lưu {len(exercises_data)} bài tập về nhà vào: {target_homework_dir}")
 
     return exercises_data
