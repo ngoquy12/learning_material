@@ -12,7 +12,7 @@ import os
 import re
 import random
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
 from concurrent.futures import ThreadPoolExecutor
 
 from core.llm import call_llm
@@ -181,6 +181,7 @@ def generate_session_homework_suite(
     previous_lessons_text: str = "",
     forbidden_scope: str = "",
     course_dir: Optional[Path] = None,
+    session_dir_path: Optional[Union[str, Path]] = None,
     total_exercises: int = 6
 ) -> List[Dict[str, Any]]:
     """
@@ -224,20 +225,29 @@ def generate_session_homework_suite(
 
     exercises_data.sort(key=lambda x: x.get("idx", 0))
 
-    # Export to disk if course_dir is provided
-    if course_dir:
-        homework_dir = course_dir / session_id / "Bài tập về nhà"
-        homework_dir.mkdir(parents=True, exist_ok=True)
+    # Determine target output directory
+    target_homework_dir = None
+    if session_dir_path:
+        target_homework_dir = Path(session_dir_path) / "Bài tập"
+    elif course_dir:
+        target_homework_dir = course_dir / session_id / "Bài tập"
+
+    # Export to disk if destination is provided
+    if target_homework_dir:
+        target_homework_dir.mkdir(parents=True, exist_ok=True)
 
         for ex in exercises_data:
             idx = ex["idx"]
-            ex_folder = homework_dir / f"bai_{idx:02d}"
+            ex_folder = target_homework_dir / f"bai_{idx:02d}"
             ex_folder.mkdir(parents=True, exist_ok=True)
             with open(ex_folder / "de_bai.md", "w", encoding="utf-8") as f:
                 f.write(ex["de_bai_content"])
             with open(ex_folder / "tieu_chi.md", "w", encoding="utf-8") as f:
                 f.write(ex["tieu_chi_content"])
+            # Backward-compatible individual bài tập markdown in Bài tập root
+            with open(target_homework_dir / f"bai_tap_{idx}.md", "w", encoding="utf-8") as f:
+                f.write(f"# {ex['title']}\n\n{ex['de_bai_content']}\n\n{ex['tieu_chi_content']}")
 
-        print(f"  ✓ Đã lưu {len(exercises_data)} bài tập về nhà vào: {homework_dir}")
+        print(f"  ✓ Đã lưu {len(exercises_data)} bài tập về nhà vào: {target_homework_dir}")
 
     return exercises_data

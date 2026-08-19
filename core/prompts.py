@@ -23,8 +23,14 @@ class PromptManager:
 
     def __init__(self, templates_dir: Optional[Path] = None):
         self.templates_dir = templates_dir or TEMPLATES_PROMPT_DIR
+        search_paths = [
+            str(TEMPLATES_PROMPT_DIR),
+            str(BASE_DIR / "templates"),
+            str(BASE_DIR / "templates" / "html"),
+            str(BASE_DIR)
+        ]
         self._env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader(str(self.templates_dir)),
+            loader=jinja2.FileSystemLoader(search_paths),
             autoescape=False,  # Prompts are raw text / markdown / JSON specifications
             trim_blocks=True,
             lstrip_blocks=True,
@@ -52,13 +58,19 @@ class PromptManager:
                 template = self._env.get_template(template_name)
                 self._cache[template_name] = template
             except jinja2.TemplateNotFound:
-                if fallback_text:
-                    template = self._env.from_string(fallback_text)
+                # Try normalized names (e.g. prompts/foo.j2 -> foo.j2 or vice versa)
+                alt_name = template_name.replace("prompts/", "") if template_name.startswith("prompts/") else f"prompts/{template_name}"
+                try:
+                    template = self._env.get_template(alt_name)
                     self._cache[template_name] = template
-                else:
-                    raise FileNotFoundError(
-                        f"Prompt template '{template_name}' not found in '{self.templates_dir}' and no fallback provided."
-                    )
+                except jinja2.TemplateNotFound:
+                    if fallback_text:
+                        template = self._env.from_string(fallback_text)
+                        self._cache[template_name] = template
+                    else:
+                        raise FileNotFoundError(
+                            f"Prompt template '{template_name}' not found in '{self.templates_dir}' and no fallback provided."
+                        )
             except Exception as e:
                 if fallback_text:
                     template = self._env.from_string(fallback_text)
