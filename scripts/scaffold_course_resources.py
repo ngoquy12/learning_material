@@ -121,6 +121,7 @@ def scaffold_course_resources(excel_path: str, output_base_dir: str = None):
         # -------------------------------------------------------------
         if "Lý thuyết" in s_ht:
             # Session-level files
+            create_empty_file(session_dir / "Slide bài giảng" / "outline_bai_giang.md", f"# Đề cương Slide bài giảng: {session_folder_name}\n")
             create_empty_file(session_dir / "Bài giảng trên lớp" / "slides.html", f"<!-- Bài giảng trên lớp: {session_folder_name} -->")
             create_empty_file(session_dir / "Sơ đồ tư duy" / "mindmap.md", f"# Sơ đồ tư duy: {session_folder_name}\n")
             

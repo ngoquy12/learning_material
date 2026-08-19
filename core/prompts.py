@@ -87,6 +87,8 @@ class PromptManager:
         return template.render(**context)
 
 
-def render_prompt(template_name: str, context: Optional[Dict[str, Any]] = None, fallback_text: str = "") -> str:
+def render_prompt(template_name: str, context: Optional[Dict[str, Any]] = None, fallback_text: str = "", **kwargs) -> str:
     """Convenience function to render a prompt template via the default PromptManager singleton."""
-    return PromptManager.get_instance().render(template_name, context, fallback_text)
+    ctx = dict(context or {})
+    ctx.update(kwargs)
+    return PromptManager.get_instance().render(template_name, ctx, fallback_text)

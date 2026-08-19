@@ -722,6 +722,7 @@ def execute_course_workflow(args):
                 )
 
                 if "slide" in requested_parts:
+                    # 1. Sinh Bài giảng trên lớp trực quan (HTML + Visualizer)
                     from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
                     classroom_lecture_generator_agent.generate_lecture(
                         session_id=session_id,
@@ -730,6 +731,21 @@ def execute_course_workflow(args):
                         tech_stack=tech_stack,
                         previous_lessons_text=session_lessons_text
                     )
+
+                    # 2. Sinh Slide bài giảng PowerPoint (.pptx) & Outline theo chuẩn Create_Slide 3-Skill
+                    try:
+                        from agents.creators.slide_deck_creator import generate_session_slide_deck
+                        slide_deck_dir = session_dir / "Slide bài giảng"
+                        print(f"  ---> [Slide bài giảng] Đang sinh file PowerPoint (.pptx) & Outline cho {session_id}...")
+                        generate_session_slide_deck(
+                            session_title=session_title,
+                            course_name=course_clean,
+                            tech_stack=tech_stack,
+                            target_dir=slide_deck_dir,
+                            chosen_domain=session_domain_id
+                        )
+                    except Exception as e_slide:
+                        print(f"  ⚠️ [Slide bài giảng] Lỗi khi sinh Slide PowerPoint: {e_slide}")
         else:
             # Session with no sub-lessons
             state: AgentState = {

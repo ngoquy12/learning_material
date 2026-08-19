@@ -79,6 +79,12 @@ from agents.creators.homework_creator import (
     generate_mindmap_exercise,
 )
 
+from agents.creators.slide_deck_creator import (
+    slide_deck_creator,
+    generate_session_slide_deck,
+    SlideDeckCreatorAgent,
+)
+
 __all__ = [
     "estimate_tokens",
     "log_agent_tokens",
@@ -118,4 +124,7 @@ __all__ = [
     "generate_session_homework_suite",
     "generate_inclass_synthesis_exercise",
     "generate_mindmap_exercise",
+    "slide_deck_creator",
+    "generate_session_slide_deck",
+    "SlideDeckCreatorAgent",
 ]

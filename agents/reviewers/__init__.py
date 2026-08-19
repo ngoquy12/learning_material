@@ -44,6 +44,12 @@ from agents.reviewers.homework_reviewer import (
     ALLOWED_SUBFOLDER_FILES
 )
 
+from agents.reviewers.slide_deck_reviewer import (
+    SlideDeckReviewerAgent,
+    slide_deck_reviewer,
+    review_session_slide_deck
+)
+
 __all__ = [
     "HTMLReadingUIReviewerAgent",
     "reading_ui_reviewer",
@@ -68,5 +74,8 @@ __all__ = [
     "review_session_homework",
     "cleanup_redundant_homework_assets",
     "ALLOWED_ROOT_FILES",
-    "ALLOWED_SUBFOLDER_FILES"
+    "ALLOWED_SUBFOLDER_FILES",
+    "SlideDeckReviewerAgent",
+    "slide_deck_reviewer",
+    "review_session_slide_deck"
 ]
