@@ -1,7 +1,7 @@
 """
 core/renderers/pptx/slide_deck_builder.py
-High-Fidelity OOXML PowerPoint Slide Deck Generator adhering strictly to
-Skill 1, Skill 2, and Skill 3 of Create_Slide standard.
+High-Fidelity OOXML PowerPoint Slide Deck Generator adhering 100% strictly to
+Create_Slide (workspace-bai-giang-du-an) Skill 1, Skill 2, and Skill 3 standards.
 """
 
 from __future__ import annotations
@@ -50,14 +50,13 @@ class ShapeIdGenerator:
         self.current += 1
         return self.current
 
-# Global generator instance
 sp_gen = ShapeIdGenerator()
 
 def make_h1_sp(text: str, x: int = 838200, y: int = 509145, cx: int = 8463742, cy: int = 945588) -> str:
     sid = sp_gen.next_id()
     return f"""<p:sp>
   <p:nvSpPr>
-    <p:cNvPr id="{sid}" name="Title {sid}"/>
+    <p:cNvPr id="{sid}" name="Title_{sid}"/>
     <p:cNvSpPr txBox="1"/>
     <p:nvPr><p:ph type="title"/></p:nvPr>
   </p:nvSpPr>
@@ -206,13 +205,11 @@ def tokenize_code_line(line: str) -> List[Dict[str, Any]]:
     if not line:
         return [{'t': ' ', 'c': SYNTAX_PLAIN}]
     
-    # Comments
     stripped = line.strip()
     if stripped.startswith("//") or stripped.startswith("#"):
         return [{'t': line, 'c': SYNTAX_COMMENT, 'i': True}]
     
     tokens = []
-    # Regex parser for simple keywords, strings, numbers, identifiers
     pattern = re.compile(r'("(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|\`[^\`]*\`|\b(?:let|const|var|function|return|if|else|for|while|do|switch|case|break|continue|import|export|class|def|async|await|try|catch|new|this)\b|\b\d+\b|[a-zA-Z_$][a-zA-Z0-9_$]*|[^\s\w])')
     
     last_idx = 0
@@ -250,7 +247,7 @@ def make_code_block(x: int, y: int, cx: int, cy: int, title: str, code_str: str)
         {
             'algn': 'l', 'spcAft': 0, 'bullet': None,
             'runs': [
-                {'text': f"CODE: {title}", 'b': True, 'sz': 1400, 'clr': WHITE, 'font': 'Arial'}
+                {'text': f"JS: {title}", 'b': True, 'sz': 1400, 'clr': WHITE, 'font': 'Arial'}
             ]
         }
     ]))
@@ -354,11 +351,12 @@ def wrap_slide_xml(sp_tree_children_xml: str) -> str:
     return f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
        xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
   <p:cSld>
     <p:spTree>
       <p:nvGrpSpPr>
-        <p:cNvPr id="1" name=""/>
+        <p:cNvPr id="1" name="Root"/>
         <p:cNvGrpSpPr/>
         <p:nvPr/>
       </p:nvGrpSpPr>
@@ -377,6 +375,7 @@ def wrap_slide_xml(sp_tree_children_xml: str) -> str:
 </p:sld>"""
 
 def make_notes_slide_xml(notes_text: str) -> str:
+    sid = sp_gen.next_id()
     paragraphs_xml = []
     for line in notes_text.strip().split('\n'):
         line_clean = line.strip()
@@ -384,7 +383,7 @@ def make_notes_slide_xml(notes_text: str) -> str:
             continue
         paragraphs_xml.append(f"""<a:p>
       <a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l">
-        <a:lnSpc><a:spcPct val="120000"/></a:lnSpc>
+        <a:lnSpc><a:spcPct val="150000"/></a:lnSpc>
         <a:buNone/>
       </a:pPr>
       <a:r>
@@ -413,7 +412,7 @@ def make_notes_slide_xml(notes_text: str) -> str:
       </p:grpSpPr>
       <p:sp>
         <p:nvSpPr>
-          <p:cNvPr id="2" name="Slide Image Placeholder 1"/>
+          <p:cNvPr id="{sid}" name="Slide Image Placeholder"/>
           <p:cNvSpPr><a:spLocks noGrp="1" noRot="1" noChangeAspect="1"/></p:cNvSpPr>
           <p:nvPr><p:ph type="sldImg"/></p:nvPr>
         </p:nvSpPr>
@@ -421,14 +420,11 @@ def make_notes_slide_xml(notes_text: str) -> str:
       </p:sp>
       <p:sp>
         <p:nvSpPr>
-          <p:cNvPr id="3" name="Notes Placeholder 2"/>
+          <p:cNvPr id="{sid+1}" name="Notes Placeholder"/>
           <p:cNvSpPr txBox="1"/>
-          <p:nvPr><p:ph type="body" idx="1"/></p:nvPr>
+          <p:nvPr><p:ph idx="1" type="body"/></p:nvPr>
         </p:nvSpPr>
-        <p:spPr>
-          <a:xfrm><a:off x="685800" y="4457700"/><a:ext cx="5486400" cy="2171700"/></a:xfrm>
-          <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-        </p:spPr>
+        <p:spPr/>
         <p:txBody>
           <a:bodyPr/>
           <a:lstStyle/>
@@ -449,7 +445,6 @@ class SlideDeckBuilder:
         if template_pptx_path:
             self.template_path = Path(template_pptx_path)
         else:
-            # Default template search
             default_p = Path(__file__).resolve().parent.parent.parent.parent / "templates" / "pptx" / "SLIDE TEMPLATE.pptx"
             self.template_path = default_p
 
@@ -513,86 +508,227 @@ class SlideDeckBuilder:
             shapes = []
             
             if s_type == "cover":
-                # Title slide
-                course_title = s.get("course_name", "Khóa học Chuyên nghiệp")
-                shapes.append(make_h1_sp(h1_title, x=838200, y=2600000, cx=10500000, cy=1400000))
-                shapes.append(make_h2_sp(course_title, x=838200, y=4100000, cx=10500000, cy=600000))
-                layout_name = "slideLayout1.xml"
+                # Title slide matching Create_Slide Slide 1
+                layout_name = "slideLayout3.xml"
+                session_tag = s.get("session_id", "Session")
+                course_title = s.get("course_name", "Lập trình Web")
+                shapes.append(f"""
+<p:sp>
+  <p:nvSpPr><p:cNvPr id="101" name="SessionId"/><p:cNvSpPr txBox="1"/><p:nvPr><p:ph idx="2" type="body"/></p:nvPr></p:nvSpPr>
+  <p:spPr><a:xfrm><a:off x="1562200" y="1974300"/><a:ext cx="8154600" cy="554100"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr>
+  <p:txBody><a:bodyPr anchorCtr="0" anchor="t" bIns="45700" lIns="91425" spcFirstLastPara="1" rIns="91425" wrap="square" tIns="45700"><a:noAutofit/></a:bodyPr><a:lstStyle/>
+    <a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l"><a:lnSpc><a:spcPct val="90000"/></a:lnSpc><a:buNone/></a:pPr>
+      <a:r><a:rPr b="1" lang="vi-VN" sz="3000"><a:solidFill><a:srgbClr val="{BRAND_COLOR}"/></a:solidFill><a:latin typeface="Montserrat ExtraBold"/><a:ea typeface="Montserrat ExtraBold"/><a:cs typeface="Montserrat ExtraBold"/></a:rPr><a:t>{xml_escape(session_tag)}</a:t></a:r>
+    </a:p>
+  </p:txBody>
+</p:sp>
+<p:sp>
+  <p:nvSpPr><p:cNvPr id="102" name="Title"/><p:cNvSpPr txBox="1"/><p:nvPr><p:ph type="ctrTitle"/></p:nvPr></p:nvSpPr>
+  <p:spPr><a:xfrm><a:off x="1697675" y="2660574"/><a:ext cx="8500000" cy="947700"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr>
+  <p:txBody><a:bodyPr anchorCtr="0" anchor="t" bIns="0" lIns="0" spcFirstLastPara="1" rIns="0" wrap="square" tIns="0"><a:noAutofit/></a:bodyPr><a:lstStyle/>
+    <a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l"><a:lnSpc><a:spcPct val="90000"/></a:lnSpc><a:buNone/></a:pPr>
+      <a:r><a:rPr b="1" lang="vi-VN" sz="3000"><a:solidFill><a:srgbClr val="{BLACK}"/></a:solidFill><a:latin typeface="Montserrat Black"/><a:ea typeface="Montserrat Black"/><a:cs typeface="Montserrat Black"/></a:rPr><a:t>{xml_escape(h1_title)}</a:t></a:r>
+    </a:p>
+  </p:txBody>
+</p:sp>
+<p:sp>
+  <p:nvSpPr><p:cNvPr id="103" name="CourseModule"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>
+  <p:spPr><a:xfrm><a:off x="1697669" y="3664241"/><a:ext cx="8500000" cy="360000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr>
+  <p:txBody><a:bodyPr anchorCtr="0" anchor="t" bIns="0" lIns="0" spcFirstLastPara="1" rIns="0" wrap="square" tIns="0"><a:noAutofit/></a:bodyPr><a:lstStyle/>
+    <a:p><a:pPr indent="-228600" lvl="0" marL="228600" rtl="0" algn="l"><a:lnSpc><a:spcPct val="90000"/></a:lnSpc><a:buNone/></a:pPr>
+      <a:r><a:rPr b="0" lang="vi-VN" sz="1800"><a:solidFill><a:srgbClr val="{BLACK}"/></a:solidFill><a:latin typeface="Montserrat"/><a:ea typeface="Montserrat"/><a:cs typeface="Montserrat"/></a:rPr><a:t>Môn học: {xml_escape(course_title)}</a:t></a:r>
+    </a:p>
+  </p:txBody>
+</p:sp>
+""")
             elif s_type == "agenda":
-                shapes.append(make_h1_sp(h1_title))
+                # Agenda slide matching Create_Slide Slide 2
+                layout_name = "slideLayout1.xml"
                 parts = s.get("agenda_items", [])
-                shapes.append(make_card_sp(838200, 1600000, 10500000, 4800000, fill_clr=WHITE))
-                p_list = []
+                p_items_xml = []
                 for p_idx, item in enumerate(parts, 1):
-                    p_list.append({
-                        'algn': 'l', 'spcAft': 350, 'bullet': True,
-                        'runs': [
-                            {'text': f"Phần {p_idx:02d}: ", 'b': True, 'sz': 2000, 'clr': BRAND_COLOR, 'font': 'Montserrat ExtraBold'},
-                            {'text': str(item), 'b': False, 'sz': 1800, 'clr': BLACK, 'font': 'Arial'}
-                        ]
-                    })
-                shapes.append(make_textbox_sp(1100000, 1800000, 9900000, 4400000, p_list))
+                    p_items_xml.append(f"""
+    <a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l"><a:lnSpc><a:spcPct val="150000"/></a:lnSpc><a:spcBef><a:spcPts val="0"/></a:spcBef><a:spcAft><a:spcPts val="550"/></a:spcAft><a:buNone/></a:pPr>
+      <a:r><a:rPr b="1" lang="vi-VN" sz="2400"><a:solidFill><a:srgbClr val="{BLACK}"/></a:solidFill><a:latin typeface="Montserrat ExtraBold"/><a:ea typeface="Montserrat ExtraBold"/><a:cs typeface="Montserrat ExtraBold"/></a:rPr><a:t>{p_idx}. {xml_escape(str(item))}</a:t></a:r>
+    </a:p>""")
+
+                shapes.append(f"""
+<p:sp>
+  <p:nvSpPr><p:cNvPr id="185" name="Title"/><p:cNvSpPr txBox="1"/><p:nvPr><p:ph type="title"/></p:nvPr></p:nvSpPr>
+  <p:spPr><a:xfrm rot="5400000"><a:off x="-1686375" y="1500953"/><a:ext cx="5085300" cy="1845300"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr>
+  <p:txBody><a:bodyPr anchorCtr="0" anchor="b" bIns="45700" lIns="91425" spcFirstLastPara="1" rIns="91425" wrap="square" tIns="45700"><a:normAutofit/></a:bodyPr><a:lstStyle/>
+    <a:p><a:pPr indent="0" lvl="0" marL="0" rtl="0" algn="l"><a:lnSpc><a:spcPct val="90000"/></a:lnSpc><a:buNone/></a:pPr>
+      <a:r><a:rPr lang="vi-VN"><a:solidFill><a:srgbClr val="{BRAND_COLOR}"/></a:solidFill><a:latin typeface="Montserrat Black"/><a:ea typeface="Montserrat Black"/><a:cs typeface="Montserrat Black"/></a:rPr><a:t> NỘI DUNG</a:t></a:r>
+    </a:p>
+  </p:txBody>
+</p:sp>
+<p:pic>
+  <p:nvPicPr><p:cNvPr id="186" name="DecorTriangle"/><p:cNvPicPr preferRelativeResize="0"/><p:nvPr/></p:nvPicPr>
+  <p:blipFill rotWithShape="1"><a:blip r:embed="rId3"><a:alphaModFix/></a:blip><a:srcRect b="0" l="0" r="0" t="0"/><a:stretch/></p:blipFill>
+  <p:spPr><a:xfrm><a:off x="-1863816" y="5111676"/><a:ext cx="3515280" cy="3492645"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr>
+</p:pic>
+<p:sp>
+  <p:nvSpPr><p:cNvPr id="184" name="AgendaList"/><p:cNvSpPr txBox="1"/><p:nvPr><p:ph idx="1" type="body"/></p:nvPr></p:nvSpPr>
+  <p:spPr><a:xfrm><a:off x="2000000" y="1261300"/><a:ext cx="9500000" cy="4935600"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/><a:ln><a:noFill/></a:ln></p:spPr>
+  <p:txBody><a:bodyPr anchorCtr="0" anchor="t" bIns="45700" lIns="91425" spcFirstLastPara="1" rIns="91425" wrap="square" tIns="45700"><a:normAutofit/></a:bodyPr><a:lstStyle/>
+    {''.join(p_items_xml)}
+  </p:txBody>
+</p:sp>
+""")
+            elif s_type == "objectives":
+                # Objectives slide matching Create_Slide Slide 3
                 layout_name = "slideLayout2.xml"
+                shapes.append(make_h1_sp(h1_title))
+                goals = s.get("goals", [])
+                card_y = 1650000
+                card_h = 820000
+                card_gap = 160000
+                for g_idx, goal_text in enumerate(goals[:4], 1):
+                    y_pos = card_y + (g_idx - 1) * (card_h + card_gap)
+                    shapes.append(make_card_sp(838200, y_pos, 10600000, card_h, fill_clr=WHITE, border_clr=BORDER_NEUTRAL, adj=4000))
+                    shapes.append(make_textbox_sp(980000, y_pos + 150000, 10300000, card_h - 300000, [
+                        {
+                            'algn': 'l', 'spcAft': 0, 'bullet': None,
+                            'runs': [
+                                {'text': f"{g_idx}.  ", 'b': True, 'sz': 1800, 'clr': BLACK, 'font': 'Montserrat ExtraBold'},
+                                {'text': str(goal_text), 'b': True, 'sz': 1800, 'clr': BLACK, 'font': 'Montserrat ExtraBold'}
+                            ]
+                        }
+                    ]))
             elif s_type == "code":
+                # Code slide side-by-side matching Create_Slide Slides 6, 7, 8
+                layout_name = "slideLayout2.xml"
                 shapes.append(make_h1_sp(h1_title))
                 if h2_subtitle:
                     shapes.append(make_h2_sp(h2_subtitle))
                 
-                # Left side: Explanation cards / bullets
+                # Left: Code Sandbox
+                code_text = s.get("code_snippet", "// Mã nguồn...")
+                code_title = s.get("code_title", "Cú pháp thực thi")
+                shapes.append(make_code_block(838200, 2000000, 5200000, 3900000, code_title, code_text))
+                
+                # Right: Explanation Card
                 bullets = s.get("bullets", [])
-                shapes.append(make_card_sp(838200, 1950000, 4800000, 4450000, fill_clr=WHITE))
-                p_list = []
+                card_title = s.get("card_title", "Phân tích kỹ thuật")
+                shapes.append(make_card_sp(6238200, 2000000, 5200000, 3900000, fill_clr=WHITE, border_clr=BORDER_NEUTRAL, adj=4000))
+                p_list = [
+                    {
+                        'algn': 'l', 'spcAft': 250, 'bullet': None,
+                        'runs': [{'text': card_title, 'b': True, 'sz': 1800, 'clr': BRAND_COLOR, 'font': 'Arial'}]
+                    }
+                ]
                 for b in bullets:
                     p_list.append({
-                        'algn': 'l', 'spcAft': 300, 'bullet': True,
+                        'algn': 'l', 'spcAft': 180, 'bullet': '●',
                         'runs': [{'text': str(b), 'b': False, 'sz': 1600, 'clr': BLACK, 'font': 'Arial'}]
                     })
-                shapes.append(make_textbox_sp(950000, 2100000, 4550000, 4150000, p_list))
+                shapes.append(make_textbox_sp(6438200, 2180000, 4800000, 3500000, p_list))
+            elif s_type == "comparison":
+                # Comparison Cards (2 columns) matching Create_Slide Slide 4
+                layout_name = "slideLayout2.xml"
+                shapes.append(make_h1_sp(h1_title))
+                if h2_subtitle:
+                    shapes.append(make_h2_sp(h2_subtitle))
                 
-                # Right side: Dark Code Box
-                code_text = s.get("code_snippet", "// Code example...")
-                code_title = s.get("code_title", "Cú pháp mẫu")
-                shapes.append(make_code_block(5800000, 1950000, 5600000, 4450000, code_title, code_text))
+                left_col = s.get("left_col", {})
+                right_col = s.get("right_col", {})
+                box_w = 5150000
+                box_y = 2000000
+                box_h = 3900000
+                
+                # Left card
+                shapes.append(make_card_sp(838200, box_y, box_w, box_h, fill_clr=WHITE, border_clr=BORDER_NEUTRAL, adj=4000))
+                p_left = [{
+                    'algn': 'l', 'spcAft': 250, 'bullet': None,
+                    'runs': [{'text': left_col.get('title', 'Cách tiếp cận A'), 'b': True, 'sz': 1800, 'clr': BRAND_COLOR, 'font': 'Arial'}]
+                }]
+                if left_col.get('code'):
+                    p_left.append({
+                        'algn': 'l', 'spcAft': 200, 'bullet': None,
+                        'runs': [{'text': left_col['code'], 'b': False, 'sz': 1400, 'clr': GRAY_TEXT, 'font': 'Consolas'}]
+                    })
+                for b in left_col.get('bullets', []):
+                    p_left.append({
+                        'algn': 'l', 'spcAft': 150, 'bullet': '●',
+                        'runs': [{'text': str(b), 'b': False, 'sz': 1500, 'clr': BLACK}]
+                    })
+                shapes.append(make_textbox_sp(1038200, box_y + 180000, box_w - 400000, box_h - 360000, p_left))
+                
+                # Right card
+                shapes.append(make_card_sp(6288200, box_y, box_w, box_h, fill_clr=WHITE, border_clr=BORDER_NEUTRAL, adj=4000))
+                p_right = [{
+                    'algn': 'l', 'spcAft': 250, 'bullet': None,
+                    'runs': [{'text': right_col.get('title', 'Cách tiếp cận B'), 'b': True, 'sz': 1800, 'clr': SUCCESS_GREEN, 'font': 'Arial'}]
+                }]
+                if right_col.get('code'):
+                    p_right.append({
+                        'algn': 'l', 'spcAft': 200, 'bullet': None,
+                        'runs': [{'text': right_col['code'], 'b': False, 'sz': 1400, 'clr': BLACK, 'font': 'Consolas'}]
+                    })
+                for b in right_col.get('bullets', []):
+                    p_right.append({
+                        'algn': 'l', 'spcAft': 150, 'bullet': '●',
+                        'runs': [{'text': str(b), 'b': False, 'sz': 1500, 'clr': BLACK}]
+                    })
+                shapes.append(make_textbox_sp(6488200, box_y + 180000, box_w - 400000, box_h - 360000, p_right))
+            elif s_type == "grid4":
+                # 2x2 Grid Cards matching Create_Slide Slide 5 & Slide 12 (Terminology)
+                layout_name = "slideLayout2.xml"
+                shapes.append(make_h1_sp(h1_title))
+                if h2_subtitle:
+                    shapes.append(make_h2_sp(h2_subtitle))
+                items = s.get("items", [])
+                grid_w = 5150000
+                grid_h = 1850000
+                coords = [
+                    (838200, 2000000),
+                    (6288200, 2000000),
+                    (838200, 4000000),
+                    (6288200, 4000000)
+                ]
+                for g_idx, (pos_x, pos_y) in enumerate(coords):
+                    if g_idx >= len(items): break
+                    it = items[g_idx]
+                    shapes.append(make_card_sp(pos_x, pos_y, grid_w, grid_h, fill_clr=WHITE, border_clr=BORDER_NEUTRAL, adj=4000))
+                    p_grid = [
+                        {
+                            'algn': 'l', 'spcAft': 150, 'bullet': None,
+                            'runs': [{'text': it.get('title', f'Mục {g_idx+1}'), 'b': True, 'sz': 1700, 'clr': BRAND_COLOR, 'font': 'Arial'}]
+                        },
+                        {
+                            'algn': 'l', 'spcAft': 150, 'bullet': None,
+                            'runs': [{'text': it.get('desc', ''), 'b': False, 'sz': 1500, 'clr': BLACK, 'font': 'Arial'}]
+                        }
+                    ]
+                    if it.get('example'):
+                        p_grid.append({
+                            'algn': 'l', 'spcAft': 0, 'bullet': None,
+                            'runs': [{'text': f"Ví dụ: {it['example']}", 'b': True, 'sz': 1400, 'clr': GRAY_TEXT, 'font': 'Consolas'}]
+                        })
+                    shapes.append(make_textbox_sp(pos_x + 180000, pos_y + 140000, grid_w - 360000, grid_h - 280000, p_grid))
             elif s_type == "table":
+                # Table slide
+                layout_name = "slideLayout2.xml"
                 shapes.append(make_h1_sp(h1_title))
                 if h2_subtitle:
                     shapes.append(make_h2_sp(h2_subtitle))
                 headers = s.get("table_headers", ["Tiêu chí", "Phương án A", "Phương án B"])
                 rows = s.get("table_rows", [["Mục 1", "Giá trị 1", "Giá trị 2"]])
-                shapes.append(make_table_sp(838200, 2000000, 10500000, 4300000, headers, rows))
-            elif s_type == "cards":
-                shapes.append(make_h1_sp(h1_title))
-                if h2_subtitle:
-                    shapes.append(make_h2_sp(h2_subtitle))
-                cards = s.get("cards", [])
-                num_c = max(1, min(len(cards), 3))
-                card_w = (10500000 - (num_c - 1) * 300000) // num_c
-                for c_idx, card in enumerate(cards[:3]):
-                    cx_pos = 838200 + c_idx * (card_w + 300000)
-                    shapes.append(make_card_sp(cx_pos, 2000000, card_w, 4300000, fill_clr=WHITE, border_clr=BORDER_NEUTRAL))
-                    c_title = card.get("title", f"Thành phần {c_idx+1}")
-                    c_bullets = card.get("bullets", [])
-                    p_list = [{
-                        'algn': 'c', 'spcAft': 250, 'bullet': None,
-                        'runs': [{'text': c_title, 'b': True, 'sz': 1800, 'clr': BRAND_COLOR, 'font': 'Montserrat ExtraBold'}]
-                    }]
-                    for cb in c_bullets:
-                        p_list.append({
-                            'algn': 'l', 'spcAft': 200, 'bullet': True,
-                            'runs': [{'text': str(cb), 'b': False, 'sz': 1500, 'clr': BLACK, 'font': 'Arial'}]
-                        })
-                    shapes.append(make_textbox_sp(cx_pos + 100000, 2150000, card_w - 200000, 4000000, p_list))
+                col_w = s.get("col_widths", None)
+                shapes.append(make_table_sp(838200, 2000000, 10600000, 3900000, headers, rows, col_w))
             elif s_type == "closing":
+                # Closing slide matching Create_Slide Slide 14
+                layout_name = "slideLayout3.xml"
                 shapes.append(make_h1_sp(h1_title, x=838200, y=2800000, cx=10500000, cy=1200000))
                 closing_msg = s.get("message", "Cảm ơn các bạn đã theo dõi bài giảng!")
                 shapes.append(make_h2_sp(closing_msg, x=838200, y=4100000, cx=10500000, cy=600000))
-                layout_name = "slideLayout3.xml"
             else:
-                # Standard Bullet / Content Slide
+                # Default Content Slide
+                layout_name = "slideLayout2.xml"
                 shapes.append(make_h1_sp(h1_title))
                 if h2_subtitle:
                     shapes.append(make_h2_sp(h2_subtitle))
-                shapes.append(make_card_sp(838200, 1950000, 10500000, 4450000, fill_clr=WHITE))
+                shapes.append(make_card_sp(838200, 1950000, 10600000, 4450000, fill_clr=WHITE))
                 bullets = s.get("bullets", [])
                 p_list = []
                 for b in bullets:
@@ -600,17 +736,22 @@ class SlideDeckBuilder:
                         'algn': 'l', 'spcAft': 350, 'bullet': True,
                         'runs': [{'text': str(b), 'b': False, 'sz': 1700, 'clr': BLACK, 'font': 'Arial'}]
                     })
-                shapes.append(make_textbox_sp(1100000, 2150000, 9900000, 4000000, p_list))
+                shapes.append(make_textbox_sp(1100000, 2150000, 10000000, 4000000, p_list))
 
             # Write slide XML
             slide_xml_content = wrap_slide_xml("".join(shapes))
             (slides_dir / f"slide{idx}.xml").write_text(slide_xml_content, encoding="utf-8")
             
             # Write slide rels
+            extra_rel = ""
+            if idx == 2 and s_type == "agenda":
+                extra_rel = '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image8.png"/>'
+            
             s_rels_content = f"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/{layout_name}"/>
   <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/notesSlide" Target="../notesSlides/notesSlide{idx}.xml"/>
+  {extra_rel}
 </Relationships>"""
             (slides_rels_dir / f"slide{idx}.xml.rels").write_text(s_rels_content, encoding="utf-8")
 
@@ -663,7 +804,6 @@ class SlideDeckBuilder:
                     rel_p = os.path.relpath(full_p, unpacked_dir)
                     z_out.write(full_p, rel_p)
 
-        # Cleanup temp directory if created by us
         if not temp_build_dir:
             shutil.rmtree(build_dir, ignore_errors=True)
 

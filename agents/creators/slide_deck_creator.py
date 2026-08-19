@@ -44,13 +44,21 @@ class SlideDeckCreatorAgent:
         domain_info = get_domain_for_session(session_title, session_title)
         domain = chosen_domain or domain_info.get("name_vi", "Hệ thống quản trị")
 
-        lessons = lessons_data or [
-            {"title": "Tổng quan và Cú pháp cốt lõi", "content": "Khái niệm và cơ chế hoạt động."},
-            {"title": "Kỹ thuật Thao tác & Xử lý Dữ liệu", "content": "Áp dụng thực tiễn trong hệ thống."},
-            {"title": "Lỗi thường gặp & Tối ưu hóa", "content": "Cách phòng tránh lỗi và best practices."}
-        ]
+        # 2. Setup Target Directory
+        if target_dir:
+            out_dir = Path(target_dir)
+        else:
+            safe_course = course_name.replace(" ", "_").replace("/", "_")
+            safe_session = re.sub(r'[^\w\s-]', '', session_title).strip()
+            out_dir = Path("output/pms") / safe_course / safe_session / "Slide bài giảng"
+            
+        out_dir.mkdir(parents=True, exist_ok=True)
+        session_root_dir = out_dir.parent
 
-        # 2. Render Prompt & Call LLM
+        # 3. Load Rich Lesson Content from Session directory if available
+        lessons = lessons_data or self._load_session_lessons(session_root_dir)
+
+        # 4. Render Prompt & Call LLM
         prompt = render_prompt(
             "slide_deck_creator.j2",
             session_title=session_title,
@@ -84,22 +92,12 @@ class SlideDeckCreatorAgent:
 
         slides_data = llm_response.get("slides", [])
 
-        # 3. Setup Target Directory
-        if target_dir:
-            out_dir = Path(target_dir)
-        else:
-            safe_course = course_name.replace(" ", "_").replace("/", "_")
-            safe_session = re.sub(r'[^\w\s-]', '', session_title).strip()
-            out_dir = Path("output/pms") / safe_course / safe_session / "Slide bài giảng"
-            
-        out_dir.mkdir(parents=True, exist_ok=True)
-
-        # 4. Generate & Save Markdown Outline
+        # 5. Generate & Save Markdown Outline
         outline_md = self._render_markdown_outline(session_title, course_name, domain, tech_stack, slides_data)
         outline_file = out_dir / "outline_bai_giang.md"
         outline_file.write_text(outline_md, encoding="utf-8")
 
-        # 5. Build PPTX File
+        # 6. Build PPTX File
         safe_name = re.sub(r'[^\w\s-]', '', session_title).strip().replace(" ", "_")
         pptx_filename = f"Slide_Bai_Giang_{safe_name}.pptx"
         output_pptx = out_dir / pptx_filename
@@ -109,7 +107,7 @@ class SlideDeckCreatorAgent:
             output_pptx_path=output_pptx
         )
 
-        # 6. Validate Quality
+        # 7. Validate Quality
         val_result = validate_pptx_file(built_pptx_path)
 
         return {
@@ -120,6 +118,42 @@ class SlideDeckCreatorAgent:
             "chosen_domain": domain,
             "validation": val_result
         }
+
+    def _load_session_lessons(self, session_dir: Path) -> List[Dict[str, Any]]:
+        """Scans session directory for Lesson folders and extracts reading content."""
+        lessons = []
+        if not session_dir.exists():
+            return [
+                {"title": "Tổng quan và Cú pháp cốt lõi", "content": "Khái niệm và cơ chế hoạt động."},
+                {"title": "Kỹ thuật Thao tác & Xử lý Dữ liệu", "content": "Áp dụng thực tiễn trong hệ thống."},
+                {"title": "Lỗi thường gặp & Tối ưu hóa", "content": "Cách phòng tránh lỗi và best practices."}
+            ]
+
+        lesson_dirs = sorted([d for d in session_dir.iterdir() if d.is_dir() and "Lesson" in d.name])
+        for ld in lesson_dirs:
+            l_title = ld.name
+            reading_file = ld / "Bài đọc" / "reading.html"
+            content_snippet = ""
+            if reading_file.exists():
+                try:
+                    raw_html = reading_file.read_text(encoding="utf-8")
+                    clean_text = re.sub(r'<[^>]+>', ' ', raw_html)
+                    clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+                    content_snippet = clean_text[:2000]
+                except Exception:
+                    pass
+            lessons.append({
+                "title": l_title,
+                "content": content_snippet or "Nội dung chi tiết bài học lý thuyết và thực hành."
+            })
+
+        if not lessons:
+            lessons = [
+                {"title": "Tổng quan và Cú pháp cốt lõi", "content": "Khái niệm và cơ chế hoạt động."},
+                {"title": "Kỹ thuật Thao tác & Xử lý Dữ liệu", "content": "Áp dụng thực tiễn trong hệ thống."},
+                {"title": "Lỗi thường gặp & Tối ưu hóa", "content": "Cách phòng tránh lỗi và best practices."}
+            ]
+        return lessons
 
     def _render_markdown_outline(
         self,
@@ -156,12 +190,35 @@ class SlideDeckCreatorAgent:
                 lines.append("**Nội dung Agenda:**")
                 for it in items:
                     lines.append(f"- {it}")
+            elif s_type == "objectives":
+                lines.append("**Chuẩn đầu ra bài học:**")
+                for g_idx, g in enumerate(s.get("goals", []), 1):
+                    lines.append(f"{g_idx}. {g}")
             elif s_type == "code":
                 lines.append("**Các ý chính:**")
                 for b in s.get("bullets", []):
                     lines.append(f"- {b}")
                 lines.append(f"\n**Code ({s.get('code_title', 'Mã nguồn')}):**")
                 lines.append(f"```{tech_stack.lower()}\n{s.get('code_snippet', '')}\n```")
+            elif s_type == "comparison":
+                left = s.get("left_col", {})
+                right = s.get("right_col", {})
+                lines.append(f"### [Trái] {left.get('title', 'Cách tiếp cận A')}")
+                if left.get('code'):
+                    lines.append(f"```{tech_stack.lower()}\n{left['code']}\n```")
+                for b in left.get('bullets', []):
+                    lines.append(f"- {b}")
+                lines.append(f"\n### [Phải] {right.get('title', 'Cách tiếp cận B')}")
+                if right.get('code'):
+                    lines.append(f"```{tech_stack.lower()}\n{right['code']}\n```")
+                for b in right.get('bullets', []):
+                    lines.append(f"- {b}")
+            elif s_type == "grid4":
+                for it in s.get("items", []):
+                    lines.append(f"### {it.get('title', 'Thuật ngữ')}")
+                    lines.append(f"- **Định nghĩa:** {it.get('desc', '')}")
+                    if it.get('example'):
+                        lines.append(f"- **Ví dụ:** `{it.get('example', '')}`")
             elif s_type == "cards":
                 for c in s.get("cards", []):
                     lines.append(f"### {c.get('title', 'Thành phần')}")
@@ -170,10 +227,11 @@ class SlideDeckCreatorAgent:
             elif s_type == "table":
                 headers = s.get("table_headers", [])
                 rows = s.get("table_rows", [])
-                lines.append("| " + " | ".join(headers) + " |")
-                lines.append("| " + " | ".join([":---"] * len(headers)) + " |")
-                for r in rows:
-                    lines.append("| " + " | ".join(r) + " |")
+                if headers:
+                    lines.append("| " + " | ".join(headers) + " |")
+                    lines.append("| " + " | ".join([":---"] * len(headers)) + " |")
+                    for r in rows:
+                        lines.append("| " + " | ".join(r) + " |")
             else:
                 for b in s.get("bullets", []):
                     lines.append(f"- {b}")
@@ -196,7 +254,7 @@ class SlideDeckCreatorAgent:
             {
                 "slide_number": 1,
                 "type": "cover",
-                "layout": "slideLayout1.xml",
+                "session_id": "Session",
                 "title": session_title,
                 "course_name": course_name,
                 "speaker_notes": f"Chào mừng các bạn đến với bài giảng {session_title} thuộc khóa học {course_name}."
@@ -204,21 +262,19 @@ class SlideDeckCreatorAgent:
             {
                 "slide_number": 2,
                 "type": "agenda",
-                "layout": "slideLayout2.xml",
                 "title": "Nội Dung Bài Giảng",
                 "agenda_items": [l.get("title", f"Nội dung {idx+1}") for idx, l in enumerate(lessons)] + ["Tổng kết & Thuật ngữ cốt lõi"],
                 "speaker_notes": "Bài giảng hôm nay gồm các phần trọng tâm sau đây."
             },
             {
                 "slide_number": 3,
-                "type": "cards",
-                "layout": "slideLayout2.xml",
-                "title": "Mục Tiêu Bài Học",
-                "subtitle": "Chuẩn đầu ra kiến thức & kỹ năng",
-                "cards": [
-                    {"title": "Bản Chất Kỹ Thuật", "bullets": ["Nắm vững cơ chế hoạt động", "Hiểu luồng dữ liệu chuẩn"]},
-                    {"title": "Thực Hành Ứng Dụng", "bullets": ["Viết code đúng chuẩn cú pháp", f"Triển khai trong domain {domain}"]},
-                    {"title": "Tối Ưu & Tránh Lỗi", "bullets": ["Kiểm soát các trường hợp biên", "Đảm bảo hiệu năng hệ thống"]}
+                "type": "objectives",
+                "title": "Mục tiêu bài học",
+                "goals": [
+                    "Hiểu rõ nguyên lý vận hành và cú pháp cốt lõi.",
+                    f"Vận dụng thành thạo vào kịch bản hệ thống {domain}.",
+                    "Kiểm soát các trường hợp biên và tối ưu hóa mã nguồn.",
+                    "Tránh các lỗi lập trình phổ biến và nâng cao tư duy clean code."
                 ],
                 "speaker_notes": "Mục tiêu bài học giúp các bạn vừa vững lý thuyết vừa tự tin thực hành trên dự án."
             }
@@ -229,7 +285,6 @@ class SlideDeckCreatorAgent:
             slides.append({
                 "slide_number": cur_idx,
                 "type": "code",
-                "layout": "slideLayout2.xml",
                 "title": f"{l_idx}. {l.get('title', 'Kiến thức cốt lõi')} — 1/2",
                 "subtitle": f"Ứng dụng trong hệ thống {domain}",
                 "bullets": [
@@ -238,46 +293,49 @@ class SlideDeckCreatorAgent:
                     "Quy chuẩn đặt tên và clean code"
                 ],
                 "code_title": f"Mã nguồn {tech_stack}",
-                "code_snippet": f"// Demo minh họa {domain}\nfunction executeTask() {{\n  console.log('Xử lý tác vụ...');\n  return true;\n}}",
+                "code_snippet": f"// Demo minh họa {domain}\nfunction executeTask() {{\n  console.log('Xử lý tác vụ {domain}...');\n  return true;\n}}",
                 "speaker_notes": f"Chúng ta cùng tìm hiểu phần {l.get('title', '')} qua đoạn code mẫu trên màn hình."
             })
             cur_idx += 1
 
             slides.append({
                 "slide_number": cur_idx,
-                "type": "cards",
-                "layout": "slideLayout2.xml",
+                "type": "comparison",
                 "title": f"{l_idx}. {l.get('title', 'Kiến thức cốt lõi')} — 2/2",
-                "subtitle": "Phân tích tình huống & Thực tiễn",
-                "cards": [
-                    {"title": "Kịch Bản Chuẩn", "bullets": ["Dữ liệu hợp lệ", "Luồng xử lý tối ưu"]},
-                    {"title": "Xử Lý Biên", "bullets": ["Dữ liệu rỗng / null", "Bắt lỗi ngoại lệ"]}
-                ],
+                "subtitle": "Phân tích tình huống & Thực tiễn triển khai",
+                "left_col": {
+                    "title": "Kịch bản Chuẩn",
+                    "bullets": ["Dữ liệu hợp lệ", "Luồng xử lý tối ưu", "Thời gian phản hồi nhanh"]
+                },
+                "right_col": {
+                    "title": "Xử lý Biên & Ngoại lệ",
+                    "bullets": ["Dữ liệu rỗng hoặc null", "Bắt lỗi ngoại lệ chủ động", "Bảo vệ an toàn dữ liệu"]
+                },
                 "speaker_notes": "Lưu ý các trường hợp biên để phần mềm hoạt động ổn định nhất."
             })
             cur_idx += 1
 
         slides.append({
             "slide_number": cur_idx,
-            "type": "cards",
-            "layout": "slideLayout2.xml",
+            "type": "grid4",
             "title": "Thuật Ngữ Cần Nhớ",
-            "subtitle": "Từ khóa kỹ thuật then chốt",
-            "cards": [
-                {"title": "API", "bullets": ["Giao diện lập trình ứng dụng", "Giao tiếp giữa các thành phần"]},
-                {"title": "State", "bullets": ["Trạng thái dữ liệu hiện tại", "Kích hoạt cập nhật giao diện"]}
+            "subtitle": "Các từ khóa kỹ thuật then chốt trong bài học",
+            "items": [
+                {"title": "1. Khái niệm cốt lõi", "desc": "Cơ chế nền tảng vận hành hệ thống.", "example": "CoreConcept"},
+                {"title": "2. Cấu trúc dữ liệu", "desc": "Phương thức lưu trữ và tổ chức dữ liệu.", "example": "DataStructure"},
+                {"title": "3. Phạm vi hoạt động", "desc": "Giới hạn truy cập và vòng đời tài nguyên.", "example": "ScopeBoundary"},
+                {"title": "4. Tối ưu hiệu năng", "desc": "Giải pháp nâng cao tốc độ xử lý.", "example": "Optimization"}
             ],
-            "speaker_notes": "Ghi nhớ các thuật ngữ này để dễ dàng làm việc trong môi trường doanh nghiệp."
+            "speaker_notes": "Dưới đây là các thuật ngữ chuyên ngành các bạn cần ghi nhớ."
         })
         cur_idx += 1
 
         slides.append({
             "slide_number": cur_idx,
             "type": "closing",
-            "layout": "slideLayout3.xml",
             "title": "Chúc Các Bạn Học Tốt!",
             "message": "Hẹn gặp lại các bạn trong bài giảng tiếp theo.",
-            "speaker_notes": "Cảm ơn các bạn đã theo dõi bài giảng. Chúc các bạn hoàn thành tốt các bài tập thực hành!"
+            "speaker_notes": "Cảm ơn các bạn đã chú ý theo dõi bài giảng hôm nay. Chúc các bạn học tập tốt!"
         })
 
         return {
@@ -288,7 +346,8 @@ class SlideDeckCreatorAgent:
             "slides": slides
         }
 
-slide_deck_creator = SlideDeckCreatorAgent()
+slide_deck_creator_agent = SlideDeckCreatorAgent()
+slide_deck_creator = slide_deck_creator_agent
 
 def generate_session_slide_deck(
     session_title: str,
@@ -299,8 +358,8 @@ def generate_session_slide_deck(
     target_dir: Optional[Union[str, Path]] = None,
     chosen_domain: Optional[str] = None
 ) -> Dict[str, Any]:
-    """Top-level functional entrypoint for generating a complete Session Slide Deck."""
-    return slide_deck_creator.generate_slide_deck(
+    """Helper function to run SlideDeckCreatorAgent on a session."""
+    return slide_deck_creator_agent.generate_slide_deck(
         session_title=session_title,
         course_name=course_name,
         course_code=course_code,
