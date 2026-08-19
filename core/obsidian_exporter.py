@@ -288,5 +288,11 @@ Kịch bản phân cảnh hỗ trợ giảng viên ghi hình bài giảng chi ti
     print(f"[Obsidian Exporter] Export complete! Obsidian Vault generated successfully under: {vault_path}")
 
 if __name__ == "__main__":
-    excel = r"d:\Rikkei Education\Elearning_Agent\Learning-Material\pms\PM_RA_PTIT_2025_Software_Engineer_Python_Web.xlsx"
+    import sys
+    project_root = Path(__file__).resolve().parent.parent
+    if len(sys.argv) > 1:
+        excel = sys.argv[1]
+    else:
+        sample_excels = list((project_root / "pms").glob("*.xlsx")) + list((project_root / "templates" / "documents").glob("*.xlsx"))
+        excel = str(sample_excels[0]) if sample_excels else str(project_root / "templates" / "documents" / "PM_Template_Standard.xlsx")
     generate_obsidian_vault(excel)

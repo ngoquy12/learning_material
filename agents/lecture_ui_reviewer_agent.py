@@ -124,8 +124,7 @@ class ClassroomLectureUIReviewerAgent:
             print("  [Lecture UI Reviewer] Cần cài đặt Playwright: pip install playwright && playwright install chromium")
             return res
 
-        abs_html = str(html_file.resolve())
-        file_url = "file:///" + abs_html.replace("\\", "/")
+        file_url = html_file.resolve().as_uri()
 
         console_logs = []
 

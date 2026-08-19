@@ -118,8 +118,8 @@ def capture_screenshots(html_path: str, output_dir: str) -> Dict[str, str]:
         print("  [UI Reviewer] Playwright chưa được cài đặt. Hãy chạy: pip install playwright && playwright install chromium")
         return screenshot_paths
 
-    abs_html = str(Path(html_path).resolve())
-    file_url = "file:///" + abs_html.replace("\\", "/")
+    html_p = Path(html_path).resolve()
+    file_url = html_p.as_uri()
     light_path = os.path.join(output_dir, "screenshot_light.png")
     dark_path  = os.path.join(output_dir, "screenshot_dark.png")
 
