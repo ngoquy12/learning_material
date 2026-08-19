@@ -6,6 +6,15 @@ from pathlib import Path
 from core.state import AgentState
 from core.llm import call_llm
 from core.schemas.llm_schemas import CreatorStage1Schema, CreatorStage2Schema
+from core.sanitizers import (
+    fix_raw_newlines_in_json_strings,
+    robust_json_parse,
+    ensure_vietnamese_diacritics,
+    clean_unwanted_text,
+    clean_markdown_formulas,
+    normalize_markdown_headers,
+    validate_and_clean_forbidden_scope,
+)
 
 def estimate_tokens(text: str) -> int:
     if not text:
@@ -87,116 +96,6 @@ def determine_visualization_strategy(lesson_title: str, lesson_details: str, tec
         "badge": "PHÒNG THÍ NGHIỆM CODE TRỰC QUAN (Interactive Code Playground)",
         "rationale": f"Bài học '{lesson_title}' tập trung vào thực thi mã nguồn, thuật toán hoặc xử lý logic lập trình, cần Code Tracker theo dõi dòng lệnh và Console Log thời gian thực."
     }
-
-def fix_raw_newlines_in_json_strings(json_str: str) -> str:
-    chars = list(json_str)
-    in_string = False
-    escaped = False
-    for i in range(len(chars)):
-        char = chars[i]
-        if char == '"' and not escaped:
-            in_string = not in_string
-        elif char == '\\' and in_string and not escaped:
-            escaped = True
-            continue
-        elif char == '\n' and in_string:
-            chars[i] = '\\n'
-        elif char == '\r' and in_string:
-            chars[i] = ''
-        escaped = False
-    return "".join(chars)
-
-def robust_json_parse(json_str: str) -> dict:
-    try:
-        return json.loads(json_str)
-    except Exception as e:
-        print(f"  [Robust Parser] Standard json.loads failed: {e}. Attempting custom recovery...")
-        
-    cleaned = json_str.strip()
-    if cleaned.startswith("{"):
-        cleaned = cleaned[1:]
-    if cleaned.endswith("}"):
-        cleaned = cleaned[:-1]
-        
-    result = {}
-    keys = ["problem", "analysis", "solution", "example", "resolve", "summary", "self_test", "quiz", "lab", "visualizer"]
-    
-    offsets = []
-    for k in keys:
-        pattern = r'"' + k + r'"\s*:\s*'
-        match = re.search(pattern, cleaned)
-        if match:
-            offsets.append((k, match.start(), match.end()))
-            
-    offsets.sort(key=lambda x: x[1])
-    
-    for idx, (k, start, val_start) in enumerate(offsets):
-        val_end = offsets[idx+1][1] if idx + 1 < len(offsets) else len(cleaned)
-        val_sub = cleaned[val_start:val_end].strip()
-        
-        if val_sub.endswith(","):
-            val_sub = val_sub[:-1].strip()
-            
-        if k in ["problem", "analysis", "solution", "example", "resolve", "summary"]:
-            if val_sub.startswith('"'):
-                val_sub = val_sub[1:]
-            if val_sub.endswith('"'):
-                val_sub = val_sub[:-1]
-            val_sub = val_sub.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t').replace('\\\\', '\\')
-            result[k] = val_sub
-        else:
-            try:
-                parsed = json.loads(val_sub)
-                if k == "lab" and not isinstance(parsed, dict):
-                    raise ValueError("lab must be a dict")
-                if k == "quiz" and not isinstance(parsed, list):
-                    raise ValueError("quiz must be a list")
-                if k == "visualizer" and not isinstance(parsed, dict):
-                    raise ValueError("visualizer must be a dict")
-                result[k] = parsed
-            except Exception:
-                try:
-                    import ast
-                    parsed = ast.literal_eval(val_sub)
-                    if k == "lab" and not isinstance(parsed, dict):
-                        raise ValueError("lab must be a dict")
-                    if k == "quiz" and not isinstance(parsed, list):
-                        raise ValueError("quiz must be a list")
-                    if k == "visualizer" and not isinstance(parsed, dict):
-                        raise ValueError("visualizer must be a dict")
-                    result[k] = parsed
-                except Exception:
-                    try:
-                        cleaned_sub = fix_raw_newlines_in_json_strings(val_sub)
-                        parsed = json.loads(cleaned_sub)
-                        if k == "lab" and not isinstance(parsed, dict):
-                            raise ValueError("lab must be a dict")
-                        if k == "quiz" and not isinstance(parsed, list):
-                            raise ValueError("quiz must be a list")
-                        if k == "visualizer" and not isinstance(parsed, dict):
-                            raise ValueError("visualizer must be a dict")
-                        result[k] = parsed
-                    except Exception:
-                        if k == "self_test":
-                            items = re.findall(r'"([^"\\]*(?:\\.[^"\\]*)*)"', val_sub)
-                            result[k] = [item.replace('\\"', '"') for item in items]
-                        elif k == "lab":
-                            result[k] = {"title": "Lab", "objectives": [], "steps": [], "checklist": []}
-                        else:
-                            result[k] = {}
-                            
-    for k in keys:
-        if k not in result:
-            if k in ["problem", "analysis", "solution", "example", "resolve", "summary"]:
-                result[k] = ""
-            elif k == "self_test":
-                result[k] = []
-            elif k == "lab":
-                result[k] = {"title": "Lab", "objectives": [], "steps": [], "checklist": []}
-            else:
-                result[k] = {}
-                
-    return result
 
 def generate_offline_master_content(session_id: str, lesson_id: str, lesson_title: str, lesson_details: str, expected_output: str, tech_stack: str) -> Dict[str, Any]:
     print(f"  [Creator Fallback] Generating offline mock master content for stack: {tech_stack}...")
@@ -846,269 +745,21 @@ def get_lesson_dir(state: AgentState) -> Path:
                     
     return lesson_dir
 
-def clean_markdown_formulas(text: str) -> str:
-    """
-    Sanitizes LaTeX and dollar-sign math formulas in Markdown to clean code-badged programming expressions.
-    Prevents backslash escaping bugs (\frac, \text), underscore-italic collisions ($var_name$), and unrendered LaTeX tags.
-    """
-    if not text:
-        return text
+__all__ = [
+    "estimate_tokens",
+    "log_agent_tokens",
+    "get_base_topic_key",
+    "get_base_topic_key_for_core",
+    "determine_visualization_strategy",
+    "generate_offline_master_content",
+    "get_lesson_content",
+    "get_lesson_dir",
+    "fix_raw_newlines_in_json_strings",
+    "robust_json_parse",
+    "ensure_vietnamese_diacritics",
+    "clean_unwanted_text",
+    "clean_markdown_formulas",
+    "normalize_markdown_headers",
+    "validate_and_clean_forbidden_scope",
+]
 
-    # Remove \text{...} -> ...
-    text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
-    
-    # Replace \frac{A}{B} -> (A) / (B)
-    text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1) / (\2)', text)
-    
-    # Replace \times -> * and \cdot -> *
-    text = re.sub(r'\\times', '*', text)
-    text = re.sub(r'\\cdot', '*', text)
-    
-    # Process $$ formula $$ -> `formula`
-    def repl_block(m):
-        f = m.group(1).strip()
-        f = re.sub(r'\\_', '_', f)
-        return f'`{f}`'
-    text = re.sub(r'\$\$(.*?)\$\$', repl_block, text, flags=re.DOTALL)
-    
-    # Process single dollar $var_name$ or $var\_name$ -> `var_name`
-    def repl_inline(m):
-        v = m.group(1).strip()
-        v = re.sub(r'\\_', '_', v)
-        return f'`{v}`'
-    text = re.sub(r'\$([a-zA-Z_\\][a-zA-Z0-9_\\\_]*)\$', repl_inline, text)
-
-    # Clean remaining \_ inside inline code backticks `...`
-    def repl_code(m):
-        c = m.group(1)
-        return f'`{c.replace(r"\_", "_")}`'
-    text = re.sub(r'`([^`]+)`', repl_code, text)
-    
-    return text
-
-def ensure_vietnamese_diacritics(text: str) -> str:
-    if not text or not isinstance(text, str):
-        return text
-
-    replacements = {
-        r"\btai sao\b": "tại sao",
-        r"\bTai sao\b": "Tại sao",
-        r"\bnguoi dung\b": "người dùng",
-        r"\bNguoi dung\b": "Người dùng",
-        r"\bchuoi\b": "chuỗi",
-        r"\bChuoi\b": "Chuỗi",
-        r"\bket qua\b": "kết quả",
-        r"\bKet qua\b": "Kết quả",
-        r"\btoan tu\b": "toán tử",
-        r"\bToan tu\b": "Toán tử",
-        r"\bdoanh nghiep\b": "doanh nghiệp",
-        r"\bDoanh nghiep\b": "Doanh nghiệp",
-        r"\bbai doc\b": "bài đọc",
-        r"\bBai doc\b": "Bài đọc",
-        r"\bngon ngu\b": "ngôn ngữ",
-        r"\bNgon ngu\b": "Ngôn ngữ",
-        r"\blap trinh\b": "lập trình",
-        r"\bLap trinh\b": "Lập trình",
-        r"\bkhoang trang\b": "khoảng trắng",
-        r"\bKhoang trang\b": "Khoảng trắng",
-        r"\bdu thua\b": "dư thừa",
-        r"\bDu thua\b": "Dư thừa",
-        r"\bvi sao\b": "vì sao",
-        r"\bVi sao\b": "Vì sao",
-        r"\bthuc te\b": "thực tế",
-        r"\bThuc te\b": "Thực tế",
-        r"\bhieu nang\b": "hiệu năng",
-        r"\bHieu nang\b": "Hiệu năng",
-        r"\bnguy co\b": "nguy cơ",
-        r"\bNguy co\b": "Nguy cơ",
-        r"\bhe thong\b": "hệ thống",
-        r"\bHe thong\b": "Hệ thống",
-        r"\bco so du lieu\b": "cơ sở dữ liệu",
-        r"\bCo so du lieu\b": "Cơ sở dữ liệu",
-        r"\bphep so sanh\b": "phép so sánh",
-        r"\bPhep so sanh\b": "Phép so sánh",
-        r"\bxac thuc\b": "xác thực",
-        r"\bXac thuc\b": "Xác thực",
-        r"\btrung lap\b": "trùng lặp",
-        r"\bTrung lap\b": "Trùng lặp",
-        r"\bbien\b": "biến",
-        r"\bBien\b": "Biến",
-        r"\bgia tri\b": "giá trị",
-        r"\bGia tri\b": "Giá trị",
-        r"\bdu lieu\b": "dữ liệu",
-        r"\bDu lieu\b": "Dữ liệu",
-        r"\bmo ta\b": "mô tả",
-        r"\bMo ta\b": "Mô tả",
-        r"\bgiai thich\b": "giải thích",
-        r"\bGiai thich\b": "Giải thích",
-        r"\bphan tich\b": "phân tích",
-        r"\bPhan tich\b": "Phân tích",
-        r"\bcho biet\b": "cho biết",
-        r"\bCho biet\b": "Cho biết",
-        r"\btrinh bay\b": "trình bày",
-        r"\bTrinh bay\b": "Trình bày",
-        r"\bso sanh\b": "so sánh",
-        r"\bSo sanh\b": "So sánh",
-        r"\bkhai niem\b": "khái niệm",
-        r"\bKhai niem\b": "Khái niệm",
-        r"\bcot loi\b": "cốt lõi",
-        r"\bCot loi\b": "Cốt lõi",
-        r"\bnguyen ly\b": "nguyên lý",
-        r"\bNguyen ly\b": "Nguyên lý",
-        r"\bhoat dong\b": "hoạt động",
-        r"\bHoat dong\b": "Hoạt động",
-        r"\bphong tranh\b": "phòng tránh",
-        r"\bPhong tranh\b": "Phòng tránh",
-        r"\blam chu\b": "làm chủ",
-        r"\bLam chu\b": "Làm chủ",
-        r"\bnen tang\b": "nền tảng",
-        r"\bNen tang\b": "Nền tảng",
-        r"\bchinh xac\b": "chính xác",
-        r"\bChinh xac\b": "Chính xác",
-        r"\btuan thu\b": "tuân thủ",
-        r"\bTuan thu\b": "Tuân thủ",
-        r"\bquy tac\b": "quy tắc",
-        r"\bQuy tac\b": "Quy tắc",
-        r"\bcu phap\b": "cú pháp",
-        r"\bCu phap\b": "Cú pháp",
-        r"\bdinh dang\b": "định dạng",
-        r"\bDinh dang\b": "Định dạng",
-        r"\bkiem tra\b": "kiểm tra",
-        r"\bKiem tra\b": "Kiểm tra",
-        r"\bdau ra\b": "đầu ra",
-        r"\bDau ra\b": "Đầu ra",
-        r"\bdau vao\b": "đầu vào",
-        r"\bDau vao\b": "Đầu vào",
-        r"\bcan than\b": "cẩn thận",
-        r"\bCan than\b": "Cẩn thận",
-        r"\bvan dung\b": "vận dụng",
-        r"\bVan dung\b": "Vận dụng",
-        r"\bluong\b": "luồng",
-        r"\bLuong\b": "Luồng",
-        r"\btinh toan\b": "tính toán",
-        r"\bTinh toan\b": "Tính toán",
-        r"\bbieu thuc\b": "biểu thức",
-        r"\bBieu thuc\b": "Biểu thức",
-        r"\bhien thi\b": "hiển thị",
-        r"\bHien thi\b": "Hiển thị",
-        r"\btruc quan\b": "trực quan",
-        r"\bTruc quan\b": "Trực quan"
-    }
-
-    for pattern, repl in replacements.items():
-        text = re.sub(pattern, repl, text)
-
-    return text
-
-def validate_and_clean_forbidden_scope(content: dict, forbidden_scope: str) -> tuple:
-    if not forbidden_scope or not isinstance(forbidden_scope, str) or not content or not isinstance(content, dict):
-        return content, []
-    
-    terms = [t.strip() for t in re.split(r'[,;\n/•\-]', forbidden_scope) if t.strip() and len(t.strip()) > 2]
-    
-    violations = []
-    text_fields = ["problem", "analysis", "solution", "example", "example_good", "example_bad", "resolve", "summary"]
-    
-    for field in text_fields:
-        if field in content and isinstance(content[field], str):
-            val = content[field]
-            for term in terms:
-                pattern = r'\b' + re.escape(term) + r'\b' if term.isascii() else re.escape(term)
-                if re.search(pattern, val, flags=re.IGNORECASE):
-                    violations.append(f"Field '{field}': Found forbidden term '{term}'")
-                    val = re.sub(pattern, f"/* [Scope Guard: Filtered '{term}'] */", val, flags=re.IGNORECASE)
-            content[field] = val
-
-    if violations:
-        print(f"  [Forbidden Scope Post-Linter] ⚠️ Discovered & cleaned {len(violations)} forbidden scope violations:")
-        for v in violations[:5]:
-            print(f"    - ❌ {v}")
-            
-    return content, violations
-
-def clean_unwanted_text(text: str) -> str:
-    if not text or not isinstance(text, str):
-        return text
-    text = re.sub(r"\bW3Schools\b", "Chuẩn Sư Phạm Quốc Tế", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[W3SCHOOLS\s+NOTE\]:?", "Lưu ý:", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[NOTE\]:?", "Lưu ý:", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[WARNING\]:?", "Cảnh báo:", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[TIP\]:?", "Mẹo:", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[BEST\s+PRACTICE\]:?", "Thực hành tốt:", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[ANTI-PATTERN\]:?", "Mẫu nên tránh:", text, flags=re.IGNORECASE)
-    text = re.sub(r"\[YÊU\s+CẦU\]:?", "Yêu cầu:", text, flags=re.IGNORECASE)
-    
-    # Scrub AI cliché words and buzzwords
-    text = re.sub(r"\bbẫy lập trình\b", "Lỗi thường gặp", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bbẫy cú pháp\b", "Lỗi cú pháp phổ biến", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bbẫy logic\b", "Lỗi logic phổ biến", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bbẫy lỗi\b", "Lỗi thường gặp", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bbẫy\b", "lỗi thường gặp", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bBẫy\b", "Lỗi thường gặp", text)
-    text = re.sub(r"\bGotcha\b", "Lỗi thường gặp", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bAnti-pattern\b", "Mẫu nên tránh", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bbí kíp\b", "mẹo thực hành", text, flags=re.IGNORECASE)
-    text = re.sub(r"\bthần thánh\b", "hiệu quả", text, flags=re.IGNORECASE)
-    text = re.sub(r"\btất tần tật\b", "tổng quan đầy đủ", text, flags=re.IGNORECASE)
-
-    text = re.sub(r"\bTIẾN TRÌNH LUỒNG CHẠY\b", "Tiến trình luồng chạy", text)
-    text = re.sub(r"\bTỐC ĐỘ THỰC THI\b", "Tốc độ thực thi", text)
-    text = re.sub(r"\bCODE TRACKER\b", "Code Tracker", text)
-    text = re.sub(r"\bNHẬT KÝ THUẬT TOÁN\b", "Nhật ký thuật toán", text)
-    text = re.sub(r"\bBẢNG SO SÁNH ĐẶC TÍNH KỸ THUẬT CHI TIẾT\b", "Bảng so sánh đặc tính kỹ thuật chi tiết", text)
-    
-    from agents.creators.reading_creator import force_center_media
-    text = force_center_media(text)
-    return text
-
-def normalize_markdown_headers(content: str) -> str:
-    """
-    Ensures:
-    1. Every Markdown heading (#, ##, ###, ####, #####, ######) has a proper blank line before it.
-    2. Every opening code fence (```lang) is placed on its own line preceded by a blank line (preventing :```lang or text```lang).
-    3. Every closing code fence (```) is followed by proper blank line before subsequent text/headings.
-    4. Code blocks inside fences (```) are strictly protected and untouched.
-    """
-    if not content or not isinstance(content, str):
-        return content
-
-    parts = content.split("```")
-    for i in range(len(parts)):
-        if i % 2 == 0:
-            # Text OUTSIDE code block
-            text = parts[i]
-
-            # Remove standalone stray '#' lines that have no title text
-            text = re.sub(r'^\s*#\s*$', '', text, flags=re.MULTILINE)
-
-            # Separate headings attached directly to preceding text (e.g. "quầy.### **3. Mã nguồn hiện tại**")
-            text = re.sub(r'([^\n\r])\s*(#{1,6}\s+)', r'\1\n\n\2', text)
-
-            lines = text.splitlines()
-            fixed_lines = []
-            for idx, line in enumerate(lines):
-                stripped = line.strip()
-                if re.match(r'^#{1,6}\s+', stripped) and idx > 0:
-                    if fixed_lines and fixed_lines[-1].strip() != "":
-                        fixed_lines.append("")
-                fixed_lines.append(line)
-
-            cleaned_text = "\n".join(fixed_lines)
-            cleaned_text = re.sub(r'\n{3,}', '\n\n', cleaned_text)
-
-            # If this non-code segment precedes a code block, ensure it ends with double newlines
-            if i < len(parts) - 1:
-                cleaned_text = cleaned_text.rstrip() + "\n\n"
-            # If this non-code segment follows a code block, ensure it starts with double newlines
-            if i > 0 and cleaned_text.strip():
-                cleaned_text = "\n\n" + cleaned_text.lstrip("\r\n")
-
-            parts[i] = cleaned_text
-        else:
-            # Code block INSIDE fences
-            code = parts[i].lstrip("\r\n")
-            # Ensure code starts properly on language identifier and ends with newline before closing ```
-            parts[i] = code.rstrip() + "\n"
-
-    result = "```".join(parts)
-    return result.strip() + "\n"
