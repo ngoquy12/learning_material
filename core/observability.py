@@ -124,6 +124,10 @@ def log_agent_call(
     try:
         with open(TRACE_LOG_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+        
+        # Auto-rotate log if exceeds threshold (10 MB)
+        from core.storage.log_rotator import rotate_trace_logs
+        rotate_trace_logs(TRACE_LOG_PATH, max_size_mb=10.0, backup_count=5)
     except Exception as e:
         print(f"  [Observability Warning] Failed to write trace log: {e}")
 
