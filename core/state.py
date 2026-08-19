@@ -47,6 +47,10 @@ class AgentState(TypedDict, total=False):
     prerequisite_checked: NotRequired[bool]
     self_test_markdown: NotRequired[str]
 
+    # Domain Anchor (Single Unified Domain per Session)
+    session_domain: NotRequired[Dict[str, Any]]
+    chosen_domain: NotRequired[str]
+
     # Legacy compatibility fields (soft-deprecated)
     slide_markdown: NotRequired[str]
     video_script_markdown: NotRequired[str]

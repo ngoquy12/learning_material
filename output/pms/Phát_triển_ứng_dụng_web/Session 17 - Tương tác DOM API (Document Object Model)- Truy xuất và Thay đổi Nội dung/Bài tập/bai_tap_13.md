@@ -1,38 +1,36 @@
-# Bài tập 13: E-Commerce (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
+# Bài tập 13: GRAB_RIDE (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập này, học viên có thể:
-- **Tối ưu hóa thao tác DOM**: Sử dụng thành thạo các phương thức truy xuất DOM (`getElementById`, `querySelector`, `querySelectorAll`, `children`, `closest`) để tương tác chính xác với các phần tử giao diện.
-- **Biến đổi nội dung & Thuộc tính động**: Cập nhật văn bản (`textContent`), cấu trúc HTML (`innerHTML`), thay đổi class (`classList.add/remove/toggle`), và các thuộc tính dữ liệu (`setAttribute`, `dataset`, `disabled`).
-- **Thiết kế Kiến trúc Mini Module**: Tổ chức mã nguồn JavaScript theo mô hình module logic (state-driven UI rendering) để xử lý việc render giao diện dựa trên dữ liệu cấu hình đầu vào.
-- **Áp dụng Quy tắc Nghiệp vụ SaaS (Software-as-a-Service)**: Lập trình logic quản lý gói đăng ký dịch vụ, phân quyền tính năng (Feature Gate), tính toán chiết khấu chu kỳ thanh toán và xử lý hạ cấp gói khi quá hạn thanh toán.
-- **Đảm bảo An toàn dữ liệu DOM**: Phòng tránh các lỗi tiềm ẩn như truy xuất phần tử `null`/`undefined` và ngăn chặn nguy cơ tấn công XSS (Cross-Site Scripting) khi chèn dữ liệu người dùng vào DOM.
+Sau khi hoàn thành bài tập này, học viên có khả năng:
+- **Tư duy Kiến trúc & Thiết kế Mini Module**: Đóng gói toàn bộ logic tính toán và hiển thị thông tin chuyến đi vào một module JavaScript độc lập (`GrabFareModule`), áp dụng tư duy lập trình hướng đối tượng hoặc pattern phù hợp.
+- **Truy xuất DOM nâng cao**: Thành thạo việc tìm kiếm và thao tác các DOM Nodes (`document.getElementById`, `querySelector`, `querySelectorAll`).
+- **Thay đổi Nội dung & Thuộc tính**: Thao tác linh hoạt `textContent`, `innerHTML`, `setAttribute`, `src`, `classList` (`add`, `remove`, `toggle`) để cập nhật giao diện thời gian thực từ dữ liệu đối tượng.
+- **Áp dụng Nghiệp vụ Thực tế**: Triển khai chính xác thuật toán tính toán cước phí GrabRide theo khoảng cách, hệ số thời tiết/giờ cao điểm và mã giảm giá.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là một Kỹ sư Phần mềm tại doanh nghiệp đang phát triển nền tảng phát nội dung số SaaS (tương tự Netflix/Canva). Hệ thống chuẩn bị ra mắt giao diện **Dashboard Quản lý Gói Dịch vụ & Phân quyền Tài khoản** (SaaS Subscription Manager & Feature Gate Visualizer).
+Hệ thống gọi xe công nghệ **GrabRide** đang phát triển tính năng màn hình tóm tắt thông tin chuyến đi và chi tiết hóa đơn (Trip Receipts) cho hành khách sau khi chuyến đi hoàn tất. 
 
-Backend đã chuẩn bị sẵn khung trang HTML tĩnh (Skeleton Layout). Nhiệm vụ của bạn là thiết kế một **Mini Module JavaScript (Client-side Rendering Engine)** có khả năng nhận dữ liệu người dùng (`userData`) cùng gói dịch vụ (`planData`), truy xuất đến các phần tử DOM tương ứng và thực hiện cập nhật toàn bộ giao diện màn hình theo thời gian thực (được kích hoạt thông qua việc gọi hàm hệ thống).
+Bạn đóng vai trò là Frontend Developer đảm nhận xây dựng **Mini Module `GrabFareModule`**. Module này nhận vào một đối tượng chứa toàn bộ dữ liệu chuyến đi (`RideBooking`), xử lý tính toán các chi phí theo quy tắc nghiệp vụ, sau đó tự động truy xuất các thẻ DOM tương ứng trên trang HTML để render (hiển thị) thông tin tài xế, hành trình, chi tiết cước phí và áp dụng các trạng thái giao diện (CSS Status Badges).
 
 
-#### Sơ đồ luồng xử lý dữ liệu và biến đổi DOM:
+#### Sơ đồ Luồng Xử lý của Module (Mermaid Workflow)
 
 ```mermaid
-flowchart TD
-    A[Nhận dữ liệu User & Plan State] --> B{Kiểm tra Payment Status}
-    B -- Quá hạn > 3 ngày --> C[Ép trạng thái về Gói FREE & Đổi Badge Cảnh báo]
-    B -- Hợp lệ --> D[Giữ nguyên gói dịch vụ hiện tại]
-    C --> E[Tính toán giá theo Chu kỳ Tháng/Năm]
-    D --> E
-    E --> F[Render Thông tin Tài khoản & Giá cước vào DOM]
-    F --> G[Kiểm tra Loại gói: INDIVIDUAL vs FAMILY]
-    G -- FAMILY --> H[Render tối đa 5 Sub-profiles vào DOM Container]
-    G -- INDIVIDUAL / FREE --> I[Ẩn danh sách Sub-profiles & Cập nhật số thiết bị tối đa = 1]
-    H --> J[Duyệt danh sách Feature Items trong DOM]
-    I --> J
-    J --> K[So sánh danh sách Quyền hạn -> Toggle CSS Class & Dynamic Icon]
+graph TD
+    A[Input: RideBooking Data Object] --> B[GrabFareModule.init / render]
+    B --> C{Kiểm tra Validation}
+    C -->|Số km <= 0 hoặc Sai Dữ liệu| D[Render DOM Lỗi & Ẩn Hóa Đơn]
+    C -->|Dữ liệu Hợp lệ| E[Tính Cước Cơ Bản]
+    E --> F[Tính Hệ Số Surge: Mưa / Giờ Cao Điểm]
+    F --> G[Áp Dụng Mã Khuyến Mãi Promo]
+    G --> H[Truy xuất DOM Nodes theo Selectors]
+    H --> I[Cập nhật TextContent & InnerHTML]
+    H --> J[Cập nhật ClassList & Attributes]
+    I --> K[Hoàn tất Hiển thiện Giao diện]
+    J --> K
 ```
 
 ---
@@ -41,38 +39,30 @@ flowchart TD
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
 
-#### A. Quy tắc Chu kỳ Thanh toán & Định giá (Billing Cycle & Pricing)
-1. **Chu kỳ Tháng (`MONTHLY`)**:
-   - Hiển thị mức giá gốc niêm yết theo tháng.
-   - Định dạng hiển thị tiền tệ: `[Số tiền] VNĐ/tháng` (Ví dụ: `260,000 VNĐ/tháng`).
-2. **Chu kỳ Năm (`ANNUALLY`)**:
-   - Áp dụng chương trình chiết khấu **20%** trên tổng giá trị 12 tháng.
-   - Công thức tính tổng tiền năm: $\text{Giá năm} = (\text{Giá tháng} \times 12) \times 0.8$.
-   - Cập nhật DOM: Hiển thị giá đã giảm, kèm theo thẻ badge `<span class="discount-tag">Tiết kiệm 20%</span>` và hiển thị mức giá gốc gạch ngang (`<del>[Giá gốc 12 tháng] VNĐ</del>`).
+#### A. Công thức tính Giá cước Cơ bản ($BaseFare$) dựa trên Khoảng cách ($d$ km)
+- **Kiểm tra hợp lệ**: Nếu $d \le 0$ hoặc không phải là số, coi như dữ liệu lỗi.
+- **2 km đầu tiên**: Giá cố định là `12.000 VNĐ`.
+- **Từ km thứ 3 trở đi**: Tính thêm `4.500 VNĐ/km` cho toàn bộ quãng đường vượt quá 2 km.
+  $$\text{Ví dụ: } d = 5.5\text{ km} \rightarrow BaseFare = 12.000 + (5.5 - 2) \times 4.500 = 12.000 + 15.750 = 27.750\text{ VNĐ.}$$
 
 
-#### B. Quy tắc Giới hạn Thiết bị & Tài khoản phụ (Family Sub-Accounts)
-1. **Gói Miễn phí (`FREE`) & Gói Cá nhân (`INDIVIDUAL`)**:
-   - Giới hạn thiết bị xem đồng thời: **Tối đa 1 thiết bị**.
-   - Không hỗ trợ tài khoản phụ (Sub-profiles). Ẩn hoặc xóa nội dung container chứa danh sách sub-profiles trong DOM.
-2. **Gói Gia đình (`FAMILY`)**:
-   - Giới hạn thiết bị xem đồng thời: **Tối đa 5 thiết bị**.
-   - Hỗ trợ tối đa **5 tài khoản phụ**.
-   - **Ràng buộc an toàn dữ liệu**: Nếu dữ liệu đầu vào chứa nhiều hơn 5 tài khoản phụ, module chỉ được phép render **5 tài khoản đầu tiên** lên DOM và phải ghi một cảnh báo (`console.warn`) ra log hệ thống.
+#### B. Phụ phí & Hệ số Nhân Cước (Surge Pricing Multiplier)
+- **Điều kiện thời tiết (Trời mưa - `isRain: true`)**: Áp dụng hệ số nhân `1.2x`.
+- **Điều kiện giờ cao điểm (`isPeakHour: true`)**: Áp dụng hệ số nhân `1.2x`.
+- **Lưu ý cộng dồn hệ số**: Nếu vừa trời mưa VỪA là giờ cao điểm, hệ số nhân tổng hợp $SurgeMultiplier = 1.2 \times 1.2 = 1.44$. Nếu không có điều kiện nào, $SurgeMultiplier = 1.0$.
+  $$\text{Cước sau Surge} = BaseFare \times SurgeMultiplier$$
 
 
-#### C. Quy tắc Xử lý Quá hạn Thanh toán (Failed Payment Logic)
-- Nếu thuộc tính `user.paymentStatus === 'FAILED_OVER_3_DAYS'`:
-  - Tự động cưỡng chế chuyển gói dịch vụ của người dùng về `FREE` trên giao diện.
-  - Cập nhật thẻ trạng thái thanh toán (`#payment-status-badge`) sang class `.badge-danger` với nội dung text: `"Tạm khóa do nợ cước quá 3 ngày"`.
-  - Tắt toàn bộ các tính năng trả phí trên UI.
+#### C. Mã Giảm giá (Promo Discount)
+Hệ thống hỗ trợ 2 mã giảm giá cố định (chuyển về chữ hoa khi kiểm tra):
+- Mã `"GRAB20"`: Giảm **20%** trên cước phí sau khi đã nhân hệ số Surge.
+- Mã `"GRABNEW"`: Giảm trực tiếp **10.000 VNĐ**.
+- Mã khác hoặc rỗng (`""`): Giảm **0 VNĐ**.
+- *Lưu ý*: Tổng tiền thanh toán cuối cùng ($FinalFare$) sau khi trừ discount không được nhỏ hơn `0 VNĐ`.
 
 
-#### D. Quy tắc Kiểm soát Phân quyền (Feature Access Gate)
-- Danh sách tất cả tính năng được khai báo sẵn trong DOM HTML gốc dưới dạng các phần tử có class `.feature-item` chứa thuộc tính `data-feature-key="..."`.
-- So sánh thuộc tính `data-feature-key` của từng element với mảng tính năng được phép (`plan.allowedFeatures`):
-  - **Nếu được phép**: Thêm class `.feature-active`, loại bỏ class `.feature-disabled`, đổi icon trạng thái (`.feature-icon`) thành `️` và text trạng thái (`.feature-status`) thành `"Đã kích hoạt"`.
-  - **Nếu KHÔNG được phép**: Thêm class `.feature-disabled`, loại bỏ class `.feature-active`, đổi icon trạng thái (`.feature-icon`) thành `` và text trạng thái (`.feature-status`) thành `"Không khả dụng"`.
+#### D. Định dạng Tiền tệ
+Mọi số tiền hiển thị ra DOM phải được định dạng theo chuẩn tiền tệ Việt Nam (Ví dụ: `27500` $\rightarrow$ `"27.500 VNĐ"` hoặc `"27,500 VNĐ"`).
 
 ---
 
@@ -80,116 +70,52 @@ flowchart TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc Khung HTML Tĩnh (Cho trước - Không sửa đổi trực tiếp file HTML)
-Sinh viên căn cứ vào các ID và Selector trong đoạn HTML mẫu sau để thực hiện truy xuất DOM:
+#### A. Cấu trúc Mã nguồn & Dữ liệu Mẫu (Data Model)
+Học viên khai báo dữ liệu chuyến đi mẫu (`bookingData`) trong file `main.js`:
 
-```html
-<!-- Mẫu khung HTML cho trước -->
-<div id="subscription-dashboard">
-  <!-- Thẻ thông tin tài khoản -->
-  <div class="user-card">
-    <h2 id="user-display-name">--</h2>
-    <span id="user-email">--</span>
-    <div id="payment-status-badge" class="badge">--</div>
-  </div>
-
-  <!-- Thẻ thông tin gói dịch vụ -->
-  <div class="plan-card">
-    <h3 id="plan-title">--</h3>
-    <div id="plan-price-container">
-      <span id="plan-price-amount">--</span>
-      <span id="plan-billing-cycle">--</span>
-    </div>
-    <p id="device-limit-info">--</p>
-  </div>
-
-  <!-- Khung tài khoản gia đình (Chỉ hiển thị khi dùng gói FAMILY) -->
-  <div id="family-profiles-wrapper" class="hidden">
-    <h4>Tài khoản gia đình thành viên (<span id="profile-count">0</span>/5)</h4>
-    <ul id="family-profiles-list"></ul>
-  </div>
-
-  <!-- Danh sách tính năng hệ thống -->
-  <div id="feature-matrix">
-    <div class="feature-item" data-feature-key="STREAM_HD">
-      <span class="feature-name">Phát video chất lượng HD</span>
-      <span class="feature-icon">--</span>
-      <span class="feature-status">--</span>
-    </div>
-    <div class="feature-item" data-feature-key="STREAM_4K">
-      <span class="feature-name">Phát video chất lượng 4K Ultra HD</span>
-      <span class="feature-icon">--</span>
-      <span class="feature-status">--</span>
-    </div>
-    <div class="feature-item" data-feature-key="OFFLINE_DOWNLOAD">
-      <span class="feature-name">Tải xuống xem ngoại tuyến</span>
-      <span class="feature-icon">--</span>
-      <span class="feature-status">--</span>
-    </div>
-    <div class="feature-item" data-feature-key="MULTI_DEVICE">
-      <span class="feature-name">Phát đồng thời nhiều thiết bị</span>
-      <span class="feature-icon">--</span>
-      <span class="feature-status">--</span>
-    </div>
-  </div>
-</div>
-```
-
-
-#### B. Phạm vi Kỹ thuật BẮT BUỘC & CẤM
-- **ĐƯỢC PHÉP**: Sử dụng các phương thức DOM API thuộc Session 17 (`document.getElementById`, `querySelector`, `querySelectorAll`, `textContent`, `innerHTML`, `setAttribute`, `getAttribute`, `classList.add`, `classList.remove`, `classList.toggle`, `style.display`).
-- **Nghiêm cấm tuyệt đối**:
-  - Không sử dụng Event Listeners (`addEventListener`, `onclick`, `onchange`,...).
-  - Không sử dụng Form submission (`onsubmit`).
-  - Không sử dụng `fetch` / `axios` / `XMLHttpRequest`.
-  - Không sử dụng `localStorage` / `sessionStorage` / `indexedDB`.
-  - Không sửa đổi file HTML gốc; mọi thao tác biến đổi giao diện phải được thực thi bằng JavaScript.
-
-
-#### C. Thiết kế JavaScript Module (`SaaSSubscriptionManager`)
-Viết một Object hoặc Class tên là `SaaSSubscriptionManager` chứa các phương thức xử lý độc lập:
-
-1. `init(userObject, planObject, billingCycle)`: Hàm khởi chạy chính nhận dữ liệu đầu vào và gọi các hàm render con.
-2. `renderAccountInfo(user, effectivePlan)`: Cập nhật tên người dùng, email, badge trạng thái tài khoản. Dùng `textContent` để cập nhật tên/email nhằm chống đòn tấn công XSS.
-3. `renderPricing(plan, billingCycle)`: Tính toán và render thông tin giá cước, thẻ tiết kiệm (nếu là chu kỳ năm).
-4. `renderFamilySection(effectivePlan, profiles)`: Kiểm tra loại gói dịch vụ, ẩn/hiện container gia đình, render thẻ `<li>` chứa avatar và tên sub-profile (tối đa 5).
-5. `applyFeatureGates(effectivePlan)`: Duyệt qua tất cả `.feature-item` trên DOM để toggle class và cập nhật icon/status.
-
-
-#### D. Dữ liệu Mẫu (Mock Data để test thử module)
 ```javascript
-const mockUser = {
-  id: "USR-8892",
-  displayName: "Nguyen Van A <script>alert('xss')</script>", // Test XSS safety
-  email: "nguyenvana@example.com",
-  paymentStatus: "PAID", // Hoặc "FAILED_OVER_3_DAYS"
-  subProfiles: ["Vợ A", "Con Cả", "Con Thứ", "Bà Nội", "Ông Ngoại", "Chú 6"] // 6 profiles -> Phải cắt còn 5
-};
-
-const mockPlans = {
-  FREE: {
-    code: "FREE",
-    name: "Gói Miễn Phí",
-    monthlyPrice: 0,
-    maxDevices: 1,
-    allowedFeatures: ["STREAM_HD"]
-  },
-  INDIVIDUAL: {
-    code: "INDIVIDUAL",
-    name: "Gói Cá Nhân Premium",
-    monthlyPrice: 180000,
-    maxDevices: 1,
-    allowedFeatures: ["STREAM_HD", "STREAM_4K", "OFFLINE_DOWNLOAD"]
-  },
-  FAMILY: {
-    code: "FAMILY",
-    name: "Gói Gia Đình Premium",
-    monthlyPrice: 260000,
-    maxDevices: 5,
-    allowedFeatures: ["STREAM_HD", "STREAM_4K", "OFFLINE_DOWNLOAD", "MULTI_DEVICE"]
-  }
+const currentBooking = {
+    bookingId: "GRB-2024-88921",
+    passengerName: "Nguyễn Văn A",
+    driver: {
+        name: "Trần Văn Bắc",
+        avatar: "https://via.placeholder.com/150",
+        rating: 4.9,
+        vehiclePlate: "29A-123.45",
+        vehicleType: "GrabBike Premium"
+    },
+    distanceKm: 5.5,
+    isRain: true,
+    isPeakHour: true,
+    promoCode: "GRAB20"
 };
 ```
+
+
+#### B. Thiết kế Mini Module `GrabFareModule`
+Xây dựng một đối tượng/module `GrabFareModule` bao gồm các hàm phương thức chính:
+1. `calculateFare(booking)`: Nhận vào `booking`, thực hiện toàn bộ logic nghiệp vụ (Mục 3) và trả về một đối tượng kết quả chứa các con số chi tiết (`baseFare`, `surgeMultiplier`, `surgeFare`, `discount`, `finalFare`, `isValid`).
+2. `formatCurrency(amount)`: Hàm bổ trợ định dạng số thành chuỗi hiển thị tiền tệ VNĐ.
+3. `render(booking)`: Hàm chính phụ trách thao tác DOM:
+   - Nếu `booking` không hợp lệ ($distanceKm \le 0$): Thêm class `d-none` ẩn khung hóa đơn (`#receipt-card`), xóa class `d-none` hiển thị thẻ báo lỗi (`#error-card`) với nội dung lỗi phù hợp.
+   - Nếu `booking` hợp lệ: Ẩn thẻ lỗi `#error-card`, hiển thị `#receipt-card`.
+   - **Truy xuất và Thay đổi Nội dung DOM**:
+     - Cập nhật Mã chuyến đi `#booking-id` và Tên hành khách `#passenger-name`.
+     - Cập nhật thông tin tài xế: `#driver-name`, `#driver-plate`, `#driver-rating`, và gán thuộc tính `src`, `alt` cho thẻ `#driver-avatar` dùng `setAttribute`.
+     - Cập nhật Số km di chuyển `#trip-distance` (Ví dụ: `"5.5 km"`).
+     - Cập nhật Cước phí cơ bản `#base-fare`.
+     - Cập nhật Thẻ phụ phí `#surge-badge`:
+       - Nếu có surge ($SurgeMultiplier > 1.0$): Thêm class `bg-warning`, cập nhật `textContent` hiển thị hệ số (VD: `"Phụ phí cao điểm/mưa (x1.44)"`).
+       - Nếu không có surge: Thêm class `bg-secondary`, hiển thị `"Giá thường (x1.0)"`.
+     - Cập nhật Mã giảm giá & Số tiền giảm `#promo-info` (Ví dụ: `"GRAB20 (-5.500 VNĐ)"` hoặc `"Không áp dụng"`).
+     - Cập nhật Tổng tiền cuối cùng `#total-fare` bằng `innerHTML` với thẻ `<span>` tô đậm màu xanh thương hiệu Grab.
+
+
+#### C. Phạm vi CẤM (Forbidden Scope)
+-  **KHÔNG** sử dụng Event Listeners (`addEventListener`, `onclick`, `onchange`, ...).
+-  **KHÔNG** sử dụng Form Submit.
+-  **KHÔNG** sử dụng `fetch`, `axios` hoặc `localStorage`.
+-  Việc chạy Module để render giao diện được kích hoạt bằng cách gọi trực tiếp hàm `GrabFareModule.render(currentBooking)` ở cuối file `main.js`.
 
 ---
 
@@ -197,31 +123,26 @@ const mockPlans = {
 ### 5. Quy chuẩn nộp bài
 
 
-#### Cấu trúc thư mục dự án:
+#### A. Cấu trúc thư mục dự án
 ```text
-student-id_homework-13/
-├── index.html          # File HTML gốc (giữ nguyên khung layout cho trước)
+exercise-13-grab-ride/
+├── index.html
 ├── css/
-│   └── style.css       # Các style cơ bản (.hidden, .badge-danger, .feature-disabled,...)
+│   └── style.css
 └── js/
-    └── main.js         # File chứa module SaaSSubscriptionManager và lời gọi hàm kiểm thử
+    └── main.js
 ```
 
 
-#### Quy định về mã nguồn trong `main.js`:
-- Khai báo đầy đủ strict mode (`"use strict";`).
-- Viết comment định rõ chức năng từng hàm bằng định dạng JSDoc ngắn gọn.
-- Ở cuối file `main.js`, thực hiện gọi trực tiếp hàm kiểm thử để chứng minh module hoạt động ngay khi file script tải xong:
-  ```javascript
-  // Chạy kiểm thử hệ thống với dữ liệu mẫu
-  SaaSSubscriptionManager.init(mockUser, mockPlans.FAMILY, "ANNUALLY");
-  ```
+#### B. Quy định mã nguồn
+- Thẻ HTML phải chuẩn bị sẵn khung giao diện bao gồm các Element có `id` trùng khớp với mô tả trong bài tập.
+- Mã JavaScript phải tuân thủ chuẩn ES6+, trình bày sạch sẻ, có comment đầy đủ giải thích các bước tính toán nghiệp vụ và thao tác DOM API.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
 | :--- | :--- | :--- |
-| **Cấu trúc Module & DOM Selection** | **20đ** | - Sử dụng đúng các phương thức DOM API (`getElementById`, `querySelector`, `querySelectorAll`).<br>- Tổ chức mã nguồn thành Module/Object rõ ràng (`SaaSSubscriptionManager`).<br>- Không vi phạm phạm vi cấm (Không dùng Event Listener, Fetch, LocalStorage). |
-| **Logic Nghiệp vụ SaaS & Định giá** | **40đ** | - Tính toán chính xác giá chu kỳ Năm (giảm 20% trên 12 tháng) và render thẻ `<del>`, `.discount-tag` đúng DOM.<br>- Xử lý đúng quy tắc hạ cấp về gói `FREE` khi `paymentStatus === 'FAILED_OVER_3_DAYS'`.<br>- Render đúng số lượng tối đa 5 sub-profiles cho gói `FAMILY` và ẩn phần này khi ở gói `INDIVIDUAL`/`FREE`. |
-| **Feature Gate & Biến đổi Giao diện** | **20đ** | - Duyệt qua tất cả `.feature-item` bằng `querySelectorAll`.<br>- Thêm/xóa class `.feature-active` / `.feature-disabled` chính xác theo `allowedFeatures`.<br>- Cập nhật nội dung text và icon (`✔️` / `❌`) khớp với từng quyền. |
-| **Xử lý Biên & Phòng vệ Mã nguồn** | **20đ** | - Kiểm tra null/undefined trước khi thao tác với DOM element.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu từ người dùng (tránh lỗi bảo mật XSS).<br>- Cắt mảng sub-profiles an toàn khi dữ liệu lớn hơn 5 và ghi log cảnh báo (`console.warn`). |
+| **1. Cấu trúc Module & Phong cách mã nguồn** | **20 điểm** | - Đóng gói logic sạch sẻ trong Mini Module `GrabFareModule` (10đ).<br>- Đặt tên biến/hàm theo chuẩn camelCase, rõ nghĩa, comment mã nguồn đầy đủ (5đ).<br>- Định dạng mã nguồn chuẩn ES6, thụt lề nhất quán (5đ). |
+| **2. Xử lý Logic Nghiệp vụ (Business Rules)** | **40 điểm** | - Tính đúng Cước cơ bản ($12k$ cho 2km đầu, $4.5k$ cho các km tiếp theo) (10đ).<br>- Tính chính xác hệ số Surge Pricing khi mưa / giờ cao điểm và trường hợp kết hợp (1.2x * 1.2x = 1.44x) (10đ).<br>- Xử lý chuẩn xác 2 mã Promo `GRAB20`, `GRABNEW` và các trường hợp mã sai/rỗng (10đ).<br>- Tổng tiền thanh toán không âm và định dạng VNĐ chính xác (10đ). |
+| **3. Thao tác DOM API & Rendering UI** | **20 điểm** | - Truy xuất chính xác các DOM Element thông qua `getElementById` / `querySelector` (5đ).<br>- Sử dụng thành thạo `textContent` / `innerText` cho văn bản và `innerHTML` cho HTML động (5đ).<br>- Cập nhật thuộc tính đúng chuẩn (`setAttribute` cho `src`, `alt` của ảnh) (5đ).<br>- Thao tác class động (`classList.add`, `classList.remove`, `toggle`) để thay đổi trạng thái UI/Badge (5đ). |
+| **4. Xử lý Biên & Ngoại lệ (Edge Cases)** | **20 điểm** | - Kiểm soát khoảng cách âm hoặc bằng 0 ($d \le 0$), chuyển đổi trạng thái hiển thị giao diện báo lỗi (10đ).<br>- Xử lý an toàn khi thiếu thông tin tài xế hoặc promo code bị sai định dạng (chữ hoa/chữ thường) (5đ).<br>- Tuân thủ 100% phạm vi kỹ thuật (Không sử dụng Event Listener, Fetch, LocalStorage) (5đ). |

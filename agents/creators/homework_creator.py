@@ -22,6 +22,8 @@ from core.domain_adapters import get_domain_rules
 from core.domain_knowledge import (
     BUSINESS_DOMAINS,
     select_random_domain,
+    get_domain_for_session,
+    get_domain_blueprint,
     format_domain_rules_for_prompt
 )
 from core.schemas.course_schemas import EnhancedHomeworkExerciseSchema
@@ -442,41 +444,47 @@ def generate_session_homework_suite(
     tech_stack: str,
     previous_lessons_text: str = "",
     forbidden_scope: str = "",
+    chosen_domain: Optional[str] = None,
     course_dir: Optional[Path] = None,
     session_dir_path: Optional[Union[str, Path]] = None,
     total_exercises: int = 15
 ) -> List[Dict[str, Any]]:
     """
     Generates a full suite of 15 homework assignments for a session
+    strictly centered around a SINGLE UNIFIED BUSINESS DOMAIN (Session Domain Anchor)
     distributed across 5 Bloom taxonomy levels (3 exercises per level),
     plus 1 in-class synthesis exercise and 1 mindmap architecture exercise.
     """
-    # 15 exercises distributed across 5 Bloom cognitive levels (3 exercises per level)
+    domain_blueprint = get_domain_for_session(session_id, session_title, chosen_domain or "")
+    unified_domain = domain_blueprint.get("domain_id", "SHOPEE_FOOD")
+    unified_domain_name = domain_blueprint.get("name_vi", "Hệ thống Đặt đồ ăn ShopeeFood")
+
+    # 15 exercises distributed across 5 Bloom cognitive levels on ONE UNIFIED DOMAIN
     levels = [
         # Mức độ 1: Cơ bản 1 - Debug lỗi (Bài 1-3)
-        ("Mức độ 1: Cơ bản - Debug lỗi", "E-Commerce"),
-        ("Mức độ 1: Cơ bản - Debug lỗi", "Logistics"),
-        ("Mức độ 1: Cơ bản - Debug lỗi", "FinTech"),
+        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain),
+        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain),
+        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain),
         # Mức độ 2: Cơ bản 2 - Kiểm thử I/O & Hoàn thiện luồng (Bài 4-6)
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", "Healthcare"),
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", "CRM"),
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", "EdTech"),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain),
         # Mức độ 3: Nâng cao 1 - Xây dựng tính năng mới (Bài 7-9)
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "E-Commerce"),
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "Logistics"),
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "FinTech"),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain),
         # Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc & Trade-offs (Bài 10-12)
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "Healthcare"),
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "CRM"),
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "EdTech"),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain),
         # Mức độ 5: Sáng tạo - Thiết kế Mini Module (Bài 13-15)
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "E-Commerce"),
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "FinTech"),
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "EdTech")
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain),
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain),
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain)
     ]
 
     exercises_data = []
-    print(f"\n[Homework Creator] 🚀 Bắt đầu sinh bộ {total_exercises} bài tập về nhà + 1 bài tổng hợp + 1 bài mindmap cho {session_id} ({tech_stack})...")
+    print(f"\n[Homework Creator] 🚀 Bắt đầu sinh bộ {total_exercises} bài tập về nhà + 1 bài tổng hợp + 1 bài mindmap cho {session_id} ({tech_stack}) theo Domain thống nhất [{unified_domain_name}]...")
 
     def _gen_one(i: int):
         level_name, domain = levels[(i - 1) % len(levels)]
@@ -514,7 +522,7 @@ def generate_session_homework_suite(
             session_title=session_title,
             tech_stack=tech_stack,
             previous_lessons_text=previous_lessons_text,
-            chosen_domain="E-Commerce",
+            chosen_domain=unified_domain,
             forbidden_scope=forbidden_scope
         )
         f_mindmap = executor.submit(
@@ -545,9 +553,9 @@ def generate_session_homework_suite(
     if target_homework_dir:
         target_homework_dir.mkdir(parents=True, exist_ok=True)
 
-        # 1. Cleanup legacy non-descriptive folders (e.g. bai_01, bai_02) and empty stub files
+        # 1. Cleanup previous exercise folders and empty stub files
         for item in list(target_homework_dir.iterdir()):
-            if item.is_dir() and re.match(r"^bai_\d+$", item.name):
+            if item.is_dir() and (re.match(r"^bai_\d+$", item.name) or re.match(r"^\d+_", item.name)):
                 try:
                     shutil.rmtree(item)
                 except Exception:

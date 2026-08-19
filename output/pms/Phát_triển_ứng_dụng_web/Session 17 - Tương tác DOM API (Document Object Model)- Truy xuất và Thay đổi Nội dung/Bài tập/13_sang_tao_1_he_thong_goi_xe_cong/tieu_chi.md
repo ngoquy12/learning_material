@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| :--- | :--- | :--- |
+| **1. Cấu trúc Module & Phong cách mã nguồn** | **20 điểm** | - Đóng gói logic sạch sẻ trong Mini Module `GrabFareModule` (10đ).<br>- Đặt tên biến/hàm theo chuẩn camelCase, rõ nghĩa, comment mã nguồn đầy đủ (5đ).<br>- Định dạng mã nguồn chuẩn ES6, thụt lề nhất quán (5đ). |
+| **2. Xử lý Logic Nghiệp vụ (Business Rules)** | **40 điểm** | - Tính đúng Cước cơ bản ($12k$ cho 2km đầu, $4.5k$ cho các km tiếp theo) (10đ).<br>- Tính chính xác hệ số Surge Pricing khi mưa / giờ cao điểm và trường hợp kết hợp (1.2x * 1.2x = 1.44x) (10đ).<br>- Xử lý chuẩn xác 2 mã Promo `GRAB20`, `GRABNEW` và các trường hợp mã sai/rỗng (10đ).<br>- Tổng tiền thanh toán không âm và định dạng VNĐ chính xác (10đ). |
+| **3. Thao tác DOM API & Rendering UI** | **20 điểm** | - Truy xuất chính xác các DOM Element thông qua `getElementById` / `querySelector` (5đ).<br>- Sử dụng thành thạo `textContent` / `innerText` cho văn bản và `innerHTML` cho HTML động (5đ).<br>- Cập nhật thuộc tính đúng chuẩn (`setAttribute` cho `src`, `alt` của ảnh) (5đ).<br>- Thao tác class động (`classList.add`, `classList.remove`, `toggle`) để thay đổi trạng thái UI/Badge (5đ). |
+| **4. Xử lý Biên & Ngoại lệ (Edge Cases)** | **20 điểm** | - Kiểm soát khoảng cách âm hoặc bằng 0 ($d \le 0$), chuyển đổi trạng thái hiển thị giao diện báo lỗi (10đ).<br>- Xử lý an toàn khi thiếu thông tin tài xế hoặc promo code bị sai định dạng (chữ hoa/chữ thường) (5đ).<br>- Tuân thủ 100% phạm vi kỹ thuật (Không sử dụng Event Listener, Fetch, LocalStorage) (5đ). |

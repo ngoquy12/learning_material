@@ -1,29 +1,33 @@
-# Bài tập 6: EdTech (Mức độ 2: Cơ bản - Kiểm thử I/O)
+# Bài tập 6: GRAB_RIDE (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-- **Truy xuất DOM Element**: Thành thạo việc sử dụng các phương thức như `document.getElementById()`, `document.querySelector()` để lấy dữ liệu từ các phần tử HTML trên giao diện hệ thống.
-- **Biến đổi & Thay đổi Nội dung DOM**: Làm chủ việc cập nhật dữ liệu hiển thị bằng `textContent`, `innerText`, `innerHTML`, cũng như thao tác với lớp CSS (`classList.add`, `classList.remove`, `classList.setAttribute`).
-- **Xử lý Logic & Đọc hiểu Nghiệp vụ**: Áp dụng quy tắc tính phí dịch vụ sạc xe điện, phí phạt đỗ xe quá giờ và kiểm soát an toàn cổng sạc để tự động tính toán và cập nhật giao diện hóa đơn.
-- **Kiểm thử I/O cơ bản**: Đảm bảo chương trình đọc chính xác dữ liệu đầu vào (Input) từ DOM, xử lý và xuất kết quả (Output) chuẩn xác lên các phần tử DOM tương ứng mà không cần tương tác sự kiện nâng cao.
+- **Truy xuất phần tử DOM**: Sử dụng thành thạo các phương thức `document.getElementById()` và `document.querySelector()` để lấy dữ liệu từ các phần tử HTML và thuộc tính dữ liệu tùy biến (`data-*`).
+- **Thao tác nội dung DOM**: Cập nhật văn bản hiển thị và giao diện thông qua `innerText`, `textContent`, `style` và `classList`.
+- **Áp dụng logic nghiệp vụ GrabRide**: Tính toán giá cước mở cửa, giá cước lũy tiến theo km và phụ phí cao điểm/thời tiết cho hệ thống đặt xe công nghệ.
+- **Kiểm thử I/O cơ bản**: Đảm bảo luồng dữ liệu đầu vào (đọc từ DOM) và đầu ra (ghi vào DOM) đúng chính xác theo mọi trường hợp kiểm thử (test cases).
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống Quản lý Trạm sạc Xe điện VinFast (**EV_CHARGING_STATION**) cần một module cập nhật nhanh trạng thái phiên sạc và tính toán hóa đơn thanh toán cho khách hàng ngay sau khi phiên sạc hoàn tất hoặc bị ngắt tự động.
+Trong hệ thống đặt xe công nghệ **GrabRide**, trước khi hành khách xác nhận chuyến đi, giao diện ứng dụng cần hiển thị thẻ **"Thông tin chi tiết cước phí" (Fare Booking Preview)**. 
 
-Nhiệm vụ của bạn là viết một tệp JavaScript đóng vai trò xử lý tự động khi màn hình giao diện báo cáo phiên sạc (`VehicleSession`) được tải. Mã nguồn sẽ đọc các thông số vận hành của trụ sạc từ giao diện HTML (loại cổng sạc, điện năng tiêu thụ, thời gian đỗ quá giờ, nhiệt độ cổng sạc, phần trăm pin), tính toán chi tiết tiền điện và tiền phạt, kiểm tra điều kiện an toàn, sau đó cập nhật thông tin tương ứng lên các thẻ hiển thị hóa đơn (`ChargingInvoice`).
+Dữ liệu chuyến đi (khoảng cách di chuyển và trạng thái phụ phí thời tiết/giờ cao điểm) đã được hệ thống Render sẵn vào các thuộc tính dữ liệu HTML. Nhiệm vụ của bạn là viết mã nguồn JavaScript chạy khi trang web tải xong để tự động truy xuất các thông tin này, thực hiện tính toán cước phí chi tiết và cập nhật kết quả lên màn hình hiển thị cho hành khách.
 
+
+#### Sơ đồ luồng xử lý DOM (DOM Processing Flow):
 ```mermaid
-flowchart TD
-    A[Đọc dữ liệu từ DOM] --> B{Kiểm tra tính hợp lệ dữ liệu}
-    B -- Không hợp lệ --> C[Hiển thị báo lỗi 'DỮ LIỆU KHÔNG HỢP LỆ' lên DOM]
-    B -- Hợp lệ --> D[Kiểm tra An toàn: Nhiệt độ & Phần trăm Pin]
-    D --> E[Cập nhật Trạng thái Trụ sạc lên DOM]
-    E --> F[Tính Tiền điện tiêu thụ theo Loại cổng sạc]
-    F --> G[Tính Phí phạt đỗ xe quá giờ]
-    G --> H[Tính Tổng tiền thanh toán = Tiền điện + Phí phạt]
-    H --> I[Format tiền tệ VNĐ & Render lên các thẻ DOM tương ứng]
+graph TD
+    A[HTML DOM Loaded] --> B[Truy xuất thẻ #booking-card]
+    B --> C[Đọc data-distance & data-is-surge]
+    C --> D{Kiểm tra dữ liệu?}
+    D -- Không hợp lệ (<= 0 hoặc NaN) --> E[Hiển thị thông báo Lỗi lên #total-fare & gắn class error]
+    D -- Hợp lệ --> F[Tính cước cơ bản & Phụ phí 1.2x]
+    F --> G[Định dạng tiền tệ VNĐ]
+    G --> H[Cập nhật vào #base-fare, #surge-fee, #total-fare]
+    H --> I{Tổng tiền > 100.000 VNĐ?}
+    I -- Có --> J[Thêm class 'high-fare' vào #total-fare]
+    I -- Không --> K[Hoàn tất]
 ```
 
 ---
@@ -32,35 +36,27 @@ flowchart TD
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
 
-#### A. Đơn giá điện sạc (Base Charging Rate):
-- **Cổng sạc thường (`REGULAR`)**: `3.850 VNĐ/kWh`
-- **Cổng sạc siêu nhanh (`SUPER`)**: `4.500 VNĐ/kWh`
+#### a. Quy tắc tính cước di chuyển (Trip Fare Rules):
+1. **Giá cước cơ sở (Base Fare)**:
+   - **2 km đầu tiên**: Giá cố định là **12.000 VNĐ** (dù đi dưới 2 km vẫn tính 12.000 VNĐ).
+   - **Từ km thứ 3 trở đi**: Tính thêm **4.500 VNĐ/km** cho phần khoảng cách vượt quá 2 km.
+   - *Công thức tính cước cơ sở*: 
+     - Nếu $S \le 2$: $Cước\_Cơ\_Sở = 12.000$ VNĐ.
+     - Nếu $S > 2$: $Cước\_Cơ\_Sở = 12.000 + (S - 2) \times 4.500$ VNĐ.
+2. **Hệ số phụ phí (Surge Fee)**:
+   - Nếu `data-is-surge="true"` (do trời mưa hoặc giờ cao điểm): Nhân hệ số **1.2x** vào Cước cơ sở.
+   - Phụ phí phát sinh = $Cước\_Cơ\_Sở \times 0.2$.
+   - Tổng cước phí = $Cước\_Cơ\_Sở \times 1.2$.
+   - Nếu `data-is-surge="false"`: Tổng cước phí = Cước cơ sở (Phụ phí = 0 VNĐ).
 
 
-#### B. Phí phạt đỗ xe quá giờ (Overstay Penalty Fee):
-- Xe điện được miễn phí đỗ trong **30 phút đầu tiên** kể từ khi sạc đầy (hoặc phiên sạc kết thúc).
-- Từ phút thứ **31** trở đi, tính phí phạt: `1.000 VNĐ/phút` cho số phút vượt quá 30.
-- *Công thức*: `Phí phạt = max(0, thời_gian_đỗ - 30) * 1000`.
-
-
-#### C. Trạng thái ngắt sạc an toàn (Safety Auto-Cutoff):
-- **Cảnh báo quá nhiệt khẩn cấp**: Nếu nhiệt độ cổng sạc (`port-temp`) **> 70°C**:
-  - Trạng thái phiên sạc hiển thị: `"NGẮT SẠC KHẨN CẤP (QUÁ NHIỆT)"`
-  - Thêm class CSS `status-danger` cho phần tử hiển thị trạng thái.
-- **Tự động ngắt khi đầy pin**: Nếu nhiệt độ `<= 70°C` và phần trăm pin (`battery-level`) **>= 100%**:
-  - Trạng thái phiên sạc hiển thị: `"ĐÃ TỰ ĐỘNG NGẮT (ĐẦY PIN)"`
-  - Thêm class CSS `status-success` cho phần tử hiển thị trạng thái.
-- **Trạng thái bình thường khác**:
-  - Trạng thái phiên sạc hiển thị: `"ĐANG SẠC"`
-  - Thêm class CSS `status-charging` cho phần tử hiển thị trạng thái.
-
-
-#### D. Quy chuẩn định dạng & Xử lý ngoại lệ:
-- **Định dạng tiền tệ**: Tất cả các giá trị tiền mặt xuất ra DOM phải ở dạng chuỗi có phân cách hàng nghìn và kèm đơn vị `VNĐ` (Ví dụ: `175.175 VNĐ`, `15.000 VNĐ`, `0 VNĐ`). Bạn có thể dùng `Intl.NumberFormat('vi-VN')` hoặc thuật toán định dạng thủ công chuẩn xác.
-- **Xử lý dữ liệu không hợp lệ**:
-  - Dữ liệu `kwh-consumed`, `overstay-minutes`, `battery-level`, `port-temp` bị thiếu, không phải số (`isNaN`), hoặc có giá trị âm (`< 0`).
-  - Loại cổng sạc không thuộc `REGULAR` hoặc `SUPER`.
-  - Khi gặp lỗi dữ liệu: Cập nhật thẻ tổng tiền (`#total-amount`) thành chuỗi `"DỮ LIỆU KHÔNG HỢP LỆ"`, xóa các class trạng thái cũ và thêm class `text-error`.
+#### b. Quy tắc hiển thị & Định dạng DOM:
+- **Định dạng tiền tệ**: Tất cả số tiền hiển thị ra màn hình phải được làm tròn nguyên và thêm hậu tố `VNĐ` (Ví dụ: `25.500 VNĐ` hoặc `25500 VNĐ`).
+- **Cảnh báo cước phí cao**: Nếu Tổng cước phí vượt quá **100.000 VNĐ**, phải tự động thêm class CSS `high-fare` vào phần tử chứa tổng tiền (`#total-fare`).
+- **Xử lý dữ liệu bất hợp lệ**: Nếu khoảng cách $S \le 0$ hoặc không phải là số hợp lệ:
+  - Ghi văn bản: `"Dữ liệu khoảng cách không hợp lệ"` vào phần tử `#total-fare`.
+  - Thêm class CSS `error` vào phần tử `#total-fare`.
+  - Cập nhật `#base-fare` và `#surge-fee` thành `"0 VNĐ"`.
 
 ---
 
@@ -68,74 +64,64 @@ flowchart TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc DOM mẫu (HTML cho sẵn):
-```html
-<div id="charging-app">
-  <!-- Dữ liệu đầu vào (Input Elements) -->
-  <div class="session-info">
-    <span id="port-type">SUPER</span>
-    <span id="kwh-consumed">45.5</span>
-    <span id="overstay-minutes">45</span>
-    <span id="battery-level">100</span>
-    <span id="port-temp">72</span>
-  </div>
+#### Cấu trúc HTML mẫu (`index.html`):
+*(Học viên sử dụng cấu trúc HTML này để thực thi mã JS)*
 
-  <!-- Dữ liệu đầu ra (Output Elements) -->
-  <div class="invoice-card">
-    <div id="charging-status" class="status-badge"></div>
-    <div class="bill-details">
-      <p>Tiền điện: <span id="electricity-fee">--</span></p>
-      <p>Phí quá giờ: <span id="penalty-fee">--</span></p>
-      <h3>Tổng thanh toán: <span id="total-amount">--</span></h3>
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>GrabRide - Tính Cước Phí Chuyến Đi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Thông Tin Chuyến Đi GrabRide</h2>
+        <!-- Thẻ chứa dữ liệu đầu vào -->
+        <div id="booking-card" data-distance="5" data-is-surge="true">
+            <p>Khoảng cách: <span id="display-distance">5</span> km</p>
+            <p>Cước cơ bản: <span id="base-fare">--</span></p>
+            <p>Phụ phí (Giờ cao điểm/Mưa): <span id="surge-fee">--</span></p>
+            <hr>
+            <h3>Tổng tiền: <span id="total-fare">--</span></h3>
+        </div>
     </div>
-  </div>
-</div>
+    <script src="script.js"></script>
+</body>
+</html>
 ```
 
 
-#### B. Các bước triển khai trong file JavaScript (`main.js`):
-1. **Truy xuất dữ liệu từ DOM**:
-   - Sử dụng `document.getElementById()` để lấy giá trị văn bản từ các id: `port-type`, `kwh-consumed`, `overstay-minutes`, `battery-level`, `port-temp`.
-   - Ép kiểu dữ liệu chuỗi (`string`) sang kiểu số (`number`) thích hợp cho các trường cần tính toán.
-
-2. **Xử lý Kiểm tra Dữ liệu & Tính toán Logic**:
-   - Tiến hành validation theo các điều kiện nghiệp vụ ở Mục 3.
-   - Tính toán `electricityFee`, `penaltyFee` và `totalAmount`.
-
-3. **Cập nhật Giao diện (Output DOM)**:
-   - Cập nhật phần tử `#charging-status`: thay đổi text content và class CSS tương ứng.
-   - Cập nhật phần tử `#electricity-fee`: hiển thị số tiền điện đã định dạng.
-   - Cập nhật phần tử `#penalty-fee`: hiển thị số tiền phạt đã định dạng.
-   - Cập nhật phần tử `#total-amount`: hiển thị tổng số tiền thanh toán đã định dạng.
-
-
-#### C. Ràng buộc Phạm vi Kỹ thuật (Forbidden Scope):
--  **KHÔNG** sử dụng Event Listeners (`addEventListener`, `onclick`, `onchange`...).
--  **KHÔNG** sử dụng `fetch()`, `axios`, hoặc gọi API bên ngoài.
--  **KHÔNG** sử dụng `localStorage`, `sessionStorage`, hay Cookie.
--  **KHÔNG** sử dụng các form submit event. Mã nguồn JS sẽ được thực thi trực tiếp khi file được load.
+#### Yêu cầu mã nguồn JavaScript (`script.js`):
+1. **Không sử dụng Event Listeners** (`addEventListener`, `onclick`, `onsubmit`...), không sử dụng `Fetch API` hay `LocalStorage`. Code phải chạy trực tiếp ngay khi file `script.js` được nạp.
+2. Truy xuất phần tử `#booking-card` để đọc 2 thuộc tính `dataset.distance` và `dataset.isSurge`.
+3. Chuyển đổi dữ liệu chuỗi từ dataset sang kiểu dữ liệu số (number) và boolean tương ứng.
+4. Viết logic tính toán theo đúng Quy tắc nghiệp vụ ở Mục 3.
+5. Cập nhật kết quả vào các phần tử DOM:
+   - `#base-fare`: Hiển thị Cước cơ sở.
+   - `#surge-fee`: Hiển thị Số tiền phụ phí phát sinh.
+   - `#total-fare`: Hiển thị Tổng tiền thanh toán.
+6. Thay đổi style/class của `#total-fare` khi vi phạm điều kiện lỗi hoặc đạt hạn mức cước phí cao.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục dự án**:
+- **Cấu trúc thư mục nộp bài**:
   ```text
-  EV_Charging_DOM/
+  GRAB_RIDE_SESSION17_HW6/
   ├── index.html
   ├── style.css
-  └── main.js
+  └── script.js
   ```
-- **Quy định đặt tên**:
-  - File HTML giữ nguyên cấu trúc các thẻ và ID được cung cấp ở mục 4.A.
-  - Mã lệnh xử lý DOM chính nằm hoàn toàn trong file `main.js`.
-  - Cần comment giải thích rõ các bước: Truy xuất DOM -> Validate & Kiểm tra an toàn -> Tính toán nghiệp vụ -> Cập nhật DOM.
+- **Quy định đặt tên**: Các ID HTML và tên file phải chính xác 100% theo mô tả đề bài.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến rõ nghĩa theo danh từ tiếng Anh (VD: `portType`, `kwhConsumed`, `totalAmount`).<br>- Thụt lề chuẩn 2 hoặc 4 spaces, mã nguồn sạch sẽ.<br>- Có comment giải thích chi tiết logic nghiệp vụ và từng bước thao tác DOM. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **10đ**: Truy xuất đúng toàn bộ phần tử DOM đầu vào và đầu ra.<br>- **10đ**: Kiểm tra chính xác trạng thái ngắt sạc an toàn (Quá nhiệt > 70°C và Đầy pin >= 100%) và cập nhật đúng class/text.<br>- **10đ**: Tính đúng Tiền điện theo đơn giá `REGULAR` (3.850) và `SUPER` (4.500).<br>- **10đ**: Tính đúng Phí phạt đỗ xe quá 30 phút (1.000 VNĐ/phút vượt quá). |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Ép kiểu số an toàn, kiểm soát trường hợp `isNaN`, số âm (`< 0`), hoặc loại cổng sạc không hợp lệ.<br>- Hiển thị đúng thông báo lỗi `"DỮ LIỆU KHÔNG HỢP LỆ"` tại thẻ `#total-amount` và gắn class `text-error` khi dữ liệu đầu vào vi phạm quy tắc. |
-| **Tối ưu hiệu năng & Thao tác DOM** | **20đ** | - Sử dụng đúng các thuộc tính/phương thức DOM cơ bản (`innerText`/`textContent`, `classList.add`, `classList.remove`).<br>- Không truy xuất trùng lặp cùng 1 DOM element nhiều lần (nên lưu vào biến hằng số `const`).<br>- Tuân thủ tuyệt đối quy định không dùng Event Listener, Fetch, hay LocalStorage. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến rõ ràng, tuân thủ camelCase (`baseFare`, `totalFare`, `isSurge`).<br>- Thụt lề chuẩn, comment giải thích logic ngắn gọn.<br>- Truy xuất DOM đúng phương thức (`getElementById` / `querySelector`). |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Test Case 1 (15đ)**: $S = 1.5$ km, `surge = false` $\rightarrow$ Base: `12.000 VNĐ`, Surge: `0 VNĐ`, Total: `12.000 VNĐ`.<br>- **Test Case 2 (15đ)**: $S = 5$ km, `surge = true` $\rightarrow$ Base: `25.500 VNĐ`, Surge: `5.100 VNĐ`, Total: `30.600 VNĐ`.<br>- **Test Case 3 (10đ)**: $S = 20$ km, `surge = true` $\rightarrow$ Total: `111.600 VNĐ` (Tính đúng cước lũy tiến). |
+| **Xử lý Biên & Ngoại lệ** | **20đ** | - **Test Case 4 (10đ)**: $S = 0$ hoặc $S = -3$ hoặc $S = "abc"$ $\rightarrow$ Hiển thị `"Dữ liệu khoảng cách không hợp lệ"` tại `#total-fare` và gắn class `error`.<br>- **Test Case 5 (10đ)**: Khi Tổng tiền $> 100.000$ VNĐ $\rightarrow$ Thêm class `high-fare` vào phần tử `#total-fare`. |
+| **Thao tác DOM & Định dạng** | **20đ** | - Sử dụng đúng `innerText`/`textContent` để cập nhật nội dung.<br>- Thao tác class chuẩn xác bằng `classList.add()`.<br>- Định dạng đơn vị tiền tệ rõ ràng, không làm biến đổi cấu trúc HTML ban đầu.<br>- Tuyệt đối không dùng Event Listener hay Form Submit. |

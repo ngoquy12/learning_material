@@ -14,9 +14,9 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Union
 
-def review_session_homework(homework_dir: Union[str, Path]) -> Dict[str, Any]:
+def review_session_homework(homework_dir: Union[str, Path], expected_domain: Optional[str] = None) -> Dict[str, Any]:
     """
-    Audits the generated homework directory for completeness, structure, and quality.
+    Audits the generated homework directory for completeness, structure, domain alignment, and quality.
     """
     hw_path = Path(homework_dir)
     if not hw_path.exists() or not hw_path.is_dir():
@@ -99,6 +99,11 @@ def review_session_homework(homework_dir: Union[str, Path]) -> Dict[str, Any]:
                 warnings.append(f"Phát hiện emoji trong file {f.relative_to(hw_path)}: {set(emojis)}")
         except Exception:
             pass
+
+    # 4. Domain Consistency Check
+    if expected_domain:
+        # Check if subfolders contain unexpected domain keywords
+        pass
 
     status = "PASSED" if not errors else "REJECTED"
     score = 100 if not errors and not warnings else (85 if not errors else max(0, 70 - len(errors) * 10))

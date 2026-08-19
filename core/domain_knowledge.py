@@ -193,6 +193,8 @@ BUSINESS_DOMAINS: Dict[str, Dict[str, Any]] = {
     }
 }
 
+import re
+
 def get_available_domain_ids() -> List[str]:
     """Returns list of all available domain identifiers."""
     return list(BUSINESS_DOMAINS.keys())
@@ -209,6 +211,30 @@ def get_domain_blueprint(domain_id: str) -> Dict[str, Any]:
 def select_random_domain() -> Dict[str, Any]:
     """Selects a random relatable enterprise business domain."""
     return random.choice(list(BUSINESS_DOMAINS.values()))
+
+def get_domain_for_session(session_id: str, session_title: str = "", default_domain: str = "") -> Dict[str, Any]:
+    """
+    Deterministically resolves a single unified domain for a session based on session_id or title,
+    ensuring 100% domain consistency across all session resources.
+    """
+    if default_domain and str(default_domain).upper().strip() in BUSINESS_DOMAINS:
+        return BUSINESS_DOMAINS[str(default_domain).upper().strip()]
+    
+    # Extract session number if present
+    m = re.search(r'\d+', session_id)
+    if m:
+        num = int(m.group(0))
+        domain_keys = list(BUSINESS_DOMAINS.keys())
+        chosen_key = domain_keys[(num - 1) % len(domain_keys)]
+        return BUSINESS_DOMAINS[chosen_key]
+    
+    # Hash session_title if no number
+    if session_title:
+        h = abs(hash(session_title))
+        domain_keys = list(BUSINESS_DOMAINS.keys())
+        return BUSINESS_DOMAINS[domain_keys[h % len(domain_keys)]]
+    
+    return BUSINESS_DOMAINS["SHOPEE_FOOD"]
 
 def format_domain_rules_for_prompt(domain_info: Dict[str, Any]) -> str:
     """Formats domain metadata into a concise prompt instruction block."""

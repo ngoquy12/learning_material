@@ -1,29 +1,29 @@
-# Bài tập 1: E-Commerce (Mức độ 1: Cơ bản - Debug lỗi)
+# Bài tập 1: GRAB_RIDE (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-- **Truy xuất Element chuẩn xác**: Phân biệt và ứng dụng đúng các phương thức `document.getElementById()`, `document.querySelector()`, và `document.querySelectorAll()`.
-- **Thay đổi nội dung DOM**: Phân biệt và sử dụng đúng giữa `textContent`, `innerText`, và `innerHTML` trong các ngữ cảnh render dữ liệu văn bản hoặc cấu trúc HTML.
-- **Thao tác Class và Attribute**: Sử dụng đúng `classList` (`add`, `remove`, `toggle`) và `setAttribute()` để cập nhật trạng thái UI động theo logic nghiệp vụ.
-- **Kỹ năng Debug**: Phát hiện, phân tích nguyên nhân và sửa chữa các lỗi phổ biến liên quan đến cú pháp và tư duy DOM API cơ bản.
+- **Kỹ năng DOM API**: Phát hiện và sửa các lỗi sai phổ biến khi truy xuất phần tử DOM (`document.getElementById`) và thao tác thay đổi nội dung, thuộc tính của HTML element (`innerText`, `textContent`, `src`, `style`).
+- **Nghiệp vụ ứng dụng**: Hiểu và triển khai lại đúng công thức tính toán cước phí di chuyển (`TripFare`) của hệ thống **GrabRide** dựa trên quãng đường và phụ phí giờ cao điểm/thời tiết.
+- **Tư duy Debugging**: Phát hiện nguyên nhân khiến script bị dừng đột ngột (runtime error) hoặc tính toán sai kết quả đầu ra (logical error).
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn vừa gia nhập đội ngũ Frontend Engineering tại **Streamify** — nền tảng cung cấp dịch vụ xem phim và nghe nhạc trực tuyến theo gói đăng ký (SaaS). 
+Tại ứng dụng gọi xe công nghệ **GrabRide**, bộ phận kỹ thuật vừa bàn giao một mô-đun hiển thị thông tin tóm tắt chuyến đi (`TripFare`) lên bảng điều khiển của tài xế. Tuy nhiên, lập trình viên Junior đảm nhận nhiệm vụ này đã viết đoạn mã chứa nhiều lỗi khiến giao diện Web không cập nhật được tên tài xế, ảnh đại diện bị hỏng, và tổng tiền cước phí bị tính toán sai nghiêm trọng.
 
-Hệ thống vừa phát hành tính năng hiển thị **Bảng điều khiển Gói dịch vụ (Subscription Dashboard)** nhằm cảnh báo người dùng về trạng thái tài khoản (ví dụ: gia hạn thất bại, giới hạn thiết bị phát). Tuy nhiên, lập trình viên Junior đã viết đoạn mã DOM API cập nhật giao diện bị lỗi khiến trang web hiển thị sai cấu trúc HTML, không gán được nội dung và gây ra lỗi script trên trình duyệt.
+Nhiệm vụ của bạn là tiếp nhận mã nguồn hiện tại, thực hiện **Debug (Tìm và sửa lỗi)** để giao diện hiển thị đúng toàn bộ thông tin chuyến đi theo đúng quy tắc nghiệp vụ của GrabRide.
 
-Nhiệm vụ của bạn là **kiểm tra, phát hiện 5 lỗi sai (bugs)** trong đoạn mã được giao và tiến hành sửa lại mã nguồn sao cho giao diện hiển thị chính xác theo yêu cầu nghiệp vụ.
 
+#### Sơ đồ luồng xử lý dữ liệu (Data Flow Diagram)
 ```mermaid
-flowchart TD
-    A[Dữ liệu Tài khoản UserAccount] --> B[Hàm updateSubscriptionDashboard]
-    B --> C{Truy xuất Element DOM}
-    C -->|Lỗi Selector / Phương thức| D[Giao diện lỗi / Crash Script]
-    C -->|Thao tác DOM Chuẩn| E[Hiển thị Bảng điều khiển Gói dịch vụ]
-    E --> F[Cập nhật Tên gói & Trạng thái Alert]
-    E --> G[Render Số thiết bị & Danh sách Tính năng]
+graph TD
+    A[Dữ liệu chuyến đi TripBooking Object] --> B[Hàm renderTripSummary]
+    B --> C{Kiểm tra & Sửa lỗi DOM / Logic}
+    C --> D[Truy xuất Element chuẩn xác]
+    C --> E[Tính cước phí đúng công thức GrabRide]
+    D --> F[Cập nhật Text & Attributes vào DOM HTML]
+    E --> F
+    F --> G[Hiển thị kết quả chuẩn xác lên giao diện]
 ```
 
 ---
@@ -31,15 +31,24 @@ flowchart TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-1. **Hiển thị Tên Gói dịch vụ**: Cập nhật tiêu đề gói đăng ký theo thông tin của người dùng.
-2. **Cảnh báo Trạng thái Gia hạn (Billing Status)**:
-   - Nếu tài khoản gặp lỗi thanh toán (`isOverdue = true`), hiển thị thẻ cảnh báo nguy hiểm bằng giao diện Badge HTML: `<span class="badge badge-danger">Gia hạn thất bại - Tạm khóa trong 3 ngày</span>`.
-   - Nếu tài khoản hoạt động bình thường (`isOverdue = false`), hiển thị Badge thành công: `<span class="badge badge-success">Đã thanh toán - Hoạt động</span>`.
-3. **Giới hạn Thiết bị & Tài khoản Con**:
-   - Gói Cá nhân (Individual): Tối đa 1 thiết bị phát đồng thời, 0 tài khoản con.
-   - Gói Gia đình (Family): Tối đa 5 thiết bị phát đồng thời, tối đa 5 tài khoản con.
-4. **Hiển thị Danh sách Tính năng (Feature Access)**:
-   - Chuyển đổi mảng các tính năng (`features`) thành danh sách thẻ danh sách `<ul>` chứa các thẻ `<li>`.
+
+#### Công thức tính tổng cước phí GrabRide:
+1. **Giá cước cơ bản (Base Fare)**:
+   - Quãng đường $\le 2\text{ km}$: Tính giá cố định **12.000 VNĐ** (giá mở cửa).
+   - Quãng đường $> 2\text{ km}$: Tính **12.000 VNĐ** cho 2 km đầu + **4.500 VNĐ/km** cho mỗi km tiếp theo (từ km thứ 3).
+   - *Công thức tổng quát khi $Quãng\_đường > 2$:* `BaseFare = 12000 + (distanceKm - 2) * 4500`
+
+2. **Hệ số nhân phụ phí (Surge Multiplier)**:
+   - Nếu `isSurge === true` (Trời mưa hoặc giờ cao điểm): 
+     $$\text{Tổng tiền} = \text{Giá cước cơ bản} \times 1.2$$
+   - Nếu `isSurge === false`:
+     $$\text{Tổng tiền} = \text{Giá cước cơ bản}$$
+
+3. **Quy chuẩn hiển thị lên Giao diện**:
+   - Tên tài xế: Thêm tiền tố `"Tài xế: "` phía trước tên.
+   - Hình ảnh avatar: Cập nhật đúng đường dẫn ảnh `src`.
+   - Tổng tiền: Làm tròn số nguyên (nếu có số thập phân) và kèm đơn vị `" VNĐ"` (Ví dụ: `30.600 VNĐ`).
+   - Nếu `isSurge === true`, thẻ hiển thị phụ phí phải cập nhật nội dung `"Đang áp dụng (x1.2)"` và đổi màu chữ thành màu đỏ (`#dc3545`).
 
 ---
 
@@ -47,117 +56,112 @@ flowchart TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Mã nguồn bị lỗi (Cần Debug)
-Dưới đây là file HTML và đoạn script bị lỗi do Lập trình viên Junior tạo ra:
+#### 4.1. Mã nguồn hiện tại bị lỗi (Starter Code)
 
-**File `index.html`:**
+**Mã HTML (`index.html`):**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Streamify - Quản lý Gói dịch vụ</title>
+    <title>GrabRide - Summary Trip</title>
     <style>
-        .badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; }
-        .badge-danger { background-color: #ff4d4f; color: white; }
-        .badge-success { background-color: #52c41a; color: white; }
-        .feature-item { color: #1890ff; margin-bottom: 4px; }
+        .card { border: 1px solid #ccc; padding: 16px; width: 320px; border-radius: 8px; font-family: Arial; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; }
+        .surge-active { color: #dc3545; font-weight: bold; }
+        .surge-normal { color: #28a745; }
     </style>
 </head>
 <body>
-    <div id="subscription-card">
-        <h2 id="plan-title" class="title-text">Gói hiện tại: </h2>
-        <div id="status-container"></div>
-        <p id="device-limit">Số thiết bị tối đa: </p>
-        <p id="family-limit">Tài khoản con tối đa: </p>
-        <div id="feature-box"></div>
+    <div class="card">
+        <img id="driver-avatar" src="" alt="Avatar Driver" class="avatar">
+        <h3 id="driver-name">Chưa có dữ liệu</h3>
+        <p>Quãng đường: <span id="distance-display">0</span> km</p>
+        <p>Phụ phí cao điểm: <span id="surge-status" class="surge-normal">Không</span></p>
+        <hr>
+        <h4>Tổng cước phí: <span id="total-fare">0 VNĐ</span></h4>
     </div>
 
-    <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
 ```
 
-**File `app.js` (Chứa lỗi cần debug):**
+**Mã JavaScript bị lỗi (`script.js`):**
 ```javascript
-// Dữ liệu mô phỏng từ Hệ thống Quản lý Gói Đăng ký (SaaS Subscription)
-const currentSubscription = {
-    planName: "Gói Gia đình (Family Premium)",
-    isOverdue: true,
-    maxDevices: 5,
-    familyMembersAllowed: 5,
-    features: [
-        "Phát nội dung 4K Ultra HD",
-        "Tải xuống nghe/xem ngoại tuyến",
-        "Không quảng cáo cắt ngang",
-        "Chia sẻ tối đa 5 thành viên"
-    ]
+// Dữ liệu chuyến đi thực tế từ hệ thống GrabRide
+const currentTrip = {
+    driverName: "Nguyễn Văn Tin Cậy",
+    avatarUrl: "https://picsum.photos/100",
+    distanceKm: 6,
+    isSurge: true
 };
 
-function updateSubscriptionDashboard() {
-    // LỖI 1: getElementsByClassName trả về HTMLCollection nhưng truy cập trực tiếp như 1 element đơn lẻ
-    // và sử dụng thuộc tính .value cho thẻ <h2>
-    const planTitleElem = document.getElementsByClassName("title-text");
-    planTitleElem.value = "Gói hiện tại: " + currentSubscription.planName;
+function renderTripSummary(trip) {
+    //  LỖI 1: Nhầm lẫn cú pháp getElementById (chứa dấu #)
+    const driverNameEl = document.getElementById("#driver-name");
+    driverNameEl.innerText = "Tài xế: " + trip.driverName;
 
-    // LỖI 2: Dùng querySelector sai cú pháp CSS Selector (Thiếu dấu # cho ID)
-    const statusContainer = document.querySelector("status-container");
-    
-    // LỖI 3: Dùng textContent để chèn chuỗi chứa thẻ HTML làm cho các thẻ <span> bị hiển thị dưới dạng chữ thô (raw text)
-    if (currentSubscription.isOverdue) {
-        statusContainer.textContent = `<span class="badge badge-danger">Gia hạn thất bại - Tạm khóa trong 3 ngày</span>`;
+    //  LỖI 2: Cập nhật thuộc tính src của thẻ <img> sai cú pháp
+    const avatarEl = document.getElementById("driver-avatar");
+    avatarEl.src(trip.avatarUrl);
+
+    //  LỖI 3: Tính toán sai nghiệp vụ (chưa trừ 2km đầu cố định)
+    let baseFare = 0;
+    if (trip.distanceKm <= 2) {
+        baseFare = 12000;
     } else {
-        statusContainer.textContent = `<span class="badge badge-success">Đã thanh toán - Hoạt động</span>`;
+        baseFare = trip.distanceKm * 4500; // Sai logic ở đây!
     }
 
-    // LỖI 4: Truy xuất đúng ID nhưng sử dụng sai thuộc tính cập nhật văn bản cho thẻ <p>
-    const deviceLimitElem = document.getElementById("device-limit");
-    deviceLimitElem.value = `Số thiết bị tối đa: ${currentSubscription.maxDevices} thiết bị`;
-
-    // LỖI 5: Dùng textContent gán cấu trúc chuỗi HTML <ul><li> làm mất thẻ HTML và hiện toàn bộ dưới dạng text
-    const featureBoxElem = document.getElementById("feature-box");
-    let featureListHTML = "<ul>";
-    for (let i = 0; i < currentSubscription.features.length; i++) {
-        featureListHTML += `<li class="feature-item">${currentSubscription.features[i]}</li>`;
+    let finalFare = baseFare;
+    if (trip.isSurge) {
+        finalFare = baseFare * 1.2;
     }
-    featureListHTML += "</ul>";
-    
-    featureBoxElem.textContent = featureListHTML;
+
+    //  LỖI 4: Dùng thuộc tính .value cho thẻ <span> thay vì innerText/textContent
+    const totalFareEl = document.getElementById("total-fare");
+    totalFareEl.value = finalFare + " VNĐ";
+
+    //  LỖI 5: Truy xuất sai ID thẻ khoảng cách và thiếu xử lý thay đổi CSS class cho Surge Status
+    const distanceEl = document.getElementById("distance");
+    distanceEl.textContent = trip.distanceKm;
 }
 
-// Gọi hàm thực thi khi trang web tải
-updateSubscriptionDashboard();
+// Gọi hàm thực thi
+renderTripSummary(currentTrip);
 ```
 
 
-#### 4.2. Danh sách nhiệm vụ Debug cần thực hiện:
-1. **Sửa Lỗi 1**: Sửa lại phương thức truy xuất `planTitleElem` bằng `document.getElementById("plan-title")` hoặc `document.querySelector("#plan-title")` và cập nhật lại nội dung bằng `textContent` (không dùng `.value`).
-2. **Sửa Lỗi 2**: Sửa lại cú pháp `document.querySelector("#status-container")` (thêm dấu `#` cho ID selector).
-3. **Sửa Lỗi 3**: Thay thế `textContent` bằng `innerHTML` tại `statusContainer` để trình duyệt render đúng các thẻ HTML badge (`<span>`).
-4. **Sửa Lỗi 4**: Thay thế `.value` bằng `.textContent` hoặc `.innerText` khi gán thông tin số thiết bị tối đa cho `deviceLimitElem`.
-5. **Sửa Lỗi 5**: Đổi `featureBoxElem.textContent` thành `featureBoxElem.innerHTML` để tạo danh sách danh mục tính năng dạng thẻ danh sách HTML (`<ul>` và `<li>`).
-6. **Bổ sung logic thiếu**: Cập nhật thông tin cho thẻ `#family-limit` với nội dung dạng: `Tài khoản con tối đa: 5 tài khoản`.
+#### 4.2. Yêu cầu thực hiện
+1. **Tạo báo cáo Debug (file `debug-report.txt` hoặc ghi chú comment trong JS)**:
+   - Liệt kê chính xác **5 lỗi** có trong đoạn mã trên.
+   - Giải thích nguyên nhân vì sao đoạn mã bị lỗi (Runtime Error / Logic Error).
+2. **Sửa lại đoạn mã `script.js`**:
+   - Sửa toàn bộ lỗi DOM Selection và Attribute assignment.
+   - Viết lại chính xác công thức tính `baseFare` và `finalFare`.
+   - Cập nhật đúng các thẻ HTML: `#driver-name`, `#driver-avatar`, `#distance-display`, `#surge-status`, `#total-fare`.
+   - Khi `isSurge === true`, thẻ `#surge-status` phải có nội dung `"Đang áp dụng (x1.2)"` và thay đổi `className` thành `"surge-active"`.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục**:
+- Cấu trúc thư mục dự án:
   ```text
-  baitap-dom-debug/
+  grab-ride-debug/
   ├── index.html
-  └── app.js
+  ├── script.js
+  └── debug-report.txt (Hoặc giải thích trực tiếp trong comment của file script.js)
   ```
-- **Quy định mã nguồn**:
-  - Mã nguồn JavaScript được viết rõ ràng, có comment giải thích cụ thể nguyên nhân gây lỗi và phương án đã sửa tại từng vị trí lỗi.
-  - Tuyệt đối **KHÔNG** sử dụng Event Listener (`addEventListener`), `fetch`, hoặc `localStorage` (Chưa thuộc phạm vi bài học).
+- Định dạng mã nguồn: Tuân thủ quy chuẩn JS Clean Code, thụt lề 4 khoảng trắng, đặt tên biến rõ ràng theo chuẩn CamelCase.
+- Không sử dụng các kiến thức chưa học: Event Listeners (`addEventListener`), Form Event (`onsubmit`), `fetch`, `localStorage`.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Debug Code** | 20đ | - Tìm đủ và giải thích đúng nguyên nhân gây ra 5 lỗi trong code ban đầu.<br>- Mã nguồn sạch đẹp, tuân thủ chuẩn đặt tên biến CamelCase. |
-| **Truy xuất DOM API chuẩn xác** | 25đ | - Sử dụng đúng `document.getElementById()` hoặc `document.querySelector()` đúng cú pháp selector (`#` cho ID, `.` cho Class).<br>- Phân biệt rõ đối tượng đơn lẻ và HTMLCollection/NodeList. |
-| **Thao tác Thay đổi Nội dung DOM** | 25đ | - Dùng đúng `textContent` cho văn bản thuần (Text node).<br>- Dùng đúng `innerHTML` khi cần chèn chuỗi HTML có chứa các thẻ element (`<span>`, `<ul>`, `<li>`).<br>- Không dùng thuộc tính `.value` cho các thẻ không phải Form Input (`<h2>`, `<p>`). |
-| **Xử lý Logic Nghiệp vụ SaaS** | 20đ | - Cập nhật chính xác các thông tin: Tên gói, Trạng thái quá hạn, Giới hạn thiết bị, Giới hạn tài khoản con.<br>- Render danh sách tính năng dạng danh sách HTML đầy đủ. |
-| **Xử lý Biên & Mã an toàn** | 10đ | - Đảm bảo script thực thi không bắn lỗi Uncaught TypeError trên Console trình duyệt.<br>- Kiểm tra trường hợp dữ liệu danh sách `features` bị rỗng. |
+| **Cấu trúc & Báo cáo Debug** | **20đ** | - Chỉ ra đầy đủ và giải thích đúng nguyên nhân của 5 lỗi trong starter code (10đ).<br>- Thụt lề chuẩn, đặt tên biến rõ ràng, code sạch sẽ (10đ). |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính đúng `baseFare` cho trường hợp $\le 2\text{ km}$ (12.000 VNĐ) và $> 2\text{ km}$ (12.000 + (km - 2) * 4500) (20đ).<br>- Tính đúng phụ phí `isSurge` (x1.2) và làm tròn kết quả chuẩn xác (20đ). |
+| **Thao tác DOM API chính xác** | **20đ** | - Truy xuất đúng ID các phần tử (không thừa `#`, đúng tên `distance-display`) (10đ).<br>- Cập nhật nội dung text (`textContent`/`innerText`) và thuộc tính (`src`, `className`) đúng cú pháp JavaScript DOM (10đ). |
+| **Xử lý Giao diện & Biên** | **20đ** | - Cập nhật đúng trạng thái và class hiển thị của Surge badge (`surge-active` / `surge-normal`) (10đ).<br>- Định dạng chuẩn chuỗi tổng tiền (vd: `30.600 VNĐ` hoặc `30600 VNĐ`) trên thẻ `<span>` (10đ). |

@@ -1,32 +1,33 @@
-# Bài tập 9: FinTech (Mức độ 3: Nâng cao - Xây dựng tính năng mới)
+# Bài tập 9: GRAB_RIDE (Mức độ 3: Nâng cao - Xây dựng tính năng mới)
 
 ### 1. Mục tiêu bài tập
 Sau khi hoàn thành bài tập này, học viên có khả năng:
-- **Truy xuất DOM Tree nâng cao**: Sử dụng thuần thục các phương thức `document.querySelectorAll()`, `document.querySelector()`, và truy cập dữ liệu thông qua thuộc tính HTML5 `dataset` (`data-*`).
-- **Thao tác & Biến đổi dữ liệu DOM**: Đọc dữ liệu thô từ DOM, chuyển đổi kiểu dữ liệu (String -> Number), xử lý tính toán nghiệp vụ tài chính - nhân sự (HRM FinTech).
-- **Cập nhật giao diện động**: Thay đổi nội dung hiển thị bằng `textContent`, `innerHTML`, cập nhật trạng thái trực quan với `classList.add()`, `classList.remove()`, `style` mà **chưa cần dùng đến Event Listeners**.
-- **Định dạng dữ liệu chuẩn FinTech**: Chuẩn hóa hiển thị tiền tệ (VND) và định dạng thời gian/con số chuyên nghiệp trên UI.
+- **Truy xuất thành thạo các DOM Element** trong cây thư mục HTML bằng các phương thức chuẩn: `document.getElementById`, `document.querySelector`, `document.querySelectorAll`.
+- **Thay đổi động nội dung HTML và Text** của các phần tử UI bằng `textContent`, `innerText`, `innerHTML`.
+- **Thao tác thuộc tính (Attributes) và CSS Style/Class** của DOM bằng `setAttribute`, `removeAttribute`, `style`, `classList.add`, `classList.remove`, `classList.toggle`.
+- **Hiện thực hóa quy tắc nghiệp vụ thực tế** của ứng dụng gọi xe GrabRide (tính cước phí mở cửa, cước lũy tiến, phụ phí giờ cao điểm/thời tiết và mã giảm giá) thông qua việc render dữ liệu trực tiếp lên giao diện người dùng.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Trong các hệ thống Quản lý Nhân sự & Chấm công doanh nghiệp (HRM - HR Attendance & Payroll), khi máy chấm công đồng bộ dữ liệu về giao diện Web, hệ thống cần lập tức phân tích danh sách ca làm việc (`ShiftLog`), tính toán các khoản phạt đi muộn, tiền làm thêm giờ (OT), tiền đóng bảo hiểm bắt buộc và xuất ra Phiếu lương chi tiết (`PayrollSlip`) hiển thị trực quan cho nhân viên.
+Trong hệ thống ứng dụng gọi xe công nghệ **GrabRide**, sau khi khách hàng nhập điểm đi, điểm đến và chọn loại xe, hệ thống sẽ chuyển thông tin sang màn hình **"Tóm tắt chuyến đi & Tính toán cước phí" (Trip Booking Summary)**. 
 
-Bạn được giao nhiệm vụ xây dựng module **"Tính toán & Hiển thị Bảng lương Tự động"** cho nhân viên bằng JavaScript thuần (Vanilla JS). Module sẽ tự động quét toàn bộ bảng dữ liệu ca làm việc hiện có trên HTML, trích xuất dữ liệu từ các thuộc tính `data-*`, thực hiện tính toán các chỉ số tài chính nghiệp vụ và cập nhật toàn bộ kết quả lên thẻ Bảng lương tổng hợp.
+Trang web giao diện static đã được dựng sẵn khung khung HTML/CSS. Nhiệm vụ của bạn là xây dựng module JavaScript (`app.js`) đóng vai trò xử lý logic nghiệp vụ và tương tác với DOM API: nhận đối tượng dữ liệu chuyến đi (`bookingData`), thực hiện tính toán chi tiết cước phí, kiểm tra điều kiện tài xế và cập nhật toàn bộ thông tin hiển thị lên giao diện hiển thị cho tổng đài viên/khách hàng mà **không làm lại lại trang web**.
 
 
-#### Sơ đồ luồng xử lý dữ liệu DOM:
+#### Sơ đồ luồng xử lý dữ liệu và render DOM (Data-to-DOM Flow)
 ```mermaid
 graph TD
-    A[HTML Raw DOM: Thẻ chứa data-attributes] -->|querySelectorAll & dataset| B(Trích xuất Dữ liệu Thô)
-    B -->|Parse Int/Float & Validate| C{Xử lý Logic Nghiệp vụ HRM}
-    C -->|Tính tiền phạt muộn| D[Trừ Phạt Đi Muộn]
-    C -->|Tính lương OT & Lễ| E[Cộng Tiền Làm Thêm]
-    C -->|Tính BHXH 10.5%| F[Trừ Bảo Hiểm]
-    D & E & F --> G[Tính Lương Thực Nhận Net Salary]
-    G -->|Thao tác textContent / innerHTML| H[Cập nhật UI Chi tiết Lương]
-    G -->|Thao tác classList / style| I[Cập nhật Trạng thái & Highlight UI]
+    A[Dữ liệu Booking Input - Object] --> B[Hàm calculateTripFare]
+    B --> C{Tính Cước Cơ Bản & Surge}
+    C --> D[Tính Mã Giảm Giá Promo]
+    D --> E[Trả về Object Chi Tiết Cước]
+    E --> F[Hàm renderTripSummary]
+    F --> G[Truy xuất DOM Elements ID / Class]
+    G --> H[Cập nhật textContent & innerHTML]
+    G --> I[Cập nhật ClassList & Inline Style]
+    I --> J[Giao diện GrabRide hoàn tất Render]
 ```
 
 ---
@@ -34,36 +35,36 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-Giả định một tháng làm việc tiêu chuẩn bao gồm **22 ngày công** (tương đương **176 giờ làm việc tiêu chuẩn**).
+
+#### A. Công thức tính cước phí chuyến đi (Trip Fare Calculation)
+1. **Cước phí quãng đường cơ bản ($F_{base}$)**:
+   - $0 < \text{Quãng đường } (d) \le 2\text{ km}$: Cước phí cố định = **12.000 VNĐ**.
+   - $\text{Quãng đường } (d) > 2\text{ km}$: **12.000 VNĐ** + $(d - 2) \times 4.500\text{ VNĐ}$.
+   - *Ví dụ*: Chuyến đi 5 km -> $12.000 + (5 - 2) \times 4.500 = 25.500\text{ VNĐ}$.
+
+2. **Hệ số phụ phí Surge Pricing ($F_{surge}$)**:
+   - Nếu `isSurge === true` (thời tiết xấu hoặc giờ cao điểm): Nhân hệ số **1.2x** vào tổng Cước phí cơ bản.
+   - $\text{Tiền Surge thêm vào} = F_{base} \times 0.2$.
+   - Nếu `isSurge === false`: Tiền Surge = 0 VNĐ.
+
+3. **Mã giảm giá Khuyến mãi ($F_{discount}$)**:
+   - Áp dụng trên tổng tiền sau khi đã nhân hệ số Surge ($F_{afterSurge} = F_{base} \times \text{Hệ số}$):
+     - Mã `"GRABNEW"`: Giảm **20%** trên $F_{afterSurge}$.
+     - Mã `"SAIGONXANH"`: Giảm cố định **10.000 VNĐ** (Nếu tiền giảm lớn hơn $F_{afterSurge}$ thì tiền giảm bằng $F_{afterSurge}$, cước tối thiểu = 0 VNĐ).
+     - Bất kỳ mã nào khác hoặc không truyền mã: Giảm **0 VNĐ**.
+
+4. **Tổng cước phí thanh toán cuối cùng ($F_{final}$)**:
+   $$\text{Final Fare} = F_{afterSurge} - F_{discount}$$
 
 
-#### A. Công thức tính đơn giá lương theo giờ:
-$$\text{Đơn giá giờ} = \frac{\text{Lương cơ bản}}{176}$$
-
-
-#### B. Quy tắc tính phạt đi muộn (Late Arrival Penalty):
-- Hệ thống ghi nhận số phút đi muộn của từng ca làm việc (`data-late-minutes`).
-- Nếu số phút đi muộn $\le 15$ phút: **Không bị phạt** (Cho phép sai số cho phép).
-- Nếu số phút đi muộn $> 15$ phút: **Phạt 50.000 VNĐ** cho mỗi lần vi phạm trong ca đó.
-
-
-#### C. Quy tắc tính tiền làm thêm giờ (OT Pay):
-- **OT Ngày thường** (`data-ot-hours`): Đơn giá $= \text{Đơn giá giờ} \times 1.5$.
-- **OT Ngày lễ/Tết** (`data-holiday-ot-hours`): Đơn giá $= \text{Đơn giá giờ} \times 3.0$.
-
-
-#### D. Trừ Bảo hiểm Bắt buộc (Insurance Deduction):
-- Bảo hiểm xã hội & Y tế (BHXH/BHYT/BHTN): **10.5%** tính trên Lương cơ bản.
-
-
-#### E. Công thức Lương thực nhận (Net Salary):
-$$\text{Lương thực nhận} = \text{Lương cơ bản} + \text{Tổng tiền OT} - \text{Tổng tiền phạt đi muộn} - \text{Tiền đóng bảo hiểm}$$
-
-
-#### F. Phân loại xếp loại chuyên cần (Attendance Status Badge):
-- **Xuất sắc (Badge Xanh)**: Tổng số lượt đi muộn bị phạt $= 0$.
-- **Cần cải thiện (Badge Vàng)**: Tổng tiền phạt đi muộn $> 0$ và $\le 100.000$ VNĐ.
-- **Vi phạm nghiêm trọng (Badge Đỏ)**: Tổng tiền phạt đi muộn $> 100.000$ VNĐ.
+#### B. Quy tắc hiển thị & Định dạng DOM (DOM Formatting Rules)
+1. **Định dạng tiền tệ**: Tất cả số tiền hiển thị trên DOM phải được định dạng theo chuẩn Việt Nam Đồng, phân cách hàng nghìn bằng dấu chấm và có hậu tố `VNĐ` (Ví dụ: `25.500 VNĐ`).
+2. **Cảnh báo Surge (Giờ cao điểm / Mưa)**:
+   - Nếu `isSurge === true`: Thêm class `surge-active` vào element `#fare-card`, đổi chữ thuộc tính status thành `"Thời tiết xấu / Giờ cao điểm (x1.2)"`, cập nhật style màu chữ đỏ `#d93025`.
+   - Nếu `isSurge === false`: Gỡ bỏ class `surge-active`, hiển thị text `"Cước phí bình thường"`, style màu chữ xanh `#1e8e3e`.
+3. **Thẻ thông tin Tài xế (Driver Rating Badge)**:
+   - Nếu `driver.rating >= 4.8`: Thêm class `vip-driver` vào phần tử `#driver-card`, hiển thị danh hiệu `innerHTML` bao gồm biểu tượng ngôi sao vàng và chữ `"Tài Xế 5 Sao"`.
+   - Nếu `driver.rating < 4.8`: Gỡ class `vip-driver`, hiển thị chữ `"Tài Xế Tiêu Chuẩn"`.
 
 ---
 
@@ -71,125 +72,137 @@ $$\text{Lương thực nhận} = \text{Lương cơ bản} + \text{Tổng tiền 
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc HTML mẫu (Học viên tạo file `index.html` dựa trên khung dưới đây):
+#### A. Cấu trúc Khung HTML cho sẵn (`index.html`)
+Học viên tạo file `index.html` với cấu trúc ID/Class cố định sau để làm chuẩn truy xuất DOM:
+
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống Tính Lương HRM - Rikkei Education</title>
+    <title>GrabRide - Tóm Tắt Chuyến Đi</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="hr-app">
-        <!-- Thông tin nhân viên chứa trong dataset -->
-        <header id="employee-profile" 
-                data-employee-id="EMP-8892" 
-                data-employee-name="Nguyễn Văn An" 
-                data-base-salary="20000000">
-            <h2 id="emp-name-display">--</h2>
-            <p>Mã NV: <span id="emp-id-display">--</span></p>
-            <p>Lương cơ bản: <span id="emp-base-salary-display">--</span></p>
-        </header>
+    <div class="booking-container">
+        <h2>CHI TIẾT CHUYẾN ĐỊA GRABRIDE</h2>
+        
+        <!-- Thông tin khách hàng & Chuyến đi -->
+        <div id="trip-info" class="card">
+            <p>Khách hàng: <strong id="passenger-name">---</strong></p>
+            <p>Điểm đi: <span id="pickup-location">---</span></p>
+            <p>Điểm đến: <span id="dropoff-location">---</span></p>
+            <p>Quãng đường: <span id="distance-display">0</span> km</p>
+        </div>
 
-        <!-- Danh sách ca làm việc thô trong tháng -->
-        <section id="timesheet-section">
-            <h3>Nhật ký ca làm việc (Timesheet Logs)</h3>
-            <table id="shift-table">
-                <thead>
-                    <tr>
-                        <th>Ngày</th>
-                        <th>Số phút đi muộn</th>
-                        <th>Số giờ OT thường</th>
-                        <th>Số giờ OT Lễ/Tết</th>
-                        <th>Tiền phạt ca</th>
-                    </tr>
-                </thead>
-                <tbody id="shift-list">
-                    <tr class="shift-row" data-date="2023-10-02" data-late-minutes="0" data-ot-hours="2" data-holiday-ot-hours="0"></tr>
-                    <tr class="shift-row" data-date="2023-10-05" data-late-minutes="20" data-ot-hours="0" data-holiday-ot-hours="0"></tr>
-                    <tr class="shift-row" data-date="2023-10-10" data-late-minutes="45" data-ot-hours="1.5" data-holiday-ot-hours="0"></tr>
-                    <tr class="shift-row" data-date="2023-10-20" data-late-minutes="10" data-ot-hours="0" data-holiday-ot-hours="4"></tr>
-                    <tr class="shift-row" data-date="2023-10-24" data-late-minutes="30" data-ot-hours="3" data-holiday-ot-hours="0"></tr>
-                </tbody>
-            </table>
-        </section>
+        <!-- Thông tin Tài xế -->
+        <div id="driver-card" class="card">
+            <p>Tài xế: <strong id="driver-name">---</strong></p>
+            <p>Biển số: <span id="driver-plate">---</span></p>
+            <p>Đánh giá: <span id="driver-rating">0</span> ⭐</p>
+            <div id="driver-badge" class="badge">---</div>
+        </div>
 
-        <!-- Bảng tổng hợp lương (Payroll Summary Container) -->
-        <section id="payroll-summary">
-            <h3>Bảng Chi Tiết Lương Thực Nhận (Payroll Breakdown)</h3>
-            <div class="summary-item">Tổng tiền OT nhận được: <span id="display-total-ot">0 VNĐ</span></div>
-            <div class="summary-item">Tổng tiền phạt đi muộn: <span id="display-total-penalty">0 VNĐ</span></div>
-            <div class="summary-item">Khấu trừ Bảo hiểm (10.5%): <span id="display-insurance">0 VNĐ</span></div>
-            <div class="summary-item highlight">LƯƠNG THỰC NHẬN (NET): <span id="display-net-salary">0 VNĐ</span></div>
-            
-            <div id="status-badge" class="badge">Đang xử lý...</div>
-        </section>
+        <!-- Bảng tính cước phí -->
+        <div id="fare-card" class="card">
+            <h3>Chi Tiết Cước Phí</h3>
+            <p id="surge-status-text">Đang kiểm tra trạng thái...</p>
+            <ul>
+                <li>Cước cơ bản: <span id="base-fare-display">0 VNĐ</span></li>
+                <li>Phụ phí Surge: <span id="surge-fare-display">0 VNĐ</span></li>
+                <li>Khuyến mãi (<span id="promo-code-display">Không có</span>): <span id="discount-display">-0 VNĐ</span></li>
+            </ul>
+            <hr>
+            <h4>Tổng Thanh Toán: <span id="total-fare-display" class="highlight-price">0 VNĐ</span></h4>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
 ```
 
 
-#### B. Yêu cầu xử lý trong file JavaScript (`script.js`):
-Viết mã nguồn thực thi **ngay khi trang web được tải** để thực hiện các bước sau:
+#### B. Yêu cầu Lập trình JavaScript (`app.js`)
 
-1. **Bước 1: Trích xuất & Đọc thông tin nhân viên**
-   - Lấy Element `#employee-profile`. Read các thuộc tính `data-employee-name`, `data-employee-id`, `data-base-salary`.
-   - Ép kiểu `data-base-salary` sang số nguyên (`parseInt`). Kiểm tra nếu không phải số hợp lệ (hoặc $<0$) thì gán mặc định là `0`.
-   - Hiển thị các thông tin này lên các thẻ `#emp-name-display`, `#emp-id-display`, `#emp-base-salary-display` với định dạng tiền tệ Việt Nam (`Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })`).
+Học viên phải viết file `app.js` định nghĩa các hàm sau và tự động kích hoạt hàm render với dữ liệu mẫu bên dưới:
 
-2. **Bước 2: Quét danh sách ca làm việc & Tính toán**
-   - Sử dụng `document.querySelectorAll('.shift-row')` để lấy tất cả các hàng ca làm việc.
-   - Duyệt qua từng hàng, đọc dữ liệu từ `dataset`: `date`, `lateMinutes`, `otHours`, `holidayOtHours`.
-   - Cập nhật nội dung text (`textContent` hoặc `innerHTML`) cho từng hàng HTML hiển thị rõ dữ liệu ngày, phút muộn, giờ OT và số tiền phạt riêng của ca đó.
-   - Tính tổng các chỉ số:
-     - Tổng số tiền phạt đi muộn của toàn bộ các ca.
-     - Tổng tiền OT regular và OT Holiday.
-     - Tiền trừ BHXH (10.5%).
-     - Lương thực nhận (Net Salary).
+1. **`formatCurrency(amount)`**:
+   - Nhận vào số nguyên `amount`.
+   - Trả về chuỗi định dạng hiển thị (Ví dụ: `25500` -> `"25.500 VNĐ"`).
 
-3. **Bước 3: Cập nhật Kết quả lên Bảng lương (DOM UI Update)**
-   - Cập nhật kết quả tiền tệ vào các phần tử `#display-total-ot`, `#display-total-penalty`, `#display-insurance`, `#display-net-salary`.
-   - Tất cả giá trị số tiền đều phải được định dạng chuẩn VND (Ví dụ: `1.500.000 ₫` hoặc `1.500.000 VNĐ`).
+2. **`calculateTripFare(distance, isSurge, promoCode)`**:
+   - Nhận vào 3 tham số: Quãng đường (km), Trạng thái Surge (boolean), Mã giảm giá (string).
+   - Kiểm tra dữ liệu đầu vào hợp lệ ($distance > 0$). Nếu $distance \le 0$ hoặc không hợp lệ, trả về object chứa toàn bộ giá trị bằng 0.
+   - Trả về đối tượng chứa các thuộc tính toán:
+     `{ baseFare, surgeFare, discountFare, totalFare }`.
 
-4. **Bước 4: Cập nhật Badge Trạng thái & Style trực quan**
-   - Lấy element `#status-badge`.
-   - Dựa vào Quy tắc E (Mục 3), gắn class CSS tương ứng cho `#status-badge`:
-     - Nếu "Xuất sắc": Thêm class `badge-success`, xóa class cũ, đổi text thành `"Chuyên cần: Xuất sắc"`.
-     - Nếu "Cần cải thiện": Thêm class `badge-warning`, đổi text thành `"Chuyên cần: Cần cải thiện"`.
-     - Nếu "Vi phạm nghiêm trọng": Thêm class `badge-danger`, đổi text thành `"Chuyên cần: Vi phạm nghiêm trọng"`.
-   - Nếu `Net Salary < 0`, tự động đổi màu chữ của thẻ `#display-net-salary` sang màu đỏ (`#d9534f`) bằng `style.color`.
+3. **`renderTripSummary(booking)`**:
+   - Nhận vào 1 đối tượng `booking` có cấu trúc đầy đủ.
+   - Thực hiện toàn bộ thao tác DOM API:
+     - Truy xuất và gán dữ liệu người dùng, điểm đi/đến, quãng đường vào các element `#passenger-name`, `#pickup-location`, `#dropoff-location`, `#distance-display`.
+     - Gọi `calculateTripFare` để lấy các thông số giá tiền.
+     - Đưa số tiền đã `formatCurrency` lên `#base-fare-display`, `#surge-fare-display`, `#discount-display`, `#total-fare-display`.
+     - Thay đổi thông tin hiển thị mã giảm giá tại `#promo-code-display`.
+     - Gọi các hàm phụ trợ xử lý UI giao diện Surge và Tài xế.
+
+4. **`updateSurgeUI(isSurge)`**:
+   - Truy xuất phần tử `#fare-card` và `#surge-status-text`.
+   - Sử dụng `classList.add` / `classList.remove` (hoặc `toggle`) và `style.color` để đổi màu sắc/class theo đúng Quy tắc nghiệp vụ (Mục 3.B).
+
+5. **`updateDriverUI(driver)`**:
+   - Truy xuất `#driver-name`, `#driver-plate`, `#driver-rating`, `#driver-card`, `#driver-badge`.
+   - Cập nhật text content và rating.
+   - Thêm/xóa class `vip-driver` và thay đổi `innerHTML` của `#driver-badge` theo rating.
+
+
+#### Dữ liệu mẫu (Test Case Data):
+Cuối file `app.js`, thực hiện khởi tạo dữ liệu mẫu và gọi hàm `renderTripSummary(mockBooking)` để kiểm thử:
+
+```javascript
+const mockBooking = {
+    passengerName: "Nguyen Van A",
+    pickupLocation: "133 Cầu Giấy, Hà Nội",
+    dropoffLocation: "Keangnam Landmark 72, Nam Từ Liêm",
+    distanceKm: 6.5,
+    isSurge: true,
+    promoCode: "GRABNEW",
+    driver: {
+        name: "Trần Văn Bẩu",
+        licensePlate: "29A-888.99",
+        rating: 4.9
+    }
+};
+
+// Kích hoạt render dữ liệu lên DOM
+renderTripSummary(mockBooking);
+```
+
+
+#### C. Phạm vi CẤM (Forbidden Scope)
+- **KHÔNG sử dụng** Event Listeners (`addEventListener`, `onclick`, `onsubmit`).
+- **KHÔNG sử dụng** `Fetch API` hay `LocalStorage`.
+- **KHÔNG sử dụng** các thư viện bên ngoài (jQuery, React, Vue,...). Chỉ sử dụng Pure Vanilla JavaScript DOM API.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-
-
-#### A. Cấu trúc thư mục dự án:
-```text
-student_id_ho_va_ten/
-│
-├── index.html          # File chứa cấu trúc HTML
-├── style.css           # File chứa style CSS (nếu có bổ sung)
-└── script.js           # File xử lý DOM API & Logic tính lương
-```
-
-
-#### B. Quy định mã nguồn:
-- Tên thư mục nộp bài viết liền không dấu, ví dụ: `B20DCCN001_NguyenVanA`.
-- Không sử dụng thư viện bên ngoài (jQuery, React, Lodash...).
-- Không sử dụng `addEventListener`, inline `onclick`, `fetch API`, hay `localStorage`.
-- Đảm bảo mã nguồn chạy trực tiếp thành công khi mở `index.html` trên trình duyệt Chrome/Edge.
+- Cấu trúc thư mục dự án khi nộp bài:
+  ```text
+  GRAB_RIDE_SESSION17_HOTEN/
+  ├── index.html
+  ├── style.css
+  └── app.js
+  ```
+- File HTML phải liên kết chính xác với `style.css` và `app.js`.
+- Mã nguồn JavaScript phải được comment làm rõ các bước: `// 1. Truy xuất DOM`, `// 2. Tính toán cước`, `// 3. Cập nhật giao diện`.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase`, thể hiện rõ ngữ cảnh domain HRM/FinTech (`baseSalary`, `latePenalty`, `netSalary`).<br>- Thụt lề chuẩn 2 hoặc 4 spaces, có comment giải thích rõ ràng từng đoạn logic xử lý DOM API.<br>- Tổ chức code sạch đẹp, tách hàm xử lý hợp lý (Ví dụ: `calculateHourlyRate()`, `formatCurrency()`, `renderPayroll()`). |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Trích xuất dataset chính xác (10đ)**: Đọc đúng toàn bộ `data-*` từ profile và danh sách hàng `.shift-row`.<br>- **Tính toán chuẩn nghiệp vụ (20đ)**:<br>  + Tính đúng phạt đi muộn (chỉ phạt khi $>15$ phút, đúng 50.000 VNĐ/lần).<br>  + Tính đúng hệ số OT (ngày thường 1.5x, ngày lễ 3.0x).<br>  + Tính đúng 10.5% BHXH.<br>  + Tính đúng công thức Net Salary.<br>- **Render danh sách hàng (10đ)**: Điền đúng dữ liệu vào từng ô `<td>` trong bảng nhật ký ca làm việc bằng DOM manipulation. |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - **Kiểm soát NaN/Null (10đ)**: Ép kiểu dữ liệu an toàn (`parseInt`/`parseFloat`), xử lý trường hợp `data-` bị thiếu, rỗng hoặc chứa chuỗi không hợp lệ.<br>- **Lương âm / Đi muộn 0 phút (10đ)**: Xử lý đúng khi nhân viên không đi muộn ca nào, hoặc khi tổng khấu trừ lớn hơn tổng lương khiến Net Salary $<0$. |
-| **Tối ưu hiệu năng & DOM Manipulation** | **20đ** | - **Tối ưu truy xuất DOM (10đ)**: Không lặp lại các câu lệnh `document.querySelector` trùng lặp trong vòng lặp. Lưu truy xuất vào biến cached DOM.<br>- **Định dạng & Dynamic Styling (10đ)**: Định dạng chuẩn tiền tệ `Intl.NumberFormat('vi-VN')`, cập nhật class CSS (`classList.add/remove`) và dynamic inline style mượt mà. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã nguồn sạch sẻ, chia nhỏ hàm xử lý rõ ràng (`calculateTripFare`, `updateSurgeUI`, `updateDriverUI`, `renderTripSummary`).<br>- Đặt tên biến và hàm chuẩn camelCase, có comment giải thích rõ các bước truy xuất DOM. |
+| **Xử lý Logic nghiệp vụ (Business Logic)** | **40đ** | - Tính đúng cước cơ bản (2km đầu 12k, km sau 4.5k/km) (15đ).<br>- Tính chính xác phụ phí Surge x1.2 khi `isSurge = true` (10đ).<br>- Áp dụng đúng công thức giảm giá cho mã `GRABNEW` (-20%) và `SAIGONXANH` (-10k) (15đ). |
+| **Thao tác DOM API & Định dạng** | **20đ** | - Sử dụng thành thạo `getElementById` / `querySelector` để đọc và ghi nội dung (8đ).<br>- Sử dụng đúng `textContent` / `innerHTML` cho thẻ text và badge (6đ).<br>- Cập nhật linh hoạt `classList` (`surge-active`, `vip-driver`) và thuộc tính CSS `style` (6đ). |
+| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Xử lý trường hợp quãng đường $d \le 0$ hoặc không phải số hợp lệ (5đ).<br>- Xử lý trường hợp số tiền giảm giá lớn hơn tổng tiền sau surge (không để tổng tiền bị âm) (5đ).<br>- Xử lý mã giảm giá không tồn tại/rỗng (5đ).<br>- Định dạng tiền tệ VNĐ chính xác với dấu phân cách hàng nghìn (5đ). |

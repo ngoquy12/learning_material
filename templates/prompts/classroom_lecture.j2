@@ -7,6 +7,14 @@ Technology Stack: {{ tech_stack }}
 Lesson Outline:
 {{ lesson_outline_text }}
 
+{% if domain_prompt_block %}
+=== UNIFIED SESSION BUSINESS DOMAIN CONTRACT ===
+{{ domain_prompt_block }}
+CRITICAL DOMAIN CONSISTENCY MANDATE:
+- All real-world instructor live demos, code snippet examples, and gotchas shown on slides MUST strictly follow this UNIFIED BUSINESS DOMAIN ({{ chosen_domain }}).
+=================================================
+{% endif %}
+
 === PEDAGOGICAL GOLDEN SLIDE RULES (3-30-300 RULE) ===
 1. SLIDE COUNT BOUNDS: Exactly 15-20 slides for a 1.5-hour lecture session.
 2. TYPOGRAPHY & SCANNABILITY (3-30-300 RULE):

@@ -1,48 +1,67 @@
-# Bài tập 8: Logistics (Mức độ 3: Nâng cao - Xây dựng tính năng mới)
+# Bài tập 8: GRAB_RIDE (Mức độ 3: Nâng cao - Xây dựng tính năng mới)
 
 ### 1. Mục tiêu bài tập
-- **Thao tác DOM Tree nâng cao**: Thành thạo việc truy xuất các phần tử DOM phức tạp thông qua các phương thức `getElementById`, `querySelector`, `querySelectorAll`, `closest`, và duyệt cây DOM (`children`, `parentElement`).
-- **Thay đổi nội dung & Thuộc tính DOM**: Biết cách dùng `textContent`, `innerHTML`, `setAttribute`, `getAttribute`, `dataset`, và thao tác với CSS class/style (`classList.add`, `classList.remove`, `style.width`) để cập nhật giao diện động.
-- **Áp dụng Business Rules vào DOM**: Cài đặt các quy tắc logic nghiệp vụ kiểm soát tải trọng, bảo quản nhiệt độ và tự động tính toán phí lưu trữ kho logistics trực tiếp trên cấu trúc trang web.
+Sau khi hoàn thành bài tập này, học viên có khả năng:
+- **Thành thạo các phương thức truy xuất DOM**: Sử dụng linh hoạt `document.getElementById()`, `document.querySelector()`, `document.querySelectorAll()` và thuộc tính điều hướng cây DOM (`parentElement`, `children`).
+- **Thao tác dữ liệu và nội dung HTML**: Sử dụng `textContent`, `innerHTML` để hiển thị linh hoạt các thông tin cước phí, thông tin tài xế và trạng thái chuyến đi.
+- **Thay đổi thuộc tính và kiểu dáng Element**: Sử dụng `setAttribute`, `dataset`, `classList` (`add`, `remove`, `toggle`) và style inline để cập nhật trạng thái UI động theo logic nghiệp vụ đặt xe.
+- **Tách biệt Logic nghiệp vụ và DOM Manipulation**: Thiết kế mã nguồn JS theo kiến trúc hàm (Functional), chia tách rõ ràng giữa phần tính toán công thức cước phí GrabRide và phần cập nhật giao diện.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Trung tâm logistics **Rikkei Logistics** đang triển khai màn hình điều hành kho bãi thông minh (Warehouse Operations Dashboard). Màn hình này quản lý việc phân bố các vị trí kệ kho (`WarehouseShelf`) và danh mục kiện hàng (`PalletItem`).
+Bạn là một Kỹ sư Phát triển Phần mềm Front-end tại Grab Việt Nam, thuộc nhóm phát triển giao diện Web Dashboard theo dõi chuyến đi (GrabRide Live Tracking). Hệ thống vừa nhận được một gói dữ liệu (Trip Data Payload) gửi từ máy chủ thông tin chuyến đi real-time.
 
-Bạn được giao nhiệm vụ phát triển module Javascript DOM **`warehouseManager.js`** nhằm tự động cập nhật trạng thái hiển thị của các kệ kho, kiểm định tính hợp lệ của kiện hàng khi lưu kho, và tính toán tổng chi phí lưu bãi trên giao diện theo thời gian thực.
+Nhiệm vụ của bạn là viết script xử lý tính toán cước phí chính xác theo quy chuẩn nghiệp vụ của GrabRide, sau đó thực hiện truy xuất và thay đổi nội dung trên giao diện web HTML có sẵn để hiển thị bảng tính cước, thông tin tài xế, phương tiện và các cảnh báo phụ phí (giờ cao điểm / thời tiết xấu).
+
+
+#### Sơ đồ luồng xử lý dữ liệu và cập nhật DOM:
 
 ```mermaid
-graph TD
-    A[Mã nguồn JS Execute] --> B{Kiểm tra Điều kiện nhập kho}
-    B -- Nhiệt độ không phù hợp / Quá tải 500kg --> C[Cập nhật Alert Box lỗi lên DOM]
-    B -- Hợp lệ --> D[Thêm Element Pallet vào .pallet-list]
-    D --> E[Cập nhật Tải trọng & Tiến trình style.width]
-    E --> F[Thay đổi Class trạng thái: status-full / status-warning]
-    F --> G[Cập nhật Tổng tải trọng & Phí lưu kho toàn hệ thống]
+flowchart TD
+    A[Trip Payload Object] --> B[Hàm calculateTripFare]
+    B --> C{Tính giá cước gốc}
+    C -->|<= 2km| D[12.000 VNĐ]
+    C -->|> 2km| E[12.000 + d - 2 * 4.500]
+    E --> F{Kiểm tra Phụ phí}
+    D --> F
+    F -->|Trời mưa / Giờ cao điểm| G[Áp dụng Hệ số 1.2x hoặc 1.4x]
+    F -->|Bình thường| H[Hệ số 1.0x]
+    G --> I{Áp dụng Promo Code}
+    H --> I
+    I --> J[Tính Tổng Cước Phí Cuối Cùng]
+    J --> K[Hàm applyTripDataToDOM]
+    K --> L[Cập nhật DOM: Driver Info & Avatar]
+    K --> M[Cập nhật DOM: Fare Breakdown Table]
+    K --> N[Cập nhật DOM: Status Badge & Surge Alert]
 ```
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-1. **Quy tắc Tải trọng Kệ kho (Weight Capacity Rules)**:
-   - Tải trọng tối đa quy định cho mỗi kệ kho là **500 kg**.
-   - Nếu tổng khối lượng kiện hàng hiện tại + kiện hàng mới nhập $> 500\text{ kg}$, hệ thống **từ chối thêm** kiện hàng và hiển thị lỗi lên giao diện.
-2. **Quy tắc Nhiệt độ Kho lạnh (Cold Storage Rules)**:
-   - Kệ kho loại lạnh (`data-shelf-type="COLD"`) chỉ chấp nhận các kiện hàng có nhiệt độ bảo quản yêu cầu trong khoảng từ **$-18^\circ\text{C}$ đến $5^\circ\text{C}$**.
-   - Kệ kho thường (`data-shelf-type="DRY"`) chấp nhận mọi kiện hàng.
-3. **Quy tắc Phân loại Trạng thái Kệ kho (Visual Status Rules)**:
-   - Dựa vào **tỷ lệ lấp đầy** ($\% = \frac{\text{Tổng khối lượng}}{\text{Tải trọng tối đa}} \times 100$):
-     - Tỷ lệ $= 100\%$: Xóa bỏ class `status-normal`, `status-warning`, thêm class `status-full`.
-     - Tỷ lệ từ $80\%$ đến $< 100\%$: Thêm class `status-warning`.
-     - Tỷ lệ $< 80\%$: Thêm class `status-normal`.
-4. **Quy tắc Tính phí Lưu kho (Storage Cost Calculation)**:
-   - Đơn giá lưu kho kệ thường (`DRY`): **10.000 VNĐ / kg / ngày**.
-   - Đơn giá lưu kho kệ lạnh (`COLD`): **25.000 VNĐ / kg / ngày**.
-   - Phí lưu kho từng kệ = $\text{Khối lượng hiện tại của kệ (kg)} \times \text{Đơn giá loại kệ tương ứng}$.
-   - Tổng phí lưu kho toàn hệ thống = Tổng phí lưu kho của tất cả các kệ.
+
+
+#### A. Quy tắc tính cước phí di chuyển (`TripFare`)
+1. **Giá cước cơ bản (Base Fare)**:
+   - $2\text{ km}$ đầu tiên: Giá cố định **12.000 VNĐ**.
+   - Từ km thứ $3$ trở đi ($d > 2$): Giá cước gốc = $12.000 + (d - 2) \times 4.500$ VNĐ.
+   - *Ví dụ*: Chuyến đi $5.5\text{ km} \rightarrow 12.000 + (5.5 - 2) \times 4.500 = 12.000 + 15.750 = 27.750\text{ VNĐ}$.
+
+2. **Hệ số phụ phí nhu cầu cao (Surge Multiplier)**:
+   - Nếu điều kiện **Trời mưa (`isRain = true`)** HOẶC **Giờ cao điểm (`isPeakHour = true`)**: Nhân hệ số **$1.2\text{x}$** vào cước cơ bản.
+   - Nếu ĐỒNG THỜI **Trời mưa AND Giờ cao điểm**: Nhân hệ số **$1.4\text{x}$** vào cước cơ bản.
+   - Ngược lại (thời tiết tốt và giờ bình thường): Hệ số **$1.0\text{x}$**.
+
+3. **Mã giảm giá (Promo Code Rules)**:
+   - Mã `"GRABDIWUI"`: Giảm $20\%$ trên cước phí đã tính phụ phí (Số tiền giảm tối đa không vượt quá **15.000 VNĐ**).
+   - Mã `"CHAOXINCHAO"`: Giảm thẳng **10.000 VNĐ** vào cước phí.
+   - Các mã khác hoặc không nhập: Số tiền giảm bằng **$0\text{ VNĐ}$**.
+
+4. **Tổng tiền thanh toán cuối cùng (Total Amount)**:
+   $$\text{Total} = \max(0, (\text{Base Fare} \times \text{Surge Multiplier}) - \text{Discount Amount})$$
+   - Số tiền phải được làm tròn tròn số nguyên và định dạng hiển thị kèm đơn vị `"VNĐ"` (Ví dụ: `33.300 VNĐ`).
 
 ---
 
@@ -50,140 +69,169 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1 Cấu trúc HTML Ban Đầu (`index.html`)
-Sinh viên sử dụng đoạn mã HTML mẫu dưới đây để thực hiện bài tập:
+#### A. Cấu trúc HTML mẫu (Cung cấp sẵn để học viên nhúng Script)
+Học viên tạo file `index.html` với cấu trúc khung sau:
 
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Rikkei Logistics - Warehouse Management</title>
+  <title>GrabRide Trip Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>HỆ THỐNG QUẢN LÝ LƯU KHO KIỆN HÀNG</h1>
-    <div id="alert-box" class="alert-hidden"></div>
-  </header>
+  <div id="app-container" class="container">
+    <!-- Header Trạng Thái Chuyến Đi -->
+    <header class="header">
+      <h2>Trạng Thái Chuyến Đi: <span id="booking-status" class="badge">ĐANG TÌM</span></h2>
+      <div id="surge-alert" class="alert-box d-none">
+        ️ Phụ phí nhu cầu cao đang được áp dụng do thời tiết/giờ cao điểm!
+      </div>
+    </header>
 
-  <!-- BẢNG TỔNG QUAN -->
-  <section id="summary-dashboard">
-    <div class="summary-card">Tải trọng kho: <span id="total-warehouse-weight">0</span> kg</div>
-    <div class="summary-card">Kệ lấp đầy 100%: <span id="full-shelves-count">0</span></div>
-    <div class="summary-card">Phí lưu kho tạm tính: <span id="total-storage-cost">0</span> VNĐ/ngày</div>
-  </section>
+    <!-- Thẻ Thông Tin Tài Xế -->
+    <section class="card driver-card">
+      <img id="driver-avatar" src="placeholder.png" alt="Driver Avatar" class="avatar" />
+      <div class="driver-info">
+        <h3 id="driver-name">Đang điều phối...</h3>
+        <p>Biển số: <strong id="driver-plate">---</strong></p>
+        <p>Đánh giá: <span id="driver-rating">--</span> ⭐</p>
+        <p>Thời gian dự kiến đến: <span id="estimated-time">--</span> phút</p>
+      </div>
+    </section>
 
-  <!-- DANH SÁCH KỆ KHO -->
-  <main id="warehouse-container">
-    <!-- Kệ kho 1: Kho Thường -->
-    <div class="shelf-card status-normal" id="shelf-101" data-shelf-type="DRY" data-max-weight="500">
-      <div class="shelf-header">
-        <h3>Kệ 101 - Tiêu chuẩn (DRY)</h3>
-        <span class="weight-info"><span class="current-weight">150</span> / 500 kg</span>
-      </div>
-      <div class="progress-bar-container">
-        <div class="progress-bar" style="width: 30%;"></div>
-      </div>
-      <div class="pallet-list">
-        <div class="pallet-item" data-weight="150">Kiện Hạt Nhựa (150kg)</div>
-      </div>
-    </div>
-
-    <!-- Kệ kho 2: Kho Lạnh -->
-    <div class="shelf-card status-normal" id="shelf-102" data-shelf-type="COLD" data-max-weight="500">
-      <div class="shelf-header">
-        <h3>Kệ 102 - Kho Lạnh (COLD)</h3>
-        <span class="weight-info"><span class="current-weight">300</span> / 500 kg</span>
-      </div>
-      <div class="progress-bar-container">
-        <div class="progress-bar" style="width: 60%;"></div>
-      </div>
-      <div class="pallet-list">
-        <div class="pallet-item" data-weight="200" data-temp="-10">Kiện Thủy Sản (200kg, -10°C)</div>
-        <div class="pallet-item" data-weight="100" data-temp="2">Kiện Trái Cây (100kg, 2°C)</div>
-      </div>
-    </div>
-  </main>
-
-  <script src="warehouseManager.js"></script>
+    <!-- Bảng Chi Tiết Cước Phí -->
+    <section class="card fare-card">
+      <h3>Chi Tiết Cước Phí</h3>
+      <table class="fare-table">
+        <tbody>
+          <tr>
+            <td>Khoảng cách:</td>
+            <td id="fare-distance" class="text-right">0 km</td>
+          </tr>
+          <tr>
+            <td>Cước cơ bản:</td>
+            <td id="fare-base" class="text-right">0 VNĐ</td>
+          </tr>
+          <tr>
+            <td>Hệ số phụ phí:</td>
+            <td id="fare-surge" class="text-right">1.0x</td>
+          </tr>
+          <tr>
+            <td>Mã giảm giá (<span id="promo-code-name">KHÔNG CÓ</span>):</td>
+            <td id="fare-discount" class="text-right">-0 VNĐ</td>
+          </tr>
+          <tr class="total-row">
+            <td>TỔNG THANH TOÁN:</td>
+            <td id="fare-total" class="text-right highlight">0 VNĐ</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
 ```
 
 
-#### 4.2 Triển khai mã JavaScript (`warehouseManager.js`)
-Sinh viên viết mã xử lý bằng thuần JavaScript (DOM API), **tuyệt đối không dùng Event Listener hay Form Event**, triển khai đầy đủ các hàm với yêu cầu chi tiết như sau:
+#### B. Yêu cầu chi tiết với mã JavaScript (`main.js`)
 
-1. **Hàm `validatePallet(shelfElement, palletObj)`**:
-   - Tham số: `shelfElement` (DOM element của kệ kho), `palletObj` (đối tượng `{ code: string, weight: number, temp: number }`).
-   - Kiểm tra nhiệt độ: Nếu `shelfElement.dataset.shelfType === "COLD"` mà `temp < -18` hoặc `temp > 5` $\rightarrow$ Trả về `{ valid: false, message: "Lỗi: Nhiệt độ kiện hàng [temp]°C không đạt chuẩn kho lạnh (-18°C đến 5°C)" }`.
-   - Kiểm tra quá tải: Đọc khối lượng hiện tại từ `.current-weight` của kệ. Nếu `khối lượng hiện tại + palletObj.weight > 500` $\rightarrow$ Trả về `{ valid: false, message: "Lỗi: Tải trọng kệ bị vượt quá 500kg (Tối đa thêm: X kg)" }`.
-   - Nếu hợp lệ $\rightarrow$ Trả về `{ valid: true, message: "Hợp lệ" }`.
+Viết mã JS thực hiện các nhiệm vụ sau (chạy trực tiếp script khi tải trang bằng mock data, **TUYỆT ĐỐI KHÔNG** dùng Event Listener như `addEventListener` hay `onclick`):
 
-2. **Hàm `addNewPallet(shelfId, palletObj)`**:
-   - Tìm kiếm phần tử kệ kho qua `getElementById(shelfId)`. Nếu không thấy, báo lỗi lên console.
-   - Gọi `validatePallet`.
-   - **Trường hợp vi phạm**:
-     - Lấy phần tử `#alert-box`, dùng `textContent` hiển thị câu báo lỗi, đặt `className = "alert-box alert-danger"`.
-   - **Trường hợp hợp lệ**:
-     - Lấy phần tử `#alert-box`, gán `textContent = "Nhập kiện hàng thành công!"` và `className = "alert-box alert-success"`.
-     - Tạo 1 HTML element `div` mới cho pallet, gán class `pallet-item`, gán `dataset.weight = palletObj.weight`, thêm thông tin chi tiết bằng `textContent` hoặc `innerHTML`, sau đó `appendChild` vào danh sách `.pallet-list` của kệ đó.
-     - Cập nhật số liệu hiển thị `.current-weight` của kệ đó.
-     - Tính toán tỷ lệ phần trăm lấp đầy và cập nhật thuộc tính inline `style.width` cho thẻ `.progress-bar` của kệ.
-     - Cập nhật lại class trạng thái (`status-normal`, `status-warning`, `status-full`) của thẻ `.shelf-card` thông qua `classList`.
+1. **Hàm 1: `calculateTripFare(distance, isRain, isPeakHour, promoCode)`**
+   - Đầu vào: Số km `distance` (float), trạng thái mưa `isRain` (boolean), cao điểm `isPeakHour` (boolean), mã giảm giá `promoCode` (string).
+   - Đầu ra: Trả về 1 Object dạng:
+     ```javascript
+     {
+       distance: 5.5,
+       baseFare: 27750,
+       surgeMultiplier: 1.2,
+       discountAmount: 6660,
+       totalFare: 26640
+     }
+     ```
 
-3. **Hàm `updateWarehouseDashboard()`**:
-   - Lấy danh sách tất cả kệ kho bằng `querySelectorAll('.shelf-card')`.
-   - Duyệt qua từng kệ kho để:
-     - Tính **Tổng tải trọng toàn kho**.
-     - Đếm số lượng kệ bị lấp đầy **100%** tải trọng.
-     - Tính toán **Tổng phí lưu kho tạm tính** dựa trên loại kệ (`DRY` / `COLD`) và khối lượng của từng kệ.
-   - Cập nhật 3 giá trị trên tương ứng vào các thẻ DOM: `#total-warehouse-weight`, `#full-shelves-count`, và `#total-storage-cost`.
+2. **Hàm 2: `renderDriverCard(driverData)`**
+   - Đọc đối tượng `driverData` chứa: `{ name, avatarUrl, plateNumber, rating, etaMinutes, status }`.
+   - Truy xuất và cập nhật các thẻ tương ứng:
+     - Thẻ `#driver-avatar`: đổi thuộc tính `src` và `alt`.
+     - Thẻ `#driver-name`: đổi nội dung văn bản.
+     - Thẻ `#driver-plate`: đổi nội dung văn bản.
+     - Thẻ `#driver-rating`: đổi nội dung văn bản. Nếu `rating >= 4.8`, đổi màu chữ rating thành xanh lá (`#27ae60`), ngược lại màu cam (`#f39c12`).
+     - Thẻ `#estimated-time`: đổi nội dung văn bản.
+     - Thẻ `#booking-status`: Cập nhật `textContent` bằng `driverData.status` và thay đổi CSS class tương ứng:
+       - Nếu status là `"COMPLETED"`: class `badge badge-success`
+       - Nếu status là `"ARRIVING"`: class `badge badge-warning`
+       - Nếu status là `"SEARCHING"`: class `badge badge-secondary`
 
-4. **Kịch bản kiểm thử tự động (Gọi hàm trực tiếp ở cuối file JS)**:
-   ```javascript
-   // Chạy khởi tạo tính toán bảng tổng quan ban đầu
-   updateWarehouseDashboard();
+3. **Hàm 3: `renderFareBreakdown(fareResult, promoCodeName)`**
+   - Đọc dữ liệu trả về từ `calculateTripFare`.
+   - Cập nhật thông tin vào bảng chi tiết cước phí (`#fare-distance`, `#fare-base`, `#fare-surge`, `#promo-code-name`, `#fare-discount`, `#fare-total`).
+   - Định dạng tiền tệ dạng chuẩn Việt Nam (ví dụ: `27.750 VNĐ`).
 
-   // Giả lập nhập kiện hàng hợp lệ vào kệ kho 101 (Kệ thường)
-   addNewPallet("shelf-101", { code: "PL-003", weight: 280, temp: 25 });
+4. **Hàm 4: `toggleSurgeAlert(surgeMultiplier)`**
+   - Nếu `surgeMultiplier > 1.0`: Bỏ class `d-none` ở phần tử `#surge-alert` và gán màu nền đỏ nhạt (`#ffe6e6`).
+   - Nếu `surgeMultiplier === 1.0`: Thêm class `d-none` vào `#surge-alert`.
 
-   // Giả lập nhập kiện hàng sai nhiệt độ vào kệ 102 (Kệ lạnh: -25°C) -> Phải báo lỗi trên DOM Alert Box
-   addNewPallet("shelf-102", { code: "PL-004", weight: 50, temp: -25 });
+5. **Hàm 5: `applyTripDataToDOM(bookingPayload)`**
+   - Hàm điều phối chính nhận `bookingPayload` tổng hợp và lần lượt gọi các hàm render ở trên.
 
-   // Giả lập nhập kiện hàng làm quá tải kệ 101 (Đã có 150 + 280 = 430kg, thêm 100kg -> 530kg > 500kg) -> Báo lỗi quá tải
-   addNewPallet("shelf-101", { code: "PL-005", weight: 100, temp: 30 });
 
-   // Giả lập nhập kiện hàng lấp đầy đúng 100% tải trọng kệ 102 (Đã có 300kg, thêm 200kg với temp = 0°C -> Đạt 500kg)
-   addNewPallet("shelf-102", { code: "PL-006", weight: 200, temp: 0 });
+#### C. Dữ liệu thử nghiệm (Mock Dataset)
+Cuối file `main.js`, khai báo dữ liệu mẫu và thực hiện gọi hàm để chứng minh giao diện được cập nhật đúng:
 
-   // Cập nhật lại toàn bộ Dashboard sau các thao tác
-   updateWarehouseDashboard();
-   ```
+```javascript
+// Mock Payload từ Server Grab
+const currentBookingPayload = {
+  driver: {
+    name: "Nguyễn Văn Tài",
+    avatarUrl: "https://i.pravatar.cc/150?img=11",
+    plateNumber: "29-G1 888.99",
+    rating: 4.9,
+    etaMinutes: 4,
+    status: "ARRIVING"
+  },
+  tripConfig: {
+    distance: 6.8,
+    isRain: true,
+    isPeakHour: false,
+    promoCode: "GRABDIWUI"
+  }
+};
+
+// Thực thi cập nhật DOM ngay khi Script nạp xong
+applyTripDataToDOM(currentBookingPayload);
+```
+
+
+#### D. Phạm vi Kỹ thuật Nghiêm cấm
+- **KHÔNG** sử dụng Event Listeners (`addEventListener`, `attachEvent`, inline `onclick`/`onsubmit`).
+- **KHÔNG** sử dụng `fetch()`, `XMLHttpRequest` hay `axios`.
+- **KHÔNG** sử dụng `localStorage` / `sessionStorage`.
+- Chỉ tập trung vào việc truy xuất DOM node, thao tác innerHTML/textContent, style, setAttribute, dataset và classList.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục bài nộp**:
+- **Cấu trúc thư mục**:
   ```text
-  homework-session17-logistics/
+  student-id_hw8/
   ├── index.html
   ├── style.css
-  └── warehouseManager.js
+  └── main.js
   ```
-- **Quy định ràng buộc**:
-  - Không được sửa đổi cấu trúc thẻ HTML cơ bản sẵn có ngoại trừ việc bổ sung class/style và các phần tử con bằng JavaScript DOM manipulation.
-  - **CẤM** sử dụng `addEventListener`, các sự kiện submit form `onsubmit`, Fetch API, hay `localStorage` (Chưa thuộc phạm vi bài học).
-  - Code phải được comment giải thích rõ ràng từng thao tác DOM.
-  - Tên biến/hàm tuân thủ chuẩn `camelCase`.
+- **Quy định đặt tên**:
+  - Mã sinh viên kèm số thứ tự bài tập (Ví dụ: `BH00123_hw8`).
+- **Đóng gói**: Nén thư mục thành file `.zip` hoặc `.rar` trước khi nộp lên hệ thống LMS.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file chính xác theo quy định.<br>- Mã nguồn rõ ràng, đặt tên biến/hàm theo chuẩn `camelCase`. Có comment giải thích logic thao tác DOM trực quan. |
-| **Thao tác DOM & Thay đổi Nội dung/Style** | **20đ** | - Sử dụng đúng các phương thức DOM API: `getElementById`, `querySelector`, `querySelectorAll`, `children`, `appendChild`.<br>- Thay đổi chính xác thuộc tính `textContent`, `innerHTML`, `dataset`, `classList` (add/remove) và inline `style.width` cho thanh progress bar. |
-| **Xử lý Logic Nghiệp vụ (Business Rules)** | **40đ** | - Ràng buộc nhiệt độ kho lạnh ($-18^\circ\text{C}$ đến $5^\circ\text{C}$) đạt chuẩn 100%.<br>- Tính toán chính sở tỷ lệ lấp đầy %, chuyển đổi trạng thái CSS class (`status-normal`, `status-warning`, `status-full`) chính xác.<br>- Tính chính xác tổng tải trọng và tổng phí lưu kho toàn hệ thống theo loại kệ (`DRY`: 10.000, `COLD`: 25.000 VNĐ/kg/ngày). |
-| **Xử lý Biên, Cảnh báo & Ngoại lệ** | **20đ** | - Chặn chính xác các trường hợp nhập pallet vượt mức $500\text{ kg}$.<br>- Render thông báo lỗi/thành công chuyên nghiệp lên `#alert-box` trên giao diện DOM.<br>- Xử lý an toàn khi truy xuất các thuộc tính dữ liệu `dataset` hoặc parse dữ liệu kiểu số từ DOM text. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã nguồn sạch sẽ, tách hàm rõ ràng theo đúng yêu cầu.<br>- Đặt tên biến/hàm chuẩn camelCase, theo ngữ cảnh GrabRide (`calculateTripFare`, `renderDriverCard`).<br>- Thụt lề chuẩn 2 spaces, có comment giải thích cho từng đoạn xử lý DOM. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Cước cơ bản (15đ)**: Tính đúng $2\text{ km}$ đầu 12k, các km sau 4.5k/km.<br>- **Phụ phí Surge (15đ)**: Đúng hệ số $1.2\text{x}$ (mưa hoặc cao điểm) và $1.4\text{x}$ (cả hai).<br>- **Mã giảm giá (10đ)**: Tính đúng giảm $20\%$ max 15k cho `GRABDIWUI` và giảm 10k cho `CHAOXINCHAO`. |
+| **Thao tác DOM API & Xử lý Biên** | **20đ** | - Sử dụng chính xác `getElementById`, `querySelector`, `classList`, `setAttribute`.<br>- Định dạng số tiền chính xác (thêm chấm phân cách hàng nghìn và đuôi `"VNĐ"`).<br>- Kiểm soát biên: Khoảng cách âm hoặc $= 0$, mã giảm giá không hợp lệ không làm crash script. |
+| **Tối ưu UI & Ẩn/Hiện trạng thái** | **20đ** | - Hiển thị đúng Badge trạng thái tài xế theo từng màu tương ứng.<br>- Thao tác class `d-none` thành công để bật/tắt `#surge-alert`.<br>- Thay đổi màu sắc đánh giá sao (`#driver-rating`) linh hoạt theo điều kiện điểm số. |

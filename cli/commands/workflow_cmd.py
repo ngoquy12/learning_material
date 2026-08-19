@@ -261,6 +261,15 @@ def execute_course_workflow(args):
         if session["lessons"]:
             previous_lessons = []
             
+            from core.domain_knowledge import get_domain_for_session
+            session_domain_data = get_domain_for_session(session_id, session_title)
+            session_domain_id = session_domain_data.get("domain_id", "SHOPEE_FOOD")
+            session_domain_name = session_domain_data.get("name_vi", "Hệ thống Đặt đồ ăn ShopeeFood")
+            print(f"\n  ================================================================================")
+            print(f"  [Session Domain Anchor] Session {session_id} - {session_title}")
+            print(f"  -> Trục nghiệp vụ thống nhất 100%: {session_domain_name} ({session_domain_id})")
+            print(f"  ================================================================================\n")
+
             # Check if Parallel Batch Execution is enabled via --parallel
             if getattr(args, "parallel", False):
                 print(f"\n  ---> [Parallel Batch] Preparing parallel generation for Session: {session_id} ({len(session['lessons'])} lessons)")
@@ -294,6 +303,8 @@ def execute_course_workflow(args):
                         },
                         "course_dir_name": course_dir_name,
                         "technology_stack": tech_stack,
+                        "session_domain": session_domain_data,
+                        "chosen_domain": session_domain_id,
                         "html_content": "", "slide_markdown": "", "quiz_json": {},
                         "video_script_markdown": "", "mindmap_markdown": "", "review_logs": [],
                         "requested_parts": requested_parts,
@@ -484,6 +495,8 @@ def execute_course_workflow(args):
                         },
                         "course_dir_name": course_dir_name,
                         "technology_stack": tech_stack,
+                        "session_domain": session_domain_data,
+                        "chosen_domain": session_domain_id,
                         "html_content": "",
                         "slide_markdown": "",
                         "quiz_json": {},
@@ -688,7 +701,7 @@ def execute_course_workflow(args):
                 from agents.homework_agents import generate_session_homework
                 from agents.session_mindmap_agent import generate_session_mindmap
                 
-                print(f"\n  ---> [Session Generator] Tự động sinh Bài giảng trên lớp, Mindmap Session & Bộ Bài tập Session cho {session_id}...")
+                print(f"\n  ---> [Session Generator] Tự động sinh Bài giảng trên lớp, Mindmap Session & Bộ Bài tập Session cho {session_id} theo Domain [{session_domain_name}]...")
                 session_forbidden_scope = session.get("forbidden_scope", "")
                 generate_session_homework(
                     session_id=session_id,
@@ -696,7 +709,8 @@ def execute_course_workflow(args):
                     session_dir_path=str(session_dir),
                     tech_stack=tech_stack,
                     previous_lessons_text=session_lessons_text,
-                    forbidden_scope=session_forbidden_scope
+                    forbidden_scope=session_forbidden_scope,
+                    chosen_domain=session_domain_id
                 )
                 
                 generate_session_mindmap(
@@ -862,13 +876,17 @@ def execute_course_workflow(args):
                     
                     session_forbidden_scope = session.get("forbidden_scope", "")
                     
+                    from core.domain_knowledge import get_domain_for_session
+                    sess_domain = get_domain_for_session(session_id, session_title)
+                    
                     generate_session_homework(
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
                         tech_stack=tech_stack,
                         previous_lessons_text=session_lessons_text,
-                        forbidden_scope=session_forbidden_scope
+                        forbidden_scope=session_forbidden_scope,
+                        chosen_domain=sess_domain.get("domain_id")
                     )
                     generate_session_mindmap(
                         session_id=session_id,

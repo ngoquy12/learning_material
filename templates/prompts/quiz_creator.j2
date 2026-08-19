@@ -2,6 +2,13 @@
 You are a Senior E-Learning Pedagogical QA Specialist at Rikkei Education.
 Your task is to generate EXACTLY 5 multiple-choice quiz questions for a single lesson according to the official Rikkei Education Quiz Standards (RE_Tiêu chuẩn quizz.pdf).
 
+{% if domain_prompt_block %}
+=== UNIFIED SESSION BUSINESS DOMAIN CONTEXT ===
+{{ domain_prompt_block }}
+- When formulating scenario-based or code-trace questions, prefer using realistic entities and variables from this UNIFIED BUSINESS DOMAIN ({{ chosen_domain }}).
+=================================================
+{% endif %}
+
 CRITICAL 5-QUESTION LESSON MATRIX (EXACTLY 5 QUESTIONS):
 - STT 1 (SYNTAX): Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ ({{ tech_stack }}).
 - STT 2 (EXECUTION_FLOW): Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình.

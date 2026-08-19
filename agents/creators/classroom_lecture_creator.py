@@ -20,18 +20,25 @@ from agents.classroom_lecture_generator_agent import (
     classroom_lecture_generator_agent,
 )
 
+from core.domain_knowledge import get_domain_for_session, format_domain_rules_for_prompt
+
 def generate_lecture_slide_outline(
     session_id: str,
     session_title: str,
     tech_stack: str,
     lesson_outline_text: str = "",
     course_name: str = "",
-    lang_tag: str = "python"
+    lang_tag: str = "python",
+    chosen_domain: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Generates structured slide presentation deck outline using Jinja2 prompt
     and validates via Pydantic v2 ClassroomSlideDeckSchema.
     """
+    session_domain_data = get_domain_for_session(session_id, session_title, chosen_domain or "")
+    active_domain = chosen_domain or session_domain_data.get("name_vi", "Hệ thống Doanh nghiệp")
+    domain_prompt_block = format_domain_rules_for_prompt(session_domain_data)
+
     # 1. Render prompt
     user_prompt = render_prompt(
         "classroom_lecture.j2",
@@ -41,7 +48,9 @@ def generate_lecture_slide_outline(
             "tech_stack": tech_stack,
             "course_name": course_name or tech_stack,
             "lesson_outline_text": lesson_outline_text or session_title,
-            "lang_tag": lang_tag
+            "lang_tag": lang_tag,
+            "chosen_domain": active_domain,
+            "domain_prompt_block": domain_prompt_block
         }
     )
 

@@ -1,30 +1,31 @@
-# Bài tập 14: FinTech (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
+# Bài tập 14: GRAB_RIDE (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
 
 ### 1. Mục tiêu bài tập
-- **Thiết kế Kiến trúc Mini-Module JavaScript**: Áp dụng mô hình đóng gói (Module Pattern / Class Namespace) để quản lý toàn bộ logic tương tác và cập nhật giao diện người dùng (UI) cho hệ thống quản lý trạm sạc.
-- **Thao tác DOM API Nâng cao**: Thực hành truy xuất phần tử DOM (`querySelector`, `querySelectorAll`, `getElementById`), khởi tạo phần tử động (`createElement`, `appendChild`), và cập nhật nội dung/thuộc tính (`textContent`, `innerHTML`, `setAttribute`, `classList`).
-- **Xử lý Logic Nghiệp vụ FinTech**: Xây dựng thuật toán tính toán chi phí sạc xe điện, tính phí phạt đỗ xe quá giờ, kiểm soát giới hạn an toàn nhiệt độ/dung lượng pin và phản ánh tức thì trạng thái lên giao diện trực quan.
-
----
+- **Ứng dụng DOM Manipulation nâng cao**: Thành thạo việc truy xuất (`getElementById`, `querySelector`, `querySelectorAll`), đọc/ghi thuộc tính DOM (`textContent`, `innerHTML`, `setAttribute`, `style`, `classList`) để hiển thị dữ liệu động lên giao diện Web.
+- **Tư duy thiết kế Mini Module UI/UX**: Xây dựng module hiển thị thông tin chuyến đi công nghệ (GrabRide Dashboard Card) theo định dạng dữ liệu đầu vào động mà không phụ thuộc vào bắt sự kiện người dùng (không dùng Event Listener / Form submit).
+- **Áp dụng Business Rules ngành Booking/Ride-Hailing**: Tính toán chính xác giá cước di chuyển, hệ số thời tiết/giờ cao điểm, chiết khấu mã giảm giá và render chính xác trạng thái lên giao diện.
+- **Xử lý trạng thái giao diện & Ngoại lệ**: Chuyển đổi linh hoạt giữa màn hình thông tin hợp lệ và màn hình thông báo lỗi/chờ (fallback UI).
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Tập đoàn VinFast triển khai hệ thống quản lý trạm sạc xe điện thông minh **EV_CHARGING_STATION**. Tại mỗi trạm sạc, màn hình giám sát trung tâm (Dashboard) cần cập nhật liên tục thông tin của từng cổng sạc (`ChargingPort`), phiên sạc hiện tại (`VehicleSession`), chỉ số điện năng tiêu thụ (`KwhMeter`), và xuất hóa đơn thanh toán (`ChargingInvoice`).
+Trong hệ thống đặt xe công nghệ **GrabRide**, sau khi hệ thống backend xử lý dữ liệu chuyến đi, thông tin booking sẽ được chuyển cho Mini Module giao diện người dùng (Frontend DOM Renderer) để hiển thị thẻ tóm tắt chuyến đi (Ride Summary Dashboard).
 
-Bạn được giao nhiệm vụ xây dựng **Mini-Module `EVChargingManager`** bằng JavaScript thuần. Module này nhận dữ liệu giám sát và trực tiếp thao tác lên cây DOM để render danh sách cổng sạc, thay đổi màu sắc/nội dung hiển thị theo trạng thái thực tế, và tự động tạo hóa đơn thanh toán khi kết thúc phiên sạc.
+Bạn được giao nhiệm vụ viết một Mini Module JavaScript thuần (`grabRideRenderer.js`) nhận vào một đối tượng thông tin chuyến đi `RideBooking` và thực thi cập nhật toàn bộ cấu trúc giao diện HTML sẵn có mà không được sử dụng các sự kiện người dùng (`addEventListener`, `onsubmit`,...) hay lưu trữ local storage. Module này có trách nhiệm tính toán giá trị cuối cùng và thao tác trực tiếp trên DOM Tree để render kết quả trực quan cho hành khách.
+
+
+#### Luồng xử lý dữ liệu & Cập nhật DOM:
 
 ```mermaid
 graph TD
-    A[Dữ liệu Session Sạc] --> B[EVChargingManager Module]
-    B --> C{Kiểm tra Safety Rules}
-    C -- Nhiệt độ > 70°C --> D[Ngắt khẩn cấp: DISCONNECTED_OVERHEAT]
-    C -- Pin = 100% --> E[Trạng thái: COMPLETED]
-    C -- Bình thường --> F[Trạng thái: CHARGING]
-    D --> G[Cập nhật DOM Status & Style]
-    E --> G
-    F --> G
-    G --> H[Tính toán Invoice: Tiền điện + Phí quá giờ]
-    H --> I[Render Hóa đơn lên DOM Container]
+    A[Dữ liệu RideBooking Input] --> B{Kiểm tra tính hợp lệ}
+    B -- Không hợp lệ distance <= 0 --> C[DOM: Ẩn Trip Card / Hiện Alert Lỗi]
+    B -- Hợp lệ --> D[Tính Base Fare & Phụ phí Surge Multiplier]
+    D --> E[Tính Giảm giá Voucher]
+    E --> F[Tính Final Fare & Định dạng VNĐ]
+    F --> G[DOM: Cập nhật Text Content thông tin Chuyến đi]
+    G --> H[DOM: Render Chi tiết Bảng giá bằng innerHTML]
+    H --> I[DOM: Cập nhật CSS Class & Badge phụ phí/tài xế]
+    I --> J[DOM: Hiện Trip Card / Ẩn Alert Lỗi]
 ```
 
 ---
@@ -33,162 +34,157 @@ graph TD
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
 
-#### A. Đơn giá sạc & Loại cổng sạc (`ChargingPort`)
-- **Sạc thường (`STANDARD`)**: `3.850` VNĐ / kWh.
-- **Sạc siêu nhanh (`SUPER_FAST`)**: `4.500` VNĐ / kWh.
+#### A. Công thức tính cước phí chuyến đi (Trip Fare Calculation):
+1. **Giá cước cơ bản (Base Fare)** theo quãng đường ($d$ tính bằng km):
+   - $d \le 2$ km: Giá cố định **12.000 VNĐ**.
+   - $d > 2$ km: Giá = $12.000 + (d - 2) \times 4.500$ VNĐ.
+2. **Hệ số phụ phí (Surge Multiplier)**:
+   - Hệ số ban đầu: $M = 1.0$.
+   - Nếu là giờ cao điểm (`isPeakHour = true`): $M = M \times 1.2$.
+   - Nếu trời mưa (`isRainy = true`): $M = M \times 1.2$.
+   - Tổng cước sau phụ phí: $\text{Fare}_{\text{surge}} = \text{Math.round}(\text{Base Fare} \times M)$.
+3. **Mã giảm giá (Promo Voucher)**:
+   - Mã `"GRABXANH"`: Giảm trực tiếp **10.000 VNĐ**.
+   - Mã `"TEACHERCHILL"`: Giảm **20%** trên tổng cước sau phụ phí (Tối đa giảm **15.000 VNĐ**).
+   - Các mã khác hoặc không nhập: Giảm **0 VNĐ**.
+4. **Cước phí thanh toán cuối cùng (Final Fare)**:
+   - $\text{Final Fare} = \text{Math.max}(0, \text{Fare}_{\text{surge}} - \text{Discount})$.
 
 
-#### B. Quy tắc tính phí phạt đỗ xe sau sạc (`Overstay Penalty`)
-- Phí đỗ xe chỉ áp dụng khi pin đã đạt **100%** nhưng xe vẫn chiếm dụng cổng sạc.
-- **Thời gian miễn phí**: `30 phút` đầu tiên kể từ khi pin đạt 100%.
-- **Từ phút thứ 31 trở đi**: Tính phí phạt **`1.000` VNĐ / phút**.
-- Công thức: `Phí phạt = max(0, Thời gian đỗ - 30) * 1.000` VNĐ.
-
-
-#### C. Quy tắc An toàn Trạm sạc (`Safety Rules`)
-1. **Quá nhiệt (`Nhiệt độ > 70°C`)**:
-   - Tự động ngắt sạc khẩn cấp.
-   - Trạng thái cổng sạc đổi thành: `"CẢNH BÁO QUÁ NHIỆT"`.
-   - CSS Badge đổi sang màu đỏ nguy hiểm (`bg-danger` / `border-danger`).
-2. **Đầy pin (`Pin = 100%`)**:
-   - Ngắt sạc hoàn tất.
-   - Trạng thái cổng sạc đổi thành: `"HOÀN THÀNH"`.
-   - CSS Badge đổi sang màu xanh thành công (`bg-success`).
-3. **Đang sạc (`Pin < 100%` và `Nhiệt độ <= 70°C`)**:
-   - Trạng thái cổng sạc đổi thành: `"ĐANG SẠC"`.
-   - CSS Badge đổi sang màu xanh dương hoạt động (`bg-primary`).
-
-
-#### D. Công thức tính Hóa đơn Thanh toán (`ChargingInvoice`)
-- `Tiền điện = Điện năng tiêu thụ (kWh) * Đơn giá theo loại cổng`
-- `Phí quá giờ = Công thức ở mục B`
-- `Tổng tiền thanh toán = Tiền điện + Phí quá giờ`
-- **Định dạng tiền tệ**: Tất cả số tiền hiển thị trên DOM phải được định dạng theo chuẩn Việt Nam Đồng (Ví dụ: `195.000 VNĐ`).
+#### B. Quy tắc hiển thị UI/DOM:
+1. **Kiểm tra dữ liệu đầu vào (Validation & Fallback UI)**:
+   - Nếu Quãng đường `distance` $\le 0$ hoặc không phải là số:
+     - Element `#error-banner` được đổi hiển thị `display: block` và chứa text lỗi: `"Lỗi: Quãng đường di chuyển không hợp lệ!"`.
+     - Element `#trip-card` được đổi hiển thị `display: none`.
+   - Nếu dữ liệu hợp lệ: `#error-banner` nhận `display: none` và `#trip-card` nhận `display: block`.
+2. **Hiển thị thông tin tài xế & hành khách**:
+   - Element `#passenger-name-val`: Cập nhật tên hành khách.
+   - Element `#driver-info-val`:
+     - Nếu có tên tài xế (vd: `"Nguyễn Văn A"`): Cập nhật tên tài xế và xóa class `text-warning`, thêm class `text-success`.
+     - Nếu `driverName` là `null` hoặc chuỗi rỗng: Cập nhật text `"Đang tìm tài xế..."`, xóa class `text-success`, thêm class `text-warning`.
+3. **Hiển thị Surge Badge (Hệ số tăng giá)**:
+   - Element `#surge-badge`:
+     - Nếu $M > 1.0$: Hiển thị text `"Phụ phí cao điểm/thời tiết (x" + M.toFixed(2) + ")"` và thêm class `badge-danger`.
+     - Nếu $M = 1.0$: Hiển thị text `"Giá tiêu chuẩn"` và thêm class `badge-info`.
+4. **Chi tiết chi phí (Itemized Breakdown List)**:
+   - Render danh sách `<li>` vào trong Element `#breakdown-list` bằng `innerHTML`:
+     - `<li>Cước cơ bản (X.X km): YYY VNĐ</li>`
+     - `<li>Tăng giá thời tiết/giờ cao điểm: +YYY VNĐ</li>`
+     - `<li>Giảm giá voucher (Mã): -YYY VNĐ</li>`
+   - *Lưu ý: Tất cả số tiền cần được định dạng chuẩn Việt Nam Đồng (Ví dụ: `25.500 VNĐ`).*
 
 ---
 
 
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
-> **LƯU Ý ĐẶC BIỆT**: Bài tập này nằm ở **Session 17**. Tuyệt đối **KHÔNG** sử dụng:
-> - Event Listeners (`addEventListener`, `onclick` HTML attributes).
-> - Form submission events.
-> - `fetch API` / `axios` / `LocalStorage`.
-> 
-> Việc cập nhật DOM sẽ được thực thi thông qua các phương thức của Module `EVChargingManager` được gọi trực tiếp bằng mã lệnh JavaScript.
 
-
-#### A. Cấu trúc DOM mẫu giả định (`index.html`)
-Mã HTML ban đầu cần có các container để chứa dữ liệu:
+#### A. Cấu trúc file HTML chuẩn bị sẵn (`index.html`):
 ```html
-<div class="container">
-  <h1>HỆ THỐNG QUẢN LÝ TRẠM SẠC VINFAST EV</h1>
-  
-  <!-- Container chứa danh sách thẻ cổng sạc -->
-  <div id="charging-ports-container" class="ports-grid"></div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>GrabRide Booking Dashboard</title>
+  <style>
+    .hidden { display: none; }
+    .badge-danger { background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; }
+    .badge-info { background-color: #17a2b8; color: white; padding: 4px 8px; border-radius: 4px; }
+    .text-success { color: #28a745; font-weight: bold; }
+    .text-warning { color: #ffc107; font-weight: bold; }
+    .error-box { background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px; }
+    .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; width: 400px; }
+  </style>
+</head>
+<body>
+  <h2>Hệ Thống Quản Lý Chuyến Đi GrabRide</h2>
 
-  <!-- Container chứa hóa đơn thanh toán -->
-  <div id="invoices-container" class="invoices-list"></div>
-</div>
+  <!-- Error Alert Container -->
+  <div id="error-banner" class="error-box" style="display: none;"></div>
+
+  <!-- Trip Summary Dashboard Card -->
+  <div id="trip-card" class="card" style="display: none;">
+    <h3 id="booking-id-val">Mã chuyến: -</h3>
+    <p>Hành khách: <span id="passenger-name-val"></span></p>
+    <p>Tài xế: <span id="driver-info-val"></span></p>
+    <p>Quãng đường: <span id="distance-val"></span> km</p>
+    <p>Trạng thái cước: <span id="surge-badge"></span></p>
+    
+    <h4>Chi tiết giá cước:</h4>
+    <ul id="breakdown-list"></ul>
+
+    <h3>Tổng thanh toán: <span id="final-fare-val" style="color: #00b14f;"></span></h3>
+  </div>
+
+  <script src="./grabRideRenderer.js"></script>
+</body>
+</html>
 ```
 
 
-#### B. Thiết kế Mini-Module `EVChargingManager`
-Sinh viên khởi tạo một Object/Class đóng gói các phương thức xử lý DOM sau:
-
-1. **`EVChargingManager.init(portsData)`**:
-   - Nhận mảng danh sách các cổng sạc ban đầu.
-   - Xóa trắng `charging-ports-container`.
-   - Duyệt mảng và gọi hàm `renderPortCard` để chèn HTML cổng sạc vào DOM.
-
-2. **`EVChargingManager.renderPortCard(port)`**:
-   - Khởi tạo phần tử `div` làm thẻ hiển thị thông tin cổng sạc (`port-card`).
-   - Kiểm tra các quy tắc an toàn (Nhiệt độ & Pin) để xác định trạng thái UI (thêm class CSS tương ứng).
-   - Đổ nội dung HTML bao gồm: Mã cổng, Loại cổng, % Pin, Nhiệt độ (°C), Điện năng đã sạc (kWh), và Trạng thái.
-   - Sử dụng `appendChild` để thêm card vào `#charging-ports-container`.
-
-3. **`EVChargingManager.updatePortSession(portId, updatedData)`**:
-   - Tìm kiếm phần tử DOM của cổng sạc dựa trên `data-port-id` hoặc `id`.
-   - Cập nhật các giá trị `textContent` của % Pin, Nhiệt độ, kWh.
-   - Đánh giá lại các Quy tắc An toàn (Safety Rules) và cập nhật class/màu sắc trạng thái (`classList.remove`, `classList.add`).
-
-4. **`EVChargingManager.generateInvoiceDOM(portData)`**:
-   - Tính toán `Tiền điện`, `Phí quá giờ`, và `Tổng tiền`.
-   - Sử dụng `document.createElement` để tạo block HTML hiển thị Hóa đơn thanh toán (`ChargingInvoice`).
-   - Gắn thuộc tính `data-invoice-id` cho hóa đơn.
-   - Chèn hóa đơn vào `#invoices-container`.
-
-
-#### C. Dữ liệu thử nghiệm (Test Dataset)
-Hãy thực thi kiểm thử module của bạn với tập dữ liệu mẫu sau trong `main.js`:
+#### B. Nhiệm vụ của học viên trong file `grabRideRenderer.js`:
+Viết hàm `renderGrabRideDashboard(bookingData)` và các hàm bổ trợ (helper functions) theo đúng thiết kế dưới đây:
 
 ```javascript
-const initialPorts = [
-  {
-    portId: "PORT_01",
-    type: "STANDARD",
-    batteryPct: 65,
-    temperature: 42,
-    currentKwh: 14.5,
-    overstayMins: 0
-  },
-  {
-    portId: "PORT_02",
-    type: "SUPER_FAST",
-    batteryPct: 100,
-    temperature: 48,
-    currentKwh: 45.0,
-    overstayMins: 45 // Đỗ quá 45 phút (vượt 15 phút so với định mức 30 phút)
-  },
-  {
-    portId: "PORT_03",
-    type: "SUPER_FAST",
-    batteryPct: 82,
-    temperature: 73, // Vượt quá 70°C -> Quá nhiệt
-    currentKwh: 30.0,
-    overstayMins: 0
-  }
-];
+/**
+ * Module render bảng điều khiển chuyến đi GrabRide
+ * @param {Object} bookingData - Đối tượng thông tin booking từ backend
+ */
+function renderGrabRideDashboard(bookingData) {
+  // 1. DOM Element Retrieval (Truy xuất các phần tử DOM)
+  // 2. Validate input logic -> Cập nhật hiển thị #error-banner hoặc #trip-card
+  // 3. Tính toán các thông số cước phí (Base fare, surge multiplier, discount, final fare)
+  // 4. Cập nhật Text Content & Attributes (passenger, driver, distance, final fare)
+  // 5. Cập nhật Style & Class List (surge badge status, driver status color)
+  // 6. Cập nhật innerHTML cho danh sách #breakdown-list
+}
 
-// Khởi chạy Module
-EVChargingManager.init(initialPorts);
+// FORMAT CURRENCY UTILITY
+function formatVND(amount) {
+  return new Intl.NumberFormat('vi-VN').format(amount) + ' VNĐ';
+}
 
-// Giả lập cập nhật dữ liệu DOM sau khi sạc thêm
-EVChargingManager.updatePortSession("PORT_01", {
-  batteryPct: 100,
-  temperature: 45,
-  currentKwh: 22.0,
-  overstayMins: 35
-});
+// TEST CASES SIMULATION (Gọi trực tiếp hàm render để kiểm thử giao diện)
+const mockBookingSuccess = {
+  bookingId: "GRB-88992",
+  passengerName: "Trần Thị Ánh",
+  driverName: "Lê Văn Tùng",
+  distanceKm: 5.5,
+  isRainy: true,
+  isPeakHour: false,
+  promoCode: "TEACHERCHILL"
+};
 
-// Giả lập xuất hóa đơn cho PORT_02 và PORT_01
-EVChargingManager.generateInvoiceDOM(initialPorts[1]);
+// Chạy test hiển thị thành công:
+renderGrabRideDashboard(mockBookingSuccess);
 ```
+
+
+#### C. Ràng buộc kỹ thuật nghiêm ngặt:
+- **TỔNG CẤM**: Không được sử dụng `addEventListener`, `onclick`, `onsubmit`, `fetch`, `XMLHttpRequest`, `localStorage`, `sessionStorage`.
+- Chỉ thao tác DOM thông qua các phương thức được học trong Session 17: `getElementById`, `querySelector`, `querySelectorAll`, `textContent`, `innerText`, `innerHTML`, `setAttribute`, `removeAttribute`, `style`, `classList` (`add`, `remove`, `replace`).
+- Phải format tiền tệ rõ ràng theo định dạng `X.XXX VNĐ`.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-
-
-#### A. Cấu trúc thư mục project
-```text
-HW14_EV_CHARGING_STATION/
-├── index.html
-├── style.css
-└── main.js
-```
-
-
-#### B. Quy định mã nguồn
-- Mã nguồn JavaScript tuân thủ tiêu chuẩn ES6+, viết mã sạch (Clean Code), có comment giải thích rõ ràng các hàm xử lý DOM.
-- Tách biệt rõ phần tính toán nghiệp vụ (Business Logic) và phần thao tác cập nhật giao diện (DOM Manipulation).
+- **Cấu trúc thư mục**:
+  ```text
+  student-id_homework_14/
+  ├── index.html
+  └── grabRideRenderer.js
+  ```
+- **Quy định đặt tên file**:
+  - Mã bài tập: `HW14_GRABRIDE_DOM`.
+  - Đóng gói thư mục dưới dạng `.zip` và nộp lên hệ thống LMS theo đúng thời hạn.
+  - Code phải được format sạch sẻ (Prettier), có comment giải thích các bước truy xuất và thao tác DOM.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **1. Cấu trúc Architecture & Phong cách Code** | **20 điểm** | - Đóng gói đúng mô hình Mini-Module/Class sạch sẽ.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, hằng số `UPPER_SNAKE_CASE`.<br>- Comment mã nguồn rõ ràng, cấu trúc HTML/CSS mạch lạc. |
-| **2. Xử lý Logic Nghiệp vụ FinTech** | **40 điểm** | - Tính chính xác đơn giá sạc theo loại `STANDARD` (3.850đ) và `SUPER_FAST` (4.500đ).<br>- Tính chính xác phí phạt đỗ xe (Miễn phí 30 phút đầu, từ phút 31 tính 1.000đ/phút).<br>- Kiểm soát chính xác logic ngắt sạc khi `Pin = 100%` hoặc `Nhiệt độ > 70°C`.<br>- Format đúng định dạng tiền tệ Việt Nam (`VNĐ`). |
-| **3. Thao tác DOM API (Phạm vi Session 17)** | **20 điểm** | - Truy xuất phần tử DOM chính xác bằng `querySelector`/`getElementById`.<br>- Sử dụng thành thạo `createElement`, `appendChild`, `textContent`, `classList`.<br>- Tuân thủ quy định: Không dùng Event Listener, Form submit, Fetch API hay LocalStorage. |
-| **4. Xử lý Biên & Ngoại lệ DOM** | **20 điểm** | - Kiểm tra và xử lý khi `portId` không tồn tại trên DOM.<br>- Tránh nhân bản (duplicate) phần tử Hóa đơn nếu hóa đơn đó đã tồn tại.<br>- Xử lý an toàn dữ liệu đầu vào bị thiếu hoặc bị sai kiểu dữ liệu (vd: `temperature` bị âm, `currentKwh` không phải là số). |
+| **1. Cấu trúc & Thao tác DOM API** | **20đ** | - Sử dụng chính xác các hàm truy xuất DOM (`getElementById`, `querySelector`).<br>- Thao tác đúng thuộc tính DOM (`textContent` cho văn bản thuần, `innerHTML` cho thẻ danh sách `<li>`).<br>- Sử dụng đúng `classList` (`add`/`remove`) và `style.display` để ẩn/hiện element theo trạng thái nghiệp vụ. |
+| **2. Logic Nghiệp vụ & Khái toán Cước phí** | **40đ** | - Tính đúng Base Fare theo mốc 2 km đầu (12.000 VNĐ) và các km tiếp theo (4.500 VNĐ/km).<br>- Tính đúng Surge Multiplier khi mưa (`1.2`), giờ cao điểm (`1.2`) hoặc cả 2 (`1.44`).<br>- Áp dụng đúng quy tắc tính mã giảm giá (`GRABXANH`, `TEACHERCHILL` max 15.000 VNĐ).<br>- Định dạng chuẩn tiền tệ VNĐ trên giao diện. |
+| **3. Xử lý Trạng thái & Fallback UI (Biên/Ngoại lệ)** | **20đ** | - Ẩn/Hiện đúng giữa `#error-banner` và `#trip-card` khi `distanceKm` không hợp lệ ($\le 0$ hoặc không phải số).<br>- Hiển thị đúng trạng thái tài xế: Khi có tên -> đổi class thành màu xanh `text-success`; Khi thiếu tên tài xế -> hiển thị `"Đang tìm tài xế..."` kèm class cảnh báo `text-warning`. |
+| **4. Tối ưu mã nguồn & Kiến trúc Module** | **20đ** | - Code sạch sẽ, chia nhỏ logic xử lý tính toán và logic DOM thành các hàm helper (ví dụ: `calculateFare`, `formatVND`).<br>- Tuân thủ 100% phạm vi kiến thức (Không vi phạm các kiến thức cấm như Event Listener hay LocalStorage).<br>- Comment code rõ ràng, chuyên nghiệp. |

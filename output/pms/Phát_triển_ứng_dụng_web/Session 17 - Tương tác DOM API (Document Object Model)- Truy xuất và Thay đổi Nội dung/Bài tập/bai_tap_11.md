@@ -1,36 +1,27 @@
-# Bài tập 11: CRM (Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc)
+# Bài tập 11: GRAB_RIDE (Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc)
 
 ### 1. Mục tiêu bài tập
-- **Phân tích và phát hiện điểm nghẽn hiệu năng (Performance Bottlenecks)** trong mã nguồn JavaScript thao tác DOM legacy: nhận diện hiện tượng *Layout Thrashing*, truy xuất DOM lặp đi lặp lại trong vòng lặp và nguy cơ bảo mật *XSS* khi dùng `innerHTML`.
-- **Tái cấu trúc mã nguồn (Refactoring)** theo tiêu chuẩn Clean Code: tách biệt rõ ràng giữa logic nghiệp vụ (Business Logic) tính toán tiền cước và logic cập nhật giao diện (UI Presentation).
-- **Tối ưu hóa thao tác DOM API**: áp dụng `DocumentFragment` để gom nhóm thao tác cập nhật (batch DOM update), sử dụng `textContent` thay cho `innerHTML`, và quản lý lớp giao diện bằng `classList`.
-- **Thực thi chính xác quy tắc nghiệp vụ**: tính toán cước phí dịch vụ đặt xe công nghệ (GrabRide) có áp dụng hệ số phụ phí giờ cao điểm/thời tiết và xử lý linh hoạt các trạng thái chuyến đi.
+- **Phân tích & Phát hiện lỗi (Code Smell):** Nhận biết các vấn đề về hiệu năng (Layout Thrashing, truy xuất DOM lặp lại trong vòng lặp) và rủi ro bảo mật (XSS với `innerHTML`) trong đoạn mã DOM hiện tại.
+- **Tái cấu trúc mã nguồn (Refactoring):** Thực hiện tách biệt hoàn toàn giữa **Logic tính toán nghiệp vụ (Business Logic)** và **Logic thao tác giao diện (DOM Manipulation)** theo mô hình mô-đun hóa.
+- **Tối ưu hóa thao tác DOM:** Áp dụng kỹ thuật Caching DOM Query, `DocumentFragment` để giảm thiểu số lần Reflow/Repaint, và sử dụng `textContent`, `classList` thay vì ghi đè chuỗi HTML/style inline.
+- **Áp dụng quy tắc nghiệp vụ GrabRide:** Tính toán chính xác cước phí di chuyển, phụ phí thời tiết/giờ cao điểm và cập nhật tổng quan bảng điều khiển (Dashboard).
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống CRM Quản lý Chuyến đi của GrabRide (**GRAB_RIDE**) đang vận hành một trang Báo cáo Tổng quan Chuyến đi (Trip Dashboard) dành cho bộ phận Quản lý Vận hành. Trang này hiển thị danh sách các chuyến đi trong ngày của tài xế kèm số tiền cước thực tế.
+Hệ thống điều hành chuyến đi **GrabRide** đang gặp sự cố suy giảm hiệu năng nghiêm trọng trên màn hình Giám sát Chuyến đi (Active Trips Dashboard). Mã nguồn hiện tại do lập trình viên cũ để lại bị lỗi "Spaghetti Code": truy xuất DOM liên tục bên trong vòng lặp, tính cước phí dồn chung vào chuỗi HTML, và không kiểm soát dữ liệu đầu vào.
 
-Tuy nhiên, đoạn mã JS hiển thị dữ liệu hiện tại (được viết từ giai đoạn thử nghiệm) đang gặp phải các vấn đề nghiêm trọng:
-1. Giao diện bị giật lag rõ rệt khi danh sách chuyến đi tăng lên do truy xuất DOM liên tục bên trong vòng lặp và sử dụng `innerHTML +=` trực tiếp vào bảng.
-2. Logic tính tiền cước bị viết gộp chung vào code hiển thị HTML, dẫn đến sai lệch cước phí khi áp dụng phụ phí giờ cao điểm (`isSurge`).
-3. Mã nguồn viết theo dạng spaghetti, gán trực tiếp Inline Style (`element.style...`) thay vì quản lý theo CSS Class.
-
-**Sơ đồ luồng xử lý tối ưu (Target Refactored Architecture):**
+Bạn được giao nhiệm vụ phân tích mã nguồn cũ, đưa ra báo cáo cải tiến và **tái cấu trúc toàn bộ mã nguồn JavaScript/DOM** để hệ thống chạy mượt mà, an toàn và dễ bảo trì.
 
 ```mermaid
-flowchart TD
-    A[Mảng dữ liệu TripBooking] --> B[Hàm kiểm tra & Xử lý dữ liệu biên]
-    B --> C[Hàm calculateTripFare: Tính tiền cước]
-    C --> D[Tạo DocumentFragment bộ nhớ đệm]
-    D --> E[Vòng lặp tạo Node với createElement & textContent]
-    E --> F[Gán CSS Class bằng classList]
-    F --> G[Append Node vào DocumentFragment]
-    G --> H[Append Fragment vào DOM Tree 1 lần duy nhất]
+graph TD
+    A[Mảng dữ liệu raw: tripsData] --> B[Hàm tính toán: calculateTripFare]
+    B --> C[Hàm tạo DOM Node: createTripElement]
+    C --> D[Gom nhóm Node: DocumentFragment]
+    D --> E[Cập nhật 1 lần duy nhất vào DOM Tree]
+    B --> F[Hàm cập nhật Thống kê: updateDashboardSummary]
 ```
-
-Bộ phận Kỹ thuật yêu cầu bạn **Phân tích code legacy**, chỉ ra các điểm yếu và **Viết lại (Refactor) toàn bộ logic tương tác DOM** bằng thuần JS DOM API (Chưa dùng Event Listener hay Fetch API).
 
 ---
 
@@ -38,164 +29,155 @@ Bộ phận Kỹ thuật yêu cầu bạn **Phân tích code legacy**, chỉ ra 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
 
-#### A. Công thức tính Cước phí chuyến đi (`TripFare`)
-1. **Khoảng cách cố định ban đầu:**
-   - $2\text{ km}$ đầu tiên: Giá cố định **12.000 VNĐ**.
-2. **Khoảng cách phát sinh thêm:**
-   - Từ km thứ $3$ trở đi: Tính **4.500 VNĐ / km** (phần lẻ km vẫn tính theo tỉ lệ chính xác).
-   - *Công thức cước gốc ($BaseFare$):*
-     $$\text{Nếu } Distance \le 2: BaseFare = 12.000\text{ VNĐ}$$
-     $$\text{Nếu } Distance > 2: BaseFare = 12.000 + (Distance - 2) \times 4.500\text{ VNĐ}$$
-3. **Phụ phí thời tiết / Giờ cao điểm (`isSurge`):**
-   - Nếu `isSurge === true`: $TotalFare = Math.round(BaseFare \times 1.2)$
-   - Nếu `isSurge === false`: $TotalFare = BaseFare$
-4. **Định dạng tiền tệ:** Số tiền hiển thị trên DOM phải được định dạng theo chuẩn Việt Nam có phân cách hàng nghìn (ví dụ: `25.500 VNĐ` hoặc `12.000 VNĐ`).
+#### A. Quy tắc tính giá cước chuyến đi (`TripFare`)
+1. **Giá cước cơ bản (Khoảng cách $d$ km):**
+   - $d \le 2$ km: Giá cố định **12.000 VNĐ**.
+   - $d > 2$ km: Giá tiền = $12.000 + (d - 2) \times 4.500$ VNĐ.
+2. **Hệ số phụ phí (Thời tiết xấu / Giờ cao điểm - `isSurge`):**
+   - Nếu `isSurge === true`: Tổng cước = $Cước\_Cơ\_Bản \times 1.2$.
+   - Nếu `isSurge === false`: Tổng cước = $Cước\_Cơ\_Bản$.
+3. **Định dạng hiển thị:**
+   - Số tiền phải được làm tròn tròn số nguyên và định dạng dạng tiền tệ Việt Nam (Ví dụ: `25.500 VNĐ` hoặc `25,500 VNĐ`).
 
 
-#### B. Trạng thái chuyến đi & Giao diện Badge (`TripStatus`)
-Mỗi trạng thái chuyến đi cần gán class CSS tương ứng vào thẻ chứa trạng thái:
-- `COMPLETED` (Hoàn thành): Gán class `badge badge-success`, văn bản hiển thị: `"Hoàn thành"`.
-- `IN_PROGRESS` (Đang di chuyển): Gán class `badge badge-warning`, văn bản hiển thị: `"Đang di chuyển"`.
-- `CANCELLED` (Đã hủy): Gán class `badge badge-danger`, văn bản hiển thị: `"Đã hủy"`.
-
-
-#### C. Quy tắc Kiểm soát Biên & Lỗi Dữ liệu (Edge Cases)
-- Nếu `distanceKm` $\le 0$ hoặc không phải là số hợp lệ (`isNaN`): Hiển thị cước phí là `"0 VNĐ"` và ghi chú lỗi `[Dữ liệu km sai]` vào cột khoảng cách.
-- Nếu `passengerName` bị rỗng/null/undefined: Hiển thị mặc định là `"Khách ẩn danh"`.
+#### B. Phân loại chuyến đi trên UI
+- **Chuyến đi VIP / Giá cao:** Nếu tổng cước $\ge 50.000$ VNĐ, thêm lớp CSS `trip-card--vip` và hiển thị nhãn (badge) `"CHUYẾN ĐI GIÁ TRỊ CAO"`.
+- **Chuyến đi Tiêu chuẩn:** Tổng cước $< 50.000$ VNĐ, thêm lớp CSS `trip-card--standard`.
 
 ---
 
 
-### 4. Yêu cầu kỹ thuật & Triển khai
+### 4. Mã nguồn cũ cần Phân tích & Tái cấu trúc (Legacy Code)
 
-
-#### A. Đoạn mã Legacy cần Phân tích (Cung cấp sẵn trong bài)
-Hãy phân tích các lỗi về **Hiệu năng**, **Bảo mật** và **Clean Code** trong đoạn mã legacy dưới đây trước khi tiến hành tối ưu:
+Dưới đây là đoạn mã kém tối ưu đang chạy trên hệ thống:
 
 ```javascript
-// --- MA NGUON LEGACY CAN PHAN TICH VA TAI CAU TRUC ---
-function renderTripsLegacy(trips) {
-    // LOI: Dung innerHTML xoa sach va cong chuoi lien tuc trong vong lap
-    document.getElementById("trip-table-body").innerHTML = "";
-    
-    for (var i = 0; i < trips.length; i++) {
-        var t = trips[i];
-        // LOI: Tinh toan cuoc phi viet sai va viet gop chung vao UI logic
-        var fare = 12000;
-        if (t.distance > 2) {
-            fare += (t.distance - 2) * 4500;
-        }
-        if (t.surge) {
-            fare = fare * 1.2; // LOI: Chieu lam tron chua chinh xac
-        }
-
-        // LOI: Truy xuat DOM lien tuc trong vong lap, thao tac innerHTML gay Re-render/Layout Thrashing
-        var statusColor = t.status == "COMPLETED" ? "green" : (t.status == "CANCELLED" ? "red" : "orange");
-        
-        document.getElementById("trip-table-body").innerHTML += 
-            "<tr>" +
-                "<td>" + t.id + "</td>" +
-                "<td>" + t.passenger + "</td>" +
-                "<td>" + t.distance + " km</td>" +
-                "<td><span style='color:" + statusColor + "'>" + t.status + "</span></td>" +
-                "<td>" + fare + " VND</td>" +
-            "</tr>";
-    }
-}
-```
-
-
-#### B. Yêu cầu Tái cấu trúc & Triển khai mới
-Bạn cần tạo file `app.js` mới để giải quyết toàn bộ điểm yếu trên theo các tiêu chí:
-
-1. **Tách biệt Logic Nghiệp vụ (Business Logic):**
-   - Viết hàm riêng `calculateTripFare(distanceKm, isSurge)` trả về số tiền cước dạng `Number` (đã làm tròn bằng `Math.round`).
-   - Viết hàm hỗ trợ `formatCurrencyVND(amount)` để đổi số thành chuỗi hiển thị dạng `25.500 VNĐ`.
-
-2. **Tối ưu hóa Thao tác DOM API (UI Logic):**
-   - Không được sử dụng `innerHTML` để nối chuỗi HTML trong vòng lặp.
-   - Cache element bảng (`document.querySelector('#trip-table-body')`) bên ngoài vòng lặp.
-   - Sử dụng `document.createDocumentFragment()` để gom toàn bộ các dòng `<tr>` trước khi chèn 1 lần duy nhất vào DOM Tree.
-   - Tạo các element con (`tr`, `td`, `span`) bằng `document.createElement()`.
-   - Gán nội dung an toàn bằng `textContent`.
-   - Gán CSS Class thông qua `element.classList.add(...)`.
-
-3. **Dữ liệu kiểm thử mẫu (Mock Data):**
-   Khai báo mảng dữ liệu mẫu để chạy thử nghiệm hàm render chính:
-
-```javascript
-const mockRideBookings = [
-    { id: "RIDE-001", passengerName: "Nguyễn Văn An", distanceKm: 1.5, isSurge: false, status: "COMPLETED" },
-    { id: "RIDE-002", passengerName: "Trần Thị Bích", distanceKm: 5.0, isSurge: true, status: "COMPLETED" },
-    { id: "RIDE-003", passengerName: "", distanceKm: 8.2, isSurge: false, status: "IN_PROGRESS" },
-    { id: "RIDE-004", passengerName: "Lê Hoàng Cường", distanceKm: -1, isSurge: false, status: "CANCELLED" },
-    { id: "RIDE-005", passengerName: "Phạm Minh Đạt", distanceKm: 3.0, isSurge: true, status: "COMPLETED" }
+// Dữ liệu đầu vào giả lập
+var trips = [
+  { id: "R-001", passenger: "Nguyen Van A", distance: 1.5, isSurge: false },
+  { id: "R-002", passenger: "Tran Thi B <script>alert('xss')</script>", distance: 5.0, isSurge: true },
+  { id: "R-003", passenger: "Le Van C", distance: 12.0, isSurge: false },
+  { id: "R-004", passenger: "Pham Minh D", distance: 8.5, isSurge: true }
 ];
+
+// Mã nguồn cũ (CẦN TÁI CẤU TRÚC)
+function renderTripsBad() {
+  for (var i = 0; i < trips.length; i++) {
+    var fare = 0;
+    if (trips[i].distance <= 2) {
+      fare = 12000;
+    } else {
+      fare = 12000 + (trips[i].distance - 2) * 4500;
+    }
+    if (trips[i].isSurge) {
+      fare = fare * 1.2;
+    }
+
+    // TRUY XUẤT DOM LIÊN TỤC TRONG VÒNG LẶP + NGUY CƠ XSS + THAO TÁC INLINE STYLE
+    document.getElementById("trip-list").innerHTML += 
+      '<div class="trip-card" style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">' +
+        '<h3>Mã chuyến: ' + trips[i].id + '</h3>' +
+        '<p>Hành khách: ' + trips[i].passenger + '</p>' +
+        '<p>Khoảng cách: ' + trips[i].distance + ' km</p>' +
+        '<p>Cước phí: ' + fare + ' VNĐ</p>' +
+      '</div>';
+      
+    // Lại truy xuất DOM để tính tổng dồn
+    var currentTotal = parseFloat(document.getElementById("total-revenue").innerText || 0);
+    document.getElementById("total-revenue").innerText = currentTotal + fare;
+  }
+}
+renderTripsBad();
 ```
 
 ---
 
 
-### 5. Quy chuẩn nộp bài
+### 5. Yêu cầu kỹ thuật & Triển khai
 
 
-#### Cấu trúc thư mục dự án:
-```text
-bai-tap-11-grabride/
-├── index.html
-├── styles.css
-└── app.js
-```
+#### Phần 1: Báo cáo Phân tích (Viết trong file `README.md`)
+Chỉ ra ít nhất **4 điểm yếu nghiêm trọng** của đoạn mã cũ liên quan đến:
+1. Hiệu năng DOM (DOM Access in loop, Repaint/Reflow).
+2. Rủi ro bảo mật (XSS Injection với `innerHTML`).
+3. Khả năng bảo trì & Vi phạm nguyên lý Single Responsibility Principle (Dồn ép tính toán nghiệp vụ với render UI).
+4. Sai sót trong tính toán/định dạng (Chuyển đổi kiểu dữ liệu ép kiểu số thực `parseFloat` từ `innerText`).
 
 
-#### Yêu cầu file HTML cơ bản (`index.html`):
-```html
-<!DOCTYPE html>
-<html lang="vi">
-<head>
+#### Phần 2: Tái cấu trúc Mã nguồn (`script.js`)
+Viết lại toàn bộ chương trình tuân thủ các yêu cầu kỹ thuật sau:
+
+1. **Hàm thuần túy tính cước (Pure Business Logic):**
+   - Xây dựng hàm `calculateTripFare(distance, isSurge)` trả về số tiền cước đã tính toán.
+   - Thêm kiểm tra validation: Nếu `distance` không hợp lệ (nhỏ hơn hoặc bằng 0, không phải số), trả về `0`.
+
+2. **Hàm tạo phần tử DOM an toàn (UI Builder):**
+   - Xây dựng hàm `createTripCardNode(trip)` tạo ra phần tử DOM bằng `document.createElement()`.
+   - Gán nội dung văn bản bằng `textContent` (Tuyệt đối không dùng `innerHTML` gán trực tiếp dữ liệu từ `passenger`).
+   - Gán classCSS bằng `classList.add()` thay vì ghi đè thuộc tính `style`.
+
+3. **Tối ưu hóa thao tác DOM (Render Pipeline):**
+   - Thực hiện Caching DOM Query: Lưu trữ tham chiếu đến các thẻ container (`#trip-list`, `#total-revenue`, `#vip-count`, v.v.) ra ngoài vòng lặp.
+   - Sử dụng `document.createDocumentFragment()` để gộp tất cả card chuyến đi trước khi chèn 1 lần duy nhất vào DOM.
+
+4. **Cập nhật Bảng thống kê (Dashboard Summary):**
+   - TÍnh toán tổng doanh thu và tổng số chuyến VIP từ mảng dữ liệu đã xử lý.
+   - Cập nhật số liệu lên giao diện trong một hàm riêng biệt `updateDashboardSummary(totalRevenue, vipCount)`.
+
+*Lưu ý phạm vi kiến thức:* **KHÔNG** sử dụng `addEventListener`, `fetch`, `localStorage` hay sự kiện submit form. Chương trình tự động thực thi khi file JS được nạp.
+
+---
+
+
+### 6. Quy chuẩn nộp bài
+
+- **Cấu trúc thư mục dự án:**
+  ```text
+  student-id-grab-ride/
+  ├── index.html
+  ├── styles.css
+  ├── script.js
+  └── README.md
+  ```
+
+- **Mẫu HTML ban đầu (`index.html`):**
+  ```html
+  <!DOCTYPE html>
+  <html lang="vi">
+  <head>
     <meta charset="UTF-8">
-    <title>GrabRide CRM - Trip Dashboard</title>
+    <title>GrabRide Dashboard</title>
     <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Hệ Thống CRM GrabRide - Báo Cáo Chuyến Đi</h1>
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Mã chuyến</th>
-                    <th>Hành khách</th>
-                    <th>Khoảng cách</th>
-                    <th>Trạng thái</th>
-                    <th>Tổng cước phí</th>
-                </tr>
-            </thead>
-            <tbody id="trip-table-body">
-                <!-- Dữ liệu sẽ được render bằng DOM API -->
-            </tbody>
-        </table>
+      <h1>Hệ Thống Giám Sát Chuyến Đi GrabRide</h1>
+      
+      <div class="dashboard-summary">
+        <div class="summary-card">
+          <span>Tổng Doanh Thu:</span>
+          <strong id="total-revenue">0 VNĐ</strong>
+        </div>
+        <div class="summary-card">
+          <span>Chuyến VIP (>= 50k):</span>
+          <strong id="vip-count">0</strong>
+        </div>
+      </div>
+
+      <h2>Danh Sách Chuyến Đi Đang Hoạt Động</h2>
+      <div id="trip-list"></div>
     </div>
-    <script src="app.js"></script>
-</body>
-</html>
-```
-
-
-#### Yêu cầu file CSS (`styles.css`):
-Định nghĩa sẵn các class để `classList` trong JS truy xuất:
-```css
-.badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85em; }
-.badge-success { background-color: #d4edda; color: #155724; }
-.badge-warning { background-color: #fff3cd; color: #856404; }
-.badge-danger { background-color: #f8d7da; color: #721c24; }
-.text-error { color: #dc3545; font-style: italic; }
-```
+    <script src="script.js"></script>
+  </body>
+  </html>
+  ```
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Tái cấu trúc (Clean Code)** | **20đ** | - Tách biệt rõ ràng hàm `calculateTripFare`, `formatCurrencyVND` và `renderTripTable`.<br>- Đặt tên biến/hàm theo chuẩn CamelCase, có comment giải thích rõ ràng các bước xử lý. |
-| **Xử lý Logic Nghiệp vụ Cước phí** | **40đ** | - Tính đúng giá $2\text{ km}$ đầu ($12.000\text{ VNĐ}$) và các km tiếp theo ($4.500\text{ VNĐ/km}$).<br>- Nhân đúng hệ số $1.2x$ khi `isSurge === true` và làm tròn số (`Math.round`).<br>- Định dạng chuẩn tiền tệ VNĐ (ví dụ `30.600 VNĐ`). |
-| **Xử lý Biên & Dữ liệu Ngoại lệ** | **20đ** | - Bắt lỗi `distanceKm <= 0` hoặc không phải số: Không sập chương trình, hiển thị cước `$0\text{ VNĐ}$` và cảnh báo giao diện.<br>- Xử lý tên hành khách rỗng/null thành `"Khách ẩn danh"`. |
-| **Tối ưu Hiệu năng DOM API** | **20đ** | - Tuyệt đối **không** dùng `innerHTML` trong vòng lặp.<br>- Sử dụng `DocumentFragment` để gom thao tác DOM và chỉ append vào tbody 1 lần duy nhất.<br>- Dùng `createElement`, `textContent`, và `classList.add` đúng tiêu chuẩn bảo mật & hiệu năng. |
+| **Phân tích & Tái cấu trúc Kiến trúc** | **20đ** | - File `README.md` chỉ ra chính xác 4 lỗi code smell của mã nguồn cũ.<br>- Mã nguồn mới được chia nhỏ thành các hàm có trách nhiệm riêng biệt (Pure Function tính cước, Function tạo Node, Function render, Function update summary). |
+| **Thao tác DOM API & Tối ưu hiệu năng** | **20đ** | - Cache thành công các element DOM cố định.<br>- Sử dụng `DocumentFragment` để batching DOM node.<br>- Không gọi `document.getElementById/querySelector` bên trong vòng lặp.<br>- Sử dụng `textContent` thay cho `innerHTML` để chống XSS. |
+| **Logic Nghiệp vụ & Chính xác dữ liệu** | **40đ** | - Tính đúng cước phí 2km đầu ($12.000$) và từ km thứ 3 ($4.500$/km).<br>- Tính đúng hệ số phụ phí `isSurge` ($1.2x$).<br>- Định dạng chuẩn tiền tệ VNĐ.<br>- Tính chính xác tổng doanh thu và tổng số chuyến VIP trên Dashboard. |
+| **Xử lý Biên & Ngoại lệ** | **10đ** | - Xử lý an toàn khi mảng chuyến đi rỗng.<br>- Xử lý đúng dữ liệu `distance` không hợp lệ ($\le 0$, `null`, `undefined`, chuỗi không phải số).<br>- Xử lý dữ liệu chuỗi nguy hiểm (HTML injection) không bị thực thi script. |
+| **Phong cách Mã nguồn & Quy chuẩn UI** | **10đ** | - Đặt tên biến/hàm theo chuẩn CamelCase rõ nghĩa (`calculateTripFare`, `createTripCardNode`).<br>- CSS phân định rõ các class (`trip-card`, `trip-card--vip`, `trip-card--standard`).<br>- Thụt lề chuẩn, comment giải thích logic rõ ràng. |

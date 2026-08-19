@@ -1,9 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **1. Phân tích điểm yếu (Code Review & Analysis)** | **20đ** | - Phát hiện và giải thích chính xác 4 điểm yếu về hiệu năng DOM Reflow/Repaint, lặp Query DOM, inline style và spaghetti code.<br>- Nêu rõ lý do tại sao mã cũ gây chậm hệ thống. |
-| **2. Tối ưu hóa hiệu năng DOM (DOM Optimization)** | **25đ** | - Sử dụng `DocumentFragment` để thực hiện thao tác batch update DOM 1 lần duy nhất.<br>- Triển khai hàm `cacheDOMElements()` truy xuất DOM tối ưu, không gọi `querySelector` trong vòng lặp.<br>- Sử dụng `createElement` và `textContent` thay cho `innerHTML`. |
-| **3. Xử lý Logic Nghiệp vụ (Business Rules)** | **25đ** | - Tính toán chính xác định mức miễn phí và phí phạt cước 50.000 VNĐ/kg cho cả 3 hạng vé (Eco, Deluxe, Business).<br>- Phân loại đúng CSS class và Badge nhãn theo từng hạng vé.<br>- Thống kê chính xác: Tổng số khách, Tổng doanh thu cước, Số khách Business. |
-| **4. Xử lý Biên & Dữ liệu Ngoại lệ (Edge Cases)** | **15đ** | - Xử lý đúng khi danh sách mảng rỗng (`[]` hoặc `null`): Hiển thị Empty State trên DOM.<br>- Kiểm tra PNR đúng 6 ký tự alphanumeric, gắn class `.card-invalid` cho PNR lỗi.<br>- Chuẩn hóa khối lượng hành lý âm (`< 0`) hoặc không phải số về `0`. |
-| **5. Cấu trúc mã nguồn & Phong cách (Code Style)** | **15đ** | - Tách biệt rõ ràng Pure Functions (tính toán) và DOM Manipulation Functions.<br>- Không vi phạm danh mục Forbidden Scope (Không dùng Event listeners, Form submit, Fetch, LocalStorage).<br>- Code có comment giải thích rõ ràng bằng Tiếng Việt có dấu, đặt tên hàm/biến chuẩn `camelCase`. |

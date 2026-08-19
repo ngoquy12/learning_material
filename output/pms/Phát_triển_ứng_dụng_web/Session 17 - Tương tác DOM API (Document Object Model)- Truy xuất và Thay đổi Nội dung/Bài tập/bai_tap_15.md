@@ -1,58 +1,65 @@
-# Bài tập 15: EdTech (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
+# Bài tập 15: GRAB_RIDE (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
 
 ### 1. Mục tiêu bài tập
-- **Tư duy kiến trúc Module DOM**: Thiết kế và tổ chức một mini JavaScript rendering engine độc lập để quản lý UI hiển thị hóa đơn thanh toán cho hệ thống POS (Point of Sale).
-- **Thành thạo DOM Selection & Querying**: Áp dụng thành thạo các phương thức truy xuất phần tử DOM (`document.getElementById`, `document.querySelector`, `document.querySelectorAll`) với hiệu năng tối ưu.
-- **Thao tác Nội dung & Thuộc tính DOM**: Thực hành việc cập nhật động dữ liệu lên màn hình thông qua `textContent`, `innerHTML`, `setAttribute`, `removeAttribute` và thao tác với `classList` (`add`, `remove`, `toggle`).
-- **Xử lý Logic Nghiệp vụ & Format Dữ liệu**: Tính toán chuẩn xác các quy tắc nghiệp vụ ngành F&B/Retail và định dạng hiển thị tiền tệ (VND) trực tiếp trên cây DOM.
+- **Truy xuất và thao tác DOM Tree:** Thành thạo các phương thức tìm kiếm và bóc tách Element (`getElementById`, `querySelector`, `querySelectorAll`).
+- **Thay đổi nội dung & Thuộc tính:** Sử dụng linh hoạt `textContent`, `innerHTML`, `setAttribute`, `classList` (add, remove, toggle) và thay đổi Inline Style để cập nhật giao diện realtime.
+- **Thiết kế Mini Module:** Tổ chức mã nguồn JS theo kiến trúc Module (Namespace Object / Clean Code), tách biệt rõ ràng giữa phần xử lý logic tính toán cước phí và phần hiển thị dữ liệu ra DOM.
+- **Tư duy lập trình sản thực tế:** Áp dụng các quy tắc nghiệp vụ thực tế của ứng dụng gọi xe công nghệ (GrabRide) trong việc hiển thị hóa đơn, phụ phí thời tiết và thông tin tài xế.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Chuỗi thương hiệu Cà phê & Trà sữa **Highlands POS** đang nâng cấp giao diện hiển thị màn hình phụ cho khách hàng (Customer-Facing Display - CFD) tại quầy thanh toán. Mỗi khi thu ngân thao tác chọn món trên POS, hệ thống sẽ đẩy một đối tượng dữ liệu order (Order Data Object) vào giao diện rendering engine.
+Bạn là một Kỹ sư Phần mềm tại **GrabRide**. Đội ngũ UI/UX vừa bàn giao giao diện HTML/CSS mẫu cho màn hình **"Tóm tắt Hóa đơn & Thông tin Tài xế"** trên Web Dashboard. 
 
-Nhiệm vụ của bạn là xây dựng **Mini Module `POSReceiptEngine`** bằng JavaScript thuần. Module này có nhiệm vụ nhận dữ liệu đầu vào, tính toán các quy định chiết khấu/phụ thu, sau đó tiến hành truy xuất và cập nhật toàn bộ thông tin lên giao diện DOM Tree của hóa đơn một cách chính xác, minh bạch và chuyên nghiệp.
+Nhiệm vụ của bạn là xây dựng một **Mini Module JavaScript** để tiếp nhận dữ liệu chuyến đi (mock data), thực hiện tính toán cước phí theo đúng quy tắc nghiệp vụ, sau đó **truy xuất và cập nhật trực tiếp toàn bộ thông tin lên giao diện DOM** mà chưa cần dùng đến sự kiện (Event Listeners).
 
 ```mermaid
 graph TD
-    A[Order Data Object<br/>DrinkItems, Toppings, GoldMember] --> B[POSReceiptEngine]
-    B --> C{Tính Toán Logic Nghiệp Vụ}
-    C -->|Giá Đồ Uống| D[Subtotal Drinks: Base + Size S/M/L]
-    C -->|Phụ Thu Topping| E[Subtotal Toppings: 8.000 VNĐ/phần]
-    C -->|Thành Viên Vàng| F[Discount: -10% trên Tổng hóa đơn]
-    D & E & F --> G[Tổng Thanh Toán Final Total]
-    G --> H[DOM API Execution Engine]
-    H --> I[Cập nhật danh sách món<br/>innerHTML / Element Creation]
-    H --> J[Cập nhật Tổng tiền & Giảm giá<br/>textContent / Format VNĐ]
-    H --> K[Cập nhật Badge & Style Khách hàng<br/>classList / setAttribute]
+    A[Mock Data: RideBooking Object] --> B[Module: GrabFareApp]
+    B --> C{Xử lý Logic Nghiệp vụ}
+    C -->|Tính cước gốc| D[Base Fare Calculation]
+    C -->|Kiểm tra thời tiết/Giờ cao điểm| E[Surge Surcharge Calculation]
+    C -->|Áp dụng mã giảm giá| F[Discount Calculation]
+    D & E & F --> G[Tổng chi phí Final Fare]
+    G --> H[Thao tác DOM API]
+    H --> I[Query DOM Elements]
+    I --> J[Cập nhật textContent/innerHTML]
+    I --> K[Thay đổi classList/setAttribute/Style]
+    J & K --> L[Giao diện Dashboard hoàn chỉnh]
 ```
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-1. **Quy tắc Tính giá Kích thước Đồ uống (DrinkItem Size Extra Fee)**:
-   - Kích thước **Size S**: Không tăng giá (+0 VNĐ).
-   - Kích thước **Size M**: Tăng thêm **6.000 VNĐ** vào giá cơ bản của món.
-   - Kích thước **Size L**: Tăng thêm **10.000 VNĐ** vào giá cơ bản của món.
-   - *Công thức món:* `Giá 1 ly = (Giá_Gốc + Phụ_Thu_Size) * Số_Lượng`
 
-2. **Quy tắc Phụ thu Topping (Topping Extra Fee)**:
-   - Mỗi topping đi kèm có đơn giá cố định **8.000 VNĐ / phần**.
-   - *Công thức Topping:* `Tổng tiền Topping = Số_Lượng_Topping * 8.000 VNĐ`
 
-3. **Quy tắc Giảm giá Thành viên (Membership Discount)**:
-   - Nếu `isGoldMember === true` (Thành viên Vàng): Giảm **10%** trên tổng giá trị đơn hàng (bao gồm đồ uống + topping).
-   - *Công thức:*
-     - `Tạm tính = Tổng tiền Đồ uống + Tổng tiền Topping`
-     - `Tiền giảm giá = Tạm tính * 0.10` (nếu là Gold Member)
-     - `Tổng thanh toán = Tạm tính - Tiền giảm giá`
+#### A. Công thức tính cước phí (TripFare)
+1. **Giá cước cơ bản (Base Fare):**
+   - 2 km đầu tiên: Tính giá cố định **12.000 VNĐ**.
+   - Từ km thứ 3 trở đi: Tính **4.500 VNĐ / km** cho khoảng cách vượt quá 2 km.
+   - *Ví dụ:* Khoảng cách 5 km $\rightarrow$ 2 km đầu (12.000) + 3 km sau ($3 \times 4.500 = 13.500$) = **25.500 VNĐ**.
 
-4. **Quy tắc Định dạng & Hiển thị DOM**:
-   - Mọi số tiền hiển thị ra DOM phải được định dạng chuẩn Việt Nam Đồng (Ví dụ: `59.000 VNĐ` hoặc `59,000 đ`).
-   - Nếu khách hàng là **Thành viên Vàng**, phần tử HTML `#member-badge` phải gắn class `badge-gold`, xóa class `badge-standard`, và nội dung hiển thị: `"Thành Viên Vàng (-10%)"`.
-   - Nếu **không phải Thành viên Vàng**, `#member-badge` gắn class `badge-standard`, xóa class `badge-gold`, nội dung: `"Khách Hàng Thường"`.
+2. **Phụ phí thời tiết / Giờ cao điểm (Surge Surcharge):**
+   - Nếu `isPeakHour` hoặc `isRaining` bằng `true`: Tự động áp dụng hệ số nhân **1.2x** trên tổng giá cước cơ bản.
+   - Số tiền phụ phí = $\text{Giá cước cơ bản} \times 0.2$.
+
+3. **Mã khuyến mãi (Discount Code):**
+   - Mã `GRABNEW`: Giảm 20% trên tổng tiền (Cước cơ bản + Phụ phí), giảm tối đa **15.000 VNĐ**.
+   - Mã `XEMAY10`: Giảm trực tiếp **10.000 VNĐ**.
+   - Mã không hợp lệ hoặc không có: Giảm **0 VNĐ**.
+
+4. **Tổng tiền thanh toán cuối cùng (Final Fare):**
+   $$\text{Final Fare} = \max(0, \text{Base Fare} + \text{Surcharge} - \text{Discount})$$
+
+
+#### B. Định dạng và Hiển thị
+- Toàn bộ giá tiền hiển thị ra màn hình phải được định dạng theo chuẩn tiền tệ Việt Nam (Ví dụ: `25.500 VNĐ`).
+- Trạng thái chuyến đi (`status`) quy định màu sắc và nội dung Badge:
+  - `"COMPLETED"`: Thêm class `badge-success`, chữ hiển thị **"Hoàn thành"**.
+  - `"IN_PROGRESS"`: Thêm class `badge-warning`, chữ hiển thị **"Đang di chuyển"**.
+  - `"CANCELLED"`: Thêm class `badge-danger`, chữ hiển thị **"Đã hủy"**.
 
 ---
 
@@ -60,114 +67,122 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Cấu trúc DOM HTML Mẫu (`index.html`)
-Bạn cần tạo file `index.html` với giao diện khung hóa đơn như sau:
+#### A. Mã nguồn HTML Mẫu (`index.html`)
+Học viên tạo file `index.html` với cấu trúc ID và Class cố định như sau:
+
 ```html
-<div id="pos-receipt-app">
-  <!-- Thẻ thông tin khách hàng -->
-  <div class="customer-info">
-    <span>Khách hàng: <strong id="customer-name">---</strong></span>
-    <span id="member-badge" class="badge">---</span>
-  </div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>GrabRide - Summary Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="booking-card" class="card">
+        <!-- Header status -->
+        <div class="card-header">
+            <h2>Mã chuyến đi: <span id="booking-id">#---</span></h2>
+            <span id="booking-status-badge" class="badge">Đang tải...</span>
+        </div>
 
-  <!-- Danh sách đồ uống -->
-  <ul id="drink-list" class="receipt-list"></ul>
+        <!-- Driver Info -->
+        <div class="driver-section">
+            <img id="driver-avatar" src="" alt="Avatar Tài xế" width="80" height="80">
+            <div>
+                <h3 id="driver-name">Tên tài xế</h3>
+                <p>Biển số: <span id="driver-plate">---</span></p>
+                <p>Đánh giá: <span id="driver-rating">0.0</span> </p>
+            </div>
+        </div>
 
-  <!-- Danh sách topping -->
-  <ul id="topping-list" class="receipt-list"></ul>
+        <!-- Trip Details -->
+        <div class="trip-details">
+            <p>Khách hàng: <strong id="passenger-name">---</strong></p>
+            <p>Khoảng cách: <span id="distance-val">0</span> km</p>
+            <p>Trạng thái thời tiết: <span id="weather-info">---</span></p>
+        </div>
 
-  <!-- Bảng tính tiền -->
-  <div id="receipt-summary">
-    <p>Tạm tính đồ uống: <span id="drinks-subtotal">0 VNĐ</span></p>
-    <p>Tạm tính topping: <span id="toppings-subtotal">0 VNĐ</span></p>
-    <p>Giảm giá thành viên: <span id="discount-amount">0 VNĐ</span></p>
-    <hr />
-    <h3>TỔNG THÁNH TOÁN: <span id="final-total">0 VNĐ</span></h3>
-  </div>
+        <!-- Fare Breakdown -->
+        <div id="fare-container" class="fare-breakdown">
+            <div class="fare-row"><span>Cước cơ bản:</span> <span id="base-fare">0 VNĐ</span></div>
+            <div class="fare-row"><span>Phụ phí cao điểm/mưa:</span> <span id="surcharge-fare">0 VNĐ</span></div>
+            <div class="fare-row"><span>Giảm giá (<span id="promo-code-applied">KTM</span>):</span> <span id="discount-fare">-0 VNĐ</span></div>
+            <hr>
+            <div class="fare-row total"><span>TỔNG THANH TOÁN:</span> <strong id="total-fare">0 VNĐ</strong></div>
+        </div>
 
-  <!-- Thông báo trạng thái đơn hàng -->
-  <div id="receipt-status" data-status="pending">Trạng thái: Chờ xử lý</div>
-</div>
+        <!-- Alert Notification area -->
+        <div id="alert-box" class="alert hidden"></div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
 ```
 
 
-#### 4.2. Khai báo Đối tượng Dữ liệu Mẫu (Order Data)
+#### B. Thiết kế Mini Module JavaScript (`main.js`)
+Bạn cần tổ chức code theo đối tượng `GrabFareApp` bao gồm các phương thức bắt buộc sau:
+
+1. `calculateFare(distance, isPeakOrRain, promoCode)`: Hàm thuần logic (Pure function) nhận vào khoảng cách (km), trạng thái thời tiết/giờ cao điểm (boolean), mã giảm giá (string). Trả về object chứa `{ baseFare, surcharge, discount, totalFare }`.
+2. `renderDriverInfo(driverData)`: Truy xuất DOM và cập nhật thông tin tài xế (`#driver-name`, `#driver-plate`, `#driver-rating`, thuộc tính `src` của `#driver-avatar`).
+3. `renderFareDetails(fareDetails, promoCode)`: Cập nhật các số tiền tương ứng vào các thẻ HTML (`#base-fare`, `#surcharge-fare`, `#discount-fare`, `#promo-code-applied`, `#total-fare`).
+4. `renderStatusBadge(status)`: Thay đổi class và textContent cho `#booking-status-badge`.
+5. `renderErrorMessage(message)`: Nếu khoảng cách $\le 0$, kích hoạt phần tử `#alert-box` (xóa class `hidden`, thêm class `alert-danger`, gán `textContent`), đồng thời ẩn bảng tính tiền `#fare-container` bằng thuộc tính `style.display = "none"`.
+6. `init(bookingData)`: Hàm điều khiển chính (Controller) nhận dữ liệu chuyến đi, gọi các hàm render để hoàn tất hiển thị giao diện.
+
+
+#### C. Dữ liệu thử nghiệm (Mock Data)
+Thêm đoạn code mock data và lời gọi hàm khởi chạy ở cuối file `main.js`:
+
 ```javascript
-const sampleOrderData = {
-  orderId: "HD-HIGHLANDS-9982",
-  customerName: "Nguyễn Văn A",
-  isGoldMember: true,
-  drinks: [
-    { id: "D1", name: "Trà Pốt Vải", size: "M", basePrice: 45000, quantity: 2 },
-    { id: "D2", name: "Phin Sữa Đá", size: "L", basePrice: 35000, quantity: 1 }
-  ],
-  toppings: [
-    { id: "T1", name: "Thạch Đào", quantity: 2 },
-    { id: "T2", name: "Kem Cheese", quantity: 1 }
-  ]
+// Mock Data đầu vào
+const mockBookingData = {
+    bookingId: "GRB-89234-VN",
+    status: "COMPLETED", // "COMPLETED" | "IN_PROGRESS" | "CANCELLED"
+    passengerName: "Nguyen Van A",
+    distance: 7.5, // Số km (Thử nghiệm các trường hợp: 1.5, 7.5, 0, -3)
+    isPeakOrRain: true,
+    promoCode: "GRABNEW",
+    driver: {
+        name: "Trần Văn Tài",
+        licensePlate: "29A-888.99",
+        rating: 4.9,
+        avatarUrl: "https://via.placeholder.com/80"
+    }
 };
+
+// Khởi chạy Mini Module
+GrabFareApp.init(mockBookingData);
 ```
 
 
-#### 4.3. Yêu cầu Cấu trúc Module JavaScript (`app.js`)
-Xây dựng một Module Object tên là `POSReceiptEngine` chứa các phương thức xử lý DOM sau:
-
-1. `POSReceiptEngine.formatCurrency(amount)`:
-   - Nhận vào một số nguyên, trả về chuỗi tiền tệ định dạng `XX.XXX VNĐ`.
-
-2. `POSReceiptEngine.renderDrinkList(drinks)`:
-   - Truy xuất phần tử `#drink-list`.
-   - Tạo các thẻ `<li>` hiển thị thông tin từng đồ uống dạng:  
-     `[Tên món] (Size [Size]) x[Số lượng] - [Tổng tiền từng món] VNĐ`
-   - Cập nhật danh sách vào DOM thông qua `innerHTML` hoặc thao tác node DOM.
-
-3. `POSReceiptEngine.renderToppingList(toppings)`:
-   - Truy xuất phần tử `#topping-list`.
-   - Tạo các thẻ `<li>` hiển thị topping:  
-     `Topping: [Tên Topping] x[Số lượng] - [Tổng tiền Topping] VNĐ`
-   - Cập nhật danh sách vào DOM.
-
-4. `POSReceiptEngine.updateCustomerBadge(customerName, isGoldMember)`:
-   - Truy xuất `#customer-name` và cập nhật `textContent`.
-   - Truy xuất `#member-badge`. Sử dụng `classList.add`, `classList.remove` để đổi trạng thái badge. Cập nhật `textContent` tương ứng.
-
-5. `POSReceiptEngine.calculateAndRenderSummary(drinks, toppings, isGoldMember)`:
-   - Tính toán đầy đủ: Tạm tính đồ uống, tạm tính topping, số tiền giảm giá, tổng thanh toán cuối cùng.
-   - Truy xuất và dùng `textContent` cập nhật giá trị vào `#drinks-subtotal`, `#toppings-subtotal`, `#discount-amount`, `#final-total`.
-   - Cập nhật thuộc tính `data-status` của `#receipt-status` thành `"rendered"` bằng `setAttribute`.
-
-6. `POSReceiptEngine.init(orderData)`:
-   - Phương thức khởi chạy chính, nhận `orderData` làm tham số và gọi lần lượt các hàm render/cập nhật ở trên để hoàn tất render giao diện.
-
-> **CẤM SỬ DỤNG (FORBIDDEN SCOPE)**:
-> - Không dùng Event Listeners (`addEventListener`, `onclick`, `onchange`).
-> - Không dùng Form Submit.
-> - Không dùng Fetch API hay AJAX.
-> - Không dùng `localStorage` / `sessionStorage`.
-> - *Mọi thao tác đều thực thi thông qua việc gọi hàm `POSReceiptEngine.init(sampleOrderData);` ngay sau khi DOM sẵn sàng.*
+#### D. Ràng buộc kỹ thuật nghiêm ngặt (Forbidden Scope)
+- **TUYỆT ĐỐI KHÔNG** sử dụng Event Listener (`addEventListener`, `onclick`, `onsubmit`, v.v.).
+- **TUYỆT ĐỐI KHÔNG** sử dụng `Fetch API`, `XMLHttpRequest` hay `LocalStorage`.
+- Bắt buộc dùng đúng các phương thức DOM: `getElementById`, `querySelector`, `textContent`, `innerHTML`, `setAttribute`, `classList.add`, `classList.remove`, `style`.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục dự án**:
+- **Cấu trúc thư mục:**
   ```text
-  student-id_pos-receipt-engine/
+  [Họ_Và_Tên]_HW15/
   ├── index.html
-  ├── style.css (tùy chọn styling cho đẹp mắt)
-  └── app.js
+  ├── style.css
+  └── main.js
   ```
-- **Quy định đặt tên**:
-  - Mã bài tập: `POS_DOM_MODULE`
-  - Tên file HTML: `index.html`
-  - Tên file JS: `app.js`
-- **Cách thức chạy bài**: File `app.js` được nhúng vào cuối file `index.html` (trước thẻ đóng `</body>`), tự động gọi `POSReceiptEngine.init(sampleOrderData)` để render giao diện ngay khi tải trang.
+- File `main.js` cần được comment giải thích rõ từng phương thức và luồng xử lý DOM.
+- Tên các thuộc tính/hàm phải tuân thủ đúng yêu cầu đề bài.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Mã nguồn được tổ chức sạch sẽ theo dạng Module Object (`POSReceiptEngine`).<br>- Đặt tên biến, hàm theo chuẩn CamelCase (rõ nghĩa, đúng tiếng Anh chuyên ngành).<br>- Có comment giải thích logic rõ ràng cho từng phương thức DOM. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính đúng phụ thu Size món: M (+6.000đ), L (+10.000đ), S (+0đ).<br>- Tính đúng phụ thu Topping (8.000đ / phần).<br>- Tính đúng 10% giảm giá cho Gold Member.<br>- Định dạng chuẩn tiền tệ VNĐ (có phân cách hàng nghìn). |
-| **Thao tác DOM API & Rendering** | **20đ** | - Truy xuất chính xác các phần tử bằng `getElementById` hoặc `querySelector`.<br>- Sử dụng linh hoạt `textContent`, `innerHTML` để chèn nội dung.<br>- Thao tác class thành thạo với `classList.add()` / `classList.remove()`.<br>- Cập nhật thuộc tính thành công qua `setAttribute()`. |
-| **Xử lý Biên & Tối ưu hiệu năng** | **20đ** | - Kiểm soát trường hợp mảng `drinks` hoặc `toppings` rỗng (hiển thị thông báo phù hợp thay vì để trắng hoặc lỗi JS).<br>- Kiểm tra sự tồn tại của phần tử DOM trước khi thao tác để tránh lỗi Null Reference.<br>- Thuật toán duyệt mảng và tạo chuỗi DOM tối ưu, không gọi DOM API lặp đi lặp lại trong vòng lặp lớn. |
+| **1. Cấu trúc Module & Phong cách mã nguồn** | **20đ** | - Thiết kế module `GrabFareApp` rõ ràng, tách biệt logic tính toán và logic thao tác DOM (10đ).<br>- Định dạng code chuẩn JavaScript (CamelCase, thụt lề, comment giải thích đầy đủ) (10đ). |
+| **2. Logic Nghiệp vụ Tính toán Cước phí** | **30đ** | - Tính đúng Cước cơ bản (2km đầu 12k, km tiếp theo 4.5k/km) (10đ).<br>- Tính đúng Phụ phí thời tiết/cao điểm (hệ số 1.2x) (10đ).<br>- Áp dụng chính xác quy tắc của các mã giảm giá `GRABNEW`, `XEMAY10` (10đ). |
+| **3. Thao tác DOM API & Cập nhật Giao diện** | **30đ** | - Truy xuất chính xác các phần tử DOM qua ID/Class theo yêu cầu (10đ).<br>- Cập nhật nội dung văn bản (`textContent`) và định dạng tiền tệ Việt Nam (`toLocaleString`) chuẩn xác (10đ).<br>- Thao tác thuộc tính linh hoạt (`setAttribute` cho ảnh đại diện, `classList` cho Badge trạng thái) (10đ). |
+| **4. Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Hiển thị lỗi rõ ràng khi dữ liệu khoảng cách không hợp lệ ($D \le 0$) qua `#alert-box` và ẩn bảng tính tiền (10đ).<br>- Xử lý an toàn khi mã giảm giá không tồn tại hoặc giảm giá vượt quá tổng tiền (10đ). |
+| **Tổng điểm** | **100đ** | **Đạt yêu cầu tối thiểu: 70/100 điểm.** |

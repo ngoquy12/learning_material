@@ -1,175 +1,178 @@
-# Bài tập 3: FinTech (Mức độ 1: Cơ bản - Debug lỗi)
+# Bài tập 3: GRAB_RIDE (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-- **Phát hiện và sửa lỗi DOM Selection:** Phân biệt chính xác giữa `getElementById`, `querySelector`, và `getElementsByClassName` (hiểu rõ sự khác biệt giữa phần tử đơn lẻ và `HTMLCollection`).
-- **Thao tác đọc/ghi thuộc tính và nội dung DOM:** Phân biệt và sử dụng đúng các thuộc tính `textContent`, `innerHTML`, `getAttribute` thay vì sử dụng sai thuộc tính `.value` trên các thẻ non-input (`div`, `span`).
-- **Xử lý ép kiểu dữ liệu tài chính:** Chuyển đổi dữ liệu chuỗi (`string`) thu thập từ DOM sang kiểu số (`number`) để thực hiện các phép toán tính lương, tiền phạt và định dạng tiền tệ Việt Nam (`VNĐ`).
-- **Thao tác Class và Style linh hoạt:** Sử dụng `classList` để thay đổi trạng thái hiển thị của phần tử DOM theo quy tắc nghiệp vụ chấm công.
+- **Truy xuất DOM Element chính xác**: Nhận diện và sửa các lỗi phổ biến khi chọn phần tử HTML bằng `document.getElementById()` và `document.querySelector()`.
+- **Thao tác dữ liệu & Thuộc tính DOM**: Đọc dữ liệu từ thuộc tính tùy biến `data-*` (`getAttribute` / `dataset`) và sửa lỗi ép kiểu dữ liệu từ `String` sang `Number` trong JavaScript.
+- **Thay đổi nội dung & Style phần tử**: Phân biệt và sử dụng đúng `innerText` / `textContent` thay vì `.value` trên các thẻ không phải thẻ nhập liệu (`input`), sửa lỗi gọi phương thức trên `classList`.
+- **Đảm bảo tính chính xác của nghiệp vụ**: Cập nhật thông tin phiếu chuyến đi GrabRide (khoảng cách, phụ phí cao điểm, tổng cước phí) lên giao diện người dùng đúng chuẩn quy tắc tính cước.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là một Kỹ sư Phần mềm tại công ty FinTech chuyên phát triển hệ thống **HRM (Human Resource Management)**. Bạn được giao nhiệm vụ khắc phục lỗi trên giao diện **"Phiếu Chấm Công & Tính Lương Ngày"** của nhân viên thuộc hệ thống `HR_ATTENDANCE`.
+Trong ứng dụng gọi xe **GrabRide**, sau khi chuyến đi hoàn thành, hệ thống cần hiển thị **Phiếu tóm tắt chuyến đi (Ride Fare Summary)** cho tài xế và hành khách. 
 
-Hiện tại, trang web hiển thị bảng chấm công của nhân viên đang gặp lỗi nghiêm trọng do lập trình viên cũ truy xuất và thao tác DOM sai cách:
-- Tiền phạt đi muộn không cập nhật được.
-- Tổng lương thực nhận hiển thị ra chữ `undefined` hoặc lỗi chuỗi.
-- Thẻ cảnh báo vi phạm đi muộn bị hiển thị nguyên văn đoạn mã HTML dạng thô (`<strong class="...">...</strong>`) ra màn hình thay vì render giao diện.
+Một lập trình viên tập sự (Fresher) đã viết đoạn code HTML/JS để đọc thông tin chuyến đi từ thẻ chứa dữ liệu `trip-info`, tính toán cước phí và cập nhật thông tin lên giao diện. Tuy nhiên, khi chạy thử nghiệm, màn hình hiển thị bị lỗi hoàn toàn: cước phí hiển thị sai (hoặc hiển thị `NaN`), thẻ phụ phí không đổi màu và giao diện không cập nhật đúng thông tin.
 
 ```mermaid
 graph TD
-    A[Dữ liệu DOM ban đầu: data-base-salary, late-minutes, ot-hours] --> B[Truy xuất DOM Element]
-    B --> C{Ép kiểu & Tính toán Nghiệp vụ}
-    C -->|Lương 1h = Lương ngày / 8| D[Tính Lương OT: 150%]
-    C -->|Đi muộn > 15p| E[Trừ Phạt: 50.000 VNĐ]
-    D --> F[Tính Lương Thực Nhận]
-    E --> F
-    F --> G[Cập nhật DOM: innerHTML / textContent / classList]
+    A[HTML DOM Element trip-info] -->|Chứa data-distance & data-is-surge| B(Đoạn code JS đang bị lỗi)
+    B -->|Bug 1: Lỗi Selector| C[Không tìm thấy Element]
+    B -->|Bug 2: Lỗi .value trên <span>| D[Không gán được Text]
+    B -->|Bug 3: Nối chuỗi thay vì cộng số| E[Tính sai Cước phí]
+    B -->|Bug 4: Sai cú pháp classList| F[Giao diện không đổi style]
+    G[Yêu cầu Học viên] -->|Debug & Sửa lỗi| H[Giao diện hiển thị đúng Cước phí GrabRide]
 ```
 
-Nhiệm vụ của bạn là kiểm tra mã nguồn `index.html` và `app.js`, **tìm ra 4 lỗi sai về DOM**, giải thích nguyên nhân và viết lại mã JavaScript chính xác.
+Nhiệm vụ của bạn là kiểm tra đoạn mã bị lỗi, phát hiện các lỗi sai, giải thích nguyên nhân và viết lại mã JavaScript hoàn chỉnh để ứng dụng hiển thị đúng thông tin.
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-1. **Lương cơ bản theo giờ:** 
-   $$\text{Lương 1 giờ tiêu chuẩn} = \frac{\text{Lương cơ bản ngày}}{8}$$
-2. **Quy tắc phạt đi muộn (Late Penalty):**
-   - Số phút đi muộn (`lateMinutes`) lấy từ phần tử `.late-minutes`.
-   - Nếu `lateMinutes > 15`: Tiền phạt = `50,000 VNĐ`. Đồng thời phần tử `#penalty-status` phải hiển thị thẻ cảnh báo HTML `<strong class="alert-tag">CẢNH BÁO: ĐI MUỘN TRỪ 50.000 VNĐ</strong>` và thêm class CSS `text-danger` vào `#penalty-status`.
-   - Nếu `lateMinutes <= 15`: Tiền phạt = `0 VNĐ`, hiển thị text: `"Đúng giờ / Vi phạm trong phạm vi cho phép"`.
-3. **Quy tắc tính lương OT ngày thường (Overtime Pay):**
-   - Giờ làm ngoài giờ (`otHours`) lấy từ `#ot-hours`.
-   $$\text{Lương OT} = \text{otHours} \times (\text{Lương 1 giờ tiêu chuẩn} \times 1.5)$$
-4. **Tính Lương Thực Nhận (Net Salary):**
-   $$\text{Lương Thực Nhận} = \text{Lương cơ bản ngày} + \text{Lương OT} - \text{Tiền phạt}$$
-5. **Quy chuẩn hiển thị:** Tất cả số tiền hiển thị lên giao diện (Lương OT, Lương thực nhận) phải được định dạng theo chuẩn tiền tệ Việt Nam (Ví dụ: `525,000 VNĐ` hoặc sử dụng `toLocaleString('vi-VN')`).
+1. **Giá cước cơ bản (Base Fare)**:
+   - **2 km đầu tiên**: Giá cố định **12.000 VNĐ**.
+   - **Từ km thứ 3 trở đi**: Mới tính thêm **4.500 VNĐ/km** cho các km phát sinh sau 2 km đầu.
+   - *Công thức tính cước cơ bản ($d$ là số km)*:
+     - Nếu $d \le 2$: `cước_cơ_bản = 12000`
+     - Nếu $d > 2$: `cước_cơ_bản = 12000 + (d - 2) * 4500`
+
+2. **Phụ phí cao điểm / Thời tiết (Surge Multiplier)**:
+   - Dữ liệu `data-is-surge` dạng chuỗi `"true"` hoặc `"false"`.
+   - Nếu `data-is-surge` là `"true"`: Nhân hệ số **1.2x** vào cước cơ bản (`tổng_cước = cước_cơ_bản * 1.2`). Đồng thời, đổi nội dung phần tử phụ phí thành `"Có áp dụng (1.2x)"` và thêm class `active-surge`.
+   - Nếu `data-is-surge` là `"false"`: Không nhân hệ số. Giữ nguyên nội dung phụ phí `"Không áp dụng"`.
+
+3. **Định dạng hiển thị tiền tệ**:
+   - Tổng cước phí sau khi tính toán phải được làm tròn nguyên (hoặc định dạng chuỗi) và nối với đơn vị `" VNĐ"` (Ví dụ: `28.200 VNĐ` hoặc `28200 VNĐ`).
 
 ---
 
 
-### 4. Yêu cầu kỹ thuật & Triển khai
+### 4. Mã nguồn bị lỗi (Buggy Code)
+
+Học viên nghiên cứu file `index.html` và file `app.js` chứa mã nguồn bị lỗi dưới đây:
 
 
-#### Mã nguồn ban đầu (Cần Debug)
-
-**File `index.html`:**
+#### File `index.html`:
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Phiếu Chấm Công & Tính Lương - HR_ATTENDANCE</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>GrabRide - Phiếu Chuyến Đi</title>
+  <style>
+    .card { border: 1px solid #ccc; padding: 16px; width: 320px; font-family: Arial; }
+    .badge { padding: 4px 8px; background: #eee; border-radius: 4px; }
+    .active-surge { background: #ff4d4f; color: white; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="payroll-card">
-        <h2>PHIẾU TÍNH LƯƠNG NGÀY</h2>
-        <div id="emp-info" data-base-salary="400000">
-            Nhân viên: <strong>Nguyễn Văn A (NV-8821)</strong>
-        </div>
-        
-        <div class="attendance-detail">
-            <p>Số phút đi muộn: <span class="late-minutes">20</span> phút</p>
-            <p>Số giờ làm OT: <span id="ot-hours">2</span> giờ</p>
-        </div>
+  <div id="booking-card" class="card">
+    <h2>Chuyến đi #GRB-8821</h2>
+    <p>Tài xế: <span id="driver-name">Nguyễn Văn A</span></p>
+    
+    <!-- Phần tử chứa dữ liệu ẩn của chuyến đi -->
+    <div id="trip-info" data-distance="5.5" data-is-surge="true"></div>
 
-        <div class="salary-summary">
-            <p>Trạng thái phạt: <span id="penalty-status">Chưa cập nhật</span></p>
-            <p>Tiền lương OT: <span id="ot-salary">0 VNĐ</span></p>
-            <p class="total">LƯƠNG THỰC NHẬN: <span id="net-salary">0 VNĐ</span></p>
-        </div>
-    </div>
+    <p>Khoảng cách: <span id="distance-display">0</span> km</p>
+    <p>Phụ phí cao điểm: <span id="surge-badge" class="badge">Không áp dụng</span></p>
+    <p>Tổng cước phí: <strong id="total-fare">0 VNĐ</strong></p>
+  </div>
 
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
 ```
 
-**File `app.js` (Mã nguồn chứa lỗi):**
+
+#### File `app.js` (Chứa 4-5 lỗi cần debug):
 ```javascript
-// =========================================================
-// MÃ NGUỒN ĐANG BỊ LỖI - HỌC VIÊN CẦN DEBUG VÀ SỬA LẠI
-// =========================================================
+// =================================================================
+// ĐOẠN CODE BỊ LỖI DO LAP TRINH VIEN TAP SU VIET
+// =================================================================
 
-// LỖI 1: Truy xuất số phút đi muộn
-var lateMinutesEl = document.getElementsByClassName('late-minutes');
-var lateMinutes = lateMinutesEl.textContent; 
+// Bug 1: Thao tác truy xuất DOM sai cú pháp ID
+const distanceDisplay = document.getElementById("#distance-display");
 
-// LỖI 2: Đọc thuộc tính lương cơ bản và giờ OT
-var baseSalaryAttr = document.getElementById('emp-info').getAttribute('data-base-salary');
-var otHoursText = document.getElementById('ot-hours').textContent;
+// Đọc dữ liệu từ data attribute
+const tripInfoEl = document.getElementById("trip-info");
+const rawDistance = tripInfoEl.getAttribute("data-distance"); // "5.5"
+const isSurge = tripInfoEl.getAttribute("data-is-surge");    // "true"
 
-// Tính toán nghiệp vụ
-var baseSalary = baseSalaryAttr; // Chưa ép kiểu số
-var otHours = otHoursText;       // Chưa ép kiểu số
+// Bug 2: Sử dụng thuộc tính sai đối với thẻ <span>
+distanceDisplay.value = rawDistance;
 
-var hourlyWage = baseSalary / 8;
-var otSalary = otHours * hourlyWage * 1.5;
-
-var penalty = 0;
-var penaltyStatusEl = document.getElementById('penalty-status');
-
-// LỖI 3: Hiển thị thẻ HTML cảnh báo phạt
-if (lateMinutes > 15) {
-    penalty = 50000;
-    penaltyStatusEl.textContent = '<strong class="alert-tag">CẢNH BÁO: ĐI MUỘN TRỪ 50.000 VNĐ</strong>';
-    penaltyStatusEl.classList.add('text-danger');
+// Tính cước phí cơ bản
+let baseFare = 0;
+// Bug 3: Phép toán sai do không ép kiểu rawDistance từ String sang Number
+if (rawDistance <= 2) {
+    baseFare = 12000;
 } else {
-    penaltyStatusEl.textContent = 'Đúng giờ / Vi phạm trong phạm vi cho phép';
+    // Phép tính có thể bị lỗi logic hoặc sai số do string coercion
+    baseFare = 12000 + (rawDistance - 2) * 4500;
 }
 
-var netSalary = baseSalary + otSalary - penalty;
+let totalFare = baseFare;
 
-// LỖI 4: Gán kết quả vào phần tử hiển thị tổng lương
-var otSalaryEl = document.getElementById('ot-salary');
-var netSalaryEl = document.getElementById('net-salary');
+// Bug 4: So sánh sai kiểu dữ liệu của isSurge (String vs Boolean)
+if (isSurge === true) {
+    totalFare = baseFare * 1.2;
+    
+    const surgeBadgeEl = document.getElementById("surge-badge");
+    surgeBadgeEl.innerText = "Có áp dụng (1.2x)";
+    
+    // Bug 5: Sử dụng sai cú pháp của phương thức classList.add
+    surgeBadgeEl.classList.add = "active-surge";
+}
 
-otSalaryEl.textContent = otSalary.toLocaleString('vi-VN') + ' VNĐ';
-netSalaryEl.value = netSalary.toLocaleString('vi-VN') + ' VNĐ';
+// Cập nhật tổng tiền lên giao diện
+const totalFareEl = document.getElementById("total-fare");
+totalFareEl.innerText = totalFare + " VNĐ";
 ```
 
 ---
 
 
-#### Yêu cầu chi tiết của bài tập:
+### 5. Yêu cầu kỹ thuật & Triển khai
 
-1. **Báo cáo Lỗi (Debug Report):**
-   - Viết phần ghi chú (Comment) ở đầu file `app.js` chỉ rõ **4 vị trí dòng mã bị lỗi**, giải thích **nguyên nhân kỹ thuật** vì sao lỗi xảy ra.
-2. **Khắc phục Lỗi (Code Fix):**
-   - Sửa Lỗi 1: Truy xuất đúng phần tử từ `getElementsByClassName` hoặc đổi sang dùng `querySelector`.
-   - Sửa Lỗi 2: Thực hiện ép kiểu dữ liệu từ `String` sang `Number` (sử dụng `Number()` hoặc `parseInt()`) trước khi thực hiện các phép toán.
-   - Sửa Lỗi 3: Sử dụng thuộc tính thích hợp (`innerHTML`) để render thẻ HTML cảnh báo thay vì `textContent`.
-   - Sửa Lỗi 4: Thay thế `.value` bằng thuộc tính DOM đúng để cập nhật nội dung hiển thị cho thẻ `<span>` (`#net-salary`).
-3. **Kết quả đầu ra mong đợi trên giao diện:**
-   - Số phút đi muộn đọc được: `20`.
-   - Lương cơ bản ngày: `400,000 VNĐ` $\rightarrow$ Lương 1 giờ: `50,000 VNĐ`.
-   - Lương OT (2 giờ): $2 \times 50,000 \times 1.5 = 150,000\text{ VNĐ}$.
-   - Phạt đi muộn (20 phút > 15 phút): `50,000 VNĐ`.
-   - Lương thực nhận: $400,000 + 150,000 - 50,000 = 500,000\text{ VNĐ}$.
-   - Trạng thái phạt hiển thị dòng chữ in đậm đỏ: **CẢNH BÁO: ĐI MUỘN TRỪ 50.000 VNĐ**.
+Học viên cần thực hiện 2 phần trong bài nộp:
+
+
+#### Phần 1: Báo cáo Debug (Ghi trong file `DEBUG_LOG.md` hoặc comment đầu file JS)
+Lập bảng danh sách các lỗi đã phát hiện theo mẫu:
+| STT | Vị trí (Dòng/Tên biến) | Nguyên nhân gây lỗi | Cách khắc phục |
+| :--- | :--- | :--- | :--- |
+| 1 | `document.getElementById("#distance-display")` | Truyền nhầm ký tự `#` vào `getElementById` làm kết quả trả về `null` | Xóa dấu `#`, chỉ truyền `"distance-display"` |
+| ... | ... | ... | ... |
+
+
+#### Phần 2: Mã nguồn hoàn chỉnh (`app.js`)
+- Sửa lại toàn bộ các lỗi đã liệt kê.
+- Ép kiểu `rawDistance` sang kiểu số (`Number()` hoặc `parseFloat()`).
+- Đảm bảo kiểm tra phần tử tồn tại trước khi thao tác (Null check cơ bản).
+- Sử dụng đúng `innerText` / `textContent` cho thẻ `<span>`.
+- Đảm bảo gọi đúng phương thức `classList.add("active-surge")`.
+- Định dạng tiền tệ hiển thị rõ ràng (Khuyến khích dùng `Math.round()` hoặc `toLocaleString('vi-VN')`).
 
 ---
 
 
-### 5. Quy chuẩn nộp bài
-- Cấu trúc thư mục dự án:
+### 6. Quy chuẩn nộp bài
+- **Cấu trúc thư mục**:
   ```text
-  student_id_session17_hw1/
+  grab-ride-debug/
   ├── index.html
-  ├── style.css
-  └── app.js
+  ├── app.js
+  └── DEBUG_LOG.md
   ```
-- File `app.js` phải chứa phần giải thích lỗi chi tiết trong khối comment `/* ... */` và phần mã nguồn đã được sửa hoàn chỉnh.
-- **Ràng buộc:** Không sử dụng Event Listeners (`addEventListener`), không sử dụng Form Submit, Fetch API hay LocalStorage. Tất cả các thao tác DOM phải chạy trực tiếp ngay khi nạp xong script.
+- **Quy định đặt tên**: Thư mục nộp bài nén dạng `.zip` với tên `[HoTen]_[MSHV]_Session17_HW3.zip`.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Báo cáo Debug** | 20đ | - Thư mục bài nộp đúng chuẩn quy định.<br>- Viết comment mô tả chính xác 4 lỗi kỹ thuật trong đoạn mã ban đầu, nêu rõ nguyên nhân gây ra lỗi. |
-| **Xử lý Logic & Sửa Lỗi DOM** | 40đ | - Sửa đúng lỗi lấy phần tử từ `getElementsByClassName` hoặc dùng `querySelector` hợp lý (10đ).<br>- Ép kiểu dữ liệu `Number` chính xác trước khi tính toán tài chính (10đ).<br>- Phân biệt và dùng đúng `innerHTML` thay cho `textContent` khi chèn đoạn mã chứa thẻ HTML (10đ).<br>- Đổi thuộc tính `.value` thành `.textContent` hoặc `.innerText` cho thẻ `span` (10đ). |
-| **Tính toán Nghiệp vụ FinTech** | 20đ | - Tính chính xác Lương 1 giờ tiêu chuẩn, Lương OT (150%) và Tiền phạt đi muộn theo đúng quy tắc nghiệp vụ (10đ).<br>- Định dạng số tiền chính xác theo chuẩn tiền tệ Việt Nam (`VNĐ`) (10đ). |
-| **Thao tác Style & Hiệu năng** | 20đ | - Thao tác thêm class CSS (`classList.add('text-danger')`) hoạt động đúng (10đ).<br>- Mã nguồn sạch đẹp, biến đặt tên theo chuẩn camelCase, không có đoạn code thừa hoặc câu lệnh thừa gây ảnh hưởng hiệu năng DOM (10đ). |
+| **Phát hiện & Báo cáo lỗi (Debug Log)** | **20đ** | Liệt kê đầy đủ và chính xác ít nhất 4 lỗi có trong đoạn mã mẫu. Giải thích rõ nguyên nhân dẫn tới lỗi runtime hoặc lỗi hiển thị. |
+| **Sửa lỗi DOM Selector & Thao tác thuộc tính** | **20đ** | - Sửa đúng `getElementById` không dùng dấu `#`.<br>- Dùng đúng `innerText` / `textContent` thay cho `.value` trên thẻ `<span>`.<br>- Gọi đúng phương thức `classList.add(...)`. |
+| **Xử lý Ép kiểu & Logic Nghiệp vụ** | **30đ** | - Chuyển đổi đúng `data-distance` thành kiểu `Number` (`parseFloat`).<br>- Chuyển đổi/So sánh đúng `data-is-surge` (so sánh chuỗi `"true"` hoặc ép kiểu `Boolean`).<br>- Tính đúng công thức cước cơ bản: $12.000 + (5.5 - 2) \times 4.500 = 27.750$ VNĐ.<br>- Tính đúng phụ phí 1.2x: $27.750 \times 1.2 = 33.300$ VNĐ. |
+| **Xử lý Biên & Chống lỗi Runtime (Null Check)** | **15đ** | - Kiểm tra null/undefined đối với phần tử DOM trước khi gán dữ liệu.<br>- Xử lý trường hợp `data-distance` bị rỗng hoặc không phải là số hợp lệ. |
+| **Phong cách mã nguồn & Định dạng** | **15đ** | - Đặt tên biến rõ ràng, tuân thủ `camelCase`.<br>- Code trình bày sạch sẽ, có comment giải thích các bước fix lỗi.<br>- Định dạng tiền cước hiển thị đẹp mắt (VD: `33,300 VNĐ` hoặc `33.300 VNĐ`). |

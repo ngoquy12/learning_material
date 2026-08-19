@@ -221,10 +221,20 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
 
     from core.prompts import render_prompt
     from core.utils.llm_parser import extract_json_from_response
+    from core.domain_knowledge import get_domain_for_session, format_domain_rules_for_prompt
+
+    session_domain_data = state.get("session_domain") or get_domain_for_session(session_id)
+    chosen_domain = state.get("chosen_domain") or session_domain_data.get("name_vi", "Hệ thống Doanh nghiệp")
+    domain_prompt_block = format_domain_rules_for_prompt(session_domain_data)
 
     system_prompt = render_prompt(
         "quiz_creator.j2",
-        {"tech_stack": tech_stack, "lang_tag": lang_tag}
+        {
+            "tech_stack": tech_stack,
+            "lang_tag": lang_tag,
+            "chosen_domain": chosen_domain,
+            "domain_prompt_block": domain_prompt_block
+        }
     )
 
     user_prompt = f"""Lesson Metadata:

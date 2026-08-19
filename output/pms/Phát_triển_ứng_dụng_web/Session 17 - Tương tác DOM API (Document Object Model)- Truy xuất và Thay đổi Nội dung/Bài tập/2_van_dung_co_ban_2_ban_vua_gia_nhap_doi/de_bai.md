@@ -1,52 +1,43 @@
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập debug này, học viên sẽ có khả năng:
-- **Phát hiện và sửa lỗi truy xuất DOM**: Nhận biết điểm khác biệt giữa các phương thức chọn element (`getElementById`, `getElementsByClassName`, `querySelector`) và xử lý chính xác kiểu dữ liệu trả về (Element đơn lẻ vs HTMLCollection).
-- **Thao tác nội dung HTML chuẩn xác**: Sử dụng đúng các thuộc tính `innerText`, `textContent`, `innerHTML` để hiển thị dữ liệu thay vì gán nhầm thuộc tính `.value` trên các thẻ không phải `input`.
-- **Cập nhật thuộc tính & giao diện tĩnh**: Thao tác đúng với thuộc tính HTML (`disabled`, `removeAttribute`) và thêm/xóa CSS class thông qua `classList` thay vì gán trực tiếp vào object `style`.
-- **Áp dụng nghiệp vụ Hàng không đơn giản**: Xử lý logic kiểm tra hạng vé (Business vs Eco) và tính toán phí hành lý quá cước để hiển thị chính xác trên giao diện DOM.
+- **Truy xuất DOM Element chính xác**: Nhận biết và sửa các lỗi sai selector (ID, Class, Tag Name) khi sử dụng `document.getElementById`, `document.querySelector`.
+- **Thao tác nội dung & thuộc tính**: Phân biệt và sử dụng đúng `textContent`, `innerHTML`, `classList` và style inline để hiển thị thông tin cuốc xe.
+- **Rèn luyện tư duy Debug**: Phân tích log lỗi trên Web Console, phát hiện lỗi cú pháp và lỗi logic nghiệp vụ trong đoạn mã Javascript cho trước.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn vừa gia nhập đội ngũ phát triển ứng dụng **Kiosk Check-in Tự Động** cho hãng hàng không. Hệ thống có nhiệm vụ hiển thị thông tin thẻ lên máy bay (Boarding Pass) của hành khách và tính toán phí hành lý ký gửi quá cước ngay trên giao diện màn hình cảm ứng.
+Bạn vừa gia nhập đội ngũ phát triển giao diện Web cho ứng dụng gọi xe **GrabRide**. Tính năng hiện tại là hiển thị hóa đơn cuốc xe (`TripFare`) trên màn hình tóm tắt của tài xế và hành khách. 
 
-Lập trình viên tập sự trước đó đã viết file HTML và JavaScript để hiển thị dữ liệu check-in của khách hàng. Tuy nhiên, đoạn mã JS liên tục gặp lỗi Runtime (`Uncaught TypeError: Cannot set properties of null`, `Uncaught TypeError: excessFeeElement.innerHTML is not a function`) làm cho màn hình check-in bị trắng thông tin hoặc hiển thị sai phí hành lý.
+Một Lập trình viên tập sự (Junior Developer) đã viết sẵn đoạn mã HTML và JavaScript để tính cước phí và cập nhật thông tin lên DOM. Tuy nhiên, khi chạy thử nghiệm, màn hình hiển thị bị lỗi trắng thông tin, sai cước phí và không áp dụng được định dạng CSS.
 
-Nhiệm vụ của bạn là **tìm ra 6 lỗi sai** trong file script có sẵn, tiến hành sửa chữa (debug) và hoàn thiện các nghiệp vụ cập nhật DOM theo đúng yêu cầu.
+Nhiệm vụ của bạn là tìm ra **5 lỗi sai** trong đoạn mã JS cho trước, tiến hành sửa lỗi (debug) để giao diện hiển thị chính xác theo đúng quy tắc nghiệp vụ của GrabRide.
 
 ```mermaid
 graph TD
-    A[Mã nguồn hiện tại chứa lỗi DOM API] --> B[Truy xuất Element sai cú pháp / Sai kiểu trả về]
-    A --> C[Gán sai thuộc tính hiển thị: value / innerHTML function]
-    A --> D[Thiếu logic nghiệp vụ Hạng vé Business]
-    B --> E[Sửa lỗi Selector getElementById & HTMLCollection Index]
-    C --> F[Sửa dùng textContent / innerHTML dạng thuộc tính]
-    D --> G[Áp dụng quy tắc tính phí & Cập nhật class status-badge]
-    E --> H[Giao diện Boarding Pass hiển thị chính xác]
-    F --> H
-    G --> H
+    A[Dữ liệu cuốc xe: Số km, Phụ phí] --> B[Hàm tính toán cước phí & Render DOM]
+    B --> C{Kiểm tra dữ liệu đầu vào}
+    C -->|Số km hợp lệ > 0| D[Tính cước phí theo lũy tiến & Phụ phí]
+    C -->|Số km không hợp lệ <= 0| E[Hiển thị thông báo lỗi lên DOM]
+    D --> F[Truy xuất các Element trên DOM]
+    F --> G[Cập nhật textContent, innerHTML, class CSS]
+    E --> G
 ```
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-1. **Quy định Hành lý ký gửi**:
-   - Mỗi hành khách được miễn phí tối đa **7 kg** hành lý.
-   - Nếu hành lý vượt quá 7 kg, số kg dư ra sẽ tính phí quá cước là **50.000 VNĐ / kg**.
-2. **Đặc quyền Hạng vé Business**:
-   - Nếu hành khách có hạng vé `Business`, toàn bộ hành lý ký gửi quá cước đều được **Miễn phí 100%** (Phí quá cước = `0 VNĐ`), bất kể cân nặng bao nhiêu.
-   - Nếu hạng vé là `Eco`, áp dụng công thức tính phí quá cước thông thường.
-3. **Cập nhật trạng thái Check-in trên DOM**:
-   - Nếu Phí quá cước bằng `0 VNĐ`:
-     - Nội dung thẻ `#status-badge`: `"Trạng thái: Đã xác nhận (Hợp lệ)"`.
-     - Xóa lớp CSS cũ, thêm lớp CSS `badge-success` vào `#status-badge`.
-     - Gỡ bỏ thuộc tính `disabled` trên nút `#btn-checkin` để cho phép khách bấm hoàn tất.
-   - Nếu Phí quá cước lớn hơn `0 VNĐ`:
-     - Nội dung thẻ `#status-badge`: `"Trạng thái: Chờ thanh toán quá cước"`.
-     - Xóa lớp CSS cũ, thêm lớp CSS `badge-warning` vào `#status-badge`.
-     - Giữ nguyên trạng thái `disabled` trên nút `#btn-checkin`.
+Hệ thống tính cước phí cuốc xe **GrabRide** được quy định như sau:
+1. **Giá cước cơ bản (Khoảng cách)**:
+   - **2 km đầu tiên**: Giá cố định là `12.000 VNĐ`.
+   - **Từ km thứ 3 trở đi**: Mỗi km tiếp theo tính `4.500 VNĐ/km`.
+   - *Ví dụ*: Đi 5 km -> 2 km đầu (12.000) + 3 km sau (3 * 4.500 = 13.500) = `25.500 VNĐ`.
+2. **Hệ số phụ phí (Giờ cao điểm / Thời tiết xấu)**:
+   - Nếu `isPeakOrRain = true`, tổng cước phí sẽ nhân với hệ số `1.2` (tăng 20%).
+3. **Hiển thị giao diện**:
+   - Nếu `distance > 0`: Cập nhật tổng tiền vào element `#total-fare`, cập nhật trạng thái "Thành công" vào `#booking-status` và thêm class CSS `status-success`.
+   - Nếu `distance <= 0` hoặc không phải số valid: Cập nhật `#total-fare` thành `0 VNĐ`, cập nhật `#booking-status` thành "Dữ liệu không hợp lệ!" và thêm class CSS `status-error`.
 
 ---
 
@@ -56,105 +47,110 @@ graph TD
 
 #### 4.1. Mã nguồn hiện tại bị lỗi (Cần Debug)
 
-**File `index.html`:**
+**File `index.html` (Dữ liệu giao diện giữ nguyên, không sửa):**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>VietJet Airport Self Check-in</title>
+    <title>GrabRide - Tóm tắt cuốc xe</title>
     <style>
-        .badge { padding: 8px 12px; border-radius: 4px; font-weight: bold; display: inline-block; }
-        .badge-pending { background-color: #cccccc; color: #333333; }
-        .badge-success { background-color: #28a745; color: white; }
-        .badge-warning { background-color: #ffc107; color: black; }
+        .card { border: 1px solid #ccc; padding: 16px; width: 300px; font-family: Arial; }
+        .status-success { color: green; font-weight: bold; }
+        .status-error { color: red; font-weight: bold; }
+        .highlight { background-color: #e8f5e9; padding: 4px; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div id="boarding-pass">
-        <h2>THÔNG TIN THẺ LÊN MÁY BAY</h2>
-        <p>Mã PNR: <span id="pnr-code">---</span></p>
-        <p>Hành khách: <span class="passenger-name">---</span></p>
-        <p>Hạng vé: <span id="ticket-class">---</span></p>
-        <p>Trọng lượng hành lý: <span id="baggage-weight">---</span> kg</p>
-        <p>Phí quá cước: <span id="excess-fee">0</span> VNĐ</p>
-        
-        <div id="status-badge" class="badge badge-pending">Trạng thái: Chờ xử lý</div>
-        <br><br>
-        <button id="btn-checkin" disabled>Xác nhận Lấy Thẻ Boarding Pass</button>
+    <div class="card">
+        <h2>Hóa Đơn GrabRide</h2>
+        <p>Khoảng cách: <span id="trip-distance">--</span> km</p>
+        <p>Phụ phí cao điểm/mưa: <span id="peak-status">--</span></p>
+        <p>Trạng thái: <span id="booking-status">Chờ xử lý</span></p>
+        <hr>
+        <h3>Tổng tiền: <span id="total-fare" class="fare-amount">0 VNĐ</span></h3>
     </div>
-
-    <script src="./app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
 ```
 
-**File `app.js` (Chứa 6 lỗi kỹ thuật & nghiệp vụ):**
+**File `app.js` (Chứa 5 LỖI BUG cần học viên phát hiện và sửa):**
 ```javascript
-// Dữ liệu mẫu đầu vào của hành khách
-const passengerData = {
-    pnr: "VJ8899",
-    name: "NGUYEN VAN A",
-    ticketClass: "Business", // Có thể là "Business" hoặc "Eco"
-    baggageWeight: 12 // kg
+// Data cuốc xe thử nghiệm
+const bookingData = {
+    distance: 5,         // 5 km
+    isPeakOrRain: true   // Có phụ phí
 };
 
-// --- ĐOẠN CODE LỖI CẦN DEBUG ---
+function renderTripSummary(booking) {
+    // BUG 1: Truy xuất sai selector DOM (Dùng getElementById nhưng truyền nhầm ký tự #)
+    const distanceEl = document.getElementById("#trip-distance");
+    
+    // BUG 2: Sai phương thức chọn querySelector cho class fare-amount
+    const fareEl = document.querySelector("fare-amount");
+    
+    const statusEl = document.getElementById("booking-status");
+    const peakEl = document.getElementById("peak-status");
 
-// Lỗi 1: Truy xuất DOM theo ID bị dư dấu #
-const pnrElement = document.getElementById("#pnr-code");
-pnrElement.innerText = passengerData.pnr;
+    // Kiểm tra dữ liệu đầu vào
+    if (!booking || typeof booking.distance !== "number" || booking.distance <= 0) {
+        statusEl.textContent = "Dữ liệu không hợp lệ!";
+        // BUG 3: Cập nhật class sai thuộc tính DOM API (dùng attribute không tồn tại)
+        statusEl.class = "status-error";
+        fareEl.textContent = "0 VNĐ";
+        return;
+    }
 
-// Lỗi 2: getElementsByClassName trả về HTMLCollection nhưng truy cập trực tiếp không qua chỉ số index
-const passengerNameElement = document.getElementsByClassName("passenger-name");
-passengerNameElement.innerText = passengerData.name;
+    // Tính cước phí
+    let fare = 0;
+    if (booking.distance <= 2) {
+        fare = 12000;
+    } else {
+        // BUG 4: Tính sai công thức nghiệp vụ (không trừ đi 2 km đầu đã tính 12.000đ)
+        fare = 12000 + (booking.distance * 4500);
+    }
 
-// Lỗi 3: Thẻ <span> không có thuộc tính .value
-const ticketClassElement = document.getElementById("ticket-class");
-ticketClassElement.value = passengerData.ticketClass;
+    if (booking.isPeakOrRain) {
+        fare = fare * 1.2;
+    }
 
-// Cập nhật trọng lượng hành lý (Dòng này viết đúng)
-document.getElementById("baggage-weight").textContent = passengerData.baggageWeight;
+    // Cập nhật DOM
+    distanceEl.textContent = booking.distance;
+    peakEl.textContent = booking.isPeakOrRain ? "Có (x1.2)" : "Không";
+    
+    // BUG 5: Gán HTML tag bằng textContent khiến thẻ <span> bị hiển thị dưới dạng raw text
+    fareEl.textContent = `<span class="highlight">${fare.toLocaleString('vi-VN')} VNĐ</span>`;
+    
+    statusEl.textContent = "Tính cước thành công";
+    statusEl.classList.add("status-success");
+}
 
-// Lỗi 4: Tính toán phí quá cước chưa kiểm tra Hạng vé (Business) và gọi innerHTML như 1 hàm
-const freeWeightLimit = 7;
-const feePerKg = 50000;
-let excessFee = (passengerData.baggageWeight - freeWeightLimit) * feePerKg;
-
-const excessFeeElement = document.getElementById("excess-fee");
-excessFeeElement.innerHTML(excessFee); // Cú pháp sai
-
-// Lỗi 5: Gán trực tiếp tên class vào thuộc tính .style
-const statusBadgeElement = document.getElementById("status-badge");
-statusBadgeElement.style = "badge-success";
-
-// Lỗi 6: Không gỡ bỏ thuộc tính disabled của button khi phí = 0
-const checkinButton = document.getElementById("btn-checkin");
-// Thiếu xử lý unlock nút checkin khi đủ điều kiện
+// Chạy hàm render
+renderTripSummary(bookingData);
 ```
 
 
-#### 4.2. Danh sách nhiệm vụ thực hiện
-1. Tạo thư mục dự án và sao chép mã nguồn lỗi ở trên.
-2. Tìm và khắc phục toàn bộ 6 lỗi trong file `app.js`.
-3. Kiểm tra chương trình với **2 trường hợp test (Test Cases)**:
-   - **Test Case 1**: `passengerData` với `ticketClass: "Business"`, `baggageWeight: 12`. Phí hiển thị là `0 VNĐ`, badge hiển thị màu xanh lá (`badge-success`) và nút button được mở khóa (hết `disabled`).
-   - **Test Case 2**: `passengerData` với `ticketClass: "Eco"`, `baggageWeight: 12`. Phí quá cước hiển thị là `250.000 VNĐ` (`(12 - 7) * 50.000`), badge hiển thị màu vàng (`badge-warning`) và nút button bị khóa (`disabled`).
-
-> **LƯU Ý NGHIÊM CẤM**:
-> - Không sử dụng `addEventListener` hoặc sự kiện (`onclick`, `onsubmit`...).
-> - Không sử dụng `Fetch API`, `LocalStorage`, hay bất kỳ thư viện bên ngoài nào.
-> - Chỉ thao tác trực tiếp trên DOM bằng JavaScript thuần (DOM API Session 17).
+#### 4.2. Yêu cầu thực hiện
+1. **Tạo báo cáo Debug**: Trong file comment của `app.js` hoặc file `debug-note.txt`, chỉ rõ 5 dòng code bị lỗi, giải thích nguyên nhân gây ra lỗi và cách sửa.
+2. **Sửa file `app.js`**:
+   - Khắc phục triệt để 5 lỗi trên.
+   - Kết quả hiển thị trên màn hình trình duyệt phải chuẩn xác:
+     - Khoảng cách: `5` km.
+     - Phụ phí: `Có (x1.2)`.
+     - Trạng thái: `Tính cước thành công` (chữ màu xanh lá cây do class `status-success`).
+     - Tổng tiền: `<span class="highlight">30.600 VNĐ</span>` (phải render đúng định dạng HTML có background xanh nhạt do thẻ span `.highlight`).
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- Cấu trúc thư mục dự án:
+- **Cấu trúc thư mục**:
   ```text
-  logistics-airline-debug/
+  grab-ride-debug/
   ├── index.html
-  └── app.js
+  ├── app.js
+  └── debug-note.txt (hoặc viết comment ngay đầu file app.js)
   ```
-- File `app.js` phải chứa comment giải thích chi tiết tại từng vị trí đã được sửa lỗi (Ví dụ: `// [FIX LỖI 1]: Đã bỏ dấu # trong getElementById...`).
-- Nén toàn bộ thư mục thành file `.zip` đặt tên theo cú pháp: `HOVA TEN_MSHV_BAITAP2.zip`.
+- **Quy định nộp bài**: Nén thư mục `grab-ride-debug` thành file `.zip` và nộp lên hệ thống.
+- **Lưu ý**: *Tuyệt đối KHÔNG sử dụng các sự kiện `addEventListener`, form submit, hay các thư viện bên ngoài*. Chỉ sử dụng các DOM API căn bản đã học ở Session 17.

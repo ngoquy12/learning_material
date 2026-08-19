@@ -1,31 +1,35 @@
-# Bài tập 10: Healthcare (Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc)
+# Bài tập 10: GRAB_RIDE (Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập này, học viên có khả năng:
-- **Phân tích và phát hiện các vấn đề hiệu năng (DOM Thrashing, Reflow/Repaint)** trong đoạn mã legacy truy xuất và thao tác DOM.
-- **Tái cấu trúc (Refactor)** mã nguồn truy xuất/thay đổi DOM theo tiêu chuẩn tối ưu: giảm thiểu số lần truy vấn DOM tree, loại bỏ thao tác nối chuỗi `innerHTML` trong vòng lặp bằng `DocumentFragment` hoặc thao tác DOM an toàn.
-- Sử dụng thành thạo các thuộc tính và phương thức thao tác nội dung, attribute: `textContent`, `setAttribute`, `dataset`, `classList`.
-- Áp dụng các quy tắc nghiệp vụ thực tế của hệ thống đặt vé hội thảo y tế vào việc tính toán dữ liệu và hiển thị trạng thái động trên giao diện DOM.
+- **Phân tích & Phát hiện Bottleneck**: Dựa trên đoạn mã legacy (mẫu code cũ), xác định các điểm nghẽn hiệu năng khi tương tác với DOM API (truy xuất DOM lặp lại, lạm dụng `innerHTML`, thiếu phân tách dữ liệu và giao diện).
+- **Tái cấu trúc mã nguồn (Refactoring)**: Chuẩn hóa logic nghiệp vụ tính toán cước phí GrabRide thành các hàm đơn nhiệm (Single Responsibility Principle) và phân tách bạch minh giữa Logic nghiệp vụ (Business Logic) và Logic cập nhật giao diện (DOM Manipulation).
+- **Tối ưu hóa thao tác DOM**: Áp dụng kỹ thuật Cache DOM Node, thay thế `innerHTML` bằng `textContent` và điều chỉnh thuộc tính thông qua `setAttribute` / `dataset` / `classList` để giảm thiểu Reflow và Repaint trên trình duyệt.
+- **Xử lý dữ liệu & Ngoại lệ**: Kiểm soát tính đúng đắn của dữ liệu đầu vào (khoảng cách, mã giảm giá, trạng thái thời tiết) và phản ánh chính xác trạng thái trên UI.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống bán vé sự kiện trực tuyến cho **Hội thảo Y khoa Quốc tế 2025 (MedConference Ticket System)** hiện đang gặp vấn đề nghiêm trọng về hiệu năng giao diện khi số lượng khán giả và danh sách mã check-in tăng cao. 
+Hệ thống **GrabRide Dashboard** tại Rikkei Education đang vận hành một module hiển thị thông tin hóa đơn chuyến đi cho hành khách và tài xế. Đoạn mã hiện tại của hệ thống được viết từ lâu, gặp các vấn đề lớn:
+1. Mỗi lần cập nhật hóa đơn lại dùng `document.querySelector()` để tìm kiếm lại toàn bộ các thẻ HTML nằm trong vòng lặp hoặc hàm hiển thị.
+2. Sử dụng `innerHTML` dạng chuỗi nối thô để thay đổi nội dung, tiềm ẩn nguy cơ XSS và gây giật lag do kích hoạt trình duyệt vẽ lại (Reflow/Repaint) không cần thiết.
+3. Logic tính cước bị viết cứng (hardcoded), rải rác ở nhiều nơi dẫn đến việc tính sai tiền khi áp dụng mã giảm giá hoặc phụ phí thời tiết.
 
-Mã nguồn hiện tại do lập trình viên cũ để lại đang lạm dụng `innerHTML += ...` bên trong các vòng lặp, truy vấn lại các Element nhiều lần bằng `document.querySelector` một cách không cần thiết, làm trình duyệt liên tục rơi vào trạng thái Reflow/Repaint làm giật lag trang Dashboard quản lý.
+Bạn được giao nhiệm vụ **Phân tích code cũ**, **Chỉ ra lỗi & tối ưu**, sau đó **Viết lại toàn bộ module hiển thị hóa đơn chuyến đi (Trip Summary Module)** bằng kỹ thuật DOM thuần tối ưu nhất.
 
-Bạn được giao nhiệm vụ **phân tích mã nguồn cũ, phát hiện các điểm nghẽn hiệu năng và tái cấu trúc toàn bộ logic render dữ liệu** bằng các DOM API tối ưu thuộc Session 17 (không sử dụng Event Listener hay Fetch API).
 
+#### Luồng xử lý dữ liệu và cập nhật DOM:
 ```mermaid
 graph TD
-    A[Mãng dữ liệu: TicketZones & CustomerOrders & QrCodes] --> B{Phân tích & Kiểm tra Ràng buộc}
-    B --> C[Kiểm tra Hạn ngạch: Tối đa 4 vé/đơn hàng]
-    B --> D[Tính giá Early Bird: Giảm 15%]
-    B --> E[Xác định trạng thái Zone & Check-in QR]
-    C & D & E --> F[Tối ưu hóa Thao tác DOM]
-    F --> G[Gom nhóm Thay đổi qua DocumentFragment / Memory DOM]
-    G --> H[Cập nhật UI 1 lần duy nhất: Không Reflow lặp lại]
+    A[Dữ liệu chuyến đi: TripBooking Object] --> B[Phân tích & Kiểm tra Dữ liệu Đầu vào]
+    B --> C[GrabRideCalculator: Tính toán Cước phí]
+    C --> C1[Cước cơ sở: 2km đầu 12.000đ, km thứ 3 trở đi 4.500đ/km]
+    C --> C2[Phụ phí: Mưa/Cao điểm x 1.2]
+    C --> C3[Khuyến mãi: Giảm theo Voucher]
+    C --> D[DOMManager: Cập nhật Giao diện Dashboard]
+    D --> D1[Sử dụng Cached DOM Nodes]
+    D --> D2[Gán giá trị bằng textContent & setAttribute]
+    D --> D3[Cập nhật CSS Class & Dataset trạng thái]
 ```
 
 ---
@@ -33,26 +37,28 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-1. **Hạn ngạch mua vé (Ticket Quota Limit):**
-   - Mỗi đơn hàng (`CustomerOrder`) chỉ cho phép mua **tối đa 4 vé**.
-   - Nếu `ticketQuantity > 4`: Đơn hàng bị đánh dấu là `Invalid` (Vi phạm hạn ngạch). Trên DOM, hiển thị thẻ đơn hàng với class `order-error`, hiển thị dòng thông báo: `"CẢNH BÁO: Vượt quá giới hạn 4 vé/đơn!"` và **không cộng dồn** số vé này vào tổng số vé đã bán của khu vực (`TicketZone`).
 
-2. **Chính sách giá đợt Mở bán Sớm (Early Bird Discount):**
-   - Nếu đơn hàng có thuộc tính `isEarlyBird: true`, thành tiền của đơn hàng được tính theo công thức:
-     $$\text{finalPrice} = \text{basePrice} \times \text{ticketQuantity} \times 0.85$$
-   - Nếu `isEarlyBird: false`, thành tiền:
-     $$\text{finalPrice} = \text{basePrice} \times \text{ticketQuantity}$$
+#### A. Quy tắc tính cước di chuyển (`TripFare`)
+1. **Giá cước cơ bản (Base Fare)**:
+   - $2\text{ km}$ đầu tiên: Giá cố định **$12.000\text{ VNĐ}$**. (Nếu khoảng cách $\le 2\text{ km}$, tổng cước cơ sở luôn là $12.000\text{ VNĐ}$).
+   - Từ km thứ $3$ trở đi: Tính thêm **$4.500\text{ VNĐ/km}$** cho phần khoảng cách vượt quá $2\text{ km}$.
+   - *Công thức tính cước cơ sở khi $d > 2$:*
+     $$\text{BaseFare} = 12000 + (d - 2) \times 4500$$
+2. **Hệ số phụ phí (Surcharge Multiplier)**:
+   - Nếu điều kiện thời tiết là Trời mưa (`isRaining = true`) **HOẶC** Thời gian là Giờ cao điểm (`isPeakHour = true`): Nhân hệ số **$1.2$** vào tổng cước cơ bản.
+   - Nếu cả hai điều kiện cùng sai: Hệ số là **$1.0$**.
+   - *Cước sau phụ phí:* $\text{FareAfterSurcharge} = \text{BaseFare} \times \text{Multiplier}$ (Làm tròn số nguyên bằng `Math.round()`).
+3. **Mã giảm giá (Voucher Discount)**:
+   - Mã `"GRAB20"`: Giảm $20\%$ trên `FareAfterSurcharge` (Tối đa giảm $20.000\text{ VNĐ}$).
+   - Mã `"GRAB50"`: Giảm $50\%$ trên `FareAfterSurcharge` (Tối đa giảm $35.000\text{ VNĐ}$).
+   - Mã trống hoặc không hợp lệ: Giảm $0\text{ VNĐ}$.
+4. **Cước phí thanh toán cuối cùng (Final Fare)**:
+   $$\text{FinalFare} = \max(0, \text{FareAfterSurcharge} - \text{DiscountAmount})$$
 
-3. **Phân loại Trạng thái Khu vực Vé (TicketZone Status):**
-   - Sức chứa còn lại: $\text{remainingSeats} = \text{totalCapacity} - \text{soldSeats}$.
-   - Nếu $\text{remainingSeats} \le 0$: Thêm class `zone-sold-out`, gán nhãn text `"HẾT VÉ"`.
-   - Nếu $0 < \text{remainingSeats} \le 10$: Thêm class `zone-warning`, gán nhãn text `"SẮP HẾT VÉ (Còn [remainingSeats] chỗ)"`.
-   - Nếu $\text{remainingSeats} > 10$: Thêm class `zone-available`, gán nhãn text `"CÒN VÉ (Còn [remainingSeats] chỗ)"`.
 
-4. **Xác thực Mã QR Check-in (Single-use QR Check-in):**
-   - Mỗi mã QR chỉ có hiệu lực check-in 1 lần.
-   - Mã QR có `isScanned: true` $\rightarrow$ Thêm class CSS `qr-disabled`, hiển thị text badge: `"ĐÃ CHECK-IN (HẾT HIỆU LỰC)"`.
-   - Mã QR có `isScanned: false` $\rightarrow$ Thêm class CSS `qr-active`, hiển thị text badge: `"HỢP LỆ (SẴN SÀNG QUÉT)"`.
+#### B. Định dạng hiển thị dữ liệu trên DOM
+- Số tiền phải được định dạng theo chuẩn VNĐ có dấu phân cách hàng nghìn và đuôi `VNĐ` (Ví dụ: `25.500 VNĐ`).
+- Trạng thái chuyến đi: Nếu có phụ phí ($1.2\text{x}$), gắn class `has-surcharge` vào thẻ bao wrapper và cập nhật `data-surge="active"`. Ngược lại, xóa class `has-surcharge` và đặt `data-surge="inactive"`.
 
 ---
 
@@ -60,110 +66,103 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Phân tích đoạn mã Legacy (Chứa lỗi hiệu năng)
-Cho đoạn mã legacy chưa tối ưu dưới đây:
+#### A. Mã nguồn Legacy cần phân tích & tái cấu trúc
+Dưới đây là đoạn mã cũ đang chạy kém hiệu quả trong hệ thống. Hãy đọc kỹ để thực hiện yêu cầu phân tích:
+
+```html
+<!-- HTML CŨ HỆ THỐNG -->
+<div id="booking-card" class="card">
+  <h2 id="trip-id">Chuyến đi #---</h2>
+  <p>Hành khách: <span id="passenger-name">---</span></p>
+  <p>Tài xế: <span id="driver-name">---</span></p>
+  <p>Quãng đường: <span id="distance">0 km</span></p>
+  <p>Tổng tiền: <span id="total-price">0 VNĐ</span></p>
+  <div id="status-badge" class="badge">Trạng thái</div>
+</div>
+```
 
 ```javascript
-// MA NGUON CHUA TOI UU (LEGACY CODE)
-function renderDashboardBad(zones, orders, qrList) {
-    // BUG HIỆU NĂNG: Ghi đè innerHTML trong vòng lặp liên tục
-    for (var i = 0; i < zones.length; i++) {
-        document.getElementById('zone-container').innerHTML += 
-            '<div class="zone-card" id="zone-' + zones[i].id + '">' +
-                '<h3>' + zones[i].name + '</h3>' +
-                '<p class="status"></p>' +
-            '</div>';
-    }
-
-    // BUG HIỆU NĂNG: Lặp lại việc tìm kiếm DOM element bên trong loop
-    for (var j = 0; j < orders.length; j++) {
-        var order = orders[j];
-        if (order.ticketQuantity <= 4) {
-            // Liên tục query DOM lại từ đầu
-            var zoneEl = document.querySelector('#zone-' + order.zoneId);
-            if (zoneEl) {
-                // Thao tác DOM trực tiếp nhiều lần
-                var currentPrice = order.isEarlyBird ? (order.price * order.ticketQuantity * 0.85) : (order.price * order.ticketQuantity);
-                document.getElementById('order-list').innerHTML += 
-                    '<div class="order-item">Đơn ' + order.id + ': ' + currentPrice + ' VNĐ</div>';
-            }
-        }
-    }
-
-    // BUG HIỆU NĂNG: Thao tác style và innerHTML không an toàn
-    for (var k = 0; k < qrList.length; k++) {
-        var qr = qrList[k];
-        var qrContainer = document.getElementById('qr-list');
-        if (qr.isScanned == true) {
-            qrContainer.innerHTML += '<span style="color: red;">ĐÃ CHECK-IN: ' + qr.code + '</span><br>';
-        } else {
-            qrContainer.innerHTML += '<span style="color: green;">HỢP LỆ: ' + qr.code + '</span><br>';
-        }
-    }
+// JAVASCRIPT CŨ KÉM HIỆU QUẢ (LEGACY CODE)
+function updateBooking(id, pName, dName, dist, rain, peak, voucher) {
+  // LỖI 1: Lặp lại truy xuất DOM mỗi khi hàm chạy
+  document.getElementById("trip-id").innerHTML = "<b>Chuyến đi #" + id + "</b>";
+  document.getElementById("passenger-name").innerText = pName;
+  document.getElementById("driver-name").innerText = dName;
+  
+  // LỖI 2: Tính toán sai nghiệp vụ (coi mọi km đều giá 4500)
+  var price = dist * 4500; 
+  if (rain == true || peak == true) {
+    price = price * 1.2;
+  }
+  
+  // LỖI 3: Lạm dụng innerHTML và nối chuỗi nguy hiểm
+  document.getElementById("distance").innerHTML = dist + " km";
+  document.getElementById("total-price").innerHTML = "<font color='red'>" + price + " VNĐ</font>";
 }
 ```
 
 
-#### B. Nhiệm vụ Tái cấu trúc (Refactoring Requirements)
-Bạn hãy viết lại toàn bộ logic trên vào một file JavaScript mới đạt các yêu cầu:
+#### B. Yêu cầu chi tiết công việc
 
-1. **Bộ dữ liệu đầu vào mẫu (Mock Data):**
+##### Task 1: Báo cáo Phân tích (Ghi chú dưới dạng Comment đầu file JS)
+Liệt kê tối thiểu **4 điểm yếu / code smells** của đoạn mã Legacy trên về mặt: Hiệu năng DOM, Bảo mật, và Tính đúng đắn của Nghiệp vụ.
+
+##### Task 2: Tái cấu trúc Logic Nghiệp vụ (Business Calculator Module)
+Xây dựng một đối tượng hoặc các hàm nguyên tử để xử lý tính toán riêng biệt:
+- `calculateBaseFare(distanceKm)`: Trả về cước cơ bản theo khoảng cách. Nếu `distanceKm <= 0` hoặc không phải kiểu `number`, trả về `0`.
+- `calculateSurcharge(baseFare, isPeakHour, isRaining)`: Trả về cước sau khi áp dụng phụ phí.
+- `calculateDiscount(fareAfterSurcharge, voucherCode)`: Trả về số tiền được giảm.
+- `calculateTripFare(tripData)`: Hàm tổng hợp nhận vào đối tượng `tripData` và trả về một Object chứa đầy đủ các chỉ số: `{ baseFare, fareAfterSurcharge, discountAmount, finalFare }`.
+
+##### Task 3: Tối ưu hóa Thao tác DOM (DOM Manager Module)
+Tạo đối tượng `GrabRideDOMManager` đóng gói việc tương tác với giao diện:
+1. **DOM Caching**: Truy xuất tất cả các phần tử DOM duy nhất 1 lần khi khởi tạo và lưu vào một object `elements`.
+2. **Hàm cập nhật an toàn (`renderTripDetail`)**:
+   - Sử dụng `textContent` thay cho `innerHTML` để tránh lỗi XSS và tăng tốc độ gán dữ liệu.
+   - Thay đổi thuộc tính CSS class: Thêm class `surcharge-applied` vào phần tử tổng `#booking-card` nếu có phụ phí, xóa đi nếu không có.
+   - Thao tác với dataset: Gán `data-trip-id`, `data-status` lên phần tử `#booking-card`.
+   - Xử lý trường hợp dữ liệu khoảng cách không hợp lệ (ví dụ: `distanceKm < 0` hoặc `isNaN`): Hiển thị thông báo lỗi trên DOM tại phần tử `#total-price` với nội dung `"Dữ liệu không hợp lệ"` và gắn class `error-text`.
+
+##### Task 4: Hàm thực thi chính (Main Orchestrator)
+Viết hàm `processTripBooking(tripData)` để kết nối Module tính toán và Module DOM. Thực thi kiểm thử với dữ liệu mẫu được cung cấp bên dưới (Không dùng `addEventListener` hay `onload`).
+
 ```javascript
-const eventData = {
-    eventName: "Hội thảo Y khoa Quốc tế 2025 - Ứng dụng AI trong Chẩn đoán Image",
-    zones: [
-        { id: "Z01", name: "Khu vực VIP (Chuyên gia)", basePrice: 2000000, totalCapacity: 50, soldSeats: 45 },
-        { id: "Z02", name: "Khu vực Zone A (Bác sĩ/Dược sĩ)", basePrice: 1000000, totalCapacity: 100, soldSeats: 98 },
-        { id: "Z03", name: "Khu vực GA (Sinh viên Y)", basePrice: 400000, totalCapacity: 200, soldSeats: 200 }
-    ],
-    orders: [
-        { id: "ORD-101", zoneId: "Z01", ticketQuantity: 2, isEarlyBird: true },
-        { id: "ORD-102", zoneId: "Z02", ticketQuantity: 5, isEarlyBird: false }, // Vi phạm hạn ngạch (>4)
-        { id: "ORD-103", zoneId: "Z02", ticketQuantity: 3, isEarlyBird: true },
-        { id: "ORD-104", zoneId: "Z03", ticketQuantity: 1, isEarlyBird: false }
-    ],
-    qrCodes: [
-        { code: "QR-MED-001", orderId: "ORD-101", isScanned: true },
-        { code: "QR-MED-002", orderId: "ORD-101", isScanned: false },
-        { code: "QR-MED-003", orderId: "ORD-103", isScanned: false }
-    ]
+// Dữ liệu kiểm thử mẫu
+const sampleTrip = {
+  tripId: "GRAB-8899",
+  passengerName: "Nguyễn Văn A",
+  driverName: "Trần Văn B (GrabBike)",
+  distanceKm: 5.5,
+  isRaining: true,
+  isPeakHour: false,
+  voucherCode: "GRAB20"
 };
 ```
-
-2. **Yêu cầu kỹ thuật bắt buộc:**
-   - **Tối ưu Truy xuất DOM:** Cache toàn bộ các selector DOM chính (`#zone-container`, `#order-list`, `#qr-list`, `#event-title`) ra ngoài các vòng lặp xử lý.
-   - **Sử dụng `DocumentFragment`:** Gom tất cả các phần tử node mới khởi tạo (`document.createElement`) vào trong `DocumentFragment` trước khi `append` một lần duy nhất vào DOM tree thực tế.
-   - **An toàn Nội dung (XSS Prevention):** Sử dụng `textContent` thay cho `innerHTML` khi chèn các giá trị dạng văn bản (như tên hội thảo, mã đơn hàng, trạng thái).
-   - **Quản lý Style & Trạng thái:** Không viết inline-style (VD: `element.style.color = ...`), phải dùng `classList.add()`, `classList.remove()`, hoặc `dataset` (VD: `element.dataset.status = "sold-out"`).
-   - **Đúng quy tắc nghiệp vụ:** Áp dụng đầy đủ 4 quy tắc nghiệp vụ đã mô tả ở Mục 3.
-
-3. **Cấu trúc Hàm Yêu cầu:**
-   - `function refactorTicketSystem(data)`: Hàm chính nhận vào đối tượng dữ liệu sự kiện và thực thi toàn bộ luồng render tối ưu.
-   - `function calculateOrderPrice(price, quantity, isEarlyBird)`: Hàm bổ trợ tính toán giá vé đơn hàng.
-   - `function getZoneBadgeInfo(capacity, sold)`: Hàm bổ trợ xác định CSS class và Text hiển thị cho trạng thái zone.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-
-- **Cấu trúc thư mục dự án:**
+- **Cấu trúc thư mục dự án**:
   ```text
-  student-id_homework_session17/
-  ├── index.html          # Khung HTML chứa các container: #event-title, #zone-container, #order-list, #qr-list
+  student-submission/
+  ├── index.html          # File chứa cấu trúc HTML chuẩn Dashboard
   ├── css/
-  │   └── style.css       # Chứa các class CSS trạng thái: .zone-sold-out, .zone-warning, .zone-available, .order-error, .qr-disabled, .qr-active
+  │   └── style.css       # File chứa các class CSS (surcharge-applied, error-text, v.v.)
   └── js/
-      └── main.js         # Chứa mã nguồn JavaScript đã tái cấu trúc và dữ liệu mock
+      └── main.js         # File chứa bài làm JS (Phân tích, Calculator & DOM Manager)
   ```
-- **Quy định đặt tên:** Thư mục nộp bài nén dạng ZIP với tên `[HoVaTen]_[MSHV]_Session17.zip` (Ví dụ: `NguyenVanA_RK01234_Session17.zip`).
-- **Phạm vi nghiêm cấm:** Không sử dụng bất kỳ thư viện ngoài (React, jQuery, Lodash...), không sử dụng `addEventListener`, không sử dụng `fetch`, không sử dụng `localStorage`. Chỉ dùng DOM API thuần covered trong Session 17.
+- **Quy định file Javascript (`main.js`)**:
+  - Không sử dụng biến toàn cục tự do (nằm ngoài object/class điều khiển).
+  - Nghiêm cấm sử dụng các tính năng bị cấm: `addEventListener`, `fetch`, `localStorage`, `form submit`.
+  - Toàn bộ code phải chạy tự động khi gọi hàm khởi tạo `processTripBooking(sampleTrip)` ở cuối file.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Mã nguồn được tổ chức sạch sẽ, đặt tên biến/hàm theo chuẩn `camelCase`.<br>- Có comment giải thích chi tiết các điểm đã được tối ưu so với đoạn code legacy cũ.<br>- Cấu trúc HTML/CSS phân tách rõ ràng, không dùng inline style. |
-| **Phân tích & Tối ưu DOM (Bloom Level 4)** | **20đ** | - Loại bỏ hoàn toàn việc lạm dụng `innerHTML +=` trong vòng lặp.<br>- Sử dụng thành thạo `DocumentFragment` để gom nhóm các thao tác chèn node.<br>- Cache các truy vấn selector ra ngoài vòng lặp.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu văn bản tĩnh/động. |
-| **Xử lý Logic đúng Nghiệp vụ** | **40đ** | - **Hạn ngạch vé (10đ):** Phát hiện chính xác đơn hàng `ticketQuantity > 4`, gán CSS `.order-error` và không tính cộng dồn vào `soldSeats`.<br>- **Chính sách Early Bird (10đ):** Tính chính xác mức giảm 15% cho các đơn hàng mở bán sớm.<br>- **Trạng thái Zone (10đ):** Phân loại đúng 3 cấp độ (`sold-out`, `warning`, `available`) dựa trên sức chứa còn lại.<br>- **Trạng thái QR (10đ):** Đánh dấu đúng trạng thái `qr-disabled` hoặc `qr-active`. |
-| **Xử lý Biên & Chuẩn hóa Dữ liệu** | **20đ** | - Kiểm tra null/undefined cho dữ liệu đầu vào trước khi render.<br>- Định dạng tiền tệ hiển thị rõ ràng (VD: `1,700,000 VNĐ` hoặc sử dụng `toLocaleString('vi-VN')`).<br>- Giao diện tự động dọn dẹp nội dung cũ (`innerHTML = ''`) trước khi nạp dữ liệu mới. |
+| **Phân tích & Nhận diện Code Smell** | 15đ | - Trích xuất đúng 4 điểm yếu chính của đoạn mã Legacy (Hiệu năng DOM query, Reflow do `innerHTML`, tính toán sai nghiệp vụ km, thiếu validation). |
+| **Cấu trúc & Phong cách mã nguồn** | 15đ | - Áp dụng mô hình thiết kế rõ ràng (Object Literal / Class / Module Pattern).<br>- Đặt tên hàm/biến chuẩn Clean Code (camelCase), comment giải thích logic đầy đủ. |
+| **Xử lý Logic Nghiệp vụ (GrabRide Rules)** | 35đ | - Tính chính xác cước 2km đầu ($12.000\text{đ}$) và km thứ 3 trở đi ($4.500\text{đ/km}$).<br>- Áp dụng chính xác phụ phí $1.2\text{x}$ khi mưa/giờ cao điểm.<br>- Tính chính xác giảm giá cho mã `"GRAB20"` và `"GRAB50"` đúng trần max discount.<br>- Trả về kết quả tính toán chính xác với dữ liệu mẫu. |
+| **Tối ưu DOM API & An toàn** | 20đ | - Thực hiện Cache DOM Node thành công (không gọi lại `querySelector`/`getElementById` trong hàm render).<br>- Tuyệt đối sử dụng `textContent` thay cho `innerHTML` khi hiển thị chuỗi văn bản.<br>- Sử dụng thành thạo `classList.add/remove/toggle` và `dataset`. |
+| **Xử lý Biên & Ngoại lệ (Edge Cases)** | 15đ | - Kiểm soát tốt dữ liệu đầu vào bị âm, `NaN`, hoặc `null/undefined`.<br>- Hiển thị trạng thái lỗi trực quan lên UI khi dữ liệu không hợp lệ.<br>- Không làm sập chương trình khi thiếu tham số mã giảm giá. |

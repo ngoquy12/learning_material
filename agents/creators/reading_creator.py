@@ -160,13 +160,20 @@ def generate_reading_html(
 
     image_skill = load_skill_content("image_prompt_standard")
     
+    from core.domain_knowledge import get_domain_for_session, format_domain_rules_for_prompt
+    session_domain_data = state.get("session_domain") or get_domain_for_session(session_id)
+    chosen_domain = state.get("chosen_domain") or session_domain_data.get("name_vi", "Hệ thống Doanh nghiệp")
+    domain_prompt_block = format_domain_rules_for_prompt(session_domain_data)
+
     system_prompt = render_prompt("prompts/reading_master_prompt.j2", {
         "section1_title": f"Tại sao cần học {lesson_title}?",
         "section2_title": "Kiến thức và cú pháp cơ bản",
         "tech_stack": tech_stack,
         "image_skill": image_skill,
         "allowed_scope": allowed_scope,
-        "forbidden_scope": forbidden_scope
+        "forbidden_scope": forbidden_scope,
+        "chosen_domain": chosen_domain,
+        "domain_prompt_block": domain_prompt_block
     })
 
     blueprint = state.get("lesson_blueprint")
