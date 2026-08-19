@@ -75,6 +75,8 @@ from agents.creators.classroom_lecture_creator import (
 from agents.creators.homework_creator import (
     generate_homework_exercise,
     generate_session_homework_suite,
+    generate_inclass_synthesis_exercise,
+    generate_mindmap_exercise,
 )
 
 __all__ = [
@@ -114,4 +116,6 @@ __all__ = [
     "blueprint_creator_agent",
     "generate_homework_exercise",
     "generate_session_homework_suite",
+    "generate_inclass_synthesis_exercise",
+    "generate_mindmap_exercise",
 ]

@@ -1,8 +1,9 @@
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file chuẩn quy định (5đ).<br>- Đặt tên biến/hàm ngữ nghĩa (`camelCase`), chuẩn sạch đẹp (5đ).<br>- Thụt lề chuẩn, định dạng code nhất quán (5đ).<br>- Viết comment giải thích logic thao tác DOM rõ ràng (5đ). |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính toán chính xác chiết khấu 15% cho Early Bird và định dạng tiền tệ `VND` (10đ).<br>- Kiểm soát chính xác hạn ngạch tối đa 4 vé/tài khoản (10đ).<br>- Render chính xác danh sách vé động từ dữ liệu mảng vào DOM tree (10đ).<br>- Cập nhật chuẩn xác 100% các trạng thái QR check-in (Valid vs Expired) (10đ). |
-| **Thao tác DOM API & Xử lý Biên** | **20đ** | - Sử dụng đúng các phương thức `getElementById`, `querySelector`, `classList`, `dataset`, `setAttribute` (10đ).<br>- Xóa sạch nội dung cũ (`innerHTML = ''`) trước khi render lại danh sách tránh nhân bản phần tử (5đ).<br>- Kiểm soát biên lỗi: Mảng vé rỗng, vé bằng 0, dữ liệu null/undefined (5đ). |
-| **Tối ưu hiệu năng & Cấu trúc DOM** | **20đ** | - Không lặp lại việc query DOM cùng 1 element nhiều lần (lưu node vào biến) (10đ).<br>- Tạo DOM Node tối ưu, không thừa các thẻ HTML trung gian (5đ).<br>- Tuân thủ nghiêm ngặt ràng buộc: Không sử dụng Event Listeners, Fetch API hay LocalStorage (5đ). |
+| **Phát hiện & Giải thích Lỗi (Debug Report)** | 20đ | Giải thích đúng nguyên nhân gây lỗi của cả 5 vị trí: Thứ tự load Script, HTMLCollection vs Element, `.value` trên Div, ép kiểu Attribute dữ liệu, ghi đè Class Attribute. |
+| **Sửa lỗi Nhúng Script & Truy xuất DOM** | 20đ | Sử dụng đúng thuộc tính `defer` trên thẻ `<script>`. Truy xuất chính xác Element bằng `querySelector` hoặc truy cập đúng chỉ số `[0]` của `HTMLCollection`. |
+| **Tính toán Nghiệp vụ BHYT & Chuyển đổi Dữ liệu** | 30đ | Ép kiểu dữ liệu `dataset` từ chuỗi sang số/boolean đúng chuẩn. Tính chính xác 80% giảm trừ BHYT (500,000 VNĐ -> 100,000 VNĐ). Cập nhật chuỗi kết quả có đơn vị "VNĐ". |
+| **Thao tác Class & Cập nhật DOM Content** | 20đ | Dùng `classList.add("priority-badge")` giữ nguyên class `.badge`. Cập nhật đúng textContent cho nhãn ưu tiên và số thứ tự (`Q-008`). |
+| **Cấu trúc Mã nguồn & Phong cách (Clean Code)** | 10đ | Code sạch vẽ đúng thụt lề, tên biến rõ nghĩa theo chuẩn camelCase, comment đầy đủ các bước xử lý. |

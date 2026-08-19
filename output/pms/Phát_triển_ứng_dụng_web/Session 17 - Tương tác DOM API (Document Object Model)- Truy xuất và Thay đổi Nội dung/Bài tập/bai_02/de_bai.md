@@ -1,79 +1,48 @@
 ### 1. Mục tiêu bài tập
-- **Thao tác DOM API thuần thục**: Sử dụng thành thạo các phương thức truy xuất HTML Element (`document.getElementById`, `document.querySelector`) để lấy thông tin và cập nhật giao diện.
-- **Thay đổi nội dung & Thuộc tính DOM**: Biết cách cập nhật linh hoạt `textContent`, `innerHTML`, thao tác với `classList` (`add`, `remove`) và thay đổi style hiển thị của các thẻ HTML.
-- **Tư duy kiểm thử Input/Output trên DOM**: Tiếp nhận dữ liệu cấu hình đầu vào (Input Object), áp dụng logic nghiệp vụ hệ thống SaaS để cập nhật trạng thái hiển thị chính xác lên giao diện UI (Output DOM).
+- **Phát hiện và sửa lỗi DOM Selection**: Nhận biết và khắc phục các lỗi cú pháp khi truy xuất phần tử DOM bằng `document.getElementById()`, `document.querySelector()`.
+- **Thao tác chính xác với thuộc tính phần tử DOM**: Đọc và ghi đúng các thuộc tính nội dung (`innerText`, `textContent`, `innerHTML`) và attribute (`data-*`, `class`, `style`) thay vì nhầm lẫn với `value` trên các thẻ không phải `input`.
+- **Cập nhật giao diện theo Logic Nghiệp vụ Chấm công**: Hiểu và sửa lại logic tính lương ca làm việc, tiền phạt đi muộn và tiền làm thêm giờ (OT) cho nhân viên vận tải/logistics.
+- **Rèn luyện tư duy Debugging**: Phát hiện nguyên nhân làm đoạn mã bị dừng đột ngột hoặc tính toán ra kết quả `NaN` (Not a Number).
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là một Lập trình viên Frontend tại công ty phát triển nền tảng xem phim & nghe nhạc trực tuyến **SaaS Subscription Service**. Hệ thống cần hiển thị thông tin bảng điều khiển (Dashboard) quản lý gói tài khoản của người dùng dựa trên dữ liệu cấu hình được cung cấp từ backend.
+Doanh nghiệp vận tải và kho bãi **Rikkei Logistics** đang sử dụng ứng dụng web để hiển thị **Phiếu Tạm tính Lương Ca làm việc (Shift Payroll Summary)** dành cho nhân viên điều vận và tài xế. Sau khi kết thúc ca, dữ liệu thô được render ra HTML, và một đoạn mã JavaScript sẽ chịu trách nhiệm bóc tách dữ liệu từ các thẻ HTML, tính toán tiền phạt đi muộn, tiền OT, sau đó cập nhật lại kết quả lên màn hình.
 
-Khi thông tin người dùng được nạp vào hệ thống, trang web cần tự động truy xuất các thẻ HTML và thay đổi nội dung, màu sắc badge trạng thái, hạn mức thiết bị xem cùng lúc và danh sách các tính năng được truy cập theo đúng cấp độ gói đăng ký.
+Tuy nhiên, lập trình viên Junior vừa giao nộp đoạn mã JavaScript bị lỗi. Khi chạy trên trình duyệt, trang web không hiển thị đúng tổng tiền (ra kết quả `NaN`), trạng thái chuyên cần không đổi màu CSS, và một số thông tin bị mất hoàn toàn do chọn sai phần tử HTML.
+
+Dưới đây là sơ đồ xử lý dữ liệu của trang web:
 
 ```mermaid
-flowchart TD
-    A[Dữ liệu User Account Data Input] --> B{Kiểm tra thời gian nợ cước?}
-    B -- Quá 3 ngày --> C[Tự động chuyển về Gói FREE]
-    B -- Trong hạn --> D{Kiểm tra loại gói hiện tại}
-    D -- PERSONAL --> E[Gán hạn mức 1 thiết bị]
-    D -- FAMILY --> F[Gán hạn mức 5 thiết bị]
-    D -- FREE --> G[Gán hạn mức 1 thiết bị]
-    F --> H{Số tài khoản con active > 5?}
-    H -- Có --> I[Hiển thị Warning Badge vi phạm]
-    H -- Không --> J[Ẩn Warning Badge]
-    C --> K[Cập nhật UI DOM Elements]
-    E --> K
-    J --> K
-    I --> K
-    G --> K
+graph TD
+    A[Đọc dữ liệu thô từ thẻ HTML<br/>Phút đi muộn, Giờ OT, Loại ca] --> B{Đi muộn > 15 phút?}
+    B -- Có --|Trừ 50.000 VNĐ| C[Tính tiền phạt]
+    B -- Không --|Phạt = 0 VNĐ| C
+    C --> D{Loại ca làm việc?}
+    D -- WEEKDAY --|OT = 150% Lương giờ| E[Tính tiền OT]
+    D -- HOLIDAY --|OT = 300% Lương giờ| E
+    E --> F[Tổng lương ca = Lương cơ bản 300k + Tiền OT - Tiền phạt]
+    F --> G[Ghi dữ liệu mới vào DOM<br/>innerText / innerHTML / classList]
 ```
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-
-Dữ liệu đầu vào là một đối tượng `userData` có dạng:
-```javascript
-const userData = {
-  userName: "Nguyễn Văn A",
-  planType: "FAMILY", // Nhận 1 trong các giá trị: "PERSONAL", "FAMILY", "FREE"
-  paymentOverdueDays: 0, // Số ngày quá hạn thanh toán
-  activeSubAccounts: 6 // Số lượng tài khoản con đang hoạt động
-};
-```
-
-
-#### Quy tắc 1: Xử lý nợ cước thanh toán
-- Nếu `paymentOverdueDays > 3`: Tài khoản tự động bị hạ cấp về gói `"FREE"`. 
-  - Phần hiển thị trạng thái (`#account-status`) ghi nội dung: `"Đã hạ cấp về Miễn phí (Quá hạn thanh toán)"`.
-  - Xóa class `status-success`, `status-secondary` và thêm class `status-danger` vào thẻ `#account-status`.
-
-
-#### Quy tắc 2: Phân quyền theo hạng gói dịch vụ (Subscription Plan)
-- **Gói Cá nhân (`PERSONAL`)**:
-  - Tên hiển thị (`#plan-name`): `"Gói Cá Nhân"`
-  - Trạng thái (`#account-status`): `"Đang hoạt động"` (thêm class `status-success`).
-  - Số thiết bị tối đa (`#max-devices`): `"1 thiết bị"`
-  - Danh sách tính năng (`#feature-list`):
-    - `<li>Phát nội dung HD</li>`
-    - `<li>1 thiết bị phát cùng lúc</li>`
-- **Gói Gia đình (`FAMILY`)**:
-  - Tên hiển thị (`#plan-name`): `"Gói Gia Đình"`
-  - Trạng thái (`#account-status`): `"Đang hoạt động"` (thêm class `status-success`).
-  - Số thiết bị tối đa (`#max-devices`): `"5 thiết bị"`
-  - Danh sách tính năng (`#feature-list`):
-    - `<li>Phát nội dung 4K Ultra HD</li>`
-    - `<li>Tối đa 5 thiết bị phát cùng lúc</li>`
-    - `<li>Quản lý tài khoản thành viên gia đình</li>`
-  - **Kiểm tra vi phạm số lượng tài khoản con**: Nếu `activeSubAccounts > 5`, hiển thị thẻ cảnh báo `#warning-badge` với nội dung: `"Cảnh báo: Đã vượt quá 5 tài khoản gia đình cho phép!"` và gán thuộc tính `style.display = "block"`. Ngược lại, ẩn thẻ cảnh báo bằng `style.display = "none"`.
-- **Gói Miễn phí (`FREE`)** (Trong trường hợp không nợ cước):
-  - Tên hiển thị (`#plan-name`): `"Gói Miễn Phí"`
-  - Trạng thái (`#account-status`): `"Tài khoản Miễn phí"` (thêm class `status-secondary`).
-  - Số thiết bị tối đa (`#max-devices`): `"1 thiết bị"`
-  - Danh sách tính năng (`#feature-list`):
-    - `<li>Phát nội dung SD (Có quảng cáo)</li>`
+1. **Lương ca cơ bản (Base Shift Pay)**: `300.000 VNĐ` / ca 8 giờ (Tương đương `37.500 VNĐ/giờ`).
+2. **Phạt đi muộn (Late Penalty)**:
+   - Nếu số phút đi muộn (`lateMinutes`) **lớn hơn 15 phút**: Bị trừ `50.000 VNĐ`.
+   - Nếu số phút đi muộn **$\le$ 15 phút**: Không bị trừ tiền phạt (`0 VNĐ`).
+3. **Tiền làm thêm giờ (Overtime - OT)**:
+   - Làm ngày thường (`WEEKDAY`): Lương 1 giờ OT = `37.500 * 150%` (`56.250 VNĐ/giờ`).
+   - Làm ngày lễ (`HOLIDAY`): Lương 1 giờ OT = `37.500 * 300%` (`112.500 VNĐ/giờ`).
+   - `Tiền OT = Số giờ OT * Lương 1 giờ OT`.
+4. **Tổng lương thực nhận ca**:
+   - `Tổng lương = Lương ca cơ bản + Tiền OT - Tiền phạt đi muộn`.
+5. **Cập nhật trạng thái chuyên cần trên DOM**:
+   - Nếu bị phạt đi muộn (> 15 phút): Đổi nội dung thẻ trạng thái thành `"Vi phạm đi muộn"` và gán class CSS `status-warning`.
+   - Nếu không bị phạt ($\le$ 15 phút): Đổi nội dung thẻ trạng thái thành `"Đúng giờ"` và gán class CSS `status-success`.
 
 ---
 
@@ -81,58 +50,121 @@ const userData = {
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1 Cấu trúc HTML Ban Đầu (Cho sẵn)
-Lập trình viên tạo file `index.html` với cấu trúc như bên dưới (không sửa đổi `id` của thẻ):
+#### A. Cấu trúc Mã nguồn hiện tại (Bị lỗi)
 
+**File `index.html`:**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>SaaS Subscription Dashboard</title>
+  <title>Phiếu Tạm tính Lương Ca - Rikkei Logistics</title>
   <style>
-    .status-success { color: #2e7d32; font-weight: bold; }
-    .status-danger { color: #c62828; font-weight: bold; }
-    .status-secondary { color: #666666; font-style: italic; }
-    .warning { background-color: #ffebee; color: #c62828; padding: 8px; border-radius: 4px; margin-top: 10px; }
+    .card { border: 1px solid #ccc; padding: 16px; width: 350px; font-family: sans-serif; }
+    .status-success { color: green; font-weight: bold; }
+    .status-warning { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
-  <div id="subscription-card">
-    <h2 id="user-name">Tên người dùng</h2>
-    <p>Gói dịch vụ: <strong id="plan-name">---</strong></p>
-    <p>Trạng thái: <span id="account-status">---</span></p>
-    <p>Giới hạn thiết bị: <span id="max-devices">---</span></p>
-    
-    <h3>Tính năng khả dụng:</h3>
-    <ul id="feature-list"></ul>
+  <div class="card" id="payroll-card">
+    <h2>PHIẾU TẠM TÍNH LƯƠNG</h2>
+    <p>Mã nhân viên: <span id="emp-code">EMP-8821</span></p>
+    <p>Tên nhân viên: <span class="emp-name">Nguyễn Văn Lái</span></p>
+    <p>Số phút đi muộn: <span id="late-minutes">20</span> phút</p>
+    <p>Số giờ OT: <span id="ot-hours">2.5</span> giờ</p>
+    <p>Loại ca: <span id="shift-type" data-type="WEEKDAY">Ngày thường</span></p>
 
-    <div id="warning-badge" class="warning" style="display: none;"></div>
+    <hr>
+    <p>Trạng thái: <span id="attendance-status"></span></p>
+    <p>Tiền phạt đi muộn: <span id="penalty-amount">0</span> VNĐ</p>
+    <p>Tiền OT: <span id="ot-amount">0</span> VNĐ</p>
+    <p><strong>Thực nhận ca này: <span id="total-salary">0</span> VNĐ</strong></p>
   </div>
 
-  <script src="./app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
 ```
 
-
-#### 4.2 Triển khai hàm JavaScript trong file `app.js`
-Viết hàm `renderSubscriptionDashboard(userData)` tiếp nhận một object thông tin người dùng và thực hiện cập nhật toàn bộ thông tin lên HTML DOM.
-
+**File `script.js` (Chứa 7 lỗi sai cần debug):**
 ```javascript
-function renderSubscriptionDashboard(userData) {
-  // TODO: Truy xuất các DOM Elements cần thiết
-  // TODO: Xử lý logic nợ cước & hạ cấp tài khoản
-  // TODO: Cập nhật textContent, classList, innerHTML và style cho từng element
+// --- BẮT ĐẦU ĐOẠN MÃ LỖI CẦN DEBUG ---
+
+// Lỗi 1: Truy xuất sai selector getElementById
+const lateInput = document.getElementById("#late-minutes");
+
+// Lỗi 2: Đọc dữ liệu từ thẻ <span> dùng sai thuộc tính
+const lateMinutes = Number(lateInput.value);
+
+// Lỗi 3: Dùng querySelector sai cú pháp selector cho class
+const empNameEl = document.querySelector("emp-name");
+console.log("Nhân viên:", empNameEl.textContent);
+
+// Lỗi 4: Đọc custom attribute data-type bị sai cú pháp
+const shiftTypeEl = document.getElementById("shift-type");
+const shiftType = shiftTypeEl.getAttribute("dataset-type");
+
+const otHours = Number(document.getElementById("ot-hours").innerText);
+const baseHourlyRate = 37500;
+const baseShiftPay = 300000;
+
+// Lỗi 5: Logic so sánh phạt đi muộn bị ngược
+let penalty = 0;
+if (lateMinutes < 15) {
+    penalty = 50000;
+}
+
+// Lỗi 6: Cập nhật nội dung thẻ span dùng sai thuộc tính .value
+document.getElementById("penalty-amount").value = penalty;
+
+// Tính tiền OT
+let otRate = 1.0;
+if (shiftType === "WEEKDAY") {
+    otRate = 1.5;
+} else if (shiftType === "HOLIDAY") {
+    otRate = 3.0;
+}
+
+const otPay = otHours * baseHourlyRate * otRate;
+document.getElementById("ot-amount").innerText = otPay;
+
+// Tính tổng lương
+const totalSalary = baseShiftPay + otPay - penalty;
+document.getElementById("total-salary").innerText = totalSalary;
+
+// Lỗi 7: Thay đổi Class CSS của phần tử DOM sai cú pháp
+const statusEl = document.getElementById("attendance-status");
+if (penalty > 0) {
+    statusEl.class = "status-warning";
+    statusEl.innerHTML = "Vi phạm đi muộn";
+} else {
+    statusEl.class = "status-success";
+    statusEl.innerHTML = "Đúng giờ";
 }
 ```
 
+---
 
-#### 4.3 Ràng buộc phạm vi công nghệ (Forbidden Scope)
-- **KHÔNG** sử dụng bắt sự kiện (`addEventListener`, `onclick`, ...).
-- **KHÔNG** sử dụng Form Submit.
-- **KHÔNG** sử dụng `fetch`, `axios` hoặc `localStorage`.
-- Chỉ sử dụng kiến thức DOM API cơ bản của Session 17 (Truy xuất & Cập nhật nội dung/thuộc tính).
+
+#### B. Yêu cầu Nhiệm vụ của Học viên
+
+1. **Báo cáo Debug (Bắt buộc)**:
+   - Tạo file `DEBUG_REPORT.md` (hoặc ghi chú trong comment mã nguồn), liệt kê rõ **7 lỗi** có trong file `script.js` ban đầu.
+   - Với mỗi lỗi, giải thích rõ: *Dòng bị lỗi*, *Nguyên nhân gây ra lỗi* và *Cách khắc phục*.
+
+2. **Sửa mã nguồn (`script.js`)**:
+   - Sửa toàn bộ mã JavaScript để trang web chạy không phát sinh lỗi trong Console.
+   - Tính toán chính xác theo các thông số trong HTML gốc:
+     - Số phút đi muộn = `20` -> Bị phạt `50.000 VNĐ`.
+     - Số giờ OT = `2.5` giờ ngày thường (`WEEKDAY`) -> Tiền OT = `2.5 * 37.500 * 1.5 = 140.625 VNĐ`.
+     - Tổng thực nhận = `300.000 + 140.625 - 50.000 = 390.625 VNĐ`.
+     - Trạng thái hiển thị: `"Vi phạm đi muộn"` có màu chữ đỏ (class `status-warning`).
+   - Cập nhật đúng các giá trị tính toán được lên các phần tử HTML tương ứng (`#penalty-amount`, `#ot-amount`, `#total-salary`, `#attendance-status`).
+
+3. **Phạm vi Cấm (Forbidden Scope)**:
+   - Không dùng `addEventListener`, `onclick` hay các sự kiện tương tác (Session 19).
+   - Không dùng `fetch`, `axios`, `LocalStorage`, `jQuery`.
+   - Không sửa đổi cấu trúc HTML gốc.
 
 ---
 
@@ -140,8 +172,10 @@ function renderSubscriptionDashboard(userData) {
 ### 5. Quy chuẩn nộp bài
 - Cấu trúc thư mục dự án:
   ```text
-  logistics-saas-dom/
+  HRM_DOM_Debug/
   ├── index.html
-  └── app.js
+  ├── script.js
+  └── DEBUG_REPORT.md
   ```
-- File `app.js` chứa khai báo hàm `renderSubscriptionDashboard(userData)` và lời gọi hàm thử nghiệm với dữ liệu mẫu ở cuối file.
+- File `script.js` phải được comment rõ ràng tại các vị trí đã được debug.
+- Mã nguồn chạy trực tiếp bằng cách mở file `index.html` trên trình duyệt Google Chrome/Edge.

@@ -1,32 +1,25 @@
 ### 1. Mục tiêu bài tập
-- **Tối ưu hóa thao tác DOM API (DOM Performance Optimization):** Khắc phục lỗi Layout Thrashing (Reflow/Repaint liên tục) bằng cách hạn chế truy vấn DOM trùng lặp và loại bỏ việc ghi trực tiếp `innerHTML` trong vòng lặp bằng giải pháp `DocumentFragment` hoặc nối chuỗi template trong bộ nhớ.
-- **Tái cấu trúc mã nguồn (Code Refactoring & Clean Code):** Tách biệt hoàn toàn phần logic tính toán nghiệp vụ (Pure Business Logic) và phần cập nhật giao diện (DOM Rendering/Mutation).
-- **Bộ nhớ đệm phần tử DOM (DOM Caching):** Thực thi chiến lược lưu trữ bộ nhớ đệm cho các Node/Element được truy vấn nhiều lần nhằm giảm chi phí duyệt cây DOM.
-- **Áp dụng nghiệp vụ CRM - ShopeeFood:** Xử lý chính xác các điều kiện chiết khấu phí giao hàng, phụ phí giờ cao điểm, trạng thái đóng/mở cửa của nhà hàng và số lượng tồn kho của món ăn.
+- **Thao tác truy xuất DOM API**: Sử dụng thành thạo các phương thức `document.getElementById()`, `document.querySelector()` để lấy dữ liệu từ các phần tử HTML.
+- **Thay đổi nội dung & kiểu dáng DOM**: Biết cách sử dụng `textContent`, `innerHTML` và thuộc tính `style` để cập nhật giao diện người dùng dựa trên kết quả tính toán.
+- **Áp dụng logic nghiệp vụ thực tế**: Cài đặt thuật toán tính cước phí dịch vụ đặt xe công nghệ (GrabRide) với khoảng cách lũy tiến và hệ số phụ phí.
+- **Kiểm thử I/O trực tiếp trên DOM**: Đảm bảo mã nguồn đọc đúng input từ các phần tử DOM và ghi đúng output vào các phần tử DOM mục tiêu theo yêu cầu test case mà không cần phụ thuộc vào sự kiện người dùng (Event Listeners).
+
+---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn vừa tiếp nhận lại một đoạn mã nguồn cũ trong hệ thống xử lý chi tiết đơn hàng trực tuyến của **ShopeeFood (SHOPEE_FOOD)**. Đoạn mã cũ của lập trình viên tiền nhiệm đang gặp vấn đề nghiêm trọng về hiệu năng: mỗi khi rendering lại danh sách món ăn và tính toán lại hóa đơn, đoạn mã thực hiện truy vấn DOM (`document.getElementById`, `document.querySelector`) hàng chục lần bên trong vòng lặp, đồng thời gán `innerHTML +=` ở từng bước lặp khiến trình duyệt phải tính toán lại bố cục (Reflow) liên tục, gây ra hiện tượng giật lag giao diện trên thiết bị di động.
+Trong hệ thống đặt xe công nghệ **GrabRide**, sau khi khách hàng nhập điểm đi và điểm đến, hệ thống cần hiển thị thông tin tóm tắt chuyến đi (`TripFare`) cho khách hàng và tài xế kiểm tra trước khi tiến hành đặt xe.
 
-Nhiệm vụ của bạn là **tái cấu trúc (refactor)** và **tối ưu hóa (optimize)** lại toàn bộ đoạn mã JS xử lý DOM nói trên, đáp ứng đầy đủ quy tắc nghiệp vụ ShopeeFood và chuẩn hóa kiến trúc mã nguồn.
+Trang web đã có sẵn khung giao diện HTML chứa các thông tin khoảng cách di chuyển và trạng thái thời tiết/giờ cao điểm. Nhiệm vụ của bạn là viết script JavaScript thực hiện việc đọc dữ liệu từ giao diện, tính toán tổng cước phí chuyến đi theo quy tắc nghiệp vụ của GrabRide, sau đó cập nhật thông tin cước phí và trạng thái chuyến đi lên màn hình HTML.
 
-
-#### Sơ đồ luồng xử lý dữ liệu đơn hàng (ShopeeFood Order Flow):
 ```mermaid
 graph TD
-    A[Dữ liệu Đơn hàng & Config] --> B{Nhà hàng mở cửa?}
-    B -- Không --> C[Hiển thị Banner Đóng cửa & Khóa giỏ hàng]
-    B -- Có --> D[Lọc & Batch Render Danh sách Món bằng Fragment]
-    D --> E[Tính Tổng tiền món Subtotal]
-    E --> F{Subtotal >= 100,000đ?}
-    F -- Có --> G[Giảm 15,000đ phí giao hàng]
-    F -- Không --> H[Phí giao hàng giữ nguyên]
-    G --> I{Giờ cao điểm? 11h-13h hoặc 18h-20h}
-    H --> I
-    I -- Có --> J[Cộng phụ phí cao điểm 10,000đ]
-    I -- Không --> K[Giữ nguyên phụ phí 0đ]
-    J --> L[Batch Update tất cả Node DOM hiển thị tiền]
-    K --> L
+    A[HTML DOM Inputs: Distance & Surge Status] -->|DOM Read| B[JS Module: calculateAndRenderTripFare]
+    B -->|Business Rules Processing| C{Khoảng cách > 0?}
+    C -->|Sai| D[Render Lỗi: 'Khoảng cách không hợp lệ!']
+    C -->|Đúng| E[Tính giá sàn 2km đầu + km tiếp theo]
+    E --> F[Áp dụng hệ số phụ phí 1.2x nếu có]
+    F -->|DOM Write| G[Render kết quả cước phí & Trạng thái thành công]
 ```
 
 ---
@@ -34,33 +27,29 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-1. **Kiểm tra trạng thái Nhà hàng (Store Status Rule):**
-   - Nếu `isStoreOpen === false`:
-     - Cập nhật banner thông báo `#store-status-banner` có text: `"Rất tiếc, nhà hàng hiện đã đóng cửa. Vui lòng quay lại sau!"` và thêm class CSS `status-closed`.
-     - Ẩn toàn bộ khu vực tóm tắt thanh toán `#checkout-summary` (gán class `hidden` hoặc style `display: none`).
-     - Dừng toàn bộ tiến trình tính toán đơn hàng.
 
-2. **Xử lý Món ăn và Tồn kho (Food Item & Stock Rule):**
-   - Nếu một món ăn có `stock === 0`:
-     - Thêm nhãn `<span class="badge-out-of-stock">Hết hàng</span>` vào giao diện của món đó.
-     - Thêm class `item-disabled` vào thẻ chứa của món.
-     - **Không** tính tiền món này vào tổng chi phí giỏ hàng.
+#### a. Quy tắc tính cước phí chuyến đi (`TripFare`)
+1. **Giá sàn (2 km đầu tiên)**: Cố định **12.000 VNĐ** (áp dụng cho mọi khoảng cách `0 < distance <= 2`).
+2. **Giá lũy tiến (từ km thứ 3 trở đi)**:
+   - Giá mỗi km tiếp theo: **4.500 VNĐ / km**.
+   - Công thức base fare cho `distance > 2`: 
+     $$\text{BaseFare} = 12000 + (\text{distance} - 2) \times 4500$$
+3. **Phụ phí thời tiết xấu / Giờ cao điểm (`isSurge`)**:
+   - Nếu `isSurge` là `true` (hoặc attribute `data-surge="true"`): Nhân hệ số **1.2x** trên tổng `BaseFare`.
+   - Công thức tổng cước phí: 
+     $$\text{TotalFare} = \text{Math.round}(\text{BaseFare} \times 1.2)$$ (làm tròn đến hàng đơn vị).
+   - Nếu `isSurge` là `false`: $\text{TotalFare} = \text{BaseFare}$.
 
-3. **Tính toán Tổng tiền món (Subtotal Calculation):**
-   - $\text{Subtotal} = \sum (\text{Đơn giá món còn hàng} \times \text{Số lượng đặt})$.
 
-4. **Tính Phí giao hàng & Chiết khấu (Delivery & Discount Rules):**
-   - **Phí giao hàng gốc (`baseShipFee`):** Mặc định theo cấu hình hệ thống (ví dụ: $20.000\text{đ}$).
-   - **Ưu đãi giảm phí ship:** Nếu $\text{Subtotal} \ge 100.000\text{đ}$, giảm $15.000\text{đ}$ vào phí giao hàng. Phí giao hàng sau giảm không được nhỏ hơn $0\text{đ}$.
-     - $\text{Phí ship sau giảm} = \max(0, \text{baseShipFee} - 15000)$.
-   - **Phụ phí giờ cao điểm (Peak Hour Surcharge):**
-     - Khung giờ cao điểm: Từ $11\text{h}$ đến $13\text{h}$ HOẶC từ $18\text{h}$ đến $20\text{h}$ (`orderHour` từ $11 \le h \le 13$ hoặc $18 \le h \le 20$).
-     - Phụ phí giờ cao điểm: Cộng thêm $10.000\text{đ}$ vào cước giao hàng.
-   - **Tổng phí giao hàng (`finalShipFee`):**
-     - $\text{finalShipFee} = \text{Phí ship sau giảm} + \text{Phụ phí giờ cao điểm}$.
-
-5. **Tổng thanh toán (Grand Total):**
-   - $\text{Grand Total} = \text{Subtotal} + \text{finalShipFee}$.
+#### b. Quy tắc kiểm tra dữ liệu đầu vào (Input Validation)
+- Nếu giá trị khoảng cách $\le 0$ hoặc không phải là số hợp lệ (`isNaN`):
+  - Số tiền hiển thị: `0 VNĐ`
+  - Trạng thái chuyến đi hiển thị: `Khoảng cách không hợp lệ!`
+  - Màu chữ của phần tử trạng thái chuyến đi: Đổi sang màu đỏ (`#dc3545` hoặc `red`).
+- Nếu khoảng cách hợp lệ ($> 0$):
+  - Số tiền hiển thị: Định dạng theo chuẩn Việt Nam Đồng (ví dụ: `16.500 VNĐ` hoặc `12.000 VNĐ`).
+  - Trạng thái chuyến đi hiển thị: `Chuyến đi hợp lệ`
+  - Màu chữ của phần tử trạng thái chuyến đi: Đổi sang màu xanh (`#28a745` hoặc `green`).
 
 ---
 
@@ -68,89 +57,57 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Cấu trúc DOM mẫu (HTML)
-Yêu cầu mã mã nguồn chạy chính xác trên cấu trúc cây DOM HTML như sau:
+#### a. Cấu trúc HTML đầu vào (Mẫu reference trong `index.html`)
+Mã nguồn HTML cung cấp sẵn các thẻ sau (học viên **không sửa đổi ID** của các thẻ này):
 
 ```html
-<div id="shopeefood-app">
-  <!-- Banner trạng thái quán -->
-  <div id="store-status-banner" class="banner"></div>
+<div id="booking-card">
+  <h2>Thông tin chuyến đi GrabRide</h2>
+  <!-- Khoảng cách di chuyển tính bằng km -->
+  <span id="distance-val" data-distance="3.5">3.5</span> km
 
-  <!-- Danh sách món ăn -->
-  <div class="cart-section">
-    <h2>Danh sách món ăn</h2>
-    <ul id="cart-list" class="food-list"></ul>
-  </div>
+  <!-- Trạng thái phụ phí giờ cao điểm / thời tiết -->
+  <span id="surge-val" data-surge="true">Có (Phụ phí 1.2x)</span>
 
-  <!-- Khu vực tóm tắt thanh toán -->
-  <div id="checkout-summary" class="summary-section">
-    <div class="summary-row">
-      <span>Tạm tính tiền món:</span>
-      <span id="subtotal-val">0đ</span>
-    </div>
-    <div class="summary-row">
-      <span>Phí giao hàng:</span>
-      <span id="shipping-val">0đ</span>
-    </div>
-    <div class="summary-row" id="peak-surcharge-row">
-      <span>Phụ phí giờ cao điểm:</span>
-      <span id="peak-val">0đ</span>
-    </div>
-    <div class="summary-row total-row">
-      <strong>Tổng thanh toán:</strong>
-      <strong id="grand-total-val">0đ</strong>
-    </div>
-  </div>
+  <!-- Các khu vực hiển thị kết quả -->
+  <div id="fare-amount">0 VNĐ</div>
+  <div id="trip-status">Đang chờ xử lý...</div>
 </div>
 ```
 
 
-#### 4.2. Cấu trúc dữ liệu đầu vào (Input Mock Data)
-```javascript
-const sampleStoreConfig = {
-  isStoreOpen: true,
-  orderHour: 12, // 12h trưa (Giờ cao điểm)
-  baseShipFee: 20000
-};
+#### b. Yêu cầu mã nguồn JavaScript (`js/app.js`)
+Viết hàm `calculateAndRenderTripFare()` và tự động thực thi hàm này khi script được tải. Hàm cần thực hiện chính xác các bước:
 
-const sampleCartItems = [
-  { id: "F01", name: "Cơm Tấm Sườn Bì Chả", price: 45000, quantity: 2, stock: 10 },
-  { id: "F02", name: "Trà Sữa Oolong Lài", price: 30000, quantity: 1, stock: 5 },
-  { id: "F03", name: "Bánh Mì Option Đặc Biệt", price: 35000, quantity: 1, stock: 0 } // Hết hàng
-];
-```
+1. **Đọc dữ liệu từ DOM**:
+   - Lấy giá trị khoảng cách từ thuộc tính `data-distance` hoặc nội dung text của thẻ `#distance-val`. Ép kiểu về số thực (`parseFloat`).
+   - Lấy trạng thái phụ phí từ thuộc tính `data-surge` của thẻ `#surge-val` (giá trị chuỗi `"true"` chuyển thành boolean `true`, ngược lại là `false`).
+2. **Tính toán**: Áp dụng đúng Business Rules nêu trên.
+3. **Cập nhật DOM**:
+   - Ghi kết quả cước phí vào thẻ `#fare-amount` sử dụng `textContent` (Định dạng có phân tách hàng nghìn + đuôi `VNĐ`, ví dụ `18.750 VNĐ`).
+   - Ghi thông báo vào thẻ `#trip-status` và chỉnh đổi màu sắc qua `style.color`.
 
 
-#### 4.3. Quy định Tối ưu hóa & Tái cấu trúc (Bắt buộc)
-1. **DOM Selector Caching:** Tạo một object chứa trước tất cả các tham chiếu DOM (`DOM_ELEMENTS`) ở phạm vi module/đầu script. Tuyệt đối không gọi lại `document.getElementById` hay `document.querySelector` bên trong bất kỳ hàm vòng lặp nào.
-2. **Loại bỏ InnerHTML Loop Anti-pattern:** Khi render danh sách món ăn `#cart-list`, phải dựng toàn bộ cây phần tử bằng `DocumentFragment` hoặc tích lũy chuỗi HTML mẫu rồi gán `innerHTML` **đúng 1 lần duy nhất**.
-3. **Phân tách Logic nghiệp vụ (Pure Functions):**
-   - `calculateOrderMetrics(cartItems, storeConfig)`: Hàm nhận vào mảng món ăn và config, trả về object chứa kết quả tính toán (`subtotal`, `discountedShip`, `peakSurcharge`, `finalShipFee`, `grandTotal`, `validItemsCount`). Hàm này **không thao tác với DOM**.
-   - `formatCurrency(amount)`: Định dạng số nguyên thành chuỗi chuẩn tiền tệ Việt Nam (Ví dụ: `120000` -> `"120.000đ"`).
-4. **Hàm Render và Update DOM:**
-   - `renderCartItems(items)`: Nhận danh sách items, render DOM hiệu năng cao. Sử dụng `textContent` cho các phần tử chứa text thuần túy để tối ưu và an toàn.
-   - `updateCheckoutView(metrics, isStoreOpen)`: Cập nhật các thẻ span hiển thị số tiền và ẩn/hiển thị banner.
-
-
-#### 4.4. Phạm vi CẤM (Forbidden Scope)
-- **KHÔNG** sử dụng bất kỳ Event Listener nào (`addEventListener`, `onclick`, `onchange`,...).
-- **KHÔNG** sử dụng Form Submission, `Fetch API`, `Axios`, `XMLHttpRequest`.
-- **KHÔNG** sử dụng `localStorage` hay `sessionStorage`.
-- Mã nguồn chỉ tập trung tối ưu hóa thao tác DOM, truy xuất và thay đổi nội dung theo chuẩn kiến thức Session 17.
+#### c. Phạm vi cấm (Forbidden Scope)
+- **KHÔNG** sử dụng Event Listeners (`addEventListener`, `onclick`, `onchange`, ...).
+- **KHÔNG** sử dụng thẻ `<form>` hoặc sự kiện submit (`onsubmit`).
+- **KHÔNG** sử dụng `fetch()`, `axios`, hoặc API bất đồng bộ.
+- **KHÔNG** sử dụng `localStorage` hoặc `sessionStorage`.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục:**
-  ```text
-  student_id_session17_hw5/
-  ├── index.html
-  ├── css/
-  │   └── style.css
-  └── js/
-      └── app.js
-  ```
-- **Quy định đặt tên:**
-  - Tên thư mục gốc: `[MãSinhViên]_Session17_HW5` (Ví dụ: `B8899_Session17_HW5`).
-  - Đảm bảo file `app.js` được liên kết đúng chuẩn ở cuối thẻ `<body>` trong `index.html`.
+
+- **Cấu trúc thư mục dự án**:
+```text
+grabride-dom-fare/
+├── index.html
+└── js/
+    └── app.js
+```
+
+- **Quy định đặt tên**:
+  - Hàm xử lý chính trong `app.js` phải đặt tên chính xác là: `calculateAndRenderTripFare()`.
+  - Tên file JavaScript: `js/app.js`.
+  - Không nộp các file nén `.zip`, `.rar` thừa ngoài cấu trúc thư mục quy định.

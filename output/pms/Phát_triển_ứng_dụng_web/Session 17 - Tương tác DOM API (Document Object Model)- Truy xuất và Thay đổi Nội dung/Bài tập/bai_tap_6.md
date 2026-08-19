@@ -1,32 +1,28 @@
-# Bài tập 6: EdTech (Sáng tạo - Thiết kế Mini Module)
+# Bài tập 6: EdTech (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-- **Thiết kế và đóng gói Mini Module**: Xây dựng module JavaScript `SaaSManager` quản lý giao diện bảng điều khiển gói đăng ký (Subscription Dashboard) cho nền tảng EdTech theo nguyên lý lập trình hướng đối tượng hoặc module pattern.
-- **Thao tác DOM API chuyên sâu**: Thành thạo việc sử dụng các truy xuất DOM (`getElementById`, `querySelector`, `querySelectorAll`), thay đổi thuộc tính (`setAttribute`, `dataset`), cập nhật nội dung (`textContent`, `innerHTML`), và thao tác dynamic styling/classes (`classList.add`, `remove`, `toggle`).
-- **Xử lý Logic Nghiệp vụ Phức tạp**: Thực thi logic tính toán chiết khấu, phân quyền tính năng theo hạng gói (Tiering), quản lý hạn ngạch tài khoản con (Sub-accounts quota), và tự động chuyển đổi trạng thái giao diện theo chu kỳ gia hạn (Grace Period logic).
+- **Truy xuất DOM Element:** Sử dụng thành thạo các phương thức `document.getElementById()`, `document.querySelector()`, và `document.querySelectorAll()` để tương tác với cây DOM.
+- **Trích xuất dữ liệu:** Biết cách đọc dữ liệu từ thuộc tính HTML (`getAttribute`, `dataset`) và nội dung văn bản (`innerText`, `textContent`).
+- **Xử lý tính toán & Cập nhật DOM:** Thực thi logic nghiệp vụ tính toán chi phí, sau đó cập nhật thông tin hiển thị và thay đổi định dạng giao diện (`innerHTML`, `innerText`, `classList`, `setAttribute`) mà **không sử dụng Event Listener**.
+- **Tư duy kiểm thử I/O:** Hiểu rõ đầu vào (Input từ DOM) và đầu ra (Output cập nhật ngược lại DOM) theo chuẩn kiểm thử tự động.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là Chuyên viên Phát triển Phần mềm Front-End tại một công ty EdTech sở hữu nền tảng học tập trực tuyến dạng SaaS (Software-as-a-Service). Hệ thống cung cấp các gói dịch vụ tài khoản trả phí hàng tháng/hàng năm cho học viên và doanh nghiệp.
+Hệ thống **VinFast EV Charging Station Management** đang nâng cấp màn hình giám sát thời gian thực tại trạm sạc. Mỗi cổng sạc (ChargingPort) kết nối với một phiên sạc (VehicleSession). Do lỗi từ hệ thống nhúng, giao diện hiện tại chỉ hiển thị mã HTML chứa dữ liệu thô (raw data) lưu giữ dưới dạng `data-* attributes`.
 
-Nhiệm vụ của bạn là thiết kế **Mini Module Render Giao diện Bảng điều khiển Gói dịch vụ (SaaS Subscription Management Dashboard UI Engine)**. Module này nhận dữ liệu đầu vào là đối tượng tài khoản người dùng (`UserAccount`), gói đăng ký (`SubscriptionPlan`), tình trạng thanh toán (`BillingCycle` & `PaymentStatus`), sau đó trực tiếp thao tác lên DOM Tree để cập nhật toàn bộ giao diện bảng điều khiển một cách chính xác, linh hoạt và trực quan mà **không sử dụng bất kỳ Event Listener nào**.
+Nhiệm vụ của bạn là viết script JavaScript thực thi ngay khi tải trang để:
+1. Đọc thông số kỹ thuật và chỉ số điện năng từ DOM.
+2. Áp dụng quy tắc nghiệp vụ để tính phí sạc, phí quá giờ và kiểm tra trạng thái an toàn nhiệt độ/mức pin.
+3. Cập nhật kết quả chi tiết lên bảng hiển thị hóa đơn (ChargingInvoice) và thẻ trạng thái trạm sạc.
 
-
-#### Sơ đồ Luồng Xử lý Dữ liệu và DOM Manipulation Engine:
 ```mermaid
 graph TD
-    A[Mock Data: User & Subscription] --> B[SaaSManager Module Init]
-    B --> C{Xử lý Payment Status}
-    C -- FAILED & Overdue > 3 days --> D[Downgrade UI về FREE & Render Alert Warning]
-    C -- Valid hoặc Overdue <= 3 days --> E[Giữ nguyên Plan & Render Warning nếu cần]
-    D --> F[Render Account Profile & Badge]
-    E --> F
-    F --> G[Render Billing Details & Calculate Price]
-    G --> H[Render Feature Access List Matrix]
-    H --> I[Render Sub-Account Slot Management]
-    I --> J[DOM Tree Hydrated & Updated Completely]
+    A[HTML Raw DOM: data-kwh, data-type, data-idle-mins, data-temp, data-battery] --> B[JS Query DOM Elements & Read Attributes]
+    B --> C[Parse Data & Calculate Power Fee, Overtime Penalty, Safety Check]
+    C --> D[Update DOM: innerText for Bill, innerHTML for Alerts, classList for Status Badges]
+    D --> E[Final Rendered Station Monitoring Dashboard]
 ```
 
 ---
@@ -34,49 +30,29 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
+1. **Đơn giá sạc điện năng (`ChargingInvoice`):**
+   - Sạc thường (`STANDARD`): **3.850 VNĐ / kWh**.
+   - Sạc siêu nhanh (`SUPER_FAST`): **4.500 VNĐ / kWh**.
+   - *Công thức:* `Tiền sạc = kWh * Đơn giá`
 
-#### A. Quy định Hạng Gói (Subscription Tier Rules)
-Hệ thống gồm 4 hạng gói dịch vụ với các thiết lập mặc định:
-1. **`FREE` (Bản Miễn phí)**:
-   - Giá gốc: `0 VNĐ`
-   - Số thiết bị phát tối đa: 1 thiết bị.
-   - Hạn ngạch tài khoản con: 0 tài khoản.
-   - Quyền truy cập: Chỉ được xem 3 bài học dùng thử (Trial Content).
-2. **`INDIVIDUAL` (Gói Cá nhân)**:
-   - Giá gốc: `199,000 VNĐ / tháng`
-   - Số thiết bị phát tối đa: 1 thiết bị tại một thời điểm.
-   - Hạn ngạch tài khoản con: 0 tài khoản.
-   - Quyền truy cập: Toàn bộ khóa học, chất lượng Full HD.
-3. **`FAMILY` (Gói Gia đình)**:
-   - Giá gốc: `399,000 VNĐ / tháng`
-   - Số thiết bị phát tối đa: 5 thiết bị.
-   - Hạn ngạch tài khoản con: Tối đa 5 tài khoản con (Sub-accounts).
-   - Quyền truy cập: Toàn bộ khóa học, chất lượng 4K, Tải bài học offline.
-4. **`ENTERPRISE` (Gói Doanh nghiệp)**:
-   - Giá gốc: `999,000 VNĐ / tháng`
-   - Số thiết bị phát tối đa: Không giới hạn.
-   - Hạn ngạch tài khoản con: Không giới hạn (Dynamic input).
-   - Quyền truy cập: Tất cả đặc quyền + Cố vấn 1-1 + Trình quản lý riêng.
+2. **Phí phạt quá giờ (`Overtime Penalty`):**
+   - Xe sạc đầy nhưng vẫn chiếm vị trí tại cổng sạc:
+     - Thời gian chờ (idle time) $\le 30$ phút: **0 VNĐ** (Miễn phí 30 phút đầu).
+     - Thời gian chờ $> 30$ phút: Phạt **1.000 VNĐ / phút** cho số phút vượt quá 30 phút.
+   - *Công thức:* `Phí phạt = (Số phút đỗ - 30) * 1000` (Nếu `Số phút đỗ > 30`).
 
+3. **Tổng hóa đơn (`Total Amount`):**
+   - `Tổng thanh toán = Tiền sạc + Phí phạt quá giờ`.
+   - Tất cả giá trị tiền tệ hiển thị trên giao diện phải được định dạng theo chuẩn Việt Nam (Ví dụ: `154.000 VNĐ`).
 
-#### B. Quy định Chu kỳ Thanh toán (Billing Cycle & Pricing)
-- **`MONTHLY` (Hàng tháng)**: Tổng tiền = `Giá gốc * 1`.
-- **`ANNUAL` (Hàng năm)**: Tổng tiền = `Giá gốc * 12 * 0.8` (Áp dụng chiết khấu giảm 20% tổng chi phí năm). Giá hiển thị hàng tháng trung bình = `(Tổng tiền sau giảm) / 12`.
-- Định dạng tiền tệ: Phải chuyển đổi số thành chuẩn hiển thị Việt Nam Đồng (Ví dụ: `199.000 VNĐ`).
-
-
-#### C. Quy định Xử lý Nợ phí & Ân hạn Thanh toán (Grace Period Rule)
-- Trường hợp `paymentStatus === "FAILED"`:
-  - Nếu `daysOverdue <= 3`: Giữ nguyên hạng gói hiện tại, chèn vào DOM banner cảnh báo màu vàng: `"Cảnh báo: Thanh toán thất bại. Vui lòng cập nhật phương thức thanh toán trong vòng [3 - daysOverdue] ngày nữa."`
-  - Nếu `daysOverdue > 3`: **Tự động kích hoạt logic Hạ cấp (Downgrade)**. Giao diện gói hiển thị phải bị ép buộc chuyển sang hạng `FREE`, đồng thời hiển thị banner thông báo nguy cấp màu đỏ: `"Tài khoản đã bị tự động hạ cấp xuống bản Miễn phí do quá hạn thanh toán [daysOverdue] ngày."`
-- Trường hợp `paymentStatus === "PAID"`: Ẩn/Xóa toàn bộ banner cảnh báo thanh toán.
-
-
-#### D. Quy định Hạn ngạch Tài khoản con (Sub-Accounts Quota)
-- Nếu hạng gói hiện tại là `FREE` hoặc `INDIVIDUAL`: Khối UI quản lý tài khoản con phải hiển thị trạng thái Vô hiệu hóa (`disabled`) kèm dòng thông báo: `"Gói dịch vụ hiện tại không hỗ trợ thêm tài khoản con."`
-- Nếu hạng gói là `FAMILY`:
-  - Hiển thị danh sách các tài khoản con đã đăng ký.
-  - Nếu danh sách gửi vào vượt quá 5 tài khoản (ví dụ 6 tài khoản), các tài khoản từ vị trí thứ 6 trở đi phải bị gắn class CSS `.exceeded-limit` và gắn nhãn trạng thái: `"(Vượt hạn ngạch - Đã khóa)"`.
+4. **Quy tắc an toàn & Trạng thái ngắt sạc (`Safety & Status Check`):**
+   - Tự động chuyển trạng thái cổng sạc sang **"ĐÃ NGẮT SẠC (TỰ ĐỘNG)"** nếu xảy ra 1 trong 2 trường hợp:
+     - Mức pin (`batteryLevel`) $\ge 100\%$.
+     - Nhiệt độ cổng sạc (`temperature`) $> 70^\circ\text{C}$.
+   - Ngược lại: Trạng thái là **"ĐANG SẠC"**.
+   - **Định dạng màu sắc (CSS Class):**
+     - Trạng thái "ĐÃ NGẮT SẠC (TỰ ĐỘNG)": Gán class `status-danger` cho phần tử thẻ trạng thái và hiển thị đoạn cảnh báo màu đỏ (`#safety-alert`).
+     - Trạng thái "ĐANG SẠC": Gán class `status-success` cho phần tử thẻ trạng thái và ẩn/xóa đoạn cảnh báo.
 
 ---
 
@@ -84,97 +60,88 @@ Hệ thống gồm 4 hạng gói dịch vụ với các thiết lập mặc đ�
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc DOM Template mẫu (HTML đính kèm)
-Học viên tạo file `index.html` với cấu trúc khung thẻ để module JavaScript truy xuất:
+#### 4.1. Mã HTML ban đầu (`index.html`)
+Giữ nguyên cấu trúc HTML bên dưới, không thay đổi thẻ HTML:
 
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>SaaS Subscription Management Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>VinFast EV Charging Station</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app-container">
-    <!-- Payment Warning Banner Node -->
-    <div id="payment-alert-box" class="alert-hidden"></div>
+    <div class="container">
+        <h1>TRẠM SẠC XE ĐIỆN VINFAST - CỔNG #04</h1>
+        
+        <!-- Element chứa dữ liệu thô đầu vào -->
+        <div id="session-data" 
+             data-kwh="40.5" 
+             data-charging-type="SUPER_FAST" 
+             data-idle-minutes="45" 
+             data-battery="100" 
+             data-temp="74.5">
+        </div>
 
-    <!-- User & Plan Summary Card -->
-    <div id="user-info-card" class="card">
-      <img id="user-avatar" src="" alt="User Avatar">
-      <h2 id="user-display-name"></h2>
-      <p id="user-email"></p>
-      <span id="plan-badge" class="badge"></span>
-    </div>
+        <!-- Dashboard hiển thị kết quả -->
+        <div class="dashboard shadow">
+            <div class="card">
+                <h3>Trạng Thái Cổng Sạc</h3>
+                <div id="charging-status" class="badge">Đang khởi tạo...</div>
+                <div id="safety-alert" class="alert-box"></div>
+            </div>
 
-    <!-- Billing Summary Section -->
-    <div id="billing-summary" class="card">
-      <h3>Thông tin thanh toán</h3>
-      <p>Chu kỳ: <strong id="billing-cycle-text"></strong></p>
-      <p>Chi phí: <strong id="billing-price-text"></strong></p>
-      <p id="annual-discount-note" class="hidden">Đã áp dụng giảm giá 20% cho gói năm!</p>
+            <div class="card">
+                <h3>Chi Tiết Hóa Đơn (ChargingInvoice)</h3>
+                <p>Loại sạc: <span id="display-type">---</span></p>
+                <p>Điện năng tiêu thụ: <span id="display-kwh">---</span> kWh</p>
+                <p>Tiền sạc: <span id="power-cost">---</span></p>
+                <p>Thời gian chiếm chỗ: <span id="display-idle">---</span> phút</p>
+                <p>Phí phạt quá giờ: <span id="overtime-fee">---</span></p>
+                <hr>
+                <h4>TỔNG CHÍNH THỨC: <span id="total-bill">---</span></h4>
+            </div>
+        </div>
     </div>
-
-    <!-- Feature Access Matrix -->
-    <div id="feature-matrix-card" class="card">
-      <h3>Đặc quyền gói dịch vụ</h3>
-      <ul id="feature-matrix-list"></ul>
-    </div>
-
-    <!-- Sub-Accounts Management Section -->
-    <div id="sub-account-card" class="card">
-      <h3>Quản lý tài khoản con (<span id="sub-account-count">0/0</span>)</h3>
-      <div id="sub-account-notice"></div>
-      <ul id="sub-account-list"></ul>
-    </div>
-  </div>
-  <script src="main.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
 ```
 
 
-#### B. Yêu cầu Thiết kế JavaScript Module (`main.js`)
-Viết code dưới dạng một Object Module hoặc Class `SaaSManager` chứa các phương thức xử lý DOM riêng biệt:
-
-1. `SaaSManager.init(userData)`: Hàm khởi tạo chính, tiếp nhận dữ liệu tài khoản và điều phối luồng render.
-2. `SaaSManager.handleGracePeriod(paymentInfo, currentPlan)`: Kiểm tra điều kiện nợ phí. Trả về thông tin gói đăng ký thực tế sau khi tính toán (chuyển thành `FREE` nếu nợ quá 3 ngày) và cập nhật `#payment-alert-box`.
-3. `SaaSManager.renderUserProfile(user, effectivePlan)`: Truy xuất và cập nhật thông tin người dùng, đổi class CSS cho `#plan-badge` tương ứng với gói (`badge-free`, `badge-individual`, `badge-family`, `badge-enterprise`).
-4. `SaaSManager.renderBilling(effectivePlan, cycleInfo)`: Tính toán số tiền theo chu kỳ, format VND và ghi nội dung vào `#billing-cycle-text`, `#billing-price-text`. Hiển thị/ẩn `#annual-discount-note`.
-5. `SaaSManager.renderFeatureMatrix(effectivePlan)`: Duyệt qua danh sách đặc quyền của hệ thống, sử dụng `innerHTML` hoặc `createElement` để hiển thị danh sách dạng `<li>`, thêm biểu tượng `` (cho phép) hoặc `` (bị khóa) và áp dụng class `.feature-locked` / `.feature-unlocked`.
-6. `SaaSManager.renderSubAccounts(effectivePlan, subAccounts)`: Kiểm tra hạn ngạch, hiển thị thông báo nếu bị vô hiệu hóa, hoặc tạo các thẻ `<li>` hiển thị danh sách tài khoản con, đánh dấu các tài khoản vượt hạn ngạch theo Business Rules.
-
-
-#### C. Phạm vi Nghiêm cấm (Forbidden Scope)
--  **KHÔNG** sử dụng `addEventListener`, `onclick`, `onchange` hoặc bất kỳ cơ chế xử lý sự kiện nào (Dành cho Session 19).
--  **KHÔNG** sử dụng `fetch()`, `axios`, hoặc `XMLHttpRequest` để gọi API.
--  **KHÔNG** sử dụng `localStorage` / `sessionStorage`.
-- Module vận hành 100% bằng cách gọi hàm thực thi dữ liệu giả định (`Mock Data`) được khai báo ở đầu file `main.js`.
+#### 4.2. Yêu cầu mã JavaScript (`script.js`)
+- Viết mã xử lý tự động chạy ngay khi file `script.js` được nạp.
+- Thực hiện trích xuất toàn bộ `data-*` từ `#session-data`.
+- Chuyển đổi kiểu dữ liệu (String sang Number) và kiểm soát các trường hợp dữ liệu bị khuyết/lỗi (ví dụ: `NaN`, âm). Nếu dữ liệu lỗi, mặc định gán giá trị an toàn là `0`.
+- Đổi loại sạc `SUPER_FAST` thành chuỗi hiển thị `"Sạc siêu nhanh (4.500đ/kWh)"`, `STANDARD` thành `"Sạc thường (3.850đ/kWh)"`.
+- Cập nhật đúng các thẻ target `#display-type`, `#display-kwh`, `#power-cost`, `#display-idle`, `#overtime-fee`, `#total-bill`, `#charging-status`, `#safety-alert`.
+- **RÀNG BUỘC PHẠM VI:** 
+  - **TUYỆT ĐỐI KHÔNG** dùng `addEventListener`, `onclick`, `onsubmit`.
+  - **TUYỆT ĐỐI KHÔNG** dùng `fetch`, `axios`, `localStorage`, `sessionStorage`.
+  - Chỉ sử dụng thuần túy DOM API nâng cao của Session 17 (`querySelector`, `getElementById`, `innerText`, `innerHTML`, `setAttribute`, `classList`).
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-1. **Cấu trúc thư mục**:
-   ```text
-   bai6-saas-subscription-dom/
-   ├── index.html
-   ├── style.css
-   ├── main.js
-   └── README.md
-   ```
-2. **Quy định đặt tên**:
-   - Class CSS sử dụng theo chuẩn Kebab-case (Ví dụ: `badge-family`, `feature-locked`, `alert-warning`).
-   - Hàm và biến JavaScript sử dụng chuẩn Camel-case (Ví dụ: `renderFeatureMatrix`, `effectivePlan`).
-3. **File README.md**: Ghi rõ hướng dẫn mở file `index.html` và mô tả các kịch bản test mock data (Case 1: Gói Family hợp lệ, Case 2: Gói Family bị quá hạn thanh toán 4 ngày -> downgrade, Case 3: Gói Individual dùng gói năm).
+- **Cấu trúc thư mục:**
+  ```text
+  ex06_ev_charging/
+  ├── index.html
+  ├── style.css
+  └── script.js
+  ```
+- **Quy định đặt tên:**
+  - File JS xử lý chính: `script.js`.
+  - Các biến lưu trữ DOM Element phải dùng tiền tố `el` hoặc danh từ gợi nhớ (VD: `sessionDataEl`, `totalBillEl`).
+  - Đóng gói logic vào các hàm thuần túy (pure functions) để hỗ trợ kiểm thử I/O (VD: `calculatePowerCost(kwh, type)`, `calculateOvertimeFee(minutes)`).
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Mô đun hóa Mã nguồn** | **20đ** | - Mã nguồn JS được thiết kế dạng Module/Class sạch sẻ, phân tách rõ ràng trách nhiệm từng hàm (`renderUserProfile`, `renderBilling`,...<br>- Đặt tên biến, hàm theo chuẩn Camel-case, comment giải thích logic nghiệp vụ đầy đủ.<br>- Khung HTML ngữ nghĩa, CSS định hình giao diện rõ ràng. |
-| **Thao tác DOM API & Rendering** | **20đ** | - Sử dụng đúng và tối ưu các truy xuất DOM (`getElementById`, `querySelector`, `querySelectorAll`).<br>- Cập nhật chính xác `textContent`, `innerHTML`, `classList` và thuộc tính DOM theo trạng thái dữ liệu.<br>- Không để lọt các lỗi đè dữ liệu hoặc render sót node. |
-| **Xử lý Logic Nghiệp vụ & Grace Period** | **30đ** | - Tính toán chính xác giá tiền gói năm (chiết khấu 20%) và định dạng tiền tệ `VNĐ`.<br>- Thực hiện chuẩn xác logic Grace Period: `daysOverdue > 3` phải ép downgrade giao diện về `FREE` và đổi trạng thái Alert sang màu đỏ.<br>- Nếu `daysOverdue <= 3` hiển thị thông báo màu vàng cảnh báo số ngày còn lại. |
-| **Quản lý Hạn ngạch & Feature Matrix** | **20đ** | - Render chính xác ma trận đặc quyền (locked/unlocked) cho cả 4 hạng gói.<br>- Xử lý đúng hạn ngạch tài khoản con: Ẩn/Vô hiệu hóa với gói Free/Individual; Đánh dấu nhãn vượt hạn ngạch (`.exceeded-limit`) từ tài khoản thứ 6 trở đi với gói Family. |
-| **Kiểm soát Ngoại lệ & Dữ liệu Biên** | **10đ** | - Xử lý an toàn khi mảng tài khoản con bị rỗng (`[]` hoặc `null`).<br>- Xử lý khi dữ liệu gói nhập vào không hợp lệ (mặc định trả về gói `FREE`).<br>- Không vi phạm danh mục cấm (Không dùng Event Listener, Fetch, LocalStorage). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn camelCase, thể hiện rõ ngữ nghĩa domain VinFast EV Charging.<br>- Tách bạch rõ ràng giữa bước: Read Input -> Process Logic -> Write Output (DOM UI).<br>- Có comment giải thích các bước tính toán theo Business Rules. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Đọc chính xác 5 tham số đầu vào từ `data-*` attributes (`data-kwh`, `data-charging-type`, `data-idle-minutes`, `data-battery`, `data-temp`).<br>- Tính chuẩn đơn giá Sạc thường / Sạc siêu nhanh.<br>- Tính chính xác phí phạt đỗ xe quá 30 phút.<br>- Tính đúng tổng hóa đơn và hiển thị định dạng chuẩn tiền tệ VNĐ (`toLocaleString('vi-VN')`). |
+| **Xử lý Biên & Ngoại lệ** | **20đ** | - Xử lý trường hợp `idle-minutes` $\le 30$ (Phí phạt bằng 0 VNĐ).<br>- Chuyển đổi dữ liệu từ String sang Number an toàn (dùng `parseFloat`, `parseInt` kết hợp `isNaN` check).<br>- Xử lý trường hợp nhiệt độ vượt ngưỡng ($> 70^\circ\text{C}$) hoặc pin đầy ($\ge 100\%$) để kích hoạt chế độ tự động ngắt sạc. |
+| **Thao tác DOM API & Chuẩn I/O** | **20đ** | - Thao tác DOM chuẩn xác bằng `getElementById` / `querySelector`.<br>- Thay đổi style/cảnh báo bằng `classList.add()` / `classList.remove()` hoặc `innerHTML`.<br>- Không vi phạm phạm vi cấm (Không dùng Event Listeners, Fetch API, LocalStorage). |

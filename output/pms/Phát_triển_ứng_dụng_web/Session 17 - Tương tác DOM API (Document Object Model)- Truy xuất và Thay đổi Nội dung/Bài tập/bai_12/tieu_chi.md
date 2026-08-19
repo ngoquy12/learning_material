@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| **Cấu trúc Code & Refactoring (Phân tích & Tối ưu)** | **20đ** | - Tổ chức mã nguồn theo đối tượng `SmartHomeManager` đúng chuẩn.<br>- Cache toàn bộ DOM selector trong `cacheDOM()`, không gọi `querySelector`/`getElementById` lặp lại trong vòng lặp.<br>- Sử dụng JSDoc và đặt tên biến theo chuẩn Clean Code. |
+| **Xử lý Logic Nghiệp vụ IoT & Automation** | **40đ** | - **Rule 1 (10đ):** Cảnh báo đúng ngưỡng dòng điện 30A ($I = P / 220$), toggle class UI cảnh báo an toàn/vượt ngưỡng chuẩn xác.<br>- **Rule 2 (15đ):** Tự động lọc các thiết bị phòng trống (`vacant`) có `idle-time >= 15`, đổi `data-status="inactive"`, gán `power-watt="0"`, thêm class `.device-auto-off` và cập nhật text UI tương ứng.<br>- **Rule 3 (15đ):** Tính chính xác tiền điện EVN 6 bậc thang kèm 8% VAT, định dạng `Intl.NumberFormat` chuẩn `vi-VN`. |
+| **Xử lý Biên & Dữ liệu Lỗi (Edge Cases)** | **20đ** | - Ép kiểu dữ liệu an toàn (`parseInt`, `parseFloat`), phòng ngừa `isNaN` khi thuộc tính DOM thiếu hoặc chứa ký tự lạ.<br>- Xử lý đúng trường hợp tổng kWh = 0 hoặc tổng dòng điện bằng 0.<br>- Không bị lỗi vỡ giao diện khi danh sách thiết bị rỗng. |
+| **Tối ưu Hiệu năng DOM (Batch Update)** | **20đ** | - Không lạm dụng `innerHTML += ...` gây ra Reflow/Repaint liên tục.<br>- Cập nhật nội dung trực tiếp qua `.textContent` hoặc `.innerText` cho từng element nhỏ.<br>- Tốc độ xử lý tức thì, tối thiểu hóa độ phức tạp thuật toán $O(N)$. |

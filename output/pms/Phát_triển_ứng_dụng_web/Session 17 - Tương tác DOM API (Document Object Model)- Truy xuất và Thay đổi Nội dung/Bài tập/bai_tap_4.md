@@ -1,30 +1,40 @@
-# Bài tập 4: Healthcare (Nâng cao 2 - Nghiệp vụ phức tạp)
+# Bài tập 4: Healthcare (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập này, học viên sẽ có khả năng:
-- **Thành thạo kỹ thuật truy xuất DOM**: Sử dụng linh hoạt `document.querySelector`, `querySelectorAll`, `getElementById`, và các thuộc tính điều hướng (node navigation) để truy cập chính xác các phần tử HTML trong giao diện phức tạp.
-- **Thao tác & Thay đổi nội dung DOM**: Sử dụng thành thạo `textContent`, `innerText`, `innerHTML` để cập nhật dữ liệu hiển thị động cho giao diện người dùng.
-- **Quản lý thuộc tính và CSS Class**: Sử dụng `setAttribute`, `getAttribute`, `classList.add()`, `classList.remove()`, `classList.toggle()` để làm mới trạng thái giao diện (Badge status, highlight cảnh báo) dựa trên logic nghiệp vụ.
-- **Xử lý logic nghiệp vụ Quản lý Phòng Gym (GYM_FITNESS)**: Áp dụng thuật toán tính toán ưu đãi gói tập, thời hạn hết hạn, cảnh báo vi phạm lượt check-in và đặc quyền hội viên VIP trực tiếp lên cấu trúc cây DOM.
+- **Thao tác DOM Tree**: Thành thạo việc truy xuất các HTML Element bằng các phương thức `document.getElementById()`, `document.querySelector()`.
+- **Thay đổi Nội dung & Thuộc tính**: Sử dụng thành thạo `textContent`, `innerHTML`, `classList` (hoặc `className`), và `setAttribute()` để hiển thị thông tin động trên giao diện web.
+- **Áp dụng Nghiệp vụ Real-world**: Chuyển đổi logic xử lý dữ liệu hội viên phòng Gym (GYM_FITNESS) thành các thay đổi trực quan trên giao diện ứng dụng quản lý phòng tập.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống phần mềm quản lý phòng tập **Rikkei Fitness Center** đang trong quá trình nâng cấp giao diện bảng điều khiển (Dashboard) dành cho bộ phận Lễ tân và Quản lý. 
+Tại phòng tập **Rikkei Fitness Center**, bộ phận lễ tân cần một màn hình thẻ thông tin hội viên (Member Dashboard Card) tự động cập nhật chi tiết ngay khi dữ liệu hội viên được tải lên hệ thống. Màn hình này giúp nhân viên kiểm soát nhanh: thời hạn gói tập, các ưu đãi đi kèm (VIP), và tình trạng check-in trong ngày để phát hiện hội viên gian lận hoặc hết hạn thẻ.
 
-Mỗi khi trang web tải xong, giao diện cần tự động đọc danh sách dữ liệu hội viên check-in trong ngày, áp dụng các quy tắc ưu đãi/cảnh báo nghiệp vụ fitness, tính toán ngày hết hạn gói tập, và render (hiển thị) lại toàn bộ danh sách thẻ hội viên (Member Cards) cũng như cập nhật các chỉ số tổng quan ở Bảng thống kê (Summary Bar) mà không được làm mới lại trang web hay sử dụng API từ bên ngoài.
+Dưới đây là sơ đồ luồng xử lý và hiển thị thông tin hội viên lên giao diện:
 
 ```mermaid
 graph TD
-    A[Dữ liệu thô Hội viên GymMember] --> B{Hàm xử lý DOM & Nghiệp vụ}
-    B --> C[Tính toán Thời hạn & Ưu đãi 12+2 tháng]
-    B --> D[Kiểm tra Hết hạn & Vượt lượt Check-in]
-    B --> E[Xác định Đặc quyền Gói VIP]
-    C --> F[Cập nhật DOM: Danh sách Card Hội viên]
-    D --> F
-    E --> F
-    F --> G[Cập nhật DOM: Bảng Thống kê Summary Bar]
+    A[Dữ liệu Hội viên Input] --> B{Số tháng đăng ký == 12?}
+    B -- Đúng --> C[Tổng thời gian = 14 tháng bonus 2 tháng]
+    B -- Sai --> D[Tổng thời gian = Số tháng đăng ký]
+    
+    A --> E{Gói VIP?}
+    E -- Đúng --> F[Quyền lợi: Miễn phí tủ đồ & Khăn tắm]
+    E -- Không --> G[Quyền lợi: Tiêu chuẩn]
+    
+    A --> H{Trạng thái Check-in / Thẻ}
+    H -- Hết hạn --> I[Badge Đỏ: Thẻ đã hết hạn]
+    H -- Vượt số lần/ngày --> J[Badge Vàng: Vượt quá lượt check-in hôm nay]
+    H -- Hợp lệ --> K[Badge Xanh: Thẻ hợp lệ - Cho phép vào]
+
+    C --> L[Cập nhật DOM Elements]
+    D --> L
+    F --> L
+    G --> L
+    I --> L
+    J --> L
+    K --> L
 ```
 
 ---
@@ -32,28 +42,24 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-1. **Quy tắc Tính thời hạn & Khuyến mãi gói tập (`MembershipPackage`)**:
-   - Gói tập 12 tháng (`durationMonths = 12`): Được **tặng thêm 2 tháng** miễn phí (Tổng thời hạn tính toán = 14 tháng).
-   - Các gói khác (1, 3, 6 tháng): Giữ nguyên thời hạn.
-   - Ngày hết hạn (`expiryDate`) = `startDate` + Tổng số tháng thời hạn.
-   - *Hiển thị DOM*: Với gói 12 tháng, bắt buộc chèn một thẻ `<span class="badge badge-bonus">+2 Tháng Tặng</span>` vào thẻ card hội viên.
+1. **Quy tắc thời hạn gói tập (Bonus Months)**:
+   - Nếu hội viên đăng ký gói **12 tháng**, hệ thống tự động tặng thêm **2 tháng** sử dụng (Tổng hiển thị: `14 tháng (Đã tặng 2 tháng miễn phí)`).
+   - Nếu đăng ký dưới 12 tháng, hiển thị đúng số tháng đăng ký (Ví dụ: `6 tháng`).
 
-2. **Quy tắc Kiểm tra Trạng thái Thẻ Check-in (`CheckInLog`)**:
-   - Nếu `expiryDate < currentDate` (Ngày hiện tại giả định: `2024-10-25`): Hội viên **Đã hết hạn**. Cần đổi nhãn trạng thái thành `HẾT HẠN`, áp dụng class CSS `.card-expired` cho thẻ hội viên.
-   - Nếu `checkInCountToday > maxDailyCheckIn`: Hội viên **Vượt quá lượt check-in trong ngày**. Thêm nhãn cảnh báo `<span class="badge badge-danger">Vượt giới hạn ngày</span>`.
-   - Nếu không vi phạm: Nhãn trạng thái hiển thị `HỢP LỆ` với class CSS `.card-valid`.
+2. **Quy tắc Quyền lợi gói tập (VIP Perks)**:
+   - Loại gói `VIP`: Quyền lợi hiển thị là `Miễn phí tủ đồ cá nhân & Khăn tắm cao cấp`.
+   - Loại gói `STANDARD`: Quyền lợi hiển thị là `Tủ đồ tiêu chuẩn`.
 
-3. **Quy tắc Đặc quyền Hội viên VIP (`packageType = 'VIP'`)**:
-   - Hội viên đăng ký gói VIP được miễn phí tủ đồ cá nhân (Locker) và khăn tắm.
-   - *Hiển thị DOM*: Chèn danh sách các nhãn đặc quyền:
-     `<div class="vip-perks"><span class="perk-item"> Tủ đồ miễn phí</span><span class="perk-item"> Khăn tắm miễn phí</span></div>` vào giao diện card của hội viên VIP.
-   - Gói `STANDARD` không hiển thị phần này.
-
-4. **Quy tắc Thống kê Bảng điều khiển (Summary Dashboard Bar)**:
-   Cập nhật các số liệu thống kê vào các phần tử DOM tương ứng:
-   - Tổng số lượt check-in hôm nay (`#total-checkins`)
-   - Tổng số hội viên vi phạm/cảnh báo (`#total-warnings`) - tính gồm các thẻ hết hạn hoặc vượt quá lượt check-in.
-   - Tổng số hội viên VIP đang hoạt động (`#total-vip`).
+3. **Quy tắc Cảnh báo Check-in (Status Badge)**:
+   - **Trường hợp 1 (Đã hết hạn - `isExpired === true`)**:
+     - Nội dung Text: `CẢNH BÁO: Thẻ đã hết hạn!`
+     - Class CSS badge: `badge status-danger`
+   - **Trường hợp 2 (Chưa hết hạn nhưng vượt quá lượt check-in trong ngày - `todayCheckIns > maxDailyCheckIns`)**:
+     - Nội dung Text: `CẢNH BÁO: Vượt quá lượt check-in hôm nay!`
+     - Class CSS badge: `badge status-warning`
+   - **Trường hợp 3 (Hợp lệ - `isExpired === false` và `todayCheckIns <= maxDailyCheckIns`)**:
+     - Nội dung Text: `HỢP LỆ: Mời vào tập`
+     - Class CSS badge: `badge status-success`
 
 ---
 
@@ -61,100 +67,70 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Cấu trúc HTML & Dữ liệu đầu vào
-Học viên tạo file `index.html` chứa vùng chứa khung tổng quan và container danh sách hội viên:
+#### 4.1. Cấu trúc File HTML ban đầu (`index.html`)
+Học viên tạo file `index.html` với cấu trúc khung như sau (KHÔNG thay đổi các `id` có sẵn):
 
 ```html
-<div class="dashboard-container">
-  <!-- Bảng thống kê Summary Bar -->
-  <div id="summary-bar" class="summary-bar">
-    <div class="summary-card">Tổng Check-in: <span id="total-checkins">0</span></div>
-    <div class="summary-card">Cảnh báo/Vi phạm: <span id="total-warnings">0</span></div>
-    <div class="summary-card">Hội viên VIP: <span id="total-vip">0</span></div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Rikkei Fitness - Thẻ Hội Viên</title>
+  <style>
+    .badge { padding: 8px 12px; border-radius: 4px; font-weight: bold; color: #fff; display: inline-block; }
+    .status-danger { background-color: #dc3545; }
+    .status-warning { background-color: #ffc107; color: #000; }
+    .status-success { background-color: #28a745; }
+    .vip-border { border: 2px solid #ffd700; background-color: #fffdf0; }
+    .card { padding: 16px; width: 350px; font-family: sans-serif; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <div id="member-card" class="card">
+    <h2 id="member-name">---</h2>
+    <p><strong>Loại gói:</strong> <span id="package-type">---</span></p>
+    <p><strong>Thời hạn:</strong> <span id="package-duration">---</span></p>
+    <p><strong>Quyền lợi:</strong> <span id="vip-perks">---</span></p>
+    <p><strong>Check-in hôm nay:</strong> <span id="checkin-count">---</span></p>
+    <hr>
+    <div><strong>Trạng thái:</strong> <span id="status-badge" class="badge">---</span></div>
   </div>
 
-  <!-- Danh sách Thẻ Hội viên sẽ render vào đây -->
-  <div id="member-list" class="member-list"></div>
-</div>
+  <script src="./main.js"></script>
+</body>
+</html>
 ```
 
-Trong file `script.js`, sử dụng mảng dữ liệu mẫu sau để thực hiện logic:
 
+#### 4.2. Yêu cầu viết JavaScript (`main.js`)
+Viết hàm `renderMemberDashboard(member)` nhận vào 01 đối tượng `member` và tiến hành truy xuất, cập nhật DOM:
+
+- **Cấu trúc dữ liệu đầu vào của `member`**:
 ```javascript
-const CURRENT_DATE_STR = "2024-10-25";
-
-const gymMembersData = [
-  {
-    id: "GYM-8801",
-    fullName: "Nguyễn Văn Anh",
-    packageType: "VIP",
-    durationMonths: 12,
-    startDate: "2023-11-01",
-    checkInCountToday: 1,
-    maxDailyCheckIn: 1,
-    trainerAssigned: "HLV. Trần Huấn"
-  },
-  {
-    id: "GYM-8802",
-    fullName: "Lê Thị Bích",
-    packageType: "STANDARD",
-    durationMonths: 3,
-    startDate: "2024-06-01",
-    checkInCountToday: 2,
-    maxDailyCheckIn: 1,
-    trainerAssigned: null
-  },
-  {
-    id: "GYM-8803",
-    fullName: "Phạm Minh Cường",
-    packageType: "VIP",
-    durationMonths: 6,
-    startDate: "2024-01-15",
-    checkInCountToday: 1,
-    maxDailyCheckIn: 2,
-    trainerAssigned: "HLV. Lê Vũ"
-  },
-  {
-    id: "GYM-8804",
-    fullName: "Hoàng Ngọc Dũng",
-    packageType: "STANDARD",
-    durationMonths: 12,
-    startDate: "2023-09-10",
-    checkInCountToday: 3,
-    maxDailyCheckIn: 2,
-    trainerAssigned: null
-  }
-];
+const sampleMember = {
+  name: "Nguyễn Văn An",
+  packageType: "VIP", // "VIP" hoặc "STANDARD"
+  monthsRegistered: 12,
+  isExpired: false,
+  todayCheckIns: 2,
+  maxDailyCheckIns: 1
+};
 ```
 
+- **Yêu cầu tương tác DOM chi tiết**:
+  1. Gán tên hội viên vào `#member-name` (chuyển sang IN HOA chữ cái đầu hoặc toàn bộ tên).
+  2. Gán tên gói tập vào `#package-type`. Nếu là `VIP`, thêm class `vip-border` cho thẻ có `id="member-card"`. Nếu là `STANDARD`, xóa class `vip-border` khỏi thẻ `#member-card` (nếu có).
+  3. Tính toán thời hạn và hiển thị tại `#package-duration` theo **Quy tắc 1**.
+  4. Hiển thị quyền lợi tại `#vip-perks` theo **Quy tắc 2**.
+  5. Hiển thị chuỗi định dạng `[todayCheckIns]/[maxDailyCheckIns] lượt` tại `#checkin-count` (Ví dụ: `2/1 lượt`).
+  6. Xử lý phần thẻ trạng thái `#status-badge`:
+     - Cập nhật đúng văn bản (`textContent`) và cập nhật toàn bộ class (`className` hoặc `classList`) tương ứng với **Quy tắc 3**.
+     - Thêm thuộc tính `data-status` cho `#status-badge` với giá trị tương ứng (`EXPIRED`, `OVER_LIMIT`, `VALID`).
 
-#### 4.2. Yêu cầu viết Mã nguồn JavaScript (`script.js`)
-
-1. **Hàm tính toán thời gian `calculateExpiryDate(startDateStr, durationMonths)`**:
-   - Nhận vào chuỗi ngày bắt đầu dạng `YYYY-MM-DD` và số tháng.
-   - Cộng thêm số tháng (nếu `durationMonths === 12` thì cộng 14).
-   - Trả về chuỗi ngày hết hạn định dạng `YYYY-MM-DD`.
-
-2. **Hàm khởi tạo và render danh sách hội viên `renderGymMembers(members)`**:
-   - Sử dụng `document.getElementById('member-list')` để lấy phần tử container.
-   - Duyệt qua từng hội viên trong mảng `members`, tính toán các logic nghiệp vụ (thời hạn, hết hạn, vi phạm lượt check-in, gói VIP).
-   - Xây dựng cấu trúc phần tử HTML cho từng thẻ bằng DOM API (hoặc Template String kết hợp `innerHTML`/`innerText`).
-   - Gắn các CSS class phù hợp (`card-expired`, `card-valid`, `badge-bonus`, `badge-danger`, v.v.) và thuộc tính `data-member-id`.
-
-3. **Hàm cập nhật Bảng thống kê `updateSummaryDashboard(members)`**:
-   - Sử dụng `document.querySelector` hoặc `document.getElementById` để truy xuất các phần tử `#total-checkins`, `#total-warnings`, `#total-vip`.
-   - Cập nhật giá trị hiển thị bằng thuộc tính `textContent` hoặc `innerText`.
-
-4. **Yêu cầu tuân thủ nguyên tắc ràng buộc**:
-   - **TUYỆT ĐỐI KHÔNG** sử dụng `addEventListener`, sự kiện click/submit (thuộc Session 19).
-   - **TUYỆT ĐỐI KHÔNG** sử dụng `fetch API` hoặc `localStorage`.
-   - Script phải tự động chạy toàn bộ luồng logic và cập nhật DOM ngay sau khi tải mã nguồn.
-
-
-#### 4.3. Xử lý ngoại lệ và trường hợp biên (Edge Cases)
-- Trừơng hợp dữ liệu `trainerAssigned` bị `null` hoặc `undefined`: Hiển thị "Chưa đăng ký HLV".
-- Trường hợp số tháng tập không hợp lệ ($\le 0$): Gán mặc định là 1 tháng.
-- Trường hợp danh sách `members` bị rỗng (`[]`): Render thông báo *"Hiện chưa có lượt check-in nào trong ngày"* vào khung `#member-list` và cập nhật chỉ số summary về 0.
+- **Lưu ý ràng buộc kỹ thuật**:
+  - **KHÔNG** sử dụng Event Listener (`addEventListener`, `onclick`).
+  - **KHÔNG** sử dụng Form Submit, Fetch API, hay LocalStorage.
+  - Hàm `renderMemberDashboard` phải chạy được ngay khi được gọi trực tiếp cuối file `main.js`.
 
 ---
 
@@ -162,21 +138,17 @@ const gymMembersData = [
 ### 5. Quy chuẩn nộp bài
 - **Cấu trúc thư mục**:
   ```text
-  gym-dom-management/
+  gym-member-dom/
   ├── index.html
-  ├── style.css
-  └── script.js
+  └── main.js
   ```
-- **Quy định đặt tên**:
-  - Mã HTML Semantic, thụt lề chuẩn 2 spaces.
-  - Tên hàm JavaScript viết theo chuẩn `camelCase` (ví dụ: `calculateExpiryDate`, `updateSummaryDashboard`).
-  - Class CSS viết theo chuẩn `kebab-case` (ví dụ: `member-card`, `status-badge`).
+- **Quy định đặt tên hàm/biến**: Viết đúng tên hàm `renderMemberDashboard(member)` theo đúng cú pháp chữ hoa/thường.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML/CSS sạch sẽ, đúng semantic.<br>- Mã nguồn JS tuân thủ quy tắc đặt tên `camelCase`, comment giải thích logic nghiệp vụ rõ ràng.<br>- Sử dụng chính xác APIs của Session 17 (`querySelector`, `getElementById`, `innerHTML`, `textContent`, `classList`). |
-| **Xử lý Logic đúng Nghiệp vụ Fitness** | **40đ** | - Tính đúng logic tặng 2 tháng cho gói 12 tháng (tổng 14 tháng) (10đ).<br>- So sánh ngày hiện tại với ngày hết hạn chính xác để gắn nhãn `HẾT HẠN` / `HỢP LỆ` (10đ).<br>- Cảnh báo đúng trường hợp vượt quá lượt check-in trong ngày (10đ).<br>- Render đúng đặc quyền VIP (Tủ đồ & Khăn tắm) cho gói VIP (10đ). |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Xử lý an toàn dữ liệu `trainerAssigned` bị `null`/`undefined` (5đ).<br>- Kiểm soát dữ liệu số tháng tập không hợp lệ (5đ).<br>- Xử lý trường hợp mảng hội viên rỗng, hiển thị UI thay thế phù hợp (10đ). |
-| **Tối ưu Hiệu năng & Cập nhật Summary DOM** | **20đ** | - Tính toán và cập nhật chính xác các chỉ số thống kê trên Summary Bar (`#total-checkins`, `#total-warnings`, `#total-vip`) (10đ).<br>- Tối ưu hóa các thao tác DOM, tránh việc truy xuất DOM lặp đi lặp lại không cần thiết trong vòng lặp (10đ). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm đúng chuẩn camelCase (`memberData`, `renderMemberDashboard`).<br>- Thụt lề chuẩn (2 hoặc 4 spaces), code sạch chắt lọc, có comment giải thích các bước tương tác DOM.<br>- Tổ chức file HTML/JS tách biệt đúng cấu trúc quy định. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính toán đúng ưu đãi 12 tháng + 2 tháng (=14 tháng) (10đ).<br>- Phân loại đúng quyền lợi gói VIP vs STANDARD (10đ).<br>- Hiển thị đúng chuỗi định dạng lượt check-in (10đ).<br>- Logic phân nhánh đúng 3 trường hợp trạng thái thẻ (Đã hết hạn > Vượt quá lượt > Hợp lệ) (10đ). |
+| **Thao tác DOM API & Ngoại lệ** | **20đ** | - Truy xuất chính xác các phần tử HTML thông qua `getElementById` hoặc `querySelector` (5đ).<br>- Thay đổi đúng nội dung bằng `textContent` / `innerHTML` (5đ).<br>- Thay đổi class chuẩn xác bằng `classList` (`add`, `remove`, `toggle`) hoặc `className` mà không làm mất style mặc định (5đ).<br>- Gán đúng thuộc tính `data-status` bằng `setAttribute` (5đ). |
+| **Kiểm thử I/O & Xử lý dữ liệu đầu vào** | **20đ** | - Chạy đúng 100% kết quả đầu ra trực quan với ít nhất 3 Test Cases đầu vào khác nhau (Thẻ VIP hết hạn, Thẻ Standard vượt lượt check-in, Thẻ VIP hợp lệ).<br>- Không phát sinh lỗi runtime JavaScript trong Console. |

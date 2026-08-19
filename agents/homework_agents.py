@@ -6,6 +6,8 @@ All homework generation logic and Pydantic v2 validation are modularized inside 
 from agents.creators.homework_creator import (
     generate_homework_exercise,
     generate_session_homework_suite,
+    generate_inclass_synthesis_exercise,
+    generate_mindmap_exercise,
     clean_markdown_formulas,
     sanitize_homework_markdown
 )
@@ -18,6 +20,8 @@ session_homework_pipeline = generate_session_homework_suite
 __all__ = [
     "generate_homework_exercise",
     "generate_session_homework_suite",
+    "generate_inclass_synthesis_exercise",
+    "generate_mindmap_exercise",
     "homework_creator_agent",
     "generate_session_homework",
     "session_homework_pipeline",

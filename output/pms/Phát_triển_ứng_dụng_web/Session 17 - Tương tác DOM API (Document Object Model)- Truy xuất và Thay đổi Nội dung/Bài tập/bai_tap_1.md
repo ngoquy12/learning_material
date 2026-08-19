@@ -1,183 +1,164 @@
-# Bài tập 1: E-Commerce (Cơ bản 1 - Debug lỗi)
+# Bài tập 1: E-Commerce (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-- **Nhận biết và sửa lỗi (Debug)** các sai sót phổ biến khi làm việc với DOM API: truy xuất element sai selector (`getElementById` thừa dấu `#`, `querySelector` thiếu dấu `.`, chọn sai HTMLCollection vs Element).
-- **Thao tác thay đổi nội dung & thuộc tính**: Sử dụng đúng các thuộc tính/phương thức DOM cơ bản (`innerText`, `textContent`, `setAttribute`, `style`, `classList`) thay vì dùng sai thuộc tính `.value` trên các thẻ HTML không phải thẻ input.
-- **Áp dụng đúng Quy tắc nghiệp vụ (Business Rules)**: Sửa các lỗi tính toán số học liên quan đến cước phí cố định, cước phụ trội theo kilomet và hệ số nhân giờ cao điểm (Surge Pricing) cho ứng dụng đặt xe công nghệ **GrabRide**.
+Sau khi hoàn thành bài tập này, học viên có khả năng:
+- **Nhận diện và sửa lỗi (Debug)** các phương thức truy xuất DOM cơ bản (`getElementById`, `querySelector`, `querySelectorAll`).
+- **Phân biệt và áp dụng đúng** các thuộc tính đọc/ghi nội dung HTML (`textContent`, `innerText`, `innerHTML`) và giá trị phần tử (`value`).
+- **Thao tác chính xác** với CSS class (`classList.add`, `classList.remove`, `classList.replace`) và inline style (`element.style.property`) mà không làm hỏng giao diện hiện tại.
+- **Xử lý trích xuất & chuyển đổi kiểu dữ liệu (Type Casting)** từ chuỗi nội dung DOM sang kiểu số để thực hiện tính toán nghiệp vụ chính xác.
+
+---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống đặt xe GrabRide đang phát triển màn hình **Tóm tắt chuyến đi (RideBooking Summary)** hiển thị thông tin tài xế, khoảng cách di chuyển, phụ phí thời tiết/giờ cao điểm và tổng tiền thanh toán cho hành khách.
+Bạn vừa tiếp nhận lại mã nguồn giao diện Bảng điều khiển Giám sát Năng lượng Thông minh (**Smart Home Energy Monitor Dashboard**) từ một lập trình viên thử việc tại **Rikkei SmartHome**. Hệ thống này có nhiệm vụ hiển thị trạng thái thiết bị tiêu thụ điện trong gia đình, tính toán tổng công suất tiêu thụ (Watt) và phát cảnh báo quá tải tự động ngay khi tải trang.
 
-Một Lập trình viên tập sự (Fresher Developer) đã chuẩn bị mã HTML và viết script JavaScript để cập nhật dữ liệu chuyến đi lên giao diện. Tuy nhiên, đoạn mã JS liên tục gặp lỗi rác ở Console (`TypeError: Cannot set property...`, `Cannot read properties of null`), đồng thời tính toán sai tiền cước của hành khách.
-
-Nhiệm vụ của bạn là kiểm tra, phát hiện toàn bộ các lỗi trong đoạn mã nguồn bị hỏng, giải thích nguyên nhân và viết lại mã JS hoàn chỉnh để giao diện hiển thị chính xác.
+Tuy nhiên, đoạn mã JavaScript hiện tại đang gặp nhiều lỗi kỹ thuật nghiêm trọng khiến giao diện bị vỡ, không tính toán được tổng điện năng, và chức năng cảnh báo an toàn bị vô hiệu hóa.
 
 ```mermaid
 graph TD
-    A[Mô phỏng Dữ liệu Chuyến đi currentTrip] --> B[Script JS khởi tạo]
-    B --> C{Truy xuất DOM Element}
-    C -->|Sai Selector / null| D[Lỗi Runtime Console]
-    C -->|Đúng Selector| E[Tính toán Cước phí TripFare]
-    E -->|Sửa Logic Bắt buộc| F[Tính đúng Giá cố định + Km phụ trội * Surge]
-    F --> G[Cập nhật UI: innerText, src, style/classList]
-    G --> H[Hiển thị Tóm tắt Chuyến đi GrabRide hoàn chỉnh]
+    A[Tải trang SmartHome Dashboard] --> B[Truy xuất các phần tử DOM Thiết bị & Cảm biến]
+    B --> C[Trích xuất chuỗi công suất: ex '3500W', '4000W']
+    C --> D[Chuyển đổi chuỗi thành Số & Tính tổng Watt/Ampe]
+    D --> E{Tổng dòng điện > 30A?}
+    E -- Có --> F[Cập nhật UI Cảnh báo Quá tải & Đổi màu Badge]
+    E -- Không --> G[Cập nhật UI Trạng thái An toàn]
 ```
+
+---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-Cước phí chuyến đi (`TripFare`) của GrabRide được tính dựa trên các quy định sau:
-1. **Giá cước sàn (2 km đầu tiên)**: Mức cố định là **12.000 VNĐ** (dù khoảng cách di chuyển $< 2$ km vẫn tính tròn 12.000 VNĐ).
-2. **Giá cước phụ trội (Từ km thứ 3 trở đi)**: Mỗi kilomet tiếp theo (kể cả số thập phân) tính **4.500 VNĐ/km**.
-   $$\text{Cước gốc} = 12.000 + (\text{Số km} - 2) \times 4.500 \quad (\text{nếu Số km} > 2)$$
-3. **Phụ phí Giờ cao điểm / Thời tiết xấu (Surge Pricing)**:
-   - Nếu `isSurge = true`: Tổng tiền cước = $\text{Cước gốc} \times 1.2$ (Tăng 20%).
-   - Nếu `isSurge = false`: Tổng tiền cước = $\text{Cước gốc}$.
-4. **Định dạng hiển thị**:
-   - Tất cả giá tiền hiển thị ra màn hình phải được làm tròn nguyên (Math.round hoặc Math.floor) và kết thúc bằng chuỗi `" VNĐ"` (Ví dụ: `27.750 VNĐ`).
-   - Nếu `isSurge = true`, phần hiển thị thẻ Phụ phí (`#surge-badge`) phải có chữ `"Có áp dụng (1.2x)"` và bổ sung thêm class CSS `surge-active` (chữ màu đỏ, nền hồng nhẹ). Nếu không áp dụng, hiển thị `"Không áp dụng"` và thêm class `surge-inactive`.
+1. **Công thức tính toán dòng điện (Amperage)**:
+   $$\text{Tổng dòng điện (A)} = \frac{\text{Tổng công suất tiêu thụ (W)}}{220\text{V}}$$
+2. **Quy tắc Cảnh báo Quá tải (Overload Protection Rule)**:
+   - Ngưỡng an toàn tối đa của aptomat tổng là **30A** (tương đương **6600W** ở điện áp 220V).
+   - Nếu tổng công suất tiêu thụ $> 6600\text{W}$ (hoặc $> 30\text{A}$):
+     - Hiển thị khối thông báo cảnh báo (`#overload-alert-box`).
+     - Đặt nội dung cảnh báo dưới dạng HTML định dạng: `<strong>CẢNH BÁO:</strong> Tổng dòng điện vượt quá 30A! Nguy cơ nhảy Aptomat.`
+     - Thêm class CSS `alert-danger` và loại bỏ class `hidden` khỏi phần tử cảnh báo.
+3. **Quy tắc Cập nhật Trạng thái Thiết bị (Device Status Rule)**:
+   - Chuyển trạng thái của Điều hòa (`#device-ac`) từ "Đang tắt" sang "Đang hoạt động".
+   - Cập nhật thẻ trạng thái: Loại bỏ class `inactive`, thêm class `active` (Lưu ý: Không được ghi đè làm mất class gốc `status-badge`).
+
+---
 
 
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Mã HTML nguồn hiện tại (`index.html`)
-Giữ nguyên file HTML dưới đây, **không thay đổi cấu trúc HTML**:
+#### Mã nguồn hiện tại bị lỗi (Cần Debug và Sửa đổi)
 
+**File `index.html` (Giữ nguyên cấu trúc HTML bên dưới, không sửa file HTML):**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>GrabRide - Tóm tắt chuyến đi</title>
-  <style>
-    .card { border: 1px solid #ccc; padding: 16px; border-radius: 8px; width: 320px; font-family: sans-serif; }
-    .info-group { margin-bottom: 8px; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-    .surge-active { background-color: #ffe6e6; color: #d93025; font-weight: bold; }
-    .surge-inactive { background-color: #e8f0fe; color: #1a73e8; }
-    .total { font-size: 18px; font-weight: bold; color: #00880c; border-top: 1px dashed #ccc; padding-top: 8px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Rikkei SmartHome Monitor</title>
+    <style>
+        .hidden { display: none; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+        .inactive { background-color: #ccc; color: #333; }
+        .active { background-color: #28a745; color: #fff; }
+        .alert-danger { background-color: #dc3545; color: #fff; padding: 12px; border-radius: 4px; margin-top: 15px; }
+    </style>
 </head>
 <body>
-  <div id="booking-card" class="card">
-    <h2 id="trip-title">Thông tin chuyến đi GrabRide</h2>
-    
-    <div class="info-group">
-      <span>Tài xế:</span> 
-      <strong id="driver-name">--</strong>
-      <img id="driver-avatar" src="" alt="Avatar Tài xế" width="40" height="40" style="vertical-align: middle; border-radius: 50%;" />
+    <div id="smart-home-dashboard">
+        <h2>Bảng Giám Sát Năng Lượng</h2>
+        
+        <div class="device-card" id="device-ac">
+            <h3 class="device-name">Điều hòa Phòng khách</h3>
+            <span class="status-badge inactive">Đang tắt</span>
+            <p>Công suất: <span class="power-consumption">3500W</span></p>
+        </div>
+
+        <div class="device-card" id="device-heater">
+            <h3 class="device-name">Bình nóng lạnh</h3>
+            <span class="status-badge active">Đang hoạt động</span>
+            <p>Công suất: <span class="power-consumption">4000W</span></p>
+        </div>
+
+        <hr>
+        <div id="total-power-info">
+            Tổng công suất tiêu thụ: <span id="total-watt">0</span> W
+            (<span id="total-ampere">0</span> A)
+        </div>
+
+        <div id="overload-alert-box" class="hidden"></div>
     </div>
 
-    <div class="info-group">
-      <span>Khoảng cách:</span> <span id="distance">0</span> km
-    </div>
-
-    <div class="info-group">
-      <span>Cước phí gốc:</span> <span id="base-fare">0 VNĐ</span>
-    </div>
-
-    <div class="info-group">
-      <span>Giờ cao điểm / Mưa:</span> <span id="surge-badge" class="badge">--</span>
-    </div>
-
-    <div class="info-group total">
-      <span>Tổng thanh toán:</span> <span id="total-fare">0 VNĐ</span>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="./main.js"></script>
 </body>
 </html>
 ```
 
-
-#### 4.2. Mã JavaScript gặp lỗi cần Debug (`script.js`)
-Dưới đây là mã do lập trình viên tập sự viết bị chứa **ít nhất 5 lỗi sai**:
-
+**File `main.js` (Mã nguồn LỖI do Lập trình viên cũ viết - Cần sửa lại):**
 ```javascript
-// Dữ liệu chuyến đi mô phỏng từ hệ thống GrabRide
-const currentTrip = {
-  driverName: "Nguyễn Văn Tài",
-  driverAvatar: "https://via.placeholder.com/40",
-  distanceKm: 5.5,
-  isSurge: true
-};
+// =========================================================================
+// MÃ NGUỒN BỊ LỖI - HỌC VIÊN CẦN DEBUG VÀ SỬA LẠI CHO ĐÚNG YÊU CẦU
+// =========================================================================
 
-// --- LỖI TRUY XUẤT DOM ---
-const driverNameEl = document.getElementById("#driver-name"); 
-const driverAvatarEl = document.querySelector("driver-avatar"); 
-const distanceEl = document.getElementById("distance");
-const baseFareEl = document.getElementsByClassName("base-fare"); 
-const surgeBadgeEl = document.querySelector("#surge-badge");
-const totalFareEl = document.querySelector(".total-fare"); 
+// LỖI 1: Truy xuất sai selector (Thiếu dấu chấm cho class selector)
+var acStatus = document.querySelector("status-badge"); 
 
-// --- LỖI LOGIC TÍNH CƯỚC ---
-function calculateTripFare(distance, isSurge) {
-  let baseFare = 0;
-  if (distance <= 2) {
-    baseFare = 12000;
-  } else {
-    baseFare = 12000 + distance * 4500; // Lỗi: Chưa trừ 2km đầu tiên
-  }
+// LỖI 2: Dùng thuộc tính .value để lấy nội dung text của thẻ <span>
+var acPowerText = document.querySelector("#device-ac .power-consumption").value;
+var heaterPowerText = document.querySelector("#device-heater .power-consumption").innerText;
 
-  let finalFare = baseFare;
-  if (isSurge) {
-    finalFare = baseFare + 1.2; // Lỗi: Cộng trực tiếp 1.2 thay vì nhân hệ số 1.2
-  }
+// LỖI 3: Trích xuất số không đúng (Chuỗi chứa chữ 'W') dẫn đến phép cộng chuỗi hoặc NaN
+var totalPower = acPowerText + heaterPowerText; 
 
-  return { baseFare, finalFare };
-}
+// Cập nhật DOM Tổng công suất W
+document.getElementById("total-watt").innerHTML = totalPower;
 
-// --- LỖI THAO TÁC DOM & GÁN GIÁ TRỊ ---
-driverNameEl.value = currentTrip.driverName; 
-driverAvatarEl.src = currentTrip.driverAvatar; 
-distanceEl.innerHTML = currentTrip.distanceKm;
+// LỖI 4: Ghi đè thuộc tính .className trực tiếp làm mất class gốc 'status-badge'
+acStatus.className = "active"; 
+acStatus.innerText = "Đang hoạt động";
 
-const fareResult = calculateTripFare(currentTrip.distanceKm, currentTrip.isSurge);
+// LỖI 5: Gán giá trị style không hợp lệ (không có dấu ngoặc kép) và dùng sai thuộc tính ghi HTML
+var alertBox = document.getElementById("overload-alert-box");
+var currentAmperage = totalPower / 220;
 
-baseFareEl.innerText = fareResult.baseFare + " VNĐ"; 
-totalFareEl.value = fareResult.finalFare + " VNĐ"; 
+document.getElementById("total-ampere").textContent = currentAmperage;
 
-if (currentTrip.isSurge) {
-  surgeBadgeEl.textContent = "Có áp dụng (1.2x)";
-  surgeBadgeEl.style = "color: red;"; // Lỗi: Gán đè chuỗi style trực tiếp làm hỏng class CSS có sẵn
-} else {
-  surgeBadgeEl.textContent = "Không áp dụng";
+if (totalPower > 6600) {
+    alertBox.style.display = block; // Lỗi ReferenceError: block is not defined
+    // LỖI 6: Thẻ <strong> bị hiển thị dưới dạng chữ thô do dùng sai thuộc tính
+    alertBox.textContent = "<strong>CẢNH BÁO:</strong> Tổng dòng điện vượt quá 30A! Nguy cơ nhảy Aptomat."; 
+    alertBox.classList.add(alert-danger); // Lỗi ReferenceError: alert-danger is not defined
 }
 ```
 
 
-#### 4.3. Yêu cầu chi tiết cho học viên
-1. **Báo cáo Debug**: Liệt kê rõ ràng ít nhất **5 lỗi** trong file `script.js` trên (Ghi rõ dòng/vị trí bị lỗi, loại lỗi và nguyên nhân gây lỗi).
-2. **Sửa lỗi Code**: Viết lại toàn bộ mã trong file `script.js` sao cho:
-   - Truy xuất đúng tất cả các DOM Element bằng `document.getElementById` hoặc `document.querySelector`.
-   - Tính đúng `baseFare` (Cước gốc) và `finalFare` (Tổng thanh toán sau phụ phí) với `distanceKm = 5.5` và `isSurge = true`:
-     - Cước gốc với 5.5 km: $12.000 + (5.5 - 2) \times 4.500 = 12.000 + 15.750 = 27.750$ VNĐ.
-     - Phụ phí Surge (1.2x): $27.750 \times 1.2 = 33.300$ VNĐ.
-   - Hiển thị đầy đủ thông tin tên tài xế, ảnh đại diện (`src`), số km, cước phí gốc, tổng tiền.
-   - Sử dụng `classList.add()` để thêm class `surge-active` hoặc `surge-inactive` phù hợp cho thẻ `#surge-badge`.
-3. **Giới hạn phạm vi kỹ thuật (Ràng buộc nghiêm ngặt)**:
-   - **KHÔNG** sử dụng Event Listener (`addEventListener`, `onclick`).
-   - **KHÔNG** sử dụng `Fetch API`, `LocalStorage`, hoặc xử lý submit Form.
-   - Mã script chỉ chạy tuần tự trực tiếp để cập nhật giao diện ngay khi trang load.
+#### Yêu cầu nhiệm vụ:
+1. Xác định toàn bộ **6 lỗi kỹ thuật** trong file `main.js`.
+2. Sửa lại mã nguồn JavaScript để ứng dụng thực thi chính xác các nghiệp vụ sau:
+   - Trích xuất chính xác giá trị số từ thẻ `.power-consumption` (Loại bỏ ký tự `W` và chuyển thành kiểu `number`).
+   - Tính toán đúng: `totalPower` ($3500 + 4000 = 7500\text{W}$) và `currentAmperage` ($\frac{7500}{220} \approx 34.09\text{A}$, làm tròn đến 2 chữ số thập phân bằng `.toFixed(2)`).
+   - Cập nhật đúng thẻ badge của `#device-ac`: Giữ lại class `status-badge`, chuyển `inactive` thành `active`, thay đổi nội dung chữ thành `"Đang hoạt động"`.
+   - Vì $7500\text{W} > 6600\text{W}$, kích hoạt khối `#overload-alert-box`: Render đúng thẻ HTML `<strong>`, xóa class `hidden`, thêm class `alert-danger`.
+
+---
 
 
 ### 5. Quy chuẩn nộp bài
-- Tổ chức cấu trúc thư mục nộp bài như sau:
+- **Cấu trúc thư mục dự án**:
   ```text
-  bai-tap-debug-grabride/
-  ├── index.html          # File HTML giữ nguyên
-  ├── script.js            # File JS đã sửa lỗi và tối ưu
-  └── debug-report.md      # Báo cáo danh sách các lỗi đã tìm thấy & cách khắc phục
+  student-id_fullname_session17/
+  ├── index.html
+  └── main.js
   ```
-- File `debug-report.md` cần trình bày theo định dạng Bảng gồm các cột: `STT | Mã lỗi / Vị trí | Nguyên nhân | Cách khắc phục`.
+- **Quy định comment trong code**:
+  - Tại mỗi vị trí đã sửa lỗi trong `main.js`, học viên phải ghi rõ comment giải thích:
+    `// FIX-BUG-[STT]: [Nguyên nhân lỗi] -> [Giải pháp đã khắc phục]`
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Phát hiện Lỗi (Debug Report)** | **20đ** | - Phát hiện đầy đủ và chính xác ít nhất 5 lỗi trong file `script.js`.<br>- Giải thích rõ ràng bản chất kỹ thuật của lỗi (VD: `getElementById` truyền dư `#`, `getElementsByClassName` trả về `HTMLCollection` chứ không phải 1 element, thẻ `span`/`strong` không có thuộc tính `.value`...). |
-| **Xử lý Logic đúng Nghiệp vụ GrabRide** | **40đ** | - Tính chuẩn cước phí gốc cho 2km đầu ($12.000$ VNĐ) và các km tiếp theo ($4.500$ VNĐ/km).<br>- Áp dụng đúng công thức nhân hệ số $1.2$ khi `isSurge = true`.<br>- Kết quả tính toán chính xác tuyệt đối với các bộ test cases (ví dụ 1.5km, 5.5km, 10km). |
-| **Thao tác DOM API & Chuẩn hóa UI** | **20đ** | - Truy xuất đúng DOM element mà không gây lỗi `null` hoặc `undefined`.<br>- Sử dụng đúng `innerText`/`textContent` để cập nhật văn bản.<br>- Đặt thuộc tính `src` cho ảnh thành công.<br>- Thay đổi style/class hiển thị đúng bằng `classList.add()` mà không làm phá vỡ CSS nền. |
-| **Cấu trúc Mã nguồn & Quy chuẩn Nộp bài** | **20đ** | - Mã nguồn viết sạch sẻ, có comment giải thích rõ ràng.<br>- Đặt tên biến/hàm theo chuẩn camelCase (`calculateTripFare`, `totalFareEl`).<br>- Tuân thủ đúng cấu trúc thư mục nộp bài và các ràng buộc phạm vi kỹ thuật (không dùng event/fetch). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file đúng quy chuẩn (5đ).<br>- Trình bày code sạch sẽ, thụt lề chuẩn, khai báo biến rõ ràng (`const`/`let`) (5đ).<br>- Viết comment giải thích đầy đủ 6 điểm lỗi đã sửa đúng định dạng `FIX-BUG` (10đ). |
+| **Xử lý Debug & DOM Selection** | **30đ** | - Truy xuất chính xác các phần tử DOM bằng `querySelector` / `getElementById` (10đ).<br>- Trích xuất chuỗi nội dung văn bản từ thẻ `<span>` đúng cách (`textContent` hoặc `innerText`) thay vì dùng `.value` (10đ).<br>- Phân biệt và áp dụng đúng giữa `.innerHTML` và `.textContent` khi chèn thẻ `<strong>` (10đ). |
+| **Logic Nghiệp vụ Smart Home** | **30đ** | - Bóc tách chuỗi (phần tích hợp `parseInt`/`parseFloat` hoặc `replace('W', '')`) và tính toán đúng tổng Watt ($7500\text{W}$) (10đ).<br>- Tính toán chính xác Ampe ($34.09\text{A}$) có làm tròn 2 chữ số thập phân (10đ).<br>- Đánh giá đúng điều kiện quá tải ($> 6600\text{W}$) để kích hoạt hiển thị cảnh báo (10đ). |
+| **Thao tác ClassList & Inline Style** | **20đ** | - Sử dụng đúng các phương thức `classList` (`add`, `remove`, `replace`) mà không ghi đè làm mất class gốc `status-badge` (10đ).<br>- Thao tác ẩn/hiện element thông qua class `hidden` hoặc thuộc tính `.style.display` đúng cú pháp chuỗi (10đ). |

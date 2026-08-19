@@ -174,6 +174,201 @@ Trong hệ thống {chosen_domain}, kỹ sư cần xây dựng mô-đun xử lý
     }
 
 
+def generate_inclass_synthesis_exercise(
+    session_id: str,
+    session_title: str,
+    tech_stack: str,
+    previous_lessons_text: str = "",
+    chosen_domain: str = "E-Commerce",
+    forbidden_scope: str = ""
+) -> str:
+    """
+    Generates a standardized 30-minute in-class synthesis exercise
+    following session_inclass_exercise_generator skill.
+    """
+    system_prompt = (
+        "You are an Expert Technical Curriculum Author at Rikkei Education. "
+        "Generate a standardized 30-minute In-Class Synthesis Exercise (Bài tập tổng hợp trên lớp) in 100% Accented Vietnamese. "
+        "Strictly adhere to the 4-section layout: (1) Mục tiêu bài tập, (2) Mô tả bối cảnh & Yêu cầu bài toán (Input / Output kèm Bảng ví dụ minh họa), (3) Các bước thực hiện & Quy định kỹ thuật, (4) Checklist đánh giá kết quả (Nghiệm thu). "
+        "Enforce Closed How - Open What & Why (specify Input/Output, NO code skeleton/spoilers). Zero text emojis."
+    )
+    user_prompt = f"""Tạo bài tập tổng hợp trên lớp (thời lượng 30 phút) cho buổi học:
+- Khóa học/Buổi: {session_id} - {session_title}
+- Công nghệ: {tech_stack}
+- Các nội dung trọng tâm đã học: {previous_lessons_text or 'Kiến thức cốt lõi của Session'}
+- Lĩnh vực nghiệp vụ doanh nghiệp: {chosen_domain}
+- Phạm vi kiến thức bị cấm: {forbidden_scope or 'Không sử dụng kiến thức chưa học'}
+
+Yêu cầu xuất ra định dạng Markdown chuẩn 4 phần như sau:
+# Bài tập tổng hợp trên lớp: [Tên bài toán nghiệp vụ {chosen_domain}]
+
+## 1. Mục tiêu bài tập
+- [2-3 gạch đầu dòng mục tiêu kỹ năng tổng hợp]
+
+## 2. Mô tả bối cảnh & Yêu cầu bài toán (Input / Output)
+- **Bối cảnh doanh nghiệp**: [Mô tả bối cảnh thực tế 2-3 câu]
+- **Dữ liệu đầu vào (Input)**: [Quy định kiểu dữ liệu, cấu trúc tham số đầu vào]
+- **Kết quả đầu ra (Output)**: [Quy định rõ kết quả trả về hoặc cập nhật hiển thị]
+
+### Bảng ví dụ minh họa Input/Output:
+| Trường hợp (Case) | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Ghi chú nghiệp vụ |
+| :--- | :--- | :--- | :--- |
+| **Trường hợp 1 (Chuẩn)** | `...` | `...` | Luồng thành công bình thường. |
+| **Trường hợp 2 (Ngoại lệ)** | `...` | `...` | Xử lý lỗi hoặc dữ liệu biên an toàn. |
+
+## 3. Các bước thực hiện & Quy định kỹ thuật
+- **Tài nguyên & Môi trường**: Thực thi trên {tech_stack}.
+- **Yêu cầu kỹ thuật**:
+  - Học viên tự chủ động thiết kế thuật toán và cấu trúc mã nguồn (Closed How).
+  - Bắt lỗi dữ liệu biên và xử lý ngoại lệ an toàn.
+  - Tuân thủ quy chuẩn đặt tên biến/hàm và Clean Code.
+
+## 4. Checklist đánh giá kết quả (Nghiệm thu)
+- [ ] Xây dựng hoàn chỉnh chương trình đáp ứng đúng bối cảnh nghiệp vụ doanh nghiệp.
+- [ ] Trả về kết quả Output chính xác theo đúng bảng ví dụ minh họa.
+- [ ] Bắt lỗi ngoại lệ và xử lý dữ liệu biên an toàn không gây crash chương trình.
+- [ ] Mã nguồn đạt chuẩn Clean Code, đặt tên biến/hàm đúng quy chuẩn và có chú thích rõ ràng.
+"""
+    response = call_llm(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        agent_name="InClass_Synthesis_Exercise_Agent",
+        session_id=session_id
+    )
+    if response:
+        content = response.strip()
+        if content.startswith("```markdown"):
+            content = content[11:]
+        if content.startswith("```"):
+            content = content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+        return sanitize_homework_markdown(content)
+
+    return f"""# Bài tập tổng hợp trên lớp: Xây dựng Mô-đun {chosen_domain} cho {session_title}
+
+## 1. Mục tiêu bài tập
+- Vận dụng tổng hợp toàn bộ kiến thức trong {session_title} để giải quyết bài toán phần mềm thực tế.
+- Triển khai chức năng nghiệp vụ hoàn chỉnh trên nền tảng {tech_stack}.
+
+## 2. Mô tả bối cảnh & Yêu cầu bài toán (Input / Output)
+- **Bối cảnh doanh nghiệp**: Trong hệ thống {chosen_domain}, cần xây dựng mô-đun xử lý dữ liệu tích hợp theo các bài học đã học.
+- **Dữ liệu đầu vào (Input)**: Dữ liệu đối tượng và tham số đầu vào hợp lệ.
+- **Kết quả đầu ra (Output)**: Kết quả tính toán hoặc cập nhật giao diện chính xác.
+
+### Bảng ví dụ minh họa Input/Output:
+| Trường hợp (Case) | Dữ liệu đầu vào (Input) | Kết quả kỳ vọng (Expected Output) | Ghi chú nghiệp vụ |
+| :--- | :--- | :--- | :--- |
+| **Trường hợp 1 (Chuẩn)** | Dữ liệu mẫu chuẩn | Kết quả xử lý thành công | Luồng bình thường |
+| **Trường hợp 2 (Ngoại lệ)** | Dữ liệu không hợp lệ | Thông báo lỗi cụ thể | Kiểm soát ngoại lệ |
+
+## 3. Các bước thực hiện & Quy định kỹ thuật
+- **Tài nguyên & Môi trường**: Thực thi trên môi trường {tech_stack}.
+- **Yêu cầu kỹ thuật**:
+  - Tự chủ động xây dựng giải thuật xử lý logic theo chuẩn Clean Code.
+  - Bắt lỗi dữ liệu biên an toàn.
+
+## 4. Checklist đánh giá kết quả (Nghiệm thu)
+- [ ] Hoàn thành mã nguồn đáp ứng đúng 100% yêu cầu nghiệp vụ.
+- [ ] Đạt kết quả chính xác theo bảng test cases mẫu.
+- [ ] Xử lý ngoại lệ an toàn không crash ứng dụng.
+"""
+
+
+def generate_mindmap_exercise(
+    session_id: str,
+    session_title: str,
+    tech_stack: str,
+    previous_lessons_text: str = "",
+    forbidden_scope: str = ""
+) -> str:
+    """
+    Generates a mindmap architecture assignment following mindmap_generator skill.
+    """
+    system_prompt = (
+        "You are an Expert Technical Curriculum Author at Rikkei Education. "
+        "Generate a standardized Mindmap Architecture Exercise (Bài tập sơ đồ tư duy mindmap) in 100% Accented Vietnamese. "
+        "The exercise guides students to construct a complete hierarchical Markmap / Mermaid mindmap synthesizing all core architectural concepts of the session."
+    )
+    user_prompt = f"""Tạo bài tập sơ đồ tư duy mindmap kiến trúc cho:
+- Khóa học/Buổi: {session_id} - {session_title}
+- Công nghệ: {tech_stack}
+- Các nội dung trọng tâm của buổi học: {previous_lessons_text or 'Kiến thức cốt lõi của Session'}
+- Phạm vi bị cấm: {forbidden_scope or 'Không sử dụng kiến thức chưa học'}
+
+Yêu cầu xuất ra định dạng Markdown bài tập với cấu trúc sau:
+# Bài tập sơ đồ tư duy mindmap: {session_title}
+
+## 1. Mục tiêu bài tập
+- Hệ thống hóa toàn diện tư duy kiến trúc và cấu trúc luồng dữ liệu của {session_title}.
+- Xây dựng sơ đồ tư duy Markmap / Mermaid trực quan, súc tích, liên kết các nhánh tri thức cốt lõi.
+
+## 2. Bối cảnh & Yêu cầu thiết kế Mindmap
+- Học viên đóng vai trò Software Architect phân tích và trực quan hóa cấu trúc kiến thức của Session.
+- Yêu cầu xây dựng sơ đồ dạng cây (Mindmap) thể hiện đầy đủ 5 nhánh kiến thức bắt buộc.
+
+## 3. Cấu trúc các nhánh kiến thức bắt buộc
+1. **Khái niệm & Vai trò**: Bản chất kỹ thuật, bài toán doanh nghiệp giải quyết (tối đa 10 từ/node).
+2. **Cú pháp & Giải nghĩa**: Cú pháp chuẩn của {tech_stack}, giải nghĩa từng thành phần tham số.
+3. **Ví dụ thực hành**: Đoạn mã nguồn thực tế ngắn gọn (5-8 dòng) minh họa cơ chế.
+4. **Lưu ý triển khai / Lỗi thường gặp**: Các sai sót phổ biến và cách phòng tránh.
+5. **Liên kết hệ thống**: Mối quan hệ luồng dữ liệu giữa các thành phần trong hệ thống.
+
+## 4. Quy chuẩn định dạng & Nộp bài
+- Định dạng nộp bài: File Markdown chứa cú pháp ```markmap hoặc ```mermaid mindmap.
+- Quy định súc tích: Mỗi node lá không quá 15 từ, không viết văn bản dài dòng.
+
+## 5. Checklist đánh giá sơ đồ tư duy
+- [ ] Thể hiện đầy đủ 5 nhánh cấu trúc tri thức bắt buộc.
+- [ ] Cú pháp mã nguồn trong ví dụ hoàn toàn chính xác theo {tech_stack}.
+- [ ] Các lưu ý lỗi thường gặp thực tế, chuẩn kỹ thuật.
+- [ ] Tuân thủ giới hạn độ dài node (< 15 từ/node), bố cục rõ ràng, dễ nhìn.
+"""
+    response = call_llm(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        agent_name="Mindmap_Exercise_Agent",
+        session_id=session_id
+    )
+    if response:
+        content = response.strip()
+        if content.startswith("```markdown"):
+            content = content[11:]
+        if content.startswith("```"):
+            content = content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+        return sanitize_homework_markdown(content)
+
+    return f"""# Bài tập sơ đồ tư duy mindmap: {session_title}
+
+## 1. Mục tiêu bài tập
+- Hệ thống hóa toàn diện tư duy kiến trúc và cấu trúc luồng dữ liệu của {session_title}.
+- Xây dựng sơ đồ tư duy Markmap / Mermaid trực quan, súc tích, liên kết các nhánh tri thức cốt lõi.
+
+## 2. Bối cảnh & Yêu cầu thiết kế Mindmap
+- Học viên đóng vai trò Software Architect phân tích và trực quan hóa cấu trúc kiến thức của Session.
+- Yêu cầu xây dựng sơ đồ dạng cây (Mindmap) thể hiện đầy đủ 5 nhánh kiến thức bắt buộc.
+
+## 3. Cấu trúc các nhánh kiến thức bắt buộc
+1. **Khái niệm & Vai trò**: Bản chất kỹ thuật, bài toán doanh nghiệp giải quyết.
+2. **Cú pháp & Giải nghĩa**: Cú pháp chuẩn của {tech_stack}, giải nghĩa tham số.
+3. **Ví dụ thực hành**: Đoạn mã nguồn thực tế ngắn gọn (5-8 dòng).
+4. **Lưu ý triển khai / Lỗi thường gặp**: Sai sót phổ biến và cách phòng ngừa.
+5. **Liên kết hệ thống**: Mối quan hệ luồng dữ liệu trong hệ thống.
+
+## 4. Quy chuẩn định dạng & Nộp bài
+- Định dạng nộp bài: File Markdown chứa cú pháp Markmap hoặc Mermaid mindmap.
+- Quy định súc tích: Mỗi node lá không quá 15 từ, không viết văn bản dài dòng.
+
+## 5. Checklist đánh giá sơ đồ tư duy
+- [ ] Thể hiện đầy đủ 5 nhánh cấu trúc tri thức bắt buộc.
+- [ ] Cú pháp mã nguồn trong ví dụ chính xác theo {tech_stack}.
+- [ ] Các lưu ý lỗi thường gặp thực tế, chuẩn kỹ thuật.
+- [ ] Tuân thủ giới hạn độ dài node (< 15 từ/node), bố cục rõ ràng.
+"""
+
+
 def generate_session_homework_suite(
     session_id: str,
     session_title: str,
@@ -182,23 +377,39 @@ def generate_session_homework_suite(
     forbidden_scope: str = "",
     course_dir: Optional[Path] = None,
     session_dir_path: Optional[Union[str, Path]] = None,
-    total_exercises: int = 6
+    total_exercises: int = 15
 ) -> List[Dict[str, Any]]:
     """
-    Generates a full suite of homework assignments for a session
-    distributed across Bloom taxonomy levels.
+    Generates a full suite of 15 homework assignments for a session
+    distributed across 5 Bloom taxonomy levels (3 exercises per level),
+    plus 1 in-class synthesis exercise and 1 mindmap architecture exercise.
     """
+    # 15 exercises distributed across 5 Bloom cognitive levels (3 exercises per level)
     levels = [
-        ("Cơ bản 1 - Debug lỗi", "E-Commerce"),
-        ("Cơ bản 2 - Kiểm thử I/O", "Logistics"),
-        ("Nâng cao 1 - Tính năng mới", "FinTech"),
-        ("Nâng cao 2 - Nghiệp vụ phức tạp", "Healthcare"),
-        ("Tối ưu hóa - Tái cấu trúc", "CRM"),
-        ("Sáng tạo - Thiết kế Mini Module", "EdTech")
+        # Mức độ 1: Cơ bản 1 - Debug lỗi (Bài 1-3)
+        ("Mức độ 1: Cơ bản - Debug lỗi", "E-Commerce"),
+        ("Mức độ 1: Cơ bản - Debug lỗi", "Logistics"),
+        ("Mức độ 1: Cơ bản - Debug lỗi", "FinTech"),
+        # Mức độ 2: Cơ bản 2 - Kiểm thử I/O & Hoàn thiện luồng (Bài 4-6)
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", "Healthcare"),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", "CRM"),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", "EdTech"),
+        # Mức độ 3: Nâng cao 1 - Xây dựng tính năng mới (Bài 7-9)
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "E-Commerce"),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "Logistics"),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "FinTech"),
+        # Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc & Trade-offs (Bài 10-12)
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "Healthcare"),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "CRM"),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "EdTech"),
+        # Mức độ 5: Sáng tạo - Thiết kế Mini Module (Bài 13-15)
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "E-Commerce"),
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "FinTech"),
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "EdTech")
     ]
 
     exercises_data = []
-    print(f"\n[Homework Creator] 🚀 Bắt đầu sinh bộ {total_exercises} bài tập về nhà cho {session_id} ({tech_stack})...")
+    print(f"\n[Homework Creator] 🚀 Bắt đầu sinh bộ {total_exercises} bài tập về nhà + 1 bài tổng hợp + 1 bài mindmap cho {session_id} ({tech_stack})...")
 
     def _gen_one(i: int):
         level_name, domain = levels[(i - 1) % len(levels)]
@@ -214,7 +425,8 @@ def generate_session_homework_suite(
             total_exercises=total_exercises
         )
 
-    with ThreadPoolExecutor(max_workers=min(total_exercises, 6)) as executor:
+    # Parallel generation of 15 homework exercises
+    with ThreadPoolExecutor(max_workers=min(total_exercises, 8)) as executor:
         futures = [executor.submit(_gen_one, i) for i in range(1, total_exercises + 1)]
         for f in futures:
             try:
@@ -224,6 +436,36 @@ def generate_session_homework_suite(
                 print(f"  ❌ Lỗi khi sinh bài tập về nhà: {e}")
 
     exercises_data.sort(key=lambda x: x.get("idx", 0))
+
+    # Parallel generation of In-Class Synthesis Exercise and Mindmap Exercise
+    inclass_ex_content = ""
+    mindmap_ex_content = ""
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        f_inclass = executor.submit(
+            generate_inclass_synthesis_exercise,
+            session_id=session_id,
+            session_title=session_title,
+            tech_stack=tech_stack,
+            previous_lessons_text=previous_lessons_text,
+            chosen_domain="E-Commerce",
+            forbidden_scope=forbidden_scope
+        )
+        f_mindmap = executor.submit(
+            generate_mindmap_exercise,
+            session_id=session_id,
+            session_title=session_title,
+            tech_stack=tech_stack,
+            previous_lessons_text=previous_lessons_text,
+            forbidden_scope=forbidden_scope
+        )
+        try:
+            inclass_ex_content = f_inclass.result()
+        except Exception as e:
+            print(f"  ❌ Lỗi khi sinh bài tập tổng hợp trên lớp: {e}")
+        try:
+            mindmap_ex_content = f_mindmap.result()
+        except Exception as e:
+            print(f"  ❌ Lỗi khi sinh bài tập sơ đồ tư duy mindmap: {e}")
 
     # Determine target output directory
     target_homework_dir = None
@@ -248,28 +490,22 @@ def generate_session_homework_suite(
             with open(target_homework_dir / f"bai_tap_{idx}.md", "w", encoding="utf-8") as f:
                 f.write(f"# {ex['title']}\n\n{ex['de_bai_content']}\n\n{ex['tieu_chi_content']}")
 
-        # Save aggregated tieu_chi_danh_gia.md
+        # Save Bài tập tổng hợp trên lớp
+        if inclass_ex_content:
+            with open(target_homework_dir / "bai_tap_tong_hop.md", "w", encoding="utf-8") as f:
+                f.write(inclass_ex_content)
+
+        # Save Bài tập sơ đồ tư duy mindmap
+        if mindmap_ex_content:
+            with open(target_homework_dir / "bai_tap_mindmap.md", "w", encoding="utf-8") as f:
+                f.write(mindmap_ex_content)
+
+        # Save aggregated tieu_chi_danh_gia.md for all exercises
         with open(target_homework_dir / "tieu_chi_danh_gia.md", "w", encoding="utf-8") as f:
             f.write(f"# BẢNG TIÊU CHÍ ĐÁNH GIÁ TỔNG HỢP (100đ) - {session_title}\n\n")
             for ex in exercises_data:
                 f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
 
-        # Cleanup leftover empty scaffold placeholder stubs (e.g. bai_tap_7.md - bai_tap_15.md, bai_tap_tong_hop.md)
-        for old_file in target_homework_dir.glob("bai_tap_*.md"):
-            match = re.match(r"bai_tap_(\d+)\.md", old_file.name)
-            if match and int(match.group(1)) > len(exercises_data) and old_file.stat().st_size < 200:
-                try:
-                    old_file.unlink()
-                except Exception:
-                    pass
-        for stub_name in ["bai_tap_tong_hop.md", "bai_tap_mindmap.md"]:
-            stub_path = target_homework_dir / stub_name
-            if stub_path.exists() and stub_path.stat().st_size < 200:
-                try:
-                    stub_path.unlink()
-                except Exception:
-                    pass
-
-        print(f"  ✓ Đã lưu {len(exercises_data)} bài tập về nhà vào: {target_homework_dir}")
+        print(f"  ✓ Đã lưu {len(exercises_data)} bài tập về nhà + bài tập tổng hợp + bài tập mindmap vào: {target_homework_dir}")
 
     return exercises_data

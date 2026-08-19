@@ -58,7 +58,7 @@ class TestHomeworkCreator(unittest.TestCase):
         self.assertEqual(validated_obj.idx, 1)
 
     def test_generate_session_homework_suite(self):
-        """Tests generating a suite of 6 tiered exercises."""
+        """Tests generating a suite of 15 tiered exercises."""
         suite = generate_session_homework_suite(
             session_id="Session 02",
             session_title="Cú pháp cơ bản",
@@ -68,6 +68,30 @@ class TestHomeworkCreator(unittest.TestCase):
         )
         self.assertEqual(len(suite), 6)
         self.assertEqual([e["idx"] for e in suite], [1, 2, 3, 4, 5, 6])
+
+    def test_generate_inclass_synthesis_and_mindmap(self):
+        """Tests generating in-class synthesis exercise and mindmap exercise."""
+        from agents.creators.homework_creator import (
+            generate_inclass_synthesis_exercise,
+            generate_mindmap_exercise
+        )
+        inclass_md = generate_inclass_synthesis_exercise(
+            session_id="Session 02",
+            session_title="Cú pháp cơ bản",
+            tech_stack="Python 3.12",
+            previous_lessons_text="Biến, kiểu dữ liệu"
+        )
+        self.assertIn("# Bài tập tổng hợp trên lớp", inclass_md)
+        self.assertIn("## 1. Mục tiêu bài tập", inclass_md)
+
+        mindmap_md = generate_mindmap_exercise(
+            session_id="Session 02",
+            session_title="Cú pháp cơ bản",
+            tech_stack="Python 3.12",
+            previous_lessons_text="Biến, kiểu dữ liệu"
+        )
+        self.assertIn("# Bài tập sơ đồ tư duy mindmap", mindmap_md)
+        self.assertIn("## 1. Mục tiêu bài tập", mindmap_md)
 
 if __name__ == "__main__":
     unittest.main()
