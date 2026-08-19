@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file đúng quy chuẩn (5đ).<br>- Trình bày code sạch sẽ, thụt lề chuẩn, khai báo biến rõ ràng (`const`/`let`) (5đ).<br>- Viết comment giải thích đầy đủ 6 điểm lỗi đã sửa đúng định dạng `FIX-BUG` (10đ). |
-| **Xử lý Debug & DOM Selection** | **30đ** | - Truy xuất chính xác các phần tử DOM bằng `querySelector` / `getElementById` (10đ).<br>- Trích xuất chuỗi nội dung văn bản từ thẻ `<span>` đúng cách (`textContent` hoặc `innerText`) thay vì dùng `.value` (10đ).<br>- Phân biệt và áp dụng đúng giữa `.innerHTML` và `.textContent` khi chèn thẻ `<strong>` (10đ). |
-| **Logic Nghiệp vụ Smart Home** | **30đ** | - Bóc tách chuỗi (phần tích hợp `parseInt`/`parseFloat` hoặc `replace('W', '')`) và tính toán đúng tổng Watt ($7500\text{W}$) (10đ).<br>- Tính toán chính xác Ampe ($34.09\text{A}$) có làm tròn 2 chữ số thập phân (10đ).<br>- Đánh giá đúng điều kiện quá tải ($> 6600\text{W}$) để kích hoạt hiển thị cảnh báo (10đ). |
-| **Thao tác ClassList & Inline Style** | **20đ** | - Sử dụng đúng các phương thức `classList` (`add`, `remove`, `replace`) mà không ghi đè làm mất class gốc `status-badge` (10đ).<br>- Thao tác ẩn/hiện element thông qua class `hidden` hoặc thuộc tính `.style.display` đúng cú pháp chuỗi (10đ). |

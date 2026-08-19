@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Mã nguồn được tổ chức sạch sẽ, đặt tên biến/hàm theo chuẩn `camelCase`.<br>- Có comment giải thích chi tiết các điểm đã được tối ưu so với đoạn code legacy cũ.<br>- Cấu trúc HTML/CSS phân tách rõ ràng, không dùng inline style. |
+| **Phân tích & Tối ưu DOM (Bloom Level 4)** | **20đ** | - Loại bỏ hoàn toàn việc lạm dụng `innerHTML +=` trong vòng lặp.<br>- Sử dụng thành thạo `DocumentFragment` để gom nhóm các thao tác chèn node.<br>- Cache các truy vấn selector ra ngoài vòng lặp.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu văn bản tĩnh/động. |
+| **Xử lý Logic đúng Nghiệp vụ** | **40đ** | - **Hạn ngạch vé (10đ):** Phát hiện chính xác đơn hàng `ticketQuantity > 4`, gán CSS `.order-error` và không tính cộng dồn vào `soldSeats`.<br>- **Chính sách Early Bird (10đ):** Tính chính xác mức giảm 15% cho các đơn hàng mở bán sớm.<br>- **Trạng thái Zone (10đ):** Phân loại đúng 3 cấp độ (`sold-out`, `warning`, `available`) dựa trên sức chứa còn lại.<br>- **Trạng thái QR (10đ):** Đánh dấu đúng trạng thái `qr-disabled` hoặc `qr-active`. |
+| **Xử lý Biên & Chuẩn hóa Dữ liệu** | **20đ** | - Kiểm tra null/undefined cho dữ liệu đầu vào trước khi render.<br>- Định dạng tiền tệ hiển thị rõ ràng (VD: `1,700,000 VNĐ` hoặc sử dụng `toLocaleString('vi-VN')`).<br>- Giao diện tự động dọn dẹp nội dung cũ (`innerHTML = ''`) trước khi nạp dữ liệu mới. |

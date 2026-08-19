@@ -1,44 +1,32 @@
 # Bài tập 9: FinTech (Mức độ 3: Nâng cao - Xây dựng tính năng mới)
 
-# BÀI TẬP VỀ NHÀ #9: XÂY DỰNG HỆ THỐNG GIÁM SÁT TIÊU THỤ NĂNG LƯỢNG & TỰ ĐỘNG HÓA NHÀ THÔNG MINH (SMART HOME IOT & ENERGY BILLING)
-
----
-
-
 ### 1. Mục tiêu bài tập
 Sau khi hoàn thành bài tập này, học viên có khả năng:
-- **Thao tác thành thạo DOM API nâng cao**: Đọc và chỉnh sửa nội dung (`textContent`, `innerHTML`), thuộc tính HTML (`setAttribute`, `getAttribute`, `dataset`), thay đổi dynamic class và style thông qua `classList` và `style`.
-- **Truy xuất và Duyệt DOM Tree**: Sử dụng thành thạo `document.getElementById()`, `document.querySelector()`, `document.querySelectorAll()` để bóc tách dữ liệu từ giao diện.
-- **Xây dựng Logic Nghiệp vụ FinTech & IoT**: Triển khai thuật toán tính tiền điện sinh hoạt 6 bậc lũy tiến của EVN kết hợp thuế VAT, cùng logic tự động hóa thiết bị nhà thông minh (Smart Home Automation).
-- **Cập nhật Giao diện Động (Dynamic UI)**: Thay đổi toàn bộ trạng thái giao diện Dashboard thời gian thực mà **KHÔNG** sử dụng Event Listener hay Form Submit (chỉ chạy thông qua hàm khởi tạo chính).
+- **Truy xuất DOM Tree nâng cao**: Sử dụng thuần thục các phương thức `document.querySelectorAll()`, `document.querySelector()`, và truy cập dữ liệu thông qua thuộc tính HTML5 `dataset` (`data-*`).
+- **Thao tác & Biến đổi dữ liệu DOM**: Đọc dữ liệu thô từ DOM, chuyển đổi kiểu dữ liệu (String -> Number), xử lý tính toán nghiệp vụ tài chính - nhân sự (HRM FinTech).
+- **Cập nhật giao diện động**: Thay đổi nội dung hiển thị bằng `textContent`, `innerHTML`, cập nhật trạng thái trực quan với `classList.add()`, `classList.remove()`, `style` mà **chưa cần dùng đến Event Listeners**.
+- **Định dạng dữ liệu chuẩn FinTech**: Chuẩn hóa hiển thị tiền tệ (VND) và định dạng thời gian/con số chuyên nghiệp trên UI.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là một **Senior Software Engineer** tại **Rikkei Education**, được phân công phát triển mô-đun lõi cho hệ thống quản lý căn hộ thông minh **Rikkei SmartHome**. Hệ thống này vừa quản lý trạng thái các thiết bị điện trong nhà (Điều hòa, Tủ lạnh, Bếp từ, Đèn...), vừa giám sát tải điện tức thời (Amperes), đồng thời đóng vai trò là một trợ lý tài chính **FinTech** giúp hộ gia đình tính toán chi tiết tiền điện EVN dự kiến cuối tháng.
+Trong các hệ thống Quản lý Nhân sự & Chấm công doanh nghiệp (HRM - HR Attendance & Payroll), khi máy chấm công đồng bộ dữ liệu về giao diện Web, hệ thống cần lập tức phân tích danh sách ca làm việc (`ShiftLog`), tính toán các khoản phạt đi muộn, tiền làm thêm giờ (OT), tiền đóng bảo hiểm bắt buộc và xuất ra Phiếu lương chi tiết (`PayrollSlip`) hiển thị trực quan cho nhân viên.
 
-Do chưa đến phần xử lý sự kiện (Event Handling), nhiệm vụ của bạn là viết script JavaScript đóng vai trò **"Dashboard Engine"**. Script này khi được gọi sẽ quét dữ liệu hiện tại từ DOM tree, thực thi các kịch bản tự động hóa, kiểm tra tải an toàn dòng điện, tính toán chi phí điện năng lũy tiến, và cập nhật trực tiếp toàn bộ kết quả lên màn hình Dashboard HTML.
+Bạn được giao nhiệm vụ xây dựng module **"Tính toán & Hiển thị Bảng lương Tự động"** cho nhân viên bằng JavaScript thuần (Vanilla JS). Module sẽ tự động quét toàn bộ bảng dữ liệu ca làm việc hiện có trên HTML, trích xuất dữ liệu từ các thuộc tính `data-*`, thực hiện tính toán các chỉ số tài chính nghiệp vụ và cập nhật toàn bộ kết quả lên thẻ Bảng lương tổng hợp.
 
 
-#### Sơ đồ luồng xử lý của Dashboard Engine:
+#### Sơ đồ luồng xử lý dữ liệu DOM:
 ```mermaid
 graph TD
-    A[Bắt đầu: Gọi updateDashboardDOM] --> B[Quét dữ liệu Cảm biến & Thiết bị từ DOM]
-    B --> C{Cảm biến báo phòng trống >= 15 phút?}
-    C -- Đúng --> D[Tắt tất cả Air Conditioner / Điều hòa]
-    C -- Sai --> E[Giữ nguyên trạng thái thiết bị]
-    D --> F[Cập nhật lại Badge & Status của Điều hòa trên DOM]
-    E --> F
-    F --> G[Tính Tổng dòng điện Amperes của thiết bị đang ON]
-    G --> H{Tổng Amperes > 30A?}
-    H -- Đúng --> I[Hiển thị Cảnh báo Đỏ: VƯỢT TẢI DÒNG ĐIỆN]
-    H -- Sai --> J[Hiển thị Trạng thái Xanh: HỆ THỐNG AN TOÀN]
-    I --> K[Đọc chỉ số kWh tháng từ DOM]
-    J --> K
-    K --> L[Tính Tiền điện EVN 6 Bậc lũy tiến + 8% VAT]
-    L --> M[Render Bảng chi tiết Hóa đơn FinTech lên DOM]
-    M --> N[Kết thúc]
+    A[HTML Raw DOM: Thẻ chứa data-attributes] -->|querySelectorAll & dataset| B(Trích xuất Dữ liệu Thô)
+    B -->|Parse Int/Float & Validate| C{Xử lý Logic Nghiệp vụ HRM}
+    C -->|Tính tiền phạt muộn| D[Trừ Phạt Đi Muộn]
+    C -->|Tính lương OT & Lễ| E[Cộng Tiền Làm Thêm]
+    C -->|Tính BHXH 10.5%| F[Trừ Bảo Hiểm]
+    D & E & F --> G[Tính Lương Thực Nhận Net Salary]
+    G -->|Thao tác textContent / innerHTML| H[Cập nhật UI Chi tiết Lương]
+    G -->|Thao tác classList / style| I[Cập nhật Trạng thái & Highlight UI]
 ```
 
 ---
@@ -46,52 +34,36 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-
-#### A. Thực thể nghiệp vụ cốt lõi
-1. **SmartDevice**: Mỗi thiết bị biểu diễn qua thẻ HTML có thuộc tính `data-id`, `data-category`, `data-watt`, `data-ampere`, `data-status` (`ON` hoặc `OFF`).
-2. **EnergySensor**: Cảm biến hiện diện có thuộc tính `data-occupancy` (`true`/`false`) và `data-idle-minutes` (số phút không có người).
-3. **AutomationRule**: Kịch bản tự động hóa tối ưu năng lượng.
-4. **PowerUsageReport**: Hóa đơn chi tiết phân bổ tiêu thụ điện theo 6 bậc giá EVN.
+Giả định một tháng làm việc tiêu chuẩn bao gồm **22 ngày công** (tương đương **176 giờ làm việc tiêu chuẩn**).
 
 
-#### B. Quy tắc Tự động hóa IoT (Automation Rule)
-- **Điều kiện**: Nếu cảm biến hiện diện (`#occupancy-sensor`) có `data-occupancy="false"` VÀ `data-idle-minutes >= 15`:
-- **Hành động**: 
-  - Tất cả thiết bị có loại `data-category="air-conditioner"` (hoặc tên có chứa chữ "Điều hòa") đang ở trạng thái `ON` phải bị tự động chuyển thành `OFF`.
-  - Cập nhật thuộc tính `data-status="OFF"` trên DOM.
-  - Cập nhật thuộc tính `data-ampere="0"` và `data-watt="0"` cho các thiết bị bị tắt.
-  - Cập nhật lại giao diện của thiết bị đó trên DOM: Thẻ hiển thị trạng thái chuyển thành class `badge-off` với text `"ĐÃ TẮT (TỰ ĐỘNG)"`.
+#### A. Công thức tính đơn giá lương theo giờ:
+$$\text{Đơn giá giờ} = \frac{\text{Lương cơ bản}}{176}$$
 
 
-#### C. Quy tắc Kiểm tra An toàn Tải điện (Power Overload Rule)
-- Tính **Tổng dòng điện hiện tại ($I_{total}$)** bằng tổng `data-ampere` của tất cả các thiết bị đang có trạng thái `ON` (sau khi đã chạy kịch bản tự động hóa).
-- **Đánh giá ngưỡng an toàn**:
-  - **Nếu $I_{total} > 30.0$ Amperes**:
-    - Thẻ hiển thị cảnh báo `#power-alert` phải được gán class `alert-danger` (xóa class `alert-success`).
-    - Nội dung text `#power-alert-msg`: `"CẢNH BÁO NGUY HIỂM: Tổng dòng điện hiện tại là X.X A vượt quá giới hạn an toàn 30A! Cần ngắt ngắt bớt thiết bị."` (với X.X làm tròn 1 chữ số thập phân).
-  - **Nếu $I_{total} \le 30.0$ Amperes**:
-    - Thẻ `#power-alert` phải được gán class `alert-success` (xóa class `alert-danger`).
-    - Nội dung text `#power-alert-msg`: `"HỆ THỐNG AN TOÀN: Tổng dòng điện tiêu thụ hiện tại là X.X A (Giới hạn: 30.0 A)."`
+#### B. Quy tắc tính phạt đi muộn (Late Arrival Penalty):
+- Hệ thống ghi nhận số phút đi muộn của từng ca làm việc (`data-late-minutes`).
+- Nếu số phút đi muộn $\le 15$ phút: **Không bị phạt** (Cho phép sai số cho phép).
+- Nếu số phút đi muộn $> 15$ phút: **Phạt 50.000 VNĐ** cho mỗi lần vi phạm trong ca đó.
 
 
-#### D. Quy tắc Tính Tiền Điện Sinh Hoạt EVN Lũy Tiến (FinTech Billing)
-Đọc tổng số điện tiêu thụ dự kiến trong tháng (đơn vị: kWh) từ thẻ `#monthly-kwh-input` (lấy từ thuộc tính `data-kwh` hoặc nội dung text).
-Áp dụng **Biểu giá bán lẻ điện sinh hoạt 6 bậc** hiện hành của EVN:
+#### C. Quy tắc tính tiền làm thêm giờ (OT Pay):
+- **OT Ngày thường** (`data-ot-hours`): Đơn giá $= \text{Đơn giá giờ} \times 1.5$.
+- **OT Ngày lễ/Tết** (`data-holiday-ot-hours`): Đơn giá $= \text{Đơn giá giờ} \times 3.0$.
 
-| Bậc | Khoảng tiêu thụ (kWh) | Đơn giá (VNĐ / kWh) |
-| :--- | :--- | :--- |
-| **Bậc 1** | Cho kWh từ 0 – 50 | 1,893 |
-| **Bậc 2** | Cho kWh từ 51 – 100 | 1,956 |
-| **Bậc 3** | Cho kWh từ 101 – 200 | 2,271 |
-| **Bậc 4** | Cho kWh từ 201 – 300 | 2,860 |
-| **Bậc 5** | Cho kWh từ 301 – 400 | 3,197 |
-| **Bậc 6** | Cho kWh từ 401 trở lên | 3,302 |
 
-- **Công thức tài chính**:
-  1. $\text{Tiền điện trước thuế} = \sum (\text{Số kWh từng bậc} \times \text{Đơn giá bậc đó})$
-  2. $\text{Thuế VAT (8\%)} = \text{Tiền điện trước thuế} \times 0.08$
-  3. $\text{Tổng tiền thanh toán} = \text{Math.round}(\text{Tiền điện trước thuế} + \text{Thuế VAT})$
-- **Định dạng tiền tệ**: Tất cả các giá trị tiền hiển thị trên giao diện bắt buộc phải được định dạng theo chuẩn tiền tệ Việt Nam (Ví dụ: `1.234.567 VNĐ` sử dụng `Intl.NumberFormat('vi-VN')`).
+#### D. Trừ Bảo hiểm Bắt buộc (Insurance Deduction):
+- Bảo hiểm xã hội & Y tế (BHXH/BHYT/BHTN): **10.5%** tính trên Lương cơ bản.
+
+
+#### E. Công thức Lương thực nhận (Net Salary):
+$$\text{Lương thực nhận} = \text{Lương cơ bản} + \text{Tổng tiền OT} - \text{Tổng tiền phạt đi muộn} - \text{Tiền đóng bảo hiểm}$$
+
+
+#### F. Phân loại xếp loại chuyên cần (Attendance Status Badge):
+- **Xuất sắc (Badge Xanh)**: Tổng số lượt đi muộn bị phạt $= 0$.
+- **Cần cải thiện (Badge Vàng)**: Tổng tiền phạt đi muộn $> 0$ và $\le 100.000$ VNĐ.
+- **Vi phạm nghiêm trọng (Badge Đỏ)**: Tổng tiền phạt đi muộn $> 100.000$ VNĐ.
 
 ---
 
@@ -99,143 +71,97 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc HTML bắt buộc (Học viên copy cấu trúc này vào `index.html`)
-
+#### A. Cấu trúc HTML mẫu (Học viên tạo file `index.html` dựa trên khung dưới đây):
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Rikkei SmartHome & Energy Dashboard</title>
+    <title>Hệ thống Tính Lương HRM - Rikkei Education</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <h1>BẢNG ĐIỀU KHIỂN NĂNG LƯỢNG NGUYÊN CĂN HOẠCH</h1>
+    <div id="hr-app">
+        <!-- Thông tin nhân viên chứa trong dataset -->
+        <header id="employee-profile" 
+                data-employee-id="EMP-8892" 
+                data-employee-name="Nguyễn Văn An" 
+                data-base-salary="20000000">
+            <h2 id="emp-name-display">--</h2>
+            <p>Mã NV: <span id="emp-id-display">--</span></p>
+            <p>Lương cơ bản: <span id="emp-base-salary-display">--</span></p>
+        </header>
 
-        <!-- Cảm biến hiện diện -->
-        <section id="occupancy-sensor" data-occupancy="false" data-idle-minutes="20">
-            <h3>Trạng Thái Cảm Biến Phòng Khách</h3>
-            <p>Hiện diện: <span id="sensor-status-text">Không có người</span></p>
-            <p>Thời gian trống: <span id="sensor-idle-text">20 phút</span></p>
+        <!-- Danh sách ca làm việc thô trong tháng -->
+        <section id="timesheet-section">
+            <h3>Nhật ký ca làm việc (Timesheet Logs)</h3>
+            <table id="shift-table">
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Số phút đi muộn</th>
+                        <th>Số giờ OT thường</th>
+                        <th>Số giờ OT Lễ/Tết</th>
+                        <th>Tiền phạt ca</th>
+                    </tr>
+                </thead>
+                <tbody id="shift-list">
+                    <tr class="shift-row" data-date="2023-10-02" data-late-minutes="0" data-ot-hours="2" data-holiday-ot-hours="0"></tr>
+                    <tr class="shift-row" data-date="2023-10-05" data-late-minutes="20" data-ot-hours="0" data-holiday-ot-hours="0"></tr>
+                    <tr class="shift-row" data-date="2023-10-10" data-late-minutes="45" data-ot-hours="1.5" data-holiday-ot-hours="0"></tr>
+                    <tr class="shift-row" data-date="2023-10-20" data-late-minutes="10" data-ot-hours="0" data-holiday-ot-hours="4"></tr>
+                    <tr class="shift-row" data-date="2023-10-24" data-late-minutes="30" data-ot-hours="3" data-holiday-ot-hours="0"></tr>
+                </tbody>
+            </table>
         </section>
 
-        <!-- Thẻ cảnh báo vượt tải -->
-        <div id="power-alert" class="alert">
-            <span id="power-alert-msg">Đang kiểm tra tải...</span>
-        </div>
-
-        <!-- Danh sách thiết bị -->
-        <section id="device-list-container">
-            <h2>Danh Sách Thiết Bị Điện</h2>
-            <div class="device-card" data-id="DEV01" data-category="air-conditioner" data-watt="1500" data-ampere="6.8" data-status="ON">
-                <span class="device-name">Điều hòa Phòng Khách</span> - 
-                <span class="device-status badge-on">BẬT</span> - 
-                <span class="device-power">1500 W (6.8 A)</span>
-            </div>
-            <div class="device-card" data-id="DEV02" data-category="air-conditioner" data-watt="1200" data-ampere="5.5" data-status="ON">
-                <span class="device-name">Điều hòa Phòng Ngủ 1</span> - 
-                <span class="device-status badge-on">BẬT</span> - 
-                <span class="device-power">1200 W (5.5 A)</span>
-            </div>
-            <div class="device-card" data-id="DEV03" data-category="kitchen" data-watt="3500" data-ampere="16.0" data-status="ON">
-                <span class="device-name">Bếp Từ Đôi</span> - 
-                <span class="device-status badge-on">BẬT</span> - 
-                <span class="device-power">3500 W (16.0 A)</span>
-            </div>
-            <div class="device-card" data-id="DEV04" data-category="appliance" data-watt="150" data-ampere="0.7" data-status="ON">
-                <span class="device-name">Tủ Lạnh Side-by-Side</span> - 
-                <span class="device-status badge-on">BẬT</span> - 
-                <span class="device-power">150 W (0.7 A)</span>
-            </div>
-            <div class="device-card" data-id="DEV05" data-category="kitchen" data-watt="2000" data-ampere="9.1" data-status="ON">
-                <span class="device-name">Lò Vi Sóng</span> - 
-                <span class="device-status badge-on">BẬT</span> - 
-                <span class="device-power">2000 W (9.1 A)</span>
-            </div>
-        </section>
-
-        <!-- Thống kê & Hóa đơn FinTech -->
-        <section id="billing-section">
-            <h2>Dự Báo Hóa Đơn Điện EVN Hàng Tháng</h2>
-            <div id="monthly-kwh-input" data-kwh="350">Tổng số điện tiêu thụ dự kiến: <strong>350 kWh</strong></div>
-            <div id="billing-error" class="error-msg" style="display: none;"></div>
+        <!-- Bảng tổng hợp lương (Payroll Summary Container) -->
+        <section id="payroll-summary">
+            <h3>Bảng Chi Tiết Lương Thực Nhận (Payroll Breakdown)</h3>
+            <div class="summary-item">Tổng tiền OT nhận được: <span id="display-total-ot">0 VNĐ</span></div>
+            <div class="summary-item">Tổng tiền phạt đi muộn: <span id="display-total-penalty">0 VNĐ</span></div>
+            <div class="summary-item">Khấu trừ Bảo hiểm (10.5%): <span id="display-insurance">0 VNĐ</span></div>
+            <div class="summary-item highlight">LƯƠNG THỰC NHẬN (NET): <span id="display-net-salary">0 VNĐ</span></div>
             
-            <div id="billing-details-container">
-                <!-- Bảng tính tiền chi tiết sẽ được JS render vào đây -->
-            </div>
+            <div id="status-badge" class="badge">Đang xử lý...</div>
         </section>
     </div>
-    <script src="main.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
 ```
 
 
-#### B. Yêu cầu triển khai File `main.js`
+#### B. Yêu cầu xử lý trong file JavaScript (`script.js`):
+Viết mã nguồn thực thi **ngay khi trang web được tải** để thực hiện các bước sau:
 
-Học viên phải viết JavaScript thuần (Vanilla JS) để thực hiện đầy đủ các hàm sau:
+1. **Bước 1: Trích xuất & Đọc thông tin nhân viên**
+   - Lấy Element `#employee-profile`. Read các thuộc tính `data-employee-name`, `data-employee-id`, `data-base-salary`.
+   - Ép kiểu `data-base-salary` sang số nguyên (`parseInt`). Kiểm tra nếu không phải số hợp lệ (hoặc $<0$) thì gán mặc định là `0`.
+   - Hiển thị các thông tin này lên các thẻ `#emp-name-display`, `#emp-id-display`, `#emp-base-salary-display` với định dạng tiền tệ Việt Nam (`Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })`).
 
-1. **Hàm `processSmartHomeAutomation()`**:
-   - Truy xuất thông tin từ `#occupancy-sensor` bằng `getAttribute` hoặc `dataset`.
-   - Kiểm tra điều kiện tự động tắt Điều hòa.
-   - Nếu đủ điều kiện: Tìm tất cả thẻ `.device-card[data-category="air-conditioner"]`, cập nhật `data-status="OFF"`, `data-watt="0"`, `data-ampere="0"`.
-   - Cập nhật trực tiếp thẻ con `.device-status` thành text `"ĐÃ TẮT (TỰ ĐỘNG)"` và thay đổi class từ `badge-on` sang `badge-off`. Cập nhật thẻ `.device-power` thành `"0 W (0.0 A)"`.
+2. **Bước 2: Quét danh sách ca làm việc & Tính toán**
+   - Sử dụng `document.querySelectorAll('.shift-row')` để lấy tất cả các hàng ca làm việc.
+   - Duyệt qua từng hàng, đọc dữ liệu từ `dataset`: `date`, `lateMinutes`, `otHours`, `holidayOtHours`.
+   - Cập nhật nội dung text (`textContent` hoặc `innerHTML`) cho từng hàng HTML hiển thị rõ dữ liệu ngày, phút muộn, giờ OT và số tiền phạt riêng của ca đó.
+   - Tính tổng các chỉ số:
+     - Tổng số tiền phạt đi muộn của toàn bộ các ca.
+     - Tổng tiền OT regular và OT Holiday.
+     - Tiền trừ BHXH (10.5%).
+     - Lương thực nhận (Net Salary).
 
-2. **Hàm `calculateTotalAmperes()`**:
-   - Duyệt qua tất cả `.device-card` trên DOM.
-   - Đọc giá trị `data-status` và `data-ampere`.
-   - Cộng tổng Amperes của các thiết bị có `data-status="ON"`.
-   - Trả về số thực (float).
+3. **Bước 3: Cập nhật Kết quả lên Bảng lương (DOM UI Update)**
+   - Cập nhật kết quả tiền tệ vào các phần tử `#display-total-ot`, `#display-total-penalty`, `#display-insurance`, `#display-net-salary`.
+   - Tất cả giá trị số tiền đều phải được định dạng chuẩn VND (Ví dụ: `1.500.000 ₫` hoặc `1.500.000 VNĐ`).
 
-3. **Hàm `calculateEVNBill(kwh)`**:
-   - Nhận vào số kWh (kiểm tra hợp lệ: nếu không phải là số `isNaN` hoặc `kwh < 0` thì trả về `null`).
-   - Mảng cấu hình 6 bậc EVN:
-     - Bậc 1: `limit: 50`, `rate: 1893`
-     - Bậc 2: `limit: 50`, `rate: 1956`
-     - Bậc 3: `limit: 100`, `rate: 2271`
-     - Bậc 4: `limit: 100`, `rate: 2860`
-     - Bậc 5: `limit: 100`, `rate: 3197`
-     - Bậc 6: `limit: Infinity`, `rate: 3302`
-   - Tính toán chi tiết số kWh tiêu thụ và tiền tương ứng cho từng bậc.
-   - Trả về Object dạng:
-     ```javascript
-     {
-        kwh: 350,
-        tierDetails: [
-          { tier: 1, kwh: 50, rate: 1893, amount: 94650 },
-          { tier: 2, kwh: 50, rate: 1956, amount: 97800 },
-          { tier: 3, kwh: 100, rate: 2271, amount: 227100 },
-          { tier: 4, kwh: 100, rate: 2860, amount: 286000 },
-          { tier: 5, kwh: 50, rate: 3197, amount: 159850 },
-          { tier: 6, kwh: 0, rate: 3302, amount: 0 }
-        ],
-        subtotal: 865400,
-        vatAmount: 69232,
-        totalAmount: 934632
-     }
-     ```
-
-4. **Hàm `renderEVNBillTable(billData)`**:
-   - Sử dụng `innerHTML` hoặc `createElement` để hiển thị một bảng HTML (`<table>`) nằm bên trong `#billing-details-container`.
-   - Bảng gồm các cột: `Bậc giá`, `Số kWh`, `Đơn giá (VNĐ)`, `Thành tiền (VNĐ)`.
-   - Dưới bảng có hiển thị tổng hợp:
-     - **Tổng tiền điện trước thuế**
-     - **Thuế VAT (8%)**
-     - **TỔNG CỘNG THỜI HẠN THANH TOÁN (Đã gồm VAT)** (Hiển thị nổi bật).
-
-5. **Hàm `updateDashboardDOM()`**:
-   - Hàm khởi chạy chính (Main Function).
-   - Gọi `processSmartHomeAutomation()`.
-   - Gọi `calculateTotalAmperes()`, kiểm tra điều kiện vượt tải 30A và cập nhật giao diện `#power-alert` và `#power-alert-msg`.
-   - Đọc chỉ số kWh từ `#monthly-kwh-input`. Nếu dữ liệu lỗi, hiển thị `#billing-error`. Nếu hợp lệ, gọi `calculateEVNBill()` và `renderEVNBillTable()`.
-   - Cuối cùng, thực thi gọi hàm `updateDashboardDOM()` ở dòng cuối file `main.js`.
-
-
-#### C. GIỚI HẠN & ĐIỀU KIỆN NGHIÊM CẶT (FORBIDDEN SCOPE)
-- **TUYỆT ĐỐI KHÔNG** sử dụng `addEventListener()`, `onclick`, `onsubmit` hoặc bất kỳ cơ chế xử lý sự kiện nào (chưa học đến Session 19).
-- **TUYỆT ĐỐI KHÔNG** sử dụng `Fetch API`, `XMLHttpRequest`, `LocalStorage` / `SessionStorage`.
-- Mã nguồn JavaScript phải tuân thủ nghiêm ngặt chuẩn ES6+ (`const`, `let`, Arrow Functions, Template Literals).
+4. **Bước 4: Cập nhật Badge Trạng thái & Style trực quan**
+   - Lấy element `#status-badge`.
+   - Dựa vào Quy tắc E (Mục 3), gắn class CSS tương ứng cho `#status-badge`:
+     - Nếu "Xuất sắc": Thêm class `badge-success`, xóa class cũ, đổi text thành `"Chuyên cần: Xuất sắc"`.
+     - Nếu "Cần cải thiện": Thêm class `badge-warning`, đổi text thành `"Chuyên cần: Cần cải thiện"`.
+     - Nếu "Vi phạm nghiêm trọng": Thêm class `badge-danger`, đổi text thành `"Chuyên cần: Vi phạm nghiêm trọng"`.
+   - Nếu `Net Salary < 0`, tự động đổi màu chữ của thẻ `#display-net-salary` sang màu đỏ (`#d9534f`) bằng `style.color`.
 
 ---
 
@@ -243,27 +169,27 @@ Học viên phải viết JavaScript thuần (Vanilla JS) để thực hiện đ
 ### 5. Quy chuẩn nộp bài
 
 
-#### Cấu trúc thư mục dự án:
+#### A. Cấu trúc thư mục dự án:
 ```text
-student-id_homework-09/
-├── index.html
-├── style.css
-└── main.js
+student_id_ho_va_ten/
+│
+├── index.html          # File chứa cấu trúc HTML
+├── style.css           # File chứa style CSS (nếu có bổ sung)
+└── script.js           # File xử lý DOM API & Logic tính lương
 ```
 
 
-#### Quy định nộp bài:
-1. Nén toàn bộ thư mục bài làm thành file `.zip` theo cú pháp: `HO_TEN_MSSV_HW9.zip` (Ví dụ: `NGUYEN_VAN_A_BH00123_HW9.zip`).
-2. Mã nguồn phải có đầy đủ comment giải thích logic bằng tiếng Việt có dấu.
-3. Kiểm tra mã trên các trình duyệt hiện đại (Chrome/Edge/Firefox) đảm bảo không phát sinh lỗi tại tab Console.
-
----
+#### B. Quy định mã nguồn:
+- Tên thư mục nộp bài viết liền không dấu, ví dụ: `B20DCCN001_NguyenVanA`.
+- Không sử dụng thư viện bên ngoài (jQuery, React, Lodash...).
+- Không sử dụng `addEventListener`, inline `onclick`, `fetch API`, hay `localStorage`.
+- Đảm bảo mã nguồn chạy trực tiếp thành công khi mở `index.html` trên trình duyệt Chrome/Edge.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã sạch sẻ, thụt lề đúng chuẩn (2 hoặc 4 spaces).<br>- Đặt tên biến, hàm theo chuẩn `camelCase` có nghĩa (VD: `calculateEVNBill`, `totalAmperes`).<br>- Viết comment tiếng Việt đầy đủ giải thích các khối logic chính.<br>- Không thừa mã nguồn hoặc console.log dư thừa. |
-| **Xử lý Logic đúng nghiệp vụ (IoT & FinTech)** | **40đ** | - **IoT Automation (15đ)**: Nhận diện chính xác điều kiện phòng trống >= 15 phút, cập nhật đúng trạng thái Điều hòa về OFF và đổi thông số Watt/Ampere về 0.<br>- **Kiểm tra Tải điện (10đ)**: Tính đúng tổng Amperes thiết bị đang ON, bật/tắt class cảnh báo `alert-danger`/`alert-success` chính xác theo mốc 30A.<br>- **Tính Tiền Điện EVN (15đ)**: Áp chuẩn công thức lũy tiến 6 bậc của EVN, tính đúng 8% VAT và làm tròn chính xác. |
-| **Thao tác DOM API & Rendering** | **20đ** | - Sử dụng đúng các DOM API được phép (`getElementById`, `querySelector`, `querySelectorAll`, `dataset`, `textContent`, `innerHTML`, `classList`).<br>- Hiển thị bảng chi tiết hóa đơn EVN đẹp mắt, khớp dữ liệu.<br>- Định dạng chuẩn tiền tệ Việt Nam (`VNĐ`) với phân cách hàng nghìn.<br>- Tuân thủ quy định **KHÔNG** dùng Event Listener / Fetch / LocalStorage. |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Kiểm soát trường hợp `data-kwh` không hợp lệ (`NaN`, chuỗi rỗng, số âm): Hiển thị thông báo lỗi `#billing-error` và ẩn bảng hóa đơn.<br>- Xử lý chuẩn xác trường hợp dòng điện đúng bằng mốc ranh giới 30.0A (vẫn thuộc ngưỡng an toàn).<br>- Xử lý mượt mà khi danh sách thiết bị không có Điều hòa hoặc tất cả thiết bị đều đang OFF. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase`, thể hiện rõ ngữ cảnh domain HRM/FinTech (`baseSalary`, `latePenalty`, `netSalary`).<br>- Thụt lề chuẩn 2 hoặc 4 spaces, có comment giải thích rõ ràng từng đoạn logic xử lý DOM API.<br>- Tổ chức code sạch đẹp, tách hàm xử lý hợp lý (Ví dụ: `calculateHourlyRate()`, `formatCurrency()`, `renderPayroll()`). |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Trích xuất dataset chính xác (10đ)**: Đọc đúng toàn bộ `data-*` từ profile và danh sách hàng `.shift-row`.<br>- **Tính toán chuẩn nghiệp vụ (20đ)**:<br>  + Tính đúng phạt đi muộn (chỉ phạt khi $>15$ phút, đúng 50.000 VNĐ/lần).<br>  + Tính đúng hệ số OT (ngày thường 1.5x, ngày lễ 3.0x).<br>  + Tính đúng 10.5% BHXH.<br>  + Tính đúng công thức Net Salary.<br>- **Render danh sách hàng (10đ)**: Điền đúng dữ liệu vào từng ô `<td>` trong bảng nhật ký ca làm việc bằng DOM manipulation. |
+| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - **Kiểm soát NaN/Null (10đ)**: Ép kiểu dữ liệu an toàn (`parseInt`/`parseFloat`), xử lý trường hợp `data-` bị thiếu, rỗng hoặc chứa chuỗi không hợp lệ.<br>- **Lương âm / Đi muộn 0 phút (10đ)**: Xử lý đúng khi nhân viên không đi muộn ca nào, hoặc khi tổng khấu trừ lớn hơn tổng lương khiến Net Salary $<0$. |
+| **Tối ưu hiệu năng & DOM Manipulation** | **20đ** | - **Tối ưu truy xuất DOM (10đ)**: Không lặp lại các câu lệnh `document.querySelector` trùng lặp trong vòng lặp. Lưu truy xuất vào biến cached DOM.<br>- **Định dạng & Dynamic Styling (10đ)**: Định dạng chuẩn tiền tệ `Intl.NumberFormat('vi-VN')`, cập nhật class CSS (`classList.add/remove`) và dynamic inline style mượt mà. |

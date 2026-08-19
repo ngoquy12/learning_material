@@ -1,29 +1,30 @@
 # Bài tập 14: FinTech (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
 
 ### 1. Mục tiêu bài tập
-- **Tư duy thiết kế Module**: Đóng gói thành công một Mini Module JavaScript (`CoffeePosEngine`) chịu trách nhiệm tính toán và hiển thị hóa đơn bán hàng cho màn hình hiển thị khách hàng (Customer Display).
-- **Thao tác DOM API thuần (Chuyên sâu)**: Sử dụng thuần thục các phương thức truy xuất DOM (`document.getElementById`, `querySelector`, `querySelectorAll`) và thay đổi nội dung/thuộc tính (`textContent`, `innerHTML`, `setAttribute`, `classList`, `style`).
-- **Nghiệp vụ FinTech POS**: Áp dụng đúng quy tắc tính tiền thực tế của chuỗi cửa hàng bán lẻ (phụ thu kích cỡ, topping, chiết khấu hạng hội viên, thuế VAT) và đồng bộ trực tiếp kết quả lên giao diện HTML.
-- **Tuân thủ giới hạn kỹ thuật**: Xây dựng luồng thực thi dữ liệu dạng Data-Driven (đổ dữ liệu render giao diện) mà không dùng đến Event Listeners hay Form Submit.
+- **Thiết kế Kiến trúc Mini-Module JavaScript**: Áp dụng mô hình đóng gói (Module Pattern / Class Namespace) để quản lý toàn bộ logic tương tác và cập nhật giao diện người dùng (UI) cho hệ thống quản lý trạm sạc.
+- **Thao tác DOM API Nâng cao**: Thực hành truy xuất phần tử DOM (`querySelector`, `querySelectorAll`, `getElementById`), khởi tạo phần tử động (`createElement`, `appendChild`), và cập nhật nội dung/thuộc tính (`textContent`, `innerHTML`, `setAttribute`, `classList`).
+- **Xử lý Logic Nghiệp vụ FinTech**: Xây dựng thuật toán tính toán chi phí sạc xe điện, tính phí phạt đỗ xe quá giờ, kiểm soát giới hạn an toàn nhiệt độ/dung lượng pin và phản ánh tức thì trạng thái lên giao diện trực quan.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Tại các chuỗi cà phê lớn như Highlands Coffee, hệ thống máy tính tiền POS luôn có một màn hình phụ hướng về phía khách hàng (Customer Display). Khi nhân viên thu ngân chọn món trên màn hình chính, hệ thống sẽ gửi một đối tượng dữ liệu đơn hàng (Order Object) đến màn hình phụ. 
+Tập đoàn VinFast triển khai hệ thống quản lý trạm sạc xe điện thông minh **EV_CHARGING_STATION**. Tại mỗi trạm sạc, màn hình giám sát trung tâm (Dashboard) cần cập nhật liên tục thông tin của từng cổng sạc (`ChargingPort`), phiên sạc hiện tại (`VehicleSession`), chỉ số điện năng tiêu thụ (`KwhMeter`), và xuất hóa đơn thanh toán (`ChargingInvoice`).
 
-Nhiệm vụ của bạn là xây dựng Module JavaScript để nhận dữ liệu đơn hàng này, thực hiện tính toán tài chính (tính tiền từng món, phụ thu, giảm giá hội viên, thuế VAT) và cập nhật toàn bộ thông tin lên giao diện DOM của màn hình phụ một cách chính xác, đẹp mắt và minh bạch.
+Bạn được giao nhiệm vụ xây dựng **Mini-Module `EVChargingManager`** bằng JavaScript thuần. Module này nhận dữ liệu giám sát và trực tiếp thao tác lên cây DOM để render danh sách cổng sạc, thay đổi màu sắc/nội dung hiển thị theo trạng thái thực tế, và tự động tạo hóa đơn thanh toán khi kết thúc phiên sạc.
 
 ```mermaid
 graph TD
-    A[Order Data Object] --> B[CoffeePosEngine.renderReceipt]
-    B --> C{Kiểm tra Hợp lệ Data?}
-    C -- Lỗi Dữ Liệu --> D[Hiển thị Error Banner trên DOM]
-    C -- Dữ Liệu Hợp Lệ --> E[Tính toán Phụ thu Size & Topping]
-    E --> F[Tính Chiết khấu Hội viên & Thuế VAT]
-    F --> G[Render Danh sách Món ăn vào #order-list]
-    G --> H[Cập nhật Thẻ Tóm tắt Tiền & Badge Hội viên]
-    H --> I[Cập nhật Style & Attribute Đặc biệt theo Tổng tiền]
+    A[Dữ liệu Session Sạc] --> B[EVChargingManager Module]
+    B --> C{Kiểm tra Safety Rules}
+    C -- Nhiệt độ > 70°C --> D[Ngắt khẩn cấp: DISCONNECTED_OVERHEAT]
+    C -- Pin = 100% --> E[Trạng thái: COMPLETED]
+    C -- Bình thường --> F[Trạng thái: CHARGING]
+    D --> G[Cập nhật DOM Status & Style]
+    E --> G
+    F --> G
+    G --> H[Tính toán Invoice: Tiền điện + Phí quá giờ]
+    H --> I[Render Hóa đơn lên DOM Container]
 ```
 
 ---
@@ -32,182 +33,162 @@ graph TD
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
 
-#### a. Phụ thu Kích cỡ (Size Upgrade Fee)
-Giá niêm yết ban đầu của sản phẩm (`basePrice`) tương ứng với **Size S**.
-- **Size S**: Phụ thu `0 VNĐ`
-- **Size M**: Phụ thu `6.000 VNĐ`
-- **Size L**: Phụ thu `10.000 VNĐ`
+#### A. Đơn giá sạc & Loại cổng sạc (`ChargingPort`)
+- **Sạc thường (`STANDARD`)**: `3.850` VNĐ / kWh.
+- **Sạc siêu nhanh (`SUPER_FAST`)**: `4.500` VNĐ / kWh.
 
 
-#### b. Phụ thu Topping
-- Mỗi món ăn có thể có danh sách topping đi kèm (`toppings`).
-- Đồng giá mỗi topping: `8.000 VNĐ / topping`.
+#### B. Quy tắc tính phí phạt đỗ xe sau sạc (`Overstay Penalty`)
+- Phí đỗ xe chỉ áp dụng khi pin đã đạt **100%** nhưng xe vẫn chiếm dụng cổng sạc.
+- **Thời gian miễn phí**: `30 phút` đầu tiên kể từ khi pin đạt 100%.
+- **Từ phút thứ 31 trở đi**: Tính phí phạt **`1.000` VNĐ / phút**.
+- Công thức: `Phí phạt = max(0, Thời gian đỗ - 30) * 1.000` VNĐ.
 
 
-#### c. Công thức Tính toán Tài chính
-1. **Giá tiền 1 món** = `basePrice` + `Phụ thu Size` + (`Số lượng Topping` × `8.000`)
-2. **Tổng tiền tạm tính (Subtotal)** = Tổng giá tiền của tất cả các món trong hóa đơn.
-3. **Chiết khấu Hội viên (Membership Discount)**:
-   - Hạng `STANDARD`: Giảm `0%` Subtotal.
-   - Hạng `SILVER`: Giảm `5%` Subtotal.
-   - Hạng `GOLD`: Giảm `10%` Subtotal.
-4. **Thuế Giá trị Gia tăng (VAT)**:
-   - `VAT = 8%` tính trên tổng tiền sau khi đã trừ Chiết khấu Hội viên.
-   - **TỔNG THÀNH TIỀN (Final Total)** = (Subtotal - Discount) + VAT.
+#### C. Quy tắc An toàn Trạm sạc (`Safety Rules`)
+1. **Quá nhiệt (`Nhiệt độ > 70°C`)**:
+   - Tự động ngắt sạc khẩn cấp.
+   - Trạng thái cổng sạc đổi thành: `"CẢNH BÁO QUÁ NHIỆT"`.
+   - CSS Badge đổi sang màu đỏ nguy hiểm (`bg-danger` / `border-danger`).
+2. **Đầy pin (`Pin = 100%`)**:
+   - Ngắt sạc hoàn tất.
+   - Trạng thái cổng sạc đổi thành: `"HOÀN THÀNH"`.
+   - CSS Badge đổi sang màu xanh thành công (`bg-success`).
+3. **Đang sạc (`Pin < 100%` và `Nhiệt độ <= 70°C`)**:
+   - Trạng thái cổng sạc đổi thành: `"ĐANG SẠC"`.
+   - CSS Badge đổi sang màu xanh dương hoạt động (`bg-primary`).
 
 
-#### d. Quy chuẩn Định dạng & Hiển thị DOM
-- Tất cả số tiền hiển thị trên DOM phải được định dạng theo tiền tệ Việt Nam (VD: `45.000 VNĐ` hoặc `45.000 ₫`).
-- Thẻ Badge hiển thị hạng hội viên phải được gán CSS Class động:
-  - `STANDARD` $\rightarrow$ gán class `badge-standard`
-  - `SILVER` $\rightarrow$ gán class `badge-silver`
-  - `GOLD` $\rightarrow$ gán class `badge-gold`
-- **Quy tắc VIP Order**: Nếu `Final Total` > `200.000 VNĐ`, tự động thêm thuộc tính `data-vip-order="true"` vào thẻ `#receipt-card` và thay đổi màu nền của phần tử `#final-total-box` thành màu vàng nhạt (`#fffbe6`).
+#### D. Công thức tính Hóa đơn Thanh toán (`ChargingInvoice`)
+- `Tiền điện = Điện năng tiêu thụ (kWh) * Đơn giá theo loại cổng`
+- `Phí quá giờ = Công thức ở mục B`
+- `Tổng tiền thanh toán = Tiền điện + Phí quá giờ`
+- **Định dạng tiền tệ**: Tất cả số tiền hiển thị trên DOM phải được định dạng theo chuẩn Việt Nam Đồng (Ví dụ: `195.000 VNĐ`).
 
 ---
 
 
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
+> **LƯU Ý ĐẶC BIỆT**: Bài tập này nằm ở **Session 17**. Tuyệt đối **KHÔNG** sử dụng:
+> - Event Listeners (`addEventListener`, `onclick` HTML attributes).
+> - Form submission events.
+> - `fetch API` / `axios` / `LocalStorage`.
+> 
+> Việc cập nhật DOM sẽ được thực thi thông qua các phương thức của Module `EVChargingManager` được gọi trực tiếp bằng mã lệnh JavaScript.
 
-#### a. Cấu trúc HTML mẫu (`index.html`)
-Sinh viên tạo file `index.html` với cấu trúc khung thẻ chuẩn sau (không sửa đổi các `id` có sẵn):
 
+#### A. Cấu trúc DOM mẫu giả định (`index.html`)
+Mã HTML ban đầu cần có các container để chứa dữ liệu:
 ```html
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>Highlands POS - Customer Display</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="app">
-    <div id="error-banner" class="hidden"></div>
+<div class="container">
+  <h1>HỆ THỐNG QUẢN LÝ TRẠM SẠC VINFAST EV</h1>
+  
+  <!-- Container chứa danh sách thẻ cổng sạc -->
+  <div id="charging-ports-container" class="ports-grid"></div>
 
-    <div id="receipt-card" class="receipt-container">
-      <header class="receipt-header">
-        <h2>HIGHLANDS COFFEE</h2>
-        <p>Mã hóa đơn: <span id="receipt-id">---</span></p>
-        <p>Khách hàng: <strong id="customer-name">---</strong> <span id="membership-badge" class="badge">---</span></p>
-      </header>
-
-      <table class="receipt-table">
-        <thead>
-          <tr>
-            <th>STT</th>
-            <th>Tên món</th>
-            <th>Size</th>
-            <th>Topping</th>
-            <th>Thành tiền</th>
-          </tr>
-        </thead>
-        <tbody id="order-list">
-          <!-- Danh sách món sẽ được render động bằng JS -->
-        </tbody>
-      </table>
-
-      <footer class="receipt-summary">
-        <div class="summary-line">
-          <span>Tạm tính:</span>
-          <span id="subtotal-amount">0 VNĐ</span>
-        </div>
-        <div class="summary-line text-discount">
-          <span>Giảm giá hội viên:</span>
-          <span id="discount-amount">0 VNĐ</span>
-        </div>
-        <div class="summary-line">
-          <span>Thuế VAT (8%):</span>
-          <span id="vat-amount">0 VNĐ</span>
-        </div>
-        <hr>
-        <div id="final-total-box" class="summary-line total-line">
-          <span>TỔNG THÀNH TIỀN:</span>
-          <strong id="final-total">0 VNĐ</strong>
-        </div>
-      </footer>
-    </div>
-  </div>
-
-  <script src="app.js"></script>
-</body>
-</html>
+  <!-- Container chứa hóa đơn thanh toán -->
+  <div id="invoices-container" class="invoices-list"></div>
+</div>
 ```
 
 
-#### b. Triển khai JS Module (`app.js`)
-Yêu cầu định nghĩa một đối tượng `CoffeePosEngine` chứa các phương thức xử lý DOM:
+#### B. Thiết kế Mini-Module `EVChargingManager`
+Sinh viên khởi tạo một Object/Class đóng gói các phương thức xử lý DOM sau:
+
+1. **`EVChargingManager.init(portsData)`**:
+   - Nhận mảng danh sách các cổng sạc ban đầu.
+   - Xóa trắng `charging-ports-container`.
+   - Duyệt mảng và gọi hàm `renderPortCard` để chèn HTML cổng sạc vào DOM.
+
+2. **`EVChargingManager.renderPortCard(port)`**:
+   - Khởi tạo phần tử `div` làm thẻ hiển thị thông tin cổng sạc (`port-card`).
+   - Kiểm tra các quy tắc an toàn (Nhiệt độ & Pin) để xác định trạng thái UI (thêm class CSS tương ứng).
+   - Đổ nội dung HTML bao gồm: Mã cổng, Loại cổng, % Pin, Nhiệt độ (°C), Điện năng đã sạc (kWh), và Trạng thái.
+   - Sử dụng `appendChild` để thêm card vào `#charging-ports-container`.
+
+3. **`EVChargingManager.updatePortSession(portId, updatedData)`**:
+   - Tìm kiếm phần tử DOM của cổng sạc dựa trên `data-port-id` hoặc `id`.
+   - Cập nhật các giá trị `textContent` của % Pin, Nhiệt độ, kWh.
+   - Đánh giá lại các Quy tắc An toàn (Safety Rules) và cập nhật class/màu sắc trạng thái (`classList.remove`, `classList.add`).
+
+4. **`EVChargingManager.generateInvoiceDOM(portData)`**:
+   - Tính toán `Tiền điện`, `Phí quá giờ`, và `Tổng tiền`.
+   - Sử dụng `document.createElement` để tạo block HTML hiển thị Hóa đơn thanh toán (`ChargingInvoice`).
+   - Gắn thuộc tính `data-invoice-id` cho hóa đơn.
+   - Chèn hóa đơn vào `#invoices-container`.
+
+
+#### C. Dữ liệu thử nghiệm (Test Dataset)
+Hãy thực thi kiểm thử module của bạn với tập dữ liệu mẫu sau trong `main.js`:
 
 ```javascript
-const CoffeePosEngine = {
-  // Cấu hình giá tiền nghiệp vụ
-  SIZE_FEES: { S: 0, M: 6000, L: 10000 },
-  TOPPING_PRICE: 8000,
-  DISCOUNT_RATES: { STANDARD: 0, SILVER: 0.05, GOLD: 0.10 },
-  VAT_RATE: 0.08,
-
-  // Hàm bổ trợ định dạng tiền tệ VND
-  formatCurrency(amount) {
-    // ... Triển khai hàm định dạng tiền tệ ...
+const initialPorts = [
+  {
+    portId: "PORT_01",
+    type: "STANDARD",
+    batteryPct: 65,
+    temperature: 42,
+    currentKwh: 14.5,
+    overstayMins: 0
   },
-
-  // Phương thức chính: Nhận dữ liệu đơn hàng và render toàn bộ DOM
-  renderReceipt(orderData) {
-    // 1. Kiểm tra ngoại lệ dữ liệu đầu vào (Edge Cases)
-    // 2. Tính toán các thông số tiền tệ
-    // 3. Truy xuất & cập nhật thông tin Header (Receipt ID, Customer Name, Membership Badge)
-    // 4. Render danh sách các món ăn vào #order-list (Tạo thẻ <tr>, <td>)
-    // 5. Cập nhật các thẻ tóm tắt chi phí (#subtotal-amount, #discount-amount, #vat-amount, #final-total)
-    // 6. Xử lý logic VIP Order (gán attribute và đổi style)
+  {
+    portId: "PORT_02",
+    type: "SUPER_FAST",
+    batteryPct: 100,
+    temperature: 48,
+    currentKwh: 45.0,
+    overstayMins: 45 // Đỗ quá 45 phút (vượt 15 phút so với định mức 30 phút)
+  },
+  {
+    portId: "PORT_03",
+    type: "SUPER_FAST",
+    batteryPct: 82,
+    temperature: 73, // Vượt quá 70°C -> Quá nhiệt
+    currentKwh: 30.0,
+    overstayMins: 0
   }
-};
+];
 
-// DỮ LIỆU MẪU ĐỂ TEST HỆ THỐNG:
-const sampleOrder = {
-  receiptId: "HD-20231024-8888",
-  customerName: "Nguyễn Thị Minh Anh",
-  membershipTier: "GOLD", // STANDARD | SILVER | GOLD
-  items: [
-    { name: "Trà Đào Cam Sả", basePrice: 45000, size: "L", toppings: ["Thạch Đào", "Hạt Chia"] },
-    { name: "Phin Sữa Đá", basePrice: 29000, size: "M", toppings: [] },
-    { name: "Freeze Trà Xanh", basePrice: 55000, size: "L", toppings: ["Kem Cheese", "Thạch Thủy Tinh"] }
-  ]
-};
+// Khởi chạy Module
+EVChargingManager.init(initialPorts);
 
-// Kích hoạt render dữ liệu lên DOM (Không sử dụng Event Listener)
-CoffeePosEngine.renderReceipt(sampleOrder);
+// Giả lập cập nhật dữ liệu DOM sau khi sạc thêm
+EVChargingManager.updatePortSession("PORT_01", {
+  batteryPct: 100,
+  temperature: 45,
+  currentKwh: 22.0,
+  overstayMins: 35
+});
+
+// Giả lập xuất hóa đơn cho PORT_02 và PORT_01
+EVChargingManager.generateInvoiceDOM(initialPorts[1]);
 ```
-
-
-#### c. Xử lý Ngoại lệ & Dữ liệu Biên (Edge Cases)
-1. **Đơn hàng trống hoặc không hợp lệ**:
-   - Nếu `orderData` là `null`, `undefined` hoặc mảng `items` rỗng:
-   - Ẩn thẻ `#receipt-card` (set `style.display = 'none'`).
-   - Hiển thị thẻ `#error-banner` (xóa class `hidden`), gán nội dung `textContent = "RẤT SIẾC: Dữ liệu đơn hàng rỗng hoặc không hợp lệ!"`.
-2. **Dữ liệu món ăn bị lỗi**:
-   - Nếu một món có `basePrice` < 0 hoặc `size` không thuộc các giá trị ("S", "M", "L"):
-   - Gán giá tiền món đó = 0.
-   - Thêm nhãn `(Dữ liệu lỗi)` ngay sau tên món khi render lên HTML (Ví dụ: `Trà Đào Cam Sả (Dữ liệu lỗi)`).
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục**:
-  ```text
-  student_id_homework_14/
-  ├── index.html
-  ├── style.css
-  └── app.js
-  ```
-- **Quy định đặt tên file**: Đúng tên `index.html`, `style.css`, `app.js`.
-- **Yêu cầu Mã nguồn**: Code phải sạch sẽ, thụt lề chuẩn (2 spaces), có comment giải thích các đoạn xử lý DOM phức tạp. **Tuyệt đối KHÔNG dùng `addEventListener`, `onclick`, `fetch`, `localStorage`**.
+
+
+#### A. Cấu trúc thư mục project
+```text
+HW14_EV_CHARGING_STATION/
+├── index.html
+├── style.css
+└── main.js
+```
+
+
+#### B. Quy định mã nguồn
+- Mã nguồn JavaScript tuân thủ tiêu chuẩn ES6+, viết mã sạch (Clean Code), có comment giải thích rõ ràng các hàm xử lý DOM.
+- Tách biệt rõ phần tính toán nghiệp vụ (Business Logic) và phần thao tác cập nhật giao diện (DOM Manipulation).
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | 20đ | - Thư mục và file đặt đúng quy chuẩn bài nộp.<br>- Mã nguồn JS tuân thủ mô hình Module (`CoffeePosEngine`), khai báo biến rõ ràng (`const`/`let`).<br>- Thụt lề chuẩn, comment giải thích đầy đủ các bước thao tác DOM API. |
-| **Xử lý Logic đúng nghiệp vụ** | 40đ | - Tính chính xác giá từng món (Base price + Size Fee + Toppings Fee).<br>- Tính đúng Subtotal, Chiết khấu hội viên (0%, 5%, 10%) và Thuế VAT (8%).<br>- Cập nhật đầy đủ và chính xác tất cả thông tin Header, Table Rows và Summary lên DOM.<br>- Định dạng chuẩn tiền tệ VNĐ cho tất cả hiển thị số tiền. |
-| **Xử lý Biên & Ngoại lệ** | 20đ | - Xử lý mảng order rỗng/null: Ẩn receipt card, hiển thị error banner đúng yêu cầu.<br>- Xử lý đúng món có giá âm hoặc size không hợp lệ (gán giá 0 và thêm suffix danh xưng lỗi). |
-| **Tối ưu DOM & Thuộc tính động** | 20đ | - Sử dụng hiệu quả các API DOM (`querySelector`, `getElementById`, `classList`, `setAttribute`, `style`).<br>- Gán đúng class badge hội viên (`badge-gold`, `badge-silver`, ...).<br>- Thêm thuộc tính `data-vip-order="true"` và đổi style nền `#final-total-box` khi tổng hóa đơn > 200.000 VNĐ. |
+| **1. Cấu trúc Architecture & Phong cách Code** | **20 điểm** | - Đóng gói đúng mô hình Mini-Module/Class sạch sẽ.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, hằng số `UPPER_SNAKE_CASE`.<br>- Comment mã nguồn rõ ràng, cấu trúc HTML/CSS mạch lạc. |
+| **2. Xử lý Logic Nghiệp vụ FinTech** | **40 điểm** | - Tính chính xác đơn giá sạc theo loại `STANDARD` (3.850đ) và `SUPER_FAST` (4.500đ).<br>- Tính chính xác phí phạt đỗ xe (Miễn phí 30 phút đầu, từ phút 31 tính 1.000đ/phút).<br>- Kiểm soát chính xác logic ngắt sạc khi `Pin = 100%` hoặc `Nhiệt độ > 70°C`.<br>- Format đúng định dạng tiền tệ Việt Nam (`VNĐ`). |
+| **3. Thao tác DOM API (Phạm vi Session 17)** | **20 điểm** | - Truy xuất phần tử DOM chính xác bằng `querySelector`/`getElementById`.<br>- Sử dụng thành thạo `createElement`, `appendChild`, `textContent`, `classList`.<br>- Tuân thủ quy định: Không dùng Event Listener, Form submit, Fetch API hay LocalStorage. |
+| **4. Xử lý Biên & Ngoại lệ DOM** | **20 điểm** | - Kiểm tra và xử lý khi `portId` không tồn tại trên DOM.<br>- Tránh nhân bản (duplicate) phần tử Hóa đơn nếu hóa đơn đó đã tồn tại.<br>- Xử lý an toàn dữ liệu đầu vào bị thiếu hoặc bị sai kiểu dữ liệu (vd: `temperature` bị âm, `currentKwh` không phải là số). |

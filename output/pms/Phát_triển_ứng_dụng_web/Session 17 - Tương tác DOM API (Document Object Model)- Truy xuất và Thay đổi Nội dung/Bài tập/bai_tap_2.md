@@ -1,50 +1,54 @@
 # Bài tập 2: Logistics (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-- **Phát hiện và sửa lỗi DOM Selection**: Nhận biết và khắc phục các lỗi cú pháp khi truy xuất phần tử DOM bằng `document.getElementById()`, `document.querySelector()`.
-- **Thao tác chính xác với thuộc tính phần tử DOM**: Đọc và ghi đúng các thuộc tính nội dung (`innerText`, `textContent`, `innerHTML`) và attribute (`data-*`, `class`, `style`) thay vì nhầm lẫn với `value` trên các thẻ không phải `input`.
-- **Cập nhật giao diện theo Logic Nghiệp vụ Chấm công**: Hiểu và sửa lại logic tính lương ca làm việc, tiền phạt đi muộn và tiền làm thêm giờ (OT) cho nhân viên vận tải/logistics.
-- **Rèn luyện tư duy Debugging**: Phát hiện nguyên nhân làm đoạn mã bị dừng đột ngột hoặc tính toán ra kết quả `NaN` (Not a Number).
+Sau khi hoàn thành bài tập debug này, học viên sẽ có khả năng:
+- **Phát hiện và sửa lỗi truy xuất DOM**: Nhận biết điểm khác biệt giữa các phương thức chọn element (`getElementById`, `getElementsByClassName`, `querySelector`) và xử lý chính xác kiểu dữ liệu trả về (Element đơn lẻ vs HTMLCollection).
+- **Thao tác nội dung HTML chuẩn xác**: Sử dụng đúng các thuộc tính `innerText`, `textContent`, `innerHTML` để hiển thị dữ liệu thay vì gán nhầm thuộc tính `.value` trên các thẻ không phải `input`.
+- **Cập nhật thuộc tính & giao diện tĩnh**: Thao tác đúng với thuộc tính HTML (`disabled`, `removeAttribute`) và thêm/xóa CSS class thông qua `classList` thay vì gán trực tiếp vào object `style`.
+- **Áp dụng nghiệp vụ Hàng không đơn giản**: Xử lý logic kiểm tra hạng vé (Business vs Eco) và tính toán phí hành lý quá cước để hiển thị chính xác trên giao diện DOM.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Doanh nghiệp vận tải và kho bãi **Rikkei Logistics** đang sử dụng ứng dụng web để hiển thị **Phiếu Tạm tính Lương Ca làm việc (Shift Payroll Summary)** dành cho nhân viên điều vận và tài xế. Sau khi kết thúc ca, dữ liệu thô được render ra HTML, và một đoạn mã JavaScript sẽ chịu trách nhiệm bóc tách dữ liệu từ các thẻ HTML, tính toán tiền phạt đi muộn, tiền OT, sau đó cập nhật lại kết quả lên màn hình.
+Bạn vừa gia nhập đội ngũ phát triển ứng dụng **Kiosk Check-in Tự Động** cho hãng hàng không. Hệ thống có nhiệm vụ hiển thị thông tin thẻ lên máy bay (Boarding Pass) của hành khách và tính toán phí hành lý ký gửi quá cước ngay trên giao diện màn hình cảm ứng.
 
-Tuy nhiên, lập trình viên Junior vừa giao nộp đoạn mã JavaScript bị lỗi. Khi chạy trên trình duyệt, trang web không hiển thị đúng tổng tiền (ra kết quả `NaN`), trạng thái chuyên cần không đổi màu CSS, và một số thông tin bị mất hoàn toàn do chọn sai phần tử HTML.
+Lập trình viên tập sự trước đó đã viết file HTML và JavaScript để hiển thị dữ liệu check-in của khách hàng. Tuy nhiên, đoạn mã JS liên tục gặp lỗi Runtime (`Uncaught TypeError: Cannot set properties of null`, `Uncaught TypeError: excessFeeElement.innerHTML is not a function`) làm cho màn hình check-in bị trắng thông tin hoặc hiển thị sai phí hành lý.
 
-Dưới đây là sơ đồ xử lý dữ liệu của trang web:
+Nhiệm vụ của bạn là **tìm ra 6 lỗi sai** trong file script có sẵn, tiến hành sửa chữa (debug) và hoàn thiện các nghiệp vụ cập nhật DOM theo đúng yêu cầu.
 
 ```mermaid
 graph TD
-    A[Đọc dữ liệu thô từ thẻ HTML<br/>Phút đi muộn, Giờ OT, Loại ca] --> B{Đi muộn > 15 phút?}
-    B -- Có --|Trừ 50.000 VNĐ| C[Tính tiền phạt]
-    B -- Không --|Phạt = 0 VNĐ| C
-    C --> D{Loại ca làm việc?}
-    D -- WEEKDAY --|OT = 150% Lương giờ| E[Tính tiền OT]
-    D -- HOLIDAY --|OT = 300% Lương giờ| E
-    E --> F[Tổng lương ca = Lương cơ bản 300k + Tiền OT - Tiền phạt]
-    F --> G[Ghi dữ liệu mới vào DOM<br/>innerText / innerHTML / classList]
+    A[Mã nguồn hiện tại chứa lỗi DOM API] --> B[Truy xuất Element sai cú pháp / Sai kiểu trả về]
+    A --> C[Gán sai thuộc tính hiển thị: value / innerHTML function]
+    A --> D[Thiếu logic nghiệp vụ Hạng vé Business]
+    B --> E[Sửa lỗi Selector getElementById & HTMLCollection Index]
+    C --> F[Sửa dùng textContent / innerHTML dạng thuộc tính]
+    D --> G[Áp dụng quy tắc tính phí & Cập nhật class status-badge]
+    E --> H[Giao diện Boarding Pass hiển thị chính xác]
+    F --> H
+    G --> H
 ```
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-1. **Lương ca cơ bản (Base Shift Pay)**: `300.000 VNĐ` / ca 8 giờ (Tương đương `37.500 VNĐ/giờ`).
-2. **Phạt đi muộn (Late Penalty)**:
-   - Nếu số phút đi muộn (`lateMinutes`) **lớn hơn 15 phút**: Bị trừ `50.000 VNĐ`.
-   - Nếu số phút đi muộn **$\le$ 15 phút**: Không bị trừ tiền phạt (`0 VNĐ`).
-3. **Tiền làm thêm giờ (Overtime - OT)**:
-   - Làm ngày thường (`WEEKDAY`): Lương 1 giờ OT = `37.500 * 150%` (`56.250 VNĐ/giờ`).
-   - Làm ngày lễ (`HOLIDAY`): Lương 1 giờ OT = `37.500 * 300%` (`112.500 VNĐ/giờ`).
-   - `Tiền OT = Số giờ OT * Lương 1 giờ OT`.
-4. **Tổng lương thực nhận ca**:
-   - `Tổng lương = Lương ca cơ bản + Tiền OT - Tiền phạt đi muộn`.
-5. **Cập nhật trạng thái chuyên cần trên DOM**:
-   - Nếu bị phạt đi muộn (> 15 phút): Đổi nội dung thẻ trạng thái thành `"Vi phạm đi muộn"` và gán class CSS `status-warning`.
-   - Nếu không bị phạt ($\le$ 15 phút): Đổi nội dung thẻ trạng thái thành `"Đúng giờ"` và gán class CSS `status-success`.
+1. **Quy định Hành lý ký gửi**:
+   - Mỗi hành khách được miễn phí tối đa **7 kg** hành lý.
+   - Nếu hành lý vượt quá 7 kg, số kg dư ra sẽ tính phí quá cước là **50.000 VNĐ / kg**.
+2. **Đặc quyền Hạng vé Business**:
+   - Nếu hành khách có hạng vé `Business`, toàn bộ hành lý ký gửi quá cước đều được **Miễn phí 100%** (Phí quá cước = `0 VNĐ`), bất kể cân nặng bao nhiêu.
+   - Nếu hạng vé là `Eco`, áp dụng công thức tính phí quá cước thông thường.
+3. **Cập nhật trạng thái Check-in trên DOM**:
+   - Nếu Phí quá cước bằng `0 VNĐ`:
+     - Nội dung thẻ `#status-badge`: `"Trạng thái: Đã xác nhận (Hợp lệ)"`.
+     - Xóa lớp CSS cũ, thêm lớp CSS `badge-success` vào `#status-badge`.
+     - Gỡ bỏ thuộc tính `disabled` trên nút `#btn-checkin` để cho phép khách bấm hoàn tất.
+   - Nếu Phí quá cước lớn hơn `0 VNĐ`:
+     - Nội dung thẻ `#status-badge`: `"Trạng thái: Chờ thanh toán quá cước"`.
+     - Xóa lớp CSS cũ, thêm lớp CSS `badge-warning` vào `#status-badge`.
+     - Giữ nguyên trạng thái `disabled` trên nút `#btn-checkin`.
 
 ---
 
@@ -52,121 +56,97 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### A. Cấu trúc Mã nguồn hiện tại (Bị lỗi)
+#### 4.1. Mã nguồn hiện tại bị lỗi (Cần Debug)
 
 **File `index.html`:**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>Phiếu Tạm tính Lương Ca - Rikkei Logistics</title>
-  <style>
-    .card { border: 1px solid #ccc; padding: 16px; width: 350px; font-family: sans-serif; }
-    .status-success { color: green; font-weight: bold; }
-    .status-warning { color: red; font-weight: bold; }
-  </style>
+    <meta charset="UTF-8">
+    <title>VietJet Airport Self Check-in</title>
+    <style>
+        .badge { padding: 8px 12px; border-radius: 4px; font-weight: bold; display: inline-block; }
+        .badge-pending { background-color: #cccccc; color: #333333; }
+        .badge-success { background-color: #28a745; color: white; }
+        .badge-warning { background-color: #ffc107; color: black; }
+    </style>
 </head>
 <body>
-  <div class="card" id="payroll-card">
-    <h2>PHIẾU TẠM TÍNH LƯƠNG</h2>
-    <p>Mã nhân viên: <span id="emp-code">EMP-8821</span></p>
-    <p>Tên nhân viên: <span class="emp-name">Nguyễn Văn Lái</span></p>
-    <p>Số phút đi muộn: <span id="late-minutes">20</span> phút</p>
-    <p>Số giờ OT: <span id="ot-hours">2.5</span> giờ</p>
-    <p>Loại ca: <span id="shift-type" data-type="WEEKDAY">Ngày thường</span></p>
+    <div id="boarding-pass">
+        <h2>THÔNG TIN THẺ LÊN MÁY BAY</h2>
+        <p>Mã PNR: <span id="pnr-code">---</span></p>
+        <p>Hành khách: <span class="passenger-name">---</span></p>
+        <p>Hạng vé: <span id="ticket-class">---</span></p>
+        <p>Trọng lượng hành lý: <span id="baggage-weight">---</span> kg</p>
+        <p>Phí quá cước: <span id="excess-fee">0</span> VNĐ</p>
+        
+        <div id="status-badge" class="badge badge-pending">Trạng thái: Chờ xử lý</div>
+        <br><br>
+        <button id="btn-checkin" disabled>Xác nhận Lấy Thẻ Boarding Pass</button>
+    </div>
 
-    <hr>
-    <p>Trạng thái: <span id="attendance-status"></span></p>
-    <p>Tiền phạt đi muộn: <span id="penalty-amount">0</span> VNĐ</p>
-    <p>Tiền OT: <span id="ot-amount">0</span> VNĐ</p>
-    <p><strong>Thực nhận ca này: <span id="total-salary">0</span> VNĐ</strong></p>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="./app.js"></script>
 </body>
 </html>
 ```
 
-**File `script.js` (Chứa 7 lỗi sai cần debug):**
+**File `app.js` (Chứa 6 lỗi kỹ thuật & nghiệp vụ):**
 ```javascript
-// --- BẮT ĐẦU ĐOẠN MÃ LỖI CẦN DEBUG ---
+// Dữ liệu mẫu đầu vào của hành khách
+const passengerData = {
+    pnr: "VJ8899",
+    name: "NGUYEN VAN A",
+    ticketClass: "Business", // Có thể là "Business" hoặc "Eco"
+    baggageWeight: 12 // kg
+};
 
-// Lỗi 1: Truy xuất sai selector getElementById
-const lateInput = document.getElementById("#late-minutes");
+// --- ĐOẠN CODE LỖI CẦN DEBUG ---
 
-// Lỗi 2: Đọc dữ liệu từ thẻ <span> dùng sai thuộc tính
-const lateMinutes = Number(lateInput.value);
+// Lỗi 1: Truy xuất DOM theo ID bị dư dấu #
+const pnrElement = document.getElementById("#pnr-code");
+pnrElement.innerText = passengerData.pnr;
 
-// Lỗi 3: Dùng querySelector sai cú pháp selector cho class
-const empNameEl = document.querySelector("emp-name");
-console.log("Nhân viên:", empNameEl.textContent);
+// Lỗi 2: getElementsByClassName trả về HTMLCollection nhưng truy cập trực tiếp không qua chỉ số index
+const passengerNameElement = document.getElementsByClassName("passenger-name");
+passengerNameElement.innerText = passengerData.name;
 
-// Lỗi 4: Đọc custom attribute data-type bị sai cú pháp
-const shiftTypeEl = document.getElementById("shift-type");
-const shiftType = shiftTypeEl.getAttribute("dataset-type");
+// Lỗi 3: Thẻ <span> không có thuộc tính .value
+const ticketClassElement = document.getElementById("ticket-class");
+ticketClassElement.value = passengerData.ticketClass;
 
-const otHours = Number(document.getElementById("ot-hours").innerText);
-const baseHourlyRate = 37500;
-const baseShiftPay = 300000;
+// Cập nhật trọng lượng hành lý (Dòng này viết đúng)
+document.getElementById("baggage-weight").textContent = passengerData.baggageWeight;
 
-// Lỗi 5: Logic so sánh phạt đi muộn bị ngược
-let penalty = 0;
-if (lateMinutes < 15) {
-    penalty = 50000;
-}
+// Lỗi 4: Tính toán phí quá cước chưa kiểm tra Hạng vé (Business) và gọi innerHTML như 1 hàm
+const freeWeightLimit = 7;
+const feePerKg = 50000;
+let excessFee = (passengerData.baggageWeight - freeWeightLimit) * feePerKg;
 
-// Lỗi 6: Cập nhật nội dung thẻ span dùng sai thuộc tính .value
-document.getElementById("penalty-amount").value = penalty;
+const excessFeeElement = document.getElementById("excess-fee");
+excessFeeElement.innerHTML(excessFee); // Cú pháp sai
 
-// Tính tiền OT
-let otRate = 1.0;
-if (shiftType === "WEEKDAY") {
-    otRate = 1.5;
-} else if (shiftType === "HOLIDAY") {
-    otRate = 3.0;
-}
+// Lỗi 5: Gán trực tiếp tên class vào thuộc tính .style
+const statusBadgeElement = document.getElementById("status-badge");
+statusBadgeElement.style = "badge-success";
 
-const otPay = otHours * baseHourlyRate * otRate;
-document.getElementById("ot-amount").innerText = otPay;
-
-// Tính tổng lương
-const totalSalary = baseShiftPay + otPay - penalty;
-document.getElementById("total-salary").innerText = totalSalary;
-
-// Lỗi 7: Thay đổi Class CSS của phần tử DOM sai cú pháp
-const statusEl = document.getElementById("attendance-status");
-if (penalty > 0) {
-    statusEl.class = "status-warning";
-    statusEl.innerHTML = "Vi phạm đi muộn";
-} else {
-    statusEl.class = "status-success";
-    statusEl.innerHTML = "Đúng giờ";
-}
+// Lỗi 6: Không gỡ bỏ thuộc tính disabled của button khi phí = 0
+const checkinButton = document.getElementById("btn-checkin");
+// Thiếu xử lý unlock nút checkin khi đủ điều kiện
 ```
 
----
 
+#### 4.2. Danh sách nhiệm vụ thực hiện
+1. Tạo thư mục dự án và sao chép mã nguồn lỗi ở trên.
+2. Tìm và khắc phục toàn bộ 6 lỗi trong file `app.js`.
+3. Kiểm tra chương trình với **2 trường hợp test (Test Cases)**:
+   - **Test Case 1**: `passengerData` với `ticketClass: "Business"`, `baggageWeight: 12`. Phí hiển thị là `0 VNĐ`, badge hiển thị màu xanh lá (`badge-success`) và nút button được mở khóa (hết `disabled`).
+   - **Test Case 2**: `passengerData` với `ticketClass: "Eco"`, `baggageWeight: 12`. Phí quá cước hiển thị là `250.000 VNĐ` (`(12 - 7) * 50.000`), badge hiển thị màu vàng (`badge-warning`) và nút button bị khóa (`disabled`).
 
-#### B. Yêu cầu Nhiệm vụ của Học viên
-
-1. **Báo cáo Debug (Bắt buộc)**:
-   - Tạo file `DEBUG_REPORT.md` (hoặc ghi chú trong comment mã nguồn), liệt kê rõ **7 lỗi** có trong file `script.js` ban đầu.
-   - Với mỗi lỗi, giải thích rõ: *Dòng bị lỗi*, *Nguyên nhân gây ra lỗi* và *Cách khắc phục*.
-
-2. **Sửa mã nguồn (`script.js`)**:
-   - Sửa toàn bộ mã JavaScript để trang web chạy không phát sinh lỗi trong Console.
-   - Tính toán chính xác theo các thông số trong HTML gốc:
-     - Số phút đi muộn = `20` -> Bị phạt `50.000 VNĐ`.
-     - Số giờ OT = `2.5` giờ ngày thường (`WEEKDAY`) -> Tiền OT = `2.5 * 37.500 * 1.5 = 140.625 VNĐ`.
-     - Tổng thực nhận = `300.000 + 140.625 - 50.000 = 390.625 VNĐ`.
-     - Trạng thái hiển thị: `"Vi phạm đi muộn"` có màu chữ đỏ (class `status-warning`).
-   - Cập nhật đúng các giá trị tính toán được lên các phần tử HTML tương ứng (`#penalty-amount`, `#ot-amount`, `#total-salary`, `#attendance-status`).
-
-3. **Phạm vi Cấm (Forbidden Scope)**:
-   - Không dùng `addEventListener`, `onclick` hay các sự kiện tương tác (Session 19).
-   - Không dùng `fetch`, `axios`, `LocalStorage`, `jQuery`.
-   - Không sửa đổi cấu trúc HTML gốc.
+> **LƯU Ý NGHIÊM CẤM**:
+> - Không sử dụng `addEventListener` hoặc sự kiện (`onclick`, `onsubmit`...).
+> - Không sử dụng `Fetch API`, `LocalStorage`, hay bất kỳ thư viện bên ngoài nào.
+> - Chỉ thao tác trực tiếp trên DOM bằng JavaScript thuần (DOM API Session 17).
 
 ---
 
@@ -174,19 +154,19 @@ if (penalty > 0) {
 ### 5. Quy chuẩn nộp bài
 - Cấu trúc thư mục dự án:
   ```text
-  HRM_DOM_Debug/
+  logistics-airline-debug/
   ├── index.html
-  ├── script.js
-  └── DEBUG_REPORT.md
+  └── app.js
   ```
-- File `script.js` phải được comment rõ ràng tại các vị trí đã được debug.
-- Mã nguồn chạy trực tiếp bằng cách mở file `index.html` trên trình duyệt Google Chrome/Edge.
+- File `app.js` phải chứa comment giải thích chi tiết tại từng vị trí đã được sửa lỗi (Ví dụ: `// [FIX LỖI 1]: Đã bỏ dấu # trong getElementById...`).
+- Nén toàn bộ thư mục thành file `.zip` đặt tên theo cú pháp: `HOVA TEN_MSHV_BAITAP2.zip`.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Liệt kê lỗi (Debug Report)** | **20đ** | - Chỉ ra chính xác 7/7 lỗi trong đoạn mã ban đầu (14đ).<br/>- Giải thích đúng nguyên nhân kỹ thuật (ví dụ: `span` không có thuộc tính `.value`, `getElementById` không nhận tiền tố `#`) (6đ). |
-| **Thao tác DOM API đúng cú pháp** | **30đ** | - Sử dụng đúng `document.getElementById("late-minutes")` (không dấu `#`).<br/>- Sử dụng đúng `document.querySelector(".emp-name")` (có dấu `.`).<br/>- Sử dụng `.innerText` / `.textContent` thay cho `.value` đối với các thẻ non-input.<br/>- Đọc đúng attribute `data-type` qua `.dataset.type` hoặc `.getAttribute("data-type")`.<br/>- Gán CSS class đúng qua `.className` hoặc `.classList.add()`. |
-| **Xử lý Logic Chấm công & Tính lương** | **30đ** | - Áp dụng đúng điều kiện phạt đi muộn: `lateMinutes > 15`.<br/>- Tính đúng tiền OT theo hệ số ca `WEEKDAY` (1.5) hoặc `HOLIDAY` (3.0).<br/>- Tính đúng Tổng lương thực nhận = `Lương ca + OT - Phạt`.<br/>- Hiển thị đúng kết quả `390.625` VNĐ cho bộ test case mặc định. |
-| **Trình bày Code & Chuẩn mực** | **20đ** | - Tuân thủ cấu trúc thư mục quy định (5đ).<br/>- Code trình bày sạch đẹp, không dư thừa console.log lỗi (5đ).<br/>- Tuân thủ phạm vi kiến thức (Không sử dụng Event Listener, Fetch, LocalStorage) (10đ). |
+| **Phát hiện & Fix lỗi Selector** | 20đ | - Sửa đúng `getElementById("pnr-code")` (bỏ `#`) (10đ).<br>- Sử dụng đúng `getElementsByClassName("passenger-name")[0]` hoặc đổi sang `querySelector` (10đ). |
+| **Phát hiện & Fix lỗi Nội dung DOM** | 20đ | - Sửa thuộc tính `.value` thành `textContent` / `innerText` cho thẻ `span#ticket-class` (10đ).<br>- Sửa lỗi gọi hàm `innerHTML(...)` thành gán giá trị `innerHTML = ...` hoặc `textContent = ...` (10đ). |
+| **Xử lý Logic Nghiệp vụ & Class** | 40đ | - Tính toán đúng phí hành lý theo hạng vé `Business` (0 VNĐ) và `Eco` (40đ).<br>- Thao tác class đúng kỹ thuật với `classList.remove()` và `classList.add()` (hoặc `className`) thay vì gán vào `.style`.<br>- Cập nhật đúng nội dung văn bản cho `#status-badge`. |
+| **Thao tác Attribute & Trạng thái Nút** | 20đ | - Kiểm tra điều kiện phí quá cước để gỡ bỏ thuộc tính `disabled` bằng `removeAttribute("disabled")` hoặc `.disabled = false` khi hợp lệ.<br>- Mã nguồn sạch đẹp, có comment giải thích rõ ràng các điểm lỗi đã sửa. |
+| **Tổng điểm** | **100đ** | **Đạt từ 80đ trở lên là ĐẠT (PASS)** |

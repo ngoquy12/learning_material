@@ -1,9 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Mô đun hóa Mã nguồn** | **20đ** | - Tổ chức mã nguồn chuẩn dạng Module/Object `ShopeeFoodEngine`.<br>- Phân chia hàm rõ ràng, nguyên tắc Single Responsibility (Mỗi hàm thực hiện đúng 1 việc).<br>- Đặt tên biến/hàm theo chuẩn camelCase, comment đầy đủ, đúng ngữ nghĩa tiếng Anh hoặc tiếng Việt technical. |
-| **Thao tác DOM API & Dataset** | **20đ** | - Truy xuất chính xác các element bằng `querySelector`, `querySelectorAll`, `getElementById`.<br>- Đọc và ép kiểu dữ liệu từ `dataset` (`data-*`) chính xác.<br>- Sử dụng thành thạo `textContent`, `innerHTML`, `setAttribute`, `removeAttribute`, và API `classList` (`add`, `remove`, `contains`). |
-| **Xử lý Logic Nghiệp vụ ShopeeFood** | **40đ** | - **Trạng thái Cửa hàng (10đ)**: Xử lý đúng khi đóng cửa (hiển thị banner, disable nút đặt hàng, đưa tổng tiền về 0).<br>- **Tồn kho Món ăn (10đ)**: Đánh dấu món hết hàng trên DOM, loại bỏ món 0-stock khỏi tổng tiền.<br>- **Phí Ship & Cao điểm (10đ)**: Tính đúng phí ship theo km (làm tròn lên), phụ phí khung giờ (11-13h, 18-20h), và miễn phí ship cho đơn trên 100k.<br>- **Voucher & Tổng thanh toán (10đ)**: Áp dụng voucher đúng điều kiện tối thiểu, tính tổng tiền cuối chính xác. |
-| **Xử lý Biên & Ngoại lệ DOM** | **10đ** | - Xử lý an toàn khi DOM Element không tồn tại (null check trước khi truy cập).<br>- Xử lý khi danh sách món ăn rỗng hoặc tất cả các món đều hết hàng.<br>- Phí giao hàng sau khi giảm không bị âm (min = 0). |
-| **Định dạng & Hiển thị UI** | **10đ** | - Định dạng tiền tệ VND chuẩn (VD: `100.000 đ`).<br>- Dynamic render danh sách tóm tắt hóa đơn chi tiết vào `#order-breakdown`.<br>- Giao diện thay đổi trực quan, đúng CSS class theo từng trạng thái nghiệp vụ. |

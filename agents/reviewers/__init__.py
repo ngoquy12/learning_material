@@ -36,6 +36,11 @@ from agents.reviewers.sandbox_reviewer import (
     sandbox_testing_agent
 )
 
+from agents.reviewers.homework_reviewer import (
+    HomeworkReviewerAgent,
+    review_session_homework
+)
+
 __all__ = [
     "HTMLReadingUIReviewerAgent",
     "reading_ui_reviewer",
@@ -54,5 +59,8 @@ __all__ = [
     "check_unaccented_vietnamese",
     "check_knowledge_scope_violations",
     "check_structural_completeness",
-    "sandbox_testing_agent"
+    "sandbox_testing_agent",
+    "html_ux_reviewer",
+    "HomeworkReviewerAgent",
+    "review_session_homework"
 ]

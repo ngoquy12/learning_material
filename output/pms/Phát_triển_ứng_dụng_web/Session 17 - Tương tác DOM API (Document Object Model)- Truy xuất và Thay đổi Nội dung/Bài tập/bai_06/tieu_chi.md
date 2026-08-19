@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn camelCase, thể hiện rõ ngữ nghĩa domain VinFast EV Charging.<br>- Tách bạch rõ ràng giữa bước: Read Input -> Process Logic -> Write Output (DOM UI).<br>- Có comment giải thích các bước tính toán theo Business Rules. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Đọc chính xác 5 tham số đầu vào từ `data-*` attributes (`data-kwh`, `data-charging-type`, `data-idle-minutes`, `data-battery`, `data-temp`).<br>- Tính chuẩn đơn giá Sạc thường / Sạc siêu nhanh.<br>- Tính chính xác phí phạt đỗ xe quá 30 phút.<br>- Tính đúng tổng hóa đơn và hiển thị định dạng chuẩn tiền tệ VNĐ (`toLocaleString('vi-VN')`). |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Xử lý trường hợp `idle-minutes` $\le 30$ (Phí phạt bằng 0 VNĐ).<br>- Chuyển đổi dữ liệu từ String sang Number an toàn (dùng `parseFloat`, `parseInt` kết hợp `isNaN` check).<br>- Xử lý trường hợp nhiệt độ vượt ngưỡng ($> 70^\circ\text{C}$) hoặc pin đầy ($\ge 100\%$) để kích hoạt chế độ tự động ngắt sạc. |
-| **Thao tác DOM API & Chuẩn I/O** | **20đ** | - Thao tác DOM chuẩn xác bằng `getElementById` / `querySelector`.<br>- Thay đổi style/cảnh báo bằng `classList.add()` / `classList.remove()` hoặc `innerHTML`.<br>- Không vi phạm phạm vi cấm (Không dùng Event Listeners, Fetch API, LocalStorage). |

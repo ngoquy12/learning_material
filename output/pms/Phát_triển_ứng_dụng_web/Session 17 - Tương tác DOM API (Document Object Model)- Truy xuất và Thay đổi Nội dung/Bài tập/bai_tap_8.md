@@ -1,59 +1,48 @@
 # Bài tập 8: Logistics (Mức độ 3: Nâng cao - Xây dựng tính năng mới)
 
 ### 1. Mục tiêu bài tập
-- **Thao tác DOM nâng cao**: Sử dụng thành thạo các phương thức truy xuất phần tử DOM (`getElementById`, `querySelector`, `querySelectorAll`) để duyệt và trích xuất dữ liệu.
-- **Biến đổi & Tạo mới nội dung DOM**: Thực hiện thay đổi cấu trúc HTML (`innerHTML`, `createElement`, `appendChild`), thay đổi thuộc tính (`setAttribute`, `dataset`) và áp dụng class CSS/style động (`classList.add`, `classList.remove`, `style`).
-- **Xử lý Logic nghiệp vụ thực tế**: Lập trình thuật toán phân loại bệnh nhân, tính toán tài chính phòng khám (BHYT), phân bổ hàng đợi (Ưu tiên / Thường) và kiểm soát ngưỡng quá tải hệ thống theo khung giờ của Bác sĩ.
+- **Thao tác DOM Tree nâng cao**: Thành thạo việc truy xuất các phần tử DOM phức tạp thông qua các phương thức `getElementById`, `querySelector`, `querySelectorAll`, `closest`, và duyệt cây DOM (`children`, `parentElement`).
+- **Thay đổi nội dung & Thuộc tính DOM**: Biết cách dùng `textContent`, `innerHTML`, `setAttribute`, `getAttribute`, `dataset`, và thao tác với CSS class/style (`classList.add`, `classList.remove`, `style.width`) để cập nhật giao diện động.
+- **Áp dụng Business Rules vào DOM**: Cài đặt các quy tắc logic nghiệp vụ kiểm soát tải trọng, bảo quản nhiệt độ và tự động tính toán phí lưu trữ kho logistics trực tiếp trên cấu trúc trang web.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Hệ thống **CLINIC_APPOINTMENT** tại Phòng khám Đa khoa Quốc tế Rikkei Care đang gặp sự cố ở khâu hiển thị bảng điều khiển (Dashboard) tự động. Dữ liệu đặt lịch khám của bệnh nhân đổ về dưới dạng danh sách đối tượng JavaScript, nhưng giao diện hiển thị hiện tại chưa phản ánh đúng thứ tự ưu tiên, chi phí khám sau miễn giảm BHYT và cảnh báo khi bác sĩ bị vượt quá năng lực phục vụ.
+Trung tâm logistics **Rikkei Logistics** đang triển khai màn hình điều hành kho bãi thông minh (Warehouse Operations Dashboard). Màn hình này quản lý việc phân bố các vị trí kệ kho (`WarehouseShelf`) và danh mục kiện hàng (`PalletItem`).
 
-Bạn đóng vai trò là Lập trình viên Frontend chịu trách nhiệm viết script JS xử lý dữ liệu và cập nhật trực tiếp lên giao diện DOM (không dùng Event Listener) ngay khi trang web được tải.
+Bạn được giao nhiệm vụ phát triển module Javascript DOM **`warehouseManager.js`** nhằm tự động cập nhật trạng thái hiển thị của các kệ kho, kiểm định tính hợp lệ của kiện hàng khi lưu kho, và tính toán tổng chi phí lưu bãi trên giao diện theo thời gian thực.
 
 ```mermaid
-flowchart TD
-    A[Dữ liệu Khám bệnh thô - Mock Data] --> B[Hàm processAppointmentData]
-    B --> C{Kiểm tra BHYT & Tuổi/Thai kỳ}
-    C --> D[Tính chi phí khám: Gốc 200k / BHYT giảm 80%]
-    C --> E[Gán mã STT: PRI-xxx hoặc NOR-xxx]
-    B --> F{Kiểm tra giới hạn Bác sĩ}
-    F -->|Đã đủ 5 bệnh nhân/khung giờ| G[Đánh dấu OVERLOAD & Từ chối]
-    F -->|Dưới 5 bệnh nhân/khung giờ| H[Ghi nhận Hợp lệ VALID]
-    D & E & H --> I[Sắp xếp: PRIORITY lên trước, NOR-xxx sau]
-    I & G --> J[Cập nhật DOM HTML]
-    J --> K[Render Danh sách Hàng đợi #queue-list]
-    J --> L[Render Thống kê Tài chính #summary-stats]
-    J --> M[Render Cảnh báo Bác sĩ quá tải #doctor-alerts]
+graph TD
+    A[Mã nguồn JS Execute] --> B{Kiểm tra Điều kiện nhập kho}
+    B -- Nhiệt độ không phù hợp / Quá tải 500kg --> C[Cập nhật Alert Box lỗi lên DOM]
+    B -- Hợp lệ --> D[Thêm Element Pallet vào .pallet-list]
+    D --> E[Cập nhật Tải trọng & Tiến trình style.width]
+    E --> F[Thay đổi Class trạng thái: status-full / status-warning]
+    F --> G[Cập nhật Tổng tải trọng & Phí lưu kho toàn hệ thống]
 ```
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-
-1. **Quy tắc Tính chi phí khám bệnh**:
-   - Giá khám ban đầu cố định: `200,000 VNĐ`.
-   - Bệnh nhân có BHYT (`hasInsurance: true`): Được miễn giảm 80% tiền khám ban đầu $\rightarrow$ Số tiền phải trả = `40,000 VNĐ`.
-   - Bệnh nhân không có BHYT (`hasInsurance: false`): Số tiền phải trả = `200,000 VNĐ`.
-
-2. **Quy tắc Phân loại & Cấp số thứ tự (Queue Number)**:
-   - **Số Ưu Tiên (PRIORITY)**: Bệnh nhân đạt một trong hai điều kiện:
-     - Tuổi $\ge 70$ (`age >= 70`).
-     - Là phụ nữ mang thai (`gender === 'Female'` VÀ `isPregnant === true`).
-     - Mã số thứ tự có định dạng: `PRI-001`, `PRI-002`, ...
-   - **Số Thường (NORMAL)**: Các trường hợp còn lại.
-     - Mã số thứ tự có định dạng: `NOR-001`, `NOR-002`, ...
-   - **Thứ tự hiển thị trên danh sách**: Tất cả bệnh nhân thuộc nhóm `PRIORITY` phải được sắp xếp lên đầu danh sách, sau đó mới đến nhóm `NORMAL`. Trong cùng một nhóm, giữ nguyên thứ tự đăng ký ban đầu.
-
-3. **Quy tắc Chặn đăng ký Quá tải (Doctor Capacity Limit)**:
-   - Tối đa **5 bệnh nhân** được chấp nhận cho một Bác sĩ trong cùng một Khung giờ (`timeSlot`).
-   - Từ bệnh nhân thứ 6 trở đi đăng ký với cùng Bác sĩ trong cùng Khung giờ đó:
-     - Trạng thái hẹn: `OVERLOAD` (Quá tải / Bị từ chối).
-     - Chi phí tính: `0 VNĐ` (không tính vào tổng doanh thu thực thu).
-     - Mã số thứ tự: Gán nhãn `REJECTED`.
+1. **Quy tắc Tải trọng Kệ kho (Weight Capacity Rules)**:
+   - Tải trọng tối đa quy định cho mỗi kệ kho là **500 kg**.
+   - Nếu tổng khối lượng kiện hàng hiện tại + kiện hàng mới nhập $> 500\text{ kg}$, hệ thống **từ chối thêm** kiện hàng và hiển thị lỗi lên giao diện.
+2. **Quy tắc Nhiệt độ Kho lạnh (Cold Storage Rules)**:
+   - Kệ kho loại lạnh (`data-shelf-type="COLD"`) chỉ chấp nhận các kiện hàng có nhiệt độ bảo quản yêu cầu trong khoảng từ **$-18^\circ\text{C}$ đến $5^\circ\text{C}$**.
+   - Kệ kho thường (`data-shelf-type="DRY"`) chấp nhận mọi kiện hàng.
+3. **Quy tắc Phân loại Trạng thái Kệ kho (Visual Status Rules)**:
+   - Dựa vào **tỷ lệ lấp đầy** ($\% = \frac{\text{Tổng khối lượng}}{\text{Tải trọng tối đa}} \times 100$):
+     - Tỷ lệ $= 100\%$: Xóa bỏ class `status-normal`, `status-warning`, thêm class `status-full`.
+     - Tỷ lệ từ $80\%$ đến $< 100\%$: Thêm class `status-warning`.
+     - Tỷ lệ $< 80\%$: Thêm class `status-normal`.
+4. **Quy tắc Tính phí Lưu kho (Storage Cost Calculation)**:
+   - Đơn giá lưu kho kệ thường (`DRY`): **10.000 VNĐ / kg / ngày**.
+   - Đơn giá lưu kho kệ lạnh (`COLD`): **25.000 VNĐ / kg / ngày**.
+   - Phí lưu kho từng kệ = $\text{Khối lượng hiện tại của kệ (kg)} \times \text{Đơn giá loại kệ tương ứng}$.
+   - Tổng phí lưu kho toàn hệ thống = Tổng phí lưu kho của tất cả các kệ.
 
 ---
 
@@ -61,79 +50,140 @@ flowchart TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Struct dữ liệu đầu vào (Mock Data)
-Khai báo mảng `appointmentsData` trong file `main.js` với cấu trúc mẫu:
+#### 4.1 Cấu trúc HTML Ban Đầu (`index.html`)
+Sinh viên sử dụng đoạn mã HTML mẫu dưới đây để thực hiện bài tập:
 
-```javascript
-const appointmentsData = [
-  { id: 1, name: "Nguyễn Văn An", age: 75, gender: "Male", isPregnant: false, hasInsurance: true, doctorId: "DOC01", doctorName: "BS. Cường", timeSlot: "08:00 - 09:00" },
-  { id: 2, name: "Trần Thị Bình", age: 28, gender: "Female", isPregnant: true, hasInsurance: false, doctorId: "DOC01", doctorName: "BS. Cường", timeSlot: "08:00 - 09:00" },
-  { id: 3, name: "Lê Văn Cường", age: 45, gender: "Male", isPregnant: false, hasInsurance: true, doctorId: "DOC01", doctorName: "BS. Cường", timeSlot: "08:00 - 09:00" },
-  { id: 4, name: "Phạm Thị Duyên", age: 32, gender: "Female", isPregnant: false, hasInsurance: true, doctorId: "DOC01", doctorName: "BS. Cường", timeSlot: "08:00 - 09:00" },
-  { id: 5, name: "Hoàng Văn Em", age: 65, gender: "Male", isPregnant: false, hasInsurance: false, doctorId: "DOC01", doctorName: "BS. Cường", timeSlot: "08:00 - 09:00" },
-  { id: 6, name: "Vũ Thị Giang", age: 80, gender: "Female", isPregnant: false, hasInsurance: true, doctorId: "DOC01", doctorName: "BS. Cường", timeSlot: "08:00 - 09:00" }, // Vượt quá 5 BN của BS Cường khung 08:00-09:00
-  { id: 7, name: "Đặng Hoàng Nam", age: 22, gender: "Male", isPregnant: false, hasInsurance: false, doctorId: "DOC02", doctorName: "BS. Trang", timeSlot: "09:00 - 10:00" }
-];
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Rikkei Logistics - Warehouse Management</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>HỆ THỐNG QUẢN LÝ LƯU KHO KIỆN HÀNG</h1>
+    <div id="alert-box" class="alert-hidden"></div>
+  </header>
+
+  <!-- BẢNG TỔNG QUAN -->
+  <section id="summary-dashboard">
+    <div class="summary-card">Tải trọng kho: <span id="total-warehouse-weight">0</span> kg</div>
+    <div class="summary-card">Kệ lấp đầy 100%: <span id="full-shelves-count">0</span></div>
+    <div class="summary-card">Phí lưu kho tạm tính: <span id="total-storage-cost">0</span> VNĐ/ngày</div>
+  </section>
+
+  <!-- DANH SÁCH KỆ KHO -->
+  <main id="warehouse-container">
+    <!-- Kệ kho 1: Kho Thường -->
+    <div class="shelf-card status-normal" id="shelf-101" data-shelf-type="DRY" data-max-weight="500">
+      <div class="shelf-header">
+        <h3>Kệ 101 - Tiêu chuẩn (DRY)</h3>
+        <span class="weight-info"><span class="current-weight">150</span> / 500 kg</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" style="width: 30%;"></div>
+      </div>
+      <div class="pallet-list">
+        <div class="pallet-item" data-weight="150">Kiện Hạt Nhựa (150kg)</div>
+      </div>
+    </div>
+
+    <!-- Kệ kho 2: Kho Lạnh -->
+    <div class="shelf-card status-normal" id="shelf-102" data-shelf-type="COLD" data-max-weight="500">
+      <div class="shelf-header">
+        <h3>Kệ 102 - Kho Lạnh (COLD)</h3>
+        <span class="weight-info"><span class="current-weight">300</span> / 500 kg</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" style="width: 60%;"></div>
+      </div>
+      <div class="pallet-list">
+        <div class="pallet-item" data-weight="200" data-temp="-10">Kiện Thủy Sản (200kg, -10°C)</div>
+        <div class="pallet-item" data-weight="100" data-temp="2">Kiện Trái Cây (100kg, 2°C)</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="warehouseManager.js"></script>
+</body>
+</html>
 ```
 
 
-#### 4.2. Yêu cầu Cấu trúc File & DOM HTML (`index.html`)
-Tạo giao diện HTML cơ bản có các phần tử chứa thông tin sau:
-- Thẻ `<tbody id="queue-table-body"></tbody>`: Chứa danh sách bệnh nhân sau khi render.
-- Thẻ `<span id="total-valid-appointments"></span>`: Hiển thị tổng số lượt khám hợp lệ.
-- Thẻ `<span id="total-rejected-appointments"></span>`: Hiển thị tổng số lượt bị từ chối do quá tải.
-- Thẻ `<span id="total-revenue"></span>`: Hiển thị tổng doanh thu thu được (đã định dạng VNĐ, ví dụ: `320,000 VNĐ`).
-- Thẻ `<div id="doctor-alerts-container"></div>`: Chứa các thẻ cảnh báo bác sĩ bị vượt quá giới hạn.
+#### 4.2 Triển khai mã JavaScript (`warehouseManager.js`)
+Sinh viên viết mã xử lý bằng thuần JavaScript (DOM API), **tuyệt đối không dùng Event Listener hay Form Event**, triển khai đầy đủ các hàm với yêu cầu chi tiết như sau:
 
+1. **Hàm `validatePallet(shelfElement, palletObj)`**:
+   - Tham số: `shelfElement` (DOM element của kệ kho), `palletObj` (đối tượng `{ code: string, weight: number, temp: number }`).
+   - Kiểm tra nhiệt độ: Nếu `shelfElement.dataset.shelfType === "COLD"` mà `temp < -18` hoặc `temp > 5` $\rightarrow$ Trả về `{ valid: false, message: "Lỗi: Nhiệt độ kiện hàng [temp]°C không đạt chuẩn kho lạnh (-18°C đến 5°C)" }`.
+   - Kiểm tra quá tải: Đọc khối lượng hiện tại từ `.current-weight` của kệ. Nếu `khối lượng hiện tại + palletObj.weight > 500` $\rightarrow$ Trả về `{ valid: false, message: "Lỗi: Tải trọng kệ bị vượt quá 500kg (Tối đa thêm: X kg)" }`.
+   - Nếu hợp lệ $\rightarrow$ Trả về `{ valid: true, message: "Hợp lệ" }`.
 
-#### 4.3. Yêu cầu Xử lý Logic Javascript (`main.js`)
-Viết các hàm chuyên biệt để xử lý và cập nhật DOM:
+2. **Hàm `addNewPallet(shelfId, palletObj)`**:
+   - Tìm kiếm phần tử kệ kho qua `getElementById(shelfId)`. Nếu không thấy, báo lỗi lên console.
+   - Gọi `validatePallet`.
+   - **Trường hợp vi phạm**:
+     - Lấy phần tử `#alert-box`, dùng `textContent` hiển thị câu báo lỗi, đặt `className = "alert-box alert-danger"`.
+   - **Trường hợp hợp lệ**:
+     - Lấy phần tử `#alert-box`, gán `textContent = "Nhập kiện hàng thành công!"` và `className = "alert-box alert-success"`.
+     - Tạo 1 HTML element `div` mới cho pallet, gán class `pallet-item`, gán `dataset.weight = palletObj.weight`, thêm thông tin chi tiết bằng `textContent` hoặc `innerHTML`, sau đó `appendChild` vào danh sách `.pallet-list` của kệ đó.
+     - Cập nhật số liệu hiển thị `.current-weight` của kệ đó.
+     - Tính toán tỷ lệ phần trăm lấp đầy và cập nhật thuộc tính inline `style.width` cho thẻ `.progress-bar` của kệ.
+     - Cập nhật lại class trạng thái (`status-normal`, `status-warning`, `status-full`) của thẻ `.shelf-card` thông qua `classList`.
 
-1. **`processAppointmentData(data)`**:
-   - Tính toán chi phí (`cost`).
-   - Xác định cấp số `PRIORITY` hay `NORMAL`. Tạo mã `PRI-xxx` hoặc `NOR-xxx`.
-   - Kiểm tra giới hạn 5 người / Bác sĩ / Khung giờ. Phân loại `status: "VALID"` hoặc `status: "OVERLOAD"`.
-   - Sắp xếp mảng kết quả: Bệnh nhân `VALID` & `PRIORITY` lên trước $\rightarrow$ `VALID` & `NORMAL` $\rightarrow$ Các bệnh nhân `OVERLOAD` nằm ở cuối cùng.
+3. **Hàm `updateWarehouseDashboard()`**:
+   - Lấy danh sách tất cả kệ kho bằng `querySelectorAll('.shelf-card')`.
+   - Duyệt qua từng kệ kho để:
+     - Tính **Tổng tải trọng toàn kho**.
+     - Đếm số lượng kệ bị lấp đầy **100%** tải trọng.
+     - Tính toán **Tổng phí lưu kho tạm tính** dựa trên loại kệ (`DRY` / `COLD`) và khối lượng của từng kệ.
+   - Cập nhật 3 giá trị trên tương ứng vào các thẻ DOM: `#total-warehouse-weight`, `#full-shelves-count`, và `#total-storage-cost`.
 
-2. **`renderQueueTable(processedData)`**:
-   - Xóa trắng bảng cũ (`innerHTML = ''`).
-   - Duyệt mảng dữ liệu đã xử lý, tạo các hàng `<tr>` và chèn vào `#queue-table-body`.
-   - Thêm các class CSS tương ứng:
-     - Dòng bệnh nhân `PRIORITY`: Thêm class `row-priority` (nền vàng nhạt).
-     - Dòng bệnh nhân `OVERLOAD`: Thêm class `row-overload` (nền đỏ nhạt, chữ gạch ngang hoặc mờ).
-   - Hiển thị Badge (thẻ nhãn) phân loại: `<span class="badge badge-priority">ƯU TIÊN</span>` hoặc `<span class="badge badge-normal">THƯỜNG</span>`.
+4. **Kịch bản kiểm thử tự động (Gọi hàm trực tiếp ở cuối file JS)**:
+   ```javascript
+   // Chạy khởi tạo tính toán bảng tổng quan ban đầu
+   updateWarehouseDashboard();
 
-3. **`renderSummaryStats(processedData)`**:
-   - Đếm tổng số ca hợp lệ, tổng số ca bị từ chối.
-   - Tính tổng doanh thu của các ca hợp lệ.
-   - Cập nhật trực tiếp giá trị vào các thẻ `#total-valid-appointments`, `#total-rejected-appointments`, `#total-revenue` bằng `innerText` hoặc `textContent`.
+   // Giả lập nhập kiện hàng hợp lệ vào kệ kho 101 (Kệ thường)
+   addNewPallet("shelf-101", { code: "PL-003", weight: 280, temp: 25 });
 
-4. **`renderDoctorAlerts(processedData)`**:
-   - Tìm danh sách các Bác sĩ bị quá tải kèm khung giờ tương ứng.
-   - Nếu có quá tải, tạo động thẻ `<div class="alert alert-danger">` chứa thông tin: `"CẢNH BÁO: Bác sĩ [Tên] trong khung giờ [Time] đã bị quá tải (Vượt quá 5 bệnh nhân)!"` và chèn vào `#doctor-alerts-container`.
+   // Giả lập nhập kiện hàng sai nhiệt độ vào kệ 102 (Kệ lạnh: -25°C) -> Phải báo lỗi trên DOM Alert Box
+   addNewPallet("shelf-102", { code: "PL-004", weight: 50, temp: -25 });
+
+   // Giả lập nhập kiện hàng làm quá tải kệ 101 (Đã có 150 + 280 = 430kg, thêm 100kg -> 530kg > 500kg) -> Báo lỗi quá tải
+   addNewPallet("shelf-101", { code: "PL-005", weight: 100, temp: 30 });
+
+   // Giả lập nhập kiện hàng lấp đầy đúng 100% tải trọng kệ 102 (Đã có 300kg, thêm 200kg với temp = 0°C -> Đạt 500kg)
+   addNewPallet("shelf-102", { code: "PL-006", weight: 200, temp: 0 });
+
+   // Cập nhật lại toàn bộ Dashboard sau các thao tác
+   updateWarehouseDashboard();
+   ```
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục**:
+- **Cấu trúc thư mục bài nộp**:
   ```text
-  JS_Session17_Homework/
+  homework-session17-logistics/
   ├── index.html
   ├── style.css
-  └── main.js
+  └── warehouseManager.js
   ```
-- **Quy tắc mã nguồn**:
-  - KHÔNG sử dụng `addEventListener` hay thuộc tính sự kiện dạng inline (`onclick`, `onsubmit`...).
-  - Code JS chạy tự động ngay khi script được nhúng và tải ở cuối thẻ `<body>`.
-  - Tên biến, tên hàm viết theo chuẩn `camelCase`, rõ nghĩa.
-  - Mã nguồn phải có comment giải thích rõ ràng từng bước thao tác DOM và xử lý nghiệp vụ.
+- **Quy định ràng buộc**:
+  - Không được sửa đổi cấu trúc thẻ HTML cơ bản sẵn có ngoại trừ việc bổ sung class/style và các phần tử con bằng JavaScript DOM manipulation.
+  - **CẤM** sử dụng `addEventListener`, các sự kiện submit form `onsubmit`, Fetch API, hay `localStorage` (Chưa thuộc phạm vi bài học).
+  - Code phải được comment giải thích rõ ràng từng thao tác DOM.
+  - Tên biến/hàm tuân thủ chuẩn `camelCase`.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML hợp lệ, ngữ nghĩa tốt.<br>- Đặt tên hàm/biến rõ ràng theo chuẩn `camelCase`.<br>- Tổ chức thư mục đúng yêu cầu, code sạch sẽ và có comment giải thích logic thao tác DOM. |
-| **Xử lý Logic nghiệp vụ** | **40đ** | - Tính đúng 100% chi phí khám ban đầu có/không có BHYT (khám gốc 200k, BHYT giảm 80%).<br>- Phân loại chính xác bệnh nhân Ưu tiên (Tuổi $\ge 70$ hoặc Phụ nữ mang thai) và Thường.<br>- Đánh số thứ tự đúng định dạng `PRI-xxx` và `NOR-xxx`.<br>- Áp dụng đúng thuật toán sắp xếp hiển thị ưu tiên lên trước.<br>- Kiểm soát chính xác ngưỡng 5 bệnh nhân/bác sĩ/khung giờ. |
-| **Thao tác DOM API & Giao diện** | **20đ** | - Truy xuất chính xác các phần tử DOM bằng `getElementById` / `querySelector`.<br>- Render bảng hàng đợi động, áp dụng đúng class CSS (`row-priority`, `row-overload`) và hiển thị badge nhãn.<br>- Hiển thị đúng các con số thống kê và tạo động thẻ alert thông báo cảnh báo bác sĩ quá tải.<br>- Không vi phạm vùng kiến thức cấm (Không dùng Event Listener). |
-| **Xử lý Biên & Tối ưu performance** | **20đ** | - Báo lỗi/xử lý an toàn khi danh sách đầu vào rỗng.<br>- Tối ưu hóa số lần truy cập và thay đổi DOM (tránh render lặp không cần thiết).<br>- Định dạng tiền tệ đẹp mắt và chính xác (`40,000 VNĐ`). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file chính xác theo quy định.<br>- Mã nguồn rõ ràng, đặt tên biến/hàm theo chuẩn `camelCase`. Có comment giải thích logic thao tác DOM trực quan. |
+| **Thao tác DOM & Thay đổi Nội dung/Style** | **20đ** | - Sử dụng đúng các phương thức DOM API: `getElementById`, `querySelector`, `querySelectorAll`, `children`, `appendChild`.<br>- Thay đổi chính xác thuộc tính `textContent`, `innerHTML`, `dataset`, `classList` (add/remove) và inline `style.width` cho thanh progress bar. |
+| **Xử lý Logic Nghiệp vụ (Business Rules)** | **40đ** | - Ràng buộc nhiệt độ kho lạnh ($-18^\circ\text{C}$ đến $5^\circ\text{C}$) đạt chuẩn 100%.<br>- Tính toán chính sở tỷ lệ lấp đầy %, chuyển đổi trạng thái CSS class (`status-normal`, `status-warning`, `status-full`) chính xác.<br>- Tính chính xác tổng tải trọng và tổng phí lưu kho toàn hệ thống theo loại kệ (`DRY`: 10.000, `COLD`: 25.000 VNĐ/kg/ngày). |
+| **Xử lý Biên, Cảnh báo & Ngoại lệ** | **20đ** | - Chặn chính xác các trường hợp nhập pallet vượt mức $500\text{ kg}$.<br>- Render thông báo lỗi/thành công chuyên nghiệp lên `#alert-box` trên giao diện DOM.<br>- Xử lý an toàn khi truy xuất các thuộc tính dữ liệu `dataset` hoặc parse dữ liệu kiểu số từ DOM text. |

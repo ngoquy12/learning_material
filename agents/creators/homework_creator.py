@@ -11,6 +11,7 @@ Generates role-based enterprise coding exercises adhering to:
 import os
 import re
 import random
+import shutil
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
 from concurrent.futures import ThreadPoolExecutor
@@ -25,6 +26,72 @@ from core.domain_knowledge import (
 )
 from core.schemas.course_schemas import EnhancedHomeworkExerciseSchema
 from core.utils.schema_validator import validate_schema
+
+def slugify_vietnamese(text: str, max_words: int = 6) -> str:
+    """Converts Vietnamese text to a clean snake_case slug."""
+    if not text:
+        return "bai_tap"
+    vn_map = {
+        'à':'a','á':'a','ả':'a','ã':'a','ạ':'a','ă':'a','ằ':'a','ắ':'a','ẳ':'a','ẵ':'a','ặ':'a','â':'a','ầ':'a','ấ':'a','ẩ':'a','ẫ':'a','ậ':'a',
+        'è':'e','é':'e','ẻ':'e','ẽ':'e','ẹ':'e','ê':'e','ề':'e','ế':'e','ể':'e','ễ':'e','ệ':'e',
+        'ì':'i','í':'i','ỉ':'i','ĩ':'i','ị':'i',
+        'ò':'o','ó':'o','ỏ':'o','õ':'o','ọ':'o','ô':'o','ồ':'o','ố':'o','ổ':'o','ỗ':'o','ộ':'o','ơ':'o','ờ':'o','ớ':'o','ở':'o','ỡ':'o','ợ':'o',
+        'ù':'u','ú':'u','ủ':'u','ũ':'u','ụ':'u','ư':'u','ừ':'u','ứ':'u','ử':'u','ữ':'u','ự':'u',
+        'ỳ':'y','ý':'y','ỷ':'y','ỹ':'y','ỵ':'y',
+        'đ':'d',
+        'À':'a','Á':'a','Ả':'a','Ã':'a','Ạ':'a','Ă':'a','Ằ':'a','Ắ':'a','Ẳ':'a','Ẵ':'a','Ặ':'a','Â':'a','Ầ':'a','Ấ':'a','Ẩ':'a','Ẫ':'a','Ậ':'a',
+        'È':'e','É':'e','Ẻ':'e','Ẽ':'e','Ẹ':'e','Ê':'e','Ề':'e','Ế':'e','Ể':'e','Ễ':'e','Ệ':'e',
+        'Ì':'i','Í':'i','Ỉ':'i','Ĩ':'i','Ị':'i',
+        'Ò':'o','Ó':'o','Ỏ':'o','Õ':'o','Ọ':'o','Ô':'o','Ồ':'o','Ố':'o','Ổ':'o','Ỗ':'o','Ộ':'o','Ơ':'o','Ờ':'o','Ớ':'o','Ở':'o','Ỡ':'o','Ợ':'o',
+        'Ù':'u','Ú':'u','Ủ':'u','Ũ':'u','Ụ':'u','Ư':'u','Ừ':'u','Ứ':'u','Ử':'u','Ữ':'u','Ự':'u',
+        'Ỳ':'y','Ý':'y','Ỷ':'y','Ỹ':'y','Ỵ':'y',
+        'Đ':'d'
+    }
+    for k, v in vn_map.items():
+        text = text.replace(k, v)
+    text = re.sub(r'[^a-zA-Z0-9\s]', ' ', text).lower()
+    words = text.split()[:max_words]
+    slug = "_".join(words)
+    return slug or "bai_tap"
+
+def extract_exercise_slug(de_bai_content: str, fallback_domain: str = "bai_tap") -> str:
+    """Extracts a descriptive slug from exercise title or context."""
+    if not de_bai_content:
+        return slugify_vietnamese(fallback_domain, max_words=4)
+    # 1. Try finding centered H2 title
+    m = re.search(r"##\s*<center>(.*?)</center>", de_bai_content, re.IGNORECASE)
+    if m:
+        return slugify_vietnamese(m.group(1), max_words=5)
+    # 2. Try finding H1/H2 with exercise title
+    m = re.search(r"#+\s*Bài tập\s*\d*[:\-]?\s*([^\n]+)", de_bai_content, re.IGNORECASE)
+    if m:
+        return slugify_vietnamese(m.group(1), max_words=5)
+    # 3. Try finding Section 2 Context first sentence
+    m = re.search(r"###\s*2\.\s*Bối cảnh[^\n]*\n+([^\n]+)", de_bai_content, re.IGNORECASE)
+    if m:
+        first_sentence = m.group(1).split(".")[0]
+        return slugify_vietnamese(first_sentence, max_words=5)
+    return slugify_vietnamese(fallback_domain, max_words=4)
+
+LEVEL_PREFIXES = {
+    1: "1_van_dung_co_ban_1",
+    2: "2_van_dung_co_ban_2",
+    3: "3_van_dung_co_ban_3",
+    4: "4_van_dung_co_ban_4",
+    5: "5_van_dung_co_ban_5",
+    6: "6_van_dung_co_ban_6",
+    7: "7_van_dung_nang_cao_1",
+    8: "8_van_dung_nang_cao_2",
+    9: "9_van_dung_nang_cao_3",
+    10: "10_phan_tich_1",
+    11: "11_phan_tich_2",
+    12: "12_phan_tich_3",
+    13: "13_sang_tao_1",
+    14: "14_sang_tao_2",
+    15: "15_sang_tao_3",
+    16: "16_tong_hop_demo_giang_vien_tren_lop",
+    17: "17_tong_hop_he_thong_kien_thuc_mindmap"
+}
 
 def clean_markdown_formulas(text: str) -> str:
     """Removes broken or unnecessary formula characters in homework descriptions."""
@@ -478,34 +545,106 @@ def generate_session_homework_suite(
     if target_homework_dir:
         target_homework_dir.mkdir(parents=True, exist_ok=True)
 
+        # 1. Cleanup legacy non-descriptive folders (e.g. bai_01, bai_02) and empty stub files
+        for item in list(target_homework_dir.iterdir()):
+            if item.is_dir() and re.match(r"^bai_\d+$", item.name):
+                try:
+                    shutil.rmtree(item)
+                except Exception:
+                    pass
+            elif item.is_file() and item.stat().st_size < 200:
+                try:
+                    item.unlink()
+                except Exception:
+                    pass
+
+        # 2. Export 15 tiered exercise subfolders with descriptive names
         for ex in exercises_data:
             idx = ex["idx"]
-            ex_folder = target_homework_dir / f"bai_{idx:02d}"
+            prefix = LEVEL_PREFIXES.get(idx, f"{idx}_bai_tap")
+            slug = extract_exercise_slug(ex["de_bai_content"], ex.get("chosen_domain", "bai_tap"))
+            folder_name = f"{prefix}_{slug}"
+            ex_folder = target_homework_dir / folder_name
             ex_folder.mkdir(parents=True, exist_ok=True)
+
+            # Write standard student assignment files (both names supported)
+            with open(ex_folder / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
+                f.write(ex["de_bai_content"])
             with open(ex_folder / "de_bai.md", "w", encoding="utf-8") as f:
                 f.write(ex["de_bai_content"])
+
+            # Write standard grading rubric files (both names supported)
+            with open(ex_folder / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
+                f.write(ex["tieu_chi_content"])
             with open(ex_folder / "tieu_chi.md", "w", encoding="utf-8") as f:
                 f.write(ex["tieu_chi_content"])
+
             # Backward-compatible individual bài tập markdown in Bài tập root
             with open(target_homework_dir / f"bai_tap_{idx}.md", "w", encoding="utf-8") as f:
                 f.write(f"# {ex['title']}\n\n{ex['de_bai_content']}\n\n{ex['tieu_chi_content']}")
 
-        # Save Bài tập tổng hợp trên lớp
+        # 3. Export folder 16: In-Class Synthesis Exercise
         if inclass_ex_content:
+            folder_16 = target_homework_dir / "16_tong_hop_demo_giang_vien_tren_lop"
+            folder_16.mkdir(parents=True, exist_ok=True)
+            with open(folder_16 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
+                f.write(inclass_ex_content)
+            with open(folder_16 / "de_bai.md", "w", encoding="utf-8") as f:
+                f.write(inclass_ex_content)
+            rubric_16 = f"""### Tiêu chuẩn Đánh giá Bài tập Tổng hợp Trên lớp (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Triển khai Logic Nghiệp vụ | 40đ | Đáp ứng đúng 100% yêu cầu Input/Output theo bảng ví dụ |
+| Cấu trúc Mã nguồn & Clean Code | 30đ | Đặt tên đúng quy chuẩn, comment giải thích rõ ràng |
+| Xử lý Dữ liệu Biên & Ngoại lệ | 30đ | Kiểm soát lỗi dữ liệu đầu vào, không crash ứng dụng |
+"""
+            with open(folder_16 / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
+                f.write(rubric_16)
+            with open(folder_16 / "tieu_chi.md", "w", encoding="utf-8") as f:
+                f.write(rubric_16)
+
+            # Save in root as well
             with open(target_homework_dir / "bai_tap_tong_hop.md", "w", encoding="utf-8") as f:
                 f.write(inclass_ex_content)
 
-        # Save Bài tập sơ đồ tư duy mindmap
+        # 4. Export folder 17: Mindmap Architecture Exercise
         if mindmap_ex_content:
+            folder_17 = target_homework_dir / "17_tong_hop_he_thong_kien_thuc_mindmap"
+            folder_17.mkdir(parents=True, exist_ok=True)
+            with open(folder_17 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
+                f.write(mindmap_ex_content)
+            with open(folder_17 / "de_bai.md", "w", encoding="utf-8") as f:
+                f.write(mindmap_ex_content)
+            rubric_17 = f"""### Tiêu chuẩn Đánh giá Bài tập Sơ đồ Tư duy Mindmap (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Độ Bao phủ 5 Nhánh Kiến thức | 40đ | Đầy đủ: Khái niệm, Cú pháp, Ví dụ, Lỗi thường gặp, Liên kết |
+| Tính Chính xác Kỹ thuật | 30đ | Cú pháp code chuẩn {tech_stack}, lưu ý lỗi chuẩn xác |
+| Trực quan & Súc tích | 30đ | Cấu trúc cây rõ ràng, súc tích (<15 từ/node), dễ nhìn |
+"""
+            with open(folder_17 / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
+                f.write(rubric_17)
+            with open(folder_17 / "tieu_chi.md", "w", encoding="utf-8") as f:
+                f.write(rubric_17)
+
+            # Save in root as well
             with open(target_homework_dir / "bai_tap_mindmap.md", "w", encoding="utf-8") as f:
                 f.write(mindmap_ex_content)
 
-        # Save aggregated tieu_chi_danh_gia.md for all exercises
+        # 5. Save aggregated tieu_chi_danh_gia.md for all exercises
         with open(target_homework_dir / "tieu_chi_danh_gia.md", "w", encoding="utf-8") as f:
             f.write(f"# BẢNG TIÊU CHÍ ĐÁNH GIÁ TỔNG HỢP (100đ) - {session_title}\n\n")
             for ex in exercises_data:
                 f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
 
-        print(f"  ✓ Đã lưu {len(exercises_data)} bài tập về nhà + bài tập tổng hợp + bài tập mindmap vào: {target_homework_dir}")
+        # 6. Automatic audit via HomeworkReviewerAgent
+        try:
+            from agents.reviewers.homework_reviewer import review_session_homework
+            review_res = review_session_homework(target_homework_dir)
+            print(f"  ✓ [Homework Reviewer] Trạng thái: {review_res['status']} ({review_res['score']}/100đ) - {review_res['total_folders']} thư mục, {review_res['total_root_files']} files gốc.")
+        except Exception as e:
+            print(f"  ! [Homework Reviewer] Cảnh báo kiểm định: {e}")
+
+        print(f"  ✓ Đã lưu hoàn tất {len(exercises_data)} bài tập về nhà + 1 bài tổng hợp + 1 bài mindmap vào: {target_homework_dir}")
 
     return exercises_data

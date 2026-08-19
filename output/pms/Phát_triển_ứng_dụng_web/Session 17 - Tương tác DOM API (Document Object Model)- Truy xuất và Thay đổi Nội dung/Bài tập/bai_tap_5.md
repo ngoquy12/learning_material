@@ -1,27 +1,33 @@
 # Bài tập 5: CRM (Mức độ 2: Cơ bản - Kiểm thử I/O)
 
 ### 1. Mục tiêu bài tập
-- **Thao tác truy xuất DOM API**: Sử dụng thành thạo các phương thức `document.getElementById()`, `document.querySelector()` để lấy dữ liệu từ các phần tử HTML.
-- **Thay đổi nội dung & kiểu dáng DOM**: Biết cách sử dụng `textContent`, `innerHTML` và thuộc tính `style` để cập nhật giao diện người dùng dựa trên kết quả tính toán.
-- **Áp dụng logic nghiệp vụ thực tế**: Cài đặt thuật toán tính cước phí dịch vụ đặt xe công nghệ (GrabRide) với khoảng cách lũy tiến và hệ số phụ phí.
-- **Kiểm thử I/O trực tiếp trên DOM**: Đảm bảo mã nguồn đọc đúng input từ các phần tử DOM và ghi đúng output vào các phần tử DOM mục tiêu theo yêu cầu test case mà không cần phụ thuộc vào sự kiện người dùng (Event Listeners).
+- **Truy xuất Element**: Sử dụng thành thạo các phương thức `document.getElementById()`, `document.querySelector()`, và `document.querySelectorAll()` để định vị phần tử HTML.
+- **Thay đổi nội dung**: Sử dụng `textContent`, `innerText`, `innerHTML` để cập nhật dữ liệu động lên giao diện.
+- **Thao tác thuộc tính & Class**: Sử dụng `setAttribute()`, `getAttribute()`, `classList` (`add`, `remove`, `toggle`), và thuộc tính `style` để thay đổi trạng thái hiển thị của thẻ DOM theo quy tắc nghiệp vụ.
+- **Tư duy Kiểm thử I/O DOM**: Đọc dữ liệu đầu vào trực tiếp từ các thuộc tính dữ liệu (`data-* attributes`) của DOM, xử lý tính toán và xuất kết quả chính xác ra các phần tử DOM đích.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Trong hệ thống đặt xe công nghệ **GrabRide**, sau khi khách hàng nhập điểm đi và điểm đến, hệ thống cần hiển thị thông tin tóm tắt chuyến đi (`TripFare`) cho khách hàng và tài xế kiểm tra trước khi tiến hành đặt xe.
+Bạn đang phát triển trang quản trị tài khoản (Subscription Management Dashboard) cho một nền tảng xem phim trực tuyến doanh nghiệp (SaaS Domain - Netflix/Spotify Model). Hệ thống cần tự động quét và kiểm tra thông tin gói dịch vụ của người dùng từ cấu trúc DOM HTML có sẵn, xử lý các logic hạ cấp gói khi quá hạn thanh toán, và cảnh báo vi phạm số lượng tài khoản/thiết bị sử dụng.
 
-Trang web đã có sẵn khung giao diện HTML chứa các thông tin khoảng cách di chuyển và trạng thái thời tiết/giờ cao điểm. Nhiệm vụ của bạn là viết script JavaScript thực hiện việc đọc dữ liệu từ giao diện, tính toán tổng cước phí chuyến đi theo quy tắc nghiệp vụ của GrabRide, sau đó cập nhật thông tin cước phí và trạng thái chuyến đi lên màn hình HTML.
 
+#### Sơ đồ luồng xử lý DOM (DOM Execution Flow)
 ```mermaid
 graph TD
-    A[HTML DOM Inputs: Distance & Surge Status] -->|DOM Read| B[JS Module: calculateAndRenderTripFare]
-    B -->|Business Rules Processing| C{Khoảng cách > 0?}
-    C -->|Sai| D[Render Lỗi: 'Khoảng cách không hợp lệ!']
-    C -->|Đúng| E[Tính giá sàn 2km đầu + km tiếp theo]
-    E --> F[Áp dụng hệ số phụ phí 1.2x nếu có]
-    F -->|DOM Write| G[Render kết quả cước phí & Trạng thái thành công]
+    A[Đọc dữ liệu từ DOM: data-plan-type, data-overdue-days] --> B{Kiểm tra quá hạn thanh toán > 3 ngày?}
+    B -- Có --> C[Hạ cấp về gói 'Free' & Hiện cảnh báo Quá hạn]
+    B -- Không --> D{Kiểm tra Loại gói dịch vụ}
+    D -- Gói Individual --> E[Kiểm tra danh sách Tài khoản > 1]
+    D -- Gói Family --> F[Kiểm tra danh sách Tài khoản > 5]
+    E -- Vi phạm --> G[Đánh dấu class 'account-error' từ TK thứ 2]
+    F -- Vi phạm --> H[Đánh dấu class 'account-error' từ TK thứ 6]
+    C --> I[Cập nhật Danh sách Tính năng & Badge Trạng thái vào DOM]
+    E -- Hợp lệ --> I
+    F -- Hợp lệ --> I
+    G --> I
+    H --> I
 ```
 
 ---
@@ -29,29 +35,46 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
+Trang web có sẵn cấu trúc DOM với thẻ cha `#subscription-card` chứa các attribute dữ liệu:
+- `data-plan-type`: Loại gói hiện tại (`"individual"`, `"family"`, hoặc `"free"`).
+- `data-overdue-days`: Số ngày trễ hạn thanh toán (kiểu số, ví dụ: `0`, `2`, `4`).
 
-#### a. Quy tắc tính cước phí chuyến đi (`TripFare`)
-1. **Giá sàn (2 km đầu tiên)**: Cố định **12.000 VNĐ** (áp dụng cho mọi khoảng cách `0 < distance <= 2`).
-2. **Giá lũy tiến (từ km thứ 3 trở đi)**:
-   - Giá mỗi km tiếp theo: **4.500 VNĐ / km**.
-   - Công thức base fare cho `distance > 2`: 
-     $$\text{BaseFare} = 12000 + (\text{distance} - 2) \times 4500$$
-3. **Phụ phí thời tiết xấu / Giờ cao điểm (`isSurge`)**:
-   - Nếu `isSurge` là `true` (hoặc attribute `data-surge="true"`): Nhân hệ số **1.2x** trên tổng `BaseFare`.
-   - Công thức tổng cước phí: 
-     $$\text{TotalFare} = \text{Math.round}(\text{BaseFare} \times 1.2)$$ (làm tròn đến hàng đơn vị).
-   - Nếu `isSurge` là `false`: $\text{TotalFare} = \text{BaseFare}$.
+Bằng việc truy xuất DOM và kiểm tra các thuộc tính trên, bạn cần áp dụng các quy tắc sau:
 
+1. **Quy tắc 1: Hạ cấp do Quá hạn thanh toán (Payment Overdue)**
+   - Nếu `data-overdue-days > 3`:
+     - Tự động đổi nội dung tên gói (`#plan-name`) thành: `"Gói Miễn Phí (Free)"`.
+     - Đổi nội dung thẻ badge trạng thái (`#status-badge`) thành: `"Đã hạ cấp (Overdue)"`.
+     - Thêm lớp CSS `badge-danger` vào `#status-badge` (và xóa lớp `badge-success` nếu có).
+     - Hiển thị phần tử `#warning-box` (bằng cách xóa thuộc tính `hidden` hoặc đổi style `display = "block"`), đồng thời cập nhật nội dung văn bản cho `#warning-message`: `"Tài khoản đã bị tự động hạ cấp về gói Miễn phí do trễ hạn thanh toán trên 3 ngày."`.
+     - Coi như loại gói hiện tại bị chuyển thành `"free"`.
 
-#### b. Quy tắc kiểm tra dữ liệu đầu vào (Input Validation)
-- Nếu giá trị khoảng cách $\le 0$ hoặc không phải là số hợp lệ (`isNaN`):
-  - Số tiền hiển thị: `0 VNĐ`
-  - Trạng thái chuyến đi hiển thị: `Khoảng cách không hợp lệ!`
-  - Màu chữ của phần tử trạng thái chuyến đi: Đổi sang màu đỏ (`#dc3545` hoặc `red`).
-- Nếu khoảng cách hợp lệ ($> 0$):
-  - Số tiền hiển thị: Định dạng theo chuẩn Việt Nam Đồng (ví dụ: `16.500 VNĐ` hoặc `12.000 VNĐ`).
-  - Trạng thái chuyến đi hiển thị: `Chuyến đi hợp lệ`
-  - Màu chữ của phần tử trạng thái chuyến đi: Đổi sang màu xanh (`#28a745` hoặc `green`).
+2. **Quy tắc 2: Giới hạn Tài khoản/Thiết bị theo Gói (Account Limit Verification)**
+   - Đếm số lượng phần tử `li.account-item` nằm trong `#account-list`.
+   - **Gói Individual**: Tối đa 1 tài khoản. Nếu số lượng > 1, tất cả phần tử `li.account-item` từ vị trí thứ 2 trở đi (chỉ số index >= 1) phải được thêm class `account-error`.
+   - **Gói Family**: Tối đa 5 tài khoản. Nếu số lượng > 5, tất cả phần tử `li.account-item` từ vị trí thứ 6 trở đi (chỉ số index >= 5) phải được thêm class `account-error`.
+   - **Gói Free**: Tối đa 1 tài khoản. Nếu số lượng > 1, áp dụng tương tự Gói Individual.
+
+3. **Quy tắc 3: Cập nhật Danh sách Tính năng Dịch vụ (Feature Access Rendering)**
+   Cập nhật cấu trúc HTML bên trong phần tử `#feature-list` (`innerHTML`) dựa vào loại gói sau cùng:
+   - **Gói Free**:
+     ```html
+     <li>Phát nội dung chất lượng SD (480p)</li>
+     <li>Tối đa 1 thiết bị phát tại một thời điểm</li>
+     <li>Có chứa quảng cáo</li>
+     ```
+   - **Gói Individual**:
+     ```html
+     <li>Phát nội dung chất lượng Full HD (1080p)</li>
+     <li>Tối đa 1 thiết bị phát tại một thời điểm</li>
+     <li>Tải xuống 1 thiết bị ngoại tuyến</li>
+     ```
+   - **Gói Family**:
+     ```html
+     <li>Phát nội dung chất lượng Ultra HD (4K + HDR)</li>
+     <li>Tối đa 5 thiết bị đồng thời</li>
+     <li>Tải xuống không giới hạn trên các thiết bị</li>
+     ```
 
 ---
 
@@ -59,66 +82,94 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### a. Cấu trúc HTML đầu vào (Mẫu reference trong `index.html`)
-Mã nguồn HTML cung cấp sẵn các thẻ sau (học viên **không sửa đổi ID** của các thẻ này):
-
+#### Cấu trúc HTML mẫu (`index.html`)
 ```html
-<div id="booking-card">
-  <h2>Thông tin chuyến đi GrabRide</h2>
-  <!-- Khoảng cách di chuyển tính bằng km -->
-  <span id="distance-val" data-distance="3.5">3.5</span> km
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>CRM SaaS Subscription Management</title>
+    <style>
+        .badge-success { background-color: #28a745; color: white; padding: 4px 8px; border-radius: 4px; }
+        .badge-danger { background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; }
+        .account-error { color: red; text-decoration: line-through; background-color: #ffe6e6; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div id="subscription-card" data-plan-type="family" data-overdue-days="4">
+        <h2>Gói dịch vụ: <span id="plan-name">Gói Gia Đình</span></h2>
+        <p>Trạng thái: <span id="status-badge" class="badge-success">Đang hoạt động</span></p>
 
-  <!-- Trạng thái phụ phí giờ cao điểm / thời tiết -->
-  <span id="surge-val" data-surge="true">Có (Phụ phí 1.2x)</span>
+        <div id="warning-box" class="hidden">
+            <p id="warning-message"></p>
+        </div>
 
-  <!-- Các khu vực hiển thị kết quả -->
-  <div id="fare-amount">0 VNĐ</div>
-  <div id="trip-status">Đang chờ xử lý...</div>
-</div>
+        <h3>Danh sách tài khoản sử dụng (<span id="account-count">0</span>):</h3>
+        <ul id="account-list">
+            <li class="account-item">user1@gmail.com (Chủ tài khoản)</li>
+            <li class="account-item">user2@gmail.com</li>
+            <li class="account-item">user3@gmail.com</li>
+            <li class="account-item">user4@gmail.com</li>
+            <li class="account-item">user5@gmail.com</li>
+            <li class="account-item">user6@gmail.com</li>
+            <li class="account-item">user7@gmail.com</li>
+        </ul>
+
+        <h3>Quyền lợi gói dịch vụ:</h3>
+        <ul id="feature-list">
+            <!-- JS sẽ render vào đây -->
+        </ul>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
 ```
 
 
-#### b. Yêu cầu mã nguồn JavaScript (`js/app.js`)
-Viết hàm `calculateAndRenderTripFare()` và tự động thực thi hàm này khi script được tải. Hàm cần thực hiện chính xác các bước:
+#### Yêu cầu Triển khai Code JavaScript (`app.js`)
+Viết một hàm duy nhất có tên `renderSubscriptionDashboard()` và tự động gọi hàm này ngay khi script chạy. Hàm thực hiện các bước sau:
 
-1. **Đọc dữ liệu từ DOM**:
-   - Lấy giá trị khoảng cách từ thuộc tính `data-distance` hoặc nội dung text của thẻ `#distance-val`. Ép kiểu về số thực (`parseFloat`).
-   - Lấy trạng thái phụ phí từ thuộc tính `data-surge` của thẻ `#surge-val` (giá trị chuỗi `"true"` chuyển thành boolean `true`, ngược lại là `false`).
-2. **Tính toán**: Áp dụng đúng Business Rules nêu trên.
-3. **Cập nhật DOM**:
-   - Ghi kết quả cước phí vào thẻ `#fare-amount` sử dụng `textContent` (Định dạng có phân tách hàng nghìn + đuôi `VNĐ`, ví dụ `18.750 VNĐ`).
-   - Ghi thông báo vào thẻ `#trip-status` và chỉnh đổi màu sắc qua `style.color`.
+1. **Bước 1: Query DOM Elements**
+   - Lấy `subscriptionCard` thông qua `document.getElementById('subscription-card')`.
+   - Đọc thuộc tính `data-plan-type` và `data-overdue-days` bằng `getAttribute()` hoặc `dataset`.
+   - Chuyển `data-overdue-days` về kiểu dữ liệu số (`Number` hoặc `parseInt`).
 
+2. **Bước 2: Xử lý Hạ cấp (Overdue logic)**
+   - Đọc biến trễ hạn, kiểm tra nếu `> 3` thì cập nhật tên gói, đổi class trạng thái badge, hiển thị `#warning-box` và cập nhật thông điệp cảnh báo.
 
-#### c. Phạm vi cấm (Forbidden Scope)
-- **KHÔNG** sử dụng Event Listeners (`addEventListener`, `onclick`, `onchange`, ...).
-- **KHÔNG** sử dụng thẻ `<form>` hoặc sự kiện submit (`onsubmit`).
-- **KHÔNG** sử dụng `fetch()`, `axios`, hoặc API bất đồng bộ.
-- **KHÔNG** sử dụng `localStorage` hoặc `sessionStorage`.
+3. **Bước 3: Kiểm tra giới hạn số lượng tài khoản**
+   - Sử dụng `querySelectorAll('.account-item')` để lấy NodeList các phần tử tài khoản.
+   - Cập nhật số lượng tổng cộng vào `#account-count` bằng `textContent`.
+   - Duyệt qua NodeList bằng vòng lặp (`for` hoặc `forEach`), so sánh chỉ số index với hạn mức (Limit) của gói hiện tại để gắn thêm class `account-error` vào các phần tử bị vi phạm bằng `classList.add('account-error')`.
+
+4. **Bước 4: Cập nhật danh sách quyền lợi (Feature List)**
+   - Dựa trên gói sau khi đã tính toán logic hạ cấp, tạo chuỗi HTML tương ứng và gán cho `featureList.innerHTML`.
+
+> **LƯU Ý NGHIÊM CẤM:** 
+> - KHÔNG sử dụng `addEventListener`, KHÔNG dùng các sự kiện click/submit.
+> - KHÔNG sử dụng `fetch()`, `axios`, `localStorage`.
+> - Code JS chạy trực tiếp để kiểm thử kết quả trên cây DOM theo chuẩn Kiểm thử I/O.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-
-- **Cấu trúc thư mục dự án**:
-```text
-grabride-dom-fare/
-├── index.html
-└── js/
-    └── app.js
-```
-
-- **Quy định đặt tên**:
-  - Hàm xử lý chính trong `app.js` phải đặt tên chính xác là: `calculateAndRenderTripFare()`.
-  - Tên file JavaScript: `js/app.js`.
-  - Không nộp các file nén `.zip`, `.rar` thừa ngoài cấu trúc thư mục quy định.
+- Cấu trúc thư mục dự án:
+  ```text
+  crm-subscription-dom/
+  ├── index.html
+  └── app.js
+  ```
+- Định dạng tập tin code mã nguồn: UTF-8 standard.
+- Đặt tên biến và hàm theo chuẩn camelCase trong JavaScript (`renderSubscriptionDashboard`, `subscriptionCard`, `overdueDays`, v.v.).
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase` có nghĩa (`distance`, `isSurge`, `totalFare`).<br>- Định dạng code thụt lề chuẩn 2/4 spaces.<br>- Thêm comment giải thích rõ ràng từng bước đọc DOM, tính toán và ghi DOM. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính đúng giá sàn 12.000 VNĐ cho $\le 2$ km (10đ).<br>- Tính đúng giá lũy tiến 4.500 VNĐ/km cho $> 2$ km (15đ).<br>- Nhàn chính xác hệ số 1.2x khi `isSurge` là `true` và làm tròn số tiền (15đ). |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Bắt lỗi khi khoảng cách $\le 0$ hoặc `NaN` (10đ).<br>- Đổi màu chữ thông báo lỗi thành màu đỏ (`red` / `#dc3545`) và thông báo hợp lệ thành màu xanh (`green` / `#28a745`) (10đ). |
-| **Thao tác DOM & Kiểm thử I/O** | **20đ** | - Đọc dữ liệu chính xác từ DOM elements/attributes (`data-distance`, `data-surge`) (10đ).<br>- Cập nhật nội dung hiển thị chính xác vào `#fare-amount` và `#trip-status` với định dạng tiền tệ Việt Nam (`VNĐ`) (10đ).<br>- Tuyệt đối không vi phạm danh sách Forbidden Scope (Event Listeners, Fetch, LocalStorage). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm đúng chuẩn camelCase, có ý nghĩa nghiệp vụ CRM (`planType`, `overdueDays`, `accountItems`).<br>- Thụt lề chuẩn (2 hoặc 4 spaces), mã nguồn sạch sẻ, có comment giải thích từng bước xử lý DOM.<br>- Không thừa code rác hoặc console.log dư thừa. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Truy xuất chính xác thông tin từ `data-* attributes` (10đ).<br>- Xử lý đúng logic hạ cấp gói xuống "Free" khi trễ hạn > 3 ngày, hiển thị thông báo warning chính xác (15đ).<br>- Render chính xác HTML tính năng (`#feature-list`) dựa trên loại gói sau cùng (15đ). |
+| **Xử lý Biên & Ngoại lệ** | **20đ** | - Đánh dấu đúng các phần tử tài khoản dư thừa bằng `classList.add('account-error')` theo từng loại gói (`family`: >5, `individual`/`free`: >1) (15đ).<br>- Cập nhật chính xác tổng số tài khoản lên `#account-count` (5đ). |
+| **Tối ưu hiệu năng & DOM Manipulation** | **20đ** | - Chọn đúng phương thức truy xuất DOM (`getElementById` cho ID đơn lẻ, `querySelectorAll` cho danh sách phần tử) (10đ).<br>- Thao tác với class thông qua `classList` thay vì nối chuỗi `className` thủ công; hiển thị/ẩn element bằng thuộc tính `hidden` hoặc `classList` hợp lý (10đ). |

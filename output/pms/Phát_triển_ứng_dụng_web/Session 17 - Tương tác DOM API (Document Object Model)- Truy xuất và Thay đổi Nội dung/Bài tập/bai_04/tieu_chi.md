@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm đúng chuẩn camelCase (`memberData`, `renderMemberDashboard`).<br>- Thụt lề chuẩn (2 hoặc 4 spaces), code sạch chắt lọc, có comment giải thích các bước tương tác DOM.<br>- Tổ chức file HTML/JS tách biệt đúng cấu trúc quy định. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính toán đúng ưu đãi 12 tháng + 2 tháng (=14 tháng) (10đ).<br>- Phân loại đúng quyền lợi gói VIP vs STANDARD (10đ).<br>- Hiển thị đúng chuỗi định dạng lượt check-in (10đ).<br>- Logic phân nhánh đúng 3 trường hợp trạng thái thẻ (Đã hết hạn > Vượt quá lượt > Hợp lệ) (10đ). |
-| **Thao tác DOM API & Ngoại lệ** | **20đ** | - Truy xuất chính xác các phần tử HTML thông qua `getElementById` hoặc `querySelector` (5đ).<br>- Thay đổi đúng nội dung bằng `textContent` / `innerHTML` (5đ).<br>- Thay đổi class chuẩn xác bằng `classList` (`add`, `remove`, `toggle`) hoặc `className` mà không làm mất style mặc định (5đ).<br>- Gán đúng thuộc tính `data-status` bằng `setAttribute` (5đ). |
-| **Kiểm thử I/O & Xử lý dữ liệu đầu vào** | **20đ** | - Chạy đúng 100% kết quả đầu ra trực quan với ít nhất 3 Test Cases đầu vào khác nhau (Thẻ VIP hết hạn, Thẻ Standard vượt lượt check-in, Thẻ VIP hợp lệ).<br>- Không phát sinh lỗi runtime JavaScript trong Console. |

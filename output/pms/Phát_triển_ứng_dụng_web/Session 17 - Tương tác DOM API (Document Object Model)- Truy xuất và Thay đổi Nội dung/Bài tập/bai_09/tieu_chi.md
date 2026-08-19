@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã sạch sẻ, thụt lề đúng chuẩn (2 hoặc 4 spaces).<br>- Đặt tên biến, hàm theo chuẩn `camelCase` có nghĩa (VD: `calculateEVNBill`, `totalAmperes`).<br>- Viết comment tiếng Việt đầy đủ giải thích các khối logic chính.<br>- Không thừa mã nguồn hoặc console.log dư thừa. |
-| **Xử lý Logic đúng nghiệp vụ (IoT & FinTech)** | **40đ** | - **IoT Automation (15đ)**: Nhận diện chính xác điều kiện phòng trống >= 15 phút, cập nhật đúng trạng thái Điều hòa về OFF và đổi thông số Watt/Ampere về 0.<br>- **Kiểm tra Tải điện (10đ)**: Tính đúng tổng Amperes thiết bị đang ON, bật/tắt class cảnh báo `alert-danger`/`alert-success` chính xác theo mốc 30A.<br>- **Tính Tiền Điện EVN (15đ)**: Áp chuẩn công thức lũy tiến 6 bậc của EVN, tính đúng 8% VAT và làm tròn chính xác. |
-| **Thao tác DOM API & Rendering** | **20đ** | - Sử dụng đúng các DOM API được phép (`getElementById`, `querySelector`, `querySelectorAll`, `dataset`, `textContent`, `innerHTML`, `classList`).<br>- Hiển thị bảng chi tiết hóa đơn EVN đẹp mắt, khớp dữ liệu.<br>- Định dạng chuẩn tiền tệ Việt Nam (`VNĐ`) với phân cách hàng nghìn.<br>- Tuân thủ quy định **KHÔNG** dùng Event Listener / Fetch / LocalStorage. |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Kiểm soát trường hợp `data-kwh` không hợp lệ (`NaN`, chuỗi rỗng, số âm): Hiển thị thông báo lỗi `#billing-error` và ẩn bảng hóa đơn.<br>- Xử lý chuẩn xác trường hợp dòng điện đúng bằng mốc ranh giới 30.0A (vẫn thuộc ngưỡng an toàn).<br>- Xử lý mượt mà khi danh sách thiết bị không có Điều hòa hoặc tất cả thiết bị đều đang OFF. |

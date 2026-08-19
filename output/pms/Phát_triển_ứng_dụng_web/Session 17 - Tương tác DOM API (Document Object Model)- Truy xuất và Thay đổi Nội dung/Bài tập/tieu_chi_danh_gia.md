@@ -6,10 +6,11 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file đúng quy chuẩn (5đ).<br>- Trình bày code sạch sẽ, thụt lề chuẩn, khai báo biến rõ ràng (`const`/`let`) (5đ).<br>- Viết comment giải thích đầy đủ 6 điểm lỗi đã sửa đúng định dạng `FIX-BUG` (10đ). |
-| **Xử lý Debug & DOM Selection** | **30đ** | - Truy xuất chính xác các phần tử DOM bằng `querySelector` / `getElementById` (10đ).<br>- Trích xuất chuỗi nội dung văn bản từ thẻ `<span>` đúng cách (`textContent` hoặc `innerText`) thay vì dùng `.value` (10đ).<br>- Phân biệt và áp dụng đúng giữa `.innerHTML` và `.textContent` khi chèn thẻ `<strong>` (10đ). |
-| **Logic Nghiệp vụ Smart Home** | **30đ** | - Bóc tách chuỗi (phần tích hợp `parseInt`/`parseFloat` hoặc `replace('W', '')`) và tính toán đúng tổng Watt ($7500\text{W}$) (10đ).<br>- Tính toán chính xác Ampe ($34.09\text{A}$) có làm tròn 2 chữ số thập phân (10đ).<br>- Đánh giá đúng điều kiện quá tải ($> 6600\text{W}$) để kích hoạt hiển thị cảnh báo (10đ). |
-| **Thao tác ClassList & Inline Style** | **20đ** | - Sử dụng đúng các phương thức `classList` (`add`, `remove`, `replace`) mà không ghi đè làm mất class gốc `status-badge` (10đ).<br>- Thao tác ẩn/hiện element thông qua class `hidden` hoặc thuộc tính `.style.display` đúng cú pháp chuỗi (10đ). |
+| **Cấu trúc & Debug Code** | 20đ | - Tìm đủ và giải thích đúng nguyên nhân gây ra 5 lỗi trong code ban đầu.<br>- Mã nguồn sạch đẹp, tuân thủ chuẩn đặt tên biến CamelCase. |
+| **Truy xuất DOM API chuẩn xác** | 25đ | - Sử dụng đúng `document.getElementById()` hoặc `document.querySelector()` đúng cú pháp selector (`#` cho ID, `.` cho Class).<br>- Phân biệt rõ đối tượng đơn lẻ và HTMLCollection/NodeList. |
+| **Thao tác Thay đổi Nội dung DOM** | 25đ | - Dùng đúng `textContent` cho văn bản thuần (Text node).<br>- Dùng đúng `innerHTML` khi cần chèn chuỗi HTML có chứa các thẻ element (`<span>`, `<ul>`, `<li>`).<br>- Không dùng thuộc tính `.value` cho các thẻ không phải Form Input (`<h2>`, `<p>`). |
+| **Xử lý Logic Nghiệp vụ SaaS** | 20đ | - Cập nhật chính xác các thông tin: Tên gói, Trạng thái quá hạn, Giới hạn thiết bị, Giới hạn tài khoản con.<br>- Render danh sách tính năng dạng danh sách HTML đầy đủ. |
+| **Xử lý Biên & Mã an toàn** | 10đ | - Đảm bảo script thực thi không bắn lỗi Uncaught TypeError trên Console trình duyệt.<br>- Kiểm tra trường hợp dữ liệu danh sách `features` bị rỗng. |
 
 ---
 
@@ -17,12 +18,13 @@
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Liệt kê lỗi (Debug Report)** | **20đ** | - Chỉ ra chính xác 7/7 lỗi trong đoạn mã ban đầu (14đ).<br/>- Giải thích đúng nguyên nhân kỹ thuật (ví dụ: `span` không có thuộc tính `.value`, `getElementById` không nhận tiền tố `#`) (6đ). |
-| **Thao tác DOM API đúng cú pháp** | **30đ** | - Sử dụng đúng `document.getElementById("late-minutes")` (không dấu `#`).<br/>- Sử dụng đúng `document.querySelector(".emp-name")` (có dấu `.`).<br/>- Sử dụng `.innerText` / `.textContent` thay cho `.value` đối với các thẻ non-input.<br/>- Đọc đúng attribute `data-type` qua `.dataset.type` hoặc `.getAttribute("data-type")`.<br/>- Gán CSS class đúng qua `.className` hoặc `.classList.add()`. |
-| **Xử lý Logic Chấm công & Tính lương** | **30đ** | - Áp dụng đúng điều kiện phạt đi muộn: `lateMinutes > 15`.<br/>- Tính đúng tiền OT theo hệ số ca `WEEKDAY` (1.5) hoặc `HOLIDAY` (3.0).<br/>- Tính đúng Tổng lương thực nhận = `Lương ca + OT - Phạt`.<br/>- Hiển thị đúng kết quả `390.625` VNĐ cho bộ test case mặc định. |
-| **Trình bày Code & Chuẩn mực** | **20đ** | - Tuân thủ cấu trúc thư mục quy định (5đ).<br/>- Code trình bày sạch đẹp, không dư thừa console.log lỗi (5đ).<br/>- Tuân thủ phạm vi kiến thức (Không sử dụng Event Listener, Fetch, LocalStorage) (10đ). |
+| **Phát hiện & Fix lỗi Selector** | 20đ | - Sửa đúng `getElementById("pnr-code")` (bỏ `#`) (10đ).<br>- Sử dụng đúng `getElementsByClassName("passenger-name")[0]` hoặc đổi sang `querySelector` (10đ). |
+| **Phát hiện & Fix lỗi Nội dung DOM** | 20đ | - Sửa thuộc tính `.value` thành `textContent` / `innerText` cho thẻ `span#ticket-class` (10đ).<br>- Sửa lỗi gọi hàm `innerHTML(...)` thành gán giá trị `innerHTML = ...` hoặc `textContent = ...` (10đ). |
+| **Xử lý Logic Nghiệp vụ & Class** | 40đ | - Tính toán đúng phí hành lý theo hạng vé `Business` (0 VNĐ) và `Eco` (40đ).<br>- Thao tác class đúng kỹ thuật với `classList.remove()` và `classList.add()` (hoặc `className`) thay vì gán vào `.style`.<br>- Cập nhật đúng nội dung văn bản cho `#status-badge`. |
+| **Thao tác Attribute & Trạng thái Nút** | 20đ | - Kiểm tra điều kiện phí quá cước để gỡ bỏ thuộc tính `disabled` bằng `removeAttribute("disabled")` hoặc `.disabled = false` khi hợp lệ.<br>- Mã nguồn sạch đẹp, có comment giải thích rõ ràng các điểm lỗi đã sửa. |
+| **Tổng điểm** | **100đ** | **Đạt từ 80đ trở lên là ĐẠT (PASS)** |
 
 ---
 
@@ -32,11 +34,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phát hiện & Giải thích Lỗi (Debug Report)** | 20đ | Giải thích đúng nguyên nhân gây lỗi của cả 5 vị trí: Thứ tự load Script, HTMLCollection vs Element, `.value` trên Div, ép kiểu Attribute dữ liệu, ghi đè Class Attribute. |
-| **Sửa lỗi Nhúng Script & Truy xuất DOM** | 20đ | Sử dụng đúng thuộc tính `defer` trên thẻ `<script>`. Truy xuất chính xác Element bằng `querySelector` hoặc truy cập đúng chỉ số `[0]` của `HTMLCollection`. |
-| **Tính toán Nghiệp vụ BHYT & Chuyển đổi Dữ liệu** | 30đ | Ép kiểu dữ liệu `dataset` từ chuỗi sang số/boolean đúng chuẩn. Tính chính xác 80% giảm trừ BHYT (500,000 VNĐ -> 100,000 VNĐ). Cập nhật chuỗi kết quả có đơn vị "VNĐ". |
-| **Thao tác Class & Cập nhật DOM Content** | 20đ | Dùng `classList.add("priority-badge")` giữ nguyên class `.badge`. Cập nhật đúng textContent cho nhãn ưu tiên và số thứ tự (`Q-008`). |
-| **Cấu trúc Mã nguồn & Phong cách (Clean Code)** | 10đ | Code sạch vẽ đúng thụt lề, tên biến rõ nghĩa theo chuẩn camelCase, comment đầy đủ các bước xử lý. |
+| **Cấu trúc & Báo cáo Debug** | 20đ | - Thư mục bài nộp đúng chuẩn quy định.<br>- Viết comment mô tả chính xác 4 lỗi kỹ thuật trong đoạn mã ban đầu, nêu rõ nguyên nhân gây ra lỗi. |
+| **Xử lý Logic & Sửa Lỗi DOM** | 40đ | - Sửa đúng lỗi lấy phần tử từ `getElementsByClassName` hoặc dùng `querySelector` hợp lý (10đ).<br>- Ép kiểu dữ liệu `Number` chính xác trước khi tính toán tài chính (10đ).<br>- Phân biệt và dùng đúng `innerHTML` thay cho `textContent` khi chèn đoạn mã chứa thẻ HTML (10đ).<br>- Đổi thuộc tính `.value` thành `.textContent` hoặc `.innerText` cho thẻ `span` (10đ). |
+| **Tính toán Nghiệp vụ FinTech** | 20đ | - Tính chính xác Lương 1 giờ tiêu chuẩn, Lương OT (150%) và Tiền phạt đi muộn theo đúng quy tắc nghiệp vụ (10đ).<br>- Định dạng số tiền chính xác theo chuẩn tiền tệ Việt Nam (`VNĐ`) (10đ). |
+| **Thao tác Style & Hiệu năng** | 20đ | - Thao tác thêm class CSS (`classList.add('text-danger')`) hoạt động đúng (10đ).<br>- Mã nguồn sạch đẹp, biến đặt tên theo chuẩn camelCase, không có đoạn code thừa hoặc câu lệnh thừa gây ảnh hưởng hiệu năng DOM (10đ). |
 
 ---
 
@@ -46,10 +47,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm đúng chuẩn camelCase (`memberData`, `renderMemberDashboard`).<br>- Thụt lề chuẩn (2 hoặc 4 spaces), code sạch chắt lọc, có comment giải thích các bước tương tác DOM.<br>- Tổ chức file HTML/JS tách biệt đúng cấu trúc quy định. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính toán đúng ưu đãi 12 tháng + 2 tháng (=14 tháng) (10đ).<br>- Phân loại đúng quyền lợi gói VIP vs STANDARD (10đ).<br>- Hiển thị đúng chuỗi định dạng lượt check-in (10đ).<br>- Logic phân nhánh đúng 3 trường hợp trạng thái thẻ (Đã hết hạn > Vượt quá lượt > Hợp lệ) (10đ). |
-| **Thao tác DOM API & Ngoại lệ** | **20đ** | - Truy xuất chính xác các phần tử HTML thông qua `getElementById` hoặc `querySelector` (5đ).<br>- Thay đổi đúng nội dung bằng `textContent` / `innerHTML` (5đ).<br>- Thay đổi class chuẩn xác bằng `classList` (`add`, `remove`, `toggle`) hoặc `className` mà không làm mất style mặc định (5đ).<br>- Gán đúng thuộc tính `data-status` bằng `setAttribute` (5đ). |
-| **Kiểm thử I/O & Xử lý dữ liệu đầu vào** | **20đ** | - Chạy đúng 100% kết quả đầu ra trực quan với ít nhất 3 Test Cases đầu vào khác nhau (Thẻ VIP hết hạn, Thẻ Standard vượt lượt check-in, Thẻ VIP hợp lệ).<br>- Không phát sinh lỗi runtime JavaScript trong Console. |
+| **Cấu trúc & Phong cách mã nguồn** | 20đ | - Đặt tên biến, tên hàm rõ nghĩa theo chuẩn camelCase.<br>- Sử dụng đúng phương thức truy xuất DOM (`getElementById`, `querySelector`).<br>- Thụt lề chuẩn xác, mã nguồn sạch sẽ, có comment giải thích logic. |
+| **Xử lý Logic đúng nghiệp vụ** | 40đ | - Tính chính xác phụ thu VIP (15.000 VNĐ) và ưu đãi HSSV ngày thường (20%).<br>- Cập nhật chuẩn xác nội dung text và HTML tương ứng vào DOM (`textContent`, `innerHTML`).<br>- Định dạng chuẩn chuỗi hiển thị giá tiền (có dấu chấm phân cách hàng nghìn và đơn vị `VNĐ`). |
+| **Xử lý Biên & Ngoại lệ** | 20đ | - Kiểm tra điều kiện giới hạn tuổi (dưới 18 tuổi đăng ký dịch vụ `isRestricted18Plus = true`).<br>- Reset đầy đủ trạng thái các phần tử DOM về giá trị mặc định `"--"` khi vi phạm điều kiện.<br>- Cập nhật chính xác danh sách lớp CSS (`status-success`, `status-error`). |
+| **Tối ưu hiệu năng & Phạm vi cho phép** | 20đ | - Tuyệt đối không dùng Event Listener hay Form Submit (đúng yêu cầu Session 17).<br>- Tránh truy xuất lặp đi lặp lại cùng một phần tử DOM nhiều lần (nên lưu vào biến tạm).<br>- Không làm thừa/dư thuộc tính trên cây DOM. |
 
 ---
 
@@ -59,10 +60,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase` có nghĩa (`distance`, `isSurge`, `totalFare`).<br>- Định dạng code thụt lề chuẩn 2/4 spaces.<br>- Thêm comment giải thích rõ ràng từng bước đọc DOM, tính toán và ghi DOM. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính đúng giá sàn 12.000 VNĐ cho $\le 2$ km (10đ).<br>- Tính đúng giá lũy tiến 4.500 VNĐ/km cho $> 2$ km (15đ).<br>- Nhàn chính xác hệ số 1.2x khi `isSurge` là `true` và làm tròn số tiền (15đ). |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Bắt lỗi khi khoảng cách $\le 0$ hoặc `NaN` (10đ).<br>- Đổi màu chữ thông báo lỗi thành màu đỏ (`red` / `#dc3545`) và thông báo hợp lệ thành màu xanh (`green` / `#28a745`) (10đ). |
-| **Thao tác DOM & Kiểm thử I/O** | **20đ** | - Đọc dữ liệu chính xác từ DOM elements/attributes (`data-distance`, `data-surge`) (10đ).<br>- Cập nhật nội dung hiển thị chính xác vào `#fare-amount` và `#trip-status` với định dạng tiền tệ Việt Nam (`VNĐ`) (10đ).<br>- Tuyệt đối không vi phạm danh sách Forbidden Scope (Event Listeners, Fetch, LocalStorage). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm đúng chuẩn camelCase, có ý nghĩa nghiệp vụ CRM (`planType`, `overdueDays`, `accountItems`).<br>- Thụt lề chuẩn (2 hoặc 4 spaces), mã nguồn sạch sẻ, có comment giải thích từng bước xử lý DOM.<br>- Không thừa code rác hoặc console.log dư thừa. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Truy xuất chính xác thông tin từ `data-* attributes` (10đ).<br>- Xử lý đúng logic hạ cấp gói xuống "Free" khi trễ hạn > 3 ngày, hiển thị thông báo warning chính xác (15đ).<br>- Render chính xác HTML tính năng (`#feature-list`) dựa trên loại gói sau cùng (15đ). |
+| **Xử lý Biên & Ngoại lệ** | **20đ** | - Đánh dấu đúng các phần tử tài khoản dư thừa bằng `classList.add('account-error')` theo từng loại gói (`family`: >5, `individual`/`free`: >1) (15đ).<br>- Cập nhật chính xác tổng số tài khoản lên `#account-count` (5đ). |
+| **Tối ưu hiệu năng & DOM Manipulation** | **20đ** | - Chọn đúng phương thức truy xuất DOM (`getElementById` cho ID đơn lẻ, `querySelectorAll` cho danh sách phần tử) (10đ).<br>- Thao tác với class thông qua `classList` thay vì nối chuỗi `className` thủ công; hiển thị/ẩn element bằng thuộc tính `hidden` hoặc `classList` hợp lý (10đ). |
 
 ---
 
@@ -72,10 +73,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn camelCase, thể hiện rõ ngữ nghĩa domain VinFast EV Charging.<br>- Tách bạch rõ ràng giữa bước: Read Input -> Process Logic -> Write Output (DOM UI).<br>- Có comment giải thích các bước tính toán theo Business Rules. |
-| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Đọc chính xác 5 tham số đầu vào từ `data-*` attributes (`data-kwh`, `data-charging-type`, `data-idle-minutes`, `data-battery`, `data-temp`).<br>- Tính chuẩn đơn giá Sạc thường / Sạc siêu nhanh.<br>- Tính chính xác phí phạt đỗ xe quá 30 phút.<br>- Tính đúng tổng hóa đơn và hiển thị định dạng chuẩn tiền tệ VNĐ (`toLocaleString('vi-VN')`). |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Xử lý trường hợp `idle-minutes` $\le 30$ (Phí phạt bằng 0 VNĐ).<br>- Chuyển đổi dữ liệu từ String sang Number an toàn (dùng `parseFloat`, `parseInt` kết hợp `isNaN` check).<br>- Xử lý trường hợp nhiệt độ vượt ngưỡng ($> 70^\circ\text{C}$) hoặc pin đầy ($\ge 100\%$) để kích hoạt chế độ tự động ngắt sạc. |
-| **Thao tác DOM API & Chuẩn I/O** | **20đ** | - Thao tác DOM chuẩn xác bằng `getElementById` / `querySelector`.<br>- Thay đổi style/cảnh báo bằng `classList.add()` / `classList.remove()` hoặc `innerHTML`.<br>- Không vi phạm phạm vi cấm (Không dùng Event Listeners, Fetch API, LocalStorage). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến rõ nghĩa theo danh từ tiếng Anh (VD: `portType`, `kwhConsumed`, `totalAmount`).<br>- Thụt lề chuẩn 2 hoặc 4 spaces, mã nguồn sạch sẽ.<br>- Có comment giải thích chi tiết logic nghiệp vụ và từng bước thao tác DOM. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **10đ**: Truy xuất đúng toàn bộ phần tử DOM đầu vào và đầu ra.<br>- **10đ**: Kiểm tra chính xác trạng thái ngắt sạc an toàn (Quá nhiệt > 70°C và Đầy pin >= 100%) và cập nhật đúng class/text.<br>- **10đ**: Tính đúng Tiền điện theo đơn giá `REGULAR` (3.850) và `SUPER` (4.500).<br>- **10đ**: Tính đúng Phí phạt đỗ xe quá 30 phút (1.000 VNĐ/phút vượt quá). |
+| **Xử lý Biên & Ngoại lệ** | **20đ** | - Ép kiểu số an toàn, kiểm soát trường hợp `isNaN`, số âm (`< 0`), hoặc loại cổng sạc không hợp lệ.<br>- Hiển thị đúng thông báo lỗi `"DỮ LIỆU KHÔNG HỢP LỆ"` tại thẻ `#total-amount` và gắn class `text-error` khi dữ liệu đầu vào vi phạm quy tắc. |
+| **Tối ưu hiệu năng & Thao tác DOM** | **20đ** | - Sử dụng đúng các thuộc tính/phương thức DOM cơ bản (`innerText`/`textContent`, `classList.add`, `classList.remove`).<br>- Không truy xuất trùng lặp cùng 1 DOM element nhiều lần (nên lưu vào biến hằng số `const`).<br>- Tuân thủ tuyệt đối quy định không dùng Event Listener, Fetch, hay LocalStorage. |
 
 ---
 
@@ -85,10 +86,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm chuẩn `camelCase`, mang ý nghĩa nghiệp vụ (5đ).<br>- Tổ chức mã nguồn sạch sẽ, tách biệt logic tính toán và logic thao tác DOM (10đ).<br>- Có comment giải thích các bước xử lý dữ liệu và DOM API (5đ). |
-| **Thao tác DOM API & Dataset** | **30đ** | - Truy xuất chính xác phần tử bằng `getElementById`, `querySelector` (10đ).<br>- Trích xuất và ép kiểu đúng dữ liệu từ `dataset` ( distance, boolean flags) (10đ).<br>- Cập nhật chuẩn xác `textContent`, `innerHTML`, thao tác class qua `classList` (`add`, `remove`, `toggle`) (10đ). |
-| **Xử lý Logic nghiệp vụ (Business Logic)** | **30đ** | - Tính Cước phí nền chuẩn xác theo quy tắc 2km đầu và các km tiếp theo (10đ).<br>- Tính đúng hệ số nhân phụ phí khi xảy ra đồng thời hoặc đơn lẻ (trời mưa / giờ cao điểm) (10đ).<br>- Tính chính xác mức giảm giá của các mã `GRAB20` (có giới hạn max 20k) và `TIETKIEM` (10đ). |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Kiểm soát khoảng cách không hợp lệ ($0$, số âm, `NaN`): hiển thị trạng thái lỗi trên DOM (10đ).<br>- Xử lý trường hợp không có mã giảm giá hoặc mã giảm giá không tồn tại trong hệ thống (5đ).<br>- Đảm bảo cước thanh toán không bao giờ bị âm ($Total \ge 0$) (5đ). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase`, đúng ngữ nghĩa nghiệp vụ HRM.<br>- Code định dạng sạch sẽ, thụt lề chuẩn xác, có comment giải thích các khối xử lý DOM.<br>- Sử dụng ES6 (Template Literals, Arrow Functions, Destructuring). |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính chính xác lương giờ cơ bản, tiền phạt đi muộn (chỉ phạt khi `lateMinutes > 15`).<br>- Tính chuẩn hệ số OT 150% và ngày lễ 300%.<br>- Tính đúng tổng lương thực nhận `netSalary` theo từng nhân viên.<br>- Tính chính xác các chỉ số tổng quan: Tổng quỹ lương, Tổng tiền phạt, Nhân viên lương cao nhất. |
+| **Thao tác DOM & Dynamic Styling** | **20đ** | - Truy xuất chính xác các phần tử bằng `getElementById`, `querySelector`.<br>- Thay đổi nội dung thẻ bằng `textContent` và `innerHTML` hợp lý.<br>- Dynamic Styling đúng điều kiện: Thêm class `row-warning`, `row-highlight`, thuộc tính `data-salary-level` và render đúng badge trạng thái. |
+| **Xử lý Biên & Ràng buộc Kỹ thuật** | **20đ** | - Định dạng tiền tệ chính xác (`x.xxx.xxx VNĐ`).<br>- Kiểm soát trường hợp mảng dữ liệu rỗng (không bị lỗi runtime JS).<br>- Tuân thủ 100% ràng buộc: Không dùng `addEventListener`, `fetch`, `localStorage`, `form submit`. |
 
 ---
 
@@ -98,10 +99,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML hợp lệ, ngữ nghĩa tốt.<br>- Đặt tên hàm/biến rõ ràng theo chuẩn `camelCase`.<br>- Tổ chức thư mục đúng yêu cầu, code sạch sẽ và có comment giải thích logic thao tác DOM. |
-| **Xử lý Logic nghiệp vụ** | **40đ** | - Tính đúng 100% chi phí khám ban đầu có/không có BHYT (khám gốc 200k, BHYT giảm 80%).<br>- Phân loại chính xác bệnh nhân Ưu tiên (Tuổi $\ge 70$ hoặc Phụ nữ mang thai) và Thường.<br>- Đánh số thứ tự đúng định dạng `PRI-xxx` và `NOR-xxx`.<br>- Áp dụng đúng thuật toán sắp xếp hiển thị ưu tiên lên trước.<br>- Kiểm soát chính xác ngưỡng 5 bệnh nhân/bác sĩ/khung giờ. |
-| **Thao tác DOM API & Giao diện** | **20đ** | - Truy xuất chính xác các phần tử DOM bằng `getElementById` / `querySelector`.<br>- Render bảng hàng đợi động, áp dụng đúng class CSS (`row-priority`, `row-overload`) và hiển thị badge nhãn.<br>- Hiển thị đúng các con số thống kê và tạo động thẻ alert thông báo cảnh báo bác sĩ quá tải.<br>- Không vi phạm vùng kiến thức cấm (Không dùng Event Listener). |
-| **Xử lý Biên & Tối ưu performance** | **20đ** | - Báo lỗi/xử lý an toàn khi danh sách đầu vào rỗng.<br>- Tối ưu hóa số lần truy cập và thay đổi DOM (tránh render lặp không cần thiết).<br>- Định dạng tiền tệ đẹp mắt và chính xác (`40,000 VNĐ`). |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc thư mục và đặt tên file chính xác theo quy định.<br>- Mã nguồn rõ ràng, đặt tên biến/hàm theo chuẩn `camelCase`. Có comment giải thích logic thao tác DOM trực quan. |
+| **Thao tác DOM & Thay đổi Nội dung/Style** | **20đ** | - Sử dụng đúng các phương thức DOM API: `getElementById`, `querySelector`, `querySelectorAll`, `children`, `appendChild`.<br>- Thay đổi chính xác thuộc tính `textContent`, `innerHTML`, `dataset`, `classList` (add/remove) và inline `style.width` cho thanh progress bar. |
+| **Xử lý Logic Nghiệp vụ (Business Rules)** | **40đ** | - Ràng buộc nhiệt độ kho lạnh ($-18^\circ\text{C}$ đến $5^\circ\text{C}$) đạt chuẩn 100%.<br>- Tính toán chính sở tỷ lệ lấp đầy %, chuyển đổi trạng thái CSS class (`status-normal`, `status-warning`, `status-full`) chính xác.<br>- Tính chính xác tổng tải trọng và tổng phí lưu kho toàn hệ thống theo loại kệ (`DRY`: 10.000, `COLD`: 25.000 VNĐ/kg/ngày). |
+| **Xử lý Biên, Cảnh báo & Ngoại lệ** | **20đ** | - Chặn chính xác các trường hợp nhập pallet vượt mức $500\text{ kg}$.<br>- Render thông báo lỗi/thành công chuyên nghiệp lên `#alert-box` trên giao diện DOM.<br>- Xử lý an toàn khi truy xuất các thuộc tính dữ liệu `dataset` hoặc parse dữ liệu kiểu số từ DOM text. |
 
 ---
 
@@ -111,10 +112,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết đánh giá |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã sạch sẻ, thụt lề đúng chuẩn (2 hoặc 4 spaces).<br>- Đặt tên biến, hàm theo chuẩn `camelCase` có nghĩa (VD: `calculateEVNBill`, `totalAmperes`).<br>- Viết comment tiếng Việt đầy đủ giải thích các khối logic chính.<br>- Không thừa mã nguồn hoặc console.log dư thừa. |
-| **Xử lý Logic đúng nghiệp vụ (IoT & FinTech)** | **40đ** | - **IoT Automation (15đ)**: Nhận diện chính xác điều kiện phòng trống >= 15 phút, cập nhật đúng trạng thái Điều hòa về OFF và đổi thông số Watt/Ampere về 0.<br>- **Kiểm tra Tải điện (10đ)**: Tính đúng tổng Amperes thiết bị đang ON, bật/tắt class cảnh báo `alert-danger`/`alert-success` chính xác theo mốc 30A.<br>- **Tính Tiền Điện EVN (15đ)**: Áp chuẩn công thức lũy tiến 6 bậc của EVN, tính đúng 8% VAT và làm tròn chính xác. |
-| **Thao tác DOM API & Rendering** | **20đ** | - Sử dụng đúng các DOM API được phép (`getElementById`, `querySelector`, `querySelectorAll`, `dataset`, `textContent`, `innerHTML`, `classList`).<br>- Hiển thị bảng chi tiết hóa đơn EVN đẹp mắt, khớp dữ liệu.<br>- Định dạng chuẩn tiền tệ Việt Nam (`VNĐ`) với phân cách hàng nghìn.<br>- Tuân thủ quy định **KHÔNG** dùng Event Listener / Fetch / LocalStorage. |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Kiểm soát trường hợp `data-kwh` không hợp lệ (`NaN`, chuỗi rỗng, số âm): Hiển thị thông báo lỗi `#billing-error` và ẩn bảng hóa đơn.<br>- Xử lý chuẩn xác trường hợp dòng điện đúng bằng mốc ranh giới 30.0A (vẫn thuộc ngưỡng an toàn).<br>- Xử lý mượt mà khi danh sách thiết bị không có Điều hòa hoặc tất cả thiết bị đều đang OFF. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Đặt tên biến/hàm theo chuẩn `camelCase`, thể hiện rõ ngữ cảnh domain HRM/FinTech (`baseSalary`, `latePenalty`, `netSalary`).<br>- Thụt lề chuẩn 2 hoặc 4 spaces, có comment giải thích rõ ràng từng đoạn logic xử lý DOM API.<br>- Tổ chức code sạch đẹp, tách hàm xử lý hợp lý (Ví dụ: `calculateHourlyRate()`, `formatCurrency()`, `renderPayroll()`). |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - **Trích xuất dataset chính xác (10đ)**: Đọc đúng toàn bộ `data-*` từ profile và danh sách hàng `.shift-row`.<br>- **Tính toán chuẩn nghiệp vụ (20đ)**:<br>  + Tính đúng phạt đi muộn (chỉ phạt khi $>15$ phút, đúng 50.000 VNĐ/lần).<br>  + Tính đúng hệ số OT (ngày thường 1.5x, ngày lễ 3.0x).<br>  + Tính đúng 10.5% BHXH.<br>  + Tính đúng công thức Net Salary.<br>- **Render danh sách hàng (10đ)**: Điền đúng dữ liệu vào từng ô `<td>` trong bảng nhật ký ca làm việc bằng DOM manipulation. |
+| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - **Kiểm soát NaN/Null (10đ)**: Ép kiểu dữ liệu an toàn (`parseInt`/`parseFloat`), xử lý trường hợp `data-` bị thiếu, rỗng hoặc chứa chuỗi không hợp lệ.<br>- **Lương âm / Đi muộn 0 phút (10đ)**: Xử lý đúng khi nhân viên không đi muộn ca nào, hoặc khi tổng khấu trừ lớn hơn tổng lương khiến Net Salary $<0$. |
+| **Tối ưu hiệu năng & DOM Manipulation** | **20đ** | - **Tối ưu truy xuất DOM (10đ)**: Không lặp lại các câu lệnh `document.querySelector` trùng lặp trong vòng lặp. Lưu truy xuất vào biến cached DOM.<br>- **Định dạng & Dynamic Styling (10đ)**: Định dạng chuẩn tiền tệ `Intl.NumberFormat('vi-VN')`, cập nhật class CSS (`classList.add/remove`) và dynamic inline style mượt mà. |
 
 ---
 
@@ -124,10 +125,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Tái cấu trúc Mã nguồn** | **20đ** | - Tách biệt hoàn toàn Business Logic (hàm thuần khiết) và DOM Rendering Logic.<br>- Mã nguồn sạch, chuẩn ES6+, đặt tên biến/hàm thể hiện đúng ngữ nghĩa nghiệp vụ ShopeeFood. |
-| **Xử lý Đúng Logic Nghiệp vụ** | **40đ** | - Tính chính xác subtotal các món.<br>- Tính đúng phí giao hàng cơ bản (20k), cộng phụ phí cao điểm 10k (khung 11h-13h, 18h-20h).<br>- Áp dụng chính xác giảm 15k phí ship cho đơn > 100k (không âm phí ship).<br>- Tính chính xác tổng thanh toán cuối cùng. |
-| **Tối ưu hóa Hiệu năng DOM** | **20đ** | - Thực hiện DOM Caching hiệu quả, không gọi `querySelector`/`getElementById` dư thừa.<br>- Sử dụng `DocumentFragment` để gộp việc chèn phần tử vào DOM (tránh Layout Thrashing).<br>- Sử dụng `textContent` và `classList` đúng chuẩn thay cho `innerHTML` và direct `style`. |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Phát hiện chính xác trạng thái quán đóng cửa hoặc hết hàng (`stockQuantity <= 0` hoặc `isAvailable === false`).<br>- Khóa nút thanh toán đúng chuẩn (`disabled`, `aria-disabled`), hiển thị banner lỗi đúng định dạng CSS.<br>- Xử lý an toàn dữ liệu đầu vào rỗng hoặc không hợp lệ. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Mã nguồn được tổ chức sạch sẽ, đặt tên biến/hàm theo chuẩn `camelCase`.<br>- Có comment giải thích chi tiết các điểm đã được tối ưu so với đoạn code legacy cũ.<br>- Cấu trúc HTML/CSS phân tách rõ ràng, không dùng inline style. |
+| **Phân tích & Tối ưu DOM (Bloom Level 4)** | **20đ** | - Loại bỏ hoàn toàn việc lạm dụng `innerHTML +=` trong vòng lặp.<br>- Sử dụng thành thạo `DocumentFragment` để gom nhóm các thao tác chèn node.<br>- Cache các truy vấn selector ra ngoài vòng lặp.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu văn bản tĩnh/động. |
+| **Xử lý Logic đúng Nghiệp vụ** | **40đ** | - **Hạn ngạch vé (10đ):** Phát hiện chính xác đơn hàng `ticketQuantity > 4`, gán CSS `.order-error` và không tính cộng dồn vào `soldSeats`.<br>- **Chính sách Early Bird (10đ):** Tính chính xác mức giảm 15% cho các đơn hàng mở bán sớm.<br>- **Trạng thái Zone (10đ):** Phân loại đúng 3 cấp độ (`sold-out`, `warning`, `available`) dựa trên sức chứa còn lại.<br>- **Trạng thái QR (10đ):** Đánh dấu đúng trạng thái `qr-disabled` hoặc `qr-active`. |
+| **Xử lý Biên & Chuẩn hóa Dữ liệu** | **20đ** | - Kiểm tra null/undefined cho dữ liệu đầu vào trước khi render.<br>- Định dạng tiền tệ hiển thị rõ ràng (VD: `1,700,000 VNĐ` hoặc sử dụng `toLocaleString('vi-VN')`).<br>- Giao diện tự động dọn dẹp nội dung cũ (`innerHTML = ''`) trước khi nạp dữ liệu mới. |
 
 ---
 
@@ -137,10 +138,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Tái cấu trúc Mã nguồn (Refactoring Quality)** | **20đ** | - Tách biệt hoàn toàn logic đọc DOM, tính toán và ghi DOM.<br>- Loại bỏ triệt để đoạn mã lặp lại (Spaghetti/Duplicate DOM queries).<br>- Tổ chức hàm mô đun hóa (Clean Code, DRY principle). |
-| **Xử lý Logic Nghiệp vụ Tính Cước** | **40đ** | - Tính đúng cước cơ bản (2km đầu 12k, từ km thứ 3 là 4.5k/km) (15đ).<br>- Tính đúng hệ số Surge 1.2x khi `data-surge="true"` (10đ).<br>- Tính đúng KM (`GRABNEW` giảm 20% max 20k, `VIPRIDE` giảm 10% max 50k) (10đ).<br>- Làm tròn tiền và không âm (5đ). |
-| **Thao tác DOM API & An toàn** | **20đ** | - Sử dụng `dataset` đúng chuẩn để đọc dữ liệu thuộc tính `data-*` (5đ).<br>- Sử dụng `textContent` để cập nhật văn bản thay cho `innerHTML` (5đ).<br>- Thao tác với `classList` (`add`, `remove`, `toggle`) và thuộc tính `setAttribute`/`title` chính xác (10đ). |
-| **Xử lý Biên & Dữ liệu Ngoại lệ (Edge Cases)** | **20đ** | - Khoảng cách âm ($\le 0$) hoặc không phải là số (`NaN`): Đánh dấu card lỗi `.card-error`, hiển thị `-- VNĐ` (10đ).<br>- Thuộc tính `data-surge` bị thiếu hoặc mang giá trị bất thường (5đ).<br>- Mã giảm giá không hợp lệ/đã hết hạn (5đ). |
+| **Phân tích & Tái cấu trúc (Clean Code)** | **20đ** | - Tách biệt rõ ràng hàm `calculateTripFare`, `formatCurrencyVND` và `renderTripTable`.<br>- Đặt tên biến/hàm theo chuẩn CamelCase, có comment giải thích rõ ràng các bước xử lý. |
+| **Xử lý Logic Nghiệp vụ Cước phí** | **40đ** | - Tính đúng giá $2\text{ km}$ đầu ($12.000\text{ VNĐ}$) và các km tiếp theo ($4.500\text{ VNĐ/km}$).<br>- Nhân đúng hệ số $1.2x$ khi `isSurge === true` và làm tròn số (`Math.round`).<br>- Định dạng chuẩn tiền tệ VNĐ (ví dụ `30.600 VNĐ`). |
+| **Xử lý Biên & Dữ liệu Ngoại lệ** | **20đ** | - Bắt lỗi `distanceKm <= 0` hoặc không phải số: Không sập chương trình, hiển thị cước `$0\text{ VNĐ}$` và cảnh báo giao diện.<br>- Xử lý tên hành khách rỗng/null thành `"Khách ẩn danh"`. |
+| **Tối ưu Hiệu năng DOM API** | **20đ** | - Tuyệt đối **không** dùng `innerHTML` trong vòng lặp.<br>- Sử dụng `DocumentFragment` để gom thao tác DOM và chỉ append vào tbody 1 lần duy nhất.<br>- Dùng `createElement`, `textContent`, và `classList.add` đúng tiêu chuẩn bảo mật & hiệu năng. |
 
 ---
 
@@ -150,10 +151,11 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc Code & Refactoring (Phân tích & Tối ưu)** | **20đ** | - Tổ chức mã nguồn theo đối tượng `SmartHomeManager` đúng chuẩn.<br>- Cache toàn bộ DOM selector trong `cacheDOM()`, không gọi `querySelector`/`getElementById` lặp lại trong vòng lặp.<br>- Sử dụng JSDoc và đặt tên biến theo chuẩn Clean Code. |
-| **Xử lý Logic Nghiệp vụ IoT & Automation** | **40đ** | - **Rule 1 (10đ):** Cảnh báo đúng ngưỡng dòng điện 30A ($I = P / 220$), toggle class UI cảnh báo an toàn/vượt ngưỡng chuẩn xác.<br>- **Rule 2 (15đ):** Tự động lọc các thiết bị phòng trống (`vacant`) có `idle-time >= 15`, đổi `data-status="inactive"`, gán `power-watt="0"`, thêm class `.device-auto-off` và cập nhật text UI tương ứng.<br>- **Rule 3 (15đ):** Tính chính xác tiền điện EVN 6 bậc thang kèm 8% VAT, định dạng `Intl.NumberFormat` chuẩn `vi-VN`. |
-| **Xử lý Biên & Dữ liệu Lỗi (Edge Cases)** | **20đ** | - Ép kiểu dữ liệu an toàn (`parseInt`, `parseFloat`), phòng ngừa `isNaN` khi thuộc tính DOM thiếu hoặc chứa ký tự lạ.<br>- Xử lý đúng trường hợp tổng kWh = 0 hoặc tổng dòng điện bằng 0.<br>- Không bị lỗi vỡ giao diện khi danh sách thiết bị rỗng. |
-| **Tối ưu Hiệu năng DOM (Batch Update)** | **20đ** | - Không lạm dụng `innerHTML += ...` gây ra Reflow/Repaint liên tục.<br>- Cập nhật nội dung trực tiếp qua `.textContent` hoặc `.innerText` cho từng element nhỏ.<br>- Tốc độ xử lý tức thì, tối thiểu hóa độ phức tạp thuật toán $O(N)$. |
+| **1. Phân tích điểm yếu (Code Review & Analysis)** | **20đ** | - Phát hiện và giải thích chính xác 4 điểm yếu về hiệu năng DOM Reflow/Repaint, lặp Query DOM, inline style và spaghetti code.<br>- Nêu rõ lý do tại sao mã cũ gây chậm hệ thống. |
+| **2. Tối ưu hóa hiệu năng DOM (DOM Optimization)** | **25đ** | - Sử dụng `DocumentFragment` để thực hiện thao tác batch update DOM 1 lần duy nhất.<br>- Triển khai hàm `cacheDOMElements()` truy xuất DOM tối ưu, không gọi `querySelector` trong vòng lặp.<br>- Sử dụng `createElement` và `textContent` thay cho `innerHTML`. |
+| **3. Xử lý Logic Nghiệp vụ (Business Rules)** | **25đ** | - Tính toán chính xác định mức miễn phí và phí phạt cước 50.000 VNĐ/kg cho cả 3 hạng vé (Eco, Deluxe, Business).<br>- Phân loại đúng CSS class và Badge nhãn theo từng hạng vé.<br>- Thống kê chính xác: Tổng số khách, Tổng doanh thu cước, Số khách Business. |
+| **4. Xử lý Biên & Dữ liệu Ngoại lệ (Edge Cases)** | **15đ** | - Xử lý đúng khi danh sách mảng rỗng (`[]` hoặc `null`): Hiển thị Empty State trên DOM.<br>- Kiểm tra PNR đúng 6 ký tự alphanumeric, gắn class `.card-invalid` cho PNR lỗi.<br>- Chuẩn hóa khối lượng hành lý âm (`< 0`) hoặc không phải số về `0`. |
+| **5. Cấu trúc mã nguồn & Phong cách (Code Style)** | **15đ** | - Tách biệt rõ ràng Pure Functions (tính toán) và DOM Manipulation Functions.<br>- Không vi phạm danh mục Forbidden Scope (Không dùng Event listeners, Form submit, Fetch, LocalStorage).<br>- Code có comment giải thích rõ ràng bằng Tiếng Việt có dấu, đặt tên hàm/biến chuẩn `camelCase`. |
 
 ---
 
@@ -163,11 +165,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Mô đun hóa Mã nguồn** | **20đ** | - Tổ chức mã nguồn chuẩn dạng Module/Object `ShopeeFoodEngine`.<br>- Phân chia hàm rõ ràng, nguyên tắc Single Responsibility (Mỗi hàm thực hiện đúng 1 việc).<br>- Đặt tên biến/hàm theo chuẩn camelCase, comment đầy đủ, đúng ngữ nghĩa tiếng Anh hoặc tiếng Việt technical. |
-| **Thao tác DOM API & Dataset** | **20đ** | - Truy xuất chính xác các element bằng `querySelector`, `querySelectorAll`, `getElementById`.<br>- Đọc và ép kiểu dữ liệu từ `dataset` (`data-*`) chính xác.<br>- Sử dụng thành thạo `textContent`, `innerHTML`, `setAttribute`, `removeAttribute`, và API `classList` (`add`, `remove`, `contains`). |
-| **Xử lý Logic Nghiệp vụ ShopeeFood** | **40đ** | - **Trạng thái Cửa hàng (10đ)**: Xử lý đúng khi đóng cửa (hiển thị banner, disable nút đặt hàng, đưa tổng tiền về 0).<br>- **Tồn kho Món ăn (10đ)**: Đánh dấu món hết hàng trên DOM, loại bỏ món 0-stock khỏi tổng tiền.<br>- **Phí Ship & Cao điểm (10đ)**: Tính đúng phí ship theo km (làm tròn lên), phụ phí khung giờ (11-13h, 18-20h), và miễn phí ship cho đơn trên 100k.<br>- **Voucher & Tổng thanh toán (10đ)**: Áp dụng voucher đúng điều kiện tối thiểu, tính tổng tiền cuối chính xác. |
-| **Xử lý Biên & Ngoại lệ DOM** | **10đ** | - Xử lý an toàn khi DOM Element không tồn tại (null check trước khi truy cập).<br>- Xử lý khi danh sách món ăn rỗng hoặc tất cả các món đều hết hàng.<br>- Phí giao hàng sau khi giảm không bị âm (min = 0). |
-| **Định dạng & Hiển thị UI** | **10đ** | - Định dạng tiền tệ VND chuẩn (VD: `100.000 đ`).<br>- Dynamic render danh sách tóm tắt hóa đơn chi tiết vào `#order-breakdown`.<br>- Giao diện thay đổi trực quan, đúng CSS class theo từng trạng thái nghiệp vụ. |
+| **Cấu trúc Module & DOM Selection** | **20đ** | - Sử dụng đúng các phương thức DOM API (`getElementById`, `querySelector`, `querySelectorAll`).<br>- Tổ chức mã nguồn thành Module/Object rõ ràng (`SaaSSubscriptionManager`).<br>- Không vi phạm phạm vi cấm (Không dùng Event Listener, Fetch, LocalStorage). |
+| **Logic Nghiệp vụ SaaS & Định giá** | **40đ** | - Tính toán chính xác giá chu kỳ Năm (giảm 20% trên 12 tháng) và render thẻ `<del>`, `.discount-tag` đúng DOM.<br>- Xử lý đúng quy tắc hạ cấp về gói `FREE` khi `paymentStatus === 'FAILED_OVER_3_DAYS'`.<br>- Render đúng số lượng tối đa 5 sub-profiles cho gói `FAMILY` và ẩn phần này khi ở gói `INDIVIDUAL`/`FREE`. |
+| **Feature Gate & Biến đổi Giao diện** | **20đ** | - Duyệt qua tất cả `.feature-item` bằng `querySelectorAll`.<br>- Thêm/xóa class `.feature-active` / `.feature-disabled` chính xác theo `allowedFeatures`.<br>- Cập nhật nội dung text và icon (`✔️` / `❌`) khớp với từng quyền. |
+| **Xử lý Biên & Phòng vệ Mã nguồn** | **20đ** | - Kiểm tra null/undefined trước khi thao tác với DOM element.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu từ người dùng (tránh lỗi bảo mật XSS).<br>- Cắt mảng sub-profiles an toàn khi dữ liệu lớn hơn 5 và ghi log cảnh báo (`console.warn`). |
 
 ---
 
@@ -177,10 +178,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | 20đ | - Thư mục và file đặt đúng quy chuẩn bài nộp.<br>- Mã nguồn JS tuân thủ mô hình Module (`CoffeePosEngine`), khai báo biến rõ ràng (`const`/`let`).<br>- Thụt lề chuẩn, comment giải thích đầy đủ các bước thao tác DOM API. |
-| **Xử lý Logic đúng nghiệp vụ** | 40đ | - Tính chính xác giá từng món (Base price + Size Fee + Toppings Fee).<br>- Tính đúng Subtotal, Chiết khấu hội viên (0%, 5%, 10%) và Thuế VAT (8%).<br>- Cập nhật đầy đủ và chính xác tất cả thông tin Header, Table Rows và Summary lên DOM.<br>- Định dạng chuẩn tiền tệ VNĐ cho tất cả hiển thị số tiền. |
-| **Xử lý Biên & Ngoại lệ** | 20đ | - Xử lý mảng order rỗng/null: Ẩn receipt card, hiển thị error banner đúng yêu cầu.<br>- Xử lý đúng món có giá âm hoặc size không hợp lệ (gán giá 0 và thêm suffix danh xưng lỗi). |
-| **Tối ưu DOM & Thuộc tính động** | 20đ | - Sử dụng hiệu quả các API DOM (`querySelector`, `getElementById`, `classList`, `setAttribute`, `style`).<br>- Gán đúng class badge hội viên (`badge-gold`, `badge-silver`, ...).<br>- Thêm thuộc tính `data-vip-order="true"` và đổi style nền `#final-total-box` khi tổng hóa đơn > 200.000 VNĐ. |
+| **1. Cấu trúc Architecture & Phong cách Code** | **20 điểm** | - Đóng gói đúng mô hình Mini-Module/Class sạch sẽ.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, hằng số `UPPER_SNAKE_CASE`.<br>- Comment mã nguồn rõ ràng, cấu trúc HTML/CSS mạch lạc. |
+| **2. Xử lý Logic Nghiệp vụ FinTech** | **40 điểm** | - Tính chính xác đơn giá sạc theo loại `STANDARD` (3.850đ) và `SUPER_FAST` (4.500đ).<br>- Tính chính xác phí phạt đỗ xe (Miễn phí 30 phút đầu, từ phút 31 tính 1.000đ/phút).<br>- Kiểm soát chính xác logic ngắt sạc khi `Pin = 100%` hoặc `Nhiệt độ > 70°C`.<br>- Format đúng định dạng tiền tệ Việt Nam (`VNĐ`). |
+| **3. Thao tác DOM API (Phạm vi Session 17)** | **20 điểm** | - Truy xuất phần tử DOM chính xác bằng `querySelector`/`getElementById`.<br>- Sử dụng thành thạo `createElement`, `appendChild`, `textContent`, `classList`.<br>- Tuân thủ quy định: Không dùng Event Listener, Form submit, Fetch API hay LocalStorage. |
+| **4. Xử lý Biên & Ngoại lệ DOM** | **20 điểm** | - Kiểm tra và xử lý khi `portId` không tồn tại trên DOM.<br>- Tránh nhân bản (duplicate) phần tử Hóa đơn nếu hóa đơn đó đã tồn tại.<br>- Xử lý an toàn dữ liệu đầu vào bị thiếu hoặc bị sai kiểu dữ liệu (vd: `temperature` bị âm, `currentKwh` không phải là số). |
 
 ---
 
@@ -190,10 +191,10 @@
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Architecture Module** | 20đ | - Thiết kế Module/Class rõ ràng, encapsulated tốt.<br>- Sử dụng DOM Caching (truy xuất DOM 1 lần trong `init`, lưu biến references).<br>- Không vi phạm scope cấm (Không dùng Event Listeners, Fetch API, LocalStorage). |
-| **Xử lý Logic Nghiệp vụ & Giá vé** | 40đ | - Tính chính xác giá ghế VIP (+15k), Ghế Đôi (x2 + 30k).<br>- Tính chuẩn 20% giảm giá cho HS/SV trong ngày thường.<br>- Định dạng tiền tệ VND chuẩn xác (ví dụ: `150.000 VNĐ`). |
-| **Thao tác DOM & Kiểm soát T18** | 20đ | - Render đúng cấu trúc sơ đồ ghế kèm theo `dataset` (`data-seat-id`, `data-seat-type`, `data-price`).<br>- Xử lý kiểm soát tuổi T18 đúng yêu cầu (thêm class `restricted-mode`, cập nhật banner cảnh báo, đặt thuộc tính `aria-disabled`). |
-| **Xử lý Biên & Mã nguồn Clean Code** | 20đ | - Đọc/ghi thuộc tính DOM an toàn, xử lý danh sách ghế trống hoặc ID không tồn tại.<br>- Đặt tên biến/hàm chuẩn CamelCase, mã nguồn viết bằng tiếng Anh/Việt sạch đẹp, comment giải thích logic đầy đủ. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Mã nguồn được tổ chức sạch sẽ theo dạng Module Object (`POSReceiptEngine`).<br>- Đặt tên biến, hàm theo chuẩn CamelCase (rõ nghĩa, đúng tiếng Anh chuyên ngành).<br>- Có comment giải thích logic rõ ràng cho từng phương thức DOM. |
+| **Xử lý Logic đúng nghiệp vụ** | **40đ** | - Tính đúng phụ thu Size món: M (+6.000đ), L (+10.000đ), S (+0đ).<br>- Tính đúng phụ thu Topping (8.000đ / phần).<br>- Tính đúng 10% giảm giá cho Gold Member.<br>- Định dạng chuẩn tiền tệ VNĐ (có phân cách hàng nghìn). |
+| **Thao tác DOM API & Rendering** | **20đ** | - Truy xuất chính xác các phần tử bằng `getElementById` hoặc `querySelector`.<br>- Sử dụng linh hoạt `textContent`, `innerHTML` để chèn nội dung.<br>- Thao tác class thành thạo với `classList.add()` / `classList.remove()`.<br>- Cập nhật thuộc tính thành công qua `setAttribute()`. |
+| **Xử lý Biên & Tối ưu hiệu năng** | **20đ** | - Kiểm soát trường hợp mảng `drinks` hoặc `toppings` rỗng (hiển thị thông báo phù hợp thay vì để trắng hoặc lỗi JS).<br>- Kiểm tra sự tồn tại của phần tử DOM trước khi thao tác để tránh lỗi Null Reference.<br>- Thuật toán duyệt mảng và tạo chuỗi DOM tối ưu, không gọi DOM API lặp đi lặp lại trong vòng lặp lớn. |
 
 ---
 

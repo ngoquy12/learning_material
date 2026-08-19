@@ -1,48 +1,51 @@
 # Bài tập 3: FinTech (Mức độ 1: Cơ bản - Debug lỗi)
 
 ### 1. Mục tiêu bài tập
-- **Xác định và khắc phục lỗi DOM Tree**: Nhận biết lỗi truy xuất phần tử DOM khi thẻ `<script>` được thực thi trước khi cây DOM hoàn tất khởi tạo (`null` / `undefined`).
-- **Sử dụng đúng phương thức truy xuất DOM API**: Phân biệt và sửa lỗi khi thao tác với danh sách phần tử (`HTMLCollection` từ `getElementsByClassName`) so với phần tử đơn lẻ (`getElementById`).
-- **Đọc và thay đổi thuộc tính/nội dung phần tử**: Sửa lỗi truy cập thuộc tính dữ liệu tùy biến (`data-*` attributes) và thay đổi nội dung text/CSS class của phần tử mà không phá vỡ giao diện sẵn có.
-- **Thực thi đúng quy tắc tính toán tài chính (FinTech/HealthTech)**: Cập nhật chính xác số tiền thanh toán thực tế sau khi áp dụng chính sách giảm trừ Bảo hiểm Y tế (BHYT) cho bệnh nhân.
+- **Phát hiện và sửa lỗi DOM Selection:** Phân biệt chính xác giữa `getElementById`, `querySelector`, và `getElementsByClassName` (hiểu rõ sự khác biệt giữa phần tử đơn lẻ và `HTMLCollection`).
+- **Thao tác đọc/ghi thuộc tính và nội dung DOM:** Phân biệt và sử dụng đúng các thuộc tính `textContent`, `innerHTML`, `getAttribute` thay vì sử dụng sai thuộc tính `.value` trên các thẻ non-input (`div`, `span`).
+- **Xử lý ép kiểu dữ liệu tài chính:** Chuyển đổi dữ liệu chuỗi (`string`) thu thập từ DOM sang kiểu số (`number`) để thực hiện các phép toán tính lương, tiền phạt và định dạng tiền tệ Việt Nam (`VNĐ`).
+- **Thao tác Class và Style linh hoạt:** Sử dụng `classList` để thay đổi trạng thái hiển thị của phần tử DOM theo quy tắc nghiệp vụ chấm công.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Tập đoàn Y tế FinTech **Rikkei MedTech** đang triển khai hệ thống Kiosk tự động cấp số và tính phí khám bệnh (`CLINIC_APPOINTMENT`). Khi bệnh nhân quét mã BHYT hoặc căn cước công dân tại Kiosk, hệ thống sẽ đọc các thông tin được lưu trong thuộc tính dữ liệu (`data-*`) của thẻ hiển thị, tự động tính toán tổng chi phí khám ban đầu, cấp số thứ tự và gắn nhãn ưu tiên cho bệnh nhân cao tuổi.
+Bạn là một Kỹ sư Phần mềm tại công ty FinTech chuyên phát triển hệ thống **HRM (Human Resource Management)**. Bạn được giao nhiệm vụ khắc phục lỗi trên giao diện **"Phiếu Chấm Công & Tính Lương Ngày"** của nhân viên thuộc hệ thống `HR_ATTENDANCE`.
 
-Tuy nhiên, lập trình viên thử việc vừa bàn giao một đoạn mã mã nguồn (HTML & JS) bị lỗi. Khi mở trang web, màn hình hoàn toàn không hiển thị được chi phí thanh toán, bị vỡ giao diện nhãn ưu tiên và báo lỗi trên Developer Console. 
-
-Nhiệm vụ của bạn là **tìm lỗi (debug), giải thích nguyên nhân và sửa lại mã nguồn** để hệ thống vận hành đúng nghiệp vụ.
+Hiện tại, trang web hiển thị bảng chấm công của nhân viên đang gặp lỗi nghiêm trọng do lập trình viên cũ truy xuất và thao tác DOM sai cách:
+- Tiền phạt đi muộn không cập nhật được.
+- Tổng lương thực nhận hiển thị ra chữ `undefined` hoặc lỗi chuỗi.
+- Thẻ cảnh báo vi phạm đi muộn bị hiển thị nguyên văn đoạn mã HTML dạng thô (`<strong class="...">...</strong>`) ra màn hình thay vì render giao diện.
 
 ```mermaid
 graph TD
-    A[Kiosk đọc thông tin bệnh nhân từ DOM Attributes] --> B{Bệnh nhân có BHYT?}
-    B -- Có --> C[Giảm 80% phí khám gốc 500,000 VNĐ -> Còn 100,000 VNĐ]
-    B -- Không --> D[Giữ nguyên phí khám 500,000 VNĐ]
-    C --> E{Tuổi > 70?}
-    D --> E
-    E -- Có --> F[Gán Class 'priority-badge', giữ nguyên Class 'badge']
-    E -- Không --> G[Giữ trạng thái Bình thường]
-    F --> H[Cập nhật UI & Số tiền hiển thị]
-    G --> H
+    A[Dữ liệu DOM ban đầu: data-base-salary, late-minutes, ot-hours] --> B[Truy xuất DOM Element]
+    B --> C{Ép kiểu & Tính toán Nghiệp vụ}
+    C -->|Lương 1h = Lương ngày / 8| D[Tính Lương OT: 150%]
+    C -->|Đi muộn > 15p| E[Trừ Phạt: 50.000 VNĐ]
+    D --> F[Tính Lương Thực Nhận]
+    E --> F
+    F --> G[Cập nhật DOM: innerHTML / textContent / classList]
 ```
+
+Nhiệm vụ của bạn là kiểm tra mã nguồn `index.html` và `app.js`, **tìm ra 4 lỗi sai về DOM**, giải thích nguyên nhân và viết lại mã JavaScript chính xác.
 
 ---
 
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
-1. **Phí khám gốc (Base Fee)**: Được khai báo trong thuộc tính `data-base-fee` (mặc định 500,000 VNĐ).
-2. **Khấu trừ BHYT**: 
-   - Nếu thuộc tính `data-has-insurance="true"`, bệnh nhân được giảm **80%** phí khám ban đầu (chỉ thanh toán 20%).
-   - Phí thanh toán = `baseFee * 0.2`.
-   - Nếu `data-has-insurance="false"`, phí thanh toán = `baseFee`.
-3. **Phân loại ưu tiên**: 
-   - Nếu độ tuổi (`data-age`) **từ 70 tuổi trở lên** (`>= 70`), bệnh nhân được xếp vào luồng ưu tiên.
-   - Thêm class CSS `priority-badge` vào phần tử nhãn trạng thái (không được xóa hoặc làm mất class `badge` ban đầu).
-   - Đổi nội dung nhãn thành: `"Ưu tiên (Người cao tuổi)"`.
-4. **Định dạng tiền tệ hiển thị**: Chuỗi hiển thị tổng tiền phải có đơn vị `"VNĐ"` phía sau (Ví dụ: `"100,000 VNĐ"` hoặc `"100000 VNĐ"`).
+1. **Lương cơ bản theo giờ:** 
+   $$\text{Lương 1 giờ tiêu chuẩn} = \frac{\text{Lương cơ bản ngày}}{8}$$
+2. **Quy tắc phạt đi muộn (Late Penalty):**
+   - Số phút đi muộn (`lateMinutes`) lấy từ phần tử `.late-minutes`.
+   - Nếu `lateMinutes > 15`: Tiền phạt = `50,000 VNĐ`. Đồng thời phần tử `#penalty-status` phải hiển thị thẻ cảnh báo HTML `<strong class="alert-tag">CẢNH BÁO: ĐI MUỘN TRỪ 50.000 VNĐ</strong>` và thêm class CSS `text-danger` vào `#penalty-status`.
+   - Nếu `lateMinutes <= 15`: Tiền phạt = `0 VNĐ`, hiển thị text: `"Đúng giờ / Vi phạm trong phạm vi cho phép"`.
+3. **Quy tắc tính lương OT ngày thường (Overtime Pay):**
+   - Giờ làm ngoài giờ (`otHours`) lấy từ `#ot-hours`.
+   $$\text{Lương OT} = \text{otHours} \times (\text{Lương 1 giờ tiêu chuẩn} \times 1.5)$$
+4. **Tính Lương Thực Nhận (Net Salary):**
+   $$\text{Lương Thực Nhận} = \text{Lương cơ bản ngày} + \text{Lương OT} - \text{Tiền phạt}$$
+5. **Quy chuẩn hiển thị:** Tất cả số tiền hiển thị lên giao diện (Lương OT, Lương thực nhận) phải được định dạng theo chuẩn tiền tệ Việt Nam (Ví dụ: `525,000 VNĐ` hoặc sử dụng `toLocaleString('vi-VN')`).
 
 ---
 
@@ -50,100 +53,123 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Mã nguồn hiện tại chứa lỗi (Đầu vào)
+#### Mã nguồn ban đầu (Cần Debug)
 
-**File `index.html`**:
+**File `index.html`:**
 ```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ Thống Đặt Lịch & Thanh Toán Phí Khám</title>
-    <!-- VỊ TRÍ NHÚNG SCRIPT CÓ LỖI -->
-    <script src="main.js"></script>
-    <style>
-        .card { border: 1px solid #ccc; padding: 20px; width: 350px; font-family: Arial; }
-        .badge { padding: 4px 8px; border-radius: 4px; background-color: #e0e0e0; font-size: 12px; }
-        .priority-badge { background-color: #ff9800; color: white; font-weight: bold; }
-    </style>
+    <title>Phiếu Chấm Công & Tính Lương - HR_ATTENDANCE</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="appointment-card" class="card" data-age="75" data-has-insurance="true" data-base-fee="500000">
-        <h2>Phiếu Đăng Ký Khám Bệnh</h2>
-        <p>Bệnh nhân: <span class="patient-name">Nguyễn Văn An</span></p>
-        <p>Số thứ tự: <span id="queue-number">---</span></p>
-        <p>Đối tượng: <span id="priority-status" class="badge">Bình thường</span></p>
-        <p>Chi phí gốc: <span id="base-fee">500,000 VNĐ</span></p>
-        <p>Thực thu: <strong id="total-fee">0 VNĐ</strong></p>
+    <div class="payroll-card">
+        <h2>PHIẾU TÍNH LƯƠNG NGÀY</h2>
+        <div id="emp-info" data-base-salary="400000">
+            Nhân viên: <strong>Nguyễn Văn A (NV-8821)</strong>
+        </div>
+        
+        <div class="attendance-detail">
+            <p>Số phút đi muộn: <span class="late-minutes">20</span> phút</p>
+            <p>Số giờ làm OT: <span id="ot-hours">2</span> giờ</p>
+        </div>
+
+        <div class="salary-summary">
+            <p>Trạng thái phạt: <span id="penalty-status">Chưa cập nhật</span></p>
+            <p>Tiền lương OT: <span id="ot-salary">0 VNĐ</span></p>
+            <p class="total">LƯƠNG THỰC NHẬN: <span id="net-salary">0 VNĐ</span></p>
+        </div>
     </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
 ```
 
-**File `main.js`**:
+**File `app.js` (Mã nguồn chứa lỗi):**
 ```javascript
-// BUG 1 & BUG 2: Truy xuất DOM khi chưa tải xong HTML và sai kiểu dữ liệu Trả về
-let patientNameElem = document.getElementsByClassName("patient-name");
-patientNameElem.textContent = "Bệnh nhân: NGUYỄN VĂN AN (ĐÃ XÁC THỰC)";
+// =========================================================
+// MÃ NGUỒN ĐANG BỊ LỖI - HỌC VIÊN CẦN DEBUG VÀ SỬA LẠI
+// =========================================================
 
-// BUG 3: Đọc thuộc tính từ thẻ DIV bị sai phương thức
-let cardElem = document.getElementById("appointment-card");
-let age = cardElem.value; 
+// LỖI 1: Truy xuất số phút đi muộn
+var lateMinutesEl = document.getElementsByClassName('late-minutes');
+var lateMinutes = lateMinutesEl.textContent; 
 
-// BUG 4: Lấy dữ liệu thuộc tính custom và tính toán tiền tệ
-let hasInsurance = cardElem.getAttribute("data-has-insurance") == true; 
-let baseFee = cardElem.getAttribute("data-base-fee");
+// LỖI 2: Đọc thuộc tính lương cơ bản và giờ OT
+var baseSalaryAttr = document.getElementById('emp-info').getAttribute('data-base-salary');
+var otHoursText = document.getElementById('ot-hours').textContent;
 
-let finalFee = baseFee;
-if (hasInsurance) {
-    finalFee = baseFee * 0.2;
+// Tính toán nghiệp vụ
+var baseSalary = baseSalaryAttr; // Chưa ép kiểu số
+var otHours = otHoursText;       // Chưa ép kiểu số
+
+var hourlyWage = baseSalary / 8;
+var otSalary = otHours * hourlyWage * 1.5;
+
+var penalty = 0;
+var penaltyStatusEl = document.getElementById('penalty-status');
+
+// LỖI 3: Hiển thị thẻ HTML cảnh báo phạt
+if (lateMinutes > 15) {
+    penalty = 50000;
+    penaltyStatusEl.textContent = '<strong class="alert-tag">CẢNH BÁO: ĐI MUỘN TRỪ 50.000 VNĐ</strong>';
+    penaltyStatusEl.classList.add('text-danger');
+} else {
+    penaltyStatusEl.textContent = 'Đúng giờ / Vi phạm trong phạm vi cho phép';
 }
 
-let totalFeeElem = document.getElementById("total-fee");
-totalFeeElem.innerText = finalFee; 
+var netSalary = baseSalary + otSalary - penalty;
 
-// BUG 5: Thay đổi ClassName làm đứt gãy style giao diện gốc
-let statusElem = document.getElementById("priority-status");
-if (age >= 70) {
-    statusElem.setAttribute("class", "priority-badge"); 
-    statusElem.textContent = "Ưu tiên (Người cao tuổi)";
-}
+// LỖI 4: Gán kết quả vào phần tử hiển thị tổng lương
+var otSalaryEl = document.getElementById('ot-salary');
+var netSalaryEl = document.getElementById('net-salary');
+
+otSalaryEl.textContent = otSalary.toLocaleString('vi-VN') + ' VNĐ';
+netSalaryEl.value = netSalary.toLocaleString('vi-VN') + ' VNĐ';
 ```
 
 ---
 
 
-#### 4.2. Yêu cầu xử lý (Nhiệm vụ của học viên)
+#### Yêu cầu chi tiết của bài tập:
 
-Học viên phải tạo 1 file `DEBUG_REPORT.md` (hoặc comment trực tiếp trong code) để giải thích **5 LỖI** trong mã nguồn trên và nộp lại bộ mã nguồn HTML/JS đã được sửa lỗi hoàn chỉnh:
-
-1. **Lỗi 1 (Script Execution Order)**: Giải thích tại sao `document.getElementById` hoặc `getElementsByClassName` bị trả về `null` / không thể gán thuộc tính khi script đặt tại `<head>`. Sửa lại thẻ `<script>` bằng từ khóa phù hợp (không dùng Event Listener như `window.onload`).
-2. **Lỗi 2 (HTMLCollection handling)**: Giải thích tại sao `patientNameElem.textContent` không hoạt động. Sửa lại cách truy xuất phần tử đầu tiên trong danh sách hoặc dùng phương thức selector phù hợp.
-3. **Lỗi 3 & 4 (DOM Attributes & Type Conversion)**: 
-   - Giải thích tại sao `cardElem.value` trả về `undefined`. Sửa thành cách lấy đúng bằng `.dataset` hoặc `getAttribute()`.
-   - Chuyển đổi kiểu dữ liệu ép kiểu số (`parseInt`/`Number`) và so sánh chuỗi đúng cách cho `hasInsurance` (`"true"` thay vì `true`).
-4. **Lỗi 5 (Class Manipulation)**: Giải thích tại sao dùng `setAttribute("class", "priority-badge")` lại làm mất viền/padding của nhãn (`.badge`). Sửa thành phương thức `classList.add()`.
-5. **Cập nhật UI**: Cập nhật Số thứ tự (`#queue-number`) thành `"Q-008"` và Định dạng tổng tiền thu thực tế kèm chuỗi `" VNĐ"`.
+1. **Báo cáo Lỗi (Debug Report):**
+   - Viết phần ghi chú (Comment) ở đầu file `app.js` chỉ rõ **4 vị trí dòng mã bị lỗi**, giải thích **nguyên nhân kỹ thuật** vì sao lỗi xảy ra.
+2. **Khắc phục Lỗi (Code Fix):**
+   - Sửa Lỗi 1: Truy xuất đúng phần tử từ `getElementsByClassName` hoặc đổi sang dùng `querySelector`.
+   - Sửa Lỗi 2: Thực hiện ép kiểu dữ liệu từ `String` sang `Number` (sử dụng `Number()` hoặc `parseInt()`) trước khi thực hiện các phép toán.
+   - Sửa Lỗi 3: Sử dụng thuộc tính thích hợp (`innerHTML`) để render thẻ HTML cảnh báo thay vì `textContent`.
+   - Sửa Lỗi 4: Thay thế `.value` bằng thuộc tính DOM đúng để cập nhật nội dung hiển thị cho thẻ `<span>` (`#net-salary`).
+3. **Kết quả đầu ra mong đợi trên giao diện:**
+   - Số phút đi muộn đọc được: `20`.
+   - Lương cơ bản ngày: `400,000 VNĐ` $\rightarrow$ Lương 1 giờ: `50,000 VNĐ`.
+   - Lương OT (2 giờ): $2 \times 50,000 \times 1.5 = 150,000\text{ VNĐ}$.
+   - Phạt đi muộn (20 phút > 15 phút): `50,000 VNĐ`.
+   - Lương thực nhận: $400,000 + 150,000 - 50,000 = 500,000\text{ VNĐ}$.
+   - Trạng thái phạt hiển thị dòng chữ in đậm đỏ: **CẢNH BÁO: ĐI MUỘN TRỪ 50.000 VNĐ**.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- Cấu trúc thư mục nộp bài:
+- Cấu trúc thư mục dự án:
   ```text
-  student_id_homework_03/
+  student_id_session17_hw1/
   ├── index.html
-  ├── main.js
-  └── DEBUG_REPORT.md (Mô tả chi tiết 5 lỗi & giải pháp)
+  ├── style.css
+  └── app.js
   ```
-- **Lưu ý nghiêm ngặt**: Không sử dụng `addEventListener`, `onload`, `submit`, `fetch`, hay `localStorage`. Chỉ thao tác thuần túy với DOM API cơ bản (truy xuất, đọc attribute, sửa textContent/innerText/classList) ngay khi script thực thi với từ khóa `defer`.
+- File `app.js` phải chứa phần giải thích lỗi chi tiết trong khối comment `/* ... */` và phần mã nguồn đã được sửa hoàn chỉnh.
+- **Ràng buộc:** Không sử dụng Event Listeners (`addEventListener`), không sử dụng Form Submit, Fetch API hay LocalStorage. Tất cả các thao tác DOM phải chạy trực tiếp ngay khi nạp xong script.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phát hiện & Giải thích Lỗi (Debug Report)** | 20đ | Giải thích đúng nguyên nhân gây lỗi của cả 5 vị trí: Thứ tự load Script, HTMLCollection vs Element, `.value` trên Div, ép kiểu Attribute dữ liệu, ghi đè Class Attribute. |
-| **Sửa lỗi Nhúng Script & Truy xuất DOM** | 20đ | Sử dụng đúng thuộc tính `defer` trên thẻ `<script>`. Truy xuất chính xác Element bằng `querySelector` hoặc truy cập đúng chỉ số `[0]` của `HTMLCollection`. |
-| **Tính toán Nghiệp vụ BHYT & Chuyển đổi Dữ liệu** | 30đ | Ép kiểu dữ liệu `dataset` từ chuỗi sang số/boolean đúng chuẩn. Tính chính xác 80% giảm trừ BHYT (500,000 VNĐ -> 100,000 VNĐ). Cập nhật chuỗi kết quả có đơn vị "VNĐ". |
-| **Thao tác Class & Cập nhật DOM Content** | 20đ | Dùng `classList.add("priority-badge")` giữ nguyên class `.badge`. Cập nhật đúng textContent cho nhãn ưu tiên và số thứ tự (`Q-008`). |
-| **Cấu trúc Mã nguồn & Phong cách (Clean Code)** | 10đ | Code sạch vẽ đúng thụt lề, tên biến rõ nghĩa theo chuẩn camelCase, comment đầy đủ các bước xử lý. |
+| **Cấu trúc & Báo cáo Debug** | 20đ | - Thư mục bài nộp đúng chuẩn quy định.<br>- Viết comment mô tả chính xác 4 lỗi kỹ thuật trong đoạn mã ban đầu, nêu rõ nguyên nhân gây ra lỗi. |
+| **Xử lý Logic & Sửa Lỗi DOM** | 40đ | - Sửa đúng lỗi lấy phần tử từ `getElementsByClassName` hoặc dùng `querySelector` hợp lý (10đ).<br>- Ép kiểu dữ liệu `Number` chính xác trước khi tính toán tài chính (10đ).<br>- Phân biệt và dùng đúng `innerHTML` thay cho `textContent` khi chèn đoạn mã chứa thẻ HTML (10đ).<br>- Đổi thuộc tính `.value` thành `.textContent` hoặc `.innerText` cho thẻ `span` (10đ). |
+| **Tính toán Nghiệp vụ FinTech** | 20đ | - Tính chính xác Lương 1 giờ tiêu chuẩn, Lương OT (150%) và Tiền phạt đi muộn theo đúng quy tắc nghiệp vụ (10đ).<br>- Định dạng số tiền chính xác theo chuẩn tiền tệ Việt Nam (`VNĐ`) (10đ). |
+| **Thao tác Style & Hiệu năng** | 20đ | - Thao tác thêm class CSS (`classList.add('text-danger')`) hoạt động đúng (10đ).<br>- Mã nguồn sạch đẹp, biến đặt tên theo chuẩn camelCase, không có đoạn code thừa hoặc câu lệnh thừa gây ảnh hưởng hiệu năng DOM (10đ). |

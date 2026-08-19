@@ -1,31 +1,31 @@
 # Bài tập 10: Healthcare (Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc)
 
 ### 1. Mục tiêu bài tập
-- **Phân tích Code Smells & Vấn đề Hiệu năng DOM**: Nhận diện các điểm nghẽn hiệu năng (Layout Thrashing, Reflow/Repaint dư thừa) và mã nguồn bị trộn lẫn logic (coupling) trong thao tác DOM API.
-- **Tái cấu trúc (Refactoring)**: Tách biệt hoàn toàn giữa **Business Logic** (tính toán đơn hàng, phí ship, phụ phí) và **DOM Rendering Logic** (hiển thị UI, thay đổi class, textContent, thuộc tính).
-- **Tối ưu hóa thao tác DOM**: Áp dụng các kỹ thuật DOM Caching, `DocumentFragment`, `textContent` thay cho `innerHTML` dư thừa để tối ưu tốc độ phản hồi giao diện.
-- **Xử lý trạng thái & Biên nghiệp vụ**: Cập nhật trạng thái hiển thị của hệ thống theo các quy tắc khắt khe của ứng dụng giao đồ ăn thực tế.
+Sau khi hoàn thành bài tập này, học viên có khả năng:
+- **Phân tích và phát hiện các vấn đề hiệu năng (DOM Thrashing, Reflow/Repaint)** trong đoạn mã legacy truy xuất và thao tác DOM.
+- **Tái cấu trúc (Refactor)** mã nguồn truy xuất/thay đổi DOM theo tiêu chuẩn tối ưu: giảm thiểu số lần truy vấn DOM tree, loại bỏ thao tác nối chuỗi `innerHTML` trong vòng lặp bằng `DocumentFragment` hoặc thao tác DOM an toàn.
+- Sử dụng thành thạo các thuộc tính và phương thức thao tác nội dung, attribute: `textContent`, `setAttribute`, `dataset`, `classList`.
+- Áp dụng các quy tắc nghiệp vụ thực tế của hệ thống đặt vé hội thảo y tế vào việc tính toán dữ liệu và hiển thị trạng thái động trên giao diện DOM.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là Senior Software Engineer tại dự án phát triển hệ thống **ShopeeFood (SHOPEE_FOOD)**. Hệ thống đang gặp sự cố về hiệu năng tại màn hình **Tổng quan Đơn hàng (Order Summary)**: mỗi khi dữ liệu đơn hàng cập nhật, giao diện bị giật lag (UI flickering) do mã nguồn cũ của lập trình viên Junior liên tục đọc/ghi DOM lặp đi lặp lại trong vòng lặp và truy xuất các phần tử DOM chưa qua tối ưu.
+Hệ thống bán vé sự kiện trực tuyến cho **Hội thảo Y khoa Quốc tế 2025 (MedConference Ticket System)** hiện đang gặp vấn đề nghiêm trọng về hiệu năng giao diện khi số lượng khán giả và danh sách mã check-in tăng cao. 
 
-Nhiệm vụ của bạn là **Phân tích mã nguồn cũ, Tái cấu trúc và Tối ưu hóa** module tính toán & hiển thị đơn hàng ShopeeFood bằng JavaScript thuần (Vanilla JS), tuân thủ các quy chuẩn lập trình sạch và tối ưu hiệu năng render.
+Mã nguồn hiện tại do lập trình viên cũ để lại đang lạm dụng `innerHTML += ...` bên trong các vòng lặp, truy vấn lại các Element nhiều lần bằng `document.querySelector` một cách không cần thiết, làm trình duyệt liên tục rơi vào trạng thái Reflow/Repaint làm giật lag trang Dashboard quản lý.
 
+Bạn được giao nhiệm vụ **phân tích mã nguồn cũ, phát hiện các điểm nghẽn hiệu năng và tái cấu trúc toàn bộ logic render dữ liệu** bằng các DOM API tối ưu thuộc Session 17 (không sử dụng Event Listener hay Fetch API).
 
-#### Sơ đồ luồng xử lý dữ liệu và Render DOM:
 ```mermaid
 graph TD
-    A[Dữ liệu Đơn hàng & Quán] --> B{Kiểm tra Trạng thái Quán & Kho}
-    B -- Quán đóng / Hết hàng --> C[Render Banner Cảnh báo Lỗi]
-    C --> D[Vô hiệu hóa Nút Đặt hàng]
-    B -- Hợp lệ --> E[Tính Tổng tiền Món ăn]
-    E --> F[Tính Phí Giao hàng & Phụ phí Cao điểm]
-    F --> G[Áp dụng Mã Giảm Phí Ship nếu Đơn > 100k]
-    G --> H[Gộp DOM bằng DocumentFragment]
-    H --> I[Cập nhật UI Đơn hàng 1 lần duy nhất]
+    A[Mãng dữ liệu: TicketZones & CustomerOrders & QrCodes] --> B{Phân tích & Kiểm tra Ràng buộc}
+    B --> C[Kiểm tra Hạn ngạch: Tối đa 4 vé/đơn hàng]
+    B --> D[Tính giá Early Bird: Giảm 15%]
+    B --> E[Xác định trạng thái Zone & Check-in QR]
+    C & D & E --> F[Tối ưu hóa Thao tác DOM]
+    F --> G[Gom nhóm Thay đổi qua DocumentFragment / Memory DOM]
+    G --> H[Cập nhật UI 1 lần duy nhất: Không Reflow lặp lại]
 ```
 
 ---
@@ -33,22 +33,26 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-1. **Kiểm tra Điều kiện Đặt hàng**:
-   - Nếu `isStoreOpen === false` (Quán đóng cửa) **HOẶC** tồn tại ít nhất 1 món có `stockQuantity <= 0` hoặc `isAvailable === false`:
-     - Không tiến hành tính toán đơn hàng.
-     - Hiển thị khối cảnh báo lỗi `#status-banner` với class `banner-error` và nội dung: `"Rất tiếc, quán hiện tạm ngừng nhận đơn hoặc có món đã hết hàng!"`.
-     - Cập nhật nút đặt hàng `#checkout-btn`: thêm class `disabled`, set thuộc tính `aria-disabled="true"`, nội dung chữ thành `"TẠM NGỪNG NHẬN ĐƠN"`.
+1. **Hạn ngạch mua vé (Ticket Quota Limit):**
+   - Mỗi đơn hàng (`CustomerOrder`) chỉ cho phép mua **tối đa 4 vé**.
+   - Nếu `ticketQuantity > 4`: Đơn hàng bị đánh dấu là `Invalid` (Vi phạm hạn ngạch). Trên DOM, hiển thị thẻ đơn hàng với class `order-error`, hiển thị dòng thông báo: `"CẢNH BÁO: Vượt quá giới hạn 4 vé/đơn!"` và **không cộng dồn** số vé này vào tổng số vé đã bán của khu vực (`TicketZone`).
 
-2. **Tính toán Phí Giao hàng (Delivery Fee)**:
-   - **Phí giao hàng cơ bản**: `20.000 VNĐ`.
-   - **Phụ phí khung giờ cao điểm**: Nếu thời gian đặt hàng rơi vào khung giờ cao điểm (từ `11:00` đến `13:00` HOẶC từ `18:00` đến `20:00`), cộng thêm `10.000 VNĐ` phụ phí giao hàng.
-   - **Giảm giá phí giao hàng (Shipping Voucher)**: Nếu tổng giá trị các món ăn (chưa tính ship) **lớn hơn 100.000 VNĐ**, giảm `15.000 VNĐ` vào phí giao hàng. (Lưu ý: Phí giao hàng sau giảm không được nhỏ hơn `0 VNĐ`).
+2. **Chính sách giá đợt Mở bán Sớm (Early Bird Discount):**
+   - Nếu đơn hàng có thuộc tính `isEarlyBird: true`, thành tiền của đơn hàng được tính theo công thức:
+     $$\text{finalPrice} = \text{basePrice} \times \text{ticketQuantity} \times 0.85$$
+   - Nếu `isEarlyBird: false`, thành tiền:
+     $$\text{finalPrice} = \text{basePrice} \times \text{ticketQuantity}$$
 
-3. **Tính Tổng tiền Đơn hàng cuối cùng (Final Total)**:
-   $$\text{Tổng thanh toán} = \text{Tổng tiền các món} + \text{Phí giao hàng sau giảm giá}$$
+3. **Phân loại Trạng thái Khu vực Vé (TicketZone Status):**
+   - Sức chứa còn lại: $\text{remainingSeats} = \text{totalCapacity} - \text{soldSeats}$.
+   - Nếu $\text{remainingSeats} \le 0$: Thêm class `zone-sold-out`, gán nhãn text `"HẾT VÉ"`.
+   - Nếu $0 < \text{remainingSeats} \le 10$: Thêm class `zone-warning`, gán nhãn text `"SẮP HẾT VÉ (Còn [remainingSeats] chỗ)"`.
+   - Nếu $\text{remainingSeats} > 10$: Thêm class `zone-available`, gán nhãn text `"CÒN VÉ (Còn [remainingSeats] chỗ)"`.
 
-4. **Định dạng hiển thị tiền tệ**:
-   - Toàn bộ giá tiền trên UI phải được định dạng theo chuẩn Việt Nam (ví dụ: `150.000 đ` hoặc sử dụng `Intl.NumberFormat('vi-VN')`).
+4. **Xác thực Mã QR Check-in (Single-use QR Check-in):**
+   - Mỗi mã QR chỉ có hiệu lực check-in 1 lần.
+   - Mã QR có `isScanned: true` $\rightarrow$ Thêm class CSS `qr-disabled`, hiển thị text badge: `"ĐÃ CHECK-IN (HẾT HIỆU LỰC)"`.
+   - Mã QR có `isScanned: false` $\rightarrow$ Thêm class CSS `qr-active`, hiển thị text badge: `"HỢP LỆ (SẴN SÀNG QUÉT)"`.
 
 ---
 
@@ -56,81 +60,110 @@ graph TD
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### 4.1. Mã nguồn cũ cần Tái cấu trúc (Legacy Code Smells)
-Dưới đây là mã nguồn kém tối ưu hiện tại bạn cần phân tích và làm mới hoàn toàn:
+#### A. Phân tích đoạn mã Legacy (Chứa lỗi hiệu năng)
+Cho đoạn mã legacy chưa tối ưu dưới đây:
 
 ```javascript
-// === LEGACY CODE (CẦN TÁI CẤU TRÚC & TỐI ƯU) ===
-function processOrderBad(orderData) {
-    // Code Smell 1: Truy xuất DOM liên tục trong vòng lặp & lặp lại querySelector
-    for (var i = 0; i < orderData.items.length; i++) {
-        document.getElementById('cart-list').innerHTML += 
-            '<div class="item">' + orderData.items[i].name + ' - ' + orderData.items[i].price + '</div>';
-        
-        // Code Smell 2: Trộn lẫn logic nghiệp vụ tính tiền ngay trong vòng lặp render
-        var currentTotal = parseInt(document.getElementById('total-price').innerText || 0);
-        document.getElementById('total-price').innerText = currentTotal + (orderData.items[i].price * orderData.items[i].quantity);
+// MA NGUON CHUA TOI UU (LEGACY CODE)
+function renderDashboardBad(zones, orders, qrList) {
+    // BUG HIỆU NĂNG: Ghi đè innerHTML trong vòng lặp liên tục
+    for (var i = 0; i < zones.length; i++) {
+        document.getElementById('zone-container').innerHTML += 
+            '<div class="zone-card" id="zone-' + zones[i].id + '">' +
+                '<h3>' + zones[i].name + '</h3>' +
+                '<p class="status"></p>' +
+            '</div>';
     }
 
-    // Code Smell 3: Đọc/ghi thuộc tính style và class gây Layout Thrashing
-    if (orderData.isStoreOpen == false) {
-        document.getElementById('status-banner').style.display = 'block';
-        document.getElementById('status-banner').style.backgroundColor = 'red';
-        document.getElementById('checkout-btn').setAttribute('disabled', 'true');
+    // BUG HIỆU NĂNG: Lặp lại việc tìm kiếm DOM element bên trong loop
+    for (var j = 0; j < orders.length; j++) {
+        var order = orders[j];
+        if (order.ticketQuantity <= 4) {
+            // Liên tục query DOM lại từ đầu
+            var zoneEl = document.querySelector('#zone-' + order.zoneId);
+            if (zoneEl) {
+                // Thao tác DOM trực tiếp nhiều lần
+                var currentPrice = order.isEarlyBird ? (order.price * order.ticketQuantity * 0.85) : (order.price * order.ticketQuantity);
+                document.getElementById('order-list').innerHTML += 
+                    '<div class="order-item">Đơn ' + order.id + ': ' + currentPrice + ' VNĐ</div>';
+            }
+        }
+    }
+
+    // BUG HIỆU NĂNG: Thao tác style và innerHTML không an toàn
+    for (var k = 0; k < qrList.length; k++) {
+        var qr = qrList[k];
+        var qrContainer = document.getElementById('qr-list');
+        if (qr.isScanned == true) {
+            qrContainer.innerHTML += '<span style="color: red;">ĐÃ CHECK-IN: ' + qr.code + '</span><br>';
+        } else {
+            qrContainer.innerHTML += '<span style="color: green;">HỢP LỆ: ' + qr.code + '</span><br>';
+        }
     }
 }
 ```
 
 
-#### 4.2. Yêu cầu Tái cấu trúc & Triển khai mới
-Bạn hãy tạo file `app.js` và triển khai theo kiến trúc mô-đun hóa:
+#### B. Nhiệm vụ Tái cấu trúc (Refactoring Requirements)
+Bạn hãy viết lại toàn bộ logic trên vào một file JavaScript mới đạt các yêu cầu:
 
-1. **Tách biệt Pure Functions (Business Logic)**:
-   - `calculateSubtotal(items)`: Trả về tổng tiền gốc các món ăn.
-   - `calculateShippingFee(subtotal, orderHour)`: Trả về số tiền phí giao hàng thực tế sau khi tính phụ phí giờ cao điểm và giảm giá theo đơn > 100k.
-   - `validateOrder(storeStatus, items)`: Trả về object `{ isValid: boolean, message: string }`.
-
-2. **Tối ưu hóa UI Rendering Functions (DOM API)**:
-   - **DOM Caching**: Lưu trữ các DOM Node cần thiết (`#cart-list`, `#subtotal-val`, `#ship-fee-val`, `#total-val`, `#status-banner`, `#checkout-btn`) vào một object cache duy nhất ở đầu script.
-   - **Sử dụng `DocumentFragment`**: Gộp toàn bộ danh sách thẻ món ăn (`.food-item`) tạo ra bằng `document.createElement` trước khi chèn vào `#cart-list` **đúng 1 lần duy nhất** (`appendChild`).
-   - **Dùng `textContent` thay cho `innerHTML`** đối với việc chèn văn bản an toàn để tránh nguy cơ XSS và tăng hiệu năng parse HTML.
-   - **Thao tác Class**: Dùng `classList.add()` / `classList.remove()` thay vì can thiệp trực tiếp thuộc tính `style`.
-
-3. **Cấu trúc dữ liệu đầu vào (Ví dụ Test Data)**:
+1. **Bộ dữ liệu đầu vào mẫu (Mock Data):**
 ```javascript
-const sampleOrder = {
-    storeName: "Cơm Tấm Sườn Bì Chả - Nguyễn Trãi",
-    isStoreOpen: true,
-    orderHour: 12, // 12h00 -> Khung giờ cao điểm 11h-13h
-    items: [
-        { id: "F01", name: "Cơm tấm sườn nướng", price: 45000, quantity: 2, isAvailable: true, stockQuantity: 10 },
-        { id: "F02", name: "Chả trứng hấp", price: 15000, quantity: 1, isAvailable: true, stockQuantity: 5 },
-        { id: "F03", name: "Trà tắc khổng lồ", price: 20000, quantity: 1, isAvailable: true, stockQuantity: 20 }
+const eventData = {
+    eventName: "Hội thảo Y khoa Quốc tế 2025 - Ứng dụng AI trong Chẩn đoán Image",
+    zones: [
+        { id: "Z01", name: "Khu vực VIP (Chuyên gia)", basePrice: 2000000, totalCapacity: 50, soldSeats: 45 },
+        { id: "Z02", name: "Khu vực Zone A (Bác sĩ/Dược sĩ)", basePrice: 1000000, totalCapacity: 100, soldSeats: 98 },
+        { id: "Z03", name: "Khu vực GA (Sinh viên Y)", basePrice: 400000, totalCapacity: 200, soldSeats: 200 }
+    ],
+    orders: [
+        { id: "ORD-101", zoneId: "Z01", ticketQuantity: 2, isEarlyBird: true },
+        { id: "ORD-102", zoneId: "Z02", ticketQuantity: 5, isEarlyBird: false }, // Vi phạm hạn ngạch (>4)
+        { id: "ORD-103", zoneId: "Z02", ticketQuantity: 3, isEarlyBird: true },
+        { id: "ORD-104", zoneId: "Z03", ticketQuantity: 1, isEarlyBird: false }
+    ],
+    qrCodes: [
+        { code: "QR-MED-001", orderId: "ORD-101", isScanned: true },
+        { code: "QR-MED-002", orderId: "ORD-101", isScanned: false },
+        { code: "QR-MED-003", orderId: "ORD-103", isScanned: false }
     ]
 };
 ```
 
-*Lưu ý: Tuyệt đối KHÔNG sử dụng `addEventListener`, sự kiện submit form, `fetch` hay `localStorage` theo đúng phạm vi kiến thức đã học.*
+2. **Yêu cầu kỹ thuật bắt buộc:**
+   - **Tối ưu Truy xuất DOM:** Cache toàn bộ các selector DOM chính (`#zone-container`, `#order-list`, `#qr-list`, `#event-title`) ra ngoài các vòng lặp xử lý.
+   - **Sử dụng `DocumentFragment`:** Gom tất cả các phần tử node mới khởi tạo (`document.createElement`) vào trong `DocumentFragment` trước khi `append` một lần duy nhất vào DOM tree thực tế.
+   - **An toàn Nội dung (XSS Prevention):** Sử dụng `textContent` thay cho `innerHTML` khi chèn các giá trị dạng văn bản (như tên hội thảo, mã đơn hàng, trạng thái).
+   - **Quản lý Style & Trạng thái:** Không viết inline-style (VD: `element.style.color = ...`), phải dùng `classList.add()`, `classList.remove()`, hoặc `dataset` (VD: `element.dataset.status = "sold-out"`).
+   - **Đúng quy tắc nghiệp vụ:** Áp dụng đầy đủ 4 quy tắc nghiệp vụ đã mô tả ở Mục 3.
+
+3. **Cấu trúc Hàm Yêu cầu:**
+   - `function refactorTicketSystem(data)`: Hàm chính nhận vào đối tượng dữ liệu sự kiện và thực thi toàn bộ luồng render tối ưu.
+   - `function calculateOrderPrice(price, quantity, isEarlyBird)`: Hàm bổ trợ tính toán giá vé đơn hàng.
+   - `function getZoneBadgeInfo(capacity, sold)`: Hàm bổ trợ xác định CSS class và Text hiển thị cho trạng thái zone.
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục dự án**:
+
+- **Cấu trúc thư mục dự án:**
   ```text
-  shopeefood-order-refactor/
-  ├── index.html          # File chứa khung HTML danh sách giỏ hàng
-  ├── style.css           # File chứa các class CSS định kiểu (banner-error, disabled, v.v.)
+  student-id_homework_session17/
+  ├── index.html          # Khung HTML chứa các container: #event-title, #zone-container, #order-list, #qr-list
+  ├── css/
+  │   └── style.css       # Chứa các class CSS trạng thái: .zone-sold-out, .zone-warning, .zone-available, .order-error, .qr-disabled, .qr-active
   └── js/
-      └── app.js          # File JS đã tái cấu trúc và tối ưu hoàn chỉnh
+      └── main.js         # Chứa mã nguồn JavaScript đã tái cấu trúc và dữ liệu mock
   ```
-- **Quy định đặt tên**: Thư mục nộp bài nén định dạng `.zip` với tên `HoVaTen_MSSV_HW10.zip`.
+- **Quy định đặt tên:** Thư mục nộp bài nén dạng ZIP với tên `[HoVaTen]_[MSHV]_Session17.zip` (Ví dụ: `NguyenVanA_RK01234_Session17.zip`).
+- **Phạm vi nghiêm cấm:** Không sử dụng bất kỳ thư viện ngoài (React, jQuery, Lodash...), không sử dụng `addEventListener`, không sử dụng `fetch`, không sử dụng `localStorage`. Chỉ dùng DOM API thuần covered trong Session 17.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Phân tích & Tái cấu trúc Mã nguồn** | **20đ** | - Tách biệt hoàn toàn Business Logic (hàm thuần khiết) và DOM Rendering Logic.<br>- Mã nguồn sạch, chuẩn ES6+, đặt tên biến/hàm thể hiện đúng ngữ nghĩa nghiệp vụ ShopeeFood. |
-| **Xử lý Đúng Logic Nghiệp vụ** | **40đ** | - Tính chính xác subtotal các món.<br>- Tính đúng phí giao hàng cơ bản (20k), cộng phụ phí cao điểm 10k (khung 11h-13h, 18h-20h).<br>- Áp dụng chính xác giảm 15k phí ship cho đơn > 100k (không âm phí ship).<br>- Tính chính xác tổng thanh toán cuối cùng. |
-| **Tối ưu hóa Hiệu năng DOM** | **20đ** | - Thực hiện DOM Caching hiệu quả, không gọi `querySelector`/`getElementById` dư thừa.<br>- Sử dụng `DocumentFragment` để gộp việc chèn phần tử vào DOM (tránh Layout Thrashing).<br>- Sử dụng `textContent` và `classList` đúng chuẩn thay cho `innerHTML` và direct `style`. |
-| **Xử lý Biên & Ngoại lệ** | **20đ** | - Phát hiện chính xác trạng thái quán đóng cửa hoặc hết hàng (`stockQuantity <= 0` hoặc `isAvailable === false`).<br>- Khóa nút thanh toán đúng chuẩn (`disabled`, `aria-disabled`), hiển thị banner lỗi đúng định dạng CSS.<br>- Xử lý an toàn dữ liệu đầu vào rỗng hoặc không hợp lệ. |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Mã nguồn được tổ chức sạch sẽ, đặt tên biến/hàm theo chuẩn `camelCase`.<br>- Có comment giải thích chi tiết các điểm đã được tối ưu so với đoạn code legacy cũ.<br>- Cấu trúc HTML/CSS phân tách rõ ràng, không dùng inline style. |
+| **Phân tích & Tối ưu DOM (Bloom Level 4)** | **20đ** | - Loại bỏ hoàn toàn việc lạm dụng `innerHTML +=` trong vòng lặp.<br>- Sử dụng thành thạo `DocumentFragment` để gom nhóm các thao tác chèn node.<br>- Cache các truy vấn selector ra ngoài vòng lặp.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu văn bản tĩnh/động. |
+| **Xử lý Logic đúng Nghiệp vụ** | **40đ** | - **Hạn ngạch vé (10đ):** Phát hiện chính xác đơn hàng `ticketQuantity > 4`, gán CSS `.order-error` và không tính cộng dồn vào `soldSeats`.<br>- **Chính sách Early Bird (10đ):** Tính chính xác mức giảm 15% cho các đơn hàng mở bán sớm.<br>- **Trạng thái Zone (10đ):** Phân loại đúng 3 cấp độ (`sold-out`, `warning`, `available`) dựa trên sức chứa còn lại.<br>- **Trạng thái QR (10đ):** Đánh dấu đúng trạng thái `qr-disabled` hoặc `qr-active`. |
+| **Xử lý Biên & Chuẩn hóa Dữ liệu** | **20đ** | - Kiểm tra null/undefined cho dữ liệu đầu vào trước khi render.<br>- Định dạng tiền tệ hiển thị rõ ràng (VD: `1,700,000 VNĐ` hoặc sử dụng `toLocaleString('vi-VN')`).<br>- Giao diện tự động dọn dẹp nội dung cũ (`innerHTML = ''`) trước khi nạp dữ liệu mới. |

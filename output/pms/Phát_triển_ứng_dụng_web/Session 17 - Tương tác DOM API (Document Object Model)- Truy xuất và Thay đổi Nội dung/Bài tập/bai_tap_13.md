@@ -1,33 +1,38 @@
 # Bài tập 13: E-Commerce (Mức độ 5: Sáng tạo - Thiết kế Mini Module)
 
 ### 1. Mục tiêu bài tập
-Sau khi hoàn thành bài tập này, học viên sẽ có khả năng:
-- **Truy xuất và duyệt DOM Tree nâng cao**: Sử dụng thành thạo các phương thức `querySelector`, `querySelectorAll`, `getElementsByClassName`, cùng các thuộc tính duyệt cây DOM (`parentElement`, `children`, `firstElementChild`,...) để bóc tách dữ liệu từ cấu trúc HTML phức tạp.
-- **Đọc và thao tác Dữ liệu Dataset (`data-*`)**: Trích xuất dữ liệu nghiệp vụ ẩn trong thuộc tính HTML (ví dụ: `data-price`, `data-stock`, `data-distance`) để xử lý logic.
-- **Cập nhật Nội dung & Thuộc tính DOM linh hoạt**: Áp dụng thành thạo `textContent`, `innerHTML`, `setAttribute`, `removeAttribute`, và API `classList` (`add`, `remove`, `toggle`, `contains`) để cập nhật giao diện ứng dụng theo trạng thái nghiệp vụ.
-- **Xây dựng Mini Module Độc lập (Pure JS DOM Engine)**: Thiết kế tư duy lập trình dạng module (Object pattern hoặc Functional pattern) thực hiện tính toán và render dữ liệu tự động mà không phụ thuộc vào bắt sự kiện người dùng (Event Listeners).
+Sau khi hoàn thành bài tập này, học viên có thể:
+- **Tối ưu hóa thao tác DOM**: Sử dụng thành thạo các phương thức truy xuất DOM (`getElementById`, `querySelector`, `querySelectorAll`, `children`, `closest`) để tương tác chính xác với các phần tử giao diện.
+- **Biến đổi nội dung & Thuộc tính động**: Cập nhật văn bản (`textContent`), cấu trúc HTML (`innerHTML`), thay đổi class (`classList.add/remove/toggle`), và các thuộc tính dữ liệu (`setAttribute`, `dataset`, `disabled`).
+- **Thiết kế Kiến trúc Mini Module**: Tổ chức mã nguồn JavaScript theo mô hình module logic (state-driven UI rendering) để xử lý việc render giao diện dựa trên dữ liệu cấu hình đầu vào.
+- **Áp dụng Quy tắc Nghiệp vụ SaaS (Software-as-a-Service)**: Lập trình logic quản lý gói đăng ký dịch vụ, phân quyền tính năng (Feature Gate), tính toán chiết khấu chu kỳ thanh toán và xử lý hạ cấp gói khi quá hạn thanh toán.
+- **Đảm bảo An toàn dữ liệu DOM**: Phòng tránh các lỗi tiềm ẩn như truy xuất phần tử `null`/`undefined` và ngăn chặn nguy cơ tấn công XSS (Cross-Site Scripting) khi chèn dữ liệu người dùng vào DOM.
 
 ---
 
 
 ### 2. Bối cảnh & Mô tả bài toán
-Bạn là một Senior Frontend Engineer tại dự án **ShopeeFood**. Đội ngũ UI/UX vừa bàn giao giao diện mẫu cho trang Checkout (Xác nhận đơn hàng). Tuy nhiên, trang này hiện tại chỉ chứa HTML tĩnh chứa các `data-* attributes` biểu diễn thông tin món ăn, trạng thái quán, khoảng cách giao hàng và khung giờ đặt hàng.
+Bạn là một Kỹ sư Phần mềm tại doanh nghiệp đang phát triển nền tảng phát nội dung số SaaS (tương tự Netflix/Canva). Hệ thống chuẩn bị ra mắt giao diện **Dashboard Quản lý Gói Dịch vụ & Phân quyền Tài khoản** (SaaS Subscription Manager & Feature Gate Visualizer).
 
-Nhiệm vụ của bạn là xây dựng một **Engine Tính toán & Render Đơn hàng (ShopeeFood Order Engine)** bằng JavaScript thuần. Engine này có trách nhiệm tự động quét toàn bộ thông tin từ cây DOM, xử lý các quy tắc nghiệp vụ phức tạp của ShopeeFood, sau đó cập nhật trực tiếp kết quả (tổng tiền, phí ship, phụ phí cao điểm, giảm giá, trạng thái nút đặt hàng) lên giao diện người dùng.
+Backend đã chuẩn bị sẵn khung trang HTML tĩnh (Skeleton Layout). Nhiệm vụ của bạn là thiết kế một **Mini Module JavaScript (Client-side Rendering Engine)** có khả năng nhận dữ liệu người dùng (`userData`) cùng gói dịch vụ (`planData`), truy xuất đến các phần tử DOM tương ứng và thực hiện cập nhật toàn bộ giao diện màn hình theo thời gian thực (được kích hoạt thông qua việc gọi hàm hệ thống).
 
 
-#### Sơ đồ luồng xử lý của Engine (DOM-to-DOM Data Flow):
+#### Sơ đồ luồng xử lý dữ liệu và biến đổi DOM:
 
 ```mermaid
-graph TD
-    A[Cây DOM Tĩnh & Dataset] --> B[Duyệt DOM & Thu thập Dữ liệu]
-    B --> C{Kiểm tra Trạng thái Cửa hàng}
-    C -- Đóng cửa --> D[Cập nhật Banner Đóng cửa & Disable Nút Checkout]
-    C -- Mở cửa --> E[Tính Tổng tiền Món ăn còn kho]
-    E --> F[Tính Phí giao hàng & Phụ phí Cao điểm]
-    F --> G[Kiểm tra & Áp dụng Voucher Giảm giá]
-    G --> H[Cập nhật HTML Breakdown & Hiển thị Tổng tiền]
-    H --> I[Cập nhật trạng thái Badge CSS trên DOM]
+flowchart TD
+    A[Nhận dữ liệu User & Plan State] --> B{Kiểm tra Payment Status}
+    B -- Quá hạn > 3 ngày --> C[Ép trạng thái về Gói FREE & Đổi Badge Cảnh báo]
+    B -- Hợp lệ --> D[Giữ nguyên gói dịch vụ hiện tại]
+    C --> E[Tính toán giá theo Chu kỳ Tháng/Năm]
+    D --> E
+    E --> F[Render Thông tin Tài khoản & Giá cước vào DOM]
+    F --> G[Kiểm tra Loại gói: INDIVIDUAL vs FAMILY]
+    G -- FAMILY --> H[Render tối đa 5 Sub-profiles vào DOM Container]
+    G -- INDIVIDUAL / FREE --> I[Ẩn danh sách Sub-profiles & Cập nhật số thiết bị tối đa = 1]
+    H --> J[Duyệt danh sách Feature Items trong DOM]
+    I --> J
+    J --> K[So sánh danh sách Quyền hạn -> Toggle CSS Class & Dynamic Icon]
 ```
 
 ---
@@ -35,51 +40,39 @@ graph TD
 
 ### 3. Quy tắc nghiệp vụ (Business Rules)
 
-Engine cần áp dụng chính xác các quy tắc nghiệp vụ sau:
 
-1. **Kiểm tra trạng thái Cửa hàng (`#restaurant-info`)**:
-   - Nếu `data-is-open="false"`:
-     - Hiển thị banner `#store-status-banner` nội dung: `"Cửa hàng hiện đã đóng cửa. Quý khách vui lòng quay lại sau!"`.
-     - Thêm class `banner-danger` vào `#store-status-banner`.
-     - Vô hiệu hóa nút `#checkout-btn` bằng cách thêm thuộc tính `disabled="true"` và class `btn-disabled`.
-     - Gán toàn bộ số tiền thanh toán (Tổng món, Phí ship, Phụ phí, Giảm giá, Tổng cộng) về `0 đ`.
+#### A. Quy tắc Chu kỳ Thanh toán & Định giá (Billing Cycle & Pricing)
+1. **Chu kỳ Tháng (`MONTHLY`)**:
+   - Hiển thị mức giá gốc niêm yết theo tháng.
+   - Định dạng hiển thị tiền tệ: `[Số tiền] VNĐ/tháng` (Ví dụ: `260,000 VNĐ/tháng`).
+2. **Chu kỳ Năm (`ANNUALLY`)**:
+   - Áp dụng chương trình chiết khấu **20%** trên tổng giá trị 12 tháng.
+   - Công thức tính tổng tiền năm: $\text{Giá năm} = (\text{Giá tháng} \times 12) \times 0.8$.
+   - Cập nhật DOM: Hiển thị giá đã giảm, kèm theo thẻ badge `<span class="discount-tag">Tiết kiệm 20%</span>` và hiển thị mức giá gốc gạch ngang (`<del>[Giá gốc 12 tháng] VNĐ</del>`).
 
-2. **Xử lý Món ăn (`.food-item`) & Tồn kho**:
-   - Duyệt qua tất cả món ăn trong danh sách đại diện bởi class `.food-item`.
-   - Nếu món ăn có `data-stock="0"`:
-     - Thêm class `item-out-of-stock` vào phần tử món ăn đó.
-     - Thay đổi nội dung của phần tử con `.stock-status` thành `HTML`: `<span class="badge badge-danger">Hết hàng</span>`.
-     - Món ăn này **KHÔNG** được tính vào Tổng tiền món (`subtotal`).
-   - Ngược lại (`data-stock > 0`):
-     - Thành tiền món = `data-price` * `data-quantity`.
-     - `subtotal` = Tổng thành tiền của tất cả các món còn hàng.
 
-3. **Tính Phí giao hàng (`DeliveryFee`) & Phụ phí Cao điểm**:
-   - Lấy khoảng cách `data-distance` (km) từ `#restaurant-info`:
-     - 3km đầu tiên: Phí cố định **15.000 đ**.
-     - Từ km thứ 4 trở đi: Mỗi km tiếp theo (hoặc một phần km làm tròn lên `Math.ceil`) tính thêm **5.000 đ/km**.
-       *(Ví dụ: 4.2 km -> làm tròn thành 5 km. Phí = 15.000 + (5 - 3) * 5.000 = 25.000 đ).*
-   - **Chính sách Miễn/Giảm phí ship**:
-     - Nếu `subtotal` >= **100.000 đ**: Được giảm **15.000 đ** phí giao hàng (Phí ship tối thiểu sau giảm không được nhỏ hơn `0 đ`).
-     - Thêm class `free-ship-applied` vào `#shipping-fee-val` và thêm một badge HTML `<span class="badge-freeship">Đã áp dụng Freeship</span>` vào kế bên.
-   - **Phụ phí Khung giờ Cao điểm**:
-     - Lấy khung giờ đặt món `data-order-hour` (số nguyên từ 0-23) từ `#restaurant-info`.
-     - Nếu giờ đặt rơi vào khung giờ cao điểm (từ **11h - 13h** hoặc từ **18h - 20h**): Tính thêm phụ phí **10.000 đ**. Hiển thị phụ phí này tại `#surcharge-val`.
+#### B. Quy tắc Giới hạn Thiết bị & Tài khoản phụ (Family Sub-Accounts)
+1. **Gói Miễn phí (`FREE`) & Gói Cá nhân (`INDIVIDUAL`)**:
+   - Giới hạn thiết bị xem đồng thời: **Tối đa 1 thiết bị**.
+   - Không hỗ trợ tài khoản phụ (Sub-profiles). Ẩn hoặc xóa nội dung container chứa danh sách sub-profiles trong DOM.
+2. **Gói Gia đình (`FAMILY`)**:
+   - Giới hạn thiết bị xem đồng thời: **Tối đa 5 thiết bị**.
+   - Hỗ trợ tối đa **5 tài khoản phụ**.
+   - **Ràng buộc an toàn dữ liệu**: Nếu dữ liệu đầu vào chứa nhiều hơn 5 tài khoản phụ, module chỉ được phép render **5 tài khoản đầu tiên** lên DOM và phải ghi một cảnh báo (`console.warn`) ra log hệ thống.
 
-4. **Áp dụng Voucher Giảm giá (`Voucher`)**:
-   - Lấy thông tin voucher từ thẻ `#voucher-info` (chứa `data-code`, `data-min-order`, `data-discount`).
-   - Nếu `subtotal` >= `data-min-order`:
-     - Số tiền giảm giá (`discountAmount`) = `data-discount`. (Số tiền giảm không vượt quá `subtotal`).
-     - Cập nhật text `#voucher-message` thành `"Mã [CODE] đã được áp dụng thành công!"`.
-     - Thêm class `text-success` vào `#voucher-message`.
-   - Ngược lại (Không đủ điều kiện):
-     - `discountAmount` = 0 đ.
-     - Cập nhật text `#voucher-message` thành `"Đơn hàng chưa đủ điều kiện tối thiểu ([Giá trị minOrder] đ) để áp dụng mã"`.
-     - Thêm class `text-muted` vào `#voucher-message`.
 
-5. **Tổng tiền Thanh toán cuối cùng (`Total Payment`)**:
-   - `Final Total = subtotal + actualShippingFee + surcharge - discountAmount`.
-   - Tất cả định dạng tiền tệ hiển thị trên DOM phải theo chuẩn Việt Nam Đồng (VD: `125.000 đ`).
+#### C. Quy tắc Xử lý Quá hạn Thanh toán (Failed Payment Logic)
+- Nếu thuộc tính `user.paymentStatus === 'FAILED_OVER_3_DAYS'`:
+  - Tự động cưỡng chế chuyển gói dịch vụ của người dùng về `FREE` trên giao diện.
+  - Cập nhật thẻ trạng thái thanh toán (`#payment-status-badge`) sang class `.badge-danger` với nội dung text: `"Tạm khóa do nợ cước quá 3 ngày"`.
+  - Tắt toàn bộ các tính năng trả phí trên UI.
+
+
+#### D. Quy tắc Kiểm soát Phân quyền (Feature Access Gate)
+- Danh sách tất cả tính năng được khai báo sẵn trong DOM HTML gốc dưới dạng các phần tử có class `.feature-item` chứa thuộc tính `data-feature-key="..."`.
+- So sánh thuộc tính `data-feature-key` của từng element với mảng tính năng được phép (`plan.allowedFeatures`):
+  - **Nếu được phép**: Thêm class `.feature-active`, loại bỏ class `.feature-disabled`, đổi icon trạng thái (`.feature-icon`) thành `️` và text trạng thái (`.feature-status`) thành `"Đã kích hoạt"`.
+  - **Nếu KHÔNG được phép**: Thêm class `.feature-disabled`, loại bỏ class `.feature-active`, đổi icon trạng thái (`.feature-icon`) thành `` và text trạng thái (`.feature-status`) thành `"Không khả dụng"`.
 
 ---
 
@@ -87,117 +80,148 @@ Engine cần áp dụng chính xác các quy tắc nghiệp vụ sau:
 ### 4. Yêu cầu kỹ thuật & Triển khai
 
 
-#### Structure HTML Mẫu (Dùng làm đầu vào để test script):
-Học viên tạo file `index.html` với cấu trúc chuẩn sau để chạy bài làm:
+#### A. Cấu trúc Khung HTML Tĩnh (Cho trước - Không sửa đổi trực tiếp file HTML)
+Sinh viên căn cứ vào các ID và Selector trong đoạn HTML mẫu sau để thực hiện truy xuất DOM:
 
 ```html
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <title>ShopeeFood Order Summary Engine</title>
-  <style>
-    .out-of-stock { opacity: 0.5; background-color: #f8d7da; }
-    .btn-disabled { background-color: #ccc; cursor: not-allowed; }
-    .banner-danger { color: red; font-weight: bold; padding: 10px; border: 1px solid red; }
-    .free-ship-applied { text-decoration: line-through; color: #888; }
-    .badge-freeship { background: green; color: white; padding: 2px 6px; font-size: 12px; margin-left: 5px; }
-    .text-success { color: green; }
-    .text-muted { color: gray; }
-  </style>
-</head>
-<body>
-  <!-- Thẻ thông tin Nhà hàng -->
-  <div id="restaurant-info" data-is-open="true" data-order-hour="12" data-distance="4.2">
-    <h2>Cơm Tấm Sài Gòn - Choắt Quán</h2>
-    <div id="store-status-banner"></div>
+<!-- Mẫu khung HTML cho trước -->
+<div id="subscription-dashboard">
+  <!-- Thẻ thông tin tài khoản -->
+  <div class="user-card">
+    <h2 id="user-display-name">--</h2>
+    <span id="user-email">--</span>
+    <div id="payment-status-badge" class="badge">--</div>
   </div>
 
-  <!-- Danh sách món ăn trong giỏ -->
-  <div id="cart-list">
-    <div class="food-item" data-id="101" data-price="45000" data-quantity="2" data-stock="15">
-      <span class="item-name">Cơm tấm sườn bì chả</span>
-      <span class="stock-status"></span>
+  <!-- Thẻ thông tin gói dịch vụ -->
+  <div class="plan-card">
+    <h3 id="plan-title">--</h3>
+    <div id="plan-price-container">
+      <span id="plan-price-amount">--</span>
+      <span id="plan-billing-cycle">--</span>
     </div>
-    <div class="food-item" data-id="102" data-price="15000" data-quantity="1" data-stock="0">
-      <span class="item-name">Canh khổ qua dồn thịt</span>
-      <span class="stock-status"></span>
+    <p id="device-limit-info">--</p>
+  </div>
+
+  <!-- Khung tài khoản gia đình (Chỉ hiển thị khi dùng gói FAMILY) -->
+  <div id="family-profiles-wrapper" class="hidden">
+    <h4>Tài khoản gia đình thành viên (<span id="profile-count">0</span>/5)</h4>
+    <ul id="family-profiles-list"></ul>
+  </div>
+
+  <!-- Danh sách tính năng hệ thống -->
+  <div id="feature-matrix">
+    <div class="feature-item" data-feature-key="STREAM_HD">
+      <span class="feature-name">Phát video chất lượng HD</span>
+      <span class="feature-icon">--</span>
+      <span class="feature-status">--</span>
     </div>
-    <div class="food-item" data-id="103" data-price="10000" data-quantity="2" data-stock="50">
-      <span class="item-name">Trà đá đường</span>
-      <span class="stock-status"></span>
+    <div class="feature-item" data-feature-key="STREAM_4K">
+      <span class="feature-name">Phát video chất lượng 4K Ultra HD</span>
+      <span class="feature-icon">--</span>
+      <span class="feature-status">--</span>
+    </div>
+    <div class="feature-item" data-feature-key="OFFLINE_DOWNLOAD">
+      <span class="feature-name">Tải xuống xem ngoại tuyến</span>
+      <span class="feature-icon">--</span>
+      <span class="feature-status">--</span>
+    </div>
+    <div class="feature-item" data-feature-key="MULTI_DEVICE">
+      <span class="feature-name">Phát đồng thời nhiều thiết bị</span>
+      <span class="feature-icon">--</span>
+      <span class="feature-status">--</span>
     </div>
   </div>
-
-  <!-- Thông tin Mã giảm giá -->
-  <div id="voucher-info" data-code="SHOPEE15K" data-min-order="80000" data-discount="15000">
-    <p id="voucher-message"></p>
-  </div>
-
-  <!-- Bảng tổng kết đơn hàng (Summary) -->
-  <div id="checkout-summary">
-    <div id="order-breakdown"></div>
-    <p>Tạm tính: <span id="subtotal-val">0 đ</span></p>
-    <p>Phí giao hàng: <span id="shipping-fee-val">0 đ</span> <span id="shipping-fee-discounted"></span></p>
-    <p>Phụ phí cao điểm: <span id="surcharge-val">0 đ</span></p>
-    <p>Giảm giá Voucher: <span id="discount-val">0 đ</span></p>
-    <h3>TỔNG THANH TOÁN: <span id="total-val">0 đ</span></h3>
-    <button id="checkout-btn">ĐẶT HÀNG NGAY</button>
-  </div>
-
-  <script src="./main.js"></script>
-</body>
-</html>
+</div>
 ```
 
 
-#### Yêu cầu Code JavaScript (`main.js`):
-Học viên phải tổ chức code dưới dạng Module/Object có tên `ShopeeFoodEngine` chứa các hàm xử lý chuyên biệt:
-
-1. **`ShopeeFoodEngine.init()`**: Hàm khởi chạy chính. Thực hiện gọi lần lượt các bước bên dưới theo đúng thứ tự logic.
-2. **`ShopeeFoodEngine.parseDOMData()`**:
-   - Truy xuất các element: `#restaurant-info`, `.food-item`, `#voucher-info`.
-   - Ép kiểu các dữ liệu từ `dataset` sang kiểu `Number` hoặc `Boolean` hợp lệ.
-3. **`ShopeeFoodEngine.validateItemsAndCalculateSubtotal(items)`**:
-   - Lặp qua danh sách món ăn thu thập được.
-   - Thao tác DOM: Thêm class `.out-of-stock`, cập nhật `.stock-status`.
-   - Tính toán và trả về tổng tiền tạm tính `subtotal`.
-4. **`ShopeeFoodEngine.calculateShippingAndSurcharge(distance, orderHour, subtotal)`**:
-   - Tính toán phí ship gốc, phụ phí cao điểm, và tiền ship thực tế sau khi áp dụng giảm giá phí ship (nếu có). Trả về object chứa các chỉ số này.
-5. **`ShopeeFoodEngine.applyVoucher(voucherData, subtotal)`**:
-   - Kiểm tra tính hợp lệ của mã giảm giá. Cập nhật DOM `#voucher-message`. Trả về số tiền giảm.
-6. **`ShopeeFoodEngine.renderUI(calcResults)`**:
-   - Tạo danh sách tóm tắt hóa đơn chèn vào `#order-breakdown` bằng `innerHTML`.
-   - Cập nhật tất cả các thẻ `textContent` hiển thị giá tiền.
-   - Xử lý bật/tắt CSS class (`free-ship-applied`, `badge-freeship`, `btn-disabled`) và thuộc tính `disabled` cho nút bấm `#checkout-btn`.
+#### B. Phạm vi Kỹ thuật BẮT BUỘC & CẤM
+- **ĐƯỢC PHÉP**: Sử dụng các phương thức DOM API thuộc Session 17 (`document.getElementById`, `querySelector`, `querySelectorAll`, `textContent`, `innerHTML`, `setAttribute`, `getAttribute`, `classList.add`, `classList.remove`, `classList.toggle`, `style.display`).
+- **Nghiêm cấm tuyệt đối**:
+  - Không sử dụng Event Listeners (`addEventListener`, `onclick`, `onchange`,...).
+  - Không sử dụng Form submission (`onsubmit`).
+  - Không sử dụng `fetch` / `axios` / `XMLHttpRequest`.
+  - Không sử dụng `localStorage` / `sessionStorage` / `indexedDB`.
+  - Không sửa đổi file HTML gốc; mọi thao tác biến đổi giao diện phải được thực thi bằng JavaScript.
 
 
-#### Scope Constraints (Ràng buộc nghiêm ngặt):
-- **TỰ ĐỘNG CHẠY ENGINE**: Gọi `ShopeeFoodEngine.init()` ngay ở cuối file `main.js`.
-- **TUYỆT ĐỐI KHÔNG DÙNG**:
-  - Không dùng `addEventListener`, `onclick`, `onsubmit` hoặc bất kỳ Event Listener nào.
-  - Không dùng `fetch`, `XMLHttpRequest`, `Promises`, `async/await`.
-  - Không dùng `localStorage` / `sessionStorage`.
+#### C. Thiết kế JavaScript Module (`SaaSSubscriptionManager`)
+Viết một Object hoặc Class tên là `SaaSSubscriptionManager` chứa các phương thức xử lý độc lập:
+
+1. `init(userObject, planObject, billingCycle)`: Hàm khởi chạy chính nhận dữ liệu đầu vào và gọi các hàm render con.
+2. `renderAccountInfo(user, effectivePlan)`: Cập nhật tên người dùng, email, badge trạng thái tài khoản. Dùng `textContent` để cập nhật tên/email nhằm chống đòn tấn công XSS.
+3. `renderPricing(plan, billingCycle)`: Tính toán và render thông tin giá cước, thẻ tiết kiệm (nếu là chu kỳ năm).
+4. `renderFamilySection(effectivePlan, profiles)`: Kiểm tra loại gói dịch vụ, ẩn/hiện container gia đình, render thẻ `<li>` chứa avatar và tên sub-profile (tối đa 5).
+5. `applyFeatureGates(effectivePlan)`: Duyệt qua tất cả `.feature-item` trên DOM để toggle class và cập nhật icon/status.
+
+
+#### D. Dữ liệu Mẫu (Mock Data để test thử module)
+```javascript
+const mockUser = {
+  id: "USR-8892",
+  displayName: "Nguyen Van A <script>alert('xss')</script>", // Test XSS safety
+  email: "nguyenvana@example.com",
+  paymentStatus: "PAID", // Hoặc "FAILED_OVER_3_DAYS"
+  subProfiles: ["Vợ A", "Con Cả", "Con Thứ", "Bà Nội", "Ông Ngoại", "Chú 6"] // 6 profiles -> Phải cắt còn 5
+};
+
+const mockPlans = {
+  FREE: {
+    code: "FREE",
+    name: "Gói Miễn Phí",
+    monthlyPrice: 0,
+    maxDevices: 1,
+    allowedFeatures: ["STREAM_HD"]
+  },
+  INDIVIDUAL: {
+    code: "INDIVIDUAL",
+    name: "Gói Cá Nhân Premium",
+    monthlyPrice: 180000,
+    maxDevices: 1,
+    allowedFeatures: ["STREAM_HD", "STREAM_4K", "OFFLINE_DOWNLOAD"]
+  },
+  FAMILY: {
+    code: "FAMILY",
+    name: "Gói Gia Đình Premium",
+    monthlyPrice: 260000,
+    maxDevices: 5,
+    allowedFeatures: ["STREAM_HD", "STREAM_4K", "OFFLINE_DOWNLOAD", "MULTI_DEVICE"]
+  }
+};
+```
 
 ---
 
 
 ### 5. Quy chuẩn nộp bài
-- **Cấu trúc thư mục**:
-  ```text
-  student_id_ho_va_ten_homework13/
-  ├── index.html
-  └── main.js
+
+
+#### Cấu trúc thư mục dự án:
+```text
+student-id_homework-13/
+├── index.html          # File HTML gốc (giữ nguyên khung layout cho trước)
+├── css/
+│   └── style.css       # Các style cơ bản (.hidden, .badge-danger, .feature-disabled,...)
+└── js/
+    └── main.js         # File chứa module SaaSSubscriptionManager và lời gọi hàm kiểm thử
+```
+
+
+#### Quy định về mã nguồn trong `main.js`:
+- Khai báo đầy đủ strict mode (`"use strict";`).
+- Viết comment định rõ chức năng từng hàm bằng định dạng JSDoc ngắn gọn.
+- Ở cuối file `main.js`, thực hiện gọi trực tiếp hàm kiểm thử để chứng minh module hoạt động ngay khi file script tải xong:
+  ```javascript
+  // Chạy kiểm thử hệ thống với dữ liệu mẫu
+  SaaSSubscriptionManager.init(mockUser, mockPlans.FAMILY, "ANNUALLY");
   ```
-- **Quy định đặt tên**: Thư mục nộp bài viết liền không dấu (Ví dụ: `b20dccn001_nguyen_van_a_homework13`).
-- **Comment Code**: Mọi hàm và các khối xử lý DOM phức tạp đều phải có comment giải thích rõ mục đích và các DOM Node đang truy xuất.
 
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
-| **Cấu trúc & Mô đun hóa Mã nguồn** | **20đ** | - Tổ chức mã nguồn chuẩn dạng Module/Object `ShopeeFoodEngine`.<br>- Phân chia hàm rõ ràng, nguyên tắc Single Responsibility (Mỗi hàm thực hiện đúng 1 việc).<br>- Đặt tên biến/hàm theo chuẩn camelCase, comment đầy đủ, đúng ngữ nghĩa tiếng Anh hoặc tiếng Việt technical. |
-| **Thao tác DOM API & Dataset** | **20đ** | - Truy xuất chính xác các element bằng `querySelector`, `querySelectorAll`, `getElementById`.<br>- Đọc và ép kiểu dữ liệu từ `dataset` (`data-*`) chính xác.<br>- Sử dụng thành thạo `textContent`, `innerHTML`, `setAttribute`, `removeAttribute`, và API `classList` (`add`, `remove`, `contains`). |
-| **Xử lý Logic Nghiệp vụ ShopeeFood** | **40đ** | - **Trạng thái Cửa hàng (10đ)**: Xử lý đúng khi đóng cửa (hiển thị banner, disable nút đặt hàng, đưa tổng tiền về 0).<br>- **Tồn kho Món ăn (10đ)**: Đánh dấu món hết hàng trên DOM, loại bỏ món 0-stock khỏi tổng tiền.<br>- **Phí Ship & Cao điểm (10đ)**: Tính đúng phí ship theo km (làm tròn lên), phụ phí khung giờ (11-13h, 18-20h), và miễn phí ship cho đơn trên 100k.<br>- **Voucher & Tổng thanh toán (10đ)**: Áp dụng voucher đúng điều kiện tối thiểu, tính tổng tiền cuối chính xác. |
-| **Xử lý Biên & Ngoại lệ DOM** | **10đ** | - Xử lý an toàn khi DOM Element không tồn tại (null check trước khi truy cập).<br>- Xử lý khi danh sách món ăn rỗng hoặc tất cả các món đều hết hàng.<br>- Phí giao hàng sau khi giảm không bị âm (min = 0). |
-| **Định dạng & Hiển thị UI** | **10đ** | - Định dạng tiền tệ VND chuẩn (VD: `100.000 đ`).<br>- Dynamic render danh sách tóm tắt hóa đơn chi tiết vào `#order-breakdown`.<br>- Giao diện thay đổi trực quan, đúng CSS class theo từng trạng thái nghiệp vụ. |
+| **Cấu trúc Module & DOM Selection** | **20đ** | - Sử dụng đúng các phương thức DOM API (`getElementById`, `querySelector`, `querySelectorAll`).<br>- Tổ chức mã nguồn thành Module/Object rõ ràng (`SaaSSubscriptionManager`).<br>- Không vi phạm phạm vi cấm (Không dùng Event Listener, Fetch, LocalStorage). |
+| **Logic Nghiệp vụ SaaS & Định giá** | **40đ** | - Tính toán chính xác giá chu kỳ Năm (giảm 20% trên 12 tháng) và render thẻ `<del>`, `.discount-tag` đúng DOM.<br>- Xử lý đúng quy tắc hạ cấp về gói `FREE` khi `paymentStatus === 'FAILED_OVER_3_DAYS'`.<br>- Render đúng số lượng tối đa 5 sub-profiles cho gói `FAMILY` và ẩn phần này khi ở gói `INDIVIDUAL`/`FREE`. |
+| **Feature Gate & Biến đổi Giao diện** | **20đ** | - Duyệt qua tất cả `.feature-item` bằng `querySelectorAll`.<br>- Thêm/xóa class `.feature-active` / `.feature-disabled` chính xác theo `allowedFeatures`.<br>- Cập nhật nội dung text và icon (`✔️` / `❌`) khớp với từng quyền. |
+| **Xử lý Biên & Phòng vệ Mã nguồn** | **20đ** | - Kiểm tra null/undefined trước khi thao tác với DOM element.<br>- Sử dụng `textContent` thay cho `innerHTML` đối với dữ liệu từ người dùng (tránh lỗi bảo mật XSS).<br>- Cắt mảng sub-profiles an toàn khi dữ liệu lớn hơn 5 và ghi log cảnh báo (`console.warn`). |
