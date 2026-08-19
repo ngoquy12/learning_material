@@ -567,11 +567,13 @@ def generate_session_homework_suite(
                     pass
 
         # 2. Export 15 tiered exercise subfolders with descriptive names
+        valid_folder_names = []
         for ex in exercises_data:
             idx = ex["idx"]
             prefix = LEVEL_PREFIXES.get(idx, f"{idx}_bai_tap")
             slug = extract_exercise_slug(ex["de_bai_content"], ex.get("chosen_domain", "bai_tap"))
             folder_name = f"{prefix}_{slug}"
+            valid_folder_names.append(folder_name)
             ex_folder = target_homework_dir / folder_name
             ex_folder.mkdir(parents=True, exist_ok=True)
 
@@ -593,7 +595,9 @@ def generate_session_homework_suite(
 
         # 3. Export folder 16: In-Class Synthesis Exercise
         if inclass_ex_content:
-            folder_16 = target_homework_dir / "16_tong_hop_demo_giang_vien_tren_lop"
+            folder_16_name = "16_tong_hop_demo_giang_vien_tren_lop"
+            valid_folder_names.append(folder_16_name)
+            folder_16 = target_homework_dir / folder_16_name
             folder_16.mkdir(parents=True, exist_ok=True)
             with open(folder_16 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
                 f.write(inclass_ex_content)
@@ -617,7 +621,9 @@ def generate_session_homework_suite(
 
         # 4. Export folder 17: Mindmap Architecture Exercise
         if mindmap_ex_content:
-            folder_17 = target_homework_dir / "17_tong_hop_he_thong_kien_thuc_mindmap"
+            folder_17_name = "17_tong_hop_he_thong_kien_thuc_mindmap"
+            valid_folder_names.append(folder_17_name)
+            folder_17 = target_homework_dir / folder_17_name
             folder_17.mkdir(parents=True, exist_ok=True)
             with open(folder_17 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
                 f.write(mindmap_ex_content)
@@ -645,11 +651,19 @@ def generate_session_homework_suite(
             for ex in exercises_data:
                 f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
 
-        # 6. Automatic audit via HomeworkReviewerAgent
+        # 6. Post-generation Review & Auto-Cleanup Pipeline
         try:
-            from agents.reviewers.homework_reviewer import review_session_homework
-            review_res = review_session_homework(target_homework_dir)
+            from agents.reviewers.homework_reviewer import (
+                review_session_homework,
+                cleanup_redundant_homework_assets
+            )
+            # Rà soát và xóa sạch các file/thư mục thừa
+            cleanup_redundant_homework_assets(target_homework_dir, valid_folder_names=valid_folder_names)
+            # Chấm điểm và audit toàn diện
+            review_res = review_session_homework(target_homework_dir, auto_cleanup=True)
             print(f"  ✓ [Homework Reviewer] Trạng thái: {review_res['status']} ({review_res['score']}/100đ) - {review_res['total_folders']} thư mục, {review_res['total_root_files']} files gốc.")
+            if review_res.get("deleted_assets", {}).get("deleted_files") or review_res.get("deleted_assets", {}).get("deleted_folders"):
+                print(f"  🧹 [Post-Audit Cleanup] Đã tự động dọn dẹp các tệp dư thừa: {review_res['deleted_assets']}")
         except Exception as e:
             print(f"  ! [Homework Reviewer] Cảnh báo kiểm định: {e}")
 

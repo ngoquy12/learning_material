@@ -38,7 +38,10 @@ from agents.reviewers.sandbox_reviewer import (
 
 from agents.reviewers.homework_reviewer import (
     HomeworkReviewerAgent,
-    review_session_homework
+    review_session_homework,
+    cleanup_redundant_homework_assets,
+    ALLOWED_ROOT_FILES,
+    ALLOWED_SUBFOLDER_FILES
 )
 
 __all__ = [
@@ -62,5 +65,8 @@ __all__ = [
     "sandbox_testing_agent",
     "html_ux_reviewer",
     "HomeworkReviewerAgent",
-    "review_session_homework"
+    "review_session_homework",
+    "cleanup_redundant_homework_assets",
+    "ALLOWED_ROOT_FILES",
+    "ALLOWED_SUBFOLDER_FILES"
 ]
