@@ -1,1 +1,1420 @@
-<!-- Bài đọc: Lesson 02 - Làm việc với Form, Input và Sự kiện submit -->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Làm việc với Form, Input và Sự kiện submit - Rikkei Education
+    </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1680px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+
+    <style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      #viz-terminal-log::-webkit-scrollbar {
+        width: 5px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-track {
+        background: #020617;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram,
+      svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text,
+      svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg,
+      section svg,
+      article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* 3. CODE BLOCK FIXES */
+      pre code {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: #0f172a !important;
+        font-style: normal !important;
+      }
+      p,
+      li,
+      td,
+      th,
+      span,
+      div {
+        font-style: normal;
+      }
+      /* STRICT ZERO ITALIC LEAKAGE SAFETY NET */
+      article p:not(.italic):not(.img-caption),
+      article li,
+      article div:not(.img-caption-box),
+      article table,
+      article blockquote,
+      article strong,
+      article b,
+      article h1,
+      article h2,
+      article h3,
+      article h4,
+      article h5,
+      article h6 {
+        font-style: normal !important;
+      }
+      article p.italic,
+      article figcaption,
+      article .img-caption {
+        font-style: italic !important;
+      }
+      .toc-link,
+      .mobile-toc-link {
+        color: #475569 !important;
+        font-style: normal !important;
+      }
+      .toc-link:hover,
+      .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *,
+      .bg-rose-50 *,
+      .bg-emerald-50 *,
+      .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p,
+      [id*="mech"] div,
+      [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line),
+      [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw {
+        color: #cf222e !important;
+        font-weight: bold !important;
+      }
+      .str {
+        color: #0a3069 !important;
+      }
+      .num {
+        color: #0550ae !important;
+        font-weight: 600 !important;
+      }
+      .fn {
+        color: #8250df !important;
+        font-weight: 600 !important;
+      }
+      .cmt {
+        color: #6e7781 !important;
+        font-style: italic !important;
+      }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span,
+      code span {
+        background-color: transparent !important;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body
+        > *:not(header):not(main):not(script):not(style):not(
+          #mobile-toc-toggle
+        ):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
+    <!-- Fixed Header -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40"
+    >
+      <div
+        class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+          <span
+            class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4"
+            >Làm việc với Form, Input và Sự kiện submit</span
+          >
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside
+        class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
+        <div class="space-y-4">
+          <h4
+            class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2"
+          >
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài
+            đọc
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 space-y-1 text-sm"
+          >
+            <a
+              href="#section-1"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >1. Tại sao cần kiểm soát Sự kiện Submit và Xử lý Form bằng JavaScript?</a
+            >
+            <a
+              href="#section-2"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >2. Cơ chế vận hành và Cú pháp làm việc với Form, Input và Sự kiện Submit</a
+            >
+            <a
+              href="#section-3"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >3. Các ví dụ ứng dụng thực tiễn</a
+            >
+            <a
+              href="#section-4"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >4. Tổng kết bài học & Các lỗi thường gặp</a
+            >
+            <a
+              href="#section-5"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+            >
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button
+        id="mobile-toc-toggle"
+        onclick="toggleMobileToc()"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20"
+        title="Mở mục lục bài đọc"
+      >
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div
+        id="mobile-toc-drawer"
+        class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300"
+      >
+        <div
+          class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between"
+        >
+          <div>
+            <div
+              class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200"
+            >
+              <h4
+                class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC
+                BÀI ĐỌC
+              </h4>
+              <button
+                onclick="toggleMobileToc()"
+                class="p-1 rounded text-slate-400 hover:text-slate-600"
+              >
+                <i class="ph-bold ph-x text-lg"></i>
+              </button>
+            </div>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a
+                href="#section-1"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >1. Tại sao cần kiểm soát Sự kiện Submit và Xử lý Form bằng JavaScript?</a
+              >
+              <a
+                href="#section-2"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >2. Cơ chế vận hành và Cú pháp làm việc với Form, Input và Sự kiện Submit</a
+              >
+              <a
+                href="#section-3"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >3. Các ví dụ ứng dụng thực tiễn</a
+              >
+              <a
+                href="#section-4"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >4. Tổng kết bài học & Các lỗi thường gặp</a
+              >
+              <a
+                href="#section-5"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+              >
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+            Rikkei Education - Learning Material
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Reading Article Content -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Main Title Header (Exact Match to Benchmark Lesson 03) -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">
+            Làm việc với Form, Input và Sự kiện submit
+          </h1>
+        </div>
+
+        <!-- SECTION 1: PROBLEM STATEMENT -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            1. Tại sao cần kiểm soát Sự kiện Submit và Xử lý Form bằng JavaScript?
+          </h2>
+          <div class="space-y-4">
+            <p class="text-slate-600 mb-4 leading-relaxed">Trong các ứng dụng web hiện đại như hệ thống Thương mại điện tử (E-commerce), tính năng đăng ký tài khoản khách hàng là điểm chạm đầu tiên và cực kỳ quan trọng giữa người dùng và doanh nghiệp. Khi người dùng nhập họ tên, email, mật khẩu và bấm nút gửi thông tin, ứng dụng cần tiếp nhận và xử lý dữ liệu một cách mượt mà và chính xác.</p><p class="text-slate-600 mb-4 leading-relaxed">Tuy nhiên, theo cơ chế mặc định của ngôn ngữ HTML, khi một thẻ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;form&gt;</code> được kích hoạt sự kiện submit (bằng cách nhấp nút bấm có loại <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">type="submit"</code> hoặc nhấn phím Enter), trình duyệt sẽ ngay lập tức phát một yêu cầu HTTP gửi dữ liệu lên máy chủ và làm mới (reload) lại toàn bộ trang web. Nếu ứng dụng vận hành thuần túy theo cơ chế mặc định này mà thiếu sự can thiệp của JavaScript, hàng loạt xung đột kỹ thuật và rủi ro kinh doanh nghiêm trọng sẽ xuất hiện.</p><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><p class="font-semibold text-rose-900 mb-2">Rủi ro vận hành và Trải nghiệm người dùng khi dùng Form mặc định:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-2"><li><strong>Mất dữ liệu đã nhập trên giao diện:</strong> Khi trang bị reload lập tức, toàn bộ trạng thái ô nhập liệu sẽ bị xóa sạch. Nếu người dùng gõ sai định dạng email hoặc mật khẩu quá ngắn, hệ thống không thể giữ lại thông tin cũ, buộc người dùng phải thao tác lại từ đầu.</li><li><strong>Gia tăng tải không cần thiết lên máy chủ:</strong> Các dữ liệu chưa hợp lệ (như để trống họ tên, mật khẩu không trùng khớp) vẫn bị gửi trực tiếp về máy chủ backend, gây lãng phí băng thông và tài nguyên xử lý của hệ thống.</li><li><strong>Trải nghiệm người dùng bị gián đoạn:</strong> Hiện tượng màn hình bị nhấp nháy trắng do nạp lại trang tạo cảm giác ứng dụng chậm chạp và thiếu chuyên nghiệp, khiến tỷ lệ chuyển đổi khách hàng đăng ký thành công bị giảm sút.</li></ul></div><p class="text-slate-600 mb-4 leading-relaxed">Giải pháp kỹ thuật tối ưu là lập trình viên JavaScript sẽ trực tiếp lắng nghe sự kiện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">submit</code> của form thông qua phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener()</code>. Bằng cách thực thi lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">event.preventDefault()</code>, chúng ta hoàn toàn chủ động hủy bỏ hành vi reload mặc định của trình duyệt. Sau đó, JavaScript trích xuất giá trị từ các ô nhập liệu (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">input.value</code>), tiến hành kiểm tra tính hợp lệ (form validation) ngay tại trình duyệt client và đưa ra phản hồi tức thì cho người dùng.</p>
+          </div>
+
+          <div class="my-6 text-center">
+  <img src="images/scene_sec-lam-viec-voi-form-input-va-su-kien-submit.png" alt="Sơ đồ bối cảnh thực tế: Làm việc với Form, Input và Sự kiện submit" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" onerror="this.closest('.my-6').style.display='none';" />
+  <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: Làm việc với Form, Input và Sự kiện submit</p>
+</div>
+        </section>
+
+        <!-- SECTION 2: SYNTAX & MECHANISM BREAKDOWN -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            2. Cơ chế vận hành và Cú pháp làm việc với Form, Input và Sự kiện Submit
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-2-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Truy xuất giá trị từ ô nhập liệu (Input Field Value)</h3><p class="text-slate-600 mb-4 leading-relaxed">Để tương tác với dữ liệu mà người dùng nhập vào các ô văn bản (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;input type="text"&gt;</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;input type="email"&gt;</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;input type="password"&gt;</code>), JavaScript truy cập thông qua thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.value</code> của đối tượng phần tử DOM đại diện cho ô nhập liệu đó.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><p class="font-semibold text-sky-900 mb-1">Đặc điểm quan trọng của thuộc tính .value:</p><ul class="list-disc pl-6 space-y-1 text-slate-600"><li>Thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.value</code> luôn luôn trả về một giá trị thuộc kiểu dữ liệu chuỗi (String).</li><li>Người dùng thường có thói quen vô tình gõ thêm các ký tự khoảng trắng thừa ở đầu hoặc cuối chuỗi. Do đó, nên kết hợp phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.trim()</code> để làm sạch dữ liệu trước khi xử lý logic.</li></ul></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-1" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// 1. Truy vấn phần tử ô nhập liệu từ DOM&#10;const emailInput = document.getElementById(&#x27;email&#x27;);&#10;&#10;// 2. Lấy chuỗi dữ liệu người dùng nhập tại thời điểm kiểm tra&#10;const userEmail = emailInput.value.trim();&#10;&#10;console.log(&#x27;Email sau khi làm sạch khoảng trắng:&#x27;, userEmail);" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// 1. Truy vấn phần tử ô nhập liệu từ DOM
+const emailInput = document.getElementById(&#x27;email&#x27;);
+
+// 2. Lấy chuỗi dữ liệu người dùng nhập tại thời điểm kiểm tra
+const userEmail = emailInput.value.trim();
+
+console.log(&#x27;Email sau khi làm sạch khoảng trắng:&#x27;, userEmail);</code></pre>
+  </div>
+  <div id="container-sb-sec2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-2-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Ngăn chặn reload trang với event.preventDefault()</h3><p class="text-slate-600 mb-4 leading-relaxed">Khi người dùng gửi form, trình duyệt sẽ tự động phát sinh một đối tượng sự kiện (event object) truyền vào hàm lắng nghe sự kiện của lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener('submit', callback)</code>. Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">event.preventDefault()</code> thuộc đối tượng sự kiện này có nhiệm vụ hủy bỏ hành vi mặc định của sự kiện đó.</p><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-white my-4"><p class="font-semibold text-amber-900 mb-1">Lưu ý vị trí thực thi:</p><p class="text-slate-600">Lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">event.preventDefault()</code> phải luôn luôn được đặt ở ngay dòng đầu tiên bên trong hàm xử lý sự kiện submit để đảm bảo toàn bộ luồng reload bị chặn tức thì trước khi tiến hành bất kỳ câu lệnh kiểm tra logic nào khác.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-2', 'output-sb-sec2-2', 'container-sb-sec2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-2', 'output-sb-sec2-2', 'container-sb-sec2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-2" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const registerForm = document.getElementById(&#x27;register-form&#x27;);&#10;&#10;registerForm.addEventListener(&#x27;submit&#x27;, function(event) {&#10;    // Chặn ngay hành vi gửi form và nạp lại trang mặc định của trình duyệt&#10;    event.preventDefault();&#10;    &#10;    console.log(&#x27;Xử lý submit bằng JavaScript thành công mà không bị làm mới trang.&#x27;);&#10;});" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const registerForm = document.getElementById(&#x27;register-form&#x27;);
+
+registerForm.addEventListener(&#x27;submit&#x27;, function(event) {
+    // Chặn ngay hành vi gửi form và nạp lại trang mặc định của trình duyệt
+    event.preventDefault();
+    
+    console.log(&#x27;Xử lý submit bằng JavaScript thành công mà không bị làm mới trang.&#x27;);
+});</code></pre>
+  </div>
+  <div id="container-sb-sec2-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-2-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Kiểm tra dữ liệu đầu vào (Form Validation) và Phản hồi giao diện</h3><p class="text-slate-600 mb-4 leading-relaxed">Form Validation là quá trình xác minh dữ liệu người dùng nhập vào có tuân thủ đúng các quy tắc kinh doanh (business rules) của ứng dụng hay không. Bằng cách sử dụng kết hợp các câu lệnh điều kiện rẽ nhánh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if / else</code> và các thuộc tính chuỗi cơ bản (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.length</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.includes()</code>), chúng ta có thể chủ động kiểm tra dữ liệu trước khi gửi thành công.</p><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white my-4"><p class="font-semibold text-emerald-900 mb-1">Quy trình xử lý Form Validation chuẩn:</p><ul class="list-disc pl-6 space-y-1 text-slate-600"><li><strong>Bước 1:</strong> Trích xuất và loại bỏ khoảng trắng dư thừa từ các ô input.</li><li><strong>Bước 2:</strong> Kiểm tra các trường thông tin bắt buộc có bị để trống hay không.</li><li><strong>Bước 3:</strong> Kiểm tra các tiêu chuẩn độ dài hoặc định dạng chuỗi (ví dụ: độ dài mật khẩu, ký tự <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">@</code> trong email).</li><li><strong>Bước 4:</strong> Cập nhật thông báo trực tiếp lên phần tử giao diện bằng thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">textContent</code> và thay đổi màu sắc bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">style.color</code>.</li><li><strong>Bước 5:</strong> Đưa toàn bộ ô nhập liệu về trạng thái rỗng ban đầu bằng phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">form.reset()</code> khi đăng ký thành công.</li></ul></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-3', 'output-sb-sec2-3', 'container-sb-sec2-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-3', 'output-sb-sec2-3', 'container-sb-sec2-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-3" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const usernameInput = document.getElementById(&#x27;username&#x27;);&#10;const errorSpan = document.getElementById(&#x27;error-message&#x27;);&#10;&#10;// Kiểm tra nếu ô nhập tên người dùng bị để trống&#10;if (usernameInput.value.trim() === &#x27;&#x27;) {&#10;    errorSpan.textContent = &#x27;Vui lòng nhập tên người dùng!&#x27;;&#10;    errorSpan.style.color = &#x27;red&#x27;;&#10;} else {&#10;    errorSpan.textContent = &#x27;Tên người dùng hợp lệ!&#x27;;&#10;    errorSpan.style.color = &#x27;green&#x27;;&#10;}" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const usernameInput = document.getElementById(&#x27;username&#x27;);
+const errorSpan = document.getElementById(&#x27;error-message&#x27;);
+
+// Kiểm tra nếu ô nhập tên người dùng bị để trống
+if (usernameInput.value.trim() === &#x27;&#x27;) {
+    errorSpan.textContent = &#x27;Vui lòng nhập tên người dùng!&#x27;;
+    errorSpan.style.color = &#x27;red&#x27;;
+} else {
+    errorSpan.textContent = &#x27;Tên người dùng hợp lệ!&#x27;;
+    errorSpan.style.color = &#x27;green&#x27;;
+}</code></pre>
+  </div>
+  <div id="container-sb-sec2-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Quan sát quá trình JavaScript can thiệp sự kiện submit, ngăn nạp lại trang và thực thi các bước kiểm tra tính hợp lệ của mật khẩu.</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>Mã nguồn thực thi (JavaScript (ES6+))</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded font-sans">Sẵn sàng</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-1.5 overflow-x-auto min-h-[160px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">1</span>
+            <span class="truncate"><span class="text-purple-600 font-bold">const</span> <span class="text-slate-800">form</span> <span class="text-sky-600 font-bold">=</span> <span class="text-slate-800">document</span>.<span class="text-blue-600 font-semibold">getElementById</span>(&#x27;<span class="text-slate-800">regForm</span>&#x27;);</span>
+          </div>
+          <span id="viz-badge-1" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">2</span>
+            <span class="truncate"><span class="text-purple-600 font-bold">const</span> <span class="text-slate-800">passInput</span> <span class="text-sky-600 font-bold">=</span> <span class="text-slate-800">document</span>.<span class="text-blue-600 font-semibold">getElementById</span>(&#x27;<span class="text-slate-800">password</span>&#x27;);</span>
+          </div>
+          <span id="viz-badge-2" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">3</span>
+            <span class="truncate"><span class="text-slate-800">form</span>.<span class="text-blue-600 font-semibold">addEventListener</span>(&#x27;<span class="text-slate-800">submit</span>&#x27;, <span class="text-purple-600 font-bold">function</span>(<span class="text-slate-800">event</span>) {</span>
+          </div>
+          <span id="viz-badge-3" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">4</span>
+            <span class="truncate">  <span class="text-slate-800">event</span>.<span class="text-blue-600 font-semibold">preventDefault</span>();</span>
+          </div>
+          <span id="viz-badge-4" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">5</span>
+            <span class="truncate">  <span class="text-purple-600 font-bold">const</span> <span class="text-slate-800">pass</span> <span class="text-sky-600 font-bold">=</span> <span class="text-slate-800">passInput</span>.<span class="text-slate-800">value</span>.<span class="text-blue-600 font-semibold">trim</span>();</span>
+          </div>
+          <span id="viz-badge-5" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">6</span>
+            <span class="truncate">  <span class="text-purple-600 font-bold">if</span> (<span class="text-slate-800">pass</span>.<span class="text-slate-800">length</span> <span class="text-sky-600 font-bold">&lt;</span> <span class="text-amber-600 font-mono">6</span>) {</span>
+          </div>
+          <span id="viz-badge-6" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-7" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">7</span>
+            <span class="truncate">    <span class="text-slate-800">console</span>.<span class="text-blue-600 font-semibold">log</span>(&#x27;Lỗi: Mật khẩu yếu<span class="text-sky-600 font-bold">!</span>&#x27;);</span>
+          </div>
+          <span id="viz-badge-7" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-8" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">8</span>
+            <span class="truncate">  } <span class="text-purple-600 font-bold">else</span> {</span>
+          </div>
+          <span id="viz-badge-8" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-9" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">9</span>
+            <span class="truncate">    <span class="text-slate-800">console</span>.<span class="text-blue-600 font-semibold">log</span>(&#x27;Đăng ký thành công<span class="text-sky-600 font-bold">!</span>&#x27;);</span>
+          </div>
+          <span id="viz-badge-9" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-10" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">10</span>
+            <span class="truncate">  }</span>
+          </div>
+          <span id="viz-badge-10" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-11" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">11</span>
+            <span class="truncate">});</span>
+          </div>
+          <span id="viz-badge-11" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>Trạng thái bộ nhớ (Memory Canvas)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold font-sans">RAM State</span>
+      </div>
+      <div class="p-4 space-y-3 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Mật khẩu người dùng nhập:</span>
+          <span id="viz-ram-pass" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Trạng thái hợp lệ:</span>
+          <span id="viz-ram-isvalid" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nút điều khiển -->
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="runVizStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-all">
+        <span class="ph-bold ph-caret-left"></span> Bước trước
+      </button>
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs flex items-center gap-1 hover:bg-rikkei-darkred transition-all shadow-sm">
+        Tiếp theo <span class="ph-bold ph-caret-right"></span>
+      </button>
+      <button type="button" onclick="runVizStep(-999)" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs transition-all" title="Reset">
+        <span class="ph-bold ph-arrow-counter-clockwise"></span> Đặt lại
+      </button>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+    </div>
+  </div>
+
+  <!-- Terminal log -->
+  <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
+    <div class="text-[11px] font-mono text-slate-600 mb-1.5 flex items-center gap-1.5 font-bold">
+      <span class="ph-bold ph-terminal text-emerald-800"></span> Nhật ký thực thi từng bước (Console Log):
+    </div>
+    <div id="viz-terminal-log" class="h-[110px] overflow-y-auto bg-white text-slate-800 font-mono text-xs p-2.5 rounded border border-slate-200 space-y-1">
+      <div class="text-slate-700 ">Sẵn sàng mô phỏng từng bước cho Làm việc với Form, Input và Sự kiện submit. Bấm "Tiếp theo" để bắt đầu...</div>
+    </div>
+  </div>
+</div>
+          </div>
+
+        </section>
+
+        <!-- SECTION 3: PROGRESSIVE EXAMPLES -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            3. Các ví dụ ứng dụng thực tiễn
+          </h2>
+
+          <div class="space-y-6">
+            <h3 id="sec-3-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ 3.1: Thu thập dữ liệu từ Form Đăng ký</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ ở mức độ cơ bản thể hiện cú pháp đăng ký sự kiện submit cho form, chặn hành vi reload trang mặc định và truy xuất giá trị họ tên từ ô input.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-1" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Chọn phần tử form và input từ DOM&#10;const registrationForm = document.getElementById(&#x27;registration-form&#x27;);&#10;const fullnameInput = document.getElementById(&#x27;fullname&#x27;);&#10;&#10;// Đăng ký sự kiện submit cho form&#10;registrationForm.addEventListener(&#x27;submit&#x27;, function(event) {&#10;    // Ngăn chặn hành vi gửi form mặc định của trình duyệt&#10;    event.preventDefault();&#10;    &#10;    // Lấy giá trị người dùng đã nhập vào ô họ và tên&#10;    const fullname = fullnameInput.value;&#10;    &#10;    console.log(&#x27;Họ và tên khách hàng đăng ký:&#x27;, fullname);&#10;});" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Chọn phần tử form và input từ DOM
+const registrationForm = document.getElementById(&#x27;registration-form&#x27;);
+const fullnameInput = document.getElementById(&#x27;fullname&#x27;);
+
+// Đăng ký sự kiện submit cho form
+registrationForm.addEventListener(&#x27;submit&#x27;, function(event) {
+    // Ngăn chặn hành vi gửi form mặc định của trình duyệt
+    event.preventDefault();
+    
+    // Lấy giá trị người dùng đã nhập vào ô họ và tên
+    const fullname = fullnameInput.value;
+    
+    console.log(&#x27;Họ và tên khách hàng đăng ký:&#x27;, fullname);
+});</code></pre>
+  </div>
+  <div id="container-sb-sec3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ 3.2: Validation cơ bản dữ liệu Đăng ký</h3><p class="text-slate-600 mb-4 leading-relaxed">Mở rộng ví dụ trước bằng việc thu thập thêm email và mật khẩu. Tiến hành kiểm tra nếu có trường bị bỏ trống hoặc mật khẩu ngắn hơn 6 ký tự thì hiển thị thông báo lỗi bằng màu đỏ lên giao diện người dùng.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-2" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const registrationForm = document.getElementById(&#x27;registration-form&#x27;);&#10;const fullnameInput = document.getElementById(&#x27;fullname&#x27;);&#10;const emailInput = document.getElementById(&#x27;email&#x27;);&#10;const passwordInput = document.getElementById(&#x27;password&#x27;);&#10;const messageBox = document.getElementById(&#x27;message-box&#x27;);&#10;&#10;registrationForm.addEventListener(&#x27;submit&#x27;, function(event) {&#10;    event.preventDefault();&#10;&#10;    // Lấy và cắt bỏ khoảng trắng thừa ở hai đầu chuỗi&#10;    const fullname = fullnameInput.value.trim();&#10;    const email = emailInput.value.trim();&#10;    const password = passwordInput.value;&#10;&#10;    // Kiểm tra các ô input có bị để trống không&#10;    if (fullname === &#x27;&#x27; || email === &#x27;&#x27; || password === &#x27;&#x27;) {&#10;        messageBox.textContent = &#x27;Vui lòng điền đầy đủ tất cả các thông tin!&#x27;;&#10;        messageBox.style.color = &#x27;red&#x27;;&#10;        return;&#10;    }&#10;&#10;    // Kiểm tra độ dài mật khẩu&#10;    if (password.length" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const registrationForm = document.getElementById(&#x27;registration-form&#x27;);
+const fullnameInput = document.getElementById(&#x27;fullname&#x27;);
+const emailInput = document.getElementById(&#x27;email&#x27;);
+const passwordInput = document.getElementById(&#x27;password&#x27;);
+const messageBox = document.getElementById(&#x27;message-box&#x27;);
+
+registrationForm.addEventListener(&#x27;submit&#x27;, function(event) {
+    event.preventDefault();
+
+    // Lấy và cắt bỏ khoảng trắng thừa ở hai đầu chuỗi
+    const fullname = fullnameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    // Kiểm tra các ô input có bị để trống không
+    if (fullname === &#x27;&#x27; || email === &#x27;&#x27; || password === &#x27;&#x27;) {
+        messageBox.textContent = &#x27;Vui lòng điền đầy đủ tất cả các thông tin!&#x27;;
+        messageBox.style.color = &#x27;red&#x27;;
+        return;
+    }
+
+    // Kiểm tra độ dài mật khẩu
+    if (password.length</code></pre>
+  </div>
+  <div id="container-sb-sec3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ 3.3: Hoàn thiện Form Đăng ký Tài khoản E-commerce</h3><p class="text-slate-600 mb-4 leading-relaxed">Ví dụ thực tế trong dự án doanh nghiệp: Bổ sung ô xác nhận mật khẩu (confirm password), kiểm tra định dạng email cơ bản có chứa ký tự <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">@</code>, hiển thị thông báo chi tiết và làm sạch (reset) form sau khi hoàn tất đăng ký thành công.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-3" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const registrationForm = document.getElementById(&#x27;registration-form&#x27;);&#10;const fullnameInput = document.getElementById(&#x27;fullname&#x27;);&#10;const emailInput = document.getElementById(&#x27;email&#x27;);&#10;const passwordInput = document.getElementById(&#x27;password&#x27;);&#10;const confirmPasswordInput = document.getElementById(&#x27;confirm-password&#x27;);&#10;const statusMessage = document.getElementById(&#x27;status-message&#x27;);&#10;&#10;registrationForm.addEventListener(&#x27;submit&#x27;, function(event) {&#10;    event.preventDefault();&#10;&#10;    const fullname = fullnameInput.value.trim();&#10;    const email = emailInput.value.trim();&#10;    const password = passwordInput.value;&#10;    const confirmPassword = confirmPasswordInput.value;&#10;&#10;    // 1. Kiểm tra trường trống&#10;    if (!fullname || !email || !password || !confirmPassword) {&#10;        statusMessage.textContent = &#x27;Lỗi: Tất cả các trường thông tin đều là bắt buộc!&#x27;;&#10;        statusMessage.style.color = &#x27;red&#x27;;&#10;        return;&#10;    }&#10;&#10;    // 2. Kiểm tra định dạng email cơ bản&#10;    if (!email.includes(&#x27;@&#x27;)) {&#10;        statusMessage.textContent = &#x27;Lỗi: Địa chỉ email không đúng định dạng (thiếu ký tự @)!&#x27;;&#10;        statusMessage.style.color = &#x27;red&#x27;;&#10;        return;&#10;    }&#10;&#10;    // 3. Kiểm tra độ dài mật khẩu tối thiểu&#10;    if (password.length" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const registrationForm = document.getElementById(&#x27;registration-form&#x27;);
+const fullnameInput = document.getElementById(&#x27;fullname&#x27;);
+const emailInput = document.getElementById(&#x27;email&#x27;);
+const passwordInput = document.getElementById(&#x27;password&#x27;);
+const confirmPasswordInput = document.getElementById(&#x27;confirm-password&#x27;);
+const statusMessage = document.getElementById(&#x27;status-message&#x27;);
+
+registrationForm.addEventListener(&#x27;submit&#x27;, function(event) {
+    event.preventDefault();
+
+    const fullname = fullnameInput.value.trim();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+
+    // 1. Kiểm tra trường trống
+    if (!fullname || !email || !password || !confirmPassword) {
+        statusMessage.textContent = &#x27;Lỗi: Tất cả các trường thông tin đều là bắt buộc!&#x27;;
+        statusMessage.style.color = &#x27;red&#x27;;
+        return;
+    }
+
+    // 2. Kiểm tra định dạng email cơ bản
+    if (!email.includes(&#x27;@&#x27;)) {
+        statusMessage.textContent = &#x27;Lỗi: Địa chỉ email không đúng định dạng (thiếu ký tự @)!&#x27;;
+        statusMessage.style.color = &#x27;red&#x27;;
+        return;
+    }
+
+    // 3. Kiểm tra độ dài mật khẩu tối thiểu
+    if (password.length</code></pre>
+  </div>
+  <div id="container-sb-sec3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+          </div>
+        </section>
+
+        <!-- SECTION 4: GOTCHAS & PITFALLS -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            4. Tổng kết bài học & Các lỗi thường gặp
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-4-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.1. Tổng kết kiến thức trọng tâm</h3><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li>Sự kiện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">submit</code> phải được đăng ký lắng nghe trực tiếp trên thẻ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">&lt;form&gt;</code> chứ không nên đăng ký vào nút click đơn lẻ.</li><li>Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">event.preventDefault()</code> có nhiệm vụ quan trọng là ngăn chặn trình duyệt tự động làm mới (reload) lại trang web khi submit form.</li><li>Thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">input.value</code> giúp lấy thông tin người dùng đã nhập và luôn trả về giá trị dưới dạng chuỗi (String).</li><li>Nên áp dụng phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.trim()</code> để loại bỏ các khoảng trắng thừa ở hai đầu chuỗi văn bản trước khi thực hiện kiểm tra logic.</li><li>Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">form.reset()</code> giúp dọn dẹp toàn bộ dữ liệu trên ô nhập liệu sau khi xử lý thành công.</li></ul><h3 id="sec-4-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.2. Bảng so sánh các Phương thức &amp; Thuộc tính thao tác Form</h3><div class="overflow-x-auto my-6"><div class="overflow-x-auto my-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<table class="w-full text-sm text-left text-slate-600 border-collapse border border-slate-200"><thead class="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200"><tr><th scope="col" class="px-6 py-3 border-r border-slate-200">Cú pháp / Phương thức</th><th scope="col" class="px-6 py-3 border-r border-slate-200">Đối tượng áp dụng</th><th scope="col" class="px-6 py-3 border-r border-slate-200">Mục đích sử dụng</th><th scope="col" class="px-6 py-3">Kiểu dữ liệu / Trạng thái trả về</th></tr></thead><tbody><tr class="bg-white border-b border-slate-200"><td class="px-6 py-4 font-mono text-slate-900 border-r border-slate-200">input.value</td><td class="px-6 py-4 border-r border-slate-200">Phần tử HTML Input</td><td class="px-6 py-4 border-r border-slate-200">Đọc hoặc thay đổi dữ liệu chuỗi người dùng đã nhập.</td><td class="px-6 py-4">Chuỗi ký tự (String).</td></tr><tr class="bg-slate-50 border-b border-slate-200"><td class="px-6 py-4 font-mono text-slate-900 border-r border-slate-200">event.preventDefault()</td><td class="px-6 py-4 border-r border-slate-200">Đối tượng Sự kiện (Event)</td><td class="px-6 py-4 border-r border-slate-200">Hủy bỏ hành vi reload trang mặc định khi kích hoạt submit.</td><td class="px-6 py-4">Không trả về giá trị (undefined).</td></tr><tr class="bg-white border-b border-slate-200"><td class="px-6 py-4 font-mono text-slate-900 border-r border-slate-200">string.trim()</td><td class="px-6 py-4 border-r border-slate-200">Chuỗi văn bản (String)</td><td class="px-6 py-4 border-r border-slate-200">Cắt bỏ các ký tự khoảng trắng thừa ở hai đầu chuỗi.</td><td class="px-6 py-4">Chuỗi ký tự mới đã làm sạch.</td></tr><tr class="bg-slate-50 border-b border-slate-200"><td class="px-6 py-4 font-mono text-slate-900 border-r border-slate-200">form.reset()</td><td class="px-6 py-4 border-r border-slate-200">Phần tử HTML Form</td><td class="px-6 py-4 border-r border-slate-200">Đặt lại toàn bộ các ô nhập liệu về trạng thái rỗng ban đầu.</td><td class="px-6 py-4">Không trả về giá trị (undefined).</td></tr></tbody></table>
+</div></div><h3 id="sec-4-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.3. Các lỗi thường gặp &amp; Cách khắc phục (Gotchas)</h3><div class="space-y-6 my-6"><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white"><p class="font-bold text-rose-900 mb-2">Lỗi 1: Quên gọi hàm event.preventDefault() trong hàm xử lý sự kiện submit</p><p class="text-slate-600 mb-3">Khi không gọi phương thức này, trình duyệt lập tức tải lại trang khiến mã JavaScript kiểm tra dữ liệu chưa kịp chạy xong đã bị vô hiệu hóa hoàn toàn.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs"><div class="p-3 bg-white rounded-lg border border-rose-300"><p class="font-sans font-bold text-rose-700 mb-1">SAI (Trang bị reload lập tức):</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">const form = document.getElementById(&#x27;regForm&#x27;);
+
+form.addEventListener(&#x27;submit&#x27;, function(event) {
+    // SAI: Quên gọi event.preventDefault();
+    console.log(&#x27;Đã bấm đăng ký!&#x27;); 
+    // Thông báo bị mất ngay do trang reload!
+});</code></pre>
+</div></div><div class="p-3 bg-white rounded-lg border border-emerald-300"><p class="font-sans font-bold text-emerald-700 mb-1">ĐÚNG (Giữ nguyên trang và xử lý JS):</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">const form = document.getElementById(&#x27;regForm&#x27;);
+
+form.addEventListener(&#x27;submit&#x27;, function(event) {
+    // ĐÚNG: Ngăn reload trang ngay đầu hàm
+    event.preventDefault();
+    console.log(&#x27;Đã bấm đăng ký thành công!&#x27;);
+});</code></pre>
+</div></div></div></div><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white"><p class="font-bold text-rose-900 mb-2">Lỗi 2: Lấy thuộc tính .value bên ngoài hàm xử lý sự kiện (Event Listener)</p><p class="text-slate-600 mb-3">Nếu lấy thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">input.value</code> ngay khi file script vừa nạp xong (bên ngoài hàm lắng nghe sự kiện), bạn chỉ thu được chuỗi rỗng vì người dùng chưa kịp gõ dữ liệu.</p><div class="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs"><div class="p-3 bg-white rounded-lg border border-rose-300"><p class="font-sans font-bold text-rose-700 mb-1">SAI (Giá trị luôn là chuỗi rỗng):</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">const emailInput = document.getElementById(&#x27;email&#x27;);
+// SAI: Lấy giá trị ngay khi trang vừa tải xong
+const emailValue = emailInput.value; 
+
+form.addEventListener(&#x27;submit&#x27;, function(event) {
+    event.preventDefault();
+    console.log(emailValue); // Luôn in ra &quot;&quot;
+});</code></pre>
+</div></div><div class="p-3 bg-white rounded-lg border border-emerald-300"><p class="font-sans font-bold text-emerald-700 mb-1">ĐÚNG (Lấy dữ liệu thời điểm submit):</p><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">const emailInput = document.getElementById(&#x27;email&#x27;);
+
+form.addEventListener(&#x27;submit&#x27;, function(event) {
+    event.preventDefault();
+    // ĐÚNG: Lấy giá trị ngay khi submit xảy ra
+    const emailValue = emailInput.value;
+    console.log(emailValue); // In đúng dữ liệu
+});</code></pre>
+</div></div></div></div></div>
+          </div>
+        </section>
+
+        <!-- SECTION 5: REFERENCES -->
+        <section id="section-5" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            5. Tài liệu tham khảo & Câu hỏi ôn tập
+          </h2>
+
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLFormElement/submit_event" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - HTMLFormElement: submit event
+                </a>
+              </li>
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/Event/preventDefault" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - Event.preventDefault()
+                </a>
+              </li>
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - HTMLInputElement
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Self-Test Component -->
+          <div id="selftest-section" class="mt-8 pt-6 border-t border-slate-200">
+            <h3 class="font-montserrat font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+              <i class="ph-bold ph-checks text-rikkei-red"></i> Câu hỏi ôn tập
+            </h3>
+            <p class="text-sm text-slate-600 mb-6">Trả lời các câu hỏi nhanh dưới đây để kiểm tra mức độ hiểu biết của bạn về kịch bản và ví dụ thực tế trong bài đọc này!</p>
+
+            <form id="self-test-form" onsubmit="event.preventDefault(); checkSelfTest();" class="space-y-6">
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">1</span>
+                  <span>Trong xử lý Form với JavaScript, mục đích chính của việc sử dụng phương thức event.preventDefault() bên trong hàm xử lý sự kiện submit là gì?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Hủy bỏ hành vi làm mới (reload) trang mặc định của trình duyệt để tiếp quản xử lý bằng mã JavaScript.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Xóa sạch tất cả các ký tự khoảng trắng dư thừa trong các ô input.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Tự động gửi dữ liệu người dùng nhập lên cơ sở dữ liệu của máy chủ.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Khóa các ô nhập liệu không cho người dùng chỉnh sửa thông tin.</span>
+                  </label>
+                </div>
+                <div id="q1-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">2</span>
+                  <span>Giả sử bạn cần lấy giá trị người dùng vừa gõ vào ô nhập liệu có id="username" khi họ bấm nút Submit. Cách viết nào sau đây là chính xác?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Khhai báo `const val = document.getElementById('username').value;` bên ngoài event listener ngay khi nạp trang.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Đăng ký sự kiện submit cho form, sau đó truy cập `document.getElementById('username').value` bên trong hàm callback xử lý sự kiện.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Sử dụng phương thức `document.getElementById('username').reset()` để lấy giá trị.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Đọc thuộc tính `document.getElementById('username').textContent` bên trong hàm callback xử lý sự kiện.</span>
+                  </label>
+                </div>
+                <div id="q2-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">3</span>
+                  <span>Phương thức nào dưới đây được sử dụng để nhanh chóng xóa sạch dữ liệu trong toàn bộ các ô nhập liệu của một form về trạng thái rỗng ban đầu sau khi hoàn tất đăng ký?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. form.clear()</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. form.delete()</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. form.reset()</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. form.empty()</span>
+                  </label>
+                </div>
+                <div id="q3-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+
+              <!-- Button Submit -->
+              <div class="flex items-center justify-between gap-4">
+                <button type="submit" id="btn-check-selftest" class="px-5 py-2.5 rounded-lg bg-rikkei-red hover:bg-rikkei-darkred text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+                  <i class="ph-bold ph-check text-base"></i> Kiểm tra kết quả
+                </button>
+                <div id="self-test-score" class="hidden text-sm font-semibold text-slate-700"></div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+      hljs.highlightAll();
+
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
+      });
+
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        drawer.classList.toggle("hidden");
+      }
+
+      // JavaScript Live In-Browser Sandbox Engine
+      function runJsCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const rawCode = editor.innerText || editor.textContent;
+        output.innerText = "";
+
+        let logs = [];
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const originalInfo = console.info;
+
+        try {
+          console.log = function(...args) {
+            logs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalLog.apply(console, args);
+          };
+          console.info = console.log;
+          console.warn = function(...args) {
+            logs.push("[CẢNH BÁO] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalWarn.apply(console, args);
+          };
+          console.error = function(...args) {
+            logs.push("[LỖI] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalError.apply(console, args);
+          };
+
+          const result = new Function(rawCode)();
+          if (result !== undefined && logs.length === 0) {
+            logs.push(String(result));
+          }
+
+          if (logs.length > 0) {
+            output.innerText = logs.join('\n');
+          } else {
+            output.innerText = "Thực thi thành công (Không có dữ liệu xuất console).";
+          }
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI JAVASCRIPT:\n" + (err && err.stack ? err.stack : err);
+        } finally {
+          console.log = originalLog;
+          console.warn = originalWarn;
+          console.error = originalError;
+          console.info = originalInfo;
+        }
+      }
+
+      // Pyodide Live Wasm Sandbox Engine
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({
+            batched: (str) => { outputBuffer += str + "\n"; }
+          });
+          pyodide.setStderr({
+            batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; }
+          });
+
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim() ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute("data-highlighted");
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("code[data-original]").forEach((codeEl) => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+
+      function checkSelfTest() {
+        const answers = {"1": "A", "2": "B", "3": "C"};
+        const explanations = {"1": "Mặc định khi kích hoạt submit form, trình duyệt sẽ phát request và làm mới trang. Gọi hàm event.preventDefault() giúp ngăn chặn hành vi mặc định này để giữ lại trạng thái giao diện và cho phép xử lý kiểm tra dữ liệu bằng JavaScript.", "2": "Thuộc tính .value phải được đọc tại thời điểm sự kiện submit diễn ra (bên trong hàm callback) để thu được chính xác dữ liệu người dùng vừa nhập vào ô input.", "3": "Phương thức form.reset() là phương thức chuẩn của đối tượng HTMLFormElement giúp đưa toàn bộ giá trị của các phần tử input thuộc form đó về trạng thái mặc định ban đầu."};
+
+        let score = 0;
+        const total = Object.keys(answers).length;
+
+        for (let i = 1; i <= total; i++) {
+          const qId = "q" + i;
+          const selected = document.querySelector(`input[name="${qId}"]:checked`);
+          const expDiv = document.getElementById(`${qId}-explanation`);
+          
+          if (!expDiv) continue;
+          expDiv.classList.remove("hidden");
+          
+          const correctAns = answers[i];
+          const explainText = explanations[i];
+          
+          if (selected) {
+            const val = selected.value;
+            if (val === correctAns) {
+              score++;
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-check-circle text-emerald-600 mr-1.5 text-sm align-middle"></i> <strong>Đúng!</strong> ${explainText}`;
+            } else {
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-rose-50 text-rose-800 border border-rose-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-x-circle text-rose-600 mr-1.5 text-sm align-middle"></i> <strong>Sai!</strong> Đáp án đúng là <strong>${correctAns}</strong>. ${explainText}`;
+            }
+          } else {
+            expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-medium text-left";
+            expDiv.innerHTML = `<i class="ph-bold ph-warning text-amber-600 mr-1.5 text-sm align-middle"></i> Bạn chưa chọn câu trả lời cho câu này.`;
+          }
+        }
+
+        const scoreDiv = document.getElementById("self-test-score");
+        if (scoreDiv) {
+          scoreDiv.classList.remove("hidden");
+          scoreDiv.innerText = `Kết quả: ${score}/${total} câu trả lời đúng.`;
+        }
+      }
+
+      // Visualizer logic for Section 2.4 Step-by-Step Tracker
+      var currentVizStep = 0;
+      var vizAutoInterval = null;
+
+      function runVizStep(stepNum) {
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = (window.vizSteps && window.vizSteps.length > 0) ? window.vizSteps.length : linesCount;
+
+        if (stepNum === -999) {
+          currentVizStep = 0;
+          if (vizAutoInterval) {
+            clearInterval(vizAutoInterval);
+            vizAutoInterval = null;
+            const autoBtn = document.getElementById("viz-auto-btn");
+            if (autoBtn) autoBtn.innerText = "Tự động chạy";
+          }
+        } else if (stepNum === -1) {
+          currentVizStep = Math.max(0, currentVizStep - 1);
+        } else if (stepNum === 1) {
+          currentVizStep = Math.min(totalSteps, currentVizStep + 1);
+        } else {
+          currentVizStep = stepNum;
+        }
+
+        // Reset highlights & badges
+        lineDivs.forEach((el) => {
+          el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre";
+        });
+        document.querySelectorAll("[id^='viz-badge-']").forEach((b) => {
+          b.classList.add("hidden");
+          b.innerText = "";
+        });
+
+        const term = document.getElementById("viz-terminal-log");
+        const badge = document.getElementById("viz-step-badge");
+
+        if (currentVizStep === 0) {
+          if (term) term.innerHTML = `<div class="text-slate-400 italic">&gt; Sẵn sàng mô phỏng từng bước. Bấm 'Tiếp theo' để bắt đầu...</div>`;
+          if (badge) {
+            badge.innerText = "Sẵn sàng";
+            badge.className = "px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded font-sans";
+          }
+          updateRamMonitor(0);
+          return;
+        }
+
+        if (badge) {
+          badge.innerText = `Bước ${currentVizStep}/${totalSteps}`;
+          badge.className = "px-2 py-0.5 bg-amber-100 text-amber-800 text-[11px] rounded font-bold font-sans border border-amber-300";
+        }
+
+        if (window.vizSteps && window.vizSteps[currentVizStep - 1]) {
+          const stepData = window.vizSteps[currentVizStep - 1];
+          const activeLine = stepData.line;
+          const el = document.getElementById("viz-line-" + activeLine);
+          if (el) {
+            el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre bg-amber-50 border-l-4 border-amber-500 font-semibold text-slate-900 shadow-sm";
+            // Show inline badge if present
+            const lineBadge = document.getElementById("viz-badge-" + activeLine);
+            if (lineBadge && stepData.badge) {
+              lineBadge.innerText = stepData.badge;
+              lineBadge.classList.remove("hidden");
+            }
+          }
+          updateRamMonitor(currentVizStep);
+          if (term) {
+            term.innerHTML = "";
+            for (let step = 1; step <= currentVizStep; step++) {
+              const sData = window.vizSteps[step - 1];
+              if (sData && sData.log) {
+                term.innerHTML += `<div class="text-slate-800 font-mono text-xs">${sData.log}</div>`;
+              }
+            }
+            term.scrollTop = term.scrollHeight;
+          }
+        } else {
+          // Fallback if window.vizSteps is not set
+          const activeEl = document.getElementById("viz-line-" + currentVizStep);
+          if (activeEl) {
+            activeEl.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre bg-amber-50 border-l-4 border-amber-500 font-semibold text-slate-900 shadow-sm";
+            if (term) {
+              term.innerHTML = `<div class="text-slate-800 font-mono text-xs">&gt; [Bước ${currentVizStep}] Thực thi dòng lệnh ${currentVizStep}</div>`;
+            }
+          }
+        }
+      }
+
+      function updateRamMonitor(stepIdx) {
+        // Reset all RAM entries to --- if stepIdx is 0
+        if (stepIdx === 0) {
+          const ramEls = document.querySelectorAll("[id^='viz-ram-']");
+          ramEls.forEach((el) => {
+            if (el.id !== "viz-ram-status" && el.id !== "viz-ram-env" && el.id !== "viz-ram-lesson") {
+              el.innerText = "---";
+              el.className = "font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300";
+            }
+          });
+          return;
+        }
+
+        if (!window.vizSteps || !window.vizSteps[stepIdx - 1]) return;
+        const stepData = window.vizSteps[stepIdx - 1];
+        if (stepData && stepData.ram) {
+          for (const [key, val] of Object.entries(stepData.ram)) {
+            const ramEl = document.getElementById("viz-ram-" + key);
+            if (ramEl) {
+              const oldVal = ramEl.innerText;
+              ramEl.innerText = val;
+              if (oldVal !== val && oldVal !== "---") {
+                ramEl.className = "font-bold text-emerald-800 px-2.5 py-0.5 rounded bg-emerald-100 border border-emerald-300 min-w-[60px] text-center transition-all duration-300 scale-105";
+                setTimeout(() => {
+                  if (ramEl) ramEl.className = "font-bold text-slate-800 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300";
+                }, 800);
+              } else {
+                ramEl.className = "font-bold text-slate-800 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300";
+              }
+            }
+          }
+        }
+      }
+
+      function vizToggleAuto() {
+        const btn = document.getElementById("viz-auto-btn");
+        if (!btn) return;
+        
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = (window.vizSteps && window.vizSteps.length > 0) ? window.vizSteps.length : linesCount;
+
+        if (vizAutoInterval) {
+          clearInterval(vizAutoInterval);
+          vizAutoInterval = null;
+          btn.innerText = "Tự động chạy";
+        } else {
+          btn.innerText = "Tạm dừng";
+          if (currentVizStep >= totalSteps) runVizStep(-999);
+          runVizStep(1);
+          vizAutoInterval = setInterval(() => {
+            if (currentVizStep >= totalSteps) {
+              clearInterval(vizAutoInterval);
+              vizAutoInterval = null;
+              btn.innerText = "Tự động chạy";
+            } else {
+              runVizStep(1);
+            }
+          }, 1800);
+        }
+      }
+
+      // Active TOC link on scroll using IntersectionObserver
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              // Deactivate all TOC links in sidebar and drawer
+              document.querySelectorAll(".toc-link, .mobile-toc-link").forEach((link) => {
+                link.classList.remove("border-rikkei-red", "text-rikkei-red", "font-bold", "bg-slate-100");
+                link.classList.add("border-transparent", "text-slate-600");
+              });
+              // Activate current links
+              const activeLinks = document.querySelectorAll(`a[href="#${id}"]`);
+              activeLinks.forEach((link) => {
+                if (link.classList.contains("toc-link")) {
+                  link.classList.add("border-rikkei-red", "text-rikkei-red", "font-bold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else if (link.classList.contains("mobile-toc-link")) {
+                  link.classList.add("text-rikkei-red", "bg-slate-100");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll("section[id^='section-']").forEach((section) => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,5 +1,3 @@
-# Bài tập 6: EdTech (Sáng tạo - Thiết kế Mini Module)
-
 ### 1. Mục tiêu bài tập
 - **Thao tác sự kiện Form chuẩn hóa**: Làm chủ kỹ thuật xử lý sự kiện `submit` trên Form, bắt buộc sử dụng `event.preventDefault()` để kiểm soát luồng tải trang và thu thập dữ liệu bằng `.trim()`.
 - **Đăng ký sự kiện tương tác đa dạng**: Thành thạo việc đăng ký nhiều lắng nghe sự kiện độc lập (`click`, `dblclick`, `input`, `mouseover`, `mouseleave`) thông qua `addEventListener` mà không gây ghi đè logic.
@@ -118,12 +116,3 @@ Yêu cầu tạo các phần tử DOM có ID và Class cụ thể:
   ```
 - File HTML phải liên kết đúng file CSS và JS độc lập.
 - Tất cả các thao tác sự kiện phải dùng `addEventListener` trong file `script.js`. **Tuyệt đối không** dùng thuộc tính HTML inline event như `onclick="..."`, `onsubmit="..."`.
-
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Cấu trúc HTML/CSS/JS tách biệt rõ ràng.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, danh xưng tiếng Anh chuẩn nghiệp vụ EdTech (`staffId`, `calculatePayroll`, `renderRow`).<br>- Code sạch, có comment giải thích các bước xử lý sự kiện. |
-| **Xử lý Sự kiện Form & Validation** | **40đ** | - Sử dụng đúng sự kiện `submit` trên Form và ngăn tải lại trang bằng `event.preventDefault()` (**10đ**).<br>- Thu thập và chuẩn hóa dữ liệu bằng `.trim()`, kiểm tra định dạng Mã nhân sự `ET-xxxx` (**15đ**).<br>- Lắng nghe sự kiện `input`/`change` để tính toán và hiển thị preview đi muộn live mượt mà (**15đ**). |
-| **Xử lý Logic Nghiệp vụ & DOM Dynamic** | **20đ** | - Tính đúng 100% công thức thù lao ca, thù lao OT, hệ số ngày Lễ/Tết và tiền phạt đi muộn (**10đ**).<br>- Thêm dòng mới vào DOM, cập nhật chính xác tổng chi trả `#totalBudget` thời gian thực (**10đ**). |
-| **Xử lý Sự kiện Tương tác Nâng cao** | **20đ** | - Đăng ký thành công sự kiện `click` để xóa dòng và trừ tiền tổng chi trả (**10đ**).<br>- Đăng ký sự kiện `dblclick` để toggle class `.approved` đổi trạng thái dòng (**5đ**).<br>- Đăng ký sự kiện `mouseover`/`mouseleave` hiển thị tooltip chi tiết lương (**5đ**). |

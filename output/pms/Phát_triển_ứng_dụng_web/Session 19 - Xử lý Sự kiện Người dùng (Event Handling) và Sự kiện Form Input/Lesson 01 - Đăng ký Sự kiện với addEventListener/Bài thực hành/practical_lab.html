@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bài thực hành: Phát triển Hệ thống Thẻ Sản phẩm Tương tác E-commerce với addEventListener và removeEventListener - Rikkei Education</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: { red: "#be111c", darkred: "#90000a", dark: "#0f172a" }
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"]
+            }
+          }
+        }
+      };
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+      [contenteditable="true"], [contenteditable="true"] *, code[contenteditable="true"], code[contenteditable="true"] * {
+        outline: none !important; border: none !important; box-shadow: none !important; background-color: transparent !important;
+      }
+      code[contenteditable="true"] {
+        display: block !important; white-space: pre !important; overflow-x: auto !important;
+        font-family: "JetBrains Mono", monospace !important; font-size: 0.875rem !important;
+        line-height: 1.6 !important; color: #0f172a !important; padding: 1rem !important; background: #f8fafc !important; border-radius: 0.5rem !important;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed min-h-screen">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40">
+      <div class="max-w-6xl mx-auto h-full px-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <img src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png" alt="Rikkei Academy Logo" class="h-9 object-contain" />
+          <span class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4">Bài thực hành: Phát triển Hệ thống Thẻ Sản phẩm Tương tác E-commerce với addEventListener và removeEventListener</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 pt-24 pb-16">
+      <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">Bài thực hành: Phát triển Hệ thống Thẻ Sản phẩm Tương tác E-commerce với addEventListener và removeEventListener</h1>
+          <p class="text-sm text-slate-500 mt-2">Thực hành chỉnh sửa dữ liệu và chạy trực tiếp mã nguồn ngay trên trình duyệt.</p>
+        </div>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">1. Mục tiêu bài học</h2>
+          <ul class="list-disc pl-5 space-y-2 text-slate-700 text-sm"><li>[Cài đặt và cấu hình] Khởi tạo cấu trúc DOM cho thẻ sản phẩm E-commerce và liên kết script xử lý JavaScript.</li>
+<li>[Triển khai logic cốt lõi] Xử lý các sự kiện click (thêm giỏ hàng), dblclick (yêu thích) và mouseover (xem trước trạng thái) sử dụng addEventListener.</li>
+<li>[Kiểm thử và hoàn thiện] Triển khai logic kiểm soát kho, hủy sự kiện bằng removeEventListener và ngăn ngừa các lỗi truyền tham chiếu callback.</li></ul>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">2. Yêu cầu bài toán</h2>
+          <div class="p-5 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 text-sm leading-relaxed">
+            Trong các hệ thống thương mại điện tử hiện đại, trải nghiệm tương tác trực quan trên thẻ sản phẩm đóng vai trò quyết định đến tỷ lệ chuyển đổi đơn hàng. Người dùng cần di chuột để xem nhanh thông tin, nhấp đơn để thêm sản phẩm vào giỏ và nhấp đôi để lưu vào danh sách yêu thích một cách mượt mà mà không cần tải lại trang.
+
+Tuy nhiên, khi số lượng hàng tồn kho chạm mốc giới hạn, hệ thống cần vô hiệu hóa chức năng thêm giỏ hàng ngay lập tức trên giao diện người dùng và gỡ bỏ sự kiện tương tác để tránh việc gửi thừa yêu cầu. Việc này đòi hỏi kỹ thuật quản lý sự kiện chặt chẽ bằng cách đăng ký và hủy đăng ký bộ nghe sự kiện trên trình duyệt.
+
+Với tư cách là Lập trình viên Frontend tại Rikkei Education, bạn được giao nhiệm vụ xây dựng mô-đun tương tác cho thẻ sản phẩm E-commerce. Bạn sẽ áp dụng phương thức addEventListener để lắng nghe đa sự kiện và removeEventListener để gỡ bỏ sự kiện khi hết hàng, đồng thời đảm bảo mã nguồn chuẩn hóa không mắc các lỗi phổ biến khi làm việc với hàm callback.
+          </div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">3. Các bước thực hiện</h2>
+          <div class="space-y-3"><div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+  <div>
+    <strong class="text-slate-900">Bước 1</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Khởi tạo cấu trúc giao diện HTML/CSS và truy xuất các phần tử DOM cần thiết trong script JavaScript.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+  <div>
+    <strong class="text-slate-900">Bước 2</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Định nghĩa các hàm callback có tên (Named Functions) cho các sự kiện: handleAddToCart (click), handleAddToWishlist (dblclick), và handleImageHover (mouseover).</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+  <div>
+    <strong class="text-slate-900">Bước 3</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Đăng ký các sự kiện tương ứng vào phần tử DOM bằng addEventListener, đảm bảo truyền đúng tham chiếu tên hàm mà không kèm dấu ngoặc đơn () hoặc tiền tố 'on'.</p>
+  </div>
+</div>
+<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-sm flex items-start gap-3">
+  <span class="w-6 h-6 rounded-full bg-rikkei-red text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+  <div>
+    <strong class="text-slate-900">Bước 4</strong>
+    <p class="text-xs text-slate-600 mt-0.5">Thêm logic kiểm tra giới hạn tồn kho trong handleAddToCart; khi đạt hạn mức tối đa, gỡ bỏ sự kiện click bằng removeEventListener và cập nhật trạng thái giao diện.</p>
+  </div>
+</div></div>
+        </section>
+
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Mã nguồn tham khảo &amp; Thực thi trực tiếp</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50">
+            <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 flex justify-end items-center text-xs font-semibold text-slate-700 gap-2">
+              <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
+                Khôi phục mã gốc
+              </button>
+              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
+                Chạy chương trình
+              </button>
+            </div>
+            <div class="p-4 bg-slate-50 font-mono text-sm">
+              <pre class="m-0"><code id="lab-code-editor" class="language-python" contenteditable="true" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html lang="vi"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Thẻ Sản Phẩm Tương Tác E-commerce&lt;/title&gt;
+  &lt;style&gt;
+    .product-card {
+      width: 320px;
+      border: 1px solid #e0e0e0;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    .product-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .badge {
+      background: #007bff;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+    .stock-info {
+      margin: 10px 0;
+      color: #28a745;
+      font-weight: bold;
+    }
+    .btn {
+      margin: 5px;
+      padding: 8px 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .btn-cart {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-wishlist {
+      background-color: #ffc107;
+      color: black;
+    }
+    .disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="product-card"&gt;
+    &lt;img class="product-image" src="https://via.placeholder.com/300x200" alt="Sản phẩm mẫu"&gt;
+    &lt;h3&gt;Tai nghe Bluetooth Pro&lt;/h3&gt;
+    &lt;p class="stock-info" id="stock-status"&gt;Trạng thái: Sẵn sàng phục vụ&lt;/p&gt;
+    &lt;p&gt;Giỏ hàng: &lt;span class="badge" id="cart-badge"&gt;0&lt;/span&gt;&lt;/p&gt;
+    &lt;p id="wishlist-status"&gt;&lt;/p&gt;
+    
+    &lt;button class="btn btn-cart" id="add-to-cart-btn"&gt;Thêm vào giỏ hàng&lt;/button&gt;
+    &lt;button class="btn btn-wishlist" id="wishlist-btn"&gt;Nhấp đôi để yêu thích&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    // 1. Truy xuất các phần tử DOM
+    const addToCartBtn = document.querySelector('#add-to-cart-btn');
+    const wishlistBtn = document.querySelector('#wishlist-btn');
+    const cartBadge = document.querySelector('#cart-badge');
+    const stockStatus = document.querySelector('#stock-status');
+    const wishlistStatus = document.querySelector('#wishlist-status');
+    const productImage = document.querySelector('.product-image');
+
+    let cartCount = 0;
+    const maxStock = 3;
+
+    // 2. Định nghĩa các hàm callback có tên rõ ràng (Named Callback Functions)
+    function handleAddToCart() {
+      if (cartCount &lt; maxStock) {
+        cartCount++;
+        cartBadge.textContent = cartCount;
+        console.log('Đã thêm sản phẩm vào giỏ. Số lượng:', cartCount);
+      }
+
+      // Kiểm tra chạm trần số lượng tồn kho
+      if (cartCount &gt;= maxStock) {
+        stockStatus.textContent = 'Trạng thái: Đã hết hàng tồn kho!';
+        stockStatus.style.color = 'red';
+        addToCartBtn.classList.add('disabled');
+        
+        // Hủy đăng ký sự kiện click bằng đúng tham chiếu hàm đã khai báo
+        addToCartBtn.removeEventListener('click', handleAddToCart);
+        console.log('Hệ thống: Đã gỡ bỏ sự kiện click do sản phẩm vượt quá tồn kho.');
+      }
+    }
+
+    function handleAddToWishlist() {
+      wishlistStatus.textContent = 'Đã thêm vào danh sách yêu thích!';
+      wishlistStatus.style.color = '#d9534f';
+      console.log('Sự kiện dblclick kích hoạt: Đã lưu vào yêu thích.');
+    }
+
+    function handleImageHover() {
+      if (cartCount &lt; maxStock) {
+        const remaining = maxStock - cartCount;
+        stockStatus.textContent = 'Trạng thái: Còn lại ' + remaining + ' sản phẩm trong kho';
+      }
+    }
+
+    // 3. Đăng ký sự kiện với addEventListener
+    // ĐÚNG: Chỉ truyền tham chiếu tên hàm, không có dấu () và không dùng tiền tố 'on'
+    addToCartBtn.addEventListener('click', handleAddToCart);
+    wishlistBtn.addEventListener('dblclick', handleAddToWishlist);
+    productImage.addEventListener('mouseover', handleImageHover);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            </div>
+            <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
+              <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
+                <span>KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+              </div>
+              <pre id="lab-console-output" class="m-0 text-emerald-400 whitespace-pre-wrap leading-relaxed">[Nhấn 'Chạy chương trình' để thực thi mã nguồn trên trình duyệt...]</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="mb-6">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">5. Checklist đánh giá kết quả</h2>
+          <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-3"><label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Khởi tạo đúng cấu trúc giao diện HTML và liên kết chính xác các phần tử DOM trong JavaScript</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Đăng ký thành công các sự kiện click, dblclick, mouseover bằng phương thức addEventListener</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Truyền đúng tham chiếu hàm callback (không dùng tiền tố 'on' như 'onclick' và không chứa dấu () gây thực thi ngay)</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Triển khai gỡ bỏ bộ nghe sự kiện thành công bằng removeEventListener khi số lượng đạt hạn mức kho</span>
+</label>
+<label class="flex items-start gap-3 cursor-pointer text-sm text-slate-700 select-none">
+  <input type="checkbox" class="w-4 h-4 rounded border-slate-300 text-rikkei-red focus:ring-rikkei-red mt-0.5" />
+  <span>Mã nguồn hoạt động chuẩn xác trên trình duyệt, xử lý các trạng thái giao diện đúng yêu cầu và không phát sinh lỗi console</span>
+</label></div>
+        </section>
+      </article>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => { if (window.hljs) window.hljs.highlightAll(); });
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) pyodideInstance = await window.loadPyodide();
+        return pyodideInstance;
+      }
+      async function runLabCode() {
+        const editor = document.getElementById("lab-code-editor");
+        const output = document.getElementById("lab-console-output");
+        if (!editor || !output) return;
+        const code = editor.innerText || editor.textContent;
+        const isPython = "true" === "true";
+        if (isPython) {
+          output.innerText = "⏳ Đang nạp Pyodide WASM Engine và thực thi...";
+          try {
+            const pyodide = await getPyodide();
+            let buffer = "";
+            pyodide.setStdout({ batched: (str) => { buffer += str + "\n"; } });
+            pyodide.setStderr({ batched: (str) => { buffer += "ERROR: " + str + "\n"; } });
+            await pyodide.runPythonAsync(code);
+            output.innerText = buffer.trim() || "Thực thi hoàn tất!";
+          } catch (err) {
+            output.innerText = "❌ LỖI THỰC THI:\n" + err;
+          }
+        } else {
+          output.innerText = "▶ Kiểm tra cú pháp mã nguồn python: Đã ghi nhận mã nguồn thực hành!";
+        }
+      }
+    </script>
+  </body>
+</html>

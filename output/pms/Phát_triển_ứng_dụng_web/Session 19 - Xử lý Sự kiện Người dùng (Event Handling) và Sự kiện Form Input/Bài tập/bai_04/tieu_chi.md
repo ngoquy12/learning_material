@@ -1,0 +1,8 @@
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| **Cấu trúc & Phong cách mã nguồn** | **20đ** | - Tổ chức mã nguồn HTML/CSS/JS sạch sẻ, phân tách rõ ràng.<br>- Đặt tên biến, hàm theo chuẩn `camelCase`, mô tả đúng ý nghĩa nghiệp vụ y tế.<br>- Thụt lề chuẩn xác, có chú thích đầy đủ cho các hàm xử lý sự kiện. |
+| **Xử lý Sự kiện Form & Tính toán Động** | **30đ** | - Sử dụng đúng `addEventListener` cho các sự kiện `submit`, `input`, `change`, `click`, `dblclick`.<br>- Gọi `event.preventDefault()` chính xác trên sự kiện submit form.<br>- Tính toán chính xác tổng chi phí gói y tế + add-on + giảm giá chu kỳ theo thời gian thực. |
+| **Validation Dữ liệu & Kiểm soát Biên** | **30đ** | - Validate đúng tất cả các quy tắc nghiệp vụ (Số điện thoại 10 số, CCCD 12 số, Email, Họ tên dài >= 3 ký tự).<br>- Xử lý sự kiện `blur` kiểm tra từng trường độc lập.<br>- Kiểm tra chính xác giới hạn số lượng thành viên tương ứng với từng hạng gói (Basic, Standard, VIP).<br>- Tự động `.focus()` vào ô input lỗi đầu tiên khi submit thất bại. |
+| **Cập nhật Giao diện & Tương tác Nâng cao** | **20đ** | - Xử lý sự kiện `click` và `dblclick` trên thẻ Package Card mượt mà (toggle class `.expanded`, tự kích hoạt radio button).<br>- Hiển thị/Ẩn thành công thẻ `#confirmationCard` kèm mã đăng ký ngẫu nhiên `MED-XXXXXX` khi submit hợp lệ.<br>- Nút `Reset` khôi phục form về trạng thái ban đầu chính xác. |

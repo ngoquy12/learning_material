@@ -1,1 +1,1413 @@
-<!-- Bài đọc: Lesson 01 - Đăng ký Sự kiện với addEventListener -->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Đăng ký Sự kiện với addEventListener - Rikkei Education
+    </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1680px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+
+    <style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      #viz-terminal-log::-webkit-scrollbar {
+        width: 5px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-track {
+        background: #020617;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram,
+      svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text,
+      svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg,
+      section svg,
+      article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* 3. CODE BLOCK FIXES */
+      pre code {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: #0f172a !important;
+        font-style: normal !important;
+      }
+      p,
+      li,
+      td,
+      th,
+      span,
+      div {
+        font-style: normal;
+      }
+      /* STRICT ZERO ITALIC LEAKAGE SAFETY NET */
+      article p:not(.italic):not(.img-caption),
+      article li,
+      article div:not(.img-caption-box),
+      article table,
+      article blockquote,
+      article strong,
+      article b,
+      article h1,
+      article h2,
+      article h3,
+      article h4,
+      article h5,
+      article h6 {
+        font-style: normal !important;
+      }
+      article p.italic,
+      article figcaption,
+      article .img-caption {
+        font-style: italic !important;
+      }
+      .toc-link,
+      .mobile-toc-link {
+        color: #475569 !important;
+        font-style: normal !important;
+      }
+      .toc-link:hover,
+      .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *,
+      .bg-rose-50 *,
+      .bg-emerald-50 *,
+      .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p,
+      [id*="mech"] div,
+      [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line),
+      [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw {
+        color: #cf222e !important;
+        font-weight: bold !important;
+      }
+      .str {
+        color: #0a3069 !important;
+      }
+      .num {
+        color: #0550ae !important;
+        font-weight: 600 !important;
+      }
+      .fn {
+        color: #8250df !important;
+        font-weight: 600 !important;
+      }
+      .cmt {
+        color: #6e7781 !important;
+        font-style: italic !important;
+      }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span,
+      code span {
+        background-color: transparent !important;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body
+        > *:not(header):not(main):not(script):not(style):not(
+          #mobile-toc-toggle
+        ):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
+    <!-- Fixed Header -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40"
+    >
+      <div
+        class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+          <span
+            class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4"
+            >Đăng ký Sự kiện với addEventListener</span
+          >
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside
+        class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
+        <div class="space-y-4">
+          <h4
+            class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2"
+          >
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài
+            đọc
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 space-y-1 text-sm"
+          >
+            <a
+              href="#section-1"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >1. Tại sao cần Đăng ký Sự kiện với addEventListener trong giao diện E-commerce?</a
+            >
+            <a
+              href="#section-2"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >2. Cú pháp addEventListener, các sự kiện chuột và cơ chế hủy lắng nghe sự kiện</a
+            >
+            <a
+              href="#section-3"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >3. Các ví dụ ứng dụng thực tiễn</a
+            >
+            <a
+              href="#section-4"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >4. Tổng kết bài học & Các lỗi thường gặp</a
+            >
+            <a
+              href="#section-5"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+            >
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button
+        id="mobile-toc-toggle"
+        onclick="toggleMobileToc()"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20"
+        title="Mở mục lục bài đọc"
+      >
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div
+        id="mobile-toc-drawer"
+        class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300"
+      >
+        <div
+          class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between"
+        >
+          <div>
+            <div
+              class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200"
+            >
+              <h4
+                class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC
+                BÀI ĐỌC
+              </h4>
+              <button
+                onclick="toggleMobileToc()"
+                class="p-1 rounded text-slate-400 hover:text-slate-600"
+              >
+                <i class="ph-bold ph-x text-lg"></i>
+              </button>
+            </div>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a
+                href="#section-1"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >1. Tại sao cần Đăng ký Sự kiện với addEventListener trong giao diện E-commerce?</a
+              >
+              <a
+                href="#section-2"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >2. Cú pháp addEventListener, các sự kiện chuột và cơ chế hủy lắng nghe sự kiện</a
+              >
+              <a
+                href="#section-3"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >3. Các ví dụ ứng dụng thực tiễn</a
+              >
+              <a
+                href="#section-4"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >4. Tổng kết bài học & Các lỗi thường gặp</a
+              >
+              <a
+                href="#section-5"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+              >
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+            Rikkei Education - Learning Material
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Reading Article Content -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Main Title Header (Exact Match to Benchmark Lesson 03) -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">
+            Đăng ký Sự kiện với addEventListener
+          </h1>
+        </div>
+
+        <!-- SECTION 1: PROBLEM STATEMENT -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            1. Tại sao cần Đăng ký Sự kiện với addEventListener trong giao diện E-commerce?
+          </h2>
+          <div class="space-y-4">
+            <p class="text-slate-600 mb-4 leading-relaxed">Trong các hệ thống thương mại điện tử hiện đại, thẻ sản phẩm (Product Card) là thành phần trung tâm tương tác giữa người dùng và cửa hàng trực tuyến. Một thẻ sản phẩm hoàn chỉnh không chỉ hiển thị thông tin tĩnh mà còn phản hồi tức thì với các thao tác của khách hàng: di chuột (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">mouseover</code>) để phóng to xem trước ảnh chi tiết, nhấp đơn (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">click</code>) để thêm hàng vào giỏ, hoặc nhấp đôi (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">dblclick</code>) để đánh dấu yêu thích.</p><p class="text-slate-600 mb-4 leading-relaxed">Khi lập trình giao diện web ban đầu, các nhà phát triển thường gán trực tiếp hàm xử lý vào thuộc tính của phần tử DOM như <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">element.onclick = handleAddToCart</code>. Tuy nhiên, cách làm này bộc lộ xung đột kỹ thuật nghiêm trọng trong các dự án thực tế. Thuộc tính <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">onclick</code> chỉ giữ được một hàm xử lý duy nhất tại một thời điểm. Nếu một mô-dún phân tích dữ liệu (Analytics) hoặc bộ đo lường tiếp thị cần lắng nghe sự kiện nhấp chuột trên cùng nút bấm đó, việc gán mới sẽ ghi đè và làm vô hiệu hóa toàn bộ logic thêm vào giỏ hàng ban đầu.</p><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-white my-4"><strong class="font-semibold text-slate-900">Rủi ro vận hành doanh nghiệp:</strong> Việc ghi đè sự kiện khiến hệ thống bị mất lượt thêm giỏ hàng của khách mà không phát ra bất kỳ lỗi runtime nào trên console, dẫn đến sụt giảm doanh thu trực tiếp và gây khó khăn lớn cho việc truy vết lỗi trên môi trường production.</div><p class="text-slate-600 mb-4 leading-relaxed">Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener</code> ra đời như một giải pháp chuẩn hóa của W3C. Nó cho phép đăng ký đồng thời nhiều bộ lắng nghe sự kiện độc lập trên cùng một phần tử DOM, phân tách sạch sẽ giữa logic giao diện và các mô-dún bổ trợ, đồng thời hỗ trợ linh hoạt gỡ bỏ sự kiện với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">removeEventListener</code> khi sản phẩm hết hàng tồn kho.</p><!-- *Prompt tạo ảnh: A clean 2D flat vector technical illustration of an E-commerce product card web interface receiving user interactions (mouse click to add to cart, mouse double-click to favorite, mouse hover to preview). Strictly NO embedded title text banners at the top of the canvas. All explanatory text labels and node titles in 100% Accented Vietnamese ('Thẻ sản phẩm', 'Di chuột xem trước', 'Nhấp chuột thêm giỏ', 'Nhấp đôi yêu thích'). Strictly NO mixed English jargon. Strictly NO text emojis. 16:9 aspect ratio, spacious layout with horizontal left-to-right flow. Muted corporate color palette (navy blue, slate gray, soft emerald for success action, vibrant teal). Clean sans-serif typography, clean white background, no 3D elements, no glowing neon effects.* -->
+          </div>
+
+          <div class="my-6 text-center">
+  <img src="images/scene_sec-ang-ky-su-kien-voi-addeventlistener.png" alt="Sơ đồ bối cảnh thực tế: Đăng ký Sự kiện với addEventListener" class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" onerror="this.closest('.my-6').style.display='none';" />
+  <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ bối cảnh thực tế bài học: Đăng ký Sự kiện với addEventListener</p>
+</div>
+        </section>
+
+        <!-- SECTION 2: SYNTAX & MECHANISM BREAKDOWN -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            2. Cú pháp addEventListener, các sự kiện chuột và cơ chế hủy lắng nghe sự kiện
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-2-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Phương thức addEventListener và cơ chế đăng ký đa sự kiện</h3><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><strong class="font-semibold text-slate-900">Vấn đề kỹ thuật:</strong> Khi sử dụng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">element.onclick = functionA</code> rồi tiếp tục gán <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">element.onclick = functionB</code>, trình duyệt sẽ ghi đè biến chứa con trỏ hàm. Kết quả là chỉ có <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">functionB</code> được kích hoạt khi người dùng nhấp chuột.</div><p class="text-slate-600 mb-4 leading-relaxed">Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener</code> giải quyết hoàn toàn hạn chế này bằng cách quản lý một danh sách bộ lắng nghe (Event Listeners List) cho mỗi loại sự kiện trên phần tử DOM.</p><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><strong class="font-semibold text-slate-900">Cú pháp chuẩn của addEventListener:</strong><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-1" class="language-javascript" contenteditable="true" spellcheck="false" data-original="targetElement.addEventListener(eventName, listenerFunction);" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">targetElement.addEventListener(eventName, listenerFunction);</code></pre>
+  </div>
+  <div id="container-sb-sec2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">targetElement:</strong> Đối tượng phần tử DOM đã được truy xuất (thông qua <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">document.querySelector</code>).</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">eventName:</strong> Chuỗi ký tự biểu thị tên sự kiện chuẩn (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'click'</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'mouseover'</code>). Tuyệt đối không dùng tiền tố <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'on'</code>.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">listenerFunction:</strong> Tên hàm hoặc biểu thức hàm callback sẽ tự động thực thi khi sự kiện phát sinh.</li></ul><h3 id="sec-2-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Chi tiết các sự kiện chuột phổ biến: click, dblclick và mouseover</h3><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-white my-4"><strong class="font-semibold text-slate-900">Lưu ý phân biệt thao tác chuột:</strong> Mỗi hành vi tương tác con trỏ chuột tạo ra một loại sự kiện riêng biệt trong hệ thống DOM Event API. Cần lựa chọn đúng loại sự kiện phù hợp với trải nghiệm người dùng.</div><p class="text-slate-600 mb-4 leading-relaxed">Ba sự kiện chuột căn bản thường được áp dụng trên giao diện thẻ sản phẩm bao gồm:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Sự kiện click:</strong> Phát sinh khi người dùng nhấn và nhả nút chuột trái trên phần tử. Đây là sự kiện tiêu chuẩn dùng cho các hành động như thêm vào giỏ hàng hoặc chuyển trang.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Sự kiện dblclick:</strong> Phát sinh khi người dùng nhấp hai lần liên tiếp trong một khoảng thời gian cực ngắn. Thường dùng cho tính năng yêu thích hoặc phóng to ảnh.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Sự kiện mouseover:</strong> Phát sinh ngay khi con trỏ chuột di chuyển vào ranh giới không gian của phần tử. Thường dùng để kích hoạt hiệu ứng di chuột hoặc xem trước thông tin.</li></ul><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><strong class="font-semibold text-slate-900">Ví dụ minh họa đăng ký sự kiện chuột:</strong><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-2', 'output-sb-sec2-2', 'container-sb-sec2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-2', 'output-sb-sec2-2', 'container-sb-sec2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-2" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const productCard = document.querySelector(&#x27;.product-card&#x27;);&#10;&#10;// Đăng ký sự kiện xem trước khi di chuột vào&#10;productCard.addEventListener(&#x27;mouseover&#x27;, function() {&#10;  productCard.classList.add(&#x27;active-preview&#x27;);&#10;});&#10;&#10;// Đăng ký sự kiện yêu thích khi nhấp đôi&#10;productCard.addEventListener(&#x27;dblclick&#x27;, function() {&#10;  productCard.classList.toggle(&#x27;is-favorite&#x27;);&#10;});" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const productCard = document.querySelector(&#x27;.product-card&#x27;);
+
+// Đăng ký sự kiện xem trước khi di chuột vào
+productCard.addEventListener(&#x27;mouseover&#x27;, function() {
+  productCard.classList.add(&#x27;active-preview&#x27;);
+});
+
+// Đăng ký sự kiện yêu thích khi nhấp đôi
+productCard.addEventListener(&#x27;dblclick&#x27;, function() {
+  productCard.classList.toggle(&#x27;is-favorite&#x27;);
+});</code></pre>
+  </div>
+  <div id="container-sb-sec2-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div><h3 id="sec-2-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Cấu hình hủy đăng ký sự kiện với removeEventListener</h3><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><strong class="font-semibold text-slate-900">Vấn đề bộ nhớ và trải nghiệm:</strong> Khi một nút bấm không còn khả dụng (ví dụ: sản phẩm đã hết hàng trong kho), việc để nút bấm tiếp tục lắng nghe sự kiện nhấp chuột gây lãng phí tài nguyên bộ nhớ và tạo ra lỗi logic ứng dụng.</div><p class="text-slate-600 mb-4 leading-relaxed">Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">removeEventListener</code> cho phép gỡ bỏ một bộ lắng nghe đã được đăng ký trước đó. Tuy nhiên, trình duyệt yêu cầu tham chiếu hàm phải hoàn toàn khớp với tham chiếu đã dùng khi gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener</code>.</p><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white my-4"><strong class="font-semibold text-slate-900">Quy tắc tham chiếu bộ nhớ với removeEventListener:</strong><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-3', 'output-sb-sec2-3', 'container-sb-sec2-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-3', 'output-sb-sec2-3', 'container-sb-sec2-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-3" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// KHOAN: Phải khai báo hàm có tên (Named Function)&#10;function handleAddToCart() {&#10;  console.log(&#x27;Thực hiện thêm giỏ hàng.&#x27;);&#10;}&#10;&#10;// Đăng ký sự kiện&#10;addToCartBtn.addEventListener(&#x27;click&#x27;, handleAddToCart);&#10;&#10;// Gỡ bỏ sự kiện thành công vì dùng chung tham chiếu handleAddToCart&#10;addToCartBtn.removeEventListener(&#x27;click&#x27;, handleAddToCart);" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// KHOAN: Phải khai báo hàm có tên (Named Function)
+function handleAddToCart() {
+  console.log(&#x27;Thực hiện thêm giỏ hàng.&#x27;);
+}
+
+// Đăng ký sự kiện
+addToCartBtn.addEventListener(&#x27;click&#x27;, handleAddToCart);
+
+// Gỡ bỏ sự kiện thành công vì dùng chung tham chiếu handleAddToCart
+addToCartBtn.removeEventListener(&#x27;click&#x27;, handleAddToCart);</code></pre>
+  </div>
+  <div id="container-sb-sec2-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div></div>
+
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Quan sát quá trình đăng ký sự kiện click với addEventListener và luồng thực thi hàm callback khi người dùng tương tác.</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>Mã nguồn thực thi (JavaScript (ES6+))</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded font-sans">Sẵn sàng</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-1.5 overflow-x-auto min-h-[160px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">1</span>
+            <span class="truncate"><span class="text-purple-600 font-bold">const</span> <span class="text-slate-800">addToCartBtn</span> <span class="text-sky-600 font-bold">=</span> <span class="text-slate-800">document</span>.<span class="text-blue-600 font-semibold">querySelector</span>(&#x27;#<span class="text-slate-800">btn</span><span class="text-sky-600 font-bold">-</span><span class="text-slate-800">add</span>&#x27;);</span>
+          </div>
+          <span id="viz-badge-1" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">2</span>
+            <span class="truncate"><span class="text-purple-600 font-bold">let</span> <span class="text-slate-800">cartCount</span> <span class="text-sky-600 font-bold">=</span> <span class="text-amber-600 font-mono">0</span>;</span>
+          </div>
+          <span id="viz-badge-2" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">3</span>
+            <span class="truncate"><span class="text-purple-600 font-bold">function</span> <span class="text-blue-600 font-semibold">handleAddToCart</span>() {</span>
+          </div>
+          <span id="viz-badge-3" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">4</span>
+            <span class="truncate">  <span class="text-slate-800">cartCount</span> <span class="text-sky-600 font-bold">+=</span> <span class="text-amber-600 font-mono">1</span>;</span>
+          </div>
+          <span id="viz-badge-4" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">5</span>
+            <span class="truncate">}</span>
+          </div>
+          <span id="viz-badge-5" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+        <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-700 text-[10px] select-none text-right mr-3 font-mono shrink-0">6</span>
+            <span class="truncate"><span class="text-slate-800">addToCartBtn</span>.<span class="text-blue-600 font-semibold">addEventListener</span>(&#x27;<span class="text-slate-800">click</span>&#x27;, <span class="text-slate-800">handleAddToCart</span>);</span>
+          </div>
+          <span id="viz-badge-6" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>Trạng thái bộ nhớ (Memory Canvas)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold font-sans">RAM State</span>
+      </div>
+      <div class="p-4 space-y-3 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Phần tử Nút Bấm:</span>
+          <span id="viz-ram-addtocartbtn" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Số Lượng Giỏ Hàng:</span>
+          <span id="viz-ram-cartcount" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Hàm Callback:</span>
+          <span id="viz-ram-handleaddtocart" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Trạng Thái Bộ Lắng Nghe:</span>
+          <span id="viz-ram-eventlistener" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nút điều khiển -->
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="runVizStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-all">
+        <span class="ph-bold ph-caret-left"></span> Bước trước
+      </button>
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs flex items-center gap-1 hover:bg-rikkei-darkred transition-all shadow-sm">
+        Tiếp theo <span class="ph-bold ph-caret-right"></span>
+      </button>
+      <button type="button" onclick="runVizStep(-999)" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs transition-all" title="Reset">
+        <span class="ph-bold ph-arrow-counter-clockwise"></span> Đặt lại
+      </button>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+    </div>
+  </div>
+
+  <!-- Terminal log -->
+  <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
+    <div class="text-[11px] font-mono text-slate-600 mb-1.5 flex items-center gap-1.5 font-bold">
+      <span class="ph-bold ph-terminal text-emerald-800"></span> Nhật ký thực thi từng bước (Console Log):
+    </div>
+    <div id="viz-terminal-log" class="h-[110px] overflow-y-auto bg-white text-slate-800 font-mono text-xs p-2.5 rounded border border-slate-200 space-y-1">
+      <div class="text-slate-700 ">Sẵn sàng mô phỏng từng bước cho Đăng ký Sự kiện với addEventListener. Bấm "Tiếp theo" để bắt đầu...</div>
+    </div>
+  </div>
+</div>
+          </div>
+
+        </section>
+
+        <!-- SECTION 3: PROGRESSIVE EXAMPLES -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            3. Các ví dụ ứng dụng thực tiễn
+          </h2>
+
+          <div class="space-y-6">
+            <h3 id="sec-3-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ 3.1: Đăng ký sự kiện click thêm sản phẩm vào giỏ hàng</h3><p class="text-slate-600 mb-4 leading-relaxed">Bài toán ban đầu yêu cầu xử lý tương tác cơ bản khi người dùng nhấp vào nút "Thêm vào giỏ". Mỗi lần nhấp chuột, số lượng trên huy hiệu giỏ hàng (Cart Badge) sẽ tự động cập nhật tăng 1 đơn vị.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-1" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Lấy phần tử nút bấm và thẻ hiển thị số lượng giỏ hàng&#10;const addToCartButton = document.querySelector(&#x27;#add-to-cart-btn&#x27;);&#10;const cartBadge = document.querySelector(&#x27;#cart-badge&#x27;);&#10;&#10;let currentCartCount = 0;&#10;&#10;// Hàm xử lý tăng số lượng giỏ hàng&#10;function processAddToCart() {&#10;  currentCartCount += 1;&#10;  cartBadge.textContent = currentCartCount;&#10;  console.log(&#x27;Đã thêm 1 sản phẩm vào giỏ hàng. Tổng số:&#x27;, currentCartCount);&#10;}&#10;&#10;// Đăng ký sự kiện click chuẩn hóa&#10;addToCartButton.addEventListener(&#x27;click&#x27;, processAddToCart);" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Lấy phần tử nút bấm và thẻ hiển thị số lượng giỏ hàng
+const addToCartButton = document.querySelector(&#x27;#add-to-cart-btn&#x27;);
+const cartBadge = document.querySelector(&#x27;#cart-badge&#x27;);
+
+let currentCartCount = 0;
+
+// Hàm xử lý tăng số lượng giỏ hàng
+function processAddToCart() {
+  currentCartCount += 1;
+  cartBadge.textContent = currentCartCount;
+  console.log(&#x27;Đã thêm 1 sản phẩm vào giỏ hàng. Tổng số:&#x27;, currentCartCount);
+}
+
+// Đăng ký sự kiện click chuẩn hóa
+addToCartButton.addEventListener(&#x27;click&#x27;, processAddToCart);</code></pre>
+  </div>
+  <div id="container-sb-sec3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Giải thích:</strong> Phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener</code> gắn hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">processAddToCart</code> vào sự kiện <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'click'</code> của nút bấm mà không làm ảnh hưởng đến các tập lệnh khác.</li></ul><h3 id="sec-3-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ 3.2: Tích hợp nhiều sự kiện mouseover và dblclick trên thẻ sản phẩm</h3><p class="text-slate-600 mb-4 leading-relaxed">Mở rộng tính năng nghiệp vụ: Khi người dùng di chuột (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">mouseover</code>) qua hình ảnh, giao diện thể hiện viền xanh xem trước. Khi nhấp đôi (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">dblclick</code>) vào thẻ sản phẩm, trạng thái yêu thích sẽ được bật hoặc tắt.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-2" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const productCard = document.querySelector(&#x27;.product-card&#x27;);&#10;const productImage = document.querySelector(&#x27;.product-image&#x27;);&#10;const favoriteLabel = document.querySelector(&#x27;.favorite-label&#x27;);&#10;const addToCartButton = document.querySelector(&#x27;#add-to-cart-btn&#x27;);&#10;const cartBadge = document.querySelector(&#x27;#cart-badge&#x27;);&#10;&#10;let currentCartCount = 0;&#10;&#10;// 1. Sự kiện click nút mua hàng&#10;addToCartButton.addEventListener(&#x27;click&#x27;, function() {&#10;  currentCartCount += 1;&#10;  cartBadge.textContent = currentCartCount;&#10;});&#10;&#10;// 2. Sự kiện mouseover vào ảnh sản phẩm để xem trước hiệu ứng&#10;productImage.addEventListener(&#x27;mouseover&#x27;, function() {&#10;  productImage.style.border = &#x27;2px solid #007bff&#x27;;&#10;  console.log(&#x27;Người dùng đang di chuột xem trước ảnh sản phẩm.&#x27;);&#10;});&#10;&#10;// 3. Sự kiện dblclick vào thẻ sản phẩm để đánh dấu yêu thích&#10;productCard.addEventListener(&#x27;dblclick&#x27;, function() {&#10;  productCard.classList.toggle(&#x27;favorite&#x27;);&#10;  const isFav = productCard.classList.contains(&#x27;favorite&#x27;);&#10;  favoriteLabel.textContent = isFav ? &#x27;❤️ Đã thêm vào yêu thích&#x27; : &#x27;🤍 Chưa yêu thích&#x27;;&#10;});" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const productCard = document.querySelector(&#x27;.product-card&#x27;);
+const productImage = document.querySelector(&#x27;.product-image&#x27;);
+const favoriteLabel = document.querySelector(&#x27;.favorite-label&#x27;);
+const addToCartButton = document.querySelector(&#x27;#add-to-cart-btn&#x27;);
+const cartBadge = document.querySelector(&#x27;#cart-badge&#x27;);
+
+let currentCartCount = 0;
+
+// 1. Sự kiện click nút mua hàng
+addToCartButton.addEventListener(&#x27;click&#x27;, function() {
+  currentCartCount += 1;
+  cartBadge.textContent = currentCartCount;
+});
+
+// 2. Sự kiện mouseover vào ảnh sản phẩm để xem trước hiệu ứng
+productImage.addEventListener(&#x27;mouseover&#x27;, function() {
+  productImage.style.border = &#x27;2px solid #007bff&#x27;;
+  console.log(&#x27;Người dùng đang di chuột xem trước ảnh sản phẩm.&#x27;);
+});
+
+// 3. Sự kiện dblclick vào thẻ sản phẩm để đánh dấu yêu thích
+productCard.addEventListener(&#x27;dblclick&#x27;, function() {
+  productCard.classList.toggle(&#x27;favorite&#x27;);
+  const isFav = productCard.classList.contains(&#x27;favorite&#x27;);
+  favoriteLabel.textContent = isFav ? &#x27;❤️ Đã thêm vào yêu thích&#x27; : &#x27;🤍 Chưa yêu thích&#x27;;
+});</code></pre>
+  </div>
+  <div id="container-sb-sec3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Giải thích:</strong> Việc đăng ký đồng thời 3 loại sự kiện chuột riêng biệt cho phép thẻ sản phẩm phản hồi linh hoạt với từng thao tác con trỏ của người dùng.</li></ul><h3 id="sec-3-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ 3.3: Quản lý số lượng tồn kho và hủy đăng ký sự kiện với removeEventListener</h3><p class="text-slate-600 mb-4 leading-relaxed">Nghiệp vụ doanh nghiệp hoàn chỉnh: Giới hạn mỗi khách hàng chỉ mua tối đa 3 sản phẩm tồn kho. Khi người dùng nhấp đủ số lượng 3, hệ thống hiển thị thông báo hết hàng và hủy bỏ sự kiện click bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">removeEventListener</code>.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-3" class="language-javascript" contenteditable="true" spellcheck="false" data-original="const addToCartBtn = document.querySelector(&#x27;#add-to-cart-btn&#x27;);&#10;const cartBadge = document.querySelector(&#x27;#cart-badge&#x27;);&#10;const stockStatus = document.querySelector(&#x27;#stock-status&#x27;);&#10;const productImage = document.querySelector(&#x27;.product-image&#x27;);&#10;&#10;let cartCount = 0;&#10;const maxStock = 3;&#10;&#10;// Định nghĩa hàm callback có tên rõ ràng để gỡ bỏ được sau này&#10;function handleAddToCart() {&#10;  if (cartCount = maxStock) {&#10;    stockStatus.textContent = &#x27;Trạng thái: Đã hết hàng tồn kho!&#x27;;&#10;    stockStatus.style.color = &#x27;red&#x27;;&#10;    &#10;    // Hủy đăng ký sự kiện click&#10;    addToCartBtn.removeEventListener(&#x27;click&#x27;, handleAddToCart);&#10;    addToCartBtn.style.opacity = &#x27;0.5&#x27;;&#10;    console.log(&#x27;Đã hủy đăng ký sự kiện click do sản phẩm đạt giới hạn kho.&#x27;);&#10;  }&#10;}&#10;&#10;// Đăng ký sự kiện click&#10;addToCartBtn.addEventListener(&#x27;click&#x27;, handleAddToCart);&#10;&#10;// Sự kiện mouseover hỗ trợ hiển thị thông báo còn lại trong kho&#10;productImage.addEventListener(&#x27;mouseover&#x27;, function() {&#10;  if (cartCount" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">const addToCartBtn = document.querySelector(&#x27;#add-to-cart-btn&#x27;);
+const cartBadge = document.querySelector(&#x27;#cart-badge&#x27;);
+const stockStatus = document.querySelector(&#x27;#stock-status&#x27;);
+const productImage = document.querySelector(&#x27;.product-image&#x27;);
+
+let cartCount = 0;
+const maxStock = 3;
+
+// Định nghĩa hàm callback có tên rõ ràng để gỡ bỏ được sau này
+function handleAddToCart() {
+  if (cartCount = maxStock) {
+    stockStatus.textContent = &#x27;Trạng thái: Đã hết hàng tồn kho!&#x27;;
+    stockStatus.style.color = &#x27;red&#x27;;
+    
+    // Hủy đăng ký sự kiện click
+    addToCartBtn.removeEventListener(&#x27;click&#x27;, handleAddToCart);
+    addToCartBtn.style.opacity = &#x27;0.5&#x27;;
+    console.log(&#x27;Đã hủy đăng ký sự kiện click do sản phẩm đạt giới hạn kho.&#x27;);
+  }
+}
+
+// Đăng ký sự kiện click
+addToCartBtn.addEventListener(&#x27;click&#x27;, handleAddToCart);
+
+// Sự kiện mouseover hỗ trợ hiển thị thông báo còn lại trong kho
+productImage.addEventListener(&#x27;mouseover&#x27;, function() {
+  if (cartCount</code></pre>
+  </div>
+  <div id="container-sb-sec3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Giải thích:</strong> Nhờ truyền đúng tên hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">handleAddToCart</code>, phương thức <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">removeEventListener</code> tìm thấy chính xác địa chỉ lưu trữ bộ lắng nghe và hủy bỏ tương tác thành công.</li></ul>
+          </div>
+        </section>
+
+        <!-- SECTION 4: GOTCHAS & PITFALLS -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            4. Tổng kết bài học & Các lỗi thường gặp
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-4-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.1. Kiến thức trọng tâm</h3><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Ưu điểm vượt trội:</strong> <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">addEventListener</code> hỗ trợ gắn nhiều hàm lắng nghe trên cùng một sự kiện mà không sợ bị ghi đè.</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Đúng tên sự kiện:</strong> Chuỗi tham số sự kiện bắt buộc viết thường và không chứa tiền tố <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'on'</code> (dùng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'click'</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'mouseover'</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'dblclick'</code>).</li><li class="leading-relaxed"><strong class="font-semibold text-slate-900">Điều kiện gỡ bỏ sự kiện:</strong> Muốn sử dụng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">removeEventListener</code>, hàm callback bắt buộc phải là một hàm có tên (Named Function) để đảm bảo đồng nhất về tham chiếu vùng nhớ.</li></ul><h3 id="sec-4-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.2. Bảng so sánh phương thức đăng ký sự kiện</h3><div class="overflow-x-auto my-6"><div class="overflow-x-auto my-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<table class="w-full text-sm text-left text-slate-600 border border-slate-200 rounded-lg"><thead class="text-xs text-slate-700 uppercase bg-slate-100"><tr><th scope="col" class="px-6 py-3 border-b">Tiêu chí so sánh</th><th scope="col" class="px-6 py-3 border-b">Thuộc tính trực tiếp (onclick)</th><th scope="col" class="px-6 py-3 border-b">Phương thức addEventListener</th></tr></thead><tbody><tr class="bg-white border-b"><td class="px-6 py-4 font-semibold text-slate-900">Số hàm xử lý đồng thời</td><td class="px-6 py-4">Chỉ duy nhất 1 hàm (Ghi đè nếu gán mới).</td><td class="px-6 py-4">Không giới hạn số lượng hàm lắng nghe.</td></tr><tr class="bg-slate-50 border-b"><td class="px-6 py-4 font-semibold text-slate-900">Gỡ bỏ sự kiện</td><td class="px-6 py-4">Gán lại giá trị bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">null</code>.</td><td class="px-6 py-4">Gỡ bỏ chính xác qua <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">removeEventListener</code>.</td></tr><tr class="bg-white border-b"><td class="px-6 py-4 font-semibold text-slate-900">Cú pháp tên sự kiện</td><td class="px-6 py-4">Có tiền tố 'on' (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">onclick</code>).</td><td class="px-6 py-4">Bỏ tiền tố 'on' (ví dụ: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">'click'</code>).</td></tr><tr class="bg-slate-50"><td class="px-6 py-4 font-semibold text-slate-900">Khuyên dùng trong dự án</td><td class="px-6 py-4">Không nên dùng trong dự án thực tế.</td><td class="px-6 py-4">Tiêu chuẩn bắt buộc cho ứng dụng doanh nghiệp.</td></tr></tbody></table>
+</div></div><h3 id="sec-4-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.3. Các lỗi thường gặp & Cách khắc phục</h3><div class="space-y-6 my-4"><div><h4 class="font-montserrat font-bold text-base font-semibold text-slate-900 mb-2">Lỗi 1: Truyền dấu ngoặc đơn () vào tên hàm callback khiến hàm chạy ngay lập tức</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white"><strong class="font-semibold text-rose-900 block mb-2">SAI (Hàm bị thực thi ngay khi tải trang):</strong><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">function processAddToCart() {
+  console.log(&#x27;Đã thêm giỏ hàng.&#x27;);
+}
+
+// LỖI: Truyền cặp ngoặc () khiến hàm chạy ngay!
+addToCartBtn.addEventListener(&#x27;click&#x27;, processAddToCart());</code></pre>
+</div></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white"><strong class="font-semibold text-emerald-900 block mb-2">ĐÚNG (Chỉ truyền tham chiếu tên hàm):</strong><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">function processAddToCart() {
+  console.log(&#x27;Đã thêm giỏ hàng.&#x27;);
+}
+
+// ĐÚNG: Chỉ truyền tên hàm làm tham chiếu
+addToCartBtn.addEventListener(&#x27;click&#x27;, processAddToCart);</code></pre>
+</div></div></div></div><div><h4 class="font-montserrat font-bold text-base font-semibold text-slate-900 mb-2">Lỗi 2: Sử dụng sai tên sự kiện có tiền tố 'on'</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white"><strong class="font-semibold text-rose-900 block mb-2">SAI (Bộ lắng nghe không thể kích hoạt):</strong><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// LỖI: Viết &#x27;onclick&#x27; thay vì &#x27;click&#x27;
+addToCartBtn.addEventListener(&#x27;onclick&#x27;, processAddToCart);</code></pre>
+</div></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white"><strong class="font-semibold text-emerald-900 block mb-2">ĐÚNG (Dùng tên sự kiện chuẩn bỏ 'on'):</strong><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// ĐÚNG: Sử dụng đúng chuỗi sự kiện &#x27;click&#x27;
+addToCartBtn.addEventListener(&#x27;click&#x27;, processAddToCart);</code></pre>
+</div></div></div></div><div><h4 class="font-montserrat font-bold text-base font-semibold text-slate-900 mb-2">Lỗi 3: Không gỡ bỏ được sự kiện khi truyền hàm vô danh (Anonymous Function)</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white"><strong class="font-semibold text-rose-900 block mb-2">SAI (Khác tham chiếu vùng nhớ):</strong><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Đăng ký với hàm vô danh
+addToCartBtn.addEventListener(&#x27;click&#x27;, function() {
+  console.log(&#x27;Thêm giỏ hàng&#x27;);
+});
+
+// LỖI: Không thể gỡ bỏ vì đây là hàm vô danh mới!
+addToCartBtn.removeEventListener(&#x27;click&#x27;, function() {
+  console.log(&#x27;Thêm giỏ hàng&#x27;);
+});</code></pre>
+</div></div><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white"><strong class="font-semibold text-emerald-900 block mb-2">ĐÚNG (Khai báo hàm có tên rõ ràng):</strong><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">function handleAddToCart() {
+  console.log(&#x27;Thêm giỏ hàng&#x27;);
+}
+
+// Đăng ký hàm có tên
+addToCartBtn.addEventListener(&#x27;click&#x27;, handleAddToCart);
+
+// ĐÚNG: Gỡ bỏ chính xác hàm đã đăng ký
+addToCartBtn.removeEventListener(&#x27;click&#x27;, handleAddToCart);</code></pre>
+</div></div></div></div></div>
+          </div>
+        </section>
+
+        <!-- SECTION 5: REFERENCES -->
+        <section id="section-5" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            5. Tài liệu tham khảo & Câu hỏi ôn tập
+          </h2>
+
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - EventTarget.addEventListener()
+                </a>
+              </li>
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - Introduction to events
+                </a>
+              </li>
+              <li>
+                <a href="https://www.w3schools.com/js/js_htmldom_eventlistener.asp" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> W3Schools - JavaScript HTML DOM EventListener
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Self-Test Component -->
+          <div id="selftest-section" class="mt-8 pt-6 border-t border-slate-200">
+            <h3 class="font-montserrat font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+              <i class="ph-bold ph-checks text-rikkei-red"></i> Câu hỏi ôn tập
+            </h3>
+            <p class="text-sm text-slate-600 mb-6">Trả lời các câu hỏi nhanh dưới đây để kiểm tra mức độ hiểu biết của bạn về kịch bản và ví dụ thực tế trong bài đọc này!</p>
+
+            <form id="self-test-form" onsubmit="event.preventDefault(); checkSelfTest();" class="space-y-6">
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">1</span>
+                  <span>Điều gì sẽ xảy ra nếu nhà phát triển đăng ký sự kiện nhấp chuột bằng đoạn mã sau: `btn.addEventListener('click', handleCart());`?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Hàm `handleCart` sẽ thực thi ngay lập tức tại thời điểm trình duyệt đọc đoạn mã đăng ký, thay vì chờ người dùng nhấp chuột.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Trình duyệt sẽ báo lỗi cú pháp SyntaxError và dừng toàn bộ chương trình JavaScript.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Hàm `handleCart` vẫn hoạt động bình thường khi người dùng nhấp chuột.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Sự kiện click sẽ tự động chuyển đổi thành sự kiện mouseover.</span>
+                  </label>
+                </div>
+                <div id="q1-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">2</span>
+                  <span>Tại sao việc gọi `removeEventListener('click', function() {...})` với một hàm vô danh lại KHÔNG thể gỡ bỏ bộ lắng nghe sự kiện đã đăng ký trước đó?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Vì phương thức `removeEventListener` không hỗ trợ sự kiện 'click'.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Vì mỗi lần khai báo hàm vô danh `function() {...}`, JavaScript tạo ra một đối tượng hàm mới với địa chỉ vùng nhớ hoàn toàn khác nhau.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Vì trình duyệt bắt buộc phải làm mới trang web mới gỡ bỏ được sự kiện.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Vì hàm vô danh chỉ có thể gỡ bỏ bằng thuộc tính `onclick = null`.</span>
+                  </label>
+                </div>
+                <div id="q2-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">3</span>
+                  <span>Trong hệ thống thẻ sản phẩm, sự kiện nào được kích hoạt khi con trỏ chuột của khách hàng bắt đầu di chuyển đè vào vùng diện tích của ảnh sản phẩm?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Sự kiện `click`.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Sự kiện `dblclick`.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Sự kiện `mouseover`.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Sự kiện `onmouseover`.</span>
+                  </label>
+                </div>
+                <div id="q3-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+
+              <!-- Button Submit -->
+              <div class="flex items-center justify-between gap-4">
+                <button type="submit" id="btn-check-selftest" class="px-5 py-2.5 rounded-lg bg-rikkei-red hover:bg-rikkei-darkred text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+                  <i class="ph-bold ph-check text-base"></i> Kiểm tra kết quả
+                </button>
+                <div id="self-test-score" class="hidden text-sm font-semibold text-slate-700"></div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+      hljs.highlightAll();
+
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
+      });
+
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        drawer.classList.toggle("hidden");
+      }
+
+      // JavaScript Live In-Browser Sandbox Engine
+      function runJsCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const rawCode = editor.innerText || editor.textContent;
+        output.innerText = "";
+
+        let logs = [];
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const originalInfo = console.info;
+
+        try {
+          console.log = function(...args) {
+            logs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalLog.apply(console, args);
+          };
+          console.info = console.log;
+          console.warn = function(...args) {
+            logs.push("[CẢNH BÁO] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalWarn.apply(console, args);
+          };
+          console.error = function(...args) {
+            logs.push("[LỖI] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalError.apply(console, args);
+          };
+
+          const result = new Function(rawCode)();
+          if (result !== undefined && logs.length === 0) {
+            logs.push(String(result));
+          }
+
+          if (logs.length > 0) {
+            output.innerText = logs.join('\n');
+          } else {
+            output.innerText = "Thực thi thành công (Không có dữ liệu xuất console).";
+          }
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI JAVASCRIPT:\n" + (err && err.stack ? err.stack : err);
+        } finally {
+          console.log = originalLog;
+          console.warn = originalWarn;
+          console.error = originalError;
+          console.info = originalInfo;
+        }
+      }
+
+      // Pyodide Live Wasm Sandbox Engine
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({
+            batched: (str) => { outputBuffer += str + "\n"; }
+          });
+          pyodide.setStderr({
+            batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; }
+          });
+
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim() ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute("data-highlighted");
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("code[data-original]").forEach((codeEl) => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+
+      function checkSelfTest() {
+        const answers = {"1": "A", "2": "B", "3": "C"};
+        const explanations = {"1": "Khi thêm dấu ngoặc đơn `()` phía sau tên hàm, JavaScript hiểu rằng bạn muốn gọi hàm đó ngay lập tức và truyền giá trị trả về của hàm vào `addEventListener`. Do đó, hàm sẽ chạy khi trang đang tải chứ không phải khi sự kiện click diễn ra.", "2": "Phương thức `removeEventListener` yêu cầu tham chiếu đối tượng hàm gỡ bỏ phải trùng khớp 100% về địa chỉ bộ nhớ với hàm đã đăng ký. Hàm vô danh tạo ra các vùng nhớ khác nhau nên trình duyệt không nhận diện được hàm cần gỡ bỏ.", "3": "Sự kiện `mouseover` phát sinh ngay khi con trỏ chuột di chuyển vào ranh giới phần tử DOM. Tên sự kiện truyền vào `addEventListener` phải là `'mouseover'` (không có tiền tố `'on'`)."};
+
+        let score = 0;
+        const total = Object.keys(answers).length;
+
+        for (let i = 1; i <= total; i++) {
+          const qId = "q" + i;
+          const selected = document.querySelector(`input[name="${qId}"]:checked`);
+          const expDiv = document.getElementById(`${qId}-explanation`);
+          
+          if (!expDiv) continue;
+          expDiv.classList.remove("hidden");
+          
+          const correctAns = answers[i];
+          const explainText = explanations[i];
+          
+          if (selected) {
+            const val = selected.value;
+            if (val === correctAns) {
+              score++;
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-check-circle text-emerald-600 mr-1.5 text-sm align-middle"></i> <strong>Đúng!</strong> ${explainText}`;
+            } else {
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-rose-50 text-rose-800 border border-rose-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-x-circle text-rose-600 mr-1.5 text-sm align-middle"></i> <strong>Sai!</strong> Đáp án đúng là <strong>${correctAns}</strong>. ${explainText}`;
+            }
+          } else {
+            expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-medium text-left";
+            expDiv.innerHTML = `<i class="ph-bold ph-warning text-amber-600 mr-1.5 text-sm align-middle"></i> Bạn chưa chọn câu trả lời cho câu này.`;
+          }
+        }
+
+        const scoreDiv = document.getElementById("self-test-score");
+        if (scoreDiv) {
+          scoreDiv.classList.remove("hidden");
+          scoreDiv.innerText = `Kết quả: ${score}/${total} câu trả lời đúng.`;
+        }
+      }
+
+      // Visualizer logic for Section 2.4 Step-by-Step Tracker
+      var currentVizStep = 0;
+      var vizAutoInterval = null;
+
+      function runVizStep(stepNum) {
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = (window.vizSteps && window.vizSteps.length > 0) ? window.vizSteps.length : linesCount;
+
+        if (stepNum === -999) {
+          currentVizStep = 0;
+          if (vizAutoInterval) {
+            clearInterval(vizAutoInterval);
+            vizAutoInterval = null;
+            const autoBtn = document.getElementById("viz-auto-btn");
+            if (autoBtn) autoBtn.innerText = "Tự động chạy";
+          }
+        } else if (stepNum === -1) {
+          currentVizStep = Math.max(0, currentVizStep - 1);
+        } else if (stepNum === 1) {
+          currentVizStep = Math.min(totalSteps, currentVizStep + 1);
+        } else {
+          currentVizStep = stepNum;
+        }
+
+        // Reset highlights & badges
+        lineDivs.forEach((el) => {
+          el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre";
+        });
+        document.querySelectorAll("[id^='viz-badge-']").forEach((b) => {
+          b.classList.add("hidden");
+          b.innerText = "";
+        });
+
+        const term = document.getElementById("viz-terminal-log");
+        const badge = document.getElementById("viz-step-badge");
+
+        if (currentVizStep === 0) {
+          if (term) term.innerHTML = `<div class="text-slate-400 italic">&gt; Sẵn sàng mô phỏng từng bước. Bấm 'Tiếp theo' để bắt đầu...</div>`;
+          if (badge) {
+            badge.innerText = "Sẵn sàng";
+            badge.className = "px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded font-sans";
+          }
+          updateRamMonitor(0);
+          return;
+        }
+
+        if (badge) {
+          badge.innerText = `Bước ${currentVizStep}/${totalSteps}`;
+          badge.className = "px-2 py-0.5 bg-amber-100 text-amber-800 text-[11px] rounded font-bold font-sans border border-amber-300";
+        }
+
+        if (window.vizSteps && window.vizSteps[currentVizStep - 1]) {
+          const stepData = window.vizSteps[currentVizStep - 1];
+          const activeLine = stepData.line;
+          const el = document.getElementById("viz-line-" + activeLine);
+          if (el) {
+            el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre bg-amber-50 border-l-4 border-amber-500 font-semibold text-slate-900 shadow-sm";
+            // Show inline badge if present
+            const lineBadge = document.getElementById("viz-badge-" + activeLine);
+            if (lineBadge && stepData.badge) {
+              lineBadge.innerText = stepData.badge;
+              lineBadge.classList.remove("hidden");
+            }
+          }
+          updateRamMonitor(currentVizStep);
+          if (term) {
+            term.innerHTML = "";
+            for (let step = 1; step <= currentVizStep; step++) {
+              const sData = window.vizSteps[step - 1];
+              if (sData && sData.log) {
+                term.innerHTML += `<div class="text-slate-800 font-mono text-xs">${sData.log}</div>`;
+              }
+            }
+            term.scrollTop = term.scrollHeight;
+          }
+        } else {
+          // Fallback if window.vizSteps is not set
+          const activeEl = document.getElementById("viz-line-" + currentVizStep);
+          if (activeEl) {
+            activeEl.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre bg-amber-50 border-l-4 border-amber-500 font-semibold text-slate-900 shadow-sm";
+            if (term) {
+              term.innerHTML = `<div class="text-slate-800 font-mono text-xs">&gt; [Bước ${currentVizStep}] Thực thi dòng lệnh ${currentVizStep}</div>`;
+            }
+          }
+        }
+      }
+
+      function updateRamMonitor(stepIdx) {
+        // Reset all RAM entries to --- if stepIdx is 0
+        if (stepIdx === 0) {
+          const ramEls = document.querySelectorAll("[id^='viz-ram-']");
+          ramEls.forEach((el) => {
+            if (el.id !== "viz-ram-status" && el.id !== "viz-ram-env" && el.id !== "viz-ram-lesson") {
+              el.innerText = "---";
+              el.className = "font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300";
+            }
+          });
+          return;
+        }
+
+        if (!window.vizSteps || !window.vizSteps[stepIdx - 1]) return;
+        const stepData = window.vizSteps[stepIdx - 1];
+        if (stepData && stepData.ram) {
+          for (const [key, val] of Object.entries(stepData.ram)) {
+            const ramEl = document.getElementById("viz-ram-" + key);
+            if (ramEl) {
+              const oldVal = ramEl.innerText;
+              ramEl.innerText = val;
+              if (oldVal !== val && oldVal !== "---") {
+                ramEl.className = "font-bold text-emerald-800 px-2.5 py-0.5 rounded bg-emerald-100 border border-emerald-300 min-w-[60px] text-center transition-all duration-300 scale-105";
+                setTimeout(() => {
+                  if (ramEl) ramEl.className = "font-bold text-slate-800 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300";
+                }, 800);
+              } else {
+                ramEl.className = "font-bold text-slate-800 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300";
+              }
+            }
+          }
+        }
+      }
+
+      function vizToggleAuto() {
+        const btn = document.getElementById("viz-auto-btn");
+        if (!btn) return;
+        
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = (window.vizSteps && window.vizSteps.length > 0) ? window.vizSteps.length : linesCount;
+
+        if (vizAutoInterval) {
+          clearInterval(vizAutoInterval);
+          vizAutoInterval = null;
+          btn.innerText = "Tự động chạy";
+        } else {
+          btn.innerText = "Tạm dừng";
+          if (currentVizStep >= totalSteps) runVizStep(-999);
+          runVizStep(1);
+          vizAutoInterval = setInterval(() => {
+            if (currentVizStep >= totalSteps) {
+              clearInterval(vizAutoInterval);
+              vizAutoInterval = null;
+              btn.innerText = "Tự động chạy";
+            } else {
+              runVizStep(1);
+            }
+          }, 1800);
+        }
+      }
+
+      // Active TOC link on scroll using IntersectionObserver
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              // Deactivate all TOC links in sidebar and drawer
+              document.querySelectorAll(".toc-link, .mobile-toc-link").forEach((link) => {
+                link.classList.remove("border-rikkei-red", "text-rikkei-red", "font-bold", "bg-slate-100");
+                link.classList.add("border-transparent", "text-slate-600");
+              });
+              // Activate current links
+              const activeLinks = document.querySelectorAll(`a[href="#${id}"]`);
+              activeLinks.forEach((link) => {
+                if (link.classList.contains("toc-link")) {
+                  link.classList.add("border-rikkei-red", "text-rikkei-red", "font-bold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else if (link.classList.contains("mobile-toc-link")) {
+                  link.classList.add("text-rikkei-red", "bg-slate-100");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll("section[id^='section-']").forEach((section) => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>
