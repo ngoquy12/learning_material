@@ -4,6 +4,7 @@
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
 ```general
+
 # Mã nguồn minh họa nghiệp vụ cho bài học: Khai báo biến và Nhập xuất dữ liệu
 score = 8.5
 

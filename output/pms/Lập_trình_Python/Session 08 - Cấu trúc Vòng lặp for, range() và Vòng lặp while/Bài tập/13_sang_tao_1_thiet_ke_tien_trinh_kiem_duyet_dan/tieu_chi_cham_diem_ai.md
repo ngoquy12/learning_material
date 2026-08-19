@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 1] Thiết kế Tiến trình Kiểm duyệt Danh mục Sách Trả Tự động — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản lỗi thường gặp — 30 điểm**

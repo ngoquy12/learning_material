@@ -26,6 +26,8 @@ def sanitize_vietnamese_filename(text: str) -> str:
 def clean_exercise_content(content: str) -> str:
     if not content:
         return ""
+    from agents.creators.common_utils import normalize_markdown_headers
+    content = normalize_markdown_headers(content)
     # 1. Remove bracket tags like [NOTE], [WARNING], [TIP], [REQUIREMENT], [ERROR], [INFO], [CAUTION]
     content = re.sub(r'\[(NOTE|WARNING|TIP|REQUIREMENT|ERROR|INFO|CAUTION)\]\s*', '', content, flags=re.IGNORECASE)
     # 2. Ensure all HTML <table> tags enforce 100% full width
@@ -38,7 +40,7 @@ def clean_exercise_content(content: str) -> str:
             tag = tag.replace('<table', '<table style="width: 100%; border-collapse: collapse;"')
         return tag
     content = re.sub(r'<table[^>]*>', fix_table_tag, content, flags=re.IGNORECASE)
-    return content
+    return normalize_markdown_headers(content)
 
 def is_cli_or_tooling_tech(tech_stack: str) -> bool:
     """Check if the tech stack is a CLI, Version Control, Container, Shell, OS, DevOps, Agile/Scrum, or System Architecture subject."""

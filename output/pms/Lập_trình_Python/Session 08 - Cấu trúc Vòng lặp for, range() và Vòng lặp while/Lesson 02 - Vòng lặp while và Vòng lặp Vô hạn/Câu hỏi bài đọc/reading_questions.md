@@ -4,6 +4,7 @@
 Dựa trên mã nguồn nghiệp vụ lập tích lũy tài chính tự động cho khách hàng ngân hàng số được trích dẫn từ bài thực hành:
 
 ```python
+
 # Khởi tạo số dư hiện tại, số dư mục tiêu và số tiền gửi định kỳ
 current_balance = 10000000
 target_balance = 50000000

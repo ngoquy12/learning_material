@@ -24,6 +24,7 @@ Một hệ thống thương mại điện tử cần tự động đánh giá c�
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```text
+
 # Khai báo các thông tin đầu vào của đơn hàng
 order_amount = 650000
 items_count = 6
@@ -31,14 +32,17 @@ is_vip = False
 discount_code = "SALE2024"
 
 # Bước 1: Kiểm tra điều kiện miễn phí vận chuyển
+
 # Đơn hàng >= 500,000 VNĐ hoặc là tài khoản VIP
 is_free_shipping = (order_amount >= 500000) or (is_vip == True)
 
 # Bước 2: Kiểm tra điều kiện tặng quà cao cấp
+
 # Số lượng > 5 sản phẩm và Tổng tiền >= 1,000,000 VNĐ
 is_eligible_for_gift = (items_count > 5) and (order_amount >= 1000000)
 
 # Bước 3: Kiểm tra tính hợp lệ của mã giảm giá
+
 # Mã không được rỗng và phải chính xác là "SALE2024"
 has_valid_discount = (discount_code != "") and (discount_code == "SALE2024")
 
@@ -54,7 +58,7 @@ print("Đơn hàng bằng đúng 500,000 VNĐ:", is_exact_threshold)
 print("Kiểu dữ liệu của kết quả kiểm tra:", type(is_free_shipping))
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khai báo đầy đủ các biến đầu vào theo đúng kiểu dữ liệu yêu cầu.
 - [ ] Sử dụng chính xác các toán tử so sánh (==, !=, >, >=, <=, <) trong biểu thức.
 - [ ] Kết quả đầu ra của các biểu thức so sánh trả về chuẩn kiểu dữ liệu Boolean (True/False).

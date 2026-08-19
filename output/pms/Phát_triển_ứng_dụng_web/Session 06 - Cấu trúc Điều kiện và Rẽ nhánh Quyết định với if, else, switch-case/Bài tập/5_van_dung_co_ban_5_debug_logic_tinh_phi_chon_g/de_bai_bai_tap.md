@@ -1,5 +1,3 @@
-#
-
 # <center>[Sửa lỗi code] Debug Logic Tính Phí Chọn Ghế Và Hành Lý Máy Bay</center>
 
 ### **1. Mục tiêu**
@@ -21,7 +19,9 @@ Hệ thống AIRLINE_CHECKIN đang vận hành mô-đun tính phí dịch vụ b
 Bộ phận chăm sóc khách hàng tiếp nhận nhiều phản ánh từ người dùng: Hành khách đặt vé hạng Eco khi chọn ghế VIP chỉ bị hệ thống tính 50.000 VNĐ thay vì 100.000 VNĐ. Ngoài ra, những hành khách chỉ mang 5 kg hành lý lại thấy tổng tiền hóa đơn bị trừ đi 100.000 VNĐ (xuất hiện số tiền âm bất thường).
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript đang triển khai logic nghiệp vụ bị lỗi:```javascript
+Dưới đây là đoạn mã nguồn JavaScript đang triển khai logic nghiệp vụ bị lỗi:
+
+```javascript
 // Tính tổng phí dịch vụ check-in của hành khách
 function calculateCheckinFee(ticketClass, isVipSeat, baggageWeight) {
   let seatFee = 0;
@@ -56,9 +56,7 @@ const passenger1 = calculateCheckinFee(1, true, 5);
 console.log("Kết quả tính phí hành khách 1:", passenger1);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Truy vết mã nguồn & Lập báo cáo Test Case**
 Học viên phân tích đoạn code legacy trên, xác định các dòng code gây ra lỗi và hoàn thiện bảng Test Case sau vào báo cáo (dòng 1 đã được điền mẫu làm cơ sở):

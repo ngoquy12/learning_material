@@ -1063,27 +1063,52 @@ def clean_unwanted_text(text: str) -> str:
 
 def normalize_markdown_headers(content: str) -> str:
     """
-    Ensures every Markdown heading (#, ##, ###, ####, #####, ######)
-    has a proper blank line before it if it was attached to preceding text.
-    Protects code blocks inside code fences (```).
+    Ensures:
+    1. Every Markdown heading (#, ##, ###, ####, #####, ######) has a proper blank line before it.
+    2. Every opening code fence (```lang) is placed on its own line preceded by a blank line (preventing :```lang or text```lang).
+    3. Every closing code fence (```) is followed by proper blank line before subsequent text/headings.
+    4. Code blocks inside fences (```) are strictly protected and untouched.
     """
     if not content or not isinstance(content, str):
         return content
-    
+
     parts = content.split("```")
-    for i in range(0, len(parts), 2):
-        text = parts[i]
-        # Break any heading stuck directly after non-newline characters
-        text = re.sub(r'([^\n])\s*(#{1,6}\s+)', r'\1\n\n\2', text)
-        
-        lines = text.splitlines()
-        fixed_lines = []
-        for idx, line in enumerate(lines):
-            stripped = line.strip()
-            if re.match(r'^#{1,6}\s+', stripped) and idx > 0:
-                if fixed_lines and fixed_lines[-1].strip() != "":
-                    fixed_lines.append("")
-            fixed_lines.append(line)
-        parts[i] = "\n".join(fixed_lines)
-        
-    return "```".join(parts)
+    for i in range(len(parts)):
+        if i % 2 == 0:
+            # Text OUTSIDE code block
+            text = parts[i]
+
+            # Remove standalone stray '#' lines that have no title text
+            text = re.sub(r'^\s*#\s*$', '', text, flags=re.MULTILINE)
+
+            # Separate headings attached directly to preceding text (e.g. "quầy.### **3. Mã nguồn hiện tại**")
+            text = re.sub(r'([^\n\r])\s*(#{1,6}\s+)', r'\1\n\n\2', text)
+
+            lines = text.splitlines()
+            fixed_lines = []
+            for idx, line in enumerate(lines):
+                stripped = line.strip()
+                if re.match(r'^#{1,6}\s+', stripped) and idx > 0:
+                    if fixed_lines and fixed_lines[-1].strip() != "":
+                        fixed_lines.append("")
+                fixed_lines.append(line)
+
+            cleaned_text = "\n".join(fixed_lines)
+            cleaned_text = re.sub(r'\n{3,}', '\n\n', cleaned_text)
+
+            # If this non-code segment precedes a code block, ensure it ends with double newlines
+            if i < len(parts) - 1:
+                cleaned_text = cleaned_text.rstrip() + "\n\n"
+            # If this non-code segment follows a code block, ensure it starts with double newlines
+            if i > 0 and cleaned_text.strip():
+                cleaned_text = "\n\n" + cleaned_text.lstrip("\r\n")
+
+            parts[i] = cleaned_text
+        else:
+            # Code block INSIDE fences
+            code = parts[i].lstrip("\r\n")
+            # Ensure code starts properly on language identifier and ends with newline before closing ```
+            parts[i] = code.rstrip() + "\n"
+
+    result = "```".join(parts)
+    return result.strip() + "\n"

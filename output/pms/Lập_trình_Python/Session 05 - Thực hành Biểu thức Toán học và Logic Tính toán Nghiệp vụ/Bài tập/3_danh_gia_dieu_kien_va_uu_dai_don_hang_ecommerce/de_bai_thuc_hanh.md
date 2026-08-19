@@ -1,4 +1,4 @@
-## <center>Đánh giá Điều kiện và Ưu đãi Đơn hàng E-Commerce</center>
+# <center>Đánh giá Điều kiện và Ưu đãi Đơn hàng E-Commerce</center>
 
 ### **1. Mục tiêu**
 - **Toán tử so sánh & logic:** Áp dụng các toán tử so sánh và toán tử logic để kiểm tra các ngưỡng dữ liệu.
@@ -7,7 +7,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Phân hệ thanh toán của sàn thương mại điện tử cần tính toán nhanh giá trị đơn hàng, kiểm tra điều kiện miễn phí vận chuyển (Free Shipping), kiểm tra điều kiện tặng quà tri ân (Gift Voucher) và áp dụng phí vận chuyển sau ưu đãi. 
 
 Toàn bộ logic này cần được tích hợp trong một script xử lý tuần tự không sử dụng câu lệnh `if-else` để tối ưu tốc độ tính toán.
@@ -64,13 +64,16 @@ Viết chương trình Python thực hiện các tác vụ sau:
 
 **Kịch bản 1: Khách hàng VIP được ưu đãi vận chuyển**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập tổng giá trị giỏ hàng (VND): 900000
   Khách hàng có phải VIP? (Nhập 1 nếu đúng, 0 nếu không): 1
   Nhập khoảng cách giao hàng (km): 4.5
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === HÓA ĐƠN ƯU ĐÃI ĐƠN HÀNG E-COMMERCE ===
   Cước phí vận chuyển cơ bản: 22,500.0 VND
   Miễn phí vận chuyển: True
@@ -78,17 +81,20 @@ Viết chương trình Python thực hiện các tác vụ sau:
   Được nhận quà tặng tri ân: True
   -----------------------------------------
   TỔNG TIỀN THANH TOÁN: 900,000.0 VND
-  ```
+```
 
 **Kịch bản 2: Khách hàng thường mua đơn hàng nhỏ**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập tổng giá trị giỏ hàng (VND): 450000
   Khách hàng có phải VIP? (Nhập 1 nếu đúng, 0 nếu không): 0
   Nhập khoảng cách giao hàng (km): 3.0
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === HÓA ĐƠN ƯU ĐÃI ĐƠN HÀNG E-COMMERCE ===
   Cước phí vận chuyển cơ bản: 15,000.0 VND
   Miễn phí vận chuyển: False
@@ -96,7 +102,7 @@ Viết chương trình Python thực hiện các tác vụ sau:
   Được nhận quà tặng tri ân: False
   -----------------------------------------
   TỔNG TIỀN THANH TOÁN: 465,000.0 VND
-  ```
+```
 
 ---
 
@@ -104,7 +110,8 @@ Viết chương trình Python thực hiện các tác vụ sau:
 - Lưu mã nguồn vào file `order_reward.py`.
 - Tuân thủ PEP 8 và khai báo đầy đủ type hints.
 - Thực hiện git commit:
-  ```bash
+
+```bash
   git add order_reward.py
   git commit -m "feat: implement ecommerce reward calculator"
-  ```
+```

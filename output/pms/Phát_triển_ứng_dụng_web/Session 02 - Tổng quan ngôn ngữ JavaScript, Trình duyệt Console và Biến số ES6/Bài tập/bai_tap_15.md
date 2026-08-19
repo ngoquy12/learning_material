@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 3] Thiết kế Mô-đun Tổng hợp Phiếu Đăng ký Khám và Tính Chi phí Phòng khám Tự động</center>
 
 ### **1. Mục tiêu**

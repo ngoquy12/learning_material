@@ -1,4 +1,4 @@
-## <center>Bài Kiểm Tra Đầu Giờ: Hệ Thống Thống Kê & Lọc Danh Mục Phụ Kiện Công Nghệ Console (Tech Catalog Analytics CLI)</center>
+# <center>Bài Kiểm Tra Đầu Giờ: Hệ Thống Thống Kê & Lọc Danh Mục Phụ Kiện Công Nghệ Console (Tech Catalog Analytics CLI)</center>
 
 ### **1. Mục tiêu**
 - Assessment kỹ năng thao tác với mảng đối tượng (Array of Objects), vòng lặp lồng logic kiểm tra điều kiện phức hợp trong JavaScript ES6+.
@@ -9,6 +9,7 @@
 ### **2. Yêu cầu**
 
 Cho mảng dữ liệu mẫu ban đầu lưu trữ danh sách các phụ kiện công nghệ trong hệ thống:
+
 ```javascript
 const products = [
   { productId: "P01", productName: "Wireless Mouse", category: "Accessories", price: 25, stockQuantity: 50, isAvailable: true },

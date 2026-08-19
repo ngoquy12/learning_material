@@ -34,19 +34,36 @@ Một hệ thống bán lẻ siêu thị cần phát triển mô-đun xử lý t
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```text
+
 # pos_calculator.py
+
 # Mô-đun tính toán hóa đơn và quản lý điểm thưởng siêu thị
 
 # 1. Khai báo dữ liệu đầu vào
-unit_price = 150000        # Đơn giá một sản phẩm (VNĐ)
-quantity = 8              # Số lượng mua
-discount_percent = 10      # Tỷ lệ chiết khấu (%)
-vat_percent = 8            # Tỷ lệ thuế VAT (%)
-customer_tier = 2          # Cấp độ thành viên VIP
-stock_quantity = 50        # Số lượng tồn kho ban đầu
-customer_wallet = 2000000   # Số dư ví điện tử khách hàng (VNĐ)
+unit_price = 150000
+
+# Đơn giá một sản phẩm (VNĐ)
+quantity = 8
+
+# Số lượng mua
+discount_percent = 10
+
+# Tỷ lệ chiết khấu (%)
+vat_percent = 8
+
+# Tỷ lệ thuế VAT (%)
+customer_tier = 2
+
+# Cấp độ thành viên VIP
+stock_quantity = 50
+
+# Số lượng tồn kho ban đầu
+customer_wallet = 2000000
+
+# Số dư ví điện tử khách hàng (VNĐ)
 
 # 2. Xử lý các phép tính số học (+, -, *, /, //, %, **)
+
 # Tính tổng tiền hàng trước chiết khấu
 subtotal = unit_price * quantity
 
@@ -73,6 +90,7 @@ total_reward_points = base_points * reward_multiplier
 remaining_for_next_point = final_total % 100000
 
 # 3. Thực thi cập nhật trạng thái với toán tử gán gộp (+=, -=, *=, /=)
+
 # Trừ số lượng tồn kho theo hàng đã bán
 stock_quantity -= quantity
 
@@ -110,7 +128,7 @@ print(f"Dư nợ còn lại sau ưu đãi: {debt_balance:,.0f} VNĐ")
 print(f"Số dư ví điện tử hiện tại: {customer_wallet:,.0f} VNĐ")
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Viết đúng và chính xác các biểu thức số học có chứa toán tử +, -, *, /, //, %, **.
 - [ ] Sử dụng chuẩn xác các toán tử gán gộp +=, -=, *=, /= để cập nhật giá trị biến.
 - [ ] Mã nguồn Python tuân thủ quy chuẩn PEP 8, có giải thích chú thích đầy đủ và chạy thành công không có lỗi syntax/runtime.

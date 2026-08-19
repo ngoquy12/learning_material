@@ -35,24 +35,41 @@ Hệ thống thanh toán tự động của **ShopeeFood** cần lọc và phê 
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```python
+
 # shopee_checkout.py
+
 # Khai báo các thông tin đầu vào của khách đặt hàng
-order_amount = 280000      # Giá trị đơn hàng (VNĐ)
-distance_km = 4.5          # Khoảng cách giao hàng (km)
-is_vip = 1                 # Trạng thái VIP (1: Có, 0: Không)
-has_recent_cancel = 0      # Lịch sử hủy đơn gần đây (1: Có, 0: Không)
-is_restaurant_open = 1     # Nhà hàng đang mở cửa (1: Đúng, 0: Sai)
-is_fraud_warning = 0       # Cảnh báo gian lận tài khoản (1: Có, 0: Không)
+order_amount = 280000
+
+# Giá trị đơn hàng (VNĐ)
+distance_km = 4.5
+
+# Khoảng cách giao hàng (km)
+is_vip = 1
+
+# Trạng thái VIP (1: Có, 0: Không)
+has_recent_cancel = 0
+
+# Lịch sử hủy đơn gần đây (1: Có, 0: Không)
+is_restaurant_open = 1
+
+# Nhà hàng đang mở cửa (1: Đúng, 0: Sai)
+is_fraud_warning = 0
+
+# Cảnh báo gian lận tài khoản (1: Có, 0: Không)
 
 # 1. Đánh giá điều kiện miễn phí giao hàng (Freeship)
+
 # Khoảng cách <= 3.0 km HOẶC (Đơn hàng >= 250k AND là VIP)
 is_freeship = (distance_km <= 3.0) or ((order_amount >= 250000.0) and (is_vip == 1))
 
 # 2. Đánh giá điều kiện được tặng voucher tri ân
+
 # Không hủy đơn gần đây AND (Đơn hàng >= 500k OR là VIP)
 is_eligible_for_voucher = (has_recent_cancel == 0) and ((order_amount >= 500000.0) or (is_vip == 1))
 
 # 3. Đánh giá điều kiện phê duyệt đơn hàng tự động gửi nhà hàng
+
 # Nhà hàng mở cửa AND tài khoản không bị cảnh báo gian lận
 is_approved = (is_restaurant_open == 1) and (is_fraud_warning == 0)
 
@@ -65,7 +82,7 @@ print(f"Được tặng voucher tri ân: {is_eligible_for_voucher}")
 print(f"Phê duyệt đơn hàng tự động gửi nhà hàng: {is_approved}")
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khai báo đầy đủ các biến đầu vào theo đúng kiểu dữ liệu yêu cầu.
 - [ ] Vận dụng chính xác toán tử logic `and`, `or`, `not` kết hợp toán tử so sánh.
 - [ ] Sử dụng đúng dấu ngoặc đơn `()` để định rõ thứ tự ưu tiên thực thi cho các cụm điều kiện logic.

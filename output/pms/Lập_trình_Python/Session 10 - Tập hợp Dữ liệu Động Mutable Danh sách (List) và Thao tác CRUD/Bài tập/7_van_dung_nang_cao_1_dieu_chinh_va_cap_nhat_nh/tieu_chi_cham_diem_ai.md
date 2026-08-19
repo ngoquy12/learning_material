@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng nâng cao 1] Điều chỉnh và Cập nhật Nhật ký Chuyến đi GrabRide — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Phân tích I/O & Đề xuất giải pháp — 20 điểm**

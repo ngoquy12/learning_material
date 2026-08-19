@@ -207,17 +207,18 @@ def mindmap_agent(state: AgentState) -> AgentState:
 {content.get('summary', '')}
 """
 
-        system_prompt = f"""You are a Lead Academic Director & Senior Curriculum Mindmap Specialist at Rikkei Education.
-Your task is to synthesize a complete, highly-condensed, and visually structured MARKMAP MINDMAP summarizing the technical learning content of the lesson below.
-
-MANDATORY MINDMAP DIRECTIVES:
-1. Strictly follow the rules, branching hierarchy, and constraints specified in the Mindmap Generator Skill:
-{mindmap_skill}
-
-2. Visual Design & Image Prompts Standard:
-For complex architecture/flow concepts, embed image prompt nodes adhering strictly to the blueprint formula below:
-{image_skill}
-"""
+        from core.prompts import render_prompt
+        system_prompt = render_prompt(
+            "mindmap_creator.j2",
+            {
+                "mindmap_skill": mindmap_skill,
+                "session_id": session_id,
+                "lesson_id": lesson_id,
+                "lesson_title": lesson_title,
+                "tech_stack": tech_stack,
+                "master_content_summary": master_content_summary
+            }
+        )
         
         concepts_list = "\n".join([f"- {k}" for k in core_ssot.get("concepts", {}).keys()])
         feedback_context = f"\nMindmap Reviewer Revision Feedback (if any, you MUST fix these errors): {feedback}\n" if feedback else ""

@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Phân tích 2] Phân tích và Thiết kế Mô-đun Xác thực Điều kiện Ưu đãi VIP Đặt phòng — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Đề xuất đa giải pháp & So sánh Trade-off — 30 điểm**

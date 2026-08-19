@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 5] Sửa lỗi đóng gói và tính phụ phí đặt phòng khách sạn</center>
 
 ### **1. Mục tiêu**
@@ -19,7 +17,9 @@ Hệ thống cần xử lý hai nghiệp vụ quan trọng trước khi lưu tr�
 *   Đội ngũ kiểm định an toàn thông tin phát hiện chuỗi JSON đầu ra vẫn lưu thuộc tính `tempSecurityToken` dưới dạng giá trị `null` hoặc `undefined`, gây lãng phí dung lượng lưu trữ và không tuân thủ chuẩn làm sạch dữ liệu.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript đang được vận hành trên hệ thống:```javascript
+Dưới đây là đoạn mã nguồn JavaScript đang được vận hành trên hệ thống:
+
+```javascript
 // Mã nguồn xử lý và đóng gói thông tin đặt phòng khách sạn
 function processBookingReservation(bookingData) {
   // Tạo đối tượng đặt phòng ban đầu
@@ -67,9 +67,7 @@ console.log("Kết quả đối tượng xử lý:", result.updatedObject);
 console.log("Chuỗi JSON đóng gói:", result.jsonPayload);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Truy vết mã nguồn & Báo cáo Test Case (Code Tracing)**
 Học viên tiến hành thực thi mã nguồn bằng tay (code tracing), phát hiện các dòng mã gây lỗi nghiệp vụ và hoàn thành Báo cáo Test Case theo mẫu bảng dưới đây. Bảng bắt buộc phải giữ lại 1 testcase mẫu đã hoàn chỉnh và hoàn thiện các ô có dấu `...`.
@@ -113,7 +111,9 @@ Học viên tiến hành thực thi mã nguồn bằng tay (code tracing), phát
   </tbody>
 </table>
 
-Sơ đồ luồng xử lý chuẩn của hệ thống:```mermaid
+Sơ đồ luồng xử lý chuẩn của hệ thống:
+
+```mermaid
 flowchart TD
     A([Bắt đầu quy trình]) --> B[/Nhận thông tin đơn đặt phòng bookingData/]
     B --> C["Khởi tạo đối tượng bookingObj từ bookingData"]
@@ -128,9 +128,7 @@ flowchart TD
     J --> K([Kết thúc quy trình])
 ```
 
-#
-
-### **Phần 2: Sửa đổi và tối ưu hóa mã nguồn**
+# **Phần 2: Sửa đổi và tối ưu hóa mã nguồn**
 Học viên viết lại hàm `processBookingReservation(bookingData)` để giải quyết triệt để các yêu cầu sau:
 1.  **Sửa lỗi phụ phí:** Khách check-in trước 12:00 trưa (`checkInHour < 12`) mới tính 30% phụ phí trên `basePrice`. Đúng 12:00 trưa trở đi không tính phụ phí.
 2.  **Sửa lỗi xóa dữ liệu:** Sử dụng toán tử `delete` để xóa triệt để thuộc tính `tempSecurityToken` khỏi `bookingObj`.

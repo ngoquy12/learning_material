@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Mini Project 1: Xây dựng Ứng dụng Quản lý Danh mục Bán hàng Console (Phần 1) — Tổng điểm: 100 điểm**
 
 #### **1. Thiết lập cấu trúc và Khởi tạo — 20 điểm**

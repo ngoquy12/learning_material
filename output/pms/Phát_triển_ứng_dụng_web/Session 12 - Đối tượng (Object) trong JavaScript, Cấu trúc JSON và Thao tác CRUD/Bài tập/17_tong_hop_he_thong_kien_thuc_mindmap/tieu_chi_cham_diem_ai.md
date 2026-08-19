@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI / Mentor)**
+# **Tiêu chí chấm điểm (AI / Mentor)**
 
 **[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) — Tổng điểm: 100 điểm**
 

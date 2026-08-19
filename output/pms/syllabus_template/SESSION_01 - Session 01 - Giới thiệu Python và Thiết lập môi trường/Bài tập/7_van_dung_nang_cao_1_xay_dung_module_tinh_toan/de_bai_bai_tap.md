@@ -1,4 +1,4 @@
-## <center>Xây dựng Module Tính toán và Xuất Hóa đơn Bán hàng POS</center>
+# <center>Xây dựng Module Tính toán và Xuất Hóa đơn Bán hàng POS</center>
 
 ### **1. Mục tiêu**
 *   **Về kiến thức:** Củng cố kỹ năng khai báo biến, ép kiểu dữ liệu (`type casting`), sử dụng các phép toán số học và định dạng chuỗi ký tự (`string formatting`) trong môi trường Python CLI.
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Hệ thống Quản lý Bán hàng Quán Cà phê (Highlands POS) đang nâng cấp phần mềm thu ngân tại quầy. Khi thực hiện order cho khách hàng, thu ngân nhập thông tin sản phẩm, tùy chọn kích thước (Size), số lượng topping đi kèm, cùng thông tin giảm giá dành cho hội viên.
 
-Hiện tại, việc tính toán tiền phụ thu, tiền giảm giá hội viên và tiền thuế giá trị gia tăng (VAT) thủ công thường xảy ra sai sót vào các giờ cao điểm. Bộ phận kỹ thuật yêu cầu bạn phát triển một module tự động bằng Python để nhận dữ liệu từ màn hình thu ngân, thực hiện tính toán chính xác số tiền và xuất phiếu thu (Receipt) ra màn hình với định dạng rõ ràng, minh bạch.### **3. Quy tắc nghiệp vụ**
+Hiện tại, việc tính toán tiền phụ thu, tiền giảm giá hội viên và tiền thuế giá trị gia tăng (VAT) thủ công thường xảy ra sai sót vào các giờ cao điểm. Bộ phận kỹ thuật yêu cầu bạn phát triển một module tự động bằng Python để nhận dữ liệu từ màn hình thu ngân, thực hiện tính toán chính xác số tiền và xuất phiếu thu (Receipt) ra màn hình với định dạng rõ ràng, minh bạch.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống POS áp dụng các quy tắc tính giá tiền cho đơn hàng như sau:
 
 1. **Giá sản phẩm cơ bản (Size S):** Được nhập trực tiếp vào hệ thống dưới dạng số nguyên (VNĐ).

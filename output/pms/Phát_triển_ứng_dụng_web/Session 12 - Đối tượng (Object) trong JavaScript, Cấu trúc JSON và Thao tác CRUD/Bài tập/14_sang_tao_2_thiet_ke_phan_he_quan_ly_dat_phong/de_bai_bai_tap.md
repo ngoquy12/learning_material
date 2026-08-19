@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 2] Thiết kế Phân hệ Quản lý Đặt phòng Động và Chuẩn hóa JSON Payload</center>
 
 ### **1. Mục tiêu**

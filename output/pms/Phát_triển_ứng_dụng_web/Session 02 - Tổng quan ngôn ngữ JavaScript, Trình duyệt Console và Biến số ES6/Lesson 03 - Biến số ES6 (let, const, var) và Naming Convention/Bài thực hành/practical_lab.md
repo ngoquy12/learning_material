@@ -138,7 +138,7 @@ Trong hệ thống thương mại điện tử, việc tính toán giá trị đ
 </html>
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khai báo chính xác từ khóa `const` cho các hằng số không đổi và `let` cho các biến có thay đổi giá trị; tuyệt đối không gán lại giá trị cho biến `const`.
 - [ ] Đặt tên biến tuân thủ đúng quy tắc Naming Convention (camelCase cho tên biến thường, UPPER_SNAKE_CASE cho hằng số cấu hình hệ thống), không sử dụng Tiếng Việt có dấu hay ký tự đặc biệt.
 - [ ] Phân biệt đúng cách sử dụng và hiển thị của kiểu dữ liệu nguyên thủy `undefined` (biến chưa gán giá trị) và `null` (chủ động rỗng).

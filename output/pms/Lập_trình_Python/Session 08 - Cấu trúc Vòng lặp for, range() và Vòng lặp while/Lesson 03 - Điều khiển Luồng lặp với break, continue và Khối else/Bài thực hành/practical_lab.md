@@ -30,7 +30,9 @@ Nếu toàn bộ chuỗi kiện hàng được xử lý an toàn không gặp l�
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```python
+
 # Tệp mã nguồn: main.py
+
 # Bài thực hành: Điều khiển Luồng lặp với break và continue
 
 print("=== HỆ THỐNG QUÉT AN NINH VÀ PHÂN LOẠI HÀNG HOÁ WMS ===")
@@ -44,19 +46,19 @@ print("Bắt đầu xử lý lô hàng...")
 for package in package_sequence:
     package_count += 1
     print(f"\nQuét kiện hàng #{package_count}: Mã phân loại = {package}")
-    
-    # 1. Kiểm tra lỗi an ninh nghiêm trọng
+
+# 1. Kiểm tra lỗi an ninh nghiêm trọng
     if package == 'E':
         print("--> CẢNH BÁO: Phát hiện sự cố an ninh nghiêm trọng! Dừng băng tải khẩn cấp!")
         all_safe = False
         break
-        
-    # 2. Kiểm tra hàng khuyến mãi miễn đóng gói riêng
+
+# 2. Kiểm tra hàng khuyến mãi miễn đóng gói riêng
     if package == 'P':
         print("--> Hệ thống: Kiện hàng tặng kèm, chuyển thẳng tới khu đóng gói chung.")
         continue
-        
-    # 3. Quy trình đóng gói mặc định cho hàng thường
+
+# 3. Quy trình đóng gói mặc định cho hàng thường
     print("--> Hệ thống: Đóng gói thành công, dán nhãn vận chuyển.")
 
 if all_safe:
@@ -91,7 +93,7 @@ if all_safe_with_error:
 print("\n=== QUY TRÌNH KẾT THÚC ===")
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Sử dụng đúng từ khóa `break` để ngắt luồng xử lý và dừng băng tải khi gặp ký tự lỗi `E`.
 - [ ] Sử dụng đúng từ khóa `continue` để bỏ qua bước đóng gói đối với ký tự khuyến mãi `P` mà không dừng vòng lặp.
 - [ ] Thiết lập đúng cờ hiệu trạng thái (boolean flag) để kiểm soát và chỉ in báo cáo tổng kết khi không phát hiện sự cố.

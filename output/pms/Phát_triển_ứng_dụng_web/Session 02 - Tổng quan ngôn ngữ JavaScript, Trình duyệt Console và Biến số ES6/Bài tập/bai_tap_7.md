@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 1] Tính Toán Chi Phí Khám Bệnh Và Xác Nhận Đặt Lịch Phòng Khám</center>
 
 ### **1. Mục tiêu**

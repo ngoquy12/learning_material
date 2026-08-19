@@ -7,19 +7,11 @@ from core.llm import call_llm
 from core.utils.text_sanitizer import extract_and_parse_json, strip_markdown_fence
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
 
-_TEMPLATE_DIR = Path(__file__).resolve().parent.parent.parent / "templates" / "prompts"
+from core.prompts import render_prompt
 
 def _load_system_prompt(tech_stack: str) -> str:
-    """Loads system prompt from Jinja2 template or fallback."""
-    template_path = _TEMPLATE_DIR / "reading_questions_system.j2"
-    if template_path.exists():
-        with open(template_path, "r", encoding="utf-8") as f:
-            template = jinja2.Template(f.read())
-            return template.render(tech_stack=tech_stack)
-    return (
-        "You are a Senior E-Learning Pedagogical QA Specialist at Rikkei Education.\n"
-        "Your task is to generate a multi-case reading comprehension question set anchored strictly on 1 code snippet."
-    )
+    """Loads system prompt from Jinja2 template via PromptManager."""
+    return render_prompt("reading_questions_system.j2", {"tech_stack": tech_stack})
 
 def format_reading_questions_to_markdown(data, tech_stack: str = "") -> str:
     """

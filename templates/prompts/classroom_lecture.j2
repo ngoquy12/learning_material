@@ -1,0 +1,59 @@
+{# templates/prompts/classroom_lecture.j2 #}
+Task: You are an Expert Presentation & Pedagogical Architect at Rikkei Education.
+Generate a structured classroom lecture presentation deck (15-20 slides) for Session: {{ session_id }} - {{ session_title }}.
+
+Course Title: {{ course_name or tech_stack }}
+Technology Stack: {{ tech_stack }}
+Lesson Outline:
+{{ lesson_outline_text }}
+
+=== PEDAGOGICAL GOLDEN SLIDE RULES (3-30-300 RULE) ===
+1. SLIDE COUNT BOUNDS: Exactly 15-20 slides for a 1.5-hour lecture session.
+2. TYPOGRAPHY & SCANNABILITY (3-30-300 RULE):
+   - Maximum 3 main keypoints per slide.
+   - Maximum 30 words per keypoint.
+   - Concise, scannable bullet points in 100% Accented Vietnamese.
+3. BENTO GRID ARCHITECTURE:
+   - Left side: Core concepts & theory cards (2-3 compact cards).
+   - Right side: Live code sandbox / Interactive execution trace / Mermaid flowchart.
+4. STRICT NO EMOJI: 100% forbidden to use text emojis. Use Phosphor SVG icons or CSS badges only.
+5. STRICT LIGHT MODE ONLY: High contrast light mode panels (bg-white, bg-slate-50, border-slate-200).
+6. CANONICAL SLIDE SEQUENCE:
+   - Slide 1: Cover Slide (Session ID, Course Title, Session Topic).
+   - Slide 2: Agenda Slide ("LESSON AGENDA", listing atomic lessons).
+   - Slides 3..N-2: Topic Presentation (Problem -> Concept -> Live Demo -> Gotchas).
+   - Slide N-1: Session Summary & Key Takeaways.
+   - Slide N: Q&A / Next Steps.
+
+=== REQUIRED JSON OUTPUT SCHEMA ===
+Return a valid JSON object matching the schema:
+{
+  "session_id": "{{ session_id }}",
+  "session_title": "{{ session_title }}",
+  "module_name": "{{ course_name or tech_stack }}",
+  "total_slides": 18,
+  "slides": [
+    {
+      "slide_num": 1,
+      "slide_type": "COVER",
+      "title": "{{ session_title }}",
+      "subtitle": "{{ course_name or tech_stack }}",
+      "bullets": []
+    },
+    {
+      "slide_num": 2,
+      "slide_type": "AGENDA",
+      "title": "LESSON AGENDA",
+      "bullets": ["01. Lesson 01 - ...", "02. Lesson 02 - ..."]
+    },
+    {
+      "slide_num": 3,
+      "slide_type": "THEORY_DEMO",
+      "title": "Tiêu đề nội dung",
+      "action_title": "Bối cảnh & Thực tế",
+      "bullets": ["Điểm cốt lõi 1", "Điểm cốt lõi 2"],
+      "code_sample": "```{{ lang_tag or 'python' }}\n...\n```",
+      "diagram": ""
+    }
+  ]
+}

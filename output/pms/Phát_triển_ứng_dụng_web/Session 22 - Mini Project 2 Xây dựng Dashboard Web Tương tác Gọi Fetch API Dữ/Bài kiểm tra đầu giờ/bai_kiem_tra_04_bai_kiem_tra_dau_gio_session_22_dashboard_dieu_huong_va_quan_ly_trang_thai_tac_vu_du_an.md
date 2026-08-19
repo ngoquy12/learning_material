@@ -1,4 +1,4 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG DASHBOARD ĐIỀU HƯỚNG VÀ QUẢN LÝ TRẠNG THÁI TÁC VỤ DỰ ÁN (PROJECT TASK & STATE NAVIGATION DASHBOARD)</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG DASHBOARD ĐIỀU HƯỚNG VÀ QUẢN LÝ TRẠNG THÁI TÁC VỤ DỰ ÁN (PROJECT TASK & STATE NAVIGATION DASHBOARD)</center>
 
 ### **1. Mục tiêu**
 - **Kiến thức**: Đánh giá năng lực tích hợp Fetch API bất đồng bộ (`async/await`), truy xuất và thao tác DOM Tree, cùng kỹ năng quản lý trạng thái dữ liệu tác vụ trên bộ nhớ (In-memory State Management) theo mô hình Single Page Application (SPA).

@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 3] Rà soát và Tổng hợp Đợt mượn trả Sách Thư viện LIBRARY_WMS</center>
+# <center>[Vận dụng nâng cao 3] Rà soát và Tổng hợp Đợt mượn trả Sách Thư viện LIBRARY_WMS</center>
 
 ### **1. Mục tiêu**
 *   **Vận dụng nâng cao kiến thức lặp:** Sử dụng thành thạo cấu trúc vòng lặp `for` kết hợp với hàm `range()` để duyệt và kiểm soát dải mã bản ghi lượt mượn sách (`borrow_id`) trong hệ thống quản lý thư viện LIBRARY_WMS.

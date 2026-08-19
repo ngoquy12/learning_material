@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Xây dựng Module Logic Phân loại Hội viên và Tính Phí Vận chuyển Đơn hàng E-commerce — Tổng điểm: 100 điểm**
 
 #### **1. Thiết lập & Khởi tạo (10 điểm)**
@@ -6,7 +6,7 @@
 - **Cấu trúc tập tin:** Đặt tên file chính xác `script.js`, mã nguồn không chứa lỗi cú pháp cơ bản khi thực thi (5 điểm).
 
 #### **2. Logic nghiệp vụ (30 điểm)**
-- **Phân loại thứ hạng hội viên bằng `if-else if-else`:** Xác định chính xác các cấp bậc "ĐỒNG", "BẠC", "VÀNG" và phần trăm giảm giá theo đúng các mốc điều kiện tổng chi tiêu (10 điểm).
+- **Phân loại thứ hạng hội viên bằng `if-else if-else`:** Xác định chính xác các cấp bậc "ĐỒNG "BẠC "VÀNG" và phần trăm giảm giá theo đúng các mốc điều kiện tổng chi tiêu (10 điểm).
 - **Tra cứu phí vận chuyển bằng `switch-case`:** Sử dụng đúng cấu trúc `switch-case` cho `shippingZoneCode`, có đầy đủ lệnh `break` ở mỗi nhánh và xử lý đúng trường hợp `default` (10 điểm).
 - **Vận dụng toán tử ba ngôi (Ternary Operator):** Áp dụng đúng toán tử 3 ngôi để tính phí vận chuyển ưu đãi 50% khi `isVipMember === true` (10 điểm).
 

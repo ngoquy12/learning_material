@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng nâng cao 2] Tính toán Chi phí và Xuất Phiếu Đăng ký Khám bệnh Tự động — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Phân tích I/O & Đề xuất giải pháp — 20 điểm**

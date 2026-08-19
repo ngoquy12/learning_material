@@ -22,8 +22,17 @@ def blueprint_creator_agent(state: AgentState) -> AgentState:
     core_ssot = state.get("core_ssot", {})
     tech_stack = require_tech_stack(state, "blueprint_creator_agent")
     
-    allowed_scope = ", ".join(state.get("allowed_scope", []))
-    forbidden_scope = ", ".join(state.get("forbidden_scope", []))
+    allowed_scope_raw = state.get("allowed_scope") or state.get("previous_lessons") or []
+    if isinstance(allowed_scope_raw, list):
+        allowed_scope = ", ".join(str(x) for x in allowed_scope_raw if str(x).strip())
+    else:
+        allowed_scope = str(allowed_scope_raw).strip()
+
+    forbidden_scope_raw = state.get("forbidden_scope") or []
+    if isinstance(forbidden_scope_raw, list):
+        forbidden_scope = ", ".join(str(x) for x in forbidden_scope_raw if str(x).strip())
+    else:
+        forbidden_scope = str(forbidden_scope_raw).strip()
     
     lesson_title = core_ssot.get("session_title", "Course Session")
     lesson_details = core_ssot.get("lesson_details", "")
@@ -42,10 +51,11 @@ This blueprint serves as the single source of truth for the entire lesson's reso
 
 STRICT DIRECTIVES:
 1. UNIFIED BUSINESS SCENARIO: You must establish exactly ONE unified concrete real-world business scenario (e.g., E-commerce shopping cart, ticket booking, library catalog). All progressive examples (3.1, 3.2, 3.3), syntax templates, and gotchas must revolve around this exact scenario and use consistent naming conventions.
-2. SCOPE BOUNDARIES:
-   - Allowed Scope (already taught): {allowed_scope or 'Basic fundamentals'}
-   - Forbidden Scope (future lessons): {forbidden_scope or 'Advanced frameworks/features'}
-   - Tech Stack: {tech_stack} (Use clean, PEP 8/industry-standard English variable/function naming).
+2. STRICT KNOWLEDGE SCOPE BOUNDARIES:
+   - ALLOWED KNOWLEDGE (Concepts already taught or in current lesson details): {allowed_scope or 'Basic fundamentals up to current lesson'}
+   - FORBIDDEN KNOWLEDGE (Future lessons / unlearned advanced concepts): {forbidden_scope or 'Advanced frameworks, DOM, APIs, Async, or classes if not taught yet'}
+   - ZERO SCOPE LEAKAGE CONTRACT: ABSOLUTELY FORBIDDEN to use or introduce ANY concept, syntax, function, API, or library from the FORBIDDEN KNOWLEDGE list in the examples, gotchas, or concepts!
+   - Tech Stack: {tech_stack} (Use clean, PEP 8/industry-standard English variable/function naming, Vietnamese comments).
 3. 100% Vietnamese Explanations: All explanatory texts, requirements, descriptions, and comments in code must be in 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất).
 {memories_context}
 
@@ -100,6 +110,8 @@ Return only raw JSON.
 Lesson Topic: {lesson_id} - {lesson_title}
 Curriculum Details: {lesson_details}
 Expected Outcomes / Deliverables: {expected_output}
+Allowed Scope: {allowed_scope or 'Fundamentals'}
+Forbidden Scope (DO NOT USE): {forbidden_scope or 'Future advanced concepts'}
 """
 
     print(f"\n[Blueprint Creator] ✏️ Đang sinh bản phác thảo JSON Blueprint cho {session_id} - {lesson_id}...")

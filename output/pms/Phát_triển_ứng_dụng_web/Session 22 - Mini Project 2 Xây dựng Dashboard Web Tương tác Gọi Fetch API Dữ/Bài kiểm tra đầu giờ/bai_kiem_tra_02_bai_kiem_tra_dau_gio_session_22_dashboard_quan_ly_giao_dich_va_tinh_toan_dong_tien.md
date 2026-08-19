@@ -1,4 +1,4 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG DASHBOARD XỬ LÝ GIAO DỊCH VÀ TÍNH TOÁN DÒNG TIỀN (FINANCIAL TRANSACTION DASHBOARD)</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG DASHBOARD XỬ LÝ GIAO DỊCH VÀ TÍNH TOÁN DÒNG TIỀN (FINANCIAL TRANSACTION DASHBOARD)</center>
 
 ### **1. Mục tiêu**
 Đánh giá năng lực vận dụng kiến thức lập trình JavaScript ES6+, thao tác DOM API, câu lệnh bất đồng bộ `async/await` kết hợp `fetch()` API để xây dựng màn hình Dashboard quản lý và tính toán giao dịch dòng tiền cho hệ thống thanh toán trực tuyến.

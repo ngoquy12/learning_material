@@ -1,4 +1,4 @@
-## <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp (HOTEL_BOOKING)</center>
+# <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp (HOTEL_BOOKING)</center>
 
 ### **1. Mục tiêu**
 - **Kiến thức**: Tích hợp toàn bộ kiến thức về các phép toán số học (cộng, trừ, nhân, chia, chia lấy nguyên, chia lấy dư, lũy thừa) và các phép toán so sánh trong Python để tính toán chỉ số tài chính, xác thực điều kiện đặt phòng và quy đổi ưu đãi dịch vụ.

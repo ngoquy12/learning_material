@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng nâng cao 3] Quản Lý Chuẩn Hóa và Đóng Gói Dữ Liệu Đặt Phòng Khách Sạn — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Phân tích I/O & Đề xuất giải pháp — 20 điểm**

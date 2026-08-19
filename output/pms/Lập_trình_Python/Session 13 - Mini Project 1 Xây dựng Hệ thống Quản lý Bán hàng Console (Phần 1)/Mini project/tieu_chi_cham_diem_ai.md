@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Mini Project 1: Xây dựng Hệ thống Quản lý Bán hàng Console (Phần 1) — Tổng điểm: 100 điểm**
 
 ---

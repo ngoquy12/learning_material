@@ -1,4 +1,4 @@
-## [Vận dụng cơ bản 1] Sửa lỗi tính phí hành lý quá cước tại quầy check-in
+# [Vận dụng cơ bản 1] Sửa lỗi tính phí hành lý quá cước tại quầy check-in
 
 ### **Tiêu chí chấm điểm (AI)**
 **[Vận dụng cơ bản 1] Sửa lỗi tính phí hành lý quá cước tại quầy check-in — Tổng điểm: 100 điểm**

@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 3] Hệ thống Quét và Kiểm định Luồng Mượn Trả Sách Thư viện</center>
+# <center>[Sáng tạo 3] Hệ thống Quét và Kiểm định Luồng Mượn Trả Sách Thư viện</center>
 
 ### **1. Mục tiêu**
 *   Vận dụng sáng tạo cấu trúc vòng lặp `for` kết hợp hàm `range()` để quét dữ liệu theo chuỗi mã danh mục.

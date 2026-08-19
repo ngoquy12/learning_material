@@ -1,0 +1,57 @@
+{# templates/prompts/reading_master_prompt.j2 #}
+Task: Author a production-grade enterprise HTML reading material for {{ tech_stack }} course.
+Session: {{ session_id }} - Lesson: {{ lesson_id }} ({{ lesson_title }})
+
+=== MANDATORY PEDAGOGICAL DIRECTIVES (NO EXCEPTIONS) ===
+
+[DIRECTIVE 1 — STRICT 5-SECTION ARCHITECTURE]
+The reading material MUST contain exactly 5 sections in the following order:
+  Section 1 (problem): Real-World Problem Statement — Enterprise Scenario + Pain Point + New Solution
+  Section 2 (analysis): Syntax & Operational Mechanism — Syntax Anatomy + Process/RAM Diagram + Comparison Card
+  Section 3 (solution + example): Practical Examples — Execution Code + Interactive Tracker / Flow
+  Section 4 (summary + resolve): Production Gotchas — Common Pitfalls + Decision Matrix Table + Anti-patterns
+  Section 5 (self_test): Self-Test Assessment — 3 Scenario-based MCQ questions with Anti-AI Shortcuts
+
+[DIRECTIVE 2 — 10-MINUTE MICRO-LEARNING]
+- ABSOLUTELY FORBIDDEN to write long, monolithic text paragraphs.
+- Every piece of content MUST use Bullet Lists ('- Main point') and Sublists ('  - Supporting details').
+- Each point maximum 1-2 concise sentences with core technical keywords in **bold**.
+- Total reading length equivalent to 800-1200 words (approx. 10-minute read).
+
+[DIRECTIVE 3 — PROBLEM-FIRST PEDAGOGY]
+- Section 1 MUST follow the flow: Real-World Scenario → Pain Point / Legacy Drawbacks → New Solution.
+- ABSOLUTELY FORBIDDEN to start with dry theoretical definitions.
+
+[DIRECTIVE 4 — VISUAL-RICH INTEGRATION]
+- Section 1: MUST include a 16:9 SVG diagram (viewBox="0 0 800 450") visualizing the problem context.
+- Section 2: MUST include a Syntax Anatomy diagram or RAM/Stack memory diagram via SVG.
+- Section 3: MUST include a Mermaid diagram (flowchart TD or sequenceDiagram) describing execution flow.
+- Section 4: MUST include a Markdown Decision Matrix table comparing when to use Method A vs Method B.
+
+[DIRECTIVE 5 — GOOD vs BAD PRACTICE CODE PAIRS]
+- Section 2 or Section 3: MUST include side-by-side code comparison cards:
+  - example_bad: Anti-pattern code with comment "# BAD: [description of negative impact]"
+  - example_good: Best practice code with comment "# GOOD: [description of benefits]"
+
+[DIRECTIVE 6 — ANTI-AI SHORTCUT QUESTIONING]
+- All self_test assessment questions must reference specific scenario data from the reading material.
+- The correct answer can only be found by reading the lesson text, avoiding AI shortcuts.
+
+[DIRECTIVE 7 — DARK TERMINAL CONSOLE OUTPUT]
+- All console outputs MUST be formatted in a dark code block with '# Output:' prefix.
+
+[DIRECTIVE 8 — 100% ACCENTED VIETNAMESE OUTPUT]
+- TARGET LANGUAGE: 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất) for all text, headings, SVG labels, and code comments.
+
+[DIRECTIVE 9 — LANGUAGE CODING CONVENTIONS]
+- Standard naming conventions: snake_case for Python/C, camelCase for JS/TS/Java.
+
+======================================================================
+CRITICAL PEDAGOGICAL BOUNDARIES
+======================================================================
+- FORBIDDEN SCOPE: {{ forbidden_scope or 'Do not use unlearned advanced libraries or syntax' }}
+- TAUGHT & ALLOWED SCOPE: {{ allowed_scope or 'Content within current curriculum scope' }}
+- TECH STACK & CONVENTIONS: {{ tech_stack_convention or tech_stack }}
+======================================================================
+
+{{ lessons_learned_prompt }}

@@ -10,10 +10,13 @@
 ### Cú pháp & Giải nghĩa
 
 - Khai báo cú pháp chuẩn:
-  ```python
+
+```python
   for item in range(start, stop, step):
-      # Khối lệnh xử lý
-  ```
+
+# Khối lệnh xử lý
+```
+
 - Giải thích thành phần:
   - item: Biến nhận giá trị hiện tại trong mỗi lượt lặp.
   - start: Giá trị bắt đầu của dải số (mặc định là 0).
@@ -23,14 +26,16 @@
 ### Ví dụ thực hành
 
 - Tính tổng doanh thu tuần tự từ các đơn hàng.
-  ```python
+
+```python
   total_revenue = 0
   for order_id in range(1, 6):
       amount = order_id * 100000
       total_revenue += amount
       print("Đơn hàng", order_id, "giá trị:", amount)
   print("Tổng doanh thu:", total_revenue)
-  ```
+```
+
 - Giải thích ví dụ: Vòng lặp duyệt từ 1 đến 5 để tính và tích lũy doanh thu.
 
 ### Lưu ý
@@ -48,11 +53,15 @@
 ### Cú pháp & Giải nghĩa
 
 - Khai báo cú pháp chuẩn:
-  ```python
+
+```python
   while condition_expression:
-      # Khối lệnh xử lý
-      # Cập nhật biến điều kiện
-  ```
+
+# Khối lệnh xử lý
+
+# Cập nhật biến điều kiện
+```
+
 - Giải thích thành phần:
   - condition_expression: Biểu thức kiểm tra điều kiện tiếp tục hoặc dừng lặp.
   - Khối lệnh xử lý: Thực hiện nghiệp vụ và cập nhật biến điều kiện.
@@ -60,14 +69,16 @@
 ### Ví dụ thực hành
 
 - Thử lại kết nối mạng tối đa 3 lần đến khi thành công.
-  ```python
+
+```python
   retry_count = 0
   max_retries = 3
   while retry_count < max_retries:
       retry_count += 1
       print("Đang thử lại lần:", retry_count)
   print("Hoàn tất tiến trình kiểm tra kết nối.")
-  ```
+```
+
 - Giải thích ví dụ: Kiểm tra số lần thử lại và tăng biến đếm sau mỗi lượt.
 
 ### Lưu ý
@@ -85,15 +96,18 @@
 ### Cú pháp & Giải nghĩa
 
 - Khai báo cú pháp chuẩn:
-  ```python
+
+```python
   for item in sequence:
       if skip_condition:
           continue
       if stop_condition:
           break
   else:
-      # Chạy khi không chạm break
-  ```
+
+# Chạy khi không chạm break
+```
+
 - Giải thích thành phần:
   - break: Thoát khỏi vòng lặp ngay lập tức tại thời điểm gọi.
   - continue: Bỏ qua đoạn mã còn lại của lượt hiện tại, sang lượt tiếp.
@@ -102,7 +116,8 @@
 ### Ví dụ thực hành
 
 - Kịch bản áp dụng: Quét cổng dịch vụ, bỏ qua cổng bảo trì và dừng khi gặp sự cố.
-  ```python
+
+```python
   for port in range(1, 6):
       if port == 3:
           print("Cổng 3 đang bảo trì -> Bỏ qua.")
@@ -113,7 +128,8 @@
       print("Cổng", port, "kiểm tra an toàn.")
   else:
       print("Tất cả các cổng đã được kiểm tra hoàn tất.")
-  ```
+```
+
 - Giải thích ví dụ: Cổng 3 bị bỏ qua bằng continue, cổng 5 ngắt chương trình bằng break.
 
 ### Lưu ý

@@ -1,4 +1,4 @@
-## <center>Thực Hành Lập Trình Logic Kiểm Tra Ràng Buộc Và Phân Loại Hàng Hóa Kho Bãi</center>
+# <center>Thực Hành Lập Trình Logic Kiểm Tra Ràng Buộc Và Phân Loại Hàng Hóa Kho Bãi</center>
 
 ### **1. Mục tiêu**
 - Vận dụng thành thạo cấu trúc điều kiện `if`, `else if`, `else` kết hợp toán tử logic (`&&`, `||`, `!`) để giải quyết bài toán phân loại khu vực lưu trữ phức tạp.
@@ -8,7 +8,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Một hệ thống Quản lý Kho hàng (Warehouse Management Subsystem) cho tập đoàn Logistics cần xử lý quy trình tiếp nhận lô hàng mới. Quy trình này đòi hỏi hệ thống phải kiểm tra tính đúng đắn của dữ liệu, xác minh quyền hạn nhân viên thao tác, tự động phân bổ lô hàng vào khu vực lưu trữ tối ưu dựa trên đặc tính vật lý và tính toán tổng phí xử lý kho bãi.
 
 Hệ thống ghi nhận các thông tin đầu vào sơ cấp và yêu cầu bạn viết chương trình xử lý logic toàn bộ quy trình này.
@@ -30,7 +30,6 @@ flowchart TD
     J --> K[/"Tính toán Tổng phí lưu kho theo công thức"/]
     K --> L[/"Đầu ra: In báo cáo kiểm định kho bãi chi tiết"/]
     L --> Z
-
 ```
 
 ---
@@ -62,12 +61,12 @@ Viết mã nguồn JavaScript (chạy trong môi trường Node.js hoặc Cursor
     <tr>
       <td style="padding: 8px;"><code>userRole</code></td>
       <td style="padding: 8px;">String</td>
-      <td style="padding: 8px;">Vai trò người dùng: "WAREHOUSE_MANAGER", "INVENTORY_CLERK", "FORKLIFT_OPERATOR", "AUDITOR"</td>
+      <td style="padding: 8px;">Vai trò người dùng: "WAREHOUSE_MANAGER "INVENTORY_CLERK "FORKLIFT_OPERATOR "AUDITOR"</td>
     </tr>
     <tr>
       <td style="padding: 8px;"><code>itemCategory</code></td>
       <td style="padding: 8px;">String</td>
-      <td style="padding: 8px;">Phân loại mặt hàng: "CHEMICALS", "PERISHABLES", "ELECTRONICS", "STANDARD"</td>
+      <td style="padding: 8px;">Phân loại mặt hàng: "CHEMICALS "PERISHABLES "ELECTRONICS "STANDARD"</td>
     </tr>
     <tr>
       <td style="padding: 8px;"><code>packageWeightKg</code></td>
@@ -158,6 +157,7 @@ Viết mã nguồn JavaScript (chạy trong môi trường Node.js hoặc Cursor
 ### **Mẫu Đầu Vào & Đầu Ra Chi Tiết**
 
 #### **Trường hợp 1: Dữ liệu hợp lệ - Lô hàng hóa chất nguy hiểm**
+
 ```javascript
 // Input
 const userRole = "WAREHOUSE_MANAGER";
@@ -193,7 +193,8 @@ const isHazardous = true;
 ===================================================================
 ```
 
-#### **Trường hợp 2: Dữ liệu không hợp lệ - Trọng lượng âm**
+# **Trường hợp 2: Dữ liệu không hợp lệ - Trọng lượng âm**
+
 ```javascript
 // Input
 const userRole = "INVENTORY_CLERK";

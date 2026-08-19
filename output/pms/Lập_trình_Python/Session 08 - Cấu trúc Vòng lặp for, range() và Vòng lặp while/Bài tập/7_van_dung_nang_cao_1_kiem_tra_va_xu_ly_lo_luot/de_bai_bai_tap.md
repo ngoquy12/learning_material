@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 1] Kiểm tra và xử lý lô lượt mượn sách thư viện</center>
+# <center>[Vận dụng nâng cao 1] Kiểm tra và xử lý lô lượt mượn sách thư viện</center>
 
 ### **1. Mục tiêu**
 *   **Về kiến thức**: Vận dụng thành thạo cấu trúc vòng lặp `for` với hàm `range()`, các câu lệnh điều khiển luồng `break`, `continue` và khối `else` kết hợp trong vòng lặp.
@@ -7,7 +7,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong Hệ thống Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS), cuối mỗi ca làm việc, thủ thư cần thực hiện quy trình rà soát tự động một lô gồm `N` lượt mượn sách (có mã số thứ tự từ $1$ đến `N`). 
 
 Tuy nhiên, quá trình xử lý lô gặp phải một số tình huống nghiệp vụ đặc thù:

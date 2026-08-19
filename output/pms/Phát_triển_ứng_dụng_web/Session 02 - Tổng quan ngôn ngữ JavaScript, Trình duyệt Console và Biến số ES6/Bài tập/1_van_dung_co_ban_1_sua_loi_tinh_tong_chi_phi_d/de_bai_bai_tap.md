@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 1] Sửa lỗi tính tổng chi phí đăng ký khám bệnh ban đầu</center>
 
 ### **1. Mục tiêu**
@@ -15,7 +13,9 @@ Tuy nhiên, bộ phận lễ tân phản ánh rằng phiếu xác nhận đặt 
 ### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn của phân hệ tiếp nhận bệnh nhân đang gặp lỗi thực thi:
 
-*   **Tệp HTML (`index.html`):**```html
+*   **Tệp HTML (`index.html`):**
+
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -37,7 +37,9 @@ Dưới đây là mã nguồn của phân hệ tiếp nhận bệnh nhân đang 
 </html>
 ```
 
-*   **Tệp JavaScript (`app.js`):**```javascript
+*   **Tệp JavaScript (`app.js`):**
+
+```javascript
 // Khởi tạo thông tin đăng ký khám bệnh từ người dùng
 const patientName = prompt("Nhập tên bệnh nhân:");
 const baseFeeInput = prompt("Nhập phí khám cơ bản (VNĐ):");
@@ -54,9 +56,7 @@ console.log(appointmentSummary);
 alert(appointmentSummary);
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Trace mã nguồn & Báo cáo kiểm thử lỗi logic (Test Case Report)**
 Học viên tiến hành trace mã nguồn hiện tại, xác định dòng lệnh gây lỗi và hoàn thiện bảng báo cáo kiểm thử 3 kịch bản dưới đây (dòng STT 1 đã được làm mẫu, học viên điền tiếp thông tin cho STT 2 và STT 3):

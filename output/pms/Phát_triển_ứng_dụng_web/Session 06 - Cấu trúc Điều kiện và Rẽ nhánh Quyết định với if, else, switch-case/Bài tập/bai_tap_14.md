@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 2] Thiết kế Động cơ Phân loại và Tự động hóa Check-in Hàng không</center>
 
 ### **1. Mục tiêu**

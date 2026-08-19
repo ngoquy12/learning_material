@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 4] Sửa lỗi cập nhật và xóa chuyến đi GrabRide</center>
+# <center>[Vận dụng cơ bản 4] Sửa lỗi cập nhật và xóa chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Hiểu và áp dụng thao tác cập nhật (Update) và xóa (Delete):** Sử dụng thành thạo cú pháp gán lại giá trị theo chỉ số `list[index] = new_value` và lệnh `del list[index]`.
@@ -8,11 +8,15 @@
 ### **2. Bối cảnh & Vấn đề**
 Bộ phận điều phối của hệ thống Đặt xe công nghệ GrabRide đang gặp sự cố trên ứng dụng quản lý ca làm việc của tài xế. Danh sách lưu trữ khoảng cách di chuyển (km) của các chuyến đi trong ngày đang bị sai lệch nghiêm trọng. 
 
-Người điều hành phản ánh rằng khi họ nhập yêu cầu cập nhật lại khoảng cách cho chuyến đi thứ 3 và hủy chuyến đi thứ 2 trong danh sách, hệ thống lại cập nhật nhầm khoảng cách của chuyến đi thứ 4 và xóa mất chuyến đi thứ 3 đang hoạt động. Điều này dẫn đến tính sai cước phí thanh toán và gây ra khiếu nại từ cả tài xế lẫn khách hàng.### **3. Mã nguồn hiện tại**
+Người điều hành phản ánh rằng khi họ nhập yêu cầu cập nhật lại khoảng cách cho chuyến đi thứ 3 và hủy chuyến đi thứ 2 trong danh sách, hệ thống lại cập nhật nhầm khoảng cách của chuyến đi thứ 4 và xóa mất chuyến đi thứ 3 đang hoạt động. Điều này dẫn đến tính sai cước phí thanh toán và gây ra khiếu nại từ cả tài xế lẫn khách hàng.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là chương trình Python đang vận hành bị phản ánh có lỗi logic:
 
 ```python
+
 # Virtualenv: venv | Python 3.12
+
 # Chuẩn PEP 8 & Type Hints
 
 # Danh sách khoảng cách các chuyến đi trong ca (đơn vị: km)
@@ -39,7 +43,7 @@ print("Danh sách chuyến đi sau xử lý: danh_sach_chuyen_di)
 print("Tổng số chuyến đi còn lại: so_chuyen_con_lai)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Báo cáo Test Case (Tracing Bug)**
 Học viên tiến hành chạy thử chương trình, phân tích luồng thực thi và hoàn thành bảng báo cáo Test Case bên dưới. Hàng đầu tiên đã được điền mẫu làm căn cứ thực hiện.
@@ -100,7 +104,7 @@ flowchart TD
     H --> I([Kết thúc quy trình])
 ```
 
-### **5. Yêu cầu nộp bài**
+# **5. Yêu cầu nộp bài**
 Học viên cần nộp:
 *   Phần phân tích/báo cáo và mã nguồn triển khai.
 *   Đẩy mã nguồn lên GitHub theo định dạng thư mục: `[Tên Lớp]_[Môn Học]_SessionSession 10_Ex4`.

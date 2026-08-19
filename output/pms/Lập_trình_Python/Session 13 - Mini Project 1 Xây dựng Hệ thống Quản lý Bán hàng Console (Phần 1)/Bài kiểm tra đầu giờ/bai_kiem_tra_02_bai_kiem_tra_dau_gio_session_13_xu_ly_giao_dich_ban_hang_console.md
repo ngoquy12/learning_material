@@ -1,4 +1,4 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: XỬ LÝ GIAO DỊCH VÀ TÍNH TOÁN HÓA ĐƠN BÁN HÀNG (TRANSACTION & BILLING PROCESSING)</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: XỬ LÝ GIAO DỊCH VÀ TÍNH TOÁN HÓA ĐƠN BÁN HÀNG (TRANSACTION & BILLING PROCESSING)</center>
 
 ### **1. Mục tiêu**
 - Đánh giá khả năng thao tác dữ liệu cấu trúc phức hợp (`list`, `dict`) trong Python 3.12 để xử lý luồng giao dịch bán lẻ.
@@ -8,8 +8,8 @@
 ### **2. Yêu cầu**
 
 Hệ thống quản lý bán hàng lưu trữ thông tin sản phẩm và giỏ hàng dưới dạng các cấu trúc dữ liệu nguyên bản (Dictionary và List):
-- Cấu trúc kho hàng `inventory`: `dict[str, dict[str, Any]]` (Ví dụ: `{"PROD01": {"itemName": "Tai nghe Bluetooth", "price": 500000.0, "stock": 15}}`).
-- Cấu trúc giỏ hàng `cart`: `list[dict[str, Any]]` (Ví dụ: `[{"productId": "PROD01", "quantity": 2}]`).
+- Cấu trúc kho hàng `inventory`: `dict[str, dict[str, Any]]` (Ví dụ: `{"PROD01": {"itemName": "Tai nghe Bluetooth "price": 500000.0, "stock": 15}}`).
+- Cấu trúc giỏ hàng `cart`: `list[dict[str, Any]]` (Ví dụ: `[{"productId": "PROD01 "quantity": 2}]`).
 
 Thực hiện xây dựng các hàm chức năng xử lý giao dịch theo bảng mô tả chi tiết dưới đây:
 

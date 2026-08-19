@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 2] Thiết kế Mô hình Kiểm tra và Xử lý Chuỗi Mượn Trả Sách Tự động</center>
+# <center>[Sáng tạo 2] Thiết kế Mô hình Kiểm tra và Xử lý Chuỗi Mượn Trả Sách Tự động</center>
 
 ### **1. Mục tiêu**
 *   **Tư duy thiết kế hệ thống:** Tự chủ phân tích bài toán thực tế trong Hệ thống Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS), thiết kế cấu trúc dữ liệu và quy trình kiểm duyệt chuỗi giao dịch mượn/trả sách tự động.
@@ -31,7 +31,7 @@ Học viên tự thiết kế kịch bản chi tiết dựa trên các quy đị
 
 ---
 
-### **4. Yêu cầu đầu ra**
+### **4. Yêu cầu bài toán**
 
 Học viên phải chủ động thực hiện 4 phần nội dung sau trong bài nộp:
 

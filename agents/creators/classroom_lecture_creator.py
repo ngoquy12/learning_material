@@ -1,23 +1,110 @@
 """
 agents/creators/classroom_lecture_creator.py
-Facade and Adapter for Classroom Lecture Presentation Generation (HTML).
-Exposes classroom_lecture_agent and classroom_lecture_generator_agent.
+Modular Classroom Lecture Presentation Creator for Elearning Content Factory.
+Adheres to:
+- Rikkei Education Golden Slide Standards (3-30-300 rule, Bento Grid, Light Mode only).
+- Jinja2 Template-driven generation (classroom_lecture.j2).
+- Type-Safe Schema Validation with Pydantic v2 (ClassroomSlideDeckSchema, ClassroomSlideItemSchema).
+- Zero Text Emoji & 100% Accented Vietnamese Contract.
 """
 
 from typing import Dict, Any, List, Optional
+from core.prompts import render_prompt
+from core.state import require_tech_stack
+from core.schemas.course_schemas import ClassroomSlideDeckSchema, ClassroomSlideItemSchema
+from core.utils.schema_validator import validate_schema
+from core.utils.llm_parser import extract_json_from_response
+from core.llm import call_llm
 from agents.classroom_lecture_generator_agent import (
     ClassroomLectureGeneratorAgent,
     classroom_lecture_generator_agent,
 )
 
+def generate_lecture_slide_outline(
+    session_id: str,
+    session_title: str,
+    tech_stack: str,
+    lesson_outline_text: str = "",
+    course_name: str = "",
+    lang_tag: str = "python"
+) -> Dict[str, Any]:
+    """
+    Generates structured slide presentation deck outline using Jinja2 prompt
+    and validates via Pydantic v2 ClassroomSlideDeckSchema.
+    """
+    # 1. Render prompt
+    user_prompt = render_prompt(
+        "classroom_lecture.j2",
+        {
+            "session_id": session_id,
+            "session_title": session_title,
+            "tech_stack": tech_stack,
+            "course_name": course_name or tech_stack,
+            "lesson_outline_text": lesson_outline_text or session_title,
+            "lang_tag": lang_tag
+        }
+    )
+
+    system_prompt = (
+        "You are an Expert Presentation & Pedagogical Architect at Rikkei Education. "
+        "Generate a structured 15-20 slide presentation deck adhering strictly to the 3-30-300 rule. "
+        "Return ONLY a valid JSON object matching ClassroomSlideDeckSchema."
+    )
+
+    # 2. Call LLM with fallback
+    response = call_llm(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        agent_name="Classroom_Lecture_Architect",
+        session_id=session_id
+    )
+
+    raw_json = extract_json_from_response(response or "")
+    if not isinstance(raw_json, dict):
+        raw_json = {
+            "session_id": session_id,
+            "session_title": session_title,
+            "module_name": course_name or tech_stack,
+            "total_slides": 18,
+            "slides": [
+                {
+                    "slide_num": 1,
+                    "slide_type": "COVER",
+                    "title": session_title,
+                    "bullets": []
+                },
+                {
+                    "slide_num": 2,
+                    "slide_type": "AGENDA",
+                    "title": "LESSON AGENDA",
+                    "bullets": [f"01. Tổng quan {session_title}"]
+                },
+                {
+                    "slide_num": 3,
+                    "slide_type": "THEORY_DEMO",
+                    "title": "Khái niệm và Cơ chế hoạt động",
+                    "action_title": "Bối cảnh & Thực tế",
+                    "bullets": [f"Quy chuẩn thực thi và các điểm lưu ý kỹ thuật trong {tech_stack}."]
+                }
+            ]
+        }
+
+    # 3. Validate with Pydantic v2
+    is_valid, validated_deck, errs = validate_schema(ClassroomSlideDeckSchema, raw_json)
+    if is_valid and validated_deck:
+        return validated_deck.model_dump()
+    return raw_json
+
+
 def classroom_lecture_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     """
     Executes classroom lecture generation from state, extracting core_ssot / lesson info,
-    and returning updated state with 'lecture_html' and 'slide_html'.
+    compiling full HTML deck, and returning updated state with 'lecture_html' and 'slide_html'.
     """
     core_ssot = state.get("core_ssot") or {}
     session_title = core_ssot.get("session_title") or state.get("session_id", "Session 01")
-    module_name = core_ssot.get("course_name") or state.get("tech_stack", "Khóa học Công nghệ")
+    tech_stack = state.get("technology_stack") or state.get("tech_stack") or "python"
+    module_name = core_ssot.get("course_name") or tech_stack
     
     session_lessons = core_ssot.get("session_lessons") or []
     lessons_data = []
@@ -45,7 +132,7 @@ def classroom_lecture_agent(state: Dict[str, Any]) -> Dict[str, Any]:
                 {
                     "action_title": "Khái niệm cốt lõi",
                     "scene_title": state.get("lesson_title", session_title),
-                    "bullets": ["Quy chuẩn thực thi và các điểm lưu ý kỹ thuật."],
+                    "bullets": [f"Quy chuẩn thực thi và các điểm lưu ý kỹ thuật trong {tech_stack}."],
                     "layout_type": "THEORY"
                 }
             ]
@@ -71,4 +158,5 @@ __all__ = [
     "classroom_lecture_generator_agent",
     "classroom_lecture_agent",
     "slide_agent",
+    "generate_lecture_slide_outline",
 ]

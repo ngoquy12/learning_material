@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 1] Sửa lỗi đóng gói dữ liệu đặt phòng khách sạn và tính phụ thu check-in sớm</center>
 
 ### **1. Mục tiêu**
@@ -15,7 +13,9 @@ Quy tắc nghiệp vụ được định nghĩa như sau:
 2.  **Dọn dẹp dữ liệu tạm**: Trước khi đóng gói đối tượng thành chuỗi JSON, thuộc tính tạm thời `tempToken` (dùng cho xác thực giao dịch dở dang) bắt buộc phải được xóa bỏ hoàn toàn khỏi bộ nhớ đối tượng để đảm bảo an toàn và tối ưu kích thước dữ liệu.**Phản ánh sự cố nghiệp vụ**: Bộ phận vận hành ghi nhận hệ thống xuất ra chuỗi JSON có trường phụ thu check-in sớm mang giá trị `null` thay vì số tiền phụ thu chính xác. Ngoài ra, kiểm định viên phát hiện khi chuyển ngược chuỗi JSON thành đối tượng hoặc kiểm tra đối tượng trước khi đóng gói, key `tempToken` vẫn chưa bị xóa triệt để.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript đang vận hành module xử lý đặt phòng bị lỗi:```javascript
+Dưới đây là đoạn mã nguồn JavaScript đang vận hành module xử lý đặt phòng bị lỗi:
+
+```javascript
 // Hàm tính toán phụ thu và chuẩn hóa dữ liệu đơn đặt phòng
 function processBookingReservation(rawBooking, checkInHour) {
   // Sao chép đối tượng để tránh thay đổi trực tiếp dữ liệu gốc
@@ -55,9 +55,7 @@ console.log("Giá trị phụ thu nhận được:", restoredObj["early-surcharg
 console.log("Thuộc tính tempToken có còn nằm trong Object gốc không?:", "tempToken" in sampleBooking);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Phát hiện lỗi logic (Báo cáo Test Case)**
 Học viên đọc hiểu mã nguồn hiện tại, thực hiện truy vết dòng code gây lỗi và hoàn thiện bảng Báo cáo Test Case dưới đây. Hàng STT 1 đã được điền mẫu làm căn cứ:

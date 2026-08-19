@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng nâng cao 3] Tính toán Hóa đơn Bán hàng Tích hợp Chiết khấu và Thuế POS Highlands — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Phân tích I/O & Đề xuất giải pháp — 20 điểm**

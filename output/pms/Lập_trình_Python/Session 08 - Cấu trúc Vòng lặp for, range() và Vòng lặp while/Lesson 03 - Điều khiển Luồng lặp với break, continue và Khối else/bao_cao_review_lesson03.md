@@ -24,7 +24,23 @@ Báo cáo chi tiết về chất lượng và tính đúng đắn của các tà
 ## 🎯 Câu hỏi Quizz (`Câu hỏi Quizz/Quizz_Session08_Lesson03.xlsx`)
 *   **Trạng thái**: 🔴 **LỖI NGHIÊM TRỌNG (Lỗi cú pháp mã nguồn) -> ĐÃ KHẮC PHỤC**
 *   **Chi tiết lỗi**: 
-    *   Tại câu 3 (Row 10) và câu 5 (Row 18), phần mã nguồn minh họa bị dính lỗi thẻ đóng code block: kết thúc bằng ````python```` thay vì đóng bằng ```` ``` ````.
+    *   Tại câu 3 (Row 10) và câu 5 (Row 18), phần mã nguồn minh họa bị dính lỗi thẻ đóng code block: kết thúc bằng
+
+````
+
+python
+```
+
+`
+
+thay vì đóng bằng
+
+````
+```
+
+````
+
+.
 *   **Cách khắc phục**: Biên dịch và xuất lại bộ câu hỏi quizz sạch lỗi đóng thẻ mã nguồn.
 
 ---
@@ -32,4 +48,6 @@ Báo cáo chi tiết về chất lượng và tính đúng đắn của các tà
 ## 4. 💻 Bài thực hành (`Bài thực hành/practical_lab.md`)
 *   **Trạng thái**: 🔴 **THIẾU HỌC LIỆU CỐT LÕI (Trống rỗng, chỉ có tiêu đề khung) -> ĐÃ KHẮC PHỤC**
 *   **Chi tiết lỗi**: Tệp `practical_lab.md` hoàn toàn thiếu nội dung chi tiết bài thực hành, chỉ có các câu chữ hướng dẫn chung chung không có ngữ cảnh nghiệp vụ, thiếu hoàn toàn phần Code Demo tham khảo.
-*   **Cách khắc phục**: Viết lại chi tiết bài thực hành với nghiệp vụ thiết thực (Hệ thống quét an ninh WMS và kiểm soát băng tải), bổ sung đầy đủ các bước thực hiện, checklist tự đánh giá, và đặc biệt là phần `## 4. Mã nguồn tham khảo (Code Demo)` chi tiết.
+*   **Cách khắc phục**: Viết lại chi tiết bài thực hành với nghiệp vụ thiết thực (Hệ thống quét an ninh WMS và kiểm soát băng tải), bổ sung đầy đủ các bước thực hiện, checklist tự đánh giá, và đặc biệt là phần `
+
+## 4. Mã nguồn tham khảo (Code Demo)` chi tiết.

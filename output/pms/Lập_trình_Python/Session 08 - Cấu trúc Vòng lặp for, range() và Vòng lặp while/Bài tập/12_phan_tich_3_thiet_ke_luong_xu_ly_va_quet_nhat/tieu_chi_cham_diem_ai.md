@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Phân tích 3] Thiết kế Luồng Xử lý và Quét Nhật ký Mượn Trả Sách Thư viện Hàng ngày — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Đề xuất đa giải pháp & So sánh Trade-off — 30 điểm**

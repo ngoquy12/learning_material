@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 1] Phân tích và Xử lý Đóng gói Dữ liệu Đặt phòng Khách sạn</center>
 
 ### **1. Mục tiêu**

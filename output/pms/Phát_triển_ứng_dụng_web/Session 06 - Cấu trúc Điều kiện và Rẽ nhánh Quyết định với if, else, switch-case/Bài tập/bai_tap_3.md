@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 3] Sửa lỗi tính phí hành lý ký gửi khi Check-in máy bay</center>
 
 ### **1. Mục tiêu**
@@ -27,7 +25,9 @@ Trong phân hệ Check-in trực tuyến của hệ thống bán vé máy bay, t
 Bộ phận CSKH nhận được nhiều khiếu nại từ hành khách mua vé hạng `DELUXE` có khối lượng hành lý 20 kg. Hệ thống lại bắt họ thanh toán 100% mức phí của hạng `ECO`. Đồng thời, một hành khách có hành lý 30 kg phản ánh rằng số tiền bị tính cước thấp hơn rất nhiều so với quy định niêm yết trên website.---
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript đang được thực thi trên hệ thống thử nghiệm nhưng có chứa lỗi logic khiến cước phí bị tính sai:```javascript
+Dưới đây là đoạn mã nguồn JavaScript đang được thực thi trên hệ thống thử nghiệm nhưng có chứa lỗi logic khiến cước phí bị tính sai:
+
+```javascript
 // Hệ thống tính phí hành lý check-in tự động Vietjet / Vietnam Airlines
 const ticketClass = "DELUXE"; // Hạng vé: ECO, DELUXE, BUSINESS
 const baggageWeight = 20;     // Khối lượng hành lý ký gửi (kg)
@@ -119,7 +119,9 @@ Học viên tiến hành chạy thử và truy vết mã nguồn trên, phát hi
 </table>
 
 #### **Phần 2: Sơ đồ luồng xử lý (Mermaid Flowchart)**
-Dưới đây là sơ đồ luồng mô tả thuật toán chính xác sau khi đã được tối ưu:```mermaid
+Dưới đây là sơ đồ luồng mô tả thuật toán chính xác sau khi đã được tối ưu:
+
+```mermaid
 flowchart TD
     A([Bắt đầu quy trình]) --> B[/Đầu vào: ticketClass, baggageWeight/]
     B --> C{baggageWeight > 25?}
@@ -145,9 +147,7 @@ flowchart TD
     P --> Q([Kết thúc quy trình])
 ```
 
-#
-
-### **Phần 3: Sửa lỗi mã nguồn (Refactoring Code)**
+# **Phần 3: Sửa lỗi mã nguồn (Refactoring Code)**
 *   Viết lại toàn bộ đoạn mã nguồn JavaScript để tính toán chính xác `baseFee` và `finalFee` theo đúng quy tắc nghiệp vụ.
 *   Bổ sung kiểm tra dữ liệu đầu vào (Validation): Nếu `baggageWeight < 0` hoặc không phải số, in thông báo lỗi hợp lệ thay vì tính toán sai.
 

@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 1] Điều chỉnh và Cập nhật Nhật ký Chuyến đi GrabRide</center>
+# <center>[Vận dụng nâng cao 1] Điều chỉnh và Cập nhật Nhật ký Chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Vận dụng thao tác cập nhật và xóa phần tử:** Thực hành thành thạo kỹ thuật truy cập chỉ số (index), cập nhật trực tiếp giá trị (`list[index] = new_value`) và xóa phần tử dữ liệu không hợp lệ (`del list[index]`) trên danh sách dữ liệu động.

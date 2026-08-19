@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 3] Thiết kế mô-đun nhập liệu và xuất hóa đơn POS linh hoạt cho chuỗi Highlands POS</center>
+# <center>[Sáng tạo 3] Thiết kế mô-đun nhập liệu và xuất hóa đơn POS linh hoạt cho chuỗi Highlands POS</center>
 
 ### **1. Mục tiêu**
 *   **Vận dụng tổng hợp kiến thức nhập xuất:** Thực hành khai báo biến, chuyển đổi kiểu dữ liệu (`str`, `int`, `float`), tính toán biểu thức đại số và trình bày dữ liệu dạng bảng/biên lai trên giao diện dòng lệnh (CLI).
@@ -9,7 +9,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Chuỗi cửa hàng cà phê **Highlands POS** đang chuẩn bị thử nghiệm mô-đun tính tiền tự động thế hệ mới chạy trên thiết bị quầy (POS terminal). Mô-đun này nhận thông tin order trực tiếp từ nhân viên thu ngân thông qua giao diện dòng lệnh, tự động tính toán tổng số tiền dựa trên món chính, phụ thu nâng size, số lượng topping đi kèm và mức chiết khấu dành cho thành viên, sau đó xuất ra biên lai thanh toán chuẩn hóa.
 
-Hiện tại, ban quản lý muốn tạo một bản prototype bằng ngôn ngữ Python nhằm xác minh tính chính xác của thuật toán tính tiền và định dạng xuất hóa đơn trước khi tích hợp vào phần cứng bán hàng.### **3. Quy tắc nghiệp vụ**
+Hiện tại, ban quản lý muốn tạo một bản prototype bằng ngôn ngữ Python nhằm xác minh tính chính xác của thuật toán tính tiền và định dạng xuất hóa đơn trước khi tích hợp vào phần cứng bán hàng.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tính toán giá hóa đơn theo các quy định thực tế sau:
 *   **Giá cơ sở (Base Price):** Tính theo kích thước mặc định chuẩn (Size S).
 *   **Phụ thu kích thước (Size Surcharge):**

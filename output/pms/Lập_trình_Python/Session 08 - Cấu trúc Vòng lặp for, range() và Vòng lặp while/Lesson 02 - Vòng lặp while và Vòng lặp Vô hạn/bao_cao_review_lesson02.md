@@ -26,12 +26,32 @@ Báo cáo chi tiết về chất lượng và tính đúng đắn của các tà
 ## 3. 🎯 Câu hỏi Quizz (`Câu hỏi Quizz/Quizz_Session08_Lesson02.xlsx`)
 *   **Trạng thái**: 🔴 **LỖI NGHIÊM TRỌNG (Lỗi cú pháp mã nguồn) -> ĐÃ KHẮC PHỤC**
 *   **Chi tiết lỗi**: 
-    *   Tại câu 3 (Row 10) và câu 5 (Row 18), phần mã nguồn minh họa bị dính lỗi thẻ đóng code block: kết thúc bằng ````python```` thay vì đóng bằng ```` ``` ````.
+    *   Tại câu 3 (Row 10) và câu 5 (Row 18), phần mã nguồn minh họa bị dính lỗi thẻ đóng code block: kết thúc bằng
+
+````
+
+python
+```
+
+`
+
+thay vì đóng bằng
+
+````
+```
+
+````
+
+.
 *   **Cách khắc phục**: Biên dịch và xuất lại bộ câu hỏi quizz sạch lỗi đóng thẻ mã nguồn, bảo đảm hiển thị chính xác trên hệ thống.
 
 ---
 
 ## 4. 💻 Bài thực hành (`Bài thực hành/practical_lab.md`)
 *   **Trạng thái**: 🟡 **THIẾU HỌC LIỆU CỐT LÕI (Thiếu Code Demo) -> ĐÃ KHẮC PHỤC**
-*   **Chi tiết lỗi**: Tệp `practical_lab.md` hoàn toàn thiếu phần `## 3. Mã nguồn tham khảo (Code Demo)`, chỉ có mục tiêu, các bước thực hiện và checklist. Điều này làm mất đi tài liệu tham khảo quan trọng giúp sinh viên tự học và đối chiếu kết quả.
-*   **Cách khắc phục**: Cập nhật bổ sung mục `## 3. Mã nguồn tham khảo (Code Demo)` chứa đoạn code hoàn chỉnh mô phỏng nghiệp vụ tích lũy tài chính tự động.
+*   **Chi tiết lỗi**: Tệp `practical_lab.md` hoàn toàn thiếu phần `
+
+## 3. Mã nguồn tham khảo (Code Demo)`, chỉ có mục tiêu, các bước thực hiện và checklist. Điều này làm mất đi tài liệu tham khảo quan trọng giúp sinh viên tự học và đối chiếu kết quả.
+*   **Cách khắc phục**: Cập nhật bổ sung mục `
+
+## 3. Mã nguồn tham khảo (Code Demo)` chứa đoạn code hoàn chỉnh mô phỏng nghiệp vụ tích lũy tài chính tự động.

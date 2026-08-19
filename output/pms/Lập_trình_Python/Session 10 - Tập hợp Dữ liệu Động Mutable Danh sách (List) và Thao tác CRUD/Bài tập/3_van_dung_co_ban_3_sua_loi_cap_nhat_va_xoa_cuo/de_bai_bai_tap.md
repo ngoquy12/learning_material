@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 3] Sửa lỗi cập nhật và xóa cước phí chuyến đi GrabRide</center>
+# <center>[Vận dụng cơ bản 3] Sửa lỗi cập nhật và xóa cước phí chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Kỹ năng truy vết (Code Tracing):** Thực hành đọc hiểu và phân tích thứ tự thực thi lệnh liên quan đến danh sách động `list` trong Python 3.12.
@@ -10,11 +10,15 @@ Trong hệ thống đặt xe GrabRide, danh sách cước phí của các chuy�
 1.  **Cập nhật cước phí:** Chuyến đi ở vị trí chỉ số `2` được tài xế báo bổ sung phụ phí thời tiết, cước phí mới cần điều chỉnh thành `50000` VNĐ.
 2.  **Xóa chuyến đi hủy:** Chuyến đi ở vị trí chỉ số `1` bị khách hàng hủy thao tác trên ứng dụng, cần xóa khỏi danh sách cước phí.
 
-Tuy nhiên, tài xế phản ánh rằng trên ứng dụng hiển thị cước phí chuyến đi số `2` (giá cũ `45000` VNĐ) vẫn giữ nguyên không thay đổi, trong khi một chuyến đi khác lại bị thay đổi số tiền bất thường thành `50000` VNĐ.### **3. Mã nguồn hiện tại**
+Tuy nhiên, tài xế phản ánh rằng trên ứng dụng hiển thị cước phí chuyến đi số `2` (giá cũ `45000` VNĐ) vẫn giữ nguyên không thay đổi, trong khi một chuyến đi khác lại bị thay đổi số tiền bất thường thành `50000` VNĐ.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn hiện tại đang chạy trên môi trường thử nghiệm bị phản ánh gặp lỗi logic:
 
 ```python
+
 # Virtualenv: venv | Python 3.12
+
 # Chuẩn PEP 8 & Type Hints
 
 # Khởi tạo danh sách cước phí 5 chuyến đi trong ca của tài xế (đơn vị: VNĐ)
@@ -35,7 +39,7 @@ print("Danh sách cước phí sau xử lý: cuoc_phi_chuyen_di)
 print("Tổng số chuyến đi hợp lệ: tong_so_chuyen)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 Học viên thực hiện bài tập theo 2 phần bắt buộc sau:
 

@@ -1,4 +1,4 @@
-## [Vận dụng cơ bản 1] Sửa lỗi tính tổng chi phí đăng ký khám bệnh ban đầu
+# [Vận dụng cơ bản 1] Sửa lỗi tính tổng chi phí đăng ký khám bệnh ban đầu
 
 ### **Tiêu chí chấm điểm (AI)**
 **[Vận dụng cơ bản 1] Sửa lỗi tính tổng chi phí đăng ký khám bệnh ban đầu — Tổng điểm: 100 điểm**

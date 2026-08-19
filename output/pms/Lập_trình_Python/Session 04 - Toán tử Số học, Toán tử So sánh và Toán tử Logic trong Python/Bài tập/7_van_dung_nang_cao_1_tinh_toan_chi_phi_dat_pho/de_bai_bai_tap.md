@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 1] Tính toán chi phí đặt phòng phức hợp và Đánh giá điều kiện xác thực giao dịch</center>
+# <center>[Vận dụng nâng cao 1] Tính toán chi phí đặt phòng phức hợp và Đánh giá điều kiện xác thực giao dịch</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Vận dụng thành thạo các toán tử số học (`+`, `-`, `*`, `/`, `//`, `%`, `**`) và toán tử so sánh (`==`, `!=`, `>`, `<`, `>=`, `<=`) trong ngôn ngữ lập trình Python 3.12 để giải quyết bài toán tài chính phức hợp.

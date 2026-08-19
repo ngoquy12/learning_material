@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 3] Sáng tạo hệ thống làm thủ tục check-in và tính phí hành lý hàng không</center>
 
 ### **1. Mục tiêu**

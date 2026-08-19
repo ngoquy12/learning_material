@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 3] Quản lý và Điều chỉnh Nhật ký Cước phí Chuyến đi GrabRide</center>
+# <center>[Vận dụng nâng cao 3] Quản lý và Điều chỉnh Nhật ký Cước phí Chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Thao tác danh sách động nâng cao:** Vận dụng thành thạo kỹ thuật truy cập và cập nhật phần tử qua chỉ số (`list[index] = new_value`), xóa phần tử theo vị trí bằng lệnh `del`, và kiểm soát quy mô tập dữ liệu bằng `len()`.
@@ -10,7 +10,9 @@ Trong hệ thống quản lý chuyến đi của ứng dụng đặt xe công ng
 1.  **Điều chỉnh cước phí do phụ phí phát sinh:** Khách hàng di chuyển vào thời điểm trời mưa lớn hoặc giờ cao điểm, hoặc quãng đường thực tế bị sai lệch khiến cước phí của chuyến đi tại chỉ số `index` nhất định cần được tính toán lại và cập nhật trực tiếp vào danh sách.
 2.  **Hủy chuyến đi gian lận / bị hủy ngang:** Chuyến đi bị hủy bởi khách hàng hoặc bị hệ thống đánh dấu gian lận cần bị loại bỏ hoàn toàn khỏi danh sách thu nhập ca làm việc bằng thao tác xóa tại vị trí `index`.
 
-Hệ thống yêu cầu phát triển một mô-đun xử lý dữ liệu RAM trên tệp `main.py` để cập nhật, xóa và truy xuất chính xác số lượng chuyến đi hợp lệ còn lại cùng tổng doanh thu thực nhận của tài xế.### **3. Quy tắc nghiệp vụ**
+Hệ thống yêu cầu phát triển một mô-đun xử lý dữ liệu RAM trên tệp `main.py` để cập nhật, xóa và truy xuất chính xác số lượng chuyến đi hợp lệ còn lại cùng tổng doanh thu thực nhận của tài xế.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống GrabRide áp dụng các quy tắc định giá và xử lý dữ liệu sau:
 
 1.  **Quy tắc tính cước phí chuyến đi chuẩn (Trip Fare Rules):**

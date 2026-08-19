@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 1] Sửa lỗi cập nhật và xóa chuyến đi trong danh sách cước phí GrabRide</center>
+# <center>[Vận dụng cơ bản 1] Sửa lỗi cập nhật và xóa chuyến đi trong danh sách cước phí GrabRide</center>
 
 ### **1. Mục tiêu**
 *   Hiểu và vận dụng thành thạo các thao tác cập nhật phần tử theo chỉ số (index) và xóa phần tử bằng câu lệnh `del` trên danh sách động (`list`) trong Python 3.12.
@@ -8,11 +8,15 @@
 ### **2. Bối cảnh & Vấn đề**
 Trong hệ thống đặt xe công nghệ GrabRide (GRAB_RIDE), cước phí tạm tính của các chuyến đi hoàn thành trong ca làm việc của tài xế được lưu trữ dưới dạng một danh sách số nguyên `danh_sach_cuoc_phi` (đơn vị: VNĐ).
 
-Bộ phận vận hành nhận được phản ánh từ tài xế với nội dung như sau: "Chương trình ghi nhận ca làm việc bị sai cước phí. Khi hệ thống cập nhật phụ phí thời tiết cho một chuyến đi và xóa chuyến đi bị khách hàng hủy, cước phí của chuyến đi thành công khác lại bị thay đổi sai lệch, trong khi chuyến đi cần cập nhật phụ phí vẫn giữ nguyên giá cũ."### **3. Mã nguồn hiện tại**
+Bộ phận vận hành nhận được phản ánh từ tài xế với nội dung như sau: "Chương trình ghi nhận ca làm việc bị sai cước phí. Khi hệ thống cập nhật phụ phí thời tiết cho một chuyến đi và xóa chuyến đi bị khách hàng hủy, cước phí của chuyến đi thành công khác lại bị thay đổi sai lệch, trong khi chuyến đi cần cập nhật phụ phí vẫn giữ nguyên giá cũ."
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn `main.py` bị lỗi nghiệp vụ do lập trình viên tiền nhiệm bàn giao:
 
 ```python
+
 # Virtualenv: venv | Python 3.12
+
 # Chuẩn PEP 8 & Type Hints
 
 # Khởi tạo danh sách cước phí 5 chuyến đi ban đầu của tài xế (VNĐ)
@@ -32,7 +36,7 @@ print("Danh sách cước phí sau xử lý: danh_sach_cuoc_phi)
 print("Tổng số chuyến đi thành công: so_luong_chuyen)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 Học viên thực hiện đầy đủ 2 phần nhiệm vụ sau:
 
 #### **Phần 1: Tracing code & Lập báo cáo Test Case**

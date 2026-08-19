@@ -1,5 +1,3 @@
-#
-
 # <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp (AIRLINE_CHECKIN)</center>
 
 ### **1. Mục tiêu**

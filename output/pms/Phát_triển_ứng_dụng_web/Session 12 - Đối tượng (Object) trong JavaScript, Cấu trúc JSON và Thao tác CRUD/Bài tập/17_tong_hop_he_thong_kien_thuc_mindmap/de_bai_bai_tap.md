@@ -1,5 +1,3 @@
-#
-
 # <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 12</center>
 
 ### **1. Mục tiêu**
@@ -69,9 +67,10 @@ Học viên nộp bài theo đúng quy chuẩn GitHub của khóa học:
   *Ví dụ:* `HNKS25CNTT1_Core_Session12_Mindmap`
 
 * **Cấu trúc cây thư mục trong Repository:**
-  ```text
+
+```text
   HNKS25CNTT1_Core_Session12_Mindmap/
   ├── mindmap.png (hoặc mindmap.jpg)
   ├── mindmap.xmind (hoặc mindmap.pdf)
   └── summary.md
-  ```
+```

@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 6] Sửa lỗi tính tổng chi phí đăng ký khám bệnh</center>
 
 ### **1. Mục tiêu**
@@ -13,7 +11,9 @@ Trong hệ thống Quản lý Đặt lịch Khám bệnh Phòng khám Tự độ
 Theo quy tắc nghiệp vụ, tổng chi phí thanh toán phải bằng tổng số học của phí khám lâm sàng và phí dịch vụ bổ sung. Tuy nhiên, bộ phận tiếp đón bệnh nhân liên tục phản ánh rằng hệ thống đưa ra con số tính toán bất thường. Cụ thể, khi nhập phí khám là `150000` VNĐ và phí dịch vụ là `50000` VNĐ, màn hình xuất hóa đơn hiển thị tổng tiền cần thanh toán là `15000050000` VNĐ. Sự cố này gây hoang mang cho bệnh nhân và ảnh hưởng nghiêm trọng đến tiến trình bàn giao ca làm việc.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là mã nguồn JavaScript hiện tại đang được chạy trong mô-đun tiếp đón bệnh nhân:```javascript
+Dưới đây là mã nguồn JavaScript hiện tại đang được chạy trong mô-đun tiếp đón bệnh nhân:
+
+```javascript
 // Hệ thống Đặt lịch Khám bệnh CLINIC_APPOINTMENT
 // Mô-đun: Tính tổng chi phí đăng ký khám ban đầu
 
@@ -32,9 +32,7 @@ const invoiceNotice = `Bệnh nhân: ${patientName} | Phí khám: ${baseExamFee}
 console.log(invoiceNotice);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Code Tracing & Báo cáo Test Case (Bắt buộc)**
 Học viên tiến hành chạy thử chương trình, truy vết mã nguồn và hoàn thành bảng Báo cáo Test Case theo mẫu dưới đây. Hàng đầu tiên (STT 1) đã được hoàn thành mẫu làm căn cứ thực hiện cho các hàng tiếp theo:

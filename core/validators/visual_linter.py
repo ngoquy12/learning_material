@@ -4,7 +4,7 @@ Automated Visual Regression Linter Engine for Elearning Content Factory.
 Inspects generated HTML/CSS layout structure to detect horizontal overflow risks,
 Light Mode rule violations, ALL-CAPS headings, and image caption defects.
 
-Combines Fast In-Process Static DOM Linter with optional Puppeteer Headless Browser Inspection.
+Combines Fast DOM AST Parsing (BeautifulSoup4) with multi-rule pedagogical compliance auditing.
 """
 
 import re
@@ -12,11 +12,13 @@ import os
 import subprocess
 import json
 from typing import Tuple, List, Dict, Any
+from bs4 import BeautifulSoup, Tag
 
 def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates HTML layout for visual regression defects, overflow risks, and styling standards.
     Universal Mass-Production Multi-Rule Auditor (Zero-Defect Enterprise Standards).
+    Uses BeautifulSoup DOM AST parsing with regex fallback.
     Returns (is_valid, list_of_errors).
     """
     if not content or not content.strip():
@@ -37,7 +39,10 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
     content_lower = content.lower()
     for word in banned_ai_words:
         if word in content_lower:
-            errors.append(f"Phát hiện từ cấm AI sáo rỗng '{word}' trong bài đọc. Vui lòng thay bằng thuật ngữ kỹ thuật chuyên nghiệp (Các lỗi thường gặp, Lưu ý thực tế, Kinh nghiệm xử lý).")
+            errors.append(
+                f"Phát hiện từ cấm AI sáo rỗng '{word}' trong bài đọc. "
+                "Vui lòng thay bằng thuật ngữ kỹ thuật chuyên nghiệp (Các lỗi thường gặp, Lưu ý thực tế, Kinh nghiệm xử lý)."
+            )
 
     # 2. Section 4 & Section 5 Clean Title Standard (AGENTS.md Directive)
     if "section-4" in content:
@@ -47,60 +52,113 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
         if "5. Tài liệu tham khảo và mở rộng" in content or "5. Các nguồn tham khảo" in content:
             errors.append("Tiêu đề Section 5 vi phạm quy chuẩn: Phải dùng chính xác '5. Tài liệu tham khảo'.")
 
-    # 3. Horizontal Overflow Risk Inspection: Tables without overflow wrappers
-    table_matches = re.findall(r'(<table.*?>.*?</table>)', content, re.DOTALL | re.IGNORECASE)
-    for table_code in table_matches:
-        has_wrapper = False
-        if "overflow-x" in table_code or "overflow-x-auto" in table_code or "table-responsive" in table_code:
-            has_wrapper = True
-        else:
-            pos = content.find(table_code)
-            if pos > 0:
-                preceding_snippet = content[max(0, pos-200):pos]
-                if "overflow-x-auto" in preceding_snippet or "overflow-x: auto" in preceding_snippet:
-                    has_wrapper = True
-                    
-        if not has_wrapper:
-            errors.append("Phát hiện thẻ <table> thiếu wrapper 'overflow-x-auto', có nguy cơ vỡ layout cuộn ngang trên mobile.")
+    # Parse HTML with BeautifulSoup for DOM AST analysis
+    try:
+        soup = BeautifulSoup(content, "html.parser")
+    except Exception:
+        soup = None
 
-    # 4. Strict Light Mode Enforcement (AGENTS.md Rule 11)
-    content_without_code = re.sub(r'<pre.*?>.*?</pre>', '', content, flags=re.DOTALL | re.IGNORECASE)
-    content_without_code = re.sub(r'<code.*?>.*?</code>', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
-    content_without_code = re.sub(r'class=["\'].*?terminal.*?["\']', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
-    content_without_code = re.sub(r'class=["\'].*?visualizer.*?["\']', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
-    content_without_code = re.sub(r'<div[^>]*id=["\'](?:mobile-toc-drawer|selftest-modal|output-sb-\d+|sql-viz-output|viz-terminal-log)["\'].*?>', '', content_without_code, flags=re.DOTALL | re.IGNORECASE)
-    content_without_code = re.sub(r'\bbg-slate-900/\d+\b', '', content_without_code, flags=re.IGNORECASE)
+    if soup:
+        # 3. Horizontal Overflow Risk Inspection: Tables without overflow wrappers (AST Traversal)
+        for table in soup.find_all("table"):
+            has_wrapper = False
+            # Check table's own class/style
+            tbl_class = " ".join(table.get("class", []))
+            tbl_style = table.get("style", "")
+            if "overflow-x" in tbl_class or "overflow-x-auto" in tbl_class or "table-responsive" in tbl_class or "overflow-x" in tbl_style:
+                has_wrapper = True
+            else:
+                # Traverse parent hierarchy
+                parent = table.parent
+                levels = 0
+                while parent and levels < 4:
+                    p_class = " ".join(parent.get("class", [])) if isinstance(parent, Tag) else ""
+                    p_style = parent.get("style", "") if isinstance(parent, Tag) else ""
+                    if "overflow-x-auto" in p_class or "overflow-x: auto" in p_style or "table-responsive" in p_class or "overflow-x" in p_class:
+                        has_wrapper = True
+                        break
+                    parent = parent.parent
+                    levels += 1
 
-    dark_bg_patterns = [
-        r'class=["\'][^"\']*\bbg-(?:slate-900|slate-950|black|zinc-900|gray-900)\b[^"\']*["\']',
-        r'style=["\'][^"\']*background(?:-color)?:\s*(?:#0f172a|#000000|black|#09090b)[^"\']*["\']'
-    ]
-    for pattern in dark_bg_patterns:
-        if re.search(pattern, content_without_code, re.IGNORECASE):
-            errors.append("Vi phạm Quy tắc 11 AGENTS.md (Strict Light Mode): Khung bài đọc chứa thẻ container Nền Đen/Tối (Dark Mode). Tất cả container bài đọc phải dùng màu sáng (bg-white / bg-slate-50).")
-            break
+            if not has_wrapper:
+                errors.append("Phát hiện thẻ <table> thiếu wrapper 'overflow-x-auto', có nguy cơ vỡ layout cuộn ngang trên mobile.")
 
-    # 5. Typography Standard & ALL CAPS Headings Inspection (AGENTS.md Rule 3)
-    heading_matches = re.findall(r'<(h[1-3])[^>]*>(.*?)</\1>', content, re.DOTALL | re.IGNORECASE)
-    for tag_name, heading_raw in heading_matches:
-        heading_text = re.sub(r'<.*?>', '', heading_raw).strip()
-        alpha_text = re.sub(r'[^a-zA-ZàáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđĐ]', '', heading_text)
-        if len(alpha_text) >= 5 and alpha_text.isupper():
-            errors.append(f"Vi phạm Quy tắc 3 AGENTS.md: Tiêu đề '<{tag_name}> {heading_text[:30]}...' sử dụng chữ IN HOA TOÀN BỘ (ALL CAPS). Vui lòng dùng Title Case hoặc Sentence Case.")
+        # 4. Strict Light Mode Enforcement (AGENTS.md Rule 11) via AST Filter
+        for tag in soup.find_all(True):
+            # Skip code blocks, terminal logs, visualizers, and allowed dark toolbars
+            if tag.name in ["pre", "code", "svg", "path"]:
+                continue
+            t_class = " ".join(tag.get("class", []))
+            t_id = tag.get("id", "")
+            t_style = tag.get("style", "")
 
-    # 6. Media Bounds & Italicized Caption Inspection
-    img_matches = re.finditer(r'<img\s+([^>]*?)>', content, re.IGNORECASE)
-    for match in img_matches:
-        img_attr = match.group(1).lower()
-        if any(kw in img_attr for kw in ["logo", "brand", "header", "icon", "h-9", "h-8", "h-10", "h-12", "nav"]):
-            continue
-        pos = match.end()
-        following_snippet = content[pos:pos+300]
-        has_italic_caption = bool(re.search(r'<(figcaption|i|em)\b|\bclass=["\'][^"\']*\b(?:italic|font-medium|text-slate-500|text-slate-600)\b', following_snippet, re.IGNORECASE))
-        if not has_italic_caption:
-            preceding_snippet = content[max(0, match.start()-100):match.start()]
-            if "<figure" not in preceding_snippet.lower():
+            # Exclude known dark elements
+            if any(kw in t_class for kw in ["terminal", "visualizer", "hljs", "syntax", "code-tracker"]):
+                continue
+            if any(kw in t_id for kw in ["mobile-toc-drawer", "selftest-modal", "output-sb-", "sql-viz-output", "viz-terminal-log"]):
+                continue
+            if "bg-slate-900/" in t_class or "bg-black/" in t_class:  # Allow low-opacity overlay backdrops
+                continue
+
+            # Check illegal dark background classes & styles
+            is_dark_bg = False
+            if re.search(r'\bbg-(?:slate-900|slate-950|black|zinc-900|gray-900)\b', t_class):
+                is_dark_bg = True
+            elif re.search(r'background(?:-color)?:\s*(?:#0f172a|#000000|black|#09090b)', t_style, re.IGNORECASE):
+                is_dark_bg = True
+
+            if is_dark_bg:
+                errors.append(
+                    "Vi phạm Quy tắc 11 AGENTS.md (Strict Light Mode): Khung bài đọc chứa thẻ container Nền Đen/Tối (Dark Mode). "
+                    "Tất cả container bài đọc phải dùng màu sáng (bg-white / bg-slate-50)."
+                )
+                break
+
+        # 5. Typography Standard & ALL CAPS Headings Inspection (AGENTS.md Rule 3)
+        for h in soup.find_all(["h1", "h2", "h3"]):
+            heading_text = h.get_text().strip()
+            alpha_text = re.sub(r'[^a-zA-ZàáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđĐ]', '', heading_text)
+            if len(alpha_text) >= 5 and alpha_text.isupper():
+                errors.append(
+                    f"Vi phạm Quy tắc 3 AGENTS.md: Tiêu đề '<{h.name}> {heading_text[:30]}...' sử dụng chữ IN HOA TOÀN BỘ (ALL CAPS). "
+                    "Vui lòng dùng Title Case hoặc Sentence Case."
+                )
+
+        # 6. Media Bounds & Italicized Caption Inspection
+        for img in soup.find_all("img"):
+            img_src = img.get("src", "").lower()
+            img_class = " ".join(img.get("class", [])).lower()
+            if any(kw in (img_src + img_class) for kw in ["logo", "brand", "header", "icon", "h-9", "h-8", "h-10", "h-12", "nav"]):
+                continue
+
+            # Check if inside a figure with figcaption
+            figure_parent = img.find_parent("figure")
+            if figure_parent and figure_parent.find("figcaption"):
+                continue
+
+            # Check next sibling
+            has_caption = False
+            curr = img.find_next_sibling()
+            for _ in range(3):
+                if not curr:
+                    break
+                c_text = curr.get_text().strip()
+                c_class = " ".join(curr.get("class", []))
+                if curr.name in ["figcaption", "i", "em"] or any(kw in c_class for kw in ["italic", "text-slate-500", "font-medium"]):
+                    if len(c_text) > 0:
+                        has_caption = True
+                        break
+                curr = curr.find_next_sibling()
+
+            if not has_caption:
                 errors.append("Thẻ <img> minh họa thiếu chú thích in nghiêng (<figcaption>, <i>, <em>) trực tiếp bên dưới.")
+
+    else:
+        # Fallback to regex checks if BeautifulSoup is unavailable
+        table_matches = re.findall(r'(<table.*?>.*?</table>)', content, re.DOTALL | re.IGNORECASE)
+        for table_code in table_matches:
+            if "overflow-x-auto" not in table_code and "table-responsive" not in table_code:
+                errors.append("Phát hiện thẻ <table> thiếu wrapper 'overflow-x-auto', có nguy cơ vỡ layout cuộn ngang trên mobile.")
 
     # 7. Code Comment Vietnamese Standard Inspection
     english_comment_patterns = [

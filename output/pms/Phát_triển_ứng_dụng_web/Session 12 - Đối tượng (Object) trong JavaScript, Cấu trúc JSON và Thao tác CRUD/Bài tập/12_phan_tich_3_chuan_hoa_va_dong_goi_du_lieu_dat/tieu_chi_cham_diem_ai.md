@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Phân tích 3] Chuẩn hóa và đóng gói dữ liệu đặt phòng khách sạn — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Đề xuất đa giải pháp & So sánh Trade-off — 30 điểm**

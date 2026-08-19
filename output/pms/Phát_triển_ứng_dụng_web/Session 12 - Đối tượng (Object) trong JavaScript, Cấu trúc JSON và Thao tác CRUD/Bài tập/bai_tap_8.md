@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 2] Đóng gói và Xử lý Chuẩn hóa Dữ liệu Đặt phòng Khách sạn</center>
 
 ### **1. Mục tiêu**

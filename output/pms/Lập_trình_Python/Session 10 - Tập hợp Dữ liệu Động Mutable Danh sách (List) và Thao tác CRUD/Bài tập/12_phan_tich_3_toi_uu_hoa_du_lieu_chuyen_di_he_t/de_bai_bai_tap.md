@@ -1,4 +1,4 @@
-## <center>[Phân tích 3] Tối Ưu Hóa Dữ Liệu Chuyến Đi Hệ Thống GrabRide Bằng Thao Tác Cập Nhật Và Xóa Danh Sách</center>
+# <center>[Phân tích 3] Tối Ưu Hóa Dữ Liệu Chuyến Đi Hệ Thống GrabRide Bằng Thao Tác Cập Nhật Và Xóa Danh Sách</center>
 
 ### **1. Mục tiêu**
 *   Phân tích chuyên sâu bài toán quản lý và xử lý dữ liệu động danh sách chuyến đi trong hệ thống đặt xe công nghệ **GrabRide**.

@@ -5,12 +5,23 @@
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc về tính toán đơn hàng ShopeeFood:
 
 ```python
+
 # Thông số đơn hàng cơm tấm
-price = 55000        # Đơn giá một phần cơm tấm (VNĐ)
-quantity = 3         # Số lượng mua
-shipping = 22000     # Phí giao hàng (VNĐ)
-voucher = 15000      # Mã giảm giá voucher (VNĐ)
-wallet = 100000      # Số dư ví điện tử ban đầu (VNĐ)
+price = 55000
+
+# Đơn giá một phần cơm tấm (VNĐ)
+quantity = 3
+
+# Số lượng mua
+shipping = 22000
+
+# Phí giao hàng (VNĐ)
+voucher = 15000
+
+# Mã giảm giá voucher (VNĐ)
+wallet = 100000
+
+# Số dư ví điện tử ban đầu (VNĐ)
 
 # Tính toán các chỉ số thanh toán
 subtotal = price * quantity

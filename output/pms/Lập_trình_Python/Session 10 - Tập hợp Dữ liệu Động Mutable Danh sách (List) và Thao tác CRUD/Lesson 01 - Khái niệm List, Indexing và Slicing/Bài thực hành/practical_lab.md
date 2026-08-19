@@ -30,9 +30,12 @@ Yêu cầu nghiệp vụ:
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```text
-# ========================================== 
+
+# ==========================================
+
 # THỰC HÀNH: XỬ LÝ NHẬT KÝ ĐƠN HÀNG E-COMMERCE
-# ========================================== 
+
+# ==========================================
 
 # Bước 1: Khởi tạo danh sách nhật ký đơn hàng và giá trị doanh thu
 order_logs = [
@@ -61,6 +64,7 @@ print("Đơn hàng mới nhất (Chỉ số -1):", latest_order)
 print("Tổng giá trị đơn đầu tiên (+ Phụ phí):", total_first_order, "VNĐ\n")
 
 # Bước 3: Trích xuất và đảo ngược dữ liệu bằng Slicing
+
 # 3.1. Top 3 đơn hàng đầu tiên (lấy chỉ số 0, 1, 2 -> stop = 3)
 top_3_orders = order_logs[0:3]
 
@@ -70,8 +74,12 @@ reversed_logs = order_logs[::-1]
 # 3.3. Phân trang tĩnh cho Trang 2 (kích thước mỗi trang: 2 phần tử)
 items_per_page = 2
 page_number = 2
-start_index = (page_number - 1) * items_per_page  # 2
-stop_index = start_index + items_per_page          # 4
+start_index = (page_number - 1) * items_per_page
+
+# 2
+stop_index = start_index + items_per_page
+
+# 4
 page_2_logs = order_logs[start_index:stop_index]
 
 print("=== BÁO CÁO DANH SÁCH & SLICING ===")
@@ -89,7 +97,7 @@ else:
     print(f"Cảnh báo: Chỉ số {target_index} vượt quá giới hạn danh sách (Độ dài tối đa: {len(order_logs)})")
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khởi tạo đúng cấu trúc danh sách order_logs và order_amounts theo yêu cầu bài toán.
 - [ ] Sử dụng đúng chỉ số 0 và -1 để lấy chính xác dữ liệu phần tử đầu tiên và cuối cùng.
 - [ ] Thực hiện phép tính toán số học trên phần tử lấy từ Indexing mà không gặp lỗi TypeError (phân biệt đúng giữa Indexing và Slicing).

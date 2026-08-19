@@ -21,11 +21,14 @@ Ban quản lý Siêu thị Rikkei Mart yêu cầu xây dựng một mô-đun ph�
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```text
+
 # Hệ thống xử lý và in hóa đơn POS - Rikkei Mart POS
 
 # Hằng số hệ thống
 STORE_NAME = "SIÊU THỊ RIKKEI MART"
-VAT_RATE = 0.08  # Thuế VAT ưu đãi 8%
+VAT_RATE = 0.08
+
+# Thuế VAT ưu đãi 8%
 
 # Bước 1: Thu thập dữ liệu và ép kiểu dữ liệu chính xác
 cashier_name = input("Nhập tên thu ngân: ")
@@ -70,7 +73,7 @@ print(f"{'CẢM ƠN QUÝ KHÁCH VÀ HẸN GẶP LẠI!':^45}")
 print("=" * 45)
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khai báo đầy đủ hằng số và các biến chứa thông tin giao dịch tuân thủ chuẩn đặt tên trong lập trình.
 - [ ] Ép kiểu dữ liệu đầu vào đúng loại (int cho số lượng, float cho số tiền/tỷ lệ) để tránh lỗi lặp chuỗi hoặc lỗi sai phép toán số học.
 - [ ] Tính toán chính xác các giá trị nghiệp vụ: tạm tính, tiền giảm giá, tiền sau giảm giá, thuế VAT 8%, tổng tiền thanh toán và tiền thối lại.

@@ -1,1 +1,1454 @@
-<!-- Bài đọc: Lesson 03 - Phạm vi Biến Global, Local Scope và Closures cơ bản -->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Phạm vi Biến Global, Local Scope và Closures cơ bản - Rikkei Education
+    </title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              rikkei: {
+                red: "#be111c",
+                darkred: "#90000a",
+                dark: "#0f172a",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              montserrat: ["Montserrat", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            maxWidth: {
+              340: "1680px",
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Highlight.js for Syntax Highlighting (Light theme only) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+
+
+    <style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      #viz-terminal-log::-webkit-scrollbar {
+        width: 5px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-track {
+        background: #020617;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 4px;
+      }
+      #viz-terminal-log::-webkit-scrollbar-thumb:hover {
+        background: #475569;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram,
+      svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text,
+      svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg,
+      section svg,
+      article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* 3. CODE BLOCK FIXES */
+      pre code {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: #0f172a !important;
+        font-style: normal !important;
+      }
+      p,
+      li,
+      td,
+      th,
+      span,
+      div {
+        font-style: normal;
+      }
+      /* STRICT ZERO ITALIC LEAKAGE SAFETY NET */
+      article p:not(.italic):not(.img-caption),
+      article li,
+      article div:not(.img-caption-box),
+      article table,
+      article blockquote,
+      article strong,
+      article b,
+      article h1,
+      article h2,
+      article h3,
+      article h4,
+      article h5,
+      article h6 {
+        font-style: normal !important;
+      }
+      article p.italic,
+      article figcaption,
+      article .img-caption {
+        font-style: italic !important;
+      }
+      .toc-link,
+      .mobile-toc-link {
+        color: #475569 !important;
+        font-style: normal !important;
+      }
+      .toc-link:hover,
+      .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *,
+      .bg-rose-50 *,
+      .bg-emerald-50 *,
+      .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p,
+      [id*="mech"] div,
+      [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line),
+      [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw {
+        color: #cf222e !important;
+        font-weight: bold !important;
+      }
+      .str {
+        color: #0a3069 !important;
+      }
+      .num {
+        color: #0550ae !important;
+        font-weight: 600 !important;
+      }
+      .fn {
+        color: #8250df !important;
+        font-weight: 600 !important;
+      }
+      .cmt {
+        color: #6e7781 !important;
+        font-style: italic !important;
+      }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. CODE SANDBOX & HLJS SYNTAX HIGHLIGHTING */
+      .sandbox-editor {
+        min-height: 6rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span,
+      code span {
+        background-color: transparent !important;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body
+        > *:not(header):not(main):not(script):not(style):not(
+          #mobile-toc-toggle
+        ):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen"
+  >
+    <!-- Fixed Header -->
+    <header
+      class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40"
+    >
+      <div
+        class="max-w-[1680px] mx-auto h-full px-6 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-4">
+          <img
+            src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
+            alt="Rikkei Academy Logo"
+            class="h-9 object-contain"
+          />
+          <span
+            class="text-sm font-semibold text-slate-500 border-l border-slate-300 pl-4"
+            >Phạm vi Biến Global, Local Scope và Closures cơ bản</span
+          >
+        </div>
+      </div>
+      <div class="w-full h-1 bg-slate-100">
+        <div
+          id="scroll-progress"
+          class="h-full w-0 bg-rikkei-red transition-all duration-75"
+        ></div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-[1680px] mx-auto px-6 pt-24 pb-16 flex gap-8">
+      <!-- Sidebar Table of Contents (Left Desktop) -->
+      <aside
+        class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2"
+      >
+        <div class="space-y-4">
+          <h4
+            class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2"
+          >
+            <i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài
+            đọc
+          </h4>
+          <nav
+            class="flex flex-col border-l border-slate-200 space-y-1 text-sm"
+          >
+            <a
+              href="#section-1"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >1. Rủi ro ô nhiễm dữ liệu toàn cục và nhu cầu bảo vệ trạng thái giỏ hàng E-commerce</a
+            >
+            <a
+              href="#section-2"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >2. Phạm vi biến, Cơ chế Hoisting và Kỹ thuật đóng gói trạng thái với Closure</a
+            >
+            <a
+              href="#section-3"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >3. Các ví dụ ứng dụng thực tiễn</a
+            >
+            <a
+              href="#section-4"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >4. Tổng kết bài học & Các lỗi thường gặp</a
+            >
+            <a
+              href="#section-5"
+              class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all"
+              >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+            >
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Problem 2.3: Mobile Floating TOC Button (lg:hidden) -->
+      <button
+        id="mobile-toc-toggle"
+        onclick="toggleMobileToc()"
+        class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20"
+        title="Mở mục lục bài đọc"
+      >
+        <i class="ph-bold ph-list text-xl"></i>
+      </button>
+
+      <!-- Problem 2.3: Mobile TOC Slide-over Modal Drawer -->
+      <div
+        id="mobile-toc-drawer"
+        class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300"
+      >
+        <div
+          class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between"
+        >
+          <div>
+            <div
+              class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200"
+            >
+              <h4
+                class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"
+              >
+                <i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC
+                BÀI ĐỌC
+              </h4>
+              <button
+                onclick="toggleMobileToc()"
+                class="p-1 rounded text-slate-400 hover:text-slate-600"
+              >
+                <i class="ph-bold ph-x text-lg"></i>
+              </button>
+            </div>
+            <nav class="flex flex-col space-y-2 text-sm">
+              <a
+                href="#section-1"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >1. Rủi ro ô nhiễm dữ liệu toàn cục và nhu cầu bảo vệ trạng thái giỏ hàng E-commerce</a
+              >
+              <a
+                href="#section-2"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >2. Phạm vi biến, Cơ chế Hoisting và Kỹ thuật đóng gói trạng thái với Closure</a
+              >
+              <a
+                href="#section-3"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >3. Các ví dụ ứng dụng thực tiễn</a
+              >
+              <a
+                href="#section-4"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >4. Tổng kết bài học & Các lỗi thường gặp</a
+              >
+              <a
+                href="#section-5"
+                onclick="toggleMobileToc()"
+                class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100"
+                >5. Tài liệu tham khảo & Câu hỏi ôn tập</a
+              >
+            </nav>
+          </div>
+          <div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+            Rikkei Education - Learning Material
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Reading Article Content -->
+      <article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+        <!-- Main Title Header (Exact Match to Benchmark Lesson 03) -->
+        <div class="border-b border-slate-200 pb-6 mb-8">
+          <h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">
+            Phạm vi Biến Global, Local Scope và Closures cơ bản
+          </h1>
+        </div>
+
+        <!-- SECTION 1: PROBLEM STATEMENT -->
+        <section id="section-1" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            1. Rủi ro ô nhiễm dữ liệu toàn cục và nhu cầu bảo vệ trạng thái giỏ hàng E-commerce
+          </h2>
+          <div class="space-y-4">
+            <p class="text-slate-600 mb-4 leading-relaxed">Trong các hệ thống thương mại điện tử quy mô lớn, việc xử lý tính toán đơn hàng, áp dụng mã giảm giá và tính toán doanh thu diễn ra liên tục với hàng nghìn giao dịch mỗi phút. Khi lập trình viên viết mã nguồn theo cách tuyến tính đơn giản, rủi ro lớn nhất thường xuất phát từ việc quản lý bộ nhớ và phạm vi truy cập của các biến trong chương trình JavaScript.</p><p class="text-slate-600 mb-4 leading-relaxed">Hãy xét kịch bản một hệ thống bán hàng trực tuyến lưu giữ biến <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">totalCartAmount</code> ở phạm vi toàn cục (Global Scope). Khi hai người dùng thực hiện thanh toán đồng thời, hàm xử lý của người dùng A có thể vô tình ghi đè lên biến này trước khi người dùng B hoàn tất giao dịch. Kết quả là hóa đơn của người dùng B bị tính sai tiền, gây thất thoát tài chính và làm suy giảm uy tín của doanh nghiệp.</p><div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-white my-4"><p class="font-semibold mb-1 text-rose-900">Hậu quả kỹ thuật &amp; rủi ro vận hành:</p><ul class="list-disc pl-5 space-y-1 text-slate-700"><li><strong class="font-semibold text-slate-900">Ô nhiễm phạm vi toàn cục (Global Scope Pollution):</strong> Biến khai báo không cẩn thận dễ bị ghi đè chéo bởi các mô-đun khác trong ứng dụng.</li><li><strong class="font-semibold text-slate-900">Lỗi Hoisting không kiểm soát:</strong> Gọi hàm hoặc biến trước khi định nghĩa có thể dẫn đến hành vi không xác định hoặc làm sập ứng dụng với lỗi Temporal Dead Zone (TDZ).</li><li><strong class="font-semibold text-slate-900">Rò rỉ dữ liệu riêng tư:</strong> Thông tin giỏ hàng và danh sách mã giảm giá của từng cá nhân không được đóng gói an toàn, dễ bị can thiệp trực tiếp từ console của trình duyệt.</li></ul></div><p class="text-slate-600 mb-4 leading-relaxed">Để giải quyết triệt để vấn đề này, JavaScript cung cấp các cơ chế mạnh mẽ bao gồm: phân định phạm vi biến toàn cục/cục bộ, cơ chế nâng biến (Hoisting) giúp tổ chức hàm mạch lạc, và đặc biệt là Closure giúp đóng gói dữ liệu riêng tư (Private State) hoàn hảo cho từng phiên làm việc của khách hàng.</p>
+          </div>
+
+          <div class="my-6 text-center">
+  <div class="max-w-3xl mx-auto"><div class="my-6"><svg viewBox="0 0 800 250" class="w-full h-auto rikkei-diagram" xmlns="http://www.w3.org/2000/svg"><style>
+      text, tspan { font-family: "Inter", system-ui, -apple-system, sans-serif !important; }
+      .font-mono { font-family: "JetBrains Mono", monospace !important; }
+      marker path, marker polygon { fill: currentColor !important; stroke: currentColor !important; }
+    </style><rect width="800" height="250" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/><rect x="20" y="20" width="760" height="210" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4"/><text x="35" y="45" font-family="sans-serif" font-size="14" font-weight="bold" fill="#475569">Phạm vi Toàn cục (Global Scope)</text><text x="35" y="65" font-family="monospace" font-size="12" fill="#0369a1">const DEFAULT_EXCHANGE_RATE = 25000;</text><rect x="220" y="45" width="540" height="170" rx="8" fill="#f0fdf4" stroke="#22c55e" stroke-width="2"/><text x="235" y="70" font-family="sans-serif" font-size="14" font-weight="bold" fill="#15803d">Phạm vi Hàm Ngoại (Outer Scope / createOrderTracker)</text><text x="235" y="90" font-family="monospace" font-size="12" fill="#166534">let orderCounter = 0;</text><rect x="420" y="75" width="320" height="125" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/><text x="435" y="100" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1d4ed8">Phạm vi Closure (Inner Scope / addOrder)</text><text x="435" y="120" font-family="monospace" font-size="12" fill="#1e40af">orderCounter += 1;</text><text x="435" y="140" font-family="monospace" font-size="12" fill="#1e40af">return orderId;</text><path d="M 435 155 Q 330 155 330 100" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="3"/><text x="320" y="175" font-family="sans-serif" font-size="11" font-weight="bold" fill="#2563eb">Ghi nhớ trạng thái (Private State)</text></svg></div></div>
+  <p class="text-center text-sm text-slate-500 italic mt-3">Hình 1.1: Sơ đồ luồng bối cảnh thực tế bài học: Phạm vi Biến Global, Local Scope và Closures cơ bản</p>
+</div>
+        </section>
+
+        <!-- SECTION 2: SYNTAX & MECHANISM BREAKDOWN -->
+        <section id="section-2" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            2. Phạm vi biến, Cơ chế Hoisting và Kỹ thuật đóng gói trạng thái với Closure
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-2-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.1. Phạm vi Biến Global và Local Scope</h3><p class="text-slate-600 mb-4 leading-relaxed">Phạm vi của biến (Scope) xác định nơi mà biến đó có thể được truy cập và sử dụng trong mã nguồn. Trong JavaScript, phạm vi được chia thành các cấp độ chính:</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Global Scope (Phạm vi Toàn cục):</strong> Biến được khai báo bên ngoài tất cả các hàm hoặc khối lệnh. Biến toàn cục có thể được truy cập và chỉnh sửa từ bất kỳ vị trí nào trong ứng dụng.</li><li><strong class="font-semibold text-slate-900">Function Scope (Phạm vi Hàm):</strong> Biến được khai báo bên trong một hàm chỉ có thể được sử dụng nội bộ trong hàm đó và sẽ giải phóng khỏi bộ nhớ khi hàm kết thúc.</li><li><strong class="font-semibold text-slate-900">Block Scope (Phạm vi Khối):</strong> Được giới hạn trong cặp dấu ngoặc nhọn <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{}</code> (như trong lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">for</code>) khi sử dụng từ khóa <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">let</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">const</code>.</li></ul><div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4"><p class="font-semibold mb-1 text-sky-900">Bài toán thực tế trong E-commerce:</p><p class="text-slate-700">Các cấu hình toàn hệ thống như tỷ giá quy đổi tiền tệ (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">DEFAULT_EXCHANGE_RATE</code>) nên đặt ở Global Scope ở dạng hằng số <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">const</code>. Ngược lại, tính toán giá trị tạm thời của giỏ hàng phải đưa vào Local Scope của hàm để tránh truy cập trái phép từ bên ngoài.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-1', 'output-sb-sec2-1', 'container-sb-sec2-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-1" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Biến Global cấu hình tỷ giá quy đổi tiền tệ&#10;const DEFAULT_EXCHANGE_RATE = 25000;&#10;&#10;function calculateVndPrice(usdAmount = 0) {&#10;  // Biến Local chỉ truy cập được bên trong hàm này&#10;  const totalVnd = usdAmount * DEFAULT_EXCHANGE_RATE;&#10;  return totalVnd;&#10;}&#10;&#10;console.log(calculateVndPrice(10)); // Kết quả: 250000&#10;// console.log(totalVnd); // Lỗi ReferenceError: totalVnd is not defined" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Biến Global cấu hình tỷ giá quy đổi tiền tệ
+const DEFAULT_EXCHANGE_RATE = 25000;
+
+function calculateVndPrice(usdAmount = 0) {
+  // Biến Local chỉ truy cập được bên trong hàm này
+  const totalVnd = usdAmount * DEFAULT_EXCHANGE_RATE;
+  return totalVnd;
+}
+
+console.log(calculateVndPrice(10)); // Kết quả: 250000
+// console.log(totalVnd); // Lỗi ReferenceError: totalVnd is not defined</code></pre>
+  </div>
+  <div id="container-sb-sec2-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-2-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.2. Cơ chế Hoisting trong JavaScript</h3><p class="text-slate-600 mb-4 leading-relaxed">Hoisting là cơ chế mặc định của JavaScript trình biên dịch đưa phần khai báo của biến và hàm lên đầu phạm vi chứa nó (Global hoặc Function Scope) trước khi thực thi mã nguồn.</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Function Declaration:</strong> Được hoisted hoàn toàn cả phần khai báo và định nghĩa. Do đó, bạn có thể gọi hàm ở dòng mã trước khi khai báo hàm đó.</li><li><strong class="font-semibold text-slate-900">Biến let và const (Temporal Dead Zone - TDZ):</strong> Phần khai báo vẫn được hoisted nhưng không được khởi tạo giá trị. Nếu truy cập biến trước dòng khai báo, trình duyệt sẽ ném ra lỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">ReferenceError</code> do biến nằm trong vùng chết thời gian (TDZ).</li><li><strong class="font-semibold text-slate-900">Function Expression &amp; Arrow Function:</strong> Khi gán hàm cho biến khai báo bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">let</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">const</code>, hàm tuân theo quy tắc hoisting của biến và không thể thực thi trước khi khai báo.</li></ul><div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-white my-4"><p class="font-semibold mb-1 text-amber-900">Lưu ý quan trọng về thiết kế mã nguồn:</p><p class="text-slate-700">Nên khai báo tất cả các biến bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">const</code> hoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">let</code> ở đầu khối lệnh và ưu tiên sử dụng Arrow Function hoặc Function Expression để kiểm soát luồng thực thi dự đoán được.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-2', 'output-sb-sec2-2', 'container-sb-sec2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-2', 'output-sb-sec2-2', 'container-sb-sec2-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-2" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Function Declaration: Được hoisting hoàn toàn (có thể gọi trước khi định nghĩa)&#10;const discountedPrice = applyDefaultDiscount(100000);&#10;console.log(discountedPrice); // Kết quả: 90000&#10;&#10;function applyDefaultDiscount(price) {&#10;  return price * 0.9;&#10;}&#10;&#10;// Arrow Function / Function Expression: Không thể gọi trước khi khai báo&#10;// calculateTax(100000); // Lỗi ReferenceError: Cannot access &#x27;calculateTax&#x27; before initialization&#10;const calculateTax = (price, taxRate = 0.1) =&gt; price * taxRate;" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Function Declaration: Được hoisting hoàn toàn (có thể gọi trước khi định nghĩa)
+const discountedPrice = applyDefaultDiscount(100000);
+console.log(discountedPrice); // Kết quả: 90000
+
+function applyDefaultDiscount(price) {
+  return price * 0.9;
+}
+
+// Arrow Function / Function Expression: Không thể gọi trước khi khai báo
+// calculateTax(100000); // Lỗi ReferenceError: Cannot access &#x27;calculateTax&#x27; before initialization
+const calculateTax = (price, taxRate = 0.1) =&gt; price * taxRate;</code></pre>
+  </div>
+  <div id="container-sb-sec2-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-2-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.3. Khái niệm Closure cơ bản</h3><p class="text-slate-600 mb-4 leading-relaxed">Closure là một tính năng đặc biệt trong JavaScript nơi một hàm con (inner function) có thể ghi nhớ và truy cập vào các biến thuộc phạm vi của hàm bao ngoài (outer scope), ngay cả khi hàm bao ngoài đó đã kết thúc thực thi và trả về kết quả.</p><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li><strong class="font-semibold text-slate-900">Cơ chế Lexical Scoping:</strong> Hàm con giữ lại một liên kết bộ nhớ tới môi trường nơi nó được tạo ra.</li><li><strong class="font-semibold text-slate-900">Bảo mật trạng thái (Private State):</strong> Biến nội bộ của hàm ngoại không thể bị sửa đổi trực tiếp từ phạm vi bên ngoài, giúp bảo vệ dữ liệu giỏ hàng an toàn khỏi các tác động ngoài ý muốn.</li><li><strong class="font-semibold text-slate-900">Khả năng tái sử dụng:</strong> Mỗi lần hàm ngoại được thực thi sẽ tạo ra một vùng không gian Closure độc lập hoàn toàn.</li></ul><div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-white my-4"><p class="font-semibold mb-1 text-emerald-900">Ứng dụng doanh nghiệp:</p><p class="text-slate-700">Closure được sử dụng rộng rãi để tạo các bộ đếm giỏ hàng, trình quản lý phiên đăng nhập và các mô-đun lưu trữ trạng thái isolated cho từng người dùng riêng biệt.</p></div><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec2-3', 'output-sb-sec2-3', 'container-sb-sec2-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec2-3', 'output-sb-sec2-3', 'container-sb-sec2-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec2-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec2-3" class="language-javascript" contenteditable="true" spellcheck="false" data-original="function createCartCounter() {&#10;  // Biến nội bộ được đóng gói (private state)&#10;  let itemCount = 0;&#10;&#10;  return function() {&#10;    itemCount += 1;&#10;    return itemCount;&#10;  };&#10;}&#10;&#10;const addItem = createCartCounter();&#10;console.log(addItem()); // Kết quả: 1&#10;console.log(addItem()); // Kết quả: 2" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">function createCartCounter() {
+  // Biến nội bộ được đóng gói (private state)
+  let itemCount = 0;
+
+  return function() {
+    itemCount += 1;
+    return itemCount;
+  };
+}
+
+const addItem = createCartCounter();
+console.log(addItem()); // Kết quả: 1
+console.log(addItem()); // Kết quả: 2</code></pre>
+  </div>
+  <div id="container-sb-sec2-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec2-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước của Closure và Scope (Step-by-Step Execution Visualizer)</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Quan sát từng bước thực thi hàm tạo trình đếm giỏ hàng, bộ nhớ RAM lưu trữ biến local và sự hình thành của vùng không gian Closure.</p>
+
+<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>MÃ NGUỒN THỰC THI (JAVASCRIPT VANILLA (ES6+), HTML5/CSS3, DOM API, FETCH API, ASYNC/AWAIT, CURSOR AI IDE)</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded">Sẵn sàng</span>
+      </div>
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[160px]">
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>const VAT_RATE = 0.1;</div>
+        </div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>function createCartCounter() {</div>
+        </div>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>  let itemCount = 0;</div>
+        </div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>  return function() {</div>
+        </div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>    itemCount += 1;</div>
+        </div>
+        <div id="viz-line-6" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>    return itemCount;</div>
+        </div>
+        <div id="viz-line-7" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>  };</div>
+        </div>
+        <div id="viz-line-8" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>}</div>
+        </div>
+        <div id="viz-line-9" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>const addItem = createCartCounter();</div>
+        </div>
+        <div id="viz-line-10" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>const count1 = addItem();</div>
+        </div>
+        <div id="viz-line-11" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
+          <div>const count2 = addItem();</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
+    <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>TRẠNG THÁI BIẾN TRONG BỘ NHỚ (RAM)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      </div>
+      <div class="p-4 space-y-3 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Môi trường thực thi:</span>
+          <span class="font-bold text-rikkei-red">JAVASCRIPT VANILLA (ES6+), HTML5/CSS3, DOM API, FETCH API, ASYNC/AWAIT, CURSOR AI IDE Engine</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Biến Global VAT_RATE:</span>
+          <span id="viz-ram-vat_rate" class="font-bold text-slate-700">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Hàm addItem (Closure):</span>
+          <span id="viz-ram-additem" class="font-bold text-slate-700">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Private State (itemCount):</span>
+          <span id="viz-ram-itemcount" class="font-bold text-slate-700">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Kết quả count1:</span>
+          <span id="viz-ram-count1" class="font-bold text-slate-700">---</span>
+        </div>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
+          <span class="text-slate-500">Kết quả count2:</span>
+          <span id="viz-ram-count2" class="font-bold text-slate-700">---</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nút điều khiển -->
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-2">
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-play text-xs"></span> Bắt đầu</button>
+  <button type="button" onclick="runVizStep(0)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-pause text-xs"></span> Tạm dừng</button>
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#be111c] hover:bg-[#90000a] text-white shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-step-forward text-xs"></span> Từng bước</button>
+  <button type="button" onclick="runVizStep(-999)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-arrow-counter-clockwise text-xs"></span> Đặt lại</button>
+</div>
+    <div class="flex items-center gap-1.5">
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+    </div>
+  </div>
+
+  <!-- Terminal log -->
+  <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
+    <div class="text-[11px] font-mono text-slate-500 mb-1 flex items-center gap-1.5">
+      <span class="ph-bold ph-terminal text-emerald-800"></span> NHẬT KÝ THỰC THI (SINGLE-LINE TERMINAL CONSOLE):
+    </div>
+    <div id="viz-terminal-log" class="h-[100px] overflow-y-auto bg-white text-emerald-800 font-mono text-xs p-2 rounded border border-slate-200 font-semibold">Sẵn sàng chạy mô phỏng từng bước cho Phạm vi Biến Global, Local Scope và Closures cơ bản. Bấm "Tiếp theo" để bắt đầu...
+    </div>
+  </div>
+</div>
+          </div>
+
+        </section>
+
+        <!-- SECTION 3: PROGRESSIVE EXAMPLES -->
+        <section id="section-3" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            3. Các ví dụ ứng dụng thực tiễn
+          </h2>
+
+          <div class="space-y-6">
+            <h3 id="sec-3-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.1. Ví dụ 3.1: Tính tổng giỏ hàng với Phạm vi Biến Global và Local Scope</h3><p class="text-slate-600 mb-4 leading-relaxed">Yêu cầu nghiệp vụ: Xây dựng hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">calculateCartTotal</code> nhận vào giá một sản phẩm và số lượng mua, áp dụng biến global thuế GTGT (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">VAT_RATE</code>) và biến local để tính tổng tiền thanh toán.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-1', 'output-sb-sec3-1', 'container-sb-sec3-1')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-1', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-1" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Biến Global cấu hình thuế GTGT cố định toàn hệ thống&#10;const VAT_RATE = 0.1;&#10;&#10;// Arrow function tính tổng tiền giỏ hàng với tham số mặc định&#10;const calculateCartTotal = (pricePerItem, quantity = 1) =&gt; {&#10;  // Biến local scope tính tổng tiền sản phẩm trước thuế&#10;  const subtotal = pricePerItem * quantity;&#10;  &#10;  // Biến local scope tính số tiền thuế&#10;  const taxAmount = subtotal * VAT_RATE;&#10;  &#10;  // Trả về tổng số tiền cần thanh toán&#10;  return subtotal + taxAmount;&#10;};&#10;&#10;// Chạy thử nghiệm hàm&#10;const itemPrice = 200000;&#10;const itemQuantity = 3;&#10;&#10;const finalPrice = calculateCartTotal(itemPrice, itemQuantity);&#10;console.log(&quot;[INFO] Tổng tiền thanh toán đơn hàng:&quot;, finalPrice);&#10;// Output: 660000" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Biến Global cấu hình thuế GTGT cố định toàn hệ thống
+const VAT_RATE = 0.1;
+
+// Arrow function tính tổng tiền giỏ hàng với tham số mặc định
+const calculateCartTotal = (pricePerItem, quantity = 1) =&gt; {
+  // Biến local scope tính tổng tiền sản phẩm trước thuế
+  const subtotal = pricePerItem * quantity;
+  
+  // Biến local scope tính số tiền thuế
+  const taxAmount = subtotal * VAT_RATE;
+  
+  // Trả về tổng số tiền cần thanh toán
+  return subtotal + taxAmount;
+};
+
+// Chạy thử nghiệm hàm
+const itemPrice = 200000;
+const itemQuantity = 3;
+
+const finalPrice = calculateCartTotal(itemPrice, itemQuantity);
+console.log(&quot;[INFO] Tổng tiền thanh toán đơn hàng:&quot;, finalPrice);
+// Output: 660000</code></pre>
+  </div>
+  <div id="container-sb-sec3-1" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-1" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.2. Ví dụ 3.2: Áp dụng Hoisting và Block Scope cho nghiệp vụ Mã giảm giá</h3><p class="text-slate-600 mb-4 leading-relaxed">Yêu cầu nghiệp vụ: Nâng cấp hệ thống với hàm kiểm tra mã giảm giá (dùng Function Declaration để tận dụng Hoisting) và tính hóa đơn cuối cùng (dùng Function Expression). Sử dụng block scope trong cấu trúc điều kiện để giới hạn mức giảm giá tối đa.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-2', 'output-sb-sec3-2', 'container-sb-sec3-2')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-2', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-2" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Biến Global cấu hình phí giao hàng mặc định&#10;const DEFAULT_SHIPPING_FEE = 30000;&#10;&#10;// Function Expression chính tính hóa đơn cuối cùng&#10;const calculateFinalInvoice = (itemPrice, quantity = 1, couponCode = &quot;&quot;) =&gt; {&#10;  const subtotal = itemPrice * quantity;&#10;  &#10;  // Gọi hàm applyCouponDiscount trước khi định nghĩa (dựa vào Hoisting)&#10;  const discount = applyCouponDiscount(subtotal, couponCode);&#10;  const totalAfterDiscount = subtotal - discount;&#10;  &#10;  return totalAfterDiscount + DEFAULT_SHIPPING_FEE;&#10;};&#10;&#10;// Function Declaration: Hoisted lên đầu scope nên có thể gọi ở dòng phía trên&#10;function applyCouponDiscount(subtotal, couponCode = &quot;&quot;) {&#10;  let discountAmount = 0;&#10;  &#10;  // Block scope xử lý điều kiện giảm giá&#10;  if (couponCode === &quot;SALE10&quot;) {&#10;    const discountRate = 0.1; // Chỉ tồn tại trong khối if này&#10;    discountAmount = subtotal * discountRate;&#10;    &#10;    // Giới hạn giảm tối đa 50.000 VNĐ trong block scope nội bộ&#10;    if (discountAmount &gt; 50000) {&#10;      discountAmount = 50000;&#10;    }&#10;  }&#10;  &#10;  return discountAmount;&#10;}&#10;&#10;// Chạy thử nghiệm nghiệp vụ&#10;const totalOrder = calculateFinalInvoice(300000, 2, &quot;SALE10&quot;);&#10;console.log(&quot;[INFO] Tổng tiền hóa đơn sau giảm giá và phí ship:&quot;, totalOrder);&#10;// Output: 580000 (Tạm tính 600k -&gt; Giảm 50k max -&gt; Cộng 30k ship)" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Biến Global cấu hình phí giao hàng mặc định
+const DEFAULT_SHIPPING_FEE = 30000;
+
+// Function Expression chính tính hóa đơn cuối cùng
+const calculateFinalInvoice = (itemPrice, quantity = 1, couponCode = &quot;&quot;) =&gt; {
+  const subtotal = itemPrice * quantity;
+  
+  // Gọi hàm applyCouponDiscount trước khi định nghĩa (dựa vào Hoisting)
+  const discount = applyCouponDiscount(subtotal, couponCode);
+  const totalAfterDiscount = subtotal - discount;
+  
+  return totalAfterDiscount + DEFAULT_SHIPPING_FEE;
+};
+
+// Function Declaration: Hoisted lên đầu scope nên có thể gọi ở dòng phía trên
+function applyCouponDiscount(subtotal, couponCode = &quot;&quot;) {
+  let discountAmount = 0;
+  
+  // Block scope xử lý điều kiện giảm giá
+  if (couponCode === &quot;SALE10&quot;) {
+    const discountRate = 0.1; // Chỉ tồn tại trong khối if này
+    discountAmount = subtotal * discountRate;
+    
+    // Giới hạn giảm tối đa 50.000 VNĐ trong block scope nội bộ
+    if (discountAmount &gt; 50000) {
+      discountAmount = 50000;
+    }
+  }
+  
+  return discountAmount;
+}
+
+// Chạy thử nghiệm nghiệp vụ
+const totalOrder = calculateFinalInvoice(300000, 2, &quot;SALE10&quot;);
+console.log(&quot;[INFO] Tổng tiền hóa đơn sau giảm giá và phí ship:&quot;, totalOrder);
+// Output: 580000 (Tạm tính 600k -&gt; Giảm 50k max -&gt; Cộng 30k ship)</code></pre>
+  </div>
+  <div id="container-sb-sec3-2" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-2" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div><h3 id="sec-3-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">3.3. Ví dụ 3.3: Ứng dụng Closure đóng gói Trình quản lý Đơn hàng doanh nghiệp</h3><p class="text-slate-600 mb-4 leading-relaxed">Yêu cầu nghiệp vụ: Xây dựng hàm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">createOrderTracker</code> bằng Closure để tạo các trình quản lý đơn hàng riêng biệt cho từng chi nhánh cửa hàng. Giữ biến danh sách đơn hàng và mã số tự tăng ở dạng private state, không làm ô nhiễm Global Scope.</p><div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm my-5 bg-slate-50">
+  <div class="relative bg-slate-50/50 text-slate-800 font-mono text-sm border-b border-slate-200">
+    <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10 bg-white/90 backdrop-blur px-2 py-1 rounded-md border border-slate-200 shadow-sm">
+      <button onclick="clearSandbox('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Khôi phục code gốc">
+        <i class="ph-bold ph-arrow-counter-clockwise text-xs"></i>
+      </button>
+      <button onclick="runJsCode('code-sb-sec3-3', 'output-sb-sec3-3', 'container-sb-sec3-3')" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Chạy chương trình">
+        <i class="ph-bold ph-play text-xs"></i>
+      </button>
+      <button onclick="copySandboxCode('code-sb-sec3-3', this)" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-rikkei-red transition-all" title="Sao chép">
+        <i class="ph-bold ph-copy text-xs"></i>
+      </button>
+    </div>
+    <pre class="m-0 p-0 bg-transparent"><code id="code-sb-sec3-3" class="language-javascript" contenteditable="true" spellcheck="false" data-original="// Trình tạo quản lý đơn hàng sử dụng Closure&#10;function createOrderTracker(storeName = &quot;Chi nhánh mặc định&quot;) {&#10;  // Private states: Chỉ truy cập và chỉnh sửa thông qua các inner functions&#10;  const orderList = [];&#10;  let orderCounter = 0;&#10;&#10;  // Trả về một object chứa các phương thức thao tác với Closure&#10;  return {&#10;    addOrder: (customerName, amount = 0) =&gt; {&#10;      orderCounter += 1;&#10;      const orderId = `${storeName.substring(0, 3).toUpperCase()}-${orderCounter}`;&#10;      &#10;      const newOrder = {&#10;        id: orderId,&#10;        customer: customerName,&#10;        totalAmount: amount&#10;      };&#10;      &#10;      orderList.push(newOrder);&#10;      return newOrder;&#10;    },&#10;    getTotalRevenue: () =&gt; {&#10;      let totalRevenue = 0;&#10;      for (let i = 0; i  orderCounter&#10;  };&#10;}&#10;&#10;// Tạo 2 instance quản lý đơn độc lập cho 2 chi nhánh khác nhau&#10;const branchA = createOrderTracker(&quot;Rikkei Fashion&quot;);&#10;const branchB = createOrderTracker(&quot;Rikkei Tech&quot;);&#10;&#10;// Thêm đơn hàng cho Chi nhánh A&#10;branchA.addOrder(&quot;Nguyen Van A&quot;, 500000);&#10;branchA.addOrder(&quot;Tran Thi B&quot;, 300000);&#10;&#10;// Thêm đơn hàng cho Chi nhánh B&#10;branchB.addOrder(&quot;Le Van C&quot;, 1200000);&#10;&#10;// Kiểm tra tính đóng gói và độc lập của dữ liệu&#10;console.log(&quot;[INFO] Số lượng đơn Chi nhánh A:&quot;, branchA.getOrderCount()); // Output: 2&#10;console.log(&quot;[INFO] Doanh thu Chi nhánh A:&quot;, branchA.getTotalRevenue()); // Output: 800000&#10;&#10;console.log(&quot;[INFO] Số lượng đơn Chi nhánh B:&quot;, branchB.getOrderCount()); // Output: 1&#10;console.log(&quot;[INFO] Doanh thu Chi nhánh B:&quot;, branchB.getTotalRevenue()); // Output: 1200000" style="display:block; padding:0.75rem 6rem 0.75rem 0.75rem; min-height:2.5rem; outline:none !important; border:none !important; box-shadow:none !important; white-space:pre; overflow-x:auto;">// Trình tạo quản lý đơn hàng sử dụng Closure
+function createOrderTracker(storeName = &quot;Chi nhánh mặc định&quot;) {
+  // Private states: Chỉ truy cập và chỉnh sửa thông qua các inner functions
+  const orderList = [];
+  let orderCounter = 0;
+
+  // Trả về một object chứa các phương thức thao tác với Closure
+  return {
+    addOrder: (customerName, amount = 0) =&gt; {
+      orderCounter += 1;
+      const orderId = `${storeName.substring(0, 3).toUpperCase()}-${orderCounter}`;
+      
+      const newOrder = {
+        id: orderId,
+        customer: customerName,
+        totalAmount: amount
+      };
+      
+      orderList.push(newOrder);
+      return newOrder;
+    },
+    getTotalRevenue: () =&gt; {
+      let totalRevenue = 0;
+      for (let i = 0; i  orderCounter
+  };
+}
+
+// Tạo 2 instance quản lý đơn độc lập cho 2 chi nhánh khác nhau
+const branchA = createOrderTracker(&quot;Rikkei Fashion&quot;);
+const branchB = createOrderTracker(&quot;Rikkei Tech&quot;);
+
+// Thêm đơn hàng cho Chi nhánh A
+branchA.addOrder(&quot;Nguyen Van A&quot;, 500000);
+branchA.addOrder(&quot;Tran Thi B&quot;, 300000);
+
+// Thêm đơn hàng cho Chi nhánh B
+branchB.addOrder(&quot;Le Van C&quot;, 1200000);
+
+// Kiểm tra tính đóng gói và độc lập của dữ liệu
+console.log(&quot;[INFO] Số lượng đơn Chi nhánh A:&quot;, branchA.getOrderCount()); // Output: 2
+console.log(&quot;[INFO] Doanh thu Chi nhánh A:&quot;, branchA.getTotalRevenue()); // Output: 800000
+
+console.log(&quot;[INFO] Số lượng đơn Chi nhánh B:&quot;, branchB.getOrderCount()); // Output: 1
+console.log(&quot;[INFO] Doanh thu Chi nhánh B:&quot;, branchB.getTotalRevenue()); // Output: 1200000</code></pre>
+  </div>
+  <div id="container-sb-sec3-3" class="hidden bg-slate-100/90 border-t border-slate-200 p-3.5">
+    <div class="flex items-center justify-between text-xs text-slate-500 font-mono mb-1">
+      <span class="text-slate-700 font-bold flex items-center gap-1.5">
+        <i class="ph-bold ph-terminal text-rikkei-red"></i> KẾT QUẢ THỰC THI (CONSOLE OUTPUT):
+      </span>
+    </div>
+    <pre id="output-sb-sec3-3" class="font-mono text-sm text-slate-800 bg-white p-2.5 rounded-lg border border-slate-200 select-text whitespace-pre-wrap m-0 shadow-inner"></pre>
+  </div>
+</div>
+          </div>
+        </section>
+
+        <!-- SECTION 4: GOTCHAS & PITFALLS -->
+        <section id="section-4" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            4. Tổng kết bài học & Các lỗi thường gặp
+          </h2>
+
+          <div class="space-y-4">
+            <h3 id="sec-4-1" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.1. Kiến thức trọng tâm</h3><ul class="list-disc pl-6 space-y-2 text-slate-600 my-4"><li>Biến Global nên hạn chế tối đa việc sử dụng và chỉ dành cho các hằng số cấu hình toàn ứng dụng.</li><li>Biến khai báo bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">let</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">const</code> có thuộc tính Block Scope, giúp ngăn ngừa lỗi rò rỉ biến ngoài vòng lặp hoặc khối lệnh điều kiện.</li><li>Function Declaration được hoisted toàn bộ, trong khi Function Expression và Arrow Function tuân theo Temporal Dead Zone (TDZ).</li><li>Closure giúp đóng gói dữ liệu riêng tư (Private State), ngăn chặn sự can thiệp dữ liệu trái phép từ môi trường ngoài.</li></ul><h3 id="sec-4-2" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.2. Bảng Ma trận Quyết định Lựa chọn Scope &amp; Closure</h3><div class="overflow-x-auto my-6"><div class="overflow-x-auto my-4 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<table class="w-full text-sm text-left text-slate-600 border border-slate-200 rounded-lg"><thead class="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200"><tr><th class="px-4 py-3 border-r">Loại Scope / Cơ chế</th><th class="px-4 py-3 border-r">Nơi khai báo</th><th class="px-4 py-3 border-r">Khả năng truy cập từ ngoài</th><th class="px-4 py-3 border-r">Vòng đời tồn tại</th><th class="px-4 py-3">Trường hợp sử dụng đề xuất</th></tr></thead><tbody class="divide-y divide-slate-200"><tr class="bg-white"><td class="px-4 py-3 font-semibold border-r text-slate-900">Global Scope</td><td class="px-4 py-3 border-r">Ngoài mọi hàm/khối lệnh</td><td class="px-4 py-3 border-r text-emerald-700 font-semibold">Truy cập ở mọi nơi</td><td class="px-4 py-3 border-r">Tồn tại đến khi tắt trang web</td><td class="px-4 py-3">Cấu hình cố định (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">VAT_RATE</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">API_URL</code>).</td></tr><tr class="bg-slate-50/50"><td class="px-4 py-3 font-semibold border-r text-slate-900">Local Block Scope</td><td class="px-4 py-3 border-r">Trong khối ngoặc <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{}</code> với let/const</td><td class="px-4 py-3 border-r text-rose-700 font-semibold">Không thể truy cập</td><td class="px-4 py-3 border-r">Hủy khi thoát khỏi khối lệnh</td><td class="px-4 py-3">Biến đếm vòng lặp, giá trị tính toán tạm thời.</td></tr><tr class="bg-white"><td class="px-4 py-3 font-semibold border-r text-slate-900">Closure (Private State)</td><td class="px-4 py-3 border-r">Hàm trong trả về từ hàm ngoài</td><td class="px-4 py-3 border-r text-amber-700 font-semibold">Chỉ qua hàm giao tiếp</td><td class="px-4 py-3 border-r">Duy trì chừng nào closure còn reference</td><td class="px-4 py-3">Đóng gói giỏ hàng, trình tạo ID tự tăng, mô-đun bảo mật.</td></tr></tbody></table>
+</div></div><h3 id="sec-4-3" class="font-montserrat font-bold text-xl text-slate-900 mb-3">4.3. Các lỗi thường gặp &amp; Lưu ý thực tế</h3><p class="text-slate-600 mb-4 leading-relaxed">Dưới đây là các lỗi lập trình phổ biến liên quan đến Scope và Closure cùng cách khắc phục theo tiêu chuẩn mã nguồn sạch:</p><div class="my-6 space-y-6"><div class="border border-slate-200 rounded-xl overflow-hidden"><div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-b border-slate-200">Lỗi 1: Ghi đè biến Global vô tình do thiếu từ khóa khai báo</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">function processPayment(amount) {
+  // Quên dùng const/let -&gt; vô tình tạo biến Global taxFee
+  taxFee = amount * 0.1;
+  return amount + taxFee;
+}
+
+processPayment(100000);
+console.log(taxFee); // Output: 10000 (Làm ô nhiễm Global scope)</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">function processPayment(amount) {
+  // Luôn khai báo biến cục bộ với const hoặc let
+  const taxFee = amount * 0.1;
+  return amount + taxFee;
+}
+
+processPayment(100000);
+// console.log(taxFee); // Lỗi ReferenceError đúng như kỳ vọng</code></pre>
+</div></div></div><div class="border border-slate-200 rounded-xl overflow-hidden"><div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-b border-slate-200">Lỗi 2: Lỗi Temporal Dead Zone (TDZ) khi gọi Function Expression trước khai báo</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Lỗi ReferenceError: Cannot access &#x27;calculateDiscount&#x27; before initialization
+const total = calculateDiscount(200000);
+
+const calculateDiscount = (price) =&gt; {
+  return price * 0.9;
+};</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Khai báo hàm trước khi gọi thực thi
+const calculateDiscount = (price) =&gt; {
+  return price * 0.9;
+};
+
+const total = calculateDiscount(200000);
+console.log(&quot;[INFO] Tổng tiền:&quot;, total);</code></pre>
+</div></div></div><div class="border border-slate-200 rounded-xl overflow-hidden"><div class="bg-slate-100 px-4 py-2 font-bold text-slate-800 border-b border-slate-200">Lỗi 3: Dùng chung biến State ngoài Closure gây sai lệch dữ liệu</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">// Biến state dùng chung ở môi trường Global
+let sharedCartTotal = 0;
+
+function createCartUpdater() {
+  return function(price) {
+    sharedCartTotal += price;
+    return sharedCartTotal;
+  };
+}
+
+const user1Cart = createCartUpdater();
+const user2Cart = createCartUpdater();
+
+user1Cart(100);
+console.log(user2Cart(50)); // Mong muốn: 50, Thực tế: 150 (bị cộng dồn chung)</code></pre>
+</div><div class="my-5 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+  <div class="px-3.5 py-2 bg-slate-100/90 text-xs font-sans text-slate-700 border-b border-slate-200 flex justify-between items-center">
+    <span class="flex items-center gap-2">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] inline-block shadow-sm"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] inline-block shadow-sm"></span>
+      <span class="ml-2 font-semibold text-slate-800">Cú pháp mẫu Javascript</span>
+    </span>
+    <button onclick="navigator.clipboard.writeText(this.closest('.my-5').querySelector('code').innerText)" class="hover:text-rikkei-red px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 text-xs transition-all flex items-center gap-1 shadow-sm" title="Sao chép mã nguồn"><i class="ph-bold ph-copy text-xs"></i> Sao chép</button>
+  </div>
+  <pre class="m-0 overflow-x-auto"><code class="hljs language-javascript">function createCartUpdater() {
+  // Đưa biến vào bên trong Outer Function để tạo Closure riêng cho từng instance
+  let personalCartTotal = 0;
+  
+  return function(price) {
+    personalCartTotal += price;
+    return personalCartTotal;
+  };
+}
+
+const user1Cart = createCartUpdater();
+const user2Cart = createCartUpdater();
+
+user1Cart(100);
+console.log(user2Cart(50)); // Kết quả đúng: 50 (Tách biệt hoàn toàn)</code></pre>
+</div></div></div></div>
+          </div>
+        </section>
+
+        <!-- SECTION 5: REFERENCES -->
+        <section id="section-5" class="mb-10 scroll-mt-24">
+          <h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">
+            5. Tài liệu tham khảo & Câu hỏi ôn tập
+          </h2>
+
+          <div class="pt-2">
+            <ul class="space-y-2 list-none pl-0">
+              <li>
+                <a href="https://developer.mozilla.org/vi/docs/Web/JavaScript/Closures" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - Closures trong JavaScript
+                </a>
+              </li>
+              <li>
+                <a href="https://developer.mozilla.org/en-US/docs/Glossary/Hoisting" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> MDN Web Docs - Hoisting và Variable Scope
+                </a>
+              </li>
+              <li>
+                <a href="https://javascript.info/closure" target="_blank" rel="noopener noreferrer" class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium">
+                  <i class="ph-bold ph-link text-sm"></i> JavaScript.info - Variable Scope & Closure Guide
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Self-Test Component -->
+          <div id="selftest-section" class="mt-8 pt-6 border-t border-slate-200">
+            <h3 class="font-montserrat font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+              <i class="ph-bold ph-checks text-rikkei-red"></i> Câu hỏi ôn tập
+            </h3>
+            <p class="text-sm text-slate-600 mb-6">Trả lời các câu hỏi nhanh dưới đây để kiểm tra mức độ hiểu biết của bạn về kịch bản và ví dụ thực tế trong bài đọc này!</p>
+
+            <form id="self-test-form" onsubmit="event.preventDefault(); checkSelfTest();" class="space-y-6">
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">1</span>
+                  <span>Trong Ví dụ 3.1, điều gì sẽ xảy ra nếu lập trình viên cố gắng truy cập trực tiếp biến 'subtotal' bên ngoài hàm calculateCartTotal?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Chương trình trả về giá trị undefined.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Trình duyệt ném ra lỗi ReferenceError: subtotal is not defined do subtotal thuộc Local Scope của hàm.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Chương trình trả về giá trị 0.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q1" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Giá trị subtotal tự động được chuyển lên Global Scope.</span>
+                  </label>
+                </div>
+                <div id="q1-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">2</span>
+                  <span>Tại sao trong Ví dụ 3.2, hàm applyCouponDiscount có thể được gọi trước dòng định nghĩa của nó, trong khi hàm calculateFinalInvoice nếu viết dạng Arrow Function thì không thể làm như vậy?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Vì applyCouponDiscount là Function Declaration nên được hoisted toàn bộ cả khai báo và nội dung hàm.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Vì applyCouponDiscount nhận ít tham số hơn.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Vì calculateFinalInvoice có sử dụng từ khóa return.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q2" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Vì Arrow Function tự động xóa bỏ cơ chế Closure.</span>
+                  </label>
+                </div>
+                <div id="q2-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+              <div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+                <p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2" style="justify-content: flex-start !important; gap: 8px !important; text-align: left !important;">
+                  <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">3</span>
+                  <span>Trong Ví dụ 3.3, khi gọi branchA.addOrder(...) và branchB.addOrder(...), tại sao mã số orderCounter của Chi nhánh A không bị cộng dồn sang Chi nhánh B?</span>
+                </p>
+                <div class="space-y-2">
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="A" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">A. Vì biến orderCounter là hằng số const.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="B" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">B. Vì mỗi lần gọi createOrderTracker() tạo ra một không gian Closure độc lập với biến orderCounter nội bộ riêng biệt.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="C" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">C. Vì JavaScript tự động đồng bộ biến giữa các phiên.</span>
+                  </label>
+                  <label class="selftest-answer flex items-center justify-content-start gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full" style="text-align: left !important;">
+                    <input type="radio" name="q3" value="D" class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" />
+                    <span class="text-left" style="text-align: left !important;">D. Vì hàm addOrder tự động xóa biến orderCounter sau khi thực thi.</span>
+                  </label>
+                </div>
+                <div id="q3-explanation" class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" style="text-align: left !important;"></div>
+              </div>
+
+              <!-- Button Submit -->
+              <div class="flex items-center justify-between gap-4">
+                <button type="submit" id="btn-check-selftest" class="px-5 py-2.5 rounded-lg bg-rikkei-red hover:bg-rikkei-darkred text-white font-semibold text-sm shadow-md transition-all flex items-center gap-2">
+                  <i class="ph-bold ph-check text-base"></i> Kiểm tra kết quả
+                </button>
+                <div id="self-test-score" class="hidden text-sm font-semibold text-slate-700"></div>
+              </div>
+            </form>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+      hljs.highlightAll();
+
+      window.addEventListener("scroll", () => {
+        const winScroll = document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.getElementById("scroll-progress").style.width = scrolled + "%";
+      });
+
+      function toggleMobileToc() {
+        const drawer = document.getElementById("mobile-toc-drawer");
+        drawer.classList.toggle("hidden");
+      }
+
+      // JavaScript Live In-Browser Sandbox Engine
+      function runJsCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const rawCode = editor.innerText || editor.textContent;
+        output.innerText = "";
+
+        let logs = [];
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        const originalInfo = console.info;
+
+        try {
+          console.log = function(...args) {
+            logs.push(args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalLog.apply(console, args);
+          };
+          console.info = console.log;
+          console.warn = function(...args) {
+            logs.push("[CẢNH BÁO] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalWarn.apply(console, args);
+          };
+          console.error = function(...args) {
+            logs.push("[LỖI] " + args.map(a => (typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a))).join(' '));
+            originalError.apply(console, args);
+          };
+
+          const result = new Function(rawCode)();
+          if (result !== undefined && logs.length === 0) {
+            logs.push(String(result));
+          }
+
+          if (logs.length > 0) {
+            output.innerText = logs.join('\n');
+          } else {
+            output.innerText = "Thực thi thành công (Không có dữ liệu xuất console).";
+          }
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI JAVASCRIPT:\n" + (err && err.stack ? err.stack : err);
+        } finally {
+          console.log = originalLog;
+          console.warn = originalWarn;
+          console.error = originalError;
+          console.info = originalInfo;
+        }
+      }
+
+      // Pyodide Live Wasm Sandbox Engine
+      let pyodideInstance = null;
+      async function getPyodide() {
+        if (!pyodideInstance && window.loadPyodide) {
+          pyodideInstance = await window.loadPyodide();
+        }
+        return pyodideInstance;
+      }
+
+      async function runPythonCode(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (!editor || !output) return;
+
+        if (container) container.classList.remove("hidden");
+        const code = editor.innerText || editor.textContent;
+        output.innerText = "Đang khởi tạo trình thông dịch Pyodide Wasm...";
+
+        try {
+          const pyodide = await getPyodide();
+          if (!pyodide) {
+            output.innerText = "Không thể kết nối Pyodide Wasm Sandbox.";
+            return;
+          }
+          let outputBuffer = "";
+          pyodide.setStdout({
+            batched: (str) => { outputBuffer += str + "\n"; }
+          });
+          pyodide.setStderr({
+            batched: (str) => { outputBuffer += "ERROR: " + str + "\n"; }
+          });
+
+          try {
+            await pyodide.runPythonAsync("import sys; [sys.modules['__main__'].__dict__.pop(k) for k in list(sys.modules['__main__'].__dict__.keys()) if not k.startswith('__') and k not in ('sys', 'pyodide')]");
+          } catch(e) {}
+
+          await pyodide.runPythonAsync(code);
+          output.innerText = outputBuffer.trim() ? outputBuffer.trim() : (outputBuffer || "Thực thi thành công (Không có kết quả xuất console).");
+        } catch (err) {
+          output.innerText = "LỖI THỰC THI:\n" + err;
+        }
+      }
+
+      function clearSandbox(editorId, outputId, containerId) {
+        const editor = document.getElementById(editorId);
+        const output = document.getElementById(outputId);
+        const container = document.getElementById(containerId);
+        if (editor) {
+          const orig = editor._originalText || editor.getAttribute("data-original");
+          if (orig) {
+            editor.textContent = orig;
+            editor.removeAttribute("data-highlighted");
+            if (window.hljs) hljs.highlightElement(editor);
+          }
+        }
+        if (output) output.innerText = "";
+        if (container) container.classList.add("hidden");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("code[data-original]").forEach((codeEl) => {
+          if (!codeEl._originalText) {
+            codeEl._originalText = codeEl.textContent;
+          }
+        });
+      });
+
+      function copySandboxCode(editorId, btn) {
+        const editor = document.getElementById(editorId);
+        if (!editor) return;
+        const text = editor.innerText || editor.textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const origContent = btn.innerHTML;
+          btn.innerHTML = '<i class="ph-bold ph-check text-emerald-500 text-sm"></i>';
+          setTimeout(() => { btn.innerHTML = origContent; }, 2000);
+        }).catch(err => {
+          console.error("Lỗi copy code:", err);
+        });
+      }
+
+
+      function checkSelfTest() {
+        const answers = {"1": "B", "2": "A", "3": "B"};
+        const explanations = {"1": "Biến 'subtotal' được khai báo bằng từ khóa const bên trong hàm calculateCartTotal nên thuộc phạm vi Local Scope (Function Scope). Do đó, nó không thể truy cập từ bên ngoài hàm và trình duyệt sẽ ném ra lỗi ReferenceError.", "2": "Function Declaration (khai báo hàm dạng function funcName(){}) được JavaScript nâng (hoisted) toàn bộ lên đầu scope thực thi. Ngược lại, Function Expression hoặc Arrow Function gán cho biến let/const chỉ hoisted phần khai báo biến và bị vướng Temporal Dead Zone (TDZ) nếu gọi trước dòng khởi tạo.", "3": "Closure tạo ra một môi trường thực thi đóng gói riêng biệt mỗi khi hàm outer createOrderTracker() được gọi. Do đó, branchA và branchB nắm giữ hai vùng nhớ orderCounter tách biệt hoàn toàn."};
+
+        let score = 0;
+        const total = Object.keys(answers).length;
+
+        for (let i = 1; i <= total; i++) {
+          const qId = "q" + i;
+          const selected = document.querySelector(`input[name="${qId}"]:checked`);
+          const expDiv = document.getElementById(`${qId}-explanation`);
+          
+          if (!expDiv) continue;
+          expDiv.classList.remove("hidden");
+          
+          const correctAns = answers[i];
+          const explainText = explanations[i];
+          
+          if (selected) {
+            const val = selected.value;
+            if (val === correctAns) {
+              score++;
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-check-circle text-emerald-600 mr-1.5 text-sm align-middle"></i> <strong>Đúng!</strong> ${explainText}`;
+            } else {
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-rose-50 text-rose-800 border border-rose-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-x-circle text-rose-600 mr-1.5 text-sm align-middle"></i> <strong>Sai!</strong> Đáp án đúng là <strong>${correctAns}</strong>. ${explainText}`;
+            }
+          } else {
+            expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-medium text-left";
+            expDiv.innerHTML = `<i class="ph-bold ph-warning text-amber-600 mr-1.5 text-sm align-middle"></i> Bạn chưa chọn câu trả lời cho câu này.`;
+          }
+        }
+
+        const scoreDiv = document.getElementById("self-test-score");
+        if (scoreDiv) {
+          scoreDiv.classList.remove("hidden");
+          scoreDiv.innerText = `Kết quả: ${score}/${total} câu trả lời đúng.`;
+        }
+      }
+
+      // Visualizer logic for 2.4
+      var currentVizStep = 0;
+      var vizAutoInterval = null;
+
+      function runVizStep(stepNum) {
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const lineDivs = codeDisplay.querySelectorAll("div[id^='viz-line-']");
+        const linesCount = lineDivs.length;
+        const totalSteps = window.vizSteps ? window.vizSteps.length : linesCount;
+
+        if (stepNum === -999) {
+          currentVizStep = 0;
+          if (vizAutoInterval) {
+            clearInterval(vizAutoInterval);
+            vizAutoInterval = null;
+            const autoBtn = document.getElementById("viz-auto-btn");
+            if (autoBtn) autoBtn.innerText = "Tự động chạy";
+          }
+        } else if (stepNum === -1) {
+          currentVizStep = Math.max(0, currentVizStep - 1);
+        } else if (stepNum === 1) {
+          currentVizStep = Math.min(totalSteps, currentVizStep + 1);
+        } else {
+          currentVizStep = stepNum;
+        }
+
+        // Reset highlights
+        lineDivs.forEach((el) => {
+          el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between";
+        });
+
+        const term = document.getElementById("viz-terminal-log");
+        const badge = document.getElementById("viz-step-badge");
+
+        if (currentVizStep === 0) {
+          if (term) term.innerHTML = `&gt; Sẵn sàng chạy mô phỏng từng bước. Bấm 'Tiếp theo' để bắt đầu...`;
+          if (badge) badge.innerText = "Sẵn sàng";
+          updateRamMonitor(0);
+          return;
+        }
+
+        if (badge) badge.innerText = `Bước ${currentVizStep}/${totalSteps}`;
+
+        if (window.vizSteps && window.vizSteps[currentVizStep - 1]) {
+          const stepData = window.vizSteps[currentVizStep - 1];
+          const el = document.getElementById("viz-line-" + stepData.line);
+          if (el) {
+            el.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between bg-emerald-50 border-l-4 border-emerald-500 font-semibold";
+          }
+          updateRamMonitor(currentVizStep);
+          if (term) {
+            term.innerHTML = "";
+            for (let step = 1; step <= currentVizStep; step++) {
+              const sData = window.vizSteps[step - 1];
+              if (sData.log) {
+                term.innerHTML += sData.log;
+              }
+            }
+            term.scrollTop = term.scrollHeight;
+          }
+        } else {
+          const activeEl = document.getElementById("viz-line-" + currentVizStep);
+          if (activeEl) {
+            activeEl.className = "p-1.5 rounded transition-all duration-200 flex items-center justify-between bg-emerald-50 border-l-4 border-emerald-500 font-semibold";
+            if (term) {
+              const logMsg = activeEl.getAttribute("data-console") || `Đang thực thi dòng lệnh ${currentVizStep}`;
+              term.innerHTML += `<div>&gt; ${logMsg}</div>`;
+              term.scrollTop = term.scrollHeight;
+            }
+          }
+        }
+      }
+
+      function updateRamMonitor(stepIdx) {
+        if (!window.vizSteps) return;
+        
+        // Reset all RAM entries to --- if stepIdx is 0
+        if (stepIdx === 0) {
+          const ramEls = document.querySelectorAll("[id^='viz-ram-']");
+          ramEls.forEach((el) => {
+            if (el.id !== "viz-ram-status" && el.id !== "viz-ram-env" && el.id !== "viz-ram-lesson") {
+              el.innerText = "---";
+            }
+          });
+          return;
+        }
+
+        const stepData = window.vizSteps[stepIdx - 1];
+        if (stepData && stepData.ram) {
+          for (const [key, val] of Object.entries(stepData.ram)) {
+            const ramEl = document.getElementById("viz-ram-" + key);
+            if (ramEl) ramEl.innerText = val;
+          }
+        }
+      }
+
+      function vizToggleAuto() {
+        const btn = document.getElementById("viz-auto-btn");
+        if (!btn) return;
+        
+        const codeDisplay = document.getElementById("viz-code-display");
+        if (!codeDisplay) return;
+        const linesCount = codeDisplay.querySelectorAll("div[id^='viz-line-']").length;
+        const totalSteps = window.vizSteps ? window.vizSteps.length : linesCount;
+
+        if (vizAutoInterval) {
+          clearInterval(vizAutoInterval);
+          vizAutoInterval = null;
+          btn.innerText = "Tự động chạy";
+        } else {
+          btn.innerText = "Tạm dừng";
+          if (currentVizStep >= totalSteps) runVizStep(-999);
+          runVizStep(1);
+          vizAutoInterval = setInterval(() => {
+            if (currentVizStep >= totalSteps) {
+              clearInterval(vizAutoInterval);
+              vizAutoInterval = null;
+              btn.innerText = "Tự động chạy";
+            } else {
+              runVizStep(1);
+            }
+          }, 1800);
+        }
+      }
+
+      // Active TOC link on scroll using IntersectionObserver
+      document.addEventListener("DOMContentLoaded", () => {
+        const observerOptions = {
+          root: null,
+          rootMargin: "-20% 0px -60% 0px",
+          threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              // Deactivate all TOC links in sidebar and drawer
+              document.querySelectorAll(".toc-link, .mobile-toc-link").forEach((link) => {
+                link.classList.remove("border-rikkei-red", "text-rikkei-red", "font-bold", "bg-slate-100");
+                link.classList.add("border-transparent", "text-slate-600");
+              });
+              // Activate current links
+              const activeLinks = document.querySelectorAll(`a[href="#${id}"]`);
+              activeLinks.forEach((link) => {
+                if (link.classList.contains("toc-link")) {
+                  link.classList.add("border-rikkei-red", "text-rikkei-red", "font-bold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else if (link.classList.contains("mobile-toc-link")) {
+                  link.classList.add("text-rikkei-red", "bg-slate-100");
+                }
+              });
+            }
+          });
+        }, observerOptions);
+
+        document.querySelectorAll("section[id^='section-']").forEach((section) => {
+          observer.observe(section);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -72,7 +72,9 @@ def write_state_artifacts_to_disk(state: AgentState):
             lab_html = state.get("practical_lab_html")
             if not lab_html and state.get("lab_json"):
                 from agents.creators.practical_lab_creator import format_lab_to_html
-                lab_html = format_lab_to_html(state["lab_json"], state.get("tech_stack", "python"))
+                from core.state import require_tech_stack
+                current_stack = require_tech_stack(state, "write_state_artifacts_to_disk")
+                lab_html = format_lab_to_html(state["lab_json"], current_stack)
             if lab_html:
                 with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
                     f.write(lab_html)
@@ -561,6 +563,23 @@ def compile_learning_content_workflow():
                             state.setdefault("artifacts_status", {})["html"] = "Pending"
         except Exception as e:
             print(f"  [Sync Warning] Lỗi khi nạp bài đọc từ đĩa: {e}")
+
+        # Tự động nạp kinh nghiệm (Lessons Learned) từ Knowledge Memory Agent vào Prompt
+        try:
+            from agents.knowledge_memory_agent import get_relevant_memories_for_creator
+            from core.state import require_tech_stack
+            current_stack = require_tech_stack(state, "node_generate_master_content")
+            memories_context = get_relevant_memories_for_creator(
+                tech_stack=current_stack,
+                scope="all",
+                query=lesson_title,
+                limit=3
+            )
+            if memories_context:
+                state["lessons_learned_prompt"] = memories_context
+                print(f"  [Memory Engine] Đã nạp tri thức kinh nghiệm quá khứ cho {lesson_title}")
+        except Exception as e:
+            print(f"  [Memory Warning] Lỗi nạp memory kinh nghiệm: {e}")
         
         # Call get_lesson_content to trigger LLM and populate state["master_content"]
         # It handles its own caching if already generated.

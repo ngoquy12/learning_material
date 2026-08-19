@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 5] Sửa lỗi tính tổng hóa đơn đặt phòng khách sạn khi có phụ thu check-in sớm và thuế VAT</center>
+# <center>[Vận dụng cơ bản 5] Sửa lỗi tính tổng hóa đơn đặt phòng khách sạn khi có phụ thu check-in sớm và thuế VAT</center>
 
 ### **1. Mục tiêu**
 * **Kiến thức:** Củng cố kiến thức về thứ tự ưu tiên của toán tử số học (`*`, `/`, `+`, `-`) và toán tử so sánh trong ngôn ngữ lập trình Python.
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Hệ thống Đặt phòng Khách sạn & Homestay đang vận hành module tự động tính hóa đơn cho khách hàng khi thực hiện thủ tục nhận phòng (check-in). Theo quy trình, hóa đơn bao gồm tiền phòng cơ bản, phụ thu nhận phòng sớm (nếu check-in trước 12h trưa), phụ thu khách vượt định mức và thuế giá trị gia tăng (VAT 10%).
 
-Tuy nhiên, đội ngũ hỗ trợ khách hàng liên tục nhận được phản ánh: Tổng số tiền thanh toán hiển thị trên ứng dụng bị dội lên cao bất thường (gần gấp đôi so với thực tế) đối với các đơn đặt phòng có phát sinh nhận phòng sớm và có thêm người lưu trú.### **3. Mã nguồn hiện tại**
+Tuy nhiên, đội ngũ hỗ trợ khách hàng liên tục nhận được phản ánh: Tổng số tiền thanh toán hiển thị trên ứng dụng bị dội lên cao bất thường (gần gấp đôi so với thực tế) đối với các đơn đặt phòng có phát sinh nhận phòng sớm và có thêm người lưu trú.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn Python đang chạy thực tế trên hệ thống bị ghi nhận lỗi:
 
 ```python
@@ -30,27 +32,27 @@ def calculate_booking_invoice(
     5. Thuế VAT 10% tính trên tổng tiền dịch vụ trước thuế (subtotal).
     6. Tổng thanh toán = subtotal + tiền thuế VAT.
     """
-    # 1. Tính tổng tiền phòng cơ bản
+
+# 1. Tính tổng tiền phòng cơ bản
     base_room_cost: float = room_rate_per_night * num_nights
-    
-    # 2. Kiểm tra điều kiện nhận phòng sớm (trước 12h trưa)
+
+# 2. Kiểm tra điều kiện nhận phòng sớm (trước 12h trưa)
     is_early_checkin: bool = checkin_hour < 12
     early_surcharge: float = room_rate_per_night * 0.30 * is_early_checkin
-    
-    # 3. Tính phụ thu số lượng khách đi kèm vượt quy định
+
+# 3. Tính phụ thu số lượng khách đi kèm vượt quy định
     extra_guest_cost: float = extra_guest_count * extra_guest_fee_per_person
-    
-    # 4. Tính tổng tiền chi phí trước thuế (Subtotal)
+
+# 4. Tính tổng tiền chi phí trước thuế (Subtotal)
     subtotal: float = base_room_cost + early_surcharge + extra_guest_cost
-    
-    # 5. Tính số tiền thuế VAT 10%
+
+# 5. Tính số tiền thuế VAT 10%
     vat_amount: float = base_room_cost + early_surcharge * 0.10
-    
-    # 6. Tính tổng thanh toán cuối cùng
+
+# 6. Tính tổng thanh toán cuối cùng
     total_payment: float = subtotal + vat_amount
     
     return total_payment
-
 
 # Chạy thử nghiệm hệ thống
 if __name__ == "__main__":
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     print(f"Tổng hóa đơn thanh toán tính được: {test_total:,.0f} VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Báo cáo Test Case (Code Tracing)**
 Học viên thực hiện truy vết mã nguồn (Code Tracing), xác định dòng code gây lỗi và hoàn thành Báo cáo Test Case theo bảng mẫu dưới đây:

@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 1] Sửa lỗi tính tổng tiền hóa đơn POS tại quầy Highlands Coffee</center>
+# <center>[Vận dụng cơ bản 1] Sửa lỗi tính tổng tiền hóa đơn POS tại quầy Highlands Coffee</center>
 
 ### **1. Mục tiêu**
 *   Hiểu và vận dụng đúng quy tắc khai báo biến, nhập dữ liệu từ bàn phím bằng hàm `input()` và chuyển đổi kiểu dữ liệu (`int`, `float`) trong ngôn ngữ lập trình Python.
@@ -8,10 +8,13 @@
 ### **2. Bối cảnh & Vấn đề**
 Tại các cửa hàng Highlands Coffee, hệ thống máy tính tiền (POS Terminal) chạy ứng dụng CLI để hỗ trợ thu ngân ghi nhận đơn hàng mua tại quầy. Chương trình nhận dữ liệu đầu vào bao gồm: tên món uống, đơn giá niêm yết của món, số lượng ly khách đặt và số tiền mặt khách hàng đưa cho thu ngân.
 
-Hệ thống POS hiện tại đang gặp sự cố nghiêm trọng tại quầy thu ngân. Thu ngân phản ánh rằng khi nhập giá đơn hàng cho ly Phin Sữa Đá là `39000` VNĐ, số lượng `2` ly và tiền khách đưa là `100000` VNĐ, phần mềm lập tức bị crash (ngắt đột ngột) và báo lỗi hệ thống không thể tính toán số học trên kiểu dữ liệu nhập vào. Điều này dẫn đến việc không thể xuất hóa đơn và gây ùn tắc tại quầy thanh toán vào giờ cao điểm.### **3. Mã nguồn hiện tại**
+Hệ thống POS hiện tại đang gặp sự cố nghiêm trọng tại quầy thu ngân. Thu ngân phản ánh rằng khi nhập giá đơn hàng cho ly Phin Sữa Đá là `39000` VNĐ, số lượng `2` ly và tiền khách đưa là `100000` VNĐ, phần mềm lập tức bị crash (ngắt đột ngột) và báo lỗi hệ thống không thể tính toán số học trên kiểu dữ liệu nhập vào. Điều này dẫn đến việc không thể xuất hóa đơn và gây ùn tắc tại quầy thanh toán vào giờ cao điểm.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn Python hiện tại của module tính tiền hóa đơn đang vận hành tại hệ thống POS:
 
 ```python
+
 # Highlands POS - Module tính tiền hóa đơn tại quầy
 
 # 1. Nhập thông tin đơn hàng từ bàn phím
@@ -46,7 +49,7 @@ flowchart TD
     F --> G([Kết thúc quy trình])
 ```
 
-### **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Nhiệm vụ 1: Phân tích & Báo cáo lỗi (Test Case Report Table)**
 Học viên thực hiện đọc mã nguồn, chạy thử chương trình để phát hiện vị trí gây lỗi, sau đó hoàn thiện bảng báo cáo kịch bản kiểm thử bên dưới (điền thông tin vào các vị trí dấu `...` ở Dòng 2 và Dòng 3).

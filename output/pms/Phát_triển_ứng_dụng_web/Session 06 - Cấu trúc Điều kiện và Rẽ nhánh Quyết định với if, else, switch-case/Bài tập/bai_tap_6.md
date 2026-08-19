@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 6] Sửa lỗi tính phí hành lý ký gửi quá cước Vietjet</center>
 
 ### **1. Mục tiêu**
@@ -21,7 +19,9 @@ Nếu trọng lượng hành lý ký gửi thực tế (`baggageWeight`) lớn h
 Bộ phận quầy thủ tục sân bay phản ánh một sự cố nghiêm trọng: Nhiều hành khách mua vé hạng Eco (mã `1`) mang theo 12 kg hành lý ký gửi, nhưng hệ thống lại in ra phiếu thông báo hạng vé là "Deluxe hạn mức miễn phí 20 kg và tính phí quá cước là **0 VNĐ**. Lỗi này khiến hãng hàng không bị thất thu chi phí dịch vụ ký gửi tại sân bay.---
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã JavaScript xử lý logic tính phí ký gửi hành lý đang chạy trên hệ thống:```javascript
+Dưới đây là đoạn mã JavaScript xử lý logic tính phí ký gửi hành lý đang chạy trên hệ thống:
+
+```javascript
 // Hệ thống tính phí hành lý ký gửi tại quầy check-in sân bay Vietjet
 const ticketClassCode = 1; // Mã hạng vé (1: Eco, 2: Deluxe, 3: Business)
 const baggageWeight = 12;  // Cân nặng hành lý ký gửi thực tế (kg)

@@ -1,4 +1,4 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG DASHBOARD TÌM KIẾM VÀ THỐNG KÊ SẢN PHẨM DÙNG FETCH API (FETCH API & DOM DASHBOARD SEARCH/ANALYTICS)</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG DASHBOARD TÌM KIẾM VÀ THỐNG KÊ SẢN PHẨM DÙNG FETCH API (FETCH API & DOM DASHBOARD SEARCH/ANALYTICS)</center>
 
 ### **1. Mục tiêu**
 * **Đánh giá kiến thức:** Kiểm tra khả năng ứng dụng cú pháp `async/await` kết hợp `fetch API` để tải dữ liệu JSON bất đồng bộ, thao tác xử lý mảng dữ liệu (lọc, tìm kiếm, tính toán thống kê) và cập nhật giao diện người dùng động (Single Page Application UI) thông qua DOM API.

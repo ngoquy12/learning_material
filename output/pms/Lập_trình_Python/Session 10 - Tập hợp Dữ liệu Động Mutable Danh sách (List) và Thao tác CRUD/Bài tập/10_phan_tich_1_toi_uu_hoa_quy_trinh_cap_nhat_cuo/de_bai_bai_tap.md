@@ -1,4 +1,4 @@
-## <center>[Phân tích 1] Tối ưu hóa quy trình cập nhật cước phí và xóa chuyến xe GrabRide</center>
+# <center>[Phân tích 1] Tối ưu hóa quy trình cập nhật cước phí và xóa chuyến xe GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu và áp dụng thành thạo thao tác truy xuất, ghi đè cập nhật giá trị (Update) và xóa phần tử (Delete) theo vị trí chỉ số (index) trên danh sách Python `list`.
@@ -12,7 +12,9 @@ Trong quá trình vận hành thực tế tại ca làm việc:
 1. Một chuyến xe tại vị trí chỉ số xác định cần điều chỉnh lại cước phí do phát sinh hệ số phụ phí thời tiết (mưa lớn).
 2. Một chuyến xe khác bị hành khách hủy chuyến đột xuất, hệ thống bắt buộc phải loại bỏ dữ liệu chuyến xe này khỏi danh sách và cập nhật lại tổng số chuyến xe còn lại trong ca.
 
-Do thiết bị nhúng IoT trên xe có cấu hình phần cứng tối giản, mã nguồn chạy trên hệ điều hành nhúng chỉ cho phép thao tác trực tiếp bằng chỉ số index, từ khóa `del` và hàm `len()`. [REQUIREMENT] Học viên cần thực hiện phân tích chuyên sâu các phương án kỹ thuật để cập nhật và loại bỏ phần tử ra khỏi danh sách, đồng thời triển khai mã nguồn tối ưu nhất cho hệ thống GrabRide.### **3. Quy tắc nghiệp vụ**
+Do thiết bị nhúng IoT trên xe có cấu hình phần cứng tối giản, mã nguồn chạy trên hệ điều hành nhúng chỉ cho phép thao tác trực tiếp bằng chỉ số index, từ khóa `del` và hàm `len()`. [REQUIREMENT] Học viên cần thực hiện phân tích chuyên sâu các phương án kỹ thuật để cập nhật và loại bỏ phần tử ra khỏi danh sách, đồng thời triển khai mã nguồn tối ưu nhất cho hệ thống GrabRide.
+
+### **3. Quy tắc nghiệp vụ**
 1.  **Dữ liệu đầu vào:** Danh sách cước phí khởi tạo gồm 5 chuyến xe có kiểu dữ liệu `list[int]`. Ví dụ: `[12000, 25500, 45000, 15000, 60000]`.
 2.  **Quy tắc cập nhật (Update):** Khi có thông báo điều chỉnh cước phí cho chuyến xe tại chỉ số index chỉ định, giá trị mới (kiểu `int`) phải được ghi đè trực tiếp vào vị trí index đó.
 3.  **Quy tắc xóa (Delete):** Khi chuyến xe tại vị trí index chỉ định bị hủy, phần tử tại index đó phải bị xóa hoàn toàn khỏi danh sách bằng từ khóa `del`.

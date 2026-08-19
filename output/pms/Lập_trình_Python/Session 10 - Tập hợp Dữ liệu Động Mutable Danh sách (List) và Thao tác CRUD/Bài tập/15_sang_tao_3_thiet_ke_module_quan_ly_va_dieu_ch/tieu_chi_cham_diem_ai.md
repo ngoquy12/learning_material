@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 3] Thiết kế Module Quản lý và Điều chỉnh Cước phí Chuyến đi GrabRide — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản lỗi thường gặp — 30 điểm**

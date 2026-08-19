@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 6] Sửa lỗi tính tổng thanh toán hóa đơn đặt phòng</center>
+# <center>[Vận dụng cơ bản 6] Sửa lỗi tính tổng thanh toán hóa đơn đặt phòng</center>
 
 ### **1. Mục tiêu**
 *   Đọc hiểu mã nguồn Python hiện tại xử lý tính toán tổng tiền thanh toán đơn đặt phòng khách sạn.
@@ -9,7 +9,10 @@
 ### **2. Bối cảnh & Vấn đề**
 Hệ thống đặt phòng khách sạn trực tuyến (HOTEL_BOOKING) đang nhận phản ánh từ bộ phận Kế toán và Khách hàng về việc số tiền thanh toán bị tính sai đối với các đơn đặt phòng có dịch vụ bổ sung.
 
-Phản ánh thực tế: Khách hàng là thành viên thân thiết (hội viên) khi đặt phòng có đăng ký check-in sớm (trước 12h trưa) và dịch vụ vệ sinh phòng nhận thấy tổng tiền thanh toán hiển thị bị lệch so với chính sách niêm yết. Theo quy định, chính sách giảm giá 10% dành cho hội viên **chỉ áp dụng trên tiền phòng cơ bản**, không áp dụng giảm giá cho các khoản phụ thu check-in sớm và phí dịch vụ vệ sinh. Tuy nhiên, hệ thống hiện tại đang tính giảm giá lên toàn bộ tổng chi phí khiến doanh thu thu về bị thất thoát.### **3. Mã nguồn hiện tại**
+Phản ánh thực tế: Khách hàng là thành viên thân thiết (hội viên) khi đặt phòng có đăng ký check-in sớm (trước 12h trưa) và dịch vụ vệ sinh phòng nhận thấy tổng tiền thanh toán hiển thị bị lệch so với chính sách niêm yết. Theo quy định, chính sách giảm giá 10% dành cho hội viên **chỉ áp dụng trên tiền phòng cơ bản**, không áp dụng giảm giá cho các khoản phụ thu check-in sớm và phí dịch vụ vệ sinh. Tuy nhiên, hệ thống hiện tại đang tính giảm giá lên toàn bộ tổng chi phí khiến doanh thu thu về bị thất thoát.
+
+### **3. Mã nguồn hiện tại**
+
 ```python
 def calculate_booking_invoice(
     room_price: float,
@@ -23,25 +26,34 @@ def calculate_booking_invoice(
     """
     base_cost: float = room_price * nights
     early_surcharge: float = room_price * 0.3 * is_early_checkin
-    
-    # Tính tổng thanh toán hóa đơn
+
+# Tính tổng thanh toán hóa đơn
     total_payment: float = (base_cost + early_surcharge + cleaning_fee) * (1.0 - 0.10 * is_member)
     return total_payment
 
-
 # Chạy thử nghiệm hệ thống
 if __name__ == "__main__":
-    price = 1000000.0   # Giá phòng 1,000,000 VNĐ / đêm
-    num_nights = 2      # Lưu trú 2 đêm
-    early = True        # Có check-in sớm
-    cleaning = 200000.0 # Phí vệ sinh 200,000 VNĐ
-    member = True       # Khách hàng là hội viên
+    price = 1000000.0
+
+# Giá phòng 1,000,000 VNĐ / đêm
+    num_nights = 2
+
+# Lưu trú 2 đêm
+    early = True
+
+# Có check-in sớm
+    cleaning = 200000.0
+
+# Phí vệ sinh 200,000 VNĐ
+    member = True
+
+# Khách hàng là hội viên
 
     result = calculate_booking_invoice(price, num_nights, early, cleaning, member)
     print("Tổng tiền thanh toán tính được:", result)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Lập Báo cáo Test Case (Trace lỗi)**
 Học viên tiến hành kiểm tra mã nguồn, xác định chính xác dòng code gây ra lỗi logic và hoàn thiện Bảng Test Case dưới đây vào báo cáo (Dòng 1 là ví dụ mẫu đã hoàn thành, học viên thực hiện tiếp cho dòng 2 và dòng 3):

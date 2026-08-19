@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 1] Sửa Lỗi Tính Phí Hành Lý Quá Cước Tại Quầy Check-in</center>
 
 ### **1. Mục tiêu**
@@ -20,7 +18,9 @@ Tại quầy làm thủ tục check-in tự động của hãng hàng không Vie
 Bộ phận CSKH nhận được phàn nàn từ nhiều hành khách ký gửi hành lý nặng 25 kg và 40 kg. Mặc dù hành lý vượt rất nhiều so với hạn mức miễn cước, hệ thống chỉ hiển thị mức phí 150.000 VNĐ trên hóa đơn thanh toán. Sự cố này gây thất thoát doanh thu đáng kể cho hãng bay và gây sai lệch dữ liệu tải trọng chuyến bay.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript đang vận hành trên thiết bị quầy check-in gặp sự cố:```javascript
+Dưới đây là đoạn mã nguồn JavaScript đang vận hành trên thiết bị quầy check-in gặp sự cố:
+
+```javascript
 // Hệ thống tính phí hành lý ký gửi tại quầy Check-in
 const passengerName = "Nguyen Van A";
 const baggageWeight = 25; // Trọng lượng hành lý đo được (kg)
@@ -53,9 +53,7 @@ console.log("Phí cước phải trả:", excessFee, "VNĐ");
 console.log("Trạng thái:", noticeMessage);
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Báo cáo phân tích & Bảng kịch bản kiểm thử (Test Case Report)**
 Học viên thực hiện vết mã (Code Tracing), xác định chính xác dòng lệnh gây lỗi và hoàn thành bảng kịch bản kiểm thử theo mẫu dưới đây để chứng minh lỗi logic của chương trình:

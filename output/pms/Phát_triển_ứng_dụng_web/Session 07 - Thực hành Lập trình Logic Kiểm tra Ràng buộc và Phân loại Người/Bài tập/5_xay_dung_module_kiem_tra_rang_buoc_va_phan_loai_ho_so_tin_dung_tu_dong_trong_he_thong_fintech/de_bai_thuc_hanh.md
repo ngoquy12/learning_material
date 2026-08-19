@@ -1,4 +1,4 @@
-## <center>Thực Hành Lập Trình Logic Kiểm Tra Ràng Buộc Và Phân Loại Hồ Sơ Tín Dụng Tự Động Trong Hệ Thống Fintech</center>
+# <center>Thực Hành Lập Trình Logic Kiểm Tra Ràng Buộc Và Phân Loại Hồ Sơ Tín Dụng Tự Động Trong Hệ Thống Fintech</center>
 
 ### **1. Mục tiêu**
 - Vận dụng thành thạo cấu trúc điều kiện `if`, `else if`, `else` để giải quyết các luồng kiểm định ràng buộc nghiệp vụ tài chính đa tầng.
@@ -9,7 +9,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong phân hệ quản trị rủi ro của một nền tảng Fintech, việc thẩm định hồ sơ vay vốn tự động đòi hỏi quy trình xử lý chính xác, minh bạch và tuân thủ các quy định tài chính nghiêm ngặt. Hệ thống cần tiếp nhận các chỉ số tài chính của khách hàng, thực hiện kiểm tra tính hợp lệ của dữ liệu, phân loại nhóm nguy cơ, tính toán hạn mức phê duyệt tối đa và xác định mức lãi suất cho vay phù hợp.
 
 Dưới đây là sơ đồ dòng dữ liệu (Data Flowchart) thể hiện toàn bộ tiến trình xử lý nghiệp vụ thẩm định hồ sơ tín dụng:
@@ -30,7 +30,6 @@ flowchart TD
     J --> K[/"Tính toán Hạn mức tín dụng cuối cùng và Lãi suất áp dụng"/]
     K --> L[/"Đầu ra: Xuất kết quả phiếu thẩm định hồ sơ thành công"/]
     L --> E
-
 ```
 
 ---
@@ -154,6 +153,7 @@ Nguồn lực tín dụng và lãi suất được quyết định dựa trên t
 
 **Kịch bản 1: Hồ sơ đạt chuẩn phân hạng Platinum**
 - Input:
+
 ```javascript
 const fullName = "Nguyen Van A";
 const creditScore = 780;
@@ -163,7 +163,9 @@ const accountType = 1;           // Cá nhân
 const isBlacklisted = 0;
 const employmentYears = 4;
 ```
+
 - Output trên Console:
+
 ```text
 ==================================================
         PHIẾU THẨM ĐỊNH HẠN MỨC TÍN DỤNG FINTECH
@@ -180,6 +182,7 @@ Lãi suất áp dụng: 10.00% / năm
 
 **Kịch bản 2: Hồ sơ bị từ chối do DTI cao và điểm tín dụng thấp**
 - Input:
+
 ```javascript
 const fullName = "Tran Van B";
 const creditScore = 520;
@@ -189,7 +192,9 @@ const accountType = 2;
 const isBlacklisted = 0;
 const employmentYears = 1;
 ```
+
 - Output trên Console:
+
 ```text
 ==================================================
         PHIẾU THẨM ĐỊNH HẠN MỨC TÍN DỤNG FINTECH
@@ -205,10 +210,12 @@ Lý do: Điểm tín dụng không đủ điều kiện (520 < 550) hoặc Tỷ 
 ### **5. Yêu cầu nộp bài**
 - Mã nguồn viết bằng JavaScript Vanilla (`script.js` hoặc chạy trực tiếp trong tệp `index.html`).
 - Tạo kho lưu trữ (Repository) trên GitHub với cấu trúc chuẩn:
-  ```text
+
+```text
   fintech-credit-checker/
   ├── index.html
   └── script.js
-  ```
+```
+
 - Cam kết mã nguồn lên nhánh `main` với thông điệp: `feat: implement fintech credit validation logic`.
 - Nộp liên kết tệp mã nguồn GitHub công khai (.js) lên hệ thống quản lý học tập.

@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 5] Sửa lỗi tính tổng tiền hóa đơn order tại quầy Highlands POS</center>
+# <center>[Vận dụng cơ bản 5] Sửa lỗi tính tổng tiền hóa đơn order tại quầy Highlands POS</center>
 
 ### **1. Mục tiêu**
 *   **Phân tích và phát hiện lỗi kiểu dữ liệu (Data Types):** Nhận diện lỗi phát sinh khi xử lý dữ liệu nhận từ hàm `input()` trong Python dưới dạng chuỗi kí tự (`str`).
@@ -19,11 +19,13 @@ flowchart TD
     E --> F([Kết thúc quy trình])
 ```
 
-### **3. Mã nguồn hiện tại**
+# **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn Python hiện tại do nhân viên lập trình tập sự bàn giao:
 
 ```python
+
 # Hệ thống Quản lý Bán hàng Highlands POS - Module Tính tổng tiền Order tại quầy
+
 # Đơn vị tiền tệ tính theo Việt Nam Đồng (VNĐ)
 
 print("=== HỆ THỐNG POS HIGHLANDS - TÍNH TỔNG TIỀN ORDER ===")
@@ -40,7 +42,7 @@ print("--------------------------------------------------")
 print("Tổng tiền thanh toán:", final_amount, "VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Báo cáo lỗi (Test Case Report)**
 Học viên tiến hành chạy thử mã nguồn hiện tại, xác định dòng code gây lỗi và hoàn thiện bảng phân tích 3 kịch bản kiểm thử (Test Cases) dưới đây vào báo cáo. 

@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 3] Thiết Kế Hệ Thống Đóng Gói Và Quản Lý Hóa Đơn Đặt Phòng Khách Sạn</center>
 
 ### **1. Mục tiêu**

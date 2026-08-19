@@ -1,5 +1,3 @@
-#
-
 # <center>[Chẩn đoán & Sửa lỗi] Đóng gói dữ liệu hóa đơn đặt phòng và chuẩn hóa JSON</center>
 
 ### **1. Mục tiêu**
@@ -16,7 +14,9 @@ Trước khi đóng gói dữ liệu thành chuỗi JSON để truyền tải sa
 3. Giao diện xác nhận hóa đơn hiển thị giá trị `undefined` khi cố gắng đọc thông tin khách hàng và chi phí từ chuỗi JSON đã đóng gói.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript legacy đang chạy lỗi trong hệ thống xử lý hóa đơn:```javascript
+Dưới đây là đoạn mã nguồn JavaScript legacy đang chạy lỗi trong hệ thống xử lý hóa đơn:
+
+```javascript
 // Khai báo thông tin phiếu đặt phòng khách sạn ban đầu
 const bookingReservation = {
   reservationId: "RES-88219",
@@ -46,9 +46,7 @@ console.log("Phụ phí dịch vụ:", serviceFee);
 console.log("Chuỗi JSON gửi đi:", jsonPayload);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Lập báo cáo phân tích lỗi & Kiểm thử (Test Case Report Table)**
 Học viên phân tích đoạn mã nguồn trên, phát hiện 3 lỗi logic chính và hoàn thiện bảng báo cáo kiểm thử dưới đây vào bài làm. Hàng đầu tiên đã được điền mẫu làm căn cứ thực hiện.

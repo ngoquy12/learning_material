@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích & Sửa lỗi] Sửa lỗi tính tổng chi phí đăng ký khám bệnh ban đầu</center>
 
 ### **1. Mục tiêu**
@@ -13,7 +11,9 @@ Trong phân hệ Tiếp nhận Bệnh nhân thuộc **Hệ thống Đặt lịch
 Nhân viên thu ngân phản ánh rằng: Khi nhập phí khám ban đầu là `150000` VNĐ và phí sổ khám là `20000` VNĐ, hệ thống xuất kết quả tính tổng tiền thanh toán hiển thị trên màn hình Console bị sai hoàn toàn so với thực tế (ra số tiền bất thường `15000020000` VNĐ). Sự cố này gây sai lệch báo cáo tài chính và làm gián đoạn quy trình cấp số thứ tự khám cho bệnh nhân.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là cấu trúc tệp HTML và đoạn mã JavaScript xử lý logic tính tiền hiện tại của hệ thống phòng khám:```html
+Dưới đây là cấu trúc tệp HTML và đoạn mã JavaScript xử lý logic tính tiền hiện tại của hệ thống phòng khám:
+
+```html
 <!-- File: index.html -->
 <!DOCTYPE html>
 <html lang="vi">
@@ -29,7 +29,9 @@ Dưới đây là cấu trúc tệp HTML và đoạn mã JavaScript xử lý log
     <script src="app.js"></script>
 </body>
 </html>
-``````javascript
+```
+
+```javascript
 // File: app.js
 // Kịch bản tính tổng tiền đăng ký khám bệnh tại quầy tiếp đón
 
@@ -44,9 +46,7 @@ var total_payment = consultation_fee + card_fee;
 console.log("Bệnh nhân: " + patient_name + " - Tổng tiền thanh toán: " + total_payment + " VNĐ");
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Báo cáo Truy vết mã nguồn & Phát hiện lỗi (Code Tracing Report)**
 Học viên tiến hành chạy thử chương trình, phân tích luồng dữ liệu và hoàn thiện bảng Báo cáo Test Case sau đây vào tệp báo cáo:

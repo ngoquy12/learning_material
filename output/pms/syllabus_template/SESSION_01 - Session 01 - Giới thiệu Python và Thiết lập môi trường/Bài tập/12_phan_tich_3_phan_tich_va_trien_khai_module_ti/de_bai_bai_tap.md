@@ -1,4 +1,4 @@
-## <center>[Phân tích 3] Phân tích và Triển khai Module Tính tiền Hóa đơn Quầy POS</center>
+# <center>[Phân tích 3] Phân tích và Triển khai Module Tính tiền Hóa đơn Quầy POS</center>
 
 ### **1. Mục tiêu**
 *   **Kỹ năng đạt được:** Phân tích, so sánh và lựa chọn phương án kỹ thuật tối ưu trong việc tiếp nhận dữ liệu đầu vào (tên món, giá niêm yết, phụ thu size, topping, giảm giá thành viên) và tính toán các chi tiết hóa đơn thanh toán trên phần mềm Highlands POS.
@@ -10,7 +10,9 @@ Tại quầy thu ngân của chuỗi Highland Coffee, phần mềm POS (Point of
 
 Khi một giao dịch order diễn ra, thu ngân sẽ nhập vào màn hình hệ thống các thông số chi tiết của món đồ uống. Hệ thống cần tiếp nhận các chuỗi dữ liệu nhập từ bàn phím, thực hiện ép kiểu sang dạng số thích hợp, thực hiện chuỗi phép tính tài chính theo quy chuẩn nghiệp vụ, và xuất ra màn hình console một hóa đơn thanh toán dạng văn bản được căn chỉnh lề chuyên nghiệp.
 
-Thu ngân gặp phải bài toán: Cần xử lý các phép tính giảm giá theo tỷ lệ %, tính thuế VAT 8%, và tính tổng tiền thanh toán làm tròn thành số nguyên VNĐ mà không làm mất tính chính xác của dữ liệu tài chính cũng như đảm bảo mã nguồn dễ bảo trì khi quy định phụ thu thay đổi.### **3. Quy tắc nghiệp vụ**
+Thu ngân gặp phải bài toán: Cần xử lý các phép tính giảm giá theo tỷ lệ %, tính thuế VAT 8%, và tính tổng tiền thanh toán làm tròn thành số nguyên VNĐ mà không làm mất tính chính xác của dữ liệu tài chính cũng như đảm bảo mã nguồn dễ bảo trì khi quy định phụ thu thay đổi.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tính tiền đơn hàng áp dụng các quy tắc tài chính sau:
 1.  **Đơn giá cơ bản:** Đơn giá niêm yết áp dụng cho kích thước nhỏ nhất (Size S).
 2.  **Phụ thu kích thước (Size):** 

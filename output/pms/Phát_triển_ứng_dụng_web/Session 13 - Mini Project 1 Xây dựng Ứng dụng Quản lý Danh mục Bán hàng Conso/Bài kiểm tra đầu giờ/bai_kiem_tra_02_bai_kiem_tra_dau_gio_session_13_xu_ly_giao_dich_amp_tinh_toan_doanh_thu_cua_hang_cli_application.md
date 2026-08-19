@@ -1,4 +1,4 @@
-## <center>Bài Kiểm Tra Đầu Giờ: Xây Dựng Luồng Xử Lý Giao Dịch Bán Hàng Console (Console Transaction & Workflow Processing System)</center>
+# <center>Bài Kiểm Tra Đầu Giờ: Xây Dựng Luồng Xử Lý Giao Dịch Bán Hàng Console (Console Transaction & Workflow Processing System)</center>
 
 ### **1. Mục tiêu**
 - **Đánh giá kiến thức nền tảng:** Kiểm tra khả năng vận dụng biến ES6 (`let`, `const`), kiểu dữ liệu nguyên thủy, toán tử số học, toán tử so sánh nghiêm ngặt (`===`), toán tử ba ngôi (ternary operator) và các câu lệnh điều khiển luồng.

@@ -1,4 +1,4 @@
-## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 04</center>
+# <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 04</center>
 
 ### **1. Mục tiêu**
 - Hệ thống hóa toàn bộ kiến thức cốt lõi về **Toán tử Số học**, **Toán tử So sánh**, **Toán tử Logic** và **Thứ tự ưu tiên tính toán** trong Python.
@@ -22,15 +22,20 @@ Sơ đồ tư duy BẮT BUỘC bao phủ 4 nhánh kiến thức chính với cá
   - `%` (Chia lấy phần dư): Tính số ngày lẻ còn lại sau khi quy đổi ra tuần (`stay_nights % 7`).
   - `**` (Lũy thừa): Tính phí phạt trễ hạn theo công thức lãi kép hoặc hệ số tăng giá mùa cao điểm.
 - *Ví dụ minh họa nghiệp vụ*:
+
 ```python
 total_nights = 17
-weeks_stay = total_nights // 7  # 2 tuần
-extra_nights = total_nights % 7  # 3 ngày lẻ
+weeks_stay = total_nights // 7
+
+# 2 tuần
+extra_nights = total_nights % 7
+
+# 3 ngày lẻ
 room_rate = 2000000
 total_raw = total_nights * room_rate
 ```
 
-#### **Nhánh 2: Toán tử So sánh (Comparison Operators) trong Kiểm tra Điều kiện Đặt phòng**
+# **Nhánh 2: Toán tử So sánh (Comparison Operators) trong Kiểm tra Điều kiện Đặt phòng**
 - **Các toán tử**: `==` (bằng), `!=` (khác), `>` (lớn hơn), `<` (nhỏ hơn), `>=` (lớn hơn hoặc bằng), `<=` (nhỏ hơn hoặc bằng).
 - **Kiểu dữ liệu trả về**: Luôn là `Boolean` (`True` / `False`).
 - *Nghiệp vụ áp dụng*: So sánh số dư tài khoản của khách với tiền cọc phòng, so sánh điểm loyalty (`loyalty_points >= 1000`), kiểm tra phòng trống (`available_rooms > 0`).
@@ -54,7 +59,9 @@ total_raw = total_nights * room_rate
   7. Toán tử logic `and`.
   8. Toán tử logic `or`.
 - *Mã nguồn mẫu nghiệp vụ phê duyệt ưu đãi phòng*:
+
 ```python
+
 # Thông tin hồ sơ đặt phòng khách sạn
 account_balance = 45000000
 loyalty_points = 750
@@ -70,9 +77,15 @@ is_score_qualified = loyalty_points >= 700
 # Phê duyệt booking: (Đủ điều kiện hạng khách AND Đạt điểm) AND KHÔNG bị hạn chế (not blacklisted)
 is_approved = (is_eligible_tier and is_score_qualified) and (not is_blacklisted)
 
-print("Kết quả nhóm điều kiện ưu tiên:", is_eligible_tier)  # True
-print("Kết quả kiểm tra điểm loyalty:", is_score_qualified)  # True
-print("Kết quả phê duyệt đặt phòng cuối cùng:", is_approved)  # True
+print("Kết quả nhóm điều kiện ưu tiên:", is_eligible_tier)
+
+# True
+print("Kết quả kiểm tra điểm loyalty:", is_score_qualified)
+
+# True
+print("Kết quả phê duyệt đặt phòng cuối cùng:", is_approved)
+
+# True
 ```
 
 ---
@@ -93,8 +106,9 @@ Học viên nộp bài theo quy chuẩn GitHub:
 * Đẩy toàn bộ mã nguồn, file thiết kế và sơ đồ lên GitHub Repository theo cấu trúc tên: `[Tên Lớp]_[Môn Học]_Session04_Mindmap`.
   - *Ví dụ*: `HNKS25CNTT1_PythonCore_Session04_Mindmap`
 * Cấu trúc thư mục repository:
-  ```text
+
+```text
   ├── mindmap.png (hoặc mindmap.jpg)
   ├── mindmap.xmind (hoặc mindmap.pdf)
   └── summary.md
-  ```
+```

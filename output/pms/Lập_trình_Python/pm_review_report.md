@@ -7,11 +7,11 @@
 
 ## 2. 🧠 Phân Tích Dòng Chảy Nhận Thức & Kế Thừa
 - **Điểm sáng:** Luồng nhận thức được thiết kế rất mượt mà. Học viên đi từ Toán tử số học (Lesson 01) -> Toán tử so sánh sinh ra kiểu Boolean (Lesson 02) -> Dùng Boolean làm đầu vào cho Toán tử logic và thứ tự ưu tiên (Lesson 03). Đây là một Dependency Graph (Biểu đồ phụ thuộc) chuẩn mực.
-- **Lỗ hổng "Nhảy cóc" (Missing Prerequisites):** Không có sự nhảy cóc về mặt kiến thức. Tuy nhiên, có sự thiếu hụt nghiêm trọng về việc lồng ghép tiêu chuẩn code (Tech Stack Convention). Mặc dù yêu cầu công nghệ là "Python 3.12, PEP 8, Type Hints", nhưng không có bất kỳ bài học nào yêu cầu học viên hay AI phải khai báo biến có Type Hints (ví dụ: `x: int = 5`) khi thực hành với các toán tử.
+- **Lỗ hổng "Nhảy cóc" (Missing Prerequisites):** Không có sự nhảy cóc về mặt kiến thức. Tuy nhiên, có sự thiếu hụt nghiêm trọng về việc lồng ghép tiêu chuẩn code (Tech Stack Convention). Mặc dù yêu cầu công nghệ là "Python 3.12, PEP 8, Type Hints nhưng không có bất kỳ bài học nào yêu cầu học viên hay AI phải khai báo biến có Type Hints (ví dụ: `x: int = 5`) khi thực hành với các toán tử.
 
-## 3. ⚠️ Các Điểm Yếu Cần Khắc Phục Khẩn Cấp (Critical Issues)
+## 3. [CẢNH BÁO] Các Điểm Yếu Cần Khắc Phục Khẩn Cấp (Critical Issues)
 - **Xung đột logic phạm vi (Scope Conflict) ở Session 04 và Lesson 03:**
-  - **Mô tả:** Tiêu đề Session 04 là học về "Toán tử Logic", Lesson 03 cũng yêu cầu dạy "and, or, not". NHƯNG `forbidden_scope` của Session 04 lại ghi rõ: *"CẤM: Toán tử logic and/or/not"*.
+  - **Mô tả:** Tiêu đề Session 04 là học về "Toán tử Logic Lesson 03 cũng yêu cầu dạy "and, or, not". NHƯNG `forbidden_scope` của Session 04 lại ghi rõ: *"CẤM: Toán tử logic and/or/not"*.
   - **Hậu quả Sư phạm & Hệ thống:** Khi dữ liệu này được đưa vào AI Generator, AI sẽ nhận lệnh cấm toàn cục (Global Constraint) từ Session là không được dùng `and/or/not`, nhưng lại nhận lệnh từ Lesson 03 là phải dạy `and/or/not`. Prompt sẽ bị mâu thuẫn trực tiếp, dẫn đến việc AI từ chối sinh nội dung, sinh nội dung sai lệch (hallucination), hoặc pipeline tự động bị crash hoàn toàn.
 
 - **Thiếu metadata `session_type` ở các Lesson con:**

@@ -1,4 +1,4 @@
-## [Vận dụng cơ bản 1] Sửa lỗi đóng gói dữ liệu đặt phòng khách sạn và tính phụ thu check-in sớm
+# [Vận dụng cơ bản 1] Sửa lỗi đóng gói dữ liệu đặt phòng khách sạn và tính phụ thu check-in sớm
 
 ### **Tiêu chí chấm điểm (AI)**
 **[Vận dụng cơ bản 1] Sửa lỗi đóng gói dữ liệu đặt phòng khách sạn và tính phụ thu check-in sớm — Tổng điểm: 100 điểm**

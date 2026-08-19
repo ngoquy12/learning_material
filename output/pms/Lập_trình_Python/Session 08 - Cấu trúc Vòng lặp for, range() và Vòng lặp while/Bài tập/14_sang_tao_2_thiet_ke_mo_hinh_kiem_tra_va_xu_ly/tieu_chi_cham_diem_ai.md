@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 2] Thiết kế Mô hình Kiểm tra và Xử lý Chuỗi Mượn Trả Sách Tự động — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản lỗi thường gặp — 30 điểm**

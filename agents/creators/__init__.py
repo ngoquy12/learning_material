@@ -72,6 +72,11 @@ from agents.creators.classroom_lecture_creator import (
     slide_agent,
 )
 
+from agents.creators.homework_creator import (
+    generate_homework_exercise,
+    generate_session_homework_suite,
+)
+
 __all__ = [
     "estimate_tokens",
     "log_agent_tokens",
@@ -107,4 +112,6 @@ __all__ = [
     "reading_questions_creator_agent",
     "practical_lab_creator_agent",
     "blueprint_creator_agent",
+    "generate_homework_exercise",
+    "generate_session_homework_suite",
 ]

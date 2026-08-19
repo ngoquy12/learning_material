@@ -1,4 +1,4 @@
-## <center>Thẩm định Hợp lệ và Đánh giá Rủi ro Vận chuyển Logistics</center>
+# <center>Thẩm định Hợp lệ và Đánh giá Rủi ro Vận chuyển Logistics</center>
 
 ### **1. Mục tiêu**
 - **Toán tử logic & Số học:** Kết hợp các toán tử so sánh, logic và toán tử số học để giải quyết bài toán kiểm chuẩn đầu vào và tính toán chi phí vận chuyển hàng hóa.
@@ -7,7 +7,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Một đơn vị vận tải logistics cần đánh giá nhanh tính hợp lệ của kiện hàng gửi, tự động xác định yêu cầu mua bảo hiểm hàng hóa, tính toán tổng chi phí vận tải cơ bản kèm phụ phí trọng lượng và phụ phí hàng hóa nguy hiểm để đưa ra trạng thái phê duyệt vận chuyển.
 
 Toàn bộ quy trình tính toán và kiểm tra này cần được triển khai bằng các biểu thức đơn tuyến tuần tự để đảm bảo hiệu suất tính toán.
@@ -66,14 +66,17 @@ Viết chương trình Python thực hiện các tác vụ sau:
 
 **Kịch bản 1: Hàng nguy hiểm có đầy đủ giấy phép vận chuyển**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập trọng lượng hàng hóa (kg): 80
   Hàng hóa có nguy hiểm/dễ cháy không? (Nhập 1 nếu đúng, 0 nếu không): 1
   Nhập giá trị khai báo (VND): 150000000
   Có giấy phép vận chuyển đặc biệt không? (Nhập 1 nếu đúng, 0 nếu không): 1
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === KẾT QUẢ ĐÁNH GIÁ VẬN CHUYỂN LOGISTICS ===
   Cước phí vận chuyển cơ bản: 960,000.0 VND
   Phụ phí trọng lượng lớn: 0.0 VND
@@ -82,18 +85,21 @@ Viết chương trình Python thực hiện các tác vụ sau:
   TỔNG CHI PHÍ VẬN CHUYỂN: 1,160,000.0 VND
   Yêu cầu bắt buộc mua bảo hiểm: True
   Trạng thái phê duyệt vận chuyển: True
-  ```
+```
 
 **Kịch bản 2: Hàng nguy hiểm bị từ chối do thiếu giấy phép vận chuyển**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập trọng lượng hàng hóa (kg): 120
   Hàng hóa có nguy hiểm/dễ cháy không? (Nhập 1 nếu đúng, 0 nếu không): 1
   Nhập giá trị khai báo (VND): 200000000
   Có giấy phép vận chuyển đặc biệt không? (Nhập 1 nếu đúng, 0 nếu không): 0
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === KẾT QUẢ ĐÁNH GIÁ VẬN CHUYỂN LOGISTICS ===
   Cước phí vận chuyển cơ bản: 1,440,000.0 VND
   Phụ phí trọng lượng lớn: 50,000.0 VND
@@ -102,7 +108,7 @@ Viết chương trình Python thực hiện các tác vụ sau:
   TỔNG CHI PHÍ VẬN CHUYỂN: 1,690,000.0 VND
   Yêu cầu bắt buộc mua bảo hiểm: True
   Trạng thái phê duyệt vận chuyển: False
-  ```
+```
 
 ---
 
@@ -110,7 +116,8 @@ Viết chương trình Python thực hiện các tác vụ sau:
 - Lưu mã nguồn vào file `cargo_evaluator.py`.
 - Tuân thủ PEP 8 và khai báo đầy đủ type hints.
 - Thực hiện git commit:
-  ```bash
+
+```bash
   git add cargo_evaluator.py
   git commit -m "feat: implement cargo risk and shipping cost evaluator"
-  ```
+```

@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 2] Thiết kế Module Tính toán Hóa đơn và Phân tích Doanh thu POS Linh hoạt</center>
+# <center>[Sáng tạo 2] Thiết kế Module Tính toán Hóa đơn và Phân tích Doanh thu POS Linh hoạt</center>
 
 ### **1. Mục tiêu**
 *   Vận dụng sáng tạo kiến thức khai báo biến, chuyển đổi kiểu dữ liệu (`int`, `float`, `str`) và định dạng chuỗi xuất dữ liệu trong Python để thiết kế mô hình tính toán hóa đơn thanh toán linh hoạt cho quầy bán hàng.
@@ -9,7 +9,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Chuỗi cửa hàng trà sữa và cà phê Highlands POS đang nâng cấp hệ thống máy tính tiền tại quầy. Ban quản lý mong muốn triển khai một module xử lý hóa đơn tự động có khả năng tùy biến các thông số đầu vào một cách linh hoạt. Trong thực tế giao dịch, nhân viên thu ngân cần nhập thông tin sản phẩm, số lượng, các khoản phụ thu tùy chỉnh (như chọn kích thước ly, topping đi kèm), tỷ lệ chiết khấu cho khách hàng thân thiết và tỷ lệ thuế VAT quy định.
 
-Hệ thống cần tự động tính toán chính xác tất cả các chỉ số tài chính từ tổng tiền hàng thô, số tiền được giảm giá, tiền thuế VAT, tổng tiền thanh toán cuối cùng và số tiền thừa phải trả lại cho khách hàng dựa trên lượng tiền mặt nhận từ khách.### **3. Quy tắc nghiệp vụ**
+Hệ thống cần tự động tính toán chính xác tất cả các chỉ số tài chính từ tổng tiền hàng thô, số tiền được giảm giá, tiền thuế VAT, tổng tiền thanh toán cuối cùng và số tiền thừa phải trả lại cho khách hàng dựa trên lượng tiền mặt nhận từ khách.
+
+### **3. Quy tắc nghiệp vụ**
 Mô hình tính toán tài chính của đơn hàng cần tuân thủ các công thức nghiệp vụ sau:
 1.  **Đơn giá sản phẩm hoàn chỉnh (Item Unit Price):**
     `Đơn giá thực tế = Giá gốc đồ uống + Phụ thu kích thước (Size) + Tổng tiền các loại Topping`

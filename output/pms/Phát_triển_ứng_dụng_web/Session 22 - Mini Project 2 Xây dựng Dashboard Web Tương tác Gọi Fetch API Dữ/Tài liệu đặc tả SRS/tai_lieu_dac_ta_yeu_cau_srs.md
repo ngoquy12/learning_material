@@ -1,12 +1,10 @@
-## <center>Tài liệu đặc tả Hệ thống Bảng điều khiển Quản lý & Phân tích Sản phẩm Dữ liệu Động (Dynamic Product Analytics Dashboard)</center>
+# <center>Tài liệu đặc tả Hệ thống Bảng điều khiển Quản lý & Phân tích Sản phẩm Dữ liệu Động (Dynamic Product Analytics Dashboard)</center>
 
 ### **1. Tổng quan hệ thống**
 
 Hệ thống **Bảng điều khiển Quản lý & Phân tích Sản phẩm Dữ liệu Động (Dynamic Product Analytics Dashboard)** là ứng dụng Frontend Single Page Web Application (SPA) tương tác thời gian thực, cho phép người dùng quan sát, lọc, tìm kiếm và phân tích các chỉ số sản phẩm thương mại điện tử dựa trên dữ liệu cập nhật từ dịch vụ RESTful API bên ngoài.
 
 Ứng dụng được xây dựng tối giản, tối ưu hiệu năng trên nền tảng **JavaScript Vanilla (ES6+)**, kết hợp **HTML5/CSS3 UI Components**, **DOM API**, và **Fetch API với cú pháp Async/Await**. Mọi dữ liệu thu thập từ HTTP response được quản lý tập trung trong bộ nhớ RAM (`appState`) và cập nhật tức thì lên các thành phần giao diện (Thẻ chỉ số KPI, Danh mục lọc, Thanh tìm kiếm, Grid danh sách sản phẩm, và Modal popup chi tiết) mà không làm tải lại trang web (No Reload).
-
-
 
 ---
 
@@ -290,7 +288,7 @@ Hệ thống quản lý toàn bộ trạng thái hoạt động trong một Đ�
 }
 ```
 
-#### **4.2. Mô hình Ánh xạ Thành phần DOM (Dynamic DOM Binding Schema)**
+# **4.2. Mô hình Ánh xạ Thành phần DOM (Dynamic DOM Binding Schema)**
 
 <table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%" border="1" cellSpacing="0" cellPadding="6">
   <thead>
@@ -368,7 +366,7 @@ Hệ thống quản lý toàn bộ trạng thái hoạt động trong một Đ�
 
 2. **Trạng thái Cảnh báo Lỗi API (`Error State`):**
    * Nếu Fetch API bị rejected hoặc trả về HTTP status `>= 400`, ẩn toàn bộ grid danh sách và hiển thị một Banner Lỗi trung tâm:
-     * *Icon:* ⚠️
+     * *Icon:* [CẢNH BÁO]
      * *Tiêu đề:* `"Không thể tải dữ liệu sản phẩm"`
      * *Nội dung:* `"Đã có lỗi xảy ra khi kết nối tới máy chủ. Vui lòng thử lại!"`
      * *Nút hành động:* Nút `[Thử lại (Retry)]` kích hoạt lại hàm `fetchProductList()`.

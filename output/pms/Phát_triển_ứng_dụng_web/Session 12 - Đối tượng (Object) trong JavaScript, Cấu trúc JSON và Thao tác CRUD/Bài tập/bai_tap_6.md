@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 6] Sửa lỗi xử lý hóa đơn đặt phòng và đóng gói JSON</center>
 
 ### **1. Mục tiêu**
@@ -21,7 +19,9 @@ Tuy nhiên, đội ngũ hỗ trợ khách hàng phản ánh hai sự cố nghiê
 - Bộ phận an toàn thông tin phát hiện thông tin mã bảo mật tạm `tempSecurityCode` vẫn tồn tại dưới dạng thuộc tính trong đối tượng hóa đơn gốc (dù có giá trị là `undefined`), gây rò rỉ dữ liệu nhạy cảm trong bộ nhớ runtime.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn xử lý hóa đơn đang gặp lỗi logic:```javascript
+Dưới đây là đoạn mã nguồn xử lý hóa đơn đang gặp lỗi logic:
+
+```javascript
 /**
  * Hàm xử lý hóa đơn đặt phòng khách sạn và đóng gói dữ liệu
  * @param {Object} bookingObj - Đối tượng thông tin đặt phòng
@@ -68,9 +68,7 @@ console.log("Tổng tiền xác nhận:", result.confirmedTotal);
 console.log("Kiểm tra key tempSecurityCode còn tồn tại không?:", sampleBooking.hasOwnProperty("tempSecurityCode"));
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Phân tích & Báo cáo kiểm thử (Test Case Report)**
 Học viên tiến hành chạy thử mã nguồn, phân tích nguyên nhân gây ra lỗi hiển thị `undefined` và lỗi sót thuộc tính bảo mật. Sau đó, hoàn thiện bảng báo cáo kiểm thử bên dưới vào bài nộp. 

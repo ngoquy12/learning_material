@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 2] Chuẩn hóa và Đóng gói Dữ liệu Đặt phòng Khách sạn Agoda</center>
 
 ### **1. Mục tiêu**
@@ -17,7 +15,9 @@ Trước khi gửi dữ liệu này sang hệ thống lưu trữ hoặc truyền
 3.  **Đóng gói và Phục hồi:** Chuyển đổi đối tượng đã làm sạch thành chuỗi JSON hợp lệ để truyền tải, đồng thời thực hiện giải mã thử nghiệm để xác minh tính chính xác của dữ liệu sau đóng gói.
 
 ### **3. Quy tắc nghiệp vụ**
-Dữ liệu đối tượng đầu vào đại diện cho một đơn đặt phòng có cấu trúc ban đầu như sau:```javascript
+Dữ liệu đối tượng đầu vào đại diện cho một đơn đặt phòng có cấu trúc ban đầu như sau:
+
+```javascript
 const rawBookingData = {
   bookingId: "BK_AGODA_8892",
   guestName: "Nguyen Van A",

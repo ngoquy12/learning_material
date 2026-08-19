@@ -1,4 +1,5 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: QUẢN LÝ TRẠNG THÁI VÀ ĐIỀU HƯỚNG PHIÊN BÁN HÀNG CONSOLE</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: QUẢN LÝ TRẠNG THÁI VÀ ĐIỀU HƯỚNG PHIÊN BÁN HÀNG CONSOLE</center>
+
 ## <center>(CLI SALES SESSION NAVIGATION & STATE CONTROL)</center>
 
 ### **1. Mục tiêu**

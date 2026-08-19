@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng nâng cao 2] Triển khai logic kiểm tra check-in và tính toán phụ phí hành lý hàng không — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Phân tích I/O & Đề xuất giải pháp — 20 điểm**

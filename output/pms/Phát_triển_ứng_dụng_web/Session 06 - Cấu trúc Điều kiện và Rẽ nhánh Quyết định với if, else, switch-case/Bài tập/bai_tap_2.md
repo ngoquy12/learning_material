@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 2] Sửa lỗi trôi lệnh trong module tính phí hành lý ký gửi</center>
 
 ### **1. Mục tiêu**
@@ -20,7 +18,9 @@ Quy tắc nghiệp vụ của hệ thống được quy định như sau:
 Bộ phận vận hành nhận được phản ánh từ các hành khách bay hạng `Business`. Mặc dù hành lý ký gửi của họ chỉ nặng 25 kg (hoàn toàn nằm trong định mức 30 kg miễn phí), hệ thống check-in tự động lại thông báo họ bị phạt 250.000 VNĐ tiền quá cước (tương ứng với việc áp sai định mức 20 kg của hạng `Deluxe`).
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn Javascript legacy đang triển khai tại hệ thống kiosk check-in:```javascript
+Dưới đây là đoạn mã nguồn Javascript legacy đang triển khai tại hệ thống kiosk check-in:
+
+```javascript
 /**
  * Module tính phí hành lý ký gửi tại quầy check-in sân bay
  * @param {string} ticketClass - Hạng vé hành khách (Business, Deluxe, Eco)
@@ -61,9 +61,7 @@ const passengerCheckIn = calculateBaggageFee("Business", 25);
 console.log("Kết quả làm thủ tục:", passengerCheckIn);
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 Học viên thực hiện bài tập theo 2 phần bắt buộc sau:
 

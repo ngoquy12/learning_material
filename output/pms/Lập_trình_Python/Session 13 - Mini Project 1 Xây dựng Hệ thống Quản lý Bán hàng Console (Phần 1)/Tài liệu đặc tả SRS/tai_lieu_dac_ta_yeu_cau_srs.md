@@ -1,12 +1,10 @@
-## <center>Tài liệu đặc tả Hệ thống Quản lý Bán hàng Console (Phần 1) (Console Sales Management System - Part 1)</center>
+# <center>Tài liệu đặc tả Hệ thống Quản lý Bán hàng Console (Phần 1) (Console Sales Management System - Part 1)</center>
 
 ### **1. Tổng quan hệ thống**
 
 Hệ thống Quản lý Bán hàng Console (Phần 1) là ứng dụng dòng lệnh (CLI - Command Line Interface) được thiết kế nhằm mục đích quản lý kho hàng, xử lý giỏ hàng, tính toán hóa đơn bán hàng và xuất báo cáo thống kê doanh thu cơ bản. Hệ thống được triển khai trên nền tảng **Python 3.12**, tuân thủ triệt để chuẩn mã nguồn **PEP 8**, áp dụng cơ chế **Type Hints** đầy đủ và vận hành trong môi trường ảo hóa **virtualenv** trên Cursor / Windsurf AI IDE.
 
 Ở giai đoạn Phần 1, hệ thống tập trung hoàn toàn vào mô hình **Lập trình Cốt lõi (CLI Core Application)** và **Lập trình thủ tục / cấu trúc (Procedural Programming)**. Toàn bộ dữ liệu được quản lý trong bộ nhớ (In-memory Data Structure) thông qua các cấu trúc dữ liệu nguyên bản của Python như `dict`, `list`, `tuple`, `set`. Hệ thống tuyệt đối không sử dụng Lập trình hướng đối tượng (OOP Class), không kết nối Cơ sở dữ liệu SQL hay dịch vụ Web REST API.
-
-
 
 ---
 
@@ -72,6 +70,7 @@ Hệ thống bao gồm 5 chức năng cốt lõi được liệt kê trong bản
 <br>
 
 ##### **Sơ đồ 2.1: Luồng nghiệp vụ Thêm sản phẩm mới vào kho**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu: Thêm sản phẩm]) --> B[/Đầu vào: Nhập productId, productName, category, unitPrice, stockQuantity/]
@@ -86,7 +85,8 @@ flowchart TD
     I --> E
 ```
 
-##### **Sơ đồ 2.2: Luồng nghiệp vụ Thêm sản phẩm vào giỏ hàng**
+# **Sơ đồ 2.2: Luồng nghiệp vụ Thêm sản phẩm vào giỏ hàng**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu: Thêm vào giỏ hàng]) --> B[/Đầu vào: Nhập productId và quantity cần mua/]
@@ -101,7 +101,8 @@ flowchart TD
     I --> E
 ```
 
-##### **Sơ đồ 2.3: Luồng nghiệp vụ Thanh toán hóa đơn**
+# **Sơ đồ 2.3: Luồng nghiệp vụ Thanh toán hóa đơn**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu: Thanh toán hóa đơn]) --> B{Kiểm tra giỏ hàng cartList có phần tử?}
@@ -146,6 +147,7 @@ Hệ thống sử dụng các cấu trúc dữ liệu nguyên bản (Native Data
 Cấu trúc dạng `dict[str, dict[str, Any]]` sử dụng `productId` làm khóa chính:
 
 ```python
+
 # Cấu trúc mẫu dữ liệu Danh mục kho hàng
 productCatalog: dict[str, dict[str, str | float | int]] = {
     "PROD001": {
@@ -165,10 +167,11 @@ productCatalog: dict[str, dict[str, str | float | int]] = {
 }
 ```
 
-#### **4.2. Giỏ hàng hiện tại (Shopping Cart Schema)**
+# **4.2. Giỏ hàng hiện tại (Shopping Cart Schema)**
 Cấu trúc dạng `list[dict[str, Any]]` chứa các mặt hàng chọn mua:
 
 ```python
+
 # Cấu trúc mẫu dữ liệu Giỏ hàng
 cartList: list[dict[str, str | float | int]] = [
     {
@@ -181,10 +184,11 @@ cartList: list[dict[str, str | float | int]] = [
 ]
 ```
 
-#### **4.3. Lịch sử đơn hàng đã thanh toán (Order History Schema)**
+# **4.3. Lịch sử đơn hàng đã thanh toán (Order History Schema)**
 Cấu trúc dạng `list[dict[str, Any]]` lưu trữ danh sách đơn hàng đã hoàn tất:
 
 ```python
+
 # Cấu trúc mẫu dữ liệu Đơn hàng
 orderHistory: list[dict[str, str | float | list[dict[str, Any]]]] = [
     {
@@ -222,7 +226,7 @@ orderHistory: list[dict[str, str | float | list[dict[str, Any]]]] = [
    - Sau khi báo lỗi, ứng dụng **không được dừng đột ngột (crash)** mà phải khôi phục luồng điều khiển về Menu chính.
 
 3. **Cấm tuyệt đối các mô hình web server / HTTP API:**
-   - CẤM sử dụng định dạng JSON Envelope API Response (ví dụ: `{"status": "error", "code": 400}`).
+   - CẤM sử dụng định dạng JSON Envelope API Response (ví dụ: `{"status": "error "code": 400}`).
    - CẤM sử dụng các mã trạng thái HTTP Status Code (200, 400, 404, 500) và các công cụ REST API (Swagger, DTO, Controller).
 
 ---
@@ -283,7 +287,9 @@ orderHistory: list[dict[str, str | float | list[dict[str, Any]]]] = [
 ### **7. Quy trình chạy thử nghiệm Console (Console Execution & Test Scenarios)**
 
 #### **7.1. Khởi tạo môi trường lập trình**
+
 ```bash
+
 # Khởi tạo môi trường ảo Python 3.12
 python3.12 -m venv venv
 
@@ -297,7 +303,7 @@ source venv/bin/activate
 python main.py
 ```
 
-#### **7.2. Kịch bản thử nghiệm kiểm chứng hệ thống (Test Scenarios)**
+# **7.2. Kịch bản thử nghiệm kiểm chứng hệ thống (Test Scenarios)**
 
 1. **Kịch bản Test 1: Khởi tạo và Thêm mới sản phẩm hợp lệ & không hợp lệ**
    - **Bước 1:** Chọn chức năng `1. Thêm sản phẩm`.

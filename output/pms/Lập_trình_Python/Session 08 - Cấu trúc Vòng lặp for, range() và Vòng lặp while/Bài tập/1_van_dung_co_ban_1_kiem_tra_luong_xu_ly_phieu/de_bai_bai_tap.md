@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 1] Kiểm tra Luồng Xử lý Phiếu Mượn và Phí Phạt Thư viện</center>
+# <center>[Vận dụng cơ bản 1] Kiểm tra Luồng Xử lý Phiếu Mượn và Phí Phạt Thư viện</center>
 
 ### **1. Mục tiêu**
 
@@ -35,19 +35,22 @@ G --> B
 B -- "Hoàn thành toàn bộ vòng lặp" --> I["Thực thi khối else"]
 I --> H
 H --> J(["Kết thúc tiến trình"])
-
 ```
 
-### **3. Mã nguồn hiện tại**
+# **3. Mã nguồn hiện tại**
 
 Dưới đây là đoạn mã nguồn Python hiện tại đang gặp lỗi logic trong hệ thống LIBRARY_WMS:
 
 ```python
+
 # Hệ thống Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS)
+
 # Tiến trình kiểm kê và tính phí phạt các phiếu mượn sách quá hạn
 
 start_id = 1
-end_id = 10  # Quét danh sách mã phiếu mượn từ 1 đến 9
+end_id = 10
+
+# Quét danh sách mã phiếu mượn từ 1 đến 9
 
 total_fine = 0
 success_count = 0
@@ -55,16 +58,17 @@ success_count = 0
 print("--- BẮT ĐẦU TIẾN TRÌNH KIỂM KÊ PHIẾU MƯỢN SÁCH ---")
 
 for borrow_id in range(start_id, end_id):
-    # Cập nhật số lượng phiếu và tiền phạt mặc định 5.000 VNĐ/ngày
+
+# Cập nhật số lượng phiếu và tiền phạt mặc định 5.000 VNĐ/ngày
     success_count += 1
     total_fine += 5000
 
-    # Kiểm tra trường hợp phiếu thiếu thông tin độc giả
+# Kiểm tra trường hợp phiếu thiếu thông tin độc giả
     if borrow_id == 4:
         print("Phiếu mượn", borrow_id, "thiếu thông tin độc giả -> Bỏ qua.")
         continue
 
-    # Kiểm tra trường hợp phát hiện dấu hiệu gian lận
+# Kiểm tra trường hợp phát hiện dấu hiệu gian lận
     if borrow_id == 8:
         print("CẢNH BÁO: Phiếu mượn", borrow_id, "có dấu hiệu gian lận -> DỪNG HỆ THỐNG!")
         break
@@ -78,7 +82,7 @@ print("Tổng số phiếu xử lý thành công:", success_count)
 print("Tổng tiền phạt đã thu:", total_fine, "VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Phát hiện lỗi logic (Báo cáo Test Case)**
 

@@ -391,248 +391,315 @@ CANONICAL_DOC_LINKS = {
 }
 
 
-def generate_universal_step_visualizer(lesson_title: str, tech_stack: str, code_snippet: str = "") -> str:
-    """Dynamically construct a Section 2.4 Step-by-Step Execution Visualizer component 
-    for any technology stack and lesson topic without hardcoding.
+def sanitize_html_tags_and_italics(html_str: str) -> str:
     """
-    clean_title = lesson_title.split(" - ")[-1] if " - " in lesson_title else lesson_title
-    tech_upper = (tech_stack or "Code").upper()
-    title_lower = clean_title.lower()
+    Sanitize HTML string to eliminate unclosed/broken tags and prevent italic text leakage:
+    1. Removes broken opening tags like `<h4 ...><i class=` with no closing angle bracket.
+    2. Normalizes Phosphor icon `<i>` tags into `<span>` tags (<span class="ph-bold ..."></span>).
+    3. Strips lone unclosed or self-closing `<i>` and `<em>` tags.
+    4. Strips inline italic tags outside code blocks.
+    """
+    if not html_str:
+        return ""
+    c = html_str
 
-    # Default language-adaptive static layout (fallback)
-    tech_lower = str(tech_stack or "").lower().strip()
-    if any(k in tech_lower for k in ["javascript", "js", "typescript", "ts", "node", "react"]):
-        code_html = f"""
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 1/4: Khởi tạo tham số đầu vào cho {clean_title}">
-          <div>// 1. Khởi tạo ngữ cảnh dữ liệu thực thi</div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 2/4: Đánh giá điều kiện nghiệp vụ ➔ Trả về True (Khớp)">
-          <div>const inputData = processContext();</div>
-          <span class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">🟢 True</span>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between pl-6" data-console="Bước 3/4: Thi hành khối lệnh xử lý tích lũy biến trong RAM">
-          <div>executeStepLogic();</div>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 4/4: Hoàn tất chu trình thực thi và xuất kết quả">
-          <div>console.log("Xử lý thành công " + "{clean_title}");</div>
-        </div>
-    """
-    elif any(k in tech_lower for k in ["java", "cpp", "c++", "c#", "c"]):
-        code_html = f"""
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 1/4: Khởi tạo tham số đầu vào cho {clean_title}">
-          <div>// 1. Khởi tạo ngữ cảnh dữ liệu thực thi</div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 2/4: Đánh giá điều kiện nghiệp vụ ➔ Trả về True (Khớp)">
-          <div>String inputData = processContext();</div>
-          <span class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">🟢 True</span>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between pl-6" data-console="Bước 3/4: Thi hành khối lệnh xử lý tích lũy biến trong RAM">
-          <div>executeStepLogic();</div>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 4/4: Hoàn tất chu trình thực thi và xuất kết quả">
-          <div>System.out.println("Xử lý thành công " + "{clean_title}");</div>
-        </div>
-    """
+    # 1. Clean broken unclosed opening tags at the end of elements or lines
+    c = re.sub(r'<(?:i|em|span|div|p|h[1-6])\b[^>]*?class\s*=\s*(?:["\'][^"\'>]*$|[^>]*$)', '', c, flags=re.MULTILINE | re.IGNORECASE)
+    c = re.sub(r'<i\s+class=[^>]*?(?=<h[1-6]|<p|<div|<ul|<li|<pre|$)', '', c, flags=re.IGNORECASE)
+
+    # 2. Normalize Phosphor icon <i> tags to neutral <span> tags
+    def normalize_icon_to_span(m):
+        attrs = m.group(1).strip()
+        body = m.group(2)
+        if "ph-" in attrs or "ph " in attrs or "ph\b" in attrs:
+            return f'<span {attrs}>{body}</span>'
+        return body
+    c = re.sub(r'<i\b([^>]*)>(.*?)</i>', normalize_icon_to_span, c, flags=re.DOTALL | re.IGNORECASE)
+
+    # 3. Strip any lone unclosed or self-closing <i> and <em> tags
+    c = re.sub(r'<(?:i|em)\b[^>]*/>', '', c, flags=re.IGNORECASE)
+    c = re.sub(r'<(?:i|em)\b[^>]*>', '', c, flags=re.IGNORECASE)
+    c = re.sub(r'</(?:i|em)>', '', c, flags=re.IGNORECASE)
+
+    # 4. Strip stray markdown-converted <em> tags outside code blocks
+    parts = re.split(r'(<pre\b.*?</pre>|<code\b.*?</code>)', c, flags=re.DOTALL | re.IGNORECASE)
+    for i in range(0, len(parts), 2):
+        parts[i] = re.sub(r'</?em\b[^>]*>', '', parts[i], flags=re.IGNORECASE)
+    c = "".join(parts)
+
+    return c
+
+
+def get_clean_language_name(tech_stack: str) -> str:
+    """Normalize tech stack string to a clean, canonical language / tool name."""
+    if not tech_stack:
+        return "Mã nguồn"
+    t = tech_stack.lower()
+    if any(k in t for k in ["typescript", "ts"]):
+        return "TypeScript"
+    elif any(k in t for k in ["javascript", "js", "node", "react", "vue", "next"]):
+        return "JavaScript (ES6+)"
+    elif any(k in t for k in ["python", "py", "django", "flask", "fastapi"]):
+        return "Python 3"
+    elif any(k in t for k in ["java", "spring"]):
+        return "Java"
+    elif "c++" in t or "cpp" in t:
+        return "C++"
+    elif "c#" in t or "csharp" in t or "dotnet" in t or ".net" in t:
+        return "C#"
+    elif "sql" in t or "mysql" in t or "postgres" in t:
+        return "SQL"
+    elif any(k in t for k in ["bash", "sh", "linux", "git"]):
+        return "Bash/CLI"
+    elif "html" in t or "css" in t:
+        return "HTML/CSS"
     else:
-        code_html = f"""
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 1/4: Khởi tạo ngữ cảnh dữ liệu cho {clean_title}">
-          <div># 1. Khởi tạo ngữ cảnh dữ liệu thực thi</div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 2/4: Đánh giá điều kiện nghiệp vụ ➔ Trả về True (Khớp)">
-          <div>input_data = process_context()</div>
-          <span class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">🟢 True</span>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between pl-6" data-console="Bước 3/4: Thi hành khối lệnh xử lý tích lũy biến trong RAM">
-          <div>execute_step_logic()</div>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between" data-console="Bước 4/4: Hoàn tất chu trình thực thi và xuất kết quả">
-          <div>print(f"Xử lý thành công {clean_title}")</div>
-        </div>
+        words = tech_stack.split()
+        return words[0].capitalize() if words else "Mã nguồn"
+
+
+def highlight_code_syntax(line: str, tech_stack: str = "") -> str:
     """
-    
-    ram_html = f"""
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Trạng thái luồng:</span>
-          <span id="viz-ram-status" class="font-bold text-emerald-600">Đang hoạt động (Active)</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Môi trường thực thi:</span>
-          <span class="font-bold text-rikkei-red">{tech_upper} Engine</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Bài học:</span>
-          <span class="font-bold text-slate-800 truncate max-w-[200px]">{clean_title}</span>
-        </div>
+    Lightweight, multi-language syntax highlighter returning HTML with Tailwind CSS classes.
+    Preserves exact whitespace indentation and colors keywords, strings, numbers, operators, and comments.
     """
+    if not line:
+        return "&nbsp;"
     
-    js_steps_inline = ""
+    # Extract leading whitespace to preserve exact indentation
+    indent_len = len(line) - len(line.lstrip())
+    indent_str = line[:indent_len]
+    content = line[indent_len:]
+    
+    if not content:
+        return html.escape(line)
+        
+    pattern = re.compile(
+        r'(?P<COMMENT>//.*$|#.*$|--.*$)|'
+        r'(?P<STRING>"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|`(?:[^`\\]|\\.)*`)|'
+        r'(?P<KEYWORD>\b(?:const|let|var|function|return|def|class|if|else|elif|for|while|import|from|in|as|try|except|catch|finally|throw|new|typeof|instanceof|async|await|yield|public|private|protected|static|void|int|double|boolean|String|SELECT|FROM|WHERE|INSERT|UPDATE|DELETE|JOIN|ORDER|BY|GROUP|HAVING)\b)|'
+        r'(?P<NUMBER>\b\d+(?:\.\d+)?\b)|'
+        r'(?P<FUNC>\b[a-zA-Z_]\w*(?=\s*\())|'
+        r'(?P<OPERATOR>=>|->|===|!==|==|!=|<=|>=|\+\+|--|\+=|-=|\*=|&&|\|\||[+\-*/%=<>!&|^~])|'
+        r'(?P<IDENTIFIER>\b[a-zA-Z_$][a-zA-Z0-9_$]*\b)|'
+        r'(?P<OTHER>[^\s\w]+|\s+)'
+    )
+    
+    out_tokens = []
+    pos = 0
+    for m in pattern.finditer(content):
+        start, end = m.span()
+        if start > pos:
+            out_tokens.append(html.escape(content[pos:start]))
+        pos = end
+        
+        kind = m.lastgroup
+        val = html.escape(m.group(0))
+        
+        if kind == "COMMENT":
+            out_tokens.append(f'<span class="text-slate-400 italic">{val}</span>')
+        elif kind == "STRING":
+            out_tokens.append(f'<span class="text-emerald-600 font-medium">{val}</span>')
+        elif kind == "KEYWORD":
+            out_tokens.append(f'<span class="text-purple-600 font-bold">{val}</span>')
+        elif kind == "NUMBER":
+            out_tokens.append(f'<span class="text-amber-600 font-mono">{val}</span>')
+        elif kind == "FUNC":
+            out_tokens.append(f'<span class="text-blue-600 font-semibold">{val}</span>')
+        elif kind == "OPERATOR":
+            out_tokens.append(f'<span class="text-sky-600 font-bold">{val}</span>')
+        elif kind == "IDENTIFIER":
+            out_tokens.append(f'<span class="text-slate-800">{val}</span>')
+        else:
+            out_tokens.append(val)
+            
+    if pos < len(content):
+        out_tokens.append(html.escape(content[pos:]))
+        
+    return html.escape(indent_str) + "".join(out_tokens)
 
-    # Check if lesson is Python and related to Loop control structures
-    if "python" in str(tech_stack).lower():
-        if "for" in title_lower or "range" in title_lower:
-            # 1. Python for loop and range()
-            code_html = """
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-blue-600">total_orders</span> = <span class="text-amber-600">3</span></div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-purple-600 font-bold">for</span> <span class="text-blue-600">order_number</span> <span class="text-purple-600 font-bold">in</span> <span class="text-cyan-600">range</span>(<span class="text-amber-600">1</span>, <span class="text-blue-600">total_orders</span> + <span class="text-amber-600">1</span>):</div>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-cyan-600">print</span>(<span class="text-green-600">"Đang đóng gói đơn hàng số:"</span>, <span class="text-blue-600">order_number</span>)</div>
-        </div>
-            """
-            
-            ram_html = """
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Môi trường thực thi:</span>
-          <span class="font-bold text-rikkei-red">PYTHON Engine</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Biến total_orders:</span>
-          <span id="viz-ram-total-orders" class="font-bold text-slate-600">---</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Biến order_number:</span>
-          <span id="viz-ram-order-number" class="font-bold text-slate-600">---</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Vòng lặp / Số lượt lặp:</span>
-          <span id="viz-ram-loop-i" class="font-bold text-slate-600">---</span>
-        </div>
-            """
-            
-            js_steps_inline = """
-      window.vizSteps = [
-        { line: 1, ram: { "total-orders": "3", "order-number": "---", "loop-i": "---" }, log: "<div>&gt; total_orders = 3 <span class='text-slate-400'># Khởi tạo biến</span></div>" },
-        { line: 2, ram: { "total-orders": "3", "order-number": "1", "loop-i": "1 / 3" }, log: "<div>&gt; range(1, 4) trả về giá trị đầu tiên là 1. Gán order_number = 1.</div>" },
-        { line: 3, ram: { "total-orders": "3", "order-number": "1", "loop-i": "1 / 3" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Đang đóng gói đơn hàng số: 1</div>" },
-        { line: 2, ram: { "total-orders": "3", "order-number": "2", "loop-i": "2 / 3" }, log: "<div>&gt; range(1, 4) trả về giá trị tiếp theo là 2. Gán order_number = 2.</div>" },
-        { line: 3, ram: { "total-orders": "3", "order-number": "2", "loop-i": "2 / 3" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Đang đóng gói đơn hàng số: 2</div>" },
-        { line: 2, ram: { "total-orders": "3", "order-number": "3", "loop-i": "3 / 3" }, log: "<div>&gt; range(1, 4) trả về giá trị cuối cùng là 3. Gán order_number = 3.</div>" },
-        { line: 3, ram: { "total-orders": "3", "order-number": "3", "loop-i": "3 / 3" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Đang đóng gói đơn hàng số: 3</div>" },
-        { line: 2, ram: { "total-orders": "3", "order-number": "3", "loop-i": "3 / 3" }, log: "<div>&gt; range(1, 4) hết phần tử để lặp. Vòng lặp kết thúc thành công!</div>" }
-      ];
-            """
-            
-        elif "while" in title_lower or "vô hạn" in title_lower:
-            # 2. Python while loop
-            code_html = """
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-blue-600">item_count</span> = <span class="text-amber-600">2</span></div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-purple-600 font-bold">while</span> <span class="text-blue-600">item_count</span> &gt; <span class="text-amber-600">0</span>:</div>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-cyan-600">print</span>(<span class="text-green-600">"Quét mã sản phẩm, còn lại:"</span>, <span class="text-blue-600">item_count</span>)</div>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-600">item_count</span> -= <span class="text-amber-600">1</span></div>
-        </div>
-            """
-            
-            ram_html = """
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Môi trường thực thi:</span>
-          <span class="font-bold text-rikkei-red">PYTHON Engine</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Biến item_count:</span>
-          <span id="viz-ram-item-count" class="font-bold text-slate-600">---</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Điều kiện (item_count > 0):</span>
-          <span id="viz-ram-condition" class="font-bold text-slate-600">---</span>
-        </div>
-            """
-            
-            js_steps_inline = """
-      window.vizSteps = [
-        { line: 1, ram: { "item-count": "2", "condition": "---" }, log: "<div>&gt; item_count = 2 <span class='text-slate-400'># Khởi tạo số lượng sản phẩm</span></div>" },
-        { line: 2, ram: { "item-count": "2", "condition": "True" }, log: "<div>&gt; Kiểm tra điều kiện: 2 &gt; 0 là True. Vào vòng lặp.</div>" },
-        { line: 3, ram: { "item-count": "2", "condition": "True" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Quét mã sản phẩm, còn lại: 2</div>" },
-        { line: 4, ram: { "item-count": "1", "condition": "True" }, log: "<div>&gt; Giảm biến đếm: item_count = 1.</div>" },
-        { line: 2, ram: { "item-count": "1", "condition": "True" }, log: "<div>&gt; Quay lại kiểm tra điều kiện: 1 &gt; 0 là True. Tiếp tục lặp.</div>" },
-        { line: 3, ram: { "item-count": "1", "condition": "True" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Quét mã sản phẩm, còn lại: 1</div>" },
-        { line: 4, ram: { "item-count": "0", "condition": "True" }, log: "<div>&gt; Giảm biến đếm: item_count = 0.</div>" },
-        { line: 2, ram: { "item-count": "0", "condition": "False" }, log: "<div>&gt; Kiểm tra điều kiện: 0 &gt; 0 là False. Thoát vòng lặp!</div>" }
-      ];
-            """
 
-        elif "break" in title_lower or "continue" in title_lower or "else" in title_lower:
-            # 3. Python loop control (break/continue)
-            code_html = """
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-purple-600 font-bold">for</span> <span class="text-blue-600">i</span> <span class="text-purple-600 font-bold">in</span> <span class="text-cyan-600">range</span>(<span class="text-amber-600">1</span>, <span class="text-amber-600">4</span>):</div>
-        </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-600 font-bold">if</span> <span class="text-blue-600">i</span> == <span class="text-amber-600">2</span>:</div>
-        </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-600 font-bold">break</span></div>
-        </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-cyan-600">print</span>(<span class="text-green-600">"Xử lý đơn:"</span>, <span class="text-blue-600">i</span>)</div>
-        </div>
-            """
-            
-            ram_html = """
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Môi trường thực thi:</span>
-          <span class="font-bold text-rikkei-red">PYTHON Engine</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Biến chạy i:</span>
-          <span id="viz-ram-run-i" class="font-bold text-slate-600">---</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Điều kiện rẽ nhánh (i == 2):</span>
-          <span id="viz-ram-condition-check" class="font-bold text-slate-600">---</span>
-        </div>
-            """
-            
-            js_steps_inline = """
-      window.vizSteps = [
-        { line: 1, ram: { "run-i": "1", "condition-check": "---" }, log: "<div>&gt; range(1, 4) bắt đầu, lượt 1: i = 1.</div>" },
-        { line: 2, ram: { "run-i": "1", "condition-check": "False" }, log: "<div>&gt; Kiểm tra điều kiện: 1 == 2 là False. Không vào if.</div>" },
-        { line: 4, ram: { "run-i": "1", "condition-check": "False" }, log: "<div class='text-emerald-700 font-bold'>&gt; CONSOLE: Xử lý đơn: 1</div>" },
-        { line: 1, ram: { "run-i": "2", "condition-check": "---" }, log: "<div>&gt; Lượt lặp 2: i = 2.</div>" },
-        { line: 2, ram: { "run-i": "2", "condition-check": "True" }, log: "<div>&gt; Kiểm tra điều kiện: 2 == 2 là True. Vào if.</div>" },
-        { line: 3, ram: { "run-i": "2", "condition-check": "True" }, log: "<div class='text-rose-700 font-bold'>&gt; Bắt gặp lệnh break! Thoát vòng lặp lập tức!</div>" }
-      ];
-            """
+def generate_fallback_visualizer_steps(code_lines: List[str], variables: List[Any], lesson_title: str) -> List[Dict[str, Any]]:
+    """
+    Generates intelligent step data if LLM omitted or provided incomplete steps.
+    Extracts variable mutations and step explanations in 100% Accented Vietnamese.
+    """
+    steps = []
+    curr_ram = {}
+    
+    var_slug_map = {}
+    for v in variables:
+        if isinstance(v, dict):
+            name = v.get("name", "var")
+            slug = re.sub(r'[^a-zA-Z0-9_-]', '-', name).lower()
+            var_slug_map[name] = slug
+        elif isinstance(v, str):
+            slug = re.sub(r'[^a-zA-Z0-9_-]', '-', v).lower()
+            var_slug_map[v] = slug
 
-    # If steps are defined, wrap them in a script block
-    script_block = ""
-    if js_steps_inline:
-        script_block = f"<script>{js_steps_inline}</script>"
+    for idx, raw_line in enumerate(code_lines, 1):
+        line = str(raw_line).strip()
+        if not line or line.startswith("//") or line.startswith("#") or line.startswith("/*") or line.startswith("*") or line in ("}", "};"):
+            continue
+            
+        step_ram = dict(curr_ram)
+        step_badge = ""
+        
+        # Check variable assignment (e.g., const x = 10, let y = "abc", z = 5)
+        assign_match = re.search(r'(?:const|let|var)?\s*([a-zA-Z0-9_$]+)\s*=\s*(.+?);?$', line)
+        if assign_match:
+            v_name = assign_match.group(1).strip()
+            v_val = assign_match.group(2).strip()
+            v_val = re.sub(r'\s*//.*$', '', v_val).rstrip(';').strip()
+            slug = var_slug_map.get(v_name, re.sub(r'[^a-zA-Z0-9_-]', '-', v_name).lower())
+            step_ram[slug] = v_val[:30]
+            curr_ram[slug] = v_val[:30]
+            step_badge = f"{v_name} = {v_val[:20]}"
+            step_log = f"&gt; [Bước {len(steps)+1}] Khởi tạo/gán giá trị: <code class='px-1 py-0.5 bg-slate-100 rounded text-slate-800 font-bold'>{html.escape(v_name)} = {html.escape(v_val[:30])}</code>"
+        elif "function" in line or "def " in line:
+            fn_match = re.search(r'(?:function|def)\s+([a-zA-Z0-9_$]+)', line)
+            fn_name = fn_match.group(1) if fn_match else "hàm"
+            step_badge = f"Định nghĩa {fn_name}()"
+            step_log = f"&gt; [Bước {len(steps)+1}] Định nghĩa hàm: <code class='px-1 py-0.5 bg-slate-100 rounded text-slate-800 font-bold'>{html.escape(fn_name)}()</code>"
+        elif "return" in line:
+            ret_val = line.replace("return", "").strip().rstrip(";")
+            step_badge = f"return {ret_val[:15]}"
+            step_log = f"&gt; [Bước {len(steps)+1}] Trả về kết quả: <code class='px-1 py-0.5 bg-slate-100 rounded text-slate-800 font-bold'>{html.escape(ret_val[:30])}</code>"
+        elif "console.log" in line or "print(" in line or "System.out.print" in line:
+            step_badge = "Xuất Console"
+            step_log = f"&gt; [Bước {len(steps)+1}] Xuất dữ liệu ra màn hình Console"
+        else:
+            step_badge = "Thực thi"
+            step_log = f"&gt; [Bước {len(steps)+1}] Thực thi dòng lệnh: <code class='px-1 py-0.5 bg-slate-100 rounded text-slate-800'>{html.escape(line[:40])}</code>"
+            
+        steps.append({
+            "line": idx,
+            "ram": step_ram,
+            "log": step_log,
+            "badge": step_badge
+        })
+        
+    return steps
 
+
+def build_domain_adaptive_visualizer(lesson_title: str, tech_stack: str, viz_spec: Any) -> str:
+    """
+    Dynamically construct a Section 2.4 Step-by-Step Execution Visualizer component 
+    from structured visualizer spec JSON without hardcoding any variables or language idioms.
+    If the lesson is conceptual/theory or viz_spec is not applicable, cleanly returns "" (omits Section 2.4).
+    """
+    if not isinstance(viz_spec, dict) or not viz_spec.get("is_applicable", True):
+        return ""
+    
+    clean_title = lesson_title.split(" - ")[-1] if " - " in lesson_title else lesson_title
+    clean_lang = get_clean_language_name(tech_stack)
+    
+    title = viz_spec.get("title") or "2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)"
+    if not title.startswith("2.4"):
+        title = f"2.4. {title}"
+    explanation = viz_spec.get("explanation") or f"Quan sát tiến trình thực thi từng dòng lệnh và biến đổi trạng thái của dữ liệu trong bộ nhớ cho bài học {clean_title}:"
+    
+    code_lines = viz_spec.get("code_lines") or []
+    variables = viz_spec.get("variables") or []
+    raw_steps = viz_spec.get("steps") or []
+    
+    if not code_lines and not raw_steps:
+        return ""
+    
+    # 1. Build Code Display Lines with Syntax Highlighting & Line Numbers
+    code_lines_html = []
+    for idx, line in enumerate(code_lines, 1):
+        highlighted = highlight_code_syntax(str(line), clean_lang)
+        code_lines_html.append(f"""        <div id="viz-line-{idx}" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center min-w-0">
+            <span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono shrink-0">{idx}</span>
+            <span class="truncate">{highlighted}</span>
+          </div>
+          <span id="viz-badge-{idx}" class="hidden text-[10px] font-sans px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300 ml-2 shrink-0 animate-pulse"></span>
+        </div>""")
+    code_html = "\n".join(code_lines_html)
+    
+    # 2. Build Memory RAM State Rows (Clean - No redundant config text)
+    ram_rows_html = []
+    if variables:
+        for var in variables:
+            if isinstance(var, dict):
+                v_name = var.get("name", "var")
+                v_label = var.get("label") or f"Biến {v_name}"
+                v_slug = re.sub(r'[^a-zA-Z0-9_-]', '-', v_name).lower()
+                ram_rows_html.append(f"""        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">{html.escape(v_label)}:</span>
+          <span id="viz-ram-{v_slug}" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>""")
+            elif isinstance(var, str):
+                v_slug = re.sub(r'[^a-zA-Z0-9_-]', '-', var).lower()
+                ram_rows_html.append(f"""        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Biến {html.escape(var)}:</span>
+          <span id="viz-ram-{v_slug}" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
+        </div>""")
+    else:
+        # Default status monitor
+        ram_rows_html.append(f"""        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">Trạng thái luồng:</span>
+          <span id="viz-ram-status" class="font-bold text-emerald-600 px-2 py-0.5 rounded bg-white border border-slate-200">Đang hoạt động (Active)</span>
+        </div>""")
+        
+    ram_html = "\n".join(ram_rows_html)
+    
+    # 3. Build window.vizSteps JSON (Use LLM steps or Smart Fallback)
+    sanitized_steps = []
+    if raw_steps and isinstance(raw_steps, list) and len(raw_steps) >= 2:
+        for s in raw_steps:
+            if isinstance(s, dict):
+                raw_ram = s.get("ram") or {}
+                clean_ram = {}
+                for rk, rv in raw_ram.items():
+                    clean_rk = re.sub(r'[^a-zA-Z0-9_-]', '-', str(rk)).lower()
+                    clean_ram[clean_rk] = str(rv)
+                
+                log_val = s.get("log") or f"&gt; Thực thi dòng {s.get('line', 1)}"
+                if not log_val.startswith("&gt;") and not log_val.startswith("<div") and not log_val.startswith(">"):
+                    log_val = f"&gt; {log_val}"
+                if log_val.startswith(">"):
+                    log_val = f"&gt;{log_val[1:]}"
+                    
+                sanitized_steps.append({
+                    "line": s.get("line", 1),
+                    "ram": clean_ram,
+                    "log": log_val,
+                    "badge": s.get("badge") or (list(clean_ram.values())[-1] if clean_ram else "")
+                })
+    else:
+        # Generate smart fallback steps from code_lines
+        sanitized_steps = generate_fallback_visualizer_steps(code_lines, variables, clean_title)
+            
+    script_block = f"<script>window.vizSteps = {json.dumps(sanitized_steps, ensure_ascii=False)};</script>" if sanitized_steps else ""
+    
     return f"""
-<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Bấm nút <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để quan sát dòng mã thực tế được tô sáng màu ngọc bảo và biến đổi trạng thái của biến trong bộ nhớ RAM từng bước!</p>
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">{title}</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">{explanation}</p>
 
 <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
     <!-- Cột trái: Mã nguồn thực thi -->
     <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
-        <span>MÃ NGUỒN THỰC THI ({tech_upper})</span>
-        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px]">Sẵn sàng</span>
+        <span>Mã nguồn thực thi ({clean_lang})</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded font-sans">Sẵn sàng</span>
       </div>
-      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[160px]">
-        {code_html}
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-1.5 overflow-x-auto min-h-[160px]">
+{code_html}
       </div>
     </div>
 
     <!-- Cột phải: Trạng thái bộ nhớ RAM -->
     <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
       <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
-        <span>TRẠNG THÁI BIẾN TRONG BỘ NHỚ (RAM)</span>
-        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+        <span>Trạng thái bộ nhớ (Memory Canvas)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold font-sans">RAM State</span>
       </div>
       <div class="p-4 space-y-3 flex-1 text-xs font-mono">
-        {ram_html}
+{ram_html}
       </div>
     </div>
   </div>
@@ -641,13 +708,13 @@ def generate_universal_step_visualizer(lesson_title: str, tech_stack: str, code_
   <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
     <div class="flex items-center gap-2">
       <button type="button" onclick="runVizStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-all">
-        <i class="ph-bold ph-caret-left"></i> Bước trước
+        <span class="ph-bold ph-caret-left"></span> Bước trước
       </button>
       <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs flex items-center gap-1 hover:bg-rikkei-darkred transition-all shadow-sm">
-        Tiếp theo <i class="ph-bold ph-caret-right"></i>
+        Tiếp theo <span class="ph-bold ph-caret-right"></span>
       </button>
       <button type="button" onclick="runVizStep(-999)" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs transition-all" title="Reset">
-        <i class="ph-bold ph-arrow-counter-clockwise"></i> Đặt lại
+        <span class="ph-bold ph-arrow-counter-clockwise"></span> Đặt lại
       </button>
     </div>
     <div class="flex items-center gap-1.5">
@@ -657,11 +724,11 @@ def generate_universal_step_visualizer(lesson_title: str, tech_stack: str, code_
 
   <!-- Terminal log -->
   <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
-    <div class="text-[11px] font-mono text-slate-500 mb-1 flex items-center gap-1.5">
-      <i class="ph-bold ph-terminal text-emerald-800"></i> NHẬT KÝ THỰC THI (SINGLE-LINE TERMINAL CONSOLE):
+    <div class="text-[11px] font-mono text-slate-600 mb-1.5 flex items-center gap-1.5 font-bold">
+      <span class="ph-bold ph-terminal text-emerald-800"></span> Nhật ký thực thi từng bước (Console Log):
     </div>
-    <div id="viz-terminal-log" class="h-[100px] overflow-y-auto bg-white text-emerald-800 font-mono text-xs p-2 rounded border border-slate-200 font-semibold">
-      &gt; Sẵn sàng chạy mô phỏng từng bước cho {clean_title}. Bấm "Tiếp theo" để bắt đầu...
+    <div id="viz-terminal-log" class="h-[110px] overflow-y-auto bg-white text-slate-800 font-mono text-xs p-2.5 rounded border border-slate-200 space-y-1">
+      <div class="text-slate-400 italic">&gt; Sẵn sàng mô phỏng từng bước cho {clean_title}. Bấm "Tiếp theo" để bắt đầu...</div>
     </div>
   </div>
 </div>
@@ -722,20 +789,39 @@ def generate_reading_html(
     """
     print(f"\n  ---> [Reading Creator SSOT] Authoring reading.html for {session_id} - {lesson_id}: {lesson_title}...")
     
+    allowed_scope_raw = state.get("allowed_scope") or state.get("previous_lessons") or []
+    if isinstance(allowed_scope_raw, list):
+        allowed_scope = ", ".join(str(x) for x in allowed_scope_raw if str(x).strip())
+    else:
+        allowed_scope = str(allowed_scope_raw).strip()
+
+    forbidden_scope_raw = state.get("forbidden_scope") or []
+    if isinstance(forbidden_scope_raw, list):
+        forbidden_scope = ", ".join(str(x) for x in forbidden_scope_raw if str(x).strip())
+    else:
+        forbidden_scope = str(forbidden_scope_raw).strip()
+
     image_skill = load_skill_content("image_prompt_standard")
     
     system_prompt = f"""You are a Senior Learning Content Authoring Expert at Rikkei Education.
 Your task is to author a DETAILED READING MATERIAL (SSOT) strictly adhering to the 5-SECTION PEDAGOGICAL ARCHITECTURE.
 
 MANDATORY RULES & DIRECTIVES:
-1. 5-SECTION PEDAGOGICAL FLOW:
-   - Section 1 - DYNAMIC TITLE: You MUST create a context-aware Section 1 title matching the lesson topic (e.g., "Why use Functions?", "Problems without Loops", "Why Virtual Environments?"). Never use generic titles like "Introduction". Save title in `section1_title`.
-   - Section 2 - DYNAMIC TITLE: You MUST create a context-aware Section 2 title detailing the knowledge concept (e.g., "Syntax & Operational Mechanism of Functions", "Installation & Environment Setup"). Save title in `section2_title`.
-   - Section 1 CONTENT: Detailed & specific enterprise real-world scenario (e.g. ShopeeFood order checkout engine). Analyze the technical conflict and financial/business risks of running code sequentially line-by-line without conditional checks (e.g. negative revenue from small freeship orders vs user churn from overcharging shipping). Introduce current lesson concept as the dynamic decision solution.
-   - Section 2 CONTENT: Core concepts, technical breakdown in HTML format using `<ul class="...">` and `<strong class="...">` for keywords.
-   - Section 3: Practical Application Examples (Execution code snippet + HTML explanation).
-   - Section 4: Summary & Enterprise Gotchas (Common pitfalls in HTML format).
-   - Section 5: References.
+1. 5-SECTION PEDAGOGICAL FLOW & HEADING OWNERSHIP:
+   - The master HTML template ALREADY renders the main Section <h2> headers:
+     * `<h2>1. {{section1_title}}</h2>`
+     * `<h2>2. {{section2_title}}</h2>`
+     * `<h2>3. Các ví dụ ứng dụng thực tiễn</h2>`
+     * `<h2>4. Tổng kết bài học & Các lỗi thường gặp</h2>`
+     * `<h2>5. Tài liệu tham khảo & Self-Test</h2>`
+   - CRITICAL HEADING DIRECTIVE: Inside `problem_html`, `knowledge_html`, `example_html`, and `notes_html`, ABSOLUTELY DO NOT generate top-level `<h1>` or `<h2>` tags! All sub-sections MUST start at `<h3>` level (`2.1`, `2.2`, `3.1`, `4.1`...).
+   - Section 1 - DYNAMIC TITLE: You MUST create a context-aware Section 1 title matching the lesson topic in Accented Vietnamese (e.g., "Tại sao cần dùng hàm?", "Vấn đề khi thiếu cấu trúc rẽ nhánh", "Tại sao cần môi trường ảo?"). Save title in `section1_title`.
+   - Section 2 - DYNAMIC TITLE: You MUST create a context-aware Section 2 title detailing the knowledge concept (e.g., "Cú pháp và cơ chế hoạt động", "Mô hình đối tượng và cấu trúc JSON"). Save title in `section2_title`.
+   - Section 1 CONTENT: Detailed & specific enterprise real-world scenario (e.g. E-commerce order checkout engine). Analyze the technical conflict and business risks of running code sequentially line-by-line without conditional checks or proper abstractions. Introduce current lesson concept as the dynamic solution.
+   - Section 2 CONTENT: Core concepts, technical breakdown in HTML format using `<ul class="...">` and `<strong class="...">` for keywords. Under each sub-heading (`2.1`, `2.2`), include a Problem Callout Box and a Code Sandbox snippet.
+   - Section 3 CONTENT: Practical Application Examples (3 progressive examples: 3.1 Minimal syntax, 3.2 Business logic, 3.3 Enterprise scenario).
+   - Section 4 CONTENT: 4.1 Key Takeaways summary, 4.2 Decision Matrix HTML Table, and 4.3 Gotchas/Errors with side-by-side BAD vs GOOD code.
+   - Section 5: References & 3 Interactive Self-Test questions.
 
 2. HTML DATA FORMAT & CALLOUT BOX SYSTEM:
    - DO NOT use Markdown syntax (such as **, ###, - ).
@@ -749,225 +835,72 @@ MANDATORY RULES & DIRECTIVES:
 3. 2D FLAT VECTOR SCENE IMAGE STANDARD (SECTION 1 - PROBLEM STATEMENT):
    - In Section 1 (Problem Statement / Đặt vấn đề), ABSOLUTELY DO NOT force manual HTML, CSS, or raw inline SVG code diagrams.
    - Instead, use a 2D Flat Vector Technical Illustration / Scene Image generated via `image_prompt_standard` skill describing the concrete real-world problem statement of the lesson.
-   - ULTRA-INTUITIVE STUDENT-FRIENDLY DIRECTIVE: The image MUST be ultra-clean, minimal, friendly, and immediately understandable by beginner students at first glance (nhìn vào hiểu ngay ý bài toán trong 3 giây). Use real-world 2D flat vector objects (shopping cart, receipt, discount voucher, pass badge) with 100% Accented Vietnamese node titles (e.g., 'Đơn hàng 1.500.000 VNĐ', 'Kiểm tra: Đơn hàng >= 1 triệu?', 'Đúng ➔ Giảm 15% & Freeship').
-   - STRICT PROHIBITION OF COMPLEX ARCHITECTURAL JARGON: 100% FORBIDDEN complex gears, abstract circuit board lines, dark curly-brace code boxes, English column titles ('CUSTOMER ORDERS INPUT', 'RULES ENGINE'), or formulaic 'Cách cũ vs Cách mới' split boxes!
-   - CROPPED TIGHT EDGE-TO-EDGE CANVAS FILLING DIRECTIVE: Visual diagram elements, flowchart nodes, and text inside the image MUST stretch and fill 100% edge-to-edge across the entire PNG image canvas horizontally and vertically. ABSOLUTELY FORBIDDEN giant empty white background borders, top/bottom/left/right padding spaces, or small visual elements floating inside a huge white void!
-   - AUTOMATIC IMAGE MARGIN CROPPING CONTRACT: All generated scene images are automatically cropped around their active non-background bounding box using color thresholding to strip away top/bottom blank margins before embedding.
-   - Embed the image tag cleanly: `<div class="my-6 text-center"><img src="images/..." alt="..." class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm" /><p class="text-center text-sm text-slate-500 italic mt-3">Caption in Accented Vietnamese...</p></div>`.
-   - ABSOLUTELY FORBIDDEN outer borders (`border`), background wrapper frames (`bg-slate-900`/`bg-white`), or pixel cropping (`object-cover`).
+   - ULTRA-INTUITIVE STUDENT-FRIENDLY DIRECTIVE: The image MUST be ultra-clean, minimal, friendly, and immediately understandable by beginner students at first glance (nhìn vào hiểu ngay ý bài toán trong 3 giây). Use real-world 2D flat vector objects (shopping cart, receipt, discount voucher, pass badge) with 100% Accented Vietnamese node titles.
+   - Embed the image tag cleanly: `<div class="my-6 text-center"><img src="images/..." alt="..." class="w-full max-w-3xl h-auto mx-auto rounded-xl shadow-sm border border-slate-200" /><p class="text-center text-sm text-slate-500 italic mt-3">Caption in Accented Vietnamese...</p></div>`.
 {image_skill}
 
 4. STRICT NO EMOJI TEXT:
-   - ABSOLUTELY FORBIDDEN to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶). Use Phosphor Icons SVG / CSS symbols only.
+   - ABSOLUTELY FORBIDDEN to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶). Use Phosphor Icons CSS symbols (`<span class="ph-bold ph-..."></span>`) only.
 
 5. MANDATORY SENTENCE ENDING PERIOD DIRECTIVE:
    - Every text sentence, list item, bullet point, question, and explanation MUST 100% end with a period (.). Never leave sentences unpunctated.
 
 6. SECTION 3 PROGRESSIVE EXAMPLES & CODE BLOCK RULE:
-   - Section 3 MUST provide 1 to 3 progressive examples: Example 3.1 (Minimal syntax) ➔ Example 3.2 (Business problem) ➔ Example 3.3 (Enterprise production).
-   - EACH EXAMPLE (`3.1`, `3.2`, `3.3`) MUST be accompanied by an execution code block: `<pre><code class="language-TECH">...</code></pre>`. Replace `TECH` with target language identifier (e.g. `python`, `javascript`, `typescript`, `java`, `c`, `cpp`, `sql`). Never hardcode `python` for non-Python subjects.
+   - Section 3 MUST provide 3 progressive examples: Example 3.1 (Minimal syntax) ➔ Example 3.2 (Business problem) ➔ Example 3.3 (Enterprise production).
+   - EACH EXAMPLE (`3.1`, `3.2`, `3.3`) MUST be accompanied by an execution code block: `<pre><code class="language-{tech_stack}">...</code></pre>`. Replace `{tech_stack}` with target language identifier (e.g. `python`, `javascript`, `typescript`, `java`, `c`, `cpp`, `sql`).
 
 7. HIERARCHICAL SUB-HEADING NUMBERING DIRECTIVE:
    - All `<h3>` sub-headings MUST match parent numbering: Section 2 sub-headings MUST be `2.1`, `2.2`, `2.3...`; Section 3 sub-headings MUST be `3.1`, `3.2`, `3.3...`; Section 4 sub-headings MUST be `4.1`, `4.2...`.
 
 8. STRICT UNNECESSARY ITALIC BAN & CLEAN CAPTION CONTRACT:
-   - 🚨 100% BAN ON UNNECESSARY ITALIC TEXT 🚨: 100% FORBIDDEN to use italics (`<i>`, `<em>`, `*text*`) in paragraphs, bullet lists, sub-headings, bold technical terms, or callouts. Italics are ONLY allowed in image captions directly below images (`<p class="text-center text-sm text-slate-500 italic mt-3">...</p>`).
-   - 🚨 NO META-TEXT IN IMAGE CAPTIONS 🚨: Image captions MUST NOT contain meta phrases like "Sơ đồ 2D flat vector minh họa...", "Hình ảnh 2D...". Write direct, clear, professional descriptions (e.g., `Hình 1.1: Quy trình xử lý tự động hàng loạt đơn hàng trong hệ thống siêu thị SuperMart.`).
-   - 🚨 NO TITLE BANNERS OVERLAID ON IMAGES 🚨: Image prompts MUST NOT render big title banners, course names, or lesson header text on top of visual illustrations. Keep generated visual images focused purely on visual infographics, scene illustrations, and workflow graphics!
+   - 🚨 100% BAN ON UNNECESSARY ITALIC TEXT 🚨: 100% FORBIDDEN to use italics (`<i>`, `<em>`, `*text*`) in paragraphs, bullet lists, sub-headings, bold technical terms, or callouts. Italics are ONLY allowed in image captions directly below images.
+   - 🚨 NO META-TEXT IN IMAGE CAPTIONS 🚨: Image captions MUST NOT contain meta phrases like "Sơ đồ 2D flat vector minh họa...". Write direct, clear, professional descriptions (e.g., `Hình 1.1: Quy trình xử lý tự động đơn hàng`).
 
 9. CONTEXT-AWARE THEORY INTEGRATION DIRECTIVE:
    - In Section 2 (`knowledge_html`), integrate visual snippets matching topic nature:
      * For programming/syntax topics: Include code syntax snippets under each `2.1`, `2.2` sub-heading alongside Syntax Anatomy / Memory diagrams.
-     * For conceptual / setup / tool topics (Git, VS Code, Agile): Include SVG/Mermaid flowcharts, Terminal commands, or Config tables instead of empty sandboxes.
+     * For conceptual / setup / tool topics (Git, VS Code, Agile, Architecture): Include SVG/Mermaid flowcharts, Terminal commands, or Config tables instead of empty sandboxes.
 
-10. TARGET OUTPUT LANGUAGE CONTRACT:
-    - Target Output Language: 100% Production-Grade Accented Vietnamese for explanations outside code.
+10. 100% ACCENTED VIETNAMESE EXPLANATIONS & ENGLISH CODE IDENTIFIERS:
+    - ALL explanations, bullet points, question texts, and code comments MUST be in 100% Production-Grade Accented Vietnamese.
+    - ALL variable names, function names, parameter names, and syntax placeholders MUST BE IN ENGLISH using standard conventions (e.g. `snake_case` in Python, `camelCase` in JavaScript).
 
-11. STRICT STANDALONE CODE BLOCK DIRECTIVE (NO CALLOUT NESTING & NO CUSTOM WRAPPERS):
-    - DO NOT wrap code blocks (`<pre><code>...</code></pre>`) or syntax templates inside callout boxes (`<div class="p-4 rounded-xl border...">`), cards, or any custom `<div>` containers.
-    - BAD: `<div class="border rounded bg-white"><pre><code class="language-python">...</code></pre></div>`
-    - GOOD: `<pre><code class="language-python">...</code></pre>` (Place directly as standalone, the system will automatically wrap it in a card later).
+11. STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (MULTI-SUBJECT & TECH-AGNOSTIC):
+    - ALLOWED KNOWLEDGE (Concepts already taught or in current lesson details): {allowed_scope or 'Basic fundamentals up to current lesson'}
+    - FORBIDDEN KNOWLEDGE (Future lessons / unlearned advanced concepts): {forbidden_scope or 'Advanced frameworks, DOM, APIs, Async, or classes if not taught yet'}
+    - 🚨 ZERO SCOPE LEAKAGE CONTRACT 🚨:
+      * ABSOLUTELY FORBIDDEN to use any libraries, syntax, functions, APIs, or data structures listed under FORBIDDEN KNOWLEDGE.
+      * All code examples, gotchas, and explanations MUST strictly stay within ALLOWED KNOWLEDGE.
 
-12. 100% ENGLISH CODE SYNTAX & IDENTIFIERS CONTRACT:
-    - ALL code snippets, syntax templates, variable names, function names, parameter names, data structures, syntax placeholders (e.g., `condition`, `statement_block`), and code comments inside code blocks MUST BE 100% IN ENGLISH using standard language conventions (`snake_case` for Python e.g. `order_amount`, `shipping_fee`, `is_vip_customer`, `discount_amount`, `total_payment`).
-    - ABSOLUTELY FORBIDDEN to use Vietnamese words, transliterated Vietnamese, or diacritics inside code blocks or placeholders (e.g., NEVER use `don_hang`, `phi_ship`, `la_khach_vip`, `giam_gia`, `thanh_tien`, `đieu_kien`, `khoi_lenh_thuc_thi`).
+12. DYNAMIC ADAPTIVE INTERACTIVE VISUALIZER SCHEMA (FOR EXECUTABLE LESSONS):
+    - For Executable Coding / Algorithm lessons (Python, JavaScript, Java, C++, SQL): Provide structured `interactive_visualizer` JSON data:
+      * `is_applicable`: true
+      * `title`: "2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)"
+      * `explanation`: "Mô tả ngắn gọn luồng mô phỏng"
+      * `code_lines`: ["line 1", "line 2", ...] (Actual code lines of the lesson with Vietnamese comments)
+      * `variables`: [{{"name": "varName", "label": "Nhãn hiển thị tiếng Việt"}}, ...] (Actual variables used in code_lines)
+      * `steps`: [{{"line": 1, "ram": {{"varName": "giá trị"}}, "log": "<div>&gt; Giải thích bước 1</div>"}}, ...]
+    - For Pure Concept / Theory / Setup / Intro / Tooling / Architecture lessons (Git VCS overview, Agile, Docker overview, UML):
+      * `interactive_visualizer`: {{ "is_applicable": false }} (The system will cleanly omit the Step-Tracker and render SVG diagrams / Comparison tables instead).
 
-13. CODE CARD TITLES STANDARD (NO ALL CAPS):
-    - Titles on code cards MUST be specific and written in Title Case / Sentence Case (e.g., `Cú pháp khai báo câu lệnh for trong Python`).
-    - ABSOLUTELY FORBIDDEN to use generic UPPERCASE titles like `PYTHON CÚ PHÁP` or `PYTHON CODE`.
-
-14. SYNCHRONIZED SYNTAX EXPLANATION CONTRACT:
-    - Every explanation bullet item following a syntax code block MUST use the EXACT SAME parameter/identifier names as used inside the code block verbatim (e.g., if code uses `item` and `iterable_object`, bullet items MUST explain `item` and `iterable_object` verbatim).
-
-15. STRICT LIGHT MODE ONLY CONTRACT:
-    - All generated content MUST be 100% in Light Mode with balanced, pleasant corporate colors (`bg-white`, `bg-slate-50`, `border-slate-200`, `text-slate-900`, `text-slate-700`).
-    - ABSOLUTELY FORBIDDEN to use dark background panels (`bg-slate-900`, `bg-black`), dark container cards, or dark mode overrides.
-
-16. STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (NO FUTURE/UNLEARNED CONCEPTS & NO COMMAND LEAKS):
-    - All concepts, explanations, code snippets, CLI commands, data structures, and diagrams MUST strictly stay within the knowledge taught up to the current session/lesson (`lesson_details` and `previous_lessons`).
-    - CRITICAL INTRODUCTORY LESSON SCOPE RULE: For Introductory / Overview / Theory / Concept lessons (e.g. Lesson 01 "Giới thiệu Hệ thống quản lý phiên bản VCS", "Overview", "Concepts", "Architecture", "Agile Overview", "Python Overview"):
-      * The lesson's purpose is ONLY to introduce high-level concepts, business pain points, architectural comparisons (Centralized vs Distributed, Manual ZIP vs Version Control), and high-level 2D/SVG diagrams.
-      * ABSOLUTELY FORBIDDEN to introduce concrete execution command sequences (e.g., `git init`, `git add`, `git commit`, `git push`, `docker run`, `try-except`, `class MyClass`, etc.) that belong to future dedicated lessons!
-      * Content MUST focus 100% on Conceptual Rationale, High-Level Problem Statements, 2D Flat Vector Infographics, SVG Process Diagrams, and Parameter/Concept Comparison Tables.
-
-17. SYNTAX PRESENTATION ORDER & HIGHLIGHTED EXPLANATION CONTRACT:
-    - ALWAYS present the Syntax Card Component FIRST, followed immediately by the Component Explanation Bullet List.
-    - Each keyword or placeholder in the explanation list MUST be highlighted with code badges (`<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">...</code>`) and bold font.
-
-18. ADAPTIVE VISUALS & VISUALIZER HIDING CONTRACT (SUBJECT NATURE & LESSON TYPE ADAPTIVE):
-    - Analyze the lesson's nature before generating Section 2 (`knowledge_html`):
-      * FOR PURE CONCEPT / OVERVIEW / ARCHITECTURE / METHODOLOGY / INTRO LESSONS (where step-by-step interactive code execution or step-by-step CLI tracking is NOT applicable or where no execution commands/code exist yet):
-        - ABSOLUTELY FORBIDDEN to force fake/empty Interactive Code Step-Tracker Visualizers. HIDE / OMIT the Interactive Step-Tracker Visualizer widget entirely for these lessons!
-        - INSTEAD: Embed Rich 2D Flat Vector Technical Illustrations, SVG Process Flowcharts, Mermaid Diagrams, or High-Contrast Concept Comparison Cards!
-      * FOR EXECUTABLE PROGRAMMING / OPERATIONAL / ALGORITHM / WORKFLOW EXECUTION LESSONS (where actual code/commands are executed step-by-step):
-        - Embed the 100% Runnable Step-by-Step Interactive Mechanism Visualizer with Play/Pause/Step controls and line highlighting.
-
-19. SUBJECT NATURE & CODE CARD ADAPTATION CONTRACT (EXECUTABLE PROGRAMMING VS PURE CONCEPT / TOOLING / CLI / ARCHITECTURE):
-    - You MUST analyze the course and lesson nature:
-      * FOR EXECUTABLE PROGRAMMING LANGUAGES (Python, JavaScript, Java, C++, SQL...): Section 3 practical examples use Live Executable Code Sandboxes (with Run & Console Output buttons).
-      * FOR PURE CONCEPT / TOOLING / PROCESS / CLI / ARCHITECTURE (Git, VS Code, Linux/Bash CLI, Docker CLI, Agile/Scrum, Software Architecture, System Design, UML Analysis & Design...): ABSOLUTELY FORBIDDEN to force live executable Pyodide sandboxes or run buttons. Section 3 MUST use static Terminal Command Blocks (`<pre><code class="language-bash">...</code></pre>`), Command Execution Flow Tables, or Workflow Diagram Cards.
-
-20. MANDATORY CODE DEMO FOR ALL SYNTAX VARIANTS CONTRACT:
-    - EVERY subsection in Section 2 (`2.1`, `2.2`, `2.3`, `2.4`) introducing syntax variants MUST present:
-      1. The Syntax Code Card for that variant.
-      2. The Enterprise Business Problem Callout Box placed directly BEFORE the code sandbox.
-      3. The concrete Code Demo Sandbox Snippet.
-      4. The Component Explanation Bullet List with highlighted terms (`<code>...</code>`).
-
-21. INTERACTIVE VISUALIZER COLOR & VIETNAMESE UI CONTRACT:
-    - Visualizer component MUST use Light Mode colors: `bg-slate-50 border border-slate-200 text-slate-800`.
-    - ALL UI button labels and panel headers MUST be written in friendly Accented Vietnamese (Title: `Mô phỏng cơ chế vận hành từng bước`, Buttons: `Tiếp theo`, `Lùi lại`, `Thử lại`, `Tự động chạy`, Memory Panel: `Bảng bộ nhớ & Trạng thái biến`).
-    - Visualizer buttons MUST use high-contrast Tailwind classes:
-      * Nút "Tiếp theo": Rikkei Red `bg-[#be111c] text-white hover:bg-[#90000a]`.
-      * Nút "Lùi lại" / "Thử lại": `bg-slate-200 hover:bg-slate-300 text-slate-800`.
-      * Nút "Tự động chạy": `bg-emerald-600 hover:bg-emerald-700 text-white`.
-      * All buttons must have class `px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-all`.
-    - Inactive code lines MUST use high-contrast dark slate text (`color: #475569 !important; font-weight: 500`). NEVER use faint gray (`text-slate-300` / `#cbd5e1`) or white text on light backgrounds!
-    - The Memory Panel MUST display variables in a clean, high-contrast HTML table (`<table class="w-full text-xs text-left">`). ABSOLUTELY FORBIDDEN to wrap variable values or memory state indicators inside code cards, pre/code tags, or colored block boxes!
-    - CRITICAL: You MUST use these exact IDs for the dynamic elements so the JavaScript works: `id="viz-var-sum"` (for sum/total variable), `id="viz-var-number"` (for the loop counter variable), and `id="viz-console"` (for the console output div).
-
-22. VISUALIZER CODE SYNTAX HIGHLIGHTING & NO LINE NUMBERS CONTRACT:
-    - Code lines displayed inside the Step-by-Step Visualizer panel MUST use syntax highlighting matching the language (e.g., `<span class="kw">for</span>`, `<span class="fn">print</span>`, `<span class="num">10</span>`, `<span class="str">"text"</span>`).
-    - 🚨 FATAL UX ERROR 🚨: ABSOLUTELY FORBIDDEN to wrap visualizer section headers (like 'Mã nguồn thi hành', 'Màn hình Console') inside `<pre><code>` tags or fake macOS code cards (`bg-slate-800` / `bg-slate-900`)! 
-
-23. MANDATORY SINGLE UNIFIED REAL-WORLD DEMO SCENARIO CONTRACT:
-    - 🚨 SINGLE UNIFIED DEMO SCENARIO CONTRACT 🚨: You MUST select ONE unified concrete real-world business scenario in Section 1 (e.g. ShopeeFood Order Checkout & Voucher System, E-commerce Cart Calculation, Student Scholarship Evaluation, or Banking Fraud Detection).
-    - 100% of code snippets, live sandboxes, syntax cards, and step visualizers across Section 2 (2.1, 2.2, 2.3, 2.4) and Section 3 (3.1, 3.2, 3.3...) MUST progressively expand on THAT EXACT SAME UNIFIED SCENARIO using consistent variable names and domain logic.
-    - ABSOLUTELY FORBIDDEN to switch to disjointed, random example topics (e.g., Cinema age check in 3.1, Student scholarship in 3.2, Banking Fraud in 3.3) within the same lesson!
-      BAD: `<pre><code>Mã nguồn đang thực thi</code></pre>`
-      BAD: `<div class="bg-slate-900 ...">Mã nguồn đang thực thi</div>`
-      GOOD: `<div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Mã nguồn đang thực thi</div>`
-    - ONLY use `<pre><code>` for actual editable code snippets in Section 3.
-    - ABSOLUTELY FORBIDDEN to include line numbers (such as `1. `, `2. `, `Dòng 1:`) inside visualizer code lines. Keep code lines clean, accurately highlighted, and syntactically correct.
-
-23. JSON ESCAPING CONTRACT FOR MULTI-LINE CODE:
-    - When writing multi-line code inside JSON string values (like `example_code` or `knowledge_html`), you MUST use explicit `\\n` to preserve line breaks.
-    - DO NOT compress multi-line code into a single line. Example BAD: `"for x in range(3):    print(x)"`. Example GOOD: `"for x in range(3):\\n    print(x)"`.
-
-24. UNIFIED THREADED REAL-WORLD SCENARIO CONTRACT (XUYÊN SUỐT TOÀN BỘ BÀI HỌC):
-    - BEFORE writing Section 1, you MUST select ONE SINGLE, REALISTIC ENTERPRISE SCENARIO appropriate for the lesson topic and tech stack (e.g. Student Grade & Passing Qualification System, E-commerce Order Shipping & Discount, Bank Credit Approval, User Authentication Role, Inventory Stock Alert).
-    - This EXACT SAME scenario MUST thread continuously through ALL sections: Section 1 (Problem), Section 2 (Syntax & Progressive Sub-heading Sandboxes), Section 3 (Practical Examples), Section 4 (Gotchas), and Section 5 (Self-Test).
-    - ABSOLUTELY FORBIDDEN to switch to unrelated random examples across sections.
-
-25. CONCISE SECTION 1 PROBLEM STATEMENT & MANDATORY 2D SCENE DIAGRAM CONTRACT:
-    - Section 1 MUST be short, punchy, direct, and easy to understand (max 2-3 brief paragraphs).
-    - Pedagogical flow: Real-World Business Context ➔ Practical Dilemma ➔ Need for New Concept.
-    - MANDATORY 2D FLAT VECTOR SCENE DIAGRAM: Section 1 MUST be accompanied by a wide 16:9 2D flat vector context diagram/image representing the real-world scenario (generated via `image_prompt_standard` skill).
-    - ABSOLUTELY FORBIDDEN to write long-winded, dry academic walls of text or preamble fluff.
-
-26. PROGRESSIVE SYNTAX CODE DEMO SANDBOX UNDER EVERY SUBSECTION:
-    - EVERY subsection in Section 2 (`2.1`, `2.2`, `2.3`...) MUST present its own concise Live Code Sandbox / Illustration block directly under the subsection.
-    - The code demo snippet under each subsection MUST progressively expand on the unified real-world scenario chosen for the lesson:
-      * For Conditional Statements: `2.1 if` (Pass check) ➔ `2.2 if-else` (Pass vs Retake) ➔ `2.3 if-elif-else` (Grade classification).
-      * For For Loops: `2.1 range()` (Index loop) ➔ `2.2 list loop` (Iterate score list) ➔ `2.3 enumerate()` (Student name and score pairs).
-
-27. PLAIN DEVELOPER LANGUAGE & BANNED JARGON CONTRACT:
-    - 100% FORBIDDEN to use dry academic textbook formulas, overly complex enterprise jargon ('Kịch bản Enterprise', 'Động cơ tính toán', 'Thi hành tuyến tính', 'Thực thi sản xuất'), unverified claims, or hyperbolic AI fluff ("khám phá", "vô cùng", "bậc nhất", "tuyệt vời").
-    - 🚨 STRICT PROHIBITION OF JUVENILE / AI CLICHÉ WORDS 🚨: ABSOLUTELY FORBIDDEN to use words like "bẫy lập trình", "mẹo", "mẹo lập trình", "bí kíp", "tất tần tật", "bảo bối", "bật mí", "vi diệu"! These sound juvenile and artificial. Use clean, professional engineering terms instead: "Các lỗi thường gặp", "Lưu ý thực tế", "Kinh nghiệm xử lý", "Quy tắc tối ưu".
-    - Use clear, practical, friendly, learner-friendly developer Vietnamese ("Ví dụ thực tế", "Ví dụ hoàn chỉnh", "Chương trình", "Chạy code", "Giúp bạn kiểm tra...").
-
-28. DOMAIN-AGNOSTIC & ZERO HARDCODING CONTRACT:
-    - All rules apply dynamically to whatever target `tech_stack` is passed in (`python`, `javascript`, `java`, `cpp`, `sql`, `html/css`, `git`, `docker`, `agile`, etc.).
-    - ABSOLUTELY NO hardcoded course titles, fixed grade examples, or single-technology fallbacks in prompt instructions.
-
-29. MANDATORY VALID CODE SYNTAX & INDENTATION CONTRACT:
-    - ALL code snippets, examples, and sandboxes MUST satisfy 100% syntactically complete and valid code in the target technology language.
-    - NEVER truncate or leave code statements incomplete (e.g. NEVER write incomplete statements like `if attendance_percentage`). Always include full conditions, colons, indented blocks, and print calls.
-    - For Python: MUST enforce exact 4-space indentation for blocks inside `if`, `elif`, `else`, `def`, `for`, `while`, `try`, `except`. NEVER omit indentation inside nested statements! All indentation errors (`IndentationError`) and syntax errors (`SyntaxError`) are FATAL.
-
-30. ULTRA-SIMPLE CONVERSATIONAL STORYTELLING CONTRACT (NO ACADEMIC JARGON):
-    - Section 1 MUST be written as a simple, short, friendly, and conversational real-world story that any beginner student understands in 5 seconds.
-    - Pedagogical story flow (max 3 short, punchy paragraphs):
-      * Paragraph 1 (Tình huống thực tế): Introduce an everyday shopping/app scenario in simple terms (e.g., "Hãy tưởng tượng bạn đang lập trình tính năng tính phí giao hàng cho một ứng dụng mua sắm...").
-      * Paragraph 2 (Vấn đề phát sinh): Show the exact practical dilemma if all cases are treated identically (e.g., "Nếu đơn nào cũng tính phí ship 30.000 VNĐ, khách mua đơn lớn 1.500.000 VNĐ sẽ thấy thất vọng vì không được miễn phí giao hàng. Ngược lại, nếu miễn phí cho tất cả, đơn hàng nhỏ 20.000 VNĐ sẽ khiến cửa hàng bị lỗ nặng!").
-      * Paragraph 3 (Lý do cần kiến thức mới): State clearly why the program needs a decision check (e.g., "Làm sao để máy tính tự kiểm tra giá trị từng đơn hàng để đưa ra quyết định phù hợp? Đó là lý do chúng ta cần đến cấu trúc rẽ nhánh `if`, `elif`, `else`.").
-    - 🚨 ABSOLUTELY FORBIDDEN ACADEMIC JARGON IN SECTION 1 🚨: 100% FORBIDDEN dry textbook phrases like "Xung đột kỹ thuật phát sinh...", "mã nguồn chạy tuyến tính...", "quyết định loại trừ độc quyền (Mutually Exclusive Decisions)", "thực thi dòng-theo-dòng...", "biến đổi trạng thái hệ thống...".
-
-31. SECTION 4 & SECTION 5 STRICT ARCHITECTURE CONTRACT:
-    - Section 4 Title MUST BE EXACTLY: "4. Tổng kết bài học & Các lỗi thường gặp".
-      * Sub-structure inside Section 4:
-        1. 4.1. Kiến thức trọng tâm: Concise key takeaways bullet points summarizing 3-5 fundamental concepts.
-        2. 4.2. Bảng Ma trận Quyết định (Decision Matrix Table): HTML Table comparing when to use the current concept vs alternative solutions (e.g. switch-case vs if-else if vs Object Lookup / Lookup Map). Include columns: Tiêu chí so sánh, Khi nào nên sử dụng, Khi nào nên tránh, Ví dụ thực tế.
-        3. 4.3. Các lỗi thường gặp & Lưu ý thực tế: Common pitfalls and gotchas in clean callout cards with side-by-side BAD vs GOOD code comparisons (NO "bẫy lập trình", NO "mẹo"!).
-    - Section 5 Title MUST BE EXACTLY: "5. Tài liệu tham khảo & Self-Test".
-      * Standalone section containing external authoritative documentation links, followed by an embedded interactive self-test component.
-    - 🎯 MANDATORY 1-PAGE INTERACTIVE SELF-TEST QUESTIONS (ANTI-AI SHORTCUTS) 🎯:
-      * You MUST author exactly 3 interactive self-test MCQ questions to evaluate student understanding of the lesson content.
-      * 🚨 ANTI-AI SHORTCUTS CONTRACT 🚨: ABSOLUTELY FORBIDDEN to ask generic textbook, rote-memorization or theory questions (e.g. "What is a loop?", "Explain range() syntax").
-      * Instead, EVERY question MUST reference specific data, parameter values, variable names, code snippets, or business scenarios introduced in Section 1, 2, or 3 of THIS reading material (e.g. "Trong ví dụ đếm chữ số của mã voucher 'SUPER2024SALE' ở mục 3.3, kết quả biến digit_count in ra là bao nhiêu?").
-      * Each question MUST have exactly 4 choices (A, B, C, D) of similar length and syntax, and a detailed Vietnamese explanation pointing to the specific lesson example.
-
-32. STRICT KNOWLEDGE SCOPE BOUNDARY CONTRACT (MULTI-SUBJECT & TECH-AGNOSTIC):
-    - ALWAYS strictly evaluate the current session knowledge scope (`session_id`, `lesson_id`, `lesson_title`, `tech_stack`).
-    - 🚨 ABSOLUTELY FORBIDDEN TO LEAK UNLEARNED FUTURE SYNTAX 🚨:
-      * For early or introductory lessons of ANY subject or tech stack (e.g., Session 01-05 of Python, JS, Java, C++, SQL, Git, Docker, System Design):
-        - 100% FORBIDDEN to use advanced data structures (e.g. List, Dict, Map, Pointer, Struct, Class, Async/Await), complex framework methods, or untaught helper functions that have NOT been covered in earlier lessons.
-        - All code examples MUST strictly use only the fundamental keywords, basic types, and primitives taught up to the current lesson.
-
-33. MANDATORY PROBLEM REQUIREMENT BOX ABOVE EVERY CODE DEMO & SINGLE UNIFIED SCENARIO CONTRACT:
-    - 🚨 SINGLE UNIFIED SCENARIO 🚨: 100% of code examples in Section 2 and Section 3 MUST progressively build on the EXACT SAME UNIFIED REAL-WORLD SCENARIO chosen in Section 1 (e.g., E-commerce order checkout, Student Grade Evaluation, Bank Loan Qualification, Inventory Alert). ABSOLUTELY FORBIDDEN to switch to unrelated random examples!
-    - 🎯 PROBLEM REQUIREMENT BOX ABOVE EVERY DEMO 🎯: Directly ABOVE every Live Code Sandbox (in Section 2 and Section 3), you MUST insert a clear Problem Requirement Callout Box (`<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4 shadow-sm"><h4 class="font-montserrat font-bold text-sm text-sky-900 mb-1 flex items-center gap-2"><i class="ph-bold ph-target text-sky-600 text-base"></i> Yêu cầu bài toán:</h4><p class="text-sm text-slate-700 leading-relaxed m-0">Description...</p></div>`) explaining exactly what the upcoming code demo requires and aims to accomplish.
-
-34. 100% ACCENTED VIETNAMESE CODE COMMENTS CONTRACT:
-    - 🚨 NO ENGLISH COMMENTS IN CODE DEMOS 🚨: 100% of code comments (`# ...`, `// ...`) and console print messages inside ALL code snippets, sandboxes, and visualizers MUST be written in clear, friendly, learner-understandable Accented Vietnamese ("# 1. Kiểm tra chính sách miễn phí ship", "# Khối lệnh chạy khi điều kiện True").
-    - ABSOLUTELY FORBIDDEN to use English code comments (e.g., `# Progressive Demo`, `# Executed if condition is True`, `# Production call demo`).
-
-35. INTERACTIVE STEP VISUALIZER UX STANDARD CONTRACT:
-    - 🚨 MANDATORY SECTION 2.4 STEP VISUALIZER 🚨: Every executable lesson MUST include Section 2.4 HTML in `section2_4_html` containing a complete, high-contrast Step-by-Step Execution Visualizer (`<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>...`).
-    - 🚨 STRICT LIGHT THEME & NO LINE NUMBERS 🚨: Step-by-Step Execution Visualizers MUST use clean Light Theme (`bg-slate-50 border border-slate-200 shadow-sm text-slate-800`), NO line numbers in code display, high-contrast light emerald line highlights (`#d1fae5` bg, `#059669` left border).
-    - 🎛️ LIVE VALUE SLIDER & BADGES 🎛️: Include a smooth Range Slider (`<input type="range">`) for input value adjustments, dynamic True/False condition badges (`🟢 True - KHỚP!`, `❌ False - Bỏ qua`), preset sample buttons, and Speed Selectors (`1.5s`, `1.0s`, `0.5s`).
-
-36. ENTERPRISE IT IMAGE GENERATION SKILL CONTRACT (5 GOLDEN RULES):
-    - 🚫 RULE 1: ZERO BIG TITLE BANNERS & ZERO DETAILED CODE SNIPPETS 🚫:
-      * NO BIG TITLE OVERLAYS: ABSOLUTELY FORBIDDEN to render giant title headers (e.g. `HỆ THỐNG XỬ LÝ ĐƠN HÀNG`) at the top of generated images.
-      * NO DETAILED CODE BLOCKS: ABSOLUTELY FORBIDDEN to show long code snippets (`for order_number in range(5)...`) inside pixel graphics! Code inside images causes spelling artifacts (e.g. `teraton`, `stem`) and clutter. Code belongs exclusively inside HTML code sandboxes.
-    - 🎯 RULE 2: FOCUS ON BUSINESS PROBLEM & WORKFLOW SCENARIO 🎯:
-      * Graphics MUST illustrate the **Real-World Business Context / Problem Scenario** (e.g. Supermarket Checkout Conveyor ➔ Scanner ➔ Invoice Payment ➔ Delivery) or **Input ➔ Process ➔ Output (I-P-O)** workflow.
-      * Use clean visual icons, numbered step badges (`1`, `2`, `3`), and short labels instead of code lines.
-    - 🛠️ RULE 3: TECH-STACK ADAPTIVE ILLUSTRATION DESIGN PATTERNS 🛠️:
-      * Programming (Python, JS, Java, C++): 2D real-world business object workflow (Orders, Accounts, Inventory, Tax Engine).
-      * Databases (SQL, NoSQL): 2D Data Pipelines, Schema Tables, B-Tree Indexing, Query Flow.
-      * DevOps & Cloud (Git, Docker, CI/CD): 2D Container Docks, Git Branch Trees, Pipeline Stages (Build ➔ Test ➔ Deploy).
-      * Web/APIs (REST, Microservices): 2D Request-Response Flow between Client App, API Gateway, and Backend Services.
-      * Security & Architecture (Redis, Auth, Load Balancer): 2D Traffic Distribution, Cache Hit/Miss, Authentication Handshake.
-    - 🎨 RULE 4: HARMONIOUS 2D FLAT VECTOR PALETTE & TYPOGRAPHY 🎨:
-      * 100% Clean 2D Flat Vector Corporate Infographic style.
-      * Palette: Corporate Navy `#0f172a`, Slate Gray `#64748b`, Soft Emerald `#059669`, Accent Red `#be111c` on clean light background (`#f8fafc`).
-    - 🔤 RULE 5: BILINGUAL BALANCE CONTRACT 🔤:
-      * Step descriptions & UI labels inside graphics: 100% Accented Vietnamese (`QUÉT MÃ SẢN PHẨM`, `KIỂM TRA HÀNG TỒN`, `IN HÓA ĐƠN`, `GIỜ GIAO HÀNG`).
-      * Technical terms & keywords only: Standard English (`Python`, `range()`, `RAM`, `CPU`, `SQL`, `Docker`, `API`).
-
-Return pure JSON data with fields (MUST NOT omit `section1_title`, `section2_title`, `section2_4_html`, and `self_test_questions`):
+Return pure JSON data strictly adhering to the schema:
 {{
   "section1_title": "Dynamic Section 1 title matching lesson topic in Accented Vietnamese (e.g., 'Tại sao cần dùng hàm?')",
   "section2_title": "Dynamic Section 2 title detailing knowledge concept in Accented Vietnamese (e.g., 'Cú pháp và cơ chế hoạt động')",
-  "problem_html": "<p class=\"text-slate-600 mb-4 leading-relaxed\">Section 1 HTML content in Accented Vietnamese...</p>",
+  "problem_html": "<p class=\"text-slate-600 mb-4 leading-relaxed\">Section 1 HTML content in Accented Vietnamese (NO h1/h2 tags)...</p>",
   "diagram_svg": "<svg viewBox=\"0 0 800 250\" class=\"w-full h-auto rikkei-diagram\">...</svg>",
-  "knowledge_html": "<h3 id=\"sec-2-1\" class=\"text-xl font-bold text-slate-900 mb-3\">2.1. Subheading title...</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Section 2 HTML content in Accented Vietnamese...</p>",
-  "section2_4_html": "<h3 id=\"sec-2-4-mo-phong-co-che-van-hanh-tung-buoc\" class=\"font-montserrat font-bold text-xl text-slate-900 mb-3\">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Mô tả...</p><div class=\"p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800\">...</div>",
+  "knowledge_html": "<h3 id=\"sec-2-1\" class=\"text-xl font-bold text-slate-900 mb-3\">2.1. Cú pháp & Khái niệm...</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Nội dung Section 2...</p>",
+  "interactive_visualizer": {{
+    "is_applicable": true,
+    "title": "2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)",
+    "explanation": "Quan sát quá trình thực thi...",
+    "code_lines": ["// Dòng 1...", "let x = 10;"],
+    "variables": [{{"name": "x", "label": "Biến x"}}],
+    "steps": [{{"line": 1, "ram": {{"x": "10"}}, "log": "<div>&gt; Khởi tạo x = 10</div>"}}]
+  }},
   "example_code": "Combined executable code snippet in target tech stack language",
-  "example_html": "<h3 id=\"sec-3-1\" class=\"text-xl font-bold text-slate-900 mb-3\">3.1. Example 1 (Minimal syntax)...</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Explanation in Accented Vietnamese...</p><pre><code class=\"language-{tech_stack}\">Code snippet 1</code></pre>",
-  "notes_html": "<div class=\"p-4 rounded-xl border border-rose-200 bg-rose-50/60 my-4\"><h4 class=\"text-lg font-bold text-rose-900 mb-2 flex items-center gap-2\"><i class=\"ph-bold ph-warning-circle text-rose-600\"></i> 4.1. Common Gotchas & Pitfalls...</h4></div>",
+  "example_html": "<h3 id=\"sec-3-1\" class=\"text-xl font-bold text-slate-900 mb-3\">3.1. Ví dụ 3.1: Cơ bản...</h3><p class=\"text-slate-600 mb-4 leading-relaxed\">Giải thích...</p><pre><code class=\"language-{tech_stack}\">Code snippet 1</code></pre>",
+  "notes_html": "<h3 id=\"sec-4-1\" class=\"text-xl font-bold text-slate-900 mb-3\">4.1. Kiến thức trọng tâm</h3><ul class=\"list-disc pl-6 space-y-2 text-slate-600 my-4\"><li>Tóm tắt...</li></ul><h3 id=\"sec-4-2\" class=\"text-xl font-bold text-slate-900 mb-3\">4.2. Bảng Ma trận Quyết định</h3>...<h3 id=\"sec-4-3\" class=\"text-xl font-bold text-slate-900 mb-3\">4.3. Các lỗi thường gặp & Lưu ý thực tế</h3>...",
   "references": [
     {{"title": "Official authoritative documentation title", "url": "https://..."}}
   ],
@@ -996,14 +929,16 @@ Return pure JSON data with fields (MUST NOT omit `section1_title`, `section2_tit
 Author detailed, exhaustive reading material content for:
 Session: {session_id}
 Lesson: {lesson_id} - {lesson_title}
-Lesson Details: {lesson_details}
+Curriculum Details: {lesson_details}
 Expected Output: {expected_output}
 Target Technology Stack: {tech_stack}
+Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
+Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
 
 MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
 1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants, mechanism breakdowns, and bullet point explanations. Under each sub-section, include an enterprise problem callout box and a code sandbox snippet in {tech_stack}.
 2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax, 3.2 Business logic, 3.3 Enterprise scenario). Each example MUST contain an executable code block (`<pre><code class="language-{tech_stack}">...</code></pre>`).
-3. STRICT SCOPE BOUNDARY RULE: Check the current session/lesson title. For Session 06 Lesson 01 ("Khái niệm vòng lặp và câu lệnh for và hàm range"), ABSOLUTELY DO NOT use List data structures (`[...]`), List iteration (`for x in my_list`), Dictionaries (`{...}`), or `enumerate()`. Lists/Dicts are taught in later sessions. All code examples for Session 06 Lesson 01 MUST strictly use `range()` and string character iteration ONLY.
+3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope. ABSOLUTELY DO NOT leak any concept, keyword, or API from Forbidden Knowledge Scope!
 4. Section 5 MUST contain exactly 3 interactive self-test MCQ questions under `self_test_questions`. They MUST be high-context, using variables/data from the examples above, and have detailed explanations.
 5. Return ONLY raw pure JSON strictly adhering to the schema."""
 
@@ -1188,6 +1123,9 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         c = re.sub(r'<script\b[^>]*>(?:(?!</script>).)*$', '', c, flags=re.DOTALL)
         c = re.sub(r'<script\b[^>]*>.*?</script>', '', c, flags=re.DOTALL)
 
+        # Clean broken tags, normalize phosphor icons, and prevent italic leakage
+        c = sanitize_html_tags_and_italics(c)
+
         # Fix 2c: Normalize visualizer element IDs to match JS template selectors
         c = re.sub(r'id="mem-(?:total[_-]?sum|tong)"', 'id="viz-var-sum"', c)
         c = re.sub(r'id="mem-(?:number|bien[_-]?lap|counter|so)"', 'id="viz-var-number"', c)
@@ -1203,10 +1141,10 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
             panel_content = m.group(0)
             if "Bắt đầu" not in panel_content or "Tạm dừng" not in panel_content:
                 return '''<div class="flex items-center gap-2">
-  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-play text-xs"></i> Bắt đầu</button>
-  <button type="button" onclick="runVizStep(0)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-pause text-xs"></i> Tạm dừng</button>
-  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#be111c] hover:bg-[#90000a] text-white shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-step-forward text-xs"></i> Từng bước</button>
-  <button type="button" onclick="runVizStep(-999)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-sm transition-all flex items-center gap-1"><i class="ph-bold ph-arrow-counter-clockwise text-xs"></i> Đặt lại</button>
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-play text-xs"></span> Bắt đầu</button>
+  <button type="button" onclick="runVizStep(0)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-pause text-xs"></span> Tạm dừng</button>
+  <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#be111c] hover:bg-[#90000a] text-white shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-step-forward text-xs"></span> Từng bước</button>
+  <button type="button" onclick="runVizStep(-999)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-sm transition-all flex items-center gap-1"><span class="ph-bold ph-arrow-counter-clockwise text-xs"></span> Đặt lại</button>
 </div>'''
             return panel_content
         c = re.sub(r'<div\s+class="flex\s+items-center\s+gap-2">\s*<button\b.*?</button>\s*</div>', normalize_viz_button_panel, c, flags=re.DOTALL | re.IGNORECASE)
@@ -1226,8 +1164,6 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Tự động chạy|Auto Play)\s*</button>', r'\1 onclick="vizToggleAuto()">Tự động chạy</button>', c, flags=re.IGNORECASE)
         c = re.sub(r'(<button\b(?![^>]*onclick=)[^>]*>)\s*(?:Thử lại|Đặt lại|Reset)\s*</button>', r'\1 onclick="runVizStep(-999)">Thử lại</button>', c, flags=re.IGNORECASE)
 
-        # 🚨 ABSOLUTE ZERO ITALICS CONTRACT 🚨: Strip all <i> and <em> tags completely everywhere
-        c = re.sub(r'<(?:i|em)\b[^>]*>(.*?)</(?:i|em)>', r'\1', c, flags=re.IGNORECASE)
         # Strip Tailwind 'italic' class from all elements
         c = re.sub(r'\bitalic\b', '', c)
 
@@ -1248,18 +1184,17 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         # Strip line numbers from visualizer code lines safely without breaking HTML tags
         c = re.sub(r'(id="[^"]*(?:mech-line|line-)[^"]*"[^>]*>)\s*(?:<span[^>]*>)?\s*(?:\d+\.|\b(?:Dòng|Line)\s*\d+[:.]?)\s*(?:</span>)?\s*', r'\1', c, flags=re.IGNORECASE)
 
-        # Strip font-mono from h1-h6 headings and ensure font-montserrat font-bold
+        # Strip font-mono from h1-h6 headings and ensure font-montserrat font-bold without class duplication
         def sanitize_heading_fonts(m):
             tag_name = m.group(1)
             attrs = m.group(2)
-            clean_attrs = re.sub(r'\bfont-mono\b', 'font-montserrat', attrs)
-            if 'font-montserrat' not in clean_attrs:
-                if 'class="' in clean_attrs:
-                    clean_attrs = clean_attrs.replace('class="', 'class="font-montserrat font-bold ')
-                elif "class='" in clean_attrs:
-                    clean_attrs = clean_attrs.replace("class='", "class='font-montserrat font-bold ")
-                else:
-                    clean_attrs = f'class="font-montserrat font-bold" {clean_attrs}'
+            class_match = re.search(r'class=["\']([^"\']*)["\']', attrs)
+            if class_match:
+                classes = [cls for cls in class_match.group(1).split() if cls not in ('font-mono', 'font-montserrat', 'font-bold')]
+                classes = ['font-montserrat', 'font-bold'] + classes
+                clean_attrs = re.sub(r'class=["\'][^"\']*["\']', f'class="{" ".join(classes)}"', attrs)
+            else:
+                clean_attrs = f'class="font-montserrat font-bold" {attrs}'
             return f'<{tag_name} {clean_attrs}>'
         c = re.sub(r'<(h[1-6])\s+([^>]*)>', sanitize_heading_fonts, c)
 
@@ -1293,10 +1228,6 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         )
 
         return c
-
-
-
-
 
     # Apply Diagram & Syntax Guards (Problem 1 Requirement 1.3)
     prob_html = clean_stray_chars(guard_mermaid_syntax(ensure_html(data.get("problem_html") or data.get("problem_text", ""))))
@@ -1355,17 +1286,26 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         or 'Mô phỏng cơ chế vận hành từng bước' in know_html
     )
     if not has_existing_viz_in_know:
-        section2_4 = generate_universal_step_visualizer(lesson_title, tech_stack, data.get("example_code", ""))
-        know_html = know_html + "\n" + clean_stray_chars(inject_subheading_ids(section2_4))
+        viz_spec = data.get("interactive_visualizer") or data.get("visualizer_spec")
+        raw_sec2_4 = data.get("section2_4_html") or ""
+        if viz_spec and isinstance(viz_spec, dict):
+            section2_4 = build_domain_adaptive_visualizer(lesson_title, tech_stack, viz_spec)
+        elif raw_sec2_4 and len(raw_sec2_4.strip()) > 30:
+            section2_4 = raw_sec2_4
+        else:
+            section2_4 = ""
+
+        if section2_4:
+            know_html = know_html + "\n" + clean_stray_chars(inject_subheading_ids(section2_4))
 
     ex_text = clean_stray_chars(inject_subheading_ids(guard_mermaid_syntax(ensure_html(data.get("example_html") or data.get("example_text", "")))))
     notes_html = clean_stray_chars(ensure_html(data.get("notes_html") or data.get("notes_text", "")))
 
-    # Strip LLM hallucinated duplicate main section headers inside section payloads
-    prob_html = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:1\.|\bSection\s+1\b)?\s*(?:Đặt vấn đề|Problem Statement)?\s*</(?:h1|h2|h3)>', '', prob_html, flags=re.IGNORECASE).strip()
-    know_html = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:2\.|\bSection\s+2\b)?\s*(?:Giới thiệu kiến thức|Cú pháp)?\s*</(?:h1|h2|h3)>', '', know_html, flags=re.IGNORECASE).strip()
-    ex_text = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:3\.|\bSection\s+3\b)?\s*(?:Các ví dụ ứng dụng thực tiễn|Ví dụ)?\s*</(?:h1|h2|h3)>', '', ex_text, flags=re.IGNORECASE).strip()
-    notes_html = re.sub(r'<(?:h1|h2|h3)\b[^>]*>\s*(?:4\.|\bSection\s+4\b)?\s*(?:Tổng kết bài học|Tổng kết)?\s*</(?:h1|h2|h3)>', '', notes_html, flags=re.IGNORECASE).strip()
+    # Strip LLM hallucinated duplicate main section headers (e.g. <h1> / <h2>) inside section payloads
+    prob_html = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', prob_html, flags=re.DOTALL | re.IGNORECASE).strip()
+    know_html = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', know_html, flags=re.DOTALL | re.IGNORECASE).strip()
+    ex_text = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', ex_text, flags=re.DOTALL | re.IGNORECASE).strip()
+    notes_html = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', notes_html, flags=re.DOTALL | re.IGNORECASE).strip()
 
     # Resolve Language Info from Tech Stack (Problem 1 Requirement 1.2)
     lang_info = resolve_language_info(tech_stack)
@@ -1631,7 +1571,7 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         "sec4_html": notes_html,
         "context_image_url": context_img_url,
         "reference_links": refs_items,
-        "show_visualizer": True,
+        "show_visualizer": False,
         "self_test_questions": data.get("self_test_questions", [])
     }
     metadata = {

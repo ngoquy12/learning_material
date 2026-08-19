@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 2] Thiết Kế Module Tính Toán Điều Kiện Đặt Phòng Khách Sạn</center>
+# <center>[Sáng tạo 2] Thiết Kế Module Tính Toán Điều Kiện Đặt Phòng Khách Sạn</center>
 
 ### **1. Mục tiêu**
 *   **Tự chủ thiết kế I/O Schema**: Xác định cấu trúc dữ liệu đầu vào và đầu ra cho module đánh giá điều kiện đặt phòng và tính toán phụ phí trong hệ thống Agoda/Traveloka.
@@ -9,7 +9,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Hệ thống đặt phòng trực tuyến (Agoda/Traveloka) cần phát triển một tính năng nền tảng: **Booking Condition & Fee Evaluator Engine**. Module này xử lý dữ liệu từ yêu cầu đặt phòng của khách hàng (giờ check-in dự kiến, số ngày hủy phòng trước thời điểm nhận phòng, số lượng khách thực tế so với sức chứa tiêu chuẩn, tuổi của trẻ em đi cùng...).
 
-Do yêu cầu hiệu năng cực cao ở tầng tính toán nhanh (In-Memory Evaluation), hệ thống không sử dụng các câu lệnh rẽ nhánh phức tạp mà tính toán trực tiếp thông qua các biểu thức số học và biểu thức logic đại số. Bài toán đặt ra cho học viên là tự thiết kế bài toán, định nghĩa tập dữ liệu, phát hiện các trường hợp biên nguy hiểm và hiện thực hóa module tính toán này hoàn toàn từ đầu.### **3. Quy tắc nghiệp vụ**
+Do yêu cầu hiệu năng cực cao ở tầng tính toán nhanh (In-Memory Evaluation), hệ thống không sử dụng các câu lệnh rẽ nhánh phức tạp mà tính toán trực tiếp thông qua các biểu thức số học và biểu thức logic đại số. Bài toán đặt ra cho học viên là tự thiết kế bài toán, định nghĩa tập dữ liệu, phát hiện các trường hợp biên nguy hiểm và hiện thực hóa module tính toán này hoàn toàn từ đầu.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống áp dụng các quy tắc kinh doanh lưu trú tiêu chuẩn sau:
 *   **Giờ Check-in tiêu chuẩn**: Giờ check-in quy định là 14:00. Nếu khách check-in trước 12:00 (giờ check-in < 12), cờ phụ thu `is_early_checkin` sẽ kích hoạt (`True`) và chịu phụ phí 30% giá phòng một đêm.
 *   **Chính sách hủy phòng**: Hủy phòng trước ngày nhận phòng từ 3 ngày trở lên (số ngày báo hủy >= 3), cờ hoàn tiền `is_full_refund_eligible` nhận giá trị `True` (hoàn 100% cọc).

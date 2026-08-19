@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 2] Thiết kế Hệ thống Tinh chỉnh và Thanh lọc Dữ liệu Cước phí GrabRide</center>
+# <center>[Sáng tạo 2] Thiết kế Hệ thống Tinh chỉnh và Thanh lọc Dữ liệu Cước phí GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Vận dụng kỹ năng xử lý Danh sách (List):** Thực thi thành thạo thao tác truy xuất, cập nhật giá trị phần tử qua chỉ số (`list[index] = value`), loại bỏ phần tử bị hủy (`del list[index]`), và đo đạc quy mô dữ liệu bằng hàm `len()`.

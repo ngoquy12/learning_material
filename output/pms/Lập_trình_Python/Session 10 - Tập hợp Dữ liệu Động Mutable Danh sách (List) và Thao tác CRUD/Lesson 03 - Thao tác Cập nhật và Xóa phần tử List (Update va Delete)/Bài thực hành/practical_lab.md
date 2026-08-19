@@ -26,7 +26,8 @@ Trong hệ thống thương mại điện tử, việc quản lý giỏ hàng đ
 
 ```text
 def process_cart() -> None:
-    # Khởi tạo danh sách sản phẩm và giá tương ứng với Type Hints (Python 3.12)
+
+# Khởi tạo danh sách sản phẩm và giá tương ứng với Type Hints (Python 3.12)
     cart_items: list[str] = [
         "Laptop Pro",
         "Tai nghe hỏng",
@@ -38,7 +39,7 @@ def process_cart() -> None:
 
     print(f"Tổng số sản phẩm ban đầu: {len(cart_items)}")
 
-    # 1. Cập nhật sản phẩm tại chỉ số 0 (Đổi phiên bản sản phẩm và điều chỉnh giá)
+# 1. Cập nhật sản phẩm tại chỉ số 0 (Đổi phiên bản sản phẩm và điều chỉnh giá)
     update_index: int = 0
     if update_index < len(cart_items):
         cart_items[update_index] = "Laptop Pro M2"
@@ -47,7 +48,7 @@ def process_cart() -> None:
     else:
         print(f"Lỗi: Chỉ số {update_index} vượt quá phạm vi danh sách.")
 
-    # 2. Duyệt ngược danh sách từ cuối về đầu để xóa an toàn sản phẩm có giá bằng 0
+# 2. Duyệt ngược danh sách từ cuối về đầu để xóa an toàn sản phẩm có giá bằng 0
     i: int = len(cart_prices) - 1
     while i >= 0:
         if cart_prices[i] == 0:
@@ -56,7 +57,7 @@ def process_cart() -> None:
             print(f"[CẢNH BÁO] Đã loại bỏ sản phẩm không hợp lệ: {removed_item}")
         i -= 1
 
-    # 3. Xóa an toàn một sản phẩm chỉ định bằng remove() có kiểm tra tồn tại bằng 'in'
+# 3. Xóa an toàn một sản phẩm chỉ định bằng remove() có kiểm tra tồn tại bằng 'in'
     target_item: str = "Bàn phím cơ"
     if target_item in cart_items:
         target_index: int = cart_items.index(target_item)
@@ -66,7 +67,7 @@ def process_cart() -> None:
     else:
         print(f"Không tìm thấy {target_item} để xóa.")
 
-    # 4. Đảo ngược danh sách hiển thị (thao tác in-place)
+# 4. Đảo ngược danh sách hiển thị (thao tác in-place)
     cart_items.reverse()
     cart_prices.reverse()
 
@@ -75,7 +76,7 @@ def process_cart() -> None:
     print("Đơn giá tương ứng:", cart_prices)
     print("Số lượng mặt hàng thanh toán:", len(cart_items))
 
-    # 5. Dọn dẹp giỏ hàng sau khi hoàn tất thanh toán thành công
+# 5. Dọn dẹp giỏ hàng sau khi hoàn tất thanh toán thành công
     cart_items.clear()
     cart_prices.clear()
 
@@ -88,7 +89,7 @@ if __name__ == "__main__":
     process_cart()
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khởi tạo thành công môi trường ảo virtualenv và quản lý tệp trên Cursor/Windsurf AI IDE.
 - [ ] Khai báo chuẩn xác Type Hints (list[str], list[int]) và tuân thủ quy tắc định dạng mã nguồn PEP 8.
 - [ ] Thực hiện cập nhật giá trị phần tử qua chỉ số có kiểm tra phạm vi để phòng tránh IndexError.

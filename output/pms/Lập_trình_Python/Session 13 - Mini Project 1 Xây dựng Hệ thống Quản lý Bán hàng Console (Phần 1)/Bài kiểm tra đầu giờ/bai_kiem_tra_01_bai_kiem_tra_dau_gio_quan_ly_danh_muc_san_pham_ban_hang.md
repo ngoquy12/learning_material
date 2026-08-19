@@ -1,4 +1,4 @@
-## <center>Bài Kiểm Tra Đầu Giờ: Quản Lý Danh Mục Sản Phẩm Bán Hàng (Product Catalog Management)</center>
+# <center>Bài Kiểm Tra Đầu Giờ: Quản Lý Danh Mục Sản Phẩm Bán Hàng (Product Catalog Management)</center>
 
 ### **1. Mục tiêu**
 - Đánh giá khả năng thao tác dữ liệu cấu trúc danh sách kết hợp với Dictionary (`list[dict[str, Any]]`) trong Python 3.12.

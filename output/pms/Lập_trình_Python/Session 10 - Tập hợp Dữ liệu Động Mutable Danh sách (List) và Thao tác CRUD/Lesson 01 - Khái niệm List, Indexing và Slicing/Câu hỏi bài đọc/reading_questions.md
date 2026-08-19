@@ -4,6 +4,7 @@
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
 ```python
+
 # Mã nguồn minh họa nghiệp vụ cho bài học: Khái niệm List, Indexing và Slicing
 score = 8.5
 

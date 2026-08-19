@@ -1,5 +1,3 @@
-#
-
 # <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp (CLINIC_APPOINTMENT)</center>
 
 ### **1. Mục tiêu**

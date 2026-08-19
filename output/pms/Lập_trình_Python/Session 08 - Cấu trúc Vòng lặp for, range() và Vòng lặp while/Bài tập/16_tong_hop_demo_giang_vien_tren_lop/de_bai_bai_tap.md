@@ -1,4 +1,4 @@
-## <center>[Tổng hợp Demo] Phân hệ Tổng hợp Kiểm soát và Xử lý Lô Sách Thư viện (LIBRARY_WMS)</center>
+# <center>[Tổng hợp Demo] Phân hệ Tổng hợp Kiểm soát và Xử lý Lô Sách Thư viện (LIBRARY_WMS)</center>
 
 ### **1. Mục tiêu**
 

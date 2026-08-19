@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 1] Phân tích và Triển khai Module Tính Phụ phí Check-in Máy bay</center>
 
 ### **1. Mục tiêu**

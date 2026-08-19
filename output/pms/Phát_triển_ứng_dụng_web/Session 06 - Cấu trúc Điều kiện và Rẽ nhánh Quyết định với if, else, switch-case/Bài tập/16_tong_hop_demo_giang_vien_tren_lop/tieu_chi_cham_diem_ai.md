@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI / Mentor)**
+# **Tiêu chí chấm điểm (AI / Mentor)**
 
 **[Tổng hợp Demo] Bài tập Tổng hợp Kiến thức Session — Tổng điểm: 100 điểm**
 

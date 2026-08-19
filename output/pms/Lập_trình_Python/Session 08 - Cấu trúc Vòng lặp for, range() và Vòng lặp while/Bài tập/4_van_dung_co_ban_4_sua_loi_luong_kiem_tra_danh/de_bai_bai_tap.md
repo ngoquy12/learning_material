@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 4] Sửa lỗi luồng kiểm tra danh mục mượn sách theo lô</center>
+# <center>[Vận dụng cơ bản 4] Sửa lỗi luồng kiểm tra danh mục mượn sách theo lô</center>
 
 ### **1. Mục tiêu**
 * Phân tích và phát hiện lỗi vị trí đặt câu lệnh điều khiển luồng (`continue`, `break`) trong vòng lặp `for` với hàm `range()`.
@@ -21,7 +21,9 @@ Quy tắc nghiệp vụ của hệ thống quy định:
 Dưới đây là đoạn mã nguồn Python legacy đang gặp lỗi điều khiển luồng nghiệp vụ:
 
 ```python
+
 # Hệ thống Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS)
+
 # Phân hệ: Quét dải mã sách mượn tự động
 
 start_id = 101
@@ -31,16 +33,17 @@ processed_count = 0
 print("--- BẮT ĐẦU TIẾN TRÌNH QUÉT MƯỢN SÁCH THEO LÔ ---")
 
 for book_id in range(start_id, end_id + 1):
-    # Ghi nhận phê duyệt mượn sách và tăng biến đếm
+
+# Ghi nhận phê duyệt mượn sách và tăng biến đếm
     print("Phê duyệt mượn thành công sách mã số:", book_id)
     processed_count += 1
 
-    # Kiểm tra sách thuộc danh mục hạn chế mượn
+# Kiểm tra sách thuộc danh mục hạn chế mượn
     if book_id == 104:
         print("Đã bỏ qua sách mã số:", book_id, "(Danh mục hạn chế)")
         continue
 
-    # Kiểm tra sách bị báo mất hoặc gặp sự cố an ninh
+# Kiểm tra sách bị báo mất hoặc gặp sự cố an ninh
     if book_id == 107:
         print("CẢNH BÁO GIÁM SÁT: Dừng hệ thống do sách mã số:", book_id, "bị báo mất!")
         break
@@ -50,7 +53,7 @@ else:
 print("--- KẾT THÚC TIẾN TRÌNH ---")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Lập Báo cáo Test Case & Phân tích lỗi logic (Code Tracing)**
 Học viên tiến hành chạy thử và truy vết mã nguồn từng bước (step-by-step trace). Điền đầy đủ dữ liệu vào bảng Báo cáo Test Case dưới đây. Lưu ý: Dòng 1 đã được cung cấp mẫu, học viên cần tự phân tích và hoàn thành các dòng 2 và 3 (`...`).
@@ -118,7 +121,7 @@ flowchart TD
     N --> D
 ```
 
-### **5. Yêu cầu nộp bài**
+# **5. Yêu cầu nộp bài**
 Học viên cần nộp:
 * Phần phân tích/báo cáo và mã nguồn triển khai.
 * Đẩy mã nguồn lên GitHub theo định dạng thư mục: `[Tên Lớp]_[Môn Học]_SessionSession 08_Ex4`.

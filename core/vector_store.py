@@ -80,13 +80,13 @@ class LocalJSONVectorStore(BaseVectorStore):
                     content=text,
                     task_type="retrieval_document"
                 )
-                return result.get("embedding", [])
+                emb = result.get("embedding", [])
+                if emb:
+                    return emb
             except Exception:
-                return []
+                pass
 
-        return []
-
-        if openai_key:
+        if openai_key and openai_key.strip() != "dummy":
             try:
                 from openai import OpenAI  # type: ignore
                 client = OpenAI(api_key=openai_key)

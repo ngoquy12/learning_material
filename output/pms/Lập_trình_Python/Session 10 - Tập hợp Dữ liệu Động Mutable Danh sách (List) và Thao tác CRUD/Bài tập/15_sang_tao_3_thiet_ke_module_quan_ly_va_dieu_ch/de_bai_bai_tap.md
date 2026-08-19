@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 3] Thiết kế Module Quản lý và Điều chỉnh Cước phí Chuyến đi GrabRide</center>
+# <center>[Sáng tạo 3] Thiết kế Module Quản lý và Điều chỉnh Cước phí Chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Tư duy hệ thống & Kiến trúc dữ liệu:** Vận dụng linh hoạt các thao tác cơ bản trên danh sách dữ liệu động Mutable (cập nhật phần tử qua vị trí index, xóa phần tử bằng câu lệnh `del`, và truy xuất kích thước danh sách bằng `len()`) để xây dựng module quản lý cước phí chuyến đi trong ca làm việc của tài xế.
@@ -11,7 +11,9 @@ Trong hệ thống đặt xe công nghệ **GrabRide**, các chuyến đi đư�
 2.  **Hủy chuyến đi (Delete):** Hành khách hoặc tài xế chủ động hủy chuyến đi do sự cố ngoài ý muốn, yêu cầu hệ thống loại bỏ hoàn toàn giá cước của chuyến đi đó khỏi danh sách bằng câu lệnh `del`.
 3.  **Thống kê chỉ tiêu (Length Check):** Điều phối viên cần kiểm tra số lượng chuyến đi thực tế còn lại trong danh sách thông qua hàm `len()` để đánh giá hiệu suất ca làm việc.
 
-Hệ thống đang cần một Kỹ sư Phần mềm Backend chịu trách nhiệm phân tích toàn bộ quy trình, thiết kế cấu trúc dữ liệu và triển khai mã nguồn hoàn chỉnh từ đầu.### **3. Quy tắc nghiệp vụ**
+Hệ thống đang cần một Kỹ sư Phần mềm Backend chịu trách nhiệm phân tích toàn bộ quy trình, thiết kế cấu trúc dữ liệu và triển khai mã nguồn hoàn chỉnh từ đầu.
+
+### **3. Quy tắc nghiệp vụ**
 *   **Cơ chế tính giá cước chuyến đi GrabRide:**
     *   2 km đầu tiên: Tính giá cố định `12.000 VNĐ`.
     *   Từ km thứ 3 trở đi: Tính `4.500 VNĐ/km` cho phần quãng đường vượt quá 2 km.

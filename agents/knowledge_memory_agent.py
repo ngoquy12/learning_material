@@ -190,6 +190,7 @@ def store_memory(
             conn.close()
             return False
 
+        from datetime import timezone
         conn.execute("""
             INSERT INTO agent_memory 
                 (id, tech_stack, error_category, severity, scope, rule_text,
@@ -198,7 +199,7 @@ def store_memory(
         """, (
             rule_id, tech_stack, error_category, severity, scope, rule_text.strip(),
             example_bad, example_good, source_lesson, source_agent,
-            datetime.utcnow().isoformat()
+            datetime.now(timezone.utc).isoformat()
         ))
         conn.commit()
         print(f"  [KMA] ✅ Đã lưu rule mới [{severity}/{error_category}]: {rule_text[:80]}...")

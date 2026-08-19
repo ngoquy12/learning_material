@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 3] Sửa lỗi ghép chuỗi khi tính hóa đơn bán hàng POS</center>
+# <center>[Vận dụng cơ bản 3] Sửa lỗi ghép chuỗi khi tính hóa đơn bán hàng POS</center>
 
 ### **1. Mục tiêu**
 * Hiểu và vận dụng đúng các kiểu dữ liệu cơ bản trong Python (`str`, `int`, `float`).
@@ -8,11 +8,15 @@
 ### **2. Bối cảnh & Vấn đề**
 Hệ thống Quản lý Bán hàng Quán Cà phê (Highlands POS) đang được triển khai tại quầy thu ngân. Khi khách hàng gọi đồ uống, thu ngân sẽ nhập giá niêm yết cơ bản của món, số lượng ly và số lượng topping gọi thêm (mỗi phần topping có giá cố định 8.000 VNĐ).
 
-Bộ phận vận hành nhận được phản ánh từ thu ngân tại cửa hàng: Hệ thống POS xuất hóa đơn với số tiền thanh toán bất thường. Cụ thể, khi nhập 2 ly Trà sen vàng giá 45.000 VNĐ/ly và 2 phần topping củ năng (8.000 VNĐ/phần), thay vì tính tổng tiền là 106.000 VNĐ, trên màn hình và hóa đơn in ra lại hiển thị con số 9000016000 VNĐ.### **3. Mã nguồn hiện tại**
+Bộ phận vận hành nhận được phản ánh từ thu ngân tại cửa hàng: Hệ thống POS xuất hóa đơn với số tiền thanh toán bất thường. Cụ thể, khi nhập 2 ly Trà sen vàng giá 45.000 VNĐ/ly và 2 phần topping củ năng (8.000 VNĐ/phần), thay vì tính tổng tiền là 106.000 VNĐ, trên màn hình và hóa đơn in ra lại hiển thị con số 9000016000 VNĐ.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn Python hiện tại đang chạy trên thiết bị POS của quầy thu ngân:
 
 ```python
+
 # Hệ thống Quản lý Bán hàng Quán Cà phê (Highlands POS)
+
 # Tệp mã nguồn: pos_receipt_calculator.py
 
 # Nhập thông tin đơn hàng từ thu ngân
@@ -40,7 +44,7 @@ print("Tiền topping:", topping_subtotal, "VNĐ")
 print("Tổng tiền thanh toán:", total_payment, "VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Code Tracing & Báo cáo Test Case (Lập bảng phân tích lỗi)**
 Học viên đọc hiểu mã nguồn, chạy thử chương trình với các trường hợp đầu vào khác nhau để tìm ra vị trí dòng code gây lỗi. Sau đó, hoàn thành bảng báo cáo Test Case dưới đây (Dòng STT 1 đã được thực hiện mẫu, học viên cần suy luận và hoàn thành STT 2 và STT 3):

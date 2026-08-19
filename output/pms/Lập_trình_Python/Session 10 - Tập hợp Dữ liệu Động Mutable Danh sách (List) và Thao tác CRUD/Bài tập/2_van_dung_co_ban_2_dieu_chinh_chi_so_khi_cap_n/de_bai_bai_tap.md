@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 2] Điều chỉnh chỉ số khi cập nhật và xóa chuyến đi trong Hệ thống GrabRide</center>
+# <center>[Vận dụng cơ bản 2] Điều chỉnh chỉ số khi cập nhật và xóa chuyến đi trong Hệ thống GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu rõ cơ chế thay đổi vị trí chỉ số (index shift) của các phần tử trong `list` mutable khi thực hiện thao tác xóa phần tử bằng câu lệnh `del`.
@@ -26,11 +26,13 @@ flowchart TD
     F --> G([Kết thúc quy trình])
 ```
 
-### **3. Mã nguồn hiện tại**
+# **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn Python 3.12 hiện tại do lập trình viên thử nghiệm triển khai nhưng đang gặp lỗi logic:
 
 ```python
+
 # Virtualenv: venv | Python 3.12
+
 # Chuẩn PEP 8 & Type Hints
 
 # Danh sách quãng đường di chuyển của các chuyến đi trong ca (km)
@@ -51,7 +53,7 @@ print("Danh sách chuyến đi sau cập nhật: trip_distances)
 print("Tổng số chuyến đi hợp lệ: remaining_trip_count)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Tracing mã nguồn & Lập bảng báo cáo Test Case (30 điểm)**
 Học viên tiến hành chạy thử đoạn mã trên, phân tích hiện tượng dồn chỉ số (index shifting) khi dùng `del` và hoàn thiện bảng báo cáo vết chạy chương trình dưới đây vào báo cáo bài nộp.

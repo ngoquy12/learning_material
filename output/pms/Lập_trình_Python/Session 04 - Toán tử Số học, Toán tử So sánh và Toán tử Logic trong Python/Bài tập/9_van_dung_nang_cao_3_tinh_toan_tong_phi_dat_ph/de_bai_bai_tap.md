@@ -1,10 +1,12 @@
-## <center>[Vận dụng nâng cao 3] Tính toán Tổng Phí Đặt Phòng và Kiểm Soát Điều Kiện Đặt Cọc Homestay</center>
+# <center>[Vận dụng nâng cao 3] Tính toán Tổng Phí Đặt Phòng và Kiểm Soát Điều Kiện Đặt Cọc Homestay</center>
 
 ### **1. Mục tiêu**
 Vận dụng linh hoạt các toán tử số học, toán tử so sánh và phép toán biểu thức logic trong Python 3.12 để giải quyết bài toán tính toán chi phí đặt phòng homestay, kiểm tra điều kiện hoàn cọc và xác thực tính hợp lệ của giao dịch mà không sử dụng các cấu trúc điều khiển nâng cao (câu lệnh rẽ nhánh `if/else`, vòng lặp, danh sách). Học viên rèn luyện tư duy phân tích I/O, tự thiết kế luồng xử lý và viết mã chuẩn PEP 8 kèm Type Hints.
 
 ### **2. Bối cảnh & Vấn đề**
-Trong nền tảng ứng dụng đặt phòng khách sạn & homestay (như Agoda hay Traveloka), phân hệ quản lý thanh toán và đặt phòng (BookingReservation Subsystem) cần một module tự động tính toán tổng số tiền phòng, phụ phí người phát sinh, phụ phí check-in sớm, số tiền cọc bắt buộc (50%) và xác định điều kiện hoàn cọc 100% khi khách hàng yêu cầu hủy đơn.### **3. Quy tắc nghiệp vụ**
+Trong nền tảng ứng dụng đặt phòng khách sạn & homestay (như Agoda hay Traveloka), phân hệ quản lý thanh toán và đặt phòng (BookingReservation Subsystem) cần một module tự động tính toán tổng số tiền phòng, phụ phí người phát sinh, phụ phí check-in sớm, số tiền cọc bắt buộc (50%) và xác định điều kiện hoàn cọc 100% khi khách hàng yêu cầu hủy đơn.
+
+### **3. Quy tắc nghiệp vụ**
 1. **Chi phí phòng cơ bản**: Giá phòng tiêu chuẩn 1 đêm là `price_per_night` (VNĐ). Tổng chi phí tiền phòng = `price_per_night * num_nights`.
 2. **Phụ thu Check-in sớm**: Nếu khách check-in sớm trước 12h trưa (`is_early_checkin = True`), hệ thống tính phụ thu thêm 30% giá phòng của 1 đêm.
 3. **Phụ thu số lượng khách**: 

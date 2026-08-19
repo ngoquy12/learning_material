@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 3] Thiết Kế Hệ Thống Đóng Gói Và Quản Lý Hóa Đơn Đặt Phòng Khách Sạn — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản bẫy lỗi — 30 điểm**

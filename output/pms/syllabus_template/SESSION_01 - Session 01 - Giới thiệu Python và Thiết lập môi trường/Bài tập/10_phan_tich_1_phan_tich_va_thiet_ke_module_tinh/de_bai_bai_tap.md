@@ -1,16 +1,18 @@
-## <center>[Phân tích 1] Phân tích và Thiết kế Module Tính Tiền Hóa đơn POS Trà Sữa Highlands</center>
+# <center>[Phân tích 1] Phân tích và Thiết kế Module Tính Tiền Hóa đơn POS Trà Sữa Highlands</center>
 
 ### **1. Mục tiêu**
 *   **Phân tích nghiệp vụ & Kiểu dữ liệu**: Hiểu rõ luồng tính toán chi tiết một hóa đơn bán hàng tại quầy POS, phân tích đúng các kiểu dữ liệu đầu vào và áp dụng chính xác ép kiểu (Type Casting) trong Python (`str`, `int`, `float`).
 *   **Tư duy Đa giải pháp (Trade-off Analysis)**: Đề xuất các phương án cấu trúc mã nguồn khác nhau (quản lý qua biến trung gian vs biểu thức tính toán gộp), phân tích ưu nhược điểm dựa trên các tiêu chí kỹ thuật.
 *   **Thiết kế & Triển khai**: Vẽ lưu đồ thuật toán (Flowchart) chuẩn hóa và hiện thực hóa mã nguồn Python thực thi tính tiền, xử lý an toàn các phép toán tài chính cơ bản mà không gây lỗi logic hệ thống.
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Tại các chi nhánh Highlands Coffee, hệ thống máy tính tiền quầy (POS) cần xử lý dữ liệu gọi món (Order) từ nhân viên thu ngân để tính toán hóa đơn chính xác. Mỗi đơn hàng bao gồm tên thức uống, đơn giá cơ bản (Size S), khoản phụ thu nâng size (Size M hoặc Size L), số lượng topping chọn thêm, số lượng ly và tỷ lệ chiết khấu thẻ thành viên (Membership Discount).
 
 Thu ngân sẽ nhập các thông số này từ bàn phím thông qua giao diện dòng lệnh (CLI). Do dữ liệu nhận từ hàm `input()` trong Python mặc định luôn là kiểu chuỗi (`str`), nếu không phân tích và chuyển đổi kiểu dữ liệu một cách chặt chẽ, chương trình sẽ gặp lỗi phép toán (ví dụ: nhân chuỗi hoặc cộng chuỗi thay vì tính toán đại số) hoặc tính sai tiền hóa đơn của khách hàng.
 
-Nhiệm vụ của bạn là phân tích bài toán, đề xuất các hướng kiến trúc xử lý mã nguồn, lựa chọn giải pháp tối ưu và triển khai chương trình Python tính toán chính xác hóa đơn bán hàng POS.### **3. Quy tắc nghiệp vụ**
+Nhiệm vụ của bạn là phân tích bài toán, đề xuất các hướng kiến trúc xử lý mã nguồn, lựa chọn giải pháp tối ưu và triển khai chương trình Python tính toán chính xác hóa đơn bán hàng POS.
+
+### **3. Quy tắc nghiệp vụ**
 1.  **Đơn giá cơ bản (`base_price`)**: Áp dụng cho Size S tiêu chuẩn (kiểu số nguyên `int`, đơn vị VNĐ).
 2.  **Phụ thu Size (`size_upgrade_fee`)**: 
     *   Size S: `0` VNĐ.

@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 1] Thiết kế Tiến trình Kiểm duyệt Danh mục Sách Trả Tự động</center>
+# <center>[Sáng tạo 1] Thiết kế Tiến trình Kiểm duyệt Danh mục Sách Trả Tự động</center>
 
 ### **1. Mục tiêu**
 
@@ -37,7 +37,7 @@ Học viên đóng vai trò Kĩ sư Kiến trúc Phần mềm, thực hiện bà
 #### **Phần 1: Tự thiết kế I/O Schema & Kịch bản nghiệp vụ**
 
 - Đề xuất bảng tham số đầu vào (ví dụ: `start_id`, `end_id`, quy tắc nhận diện mã lỗi nhẹ, mã lỗi nghiêm trọng) và kết quả đầu ra mong muốn.
-- Mô tả rõ công thức hoặc quy tắc logic để phân loại một mã sách là "hợp lệ", "lỗi nhẹ" hay "vi phạm nghiêm trọng".
+- Mô tả rõ công thức hoặc quy tắc logic để phân loại một mã sách là "hợp lệ "lỗi nhẹ" hay "vi phạm nghiêm trọng".
 
 #### **Phần 2: Phân tích sai sót dữ liệu (Edge Cases)**
 

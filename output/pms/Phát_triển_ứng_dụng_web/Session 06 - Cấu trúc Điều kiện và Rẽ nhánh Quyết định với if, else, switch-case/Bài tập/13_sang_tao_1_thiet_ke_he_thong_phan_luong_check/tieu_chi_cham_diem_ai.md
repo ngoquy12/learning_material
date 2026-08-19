@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 1] Thiết Kế Hệ Thống Phân Luồng Check-in và Tính Phí Hành Lý Hàng Không — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản bẫy lỗi — 30 điểm**

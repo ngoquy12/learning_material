@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 3] Sửa lỗi tính tổng tiền khám bệnh và xuất phiếu thông báo</center>
 
 ### **1. Mục tiêu**
@@ -11,18 +9,22 @@
 ### **2. Bối cảnh & Vấn đề**
 Tại phòng khám đa khoa Rikkei Care (thuộc Hệ thống Đặt lịch Khám bệnh Phòng khám Tự động `CLINIC_APPOINTMENT`), bộ phận tiếp nhận bệnh nhân sử dụng một trang web đơn giản để nhập thông tin đăng ký khám và tính toán tổng chi phí ban đầu. Chi phí thanh toán bao gồm hai khoản tiền: **Tiền khám chuyên khoa** và **Phí xét nghiệm sơ bộ**.
 
-Hiện tại, nhân viên lễ tân liên tục phản ánh sự cố hệ thống: Khi nhập tiền khám chuyên khoa là `200000` VNĐ và phí xét nghiệm sơ bộ là `50000` VNĐ, tổng tiền thanh toán hiển thị trên phiếu lại lên tới `20000050000` VNĐ. Sự cố này khiến khách hàng hoang mang và phàn nàn về tính chính xác của phần mềm phòng khám.```mermaid
+Hiện tại, nhân viên lễ tân liên tục phản ánh sự cố hệ thống: Khi nhập tiền khám chuyên khoa là `200000` VNĐ và phí xét nghiệm sơ bộ là `50000` VNĐ, tổng tiền thanh toán hiển thị trên phiếu lại lên tới `20000050000` VNĐ. Sự cố này khiến khách hàng hoang mang và phàn nàn về tính chính xác của phần mềm phòng khám.
+
+```mermaid
 flowchart TD
     A([Bắt đầu quy trình]) --> B[/Nhập tên bệnh nhân, tiền khám và phí xét nghiệm từ prompt/]
     B --> C["Thực hiện tính tổng chi phí thanh toán"]
     C --> D[/Xuất thông báo ra Console và cập nhật giao diện DOM/]
     D --> E([Kết thúc quy trình])
-```#
+```
 
-## **3. Mã nguồn hiện tại**
+# **3. Mã nguồn hiện tại**
 Dưới đây là tập tin mã nguồn đang vận hành gặp lỗi tại phòng khám:
 
-*Tệp index.html:*```html
+*Tệp index.html:*
+
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -44,7 +46,9 @@ Dưới đây là tập tin mã nguồn đang vận hành gặp lỗi tại phò
 </html>
 ```
 
-*Tệp app.js:*```javascript
+*Tệp app.js:*
+
+```javascript
 // Nhập thông tin bệnh nhân và chi phí từ bàn phím
 var Patient_Name = prompt("Nhập tên bệnh nhân:");
 var consultationFee = prompt("Nhập tiền khám chuyên khoa (VNĐ):");
@@ -61,9 +65,7 @@ console.log(summaryMessage);
 document.getElementById("appointment-summary").textContent = summaryMessage;
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Phân tích & Báo cáo Test Case (Tracing & Bug Discovery)**
 Học viên tiến hành thực thi thử mã nguồn trên trình duyệt, phân tích luồng dữ liệu và hoàn thành bảng báo cáo Test Case theo mẫu dưới đây.

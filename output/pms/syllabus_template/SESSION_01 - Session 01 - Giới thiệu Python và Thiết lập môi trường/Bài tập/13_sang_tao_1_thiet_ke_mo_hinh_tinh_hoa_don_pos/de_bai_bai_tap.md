@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 1] Thiết kế mô hình tính hóa đơn POS tích hợp ưu đãi và VAT linh hoạt</center>
+# <center>[Sáng tạo 1] Thiết kế mô hình tính hóa đơn POS tích hợp ưu đãi và VAT linh hoạt</center>
 
 ### **1. Mục tiêu**
 *   Vận dụng sáng tạo kiến thức về khai báo biến, nhập xuất dữ liệu màn hình dòng lệnh (`input()`, `print()`) và chuyển đổi kiểu dữ liệu (`int`, `float`, `str`) trong Python.
@@ -12,7 +12,9 @@ Tại chuỗi cửa hàng cà phê Highlands POS, quy trình tính tiền tại 
 
 Nhân viên vận hành phản ánh rằng ứng dụng cũ thường xuyên xảy ra lỗi sai lệch tổng tiền do nhân viên nhập giá trị dạng chuỗi (String) mà hệ thống lại tính toán ghép chuỗi thay vì cộng số học, hoặc gây dừng đột ngột chương trình do chưa có cơ chế kiểm tra kiểu dữ liệu trước khi ép kiểu. Ngoài ra, định dạng hiển thị phiếu thu tiền chưa chuyên nghiệp, thiếu minh bạch các khoản trừ ưu đãi và thuế.
 
-Ban dự án yêu cầu bạn - với vai trò Kỹ sư Phần mềm - chủ động thiết kế mô hình dữ liệu cho hóa đơn POS, tự xác định các vùng bẫy dữ liệu (Edge Cases), vẽ sơ đồ luồng dữ liệu và viết chương trình Python CLI thực hiện tính toán và in hóa đơn thanh toán hoàn chỉnh.### **3. Quy tắc nghiệp vụ**
+Ban dự án yêu cầu bạn - với vai trò Kỹ sư Phần mềm - chủ động thiết kế mô hình dữ liệu cho hóa đơn POS, tự xác định các vùng bẫy dữ liệu (Edge Cases), vẽ sơ đồ luồng dữ liệu và viết chương trình Python CLI thực hiện tính toán và in hóa đơn thanh toán hoàn chỉnh.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tính tiền POS tuân thủ các quy tắc nghiệp vụ thực tế sau:
 *   **Đơn giá sản phẩm**: Bằng đơn giá gốc (Size S) cộng với phí nâng size (Size M tăng 6.000 VNĐ, Size L tăng 10.000 VNĐ).
 *   **Phụ thu Topping**: Mỗi suất topping gọi thêm tính đồng giá 8.000 VNĐ.

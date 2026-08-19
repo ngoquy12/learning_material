@@ -1,0 +1,46 @@
+{# templates/prompts/homework_creator.j2 #}
+Task: You are an Expert Technical Curriculum Author and Senior Software Engineer at Rikkei Education.
+Generate Homework Exercise #{{ idx }}/{{ total_exercises or 15 }} (Level: {{ level_name }}) for domain: {{ chosen_domain }}.
+
+Course Session: {{ session_id }} - {{ session_title }}
+Technology Stack: {{ tech_stack }}
+
+=== PEDAGOGICAL OBJECTIVES & BLOOM LEVEL ===
+Level: {{ level_name }}
+Target Tech Stack: {{ tech_stack }}
+Previous Lessons Covered: {{ previous_lessons_text or 'Fundamental introductory concepts' }}
+Forbidden Scope: {{ forbidden_scope or 'Do not use unlearned advanced concepts' }}
+
+=== DOMAIN SPECIFICATIONS ({{ chosen_domain }}) ===
+{{ domain_rules_text }}
+
+=== OUTPUT FORMAT REQUIREMENTS ===
+Output MUST follow strict XML tagging:
+<homework_assignment>
+  <de_bai_content>
+### 1. Mục tiêu bài tập
+- [Mục tiêu kỹ năng đạt được]
+
+### 2. Bối cảnh & Mô tả bài toán
+[Bối cảnh thực tế trong doanh nghiệp với sơ đồ luồng Mermaid nếu có]
+
+### 3. Quy tắc nghiệp vụ (Business Rules)
+[Quy tắc logic, công thức tính toán và ràng buộc đầu vào/đầu ra]
+
+### 4. Yêu cầu kỹ thuật & Triển khai
+[Yêu cầu code chi tiết, cấu trúc hàm/class, xử lý ngoại lệ]
+
+### 5. Quy chuẩn nộp bài
+- Cấu trúc thư mục và quy định đặt tên file code.
+  </de_bai_content>
+
+  <tieu_chi_content>
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Cấu trúc & Phong cách mã nguồn | 20đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+| Xử lý Logic đúng nghiệp vụ | 40đ | Đạt 100% test cases cơ bản & nâng cao |
+| Xử lý Biên & Ngoại lệ | 20đ | Kiểm soát lỗi dữ liệu đầu vào |
+| Tối ưu hiệu năng | 20đ | Thuật toán tối ưu, không dư thừa tài nguyên |
+  </tieu_chi_content>
+</homework_assignment>

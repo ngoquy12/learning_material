@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 2] Khắc phục lỗi cập nhật thông tin và đóng gói JSON đơn đặt phòng</center>
 
 ### **1. Mục tiêu**
@@ -22,7 +20,9 @@ Bộ phận vận hành hệ thống phát hiện hai sự cố phát sinh từ 
 *   [Báo cáo 2]: Màn hình hiển thị tóm tắt phụ phí check-in sớm luôn trả về giá trị `undefined` thay vì số tiền thực tế.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là đoạn mã nguồn JavaScript đang được triển khai trên hệ thống:```javascript
+Dưới đây là đoạn mã nguồn JavaScript đang được triển khai trên hệ thống:
+
+```javascript
 // Hàm xử lý và đóng gói dữ liệu đơn đặt phòng
 function processBookingPayload(rawBookingData, earlyFee) {
     // Bước 1: Cập nhật phụ phí check-in sớm vào đối tượng đặt phòng
@@ -56,11 +56,11 @@ console.log("Chuỗi JSON gửi lưu trữ:", result.jsonPayload);
 console.log("Giá trị phụ phí hiển thị:", result.extractedFee);
 ```
 
-#
+# **4. Yêu cầu bài toán**
 
-## **4. Yêu cầu bài toán**
+#### **Luồng xử lý dữ liệu chuẩn (Mermaid Flowchart)**
 
-#### **Luồng xử lý dữ liệu chuẩn (Mermaid Flowchart)**```mermaid
+```mermaid
 flowchart TD
     A([Bắt đầu quy trình]) --> B[/Nhận rawBookingData và earlyFee/]
     B --> C["Thêm thuộc tính early-checkin-fee vào Object"]
@@ -71,9 +71,7 @@ flowchart TD
     G --> H([Kết thúc quy trình])
 ```
 
-#
-
-### **Phần 1: Báo cáo phân tích vết lỗi (Test Case Report Table)**
+# **Phần 1: Báo cáo phân tích vết lỗi (Test Case Report Table)**
 Học viên tiến hành đọc mã nguồn, tìm dòng code gây ra lỗi và hoàn thành bảng phân tích 3 trường hợp thử nghiệm theo mẫu dưới đây. Dòng 1 đã được điền mẫu:
 
 <table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%" border="1" cellPadding="6" cellSpacing="0">

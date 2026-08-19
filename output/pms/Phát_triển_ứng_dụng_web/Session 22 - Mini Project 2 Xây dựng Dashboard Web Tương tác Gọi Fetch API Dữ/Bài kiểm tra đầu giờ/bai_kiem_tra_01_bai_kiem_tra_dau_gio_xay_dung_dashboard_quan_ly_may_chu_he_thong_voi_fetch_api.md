@@ -1,4 +1,4 @@
-## <center>Bảng Điều Khiển Quản Lý Máy Chủ Hệ Thống (System Server Node Dashboard)</center>
+# <center>Bảng Điều Khiển Quản Lý Máy Chủ Hệ Thống (System Server Node Dashboard)</center>
 
 ### **1. Mục tiêu**
 - Đánh giá khả năng vận dụng cú pháp **Async/Await** và **Fetch API** để lấy dữ liệu bất đồng bộ từ REST API.

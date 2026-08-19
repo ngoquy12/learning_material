@@ -1,4 +1,4 @@
-## <center>Bài Kiểm Tra Đầu Giờ: Quản Lý Danh Mục Thiết Bị Văn Phòng (Office Equipment Catalog Management)</center>
+# <center>Bài Kiểm Tra Đầu Giờ: Quản Lý Danh Mục Thiết Bị Văn Phòng (Office Equipment Catalog Management)</center>
 
 ### **1. Mục tiêu**
 - Kiểm tra kĩ năng khai báo và sử dụng biến số ES6 (`let`, `const`), kiểu dữ liệu nguyên thủy và cấu trúc dữ liệu đối tượng (`Object Literal`).

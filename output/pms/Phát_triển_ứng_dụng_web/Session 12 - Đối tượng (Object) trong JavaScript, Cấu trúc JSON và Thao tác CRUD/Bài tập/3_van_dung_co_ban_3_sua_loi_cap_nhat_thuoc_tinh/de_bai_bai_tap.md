@@ -1,5 +1,3 @@
-#
-
 # <center>[Sửa lỗi mã nguồn] Quản lý Hồ sơ Đặt phòng Khách sạn và Đóng gói Dữ liệu JSON</center>
 
 ### **1. Mục tiêu**
@@ -20,7 +18,9 @@ Tuy nhiên, đội ngũ kiểm thử (QA) phản ánh hai sự cố nghiêm tr�
 
 Học viên cần kiểm tra mã nguồn hiện tại, thực hiện truy vết lỗi logic (code tracing), hoàn thành bảng báo cáo Test Case và tiến hành sửa lại mã nguồn đúng chuẩn.
 
-### **3. Mã nguồn hiện tại**```javascript
+### **3. Mã nguồn hiện tại**
+
+```javascript
 // Hệ thống Đặt phòng Khách sạn & Homestay (HOTEL_BOOKING)
 // Module: Xử lý và đóng gói hồ sơ đặt phòng (BookingReservation)
 
@@ -59,9 +59,7 @@ console.log("Chuỗi JSON thu được:", resultPayload);
 console.log("Phụ phí check-in sớm:", resultPayload["early-checkin-fee"]);
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Báo cáo phân tích truy vết lỗi (Code Tracing & Test Case Report)**
 Học viên hãy phân tích mã nguồn trên, tìm vị trí các dòng code gây ra lỗi và hoàn thành bảng báo cáo Test Case dưới đây.

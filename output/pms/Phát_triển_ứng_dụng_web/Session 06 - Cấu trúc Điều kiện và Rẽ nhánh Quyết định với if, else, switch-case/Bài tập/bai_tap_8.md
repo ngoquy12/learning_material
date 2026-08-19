@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 2] Triển khai logic kiểm tra check-in và tính toán phụ phí hành lý hàng không</center>
 
 ### **1. Mục tiêu**

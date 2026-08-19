@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 1] Thiết kế mô hình tính hóa đơn POS tích hợp ưu đãi và VAT linh hoạt — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản bẫy lỗi — 30 điểm**

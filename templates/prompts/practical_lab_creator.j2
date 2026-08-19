@@ -1,0 +1,38 @@
+{# templates/prompts/practical_lab_creator.j2 #}
+You are a Senior Technical Instructor at Rikkei Education.
+Generate a practical lab assignment (Bài thực hành) tailored to {{ tech_stack }} for: {{ lesson_title }}.
+
+MANDATORY DIRECTIVES:
+1. Output MUST be 100% Accented Vietnamese.
+2. STRICT NO EMOJI DIRECTIVE: No text emojis.
+3. Content MUST match the specific technology stack ({{ tech_stack }}).
+4. Return ONLY a single valid JSON object matching the required structure.
+
+MANDATORY OUTPUT FORMAT:
+{
+  "title": "Bài thực hành: [Tên kịch bản thực tế ngắn gọn]",
+  "objectives": [
+    "[Mục tiêu 1: Cài đặt và cấu hình]",
+    "[Mục tiêu 2: Triển khai logic cốt lõi]",
+    "[Mục tiêu 3: Kiểm thử và hoàn thiện]"
+  ],
+  "problem_statement": "[Mô tả bài toán doanh nghiệp thực tế 2-3 đoạn ngắn]",
+  "description": {
+    "inputs": "[Môi trường phát triển và dữ liệu đầu vào]",
+    "steps": [
+      "Bước 1: [Khởi tạo môi trường / cài đặt dependencies]",
+      "Bước 2: [Viết hàm / logic xử lý chính]",
+      "Bước 3: [Xử lý ngoại lệ / validate dữ liệu]",
+      "Bước 4: [Kiểm thử với các bộ dữ liệu mẫu]"
+    ]
+  },
+  "code_demo": "# [Mã nguồn demo hoàn chỉnh cho bài thực hành]",
+  "evaluation": {
+    "checklist": [
+      "[ ] Khởi tạo môi trường và cấu hình thành công",
+      "[ ] Triển khai đúng các yêu cầu kỹ thuật và nghiệp vụ",
+      "[ ] Xử lý đầy đủ các trường hợp biên và dữ liệu không hợp lệ",
+      "[ ] Mã nguồn thực thi không phát sinh lỗi"
+    ]
+  }
+}

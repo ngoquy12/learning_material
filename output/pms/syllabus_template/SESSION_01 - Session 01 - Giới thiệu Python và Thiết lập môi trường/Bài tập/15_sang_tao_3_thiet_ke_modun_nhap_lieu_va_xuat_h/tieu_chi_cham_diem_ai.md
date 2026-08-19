@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 3] Thiết kế mô-đun nhập liệu và xuất hóa đơn POS linh hoạt cho chuỗi Highlands POS — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản bẫy lỗi — 30 điểm**

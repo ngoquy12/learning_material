@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 1] Thiết Kế Hệ Thống Phân Luồng Check-in và Tính Phí Hành Lý Hàng Không</center>
 
 ### **1. Mục tiêu**

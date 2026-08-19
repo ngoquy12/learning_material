@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 2] Tính toán Chi phí và Xuất Phiếu Đăng ký Khám bệnh Tự động</center>
 
 ### **1. Mục tiêu**

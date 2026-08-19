@@ -1,4 +1,4 @@
-## <center>[Phân tích 2] Cập nhật và Xóa cước phí chuyến xe GrabRide</center>
+# <center>[Phân tích 2] Cập nhật và Xóa cước phí chuyến xe GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Nắm vững và áp dụng thuần thục thao tác truy cập chỉ số (indexing), cập nhật giá trị trực tiếp và xóa phần tử bằng câu lệnh `del` trên kiểu dữ liệu danh sách động (`list`) trong Python 3.12.
@@ -12,7 +12,9 @@ Trong quá trình vận hành ca trực, hai sự kiện nghiệp vụ phát sin
 1. Chuyến xe ở vị trí thứ 3 (tương ứng với chỉ số 2 trong danh sách) được áp dụng mã khuyến mãi theo chương trình ưu đãi, giá cước cần được cập nhật lại thành `60000` VNĐ.
 2. Chuyến xe ở vị trí thứ 2 (tương ứng với chỉ số 1 trong danh sách) bị khách hàng hủy chuyến do thời gian chờ quá lâu, cần được xóa bỏ hoàn toàn khỏi hệ thống để tránh tính toán doanh thu sai lệch.
 
-Bộ phận kỹ thuật yêu cầu lập báo cáo phân tích kiến trúc dữ liệu và triển khai mã nguồn Python xử lý danh sách trên, đảm bảo kiểm tra độ dài danh sách sau khi thao tác và in ra kết quả chính xác.### **3. Quy tắc nghiệp vụ**
+Bộ phận kỹ thuật yêu cầu lập báo cáo phân tích kiến trúc dữ liệu và triển khai mã nguồn Python xử lý danh sách trên, đảm bảo kiểm tra độ dài danh sách sau khi thao tác và in ra kết quả chính xác.
+
+### **3. Quy tắc nghiệp vụ**
 1. **Dữ liệu khởi tạo:** Danh sách cước phí ban đầu gồm 6 phần tử `[35000, 12000, 85000, 45000, 12000, 150000]`.
 2. **Cập nhật giá cước:**
    * Thay đổi giá trị phần tử tại chỉ số (index) 2 thành `60000`.

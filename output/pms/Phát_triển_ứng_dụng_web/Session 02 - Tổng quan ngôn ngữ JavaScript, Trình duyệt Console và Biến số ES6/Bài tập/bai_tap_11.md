@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 2] Phân tích và thiết kế module tính toán phiếu đặt lịch khám bệnh</center>
 
 ### **1. Mục tiêu**
@@ -38,7 +36,12 @@ Dữ liệu đầu vào và các quy tắc tính toán của phân hệ đặt l
     *   Sử dụng `let` cho các biến có giá trị thay đổi hoặc biến tính toán trung gian.
     *   Tên biến phải tuân thủ chuẩn `camelCase` bằng tiếng Anh.
 *   **Quy tắc 5 (Hiển thị kết quả):**
-    *   Sử dụng chuỗi Template Literals (``` `...${var}...` ```) để đóng gói toàn bộ phiếu xác nhận lịch khám.
+    *   Sử dụng chuỗi Template Literals (
+
+``` `...${var}...`
+```
+
+) để đóng gói toàn bộ phiếu xác nhận lịch khám.
     *   Ghi kết quả ra Developer Console bằng `console.log()`.
     *   Cập nhật nội dung hiển thị trên giao diện trang web HTML bằng thuộc tính DOM `document.getElementById(...).textContent`.
 

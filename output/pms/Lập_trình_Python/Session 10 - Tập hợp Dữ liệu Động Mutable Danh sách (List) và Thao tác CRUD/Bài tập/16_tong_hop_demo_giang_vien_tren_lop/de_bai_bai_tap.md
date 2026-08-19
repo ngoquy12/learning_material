@@ -1,4 +1,4 @@
-## <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp (GRAB_RIDE)</center>
+# <center>[Tổng hợp Demo] Phân hệ Tổng hợp Nghiệp vụ Tích hợp (GRAB_RIDE)</center>
 
 ### **1. Mục tiêu**
 - **Kiến thức**: Tích hợp các kiến thức cốt lõi về danh sách động (Mutable List) trong Python 3.12, bao gồm: khởi tạo danh sách, truy xuất và cập nhật phần tử qua chỉ số (index), xóa phần tử bằng câu lệnh `del` và đo độ dài danh sách bằng hàm `len()`.

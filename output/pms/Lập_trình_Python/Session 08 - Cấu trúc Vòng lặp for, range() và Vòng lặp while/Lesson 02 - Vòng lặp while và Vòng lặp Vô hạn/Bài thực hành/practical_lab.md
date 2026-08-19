@@ -17,15 +17,23 @@
 ## 3. Mã nguồn tham khảo (Code Demo)
 
 ```python
+
 # Tệp mã nguồn: main.py
+
 # Bài thực hành: Vòng lặp while và Vòng lặp Vô hạn
 
 print("=== HỆ THỐNG TÍNH TOÁN TÍCH LŨY TÀI CHÍNH ===")
 
 # Khởi tạo thông tin số dư ban đầu và mục tiêu
-current_balance = 10000000  # 10 triệu VNĐ
-target_balance = 50000000   # 50 triệu VNĐ
-monthly_deposit = 5000000   # 5 triệu VNĐ gửi thêm hàng tháng
+current_balance = 10000000
+
+# 10 triệu VNĐ
+target_balance = 50000000
+
+# 50 triệu VNĐ
+monthly_deposit = 5000000
+
+# 5 triệu VNĐ gửi thêm hàng tháng
 months = 0
 
 print(f"Số dư ban đầu: {current_balance:,} VNĐ")
@@ -43,7 +51,7 @@ print(f"\n--> Kết quả: Hoàn thành mục tiêu sau {months} tháng.")
 print(f"--> Số dư cuối kỳ đạt được: {current_balance:,} VNĐ")
 ```
 
-## 4. Checklist đánh giá kết quả
+# 4. Checklist đánh giá kết quả
 - [ ] Vòng lặp while dừng chính xác khi current_balance đạt hoặc vượt mốc target_balance.
 - [ ] Khai báo và tăng biến đếm số tháng months chính xác sau từng chu kỳ lặp.
 - [ ] Biến trạng thái current_balance được cập nhật trong thân lặp để đảm bảo không xảy ra vòng lặp vô hạn.

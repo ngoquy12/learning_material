@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 2] Sửa lỗi tính phụ phí và xác thực ưu đãi đặt phòng</center>
+# <center>[Vận dụng cơ bản 2] Sửa lỗi tính phụ phí và xác thực ưu đãi đặt phòng</center>
 
 ### **1. Mục tiêu**
 
@@ -21,12 +21,15 @@ Trong hệ thống Đặt phòng Khách sạn & Homestay (HOTEL_BOOKING), phân 
     - _Bắt buộc về thời gian:_ Số đêm lưu trú phải từ 2 đêm trở lên (`num_nights >= 2`).
 
 **Sự cố ghi nhận:**
-Bộ phận Vận hành phản ánh rằng nhiều đơn đặt phòng 1 đêm (`num_nights = 1`) mặc dù không đủ điều kiện tối thiểu 2 đêm nhưng vẫn được hệ thống tự động phê duyệt Voucher ưu đãi nếu khách hàng có điểm tích lũy trên 500 điểm.###
+Bộ phận Vận hành phản ánh rằng nhiều đơn đặt phòng 1 đêm (`num_nights = 1`) mặc dù không đủ điều kiện tối thiểu 2 đêm nhưng vẫn được hệ thống tự động phê duyệt Voucher ưu đãi nếu khách hàng có điểm tích lũy trên 500 điểm.
+
+###
 
 **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã Python đang vận hành bị phản ánh có lỗi logic:
 
 ```python
+
 # Thông tin từ đơn đặt phòng khách hàng
 room_rate: int = 1200000
 num_nights: int = 1
@@ -44,6 +47,7 @@ early_surcharge: float = is_early_checkin * room_rate * 0.3
 total_payment: float = room_rate * num_nights + early_surcharge
 
 # Kiểm tra điều kiện phê duyệt Voucher ưu đãi
+
 # Biểu thức kiểm tra bị phản ánh sai sót kết quả:
 is_discount_approved: bool = loyalty_points >= 500 or is_promo_event and num_nights >= 2
 
@@ -54,7 +58,7 @@ print(f"Tổng tiền thanh toán: {total_payment} VNĐ")
 print(f"Kết quả duyệt Voucher: {is_discount_approved}")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Phát hiện lỗi logic (Báo cáo Test Case)**
 

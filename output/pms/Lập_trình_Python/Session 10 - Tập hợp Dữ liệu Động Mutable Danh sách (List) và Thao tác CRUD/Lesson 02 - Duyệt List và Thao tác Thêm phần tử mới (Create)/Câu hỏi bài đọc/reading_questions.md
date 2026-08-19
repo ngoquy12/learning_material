@@ -4,6 +4,7 @@
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
 ```python
+
 # Mã nguồn minh họa nghiệp vụ cho bài học: Duyệt List và Thao tác Thêm phần tử mới (Create)
 score = 8.5
 

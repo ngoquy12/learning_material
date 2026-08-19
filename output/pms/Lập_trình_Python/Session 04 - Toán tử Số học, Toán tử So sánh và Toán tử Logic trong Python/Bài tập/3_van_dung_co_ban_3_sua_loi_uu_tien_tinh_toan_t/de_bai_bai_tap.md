@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 3] Sửa lỗi ưu tiên tính toán tổng hóa đơn phòng khách sạn</center>
+# <center>[Vận dụng cơ bản 3] Sửa lỗi ưu tiên tính toán tổng hóa đơn phòng khách sạn</center>
 
 ### **1. Mục tiêu**
 *   **Về kiến thức:** Nắm vững thứ tự ưu tiên của toán tử số học (`*`, `/`, `+`, `-`) và tác dụng của cặp dấu ngoặc đơn `()` trong việc điều khiển thứ tự thực hiện biểu thức số học trong Python.
@@ -11,7 +11,9 @@ Trong hệ thống đặt phòng trực tuyến **Agoda / Traveloka**, khi khác
 2.  **Phụ phí check-in sớm:** Số tiền phụ thu cố định phát sinh.
 3.  **Thuế giá trị gia tăng (VAT):** Thuế VAT (ví dụ 10% hoặc 8%) được áp dụng trên **tổng chi phí dịch vụ** (bao gồm tiền phòng và phụ phí check-in sớm).
 
-Bộ phận kế toán phản ánh rằng các hóa đơn có dịch vụ check-in sớm đang thu thiếu tiền của khách hàng. Số tiền báo cho khách thanh toán thấp hơn thực tế so với quy định tài chính. Bộ phận kiểm thử đã xác định có lỗi tính toán liên quan đến thứ tự ưu tiên toán tử trong hàm tính tổng tiền.### **3. Mã nguồn hiện tại**
+Bộ phận kế toán phản ánh rằng các hóa đơn có dịch vụ check-in sớm đang thu thiếu tiền của khách hàng. Số tiền báo cho khách thanh toán thấp hơn thực tế so với quy định tài chính. Bộ phận kiểm thử đã xác định có lỗi tính toán liên quan đến thứ tự ưu tiên toán tử trong hàm tính tổng tiền.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn hiện tại đang chạy trong module thanh toán của hệ thống:
 
 ```python
@@ -25,11 +27,11 @@ def calculate_booking_invoice(
     Tính tổng hóa đơn thanh toán đặt phòng bao gồm giá phòng, phụ phí nhận phòng sớm
     và áp dụng thuế VAT trên toàn bộ dịch vụ.
     """
-    # Tính tổng tiền thanh toán cuối cùng sau thuế VAT
+
+# Tính tổng tiền thanh toán cuối cùng sau thuế VAT
     final_total: float = room_rate * num_nights + early_checkin_fee * (1.0 + tax_rate)
     
     return final_total
-
 
 # Chạy thử nghiệm chương trình
 if __name__ == "__main__":
@@ -47,7 +49,7 @@ if __name__ == "__main__":
     print(f"Tổng hóa đơn thanh toán thu của khách: {result:,.0f} VND")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1 - Code Tracing & Báo cáo Test Case (Bắt buộc)**
 Học viên đọc hiểu mã nguồn hiện tại, chạy thử nghiệm trên các bộ dữ liệu khác nhau để hoàn thành bảng báo cáo Test Case bên dưới. Hàng số 1 đã được hoàn thành làm mẫu ví dụ:
@@ -104,7 +106,7 @@ flowchart TD
     E --> F([Kết thúc quy trình])
 ```
 
-### **5. Yêu cầu nộp bài**
+# **5. Yêu cầu nộp bài**
 Học viên cần nộp:
 *   Phần phân tích/báo cáo bảng Test Case và mã nguồn triển khai đã sửa lỗi.
 *   Đẩy mã nguồn lên GitHub theo định dạng thư mục: `[Tên Lớp]_[Môn Học]_SessionSession 04_Ex3`.

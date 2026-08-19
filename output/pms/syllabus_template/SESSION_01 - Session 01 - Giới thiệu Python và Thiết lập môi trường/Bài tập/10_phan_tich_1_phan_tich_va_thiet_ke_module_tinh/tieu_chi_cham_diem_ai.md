@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Phân tích 1] Phân tích và Thiết kế Module Tính Tiền Hóa đơn POS Trà Sữa Highlands — Tổng điểm: 100 điểm**
 
 ---
@@ -22,6 +22,7 @@
         *   Parallelogram `[/Input/Output/]` cho Nhập/Xuất.
         *   Rectangle `["Process"]` cho các bước tính toán đại số.
     *   Ví dụ sơ đồ chuẩn:
+
 ```mermaid
 flowchart TD
     A([Bắt đầu quy trình]) --> B[/Đầu vào: drink_name, base_price, quantity, size_upgrade_fee, num_toppings, discount_rate/]

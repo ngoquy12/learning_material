@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 1] Sửa lỗi tính phụ thu check-in sớm hệ thống đặt phòng</center>
+# <center>[Vận dụng cơ bản 1] Sửa lỗi tính phụ thu check-in sớm hệ thống đặt phòng</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu và vận dụng đúng thứ tự ưu tiên của các toán tử số học (`*`, `/`, `+`, `-`) và dấu ngoặc đơn `()` trong Python 3.12.
@@ -10,16 +10,29 @@ Bộ phận Chăm sóc khách hàng của ứng dụng đặt phòng khách sạ
 
 Cụ thể, đối với khách hàng đặt phòng thông thường (không đăng ký check-in sớm), hóa đơn thanh toán hiển thị số tiền thấp một cách bất thường, gần như chỉ tính tiền phí dịch vụ dọn dẹp mà bỏ quên toàn bộ tiền phòng lưu trú. Trong khi đó, khách hàng chọn check-in sớm lại bị tính sai giá trị phụ thu khiến tổng tiền biến động không chính xác.
 
-Ví dụ: Khách hàng đặt 2 đêm với giá 1,000,000 VND/đêm, phí dọn dẹp 100,000 VND và không check-in sớm. Tổng tiền đúng phải thanh toán là 2,100,000 VND, nhưng hệ thống hiện tại lại kết xuất hóa đơn chỉ có 100,000 VND.### **3. Mã nguồn hiện tại**
+Ví dụ: Khách hàng đặt 2 đêm với giá 1,000,000 VND/đêm, phí dọn dẹp 100,000 VND và không check-in sớm. Tổng tiền đúng phải thanh toán là 2,100,000 VND, nhưng hệ thống hiện tại lại kết xuất hóa đơn chỉ có 100,000 VND.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn Python đang chạy trên môi trường thử nghiệm bị phản ánh tính toán sai:
 
 ```python
+
 # Khai báo thông tin đơn đặt phòng khách sạn (BookingReservation)
-room_price_per_night: float = 1200000.0  # Giá phòng tiêu chuẩn 1 đêm (VND)
-nights_count: int = 3                    # Số đêm lưu trú
-early_checkin_rate: float = 0.30          # Tỷ lệ phụ thu check-in sớm (30% giá của 1 đêm)
-has_early_checkin: int = 0               # 1: Có check-in sớm, 0: Không check-in sớm
-cleaning_fee: float = 150000.0            # Phí dịch vụ dọn dẹp phòng cố định (VND)
+room_price_per_night: float = 1200000.0
+
+# Giá phòng tiêu chuẩn 1 đêm (VND)
+nights_count: int = 3
+
+# Số đêm lưu trú
+early_checkin_rate: float = 0.30
+
+# Tỷ lệ phụ thu check-in sớm (30% giá của 1 đêm)
+has_early_checkin: int = 0
+
+# 1: Có check-in sớm, 0: Không check-in sớm
+cleaning_fee: float = 150000.0
+
+# Phí dịch vụ dọn dẹp phòng cố định (VND)
 
 # Biểu thức tính tổng tiền thanh toán đơn đặt phòng bị khiếu nại
 total_payment: float = (room_price_per_night * nights_count + early_checkin_rate) * has_early_checkin + cleaning_fee
@@ -32,7 +45,7 @@ print("Phí dịch vụ dọn dẹp (VND):", cleaning_fee)
 print("Tổng tiền thanh toán tính toán bởi hệ thống (VND):", total_payment)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Tracing mã nguồn (Báo cáo Test Case)**
 Học viên tiến hành trace mã nguồn, tìm dòng code bị lỗi và hoàn thành bảng báo cáo kiểm thử dưới đây. Hàng đầu tiên đã được điền mẫu làm căn cứ thực hiện.

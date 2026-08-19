@@ -5,6 +5,7 @@
 Dựa trên mã nguồn nghiệp vụ thẩm định hồ sơ đăng ký đối tác tài xế giao hàng ShopeeFood:
 
 ```python
+
 # Thông số hồ sơ ứng viên
 age = 22
 has_motorbike = True

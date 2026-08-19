@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 2] Sửa lỗi luồng kiểm duyệt mượn sách trong LIBRARY_WMS</center>
+# <center>[Vận dụng cơ bản 2] Sửa lỗi luồng kiểm duyệt mượn sách trong LIBRARY_WMS</center>
 
 ### **1. Mục tiêu**
 *   **Về kiến thức:** Củng cố cách thức hoạt động của vòng lặp `for`, hàm `range()`, các câu lệnh điều khiển luồng `break`, `continue` và khối `else` kết hợp với vòng lặp trong Python.
@@ -19,21 +19,24 @@ Tuy nhiên, sau khi đưa đoạn mã nguồn thử nghiệm vào vận hành, t
 Dưới đây là mã nguồn Python đang bị lỗi logic nghiệp vụ do lập trình viên trước đó bàn giao:
 
 ```python
+
 # Hệ thống Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS)
+
 # Tiến trình kiểm duyệt mượn sách tự động theo lô (mã từ 1 đến 10)
 
 print("--- BẮT ĐẦU TIẾN TRÌNH KIỂM DUYỆT MƯỢN SÁCH ---")
 
 for book_id in range(1, 11):
-    # Tiến hành ghi nhận thông báo mượn sách thành công
+
+# Tiến hành ghi nhận thông báo mượn sách thành công
     print("Đã xác nhận mượn thành công cuốn sách mã số:", book_id)
 
-    # Kiểm tra sách thuộc diện bảo trì
+# Kiểm tra sách thuộc diện bảo trì
     if book_id == 4:
         print("Thông báo: Sách mã số", book_id, "đang bảo trì -> Bỏ qua")
         continue
 
-    # Kiểm tra sách thuộc diện rủi ro/bị khóa
+# Kiểm tra sách thuộc diện rủi ro/bị khóa
     if book_id == 8:
         print("CẢNH BÁO: Sách mã số", book_id, "bị khóa quyền mượn -> DỪNG HỆ THỐNG!")
         break
@@ -43,7 +46,7 @@ else:
 print("--- KẾT THÚC TIẾN TRÌNH KIỂM DUYỆT ---")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Báo cáo phân tích lỗi (Test Case Report Table)**
 Học viên tiến hành chạy vết (trace) mã nguồn hiện tại, xác định dòng mã bị đặt sai vị trí và hoàn thành Bảng phân tích Test Case dưới đây vào báo cáo:
@@ -64,7 +67,7 @@ Học viên tiến hành chạy vết (trace) mã nguồn hiện tại, xác đ�
       <td style="text-align: center; border: 1px solid #dddddd;">1</td>
       <td style="border: 1px solid #dddddd;">book_id = 4</td>
       <td style="border: 1px solid #dddddd;">In ra "Đã xác nhận mượn thành công cuốn sách mã số: 4" trước khi in thông báo bỏ qua.</td>
-      <td style="border: 1px solid #dddddd;">Chỉ in "Thông báo: Sách mã số 4 đang bảo trì -> Bỏ qua", không được in dòng xác nhận mượn.</td>
+      <td style="border: 1px solid #dddddd;">Chỉ in "Thông báo: Sách mã số 4 đang bảo trì -> Bỏ qua không được in dòng xác nhận mượn.</td>
       <td style="border: 1px solid #dddddd;">Dòng 8</td>
       <td style="border: 1px solid #dddddd;">Câu lệnh print() xác nhận thành công được đặt trước khi kiểm tra điều kiện if book_id == 4 với continue.</td>
     </tr>

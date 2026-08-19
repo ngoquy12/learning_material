@@ -232,37 +232,22 @@ def visualizer_generator_agent(
 
     try:
         from core.llm import call_llm
+        from core.prompts import render_prompt
+        from core.utils.llm_parser import extract_json_from_response
 
-        system_prompt = f"""You are a Lead Web Visualizer & Interactive State Machine Engine Architect at Rikkei Education.
-Your sole task is to analyze example source code for technology '{tech_stack}' and generate a step-by-step interactive JavaScript State Machine Engine.
+        full_prompt = render_prompt(
+            "visualizer_creator.j2",
+            {
+                "tech_stack": tech_stack,
+                "session_id": session_id,
+                "lesson_id": lesson_id,
+                "lesson_title": lesson_title,
+                "raw_code": raw_code
+            }
+        )
 
-MANDATORY ENGINE DIRECTIVES:
-1. Ensure the JavaScript code declares a complete `class InteractiveVisualizerEngine`.
-2. Implement methods: init(), start(), pause(), step(), reset(), setSpeed(val), applyCustomData(), render(), log(msg).
-3. In method render(), implement smooth DOM visual updates reflecting code step-by-step execution.
-"""
-
-        user_prompt = f"""Generate Visualizer Engine JavaScript code for lesson:
-Session: {session_id}
-Lesson: {lesson_id} — {lesson_title}
-Sample Code Snippet:
-```
-{raw_code[:1000]}
-```
-
-Return ONLY a raw JSON Object matching schema:
-{{
-    "canvas_title": "Visualizer Title in Accented Vietnamese...",
-    "legend_html": "HTML displaying color status legend",
-    "stats_html": "HTML displaying metric counter cards",
-    "code_tracker_html": "HTML code lines block where EACH LINE is wrapped in <div class='code-line' id='line-0'>...</div>",
-    "input_label": "Test input box label",
-    "input_default": "Default test value",
-    "engine_js": "Executable JavaScript source code containing FULL state machine logic of class InteractiveVisualizerEngine"
-}}
-
-Return ONLY raw JSON. Do not wrap in markdown code blocks.
-"""
+        system_prompt = f"You are a Lead Web Visualizer & Interactive State Machine Engine Architect at Rikkei Education for technology '{tech_stack}'."
+        user_prompt = full_prompt
 
         response = call_llm(
             system_prompt, user_prompt,
@@ -272,15 +257,7 @@ Return ONLY raw JSON. Do not wrap in markdown code blocks.
         )
 
         if response:
-            cleaned = response.strip()
-            if cleaned.startswith("```json"):
-                cleaned = cleaned[7:]
-            if cleaned.startswith("```"):
-                cleaned = cleaned[3:]
-            if cleaned.endswith("```"):
-                cleaned = cleaned[:-3]
-            cleaned = cleaned.strip()
-            res = json.loads(cleaned)
+            res = extract_json_from_response(response)
             if isinstance(res, dict) and res.get("engine_js") and "class InteractiveVisualizerEngine" in res["engine_js"]:
                 engine_js = res["engine_js"]
                 engine_js = engine_js.replace("canvas-area", "visualizer-canvas")

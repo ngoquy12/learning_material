@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 3] Quản Lý Chuẩn Hóa và Đóng Gói Dữ Liệu Đặt Phòng Khách Sạn</center>
 
 ### **1. Mục tiêu**

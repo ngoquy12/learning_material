@@ -3,7 +3,9 @@
 ## Tình huống & Mã nguồn kiểm tra
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
-```python 3.12, virtualenv, cursor
+```python
+3.12, virtualenv, cursor
+
 # Mã nguồn minh họa nghiệp vụ cho bài học: Thao tác Cập nhật và Xóa phần tử List (Update & Delete)
 score = 8.5
 

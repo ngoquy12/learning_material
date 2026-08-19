@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 6] Sửa lỗi kiểm tra nhật ký mượn sách bằng vòng lặp và điều khiển luồng</center>
+# <center>[Vận dụng cơ bản 6] Sửa lỗi kiểm tra nhật ký mượn sách bằng vòng lặp và điều khiển luồng</center>
 
 ### **1. Mục tiêu**
 * Áp dụng cấu trúc vòng lặp `for` kết hợp hàm `range()` để duyệt qua danh sách các mã lượt mượn sách theo tiến trình.
@@ -22,7 +22,9 @@ Quy tắc kiểm tra nghiệp vụ của hệ thống được quy định như 
 Dưới đây là đoạn mã nguồn Python hiện tại do lập trình viên thử việc triển khai:
 
 ```python
+
 # Hệ thống Quản lý Mượn trả Sách Thư viện (LIBRARY_WMS)
+
 # Tiến trình kiểm tra nhật ký mượn sách tự động
 
 start_id = 101
@@ -32,18 +34,19 @@ valid_count = 0
 print("--- BẮT ĐẦU QUÉT NHẬT KÝ MƯỢN SÁCH ---")
 
 for loan_id in range(start_id, end_id + 1):
-    # Cập nhật số lượng lượt mượn đã xử lý
+
+# Cập nhật số lượng lượt mượn đã xử lý
     valid_count += 1
 
-    # Kiểm tra trường hợp thiếu thông tin kệ sách
+# Kiểm tra trường hợp thiếu thông tin kệ sách
     if loan_id == 104:
         print("Lượt mượn", loan_id, "thiếu thông tin kệ sách -> Bỏ qua")
         continue
 
-    # Thông báo xử lý lượt mượn thành công
+# Thông báo xử lý lượt mượn thành công
     print("Xử lý thành công lượt mượn mã số:", loan_id)
 
-    # Kiểm tra trường hợp cảnh báo thất thoát sách
+# Kiểm tra trường hợp cảnh báo thất thoát sách
     if loan_id == 108:
         print("CẢNH BÁO: Lượt mượn", loan_id, "có rủi ro thất thoát -> DỪNG KHẨN CẤP!")
         break
@@ -53,7 +56,7 @@ else:
 print("Tổng số lượt mượn hợp lệ ghi nhận:", valid_count)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Phát hiện lỗi logic (Báo cáo Test Case)**
 Học viên đọc hiểu mã nguồn, đối chiếu với quy tắc nghiệp vụ và hoàn thành bảng theo dõi lỗi (Test Case Report Table) dưới đây. Bảng phải chỉ rõ dòng code gây lỗi và nguyên nhân logic làm hệ thống sai lệch.

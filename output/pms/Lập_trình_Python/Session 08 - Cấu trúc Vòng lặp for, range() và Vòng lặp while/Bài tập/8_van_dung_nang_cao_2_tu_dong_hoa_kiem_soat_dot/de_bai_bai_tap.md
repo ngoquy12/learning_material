@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 2] Tự động hóa kiểm soát đợt mượn sách bằng luồng vòng lặp</center>
+# <center>[Vận dụng nâng cao 2] Tự động hóa kiểm soát đợt mượn sách bằng luồng vòng lặp</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức & Kỹ năng:** Nắm vững và áp dụng thành thạo cấu trúc vòng lặp `for` phối hợp với hàm `range()`, các câu lệnh điều khiển luồng `break`, `continue` và khối `else` gắn kèm vòng lặp trong ngôn ngữ lập trình Python.

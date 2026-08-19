@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Hệ Thống Phân Loại Lô Hàng Và Kiểm Tra Điều Kiện Thông Quan Logistics — Tổng điểm: 100 điểm**
 
 #### **1. Thiết lập & Khởi tạo (10 điểm)**

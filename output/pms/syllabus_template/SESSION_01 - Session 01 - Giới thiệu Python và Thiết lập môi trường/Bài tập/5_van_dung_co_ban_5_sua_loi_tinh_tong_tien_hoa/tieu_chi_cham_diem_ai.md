@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng cơ bản 5] Sửa lỗi tính tổng tiền hóa đơn order tại quầy Highlands POS — Tổng điểm: 100 điểm**
 
 #### **1. Phân tích & Phát hiện lỗi logic (Báo cáo Test Case) — 30 điểm**
@@ -11,7 +11,7 @@
 
 #### **3. Kiểm chuẩn dữ liệu & Xử lý ngoại lệ đầu vào — 20 điểm**
 *   **[10 điểm] Validate định dạng dữ liệu đầu vào:** Đảm bảo mã nguồn chuyển đổi đúng các số nguyên dương nhập vào từ bàn phím.
-*   **[10 điểm] Bắt lỗi an toàn hệ thống:** Mã nguồn ngắn gọn, cấu trúc mạch lạc, tránh xung đột về kiểu dữ liệu khi thực hiện xuất chuỗi kết hợp biến số (`print("...", final_amount, "VNĐ")` hoặc f-string).
+*   **[10 điểm] Bắt lỗi an toàn hệ thống:** Mã nguồn ngắn gọn, cấu trúc mạch lạc, tránh xung đột về kiểu dữ liệu khi thực hiện xuất chuỗi kết hợp biến số (`print("... final_amount, "VNĐ")` hoặc f-string).
 
 #### **4. Lý thuyết mở rộng và tối ưu — 10 điểm**
 *   **[10 điểm] Câu hỏi tự luận bổ sung:** Giải thích được sự khác biệt giữa kiểu `str` và kiểu `int` trong Python, giải thích tại sao hàm `input()` luôn trả về `str` và rủi ro của việc nối chuỗi ngoài ý muốn trong ứng dụng thực tế.

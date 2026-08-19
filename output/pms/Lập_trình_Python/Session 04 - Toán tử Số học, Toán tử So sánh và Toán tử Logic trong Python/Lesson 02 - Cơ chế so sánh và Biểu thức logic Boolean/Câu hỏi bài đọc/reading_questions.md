@@ -5,10 +5,17 @@
 Dựa trên mã nguồn nghiệp vụ xét duyệt ưu đãi vận chuyển và quà tặng đơn hàng ShopeeFood:
 
 ```python
+
 # Thông số đơn hàng hiện tại
-order_amount = 350000    # Tổng tiền đơn hàng (VNĐ)
-distance = 4.5           # Khoảng cách giao hàng (km)
-is_vip = True            # Khách hàng là thành viên VIP
+order_amount = 350000
+
+# Tổng tiền đơn hàng (VNĐ)
+distance = 4.5
+
+# Khoảng cách giao hàng (km)
+is_vip = True
+
+# Khách hàng là thành viên VIP
 
 # Kiểm tra các điều kiện logic
 is_freeship = (order_amount >= 300000) or (is_vip and distance <= 5.0)

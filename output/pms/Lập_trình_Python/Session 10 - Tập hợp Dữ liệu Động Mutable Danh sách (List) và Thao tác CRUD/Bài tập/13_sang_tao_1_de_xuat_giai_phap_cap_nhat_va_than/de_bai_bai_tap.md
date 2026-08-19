@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 1] Đề xuất Giải pháp Cập nhật và Thanh lọc Dữ liệu Chuyến đi GrabRide</center>
+# <center>[Sáng tạo 1] Đề xuất Giải pháp Cập nhật và Thanh lọc Dữ liệu Chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Tư duy thiết kế hệ thống dữ liệu động:** Vận dụng linh hoạt các thao tác cơ bản trên danh sách Mutable (List) trong Python để giải quyết bài toán quản lý cước phí chuyến đi theo thời gian thực.
@@ -10,7 +10,9 @@ Trong hệ thống đặt xe công nghệ GrabRide, ca làm việc của mỗi t
 1.  **Tính sai phụ phí thời tiết/GPS:** Một chuyến đi bị tính thiếu phụ phí giờ cao điểm hoặc hệ thống GPS định vị sai khoảng cách, đòi hỏi nhân viên điều hành phải cập nhật lại giá cước chuẩn xác cho chuyến đi tại vị trí chỉ định.
 2.  **Khách hàng hủy chuyến:** Một chuyến đi đã ghi nhận trong danh sách nhưng sau đó bị khách hàng hủy, bắt buộc phải xóa hoàn toàn khỏi danh sách ca làm việc để không ảnh hưởng đến doanh thu thực tế.
 
-Người quản trị hệ thống GrabRide yêu cầu bạn tự thiết kế một kịch bản dữ liệu ca làm việc, sau đó xây dựng chương trình Python thực hiện cập nhật cước phí bị sai, xóa bỏ chuyến đi bị hủy, và thống kê lại chính xác số lượng chuyến đi còn hiệu lực trong ca.### **3. Quy tắc nghiệp vụ**
+Người quản trị hệ thống GrabRide yêu cầu bạn tự thiết kế một kịch bản dữ liệu ca làm việc, sau đó xây dựng chương trình Python thực hiện cập nhật cước phí bị sai, xóa bỏ chuyến đi bị hủy, và thống kê lại chính xác số lượng chuyến đi còn hiệu lực trong ca.
+
+### **3. Quy tắc nghiệp vụ**
 *   **Khởi tạo dữ liệu ca làm việc:** Khai báo danh sách cước phí chuyến đi ban đầu `trip_fares` kiểu `list[int]` với danh sách các giá trị cước phí ngẫu nhiên (đơn vị: VNĐ).
 *   **Cập nhật cước phí (Update):** Thực hiện thay đổi giá trị cước phí tại một vị trí chỉ số `target_update_index` xác định bằng cú pháp gán trực tiếp: `trip_fares[target_update_index] = new_fare`.
 *   **Xóa chuyến đi bị hủy (Delete):** Loại bỏ phần tử chuyến đi bị hủy tại vị trí chỉ số `target_delete_index` bằng từ khóa `del trip_fares[target_delete_index]`.

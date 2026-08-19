@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 3] Thiết kế Hệ thống Đánh giá và Tính Phụ phí Đặt phòng Khách sạn — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản bẫy lỗi — 30 điểm**

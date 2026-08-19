@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 2] Điều chỉnh và Lọc dữ liệu Cước phí Chuyến xe GrabRide</center>
+# <center>[Vận dụng nâng cao 2] Điều chỉnh và Lọc dữ liệu Cước phí Chuyến xe GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Kỹ năng lập trình**: Vận dụng các thao tác cập nhật phần tử danh sách qua chỉ số (`list[index] = new_value`), xóa phần tử theo vị trí chỉ số bằng lệnh `del`, và truy xuất kích thước danh sách với hàm `len()`.

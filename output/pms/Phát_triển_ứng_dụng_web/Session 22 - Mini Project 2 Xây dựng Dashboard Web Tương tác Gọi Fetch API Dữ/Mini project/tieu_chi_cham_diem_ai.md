@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Dynamic Product Analytics Dashboard — Tổng điểm: 100 điểm**
 
 ---

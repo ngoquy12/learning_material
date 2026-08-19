@@ -1,4 +1,4 @@
-## <center>[Phân tích 1] Thiết kế Module Phụ thu Check-in sớm và Phê duyệt Đặt phòng Khách sạn</center>
+# <center>[Phân tích 1] Thiết kế Module Phụ thu Check-in sớm và Phê duyệt Đặt phòng Khách sạn</center>
 
 ### **1. Mục tiêu**
 *   **Tư duy phân tích nghiệp vụ:** Hiểu và áp dụng các phép toán số học và toán tử so sánh trong Python để tính toán phụ thu dịch vụ và phê duyệt đơn đặt phòng tự động cho hệ thống đặt phòng khách sạn (HOTEL_BOOKING).
@@ -14,7 +14,9 @@ Khi khách hàng thực hiện đặt phòng, hệ thống cần căn cứ vào 
 3. Số tiền còn lại khách phải thanh toán trực tiếp tại lễ tân khi nhận phòng.
 4. Trạng thái đơn phòng có đủ điều kiện phê duyệt tự động ngay lập tức hay không.
 
-Do hệ thống đang ở giai đoạn xây dựng lõi tính toán tốc độ cao (High-performance Core Engine), kiến trúc sư hệ thống yêu cầu xử lý toàn bộ logic trên chỉ bằng **toán tử số học** và **toán tử so sánh**, tuyệt đối chưa sử dụng cấu trúc rẽ nhánh phức tạp hay các thư viện ngoài.### **3. Quy tắc nghiệp vụ**
+Do hệ thống đang ở giai đoạn xây dựng lõi tính toán tốc độ cao (High-performance Core Engine), kiến trúc sư hệ thống yêu cầu xử lý toàn bộ logic trên chỉ bằng **toán tử số học** và **toán tử so sánh**, tuyệt đối chưa sử dụng cấu trúc rẽ nhánh phức tạp hay các thư viện ngoài.
+
+### **3. Quy tắc nghiệp vụ**
 Cho trước các thông tin đầu vào của một giao dịch đặt phòng:
 *   `base_price_per_night` (`float`): Giá niêm yết của 1 đêm lưu trú (VNĐ).
 *   `nights` (`int`): Số đêm lưu trú.

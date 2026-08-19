@@ -1,11 +1,11 @@
-## <center>Thực Hành Lập Trình Logic Kiểm Tra Ràng Buộc Và Phân Loại Khách Hàng CRM</center>
+# <center>Thực Hành Lập Trình Logic Kiểm Tra Ràng Buộc Và Phân Loại Khách Hàng CRM</center>
 
 ### **1. Mục tiêu**
 - **Về kiến thức:** Củng cố tư duy lập trình điều kiện nâng cao, nắm vững cú pháp `if/else`, cấu trúc rẽ nhánh `switch-case`, và biểu thức điều kiện ba ngôi (`ternary operator`).
 - **Về kỹ năng:** Thực hành kiểm chuẩn dữ liệu đầu vào (data validation), xử lý logic phân loại đa tầng và định dạng dữ liệu đầu ra chuyên nghiệp bằng Template Literals trên môi trường Node.js / Cursor AI IDE.
 - **Về thái độ:** Rèn luyện tư duy viết mã nguồn sạch (clean code), chuẩn hóa quy tắc đặt tên camelCase, thụt lề chuẩn xác và tối ưu hóa logic rẽ nhánh trong hệ thống quản trị khách hàng (CRM).
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Bộ phận Quản trị Quan hệ Khách hàng (CRM) của một công ty cung cấp giải pháp doanh nghiệp cần một module tự động kiểm tra tính hợp lệ của dữ liệu đầu vào, đồng thời phân loại mức độ ưu tiên chăm sóc và phê duyệt hạn mức tín dụng cho từng đối tượng khách hàng.
 
 Dữ liệu đầu vào của khách hàng được khai báo dưới dạng các biến nguyên thủy. Chương trình cần thực hiện qua 3 giai đoạn xử lý chính theo biểu đồ luồng dữ liệu dưới đây:
@@ -22,10 +22,9 @@ flowchart TD
     F --> G[/"Xử lý Ternary Operator: Đánh giá phê duyệt hạn mức tín dụng"/]
     G --> H[/ "Đầu ra: In báo cáo tổng hợp thông tin khách hàng ra Console" /]
     H --> Z
-
 ```
 
-### **3. Yêu cầu bài toán**
+# **3. Yêu cầu bài toán**
 
 Doanh nghiệp yêu cầu viết một file mã nguồn `crm_classifier.js` để lưu trữ và xử lý thông tin của khách hàng với các biến nguyên thủy mô tả trong bảng bên dưới:
 
@@ -106,11 +105,17 @@ Yêu cầu 4: Đánh giá cấp duyệt hạn mức tín dụng bằng toán t�
 - Viết một biểu thức ba ngôi ngắn gọn kiểm tra điều kiện: Nếu `creditScore >= 700` và `hasOverdueDebt === false` thì gán `creditApproval = "Đã phê duyệt hạn mức đề xuất"`, ngược lại gán `creditApproval = "Yêu cầu thẩm định bổ sung"`.
 
 Yêu cầu 5: In kết quả báo cáo CRM
-Sử dụng Chuỗi Template Literals (backticks ``` `${...}` ```) để in báo cáo ra Console theo đúng định dạng mẫu bên dưới.
+Sử dụng Chuỗi Template Literals (backticks
+
+``` `${...}`
+```
+
+) để in báo cáo ra Console theo đúng định dạng mẫu bên dưới.
 
 **Ví dụ đầu vào và đầu ra mẫu:**
 
 *Kịch bản 1: Khách hàng hợp lệ - Phân loại VIP*
+
 ```javascript
 // Mã nguồn khai báo đầu vào
 const customerName = "Nguyen Van A";
@@ -120,6 +125,7 @@ const creditScore = 780;
 const tierCode = 4;
 const hasOverdueDebt = false;
 ```
+
 ```text
 === BÁO CÁO PHÂN LOẠI KHÁCH HÀNG CRM ===
 Khách hàng: Nguyen Van A (35 tuổi)
@@ -131,6 +137,7 @@ Trạng thái duyệt tín dụng: Đã phê duyệt hạn mức đề xuất
 ```
 
 *Kịch bản 2: Dữ liệu không hợp lệ (Độ tuổi không thuộc khoảng 18 - 100)*
+
 ```javascript
 const customerName = "Tran Van B";
 const customerAge = 15;
@@ -139,11 +146,13 @@ const creditScore = 600;
 const tierCode = 2;
 const hasOverdueDebt = false;
 ```
+
 ```text
 LỖI DỮ LIỆU: Độ tuổi khách hàng không hợp lệ (Phải từ 18 đến 100 tuổi).
 ```
 
 *Kịch bản 3: Khách hàng có rủi ro nợ quá hạn*
+
 ```javascript
 const customerName = "Le Thi C";
 const customerAge = 42;
@@ -152,6 +161,7 @@ const creditScore = 450;
 const tierCode = 3;
 const hasOverdueDebt = true;
 ```
+
 ```text
 === BÁO CÁO PHÂN LOẠI KHÁCH HÀNG CRM ===
 Khách hàng: Le Thi C (42 tuổi)
@@ -162,7 +172,7 @@ Trạng thái duyệt tín dụng: Yêu cầu thẩm định bổ sung
 ========================================
 ```
 
-### **5. Yêu cầu nộp bài**
+# **5. Yêu cầu nộp bài**
 - Tạo một thư mục dự án đặt tên theo cấu trúc: `CRM_Validation_[HoTen_MaSinhVien]`.
 - Lưu mã nguồn chính trong file `crm_classifier.js`.
 - Thực hiện kiểm thử chương trình với ít nhất 3 kịch bản dữ liệu đầu vào khác nhau (Hợp lệ VIP, Không hợp lệ, Rủi ro tín dụng).

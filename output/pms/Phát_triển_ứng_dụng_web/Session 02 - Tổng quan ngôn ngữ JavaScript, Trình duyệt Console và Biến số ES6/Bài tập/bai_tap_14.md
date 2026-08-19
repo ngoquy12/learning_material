@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 2] Thiết kế Hệ thống Cấp Số Thứ Tự & Tính Chi Phí Khám Bệnh Tự Động</center>
 
 ### **1. Mục tiêu**

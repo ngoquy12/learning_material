@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 3] Chuẩn hóa và đóng gói dữ liệu đặt phòng khách sạn</center>
 
 ### **1. Mục tiêu**

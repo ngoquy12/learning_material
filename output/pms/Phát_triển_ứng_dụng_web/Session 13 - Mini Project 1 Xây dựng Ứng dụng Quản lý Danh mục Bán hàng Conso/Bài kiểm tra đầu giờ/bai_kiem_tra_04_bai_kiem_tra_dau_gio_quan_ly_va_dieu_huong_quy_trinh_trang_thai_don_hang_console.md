@@ -1,4 +1,4 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: QUẢN LÝ VÀ ĐIỀU HƯỚNG QUY TRÌNH TRẠNG THÁI ĐƠN HÀNG CONSOLE (CONSOLE ORDER WORKFLOW NAVIGATOR)</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: QUẢN LÝ VÀ ĐIỀU HƯỚNG QUY TRÌNH TRẠNG THÁI ĐƠN HÀNG CONSOLE (CONSOLE ORDER WORKFLOW NAVIGATOR)</center>
 
 ### **1. Mục tiêu**
 - Đánh giá khả năng vận dụng cấu trúc dữ liệu Mảng (Array) và Đối tượng (Object Literal) để lưu trữ và quản lý trạng thái đơn hàng.

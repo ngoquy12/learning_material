@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 3] Sửa lỗi luồng quét duyệt mã tài liệu thư viện</center>
+# <center>[Vận dụng cơ bản 3] Sửa lỗi luồng quét duyệt mã tài liệu thư viện</center>
 
 ### **1. Mục tiêu**
 
@@ -31,7 +31,6 @@ Quy trình kiểm tra nghiệp vụ được thiết lập như sau:
     I --> C
     C -- Hoàn tất toàn bộ loop không break --> J[/Đầu ra: Hiển thị thông báo khối else hoàn thành/]
     J --> K([Kết thúc tiến trình an toàn])
-
 ```
 
 **Sự cố thực tế:**
@@ -42,19 +41,22 @@ Bộ phận thủ thư phản ánh rằng khi tiến hành quét lô sách từ 
 Đoạn mã nguồn bên dưới đang được triển khai trong ứng dụng nhưng chứa lỗi điều khiển luồng:
 
 ```python
+
 # Hệ thống Quản lý Mượn trả Sách Thư viện (LIBRARY_WMS)
+
 # Kiểm tra danh sách mã tài liệu mượn từ mã 101 đến 109
 
 print("--- KÍCH HOẠT TIẾN TRÌNH KIỂM TRA MÃ SÁCH TỰ ĐỘNG ---")
 
 # Duyệt qua các mã sách từ 101 đến 109
 for book_id in range(101, 110):
-    # Kiểm tra trường hợp tài liệu bị thiếu nhãn vị trí (mã 104)
+
+# Kiểm tra trường hợp tài liệu bị thiếu nhãn vị trí (mã 104)
     if book_id == 104:
         print("Tài liệu mã", book_id, "bị thiếu nhãn vị trí -> Bỏ qua tài liệu này")
         break
 
-    # Kiểm tra trường hợp tài liệu thuộc danh sách vi phạm bảo mật (mã 108)
+# Kiểm tra trường hợp tài liệu thuộc danh sách vi phạm bảo mật (mã 108)
     if book_id == 108:
         print("CẢNH BÁO: Tài liệu mã", book_id, "có dấu hiệu vi phạm quy chế -> DỪNG HỆ THỐNG!")
         break
@@ -64,7 +66,7 @@ else:
     print("TẤT CẢ TÀI LIỆU TRONG LƯỢT QUÉT ĐÃ ĐƯỢC XÁC THỰC AN TOÀN!")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Báo cáo phân tích và truy vết lỗi (Code Tracing)**
 

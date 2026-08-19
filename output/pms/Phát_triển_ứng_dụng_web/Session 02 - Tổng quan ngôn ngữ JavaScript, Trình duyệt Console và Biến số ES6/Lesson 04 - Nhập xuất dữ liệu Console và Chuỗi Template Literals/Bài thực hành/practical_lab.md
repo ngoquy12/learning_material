@@ -105,7 +105,7 @@ console.log(finalReceipt);
 alert(`Đặt vé thành công cho khách hàng: ${formattedCustomerName}\nTỔNG TIỀN THANH TOÁN: ${formattedFinalPayment} VNĐ`);
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khởi tạo đúng cấu trúc thư mục và liên kết tệp JavaScript thành công trên Cursor AI IDE.
 - [ ] Thu thập đầy đủ 5 trường thông tin đầu vào thông qua hàm prompt() và xử lý giá trị mặc định bằng toán tử OR (||).
 - [ ] Ép kiểu dữ liệu chuỗi sang kiểu số chính xác (parseInt, parseFloat), tránh hoàn toàn lỗi cộng nối chuỗi ngoài ý muốn.

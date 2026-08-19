@@ -1,4 +1,4 @@
-## <center>[Mini project] Xây dựng Ứng dụng Quản lý Danh mục Bán hàng Console (Phần 1)<br>(Sales Catalog Management Console Application - Part 1)</center>
+# <center>[Mini project] Xây dựng Ứng dụng Quản lý Danh mục Bán hàng Console (Phần 1)<br>(Sales Catalog Management Console Application - Part 1)</center>
 
 ### **1. Mục tiêu dự án**
 [REQUIREMENT] Mini Project 1 là bài tập tổng hợp giai đoạn 1, tập trung vào việc áp dụng các kiến thức JavaScript ES6+ cốt lõi (biến `let`/`const`, kiểu dữ liệu nguyên thủy và dữ liệu phức hợp, toán tử, cấu trúc rẽ nhánh `if-else`/`switch-case`, vòng lặp `for`/`while`, mảng `Array`, đối tượng `Object`, định dạng chuỗi `Template Literals` và cấu trúc dữ liệu `JSON`).
@@ -16,19 +16,32 @@ Dự án giúp học viên:
 Học viên bắt buộc phải tự nghiên cứu và tuân thủ các quy định đặc tả chi tiết về cấu trúc dữ liệu, danh mục mã lỗi nghiệp vụ tại [Tài liệu đặc tả SRS](../Tài liệu đặc tả SRS/tai_lieu_dac_ta_yeu_cau_srs.md).
 
 #### **Cấu trúc Thư mục Dự án Gợi ý (Project Skeleton Tree)**
+
 ```text
 sales-catalog-console/
 ├── data/
-│   └── initialCatalog.json       # File JSON lưu trữ danh mục sản phẩm ban đầu
+│   └── initialCatalog.json
+
+# File JSON lưu trữ danh mục sản phẩm ban đầu
 ├── src/
-│   ├── config.js                 # Định nghĩa các hằng số hệ thống và mã lỗi
-│   └── catalogManager.js         # Logic xử lý dữ liệu danh mục sản phẩm (Array & Object)
-├── index.js                      # File chạy chính của ứng dụng Console
-├── package.json                  # Khai báo dự án Node.js runtime
-└── README.md                     # Tài liệu hướng dẫn cài đặt và vận hành
+│   ├── config.js
+
+# Định nghĩa các hằng số hệ thống và mã lỗi
+│   └── catalogManager.js
+
+# Logic xử lý dữ liệu danh mục sản phẩm (Array & Object)
+├── index.js
+
+# File chạy chính của ứng dụng Console
+├── package.json
+
+# Khai báo dự án Node.js runtime
+└── README.md
+
+# Tài liệu hướng dẫn cài đặt và vận hành
 ```
 
-#### **Danh sách Chức năng Nghiệp vụ Chi tiết**
+# **Danh sách Chức năng Nghiệp vụ Chi tiết**
 
 <table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" width="100%">
   <thead>
@@ -82,6 +95,7 @@ sales-catalog-console/
 #### **Kịch bản Chạy Thử nghiệm (Mock Input / Output Case)**
 
 *Ví dụ dữ liệu đầu vào chạy ứng dụng (`index.js`):*
+
 ```javascript
 // Dữ liệu sản phẩm mới truyền vào ứng dụng
 const sampleProduct = {
@@ -101,6 +115,7 @@ displayCatalogReport();
 ```
 
 *Ví dụ kết quả mong đợi hiển thị tại Console/Terminal:*
+
 ```text
 [SUCCESS] Đã thêm thành công sản phẩm: PROD-004 - Bàn phím cơ Không dây
 

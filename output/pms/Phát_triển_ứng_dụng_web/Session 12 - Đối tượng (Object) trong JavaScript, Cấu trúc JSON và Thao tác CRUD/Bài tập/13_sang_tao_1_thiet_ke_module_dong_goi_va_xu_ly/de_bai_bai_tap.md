@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 1] Thiết kế Module Đóng gói và Xử lý Payload Đặt phòng Khách sạn</center>
 
 ### **1. Mục tiêu**

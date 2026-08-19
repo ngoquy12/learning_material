@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 1] Đề xuất Giải pháp Cập nhật và Thanh lọc Dữ liệu Chuyến đi GrabRide — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản lỗi thường gặp — 30 điểm**

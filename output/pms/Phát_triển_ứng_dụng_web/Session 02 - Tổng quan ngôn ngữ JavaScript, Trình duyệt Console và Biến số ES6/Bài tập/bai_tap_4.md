@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 4] Sửa lỗi tính tổng chi phí đăng ký khám bệnh tự động</center>
 
 ### **1. Mục tiêu**
@@ -14,7 +12,9 @@ Trong phân hệ Đặt lịch & Cấp số thứ tự khám bệnh tự động
 Tuy nhiên, bộ phận kế toán của phòng khám nhận được nhiều phản ánh từ bệnh nhân rằng số tiền trên hóa đơn hiển thị ra màn hình bị sai lệch bất thường. Ví dụ: khi bệnh nhân nhập chi phí khám ban đầu là `150000` VNĐ và phụ phí khám chuyên khoa là `50000` VNĐ, hệ thống lại tính tổng chi phí thanh toán lên tới `15000050000` VNĐ.
 
 ### **3. Mã nguồn hiện tại**
-Dưới đây là mã nguồn JavaScript hiện tại đang chạy trên ki-ốt đăng ký khám bệnh tự động:```javascript
+Dưới đây là mã nguồn JavaScript hiện tại đang chạy trên ki-ốt đăng ký khám bệnh tự động:
+
+```javascript
 // Hệ thống Đặt lịch Khám bệnh CLINIC_APPOINTMENT
 // Tệp mã nguồn: appointment.js
 
@@ -40,9 +40,7 @@ console.log(invoiceMessage);
 alert(invoiceMessage);
 ```
 
-#
-
-## **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Trace code và Lập bảng báo cáo Test Case (Bug Discovery)**
 Học viên phân tích mã nguồn hiện tại, xác định chính xác dòng code gây lỗi và hoàn thiện bảng báo cáo Test Case theo mẫu dưới đây. Dòng STT 1 là ví dụ mẫu đã hoàn thiện, học viên hãy truy vết và điền tiếp thông tin còn thiếu vào dòng STT 2 và STT 3:

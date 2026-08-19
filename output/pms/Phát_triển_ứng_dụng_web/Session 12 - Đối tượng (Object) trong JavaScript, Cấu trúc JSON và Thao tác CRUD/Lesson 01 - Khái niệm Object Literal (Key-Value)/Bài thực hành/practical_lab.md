@@ -142,7 +142,7 @@ function renderApp() {
 document.addEventListener("DOMContentLoaded", renderApp);
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Khai báo chính xác đối tượng Object Literal chứa đầy đủ thông tin thuộc tính khóa chuẩn, thuộc tính đặc biệt có dấu gạch ngang và thuộc tính lồng nhau.
 - [ ] Phân biệt và sử dụng đúng Dot Notation cho thuộc tính chuẩn và Bracket Notation cho thuộc tính đặc biệt hoặc tên thuộc tính dạng biến.
 - [ ] Xây dựng thành công hàm `getSafeAttribute` và `getNestedAttribute` xử lý giá trị undefined, ngăn ngừa các lỗi ReferenceError, SyntaxError và TypeError.

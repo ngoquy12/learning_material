@@ -1,4 +1,4 @@
-## <center>Tính toán Chỉ số và Đánh giá Hạn mức Thẻ Tín dụng</center>
+# <center>Tính toán Chỉ số và Đánh giá Hạn mức Thẻ Tín dụng</center>
 
 ### **1. Mục tiêu**
 - **Kỹ năng cú pháp:** Sử dụng các kiểu dữ liệu nguyên thủy (`int`, `float`, `str`, `bool`) kết hợp Type Hints trong Python 3.12 tuân thủ chuẩn PEP 8.
@@ -7,7 +7,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong phân hệ thẩm định hồ sơ của ngân hàng số (Fintech Subsystem), việc đánh giá tính hợp lệ và phê duyệt hạn mức thẻ tín dụng bước đầu cần thực hiện nhanh chóng dựa trên thu nhập, nợ hiện tại và mức độ rủi ro lịch sử tín dụng.
 
 Hệ thống cần tiếp nhận thông tin từ bàn phím, tính toán tỷ lệ nợ trên thu nhập (DTI), hạn mức tối đa cho phép, và xuất ra cờ trạng thái phê duyệt (Đúng/Sai) mà không cần rẽ nhánh thực thi mã nguồn.
@@ -59,37 +59,43 @@ Viết chương trình Python thực hiện các tác vụ sau:
 
 **Kịch bản 1: Hồ sơ hợp lệ và đạt điều kiện phê duyệt**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập thu nhập hàng tháng (VND): 20000000
   Nhập chi phí trả nợ hàng tháng (VND): 5000000
   Có lịch sử nợ xấu không? (Nhập 1 nếu có, 0 nếu không): 0
   Nhập hạn mức thẻ mong muốn (VND): 45000000
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === KẾT QUẢ THẨM ĐỊNH THẺ TÍN DỤNG ===
   Tỷ lệ nợ trên thu nhập (DTI): 25.00%
   Hạn mức tối đa cho phép: 60,000,000.0 VND
   Dữ liệu đầu vào hợp lệ: True
   Trạng thái phê duyệt thẻ: True
-  ```
+```
 
 **Kịch bản 2: Hồ sơ bị từ chối do vượt hạn mức và có nợ xấu**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập thu nhập hàng tháng (VND): 15000000
   Nhập chi phí trả nợ hàng tháng (VND): 8000000
   Có lịch sử nợ xấu không? (Nhập 1 nếu có, 0 nếu không): 1
   Nhập hạn mức thẻ mong muốn (VND): 50000000
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === KẾT QUẢ THẨM ĐỊNH THẺ TÍN DỤNG ===
   Tỷ lệ nợ trên thu nhập (DTI): 53.33%
   Hạn mức tối đa cho phép: 45,000,000.0 VND
   Dữ liệu đầu vào hợp lệ: True
   Trạng thái phê duyệt thẻ: False
-  ```
+```
 
 ---
 
@@ -97,7 +103,8 @@ Viết chương trình Python thực hiện các tác vụ sau:
 - Lưu toàn bộ mã nguồn xử lý vào file `credit_evaluator.py`.
 - Đảm bảo mã nguồn tuân thủ PEP 8 và có đầy đủ type hints.
 - Commit mã nguồn lên git:
-  ```bash
+
+```bash
   git add credit_evaluator.py
   git commit -m "feat: implement credit card limit evaluation without branching"
-  ```
+```

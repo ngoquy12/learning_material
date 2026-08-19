@@ -1,0 +1,54 @@
+{
+  "lesson_slug": "es6-arrow-functions-and-default-parameters",
+  "lesson_title": "Cú pháp Arrow Function ES6 và Tham số Mặc định",
+  "real_world_scenario": {
+    "name": "Hệ thống Quản lý Đơn hàng E-commerce",
+    "description": "Trong hệ thống thương mại điện tử, ứng dụng cần liên tục tính toán tiền hàng, phí giao hàng, thuế VAT và các khoản giảm giá. Việc áp dụng Arrow Function giúp rút gọn tối đa số lượng dòng mã, trong khi Tham số Mặc định (Default Parameters) đảm bảo các tính toán không bị lỗi khi người dùng không nhập mã giảm giá hoặc hệ thống tự dùng phí giao hàng tiêu chuẩn."
+  },
+  "key_concepts": [
+    {
+      "concept_name": "Cú pháp Arrow Function ES6",
+      "description": "Cú pháp khai báo hàm ngắn gọn ra đời trong phiên bản ES6, sử dụng ký hiệu '=>'. Khi hàm chỉ có duy nhất một biểu thức trả về, ta có thể bỏ qua từ khóa 'return' và cặp ngoặc nhọn '{}' (thường gọi là Implicit Return).",
+      "raw_code_snippet": "// Function Expression truyền thống\nconst calculateSubtotalTraditional = function(price, quantity) {\n    return price * quantity;\n};\n\n// Arrow Function đầy đủ khối lệnh\nconst calculateSubtotalFull = (price, quantity) => {\n    return price * quantity;\n};\n\n// Arrow Function viết gọn (Implicit Return)\nconst calculateSubtotalShort = (price, quantity) => price * quantity;"
+    },
+    {
+      "concept_name": "Tham số Mặc định (Default Parameters)",
+      "description": "Tính năng cho phép gán trực tiếp giá trị mặc định cho tham số ngay tại phần khai báo hàm. Nếu giá trị truyền vào tham số đó là undefined hoặc không được truyền, hàm sẽ tự động lấy giá trị mặc định đã khai báo.",
+      "raw_code_snippet": "// Khai báo tham số mặc định cho phí vận chuyển (shippingFee) và giảm giá (discount)\nconst calculateTotal = (subtotal, shippingFee = 30000, discount = 0) => {\n    return subtotal + shippingFee - discount;\n};\n\n// Trường hợp không truyền shippingFee và discount: tự dùng 30000 và 0\nconsole.log(calculateTotal(150000)); // 180000\n\n// Trường hợp truyền đầy đủ đối số: ghi đè giá trị mặc định\nconsole.log(calculateTotal(150000, 15000, 20000)); // 145000"
+    }
+  ],
+  "progressive_examples": [
+    {
+      "example_id": "3.1",
+      "title": "Ví dụ 3.1: Tính tiền sản phẩm với số lượng mặc định",
+      "requirement": "Xây dựng hàm Arrow Function ngắn gọn 'calculateItemTotal' tính thành tiền cho một mặt hàng. Hàm nhận vào giá sản phẩm 'price' và số lượng 'quantity'. Nếu khách hàng không chọn số lượng, mặc định số lượng mua là 1.",
+      "raw_code": "// Ví dụ 3.1: Sử dụng Arrow Function ngắn gọn và Default Parameter\nconst calculateItemTotal = (price, quantity = 1) => price * quantity;\n\n// Kiểm tra trường hợp khách hàng mua 1 sản phẩm (không truyền số lượng)\nconst totalSingle = calculateItemTotal(250000);\nconsole.log(\"Tiền mua 1 sản phẩm mặc định:\", totalSingle); // 250000\n\n// Kiểm tra trường hợp khách hàng mua 4 sản phẩm\nconst totalMultiple = calculateItemTotal(250000, 4);\nconsole.log(\"Tiền mua 4 sản phẩm:\", totalMultiple); // 1000000"
+    },
+    {
+      "example_id": "3.2",
+      "title": "Ví dụ 3.2: Tính tổng hóa đơn có phí vận chuyển và giảm giá",
+      "requirement": "Nâng cấp bài toán tính hóa đơn. Tạo hàm 'calculateInvoiceTotal' nhận vào tổng tiền hàng 'subtotal', phí vận chuyển 'shippingFee' (mặc định 30000 VNĐ) và số tiền giảm giá 'discountAmount' (mặc định 0 VNĐ). Trả về tổng tiền phải thanh toán.",
+      "raw_code": "// Ví dụ 3.2: Nâng cấp nghiệp vụ hóa đơn đơn hàng\nconst calculateInvoiceTotal = (subtotal, shippingFee = 30000, discountAmount = 0) => {\n    const finalTotal = subtotal + shippingFee - discountAmount;\n    return finalTotal;\n};\n\n// Trường hợp 1: Đơn hàng tiêu chuẩn (dùng phí giao hàng mặc định 30000, không giảm giá)\nconst invoice1 = calculateInvoiceTotal(500000);\nconsole.log(\"Tổng hóa đơn 1 (tiêu chuẩn):\", invoice1); // 530000\n\n// Trường hợp 2: Đơn hàng có ưu đãi phí giao hàng (15000) và mã giảm giá (50000)\nconst invoice2 = calculateInvoiceTotal(500000, 15000, 50000);\nconsole.log(\"Tổng hóa đơn 2 (có khuyến mãi):\", invoice2); // 465000"
+    },
+    {
+      "example_id": "3.3",
+      "title": "Ví dụ 3.3: Xử lý tóm tắt đơn hàng hoàn chỉnh cấp doanh nghiệp",
+      "requirement": "Viết hàm 'formatOrderSummary' xử lý tóm tắt đơn hàng E-commerce bao gồm: tên sản phẩm, đơn giá, số lượng (mặc định 1), tỷ lệ thuế VAT (mặc định 0.1 tương đương 10%), và phí giao hàng (mặc định 30000 VNĐ). Trả về một chuỗi định dạng thông báo hóa đơn chi tiết.",
+      "raw_code": "// Ví dụ 3.3: Hàm tóm tắt hóa đơn chuyên nghiệp xử lý đa tham số mặc định\nconst formatOrderSummary = (\n    productName,\n    unitPrice,\n    quantity = 1,\n    vatRate = 0.1,\n    shippingFee = 30000\n) => {\n    const subtotal = unitPrice * quantity;\n    const vatAmount = subtotal * vatRate;\n    const grandTotal = subtotal + vatAmount + shippingFee;\n\n    return `[HOÁ ĐƠN] Sản phẩm: ${productName} | Số lượng: ${quantity} | Tạm tính: ${subtotal} VNĐ | VAT (${vatRate * 100}%): ${vatAmount} VNĐ | Phí ship: ${shippingFee} VNĐ | Tổng thanh toán: ${grandTotal} VNĐ`;\n};\n\n// Khách hàng mua đơn giản: chỉ truyền tên sản phẩm và đơn giá\nconst summary1 = formatOrderSummary(\"Chuột không dây Logitech\", 400000);\nconsole.log(summary1);\n\n// Khách hàng mua số lượng lớn: 3 chiếc, được miễn phí vận chuyển (shippingFee = 0)\nconst summary2 = formatOrderSummary(\"Màn hình Gaming 24 inch\", 3500000, 3, 0.1, 0);\nconsole.log(summary2);"
+    }
+  ],
+  "gotchas_and_errors": [
+    {
+      "error_name": "Quên từ khóa return khi dùng cặp ngoặc nhọn trong Arrow Function",
+      "explanation": "Khi khai báo Arrow Function sử dụng cặp ngoặc nhọn '{}' để mở khối lệnh (block body), hàm sẽ KHÔNG tự động trả về giá trị. Nếu quên không viết từ khóa 'return', kết quả trả về của hàm sẽ luôn là undefined.",
+      "code_bad": "// [LỖI] Dùng cặp ngoặc nhọn nhưng quên từ khóa return\nconst calculateDiscount = (price, discountRate = 0.05) => {\n    price * discountRate;\n};\n\nconst result = calculateDiscount(200000);\nconsole.log(\"Số tiền giảm:\", result); // Result: undefined",
+      "code_good": "// [SỬA LỖI] Cách 1: Thêm từ khóa return đầy đủ\nconst calculateDiscountCorrect1 = (price, discountRate = 0.05) => {\n    return price * discountRate;\n};\n\n// [SỬA LỖI] Cách 2: Bỏ cặp ngoặc nhọn để dùng Implicit Return\nconst calculateDiscountCorrect2 = (price, discountRate = 0.05) => price * discountRate;\n\nconsole.log(\"Số tiền giảm 1:\", calculateDiscountCorrect1(200000)); // 10000\nconsole.log(\"Số tiền giảm 2:\", calculateDiscountCorrect2(200000)); // 10000"
+    },
+    {
+      "error_name": "Truyền giá trị null khiến tham số mặc định không được áp dụng",
+      "explanation": "Tham số mặc định trong ES6 chỉ được kích hoạt khi đối số truyền vào là undefined hoặc hoàn toàn bị bỏ trống. Nếu người dùng truyền giá trị 'null', JavaScript coi 'null' là một giá trị xác định (kiểu dữ liệu object/primitive có giá trị rỗng) nên tham số mặc định sẽ KHÔNG được sử dụng.",
+      "code_bad": "// [LỖI] Truyền null khiến phí vận chuyển mặc định 30000 không được áp dụng\nconst calculateTotalWithShipping = (price, shippingFee = 30000) => price + shippingFee;\n\n// Người dùng truyền null làm phí ship\nconst badTotal = calculateTotalWithShipping(100000, null);\n// null bị ép kiểu thành 0 trong phép cộng -> Kết quả sai nghiệp vụ hệ thống\nconsole.log(\"Tổng tiền lỗi:\", badTotal); // 100000 (Thay vì 130000)",
+      "code_good": "// [SỬA LỖI] Truyền undefined hoặc bỏ trống đối số để kích hoạt tham số mặc định\nconst calculateTotalWithShipping = (price, shippingFee = 30000) => price + shippingFee;\n\nconst correctTotal1 = calculateTotalWithShipping(100000, undefined);\nconst correctTotal2 = calculateTotalWithShipping(100000);\n\nconsole.log(\"Tổng tiền đúng 1:\", correctTotal1); // 130000\nconsole.log(\"Tổng tiền đúng 2:\", correctTotal2); // 130000"
+    }
+  ]
+}

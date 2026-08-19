@@ -108,6 +108,7 @@ When presenting code snippets in exercises (especially Debug Exercises 1 & 2), t
 1. **100% English Identifiers**: All variable names, function names, class names, and attributes MUST be in standard English (e.g., `inventory_list`, `check_stock_balance`).
 2. **Vietnamese Comments**: Comments explaining logic or bug traps MUST be in 100% Accented Vietnamese.
 3. **Consistent Indentation**: Use exact standard indentation (4 spaces for Python/C/Java, 2 spaces for JS/TS/HTML).
+4. **Code Fence Separation Contract**: ALWAYS insert TWO NEWLINES before any opening code fence and after every closing code fence (e.g. `Dưới đây là mã nguồn:\n\n```javascript\n...\n```\n\n### **4. Yêu cầu**`). ABSOLUTELY FORBIDDEN to attach code fences directly to colons or text on the same line (FORBIDDEN: `hệ thống:```javascript`).
 
 ---
 

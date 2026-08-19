@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 6] Sửa lỗi thứ tự cập nhật và xóa chuyến xe GrabRide</center>
+# <center>[Vận dụng cơ bản 6] Sửa lỗi thứ tự cập nhật và xóa chuyến xe GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Phân tích sự cố dịch chuyển chỉ số (Index Drift):** Hiểu rõ cơ chế thay đổi vị trí phần tử trong danh sách động (`list`) khi thực hiện các thao tác biến đổi dữ liệu.
@@ -14,12 +14,17 @@ Trong ca trực, điều phối viên hệ thống cần thực hiện 2 thao t�
 2. Hủy chuyến xe thứ 2 (vị trí chỉ số index 1 ban đầu) khỏi hệ thống do khách hàng báo bận.
 
 **Triệu chứng sự cố trên hệ thống:**
-Khách hàng đi chuyến xe thứ 4 gửi khiếu nại rằng cước phí chuyến đi của họ bị tự động hạ từ 85.000 VNĐ xuống còn 45.000 VNĐ. Trong khi đó, tài xế phản ánh rằng chuyến xe thứ 3 của họ vẫn giữ nguyên cước phí cũ 20.000 VNĐ thay vì 45.000 VNĐ như đã thỏa thuận. Lập trình viên tiền nhiệm đã viết chương trình cập nhật dữ liệu nhưng kết quả đầu ra bị sai lệch hoàn toàn so với thực tế.### **3. Mã nguồn hiện tại**
+Khách hàng đi chuyến xe thứ 4 gửi khiếu nại rằng cước phí chuyến đi của họ bị tự động hạ từ 85.000 VNĐ xuống còn 45.000 VNĐ. Trong khi đó, tài xế phản ánh rằng chuyến xe thứ 3 của họ vẫn giữ nguyên cước phí cũ 20.000 VNĐ thay vì 45.000 VNĐ như đã thỏa thuận. Lập trình viên tiền nhiệm đã viết chương trình cập nhật dữ liệu nhưng kết quả đầu ra bị sai lệch hoàn toàn so với thực tế.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn hiện tại trong tệp `main.py` đang gặp lỗi logic nghiệp vụ:
 
 ```python
+
 # Tệp tin: main.py
+
 # Virtualenv: venv | Python 3.12
+
 # Chuẩn PEP 8 & Type Hints
 
 # Khởi tạo danh sách cước phí 5 chuyến xe trong lượt của tài xế (đơn vị: VNĐ)
@@ -27,6 +32,7 @@ danh_sach_cuoc_phi: list[int] = [35000, 50000, 20000, 85000, 25000]
 print("Danh sách cước phí ban đầu: danh_sach_cuoc_phi)
 
 # Thao tác xử lý danh sách chuyến xe theo yêu cầu nghiệp vụ
+
 # Thực hiện xóa chuyến xe thứ 2 bị hủy (vị trí index 1)
 del danh_sach_cuoc_phi[1]
 
@@ -52,7 +58,7 @@ flowchart TD
     F --> G([Kết thúc quy trình])
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 Học viên phải hoàn thành 2 phần nhiệm vụ sau:
 

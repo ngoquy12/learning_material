@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Xây dựng Module Kiểm Tra Ràng Buộc Và Phân Loại Hồ Sơ Tín Dụng Tự Động Trong Hệ Thống Fintech — Tổng điểm: 100 điểm**
 
 #### **1. Thiết lập & Khởi tạo (10 điểm)**

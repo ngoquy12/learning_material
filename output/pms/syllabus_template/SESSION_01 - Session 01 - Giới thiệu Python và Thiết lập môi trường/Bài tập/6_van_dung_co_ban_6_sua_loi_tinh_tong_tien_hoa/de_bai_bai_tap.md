@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 6] Sửa lỗi tính tổng tiền hóa đơn order tại quầy Highlands POS</center>
+# <center>[Vận dụng cơ bản 6] Sửa lỗi tính tổng tiền hóa đơn order tại quầy Highlands POS</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu rõ cơ chế nhận dữ liệu đầu vào từ người dùng qua hàm `input()` trong Python và bản chất kiểu dữ liệu chuỗi (`str`).
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Phân hệ thanh toán tại quầy của hệ thống Highlands POS cho phép thu ngân nhập tên món uống, đơn giá cơ bản, phí phụ thu topping, số lượng ly và số tiền khách hàng đưa để in hóa đơn nhanh.
 
-Bộ phận vận hành nhận được phản ánh từ thu ngân cửa hàng: Khi thực hiện order món uống có kèm topping, hệ thống in ra hóa đơn với tổng tiền thanh toán lớn bất thường (lên đến hàng trăm triệu VNĐ), dẫn đến số tiền thừa trả lại khách hàng bị tính toán sai nghiêm trọng làm ngưng trệ ca làm việc.```mermaid
+Bộ phận vận hành nhận được phản ánh từ thu ngân cửa hàng: Khi thực hiện order món uống có kèm topping, hệ thống in ra hóa đơn với tổng tiền thanh toán lớn bất thường (lên đến hàng trăm triệu VNĐ), dẫn đến số tiền thừa trả lại khách hàng bị tính toán sai nghiêm trọng làm ngưng trệ ca làm việc.
+
+```mermaid
 flowchart TD
     A([Bắt đầu quy trình]) --> B[/Nhập đơn giá, phí topping, số lượng, tiền khách đưa/]
     B --> C["Chuyển đổi kiểu dữ liệu input sang float/int"]
@@ -19,10 +21,11 @@ flowchart TD
     G --> H([Kết thúc quy trình])
 ```
 
-### **3. Mã nguồn hiện tại**
+# **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn xử lý thanh toán hóa đơn đang gặp lỗi logic được bàn giao cho bạn:
 
 ```python
+
 # Nhập thông tin order từ bàn phím tại quầy Highlands POS
 item_name = input("Nhập tên món uống: ")
 unit_price = input("Nhập đơn giá cơ bản (VNĐ): ")
@@ -44,7 +47,7 @@ print("Tổng tiền hóa đơn:", total_bill, "VNĐ")
 print("Tiền thừa trả khách:", change_due, "VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Báo cáo Test Case (Code Tracing)**
 Thực hiện chạy thử mã nguồn, truy vết biến để tìm ra dòng mã gây lỗi. Hoàn thiện bảng báo cáo kịch bản kiểm thử (Test Case Report Table) theo mẫu bên dưới (dòng STT 1 là ví dụ mẫu, bạn cần hoàn thành STT 2 và STT 3):

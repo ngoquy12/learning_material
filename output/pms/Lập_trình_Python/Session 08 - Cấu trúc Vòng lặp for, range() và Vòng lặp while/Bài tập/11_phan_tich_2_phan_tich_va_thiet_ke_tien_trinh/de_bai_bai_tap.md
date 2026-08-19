@@ -1,11 +1,11 @@
-## <center>[Phân tích 2] Phân tích và Thiết kế Tiến trình Kiểm soát Mã Sách Mượn Tự động</center>
+# <center>[Phân tích 2] Phân tích và Thiết kế Tiến trình Kiểm soát Mã Sách Mượn Tự động</center>
 
 ### **1. Mục tiêu**
 *   **Kỹ năng phân tích thuật toán**: Đánh giá và so sánh các phương án thiết kế luồng điều khiển vòng lặp khi xử lý các tình huống bất ngờ (bỏ qua phần tử lỗi nhẹ, ngắt khẩn cấp khi gặp sự cố an ninh nghiêm trọng).
 *   **Tối ưu hóa luồng xử lý dữ liệu**: Vận dụng hiệu quả cấu trúc vòng lặp `for`, kết hợp hàm `range()`, các câu lệnh điều hướng `break`, `continue` và khối `else` trong Python để xây dựng hệ thống chạy ổn định, an toàn.
 *   **Tư duy phòng ngừa rủi ro logic**: Xử lý triệt để các trường hợp biên và đảm bảo tính nhất quán của dữ liệu thống kê trong Hệ thống Quản lý Mượn trả Sách Thư viện (LIBRARY_WMS).
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong phân hệ trạm mượn sách tự phục vụ (Self-service Checkout Kiosk) thuộc hệ thống LIBRARY_WMS, khi sinh viên tiến hành mượn một lô sách, trạm mượn sẽ tự động quét dải mã định danh sách (Book ID) chạy liên tiếp từ `start_id` đến `end_id`.
 
 Tuy nhiên, quá trình quét mã sách trong thực tế thường gặp phải hai dạng sự cố nghiệp vụ:

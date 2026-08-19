@@ -13,6 +13,10 @@ if hasattr(sys.stdout, "reconfigure"):
 if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+import warnings
+import random
+warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
+
 # Load dotenv if available
 try:
     from dotenv import load_dotenv
@@ -177,13 +181,15 @@ def with_retry(max_retries=3, initial_delay=2, backoff_factor=2):
                     if result:
                         return result
                     elif attempt < max_retries - 1:
-                        print(f"  [LLM Retry] Empty response. Retrying in {delay} seconds (Attempt {attempt + 1}/{max_retries})...")
-                        time.sleep(delay)
+                        sleep_time = delay * random.uniform(0.8, 1.2)
+                        print(f"  [LLM Retry] Empty response. Retrying in {sleep_time:.2f}s (Attempt {attempt + 1}/{max_retries})...")
+                        time.sleep(sleep_time)
                         delay *= backoff_factor
                 except Exception as e:
                     if attempt < max_retries - 1:
-                        print(f"  [LLM Retry] Error: {e}. Retrying in {delay} seconds (Attempt {attempt + 1}/{max_retries})...")
-                        time.sleep(delay)
+                        sleep_time = delay * random.uniform(0.8, 1.2)
+                        print(f"  [LLM Retry] Error: {e}. Retrying in {sleep_time:.2f}s (Attempt {attempt + 1}/{max_retries})...")
+                        time.sleep(sleep_time)
                         delay *= backoff_factor
                     else:
                         print(f"  [LLM Retry] Failed after {max_retries} attempts.")
@@ -542,7 +548,9 @@ def call_llm_with_images(
         return ""
 
     try:
-        import google.generativeai as genai
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=FutureWarning)
+            import google.generativeai as genai
 
         base_url = os.getenv("GEMINI_BASE_URL")
         if base_url:

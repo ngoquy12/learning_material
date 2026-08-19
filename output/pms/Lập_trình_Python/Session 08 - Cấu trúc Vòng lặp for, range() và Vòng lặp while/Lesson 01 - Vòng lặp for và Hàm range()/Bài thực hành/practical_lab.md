@@ -24,7 +24,9 @@ Bộ phận kỹ thuật của Siêu thị MartX cần xây dựng module xử l
 ## 4. Mã nguồn tham khảo (Code Demo)
 
 ```text
+
 # martx_invoice.py
+
 # Hệ thống In Hóa đơn & Phân tích Mã giảm giá Siêu thị MartX
 
 # Khai báo dữ liệu đầu vào
@@ -37,7 +39,9 @@ print("=== CHƯƠNG TRÌNH XỬ LÝ HÓA ĐƠN SIÊU THỊ MARTX ===")
 # Nhiệm vụ 1: In danh sách thứ tự mặt hàng (Khắc phục lỗi Off-by-one với total_items + 1)
 print("\n--- 1. DANH SÁCH MẶT HÀNG TRÊN HÓA ĐƠN ---")
 for item_id in range(1, total_items + 1):
-    item_price = item_id * 50000  # Đơn giá minh họa
+    item_price = item_id * 50000
+
+# Đơn giá minh họa
     print(f"Mặt hàng số {item_id}: Đơn giá {item_price:,} VNĐ")
 
 # Nhiệm vụ 2: Đếm ngược thời gian chờ giữ quầy thanh toán (Dùng range với step = -1)
@@ -59,7 +63,7 @@ print("--------------------------------------------------")
 print(f"TỔNG XÁC NHẬN: Phần trăm giảm giá nhận được là {total_discount}%")
 ```
 
-## 5. Checklist đánh giá kết quả
+# 5. Checklist đánh giá kết quả
 - [ ] Sử dụng đúng cú pháp range(1, total_items + 1) để in đủ danh sách mặt hàng, không bị lỗi thiếu phần tử cuối cùng.
 - [ ] Áp dụng chính xác bước nhảy âm range(5, 0, -1) cho bài toán đếm ngược thời gian mà không bị bỏ qua vòng lặp.
 - [ ] Duyệt thành công từng ký tự trong chuỗi mã giảm giá và sử dụng phương thức char.isdigit() để tính chính xác tổng phần trăm giảm giá.

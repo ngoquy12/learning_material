@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Phân Tích 3] Tối Ưu Hóa Dữ Liệu Chuyến Đi Hệ Thống GrabRide Bằng Thao Tác Cập Nhật Và Xóa Danh Sách — Tổng điểm: 100 điểm**
 
 #### **1. Báo cáo Đề xuất đa giải pháp & So sánh Trade-off — 30 điểm**

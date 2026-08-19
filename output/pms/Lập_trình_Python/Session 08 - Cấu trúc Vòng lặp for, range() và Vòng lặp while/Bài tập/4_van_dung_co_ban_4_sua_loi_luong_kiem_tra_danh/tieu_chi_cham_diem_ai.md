@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng cơ bản 4] Sửa lỗi luồng kiểm tra danh mục mượn sách theo lô — Tổng điểm: 100 điểm**
 
 #### **1. Phân tích & Phát hiện lỗi logic (Báo cáo Test Case) — 30 điểm**

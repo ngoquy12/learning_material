@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 3] Tính Phí Hành Lý Quá Cước Và Phụ Phí Chọn Ghế Máy Bay</center>
 
 ### **1. Mục tiêu**

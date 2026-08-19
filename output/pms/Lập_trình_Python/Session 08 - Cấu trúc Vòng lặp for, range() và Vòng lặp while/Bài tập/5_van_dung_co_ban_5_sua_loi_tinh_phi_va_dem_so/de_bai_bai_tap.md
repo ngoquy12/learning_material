@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 5] Sửa lỗi tính phí và đếm số lượng trong vòng lặp quét sách thư viện</center>
+# <center>[Vận dụng cơ bản 5] Sửa lỗi tính phí và đếm số lượng trong vòng lặp quét sách thư viện</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu rõ cơ chế điều khiển luồng lặp trong Python với cấu trúc `for...in range()`, câu lệnh `continue`, `break` và khối `else` đi kèm vòng lặp.
@@ -20,7 +20,9 @@ Mô hình nghiệp vụ quy định cụ thể như sau:
 Dưới đây là đoạn mã nguồn Python đang chạy trên hệ thống gặp sự cố logic:
 
 ```python
+
 # Hệ thống Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS)
+
 # Phân hệ: Kiểm định và quét mã sách hàng loạt
 
 start_id = 1
@@ -31,7 +33,8 @@ scanned_count = 0
 print("--- BẮT ĐẦU TIẾN TRÌNH KIỂM ĐỊNH MÃ SÁCH ---")
 
 for book_id in range(start_id, end_id):
-    # Cập nhật số lượng và tính phí xử lý
+
+# Cập nhật số lượng và tính phí xử lý
     total_processing_fee += 5000
     scanned_count += 1
 
@@ -50,7 +53,7 @@ else:
     print("Tổng phí kiểm định ghi nhận:", total_processing_fee, "VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Báo cáo phân tích vết (Code Tracing & Bug Discovery)**
 Học viên thực hiện chạy vết đoạn mã nguồn trên, xác định dòng mã gây ra lỗi logic và hoàn thành bảng báo cáo Test Case dưới đây vào bài nộp. 

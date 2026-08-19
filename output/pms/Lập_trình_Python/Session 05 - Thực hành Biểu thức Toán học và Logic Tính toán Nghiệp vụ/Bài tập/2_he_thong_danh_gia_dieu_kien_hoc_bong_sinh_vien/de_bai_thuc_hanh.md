@@ -1,4 +1,4 @@
-## <center>Hệ thống Đánh giá Điều kiện Học bổng Sinh viên</center>
+# <center>Hệ thống Đánh giá Điều kiện Học bổng Sinh viên</center>
 
 ### **1. Mục tiêu**
 - **Kỹ năng cú pháp:** Sử dụng các toán tử so sánh (`>`, `<`, `>=`, `<=`, `==`) và các toán tử logic (`and`, `or`, `not`) trong Python 3.12.
@@ -7,7 +7,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Phân hệ quản lý đào tạo của trường đại học cần lọc danh sách sinh viên đủ điều kiện nhận học bổng cuối kỳ. Học bổng được chia làm hai loại: Học bổng Học thuật (dành cho sinh viên xuất sắc) và Học bổng Hỗ trợ Khó khăn (dành cho sinh viên có hoàn cảnh khó khăn nhưng giữ vững học lực khá).
 
 Chương trình cần nhận điểm trung bình tích lũy (GPA), số giờ hoạt động ngoại khóa, trạng thái gia đình nghèo và số lỗi kỷ luật từ bàn phím để tự động đánh giá quyền lợi học bổng của sinh viên.
@@ -65,37 +65,43 @@ Viết chương trình Python thực hiện các tác vụ sau:
 
 **Kịch bản 1: Sinh viên đạt học bổng học thuật**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập điểm GPA (hệ 4.0): 3.8
   Nhập số giờ hoạt động tình nguyện: 18
   Gia đình có thuộc hộ nghèo? (Nhập 1 nếu đúng, 0 nếu không): 0
   Nhập số lần vi phạm kỷ luật: 0
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === KẾT QUẢ XẾT DUYỆT HỌC BỔNG SINH VIÊN ===
   Điểm học thuật quy đổi: 95.0
   Đạt điều kiện học bổng học thuật: True
   Đạt điều kiện học bổng hỗ trợ khó khăn: False
   Đạt tiêu chuẩn nhận học bổng chung: True
-  ```
+```
 
 **Kịch bản 2: Sinh viên không đạt học bổng do vi phạm kỷ luật**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập điểm GPA (hệ 4.0): 3.9
   Nhập số giờ hoạt động tình nguyện: 20
   Gia đình có thuộc hộ nghèo? (Nhập 1 nếu đúng, 0 nếu không): 0
   Nhập số lần vi phạm kỷ luật: 1
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === KẾT QUẢ XẾT DUYỆT HỌC BỔNG SINH VIÊN ===
   Điểm học thuật quy đổi: 97.5
   Đạt điều kiện học bổng học thuật: False
   Đạt điều kiện học bổng hỗ trợ khó khăn: False
   Đạt tiêu chuẩn nhận học bổng chung: False
-  ```
+```
 
 ---
 
@@ -103,7 +109,8 @@ Viết chương trình Python thực hiện các tác vụ sau:
 - Lưu mã nguồn vào file `scholarship_checker.py`.
 - Tuân thủ PEP 8 và đầy đủ type hints.
 - Thực hiện git commit:
-  ```bash
+
+```bash
   git add scholarship_checker.py
   git commit -m "feat: implement scholarship evaluation system"
-  ```
+```

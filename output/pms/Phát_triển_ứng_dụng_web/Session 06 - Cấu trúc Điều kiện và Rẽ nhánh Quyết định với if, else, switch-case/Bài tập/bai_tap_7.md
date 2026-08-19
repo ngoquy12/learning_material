@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 1] Hệ thống tính phí cước hành lý sân bay tự động</center>
 
 ### **1. Mục tiêu**

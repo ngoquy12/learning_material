@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 2] Thiết kế và tối ưu logic tính phí dịch vụ làm thủ tục chuyến bay</center>
 
 ### **1. Mục tiêu**

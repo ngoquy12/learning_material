@@ -317,15 +317,13 @@ def practical_lab_creator_agent(state: AgentState) -> AgentState:
             return state
 
     # If SSOT lab content is missing or incomplete, call LLM to generate rich practical lab JSON
-    system_prompt = f"""You are a Senior Technical Instructor at Rikkei Education.
-Generate a practical lab assignment (Bài thực hành) tailored to {tech_stack} for: {lesson_title}.
+    from core.prompts import render_prompt
+    from core.utils.llm_parser import extract_json_from_response
 
-MANDATORY DIRECTIVES:
-1. Output MUST be 100% Accented Vietnamese.
-2. STRICT NO EMOJI DIRECTIVE: No text emojis.
-3. Content MUST match the specific technology stack ({tech_stack}). If tech stack is Git/GitHub, focus on Git CLI commands, repository lifecycle, and branch/commit workflow. DO NOT mention Python .venv or PEP 8 unless the tech stack is Python!
-4. Return ONLY a single valid JSON object matching the required structure.
-"""
+    system_prompt = render_prompt(
+        "practical_lab_creator.j2",
+        {"tech_stack": tech_stack, "lesson_title": lesson_title}
+    )
 
     blueprint = state.get("lesson_blueprint")
     if blueprint:
@@ -344,33 +342,6 @@ Lesson: {lesson_id} - {lesson_title}
 Curriculum Context: {lesson_details}
 Expected Output: {expected_output}
 Tech Stack: {tech_stack}
-
-MANDATORY OUTPUT FORMAT (Return ONLY a single valid JSON object, no extra markdown text):
-{{
-  "title": "Bài thực hành: [Tên kịch bản thực tế ngắn gọn]",
-  "objectives": [
-    "Vận dụng kiến thức {tech_stack} để thực thi bài toán...",
-    "Thành thạo thao tác thực hành và kiểm chuẩn kết quả..."
-  ],
-  "problem_statement": "Mô tả bài toán nghiệp vụ doanh nghiệp cụ thể và các quy tắc logic cần cài đặt...",
-  "description": {{
-    "inputs": "Môi trường phát triển {tech_stack} và tệp tài nguyên thực hành.",
-    "steps": [
-      "Bước 1: Khởi tạo không gian làm việc và chuẩn bị tài nguyên...",
-      "Bước 2: Thực thi các câu lệnh/thao tác cốt lõi theo yêu cầu...",
-      "Bước 3: Kiểm tra và xử lý các bẫy lỗi/tình huống phát sinh...",
-      "Bước 4: Kiểm tra kết quả hiển thị và hoàn tất bài thực hành."
-    ]
-  }},
-  "reference_code": "# Mã nguồn demo/tham khảo hoàn chỉnh với chú thích đầy đủ từng bước...",
-  "evaluation": {{
-    "checklist": [
-      "Thao tác thực thi thành công không phát sinh lỗi.",
-      "Tuân thủ quy chuẩn mã nguồn/quy trình làm việc của {tech_stack}.",
-      "Kết quả kiểm thử đạt yêu cầu bài toán."
-    ]
-  }}
-}}
 """
 
     response_str = call_llm(
@@ -382,9 +353,8 @@ MANDATORY OUTPUT FORMAT (Return ONLY a single valid JSON object, no extra markdo
         lesson_id=lesson_id
     )
 
-    try:
-        lab_data = json.loads(response_str)
-    except Exception:
+    lab_data = extract_json_from_response(response_str)
+    if not isinstance(lab_data, dict) or not lab_data.get("title"):
         if "git" in tech_stack.lower() or "version control" in lesson_title.lower():
             steps = [
                 f"Bước 1: Khởi tạo kho lưu trữ local hoặc chuyển sang làm việc trên repo dự án {tech_stack}.",

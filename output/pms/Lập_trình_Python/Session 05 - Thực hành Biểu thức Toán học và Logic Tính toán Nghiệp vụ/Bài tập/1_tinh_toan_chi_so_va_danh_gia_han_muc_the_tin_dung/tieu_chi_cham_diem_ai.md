@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Tính toán Chỉ số và Đánh giá Hạn mức Thẻ Tín dụng — Tổng điểm: 100 điểm**
 
 #### **1. Thiết lập & Khởi tạo (10 điểm)**

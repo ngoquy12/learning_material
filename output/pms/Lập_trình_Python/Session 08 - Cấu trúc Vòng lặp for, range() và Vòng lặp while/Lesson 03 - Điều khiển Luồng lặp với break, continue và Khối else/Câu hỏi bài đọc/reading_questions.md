@@ -4,9 +4,13 @@
 Dựa trên mã nguồn nghiệp vụ quét an ninh kiện hàng WMS bằng chuỗi ký tự được trích dẫn từ bài thực hành:
 
 ```python
+
 # Chuỗi đại diện cho chuỗi kiện hàng chạy qua đầu quét an ninh:
+
 # 'N': Kiện hàng thường (NORMAL)
+
 # 'P': Hàng khuyến mãi tặng kèm (PROMO_ONLY)
+
 # 'E': Lỗi an ninh nghiêm trọng (CRITICAL_ERROR)
 package_sequence = "NPNEN"
 package_count = 0
@@ -14,18 +18,18 @@ package_count = 0
 for package in package_sequence:
     package_count += 1
     print(f"Quét kiện hàng #{package_count}: {package}")
-    
-    # Kiểm tra lỗi an ninh nghiêm trọng (Ký tự 'E')
+
+# Kiểm tra lỗi an ninh nghiêm trọng (Ký tự 'E')
     if package == 'E':
         print("--> CẢNH BÁO: Dừng băng tải khẩn cấp!")
         break
-        
-    # Kiểm tra hàng khuyến mãi miễn kiểm thuế (Ký tự 'P')
+
+# Kiểm tra hàng khuyến mãi miễn kiểm thuế (Ký tự 'P')
     if package == 'P':
         print("--> Hệ thống: Miễn kiểm thuế, chuyển thẳng khu đóng gói.")
         continue
-        
-    # Quy trình đóng gói mặc định (Ký tự 'N')
+
+# Quy trình đóng gói mặc định (Ký tự 'N')
     print("--> Hệ thống: Đóng gói thành công.")
 
 print("\n🎉 THÔNG BÁO: Kết thúc ca làm việc quét kiện hàng!")

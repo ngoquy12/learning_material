@@ -1,4 +1,4 @@
-## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap)</center>
+# <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap)</center>
 
 ### **1. Mục tiêu**
 
@@ -6,13 +6,13 @@
 - Trực quan hóa cấu trúc dữ liệu và luồng thực thi chương trình bằng Sơ đồ Tư duy (Mindmap).
 - Rèn luyện kỹ năng phân tầng logic và kết nối tri thức hệ thống một cách khoa học.
 
-### **2. Bối cảnh & Yêu cầu tổng hợp**
+### **2. Bối cảnh & Vấn đề**
 
 Học viên đóng vai trò là một Kỹ sư Lập trình chính (Software Engineer), thực hiện xây dựng Sơ đồ Tư duy (Mindmap) tổng hợp kiến thức đã học trong Session 08 để phục vụ mục tiêu hướng dẫn lại cho các thành viên mới trong dự án.
 
 Sơ đồ tư duy cần tập trung vào các nhánh chuyên môn kỹ thuật, giải nghĩa cú pháp và cung cấp các ví dụ mã nguồn thực tế ngắn gọn (5-8 dòng).
 
-### **3. Quy tắc nghiệp vụ & Từ khóa trọng tâm**
+### **3. Quy tắc nghiệp vụ**
 
 Sơ đồ tư duy BẮT BUỘC phải bao phủ đầy đủ các kiến thức sau:
 

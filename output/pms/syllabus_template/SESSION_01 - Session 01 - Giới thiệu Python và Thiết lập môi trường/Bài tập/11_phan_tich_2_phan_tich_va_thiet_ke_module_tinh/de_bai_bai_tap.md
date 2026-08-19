@@ -1,4 +1,4 @@
-## <center>[Phân tích 2] Phân tích và Thiết kế Module Tính Tiền Hóa Đơn POS Highlands Coffee</center>
+# <center>[Phân tích 2] Phân tích và Thiết kế Module Tính Tiền Hóa Đơn POS Highlands Coffee</center>
 
 ### **1. Mục tiêu**
 *   **Phân tích kỹ thuật chuyên sâu:** Đánh giá các phương án xử lý số liệu tiền tệ trên giao diện dòng lệnh (CLI) nhằm tránh hiện tượng mất chính xác do sai số dấu chấm động (floating-point precision loss) khi thực hiện các phép tính phần trăm chiết khấu và thuế VAT.
@@ -10,7 +10,9 @@ Chuỗi cửa hàng Highlands Coffee đang nâng cấp hệ thống phần mềm
 
 Tuy nhiên, trong các hệ thống tài chính thực tế, việc tính toán tỉ lệ phần trăm giảm giá (10%) hoặc thuế VAT (8%) nếu không được thiết kế kiểu dữ liệu cẩn thận sẽ dễ dẫn đến các lỗi làm tròn (ví dụ: `49500.00000000001` VNĐ thay vì `49500` VNĐ). Điều này khiến hóa đơn in ra thiếu chuyên nghiệp và có thể gây lệch sổ sách kế toán cuối ngày.
 
-Dưới góc độ một kỹ sư phần mềm, bạn được giao nhiệm vụ nghiên cứu bài toán, đề xuất các phương án kỹ thuật xử lý dữ liệu tiền tệ, phân tích ưu/nhược điểm (Trade-off) của từng phương án, và lập trình giải pháp tối ưu nhất.### **3. Quy tắc nghiệp vụ**
+Dưới góc độ một kỹ sư phần mềm, bạn được giao nhiệm vụ nghiên cứu bài toán, đề xuất các phương án kỹ thuật xử lý dữ liệu tiền tệ, phân tích ưu/nhược điểm (Trade-off) của từng phương án, và lập trình giải pháp tối ưu nhất.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tính tiền POS cần tuân thủ các quy tắc nghiệp vụ sau:
 1.  **Giá đồ uống gốc (Base Price):** Là đơn giá niêm yết dành cho Size S (nhập từ bàn phím, ví dụ: 45000 VNĐ).
 2.  **Phụ thu Size (Size Upcharge):** 

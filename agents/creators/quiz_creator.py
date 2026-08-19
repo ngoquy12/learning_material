@@ -219,41 +219,13 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
             )
         article_context = f"{content.get('problem', '')}\n\n{content.get('analysis', '')}\n\n{content.get('solution', '')}\n\n{content.get('example', '')}".strip()
 
-    system_prompt = f"""You are a Senior E-Learning Pedagogical QA Specialist at Rikkei Education.
-Your task is to generate EXACTLY 5 multiple-choice quiz questions for a single lesson according to the official Rikkei Education Quiz Standards (RE_Tiêu chuẩn quizz.pdf).
+    from core.prompts import render_prompt
+    from core.utils.llm_parser import extract_json_from_response
 
-CRITICAL 5-QUESTION LESSON MATRIX (EXACTLY 5 QUESTIONS):
-- STT 1 (SYNTAX): Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ ({tech_stack}).
-- STT 2 (EXECUTION_FLOW): Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình.
-- STT 3 (CODE_TRACE): Đọc hiểu code cơ bản, cung cấp đoạn code ngắn và yêu cầu trace giá trị biến / đầu ra.
-- STT 4 (COMPARISON): Tránh nhầm lẫn giữa các cấu trúc, lệnh hoặc tính ứng dụng của các giải pháp.
-- STT 5 (TRAP_PREDICTION): Kiểm tra sự tỉ mỉ, phát hiện bẫy logic / bẫy cú pháp / lỗi lặp vô tận / biến không thay đổi.
-
-REQUIRED ENHANCED SCHEMA PER QUESTION:
-- `stt`: Integer from 1 to 5.
-- `question_type`: Enum ("SYNTAX", "EXECUTION_FLOW", "CODE_TRACE", "COMPARISON", "TRAP_PREDICTION").
-- `question`: Scenario-based question text with backticks for code identifiers.
-- `options`: Array of 4 homogeneous answer strings.
-- `correct_option_index`: Integer index (0, 1, 2, or 3).
-- `explanation`: Technical explanation of why the correct option is right.
-- `instant_feedback`: Short, encouraging feedback when student picks wrong option, pointing to relevant lesson section (e.g. "Chưa chính xác! Bạn hãy xem lại Mục 2.1 trong bài đọc...").
-- `time_limit_sec`: 30
-
-MANDATORY MARKDOWN CODE FORMATTING DIRECTIVES:
-1. MULTI-LINE CODE BLOCKS: Format multi-line code inside Markdown fenced code blocks using ````{lang_tag}` and explicit `\\n` linebreaks.
-2. INLINE CODE SYMBOLS: Wrap all inline variable names, function names, keywords, parameter names in single backticks.
-3. DOMAIN AGNOSTIC: Adapt dynamically to target tech stack ({tech_stack}). DO NOT hardcode a single technology.
-
-MANDATORY PEDAGOGICAL RULES (RE_Tiêu chuẩn quizz.pdf):
-1. Single Concept: Evaluate EXACTLY 1 skill or concept per question.
-2. Context-Driven: Frame every question inside a realistic developer scenario. ABSOLUTELY FORBIDDEN to ask dry theoretical definitions.
-3. Plausible Distractors: Incorrect choices must represent real common student mistakes. FORBIDDEN: "All of the above", "None of the above", "Cả 3 đáp án trên đều sai", "Tất cả đều đúng".
-4. Homogeneity: All 4 answer choices (A, B, C, D) must have equal text lengths and parallel grammatical structures.
-5. No Clues: Avoid keyword matching between question stem and correct choice.
-6. NO CONTEXT REFERRAL PHRASES: FORBIDDEN to write "in the slide", "according to lecture", "in the video", "from instructor". State 100% objectively.
-
-OUTPUT FORMAT: Return ONLY a valid JSON array of 5 question objects.
-"""
+    system_prompt = render_prompt(
+        "quiz_creator.j2",
+        {"tech_stack": tech_stack, "lang_tag": lang_tag}
+    )
 
     user_prompt = f"""Lesson Metadata:
 - Session: {session_id}
@@ -328,13 +300,10 @@ OUTPUT JSON SCHEMA (Array of EXACTLY 5 objects):
         lesson_id=lesson_id
     )
 
-    try:
-        quiz_data = json.loads(response_str)
-        if isinstance(quiz_data, dict) and "quiz" in quiz_data:
-            quiz_data = quiz_data["quiz"]
-        if not isinstance(quiz_data, list) or len(quiz_data) != 5:
-            raise ValueError("Quiz must be a list of exactly 5 questions")
-    except Exception:
+    quiz_data = extract_json_from_response(response_str)
+    if isinstance(quiz_data, dict) and "quiz" in quiz_data:
+        quiz_data = quiz_data["quiz"]
+    if not isinstance(quiz_data, list) or len(quiz_data) != 5:
         quiz_data = generate_fallback_5_question_quiz(lesson_title, tech_stack)
 
     # Post-process quiz_data to normalize Markdown code blocks with dynamic lang_tag

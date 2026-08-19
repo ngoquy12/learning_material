@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **Báo cáo Kiểm định Logic Phân loại Kho bãi — Tổng điểm: 100 điểm**
 
 #### **1. Thiết lập & Khởi tạo (10 điểm)**

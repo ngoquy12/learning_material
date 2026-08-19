@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 3] Phân tích và thiết kế mô-đun tính chi phí và tạo phiếu xác nhận khám bệnh</center>
 
 ### **1. Mục tiêu**

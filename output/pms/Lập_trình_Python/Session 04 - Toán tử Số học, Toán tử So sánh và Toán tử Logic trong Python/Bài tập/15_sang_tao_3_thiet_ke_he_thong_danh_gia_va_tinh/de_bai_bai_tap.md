@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 3] Thiết kế Hệ thống Đánh giá và Tính Phụ phí Đặt phòng Khách sạn</center>
+# <center>[Sáng tạo 3] Thiết kế Hệ thống Đánh giá và Tính Phụ phí Đặt phòng Khách sạn</center>
 
 ### **1. Mục tiêu**
 *   **Tự thiết kế & Triển khai:** Tự đề xuất cấu trúc dữ liệu đầu vào/đầu ra (I/O Schema) và xây dựng thuật toán tính toán tổng chi phí đặt phòng (BookingReservation) trên hệ thống Agoda / Traveloka mà không phụ thuộc vào mã bộ khung có sẵn.
@@ -9,7 +9,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Nền tảng đặt phòng trực tuyến Agoda / Traveloka đang mở rộng dòng sản phẩm Homestay & Khách sạn cao cấp với cơ chế tính phí linh hoạt. Khi người dùng thực hiện giao dịch đặt phòng (`BookingReservation`), hệ thống cần tính toán chính xác tổng hóa đơn thanh toán (`ServiceInvoice`) dựa trên nhiều thông số nghiệp vụ thực tế: giá phòng theo ngày, thời gian check-in thực tế, số lượng khách phát sinh và số tiền đã đặt cọc.
 
-Hiện tại, bộ phận kỹ thuật cần một module tính toán nguyên tử (atomic calculation module) có tốc độ phản hồi cao. Module này nhận thông tin từ yêu cầu đặt phòng, tự động tính toán tiền phòng cơ bản, tính các khoản phụ thu (check-in sớm trước 12h trưa, khách vượt sức chứa tiêu chuẩn) và xác minh cờ điều kiện duyệt phòng (`is_approved`). Do yêu cầu tối ưu hiệu năng tính toán ở tầng lõi, thuật toán phải được biểu diễn bằng các phép toán số học và so sánh đại số, loại bỏ hoàn toàn các cấu trúc rẽ nhánh phức tạp.### **3. Quy tắc nghiệp vụ**
+Hiện tại, bộ phận kỹ thuật cần một module tính toán nguyên tử (atomic calculation module) có tốc độ phản hồi cao. Module này nhận thông tin từ yêu cầu đặt phòng, tự động tính toán tiền phòng cơ bản, tính các khoản phụ thu (check-in sớm trước 12h trưa, khách vượt sức chứa tiêu chuẩn) và xác minh cờ điều kiện duyệt phòng (`is_approved`). Do yêu cầu tối ưu hiệu năng tính toán ở tầng lõi, thuật toán phải được biểu diễn bằng các phép toán số học và so sánh đại số, loại bỏ hoàn toàn các cấu trúc rẽ nhánh phức tạp.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tính toán cần tuân thủ nghiêm ngặt các quy định nghiệp vụ sau:
 1. **Giá phòng cơ bản:** Tổng tiền phòng gốc = Số đêm lưu trú * Giá phòng mỗi đêm.
 2. **Phụ thu Check-in sớm:** Khách nhận phòng trước 12:00 trưa chịu phụ thu 30% tiền phòng của 1 đêm (`EARLY_CHECKIN_SURCHARGE_RATE = 0.30`).

@@ -1,4 +1,4 @@
-## <center>Xây dựng Module Logic Phân loại Hội viên và Tính Phí Vận chuyển Đơn hàng E-commerce</center>
+# <center>Xây dựng Module Logic Phân loại Hội viên và Tính Phí Vận chuyển Đơn hàng E-commerce</center>
 
 ### **1. Mục tiêu**
 - **Củng cố cú pháp điều kiện:** Sử dụng thành thạo cấu trúc rẽ nhánh `if-else if-else` để phân loại cấp bậc người dùng dựa trên tổng hạn mức chi tiêu.
@@ -8,7 +8,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong phân hệ xử lý thanh toán của hệ thống thương mại điện tử, việc tự động hóa quá trình xác định thứ hạng khách hàng và cước phí vận chuyển đóng vai trò then chốt. Hệ thống cần nhận các tham số đầu vào nguyên thủy của đơn hàng, kiểm tra tính hợp lệ của dữ liệu, sau đó tính toán hạng hội viên, áp dụng cước phí giao hàng theo từng vùng miền và thực hiện giảm trừ phí theo chính sách ưu tiên.
 
 Sơ đồ dòng dữ liệu và logic xử lý của hệ thống được mô tả như sau:
@@ -30,14 +30,13 @@ flowchart TD
     J --> L[/"In báo cáo chi tiết ra Console"/]
     K --> L
     L --> Z
-
 ```
 
 ---
 
 ### **3. Yêu cầu bài toán**
 
-Hãy viết mã nguồn JavaScript trong file `script.js` để thực hiện toàn bộ logic kiểm tra và tính toán cước phí cho đơn hàng. 
+Hãy viết mã nguồn JavaScript trong file `script.js` để thực hiện toàn bộ logic kiểm tra và tính toán cước phí cho đơn hàng.
 
 #### **3.1. Các biến dữ liệu đầu vào (Input Primitives)**
 Khai báo các biến bằng từ khóa `let` hoặc `const` với các giá trị thử nghiệm ban đầu:
@@ -117,6 +116,7 @@ Yêu cầu 6: Xuất báo cáo kết quả hoàn chỉnh ra màn hình Console b
 
 #### **Trường hợp 1: Đơn hàng hợp lệ - Thành viên hạng VÀNG được Miễn phí giao hàng**
 **Input Variables:**
+
 ```javascript
 let userTotalSpent = 25000000;
 let shippingZoneCode = 'INNER';
@@ -124,6 +124,7 @@ let isVipMember = false;
 ```
 
 **Console Output:**
+
 ```text
 === KẾT QUẢ XỬ LÝ ĐƠN HÀNG E-COMMERCE ===
 - Tổng tiền tích lũy: 25000000 VNĐ
@@ -135,8 +136,9 @@ let isVipMember = false;
 =========================================
 ```
 
-#### **Trường hợp 2: Đơn hàng hợp lệ - Thành viên VIP được giảm 50% phí ship**
+# **Trường hợp 2: Đơn hàng hợp lệ - Thành viên VIP được giảm 50% phí ship**
 **Input Variables:**
+
 ```javascript
 let userTotalSpent = 12000000;
 let shippingZoneCode = 'REMOTE';
@@ -144,6 +146,7 @@ let isVipMember = true;
 ```
 
 **Console Output:**
+
 ```text
 === KẾT QUẢ XỬ LÝ ĐƠN HÀNG E-COMMERCE ===
 - Tổng tiền tích lũy: 12000000 VNĐ
@@ -155,8 +158,9 @@ let isVipMember = true;
 =========================================
 ```
 
-#### **Trường hợp 3: Dữ liệu không hợp lệ**
+# **Trường hợp 3: Dữ liệu không hợp lệ**
 **Input Variables:**
+
 ```javascript
 let userTotalSpent = -150000;
 let shippingZoneCode = 'INNER';
@@ -164,6 +168,7 @@ let isVipMember = false;
 ```
 
 **Console Output:**
+
 ```text
 === LỖI DỮ LIỆU ĐẦU VÀO ===
 Tổng tiền chi tiêu không được là số âm. Vui lòng kiểm tra lại!

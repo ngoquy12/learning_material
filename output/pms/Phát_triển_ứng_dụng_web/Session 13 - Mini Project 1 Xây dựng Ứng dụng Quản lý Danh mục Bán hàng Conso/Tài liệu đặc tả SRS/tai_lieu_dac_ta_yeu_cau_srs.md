@@ -1,12 +1,10 @@
-## <center>Tài liệu đặc tả Hệ thống Ứng dụng Quản lý Danh mục Bán hàng Console (Sales Catalog Management Console Application)</center>
+# <center>Tài liệu đặc tả Hệ thống Ứng dụng Quản lý Danh mục Bán hàng Console (Sales Catalog Management Console Application)</center>
 
 ### **1. Tổng quan hệ thống**
 
 Hệ thống **Ứng dụng Quản lý Danh mục Bán hàng Console (Sales Catalog Management Console Application - Phần 1)** là ứng dụng quản lý dữ liệu bán hàng chạy trên môi trường dòng lệnh (Console Runtime / Terminal / Browser Console). Hệ thống được thiết kế nhằm mục đích cung cấp công cụ quản lý kho hàng và sản phẩm tinh gọn, giúp nhân viên vận hành thực hiện các thao tác thêm, sửa, xóa, tìm kiếm, lọc và thống kê danh mục sản phẩm hoàn toàn trên bộ nhớ đệm (In-Memory Array Data Store).
 
 Phần 1 của dự án tập trung vào việc ứng dụng nền tảng lập trình JavaScript ES6+ cơ bản: quản lý biến đếm, thao tác mảng đối tượng (`Array of Objects`), duyệt mảng bằng vòng lặp (`for`, `for...of`, `while`), rẽ nhánh logic (`if-else`, `switch-case`, toán tử ba ngôi) và thực thi luồng tương tác người dùng qua menu điều khiển Console.
-
-
 
 ---
 
@@ -88,6 +86,7 @@ Phần 1 của dự án tập trung vào việc ứng dụng nền tảng lập 
   5. Đẩy đối tượng hoàn chỉnh vào mảng `catalogList` bằng `.push()`.
 
 ##### **Sơ đồ 2.1: Luồng nghiệp vụ Thêm sản phẩm mới**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu thêm sản phẩm]) --> B[/Đầu vào: Thông tin productId, productName, unitPrice, stockQuantity/]
@@ -103,7 +102,8 @@ flowchart TD
     I --> J([Kết thúc quy trình thêm])
 ```
 
-##### **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Thêm mới sản phẩm:**
+# **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Thêm mới sản phẩm:**
+
 ```text
 === KỊCH BẢN KIỂM THỬ: THÊM SẢN PHẨM THÀNH CÔNG ===
 [Đầu vào (Console Inputs)]:
@@ -136,6 +136,7 @@ flowchart TD
   5. Cập nhật trực tiếp các thuộc tính của đối tượng tại chỉ số mảng đã tìm được.
 
 ##### **Sơ đồ 2.2: Luồng nghiệp vụ Cập nhật thông tin sản phẩm**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu cập nhật sản phẩm]) --> B[/Đầu vào: Nhập productId cần sửa/]
@@ -153,7 +154,8 @@ flowchart TD
     L --> E
 ```
 
-##### **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Cập nhật sản phẩm:**
+# **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Cập nhật sản phẩm:**
+
 ```text
 === KỊCH BẢN KIỂM THỬ: CẬP NHẬT THÀNH CÔNG ===
 [Đầu vào (Console Inputs)]:
@@ -183,6 +185,7 @@ flowchart TD
   4. Nếu tìm thấy, thực hiện xác nhận thao tác (Y/N). Nếu chọn 'Y', gọi `catalogList.splice(targetIndex, 1)`.
 
 ##### **Sơ đồ 2.3: Luồng nghiệp vụ Xóa sản phẩm**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu xóa sản phẩm]) --> B[/Đầu vào: Mã productId cần xóa/]
@@ -198,7 +201,8 @@ flowchart TD
     J --> E
 ```
 
-##### **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Xóa sản phẩm:**
+# **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Xóa sản phẩm:**
+
 ```text
 === KỊCH BẢN KIỂM THỬ: XÓA SẢN PHẨM THÀNH CÔNG ===
 [Đầu vào (Console Inputs)]:
@@ -228,6 +232,7 @@ flowchart TD
   5. Xuất báo cáo tổng hợp chuẩn định dạng ra Console.
 
 ##### **Sơ đồ 2.4: Luồng nghiệp vụ Thống kê báo cáo danh mục**
+
 ```mermaid
 flowchart TD
     A([Bắt đầu thống kê báo cáo]) --> B["Khởi tạo các biến đếm và tổng bằng 0"]
@@ -244,7 +249,8 @@ flowchart TD
     J --> K([Kết thúc thống kê])
 ```
 
-##### **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Thống kê:**
+# **Bộ kiểm thử mẫu (Mock I/O Test Case) - Chức năng Thống kê:**
+
 ```text
 === KỊCH BẢN KIỂM THỬ: BÁO CÁO THỐNG KÊ DANH MỤC ===
 [Đầu vào (Mảng dữ liệu catalogList hiện tại)]:
@@ -300,7 +306,7 @@ Mỗi sản phẩm trong danh mục bán hàng được biểu diễn bằng m�
 }
 ```
 
-#### **4.2. Bảng Từ điển dữ liệu (Data Dictionary)**
+# **4.2. Bảng Từ điển dữ liệu (Data Dictionary)**
 
 <table style="width: 100%; min-width: 100%; display: table; border-collapse: collapse;" border="1" cellSpacing="0" cellPadding="8">
   <thead>
@@ -332,7 +338,7 @@ Mỗi sản phẩm trong danh mục bán hàng được biểu diễn bằng m�
       <td>String</td>
       <td>Có</td>
       <td>Chuỗi không rỗng</td>
-      <td>Tên phân loại danh mục (VD: "Điện tử", "Phụ kiện").</td>
+      <td>Tên phân loại danh mục (VD: "Điện tử "Phụ kiện").</td>
     </tr>
     <tr>
       <td><code>unitPrice</code></td>

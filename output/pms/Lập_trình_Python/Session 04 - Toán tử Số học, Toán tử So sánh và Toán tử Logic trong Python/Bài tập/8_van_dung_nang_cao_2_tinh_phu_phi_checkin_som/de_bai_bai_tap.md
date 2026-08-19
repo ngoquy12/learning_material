@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 2] Tính phụ phí check-in sớm và xác nhận hóa đơn đặt phòng</center>
+# <center>[Vận dụng nâng cao 2] Tính phụ phí check-in sớm và xác nhận hóa đơn đặt phòng</center>
 
 ### **1. Mục tiêu**
 *   **Vận dụng toán tử số học và so sánh trong Python**: Thực hiện các phép tính toán tài chính phức tạp (tính phụ thu nhận phòng sớm, tổng tiền hóa đơn) và xác minh điều kiện phê duyệt đơn đặt phòng mà không sử dụng câu lệnh rẽ nhánh hay các từ khóa logic bị cấm.
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Trong hệ thống đặt phòng trực tuyến Agoda / Traveloka, quy trình tự động tính toán hóa đơn thanh toán và xác minh cờ phê duyệt nhận phòng (Check-in Validation Engine) đóng vai trò then chốt giúp tối ưu hóa thời gian vận hành tại quầy lễ tân. 
 
-Khi khách hàng thực hiện đặt phòng, hệ thống cần tính toán chính xác tổng số tiền hóa đơn bao gồm tiền phòng cơ bản và phụ phí nhận phòng sớm (early check-in). Đồng thời, hệ thống phải tự động kiểm tra cờ ưu tiên phê duyệt đơn đặt phòng dựa trên các hạn mức kinh doanh mà khách sạn thiết lập.### **3. Quy tắc nghiệp vụ**
+Khi khách hàng thực hiện đặt phòng, hệ thống cần tính toán chính xác tổng số tiền hóa đơn bao gồm tiền phòng cơ bản và phụ phí nhận phòng sớm (early check-in). Đồng thời, hệ thống phải tự động kiểm tra cờ ưu tiên phê duyệt đơn đặt phòng dựa trên các hạn mức kinh doanh mà khách sạn thiết lập.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống xử lý thông tin dựa trên các thông số đầu vào cơ bản:
 *   `room_price` (`float`): Giá niêm yết của phòng cho 1 đêm (đơn vị: VNĐ).
 *   `num_nights` (`int`): Số đêm khách lưu trú.

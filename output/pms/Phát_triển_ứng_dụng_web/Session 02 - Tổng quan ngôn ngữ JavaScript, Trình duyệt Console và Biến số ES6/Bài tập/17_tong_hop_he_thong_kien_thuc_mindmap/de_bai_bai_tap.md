@@ -1,5 +1,3 @@
-#
-
 # <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 02</center>
 
 ### **1. Mục tiêu**
@@ -79,7 +77,8 @@ Học viên nộp bài theo quy chuẩn quản lý mã nguồn GitHub:
   *Ví dụ*: `HNKS25CNTT1_Core_Session02_Mindmap`
 
 - **Cấu trúc thư mục Repository bắt buộc**:
-  ```text
+
+```text
   HNKS25CNTT1_Core_Session02_Mindmap/
   ├── docs/
   │   ├── mindmap.png (hoặc mindmap.jpg)
@@ -88,4 +87,4 @@ Học viên nộp bài theo quy chuẩn quản lý mã nguồn GitHub:
   │   ├── index.html (Trang HTML gắn script chuẩn)
   │   └── app.js (Mã nguồn JS tính phí khám bệnh theo chuẩn ES6)
   └── summary.md (Bản tóm tắt giải trình kiến thức hệ thống)
-  ```
+```

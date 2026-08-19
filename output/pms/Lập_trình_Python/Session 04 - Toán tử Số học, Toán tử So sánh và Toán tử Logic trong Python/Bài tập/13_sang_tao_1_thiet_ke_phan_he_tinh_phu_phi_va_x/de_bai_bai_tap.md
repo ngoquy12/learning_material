@@ -1,4 +1,4 @@
-## <center>[Sáng tạo 1] Thiết kế phân hệ tính phụ phí và xác thực điều kiện đặt phòng khách sạn</center>
+# <center>[Sáng tạo 1] Thiết kế phân hệ tính phụ phí và xác thực điều kiện đặt phòng khách sạn</center>
 
 ### **1. Mục tiêu**
 

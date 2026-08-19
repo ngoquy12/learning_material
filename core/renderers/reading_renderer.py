@@ -81,21 +81,49 @@ def resolve_domain_engine(tech_stack: str) -> Dict[str, str]:
     return {"engine_type": "pyodide", "hljs_languages": ["python"], "visualizer_type": "programming", "name": "Python"}
 
 
+def get_clean_language_name(tech_stack: str) -> str:
+    """Normalize tech stack string to a clean, canonical language / tool name."""
+    if not tech_stack:
+        return "Mã nguồn"
+    t = tech_stack.lower()
+    if any(k in t for k in ["typescript", "ts"]):
+        return "TypeScript"
+    elif any(k in t for k in ["javascript", "js", "node", "react", "vue", "next"]):
+        return "JavaScript (ES6+)"
+    elif any(k in t for k in ["python", "py", "django", "flask", "fastapi"]):
+        return "Python 3"
+    elif any(k in t for k in ["java", "spring"]):
+        return "Java"
+    elif "c++" in t or "cpp" in t:
+        return "C++"
+    elif "c#" in t or "csharp" in t or "dotnet" in t or ".net" in t:
+        return "C#"
+    elif "sql" in t or "mysql" in t or "postgres" in t:
+        return "SQL"
+    elif any(k in t for k in ["bash", "sh", "linux", "git"]):
+        return "Bash/CLI"
+    elif "html" in t or "css" in t:
+        return "HTML/CSS"
+    else:
+        words = tech_stack.split()
+        return words[0].capitalize() if words else "Mã nguồn"
+
+
 def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualizer_type: str, custom_viz_data: Optional[Dict[str, Any]] = None) -> str:
     """
     Generates domain-adaptive visualizer HTML according to subject nature.
     """
     clean_title = lesson_title.split(" - ")[-1] if " - " in lesson_title else lesson_title
-    tech_upper = (tech_stack or "Code").upper()
+    clean_lang = get_clean_language_name(tech_stack)
 
     if visualizer_type == "sql":
         return f"""
 <h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng luồng truy vấn SQL (Interactive SQL Query Visualizer)</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Bấm nút <strong>"Chạy truy vấn SQL"</strong> để quan sát kết quả bảng dữ liệu trả về từ bộ máy AlaSQL in-browser!</p>
+<p class="text-slate-600 mb-4 leading-relaxed">Bấm nút <strong>"Chạy truy vấn SQL"</strong> để quan sát kết quả bảng dữ liệu trả về từ bộ máy AlaSQL in-browser:</p>
 <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800 space-y-4">
   <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
     <div class="flex items-center justify-between">
-      <span class="text-xs font-mono font-bold text-slate-700">MÃ NGUỒN SQL THỰC THI</span>
+      <span class="text-xs font-mono font-bold text-slate-700">Mã nguồn SQL thực thi</span>
       <button type="button" onclick="runSqlCode('sql-viz-code', 'sql-viz-output', this)" class="px-3 py-1 rounded-lg bg-rikkei-red text-white text-xs font-bold hover:bg-rikkei-darkred transition-all shadow-sm">Chạy truy vấn SQL</button>
     </div>
     <pre id="sql-viz-code" class="p-3 bg-slate-100 rounded-lg font-mono text-xs text-slate-800">SELECT id, customer_name, order_status FROM orders WHERE total_amount >= 500000;</pre>
@@ -107,7 +135,7 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
 
     elif visualizer_type == "cli":
         return f"""
-<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Trình mô phỏng luồng lệnh Terminal ({tech_upper} Command Flow)</h3>
+<h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Trình mô phỏng luồng lệnh Terminal ({clean_lang} Command Flow)</h3>
 <p class="text-slate-600 mb-4 leading-relaxed">Quan sát tiến trình thực thi từng lệnh CLI và sự thay đổi trạng thái của hệ thống theo thứ tự bên dưới:</p>
 <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800 space-y-4">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -165,200 +193,132 @@ def generate_domain_visualizer_html(lesson_title: str, tech_stack: str, visualiz
     tech_lower = (tech_stack or "").lower()
     if any(k in tech_lower for k in ["javascript", "js", "typescript", "ts", "node", "react"]):
         code_lines_html = f"""
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>// 1. Khai báo tham số đầu vào cho {clean_title}</div>
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">1</span><span class="text-slate-400 italic">// 1. Khai báo tham số đầu vào cho {clean_title}</span></div>
         </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-purple-600 font-bold">const</span> inputData = loadInputParameters();</div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">2</span><span><span class="text-purple-600 font-bold">const</span> inputData = loadInputParameters();</span></div>
         </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-purple-600 font-bold">const</span> isValid = validateConditions(inputData);</div>
-          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">3</span><span><span class="text-purple-600 font-bold">const</span> isValid = validateConditions(inputData);</span></div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">Chờ kiểm tra</span>
         </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-purple-600 font-bold">const</span> executionResult = processBusinessLogic(isValid);</div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">4</span><span><span class="text-purple-600 font-bold">const</span> executionResult = processBusinessLogic(isValid);</span></div>
         </div>
-        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
-          <div>console.log(<span class="text-green-600">`Kết quả xử lý {clean_title}: ${{executionResult}}`</span>);</div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">5</span><span>console.log(<span class="text-emerald-600">`Kết quả xử lý {clean_title}: ${{executionResult}}`</span>);</span></div>
         </div>
         """
-        var_valid_label = "isValid (Kiểm tra điều kiện):"
-        var_result_label = "executionResult (Trạng thái kết quả):"
+        var_valid_label = "Biến isValid (Kiểm tra):"
+        var_result_label = "Biến executionResult (Kết quả):"
     elif any(k in tech_lower for k in ["java", "cpp", "c++", "c#", "c"]):
         code_lines_html = f"""
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>// 1. Khai báo tham số đầu vào cho {clean_title}</div>
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">1</span><span class="text-slate-400 italic">// 1. Khai báo tham số đầu vào cho {clean_title}</span></div>
         </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-blue-600 font-bold">String</span> inputData = loadInputParameters();</div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">2</span><span><span class="text-blue-600 font-bold">String</span> inputData = loadInputParameters();</span></div>
         </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-blue-600 font-bold">boolean</span> isValid = validateConditions(inputData);</div>
-          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">3</span><span><span class="text-blue-600 font-bold">boolean</span> isValid = validateConditions(inputData);</span></div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">Chờ kiểm tra</span>
         </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div><span class="text-blue-600 font-bold">String</span> executionResult = processBusinessLogic(isValid);</div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">4</span><span><span class="text-blue-600 font-bold">String</span> executionResult = processBusinessLogic(isValid);</span></div>
         </div>
-        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
-          <div>System.out.println(<span class="text-green-600">"Kết quả xử lý {clean_title}: "</span> + executionResult);</div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">5</span><span>System.out.println(<span class="text-emerald-600">"Kết quả: "</span> + executionResult);</span></div>
         </div>
         """
-        var_valid_label = "isValid (Kiểm tra điều kiện):"
-        var_result_label = "executionResult (Trạng thái kết quả):"
+        var_valid_label = "Biến isValid (Kiểm tra):"
+        var_result_label = "Biến executionResult (Kết quả):"
     else:
         code_lines_html = f"""
-        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div># 1. Khai báo tham số đầu vào cho {clean_title}</div>
+        <div id="viz-line-1" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">1</span><span class="text-slate-400 italic"># 1. Khai báo tham số đầu vào cho {clean_title}</span></div>
         </div>
-        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>input_data = load_input_parameters()</div>
+        <div id="viz-line-2" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">2</span><span>input_data = load_input_parameters()</span></div>
         </div>
-        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>is_valid = validate_conditions(input_data)</div>
-          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">⏳ Chờ kiểm tra</span>
+        <div id="viz-line-3" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">3</span><span>is_valid = validate_conditions(input_data)</span></div>
+          <span id="viz-badge-cond1" class="text-[10px] font-sans px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">Chờ kiểm tra</span>
         </div>
-        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between">
-          <div>execution_result = process_business_logic(is_valid)</div>
+        <div id="viz-line-4" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">4</span><span>execution_result = process_business_logic(is_valid)</span></div>
         </div>
-        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200">
-          <div>print(f<span class="text-green-600">"Kết quả xử lý {clean_title}: {{execution_result}}"</span>)</div>
+        <div id="viz-line-5" class="p-1.5 rounded transition-all duration-200 flex items-center justify-between font-mono text-xs whitespace-pre">
+          <div class="flex items-center"><span class="w-6 text-slate-400 text-[10px] select-none text-right mr-3 font-mono">5</span><span>print(f<span class="text-emerald-600">"Kết quả: {{execution_result}}"</span>)</span></div>
         </div>
         """
-        var_valid_label = "is_valid (Kiểm tra điều kiện):"
-        var_result_label = "execution_result (Trạng thái kết quả):"
+        var_valid_label = "Biến is_valid (Kiểm tra):"
+        var_result_label = "Biến execution_result (Kết quả):"
 
     return f"""
 <h3 id="sec-2-4-mo-phong-co-che-van-hanh-tung-buoc" class="font-montserrat font-bold text-xl text-slate-900 mb-3">2.4. Mô phỏng cơ chế vận hành từng bước (Step-by-Step Execution Visualizer)</h3>
-<p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>{clean_title}</strong>!</p>
+<p class="text-slate-600 mb-4 leading-relaxed">Bấm <strong>"Tiếp theo"</strong> hoặc <strong>"Tự động chạy"</strong> để theo dõi luồng thực thi từng dòng mã được tô sáng và sự thay đổi trạng thái của các biến trong bộ nhớ RAM cho chủ đề <strong>{clean_title}</strong>:</p>
 
 <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm my-6 text-slate-800">
-  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4 flex flex-wrap items-center justify-between gap-2">
-    <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5">
-      <i class="ph-bold ph-sliders-horizontal text-rikkei-red"></i> ĐIỀU KHIỂN MÔ PHỎNG LUỒNG THỰC THI ({tech_upper}):
-    </span>
-    <div class="flex items-center gap-2 text-xs">
-      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition-all shadow-sm flex items-center gap-1">
-        <i class="ph-bold ph-arrow-right text-xs"></i> Tiếp theo
-      </button>
-      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3.5 py-1.5 rounded bg-rikkei-red text-white font-medium hover:bg-rikkei-darkred transition-all shadow-sm flex items-center gap-1">
-        <i class="ph-bold ph-play text-xs"></i> Tự động chạy
-      </button>
-    </div>
-  </div>
-
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-4">
+    <!-- Cột trái: Mã nguồn thực thi -->
     <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
-        <span>MÃ NGUỒN THỰC THI CHUẨN</span>
-        <span id="viz-step-badge" class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[11px] font-normal">Chưa khởi chạy</span>
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>Mã nguồn thực thi ({clean_lang})</span>
+        <span id="viz-step-badge" class="px-2 py-0.5 bg-slate-200 text-slate-700 text-[11px] rounded font-sans">Sẵn sàng</span>
       </div>
-      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-2 overflow-x-auto min-h-[180px]">
-        {code_lines_html}
+      <div id="viz-code-display" class="p-3.5 font-mono text-xs text-slate-800 space-y-1.5 overflow-x-auto min-h-[160px]">
+{code_lines_html}
       </div>
     </div>
 
+    <!-- Cột phải: Trạng thái bộ nhớ RAM -->
     <div class="flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-      <div class="bg-slate-100 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
-        <span>BIẾN BỘ NHỚ RAM</span>
-        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Memory Canvas</span>
+      <div class="bg-slate-100/80 px-4 py-2 text-xs font-mono text-slate-700 font-bold border-b border-slate-200 flex items-center justify-between">
+        <span>Trạng thái bộ nhớ (Memory Canvas)</span>
+        <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold font-sans">RAM State</span>
       </div>
-      <div class="p-4 space-y-2 flex-1 text-xs font-mono">
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">Môi trường thực thi:</span>
-          <span class="font-bold text-slate-900">{tech_upper} Engine</span>
+      <div class="p-4 space-y-3 flex-1 text-xs font-mono">
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">{var_valid_label}</span>
+          <span id="viz-var-valid" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
         </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">{var_valid_label}</span>
-          <span id="viz-var-valid" class="font-bold text-slate-400">---</span>
-        </div>
-        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between">
-          <span class="text-slate-500">{var_result_label}</span>
-          <span id="viz-var-result" class="font-bold text-slate-400">---</span>
+        <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 flex justify-between items-center">
+          <span class="text-slate-600 font-medium">{var_result_label}</span>
+          <span id="viz-var-result" class="font-bold text-slate-700 px-2.5 py-0.5 rounded bg-white border border-slate-200 min-w-[60px] text-center transition-all duration-300">---</span>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="bg-slate-900 rounded-xl p-3.5 font-mono text-xs text-emerald-400 flex items-center gap-2 overflow-x-auto">
-    <span class="text-slate-500 font-bold shrink-0">CONSOLE &gt;</span>
-    <span id="viz-terminal-log">Bấm 'Tiếp theo' hoặc 'Tự động chạy' để bắt đầu mô phỏng luồng.</span>
+  <!-- Nút điều khiển -->
+  <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="runVizStep(-1)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1 transition-all">
+        <span class="ph-bold ph-caret-left"></span> Bước trước
+      </button>
+      <button type="button" onclick="runVizStep(1)" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs flex items-center gap-1 hover:bg-rikkei-darkred transition-all shadow-sm">
+        Tiếp theo <span class="ph-bold ph-caret-right"></span>
+      </button>
+      <button type="button" onclick="runVizStep(-999)" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 text-xs transition-all" title="Reset">
+        <span class="ph-bold ph-arrow-counter-clockwise"></span> Đặt lại
+      </button>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <button type="button" onclick="vizToggleAuto()" id="viz-auto-btn" class="px-3 py-1.5 rounded-lg bg-rikkei-red text-white font-semibold text-xs hover:bg-rikkei-darkred transition-all shadow-sm">Tự động chạy</button>
+    </div>
+  </div>
+
+  <!-- Terminal log -->
+  <div class="mt-3 bg-slate-100 rounded-xl p-3 border border-slate-200 shadow-inner">
+    <div class="text-[11px] font-mono text-slate-600 mb-1.5 flex items-center gap-1.5 font-bold">
+      <span class="ph-bold ph-terminal text-emerald-800"></span> Nhật ký thực thi từng bước (Console Log):
+    </div>
+    <div id="viz-terminal-log" class="h-[110px] overflow-y-auto bg-white text-slate-800 font-mono text-xs p-2.5 rounded border border-slate-200 space-y-1">
+      <div class="text-slate-400 italic">&gt; Sẵn sàng mô phỏng từng bước cho {clean_title}. Bấm "Tiếp theo" để bắt đầu...</div>
+    </div>
   </div>
 </div>
-
-<script>
-  var currentVizStep = 0;
-  var vizAutoInterval = null;
-  function runVizStep(stepNum) {{
-    if (stepNum === undefined || stepNum === null) {{
-      currentVizStep += 1;
-      if (currentVizStep > 5) currentVizStep = 1;
-    }} else {{
-      currentVizStep = stepNum;
-    }}
-
-    for (let i = 1; i <= 5; i++) {{
-      const el = document.getElementById("viz-line-" + i);
-      if (el) {{
-        if (i === currentVizStep) {{
-          el.style.backgroundColor = "#d1fae5";
-          el.style.borderLeft = "4px solid #059669";
-          el.style.fontWeight = "bold";
-        }} else {{
-          el.style.backgroundColor = "";
-          el.style.borderLeft = "4px solid transparent";
-          el.style.fontWeight = "normal";
-        }}
-      }}
-    }}
-
-    const badge = document.getElementById("viz-step-badge");
-    const b1 = document.getElementById("viz-badge-cond1");
-    const vValid = document.getElementById("viz-var-valid");
-    const vResult = document.getElementById("viz-var-result");
-    const term = document.getElementById("viz-terminal-log");
-
-    if (badge) badge.innerText = "Bước " + currentVizStep + "/5";
-
-    if (currentVizStep === 1) {{
-      if (term) term.innerText = "[BƯỚC 1/5] Khởi tạo tham số đầu vào cho {clean_title}";
-    }} else if (currentVizStep === 2) {{
-      if (term) term.innerText = "[BƯỚC 2/5] Nạp dữ liệu đầu vào";
-    }} else if (currentVizStep === 3) {{
-      if (b1) {{
-        b1.className = "text-[10px] font-sans px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold shadow-sm";
-        b1.innerText = "True - KHỚP!";
-      }}
-      if (vValid) {{
-        vValid.className = "font-bold text-emerald-600";
-        vValid.innerText = "True";
-      }}
-      if (term) term.innerText = "[BƯỚC 3/5] Đánh giá điều kiện kiểm tra -> True";
-    }} else if (currentVizStep === 4) {{
-      if (vResult) {{
-        vResult.className = "font-bold text-emerald-600";
-        vResult.innerText = "SUCCESS";
-      }}
-      if (term) term.innerText = "[BƯỚC 4/5] Xử lý nghiệp vụ logic -> SUCCESS";
-    }} else if (currentVizStep === 5) {{
-      if (term) term.innerText = "[KẾT QUẢ 5/5] CONSOLE OUTPUT: Hoàn tất xử lý {clean_title}: SUCCESS";
-    }}
-  }}
-
-  function vizToggleAuto() {{
-    const btn = document.getElementById("viz-auto-btn");
-    if (vizAutoInterval) {{
-      clearInterval(vizAutoInterval);
-      vizAutoInterval = null;
-      if (btn) btn.innerHTML = '<i class="ph-bold ph-play text-xs"></i> Tự động chạy';
-    }} else {{
-      if (btn) btn.innerHTML = '<i class="ph-bold ph-pause text-xs"></i> Tạm dừng';
-      runVizStep();
-      vizAutoInterval = setInterval(() => {{
-        runVizStep();
-      }}, 1500);
-    }}
-  }}
-</script>
 """
 
 def extract_h3_subsections(html_content: str) -> List[Dict[str, str]]:

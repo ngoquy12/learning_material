@@ -1,4 +1,4 @@
-## <center>[Phân tích 3] Thiết Kế Phân Hệ Tính Phụ Phí Và Phê Duyệt Hoàn Tiền Đặt Phòng Khách Sạn</center>
+# <center>[Phân tích 3] Thiết Kế Phân Hệ Tính Phụ Phí Và Phê Duyệt Hoàn Tiền Đặt Phòng Khách Sạn</center>
 
 ### **1. Mục tiêu**
 *   **Phân tích nghiệp vụ**: Nắm vững cơ chế tính toán chi phí lưu trú, phụ thu check-in sớm, phụ thu người đi kèm và cờ phê duyệt hoàn tiền cọc trong phân hệ giao dịch của nền tảng đặt phòng khách sạn (Agoda / Traveloka).

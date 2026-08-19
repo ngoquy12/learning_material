@@ -1,5 +1,3 @@
-#
-
 # <center>Sửa lỗi tính phí dịch vụ check-in và chọn vị trí ghế máy bay</center>
 
 ### **1. Mục tiêu**
@@ -18,7 +16,9 @@ Hệ thống check-in tự động tại sân bay của hãng hàng không quy �
 Khách hàng đặt vé hạng Thương gia (mã hạng 3) gửi phản ánh khi làm thủ tục check-in tự động: mặc dù số cân hành lý mang theo (12 kg) nằm trong hạn mức cho phép (30 kg) và chọn ghế trước, màn hình quầy check-in lại hiển thị tên hạng vé là "Deluxe" và tự động cộng thêm phí chọn ghế 15.000 VNĐ cùng phí hành lý quá cước, dẫn đến tổng số tiền thanh toán hiển thị bị sai.
 
 ### **3. Mã nguồn hiện tại**
-Đoạn mã nguồn dưới đây được trích xuất từ mô-đun xử lý phụ phí check-in của hệ thống:```javascript
+Đoạn mã nguồn dưới đây được trích xuất từ mô-đun xử lý phụ phí check-in của hệ thống:
+
+```javascript
 // Mô-đun tính phí dịch vụ check-in hành lý và chọn chỗ ngồi
 const ticketClass = 3; // Mã hạng vé: 1 - Eco, 2 - Deluxe, 3 - Business
 const baggageWeight = 12; // Cân nặng hành lý ký gửi của hành khách (kg)
@@ -72,9 +72,7 @@ console.log("Phí chọn chỗ ngồi (VNĐ):", isSelectSeat ? seatFee : 0);
 console.log("Tổng phí dịch vụ check-in (VNĐ):", totalServiceFee);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 Học viên thực hiện bài tập theo 2 phần:
 
 **Phần 1: Vạch vết mã nguồn và Hoàn thiện Báo cáo Test Case**

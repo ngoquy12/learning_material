@@ -1,10 +1,12 @@
 """
 core/validators/reading_validator.py
 Programmatic Validation Layer for Reading Materials.
-Checks HTML structure, JS syntax, Mermaid diagram syntax, and link validity.
+Checks HTML structure, JS syntax, Mermaid diagram syntax, and pedagogical standards using BeautifulSoup AST.
 """
 
+import re
 from typing import Tuple, List, Dict, Any, Union
+from bs4 import BeautifulSoup
 from core.validators.syntax_linter import lint_html_syntax
 from core.validators.master_validator import register_validator
 
@@ -25,6 +27,7 @@ def validate_reading_json_payload(payload: Dict[str, Any]) -> Tuple[bool, List[s
 def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
     Validates a generated reading material for structural integrity, syntax, and pedagogical standards.
+    Uses BeautifulSoup DOM AST parser for robust structural verification.
     """
     if isinstance(content, dict):
         content = content.get("html") or str(content)
@@ -52,6 +55,11 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
     if not is_valid_syntax:
         errors.extend(syntax_errors)    
         
+    try:
+        soup = BeautifulSoup(content, "html.parser")
+    except Exception:
+        soup = None
+
     if is_orientation:
         # Orientation Lesson Validation (Session 01)
         # Check that NO runnable code sandboxes exist
@@ -69,18 +77,36 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
     else:
         # Standard Technical Lesson Validation (Must contain 5 Section IDs)
         required_section_ids = ["section-1", "section-2", "section-3", "section-4", "section-5"]
-        missing_ids = [sid for sid in required_section_ids if f'id="{sid}"' not in content and f'id=\'{sid}\'' not in content]
+        if soup:
+            missing_ids = [sid for sid in required_section_ids if not soup.find(id=sid)]
+        else:
+            missing_ids = [sid for sid in required_section_ids if f'id="{sid}"' not in content and f'id=\'{sid}\'' not in content]
+            
         if missing_ids:
             errors.append(f"Bài đọc vi phạm định dạng 5 Section cố định: thiếu các Section ID {', '.join(missing_ids)}.")
 
-        # Section 3 Executable Code Block Check
-        if "id=\"section-3\"" in content or "id='section-3'" in content:
-            import re
-            sec3_match = re.search(r'id=["\']section-3["\'].*?(?=<section|\Z)', content, re.DOTALL)
-            if sec3_match:
-                sec3_text = sec3_match.group(0)
-                if not ("<pre" in sec3_text or "<code" in sec3_text or "pyodide-editor" in sec3_text):
+        # Section 3 Executable Code Block Check via AST
+        if soup:
+            sec3_node = soup.find(id="section-3")
+            if sec3_node:
+                has_code = bool(sec3_node.find("pre") or sec3_node.find("code") or "pyodide-editor" in str(sec3_node))
+                if not has_code:
                     errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
+                
+                # Section 3 Minimum 3 Progressive Examples Check
+                h3_count = len(sec3_node.find_all("h3"))
+                if h3_count < 3:
+                    errors.append(f"Section 3 vi phạm quy chuẩn: Phải có ít nhất 3 ví dụ ứng dụng thực tế 3.1, 3.2, 3.3 (hiện tại có {h3_count} ví dụ).")
+        else:
+            if "id=\"section-3\"" in content or "id='section-3'" in content:
+                sec3_match = re.search(r'id=["\']section-3["\'].*?(?=<section|\Z)', content, re.DOTALL)
+                if sec3_match:
+                    sec3_text = sec3_match.group(0)
+                    if not ("<pre" in sec3_text or "<code" in sec3_text or "pyodide-editor" in sec3_text):
+                        errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
+                    h3_count = len(re.findall(r'<h3\b[^>]*>', sec3_text))
+                    if h3_count < 3:
+                        errors.append(f"Section 3 vi phạm quy chuẩn: Phải có ít nhất 3 ví dụ ứng dụng thực tế 3.1, 3.2, 3.3 (hiện tại có {h3_count} ví dụ).")
 
     # 3. Forbidden Text Emoji Check
     from agents.reviewer_agents import check_forbidden_emojis
@@ -116,17 +142,7 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         if word in content_lower:
             errors.append(f"Bài đọc vi phạm quy chuẩn ngôn ngữ: Chứa từ khóa AI từ lóng bị cấm '{word}'. Hãy thay bằng 'Lỗi thường gặp' hoặc 'Ngoại lệ cần lưu ý'.")
 
-    # 9. Section 3 Minimum 3 Progressive Examples Check
-    if not is_orientation and ("id=\"section-3\"" in content or "id='section-3'" in content):
-        import re
-        sec3_match = re.search(r'id=["\']section-3["\'].*?(?=<section|\Z)', content, re.DOTALL)
-        if sec3_match:
-            sec3_text = sec3_match.group(0)
-            h3_count = len(re.findall(r'<h3\b[^>]*>', sec3_text))
-            if h3_count < 3:
-                errors.append(f"Section 3 vi phạm quy chuẩn: Phải có ít nhất 3 ví dụ ứng dụng thực tế 3.1, 3.2, 3.3 (hiện tại có {h3_count} ví dụ).")
-
-    # 10. Requirement Callout Box Check Before Code Sandboxes
+    # 9. Requirement Callout Box Check Before Code Sandboxes
     if not is_orientation and ("code-sb-" in content or "language-python" in content):
         if not ("Yêu cầu bài toán" in content or "Yêu cầu" in content or "font-bold text-sky-900" in content or "border-sky-200" in content):
             errors.append("Bài đọc vi phạm quy chuẩn: Trước mỗi code sandbox cần có khối thông tin Yêu cầu bài toán thực hành rõ ràng.")

@@ -1,4 +1,4 @@
-## <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 10</center>
+# <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 10</center>
 
 ### **1. Mục tiêu**
 - Hệ thống hóa toàn bộ kiến thức cốt lõi và các lỗi thường gặp nghiệp vụ về Tập hợp Dữ liệu Động Mutable: Danh sách (List) và thao tác Cập nhật / Xóa phần tử (Update & Delete) trong Session 10.

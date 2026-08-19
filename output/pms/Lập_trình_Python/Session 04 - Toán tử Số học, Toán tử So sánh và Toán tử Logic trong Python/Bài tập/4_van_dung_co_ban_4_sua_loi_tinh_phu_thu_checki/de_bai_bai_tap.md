@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 4] Sửa lỗi tính phụ thu check-in sớm trong tổng chi phí đặt phòng</center>
+# <center>[Vận dụng cơ bản 4] Sửa lỗi tính phụ thu check-in sớm trong tổng chi phí đặt phòng</center>
 
 ### **1. Mục tiêu**
 *   **Kỹ năng truy vết mã nguồn (Code Tracing):** Thực hành đọc hiểu, chạy tay (dry-run) và truy vết mã nguồn Python 3.12 để tìm lỗi tính toán logic số học trong nghiệp vụ đặt phòng.
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Trong phân hệ tính toán hóa đơn (`BookingReservation`) của ứng dụng đặt phòng khách sạn Traveloka / Agoda, hệ thống áp dụng chính sách phụ thu đối với khách hàng có nhu cầu check-in sớm trước 12:00 trưa. Quy tắc niêm yết nêu rõ: Phụ thu check-in sớm bằng 30% giá phòng tiêu chuẩn của 1 đêm.
 
-Tuy nhiên, bộ phận Chăm sóc Khách hàng liên tục nhận được phản ánh từ những khách hàng đặt phòng lưu trú dài ngày (từ 3 đến 5 đêm trở lên) và có đăng ký dịch vụ check-in sớm. Khách hàng khiếu nại rằng số tiền phụ thu trên hóa đơn bị chênh lệch cao bất thường so với mức 30% niêm yết trên ứng dụng. Hệ thống cần được truy vết mã nguồn legacy để xác định nguyên nhân và cập nhật lại công thức tính toán.### **3. Mã nguồn hiện tại**
+Tuy nhiên, bộ phận Chăm sóc Khách hàng liên tục nhận được phản ánh từ những khách hàng đặt phòng lưu trú dài ngày (từ 3 đến 5 đêm trở lên) và có đăng ký dịch vụ check-in sớm. Khách hàng khiếu nại rằng số tiền phụ thu trên hóa đơn bị chênh lệch cao bất thường so với mức 30% niêm yết trên ứng dụng. Hệ thống cần được truy vết mã nguồn legacy để xác định nguyên nhân và cập nhật lại công thức tính toán.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn Python 3.12 legacy đang chạy trên hệ thống tính toán đơn đặt phòng:
 
 ```python
@@ -22,26 +24,27 @@ def calculate_booking_total(
     """
     Tính tổng chi phí thanh toán cho đơn đặt phòng khách sạn.
     """
-    # Tính tiền phòng cơ bản theo số đêm lưu trú
+
+# Tính tiền phòng cơ bản theo số đêm lưu trú
     base_room_cost: float = room_rate * num_nights
 
-    # Tính số tiền được giảm giá cho khách lưu trú dài ngày (10%)
+# Tính số tiền được giảm giá cho khách lưu trú dài ngày (10%)
     discount_amount: float = base_room_cost * 0.10 * is_long_stay
 
-    # Tính phụ thu check-in sớm (30% giá phòng)
+# Tính phụ thu check-in sớm (30% giá phòng)
     early_checkin_surcharge: float = base_room_cost * 0.30 * is_early_checkin
 
-    # Tính tổng tiền thanh toán cuối cùng
+# Tính tổng tiền thanh toán cuối cùng
     total_payment: float = (
         base_room_cost - discount_amount + early_checkin_surcharge + cleaning_fee
     )
 
     return total_payment
 
-
 # --- CHƯƠNG TRÌNH CHÍNH (ĐỂ TRUY VẾT LỖI) ---
 if __name__ == "__main__":
-    # Kịch bản kiểm thử: Khách đặt 5 đêm, giá 1,000,000 VNĐ/đêm, phí vệ sinh 200,000 VNĐ
+
+# Kịch bản kiểm thử: Khách đặt 5 đêm, giá 1,000,000 VNĐ/đêm, phí vệ sinh 200,000 VNĐ
     rate: float = 1000000.0
     nights: int = 5
     cleaning: float = 200000.0
@@ -59,7 +62,7 @@ if __name__ == "__main__":
     print(f"Tổng tiền thanh toán tính toán hiện tại: {result:,.0f} VNĐ")
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Báo cáo Truy vết Code & Phát hiện lỗi (Test Case Report Table)**
 Học viên tiến hành thực thi và truy vết mã nguồn legacy, phát hiện dòng code tính toán sai nghiệp vụ và hoàn thành bảng báo cáo kiểm thử dưới đây.

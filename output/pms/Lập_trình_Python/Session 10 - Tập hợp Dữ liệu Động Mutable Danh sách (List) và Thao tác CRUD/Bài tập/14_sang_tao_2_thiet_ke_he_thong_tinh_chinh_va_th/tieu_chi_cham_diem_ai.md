@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Sáng tạo 2] Thiết kế Hệ thống Tinh chỉnh và Thanh lọc Dữ liệu Cước phí GrabRide — Tổng điểm: 100 điểm**
 
 #### **1. Tự thiết kế I/O Schema và Kịch bản lỗi thường gặp — 30 điểm**

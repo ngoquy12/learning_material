@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 3] Thiết kế Hệ thống Phân luồng Check-in và Tính phí Phụ thu Hành lý Máy bay</center>
 
 ### **1. Mục tiêu**

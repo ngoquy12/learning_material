@@ -8,4 +8,4 @@
 ## 🔍 Chi tiết đánh giá
 Mọi thư mục Session và Lesson rỗng đã được tạo lập thành công và đầy đủ cấu trúc khung rỗng.
 
-* ✅ Cấu trúc thư mục đạt chuẩn outline ban đầu.*
+* [ĐÚNG] Cấu trúc thư mục đạt chuẩn outline ban đầu.*

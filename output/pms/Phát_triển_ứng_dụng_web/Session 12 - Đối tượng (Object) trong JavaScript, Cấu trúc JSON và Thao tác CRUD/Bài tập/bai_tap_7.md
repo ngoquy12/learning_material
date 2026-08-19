@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng nâng cao 1] Xử lý cập nhật phụ phí đặt phòng và đóng gói dữ liệu JSON</center>
 
 ### **1. Mục tiêu**

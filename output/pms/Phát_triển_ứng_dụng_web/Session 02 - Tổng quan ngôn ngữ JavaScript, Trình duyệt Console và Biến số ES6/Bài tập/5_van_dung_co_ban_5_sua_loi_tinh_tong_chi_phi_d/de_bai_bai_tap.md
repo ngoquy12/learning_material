@@ -1,5 +1,3 @@
-#
-
 # <center>[Vận dụng cơ bản 5] Sửa lỗi tính tổng chi phí dịch vụ đặt lịch khám bệnh</center>
 
 ### **1. Mục tiêu**
@@ -14,7 +12,9 @@ Tuy nhiên, bộ phận tiếp đón bệnh nhân phản ánh rằng khi nhân v
 
 ### **3. Mã nguồn hiện tại**
 
-Sơ đồ luồng xử lý tính chi phí đặt lịch khám bệnh:```mermaid
+Sơ đồ luồng xử lý tính chi phí đặt lịch khám bệnh:
+
+```mermaid
 flowchart TD
     A(["Bắt đầu quy trình"]) --> B[/"Nhập tên bệnh nhân, phí đặt lịch, phí hồ sơ từ prompt"/]
     B --> C["Khai báo phí khám gốc 150000 VNĐ"]
@@ -23,7 +23,9 @@ flowchart TD
     E --> F(["Kết thúc quy trình"])
 ```
 
-Mã nguồn HTML (`index.html`):```html
+Mã nguồn HTML (`index.html`):
+
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -40,7 +42,9 @@ Mã nguồn HTML (`index.html`):```html
 </html>
 ```
 
-Mã nguồn JavaScript (`appointment.js`):```javascript
+Mã nguồn JavaScript (`appointment.js`):
+
+```javascript
 // Hệ thống Đặt lịch Khám bệnh Phòng khám Tự động (CLINIC_APPOINTMENT)
 // Module: Tính tổng chi phí khám bệnh ban đầu
 
@@ -63,9 +67,7 @@ console.log(invoiceSummary);
 alert(invoiceSummary);
 ```
 
-#
-
-## **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Truy vết mã nguồn & Hoàn thiện Báo cáo Test Case (Bảng kiểm thử)**
 Học viên tiến hành chạy thử chương trình, phân tích dòng mã gây lỗi và điền tiếp thông tin còn thiếu vào các dòng `...` trong bảng Test Case dưới đây:

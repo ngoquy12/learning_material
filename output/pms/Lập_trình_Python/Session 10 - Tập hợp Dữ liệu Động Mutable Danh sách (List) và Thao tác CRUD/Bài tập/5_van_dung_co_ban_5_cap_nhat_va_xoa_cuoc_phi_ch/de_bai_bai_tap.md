@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 5] Cập nhật và Xóa cước phí chuyến đi GrabRide</center>
+# <center>[Vận dụng cơ bản 5] Cập nhật và Xóa cước phí chuyến đi GrabRide</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu và thao tác thành thạo việc cập nhật giá trị phần tử theo chỉ số (`index`), xóa phần tử bằng câu lệnh `del` và truy xuất độ dài danh sách bằng hàm `len()` trong Python 3.12.
@@ -10,11 +10,15 @@ Trong hệ thống quản lý chuyến đi **GrabRide**, sau mỗi ca làm việ
 1.  **Cập nhật cước phí:** Điều chỉnh giá tiền của một chuyến đi cụ thể khi có phụ phí thời tiết hoặc phụ phí giờ cao điểm.
 2.  **Xóa chuyến đi:** Loại bỏ cước phí của chuyến đi bị hủy hoặc vi phạm quy định khỏi danh sách.
 
-Tài xế GrabRide gửi phản ánh lên trung tâm hỗ trợ: Khi chuyến đi ở vị trí thứ 2 (chỉ số `1`) bị hủy và hệ thống thực hiện điều chỉnh tăng cước cho chuyến đi ban đầu ở vị trí thứ 3 (chỉ số `2`), cước phí của chuyến đi thứ 3 lại không được cập nhật đúng, trong khi cước phí của một chuyến đi khác lại bị thay đổi sai lệch.### **3. Mã nguồn hiện tại**
+Tài xế GrabRide gửi phản ánh lên trung tâm hỗ trợ: Khi chuyến đi ở vị trí thứ 2 (chỉ số `1`) bị hủy và hệ thống thực hiện điều chỉnh tăng cước cho chuyến đi ban đầu ở vị trí thứ 3 (chỉ số `2`), cước phí của chuyến đi thứ 3 lại không được cập nhật đúng, trong khi cước phí của một chuyến đi khác lại bị thay đổi sai lệch.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là đoạn mã nguồn hiện tại đang thực thi quy trình điều chỉnh cước phí ca làm việc của tài xế:
 
 ```python
+
 # Virtualenv: venv | Python 3.12
+
 # Chuẩn PEP 8 & Type Hints
 
 # Danh sách cước phí các chuyến đi ban đầu của tài xế (VNĐ)
@@ -35,7 +39,7 @@ print("Danh sách cước phí sau khi xử lý: trip_fares)
 print("Tổng số chuyến đi còn lại: remaining_trips)
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Phân tích & Báo cáo Test Case (Code Tracing)**
 Học viên tiến hành chạy thử chương trình, phân tích sự thay đổi chỉ số của danh sách qua từng dòng lệnh và hoàn thiện bảng báo cáo kịch bản kiểm thử bên dưới (điền vào các vị trí `...`):

@@ -1,4 +1,4 @@
-## <center>[Phân tích 1] Thiết kế luồng kiểm tra nhật ký mượn trả và tự động xử lý ngoại lệ trong LIBRARY_WMS</center>
+# <center>[Phân tích 1] Thiết kế luồng kiểm tra nhật ký mượn trả và tự động xử lý ngoại lệ trong LIBRARY_WMS</center>
 
 ### **1. Mục tiêu**
 *   **Tư duy phân tích luồng**: Phân tích, so sánh và đánh giá ưu/nhược điểm giữa các giải pháp điều khiển vòng lặp trong bài toán duyệt nhật ký dữ liệu mượn trả tài liệu thư viện.
@@ -80,7 +80,7 @@ Quy tắc xử lý trong vòng lặp duyệt `borrow_id` từ $1$ đến `total_
 </table>
 ```
 
-#### **Phần 2: Giải trình Lựa chọn & Thiết kế Lưu đồ luồng (Mermaid Flowchart)**
+# **Phần 2: Giải trình Lựa chọn & Thiết kế Lưu đồ luồng (Mermaid Flowchart)**
 *   Đưa ra lý giải khoa học thuyết phục về lý do lựa chọn phương án tối ưu nhất dựa trên kết quả phân tích bảng Trade-off.
 *   Vẽ lưu đồ thuật toán (Mermaid Flowchart) cho phương án tối ưu đã chọn.
 *   **Quy chuẩn bắt buộc về 5 hình dạng Mermaid**:

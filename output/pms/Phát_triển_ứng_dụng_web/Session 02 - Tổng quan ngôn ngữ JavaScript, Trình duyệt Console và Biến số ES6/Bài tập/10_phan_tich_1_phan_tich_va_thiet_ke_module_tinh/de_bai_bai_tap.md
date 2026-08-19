@@ -1,5 +1,3 @@
-#
-
 # <center>[Phân tích 1] Phân tích và Thiết kế Module Tính Chi phí Khám bệnh Ban đầu</center>
 
 ### **1. Mục tiêu**

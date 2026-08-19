@@ -31,6 +31,7 @@ class SQLiteConnectionPool:
             cursor = conn.cursor()
             cursor.execute("PRAGMA journal_mode=WAL;")
             cursor.execute("PRAGMA synchronous=NORMAL;")
+            cursor.execute("PRAGMA busy_timeout=60000;")
             conn.commit()
         except sqlite3.Error as e:
             conn.close()

@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 2] Sửa lỗi tính hóa đơn thanh toán tại quầy POS</center>
+# <center>[Vận dụng cơ bản 2] Sửa lỗi tính hóa đơn thanh toán tại quầy POS</center>
 
 ### **1. Mục tiêu**
 * **Khai báo và xử lý nhập/xuat dữ liệu:** Sử dụng thành thạo hàm `input()` và `print()` trong Python để tương tác với người dùng qua giao diện CLI.
@@ -8,11 +8,15 @@
 ### **2. Bối cảnh & Vấn đề**
 Tại chuỗi quán cà phê Highlands POS, hệ thống phần mềm tính tiền tại quầy (POS Receipt Subsystem) chịu trách nhiệm nhận thông tin nhập vào từ nhân viên thu ngân bao gồm: tên đồ uống, giá niêm yết (size S), phụ thu kích thước (size M/L) và số lượng ly khách đặt.
 
-Tuy nhiên, bộ phận vận hành cửa hàng vừa ghi nhận một sự cố: Khi nhân viên thu ngân nhập thông tin thanh toán cho khách hàng mua 2 ly Trà Đào Cam Sả size M (giá gốc 45.000 VNĐ, phụ thu size M là 6.000 VNĐ), hóa đơn in ra báo tổng tiền lên tới hàng trăm tỷ đồng (`450006000450006000 VNĐ`). Sự cố này khiến hóa đơn tạm tính bị sai lệch hoàn toàn, làm gián đoạn quy trình thanh toán tại quầy.### **3. Mã nguồn hiện tại**
+Tuy nhiên, bộ phận vận hành cửa hàng vừa ghi nhận một sự cố: Khi nhân viên thu ngân nhập thông tin thanh toán cho khách hàng mua 2 ly Trà Đào Cam Sả size M (giá gốc 45.000 VNĐ, phụ thu size M là 6.000 VNĐ), hóa đơn in ra báo tổng tiền lên tới hàng trăm tỷ đồng (`450006000450006000 VNĐ`). Sự cố này khiến hóa đơn tạm tính bị sai lệch hoàn toàn, làm gián đoạn quy trình thanh toán tại quầy.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn Python đang được thực thi trên máy POS tại quầy:
 
 ```python
+
 # Module: PosReceiptCalculator.py
+
 # System: Highlands POS - Coffee Billing Subsystem
 
 print("=== HỆ THỐNG TÍNH HÓA ĐƠN HIGHLANDS POS ===")
@@ -47,7 +51,7 @@ flowchart TD
     F --> G([Kết thúc quy trình])
 ```
 
-### **4. Yêu cầu bài toán**
+# **4. Yêu cầu bài toán**
 
 #### **Phần 1: Báo cáo phân tích vết lỗi (Code Tracing & Bug Report Table)**
 Học viên tiến hành chạy thử đoạn mã trên, phân tích nguyên nhân gây ra sự cố và hoàn thành bảng báo cáo Test Case dưới đây vào bài nộp. Dòng STT 1 là mẫu phân tích tham khảo, học viên cần hoàn thiện nốt các dòng còn lại:

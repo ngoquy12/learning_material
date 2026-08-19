@@ -1,5 +1,3 @@
-#
-
 # <center>[Tổng hợp Mindmap] Hệ thống Kiến thức & Sơ đồ Tư duy (Mindmap) - Session 06</center>
 
 ### **1. Mục tiêu**
@@ -16,8 +14,9 @@ Bạn đang đảm nhận vai trò **Kỹ sư Lập trình Hệ thống Hàng kh
 
 ### **3. Quy tắc nghiệp vụ**
 
-Sơ đồ tư duy và tài liệu tổng hợp BẮT BUỘC phải thể hiện rõ 3 khối kiến thức trọng tâm cùng với các kịch bản nghiệp vụ thuộc lĩnh vực **AIRLINE_CHECKIN**:```
-                                SESSION 06: CẤU TRÚC ĐIỀU KIỆN & RẼ NHÁNH QUYẾT ĐỊNH
+Sơ đồ tư duy và tài liệu tổng hợp BẮT BUỘC phải thể hiện rõ 3 khối kiến thức trọng tâm cùng với các kịch bản nghiệp vụ thuộc lĩnh vực **AIRLINE_CHECKIN**:
+
+```                                SESSION 06: CẤU TRÚC ĐIỀU KIỆN & RẼ NHÁNH QUYẾT ĐỊNH
                                                          │
          ┌───────────────────────────────────────────────┼───────────────────────────────────────────────┐
          ▼                                               ▼                                               ▼
@@ -27,9 +26,7 @@ Sơ đồ tư duy và tài liệu tổng hợp BẮT BUỘC phải thể hiện 
   - Khối lệnh Scope {} & Thụt lề Clean Code      - Giá trị mặc định (default case)          - Biểu thức gán trực tiếp 1 dòng
 ```
 
-#
-
-### **Nhánh 1: Cấu trúc Điều kiện `if`, `else if`, `else` (Lesson 01)**
+# **Nhánh 1: Cấu trúc Điều kiện `if`, `else if`, `else` (Lesson 01)**
 - **Kiến thức cốt lõi:**
   - Cú pháp và luồng thực thi từ trên xuống dưới của khối `if ... else if ... else`.
   - Quy tắc sắp xếp thứ tự điều kiện: Kiểm tra từ khoảng điều kiện chi tiết / hẹp nhất đến khoảng điều kiện bao quát / rộng hơn.
@@ -93,8 +90,9 @@ Học viên nộp bài theo quy chuẩn Git / GitHub chuyên nghiệp:
 * Tạo GitHub Repository với cấu trúc tên chuẩn: `[Tên Lớp]_[Môn Học]_Session06_Mindmap`
   *(Ví dụ: `HN_JV240304_Core_Session06_Mindmap` hoặc `HNKS25CNTT1_Core_Session06_Mindmap`)*
 * Thư mục bài nộp trên GitHub bao gồm:
-  ```text
+
+```text
   ├── mindmap.png (hoặc mindmap.jpg)
   ├── mindmap_source.xmind (hoặc file gốc tương đương)
   └── summary.md (Bản thuyết minh tổng hợp kiến thức & ví dụ mã nguồn JavaScript)
-  ```
+```

@@ -1,4 +1,4 @@
-### **Tiêu chí chấm điểm (AI)**
+# **Tiêu chí chấm điểm (AI)**
 **[Vận dụng cơ bản 5] Sửa lỗi đóng gói và tính phụ phí đặt phòng khách sạn — Tổng điểm: 100 điểm**
 
 #### **1. Phân tích & Phát hiện lỗi logic (Báo cáo Test Case) — 30 điểm**

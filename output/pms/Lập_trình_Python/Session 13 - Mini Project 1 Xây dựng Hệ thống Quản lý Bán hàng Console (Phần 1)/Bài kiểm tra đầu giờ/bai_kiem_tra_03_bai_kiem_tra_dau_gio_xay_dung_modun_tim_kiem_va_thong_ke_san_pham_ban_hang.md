@@ -1,4 +1,4 @@
-## <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG MÔ-ĐUN TÌM KIẾM VÀ THỐNG KÊ SẢN PHẨM BÁN HÀNG (ADVANCED SEARCH & ANALYTICS MODULE)</center>
+# <center>BÀI KIỂM TRA ĐẦU GIỜ: XÂY DỰNG MÔ-ĐUN TÌM KIẾM VÀ THỐNG KÊ SẢN PHẨM BÁN HÀNG (ADVANCED SEARCH & ANALYTICS MODULE)</center>
 
 ### **1. Mục tiêu**
 - Kiểm tra khả năng ứng dụng các kiểu dữ liệu nâng cao (`list`, `dict`, `tuple`, `set`) và hàm (Function) trong Python 3.12 để xử lý dữ liệu bán hàng.

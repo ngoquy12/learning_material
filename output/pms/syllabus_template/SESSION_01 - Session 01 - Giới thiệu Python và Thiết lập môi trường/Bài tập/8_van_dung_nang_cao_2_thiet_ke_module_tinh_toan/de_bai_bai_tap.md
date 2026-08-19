@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 2] Thiết kế Module Tính toán và Xuất Hóa đơn POS Phức hợp tại Highlands Coffee</center>
+# <center>[Vận dụng nâng cao 2] Thiết kế Module Tính toán và Xuất Hóa đơn POS Phức hợp tại Highlands Coffee</center>
 
 ### **1. Mục tiêu**
 *   **Vận dụng nâng cao kỹ năng xử lý dữ liệu CLI:** Nhập dữ liệu chuỗi/số, chuyển đổi kiểu dữ liệu chính xác (`str`, `int`, `float`), thực hiện chuỗi tính toán tài chính đa bước trong Python.

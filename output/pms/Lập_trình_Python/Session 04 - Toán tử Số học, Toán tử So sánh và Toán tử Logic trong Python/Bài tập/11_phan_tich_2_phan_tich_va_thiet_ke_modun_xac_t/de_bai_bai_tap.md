@@ -1,4 +1,4 @@
-## <center>[Phân tích 2] Phân tích và Thiết kế Mô-đun Xác thực Điều kiện Ưu đãi VIP Đặt phòng Khách sạn</center>
+# <center>[Phân tích 2] Phân tích và Thiết kế Mô-đun Xác thực Điều kiện Ưu đãi VIP Đặt phòng Khách sạn</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Hiểu sâu về cách thức hoạt động của toán tử số học, toán tử so sánh và bản chất của kiểu dữ liệu Boolean trong Python mà không phụ thuộc vào câu lệnh rẽ nhánh hay các toán tử logic mặc định.
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Trong hệ thống đặt phòng trực tuyến (HOTEL_BOOKING) như Agoda hoặc Traveloka, việc kiểm tra điều kiện áp dụng các chương trình ưu đãi cao cấp (VIP Booking Privilege) diễn ra liên tục trên hàng triệu yêu cầu mỗi giờ. Để đảm bảo tốc độ phản hồi tối đa và tránh việc lạm dụng tài nguyên bộ nhớ cho các cấu trúc rẽ nhánh phức tạp, đội ngũ kiến trúc sư phần mềm yêu cầu thiết kế một mô-đun xác thực điều kiện tự động dựa trên đại số số học và toán tử so sánh thuần túy.
 
-Nhiệm vụ của bạn là nghiên cứu cơ chế đại số Boole tích hợp trong số học Python để xây dựng bộ xử lý logic kiểm tra điều kiện nhận ưu đãi VIP cho đơn đặt phòng mà không sử dụng các từ khóa rẽ nhánh hay các toán tử logic nâng cao bị cấm trong phân hệ này.### **3. Quy tắc nghiệp vụ**
+Nhiệm vụ của bạn là nghiên cứu cơ chế đại số Boole tích hợp trong số học Python để xây dựng bộ xử lý logic kiểm tra điều kiện nhận ưu đãi VIP cho đơn đặt phòng mà không sử dụng các từ khóa rẽ nhánh hay các toán tử logic nâng cao bị cấm trong phân hệ này.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tiếp nhận thông tin đơn đặt phòng qua các thông số đầu vào:
 *   `nights_stayed` (kiểu `int`): Số đêm khách đăng ký lưu trú.
 *   `total_raw_cost` (kiểu `int`): Tổng chi phí nguyên giá của đơn phòng (đơn vị: VNĐ).

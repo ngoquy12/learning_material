@@ -4,6 +4,7 @@
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
 ```python
+
 # Mã nguồn minh họa nghiệp vụ cho bài học: Vòng lặp for và Hàm range()
 score = 8.5
 

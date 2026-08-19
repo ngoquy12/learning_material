@@ -1,5 +1,3 @@
-#
-
 # <center>[Sáng tạo 1] Thiết kế mô-đun tiếp nhận bệnh nhân và dự tính chi phí khám</center>
 
 ### **1. Mục tiêu**

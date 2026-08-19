@@ -1,4 +1,4 @@
-## <center>[Vận dụng cơ bản 4] Sửa lỗi tính tổng tiền hóa đơn POS khi xử lý kiểu dữ liệu đầu vào</center>
+# <center>[Vận dụng cơ bản 4] Sửa lỗi tính tổng tiền hóa đơn POS khi xử lý kiểu dữ liệu đầu vào</center>
 
 ### **1. Mục tiêu**
 *   Vận dụng kiến thức về khai báo biến, nhập xuất dữ liệu (`input()`, `print()`) và chuyển đổi kiểu dữ liệu (`int()`, `float()`) trong Python.
@@ -8,11 +8,15 @@
 ### **2. Bối cảnh & Vấn đề**
 Chuỗi cửa hàng trà sữa Highlands POS đang ứng dụng một mô-đun phần mềm CLI nhỏ viết bằng Python để hỗ trợ thu ngân tính tiền nhanh tại quầy. Chương trình cho phép nhập tên món ăn/đồ uống, đơn giá niêm yết, số lượng đặt mua, phụ thu đổi size (Size S: 0 VNĐ, Size M: 6.000 VNĐ, Size L: 10.000 VNĐ) và số lượng topping đi kèm (đồng giá 8.000 VNĐ/topping).
 
-Tuy nhiên, trong quá trình vận hành thực tế tại quầy, thu ngân phản ánh rằng bất cứ khi nào nhập số lượng topping lớn hơn 0, hệ thống lập tức báo lỗi đỏ dừng chương trình đột ngột, làm treo giao diện POS và không thể in được hóa đơn thanh toán cho khách. Bộ phận kỹ thuật cần bạn hỗ trợ kiểm thử và khắc phục sự cố này.### **3. Mã nguồn hiện tại**
+Tuy nhiên, trong quá trình vận hành thực tế tại quầy, thu ngân phản ánh rằng bất cứ khi nào nhập số lượng topping lớn hơn 0, hệ thống lập tức báo lỗi đỏ dừng chương trình đột ngột, làm treo giao diện POS và không thể in được hóa đơn thanh toán cho khách. Bộ phận kỹ thuật cần bạn hỗ trợ kiểm thử và khắc phục sự cố này.
+
+### **3. Mã nguồn hiện tại**
 Dưới đây là mã nguồn Python đang chạy tại hệ thống quầy thu ngân:
 
 ```python
+
 # Chương trình tính tổng tiền hóa đơn tại quầy POS
+
 # Hệ thống POS - Highlands Coffee / Trà sữa
 
 # Nhập dữ liệu đơn hàng từ bàn phím
@@ -39,7 +43,7 @@ print("Tổng tiền thanh toán:", total_amount, "VNĐ")
 print("----------------------------------------")
 ```
 
-### **4. Yêu cầu đầu ra**
+# **4. Yêu cầu đầu ra**
 
 #### **Phần 1: Phân tích & Báo cáo vết mã nguồn (Test Case Report Table)**
 Học viên tiến hành chạy thử chương trình (hoặc trace code bằng tay), phát hiện chính xác dòng mã nguồn gây ra lỗi xung đột kiểu dữ liệu và điền đầy đủ thông tin vào bảng báo cáo kiểm thử bên dưới.
@@ -96,7 +100,7 @@ flowchart TD
     G --> H([Kết thúc quy trình])
 ```
 
-#### **Phần 2: Sửa lỗi và viết lại mã nguồn hoàn chỉnh**
+# **Phần 2: Sửa lỗi và viết lại mã nguồn hoàn chỉnh**
 Dựa trên kết quả phân tích lỗi ở Phần 1, học viên chỉnh sửa mã nguồn Python để chương trình chuyển đổi đúng kiểu dữ liệu của tất cả các đầu vào từ bàn phím, thực hiện tính toán chính xác và in ra hóa đơn thanh toán chuẩn xác.
 
 ### **5. Yêu cầu nộp bài**

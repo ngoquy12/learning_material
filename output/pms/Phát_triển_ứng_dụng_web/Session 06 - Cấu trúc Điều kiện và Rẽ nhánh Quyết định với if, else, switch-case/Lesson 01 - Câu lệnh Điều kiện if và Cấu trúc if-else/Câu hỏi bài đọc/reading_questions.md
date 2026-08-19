@@ -3,7 +3,9 @@
 ## Tình huống & Mã nguồn kiểm tra
 Dựa trên mã nguồn nghiệp vụ được trích dẫn từ bài đọc:
 
-```javascript vanilla (es6+), html5
+```javascript
+vanilla (es6+), html5
+
 # Mã nguồn minh họa nghiệp vụ cho bài học: Câu lệnh Điều kiện if và Cấu trúc if-else
 score = 8.5
 

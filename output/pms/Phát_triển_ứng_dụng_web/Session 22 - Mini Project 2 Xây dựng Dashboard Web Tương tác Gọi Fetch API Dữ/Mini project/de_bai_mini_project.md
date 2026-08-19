@@ -1,4 +1,4 @@
-## <center>[Mini project] Bảng điều khiển Quản lý & Phân tích Sản phẩm Dữ liệu Động (Dynamic Product Analytics Dashboard)</center>
+# <center>[Mini project] Bảng điều khiển Quản lý & Phân tích Sản phẩm Dữ liệu Động (Dynamic Product Analytics Dashboard)</center>
 
 [NOTE]: Học viên bắt buộc phải tự nghiên cứu và tuân thủ các quy định đặc tả chi tiết về cấu trúc dữ liệu, danh mục mã lỗi nghiệp vụ tại [Tài liệu đặc tả SRS](../Tài liệu đặc tả SRS/tai_lieu_dac_ta_yeu_cau_srs.md).
 
@@ -17,6 +17,7 @@
 Doanh nghiệp bán lẻ trực tuyến cần một trang **Dynamic Product Analytics Dashboard** giúp bộ phận vận hành theo dõi trực quan danh mục sản phẩm, tính toán giá trị tồn kho, lọc sản phẩm theo ngành hàng và phân tích các chỉ số đánh giá trung bình. Toàn bộ dữ liệu sản phẩm được lấy động từ máy chủ API từ xa.
 
 #### **B. Khung cấu trúc thư mục gợi ý (Project Skeleton)**
+
 ```text
 dynamic-product-dashboard/
 ├── index.html
@@ -28,8 +29,9 @@ dynamic-product-dashboard/
     └── app.js
 ```
 
-#### **C. Cấu trúc Mô hình Dữ liệu Mock I/O mẫu**
+# **C. Cấu trúc Mô hình Dữ liệu Mock I/O mẫu**
 - **Đầu vào (API Dynamic JSON Payload từ API Endpoint):**
+
 ```json
 {
   "products": [

@@ -1,4 +1,4 @@
-## <center>BÀI TẬP THỰC HÀNH: XÂY DỰNG LOGIC PHÂN LOẠI LÔ HÀNG VÀ KIỂM TRA ĐIỀU KIỆN THÔNG QUAN LOGISTICS</center>
+# <center>BÀI TẬP THỰC HÀNH: XÂY DỰNG LOGIC PHÂN LOẠI LÔ HÀNG VÀ KIỂM TRA ĐIỀU KIỆN THÔNG QUAN LOGISTICS</center>
 
 ### **1. Mục tiêu**
 *   Vận dụng thành thạo cấu trúc rẽ nhánh `if-else` nhiều tầng và rẽ nhánh `switch-case` trong JavaScript ES6+ để xử lý logic nghiệp vụ logistics thực tế.
@@ -8,7 +8,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Một công ty Logistics đa quốc gia cần phát triển module xử lý trung tâm cho hệ thống quản lý kho vận (Logistics Management Subsystem). Khi lô hàng cập cảng hoặc nhập kho trung chuyển, hệ thống phải tự động tính toán chi phí vận chuyển toàn bộ (bao gồm cước cơ bản, phụ phí hàng đặc thù, phí hỏa tốc) và xác định điều kiện thông quan hải quan trước khi phân luồng xe tải vận chuyển.
 
 Bạn được giao nhiệm vụ viết một kịch bản lệnh (`script.js`) đóng vai trò là bộ lọc logic kiểm tra ràng buộc và phân loại chi phí cho từng lô hàng đầu vào.
@@ -29,7 +29,6 @@ graph TD
     I --> J[/"Xác định mức ưu tiên xử lý bằng toán tử ba ngôi"/]
     J --> K[/"Xuất báo cáo chi tiết lô hàng ra Console với Template Literals"/]
     K --> E
-
 ```
 
 ---
@@ -122,15 +121,18 @@ Xác định chuỗi mô tả trạng thái thông quan (`customsStatus`) theo q
 
 **Trường hợp 1: Dữ liệu hợp lệ (Hàng dễ vỡ, giao hỏa tốc)**
 *   **Input:**
-    ```javascript
+
+```javascript
     const shipmentCode = "LOG-8899";
     const weightKg = 35;
     const packageTypeCode = 2; // Hàng dễ vỡ
     const isExpress = true;
     const hasCustomsDoc = true;
-    ```
+```
+
 *   **Output kỳ vọng ở Console:**
-    ```text
+
+```text
     ==================================================
     BÁO CÁO PHÂN LOẠI LÔ HÀNG LOGISTICS
     ==================================================
@@ -148,34 +150,38 @@ Xác định chuỗi mô tả trạng thái thông quan (`customsStatus`) theo q
     Trạng thái thông quan: ĐỦ ĐIỀU KIỆN THÔNG QUAN
     Mức ưu tiên xử lý   : ƯU TIÊN CAO
     ==================================================
-    ```
+```
 
 **Trường hợp 2: Vi phạm dữ liệu (Trọng lượng không hợp lệ)**
 *   **Input:**
-    ```javascript
+
+```javascript
     const shipmentCode = "LOG-1002";
     const weightKg = -5;
     const packageTypeCode = 1;
     const isExpress = false;
     const hasCustomsDoc = false;
-    ```
+```
+
 *   **Output kỳ vọng ở Console:**
-    ```text
+
+```text
     [LỖI NGHIỆP VỤ] Dữ liệu đầu vào không hợp lệ: Trọng lượng lô hàng (weightKg) phải lớn hơn 0. Dừng hệ thống!
-    ```
+```
 
 ---
 
 ### **5. Yêu cầu nộp bài**
 
 #### **Cấu trúc thư mục dự án:**
+
 ```text
 logistics-app/
 ├── index.html
 └── script.js
 ```
 
-#### **Quy trình thực hiện và nộp bài:**
+# **Quy trình thực hiện và nộp bài:**
 1. Tạo thư mục `logistics-app` và khởi tạo mã nguồn JavaScript trên **Cursor AI IDE** / **VS Code**.
 2. Nhúng file `script.js` vào tệp `index.html` và chạy trên trình duyệt (hoặc Node.js runtime).
 3. Thực hiện commit bài tập lên kho chứa Git cá nhân với cú pháp commit chuẩn:

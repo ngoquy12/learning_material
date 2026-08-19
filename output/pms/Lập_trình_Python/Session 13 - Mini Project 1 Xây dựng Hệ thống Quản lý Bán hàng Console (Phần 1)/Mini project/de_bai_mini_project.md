@@ -1,4 +1,4 @@
-## <center>[Mini project] Xây dựng Hệ thống Quản lý Bán hàng Console (Phần 1) (Console Sales Management System - Part 1)</center>
+# <center>[Mini project] Xây dựng Hệ thống Quản lý Bán hàng Console (Phần 1) (Console Sales Management System - Part 1)</center>
 
 ### **1. Mục tiêu dự án**
 
@@ -85,29 +85,51 @@ Hệ thống sử dụng các cấu trúc dữ liệu tiêu chuẩn (List, Dict)
 [WARNING] Học viên tuyệt đối **KHÔNG** được sử dụng các kiến thức và công nghệ sau trong phiên này:
 1.  **TUYỆT ĐỐI CẤM** sử dụng Lập trình hướng đối tượng (OOP Class - từ khóa `class`). Tất cả phải viết dạng Module và các Hàm thuần túy (Functions).
 2.  **TUYỆT ĐỐI CẤM** kết nối Cơ sở dữ liệu SQL (SQLite, PostgreSQL, MySQL...). Chỉ dùng bộ nhớ RAM (In-memory Structures) và Tệp tin phẳng (JSON/CSV).
-3.  **TUYỆT ĐỐI CẤM** sử dụng HTTP Status Code (200, 400, 404), REST API Envelopes (`{"status": "success", "data": ...}`), Controllers hoặc Web Frameworks.
+3.  **TUYỆT ĐỐI CẤM** sử dụng HTTP Status Code (200, 400, 404), REST API Envelopes (`{"status": "success "data": ...}`), Controllers hoặc Web Frameworks.
 
 ---
 
 ### **3. Yêu cầu nộp bài**
 
 1.  **Cấu trúc thư mục mã nguồn:**
-    ```text
+
+```text
     sales_console_app/
-    ├── .venv/                      # Môi trường ảo virtualenv
+    ├── .venv/
+
+# Môi trường ảo virtualenv
     ├── data/
-    │   ├── products.json           # Tệp lưu trữ dữ liệu sản phẩm
-    │   └── orders.json             # Tệp lưu trữ lịch sử đơn hàng
+    │   ├── products.json
+
+# Tệp lưu trữ dữ liệu sản phẩm
+    │   └── orders.json
+
+# Tệp lưu trữ lịch sử đơn hàng
     ├── src/
     │   ├── __init__.py
-    │   ├── product_service.py      # Module chứa logic quản lý sản phẩm
-    │   ├── order_service.py        # Module chứa logic giỏ hàng & thanh toán
-    │   ├── storage_service.py      # Module lưu/đọc file JSON
-    │   └── utils.py                # Hàm tiện ích (validate, format tiền tệ)
-    ├── main.py                     # Điểm chạy chính của ứng dụng CLI
-    ├── requirements.txt            # Danh sách thư viện (nếu có)
-    └── README.md                   # Hướng dẫn cài đặt và chạy ứng dụng
-    ```
+    │   ├── product_service.py
+
+# Module chứa logic quản lý sản phẩm
+    │   ├── order_service.py
+
+# Module chứa logic giỏ hàng & thanh toán
+    │   ├── storage_service.py
+
+# Module lưu/đọc file JSON
+    │   └── utils.py
+
+# Hàm tiện ích (validate, format tiền tệ)
+    ├── main.py
+
+# Điểm chạy chính của ứng dụng CLI
+    ├── requirements.txt
+
+# Danh sách thư viện (nếu có)
+    └── README.md
+
+# Hướng dẫn cài đặt và chạy ứng dụng
+```
+
 2.  **Hình thức nộp bài:**
     *   Học viên khởi tạo một GitHub Repository công khai (hoặc riêng tư và thêm quyền truy cập cho giảng viên).
     *   Nộp liên kết GitHub Repository lên hệ thống quản lý học tập theo đúng thời hạn quy định.

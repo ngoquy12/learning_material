@@ -1,0 +1,77 @@
+[
+  {
+    "stt": 1,
+    "question_type": "SYNTAX",
+    "question": "Trong hệ thống quản lý người dùng, lập trình viên muốn đóng gói biến đếm `count` để không thể bị chỉnh sửa trực tiếp từ bên ngoài. Cú pháp nào sau đây tạo một closure hợp lệ trong JavaScript để thực hiện yêu cầu này?",
+    "options": [
+      "Khai báo `let count = 0` bên trong hàm cha và trả về một hàm con thực hiện tăng và trả về giá trị `count`.",
+      "Khai báo `global count = 0` bên ngoài hàm cha và trả về một hàm con truy cập `count` nhưng không dùng `return`.",
+      "Khai báo `const count = 0` bên trong hàm cha và trả về một hàm con thực hiện gán lại `count = count + 1`.",
+      "Khai báo `var count` không khởi tạo bên trong hàm con và trả về tên của hàm cha dưới dạng một chuỗi văn bản."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Closure được tạo ra khi một hàm con được khai báo bên trong một hàm cha và truy cập vào biến của hàm cha (`count`). Việc dùng `let` trong hàm cha cho phép hàm con sửa đổi giá trị `count`, đồng thời trả về hàm con giúp bảo vệ biến `count` khỏi truy cập trực tiếp từ bên ngoài.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 1.1 trong bài đọc để nắm rõ cú pháp tạo Closure chuẩn với hàm lồng nhau.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 2,
+    "question_type": "EXECUTION_FLOW",
+    "question": "Trong tính năng tính thuế đơn hàng, lập trình viên khởi tạo `const calculateTax = createTaxCalculator(0.1);`. Khi hàm `calculateTax(100)` được gọi, luồng tìm kiếm biến (Scope Chain) của JavaScript engine diễn ra theo thứ tự nào để lấy giá trị tỉ lệ thuế?",
+    "options": [
+      "Động cơ JS tìm biến ở Global Scope trước, sau đó mới tìm trong Scope của `calculateTax` và tham số đầu vào.",
+      "Động cơ JS tìm biến trong Local Scope của hàm con trước, sau đó tìm ngược lên Lexical Scope của `createTaxCalculator`.",
+      "Động cơ JS bỏ qua scope của hàm cha và lấy giá trị của tỉ lệ thuế trực tiếp từ đối tượng `window`.",
+      "Động cơ JS thực thi lại hàm `createTaxCalculator` từ đầu để khởi tạo lại giá trị tỉ lệ thuế trước khi chạy."
+    ],
+    "correct_option_index": 1,
+    "explanation": "Khi thực thi `calculateTax`, JavaScript engine sẽ tìm kiếm biến trong Local Scope của chính hàm đó trước. Nếu không tìm thấy, nó tìm tiếp lên Lexical Scope (phạm vi nơi hàm được định nghĩa, tức là scope của `createTaxCalculator`).",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 2.1 trong bài đọc để hiểu luồng Scope Chain và Lexical Scope.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 3,
+    "question_type": "CODE_TRACE",
+    "question": "Cho đoạn code quản lý phân quyền trong hệ thống:\n\n```javascript\nfunction createRoleManager(initialRole) {\n  let role = initialRole;\n  return {\n    getRole: function() {\n      return role;\n    },\n    setRole: function(newRole) {\n      role = newRole;\n    }\n  };\n}\n\nconst manager = createRoleManager('Editor');\nmanager.setRole('Admin');\nconsole.log(manager.getRole());\n```javascript\nKết quả in ra màn hình console là gì?",
+    "options": [
+      "'Editor'",
+      "'Admin'",
+      "undefined",
+      "ReferenceError: role is not defined"
+    ],
+    "correct_option_index": 1,
+    "explanation": "Cả hai phương thức `getRole` và `setRole` đều giữ closure chiếu tới cùng một biến `role` trong phạm vi của `createRoleManager`. Khi `manager.setRole('Admin')` được gọi, biến `role` bị thay đổi thành `'Admin'`, do đó `manager.getRole()` trả về `'Admin'`.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 3.1 trong bài đọc để theo dõi cách Closure lưu trữ tham chiếu biến.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 4,
+    "question_type": "COMPARISON",
+    "question": "Khi thiết kế module xử lý dữ liệu người dùng, việc lưu trữ biến ở Global Scope khác biệt như thế nào so với Local Scope (Function/Block Scope)?",
+    "options": [
+      "Biến Global Scope có thể truy cập từ bất kỳ đâu, trong khi biến Local Scope bị giới hạn trong hàm hoặc block khai báo.",
+      "Biến Global Scope được thu gom rác ngay sau khi hàm chạy xong, trong khi biến Local Scope tồn tại vĩnh viễn.",
+      "Biến Local Scope gây ô nhiễm phạm vi toàn cục, trong khi biến Global Scope ngăn chặn ghi đè dữ liệu ngoài ý muốn.",
+      "Biến Local Scope chỉ lưu trữ được kiểu dữ liệu nguyên thủy, trong khi biến Global Scope lưu trữ được đối tượng phức tạp."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Global Scope tạo ra các biến có thể truy cập và thay đổi từ mọi nơi trong ứng dụng (dễ gây ra va chạm tên biến và khó debug). Trong khi đó, Local Scope giới hạn phạm vi truy cập của biến chỉ ở trong hàm hoặc khối lệnh (`{}`) mà nó được khai báo.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 1.2 trong bài đọc về sự khác biệt giữa Global Scope và Local Scope.",
+    "time_limit_sec": 30
+  },
+  {
+    "stt": 5,
+    "question_type": "TRAP_PREDICTION",
+    "question": "Trong module hiển thị danh sách người dùng, lập trình viên viết đoạn code sau để đăng ký sự kiện xử lý bất đồng bộ:\n\n```javascript\nfunction setupUserClickHandlers() {\n  for (var i = 0; i < 3; i++) {\n    setTimeout(function() {\n      console.log('User index:', i);\n    }, 100);\n  }\n}\nsetupUserClickHandlers();\n```javascript\nKết quả in ra màn hình console sau 100ms là gì và nguyên nhân do đâu?",
+    "options": [
+      "In ra `User index: 3` ba lần do `var` có phạm vi hàm và giá trị `i` đã tăng lên `3` trước khi callback thực thi.",
+      "In ra `User index: 0`, `User index: 1`, `User index: 2` lần lượt do `var` tạo ra phạm vi riêng cho từng vòng lặp.",
+      "Báo lỗi `Uncaught SyntaxError` do không được phép khai báo biến `var` bên trong câu lệnh khởi tạo vòng lặp `for`.",
+      "In ra `User index: undefined` ba lần do biến `i` bị xóa khỏi bộ nhớ ngay khi vòng lặp `for` kết thúc."
+    ],
+    "correct_option_index": 0,
+    "explanation": "Biến `var` không có block scope mà chỉ có function scope, nên chỉ có 1 biến `i` duy nhất dùng chung cho toàn bộ vòng lặp. Vòng lặp kết thúc khi `i = 3`. Sau 100ms, các hàm callback trong `setTimeout` mới chạy và truy cập vào biến `i` lúc này đã có giá trị là `3`.",
+    "instant_feedback": "Chưa chính xác! Bạn hãy tham khảo lại Mục 4.1 trong bài đọc về bẫy phạm vi biến khi kết hợp `var` và bất đồng bộ.",
+    "time_limit_sec": 30
+  }
+]

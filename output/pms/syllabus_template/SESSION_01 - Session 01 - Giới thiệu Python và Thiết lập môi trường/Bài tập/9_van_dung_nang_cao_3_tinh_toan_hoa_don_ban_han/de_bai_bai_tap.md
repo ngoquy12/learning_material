@@ -1,4 +1,4 @@
-## <center>[Vận dụng nâng cao 3] Tính toán Hóa đơn Bán hàng Tích hợp Chiết khấu và Thuế POS Highlands</center>
+# <center>[Vận dụng nâng cao 3] Tính toán Hóa đơn Bán hàng Tích hợp Chiết khấu và Thuế POS Highlands</center>
 
 ### **1. Mục tiêu**
 *   **Kiến thức:** Vận dụng thành thạo kỹ thuật khai báo biến, chuyển đổi kiểu dữ liệu (`int`, `float`, `str`) và các toán tử số học cơ bản trong ngôn ngữ Python.
@@ -8,7 +8,9 @@
 ### **2. Bối cảnh & Vấn đề**
 Trong hệ thống Quản lý Bán hàng Quán Cà phê / Trà sữa Highlands POS (`COFFEE_POS`), quy trình tính tiền tại quầy thu ngân đòi hỏi sự chính xác tuyệt đối khi xử lý các đơn hàng phức hợp. Mỗi đơn hàng bao gồm món nước chính (với đơn giá niêm yết theo Size S cơ bản), các khoản phụ thu nâng cấp dung tích (Size M, Size L), số lượng Topping gọi thêm, cùng các chính sách giảm giá dành cho khách hàng hội viên Vàng (Gold) và nghĩa vụ thuế giá trị gia tăng (VAT).
 
-Bộ phận kỹ thuật POS cần phát triển một module dòng lệnh (CLI) giúp thu ngân nhập thông tin đơn hàng khách chọn và tự động tính toán tổng tiền, chiết khấu, thuế, tiền khách đưa và tiền thừa trả lại một cách chính xác.### **3. Quy tắc nghiệp vụ**
+Bộ phận kỹ thuật POS cần phát triển một module dòng lệnh (CLI) giúp thu ngân nhập thông tin đơn hàng khách chọn và tự động tính toán tổng tiền, chiết khấu, thuế, tiền khách đưa và tiền thừa trả lại một cách chính xác.
+
+### **3. Quy tắc nghiệp vụ**
 Hệ thống tính toán hóa đơn POS áp dụng các quy tắc tài chính và phụ thu chuẩn hóa sau:
 
 1.  **Đơn giá và Nâng cấp Size:**

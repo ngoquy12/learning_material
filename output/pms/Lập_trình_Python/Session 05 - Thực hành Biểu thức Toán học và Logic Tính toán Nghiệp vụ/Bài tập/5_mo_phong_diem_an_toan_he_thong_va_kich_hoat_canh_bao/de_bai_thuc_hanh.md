@@ -1,4 +1,4 @@
-## <center>Mô phỏng Điểm An toàn Hệ thống và Kích hoạt Cảnh báo</center>
+# <center>Mô phỏng Điểm An toàn Hệ thống và Kích hoạt Cảnh báo</center>
 
 ### **1. Mục tiêu**
 - **Toán tử logic & So sánh:** Vận dụng thành thạo toán tử so sánh (`>`) và toán tử logic (`and`, `not`) để phát hiện các bất thường hệ thống.
@@ -7,7 +7,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong phân hệ giám sát hạ tầng máy chủ (System Monitoring Subsystem), hệ thống cần liên tục kiểm chuẩn các chỉ số tải phần cứng bao gồm: tỷ lệ sử dụng CPU, tỷ lệ sử dụng RAM và tần suất số lượng yêu cầu truy cập (Request Rate) trong 1 giây nhằm phát hiện sớm nguy cơ quá tải hoặc các cuộc tấn công từ chối dịch vụ (DDoS).
 
 Chương trình cần tiếp nhận các tham số phần cứng từ bàn phím, tính toán chỉ số sức khỏe của máy chủ, kiểm tra các điều kiện cảnh báo, và xuất ra cờ báo động an toàn máy chủ mà không rẽ nhánh thực thi.
@@ -64,39 +64,45 @@ Viết chương trình Python thực hiện các tác vụ sau:
 
 **Kịch bản 1: Hệ thống hoạt động bình thường, an toàn**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập tỷ lệ sử dụng CPU (%): 45.5
   Nhập tỷ lệ sử dụng RAM (%): 60.0
   Nhập số lượng request/giây: 150
   Có phải truy cập từ IP quản trị? (Nhập 1 nếu đúng, 0 nếu không): 0
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === HỆ THỐNG GIÁM SÁT MÁY CHỦ AUTO-GUARD ===
   Chỉ số sức khỏe máy chủ (Health Index): 48.70%
   Cảnh báo quá tải CPU: False
   Cảnh báo quá tải RAM: False
   Nghi ngờ tấn công DDoS: False
   Trạng thái hệ thống AN TOÀN: True
-  ```
+```
 
 **Kịch bản 2: Hệ thống quá tải RAM và nghi ngờ có tấn công DDoS**
 - **Đầu vào (Input):**
-  ```text
+
+```text
   Nhập tỷ lệ sử dụng CPU (%): 75.0
   Nhập tỷ lệ sử dụng RAM (%): 88.0
   Nhập số lượng request/giây: 1200
   Có phải truy cập từ IP quản trị? (Nhập 1 nếu đúng, 0 nếu không): 0
-  ```
+```
+
 - **Đầu ra (Output):**
-  ```text
+
+```text
   === HỆ THỐNG GIÁM SÁT MÁY CHỦ AUTO-GUARD ===
   Chỉ số sức khỏe máy chủ (Health Index): 19.80%
   Cảnh báo quá tải CPU: False
   Cảnh báo quá tải RAM: True
   Nghi ngờ tấn công DDoS: True
   Trạng thái hệ thống AN TOÀN: False
-  ```
+```
 
 ---
 
@@ -104,7 +110,8 @@ Viết chương trình Python thực hiện các tác vụ sau:
 - Lưu mã nguồn vào file `system_guard.py`.
 - Tuân thủ PEP 8 và khai báo đầy đủ type hints.
 - Thực hiện git commit:
-  ```bash
+
+```bash
   git add system_guard.py
   git commit -m "feat: implement system security health monitor"
-  ```
+```

@@ -1,4 +1,4 @@
-## <center>[Phân tích 3] Thiết kế Luồng Xử lý và Quét Nhật ký Mượn Trả Sách Thư viện Hàng ngày</center>
+# <center>[Phân tích 3] Thiết kế Luồng Xử lý và Quét Nhật ký Mượn Trả Sách Thư viện Hàng ngày</center>
 
 ### **1. Mục tiêu**
 *   **Phân tích bài toán kiểm soát chất lượng dữ liệu**: Rèn luyện kỹ năng phân tích luồng xử lý và phát hiện điểm tắc nghẽn khi duyệt dải dữ liệu giao dịch mượn/trả sách thư viện.
@@ -8,7 +8,7 @@
 
 ---
 
-### **2. Vấn đề**
+### **2. Bối cảnh & Vấn đề**
 Trong phân hệ Quản lý Mượn trả Sách Thư viện Trường học (LIBRARY_WMS), cuối mỗi ngày làm việc, hệ thống tự động tiến hành một tiến trình quét đối soát (Batch Audit Scan) trên dải mã giao dịch phát sinh từ mã bắt đầu `start_id` đến mã kết thúc `end_id`.
 
 Trong quá trình tiến hành đối soát từng mã giao dịch `tx_id`, hệ thống phát sinh các tình huống nghiệp vụ cần xử lý khác nhau:
