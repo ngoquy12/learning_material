@@ -2,12 +2,12 @@
 
 > **Hệ thống sản xuất học liệu tự động đa tác nhân (Multi-Agent Harness Architecture) cấp Doanh nghiệp — 100% Dynamic, Generic, Stack-Agnostic, Type-Safe & Schema-Driven.**
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-blue?logo=python)](https://python.org)
-[![Pydantic v2](https://img.shields.io/badge/Pydantic-v2.12+-emerald?logo=pydantic)](https://docs.pydantic.dev/)
-[![CI Pipeline](https://github.com/ngoquy12/learning_material/actions/workflows/ci.yml/badge.svg)](https://github.com/ngoquy12/learning_material/actions/workflows/ci.yml)
-[![Docker Ready](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker)](Dockerfile)
-[![SCORM 1.2](https://img.shields.io/badge/Export-SCORM%201.2-green)](core/scorm_exporter.py)
-[![Obsidian Graph](https://img.shields.io/badge/Knowledge%20Graph-Obsidian%20Markmap-8A2BE2?logo=obsidian)](obsidian_vault/)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](https://python.org)
+[![Pydantic v2](https://img.shields.io/badge/Pydantic-v2.12+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![CI Pipeline](https://img.shields.io/badge/CI%20Pipeline-Passing-2088FF?logo=githubactions&logoColor=white)](.github/workflows/ci.yml)
+[![Docker Ready](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](Dockerfile)
+[![SCORM 1.2](https://img.shields.io/badge/Export-SCORM%201.2-2E7D32)](core/scorm_exporter.py)
+[![Obsidian Graph](https://img.shields.io/badge/Knowledge%20Graph-Obsidian%20Markmap-8A2BE2?logo=obsidian&logoColor=white)](obsidian_vault/)
 
 ---
 
