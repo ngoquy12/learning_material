@@ -1,6 +1,6 @@
 # Elearning Content Factory — Multi-Agent Harness & Bộ Sinh Học Liệu Tự Động
 
-> **Hệ thống sản xuất học liệu tự động đa tác nhân (Multi-Agent Harness Architecture) cấp Doanh nghiệp — 100% Dynamic, Generic, Stack-Agnostic, Type-Safe & Schema-Driven.**
+> **Hệ thống sản xuất học liệu tự động đa tác nhân (Multi-Agent Harness Architecture) thuộc Rikkei Education — 100% Dynamic, Generic, Stack-Agnostic, Type-Safe & Schema-Driven.**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](https://python.org)
 [![Pydantic v2](https://img.shields.io/badge/Pydantic-v2.12+-E92063?logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
@@ -97,14 +97,14 @@ flowchart TD
 
 ## 3. Các Loại Học Liệu Hệ Thống Sinh Tự Động
 
-| Loại Học Liệu | Định dạng Đầu ra | Đặc tả & Tiêu chuẩn Kỹ thuật |
-| :--- | :--- | :--- |
-| **Bài đọc lý thuyết** | `reading.html` & `reading_all.html` | Cấu trúc danh sách ngắt ý ngắn gọn, 100% tiếng Việt có dấu, ảnh bối cảnh 16:9, Dark Terminal Console, Self-Test tương tác, Sandbox Pyodide chạy trực tiếp trên trình duyệt. |
-| **Slide bài giảng** | `Slide_Bai_Giang.pptx` & `slides.html` | Master Slide (15-20 slides/session), Bento Grid hiện đại, quy tắc 3-30-300 typography, phân màu thẻ kỹ thuật, dàn ý sư phạm chi tiết cho giảng viên. |
-| **Bài tập thực hành** | 17 thư mục Markdown + Code files + Rubric | 17 bài tập phân tầng theo thang nhận thức Bloom (Vận dụng cơ bản -> Vận dụng nâng cao -> Sáng tạo -> Tổng hợp). Kèm bảng tiêu chí chấm điểm chi tiết 100 điểm (`tieu_chi_danh_gia.md`). |
-| **Mini Project / Lab** | `practical_lab.md` + JSON + Checklist | Bố cục 3 phần chuẩn hóa: Mục tiêu -> Các bước thực hiện -> Bảng checklist tự kiểm tra định lượng `[ ]`. |
-| **Quizz Trắc nghiệm** | Excel (`.xlsx`) + JSON | 5 câu/lesson, Entrance Quiz 45 câu (30 câu cũ + 15 câu mới), Exit Quiz 45 câu (100% câu mới). Tuân thủ 9 nguyên tắc sư phạm Quizz. |
-| **SCORM 1.2 & Obsidian** | ZIP SCORM 1.2 & Obsidian Vault | Đóng gói tương thích chuẩn e-learning LMS quốc tế và đồ thị mạng lưới tri thức 2 chiều (Obsidian Markmap). |
+| Loại Học Liệu            | Định dạng Đầu ra                          | Đặc tả & Tiêu chuẩn Kỹ thuật                                                                                                                                                            |
+| :----------------------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Bài đọc lý thuyết**    | `reading.html` & `reading_all.html`       | Cấu trúc danh sách ngắt ý ngắn gọn, 100% tiếng Việt có dấu, ảnh bối cảnh 16:9, Dark Terminal Console, Self-Test tương tác, Sandbox Pyodide chạy trực tiếp trên trình duyệt.             |
+| **Slide bài giảng**      | `Slide_Bai_Giang.pptx` & `slides.html`    | Master Slide (15-20 slides/session), Bento Grid hiện đại, quy tắc 3-30-300 typography, phân màu thẻ kỹ thuật, dàn ý sư phạm chi tiết cho giảng viên.                                    |
+| **Bài tập thực hành**    | 17 thư mục Markdown + Code files + Rubric | 17 bài tập phân tầng theo thang nhận thức Bloom (Vận dụng cơ bản -> Vận dụng nâng cao -> Sáng tạo -> Tổng hợp). Kèm bảng tiêu chí chấm điểm chi tiết 100 điểm (`tieu_chi_danh_gia.md`). |
+| **Mini Project / Lab**   | `practical_lab.md` + JSON + Checklist     | Bố cục 3 phần chuẩn hóa: Mục tiêu -> Các bước thực hiện -> Bảng checklist tự kiểm tra định lượng `[ ]`.                                                                                 |
+| **Quizz Trắc nghiệm**    | Excel (`.xlsx`) + JSON                    | 5 câu/lesson, Entrance Quiz 45 câu (30 câu cũ + 15 câu mới), Exit Quiz 45 câu (100% câu mới). Tuân thủ 9 nguyên tắc sư phạm Quizz.                                                      |
+| **SCORM 1.2 & Obsidian** | ZIP SCORM 1.2 & Obsidian Vault            | Đóng gói tương thích chuẩn e-learning LMS quốc tế và đồ thị mạng lưới tri thức 2 chiều (Obsidian Markmap).                                                                              |
 
 ---
 
@@ -113,19 +113,21 @@ flowchart TD
 - **Python**: Phiên bản `3.10`, `3.11`, hoặc `3.12` ([Tải Python](https://www.python.org/downloads/)).
 - **Node.js**: Phiên bản `18.0.0+` ([Tải Node.js](https://nodejs.org/)).
 - **Git**: Quản lý phiên bản mã nguồn.
-- **Docker** *(Tùy chọn)*: Khi sử dụng chế độ Sandbox cô lập hoặc đóng gói container.
+- **Docker** _(Tùy chọn)_: Khi sử dụng chế độ Sandbox cô lập hoặc đóng gói container.
 
 ---
 
 ## 5. Hướng Dẫn Cài Đặt Chi Tiết (Installation Guide)
 
 ### Bước 1: Sao chép mã nguồn về máy
+
 ```bash
 git clone https://github.com/ngoquy12/learning_material.git
 cd Learning-Material
 ```
 
 ### Bước 2: Khởi tạo và kích hoạt môi trường ảo Python
+
 - **Trên Windows (PowerShell):**
   ```powershell
   python -m venv .venv
@@ -138,6 +140,7 @@ cd Learning-Material
   ```
 
 ### Bước 3: Cài đặt các thư viện phụ thuộc
+
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
@@ -150,12 +153,15 @@ pip install -r requirements.txt
 Hệ thống sử dụng **Pydantic `BaseSettings`** tại [config/settings.py](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/config/settings.py) để tự động kiểm tra kiểu dữ liệu, che giấu các khóa bí mật (`SecretStr`), và ngăn chặn hoàn toàn việc rò rỉ API key khi ghi log hệ thống.
 
 Khởi tạo file cấu hình `.env` từ file mẫu [`.env.example`](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/.env.example):
+
 ```bash
 cp .env.example .env
 ```
 
 ### 6.1. Chế độ 1: Local Proxy (Antigravity Proxy @ 8045)
+
 Sử dụng proxy cục bộ (mặc định):
+
 ```env
 USE_REAL_GEMINI_API_KEY=false
 GEMINI_API_KEY=sk-your-proxy-key-here
@@ -164,7 +170,9 @@ GEMINI_MODEL=gemini-3.6-flash-high
 ```
 
 ### 6.2. Chế độ 2: API Key thật Google Gemini (Google AI Studio)
+
 Khi chuyển sang sử dụng API Key thật của Google, chỉ cần bật cờ `USE_REAL_GEMINI_API_KEY=true` (hệ thống sẽ **tự động bỏ qua proxy `127.0.0.1:8045`** và kết nối trực tiếp đến máy chủ Google):
+
 ```env
 USE_REAL_GEMINI_API_KEY=true
 GEMINI_API_KEY=AIzaSyYourRealGoogleApiKeyHere...
@@ -285,8 +293,8 @@ Mọi nội dung học liệu do Agent sinh ra đều phải tuân thủ nghiêm
 ## 11. FAQ & Xử Lý Sự Cố Thường Gặp
 
 - **Hỏi: Làm sao để chuyển đổi giữa Local Proxy và Google Gemini API Key thật?**
-  - *Trả lời:* Trong file `.env`, chuyển `USE_REAL_GEMINI_API_KEY=true` và dán API Key `AIzaSy...` của bạn vào `GEMINI_API_KEY`. Hệ thống sẽ tự động bỏ qua proxy.
+  - _Trả lời:_ Trong file `.env`, chuyển `USE_REAL_GEMINI_API_KEY=true` và dán API Key `AIzaSy...` của bạn vào `GEMINI_API_KEY`. Hệ thống sẽ tự động bỏ qua proxy.
 - **Hỏi: Thư mục `output/` có bị đẩy lên GitHub không?**
-  - *Trả lời:* Không. File `.gitignore` đã chặn toàn bộ thư mục `output/` để giữ repository luôn sạch sẽ và bảo mật dữ liệu học liệu nội bộ.
+  - _Trả lời:_ Không. File `.gitignore` đã chặn toàn bộ thư mục `output/` để giữ repository luôn sạch sẽ và bảo mật dữ liệu học liệu nội bộ.
 - **Hỏi: Gặp lỗi hiển thị tiếng Việt trên Windows PowerShell?**
-  - *Trả lời:* Hệ thống đã tự động cấu hình UTF-8. Nếu terminal hiển thị sai ký tự, hãy chạy lệnh `$env:PYTHONIOENCODING="utf-8"` trên PowerShell trước khi thực thi lệnh.
+  - _Trả lời:_ Hệ thống đã tự động cấu hình UTF-8. Nếu terminal hiển thị sai ký tự, hãy chạy lệnh `$env:PYTHONIOENCODING="utf-8"` trên PowerShell trước khi thực thi lệnh.
