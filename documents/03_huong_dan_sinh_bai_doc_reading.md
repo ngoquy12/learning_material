@@ -1,34 +1,34 @@
-# TAI LIEU HUONG DAN 03: BUOC 2 - SINH BAI DOC HTML & MASTER HUB
+# TÀI LIỆU HƯỚNG DẪN 03: BƯỚC 2 - SINH BÀI ĐỌC HTML VÀ MASTER HUB
 
-## 1. Muc Dich
-Tao ra cac tep bai doc `reading.html` theo chuan giao dien nen sang hien dai, tich hop trinh chay Python truc tiep tren trinh duyet (Pyodide Wasm Sandbox), so do Mermaid va cac cau hoi tu danh gia (Interactive Self-Test).
+## 1. Mục Đích
+Tạo ra các tệp bài đọc `reading.html` theo chuẩn giao diện nền sáng hiện đại, tích hợp trình chạy Python trực tiếp trên trình duyệt (Pyodide Wasm Sandbox), sơ đồ Mermaid và các câu hỏi tự đánh giá (Interactive Self-Test).
 
 ---
 
-## 2. Cac Tieu Chuan Bat Buoc Cua Bai Doc (`reading.html`)
+## 2. Các Tiêu Chuẩn Bắt Buộc Của Bài Đọc (`reading.html`)
 
-1. **Giao Dien Nen Sang & Typography**:
-   - Su dung font chu Inter & Montserrat cao cap.
-   - Mau sac chu dao: Do thuong hieu Rikkei (`#be111c`).
-2. **Trinh Chay Code Truc Tiep (Pyodide Wasm Sandbox)**:
-   - Cho phep hoc vien thuc thi ma nguon truc tiep tren trinh duyet ma khong can cai dat runtime.
+1. **Giao Diện Nền Sáng và Typography**:
+   - Sử dụng font chữ Inter và Montserrat cao cấp.
+   - Màu sắc chủ đạo: Đỏ thương hiệu Rikkei (`#be111c`).
+2. **Trình Chạy Code Trực Tiếp (Pyodide Wasm Sandbox)**:
+   - Cho phép học viên thực thi mã nguồn trực tiếp trên trình duyệt mà không cần cài đặt runtime.
 3. **High-Contrast Code Trackers**:
-   - Dong highlight code su dung nen ro rang va chu dam noi bat 100%.
-4. **Can Trai Tuyet Doi Cho Self-Test Accordion (.selftest-question)**:
-   - Cac cau hoi va dap an tu kiem tra bat buoc su dung `text-align: left !important;` va `justify-content: flex-start !important;`.
-5. **Tieng Viet Co Dau Nghiem Ngat**:
-   - Tat ca van ban, nhan SVG, node Mermaid phai dung dung dau tieng Viet (NFC Unicode).
+   - Dòng highlight code sử dụng nền tương phản rõ ràng và chữ đậm nổi bật 100%.
+4. **Căn Trái Tuyệt Đối Cho Self-Test Accordion (.selftest-question)**:
+   - Các câu hỏi và đáp án tự kiểm tra bắt buộc sử dụng `text-align: left !important;` và `justify-content: flex-start !important;`.
+5. **Tiếng Việt Có Dấu Nghiêm Ngặt**:
+   - Tất cả văn bản, nhãn SVG, node Mermaid phải dùng đúng dấu tiếng Việt (NFC Unicode).
 
 ---
 
-## 3. Quy Trinh Bien Dich Master Reading Hub (`reading_all.html`)
+## 3. Quy Trình Biên Dịch Master Reading Hub (`reading_all.html`)
 
-Sau khi sinh xong cac bai doc thanh phan, `compile_session_html` se gop toan bo thanh tep Master Dashboard:
+Sau khi sinh xong các bài đọc thành phần, `compile_session_html` sẽ gộp toàn bộ thành tệp Master Dashboard:
 ```bash
-python -c "from pathlib import Path; from core.session_compilers import compile_session_html; compile_session_html(Path(r'output/pms/PM_Python/Session 01'), 'Session 01 - Gioi thieu Python')"
+python -c "from pathlib import Path; from core.session_compilers import compile_session_html; compile_session_html(Path(r'output/pms/PM_Python/Session 01'), 'Session 01 - Giới thiệu Python')"
 ```
 
-### Dac Diem Cua `reading_all.html`:
-- Thanh Header co dinh chua Logo chinh thuc Rikkei Education.
-- Sticky Left Sidebar chua tab chuyen doi muot ma giua cac bai hoc.
-- Dat 100% DOM & JavaScript Isolation Verified.
+### Đặc Điểm Của `reading_all.html`:
+- Thanh Header cố định chứa Logo chính thức Rikkei Education.
+- Sticky Left Sidebar chứa tab chuyển đổi mượt mà giữa các bài học.
+- Đạt 100% DOM & JavaScript Isolation Verified.
