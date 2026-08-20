@@ -43,6 +43,10 @@ class LLMSettings(BaseModel):
     gemini_model: str = Field(default="gemini-1.5-flash", description="Default Google Gemini model")
     openai_model: str = Field(default="gpt-4o-mini", description="Default OpenAI model")
     gemini_base_url: Optional[str] = Field(default=None, description="Custom Gemini API base endpoint")
+    use_real_gemini_api_key: bool = Field(
+        default=False,
+        description="Explicitly use real Google Gemini API Key directly without local proxy",
+    )
     local_slm_url: Optional[str] = Field(default=None, description="Local SLM / Ollama / vLLM endpoint URL")
 
     # Rate Limiting & Concurrency Guardrails
@@ -154,6 +158,9 @@ def get_settings() -> AppSettings:
     openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
     gemini_model = os.getenv("GEMINI_MODEL") or os.getenv("LLM_MODEL")
     gemini_base = os.getenv("GEMINI_BASE_URL")
+    use_real_key_env = os.getenv("USE_REAL_GEMINI_API_KEY", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_DIRECT_API", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_PROXY", "true").lower() in ("false", "0", "no")
     slm_url = os.getenv("LOCAL_SLM_URL")
     max_concurrent = os.getenv("MAX_CONCURRENT_LLM_CALLS")
     max_rpm = os.getenv("MAX_LLM_RPM")
@@ -189,6 +196,7 @@ def get_settings() -> AppSettings:
         openai_api_key=SecretStr(openai_key) if openai_key else None,
         gemini_model=gemini_model or "gemini-1.5-flash",
         gemini_base_url=gemini_base,
+        use_real_gemini_api_key=use_real_key_env,
         local_slm_url=slm_url,
         max_concurrent_calls=int(max_concurrent) if max_concurrent else 4,
         max_rpm=float(max_rpm) if max_rpm else 60.0,

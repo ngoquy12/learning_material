@@ -62,9 +62,13 @@ class LocalJSONVectorStore(BaseVectorStore):
         gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         openai_key = os.getenv("OPENAI_API_KEY") or os.getenv("LLM_API_KEY")
 
-        # Skip remote embedding if using local proxy or invalid key to avoid noisy API key errors
-        base_url = os.getenv("GEMINI_BASE_URL", "")
-        if "127.0.0.1" in base_url or "localhost" in base_url:
+        # Skip remote embedding if using local proxy without real API key to avoid noisy connection errors
+        use_real_key = os.getenv("USE_REAL_GEMINI_API_KEY", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_DIRECT_API", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_PROXY", "true").lower() in ("false", "0", "no")
+
+        base_url = "" if use_real_key else os.getenv("GEMINI_BASE_URL", "")
+        if not use_real_key and ("127.0.0.1" in base_url or "localhost" in base_url):
             return []
 
         if gemini_key and gemini_key.strip() != "dummy":

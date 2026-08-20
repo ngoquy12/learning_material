@@ -239,9 +239,19 @@ def call_llm(
     _GLOBAL_RATE_LIMITER.acquire()
     with _LLM_SEMAPHORE:
 
+        # Check if explicitly using Real Gemini API Key (Google AI Studio / Vertex AI) vs Local Proxy
+        use_real_key = os.getenv("USE_REAL_GEMINI_API_KEY", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_DIRECT_API", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_PROXY", "true").lower() in ("false", "0", "no")
+
         # Route OpenAI-compatible proxy endpoints (or sk- style keys) directly to OpenAI SDK for ultra-fast performance
-        base_url = os.getenv("GEMINI_BASE_URL")
-        if (gemini_key and gemini_key.startswith("sk-")) or (base_url and ("127.0.0.1" in base_url or "localhost" in base_url or ":804" in base_url)):
+        base_url = None if use_real_key else os.getenv("GEMINI_BASE_URL")
+        should_use_proxy = not use_real_key and (
+            (gemini_key and gemini_key.startswith("sk-")) or 
+            (base_url and ("127.0.0.1" in base_url or "localhost" in base_url or ":804" in base_url))
+        )
+
+        if should_use_proxy:
             try:
                 api_endpoint = base_url.rstrip("/") if base_url else "http://127.0.0.1:8045"
                 if not api_endpoint.endswith("/v1"):
@@ -288,8 +298,8 @@ def call_llm(
                 print(f"  [LLM Router - Proxy Error] {proxy_err}")
                 raise proxy_err  # Re-raise to trigger with_retry instead of falling through to native SDK with sk- key!
 
-        # Prioritize Gemini Native SDK ONLY for official AI Studio keys (starting with AIzaSy)
-        if gemini_key and gemini_key.startswith("AIzaSy"):
+        # Use Official Google Gemini Native SDK (Google AI Studio / Vertex AI)
+        if use_real_key or (gemini_key and (gemini_key.startswith("AIzaSy") or not should_use_proxy)):
             try:
                 import google.generativeai as genai
                 if base_url and not base_url.startswith("http://127.0.0.1"):
@@ -552,7 +562,10 @@ def call_llm_with_images(
             warnings.filterwarnings("ignore", category=FutureWarning)
             import google.generativeai as genai
 
-        base_url = os.getenv("GEMINI_BASE_URL")
+        use_real_key = os.getenv("USE_REAL_GEMINI_API_KEY", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_DIRECT_API", "").lower() in ("true", "1", "yes") or \
+                       os.getenv("GEMINI_USE_PROXY", "true").lower() in ("false", "0", "no")
+        base_url = None if use_real_key else os.getenv("GEMINI_BASE_URL")
         if base_url:
             genai.configure(api_key=gemini_key, transport="rest",
                             client_options={"api_endpoint": base_url})

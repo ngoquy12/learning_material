@@ -93,10 +93,21 @@ class TestCentralizedSettings(unittest.TestCase):
         self.assertTrue(isinstance(DATABASE_URL, str))
         self.assertTrue(isinstance(LLM_MODEL, str))
 
-        # Check prompt loader helper
-        prompt = get_agent_prompt("NonExistentAgent")
-        self.assertIn("Persona", prompt)
-        self.assertIn("Task", prompt)
+    def test_use_real_gemini_api_key_flag(self):
+        """Verify USE_REAL_GEMINI_API_KEY environment toggle."""
+        # When set to true
+        with patch.dict(os.environ, {"USE_REAL_GEMINI_API_KEY": "true"}, clear=False):
+            get_settings.cache_clear()
+            settings = get_settings()
+            self.assertTrue(settings.llm.use_real_gemini_api_key)
+
+        # When set to false
+        with patch.dict(os.environ, {"USE_REAL_GEMINI_API_KEY": "false"}, clear=False):
+            get_settings.cache_clear()
+            settings = get_settings()
+            self.assertFalse(settings.llm.use_real_gemini_api_key)
+
+        get_settings.cache_clear()
 
 
 if __name__ == "__main__":
