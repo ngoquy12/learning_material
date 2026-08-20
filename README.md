@@ -111,7 +111,7 @@ Hệ thống tự động sinh toàn diện **18 loại tài nguyên học liệ
 | | **6. Slide trình chiếu tương tác HTML** | `slides.html` | `<Session>/Slide bài giảng/` | Bản trình chiếu Web HTML đa nền tảng, hỗ trợ phím điều hướng và trình chiếu trực quan trên trình duyệt. |
 | | **7. Dàn ý sư phạm cho giảng viên** | `outline_bai_giang.md` | `<Session>/Slide bài giảng/` | Kịch bản giảng dạy chi tiết theo từng slide kèm phân bổ thời gian (timecode) và gợi ý sư phạm cho giảng viên. |
 | | **8. Báo cáo kiểm định slide** | `slide_deck_review_report.md` | `<Session>/Slide bài giảng/` | Báo cáo đánh giá chất lượng slide theo thang đo tiêu chuẩn của hệ thống. |
-| **III. Bài Tập & Đánh Giá Thực Hành** | **9. Bộ 17 bài tập phân tầng Bloom** | 17 thư mục Markdown + Code | `<Session>/Bài tập/<1..17>_*/` | 17 thư mục bài tập chuyên biệt (Vận dụng cơ bản -> Debugging -> Xử lý nghiệp vụ -> Sáng tạo Mini Project -> Tổng hợp). Mỗi thư mục chứa `de_bai_bai_tap.md` và `tieu_chi_cham_diem_ai.md`. |
+| **III. Bài Tập & Đánh Giá Thực Hành** | **9. Bộ 17 bài tập phân tầng Bloom** | 17 thư mục Markdown + Code | `<Session>/Bài tập/<1..17>_*/` | 17 bài tập phân cấp nhận thức Bloom chuẩn Rikkei Education: Vận dụng cơ bản (1..6), Vận dụng nâng cao (7..9), Phân tích & Tối ưu (10..12), Sáng tạo Mini Project (13..15), Demo Giảng viên (16), Hệ thống hóa Mindmap (17). |
 | | **10. Tiêu chí chấm điểm Rubric 100 điểm** | `tieu_chi_danh_gia.md` | `<Session>/Bài tập/` | Bảng Rubric 100 điểm phân chia theo 5 tiêu chuẩn đánh giá minh bạch ở thư mục gốc bài tập. |
 | | **11. Bài thực hành Lab & Mini Project** | `practical_lab.md`, `.json`, `.html` | `<Lesson>/Bài thực hành/` | Bố cục 3 phần chuẩn hóa: Mục tiêu -> Các bước thực hiện tuần tự -> Bảng checklist định lượng `[ ]` cho học viên tự đánh giá. |
 | **IV. Khảo Thí & Quizz Trắc Nghiệm** | **12. Quizz trắc nghiệm bài học** | `Quizz_SessionXX_LessonYY.xlsx` & `quiz.json` | `<Lesson>/Quizz lesson/` | 5 câu hỏi trắc nghiệm/lesson phân tầng theo thang nhận thức Bloom. |
@@ -121,6 +121,30 @@ Hệ thống tự động sinh toàn diện **18 loại tài nguyên học liệ
 | | **16. Sơ đồ tư duy buổi học** | `session_mindmap.md` | `<Session>/Sơ đồ tư duy/` | Sơ đồ tư duy Markdown / Mermaid cô đọng cây kiến thức của toàn bộ Session phục vụ ôn tập nhanh. |
 | **VI. Đóng Gói LMS & Quản Trị Tri Thức** | **17. Gói xuất bản SCORM 1.2 LMS** | `scorm_package.zip` | `<Session>/` hoặc `output/` | Gói nén chuẩn SCORM 1.2 quốc tế (`imsmanifest.xml`, CSS/JS bundle) import trực tiếp vào Moodle, Canvas, Blackboard. |
 | | **18. Đồ thị tri thức Obsidian Vault** | Mạng lưới Markdown Notes | `obsidian_vault/` | Vault đồ thị tri thức 2 chiều với thẻ tri thức wikilinks `[[...]]` và Markmap visualization. |
+
+### 3.2. Quy Chuẩn Đặc Tả Bộ 17 Bài Tập Phân Tầng Thang Đo Bloom
+
+Bộ 17 bài tập thực hành được tổ chức thành 5 cấp độ nhận thức theo chuẩn sư phạm Rikkei Education:
+
+1. **Nhóm 1: Vận dụng cơ bản & Dò lỗi (Bài 1 đến Bài 6 - Debugging & Code Tracing)**:
+   - **Đặc tả**: Cung cấp đoạn mã nguồn cũ (Legacy Code) chứa lỗi cú pháp hoặc sai sót logic nghiệp vụ tiềm ẩn.
+   - **Yêu cầu sinh viên**: Dò vết luồng dữ liệu (Code Tracing), lập bảng ma trận Testcase kiểm thử và tái cấu trúc mã nguồn để vượt qua 100% testcase.
+
+2. **Nhóm 2: Vận dụng nâng cao (Bài 7 đến Bài 9 - Business Logic Implementation)**:
+   - **Đặc tả**: Nhập vai Backend Developer tiếp nhận yêu cầu tính năng thực tế từ doanh nghiệp.
+   - **Yêu cầu sinh viên**: Xử lý các quy tắc nghiệp vụ phức tạp, kiểm soát toàn diện các điều kiện biên (edge cases) và cấu trúc dữ liệu tối ưu.
+
+3. **Nhóm 3: Phân tích & Tối ưu hóa (Bài 10 đến Bài 12 - Analysis & System Optimization)**:
+   - **Đặc tả**: Phân tích đoạn mã/hệ thống có hiệu năng thấp, độ phức tạp thời gian lớn hoặc vi phạm nguyên tắc Clean Code.
+   - **Yêu cầu sinh viên**: Đề xuất ít nhất 2 giải pháp kỹ thuật, lập bảng so sánh đánh đổi (Trade-off Matrix) và vẽ sơ đồ luồng dữ liệu Mermaid trước khi cài đặt giải pháp tối ưu.
+
+4. **Nhóm 4: Sáng tạo Mini Project (Bài 13 đến Bài 15 - Autonomous Module Architecture)**:
+   - **Đặc tả**: Trao quyền tự chủ thiết kế tối đa cho học viên (không áp đặt cứng cấu trúc I/O hay lược đồ JSON mẫu).
+   - **Yêu cầu sinh viên**: (1) Tự thiết kế lược đồ I/O Schema, (2) Suy luận và bao phủ các kịch bản lỗi ngoại lệ, (3) Vẽ sơ đồ luồng dữ liệu DFD/Mermaid, (4) Triển khai hoàn chỉnh mã nguồn từ bản thiết kế cá nhân.
+
+5. **Nhóm 5: Tổng hợp thực tiễn & Hệ thống hóa (Bài 16 & Bài 17 - Live Demo & Knowledge Synthesis)**:
+   - **Bài 16 (Demo Giảng viên trên lớp)**: Tái hiện và mở rộng bài toán Live-Coding của giảng viên trên lớp với các yêu cầu kỹ thuật bổ sung.
+   - **Bài 17 (Hệ thống hóa Mindmap)**: Xây dựng sơ đồ tư duy Markdown / Mermaid và bảng tổng hợp chuyên sâu hệ thống hóa toàn bộ kiến thức của buổi học.
 
 ---
 
