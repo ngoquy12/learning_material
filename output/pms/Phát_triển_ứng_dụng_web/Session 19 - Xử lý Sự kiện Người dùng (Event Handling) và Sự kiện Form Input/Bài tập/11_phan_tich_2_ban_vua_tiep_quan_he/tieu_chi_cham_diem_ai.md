@@ -1,8 +1,0 @@
-### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| **Cấu trúc & Phong cách mã nguồn (Clean Code & Structure)** | **20đ** | - Áp dụng đúng kỹ thuật Tái cấu trúc (Refactoring): Loại bỏ hoàn toàn inline HTML events và vòng lặp gán `addEventListener` trên từng item.<br>- Đặt tên biến/hàm ngữ nghĩa (`camelCase`), thụt lề chuẩn 2 spaces.<br>- Tách biệt rõ ràng giữa logic tính toán (Business Logic) và logic tương tác DOM (Event Handlers). |
-| **Xử lý Logic Nghiệp vụ & Event Delegation** | **40đ** | - **Event Delegation (15đ):** Đăng ký đúng 1 listener duy nhất tại container cha, dùng `event.target.closest()` xử lý chuẩn xác hành động `toggle` và `delete`.<br>- **Cảnh báo quá tải dòng điện 30A (15đ):** Tính chính xác $I = \frac{\sum P}{220}$, chặn đúng hành vi bật thiết bị làm $I > 30\text{A}$ và render banner cảnh báo.<br>- **Tính tiền điện EVN 6 bậc (10đ):** Tính đúng chính xác theo 6 bậc thang lũy tiến của EVN. |
-| **Xử lý Sự kiện Form & Input (Debounce/Validation)** | **20đ** | - **Form Validation (10đ):** Sử dụng `preventDefault()` chuẩn xác, kiểm tra đủ 3 điều kiện validation, hiển thị/ẩn error message trực quan trên UI.<br>- **Tối ưu Input với Debounce (10đ):** Triển khai cơ chế hoãn xử lý ($300\text{ms}$) cho sự kiện `input` ô tính tiền điện, không bị giật lag giao diện. |
-| **Xử lý Biên & Ngoại lệ (Edge Cases)** | **20đ** | - Xử lý trường hợp nhập số kWh là âm, chữ cái, hoặc để trống.<br>- Xử lý trường hợp danh sách thiết bị rỗng hoặc khi xóa toàn bộ thiết bị.<br>- Xử lý làm tròn số Amperes chính xác 2 chữ số thập phân (`toFixed(2)`). |

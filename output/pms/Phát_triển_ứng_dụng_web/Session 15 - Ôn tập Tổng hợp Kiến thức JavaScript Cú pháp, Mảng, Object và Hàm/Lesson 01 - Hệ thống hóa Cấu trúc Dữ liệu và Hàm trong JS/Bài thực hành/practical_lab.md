@@ -1,1 +1,0 @@
-# Bài thực hành: Lesson 01 - Hệ thống hóa Cấu trúc Dữ liệu và Hàm trong JS
