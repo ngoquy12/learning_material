@@ -1,0 +1,55 @@
+name: CD Pipeline (Packaging & Release Build)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release Tag / Version (e.g. v1.0.0)"
+        required: false
+        default: "latest"
+
+jobs:
+  build-and-package:
+    name: Build & Package Distribution Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip build wheel
+          pip install -r requirements.txt
+          pip install pydantic pyyaml
+
+      - name: Build Python Wheel Package
+        run: |
+          python -m build --wheel --no-isolation
+
+      - name: Verify CLI Entrypoints
+        env:
+          PYTHONPATH: .
+        run: |
+          python main.py --help
+
+      - name: Archive Production Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: learning-material-factory-dist
+          path: dist/
+          retention-days: 14
