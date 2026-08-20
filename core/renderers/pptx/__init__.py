@@ -1,13 +1,17 @@
 """
 core/renderers/pptx package init
+
+Primary API: deck_engine.build_deck() — fully dynamic, zero hard-coded content.
 """
 
-from core.renderers.pptx.slide_deck_builder import SlideDeckBuilder, slide_deck_builder
-from core.renderers.pptx.slide_validator import validate_pptx_file, validate_unpacked_deck
+from core.renderers.pptx.deck_engine import build_deck, build_slide, ShapeIdGenerator
+from core.renderers.pptx.slide_validator import validate_pptx_file, validate_unpacked_deck, export_slide_images
 
 __all__ = [
-    "SlideDeckBuilder",
-    "slide_deck_builder",
+    "build_deck",
+    "build_slide",
+    "ShapeIdGenerator",
     "validate_pptx_file",
-    "validate_unpacked_deck"
+    "validate_unpacked_deck",
+    "export_slide_images",
 ]

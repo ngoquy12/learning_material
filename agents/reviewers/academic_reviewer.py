@@ -7,7 +7,6 @@ Audits learning outcomes, Bloom taxonomy alignment, and syllabus contracts.
 from typing import Dict, Any
 from agents.reviewer_agents import (
     objective_reviewer_agent,
-    mindmap_reviewer,
     pm_reviewer_agent,
     pm_updater_agent,
     check_forbidden_keywords,
@@ -19,7 +18,6 @@ from agents.reviewer_agents import (
 
 __all__ = [
     "objective_reviewer_agent",
-    "mindmap_reviewer",
     "pm_reviewer_agent",
     "pm_updater_agent",
     "check_forbidden_keywords",

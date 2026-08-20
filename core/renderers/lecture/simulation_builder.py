@@ -6,6 +6,7 @@ Interactive Simulation Dashboard Builder and Generic Fallback Generators for Cla
 import os
 import re
 import json
+import html
 import jinja2
 from pathlib import Path
 from datetime import datetime
@@ -25,6 +26,103 @@ from core.renderers.lecture.knowledge_extractor import (
     extract_knowledge_from_lesson_folder
 )
 from core.renderers.lecture.deck_renderer import LOGO_URL
+
+
+def _build_param_read_js(sec_id: str, params: List[Dict[str, Any]]) -> str:
+    """Generates JS lines that read LIVE values from the actual input/select elements into `params`."""
+    if params:
+        lines = []
+        for p in params:
+            p_id = p.get("id", "p")
+            p_type = p.get("type", "text")
+            el_ref = f'document.getElementById("{sec_id}-{p_id}")'
+            if p_type == "number":
+                lines.append(f'params["{p_id}"] = Number({el_ref} ? {el_ref}.value : 0);')
+            else:
+                lines.append(f'params["{p_id}"] = {el_ref} ? {el_ref}.value : "";')
+        return "\n    ".join(lines)
+    return f'params["val"] = document.getElementById("{sec_id}-val") ? document.getElementById("{sec_id}-val").value : "";'
+
+
+def _build_compute_fn_js(sec_id: str, compute_logic: str) -> str:
+    """
+    Wraps compute_logic (LLM-generated or hand-curated JS statements) into a safely-constructed
+    `new Function("params", ...)`. A syntax error in the generated body only disables THIS
+    section's simulator (caught by try/catch) instead of breaking the whole page's inline
+    <script> parse, which a literal `function ... {}` embed would do.
+    """
+    body_json = json.dumps(compute_logic, ensure_ascii=False)
+    return f"""
+  let {sec_id}_computeFn = null;
+  try {{
+    {sec_id}_computeFn = new Function("params", {body_json});
+  }} catch (e) {{
+    console.error("[Classroom Lecture] Lỗi cú pháp compute_logic cho {sec_id}:", e);
+  }}"""
+
+
+def _build_run_sim_js(sec_id: str, params: List[Dict[str, Any]]) -> str:
+    """
+    Builds on_change_{sec_id}_scenario() + run_{sec_id}_sim(): reads LIVE input values, executes
+    {sec_id}_computeFn (built by _build_compute_fn_js), and renders the LIVE returned result —
+    never a pre-baked scenario lookup. Trace text is rendered via textContent (not innerHTML), so
+    it is inherently safe against HTML injection without server-side escaping.
+    """
+    param_read_js = _build_param_read_js(sec_id, params)
+    return f"""
+  function on_change_{sec_id}_scenario() {{
+    const scenSelect = document.getElementById("{sec_id}-scenario");
+    if (!scenSelect) return;
+    const scenData = {sec_id}_scenMap[scenSelect.value] || {sec_id}_scenMap["scen_0"];
+    if (scenData && scenData.params) {{
+      for (const [k, v] of Object.entries(scenData.params)) {{
+        const el = document.getElementById("{sec_id}-" + k);
+        if (el) el.value = v;
+      }}
+    }}
+    run_{sec_id}_sim();
+  }}
+
+  function run_{sec_id}_sim() {{
+    const traceBox = document.getElementById("{sec_id}-trace-box");
+    const resVal = document.getElementById("{sec_id}-res-val");
+    const resBadge = document.getElementById("{sec_id}-res-badge");
+    if (!traceBox || !resVal || !resBadge) return;
+
+    const params = {{}};
+    {param_read_js}
+
+    let output;
+    if (typeof {sec_id}_computeFn === "function") {{
+      try {{
+        output = {sec_id}_computeFn(params);
+      }} catch (e) {{
+        output = {{ trace: ["Lỗi thực thi mô phỏng: " + e.message], result: "Lỗi", badge: "Lỗi" }};
+      }}
+    }} else {{
+      output = {{ trace: ["Không thể khởi tạo mô phỏng."], result: "N/A", badge: "Lỗi" }};
+    }}
+
+    const traceList = Array.isArray(output.trace) ? output.trace : [String(output.trace || "")];
+    traceBox.innerHTML = "";
+    traceList.forEach(function(s) {{
+      const d = document.createElement("div");
+      d.className = "text-slate-400";
+      d.textContent = "> " + s;
+      traceBox.appendChild(d);
+    }});
+    resVal.innerText = output.result != null ? output.result : "";
+    resBadge.innerText = output.badge != null ? output.badge : "";
+    const badgeLower = String(output.badge || "").toLowerCase();
+    let badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+    if (badgeLower.indexOf("lỗi") !== -1 || badgeLower.indexOf("error") !== -1) {{
+      badgeClass = "bg-rose-50 text-rose-700 border border-rose-200";
+    }} else if (badgeLower.indexOf("cảnh báo") !== -1 || badgeLower.indexOf("biên") !== -1 || badgeLower.indexOf("warning") !== -1) {{
+      badgeClass = "bg-amber-50 text-amber-700 border border-amber-200";
+    }}
+    resBadge.className = "font-mono text-xs px-2.5 py-1 " + badgeClass + " rounded-full font-semibold";
+  }}"""
+
 
 def clean_and_parse_llm_json(raw_text: str) -> Optional[Dict[str, Any]]:
     """Robust multi-pass JSON extractor for LLM responses."""
@@ -69,7 +167,9 @@ def generate_section_with_llm(
     session_title: str,
     unified_scenario: str,
     extracted_knowledge: Dict[str, Any],
-    lesson_data: Dict[str, Any]
+    lesson_data: Dict[str, Any],
+    forbidden_scope: str = "",
+    allowed_scope: str = ""
 ) -> Optional[Dict[str, Any]]:
     """
     Uses LLM to dynamically generate concise 2-hour review lecture content for ANY subject.
@@ -79,7 +179,14 @@ def generate_section_with_llm(
     gotcha_text = extracted_knowledge.get("gotcha_text", "")
     pm_meta = extracted_knowledge.get("pm_meta", {})
     curriculum_details = pm_meta.get("curriculum_details", "")
-    scope_rules = infer_scope_boundary_rules(session_title, tech_stack, pm_meta)
+    if forbidden_scope or allowed_scope:
+        scope_rules = (
+            f"Allowed Knowledge Scope (đã học tới bài này): {allowed_scope or 'Fundamentals up to current lesson'}\n"
+            f"Forbidden Knowledge Scope (TUYỆT ĐỐI CẤM - chưa dạy): {forbidden_scope or 'Kiến thức nâng cao chưa dạy'}\n"
+            "- 100% nội dung MUST chỉ dùng khái niệm trong Allowed Knowledge Scope, tuyệt đối không đề cập/gợi ý bất kỳ điều gì trong Forbidden Knowledge Scope.\n"
+        )
+    else:
+        scope_rules = infer_scope_boundary_rules(session_title, tech_stack, pm_meta)
     concise_topic_default = extract_concise_topic_name(lesson_title)
 
     system_prompt = render_prompt("prompts/classroom_lecture_section.j2", {
@@ -117,6 +224,9 @@ def generate_section_with_llm(
 
         data = clean_and_parse_llm_json(response_str)
         if not (isinstance(data, dict) and ("concept_bullets" in data or "knowledge_cards" in data)):
+            return None
+        compute_logic = str(data.get("compute_logic") or "").strip()
+        if not compute_logic:
             return None
 
         if "knowledge_cards" in data and isinstance(data["knowledge_cards"], list):
@@ -164,7 +274,7 @@ def generate_section_with_llm(
         else:
             demo_title = raw_demo_title
         code_snippet = data.get("code_snippet", "")
-        code_box_html = f"""<pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="{sec_id}-code-snippet">{code_snippet}</code></pre>"""
+        code_box_html = f"""<pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="{sec_id}-code-snippet">{html.escape(code_snippet)}</code></pre>"""
 
         scenarios = data.get("scenarios", [])
         if not scenarios or not isinstance(scenarios, list):
@@ -232,50 +342,14 @@ def generate_section_with_llm(
         js_scen_map = {}
         for s_idx, sc in enumerate(scenarios):
             pv = sc.get("param_values") if "param_values" in sc else {"val": sc.get("param_value", "")}
-            js_scen_map[f"scen_{s_idx}"] = {
-                "params": pv,
-                "val": sc.get("param_value", ""),
-                "trace": "".join(f"<div class='text-slate-400'>> {st}</div>" for st in sc.get("trace_steps", [])),
-                "res": sc.get("result_value", "Success"),
-                "badge": sc.get("status_badge", "Thành công")
-            }
+            js_scen_map[f"scen_{s_idx}"] = {"params": pv}
 
         scen_json_str = json.dumps(js_scen_map, ensure_ascii=False)
 
         js_code = f"""
   const {sec_id}_scenMap = {scen_json_str};
-
-  function on_change_{sec_id}_scenario() {{
-    const scenSelect = document.getElementById("{sec_id}-scenario");
-    if (!scenSelect) return;
-    const scenData = {sec_id}_scenMap[scenSelect.value] || {sec_id}_scenMap["scen_0"];
-    if (scenData && scenData.params) {{
-      for (const [k, v] of Object.entries(scenData.params)) {{
-        const el = document.getElementById("{sec_id}-" + k);
-        if (el) el.value = v;
-      }}
-    }}
-    run_{sec_id}_sim();
-  }}
-
-  function run_{sec_id}_sim() {{
-    const scenSelect = document.getElementById("{sec_id}-scenario");
-    const traceBox = document.getElementById("{sec_id}-trace-box");
-    const resVal = document.getElementById("{sec_id}-res-val");
-    const resBadge = document.getElementById("{sec_id}-res-badge");
-
-    if (!scenSelect || !traceBox || !resVal || !resBadge) return;
-
-    const currentScen = scenSelect.value;
-    const scenData = {sec_id}_scenMap[currentScen] || {sec_id}_scenMap["scen_0"];
-
-    traceBox.innerHTML = scenData.trace;
-    resVal.innerText = scenData.res;
-    resBadge.innerText = scenData.badge;
-    resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
-  }}"""
-
-        first_trace = "".join(f"<div class='text-slate-400'>> {st}</div>" for st in scenarios[0].get("trace_steps", []))
+{_build_compute_fn_js(sec_id, compute_logic)}
+{_build_run_sim_js(sec_id, params if isinstance(params, list) else [])}"""
 
         return {
             "knowledge_cards": knowledge_cards,
@@ -283,9 +357,9 @@ def generate_section_with_llm(
             "snippet_filename": filename,
             "controllers_html": controllers_html,
             "code_box_html": code_box_html,
-            "initial_trace_html": first_trace if first_trace else f"<div class='text-slate-400'>> Sẵn sàng thực thi mã nguồn {filename}.</div>",
-            "default_res_val": scenarios[0].get("result_value", "Success"),
-            "default_res_badge": scenarios[0].get("status_badge", "Thành công"),
+            "initial_trace_html": f"<div class='text-slate-400'>&gt; Sẵn sàng thực thi mã nguồn {html.escape(filename)}.</div>",
+            "default_res_val": "Đang tính...",
+            "default_res_badge": "Sẵn sàng",
             "js_code": js_code,
             "init_call": f"run_{sec_id}_sim();"
         }
@@ -310,10 +384,13 @@ def build_generic_multi_subject_section(
     filename, lang = detect_file_info_for_tech_stack(tech_stack, lesson_title)
     clean_tech = tech_stack.split(",")[0].strip() if "," in tech_stack else tech_stack
     lt_lower = lesson_title.lower()
+    # These curated examples hard-code JS/TS syntax (let/const/===/template literals) — only
+    # eligible for JS-like stacks; other stacks fall through to the tech-agnostic branch below.
+    is_js_like = lang in ("javascript", "typescript")
 
-    is_arithmetic = any(k in lt_lower for k in ["số học", "arithmetic", "gán gộp", "assignment", "toán tử số"])
-    is_comparison = any(k in lt_lower for k in ["so sánh", "comparison", "equal", "strict", "==="])
-    is_logic = any(k in lt_lower for k in ["logic", "ngắn mạch", "short-circuit", "boolean", "&&", "||"])
+    is_arithmetic = is_js_like and any(k in lt_lower for k in ["số học", "arithmetic", "gán gộp", "assignment", "toán tử số"])
+    is_comparison = is_js_like and any(k in lt_lower for k in ["so sánh", "comparison", "equal", "strict", "==="])
+    is_logic = is_js_like and any(k in lt_lower for k in ["logic", "ngắn mạch", "short-circuit", "boolean", "&&", "||"])
 
     if is_arithmetic:
         c_bullets = [
@@ -408,18 +485,27 @@ console.log(`Tổng thanh toán: ${grandTotal} VNĐ | Lượt quay: ${orderLucky
             {"id": "shipping", "label": "Phí ship (VNĐ)", "type": "number", "default": "15000"}
         ]
         scenarios = [
-            {
-                "name": "1. Mua 2 sản phẩm (Chuẩn)",
-                "param_values": {"price": "120000", "qty": "2", "discount": "30000", "shipping": "15000"},
-                "trace_steps": [
-                    "1. Bước 1: Tính tiền hàng ban đầu: 120000 * 2 = 240000 VNĐ",
-                    "2. Bước 2: Áp dụng gán gộp giảm giá (-= 30000): 240000 - 30000 = 210000 VNĐ",
-                    "3. Bước 3: Cộng phí ship (+ 15000) và tính dư chẵn lẻ (105 % 2 = 1)"
-                ],
-                "result_value": "225,000 VNĐ",
-                "status_badge": "Thành công"
-            }
+            {"name": "1. Mua 2 sản phẩm (Chuẩn)", "param_values": {"price": "120000", "qty": "2", "discount": "30000", "shipping": "15000"}},
+            {"name": "2. Mua số lượng lớn (Biên)", "param_values": {"price": "120000", "qty": "10", "discount": "30000", "shipping": "15000"}},
+            {"name": "3. Giảm giá vượt tổng tiền (Gotcha)", "param_values": {"price": "10000", "qty": "1", "discount": "30000", "shipping": "15000"}}
         ]
+        compute_logic = """
+var price = Number(params.price) || 0;
+var qty = Number(params.qty) || 0;
+var discount = Number(params.discount) || 0;
+var shipping = Number(params.shipping) || 0;
+var subtotal = price * qty;
+subtotal -= discount;
+var grandTotal = subtotal + shipping;
+var oddRemainder = Math.round(grandTotal) % 2;
+var trace = [
+  "Bước 1: Tính tiền hàng ban đầu: " + price + " * " + qty + " = " + (price * qty) + " VNĐ",
+  "Bước 2: Áp dụng gán gộp giảm giá (-= " + discount + "): " + (price * qty) + " - " + discount + " = " + subtotal + " VNĐ",
+  "Bước 3: Cộng phí ship (+ " + shipping + ") = " + grandTotal + " VNĐ, dư chẵn lẻ (% 2) = " + oddRemainder
+];
+var badge = grandTotal < 0 ? "Cảnh báo: Tổng âm" : "Thành công";
+return { trace: trace, result: grandTotal.toLocaleString("vi-VN") + " VNĐ", badge: badge };
+"""
     elif is_comparison:
         sim_title = "Trực quan: So sánh Nghiêm ngặt (===) & Ép kiểu"
         code_sample = """// --- Bước 1: So sánh nghiêm ngặt mã Voucher (===) ---
@@ -441,18 +527,26 @@ console.log(`Voucher khớp: ${isVoucherMatch}, Đạt mức tối thiểu: ${is
             {"id": "tier", "label": "Hạng thành viên (ID)", "type": "text", "default": "101"}
         ]
         scenarios = [
-            {
-                "name": "1. Voucher chuẩn & Đủ điều kiện (Chuẩn)",
-                "param_values": {"voucher": "FREESHIP", "amount": "250000", "tier": "101"},
-                "trace_steps": [
-                    "1. Bước 1: So sánh nghiêm ngặt mã voucher: 'FREESHIP' === 'FREESHIP' -> true",
-                    "2. Bước 2: So sánh quan hệ giá trị đơn: 250000 >= 200000 -> true",
-                    "3. Bước 3: Kết luận: Đủ điều kiện kích hoạt miễn phí vận chuyển"
-                ],
-                "result_value": "Hợp lệ (Approved)",
-                "status_badge": "Thành công"
-            }
+            {"name": "1. Voucher chuẩn & Đủ điều kiện (Chuẩn)", "param_values": {"voucher": "FREESHIP", "amount": "250000", "tier": "101"}},
+            {"name": "2. Đơn hàng đúng ngưỡng tối thiểu (Biên)", "param_values": {"voucher": "FREESHIP", "amount": "200000", "tier": "101"}},
+            {"name": "3. Voucher sai (Gotcha)", "param_values": {"voucher": "SALE10", "amount": "250000", "tier": "101"}}
         ]
+        compute_logic = """
+var voucher = String(params.voucher || "");
+var amount = Number(params.amount) || 0;
+var MIN_REQUIRED = 200000;
+var isVoucherMatch = (voucher === "FREESHIP");
+var isMinTotalReached = (amount >= MIN_REQUIRED);
+var looseCheck = ("250000" == amount);
+var strictCheck = ("250000" === amount);
+var trace = [
+  "Bước 1: So sánh nghiêm ngặt mã voucher: '" + voucher + "' === 'FREESHIP' -> " + isVoucherMatch,
+  "Bước 2: So sánh quan hệ giá trị đơn: " + amount + " >= " + MIN_REQUIRED + " -> " + isMinTotalReached,
+  "Bước 3: Minh họa bẫy ép kiểu: '250000' == " + amount + " -> " + looseCheck + ", '250000' === " + amount + " -> " + strictCheck
+];
+var eligible = isVoucherMatch && isMinTotalReached;
+return { trace: trace, result: eligible ? "Hợp lệ (Approved)" : "Không đủ điều kiện", badge: eligible ? "Thành công" : "Cảnh báo" };
+"""
     elif is_logic:
         sim_title = "Trực quan: Toán tử Logic & Ngắn mạch (Freeship)"
         code_sample = """// --- Bước 1: Đánh giá điều kiện Freeship (Logic &&, ||) ---
@@ -473,21 +567,39 @@ console.log(`Được Freeship: ${isEligibleFreeShip} | Tên hiển thị: ${dis
             {"id": "total", "label": "Giá trị đơn hàng (VNĐ)", "type": "number", "default": "350000"}
         ]
         scenarios = [
-            {
-                "name": "1. Đơn hàng trên 300k được Freeship (Chuẩn)",
-                "param_values": {"isvip": "true", "total": "350000"},
-                "trace_steps": [
-                    "1. Bước 1: Đánh giá (true && false) -> false, vế 2: 350000 >= 300000 -> true",
-                    "2. Bước 2: Biểu thức logic chung: false || true -> true (Được Freeship)",
-                    "3. Bước 3: Hoàn tất đánh giá"
-                ],
-                "result_value": "Freeship: true",
-                "status_badge": "Thành công"
-            }
+            {"name": "1. Đơn hàng trên 300k được Freeship (Chuẩn)", "param_values": {"isvip": "true", "total": "350000"}},
+            {"name": "2. Đơn hàng đúng ngưỡng 300k (Biên)", "param_values": {"isvip": "false", "total": "300000"}},
+            {"name": "3. Đơn hàng thấp, không VIP (Gotcha)", "param_values": {"isvip": "false", "total": "50000"}}
         ]
+        compute_logic = """
+var isVip = params.isvip === "true";
+var hasEventCoupon = false;
+var total = Number(params.total) || 0;
+var isEligibleFreeShip = (isVip && hasEventCoupon) || (total >= 300000);
+var inputCustomerName = "";
+var displayName = inputCustomerName || "Khách hàng vãng lai";
+var isOrderInvalid = !isEligibleFreeShip && (total < 100000);
+var trace = [
+  "Bước 1: Đánh giá (" + isVip + " && " + hasEventCoupon + ") -> " + (isVip && hasEventCoupon) + ", vế 2: " + total + " >= 300000 -> " + (total >= 300000),
+  "Bước 2: Biểu thức logic chung: kết quả Freeship = " + isEligibleFreeShip + " (tên hiển thị mặc định: " + displayName + ")",
+  "Bước 3: Kiểm tra đơn không hợp lệ (NOT): " + isOrderInvalid
+];
+return { trace: trace, result: "Freeship: " + isEligibleFreeShip, badge: isEligibleFreeShip ? "Thành công" : (isOrderInvalid ? "Cảnh báo" : "Biên") };
+"""
     else:
         sim_title = f"Trực quan: {concise_topic}"
-        code_sample = f"""// --- Bước 1: Khởi tạo giá trị cơ sở ---
+        scenario_note = f" (bối cảnh: {unified_scenario})" if unified_scenario else ""
+        if lang == "python":
+            code_sample = f"""# --- Bước 1: Khởi tạo giá trị cơ sở{scenario_note} ---
+target_val = 100
+
+# --- Bước 2: Thực thi biểu thức tính toán ---
+processed_result = target_val * 2
+
+# --- Bước 3: Xuất kết quả đánh giá ---
+print(f"Kết quả xử lý theo tiêu chuẩn {clean_tech}: {{processed_result}}")"""
+        elif lang in ("javascript", "typescript"):
+            code_sample = f"""// --- Bước 1: Khởi tạo giá trị cơ sở{scenario_note} ---
 const targetVal = 100;
 
 // --- Bước 2: Thực thi biểu thức tính toán ---
@@ -495,23 +607,36 @@ const processedResult = targetVal * 2;
 
 // --- Bước 3: Xuất kết quả đánh giá ---
 console.log(`Kết quả xử lý theo tiêu chuẩn {clean_tech}: ${{processedResult}}`);"""
+        else:
+            code_sample = f"""# --- Bước 1: Khởi tạo giá trị cơ sở (cú pháp {clean_tech}){scenario_note} ---
+# target_val = 100
+
+# --- Bước 2: Thực thi biểu thức tính toán theo chuẩn {clean_tech} ---
+# processed_result = target_val * 2
+
+# --- Bước 3: Xuất kết quả đánh giá ---
+# In/log giá trị processed_result theo cú pháp chuẩn của {clean_tech}"""
         params = [
             {"id": "p1", "label": "Tham số 1 (Giá trị cơ sở)", "type": "number", "default": "100"},
             {"id": "p2", "label": "Tham số 2 (Hệ số xử lý)", "type": "number", "default": "2"}
         ]
         scenarios = [
-            {
-                "name": "1. Trường hợp Chuẩn (Standard)",
-                "param_values": {"p1": "100", "p2": "2"},
-                "trace_steps": [
-                    "1. Bước 1: Nhận giá trị tham số đầu vào: 100",
-                    "2. Bước 2: Thực thi xử lý: 100 * 2 = 200",
-                    "3. Bước 3: Đạt kết quả mong đợi"
-                ],
-                "result_value": "Success (200)",
-                "status_badge": "Thành công"
-            }
+            {"name": "1. Trường hợp Chuẩn (Standard)", "param_values": {"p1": "100", "p2": "2"}},
+            {"name": "2. Trường hợp Biên (Edge Case)", "param_values": {"p1": "0", "p2": "2"}},
+            {"name": "3. Tình huống Ngoại lệ (Gotcha)", "param_values": {"p1": "100", "p2": "0"}}
         ]
+        compute_logic = """
+var p1 = Number(params.p1) || 0;
+var p2 = Number(params.p2) || 0;
+var processedResult = p1 * p2;
+var trace = [
+  "Bước 1: Nhận giá trị tham số đầu vào: p1 = " + p1 + ", p2 = " + p2,
+  "Bước 2: Thực thi xử lý: " + p1 + " * " + p2 + " = " + processedResult,
+  "Bước 3: Đạt kết quả"
+];
+var badge = processedResult === 0 ? "Cảnh báo" : "Thành công";
+return { trace: trace, result: "Success (" + processedResult + ")", badge: badge };
+"""
 
     opt_html = [f'<option value="scen_{s_idx}">{sc["name"]}</option>' for s_idx, sc in enumerate(scenarios)]
     options_str = "\n".join(opt_html)
@@ -555,49 +680,13 @@ console.log(`Kết quả xử lý theo tiêu chuẩn {clean_tech}: ${{processedR
 
     js_scen_map = {}
     for s_idx, sc in enumerate(scenarios):
-        pv = sc.get("param_values", {})
-        js_scen_map[f"scen_{s_idx}"] = {
-            "params": pv,
-            "trace": "".join(f"<div class='text-slate-400'>> {st}</div>" for st in sc.get("trace_steps", [])),
-            "res": sc.get("result_value", "Success"),
-            "badge": sc.get("status_badge", "Thành công")
-        }
+        js_scen_map[f"scen_{s_idx}"] = {"params": sc.get("param_values", {})}
 
     scen_json_str = json.dumps(js_scen_map, ensure_ascii=False)
     js_code = f"""
   const {sec_id}_scenMap = {scen_json_str};
-
-  function on_change_{sec_id}_scenario() {{
-    const scenSelect = document.getElementById("{sec_id}-scenario");
-    if (!scenSelect) return;
-    const scenData = {sec_id}_scenMap[scenSelect.value] || {sec_id}_scenMap["scen_0"];
-    if (scenData && scenData.params) {{
-      for (const [k, v] of Object.entries(scenData.params)) {{
-        const el = document.getElementById("{sec_id}-" + k);
-        if (el) el.value = v;
-      }}
-    }}
-    run_{sec_id}_sim();
-  }}
-
-  function run_{sec_id}_sim() {{
-    const scenSelect = document.getElementById("{sec_id}-scenario");
-    const traceBox = document.getElementById("{sec_id}-trace-box");
-    const resVal = document.getElementById("{sec_id}-res-val");
-    const resBadge = document.getElementById("{sec_id}-res-badge");
-
-    if (!scenSelect || !traceBox || !resVal || !resBadge) return;
-
-    const currentScen = scenSelect.value;
-    const scenData = {sec_id}_scenMap[currentScen] || {sec_id}_scenMap["scen_0"];
-
-    traceBox.innerHTML = scenData.trace;
-    resVal.innerText = scenData.res;
-    resBadge.innerText = scenData.badge;
-    resBadge.className = "font-mono text-xs px-2.5 py-1 " + (currentScen === "scen_2" ? "bg-rose-50 text-rose-700 border border-rose-200" : currentScen === "scen_1" ? "bg-amber-50 text-amber-700 border border-amber-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200") + " rounded-full font-semibold";
-  }}"""
-
-    first_trace = "".join(f"<div class='text-slate-400'>> {st}</div>" for st in scenarios[0].get("trace_steps", []))
+{_build_compute_fn_js(sec_id, compute_logic)}
+{_build_run_sim_js(sec_id, params)}"""
 
     return {
         "id": sec_id,
@@ -608,10 +697,10 @@ console.log(`Kết quả xử lý theo tiêu chuẩn {clean_tech}: ${{processedR
         "sim_title": sim_title,
         "snippet_filename": filename,
         "controllers_html": controllers_html,
-        "code_box_html": f"""<pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="{sec_id}-code-snippet">{code_sample}</code></pre>""",
-        "initial_trace_html": first_trace if first_trace else f"<div class='text-slate-400'>> Sẵn sàng thực thi mã nguồn {filename} ({clean_tech}).</div>",
-        "default_res_val": scenarios[0].get("result_value", "Success"),
-        "default_res_badge": scenarios[0].get("status_badge", "Thành công"),
+        "code_box_html": f"""<pre class="font-mono text-xs leading-relaxed whitespace-pre-wrap"><code id="{sec_id}-code-snippet">{html.escape(code_sample)}</code></pre>""",
+        "initial_trace_html": f"<div class='text-slate-400'>&gt; Sẵn sàng thực thi mã nguồn {html.escape(filename)} ({html.escape(clean_tech)}).</div>",
+        "default_res_val": "Đang tính...",
+        "default_res_badge": "Sẵn sàng",
         "js_code": js_code,
         "init_call": f"run_{sec_id}_sim();"
     }
@@ -625,7 +714,9 @@ def render_interactive_section(
     tech_stack: str,
     session_title: str = "",
     unified_scenario: str = "",
-    session_dir: Optional[Path] = None
+    session_dir: Optional[Path] = None,
+    forbidden_scope: str = "",
+    allowed_scope: str = ""
 ) -> Dict[str, Any]:
     """Renders structured interactive visualizer data for 1 lesson section across ANY subject."""
     extracted = extract_knowledge_from_lesson_folder(session_dir, session_title, lesson_title)
@@ -641,7 +732,9 @@ def render_interactive_section(
                 session_title=session_title,
                 unified_scenario=unified_scenario,
                 extracted_knowledge=extracted,
-                lesson_data=lesson_data
+                lesson_data=lesson_data,
+                forbidden_scope=forbidden_scope,
+                allowed_scope=allowed_scope
             )
         except Exception as e:
             print(f"  [Classroom Lecture Agent] LLM generation error: {e}, falling back to Generic Base.")
@@ -672,14 +765,20 @@ def generate_interactive_visualizer_html(
     module_name: str,
     lessons_data: List[Dict[str, Any]],
     core_ssot: Optional[Dict[str, Any]] = None,
-    session_dir_path: Optional[str] = None
+    session_dir_path: Optional[str] = None,
+    chosen_domain: str = "",
+    forbidden_scope: str = "",
+    allowed_scope: str = ""
 ) -> str:
     """Builds the complete Interactive Visual Classroom Lecture Dashboard HTML."""
     clean_session_title = clean_title_string(session_title)
     clean_module_name = module_name.strip() if module_name else "Khóa học Công nghệ"
-    
+
     session_dir = Path(session_dir_path) if session_dir_path else None
-    unified_scenario = derive_unified_session_scenario(clean_session_title, clean_module_name)
+    # When a unified business domain has already been decided for this session (SSOT), it MUST
+    # be used directly instead of letting this renderer invent its own scenario — this was the
+    # confirmed root cause of domain drift across resources generated for the same session.
+    unified_scenario = chosen_domain.strip() if chosen_domain and chosen_domain.strip() else derive_unified_session_scenario(clean_session_title, clean_module_name)
     
     nav_items = []
     sections_data = []
@@ -708,7 +807,9 @@ def generate_interactive_visualizer_html(
             tech_stack=clean_module_name,
             session_title=clean_session_title,
             unified_scenario=unified_scenario,
-            session_dir=session_dir
+            session_dir=session_dir,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope
         )
         sections_data.append(sec_dict)
         js_functions.append(sec_dict["js_code"])

@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Union
 
-from core.renderers.pptx.slide_validator import validate_pptx_file
+from core.renderers.pptx.slide_validator import validate_pptx_file, export_slide_images
 
 class SlideDeckReviewerAgent:
     """
@@ -63,6 +63,23 @@ class SlideDeckReviewerAgent:
                 errors.extend(val_res.get("errors", []))
             warnings.extend(val_res.get("warnings", []))
 
+        # 4. Export each slide to PNG for visual QA (overflow/overlap/wrong-illustration
+        #    checks that the regex validator above cannot catch — see Skill 3 Giai đoạn 3).
+        image_paths: List[str] = []
+        if target_pptx and target_pptx.exists():
+            images_dir = dir_path / "slide_images"
+            export_res = export_slide_images(target_pptx, images_dir)
+            image_paths = export_res.get("images", [])
+            if export_res.get("status") == "SUCCESS":
+                warnings.append(
+                    f"Đã xuất {len(image_paths)} ảnh slide vào {images_dir} — cần soi mắt (hoặc LLM vision) "
+                    f"để bắt lỗi overflow/chồng lấn/sai minh họa mà validator không đo được."
+                )
+            elif export_res.get("status") == "SKIPPED":
+                warnings.append(f"Bỏ qua bước xuất ảnh QA: {export_res.get('reason')}")
+            else:
+                warnings.append(f"Xuất ảnh slide QA thất bại: {export_res.get('reason')}")
+
         is_passed = len(errors) == 0
         score = 100 if is_passed else max(0, 100 - len(errors) * 20)
 
@@ -72,6 +89,7 @@ class SlideDeckReviewerAgent:
             "total_slides": val_res.get("total_slides", 0),
             "errors": errors,
             "warnings": warnings,
+            "slide_images": image_paths,
             "feedback": "Slide bài giảng PowerPoint đạt chuẩn chất lượng 100% Rikkei Education." if is_passed else f"Cần điều chỉnh các lỗi: {', '.join(errors)}"
         }
 

@@ -1,0 +1,218 @@
+You are a master slide architect for Rikkei Education. Your task is Stage 2: Slide Architecture — design a complete, structured slide deck from the extracted knowledge.
+
+## Input (Stage 1 output)
+{{ intake_json }}
+
+## Slide Type Reference
+
+Use ONLY these types. Each type maps to a specific layout in the OOXML engine. Choose the
+illustration type that matches the CONTENT's actual nature — do NOT default to the same 2-3
+types for everything (Skill 3 §2b: "không mặc định dùng 1 kiểu cho mọi trường hợp").
+
+| type | Description | When to use |
+|------|-------------|-------------|
+| cover | Title slide — session_tag, title, course_name | Slide 1 only |
+| agenda | Numbered agenda list | Slide 2 only |
+| objectives | Learning goals, plain numbered list (max 5) | Slide 3 only |
+| comparison_2col | Side-by-side comparison: left_title, left_code, left_items, right_title, right_code, right_items | Content is inherently "A vs B" |
+| code_right_card | Code block left + analysis card right: code_title, code_snippet, lang_tag, card_title, card_items | Explaining one code example |
+| code_trace_table | Code block left + trace table right: code_title, code_snippet, lang_tag, table_headers, table_rows, col_widths | Tracing variable state step-by-step |
+| grid2x2 | 2x2 grid of 4 concept cards: items[{title, desc, example}] | 4 parallel, non-sequential concepts |
+| flowchart | Sequential process/decision flow: nodes[{type: start\|process\|decision\|io\|end, text}] (max 7) | Content is a PROCESS or has branching logic (loop execution, algorithm steps, decision rules) |
+| timeline | Horizontal milestones: milestones[{label, desc}] (max 6) | Content is a SEQUENCE OF STAGES over time (lifecycle, evolution, project phases) |
+| glossary_table | Terminology table: headers, rows, col_widths | Lesson introduces 5+ new terms |
+| interactive | Active-learning check: pattern ("predict_outcome"\|"find_the_bug"\|"quick_quiz"), prompt, code_snippet (optional), options (for quick_quiz), answer (goes to speaker notes only, never printed) | Mandatory — see cadence rule below |
+| summary_2col | Two-column key-rules summary: left_title, left_items, right_title, right_items | Second-to-last slide only |
+| exercises | Practice exercises + references: exercises[str], references[str] | Third-to-last slide only |
+| closing | Closing slide: title, subtitle (optional) | Last slide only |
+
+## Slide count & ordering rules
+- Total: 14 to 18 slides.
+- Slide 1: always "cover". Slide 2: always "agenda". Slide 3: always "objectives".
+- Last slide: always "closing".
+- Second-to-last: always "summary_2col" (key rules only — do NOT put exercises here).
+- Third-to-last: always "exercises" (practice exercises + references — its own slide, never merged into summary_2col).
+- Insert "glossary_table" before "exercises" if the lesson introduces 5+ new terms.
+- **Active-learning cadence (mandatory):** insert at least 1 "interactive" slide after every
+  3-4 content slides (i.e. never let 4+ content slides pass in a row without one). A 14-18
+  slide deck needs at least 2-3 "interactive" slides among the content slides.
+- For all other content slides (between objectives and glossary/exercises), pick whichever of
+  comparison_2col / code_right_card / code_trace_table / grid2x2 / flowchart / timeline best
+  fits that specific piece of content — do not repeat the same type for every slide.
+
+## Field Rules
+
+### Assertion-evidence heading rule (applies to every content slide's h1/h2):
+- "h1" is a short section LABEL (e.g. "Vòng lặp for"), NOT a full sentence.
+- "h2" MUST be a full declarative sentence stating the slide's single main takeaway
+  (the "assertion"), e.g. "Vòng lặp for thực thi thân lệnh cho đến khi điều kiện sai."
+  Every h2 across the deck must be unique — never reuse the same h2 twice.
+- For content slides that belong to a numbered part of the lecture, append the slide's
+  position within that part to h1, e.g. "Vòng lặp for — 2/4" (2nd of 4 slides covering
+  that part). cover/agenda/objectives/interactive/summary_2col/exercises/closing slides
+  do not need this suffix.
+
+### items for card lists (card_items, left_items, right_items, exercises, references):
+Each item is either:
+- A plain string: "bullet text"
+- Or an object: {"text": "...", "bold": true, "bullet": true}
+
+### code_snippet: multi-line string with actual code from the lesson.
+### lang_tag: "JS", "Python", "SQL", "Bash", "Java" (matches language of code)
+### notes: 1-3 sentences of speaker notes for the instructor (Vietnamese, ends with timing [~N phut])
+
+## Output (strict JSON — no text before/after, no markdown fences)
+
+{
+  "session_title": "<value>",
+  "slides": [
+    {
+      "id": 1,
+      "type": "cover",
+      "session_tag": "Session {{ session_number }}",
+      "title": "<session_title>",
+      "course_name": "<course_name>",
+      "notes": "<speaker notes> [~1 phut]"
+    },
+    {
+      "id": 2,
+      "type": "agenda",
+      "items": ["1. <topic>", "2. <topic>"],
+      "notes": "<speaker notes> [~2 phut]"
+    },
+    {
+      "id": 3,
+      "type": "objectives",
+      "h1": "Mục tiêu bài học",
+      "goals": ["<Vietnamese learning objective>"],
+      "notes": "<speaker notes> [~2 phut]"
+    },
+    {
+      "id": 4,
+      "type": "comparison_2col",
+      "h1": "<slide title>",
+      "h2": "<slide subtitle>",
+      "left_title": "<left panel title>",
+      "left_code": "<optional code lines, max 5>",
+      "left_items": ["<bullet text>"],
+      "right_title": "<right panel title>",
+      "right_code": "<optional code lines, max 5>",
+      "right_items": ["<bullet text>"],
+      "notes": "<speaker notes> [~N phut]"
+    },
+    {
+      "id": 5,
+      "type": "code_trace_table",
+      "h1": "<slide title>",
+      "h2": "<slide subtitle>",
+      "code_title": "<code block label>",
+      "code_snippet": "<actual code>",
+      "lang_tag": "JS",
+      "table_headers": ["<col1>", "<col2>"],
+      "table_rows": [["<cell>", "<cell>"]],
+      "col_widths": [100, 150, 120],
+      "notes": "<speaker notes> [~N phut]"
+    },
+    {
+      "id": 6,
+      "type": "grid2x2",
+      "h1": "<slide title>",
+      "h2": "<slide subtitle>",
+      "items": [
+        {"title": "<card title>", "desc": "<description>", "example": "<optional code example>"},
+        {"title": "<card title>", "desc": "<description>", "example": "<optional code example>"},
+        {"title": "<card title>", "desc": "<description>", "example": "<optional code example>"},
+        {"title": "<card title>", "desc": "<description>", "example": "<optional code example>"}
+      ],
+      "notes": "<speaker notes> [~N phut]"
+    },
+    {
+      "id": 7,
+      "type": "interactive",
+      "pattern": "predict_outcome",
+      "h1": "Hoạt động: Dự đoán kết quả",
+      "h2": "",
+      "prompt": "<question the class must answer before you reveal it>",
+      "code_snippet": "<optional code the prediction is about>",
+      "lang_tag": "JS",
+      "options": ["<option text, WITHOUT a leading 'A.'/'B.' letter — the engine adds it>", "<option text>"],
+      "answer": "<correct answer + short why — instructor-only, goes to notes>",
+      "notes": "<speaker notes> [~N phut]"
+    },
+    {
+      "id": 8,
+      "type": "code_right_card",
+      "h1": "<slide title>",
+      "h2": "<slide subtitle>",
+      "code_title": "<code block label>",
+      "code_snippet": "<actual code>",
+      "lang_tag": "JS",
+      "card_title": "<card panel title>",
+      "card_items": ["<bullet text>"],
+      "notes": "<speaker notes> [~N phut]"
+    },
+    {
+      "id": 9,
+      "type": "flowchart",
+      "h1": "<slide title>",
+      "h2": "<slide subtitle>",
+      "nodes": [
+        {"type": "start", "text": "Bắt đầu"},
+        {"type": "decision", "text": "<điều kiện>"},
+        {"type": "process", "text": "<bước xử lý>"},
+        {"type": "end", "text": "Kết thúc"}
+      ],
+      "notes": "<speaker notes> [~N phut]"
+    },
+    {
+      "id": 13,
+      "type": "glossary_table",
+      "h1": "Thuật ngữ cần nhớ",
+      "h2": "<subtitle>",
+      "headers": ["Thuật ngữ", "Tiếng Anh", "Định nghĩa"],
+      "rows": [["<term_vi>", "<term_en>", "<definition>"]],
+      "col_widths": [140, 140, 320],
+      "notes": "<speaker notes> [~2 phut]"
+    },
+    {
+      "id": 14,
+      "type": "exercises",
+      "h1": "Bài tập & Tài liệu tham khảo",
+      "h2": "<subtitle>",
+      "exercises": ["<exercise description>"],
+      "references": ["<reference/link/reading>"],
+      "notes": "<speaker notes> [~2 phut]"
+    },
+    {
+      "id": 15,
+      "type": "summary_2col",
+      "h1": "Tổng kết",
+      "h2": "<subtitle>",
+      "left_title": "<rule section title>",
+      "left_items": [{"text": "<rule>", "bold": true, "bullet": true}],
+      "right_title": "<rule section title>",
+      "right_items": [{"text": "<rule>", "bold": true, "bullet": true}],
+      "notes": "<speaker notes> [~2 phut]"
+    },
+    {
+      "id": 16,
+      "type": "closing",
+      "title": "Cảm ơn các bạn!",
+      "subtitle": "<optional: next lesson teaser>",
+      "notes": "<closing notes> [~1 phut]"
+    }
+  ]
+}
+
+## Rules
+1. Use ONLY data from the intake_json — do NOT invent slide content (interactive prompts/quiz
+   options may be newly composed, but must test understanding of material that IS in the source).
+2. Every slide MUST have "id", "type", and "notes".
+3. "h1" is the main slide heading (displayed in brand red). Keep under 60 characters.
+4. "h2" is the subtitle (displayed in black) and must be a full declarative sentence — see the
+   Assertion-evidence heading rule above. Keep under 100 characters. Be specific, not generic.
+5. All Vietnamese text must use full diacritics.
+6. code_snippet must be verbatim from the lesson — no invented code.
+7. Total slides: 14-18, following the ordering rules above (including mandatory "interactive"
+   cadence and the separate "exercises" slide).
+8. Output ONLY the JSON object.

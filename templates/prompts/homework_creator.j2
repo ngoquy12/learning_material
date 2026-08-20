@@ -14,33 +14,152 @@ Forbidden Scope: {{ forbidden_scope or 'Do not use unlearned advanced concepts' 
 === DOMAIN SPECIFICATIONS ({{ chosen_domain }}) ===
 {{ domain_rules_text }}
 
+=== CORE PRINCIPLES (RE_Tiêu chuẩn bài tập — bắt buộc áp dụng cho MỌI bài) ===
+1. Đóng HOW – Mở WHAT & WHY: KHÔNG BAO GIỜ viết các bước hướng dẫn giải thuật (cấm câu kiểu
+   "Bước 1: Dùng vòng lặp for, Bước 2: Dùng if/else"). Chỉ mô tả đích đến (What) và lý do
+   khách hàng cần tính năng đó (Why). Sinh viên tự chọn công cụ/thuật toán để giải quyết.
+2. Nhúng "Tư duy sản phẩm": cấm tuyệt đối các bài toán thuần túy vô tri (VD: tìm UCLN, in
+   mảng số nguyên). 100% đề bài phải có bối cảnh dự án cụ thể, đóng vai một nhân vật/khách
+   hàng, giải quyết một "nỗi đau" thực tế trong domain {{ chosen_domain }}.
+3. Hệ sinh thái nghiệp vụ đồng nhất: bài tập này PHẢI cùng lĩnh vực nghiệp vụ với các bài
+   khác trong session — dùng đúng domain {{ chosen_domain }} đã cho, không tự đổi sang domain
+   khác. Nếu hợp lý, hãy để dữ liệu/kết quả của bài này gợi ý sẽ là tiền đề cho một tính năng
+   ở mức độ cao hơn trong cùng hệ thống.
+4. Ngôn ngữ: 100% tiếng Việt có dấu chuẩn, không dùng emoji.
+
 === OUTPUT FORMAT REQUIREMENTS ===
 Output MUST follow strict XML tagging:
 <homework_assignment>
   <de_bai_content>
+{% if pdf_level == "co_ban" %}
 ### 1. Mục tiêu bài tập
-- [Mục tiêu kỹ năng đạt được]
+- [Kỹ năng đọc hiểu mã nguồn (legacy code), khả năng dò luồng (trace code) và phát hiện lỗ hổng logic nghiệp vụ hoặc bẫy dữ liệu]
 
-### 2. Bối cảnh & Mô tả bài toán
-[Bối cảnh thực tế trong doanh nghiệp với sơ đồ luồng Mermaid nếu có]
+### 2. Bối cảnh nghiệp vụ
+[Nêu rõ quy tắc ĐÚNG của hệ thống/tính năng trong domain {{ chosen_domain }}]
 
-### 3. Quy tắc nghiệp vụ (Business Rules)
-[Quy tắc logic, công thức tính toán và ràng buộc đầu vào/đầu ra]
+### 3. Vấn đề hiện tại
+[Khách hàng đang phàn nàn điều gì về tính năng này? Mô tả triệu chứng lỗi từ góc nhìn người dùng thực tế]
 
-### 4. Yêu cầu kỹ thuật & Triển khai
-[Yêu cầu code chi tiết, cấu trúc hàm/class, xử lý ngoại lệ]
+### 4. Hiện trường giả (Source code hiện có)
+[BẮT BUỘC: một đoạn source code {{ tech_stack }} CHẠY ĐƯỢC, KHÔNG lỗi cú pháp, nhưng SAI LOGIC
+hoặc THIẾU điều kiện ràng buộc — đây là phần quan trọng nhất, sinh viên phải tự tìm ra lỗi]
+
+### 5. Yêu cầu đầu ra
+Sinh viên phải nộp đúng 2 phần:
+1. Chỉ ra đoạn code sai bằng một test case cụ thể (input → kết quả sai hiện tại → kết quả đúng mong đợi).
+2. Source code đã được sửa chuẩn.
+
+### 6. Quy chuẩn nộp bài
+- Cấu trúc thư mục và quy định đặt tên file code, đẩy lên GitHub repository.
+{% elif pdf_level == "chuyen_sau" %}
+### 1. Mục tiêu bài tập
+- [Dịch thuật chính xác từ ngôn ngữ nghiệp vụ (đời thực) sang ngôn ngữ logic (máy tính), tự thiết kế các bước thực hiện tuần tự]
+
+### 2. Bối cảnh & Vấn đề
+[Câu chuyện nghiệp vụ: khách hàng trong domain {{ chosen_domain }} đang cần module/tính năng gì và tại sao lại cần nó?]
+
+### 3. Yêu cầu nghiệp vụ
+[Các quy tắc hệ thống cần tuân thủ — công thức tính toán, các trường hợp tính phí/giảm giá, điều kiện phân loại...]
+
+### 4. Ràng buộc & Bẫy dữ liệu
+[BẮT BUỘC: 1-2 kịch bản dữ liệu dị biệt để thử thách tư duy lường trước rủi ro — VD: dữ liệu rỗng, số âm, tài khoản chưa kích hoạt, mất kết nối giữa chừng]
+
+### 5. Yêu cầu đầu ra
+❖ Báo cáo phân tích và thiết kế giải pháp
+- Phân tích bài toán (I/O): định nghĩa rõ Input cần những gì, kiểu dữ liệu nào, và Output mong đợi hiển thị ra sao.
+- Đề xuất giải pháp: trình bày ngắn gọn ý tưởng logic để giải quyết nghiệp vụ trên.
+- Thiết kế các bước: lưu đồ hoặc gạch đầu dòng tuần tự các bước xử lý.
+
+❖ Triển khai và chống lỗi
+- Source code hoàn chỉnh. Logic code bắt buộc phải khớp với các bước đã thiết kế.
+- Có các đoạn code cụ thể để chặn và xử lý đúng các "Bẫy dữ liệu" đã nêu ở mục 4.
+
+### 6. Quy chuẩn nộp bài
+- Cấu trúc thư mục và quy định đặt tên file code, đẩy lên GitHub repository.
+{% elif pdf_level == "phan_tich" %}
+### 1. Mục tiêu bài tập
+- [Nhìn nhận một bài toán dưới nhiều góc độ kỹ thuật khác nhau, biết cách đánh giá sự đánh đổi (Trade-off) để đưa ra quyết định tối ưu]
+
+### 2. Bối cảnh & Yêu cầu bài toán
+[Một yêu cầu nghiệp vụ bình thường nằm trong domain {{ chosen_domain }}]
+
+### 3. Quy tắc nghiệp vụ
+[Các điều kiện tính toán, phân loại hệ thống cần tuân thủ]
+
+### 4. Ràng buộc & Bẫy dữ liệu
+[BẮT BUỘC: cài cắm các kịch bản ngoại lệ để sinh viên phải xử lý]
+
+### 5. Yêu cầu đầu ra
+❖ Phân tích & Đề xuất (Đa giải pháp)
+- Phân tích yêu cầu để xác định rõ Input/Output.
+- Đưa ra TỐI THIỂU 2 giải pháp khả thi khác nhau để giải quyết bài toán.
+
+❖ So sánh & Lựa chọn
+- Lập bảng so sánh rõ ràng: Ưu điểm - Nhược điểm của từng giải pháp (tốc độ chạy, bộ nhớ, độ dễ hiểu, dễ bảo trì...).
+- Chốt lựa chọn 1 giải pháp phù hợp nhất với bối cảnh đề bài.
+
+❖ Thiết kế & Triển khai
+- Thiết kế các bước thực hiện (luồng logic/mã giả) cho giải pháp đã chọn.
+- Triển khai viết source code hoàn chỉnh, đảm bảo bắt mọi bẫy dữ liệu và ngoại lệ.
+
+### 6. Quy chuẩn nộp bài
+- Cấu trúc thư mục và quy định đặt tên file code, đẩy lên GitHub repository.
+{% else %}
+### 1. Mục tiêu bài tập
+- [Sinh viên làm chủ vòng đời phát triển của một tính năng/sản phẩm nhỏ: tự định nghĩa yêu cầu, thiết kế kiến trúc và hoàn thiện sản phẩm]
+
+### 2. Vấn đề
+[Một nhu cầu LỚN của khách hàng trong domain {{ chosen_domain }}, CHƯA được định hình chi tiết — đề mở, tích hợp tinh thần của các bài tập trước đó trong cùng session thành một cỗ máy hoạt động trơn tru]
+
+### 3. Ràng buộc kỹ thuật
+[Các giới hạn về công nghệ ({{ tech_stack }}), thời gian thực thi, hoặc yêu cầu về tổ chức code (Clean Code, tách hàm/class)]
+
+### 4. Yêu cầu đầu ra
+❖ Thiết kế Kiến trúc
+- Xác định các module cần có và luồng dữ liệu (Data flow).
+
+❖ Sản phẩm hoàn chỉnh
+- Source code xử lý mượt mà mọi ngoại lệ, không bị crash, giao tiếp thân thiện với người dùng.
 
 ### 5. Quy chuẩn nộp bài
-- Cấu trúc thư mục và quy định đặt tên file code.
+- Cấu trúc thư mục và quy định đặt tên file code, đẩy lên GitHub repository.
+{% endif %}
   </de_bai_content>
 
   <tieu_chi_content>
+{% if pdf_level == "co_ban" %}
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
+| Xác định đúng đoạn code lỗi | 30đ | Chỉ ra chính xác vị trí lỗi bằng test case cụ thể |
+| Source code đã sửa đúng | 50đ | Đạt 100% test cases, không phát sinh lỗi mới |
 | Cấu trúc & Phong cách mã nguồn | 20đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+{% elif pdf_level == "phan_tich" %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Đề xuất đa giải pháp | 20đ | Tối thiểu 2 giải pháp khả thi, phân tích I/O rõ ràng |
+| Bảng so sánh & Lựa chọn | 20đ | So sánh ưu/nhược điểm hợp lý, chọn giải pháp phù hợp |
+| Xử lý Logic đúng nghiệp vụ | 30đ | Đạt 100% test cases cơ bản & nâng cao |
+| Xử lý Biên & Bẫy dữ liệu | 20đ | Kiểm soát mọi kịch bản dữ liệu dị biệt đã nêu |
+| Cấu trúc & Phong cách mã nguồn | 10đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+{% elif pdf_level == "sang_tao" %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Thiết kế Kiến trúc | 25đ | Module hoá hợp lý, luồng dữ liệu (data flow) rõ ràng |
+| Mức độ hoàn thiện sản phẩm | 35đ | Xử lý mượt mọi ngoại lệ, không crash |
+| Chất lượng Clean Code | 25đ | Tách hàm/class hợp lý, đặt tên rõ nghĩa |
+| Trải nghiệm người dùng | 15đ | Thông báo lỗi/kết quả thân thiện, dễ hiểu |
+{% else %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Báo cáo phân tích & thiết kế | 25đ | Input/Output rõ ràng, thiết kế các bước hợp lý |
 | Xử lý Logic đúng nghiệp vụ | 40đ | Đạt 100% test cases cơ bản & nâng cao |
-| Xử lý Biên & Ngoại lệ | 20đ | Kiểm soát lỗi dữ liệu đầu vào |
-| Tối ưu hiệu năng | 20đ | Thuật toán tối ưu, không dư thừa tài nguyên |
+| Xử lý Biên & Bẫy dữ liệu | 20đ | Kiểm soát mọi kịch bản dữ liệu dị biệt đã nêu |
+| Cấu trúc & Phong cách mã nguồn | 15đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+{% endif %}
   </tieu_chi_content>
 </homework_assignment>

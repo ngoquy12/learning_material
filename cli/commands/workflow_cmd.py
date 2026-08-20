@@ -56,7 +56,7 @@ def execute_course_workflow(args):
         scaffold_course_resources(excel_path)
         return
 
-    requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "quiz", "mindmap", "practical_lab", "slide"]
+    requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "quiz", "practical_lab", "slide"]
     requested_sessions = [s.strip().lower() for s in args.session.split(",")] if args.session != "all" else ["all"]
 
     print(f"Loading spreadsheet: {excel_path}")
@@ -163,7 +163,6 @@ def execute_course_workflow(args):
                 "slides_file": "Skipped (Exam Session)",
                 "quiz_file": "Skipped (Exam Session)",
                 "video_script_file": "Skipped (Exam Session)",
-                "mindmap_file": "Skipped (Exam Session)",
                 "status": "EXAM SKELETON CREATED",
                 "review_count": 0
             })
@@ -221,6 +220,9 @@ def execute_course_workflow(args):
                 session_payload["forbidden_scope"] = combined_forbidden
                 session_payload["allowed_scope"] = previous_lessons_text
 
+                from core.domain_knowledge import get_domain_for_session as _get_domain_for_session
+                project_practice_domain_id = _get_domain_for_session(session_id, session_title).get("domain_id", "")
+
                 if is_project_or_hackathon:
                     print(f"  [Project/Hackathon] Generating Mini Project templates via Agent for: {session_title}")
                     from agents.project_agents import generate_mini_project_session
@@ -230,7 +232,8 @@ def execute_course_workflow(args):
                         session_dir_path=str(session_dir),
                         tech_stack=tech_stack,
                         previous_lessons_text=previous_lessons_text,
-                        session_info=session_payload
+                        session_info=session_payload,
+                        chosen_domain=project_practice_domain_id
                     )
                 elif is_practice:
                     print(f"  [Practice] Generating practice exercises via Agent for: {session_title}")
@@ -241,7 +244,10 @@ def execute_course_workflow(args):
                         session_dir_path=str(session_dir),
                         tech_stack=tech_stack,
                         previous_lessons_text=previous_lessons_text,
-                        latest_theory_session=latest_theory_session_text
+                        latest_theory_session=latest_theory_session_text,
+                        forbidden_scope=combined_forbidden,
+                        allowed_scope=previous_lessons_text,
+                        chosen_domain=project_practice_domain_id
                     )
                 
                 summary.append({
@@ -252,7 +258,6 @@ def execute_course_workflow(args):
                     "slides_file": "Skipped (Project/Practice)",
                     "quiz_file": "Skipped (Project/Practice)",
                     "video_script_file": "Skipped (Project/Practice)",
-                    "mindmap_file": "Skipped (Project/Practice)",
                     "status": "APPROVED",
                     "review_count": 0
                 })
@@ -282,6 +287,14 @@ def execute_course_workflow(args):
                     lesson_details = lesson.get("details", "")
                     expected_output = lesson.get("expected_output", "")
                     
+                    # Bài đọc phải bị giới hạn đúng phạm vi kiến thức đã học tính đến lesson này —
+                    # tái dùng CHÍNH XÁC cơ chế đã dùng cho quiz (calculate_lesson_scope_contract),
+                    # trước đây reading generation không nhận forbidden_scope/allowed_scope nào cả.
+                    from core.scope_calculator import calculate_lesson_scope_contract
+                    _syllabus_for_scope = {"sessions": sessions}
+                    _s_idx_for_scope = next((i for i, s in enumerate(sessions) if s["session_id"] == session_id), 0)
+                    _allowed_set, _forbidden_set = calculate_lesson_scope_contract(_syllabus_for_scope, _s_idx_for_scope, idx)
+
                     state: AgentState = {
                         "session_id": session_id,
                         "lesson_id": lesson_id,
@@ -297,16 +310,18 @@ def execute_course_workflow(args):
                             "expected_output": expected_output
                         },
                         "previous_lessons": previous_lessons.copy(),
+                        "allowed_scope": sorted(_allowed_set),
+                        "forbidden_scope": sorted(_forbidden_set),
                         "artifacts_status": {
                             "html": "Pending", "slide": "Pending", "quiz": "Pending",
-                            "video_script": "Pending", "mindmap": "Pending", "session": "Pending"
+                            "video_script": "Pending", "session": "Pending"
                         },
                         "course_dir_name": course_dir_name,
                         "technology_stack": tech_stack,
                         "session_domain": session_domain_data,
                         "chosen_domain": session_domain_id,
                         "html_content": "", "slide_markdown": "", "quiz_json": {},
-                        "video_script_markdown": "", "mindmap_markdown": "", "review_logs": [],
+                        "video_script_markdown": "", "review_logs": [],
                         "requested_parts": requested_parts,
                         "force_rebuild": args.force,
                         "pm_approved": args.approve_pm
@@ -393,7 +408,14 @@ def execute_course_workflow(args):
                         lab_html = final_state.get("practical_lab_html")
                         if not lab_html and final_state.get("lab_json"):
                             from agents.creators.practical_lab_creator import format_lab_to_html
-                            lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("tech_stack", "python"))
+                            # state stores the tech stack under "technology_stack" (see state
+                            # construction above) — this used to read the nonexistent "tech_stack"
+                            # key with a hard-coded "python" fallback, so it ALWAYS fell back to
+                            # "python" for every course regardless of the real stack. Confirmed
+                            # root cause of every JS-course lab's .html routing correct JS
+                            # reference code through the Pyodide (Python) interpreter — guaranteed
+                            # to fail when a student clicks "Run".
+                            lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("technology_stack") or final_state.get("tech_stack", ""))
                         if lab_html:
                             with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
                                 f.write(lab_html)
@@ -418,15 +440,6 @@ def execute_course_workflow(args):
                     else:
                         video_script_path = "Skipped"
 
-                    if "mindmap" in requested_parts and final_state.get("mindmap_markdown"):
-                        mindmap_sub = lesson_dir / "Mindmap"
-                        mindmap_sub.mkdir(parents=True, exist_ok=True)
-                        mindmap_path = mindmap_sub / "mindmap.md"
-                        with open(mindmap_path, "w", encoding="utf-8") as f:
-                            f.write(final_state.get("mindmap_markdown", ""))
-                    else:
-                        mindmap_path = "Skipped"
-
                     summary.append({
                         "session_id": session_id,
                         "lesson_id": lesson_id,
@@ -435,7 +448,6 @@ def execute_course_workflow(args):
                         "slides_file": "Moved to Session Level",
                         "quiz_file": quiz_reported_path,
                         "video_script_file": str(video_script_path),
-                        "mindmap_file": "Moved to Session Level",
                         "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
                         "review_count": len(final_state.get("review_logs", []))
                     })
@@ -466,7 +478,12 @@ def execute_course_workflow(args):
                     expected_output = lesson.get("expected_output", "")
 
                     print(f"\n  ---> Processing: {session_id} - {lesson_id}: {lesson_title}")
-                    
+
+                    from core.scope_calculator import calculate_lesson_scope_contract
+                    _syllabus_for_scope = {"sessions": sessions}
+                    _s_idx_for_scope = next((i for i, s in enumerate(sessions) if s["session_id"] == session_id), 0)
+                    _allowed_set, _forbidden_set = calculate_lesson_scope_contract(_syllabus_for_scope, _s_idx_for_scope, idx)
+
                     state: AgentState = {
                         "session_id": session_id,
                         "lesson_id": lesson_id,
@@ -485,12 +502,13 @@ def execute_course_workflow(args):
                             "expected_output": expected_output
                         },
                         "previous_lessons": previous_lessons.copy(),
+                        "allowed_scope": sorted(_allowed_set),
+                        "forbidden_scope": sorted(_forbidden_set),
                         "artifacts_status": {
                             "html": "Pending",
                             "slide": "Pending",
                             "quiz": "Pending",
                             "video_script": "Pending",
-                            "mindmap": "Pending",
                             "session": "Pending"
                         },
                         "course_dir_name": course_dir_name,
@@ -501,7 +519,6 @@ def execute_course_workflow(args):
                         "slide_markdown": "",
                         "quiz_json": {},
                         "video_script_markdown": "",
-                        "mindmap_markdown": "",
                         "review_logs": [],
                         "requested_parts": requested_parts,
                         "force_rebuild": args.force,
@@ -533,7 +550,6 @@ def execute_course_workflow(args):
                             "slides_file": "Skipped (Project/Practice)",
                             "quiz_file": "Skipped (Project/Practice)",
                             "video_script_file": "Skipped (Project/Practice)",
-                            "mindmap_file": "Skipped (Project/Practice)",
                             "status": "APPROVED",
                             "review_count": 0
                         })
@@ -605,7 +621,7 @@ def execute_course_workflow(args):
                             lab_html = final_state.get("practical_lab_html")
                             if not lab_html and final_state.get("lab_json"):
                                 from agents.creators.practical_lab_creator import format_lab_to_html
-                                lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("tech_stack", "python"))
+                                lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("technology_stack") or final_state.get("tech_stack", ""))
                             if lab_html:
                                 with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
                                     f.write(lab_html)
@@ -630,15 +646,6 @@ def execute_course_workflow(args):
                         else:
                             video_script_path = "Skipped"
 
-                        if "mindmap" in requested_parts and final_state.get("mindmap_markdown"):
-                            mindmap_sub = lesson_dir / "Mindmap"
-                            mindmap_sub.mkdir(parents=True, exist_ok=True)
-                            mindmap_path = mindmap_sub / "mindmap.md"
-                            with open(mindmap_path, "w", encoding="utf-8") as f:
-                                f.write(final_state.get("mindmap_markdown", ""))
-                        else:
-                            mindmap_path = "Skipped"
-
                         summary.append({
                             "session_id": session_id,
                             "lesson_id": lesson_id,
@@ -647,7 +654,6 @@ def execute_course_workflow(args):
                             "slides_file": "Skipped (Moved to Session Level)",
                             "quiz_file": quiz_reported_path,
                             "video_script_file": str(video_script_path),
-                            "mindmap_file": "Skipped (Moved to Session Level)",
                             "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
                             "review_count": len(final_state.get("review_logs", []))
                         })
@@ -682,7 +688,6 @@ def execute_course_workflow(args):
                             "slides_file": "ERROR",
                             "quiz_file": "ERROR",
                             "video_script_file": "ERROR",
-                            "mindmap_file": "ERROR",
                             "status": f"FAILED ({e})",
                             "review_count": 0
                         })
@@ -718,7 +723,9 @@ def execute_course_workflow(args):
                     session_title=session_title,
                     session_dir_path=str(session_dir),
                     tech_stack=tech_stack,
-                    previous_lessons_text=session_lessons_text
+                    previous_lessons_text=session_lessons_text,
+                    chosen_domain=session_domain_id,
+                    forbidden_scope=session_forbidden_scope
                 )
 
                 if "slide" in requested_parts:
@@ -729,7 +736,9 @@ def execute_course_workflow(args):
                         session_title=session_title,
                         session_dir_path=str(session_dir),
                         tech_stack=tech_stack,
-                        previous_lessons_text=session_lessons_text
+                        previous_lessons_text=session_lessons_text,
+                        chosen_domain=session_domain_id,
+                        forbidden_scope=session_forbidden_scope
                     )
 
                     # 2. Sinh Slide bài giảng PowerPoint (.pptx) & Outline theo chuẩn Create_Slide 3-Skill
@@ -758,14 +767,13 @@ def execute_course_workflow(args):
                 "program_structure": {},
                 "core_ssot": {"session_title": session_title, "lesson_details": "", "expected_output": ""},
                 "previous_lessons": [],
-                "artifacts_status": {"html": "Pending", "slide": "Pending", "quiz": "Pending", "video_script": "Pending", "mindmap": "Pending", "session": "Pending"},
+                "artifacts_status": {"html": "Pending", "slide": "Pending", "quiz": "Pending", "video_script": "Pending", "session": "Pending"},
                 "course_dir_name": course_dir_name,
                 "technology_stack": tech_stack,
                 "html_content": "",
                 "slide_markdown": "",
                 "quiz_json": {},
                 "video_script_markdown": "",
-                "mindmap_markdown": "",
                 "review_logs": [],
                 "requested_parts": requested_parts,
                 "force_rebuild": args.force,
@@ -832,7 +840,7 @@ def execute_course_workflow(args):
                     lab_html = final_state.get("practical_lab_html")
                     if not lab_html and final_state.get("lab_json"):
                         from agents.creators.practical_lab_creator import format_lab_to_html
-                        lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("tech_stack", "python"))
+                        lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("technology_stack") or final_state.get("tech_stack", ""))
                     if lab_html:
                         with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
                             f.write(lab_html)
@@ -850,15 +858,6 @@ def execute_course_workflow(args):
  
                 video_script_path = "Skipped (Temporarily Commented Out)"
 
-                if "mindmap" in requested_parts and final_state.get("mindmap_markdown"):
-                    mindmap_sub = session_dir / "Mindmap"
-                    mindmap_sub.mkdir(parents=True, exist_ok=True)
-                    mindmap_path = mindmap_sub / "mindmap.md"
-                    with open(mindmap_path, "w", encoding="utf-8") as f:
-                        f.write(final_state.get("mindmap_markdown", ""))
-                else:
-                    mindmap_path = "Skipped"
-
                 summary.append({
                     "session_id": session_id,
                     "lesson_id": "",
@@ -867,7 +866,6 @@ def execute_course_workflow(args):
                     "slides_file": str(slides_path),
                     "quiz_file": quiz_reported_path,
                     "video_script_file": str(video_script_path),
-                    "mindmap_file": str(mindmap_path),
                     "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
                     "review_count": len(final_state.get("review_logs", []))
                 })
@@ -909,7 +907,9 @@ def execute_course_workflow(args):
                         session_title=session_title,
                         session_dir_path=str(session_dir),
                         tech_stack=tech_stack,
-                        previous_lessons_text=session_lessons_text
+                        previous_lessons_text=session_lessons_text,
+                        chosen_domain=sess_domain.get("domain_id"),
+                        forbidden_scope=session_forbidden_scope
                     )
                     if "slide" in requested_parts:
                         from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
@@ -918,7 +918,9 @@ def execute_course_workflow(args):
                             session_title=session_title,
                             session_dir_path=str(session_dir),
                             tech_stack=tech_stack,
-                            previous_lessons_text=session_lessons_text
+                            previous_lessons_text=session_lessons_text,
+                            chosen_domain=sess_domain.get("domain_id"),
+                            forbidden_scope=session_forbidden_scope
                         )
 
             except Exception as e:
@@ -949,28 +951,41 @@ def execute_course_workflow(args):
             from core.quiz_excel import export_quiz_to_excel
             
             current_topic = session_title_str
-            
-            def get_previous_session_id(s_id: str) -> str:
-                match = re.search(r'\d+', s_id)
-                if match:
-                    num = int(match.group(0))
-                    if num > 1:
-                        return f"Session {num-1:02d}"
-                return "Session 01"
-                
-            previous_session_id = get_previous_session_id(session_id)
-            prev_s_idx = next((i for i, s in enumerate(sessions) if s["session_id"] == previous_session_id), -1)
             s_idx = next((i for i, s in enumerate(sessions) if s["session_id"] == session_id), 0)
-            if prev_s_idx != -1 and prev_s_idx < s_idx:
-                previous_topic = sessions[prev_s_idx]["title"]
-            else:
-                previous_topic = "Tổng quan"
-            
+
+            # "Bài cũ" cho quizz đầu giờ phải là BÀI HỌC GẦN NHẤT của session lý thuyết gần nhất
+            # (không phải nguyên cả session N-1, và phải bỏ qua các session Project/Hackathon/
+            # Thực hành/Kiểm tra — những buổi không có nội dung lý thuyết để kiểm tra đầu giờ).
+            # Đồng thời gom thêm bối cảnh các session lý thuyết trước đó (không chỉ 1 session)
+            # để LLM có đủ ngữ cảnh ra đề "bài cũ" đa dạng, tránh bó hẹp vào đúng 1 lesson.
+            def _is_theory_session(sess: dict) -> bool:
+                return not (
+                    is_project_or_hackathon_session(sess)
+                    or is_practice_session(sess)
+                    or is_exam_session(sess)
+                )
+
+            previous_topic = "Tổng quan"
+            previous_topics_context_list: list = []
+            for back_idx in range(s_idx - 1, -1, -1):
+                cand = sessions[back_idx]
+                if not _is_theory_session(cand):
+                    continue
+                cand_lessons = cand.get("lessons", [])
+                cand_topic = cand_lessons[-1]["title"] if cand_lessons else cand.get("title", "")
+                if not previous_topics_context_list:
+                    previous_topic = cand_topic  # bài học gần nhất — trọng số chính
+                previous_topics_context_list.append(cand_topic)
+                if len(previous_topics_context_list) >= 8:  # đủ ngữ cảnh, tránh prompt phình to
+                    break
+
+            previous_topics_context_str = "; ".join(previous_topics_context_list)
+
             from core.scope_calculator import calculate_lesson_scope_contract
             syllabus_data = {"sessions": sessions}
             num_lessons = len(sessions[s_idx].get("lessons", []))
             allowed_set, forbidden_set = calculate_lesson_scope_contract(syllabus_data, s_idx, max(0, num_lessons - 1))
-            
+
             forbidden_scope_str = ", ".join(sorted(forbidden_set))
             allowed_scope_str = ", ".join(sorted(allowed_set))
 
@@ -978,6 +993,7 @@ def execute_course_workflow(args):
                 session_id=session_id,
                 current_topic=current_topic,
                 previous_topic=previous_topic,
+                previous_topics_context=previous_topics_context_str,
                 tech_stack=tech_stack,
                 forbidden_scope=forbidden_scope_str,
                 allowed_scope=allowed_scope_str

@@ -38,9 +38,14 @@ This document defines the technical standards for the **`session_inclass_exercis
 
 ---
 
-## 1. OUTPUT FILE FORMAT STANDARD (`exercise.md`)
+## 1. OUTPUT FILE FORMAT STANDARD
 
-The session in-class synthesis exercise MUST be formatted as a clean Markdown document saved at `Bài tập/exercise.md` (or `Bài tập/session_inclass_exercise.md`):
+The session in-class synthesis exercise MUST be formatted as a clean Markdown document. It is
+generated as exercise #16 of the session's homework suite (see
+`agents/creators/homework_creator.py::generate_inclass_synthesis_exercise`, invoked from
+`generate_session_homework_suite`) and saved at
+`Bài tập/16_tong_hop_demo_giang_vien_tren_lop/de_bai_bai_tap.md`, with its grading rubric at
+`tieu_chi_cham_diem_ai.md` in the same folder:
 
 ```markdown
 # Bài tập tổng hợp trên lớp: [Tên bài toán nghiệp vụ doanh nghiệp]

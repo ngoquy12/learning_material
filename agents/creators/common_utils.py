@@ -1,6 +1,8 @@
 import json
 import re
 import os
+import base64
+import requests
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 from core.state import AgentState
@@ -745,6 +747,126 @@ def get_lesson_dir(state: AgentState) -> Path:
                     
     return lesson_dir
 
+def generate_image_api(prompt_text: str, image_path) -> bool:
+    api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if api_key:
+        try:
+            base_url = os.getenv("GEMINI_BASE_URL")
+            if base_url:
+                url = f"{base_url.rstrip('/')}/v1/images/generations"
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                }
+                data = {
+                    "prompt": prompt_text,
+                    "n": 1,
+                    "size": "1024x576"
+                }
+                response = requests.post(url, headers=headers, json=data, timeout=90)
+                if response.status_code == 200:
+                    resp_json = response.json()
+                    img_data = resp_json.get("data", [])
+                    if img_data and "b64_json" in img_data[0]:
+                        img_b64 = img_data[0]["b64_json"]
+                        with open(image_path, "wb") as f:
+                            f.write(base64.b64decode(img_b64))
+                        print(f"  [Image Generator] Saved diagram to: {image_path}")
+                        return True
+                    elif img_data and "url" in img_data[0]:
+                        img_url = img_data[0]["url"]
+                        img_resp = requests.get(img_url, timeout=30)
+                        if img_resp.status_code == 200:
+                            with open(image_path, "wb") as f:
+                                f.write(img_resp.content)
+                            print(f"  [Image Generator] Saved downloaded diagram to: {image_path}")
+                            return True
+
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            data = {
+                "instances": [
+                    {
+                        "prompt": prompt_text
+                    }
+                ],
+                "parameters": {
+                    "sampleCount": 1,
+                    "aspectRatio": "16:9",
+                    "outputMimeType": "image/png"
+                }
+            }
+            response = requests.post(url, headers=headers, json=data, timeout=90)
+            if response.status_code == 200:
+                resp_json = response.json()
+                if "predictions" in resp_json and len(resp_json["predictions"]) > 0:
+                    img_b64 = resp_json["predictions"][0]["bytesBase64Encoded"]
+                    with open(image_path, "wb") as f:
+                        f.write(base64.b64decode(img_b64))
+                    print(f"  [Image Generator] Saved diagram to: {image_path}")
+                    return True
+                else:
+                    print(f"  [Image Generator Warning] Response did not contain images: {resp_json}")
+            else:
+                print(f"  [Image Generator Warning] API status {response.status_code}: {response.text}")
+        except Exception as e:
+            print(f"  [Image Generator Warning] Dynamic image generation error: {e}")
+    return False
+
+def process_mindmap_images(markmap_content: str, state: AgentState) -> str:
+    brackets = re.findall(r"\[(?:Prompt|Tạo ảnh):\s*([^\]]+)\]", markmap_content)
+    asterisks = re.findall(r"\*Prompt tạo ảnh:\s*([^*]+)\*", markmap_content, flags=re.IGNORECASE)
+
+    all_prompts = []
+    seen = set()
+    for p in brackets + asterisks:
+        p_clean = p.strip()
+        if p_clean not in seen:
+            seen.add(p_clean)
+            all_prompts.append(p_clean)
+
+    if not all_prompts:
+        return markmap_content
+
+    images_dir = None
+    if state and isinstance(state, dict) and "images_dir" in state and state["images_dir"]:
+        images_dir = Path(state["images_dir"])
+        images_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        try:
+            lesson_dir = get_lesson_dir(state)
+            images_dir = lesson_dir / "images"
+            images_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            print(f"  [Image Processing Error] Could not resolve lesson/images directory: {e}")
+            return markmap_content
+
+    new_content = markmap_content
+    for idx, prompt_text in enumerate(all_prompts, 1):
+        image_name = f"mindmap_img_{idx}.png"
+        image_path = images_dir / image_name
+
+        print(f"  [Mindmap Image] Processing prompt {idx}: '{prompt_text[:50]}...' -> {image_path}")
+
+        force_rebuild = state.get("force_rebuild", False) if isinstance(state, dict) else False
+        if force_rebuild or not image_path.exists():
+            success = generate_image_api(prompt_text, image_path)
+            if not success or not image_path.exists():
+                print(f"  [Mindmap Image Warning] Imagen 3 image generation failed/unavailable for prompt '{prompt_text[:50]}...'. Continuing without image tag.")
+                search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
+                new_content = re.sub(search_bracket, "", new_content)
+                search_asterisk = r"\*Prompt tạo ảnh:\s*" + re.escape(prompt_text) + r"\*"
+                new_content = re.sub(search_asterisk, "", new_content, flags=re.IGNORECASE)
+                continue
+
+        search_bracket = r"\[(?:Prompt|Tạo ảnh):\s*" + re.escape(prompt_text) + r"\]"
+        new_content = re.sub(search_bracket, f"![](../images/{image_name})", new_content)
+
+        search_asterisk = r"\*Prompt tạo ảnh:\s*" + re.escape(prompt_text) + r"\*"
+        new_content = re.sub(search_asterisk, f"![](../images/{image_name})", new_content, flags=re.IGNORECASE)
+
+    return new_content
+
 __all__ = [
     "estimate_tokens",
     "log_agent_tokens",
@@ -761,5 +883,7 @@ __all__ = [
     "clean_markdown_formulas",
     "normalize_markdown_headers",
     "validate_and_clean_forbidden_scope",
+    "generate_image_api",
+    "process_mindmap_images",
 ]
 

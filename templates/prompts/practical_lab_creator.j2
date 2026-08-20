@@ -8,6 +8,19 @@ Generate a practical lab assignment (Bài thực hành) tailored to {{ tech_stac
 CRITICAL DOMAIN CONSISTENCY MANDATE:
 - The practical lab assignment MUST be a concrete module of this UNIFIED BUSINESS DOMAIN ({{ chosen_domain }}).
 - Use variables, business rules, and entities matching this domain.
+- The domain name "{{ chosen_domain }}" (or an obvious variant of it) MUST appear literally in the
+  "title" or "problem_statement" field — do NOT silently substitute a different, unrelated business
+  scenario (e.g. do not switch to a generic "supermarket"/"school" scenario instead).
+=================================================
+{% endif %}
+
+{% if forbidden_scope or allowed_scope %}
+=== KNOWLEDGE SCOPE BOUNDARY CONTRACT ===
+Allowed Knowledge Scope (concepts taught up to and including this lesson): {{ allowed_scope or 'Fundamentals up to current lesson' }}
+Forbidden Knowledge Scope (STRICTLY PROHIBITED — not yet taught): {{ forbidden_scope or 'Future unlearned tech/syntax' }}
+- 100% of requirements, steps, and code_demo MUST ONLY use concepts from the Allowed Knowledge Scope.
+- ABSOLUTELY FORBIDDEN to reference, require, or hint at anything in the Forbidden Knowledge Scope,
+  even as an "advanced/optional" objective or a throwaway mention in objectives/description.
 =================================================
 {% endif %}
 
@@ -16,6 +29,12 @@ MANDATORY DIRECTIVES:
 2. STRICT NO EMOJI DIRECTIVE: No text emojis.
 3. Content MUST match the specific technology stack ({{ tech_stack }}).
 4. Return ONLY a single valid JSON object matching the required structure.
+5. REFERENCE CODE CONTRACT (code_demo): the sample code MUST be a COMPLETE, runnable solution
+   (not a fragment/pseudo-code) that a student can read end-to-end and practice from. Every
+   meaningful line or logical block MUST have a concise Vietnamese comment explaining the
+   business intent (why this step exists), not just a restatement of the syntax — matching the
+   style of a well-commented reference implementation, e.g. `# Tính tổng tiền hàng sau khi trừ
+   mã giảm giá của khách VIP`. Comments MUST be 100% Accented Vietnamese.
 
 MANDATORY OUTPUT FORMAT:
 {
@@ -35,7 +54,7 @@ MANDATORY OUTPUT FORMAT:
       "Bước 4: [Kiểm thử với các bộ dữ liệu mẫu]"
     ]
   },
-  "code_demo": "# [Mã nguồn demo hoàn chỉnh cho bài thực hành]",
+  "code_demo": "# [Mã nguồn tham khảo HOÀN CHỈNH, chạy được, có comment tiếng Việt giải thích từng bước nghiệp vụ]",
   "evaluation": {
     "checklist": [
       "[ ] Khởi tạo môi trường và cấu hình thành công",

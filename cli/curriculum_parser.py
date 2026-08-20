@@ -530,7 +530,12 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
                     has_quiz = (lesson_dir / "Quizz lesson" / "quiz.json").exists() or (lesson_dir / "Quizz lesson" / "quiz.md").exists() or (lesson_dir / "Câu hỏi Quizz" / "quiz.json").exists()
                     if not has_quiz:
                         missing_elements.append(f"Thiếu file quiz tại {session_id} -> {lesson_id}")
-                    has_lab = (lesson_dir / "Bài thực hành" / "practical_lab.json").exists() or (lesson_dir / "Bài thực hành" / "practical_lab.md").exists()
+                    lab_md_check = lesson_dir / "Bài thực hành" / "practical_lab.md"
+                    lab_html_check = lesson_dir / "Bài thực hành" / "practical_lab.html"
+                    has_lab = (
+                        (lab_md_check.exists() and lab_md_check.stat().st_size >= 300)
+                        or (lab_html_check.exists() and lab_html_check.stat().st_size >= 300)
+                    )
                     if not has_lab:
                         missing_elements.append(f"Thiếu file practical_lab tại {session_id} -> {lesson_id}")
         else:
@@ -622,9 +627,18 @@ def verify_previous_lessons_completed(sessions, current_session_id: str, current
             if not quiz_file.exists() or quiz_file.stat().st_size < 20:
                 uncompleted.append("Câu hỏi Quizz/quiz.json chưa được sinh nội dung chi tiết.")
             
-            lab_file = prev_dir / "Bài thực hành" / "practical_lab.json"
-            if not lab_file.exists() or lab_file.stat().st_size < 20:
-                uncompleted.append("Bài thực hành/practical_lab.json chưa được sinh nội dung chi tiết.")
+            # practical_lab.json is only ever a scaffold placeholder ("{}", 4 bytes) — real
+            # content is always written to .md/.html instead and NEVER to the .json, so checking
+            # .json existence/size here would ALWAYS fail and block the pipeline for every
+            # lesson regardless of whether the actual lab content is present and good.
+            lab_md_file = prev_dir / "Bài thực hành" / "practical_lab.md"
+            lab_html_file = prev_dir / "Bài thực hành" / "practical_lab.html"
+            lab_has_content = (
+                (lab_md_file.exists() and lab_md_file.stat().st_size >= 300)
+                or (lab_html_file.exists() and lab_html_file.stat().st_size >= 300)
+            )
+            if not lab_has_content:
+                uncompleted.append("Bài thực hành/practical_lab.md chưa được sinh nội dung chi tiết hoặc quá ngắn.")
         if "video" in requested_parts or "video_script" in requested_parts:
             video_file = prev_dir / "Video" / "SCRIPT.md"
             if not video_file.exists() or video_file.stat().st_size < 500 or "<!-- Empty video script outline" in video_file.read_text(encoding="utf-8"):

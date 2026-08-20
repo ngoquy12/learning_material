@@ -578,6 +578,7 @@
         drawer.classList.toggle("hidden");
       }
 
+      {% if engine_type == 'js_worker' %}
       // JavaScript Live In-Browser Sandbox Engine
       function runJsCode(editorId, outputId, containerId) {
         const editor = document.getElementById(editorId);
@@ -629,7 +630,9 @@
           console.info = originalInfo;
         }
       }
+      {% endif %}
 
+      {% if engine_type == 'pyodide' %}
       // Pyodide Live Wasm Sandbox Engine
       let pyodideInstance = null;
       async function getPyodide() {
@@ -673,6 +676,7 @@
           output.innerText = "LỖI THỰC THI:\n" + err;
         }
       }
+      {% endif %}
 
       function clearSandbox(editorId, outputId, containerId) {
         const editor = document.getElementById(editorId);

@@ -11,6 +11,9 @@ CORE PEDAGOGICAL DIRECTIVES:
 2. MANDATORY SINGLE UNIFIED BUSINESS SCENARIO (Directive 16):
    - The entire session dashboard uses EXACTLY ONE unified scenario: '{{ unified_scenario }}'.
    - 100% of code snippets, variables, parameter inputs, and testcase scenarios across all lessons in this session MUST strictly belong to and expand on this scenario.
+   - This scenario is the SSOT business domain already decided for this session — do NOT silently
+     substitute a different, unrelated business scenario (e.g. do not switch to a generic
+     "supermarket"/"school" example instead).
 
 3. STRICT KNOWLEDGE SCOPE BOUNDARY (Directive 12):
 {{ scope_rules }}
@@ -25,7 +28,29 @@ CORE PEDAGOGICAL DIRECTIVES:
 
 6. MODULAR MICRO-STEP DEMO STRUCTURE:
    - Structure `code_snippet` into 2-3 clear, progressive, commented micro-steps.
-   - `trace_steps`: Align 1-to-1 with each discrete micro-step.
+
+7. MANDATORY LIVE COMPUTE LOGIC (`compute_logic`) — CRITICAL, THIS MAKES THE SIMULATOR REAL:
+   - `compute_logic` MUST be a string containing raw JavaScript STATEMENTS (NOT a full function
+     declaration, just the body) that will be executed at runtime via `new Function("params", compute_logic)`.
+   - It receives ONE variable already in scope: `params` — a plain object whose keys are EXACTLY
+     the `id` values from the `parameters` array, with live values read straight from the actual
+     input/select fields the student is editing (numbers already coerced to JS `Number`).
+   - It MUST actually compute the real result from `params` (mirroring the logic shown in
+     `code_snippet`) — DO NOT return hardcoded/pre-baked text disconnected from `params`. The whole
+     point is that when a student changes an input, `compute_logic` re-runs and the displayed
+     trace/result genuinely change to match.
+   - It MUST end with exactly one `return` statement of this shape:
+     `return { trace: ["Bước 1: ...", "Bước 2: ...", "Bước 3: ..."], result: "<final value as string>", badge: "<short status label>" };`
+     - `trace`: array of short strings, one per micro-step of `code_snippet`, computed from the
+       actual `params` values (not copy-pasted from a single preset example).
+     - `badge`: MUST contain a Vietnamese keyword indicating status — use "Thành công" for a normal
+       successful case, "Cảnh báo"/"Biên" for an edge/boundary case, "Lỗi" for an error/invalid case
+       — the UI color-codes the badge by these keywords.
+   - Pure function only: no DOM access, no `eval`, no `console`, no network/timers — only read
+     from `params` and return the object.
+   - `scenarios[].param_values` are PRESETS that pre-fill the input fields when a student picks that
+     scenario from the dropdown — they are NOT separately-rendered display text anymore; after
+     pre-filling, `compute_logic` is what actually runs against those values.
 
 OUTPUT CONTRACT:
 - Return ONLY a valid JSON object matching the schema below.
@@ -50,38 +75,9 @@ JSON SCHEMA:
     {"id": "param2", "label": "Nhãn tham số 2 (món)", "type": "number", "default": "2"}
   ],
   "scenarios": [
-    {
-      "name": "1. Trường hợp Chuẩn (Standard)",
-      "param_values": {"param1": "120000", "param2": "2"},
-      "trace_steps": [
-        "1. Bước 1: Tính toán tiền hàng cơ bản...",
-        "2. Bước 2: Áp dụng chiết khấu và gán gộp...",
-        "3. Bước 3: Đánh giá kết quả tổng thanh toán"
-      ],
-      "result_value": "Kết quả chuẩn",
-      "status_badge": "Thành công"
-    },
-    {
-      "name": "2. Trường hợp Biên (Edge Case)",
-      "param_values": {"param1": "120000", "param2": "10"},
-      "trace_steps": [
-        "1. Bước 1: Khởi tạo giá trị tại điểm biên...",
-        "2. Bước 2: Đánh giá điều kiện biên an toàn...",
-        "3. Bước 3: Trả về kết quả biên"
-      ],
-      "result_value": "Kết quả biên",
-      "status_badge": "Biên an toàn"
-    },
-    {
-      "name": "3. Tình huống Ngoại lệ (Gotcha / Error)",
-      "param_values": {"param1": "120000", "param2": "2"},
-      "trace_steps": [
-        "1. Bước 1: Phát hiện tình huống bẫy kiểu hoặc giá trị falsy...",
-        "2. Bước 2: Cơ chế xử lý an toàn...",
-        "3. Bước 3: Trả về kết quả cảnh báo"
-      ],
-      "result_value": "Kết quả cảnh báo",
-      "status_badge": "Cảnh báo Lỗi"
-    }
-  ]
+    {"name": "1. Trường hợp Chuẩn (Standard)", "param_values": {"param1": "120000", "param2": "2"}},
+    {"name": "2. Trường hợp Biên (Edge Case)", "param_values": {"param1": "120000", "param2": "10"}},
+    {"name": "3. Tình huống Ngoại lệ (Gotcha / Error)", "param_values": {"param1": "0", "param2": "2"}}
+  ],
+  "compute_logic": "var param1 = Number(params.param1) || 0; var param2 = Number(params.param2) || 0; var total = param1 * param2; var trace = ['Bước 1: Nhận đầu vào param1=' + param1 + ', param2=' + param2, 'Bước 2: Tính total = param1 * param2 = ' + total, 'Bước 3: Trả kết quả']; var badge = total <= 0 ? 'Cảnh báo' : 'Thành công'; return { trace: trace, result: String(total), badge: badge };"
 }

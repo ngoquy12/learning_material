@@ -8,7 +8,9 @@ no ALL CAPS, standard border radius, valid XML).
 from __future__ import annotations
 import os
 import glob
+import platform
 import re
+import subprocess
 import unicodedata
 import zipfile
 import tempfile
@@ -21,7 +23,6 @@ SZ_H2 = 2000          # 20pt
 SZ_BODY = 1800        # 18pt
 ADJ_NORMAL = 4000     # 4%
 ADJ_OVAL = 50000
-BRAND_COLOR = "C00000"
 TEMPLATE_NATIVE_LABELS = {"RIKKEI", "EDUCATION", "RIKKEISOFT"}
 
 def validate_unpacked_deck(unpacked_dir: Union[str, Path]) -> Dict[str, Any]:
@@ -90,6 +91,16 @@ def validate_unpacked_deck(unpacked_dir: Union[str, Path]) -> Dict[str, Any]:
     if all_caps_hits:
         warnings.append(f"Cảnh báo chữ IN HOA ALL CAPS dài: {all_caps_hits[:5]}")
 
+    # 5. Màu H1 (brand color, sz=2800 chữ đậm) phải nhất quán trên toàn bộ deck — không hard-code
+    #    1 giá trị cụ thể (mỗi template có brand color riêng, xem deck_engine.extract_design_tokens),
+    #    mà kiểm tra chính deck đang build có dùng ĐÚNG MỘT màu duy nhất cho mọi H1 hay không.
+    h1_colors = set()
+    for name, content in all_xml.items():
+        for m in re.finditer(rf'<a:rPr b="1"[^>]*sz="{SZ_H1}">\s*<a:solidFill><a:srgbClr val="([0-9A-Fa-f]{{6}})"', content):
+            h1_colors.add(m.group(1).upper())
+    if len(h1_colors) > 1:
+        errors.append(f"Phát hiện màu H1 (brand color) không nhất quán giữa các slide: {sorted(h1_colors)}")
+
     is_passed = len(errors) == 0
     return {
         "status": "PASS" if is_passed else "FAIL",
@@ -99,6 +110,45 @@ def validate_unpacked_deck(unpacked_dir: Union[str, Path]) -> Dict[str, Any]:
         "warnings": warnings,
         "score": 100 if is_passed else max(0, 100 - len(errors) * 25)
     }
+
+def export_slide_images(pptx_path: Union[str, Path], out_dir: Union[str, Path], timeout: int = 300) -> Dict[str, Any]:
+    """
+    Renders each slide of a .pptx to a 1920x1080 PNG via PowerPoint COM automation
+    (equivalent to Create_Slide's export_slides.ps1), so slides can be visually inspected
+    for overflow/overlap/wrong-illustration issues that the regex validator cannot catch.
+    Only works on Windows with PowerPoint installed. Fails soft — never raises.
+    """
+    pptx_path = Path(pptx_path).resolve()
+    out_dir = Path(out_dir).resolve()
+
+    if platform.system() != "Windows":
+        return {"status": "SKIPPED", "reason": "PowerPoint COM automation requires Windows.", "images": []}
+    if not pptx_path.exists():
+        return {"status": "FAIL", "reason": f"File PPTX không tồn tại: {pptx_path}", "images": []}
+
+    script_path = Path(__file__).resolve().parent / "export_slides.ps1"
+    try:
+        result = subprocess.run(
+            [
+                "powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                "-File", str(script_path),
+                "-DeckPath", str(pptx_path),
+                "-OutDir", str(out_dir),
+            ],
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except Exception as e:
+        return {"status": "FAIL", "reason": f"Không thể chạy PowerShell export: {e}", "images": []}
+
+    images = sorted(out_dir.glob("slide_*.png")) if out_dir.exists() else []
+    if result.returncode != 0 or not images:
+        return {
+            "status": "FAIL",
+            "reason": (result.stdout or "") + (result.stderr or ""),
+            "images": [str(p) for p in images],
+        }
+    return {"status": "SUCCESS", "reason": "", "images": [str(p) for p in images]}
+
 
 def validate_pptx_file(pptx_path: Union[str, Path]) -> Dict[str, Any]:
     """

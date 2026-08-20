@@ -5,7 +5,9 @@ Audits generated homework directory for:
 - Completeness: 15 tiered Bloom exercises + 1 in-class synthesis + 1 mindmap exercise (17 folders total).
 - Descriptive naming convention: {idx}_{level_slug}_{title_slug}, 16_tong_hop_demo_giang_vien_tren_lop, 17_tong_hop_he_thong_kien_thuc_mindmap.
 - File integrity: de_bai_bai_tap.md, tieu_chi_cham_diem_ai.md in each subfolder.
-- Root files: bai_tap_1.md to bai_tap_15.md, bai_tap_tong_hop.md, bai_tap_mindmap.md, tieu_chi_danh_gia.md.
+- Root files: ONLY tieu_chi_danh_gia.md is kept — legacy per-exercise root files (bai_tap_1.md..
+  bai_tap_15.md, bai_tap_tong_hop.md, bai_tap_mindmap.md) from an older naming convention are
+  treated as stray/redundant and deleted (see ALLOWED_ROOT_FILES).
 - Quality: Zero text emojis, no empty stub files.
 """
 

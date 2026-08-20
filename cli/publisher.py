@@ -82,5 +82,4 @@ def print_generation_summary(summary: list):
         print(f"  - Slide Deck:   {s['slides_file']}")
         print(f"  - Quiz JSON:    {s['quiz_file']}")
         print(f"  - Video Script: {s['video_script_file']}")
-        print(f"  - Mindmap MD:   {s['mindmap_file']}")
         print()

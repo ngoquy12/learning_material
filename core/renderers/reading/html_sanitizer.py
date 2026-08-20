@@ -5,7 +5,7 @@ HTML sanitizers, typography cleaners, reference validators, and deep-link genera
 
 import re
 from typing import Dict, Any, List
-from core.renderers.reading.markdown_parser import slugify_id, convert_markdown_to_html
+from core.renderers.reading.markdown_parser import slugify_id, convert_markdown_to_html, convert_inline_markdown
 
 CANONICAL_DOC_LINKS = {
     "python": [
@@ -28,6 +28,34 @@ CANONICAL_DOC_LINKS = {
         {"title": "Tài liệu Ngôn ngữ Java (Oracle)", "url": "https://docs.oracle.com/en/java/"}
     ]
 }
+
+# Consolidates the small ad-hoc replace-list already used by clean_stray_chars() below with
+# the fuller FORBIDDEN_AI_CLICHES list that already existed in core/evals/benchmark.py — that
+# list was only ever wired into an OFFLINE scoring tool, never into the live generation
+# pipeline, so titles/content kept leaking cliché AI phrasing with nothing actually enforcing
+# it end-to-end. Extended with the specific words flagged as still-missing (chinh phục, bứt
+# phá, làm chủ, giải mã, hành trình + English equivalents).
+FORBIDDEN_AI_CLICHES = [
+    "bẫy lập trình", "bẫy lỗi", "bẫy cú pháp", "gotcha", "anti-pattern",
+    "khám phá", "tìm hiểu ngay", "bí kíp", "tất tần tật", "thần thánh",
+    "tuyệt vời", "bậc nhất", "vô cùng", "viên ngọc",
+    "chinh phục", "bứt phá", "làm chủ", "giải mã", "hành trình",
+    "unlock", "master", "journey", "secrets", "unleash",
+]
+
+
+def strip_ai_cliches_from_title(title: str) -> str:
+    """Removes/neutralizes cliché AI-sounding filler words from a section title. Applied
+    specifically to section1_title/section2_title, which previously skipped ALL sanitizers
+    (clean_stray_chars() only ever ran on the body content, never on titles)."""
+    if not title:
+        return title
+    cleaned = title
+    for phrase in FORBIDDEN_AI_CLICHES:
+        cleaned = re.sub(r'\b' + re.escape(phrase) + r'\b\s*[:\-–—]?\s*', '', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'\s{2,}', ' ', cleaned).strip(" -–—:")
+    return cleaned if cleaned else title
+
 
 FORBIDDEN_INTRO_CONCEPTS = [
     ("try-except", ["try:", "except ", "except:", "raise "]),
@@ -82,8 +110,16 @@ def sanitize_html_tags_and_italics(html_str: str) -> str:
         return ""
     c = html_str
 
-    c = re.sub(r'<(?:i|em|span|div|p|h[1-6])\b[^>]*?class\s*=\s*(?:["\'][^"\'>]*$|[^>]*$)', '', c, flags=re.MULTILINE | re.IGNORECASE)
-    c = re.sub(r'<i\s+class=[^>]*?(?=<h[1-6]|<p|<div|<ul|<li|<pre|$)', '', c, flags=re.IGNORECASE)
+    # Both regexes below intentionally cap how many characters they can eat (max 200) — they
+    # used to be unbounded lazy matches (`[^>]*?`), which could silently delete an entire
+    # legitimate paragraph of prose whenever a stray/unclosed `<i class="...">` icon tag wasn't
+    # immediately followed by one of the anchor tags: nothing stopped the match from spanning
+    # hundreds of characters of real content in search of the next `<h1-6>/<p>/<div>/...`. A
+    # genuinely broken/truncated tag fragment is always short (well under 200 chars); real
+    # prose paragraphs are not, so this bound preserves the cleanup while making paragraph
+    # deletion structurally impossible.
+    c = re.sub(r'<(?:i|em|span|div|p|h[1-6])\b[^>]{0,200}?class\s*=\s*(?:["\'][^"\'>]{0,200}$|[^>]{0,200}$)', '', c, flags=re.MULTILINE | re.IGNORECASE)
+    c = re.sub(r'<i\s+class=[^>]{0,200}?(?=<h[1-6]|<p\b|<div|<ul|<li|<pre|$)', '', c, flags=re.IGNORECASE)
 
     def normalize_icon_to_span(m):
         attrs = m.group(1).strip()
@@ -209,7 +245,12 @@ def ensure_html(val: str) -> str:
     if not val: return ""
     val_str = str(val).strip()
     if "<p" in val_str or "<ul" in val_str or "<div" in val_str or "<h3" in val_str or "<span" in val_str:
-        return val_str
+        # Content already has real HTML block structure, so the block-level converter
+        # (paragraph/list/heading splitting) must NOT run — but stray INLINE markdown
+        # (most commonly a lone *italic*/_italic_ or **bold** fragment left inside an
+        # otherwise-HTML blob) previously survived untouched because this branch skipped
+        # markdown conversion entirely. Inline-only conversion is safe to run regardless.
+        return convert_inline_markdown(val_str)
     return convert_markdown_to_html(val_str)
 
 def extract_2tier_toc(know_html: str, ex_text: str, section1_title: str, section2_title: str) -> str:

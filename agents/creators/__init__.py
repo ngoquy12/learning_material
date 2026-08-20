@@ -16,6 +16,8 @@ from agents.creators.common_utils import (
     ensure_vietnamese_diacritics,
     validate_and_clean_forbidden_scope,
     clean_unwanted_text,
+    process_mindmap_images,
+    generate_image_api,
 )
 
 from agents.creators.reading_creator import (
@@ -37,18 +39,6 @@ from agents.creators.session_compiler_creator import (
     session_compiler_agent,
 )
 
-from agents.creators.mini_project_creator import (
-    mini_project_generator_agent,
-)
-
-
-
-from agents.creators.mindmap_creator import (
-    mindmap_agent,
-    process_mindmap_images,
-    generate_image_api,
-)
-
 from agents.creators.visualizer_creator import (
     visualizer_generator_agent,
     get_topic_fallback_visualizer_engine,
@@ -66,10 +56,8 @@ from agents.creators.blueprint_creator import (
     blueprint_creator_agent,
 )
 
-from agents.creators.classroom_lecture_creator import (
-    classroom_lecture_agent,
+from agents.classroom_lecture_generator_agent import (
     classroom_lecture_generator_agent,
-    slide_agent,
 )
 
 from agents.creators.homework_creator import (
@@ -109,10 +97,8 @@ __all__ = [
     "ensure_problem_scene_image",
     "quiz_agent",
     "session_compiler_agent",
-    "mini_project_generator_agent",
     "_post_validate_blueprint",
     "_build_offline_fallback_blueprint",
-    "mindmap_agent",
     "process_mindmap_images",
     "generate_image_api",
     "visualizer_generator_agent",

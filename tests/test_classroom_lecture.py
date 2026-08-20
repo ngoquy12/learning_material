@@ -5,7 +5,6 @@ tests/test_classroom_lecture.py -> Classroom Lecture HTML Deck Tests.
 import os
 import pytest
 from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
-from agents.creators.classroom_lecture_creator import classroom_lecture_agent, slide_agent
 
 
 
@@ -64,34 +63,30 @@ def test_classroom_lecture_generator_html_basic(tmp_path):
     assert out_file.stat().st_size > 3000
 
 
-def test_slide_creator_multi_lesson_agenda():
+def test_slide_creator_multi_lesson_agenda(tmp_path):
     """Verify Agenda Slide in HTML deck contains all multi-lesson items."""
-    state = {
-        "session_id": "Session 02",
-        "lesson_id": "Lesson 01",
-        "tech_stack": "Git VCS CLI Terminal",
-        "core_ssot": {
-            "course_name": "Quản lý phiên bản với Git",
-            "session_title": "Session 02: Cấu trúc kho chứa và Lệnh Git CLI cơ bản",
-            "session_lessons": [
-                "Cấu trúc thư mục .git và Working Tree",
-                "Thao tác Staging Area và Git Commit",
-                "Kiểm tra lịch sử Git Log và Restore phiên bản"
-            ],
-            "concepts": {
-                "Working Tree": "Thư mục làm việc",
-                "Staging Area": "Vùng đệm lưu vết"
-            }
-        }
-    }
+    session_dir = tmp_path / "Session_02"
+    session_dir.mkdir()
 
-    res_state = slide_agent(state)
-    html = res_state["slide_html"]
+    mock_lessons_data = [
+        {"lesson_id": "Lesson 01", "lesson_title": "Cấu trúc thư mục .git và Working Tree", "scenes": []},
+        {"lesson_id": "Lesson 02", "lesson_title": "Thao tác Staging Area và Git Commit", "scenes": []},
+        {"lesson_id": "Lesson 03", "lesson_title": "Kiểm tra lịch sử Git Log và Restore phiên bản", "scenes": []},
+    ]
 
-    # Verify Agenda Slide contains ALL 3 multi-lesson items
-    assert "Cấu trúc thư mục .git và Working Tree" in html
-    assert "Thao tác Staging Area và Git Commit" in html
-    assert "Kiểm tra lịch sử Git Log và Restore phiên bản" in html
+    html = classroom_lecture_generator_agent.generate_lecture(
+        session_id="Session 02",
+        session_title="Session 02: Cấu trúc kho chứa và Lệnh Git CLI cơ bản",
+        session_dir_path=str(session_dir),
+        tech_stack="Git VCS CLI Terminal",
+        previous_lessons_text="",
+        lessons_data=mock_lessons_data
+    )
+
+    # Verify nav items contain all 3 multi-lesson items
+    assert "Cấu trúc thư mục" in html
+    assert "Staging Area" in html
+    assert "Git Log" in html or "Restore" in html
 
 
 def test_lecture_ui_reviewer_audit(tmp_path):

@@ -44,7 +44,8 @@ def generate_quiz_batch_via_llm(
     category: str,
     start_stt: int,
     forbidden_scope: str = "",
-    allowed_scope: str = ""
+    allowed_scope: str = "",
+    extra_context: str = ""
 ) -> List[Dict[str, Any]]:
     """Generates a batch of quiz questions via LLM using RAG content from local Vector DB and dynamic PM scope constraints."""
     import os
@@ -77,6 +78,12 @@ def generate_quiz_batch_via_llm(
     if forbidden_scope:
         scope_prompt_rules.append(f"PHẠM VI CẤM DÙNG TỪ PM HỌC PHẦN (FORBIDDEN SCOPE): {forbidden_scope}.")
         scope_prompt_rules.append("TUYỆT ĐỐI CẤM đưa bất kỳ khái niệm, cú pháp, đối tượng, phương thức hay thư viện nào thuộc PHẠM VI CẤM DÙNG trên vào câu hỏi, đáp án hay phần giải thích.")
+    if extra_context:
+        scope_prompt_rules.append(f"BỐI CẢNH CÁC BUỔI HỌC LÝ THUYẾT TRƯỚC ĐÓ (đã học, có thể dùng làm nền để ra câu hỏi 'bài cũ'): {extra_context}.")
+    scope_prompt_rules.append(
+        "TUYỆT ĐỐI CẤM: (1) hỏi bất kỳ kiến thức nào chưa được dạy trong môn học (nằm ngoài ALLOWED SCOPE/bối cảnh các buổi học đã liệt kê ở trên); "
+        "(2) hỏi kiến thức ngoài chương trình/giáo trình của môn học (kiến thức phổ thông chung chung, công nghệ/thư viện không liên quan đến khóa học)."
+    )
 
     scope_prompt_formatted = "\n".join(scope_prompt_rules)
 
@@ -219,23 +226,30 @@ def generate_entrance_quiz(
     previous_topic: str,
     tech_stack: str,
     forbidden_scope: str = "",
-    allowed_scope: str = ""
+    allowed_scope: str = "",
+    previous_topics_context: str = ""
 ) -> List[Dict[str, Any]]:
-    """Generates a 45-question Entrance Quiz dynamically via LLM Agent under PM dynamic scope constraints."""
+    """
+    Generates a 45-question Entrance Quiz dynamically via LLM Agent under PM dynamic scope constraints.
+
+    `previous_topic` = bài học GẦN NHẤT của session lý thuyết gần nhất (trọng số chính cho câu "bài cũ").
+    `previous_topics_context` = bối cảnh cộng dồn các session lý thuyết trước đó (không tính Project/
+    Hackathon/Thực hành/Kiểm tra) để LLM có đủ nền ra đề "bài cũ" đa dạng nhưng vẫn đúng phạm vi đã học.
+    """
     if not tech_stack or not str(tech_stack).strip():
         raise ValueError("❌ [LỖI THIẾU TECHNOLOGY STACK] generate_entrance_quiz: Yêu cầu tham số tech_stack hợp lệ.")
     print(f"  [Quiz Engine] Generating 45-question Entrance Quiz via Agent for stack: {tech_stack}...")
     questions = []
-    
+
     batches = [
-        {"topic": previous_topic, "count": 12, "diff": 4, "cat": "BÀI CŨ"},
-        {"topic": previous_topic, "count": 9, "diff": 6, "cat": "BÀI CŨ"},
-        {"topic": previous_topic, "count": 9, "diff": 8, "cat": "BÀI CŨ"},
-        {"topic": current_topic, "count": 6, "diff": 5, "cat": "BÀI MỚI"},
-        {"topic": current_topic, "count": 6, "diff": 7, "cat": "BÀI MỚI"},
-        {"topic": current_topic, "count": 3, "diff": 9, "cat": "BÀI MỚI"}
+        {"topic": previous_topic, "count": 12, "diff": 4, "cat": "BÀI CŨ", "ctx": previous_topics_context},
+        {"topic": previous_topic, "count": 9, "diff": 6, "cat": "BÀI CŨ", "ctx": previous_topics_context},
+        {"topic": previous_topic, "count": 9, "diff": 8, "cat": "BÀI CŨ", "ctx": previous_topics_context},
+        {"topic": current_topic, "count": 6, "diff": 5, "cat": "BÀI MỚI", "ctx": ""},
+        {"topic": current_topic, "count": 6, "diff": 7, "cat": "BÀI MỚI", "ctx": ""},
+        {"topic": current_topic, "count": 3, "diff": 9, "cat": "BÀI MỚI", "ctx": ""}
     ]
-    
+
     for batch in batches:
         start_stt = len(questions) + 1
         print(f"    -> Agent generating {batch['count']} questions (Diff {batch['diff']}) for '{batch['topic']}'...")
@@ -247,7 +261,8 @@ def generate_entrance_quiz(
             category=str(batch["cat"]),
             start_stt=start_stt,
             forbidden_scope=forbidden_scope,
-            allowed_scope=allowed_scope
+            allowed_scope=allowed_scope,
+            extra_context=str(batch.get("ctx", ""))
         )
         if q_batch:
             questions.extend(q_batch)

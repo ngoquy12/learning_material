@@ -41,6 +41,33 @@ All Agents MUST strictly implement all 10 core directives:
 
 ---
 
+## 0.15 CODE-LEVEL ENFORCEMENT STATUS
+
+An investigation found that several directives below were, until this refactor, **prompt-only
+promises with zero code-level enforcement** — the LLM was asked nicely but nothing in the
+rendering pipeline actually guaranteed the outcome, and real generated lessons confirmed the
+directives were being violated in practice. The items below are now genuinely enforced in code
+(`agents/creators/reading_creator.py`, `core/renderers/reading_renderer.py`,
+`core/renderers/reading/*.py`) — cite the exact function when relying on a rule so this list
+stays honest as the pipeline evolves:
+
+| Directive | Enforced by | Notes |
+| :-- | :-- | :-- |
+| #37 Zero hardcoded tech-stack fallback | `resolve_domain_engine()` (reading_renderer.py) | Raises `ValueError` for an unrecognized `tech_stack` instead of silently defaulting to Python — previously it silently fell back to Python/Pyodide for ANY unmapped stack. |
+| Runtime script isolation per stack | `templates/html/reading_master.html.j2` (`{% if engine_type == ... %}`) | `runPythonCode`/Pyodide and `runJsCode` are now conditionally rendered — previously EVERY generated `reading.html` (including non-Python courses) always shipped the Pyodide boilerplate regardless of `engine_type`. |
+| §7 Strict Knowledge Scope Boundary | `cli/commands/workflow_cmd.py` computing `forbidden_scope`/`allowed_scope` via `core.scope_calculator.calculate_lesson_scope_contract()`, consumed by `generate_reading_html()` | Previously `state["forbidden_scope"]` was never populated for reading generation at all (quiz generation had this; reading did not) — the prompt fell back to a generic static placeholder string with no real per-lesson boundary. |
+| #15 / Rule 15 "Prioritize 2D image over inline SVG" (Sections 2-4) | `_strip_stray_images()` / `_guard_inline_svgs()` (reading_creator.py) | Section 1 already had image governance; Sections 2-4 previously had NONE — the LLM could insert unlimited `<img>`/raw `<svg>` there. Now: `<img>` is stripped from Sections 2-4 entirely (2D images are Section-1-only), and any inline `<svg>` diagram is passed through `guard_svg_syntax()` individually. |
+| Section 2/3 sandbox vs static code block | `convert_code_to_live_sandbox()` (`code_sandbox_renderer.py`) | Decision is now made PER CODE BLOCK, not once for the whole lesson's `tech_stack` — a Windows `cmd`/SQL/YAML snippet embedded in a Python or JS lesson is force-static (no "Chạy chương trình" button) even though the lesson's overall stack is executable. |
+| #11 "Minimal Italic Text" | `convert_inline_markdown()` (markdown_parser.py) + `sanitize_html_tags_and_italics()` (html_sanitizer.py) | `*text*`/`_text_` now actually convert to `<em>` (previously there was no conversion at all — the ban on italics was the only defense, and once an LLM ignored it, the raw characters leaked straight into rendered prose). The unclosed-`<i class="...">` cleanup regex is also now length-capped so it can never delete an entire real paragraph — it used to be able to. |
+| #44 Banned AI buzzwords | `strip_ai_cliches_from_title()` + `FORBIDDEN_AI_CLICHES` (html_sanitizer.py), applied to `section1_title`/`section2_title` | Titles previously skipped ALL sanitizers, including this one — the buzzword ban only ever applied to body prose. List also extended with "chinh phục", "bứt phá", "làm chủ", "giải mã", "hành trình" + English equivalents. |
+
+Everything else in this document (5-section architecture, visual/UX conventions, design tokens,
+Section 1 storytelling structure, etc.) remains prompt-level guidance the LLM is expected to
+follow — it is not independently validated by a code-level gate today. Treat those as
+best-effort unless/until a corresponding enforcement mechanism is added and listed above.
+
+---
+
 ## 0.2 SESSION 01 ORIENTATION LESSON SPECIAL DIRECTIVE
 
 For **Session 01 (Orientation & Course Overview)**:

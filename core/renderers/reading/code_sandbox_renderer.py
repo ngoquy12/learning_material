@@ -165,11 +165,28 @@ def convert_code_to_live_sandbox(html_text: str, lang_meta: Dict[str, str], forc
         escaped_code = html.escape(raw_code)
         attr_code = escaped_code.replace('\n', '&#10;').replace('\r', '')
 
+        # Detected per BLOCK, not once for the whole lesson — a single tech_stack-wide decision
+        # (e.g. "this lesson is Python") previously meant EVERY code block got wrapped as an
+        # executable Python sandbox regardless of what it actually contained. A Windows cmd
+        # snippet or a raw SQL query embedded in a Python/JS lesson would get a "Chạy chương
+        # trình" (Run) button attached and fail, since neither can run via runPythonCode/
+        # runJsCode — confirmed real bug (the CLI keyword list only ever covered Unix tools).
         is_cli_cmd = any(raw_code.strip().startswith(prefix) for prefix in [
-            "git ", "$ git", "$git", "docker ", "npm ", "npx ", "pip ", "cd ", "mkdir ", "curl ", "wget ", "sudo ", "chmod ", "apt ", "yum ", "systemctl ", "python -m "
-        ]) or any(cmd in raw_code.lower() for cmd in ["git commit", "git push", "git pull", "git checkout", "git branch", "git status", "git add", "git init", "git clone"])
+            "git ", "$ git", "$git", "docker ", "npm ", "npx ", "pip ", "cd ", "mkdir ", "curl ", "wget ", "sudo ", "chmod ", "apt ", "yum ", "systemctl ", "python -m ",
+            # Windows CLI / cmd.exe
+            "dir ", "dir\n", "set ", "echo off", "cls", "copy ", "del ", "ren ", "move ", "type ",
+            "findstr ", "tasklist", "cmd.exe", "net user", "ipconfig", "ping ", "taskkill ",
+            "where ", "attrib ", "C:\\>", "C:\\Users",
+        ]) or any(cmd in raw_code.lower() for cmd in [
+            "git commit", "git push", "git pull", "git checkout", "git branch", "git status", "git add", "git init", "git clone"
+        ])
 
-        is_abstract_syntax = force_static or any(kw in raw_code for kw in [
+        is_sql_or_config = bool(re.match(
+            r'^\s*(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM|CREATE\s+(?:TABLE|DATABASE|INDEX|VIEW)|ALTER\s+TABLE|DROP\s+TABLE)\b',
+            raw_code, re.IGNORECASE
+        )) or raw_code.strip().startswith('---')
+
+        is_abstract_syntax = force_static or is_sql_or_config or any(kw in raw_code for kw in [
             "statement_block", "if_statement_block", "else_statement_block", "default_statement_block",
             "condition_1", "condition_2", "condition_3", "if condition:"
         ])

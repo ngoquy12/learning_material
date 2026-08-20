@@ -36,7 +36,9 @@ from core.renderers.reading.html_sanitizer import (
     inject_subheading_ids,
     clean_stray_chars,
     ensure_html,
-    extract_2tier_toc
+    extract_2tier_toc,
+    FORBIDDEN_AI_CLICHES,
+    strip_ai_cliches_from_title
 )
 
 from core.renderers.reading.lesson_classifier import classify_reading_type
@@ -64,5 +66,7 @@ __all__ = [
     "clean_stray_chars",
     "ensure_html",
     "extract_2tier_toc",
-    "classify_reading_type"
+    "classify_reading_type",
+    "FORBIDDEN_AI_CLICHES",
+    "strip_ai_cliches_from_title"
 ]

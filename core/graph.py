@@ -7,10 +7,9 @@ from agents import (
     objective_architect_agent, scheduler_agent, knowledge_base_agent,
     html_writer_agent, html_ux_reviewer,
     quiz_agent, sandbox_testing_agent,
-    session_compiler_agent, mindmap_agent,
+    session_compiler_agent,
     lessons_learned_agent, knowledge_memory_agent, get_relevant_memories_for_creator,
-    pm_reviewer_agent, objective_reviewer_agent,
-    mindmap_reviewer
+    pm_reviewer_agent, objective_reviewer_agent
 )
 
 def save_state_checkpoint(state: AgentState):
@@ -416,40 +415,6 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
 
 
 @component
-def pipeline_mindmap_production(state: AgentState) -> AgentState:
-    """Tự động tạo sơ đồ tư duy (mindmap) cho bài giảng với vòng lặp phản biện"""
-    if "requested_parts" in state and "mindmap" not in state["requested_parts"]:
-        state["artifacts_status"]["mindmap"] = "Skipped"
-        return state
-    approved = False
-    for attempt in range(3):
-        # Allow recovery if already approved in a previous execution
-        if state.get("artifacts_status", {}).get("mindmap") == "Approved" and not state.get("force_rebuild", False):
-            approved = True
-            break
-        state = mindmap_agent(state)
-        review = mindmap_reviewer(state)
-        if review["status"] == "APPROVED":
-            state["artifacts_status"]["mindmap"] = "Approved"
-            save_state_checkpoint(state)
-            approved = True
-            break
-        else:
-            state.setdefault("review_logs", []).append({"source": "Mindmap_Reviewer", "feedback": review["feedback"]})
-            save_state_checkpoint(state)
-            
-    if not approved:
-        print(
-            f"\n[CẢNH BÁO TỪ PM] Nội dung Sơ đồ tư duy (Mindmap) chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
-        )
-        state["artifacts_status"]["mindmap"] = "Approved with Warnings"
-        save_state_checkpoint(state)
-    return state
-
-
-@component
 def session_compiler_node(state: AgentState) -> AgentState:
     """Node 7: Tiến hành thu gom dữ liệu, biên dịch bài đọc và xuất tệp câu hỏi JSON sạch ra ổ đĩa tại thư mục dist/"""
     state = session_compiler_agent(state)
@@ -506,8 +471,6 @@ def _merge_sub_state(state: Dict[str, Any], name: str, sub_state: Dict[str, Any]
         state["lab_json"] = sub_state["lab_json"]
     if sub_state.get("practical_lab_markdown"):
         state["practical_lab_markdown"] = sub_state["practical_lab_markdown"]
-    if sub_state.get("mindmap_markdown"):
-        state["mindmap_markdown"] = sub_state["mindmap_markdown"]
     if sub_state.get("reading_questions_json"):
         state["reading_questions_json"] = sub_state["reading_questions_json"]
     if sub_state.get("reading_questions_markdown"):

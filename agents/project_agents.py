@@ -10,6 +10,25 @@ from core.course_architecture import (
     lint_document_architecture,
     ARCH_CLI_CORE
 )
+from core.domain_knowledge import get_domain_for_session, format_domain_rules_for_prompt
+
+
+def _build_domain_prompt_block(session_id: str, session_title: str, chosen_domain: str) -> str:
+    """Builds the UNIFIED SESSION BUSINESS DOMAIN CONTRACT block shared by all Project-track prompts."""
+    if not chosen_domain:
+        return ""
+    session_domain_data = get_domain_for_session(session_id, session_title, chosen_domain)
+    domain_rules = format_domain_rules_for_prompt(session_domain_data)
+    active_domain = session_domain_data.get("name_vi", chosen_domain)
+    return f"""
+=== UNIFIED SESSION BUSINESS DOMAIN CONTRACT ===
+{domain_rules}
+CRITICAL DOMAIN CONSISTENCY MANDATE:
+- This Session has ONE unified business domain: {active_domain}. Every scenario/archetype below
+  is a different FUNCTIONAL ANGLE of this SAME domain — do NOT invent an unrelated business
+  (e.g. do not silently switch to a generic "supermarket"/"school" scenario instead).
+=================================================
+"""
 
 def sanitize_vietnamese_filename(text: str) -> str:
     text = text.lower()
@@ -48,7 +67,7 @@ def parse_xml_robust(response: str, tags: List[str]) -> Dict[str, str]:
         res[tag] = val.strip()
     return res
 
-def project_entry_test_creator(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str, test_idx: int, forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
+def project_entry_test_creator(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str, test_idx: int, forbidden_scope: str = "", allowed_scope: str = "", chosen_domain: str = "") -> Dict[str, Any]:
     print(f"    -> [Project Creator] Generating Dynamic Entry Test {test_idx+1}/4...")
     
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -72,10 +91,12 @@ def project_entry_test_creator(session_id: str, session_title: str, tech_stack: 
         scope_rules += f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM SỬ DỤNG CÁC KIẾN THỨC BỊ CẤM NÀY.\n"
     if allowed_scope:
         scope_rules += f"\nPHẠM VI ĐÃ HỌC (ALLOWED SCOPE): {allowed_scope}.\n"
-    
+
+    domain_prompt_block = _build_domain_prompt_block(session_id, session_title, chosen_domain)
+
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
-    
+
     system_prompt = f"""You are a Senior Computer Science Professor and Technical Lead specializing in {tech_stack}.
 Your task is to generate EXACTLY 1 concise Entry Test complying with:
 Session: {session_id} - {session_title}
@@ -83,6 +104,7 @@ Technology Stack: {tech_stack}
 Architecture Model: {arch_info["arch_name"]}
 Business Scenario Archetype #{test_idx+1}/4: {archetype}
 Target Difficulty: Warm-up level (15-20 minutes completion time)
+{domain_prompt_block}
 {scope_rules}
 
 {naming_convention}
@@ -158,12 +180,12 @@ Full Markdown content of the entry test here...
         raise ValueError(f"Không thể tạo được đề kiểm tra {test_idx+1} cho session {session_id} sau 3 lần thử. Đã vô hiệu hóa fallback offline.")
     return test_data
 
-def project_srs_creator(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str = "", forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
+def project_srs_creator(session_id: str, session_title: str, tech_stack: str, previous_lessons_text: str = "", forbidden_scope: str = "", allowed_scope: str = "", chosen_domain: str = "") -> Dict[str, Any]:
     print(f"    -> [Project Creator] Generating Dynamic SRS Document for '{session_title}' ({tech_stack})...")
-    
+
     arch_info = resolve_course_architecture(session_title, tech_stack, forbidden_scope, allowed_scope)
     srs_headers_formatted = "\n   - ".join(arch_info["srs_headers"])
-    
+
     scope_rules = ""
     if forbidden_scope:
         scope_rules += f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM SỬ DỤNG CÁC KIẾN THỨC/CÚ PHÁP/THƯ VIỆN BỊ CẤM NÀY.\n"
@@ -172,6 +194,8 @@ def project_srs_creator(session_id: str, session_title: str, tech_stack: str, pr
     if previous_lessons_text:
         scope_rules += f"\nDANH SÁCH BÀI HỌC ĐÃ HỌC TRƯỚC ĐÓ:\n{previous_lessons_text}\n"
 
+    domain_prompt_block = _build_domain_prompt_block(session_id, session_title, chosen_domain)
+
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
 
@@ -179,6 +203,7 @@ def project_srs_creator(session_id: str, session_title: str, tech_stack: str, pr
 Session: {session_id} - {session_title}
 Technology Stack: {tech_stack}
 Designated Architecture Model: {arch_info["arch_name"]}
+{domain_prompt_block}
 {scope_rules}
 
 {naming_convention}
@@ -262,7 +287,7 @@ Full Markdown SRS document content in Accented Vietnamese...
         raise ValueError(f"Không thể sinh được tài liệu SRS cho session {session_id} sau 3 lần thử. Đã vô hiệu hóa fallback offline.")
     return srs_data
 
-def project_mini_project_creator(session_id: str, session_title: str, tech_stack: str, srs_title: str, previous_lessons_text: str = "", forbidden_scope: str = "", allowed_scope: str = "") -> Dict[str, Any]:
+def project_mini_project_creator(session_id: str, session_title: str, tech_stack: str, srs_title: str, previous_lessons_text: str = "", forbidden_scope: str = "", allowed_scope: str = "", chosen_domain: str = "") -> Dict[str, Any]:
     print(f"    -> [Project Creator] Generating Dynamic Mini Project Prompt for '{session_title}'...")
     
     arch_info = resolve_course_architecture(session_title, tech_stack, forbidden_scope, allowed_scope)
@@ -275,6 +300,8 @@ def project_mini_project_creator(session_id: str, session_title: str, tech_stack
     if previous_lessons_text:
         scope_rules += f"\nDANH SÁCH BÀI HỌC ĐÃ HỌC TRƯỚC ĐÓ:\n{previous_lessons_text}\n"
 
+    domain_prompt_block = _build_domain_prompt_block(session_id, session_title, chosen_domain)
+
     naming_convention = arch_info["naming_guidelines"]
     error_model = arch_info["error_model"]
 
@@ -284,6 +311,7 @@ Session: {session_id} - {session_title}
 Technology Stack: {tech_stack}
 Designated Architecture Model: {arch_info["arch_name"]}
 SRS Context: {srs_title}
+{domain_prompt_block}
 {scope_rules}
 
 {naming_convention}
@@ -526,38 +554,53 @@ def generate_and_link_srs_diagram(content: str, srs_dir, filename_no_ext: str, s
         
     return new_content
 
-def generate_mini_project_session(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str, session_info: Dict[str, Any] = None):
+def generate_mini_project_session(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str, session_info: Dict[str, Any] = None, chosen_domain: str = ""):
     session_dir = Path(session_dir_path)
     session_dir.mkdir(parents=True, exist_ok=True)
-    
+
     test_dir = session_dir / "Bài kiểm tra đầu giờ"
     srs_dir = session_dir / "Tài liệu đặc tả SRS"
     mp_dir = session_dir / "Mini project"
-    
+
     test_dir.mkdir(exist_ok=True)
     srs_dir.mkdir(exist_ok=True)
     mp_dir.mkdir(exist_ok=True)
-    
+
     forbidden_scope = session_info.get("forbidden_scope", "") if session_info else ""
     allowed_scope = session_info.get("allowed_scope", "") if session_info else ""
-    
+
     # Generation & review loop
     final_entry_tests = []
     final_srs_doc = None
     final_mini_project = None
-    
+
     for attempt in range(3):
         # 1. Generate 4 Entry Tests sequentially
         entry_tests = []
         for idx in range(4):
-            test = project_entry_test_creator(session_id, session_title, tech_stack, previous_lessons_text, idx, forbidden_scope, allowed_scope)
+            test = project_entry_test_creator(
+                session_id, session_title, tech_stack, previous_lessons_text, idx,
+                forbidden_scope, allowed_scope, chosen_domain=chosen_domain
+            )
             entry_tests.append(test)
-            
+
         # 2. Generate SRS
-        srs_doc = project_srs_creator(session_id, session_title, tech_stack, forbidden_scope, allowed_scope)
-        
+        srs_doc = project_srs_creator(
+            session_id, session_title, tech_stack,
+            previous_lessons_text=previous_lessons_text,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope,
+            chosen_domain=chosen_domain
+        )
+
         # 3. Generate Mini Project
-        mini_project = project_mini_project_creator(session_id, session_title, tech_stack, srs_doc["title"], forbidden_scope, allowed_scope)
+        mini_project = project_mini_project_creator(
+            session_id, session_title, tech_stack, srs_doc["title"],
+            previous_lessons_text=previous_lessons_text,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope,
+            chosen_domain=chosen_domain
+        )
         
         # 4. Review
         review_result = project_reviewer_agent(entry_tests, srs_doc, mini_project, tech_stack, forbidden_scope, allowed_scope, session_title)

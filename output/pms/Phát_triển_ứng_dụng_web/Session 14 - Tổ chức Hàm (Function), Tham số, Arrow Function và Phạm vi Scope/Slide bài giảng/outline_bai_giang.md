@@ -1,316 +1,359 @@
-# ĐỀ CƯƠNG BÀI GIẢNG SLIDE (OUTLINE & SPEAKER NOTES)
-**Khóa học:** Phát triển ứng dụng web  
-**Chủ đề Session:** Session 14 - Tổ chức Hàm (Function), Tham số, Arrow Function và Phạm vi Scope  
-**Ngữ cảnh Domain thống nhất:** Hệ thống Quản lý Lưu kho Kiện hàng Warehouse  
-**Công nghệ:** JavaScript  
-**Tổng số slide:** 14 slides  
+# Outline Bài Giảng: Session 14 - Tổ chức Hàm (Function), Tham số, Arrow Function và Phạm vi Scope
+
+**Tổng số slide:** 18
 
 ---
 
-## Slide 01: Tổ chức Hàm, Arrow Function & Scope [COVER]
-*Phụ đề:* Quản lý mã nguồn sạch và đóng gói logic nghiệp vụ trong Hệ thống Quản lý Lưu kho Kiện hàng Warehouse
+### Slide 1: [cover] Session 14 - Tổ chức Hàm (Function), Tham số, Arrow Function và Phạm vi Scope
 
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Chào mừng các bạn sinh viên đến với Session 14. Trong bài học hôm nay, chúng ta sẽ làm chủ cách đóng gói mã nguồn JavaScript thông qua Hàm (Function), cú pháp hiện đại Arrow Function ES6, các cơ chế xử lý tham số và đặc biệt là quản lý phạm vi truy cập biến Scope cùng cơ chế Closures thông qua bài toán thực tế của Hệ thống Quản lý Lưu kho Kiện hàng Warehouse.
+> 🎙️ **Speaker Notes:** Chào mừng các học viên đến với Session 14. Hôm nay chúng ta sẽ tìm hiểu về cách tổ chức hàm, tham số, Arrow Function và cơ chế phạm vi biến trong JavaScript. [~1 phut]
 
 ---
 
-## Slide 02: Nội Dung Bài Giảng [AGENDA]
-**Nội dung Agenda:**
-- 1. Khai báo Hàm (Declaration & Expression) & Cơ chế Hoisting
-- 2. Arrow Function ES6, Tham số Mặc định & Rest Parameters
-- 3. Phạm vi Biến Scope (Global, Function, Block Scope)
-- 4. Cơ chế Closures & Đóng gói Dữ liệu Kho hàng
-- 5. Tổng kết, Lỗi Kỹ thuật Thường gặp & Bài tập Thực hành
+### Slide 2: [agenda] 
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Lộ trình bài học của chúng ta được chia thành 5 phần rõ ràng. Đầu tiên là nền tảng khai báo hàm và hoisting. Tiếp theo là các tính năng modern ES6 như Arrow Function và Rest Parameters. Sau đó chúng ta đi sâu vào bản chất kiến trúc biến qua Scope, nâng cao với Closures, và cuối cùng là tổng kết các lỗi hay gặp khi đi làm.
+- 1. Khai báo Hàm: Function Declaration & Function Expression
+- 2. ES6 Arrow Function và Cơ chế Tham số Mặc định (Default Parameters)
+- 3. Phạm vi Biến (Scope), Cơ chế Hoisting và Kỹ thuật Closure
+
+> 🎙️ **Speaker Notes:** Nội dung bài học gồm 3 phần chính đi từ nền tảng định nghĩa hàm đến các cú pháp hiện đại ES6 và kỹ thuật quản lý bộ nhớ nâng cao như Closure. [~2 phut]
 
 ---
 
-## Slide 03: Mục Tiêu Bài Học [OBJECTIVES]
-**Chuẩn đầu ra bài học:**
-1. Phân biệt chính xác Function Declaration và Expression theo cơ chế Hoisting.
-2. Vận dụng thành thạo cú pháp Arrow Function ES6 và Tham số mặc định.
-3. Làm chủ quy tắc hoạt động của Global Scope, Block Scope và Scope Chain.
-4. Ứng dụng Closures để tạo các hàm bảo mật trạng thái kiện hàng trong Warehouse.
+### Slide 3: [objectives] Mục tiêu bài học
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Sau khi hoàn thành bài học này, các bạn cần đạt được 4 chuẩn đầu ra cốt lõi: phân biệt được cách khai báo hàm, sử dụng thành thạo Arrow Function ES6, kiểm soát chặt chẽ phạm vi biến để tránh rò rỉ bộ nhớ, và ứng dụng thành công Closures vào hệ thống lưu kho thực tế.
+- [Mục tiêu] Phân biệt cú pháp, cơ chế Hoisting và ngữ cảnh áp dụng giữa Function Declaration và Function Expression.
+- [Mục tiêu] Sử dụng thành thạo cú pháp ES6 Arrow Function ngắn gọn kết hợp cơ chế Implicit Return và Tham số mặc định (Default Parameters).
+- [Mục tiêu] Xác định đúng phạm vi biến (Global, Function, Block Scope) và tránh các lỗi liên quan đến Temporal Dead Zone (TDZ).
+- [Mục tiêu] Giải thích nguyên lý Lexical Scoping và vận dụng Closure để đóng gói trạng thái dữ liệu riêng tư (Private State).
+
+> 🎙️ **Speaker Notes:** Sau buổi học này, các bạn cần nắm vững cách định nghĩa hàm tối ưu, tránh rò rỉ biến toàn cục và biết cách đóng gói dữ liệu an toàn với Closure. [~2 phut]
 
 ---
 
-## Slide 04: 1. Khai báo Hàm — 1/2 [COMPARISON]
-*Phụ đề:* Tái sử dụng công thức tính phí lưu kho thay vì viết lặp code thủ công
+### Slide 4: [comparison_2col] Khai báo Hàm — 1/3
+*Function Declaration được Hoisting hoàn toàn còn Function Expression chỉ khả dụng sau phép gán.*
 
-### [Trái] Cách viết lặp code thủ công
-```javascript
-// Kiện hàng PKG-01
-let fee1 = 15 * 5000 + 3 * 2000;
-// Kiện hàng PKG-02
-let fee2 = 40 * 5000 + 7 * 2000;
-// Kiện hàng PKG-03
-let fee3 = 8 * 5000 + 1 * 2000;
+**Function Declaration**
+- Cú pháp truyền thống với từ khóa function và tên hàm định danh.
+- Được tự động đưa lên đầu phạm vi (Hoisting), cho phép gọi trước khi khai báo.
+- Thích hợp cho các hàm dùng chung toàn hệ thống.
 ```
-- Tốn thời gian lặp lại công thức tính phí kho.
-- Dễ sai sót khi thay đổi đơn giá lưu kho.
-- Khó bảo trì khi số lượng kiện hàng lên tới hàng nghìn.
-
-### [Phải] Đóng gói thành Hàm (Function)
-```javascript
-function calcStorageFee(weight, days) {
-  const basePricePerKg = 5000;
-  const dayFeePerDay = 2000;
-  return weight * basePricePerKg + days * dayFeePerDay;
+function calculateSubtotal(price, quantity) {
+  return price * quantity;
 }
-let fee1 = calcStorageFee(15, 3);
 ```
-- Định nghĩa công thức 1 lần duy nhất.
-- Gọi lại linh hoạt cho mọi kiện hàng.
-- Dễ dàng cập nhật bảng giá lưu kho đồng bộ.
-
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Hãy nhìn vào bức tranh so sánh này. Ở bên trái, khi tính phí lưu kho cho từng kiện hàng theo khối lượng và số ngày, việc nhân chia trực tiếp làm code bị lặp lại và cực kỳ nguy hiểm nếu bảng giá đổi. Bên phải, khi ta đóng gói vào hàm `calcStorageFee`, code gọn gàng, rõ nghĩa và dễ duy trì hơn rất nhiều.
-
----
-
-## Slide 05: 1. Khai báo Hàm — 2/2 [CODE]
-*Phụ đề:* Phân biệt Function Declaration và Function Expression qua cơ chế Hoisting
-
-**Các ý chính:**
-- Function Declaration được hoist toàn bộ lên đầu scope, cho phép gọi hàm trước dòng định nghĩa.
-- Function Expression gán hàm vào biến (const/let), chỉ sử dụng được sau khi dòng code thực thi tới.
-- Khuyên dùng: Dùng Expression để ngăn chặn gọi hàm lộn xộn, tăng tính dự đoán cho chương trình.
-
-**Code (Hoisting trong Hàm Warehouse):**
-```javascript
-// 1. Function Declaration (Được Hoisting)
-const feeA = calculateFee(25, 4); // OK! Gọi trước khai báo
-
-function calculateFee(weight, days) {
-  return weight * 5000 + days * 2000;
-}
-
-// 2. Function Expression (KHÔNG được Hoisting)
-// getZone() -> Error: Cannot access before initialization
-const getZone = function(packageId) {
-  return packageId.startsWith('K-') ? 'Khu A' : 'Khu B';
+**Function Expression**
+- Định nghĩa hàm ẩn danh và gán trực tiếp vào một biến.
+- Không được hoisted; gọi trước dòng phép gán sẽ ném lỗi ReferenceError.
+- Phù hợp để hạn chế ô nhiễm phạm vi và định nghĩa hàm nội bộ.
+```
+const calculateDiscount = function(subtotal, discountRate) {
+  return subtotal * discountRate;
 };
-const zone = getZone('K-102'); // Đúng: Gọi sau khai báo
 ```
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Điểm khác biệt quan trọng nhất giữa Function Declaration và Function Expression chính là Hoisting. Với Function Declaration, JavaScript Engine nâng toàn bộ định nghĩa hàm lên đầu scope, cho nên các bạn gọi hàm trước dòng khai báo vẫn chạy bình thường. Ngược lại, Function Expression gán hàm vào biến const, giúp mã nguồn tuân thủ thứ tự đọc từ trên xuống dưới.
+> 🎙️ **Speaker Notes:** So sánh hai cách khai báo hàm cơ bản. Lưu ý tính chất Hoisting khác nhau giữa Function Declaration và Function Expression để tránh lỗi sập chương trình. [~4 phut]
 
 ---
 
-## Slide 06: 2. Arrow Function ES6 — 1/2 [CODE]
-*Phụ đề:* Tối ưu cú pháp ngắn gọn và viết hàm xử lý kiện hàng trên 1 dòng
+### Slide 5: [code_trace_table] Khai báo Hàm — 2/3
+*Luồng thực thi hàm tạo vùng nhớ riêng biệt và trả về kết quả thông qua câu lệnh return.*
 
-**Các ý chính:**
-- Bỏ từ khóa `function`, dùng mũi tên `=>` giúp cú pháp cực kỳ súc tích.
-- Nếu chỉ có 1 tham số: Có thể bỏ cặp ngoặc tròn `()`.
-- Nếu thân hàm chỉ có 1 biểu thức: Có thể bỏ `{}` và từ khóa `return` (tự động trả về).
-- Lưu ý: Arrow Function không có từ khóa `this` riêng.
+**Code Demo:** Luồng thực thi calculateSubtotal
+```JS
+const totalAmount = calculateSubtotal(50000, 3);
+console.log("Tổng tiền hàng:", totalAmount);
 
-**Code (Cú pháp Arrow Function trong Warehouse):**
-```javascript
-// Regular Function Expression
-const checkOverweightOld = function(weight) {
-  return weight > 30;
+function calculateSubtotal(price, quantity) {
+  return price * quantity;
+}
+```
+| Bước | Dòng mã thực thi | Biến / Tham số | Giá trị (RAM) | Ghi chú cơ chế |
+|---|---|---|---|---|
+| 1 | function calculateSubtotal(...) | calculateSubtotal | Function Object | Trình biên dịch hoist hàm calculateSubtotal lên đầu phạm vi |
+| 2 | const total = calculateSubtotal(25000, 4); | price, quantity | price = 25000, quantity = 4 | Khởi tạo không gian thực thi hàm, gán đối số 25000 và 4 |
+| 3 | const subtotal = price * quantity; | subtotal | 100000 | Thực hiện phép tính 25000 * 4 và lưu vào biến local subtotal |
+| 4 | return subtotal; | kết quả trả về | 100000 | Trả về 100000 cho nơi gọi hàm và giải phóng bộ nhớ hàm |
+| 5 | console.log(total); | total | 100000 | Biến total nhận giá trị 100000 và in ra terminal console |
+
+> 🎙️ **Speaker Notes:** Bảng từng bước theo dõi bộ nhớ khi thực thi một hàm. Chú ý bước 1 khi trình biên dịch hoist hàm lên trước khi dòng lệnh đầu tiên chạy. [~5 phut]
+
+---
+
+### Slide 6: [code_right_card] Khai báo Hàm — 3/3
+*Quên câu lệnh return hoặc gọi sai thời điểm Function Expression sẽ dẫn tới lỗi nghiêm trọng.*
+
+**Code Demo:** Bẫy lập trình trong khai báo hàm
+```JS
+// 1. Lỗi gọi trước khi khai báo Expression
+const discount = calculateDiscount(100000, 0.1);
+// ReferenceError: Cannot access 'calculateDiscount' before initialization
+
+const calculateDiscount = function(subtotal, rate) {
+  return subtotal * rate;
 };
 
-// Arrow Function đầy đủ
-const checkOverweight = (weight) => {
-  return weight > 30;
-};
-
-// Arrow Function rút gọn (Implicit Return)
-const isExpressPackage = pkg => pkg.isPriority && pkg.weight < 10;
-
-// Gọi hàm kiểm tra kiện hàng
-console.log(checkOverweight(45)); // true
-console.log(isExpressPackage({ isPriority: true, weight: 5 })); // true
+// 2. Lỗi thiếu từ khóa return trong thân hàm
+function calculateTax(subtotal) {
+  const tax = subtotal * 0.1;
+  // Quên từ khóa return tax!
+}
+console.log(calculateTax(100000)); // Kết quả: undefined
 ```
+**Các điểm cẩn trọng chính**
+- Gây lỗi ReferenceError khi cố gắng gọi Function Expression nằm trong Temporal Dead Zone.
+- Thân hàm không có từ khóa return mặc định sẽ trả về undefined cho nơi gọi.
+- Phân biệt rõ: Parameters là biến giữ chỗ khi định nghĩa, Arguments là giá trị thực tế truyền vào.
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Arrow Function ra đời từ ES6 mang đến cú pháp ngắn gọn tuyệt vời. Đối với các logic kiểm tra kiện hàng quá tải hay kiện hàng hỏa tốc ngắn gọn, chúng ta có thể viết trên một dòng duy nhất bằng cơ chế Implicit Return. Điều này giúp mã nguồn khi làm việc với array helper cực kỳ sạch đẹp.
+> 🎙️ **Speaker Notes:** Nhấn mạnh hai lỗi phổ biến: gọi Function Expression trước khi khởi tạo và quên trả về dữ liệu bằng câu lệnh return. [~4 phut]
 
 ---
 
-## Slide 07: 2. Tham số Mặc định & Rest Parameters — 2/2 [COMPARISON]
-*Phụ đề:* Xử lý tham số linh hoạt khi nhập danh sách kiện hàng vào kho
+### Slide 7: [interactive] Hoạt động: Dự đoán kết quả
 
-### [Trái] Tham số Mặc định (Default Params)
-```javascript
-// Gán giá trị mặc định cho storageDays và zone
-const createPackage = (
-  id,
-  weight,
-  days = 1,
-  zone = 'Khu Chờ'
-) => ({
-  id,
-  weight,
-  fee: weight * 5000 + days * 2000,
-  zone
-});
+**Kiểu:** predict_outcome
+**Câu hỏi:** Đoạn mã JavaScript sau đây sẽ cho kết quả thực thi như thế nào trên Console?
+```JS
+console.log(getMessage("Rikkei"));
 
-const p1 = createPackage('PKG-99', 10);
-// zone sẽ tự nhận 'Khu Chờ', days = 1
-```
-- Tránh lỗi `undefined` khi truyền thiếu arguments.
-- Tự động áp dụng cấu hình lưu kho mặc định.
-- Code rõ ràng, không cần kiểm tra `if (!days)`.
-
-### [Phải] Gộp tham số (Rest Parameters)
-```javascript
-// Gom tất cả trọng lượng các kiện vào 1 mảng
-const totalWeight = (...weights) => {
-  return weights.reduce(
-    (sum, w) => sum + w,
-    0
-  );
-};
-
-const total = totalWeight(12, 5, 30, 8);
-// total = 55kg
-```
-- Dùng cú pháp `...` gom nhiều tham số thành mảng.
-- Thay thế hoàn toàn đối tượng `arguments` cũ.
-- Linh hoạt tiếp nhận số lượng kiện hàng bất kỳ.
-
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Trong thực tế quản lý kho, khi tạo mới kiện hàng có những thông số cố định như số ngày lưu mặc định là 1 ngày, khu vực mặc định là Khu Chờ. Tham số mặc định giúp chúng ta xử lý việc này gọn gàng. Còn với Rest Parameters `...weights`, hàm có thể tiếp nhận 5, 10 hay 100 kiện hàng cùng lúc mà vẫn gom vào mảng xử lý mượt mà.
-
----
-
-## Slide 08: So Sánh Các Cú Pháp Khai Báo Hàm [TABLE]
-*Phụ đề:* Bảng tổng hợp đặc tính kỹ thuật quan trọng phục vụ chọn lựa thiết kế mã nguồn
-
-
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Bảng so sánh này là kim chỉ nam quan trọng giúp các bạn lựa chọn đúng loại hàm. Hãy nhớ: Function Declaration có Hoisting, Arrow Function không có 'this' riêng và cực hợp cho các callback. Trong dự án Warehouse, chúng ta kết hợp linh hoạt cả 3 loại tùy theo mục đích.
-
----
-
-## Slide 09: 3. Phạm vi Biến (Scope) — 1/2 [COMPARISON]
-*Phụ đề:* Phân biệt Global Scope và Block Scope để tránh rò rỉ dữ liệu kho
-
-### [Trái] Nguy cơ với Global Scope (var)
-```javascript
-var warehouseName = 'Kho Tổng Hanoi';
-
-for (var i = 0; i < 3; i++) {
-  var warehouseName = 'Kho Chi Nhánh ' + i;
+function getMessage(name) {
+  return "Xin chào " + name;
 }
 
-console.log(warehouseName);
-// 'Kho Chi Nhánh 2' (Bị ghi đè dữ liệu!)
+console.log(getRole());
+
+var getRole = function() {
+  return "Admin";
+};
 ```
-- Biến khai báo bằng `var` bị rò rỉ ra ngoài khối lệnh `{}`.
-- Dễ gây ra sự cố ghi đè biến nguy hiểm.
-- Khó kiểm soát trạng thái dữ liệu ứng dụng.
+- A. In ra "Xin chào Rikkei" sau đó ném lỗi TypeError: getRole is not a function
+- B. In ra "Xin chào Rikkei" và "Admin"
+- C. Ném lỗi ReferenceError ngay tại dòng 1
+- D. In ra undefined cho cả hai dòng console.log
+> 🔑 **Đáp án (giảng viên):** Đáp án đúng là A. getMessage là Function Declaration nên được hoisted hoàn toàn và chạy bình thường. Biến getRole khai báo bằng var chỉ được hoisted tên biến với giá trị undefined, nên khi gọi getRole() như một hàm sẽ báo lỗi TypeError: getRole is not a function.
 
-### [Phải] An toàn với Block Scope (let/const)
-```javascript
-const warehouseName = 'Kho Tổng Hanoi';
-
-for (let i = 0; i < 3; i++) {
-  const currentArea = 'Khu ' + i;
-  console.log(currentArea); // Hợp lệ
-}
-
-// console.log(currentArea); // Error: Not defined!
-```
-- Biến `let`/`const` chỉ tồn tại trong cặp ngoặc `{}`.
-- Bảo vệ dữ liệu không bị biến ngoài can thiệp.
-- Giúp bộ nhớ giải phóng biến ngay sau khi thoát block.
-
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Phạm vi biến Scope quyết định nơi nào trong mã nguồn được phép truy cập vào biến. Nếu dùng `var`, biến có phạm vi Global hoặc Function Scope, dễ bị lỡ tay ghi đè dữ liệu như ví dụ bên trái. Với `let` và `const` giới hạn trong Block Scope `{}`, chúng ta giữ cho dữ liệu từng khu vực kho hoàn toàn cô lập và an toàn.
+> 🎙️ **Speaker Notes:** Yêu cầu học viên phân tích cơ chế Hoisting khác biệt giữa Function Declaration và biến var chứa Function Expression. [~3 phut]
 
 ---
 
-## Slide 10: 3. Cơ chế Closures — 2/2 [CODE]
-*Phụ đề:* Đóng gói dữ liệu và tạo trình tự sinh mã kiện hàng tự động an toàn
+### Slide 8: [comparison_2col] Arrow Function ES6 — 1/3
+*Arrow Function giúp cô đọng cú pháp và hỗ trợ ngầm định trả về kết quả đối với thân hàm đơn dòng.*
 
-**Các ý chính:**
-- Hàm con `generateId` ghi nhớ phạm vi chứa nó ngay cả khi `createPackageTracker` đã thực thi xong.
-- Biến `count` không thể bị truy cập trực tiếp hay sửa đổi từ bên ngoài (Private Data).
-- Mỗi instance (`ZoneA`, `ZoneB`) sở hữu một bộ nhớ trạng thái độc lập hoàn toàn.
+**Thân hàm 1 dòng (Implicit Return)**
+- Loại bỏ cặp ngoặc nhọn {} và từ khóa return đối với các biểu thức 1 dòng.
+- Giá trị của biểu thức tự động được trả về cho nơi gọi hàm.
+- Tối ưu độ ngắn gọn cho các hàm tính toán biến đổi dữ liệu đơn giản.
+```
+// Concise Body: Bỏ {} và return
+const calculateSubtotal = (price, quantity) => price * quantity;
 
-**Code (Bộ tạo mã kiện hàng tự tăng (Package ID Tracker)):**
-```javascript
-function createPackageTracker(prefix) {
-  let count = 0; // Biến tư nhân (Private State)
+console.log(calculateSubtotal(50000, 3));
+// Kết quả: 150000
+```
+**Thân hàm nhiều dòng (Block Body)**
+- Bắt buộc dùng cặp ngoặc nhọn {} khi thân hàm có từ 2 câu lệnh trở lên.
+- Bắt buộc viết từ khóa return rõ ràng để trả về kết quả.
+- Nếu dùng cặp ngoặc {} mà quên từ khóa return, hàm sẽ trả về undefined.
+```
+// Block Body: Bắt buộc {} và return
+const calculateSubtotal = (price, quantity) => {
+  const netTotal = price * quantity;
+  return netTotal;
+};
+```
+
+> 🎙️ **Speaker Notes:** Phân biệt cú pháp Concise Body (Implicit Return) và Block Body (Explicit Return) của Arrow Function. [~4 phut]
+
+---
+
+### Slide 9: [code_right_card] Arrow Function ES6 — 2/3
+*Tham số mặc định thiết lập giá trị phòng thủ khi đối số bị thiếu hoặc mang giá trị undefined.*
+
+**Code Demo:** Default Parameters trong tính phí lưu kho
+```JS
+const calculateStorageFee = (subtotal, shippingFee = 30000, discount = 0) => {
+  const netTotal = subtotal + shippingFee - discount;
+  return netTotal;
+};
+
+// 1. Thiếu đối số -> Tự nhận 30000 và 0
+console.log(calculateStorageFee(150000)); 
+// Kết quả: 180000
+
+// 2. Truyền đầy đủ đối số -> Ghi đè giá trị mặc định
+console.log(calculateStorageFee(150000, 15000, 20000)); 
+// Kết quả: 145000
+```
+**Quy tắc Default Parameters**
+- Giá trị mặc định chỉ kích hoạt khi đối số bị thiếu hoặc có giá trị chính xác là undefined.
+- Các giá trị falsy như 0, chuỗi rỗng "", false hoặc null vẫn sẽ ghi đè giá trị mặc định.
+- Thứ tự tham số chuẩn: Đặt tất cả tham số bắt buộc ở đầu và tham số tùy chọn ở cuối danh sách.
+
+> 🎙️ **Speaker Notes:** Giải thích cách Default Parameters phòng vệ cho ứng dụng tránh nhận kết quả NaN khi tính toán hóa đơn. [~4 phut]
+
+---
+
+### Slide 10: [flowchart] Arrow Function ES6 — 3/3
+*Quy trình giải quyết đối số truyền vào tham số có thiết lập giá trị mặc định.*
+
+- [start] Gọi hàm với danh sách đối số truyền vào
+- [decision] Đối số === undefined hoặc bị thiếu?
+- [process] Gán giá trị mặc định (Default Parameter)
+- [process] Sử dụng giá trị đối số thực tế được truyền
+- [process] Thực thi tính toán logic trong thân hàm
+- [end] Trả về kết quả (Implicit hoặc Explicit Return)
+
+> 🎙️ **Speaker Notes:** Sơ đồ tiến trình kiểm tra đối số trong JavaScript engine khi gặp cấu hình tham số mặc định. [~4 phut]
+
+---
+
+### Slide 11: [interactive] Hoạt động: Kiểm tra nhanh
+
+**Kiểu:** quick_quiz
+**Câu hỏi:** Cho hàm `calculateFee(amount, discount = 10, tax = 0)` và lời gọi `calculateFee(100, 0, undefined)`. Giá trị nhận được của discount và tax lần lượt là bao nhiêu?
+```JS
+const calculateFee = (amount, discount = 10, tax = 0) => {
+  return amount - discount + tax;
+};
+
+console.log(calculateFee(100, 0, undefined));
+```
+- A. discount nhận 0, tax nhận 0 (kết quả trả về: 100)
+- B. discount nhận 10, tax nhận 0 (kết quả trả về: 90)
+- C. discount nhận 0, tax nhận undefined (kết quả trả về: NaN)
+- D. discount nhận 10, tax nhận undefined (kết quả trả về: NaN)
+> 🔑 **Đáp án (giảng viên):** Đáp án đúng là A. discount nhận 0 vì 0 là giá trị hợp lệ ghi đè 10. tax nhận 0 vì giá trị undefined truyền vào kích hoạt giá trị mặc định 0. Phép tính: 100 - 0 + 0 = 100.
+
+> 🎙️ **Speaker Notes:** Nhấn mạnh bẫy phân biệt giữa 0 (falsy nhưng vẫn ghi đè) và undefined (kích hoạt default parameter). [~3 phut]
+
+---
+
+### Slide 12: [grid2x2] Scope & Closure — 1/2
+*Phạm vi biến (Scope) xác định ranh giới truy cập dữ liệu và ngăn chặn hiện tượng rò rỉ biến.*
+
+- **Global Scope:** Biến khai báo ngoài cùng, truy cập được từ mọi nơi. Dễ gây ô nhiễm phạm vi (Global Scope Pollution) nếu không kiểm soát.
+- **Function Scope:** Biến khai báo bên trong hàm chỉ tồn tại và được truy cập nội bộ trong thân hàm đó.
+- **Block Scope:** Biến let/const khai báo trong cặp ngoặc {} (if, for) chỉ hoạt động bên trong khối đó.
+- **Temporal Dead Zone (TDZ):** Vùng chết thời gian ngăn chặn việc truy cập các biến let/const trước dòng khai báo chính thức.
+
+> 🎙️ **Speaker Notes:** Tổng quan 4 khái niệm cốt lõi về phạm vi Scope trong JavaScript: Global, Function, Block và hiện tượng TDZ của let/const. [~5 phut]
+
+---
+
+### Slide 13: [code_right_card] Scope & Closure — 2/2
+*Closure cho phép hàm con duy trì quyền truy cập biến của hàm ngoài để đóng gói trạng thái (Private State).*
+
+**Code Demo:** Bảo vệ bộ đếm Pallet nhập kho bằng Closure
+```JS
+function createPalletTracker() {
+  // Biến nội bộ được đóng gói an toàn (Private State)
+  let itemCounter = 0;
   
-  return function generateId() {
-    count++; // Closure ghi nhớ và tăng biến count của hàm cha
-    return `${prefix}-${String(count).padStart(4, '0')}`;
+  return function() {
+    itemCounter += 1;
+    return itemCounter;
   };
 }
 
-const generateZoneAId = createPackageTracker('ZONE-A');
-console.log(generateZoneAId()); // 'ZONE-A-0001'
-console.log(generateZoneAId()); // 'ZONE-A-0002'
-
-const generateZoneBId = createPackageTracker('ZONE-B');
-console.log(generateZoneBId()); // 'ZONE-B-0001'
+// Tạo vùng không gian Closure độc lập
+const addPallet = createPalletTracker();
+console.log(addPallet()); // Kết quả: 1
+console.log(addPallet()); // Kết quả: 2
+console.log(addPallet()); // Kết quả: 3
 ```
+**Ứng dụng Kỹ thuật Closure**
+- Hàm con ghi nhớ môi trường Lexical Scope nơi nó được sinh ra.
+- Bảo mật dữ liệu nội bộ `itemCounter`, ngăn chặn mã bên ngoài chỉnh sửa trực tiếp.
+- Mỗi lần gọi `createPalletTracker()` tạo ra một vùng lưu trữ độc lập hoàn toàn.
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Closures là một trong những tính năng mạnh mẽ nhất của JavaScript. Khi hàm `createPackageTracker` chạy xong và trả về hàm con, biến `count` không bị hủy đi mà được hàm con 'đóng gói' mang theo. Bên ngoài không thể can thiệp sửa trực tiếp `count = 999`, đảm bảo mã kiện hàng tăng đúng trình tự.
-
----
-
-## Slide 11: Bảng Trace Luồng Thực Thi Scope & Closures [TABLE]
-*Phụ đề:* Từng bước phân tích trạng thái bộ nhớ khi gọi bộ tạo mã kiện hàng
-
-
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Hãy cùng trace bảng bộ nhớ này. Mỗi khi gọi `createPackageTracker`, một không gian lưu trữ Scope hoàn toàn riêng biệt được tạo ra. Việc gọi `genA()` không làm ảnh hưởng tới biến `count` của `genB()`. Đây chính là nền tảng của lập trình hướng đối tượng và module pattern trong JavaScript.
+> 🎙️ **Speaker Notes:** Phân tích cơ chế Closure ghi nhớ biến nội bộ của hàm ngoài ngay cả khi hàm ngoài đã kết thúc thực thi. [~5 phut]
 
 ---
 
-## Slide 12: Thuật Ngữ Cần Nhớ [GRID4]
-*Phụ đề:* 4 khái niệm cốt lõi bắt buộc nắm vững để làm chủ Hàm và Scope
+### Slide 14: [interactive] Hoạt động: Thử thách Closure
 
-### 1. Function Declaration
-- **Định nghĩa:** Khai báo hàm truyền thống với từ khóa function, được hoisting hoàn toàn lên đầu phạm vi.
-- **Ví dụ:** `function calcFee(w) { return w * 5000; }`
-### 2. Arrow Function
-- **Định nghĩa:** Cú pháp hàm mũi tên rút gọn ES6, không có binding riêng cho từ khóa this và arguments.
-- **Ví dụ:** `const calcFee = w => w * 5000;`
-### 3. Block Scope
-- **Định nghĩa:** Phạm vi giới hạn bên trong cặp ngoặc nhọn {} khi khai báo bằng let hoặc const.
-- **Ví dụ:** `{ const zone = 'A1'; }`
-### 4. Closures
-- **Định nghĩa:** Hàm con ghi nhớ và duy trì truy cập vào các biến thuộc phạm vi của hàm cha outer chứa nó.
-- **Ví dụ:** `const tracker = createPackageTracker();`
+**Kiểu:** predict_outcome
+**Câu hỏi:** Xét đoạn mã bên dưới, khi thực thi dòng lệnh cuối cùng `console.log(counterB())`, kết quả thu được là bao nhiêu?
+```JS
+function createPalletTracker() {
+  let itemCounter = 0;
+  return function() {
+    itemCounter += 1;
+    return itemCounter;
+  };
+}
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Vui lòng ghi nhớ 4 thuật ngữ quan trọng nhất của Session 14 trên đây. Đây là các câu hỏi phỏng vấn tuyển dụng cực kỳ phổ biến đối với vị trí Lập trình viên JavaScript / Front-End Web.
+const counterA = createPalletTracker();
+const counterB = createPalletTracker();
 
----
+counterA();
+counterA();
+console.log(counterB());
+```
+- A. In ra 1 — counterA và counterB có không gian Closure độc lập
+- B. In ra 3 — counterA và counterB dùng chung biến itemCounter
+- C. In ra undefined
+- D. Ném lỗi ReferenceError
+> 🔑 **Đáp án (giảng viên):** Đáp án đúng là A. Mỗi lần hàm createPalletTracker() được gọi, một phạm vi thực thi và không gian Closure hoàn toàn mới được tạo ra. Do đó counterA và counterB quản lý 2 bộ đếm độc lập.
 
-## Slide 13: Tổng Kết & Cảnh Báo Lỗi Thường Gặp [CARDS]
-*Phụ đề:* Những bài học xương máu giúp viết code chuẩn sạch trong dự án thực tế
-
-### Lỗi 1: Tái rò rỉ biến Global
-### Lỗi 2: Lầm tưởng Arrow Function có 'this'
-### Lỗi 3: Gọi Function Expression trước khai báo
-### Lỗi 4: Lạm dụng Closures gây tràn RAM
-
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Chúng ta cùng điểm lại 4 sai lầm kỹ thuật phổ biến nhất. Nhớ luôn dùng const/let để giới hạn scope, không dùng Arrow Function làm method cho Object nếu cần truy cập `this`, và lưu ý gọi hàm expression đúng thứ tự.
+> 🎙️ **Speaker Notes:** Làm rõ hiểu lầm phổ biến của học viên về việc các instance của Closure dùng chung bộ nhớ. [~3 phut]
 
 ---
 
-## Slide 14: Chúc Các Bạn Học Tốt! [CLOSING]
+### Slide 15: [glossary_table] Thuật ngữ cần nhớ
+*Bảng tổng hợp các thuật ngữ kỹ thuật cốt lõi trong bài học.*
 
-> 🎙️ **Speaker Notes (Lời giảng E-learning):**
-> Cảm ơn các bạn đã theo dõi trọn vẹn bài giảng Session 14. Các bạn hãy mở ngay hệ thống LMS để hoàn thành bài tập thực hành viết hàm xử lý xuất nhập kho. Hẹn gặp lại các bạn ở session tiếp theo!
+| Thuật ngữ | Tiếng Anh | Định nghĩa |
+|---|---|---|
+| Khai báo hàm định danh | Function Declaration | Cú pháp khai báo hàm truyền thống với từ khóa function và tên định danh, có hỗ trợ cơ chế Hoisting hoàn toàn. |
+| Khai báo hàm dạng biểu thức | Function Expression | Kỹ thuật định nghĩa hàm và gán vào một biến, chỉ được thực thi khi luồng chương trình chạy tới đúng câu lệnh gán. |
+| Cơ chế đưa lên đầu | Hoisting | Cơ chế của trình biên dịch JavaScript tự động di chuyển phần khai báo hàm và biến lên đầu phạm vi chứa nó trước khi mã chạy. |
+| Hàm mũi tên | Arrow Function | Cú pháp khai báo hàm cô đọng ra đời trong ES6 sử dụng ký hiệu =>. |
+| Trả về ngầm định | Implicit Return | Tính năng của Arrow Function 1 dòng cho phép tự động trả về kết quả biểu thức mà không cần cặp ngoặc {} và từ khóa return. |
+| Tham số mặc định | Default Parameter | Giá trị an toàn được gán sẵn cho tham số khi đối số truyền vào bị thiếu hoặc mang giá trị undefined. |
+| Phạm vi biến | Scope | Vùng mã nguồn mà trong đó một biến có thể được truy cập và sử dụng (Global, Function, Block Scope). |
+| Vùng chết thời gian | Temporal Dead Zone (TDZ) | Khoảng thời gian từ khi phạm vi được khởi tạo đến khi dòng khai báo biến let/const được chạy, truy cập biến trong vùng này sẽ gây lỗi. |
+| Bao đóng | Closure | Tính năng cho phép hàm con truy cập và ghi nhớ các biến thuộc phạm vi hàm bao ngoài ngay cả khi hàm ngoài đã thực thi xong. |
+
+> 🎙️ **Speaker Notes:** Điểm lại danh sách thuật ngữ kỹ thuật cốt lõi. Học viên tra cứu bảng này khi làm bài tập thực hành. [~2 phut]
+
+---
+
+### Slide 16: [exercises] Bài tập & Tài liệu tham khảo
+*Vận dụng kiến thức về Arrow Function và Closure vào giải quyết bài toán thực tế.*
+
+**Bài tập thực hành:**
+- Viết hàm Arrow Function calculateStorageCost nhận tham số days (số ngày) và rate (đơn giá/ngày, mặc định 50000 VNĐ) để tính tổng tiền lưu kho.
+- Xây dựng hàm Closure createWarehouseShelf quản lý số lượng kiện hàng trên kệ, hỗ trợ tăng số lượng kiện và trả về tổng số kiện hiện tại mà không làm rò rỉ biến đếm ra ngoài.
+**Tài liệu tham khảo:**
+- MDN Web Docs — Functions & Scope: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions
+- JavaScript.info — Closure & Lexical Environment: https://javascript.info/closure
+- ES6 Specification — Arrow Functions & Default Parameters: https://es6-features.org
+
+> 🎙️ **Speaker Notes:** Giao bài tập vận dụng về nhà cho học viên. Khuyến khích đọc tài liệu tham khảo MDN và JavaScript.info để hiểu sâu về Lexical Scope. [~2 phut]
+
+---
+
+### Slide 17: [summary_2col] Tổng kết
+*4 nguyên tắc cốt lõi cần ghi nhớ khi tổ chức hàm và quản lý phạm vi biến trong JavaScript.*
+
+**Khai báo & Cú pháp Hàm**
+- Dùng Function Declaration cho các hàm dùng chung toàn hệ thống cần Hoisting; dùng Function Expression hoặc Arrow Function cho hàm nội bộ.
+- Ưu tiên sử dụng Arrow Function ngắn gọn (Implicit Return) cho các phép tính toán biến đổi dữ liệu đơn dòng.
+**Tham số & Quản lý Phạm vi Biến**
+- Luôn đặt các tham số bắt buộc ở đầu danh sách tham số và tham số mặc định ở cuối danh sách.
+- Hạn chế khai báo biến toàn cục (Global Scope); tận dụng Block Scope (let/const) và Closure để bảo vệ trạng thái riêng tư.
+
+> 🎙️ **Speaker Notes:** Tóm tắt các quy tắc viết code sạch và bảo mật dữ liệu. Học viên cần áp dụng chuẩn mực này vào dự án thực tế. [~2 phut]
+
+---
+
+### Slide 18: [closing] Cảm ơn các bạn!
+*Bài học tiếp theo: Session 15 - Xử lý Mảng (Array) và các Phương thức Biến đổi Dữ liệu ES6*
+
+
+> 🎙️ **Speaker Notes:** Cảm ơn các bạn đã lắng nghe và tham gia tích cực. Hẹn gặp lại cả lớp trong Session 15! [~1 phut]
 
 ---

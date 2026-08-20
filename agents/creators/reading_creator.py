@@ -39,6 +39,7 @@ from core.renderers.reading import (
     inject_subheading_ids,
     clean_stray_chars,
     ensure_html,
+    strip_ai_cliches_from_title,
     extract_2tier_toc,
     classify_reading_type
 )
@@ -74,6 +75,37 @@ def robust_parse_llm_json(raw: str) -> dict:
         pass
 
     # Tier 3: character-level field scanner
+    def scan_object_value(text: str, start: int):
+        """Scans a balanced {...} JSON object starting at `start`, correctly handling
+        nested braces and string literals (so braces inside string values don't
+        miscount) — needed because interactive_visualizer is a nested object, unlike
+        the flat string fields scan_string_value() handles."""
+        if start >= len(text) or text[start] != '{':
+            return None, start
+        depth = 0
+        i = start
+        in_string = False
+        while i < len(text):
+            c = text[i]
+            if in_string:
+                if c == '\\' and i + 1 < len(text):
+                    i += 2
+                    continue
+                if c == '"':
+                    in_string = False
+                i += 1
+                continue
+            if c == '"':
+                in_string = True
+            elif c == '{':
+                depth += 1
+            elif c == '}':
+                depth -= 1
+                if depth == 0:
+                    return text[start:i + 1], i + 1
+            i += 1
+        return None, i
+
     def scan_string_value(text: str, start: int):
         if start >= len(text) or text[start] != '"':
             return None, start
@@ -132,7 +164,56 @@ def robust_parse_llm_json(raw: str) -> dict:
         except Exception:
             pass
 
+    # `interactive_visualizer` is a nested OBJECT (not a plain string field), so it was
+    # previously dropped silently by Tier 3 (not in str_fields, no dedicated regex like
+    # references/self_test_questions above) — this was the root cause of the visualizer
+    # silently disappearing whenever the LLM's JSON needed the Tier-3 fallback to parse.
+    for viz_key in ('interactive_visualizer', 'visualizer_spec'):
+        search_key = f'"{viz_key}"'
+        idx = cleaned.find(search_key)
+        if idx == -1:
+            continue
+        pos = idx + len(search_key)
+        while pos < len(cleaned) and cleaned[pos] in ' \t\r\n': pos += 1
+        if pos < len(cleaned) and cleaned[pos] == ':': pos += 1
+        while pos < len(cleaned) and cleaned[pos] in ' \t\r\n': pos += 1
+        if pos < len(cleaned) and cleaned[pos] == '{':
+            raw_obj, _ = scan_object_value(cleaned, pos)
+            if raw_obj:
+                try:
+                    result[viz_key] = json.loads(raw_obj)
+                except Exception:
+                    pass
+        if viz_key in result:
+            break
+    if 'interactive_visualizer' not in result and 'visualizer_spec' not in result:
+        print("  [Reading Creator Warning] Tier-3 JSON recovery could not extract 'interactive_visualizer' — Section 2.4 visualizer will be omitted for this lesson.")
+
     return result
+
+def _strip_stray_images(html_str: str) -> str:
+    """Removes any LLM-inserted <img> tags (with or without the my-6/text-center wrapper div).
+    Section 1 already had this governance; Sections 2-4 previously had none at all, letting the
+    LLM freely insert unlimited/redundant images there (confirmed real bug: orphaned duplicate
+    PNGs and an unused SVG twin found in real generated lessons)."""
+    if not html_str or "<img" not in html_str:
+        return html_str
+    html_str = re.sub(r'<div\s+class="[^"]*my-6[^"]*text-center[^"]*">\s*<img\b.*?</p>\s*</div>', '', html_str, flags=re.DOTALL | re.IGNORECASE)
+    html_str = re.sub(r'<img\b[^>]*>', '', html_str, flags=re.IGNORECASE)
+    return html_str
+
+
+def _guard_inline_svgs(html_str: str) -> str:
+    """Applies guard_svg_syntax() to each individual <svg>...</svg> block found inside a larger
+    HTML blob, without touching the surrounding prose. guard_svg_syntax() assumes its ENTIRE
+    input IS the diagram (it wraps the whole string in <div class="my-6">...</div>), so it must
+    never be called on a mixed blob — only on each extracted <svg> fragment. Previously only
+    Section 1's diagram_svg was ever guarded; Sections 2-4 let raw/unsanitized inline SVG the
+    LLM might emit pass through untouched."""
+    if not html_str or "<svg" not in html_str:
+        return html_str
+    return re.sub(r'<svg\b.*?</svg>', lambda m: guard_svg_syntax(m.group(0)), html_str, flags=re.DOTALL | re.IGNORECASE)
+
 
 def generate_reading_html(
     session_id: str,
@@ -222,8 +303,8 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         print(f"  [Reading Creator Warning] All JSON parse tiers failed: {e}. Using minimal fallback.")
         data = {}
 
-    section1_title = (data.get("section1_title") or f"Tại sao cần học {lesson_title}?").strip()
-    section2_title = (data.get("section2_title") or f"Kiến thức và cú pháp cơ bản").strip()
+    section1_title = strip_ai_cliches_from_title((data.get("section1_title") or f"Tại sao cần học {lesson_title}?").strip())
+    section2_title = strip_ai_cliches_from_title((data.get("section2_title") or f"Kiến thức và cú pháp cơ bản").strip())
 
     # Apply Diagram & Syntax Guards
     prob_html = clean_stray_chars(guard_mermaid_syntax(ensure_html(data.get("problem_html") or data.get("problem_text", ""))))
@@ -238,7 +319,7 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
     if state:
         try:
             from agents.creator_agents import get_lesson_dir
-            from agents.creators.mindmap_creator import generate_image_api
+            from agents.creators.common_utils import generate_image_api
             lesson_dir = get_lesson_dir(state)
             images_dir = lesson_dir / "Bài đọc" / "images"
             images_dir.mkdir(parents=True, exist_ok=True)
@@ -269,7 +350,8 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         context_img_url = None
 
     know_html = clean_stray_chars(inject_subheading_ids(guard_mermaid_syntax(ensure_html(data.get("knowledge_html") or data.get("knowledge_text", "")))))
-    
+    know_html = _guard_inline_svgs(_strip_stray_images(know_html))
+
     has_existing_viz_in_know = (
         'id="sec-2-4' in know_html
         or 'viz-step-badge' in know_html
@@ -285,12 +367,15 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
             section2_4 = raw_sec2_4
         else:
             section2_4 = ""
+            print(f"  [Reading Creator Warning] No usable visualizer data (interactive_visualizer/visualizer_spec/section2_4_html all empty) for {session_id} - {lesson_id}: Section 2.4 will be omitted.")
 
         if section2_4:
             know_html = know_html + "\n" + clean_stray_chars(inject_subheading_ids(section2_4))
 
     ex_text = clean_stray_chars(inject_subheading_ids(guard_mermaid_syntax(ensure_html(data.get("example_html") or data.get("example_text", "")))))
+    ex_text = _guard_inline_svgs(_strip_stray_images(ex_text))
     notes_html = clean_stray_chars(ensure_html(data.get("notes_html") or data.get("notes_text", "")))
+    notes_html = _guard_inline_svgs(_strip_stray_images(notes_html))
 
     prob_html = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', prob_html, flags=re.DOTALL | re.IGNORECASE).strip()
     know_html = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', know_html, flags=re.DOTALL | re.IGNORECASE).strip()
@@ -330,6 +415,22 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
         "lesson_id": lesson_id
     }
     full_html = assemble_reading_html(json_payload, metadata)
+
+    # Lightweight, non-blocking post-generation scope audit — reuses the exact same generic
+    # validator quiz generation already relies on (core.scope_calculator.validate_text_against_
+    # scope). This does not retry/reject the lesson (that would need a heavier LLM-repair loop
+    # out of scope here); it only surfaces content bleed early via logs instead of it going
+    # completely unnoticed, as it previously did (reading had zero scope auditing at all).
+    forbidden_set_for_audit = set(str(x).strip().lower() for x in forbidden_scope_raw if str(x).strip()) if isinstance(forbidden_scope_raw, list) else set()
+    if forbidden_set_for_audit:
+        try:
+            from core.scope_calculator import validate_text_against_scope
+            scope_violations = validate_text_against_scope(full_html, forbidden_set_for_audit, tech_stack)
+            if scope_violations:
+                print(f"  [Reading Creator Scope Audit Warning] {session_id} - {lesson_id}: nội dung có thể đã dùng khái niệm chưa học: {scope_violations}")
+        except Exception as e:
+            print(f"  [Reading Creator Scope Audit Notice] Could not run scope audit: {e}")
+
     print(f"  [Success] Compiled SSOT Master Reading HTML via Jinja2 Engine for {session_id} - {lesson_id}")
     return full_html
 

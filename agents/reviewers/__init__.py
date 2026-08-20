@@ -22,7 +22,6 @@ from agents.reviewers.prerequisite_reviewer import (
 
 from agents.reviewers.academic_reviewer import (
     objective_reviewer_agent,
-    mindmap_reviewer,
     pm_reviewer_agent,
     pm_updater_agent,
     check_forbidden_keywords,
@@ -60,7 +59,6 @@ __all__ = [
     "prerequisite_guard_agent",
     "run_prerequisite_check_for_pm",
     "objective_reviewer_agent",
-    "mindmap_reviewer",
     "pm_reviewer_agent",
     "pm_updater_agent",
     "check_forbidden_keywords",

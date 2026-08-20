@@ -17,7 +17,6 @@ from agents.reviewers import (
     prerequisite_guard_agent,
     run_prerequisite_check_for_pm,
     objective_reviewer_agent,
-    mindmap_reviewer,
     pm_reviewer_agent,
     sandbox_testing_agent,
     check_forbidden_emojis,

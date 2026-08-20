@@ -13,10 +13,10 @@ Every generated session-level mindmap MUST strictly follow this hierarchy in Mar
 # [Clean Session Title - Topic Only]
 
 ## Lesson 01 — [Tên Lesson 01]
-### Khái niệm & Vai trò
+### [Nhánh 1 — tên do LLM tự chọn phù hợp nội dung, ví dụ "Khái niệm & Vai trò"]
 - Định nghĩa ngắn gọn: [Bản chất khái niệm, max 10 từ]
 - Vai trò: [Giải quyết vấn đề gì?]
-### Cú pháp & Giải nghĩa
+### [Nhánh 2 — tên do LLM tự chọn, ví dụ "Cú pháp & Giải nghĩa" hoặc "Các bước thực thi"]
 - Khai báo cú pháp chuẩn:
   ```language
   # Cú pháp chuẩn của ngôn ngữ/công nghệ
@@ -24,13 +24,13 @@ Every generated session-level mindmap MUST strictly follow this hierarchy in Mar
 - Giải thích thành phần:
   - [Tên thành phần 1]: [Ý nghĩa, kiểu dữ liệu]
   - [Tên thành phần 2]: [Ý nghĩa]
-### Ví dụ thực hành
+### [Nhánh 3 — tên do LLM tự chọn, ví dụ "Ví dụ thực hành" hoặc "Sơ đồ luồng xử lý"]
 - Kịch bản áp dụng: [Mô tả bối cảnh nghiệp vụ thực tế nhỏ]
   ```language
   # Mã nguồn ví dụ thực tế chạy được (5-8 dòng)
   ```
 - Giải thích ví dụ: [Phân tích nhanh luồng chạy]
-### Lưu ý triển khai
+### [Nhánh 4 — tên do LLM tự chọn, ví dụ "Lưu ý triển khai" hoặc "Điểm cần lưu ý"]
 - **[Tên lỗi phổ biến]**: Tác động/cách khắc phục (cấm dùng từ "thực chiến", "gotcha", "bẫy lỗi").
 - **Lưu ý định dạng**: Quy chuẩn đặt tên và thụt lề theo style guide của công nghệ.
 
@@ -49,7 +49,8 @@ Every generated session-level mindmap MUST strictly follow this hierarchy in Mar
 
 - `#` — Session Root Node (Exactly 1 root node containing only clean session topic name).
 - `##` — Lesson Nodes + final "Liên kết hệ thống" connection node.
-- `###` — 4 Fixed Branch Sub-headings per Lesson.
+- `###` — Exactly 4 Branch Sub-headings per Lesson, dynamically named to fit the lesson's content
+  (see Section 1 example above) — count is fixed at 4, names are NOT fixed.
 - `-` (bullet) — Details ≤ 15 words/line, max 3 bullet levels.
 
 ---

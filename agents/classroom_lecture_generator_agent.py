@@ -97,14 +97,20 @@ class ClassroomLectureGeneratorAgent:
         module_name: str,
         lessons_data: List[Dict[str, Any]],
         core_ssot: Optional[Dict[str, Any]] = None,
-        session_dir_path: Optional[str] = None
+        session_dir_path: Optional[str] = None,
+        chosen_domain: str = "",
+        forbidden_scope: str = "",
+        allowed_scope: str = ""
     ) -> str:
         return generate_interactive_visualizer_html(
             session_title=session_title,
             module_name=module_name,
             lessons_data=lessons_data,
             core_ssot=core_ssot,
-            session_dir_path=session_dir_path
+            session_dir_path=session_dir_path,
+            chosen_domain=chosen_domain,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope
         )
 
     def generate_lecture(
@@ -114,7 +120,10 @@ class ClassroomLectureGeneratorAgent:
         session_dir_path: str,
         tech_stack: str,
         previous_lessons_text: str,
-        lessons_data: Optional[List[Dict[str, Any]]] = None
+        lessons_data: Optional[List[Dict[str, Any]]] = None,
+        chosen_domain: str = "",
+        forbidden_scope: str = "",
+        allowed_scope: str = ""
     ) -> str:
         """
         Generates complete Interactive Visual Lecture Dashboard for all lessons in a Session.
@@ -136,9 +145,12 @@ class ClassroomLectureGeneratorAgent:
         if lessons_data and len(lessons_data) > 0:
             parsed_lessons = lessons_data
         else:
-            raw_matches = re.findall(r'BÀI HỌC\s*(?:Lesson\s*\d+|Bài\s*\d+|\d+)?[\:\-]?\s*(.*?)(?=\n|$)', previous_lessons_text, re.IGNORECASE)
+            raw_matches = re.findall(
+                r'^BÀI HỌC\s+(?:Lesson\s*\d+|Bài\s*\d+|\d+)[\:\-]?\s*(.*?)(?=\n|$)',
+                previous_lessons_text, re.IGNORECASE | re.MULTILINE
+            )
             if not raw_matches:
-                raw_matches = re.findall(r'Lesson\s*\d+\s*[\:\-]?\s*(.*?)(?=\n|$)', previous_lessons_text, re.IGNORECASE)
+                raw_matches = re.findall(r'^Lesson\s*\d+\s*[\:\-]?\s*(.*?)(?=\n|$)', previous_lessons_text, re.IGNORECASE | re.MULTILINE)
             
             for idx, match in enumerate(raw_matches, 1):
                 clean_t = match.strip()
@@ -161,7 +173,10 @@ class ClassroomLectureGeneratorAgent:
             session_title=session_title,
             module_name=tech_stack,
             lessons_data=parsed_lessons,
-            session_dir_path=str(session_dir)
+            session_dir_path=str(session_dir),
+            chosen_domain=chosen_domain,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope
         )
 
         out_html_file = slides_dir / "slides.html"

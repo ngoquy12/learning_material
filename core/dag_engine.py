@@ -100,7 +100,6 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
     "lab_json":                     override,
     "reading_questions_markdown":   override,
     "reading_questions_json":       override,
-    "mindmap_markdown":             override,
 
     # --- Accumulating state ---
     "artifacts_status":     merge_dict,

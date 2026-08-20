@@ -112,6 +112,147 @@ def sanitize_homework_markdown(content: str, level_name: str = "") -> str:
     content = re.sub(r'\n(#{1,4}\s+)', r'\n\n\1', content)
     return content.strip()
 
+def _fallback_de_bai(pdf_level: str, tech_stack: str, chosen_domain: str, idx: int) -> str:
+    """Level-specific fallback đề bài, used only if the LLM response fails to parse."""
+    if pdf_level == "co_ban":
+        return f"""### 1. Mục tiêu bài tập
+- Rèn kỹ năng đọc hiểu mã nguồn, dò luồng (trace code) và phát hiện lỗ hổng logic nghiệp vụ.
+
+### 2. Bối cảnh nghiệp vụ
+Trong hệ thống {chosen_domain}, quy tắc đúng của tính năng #{idx} cần được tuân thủ nghiêm ngặt.
+
+### 3. Vấn đề hiện tại
+Khách hàng đang phản ánh tính năng hoạt động sai kết quả trong một số trường hợp.
+
+### 4. Hiện trường giả (Source code hiện có)
+```{tech_stack}
+// Đoạn code chạy được (không lỗi cú pháp) nhưng sai logic hoặc thiếu điều kiện ràng buộc.
+```
+
+### 5. Yêu cầu đầu ra
+1. Chỉ ra đoạn code sai bằng một test case cụ thể (input → kết quả sai hiện tại → kết quả đúng mong đợi).
+2. Source code đã được sửa chuẩn.
+
+### 6. Quy chuẩn nộp bài
+- Đẩy toàn bộ mã nguồn lên GitHub repository theo cấu trúc chuẩn.
+"""
+    if pdf_level == "chuyen_sau":
+        return f"""### 1. Mục tiêu bài tập
+- Dịch thuật chính xác từ ngôn ngữ nghiệp vụ sang ngôn ngữ logic, tự thiết kế các bước thực hiện.
+
+### 2. Bối cảnh & Vấn đề
+Trong hệ thống {chosen_domain}, khách hàng cần một module/tính năng mới #{idx}.
+
+### 3. Yêu cầu nghiệp vụ
+- Các quy tắc hệ thống cần tuân thủ (công thức tính toán, trường hợp tính phí/giảm giá...).
+
+### 4. Ràng buộc & Bẫy dữ liệu
+- 1-2 kịch bản dữ liệu dị biệt (dữ liệu rỗng, số âm, mất kết nối giữa chừng...).
+
+### 5. Yêu cầu đầu ra
+❖ Báo cáo phân tích và thiết kế giải pháp
+- Phân tích bài toán (Input/Output rõ ràng).
+- Đề xuất giải pháp (ý tưởng logic ngắn gọn).
+- Thiết kế các bước (lưu đồ hoặc gạch đầu dòng tuần tự).
+
+❖ Triển khai và chống lỗi
+- Source code hoàn chỉnh, khớp với thiết kế.
+- Code cụ thể chặn/xử lý các bẫy dữ liệu đã nêu.
+
+### 6. Quy chuẩn nộp bài
+- Đẩy toàn bộ mã nguồn lên GitHub repository theo cấu trúc chuẩn.
+"""
+    if pdf_level == "phan_tich":
+        return f"""### 1. Mục tiêu bài tập
+- Nhìn nhận bài toán dưới nhiều góc độ kỹ thuật, biết đánh giá đánh đổi (trade-off).
+
+### 2. Bối cảnh & Yêu cầu bài toán
+Trong hệ thống {chosen_domain}, cần triển khai tính năng #{idx} nằm trong phạm vi kiến thức đã học.
+
+### 3. Quy tắc nghiệp vụ
+- Các điều kiện tính toán, phân loại hệ thống cần tuân thủ.
+
+### 4. Ràng buộc & Bẫy dữ liệu
+- Các kịch bản ngoại lệ sinh viên phải xử lý.
+
+### 5. Yêu cầu đầu ra
+❖ Phân tích & Đề xuất (Đa giải pháp)
+- Phân tích rõ Input/Output.
+- Tối thiểu 2 giải pháp khả thi.
+
+❖ So sánh & Lựa chọn
+- Bảng so sánh ưu/nhược điểm (tốc độ, bộ nhớ, dễ hiểu, dễ bảo trì).
+- Chốt 1 giải pháp phù hợp nhất.
+
+❖ Thiết kế & Triển khai
+- Thiết kế các bước (luồng logic/mã giả) cho giải pháp đã chọn.
+- Source code hoàn chỉnh, bắt mọi bẫy dữ liệu và ngoại lệ.
+
+### 6. Quy chuẩn nộp bài
+- Đẩy toàn bộ mã nguồn lên GitHub repository theo cấu trúc chuẩn.
+"""
+    # sang_tao
+    return f"""### 1. Mục tiêu bài tập
+- Làm chủ vòng đời phát triển của một tính năng/sản phẩm nhỏ: tự định nghĩa yêu cầu, thiết kế kiến trúc, hoàn thiện sản phẩm.
+
+### 2. Vấn đề
+Một nhu cầu lớn của khách hàng trong hệ thống {chosen_domain} chưa được định hình chi tiết.
+
+### 3. Ràng buộc kỹ thuật
+- Giới hạn công nghệ ({tech_stack}), thời gian thực thi, yêu cầu tổ chức code (Clean Code, tách hàm/class).
+
+### 4. Yêu cầu đầu ra
+❖ Thiết kế Kiến trúc
+- Xác định các module cần có và luồng dữ liệu (data flow).
+
+❖ Sản phẩm hoàn chỉnh
+- Source code xử lý mượt mà mọi ngoại lệ, không crash, giao tiếp thân thiện với người dùng.
+
+### 5. Quy chuẩn nộp bài
+- Đẩy toàn bộ mã nguồn lên GitHub repository theo cấu trúc chuẩn.
+"""
+
+
+def _fallback_tieu_chi(pdf_level: str) -> str:
+    """Level-specific fallback rubric, used only if the LLM response fails to parse."""
+    if pdf_level == "co_ban":
+        return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Xác định đúng đoạn code lỗi | 30đ | Chỉ ra chính xác vị trí lỗi bằng test case cụ thể |
+| Source code đã sửa đúng | 50đ | Đạt 100% test cases, không phát sinh lỗi mới |
+| Cấu trúc & Phong cách mã nguồn | 20đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+"""
+    if pdf_level == "phan_tich":
+        return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Đề xuất đa giải pháp | 20đ | Tối thiểu 2 giải pháp khả thi, phân tích I/O rõ ràng |
+| Bảng so sánh & Lựa chọn | 20đ | So sánh ưu/nhược điểm hợp lý, chọn giải pháp phù hợp |
+| Xử lý Logic đúng nghiệp vụ | 30đ | Đạt 100% test cases cơ bản & nâng cao |
+| Xử lý Biên & Bẫy dữ liệu | 20đ | Kiểm soát mọi kịch bản dữ liệu dị biệt đã nêu |
+| Cấu trúc & Phong cách mã nguồn | 10đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+"""
+    if pdf_level == "sang_tao":
+        return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Thiết kế Kiến trúc | 25đ | Module hoá hợp lý, luồng dữ liệu (data flow) rõ ràng |
+| Mức độ hoàn thiện sản phẩm | 35đ | Xử lý mượt mọi ngoại lệ, không crash |
+| Chất lượng Clean Code | 25đ | Tách hàm/class hợp lý, đặt tên rõ nghĩa |
+| Trải nghiệm người dùng | 15đ | Thông báo lỗi/kết quả thân thiện, dễ hiểu |
+"""
+    # chuyen_sau
+    return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Báo cáo phân tích & thiết kế | 25đ | Input/Output rõ ràng, thiết kế các bước hợp lý |
+| Xử lý Logic đúng nghiệp vụ | 40đ | Đạt 100% test cases cơ bản & nâng cao |
+| Xử lý Biên & Bẫy dữ liệu | 20đ | Kiểm soát mọi kịch bản dữ liệu dị biệt đã nêu |
+| Cấu trúc & Phong cách mã nguồn | 15đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+"""
+
+
 def generate_homework_exercise(
     session_id: str,
     session_title: str,
@@ -121,11 +262,17 @@ def generate_homework_exercise(
     level_name: str,
     chosen_domain: str,
     forbidden_scope: str = "",
-    total_exercises: int = 15
+    total_exercises: int = 15,
+    pdf_level: str = "co_ban"
 ) -> Dict[str, Any]:
     """
     Generates a single homework assignment (de_bai_content and tieu_chi_content)
     using Jinja2 prompt rendering and Pydantic v2 schema validation.
+
+    `pdf_level` selects which of the 4 exercise structures mandated by
+    RE_Tiêu chuẩn bài tập.pdf §III the LLM must follow: "co_ban" (Vận dụng cơ bản —
+    hiện trường giả/fix-the-bug), "chuyen_sau" (Vận dụng chuyên sâu — thiết kế từ đầu),
+    "phan_tich" (đa giải pháp + so sánh), "sang_tao" (thiết kế kiến trúc mở).
     """
     from core.domain_knowledge import get_domain_blueprint
     domain_info = get_domain_blueprint(chosen_domain)
@@ -138,6 +285,7 @@ def generate_homework_exercise(
             "idx": idx,
             "total_exercises": total_exercises,
             "level_name": level_name,
+            "pdf_level": pdf_level,
             "chosen_domain": chosen_domain,
             "session_id": session_id,
             "session_title": session_title,
@@ -183,35 +331,13 @@ def generate_homework_exercise(
         if rubric_match:
             tieu_chi = rubric_match.group(1).strip()
 
-    # Fallback if empty
+    # Fallback if empty — mirrors the pdf_level-specific structure required by
+    # RE_Tiêu chuẩn bài tập.pdf §III (see homework_creator.j2 for the primary LLM path).
     if not de_bai:
-        de_bai = f"""### 1. Mục tiêu bài tập
-- Nắm vững cú pháp và áp dụng {tech_stack} vào bài toán {chosen_domain}.
-
-### 2. Bối cảnh & Mô tả bài toán
-Trong hệ thống {chosen_domain}, kỹ sư cần xây dựng mô-đun xử lý dữ liệu cho bài toán thực tế #{idx}.
-
-### 3. Quy tắc nghiệp vụ (Business Rules)
-- Kiểm tra tính hợp lệ của dữ liệu đầu vào.
-- Tính toán và xuất kết quả theo đúng định dạng.
-
-### 4. Yêu cầu kỹ thuật & Triển khai
-- Viết mã nguồn bằng {tech_stack} tuân thủ chuẩn đặt tên.
-- Xử lý các trường hợp ngoại lệ cơ bản.
-
-### 5. Quy chuẩn nộp bài
-- Đẩy toàn bộ mã nguồn lên GitHub repository theo cấu trúc chuẩn.
-"""
+        de_bai = _fallback_de_bai(pdf_level, tech_stack, chosen_domain, idx)
 
     if not tieu_chi:
-        tieu_chi = f"""### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
-| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
-| :--- | :--- | :--- |
-| Cấu trúc & Phong cách mã nguồn | 20đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
-| Xử lý Logic đúng nghiệp vụ | 40đ | Đạt 100% test cases cơ bản & nâng cao |
-| Xử lý Biên & Ngoại lệ | 20đ | Kiểm soát lỗi dữ liệu đầu vào |
-| Tối ưu hiệu năng | 20đ | Thuật toán tối ưu, không dư thừa tài nguyên |
-"""
+        tieu_chi = _fallback_tieu_chi(pdf_level)
 
     # 3. Validate with Pydantic v2 schema
     raw_payload = {
@@ -459,35 +585,41 @@ def generate_session_homework_suite(
     unified_domain = domain_blueprint.get("domain_id", "SHOPEE_FOOD")
     unified_domain_name = domain_blueprint.get("name_vi", "Hệ thống Đặt đồ ăn ShopeeFood")
 
-    # 15 exercises distributed across 5 Bloom cognitive levels on ONE UNIFIED DOMAIN
+    # 15 exercises distributed across 5 Bloom cognitive levels on ONE UNIFIED DOMAIN.
+    # `pdf_level` maps each tier onto one of the 4 exercise structures mandated by
+    # RE_Tiêu chuẩn bài tập.pdf §III (Vận dụng cơ bản / Vận dụng chuyên sâu / Phân tích /
+    # Sáng tạo) — homework_creator.j2 renders a DIFFERENT required section layout per
+    # pdf_level. "Mức độ 1" and "Mức độ 2" both map to "co_ban": the PDF only allots 2
+    # exercises to this tier, but the current internal standard doubles it to 6 (kept as-is
+    # per team decision — this file diverges from the PDF's count on purpose).
     levels = [
         # Mức độ 1: Cơ bản 1 - Debug lỗi (Bài 1-3)
-        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain),
-        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain),
-        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain),
+        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain, "co_ban"),
+        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain, "co_ban"),
+        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain, "co_ban"),
         # Mức độ 2: Cơ bản 2 - Kiểm thử I/O & Hoàn thiện luồng (Bài 4-6)
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain),
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain),
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain, "co_ban"),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain, "co_ban"),
+        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain, "co_ban"),
         # Mức độ 3: Nâng cao 1 - Xây dựng tính năng mới (Bài 7-9)
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain),
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain),
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain, "chuyen_sau"),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain, "chuyen_sau"),
+        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain, "chuyen_sau"),
         # Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc & Trade-offs (Bài 10-12)
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain),
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain),
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain, "phan_tich"),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain, "phan_tich"),
+        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain, "phan_tich"),
         # Mức độ 5: Sáng tạo - Thiết kế Mini Module (Bài 13-15)
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain),
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain),
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain)
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain, "sang_tao"),
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain, "sang_tao"),
+        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain, "sang_tao")
     ]
 
     exercises_data = []
     print(f"\n[Homework Creator] 🚀 Bắt đầu sinh bộ {total_exercises} bài tập về nhà + 1 bài tổng hợp + 1 bài mindmap cho {session_id} ({tech_stack}) theo Domain thống nhất [{unified_domain_name}]...")
 
     def _gen_one(i: int):
-        level_name, domain = levels[(i - 1) % len(levels)]
+        level_name, domain, pdf_level = levels[(i - 1) % len(levels)]
         return generate_homework_exercise(
             session_id=session_id,
             session_title=session_title,
@@ -497,7 +629,8 @@ def generate_session_homework_suite(
             level_name=level_name,
             chosen_domain=domain,
             forbidden_scope=forbidden_scope,
-            total_exercises=total_exercises
+            total_exercises=total_exercises,
+            pdf_level=pdf_level
         )
 
     # Parallel generation of 15 homework exercises
@@ -586,6 +719,7 @@ def generate_session_homework_suite(
                 f.write(ex["tieu_chi_content"])
 
         # 3. Export folder 16: In-Class Synthesis Exercise
+        rubric_16 = rubric_17 = ""
         if inclass_ex_content:
             folder_16_name = "16_tong_hop_demo_giang_vien_tren_lop"
             valid_folder_names.append(folder_16_name)
@@ -626,8 +760,10 @@ def generate_session_homework_suite(
             f.write(f"# BẢNG TIÊU CHÍ ĐÁNH GIÁ TỔNG HỢP (100đ) - {session_title}\n\n")
             for ex in exercises_data:
                 f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
-            for ex in exercises_data:
-                f.write(f"## {ex['title']}\n\n{ex['tieu_chi_content']}\n\n---\n\n")
+            if inclass_ex_content and rubric_16:
+                f.write(f"## Bài 16: Tổng hợp Demo Giảng viên Trên lớp\n\n{rubric_16}\n\n---\n\n")
+            if mindmap_ex_content and rubric_17:
+                f.write(f"## Bài 17: Tổng hợp Hệ thống Kiến thức Mindmap\n\n{rubric_17}\n\n---\n\n")
 
         # 6. Post-generation Review & Auto-Cleanup Pipeline
         try:

@@ -5,6 +5,24 @@ import re
 import os
 from typing import Dict, Any, List
 from core.llm import call_llm
+from core.domain_knowledge import get_domain_for_session, format_domain_rules_for_prompt
+
+
+def _build_domain_prompt_block(session_id: str, session_title: str, chosen_domain: str) -> str:
+    """Builds the UNIFIED SESSION BUSINESS DOMAIN CONTRACT block shared by all Practice-track prompts."""
+    if not chosen_domain:
+        return ""
+    session_domain_data = get_domain_for_session(session_id, session_title, chosen_domain)
+    domain_rules = format_domain_rules_for_prompt(session_domain_data)
+    active_domain = session_domain_data.get("name_vi", chosen_domain)
+    return f"""
+=== UNIFIED SESSION BUSINESS DOMAIN CONTRACT ===
+{domain_rules}
+CRITICAL DOMAIN CONSISTENCY MANDATE:
+- This Session has ONE unified business domain: {active_domain}. Each exercise's subsystem below
+  is a different FUNCTIONAL ANGLE of this SAME domain — do NOT invent an unrelated business.
+=================================================
+"""
 
 def sanitize_vietnamese_filename(text: str) -> str:
     # Chuyển sang chữ thường
@@ -59,7 +77,10 @@ def practice_creator_agent(
     tech_stack: str,
     previous_lessons_text: str,
     only_index: int | None = None,
-    latest_theory_session: str = ""
+    latest_theory_session: str = "",
+    forbidden_scope: str = "",
+    allowed_scope: str = "",
+    chosen_domain: str = ""
 ) -> Dict[str, Any]:
     print(f"  [Practice Creator] Designing exercises for {session_id} - {session_title}...")
     
@@ -79,7 +100,15 @@ def practice_creator_agent(
     
     domains = ["ecommerce", "crm", "logistics", "warehouse", "fintech"]
     exercises = []
-    
+
+    scope_rules = ""
+    if forbidden_scope:
+        scope_rules += f"\nPHẠM VI CẤM DÙNG (FORBIDDEN SCOPE): {forbidden_scope}.\nTUYỆT ĐỐI CẤM SỬ DỤNG CÁC KIẾN THỨC BỊ CẤM NÀY.\n"
+    if allowed_scope:
+        scope_rules += f"\nPHẠM VI ĐÃ HỌC (ALLOWED SCOPE): {allowed_scope}.\n"
+
+    domain_prompt_block = _build_domain_prompt_block(session_id, session_title, chosen_domain)
+
     is_tooling = is_cli_or_tooling_tech(tech_stack)
     
     if is_tooling:
@@ -111,7 +140,8 @@ Your task is to generate EXACTLY 1 practical exercise for:
 Session: {session_id} - {session_title}
 Technology Stack: {tech_stack}
 Latest Preceding Theory Session: {latest_theory_session or session_title}
-
+{domain_prompt_block}
+{scope_rules}
 REQUIRED DIFFICULTY LEVEL:
 - Level: {level_name} (Targeted for {target_student} students)
 - Domain Subsystem: {domain.upper()} Management Subsystem
@@ -127,6 +157,7 @@ MANDATORY EXERCISE DIRECTIVES:
      * Seamlessly integrate foundational concepts and tools from prior sessions ({previous_lessons_text}) to form realistic, cohesive business problems.
    - STRICT NO SCOPE LEAKAGE:
      * ABSOLUTELY FORBIDDEN to leak future unlearned topics, unlearned data structures (e.g., Dict/List/Set/Classes/Async before their respective dedicated sessions), or unlearned execution commands for any technology stack ({tech_stack}).
+     * Strictly comply with Forbidden Scope ({forbidden_scope or 'None'}) listed above — this includes ALL future session/lesson topics not yet taught.
 
 0.2 MERMAID DATA FLOW DIAGRAM:
    - In Section 2 (Problem Context), MUST include 1 highly detailed, correctly spelled Mermaid diagram (````mermaid ... ````) visualizing data flow (Inputs -> Process Logic -> Expected Output).
@@ -542,7 +573,7 @@ def generate_and_link_diagram(content: str, practice_dir, filename_no_ext: str) 
     new_content = re.sub(r"\*?\s*Prompt tạo ảnh:\s*(.*?)(?:\*|\n\n|\n(?=###)|$)", markdown_image_tag, content, flags=re.IGNORECASE | re.DOTALL)
     return new_content
 
-def generate_practice_session_exercises(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str, latest_theory_session: str = ""):
+def generate_practice_session_exercises(session_id: str, session_title: str, session_dir_path: str, tech_stack: str, previous_lessons_text: str, latest_theory_session: str = "", forbidden_scope: str = "", allowed_scope: str = "", chosen_domain: str = ""):
     import pathlib
     session_dir = pathlib.Path(session_dir_path)
     session_dir.mkdir(parents=True, exist_ok=True)
@@ -559,7 +590,10 @@ def generate_practice_session_exercises(session_id: str, session_title: str, ses
             session_title=session_title,
             tech_stack=tech_stack,
             previous_lessons_text=previous_lessons_text,
-            latest_theory_session=latest_theory_session
+            latest_theory_session=latest_theory_session,
+            forbidden_scope=forbidden_scope,
+            allowed_scope=allowed_scope,
+            chosen_domain=chosen_domain
         )
         last_candidate = candidate_exercises
         review_result = practice_reviewer_agent(candidate_exercises, tech_stack)

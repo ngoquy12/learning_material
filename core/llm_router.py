@@ -42,7 +42,6 @@ AGENT_TIER_REGISTRY: Dict[str, str] = {
     "tts_normalizer": TIER_1_FAST,
     "session_compiler_validator": TIER_1_FAST,
     "html_ux_reviewer": TIER_1_FAST,
-    "mindmap_reviewer": TIER_1_FAST,
     
     # Tier 3: High Context & Complex Code (gemini-3.6-flash-high / gemini-3.1-pro)
     "enterprise_code_section_3": TIER_3_DEEP_CONTEXT,
@@ -59,7 +58,6 @@ AGENT_TIER_REGISTRY: Dict[str, str] = {
     "quiz_agent": TIER_2_REASONING,
     "practical_lab_creator": TIER_2_REASONING,
     "visualizer_creator": TIER_2_REASONING,
-    "mindmap_creator": TIER_2_REASONING,
     "prerequisite_guard": TIER_2_REASONING,
     "prerequisite_guard_agent": TIER_2_REASONING,
     "scope_calculator": TIER_2_REASONING,

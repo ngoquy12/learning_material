@@ -325,13 +325,25 @@ def practical_lab_creator_agent(state: AgentState) -> AgentState:
     chosen_domain = state.get("chosen_domain") or session_domain_data.get("name_vi", "Hệ thống Doanh nghiệp")
     domain_prompt_block = format_domain_rules_for_prompt(session_domain_data)
 
+    # Scope-contract: was previously never wired into this generator at all (unlike reading and
+    # blueprint generation), which is the confirmed root cause of real scope leakage — a Session
+    # 2 JS lab listed DOM API/Fetch API/Async-Await as objectives, concepts taught 9-11 sessions
+    # later. `state["allowed_scope"]`/`state["forbidden_scope"]` are already computed per-lesson
+    # by workflow_cmd.py (calculate_lesson_scope_contract) — this just needs to read them.
+    allowed_scope_raw = state.get("allowed_scope") or state.get("previous_lessons") or []
+    allowed_scope = ", ".join(str(x) for x in allowed_scope_raw if str(x).strip()) if isinstance(allowed_scope_raw, list) else str(allowed_scope_raw).strip()
+    forbidden_scope_raw = state.get("forbidden_scope") or []
+    forbidden_scope = ", ".join(str(x) for x in forbidden_scope_raw if str(x).strip()) if isinstance(forbidden_scope_raw, list) else str(forbidden_scope_raw).strip()
+
     system_prompt = render_prompt(
         "practical_lab_creator.j2",
         {
             "tech_stack": tech_stack,
             "lesson_title": lesson_title,
             "chosen_domain": chosen_domain,
-            "domain_prompt_block": domain_prompt_block
+            "domain_prompt_block": domain_prompt_block,
+            "allowed_scope": allowed_scope,
+            "forbidden_scope": forbidden_scope
         }
     )
 
@@ -352,6 +364,8 @@ Lesson: {lesson_id} - {lesson_title}
 Curriculum Context: {lesson_details}
 Expected Output: {expected_output}
 Tech Stack: {tech_stack}
+Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
+Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
 """
 
     response_str = call_llm(
@@ -365,29 +379,22 @@ Tech Stack: {tech_stack}
 
     lab_data = extract_json_from_response(response_str)
     if not isinstance(lab_data, dict) or not lab_data.get("title"):
-        if "git" in tech_stack.lower() or "version control" in lesson_title.lower():
-            steps = [
-                f"Bước 1: Khởi tạo kho lưu trữ local hoặc chuyển sang làm việc trên repo dự án {tech_stack}.",
-                f"Bước 2: Thực hiện các câu lệnh kiểm tra trạng thái và theo dõi phiên bản cho {lesson_title}.",
-                "Bước 3: Thực hiện lưu vết commit và đẩy/đồng bộ thay đổi lên nhánh làm việc.",
-                "Bước 4: Kiểm tra nhật ký lịch sử log và nghiệm thu kết quả thao tác."
-            ]
-            checklist = [
-                f"Thao tác các lệnh {tech_stack} chính xác không phát sinh xung đột ngoài ý muốn.",
-                "Lưu vết commit rõ ràng và kiểm tra trạng thái repo sạch (clean working tree)."
-            ]
-        else:
-            steps = [
-                f"Bước 1: Khởi tạo không gian làm việc và tệp mã nguồn cho bài học {lesson_title}.",
-                f"Bước 2: Triển khai cấu trúc và viết mã nguồn tuân thủ chuẩn quy định {tech_stack}.",
-                "Bước 3: Thực thi chương trình và kiểm tra các kịch bản thử nghiệm dữ liệu.",
-                "Bước 4: Xuất kết quả báo cáo nghiệm thu ra màn hình console/giao diện."
-            ]
-            checklist = [
-                f"Mã nguồn triển khai chuẩn xác theo yêu cầu {tech_stack}.",
-                "Chương trình chạy ổn định và đưa ra kết quả chính xác."
-            ]
-            
+        # Generic fallback (LLM response was unusable) — was previously a special-cased branch
+        # keyed on `"git" in tech_stack.lower()`, a hard-coded course/tech-specific carve-out
+        # that violates the platform's "never hardcode course/tech-specific values" principle.
+        # This single generic template already reads naturally for any stack/tool via the
+        # dynamic {tech_stack}/{lesson_title} interpolation below.
+        steps = [
+            f"Bước 1: Khởi tạo không gian làm việc và tệp mã nguồn cho bài học {lesson_title}.",
+            f"Bước 2: Triển khai cấu trúc và viết mã nguồn tuân thủ chuẩn quy định {tech_stack}.",
+            "Bước 3: Thực thi chương trình và kiểm tra các kịch bản thử nghiệm dữ liệu.",
+            "Bước 4: Xuất kết quả báo cáo nghiệm thu ra màn hình console/giao diện."
+        ]
+        checklist = [
+            f"Mã nguồn triển khai chuẩn xác theo yêu cầu {tech_stack}.",
+            "Chương trình chạy ổn định và đưa ra kết quả chính xác."
+        ]
+
         lab_data = {
             "title": f"Bài thực hành: Xây dựng kịch bản thực tế cho {lesson_title}",
             "objectives": [
@@ -408,5 +415,22 @@ Tech Stack: {tech_stack}
     state["lab_json"] = lab_data
     state["practical_lab_markdown"] = lab_md
     state["practical_lab_html"] = lab_html
+
+    # Lightweight, non-blocking post-generation audits — mirrors the same pattern already added
+    # to reading generation (reading_creator.py). Does not retry/reject; only surfaces content
+    # bleed or domain drift via logs instead of it going completely unnoticed.
+    forbidden_set_for_audit = set(str(x).strip().lower() for x in forbidden_scope_raw if str(x).strip()) if isinstance(forbidden_scope_raw, list) else set()
+    if forbidden_set_for_audit:
+        try:
+            from core.scope_calculator import validate_text_against_scope
+            scope_violations = validate_text_against_scope(lab_md, forbidden_set_for_audit, tech_stack)
+            if scope_violations:
+                print(f"  [Practical_Lab_Agent Scope Audit Warning] {session_id} - {lesson_id}: nội dung có thể đã dùng khái niệm chưa học: {scope_violations}")
+        except Exception as e:
+            print(f"  [Practical_Lab_Agent Scope Audit Notice] Could not run scope audit: {e}")
+
+    if chosen_domain and chosen_domain.strip() and chosen_domain.lower() not in lab_md.lower():
+        print(f"  [Practical_Lab_Agent Domain Audit Warning] {session_id} - {lesson_id}: domain thống nhất '{chosen_domain}' không xuất hiện trong nội dung sinh ra — có thể LLM đã lệch sang bối cảnh khác.")
+
     log_agent_tokens("Practical_Lab_Agent", state, lab_md)
     return state

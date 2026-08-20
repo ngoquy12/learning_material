@@ -9,7 +9,7 @@ import shutil
 import zipfile
 from pathlib import Path
 
-from core.renderers.pptx.slide_deck_builder import SlideDeckBuilder, slide_deck_builder
+from core.renderers.pptx.deck_engine import build_deck
 from core.renderers.pptx.slide_validator import validate_pptx_file, validate_unpacked_deck
 from agents.creators.slide_deck_creator import SlideDeckCreatorAgent, generate_session_slide_deck
 from agents.reviewers.slide_deck_reviewer import SlideDeckReviewerAgent, review_session_slide_deck
@@ -23,83 +23,80 @@ class TestSlideDeckGenerator(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_slide_deck_builder_e2e(self):
-        """Tests that SlideDeckBuilder builds a complete, valid PPTX file from slide data."""
+    def test_deck_engine_build_deck_e2e(self):
+        """Tests that build_deck() builds a complete, valid PPTX file from slide data."""
         slides_data = [
             {
-                "slide_number": 1,
+                "id": 1,
                 "type": "cover",
-                "layout": "slideLayout1.xml",
+                "session_tag": "Session 17",
                 "title": "Tương tác DOM API trong JavaScript",
                 "course_name": "Phát triển ứng dụng Web",
-                "speaker_notes": "Chào mừng các bạn đến với bài học hôm nay."
+                "notes": "Chào mừng các bạn đến với bài học hôm nay."
             },
             {
-                "slide_number": 2,
+                "id": 2,
                 "type": "agenda",
-                "layout": "slideLayout2.xml",
-                "title": "Nội Dung Bài Giảng",
-                "agenda_items": [
-                    "Tổng quan về cây DOM",
-                    "Truy xuất phần tử qua getElementById & querySelector",
-                    "Thay đổi nội dung textContent và innerHTML",
-                    "Tổng kết & Lưu ý kỹ thuật"
+                "items": [
+                    "1. Tổng quan về cây DOM",
+                    "2. Truy xuất phần tử qua getElementById & querySelector",
+                    "3. Thay đổi nội dung textContent và innerHTML",
+                    "4. Tổng kết & Lưu ý kỹ thuật"
                 ],
-                "speaker_notes": "Hôm nay chúng ta sẽ đi qua 4 nội dung trọng tâm."
+                "notes": "Hôm nay chúng ta sẽ đi qua 4 nội dung trọng tâm."
             },
             {
-                "slide_number": 3,
-                "type": "code",
-                "layout": "slideLayout2.xml",
-                "title": "1. Truy Xuất Phần Tử DOM — 1/2",
-                "subtitle": "Áp dụng trong hệ thống gọi xe công nghệ",
-                "bullets": [
-                    "Sử dụng document.getElementById cho ID duy nhất",
-                    "Sử dụng querySelector cho CSS Selector linh hoạt",
-                    "Kiểm tra phần tử tồn tại trước khi thao tác"
-                ],
+                "id": 3,
+                "type": "objectives",
+                "h1": "Mục tiêu bài học",
+                "goals": ["Hiểu cách truy xuất phần tử DOM", "Phân biệt textContent và innerHTML"],
+                "notes": "Mục tiêu bài học hôm nay."
+            },
+            {
+                "id": 4,
+                "type": "code_right_card",
+                "h1": "Truy xuất phần tử DOM",
+                "h2": "document.getElementById trả về phần tử duy nhất theo id.",
                 "code_title": "DOM Query API",
                 "code_snippet": "const bookingBtn = document.getElementById('btn-book');\nif (bookingBtn) {\n  bookingBtn.innerText = 'Đặt chuyến ngay';\n}",
-                "speaker_notes": "Hãy cùng nhìn vào đoạn mã mẫu truy xuất nút đặt chuyến..."
+                "lang_tag": "JS",
+                "card_title": "Lưu ý",
+                "card_items": ["Kiểm tra phần tử tồn tại trước khi thao tác"],
+                "notes": "Hãy cùng nhìn vào đoạn mã mẫu truy xuất nút đặt chuyến..."
             },
             {
-                "slide_number": 4,
-                "type": "table",
-                "layout": "slideLayout2.xml",
-                "title": "So Sánh textContent & innerHTML",
-                "subtitle": "Lựa chọn phương thức an toàn bảo mật",
-                "table_headers": ["Tiêu chí", "textContent", "innerHTML"],
-                "table_rows": [
-                    ["Bảo mật XSS", "Tuyệt đối an toàn (chỉ nhận text)", "Nguy cơ XSS nếu không sanitize"],
-                    ["Hiệu năng", "Nhanh hơn", "Chậm hơn do phải parse HTML"],
-                    ["Render HTML tag", "Không render (hiển thị nguyên bản)", "Có render thành phần tử DOM"]
+                "id": 5,
+                "type": "comparison_2col",
+                "h1": "So sánh textContent & innerHTML",
+                "h2": "textContent an toàn hơn innerHTML trước tấn công XSS.",
+                "left_title": "textContent",
+                "left_items": ["Tuyệt đối an toàn (chỉ nhận text)", "Nhanh hơn"],
+                "right_title": "innerHTML",
+                "right_items": ["Nguy cơ XSS nếu không sanitize", "Chậm hơn do phải parse HTML"],
+                "notes": "Bảng so sánh này rất quan trọng để tránh lỗ hổng bảo mật XSS."
+            },
+            {
+                "id": 6,
+                "type": "glossary_table",
+                "h1": "Thuật ngữ cần nhớ",
+                "headers": ["Thuật ngữ", "Tiếng Anh", "Định nghĩa"],
+                "rows": [
+                    ["Nút DOM", "DOM Node", "Nút trong cây cấu trúc tài liệu"],
+                    ["Tấn công XSS", "XSS Attack", "Tấn công chèn mã độc vào trình duyệt"],
                 ],
-                "speaker_notes": "Bảng so sánh này rất quan trọng để tránh lỗ hổng bảo mật XSS."
+                "notes": "Các bạn hãy ghi nhớ 2 thuật ngữ cốt lõi này."
             },
             {
-                "slide_number": 5,
-                "type": "cards",
-                "layout": "slideLayout2.xml",
-                "title": "Thuật Ngữ Cần Nhớ",
-                "subtitle": "Từ khóa kỹ thuật then chốt",
-                "cards": [
-                    {"title": "DOM Node", "bullets": ["Nút trong cây cấu trúc tài liệu", "Đại diện cho thẻ HTML, text hoặc attribute"]},
-                    {"title": "XSS Attack", "bullets": ["Tấn công chèn mã độc vào trình duyệt", "Xảy ra khi dùng innerHTML bừa bãi"]}
-                ],
-                "speaker_notes": "Các bạn hãy ghi nhớ 2 thuật ngữ cốt lõi này."
-            },
-            {
-                "slide_number": 6,
+                "id": 7,
                 "type": "closing",
-                "layout": "slideLayout3.xml",
-                "title": "Chúc Các Bạn Học Tốt!",
-                "message": "Hẹn gặp lại các bạn trong bài giảng tiếp theo.",
-                "speaker_notes": "Cảm ơn các bạn đã lắng nghe!"
+                "title": "Chúc các bạn học tốt!",
+                "subtitle": "Hẹn gặp lại các bạn trong bài giảng tiếp theo.",
+                "notes": "Cảm ơn các bạn đã lắng nghe!"
             }
         ]
 
         target_pptx = self.out_dir / "Slide_Bai_Giang_Test.pptx"
-        built_path = slide_deck_builder.build_deck_from_slides_data(
+        built_path = build_deck(
             slides_data=slides_data,
             output_pptx_path=target_pptx
         )
@@ -112,13 +109,13 @@ class TestSlideDeckGenerator(unittest.TestCase):
             names = z.namelist()
             self.assertIn("ppt/presentation.xml", names)
             self.assertIn("ppt/slides/slide1.xml", names)
-            self.assertIn("ppt/slides/slide6.xml", names)
+            self.assertIn("ppt/slides/slide7.xml", names)
             self.assertIn("ppt/notesSlides/notesSlide1.xml", names)
 
         # Run Validator
         val_res = validate_pptx_file(built_path)
         self.assertTrue(val_res["passed"], f"Validation failed with errors: {val_res.get('errors')}")
-        self.assertEqual(val_res["total_slides"], 6)
+        self.assertEqual(val_res["total_slides"], 7)
 
     def test_slide_deck_creator_and_reviewer_agents(self):
         """Tests end-to-end generation and review of Slide bài giảng."""
