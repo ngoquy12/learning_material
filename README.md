@@ -97,14 +97,30 @@ flowchart TD
 
 ## 3. Các Loại Học Liệu Hệ Thống Sinh Tự Động
 
-| Loại Học Liệu            | Định dạng Đầu ra                          | Đặc tả & Tiêu chuẩn Kỹ thuật                                                                                                                                                            |
-| :----------------------- | :---------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Bài đọc lý thuyết**    | `reading.html` & `reading_all.html`       | Cấu trúc danh sách ngắt ý ngắn gọn, 100% tiếng Việt có dấu, ảnh bối cảnh 16:9, Dark Terminal Console, Self-Test tương tác, Sandbox Pyodide chạy trực tiếp trên trình duyệt.             |
-| **Slide bài giảng**      | `Slide_Bai_Giang.pptx` & `slides.html`    | Master Slide (15-20 slides/session), Bento Grid hiện đại, quy tắc 3-30-300 typography, phân màu thẻ kỹ thuật, dàn ý sư phạm chi tiết cho giảng viên.                                    |
-| **Bài tập thực hành**    | 17 thư mục Markdown + Code files + Rubric | 17 bài tập phân tầng theo thang nhận thức Bloom (Vận dụng cơ bản -> Vận dụng nâng cao -> Sáng tạo -> Tổng hợp). Kèm bảng tiêu chí chấm điểm chi tiết 100 điểm (`tieu_chi_danh_gia.md`). |
-| **Mini Project / Lab**   | `practical_lab.md` + JSON + Checklist     | Bố cục 3 phần chuẩn hóa: Mục tiêu -> Các bước thực hiện -> Bảng checklist tự kiểm tra định lượng `[ ]`.                                                                                 |
-| **Quizz Trắc nghiệm**    | Excel (`.xlsx`) + JSON                    | 5 câu/lesson, Entrance Quiz 45 câu (30 câu cũ + 15 câu mới), Exit Quiz 45 câu (100% câu mới). Tuân thủ 9 nguyên tắc sư phạm Quizz.                                                      |
-| **SCORM 1.2 & Obsidian** | ZIP SCORM 1.2 & Obsidian Vault            | Đóng gói tương thích chuẩn e-learning LMS quốc tế và đồ thị mạng lưới tri thức 2 chiều (Obsidian Markmap).                                                                              |
+Hệ thống tự động sinh toàn diện **18 loại tài nguyên học liệu và kiểm định** cho từng bài học (Lesson) và từng buổi học (Session), được tổ chức thành 6 nhóm chuyên biệt:
+
+### 3.1. Bảng Tổng Hợp Tài Nguyên Học Liệu Đầu Ra
+
+| Nhóm Tài Nguyên | Tên Loại Học Liệu | Định dạng Đầu ra | Vị trí Thư mục Lưu trữ | Đặc tả & Tiêu chuẩn Kỹ thuật |
+| :--- | :--- | :--- | :--- | :--- |
+| **I. Lý Thuyết & Cổng Bài Đọc** | **1. Bài đọc lý thuyết cốt lõi** | `reading.html` | `<Lesson>/Bài đọc/` | Cấu trúc 5 phần chuẩn sư phạm, ảnh bối cảnh 16:9 2D vector, Dark Terminal Console, Code Tracker highlight, Sandbox Pyodide WASM chạy trực tiếp trên trình duyệt, form Interactive Self-Test. |
+| | **2. Cổng bài đọc tổng hợp buổi học** | `reading_all.html` | `<Session>/` | Master Session Hub với Sticky Sidebar Navigation, logo chính thức Rikkei Education, DOM isolation và chuyển đổi tab bài học mượt mà. |
+| | **3. Bản thiết kế bài học** | `lesson_blueprint.json` | `<Lesson>/Blueprint/` | Bản đặc tả kiến trúc bài học, phân bổ thời gian, cấu trúc nội dung và liên kết chuẩn đầu ra CLO/PLO. |
+| | **4. Câu hỏi đọc hiểu sâu** | `reading_questions.md` & `.json` | `<Lesson>/Câu hỏi bài đọc/` | Bộ câu hỏi kiểm tra đọc hiểu sâu, thiết kế chống AI shortcut và bắt buộc bám sát dữ liệu/kịch bản cụ thể trong bài. |
+| **II. Giảng Dạy & Trình Chiếu** | **5. Slide PowerPoint chính thức** | `Slide_Bai_Giang_Session_XX.pptx` | `<Session>/Slide bài giảng/` | Master Slide PowerPoint chuẩn nhận diện Rikkei Education, bố cục Bento Grid, nguyên tắc 3-30-300 typography, phân màu thẻ kỹ thuật. |
+| | **6. Slide trình chiếu tương tác HTML** | `slides.html` | `<Session>/Slide bài giảng/` | Bản trình chiếu Web HTML đa nền tảng, hỗ trợ phím điều hướng và trình chiếu trực quan trên trình duyệt. |
+| | **7. Dàn ý sư phạm cho giảng viên** | `outline_bai_giang.md` | `<Session>/Slide bài giảng/` | Kịch bản giảng dạy chi tiết theo từng slide kèm phân bổ thời gian (timecode) và gợi ý sư phạm cho giảng viên. |
+| | **8. Báo cáo kiểm định slide** | `slide_deck_review_report.md` | `<Session>/Slide bài giảng/` | Báo cáo đánh giá chất lượng slide theo thang đo tiêu chuẩn của hệ thống. |
+| **III. Bài Tập & Đánh Giá Thực Hành** | **9. Bộ 17 bài tập phân tầng Bloom** | 17 thư mục Markdown + Code | `<Session>/Bài tập/<1..17>_*/` | 17 thư mục bài tập chuyên biệt (Vận dụng cơ bản -> Debugging -> Xử lý nghiệp vụ -> Sáng tạo Mini Project -> Tổng hợp). Mỗi thư mục chứa `de_bai_bai_tap.md` và `tieu_chi_cham_diem_ai.md`. |
+| | **10. Tiêu chí chấm điểm Rubric 100 điểm** | `tieu_chi_danh_gia.md` | `<Session>/Bài tập/` | Bảng Rubric 100 điểm phân chia theo 5 tiêu chuẩn đánh giá minh bạch ở thư mục gốc bài tập. |
+| | **11. Bài thực hành Lab & Mini Project** | `practical_lab.md`, `.json`, `.html` | `<Lesson>/Bài thực hành/` | Bố cục 3 phần chuẩn hóa: Mục tiêu -> Các bước thực hiện tuần tự -> Bảng checklist định lượng `[ ]` cho học viên tự đánh giá. |
+| **IV. Khảo Thí & Quizz Trắc Nghiệm** | **12. Quizz trắc nghiệm bài học** | `Quizz_SessionXX_LessonYY.xlsx` & `quiz.json` | `<Lesson>/Quizz lesson/` | 5 câu hỏi trắc nghiệm/lesson phân tầng theo thang nhận thức Bloom. |
+| | **13. Quiz đầu giờ 45 câu (Entrance Quiz)** | `Session XX._Quizz_Dau_Gio_*.xlsx` & `.json` | `<Session>/Quizz session/` | 45 câu hỏi trắc nghiệm (30 câu ôn tập kiến thức Session cũ + 15 câu gợi mở chủ đề mới), chuẩn định dạng import LMS. |
+| | **14. Quiz cuối giờ 45 câu (Exit Quiz)** | `Session XX._Quizz_Cuoi_Gio_*.xlsx` & `.json` | `<Session>/Quizz session/` | 45 câu hỏi trắc nghiệm mới 100% đánh giá mức độ tiếp thu trọng tâm buổi học, chuẩn định dạng import LMS. |
+| **V. Trực Quan Hóa & Sơ Đồ Tư Duy** | **15. Mô phỏng cơ chế trực quan tương tác** | `index.html` | `<Session>/Visualizer/` | DOM Canvas trực quan hóa cơ chế hoạt động của thuật toán, mô hình bộ nhớ RAM và luồng thực thi dữ liệu từng bước (Step-by-step debugger). |
+| | **16. Sơ đồ tư duy buổi học** | `session_mindmap.md` | `<Session>/Sơ đồ tư duy/` | Sơ đồ tư duy Markdown / Mermaid cô đọng cây kiến thức của toàn bộ Session phục vụ ôn tập nhanh. |
+| **VI. Đóng Gói LMS & Quản Trị Tri Thức** | **17. Gói xuất bản SCORM 1.2 LMS** | `scorm_package.zip` | `<Session>/` hoặc `output/` | Gói nén chuẩn SCORM 1.2 quốc tế (`imsmanifest.xml`, CSS/JS bundle) import trực tiếp vào Moodle, Canvas, Blackboard. |
+| | **18. Đồ thị tri thức Obsidian Vault** | Mạng lưới Markdown Notes | `obsidian_vault/` | Vault đồ thị tri thức 2 chiều với thẻ tri thức wikilinks `[[...]]` và Markmap visualization. |
 
 ---
 
