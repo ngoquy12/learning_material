@@ -59,6 +59,7 @@ def evaluate_lesson_quality(state: AgentState) -> Dict[str, Any]:
     
     # 3. Bloom Alignment Index
     bloom_score = 90.0 # Default baseline
+    quiz_json = state.get("quiz_json", state.get("quiz_data", []))
     if quiz_json and isinstance(quiz_json, list):
         if len(quiz_json) >= 3:
             bloom_score = 95.0

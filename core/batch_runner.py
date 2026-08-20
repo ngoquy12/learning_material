@@ -10,7 +10,7 @@ STRICT CONTRACT: Zero mutation to Agent internal logic.
 import time
 import os
 import concurrent.futures
-from typing import List, Dict, Any, Callable
+from typing import List, Dict, Any, Callable, Tuple
 
 class BatchLessonExecutor:
     """

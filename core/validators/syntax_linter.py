@@ -93,9 +93,10 @@ def lint_naming_convention(code: str, tech_stack: str) -> List[str]:
         for line_no, line in enumerate(code.splitlines(), 1):
             match = re.search(r'\bdef\s+([a-z0-9_]*[A-Z][a-zA-Z0-9_]*)\s*\(', line)
             if match and not match.group(1).startswith("__"):
+                suggested_snake = re.sub(r'([A-Z])', r'_\1', match.group(1)).lower()
                 errors.append(
                     f"Line {line_no}: Vi phạm quy chuẩn đặt tên {tech_stack.upper()} (snake_case required): "
-                    f"Tên hàm '{match.group(1)}' bị dùng camelCase. Hãy dùng '{re.sub(r'([A-Z])', r'_\1', match.group(1)).lower()}'."
+                    f"Tên hàm '{match.group(1)}' bị dùng camelCase. Hãy dùng '{suggested_snake}'."
                 )
 
     elif any(kw in tech_lower for kw in ["javascript", "js", "typescript", "ts", "java", "frontend", "web"]):

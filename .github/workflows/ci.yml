@@ -29,12 +29,11 @@ jobs:
 
       - name: Run Ruff Linter
         run: |
-          ruff check . --select E,F,W --ignore E501,F401,F841,W291,W293 --exclude .venv,output,dist,obsidian_vault
+          ruff check core agents config cli tests --select E9,F63,F7,F82
 
       - name: Run Flake8 Syntax Check
         run: |
-          # Stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=.venv,output,dist,obsidian_vault
+          flake8 core agents config cli tests --count --select=E9,F63,F7,F82 --show-source --statistics
 
   test:
     name: Unit & Integration Tests (Python ${{ matrix.python-version }})

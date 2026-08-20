@@ -29,6 +29,8 @@ from agents.creators import (
     session_compiler_agent,
     process_mindmap_images,
     generate_image_api,
+    visualizer_generator_agent,
+    get_topic_fallback_visualizer_engine,
     reading_questions_creator_agent,
     practical_lab_creator_agent,
     blueprint_creator_agent,

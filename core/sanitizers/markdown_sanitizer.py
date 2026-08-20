@@ -40,7 +40,8 @@ def clean_markdown_formulas(text: str) -> str:
     # Clean remaining \_ inside inline code backticks `...`
     def repl_code(m):
         c = m.group(1)
-        return f'`{c.replace(r"\_", "_")}`'
+        cleaned_c = c.replace(r"\_", "_")
+        return f'`{cleaned_c}`'
     text = re.sub(r'`([^`]+)`', repl_code, text)
     
     return text

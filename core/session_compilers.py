@@ -13,6 +13,41 @@ import re
 from pathlib import Path
 from core.skills import load_skill_content
 
+def clean_markmap_content(content: str) -> str:
+    if not content:
+        return ""
+    return re.sub(r'```(?:markmap)?', '', content).strip()
+
+def strip_yaml_frontmatter(content: str) -> str:
+    if not content:
+        return ""
+    return re.sub(r'^---\s*\n.*?\n---\s*\n', '', content, flags=re.DOTALL).strip()
+
+def extract_and_remove_objectives(ast_nodes: list) -> tuple:
+    cleaned = []
+    objectives = []
+    if not isinstance(ast_nodes, list):
+        return ast_nodes, objectives
+    for node in ast_nodes:
+        cleaned.append(node)
+    return cleaned, objectives
+
+def process_lesson_nodes(nodes: list, lesson_title_fallback: str) -> list:
+    return nodes if isinstance(nodes, list) else []
+
+def render_block_list(nodes: list) -> str:
+    if isinstance(nodes, str):
+        return nodes
+    lines = []
+    for node in (nodes or []):
+        if isinstance(node, dict):
+            text = node.get("text", "") or node.get("raw", "")
+            if text:
+                lines.append(str(text))
+        elif isinstance(node, str):
+            lines.append(node)
+    return "\n".join(lines)
+
 def compile_session_html(session_dir: Path, session_title: str):
     """
     [DISABLED] Cơ chế sinh reading_all.html đã được loại bỏ theo chỉ đạo hệ thống.

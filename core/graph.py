@@ -102,7 +102,8 @@ def node_pm_review(state: AgentState) -> AgentState:
         from core.state import require_tech_stack
         full_curriculum = state.get("full_curriculum", state.get("pm_input"))
         report = pm_reviewer_agent(full_curriculum, require_tech_stack(state, "node_pm_review"))
-        
+        report_path = os.path.join("output", "pm_review_report.md")
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(report)
         raise ValueError(

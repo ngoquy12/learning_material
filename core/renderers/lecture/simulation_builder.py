@@ -665,6 +665,7 @@ return { trace: trace, result: "Success (" + processedResult + ")", badge: badge
           </div>""")
 
     col_span_class = f"grid-cols-1 sm:grid-cols-2 lg:grid-cols-{min(len(params), 4)}"
+    param_inputs_joined = "\n".join(param_inputs_html)
     controllers_html = f"""
     <div class="space-y-3.5">
       <div class="min-w-0">
@@ -674,7 +675,7 @@ return { trace: trace, result: "Success (" + processedResult + ")", badge: badge
         </select>
       </div>
       <div class="grid {col_span_class} gap-3">
-        {"\n".join(param_inputs_html)}
+        {param_inputs_joined}
       </div>
     </div>"""
 

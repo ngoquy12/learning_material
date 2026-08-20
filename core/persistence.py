@@ -84,7 +84,6 @@ _named_pools: Dict[str, SQLiteConnectionPool] = {}
 
 def get_db_pool(db_path: str = DB_PATH) -> SQLiteConnectionPool:
     """Thread-safe access to a named connection pool for any SQLite database path."""
-    global _named_pools
     if db_path not in _named_pools:
         with _pool_lock:
             if db_path not in _named_pools:

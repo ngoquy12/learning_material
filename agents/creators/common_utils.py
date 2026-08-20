@@ -270,7 +270,11 @@ def get_lesson_content(session_id: str, lesson_id: str, lesson_title: str, lesso
             limit=10
         )
     except Exception:
-        lessons_learned = load_skill_content("lessons_learned")
+        try:
+            from core.skills import load_skill_content
+            lessons_learned = load_skill_content("lessons_learned")
+        except Exception:
+            lessons_learned = ""
         if lessons_learned:
             lessons_learned_prompt = (
                 "\n--- BÀI HỌC KINH NGHIỆM PHÒNG CHỐNG LỖI TỪ CÁC BÀI TRƯỚC (Lessons Learned) ---\n"
