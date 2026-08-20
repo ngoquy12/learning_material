@@ -549,15 +549,15 @@
               {% endfor %}
 
               <!-- Button Submit & Reset -->
-              <div class="pt-4 flex flex-col sm:flex-row items-center gap-4">
-                <button type="submit" id="btn-check-selftest" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-rikkei-red hover:bg-red-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
-                  <i class="ph-bold ph-paper-plane-tilt text-base"></i> Nộp bài & Kiểm tra đáp án
+              <div class="pt-3 flex items-center justify-end gap-3">
+                <button type="button" onclick="document.getElementById('self-test-form').reset(); document.querySelectorAll('[id$=-explanation]').forEach(el => el.classList.add('hidden')); const s = document.getElementById('self-test-score'); if(s) s.classList.add('hidden');" class="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs transition-all flex items-center gap-1.5 cursor-pointer">
+                  <i class="ph-bold ph-arrow-counter-clockwise text-sm"></i> Làm lại
                 </button>
-                <button type="button" onclick="document.getElementById('self-test-form').reset(); document.querySelectorAll('[id$=-explanation]').forEach(el => el.classList.add('hidden')); const s = document.getElementById('self-test-score'); if(s) s.classList.add('hidden');" class="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
-                  <i class="ph-bold ph-arrow-counter-clockwise text-base"></i> Làm lại
+                <button type="submit" id="btn-check-selftest" class="px-4 py-1.5 rounded-lg bg-rikkei-red hover:bg-red-700 text-white font-semibold text-xs shadow-sm hover:shadow transition-all flex items-center gap-1.5 cursor-pointer">
+                  <i class="ph-bold ph-paper-plane-tilt text-sm"></i> Nộp bài &amp; Kiểm tra đáp án
                 </button>
               </div>
-              <div id="self-test-score" class="hidden p-4 rounded-xl border border-sky-200 bg-sky-50 text-sky-900 font-bold text-sm text-center shadow-sm"></div>
+              <div id="self-test-score" class="hidden p-3 rounded-lg border border-sky-200 bg-sky-50 text-sky-900 font-bold text-xs text-right shadow-sm mt-3"></div>
             </form>
           </div>
           {% endif %}
