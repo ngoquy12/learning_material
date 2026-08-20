@@ -1,4 +1,4 @@
-# 🤖 Elearning Content Factory — Multi-Agent Harness & Learning Material Generator
+# Elearning Content Factory — Multi-Agent Harness & Learning Material Generator
 
 > **Hệ thống sản xuất học liệu tự động đa tác nhân (Multi-Agent Harness Architecture) cấp Doanh nghiệp — 100% Dynamic, Generic, Stack-Agnostic, Type-Safe & Schema-Driven.**
 
@@ -11,46 +11,46 @@
 
 ---
 
-## 📋 Mục Lục
+## Muc Luc
 
-1. [Giới thiệu tổng quan](#-giới-thiệu-tổng-quan)
-2. [Kiến trúc hệ thống (Agent Harness Architecture)](#-kiến-trúc-hệ-thống-agent-harness-architecture)
-3. [Các loại học liệu hệ thống sinh tự động](#-các-loại-học-liệu-hệ-thống-sinh-tự-động)
-4. [Yêu cầu hệ thống (Prerequisites)](#-yêu-cầu-hệ-thống-prerequisites)
-5. [Hướng dẫn cài đặt chi tiết (Installation Guide)](#-hướng-dẫn-cài-đặt-chi-tiết-installation-guide)
-6. [Quản lý cấu hình & Bảo mật bí mật (Centralized Settings & Secrets)](#-quản-lý-cấu-hình--bảo-mật-bí-mật-centralized-settings--secrets)
-   - [6.1. Chế độ 1: Local Proxy (Antigravity Proxy @ 8045)](#61-chế-độ-1-local-proxy-antigravity-proxy--8045)
-   - [6.2. Chế độ 2: API Key thật Google Gemini (Google AI Studio)](#62-chế-độ-2-api-key-thật-google-gemini-google-ai-studio)
-7. [Hướng dẫn sử dụng & Khởi chạy hệ thống (Usage Guide)](#-hướng-dẫn-sử-dụng--khởi-chạy-hệ-thống-usage-guide)
-   - [7.1. Chạy CLI Workflow sinh học liệu](#71-chạy-cli-workflow-sinh-học-liệu)
-   - [7.2. Chạy kiểm thử tự động (Test Suite)](#72-chạy-kiểm-thử-tự-động-test-suite)
-8. [Tự động hóa CI/CD (GitHub Actions)](#-tự-động-hóa-cicd-github-actions)
-9. [Cấu trúc thư mục dự án (Project Layout)](#-cấu-trúc-thư-mục-dự-án-project-layout)
-10. [Quy chuẩn sư phạm & Tiêu chuẩn thiết kế (AGENTS.md)](#-quy-chuẩn-sư-phạm--tiêu-chuẩn-thiết-kế-agentsmd)
-11. [FAQ & Xử lý sự cố thường gặp](#-faq--xử-lý-sự-cố-thường-gặp)
-
----
-
-## 🌟 Giới Thiệu Tổng Quan
-
-**Elearning Content Factory** là hệ thống AI đa tác nhân chuyên nghiệp, tự động hóa quy trình chuyển đổi chương trình đào tạo (`syllabus.json` hoặc PM Excel) thành bộ tài nguyên học liệu hoàn chỉnh, chuẩn sư phạm và chuẩn kỹ thuật doanh nghiệp cho **mọi công nghệ** (Python, Java, TypeScript/React, Golang, SQL, Docker/DevOps...):
-
-- **100% Tiếng Việt có dấu chuẩn xuất bản**: Toàn bộ nội dung bài đọc, slide, câu hỏi, kịch bản video và code comments được chuẩn hóa tiếng Việt sư phạm chuẩn xác.
-- **Dynamic Scope Boundaries**: Tự động chặn và kiểm soát từ khóa vượt cấp, đảm bảo bài học không sử dụng cú pháp hay khái niệm chưa được dạy ở các bài trước.
-- **Vòng lặp Phản hồi & Tự sửa lỗi (Reflexion Loop)**: Tự động đánh giá chất lượng (PQM Engine, Bloom's Taxonomy) và yêu cầu Agent tự sửa lỗi khi phát hiện vi phạm quy chuẩn.
-- **Thực thi Code An toàn trong Sandbox**: Tích hợp Pyodide WASM Engine và Docker Sandbox để kiểm chứng 100% mã nguồn ví dụ trước khi chèn vào bài học.
-- **Tương thích LMS Doanh nghiệp & Knowledge Graph**: Xuất chuẩn SCORM 1.2 (hỗ trợ Moodle, Canvas, Blackboard) và đồ thị tri thức 2 chiều Obsidian Markmap.
+1. [Gioi thieu tong quan](#1-gioi-thieu-tong-quan)
+2. [Kien truc he thong (Agent Harness Architecture)](#2-kien-truc-he-thong-agent-harness-architecture)
+3. [Cac loai hoc lieu he thong sinh tu dong](#3-cac-loai-hoc-lieu-he-thong-sinh-tu-dong)
+4. [Yeu cau he thong (Prerequisites)](#4-yeu-cau-he-thong-prerequisites)
+5. [Huong dan cai dat chi tiet (Installation Guide)](#5-huong-dan-cai-dat-chi-tiet-installation-guide)
+6. [Quan ly cau hinh & Bao mat bi mat (Centralized Settings & Secrets)](#6-quan-ly-cau-hinh--bao-mat-bi-mat-centralized-settings--secrets)
+   - [6.1. Che do 1: Local Proxy (Antigravity Proxy @ 8045)](#61-che-do-1-local-proxy-antigravity-proxy--8045)
+   - [6.2. Che do 2: API Key that Google Gemini (Google AI Studio)](#62-che-do-2-api-key-that-google-gemini-google-ai-studio)
+7. [Huong dan su dung & Khoi chay he thong (Usage Guide)](#7-huong-dan-su-dung--khoi-chay-he-thong-usage-guide)
+   - [7.1. Chay CLI Workflow sinh hoc lieu](#71-chay-cli-workflow-sinh-hoc-lieu)
+   - [7.2. Chay kiem thu tu dong (Test Suite)](#72-chay-kiem-thu-tu-dong-test-suite)
+8. [Tu dong hoa CI/CD (GitHub Actions)](#8-tu-dong-hoa-cicd-github-actions)
+9. [Cau truc thu muc du an (Project Layout)](#9-cau-truc-thu-muc-du-an-project-layout)
+10. [Quy chuan su pham & Tieu chuan thiet ke (AGENTS.md)](#10-quy-chuan-su-pham--tieu-chuan-thiet-ke-agentsmd)
+11. [FAQ & Xu ly su co thuong gap](#11-faq--xu-ly-su-co-thuong-gap)
 
 ---
 
-## 🏗️ Kiến Trúc Hệ Thống (Agent Harness Architecture)
+## 1. Gioi Thieu Tong Quan
 
-Dự án được xây dựng dưới mô hình **Multi-Agent Production & Evaluation Harness**:
+**Elearning Content Factory** la he thong AI da tac nhan chuyen nghiep, tu dong hoa quy trinh chuyen doi chuong trinh dao tao (`syllabus.json` hoac PM Excel) thanh bo tai nguyen hoc lieu hoan chinh, chuan su pham va chuan ky thuat doanh nghiep cho **moi cong nghe** (Python, Java, TypeScript/React, Golang, SQL, Docker/DevOps...):
+
+- **100% Tieng Viet co dau chuan xuat ban**: Toan bo noi dung bai doc, slide, cau hoi, kich ban video va code comments duoc chuan hoa tieng Viet su pham chuan xac.
+- **Dynamic Scope Boundaries**: Tu dong chan va kiem soat tu khoa vuot cap, dam bao bai hoc khong su dung cu phap hay khai niem chua duoc day o cac bai truoc.
+- **Vong lap Phan hoi & Tu sua loi (Reflexion Loop)**: Tu dong danh gia chat luong (PQM Engine, Bloom's Taxonomy) va yeu cau Agent tu sua loi khi phat hien vi pham quy chuan.
+- **Thuc thi Code An toan trong Sandbox**: Tich hop Pyodide WASM Engine va Docker Sandbox de kiem chung 100% ma nguon vi du truoc khi chen vao bai hoc.
+- **Tuong thich LMS Doanh nghiep & Knowledge Graph**: Xuat chuan SCORM 1.2 (ho tro Moodle, Canvas, Blackboard) va do thi tri thuc 2 chieu Obsidian Markmap.
+
+---
+
+## 2. Kien Truc He Thong (Agent Harness Architecture)
+
+Du an duoc xay dung duoi mo hinh **Multi-Agent Production & Evaluation Harness**:
 
 ```mermaid
 flowchart TD
     subgraph InputLayer ["1. Input Layer"]
-        PM["Chương trình khung (PM Excel / Syllabus JSON)"]
+        PM["Chuong trinh khung (PM Excel / Syllabus JSON)"]
     end
 
     subgraph HarnessOrchestrator ["2. Orchestration & State Harness"]
@@ -72,9 +72,9 @@ flowchart TD
 
     subgraph OutputLayer ["5. Export Layer"]
         ReadingOut["reading.html & reading_all.html"]
-        SlideOut["Slide Bài Giảng (.pptx & slides.html)"]
-        HWOut["17 Thư Mục Bài Tập & Rubric"]
-        SCORMOut["Gói SCORM 1.2 LMS"]
+        SlideOut["Slide Bai Giang (.pptx & slides.html)"]
+        HWOut["17 Thu Muc Bai Tap & Rubric"]
+        SCORMOut["Goi SCORM 1.2 LMS"]
         ObsidianOut["Obsidian Knowledge Vault"]
     end
 
@@ -83,9 +83,9 @@ flowchart TD
     Scope --> Creator
     Creator --> Sandbox
     Sandbox --> Reviewer
-    Reviewer -->|Phát hiện lỗi| Reflexion
-    Reflexion -->|Tự sửa lại| Creator
-    Reviewer -->|Đạt chuẩn| Compiler
+    Reviewer -->|Phat hien loi| Reflexion
+    Reflexion -->|Tu sua lai| Creator
+    Reviewer -->|Dat chuan| Compiler
     Compiler --> ReadingOut
     Compiler --> SlideOut
     Compiler --> HWOut
@@ -95,37 +95,37 @@ flowchart TD
 
 ---
 
-## 📚 Các Loại Học Liệu Hệ Thống Sinh Tự Động
+## 3. Cac Loai Hoc Lieu He Thong Sinh Tu Dong
 
-| Loại Học Liệu | Định dạng Đầu ra | Đặc tả & Tiêu chuẩn Kỹ thuật |
+| Loai Hoc Lieu | Dinh dang Dau ra | Dac ta & Tieu chuan Ky thuat |
 | :--- | :--- | :--- |
-| 📖 **Bài đọc lý thuyết** | `reading.html` & `reading_all.html` | Cấu trúc list ngắt ý ngắn gọn, 100% tiếng Việt có dấu, ảnh bối cảnh 16:9, Dark Terminal Console, Self-Test tương tác, Sandbox Pyodide chạy trực tiếp trên trình duyệt. |
-| 🖼️ **Slide bài giảng** | `Slide_Bai_Giang.pptx` & `slides.html` | Master Slide (15-20 slides/session), Bento Grid modern, nguyên tắc 3-30-300 typography, phân màu thẻ kỹ thuật, outline sư phạm cho giảng viên. |
-| 📝 **Bài tập thực hành** | 17 thư mục Markdown + Code files + Rubric | 17 bài tập phân cấp theo thang nhận thức Bloom (Vận dụng ➔ Phân tích ➔ Sáng tạo ➔ Tổng hợp). Kèm file tiêu chí chấm điểm chi tiết 100 điểm (`tieu_chi_danh_gia.md`). |
-| 🧪 **Mini Project / Lab** | `practical_lab.md` + JSON + Checklist | Bố cục 3 phần chuẩn hóa: Mục tiêu ➔ Các bước thực hiện ➔ Bảng checklist tự kiểm tra định lượng `[ ]`. |
-| ❓ **Quizz Trắc nghiệm** | Excel (`.xlsx`) + JSON | 5 câu/lesson, Entrance Quiz 45 câu (30 cũ + 15 mới), Exit Quiz 45 câu (100% mới). Tuân thủ 9 nguyên tắc sư phạm Quizz. |
-| 📦 **SCORM 1.2 & Obsidian** | ZIP SCORM 1.2 & Obsidian Vault | Đóng gói tương thích chuẩn e-learning LMS và đồ thị mạng lưới tri thức 2 chiều (Obsidian Markmap). |
+| **Bai doc ly thuyet** | `reading.html` & `reading_all.html` | Cau truc list ngat y ngan gon, 100% tieng Viet co dau, anh boi canh 16:9, Dark Terminal Console, Self-Test tuong tac, Sandbox Pyodide chay truc tiep tren trinh duyet. |
+| **Slide bai giang** | `Slide_Bai_Giang.pptx` & `slides.html` | Master Slide (15-20 slides/session), Bento Grid modern, nguyen tac 3-30-300 typography, phan mau the ky thuat, outline su pham cho giang vien. |
+| **Bai tap thuc hanh** | 17 thu muc Markdown + Code files + Rubric | 17 bai tap phan cap theo thang nhan thuc Bloom (Van dung -> Phan tich -> Sang tao -> Tong hop). Kem file tieu chi cham diem chi tiet 100 diem (`tieu_chi_danh_gia.md`). |
+| **Mini Project / Lab** | `practical_lab.md` + JSON + Checklist | Bo cuc 3 phan chuan hoa: Muc tieu -> Cac buoc thuc hien -> Bang checklist tu kiem tra dinh luong `[ ]`. |
+| **Quizz Trac nghiem** | Excel (`.xlsx`) + JSON | 5 cau/lesson, Entrance Quiz 45 cau (30 cu + 15 moi), Exit Quiz 45 cau (100% moi). Tuan thu 9 nguyen tac su pham Quizz. |
+| **SCORM 1.2 & Obsidian** | ZIP SCORM 1.2 & Obsidian Vault | Dong goi tuong thich chuan e-learning LMS va do thi mang luoi tri thuc 2 chieu (Obsidian Markmap). |
 
 ---
 
-## 🛠️ Yêu Cầu Hệ Thống (Prerequisites)
+## 4. Yeu Cau He Thong (Prerequisites)
 
-- **Python**: Phiên bản `3.10`, `3.11`, hoặc `3.12` ([Tải Python](https://www.python.org/downloads/)).
-- **Node.js**: Phiên bản `18.0.0+` ([Tải Node.js](https://nodejs.org/)).
-- **Git**: Quản lý phiên bản mã nguồn.
-- **Docker** *(Tùy chọn)*: Nếu sử dụng chế độ Sandbox cô lập hoặc đóng gói container.
+- **Python**: Phien ban `3.10`, `3.11`, hoac `3.12` ([Tai Python](https://www.python.org/downloads/)).
+- **Node.js**: Phien ban `18.0.0+` ([Tai Node.js](https://nodejs.org/)).
+- **Git**: Quan ly phien ban ma nguon.
+- **Docker** *(Tuy chon)*: Neu su dung che do Sandbox co lap hoac dong goi container.
 
 ---
 
-## 📥 Hướng Dẫn Cài Đặt Chi Tiết (Installation Guide)
+## 5. Huong Dan Cai Dat Chi Tiet (Installation Guide)
 
-### Bước 1: Clone repository
+### Buoc 1: Clone repository
 ```bash
 git clone https://github.com/ngoquy12/learning_material.git
 cd Learning-Material
 ```
 
-### Bước 2: Khởi tạo & Kích hoạt Môi trường ảo Python
+### Buoc 2: Khoi tao & Kich hoat Moi truong ao Python
 - **Windows (PowerShell):**
   ```powershell
   python -m venv .venv
@@ -137,7 +137,7 @@ cd Learning-Material
   source .venv/bin/activate
   ```
 
-### Bước 3: Cài đặt thư viện phụ thuộc
+### Buoc 3: Cai dat thu vien phu thuoc
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
@@ -145,17 +145,17 @@ pip install -r requirements.txt
 
 ---
 
-## ⚙️ Quản Lý Cấu Hình & Bảo Mật Bí Mật (Centralized Settings & Secrets)
+## 6. Quan Ly Cau Hinh & Bao Mat Bi Mat (Centralized Settings & Secrets)
 
-Hệ thống sử dụng **Pydantic `BaseSettings`** tại [config/settings.py](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/config/settings.py) để kiểm tra kiểu dữ liệu tự động, che giấu khóa bí mật (`SecretStr`), và ngăn chặn rò rỉ API key khi log.
+He thong su dung **Pydantic `BaseSettings`** tai [config/settings.py](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/config/settings.py) de kiem tra kieu du lieu tu dong, che giau khoa bi mat (`SecretStr`), va ngan chan ro ri API key khi ghi log.
 
-Tạo file `.env` tại thư mục gốc từ file mẫu [`.env.example`](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/.env.example):
+Tao file `.env` tai thu muc goc tu file mau [`.env.example`](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/.env.example):
 ```bash
 cp .env.example .env
 ```
 
-### 6.1. Chế độ 1: Local Proxy (Antigravity Proxy @ 8045)
-Sử dụng proxy cục bộ (mặc định):
+### 6.1. Che do 1: Local Proxy (Antigravity Proxy @ 8045)
+Su dung proxy cuc bo (mac dinh):
 ```env
 USE_REAL_GEMINI_API_KEY=false
 GEMINI_API_KEY=sk-your-proxy-key-here
@@ -163,8 +163,8 @@ GEMINI_BASE_URL=http://127.0.0.1:8045
 GEMINI_MODEL=gemini-3.6-flash-high
 ```
 
-### 6.2. Chế độ 2: API Key thật Google Gemini (Google AI Studio)
-Khi chuyển sang dùng API Key thật của Google, bạn chỉ cần bật cờ `USE_REAL_GEMINI_API_KEY=true` (hệ thống sẽ **tự động bỏ qua proxy `127.0.0.1:8045`** và kết nối thẳng đến máy chủ chính thức của Google):
+### 6.2. Che do 2: API Key that Google Gemini (Google AI Studio)
+Khi chuyen sang dung API Key that cua Google, ban chi can bat co `USE_REAL_GEMINI_API_KEY=true` (he thong se **tu dong bo qua proxy `127.0.0.1:8045`** va ket noi thang den may chu chinh thuc cua Google):
 ```env
 USE_REAL_GEMINI_API_KEY=true
 GEMINI_API_KEY=AIzaSyYourRealGoogleApiKeyHere...
@@ -173,111 +173,120 @@ GEMINI_MODEL=gemini-1.5-flash
 
 ---
 
-## 🚀 Hướng Dẫn Sử Dụng & Khởi Chạy Hệ Thống (Usage Guide)
+## 7. Huong Dan Su Dung & Khoi Chay He Thong (Usage Guide)
 
-### 7.1. Chạy CLI Workflow sinh học liệu
+### 7.1. Chay CLI Workflow sinh hoc lieu
 
-Khởi chạy hệ thống tự động sinh toàn bộ tài nguyên cho một khóa học từ file syllabus:
+Khoi chay he thong tu dong sinh toan bo tai nguyen cho mot khoa hoc tu file PM Excel hoac syllabus:
 
 ```bash
-# Sinh toàn bộ học liệu theo syllabus
-python main.py --syllabus "path/to/syllabus.json"
+# Sinh toan bo hoc lieu cho Session 01:
+python main.py --pm "documents/PM_Python.xlsx" --session "Session 01" --approve-pm
 
-# Chỉ sinh một số loại học liệu cụ thể
-python main.py --syllabus "path/to/syllabus.json" --types reading,slide,homework
+# Sinh toan bo khoa hoc (all sessions):
+python main.py --pm "documents/PM_Python.xlsx" --session all --approve-pm
+
+# Chi sinh mot so phan cu the (Selective Parts):
+python main.py --pm "documents/PM_Python.xlsx" --session "Session 01" --parts html,slide --approve-pm
+
+# Chay che do bat dong bo song song (Parallel Batch Mode):
+python main.py --pm "documents/PM_Python.xlsx" --session "Session 01" --parallel --concurrency 4 --approve-pm
+
+# Khoi tao nhanh cay cau truc thu muc rong (Scaffolding Mode):
+python main.py --pm "documents/PM_Python.xlsx" --scaffold
 ```
 
-### 7.2. Chạy kiểm thử tự động (Test Suite)
+### 7.2. Chay kiem thu tu dong (Test Suite)
 
-Chạy toàn bộ **159 bài kiểm thử** tự động:
+Chay toan bo **159 bai kiem thu** tu dong da duoc xac thuc:
 
 ```bash
-# Chạy toàn bộ test suite
+# Chay toan bo test suite:
 pytest
 
-# Chạy test chi tiết kèm báo cáo ngắn gọn
+# Chay test chi tiet kem bao cao ngan gon:
 pytest -v --tb=short
 
-# Kiểm thử riêng module Quản lý Cấu hình & Secrets
+# Kiem thu rieng module Quan ly Cau hinh & Secrets:
 pytest tests/test_centralized_settings.py
 ```
 
 ---
 
-## 🔄 Tự Động Hóa CI/CD (GitHub Actions)
+## 8. Tu Dong Hoa CI/CD (GitHub Actions)
 
-Dự án tích hợp sẵn 2 pipeline tự động hóa chuẩn doanh nghiệp tại `.github/workflows/`:
+Du an tich hop san 2 pipeline tu dong hoa chuan doanh nghiep tai `.github/workflows/`:
 
 1. **CI Pipeline ([.github/workflows/ci.yml](file:///.github/workflows/ci.yml))**:
-   - **Linting**: Kiểm tra chất lượng và cú pháp mã nguồn qua `ruff` và `flake8`.
-   - **Multi-version Matrix Testing**: Tự động chạy toàn bộ 159 tests trên 3 phiên bản Python `3.10`, `3.11`, và `3.12` song song với `Node.js 18`.
-   - **Docker Build Verification**: Kiểm tra quá trình đóng gói Docker image từ `Dockerfile`.
+   - **Linting**: Kiem tra chat luong va cu phap ma nguon qua `ruff` va `flake8`.
+   - **Multi-version Matrix Testing**: Tu dong chay toan bo 159 tests tren 3 phien ban Python `3.10`, `3.11`, va `3.12` song song voi `Node.js 18`.
+   - **Docker Build Verification**: Kiem tra qua trinh dong goi Docker image tu `Dockerfile`.
 2. **CD Pipeline ([.github/workflows/cd.yml](file:///.github/workflows/cd.yml))**:
-   - Tự động đóng gói Python Wheel Package (`.whl`) khi gắn tag phiên bản (`v*.*.*`).
-   - Kiểm tra CLI entrypoint và lưu trữ Release Artifacts.
+   - Tu dong dong goi Python Wheel Package (`.whl`) khi gan tag phien ban (`v*.*.*`).
+   - Kiem tra CLI entrypoint va luu tru Release Artifacts.
 
 ---
 
-## 📁 Cấu Trúc Thư Mục Dự Án (Project Layout)
+## 9. Cau Truc Thu Muc Du An (Project Layout)
 
 ```
 Learning-Material/
-├── .agents/                      # Quy chuẩn Sư phạm & Tiêu chuẩn Thiết kế (AGENTS.md)
+├── .agents/                      # Quy chuan Su pham & Tieu chuan Thiet ke (AGENTS.md)
 ├── .github/                      # CI/CD Workflows (GitHub Actions)
 │   └── workflows/
 │       ├── ci.yml                # Automated Lint, Matrix Tests & Docker Build
 │       └── cd.yml                # Automated Package Build & Release
-├── agents/                       # Hệ thống Multi-Agent Chuyên biệt
+├── agents/                       # He thong Multi-Agent Chuyen biet
 │   ├── creators/                 # Creators (Reading, Slides, Labs, Quizzes, Mindmap)
 │   ├── reviewer_agents.py        # Reviewers & Programmatic Validators
-│   └── homework_agents.py        # Homework Generators (17 thư mục theo thang Bloom)
-├── config/                       # Quản lý Cấu hình Tập trung
+│   └── homework_agents.py        # Homework Generators (17 thu muc theo thang Bloom)
+├── config/                       # Quan ly Cau hinh Tap trung
 │   ├── settings.py               # Pydantic BaseSettings & Secret Management Engine
 │   └── prompts.yaml              # Persona & System Prompts
-├── core/                         # Động cơ Hạ tầng Lõi (Core Infrastructure)
+├── core/                         # Dong co Ha tang Loi (Core Infrastructure)
 │   ├── dag_engine.py             # Asynchronous DAG Engine & State Machine
 │   ├── graph.py                  # Multi-Agent Workflow Orchestrator
 │   ├── llm.py                    # LLM Interface (Gemini Native & OpenAI Proxy)
 │   ├── llm_router.py             # Antigravity Dynamic Model Router
 │   ├── sandbox.py                # Pyodide / Docker Code Execution Sandbox
-│   ├── scope_calculator.py       # Tính toán & Chặn rò rỉ phạm vi kiến thức
+│   ├── scope_calculator.py       # Tinh toan & Chan ro ri pham vi kien thuc
 │   ├── semantic_cache.py         # Semantic Embedding Cache Engine
-│   ├── scorm_exporter.py         # Bộ đóng gói xuất bản SCORM 1.2
+│   ├── scorm_exporter.py         # Bo dong goi xuat ban SCORM 1.2
 │   ├── schemas/                  # Pydantic Declarative Data Schemas
-│   ├── renderers/                # Bộ Render HTML, PPTX, CSS, SVG
+│   ├── renderers/                # Bo Render HTML, PPTX, CSS, SVG
 │   └── validators/               # Master Programmatic Validators & PQM Engine
-├── documents/                    # Tài liệu hướng dẫn nghiệp vụ & vận hành
-├── obsidian_vault/               # Vault đồ thị liên kết tri thức 2 chiều
+├── documents/                    # Tai lieu huong dan nghiep vu & van hanh
+├── obsidian_vault/               # Vault do thi lien ket tri thuc 2 chieu
 ├── templates/                    # Jinja2 Templates (Prompts, HTML, CSS, PPTX)
-├── tests/                        # Bộ kiểm thử Unit, Integration & Eval Tests (159 tests)
-├── .env.example                  # File mẫu cấu hình biến môi trường an toàn
-├── .gitignore                    # Bộ lọc bảo mật & chặn rác/output
+├── tests/                        # Bo kiem thu Unit, Integration & Eval Tests (159 tests)
+├── .env.example                  # File mau cau hinh bien moi truong an toan
+├── .gitignore                    # Bo loc bao mat & chan rac/output
 ├── Dockerfile                    # Containerization Manifest
 ├── pyproject.toml                # Project metadata & build dependencies
-├── requirements.txt              # Danh sách thư viện Python
-└── main.py                       # Điểm khởi chạy CLI chính của hệ thống
+├── requirements.txt              # Danh sach thu vien Python
+└── main.py                       # Diem khoi chay CLI chinh cua he thong
 ```
 
 ---
 
-## 🛡️ Quy Chuẩn Sư Phạm & Tiêu Chuẩn Thiết Kế (AGENTS.md)
+## 10. Quy Chuan Su Pham & Tieu Chuan Thiet Ke (AGENTS.md)
 
-Mọi nội dung do Agent sinh ra đều phải tuân thủ nghiêm ngặt **10 Nguyên Tắc Cốt Lõi** quy định tại [.agents/AGENTS.md](file:///.agents/AGENTS.md):
+Moi noi dung do Agent sinh ra deu phai tuan thu nghiem ngat **10 Nguyen Tac Cot Loi** quy dinh tai [.agents/AGENTS.md](file:///.agents/AGENTS.md):
 
-1. **Cấu trúc 5 phần bắt buộc**: Bài toán thực tế ➔ Cú pháp & Cơ chế ➔ Ví dụ thực tiễn lũy tiến ➔ Lỗi thường gặp & Giải pháp ➔ Tóm tắt & Form tự kiểm tra.
-2. **10-Minute Micro-Learning**: Ngắn gọn, súc tích, ngắt ý bằng bullet list, không dùng văn bản khối dài.
-3. **Problem-First Approach**: Luôn xuất phát từ bối cảnh thực tế và vấn đề doanh nghiệp trước khi giới thiệu cú pháp lý thuyết.
-4. **Chuẩn đồ họa 2D Flat Vector**: Đồ thị Mermaid chuẩn hóa 5 hình khối, ảnh bối cảnh 16:9 sắc nét, không dùng emoji hạt gạo hoặc ảnh 3D sci-fi.
-5. **Nghiêm cấm từ ngữ AI Cliché**: Loại bỏ hoàn toàn các từ sáo rỗng (*"bẫy"*, *"khám phá"*, *"bí kíp"*, *"thần thánh"*...) và thay thế bằng thuật ngữ kỹ thuật chuẩn mực.
-6. **Bảo mật phạm vi kiến thức**: Không sử dụng cú pháp hay câu lệnh của các bài học tương lai trong bài học hiện tại.
+1. **Cau truc 5 phan bat buoc**: Bai toan thuc te -> Cu phap & Co che -> Vi du thuc tien luy tien -> Loi thuong gap & Giai phap -> Tom tat & Form tu kiem tra.
+2. **10-Minute Micro-Learning**: Ngan gon, suc tich, ngat y bang bullet list, khong dung van ban khoi dai.
+3. **Problem-First Approach**: Luon xuat phat tu boi canh thuc te va van de doanh nghiep truoc khi gioi thieu cu phap ly thuyet.
+4. **Chuan do hoa 2D Flat Vector**: Do thi Mermaid chuan hoa 5 hinh khoi, anh boi canh 16:9 sac net, khong dung emoji hat gao hoac anh 3D sci-fi.
+5. **Nghiem cam tu ngu AI Cliche**: Loai bo hoan toan cac tu sao rong va thay the bang thuat ngu ky thuat chuan muc.
+6. **Bao mat pham vi kien thuc**: Khong su dung cu phap hay cau lenh cua cac bai hoc tuong lai trong bai hoc hien tai.
 
 ---
 
-## ❓ FAQ & Xử Lý Sự Cố Thường Gặp
+## 11. FAQ & Xu Ly Su Co Thuong Gap
 
-- **Q: Làm sao để chuyển giữa Local Proxy và Google Gemini API Key thật?**
-  - *Trả lời:* Trong file `.env`, đổi `USE_REAL_GEMINI_API_KEY=true` và dán API Key `AIzaSy...` của bạn vào `GEMINI_API_KEY`. Hệ thống sẽ tự động bỏ qua proxy.
-- **Q: Thư mục `output/` có bị đẩy lên GitHub không?**
-  - *Trả lời:* Không. File `.gitignore` đã chặn toàn bộ thư mục `output/` để giữ repository luôn sạch sẽ và bảo mật dữ liệu học liệu nội bộ.
-- **Q: Gặp lỗi ký tự tiếng Việt trên Windows PowerShell?**
-  - *Trả lời:* Hệ thống đã tự động cấu hình UTF-8. Nếu terminal hiển thị sai, hãy chạy lệnh `$env:PYTHONIOENCODING="utf-8"` trên PowerShell trước khi chạy script.
+- **Q: Lam sao de chuyen giua Local Proxy va Google Gemini API Key that?**
+  - *Tra loi:* Trong file `.env`, doi `USE_REAL_GEMINI_API_KEY=true` va dan API Key `AIzaSy...` cua ban vao `GEMINI_API_KEY`. He thong se tu dong bo qua proxy.
+- **Q: Thu muc `output/` co bi day len GitHub khong?**
+  - *Tra loi:* Khong. File `.gitignore` da chan toan bo thu muc `output/` de giu repository luon sach se va bao mat du lieu hoc lieu noi bo.
+- **Q: Gap loi ky tu tieng Viet tren Windows PowerShell?**
+  - *Tra loi:* He thong da tu dong cau hinh UTF-8. Neu terminal hien thi sai, hay chay lenh `$env:PYTHONIOENCODING="utf-8"` tren PowerShell truoc khi chay script.

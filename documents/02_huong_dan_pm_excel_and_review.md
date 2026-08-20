@@ -1,39 +1,38 @@
-# 📋 BỘ TÀI LIỆU HƯỚNG DẪN 02: BƯỚC 1 - NẠP & KIỂM ĐỊNH FILE PM EXCEL (PM AUDITOR GATE)
+# TAI LIEU HUONG DAN 02: BUOC 1 - NAP & KIEM DINH FILE PM EXCEL (PM AUDITOR GATE)
 
-## 1. 🎯 Mục Đích
-Tự động hóa việc nạp file khung chương trình PM (`PM_Python.xlsx`), đánh giá tính hợp lý sư phạm, phát hiện lỗ hổng nhảy cóc kiến thức và hỗ trợ AI tự động cập nhật file Excel PM.
-
----
-
-## 2. 📑 Cấu Trúc File Excel PM Đầu Vào
-Tệp Excel PM đặt tại thư mục `pms/PM_Python.xlsx` chứa các cột thông tin:
-- **Session ID**: Tên buổi học (ví dụ: `Session 06`)
-- **Session Title**: Chủ đề buổi học (ví dụ: `Cấu trúc dữ liệu List và Tuple`)
-- **Lesson ID**: Tên bài học (ví dụ: `Lesson 01`)
-- **Lesson Title**: Tiêu đề bài học (`Khái niệm List và cách khởi tạo`)
-- **Details & Objectives**: Mô tả chi tiết và chuẩn đầu ra bài học.
+## 1. Muc Dich
+Tu dong hoa viec nap file khung chuong trinh PM (`PM_Python.xlsx`), danh gia tinh hop ly su pham, phat hien lo hong nhay coc kien thuc va ho tro AI tu dong cap nhat file Excel PM.
 
 ---
 
-## 3. 🛠️ Quy Trình Thực Thi Bước PM
+## 2. Cau Truc File Excel PM Dau Vao
+Tep Excel PM dat tai thu muc `documents/PM_Python.xlsx` chua cac cot thong tin:
+- **Session ID**: Ten buoi hoc (vi du: `Session 06`)
+- **Session Title**: Chu de buoi hoc (vi du: `Cau truc du lieu List va Tuple`)
+- **Lesson ID**: Ten bai hoc (vi du: `Lesson 01`)
+- **Lesson Title**: Tieu de bai hoc (`Khai niem List va cach khoi tao`)
+- **Details & Objectives**: Mo ta chi tiet va chuan dau ra bai hoc.
 
-### Bước 3.1: Chạy Lệnh Quét & Đánh Giá PM
+---
+
+## 3. Quy Trinh Thuc Thi Buoc PM
+
+### Buoc 3.1: Chay Lenh Quet & Danh Gia PM
 ```bash
-python -m cli.runner --pm "pms/PM_Python.xlsx" --approve-pm
+python main.py --pm "documents/PM_Python.xlsx" --approve-pm
 ```
 
-### Bước 3.2: Cơ Chế Đánh Giá Của PM Auditor Agent
-Agent sẽ phân tích 4 tiêu chí cốt lõi:
-1. **Phân rã bài học**: Các Lesson có đủ độ sâu và rõ chuẩn đầu ra hay chưa?
-2. **Tải lượng nhận thức**: Có bài nào nhồi nhét quá nhiều kiến thức phức tạp không?
-3. **Lỗ hổng Nhảy cóc (Prerequisites)**: Kiến thức các bài có móc xích logic không?
-4. **Báo cáo kiểm định**: Xuất báo cáo chi tiết tại `dist/pm_review_report.md`.
+### Buoc 3.2: Co Che Danh Gia Cua PM Auditor Agent
+Agent se phan tich 4 tieu chi cot loi:
+1. **Phan ra bai hoc**: Cac Lesson co du do sau va ro chuan dau ra hay chua?
+2. **Tai luong nhan thuc**: Co bai nao nhoi nhet qua nhieu kien thuc phuc tap khong?
+3. **Lo hong Nhay coc (Prerequisites)**: Kien thuc cac bai co moc xich logic khong?
+4. **Bao cao kiem dinh**: Xuat bao cao chi tiet tai `output/pms/<Course>/structure_review_report.md`.
 
-### Bước 3.3: AI Auto-Updater (Tự Động Sửa Excel)
-Khi phát hiện lỗi cấu trúc, Agent `pm_updater_agent` sẽ tự động đề xuất sửa đổi và xuất ra file Excel mới:
-`pms/PM_Python_AI_Updated.xlsx`
+### Buoc 3.3: AI Auto-Updater (Tu Dong Sua Excel)
+Khi phat hien loi cau truc, Agent `pm_updater_agent` se tu dong de xuat sua doi va cap nhat lai file PM.
 
 ---
 
-## 4. ⚠️ Quy Tắc Phê Duyệt (Approval Checklist)
-- Cờ `--approve-pm` mở khóa cho các Agent phía sau (Reading, Quiz, Slide, Video) tiếp tục khởi chạy.
+## 4. Quy Tac Phe Duyet (Approval Checklist)
+- Co `--approve-pm` mo khoa cho cac Agent phia sau (Reading, Quiz, Slide, Homework) tiep tuc khoi chay.

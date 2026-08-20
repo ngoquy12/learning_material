@@ -21,7 +21,7 @@ python main.py
    - **Tải lượng nhận thức**: Có bài học nào nhồi nhét quá nhiều kiến thức phức tạp không?
    - **Lỗ hổng Nhảy cóc (Prerequisites)**: Kiến thức các bài có móc xích logic không? Có khái niệm nào bị "nhảy cóc" chưa dạy nền tảng đã bắt học viên tiếp thu cái mới không?
 3. **Xuất báo cáo**: Một file Markdown sẽ được tự động tạo và lưu tại:
-   👉 `dist/pm_review_report.md`
+   `dist/pm_review_report.md`
 4. **Cảnh báo**: Terminal hiển thị lỗi `[CHỜ DUYỆT PM]`, yêu cầu con người vào can thiệp và đọc báo cáo.
 5. **AI Auto-Updater (Tính năng Tương tác)**: Ngay lập tức, Terminal sẽ hỏi bạn:
    > `Bạn có muốn AI tự động chỉnh sửa file Excel PM dựa trên các đề xuất này không? (y/n):`
