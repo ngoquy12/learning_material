@@ -19,5 +19,11 @@ web/frontend/build/
 *.wav
 *.log
 trace_logs.jsonl
+*.jsonl
+vector_store.json
 /storage/
 !core/storage/
+reading-result/
+slide_result/
+scratch/
+.trash/
