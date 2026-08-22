@@ -3,7 +3,7 @@ from typing import List, Dict, Any, Optional
 from typing_extensions import TypedDict, NotRequired
 
 # 2-Tier Standard Resource Constants
-DEFAULT_LESSON_PARTS = ["html", "quiz", "lab", "reading_questions"]
+DEFAULT_LESSON_PARTS = ["html", "quiz", "lab", "reading_questions", "video_script"]
 DEFAULT_SESSION_PARTS = ["classroom_lecture", "quiz_session", "homework", "mindmap"]
 ALL_REQUESTED_PARTS = DEFAULT_LESSON_PARTS + DEFAULT_SESSION_PARTS
 

@@ -279,8 +279,8 @@ Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
 Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
 
 MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
-1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants and mechanisms.
-2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax, 3.2 Business logic, 3.3 Enterprise scenario).
+1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants and mechanisms. Each sub-section adds exactly ONE increment of complexity on top of the previous one (2.1 simplest, 2.3 most advanced) — do not re-introduce the full domain scenario from scratch in every sub-section.
+2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax — genuinely minimal, 1-2 lines, no branching; 3.2 Business logic — adds ONE new layer only; 3.3 Enterprise scenario — the only sub-section allowed full enterprise complexity). Never invert this difficulty order.
 3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope.
 4. Section 5 MUST contain exactly 3 interactive self-test MCQ questions under self_test_questions.
 5. Return ONLY raw pure JSON strictly adhering to the schema."""

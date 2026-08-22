@@ -24,7 +24,7 @@ def parse_cli_arguments():
         "--parts",
         type=str,
         default="all",
-        help="Comma-separated parts to generate (html,quiz,practical_lab or all)"
+        help="Comma-separated parts to generate (html,quiz,practical_lab,video_script or all)"
     )
     parser.add_argument(
         "--force",

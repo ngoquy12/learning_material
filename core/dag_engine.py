@@ -87,10 +87,28 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
     "previous_lessons":     override,
     "pm_approved":          override,
 
+    # --- Scope & Domain Contracts (bất biến trong 1 lesson, nhánh nào cũng như nhau) ---
+    "allowed_scope":        override,
+    "forbidden_scope":      override,
+    "session_domain":       override,
+    "chosen_domain":        override,
+    "lesson_type":          override,
+
     # --- Strategic Phase outputs ---
     "learning_outcomes":    override,
     "program_structure":    override,
     "core_ssot":            merge_dict,
+    "full_curriculum":      override,
+    "prerequisite_data":    override,
+    "prerequisite_checked": override,
+
+    # --- Shared upstream context (sinh trước khi rẽ nhánh song song) ---
+    "master_content":           override,
+    "lesson_blueprint":         override,
+    "lesson_content":           override,
+    "reading_material":         override,
+    "lessons_learned_prompt":   override,
+    "images_dir":               override,
 
     # --- 2-Tier Core Creator Phase outputs (Lesson Level) ---
     "html_content":                 override,
@@ -100,6 +118,15 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
     "lab_json":                     override,
     "reading_questions_markdown":   override,
     "reading_questions_json":       override,
+    "video_script_markdown":        override,
+    "self_test_markdown":           override,
+    "slide_markdown":               override,
+
+    # --- Tier 1: Session-level Artifacts ---
+    "classroom_lecture_html":   override,
+    "session_quizzes_json":     override,
+    "homework_markdown":        override,
+    "mindmap_markdown":         override,
 
     # --- Accumulating state ---
     "artifacts_status":     merge_dict,
@@ -110,6 +137,36 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
 def get_reducer(field_name: str) -> Callable[[Any, Any], Any]:
     """Looks up the reducer for a field. Falls back to 'override' for unregistered fields."""
     return STATE_REDUCERS.get(field_name, override)
+
+
+def merge_branch_states(
+    base_state: Dict[str, Any],
+    branch_results: Dict[str, Dict[str, Any]]
+) -> Dict[str, Any]:
+    """
+    Merges parallel branch states back into the base state using STATE_REDUCERS.
+
+    ĐÂY LÀ ĐƯỜNG MERGE DUY NHẤT của hệ thống. Trước đây core/graph.py có một hàm
+    _merge_sub_state riêng copy tay từng tên field, tồn tại song song với reducer
+    registry ở đây. Hệ quả là mỗi khi thêm một field state mới phải nhớ sửa 2 chỗ —
+    và thực tế đã quên: practical_lab_html có trong registry nhưng thiếu ở bản copy tay,
+    khiến artifact do LLM sinh bị vứt bỏ lúc merge.
+
+    Bất kỳ nơi nào cần gộp kết quả các nhánh song song đều phải gọi hàm này.
+    """
+    merged = base_state.copy()
+
+    for branch_name, branch_state in branch_results.items():
+        if not isinstance(branch_state, dict):
+            print(f"  [Parallel Merger] Bỏ qua nhánh '{branch_name}': không phải dict hợp lệ.")
+            continue
+
+        print(f"  [Parallel Merger] Gộp nhánh: {branch_name}")
+        for key, branch_value in branch_state.items():
+            reducer = get_reducer(key)
+            merged[key] = reducer(merged.get(key), branch_value)
+
+    return merged
 
 
 def register_reducer(field_name: str, reducer_fn: Callable[[Any, Any], Any]) -> None:
@@ -168,17 +225,8 @@ class CompiledWorkflow:
         base_state: Dict[str, Any],
         branch_results: Dict[str, Dict[str, Any]]
     ) -> Dict[str, Any]:
-        merged = base_state.copy()
-
-        for branch_name, branch_state in branch_results.items():
-            print(f"\n[Parallel Merger] Merging branch: {branch_name}")
-
-            for key, branch_value in branch_state.items():
-                reducer = get_reducer(key)
-                old_value = merged.get(key)
-                merged[key] = reducer(old_value, branch_value)
-
-        return merged
+        """Delegates to the single shared merge implementation."""
+        return merge_branch_states(base_state, branch_results)
 
     def run(self, initial_state: Union[AgentState, Dict[str, Any]]) -> Dict[str, Any]:
         current_node = self.entry_point

@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from core.state import AgentState
-from core.graph import compile_learning_content_workflow
+from core.graph import compile_learning_content_workflow, write_state_artifacts_to_disk
 from cli.curriculum_parser import (
     parse_all_sessions,
     detect_tech_stack_from_curriculum,
@@ -56,7 +56,7 @@ def execute_course_workflow(args):
         scaffold_course_resources(excel_path)
         return
 
-    requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "quiz", "practical_lab", "slide"]
+    requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "quiz", "practical_lab", "slide", "video_script"]
     requested_sessions = [s.strip().lower() for s in args.session.split(",")] if args.session != "all" else ["all"]
 
     print(f"Loading spreadsheet: {excel_path}")
@@ -148,22 +148,100 @@ def execute_course_workflow(args):
         is_practice = is_practice_session(session)
 
         if is_exam:
-            print(f"\n  ---> [Exam Session] Skipped regular material generation for Exam Session: {session_id} - {session_title}")
             session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
             session_dir.mkdir(parents=True, exist_ok=True)
-            (session_dir / "Đề thi tự luận").mkdir(parents=True, exist_ok=True)
-            (session_dir / "Đề thi trắc nghiệm").mkdir(parents=True, exist_ok=True)
-            (session_dir / "Câu hỏi vấn đáp").mkdir(parents=True, exist_ok=True)
+
+            if not args.approve_pm:
+                print(f"\n  ---> [Exam Session] PM chưa được duyệt (approve-pm), chỉ tạo khung thư mục cho: {session_id} - {session_title}")
+                (session_dir / "Đề thi thực hành").mkdir(parents=True, exist_ok=True)
+                (session_dir / "Đề thi trắc nghiệm").mkdir(parents=True, exist_ok=True)
+                (session_dir / "Câu hỏi vấn đáp").mkdir(parents=True, exist_ok=True)
+                summary.append({
+                    "session_id": session_id, "lesson_id": "", "title": session_title,
+                    "html_file": "Skipped (Exam Session)", "slides_file": "Skipped (Exam Session)",
+                    "quiz_file": "Skipped (Exam Session)", "video_script_file": "Skipped (Exam Session)",
+                    "status": "EXAM SKELETON CREATED", "review_count": 0
+                })
+                continue
+
+            title_lower = session_title.lower()
+            exam_session_indices = [i for i, s in enumerate(all_sessions) if is_exam_session(s)]
+            cur_all_idx = next((i for i, s in enumerate(all_sessions) if s["session_id"] == session_id), -1)
+            if "cuối" in title_lower or "final" in title_lower:
+                is_final = True
+            elif "giữa" in title_lower or "midterm" in title_lower:
+                is_final = False
+            else:
+                is_final = bool(exam_session_indices) and cur_all_idx == exam_session_indices[-1]
+
+            prior_sessions_for_exam = all_sessions[:cur_all_idx] if cur_all_idx >= 0 else []
+            future_sessions_for_exam = all_sessions[cur_all_idx + 1:] if cur_all_idx >= 0 else []
+
+            previous_lessons_text = ""
+            theory_titles = []
+            for s in prior_sessions_for_exam:
+                theory_titles.append(s.get("title", ""))
+                for l in s.get("lessons", []):
+                    previous_lessons_text += f"- {l['lesson_id']}: {l['title']} ({l.get('details', '')})\n"
+
+            allowed_items = []
+            for s in prior_sessions_for_exam:
+                if s.get("allowed_scope"):
+                    allowed_items.append(s["allowed_scope"])
+                for l in s.get("lessons", []):
+                    if l.get("title"):
+                        allowed_items.append(l["title"])
+                    if l.get("details"):
+                        allowed_items.append(l["details"])
+            allowed_scope_str = "; ".join(dict.fromkeys(x for x in allowed_items if x))
+
+            forbidden_items = []
+            if not is_final:
+                for s in future_sessions_for_exam:
+                    if s.get("title"):
+                        forbidden_items.append(s["title"])
+                    for l in s.get("lessons", []):
+                        if l.get("title"):
+                            forbidden_items.append(l["title"])
+                        if l.get("details"):
+                            forbidden_items.append(l["details"])
+            forbidden_scope_str = "; ".join(dict.fromkeys(forbidden_items[:40]))
+
+            curriculum_context_title = f"{session_title} " + " ".join(theory_titles)
+
+            from core.domain_knowledge import get_domain_for_session as _get_domain_for_session_exam
+            exam_domain_id = _get_domain_for_session_exam(session_id, session_title).get("domain_id", "")
+
+            exam_type_label = "Thi Cuối Môn" if is_final else "Thi Giữa Môn"
+            print(f"\n  ---> [Exam Session] Generating {exam_type_label} (Đề thi thực hành / trắc nghiệm / vấn đáp) for: {session_id} - {session_title}")
+
+            from agents.exam_agents import generate_exam_session
+            try:
+                generate_exam_session(
+                    session_id=session_id,
+                    session_title=session_title,
+                    session_dir_path=str(session_dir),
+                    tech_stack=tech_stack,
+                    previous_lessons_text=previous_lessons_text,
+                    curriculum_context_title=curriculum_context_title,
+                    is_final=is_final,
+                    session_info={"forbidden_scope": forbidden_scope_str, "allowed_scope": allowed_scope_str},
+                    chosen_domain=exam_domain_id
+                )
+                exam_status = "APPROVED"
+            except Exception as e:
+                print(f"  [Exam Session Error] {session_id}: {e}")
+                exam_status = f"FAILED ({e})"
 
             summary.append({
                 "session_id": session_id,
                 "lesson_id": "",
                 "title": session_title,
-                "html_file": "Skipped (Exam Session)",
+                "html_file": f"Generated ({exam_type_label})",
                 "slides_file": "Skipped (Exam Session)",
-                "quiz_file": "Skipped (Exam Session)",
+                "quiz_file": f"Generated ({exam_type_label})",
                 "video_script_file": "Skipped (Exam Session)",
-                "status": "EXAM SKELETON CREATED",
+                "status": exam_status,
                 "review_count": 0
             })
             continue
@@ -360,85 +438,10 @@ def execute_course_workflow(args):
                     lesson_dir = get_or_rename_sanitized_folder(session_dir, lesson_id, format_full_folder_name(lesson_id, lesson_title))
                     lesson_dir.mkdir(parents=True, exist_ok=True)
                     
-                    if "html" in requested_parts and final_state.get("html_content"):
-                        html_sub = lesson_dir / "Bài đọc"
-                        html_sub.mkdir(parents=True, exist_ok=True)
-                        html_path = html_sub / "reading.html"
-                        with open(html_path, "w", encoding="utf-8") as f:
-                            f.write(final_state.get("html_content", ""))
-                    else:
-                        html_path = "Skipped"
-
-                    slides_path = "Skipped (Temporarily Commented Out)"
-
-                    if "quiz" in requested_parts and final_state.get("quiz_json"):
-                        quiz_sub = lesson_dir / "Quizz lesson"
-                        if not quiz_sub.exists() and (lesson_dir / "Câu hỏi Quizz").exists():
-                            quiz_sub = lesson_dir / "Câu hỏi Quizz"
-                        quiz_sub.mkdir(parents=True, exist_ok=True)
-                        quiz_json_path = quiz_sub / "quiz.json"
-                        with open(quiz_json_path, "w", encoding="utf-8") as f:
-                            json.dump(final_state.get("quiz_json", {}), f, ensure_ascii=False, indent=2)
-                        
-                        from core.quiz_excel import export_lesson_quiz_to_excel
-                        s_num_str = session_id.replace(" ", "")
-                        l_num_str = lesson_id.replace(" ", "")
-                        excel_filename = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
-                        excel_path_file = quiz_sub / excel_filename
-                        quiz_data = final_state.get("quiz_json", {})
-                        if isinstance(quiz_data, dict):
-                            quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
-                        else:
-                            quiz_items = quiz_data
-                        export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
-                        quiz_reported_path = str(excel_path_file)
-                    else:
-                        quiz_reported_path = "Skipped"
-
-                    if final_state.get("practical_lab_markdown") or final_state.get("lab_json"):
-                        lab_sub = lesson_dir / "Bài thực hành"
-                        lab_sub.mkdir(parents=True, exist_ok=True)
-                        lab_md = final_state.get("practical_lab_markdown")
-                        if not lab_md and final_state.get("lab_json"):
-                            from agents.creators.practical_lab_creator import format_lab_to_markdown
-                            lab_md = format_lab_to_markdown(final_state["lab_json"])
-                        if lab_md:
-                            with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
-                                f.write(lab_md)
-                        lab_html = final_state.get("practical_lab_html")
-                        if not lab_html and final_state.get("lab_json"):
-                            from agents.creators.practical_lab_creator import format_lab_to_html
-                            # state stores the tech stack under "technology_stack" (see state
-                            # construction above) — this used to read the nonexistent "tech_stack"
-                            # key with a hard-coded "python" fallback, so it ALWAYS fell back to
-                            # "python" for every course regardless of the real stack. Confirmed
-                            # root cause of every JS-course lab's .html routing correct JS
-                            # reference code through the Pyodide (Python) interpreter — guaranteed
-                            # to fail when a student clicks "Run".
-                            lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("technology_stack") or final_state.get("tech_stack", ""))
-                        if lab_html:
-                            with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
-                                f.write(lab_html)
-
-                    if final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"):
-                        rq_sub = lesson_dir / "Câu hỏi bài đọc"
-                        rq_sub.mkdir(parents=True, exist_ok=True)
-                        rq_md = final_state.get("reading_questions_markdown")
-                        if not rq_md and final_state.get("reading_questions_json"):
-                            from agents.creators.reading_questions_creator import format_reading_questions_to_markdown
-                            rq_md = format_reading_questions_to_markdown(final_state["reading_questions_json"])
-                        if rq_md:
-                            with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
-                                f.write(rq_md)
-
-                    if ("video" in requested_parts or "video_script" in requested_parts) and final_state.get("video_script_markdown"):
-                        video_sub = lesson_dir / "Video"
-                        video_sub.mkdir(parents=True, exist_ok=True)
-                        video_script_path = video_sub / "SCRIPT.md"
-                        with open(video_script_path, "w", encoding="utf-8") as f:
-                            f.write(final_state.get("video_script_markdown", ""))
-                    else:
-                        video_script_path = "Skipped"
+                    written = write_state_artifacts_to_disk(final_state, lesson_dir=lesson_dir)
+                    html_path = written["html"]
+                    quiz_reported_path = written["quiz"]
+                    video_script_path = written["video_script"]
 
                     summary.append({
                         "session_id": session_id,
@@ -573,78 +576,10 @@ def execute_course_workflow(args):
                         lesson_dir = get_or_rename_sanitized_folder(session_dir, lesson_id, format_full_folder_name(lesson_id, lesson_title))
                         lesson_dir.mkdir(parents=True, exist_ok=True)
 
-                        if "html" in requested_parts and final_state.get("html_content"):
-                            html_sub = lesson_dir / "Bài đọc"
-                            html_sub.mkdir(parents=True, exist_ok=True)
-                            html_path = html_sub / "reading.html"
-                            with open(html_path, "w", encoding="utf-8") as f:
-                                f.write(final_state.get("html_content", ""))
-                        else:
-                            html_path = "Skipped"
-
-                        slides_path = "Skipped (Temporarily Commented Out)"
-
-                        if "quiz" in requested_parts and final_state.get("quiz_json"):
-                            quiz_sub = lesson_dir / "Quizz lesson"
-                            if not quiz_sub.exists() and (lesson_dir / "Câu hỏi Quizz").exists():
-                                quiz_sub = lesson_dir / "Câu hỏi Quizz"
-                            quiz_sub.mkdir(parents=True, exist_ok=True)
-                            quiz_json_path = quiz_sub / "quiz.json"
-                            with open(quiz_json_path, "w", encoding="utf-8") as f:
-                                json.dump(final_state.get("quiz_json", {}), f, ensure_ascii=False, indent=2)
-                            
-                            from core.quiz_excel import export_lesson_quiz_to_excel
-                            s_num_str = session_id.replace(" ", "")
-                            l_num_str = lesson_id.replace(" ", "")
-                            excel_filename = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
-                            excel_path_file = quiz_sub / excel_filename
-                            quiz_data = final_state.get("quiz_json", {})
-                            if isinstance(quiz_data, dict):
-                                quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
-                            else:
-                                quiz_items = quiz_data
-                            export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
-                            quiz_reported_path = str(excel_path_file)
-                        else:
-                            quiz_reported_path = "Skipped"
-
-                        if final_state.get("practical_lab_markdown") or final_state.get("lab_json"):
-                            lab_sub = lesson_dir / "Bài thực hành"
-                            lab_sub.mkdir(parents=True, exist_ok=True)
-                            lab_md = final_state.get("practical_lab_markdown")
-                            if not lab_md and final_state.get("lab_json"):
-                                from agents.creators.practical_lab_creator import format_lab_to_markdown
-                                lab_md = format_lab_to_markdown(final_state["lab_json"])
-                            if lab_md:
-                                with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
-                                    f.write(lab_md)
-                            lab_html = final_state.get("practical_lab_html")
-                            if not lab_html and final_state.get("lab_json"):
-                                from agents.creators.practical_lab_creator import format_lab_to_html
-                                lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("technology_stack") or final_state.get("tech_stack", ""))
-                            if lab_html:
-                                with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
-                                    f.write(lab_html)
-
-                        if final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"):
-                            rq_sub = lesson_dir / "Câu hỏi bài đọc"
-                            rq_sub.mkdir(parents=True, exist_ok=True)
-                            rq_md = final_state.get("reading_questions_markdown")
-                            if not rq_md and final_state.get("reading_questions_json"):
-                                from agents.creators.reading_questions_creator import format_reading_questions_to_markdown
-                                rq_md = format_reading_questions_to_markdown(final_state["reading_questions_json"])
-                            if rq_md:
-                                with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
-                                    f.write(rq_md)
-
-                        if ("video" in requested_parts or "video_script" in requested_parts) and final_state.get("video_script_markdown"):
-                            video_sub = lesson_dir / "Video"
-                            video_sub.mkdir(parents=True, exist_ok=True)
-                            video_script_path = video_sub / "SCRIPT.md"
-                            with open(video_script_path, "w", encoding="utf-8") as f:
-                                f.write(final_state.get("video_script_markdown", ""))
-                        else:
-                            video_script_path = "Skipped"
+                        written = write_state_artifacts_to_disk(final_state, lesson_dir=lesson_dir)
+                        html_path = written["html"]
+                        quiz_reported_path = written["quiz"]
+                        video_script_path = written["video_script"]
 
                         summary.append({
                             "session_id": session_id,
@@ -795,68 +730,12 @@ def execute_course_workflow(args):
                 session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
                 session_dir.mkdir(parents=True, exist_ok=True)
 
-                if "html" in requested_parts and final_state.get("html_content"):
-                    html_sub = session_dir / "Bài đọc"
-                    html_sub.mkdir(parents=True, exist_ok=True)
-                    html_path = html_sub / "reading.html"
-                    with open(html_path, "w", encoding="utf-8") as f:
-                        f.write(final_state.get("html_content", ""))
-                else:
-                    html_path = "Skipped"
-
+                # Session không có lesson con: artifact ghi thẳng vào thư mục session.
+                written = write_state_artifacts_to_disk(final_state, lesson_dir=session_dir)
+                html_path = written["html"]
+                quiz_reported_path = written["quiz"]
+                video_script_path = written["video_script"]
                 slides_path = "Skipped (Temporarily Commented Out)"
-
-                if "quiz" in requested_parts and final_state.get("quiz_json"):
-                    quiz_sub = session_dir / "Câu hỏi Quizz"
-                    quiz_sub.mkdir(parents=True, exist_ok=True)
-                    quiz_json_path = quiz_sub / "quiz.json"
-                    with open(quiz_json_path, "w", encoding="utf-8") as f:
-                        json.dump(final_state.get("quiz_json", {}), f, ensure_ascii=False, indent=2)
-                    
-                    from core.quiz_excel import export_lesson_quiz_to_excel
-                    s_num_str = session_id.replace(" ", "")
-                    excel_filename = f"Quizz_{s_num_str}_Thuc_hanh.xlsx"
-                    excel_path_file = quiz_sub / excel_filename
-                    quiz_data = final_state.get("quiz_json", {})
-                    if isinstance(quiz_data, dict):
-                        quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
-                    else:
-                        quiz_items = quiz_data
-                    export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
-                    quiz_reported_path = str(excel_path_file)
-                else:
-                    quiz_reported_path = "Skipped"
-
-                if final_state.get("practical_lab_markdown") or final_state.get("lab_json"):
-                    lab_sub = session_dir / "Bài thực hành"
-                    lab_sub.mkdir(parents=True, exist_ok=True)
-                    lab_md = final_state.get("practical_lab_markdown")
-                    if not lab_md and final_state.get("lab_json"):
-                        from agents.creators.practical_lab_creator import format_lab_to_markdown
-                        lab_md = format_lab_to_markdown(final_state["lab_json"])
-                    if lab_md:
-                        with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
-                            f.write(lab_md)
-                    lab_html = final_state.get("practical_lab_html")
-                    if not lab_html and final_state.get("lab_json"):
-                        from agents.creators.practical_lab_creator import format_lab_to_html
-                        lab_html = format_lab_to_html(final_state["lab_json"], final_state.get("technology_stack") or final_state.get("tech_stack", ""))
-                    if lab_html:
-                        with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
-                            f.write(lab_html)
-
-                if final_state.get("reading_questions_markdown") or final_state.get("reading_questions_json"):
-                    rq_sub = session_dir / "Câu hỏi bài đọc"
-                    rq_sub.mkdir(parents=True, exist_ok=True)
-                    rq_md = final_state.get("reading_questions_markdown")
-                    if not rq_md and final_state.get("reading_questions_json"):
-                        from agents.creators.reading_questions_creator import format_reading_questions_to_markdown
-                        rq_md = format_reading_questions_to_markdown(final_state["reading_questions_json"])
-                    if rq_md:
-                        with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
-                            f.write(rq_md)
- 
-                video_script_path = "Skipped (Temporarily Commented Out)"
 
                 summary.append({
                     "session_id": session_id,

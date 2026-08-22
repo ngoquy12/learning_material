@@ -18,10 +18,14 @@ def clean_and_parse_json(raw_text: str) -> Any:
 
     cleaned = raw_text.strip()
 
-    # 1. Strip Markdown Code Fences (e.g. ```json ... ```)
-    if "```" in cleaned:
-        # Match content inside ```json ... ``` or ``` ... ```
-        match = re.search(r"```(?:json)?\s*\n?(.*?)\n?```", cleaned, re.DOTALL | re.IGNORECASE)
+    # 1. Strip Markdown Code Fences (e.g. ```json ... ```) -- ONLY when the fence genuinely wraps
+    # the WHOLE response (starts with ```). Previously this searched for the FIRST ``` ... ```
+    # pair ANYWHERE in the text, which incorrectly matched an inline code fence embedded inside a
+    # JSON string value (e.g. a quiz question's own ```python ...``` code sample) and extracted
+    # just that inner snippet as if it were the entire JSON payload -- a confirmed real bug that
+    # silently corrupted/rejected valid JSON responses containing fenced code in string fields.
+    if cleaned.startswith("```"):
+        match = re.match(r"```(?:json)?\s*\n?(.*)\n?```\s*$", cleaned, re.DOTALL | re.IGNORECASE)
         if match:
             cleaned = match.group(1).strip()
         else:

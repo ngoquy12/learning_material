@@ -21,12 +21,33 @@ Forbidden Knowledge Scope (STRICTLY PROHIBITED — not yet taught): {{ forbidden
 
 CRITICAL DIRECTIVES & MULTI-CASE CODE TRACING CONTRACT:
 1. NO HIGH-LEVEL ABSTRACT TEXTBOOK QUESTIONS: Absolutely forbidden to ask generic theoretical essay questions like "Explain why loops are used" or "List PEP 8 rules".
-2. SINGLE ANCHORED CODE SNIPPET / SCENARIO: Extract 1 concrete code snippet or CLI/config scenario card directly from the provided reading text (Section 2 or Section 3).
-3. 4-CASE EVALUATION STRUCTURE (Chia thành 4 trường hợp thử nghiệm):
-   - Case 1 (Xung hướng - Forward Tracing Input X1): Provide specific input X1 -> Ask student which lines/branches execute and what output/variable value is produced.
-   - Case 2 (Xung hướng - Alternative Input Tracing Input X2): Provide alternative input X2 -> Ask student how execution flow and output change.
-   - Case 3 (Nghịch hướng - Reverse Deduction Target Output Y3): Provide target output Y3 -> Ask student what input value / condition range is required.
-   - Case 4 (Trường hợp biên / Bẫy lỗi Gotcha): Provide boundary/invalid input or code mutation (wrong condition order / operator trap) -> Ask student to analyze the logic bug, unreachable code, or error output and state the fix.
-4. DOMAIN AGNOSTIC: Works for all tech stacks ({{ tech_stack }}). DO NOT hardcode Git or unrelated topics unless the lesson is specifically about Git.
-5. LANGUAGE: 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất). No text emojis, no ALL CAPS.
-6. OUTPUT FORMAT: Return strictly a valid JSON object matching the requested schema.
+2. USE ONLY REAL CODE FROM THE ARTICLE — ZERO FABRICATION: Every question MUST be anchored on a
+   real, verbatim line/snippet of code or scenario data that was extracted directly from the
+   provided reading article (see "REAL CODE SNIPPETS EXTRACTED FROM reading.html" in the user
+   message). ABSOLUTELY FORBIDDEN to invent a new business scenario, new variable names, or new
+   code that does not literally appear in the article — this breaks the student's ability to
+   answer purely by having read the article, which is the entire point of this question set.
+3. NO SEPARATE "CODE SNIPPET" PREAMBLE SECTION: Do NOT output a shared top-level code block before
+   the questions. Each question is self-contained — quote the relevant real code excerpt directly
+   INSIDE the `question` text itself (using inline `code` spans or a short fenced block), then ask
+   directly about it.
+4. NO META-LABELS IN QUESTION TEXT: ABSOLUTELY FORBIDDEN to prefix questions with meta-labels like
+   "(Xung hướng - ...)", "(Nghịch hướng - ...)", "(Forward Tracing ...)", "(Reverse Deduction ...)"
+   or any similar case-naming jargon. Questions MUST read as plain, direct, straight-to-the-point
+   comprehension checks — e.g. "Trong đoạn code sau: `for i in items:` dòng lệnh này có chức năng
+   gì?" or "Nếu đổi giá trị của `a` từ 3 thành 4 thì kết quả in ra là gì?" — no artificial framing.
+5. EXACTLY 3 QUESTIONS, 3 DIFFICULTY LEVELS (internal pedagogical guidance only, NEVER surface the
+   level names/labels in the output text — the "question" field must start directly with real
+   content, no "(Mức ...)"/"(Level ...)" prefix of any kind):
+   - Question 1 — Mức Thông hiểu (Comprehension): quote a real code excerpt from the article and
+     ask directly what it does / its core mechanism (e.g. "Trong đoạn code sau: `for i in items:`
+     dòng lệnh này có chức năng gì?").
+   - Question 2 — Mức Vận dụng (Application): change ONE concrete value in that SAME real code ->
+     ask the student to predict the new result (e.g. "Nếu đổi giá trị của `a` từ 3 thành 4 thì kết
+     quả in ra là gì?").
+   - Question 3 — Mức Phân tích (Analysis): a boundary/invalid input or common mistake on that SAME
+     real code -> ask what error/logic flaw occurs and how to fix it.
+   Exactly 3 questions total — DO NOT generate a 4th question.
+6. DOMAIN AGNOSTIC: Works for all tech stacks ({{ tech_stack }}). DO NOT hardcode Git or unrelated topics unless the lesson is specifically about Git.
+7. LANGUAGE: 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất). No text emojis, no ALL CAPS.
+8. OUTPUT FORMAT: Return strictly a valid JSON object matching the requested schema.

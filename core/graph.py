@@ -1,6 +1,7 @@
 # core/graph.py
-from typing import Dict, Any
-from core.dag_engine import Workflow, parallel, component
+from pathlib import Path
+from typing import Dict, Any, Optional
+from core.dag_engine import Workflow, parallel, component, merge_branch_states
 from core.state import AgentState, DEFAULT_LESSON_PARTS
 from core.persistence import save_checkpoint
 from agents import (
@@ -17,70 +18,143 @@ def save_state_checkpoint(state: AgentState):
     key = f"{state.get('session_id', 'default')}_{state.get('lesson_id', '')}".strip("_")
     save_checkpoint(key, state)
 
-def write_state_artifacts_to_disk(state: AgentState):
-    """Writes current generated artifacts in state to disk immediately."""
+def write_state_artifacts_to_disk(
+    state: AgentState,
+    lesson_dir: Optional[Path] = None
+) -> Dict[str, str]:
+    """
+    Ghi mọi artifact cấp lesson đang có trong state ra đĩa.
+
+    ĐÂY LÀ ĐƯỜNG GHI ĐĨA DUY NHẤT cho artifact cấp lesson. Trước đây
+    cli/commands/workflow_cmd.py tự viết lại toàn bộ logic này 3 lần (nhánh tuần tự,
+    nhánh song song, nhánh session không có lesson con) — mỗi lần thêm một loại tài
+    nguyên mới phải sửa 4 chỗ, và thực tế đã trôi khỏi nhau.
+
+    Args:
+        state: AgentState chứa các artifact đã sinh.
+        lesson_dir: Thư mục lesson đích. Nếu None thì suy ra từ state qua get_lesson_dir().
+            Caller nào đã tự tính thư mục (kèm tác dụng phụ đổi tên thư mục cho khớp
+            tiêu đề mới) phải truyền vào đây, để không phụ thuộc vào việc 2 cách suy ra
+            thư mục có trùng nhau hay không.
+
+    Returns:
+        Dict ánh xạ tên artifact -> đường dẫn đã ghi, hoặc "Skipped" nếu bỏ qua.
+        Caller dùng kết quả này để dựng báo cáo, thay vì tự suy lại đường dẫn.
+    """
     from agents.creator_agents import get_lesson_dir
-    from pathlib import Path
     import json
-    
+
+    written: Dict[str, str] = {
+        "html": "Skipped",
+        "quiz": "Skipped",
+        "practical_lab_md": "Skipped",
+        "practical_lab_html": "Skipped",
+        "reading_questions": "Skipped",
+        "video_script": "Skipped",
+    }
+
     try:
-        lesson_dir = get_lesson_dir(state)
-        requested_parts = state.get("requested_parts") if state.get("requested_parts") else DEFAULT_LESSON_PARTS
-        
-        # 1. HTML Reading
-        if "html" in requested_parts and state.get("html_content"):
+        if lesson_dir is None:
+            lesson_dir = get_lesson_dir(state)
+        lesson_dir.mkdir(parents=True, exist_ok=True)
+    except Exception as e:
+        print(f"  [Write Disk Warning] Không xác định được thư mục lesson: {e}")
+        return written
+
+    requested_parts = state.get("requested_parts") or DEFAULT_LESSON_PARTS
+
+    # Mỗi artifact ghi trong try riêng: một artifact lỗi không được làm chết những
+    # artifact còn lại. Trước đây cả khối nằm chung 1 try — chỉ cần lab thiếu
+    # tech_stack là require_tech_stack raise, và video script phía sau im lặng
+    # không bao giờ được ghi.
+
+    # 1. Bài đọc HTML
+    if "html" in requested_parts and state.get("html_content"):
+        try:
             html_sub = lesson_dir / "Bài đọc"
             html_sub.mkdir(parents=True, exist_ok=True)
-            with open(html_sub / "reading.html", "w", encoding="utf-8") as f:
-                f.write(state["html_content"])
+            html_path = html_sub / "reading.html"
+            html_path.write_text(state["html_content"], encoding="utf-8")
+            written["html"] = str(html_path)
+        except Exception as e:
+            print(f"  [Write Disk Warning] Lỗi ghi reading.html: {e}")
 
-                
-        # 3. Quiz (Quizz lesson)
-        if "quiz" in requested_parts and state.get("quiz_json"):
-            quiz_sub = lesson_dir / "Quizz lesson"
-            if not quiz_sub.exists() and (lesson_dir / "Câu hỏi Quizz").exists():
+    # 2. Quizz (JSON + Excel)
+    if "quiz" in requested_parts and state.get("quiz_json"):
+        try:
+            s_num_str = state.get("session_id", "").replace(" ", "")
+            l_num_str = state.get("lesson_id", "").replace(" ", "")
+
+            if l_num_str:
+                quiz_sub = lesson_dir / "Quizz lesson"
+                if not quiz_sub.exists() and (lesson_dir / "Câu hỏi Quizz").exists():
+                    quiz_sub = lesson_dir / "Câu hỏi Quizz"
+                excel_name = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
+            else:
+                # Session không có lesson con: quiz thuộc về cả session (buổi thực hành),
+                # nên đặt thẳng trong thư mục session và đặt tên theo buổi thay vì theo lesson.
                 quiz_sub = lesson_dir / "Câu hỏi Quizz"
+                excel_name = f"Quizz_{s_num_str}_Thuc_hanh.xlsx"
+
             quiz_sub.mkdir(parents=True, exist_ok=True)
             with open(quiz_sub / "quiz.json", "w", encoding="utf-8") as f:
                 json.dump(state["quiz_json"], f, ensure_ascii=False, indent=2)
-                
+            written["quiz"] = str(quiz_sub / "quiz.json")
+
             from core.quiz_excel import export_lesson_quiz_to_excel
-            s_num_str = state.get("session_id", "").replace(" ", "")
-            l_num_str = state.get("lesson_id", "").replace(" ", "")
-            excel_filename = f"Quizz_{s_num_str}_{l_num_str}.xlsx"
-            excel_path_file = quiz_sub / excel_filename
+            excel_path_file = quiz_sub / excel_name
+
             quiz_data = state.get("quiz_json", {})
             if isinstance(quiz_data, dict):
                 quiz_items = quiz_data.get("lesson_quiz") or quiz_data.get("quiz") or []
             else:
                 quiz_items = quiz_data
-                
+
             if quiz_items:
                 export_lesson_quiz_to_excel(quiz_items, str(excel_path_file))
-                # 3.2 Practical Lab (Markdown)
-        if state.get("practical_lab_markdown") or state.get("lab_json"):
-            lab_sub = lesson_dir / "Bài thực hành"
-            lab_sub.mkdir(parents=True, exist_ok=True)
+                written["quiz"] = str(excel_path_file)
+        except Exception as e:
+            print(f"  [Write Disk Warning] Lỗi ghi quiz: {e}")
+
+    # 3. Bài thực hành — Markdown và HTML tách riêng: dựng được cái nào ghi cái đó.
+    # Gộp chung 1 try sẽ khiến lỗi khi dựng Markdown nuốt luôn bản HTML mà LLM đã sinh.
+    if state.get("practical_lab_markdown") or state.get("lab_json"):
+        lab_sub = lesson_dir / "Bài thực hành"
+
+        try:
             lab_md = state.get("practical_lab_markdown")
             if not lab_md and state.get("lab_json"):
                 from agents.creators.practical_lab_creator import format_lab_to_markdown
                 lab_md = format_lab_to_markdown(state["lab_json"])
             if lab_md:
-                with open(lab_sub / "practical_lab.md", "w", encoding="utf-8") as f:
-                    f.write(lab_md)
+                lab_sub.mkdir(parents=True, exist_ok=True)
+                lab_md_path = lab_sub / "practical_lab.md"
+                lab_md_path.write_text(lab_md, encoding="utf-8")
+                written["practical_lab_md"] = str(lab_md_path)
+        except Exception as e:
+            print(f"  [Write Disk Warning] Lỗi ghi practical_lab.md: {e}")
+
+        try:
             lab_html = state.get("practical_lab_html")
             if not lab_html and state.get("lab_json"):
                 from agents.creators.practical_lab_creator import format_lab_to_html
                 from core.state import require_tech_stack
+                # require_tech_stack cố ý raise thay vì fallback ngầm về "python":
+                # bản cũ ở workflow_cmd đọc nhầm key "tech_stack" kèm fallback cứng
+                # "python", khiến lab của mọi khoá JS bị chạy qua Pyodide và luôn lỗi.
                 current_stack = require_tech_stack(state, "write_state_artifacts_to_disk")
                 lab_html = format_lab_to_html(state["lab_json"], current_stack)
             if lab_html:
-                with open(lab_sub / "practical_lab.html", "w", encoding="utf-8") as f:
-                    f.write(lab_html)
-                
+                lab_sub.mkdir(parents=True, exist_ok=True)
+                lab_html_path = lab_sub / "practical_lab.html"
+                lab_html_path.write_text(lab_html, encoding="utf-8")
+                written["practical_lab_html"] = str(lab_html_path)
+        except Exception as e:
+            print(f"  [Write Disk Warning] Lỗi ghi practical_lab.html: {e}")
 
-        # 3.5 Reading Questions (Markdown)
-        if state.get("reading_questions_markdown") or state.get("reading_questions_json"):
+    # 4. Câu hỏi bài đọc
+    if state.get("reading_questions_markdown") or state.get("reading_questions_json"):
+        try:
             rq_sub = lesson_dir / "Câu hỏi bài đọc"
             rq_sub.mkdir(parents=True, exist_ok=True)
             rq_md = state.get("reading_questions_markdown")
@@ -88,10 +162,25 @@ def write_state_artifacts_to_disk(state: AgentState):
                 from agents.creators.reading_questions_creator import format_reading_questions_to_markdown
                 rq_md = format_reading_questions_to_markdown(state["reading_questions_json"])
             if rq_md:
-                with open(rq_sub / "reading_questions.md", "w", encoding="utf-8") as f:
-                    f.write(rq_md)
-    except Exception as e:
-        print(f"  [Write Disk Warning] Failed to write artifacts to disk: {e}")
+                rq_path = rq_sub / "reading_questions.md"
+                rq_path.write_text(rq_md, encoding="utf-8")
+                written["reading_questions"] = str(rq_path)
+        except Exception as e:
+            print(f"  [Write Disk Warning] Lỗi ghi câu hỏi bài đọc: {e}")
+
+    # 5. Kịch bản video
+    wants_video = "video" in requested_parts or "video_script" in requested_parts
+    if wants_video and state.get("video_script_markdown"):
+        try:
+            video_sub = lesson_dir / "Video"
+            video_sub.mkdir(parents=True, exist_ok=True)
+            video_path = video_sub / "SCRIPT.md"
+            video_path.write_text(state["video_script_markdown"], encoding="utf-8")
+            written["video_script"] = str(video_path)
+        except Exception as e:
+            print(f"  [Write Disk Warning] Lỗi ghi kịch bản video: {e}")
+
+    return written
 
 
 @component
@@ -393,6 +482,27 @@ def pipeline_reading_questions_production(state: AgentState) -> AgentState:
 
 
 @component
+def pipeline_video_script_production(state: AgentState) -> AgentState:
+    """Soạn kịch bản quay video (video script) cấp Lesson ra file Markdown riêng biệt"""
+    if _is_session_01_orientation(state):
+        state.setdefault("artifacts_status", {})["video_script"] = "Skipped (Session 01 Orientation)"
+        return state
+
+    requested = state.get("requested_parts", ["all"])
+    if "video_script" not in requested and "video" not in requested and "all" not in requested:
+        state.setdefault("artifacts_status", {})["video_script"] = "Skipped"
+        return state
+
+    # Import inside function to avoid circular imports
+    from agents.creator_agents import video_script_creator_agent
+    state = video_script_creator_agent(state)
+    state.setdefault("artifacts_status", {})["video_script"] = "Approved"
+    write_state_artifacts_to_disk(state)
+    save_state_checkpoint(state)
+    return state
+
+
+@component
 def pipeline_practical_lab_production(state: AgentState) -> AgentState:
     """Tự động biên soạn nội dung Bài thực hành (Hands-on Practical Lab) ra file practical_lab.json"""
     if _is_session_01_orientation(state):
@@ -454,42 +564,6 @@ def lessons_learned_refiner(state: AgentState) -> AgentState:
     state = lessons_learned_agent(state)
     save_state_checkpoint(state)
     return state
-
-
-def _merge_sub_state(state: Dict[str, Any], name: str, sub_state: Dict[str, Any]):
-    """Helper to merge artifacts and statuses from a sub-state into main state."""
-    if not isinstance(sub_state, dict):
-        return
-    if sub_state.get("html_content"):
-        state["html_content"] = sub_state["html_content"]
-    if sub_state.get("slide_markdown"):
-        state["slide_markdown"] = sub_state["slide_markdown"]
-    if sub_state.get("video_script_markdown"):
-        state["video_script_markdown"] = sub_state["video_script_markdown"]
-    if sub_state.get("quiz_json"):
-        state["quiz_json"] = sub_state["quiz_json"]
-    if sub_state.get("lab_json"):
-        state["lab_json"] = sub_state["lab_json"]
-    if sub_state.get("practical_lab_markdown"):
-        state["practical_lab_markdown"] = sub_state["practical_lab_markdown"]
-    # practical_lab_html trước đây bị BỎ SÓT ở đây dù có trong AgentState và STATE_REDUCERS:
-    # nhánh song song PracticalLab sinh ra HTML rồi bị vứt bỏ lúc merge, sau đó
-    # write_state_artifacts_to_disk phải render lại từ lab_json — tốn token LLM vô ích.
-    if sub_state.get("practical_lab_html"):
-        state["practical_lab_html"] = sub_state["practical_lab_html"]
-    if sub_state.get("reading_questions_json"):
-        state["reading_questions_json"] = sub_state["reading_questions_json"]
-    if sub_state.get("reading_questions_markdown"):
-        state["reading_questions_markdown"] = sub_state["reading_questions_markdown"]
-
-    if "artifacts_status" in sub_state:
-        state.setdefault("artifacts_status", {}).update(sub_state["artifacts_status"])
-    if sub_state.get("review_logs"):
-        for log in sub_state["review_logs"]:
-            if log not in state.setdefault("review_logs", []):
-                state["review_logs"].append(log)
-    print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
-
 
 
 def compile_learning_content_workflow():
@@ -587,7 +661,7 @@ def compile_learning_content_workflow():
         import asyncio
         from concurrent.futures import ThreadPoolExecutor, as_completed
         
-        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song tất cả tài nguyên từ JSON Blueprint (HTML Reading, Quiz, Lab, ReadingQuestions)...")
+        print("\n[Parallel Engine] 🚀 Kích hoạt luồng sản xuất song song tất cả tài nguyên từ JSON Blueprint (HTML Reading, Quiz, Lab, ReadingQuestions, VideoScript)...")
         start_t = time.time()
         
         pipelines = [
@@ -595,17 +669,37 @@ def compile_learning_content_workflow():
             ("Quiz", pipeline_quiz_production),
             ("PracticalLab", pipeline_practical_lab_production),
             ("ReadingQuestions", pipeline_reading_questions_production),
+            ("VideoScript", pipeline_video_script_production),
         ]
         
+        def _run_pipelines_threaded():
+            """Chạy các pipeline song song bằng ThreadPool, trả về {tên nhánh: state nhánh}."""
+            collected = {}
+            futures_map = {}
+            with ThreadPoolExecutor(max_workers=len(pipelines)) as executor:
+                for name, fn in pipelines:
+                    futures_map[executor.submit(fn, copy.deepcopy(state))] = name
+                for future in as_completed(futures_map):
+                    name = futures_map[future]
+                    try:
+                        collected[name] = future.result()
+                        print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
+                    except Exception as e:
+                        print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
+            return collected
+
         async def _run_async_pipeline():
             async def _run_one(name, fn):
-                state_copy = copy.deepcopy(state)
-                res_state = await asyncio.to_thread(fn, state_copy)
+                res_state = await asyncio.to_thread(fn, copy.deepcopy(state))
                 return name, res_state
 
             tasks = [_run_one(name, fn) for name, fn in pipelines]
             return await asyncio.gather(*tasks, return_exceptions=True)
 
+        # Gom kết quả tất cả các nhánh rồi merge MỘT LẦN qua STATE_REDUCERS.
+        # Trước đây mỗi nhánh được merge ngay khi xong bằng _merge_sub_state (copy tay
+        # từng tên field) — vừa trùng lặp với reducer registry, vừa để lọt artifact.
+        branch_results = {}
         try:
             try:
                 loop = asyncio.get_running_loop()
@@ -613,40 +707,20 @@ def compile_learning_content_workflow():
                 loop = None
 
             if loop and loop.is_running():
-                # Loop is already running, run with ThreadPoolExecutor
-                futures_map = {}
-                with ThreadPoolExecutor(max_workers=5) as executor:
-                    for name, fn in pipelines:
-                        state_copy = copy.deepcopy(state)
-                        future = executor.submit(fn, state_copy)
-                        futures_map[future] = name
-                    for future in as_completed(futures_map):
-                        name = futures_map[future]
-                        sub_state = future.result()
-                        _merge_sub_state(state, name, sub_state)
+                branch_results = _run_pipelines_threaded()
             else:
-                results = asyncio.run(_run_async_pipeline())
-                for res in results:
+                for res in asyncio.run(_run_async_pipeline()):
                     if isinstance(res, Exception):
                         print(f"  ❌ [Parallel Async Engine] Exception: {res}")
                         continue
                     name, sub_state = res
-                    _merge_sub_state(state, name, sub_state)
+                    branch_results[name] = sub_state
+                    print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
         except Exception as err:
             print(f"  ⚠️ [Parallel Engine Fallback] Async execution fallback to ThreadPool: {err}")
-            futures_map = {}
-            with ThreadPoolExecutor(max_workers=5) as executor:
-                for name, fn in pipelines:
-                    state_copy = copy.deepcopy(state)
-                    future = executor.submit(fn, state_copy)
-                    futures_map[future] = name
-                for future in as_completed(futures_map):
-                    name = futures_map[future]
-                    try:
-                        sub_state = future.result()
-                        _merge_sub_state(state, name, sub_state)
-                    except Exception as e:
-                        print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
+            branch_results = _run_pipelines_threaded()
+
+        state = merge_branch_states(state, branch_results)
 
         elapsed = time.time() - start_t
         print(f"[Parallel Engine] ✅ Tất cả tài nguyên đã hoàn tất song song trong {elapsed:.2f}s!\n")

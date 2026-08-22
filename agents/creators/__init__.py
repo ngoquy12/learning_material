@@ -48,6 +48,10 @@ from agents.creators.reading_questions_creator import (
     reading_questions_creator_agent,
 )
 
+from agents.creators.video_script_creator import (
+    video_script_creator_agent,
+)
+
 from agents.creators.practical_lab_creator import (
     practical_lab_creator_agent,
 )
@@ -104,6 +108,7 @@ __all__ = [
     "visualizer_generator_agent",
     "get_topic_fallback_visualizer_engine",
     "reading_questions_creator_agent",
+    "video_script_creator_agent",
     "practical_lab_creator_agent",
     "blueprint_creator_agent",
     "generate_homework_exercise",

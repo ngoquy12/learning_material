@@ -11,8 +11,22 @@ CRITICAL DOMAIN CONSISTENCY MANDATE:
 - The domain name "{{ chosen_domain }}" (or an obvious variant of it) MUST appear literally in the
   "title" or "problem_statement" field — do NOT silently substitute a different, unrelated business
   scenario (e.g. do not switch to a generic "supermarket"/"school" scenario instead).
+- This domain is fixed for the ENTIRE SESSION (all lessons), not just this one lesson — every lab
+  in this session shares it, so this task should read as one more chapter of the same continuous
+  session-wide project, not a disconnected new exercise.
 =================================================
 {% endif %}
+
+=== PROGRESSIVE DIFFICULTY CONTRACT (BEGINNER-FIRST, SIMPLE -> ADVANCED) ===
+- Calibrate overall task difficulty strictly to what the student has learned up to and including
+  this lesson (see Allowed Knowledge Scope below) — never assume mastery of later concepts.
+- The "steps" sequence MUST itself escalate gradually: early steps cover the simplest possible
+  setup / single-value handling, middle steps layer in this lesson's new concept, and only the
+  final step(s) may approach a fuller, more complete version of the scenario. Do NOT open Step 1
+  with the full multi-field/multi-branch complexity that belongs at the end.
+- "code_demo" MUST mirror this same step progression — read as an incremental build-up
+  (simple -> complete), not a monolithic advanced solution dropped all at once.
+=================================================
 
 {% if forbidden_scope or allowed_scope %}
 === KNOWLEDGE SCOPE BOUNDARY CONTRACT ===

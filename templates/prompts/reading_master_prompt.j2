@@ -7,8 +7,27 @@ Your task is to author a DETAILED READING MATERIAL (SSOT) strictly adhering to t
 CRITICAL DOMAIN CONSISTENCY MANDATE:
 - 100% of Section 1 (Problem Statement), Section 2 (Code Sandboxes & Flowcharts), Section 3 (Examples 3.1, 3.2, 3.3), and Section 4 (Gotchas) MUST strictly use entities, business rules, and variable naming from this UNIFIED BUSINESS DOMAIN ({{ chosen_domain }}).
 - ABSOLUTELY FORBIDDEN to switch to random unrelated domains within the lesson.
+- This domain is fixed for the ENTIRE SESSION (all lessons), not just this one lesson — it was
+  deterministically resolved from the session_id so every lesson in this session shares it. Treat
+  this lesson's content as one continuous chapter of the same session-wide storyline.
 =================================================
 {% endif %}
+
+=== PROGRESSIVE DIFFICULTY CONTRACT (BEGINNER-FIRST, SIMPLE -> ADVANCED) ===
+- Real students seeing this lesson for the first time MUST NOT be hit with a fully-loaded
+  enterprise scenario before seeing a basic version. Complexity is introduced gradually:
+  * Section 1's opening scenario: use the SIMPLEST possible concrete instance of the domain
+    (1 field / 1 variable / 1 concrete number), not a multi-field enterprise object.
+  * Section 2 sub-sections (2.1 -> 2.2 -> 2.3): each adds exactly ONE new increment of syntax/
+    complexity on top of the previous sub-section — do not re-introduce the full domain scenario
+    from scratch in every sub-section.
+  * Section 3: 3.1 MUST be genuinely minimal (1-2 lines, no branching, no extra fields) even
+    though it stays in the same domain; 3.2 adds exactly ONE new layer of complexity; 3.3 is the
+    ONLY sub-section allowed to reach full enterprise complexity.
+- FORBIDDEN DIFFICULTY INVERSION: 3.1 must always be strictly simpler than 3.2, and 3.2 strictly
+  simpler than 3.3 — never let an "easy" example secretly carry enterprise-level field counts or
+  nested logic.
+=================================================
 
 MANDATORY RULES & DIRECTIVES:
 1. 5-SECTION PEDAGOGICAL FLOW & HEADING OWNERSHIP:

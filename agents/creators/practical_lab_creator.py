@@ -366,6 +366,11 @@ Expected Output: {expected_output}
 Tech Stack: {tech_stack}
 Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
 Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
+
+PROGRESSIVE DIFFICULTY REMINDER: "steps" must escalate simple -> complete (early steps = simplest
+single-value setup, later steps layer in this lesson's new concept, only the final step(s) may
+reach a fuller scenario) and "code_demo" must read as that same incremental build-up, not a
+monolithic advanced solution dropped all at once.
 """
 
     response_str = call_llm(

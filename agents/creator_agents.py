@@ -32,6 +32,7 @@ from agents.creators import (
     visualizer_generator_agent,
     get_topic_fallback_visualizer_engine,
     reading_questions_creator_agent,
+    video_script_creator_agent,
     practical_lab_creator_agent,
     blueprint_creator_agent,
 )
@@ -65,6 +66,7 @@ __all__ = [
     "visualizer_generator_agent",
     "get_topic_fallback_visualizer_engine",
     "reading_questions_creator_agent",
+    "video_script_creator_agent",
     "practical_lab_creator_agent",
     "blueprint_creator_agent",
 ]

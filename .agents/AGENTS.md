@@ -192,9 +192,10 @@ Slides serve as a **Visual Teaching Support Tool** for 1.5-hour lectures, NOT a 
 
 1. **Slide Count Bounds (15-20 Slides/Session)**: Maximum 15-20 slides per 1.5-hour session.
 2. **Cover Slide**: Red tag session ID (`Session 01`), main bold dark title (`#0f172a`), official course title.
-3. **Agenda Slide**: Full lesson list format `01. Lesson 01 - ...`. Title **`LESSON AGENDA`**.
-4. **Typography (3-30-300 Rule)**: Body text minimum 18px, sub-bullets minimum 16px. Max 3 main keypoints per slide, max 30 words per keypoint.
-5. **No Emoji**: STRICT NO EMOJI. Use Phosphor SVG icons or CSS badges only.
+3. **Agenda Slide**: Full lesson list format `1.`, `2.`, `3.`... Title **`Nội dung bài học`** (hoặc `LESSON AGENDA`).
+4. **Lesson Summary Slide (Tổng kết bài học)**: Nằm ngay trước slide kết thúc/Q&A. Trình bày các điểm kiến thức cốt lõi, cô đọng và có ý nghĩa thực tiễn nhất của buổi học. **Linh hoạt số lượng ý tổng kết** theo dung lượng và tính chất của từng bài học cụ thể (thường từ 3 đến 6 ý trọng tâm, định dạng danh sách số thứ tự phẳng, chữ to rõ ràng, đồng bộ màu sắc và layout với Slide Mục lục).
+5. **Typography (3-30-300 Rule)**: Body text minimum 18px, sub-bullets minimum 16px. Max 3 main keypoints per slide, max 30 words per keypoint.
+6. **No Emoji**: STRICT NO EMOJI. Use Phosphor SVG icons or CSS badges only.
 
 ---
 
