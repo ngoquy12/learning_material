@@ -4,6 +4,7 @@ Unit tests verifying 100% Domain Consistency & Anchor Domain Resolution across S
 """
 
 import unittest
+from unittest.mock import patch
 from core.domain_knowledge import (
     BUSINESS_DOMAINS,
     get_domain_for_session,
@@ -36,8 +37,14 @@ class TestDomainUnification(unittest.TestCase):
         self.assertIn("Bối cảnh thực tế", prompt_block)
         self.assertIn("Các quy tắc nghiệp vụ", prompt_block)
 
-    def test_single_homework_exercise_domain_adherence(self):
-        """Test generating single exercise with specified unified domain."""
+    @patch("agents.creators.homework_creator.call_llm", return_value="")
+    def test_single_homework_exercise_domain_adherence(self, mock_call_llm):
+        """
+        Test generating single exercise with specified unified domain.
+
+        Domain được truyền vào và giữ nguyên qua fallback — không phụ thuộc LLM,
+        nên mock rỗng vẫn kiểm chứng đúng Domain Persistence Contract.
+        """
         ex = generate_homework_exercise(
             session_id="Session 17",
             session_title="DOM Interaction",

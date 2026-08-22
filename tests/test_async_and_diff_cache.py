@@ -82,3 +82,31 @@ def test_merge_sub_state_helper():
     assert len(main_state.get("quiz_json")) == 1
     assert main_state["artifacts_status"]["slide"] == "Approved"
     assert len(main_state.get("review_logs")) == 1
+
+
+def test_merge_sub_state_preserves_every_lesson_artifact():
+    """
+    Mọi artifact cấp lesson sinh ra ở nhánh song song đều phải sống sót qua merge.
+
+    Regression guard: practical_lab_html từng bị BỎ SÓT trong _merge_sub_state dù đã có
+    trong AgentState và STATE_REDUCERS. Hậu quả là nhánh PracticalLab gọi LLM sinh HTML
+    xong thì bị vứt bỏ lúc merge, rồi write_state_artifacts_to_disk phải render lại từ
+    lab_json — tốn token cho một artifact không bao giờ được dùng.
+    """
+    main_state = {"artifacts_status": {}}
+    sub_state = {
+        "html_content": "<html>reading</html>",
+        "quiz_json": [{"q": 1}],
+        "lab_json": {"title": "Lab 1"},
+        "practical_lab_markdown": "# Lab",
+        "practical_lab_html": "<html>lab</html>",
+        "reading_questions_markdown": "# Câu hỏi",
+        "reading_questions_json": {"questions": []},
+        "video_script_markdown": "# Kịch bản",
+        "slide_markdown": "# Slide",
+    }
+
+    _merge_sub_state(main_state, "PracticalLab", sub_state)
+
+    for field, expected in sub_state.items():
+        assert main_state.get(field) == expected, f"Artifact '{field}' bị mất khi merge"

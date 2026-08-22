@@ -9,6 +9,8 @@ import shutil
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from core.renderers.pptx.deck_engine import build_deck
 from core.renderers.pptx.slide_validator import validate_pptx_file, validate_unpacked_deck
 from agents.creators.slide_deck_creator import SlideDeckCreatorAgent, generate_session_slide_deck
@@ -117,8 +119,15 @@ class TestSlideDeckGenerator(unittest.TestCase):
         self.assertTrue(val_res["passed"], f"Validation failed with errors: {val_res.get('errors')}")
         self.assertEqual(val_res["total_slides"], 7)
 
+    @pytest.mark.integration
     def test_slide_deck_creator_and_reviewer_agents(self):
-        """Tests end-to-end generation and review of Slide bài giảng."""
+        """
+        Tests end-to-end generation and review of Slide bài giảng.
+
+        INTEGRATION: test này sinh PPTX thật rồi đòi reviewer chấm 100 điểm và >5 slide —
+        chỉ đạt được với nội dung LLM thật, không mock nổi một cách có ý nghĩa.
+        Chạy bằng: pytest --run-integration
+        """
         res = generate_session_slide_deck(
             session_title="Session 17 - Tương tác DOM API (Document Object Model)- Truy xuất và Thay đổi Nội dung",
             course_name="Phát triển ứng dụng Web",

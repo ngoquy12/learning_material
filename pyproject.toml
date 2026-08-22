@@ -31,5 +31,9 @@ pythonPlatform = "Windows"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+markers = [
+    "integration: test cần LLM hoặc mạng thật; bị skip trừ khi có --run-integration",
+    "allow_network: cho phép test này mở socket (vẫn chặn LLM)",
+]
 
 

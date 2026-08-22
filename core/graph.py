@@ -472,6 +472,11 @@ def _merge_sub_state(state: Dict[str, Any], name: str, sub_state: Dict[str, Any]
         state["lab_json"] = sub_state["lab_json"]
     if sub_state.get("practical_lab_markdown"):
         state["practical_lab_markdown"] = sub_state["practical_lab_markdown"]
+    # practical_lab_html trước đây bị BỎ SÓT ở đây dù có trong AgentState và STATE_REDUCERS:
+    # nhánh song song PracticalLab sinh ra HTML rồi bị vứt bỏ lúc merge, sau đó
+    # write_state_artifacts_to_disk phải render lại từ lab_json — tốn token LLM vô ích.
+    if sub_state.get("practical_lab_html"):
+        state["practical_lab_html"] = sub_state["practical_lab_html"]
     if sub_state.get("reading_questions_json"):
         state["reading_questions_json"] = sub_state["reading_questions_json"]
     if sub_state.get("reading_questions_markdown"):

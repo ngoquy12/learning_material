@@ -9,6 +9,7 @@ Verifies the Modular Homework Creator Agent:
 
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 from agents.creators.homework_creator import (
     generate_homework_exercise,
     generate_session_homework_suite,
@@ -35,8 +36,15 @@ class TestHomeworkCreator(unittest.TestCase):
         cleaned = clean_markdown_formulas(raw)
         self.assertIn("### Tiêu chí chấm điểm", cleaned)
 
-    def test_generate_single_homework_exercise_structure(self):
-        """Tests generating a single homework exercise with fallback and validation."""
+    @patch("agents.creators.homework_creator.call_llm", return_value="")
+    def test_generate_single_homework_exercise_structure(self, mock_call_llm):
+        """
+        Tests generating a single homework exercise with fallback and validation.
+
+        LLM trả rỗng để ép chạy nhánh fallback (_fallback_de_bai/_fallback_tieu_chi) —
+        đúng thứ test này khẳng định: cấu trúc heading + schema Pydantic, không phải
+        chất lượng nội dung do LLM sinh.
+        """
         ex = generate_homework_exercise(
             session_id="Session 02",
             session_title="Cú pháp cơ bản",
@@ -57,8 +65,9 @@ class TestHomeworkCreator(unittest.TestCase):
         self.assertTrue(is_valid)
         self.assertEqual(validated_obj.idx, 1)
 
-    def test_generate_session_homework_suite(self):
-        """Tests generating a suite of 15 tiered exercises."""
+    @patch("agents.creators.homework_creator.call_llm", return_value="")
+    def test_generate_session_homework_suite(self, mock_call_llm):
+        """Tests generating a suite of tiered exercises (fallback path, no live LLM)."""
         suite = generate_session_homework_suite(
             session_id="Session 02",
             session_title="Cú pháp cơ bản",
@@ -69,8 +78,9 @@ class TestHomeworkCreator(unittest.TestCase):
         self.assertEqual(len(suite), 6)
         self.assertEqual([e["idx"] for e in suite], [1, 2, 3, 4, 5, 6])
 
-    def test_generate_inclass_synthesis_and_mindmap(self):
-        """Tests generating in-class synthesis exercise and mindmap exercise."""
+    @patch("agents.creators.homework_creator.call_llm", return_value="")
+    def test_generate_inclass_synthesis_and_mindmap(self, mock_call_llm):
+        """Tests generating in-class synthesis exercise and mindmap exercise (fallback path)."""
         from agents.creators.homework_creator import (
             generate_inclass_synthesis_exercise,
             generate_mindmap_exercise
