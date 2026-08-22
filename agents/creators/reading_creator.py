@@ -45,7 +45,20 @@ from core.renderers.reading import (
 )
 
 def robust_parse_llm_json(raw: str) -> dict:
-    """3-tier robust JSON parser designed for LLM HTML-rich output."""
+    """
+    Parser JSON cho output HTML-nặng của LLM, có tầng cứu vãn riêng cho schema bài đọc.
+
+    Tier 1-2 (bóc code fence, escape ký tự điều khiển thô trong chuỗi, sửa dấu phẩy
+    thừa) dùng chung bộ parser trung tâm — trước đây phần này là bản cài đặt riêng
+    trùng lặp với core/utils/json_sanitizer.py.
+
+    Tier 3 thì KHÔNG tổng quát hoá được nên giữ tại đây: nó quét ký tự để vớt lại từng
+    field theo đúng tên trong schema bài đọc (problem_html, knowledge_html,
+    interactive_visualizer...). Đây là cứu vãn đặc thù cho một schema, không phải logic
+    parse JSON dùng chung.
+    """
+    from core.utils.llm_parser import extract_json_from_response
+
     raw_clean = sanitize_llm_json_text(raw)
     cleaned = raw_clean.strip()
     for prefix in ["```json\n", "```json", "```\n", "```"]:
@@ -56,25 +69,12 @@ def robust_parse_llm_json(raw: str) -> dict:
         cleaned = cleaned[:-3]
     cleaned = cleaned.strip()
 
-    # Tier 1: direct parse
-    try:
-        return json.loads(cleaned)
-    except Exception:
-        pass
+    # Tier 1-2: bộ parser trung tâm
+    parsed = extract_json_from_response(cleaned, default=None)
+    if isinstance(parsed, dict):
+        return parsed
 
-    # Tier 2: fix literal newlines/tabs inside JSON string values
-    try:
-        fixed = re.sub(
-            r'("(?:[^"\\]|\\.)*")',
-            lambda m: m.group(0).replace('\n', '\\n').replace('\r', '').replace('\t', '\\t'),
-            cleaned,
-            flags=re.DOTALL
-        )
-        return json.loads(fixed)
-    except Exception:
-        pass
-
-    # Tier 3: character-level field scanner
+    # Tier 3: quét ký tự vớt từng field theo schema bài đọc
     def scan_object_value(text: str, start: int):
         """Scans a balanced {...} JSON object starting at `start`, correctly handling
         nested braces and string literals (so braces inside string values don't
@@ -416,20 +416,9 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
     }
     full_html = assemble_reading_html(json_payload, metadata)
 
-    # Lightweight, non-blocking post-generation scope audit — reuses the exact same generic
-    # validator quiz generation already relies on (core.scope_calculator.validate_text_against_
-    # scope). This does not retry/reject the lesson (that would need a heavier LLM-repair loop
-    # out of scope here); it only surfaces content bleed early via logs instead of it going
-    # completely unnoticed, as it previously did (reading had zero scope auditing at all).
-    forbidden_set_for_audit = set(str(x).strip().lower() for x in forbidden_scope_raw if str(x).strip()) if isinstance(forbidden_scope_raw, list) else set()
-    if forbidden_set_for_audit:
-        try:
-            from core.scope_calculator import validate_text_against_scope
-            scope_violations = validate_text_against_scope(full_html, forbidden_set_for_audit, tech_stack)
-            if scope_violations:
-                print(f"  [Reading Creator Scope Audit Warning] {session_id} - {lesson_id}: nội dung có thể đã dùng khái niệm chưa học: {scope_violations}")
-        except Exception as e:
-            print(f"  [Reading Creator Scope Audit Notice] Could not run scope audit: {e}")
+    # Kiểm định phạm vi kiến thức nay do core/scope_gate.py đảm nhiệm, gọi từ
+    # pipeline_html_production — nơi có thể SINH LẠI bài đọc khi vi phạm. Bản audit cũ
+    # nằm ở đây chỉ in cảnh báo ra console rồi vẫn xuất bản như thường.
 
     print(f"  [Success] Compiled SSOT Master Reading HTML via Jinja2 Engine for {session_id} - {lesson_id}")
     return full_html

@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional
 from core.dag_engine import Workflow, parallel, component, merge_branch_states
 from core.state import AgentState, DEFAULT_LESSON_PARTS
 from core.persistence import save_checkpoint
+from core.scope_gate import STATUS_SCOPE_WARNING, audit_artifact_scope, record_scope_audit
 from agents import (
     objective_architect_agent, scheduler_agent, knowledge_base_agent,
     html_writer_agent, html_ux_reviewer,
@@ -353,6 +354,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
         state["artifacts_status"]["html"] = "Skipped"
         return state
     approved = False
+    scope_audit = None
     for attempt in range(3):
         # Allow recovery if already approved in a previous execution
         if state.get("artifacts_status", {}).get("html") == "Approved" and not state.get("force_rebuild", False):
@@ -381,13 +383,22 @@ def pipeline_html_production(state: AgentState) -> AgentState:
         state = html_writer_agent(state)
         # Ghi đĩa bản nháp HTML lập tức kể cả khi lỗi để người dùng sửa đổi/theo dõi
         write_state_artifacts_to_disk(state)
-        
+
         review = html_ux_reviewer(state)
         if review["status"] == "APPROVED":
-            state["artifacts_status"]["html"] = "Approved"
+            # Đạt chuẩn trình bày vẫn chưa đủ: bài đọc còn phải nằm đúng phạm vi kiến
+            # thức đã dạy và đúng bối cảnh nghiệp vụ của session. Trước đây phần kiểm
+            # định này chỉ in cảnh báo rồi vẫn xuất bản như thường.
+            audit = audit_artifact_scope(state.get("html_content", ""), state, "html")
+            if audit.is_clean:
+                state["artifacts_status"]["html"] = "Approved"
+                save_state_checkpoint(state)
+                approved = True
+                break
+
+            record_scope_audit(state, audit)
+            scope_audit = audit
             save_state_checkpoint(state)
-            approved = True
-            break
         else:
             state.setdefault("review_logs", []).append({"source": "UX_Reviewer", "feedback": review["feedback"]})
             save_state_checkpoint(state)
@@ -396,12 +407,23 @@ def pipeline_html_production(state: AgentState) -> AgentState:
     write_state_artifacts_to_disk(state)
 
     if not approved:
-        print(
-            f"\n[CẢNH BÁO TỪ PM] Bài đọc HTML (reading.html) chưa đạt chuẩn kiểm duyệt ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
-            f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
-            f"Hệ thống BỎ QUA LỖI và đánh dấu cần Review Thủ công (Pending Human Review) để tiếp tục tiến trình."
-        )
-        state["artifacts_status"]["html"] = "Pending Human Review"
+        # Phân biệt 2 loại hỏng: sai phạm vi kiến thức (nội dung sai về sư phạm) khác
+        # với chưa đạt chuẩn trình bày. Gộp chung một nhãn sẽ giấu mất loại nghiêm trọng hơn.
+        if scope_audit is not None and not scope_audit.is_clean:
+            print(
+                f"\n[CẢNH BÁO PHẠM VI] Bài đọc ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')} "
+                f"vẫn vi phạm phạm vi kiến thức sau {3} lần sinh lại.\n"
+                f"Chi tiết: {scope_audit.as_feedback()}\n"
+                f"Hệ thống xuất bản bản tốt nhất và đánh dấu CẦN NGƯỜI RÀ LẠI."
+            )
+            state["artifacts_status"]["html"] = STATUS_SCOPE_WARNING
+        else:
+            print(
+                f"\n[CẢNH BÁO TỪ PM] Bài đọc HTML (reading.html) chưa đạt chuẩn kiểm duyệt ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
+                f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
+                f"Hệ thống BỎ QUA LỖI và đánh dấu cần Review Thủ công (Pending Human Review) để tiếp tục tiến trình."
+            )
+            state["artifacts_status"]["html"] = "Pending Human Review"
         save_state_checkpoint(state)
     return state
 
@@ -516,8 +538,26 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
         return state
         
     from agents.creator_agents import practical_lab_creator_agent
-    state = practical_lab_creator_agent(state)
-    state.setdefault("artifacts_status", {})["practical_lab"] = "Approved"
+
+    # Bài thực hành là nơi rò rỉ phạm vi gây hại nhất: học viên phải TỰ làm, nên gặp
+    # khái niệm chưa học là tắc hẳn chứ không đọc lướt qua được như trong bài đọc.
+    # Sinh lại tối đa 2 lần nếu vi phạm, thay vì chỉ ghi log rồi vẫn xuất bản.
+    audit = None
+    for attempt in range(2):
+        state = practical_lab_creator_agent(state)
+        audit = audit_artifact_scope(
+            state.get("practical_lab_markdown", ""), state, "practical_lab"
+        )
+        if audit.is_clean:
+            state.setdefault("artifacts_status", {})["practical_lab"] = "Approved"
+            break
+
+        record_scope_audit(state, audit)
+        if attempt == 0:
+            print("  [Practical Lab] Vi phạm phạm vi — đang sinh lại bài thực hành...")
+    else:
+        state.setdefault("artifacts_status", {})["practical_lab"] = STATUS_SCOPE_WARNING
+
     write_state_artifacts_to_disk(state)
     save_state_checkpoint(state)
     return state

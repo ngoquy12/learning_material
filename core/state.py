@@ -35,6 +35,7 @@ class AgentState(TypedDict, total=False):
     
     # Reviewer Logs & Metadata
     review_logs: List[Dict[str, Any]]   # Nhật ký sửa đổi và feedback của Reviewers
+    scope_audits: Dict[str, Any]        # Vi phạm phạm vi kiến thức / lệch domain theo artifact
     previous_lessons: NotRequired[List[Dict[str, Any]]]
     master_content: NotRequired[Dict[str, Any]]
     course_dir_name: NotRequired[str]

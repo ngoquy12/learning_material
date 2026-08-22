@@ -421,21 +421,9 @@ monolithic advanced solution dropped all at once.
     state["practical_lab_markdown"] = lab_md
     state["practical_lab_html"] = lab_html
 
-    # Lightweight, non-blocking post-generation audits — mirrors the same pattern already added
-    # to reading generation (reading_creator.py). Does not retry/reject; only surfaces content
-    # bleed or domain drift via logs instead of it going completely unnoticed.
-    forbidden_set_for_audit = set(str(x).strip().lower() for x in forbidden_scope_raw if str(x).strip()) if isinstance(forbidden_scope_raw, list) else set()
-    if forbidden_set_for_audit:
-        try:
-            from core.scope_calculator import validate_text_against_scope
-            scope_violations = validate_text_against_scope(lab_md, forbidden_set_for_audit, tech_stack)
-            if scope_violations:
-                print(f"  [Practical_Lab_Agent Scope Audit Warning] {session_id} - {lesson_id}: nội dung có thể đã dùng khái niệm chưa học: {scope_violations}")
-        except Exception as e:
-            print(f"  [Practical_Lab_Agent Scope Audit Notice] Could not run scope audit: {e}")
-
-    if chosen_domain and chosen_domain.strip() and chosen_domain.lower() not in lab_md.lower():
-        print(f"  [Practical_Lab_Agent Domain Audit Warning] {session_id} - {lesson_id}: domain thống nhất '{chosen_domain}' không xuất hiện trong nội dung sinh ra — có thể LLM đã lệch sang bối cảnh khác.")
+    # Kiểm định phạm vi kiến thức & bối cảnh nghiệp vụ nay do core/scope_gate.py đảm
+    # nhiệm, gọi từ pipeline_practical_lab_production — nơi có thể SINH LẠI khi vi phạm.
+    # Bản audit cũ nằm ở đây chỉ in cảnh báo ra console rồi vẫn xuất bản như thường.
 
     log_agent_tokens("Practical_Lab_Agent", state, lab_md)
     return state

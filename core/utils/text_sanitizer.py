@@ -35,41 +35,24 @@ def strip_markdown_fence(text: str) -> str:
 
 def extract_and_parse_json(text: str, default: Optional[Any] = None) -> Union[Dict[str, Any], List[Any], Any]:
     """
-    Robustly extracts and parses JSON from raw LLM text responses.
-    Attempts direct parsing after fence stripping, then falls back to regex boundary matching.
+    Trích xuất và parse JSON từ output thô của LLM, trả về `default` nếu thất bại.
+
+    Hàm này TỪNG là một bản cài đặt riêng, trùng lặp với extract_json_from_response()
+    nhưng yếu hơn: không escape ký tự điều khiển thô trong chuỗi, không sửa dấu phẩy
+    thừa. Hai bộ parser song song nghĩa là cùng một response LLM có thể parse được ở
+    creator này nhưng hỏng ở creator kia — nay gộp về một đường duy nhất.
+
+    Giữ nguyên chữ ký cũ: mặc định trả về {} thay vì None khi không truyền `default`.
     """
     if not text or not isinstance(text, str):
         return default if default is not None else {}
 
-    cleaned = strip_markdown_fence(text)
-    
-    # Attempt 1: Direct parse
-    try:
-        return json.loads(cleaned)
-    except Exception:
-        pass
+    from core.utils.llm_parser import extract_json_from_response
 
-    # Attempt 2: Extract between outermost curly brackets { ... }
-    brace_start = cleaned.find("{")
-    brace_end = cleaned.rfind("}")
-    if brace_start != -1 and brace_end > brace_start:
-        candidate = cleaned[brace_start:brace_end + 1]
-        try:
-            return json.loads(candidate)
-        except Exception:
-            pass
-
-    # Attempt 3: Extract between outermost square brackets [ ... ]
-    bracket_start = cleaned.find("[")
-    bracket_end = cleaned.rfind("]")
-    if bracket_start != -1 and bracket_end > bracket_start:
-        candidate = cleaned[bracket_start:bracket_end + 1]
-        try:
-            return json.loads(candidate)
-        except Exception:
-            pass
-
-    return default if default is not None else {}
+    result = extract_json_from_response(text, default=None)
+    if result is None:
+        return default if default is not None else {}
+    return result
 
 
 def sanitize_svg_tags(svg_code: str) -> str:

@@ -131,6 +131,7 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
     # --- Accumulating state ---
     "artifacts_status":     merge_dict,
     "review_logs":          append_unique,
+    "scope_audits":         merge_dict,
 }
 
 

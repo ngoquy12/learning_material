@@ -46,9 +46,17 @@ def clean_and_parse_json(raw_text: str) -> Any:
     except json.JSONDecodeError:
         pass
 
-    # 4. Sanitize invalid control characters inside JSON strings (e.g. raw newlines, tabs)
-    # Replace raw unescaped newlines inside string literals
-    sanitized = re.sub(r'(?<=: ")(.*?)(?="[,\s\n\}])', lambda m: m.group(1).replace('\n', '\\n').replace('\t', '\\t'), cleaned, flags=re.DOTALL)
+    # 4. Escape ký tự điều khiển thô (newline/tab) còn sót bên trong chuỗi JSON.
+    # Regex này quét theo TỪNG CHUỖI JSON hoàn chỉnh ("..." có xử lý escape), thay cho
+    # bản cũ dựa vào lookbehind `: "` và lookahead `"[,\s\n\}]` — bản cũ chỉ bắt được
+    # chuỗi đứng ngay sau dấu hai chấm và thường trượt khi giá trị chứa dấu " đã escape,
+    # vốn rất phổ biến với payload HTML mà hệ thống này sinh ra liên tục.
+    sanitized = re.sub(
+        r'("(?:[^"\\]|\\.)*")',
+        lambda m: m.group(0).replace('\n', '\\n').replace('\r', '').replace('\t', '\\t'),
+        cleaned,
+        flags=re.DOTALL
+    )
 
     try:
         return json.loads(sanitized)

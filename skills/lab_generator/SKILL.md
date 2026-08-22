@@ -42,7 +42,62 @@ The hands-on practical lab MUST be formatted as a clean Markdown document saved 
 - [ ] [Tiêu chí kiểm định 3...]
 ```
 
-## 💻 3. Code Styling Guidelines in Labs
+## 3. Worked Exemplar (Few-Shot)
+
+The template in Section 2 shows the skeleton; this section shows one fully written lab so the
+Progressive Difficulty Contract is visible in practice rather than only described in prose.
+
+> Follow the SHAPE, not the subject. The stack and domain below are illustrative — the same
+> structure must hold for any `tech_stack` and any `chosen_domain`.
+
+**Input contract given to the agent:**
+
+- `chosen_domain`: Hotel Booking
+- `tech_stack`: python/core
+- `allowed_scope`: biến, kiểu dữ liệu, toán tử, câu lệnh `if/else`
+- `forbidden_scope`: vòng lặp, hàm, danh sách, từ điển
+
+**Correct output:**
+
+```markdown
+# Bài thực hành: Tính phí đặt phòng cho một lượt khách
+
+## 1. Mục tiêu
+- Khai báo và gán giá trị cho biến mô tả một lượt đặt phòng.
+- Vận dụng câu lệnh `if/else` để chọn mức giá theo số đêm nghỉ.
+- Kiểm chuẩn kết quả in ra khớp với bảng giá đã cho.
+
+## 2. Mô tả & Các bước thực hiện
+- **Tài nguyên đầu vào**: Một lượt đặt phòng gồm số đêm nghỉ và giá phòng mỗi đêm là 500000 đồng. Khách nghỉ từ 3 đêm trở lên được giảm 10% trên tổng tiền.
+
+### Các bước thực hiện:
+1. **Bước 1: Khởi tạo và thiết lập**: Khai báo biến `so_dem` với giá trị 2 và biến `gia_moi_dem` với giá trị 500000. In ra tổng tiền chưa giảm giá.
+2. **Bước 2: Xây dựng logic nghiệp vụ**: Dùng `if/else` kiểm tra `so_dem` có từ 3 trở lên hay không để tính `tong_tien` tương ứng có giảm giá hoặc không.
+3. **Bước 3: Định dạng & Kiểm lỗi**: Đổi `so_dem` lần lượt thành 3 rồi thành 0, chạy lại và đối chiếu kết quả với bảng giá.
+
+## 3. Checklist đánh giá
+- [ ] Chương trình chạy không lỗi cú pháp với cả ba giá trị `so_dem` là 2, 3 và 0.
+- [ ] Với `so_dem` bằng 2, kết quả in ra đúng 1000000.
+- [ ] Với `so_dem` bằng 3, kết quả in ra đúng 1350000 (đã giảm 10%).
+- [ ] Toàn bộ tên biến viết bằng tiếng Anh hoặc không dấu theo `snake_case`.
+```
+
+### 3.1 What this exemplar demonstrates
+
+| Rule | How the exemplar satisfies it |
+| :-- | :-- |
+| Progressive difficulty | Bước 1 chỉ gán biến và in ra ➔ Bước 2 mới thêm rẽ nhánh ➔ Bước 3 mới thử giá trị biên. Bước 1 không mở màn bằng toàn bộ nghiệp vụ. |
+| Scope boundary | Chỉ dùng biến, toán tử và `if/else`. Không có vòng lặp, hàm, danh sách — dù chúng sẽ khiến bài "đẹp" hơn, đó là kiến thức CHƯA dạy. |
+| Domain persistence | Toàn bộ bài nằm trong đúng bối cảnh Hotel Booking, không nhảy sang bối cảnh khác giữa chừng. |
+| Checklist đo được | Mỗi mục kiểm định nêu giá trị đầu vào và kết quả mong đợi cụ thể, chấm được đúng/sai — không phải nhận xét cảm tính như "code sạch sẽ". |
+
+> **Ca sai thường gặp:** một lab đúng chủ đề nhưng Bước 1 đã yêu cầu xử lý danh sách nhiều
+> lượt đặt phòng. Bài trông chuyên nghiệp hơn, nhưng học viên chưa học danh sách nên tắc
+> ngay bước đầu. Vi phạm phạm vi kiến thức luôn nặng hơn việc bài tập trông quá đơn giản.
+
+---
+
+## 💻 4. Code Styling Guidelines in Labs
 When providing code snippets or step-by-step code guidance:
 * **Identifiers**: 100% of variable, function, class, and property names MUST be in **English**.
 * **Naming Conventions**:

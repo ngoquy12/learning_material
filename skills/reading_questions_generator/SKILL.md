@@ -88,7 +88,86 @@ prefix** (plain "Câu N:" only, followed directly by the real question content):
 
 ---
 
-## 3. LESSON FOLDER STRUCTURE LOCATION
+## 3. WORKED EXEMPLARS (FEW-SHOT)
+
+The two exemplars below are the **only** place in this document showing a complete
+input ➔ output pair. Follow their SHAPE exactly; ignore their subject matter.
+
+> **Two exemplars in two different stacks, on purpose.** A single-stack exemplar makes the
+> model anchor on that stack's idioms and quietly reshape questions for unrelated subjects.
+> Whatever the lesson's `tech_stack` is, the output must mirror the STRUCTURE below, never
+> the language.
+
+### 3.1 Exemplar A — executable programming stack
+
+**Input — real excerpt actually present in `reading.html`:**
+
+```python
+gio_da_dat = 3
+if gio_da_dat > 2:
+    phi_giu_xe = 20000
+else:
+    phi_giu_xe = 10000
+print(phi_giu_xe)
+```
+
+**Correct output:**
+
+```markdown
+# Bộ câu hỏi kiểm tra bài đọc (Reading Comprehension Questions)
+
+### Câu 1: Trong đoạn code sau trích từ bài đọc: `if gio_da_dat > 2:` — điều kiện này quyết định điều gì trong cách tính phí giữ xe?
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - Điều kiện so sánh số giờ đã đặt với mốc 2 giờ để chọn một trong hai mức phí.
+> - Với `gio_da_dat = 3`, điều kiện đúng nên nhánh đầu tiên chạy, `phi_giu_xe` nhận giá trị 20000.
+
+---
+
+### Câu 2: Vẫn với đoạn code trên, nếu đổi `gio_da_dat` từ 3 thành 2 thì chương trình in ra bao nhiêu?
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - `2 > 2` là sai, nên chương trình rẽ sang nhánh `else`.
+> - Kết quả in ra là 10000.
+
+---
+
+### Câu 3: Nếu `gio_da_dat` nhận giá trị âm, đoạn code trên xử lý ra sao và cần sửa thế nào?
+> **Gợi ý trả lời & Định hướng đáp án:**
+> - Code vẫn chạy và rơi vào nhánh `else`, tính phí 10000 cho một số giờ vô nghĩa — sai về nghiệp vụ chứ không báo lỗi.
+> - Cần kiểm tra `gio_da_dat` không âm trước khi tính phí, hoặc dừng lại và báo dữ liệu không hợp lệ.
+```
+
+### 3.2 Exemplar B — tooling / process stack (same shape, no code execution)
+
+**Input — real excerpt actually present in `reading.html`:**
+
+```bash
+git commit -m "them man hinh dat phong"
+```
+
+**Correct output (question titles only, hint blocks follow the same format as above):**
+
+```markdown
+### Câu 1: Trong câu lệnh sau trích từ bài đọc: `git commit -m "them man hinh dat phong"` — tham số `-m` có tác dụng gì?
+
+### Câu 2: Vẫn với câu lệnh trên, nếu bỏ hẳn phần `-m "..."` thì Git sẽ phản ứng thế nào?
+
+### Câu 3: Nếu chạy câu lệnh trên khi chưa có tệp nào được đưa vào vùng staging, Git báo gì và cần làm gì trước đó?
+```
+
+### 3.3 What these exemplars demonstrate
+
+| Rule | How the exemplars satisfy it |
+| :-- | :-- |
+| Zero fabrication | Every question quotes the excerpt verbatim; no new scenario invented. |
+| Exactly 3 questions | Three `### Câu N:` headings, never four. |
+| No meta-labels | Titles start with the real content — no `(Xung hướng - ...)` prefixes, and the level names Thông hiểu/Vận dụng/Phân tích appear nowhere in the output. |
+| Same code across all 3 | Q2 and Q3 say "Vẫn với đoạn code trên" instead of introducing new code. |
+| Progressive difficulty | Q1 explains the mechanism ➔ Q2 changes one value ➔ Q3 probes a boundary and asks for the fix. |
+| Domain-agnostic | Exemplar B carries the identical structure with no executable code at all. |
+
+---
+
+## 4. LESSON FOLDER STRUCTURE LOCATION
 
 ```text
 📁 Lesson XX - [Tên Bài Học]/
