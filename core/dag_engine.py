@@ -194,11 +194,28 @@ def parallel(func):
 # SECTION 4: WORKFLOW BUILDER & COMPILED RUNNER
 # =============================================================================
 
+# Sentinel truyền cho `path_map` của add_conditional_edge() để đánh dấu kết thúc
+# pipeline theo một nhánh cụ thể, thay vì phải trỏ tới một node "no-op" giả.
+END = "__END__"
+
+
 class Workflow:
-    """Declarative workflow builder."""
+    """
+    Declarative workflow builder.
+
+    Hỗ trợ 2 loại cạnh:
+      - Cạnh thẳng (add_edge): luôn đi tới đúng 1 node kế tiếp, không điều kiện.
+      - Cạnh có điều kiện (add_conditional_edge): node kế tiếp được QUYẾT ĐỊNH LÚC
+        CHẠY dựa trên state hiện tại — đây là phần "DAG" thật của engine. Trước khi
+        có cơ chế này, CompiledWorkflow.run() chỉ đi tuyến tính theo edges[0], nên
+        mọi "rẽ nhánh" trong graph.py đều phải giả bằng early-return bên trong từng
+        node thay vì bằng cấu trúc đồ thị — cách này hoạt động nhưng khiến luồng rẽ
+        nhánh không thể nhìn thấy được từ chính cấu trúc workflow.
+    """
     def __init__(self):
         self.nodes: Dict[str, Callable] = {}
         self.edges: List[tuple] = []
+        self.conditional_edges: Dict[str, tuple] = {}
         self.entry_point: Optional[str] = None
 
     def add_node(self, name: str, func: Callable):
@@ -210,6 +227,22 @@ class Workflow:
     def add_edge(self, from_node: str, to_node: str):
         self.edges.append((from_node, to_node))
 
+    def add_conditional_edge(
+        self,
+        from_node: str,
+        condition: Callable[[Dict[str, Any]], str],
+        path_map: Dict[str, str],
+    ) -> None:
+        """
+        Đăng ký rẽ nhánh thật: sau khi `from_node` chạy xong, `condition(state)` trả về
+        một khoá, và `path_map[khoá]` là node kế tiếp thực sự sẽ chạy (hoặc `END`).
+
+        Một node chỉ nên có MỘT cạnh có điều kiện. Nếu `from_node` cũng có cạnh thẳng
+        (add_edge), cạnh có điều kiện được ưu tiên — cạnh thẳng khi đó chỉ còn ý nghĩa
+        tài liệu (không được engine dùng tới).
+        """
+        self.conditional_edges[from_node] = (condition, path_map)
+
     def compile(self):
         return CompiledWorkflow(self)
 
@@ -219,7 +252,31 @@ class CompiledWorkflow:
     def __init__(self, workflow: Workflow):
         self.nodes = workflow.nodes
         self.edges = workflow.edges
+        self.conditional_edges = workflow.conditional_edges
         self.entry_point = workflow.entry_point
+
+    def _resolve_next_node(self, current_node: str, state: Dict[str, Any]) -> Optional[str]:
+        """
+        Tìm node kế tiếp cho `current_node`.
+
+        Cạnh có điều kiện được ưu tiên tuyệt đối trước cạnh thẳng. Nếu `condition(state)`
+        trả về một khoá không có trong `path_map`, raise ngay kèm danh sách khoá hợp lệ —
+        cùng triết lý fail-loud của require_tech_stack(): một nhánh rẽ đi sai chỗ mà
+        không ai biết còn nguy hiểm hơn nhiều so với dừng pipeline lại để sửa.
+        """
+        if current_node in self.conditional_edges:
+            condition, path_map = self.conditional_edges[current_node]
+            branch_key = condition(state)
+            if branch_key not in path_map:
+                raise ValueError(
+                    f"❌ [LỖI ĐIỀU KIỆN RẼ NHÁNH] Node '{current_node}': condition() trả về "
+                    f"'{branch_key}', nhưng path_map chỉ có các khoá {list(path_map.keys())}."
+                )
+            next_node = path_map[branch_key]
+            return None if next_node == END else next_node
+
+        next_nodes = [to_n for from_n, to_n in self.edges if from_n == current_node]
+        return next_nodes[0] if next_nodes else None
 
     def _merge_parallel_branches(
         self,
@@ -230,6 +287,13 @@ class CompiledWorkflow:
         return merge_branch_states(base_state, branch_results)
 
     def run(self, initial_state: Union[AgentState, Dict[str, Any]]) -> Dict[str, Any]:
+        # Kiểm định kiểu dữ liệu ngay tại cổng vào pipeline: AgentState là TypedDict,
+        # không có gì ngăn một caller truyền nhầm kiểu (vd core_ssot là chuỗi thay vì
+        # dict). Bắt ở đây, sai lệch lộ ra ngay tại nơi bắt đầu chạy — không phải
+        # crash mù mờ sâu trong một renderer không liên quan hàng chục bước sau.
+        from core.schemas.agent_state_schema import validate_state
+        validate_state(initial_state, caller="CompiledWorkflow.run")
+
         current_node = self.entry_point
         state = initial_state.copy()
 
@@ -252,10 +316,6 @@ class CompiledWorkflow:
             else:
                 state = node_func(state)
 
-            next_nodes = [to_n for from_n, to_n in self.edges if from_n == current_node]
-            if next_nodes:
-                current_node = next_nodes[0]
-            else:
-                current_node = None
+            current_node = self._resolve_next_node(current_node, state)
 
         return state

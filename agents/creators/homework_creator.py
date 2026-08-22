@@ -29,6 +29,38 @@ from core.domain_knowledge import (
 from core.schemas.course_schemas import EnhancedHomeworkExerciseSchema
 from core.utils.schema_validator import validate_schema
 
+# Bộ 15 tầng độ khó chuẩn cho 1 session, ánh xạ sang RE_Tiêu chuẩn bài tập.pdf §III.
+# Tách thành hằng số cấp module (thay vì khai báo inline trong hàm) để
+# core/pedagogy/bloom.py có thể audit độ phủ nhận thức (Bloom coverage) trên đúng
+# nguồn thật — audit trên một bản chép tay riêng sẽ trôi khỏi danh sách này mà
+# không ai biết ngay khi có người sửa tên tầng ở đây.
+#
+# "Mức độ 1" và "Mức độ 2" cùng map về pdf_level="co_ban": PDF gốc chỉ cấp 2 bài cho
+# tầng này, nhưng chuẩn nội bộ hiện hành nhân đôi lên 6 bài (quyết định có chủ đích
+# của team, khác số lượng trong PDF).
+SESSION_HOMEWORK_TIERS: List[tuple] = [
+    # Mức độ 1: Cơ bản 1 - Debug lỗi (Bài 1-3)
+    ("Mức độ 1: Cơ bản - Debug lỗi", "co_ban"),
+    ("Mức độ 1: Cơ bản - Debug lỗi", "co_ban"),
+    ("Mức độ 1: Cơ bản - Debug lỗi", "co_ban"),
+    # Mức độ 2: Cơ bản 2 - Kiểm thử I/O & Hoàn thiện luồng (Bài 4-6)
+    ("Mức độ 2: Cơ bản - Kiểm thử I/O", "co_ban"),
+    ("Mức độ 2: Cơ bản - Kiểm thử I/O", "co_ban"),
+    ("Mức độ 2: Cơ bản - Kiểm thử I/O", "co_ban"),
+    # Mức độ 3: Nâng cao 1 - Xây dựng tính năng mới (Bài 7-9)
+    ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "chuyen_sau"),
+    ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "chuyen_sau"),
+    ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", "chuyen_sau"),
+    # Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc & Trade-offs (Bài 10-12)
+    ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "phan_tich"),
+    ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "phan_tich"),
+    ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", "phan_tich"),
+    # Mức độ 5: Sáng tạo - Thiết kế Mini Module (Bài 13-15)
+    ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "sang_tao"),
+    ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "sang_tao"),
+    ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", "sang_tao"),
+]
+
 def slugify_vietnamese(text: str, max_words: int = 6) -> str:
     """Converts Vietnamese text to a clean snake_case slug."""
     if not text:
@@ -585,34 +617,14 @@ def generate_session_homework_suite(
     unified_domain = domain_blueprint.get("domain_id", "SHOPEE_FOOD")
     unified_domain_name = domain_blueprint.get("name_vi", "Hệ thống Đặt đồ ăn ShopeeFood")
 
-    # 15 exercises distributed across 5 Bloom cognitive levels on ONE UNIFIED DOMAIN.
-    # `pdf_level` maps each tier onto one of the 4 exercise structures mandated by
-    # RE_Tiêu chuẩn bài tập.pdf §III (Vận dụng cơ bản / Vận dụng chuyên sâu / Phân tích /
-    # Sáng tạo) — homework_creator.j2 renders a DIFFERENT required section layout per
-    # pdf_level. "Mức độ 1" and "Mức độ 2" both map to "co_ban": the PDF only allots 2
-    # exercises to this tier, but the current internal standard doubles it to 6 (kept as-is
-    # per team decision — this file diverges from the PDF's count on purpose).
+    # 15 bài phân theo 5 tầng nhận thức Bloom trên MỘT DOMAIN THỐNG NHẤT. `pdf_level`
+    # ánh xạ mỗi tầng sang 1 trong 4 cấu trúc bài tập theo RE_Tiêu chuẩn bài tập.pdf §III
+    # — homework_creator.j2 render layout khác nhau theo pdf_level. Danh sách tầng nằm
+    # ở SESSION_HOMEWORK_TIERS (hằng số cấp module) để core/pedagogy/bloom.py audit
+    # được độ phủ Bloom trên đúng nguồn thật, không phải bản chép tay dễ trôi.
     levels = [
-        # Mức độ 1: Cơ bản 1 - Debug lỗi (Bài 1-3)
-        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain, "co_ban"),
-        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain, "co_ban"),
-        ("Mức độ 1: Cơ bản - Debug lỗi", unified_domain, "co_ban"),
-        # Mức độ 2: Cơ bản 2 - Kiểm thử I/O & Hoàn thiện luồng (Bài 4-6)
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain, "co_ban"),
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain, "co_ban"),
-        ("Mức độ 2: Cơ bản - Kiểm thử I/O", unified_domain, "co_ban"),
-        # Mức độ 3: Nâng cao 1 - Xây dựng tính năng mới (Bài 7-9)
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain, "chuyen_sau"),
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain, "chuyen_sau"),
-        ("Mức độ 3: Nâng cao - Xây dựng tính năng mới", unified_domain, "chuyen_sau"),
-        # Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc & Trade-offs (Bài 10-12)
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain, "phan_tich"),
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain, "phan_tich"),
-        ("Mức độ 4: Phân tích & Tối ưu - Tái cấu trúc", unified_domain, "phan_tich"),
-        # Mức độ 5: Sáng tạo - Thiết kế Mini Module (Bài 13-15)
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain, "sang_tao"),
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain, "sang_tao"),
-        ("Mức độ 5: Sáng tạo - Thiết kế Mini Module", unified_domain, "sang_tao")
+        (level_name, unified_domain, pdf_level)
+        for level_name, pdf_level in SESSION_HOMEWORK_TIERS
     ]
 
     exercises_data = []
