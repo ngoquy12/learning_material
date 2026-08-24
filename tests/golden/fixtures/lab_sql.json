@@ -1,0 +1,26 @@
+{
+  "description": "Bài thực hành SQL: stack không phải Python nên tuyệt đối KHÔNG được nhúng Pyodide.",
+  "renderer": "lab",
+  "metadata": {
+    "tech_stack": "SQL Server"
+  },
+  "payload": {
+    "title": "Bài thực hành: Truy vấn đơn hàng trong ngày",
+    "objectives": [
+      "Viết được câu lệnh SELECT có điều kiện lọc."
+    ],
+    "problem_statement": "Lấy ra các đơn hàng phát sinh trong ngày hôm nay.",
+    "description": {
+      "steps": [
+        "Bước 1: Xác định bảng cần truy vấn.",
+        "Bước 2: Viết câu lệnh SELECT kèm điều kiện."
+      ]
+    },
+    "reference_code": "SELECT * FROM orders WHERE order_date = '2026-01-01';",
+    "evaluation": {
+      "checklist": [
+        "[ ] Câu lệnh chạy không lỗi cú pháp."
+      ]
+    }
+  }
+}

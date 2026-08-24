@@ -1,0 +1,57 @@
+{
+  "description": "Bài đọc Python đầy đủ: engine pyodide, ảnh bối cảnh (nhánh context_image_url), visualizer rời, self-test, references.",
+  "renderer": "reading",
+  "metadata": {
+    "tech_stack": "Python 3.12",
+    "lesson_title": "Session 02 - Biến và Phép gán"
+  },
+  "payload": {
+    "section_titles": {
+      "sec1": "Bài toán đếm đơn hàng",
+      "sec2": "Cú pháp khai báo biến",
+      "sec3": "Ví dụ thực hành",
+      "sec4": "Lỗi thường gặp",
+      "sec5": "Tài liệu tham khảo"
+    },
+    "sec1_html": "<p>Cửa hàng ghi lại số lượng đơn hàng mỗi ngày. Cuối tuần, quản lý cần biết tổng số đơn đã bán để đối chiếu doanh thu.</p>\n<p>Ghi tay từng ngày rồi cộng lại rất dễ nhầm khi số ngày tăng lên.</p>",
+    "context_image_url": "images/context_orders.png",
+    "sec2_html": "<h3 id=\"sec-2-1\">2.1. Cú pháp khai báo</h3>\n<pre><code class=\"language-python\">total_orders = 0</code></pre>\n<h3 id=\"sec-2-2\">2.2. Cộng dồn giá trị</h3>\n<pre><code class=\"language-python\">total_orders = total_orders + 12</code></pre>",
+    "sec3_html": "<h3 id=\"sec-3-1\">3.1. Ví dụ tối giản</h3>\n<pre><code class=\"language-python\">print(total_orders)</code></pre>\n<h3 id=\"sec-3-2\">3.2. Mở rộng nghiệp vụ</h3>\n<pre><code class=\"language-python\">daily_orders = 12\ntotal_orders += daily_orders</code></pre>",
+    "sec4_html": "<p>Quên khởi tạo biến trước khi cộng dồn sẽ gây lỗi tên chưa định nghĩa.</p>",
+    "visualizer_component_html": "<div class=\"viz-panel\"><p>Mô phỏng cộng dồn từng bước.</p></div>",
+    "reference_links": [
+      {
+        "title": "Tài liệu chính thức Python",
+        "url": "https://docs.python.org/3/"
+      },
+      {
+        "title": "PEP 8 - Quy ước viết mã",
+        "url": "https://peps.python.org/pep-0008/"
+      }
+    ],
+    "self_test_questions": [
+      {
+        "question": "Giá trị khởi tạo của total_orders trong ví dụ là bao nhiêu?",
+        "options": [
+          "A. 0",
+          "B. 12",
+          "C. Không xác định",
+          "D. 1"
+        ],
+        "correct_idx": 0,
+        "explanation": "Biến được gán 0 trước khi bắt đầu cộng dồn."
+      },
+      {
+        "question": "Điều gì xảy ra nếu bỏ dòng khởi tạo total_orders = 0?",
+        "options": [
+          "A. Kết quả bằng 0",
+          "B. Chương trình báo lỗi tên chưa định nghĩa",
+          "C. Kết quả bằng 12",
+          "D. Không ảnh hưởng"
+        ],
+        "correct_idx": 1,
+        "explanation": "Cộng dồn vào một biến chưa tồn tại làm chương trình dừng với lỗi."
+      }
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "description": "Bài đọc SQL tối giản: engine sql_sim, cố ý THIẾU ảnh/visualizer/self-test để phủ các nhánh phủ định của template.",
+  "renderer": "reading",
+  "metadata": {
+    "tech_stack": "SQL Server",
+    "lesson_title": "Session 04 - Câu lệnh SELECT"
+  },
+  "payload": {
+    "section_titles": {},
+    "sec1_html": "<p>Cần lấy ra danh sách đơn hàng trong ngày từ bảng dữ liệu.</p>",
+    "sec2_html": "<h3 id=\"sec-2-1\">2.1. Cú pháp SELECT</h3>\n<pre><code class=\"language-sql\">SELECT * FROM orders;</code></pre>",
+    "sec3_html": "<p>Ví dụ đang được cập nhật.</p>",
+    "sec4_html": "<p>Chọn toàn bộ cột khi chỉ cần vài cột gây lãng phí tài nguyên.</p>",
+    "reference_links": [
+      {
+        "title": "Tài liệu SQL",
+        "url": "https://learn.microsoft.com/sql/"
+      }
+    ]
+  }
+}

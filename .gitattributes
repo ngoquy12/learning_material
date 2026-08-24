@@ -1,0 +1,5 @@
+# Kho này bật core.autocrlf=true, nên file text bị đổi ký tự xuống dòng theo hệ
+# điều hành khi checkout. Với các bản golden dùng để so sánh nguyên văn, việc đó
+# tạo ra diff giả mỗi khi đổi máy. Ghim cứng LF cho riêng chúng.
+tests/golden/expected/*.html text eol=lf
+tests/golden/fixtures/*.json text eol=lf

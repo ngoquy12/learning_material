@@ -1,0 +1,29 @@
+{
+  "description": "Bài thực hành Python: có mục tiêu, các bước, mã tham khảo và checklist — stack Python nên phải nhúng Pyodide.",
+  "renderer": "lab",
+  "metadata": {
+    "tech_stack": "Python 3.12"
+  },
+  "payload": {
+    "title": "Bài thực hành: Tính tổng đơn hàng trong tuần",
+    "objectives": [
+      "Khai báo được biến tích luỹ.",
+      "Cộng dồn được giá trị qua nhiều bước."
+    ],
+    "problem_statement": "Viết chương trình cộng dồn số đơn hàng của 3 ngày và in ra tổng.",
+    "description": {
+      "steps": [
+        "Bước 1: Khởi tạo biến tổng bằng 0.",
+        "Bước 2: Cộng dồn số đơn của từng ngày.",
+        "Bước 3: In ra kết quả tổng."
+      ]
+    },
+    "reference_code": "total_orders = 0\ntotal_orders += 12\nprint(total_orders)",
+    "evaluation": {
+      "checklist": [
+        "[ ] Chương trình chạy không lỗi.",
+        "[ ] Kết quả in ra đúng tổng số đơn."
+      ]
+    }
+  }
+}
