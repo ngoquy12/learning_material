@@ -24,6 +24,10 @@
 7. [Hướng dẫn sử dụng & Khởi chạy hệ thống (Usage Guide)](#7-hướng-dẫn-sử-dụng--khởi-chạy-hệ-thống-usage-guide)
    - [7.1. Chạy CLI Workflow sinh học liệu](#71-chạy-cli-workflow-sinh-học-liệu)
    - [7.2. Chạy kiểm thử tự động (Test Suite)](#72-chạy-kiểm-thử-tự-động-test-suite)
+   - [7.3. Rà soát, duyệt học liệu và quản lý phiên bản](#73-rà-soát-duyệt-học-liệu-và-quản-lý-phiên-bản)
+   - [7.4. Xuất bản LMS kèm theo dõi học tập (xAPI / cmi5)](#74-xuất-bản-lms-kèm-theo-dõi-học-tập-xapi--cmi5)
+   - [7.5. Đưa dữ liệu người học quay về cải tiến học liệu](#75-đưa-dữ-liệu-người-học-quay-về-cải-tiến-học-liệu)
+   - [7.6. Kiểm định chất lượng và chi phí](#76-kiểm-định-chất-lượng-và-chi-phí)
 8. [Tự động hóa CI/CD (GitHub Actions)](#8-tự-động-hóa-cicd-github-actions)
 9. [Cấu trúc thư mục dự án (Project Layout)](#9-cấu-trúc-thư-mục-dự-án-project-layout)
 10. [Quy chuẩn sư phạm & Tiêu chuẩn thiết kế (AGENTS.md)](#10-quy-chuẩn-sư-phạm--tiêu-chuẩn-thiết-kế-agentsmd)
@@ -246,7 +250,7 @@ python main.py --pm "documents/PM_Python.xlsx" --scaffold
 
 ### 7.2. Chạy kiểm thử tự động (Test Suite)
 
-Thực thi toàn bộ **159 bài kiểm thử** tự động đã được kiểm chứng:
+Thực thi toàn bộ **571 bài kiểm thử** tự động đã được kiểm chứng:
 
 ```bash
 # Chạy toàn bộ test suite:
@@ -258,6 +262,62 @@ pytest -v --tb=short
 # Kiểm thử riêng module Quản lý Cấu hình & Bảo mật:
 pytest tests/test_centralized_settings.py
 ```
+
+### 7.3. Rà soát, duyệt học liệu và quản lý phiên bản
+
+Cuối mỗi lượt chạy, hệ thống tự sinh **trang rà soát** `review_dashboard.html` trong thư mục khoá học, xếp lên đầu bảng những tài nguyên cần người can thiệp (hỏng, vi phạm phạm vi kiến thức, chờ duyệt thủ công), kèm phản hồi kiểm định và liên kết mở thẳng file.
+
+```bash
+# Ghi nhận giảng viên đã rà và duyệt một tài nguyên
+# (tài nguyên đã duyệt sẽ KHÔNG bị ghi đè ở lần chạy sau, trừ khi dùng --force):
+python main.py --approve "Session 02/Lesson 01/html" --reviewer "Nguyen Van A" --approve-note "Đã sửa tay phần ví dụ"
+
+# Ghi nhận quyết định TỪ CHỐI:
+python main.py --approve "Session 02/Lesson 01/quiz" --reviewer "Nguyen Van A" --reject
+
+# Xuất hồ sơ kiểm định (ai duyệt cái gì, khi nào) ra CSV:
+python main.py --export-approvals "ho_so_kiem_dinh.csv"
+```
+
+Mỗi lượt chạy cũng đánh số phiên bản khoá học (`v1.2.0`) và ghi `CHANGELOG.md` liệt kê tài nguyên thêm mới / sửa đổi / gỡ bỏ so với lần trước. Nếu một tài nguyên **đã được duyệt** nhưng nội dung đã đổi kể từ đó, hệ thống cảnh báo ngay trong báo cáo cuối lượt chạy.
+
+### 7.4. Xuất bản LMS kèm theo dõi học tập (xAPI / cmi5)
+
+```bash
+# Xuất gói SCORM 1.2 (kèm sẵn cmi5.xml, bộ phát xAPI chạy ở chế độ ghi log):
+python main.py --pm "documents/PM_Python.xlsx" --scorm
+
+# Xuất gói có gửi phát biểu học tập thật về LRS:
+python main.py --pm "documents/PM_Python.xlsx" --scorm --xapi-endpoint "https://lrs.example.com/xapi"
+```
+
+Toàn bộ mã theo dõi nằm ở **lớp bọc** của gói xuất bản; bài đọc được nhúng nguyên vẹn và không bị sửa một byte nào.
+
+### 7.5. Đưa dữ liệu người học quay về cải tiến học liệu
+
+Từ dữ liệu LRS xuất ra, hệ thống rút tín hiệu học tập (bài bị bỏ giữa chừng, câu hỏi cả lớp cùng sai, bài vượt xa thời lượng thiết kế) và ghi thành kinh nghiệm cho các lần sinh sau:
+
+```bash
+# Xem trước sẽ rút ra luật gì, chưa ghi vào kho kinh nghiệm:
+python main.py --ingest-xapi "xapi_export.json" --ingest-dry-run
+
+# Ghi thật:
+python main.py --ingest-xapi "xapi_export.json" --tech-stack "python/core"
+```
+
+Mọi tín hiệu đều yêu cầu **cỡ mẫu tối thiểu 15 người học**; dưới ngưỡng đó dữ liệu chỉ được báo cáo chứ không sinh ra luật ràng buộc.
+
+### 7.6. Kiểm định chất lượng và chi phí
+
+```bash
+# Chấm chất lượng sư phạm trên bộ bản chuẩn và theo dõi xu hướng theo commit:
+python scripts/run_pedagogical_eval.py --check
+
+# Thống kê semantic cache:
+python main.py --cache-stats
+```
+
+Cuối mỗi lượt sinh học liệu, hệ thống in bảng chi phí: số lượt gọi LLM thật, số lượt được cache phục vụ, tổng token, và xếp hạng agent theo mức tiêu thụ.
 
 ---
 
