@@ -35,6 +35,14 @@ jobs:
         run: |
           flake8 core agents config cli tests --count --select=E9,F63,F7,F82 --show-source --statistics
 
+      # Cổng chặn bí mật bị commit. Kho này từng commit file .env chứa token thật vào
+      # 125/159 commit và chỉ phát hiện rất lâu sau. Một khi đã đẩy lên remote công
+      # khai thì viết lại lịch sử KHÔNG khắc phục được (GitHub vẫn phục vụ commit mồ
+      # côi theo SHA sau force-push), nên chặn từ đầu là cách duy nhất có tác dụng.
+      - name: Quét bí mật bị commit
+        run: |
+          python scripts/scan_secrets.py
+
   test:
     name: Unit & Integration Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
