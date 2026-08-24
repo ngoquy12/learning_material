@@ -100,6 +100,7 @@ _LESSON_WRAPPER_TEMPLATE = """\
 <title>{lesson_title}</title>
 <link rel="stylesheet" href="../../shared/style.css">
 <script src="../../shared/scorm_api.js"></script>
+{xapi_head}
 </head>
 <body>
 <div id="scorm-header">
@@ -298,6 +299,9 @@ def export_scorm_package(
     output_course_dir: str,
     course_name: str,
     scorm_output_path: Optional[str] = None,
+    xapi_endpoint: str = "",
+    xapi_auth: str = "",
+    xapi_base_iri: str = "",
 ) -> str:
     """
     Xuất học liệu đã biên dịch thành SCORM 1.2 .zip package.
@@ -307,6 +311,12 @@ def export_scorm_package(
                            (ví dụ: 'output/PM_Web_Application_With_FastAPI')
         course_name: Tên khóa học hiển thị trong LMS
         scorm_output_path: Đường dẫn file .zip đầu ra (tùy chọn)
+        xapi_endpoint: Địa chỉ LRS nhận phát biểu xAPI. Để trống thì gói vẫn xuất
+            bình thường kèm cmi5.xml, còn bộ phát chạy ở chế độ ghi log.
+        xapi_auth: Chuỗi Authorization gửi kèm khi gọi LRS (nếu LRS yêu cầu).
+        xapi_base_iri: Tiền tố IRI định danh hoạt động. IRI phải ỔN ĐỊNH giữa các
+            lần xuất bản, nếu không dữ liệu học tập của cùng một bài sẽ nằm rải rác
+            thành nhiều hoạt động rời rạc trong LRS.
 
     Returns:
         Đường dẫn tuyệt đối tới file .zip đã tạo
@@ -396,15 +406,34 @@ def export_scorm_package(
         zf.writestr("shared/scorm_api.js", _SCORM_API_JS)
         zf.writestr("shared/style.css", _SCORM_CSS)
 
+        # xAPI / cmi5 — bổ sung BÊN CẠNH SCORM 1.2 chứ không thay thế, để gói nạp
+        # được vào cả LMS đời cũ lẫn LMS hỗ trợ xAPI mà không phải chọn một bỏ một.
+        from core.xapi import (
+            build_activity_id,
+            build_cmi5_course_structure,
+            build_wrapper_tracking_snippet,
+            build_xapi_client_js,
+        )
+
+        base_iri = xapi_base_iri or "http://rikkei.edu.vn/xapi"
+        zf.writestr("shared/xapi.js", build_xapi_client_js(xapi_endpoint, xapi_auth))
+        zf.writestr("cmi5.xml", build_cmi5_course_structure(course_name, lessons, base_iri))
+
         # Lesson content
         for lesson in lessons:
             base_path = f"course/{lesson['rel_path']}"
 
             # lesson.html wrapper
+            # Mã theo dõi đặt ở LỚP BỌC, không bao giờ đi vào reading.html —
+            # thiết kế bài đọc là vùng đóng băng, có test golden canh giữ.
+            activity_id = build_activity_id(
+                base_iri, course_name, lesson["session_id"], lesson["lesson_id"]
+            )
             wrapper_html = _LESSON_WRAPPER_TEMPLATE.format(
                 lesson_title=lesson["title"],
                 session_id=lesson["session_id"],
                 lesson_id=lesson["lesson_id"],
+                xapi_head=build_wrapper_tracking_snippet(activity_id, lesson["title"]),
             )
             zf.writestr(f"{base_path}/lesson.html", wrapper_html)
 
@@ -433,6 +462,11 @@ def export_scorm_package(
     print(f"  📏 Kích thước: {size_mb:.2f} MB")
     print(f"  📚 Số bài học: {len(lessons)}")
     print(f"  💡 Hướng dẫn: Nạp file .zip này trực tiếp vào Moodle, Canvas hoặc SCORM Cloud.")
+    if xapi_endpoint:
+        print(f"  📡 xAPI: phát biểu học tập sẽ gửi về {xapi_endpoint}")
+    else:
+        print("  📡 xAPI: đã kèm cmi5.xml; chưa cấu hình LRS nên bộ phát chạy ở chế độ ghi log "
+              "(đặt --xapi-endpoint để gửi thật).")
     return scorm_output_path
 
 

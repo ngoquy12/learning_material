@@ -34,7 +34,7 @@ def generate_obsidian_vault(excel_path: str, sessions: list, tech_stack: str = "
     except Exception as e:
         print(f"[Obsidian Vault Generation Error] {e}")
 
-def export_scorm_package_cli(excel_path: str):
+def export_scorm_package_cli(excel_path: str, xapi_endpoint: str = "", xapi_auth: str = ""):
     """Exports compiled lessons to SCORM 1.2 zip package."""
     course_dir_name = Path(excel_path).stem.strip().replace(" ", "_").replace("-", "_")
     output_course_dir = os.path.join("output", course_dir_name)
@@ -47,6 +47,8 @@ def export_scorm_package_cli(excel_path: str):
         export_scorm_package(
             output_course_dir=output_course_dir,
             course_name=course_dir_name.replace("_", " "),
+            xapi_endpoint=xapi_endpoint,
+            xapi_auth=xapi_auth,
         )
     except Exception as e:
         print(f"[SCORM Export Error] {e}")

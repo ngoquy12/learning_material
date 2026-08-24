@@ -80,6 +80,18 @@ def parse_cli_arguments():
         help="Xuất hồ sơ kiểm định (ai duyệt gì, khi nào) ra file CSV rồi thoát"
     )
     parser.add_argument(
+        "--xapi-endpoint",
+        type=str,
+        default="",
+        help="Địa chỉ LRS nhận phát biểu xAPI khi xuất gói (--scorm). Để trống thì chỉ kèm cmi5.xml."
+    )
+    parser.add_argument(
+        "--xapi-auth",
+        type=str,
+        default="",
+        help="Chuỗi Authorization gửi kèm khi gọi LRS (nếu LRS yêu cầu)"
+    )
+    parser.add_argument(
         "--cache-stats",
         action="store_true",
         help="Show Semantic Cache statistics and exit"

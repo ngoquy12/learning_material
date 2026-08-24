@@ -50,7 +50,11 @@ def execute_course_workflow(args):
         return
 
     if args.scorm:
-        export_scorm_package_cli(excel_path)
+        export_scorm_package_cli(
+            excel_path,
+            xapi_endpoint=getattr(args, "xapi_endpoint", ""),
+            xapi_auth=getattr(args, "xapi_auth", ""),
+        )
         return
 
     if not os.path.exists(excel_path):
