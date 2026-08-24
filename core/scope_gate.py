@@ -17,8 +17,23 @@ rồi biến mất, học liệu lỗi vẫn được xuất bản. Module này 
 chỗ và trả kết quả có cấu trúc để pipeline có thể sinh lại nội dung, thay vì chỉ log.
 """
 
+import os
+import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
+
+# Tầng kiểm định ngữ nghĩa là OPT-IN. Nó tốn thêm một lượt gọi LLM cho mỗi artifact
+# mà tầng từ khoá đã cho qua, nên bật hay không là quyết định về chi phí của người
+# vận hành, không phải mặc định do hệ thống tự áp.
+SEMANTIC_SCOPE_AUDIT_ENABLED = os.getenv("SCOPE_AUDIT_SEMANTIC", "").strip().lower() in (
+    "1",
+    "true",
+    "yes",
+)
+
+# Cắt bớt nội dung gửi cho bộ thẩm định: một bài đọc HTML đầy đủ có thể dài hàng
+# chục nghìn ký tự, phần lớn là khung giao diện chứ không phải nội dung dạy học.
+_SEMANTIC_AUDIT_MAX_CHARS = 12000
 
 from core.artifact_status import ArtifactStatus
 
@@ -70,11 +85,121 @@ def extract_forbidden_scope(state: Dict[str, Any]) -> Set[str]:
     return {str(x).strip().lower() for x in raw if str(x).strip()}
 
 
+def _strip_markup(text: str) -> str:
+    """
+    Bỏ thẻ HTML và khối <script>/<style> trước khi đưa cho bộ thẩm định.
+
+    Khung giao diện chiếm phần lớn độ dài một bài đọc nhưng không mang nội dung dạy
+    học nào. Gửi nguyên cả trang vừa tốn token vừa làm loãng thứ cần soi.
+    """
+    without_code = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", " ", text, flags=re.DOTALL | re.IGNORECASE)
+    without_tags = re.sub(r"<[^>]+>", " ", without_code)
+    return re.sub(r"\s+", " ", without_tags).strip()
+
+
+def semantic_scope_audit(
+    text: str,
+    forbidden_scope: Set[str],
+    tech_stack: str = "",
+    session_id: str = "",
+    lesson_id: str = "",
+) -> List[str]:
+    """
+    TẦNG 2: bắt vi phạm phạm vi mà đối sánh từ khoá không thể thấy.
+
+    Tầng 1 (`validate_text_against_scope`) so khớp chính xác tên khái niệm bị cấm
+    theo ranh giới từ. Nó bỏ lọt ba dạng vi phạm phổ biến:
+
+      1. Diễn đạt bằng từ đồng nghĩa tiếng Việt — "tập hợp" thay cho `set`,
+         "từ điển" thay cho `dictionary`.
+      2. Dùng khái niệm mà không hề gọi tên nó — viết `{1, 2, 3}` hay
+         `[x for x in items]` trong bài chưa dạy set / list comprehension.
+      3. Giải thích vòng vo về cơ chế của bài sau mà tránh dùng thuật ngữ.
+
+    Cả ba đều là "dạy cái chưa dạy" y hệt nhau dưới góc nhìn của học viên.
+
+    Trả về danh sách khái niệm bị cấm mà bộ thẩm định khẳng định là có xuất hiện.
+    KHÔNG bao giờ ném lỗi và không bao giờ trả về khái niệm nằm ngoài danh sách cấm
+    (xem phần lọc bên dưới) — một cổng kiểm định tự bịa ra vi phạm còn tệ hơn là
+    không có cổng nào.
+    """
+    if not text or not forbidden_scope:
+        return []
+
+    content = _strip_markup(text)[:_SEMANTIC_AUDIT_MAX_CHARS]
+    if len(content) < 200:
+        return []
+
+    forbidden_list = sorted(forbidden_scope)
+
+    system_prompt = (
+        "You are a strict curriculum scope auditor for programming course materials. "
+        "You are given a list of concepts that have NOT been taught yet at this point "
+        "in the syllabus, and a piece of lesson content. "
+        "Report every forbidden concept that the content actually uses, teaches, or "
+        "demonstrates — INCLUDING when it is expressed indirectly: a Vietnamese "
+        "synonym, a paraphrase, or working code that relies on the concept without "
+        "naming it. "
+        "Do NOT report a concept merely because the content warns learners against it "
+        "or says it will be covered later. "
+        "Do NOT report anything that is not in the provided forbidden list. "
+        'Answer with JSON only: {"violations": [{"concept": "<exact item from the '
+        'forbidden list>", "evidence": "<short quote from the content>"}]}. '
+        'If there is no violation, answer {"violations": []}.'
+    )
+
+    user_prompt = (
+        f"Technology stack: {tech_stack or 'unspecified'}\n"
+        f"Concepts NOT yet taught (forbidden): {', '.join(forbidden_list)}\n\n"
+        f"Lesson content to audit:\n{content}"
+    )
+
+    try:
+        from core.llm import call_llm
+        from core.utils.llm_parser import extract_json_from_response
+
+        raw = call_llm(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            json_mode=True,
+            agent_name="Scope_Auditor",
+            session_id=session_id,
+            lesson_id=lesson_id,
+        )
+        parsed = extract_json_from_response(raw, default={}) or {}
+    except Exception as e:
+        # Giữ đúng hợp đồng của module: trục trặc ở khâu kiểm định không được làm
+        # chết tiến trình sinh học liệu.
+        print(f"  [Scope Gate] Bỏ qua kiểm định ngữ nghĩa (lỗi gọi LLM): {e}")
+        return []
+
+    if not isinstance(parsed, dict):
+        return []
+
+    # Chỉ chấp nhận khái niệm CÓ THẬT trong danh sách cấm. Bộ thẩm định là một mô
+    # hình ngôn ngữ: nó hoàn toàn có thể trả về một khái niệm nghe hợp lý nhưng
+    # không hề nằm trong phạm vi cấm, và khi đó ta sẽ bắt hệ thống sinh lại một bài
+    # học vốn không có lỗi gì.
+    lowered = {c.lower(): c for c in forbidden_list}
+    confirmed: List[str] = []
+    for item in parsed.get("violations") or []:
+        if isinstance(item, dict):
+            concept = str(item.get("concept", "")).strip()
+        else:
+            concept = str(item).strip()
+        canonical = lowered.get(concept.lower())
+        if canonical and canonical not in confirmed:
+            confirmed.append(canonical)
+
+    return confirmed
+
+
 def audit_artifact_scope(
     text: str,
     state: Dict[str, Any],
     artifact: str,
     check_domain: bool = True,
+    semantic: Optional[bool] = None,
 ) -> ScopeAuditResult:
     """
     Kiểm định một artifact đã sinh xong.
@@ -85,6 +210,8 @@ def audit_artifact_scope(
         artifact: Tên artifact, dùng cho log và báo cáo (vd "html", "practical_lab").
         check_domain: Tắt khi artifact không mang bối cảnh nghiệp vụ (vd kịch bản video
             dẫn nhập) — kiểm tra domain ở đó chỉ tạo báo động giả.
+        semantic: Bật/tắt tầng kiểm định ngữ nghĩa cho riêng lần gọi này. Để None thì
+            theo biến môi trường SCOPE_AUDIT_SEMANTIC.
 
     Không bao giờ ném lỗi: kiểm định hỏng thì coi như sạch, vì để một trục trặc ở
     khâu kiểm định làm chết cả tiến trình sinh học liệu là cái giá quá đắt.
@@ -97,11 +224,31 @@ def audit_artifact_scope(
     tech_stack = state.get("technology_stack") or state.get("tech_stack") or ""
 
     if forbidden:
+        # TẦNG 1 — đối sánh từ khoá: rẻ, tất định, chạy mọi lần.
         try:
             from core.scope_calculator import validate_text_against_scope
             violations = validate_text_against_scope(text, forbidden, tech_stack)
         except Exception as e:
             print(f"  [Scope Gate] Không chạy được kiểm định phạm vi cho '{artifact}': {e}")
+
+        # TẦNG 2 — kiểm định ngữ nghĩa, CHỈ chạy khi tầng 1 không thấy gì. Tầng 1 đã
+        # bắt được thì nội dung chắc chắn phải sinh lại, tốn thêm một lượt gọi LLM để
+        # khẳng định lại điều đã biết là vô nghĩa.
+        use_semantic = SEMANTIC_SCOPE_AUDIT_ENABLED if semantic is None else semantic
+        if use_semantic and not violations:
+            semantic_hits = semantic_scope_audit(
+                text,
+                forbidden,
+                tech_stack,
+                session_id=str(state.get("session_id", "")),
+                lesson_id=str(state.get("lesson_id", "")),
+            )
+            if semantic_hits:
+                print(
+                    f"  [Scope Gate] Kiểm định ngữ nghĩa bắt được vi phạm mà đối sánh "
+                    f"từ khoá bỏ lọt ở '{artifact}': {semantic_hits}"
+                )
+                violations = semantic_hits
 
     expected_domain = str(state.get("chosen_domain") or "").strip()
     domain_drift = bool(

@@ -453,7 +453,6 @@ def lessons_learned_refiner(state: AgentState) -> AgentState:
 def node_generate_master_content(state: AgentState) -> AgentState:
     """Giai đoạn 3.5: Sinh Master Content tuần tự trước khi rẽ nhánh đa luồng để tránh lỗi Rate Limit và Cache Miss"""
     from agents.creator_agents import get_lesson_content, get_lesson_dir
-    from pathlib import Path
     
     session_id = state.get("session_id", "Session 01")
     lesson_id = state.get("lesson_id", "")
