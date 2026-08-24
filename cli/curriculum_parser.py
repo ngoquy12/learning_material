@@ -319,9 +319,25 @@ def is_project_or_hackathon_session(session: dict) -> bool:
     return False
 
 
+def is_orientation_session(session: dict) -> bool:
+    """
+    Kiểm tra buổi định hướng/nhập môn, dựa trên TÊN và HÌNH THỨC buổi học.
+
+    Cố ý KHÔNG dựa vào số thứ tự buổi: không phải môn nào cũng mở đầu bằng buổi
+    định hướng, và môn nào đặt buổi định hướng ở vị trí khác vẫn phải được nhận ra.
+    """
+    from core.session_types import SessionType, detect_session_type
+
+    if is_exam_session(session) or is_project_or_hackathon_session(session):
+        return False
+    return detect_session_type(session) is SessionType.ORIENTATION
+
+
 def is_practice_session(session: dict) -> bool:
     """Kiểm tra xem session có phải là dạng Thực hành (Practice Lab) hay không"""
     if is_exam_session(session) or is_project_or_hackathon_session(session):
+        return False
+    if is_orientation_session(session):
         return False
 
     session_code = str(session.get("session_code", "")).strip().upper()

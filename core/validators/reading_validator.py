@@ -38,16 +38,22 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
     errors = []
     
     metadata = metadata or {}
-    session_str = str(metadata.get("session_id", "")).upper()
     lesson_type = str(metadata.get("lesson_type", "")).upper()
     lesson_title = str(metadata.get("lesson_title", "")).lower()
     
-    is_orientation = (
-        metadata.get("is_orientation")
-        or "SESSION 01" in session_str
-        or "ORIENTATION" in lesson_type
-        or "tổng quan lộ trình" in lesson_title
-        or "định hướng" in lesson_title
+    # Dùng chung bộ phân loại ở core/session_types.py thay vì giữ bản sao heuristic
+    # riêng. Hai bản sao trôi khỏi nhau nghĩa là cùng một bài học được coi là buổi
+    # định hướng ở nơi này nhưng không phải ở nơi kia.
+    from core.session_types import SessionType, detect_session_type
+
+    is_orientation = bool(metadata.get("is_orientation")) or (
+        detect_session_type(
+            {
+                "session_title": metadata.get("lesson_title", ""),
+                "session_type": metadata.get("lesson_type", ""),
+            }
+        )
+        is SessionType.ORIENTATION
     )
     
     # 1. HTML & JS Syntax Validation

@@ -48,6 +48,11 @@ class AgentState(TypedDict, total=False):
     prerequisite_checked: NotRequired[bool]
     self_test_markdown: NotRequired[str]
 
+    # Loại buổi học (THEORY / PRACTICE / ORIENTATION / MINI_PROJECT / FINAL_PROJECT).
+    # Được CLI xác định MỘT LẦN từ tên và hình thức buổi trong PM, rồi truyền xuống —
+    # thay cho việc mỗi pipeline tự đoán lại từ mã buổi.
+    session_kind: NotRequired[str]
+
     # Domain Anchor (Single Unified Domain per Session)
     session_domain: NotRequired[Dict[str, Any]]
     chosen_domain: NotRequired[str]

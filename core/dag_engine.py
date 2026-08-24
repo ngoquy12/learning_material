@@ -93,6 +93,7 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
     "session_domain":       override,
     "chosen_domain":        override,
     "lesson_type":          override,
+    "session_kind":         override,
 
     # --- Strategic Phase outputs ---
     "learning_outcomes":    override,

@@ -31,6 +31,7 @@ from cli.publisher import (
 )
 from core.artifact_status import ArtifactStatus
 from core.semantic_cache import set_cache_namespace_prefix
+from core.session_types import detect_session_type
 
 def execute_course_workflow(args):
     """Executes the full course material generation workflow across sessions and lessons."""
@@ -153,6 +154,12 @@ def execute_course_workflow(args):
         is_exam = is_exam_session(session)
         is_project_or_hackathon = is_project_or_hackathon_session(session)
         is_practice = is_practice_session(session)
+
+        # Loại buổi được xác định MỘT LẦN tại đây, nơi duy nhất còn đầy đủ dữ liệu PM
+        # (tên buổi, hình thức, mã buổi), rồi truyền xuống state. Các pipeline phía
+        # sau chỉ đọc khai báo này thay vì tự đoán lại từ mã buổi.
+        session_kind = detect_session_type(session).value
+        print(f"  [Session Kind] {session_id} được phân loại là: {session_kind}")
 
         if is_exam:
             session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
@@ -397,6 +404,7 @@ def execute_course_workflow(args):
                         "previous_lessons": previous_lessons.copy(),
                         "allowed_scope": sorted(_allowed_set),
                         "forbidden_scope": sorted(_forbidden_set),
+                        "session_kind": session_kind,
                         "artifacts_status": {
                             "html": ArtifactStatus.PENDING, "slide": ArtifactStatus.PENDING,
                             "quiz": ArtifactStatus.PENDING, "video_script": ArtifactStatus.PENDING,
@@ -515,6 +523,7 @@ def execute_course_workflow(args):
                         "previous_lessons": previous_lessons.copy(),
                         "allowed_scope": sorted(_allowed_set),
                         "forbidden_scope": sorted(_forbidden_set),
+                        "session_kind": session_kind,
                         "artifacts_status": {
                             "html": ArtifactStatus.PENDING,
                             "slide": ArtifactStatus.PENDING,
@@ -710,6 +719,7 @@ def execute_course_workflow(args):
                 "program_structure": {},
                 "core_ssot": {"session_title": session_title, "lesson_details": "", "expected_output": ""},
                 "previous_lessons": [],
+                "session_kind": session_kind,
                 "artifacts_status": {k: ArtifactStatus.PENDING for k in ("html", "slide", "quiz", "video_script", "session")},
                 "course_dir_name": course_dir_name,
                 "technology_stack": tech_stack,

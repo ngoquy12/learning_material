@@ -8,6 +8,7 @@ from core.artifact_writer import write_state_artifacts_to_disk
 from core.persistence import save_checkpoint
 from core.artifact_status import ArtifactStatus, is_approved, skipped
 from core.scope_gate import STATUS_SCOPE_WARNING, audit_artifact_scope, record_scope_audit
+from core.session_types import SessionType, detect_session_type, is_part_allowed
 from agents import (
     objective_architect_agent, scheduler_agent, knowledge_base_agent,
     html_writer_agent, html_ux_reviewer,
@@ -272,26 +273,56 @@ def pipeline_html_production(state: AgentState) -> AgentState:
 
 
 
-def _is_session_01_orientation(state: AgentState) -> bool:
-    """Check if current session is Session 01 Orientation."""
-    session_str = str(state.get("session_id", "")).upper()
-    lesson_type = str(state.get("lesson_type", "")).upper()
+def resolve_session_kind(state: AgentState) -> SessionType:
+    """
+    Xác định loại buổi học của state hiện tại.
+
+    Ưu tiên trường `session_kind` do CLI khai báo sẵn từ PM. Chỉ khi thiếu mới suy
+    ra từ TÊN buổi — tuyệt đối không suy ra từ số thứ tự buổi.
+
+    Bản trước nhận diện buổi định hướng bằng chuỗi "SESSION 01" trong mã buổi, tức
+    coi MỌI môn học đều có buổi định hướng ở buổi đầu. Phần lớn môn không như vậy:
+    chúng vào thẳng kiến thức ngay buổi 1, và toàn bộ quiz, bài thực hành, câu hỏi
+    đọc hiểu của buổi đó bị bỏ qua trong im lặng. Ngược lại, môn nào đặt buổi định
+    hướng ở vị trí khác thì không bao giờ được nhận ra.
+    """
+    declared = str(state.get("session_kind", "")).strip()
+    if declared:
+        try:
+            return SessionType(declared.upper())
+        except ValueError:
+            pass
+
     core_ssot = state.get("core_ssot", {}) if isinstance(state.get("core_ssot"), dict) else {}
-    lesson_title = str(core_ssot.get("session_title", "")).lower() + " " + str(state.get("lesson_id", "")).lower()
-    return (
-        "SESSION 01" in session_str
-        or "ORIENTATION" in lesson_type
-        or "tổng quan lộ trình" in lesson_title
-        or "định hướng" in lesson_title
+    return detect_session_type(
+        {
+            "session_title": core_ssot.get("session_title", ""),
+            "session_type": state.get("lesson_type", ""),
+        }
     )
+
+
+def skip_part_for_session_kind(state: AgentState, part: str) -> bool:
+    """
+    Phần học liệu `part` có bị loại khỏi loại buổi này không; nếu có thì ghi luôn
+    trạng thái bỏ qua kèm LÝ DO vào state.
+
+    Trước đây mỗi pipeline tự lặp lại cùng một khối if-else, mỗi nơi một bản sao;
+    thêm một loại tài nguyên là phải nhớ sửa đủ bốn chỗ.
+    """
+    kind = resolve_session_kind(state)
+    if is_part_allowed(kind, part):
+        return False
+
+    print(f"  [{kind.value}] Bỏ qua '{part}': không thuộc bộ tài nguyên của loại buổi này.")
+    state.setdefault("artifacts_status", {})[part] = skipped(f"{kind.value} session")
+    return True
 
 
 @component
 def pipeline_quiz_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện cơ chế Sandbox cho cấu phần Quiz & Lab bài tập"""
-    if _is_session_01_orientation(state):
-        print("  [Session 01 Orientation] SKIPPED Quiz generation (Only Reading, Slides, and Video Script allowed for Session 01).")
-        state.setdefault("artifacts_status", {})["quiz"] = skipped("Session 01 Orientation")
+    if skip_part_for_session_kind(state, "quiz"):
         return state
 
     if "requested_parts" in state and "quiz" not in state["requested_parts"]:
@@ -328,8 +359,7 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
 @component
 def pipeline_reading_questions_production(state: AgentState) -> AgentState:
     """Trích xuất câu hỏi bài đọc (reading questions) ra file JSON riêng biệt"""
-    if _is_session_01_orientation(state):
-        state.setdefault("artifacts_status", {})["reading_questions"] = skipped("Session 01 Orientation")
+    if skip_part_for_session_kind(state, "reading_questions"):
         return state
 
     requested = state.get("requested_parts", ["all"])
@@ -349,8 +379,7 @@ def pipeline_reading_questions_production(state: AgentState) -> AgentState:
 @component
 def pipeline_video_script_production(state: AgentState) -> AgentState:
     """Soạn kịch bản quay video (video script) cấp Lesson ra file Markdown riêng biệt"""
-    if _is_session_01_orientation(state):
-        state.setdefault("artifacts_status", {})["video_script"] = skipped("Session 01 Orientation")
+    if skip_part_for_session_kind(state, "video_script"):
         return state
 
     requested = state.get("requested_parts", ["all"])
@@ -370,9 +399,7 @@ def pipeline_video_script_production(state: AgentState) -> AgentState:
 @component
 def pipeline_practical_lab_production(state: AgentState) -> AgentState:
     """Tự động biên soạn nội dung Bài thực hành (Hands-on Practical Lab) ra file practical_lab.json"""
-    if _is_session_01_orientation(state):
-        print("  [Session 01 Orientation] SKIPPED Practical Lab / Homework generation for Session 01.")
-        state.setdefault("artifacts_status", {})["practical_lab"] = skipped("Session 01 Orientation")
+    if skip_part_for_session_kind(state, "practical_lab"):
         return state
 
     requested = state.get("requested_parts", ["all"])
