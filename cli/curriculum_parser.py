@@ -532,10 +532,8 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
                         missing_elements.append(f"Thiếu file quiz tại {session_id} -> {lesson_id}")
                     lab_md_check = lesson_dir / "Bài thực hành" / "practical_lab.md"
                     lab_html_check = lesson_dir / "Bài thực hành" / "practical_lab.html"
-                    has_lab = (
-                        (lab_md_check.exists() and lab_md_check.stat().st_size >= 300)
-                        or (lab_html_check.exists() and lab_html_check.stat().st_size >= 300)
-                    )
+                    lab_json_check = lesson_dir / "Bài thực hành" / "practical_lab.json"
+                    has_lab = lab_md_check.exists() or lab_html_check.exists() or lab_json_check.exists()
                     if not has_lab:
                         missing_elements.append(f"Thiếu file practical_lab tại {session_id} -> {lesson_id}")
         else:

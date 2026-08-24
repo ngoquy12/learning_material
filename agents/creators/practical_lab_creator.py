@@ -247,7 +247,7 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
             await pyodide.runPythonAsync(code);
             output.innerText = buffer.trim() || "Thực thi hoàn tất!";
           }} catch (err) {{
-            output.innerText = "❌ LỖI THỰC THI:\\n" + err;
+            output.innerText = "❌ Lỗi thực thi:\\n" + err;
           }}
         }} else {{
           output.innerText = "▶ Kiểm tra cú pháp mã nguồn {lang_class}: Đã ghi nhận mã nguồn thực hành!";
