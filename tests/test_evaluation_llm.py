@@ -3,10 +3,17 @@ import json
 import pytest
 from core.llm import call_llm
 
+@pytest.mark.integration
 def test_llm_as_a_judge():
     """
     Test Evaluation using LLM-as-a-judge pattern to verify the quality of generated learning materials.
     Requires GEMINI_API_KEY or OPENAI_API_KEY in the environment.
+
+    Đánh dấu integration theo đúng quy ước ở tests/conftest.py: test này gọi LLM
+    thật. Trước đây nó thiếu marker mà vẫn xanh — không phải vì gọi được LLM, mà vì
+    semantic cache phục vụ lại một phản hồi cũ nên không có socket nào được mở.
+    Sau khi cache được cô lập theo phạm vi bài học (C2), entry cũ không còn được tái
+    sử dụng, và test lộ ra là nó vốn phụ thuộc mạng thật.
     """
     # Skip test if offline mode or no API keys are present
     if os.getenv("SKIP_LIVE_LLM_TESTS", "").lower() in ("1", "true", "yes") or (

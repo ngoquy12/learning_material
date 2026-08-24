@@ -30,6 +30,7 @@ from cli.publisher import (
     print_generation_summary,
 )
 from core.artifact_status import ArtifactStatus
+from core.semantic_cache import set_cache_namespace_prefix
 
 def execute_course_workflow(args):
     """Executes the full course material generation workflow across sessions and lessons."""
@@ -85,6 +86,11 @@ def execute_course_workflow(args):
         course_dir = output_base_dir / course_clean
     course_dir.mkdir(parents=True, exist_ok=True)
     course_dir_name = f"pms/{course_dir.name}"
+
+    # Cô lập semantic cache theo khoá học. Không có bước này thì hai khoá khác nhau
+    # đều có "Session 01 / Lesson 01", và cơ chế đối sánh mờ có thể trả nội dung của
+    # khoá này cho khoá kia. Đặt MỘT LẦN ở đây, trước khi bất kỳ luồng nào chạy.
+    set_cache_namespace_prefix(course_dir.name)
 
     tech_stack = args.tech_stack.strip().lower() if getattr(args, "tech_stack", "") else ""
     if not tech_stack or tech_stack == "auto":

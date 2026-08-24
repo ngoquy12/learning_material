@@ -52,8 +52,9 @@ def _init_cache_db(conn: sqlite3.Connection):
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS semantic_cache (
-            id          TEXT PRIMARY KEY,      -- sha256(system+user prompt)
+            id          TEXT PRIMARY KEY,      -- sha256(namespace+system+user prompt)
             agent_name  TEXT NOT NULL DEFAULT '',
+            namespace   TEXT NOT NULL DEFAULT '',  -- phạm vi cô lập: khoá học/buổi/bài/agent
             prompt_hash TEXT NOT NULL,         -- dùng để exact match
             prompt_text TEXT NOT NULL,         -- lưu để fuzzy match
             response    TEXT NOT NULL,
@@ -62,8 +63,19 @@ def _init_cache_db(conn: sqlite3.Connection):
             last_used   REAL NOT NULL
         )
     """)
+    # Di trú DB đã tồn tại từ trước khi có cột namespace. Các entry cũ nhận
+    # namespace rỗng, nghĩa là chúng KHÔNG bao giờ khớp với truy vấn mới (vốn luôn
+    # có namespace thật). Đây là hành vi cố ý: entry cũ được sinh ra khi cache còn
+    # dùng chung cho mọi bài học, nên không thể tin là đúng phạm vi kiến thức nào.
+    existing_columns = {row[1] for row in conn.execute("PRAGMA table_info(semantic_cache)")}
+    if "namespace" not in existing_columns:
+        conn.execute("ALTER TABLE semantic_cache ADD COLUMN namespace TEXT NOT NULL DEFAULT ''")
+        print("  [SemanticCache] Đã bổ sung cột namespace; entry cũ không còn được tái sử dụng.")
     conn.execute("""
         CREATE INDEX IF NOT EXISTS idx_created ON semantic_cache(created_at)
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_namespace ON semantic_cache(namespace, created_at)
     """)
     conn.commit()
     _cache_db_initialized = True
@@ -78,8 +90,51 @@ def get_cache_db():
         yield conn
 
 
-def _make_hash(system_prompt: str, user_prompt: str) -> str:
-    combined = f"SYS::{system_prompt.strip()[:500]}|USR::{user_prompt.strip()[:1000]}"
+# Tiền tố phạm vi cho cả lượt chạy — thường là mã/khoá thư mục khoá học. Đặt MỘT LẦN
+# lúc khởi động CLI, trước khi bất kỳ luồng nào chạy, rồi chỉ đọc.
+_NAMESPACE_PREFIX = ""
+
+
+def set_cache_namespace_prefix(prefix: str) -> None:
+    """
+    Khai báo phạm vi bao ngoài của cache cho lượt chạy hiện tại (thường là khoá học).
+
+    Cần thiết vì hai khoá học khác nhau đều có "Session 01 / Lesson 01": nếu không
+    tách, bài mở đầu của khoá Python có thể ăn cache của bài mở đầu khoá Java.
+    """
+    global _NAMESPACE_PREFIX
+    _NAMESPACE_PREFIX = (prefix or "").strip()
+
+
+def get_cache_namespace_prefix() -> str:
+    return _NAMESPACE_PREFIX
+
+
+def build_namespace(agent_name: str = "", session_id: str = "", lesson_id: str = "") -> str:
+    """
+    Dựng khoá phạm vi cô lập cache.
+
+    Vì sao phải có: `cache_lookup` đối sánh mờ bằng TF-IDF với ngưỡng 0.88 trên
+    TOÀN BỘ bảng cache. Hai bài học liền kề cùng chủ đề (Lesson 02 và Lesson 03 về
+    List chẳng hạn) có prompt gần như trùng nhau về từ vựng, nên hoàn toàn có thể
+    vượt ngưỡng và ăn cache của nhau. Khi đó bài sau nhận lại nội dung của bài
+    trước — nội dung ĐÚNG NGỮ PHÁP nhưng SAI PHẠM VI KIẾN THỨC, và không có gì báo
+    lỗi vì kết quả trông vẫn hợp lệ.
+
+    Thành phần agent_name cũng bắt buộc: prompt của Reading Creator và Quiz Creator
+    cho cùng một bài chia sẻ rất nhiều từ vựng chung, không được phép khớp chéo.
+    """
+    parts = [_NAMESPACE_PREFIX, str(agent_name or ""), str(session_id or ""), str(lesson_id or "")]
+    return "|".join(p.strip() for p in parts)
+
+
+def _make_hash(system_prompt: str, user_prompt: str, namespace: str = "") -> str:
+    # Namespace nằm TRONG hash vì id của entry lấy từ hash này làm khoá chính.
+    # Không đưa vào thì hai bài học có prompt trùng nhau sẽ đụng khoá chính và
+    # `INSERT OR IGNORE` lặng lẽ vứt bản ghi thứ hai.
+    combined = (
+        f"NS::{namespace}|SYS::{system_prompt.strip()[:500]}|USR::{user_prompt.strip()[:1000]}"
+    )
     return hashlib.sha256(combined.encode("utf-8")).hexdigest()
 
 
@@ -119,6 +174,7 @@ def cache_lookup(
     user_prompt: str,
     agent_name: str = "",
     fuzzy: bool = True,
+    namespace: str = "",
 ) -> Optional[str]:
     """
     Tìm kiếm phản hồi trong cache.
@@ -130,14 +186,15 @@ def cache_lookup(
         return None
 
     with get_cache_db() as conn:
-        prompt_hash = _make_hash(system_prompt, user_prompt)
+        prompt_hash = _make_hash(system_prompt, user_prompt, namespace)
         now = time.time()
         cutoff = now - (MAX_CACHE_AGE_DAYS * 86400)
 
         # 1. Exact hash match (tốc độ O(1))
         row = conn.execute(
-            "SELECT id, response FROM semantic_cache WHERE prompt_hash = ? AND created_at > ?",
-            (prompt_hash, cutoff)
+            "SELECT id, response FROM semantic_cache "
+            "WHERE prompt_hash = ? AND namespace = ? AND created_at > ?",
+            (prompt_hash, namespace, cutoff)
         ).fetchone()
 
         if row:
@@ -162,9 +219,12 @@ def cache_lookup(
         # 2. Fuzzy similarity match
         if fuzzy:
             combined_query = f"{system_prompt[:400]} {user_prompt[:800]}"
+            # CHỈ đối sánh mờ trong cùng phạm vi. Bỏ điều kiện namespace ở đây là
+            # mở lại đúng lỗ hổng nội dung lệch phạm vi kiến thức mô tả ở build_namespace().
             candidates = conn.execute(
-                "SELECT id, prompt_text, response FROM semantic_cache WHERE created_at > ? LIMIT 200",
-                (cutoff,)
+                "SELECT id, prompt_text, response FROM semantic_cache "
+                "WHERE namespace = ? AND created_at > ? LIMIT 200",
+                (namespace, cutoff)
             ).fetchall()
 
             best_sim = 0.0
@@ -192,6 +252,7 @@ def cache_store(
     user_prompt: str,
     response: str,
     agent_name: str = "",
+    namespace: str = "",
 ) -> None:
     """
     Lưu một phản hồi mới vào cache.
@@ -204,7 +265,7 @@ def cache_store(
 
     try:
         with get_cache_db() as conn:
-            prompt_hash = _make_hash(system_prompt, user_prompt)
+            prompt_hash = _make_hash(system_prompt, user_prompt, namespace)
             combined_prompt = f"{system_prompt[:400]} {user_prompt[:800]}"
             entry_id = "cache_" + prompt_hash[:16]
             now = time.time()
@@ -212,9 +273,9 @@ def cache_store(
             # INSERT OR IGNORE (không ghi đè nếu đã tồn tại) + cập nhật response nếu cần
             conn.execute("""
                 INSERT OR IGNORE INTO semantic_cache
-                    (id, agent_name, prompt_hash, prompt_text, response, hit_count, created_at, last_used)
-                VALUES (?, ?, ?, ?, ?, 0, ?, ?)
-            """, (entry_id, agent_name, prompt_hash, combined_prompt, response, now, now))
+                    (id, agent_name, namespace, prompt_hash, prompt_text, response, hit_count, created_at, last_used)
+                VALUES (?, ?, ?, ?, ?, ?, 0, ?, ?)
+            """, (entry_id, agent_name, namespace, prompt_hash, combined_prompt, response, now, now))
             conn.commit()
     except Exception as e:
         print(f"  [SemanticCache Warning] Failed to store cache entry: {e}")
@@ -285,8 +346,12 @@ def with_semantic_cache(func):
                        agent_name=agent_name, session_id=session_id,
                        lesson_id=lesson_id, *args, **kwargs)
 
+        # Namespace dựng từ chính session_id/lesson_id mà wrapper VỐN ĐÃ NHẬN nhưng
+        # trước đây không hề dùng tới — cache vì thế dùng chung cho mọi bài học.
+        namespace = build_namespace(agent_name, session_id, lesson_id)
+
         # 1. Tìm trong cache
-        cached = cache_lookup(system_prompt, user_prompt, agent_name=agent_name)
+        cached = cache_lookup(system_prompt, user_prompt, agent_name=agent_name, namespace=namespace)
         if cached:
             return cached
 
@@ -297,7 +362,7 @@ def with_semantic_cache(func):
 
         # 3. Lưu vào cache nếu thành công
         if result:
-            cache_store(system_prompt, user_prompt, result, agent_name=agent_name)
+            cache_store(system_prompt, user_prompt, result, agent_name=agent_name, namespace=namespace)
 
         return result
 
