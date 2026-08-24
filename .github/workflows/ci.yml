@@ -77,18 +77,19 @@ jobs:
             --cov=core --cov=agents --cov=cli \
             --cov-report=term-missing:skip-covered \
             --cov-report=xml \
-            --cov-fail-under=34
+            --cov-fail-under=38
 
       # Ngưỡng tách riêng cho core/ — nơi chứa engine, state và các cổng kiểm định.
       # Dùng lại dữ liệu đo của bước trên, KHÔNG chạy lại test.
       #
-      # Mốc tại thời điểm dựng cổng (2026-08-24): core 50%, agents 21%, tổng 36%.
+      # Mốc khi dựng cổng (2026-08-24): core 50%, tổng 36%.
+      # Nâng ngưỡng sau nhóm P2 (core 56%, tổng 41%) theo đúng quy ước bên dưới.
       # Ngưỡng đặt thấp hơn mốc vài điểm để không đỏ CI ngay, nhưng chặn được tụt
       # dốc. Quy ước: mỗi lần độ phủ thực tế vượt ngưỡng >5 điểm thì NÂNG ngưỡng
       # lên, nếu không cổng này sẽ dần trở thành trang trí.
       - name: Kiểm tra ngưỡng độ phủ riêng cho core/
         run: |
-          coverage report --include="core/*" --fail-under=48
+          coverage report --include="core/*" --fail-under=53
 
       - name: Lưu báo cáo độ phủ
         if: always()

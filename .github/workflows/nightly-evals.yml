@@ -1,0 +1,64 @@
+name: Nightly Pedagogical Evals
+
+# Chạy hằng đêm thay vì trên mỗi PR, vì mục đích khác hẳn CI thường: CI trả lời
+# "thay đổi này có làm vỡ gì không", còn bộ này trả lời "chất lượng học liệu có
+# đang trôi dần không". Trôi dần là thứ chỉ nhìn ra khi so nhiều mốc thời gian.
+on:
+  schedule:
+    # 18:00 UTC = 01:00 giờ Việt Nam
+    - cron: "0 18 * * *"
+  workflow_dispatch:
+    inputs:
+      min_score:
+        description: "Ngưỡng điểm tối thiểu (0 = không áp ngưỡng)"
+        required: false
+        default: "85"
+
+jobs:
+  pedagogy-trend:
+    name: Chấm chất lượng sư phạm trên bản golden
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Kho xu hướng phải SỐNG QUA các lần chạy, nếu không mỗi đêm lại là mốc đầu
+      # tiên và không bao giờ so sánh được với gì.
+      - name: Khôi phục kho xu hướng chất lượng
+        uses: actions/cache@v4
+        with:
+          path: eval-storage
+          key: pedagogy-trend-${{ github.run_id }}
+          restore-keys: |
+            pedagogy-trend-
+
+      - name: Chấm điểm và ghi xu hướng
+        env:
+          PYTHONPATH: .
+          PYTHONIOENCODING: utf-8
+          STORAGE_DIR: eval-storage
+          SEMANTIC_CACHE_ENABLED: "false"
+        run: |
+          python scripts/run_pedagogical_eval.py \
+            --check \
+            --min-score "${{ github.event.inputs.min_score || '85' }}"
+
+      - name: Lưu kho xu hướng làm artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pedagogy-trend-db
+          path: eval-storage/knowledge_store.db
+          retention-days: 30
