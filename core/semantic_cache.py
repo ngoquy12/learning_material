@@ -169,6 +169,20 @@ def _tf_idf_similarity(query: str, document: str) -> float:
 # Public API
 # ─────────────────────────────────────────────────────
 
+def _record_cache_hit(agent_name: str) -> None:
+    """
+    Báo cho sổ đo lượt chạy biết vừa có một lượt KHÔNG tốn tiền.
+
+    Không có con số này thì tỷ lệ cache hit của chính lượt chạy hiện tại không tính
+    được: get_cache_stats() cộng dồn hit của mọi lượt chạy trong 30 ngày qua.
+    """
+    try:
+        from core.run_metrics import record_cache_hit
+        record_cache_hit(agent_name)
+    except Exception:
+        pass
+
+
 def cache_lookup(
     system_prompt: str,
     user_prompt: str,
@@ -214,6 +228,7 @@ def cache_lookup(
                 )
                 conn.commit()
                 print(f"  [SemanticCache] [EXACT HIT] for {agent_name}. Skipping LLM call.")
+                _record_cache_hit(agent_name)
                 return resp_text
 
         # 2. Fuzzy similarity match
@@ -242,6 +257,7 @@ def cache_lookup(
                 )
                 conn.commit()
                 print(f"  [SemanticCache] [FUZZY HIT] for {agent_name} (similarity={best_sim:.2f}). Skipping LLM call.")
+                _record_cache_hit(agent_name)
                 return best_row["response"]
 
         return None

@@ -68,6 +68,19 @@ def show_cache_statistics():
     except Exception as e:
         print(f"[Cache Stats Error] {e}")
 
+def print_run_cost_report():
+    """In bảng chi phí của lượt chạy vừa xong và lưu lại để so sánh giữa các lần."""
+    try:
+        from core.run_metrics import format_run_report, persist_run_metrics
+
+        report = format_run_report()
+        if report:
+            print(report)
+            persist_run_metrics()
+    except Exception as e:
+        print(f"[Run Cost Report Error] {e}")
+
+
 def print_generation_summary(summary: list):
     """Prints final generation summary report."""
     print("\n=====================================================================")

@@ -28,6 +28,7 @@ from cli.publisher import (
     export_scorm_package_cli,
     show_cache_statistics,
     print_generation_summary,
+    print_run_cost_report,
 )
 from core.artifact_status import ArtifactStatus
 from core.semantic_cache import set_cache_namespace_prefix
@@ -92,6 +93,10 @@ def execute_course_workflow(args):
     # đều có "Session 01 / Lesson 01", và cơ chế đối sánh mờ có thể trả nội dung của
     # khoá này cho khoá kia. Đặt MỘT LẦN ở đây, trước khi bất kỳ luồng nào chạy.
     set_cache_namespace_prefix(course_dir.name)
+
+    # Mở sổ đo chi phí cho lượt chạy này (token, số lượt gọi, tỷ lệ cache).
+    from core.run_metrics import start_run
+    start_run(f"{course_dir.name} | {args.session}")
 
     tech_stack = args.tech_stack.strip().lower() if getattr(args, "tech_stack", "") else ""
     if not tech_stack or tech_stack == "auto":
@@ -906,4 +911,5 @@ def execute_course_workflow(args):
             export_quiz_to_excel(entrance_qs, str(entrance_path))
             export_quiz_to_excel(exit_qs, str(exit_path))
 
+    print_run_cost_report()
     print_generation_summary(summary)

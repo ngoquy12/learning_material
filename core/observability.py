@@ -91,6 +91,15 @@ def log_agent_call(
     if duration > 86400:
         duration = 0.0
     tokens = token_cost or {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+
+    # Cộng dồn vào sổ đo của lượt chạy hiện tại. Đặt ở đây vì log_agent_call là chỗ
+    # thắt cổ chai mà MỌI lượt gọi LLM thật đều đi qua — rải lời gọi đo đạc ra từng
+    # agent sẽ vừa lặp lại vừa chắc chắn bỏ sót khi thêm agent mới.
+    try:
+        from core.run_metrics import record_llm_call
+        record_llm_call(agent_name, tokens, duration)
+    except Exception:
+        pass
     
     # 1. Generate unique identifier for this span / trace segment
     trace_id = str(uuid.uuid4())

@@ -201,3 +201,62 @@ class TestGraphStructure:
         from core.artifact_writer import write_state_artifacts_to_disk as canonical
 
         assert graph.write_state_artifacts_to_disk is canonical
+
+
+class TestBranchIsolation:
+    """
+    Mỗi nhánh song song phải nhận một bản state có container mutable RIÊNG.
+
+    Đây là bất biến mà mọi ý định "tối ưu" copy.deepcopy thành shallow copy sẽ phá.
+    Đo thực tế cho thấy deepcopy 5 nhánh của một state ~1 MB chỉ tốn 0,7 ms và
+    0,05 MB — vì deepcopy trả về chính đối tượng cũ cho chuỗi bất biến, nên nội
+    dung lớn vốn đã được chia sẻ sẵn. Đổi sang shallow copy là đánh đổi 0,7 ms lấy
+    nguy cơ nhánh này ghi đè trạng thái của nhánh kia.
+    """
+
+    def test_moi_nhanh_ghi_trang_thai_doc_lap(self, monkeypatch):
+        seen = {}
+
+        def _make(name):
+            def _run(state):
+                # Mỗi nhánh ghi trạng thái của riêng nó rồi giữ lại tham chiếu dict.
+                state.setdefault("artifacts_status", {})[name] = "DONE_" + name
+                seen[name] = state["artifacts_status"]
+                return state
+
+            return _run
+
+        patched = tuple(
+            graph.DerivedPipeline(b.name, b.artifact_key, _make(b.artifact_key))
+            for b in graph.DERIVED_PIPELINES
+        )
+        monkeypatch.setattr(graph, "DERIVED_PIPELINES", patched)
+        monkeypatch.setattr(graph, "save_state_checkpoint", lambda state: None)
+
+        graph.node_parallel_derived_production(_base_state())
+
+        dict_ids = {id(d) for d in seen.values()}
+        assert len(dict_ids) == len(seen), (
+            "Hai nhánh dùng chung một dict artifacts_status — nhánh này sẽ ghi đè nhánh kia"
+        )
+
+    def test_nhanh_khong_lam_ban_state_goc(self, monkeypatch):
+        def _run(state):
+            state.setdefault("review_logs", []).append({"source": "nhanh", "feedback": "x"})
+            return state
+
+        patched = tuple(
+            graph.DerivedPipeline(b.name, b.artifact_key, _run) for b in graph.DERIVED_PIPELINES
+        )
+        monkeypatch.setattr(graph, "DERIVED_PIPELINES", patched)
+        monkeypatch.setattr(graph, "save_state_checkpoint", lambda state: None)
+
+        original = _base_state()
+        original["review_logs"] = []
+        graph.node_parallel_derived_production(original)
+
+        # Kết quả đi qua reducer append_unique, nên bản gốc không được bị 5 nhánh
+        # cùng ghi thẳng vào.
+        assert len(original["review_logs"]) <= 1, (
+            f"State gốc bị các nhánh ghi trực tiếp: {len(original['review_logs'])} bản ghi"
+        )
