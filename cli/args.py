@@ -92,6 +92,29 @@ def parse_cli_arguments():
         help="Chuỗi Authorization gửi kèm khi gọi LRS (nếu LRS yêu cầu)"
     )
     parser.add_argument(
+        "--ingest-xapi",
+        type=str,
+        default="",
+        help=(
+            "Nạp file phát biểu xAPI do LRS xuất ra (JSON hoặc JSONL), rút tín hiệu "
+            "học tập và ghi vào kho kinh nghiệm để lần sinh sau tránh lặp lại lỗi."
+        )
+    )
+    parser.add_argument(
+        "--ingest-dry-run",
+        action="store_true",
+        help="Dùng cùng --ingest-xapi: chỉ xem sẽ rút ra luật gì, KHÔNG ghi vào kho kinh nghiệm"
+    )
+    parser.add_argument(
+        "--min-cohort",
+        type=int,
+        default=0,
+        help=(
+            "Cỡ mẫu tối thiểu để một tín hiệu học tập được coi là có thật (mặc định 15). "
+            "Hạ ngưỡng khi thử nghiệm thì được, nhưng đừng hạ khi chạy thật."
+        )
+    )
+    parser.add_argument(
         "--cache-stats",
         action="store_true",
         help="Show Semantic Cache statistics and exit"

@@ -70,6 +70,53 @@ def show_cache_statistics():
     except Exception as e:
         print(f"[Cache Stats Error] {e}")
 
+def handle_xapi_ingest(args) -> bool:
+    """
+    Xử lý cờ --ingest-xapi. Trả True nếu đã xử lý và cần thoát.
+
+    Đây là chiều phản hồi từ NGƯỜI HỌC quay về hệ thống — chiều mà reviewer LLM
+    không bao giờ nhìn thấy được, vì nó chỉ đọc học liệu trên trang giấy.
+    """
+    source = getattr(args, "ingest_xapi", "")
+    if not source:
+        return False
+
+    from core.learning_analytics import MIN_COHORT_SIZE, ingest_xapi_export
+
+    min_cohort = getattr(args, "min_cohort", 0) or MIN_COHORT_SIZE
+    dry_run = bool(getattr(args, "ingest_dry_run", False))
+    tech_stack = (getattr(args, "tech_stack", "") or "*").strip() or "*"
+
+    try:
+        result = ingest_xapi_export(
+            source=source,
+            tech_stack=tech_stack,
+            min_cohort=min_cohort,
+            dry_run=dry_run,
+        )
+    except FileNotFoundError as e:
+        print(f"[xAPI Ingest] {e}")
+        return True
+    except Exception as e:
+        print(f"[xAPI Ingest Error] {e}")
+        return True
+
+    print(f"\nĐã đọc {result['statements']} phát biểu trên {result['activities']} hoạt động.")
+    print(result["report"])
+
+    if dry_run:
+        print(
+            f"Chế độ xem trước: KHÔNG ghi gì vào kho kinh nghiệm. "
+            f"Sẽ ghi {len(result['signals'])} luật nếu chạy lại mà bỏ --ingest-dry-run."
+        )
+    else:
+        print(f"Đã ghi {result['stored_rules']} luật mới vào kho kinh nghiệm.")
+        if result["signals"] and result["stored_rules"] == 0:
+            print("  (Các luật này đã có sẵn từ lần nạp trước.)")
+
+    return True
+
+
 def handle_approval_command(args) -> bool:
     """
     Xử lý cờ --approve / --export-approvals. Trả True nếu đã xử lý và cần thoát.
@@ -165,6 +212,23 @@ def write_review_dashboard(course: str, states: list, course_dir) -> None:
             print(f"\n[Rà soát] Không có tài nguyên nào cần xử lý. Trang tổng hợp: {written}")
     except Exception as e:
         print(f"[Review Dashboard Error] {e}")
+
+
+def stamp_course_version(course: str, course_dir) -> None:
+    """
+    Chụp trạng thái khoá học, đánh số phiên bản và ghi nhật ký thay đổi.
+
+    Chạy sau khi mọi artifact đã ghi xong, để ảnh chụp phản ánh đúng thứ vừa sinh ra.
+    """
+    try:
+        from core.course_version import format_version_report, snapshot_course
+
+        result = snapshot_course(course=course, course_dir=str(course_dir))
+        report = format_version_report(result, course)
+        if report:
+            print(report)
+    except Exception as e:
+        print(f"[Course Version Error] {e}")
 
 
 def print_run_cost_report():

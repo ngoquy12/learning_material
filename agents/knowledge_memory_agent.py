@@ -129,8 +129,18 @@ DB_PATH = get_knowledge_db_path()
 
 
 def _get_connection() -> sqlite3.Connection:
-    """Trả về connection đến Knowledge Store DB."""
-    conn = sqlite3.connect(str(DB_PATH))
+    """
+    Trả về connection đến Knowledge Store DB.
+
+    Đường dẫn được giải TẠI ĐÂY chứ không dùng hằng số DB_PATH ở trên. DB_PATH được
+    tính một lần lúc import module, nên nếu tiến trình đổi STORAGE_DIR sau đó (test
+    chạy trong thư mục tạm, hoặc container gắn ổ đĩa muộn) thì mọi thao tác vẫn ghi
+    vào đường dẫn cũ — cấu hình bị vô hiệu hoá trong im lặng. DB_PATH giữ lại làm
+    alias tương thích ngược cho các module đang import nó.
+    """
+    from core.paths import get_knowledge_db_path
+
+    conn = sqlite3.connect(str(get_knowledge_db_path()))
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")  # Write-Ahead Logging cho performance
     conn.execute("""

@@ -164,3 +164,40 @@ class TestNoDbLeakIntoRepoRoot:
         assert result.returncode == 0, result.stderr
         after = {p.name for p in paths.BASE_DIR.glob("*.db")}
         assert after == before, f"Có file .db mới rơi vào gốc repo: {after - before}"
+
+
+class TestLazyPathResolution:
+    """
+    Đường dẫn kho dữ liệu phải được giải TẠI LÚC DÙNG, không phải lúc import.
+
+    Lỗi thật đã xảy ra: agents/knowledge_memory_agent.py tính DB_PATH một lần lúc
+    import module. Khi tiến trình đổi STORAGE_DIR sau đó — test chạy trong thư mục
+    tạm, hoặc container gắn ổ đĩa muộn — mọi thao tác vẫn ghi vào đường dẫn cũ, tức
+    cấu hình bị vô hiệu hoá trong im lặng. Biểu hiện ra ngoài rất khó lần: test xanh
+    khi chạy riêng, đỏ khi chạy cùng cả bộ.
+    """
+
+    def test_knowledge_store_ton_trong_storage_dir_doi_sau_khi_import(self, tmp_path, monkeypatch):
+        # Import trực tiếp hàm, KHÔNG dùng `agents.knowledge_memory_agent`: trong
+        # agents/__init__.py có một HÀM trùng tên với module, và nó che mất module
+        # khi truy cập qua thuộc tính của package.
+        from agents.knowledge_memory_agent import store_memory
+
+        # Module đã được import từ trước (bởi các test khác) với STORAGE_DIR khác.
+        monkeypatch.setenv("STORAGE_DIR", str(tmp_path / "storage_moi"))
+        paths.reset_path_cache()
+        try:
+            store_memory(
+                rule_text="Luật kiểm thử đường dẫn trễ",
+                tech_stack="test-lazy-path",
+                source_agent="test",
+            )
+            expected = paths.get_knowledge_db_path()
+
+            assert expected.exists(), (
+                "Ghi vào kho tri thức nhưng file không xuất hiện ở STORAGE_DIR hiện "
+                "tại — đường dẫn đã bị chốt từ lúc import"
+            )
+            assert str(tmp_path) in str(expected)
+        finally:
+            paths.reset_path_cache()

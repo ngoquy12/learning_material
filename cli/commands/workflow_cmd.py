@@ -30,7 +30,9 @@ from cli.publisher import (
     print_generation_summary,
     print_run_cost_report,
     handle_approval_command,
+    handle_xapi_ingest,
     write_review_dashboard,
+    stamp_course_version,
 )
 from core.artifact_status import ArtifactStatus
 from core.semantic_cache import set_cache_namespace_prefix
@@ -43,6 +45,9 @@ def execute_course_workflow(args):
     # Thao tác quản trị (duyệt / xuất hồ sơ kiểm định) xử lý trước mọi thứ khác:
     # người dùng chạy chúng sau khi đọc trang rà soát, không phải để sinh nội dung.
     if handle_approval_command(args):
+        return
+
+    if handle_xapi_ingest(args):
         return
 
     if args.cache_stats:
@@ -928,6 +933,9 @@ def execute_course_workflow(args):
             export_quiz_to_excel(entrance_qs, str(entrance_path))
             export_quiz_to_excel(exit_qs, str(exit_path))
 
+    # Đánh số phiên bản TRƯỚC khi dựng trang rà soát: trang rà soát chỉ là công cụ
+    # quản trị, không phải học liệu, nên nó không được tính vào ảnh chụp phiên bản.
+    stamp_course_version(course_dir.name, course_dir)
     write_review_dashboard(course_dir.name, final_states, course_dir)
     print_run_cost_report()
     print_generation_summary(summary)
