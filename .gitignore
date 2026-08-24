@@ -32,3 +32,8 @@ scratch/
 .trash/
 output/
 lecture_deck_demo/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.ruff_cache/

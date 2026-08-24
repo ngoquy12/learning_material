@@ -65,12 +65,38 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-cov pydantic pyyaml
 
-      - name: Run Pytest Suite
+      - name: Run Pytest Suite (kèm đo độ phủ)
         env:
           PYTHONPATH: .
           SEMANTIC_CACHE_ENABLED: "false"
+          # Đẩy toàn bộ DB runtime vào thư mục tạm của runner: test tuyệt đối không
+          # được để lại file .db nào trong cây mã nguồn (xem core/paths.py).
+          STORAGE_DIR: ${{ runner.temp }}/elearning-storage
         run: |
-          pytest -v --tb=short tests/
+          pytest -v --tb=short tests/ \
+            --cov=core --cov=agents --cov=cli \
+            --cov-report=term-missing:skip-covered \
+            --cov-report=xml \
+            --cov-fail-under=34
+
+      # Ngưỡng tách riêng cho core/ — nơi chứa engine, state và các cổng kiểm định.
+      # Dùng lại dữ liệu đo của bước trên, KHÔNG chạy lại test.
+      #
+      # Mốc tại thời điểm dựng cổng (2026-08-24): core 50%, agents 21%, tổng 36%.
+      # Ngưỡng đặt thấp hơn mốc vài điểm để không đỏ CI ngay, nhưng chặn được tụt
+      # dốc. Quy ước: mỗi lần độ phủ thực tế vượt ngưỡng >5 điểm thì NÂNG ngưỡng
+      # lên, nếu không cổng này sẽ dần trở thành trang trí.
+      - name: Kiểm tra ngưỡng độ phủ riêng cho core/
+        run: |
+          coverage report --include="core/*" --fail-under=48
+
+      - name: Lưu báo cáo độ phủ
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-py${{ matrix.python-version }}
+          path: coverage.xml
+          retention-days: 7
 
   docker:
     name: Docker Container Build Check
