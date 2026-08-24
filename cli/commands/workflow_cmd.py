@@ -29,6 +29,7 @@ from cli.publisher import (
     show_cache_statistics,
     print_generation_summary,
 )
+from core.artifact_status import ArtifactStatus
 
 def execute_course_workflow(args):
     """Executes the full course material generation workflow across sessions and lessons."""
@@ -391,8 +392,9 @@ def execute_course_workflow(args):
                         "allowed_scope": sorted(_allowed_set),
                         "forbidden_scope": sorted(_forbidden_set),
                         "artifacts_status": {
-                            "html": "Pending", "slide": "Pending", "quiz": "Pending",
-                            "video_script": "Pending", "session": "Pending"
+                            "html": ArtifactStatus.PENDING, "slide": ArtifactStatus.PENDING,
+                            "quiz": ArtifactStatus.PENDING, "video_script": ArtifactStatus.PENDING,
+                            "session": ArtifactStatus.PENDING
                         },
                         "course_dir_name": course_dir_name,
                         "technology_stack": tech_stack,
@@ -408,7 +410,7 @@ def execute_course_workflow(args):
                     from core.persistence import load_checkpoint
                     checkpoint_key = f"{session_id}_{lesson_id}".strip("_")
                     cached_state = load_checkpoint(checkpoint_key)
-                    if cached_state and cached_state.get("artifacts_status", {}).get("session") == "PUBLISHED" and not args.force:
+                    if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                         print(f"  [Checkpoint] Lesson {lesson_id} is already PUBLISHED. Using cached state.")
                         already_completed_states.append(cached_state)
                     else:
@@ -451,7 +453,7 @@ def execute_course_workflow(args):
                         "slides_file": "Moved to Session Level",
                         "quiz_file": quiz_reported_path,
                         "video_script_file": str(video_script_path),
-                        "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
+                        "status": final_state.get("artifacts_status", {}).get("session", ArtifactStatus.FAILED),
                         "review_count": len(final_state.get("review_logs", []))
                     })
                     
@@ -508,11 +510,11 @@ def execute_course_workflow(args):
                         "allowed_scope": sorted(_allowed_set),
                         "forbidden_scope": sorted(_forbidden_set),
                         "artifacts_status": {
-                            "html": "Pending",
-                            "slide": "Pending",
-                            "quiz": "Pending",
-                            "video_script": "Pending",
-                            "session": "Pending"
+                            "html": ArtifactStatus.PENDING,
+                            "slide": ArtifactStatus.PENDING,
+                            "quiz": ArtifactStatus.PENDING,
+                            "video_script": ArtifactStatus.PENDING,
+                            "session": ArtifactStatus.PENDING
                         },
                         "course_dir_name": course_dir_name,
                         "technology_stack": tech_stack,
@@ -563,7 +565,7 @@ def execute_course_workflow(args):
                         from core.persistence import load_checkpoint
                         checkpoint_key = f"{session_id}_{lesson_id}".strip("_")
                         cached_state = load_checkpoint(checkpoint_key)
-                        if cached_state and cached_state.get("artifacts_status", {}).get("session") == "PUBLISHED" and not args.force:
+                        if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                             print(f"  [Checkpoint] Lesson {lesson_id} is already PUBLISHED. Loading from database...")
                             final_state = cached_state
                         else:
@@ -589,7 +591,7 @@ def execute_course_workflow(args):
                             "slides_file": "Skipped (Moved to Session Level)",
                             "quiz_file": quiz_reported_path,
                             "video_script_file": str(video_script_path),
-                            "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
+                            "status": final_state.get("artifacts_status", {}).get("session", ArtifactStatus.FAILED),
                             "review_count": len(final_state.get("review_logs", []))
                         })
                         
@@ -702,7 +704,7 @@ def execute_course_workflow(args):
                 "program_structure": {},
                 "core_ssot": {"session_title": session_title, "lesson_details": "", "expected_output": ""},
                 "previous_lessons": [],
-                "artifacts_status": {"html": "Pending", "slide": "Pending", "quiz": "Pending", "video_script": "Pending", "session": "Pending"},
+                "artifacts_status": {k: ArtifactStatus.PENDING for k in ("html", "slide", "quiz", "video_script", "session")},
                 "course_dir_name": course_dir_name,
                 "technology_stack": tech_stack,
                 "html_content": "",
@@ -719,7 +721,7 @@ def execute_course_workflow(args):
                 from core.persistence import load_checkpoint
                 checkpoint_key = f"{session_id}".strip("_")
                 cached_state = load_checkpoint(checkpoint_key)
-                if cached_state and cached_state.get("artifacts_status", {}).get("session") == "PUBLISHED" and not args.force:
+                if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                     print(f"  [Checkpoint] Session {session_id} is already PUBLISHED. Loading from database...")
                     final_state = cached_state
                 else:
@@ -745,7 +747,7 @@ def execute_course_workflow(args):
                     "slides_file": str(slides_path),
                     "quiz_file": quiz_reported_path,
                     "video_script_file": str(video_script_path),
-                    "status": final_state.get("artifacts_status", {}).get("session", "FAILED"),
+                    "status": final_state.get("artifacts_status", {}).get("session", ArtifactStatus.FAILED),
                     "review_count": len(final_state.get("review_logs", []))
                 })
 

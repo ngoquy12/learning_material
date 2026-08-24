@@ -15,6 +15,7 @@ from core.llm import call_llm
 from core.skills import load_skill_content
 from core.prompts import render_prompt
 from core.renderers.reading_renderer import assemble_reading_html
+from core.artifact_status import ArtifactStatus
 
 # Re-export modular components for 100% backward compatibility
 from core.renderers.reading import (
@@ -456,7 +457,7 @@ def html_writer_agent(state: AgentState) -> AgentState:
     
     state["html_content"] = html_content
     state["reading_material"] = html_content
-    state.setdefault("artifacts_status", {})["html"] = "Approved"
+    state.setdefault("artifacts_status", {})["html"] = ArtifactStatus.APPROVED
     
     if html_sub:
         try:

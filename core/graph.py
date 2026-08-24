@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional
 from core.dag_engine import Workflow, parallel, component, merge_branch_states
 from core.state import AgentState, DEFAULT_LESSON_PARTS
 from core.persistence import save_checkpoint
+from core.artifact_status import ArtifactStatus, is_approved, skipped
 from core.scope_gate import STATUS_SCOPE_WARNING, audit_artifact_scope, record_scope_audit
 from agents import (
     objective_architect_agent, scheduler_agent, knowledge_base_agent,
@@ -297,7 +298,7 @@ def node_init_objectives(state: AgentState) -> AgentState:
     approved = False
     for attempt in range(3):
         # Allow recovery if already approved in a previous execution
-        if state.get("artifacts_status", {}).get("objectives") == "Approved" and not state.get("force_rebuild", False):
+        if is_approved(state.get("artifacts_status", {}).get("objectives")) and not state.get("force_rebuild", False):
             approved = True
             break
             
@@ -309,7 +310,7 @@ def node_init_objectives(state: AgentState) -> AgentState:
         review = objective_reviewer_agent(state["learning_outcomes"], state["pm_input"], tech_stack)
         
         if review["status"] == "APPROVED":
-            state.setdefault("artifacts_status", {})["objectives"] = "Approved"
+            state.setdefault("artifacts_status", {})["objectives"] = ArtifactStatus.APPROVED
             save_state_checkpoint(state)
             approved = True
             break
@@ -351,13 +352,13 @@ def node_lock_ssot(state: AgentState) -> AgentState:
 def pipeline_html_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện (Critique Loop) tự động cho bài đọc HTML"""
     if "requested_parts" in state and "html" not in state["requested_parts"]:
-        state["artifacts_status"]["html"] = "Skipped"
+        state["artifacts_status"]["html"] = ArtifactStatus.SKIPPED
         return state
     approved = False
     scope_audit = None
     for attempt in range(3):
         # Allow recovery if already approved in a previous execution
-        if state.get("artifacts_status", {}).get("html") == "Approved" and not state.get("force_rebuild", False):
+        if is_approved(state.get("artifacts_status", {}).get("html")) and not state.get("force_rebuild", False):
             approved = True
             break
             
@@ -367,7 +368,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             print("  [HTML_Production] Phát hiện nội dung bài đọc từ đĩa. Đang kiểm định trực tiếp...")
             review = html_ux_reviewer(state)
             if review["status"] == "APPROVED":
-                state["artifacts_status"]["html"] = "Approved"
+                state["artifacts_status"]["html"] = ArtifactStatus.APPROVED
                 save_state_checkpoint(state)
                 approved = True
                 break
@@ -391,7 +392,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             # định này chỉ in cảnh báo rồi vẫn xuất bản như thường.
             audit = audit_artifact_scope(state.get("html_content", ""), state, "html")
             if audit.is_clean:
-                state["artifacts_status"]["html"] = "Approved"
+                state["artifacts_status"]["html"] = ArtifactStatus.APPROVED
                 save_state_checkpoint(state)
                 approved = True
                 break
@@ -423,7 +424,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
                 f"Phản hồi cuối: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
                 f"Hệ thống BỎ QUA LỖI và đánh dấu cần Review Thủ công (Pending Human Review) để tiếp tục tiến trình."
             )
-            state["artifacts_status"]["html"] = "Pending Human Review"
+            state["artifacts_status"]["html"] = ArtifactStatus.PENDING_HUMAN_REVIEW
         save_state_checkpoint(state)
     return state
 
@@ -448,23 +449,23 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện cơ chế Sandbox cho cấu phần Quiz & Lab bài tập"""
     if _is_session_01_orientation(state):
         print("  [Session 01 Orientation] SKIPPED Quiz generation (Only Reading, Slides, and Video Script allowed for Session 01).")
-        state.setdefault("artifacts_status", {})["quiz"] = "Skipped (Session 01 Orientation)"
+        state.setdefault("artifacts_status", {})["quiz"] = skipped("Session 01 Orientation")
         return state
 
     if "requested_parts" in state and "quiz" not in state["requested_parts"]:
-        state.setdefault("artifacts_status", {})["quiz"] = "Skipped"
+        state.setdefault("artifacts_status", {})["quiz"] = ArtifactStatus.SKIPPED
         return state
     approved = False
     for attempt in range(3):
         # Allow recovery if already approved in a previous execution
-        if state.get("artifacts_status", {}).get("quiz") == "Approved":
+        if is_approved(state.get("artifacts_status", {}).get("quiz")):
             approved = True
             break
         state = quiz_agent(state)
         write_state_artifacts_to_disk(state)
         review = sandbox_testing_agent(state)
         if review["status"] == "APPROVED":
-            state.setdefault("artifacts_status", {})["quiz"] = "Approved"
+            state.setdefault("artifacts_status", {})["quiz"] = ArtifactStatus.APPROVED
             save_state_checkpoint(state)
             approved = True
             break
@@ -477,7 +478,7 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
             f"Phản hồi phản biện: {state['review_logs'][-1]['feedback'] if state.get('review_logs') else 'Không có phản hồi.'}\n"
             f"Hệ thống BỎ QUA LỖI và tiếp tục tiến hành với bản nháp tốt nhất."
         )
-        state.setdefault("artifacts_status", {})["quiz"] = "Approved with Warnings"
+        state.setdefault("artifacts_status", {})["quiz"] = ArtifactStatus.APPROVED_WITH_WARNINGS
         save_state_checkpoint(state)
     write_state_artifacts_to_disk(state)
     return state
@@ -486,18 +487,18 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
 def pipeline_reading_questions_production(state: AgentState) -> AgentState:
     """Trích xuất câu hỏi bài đọc (reading questions) ra file JSON riêng biệt"""
     if _is_session_01_orientation(state):
-        state.setdefault("artifacts_status", {})["reading_questions"] = "Skipped (Session 01 Orientation)"
+        state.setdefault("artifacts_status", {})["reading_questions"] = skipped("Session 01 Orientation")
         return state
 
     requested = state.get("requested_parts", ["all"])
     if "reading_questions" not in requested and "all" not in requested and "html" not in requested and "quiz" not in requested:
-        state.setdefault("artifacts_status", {})["reading_questions"] = "Skipped"
+        state.setdefault("artifacts_status", {})["reading_questions"] = ArtifactStatus.SKIPPED
         return state
     
     # Import inside function to avoid circular imports
     from agents.creator_agents import reading_questions_creator_agent
     state = reading_questions_creator_agent(state)
-    state.setdefault("artifacts_status", {})["reading_questions"] = "Approved"
+    state.setdefault("artifacts_status", {})["reading_questions"] = ArtifactStatus.APPROVED
     write_state_artifacts_to_disk(state)
     save_state_checkpoint(state)
     return state
@@ -507,18 +508,18 @@ def pipeline_reading_questions_production(state: AgentState) -> AgentState:
 def pipeline_video_script_production(state: AgentState) -> AgentState:
     """Soạn kịch bản quay video (video script) cấp Lesson ra file Markdown riêng biệt"""
     if _is_session_01_orientation(state):
-        state.setdefault("artifacts_status", {})["video_script"] = "Skipped (Session 01 Orientation)"
+        state.setdefault("artifacts_status", {})["video_script"] = skipped("Session 01 Orientation")
         return state
 
     requested = state.get("requested_parts", ["all"])
     if "video_script" not in requested and "video" not in requested and "all" not in requested:
-        state.setdefault("artifacts_status", {})["video_script"] = "Skipped"
+        state.setdefault("artifacts_status", {})["video_script"] = ArtifactStatus.SKIPPED
         return state
 
     # Import inside function to avoid circular imports
     from agents.creator_agents import video_script_creator_agent
     state = video_script_creator_agent(state)
-    state.setdefault("artifacts_status", {})["video_script"] = "Approved"
+    state.setdefault("artifacts_status", {})["video_script"] = ArtifactStatus.APPROVED
     write_state_artifacts_to_disk(state)
     save_state_checkpoint(state)
     return state
@@ -529,12 +530,12 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
     """Tự động biên soạn nội dung Bài thực hành (Hands-on Practical Lab) ra file practical_lab.json"""
     if _is_session_01_orientation(state):
         print("  [Session 01 Orientation] SKIPPED Practical Lab / Homework generation for Session 01.")
-        state.setdefault("artifacts_status", {})["practical_lab"] = "Skipped (Session 01 Orientation)"
+        state.setdefault("artifacts_status", {})["practical_lab"] = skipped("Session 01 Orientation")
         return state
 
     requested = state.get("requested_parts", ["all"])
     if "practical_lab" not in requested and "quiz" not in requested and "all" not in requested and "html" not in requested:
-        state.setdefault("artifacts_status", {})["practical_lab"] = "Skipped"
+        state.setdefault("artifacts_status", {})["practical_lab"] = ArtifactStatus.SKIPPED
         return state
         
     from agents.creator_agents import practical_lab_creator_agent
@@ -549,7 +550,7 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
             state.get("practical_lab_markdown", ""), state, "practical_lab"
         )
         if audit.is_clean:
-            state.setdefault("artifacts_status", {})["practical_lab"] = "Approved"
+            state.setdefault("artifacts_status", {})["practical_lab"] = ArtifactStatus.APPROVED
             break
 
         record_scope_audit(state, audit)
@@ -642,8 +643,8 @@ def compile_learning_content_workflow():
                         print(f"  [Sync] Tự động nạp file reading.html từ đĩa: {html_path} ({len(disk_html)} ký tự)")
                         state["html_content"] = disk_html
                         # Đặt lại status của html thành Pending nếu nó chưa được duyệt Approved trong state cũ
-                        if state.get("artifacts_status", {}).get("html") != "Approved":
-                            state.setdefault("artifacts_status", {})["html"] = "Pending"
+                        if not is_approved(state.get("artifacts_status", {}).get("html")):
+                            state.setdefault("artifacts_status", {})["html"] = ArtifactStatus.PENDING
         except Exception as e:
             print(f"  [Sync Warning] Lỗi khi nạp bài đọc từ đĩa: {e}")
 

@@ -32,7 +32,6 @@ import os
 import shutil
 from functools import lru_cache
 from pathlib import Path
-from typing import Union
 
 # Thư mục gốc dự án — neo tuyệt đối, KHÔNG phụ thuộc cwd.
 BASE_DIR = Path(__file__).resolve().parent.parent

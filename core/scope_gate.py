@@ -20,10 +20,14 @@ chỗ và trả kết quả có cấu trúc để pipeline có thể sinh lại 
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Set
 
+from core.artifact_status import ArtifactStatus
+
 # Trạng thái artifact khi đã hết số lần sinh lại mà vẫn còn vi phạm phạm vi.
 # Cố ý KHÁC "Approved": artifact vẫn được xuất bản để không chặn cả tiến trình,
 # nhưng phải nhìn thấy được trong báo cáo là nó cần người rà lại.
-STATUS_SCOPE_WARNING = "Approved with Scope Warnings"
+# Định nghĩa gốc nằm ở core/artifact_status.py; tên này giữ lại làm alias tương
+# thích ngược cho các module đang import STATUS_SCOPE_WARNING từ đây.
+STATUS_SCOPE_WARNING = ArtifactStatus.APPROVED_WITH_SCOPE_WARNINGS
 
 
 @dataclass(frozen=True)

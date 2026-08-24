@@ -1,4 +1,5 @@
 from core.state import AgentState
+from core.artifact_status import ArtifactStatus
 
 def session_compiler_agent(state: AgentState) -> AgentState:
     """
@@ -18,5 +19,5 @@ def session_compiler_agent(state: AgentState) -> AgentState:
     print(f"  - Video Script: Compiled ({len(state.get('video_script_markdown', ''))} chars) following Video standards.")
     print(f"  - Mindmap: Compiled ({len(state.get('mindmap_markdown', ''))} chars) following Mindmap standards.")
     
-    state["artifacts_status"]["session"] = "PUBLISHED"
+    state["artifacts_status"]["session"] = ArtifactStatus.PUBLISHED
     return state
