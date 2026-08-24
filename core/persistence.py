@@ -7,9 +7,12 @@ import threading
 from contextlib import contextmanager
 from typing import Dict, Any, Mapping, Generator
 
-STORAGE_DIR = "storage"
-os.makedirs(STORAGE_DIR, exist_ok=True)
-DB_PATH = os.path.join(STORAGE_DIR, "state_store_v2.db")
+from core.paths import get_state_db_path, get_storage_dir
+
+# Đường dẫn kho dữ liệu neo tuyệt đối vào gốc dự án (core/paths.py), không còn phụ
+# thuộc thư mục làm việc hiện tại — chạy pipeline từ đâu cũng trỏ về đúng một DB.
+STORAGE_DIR = str(get_storage_dir())
+DB_PATH = str(get_state_db_path())
 _db_initialized = False
 _pool = None
 _pool_lock = threading.Lock()

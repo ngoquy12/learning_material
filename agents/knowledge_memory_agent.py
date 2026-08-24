@@ -121,7 +121,11 @@ ERROR_CATEGORIES = [
     "other",
 ]
 
-DB_PATH = Path("knowledge_store.db")
+from core.paths import get_knowledge_db_path
+
+# Cùng một file với core/quality_evaluator.py — cả hai PHẢI đi qua core.paths,
+# nếu không mỗi module sẽ ghi vào một knowledge_store.db khác nhau.
+DB_PATH = get_knowledge_db_path()
 
 
 def _get_connection() -> sqlite3.Connection:

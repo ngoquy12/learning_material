@@ -27,7 +27,9 @@ from typing import Optional, List, Dict
 from pathlib import Path
 from functools import wraps
 
-CACHE_DB_PATH = Path("semantic_cache.db")
+from core.paths import get_cache_db_path
+
+CACHE_DB_PATH = get_cache_db_path()
 SIMILARITY_THRESHOLD = float(os.getenv("CACHE_SIMILARITY_THRESHOLD", "0.88"))
 MAX_CACHE_AGE_DAYS = int(os.getenv("CACHE_MAX_AGE_DAYS", "30"))
 CACHE_ENABLED = os.getenv("SEMANTIC_CACHE_ENABLED", "true").lower() in ("true", "1", "yes")

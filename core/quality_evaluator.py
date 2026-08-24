@@ -86,7 +86,8 @@ def evaluate_lesson_quality(state: AgentState) -> Dict[str, Any]:
     
     # Persist metrics into SQLite
     try:
-        db_path = "knowledge_store.db"
+        from core.paths import get_knowledge_db_path
+        db_path = str(get_knowledge_db_path())
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         cursor.execute("""
