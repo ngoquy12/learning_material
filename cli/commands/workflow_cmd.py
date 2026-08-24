@@ -29,6 +29,8 @@ from cli.publisher import (
     show_cache_statistics,
     print_generation_summary,
     print_run_cost_report,
+    handle_approval_command,
+    write_review_dashboard,
 )
 from core.artifact_status import ArtifactStatus
 from core.semantic_cache import set_cache_namespace_prefix
@@ -37,6 +39,11 @@ from core.session_types import detect_session_type
 def execute_course_workflow(args):
     """Executes the full course material generation workflow across sessions and lessons."""
     excel_path = args.pm
+
+    # Thao tác quản trị (duyệt / xuất hồ sơ kiểm định) xử lý trước mọi thứ khác:
+    # người dùng chạy chúng sau khi đọc trang rà soát, không phải để sinh nội dung.
+    if handle_approval_command(args):
+        return
 
     if args.cache_stats:
         show_cache_statistics()
@@ -144,6 +151,8 @@ def execute_course_workflow(args):
     project_structure_reviewer_agent(all_sessions, course_dir, requested_parts, args.session.strip().lower())
 
     summary = []
+    # State cuối của từng đơn vị, dùng để dựng trang rà soát ở cuối lượt chạy.
+    final_states = []
 
     for session in sessions:
         session_id = session["session_id"]
@@ -588,11 +597,13 @@ def execute_course_workflow(args):
                         if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                             print(f"  [Checkpoint] Lesson {lesson_id} is already PUBLISHED. Loading from database...")
                             final_state = cached_state
+                            final_states.append(final_state)
                         else:
                             if cached_state and not args.force:
                                 print(f"  [Checkpoint] Found intermediate checkpoint for {lesson_id}. Resuming...")
                                 state = cached_state
                             final_state = workflow.run(state)
+                            final_states.append(final_state)
                         
                         session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
                         lesson_dir = get_or_rename_sanitized_folder(session_dir, lesson_id, format_full_folder_name(lesson_id, lesson_title))
@@ -745,11 +756,13 @@ def execute_course_workflow(args):
                 if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                     print(f"  [Checkpoint] Session {session_id} is already PUBLISHED. Loading from database...")
                     final_state = cached_state
+                    final_states.append(final_state)
                 else:
                     if cached_state and not args.force:
                         print(f"  [Checkpoint] Found intermediate checkpoint for {session_id}. Resuming...")
                         state = cached_state
                     final_state = workflow.run(state)
+                    final_states.append(final_state)
                 session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
                 session_dir.mkdir(parents=True, exist_ok=True)
 
@@ -911,5 +924,6 @@ def execute_course_workflow(args):
             export_quiz_to_excel(entrance_qs, str(entrance_path))
             export_quiz_to_excel(exit_qs, str(exit_path))
 
+    write_review_dashboard(course_dir.name, final_states, course_dir)
     print_run_cost_report()
     print_generation_summary(summary)

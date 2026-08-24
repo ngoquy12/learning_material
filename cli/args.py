@@ -47,6 +47,39 @@ def parse_cli_arguments():
         help="Export compiled lessons to SCORM 1.2 .zip package for LMS import (Moodle, Canvas, etc.)"
     )
     parser.add_argument(
+        "--approve",
+        type=str,
+        default="",
+        help=(
+            "Ghi nhận giảng viên đã rà và duyệt một tài nguyên. "
+            "Định dạng: '<Buổi>/<Bài>/<tài nguyên>' hoặc '<Buổi>/<tài nguyên>'. "
+            "Tài nguyên đã duyệt sẽ không bị ghi đè ở lần chạy sau (trừ khi --force)."
+        )
+    )
+    parser.add_argument(
+        "--reviewer",
+        type=str,
+        default="",
+        help="Tên người rà soát, bắt buộc khi dùng --approve (hồ sơ kiểm định không nhận quyết định vô danh)"
+    )
+    parser.add_argument(
+        "--approve-note",
+        type=str,
+        default="",
+        help="Ghi chú kèm quyết định rà soát"
+    )
+    parser.add_argument(
+        "--reject",
+        action="store_true",
+        help="Dùng cùng --approve để ghi nhận quyết định TỪ CHỐI thay vì duyệt"
+    )
+    parser.add_argument(
+        "--export-approvals",
+        type=str,
+        default="",
+        help="Xuất hồ sơ kiểm định (ai duyệt gì, khi nào) ra file CSV rồi thoát"
+    )
+    parser.add_argument(
         "--cache-stats",
         action="store_true",
         help="Show Semantic Cache statistics and exit"

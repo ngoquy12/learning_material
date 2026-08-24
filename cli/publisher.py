@@ -68,6 +68,103 @@ def show_cache_statistics():
     except Exception as e:
         print(f"[Cache Stats Error] {e}")
 
+def handle_approval_command(args) -> bool:
+    """
+    Xử lý cờ --approve / --export-approvals. Trả True nếu đã xử lý và cần thoát.
+
+    Tách khỏi luồng sinh học liệu vì đây là thao tác quản trị: người dùng chạy nó
+    sau khi đã đọc trang rà soát, không phải trong lúc sinh nội dung.
+    """
+    from core.approvals import (
+        DECISION_APPROVED,
+        DECISION_REJECTED,
+        export_approvals_csv,
+        record_approval,
+    )
+
+    export_path = getattr(args, "export_approvals", "")
+    if export_path:
+        count = export_approvals_csv(export_path)
+        print(f"Đã xuất {count} bản ghi hồ sơ kiểm định ra: {export_path}")
+        return True
+
+    target = getattr(args, "approve", "")
+    if not target:
+        return False
+
+    reviewer = (getattr(args, "reviewer", "") or "").strip()
+    if not reviewer:
+        print(
+            "Thiếu --reviewer. Hồ sơ kiểm định không chấp nhận quyết định vô danh:\n"
+            '  python main.py --approve "Session 02/Lesson 01/html" --reviewer "Nguyen Van A"'
+        )
+        return True
+
+    # "<Buổi>/<Bài>/<tài nguyên>" hoặc "<Buổi>/<tài nguyên>"
+    parts = [p.strip() for p in str(target).split("/") if p.strip()]
+    if len(parts) == 3:
+        session_id, lesson_id, artifact = parts
+    elif len(parts) == 2:
+        session_id, lesson_id, artifact = parts[0], "", parts[1]
+    else:
+        print(
+            f"Không hiểu tham số --approve: {target!r}. Định dạng đúng:\n"
+            '  "<Buổi>/<Bài>/<tài nguyên>"  hoặc  "<Buổi>/<tài nguyên>"'
+        )
+        return True
+
+    course = ""
+    if getattr(args, "pm", None):
+        from pathlib import Path as _Path
+
+        course = _Path(args.pm).stem.replace("PM_Generated_", "").replace("_Updated", "").strip()
+
+    decision = DECISION_REJECTED if getattr(args, "reject", False) else DECISION_APPROVED
+    approval = record_approval(
+        artifact=artifact,
+        reviewer=reviewer,
+        course=course,
+        session_id=session_id,
+        lesson_id=lesson_id,
+        decision=decision,
+        note=getattr(args, "approve_note", "") or "",
+    )
+
+    verb = "TỪ CHỐI" if decision == DECISION_REJECTED else "DUYỆT"
+    print(
+        f"Đã ghi nhận {verb}: {approval.session_id}"
+        + (f"/{approval.lesson_id}" if approval.lesson_id else "")
+        + f"/{approval.artifact} — bởi {approval.reviewer} lúc {approval.approved_at_iso}"
+    )
+    if decision == DECISION_APPROVED:
+        print("  Tài nguyên này sẽ không bị ghi đè ở lần chạy sau (trừ khi dùng --force).")
+    return True
+
+
+def write_review_dashboard(course: str, states: list, course_dir) -> None:
+    """Dựng trang rà soát cuối lượt chạy và in đường dẫn cho người vận hành."""
+    try:
+        from pathlib import Path as _Path
+
+        from core.review_dashboard import build_dashboard_data, write_dashboard
+
+        destination = _Path(course_dir) / "review_dashboard.html"
+        written = write_dashboard(course, states, destination)
+        if not written:
+            return
+
+        data = build_dashboard_data(course, states)
+        if data.needs_attention:
+            print(
+                f"\n[Rà soát] {data.needs_attention} tài nguyên cần người xử lý. "
+                f"Mở: {written}"
+            )
+        else:
+            print(f"\n[Rà soát] Không có tài nguyên nào cần xử lý. Trang tổng hợp: {written}")
+    except Exception as e:
+        print(f"[Review Dashboard Error] {e}")
+
+
 def print_run_cost_report():
     """In bảng chi phí của lượt chạy vừa xong và lưu lại để so sánh giữa các lần."""
     try:
