@@ -8,6 +8,7 @@ from core.pm_validators.structure_validator import validate_syllabus_structure
 from core.pm_validators.academic_tone_validator import validate_academic_tone
 from core.pm_validators.granularity_validator import validate_pm_granularity
 from core.pm_validators.scope_continuity_validator import validate_scope_continuity
+from core.pm_validators.clo_bloom_validator import validate_clo_bloom_alignment
 from core.pm_validators.clo_coverage_validator import validate_clo_coverage
 
 def lint_pm_syllabus(
@@ -89,6 +90,13 @@ def lint_pm_syllabus(
     total_deductions += d5
     rule_violations.extend(v5)
     review_logs.extend(l5)
+
+    # 6. CLO Bloom Alignment — chuẩn đầu ra có được chương trình đưa tới đúng mức
+    # nhận thức đã tuyên bố hay không (khác với bước 5 vốn chỉ kiểm phủ từ khoá).
+    d6, v6, l6 = validate_clo_bloom_alignment(clos=clos)
+    total_deductions += d6
+    rule_violations.extend(v6)
+    review_logs.extend(l6)
 
     final_score = max(0, min(100, 100 - total_deductions))
     is_valid = len([log for log in review_logs if log["level"] == "ERROR"]) == 0 and final_score >= 90

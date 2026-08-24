@@ -187,3 +187,253 @@ def audit_bloom_coverage(
     missing = [get_level(k) for k in expected_keys if k not in covered_keys]
 
     return BloomCoverageReport(covered=covered, missing=missing, unclassified=unclassified)
+
+# =============================================================================
+# PHẦN 2: Đối chiếu CLO với độ phủ nhận thức thực tế
+#
+# Bộ kiểm định CLO sẵn có (core/pm_validators/clo_coverage_validator.py) chỉ kiểm
+# ĐỘ PHỦ TỪ KHOÁ: thuật ngữ trong CLO có xuất hiện đâu đó trong chương trình không.
+# Nó bỏ lọt loại lệch chuẩn nghiêm trọng hơn nhiều về mặt sư phạm:
+#
+#     CLO tuyên bố "Phân tích và đánh giá hiệu năng truy vấn", nhưng toàn bộ bài tập
+#     phủ CLO đó chỉ dừng ở mức Vận dụng (viết được câu truy vấn chạy đúng).
+#
+# Từ khoá khớp hoàn hảo — "truy vấn", "hiệu năng" đều có mặt — nên bộ kiểm cũ cho
+# qua. Nhưng chuẩn đầu ra đã hứa với người học và với hội đồng kiểm định một mức
+# nhận thức mà chương trình không hề đưa họ tới. Đây chính là điều mà constructive
+# alignment (Biggs) đòi hỏi phải khớp: chuẩn đầu ra ↔ hoạt động ↔ đánh giá.
+# =============================================================================
+
+# Động từ chỉ hành động trong chuẩn đầu ra, ánh xạ về cấp Bloom.
+#
+# Chỉ đưa vào đây những động từ có cấp RÕ RÀNG. Động từ đa nghĩa bị cố ý bỏ ra
+# ngoài — xem _AMBIGUOUS_CLO_VERBS bên dưới.
+CLO_VERB_TO_BLOOM: Dict[str, str] = {
+    # Ghi nhớ
+    "liệt kê": "remember",
+    "kể tên": "remember",
+    "nêu tên": "remember",
+    "nhắc lại": "remember",
+    "nhận biết": "remember",
+    "gọi tên": "remember",
+    "định nghĩa": "remember",
+    # Hiểu
+    "trình bày": "understand",
+    "giải thích": "understand",
+    "mô tả": "understand",
+    "diễn giải": "understand",
+    "tóm tắt": "understand",
+    "minh hoạ": "understand",
+    "minh họa": "understand",
+    "phân biệt": "understand",
+    "chỉ ra": "understand",
+    # Vận dụng
+    "vận dụng": "apply",
+    "áp dụng": "apply",
+    "sử dụng": "apply",
+    "triển khai": "apply",
+    "cài đặt": "apply",
+    "thực hiện": "apply",
+    "cấu hình": "apply",
+    "tính toán": "apply",
+    "viết được": "apply",
+    "lập trình": "apply",
+    # Phân tích
+    "phân tích": "analyze",
+    "đối chiếu": "analyze",
+    "phân loại": "analyze",
+    "phân rã": "analyze",
+    "chẩn đoán": "analyze",
+    "gỡ lỗi": "analyze",
+    "truy vết": "analyze",
+    "khảo sát": "analyze",
+    # Đánh giá
+    "đánh giá": "evaluate",
+    "thẩm định": "evaluate",
+    "phê bình": "evaluate",
+    "nhận xét": "evaluate",
+    "biện luận": "evaluate",
+    "lựa chọn": "evaluate",
+    "kiểm định": "evaluate",
+    # Sáng tạo
+    "thiết kế": "create",
+    "sáng tạo": "create",
+    "kiến tạo": "create",
+    "đề xuất giải pháp": "create",
+    "tổng hợp": "create",
+    "phát triển": "create",
+}
+
+# Động từ ĐA NGHĨA — cố ý KHÔNG phân loại.
+#
+# "so sánh" là ví dụ điển hình: Anderson & Krathwohl xếp "comparing" vào cấp HIỂU,
+# nhưng "so sánh các giải pháp và trade-off" trong repo này lại được coi là PHÂN
+# TÍCH (xem PDF_LEVEL_TO_BLOOM["phan_tich"]). Cùng một động từ, hai cấp khác nhau
+# tuỳ ngữ cảnh. Gán bừa một cấp còn tệ hơn để không phân loại được — đúng nguyên
+# tắc đã áp dụng cho classify_tier() ở phần trên.
+_AMBIGUOUS_CLO_VERBS: List[str] = [
+    "so sánh",
+    "xây dựng",   # xây dựng theo mẫu = Vận dụng; xây dựng từ đầu = Sáng tạo
+    "giải quyết", # giải quyết bài tập mẫu = Vận dụng; giải quyết vấn đề mở = Sáng tạo
+]
+
+# Động từ KHÔNG ĐO ĐƯỢC — không mô tả hành vi nào quan sát hay khảo thí được.
+#
+# Đây không phải suy đoán: kho kinh nghiệm của chính hệ thống
+# (skills/lessons_learned/SKILL.md) đã ghi lại nhiều lần rằng chuẩn đầu ra dùng
+# những từ này bị reviewer trả về. Đưa vào code để biến một bài học lặp đi lặp lại
+# thành ràng buộc kiểm được, thay vì tiếp tục nhắc LLM bằng lời.
+NON_MEASURABLE_CLO_VERBS: List[str] = [
+    "hiểu được",
+    "hiểu rõ",
+    "nắm được",
+    "nắm vững",
+    "nắm rõ",
+    "ghi nhớ",
+    "biết được",
+    "làm quen",
+    "ý thức được",
+    "nhận thức được",
+]
+
+
+def find_non_measurable_verbs(clo_text: str) -> List[str]:
+    """Trả về các động từ không đo được xuất hiện trong một CLO."""
+    if not clo_text:
+        return []
+    lowered = clo_text.lower()
+    return [v for v in NON_MEASURABLE_CLO_VERBS if v in lowered]
+
+
+def classify_clo(clo_text: str) -> Optional[BloomLevel]:
+    """
+    Xác định cấp Bloom mà một chuẩn đầu ra ĐÒI HỎI, dựa trên động từ hành động.
+
+    Khi một CLO chứa nhiều động từ ở các cấp khác nhau ("phân tích và thiết kế
+    được kiến trúc"), lấy cấp CAO NHẤT: chuẩn đầu ra chỉ coi là đạt khi người học
+    làm được phần khó nhất trong đó.
+
+    Trả None khi không nhận ra động từ nào đã phân loại — không đoán bừa.
+    """
+    if not clo_text:
+        return None
+
+    lowered = clo_text.lower()
+    matched = [
+        _LEVEL_BY_KEY[level_key]
+        for verb, level_key in CLO_VERB_TO_BLOOM.items()
+        if verb in lowered
+    ]
+    if not matched:
+        return None
+    return max(matched, key=lambda lvl: lvl.order)
+
+
+def find_ambiguous_verbs(clo_text: str) -> List[str]:
+    """Các động từ đa nghĩa trong CLO — cần người viết nói rõ mức độ mong muốn."""
+    if not clo_text:
+        return []
+    lowered = clo_text.lower()
+    return [v for v in _AMBIGUOUS_CLO_VERBS if v in lowered]
+
+
+@dataclass(frozen=True)
+class CloAlignmentIssue:
+    """Một điểm lệch giữa chuẩn đầu ra và độ phủ nhận thức thực tế."""
+
+    clo_text: str
+    kind: str          # "under_covered" | "non_measurable" | "unclassifiable" | "ambiguous"
+    required_level: Optional[BloomLevel] = None
+    highest_covered: Optional[BloomLevel] = None
+    detail: str = ""
+
+    def message(self) -> str:
+        short = self.clo_text.strip()
+        if len(short) > 90:
+            short = short[:87] + "..."
+        if self.kind == "under_covered":
+            req = self.required_level.name_vi if self.required_level else "?"
+            cov = self.highest_covered.name_vi if self.highest_covered else "(không có)"
+            return (
+                f"CLO đòi hỏi mức nhận thức '{req}' nhưng hệ bài tập chỉ phủ tới "
+                f"'{cov}': \"{short}\""
+            )
+        if self.kind == "non_measurable":
+            return (
+                f"CLO dùng động từ không đo được ({self.detail}) — không khảo thí "
+                f"được: \"{short}\""
+            )
+        if self.kind == "ambiguous":
+            return (
+                f"CLO dùng động từ đa nghĩa ({self.detail}), không xác định được mức "
+                f"nhận thức mong muốn: \"{short}\""
+            )
+        return f"Không xác định được mức nhận thức của CLO: \"{short}\""
+
+
+def covered_levels_from_tiers(
+    tiers: Sequence[Dict[str, Optional[str]]]
+) -> List[BloomLevel]:
+    """Các cấp Bloom mà một bộ tầng bài tập thực sự phủ, sắp theo thứ tự tăng dần."""
+    report = audit_bloom_coverage(tiers)
+    return sorted(report.covered, key=lambda lvl: lvl.order)
+
+
+def audit_clo_alignment(
+    clos: Sequence[str],
+    covered_levels: Sequence[BloomLevel],
+) -> List[CloAlignmentIssue]:
+    """
+    Đối chiếu từng CLO với cấp Bloom cao nhất mà chương trình thực sự đưa người học tới.
+
+    Args:
+        clos: Danh sách phát biểu chuẩn đầu ra.
+        covered_levels: Các cấp Bloom mà hệ bài tập/đánh giá phủ được — lấy từ
+            covered_levels_from_tiers() trên đúng bộ tầng đang dùng thật.
+
+    Returns:
+        Danh sách điểm lệch. Rỗng nghĩa là mọi CLO đều được chương trình đưa tới
+        đúng mức nhận thức đã tuyên bố.
+    """
+    issues: List[CloAlignmentIssue] = []
+    highest = max(covered_levels, key=lambda lvl: lvl.order) if covered_levels else None
+
+    for clo in clos:
+        text = str(clo or "").strip()
+        if not text:
+            continue
+
+        non_measurable = find_non_measurable_verbs(text)
+        if non_measurable:
+            issues.append(
+                CloAlignmentIssue(
+                    clo_text=text,
+                    kind="non_measurable",
+                    detail=", ".join(non_measurable),
+                )
+            )
+            continue
+
+        required = classify_clo(text)
+        if required is None:
+            ambiguous = find_ambiguous_verbs(text)
+            issues.append(
+                CloAlignmentIssue(
+                    clo_text=text,
+                    kind="ambiguous" if ambiguous else "unclassifiable",
+                    detail=", ".join(ambiguous),
+                )
+            )
+            continue
+
+        if highest is None or required.order > highest.order:
+            issues.append(
+                CloAlignmentIssue(
+                    clo_text=text,
+                    kind="under_covered",
+                    required_level=required,
+                    highest_covered=highest,
+                )
+            )
+
+    return issues
