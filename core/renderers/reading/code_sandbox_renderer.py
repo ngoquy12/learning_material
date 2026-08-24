@@ -153,7 +153,7 @@ def convert_code_to_live_sandbox(html_text: str, lang_meta: Dict[str, str], forc
         nonlocal counter
         counter += 1
         sb_id = f"{sb_prefix}-{counter}"
-        code_clean = re.sub(r'<[^>]+>', '', code_str)
+        code_clean = re.sub(r'</?(?:code|span|div|p|br|em|strong|b|i)\b[^>]*>', '', code_str)
         raw_code = html.unescape(code_clean.strip())
         
         if any(kw in raw_code for kw in ["Mã nguồn thi hành", "Mã nguồn đang thực thi", "Màn hình Console", "Màn hình in kết quả", "Chương trình sẵn sàng", "Lần lặp"]):
