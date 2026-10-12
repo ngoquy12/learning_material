@@ -28,6 +28,7 @@
 | `git_ai_driven` | Git cho dự án nhóm 10 người. Session 01 lý thuyết (6 lesson, slide, quiz, mindmap), Session 02 thực hành GitHub (bài thực hành, bài tập, tài liệu phát tay), `du_an_mau_campus_smart_hub`, `index.html`, `quiz_viewer.html` | Đã có đủ bộ; chưa rà lại theo chuẩn 15 phút (ghi nhận, chưa kiểm). |
 | `web_ai_driven` | HTML/CSS cho giao diện web, 2 session. Session 01: 6 lesson, 6 bài dựng giao diện từ ảnh mẫu, slide, quiz, mindmap. Session 02: lab guide 6 lab + 6 bài từ ảnh mẫu chủ đề Rikkei Student Admin; `rikkei-coffee-starter` | Đã có đủ bộ theo README môn; không JS, không framework. |
 | `js_ai_driven` | JavaScript cơ bản. Session 01 (Rikkei Learn): 6 lesson (bài đọc 15 phút) + 6 bài tập + quiz + slides + mindmap. Session 02 (Rikkei Shop): lab guide + 6 bài tập cùng một mô-đun giỏ hàng | Đã sinh đủ; bài tập có `starter/` (index.html, script.js, harness.js, tests.js, tests.html). Đang rà soát chất lượng (xem mục 5, 6). |
+| `js_advanced_ai_driven` | JavaScript nâng cao: bất đồng bộ và gọi API (HTTP, event loop, Promise, async/await, fetch, axios). Session 01 (Rikkei Learn, JSONPlaceholder): 7 lesson (bài đọc 15 phút, mô phỏng chạy mã thật) + quiz + Quizz session + 6 bài tập + slides.html (28 slide) + slide.pptx + mindmap (md và html). Session 02 (Rikkei Shop, DummyJSON): lab guide + 6 bài tập. Hạ tầng dùng chung `_shared/` (mock-api.js, harness.js async, axios.min.js) | Đã sinh đủ (2026-10-12). 12 bài tập: đáp án mẫu qua 100% test. Còn mở: bài 6 Session 02 dùng closure ngầm (xem mục 6); đối chiếu tên hàm giữa bài đọc và bài tập Session 01 bài 1-4; chưa commit (output/ bị gitignore). |
 | Môn cũ | `Lập trình JavaScript`, `Phát_triển_ứng_dụng_web`, `Lập_trình_Python`, `Lập_trình_Python_Cơ_Bản`, `Lập_trình_Python_học_lại`, `Lập_trình_C_học_lại`, `Lập_trình_Back_end_với_FastAPI`, `Cơ_sở_dữ_liệu`, `PM_Agile_Scrum_Standard`, `PM_Git_Teamwork_Standard`, `PM_IT103_UI_UX_Design_Standard`, `PM_IT104_Web_Interface_Development_Standard`, `PM_Phan_Tich_Thiet_Ke_He_Thong_Standard`, `default_course` | Chưa rà soát (có thư mục Session và tệp PM; chất lượng chưa kiểm theo chuẩn mới). |
 
 ## 4. Chuẩn đã chốt gần đây
@@ -57,7 +58,10 @@
 - AGENTS.md có thể bị cắt nếu vượt giới hạn mỗi file rule (một nguồn ghi khoảng 12.000 ký tự, chưa xác nhận chính thức); hiện dưới 11.000.
 - `skills/lessons_learned/SKILL.md` đã gom nhóm; liên kết nguồn từng bài chỉ còn trong `docs/archive/lessons_learned_full_2026-10-12.md`, nên agent có thể ghi lại quy tắc cho bài đã có.
 
+- `js_advanced_ai_driven` Session 02 bài 6: `createShopClient` dùng closure ngầm (hàm trả về dùng lại `state` và `http`) dù môn chưa dạy closure; cân nhắc đổi sang đối tượng trạng thái ở phạm vi ngoài.
+- `js_advanced_ai_driven`: lab và bài đọc dùng API thật nên có thể lệch nếu DummyJSON/JSONPlaceholder đổi; `_shared/compare_live.py` so mock với API thật.
 ## 7. Nhật ký thay đổi
 
 - 2026-10-12: tạo tệp này; rút gọn `.agents/AGENTS.md` (chi tiết chuyển sang `docs/quy_chuan_chi_tiet.md`); thêm workflow `/resume`, `/handoff`; gom `skills/lessons_learned/SKILL.md` (bản đầy đủ lưu ở `docs/archive/`).
 - 2026-10-12: đồng bộ thời lượng bài đọc 15 phút (hằng số `core/reading_budget.py`); viết lại skill mindmap và thêm renderer HTML tự chứa; cập nhật mục "Việc tiếp theo".
+- 2026-10-12: tạo môn `js_advanced_ai_driven` (xem mục 3); `_shared/README.md` mô tả mock API và cách viết test bất đồng bộ.
