@@ -227,6 +227,8 @@ GEMINI_MODEL=gemini-1.5-flash
 
 ## 7. Hướng Dẫn Sử Dụng & Khởi Chạy Hệ Thống (Usage Guide)
 
+> Quy trình vận hành chuẩn từng bước, cách đọc trạng thái kết quả và xử lý sự cố: [docs/HUONG_DAN_SU_DUNG.md](docs/HUONG_DAN_SU_DUNG.md).
+
 ### 7.1. Chạy CLI Workflow sinh học liệu
 
 Khởi chạy hệ thống tự động sinh toàn bộ tài nguyên cho một khóa học từ file PM Excel:
