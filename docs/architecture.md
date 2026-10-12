@@ -135,7 +135,7 @@ Scheduler_Agent:
     Đọc chuẩn đầu ra từ Objective_Architect_Agent và cấu hình thời gian tham khảo do người dùng cung cấp.
     Thực hiện thuật toán phân bổ: Chia nhỏ chương trình thành các Môn -> Session -> Lesson.
     Tính toán thời lượng tiêu thụ (Cognitive Load Time) cho từng thành phần trong 1 Lesson:
-    - Bài đọc HTML: Tối đa 25 phút đọc.
+    - Bài đọc HTML: Tối đa 15 phút đọc (giới hạn cứng, 1.500-2.000 từ kể cả mã).
     - Video bài giảng: Tối đa 15 phút xem.
     - Làm Quiz & Thực hành: Tối đa 45 phút thực hiện.
     Nếu khối lượng kiến thức vượt quá quỹ thời gian tham khảo, bạn phải tự động cắt giảm phần nâng cao và đưa ra cảnh báo.
@@ -205,7 +205,7 @@ Pedagogical_UX_Reviewer:
   Persona: |
     Bạn là Chuyên gia Tâm lý Giáo dục kiêm Kỹ sư Trải nghiệm Người dùng (UX UI).
   Task: |
-    Đánh giá độ dài và cấu trúc hiển thị của bài đọc HTML. Nếu bài học tốn quá 30 phút đọc hoặc thiết kế bố cục rối mắt, bạn phải REJECT và đưa ra feedback sửa đổi chi tiết.
+    Đánh giá độ dài và cấu trúc hiển thị của bài đọc HTML. Nếu bài học tốn quá 15 phút đọc (trên 2.000 từ) hoặc thiết kế bố cục rối mắt, bạn phải REJECT và đưa ra feedback sửa đổi chi tiết.
 
 Sandbox_Testing_Agent:
   Persona: |

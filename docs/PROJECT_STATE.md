@@ -1,0 +1,63 @@
+# Trạng thái dự án (đọc đầu tiên mỗi cuộc trò chuyện)
+
+## 1. Cách đọc tệp này
+
+- Đây là tệp bàn giao giữa các cuộc trò chuyện: agent mới KHÔNG nhớ phiên trước nên đọc tệp này thay vì phân tích lại cả dự án.
+- Thứ tự đọc: mục 5 "Việc tiếp theo", rồi mục 3 (trạng thái môn đang làm), rồi mục 4 (chuẩn đã chốt). Mục 2 chỉ đọc khi cần tìm thư mục.
+- Cuối mỗi lượt làm việc: cập nhật mục 3, 5, 6 và thêm 1 dòng vào mục 7 (workflow `/handoff` làm việc này). Giữ dưới khoảng 120 dòng; không dán nội dung dài.
+- Luật chi tiết: `.agents/AGENTS.md` (gọn) và `docs/quy_chuan_chi_tiet.md` (đầy đủ).
+
+## 2. Bản đồ repo
+
+- `main.py`, `cli/`: điểm vào dòng lệnh (`cli/args.py` có `--pm`, `--session`, `--parts`, `--parallel`, `--scaffold`, `--approve-pm`).
+- `agents/`: các agent sinh và rà soát (creators, reviewers, lessons_learned, knowledge_memory...).
+- `core/`: đồ thị pipeline (`graph.py`), prompt (`prompts.py`), LLM (`llm.py`, `llm_router.py`), renderer, sandbox, schema, phiên bản học liệu.
+- `skills/`: tiêu chuẩn từng loại học liệu nạp vào prompt (qua `core/skills.py`); `skills/lessons_learned/SKILL.md` là kho kinh nghiệm.
+- `templates/`, `resources/`: mẫu giao diện, mẫu slide, tài nguyên.
+- `documents/`: tệp PM Excel đầu vào (ví dụ `documents/PM_Python.xlsx`); `CLO-PLO/`, `obsidian_vault/`: chuẩn đầu ra và đồ thị tri thức.
+- `tests/`: bộ kiểm thử; `scripts/`: tiện ích (quét bí mật `scan_secrets.py`, scaffold, lint DOM...).
+- `docs/`: tài liệu; `docs/archive/`: bản lưu cũ.
+- Chạy pipeline: `python main.py --pm "documents/PM_Python.xlsx" --session "Session 01" --approve-pm` (`--session all` cho cả khóa, `--parts html,slide` cho từng phần).
+- Kiểm thử: `python -m pytest tests -q -x --ignore=tests/evals`.
+- `output/` (học liệu từng môn, ví dụ `output/pms/<môn>/`) bị gitignore (dòng `output/` trong `.gitignore`), nên KHÔNG có trong git. Chỉ tồn tại trong thư mục làm việc chính của máy này; worktree mới tạo không có sẵn. Cần sao lưu riêng; commit không bảo vệ được học liệu.
+
+## 3. Trạng thái các môn trong `output/pms`
+
+| Môn (thư mục) | Nội dung | Trạng thái |
+|---|---|---|
+| `git_ai_driven` | Git cho dự án nhóm 10 người. Session 01 lý thuyết (6 lesson, slide, quiz, mindmap), Session 02 thực hành GitHub (bài thực hành, bài tập, tài liệu phát tay), `du_an_mau_campus_smart_hub`, `index.html`, `quiz_viewer.html` | Đã có đủ bộ; chưa rà lại theo chuẩn 15 phút (ghi nhận, chưa kiểm). |
+| `web_ai_driven` | HTML/CSS cho giao diện web, 2 session. Session 01: 6 lesson, 6 bài dựng giao diện từ ảnh mẫu, slide, quiz, mindmap. Session 02: lab guide 6 lab + 6 bài từ ảnh mẫu chủ đề Rikkei Student Admin; `rikkei-coffee-starter` | Đã có đủ bộ theo README môn; không JS, không framework. |
+| `js_ai_driven` | JavaScript cơ bản. Session 01 (Rikkei Learn): 6 lesson (bài đọc 15 phút) + 6 bài tập + quiz + slides + mindmap. Session 02 (Rikkei Shop): lab guide + 6 bài tập cùng một mô-đun giỏ hàng | Đã sinh đủ; bài tập có `starter/` (index.html, script.js, harness.js, tests.js, tests.html). Đang rà soát chất lượng (xem mục 5, 6). |
+| Môn cũ | `Lập trình JavaScript`, `Phát_triển_ứng_dụng_web`, `Lập_trình_Python`, `Lập_trình_Python_Cơ_Bản`, `Lập_trình_Python_học_lại`, `Lập_trình_C_học_lại`, `Lập_trình_Back_end_với_FastAPI`, `Cơ_sở_dữ_liệu`, `PM_Agile_Scrum_Standard`, `PM_Git_Teamwork_Standard`, `PM_IT103_UI_UX_Design_Standard`, `PM_IT104_Web_Interface_Development_Standard`, `PM_Phan_Tich_Thiet_Ke_He_Thong_Standard`, `default_course` | Chưa rà soát (có thư mục Session và tệp PM; chất lượng chưa kiểm theo chuẩn mới). |
+
+## 4. Chuẩn đã chốt gần đây
+
+- Bài đọc: 15 phút đọc (giới hạn cứng), 1.500-2.000 từ kể cả mã, 5 mục cố định, tập trung 1 vấn đề chính.
+- Bài tập lập trình: có `starter/` kèm `tests.html` và `harness.js`, sinh viên mở `tests.html` thấy PASS/FAIL tự chấm; đáp án mẫu giảng viên qua 100% test, mã khởi tạo gốc phần lớn FAIL.
+- Môn JS: bỏ closure (không dạy, chỉ nhắc ở "Tự học thêm"); chạy trên trình duyệt (Console, Live Server), không Node.js, không DOM/Promise/class ở bản này.
+- Không dùng từ cấm (bẫy, gotcha, anti-pattern, khám phá, tuyệt vời...), không emoji; tiếng Việt có dấu.
+- Windows: ghi tệp bằng Python với UTF-8 (tránh mã hóa mặc định cp1252); chạy Playwright bằng Chrome cài sẵn (`chrome.exe`).
+- Không hardcode giá trị riêng của một môn trong mã/prompt (repo phục vụ nhiều môn). Chỉ dùng model Gemini hiện có; không đổi style bài đọc/slide đã chốt.
+
+## 5. Việc tiếp theo
+
+1. Các thay đổi chưa commit (xem `git status`): đồng bộ 15 phút (`core/reading_budget.py` và các prompt/skill/tài liệu), mindmap HTML (`core/renderers/mindmap_html.py`, skill mindmap mới), bộ nhớ dự án (tệp này, `.agents/workflows`, `docs/quy_chuan_chi_tiet.md`, gom `lessons_learned`). Chờ người dùng rà rồi commit.
+2. Chạy lại `python -m pytest tests -q --ignore=tests/evals` trước khi commit (mốc hiện tại: 596 passed, 2 skipped).
+3. Sinh lại mindmap bằng pipeline với LLM thật để xác nhận skill mới cho nút ngắn; mindmap JS hiện có chỉ là `mindmap.md` cũ (chưa có `mindmap.html`, sinh bằng `build_mindmap_html`).
+4. Cân nhắc thêm validator ép số từ bài đọc trong `READING_WORD_BUDGET` (hiện chưa có kiểm tra tự động).
+5. Rà đề bài 6 Session 02 JS (~717 từ, hơi dài).
+6. Rà soát lần lượt các môn cũ (mục 3) theo chuẩn mới nếu người dùng yêu cầu.
+
+## 6. Quyết định / còn mở
+
+- Đề bài 6 Session 02 JS khoảng 717 từ, hơi dài so với các đề khác.
+- Mindmap HTML: nền tối ở khối mã, chữ có thể tràn mép phải khi mở rộng tất cả ở 1280px (cần cuộn ngang); chưa chỉnh.
+- Mâu thuẫn quy chuẩn: nguyên tắc 11 (Light Mode) và mục 7 của quy chuẩn chi tiết (khung mã, console, visualizer nền tối). Tạm thời: khung chứa sáng, console visualizer trong bài đọc nền sáng.
+- Đường dẫn workflow Antigravity (`.agents/workflows` hay `.agent/workflows`) cần xác nhận theo phiên bản IDE.
+- AGENTS.md có thể bị cắt nếu vượt giới hạn mỗi file rule (một nguồn ghi khoảng 12.000 ký tự, chưa xác nhận chính thức); hiện dưới 11.000.
+- `skills/lessons_learned/SKILL.md` đã gom nhóm; liên kết nguồn từng bài chỉ còn trong `docs/archive/lessons_learned_full_2026-10-12.md`, nên agent có thể ghi lại quy tắc cho bài đã có.
+
+## 7. Nhật ký thay đổi
+
+- 2026-10-12: tạo tệp này; rút gọn `.agents/AGENTS.md` (chi tiết chuyển sang `docs/quy_chuan_chi_tiet.md`); thêm workflow `/resume`, `/handoff`; gom `skills/lessons_learned/SKILL.md` (bản đầy đủ lưu ở `docs/archive/`).
+- 2026-10-12: đồng bộ thời lượng bài đọc 15 phút (hằng số `core/reading_budget.py`); viết lại skill mindmap và thêm renderer HTML tự chứa; cập nhật mục "Việc tiếp theo".

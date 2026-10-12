@@ -1,248 +1,98 @@
-# Project Rules & Agent Directives — Rikkei Education Learning Material Standards
+# Project Rules - Rikkei Education Learning Material Standards
 
-This document defines the unified pedagogical, technical, and UI layout design standards applicable to all generated learning resources (Reading Materials, Exercises, Labs / Mini Projects, Quizzes, HTML Slide Presentations, HyperFrames Videos, Interactive Visualizers, and Mindmaps).
+## Bắt đầu mỗi cuộc trò chuyện
 
----
+1. Đọc `docs/PROJECT_STATE.md` trước tiên. Không phân tích lại toàn bộ dự án.
+2. Nếu người dùng không chỉ định việc gì, tiếp tục việc đầu tiên ở mục "Việc tiếp theo" trong tệp đó.
+3. Cuối mỗi lượt làm việc, cập nhật `docs/PROJECT_STATE.md` (việc đã xong, đang dở, quyết định mới). Workflow: `/resume`, `/handoff`.
+4. Chi tiết (kích thước, lớp CSS, danh sách cấm đầy đủ): `docs/quy_chuan_chi_tiet.md`, chỉ mở khi cần.
 
-## 🌐 UNIVERSAL AGENT LANGUAGE & ROLE DIRECTIVE
+## Phạm vi và ngôn ngữ
 
-1. **English Skill Directives & System Prompts**: All Skill documentation, Agent instructions, and LLM system prompts MUST be drafted in precise, unambiguous English to achieve maximum instruction adherence and zero-drift reasoning.
-2. **100% Accented Vietnamese Output Contract**: All final generated outputs (reading materials, exercises, slides, quiz questions, teleprompter scripts, code comments, UI labels, and assessment rubrics) MUST ALWAYS be produced in 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất).
+- Repo phục vụ nhiều môn (web/HTML/CSS, JavaScript, Python, C, Git, Agile, thiết kế...). KHÔNG mặc định Python. Chọn công cụ theo bản chất môn: môn lập trình chạy được dùng sandbox chạy mã trong trình duyệt (JS, Pyodide cho Python, SQL...); môn khái niệm/công cụ/quy trình (Git, CLI, Agile, kiến trúc, UML) dùng khối lệnh tĩnh, sơ đồ, bảng so sánh, KHÔNG dùng sandbox giả.
+- Chỉ dẫn agent và system prompt viết bằng tiếng Anh. Mọi sản phẩm đầu ra (bài đọc, bài tập, slide, câu hỏi, kịch bản, comment mã, nhãn giao diện, rubric) 100% tiếng Việt có dấu.
 
----
+## 0. Nguyên tắc bắt buộc
 
-## 0. MANDATORY CORE DIRECTIVES (10 GUIDING PRINCIPLES)
+1. **Bài đọc 5 mục cố định** (`section-1` đến `section-5`):
+   - Mục 1, Bài toán thực tế: tiêu đề do LLM sinh theo bài, nêu vấn đề cụ thể. Cấm tiêu đề chung như "Giới thiệu" hoặc chép nguyên tên bài. Tiêu đề tổng quát.
+   - Mục 2, Cú pháp và cơ chế: tiêu đề nêu kiến thức kỹ thuật cụ thể. Bài lập trình/cú pháp: mỗi mục con (2.1, 2.2...) có khối chạy thử hoặc minh họa cú pháp ngay bên dưới. Bài khái niệm/công cụ/quy trình: không sandbox rỗng; dùng sơ đồ SVG/Mermaid, bảng so sánh, khối lệnh.
+   - Mục 3, Ví dụ tăng dần: tối thiểu 3 ví dụ (3.1 đơn giản, 3.2 nghiệp vụ, 3.3 doanh nghiệp), mỗi ví dụ có `<h3>` đánh số, khung yêu cầu và mã đầy đủ.
+   - Mục 4, Lỗi thường gặp và cách tránh: lỗi phổ biến, khi nào nên và không nên dùng (ma trận quyết định).
+   - Mục 5, Tóm tắt và tự kiểm tra tương tác 1 trang (nút "Kiểm tra đáp án").
+2. **15-Minute Micro-Learning**: 15 phút đọc (giới hạn cứng), 1.500-2.000 từ kể cả mã, nội dung trọng tâm vào một vấn đề chính. Gọn, dễ quét, nhiều hình; cấm tường chữ.
+3. **Problem-First**: cấm mở đầu bằng định nghĩa trừu tượng. Trình tự: tình huống thực tế, nỗi đau nghiệp vụ, hạn chế cách cũ, rồi mới khái niệm mới.
+4. **Giàu hình ảnh**: bắt buộc có sơ đồ Mermaid, ảnh 16:9, visualizer khi phù hợp; không chỉ có chữ.
+   - Mermaid dùng đúng 5 hình: Bắt đầu/Kết thúc `([...])`; Vào/Ra `[/.../]`; Quyết định `{"..."}`; Xử lý `["..."]`; Mũi tên `-->` hoặc `-->|Đúng|`/`-->|Sai|`. Cấm dùng hình bình hành cho hành động/tính toán.
+   - Ảnh: vector phẳng 2D, tối giản, bảng màu doanh nghiệp (navy `#0f172a`, xám slate, xanh lục nhạt). Không chèn banner tiêu đề trong ảnh (tiêu đề thuộc `<h2>` và chú thích "Hình 1.1"). Nhãn trong ảnh 100% tiếng Việt có dấu, không trộn thuật ngữ Anh (biểu thức mã giữ nguyên cú pháp). Bố cục 3 lớp (ngữ cảnh, biến đổi dữ liệu, kết quả); cấm 3D, neon, cyberpunk.
+5. **Câu hỏi theo tình huống**: không hỏi học thuộc; 100% câu hỏi nhắm vào tình huống nghiệp vụ, ứng dụng thực tế.
+6. **Câu hỏi bài đọc chống tìm tắt** (`reading_questions.md`, self_test): kiểm tra người học thật sự đã đọc. Cấm câu hỏi giáo khoa chung ("Git là gì?"). Mỗi câu gắn với dữ liệu, mã, con số, trình tự, lỗi hoặc tham số tình huống riêng của chính bài đó, để tìm kiếm hay AI chung không trả lời được.
+7. **Tự kiểm tra nhúng 1 trang** cuối bài đọc, một nút kiểm tra.
+8. **Mindmap**: ít chữ, nhiều biểu tượng, cô đọng; cấm biến thành bài đọc thu nhỏ.
+9. **Video**: AI tạo kịch bản (khung 5 lớp cảnh), mã, sơ đồ 2D, tài nguyên demo; giảng viên thật quay hình, live coding, giải thích.
+10. **Chất lượng như người viết**: rõ, đủ, trực quan, thực tế, có chuẩn đầu ra đo lường được (động từ Bloom đo lường được, không "hiểu", "ghi nhớ").
+    - Cấm "bẫy", "gotcha", "anti-pattern". Dùng "Lỗi thường gặp", "Sai sót phổ biến", "Ngoại lệ cần lưu ý".
+    - Cấm "khám phá", "tìm hiểu ngay", "bí kíp", "tất tần tật", "thần thánh", "tuyệt vời", "bậc nhất", "vô cùng", "viên ngọc", "triệt để".
+11. **Chỉ Light Mode**: khung chứa, thẻ mã, callout, sidebar dùng nền sáng, tương phản cao (`bg-white`, `bg-slate-50`, `border-slate-200`, `text-slate-900`/`700`). Cấm panel nền tối hoặc đen trong bài đọc. Nền pastel dùng chữ tối, không `text-white`.
+12. **Ranh giới kiến thức**: chỉ dùng kiến thức đã dạy đến bài hiện tại (bài đọc, mã, bài tập, quiz). Cấm nhắc khái niệm/lệnh chưa học, kể cả trong tên biến và comment. Bài mở đầu/tổng quan/khái niệm: cấm chuỗi lệnh thực thi thuộc bài sau (`git init`, `docker run`, `try-except`, `class`...); tập trung lý do, bài toán tổng quát, infographic, sơ đồ, bảng so sánh. Reviewer phải từ chối nội dung vi phạm.
+13. **Tiêu đề bài sạch**: `<h1>` chỉ là tên chủ đề, cấm tiền tố `Lesson 01 -`, `Bài 01 -`.
+14. **Thứ tự cú pháp**: khi giới thiệu cú pháp, đặt thẻ Cú pháp (Syntax Card) trước, ngay sau là danh sách giải thích từng thành phần; từ khóa/placeholder đặt trong `<code>` in đậm.
+15. **Hình theo bản chất bài**: bài khái niệm/tổng quan/kiến trúc (không có mã hay lệnh chạy được): ẨN hẳn Step-Tracker, dùng minh họa 2D, sơ đồ, thẻ so sánh. Bài thực thi/thuật toán: nhúng visualizer chạy từng bước (Play/Pause/Step, tô sáng dòng). Mục 3: môn lập trình dùng Live Code Sandbox (nút Chạy, console); môn công cụ/CLI/quy trình dùng khối lệnh tĩnh `<pre><code class="language-bash">`, thẻ so sánh luồng lệnh hoặc thẻ cấu hình.
+16. **Một kịch bản thực tế duy nhất**: mỗi bài thiết lập đúng MỘT kịch bản nghiệp vụ ở Mục 1; 100% mã, sandbox, thẻ cú pháp và visualizer ở Mục 2 và 3 mở rộng đúng kịch bản đó, giữ tên biến và logic nhất quán. Cấm đổi sang đề tài rời rạc giữa các ví dụ.
 
-All Agents in the system MUST strictly follow these 10 guiding principles when creating, drafting, or auditing any learning resource:
+## 1. Bài đọc (`reading.html`) - nguồn sự thật của khóa học
 
-1. **Fixed 5-Section Reading Format**:
-   - **Section 1: Real-World Problem Statement** — **DYNAMIC TITLE (Generated by LLM per lesson, NEVER hardcoded)**: The title must reflect the concrete practical problem of the lesson (e.g. "Tại sao cần dùng hàm?", "Vấn đề khi thiếu vòng lặp", "Tại sao cần môi trường ảo?"). FORBIDDEN to use generic titles like "Giới thiệu" or copy the lesson title verbatim.
-   - **Section 2: Syntax & Mechanism Breakdown** — **DYNAMIC TITLE (Generated by LLM per lesson, NEVER hardcoded)**: The title must state the specific technical knowledge presented. **CONTEXT-AWARE THEORY INTEGRATION DIRECTIVE**:
-     - _For Coding / Syntax / Algorithm Lessons_: Embed a **Live Code Sandbox / Syntax Illustration Block** directly below each sub-heading (`2.1`, `2.2`...) for immediate browser execution, combined with Syntax Anatomy diagrams, Input-Process-Output flowcharts, or Memory RAM visualizations.
-     - _For Pure Concept / Environment Setup / Tooling / Process Lessons (e.g. Git, VS Code, Architecture, Agile)_: ABSOLUTELY FORBIDDEN to force empty code sandboxes. Instead, embed **SVG/Mermaid Process Flowcharts, Parameter Comparison Tables, or Terminal/Config Command Blocks** tailored to the topic.
-   - **Section 3: Progressive Practical Examples**: Visual examples with live execution (Pyodide Wasm Sandbox) and step-by-step flow tracking (Interactive Code Tracker).
-   - **Section 4: Production Gotchas & Anti-Patterns**: Common errors, pitfalls, and when to use vs. avoid (Decision Matrix).
-   - **Section 5: Summary & 1-Page Interactive Self-Test**: Key takeaways summary + embedded interactive self-test assessment form.
+- Không đoạn văn dài: dùng gạch đầu dòng và gạch con, mỗi ý 1-2 câu, in đậm thuật ngữ.
+- Mục 1 có đúng 1 ảnh bối cảnh 16:9: tối đa 800px, căn giữa, `border-radius: 12px`, `box-shadow: 0 4px 20px rgba(0,0,0,0.08)`, viền `1px solid var(--border-color)`, chú thích in nghiêng ngay dưới.
+- Thẻ so sánh Nên làm/Không nên làm: mã chuẩn có comment tốt đối lại mã dễ lỗi kèm comment giải thích lỗi.
+- Tự kiểm tra: `.selftest-question` có `justify-content: flex-start !important; gap: 8px !important; text-align: left !important;` (cấm `space-between`); `.selftest-answer` và phần tử con `text-align: left !important;`.
+- Trước MỖI sandbox chạy mã (Mục 2, 3) có khung yêu cầu `p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4` nêu bài toán ("Yêu cầu bài toán thực hành: ...").
+- Đánh số `<h3>` theo mục cha (2.1, 2.2; 3.1, 3.2, 3.3; 4.1, 4.2), cấm đánh số độc lập 1., 2., 3.
+- Visualizer từng bước (theo nguyên tắc 15) rộng 100%: `w-full my-8 rounded-2xl overflow-hidden shadow-xl`; có Play/Pause, Bước trước, Bước sau, Reset; chọn tốc độ (1.5s, 1.0s, 0.5s); tô sáng dòng đang chạy; vùng trạng thái biến/bộ nhớ; vùng console đầu ra (nền sáng theo nguyên tắc 11).
+- Phong cách: câu, gạch đầu dòng, câu hỏi, giải thích và tiêu đề con kết thúc bằng dấu chấm. Chữ nghiêng chỉ cho chú thích dưới ảnh/sơ đồ. Cấm viết HOA toàn bộ trên tiêu đề, nút, nhãn (dùng Sentence Case hoặc Title Case). Cấm emoji dạng chữ; dùng biểu tượng SVG/Phosphor hoặc nhãn `[NOTE]`, `[TIP]`, `[WARNING]`.
+- Mã: đúng cú pháp, quy ước đặt tên, thụt lề của ngôn ngữ; nhãn khối mã đúng (`python`, `javascript`, `html`, `css`, `bash`, `sql`...).
 
-2. **10-Minute Micro-Learning Philosophy**:
-   - **Priority**: Concise, scannable, easy to understand, visual-rich with bullet lists, sub-bullets, and diagrams.
-   - **Avoid**: Monolithic walls of text, dry textbook jargon, overly lengthy passive theoretical explanations.
-   - **Goal**: Learner grasps core technical concepts within 10 minutes of reading.
+## 2. Bài tập (6 bài thực tế)
 
-3. **Problem-First Approach**:
-   - FORBIDDEN to start directly with abstract theoretical definitions.
-   - Always follow pedagogical flow: **Real-World Scenario ➔ Business Pain Point ➔ Legacy Solution Drawbacks ➔ Introduce New Concept**. (e.g., Why List? → Declaring dozens of single variables breaks data management flow).
+- Dựa trên vai trò doanh nghiệp thật (LMS, giỏ hàng...), không dùng bài thuật toán khô (kim tự tháp sao, giai thừa).
+- Bloom: Bài 1-2 cơ bản: mã cũ có lỗi logic, người học đọc mã, lập bảng test, sửa lỗi. Bài 3-4 nâng cao: vai trò dev nhận việc, quy tắc nghiệp vụ và ca biên (có dữ liệu vào/ra mẫu). Bài 5 phân tích: tối ưu quy trình, ít nhất 2 phương án, bảng đánh đổi, lưu đồ trước khi viết mã. Bài 6 sáng tạo: mô-đun hoàn chỉnh, tự chủ tối đa, cấm cho sẵn mẫu vào/ra hay JSON schema; người học tự thiết kế schema, liệt kê ca lỗi biên, vẽ DFD, cài đặt theo thiết kế của mình.
+- Đề Markdown, đúng 5 mục H3: `1. Mục tiêu`, `2. Bối cảnh và vấn đề` (kèm lưu đồ Mermaid), `3. Quy tắc nghiệp vụ` (hoặc `3. Mã cũ`), `4. Yêu cầu`, `5. Quy định nộp bài`; cấm nhúng rubric vào đề.
+- Rubric tách riêng (`rubric_XX.md`): bảng 100 điểm, 5 nhóm tiêu chí.
+- Bài tập lập trình chạy được (xem PROJECT_STATE): có `starter/` kèm `tests.html` và `harness.js` để tự chấm.
 
-4. **Visual-Rich & Image Standard**:
-   - Mandatory inclusion: **Mermaid diagrams (flowchart/sequence), 16:9 widescreen context illustrations, GSAP animations, Code Trackers, Pyodide Interactive Demos**. Never publish plain text documents.
-   - **Mermaid Flowchart Shape Standardization Contract**: All generated Mermaid flowcharts MUST strictly use the standardized 5 shapes according to their technical function:
-     - **Terminator (Start / End)**: Oval / Stadium shape `([Bắt đầu quy trình])` / `([Kết thúc quy trình])`.
-     - **Input / Output**: Parallelogram `[/Đầu vào: .../]` / `[/Đầu ra: .../]`.
-     - **Decision (Condition Check)**: Diamond `{"Kiểm tra điều kiện?"}`.
-     - **Process (Action / Calculation)**: Rectangle `["Thực hiện hành động / Tính toán"]`.
-     - **Flowline**: Arrow `-->` or `-->|Đúng|` / `-->|Sai|`.
-     ABSOLUTELY FORBIDDEN to use Parallelogram `[/ /]` for actions/calculations! Use Rectangle `[" "]` for Process actions, and Parallelogram `[/ /]` ONLY for Input/Output.
-   - **Image Prompt & Vector Graphic Standard**: Background illustrations MUST be **Clean 2D Flat Vector Technical Illustrations / Minimalist Infographics** with pleasant corporate palettes (Corporate Navy `#0f172a`, Slate Gray, Soft Emerald).
-   - ⛔ **STRICT NO EMBEDDED TITLE BANNER DIRECTIVE**: ABSOLUTELY FORBIDDEN to render huge text title banners (e.g. "QUY TRÌNH TÍNH TOÁN...", "PYTHON OPERATORS") inside the image graphic canvas. The image canvas MUST focus 100% on the **pure visual workflow graphic, domain visual cards, and state diagrams**. Article section titles belong strictly to HTML `<h2>` headers and `Hình 1.1...` captions!
-   - 🇻🇳 **100% UNIFIED ACCENTED VIETNAMESE LABELS DIRECTIVE**: 100% of explanatory text labels, step names, node titles, and branch outcomes inside the graphic MUST be in **100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất)**. ABSOLUTELY FORBIDDEN to mix English jargon (`INPUT ORDER`, `NET TOTAL`, `SUBTOTAL`, `PAYMENT RESULT`). Use pure natural Vietnamese (`Đầu vào đơn hàng`, `Tổng thanh toán`, `Thành tiền hàng`, `Kết quả giao dịch`). Standard code syntax expressions (`price * quantity`, `if age >= 18`) remain in standard programming syntax.
-   - 🎨 **ENHANCED VISUAL DEPTH & LAYERED ARCHITECTURE**: Every visual graphic MUST feature **Rich 3-Tier Layering**: (1) Domain Context Card (shopping cart, receipt, voucher), (2) Technical State Transformation & Data Flow, (3) Final Outcome Result Card with high-contrast color fills. No large empty void spaces or stray text artifacts.
-   - ⛔ **STRICT NO TEXT EMOJI DIRECTIVE**: 100% forbidden to use text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶). Use **Clean 2D Flat Vector Icons / SVG Symbols** only.
-   - ⛔ **STRICT NO HYPERBOLIC AI ART DIRECTIVE**: Absolutely forbidden to generate 3D sci-fi, glowing neon factories, cyberpunk isometric scenes, or dramatic cinematic lighting.
-   - ⛔ **STRICT NO ALL CAPS DIRECTIVE**: 100% forbidden to use ALL CAPS text on diagram labels (`INPUT PARSER` ➔ `Input parser`, `ERROR LOG` ➔ `Error log & alerts`). Use Sentence Case or Title Case only.
+## 3. Lab và Mini Project
 
-5. **Scenario-Based Questioning Standard**:
-   - Never ask rote-memorization theory questions. 100% of questions must target **business scenarios, practical applications, and real-world problem solving**.
+Ba phần: Mục tiêu (2-3 kỹ năng, sản phẩm bàn giao); Mô tả và quy trình (tài nguyên đầu vào, bước đánh số); Checklist định lượng dạng `[ ]` để tự kiểm.
 
-6. **Anti-AI & Anti-Search Shortcut Reading Questions (Strict Mandatory Contract)**:
-   - Reading Comprehension Questions (`reading_questions.md` / `self_test`) MUST be specifically designed to verify that students have **ACTUALLY READ and DEEPLY UNDERSTOOD the lesson article**.
-   - ABSOLUTELY FORBIDDEN to ask high-level generic textbook questions (e.g. "What is Git?", "Explain why virtual environments are important", "Present syntax of loop", "List PEP 8 rules").
-   - EVERY question MUST be tightly bound to **specific concrete data, code snippets, numbers, step sequences, gotchas, or business scenario parameters** present within THAT SPECIFIC lesson article.
-   - External search engines (Google) or generic AI queries MUST NOT be able to solve the question without relying on the exact scenario details given only in the reading text.
+## 4. Quiz (9 nguyên tắc)
 
-7. **1-Page Embedded Interactive Self-Test**:
-   - Include an interactive assessment form / accordion component at the end of the reading material. Learners answer directly on the page with a single "Check Answers" button.
+1. Mỗi câu đo đúng 1 khái niệm/kỹ năng cốt lõi của bài.
+2. Không hỏi kiến thức chung tra Google được.
+3. Dựa trên tình huống kỹ thuật cụ thể đã dạy.
+4. Trình bày khách quan, độc lập: cấm cụm viện dẫn nguồn trong câu hỏi, đáp án, giải thích ("ở/trong slide", "trong/theo bài giảng", "theo/trong video", "theo lời giảng viên", "Theo Phần ...", "trong bài đọc", "dựa vào đoạn văn trên", "trong kịch bản doanh nghiệp").
+5. Đáp án nhiễu dựa trên hiểu lầm có thật; cấm "Tất cả đều đúng", "Tất cả đều sai".
+6. Bốn lựa chọn A-D dài và cấu trúc câu tương đương.
+7. Không để lộ manh mối giữa câu hỏi và đáp án đúng.
+8. Vị trí đáp án đúng phân bố ngẫu nhiên.
+9. Chỉ hỏi kiến thức đã dạy đến buổi hiện tại.
 
-8. **Visual System Mindmap Standard**:
-   - Mindmaps must be **minimal text, visual/icon-heavy, highly condensed**, allowing instant mental mapping of knowledge structures. FORBIDDEN to turn mindmaps into mini-reading articles filled with text.
+## 5. Slide HTML (hỗ trợ bài giảng 1,5 giờ, không phải giáo trình nén)
 
-9. **Video Production — AI Copilot & Instructor Collaboration**:
-   - **AI Generated**: Script Blueprints (5-layer scene framework), code snippets, 2D diagrams, demo resources.
-   - **Human Instructor**: Performs on camera, delivers live coding demos, explains concepts, and provides emotional connection.
-   - **Goal**: Preserve instructor personal branding, maintain professional depth, and foster student engagement.
+- 15-20 slide mỗi buổi. Bìa: thẻ đỏ mã buổi (`Session 01`), tiêu đề đậm tối (`#0f172a`), tên môn chính thức. Mục lục: danh sách `1.`, `2.`..., tiêu đề `Nội dung bài học`.
+- Tổng kết bài học: ngay trước slide kết thúc/Q&A, 3-6 ý cốt lõi, danh sách số phẳng, chữ lớn, cùng màu và bố cục với Mục lục.
+- Chữ: nội dung tối thiểu 18px, gạch con tối thiểu 16px; quy tắc 3-30-300: tối đa 3 ý chính mỗi slide, tối đa 30 từ mỗi ý. Không emoji (dùng Phosphor SVG hoặc badge CSS).
 
-10. **Human-Like Quality Standard & Strict AI Cliché / Buzzword Ban**:
-    - All resources must be clear, complete, visual, fast-paced, practical, and have explicit learning outcomes.
-    - **ABSOLUTELY FORBIDDEN AI MARKERS & CLICHE BUZZWORDS**:
-      - ⛔ **Forbidden Cliché Words**: `"bẫy"`, `"bẫy lập trình"`, `"bẫy lỗi"`, `"bẫy cú pháp"`, `"gotcha"`, `"anti-pattern"`. Replace with formal technical terms: `"Lỗi thường gặp"`, `"Sai sót phổ biến"`, `"Ngoại lệ cần lưu ý"`.
-      - ⛔ **Forbidden Fluff & Hyperbole**: `"khám phá"`, `"tìm hiểu ngay"`, `"bí kíp"`, `"tất tần tật"`, `"thần thánh"`, `"tuyệt vời"`, `"bậc nhất"`, `"vô cùng"`, `"viên ngọc"`. Replace with clear, neutral professional engineering language.
+## 6. Video HyperFrames và Teleprompter
 
-11. **Strict Light Mode Only (No Dark Panels / Backgrounds)**:
-    - FORBIDDEN to use dark mode panels, black backgrounds, or dark container cards in reading materials.
-    - All containers, code cards, callout boxes, and sidebars must use clean, balanced, high-contrast Light Mode colors (`bg-white`, `bg-slate-50`, `border-slate-200`, `text-slate-900`, `text-slate-700`).
+- Quy trình 8 giai đoạn; Lời đọc (TTS/teleprompter) là câu tự nhiên đầy đủ (ngữ cảnh, khái niệm, ví dụ, tóm tắt); màn hình chỉ có từ khóa 3-6 từ, thẻ mã, sơ đồ, biểu tượng.
+- Cấm nói số slide ("Nhìn vào slide 3"); tránh so sánh nhất khoa trương ("nhất", "vô cùng", "triệt để").
+- Teleprompter: thanh đầu cố định có chỉnh cỡ chữ (+/-/Reset), chế độ sáng/tối, nút nhảy cảnh (`#scene-0`...), thẻ mã IDE kèm nút sao chép.
 
-12. **Strict Knowledge Scope Boundary (No Future / Unlearned Concepts & Commands Leakage)**:
-    - All generated learning materials (reading, code snippets, exercises, quizzes) MUST strictly stay within the knowledge scope taught up to the current session/lesson.
-    - **Introductory Lesson Strict Scope Directive**: For Introductory / Overview / Theory / Concept lessons (e.g. Lesson 01 "Giới thiệu Hệ thống quản lý phiên bản VCS", "Overview", "Concepts", "Architecture", "Agile Overview", "Python Overview"):
-      - ABSOLUTELY FORBIDDEN to introduce concrete execution command sequences (e.g. `git init`, `git add`, `git commit`, `git push`, `docker run`, `try-except`, `class MyClass`, etc.) that belong to future dedicated lessons!
-      - Introductory lessons MUST focus 100% on **Conceptual Rationale, High-Level Problem Statements, 2D Flat Vector Infographics, SVG Process Diagrams, and Parameter/Concept Comparison Tables**.
-    - **Reviewer Agent Contract**: Reviewer agents MUST audit and REJECT any content that breaches knowledge scope boundaries or leaks future execution commands into introductory lessons.
+## 7. Quy tắc dùng chung
 
-13. **Clean Article Title (No `Lesson 0X -` Prefix)**:
-    - Main article title (`<h1>`) MUST ONLY display the clean lesson topic name (e.g., `Khái niệm vòng lặp và câu lệnh for`).
-    - ABSOLUTELY FORBIDDEN to include `Lesson 01 -`, `Lesson 02 -`, or `Bài 01 -` prefix in the main article `<h1>` title.
+- Mã dùng màu tương phản cao (`#79c0ff` biến, `#7ee787` chuỗi/số, `#ff7b72` từ khóa, `#ffa657` hàm). Console đầu ra: panel terminal font `JetBrains Mono`, chữ `#4ade80` (riêng visualizer trong bài đọc theo nguyên tắc 11).
+- Sandbox chạy mã Python dùng Pyodide (`https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js`) với nút Chạy; môn JS chạy mã JS thật trong trình duyệt (ô sửa mã, nút Chạy, console giả lập, chống lặp vô hạn). Môn không chạy mã: không nhúng runtime.
 
-14. **Pedagogical Syntax Order & Highlighted Explanation**:
-    - When introducing technical syntax, ALWAYS present the **Syntax Card Component** FIRST, followed immediately by a **Component Explanation Bullet List**.
-    - Each keyword or placeholder in the explanation list MUST be highlighted using code badges (`<code>...</code>`) and bold font.
+## 8. Lỗi thường gặp và cách tránh
 
-15. **Adaptive Visuals & Visualizer Hiding Standard (Subject Nature & Lesson Type Adaptive)**:
-    - Analyze lesson nature and topic before building Section 2:
-      - _For Pure Concept / Overview / Architecture / Methodology / Intro Lessons_ (where step-by-step interactive code execution or step-by-step CLI tracking is NOT applicable or where no execution commands/code exist yet):
-        - ABSOLUTELY FORBIDDEN to force fake/empty Interactive Code Step-Tracker Visualizers. **HIDE / OMIT the Interactive Step-Tracker Visualizer widget entirely** for these lessons!
-        - INSTEAD: Embed **Rich 2D Flat Vector Technical Illustrations, SVG Process Flowcharts, Mermaid Diagrams, or High-Contrast Concept Comparison Cards**!
-      - _For Executable / Operational / Algorithm / Workflow Execution Lessons_ (where actual code/commands are executed step-by-step):
-        - Embed the **100% Runnable Step-by-Step Interactive Mechanism Visualizer** with Play/Pause/Step controls and line highlighting.
-    - **Adaptive Code Block Standard**: Analyze subject nature before rendering Section 3:
-      - _For Executable Programming Courses (Python, JS, Java, C++, SQL...)_: Section 3 uses **Live Code Sandboxes** (Pyodide WASM / JS runner with run & console output buttons).
-      - _For Pure Concept / Tooling / CLI / Process / Architecture Courses (Git, VS Code, Linux/Bash CLI, Docker CLI, Agile/Scrum, Software Architecture, System Design, UML Analysis & Design...)_: ABSOLUTELY FORBIDDEN to force live executable Pyodide sandboxes or run buttons. Section 3 MUST use static Terminal Command Blocks (`<pre><code class="language-bash">...</code></pre>`), Command Flow Comparison Cards, or Config/Diagram Parameter Cards.
-
-16. **Mandatory Single Unified Real-World Demo Scenario Contract**:
-    - Every generated lesson MUST establish exactly **ONE unified concrete real-world business scenario** in Section 1 (e.g. ShopeeFood Order Checkout & Voucher System, E-commerce Shopping Cart, Student Scholarship Evaluation, or Banking Fraud Detection).
-    - **100% of code snippets, live sandboxes, syntax cards, and step visualizers** across Section 2 (2.1, 2.2, 2.3, 2.4) and Section 3 (3.1, 3.2, 3.3...) MUST progressively expand on THAT EXACT SAME UNIFIED SCENARIO using consistent variable names and domain logic.
-    - **ABSOLUTELY FORBIDDEN** to switch to disjointed, random example topics (e.g., Cinema age check in 3.1, Student scholarship in 3.2, Banking Fraud in 3.3) within the same lesson!
-
----
-
-## 1. READING MATERIAL STANDARD (`reading.html`)
-
-Reading Material serves as the **Single Source of Truth (SSOT)** for the entire course.
-
-### 1.1. Layout & Pedagogical Presentation
-
-1. **Scannable Bullet Structure**:
-   - **STRICT NO LONG PARAGRAPHS**: All theoretical analysis, mechanisms, and instructions MUST use bullet lists (`- Main point`) and sublists (`  - Supporting detail`).
-   - **Bold Keywords**: Keep main bullet points to 1-2 short sentences, bolding (**bold**) core technical terms.
-2. **16:9 Widescreen Context Diagram (Mandatory Scene Image)**:
-   - Insert 1 Widescreen Context Diagram in Section 1 (Problem Statement) depicting the real-world scenario.
-   - Format: `16:9` ratio, max-width `800px`, centered (`margin: 0 auto`), `border-radius: 12px`, `box-shadow: 0 4px 20px rgba(0,0,0,0.08)`, border `1px solid var(--border-color)`. Italic caption directly below.
-3. **Good vs BAD Practice Comparison Cards**:
-   - **GOOD Practice**: Clean, best-practice, well-commented code snippet.
-   - **BAD Practice**: Bug-prone / anti-pattern legacy code snippet with explanatory gotcha comments.
-4. **Self-Test Component Formatting**:
-   - **Strict Left-Alignment**: `.selftest-question` MUST enforce `justify-content: flex-start !important; gap: 8px !important; text-align: left !important;`. FORBIDDEN to use `space-between`.
-   - `.selftest-answer` and child elements MUST enforce `text-align: left !important;`.
-
----
-
-## 2. EXERCISE STANDARD (6 REAL-WORLD EXERCISES)
-
-The 6-exercise suite is designed around real enterprise project roles (LMS, Attendance, Assessment Tool...), NOT dry algorithm exercises (like printing star pyramids or factorials).
-
-### 2.1. Bloom Cognitive Taxonomy Distribution (6 Exercises)
-
-- **I. BASIC APPLICATION (Exercise 1 & 2)**: Provide legacy code containing logic bugs/flaws ➔ Students trace code, build testcase tables, and fix bugs.
-- **II. ADVANCED APPLICATION (Exercise 3 & 4)**: Roleplay as Backend Dev taking new tasks ➔ Handle complex business rules and edge cases (provide sample I/O data).
-- **III. ANALYSIS (Exercise 5)**: Optimize legacy system workflow ➔ Students propose at least 2 solutions, compare trade-offs (Trade-off table), and draw flowcharts before coding.
-- **IV. CREATIVE (Exercise 6 / Tiered Exercise 5)**: Design complete Mini Project / Feature Module ➔ **MAXIMUM STUDENT AUTONOMY**: FORBIDDEN to give fixed I/O samples or fixed JSON schemas. Students MUST: (1) Design I/O schemas, (2) Deduce and list edge case error scenarios, (3) Draw Data Flow Diagrams (DFD), (4) Implement source code from personal blueprints.
-
-### 2.2. Markdown Output & Grading Rubric Separation
-
-1. **Markdown Format**: 100% problem statement and grading criteria returned in standard Markdown.
-2. **Student Problem Statement**: Exactly 5 H3 headers: `1. Objectives`, `2. Context & Problem` (with Mermaid flowchart), `3. Business Rules` (or `3. Legacy Code`), `4. Requirements`, `5. Submission Rules`. FORBIDDEN to embed grading rubric tables inside student problem statements.
-3. **Instructor Grading Rubric**: SEPARATED into an independent document (`tieu_chi_content` or `rubric_XX.md`), containing a 100-point rubric table divided into 5 criteria groups.
-4. **Exact Language Code Formatting**: Sample code in exercises must adhere 100% to language syntax, naming (`snake_case` / `camelCase` / `PascalCase`), indentation (2/4 spaces), and code fence tags (`python`, `c`, `cpp`, `java`, `javascript`, `typescript`, `sql`, `html`, `css`).
-
----
-
-## 3. LAB & MINI PROJECT STANDARD
-
-Practical Labs serve as the backbone for hands-on skill development and component accumulation for capstone projects.
-
-### 3.1. Standard 3-Part Structure
-
-1. **Objectives**: State 2-3 specific skills mastered + expected deliverables.
-2. **Description & Step-by-Step Procedure**: State input resources + numbered step list (Step 1, Step 2, Step 3...) in actionable sequence.
-3. **Quantitative Evaluation Checklist**: Checkbox `[ ]` list for student self-verification.
-
----
-
-## 4. ASSESSMENT & QUIZ STANDARDS
-
-### 4.1. 9 Mandatory Principles of E-Learning Quiz Design
-
-1. **Single Concept & Professional Significance**: Each question evaluates exactly 1 technical concept or skill, directly targeting core technical knowledge taught in the lesson.
-2. **Anti-Generic / Non-Googleable**: ABSOLUTELY FORBIDDEN to ask generic outside trivia that students can answer via Google without taking the lesson.
-3. **Concrete Practical Scenarios**: Questions must revolve around specific technical examples or real-world developer situations taught in the course.
-4. **STRICT OBJECTIVE DOMAIN PRESENTATION (NO CONTEXT REFERENCING)**:
-   - ABSOLUTELY FORBIDDEN to use intermediate context or source referral phrases in questions, options, or explanations: `"ở slide"`, `"trong slide"`, `"slide bài giảng"`, `"slide đề cập"`, `"trong bài giảng"`, `"theo bài giảng"`, `"theo video"`, `"trong video"`, `"từ lời giảng viên"`, `"theo lời giảng viên"`, `"Theo Phần ..."`, `"trong kịch bản doanh nghiệp..."`, `"từ một nguồn nào đó không rõ"`.
-   - All questions, options, and explanations MUST be stated 100% objectively, independently, and professionally.
-5. **Plausible Distractors**: Wrong options MUST be designed based on real-world common student misconceptions or subtle syntax traps. FORBIDDEN options: _"Tất cả đều đúng"_, _"Tất cả đều sai"_.
-6. **Option Homogeneity (Equal Length)**: All 4 choices (A, B, C, D) MUST have comparable text lengths and grammatical structures.
-7. **No Clues**: Remove keyword matching or hint clues between question stem and correct answer choice.
-8. **Random Correct Option Placement**: Randomly distribute correct answer indices across choices (A, B, C, D) for each question.
-9. **Dynamic Scope Boundary**: 100% of questions MUST ONLY cover knowledge taught up to the current session. FORBIDDEN to reference future unlearned concepts.
-
----
-
-## 5. MASTER HTML SLIDE PRESENTATION STANDARD
-
-Slides serve as a **Visual Teaching Support Tool** for 1.5-hour lectures, NOT a compressed textbook.
-
-### 5.1. 8 Golden Slide Rules
-
-1. **Slide Count Bounds (15-20 Slides/Session)**: Maximum 15-20 slides per 1.5-hour session.
-2. **Cover Slide**: Red tag session ID (`Session 01`), main bold dark title (`#0f172a`), official course title.
-3. **Agenda Slide**: Full lesson list format `1.`, `2.`, `3.`... Title **`Nội dung bài học`** (hoặc `LESSON AGENDA`).
-4. **Lesson Summary Slide (Tổng kết bài học)**: Nằm ngay trước slide kết thúc/Q&A. Trình bày các điểm kiến thức cốt lõi, cô đọng và có ý nghĩa thực tiễn nhất của buổi học. **Linh hoạt số lượng ý tổng kết** theo dung lượng và tính chất của từng bài học cụ thể (thường từ 3 đến 6 ý trọng tâm, định dạng danh sách số thứ tự phẳng, chữ to rõ ràng, đồng bộ màu sắc và layout với Slide Mục lục).
-5. **Typography (3-30-300 Rule)**: Body text minimum 18px, sub-bullets minimum 16px. Max 3 main keypoints per slide, max 30 words per keypoint.
-6. **No Emoji**: STRICT NO EMOJI. Use Phosphor SVG icons or CSS badges only.
-
----
-
-## 6. HYPERFRAMES VIDEO & HTML TELEPROMPTER STUDIO STANDARD
-
-Strictly follow the 8-stage video production pipeline and interactive studio teleprompter standards.
-
-### 6.1. Voice-UI Separation & Teleprompter Controls
-
-- **Voice-UI Separation**: TTS / Instructor Teleprompter = Full, natural spoken sentences with pedagogical lead-in (context ➔ concept ➔ example ➔ summary). Screen UI = Short 3-6 word keywords, code snippet cards, diagrams, vector icons.
-- **Natural Lead-in (No Slide Numbers)**: FORBIDDEN to say "Nhìn vào slide 3" or "Ở slide 4". Use natural lead-in phrases ("As shown on screen...", "For initialization...").
-- **No Hyperbolic Superlatives**: Replace "khám phá" with "tìm hiểu". Avoid "nhất", "vô cùng", "bậc nhất", "triệt để".
-- **Interactive Teleprompter Controls**: Sticky top header bar with font scaler (`+`/`-`/Reset), Dark/Light mode toggle, quick jump anchor pills (`#scene-0`, `#scene-1`...), and full-length non-scrolling IDE code cards with copy script button.
-
----
-
-## 7. SYSTEM-WIDE CORE RULES
-
-1. **High-Contrast Dark Theme Code Trackers & Code Blocks**:
-   - Use high-contrast syntax colors (`#79c0ff` variables, `#7ee787` strings/numbers, `#ff7b72` keywords, `#ffa657` functions).
-2. **100% Accented Vietnamese Output**:
-   - All generated body text, self-test questions, SVG labels, teleprompter scripts, and code comments MUST be written in 100% Accented Vietnamese.
-3. **Strict No ALL CAPS Text Standard**:
-   - DO NOT use ALL CAPS on titles, buttons, or labels. Use Sentence Case or Title Case.
-4. **Dark Terminal Console Output Component**:
-   - Wrap all console output displays in Dark Terminal panels using `JetBrains Mono` font with green text (`#4ade80`).
-5. **Mandatory Sentence Ending Period Directive**:
-   - All sentences, bullet items (`- item`), questions, explanations, and sub-headings MUST end with a closing period (`.`).
-6. **Mandatory Section 3 Progressive Examples Directive**:
-   - Section 3 MUST provide **AT LEAST 3 progressive real-world examples** (`3.1`, `3.2`, `3.3` - Simple ➔ Business ➔ Enterprise).
-   - Every example in Section 3 MUST include:
-     - Clear `<h3>` sub-heading with hierarchical numbering (`3.1. ...`, `3.2. ...`, `3.3. ...`).
-     - **Requirement Callout Component (`p-4 rounded-xl border border-sky-200 bg-sky-50/60...`)** stating the concise problem name and requirement BEFORE the code demo.
-     - Runnable Code Sandbox with complete sample code.
-7. **Hierarchical Sub-heading Numbering Directive**:
-   - All `<h3>` sub-headings MUST follow parent section hierarchy (Section 2 ➔ `2.1`, `2.2`; Section 3 ➔ `3.1`, `3.2`, `3.3`; Section 4 ➔ `4.1`, `4.2`). FORBIDDEN independent `1.`, `2.`, `3.` numbering.
-8. **Mandatory Sandbox Requirement Callout Directive**:
-   - BEFORE EVERY Runnable Code Sandbox (across Section 2 and Section 3), there MUST be a **Requirement Callout Box** (`p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4`) explicitly stating the concise business problem requirement (e.g. `Yêu cầu bài toán thực hành: Kiểm tra đơn hàng ShopeeFood có được miễn phí giao hàng khi...`) BEFORE rendering the code demo card.
-9. **Interactive Wasm Sandbox & Code Tracker Integration Directive**:
-   - Include **Pyodide Live Wasm Sandbox** (`https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js`) with **Run Code** button and step-by-step Interactive Code Tracker Visualizer.
-9. **Minimal Italic Text Standard**:
-   - Minimize italic text (`*italic*`, `<i>`, `<em>`). Only use italics for **captions directly below images or diagrams**.
-10. **Full-Width 100% Interactive Mechanism Visualizer Directive**:
-    - For step-by-step technology mechanics or algorithm execution, embed a **100% Full-Width Interactive Mechanism Visualizer (`w-full my-8 rounded-2xl bg-slate-900 border border-slate-700 overflow-hidden shadow-xl`)** featuring:
-      - 🎮 **Full Playback Controls**: Play/Pause auto-step button, Prev Step, Next Step, Reset button.
-      - ⏱️ **Timer / Speed Selector**: Adjustable step delay (`1.5s`, `1.0s`, `0.5s`).
-      - 📌 **Code Tracker Line Highlighting**: High-contrast highlight on current active line (`bg-emerald-500/20 border-l-4 border-emerald-500 text-white`).
-      - 🖥️ **Data/Memory State Canvas Panel**: Displays variable state transforms, RAM allocations, or pointer updates in real time.
-      - 📟 **Console Output Panel**: Displays real-time output printed or returned at each step.
-      - 📐 **100% Full-Width Layout (`w-full` / `max-width: 100%`)**: Spans 100% width of the container for optimal learner visibility and interaction.
+Kho kinh nghiệm theo nhóm: `skills/lessons_learned/SKILL.md` (mỗi `<img>` có chú thích dưới; `<table>` bọc `div.overflow-x-auto`; đóng đủ thẻ; không placeholder chưa render; nhãn ngôn ngữ khớp công nghệ).

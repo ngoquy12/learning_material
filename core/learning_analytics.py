@@ -12,7 +12,7 @@ nó KHÔNG BAO GIỜ thấy được, vì chỉ người học mới biết:
 
     - Bài đọc viết đúng hết nhưng 70% sinh viên bỏ giữa chừng.
     - Một câu quiz mà cả lớp cùng sai — hoặc đề mơ hồ, hoặc bài đọc chưa dạy tới nó.
-    - Một bài thiết kế cho 10 phút nhưng thực tế người học mất 40 phút.
+    - Một bài thiết kế cho 15 phút nhưng thực tế người học mất 40 phút.
 
 Module này đọc phát biểu xAPI do gói học liệu phát về (F1), rút ra tín hiệu học tập,
 rồi ghi thành luật trong kho kinh nghiệm để lần sinh sau tránh lặp lại.
@@ -23,6 +23,8 @@ quy định — tệ hơn hẳn việc không có luật nào.
 """
 
 from __future__ import annotations
+
+from core.reading_budget import READING_TARGET_MINUTES
 
 import json
 from dataclasses import dataclass, field
@@ -174,15 +176,15 @@ def aggregate_statements(statements: Iterable[Dict[str, Any]]) -> Dict[str, Acti
 
 def derive_signals(
     stats: Dict[str, ActivityStats],
-    expected_minutes: float = 10.0,
+    expected_minutes: float = float(READING_TARGET_MINUTES),
     min_cohort: int = MIN_COHORT_SIZE,
 ) -> List[LearningSignal]:
     """
     Rút tín hiệu học tập từ số liệu tổng hợp.
 
     Args:
-        expected_minutes: Thời lượng thiết kế của một bài đọc. Mặc định 10 phút theo
-            triết lý micro-learning ghi trong AGENTS.md.
+        expected_minutes: Thời lượng thiết kế của một bài đọc. Mặc định lấy từ
+            READING_TARGET_MINUTES (core/reading_budget.py), giới hạn cứng 15 phút.
         min_cohort: Cỡ mẫu tối thiểu. Hạ ngưỡng này để thử nghiệm thì được, nhưng
             đừng hạ khi chạy thật: một luật sinh ra từ vài người học sẽ ràng buộc
             mọi bài sinh về sau bằng nhiễu thống kê.
@@ -384,7 +386,7 @@ def format_analytics_report(
 def ingest_xapi_export(
     source: str,
     tech_stack: str = "*",
-    expected_minutes: float = 10.0,
+    expected_minutes: float = float(READING_TARGET_MINUTES),
     min_cohort: int = MIN_COHORT_SIZE,
     dry_run: bool = False,
 ) -> Dict[str, Any]:

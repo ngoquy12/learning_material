@@ -7,7 +7,7 @@ chính nó: LLM sinh → reviewer chấm → lessons_learned → LLM sinh lần 
 Reviewer là một mô hình ngôn ngữ đọc học liệu, nên nó chỉ thấy được lỗi hiện trên
 trang giấy. Có một loại vấn đề nó KHÔNG BAO GIỜ thấy, vì chỉ người học mới biết:
 bài viết đúng hết nhưng 70% bỏ giữa chừng; một câu quiz cả lớp cùng sai; một bài
-thiết kế cho 10 phút nhưng thực tế mất 40 phút.
+thiết kế cho 15 phút nhưng thực tế mất 40 phút.
 """
 
 import json
@@ -170,6 +170,17 @@ class TestSignals:
         overrun = [s for s in signals if s.kind == "duration_overrun"]
         assert len(overrun) == 1
         assert overrun[0].value == pytest.approx(3.0)
+
+    def test_mac_dinh_lay_tu_nguon_su_that_15_phut(self):
+        from core.reading_budget import READING_TARGET_MINUTES, READING_WORD_BUDGET
+
+        assert READING_TARGET_MINUTES == 15
+        assert READING_WORD_BUDGET == (1500, 2000)
+        # 30 phút thực tế so với 15 phút thiết kế mặc định => gấp 2 lần.
+        stats = aggregate_statements(_cohort(n=20, completed=20, duration_s=1800))
+        overrun = [s for s in derive_signals(stats) if s.kind == "duration_overrun"]
+        assert len(overrun) == 1
+        assert overrun[0].value == pytest.approx(2.0)
 
     def test_luat_sinh_ra_phai_HANH_DONG_DUOC(self):
         """

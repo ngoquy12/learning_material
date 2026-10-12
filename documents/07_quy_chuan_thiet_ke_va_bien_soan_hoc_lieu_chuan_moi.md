@@ -15,9 +15,9 @@ Mỗi bài học trong hệ thống học liệu Rikkei Education không phải 
 1. **Cam kết 1 Bài toán Nghiệp vụ Duy nhất (Single Unified Scenario Contract)**:
    - Mỗi bài học bắt buộc phải thiết lập **đúng một kịch bản bài toán doanh nghiệp cụ thể** ở Phần 1 (Ví dụ: Hệ thống quầy thu ngân Siêu thị MartX, Hệ thống giỏ hàng Shopee, Xử lý giao dịch ngân hàng...).
    - Toàn bộ các ví dụ minh họa, sandbox thực thi, mô phỏng biến và câu hỏi ôn tập xuyên suốt từ Phần 1 đến Phần 5 **phải dùng chung 100% ngữ cảnh, tên biến và luồng nghiệp vụ này**. Nghiêm cấm đổi đề tài lộn xộn giữa các phần trong cùng một bài học.
-2. **Triết lý Học Nhanh 10 Phút (10-Minute Micro-Learning)**:
+2. **Triết lý Học Nhanh 15 Phút (15-Minute Micro-Learning)**:
    - Trình bày dạng danh sách gạch đầu dòng phân cấp (`- Ý chính`, `  - Chi tiết bổ trợ`), in đậm (**bold**) các từ khóa kỹ thuật trọng tâm.
-   - Tuyệt đối không viết các khối đoạn văn đặc chữ (wall-of-text) kéo dài. Học viên có thể quét nhanh (scan) và nắm trọn vẹn bản chất công nghệ trong vòng 10 phút.
+   - Tuyệt đối không viết các khối đoạn văn đặc chữ (wall-of-text) kéo dài. Học viên có thể quét nhanh (scan) và nắm trọn vẹn bản chất công nghệ trong vòng 15 phút (giới hạn cứng, quy đổi 1.500-2.000 từ kể cả mã và khối mô phỏng tương tác). Mỗi bài chỉ tập trung một vấn đề chính, cắt bỏ ý phụ.
 3. **Trực quan hóa Tối đa (Visual-First & Zero Dark Mode)**:
    - 100% bài học phải có ảnh minh họa vector phẳng 2D tỉ lệ 16:9, sơ đồ luồng dữ liệu SVG/Mermaid và sandbox chạy code trực tiếp (Pyodide Wasm Sandbox).
    - Áp dụng triệt để giao diện nền sáng (Light Mode Only), độ tương phản cao, hiện đại và thanh lịch.

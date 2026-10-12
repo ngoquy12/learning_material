@@ -382,7 +382,7 @@ Learning-Material/
 Mọi nội dung học liệu do Agent sinh ra đều phải tuân thủ nghiêm ngặt **10 Nguyên Tắc Cốt Lõi** quy định tại [.agents/AGENTS.md](file:///.agents/AGENTS.md):
 
 1. **Cấu trúc 5 phần bắt buộc**: Bài toán thực tế -> Cú pháp & Cơ chế -> Ví dụ thực tiễn lũy tiến -> Lỗi thường gặp & Giải pháp -> Tóm tắt & Form tự kiểm tra.
-2. **Triết lý 10-Minute Micro-Learning**: Ngắn gọn, súc tích, ngắt ý bằng bullet list, không sử dụng văn bản khối dài.
+2. **Triết lý 15-Minute Micro-Learning**: Giới hạn cứng 15 phút (1.500-2.000 từ kể cả mã), mỗi bài một vấn đề chính; ngắn gọn, súc tích, ngắt ý bằng bullet list, không sử dụng văn bản khối dài.
 3. **Tiếp cận từ vấn đề thực tế (Problem-First)**: Luôn xuất phát từ bối cảnh thực tế và bài toán doanh nghiệp trước khi giới thiệu cú pháp lý thuyết.
 4. **Chuẩn đồ họa 2D Flat Vector**: Đồ thị Mermaid chuẩn hóa 5 hình khối theo quy chuẩn kỹ thuật, ảnh bối cảnh 16:9 sắc nét, không dùng emoji hoặc hình ảnh 3D cường điệu.
 5. **Nghiêm cấm từ ngữ sáo rỗng (AI Cliché)**: Loại bỏ hoàn toàn các từ ngữ sáo rỗng và thay thế bằng thuật ngữ kỹ thuật tiêu chuẩn.

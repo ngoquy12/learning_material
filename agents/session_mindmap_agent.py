@@ -8,7 +8,7 @@ from core.skills import load_skill_content
 from core.prompts import render_prompt
 from core.domain_knowledge import get_domain_for_session, format_domain_rules_for_prompt
 from agents.creators.common_utils import process_mindmap_images
-from core.renderers.mindmap_exporter import parse_markmap_tree, validate_mindmap_structure, build_xmind_file
+from core.renderers.mindmap_exporter import parse_markmap_tree, validate_mindmap_structure, build_xmind_file, build_mindmap_html
 
 def _strip_outer_code_fence(text: str) -> str:
     """
@@ -87,7 +87,9 @@ Target Technology Stack: {tech_stack}
 MANDATORY OUTPUT CONTRACT:
 - Return ONLY a single Markdown code block: ` ```markmap ... ` ```.
 - Target Output Language: All mindmap nodes and notes MUST be written in 100% Accented Vietnamese.
-- The mindmap must be extremely concise, rich in technical depth but visually clean, with no long paragraphs.
+- The mindmap is VISUAL-FIRST: every node is a short keyword phrase of at most 8-10 words (no full sentences, no paragraphs); split long ideas into parent + child nodes. Use at most 3 bullet levels under each ### branch. Keep the same knowledge coverage, just expressed in fewer words.
+- Prefer short plain-text labels followed by a colon (e.g. "Khai báo:", "Kịch bản:", "Kết quả:", "Lỗi:", "Cách sửa:") so the renderer can colour them per branch. Labels are plain text, never emojis or symbols.
+- Code is minimal and lives only in the example branch: either an inline `code` span or ONE fenced block of 1 line (at most 2-3 short lines). No long listings.
 - Level 1 Heading (#) MUST contain ONLY the clean content/topic title, stripping any prefixes like "{session_id} - " or "{session_id}: ". For example, if session is "Session 04 - Toán tử", the H1 MUST be "# Toán tử".
 - Level 2 Headings (##) MUST represent the child lessons within this session, ending with a final "## Liên kết hệ thống" connection branch.
 - Each Lesson branch MUST contain EXACTLY 4 sub-branches (###) — no more, no fewer. You MUST choose
@@ -144,8 +146,18 @@ MANDATORY OUTPUT CONTRACT:
     if issues:
         print(f"  [Mindmap Structure Audit] Cảnh báo cấu trúc: {'; '.join(issues)}")
 
+    _h1 = [c for c in tree.get("children", []) if c.get("level") == 1]
+    tree_title = _h1[0].get("title", "") if _h1 else session_title
+
     xmind_path = out_file.with_suffix(".xmind")
     if build_xmind_file(tree, xmind_path):
         print(f"  [Success] Saved XMind Workbook: {xmind_path}")
+
+    try:
+        html_path = out_file.with_suffix(".html")
+        if build_mindmap_html(tree, html_path, tree_title):
+            print(f"  [Success] Saved HTML Mindmap: {html_path}")
+    except Exception as e:
+        print(f"  [HTML Mindmap Warning] Không dựng được mindmap.html: {e}")
 
     return processed_content

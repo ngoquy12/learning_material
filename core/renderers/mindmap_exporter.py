@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import Dict, Any, List
 from xml.sax.saxutils import escape
 
+from core.renderers.mindmap_html import build_mindmap_html  # noqa: F401  (re-export)
+
 
 def parse_markmap_tree(markdown_text: str) -> Dict[str, Any]:
     """

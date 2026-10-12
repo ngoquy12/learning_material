@@ -1,80 +1,95 @@
 ---
 name: session_mindmap_compiler
-description: Synthesize and generate Session-Level Markmap mindmaps (.md format) for 1.5-hour sessions according to Rikkei Education standards, compatible with VS Code Markmap and XMind. Target output language is 100% Accented Vietnamese.
+description: Synthesize Session-Level Markmap mindmaps (.md) for 1.5-hour sessions per Rikkei Education standards. Nodes are SHORT keyword phrases (visual-first, little text); the same tree is rendered to Markmap .md, XMind and a self-contained interactive HTML. Target output language is 100% Accented Vietnamese.
 ---
 
 # Session Mindmap Compiler Skill — Rikkei Education Standards
 
+A mindmap is a visual map, not a summary document. Each node is a short keyword phrase that the
+learner scans in one glance. Knowledge coverage stays the same as before; it is expressed in
+fewer words, split across more small nodes instead of long sentences.
+
 ## 1. Fixed Mandatory Hierarchy
 
-Every generated session-level mindmap MUST strictly follow this hierarchy in Markdown format for Markmap rendering:
+Output ONE Markmap tree (Markdown headings + bullets). Illustrative shape (names and wording are
+examples, adapt them to the real content):
 
 ```markmap
-# [Clean Session Title - Topic Only]
+# Cấu trúc điều kiện
 
-## Lesson 01 — [Tên Lesson 01]
-### [Nhánh 1 — tên do LLM tự chọn phù hợp nội dung, ví dụ "Khái niệm & Vai trò"]
-- Định nghĩa ngắn gọn: [Bản chất khái niệm, max 10 từ]
-- Vai trò: [Giải quyết vấn đề gì?]
-### [Nhánh 2 — tên do LLM tự chọn, ví dụ "Cú pháp & Giải nghĩa" hoặc "Các bước thực thi"]
-- Khai báo cú pháp chuẩn:
-  ```language
-  # Cú pháp chuẩn của ngôn ngữ/công nghệ
+## Lesson 01 — Câu lệnh if
+### Khái niệm & vai trò
+- Rẽ nhánh theo điều kiện
+- Chạy đúng một nhánh
+### Cú pháp
+- Khai báo: `if (điều kiện) { ... }`
+  - Điều kiện: kiểu boolean
+  - Khối lệnh: trong dấu `{ }`
+### Ví dụ minh họa
+- Kịch bản: xếp loại điểm học viên
+  ```javascript
+  if (studentScore >= 8) grade = "Giỏi";
   ```
-- Giải thích thành phần:
-  - [Tên thành phần 1]: [Ý nghĩa, kiểu dữ liệu]
-  - [Tên thành phần 2]: [Ý nghĩa]
-### [Nhánh 3 — tên do LLM tự chọn, ví dụ "Ví dụ thực hành" hoặc "Sơ đồ luồng xử lý"]
-- Kịch bản áp dụng: [Mô tả bối cảnh nghiệp vụ thực tế nhỏ]
-  ```language
-  # Mã nguồn ví dụ thực tế chạy được (5-8 dòng)
-  ```
-- Giải thích ví dụ: [Phân tích nhanh luồng chạy]
-### [Nhánh 4 — tên do LLM tự chọn, ví dụ "Lưu ý triển khai" hoặc "Điểm cần lưu ý"]
-- **[Tên lỗi phổ biến]**: Tác động/cách khắc phục (cấm dùng từ "thực chiến", "gotcha", "bẫy lỗi").
-- **Lưu ý định dạng**: Quy chuẩn đặt tên và thụt lề theo style guide của công nghệ.
+- Luồng chạy: kiểm tra từ trên xuống
+### Lưu ý triển khai
+- **Dùng `=` thay `===`**: gán thay vì so sánh
+- Thụt lề 4 khoảng trắng
 
-## Lesson 02 — [Tên Lesson 02]
-...
+## Lesson 02 — ...
 
 ## Liên kết hệ thống
-- Mối quan hệ logic: [Lesson 01] đóng vai trò gì (tiền đề / bổ trợ) cho [Lesson 02]?
-- Luồng dữ liệu xuyên suốt: [Đầu ra của Lesson 01] -> làm [Đầu vào của Lesson 02]
-- Ứng dụng tổng hợp: [Cách kết hợp cả hai bài học để giải quyết bài toán nghiệp vụ lớn]
+- Quan hệ: Lesson 01 là tiền đề của Lesson 02
+- Luồng dữ liệu: đầu ra bài 1 -> đầu vào bài 2
+- Ứng dụng tổng hợp: bài toán nghiệp vụ lớn
 ```
 
----
+## 2. Heading Hierarchy Rules (unchanged)
 
-## 2. Heading Hierarchy Rules
+- `#` — Session root (exactly 1; clean topic only).
+- `##` — one per Lesson (`Lesson NN — Tên`), then the final `## Liên kết hệ thống`.
+- `###` — EXACTLY 4 branches per Lesson. Names (2-4 words) are chosen to fit the lesson; count is fixed.
+  Together the 4 branches MUST still cover: (1) concept/purpose, (2) syntax or process mechanics,
+  (3) a concrete example, (4) pitfalls/implementation notes.
+- `-` bullets — at most 3 bullet levels under a `###`.
 
-- `#` — Session Root Node (Exactly 1 root node containing only clean session topic name).
-- `##` — Lesson Nodes + final "Liên kết hệ thống" connection node.
-- `###` — Exactly 4 Branch Sub-headings per Lesson, dynamically named to fit the lesson's content
-  (see Section 1 example above) — count is fixed at 4, names are NOT fixed.
-- `-` (bullet) — Details ≤ 15 words/line, max 3 bullet levels.
+## 3. Node Length and Visual Rules (visual-first)
 
----
+1. **Short nodes**: each node (heading or bullet) is a keyword phrase of at most 8-10 words, no
+   full sentences, no trailing explanations, no paragraphs. If an idea needs more words, split it
+   into a parent node plus 2-3 child nodes.
+2. **Depth**: at most 3 bullet levels below a `###`. Prefer 3-6 sibling nodes per branch; avoid a
+   wall of 10+ siblings.
+3. **Code is minimal**: code lives ONLY in the example branch (or as an inline `code` span in a
+   syntax node). Use either a single inline code span, or one fenced block of 1 line (at most 2-3
+   short lines). NEVER a long listing. Inline code spans may be used inside any short node for
+   keywords, operators and identifiers.
+4. **Labels instead of sentences**: start a node with a short label (1-3 words) followed by a
+   colon, then a fragment, e.g. `Khai báo: ...`, `Kịch bản: ...`, `Kết quả: ...`, `Lỗi: ...`,
+   `Cách sửa: ...`, `Quy tắc: ...`, `Đầu vào: ...`, `Đầu ra: ...`. The renderer turns such labels
+   into coloured tag chips and colours each Lesson branch automatically. Labels are plain text:
+   NEVER emojis, icons, symbols or unicode pictograms.
+5. **Bold** (`**...**`) only for the name of a common mistake or a key term, at most one per bullet.
+6. **Same coverage**: shortening must not drop knowledge. Keep every key concept, rule, syntax
+   element, example and pitfall that the lessons teach; only remove filler words.
 
-## 3. Mandatory Structuring & Content Rules
+## 4. Mandatory Structuring & Content Rules (unchanged)
 
-1. **Clean Root Topic Title (`#`)**:
-   - MUST contain ONLY the content topic of the session.
-   - ABSOLUTELY FORBIDDEN to include prefixes like "Session XX - ", "Session XX: ", or session numbers.
-   - Example: `# Cấu trúc điều kiện` (CORRECT) vs `# Session 06 - Cấu trúc điều kiện` (INCORRECT).
-
-2. **No Metadata & Problem Branches**:
-   - ABSOLUTELY FORBIDDEN to include "Mục tiêu bài học", "Bài toán", or "Bối cảnh buổi học" branches at the top of the session.
-   - For each lesson branch, ABSOLUTELY FORBIDDEN to include "Vấn đề" or "Tại sao cần học" branches. Start directly with the lessons' technical content.
-
-3. **Strict Coding & Naming Conventions**:
-   - 100% of code syntax in mindmaps MUST comply with the target `tech_stack` coding rules.
-   - For Python: Use `snake_case` for variables/functions, `PascalCase` for classes.
-   - For Java/JS: Use `camelCase` for variables/methods, `PascalCase` for classes.
-   - ABSOLUTELY FORBIDDEN to use arbitrary variable names like `a`, `b`, `x`, `y`, `temp`. Variable names must represent real business context.
-
-4. **AI Cliché & Academic Jargon Ban**:
-   - ABSOLUTELY FORBIDDEN to use informal words ("nhé", "nha", "nhé các bạn") or AI assistant clichés ("thực chiến", "thần thánh", "gotcha", "anti-pattern", "bẫy lập trình"). Use formal, neutral technical language.
-   - Keep technical keywords in English, and write explanations in 100% Accented Vietnamese.
-
-5. **Cross-Lesson Integration (`## Liên kết hệ thống`)**:
-   - MUST include a final `## Liên kết hệ thống` branch summarizing the dependency flow, input-process-output data mapping, and how the lessons fit together to solve a larger business problem.
+1. **Clean Root Topic Title (`#`)**: ONLY the topic. FORBIDDEN prefixes such as "Session XX - ",
+   "Session XX: " or session numbers. Correct: `# Cấu trúc điều kiện`.
+2. **No Metadata & Problem Branches**: FORBIDDEN "Mục tiêu bài học", "Bài toán", "Bối cảnh buổi
+   học" at session level; FORBIDDEN "Vấn đề" or "Tại sao cần học" branches per lesson. Start
+   directly with technical content.
+3. **Coding & Naming Conventions**: code follows the target `tech_stack` rules (Python:
+   `snake_case` / `PascalCase` classes; Java/JS: `camelCase` / `PascalCase` classes). FORBIDDEN
+   arbitrary names like `a`, `b`, `x`, `y`, `temp`; names reflect real business context (and the
+   unified business domain when one is given).
+4. **No emojis, no clichés**: FORBIDDEN any emoji or pictogram character (including check/cross
+   marks and arrows such as ❌ ✅ ⚠️ 🔴 🟢 ▶). FORBIDDEN informal words ("nhé", "nha") and AI
+   clichés ("thực chiến", "thần thánh", "gotcha", "anti-pattern", "bẫy lập trình"). Use formal,
+   neutral technical Vietnamese; keep technical keywords in English.
+5. **Knowledge scope**: only concepts within the allowed taught scope; never leak topics that are
+   not yet taught.
+6. **Cross-Lesson Integration (`## Liên kết hệ thống`)**: final node covering the dependency flow
+   between lessons, input-process-output mapping, and the combined business application, written
+   as short nodes.
+7. **Language**: all node text in 100% Accented Vietnamese.

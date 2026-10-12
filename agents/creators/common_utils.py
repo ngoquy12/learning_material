@@ -7,6 +7,7 @@ from typing import Dict, Any, List, Optional
 from pathlib import Path
 from core.state import AgentState
 from core.llm import call_llm
+from core.reading_budget import READING_TARGET_MINUTES, READING_WORD_MIN, READING_WORD_MAX
 from core.schemas.llm_schemas import CreatorStage1Schema, CreatorStage2Schema
 from core.sanitizers import (
     fix_raw_newlines_in_json_strings,
@@ -316,11 +317,12 @@ The reading material MUST contain exactly 5 sections in the following order:
   Section 4 (summary + resolve): Production Gotchas — Common Pitfalls + Decision Matrix Table + Anti-patterns
   Section 5 (self_test): Self-Test Assessment — 3 Scenario-based MCQ questions with Anti-AI Shortcuts
 
-[DIRECTIVE 2 — 10-MINUTE MICRO-LEARNING]
+[DIRECTIVE 2 — {READING_TARGET_MINUTES}-MINUTE MICRO-LEARNING]
 - ABSOLUTELY FORBIDDEN to write long, monolithic text paragraphs.
 - Every piece of content MUST use Bullet Lists ('- Main point') and Sublists ('  - Supporting details').
 - Each point maximum 1-2 concise sentences with core technical keywords in **bold**.
-- Total reading length equivalent to 800-1200 words (approx. 10-minute read).
+- Total reading length equivalent to {READING_WORD_MIN}-{READING_WORD_MAX} words INCLUDING code and the interactive simulator block (approx. {READING_TARGET_MINUTES}-minute read).
+- The {READING_TARGET_MINUTES}-minute limit is a HARD CAP: stay FOCUSED on ONE main problem per lesson and CUT secondary ideas rather than exceed the budget.
 
 [DIRECTIVE 3 — PROBLEM-FIRST PEDAGOGY]
 - Section 1 MUST follow the flow: Real-World Scenario → Pain Point / Legacy Drawbacks → New Solution.
@@ -375,11 +377,12 @@ The reading material MUST contain exactly 5 sections in the following order:
   Section 4 (summary + resolve): Gotchas & Best Practices — Avoided Mistakes + Decision Matrix Table + Process Anti-patterns
   Section 5 (self_test): Self-Test Assessment — 3 Scenario-based MCQ questions with Anti-AI Shortcuts
 
-[DIRECTIVE 2 — 10-MINUTE MICRO-LEARNING]
+[DIRECTIVE 2 — {READING_TARGET_MINUTES}-MINUTE MICRO-LEARNING]
 - ABSOLUTELY FORBIDDEN to write long, monolithic text paragraphs.
 - Every piece of content MUST use Bullet Lists ('- Main point') and Sublists ('  - Supporting details').
 - Each point maximum 1-2 concise sentences with core technical/business keywords in **bold**.
-- Total reading length equivalent to 800-1200 words (approx. 10-minute read).
+- Total reading length equivalent to {READING_WORD_MIN}-{READING_WORD_MAX} words INCLUDING code and the interactive simulator block (approx. {READING_TARGET_MINUTES}-minute read).
+- The {READING_TARGET_MINUTES}-minute limit is a HARD CAP: stay FOCUSED on ONE main problem per lesson and CUT secondary ideas rather than exceed the budget.
 
 [DIRECTIVE 3 — PROBLEM-FIRST PEDAGOGY]
 - Section 1 MUST follow the flow: Real-World Business Scenario → Operational Pain Point / Drawbacks of Old Approach → Solution.
