@@ -6,6 +6,8 @@ from typing import Any, Dict, List
 
 from bs4 import BeautifulSoup
 
+from core.reading_budget import READING_CONTEXT_CHARS
+
 
 def _from_html(html: str, max_chars: int) -> str:
     soup = BeautifulSoup(html, "html.parser")
@@ -52,7 +54,7 @@ def build_lesson_summary(lesson_title: str, final_state: Dict[str, Any], max_cha
 _PLACEHOLDER_MARKERS = ("Empty outline", "ĐANG KHỞI TẠO")
 
 
-def approved_reading_text(state: Dict[str, Any], max_chars: int = 6000) -> str:
+def approved_reading_text(state: Dict[str, Any], max_chars: int = READING_CONTEXT_CHARS) -> str:
     """
     Văn bản hiển thị của bài đọc ĐÃ SINH trong state, hoặc "" nếu chưa có / chỉ là
     placeholder. Quiz và kịch bản video phải bám bài đọc này, không phải bản nháp

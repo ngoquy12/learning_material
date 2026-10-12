@@ -1,5 +1,6 @@
 import os
 from core.exceptions import GenerationError
+from core.reading_budget import READING_CONTEXT_CHARS
 from core.lesson_summary import approved_reading_text
 from core.state import AgentState, require_tech_stack
 from core.llm import call_llm
@@ -94,7 +95,7 @@ def video_script_creator_agent(state: AgentState) -> AgentState:
 - Expected Learning Outcome: {expected_output or 'N/A'}
 
 === LESSON READING ARTICLE CONTENT (source material to base narration on) ===
-{full_article_context[:7000]}
+{full_article_context[:READING_CONTEXT_CHARS]}
 
 Follow the exact SCRIPT.md structure and all mandatory rules from the skill specification in the
 system prompt (3-part structure, mandatory opening/closing lines, scene breakdown with time range +

@@ -184,7 +184,7 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         errors.extend(visual_errors)
 
     # 8. Banned AI Cliché / Buzzwords Check
-    banned_buzzwords = ["bẫy lập trình", "bẫy cú pháp", "bẫy logic", "bẫy lỗi", "thần thánh", "bí kíp", "tất tần tật"]
+    banned_buzzwords = ["bẫy lập trình", "bẫy cú pháp", "bẫy logic", "bẫy lỗi", "thần thánh", "bí kíp", "tất tần tật", "gotcha", "anti-pattern"]
     content_lower = content.lower()
     for word in banned_buzzwords:
         if word in content_lower:

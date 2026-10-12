@@ -1,5 +1,6 @@
 import json
 import re
+from core.reading_budget import READING_CONTEXT_CHARS
 import os
 import base64
 import requests
@@ -549,12 +550,12 @@ Task: Analyze the complete Stage 1 reading material and generate a high-quality 
 8. OUTPUT LANGUAGE: 100% Accented Vietnamese with full diacritics.
 """
     stage2_user_prompt = f"""Full Stage 1 Reading Material (use context from this to generate assessment questions):
-{json.dumps(stage1_result, ensure_ascii=False)[:5000]}
+{json.dumps(stage1_result, ensure_ascii=False)[:READING_CONTEXT_CHARS]}
 
 Lesson Metadata:
 - Title: {lesson_title}
 - Target Tech Stack: {tech_stack}
-- Curriculum Details: {lesson_details[:300]}
+- Curriculum Details: {lesson_details[:1000]}
 - FORBIDDEN Scope: {forbidden_scope or 'none'}
 
 Question Generation Workflow:
@@ -677,7 +678,7 @@ Return only raw JSON.
     final_result["self_test"] = stage2_result.get("self_test") or [
         {"question": f"Trong kịch bản quản lý dự án với {tech_stack} ở bài đọc, hãy phân tích rủi ro hệ thống khi không áp dụng {lesson_title} và đề xuất giải pháp xử lý.", "answer": f"Thiếu {lesson_title} dễ gây ra xung đột phiên bản hoặc sai lệch dữ liệu. Việc áp dụng đúng quy trình giúp cô lập thay đổi và bảo vệ tính toàn vẹn hệ thống."},
         {"question": f"Dựa vào ví dụ mã nguồn/lệnh CLI trong bài đọc, hãy chỉ ra điểm không tối ưu trong kịch bản cũ và giải thích các bước tái cấu trúc chuẩn Best Practice.", "answer": f"Kịch bản cũ chưa rà soát trạng thái hoặc thiếu cờ phạm vi. Cần bổ sung bước kiểm tra và sử dụng đúng tham số theo quy chuẩn công nghệ."},
-        {"question": f"Phân tích lỗi Gotcha phổ biến được đề cập ở Phần 4 và trình bày cơ chế kiểm tra tự động để ngăn ngừa sự cố trên môi trường Production.", "answer": f"Lỗi Gotcha thường phát sinh do thao tác thiếu kiểm soát. Cần áp dụng danh sách kiểm tra và các công cụ rà soát tự động trước khi triển khai."}
+        {"question": f"Phân tích lỗi thường gặp được đề cập ở Phần 4 và trình bày cơ chế kiểm tra tự động để ngăn ngừa sự cố trên môi trường Production.", "answer": f"Lỗi này thường phát sinh do thao tác thiếu kiểm soát. Cần áp dụng danh sách kiểm tra và các công cụ rà soát tự động trước khi triển khai."}
     ]
     final_result["references"] = stage2_result.get("references") or [
         {"title": f"Trang chủ tài nguyên đào tạo Rikkei Education", "url": "https://rikkei.edu.vn"}

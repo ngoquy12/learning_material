@@ -2,6 +2,7 @@ import json
 import re
 from typing import Dict, Any, List
 from core.exceptions import GenerationError
+from core.reading_budget import READING_CONTEXT_CHARS
 from core.retry_feedback import retry_feedback_block
 from core.memory_context import memory_prompt_block
 from core.lesson_summary import approved_reading_text
@@ -258,7 +259,7 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
 - Target Code Markdown Tag: {lang_tag}
 
 Reading Article Context (Extract real scenarios and code examples from this text to build quiz questions):
-{article_context[:6000]}
+{article_context[:READING_CONTEXT_CHARS]}
 {retry_feedback_block(state, 'quiz')}{memory_prompt_block(state)}
 
 OUTPUT JSON SCHEMA (Array of EXACTLY 5 objects):

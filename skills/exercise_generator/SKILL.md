@@ -171,6 +171,6 @@ The grading rubric MUST be **SEPARATED INTO AN INDEPENDENT MARKDOWN DOCUMENT** (
 
 1. **TARGET OUTPUT CONTRACT**: 100% of final user-facing exercise deliverables (markdown text, titles, problem statements, business descriptions, student requirements, GitHub submission rules, and rubric criteria) MUST ALWAYS be generated in **100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất)**.
 2. **STRICT NO HARDCODED STACK ASSUMPTIONS**: Never assume `FastAPI`, `HTTP status codes`, `REST API`, `Express`, or `Spring Boot` unless the session's `tech_stack` explicitly demands it.
-3. **STRICT NO EMOJI**: 100% forbidden to use text emojis (❌, ✅, ⚠️, 🚀). Use text badges `[NOTE]`, `[TIP]`, `[WARNING]`.
+3. **STRICT NO EMOJI**: 100% forbidden to use text emojis (❌, ✅, ⚠️, 🚀). Do not use square bracket tags either; use plain labels `Lưu ý:`, `Mẹo:`, `Cảnh báo:`.
 4. **NO SCOPE LEAKAGE**: 100% forbidden to introduce concepts from `forbidden_scope`.
 5. **NO ALL CAPS**: Diagram labels and headings MUST use Sentence Case or Title Case.

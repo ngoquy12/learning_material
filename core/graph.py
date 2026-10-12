@@ -225,7 +225,14 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             print("  [HTML_Production] Phát hiện nội dung bài đọc từ đĩa. Đang kiểm định trực tiếp...")
             review = html_ux_reviewer(state)
             if review["status"] == "APPROVED":
-                state["artifacts_status"]["html"] = ArtifactStatus.APPROVED
+                # Bản trên đĩa có thể do người chỉnh tay nên KHÔNG tự sinh lại đè lên; nhưng
+                # vi phạm phạm vi vẫn phải hiện ra thay vì được duyệt âm thầm.
+                disk_audit = audit_artifact_scope(state.get("html_content", ""), state, "html")
+                if disk_audit.is_clean:
+                    state["artifacts_status"]["html"] = ArtifactStatus.APPROVED
+                else:
+                    record_scope_audit(state, disk_audit)
+                    state["artifacts_status"]["html"] = STATUS_SCOPE_WARNING
                 save_state_checkpoint(state)
                 approved = True
                 break

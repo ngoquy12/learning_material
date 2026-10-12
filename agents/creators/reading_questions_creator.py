@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import jinja2
 from core.state import AgentState, require_tech_stack
+from core.reading_budget import READING_CONTEXT_CHARS
 from core.llm import call_llm
 from core.utils.text_sanitizer import extract_and_parse_json, strip_markdown_fence
 from core.renderers.lecture.text_sanitizer import detect_file_info_for_tech_stack
@@ -247,7 +248,7 @@ def reading_questions_creator_agent(state: AgentState) -> AgentState:
 
     user_prompt = f"""Full Lesson Reading Article Content (trích trực tiếp từ reading.html thật):
 === LESSON READING ARTICLE CONTENT ===
-{full_article_context[:7000]}
+{full_article_context[:READING_CONTEXT_CHARS]}
 
 === REAL CODE SNIPPETS EXTRACTED FROM reading.html (dùng chính xác nguyên văn các đoạn này, KHÔNG bịa code mới) ===
 {code_snippets_block[:4000]}

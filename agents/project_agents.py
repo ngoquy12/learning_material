@@ -319,7 +319,7 @@ SRS Context: {srs_title}
 {error_model}
 
 MANDATORY SPECIFICATION DIRECTIVES:
-0. STRICT NO EMOJI DIRECTIVE: FORBIDDEN to use text emojis. Use labels [NOTE], [TIP], [WARNING], [REQUIREMENT] instead.
+0. STRICT NO EMOJI DIRECTIVE: FORBIDDEN to use text emojis or square bracket tags like [NOTE], [TIP], [WARNING]. Use plain labels such as "Lưu ý:", "Mẹo:", "Cảnh báo:", "Yêu cầu:".
 0.1 STRICT PROGRESSIVE KNOWLEDGE BOUNDARY (NO FUTURE TOPIC LEAKAGE):
    - You MUST ONLY use knowledge, runtime environments, syntax, and concepts taught up to the current Session ({session_id} - {session_title}) as listed in: {previous_lessons_text or 'Prior lessons'}.
    - If the current session is a Console/CLI application (before DOM/HTML in later sessions):

@@ -73,3 +73,21 @@ class TestDomainDrift(unittest.TestCase):
 
         state = {"chosen_domain": "SHOPEE_FOOD", "technology_stack": "Python"}
         self.assertTrue(audit_artifact_scope("Hệ thống quản lý thư viện mượn sách.", state, "html").domain_drift)
+
+
+class TestContextAndBannedWords(unittest.TestCase):
+    def test_nguong_ngu_canh_du_cho_bai_15_phut(self):
+        from core.reading_budget import READING_CONTEXT_CHARS
+
+        self.assertGreaterEqual(READING_CONTEXT_CHARS, 14000)
+
+    def test_bai_doc_dai_khong_bi_cat_nua_chung(self):
+        html = "<p>" + ("nội dung dài " * 1500) + "</p>"
+        text = approved_reading_text({"html_content": html})
+        self.assertGreater(len(text), 12000)
+
+    def test_tu_cam_gotcha_bi_bat(self):
+        from core.validators.reading_validator import validate_reading_material
+
+        _, errs = validate_reading_material("<html><body>" + "<p>Một Gotcha thường gặp.</p>" * 30 + "</body></html>", {})
+        self.assertTrue(any("gotcha" in e.lower() for e in errs))
