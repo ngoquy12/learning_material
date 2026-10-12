@@ -40,7 +40,7 @@ class TestStableDomainHash(unittest.TestCase):
 
 
 class TestSandboxLanguage(unittest.TestCase):
-    def test_ma_javascript_khong_bi_chay_bang_python(self):
+    def test_ma_javascript_khong_bi_chay_nhu_python(self):
         from agents import reviewer_agents
 
         state = {
@@ -52,7 +52,9 @@ class TestSandboxLanguage(unittest.TestCase):
              mock.patch.object(reviewer_agents, "call_llm", return_value='{"status": "APPROVED", "feedback": ""}'), \
              mock.patch.dict("os.environ", {"GEMINI_API_KEY": "x"}):
             reviewer_agents.sandbox_testing_agent(state)
-        run.assert_not_called()
+        # Hoặc bỏ qua, hoặc phải chạy kèm đúng ngôn ngữ - không bao giờ mặc định Python.
+        for call in run.call_args_list:
+            self.assertEqual(call.kwargs.get("language"), "javascript")
 
 
 if __name__ == "__main__":
