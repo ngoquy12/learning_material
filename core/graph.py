@@ -102,6 +102,17 @@ def ensure_dynamic_scope_calculated(state: AgentState) -> AgentState:
     """Dynamically computes allowed_scope and forbidden_scope sets from syllabus tree and attaches to state."""
     if not state or not isinstance(state, dict):
         return state
+
+    # CLI đã tính phạm vi trên TOÀN KHÓA. `full_curriculum` trong state chỉ là cửa sổ
+    # 3 session (để tránh tràn context) nên tính lại từ nó sẽ làm mất mọi khái niệm của
+    # các buổi sau buổi kế tiếp khỏi danh sách cấm, và ghi đè kết quả đúng.
+    if state.get("scope_source") == "full_course":
+        ssot = state.setdefault("core_ssot", {})
+        if isinstance(ssot, dict):
+            ssot["allowed_scope"] = ", ".join(map(str, state.get("allowed_scope") or []))
+            ssot["forbidden_scope"] = ", ".join(map(str, state.get("forbidden_scope") or []))
+        return state
+
     full_curriculum_str = state.get("full_curriculum", "")
     if full_curriculum_str:
         try:

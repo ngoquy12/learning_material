@@ -10,6 +10,8 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from core.state import AgentState
+from core.resume import merge_resume_state
+from core.lesson_summary import build_lesson_summary
 from core.graph import compile_learning_content_workflow, write_state_artifacts_to_disk
 from cli.curriculum_parser import (
     parse_all_sessions,
@@ -406,8 +408,8 @@ def execute_course_workflow(args):
                     # tái dùng CHÍNH XÁC cơ chế đã dùng cho quiz (calculate_lesson_scope_contract),
                     # trước đây reading generation không nhận forbidden_scope/allowed_scope nào cả.
                     from core.scope_calculator import calculate_lesson_scope_contract
-                    _syllabus_for_scope = {"sessions": sessions}
-                    _s_idx_for_scope = next((i for i, s in enumerate(sessions) if s["session_id"] == session_id), 0)
+                    _syllabus_for_scope = {"sessions": all_sessions}
+                    _s_idx_for_scope = next((i for i, s in enumerate(all_sessions) if s["session_id"] == session_id), 0)
                     _allowed_set, _forbidden_set = calculate_lesson_scope_contract(_syllabus_for_scope, _s_idx_for_scope, idx)
 
                     state: AgentState = {
@@ -427,6 +429,7 @@ def execute_course_workflow(args):
                         "previous_lessons": previous_lessons.copy(),
                         "allowed_scope": sorted(_allowed_set),
                         "forbidden_scope": sorted(_forbidden_set),
+                        "scope_source": "full_course",
                         "session_kind": session_kind,
                         "artifacts_status": {
                             "html": ArtifactStatus.PENDING, "slide": ArtifactStatus.PENDING,
@@ -452,7 +455,7 @@ def execute_course_workflow(args):
                         already_completed_states.append(cached_state)
                     else:
                         if cached_state and not args.force:
-                            state = cached_state
+                            state = merge_resume_state(cached_state, state)
                         batch_states.append(state)
                 
                 # Execute pending batch states concurrently
@@ -495,16 +498,7 @@ def execute_course_workflow(args):
                     })
                     
                     master_c = final_state.get("master_content", {})
-                    rich_summary = f"Bài học: {lesson_title}\n"
-                    if isinstance(master_c, dict):
-                        if "reading_sections" in master_c:
-                            for sec in master_c["reading_sections"]:
-                                rich_summary += f"### {sec.get('title')}\n"
-                                rich_summary += f"{sec.get('content', '')[:150]}...\n"
-                        if "example" in master_c and master_c["example"]:
-                            rich_summary += f"### Cú pháp/Mã nguồn đã học:\n```python\n{master_c['example']}\n```\n"
-                    else:
-                        rich_summary += final_state.get("html_content", "")[:300]
+                    rich_summary = build_lesson_summary(lesson_title, final_state)
 
                     previous_lessons.append({
                         "lesson_id": lesson_id,
@@ -522,8 +516,8 @@ def execute_course_workflow(args):
                     print(f"\n  ---> Processing: {session_id} - {lesson_id}: {lesson_title}")
 
                     from core.scope_calculator import calculate_lesson_scope_contract
-                    _syllabus_for_scope = {"sessions": sessions}
-                    _s_idx_for_scope = next((i for i, s in enumerate(sessions) if s["session_id"] == session_id), 0)
+                    _syllabus_for_scope = {"sessions": all_sessions}
+                    _s_idx_for_scope = next((i for i, s in enumerate(all_sessions) if s["session_id"] == session_id), 0)
                     _allowed_set, _forbidden_set = calculate_lesson_scope_contract(_syllabus_for_scope, _s_idx_for_scope, idx)
 
                     state: AgentState = {
@@ -546,6 +540,7 @@ def execute_course_workflow(args):
                         "previous_lessons": previous_lessons.copy(),
                         "allowed_scope": sorted(_allowed_set),
                         "forbidden_scope": sorted(_forbidden_set),
+                        "scope_source": "full_course",
                         "session_kind": session_kind,
                         "artifacts_status": {
                             "html": ArtifactStatus.PENDING,
@@ -610,7 +605,7 @@ def execute_course_workflow(args):
                         else:
                             if cached_state and not args.force:
                                 print(f"  [Checkpoint] Found intermediate checkpoint for {lesson_id}. Resuming...")
-                                state = cached_state
+                                state = merge_resume_state(cached_state, state)
                             final_state = workflow.run(state)
                             final_states.append(final_state)
                         
@@ -636,16 +631,7 @@ def execute_course_workflow(args):
                         })
                         
                         master_c = final_state.get("master_content", {})
-                        rich_summary = f"Bài học: {lesson_title}\n"
-                        if isinstance(master_c, dict):
-                            if "reading_sections" in master_c:
-                                for sec in master_c["reading_sections"]:
-                                    rich_summary += f"### {sec.get('title')}\n"
-                                    rich_summary += f"{sec.get('content', '')[:150]}...\n"
-                            if "example" in master_c and master_c["example"]:
-                                rich_summary += f"### Cú pháp/Mã nguồn đã học:\n```python\n{master_c['example']}\n```\n"
-                        else:
-                            rich_summary += final_state.get("html_content", "")[:300]
+                        rich_summary = build_lesson_summary(lesson_title, final_state)
 
                         previous_lessons.append({
                             "lesson_id": lesson_id,
@@ -728,6 +714,7 @@ def execute_course_workflow(args):
                             course_name=course_clean,
                             tech_stack=tech_stack,
                             target_dir=slide_deck_dir,
+                            session_dir=session_dir,
                             chosen_domain=session_domain_id
                         )
                     except Exception as e_slide:
@@ -769,7 +756,7 @@ def execute_course_workflow(args):
                 else:
                     if cached_state and not args.force:
                         print(f"  [Checkpoint] Found intermediate checkpoint for {session_id}. Resuming...")
-                        state = cached_state
+                        state = merge_resume_state(cached_state, state)
                     final_state = workflow.run(state)
                     final_states.append(final_state)
                 session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
@@ -796,16 +783,7 @@ def execute_course_workflow(args):
 
                 if args.approve_pm and not (is_project_or_hackathon or is_practice):
                     master_c = final_state.get("master_content", {})
-                    rich_summary = f"Bài học: {session_title}\n"
-                    if isinstance(master_c, dict):
-                        if "reading_sections" in master_c:
-                            for sec in master_c["reading_sections"]:
-                                rich_summary += f"### {sec.get('title')}\n"
-                                rich_summary += f"{sec.get('content', '')[:150]}...\n"
-                        if "example" in master_c and master_c["example"]:
-                            rich_summary += f"### Cú pháp/Mã nguồn đã học:\n```python\n{master_c['example']}\n```\n"
-                    else:
-                        rich_summary += final_state.get("html_content", "")[:300]
+                    rich_summary = build_lesson_summary(session_title, final_state)
                         
                     session_lessons_text = rich_summary
                     
@@ -875,7 +853,7 @@ def execute_course_workflow(args):
             from core.quiz_excel import export_quiz_to_excel
             
             current_topic = session_title_str
-            s_idx = next((i for i, s in enumerate(sessions) if s["session_id"] == session_id), 0)
+            s_idx = next((i for i, s in enumerate(all_sessions) if s["session_id"] == session_id), 0)
 
             # "Bài cũ" cho quizz đầu giờ phải là BÀI HỌC GẦN NHẤT của session lý thuyết gần nhất
             # (không phải nguyên cả session N-1, và phải bỏ qua các session Project/Hackathon/
@@ -892,7 +870,7 @@ def execute_course_workflow(args):
             previous_topic = "Tổng quan"
             previous_topics_context_list: list = []
             for back_idx in range(s_idx - 1, -1, -1):
-                cand = sessions[back_idx]
+                cand = all_sessions[back_idx]
                 if not _is_theory_session(cand):
                     continue
                 cand_lessons = cand.get("lessons", [])
@@ -906,8 +884,8 @@ def execute_course_workflow(args):
             previous_topics_context_str = "; ".join(previous_topics_context_list)
 
             from core.scope_calculator import calculate_lesson_scope_contract
-            syllabus_data = {"sessions": sessions}
-            num_lessons = len(sessions[s_idx].get("lessons", []))
+            syllabus_data = {"sessions": all_sessions}
+            num_lessons = len(all_sessions[s_idx].get("lessons", []))
             allowed_set, forbidden_set = calculate_lesson_scope_contract(syllabus_data, s_idx, max(0, num_lessons - 1))
 
             forbidden_scope_str = ", ".join(sorted(forbidden_set))

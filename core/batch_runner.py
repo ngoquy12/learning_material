@@ -55,6 +55,12 @@ class BatchLessonExecutor:
                 return index, res_state, None
             except Exception as exc:
                 print(f"  [Worker Thread] [FAILED] Error processing {lesson_id}: {exc}")
+                # Trả lại state nguyên vẹn sẽ khiến lesson hỏng hiện ra là "Pending" như
+                # chưa chạy. Ghi rõ FAILED và nguyên nhân để báo cáo cuối không bỏ sót.
+                state.setdefault("artifacts_status", {})["session"] = "FAILED"
+                state.setdefault("review_logs", []).append(
+                    {"source": "Batch_Executor", "feedback": f"{type(exc).__name__}: {exc}"}
+                )
                 return index, state, exc
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=effective_workers) as executor:

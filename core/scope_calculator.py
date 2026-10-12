@@ -138,7 +138,7 @@ def validate_text_against_scope(
         
     text_lower = text.lower()
     # Strip disclaimer/prohibition sentences so that sentences like "Chú ý: Không dùng dict/list" do not trigger false positive.
-    cleaned_text = re.sub(r'(?:cấm|không|tuyệt đối|chưa được|lưu ý|chú ý|note|forbid|forbidden|without|do not use)[^.\n]*', '', text_lower, flags=re.IGNORECASE)
+    cleaned_text = re.sub(r'\b(?:cấm|không|tuyệt đối|chưa được|lưu ý|chú ý|note|forbid|forbidden|without|do not use)\b[^.\n]*', '', text_lower, flags=re.IGNORECASE)
     
     violations = []
     
