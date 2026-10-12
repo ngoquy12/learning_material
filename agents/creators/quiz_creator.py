@@ -12,9 +12,12 @@ def extract_lang_tag(tech_stack: str) -> str:
     """
     Trích xuất ngôn ngữ / công nghệ dạng slug (Markdown code fence tag) từ tech_stack linh hoạt,
     đảm bảo KHÔNG hardcode bất kỳ công nghệ cụ thể nào.
+
+    Khớp theo TỪ nguyên vẹn: so khớp chuỗi con làm "go" khớp "mongodb" hay "algorithm",
+    "ts" khớp "tests", "js" khớp "json".
     """
     if not tech_stack:
-        return "python"
+        return "text"
     main_stack = tech_stack.split('/')[0].strip().lower()
     mapping = {
         "python": "python",
@@ -22,6 +25,7 @@ def extract_lang_tag(tech_stack: str) -> str:
         "typescript": "typescript",
         "js": "javascript",
         "ts": "typescript",
+        "node": "javascript",
         "java": "java",
         "cpp": "cpp",
         "c++": "cpp",
@@ -39,11 +43,11 @@ def extract_lang_tag(tech_stack: str) -> str:
         "git": "bash",
         "docker": "dockerfile"
     }
-    for key, tag in mapping.items():
-        if key in main_stack:
-            return tag
+    for token in re.findall(r"c\+\+|c#|[a-z0-9]+", main_stack):
+        if token in mapping:
+            return mapping[token]
     # Fallback to sanitized main_stack slug
-    return re.sub(r'[^a-z0-9]', '', main_stack) or "python"
+    return re.sub(r'[^a-z0-9]', '', main_stack) or "text"
 
 def normalize_quiz_markdown_code_formatting(quiz_items: List[Dict[str, Any]], lang_tag: str) -> List[Dict[str, Any]]:
     """

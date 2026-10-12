@@ -39,6 +39,8 @@ def get_pm_system_prompt(course_id: str = "", tech_stack: str = "", session_budg
         }
     )
 
+# Prompt được dựng theo từng khóa tại nơi gọi (ngân sách buổi học khác nhau theo khóa).
+# Hằng này chỉ giữ lại cho mã cũ; không dùng để gọi LLM.
 SYSTEM_PROMPT = get_pm_system_prompt()
 
 
@@ -276,7 +278,7 @@ REVISE and UPGRADE the curriculum syllabus to resolve ALL defects and warnings a
 Return ONLY raw updated JSON array."""
 
     response = call_llm(
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=get_pm_system_prompt(course_id, tech_stack, session_budget),
         user_prompt=correction_prompt,
         json_mode=True,
         agent_name="PM Generator Agent (Self-Correction)"
@@ -525,7 +527,7 @@ def _normalize_session_01_lessons(pm_data: List[Dict[str, Any]]) -> List[Dict[st
             s["lessons"] = [{
                 "lesson_num": 1,
                 "title": "Tổng quan lộ trình và Demo sản phẩm",
-                "content_scope": "1. Tổng quan nội dung & Lộ trình môn học (Timeline/List) | 2. Phương pháp học tập hiệu quả & Kiến thức tiền đề (AI Pair-Programming Cursor/Windsurf) | 3. Demo sản phẩm dự án đầu ra (Capstone Project Spec & Features)",
+                "content_scope": "1. Tổng quan nội dung & Lộ trình môn học (Timeline/List) | 2. Phương pháp học tập hiệu quả & Kiến thức tiền đề (làm việc cùng công cụ AI hỗ trợ lập trình) | 3. Demo sản phẩm dự án đầu ra (Capstone Project Spec & Features)",
                 "expected_outcome": "Nắm vững toàn bộ cấu trúc lộ trình môn học, áp dụng phương pháp học tập kết hợp công cụ AI IDE và hiểu rõ các tiêu chuẩn sản phẩm dự án đầu ra.",
                 "forbidden_scope": "CẤM: Gõ lệnh CLI, cài đặt phần mềm, viết mã nguồn, tạo code demo hay code sandbox rỗng.",
                 "allowed_scope": "ĐÃ HỌC: Bài mở đầu (Chưa có).",
@@ -599,7 +601,7 @@ MANDATORY OUTPUT CONTRACT: Return ONLY a valid JSON array of sessions adhering s
 """
 
     response = call_llm(
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=get_pm_system_prompt(course_id, tech_stack, session_budget),
         user_prompt=user_prompt,
         json_mode=True,
         agent_name="PM Generator Agent"

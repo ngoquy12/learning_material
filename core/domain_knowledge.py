@@ -193,6 +193,7 @@ BUSINESS_DOMAINS: Dict[str, Dict[str, Any]] = {
     }
 }
 
+import hashlib
 import re
 
 def get_available_domain_ids() -> List[str]:
@@ -230,7 +231,7 @@ def get_domain_for_session(session_id: str, session_title: str = "", default_dom
     
     # Hash session_title if no number
     if session_title:
-        h = abs(hash(session_title))
+        h = int(hashlib.sha256(session_title.encode("utf-8")).hexdigest(), 16)  # hash() đổi giá trị mỗi lần chạy
         domain_keys = list(BUSINESS_DOMAINS.keys())
         return BUSINESS_DOMAINS[domain_keys[h % len(domain_keys)]]
     

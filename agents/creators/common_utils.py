@@ -600,7 +600,7 @@ Return ONLY the raw JSON object below (no markdown wrappers):
         }}
     ],
     "references": [
-        {{"title": "Title of official authoritative reference documentation (no W3Schools)", "url": "https://docs.python.org/3/"}}
+        {{"title": "Title of official authoritative reference documentation (no W3Schools)", "url": "URL of the official documentation of {tech_stack}"}}
     ],
     "quiz": [
         {{
@@ -680,7 +680,6 @@ Return only raw JSON.
         {"question": f"Phân tích lỗi Gotcha phổ biến được đề cập ở Phần 4 và trình bày cơ chế kiểm tra tự động để ngăn ngừa sự cố trên môi trường Production.", "answer": f"Lỗi Gotcha thường phát sinh do thao tác thiếu kiểm soát. Cần áp dụng danh sách kiểm tra và các công cụ rà soát tự động trước khi triển khai."}
     ]
     final_result["references"] = stage2_result.get("references") or [
-        {"title": f"Tài liệu hướng dẫn chính thức {tech_stack.upper()}", "url": "https://docs.python.org/3/"},
         {"title": f"Trang chủ tài nguyên đào tạo Rikkei Education", "url": "https://rikkei.edu.vn"}
     ]
     final_result["quiz"] = stage2_result.get("quiz") or []

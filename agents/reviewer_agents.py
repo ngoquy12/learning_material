@@ -604,9 +604,14 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     from core.sandbox import execute_code_safely
     
     # Extract code between code block tags (agnostic to language)
-    code_match = re.search(r'<code[^>]*class="[^"]*language-[a-zA-Z0-9]+[^"]*"[^>]*>(.*?)</code>', html_content, re.DOTALL)
+    code_match = re.search(r'<code[^>]*class="[^"]*language-([a-zA-Z0-9]+)[^"]*"[^>]*>(.*?)</code>', html_content, re.DOTALL)
+    # Sandbox chỉ chạy được Python. Chạy mã JS/SQL/bash bằng trình thông dịch Python luôn
+    # thất bại và phản hồi sai đó bị nạp ngược vào việc sinh lại quiz.
+    if code_match and code_match.group(1).lower() not in ("python", "py", "python3"):
+        print(f"  [Sandbox] Bỏ qua chạy thử: ngôn ngữ '{code_match.group(1)}' không phải Python.")
+        code_match = None
     if code_match:
-        raw_code = code_match.group(1)
+        raw_code = code_match.group(2)
         # Decode HTML entities
         code = raw_code.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("&quot;", '"').replace("&#x27;", "'")
         
@@ -664,7 +669,7 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
         Quiz JSON:
         {json.dumps(quiz_json, ensure_ascii=False)}
         
-        If the question is about the database, ensure it correctly asserts PostgreSQL instead of MongoDB.
+        Verify the technology facts in each question match the target technology stack.
         
         Response MUST be a valid JSON matching this schema:
         {{
@@ -788,7 +793,7 @@ def apply_smart_pedagogical_rule_fixes(pm_json: str, tech_stack: str) -> str:
     lesson metadata (title, details, session index) without any hardcoded language-specific strings.
     """
     import json
-    from app.utils.json_helper import clean_and_parse_json
+    from core.utils.json_sanitizer import clean_and_parse_json
     try:
         curriculum = clean_and_parse_json(pm_json)
         if not isinstance(curriculum, list):
@@ -890,7 +895,7 @@ def pm_updater_agent(pm_json: str, review_report: str, tech_stack: str) -> str:
         return apply_smart_pedagogical_rule_fixes(pm_json, tech_stack)
         
     try:
-        from app.utils.json_helper import clean_and_parse_json
+        from core.utils.json_sanitizer import clean_and_parse_json
         parsed = clean_and_parse_json(response_text)
         return apply_smart_pedagogical_rule_fixes(json.dumps(parsed, ensure_ascii=False), tech_stack)
     except Exception:

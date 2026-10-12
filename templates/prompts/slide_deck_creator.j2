@@ -17,7 +17,7 @@ Nhiệm vụ của bạn là nhận toàn bộ nội dung thô của Session (g�
    - **Slide 3 (Mục tiêu bài học - objectives)**: Đúng 4 mục tiêu kiến thức & kỹ năng cốt lõi theo thang Bloom (1, 2, 3, 4).
    - **Slide 4 đến n-4 (Các slide nội dung & code - comparison, code, table)**: Triển khai lần lượt các phần bài học:
      - Slide so sánh 2 cột (type: `comparison`): Trực quan hóa "Cách viết cũ/thủ công/vấn đề" vs "Giải pháp mới/tối ưu" hoặc so sánh 2 kỹ thuật.
-     - Slide code bên trái + giải thích bên phải (type: `code`): Code JavaScript thực tế chuyên sâu (10-15 dòng code sạch, có comment) cùng ngữ cảnh Domain duy nhất (`{{ chosen_domain }}`), bên phải là card phân tích kỹ thuật và lưu ý.
+     - Slide code bên trái + giải thích bên phải (type: `code`): Code {{ tech_stack }} thực tế chuyên sâu (10-15 dòng code sạch, có comment) cùng ngữ cảnh Domain duy nhất (`{{ chosen_domain }}`), bên phải là card phân tích kỹ thuật và lưu ý.
      - Slide bảng phân tích / trace bảng giá trị (type: `table`): Bảng trace biến từng bước hoặc so sánh kỹ thuật.
    - **Slide n-3 (Thuật ngữ cần nhớ - grid4)**: 4 ô thẻ card lưới 2x2 định nghĩa 4 thuật ngữ kỹ thuật then chốt kèm ví dụ ngắn.
    - **Slide n-2 (Tổng kết & Lưu ý lỗi thường gặp - comparison/cards)**: Tóm tắt các điểm cốt lõi và cảnh báo lỗi thường gặp (ví dụ lỗi rò rỉ biến, hoisting, sai ngữ cảnh this...).
@@ -127,13 +127,13 @@ Trả về **DUY NHẤT một JSON Object hợp lệ** (đặt trong khối ```j
         "Function Expression gán hàm vào biến, chỉ gọi được sau dòng gán.",
         "Khuyến nghị: Dùng Declaration cho hàm tiện ích toàn cục, Expression cho hàm callback nội bộ."
       ],
-      "speaker_notes": "Điểm khác biệt quan trọng nhất giữa hai cách viết này chính là cơ chế Hoisting trong JavaScript..."
+      "speaker_notes": "Điểm khác biệt quan trọng nhất giữa hai cách viết này chính là cơ chế vận hành của khái niệm này trong {{ tech_stack }}..."
     },
     {
       "slide_number": 12,
       "type": "grid4",
       "title": "Thuật Ngữ Cần Nhớ",
-      "subtitle": "4 khái niệm cốt lõi bắt buộc nắm vững trong lập trình JavaScript",
+      "subtitle": "4 khái niệm cốt lõi bắt buộc nắm vững trong {{ tech_stack }}",
       "items": [
         {
           "title": "1. Function Declaration",
