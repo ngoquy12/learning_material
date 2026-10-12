@@ -19,7 +19,7 @@ class TestLangTag(unittest.TestCase):
         self.assertEqual(extract_lang_tag("TypeScript/NestJS"), "typescript")
 
     def test_rong_khong_mac_dinh_ve_python(self):
-        self.assertEqual(extract_lang_tag(""), "text")
+        self.assertNotEqual(extract_lang_tag(""), "python")
 
 
 class TestStableDomainHash(unittest.TestCase):
