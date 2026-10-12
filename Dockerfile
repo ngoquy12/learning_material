@@ -1,11 +1,10 @@
 # Multi-stage Dockerfile for Elearning Content Factory
 FROM python:3.10-slim AS base
 
-# Install system dependencies (Node.js 18, FFmpeg, Chromium for Puppeteer, fonts)
+# Install system dependencies (Node.js 18, Chromium for Puppeteer, fonts)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gnupg \
-    ffmpeg \
     chromium \
     fonts-liberation \
     libnss3 \

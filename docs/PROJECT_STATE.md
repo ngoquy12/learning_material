@@ -65,3 +65,4 @@
 - 2026-10-12: tạo tệp này; rút gọn `.agents/AGENTS.md` (chi tiết chuyển sang `docs/quy_chuan_chi_tiet.md`); thêm workflow `/resume`, `/handoff`; gom `skills/lessons_learned/SKILL.md` (bản đầy đủ lưu ở `docs/archive/`).
 - 2026-10-12: đồng bộ thời lượng bài đọc 15 phút (hằng số `core/reading_budget.py`); viết lại skill mindmap và thêm renderer HTML tự chứa; cập nhật mục "Việc tiếp theo".
 - 2026-10-12: tạo môn `js_advanced_ai_driven` (xem mục 3); `_shared/README.md` mô tả mock API và cách viết test bất đồng bộ.
+- 2026-10-12: gỡ toàn bộ phần dựng video HyperFrames (TTS, render, FFmpeg, bộ chuẩn hóa phiên âm); chỉ giữ tạo kịch bản video (`video_script_creator`, skill `video_script_generator`, đầu ra `Video/SCRIPT.md`).

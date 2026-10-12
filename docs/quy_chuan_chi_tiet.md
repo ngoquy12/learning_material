@@ -10,14 +10,14 @@ Lưu ý mâu thuẫn còn mở: nguyên tắc 11 (chỉ Light Mode) và mục 7.
 
 # Project Rules & Agent Directives — Rikkei Education Learning Material Standards
 
-This document defines the unified pedagogical, technical, and UI layout design standards applicable to all generated learning resources (Reading Materials, Exercises, Labs / Mini Projects, Quizzes, HTML Slide Presentations, HyperFrames Videos, Interactive Visualizers, and Mindmaps).
+This document defines the unified pedagogical, technical, and UI layout design standards applicable to all generated learning resources (Reading Materials, Exercises, Labs / Mini Projects, Quizzes, HTML Slide Presentations, Video Scripts, Interactive Visualizers, and Mindmaps).
 
 ---
 
 ## 🌐 UNIVERSAL AGENT LANGUAGE & ROLE DIRECTIVE
 
 1. **English Skill Directives & System Prompts**: All Skill documentation, Agent instructions, and LLM system prompts MUST be drafted in precise, unambiguous English to achieve maximum instruction adherence and zero-drift reasoning.
-2. **100% Accented Vietnamese Output Contract**: All final generated outputs (reading materials, exercises, slides, quiz questions, teleprompter scripts, code comments, UI labels, and assessment rubrics) MUST ALWAYS be produced in 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất).
+2. **100% Accented Vietnamese Output Contract**: All final generated outputs (reading materials, exercises, slides, quiz questions, video scripts, code comments, UI labels, and assessment rubrics) MUST ALWAYS be produced in 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất).
 
 ---
 
@@ -209,16 +209,13 @@ Slides serve as a **Visual Teaching Support Tool** for 1.5-hour lectures, NOT a 
 
 ---
 
-## 6. HYPERFRAMES VIDEO & HTML TELEPROMPTER STUDIO STANDARD
+## 6. VIDEO SCRIPT STANDARD
 
-Strictly follow the 8-stage video production pipeline and interactive studio teleprompter standards.
+The system only produces the lesson-level video script (`Video/SCRIPT.md`); it does not render or edit video. Follow `skills/video_script_generator/SKILL.md` for the full specification.
 
-### 6.1. Voice-UI Separation & Teleprompter Controls
-
-- **Voice-UI Separation**: TTS / Instructor Teleprompter = Full, natural spoken sentences with pedagogical lead-in (context ➔ concept ➔ example ➔ summary). Screen UI = Short 3-6 word keywords, code snippet cards, diagrams, vector icons.
-- **Natural Lead-in (No Slide Numbers)**: FORBIDDEN to say "Nhìn vào slide 3" or "Ở slide 4". Use natural lead-in phrases ("As shown on screen...", "For initialization...").
-- **No Hyperbolic Superlatives**: Replace "khám phá" with "tìm hiểu". Avoid "nhất", "vô cùng", "bậc nhất", "triệt để".
-- **Interactive Teleprompter Controls**: Sticky top header bar with font scaler (`+`/`-`/Reset), Dark/Light mode toggle, quick jump anchor pills (`#scene-0`, `#scene-1`...), and full-length non-scrolling IDE code cards with copy script button.
+- **Narration vs. screen**: Narration = full, natural spoken sentences with pedagogical lead-in (context ➔ concept ➔ example ➔ summary). Visual cue = a single short line (keyword, code card, diagram, icon).
+- **No slide numbers**: FORBIDDEN to say "Nhìn vào slide 3" or "Ở slide 4". Use natural lead-in phrases ("As shown on screen...").
+- **No hyperbolic superlatives**: Replace "khám phá" with "tìm hiểu". Avoid "nhất", "vô cùng", "bậc nhất", "triệt để".
 
 ---
 
@@ -227,7 +224,7 @@ Strictly follow the 8-stage video production pipeline and interactive studio tel
 1. **High-Contrast Dark Theme Code Trackers & Code Blocks**:
    - Use high-contrast syntax colors (`#79c0ff` variables, `#7ee787` strings/numbers, `#ff7b72` keywords, `#ffa657` functions).
 2. **100% Accented Vietnamese Output**:
-   - All generated body text, self-test questions, SVG labels, teleprompter scripts, and code comments MUST be written in 100% Accented Vietnamese.
+   - All generated body text, self-test questions, SVG labels, video scripts, and code comments MUST be written in 100% Accented Vietnamese.
 3. **Strict No ALL CAPS Text Standard**:
    - DO NOT use ALL CAPS on titles, buttons, or labels. Use Sentence Case or Title Case.
 4. **Dark Terminal Console Output Component**:

@@ -30,7 +30,7 @@
 
 Hệ thống **Elearning Content Factory** tập trung tối đa nguồn lực vào việc sản xuất bộ tài nguyên học liệu cốt lõi chất lượng cao nhất: **Bài đọc HTML tương tác (Pyodide Wasm Sandbox), Master Slide Bento Grid, Bộ 6 bài tập phân tầng Bloom, Lab thực hành theo dự án, Đề trắc nghiệm chuẩn sư phạm, Gói SCORM 1.2 cho LMS và Obsidian Vault Knowledge Graph**.
 
-Nhằm tinh gọn hệ thống và tập trung vào thế mạnh cốt lõi, toàn bộ cấu phần HyperFrames video thử nghiệm đã được loại bỏ. Bản kế hoạch tối ưu hóa v2.1 tập trung giải quyết 3 bài toán trọng tâm:
+Nhằm tinh gọn hệ thống và tập trung vào thế mạnh cốt lõi, phần dựng video tự động đã được loại bỏ, chỉ giữ kịch bản video. Bản kế hoạch tối ưu hóa v2.1 tập trung giải quyết 3 bài toán trọng tâm:
 
 1. **Nợ kỹ thuật về cấu trúc module và kiểm thử**: Chuẩn hóa import namespace, thiết lập mock layers để test suite chạy offline $100\%$ `< 15s`.
 2. **Nâng cấp Pydantic v2 & Web API**: Đồng bộ hóa toàn bộ schemas `web/backend` sang `ConfigDict` và chuẩn hóa luồng xử lý API.

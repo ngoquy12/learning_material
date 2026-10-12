@@ -5,7 +5,7 @@ Standardized Session Types & Deliverables Schema for Elearning Agent Framework.
 Supported Session Types & Deliverables:
 1. THEORY (Session Lý Thuyết):
    - Per-Lesson: Interactive Reading HTML, Slide HTML, Lesson Labs (3-5 exercises)
-   - Per-Session: Entry Quiz, Session Comprehensive Practice (5 large exercises), Session Quiz Excel (.xlsx), Session Homework, reading_all.html, session_slides.html, Hyperframes Narration Script
+   - Per-Session: Entry Quiz, Session Comprehensive Practice (5 large exercises), Session Quiz Excel (.xlsx), Session Homework, reading_all.html, session_slides.html, Video Script (kịch bản quay video)
 2. PRACTICE (Session Thực Hành):
    - Practice Labs (Basic -> Advanced), Homework, Data Tasks
 3. MINI_PROJECT (Session Mini Project):

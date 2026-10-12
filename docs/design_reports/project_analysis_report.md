@@ -28,9 +28,8 @@ graph TD
         Mindmap[Mindmap Generator]
     end
     
-    Parallel --> TTS[Giai đoạn 5: video_tts_and_render - HyperFrames Engine]
-    TTS --> Publish[Giai đoạn 6: final_compiler_and_publish]
-    Publish --> Refine[Giai đoạn cuối: lessons_learned_refiner]
+    Parallel --> Publish[Giai đoạn 5: final_compiler_and_publish]
+    Publish --> Refine[Giai đoạn 6: lessons_learned_refiner]
 ```
 
 ---
@@ -75,14 +74,9 @@ Trong [agents/reviewer_agents.py](file:///d:/Rikkei%20Education/Elearning_Agent/
 
 ---
 
-## 4. Pipeline Video Voice-Driven (HyperFrames Render Engine)
+## 4. Kịch bản video
 
-Mô hình sản xuất Video HyperFrames trong [hyperframes/video_pipeline_engine.py](file:///d:/Rikkei%20Education/Elearning_Agent/Learning-Material/hyperframes/video_pipeline_engine.py) đại diện cho phương pháp thiết kế video tự động tiên tiến:
-
-1. **Voice-UI Separation**: Tách bạch kịch bản lời thoại thoại TTS tự nhiên với cấu trúc từ khóa/mã nguồn hiển thị trên UI.
-2. **Audio Probing & durations.json**: Thay vì hardcode thời gian hiển thị slide, hệ thống gọi Kokoro-Vietnamese hoặc Edge-TTS sinh file âm thanh `.wav` trước, sau đó dùng `soundfile` hoặc `ffprobe` đo đạc chính xác thời lượng thực tế tới từng miligiây.
-3. **Voice-Driven GSAP HTML**: Sinh các sub-compositions HTML tích hợp animation GSAP. Tổng thời lượng hiển thị (duration) của mỗi phân cảnh được gắn khớp 100% với thời lượng của file âm thanh TTS tương ứng.
-4. **Controlled Puppeteer Render**: Dùng Chrome không đầu (headless Puppeteer thông qua lệnh `hyperframes render`) chuyển đổi Master index.html (tập hợp các sub-compositions HTML lồng ghép âm thanh/nhạc nền) thành tệp MP4 hoàn chỉnh.
+Hệ thống chỉ sinh kịch bản quay video cấp Lesson (`Video/SCRIPT.md`) bằng `agents/creators/video_script_creator.py` theo skill `video_script_generator`. Mỗi phân cảnh tách rõ hình ảnh/hành động và lời thoại của giảng viên. Việc quay và dựng video do giảng viên thực hiện; hệ thống không còn bước TTS hay render video.
 
 ---
 

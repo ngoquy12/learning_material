@@ -82,11 +82,11 @@ Ba phần: Mục tiêu (2-3 kỹ năng, sản phẩm bàn giao); Mô tả và qu
 - Tổng kết bài học: ngay trước slide kết thúc/Q&A, 3-6 ý cốt lõi, danh sách số phẳng, chữ lớn, cùng màu và bố cục với Mục lục.
 - Chữ: nội dung tối thiểu 18px, gạch con tối thiểu 16px; quy tắc 3-30-300: tối đa 3 ý chính mỗi slide, tối đa 30 từ mỗi ý. Không emoji (dùng Phosphor SVG hoặc badge CSS).
 
-## 6. Video HyperFrames và Teleprompter
+## 6. Kịch bản video
 
-- Quy trình 8 giai đoạn; Lời đọc (TTS/teleprompter) là câu tự nhiên đầy đủ (ngữ cảnh, khái niệm, ví dụ, tóm tắt); màn hình chỉ có từ khóa 3-6 từ, thẻ mã, sơ đồ, biểu tượng.
+- Chỉ sản xuất kịch bản (`Video/SCRIPT.md`), không dựng hay render video. Chuẩn đầy đủ: `skills/video_script_generator/SKILL.md` (3 phần Mở đầu, Nội dung chính, Kết luận; mỗi phân cảnh có thời lượng, hình ảnh/hành động, lời thoại).
+- Lời thoại là câu nói tự nhiên đầy đủ (ngữ cảnh, khái niệm, ví dụ, tóm tắt); phần hình ảnh chỉ mô tả ngắn gọn từ khóa, thẻ mã, sơ đồ.
 - Cấm nói số slide ("Nhìn vào slide 3"); tránh so sánh nhất khoa trương ("nhất", "vô cùng", "triệt để").
-- Teleprompter: thanh đầu cố định có chỉnh cỡ chữ (+/-/Reset), chế độ sáng/tối, nút nhảy cảnh (`#scene-0`...), thẻ mã IDE kèm nút sao chép.
 
 ## 7. Quy tắc dùng chung
 

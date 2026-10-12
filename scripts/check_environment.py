@@ -1,6 +1,6 @@
 """
 scripts/check_environment.py — Pre-flight Environment & Prerequisites Checker.
-Verifies Python version, Node.js, FFmpeg, required Python packages, and .env configuration
+Verifies Python version, Node.js, required Python packages, and .env configuration
 before running expensive Multi-Agent pipelines.
 """
 
@@ -10,7 +10,7 @@ import subprocess
 from pathlib import Path
 
 def check_python_version() -> bool:
-    print("[1/5] Checking Python Version...")
+    print("[1/4] Checking Python Version...")
     v = sys.version_info
     if v.major < 3 or (v.major == 3 and v.minor < 10):
         print(f"  [FAIL] Python 3.10+ required. Current: {v.major}.{v.minor}.{v.micro}")
@@ -19,7 +19,7 @@ def check_python_version() -> bool:
     return True
 
 def check_python_packages() -> bool:
-    print("[2/5] Checking Required Python Packages...")
+    print("[2/4] Checking Required Python Packages...")
     required = ["jinja2", "google.generativeai", "bs4", "openpyxl", "dotenv"]
     missing = []
     for pkg in required:
@@ -35,7 +35,7 @@ def check_python_packages() -> bool:
     return True
 
 def check_nodejs() -> bool:
-    print("[3/5] Checking Node.js Environment...")
+    print("[3/4] Checking Node.js Environment...")
     try:
         res = subprocess.run(["node", "-v"], capture_output=True, text=True, check=True)
         version_str = res.stdout.strip()
@@ -46,21 +46,8 @@ def check_nodejs() -> bool:
         print("         Marp CLI Slide Engine requires Node.js 18+.")
         return False
 
-def check_ffmpeg() -> bool:
-    print("[4/5] Checking FFmpeg Multimedia Tool...")
-    try:
-        res = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True)
-        if res.returncode == 0:
-            first_line = res.stdout.splitlines()[0] if res.stdout else "FFmpeg installed"
-            print(f"  [OK] {first_line[:50]}")
-            return True
-    except FileNotFoundError:
-        pass
-    print("  [WARN] FFmpeg not found in PATH.")
-    return False
-
 def check_env_config() -> bool:
-    print("[5/5] Checking .env Configuration...")
+    print("[4/4] Checking .env Configuration...")
     from dotenv import load_dotenv
     load_dotenv()
     
@@ -86,11 +73,10 @@ def run_all_checks() -> bool:
         check_python_version(),
         check_python_packages(),
         check_nodejs(),
-        check_ffmpeg(),
         check_env_config()
     ]
     print("="*60)
-    critical_passed = results[0] and results[1] and results[4]
+    critical_passed = results[0] and results[1] and results[3]
     if critical_passed:
         print("System Ready: Pre-flight checks passed successfully!\n")
         return True

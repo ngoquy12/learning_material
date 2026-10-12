@@ -76,7 +76,7 @@ Hệ thống tự động phân loại cột **`Hình thức`** của Session đ
   - **Quy chuẩn Anti-Reload:** 100% thẻ `<button>` bắt buộc có `type="button"`, cô lập hàm JS per-lesson (`lesson{idx}_...`) chống xung đột và chống reload trang.
   - **Quy chuẩn Cấm Emoji:** Tuyệt đối không dùng emoji, thay bằng nhãn văn bản chuẩn `[NOTE]`, `[TIP]`, `[WARNING]`, `[BEST PRACTICE]`, `[ANTI-PATTERN]`.
 - **Slide Creator Agent & Marp CLI:** Sinh Slide trình chiếu Markdown chuẩn kích thước 16:9, xuất trực tiếp ra HTML/PDF.
-- **Mindmap Agent & Video Script Agent:** Sinh sơ đồ tư duy Markmap và kịch bản video giảng dạy theo khung HyperFrames.
+- **Mindmap Agent & Video Script Agent:** Sinh sơ đồ tư duy Markmap và kịch bản video giảng dạy (chỉ kịch bản, không dựng video).
 - **Vòng lặp Kiểm duyệt (UX Reviewer, Academic Reviewer, Sandbox Reviewer):** Chạy kiểm thử tự động, tự động feedback và yêu cầu sửa lỗi tối đa 3 lần.
 
 #### B. Phân hệ Buổi Thực hành (Practice Factory):

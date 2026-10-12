@@ -16,7 +16,6 @@ class TestAntigravityLLMRouter(unittest.TestCase):
         # Tier 1 (Fast & Light)
         self.assertEqual(AntigravityLLMRouter.classify_agent_tier("quiz_validator"), TIER_1_FAST)
         self.assertEqual(AntigravityLLMRouter.classify_agent_tier("syntax_linter"), TIER_1_FAST)
-        self.assertEqual(AntigravityLLMRouter.classify_agent_tier("tts_normalizer"), TIER_1_FAST)
         self.assertEqual(AntigravityLLMRouter.classify_agent_tier("my_custom_validator"), TIER_1_FAST)
 
         # Tier 2 (High Reasoning)

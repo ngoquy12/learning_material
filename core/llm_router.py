@@ -32,14 +32,13 @@ HIGH_REASONING_PRO_AGENTS = {
 
 # Task/Agent Mapping Registry
 AGENT_TIER_REGISTRY: Dict[str, str] = {
-    # Tier 1: Validation, Linters, Summaries, TTS Normalization
+    # Tier 1: Validation, Linters, Summaries
     "quiz_validator": TIER_1_FAST,
     "reading_validator": TIER_1_FAST,
     "slide_validator": TIER_1_FAST,
     "practice_validator": TIER_1_FAST,
     "project_validator": TIER_1_FAST,
     "syntax_linter": TIER_1_FAST,
-    "tts_normalizer": TIER_1_FAST,
     "session_compiler_validator": TIER_1_FAST,
     "html_ux_reviewer": TIER_1_FAST,
     
