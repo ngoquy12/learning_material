@@ -396,8 +396,9 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 lesson_dir = get_or_rename_sanitized_folder(session_dir, lesson_id, lesson_folder_name)
                 lesson_dir.mkdir(parents=True, exist_ok=True)
 
-                is_lesson_project_or_hackathon = any(kw in lesson_title.lower() or kw in session_title.lower() for kw in ["hackathon", "project", "đồ án", "dự án", "mini project"])
-                is_lesson_practice = "thực hành" in lesson_title.lower() or "thực hành" in session_title.lower()
+                # Loại buổi do BUỔI quyết định (không suy từ tiêu đề lesson: "Cấu trúc dự án..." không phải buổi dự án).
+                is_lesson_project_or_hackathon = is_project_or_hackathon
+                is_lesson_practice = is_practice
 
                 if is_lesson_project_or_hackathon:
                     (lesson_dir / "Bài kiểm tra đầu giờ").mkdir(parents=True, exist_ok=True)
@@ -528,8 +529,9 @@ def project_structure_reviewer_agent(sessions, course_dir: Path, requested_parts
                     missing_elements.append(f"Thiếu thư mục lesson: {session_id} -> {lesson_id}")
                     continue
 
-                is_lesson_project_or_hackathon = any(kw in lesson_title.lower() or kw in session_title.lower() for kw in ["hackathon", "project", "đồ án", "dự án", "mini project"])
-                is_lesson_practice = "thực hành" in lesson_title.lower() or "thực hành" in session_title.lower()
+                # Loại buổi do BUỔI quyết định (không suy từ tiêu đề lesson: "Cấu trúc dự án..." không phải buổi dự án).
+                is_lesson_project_or_hackathon = is_project_or_hackathon
+                is_lesson_practice = is_practice
 
                 if is_lesson_project_or_hackathon:
                     if not (lesson_dir / "Bài kiểm tra đầu giờ").exists():
@@ -617,12 +619,14 @@ def verify_previous_lessons_completed(sessions, current_session_id: str, current
     if current_idx <= 0:
         return
         
+    sessions_by_id = {s["session_id"]: s for s in sessions}
     # Check all lessons before current_idx
     for idx in range(current_idx):
         prev_session_id, prev_session_title, prev_lesson_id, prev_lesson_title = ordered_lessons[idx]
         
-        is_project_or_hackathon = any(kw in prev_session_title.lower() or kw in prev_lesson_title.lower() for kw in ["hackathon", "project", "đồ án", "dự án", "mini project"])
-        is_practice = "thực hành" in prev_session_title.lower() or "thực hành" in prev_lesson_title.lower()
+        prev_session = sessions_by_id.get(prev_session_id, {})
+        is_project_or_hackathon = is_project_or_hackathon_session(prev_session)
+        is_practice = is_practice_session(prev_session)
         if is_project_or_hackathon or is_practice:
             continue
             

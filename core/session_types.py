@@ -16,6 +16,7 @@ Supported Session Types & Deliverables:
 
 import os
 from enum import Enum
+from core.utils.text_match import has_any_term
 from typing import Any, Dict, List, Optional, Tuple
 
 
@@ -146,7 +147,7 @@ def detect_session_type(session_data: Dict[str, Any]) -> SessionType:
         return SessionType.FINAL_PROJECT
     elif any(kw in title for kw in ["mini project", "mini-project", "tiểu luận"]):
         return SessionType.MINI_PROJECT
-    elif any(kw in title for kw in ["thực hành", "practice", "lab", "luyện tập"]):
+    elif has_any_term(title, ["thực hành", "practice", "lab", "luyện tập"]):
         return SessionType.PRACTICE
         
     return SessionType.THEORY

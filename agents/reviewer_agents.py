@@ -3,6 +3,7 @@ import json
 from typing import Dict, Any
 from core.state import AgentState
 from core.memory_context import memory_prompt_block
+from core.utils.text_match import has_any_term
 from config.settings import get_agent_prompt
 from core.llm import call_llm
 import re
@@ -369,7 +370,7 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
         
         lesson_title = str(state.get("lesson_title", "") or pm_lesson_details.get("session_title", ""))
         t_lower = lesson_title.lower()
-        is_theory_only = any(kw in t_lower for kw in [
+        is_theory_only = has_any_term(t_lower, [
             "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm cơ bản", "lý thuyết", "bản chất", "tìm hiểu", "khái quát",
             "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
             "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"

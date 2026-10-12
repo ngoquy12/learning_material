@@ -563,8 +563,6 @@ def execute_course_workflow(args):
                         "pm_approved": args.approve_pm
                     }
 
-                    is_project_or_hackathon = any(kw in session_title.lower() or kw in lesson_title.lower() for kw in ["hackathon", "project", "đồ án", "dự án", "mini project"])
-                    is_practice = "thực hành" in session_title.lower() or "thực hành" in lesson_title.lower()
                     
                     if args.approve_pm and (is_project_or_hackathon or is_practice):
                         session_dir = get_or_rename_sanitized_folder(course_dir, session_id, format_full_folder_name(session_id, session_title))
