@@ -106,3 +106,17 @@ When providing code snippets or step-by-step code guidance:
 * **Indentation**:
   - Ensure consistent 4-space indentation for block structures (2 spaces for JS/HTML). Use explicit linebreaks.
 
+## 8. Pre-Delivery Verification Gate (MANDATORY for programming courses)
+
+Root causes of past defects were process gaps, not individual exercises: exercises written before the readings drifted from them; solutions used constructs the course had not taught; shared base code was rewritten per exercise and diverged. Close those gaps with this gate.
+
+1. **Order of work**: write and finish the Lesson readings FIRST. Write exercises/labs afterwards, reusing the exact function names, Vietnamese labels, fixed error messages and data conventions that the readings introduced. Never author exercises from the syllabus alone.
+2. **Base-code markers (standard)**: in every `starter/script.js`, wrap provided code with `// ===== Mã nền (có sẵn, KHÔNG sửa) =====` ... `// ===== HẾT MÃ NỀN =====`, then `// ===== BÀI LÀM: <tên bài> =====`. The checker below skips base code; unmarked base code is treated as student code.
+3. **Shared base code is copied verbatim** from the earlier exercise's solution (same function names, same parameter shapes). Do not re-author `fakeApi`, `request`, `buildQuery`-style helpers per exercise.
+4. **Declare the not-yet-taught constructs** for the course (from `forbidden_scope` / the course spec), for example JavaScript `class,this,module,closure` or Python `class,lambda,comprehension,decorator`.
+5. **Run the gate and fix until it reports 0 problems**:
+
+   `python scripts/check_exercise_scope.py <course folder> --forbid <constructs> --language javascript`
+
+   It reports (a) constructs the course has not taught in student-written code of starters and reference solutions, and (b) functions with the same name but different parameter shapes across exercises of one session. A reported drift is either a bug to fix or an intentional change that must be stated in the exercise statement.
+6. If the gate flags a construct that is genuinely needed, do NOT quietly keep it: either teach it in a reading first, or redesign the exercise so students never write it.

@@ -96,3 +96,5 @@ Ba phần: Mục tiêu (2-3 kỹ năng, sản phẩm bàn giao); Mô tả và qu
 ## 8. Lỗi thường gặp và cách tránh
 
 Kho kinh nghiệm theo nhóm: `skills/lessons_learned/SKILL.md` (mỗi `<img>` có chú thích dưới; `<table>` bọc `div.overflow-x-auto`; đóng đủ thẻ; không placeholder chưa render; nhãn ngôn ngữ khớp công nghệ).
+
+- Bài tập/lab môn lập trình: viết bài đọc trước, bài tập sau; trước khi giao chạy `python scripts/check_exercise_scope.py <thư mục môn> --forbid <cấu trúc chưa dạy>` và sửa tới 0 vấn đề (quy trình ở mục 8 của `skills/exercise_generator/SKILL.md`).
