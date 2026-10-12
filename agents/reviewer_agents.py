@@ -10,6 +10,38 @@ from core.scope_calculator import validate_text_against_scope
 from core.validators.syntax_linter import lint_html_syntax
 from core.validators.master_validator import validate_resource
 
+def _unreadable_review(reviewer: str, detail: str = "") -> Dict[str, Any]:
+    """
+    Kết quả khi không đọc được phán quyết của reviewer: TỪ CHỐI, không phải duyệt.
+
+    Bản trước trả APPROVED trong nhánh này, nên mỗi lần mô hình trả JSON hỏng thì
+    bản chưa ai kiểm tra lại được đóng dấu "đạt chuẩn" kèm câu giải thích nghe như
+    đã kiểm tra thật.
+    """
+    return {
+        "status": "REJECTED",
+        "score": 0,
+        "feedback": (
+            f"{reviewer} không trả về phán quyết đọc được ({detail or 'JSON không hợp lệ'}); "
+            "chưa thể xác nhận đạt chuẩn. Cần kiểm định lại."
+        ),
+        "critical_errors": [],
+    }
+
+
+def _normalize_review(result: Any, reviewer: str) -> Dict[str, Any]:
+    """Chuẩn hóa phán quyết: status viết hoa, phải là APPROVED/REJECTED, luôn có feedback."""
+    if not isinstance(result, dict):
+        return _unreadable_review(reviewer, "kết quả không phải đối tượng JSON")
+    status = str(result.get("status", "")).strip().upper()
+    if status not in ("APPROVED", "REJECTED"):
+        return _unreadable_review(reviewer, f"status không hợp lệ: {result.get('status')!r}")
+    result["status"] = status
+    if not isinstance(result.get("feedback"), str):
+        result["feedback"] = "" if status == "APPROVED" else "Reviewer từ chối nhưng không nêu lý do."
+    return result
+
+
 def check_syntax_errors(html_text: str) -> str:
     """
     Programmatically lints HTML and JS syntax to prevent Unexpected Token
@@ -397,15 +429,12 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
                 
                 result = json.loads(cleaned)
                 print("  - UX Reviewer successfully invoked LLM dynamically.")
-                return result
+                return _normalize_review(result, "UX_Reviewer")
             except Exception as e:
                 print(f"  [LLM Error] Failed to parse UX review JSON: {e}. Falling back to default rules.")
                 
-    # Default Rule-based Fallback (if LLM fails)
-    return {
-        "status": "APPROVED",
-        "feedback": "Tài liệu đạt chuẩn về mặt UX/UI cơ bản (Fallback từ Rule-based Engine)."
-    }
+    # Không đọc được phán quyết của LLM: từ chối thay vì tự duyệt.
+    return _unreadable_review("UX_Reviewer")
 
 def academic_reviewer(state: AgentState) -> Dict[str, Any]:
     """
@@ -530,17 +559,11 @@ def academic_reviewer(state: AgentState) -> Dict[str, Any]:
                 
                 result = json.loads(cleaned)
                 print("  - Academic Reviewer successfully invoked LLM dynamically.")
-                return result
+                return _normalize_review(result, "Academic_Reviewer")
             except Exception as e:
                 print(f"  [LLM Error] Failed to parse Academic review JSON: {e}. Falling back to default rules.")
                 
-    # Default Rule-based Fallback (if LLM fails)
-    return {
-        "status": "APPROVED",
-        "score": 10,
-        "feedback": "Học liệu đạt chuẩn về mặt kiến thức kỹ thuật (Fallback từ Rule-based Engine).",
-        "critical_errors": []
-    }
+    return _unreadable_review("Academic_Reviewer")
 
 def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     """
@@ -654,13 +677,12 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
                 
                 result = json.loads(cleaned)
                 print("  - Sandbox Agent successfully invoked LLM dynamically.")
-                return result
+                return _normalize_review(result, "Sandbox_Agent")
             except Exception as e:
                 print(f"  [LLM Error] Failed to parse Sandbox review JSON: {e}. Falling back to default rules.")
                 
-    # Default Rule-based Fallback (if LLM fails)
-    print("  - Sandbox Agent fallback to Auto-Approval.")
-    return {"status": "APPROVED", "feedback": "Auto-approved due to JSON parse fallback."}
+    print("  - Sandbox Agent không đọc được phán quyết: từ chối thay vì tự duyệt.")
+    return _unreadable_review("Sandbox_Agent")
 
 
 def pm_reviewer_agent(pm_input: str, tech_stack: str) -> str:
@@ -893,8 +915,8 @@ def objective_reviewer_agent(learning_outcomes: dict, pm_input: str, tech_stack:
     
     if response_text:
         try:
-            return json.loads(response_text)
-        except:
+            return _normalize_review(json.loads(response_text), "Objective_Reviewer_Agent")
+        except (ValueError, TypeError):
             pass
-    
-    return {"status": "APPROVED", "score": 10, "feedback": "Auto-approved due to LLM timeout."}
+
+    return _unreadable_review("Objective_Reviewer_Agent")

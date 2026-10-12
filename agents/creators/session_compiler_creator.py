@@ -1,5 +1,5 @@
 from core.state import AgentState
-from core.artifact_status import ArtifactStatus
+from core.artifact_status import ArtifactStatus, is_failed, needs_human_review
 
 def session_compiler_agent(state: AgentState) -> AgentState:
     """
@@ -19,5 +19,17 @@ def session_compiler_agent(state: AgentState) -> AgentState:
     print(f"  - Video Script: Compiled ({len(state.get('video_script_markdown', ''))} chars) following Video standards.")
     print(f"  - Mindmap: Compiled ({len(state.get('mindmap_markdown', ''))} chars) following Mindmap standards.")
     
-    state["artifacts_status"]["session"] = ArtifactStatus.PUBLISHED
+    # Chỉ PUBLISHED khi mọi tài nguyên của lesson đạt. Trước đây luôn đặt PUBLISHED,
+    # nên lesson có tài nguyên hỏng vẫn bị các lần chạy sau bỏ qua như đã xong.
+    statuses = {k: v for k, v in state.get("artifacts_status", {}).items() if k != "session"}
+    failed = sorted(k for k, v in statuses.items() if is_failed(v))
+    review = sorted(k for k, v in statuses.items() if needs_human_review(v))
+    if failed:
+        print(f"  [Session_Compiler_Agent] KHÔNG xuất bản: tài nguyên hỏng: {', '.join(failed)}.")
+        state["artifacts_status"]["session"] = ArtifactStatus.FAILED
+    elif review:
+        print(f"  [Session_Compiler_Agent] Cần người rà lại trước khi xuất bản: {', '.join(review)}.")
+        state["artifacts_status"]["session"] = ArtifactStatus.PENDING_HUMAN_REVIEW
+    else:
+        state["artifacts_status"]["session"] = ArtifactStatus.PUBLISHED
     return state

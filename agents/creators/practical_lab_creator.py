@@ -1,4 +1,6 @@
 import json
+from core.exceptions import GenerationError
+from core.retry_feedback import retry_feedback_block
 from core.state import AgentState
 from core.llm import call_llm
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
@@ -371,7 +373,7 @@ PROGRESSIVE DIFFICULTY REMINDER: "steps" must escalate simple -> complete (early
 single-value setup, later steps layer in this lesson's new concept, only the final step(s) may
 reach a fuller scenario) and "code_demo" must read as that same incremental build-up, not a
 monolithic advanced solution dropped all at once.
-"""
+{retry_feedback_block(state, 'practical_lab')}"""
 
     response_str = call_llm(
         system_prompt,
@@ -384,36 +386,11 @@ monolithic advanced solution dropped all at once.
 
     lab_data = extract_json_from_response(response_str)
     if not isinstance(lab_data, dict) or not lab_data.get("title"):
-        # Generic fallback (LLM response was unusable) — was previously a special-cased branch
-        # keyed on `"git" in tech_stack.lower()`, a hard-coded course/tech-specific carve-out
-        # that violates the platform's "never hardcode course/tech-specific values" principle.
-        # This single generic template already reads naturally for any stack/tool via the
-        # dynamic {tech_stack}/{lesson_title} interpolation below.
-        steps = [
-            f"Bước 1: Khởi tạo không gian làm việc và tệp mã nguồn cho bài học {lesson_title}.",
-            f"Bước 2: Triển khai cấu trúc và viết mã nguồn tuân thủ chuẩn quy định {tech_stack}.",
-            "Bước 3: Thực thi chương trình và kiểm tra các kịch bản thử nghiệm dữ liệu.",
-            "Bước 4: Xuất kết quả báo cáo nghiệm thu ra màn hình console/giao diện."
-        ]
-        checklist = [
-            f"Mã nguồn triển khai chuẩn xác theo yêu cầu {tech_stack}.",
-            "Chương trình chạy ổn định và đưa ra kết quả chính xác."
-        ]
-
-        lab_data = {
-            "title": f"Bài thực hành: Xây dựng kịch bản thực tế cho {lesson_title}",
-            "objectives": [
-                f"Nắm vững nguyên lý và vận dụng thực hành {lesson_title} trong dự án.",
-                f"Làm chủ các thao tác và quy chuẩn phát triển với {tech_stack}."
-            ],
-            "description": {
-                "inputs": f"Môi trường phát triển {tech_stack} và tệp tài nguyên thực hành.",
-                "steps": steps
-            },
-            "evaluation": {
-                "checklist": checklist
-            }
-        }
+        # Không ghi bài thực hành mẫu chung: nó qua được kiểm tra phạm vi (vì không nêu
+        # khái niệm nào) và đến tay học viên như một bài thật, trong khi không bám lesson.
+        raise GenerationError(
+            f"Practical_Lab_Agent không trả về bài thực hành hợp lệ cho {lesson_id or lesson_title}."
+        )
 
     lab_md = format_lab_to_markdown(lab_data)
     lab_html = format_lab_to_html(lab_data, tech_stack)

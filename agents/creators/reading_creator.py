@@ -16,6 +16,7 @@ from core.skills import load_skill_content
 from core.prompts import render_prompt
 from core.renderers.reading_renderer import assemble_reading_html
 from core.artifact_status import ArtifactStatus
+from core.retry_feedback import retry_feedback_block
 
 # Re-export modular components for 100% backward compatibility
 from core.renderers.reading import (
@@ -284,7 +285,8 @@ MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
 2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax — genuinely minimal, 1-2 lines, no branching; 3.2 Business logic — adds ONE new layer only; 3.3 Enterprise scenario — the only sub-section allowed full enterprise complexity). Never invert this difficulty order.
 3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope.
 4. Section 5 MUST contain exactly 3 interactive self-test MCQ questions under self_test_questions.
-5. Return ONLY raw pure JSON strictly adhering to the schema."""
+5. Return ONLY raw pure JSON strictly adhering to the schema.
+{retry_feedback_block(state, 'html')}"""
 
     llm_resp = call_llm(
         system_prompt,
@@ -457,7 +459,9 @@ def html_writer_agent(state: AgentState) -> AgentState:
     
     state["html_content"] = html_content
     state["reading_material"] = html_content
-    state.setdefault("artifacts_status", {})["html"] = ArtifactStatus.APPROVED
+    # Chỉ reviewer mới được chuyển sang APPROVED. Đặt APPROVED ngay khi sinh khiến
+    # vòng duyệt coi bản vừa bị từ chối là "đã duyệt" và nhận nó không review lại.
+    state.setdefault("artifacts_status", {})["html"] = ArtifactStatus.PENDING
     
     if html_sub:
         try:

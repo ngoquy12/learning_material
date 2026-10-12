@@ -1,6 +1,8 @@
 import json
 import re
 from typing import Dict, Any, List
+from core.exceptions import GenerationError
+from core.retry_feedback import retry_feedback_block
 from core.state import AgentState
 from core.llm import call_llm
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
@@ -245,6 +247,7 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
 
 Reading Article Context (Extract real scenarios and code examples from this text to build quiz questions):
 {article_context[:6000]}
+{retry_feedback_block(state, 'quiz')}
 
 OUTPUT JSON SCHEMA (Array of EXACTLY 5 objects):
 [
@@ -314,25 +317,16 @@ OUTPUT JSON SCHEMA (Array of EXACTLY 5 objects):
     if isinstance(quiz_data, dict) and "quiz" in quiz_data:
         quiz_data = quiz_data["quiz"]
     if not isinstance(quiz_data, list) or len(quiz_data) != 5:
-        quiz_data = generate_fallback_5_question_quiz(lesson_title, tech_stack)
+        # Không dùng bộ quiz mẫu chung: nó không bám bài đọc, đáp án luôn là phương án
+        # đầu, và reviewer (chỉ đọc cấu trúc JSON) vẫn duyệt.
+        raise GenerationError(
+            f"Quiz_Agent cần đúng 5 câu hỏi hợp lệ nhưng nhận "
+            f"{len(quiz_data) if isinstance(quiz_data, list) else 'dữ liệu không phải danh sách'}."
+        )
 
     # Post-process quiz_data to normalize Markdown code blocks with dynamic lang_tag
     quiz_data = normalize_quiz_markdown_code_formatting(quiz_data, lang_tag)
 
-    lab_candidate = content.get("lab", {}) if isinstance(content, dict) else {}
-    lab_data = {
-        "title": lab_candidate.get("title", f"Bài thực hành: {lesson_title}"),
-        "objectives": lab_candidate.get("objectives", [f"Làm chủ kỹ năng {lesson_title} trong dự án thực tế."]),
-        "description": {
-            "inputs": lab_candidate.get("inputs") or f"Môi trường phát triển {tech_stack} và tệp tài nguyên thực hành.",
-            "steps": lab_candidate.get("steps") or ["Bước 1: Chuẩn bị môi trường", "Bước 2: Viết mã nguồn", "Bước 3: Kiểm thử kết quả"]
-        },
-        "evaluation": {
-            "checklist": lab_candidate.get("checklist") or ["Mã nguồn biên dịch thành công không báo lỗi", "Kết quả trả về đúng theo yêu cầu"]
-        }
-    }
-
     state["quiz_json"] = quiz_data
-    state["lab_json"] = lab_data
     log_agent_tokens("Quiz_Agent", state, json.dumps(quiz_data, ensure_ascii=False))
     return state

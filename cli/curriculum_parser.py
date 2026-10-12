@@ -411,13 +411,15 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
                 if "html" in requested_parts:
                     sub = lesson_dir / "Bài đọc"
                     sub.mkdir(parents=True, exist_ok=True)
-                    with open(sub / "reading.html", "w", encoding="utf-8") as f:
-                        f.write(f"<!-- Empty outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
+                    if not (sub / "reading.html").exists():
+                        with open(sub / "reading.html", "w", encoding="utf-8") as f:
+                            f.write(f"<!-- Empty outline for {session_id} - {lesson_id}: {lesson_title} -->\n")
                     
                     sub_q = lesson_dir / "Câu hỏi bài đọc"
                     sub_q.mkdir(parents=True, exist_ok=True)
-                    with open(sub_q / "reading_questions.json", "w", encoding="utf-8") as f:
-                        f.write("[]\n")
+                    if not (sub_q / "reading_questions.json").exists():
+                        with open(sub_q / "reading_questions.json", "w", encoding="utf-8") as f:
+                            f.write("[]\n")
                 
                 # Note: Lesson-level Slides removed (Moved to Session level)
                 
@@ -447,13 +449,15 @@ def initialize_skeleton_structure(sessions, course_dir: Path, requested_parts: l
             if "html" in requested_parts:
                 sub = session_dir / "Bài đọc"
                 sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "reading.html", "w", encoding="utf-8") as f:
-                    f.write(f"<!-- Empty outline for {session_id} -->\n")
+                if not (sub / "reading.html").exists():
+                    with open(sub / "reading.html", "w", encoding="utf-8") as f:
+                        f.write(f"<!-- Empty outline for {session_id} -->\n")
             if "slide" in requested_parts:
                 sub = session_dir / "Bài giảng trên lớp"
                 sub.mkdir(parents=True, exist_ok=True)
-                with open(sub / "slides.html", "w", encoding="utf-8") as f:
-                    f.write(f"<!-- Empty slide outline for {session_id} -->\n")
+                if not (sub / "slides.html").exists():
+                    with open(sub / "slides.html", "w", encoding="utf-8") as f:
+                        f.write(f"<!-- Empty slide outline for {session_id} -->\n")
             if "quiz" in requested_parts:
                 sub = session_dir / "Quizz session"
                 sub.mkdir(parents=True, exist_ok=True)

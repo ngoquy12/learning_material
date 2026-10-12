@@ -133,7 +133,7 @@ def _make_hash(system_prompt: str, user_prompt: str, namespace: str = "") -> str
     # Không đưa vào thì hai bài học có prompt trùng nhau sẽ đụng khoá chính và
     # `INSERT OR IGNORE` lặng lẽ vứt bản ghi thứ hai.
     combined = (
-        f"NS::{namespace}|SYS::{system_prompt.strip()[:500]}|USR::{user_prompt.strip()[:1000]}"
+        f"NS::{namespace}|SYS::{system_prompt.strip()}|USR::{user_prompt.strip()}"
     )
     return hashlib.sha256(combined.encode("utf-8")).hexdigest()
 
@@ -347,6 +347,10 @@ def with_semantic_cache(func):
         # Không cache các agent quan trọng cần output mới (Reviewer, PM Guard, các trình sinh tạo)
         no_cache_prefixes = {
             "PM_Reviewer",
+            "UX_Reviewer",
+            "Academic_Reviewer",
+            "Sandbox_Agent",
+            "Scope_Auditor",
             "Objective_Reviewer",
             "PrerequisiteGuard",
             "Homework Creator",

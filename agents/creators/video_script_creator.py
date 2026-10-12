@@ -1,4 +1,5 @@
 import os
+from core.exceptions import GenerationError
 from core.state import AgentState, require_tech_stack
 from core.llm import call_llm
 from core.utils.text_sanitizer import strip_markdown_fence
@@ -106,13 +107,10 @@ visual cue + narration, at least 1 code example, 3-15 minute duration)."""
         lesson_id=lesson_id
     )
 
-    if response_str and response_str.strip():
-        video_script_markdown = strip_markdown_fence(response_str)
-    else:
-        video_script_markdown = (
-            f"# Kịch bản Video: {lesson_title}\n\n"
-            f"> **Lỗi:** Không thể sinh kịch bản video tự động cho bài học này.\n"
-        )
+    if not (response_str and response_str.strip()):
+        # Không ghi câu báo lỗi vào SCRIPT.md: pipeline sẽ coi file đó là kịch bản đã duyệt.
+        raise GenerationError(f"Không sinh được kịch bản video cho {lesson_id or lesson_title}.")
+    video_script_markdown = strip_markdown_fence(response_str)
 
     state["video_script_markdown"] = video_script_markdown
     log_agent_tokens("Video_Script_Agent", state, video_script_markdown)

@@ -41,6 +41,7 @@ class AgentState(TypedDict, total=False):
     course_dir_name: NotRequired[str]
     technology_stack: NotRequired[str]
     force_rebuild: NotRequired[bool]
+    retry_feedback: NotRequired[Dict[str, str]]  # phản hồi reviewer cho lần sinh lại kế tiếp
     pm_approved: NotRequired[bool]
     requested_parts: NotRequired[List[str]]
     full_curriculum: NotRequired[str]

@@ -7,6 +7,8 @@ from core.state import AgentState, DEFAULT_LESSON_PARTS
 from core.artifact_writer import write_state_artifacts_to_disk
 from core.persistence import save_checkpoint
 from core.artifact_status import ArtifactStatus, is_approved, skipped
+from core.retry_feedback import clear_retry_feedback, set_retry_feedback
+from core.exceptions import GenerationError
 from core.scope_gate import STATUS_SCOPE_WARNING, audit_artifact_scope, record_scope_audit
 from core.session_types import SessionType, detect_session_type, is_part_allowed
 from agents import (
@@ -200,8 +202,9 @@ def pipeline_html_production(state: AgentState) -> AgentState:
     approved = False
     scope_audit = None
     for attempt in range(3):
-        # Allow recovery if already approved in a previous execution
-        if is_approved(state.get("artifacts_status", {}).get("html")) and not state.get("force_rebuild", False):
+        # Chỉ khôi phục từ lần chạy trước ở vòng ĐẦU TIÊN. Ở các vòng sau, bản vừa sinh
+        # chưa được ai duyệt (hoặc đã bị từ chối) nên không được coi là "đã duyệt".
+        if attempt == 0 and is_approved(state.get("artifacts_status", {}).get("html")) and not state.get("force_rebuild", False):
             approved = True
             break
             
@@ -220,6 +223,7 @@ def pipeline_html_production(state: AgentState) -> AgentState:
                     "source": "UX_Reviewer", 
                     "feedback": f"Bản trên đĩa chưa đạt chuẩn: {review['feedback']}"
                 })
+                set_retry_feedback(state, "html", review["feedback"])
                 save_state_checkpoint(state)
                 # Tiếp tục vòng lặp để AI sinh/sửa đổi tự động
                 continue
@@ -236,15 +240,18 @@ def pipeline_html_production(state: AgentState) -> AgentState:
             audit = audit_artifact_scope(state.get("html_content", ""), state, "html")
             if audit.is_clean:
                 state["artifacts_status"]["html"] = ArtifactStatus.APPROVED
+                clear_retry_feedback(state, "html")
                 save_state_checkpoint(state)
                 approved = True
                 break
 
             record_scope_audit(state, audit)
             scope_audit = audit
+            set_retry_feedback(state, "html", audit.as_feedback())
             save_state_checkpoint(state)
         else:
             state.setdefault("review_logs", []).append({"source": "UX_Reviewer", "feedback": review["feedback"]})
+            set_retry_feedback(state, "html", review["feedback"])
             save_state_checkpoint(state)
 
     # Ghi đĩa bản nháp HTML lập tức kể cả khi lỗi để người dùng sửa đổi
@@ -330,21 +337,36 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
         return state
     approved = False
     for attempt in range(3):
-        # Allow recovery if already approved in a previous execution
-        if is_approved(state.get("artifacts_status", {}).get("quiz")):
+        # Chỉ khôi phục từ lần chạy trước ở vòng đầu tiên (xem pipeline_html_production).
+        if attempt == 0 and is_approved(state.get("artifacts_status", {}).get("quiz")):
             approved = True
             break
-        state = quiz_agent(state)
+        try:
+            state = quiz_agent(state)
+        except GenerationError as err:
+            # Mô hình không trả đủ 5 câu hợp lệ: KHÔNG ghi quiz mẫu chung. Ghi nhận lỗi
+            # và để vòng sau sinh lại kèm phản hồi.
+            state.setdefault("review_logs", []).append({"source": "Quiz_Agent", "feedback": str(err)})
+            set_retry_feedback(state, "quiz", str(err))
+            save_state_checkpoint(state)
+            continue
         write_state_artifacts_to_disk(state)
         review = sandbox_testing_agent(state)
         if review["status"] == "APPROVED":
             state.setdefault("artifacts_status", {})["quiz"] = ArtifactStatus.APPROVED
+            clear_retry_feedback(state, "quiz")
             save_state_checkpoint(state)
             approved = True
             break
         else:
             state.setdefault("review_logs", []).append({"source": "Sandbox_Agent", "feedback": review["feedback"]})
+            set_retry_feedback(state, "quiz", review["feedback"])
             save_state_checkpoint(state)
+    if not approved and not state.get("quiz_json"):
+        # Không có bản quiz hợp lệ nào sau mọi lần thử: đánh dấu hỏng thay vì "duyệt kèm cảnh báo".
+        state.setdefault("artifacts_status", {})["quiz"] = ArtifactStatus.FAILED
+        save_state_checkpoint(state)
+        return state
     if not approved:
         print(
             f"\n[CẢNH BÁO TỪ PM] Đáp án Quiz/Code Sandbox chưa hoàn toàn phù hợp ở {state.get('session_id', 'Session')} - {state.get('lesson_id', 'Lesson')}.\n"
@@ -413,20 +435,31 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
     # khái niệm chưa học là tắc hẳn chứ không đọc lướt qua được như trong bài đọc.
     # Sinh lại tối đa 2 lần nếu vi phạm, thay vì chỉ ghi log rồi vẫn xuất bản.
     audit = None
+    generated = False
     for attempt in range(2):
-        state = practical_lab_creator_agent(state)
+        try:
+            state = practical_lab_creator_agent(state)
+        except GenerationError as err:
+            state.setdefault("review_logs", []).append({"source": "Practical_Lab_Agent", "feedback": str(err)})
+            set_retry_feedback(state, "practical_lab", str(err))
+            continue
+        generated = True
         audit = audit_artifact_scope(
             state.get("practical_lab_markdown", ""), state, "practical_lab"
         )
         if audit.is_clean:
             state.setdefault("artifacts_status", {})["practical_lab"] = ArtifactStatus.APPROVED
+            clear_retry_feedback(state, "practical_lab")
             break
 
         record_scope_audit(state, audit)
+        set_retry_feedback(state, "practical_lab", audit.as_feedback())
         if attempt == 0:
             print("  [Practical Lab] Vi phạm phạm vi — đang sinh lại bài thực hành...")
     else:
-        state.setdefault("artifacts_status", {})["practical_lab"] = STATUS_SCOPE_WARNING
+        state.setdefault("artifacts_status", {})["practical_lab"] = (
+            STATUS_SCOPE_WARNING if generated else ArtifactStatus.FAILED
+        )
 
     write_state_artifacts_to_disk(state)
     save_state_checkpoint(state)
