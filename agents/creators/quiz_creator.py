@@ -3,6 +3,7 @@ import re
 from typing import Dict, Any, List
 from core.exceptions import GenerationError
 from core.retry_feedback import retry_feedback_block
+from core.memory_context import memory_prompt_block
 from core.state import AgentState
 from core.llm import call_llm
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
@@ -247,7 +248,7 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
 
 Reading Article Context (Extract real scenarios and code examples from this text to build quiz questions):
 {article_context[:6000]}
-{retry_feedback_block(state, 'quiz')}
+{retry_feedback_block(state, 'quiz')}{memory_prompt_block(state)}
 
 OUTPUT JSON SCHEMA (Array of EXACTLY 5 objects):
 [

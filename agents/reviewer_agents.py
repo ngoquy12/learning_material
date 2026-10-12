@@ -2,6 +2,7 @@
 import json
 from typing import Dict, Any
 from core.state import AgentState
+from core.memory_context import memory_prompt_block
 from config.settings import get_agent_prompt
 from core.llm import call_llm
 import re
@@ -420,6 +421,9 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
             "        Return only raw JSON. Do not wrap in markdown code blocks.\n"
         )
         user_prompt = _prompt_header + html_content + _prompt_footer
+        _memory = memory_prompt_block(state)
+        if _memory:
+            user_prompt += "\nKnown recurring defects from past runs (reject if present):" + _memory
 
         
         response_text = call_llm(

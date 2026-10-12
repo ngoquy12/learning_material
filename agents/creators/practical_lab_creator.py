@@ -1,6 +1,7 @@
 import json
 from core.exceptions import GenerationError
 from core.retry_feedback import retry_feedback_block
+from core.memory_context import memory_prompt_block
 from core.state import AgentState
 from core.llm import call_llm
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
@@ -373,7 +374,7 @@ PROGRESSIVE DIFFICULTY REMINDER: "steps" must escalate simple -> complete (early
 single-value setup, later steps layer in this lesson's new concept, only the final step(s) may
 reach a fuller scenario) and "code_demo" must read as that same incremental build-up, not a
 monolithic advanced solution dropped all at once.
-{retry_feedback_block(state, 'practical_lab')}"""
+{retry_feedback_block(state, 'practical_lab')}{memory_prompt_block(state)}"""
 
     response_str = call_llm(
         system_prompt,

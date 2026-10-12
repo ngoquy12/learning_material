@@ -14,6 +14,7 @@ Triết lý thiết kế:
 - "Rule phải cụ thể, đo lường được, áp dụng được ngay"
 """
 
+from core.memory_context import learnable_review_logs
 import os
 import sqlite3
 import json
@@ -375,7 +376,7 @@ def knowledge_memory_agent(state: AgentState) -> AgentState:
     """
     from core.llm import call_llm
 
-    review_logs = state.get("review_logs", [])
+    review_logs = learnable_review_logs(state.get("review_logs", []))
     if not review_logs:
         return state
 

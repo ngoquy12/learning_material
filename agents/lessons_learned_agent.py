@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, Any, List
 from core.state import AgentState
+from core.memory_context import learnable_review_logs
 
 def lessons_learned_agent(state: AgentState) -> AgentState:
     """
@@ -10,7 +11,7 @@ def lessons_learned_agent(state: AgentState) -> AgentState:
     compares the bad drafts with the final approved artifacts,
     extracts concrete technical rules, and updates/appends them to the lessons_learned skill.
     """
-    review_logs = state.get("review_logs", [])
+    review_logs = learnable_review_logs(state.get("review_logs", []))
     if not review_logs:
         # Nothing to learn if there were no failures
         return state

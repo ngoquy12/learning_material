@@ -18,6 +18,7 @@ from core.renderers.reading_renderer import assemble_reading_html
 from core.artifact_status import ArtifactStatus
 from core.reading_budget import READING_TARGET_MINUTES, READING_WORD_MAX, READING_WORD_MIN
 from core.retry_feedback import retry_feedback_block
+from core.memory_context import memory_prompt_block
 
 # Re-export modular components for 100% backward compatibility
 from core.renderers.reading import (
@@ -290,7 +291,7 @@ MANDATORY STRUCTURE & PEDAGOGY CONTRACT (keep every part concise to fit the word
 3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope.
 4. Section 5 MUST contain exactly 3 interactive self-test MCQ questions under self_test_questions.
 5. Return ONLY raw pure JSON strictly adhering to the schema.
-{retry_feedback_block(state, 'html')}"""
+{retry_feedback_block(state, 'html')}{memory_prompt_block(state)}"""
 
     llm_resp = call_llm(
         system_prompt,
