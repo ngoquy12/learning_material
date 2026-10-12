@@ -292,7 +292,19 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
     tech_stack = require_tech_stack(state, "html_ux_reviewer")
     
     # 1. Programmatic Master Resource Validator (HTML DOM, JS Linter, 5-Step Walkthrough)
-    is_valid_master, master_errs = validate_resource("READING", html_content, {"tech_stack": tech_stack})
+    is_valid_master, master_errs = validate_resource(
+        "READING",
+        html_content,
+        {
+            "tech_stack": tech_stack,
+            "enforce_word_budget": True,
+            # Thiếu 2 trường này thì nhánh bài đọc định hướng không bao giờ chạy, và
+            # bài định hướng bị chấm như bài kỹ thuật (bắt buộc 5 section + khối mã).
+            "lesson_title": state.get("lesson_title")
+            or (state.get("core_ssot") or {}).get("session_title", ""),
+            "lesson_type": state.get("session_kind") or state.get("lesson_type", ""),
+        },
+    )
     if not is_valid_master:
         master_fb = f"Lỗi kiểm định lập trình tự động (Master Validator Error): {'; '.join(master_errs[:2])}"
         print(f"  - Result: REJECTED (Master Validator check failed). Feedback: '{master_fb}'")

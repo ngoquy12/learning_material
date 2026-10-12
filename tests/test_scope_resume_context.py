@@ -91,5 +91,45 @@ class TestLessonSummary(unittest.TestCase):
         self.assertEqual(text.strip(), "Bài học: Bài 1")
 
 
+
+
+class TestReadingBudgetValidator(unittest.TestCase):
+    def _page(self, words):
+        body = " ".join(["từ"] * words)
+        sections = "".join(
+            f'<section id="section-{i}"><span id="sec-2-4"></span><h2>{i}. Mục</h2><p>{body if i == 1 else "ý"}</p>'
+            + ('<h3>a</h3><h3>b</h3><h3>c</h3><pre><code>x = 1</code></pre>' if i == 3 else "")
+            + "</section>"
+            for i in range(1, 6)
+        )
+        return f"<!doctype html><html><body><h1>Bài</h1>{sections}</body></html>"
+
+    def _errors(self, words, **meta):
+        from core.validators.reading_validator import validate_reading_material
+
+        meta.setdefault("enforce_word_budget", True)
+        meta.setdefault("tech_stack", "javascript")
+        meta.setdefault("skip_size_check", True)
+        return validate_reading_material(self._page(words), meta)[1]
+
+    def test_bai_qua_dai_bi_tu_choi(self):
+        self.assertTrue(any("quá dài" in e for e in self._errors(3000)))
+
+    def test_bai_trong_gioi_han_khong_bi_tu_choi_vi_do_dai(self):
+        self.assertFalse(any("quá dài" in e or "quá ngắn" in e for e in self._errors(1700)))
+
+    def test_khong_bat_khi_khong_bat_co(self):
+        self.assertFalse(any("quá dài" in e for e in self._errors(3000, enforce_word_budget=False)))
+
+    def test_mon_khong_viet_ma_khong_bat_buoc_khoi_ma(self):
+        from core.validators.reading_validator import validate_reading_material
+
+        html = self._page(1700).replace("<pre><code>x = 1</code></pre>", "")
+        errs = validate_reading_material(html, {"tech_stack": "Agile Scrum"})[1]
+        self.assertFalse(any("khối mã nguồn" in e for e in errs))
+        errs_code = validate_reading_material(html, {"tech_stack": "javascript"})[1]
+        self.assertTrue(any("khối mã nguồn" in e for e in errs_code))
+
+
 if __name__ == "__main__":
     unittest.main()

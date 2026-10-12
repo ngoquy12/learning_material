@@ -16,6 +16,7 @@ from core.skills import load_skill_content
 from core.prompts import render_prompt
 from core.renderers.reading_renderer import assemble_reading_html
 from core.artifact_status import ArtifactStatus
+from core.reading_budget import READING_TARGET_MINUTES, READING_WORD_MAX, READING_WORD_MIN
 from core.retry_feedback import retry_feedback_block
 
 # Re-export modular components for 100% backward compatibility
@@ -256,7 +257,10 @@ def generate_reading_html(
         "allowed_scope": allowed_scope,
         "forbidden_scope": forbidden_scope,
         "chosen_domain": chosen_domain,
-        "domain_prompt_block": domain_prompt_block
+        "domain_prompt_block": domain_prompt_block,
+        "reading_minutes": READING_TARGET_MINUTES,
+        "word_min": READING_WORD_MIN,
+        "word_max": READING_WORD_MAX,
     })
 
     blueprint = state.get("lesson_blueprint")
@@ -271,7 +275,7 @@ def generate_reading_html(
         blueprint_context = ""
 
     user_prompt = f"""{blueprint_context}
-Author detailed, exhaustive reading material content for:
+Author focused reading material content (total {READING_WORD_MIN}-{READING_WORD_MAX} words, {READING_TARGET_MINUTES} minutes of reading) for:
 Session: {session_id}
 Lesson: {lesson_id} - {lesson_title}
 Curriculum Details: {lesson_details}
@@ -280,7 +284,7 @@ Target Technology Stack: {tech_stack}
 Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
 Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
 
-MANDATORY DEPTH & EXHAUSTIVE PEDAGOGY CONTRACT:
+MANDATORY STRUCTURE & PEDAGOGY CONTRACT (keep every part concise to fit the word budget):
 1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants and mechanisms. Each sub-section adds exactly ONE increment of complexity on top of the previous one (2.1 simplest, 2.3 most advanced) — do not re-introduce the full domain scenario from scratch in every sub-section.
 2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax — genuinely minimal, 1-2 lines, no branching; 3.2 Business logic — adds ONE new layer only; 3.3 Enterprise scenario — the only sub-section allowed full enterprise complexity). Never invert this difficulty order.
 3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope.

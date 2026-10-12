@@ -13,6 +13,11 @@ import subprocess
 import json
 from typing import Tuple, List, Dict, Any
 from bs4 import BeautifulSoup, Tag
+from core.reading_budget import READING_TARGET_MINUTES
+
+# Ngưỡng tối thiểu chỉ để loại trang rỗng/dở dang. Ngưỡng cũ 45 KB buộc mô hình độn bài
+# ra khỏi giới hạn 15 phút; độ dài thật được kiểm bằng số từ ở reading_validator.
+MIN_READING_BYTES = 20000
 
 def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -> Tuple[bool, List[str]]:
     """
@@ -176,8 +181,8 @@ def validate_html_visual_layout(content: str, metadata: Dict[str, Any] = None) -
 
     # 9. Minimum File Depth & Size Threshold Verification (AGENTS.md Depth Rule)
     skip_size = bool(metadata and (metadata.get("skip_size_check") or metadata.get("is_testing")))
-    if not skip_size and len(content.encode('utf-8')) < 45000:
-        errors.append(f"Dung lượng bài đọc quá ngắn ({len(content.encode('utf-8'))//1024} KB). Bài đọc chuẩn mực phải có dung lượng từ 50KB - 120KB và phân tích sâu sắc.")
+    if not skip_size and len(content.encode('utf-8')) < MIN_READING_BYTES:
+        errors.append(f"Dung lượng bài đọc quá ngắn ({len(content.encode('utf-8'))//1024} KB). Bài đọc phải đủ nội dung cho {READING_TARGET_MINUTES} phút đọc (giới hạn từ nằm ở reading_validator).")
 
     # 10. 2-Tier Sidebar TOC Verification
     if "toc-link" in content:

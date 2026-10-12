@@ -9,6 +9,27 @@ from typing import Tuple, List, Dict, Any, Union
 from bs4 import BeautifulSoup
 from core.validators.syntax_linter import lint_html_syntax
 from core.validators.master_validator import register_validator
+from core.reading_budget import (
+    READING_TARGET_MINUTES,
+    READING_WORD_MAX,
+    READING_WORD_MIN,
+)
+
+NON_CODE_STACK_HINTS = ("agile", "scrum", "uml", "architecture", "kiến trúc", "quy trình", "process")
+READING_WORD_TOLERANCE_HIGH = 1.2   # vượt trần tối đa 20% mới bị từ chối
+READING_WORD_TOLERANCE_LOW = 0.5    # dưới nửa mức tối thiểu mới bị từ chối
+
+
+def count_visible_words(html: str) -> int:
+    """Số từ hiển thị (bỏ script, style, nav, footer) - cùng cách đếm với giới hạn 15 phút."""
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return len(re.sub(r"<[^>]+>", " ", html).split())
+    for tag in soup(["script", "style", "nav", "footer"]):
+        tag.extract()
+    return len(soup.get_text(separator=" ").split())
+
 
 def validate_reading_json_payload(payload: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """Validates structured JSON payload before rendering Jinja2 HTML."""
@@ -56,6 +77,10 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         is SessionType.ORIENTATION
     )
     
+    # Môn không viết mã (quy trình, mô hình hóa...) không bị bắt buộc có khối mã ở Section 3.
+    stack_hint = str(metadata.get("tech_stack") or "").lower()
+    requires_code = bool(metadata.get("requires_code", not any(h in stack_hint for h in NON_CODE_STACK_HINTS)))
+
     # 1. HTML & JS Syntax Validation
     is_valid_syntax, syntax_errors = lint_html_syntax(content)
     if not is_valid_syntax:
@@ -96,7 +121,7 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
             sec3_node = soup.find(id="section-3")
             if sec3_node:
                 has_code = bool(sec3_node.find("pre") or sec3_node.find("code") or "pyodide-editor" in str(sec3_node))
-                if not has_code:
+                if requires_code and not has_code:
                     errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
                 
                 # Section 3 Minimum 3 Progressive Examples Check
@@ -108,7 +133,7 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
                 sec3_match = re.search(r'id=["\']section-3["\'].*?(?=<section|\Z)', content, re.DOTALL)
                 if sec3_match:
                     sec3_text = sec3_match.group(0)
-                    if not ("<pre" in sec3_text or "<code" in sec3_text or "pyodide-editor" in sec3_text):
+                    if requires_code and not ("<pre" in sec3_text or "<code" in sec3_text or "pyodide-editor" in sec3_text):
                         errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
                     h3_count = len(re.findall(r'<h3\b[^>]*>', sec3_text))
                     if h3_count < 3:
@@ -130,6 +155,23 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         pyodide_errors = lint_pyodide_compatibility(content)
         if pyodide_errors:
             errors.extend(pyodide_errors)
+
+    # 5b. Giới hạn thời lượng đọc (nguồn: core/reading_budget.py)
+    # Chỉ áp dụng khi người gọi bật (reviewer của pipeline): các lời gọi kiểm tra cấu trúc
+    # với đoạn HTML mẫu ngắn không bị coi là bài đọc hoàn chỉnh.
+    if metadata.get("enforce_word_budget") and not is_orientation:
+        word_count = count_visible_words(content)
+        upper = int(READING_WORD_MAX * READING_WORD_TOLERANCE_HIGH)
+        lower = int(READING_WORD_MIN * READING_WORD_TOLERANCE_LOW)
+        if word_count > upper:
+            errors.append(
+                f"Bài đọc quá dài ({word_count} từ) so với giới hạn {READING_TARGET_MINUTES} phút "
+                f"({READING_WORD_MIN}-{READING_WORD_MAX} từ). Hãy rút gọn, giữ một vấn đề chính."
+            )
+        elif word_count < lower:
+            errors.append(
+                f"Bài đọc quá ngắn ({word_count} từ), thiếu chiều sâu so với mức {READING_WORD_MIN}-{READING_WORD_MAX} từ."
+            )
 
     # 6. Minimum length check
     if len(content.strip()) < 500:
