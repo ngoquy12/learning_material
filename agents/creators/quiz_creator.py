@@ -4,6 +4,7 @@ from typing import Dict, Any, List
 from core.exceptions import GenerationError
 from core.retry_feedback import retry_feedback_block
 from core.memory_context import memory_prompt_block
+from core.lesson_summary import approved_reading_text
 from core.state import AgentState
 from core.llm import call_llm
 from agents.creators.common_utils import get_lesson_content, log_agent_tokens
@@ -225,6 +226,12 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
                 state=state
             )
         article_context = f"{content.get('problem', '')}\n\n{content.get('analysis', '')}\n\n{content.get('solution', '')}\n\n{content.get('example', '')}".strip()
+
+    # Bài đọc đã duyệt là nguồn sự thật cho câu hỏi: blueprint/master_content là bản nháp
+    # độc lập và có thể dùng domain, ví dụ khác với bài đọc học viên thực sự đọc.
+    _reading = approved_reading_text(state)
+    if _reading:
+        article_context = _reading
 
     from core.prompts import render_prompt
     from core.utils.llm_parser import extract_json_from_response

@@ -250,3 +250,32 @@ ENTERPRISE DOMAIN CONTEXT: {domain_info.get('name_vi', '')} ({domain_info.get('d
 - Các quy tắc nghiệp vụ thực tế áp dụng:
 {rules_text}
 """
+
+
+def domain_markers(domain_id: str) -> List[str]:
+    """
+    Các cách một bài viết thực sự nhắc tới domain: mã (dạng gạch dưới/cách/dính liền),
+    từng phần tên tiếng Việt và tên thực thể nghiệp vụ.
+
+    `chosen_domain` trong state là MÃ domain (vd SHOPEE_FOOD). Văn bản viết cho học
+    viên nói "ShopeeFood" hay "đơn đặt món", không bao giờ chứa mã đó nguyên văn, nên
+    kiểm tra bằng mã luôn báo trôi domain giả.
+    """
+    clean_id = str(domain_id or "").upper().strip()
+    markers = {clean_id.lower(), clean_id.lower().replace("_", " "), clean_id.lower().replace("_", "")}
+    info = BUSINESS_DOMAINS.get(clean_id)
+    if info:
+        name = str(info.get("name_vi", ""))
+        name = re.sub(r"^Hệ thống\s+", "", name, flags=re.IGNORECASE)
+        for part in re.split(r"[/&()]", name):
+            part = part.strip().lower()
+            if len(part) >= 4:
+                markers.add(part)
+        markers.update(str(e).lower() for e in info.get("entities", []) if len(str(e)) >= 4)
+    return sorted(m for m in markers if m)
+
+
+def text_mentions_domain(text: str, domain_id: str) -> bool:
+    """True nếu `text` nhắc tới domain theo bất kỳ cách nhận diện nào của `domain_markers`."""
+    lowered = (text or "").lower()
+    return any(marker in lowered for marker in domain_markers(domain_id))

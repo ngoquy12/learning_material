@@ -47,3 +47,22 @@ def build_lesson_summary(lesson_title: str, final_state: Dict[str, Any], max_cha
             names = [str(c.get("name", c)) if isinstance(c, dict) else str(c) for c in concepts]
             return summary + "Khái niệm chính: " + "; ".join(names)[:max_chars]
     return summary
+
+
+_PLACEHOLDER_MARKERS = ("Empty outline", "ĐANG KHỞI TẠO")
+
+
+def approved_reading_text(state: Dict[str, Any], max_chars: int = 6000) -> str:
+    """
+    Văn bản hiển thị của bài đọc ĐÃ SINH trong state, hoặc "" nếu chưa có / chỉ là
+    placeholder. Quiz và kịch bản video phải bám bài đọc này, không phải bản nháp
+    blueprint/master_content (có thể khác domain và ví dụ).
+    """
+    html = str(state.get("html_content") or "")
+    if len(html) < 1000 or any(marker in html for marker in _PLACEHOLDER_MARKERS):
+        return ""
+    soup = BeautifulSoup(html, "html.parser")
+    for tag in soup(["script", "style", "nav", "footer"]):
+        tag.extract()
+    lines = [line.strip() for line in soup.get_text(separator="\n").splitlines() if line.strip()]
+    return "\n".join(lines)[:max_chars]

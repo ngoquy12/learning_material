@@ -1,5 +1,6 @@
 import os
 from core.exceptions import GenerationError
+from core.lesson_summary import approved_reading_text
 from core.state import AgentState, require_tech_stack
 from core.llm import call_llm
 from core.utils.text_sanitizer import strip_markdown_fence
@@ -70,7 +71,8 @@ def video_script_creator_agent(state: AgentState) -> AgentState:
     example_text = content.get("example", "") if isinstance(content, dict) else ""
     summary_text = content.get("summary", "") if isinstance(content, dict) else ""
 
-    full_article_context = f"{problem_text}\n\n{analysis_text}\n\n{solution_text}\n\n{example_text}\n\n{summary_text}".strip()
+    _reading = approved_reading_text(state)
+    full_article_context = _reading or f"{problem_text}\n\n{analysis_text}\n\n{solution_text}\n\n{example_text}\n\n{summary_text}".strip()
 
     chosen_domain = state.get("chosen_domain", "")
     forbidden_scope = state.get("forbidden_scope", "")

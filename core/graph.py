@@ -612,6 +612,20 @@ DERIVED_PIPELINES: tuple = (
 )
 
 
+# Các nhánh PHỤ THUỘC vào bài đọc đã được duyệt (nội dung cuối cùng, không phải bản nháp
+# hay blueprint): quiz phải hỏi đúng thứ bài đọc nói, câu hỏi bài đọc và kịch bản video
+# phải bám đúng bài. Chạy cùng lúc với HTML thì chúng chỉ thấy bản cũ/rỗng và rơi về
+# master_content - một bản nháp LLM độc lập, có thể khác domain và ví dụ.
+DEPENDS_ON_READING: frozenset = frozenset({"Quiz", "ReadingQuestions", "VideoScript"})
+
+
+def plan_pipeline_stages(branches) -> list:
+    """Chia nhánh thành 2 giai đoạn: độc lập với bài đọc chạy trước, phụ thuộc chạy sau."""
+    first = [b for b in branches if b.name not in DEPENDS_ON_READING]
+    second = [b for b in branches if b.name in DEPENDS_ON_READING]
+    return [stage for stage in (first, second) if stage]
+
+
 def record_branch_failures(state: AgentState, failures: Dict[str, BaseException]) -> AgentState:
     """
     Ghi trạng thái hỏng của các nhánh sản xuất vào state.
@@ -675,12 +689,12 @@ def node_parallel_derived_production(state: AgentState) -> AgentState:
     # Đổi sang shallow copy sẽ đánh đổi 0,7 ms lấy nguy cơ nhánh này ghi vào
     # artifacts_status của nhánh kia — đúng loại lỗi mà state reducer sinh ra để
     # ngăn. tests/test_parallel_branch_failures.py có test khoá bất biến này lại.
-    def _run_pipelines_threaded() -> Dict[str, AgentState]:
+    def _run_pipelines_threaded(branches) -> Dict[str, AgentState]:
         """Chạy các nhánh song song bằng ThreadPool. Nhánh chết được ghi vào `failures`."""
         collected: Dict[str, AgentState] = {}
         futures_map = {}
-        with ThreadPoolExecutor(max_workers=len(DERIVED_PIPELINES)) as executor:
-            for branch in DERIVED_PIPELINES:
+        with ThreadPoolExecutor(max_workers=max(1, len(branches))) as executor:
+            for branch in branches:
                 futures_map[executor.submit(branch.run, copy.deepcopy(state))] = branch.name
             for future in as_completed(futures_map):
                 name = futures_map[future]
@@ -692,7 +706,7 @@ def node_parallel_derived_production(state: AgentState) -> AgentState:
                     print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {e}")
         return collected
 
-    async def _run_async_pipeline():
+    async def _run_async_pipeline(branches):
         async def _run_one(branch):
             # Bắt lỗi NGAY TRONG task để giữ lại tên nhánh. Nếu để asyncio.gather
             # trả exception thô (return_exceptions=True), đối tượng exception không
@@ -702,33 +716,38 @@ def node_parallel_derived_production(state: AgentState) -> AgentState:
             except Exception as e:
                 return branch.name, e
 
-        return await asyncio.gather(*[_run_one(b) for b in DERIVED_PIPELINES])
+        return await asyncio.gather(*[_run_one(b) for b in branches])
 
     # Gom kết quả tất cả các nhánh rồi merge MỘT LẦN qua STATE_REDUCERS.
     # Trước đây mỗi nhánh được merge ngay khi xong bằng _merge_sub_state (copy tay
     # từng tên field) — vừa trùng lặp với reducer registry, vừa để lọt artifact.
-    try:
+    for branches in plan_pipeline_stages(DERIVED_PIPELINES):
+        branch_results = {}
+        stage_failures: Dict[str, BaseException] = {}
+        print(f"  [Parallel Engine] Giai đoạn: {', '.join(b.name for b in branches)}")
         try:
-            loop = asyncio.get_running_loop()
-        except RuntimeError:
-            loop = None
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
 
-        if loop and loop.is_running():
-            branch_results = _run_pipelines_threaded()
-        else:
-            for name, outcome in asyncio.run(_run_async_pipeline()):
-                if isinstance(outcome, BaseException):
-                    failures[name] = outcome
-                    print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {outcome}")
-                    continue
-                branch_results[name] = outcome
-                print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
-    except Exception as err:
-        print(f"  ⚠️ [Parallel Engine Fallback] Async execution fallback to ThreadPool: {err}")
-        failures.clear()
-        branch_results = _run_pipelines_threaded()
+            if loop and loop.is_running():
+                branch_results = _run_pipelines_threaded(branches)
+            else:
+                for name, outcome in asyncio.run(_run_async_pipeline(branches)):
+                    if isinstance(outcome, BaseException):
+                        stage_failures[name] = outcome
+                        print(f"  ❌ [Parallel Engine] Nhánh dẫn xuất {name} lỗi: {outcome}")
+                        continue
+                    branch_results[name] = outcome
+                    print(f"  ✓ [Parallel Engine] Nhánh dẫn xuất {name} hoàn tất.")
+        except Exception as err:
+            print(f"  ⚠️ [Parallel Engine Fallback] Async execution fallback to ThreadPool: {err}")
+            stage_stage_failures.clear()
+            branch_results = _run_pipelines_threaded(branches)
 
-    state = merge_branch_states(state, branch_results)
+        state = merge_branch_states(state, branch_results)
+        failures.update(stage_failures)
 
     # Nhánh chết PHẢI để lại dấu vết trong trạng thái artifact. Trước đây lỗi chỉ
     # được print rồi trôi: artifact giữ nguyên trạng thái "Pending" từ lúc khởi tạo,

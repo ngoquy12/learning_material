@@ -17,6 +17,7 @@ rồi biến mất, học liệu lỗi vẫn được xuất bản. Module này 
 chỗ và trả kết quả có cấu trúc để pipeline có thể sinh lại nội dung, thay vì chỉ log.
 """
 
+from core.domain_knowledge import text_mentions_domain
 import os
 import re
 from dataclasses import dataclass, field
@@ -254,7 +255,7 @@ def audit_artifact_scope(
     domain_drift = bool(
         check_domain
         and expected_domain
-        and expected_domain.lower() not in text.lower()
+        and not text_mentions_domain(text, expected_domain)
     )
 
     return ScopeAuditResult(
