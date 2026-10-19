@@ -86,9 +86,13 @@ Return ONLY the single rule statement line without markdown wrappers or conversa
         sources_str = ", ".join(error_sources)
         rule_text = f"Carefully verify syntax and layout issues originating from {sources_str} for {lesson_title}."
 
-    # Write/Append to skills/lessons_learned/SKILL.md
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    skill_dir = os.path.join(base_path, "skills", "lessons_learned")
+    # Ghi vào storage/ (Git bỏ qua), KHÔNG ghi vào skills/lessons_learned/SKILL.md: tệp skill do
+    # con người duy trì và được nạp vào prompt, để một lượt chạy tạo học liệu tự sửa nó thì
+    # mỗi lần chạy mã nguồn đổi một ít mà không ai duyệt. Muốn đưa một luật vào skill,
+    # người bảo trì chép tay từ storage/lessons_learned_auto/SKILL.md.
+    from core.paths import get_storage_dir
+
+    skill_dir = os.path.join(str(get_storage_dir()), "lessons_learned_auto")
     os.makedirs(skill_dir, exist_ok=True)
     skill_file = os.path.join(skill_dir, "SKILL.md")
 

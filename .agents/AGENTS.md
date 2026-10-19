@@ -2,10 +2,17 @@
 
 ## Bắt đầu mỗi cuộc trò chuyện
 
-1. Đọc `docs/PROJECT_STATE.md` trước tiên. Không phân tích lại toàn bộ dự án.
-2. Nếu người dùng không chỉ định việc gì, tiếp tục việc đầu tiên ở mục "Việc tiếp theo" trong tệp đó.
-3. Cuối mỗi lượt làm việc, cập nhật `docs/PROJECT_STATE.md` (việc đã xong, đang dở, quyết định mới). Workflow: `/resume`, `/handoff`.
+1. Đọc `docs/PROJECT_STATE.md` trước tiên để nắm hiện trạng. Không phân tích lại toàn bộ dự án.
+2. Chỉ làm việc người dùng yêu cầu trong cuộc trò chuyện này. Mục "Việc tiếp theo" trong tệp trạng thái chỉ để THAM KHẢO: nếu người dùng chưa nói việc gì, tóm tắt hiện trạng rồi HỎI muốn làm gì, không tự bắt đầu.
+3. Chỉ cập nhật `docs/PROJECT_STATE.md` khi người dùng gọi `/handoff` hoặc yêu cầu. Workflow: `/resume`, `/handoff`.
 4. Chi tiết (kích thước, lớp CSS, danh sách cấm đầy đủ): `docs/quy_chuan_chi_tiet.md`, chỉ mở khi cần.
+
+## Ranh giới sửa đổi (quan trọng)
+
+- Khi nhiệm vụ là TẠO hoặc SỬA học liệu (bài đọc, bài tập, slide, quiz, kịch bản, tài liệu giảng viên), chỉ được ghi vào thư mục môn trong `output/` (và `storage/`, `scratch/` nếu cần tạm). Cấm sửa, tạo, xóa tệp trong: `agents/`, `core/`, `cli/`, `config/`, `skills/`, `templates/`, `scripts/`, `tests/`, `.agents/`, `.github/`, `main.py`, `requirements.txt`, `Dockerfile`, `.env.example`.
+- Gặp lỗi do mã nguồn của pipeline (hoặc validator, template, skill) khi đang tạo học liệu: KHÔNG tự sửa để vượt qua. Dừng, báo lỗi cụ thể (tệp, dòng, cách tái hiện) và đề xuất cách sửa, rồi chờ người dùng đồng ý. Có thể làm tay phần học liệu đó để không chặn công việc, ghi rõ đã làm tay.
+- Chỉ sửa mã nguồn khi người dùng yêu cầu rõ việc đó, trên nhánh/worktree riêng, mỗi mục đích một commit, và không đụng thay đổi chưa commit của người khác.
+- Trước khi giao việc dài cho tác tử: `python scripts/source_guard.py snapshot`. Sau khi xong: `python scripts/source_guard.py verify` (mã thoát 1 nghĩa là mã nguồn đã bị đổi). Lệnh `python main.py ...` tự chạy kiểm tra này ở cuối lượt.
 
 ## Phạm vi và ngôn ngữ
 

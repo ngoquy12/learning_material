@@ -44,13 +44,21 @@ def main_entry():
         handle_init_config(args.init_config)
         return
 
-    # 2. Handle AI PM syllabus automated design (--generate-pm)
-    if args.generate_pm:
-        handle_generate_pm(args)
-        return
+    # Từ đây trở xuống là các lượt tạo học liệu: chỉ được ghi vào output/ (và storage/).
+    # Guard chụp băm mã nguồn trước lượt chạy và báo ngay nếu có gì đổi sau lượt chạy.
+    from core.source_guard import SourceGuard
 
-    # 3. Handle main course material generation workflow
-    execute_course_workflow(args)
+    guard = SourceGuard.start()
+    try:
+        # 2. Handle AI PM syllabus automated design (--generate-pm)
+        if args.generate_pm:
+            handle_generate_pm(args)
+            return
+
+        # 3. Handle main course material generation workflow
+        execute_course_workflow(args)
+    finally:
+        guard.report()
 
 if __name__ == '__main__':
     main_entry()

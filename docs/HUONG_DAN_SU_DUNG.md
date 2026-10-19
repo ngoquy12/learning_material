@@ -70,7 +70,7 @@ Mỗi lượt chạy tạo `review_dashboard.html` trong thư mục khóa học,
 
 Buổi chỉ đạt PUBLISHED khi không còn tài nguyên FAILED hoặc cần người rà. Hệ thống không còn ghi nội dung mẫu chung thay cho nội dung thật; nếu thấy FAILED thì đó là lỗi cần xử lý, không phải lỗi hiển thị.
 
-Sau khi rà xong một tài nguyên, ghi nhận để lần chạy sau không ghi đè:
+Sau khi rà xong một tài nguyên, ghi nhận vào hồ sơ kiểm định (lưu ý: hiện hồ sơ chỉ để truy vết; hệ thống CHƯA tự khóa tài nguyên đã duyệt khỏi bị ghi đè, xem mục 9):
 `python main.py --approve "Session 02/Lesson 01/html" --reviewer "Họ Tên" --approve-note "Đã sửa tay phần ví dụ"`.
 Từ chối: thêm `--reject`. Xuất hồ sơ: `--export-approvals ho_so.csv`.
 
@@ -103,7 +103,7 @@ Sau đó chạy `tests.html` của đáp án mẫu (phải đạt 100%) và củ
 3. Dùng `--parts` để chỉ sinh thứ cần. Quiz, câu hỏi bài đọc và kịch bản video bám bài đọc đã sinh, nên sinh bài đọc trước.
 4. Giữ semantic cache (mặc định bật). Xem thống kê bằng `python main.py --cache-stats`. Chi phí mỗi lượt chạy được in ở cuối.
 5. Bật kiểm tra ngữ nghĩa phạm vi (`SCOPE_AUDIT_SEMANTIC=true`) cho các buổi cuối khóa, nơi danh sách kiến thức đã học dài và từ khóa khó bắt vi phạm. Đổi lại tốn thêm lượt gọi LLM.
-6. Đừng sửa tay rồi chạy lại mà quên duyệt: dùng `--approve` để bản sửa tay được bảo vệ.
+6. Đã sửa tay một tài nguyên thì sao chép nó ra ngoài hoặc commit trước khi chạy lại phần đó; `--approve` mới chỉ ghi hồ sơ, chưa bảo vệ tệp.
 7. Đừng dùng `--force` toàn khóa. Nếu cần làm lại một phần, giới hạn bằng `--session` và `--parts`.
 8. Tin vào nhật ký: phản hồi của reviewer đã được đưa vào lần sinh lại. Nếu một bài bị từ chối ba lần cùng một lý do thì lỗi nằm ở PM hoặc quy chuẩn, không nằm ở may rủi; sửa nguồn thay vì chạy lại.
 
@@ -118,7 +118,7 @@ Sau đó chạy `tests.html` của đáp án mẫu (phải đạt 100%) và củ
 | Cảnh báo "dùng khái niệm chưa học" | Phạm vi cấm trong PM thiếu hoặc quá chung | Bổ sung phạm vi cấm theo từng lesson, chạy lại |
 | Lesson bị bỏ qua không sinh gì | Loại buổi trong PM là dự án, thực hành hoặc thi | Đổi loại buổi trong PM nếu không đúng; loại lesson do buổi quyết định, không do tiêu đề lesson |
 | Chạy `--parts quiz` sau `--parts html` mà quiz không sinh | Bản cũ của hệ thống dùng lại cấu hình lần trước | Đã sửa; nếu vẫn gặp, chạy lại và báo kèm nhật ký |
-| Bài đã chỉnh tay bị ghi đè | Chưa `--approve`, hoặc dùng `--force` | Khôi phục từ Git hoặc bản sao lưu; lần sau duyệt trước khi chạy |
+| Bài đã chỉnh tay bị ghi đè | Chạy lại đúng phần đó (kể cả không `--force`, khi bài chưa đạt) | Khôi phục từ bản sao lưu; sao lưu bản sửa tay trước khi chạy lại |
 | Tiếng Việt lỗi trên console Windows | Mã hóa terminal | `$env:PYTHONIOENCODING="utf-8"` |
 | Test `test_golden_design` đỏ | Thay đổi renderer dở của phiên khác | Không phải lỗi của bạn; xem `docs/PROJECT_STATE.md` |
 
@@ -138,3 +138,18 @@ Sau đó chạy `tests.html` của đáp án mẫu (phải đạt 100%) và củ
 - Bài tập lập trình: cổng `check_exercise_scope.py` báo 0 vấn đề, đáp án mẫu 100% test, starter gần như không đạt, ít nhất sáu lời giải sai tiêu biểu đều bị test bắt.
 - Slide, mindmap và kịch bản video khớp với bài đọc.
 - `docs/PROJECT_STATE.md` đã cập nhật; mã nguồn đã đẩy lên Git; tài liệu trong `output/` đã sao lưu.
+
+## 9. Giữ mã nguồn nguyên vẹn khi tạo học liệu (tác tử không được tự sửa mã)
+
+Quy tắc: lượt tạo hoặc sửa học liệu chỉ được ghi vào `output/` (và `storage/`). Mã nguồn, skill, template, cấu hình, test là vùng cấm; danh sách đầy đủ nằm ở mục "Ranh giới sửa đổi" của `.agents/AGENTS.md`.
+
+Thực hành khi giao việc cho tác tử trong Antigravity:
+1. Trước khi giao: `python scripts/source_guard.py snapshot`.
+2. Giao việc bằng câu lệnh nêu rõ phạm vi, ví dụ: "Tạo bài đọc Lesson 03 vào output/<môn>/..., không sửa bất kỳ tệp nào ngoài output/. Nếu pipeline lỗi thì báo lại, đừng sửa mã."
+3. Sau khi xong: `python scripts/source_guard.py verify`. Mã thoát 1 liệt kê tệp đã bị đổi. Xem bằng `git diff`, giữ lại nếu chủ đích, hoàn tác bằng `git checkout -- <tệp>` nếu không.
+4. Lệnh `python main.py ...` tự chạy kiểm tra này ở cuối lượt và in cảnh báo `[SOURCE GUARD]`.
+5. Muốn sửa mã thật sự: yêu cầu riêng, làm trên nhánh hoặc worktree riêng, commit riêng từng mục đích.
+
+Lưu ý khác:
+- Kho kinh nghiệm tự học nay ghi vào `storage/lessons_learned_auto/SKILL.md` (không theo dõi bởi Git), không còn ghi vào `skills/lessons_learned/SKILL.md`. Muốn đưa một luật vào skill chính thức, chép tay và commit.
+- Workflow `/resume` chỉ tóm tắt và hỏi; `/handoff` mới cập nhật `docs/PROJECT_STATE.md`.

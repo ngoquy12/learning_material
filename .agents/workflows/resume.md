@@ -11,6 +11,6 @@ Ghi chú cho người bảo trì: theo định dạng workflow của Antigravity
 1. Đọc `docs/PROJECT_STATE.md`. Không phân tích lại toàn bộ dự án.
 2. Chạy `git status` và `git log -10 --oneline` để biết thay đổi chưa commit và các commit gần nhất.
 3. Tóm tắt đúng 5 dòng cho người dùng: (1) dự án đang ở đâu, (2) việc gần nhất đã làm, (3) thay đổi chưa commit, (4) quyết định còn mở, (5) việc sẽ làm tiếp.
-4. Nếu người dùng đã nói việc cần làm, làm việc đó. Nếu không, làm việc đầu tiên trong mục "Việc tiếp theo" của `docs/PROJECT_STATE.md`.
-5. Nếu mục "Việc tiếp theo" trống hoặc mơ hồ, hỏi người dùng một câu hỏi ngắn rồi mới làm.
-6. Cuối lượt làm việc, cập nhật `docs/PROJECT_STATE.md` (xem workflow `/handoff`).
+4. Nếu người dùng đã nói việc cần làm, làm đúng việc đó. Nếu chưa, liệt kê tối đa 3 việc đầu trong mục "Việc tiếp theo" và HỎI người dùng chọn việc nào; không tự bắt đầu.
+5. Không sửa mã nguồn, skill, template hay cấu hình nếu người dùng chưa yêu cầu rõ (xem mục "Ranh giới sửa đổi" trong `AGENTS.md`).
+6. Chỉ cập nhật `docs/PROJECT_STATE.md` khi người dùng gọi `/handoff`.
