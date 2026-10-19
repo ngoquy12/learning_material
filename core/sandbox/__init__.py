@@ -8,19 +8,24 @@ from core.sandbox.code_executor import (
     execute_code_snippet
 )
 
-def execute_code_safely(code: str) -> Dict[str, Any]:
-    """Executes Python code safely inside sandbox environment."""
-    res = execute_code_snippet(code, tech_stack="python")
-    return {
-        "status": "SUCCESS" if res.success else "FAILED",
-        "output": res.stdout,
-        "error": res.error_message or res.stderr,
-        "engine": "subprocess"
-    }
+from core.sandbox.polyglot_runner import (
+    detect_language,
+    execute_polyglot_code,
+    normalize_language
+)
+
+def execute_code_safely(code: str, language: str = "python") -> Dict[str, Any]:
+    """Executes code safely inside sandbox environment for any supported language."""
+    from core.sandbox.polyglot_runner import execute_polyglot_code
+    res = execute_polyglot_code(code, language=language)
+    return res.to_dict()
 
 __all__ = [
     "CodeSandboxExecutor",
     "ExecutionResult",
     "execute_code_snippet",
-    "execute_code_safely"
+    "execute_code_safely",
+    "detect_language",
+    "execute_polyglot_code",
+    "normalize_language"
 ]

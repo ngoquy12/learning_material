@@ -4,23 +4,43 @@ import os
 import tempfile
 import subprocess
 import shutil
-from typing import Dict, Any
+from typing import Dict, Any, Tuple, List
+from core.sandbox.polyglot_runner import detect_language, execute_polyglot_code, normalize_language
 
-def execute_code_safely(code: str) -> Dict[str, Any]:
+DOCKER_IMAGE_MAP: Dict[str, Tuple[str, List[str]]] = {
+    "python": ("python:3.10-slim", ["python", "-"]),
+    "javascript": ("node:18-alpine", ["node", "-"]),
+    "typescript": ("node:18-alpine", ["node", "-"]),
+    "sql": ("python:3.10-slim", ["python", "-c", "import sys, sqlite3; conn=sqlite3.connect(':memory:'); conn.executescript(sys.stdin.read()); print('SQL executed OK')"]),
+    "java": ("openjdk:17-alpine", ["sh", "-c", "cat > Main.java && javac Main.java && java Main"]),
+    "go": ("golang:1.21-alpine", ["sh", "-c", "cat > main.go && go run main.go"]),
+    "cpp": ("gcc:latest", ["sh", "-c", "cat > main.cpp && g++ main.cpp -o main && ./main"]),
+    "bash": ("bash:alpine", ["bash", "-"]),
+}
+
+def execute_code_safely(code: str, language: str = "python") -> Dict[str, Any]:
     """
-    Executes Python code safely inside:
+    Executes code safely inside:
     1. E2B cloud sandbox (if configured and E2B_API_KEY is available)
     2. A highly-restricted local Docker container (no network, cpu/mem limits, non-root user, stdin feed)
-    3. A local subprocess (blocked if SANDBOX_STRICT=True or in production)
+    3. A local polyglot subprocess / in-memory runner (blocked if SANDBOX_STRICT=True or in production)
     """
     # Clean code formatting if it contains markdown markers
     if code.strip().startswith("```"):
         lines = code.strip().splitlines()
-        if lines[0].startswith("```python") or lines[0].startswith("```py"):
-            lines = lines[1:]
+        first_line = lines[0].strip("`").strip()
+        if first_line:
+            language = first_line
         if lines[-1].strip() == "```":
             lines = lines[:-1]
-        code = "\n".join(lines)
+        code = "\n".join(lines[1:])
+
+    canonical_lang = detect_language(code, hint=language)
+
+    # Fast path for SQL: SQLite in-memory is natively isolated and requires no Docker
+    if canonical_lang == "sql":
+        res = execute_polyglot_code(code, language="sql", timeout_sec=int(os.getenv("SANDBOX_TIMEOUT", "5")))
+        return res.to_dict()
 
     # --- Sandbox Security Configuration (Read Dynamically) ---
     sandbox_provider = os.getenv("SANDBOX_PROVIDER", "docker").lower()
@@ -66,8 +86,8 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
             pass
 
         if docker_daemon_running:
-            print(f"  [Sandbox] Executing code in highly-restricted Docker container (CPUs: {sandbox_cpus}, RAM: {sandbox_memory})...")
-            docker_result = _execute_via_docker(code, sandbox_memory, sandbox_cpus, sandbox_timeout)
+            print(f"  [Sandbox] Executing code in highly-restricted Docker container for '{canonical_lang}' (CPUs: {sandbox_cpus}, RAM: {sandbox_memory})...")
+            docker_result = _execute_via_docker(code, sandbox_memory, sandbox_cpus, sandbox_timeout, language=canonical_lang)
             if docker_result:
                 # If execution succeeded or failed due to student code syntax/runtime error, return it
                 if docker_result.get("status") == "SUCCESS" or "error during connect" not in str(docker_result.get("error", "")):
@@ -94,11 +114,11 @@ def execute_code_safely(code: str) -> Dict[str, Any]:
             )
         }
     
-    print("  [Sandbox] Falling back to local subprocess execution (Dev Mode)...")
-    return _execute_via_local_subprocess(code, sandbox_timeout)
+    print(f"  [Sandbox] Falling back to local polyglot execution for '{canonical_lang}' (Dev Mode)...")
+    return _execute_via_local_subprocess(code, sandbox_timeout, language=canonical_lang)
 
 
-def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any] | None:
+def _execute_via_e2b(code: str, api_key: str, timeout: int, language: str = "python") -> Dict[str, Any] | None:
     """Helper to execute code via E2B SDK."""
     try:
         try:
@@ -108,8 +128,11 @@ def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any] | 
             # Fallback to core e2b sandbox
             from e2b import Sandbox  # type: ignore
 
+        ext_map = {"python": "py", "javascript": "js", "typescript": "ts", "java": "java", "go": "go", "bash": "sh", "sql": "sql"}
+        ext = ext_map.get(language, "py")
+
         with Sandbox(api_key=api_key) as sandbox:
-            if hasattr(sandbox, "run_code"):
+            if hasattr(sandbox, "run_code") and language == "python":
                 # Jupyter notebook execution style (e2b-code-interpreter)
                 execution = sandbox.run_code(code)
                 if execution.error:
@@ -124,10 +147,10 @@ def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any] | 
                     "output": execution.logs.stdout
                 }
             else:
-                # Command line execution style (core e2b)
-                # Write file in VM and execute
-                sandbox.files.write("/home/user/app.py", code)
-                result = sandbox.commands.run(f"python /home/user/app.py", timeout=timeout)
+                # Command line execution style (core e2b or polyglot)
+                sandbox.files.write(f"/home/user/app.{ext}", code)
+                cmd = f"python /home/user/app.{ext}" if language == "python" else f"node /home/user/app.{ext}" if language in ("javascript", "typescript") else f"bash /home/user/app.{ext}"
+                result = sandbox.commands.run(cmd, timeout=timeout)
                 if result.exit_code == 0:
                     return {
                         "status": "SUCCESS",
@@ -144,27 +167,27 @@ def _execute_via_e2b(code: str, api_key: str, timeout: int) -> Dict[str, Any] | 
         return None
 
 
-def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict[str, Any] | None:
+def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int, language: str = "python") -> Dict[str, Any] | None:
     """Helper to execute code in a highly-secured Docker environment without volume mounting."""
     try:
-        # We pipe the python code directly to Python stdin inside container
-        # Advantages:
-        # 1. No host file mapping required (more secure, avoids permission/path issues on Windows/Linux hosts)
-        # 2. Custom limits: memory, cpus, disabled network, dropped caps, non-root user
+        docker_info = DOCKER_IMAGE_MAP.get(language, DOCKER_IMAGE_MAP["python"])
+        image_name, exec_cmd = docker_info
+
+        docker_args = [
+            "docker", "run", "--rm", "-i",
+            "--network", "none",
+            "--memory", memory,
+            "--cpus", cpus,
+            "--cap-drop", "ALL",
+            "--security-opt", "no-new-privileges",
+            "--read-only",
+            "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
+            "--user", "1000:1000",
+            image_name
+        ] + exec_cmd
+
         result = subprocess.run(
-            [
-                "docker", "run", "--rm", "-i",
-                "--network", "none",
-                "--memory", memory,
-                "--cpus", cpus,
-                "--cap-drop", "ALL",
-                "--security-opt", "no-new-privileges",
-                "--read-only",
-                "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
-                "--user", "1000:1000",
-                "python:3.10-slim",
-                "python", "-"
-            ],
+            docker_args,
             input=code,
             capture_output=True,
             text=True,
@@ -173,19 +196,19 @@ def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict
         if result.returncode == 0:
             return {
                 "status": "SUCCESS",
-                "engine": "docker",
+                "engine": f"docker_{language}",
                 "output": result.stdout
             }
         else:
             return {
                 "status": "FAILED",
-                "engine": "docker",
+                "engine": f"docker_{language}",
                 "error": result.stderr or result.stdout or f"Exit code: {result.returncode}"
             }
     except subprocess.TimeoutExpired:
         return {
             "status": "FAILED",
-            "engine": "docker",
+            "engine": f"docker_{language}",
             "error": f"TimeoutExpired: Code execution exceeded {timeout} seconds limit."
         }
     except Exception as e:
@@ -193,41 +216,8 @@ def _execute_via_docker(code: str, memory: str, cpus: str, timeout: int) -> Dict
         return None
 
 
-def _execute_via_local_subprocess(code: str, timeout: int) -> Dict[str, Any]:
-    """Helper to run code in standard local subprocess (unrestricted, dev use only)."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_file_path = os.path.join(temp_dir, "test_code.py")
-        with open(temp_file_path, "w", encoding="utf-8") as f:
-            f.write(code)
-            
-        try:
-            result = subprocess.run(
-                [shutil.which("python") or "python", temp_file_path],
-                capture_output=True,
-                text=True,
-                timeout=timeout
-            )
-            if result.returncode == 0:
-                return {
-                    "status": "SUCCESS",
-                    "engine": "local_subprocess",
-                    "output": result.stdout
-                }
-            else:
-                return {
-                    "status": "FAILED",
-                    "engine": "local_subprocess",
-                    "error": result.stderr or f"Exit code: {result.returncode}"
-                }
-        except subprocess.TimeoutExpired:
-            return {
-                "status": "FAILED",
-                "engine": "local_subprocess",
-                "error": f"TimeoutExpired: Code execution exceeded {timeout} seconds limit."
-            }
-        except Exception as e:
-            return {
-                "status": "FAILED",
-                "engine": "local_subprocess",
-                "error": f"Internal execution error: {str(e)}"
-            }
+def _execute_via_local_subprocess(code: str, timeout: int, language: str = "python") -> Dict[str, Any]:
+    """Helper to run code using PolyglotRunner (dev / local fallback)."""
+    res = execute_polyglot_code(code, language=language, timeout_sec=float(timeout))
+    return res.to_dict()
+

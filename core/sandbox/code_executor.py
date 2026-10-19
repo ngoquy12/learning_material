@@ -120,13 +120,13 @@ class CodeSandboxExecutor:
     def verify_code_snippet(self, code_str: str, tech_stack: str = "python") -> ExecutionResult:
         """
         Language-adaptive code verification. Runs Python code directly,
-        or performs basic syntax validation for other languages.
+        or performs polyglot runtime/syntax execution for other languages.
         """
         tech_lower = tech_stack.lower()
         if "python" in tech_lower:
             return self.execute_python_code(code_str)
 
-        # For non-Python stacks, perform static checks (e.g. check for unclosed brackets/quotes)
+        # First check bracket balance to quickly catch obvious syntax issues (and preserve SyntaxWarning compatibility)
         start_time = time.perf_counter()
         if code_str.count("{") != code_str.count("}") or code_str.count("(") != code_str.count(")"):
             elapsed_ms = (time.perf_counter() - start_time) * 1000.0
@@ -137,11 +137,18 @@ class CodeSandboxExecutor:
                 execution_time_ms=round(elapsed_ms, 2)
             )
 
-        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+        # Delegate to Polyglot Runner for actual execution or language-specific validation
+        from core.sandbox.polyglot_runner import execute_polyglot_code
+        poly_res = execute_polyglot_code(code_str, language=tech_stack, timeout_sec=self.default_timeout_sec)
         return ExecutionResult(
-            success=True,
-            stdout=f"Static syntax verification passed for {tech_stack}",
-            execution_time_ms=round(elapsed_ms, 2)
+            success=poly_res.success,
+            stdout=poly_res.stdout,
+            stderr=poly_res.stderr,
+            error_type=poly_res.error_type,
+            error_message=poly_res.error_message,
+            traceback=poly_res.traceback,
+            execution_time_ms=poly_res.execution_time_ms,
+            timeout_exceeded=poly_res.timeout_exceeded
         )
 
     def _parse_python_error(self, stderr: str) -> tuple[str, str]:
