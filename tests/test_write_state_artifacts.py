@@ -157,8 +157,15 @@ class TestFailureIsolation:
         assert (lesson_dir / "Video" / "SCRIPT.md").exists()
         assert (lesson_dir / "Bài đọc" / "reading.html").exists()
 
-    def test_unresolvable_directory_returns_all_skipped(self):
+    def test_unresolvable_directory_returns_all_skipped(self, monkeypatch):
         """Không xác định được thư mục thì trả về toàn Skipped, không ném lỗi ra ngoài."""
+
+        def _boom(state):
+            raise RuntimeError("không xác định được thư mục lesson")
+
+        # Giả lập lỗi thật thay vì để hàm tự suy ra thư mục: bản cũ rơi vào output/pms/default_course
+        # và để lại tệp rác trong output/ của người dùng sau mỗi lần chạy test.
+        monkeypatch.setattr("agents.creator_agents.get_lesson_dir", _boom)
         written = write_state_artifacts_to_disk({"html_content": "<html/>"}, lesson_dir=None)
 
         assert set(written.values()) <= {"Skipped"} or "html" in written
