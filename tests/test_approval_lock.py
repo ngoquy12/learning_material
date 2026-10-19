@@ -159,3 +159,14 @@ class TestSessionAssetLock(_IsolatedStorage):
         approvals.record_approval("mindmap", "A", course="", session_id="Session 03")
         self.assertTrue(approvals.is_session_asset_locked("mindmap", "MonA", "Session 03"))
         self.assertFalse(approvals.is_session_asset_locked("mindmap", "MonA", "Session 04"))
+
+
+class TestSessionAssetOnlyWhenRequested(_IsolatedStorage):
+    def test_parts_html_khong_keo_theo_bai_tap_ve_nha(self):
+        from cli.commands.workflow_cmd import _run_session_asset
+
+        calls = []
+        _run_session_asset([], "S1", "x", lambda **kw: calls.append(1), part="homework", requested_parts=["html"])
+        self.assertEqual(calls, [])
+        _run_session_asset([], "S1", "x", lambda **kw: calls.append(1), part="homework", requested_parts=["html", "homework"])
+        self.assertEqual(calls, [1])

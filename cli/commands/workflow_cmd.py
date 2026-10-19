@@ -42,7 +42,7 @@ from core.semantic_cache import set_cache_namespace_prefix
 from core.session_types import detect_session_type
 
 
-def _run_session_asset(summary, owner_session_id, label, fn, lock=None, course_key="", force=False, **kwargs):
+def _run_session_asset(summary, owner_session_id, label, fn, lock=None, course_key="", force=False, part=None, requested_parts=None, **kwargs):
     """
     Chạy một bước sinh tài nguyên cấp session; lỗi chỉ được ghi nhận, không làm dừng cả khóa.
     Trước đây một lỗi ở bài tập về nhà/mindmap/bài giảng làm chết mọi buổi phía sau.
@@ -50,6 +50,10 @@ def _run_session_asset(summary, owner_session_id, label, fn, lock=None, course_k
     `lock` là tên tài nguyên dùng với `--approve "<Buổi>/<tên>"`: nếu đã được giảng viên duyệt
     (và không có --force) thì bỏ qua, không sinh lại và không ghi đè.
     """
+    # Chỉ sinh khi được yêu cầu: `--parts html` không được kéo theo 15 bài tập về nhà và mindmap
+    # (đã quan sát trong lần chạy thật: 15+ lượt gọi LLM không ai yêu cầu).
+    if part and requested_parts is not None and part not in requested_parts:
+        return None
     if lock:
         from core.approvals import is_session_asset_locked
 
@@ -112,7 +116,7 @@ def execute_course_workflow(args):
         scaffold_course_resources(excel_path)
         return
 
-    requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "quiz", "practical_lab", "slide", "video_script"]
+    requested_parts = [p.strip().lower() for p in args.parts.split(",")] if args.parts != "all" else ["html", "quiz", "practical_lab", "slide", "video_script", "homework", "mindmap"]
     requested_sessions = [s.strip().lower() for s in args.session.split(",")] if args.session != "all" else ["all"]
 
     print(f"Loading spreadsheet: {excel_path}")
@@ -712,6 +716,7 @@ def execute_course_workflow(args):
                 session_forbidden_scope = session.get("forbidden_scope", "")
                 _run_session_asset(summary, session_id, "Bài tập về nhà", generate_session_homework,
                     lock="homework", course_key=course_key_from_pm(excel_path), force=args.force,
+                    part="homework", requested_parts=requested_parts,
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -723,6 +728,7 @@ def execute_course_workflow(args):
                 
                 _run_session_asset(summary, session_id, "Sơ đồ tư duy", generate_session_mindmap,
                     lock="mindmap", course_key=course_key_from_pm(excel_path), force=args.force,
+                    part="mindmap", requested_parts=requested_parts,
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -842,6 +848,7 @@ def execute_course_workflow(args):
                     
                     _run_session_asset(summary, session_id, "Bài tập về nhà", generate_session_homework,
                         lock="homework", course_key=course_key_from_pm(excel_path), force=args.force,
+                        part="homework", requested_parts=requested_parts,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -852,6 +859,7 @@ def execute_course_workflow(args):
                     )
                     _run_session_asset(summary, session_id, "Sơ đồ tư duy", generate_session_mindmap,
                         lock="mindmap", course_key=course_key_from_pm(excel_path), force=args.force,
+                        part="mindmap", requested_parts=requested_parts,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
