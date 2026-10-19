@@ -316,7 +316,7 @@ The reading material MUST contain exactly 5 sections in the following order:
   Section 1 (problem): Real-World Problem Statement — Enterprise Scenario + Pain Point + New Solution
   Section 2 (analysis): Syntax & Operational Mechanism — Syntax Anatomy + RAM/Stack Diagram + Comparison Card
   Section 3 (solution + example): Practical Examples — Execution Code + Interactive Tracker + Mermaid Flow
-  Section 4 (summary + resolve): Production Gotchas — Common Pitfalls + Decision Matrix Table + Anti-patterns
+  Section 4 (summary + resolve): Production Common Errors — Common Pitfalls + Decision Matrix Table + Bad Practices
   Section 5 (self_test): Self-Test Assessment — 3 Scenario-based MCQ questions with Anti-AI Shortcuts
 
 [DIRECTIVE 2 — {READING_TARGET_MINUTES}-MINUTE MICRO-LEARNING]
@@ -376,7 +376,7 @@ The reading material MUST contain exactly 5 sections in the following order:
   Section 1 (problem): Real-World Problem Statement — Practical Business Scenario + Operational Pain Point + Solution
   Section 2 (analysis): Core Concept, Workflow & Lifecycle — Mermaid Flowchart/Sequence Diagram or Architectural Block Layout + Parameters Table
   Section 3 (solution + example): Step-by-Step Practice Guide — Terminal Commands / YAML Config Snippets / Real Scenario walkthroughs + Detailed Setup Steps
-  Section 4 (summary + resolve): Gotchas & Best Practices — Avoided Mistakes + Decision Matrix Table + Process Anti-patterns
+  Section 4 (summary + resolve): Common Errors & Best Practices — Avoided Mistakes + Decision Matrix Table + Process Bad Practices
   Section 5 (self_test): Self-Test Assessment — 3 Scenario-based MCQ questions with Anti-AI Shortcuts
 
 [DIRECTIVE 2 — {READING_TARGET_MINUTES}-MINUTE MICRO-LEARNING]

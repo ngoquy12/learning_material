@@ -324,6 +324,11 @@ def sanitize_reading_html(content: str) -> Tuple[str, bool]:
         (r'\bBẫy phổ biến\b', 'Sai sót phổ biến'),
         (r'\bbẫy phổ biến\b', 'sai sót phổ biến'),
         (r'\bBẫy\b', 'Sai sót'),
+        # Từ tiếng Anh bị cấm trong đầu ra (AGENTS.md); lookaround loại trừ id/class/tên biến.
+        (r'(?<![\w"\'\-_#./=])Gotchas?(?![\w"\'\-_])', 'Lỗi thường gặp'),
+        (r'(?<![\w"\'\-_#./=])gotchas?(?![\w"\'\-_])', 'lỗi thường gặp'),
+        (r'(?<![\w"\'\-_#./=])Anti-?patterns?(?![\w"\'\-_])', 'Cách làm sai'),
+        (r'(?<![\w"\'\-_#./=])anti-?patterns?(?![\w"\'\-_])', 'cách làm sai'),
         (r'\bbẫy\b', 'sai sót'),
         # Marketing hype
         (r'\bKhám phá\b', 'Tìm hiểu'),

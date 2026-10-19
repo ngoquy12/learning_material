@@ -673,7 +673,13 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     
     # 1. Programmatic stack isolation & dynamic forbidden scope check first!
     forbidden_scope = state.get("forbidden_scope") if state else None
-    forbidden_feedback = check_forbidden_keywords(html_content + " " + json.dumps(quiz_json, ensure_ascii=False), tech_stack, forbidden_scope)
+    # Quét VĂN BẢN hiển thị, không quét HTML thô: thuộc tính class="..." và mã JS của trang
+    # (this, class...) khiến mọi bài của môn cấm "class"/"this" bị từ chối oan (đã gặp thật).
+    from core.scope_gate import _strip_markup
+
+    forbidden_feedback = check_forbidden_keywords(
+        _strip_markup(html_content) + " " + json.dumps(quiz_json, ensure_ascii=False), tech_stack, forbidden_scope
+    )
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}

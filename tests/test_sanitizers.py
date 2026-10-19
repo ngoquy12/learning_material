@@ -48,3 +48,60 @@ class TestReadingHtmlSanitizer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBannedTermReplacement(unittest.TestCase):
+    def test_thay_tu_cam_trong_van_ban_khong_dung_id_hay_ten_bien(self):
+        html = ('<html><head></head><body><h2 id="sec-gotchas">Gotchas phổ biến</h2>'
+                '<p>Một anti-pattern và Gotcha.</p><pre><code>gotcha_points = 1</code></pre></body></html>')
+        out, changed = sanitize_reading_html(html)
+        self.assertTrue(changed)
+        self.assertIn('id="sec-gotchas"', out)
+        self.assertIn("gotcha_points", out)
+        # Chỉ còn "gotcha" trong id và tên biến; văn bản hiển thị không còn từ cấm.
+        self.assertEqual(out.lower().count("gotcha"), 2)
+        self.assertNotIn("anti-pattern", out.lower())
+
+
+class TestSandboxReviewerStripsMarkup(unittest.TestCase):
+    def test_class_trong_thuoc_tinh_html_khong_bi_coi_la_khai_niem_vuot_cap(self):
+        from unittest import mock
+
+        from agents import reviewer_agents
+
+        state = {"session_id": "S", "lesson_id": "L", "technology_stack": "JavaScript",
+                 "forbidden_scope": ["class", "this"], "core_ssot": {},
+                 "html_content": '<div class="p-4"><script>const o={f(){return this.x}}</script><p>Hàm có tham số.</p></div>',
+                 "quiz_json": [{"question": "Hàm trả về gì?"}]}
+        with mock.patch.object(reviewer_agents, "call_llm", return_value='{"status": "APPROVED", "feedback": ""}'), \
+             mock.patch.dict("os.environ", {"GEMINI_API_KEY": "x"}):
+            result = reviewer_agents.sandbox_testing_agent(state)
+        self.assertNotIn("vượt cấp", result.get("feedback", ""))
+
+    def test_van_bat_duoc_khai_niem_cam_trong_cau_hoi_quiz(self):
+        from unittest import mock
+
+        from agents import reviewer_agents
+
+        state = {"session_id": "S", "lesson_id": "L", "technology_stack": "JavaScript",
+                 "forbidden_scope": ["closure"], "core_ssot": {}, "html_content": "<p>Nội dung.</p>",
+                 "quiz_json": [{"question": "Closure là gì?"}]}
+        with mock.patch.object(reviewer_agents, "call_llm", return_value='{"status": "APPROVED", "feedback": ""}'), \
+             mock.patch.dict("os.environ", {"GEMINI_API_KEY": "x"}):
+            result = reviewer_agents.sandbox_testing_agent(state)
+        self.assertEqual(result["status"], "REJECTED")
+        self.assertIn("vượt cấp", result["feedback"])
+
+
+class TestBannedWordValidatorUsesVisibleText(unittest.TestCase):
+    def _errs(self, html):
+        from core.validators.reading_validator import validate_reading_material
+
+        return [e for e in validate_reading_material(html, {"tech_stack": "javascript"})[1] if "từ lóng bị cấm" in e]
+
+    def test_chu_thich_va_id_cua_mau_trang_khong_bi_tinh(self):
+        html = '<html><body><!-- SECTION 4: GOTCHAS --><h2 id="sec-gotchas">Lỗi thường gặp</h2><script>var gotcha=1</script></body></html>'
+        self.assertEqual(self._errs(html), [])
+
+    def test_van_ban_hien_thi_chua_tu_cam_van_bi_bat(self):
+        self.assertTrue(self._errs("<html><body><p>Một Gotcha điển hình.</p></body></html>"))

@@ -19,6 +19,21 @@ READING_WORD_TOLERANCE_HIGH = 1.2   # vượt trần tối đa 20% mới bị t�
 READING_WORD_TOLERANCE_LOW = 0.5    # dưới nửa mức tối thiểu mới bị từ chối
 
 
+def visible_text(html: str) -> str:
+    """Văn bản người học nhìn thấy: bỏ script, style, chú thích HTML và thẻ."""
+    try:
+        soup = BeautifulSoup(html, "html.parser")
+    except Exception:
+        return re.sub(r"<[^>]+>", " ", html)
+    from bs4 import Comment
+
+    for tag in soup(["script", "style"]):
+        tag.extract()
+    for c in soup.find_all(string=lambda x: isinstance(x, Comment)):
+        c.extract()
+    return soup.get_text(separator=" ")
+
+
 def count_visible_words(html: str) -> int:
     """Số từ hiển thị (bỏ script, style, nav, footer) - cùng cách đếm với giới hạn 15 phút."""
     try:
@@ -194,9 +209,15 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
 
     # 8. Banned AI Cliché / Buzzwords Check
     banned_buzzwords = ["bẫy lập trình", "bẫy cú pháp", "bẫy logic", "bẫy lỗi", "thần thánh", "bí kíp", "tất tần tật", "gotcha", "anti-pattern"]
+    # "gotcha"/"anti-pattern" chỉ tính trên VĂN BẢN HIỂN THỊ: id, class, tên biến và chú thích HTML của
+    # mẫu trang (ví dụ <!-- SECTION 4: GOTCHAS -->) chứa các từ này nhưng người học không thấy.
+    # Kiểm trên HTML thô khiến MỌI bài sinh từ mẫu đều bị từ chối (đã gặp trong lần chạy thật).
+    english_only_visible = ("gotcha", "anti-pattern", "antipattern")
     content_lower = content.lower()
+    visible_lower = visible_text(content).lower()
     for word in banned_buzzwords:
-        if word in content_lower:
+        haystack = visible_lower if word in english_only_visible else content_lower
+        if word in haystack:
             errors.append(f"Bài đọc vi phạm quy chuẩn ngôn ngữ: Chứa từ khóa AI từ lóng bị cấm '{word}'. Hãy thay bằng 'Lỗi thường gặp' hoặc 'Ngoại lệ cần lưu ý'.")
 
     # 9. Requirement Callout Box Check Before Code Sandboxes

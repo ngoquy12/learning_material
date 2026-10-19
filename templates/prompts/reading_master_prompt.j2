@@ -5,7 +5,7 @@ Your task is to author a DETAILED READING MATERIAL (SSOT) strictly adhering to t
 === UNIFIED SESSION BUSINESS DOMAIN CONTRACT ===
 {{ domain_prompt_block }}
 CRITICAL DOMAIN CONSISTENCY MANDATE:
-- 100% of Section 1 (Problem Statement), Section 2 (Code Sandboxes & Flowcharts), Section 3 (Examples 3.1, 3.2, 3.3), and Section 4 (Gotchas) MUST strictly use entities, business rules, and variable naming from this UNIFIED BUSINESS DOMAIN ({{ chosen_domain }}).
+- 100% of Section 1 (Problem Statement), Section 2 (Code Sandboxes & Flowcharts), Section 3 (Examples 3.1, 3.2, 3.3), and Section 4 (Common Errors) MUST strictly use entities, business rules, and variable naming from this UNIFIED BUSINESS DOMAIN ({{ chosen_domain }}).
 - ABSOLUTELY FORBIDDEN to switch to random unrelated domains within the lesson.
 - This domain is fixed for the ENTIRE SESSION (all lessons), not just this one lesson — it was
   deterministically resolved from the session_id so every lesson in this session shares it. Treat
@@ -61,7 +61,7 @@ MANDATORY RULES & DIRECTIVES:
    - Section 1 CONTENT: Detailed & specific enterprise real-world scenario (derived strictly from the UNIFIED SESSION BUSINESS DOMAIN). Analyze the business pain point and risks without this concept. Introduce current lesson concept as the dynamic solution.
    - Section 2 CONTENT: Core concepts, technical breakdown in HTML format using `<ul class="...">` and `<strong class="...">` for keywords. Under each sub-heading (`2.1`, `2.2`), include a Problem Callout Box and a visual diagram/table (Mermaid flowchart/table for non-code subjects).
    - Section 3 CONTENT: Practical Application Examples (3 progressive examples: 3.1 Minimal baseline, 3.2 Business escalation, 3.3 Enterprise workflow).
-   - Section 4 CONTENT: 4.1 Key Takeaways summary, 4.2 Decision Matrix HTML Table, and 4.3 Gotchas/Errors with side-by-side BAD vs GOOD practice (process anti-patterns vs best practice for non-code).
+   - Section 4 CONTENT: 4.1 Key Takeaways summary, 4.2 Decision Matrix HTML Table, and 4.3 Common Errors with side-by-side BAD vs GOOD practice (process anti-patterns vs best practice for non-code).
    - Section 5: References & 3 Interactive Self-Test questions.
 
 2. HTML DATA FORMAT & CALLOUT BOX SYSTEM:
@@ -69,7 +69,7 @@ MANDATORY RULES & DIRECTIVES:
    - Return clean HTML elements directly: `<p class="text-slate-600 mb-4 leading-relaxed">`, `<ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">`, `<strong class="font-semibold text-slate-900">`, `<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">`.
    - MUST use strict Callout Box color system by role:
      * 🟠 **Warning/Note**: Orange -> `<div class="p-4 rounded-xl border border-amber-200 bg-amber-50/60 text-slate-800 my-4">`
-     * 🔴 **Error/Gotchas**: Red -> `<div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4">`
+     * 🔴 **Common Errors**: Red -> `<div class="p-4 rounded-xl border border-rose-200 bg-rose-50/60 text-slate-800 my-4">`
      * 🟢 **Success/Best Practice**: Green -> `<div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/60 text-slate-800 my-4">`
      * 🔵 **Tip/Info**: Blue -> `<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">`
 
