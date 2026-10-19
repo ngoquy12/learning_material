@@ -169,3 +169,28 @@ class TestSandboxSafety(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSandboxProviderSwitch(unittest.TestCase):
+    def test_mac_dinh_dung_polyglot(self):
+        import os
+        from unittest import mock
+
+        from core.sandbox import execute_code_safely as run
+
+        with mock.patch.dict(os.environ, {"SANDBOX_PROVIDER": ""}), \
+             mock.patch("core.sandbox.isolated.execute_code_safely") as isolated:
+            res = run("print(1)", language="python")
+        isolated.assert_not_called()
+        self.assertEqual(res["status"], "SUCCESS")
+
+    def test_provider_docker_chuyen_sang_isolated(self):
+        import os
+        from unittest import mock
+
+        from core.sandbox import execute_code_safely as run
+
+        with mock.patch.dict(os.environ, {"SANDBOX_PROVIDER": "docker"}), \
+             mock.patch("core.sandbox.isolated.execute_code_safely", return_value={"status": "SUCCESS"}) as isolated:
+            run("print(1)", language="python")
+        isolated.assert_called_once()

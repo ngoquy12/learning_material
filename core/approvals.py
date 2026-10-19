@@ -287,6 +287,8 @@ def course_key_from_pm(pm_path) -> str:
 
 # Tên tài nguyên dùng trong `--approve "<Buổi>/<Bài>/<tài nguyên>"`.
 LOCKABLE_ARTIFACTS = ("html", "quiz", "practical_lab", "reading_questions", "video_script")
+# Tài nguyên cấp session (không thuộc lesson nào): dùng `--approve "<Buổi>/<tài nguyên>"`.
+LOCKABLE_SESSION_ARTIFACTS = ("homework", "mindmap", "lecture", "slide", "session_quiz")
 
 
 def is_state_artifact_locked(state, artifact: str) -> bool:
@@ -308,3 +310,16 @@ def is_state_artifact_locked(state, artifact: str) -> bool:
         )
     except Exception:
         return False
+
+
+def is_session_asset_locked(artifact: str, course_key: str = "", session_id: str = "", force_rebuild: bool = False) -> bool:
+    """Tài nguyên cấp session (bài tập về nhà, mindmap, bài giảng, slide, quiz đầu/cuối giờ) đã được duyệt?"""
+    try:
+        if is_locked_by_reviewer(artifact, course=course_key, session_id=session_id, lesson_id="", force_rebuild=force_rebuild):
+            return True
+        return bool(course_key) and is_locked_by_reviewer(
+            artifact, course="", session_id=session_id, lesson_id="", force_rebuild=force_rebuild
+        )
+    except Exception:
+        return False
+

@@ -132,3 +132,30 @@ class TestNoPlaceholderOverwrite(_IsolatedStorage):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSessionAssetLock(_IsolatedStorage):
+    def test_tai_nguyen_cap_session_da_duyet_thi_bo_qua(self):
+        from cli.commands.workflow_cmd import _run_session_asset
+
+        approvals.record_approval("homework", "A", course="MonA", session_id="Session 03")
+        calls = []
+        summary = []
+        out = _run_session_asset(summary, "Session 03", "Bài tập về nhà", lambda **kw: calls.append(kw),
+                                 lock="homework", course_key="MonA", force=False, x=1)
+        self.assertIsNone(out)
+        self.assertEqual(calls, [])
+
+    def test_force_hoac_chua_duyet_thi_van_chay(self):
+        from cli.commands.workflow_cmd import _run_session_asset
+
+        approvals.record_approval("homework", "A", course="MonA", session_id="Session 03")
+        calls = []
+        _run_session_asset([], "Session 03", "x", lambda **kw: calls.append(kw), lock="homework", course_key="MonA", force=True, x=1)
+        _run_session_asset([], "Session 04", "x", lambda **kw: calls.append(kw), lock="homework", course_key="MonA", force=False, x=2)
+        self.assertEqual(len(calls), 2)
+
+    def test_approve_khong_kem_pm_van_khoa_session(self):
+        approvals.record_approval("mindmap", "A", course="", session_id="Session 03")
+        self.assertTrue(approvals.is_session_asset_locked("mindmap", "MonA", "Session 03"))
+        self.assertFalse(approvals.is_session_asset_locked("mindmap", "MonA", "Session 04"))

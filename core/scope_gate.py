@@ -232,6 +232,17 @@ def audit_artifact_scope(
         except Exception as e:
             print(f"  [Scope Gate] Không chạy được kiểm định phạm vi cho '{artifact}': {e}")
 
+        # TẦNG 1b — cấu trúc mã: khối mã dùng class/this/closure/... mà môn chưa dạy. Từ khóa
+        # trong văn bản không bắt được lỗi này (mã chạy đúng, không từ nào lộ ra).
+        try:
+            from agents.creators.quiz_creator import extract_lang_tag
+            from core.validators.code_scope_linter import find_scope_violations_in_text
+
+            for finding in find_scope_violations_in_text(text, extract_lang_tag(tech_stack), forbidden):
+                violations.append(f"mã dùng '{finding.construct}' (chưa dạy): {finding.snippet.strip()[:60]}")
+        except Exception as e:
+            print(f"  [Scope Gate] Không chạy được kiểm tra cấu trúc mã cho '{artifact}': {e}")
+
         # TẦNG 2 — kiểm định ngữ nghĩa, CHỈ chạy khi tầng 1 không thấy gì. Tầng 1 đã
         # bắt được thì nội dung chắc chắn phải sinh lại, tốn thêm một lượt gọi LLM để
         # khẳng định lại điều đã biết là vô nghĩa.

@@ -71,7 +71,7 @@ Mỗi lượt chạy tạo `review_dashboard.html` trong thư mục khóa học,
 Buổi chỉ đạt PUBLISHED khi không còn tài nguyên FAILED hoặc cần người rà. Hệ thống không còn ghi nội dung mẫu chung thay cho nội dung thật; nếu thấy FAILED thì đó là lỗi cần xử lý, không phải lỗi hiển thị.
 
 Sau khi rà xong một tài nguyên, ghi nhận vào hồ sơ kiểm định. Tài nguyên đã duyệt được KHÓA: các lần chạy sau không sinh lại và không ghi đè tệp trên đĩa, trừ khi dùng `--force`. Nên truyền kèm `--pm <file.xlsx>` để hồ sơ gắn đúng khóa học:
-`python main.py --pm <file.xlsx> --approve "Session 02/Lesson 01/html" --reviewer "Họ Tên" --approve-note "Đã sửa tay phần ví dụ"`. Tên tài nguyên hợp lệ: `html`, `quiz`, `practical_lab`, `reading_questions`, `video_script`.
+`python main.py --pm <file.xlsx> --approve "Session 02/Lesson 01/html" --reviewer "Họ Tên" --approve-note "Đã sửa tay phần ví dụ"`. Tài nguyên cấp bài (`"<Buổi>/<Bài>/<tên>"`): `html`, `quiz`, `practical_lab`, `reading_questions`, `video_script`. Tài nguyên cấp buổi (`"<Buổi>/<tên>"`): `homework`, `mindmap`, `lecture`, `slide`, `session_quiz`.
 Từ chối: thêm `--reject`. Xuất hồ sơ: `--export-approvals ho_so.csv`.
 
 ### Bước 6. Cổng kiểm tra bài tập lập trình trước khi giao
@@ -153,3 +153,9 @@ Thực hành khi giao việc cho tác tử trong Antigravity:
 Lưu ý khác:
 - Kho kinh nghiệm tự học nay ghi vào `storage/lessons_learned_auto/SKILL.md` (không theo dõi bởi Git), không còn ghi vào `skills/lessons_learned/SKILL.md`. Muốn đưa một luật vào skill chính thức, chép tay và commit.
 - Workflow `/resume` chỉ tóm tắt và hỏi; `/handoff` mới cập nhật `docs/PROJECT_STATE.md`.
+
+## 10. Cấu hình và kiểm tra tự động bổ sung
+
+- **Sandbox kiểm chứng mã.** Mặc định chạy trong tiến trình con ở thư mục tạm (Bash chỉ kiểm tra cú pháp, không thực thi). Muốn cô lập thật, đặt `SANDBOX_PROVIDER=docker` (hoặc `e2b`) trong `.env`; cần Docker đang chạy và image đã có sẵn, nếu không lỗi kéo image sẽ bị hiểu là mã bị lỗi.
+- **Cổng cấu trúc mã trong pipeline.** Khi PM liệt kê khái niệm chưa dạy như `closure`, `class`, `this`, `lambda`, `decorator`, `comprehension`, các khối mã trong bài đọc, lab và bài tập bị quét; dùng cấu trúc bị cấm sẽ bị báo vi phạm phạm vi và kích hoạt sinh lại. Đây là bản tự động của `scripts/check_exercise_scope.py`.
+- **Môn không viết mã.** Danh sách từ khóa nằm ở `config/course_nature.json` (mạnh/yếu/thiết kế). Thêm môn mới chỉ sửa tệp này.

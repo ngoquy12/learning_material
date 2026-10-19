@@ -340,3 +340,52 @@ def _param_shape(params: str) -> Tuple[str, ...]:
         else:
             shape.append("plain")
     return tuple(shape)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Cầu nối với phạm vi kiến thức của PM: khái niệm cấm -> cấu trúc mã cấm
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Từ (nguyên vẹn) trong danh sách khái niệm cấm của PM ứng với cấu trúc mã. Chỉ gồm các từ
+# gần như không mơ hồ; "oop"/"hướng đối tượng" cố ý không có vì nhắc tới OOP không đồng nghĩa dùng `class`.
+_CONSTRUCT_ALIASES = {
+    "class": ("class", "classes"),
+    "this": ("this",),
+    "module": ("module", "modules", "import", "export", "es module", "es modules"),
+    "closure": ("closure", "closures"),
+    "lambda": ("lambda",),
+    "comprehension": ("comprehension", "list comprehension", "comprehensions"),
+    "decorator": ("decorator", "decorators"),
+    "global": ("global", "nonlocal"),
+}
+
+
+def forbidden_constructs_from_scope(forbidden_scope: Iterable[str], language: str) -> List[str]:
+    """Cấu trúc mã bị cấm suy ra từ danh sách khái niệm chưa dạy, đúng với ngôn ngữ."""
+    from core.utils.text_match import has_any_term
+
+    allowed = set(JS_CONSTRUCTS) if (language or "").lower() in ("js", "javascript", "node", "ts", "typescript") else set(PY_CONSTRUCTS)
+    text = " ; ".join(str(x) for x in forbidden_scope)
+    return sorted(c for c, aliases in _CONSTRUCT_ALIASES.items() if c in allowed and has_any_term(text, aliases))
+
+
+def extract_code_blocks(text: str) -> List[str]:
+    """Các khối mã trong HTML (<pre><code>) hoặc Markdown (```), đã giải mã thực thể HTML."""
+    import html as _html
+
+    blocks = [m.group(1) for m in re.finditer(r"```[^\n]*\n(.*?)```", text, flags=re.S)]
+    for m in re.finditer(r"<pre\b[^>]*>(.*?)</pre>", text, flags=re.S | re.I):
+        inner = re.sub(r"<[^>]+>", "", m.group(1))
+        blocks.append(_html.unescape(inner))
+    return [b for b in blocks if b.strip()]
+
+
+def find_scope_violations_in_text(text: str, language: str, forbidden_scope: Iterable[str]) -> List[ScopeFinding]:
+    """Quét mọi khối mã trong `text` với các cấu trúc bị cấm theo `forbidden_scope`."""
+    constructs = forbidden_constructs_from_scope(forbidden_scope, language)
+    if not constructs:
+        return []
+    findings: List[ScopeFinding] = []
+    for block in extract_code_blocks(text):
+        findings.extend(find_scope_violations(block, language, constructs))
+    return findings

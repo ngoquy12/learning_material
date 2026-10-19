@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from core.state import AgentState
-from core.approvals import course_key_from_pm
+from core.approvals import course_key_from_pm, is_session_asset_locked
 from core.resume import merge_resume_state
 from core.lesson_summary import build_lesson_summary
 from core.graph import compile_learning_content_workflow, write_state_artifacts_to_disk
@@ -42,11 +42,20 @@ from core.semantic_cache import set_cache_namespace_prefix
 from core.session_types import detect_session_type
 
 
-def _run_session_asset(summary, owner_session_id, label, fn, **kwargs):
+def _run_session_asset(summary, owner_session_id, label, fn, lock=None, course_key="", force=False, **kwargs):
     """
     Chạy một bước sinh tài nguyên cấp session; lỗi chỉ được ghi nhận, không làm dừng cả khóa.
     Trước đây một lỗi ở bài tập về nhà/mindmap/bài giảng làm chết mọi buổi phía sau.
+
+    `lock` là tên tài nguyên dùng với `--approve "<Buổi>/<tên>"`: nếu đã được giảng viên duyệt
+    (và không có --force) thì bỏ qua, không sinh lại và không ghi đè.
     """
+    if lock:
+        from core.approvals import is_session_asset_locked
+
+        if is_session_asset_locked(lock, course_key, owner_session_id, force):
+            print(f"  [Approval Lock] {owner_session_id} - {label}: đã được giảng viên duyệt, giữ nguyên (dùng --force để sinh lại).")
+            return None
     try:
         return fn(**kwargs)
     except Exception as err:
@@ -702,6 +711,7 @@ def execute_course_workflow(args):
                 print(f"\n  ---> [Session Generator] Tự động sinh Bài giảng trên lớp, Mindmap Session & Bộ Bài tập Session cho {session_id} theo Domain [{session_domain_name}]...")
                 session_forbidden_scope = session.get("forbidden_scope", "")
                 _run_session_asset(summary, session_id, "Bài tập về nhà", generate_session_homework,
+                    lock="homework", course_key=course_key_from_pm(excel_path), force=args.force,
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -712,6 +722,7 @@ def execute_course_workflow(args):
                 )
                 
                 _run_session_asset(summary, session_id, "Sơ đồ tư duy", generate_session_mindmap,
+                    lock="mindmap", course_key=course_key_from_pm(excel_path), force=args.force,
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -725,6 +736,7 @@ def execute_course_workflow(args):
                     # 1. Sinh Bài giảng trên lớp trực quan (HTML + Visualizer)
                     from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
                     _run_session_asset(summary, session_id, "Bài giảng trên lớp", classroom_lecture_generator_agent.generate_lecture,
+                        lock="lecture", course_key=course_key_from_pm(excel_path), force=args.force,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -739,7 +751,9 @@ def execute_course_workflow(args):
                         from agents.creators.slide_deck_creator import generate_session_slide_deck
                         slide_deck_dir = session_dir / "Slide bài giảng"
                         print(f"  ---> [Slide bài giảng] Đang sinh file PowerPoint (.pptx) & Outline cho {session_id}...")
-                        generate_session_slide_deck(
+                        _run_session_asset(
+                            summary, session_id, "Slide bài giảng", generate_session_slide_deck,
+                            lock="slide", course_key=course_key_from_pm(excel_path), force=args.force,
                             session_title=session_title,
                             course_name=course_clean,
                             tech_stack=tech_stack,
@@ -827,6 +841,7 @@ def execute_course_workflow(args):
                     sess_domain = get_domain_for_session(session_id, session_title)
                     
                     _run_session_asset(summary, session_id, "Bài tập về nhà", generate_session_homework,
+                        lock="homework", course_key=course_key_from_pm(excel_path), force=args.force,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -836,6 +851,7 @@ def execute_course_workflow(args):
                         chosen_domain=sess_domain.get("domain_id")
                     )
                     _run_session_asset(summary, session_id, "Sơ đồ tư duy", generate_session_mindmap,
+                        lock="mindmap", course_key=course_key_from_pm(excel_path), force=args.force,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -847,6 +863,7 @@ def execute_course_workflow(args):
                     if "slide" in requested_parts:
                         from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
                         _run_session_asset(summary, session_id, "Bài giảng trên lớp", classroom_lecture_generator_agent.generate_lecture,
+                            lock="lecture", course_key=course_key_from_pm(excel_path), force=args.force,
                             session_id=session_id,
                             session_title=session_title,
                             session_dir_path=str(session_dir),
@@ -922,26 +939,34 @@ def execute_course_workflow(args):
             forbidden_scope_str = ", ".join(sorted(forbidden_set))
             allowed_scope_str = ", ".join(sorted(allowed_set))
 
+            if is_session_asset_locked("session_quiz", course_key_from_pm(excel_path), session_id, args.force):
+                print(f"  [Approval Lock] {session_id} - Quizz đầu/cuối giờ đã được giảng viên duyệt, giữ nguyên.")
+                quiz_locked = True
+            else:
+                quiz_locked = False
             try:
-                entrance_qs = generate_entrance_quiz(
-                    session_id=session_id,
-                    current_topic=current_topic,
-                    previous_topic=previous_topic,
-                    previous_topics_context=previous_topics_context_str,
-                    tech_stack=tech_stack,
-                    forbidden_scope=forbidden_scope_str,
-                    allowed_scope=allowed_scope_str
-                )
-                exit_qs = generate_exit_quiz(
-                    session_id=session_id,
-                    current_topic=current_topic,
-                    tech_stack=tech_stack,
-                    forbidden_scope=forbidden_scope_str,
-                    allowed_scope=allowed_scope_str
-                )
+                if quiz_locked:
+                    entrance_qs = exit_qs = None
+                else:
+                    entrance_qs = generate_entrance_quiz(
+                        session_id=session_id,
+                        current_topic=current_topic,
+                        previous_topic=previous_topic,
+                        previous_topics_context=previous_topics_context_str,
+                        tech_stack=tech_stack,
+                        forbidden_scope=forbidden_scope_str,
+                        allowed_scope=allowed_scope_str
+                    )
+                    exit_qs = generate_exit_quiz(
+                        session_id=session_id,
+                        current_topic=current_topic,
+                        tech_stack=tech_stack,
+                        forbidden_scope=forbidden_scope_str,
+                        allowed_scope=allowed_scope_str
+                    )
             
-                export_quiz_to_excel(entrance_qs, str(entrance_path))
-                export_quiz_to_excel(exit_qs, str(exit_path))
+                    export_quiz_to_excel(entrance_qs, str(entrance_path))
+                    export_quiz_to_excel(exit_qs, str(exit_path))
             except Exception as quiz_err:
                 # Một lỗi sinh quiz đầu/cuối giờ không được làm dừng cả khóa; ghi nhận để rà lại.
                 print(f"  [Session Quiz Error] {session_id}: {quiz_err}")

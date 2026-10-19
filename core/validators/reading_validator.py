@@ -15,7 +15,6 @@ from core.reading_budget import (
     READING_WORD_MIN,
 )
 
-NON_CODE_STACK_HINTS = ("agile", "scrum", "uml", "architecture", "kiến trúc", "quy trình", "process")
 READING_WORD_TOLERANCE_HIGH = 1.2   # vượt trần tối đa 20% mới bị từ chối
 READING_WORD_TOLERANCE_LOW = 0.5    # dưới nửa mức tối thiểu mới bị từ chối
 
@@ -77,10 +76,6 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         is SessionType.ORIENTATION
     )
     
-    # Môn không viết mã (quy trình, mô hình hóa...) không bị bắt buộc có khối mã ở Section 3.
-    stack_hint = str(metadata.get("tech_stack") or "").lower()
-    requires_code = bool(metadata.get("requires_code", not any(h in stack_hint for h in NON_CODE_STACK_HINTS)))
-
     # 1. HTML & JS Syntax Validation
     is_valid_syntax, syntax_errors = lint_html_syntax(content)
     if not is_valid_syntax:

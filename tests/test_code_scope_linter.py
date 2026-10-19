@@ -96,3 +96,31 @@ class TestSignatureDrift(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestScopeBridge(unittest.TestCase):
+    def test_khai_niem_cam_thanh_cau_truc(self):
+        from core.validators.code_scope_linter import forbidden_constructs_from_scope
+
+        self.assertEqual(forbidden_constructs_from_scope({"closure", "class", "fetch api"}, "javascript"), ["class", "closure"])
+        self.assertEqual(forbidden_constructs_from_scope({"lambda", "this"}, "python"), ["lambda"])
+        self.assertEqual(forbidden_constructs_from_scope({"hướng đối tượng", "oop"}, "python"), [])
+
+    def test_quet_khoi_ma_trong_html_va_markdown(self):
+        from core.validators.code_scope_linter import find_scope_violations_in_text
+
+        html = '<p>Giải thích this trong văn bản không tính.</p><pre><code>class A { f() { return this.x; } }</code></pre>'
+        found = find_scope_violations_in_text(html, "javascript", {"class", "this"})
+        self.assertEqual({f.construct for f in found}, {"class", "this"})
+        md = "Văn bản class\n```js\nconst a = 1;\n```\n"
+        self.assertEqual(find_scope_violations_in_text(md, "javascript", {"class"}), [])
+
+    def test_scope_gate_bat_loi_closure_trong_ma(self):
+        from core.scope_gate import audit_artifact_scope
+
+        state = {"forbidden_scope": ["closure"], "technology_stack": "JavaScript"}
+        html = ('<pre><code>function make() { const n = 0; const inc = () => { return n; }; '
+                'return { inc }; }</code></pre>')
+        result = audit_artifact_scope(html, state, "html")
+        self.assertTrue(any("closure" in v for v in result.violations))
+        self.assertFalse(audit_artifact_scope("<pre><code>const a = 1;</code></pre>", state, "html").violations)
