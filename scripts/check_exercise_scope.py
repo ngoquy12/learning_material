@@ -35,13 +35,25 @@ SKIP_NAMES = {"harness.js", "mock-api.js", "axios.min.js", "tests.js", "demo.js"
 
 
 def collect_exercise_files(root: Path, language: str) -> List[Path]:
+    """
+    Tệp mã của sinh viên: `script.js` (bài tập trình duyệt thuần) và, với dự án Vite/React,
+    mọi `*.jsx`/`*.js` dưới thư mục `src/`. Bỏ qua node_modules, tests và hạ tầng chấm điểm.
+    """
     ext = EXT.get(language, ".js")
     files = []
-    for path in sorted(root.rglob(f"script{ext}")):
-        if path.name in SKIP_NAMES:
+    for path in sorted(root.rglob(f"*{ext}")):
+        if path.name in SKIP_NAMES or "node_modules" in path.parts:
             continue
-        files.append(path)
-    return files
+        parts = path.parts
+        if path.name == f"script{ext}" or ("src" in parts and "tests" not in parts):
+            files.append(path)
+    if language == "javascript":
+        for path in sorted(root.rglob("*.jsx")):
+            if "node_modules" in path.parts or "tests" in path.parts or path in files:
+                continue
+            if "src" in path.parts:
+                files.append(path)
+    return sorted(files)
 
 
 def starter_for(path: Path, files: List[Path]) -> Path | None:

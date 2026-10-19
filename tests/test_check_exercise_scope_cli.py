@@ -39,3 +39,17 @@ class TestCli(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestReactProject(unittest.TestCase):
+    def test_quet_jsx_trong_src_va_bo_qua_tests(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "Bai 1" / "starter" / "src" / "components").mkdir(parents=True)
+            (root / "Bai 1" / "starter" / "tests").mkdir(parents=True)
+            (root / "Bai 1" / "starter" / "src" / "components" / "A.jsx").write_text(
+                "export default class A extends React.Component { render() { return <p/>; } }", encoding="utf-8")
+            (root / "Bai 1" / "starter" / "tests" / "a.test.jsx").write_text("class T {}", encoding="utf-8")
+            files = cli.collect_exercise_files(root, "javascript")
+            self.assertEqual([f.name for f in files], ["A.jsx"])
+            self.assertEqual(cli.main([str(root), "--forbid", "class", "--no-drift"]), 1)
