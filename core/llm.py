@@ -92,6 +92,40 @@ HIGH_COMPLEXITY_AGENTS = {
     "strategic_agent", "prerequisite_guard_agent"
 }
 
+# Mã trạng thái cho thấy MÔ HÌNH/tài khoản phía sau proxy đang không dùng được (không phải lỗi của yêu cầu).
+_MODEL_UNAVAILABLE_STATUS = (404, 429, 500, 502, 503, 504)
+
+
+def _create_with_model_fallback(client, kwargs: dict, agent_name: str):
+    """
+    Gọi proxy; nếu mô hình được chọn không dùng được (503 tài khoản bị tạm khóa, 429, 404...)
+    thì thử lần lượt các mô hình dự phòng cùng tier (`get_fallback_candidates`) trước khi bỏ cuộc.
+
+    Trước đây hàm dự phòng đã tồn tại nhưng không nơi nào gọi: một mô hình chết làm cả lesson hỏng
+    dù mô hình khác cùng tier vẫn hoạt động (đã gặp thật: gemini-3.1-pro bị 503, gemini-3.8-flash-high
+    vẫn chạy). Mỗi mô hình chỉ được thử một lần ở đây; vòng thử lại theo thời gian vẫn do with_retry lo.
+    """
+    from core.llm_router import AntigravityLLMRouter
+
+    primary = kwargs.get("model")
+    try:
+        return client.chat.completions.create(**kwargs)
+    except Exception as err:
+        status = getattr(err, "status_code", None)
+        if status not in _MODEL_UNAVAILABLE_STATUS:
+            raise
+        last_err = err
+        for alt in AntigravityLLMRouter.get_fallback_candidates(agent_name, primary):
+            print(f"  [LLM Router - Fallback] '{primary}' không dùng được (HTTP {status}); thử '{alt}'...")
+            try:
+                return client.chat.completions.create(**{**kwargs, "model": alt})
+            except Exception as alt_err:
+                if getattr(alt_err, "status_code", None) not in _MODEL_UNAVAILABLE_STATUS:
+                    raise
+                last_err = alt_err
+        raise last_err
+
+
 def resolve_model_name(agent_name: str, is_gemini: bool = True) -> str:
     """
     Dynamically select the LLM model based on Antigravity LLM Router agent tier mapping.
@@ -270,7 +304,7 @@ def call_llm(
                 from core.llm_router import AntigravityLLMRouter
                 tier = AntigravityLLMRouter.classify_agent_tier(agent_name)
                 print(f"  [LLM Router - Antigravity Tier ({tier})] {agent_name} -> Model: {model_name} @ {api_endpoint}...")
-                response = client.chat.completions.create(**kwargs)
+                response = _create_with_model_fallback(client, kwargs, agent_name)
                 if response and response.choices and response.choices[0].message.content:
                     result_text = response.choices[0].message.content.strip()
                     
