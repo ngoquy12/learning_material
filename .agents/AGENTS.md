@@ -59,10 +59,12 @@
 - Phong cách: câu, gạch đầu dòng, câu hỏi, giải thích và tiêu đề con kết thúc bằng dấu chấm. Chữ nghiêng chỉ cho chú thích dưới ảnh/sơ đồ. Cấm viết HOA toàn bộ trên tiêu đề, nút, nhãn (dùng Sentence Case hoặc Title Case). Cấm emoji dạng chữ; dùng biểu tượng SVG/Phosphor hoặc nhãn `[NOTE]`, `[TIP]`, `[WARNING]`.
 - Mã: đúng cú pháp, quy ước đặt tên, thụt lề của ngôn ngữ; nhãn khối mã đúng (`python`, `javascript`, `html`, `css`, `bash`, `sql`...).
 
-## 2. Bài tập (6 bài thực tế)
+## 2. Bài tập (bộ chuẩn 15 bài, thêm 2 bài tổng hợp)
 
+- Bộ chuẩn của pipeline và skill `exercise_generator`: 15 bài phân tầng Bloom, thêm Bài 16 (demo giảng viên trên lớp) và Bài 17 (mindmap hệ thống hóa). Chi tiết từng nhóm: `skills/exercise_generator/SKILL.md` mục 2 và `README.md` mục 3.2.
 - Dựa trên vai trò doanh nghiệp thật (LMS, giỏ hàng...), không dùng bài thuật toán khô (kim tự tháp sao, giai thừa).
-- Bloom: Bài 1-2 cơ bản: mã cũ có lỗi logic, người học đọc mã, lập bảng test, sửa lỗi. Bài 3-4 nâng cao: vai trò dev nhận việc, quy tắc nghiệp vụ và ca biên (có dữ liệu vào/ra mẫu). Bài 5 phân tích: tối ưu quy trình, ít nhất 2 phương án, bảng đánh đổi, lưu đồ trước khi viết mã. Bài 6 sáng tạo: mô-đun hoàn chỉnh, tự chủ tối đa, cấm cho sẵn mẫu vào/ra hay JSON schema; người học tự thiết kế schema, liệt kê ca lỗi biên, vẽ DFD, cài đặt theo thiết kế của mình.
+- Bloom: Bài 1-6 cơ bản: mã cũ có lỗi logic, người học đọc mã, lập bảng test, sửa lỗi. Bài 7-9 nâng cao: vai trò dev nhận việc, quy tắc nghiệp vụ và ca biên (có dữ liệu vào/ra mẫu). Bài 10-12 phân tích: tối ưu quy trình, ít nhất 2 phương án, bảng đánh đổi, lưu đồ trước khi viết mã. Bài 13-15 sáng tạo: mô-đun hoàn chỉnh, tự chủ tối đa, cấm cho sẵn mẫu vào/ra hay JSON schema; người học tự thiết kế schema, liệt kê ca lỗi biên, vẽ DFD, cài đặt theo thiết kế của mình.
+- Bộ rút gọn 6 bài (bài 1-2 cơ bản, 3-4 nâng cao, 5 phân tích, 6 sáng tạo) chỉ dùng khi yêu cầu của khóa nêu rõ, như hai môn JavaScript ôn tập và nâng cao đã tạo. Không tự đổi từ bộ 15 sang 6 bài.
 - Đề Markdown, đúng 5 mục H3: `1. Mục tiêu`, `2. Bối cảnh và vấn đề` (kèm lưu đồ Mermaid), `3. Quy tắc nghiệp vụ` (hoặc `3. Mã cũ`), `4. Yêu cầu`, `5. Quy định nộp bài`; cấm nhúng rubric vào đề.
 - Rubric tách riêng (`rubric_XX.md`): bảng 100 điểm, 5 nhóm tiêu chí.
 - Bài tập lập trình chạy được (xem PROJECT_STATE): có `starter/` kèm `tests.html` và `harness.js` để tự chấm.
