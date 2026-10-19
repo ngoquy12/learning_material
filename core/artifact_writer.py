@@ -81,6 +81,20 @@ def write_state_artifacts_to_disk(
             html_path = html_sub / "reading.html"
             html_path.write_text(state["html_content"], encoding="utf-8")
             written["html"] = str(html_path)
+
+            # Tự động sinh reading.md song hành cùng reading.html theo chuẩn LMS
+            try:
+                from agents.creators.quiz_creator import extract_lang_tag
+                from core.renderers.reading_markdown import convert_html_to_markdown
+
+                md_content = convert_html_to_markdown(
+                    str(html_path), default_lang=extract_lang_tag(str(state.get("technology_stack") or ""))
+                )
+                md_path = html_sub / "reading.md"
+                md_path.write_text(md_content, encoding="utf-8")
+                written["markdown"] = str(md_path)
+            except Exception as me:
+                print(f"  [Write Disk Warning] Lỗi sinh reading.md: {me}")
         except Exception as e:
             print(f"  [Write Disk Warning] Lỗi ghi reading.html: {e}")
 

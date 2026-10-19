@@ -180,8 +180,26 @@ class ClassroomLectureGeneratorAgent:
         )
 
         out_html_file = slides_dir / "slides.html"
-        with open(out_html_file, "w", encoding="utf-8") as f:
-            f.write(final_html)
+        
+        # Check if an outline_bai_giang.md exists in Slide bài giảng or session_dir
+        outline_md = session_dir / "Slide bài giảng" / "outline_bai_giang.md"
+        if not outline_md.exists():
+            outline_md = session_dir / "Slide" / "outline_bai_giang.md"
+        if not outline_md.exists():
+            outline_md = session_dir / "outline_bai_giang.md"
+
+        if outline_md.exists():
+            from core.renderers.lecture.outline_deck_compiler import compile_outline_to_html
+            compile_outline_to_html(outline_md, out_html_file, module_name=tech_stack)
+            # Also sync to Slide bài giảng/slides.html if folder exists
+            slide_bg_dir = session_dir / "Slide bài giảng"
+            if slide_bg_dir.exists():
+                import shutil
+                shutil.copy(out_html_file, slide_bg_dir / "slides.html")
+            print(f"  [Success] Biên dịch Slide Bài Giảng từ outline: {out_html_file}")
+        else:
+            with open(out_html_file, "w", encoding="utf-8") as f:
+                f.write(final_html)
 
         vis_file = visualizer_dir / "index.html"
         with open(vis_file, "w", encoding="utf-8") as f:

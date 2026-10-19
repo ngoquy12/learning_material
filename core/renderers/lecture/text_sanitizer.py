@@ -145,5 +145,7 @@ def detect_file_info_for_tech_stack(tech_stack: str, lesson_title: str) -> Tuple
         return "index.php", "php"
     elif "go" in ts_lower or "golang" in ts_lower:
         return "main.go", "go"
+    elif any(k in ts_lower for k in ["ui-ux", "ui/ux", "figma", "design", "thiết kế"]):
+        return "component.fig", "figma"
     else:
         return "script.js", "javascript"

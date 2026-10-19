@@ -60,17 +60,32 @@ def resolve_domain_engine(tech_stack: str) -> Dict[str, str]:
             "name": tech_stack or "Git/CLI"
         }
 
-    # 3. Pure Concept / Architecture / Agile / Process
-    concept_keywords = ["agile", "scrum", "diagram", "uml", "design", "word", "excel", "powerpoint", "office", "phân tích", "thiết kế", "kiến trúc", "system analysis", "software architecture", "management", "theory", "concept", "process"]
+    # 3. Web Frontend (HTML / CSS / Tailwind / Responsive)
+    web_keywords = ["html", "css", "tailwind", "sass", "scss", "bootstrap", "web interface", "frontend"]
+    if any(kw in tech_lower for kw in web_keywords):
+        return {
+            "engine_type": "static",
+            "hljs_languages": ["html", "css"],
+            "visualizer_type": "concept",
+            "name": tech_stack or "HTML/CSS"
+        }
+
+    # 4. Pure Concept / Architecture / Agile / Process / UI-UX Design
+    concept_keywords = [
+        "agile", "scrum", "diagram", "uml", "design", "figma", "figjam", "ui", "ux",
+        "wireframe", "prototype", "heuristics", "canva", "copywriting", "word", "excel",
+        "powerpoint", "office", "phân tích", "thiết kế", "kiến trúc", "system analysis",
+        "software architecture", "management", "theory", "concept", "process"
+    ]
     if any(kw in tech_lower for kw in concept_keywords):
         return {
             "engine_type": "static",
-            "hljs_languages": ["plaintext"],
+            "hljs_languages": ["plaintext", "markdown"],
             "visualizer_type": "concept",
-            "name": tech_stack or "Architecture"
+            "name": tech_stack or "UI/UX Design"
         }
 
-    # 4. Programming Languages
+    # 5. Programming Languages
     if "typescript" in tech_lower or re.search(r'\bts\b', tech_lower):
         return {"engine_type": "js_worker", "hljs_languages": ["typescript"], "visualizer_type": "programming", "name": "TypeScript"}
     if "javascript" in tech_lower or re.search(r'\bjs\b', tech_lower) or "react" in tech_lower or "node" in tech_lower or "vue" in tech_lower:
@@ -85,6 +100,12 @@ def resolve_domain_engine(tech_stack: str) -> Dict[str, str]:
         return {"engine_type": "static", "hljs_languages": ["csharp"], "visualizer_type": "programming", "name": "C#"}
     if re.search(r'(?<![a-z])c(?![a-z])', tech_lower):
         return {"engine_type": "static", "hljs_languages": ["c"], "visualizer_type": "programming", "name": "C"}
+    if "php" in tech_lower:
+        return {"engine_type": "static", "hljs_languages": ["php"], "visualizer_type": "programming", "name": "PHP"}
+    if re.search(r'\bgo\b|\bgolang\b', tech_lower):
+        return {"engine_type": "static", "hljs_languages": ["go"], "visualizer_type": "programming", "name": "Go"}
+    if "rust" in tech_lower:
+        return {"engine_type": "static", "hljs_languages": ["rust"], "visualizer_type": "programming", "name": "Rust"}
 
     # Không khớp bất kỳ nhóm nào đã đăng ký -> báo lỗi rõ ràng thay vì âm thầm fallback về
     # Python. Đây từng là bug thật: mọi tech_stack lạ (Go, Rust, PHP, Kotlin, Swift...) bị
@@ -138,7 +159,10 @@ def assemble_reading_html(json_payload: Dict[str, Any], metadata: Dict[str, Any]
     domain_info = resolve_domain_engine(tech_stack)
 
     lesson_title = metadata.get("lesson_title") or json_payload.get("lesson_title") or "Bài đọc học liệu"
+    # Giữ nguyên hành vi cũ (lấy phần sau " - ", bỏ tiền tố "Session 01 - ") rồi mới bỏ tiền tố
+    # "Lesson 01"/"Bài 1" nếu còn. Bản chỉ bỏ "Lesson N" làm tiêu đề lộ nguyên "Session 01 - ...".
     lesson_clean_title = lesson_title.split(" - ")[-1] if " - " in lesson_title else lesson_title
+    lesson_clean_title = re.sub(r'^(?:Lesson|Bài)\s*\d+[\s:.-]+\s*', '', lesson_clean_title).strip() or lesson_clean_title
 
     # Section Titles
     sec_titles = json_payload.get("section_titles") or {}
