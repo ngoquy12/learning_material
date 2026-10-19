@@ -31,15 +31,15 @@ class TestAntigravityLLMRouter(unittest.TestCase):
     def test_model_resolution(self):
         """Verify model resolution and context caching flag output."""
         model_t1, cache_t1 = AntigravityLLMRouter.resolve_model("quiz_validator")
-        self.assertIn(model_t1, ["gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.6-flash-high"])
+        self.assertIn(model_t1, ["gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.8-flash-high"])
         self.assertFalse(cache_t1)
 
         model_t2, cache_t2 = AntigravityLLMRouter.resolve_model("reading_creator")
-        self.assertEqual(model_t2, "gemini-3.6-flash-high")
+        self.assertEqual(model_t2, "gemini-3.8-flash-high")
         self.assertFalse(cache_t2)
 
         model_t3, cache_t3 = AntigravityLLMRouter.resolve_model("enterprise_code_section_3")
-        self.assertEqual(model_t3, "gemini-3.6-flash-high")
+        self.assertEqual(model_t3, "gemini-3.8-flash-high")
         self.assertTrue(cache_t3)
 
     def test_pro_reasoning_model_resolution(self):
@@ -76,7 +76,7 @@ class TestAntigravityLLMRouter(unittest.TestCase):
         """Verify fallback candidate listing works correctly."""
         fallbacks = AntigravityLLMRouter.get_fallback_candidates("quiz_validator", "gemini-1.5-flash")
         self.assertNotIn("gemini-1.5-flash", fallbacks)
-        self.assertIn("gemini-3.6-flash-high", fallbacks)
+        self.assertIn("gemini-3.8-flash-high", fallbacks)
 
 
 if __name__ == "__main__":

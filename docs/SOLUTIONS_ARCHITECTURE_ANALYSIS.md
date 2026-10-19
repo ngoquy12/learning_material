@@ -54,7 +54,7 @@ Do hệ thống vận hành 100% thông qua **API Proxy Antigravity** (không c�
          │ (Tier 1: Ultra-Fast)    │ (Tier 2: High Reasoning)│ (Tier 3: Deep Context)
          ▼                         ▼                         ▼
 ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
-│ Gemini 1.5 Flash │      │ Gemini 3.6 Flash │      │ Gemini 3.6 Flash │
+│ Gemini 1.5 Flash │      │ Gemini 3.8 Flash │      │ Gemini 3.8 Flash │
 │  / 2.0 Flash Lite│      │      High        │      │ + Context Cache  │
 └──────────────────┘      └──────────────────┘      └──────────────────┘
 ```
@@ -63,9 +63,9 @@ Do hệ thống vận hành 100% thông qua **API Proxy Antigravity** (không c�
 
 | Task Tier                   | Loại Task Trách Nhiệm                                          | Primary Model (Antigravity Proxy)                          | Fallback Mechanism                  | Tối Ưu Đạt Được                                                |
 | --------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------- |
-| **Tier 1 (Fast & Light)**   | Quiz Validation, Keyword Extraction, Summary, Normalization    | `gemini-1.5-flash` / `gemini-2.0-flash-lite`               | Fallback `gemini-3.6-flash-high`    | **Tăng tốc 300%**, phản hồi millisecond, không tốn quota token |
-| **Tier 2 (High Reasoning)** | Reading Article, Slide Bento, Objective Architect, Scope Guard | `gemini-3.6-flash-high` / `gemini-3.1-pro`                 | Auto-Retry giữa 3.6 Flash & 3.1 Pro | Tối ưu instruction following & lập luận sư phạm Pro            |
-| **Tier 3 (Deep Context)**   | Enterprise Code Section 3, Video Script       | `gemini-3.6-flash-high` / `gemini-3.1-pro` (Context Cache) | Reuse cached prompt token           | **Giảm 90% latency**, giữ vững context 32k+ tokens             |
+| **Tier 1 (Fast & Light)**   | Quiz Validation, Keyword Extraction, Summary, Normalization    | `gemini-1.5-flash` / `gemini-2.0-flash-lite`               | Fallback `gemini-3.8-flash-high`    | **Tăng tốc 300%**, phản hồi millisecond, không tốn quota token |
+| **Tier 2 (High Reasoning)** | Reading Article, Slide Bento, Objective Architect, Scope Guard | `gemini-3.8-flash-high` / `gemini-3.1-pro`                 | Auto-Retry giữa 3.8 Flash & 3.1 Pro | Tối ưu instruction following & lập luận sư phạm Pro            |
+| **Tier 3 (Deep Context)**   | Enterprise Code Section 3, Video Script       | `gemini-3.8-flash-high` / `gemini-3.1-pro` (Context Cache) | Reuse cached prompt token           | **Giảm 90% latency**, giữ vững context 32k+ tokens             |
 
 ### 2.3. Mã Giả Kiến Trúc Implementation Blueprint
 
@@ -82,9 +82,9 @@ class AntigravityLLMRouter:
     """
     def __init__(self):
         self.tiers = {
-            "tier_1_fast": ["gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.6-flash-high"],
-            "tier_2_reasoning": ["gemini-3.6-flash-high", "gemini-1.5-pro"],
-            "tier_3_cached": ["gemini-3.6-flash-high"]
+            "tier_1_fast": ["gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.8-flash-high"],
+            "tier_2_reasoning": ["gemini-3.8-flash-high", "gemini-1.5-pro"],
+            "tier_3_cached": ["gemini-3.8-flash-high"]
         }
 
     def dispatch(self, task_type: str, prompt: str, system_instruction: str = "") -> str:

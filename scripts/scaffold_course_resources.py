@@ -79,11 +79,13 @@ def scaffold_course_resources(excel_path: str, output_base_dir: str = None):
     if output_base_dir:
         course_root = Path(output_base_dir).resolve()
     else:
-        if p_excel.parent.name not in ["output", "pms", "CLO-PLO"]:
-            course_root = p_excel.parent
-        else:
+        if p_excel.parent.name in ["output", "pms"]:
             course_name = p_excel.stem.replace("PM_", "").replace("PM_Generated_", "").replace("_Updated", "")
             course_root = p_excel.parent / sanitize_name(course_name)
+        elif p_excel.parent.name == "CLO-PLO":
+            course_root = p_excel.parent / sanitize_name(p_excel.stem)
+        else:
+            course_root = Path("output/pms") / sanitize_name(p_excel.stem)
 
     course_root.mkdir(parents=True, exist_ok=True)
     course_name = course_root.name
@@ -124,17 +126,48 @@ def scaffold_course_resources(excel_path: str, output_base_dir: str = None):
             create_empty_file(session_dir / "Slide bài giảng" / "outline_bai_giang.md", f"# Đề cương Slide bài giảng: {session_folder_name}\n")
             create_empty_file(session_dir / "Bài giảng trên lớp" / "slides.html", f"<!-- Bài giảng trên lớp: {session_folder_name} -->")
             create_empty_file(session_dir / "Sơ đồ tư duy" / "mindmap.md", f"# Sơ đồ tư duy: {session_folder_name}\n")
+            create_empty_file(session_dir / "Sơ đồ tư duy" / "session_mindmap.md", f"# Sơ đồ tư duy tổng hợp: {session_folder_name}\n")
+            create_empty_file(session_dir / "Visualizer" / "index.html", f"<!-- Visualizer: {session_folder_name} -->\n")
             
             # Quizz session (Gộp đầu giờ và cuối giờ)
             quizz_session_dir = session_dir / "Quizz session"
             create_empty_file(quizz_session_dir / "quizz_dau_gio.md", f"# Quizz đầu giờ: {session_folder_name}\n")
+            create_empty_file(quizz_session_dir / "quizz_dau_gio.json", "[]\n")
             create_empty_file(quizz_session_dir / "quizz_cuoi_gio.md", f"# Quizz cuối giờ: {session_folder_name}\n")
+            create_empty_file(quizz_session_dir / "quizz_cuoi_gio.json", "[]\n")
+            total_files_created += 7
 
             # Homework exercises (17 folders: 15 tiered + 1 in-class synthesis + 1 mindmap + 1 root aggregated rubric)
             hw_dir = session_dir / "Bài tập"
             hw_dir.mkdir(parents=True, exist_ok=True)
             create_empty_file(hw_dir / "tieu_chi_danh_gia.md", f"# Bảng tiêu chí đánh giá tổng hợp: {session_folder_name}\n")
             total_files_created += 1
+
+            hw_17_slugs = [
+                (1, "1_van_dung_co_ban_1"),
+                (2, "2_van_dung_co_ban_2"),
+                (3, "3_van_dung_co_ban_3"),
+                (4, "4_van_dung_co_ban_4"),
+                (5, "5_van_dung_co_ban_5"),
+                (6, "6_van_dung_co_ban_6"),
+                (7, "7_van_dung_nang_cao_1"),
+                (8, "8_van_dung_nang_cao_2"),
+                (9, "9_van_dung_nang_cao_3"),
+                (10, "10_phan_tich_1"),
+                (11, "11_phan_tich_2"),
+                (12, "12_phan_tich_3"),
+                (13, "13_sang_tao_1"),
+                (14, "14_sang_tao_2"),
+                (15, "15_sang_tao_3"),
+                (16, "16_tong_hop_demo_giang_vien_tren_lop"),
+                (17, "17_tong_hop_he_thong_kien_thuc_mindmap"),
+            ]
+            for hw_idx, hw_slug in hw_17_slugs:
+                sub_hw = hw_dir / hw_slug
+                create_empty_file(sub_hw / "de_bai_bai_tap.md", f"# Đề bài tập {hw_idx}: {session_folder_name}\n")
+                create_empty_file(sub_hw / "tieu_chi_cham_diem_ai.md", f"# Tiêu chí chấm điểm (AI) bài {hw_idx}: {session_folder_name}\n")
+                total_files_created += 2
+                total_dirs_created += 1
 
             # Lesson-level files (4 folders chuẩn: Bài đọc, Câu hỏi bài đọc, Quizz lesson, Bài thực hành)
             for l_idx, lesson_title in enumerate(lessons, 1):
@@ -143,25 +176,35 @@ def scaffold_course_resources(excel_path: str, output_base_dir: str = None):
                     lesson_folder_name = f"Lesson {l_idx:02d} - {lesson_clean}"
                 else:
                     # Format 'Lesson 01: ...' to 'Lesson 01 - ...'
-                    lesson_folder_name = re.sub(r"^Lesson\s*(\d+)[\s:-]+", r"Lesson \1 - ", lesson_clean, flags=re.IGNORECASE)
+                    lesson_folder_name = re.sub(r"^Lesson\s*(\d+)[\s:-]+", lambda m: f"Lesson {int(m.group(1)):02d} - ", lesson_clean, flags=re.IGNORECASE)
 
                 lesson_dir = session_dir / lesson_folder_name
                 lesson_dir.mkdir(parents=True, exist_ok=True)
                 total_dirs_created += 1
 
-                create_empty_file(lesson_dir / "Bài đọc" / "reading.html", f"<!-- Bài đọc: {lesson_folder_name} -->")
+                create_empty_file(lesson_dir / "Bài đọc" / "reading.html", f"<!-- Bài đọc: {lesson_folder_name} -->\n")
                 create_empty_file(lesson_dir / "Câu hỏi bài đọc" / "reading_questions.md", f"# Câu hỏi bài đọc: {lesson_folder_name}\n")
+                create_empty_file(lesson_dir / "Câu hỏi bài đọc" / "reading_questions.json", "[]\n")
                 create_empty_file(lesson_dir / "Quizz lesson" / "quiz.md", f"# Quizz lesson: {lesson_folder_name}\n")
+                create_empty_file(lesson_dir / "Quizz lesson" / "quiz.json", "[]\n")
                 create_empty_file(lesson_dir / "Bài thực hành" / "practical_lab.md", f"# Bài thực hành: {lesson_folder_name}\n")
-                total_files_created += 4
+                create_empty_file(lesson_dir / "Bài thực hành" / "practical_lab.json", "{}\n")
+                total_files_created += 7
 
         elif "Thực hành" in s_ht:
             practice_dir = session_dir / "Bài tập"
+            practice_dir.mkdir(parents=True, exist_ok=True)
+            create_empty_file(practice_dir / "tieu_chi_danh_gia.md", f"# Bảng tiêu chí đánh giá thực hành: {session_folder_name}\n")
+            total_files_created += 1
             for i, level_label in enumerate(["de", "trung_binh", "kha", "gioi", "xuat_sac"], 1):
                 ex_folder = practice_dir / f"{i}_bai_tap_muc_do_{level_label}"
                 create_empty_file(ex_folder / "de_bai_thuc_hanh.md", f"# Đề bài thực hành mức {level_label.title()}: {session_folder_name}\n")
                 create_empty_file(ex_folder / "tieu_chi_cham_diem_ai.md", f"# Tiêu chí chấm điểm (AI): {session_folder_name}\n")
                 total_files_created += 2
+                total_dirs_created += 1
+            create_empty_file(session_dir / "Sơ đồ tư duy" / "mindmap.md", f"# Sơ đồ tư duy: {session_folder_name}\n")
+            create_empty_file(session_dir / "Sơ đồ tư duy" / "session_mindmap.md", f"# Sơ đồ tư duy tổng hợp: {session_folder_name}\n")
+            total_files_created += 2
 
         elif "Mini project" in s_ht:
             test_dir = session_dir / "Bài kiểm tra đầu giờ"
@@ -183,10 +226,13 @@ def scaffold_course_resources(excel_path: str, output_base_dir: str = None):
             total_files_created += 3
 
         elif "Thi" in s_ht or "giữa môn" in s_ht or "cuối môn" in s_ht or "MIDTERM" in s_ht or "FINAL" in s_ht:
+            create_empty_file(session_dir / "Đề thi thực hành" / "de_thi_thuc_hanh.md", f"# Đề thi thực hành: {session_folder_name}\n")
             create_empty_file(session_dir / "Đề thi thực hành" / "exam.md", f"# Đề thi thực hành: {session_folder_name}\n")
+            create_empty_file(session_dir / "Đề thi trắc nghiệm" / "de_thi_trac_nghiem.json", "[]\n")
+            create_empty_file(session_dir / "Câu hỏi vấn đáp" / "cau_hoi_van_dap.md", f"# Câu hỏi vấn đáp: {session_folder_name}\n")
             create_empty_file(session_dir / "Hướng dẫn chấm và Đáp án" / "grading_guide.md", f"# Hướng dẫn chấm và Đáp án: {session_folder_name}\n")
             create_empty_file(session_dir / "Tiêu chí đánh giá" / "rubric.md", f"# Tiêu chí đánh giá bài thi: {session_folder_name}\n")
-            total_files_created += 3
+            total_files_created += 6
 
     print(f"\n✅ [Hoàn tất] Đã khởi tạo thành công cấu trúc cho toàn bộ môn học!")
     print(f"  - Thư mục: {course_root.resolve()}")

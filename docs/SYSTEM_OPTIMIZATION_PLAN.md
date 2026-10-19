@@ -258,7 +258,7 @@ Sprint 3:                                                [Storage Layer]
 ## 7. KẾ HOẠCH QUẢN TRỊ RỦI RO (RISK MANAGEMENT & FALLBACK STRATEGIES)
 
 1. **Rủi ro R-01 (API Quota Spike & 429 Errors)**:
-   - *Biện pháp kiểm soát*: Kích hoạt Fallback giữa các model Gemini trong cùng Tier (`gemini-3.6-flash-high` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash`).
+   - *Biện pháp kiểm soát*: Kích hoạt Fallback giữa các model Gemini trong cùng Tier (`gemini-3.8-flash-high` ➔ `gemini-2.0-flash` ➔ `gemini-1.5-flash`).
 2. **Rủi ro R-02 (Visual Lint False Positives)**:
    - *Biện pháp kiểm soát*: Điều chỉnh pixel difference threshold (tolerance đạt 98%).
 3. **Rủi ro R-03 (Bảo toàn dữ liệu cũ khi refactor module)**:

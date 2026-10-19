@@ -19,9 +19,9 @@ TIER_3_DEEP_CONTEXT = "tier_3_deep_context"
 
 # Model Candidate Priority Lists per Tier (Antigravity Proxy Native)
 TIER_MODEL_MAPPING = {
-    TIER_1_FAST: ["gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.6-flash-high"],
-    TIER_2_REASONING: ["gemini-3.6-flash-high", "gemini-3.1-pro", "gemini-1.5-pro"],
-    TIER_3_DEEP_CONTEXT: ["gemini-3.6-flash-high", "gemini-3.1-pro", "gemini-1.5-pro"]
+    TIER_1_FAST: ["gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.8-flash-high"],
+    TIER_2_REASONING: ["gemini-3.8-flash-high", "gemini-3.1-pro", "gemini-1.5-pro"],
+    TIER_3_DEEP_CONTEXT: ["gemini-3.8-flash-high", "gemini-3.1-pro", "gemini-1.5-pro"]
 }
 
 # Agents requiring Pro-grade deep reasoning (gemini-3.1-pro)
@@ -42,10 +42,10 @@ AGENT_TIER_REGISTRY: Dict[str, str] = {
     "session_compiler_validator": TIER_1_FAST,
     "html_ux_reviewer": TIER_1_FAST,
     
-    # Tier 3: High Context & Complex Code (gemini-3.6-flash-high / gemini-3.1-pro)
+    # Tier 3: High Context & Complex Code (gemini-3.8-flash-high / gemini-3.1-pro)
     "enterprise_code_section_3": TIER_3_DEEP_CONTEXT,
     
-    # Tier 2: Standard & Pro Pedagogical Creators (gemini-3.6-flash-high / gemini-3.1-pro)
+    # Tier 2: Standard & Pro Pedagogical Creators (gemini-3.8-flash-high / gemini-3.1-pro)
     "reading_creator": TIER_2_REASONING,
     "html_writer_agent": TIER_2_REASONING,
     "classroom_lecture_generator": TIER_2_REASONING,

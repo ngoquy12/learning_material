@@ -123,6 +123,7 @@ def execute_course_workflow(args):
     if "pms" in excel_path_obj.parent.parts:
         if excel_path_obj.parent.name != "pms":
             course_dir = excel_path_obj.parent
+            course_clean = course_dir.name
         else:
             course_clean = excel_path_obj.stem.replace("PM_Generated_", "").replace("_Updated", "").strip()
             course_dir = output_base_dir / course_clean
@@ -478,7 +479,7 @@ def execute_course_workflow(args):
                     }
                     
                     from core.persistence import load_checkpoint
-                    checkpoint_key = f"{session_id}_{lesson_id}".strip("_")
+                    checkpoint_key = f"{course_dir.name}_{session_id}_{lesson_id}".strip("_")
                     cached_state = load_checkpoint(checkpoint_key)
                     if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                         print(f"  [Checkpoint] Lesson {lesson_id} is already PUBLISHED. Using cached state.")
@@ -625,7 +626,7 @@ def execute_course_workflow(args):
                     # Run the pipeline for normal lessons
                     try:
                         from core.persistence import load_checkpoint
-                        checkpoint_key = f"{session_id}_{lesson_id}".strip("_")
+                        checkpoint_key = f"{course_dir.name}_{session_id}_{lesson_id}".strip("_")
                         cached_state = load_checkpoint(checkpoint_key)
                         if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                             print(f"  [Checkpoint] Lesson {lesson_id} is already PUBLISHED. Loading from database...")
@@ -777,7 +778,7 @@ def execute_course_workflow(args):
 
             try:
                 from core.persistence import load_checkpoint
-                checkpoint_key = f"{session_id}".strip("_")
+                checkpoint_key = f"{course_dir.name}_{session_id}".strip("_")
                 cached_state = load_checkpoint(checkpoint_key)
                 if cached_state and cached_state.get("artifacts_status", {}).get("session") == ArtifactStatus.PUBLISHED and not args.force:
                     print(f"  [Checkpoint] Session {session_id} is already PUBLISHED. Loading from database...")

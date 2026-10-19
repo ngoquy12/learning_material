@@ -16,8 +16,8 @@ def sanitize_folder_name(name: str) -> str:
     # Thay thế nhiều khoảng trắng liên tiếp bằng một khoảng trắng duy nhất
     sanitized = re.sub(r'\s+', ' ', sanitized)
     # Giới hạn độ dài tối đa để tránh lỗi WinError 123 / MAX_PATH trên Windows
-    if len(sanitized) > 80:
-        sanitized = sanitized[:77] + "..."
+    if len(sanitized) > 120:
+        sanitized = sanitized[:120].rstrip(" .-_")
     return sanitized
 
 def format_full_folder_name(item_id: str, item_title: str) -> str:

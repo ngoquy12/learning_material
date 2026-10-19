@@ -40,7 +40,7 @@ def get_openai_client(api_endpoint: str, api_key: str):
     with _OPENAI_CLIENT_LOCK:
         if cache_key not in _OPENAI_CLIENT_POOL:
             from openai import OpenAI
-            _OPENAI_CLIENT_POOL[cache_key] = OpenAI(base_url=api_endpoint, api_key=api_key)
+            _OPENAI_CLIENT_POOL[cache_key] = OpenAI(base_url=api_endpoint, api_key=api_key, timeout=300.0)
         return _OPENAI_CLIENT_POOL[cache_key]
 
 
@@ -263,7 +263,7 @@ def call_llm(
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ]
-                kwargs = {"model": model_name, "messages": messages, "temperature": 0.7, "timeout": 120.0}
+                kwargs = {"model": model_name, "messages": messages, "temperature": 0.7, "timeout": 300.0}
                 if json_mode:
                     kwargs["response_format"] = {"type": "json_object"}
                 

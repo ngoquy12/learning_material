@@ -21,8 +21,10 @@ from agents import (
 )
 
 def save_state_checkpoint(state: AgentState):
-    """Helper to save checkpoint with lesson-specific key if lesson_id is present."""
-    key = f"{state.get('session_id', 'default')}_{state.get('lesson_id', '')}".strip("_")
+    """Helper to save checkpoint with lesson-specific key if lesson_id is present, isolated by course."""
+    course = state.get("course_dir_name", "").replace("pms/", "").strip("/")
+    prefix = f"{course}_" if course else ""
+    key = f"{prefix}{state.get('session_id', 'default')}_{state.get('lesson_id', '')}".strip("_")
     save_checkpoint(key, state)
 
 # Tái xuất để tương thích ngược: cli/commands/workflow_cmd.py và

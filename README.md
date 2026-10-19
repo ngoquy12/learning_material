@@ -210,7 +210,7 @@ Sử dụng proxy cục bộ (mặc định):
 USE_REAL_GEMINI_API_KEY=false
 GEMINI_API_KEY=sk-your-proxy-key-here
 GEMINI_BASE_URL=http://127.0.0.1:8045
-GEMINI_MODEL=gemini-3.6-flash-high
+GEMINI_MODEL=gemini-3.8-flash-high
 ```
 
 ### 6.2. Chế độ 2: API Key thật Google Gemini (Google AI Studio)
