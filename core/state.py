@@ -41,6 +41,7 @@ class AgentState(TypedDict, total=False):
     course_dir_name: NotRequired[str]
     technology_stack: NotRequired[str]
     force_rebuild: NotRequired[bool]
+    course_key: NotRequired[str]  # khóa khóa-học, dùng tra hồ sơ duyệt (--approve)
     scope_source: NotRequired[str]  # 'full_course' khi phạm vi đã tính trên toàn khóa
     retry_feedback: NotRequired[Dict[str, str]]  # phản hồi reviewer cho lần sinh lại kế tiếp
     pm_approved: NotRequired[bool]

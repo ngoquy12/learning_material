@@ -269,3 +269,42 @@ __all__ = [
     "list_approvals",
     "export_approvals_csv",
 ]
+
+
+def course_key_from_pm(pm_path) -> str:
+    """
+    Khóa khóa-học dùng chung cho `--approve` và cho pipeline sinh học liệu.
+
+    Trước đây `--approve` tự tính khóa từ tên file PM còn pipeline không có khóa nào, nên
+    dù có hồ sơ duyệt, không nơi nào tra được để biết tài nguyên nào đã bị khóa.
+    """
+    from pathlib import Path as _Path
+
+    if not pm_path:
+        return ""
+    return _Path(str(pm_path)).stem.replace("PM_Generated_", "").replace("_Updated", "").strip()
+
+
+# Tên tài nguyên dùng trong `--approve "<Buổi>/<Bài>/<tài nguyên>"`.
+LOCKABLE_ARTIFACTS = ("html", "quiz", "practical_lab", "reading_questions", "video_script")
+
+
+def is_state_artifact_locked(state, artifact: str) -> bool:
+    """
+    Tài nguyên `artifact` của lesson trong `state` đã được giảng viên duyệt (và chưa bị
+    `--force`)? Nếu có thì pipeline không được sinh lại và không được ghi đè lên đĩa.
+    Lỗi truy cập hồ sơ không bao giờ làm chết lượt sinh: coi như chưa khóa.
+    """
+    session_id = str(state.get("session_id", "") or "")
+    lesson_id = str(state.get("lesson_id", "") or "")
+    force = bool(state.get("force_rebuild", False))
+    course = str(state.get("course_key", "") or "")
+    try:
+        if is_locked_by_reviewer(artifact, course=course, session_id=session_id, lesson_id=lesson_id, force_rebuild=force):
+            return True
+        # Lệnh --approve chạy không kèm --pm ghi hồ sơ với khóa khóa-học rỗng; vẫn phải khóa được.
+        return bool(course) and is_locked_by_reviewer(
+            artifact, course="", session_id=session_id, lesson_id=lesson_id, force_rebuild=force
+        )
+    except Exception:
+        return False

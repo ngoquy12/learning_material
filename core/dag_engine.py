@@ -135,6 +135,7 @@ STATE_REDUCERS: Dict[str, Callable[[Any, Any], Any]] = {
     "scope_audits":         merge_dict,
     "retry_feedback":       merge_dict,
     "scope_source":         override,
+    "course_key":           override,
 }
 
 

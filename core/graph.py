@@ -204,11 +204,27 @@ def node_lock_ssot(state: AgentState) -> AgentState:
     print(f"\n[SUCCESS] Đã thiết lập xong Lịch trình và Bản đồ Tri thức Gốc (SSOT)")
     return state
 
+def skip_if_locked(state: AgentState, artifact: str) -> bool:
+    """
+    Tài nguyên đã được giảng viên duyệt (--approve) thì KHÔNG sinh lại: vừa tốn chi phí vừa
+    có nguy cơ ghi đè bản đã duyệt/chỉnh tay. `--force` là lối thoát có chủ đích.
+    """
+    from core.approvals import is_state_artifact_locked
+
+    if is_state_artifact_locked(state, artifact):
+        print(f"  [Approval Lock] '{artifact}' đã được giảng viên duyệt, bỏ qua sinh lại (dùng --force để sinh lại).")
+        state.setdefault("artifacts_status", {})[artifact] = ArtifactStatus.APPROVED
+        return True
+    return False
+
+
 @component
 def pipeline_html_production(state: AgentState) -> AgentState:
     """Vòng lặp phản biện (Critique Loop) tự động cho bài đọc HTML"""
     if "requested_parts" in state and "html" not in state["requested_parts"]:
         state["artifacts_status"]["html"] = ArtifactStatus.SKIPPED
+        return state
+    if skip_if_locked(state, "html"):
         return state
     approved = False
     scope_audit = None
@@ -353,6 +369,8 @@ def pipeline_quiz_production(state: AgentState) -> AgentState:
     if "requested_parts" in state and "quiz" not in state["requested_parts"]:
         state.setdefault("artifacts_status", {})["quiz"] = ArtifactStatus.SKIPPED
         return state
+    if skip_if_locked(state, "quiz"):
+        return state
     approved = False
     for attempt in range(3):
         # Chỉ khôi phục từ lần chạy trước ở vòng đầu tiên (xem pipeline_html_production).
@@ -407,6 +425,9 @@ def pipeline_reading_questions_production(state: AgentState) -> AgentState:
         state.setdefault("artifacts_status", {})["reading_questions"] = ArtifactStatus.SKIPPED
         return state
     
+    if skip_if_locked(state, "reading_questions"):
+        return state
+
     # Import inside function to avoid circular imports
     from agents.creator_agents import reading_questions_creator_agent
     state = reading_questions_creator_agent(state)
@@ -425,6 +446,9 @@ def pipeline_video_script_production(state: AgentState) -> AgentState:
     requested = state.get("requested_parts", ["all"])
     if "video_script" not in requested and "video" not in requested and "all" not in requested:
         state.setdefault("artifacts_status", {})["video_script"] = ArtifactStatus.SKIPPED
+        return state
+
+    if skip_if_locked(state, "video_script"):
         return state
 
     # Import inside function to avoid circular imports
@@ -447,6 +471,9 @@ def pipeline_practical_lab_production(state: AgentState) -> AgentState:
         state.setdefault("artifacts_status", {})["practical_lab"] = ArtifactStatus.SKIPPED
         return state
         
+    if skip_if_locked(state, "practical_lab"):
+        return state
+
     from agents.creator_agents import practical_lab_creator_agent
 
     # Bài thực hành là nơi rò rỉ phạm vi gây hại nhất: học viên phải TỰ làm, nên gặp

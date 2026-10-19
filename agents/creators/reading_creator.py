@@ -444,11 +444,11 @@ def html_writer_agent(state: AgentState) -> AgentState:
     from agents.creator_agents import get_lesson_dir
     html_sub = None
     try:
+        # KHÔNG ghi placeholder lên reading.html: nếu lần sinh này lỗi thì bản cũ (đã duyệt hoặc
+        # chỉnh tay) đã mất. Tệp chỉ được ghi một lần, sau khi có nội dung mới hoàn chỉnh.
         lesson_dir = get_lesson_dir(state)
         html_sub = lesson_dir / "Bài đọc"
         html_sub.mkdir(parents=True, exist_ok=True)
-        with open(html_sub / "reading.html", "w", encoding="utf-8") as f:
-            f.write(f"<!-- [ĐANG KHỞI TẠO BÀI ĐỌC...] Hệ thống đang chạy tác nhân AI để sinh nội dung cho {session_id} - {lesson_id}: {lesson_title}. Vui lòng đợi trong giây lát... -->\n")
     except Exception:
         pass
 

@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 
 from core.state import AgentState
+from core.approvals import course_key_from_pm
 from core.resume import merge_resume_state
 from core.lesson_summary import build_lesson_summary
 from core.graph import compile_learning_content_workflow, write_state_artifacts_to_disk
@@ -437,6 +438,7 @@ def execute_course_workflow(args):
                             "session": ArtifactStatus.PENDING
                         },
                         "course_dir_name": course_dir_name,
+                        "course_key": course_key_from_pm(excel_path),
                         "technology_stack": tech_stack,
                         "session_domain": session_domain_data,
                         "chosen_domain": session_domain_id,
@@ -550,6 +552,7 @@ def execute_course_workflow(args):
                             "session": ArtifactStatus.PENDING
                         },
                         "course_dir_name": course_dir_name,
+                        "course_key": course_key_from_pm(excel_path),
                         "technology_stack": tech_stack,
                         "session_domain": session_domain_data,
                         "chosen_domain": session_domain_id,
@@ -732,6 +735,7 @@ def execute_course_workflow(args):
                 "session_kind": session_kind,
                 "artifacts_status": {k: ArtifactStatus.PENDING for k in ("html", "slide", "quiz", "video_script", "session")},
                 "course_dir_name": course_dir_name,
+                        "course_key": course_key_from_pm(excel_path),
                 "technology_stack": tech_stack,
                 "html_content": "",
                 "slide_markdown": "",

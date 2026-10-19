@@ -166,7 +166,9 @@ def handle_approval_command(args) -> bool:
     if getattr(args, "pm", None):
         from pathlib import Path as _Path
 
-        course = _Path(args.pm).stem.replace("PM_Generated_", "").replace("_Updated", "").strip()
+        from core.approvals import course_key_from_pm
+
+        course = course_key_from_pm(args.pm)
 
     decision = DECISION_REJECTED if getattr(args, "reject", False) else DECISION_APPROVED
     approval = record_approval(

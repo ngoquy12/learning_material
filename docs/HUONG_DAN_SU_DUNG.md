@@ -70,8 +70,8 @@ Mỗi lượt chạy tạo `review_dashboard.html` trong thư mục khóa học,
 
 Buổi chỉ đạt PUBLISHED khi không còn tài nguyên FAILED hoặc cần người rà. Hệ thống không còn ghi nội dung mẫu chung thay cho nội dung thật; nếu thấy FAILED thì đó là lỗi cần xử lý, không phải lỗi hiển thị.
 
-Sau khi rà xong một tài nguyên, ghi nhận vào hồ sơ kiểm định (lưu ý: hiện hồ sơ chỉ để truy vết; hệ thống CHƯA tự khóa tài nguyên đã duyệt khỏi bị ghi đè, xem mục 9):
-`python main.py --approve "Session 02/Lesson 01/html" --reviewer "Họ Tên" --approve-note "Đã sửa tay phần ví dụ"`.
+Sau khi rà xong một tài nguyên, ghi nhận vào hồ sơ kiểm định. Tài nguyên đã duyệt được KHÓA: các lần chạy sau không sinh lại và không ghi đè tệp trên đĩa, trừ khi dùng `--force`. Nên truyền kèm `--pm <file.xlsx>` để hồ sơ gắn đúng khóa học:
+`python main.py --pm <file.xlsx> --approve "Session 02/Lesson 01/html" --reviewer "Họ Tên" --approve-note "Đã sửa tay phần ví dụ"`. Tên tài nguyên hợp lệ: `html`, `quiz`, `practical_lab`, `reading_questions`, `video_script`.
 Từ chối: thêm `--reject`. Xuất hồ sơ: `--export-approvals ho_so.csv`.
 
 ### Bước 6. Cổng kiểm tra bài tập lập trình trước khi giao
@@ -103,7 +103,7 @@ Sau đó chạy `tests.html` của đáp án mẫu (phải đạt 100%) và củ
 3. Dùng `--parts` để chỉ sinh thứ cần. Quiz, câu hỏi bài đọc và kịch bản video bám bài đọc đã sinh, nên sinh bài đọc trước.
 4. Giữ semantic cache (mặc định bật). Xem thống kê bằng `python main.py --cache-stats`. Chi phí mỗi lượt chạy được in ở cuối.
 5. Bật kiểm tra ngữ nghĩa phạm vi (`SCOPE_AUDIT_SEMANTIC=true`) cho các buổi cuối khóa, nơi danh sách kiến thức đã học dài và từ khóa khó bắt vi phạm. Đổi lại tốn thêm lượt gọi LLM.
-6. Đã sửa tay một tài nguyên thì sao chép nó ra ngoài hoặc commit trước khi chạy lại phần đó; `--approve` mới chỉ ghi hồ sơ, chưa bảo vệ tệp.
+6. Đã sửa tay một tài nguyên thì duyệt nó ngay bằng `--approve`: tệp được khóa khỏi bị sinh lại hoặc ghi đè. Vẫn nên có bản sao lưu vì `--force` bỏ qua khóa.
 7. Đừng dùng `--force` toàn khóa. Nếu cần làm lại một phần, giới hạn bằng `--session` và `--parts`.
 8. Tin vào nhật ký: phản hồi của reviewer đã được đưa vào lần sinh lại. Nếu một bài bị từ chối ba lần cùng một lý do thì lỗi nằm ở PM hoặc quy chuẩn, không nằm ở may rủi; sửa nguồn thay vì chạy lại.
 
@@ -118,7 +118,7 @@ Sau đó chạy `tests.html` của đáp án mẫu (phải đạt 100%) và củ
 | Cảnh báo "dùng khái niệm chưa học" | Phạm vi cấm trong PM thiếu hoặc quá chung | Bổ sung phạm vi cấm theo từng lesson, chạy lại |
 | Lesson bị bỏ qua không sinh gì | Loại buổi trong PM là dự án, thực hành hoặc thi | Đổi loại buổi trong PM nếu không đúng; loại lesson do buổi quyết định, không do tiêu đề lesson |
 | Chạy `--parts quiz` sau `--parts html` mà quiz không sinh | Bản cũ của hệ thống dùng lại cấu hình lần trước | Đã sửa; nếu vẫn gặp, chạy lại và báo kèm nhật ký |
-| Bài đã chỉnh tay bị ghi đè | Chạy lại đúng phần đó (kể cả không `--force`, khi bài chưa đạt) | Khôi phục từ bản sao lưu; sao lưu bản sửa tay trước khi chạy lại |
+| Bài đã chỉnh tay bị ghi đè | Chưa `--approve`, hoặc dùng `--force` | Khôi phục từ bản sao lưu; lần sau duyệt bằng `--approve` trước khi chạy lại |
 | Tiếng Việt lỗi trên console Windows | Mã hóa terminal | `$env:PYTHONIOENCODING="utf-8"` |
 | Test `test_golden_design` đỏ | Thay đổi renderer dở của phiên khác | Không phải lỗi của bạn; xem `docs/PROJECT_STATE.md` |
 

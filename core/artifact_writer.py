@@ -61,13 +61,20 @@ def write_state_artifacts_to_disk(
 
     requested_parts = state.get("requested_parts") or DEFAULT_LESSON_PARTS
 
+    # Tài nguyên giảng viên đã duyệt (--approve) không bao giờ bị ghi đè, trừ khi --force.
+    from core.approvals import LOCKABLE_ARTIFACTS, is_state_artifact_locked
+
+    locked = {a for a in LOCKABLE_ARTIFACTS if is_state_artifact_locked(state, a)}
+    for a in locked:
+        print(f"  [Approval Lock] '{a}' đã được giảng viên duyệt: giữ nguyên bản trên đĩa.")
+
     # Mỗi artifact ghi trong try riêng: một artifact lỗi không được làm chết những
     # artifact còn lại. Trước đây cả khối nằm chung 1 try — chỉ cần lab thiếu
     # tech_stack là require_tech_stack raise, và video script phía sau im lặng
     # không bao giờ được ghi.
 
     # 1. Bài đọc HTML
-    if "html" in requested_parts and state.get("html_content"):
+    if "html" in requested_parts and state.get("html_content") and "html" not in locked:
         try:
             html_sub = lesson_dir / "Bài đọc"
             html_sub.mkdir(parents=True, exist_ok=True)
@@ -78,7 +85,7 @@ def write_state_artifacts_to_disk(
             print(f"  [Write Disk Warning] Lỗi ghi reading.html: {e}")
 
     # 2. Quizz (JSON + Excel)
-    if "quiz" in requested_parts and state.get("quiz_json"):
+    if "quiz" in requested_parts and state.get("quiz_json") and "quiz" not in locked:
         try:
             s_num_str = state.get("session_id", "").replace(" ", "")
             l_num_str = state.get("lesson_id", "").replace(" ", "")
@@ -116,7 +123,7 @@ def write_state_artifacts_to_disk(
 
     # 3. Bài thực hành — Markdown và HTML tách riêng: dựng được cái nào ghi cái đó.
     # Gộp chung 1 try sẽ khiến lỗi khi dựng Markdown nuốt luôn bản HTML mà LLM đã sinh.
-    if state.get("practical_lab_markdown") or state.get("lab_json"):
+    if (state.get("practical_lab_markdown") or state.get("lab_json")) and "practical_lab" not in locked:
         lab_sub = lesson_dir / "Bài thực hành"
 
         try:
@@ -151,7 +158,7 @@ def write_state_artifacts_to_disk(
             print(f"  [Write Disk Warning] Lỗi ghi practical_lab.html: {e}")
 
     # 4. Câu hỏi bài đọc
-    if state.get("reading_questions_markdown") or state.get("reading_questions_json"):
+    if (state.get("reading_questions_markdown") or state.get("reading_questions_json")) and "reading_questions" not in locked:
         try:
             rq_sub = lesson_dir / "Câu hỏi bài đọc"
             rq_sub.mkdir(parents=True, exist_ok=True)
@@ -168,7 +175,7 @@ def write_state_artifacts_to_disk(
 
     # 5. Kịch bản video
     wants_video = "video" in requested_parts or "video_script" in requested_parts
-    if wants_video and state.get("video_script_markdown"):
+    if wants_video and state.get("video_script_markdown") and "video_script" not in locked:
         try:
             video_sub = lesson_dir / "Video"
             video_sub.mkdir(parents=True, exist_ok=True)
@@ -178,4 +185,6 @@ def write_state_artifacts_to_disk(
         except Exception as e:
             print(f"  [Write Disk Warning] Lỗi ghi kịch bản video: {e}")
 
+    for a in locked:
+        written[{"practical_lab": "practical_lab_md"}.get(a, a)] = "Locked"
     return written
