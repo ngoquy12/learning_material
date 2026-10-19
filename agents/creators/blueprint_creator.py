@@ -174,20 +174,11 @@ Forbidden Scope (DO NOT USE): {forbidden_scope or 'Future advanced concepts'}
     except Exception as e:
         print(f"  [Blueprint Creator Error] Tạo blueprint bằng LLM lỗi: {e}")
 
-    # Fallback structure if LLM fails
-    state["lesson_blueprint"] = {
-        "lesson_slug": "lesson-fallback",
-        "lesson_title": lesson_title,
-        "real_world_scenario": {
-            "name": chosen_domain,
-            "description": session_domain_data.get("description", "Hệ thống quản lý thông tin.")
-        },
-        "key_concepts": [],
-        "progressive_examples": [
-            {"example_id": "3.1", "title": "Ví dụ 3.1", "requirement": "Yêu cầu cơ bản", "raw_code": "# Fallback code"},
-            {"example_id": "3.2", "title": "Ví dụ 3.2", "requirement": "Yêu cầu nâng cấp", "raw_code": "# Fallback code"},
-            {"example_id": "3.3", "title": "Ví dụ 3.3", "requirement": "Yêu cầu doanh nghiệp", "raw_code": "# Fallback code"}
-        ],
-        "gotchas_and_errors": []
-    }
+    # LLM không trả được blueprint hợp lệ: KHÔNG tạo blueprint giả (ví dụ "# Fallback code").
+    # Bài đọc và quiz đều chạy được khi không có blueprint (rơi về master_content), nên để
+    # trống và ghi nhật ký còn tốt hơn đưa ví dụ rỗng vào bài.
+    state.pop("lesson_blueprint", None)
+    state.setdefault("review_logs", []).append(
+        {"source": "Blueprint_Creator", "feedback": "Không sinh được blueprint hợp lệ; các bước sau dùng master_content."}
+    )
     return state

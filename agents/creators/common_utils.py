@@ -1,5 +1,6 @@
 import json
 import re
+from core.exceptions import GenerationError
 from core.reading_budget import READING_CONTEXT_CHARS
 import os
 import base64
@@ -495,7 +496,12 @@ Return only raw JSON.
                 print(f"  [Creator Agent Stage 1 Warning] Attempt {attempt+1} failed: {e}")
 
     if not stage1_result.get("problem"):
-        stage1_result = generate_offline_master_content(session_id, lesson_id, lesson_title, lesson_details, expected_output, tech_stack)
+        # Không dùng nội dung giả (generate_offline_master_content): nó mang mẫu mã Python/FastAPI/
+        # NestJS cố định, lệch môn, và lan sang lab, quiz, kịch bản video như thể là bài thật.
+        raise GenerationError(
+            f"Không sinh được nội dung gốc (master content) cho {session_id} {lesson_id}: {lesson_title}. "
+            "Kiểm tra khóa API/kết nối rồi chạy lại."
+        )
 
     stage2_system_prompt = f"""You are an Educational Assessment and Testing Engineer at Rikkei Education.
 Task: Analyze the complete Stage 1 reading material and generate a high-quality assessment question bank complying with 5 mandatory standards.
@@ -675,14 +681,8 @@ Return only raw JSON.
         print(f"  [Creator Agent Stage 2 Warning] Failed to generate Stage 2 components: {e}")
 
     final_result = dict(stage1_result)
-    final_result["self_test"] = stage2_result.get("self_test") or [
-        {"question": f"Trong kịch bản quản lý dự án với {tech_stack} ở bài đọc, hãy phân tích rủi ro hệ thống khi không áp dụng {lesson_title} và đề xuất giải pháp xử lý.", "answer": f"Thiếu {lesson_title} dễ gây ra xung đột phiên bản hoặc sai lệch dữ liệu. Việc áp dụng đúng quy trình giúp cô lập thay đổi và bảo vệ tính toàn vẹn hệ thống."},
-        {"question": f"Dựa vào ví dụ mã nguồn/lệnh CLI trong bài đọc, hãy chỉ ra điểm không tối ưu trong kịch bản cũ và giải thích các bước tái cấu trúc chuẩn Best Practice.", "answer": f"Kịch bản cũ chưa rà soát trạng thái hoặc thiếu cờ phạm vi. Cần bổ sung bước kiểm tra và sử dụng đúng tham số theo quy chuẩn công nghệ."},
-        {"question": f"Phân tích lỗi thường gặp được đề cập ở Phần 4 và trình bày cơ chế kiểm tra tự động để ngăn ngừa sự cố trên môi trường Production.", "answer": f"Lỗi này thường phát sinh do thao tác thiếu kiểm soát. Cần áp dụng danh sách kiểm tra và các công cụ rà soát tự động trước khi triển khai."}
-    ]
-    final_result["references"] = stage2_result.get("references") or [
-        {"title": f"Trang chủ tài nguyên đào tạo Rikkei Education", "url": "https://rikkei.edu.vn"}
-    ]
+    final_result["self_test"] = stage2_result.get("self_test") or []
+    final_result["references"] = stage2_result.get("references") or []
     final_result["quiz"] = stage2_result.get("quiz") or []
     final_result["lab"] = stage2_result.get("lab") or {"title": f"Lab {lesson_title}", "objectives": [], "steps": [], "checklist": []}
     

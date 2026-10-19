@@ -270,27 +270,15 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str) -> 
         except Exception as e:
             print(f"  [LLM Error] Failed to parse KB JSON: {e}. Falling back to default rules.")
             
-    # Dynamic category-aware fallback if LLM fails or is not configured
-    if not concepts or not code_samples:
-        print(f"  [KB Fallback] Using dynamic category-aware fallback for stack: {tech_stack}")
-        parts = tech_stack.lower().split('/')
-        lang = parts[0] if len(parts) > 0 else "generic"
-        framework = parts[1] if len(parts) > 1 else "core"
-        
-        concepts = {
-            f"core_{lang}_concept": f"Introduction to fundamental concepts of {lang.capitalize()} within {session_title}.",
-            "architecture_overview": f"Basic architectural overview and request-response lifecycle for {framework.capitalize()} applications.",
-            "best_practices": "Code organization, formatting, and standard conventions for development."
-        }
-        
-        # Removed hardcoded tech stack switch statement to enforce language-agnostic logic
-        code_samples = {
-            "hello_world": (
-                f"// Core hello world structural sample for {tech_stack}\n"
-                "// Dynamic fallback generated offline"
-            )
-        }
-        
+    # LLM không trả được khái niệm/mã mẫu: để TRỐNG và đánh dấu chưa kiểm chứng. Bản cũ điền khái
+    # niệm chung chung ("Introduction to fundamental concepts of ...") rồi nạp vào kho vector,
+    # làm nhiễu mọi truy vấn ngữ nghĩa về sau.
+    verified = bool(concepts and code_samples)
+    if not verified:
+        print(f"  [KB Warning] Không có khái niệm/mã mẫu từ LLM cho '{session_title}'; SSOT để trống, đánh dấu chưa kiểm chứng.")
+        concepts = concepts or {}
+        code_samples = code_samples or {}
+
     # Generate stable Hash
     hash_input = json.dumps(program_structure) + json.dumps(concepts)
     hash_key = "sha256_" + hashlib.sha256(hash_input.encode('utf-8')).hexdigest()[:16]
@@ -299,7 +287,8 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str) -> 
         "session_title": session_title,
         "course_metadata": {
             "hash_key": hash_key,
-            "status": "LOCKED"
+            "status": "LOCKED" if verified else "LOCKED_UNVERIFIED",
+            "verified": verified
         },
         "concepts": concepts,
         "code_samples": code_samples
@@ -320,7 +309,8 @@ def knowledge_base_agent(program_structure: Dict[str, Any], tech_stack: str) -> 
                 "text": f"Mã nguồn mẫu cho {name}:\n{val}",
                 "metadata": {"type": "code", "session": session_title}
             })
-        store.add_documents(docs)
+        if docs:
+            store.add_documents(docs)
         print(f"  [VectorStore] Successfully seeded {len(docs)} document chunks into local Vector DB.")
     except Exception as e:
         print(f"  [VectorStore Warning] Seeding failed: {e}")

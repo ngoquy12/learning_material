@@ -363,6 +363,8 @@ def generate_exam_session(
     final_mcq = None
     final_oral = None
     practical_exam = mcq_questions = oral_md = None
+    exam_approved = False
+    last_feedback = ""
 
     for attempt in range(3):
         practical_exam = exam_practical_creator(
@@ -382,7 +384,9 @@ def generate_exam_session(
             practical_exam, mcq_questions, oral_md, tech_stack, forbidden_scope, allowed_scope,
             session_title, curriculum_context_title, is_final
         )
+        last_feedback = review_result.get("feedback", "")
         if review_result["status"] == "APPROVED":
+            exam_approved = True
             final_practical, final_mcq, final_oral = practical_exam, mcq_questions, oral_md
             print(f"  [Exam Reviewer] APPROVED: {review_result['feedback']}")
             break
@@ -414,4 +418,11 @@ def generate_exam_session(
     (oral_dir / "cau_hoi_van_dap.md").write_text(final_oral, encoding="utf-8")
     print(f"  [Success] Saved Câu hỏi vấn đáp: {oral_dir / 'cau_hoi_van_dap.md'}")
 
-    return {"practical_exam": final_practical, "mcq": final_mcq, "oral": final_oral}
+    return {
+        "practical_exam": final_practical,
+        "mcq": final_mcq,
+        "oral": final_oral,
+        # False nghĩa là bộ đề được xuất bản KHÔNG qua reviewer: người gọi phải đánh dấu cần rà lại.
+        "approved": exam_approved,
+        "review_feedback": last_feedback,
+    }

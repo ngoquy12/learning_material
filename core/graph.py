@@ -603,16 +603,22 @@ def node_generate_master_content(state: AgentState) -> AgentState:
     
     # Call get_lesson_content to trigger LLM and populate state["master_content"]
     # It handles its own caching if already generated.
-    get_lesson_content(
-        session_id=session_id,
-        lesson_id=lesson_id,
-        lesson_title=lesson_title,
-        lesson_details=lesson_details,
-        expected_output=expected_output,
-        attempt_num=1,
-        core_ssot=core_ssot,
-        state=state
-    )
+    try:
+        get_lesson_content(
+            session_id=session_id,
+            lesson_id=lesson_id,
+            lesson_title=lesson_title,
+            lesson_details=lesson_details,
+            expected_output=expected_output,
+            attempt_num=1,
+            core_ssot=core_ssot,
+            state=state
+        )
+    except GenerationError as err:
+        # Chưa có master_content: các nhánh chỉ cần blueprint/bài đọc vẫn chạy được; nhánh nào
+        # cần master_content sẽ tự thử lại và tự đánh dấu FAILED nếu vẫn không sinh được.
+        print(f"  [Master Content] {err}")
+        state.setdefault("review_logs", []).append({"source": "Master_Content", "feedback": str(err)})
     return state
 
 @component

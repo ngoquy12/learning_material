@@ -41,6 +41,30 @@ from core.artifact_status import ArtifactStatus
 from core.semantic_cache import set_cache_namespace_prefix
 from core.session_types import detect_session_type
 
+
+def _run_session_asset(summary, owner_session_id, label, fn, **kwargs):
+    """
+    Chạy một bước sinh tài nguyên cấp session; lỗi chỉ được ghi nhận, không làm dừng cả khóa.
+    Trước đây một lỗi ở bài tập về nhà/mindmap/bài giảng làm chết mọi buổi phía sau.
+    """
+    try:
+        return fn(**kwargs)
+    except Exception as err:
+        print(f"  [Session Asset Error] {owner_session_id} - {label}: {err}")
+        summary.append({
+            "session_id": owner_session_id,
+            "lesson_id": "",
+            "title": label,
+            "html_file": "Skipped",
+            "slides_file": "Skipped",
+            "quiz_file": "Skipped",
+            "video_script_file": "Skipped",
+            "status": f"FAILED ({err})",
+            "review_count": 0,
+        })
+        return None
+
+
 def execute_course_workflow(args):
     """Executes the full course material generation workflow across sessions and lessons."""
     excel_path = args.pm
@@ -257,7 +281,7 @@ def execute_course_workflow(args):
 
             from agents.exam_agents import generate_exam_session
             try:
-                generate_exam_session(
+                exam_result = generate_exam_session(
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -268,7 +292,11 @@ def execute_course_workflow(args):
                     session_info={"forbidden_scope": forbidden_scope_str, "allowed_scope": allowed_scope_str},
                     chosen_domain=exam_domain_id
                 )
-                exam_status = "APPROVED"
+                if exam_result.get("approved"):
+                    exam_status = "APPROVED"
+                else:
+                    exam_status = str(ArtifactStatus.PENDING_HUMAN_REVIEW)
+                    print(f"  [Exam Session] Bộ đề CHƯA qua reviewer, cần giảng viên rà lại: {exam_result.get('review_feedback', '')}")
             except Exception as e:
                 print(f"  [Exam Session Error] {session_id}: {e}")
                 exam_status = f"FAILED ({e})"
@@ -672,7 +700,7 @@ def execute_course_workflow(args):
                 
                 print(f"\n  ---> [Session Generator] Tự động sinh Bài giảng trên lớp, Mindmap Session & Bộ Bài tập Session cho {session_id} theo Domain [{session_domain_name}]...")
                 session_forbidden_scope = session.get("forbidden_scope", "")
-                generate_session_homework(
+                _run_session_asset(summary, session_id, "Bài tập về nhà", generate_session_homework,
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -682,7 +710,7 @@ def execute_course_workflow(args):
                     chosen_domain=session_domain_id
                 )
                 
-                generate_session_mindmap(
+                _run_session_asset(summary, session_id, "Sơ đồ tư duy", generate_session_mindmap,
                     session_id=session_id,
                     session_title=session_title,
                     session_dir_path=str(session_dir),
@@ -695,7 +723,7 @@ def execute_course_workflow(args):
                 if "slide" in requested_parts:
                     # 1. Sinh Bài giảng trên lớp trực quan (HTML + Visualizer)
                     from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
-                    classroom_lecture_generator_agent.generate_lecture(
+                    _run_session_asset(summary, session_id, "Bài giảng trên lớp", classroom_lecture_generator_agent.generate_lecture,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -797,7 +825,7 @@ def execute_course_workflow(args):
                     from core.domain_knowledge import get_domain_for_session
                     sess_domain = get_domain_for_session(session_id, session_title)
                     
-                    generate_session_homework(
+                    _run_session_asset(summary, session_id, "Bài tập về nhà", generate_session_homework,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -806,7 +834,7 @@ def execute_course_workflow(args):
                         forbidden_scope=session_forbidden_scope,
                         chosen_domain=sess_domain.get("domain_id")
                     )
-                    generate_session_mindmap(
+                    _run_session_asset(summary, session_id, "Sơ đồ tư duy", generate_session_mindmap,
                         session_id=session_id,
                         session_title=session_title,
                         session_dir_path=str(session_dir),
@@ -817,7 +845,7 @@ def execute_course_workflow(args):
                     )
                     if "slide" in requested_parts:
                         from agents.classroom_lecture_generator_agent import classroom_lecture_generator_agent
-                        classroom_lecture_generator_agent.generate_lecture(
+                        _run_session_asset(summary, session_id, "Bài giảng trên lớp", classroom_lecture_generator_agent.generate_lecture,
                             session_id=session_id,
                             session_title=session_title,
                             session_dir_path=str(session_dir),
@@ -893,25 +921,40 @@ def execute_course_workflow(args):
             forbidden_scope_str = ", ".join(sorted(forbidden_set))
             allowed_scope_str = ", ".join(sorted(allowed_set))
 
-            entrance_qs = generate_entrance_quiz(
-                session_id=session_id,
-                current_topic=current_topic,
-                previous_topic=previous_topic,
-                previous_topics_context=previous_topics_context_str,
-                tech_stack=tech_stack,
-                forbidden_scope=forbidden_scope_str,
-                allowed_scope=allowed_scope_str
-            )
-            exit_qs = generate_exit_quiz(
-                session_id=session_id,
-                current_topic=current_topic,
-                tech_stack=tech_stack,
-                forbidden_scope=forbidden_scope_str,
-                allowed_scope=allowed_scope_str
-            )
+            try:
+                entrance_qs = generate_entrance_quiz(
+                    session_id=session_id,
+                    current_topic=current_topic,
+                    previous_topic=previous_topic,
+                    previous_topics_context=previous_topics_context_str,
+                    tech_stack=tech_stack,
+                    forbidden_scope=forbidden_scope_str,
+                    allowed_scope=allowed_scope_str
+                )
+                exit_qs = generate_exit_quiz(
+                    session_id=session_id,
+                    current_topic=current_topic,
+                    tech_stack=tech_stack,
+                    forbidden_scope=forbidden_scope_str,
+                    allowed_scope=allowed_scope_str
+                )
             
-            export_quiz_to_excel(entrance_qs, str(entrance_path))
-            export_quiz_to_excel(exit_qs, str(exit_path))
+                export_quiz_to_excel(entrance_qs, str(entrance_path))
+                export_quiz_to_excel(exit_qs, str(exit_path))
+            except Exception as quiz_err:
+                # Một lỗi sinh quiz đầu/cuối giờ không được làm dừng cả khóa; ghi nhận để rà lại.
+                print(f"  [Session Quiz Error] {session_id}: {quiz_err}")
+                summary.append({
+                    "session_id": session_id,
+                    "lesson_id": "",
+                    "title": f"{session_title_str} (Quizz đầu/cuối giờ)",
+                    "html_file": "Skipped",
+                    "slides_file": "Skipped",
+                    "quiz_file": "ERROR",
+                    "video_script_file": "Skipped",
+                    "status": f"FAILED ({quiz_err})",
+                    "review_count": 0,
+                })
 
     # Đánh số phiên bản TRƯỚC khi dựng trang rà soát: trang rà soát chỉ là công cụ
     # quản trị, không phải học liệu, nên nó không được tính vào ảnh chụp phiên bản.
