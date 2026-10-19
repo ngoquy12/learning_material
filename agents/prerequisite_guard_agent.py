@@ -21,6 +21,15 @@ from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
+from core.ontology import get_ontology_for_stack
+from core.knowledge_graph import (
+    detect_cycles,
+    find_missing_prerequisites,
+    find_inverted_prerequisite_orders,
+    check_bloom_progression,
+    resolve_concepts_in_text
+)
+
 
 # ─────────────────────────────────────────────
 # Data Models
@@ -164,6 +173,63 @@ def prerequisite_guard_agent(
             violations=violations_in_session,
         )
 
+    # Bước 2.5: Kiểm tra Chu trình tuần hoàn (Cycle Detection) & Đối chiếu Ontology chuẩn
+    session_edges = [(req, s_id) for s_id, sp in session_prereqs.items() for req in sp.requires_sessions]
+    cycles = detect_cycles(session_edges)
+    for cycle in cycles:
+        cycle_str = " → ".join(cycle)
+        v = PrerequisiteViolation(
+            session_id=cycle[0],
+            lesson_id="",
+            lesson_title="Kiến trúc tổng thể",
+            concept_used=f"Chu trình phụ thuộc: {cycle_str}",
+            concept_introduced_in="Vòng lặp tuần hoàn",
+            severity="BLOCKER",
+            suggestion=f"Loại bỏ phụ thuộc vòng tròn giữa các session: {cycle_str}"
+        )
+        all_violations.append(v)
+
+    ontology = get_ontology_for_stack(tech_stack)
+    missing_prereqs = []
+    inverted_orders = []
+    bloom_violations = []
+    if ontology:
+        missing_prereqs = find_missing_prerequisites(sessions, ontology)
+        for mp in missing_prereqs:
+            all_violations.append(PrerequisiteViolation(
+                session_id=mp.session_id,
+                lesson_id=mp.lesson_id,
+                lesson_title="Lỗ hổng kiến thức nền tảng (Ontology Gap)",
+                concept_used=f"{mp.concept_name} (Thiếu: {mp.missing_prerequisite_name})",
+                concept_introduced_in=f"Chuẩn {tech_stack}",
+                severity=mp.severity,
+                suggestion=mp.suggestion
+            ))
+
+        inverted_orders = find_inverted_prerequisite_orders(sessions, ontology)
+        for inv in inverted_orders:
+            all_violations.append(PrerequisiteViolation(
+                session_id=inv["dependent_session"],
+                lesson_id="",
+                lesson_title="Thứ tự giảng dạy bị đảo ngược",
+                concept_used=f"{inv['concept_name']} (cần học sau {inv['prerequisite_name']})",
+                concept_introduced_in=inv["prerequisite_session"],
+                severity=inv["severity"],
+                suggestion=inv["message"]
+            ))
+
+        bloom_violations = check_bloom_progression(sessions, ontology)
+        for bv in bloom_violations:
+            all_violations.append(PrerequisiteViolation(
+                session_id=bv.session_id,
+                lesson_id="",
+                lesson_title="Độ dốc nhận thức Bloom bất hợp lý",
+                concept_used=f"Bloom Level {bv.detected_bloom_level}",
+                concept_introduced_in=f"Kỳ vọng {bv.expected_bloom_range[0]}-{bv.expected_bloom_range[1]}",
+                severity=bv.severity,
+                suggestion=bv.suggestion
+            ))
+
     # Bước 3: Xây dựng Dependency Graph cho Obsidian
     dependency_graph = _build_dependency_graph(session_prereqs)
 
@@ -173,12 +239,13 @@ def prerequisite_guard_agent(
     is_valid = blocker_count == 0 if strict_mode else True
 
     report = _generate_report(
-        sessions, all_violations, blocker_count, warning_count, session_prereqs
+        sessions, all_violations, blocker_count, warning_count, session_prereqs,
+        ontology=ontology, cycles=cycles
     )
 
     print(f"  - Kết quả: {blocker_count} BLOCKER, {warning_count} WARNING violations.")
     if is_valid:
-        print("  ✅ [PrerequisiteGuard] PM đạt chuẩn tuần tự tri thức.")
+        print("  ✅ [PrerequisiteGuard] PM đạt chuẩn tuần tự tri thức & Ontology.")
     else:
         print(f"  🔴 [PrerequisiteGuard] PM CÓ {blocker_count} vi phạm BLOCKER cần sửa trước khi biên dịch!")
 
@@ -195,6 +262,9 @@ def prerequisite_guard_agent(
             "total_violations": len(all_violations),
             "blocker_count": blocker_count,
             "warning_count": warning_count,
+            "cycles_count": len(cycles),
+            "missing_prerequisites_count": len(missing_prereqs),
+            "inverted_orders_count": len(inverted_orders),
         }
     }
 
@@ -344,26 +414,44 @@ def _generate_report(
     blocker_count: int,
     warning_count: int,
     session_prereqs: Dict[str, SessionPrerequisites],
+    ontology: Optional[Any] = None,
+    cycles: Optional[List[List[str]]] = None
 ) -> str:
-    """Tạo báo cáo Markdown cho PM Reviewer."""
+    """Tạo báo cáo Markdown cho PM Reviewer với Đồ thị Mermaid và đối chiếu Ontology."""
     lines = [
-        "# 🔍 Báo cáo Kiểm duyệt Tiên quyết Tri thức (Prerequisite Guard)",
+        "# 🔍 Báo cáo Kiểm duyệt Tiên quyết Tri thức (Prerequisite Guard & Ontology)",
         "",
         f"**Tổng vi phạm:** {len(violations)} "
         f"({blocker_count} 🔴 BLOCKER | {warning_count} 🟡 WARNING)",
         "",
     ]
 
+    if ontology:
+        lines += [
+            f"**Ontology đối chuẩn:** `{ontology.domain_name}` ({len(ontology.concepts)} khái niệm chuẩn ngành)",
+            ""
+        ]
+
+    if cycles:
+        lines += [
+            "## 🔴 Chu trình tuần hoàn (Circular Dependencies)",
+            "Hệ thống phát hiện các mối quan hệ phụ thuộc vòng tròn gây tắc nghẽn lộ trình học:",
+            ""
+        ]
+        for c in cycles:
+            lines.append(f"- ⚠️ **Vòng lặp:** `{' → '.join(c)}`")
+        lines.append("")
+
     if violations:
-        lines.append("## ❌ Danh sách vi phạm")
+        lines.append("## ❌ Danh sách vi phạm chi tiết")
         for v in violations:
             icon = "🔴" if v.severity == "BLOCKER" else "🟡"
             lines += [
                 f"",
                 f"### {icon} [{v.severity}] {v.session_id} - {v.lesson_title}",
-                f"- **Khái niệm vi phạm:** `{v.concept_used}`",
-                f"- **Được giới thiệu ở:** {v.concept_introduced_in}",
-                f"- **Gợi ý:** {v.suggestion}",
+                f"- **Khái niệm / Lỗi:** `{v.concept_used}`",
+                f"- **Nguồn đối chiếu:** {v.concept_introduced_in}",
+                f"- **Gợi ý khắc phục:** {v.suggestion}",
             ]
     else:
         lines.append("## ✅ Không có vi phạm nào được phát hiện")
@@ -376,6 +464,27 @@ def _generate_report(
         if s_prereq.requires_sessions:
             reqs = " → ".join(s_prereq.requires_sessions + [s_id])
             lines.append(f"- {reqs}")
+
+    # Mermaid Dependency Graph
+    lines += [
+        "",
+        "## 🗺️ Bản đồ Đồ thị Phụ thuộc (Mermaid Graph)",
+        "```mermaid",
+        "graph TD"
+    ]
+    edges_added = False
+    for s_id, s_prereq in session_prereqs.items():
+        clean_s_id = s_id.replace(" ", "_")
+        for req in s_prereq.requires_sessions:
+            clean_req = req.replace(" ", "_")
+            lines.append(f"    {clean_req} --> {clean_s_id}")
+            edges_added = True
+    if not edges_added:
+        for i in range(len(sessions) - 1):
+            s1 = sessions[i].get("session_id", f"Session_{i+1}").replace(" ", "_")
+            s2 = sessions[i+1].get("session_id", f"Session_{i+2}").replace(" ", "_")
+            lines.append(f"    {s1} --> {s2}")
+    lines.append("```")
 
     return "\n".join(lines)
 
