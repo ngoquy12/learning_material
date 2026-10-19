@@ -246,6 +246,46 @@ def reading_questions_creator_agent(state: AgentState) -> AgentState:
         allowed_scope=allowed_scope
     )
 
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, lesson_title=lesson_title)
+
+    if is_non_code:
+        schema_questions_block = """[
+    {
+      "id": 1,
+      "question": "Câu hỏi trực tiếp, bám sát một thành phần, bước quy trình, bảng đặc tả hoặc nút sơ đồ trong bài đọc — ví dụ: 'Trong sơ đồ quy trình khảo sát nghiệp vụ, bước phỏng vấn Stakeholders giữ vai trò gì trong việc xác định System Boundary?'",
+      "explanation": "- Giải thích vai trò, ý nghĩa nghiệp vụ của bước quy trình hoặc thành phần đó bám sát bài đọc..."
+    },
+    {
+      "id": 2,
+      "question": "Câu hỏi tình huống áp dụng khi thay đổi một điều kiện/yêu cầu nghiệp vụ cụ thể trong bài đọc — ví dụ: 'Nếu yêu cầu phi chức năng (NFR) về thời gian phản hồi thay đổi từ dưới 2 giây thành dưới 200ms thì kiến trúc hệ thống cần điều chỉnh gì?'",
+      "explanation": "- Phân tích tác động và phương án giải quyết dựa trên kiến thức trong bài đọc..."
+    },
+    {
+      "id": 3,
+      "question": "Câu hỏi phân tích trường hợp lỗi nghiệp vụ, thiếu sót đặc tả hoặc ngoại lệ thực tế — ví dụ: 'Nếu đặc tả chỉ ghi yêu cầu là hệ thống chạy mượt mà mà không có chỉ số đo lường định lượng thì vi phạm tiêu chuẩn nào và cách sửa ra sao?'",
+      "explanation": "- Phân tích nguyên nhân và cách khắc phục chuẩn theo IEEE 830 hoặc chuẩn nghiệp vụ tương ứng..."
+    }
+  ]"""
+    else:
+        schema_questions_block = """[
+    {
+      "id": 1,
+      "question": "Câu hỏi trực tiếp, trích nguyên văn 1 dòng/đoạn code THẬT từ bài đọc rồi hỏi thẳng bản chất/chức năng của nó — ví dụ: 'Trong đoạn code sau: `for i in items:` dòng lệnh này có chức năng gì?'",
+      "explanation": "- Giải thích bản chất/cơ chế của dòng lệnh, bám sát đúng code thật vừa trích..."
+    },
+    {
+      "id": 2,
+      "question": "Câu hỏi thay đổi 1 giá trị cụ thể trong CHÍNH đoạn code câu 1 (ví dụ đổi biến/tham số từ A thành B) và hỏi thẳng dự đoán kết quả mới là gì — ví dụ: 'Nếu đổi giá trị của `a` từ 3 thành 4 thì kết quả in ra là gì?'",
+      "explanation": "- Phân tích sự thay đổi và kết quả mới, dựa trên đúng code thật đã trích..."
+    },
+    {
+      "id": 3,
+      "question": "Câu hỏi về trường hợp biên/bẫy lỗi thực tế của CHÍNH đoạn code đã trích (dữ liệu biên, sai thứ tự tham số...) — hỏi thẳng hiện tượng lỗi xảy ra và cách sửa.",
+      "explanation": "- Phân tích nguyên nhân lỗi và cách khắc phục đúng chuẩn..."
+    }
+  ]"""
+
     user_prompt = f"""Full Lesson Reading Article Content (trích trực tiếp từ reading.html thật):
 === LESSON READING ARTICLE CONTENT ===
 {full_article_context[:READING_CONTEXT_CHARS]}
@@ -258,27 +298,11 @@ Lesson Metadata:
 - Lesson: {lesson_id} - {lesson_title}
 - Target Tech Stack: {tech_stack}
 
-OUTPUT JSON SCHEMA (mỗi câu hỏi PHẢI tự chứa code/dữ liệu liên quan ngay trong "question" bằng
+OUTPUT JSON SCHEMA (mỗi câu hỏi PHẢI tự chứa dữ liệu/tình huống liên quan ngay trong "question" bằng
 markdown code span/block — KHÔNG có field "code_snippet" hay "title" riêng, KHÔNG dùng nhãn kiểu
 "(Xung hướng...)"/"(Nghịch hướng...)" — câu hỏi phải rõ ràng, trực tiếp, đi thẳng vào trọng tâm):
 {{
-  "questions": [
-    {{
-      "id": 1,
-      "question": "(Mức Thông hiểu — KHÔNG in nhãn mức độ ra output) Câu hỏi trực tiếp, trích nguyên văn 1 dòng/đoạn code THẬT từ bài đọc rồi hỏi thẳng bản chất/chức năng của nó — ví dụ: 'Trong đoạn code sau: `for i in items:` dòng lệnh này có chức năng gì?'",
-      "explanation": "- Giải thích bản chất/cơ chế của dòng lệnh, bám sát đúng code thật vừa trích..."
-    }},
-    {{
-      "id": 2,
-      "question": "(Mức Vận dụng — KHÔNG in nhãn mức độ ra output) Câu hỏi thay đổi 1 giá trị cụ thể trong CHÍNH đoạn code câu 1 (ví dụ đổi biến/tham số từ A thành B) và hỏi thẳng dự đoán kết quả mới là gì — ví dụ: 'Nếu đổi giá trị của `a` từ 3 thành 4 thì kết quả in ra là gì?'",
-      "explanation": "- Phân tích sự thay đổi và kết quả mới, dựa trên đúng code thật đã trích..."
-    }},
-    {{
-      "id": 3,
-      "question": "(Mức Phân tích — KHÔNG in nhãn mức độ ra output) Câu hỏi về trường hợp biên/bẫy lỗi thực tế của CHÍNH đoạn code đã trích (dữ liệu biên, sai thứ tự tham số...) — hỏi thẳng hiện tượng lỗi xảy ra và cách sửa.",
-      "explanation": "- Phân tích nguyên nhân lỗi và cách khắc phục đúng chuẩn..."
-    }}
-  ]
+  "questions": {schema_questions_block}
 }}
 Lưu ý: các nhãn "(Mức ...)" trên chỉ là chú thích cho việc thiết kế nội bộ trong ví dụ này — TUYỆT ĐỐI KHÔNG chép các nhãn đó vào field "question" thật khi sinh output, "question" thật phải bắt đầu thẳng vào nội dung câu hỏi.
 """

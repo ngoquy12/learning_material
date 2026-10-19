@@ -34,9 +34,25 @@ def format_lab_to_markdown(lab_data: dict) -> str:
     
     ref_code = lab_data.get("reference_code") or lab_data.get("code_demo") or ""
     tech_stack = lab_data.get("tech_stack") or ""
-    default_lang = tech_stack.split("/")[0].lower() if tech_stack else "text"
-    code_block_lang = lab_data.get("tech_stack_lang") or default_lang
-    code_md = f"\n## 4. Mã nguồn tham khảo (Code Demo)\n\n```{code_block_lang}\n{ref_code.strip()}\n```\n" if ref_code else ""
+    import re
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, lesson_title=title)
+    if is_non_code:
+        # Strip any accidental ``` wrapper from ref_code if LLM added it
+        clean_ref = ref_code.strip()
+        if clean_ref.startswith("```"):
+            clean_ref = re.sub(r'^```[a-zA-Z0-9_-]*\n', '', clean_ref)
+            if clean_ref.endswith("```"):
+                clean_ref = clean_ref[:-3].strip()
+        code_block_lang = "mermaid" if any(k in clean_ref for k in ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram"]) else ("gherkin" if "Scenario:" in clean_ref or "Given" in clean_ref else "markdown")
+        if code_block_lang == "markdown":
+            code_md = f"\n## 4. Đặc tả mẫu & Sơ đồ quy trình minh họa\n\n{clean_ref}\n" if clean_ref else ""
+        else:
+            code_md = f"\n## 4. Đặc tả mẫu & Sơ đồ quy trình minh họa\n\n```{code_block_lang}\n{clean_ref}\n```\n" if clean_ref else ""
+    else:
+        default_lang = tech_stack.split("/")[0].lower() if tech_stack else "text"
+        code_block_lang = lab_data.get("tech_stack_lang") or default_lang
+        code_md = f"\n## 4. Mã nguồn tham khảo (Code Demo)\n\n```{code_block_lang}\n{ref_code.strip()}\n```\n" if ref_code else ""
     
     eval_data = lab_data.get("evaluation", {})
     checklist = eval_data.get("checklist") if isinstance(eval_data, dict) else []
@@ -47,7 +63,7 @@ def format_lab_to_markdown(lab_data: dict) -> str:
     for item in checklist:
         clean_item = str(item).replace("[ ]", "").strip()
         formatted_checklist.append(f"- [ ] {clean_item}")
-    checklist_md = "\n".join(formatted_checklist) if formatted_checklist else "- [ ] Mã nguồn thực thi không phát sinh lỗi cú pháp."
+    checklist_md = "\n".join(formatted_checklist) if formatted_checklist else "- [ ] Đạt đầy đủ các yêu cầu đặc tả và tiêu chí nghiệm thu."
     
     section_num_steps = "3" if problem_md else "2"
     section_num_checklist = "5" if (problem_md and code_md) else ("4" if (problem_md or code_md) else "3")
@@ -110,10 +126,60 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
     checklist_html = "\n".join(check_items) if check_items else '<div>Mã nguồn thực thi không có lỗi.</div>'
 
     stack_clean = tech_stack.lower().strip()
-    is_python_stack = "python" in stack_clean
-    lang_class = stack_clean.split("/")[0] if stack_clean else "text"
+    from core.course_nature import is_non_code_subject, is_design_subject
+    is_design = is_design_subject(tech_stack=tech_stack, lesson_title=raw_title)
+    is_non_code = is_design or is_non_code_subject(tech_stack=tech_stack, lesson_title=raw_title)
+    is_python_stack = "python" in stack_clean and not is_non_code
 
-    pyodide_script = '<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>' if is_python_stack else ''
+    if is_design:
+        lang_class = "mermaid" if any(k in ref_code for k in ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram"]) else "markdown"
+        sandbox_html = f"""
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Bản vẽ thiết kế mẫu &amp; Đặc tả thành phần UI trên Figma</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50 p-5">
+            <pre class="m-0 bg-white p-4 rounded-xl border border-slate-200 font-mono text-sm overflow-x-auto"><code class="language-{lang_class}">{ref_code_escaped}</code></pre>
+          </div>
+        </section>"""
+        sub_desc = "Thực hành thiết kế trên Figma: tạo Frame, cấu hình Auto Layout, tổ chức Component và hoàn thiện Prototype."
+        pyodide_script = ""
+    elif is_non_code:
+        lang_class = "mermaid" if any(k in ref_code for k in ["flowchart", "sequenceDiagram", "classDiagram", "stateDiagram"]) else ("gherkin" if "Scenario:" in ref_code or "Given" in ref_code else "markdown")
+        sandbox_html = f"""
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Đặc tả mẫu &amp; Sơ đồ quy trình minh họa</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50 p-5">
+            <pre class="m-0 bg-white p-4 rounded-xl border border-slate-200 font-mono text-sm overflow-x-auto"><code class="language-{lang_class}">{ref_code_escaped}</code></pre>
+          </div>
+        </section>"""
+        sub_desc = "Mô hình hóa quy trình, thiết lập tài liệu đặc tả và kịch bản kiểm thử nghiệp vụ chuẩn xác."
+        pyodide_script = ""
+    else:
+        lang_class = stack_clean.split("/")[0] if stack_clean else "text"
+        sandbox_html = f"""
+        <section class="mb-10">
+          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Mã nguồn tham khảo &amp; Thực thi trực tiếp</h2>
+          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50">
+            <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 flex justify-end items-center text-xs font-semibold text-slate-700 gap-2">
+              <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
+                Khôi phục mã gốc
+              </button>
+              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
+                Chạy chương trình
+              </button>
+            </div>
+            <div class="p-4 bg-slate-50 font-mono text-sm">
+              <pre class="m-0"><code id="lab-code-editor" class="language-{lang_class}" contenteditable="true" spellcheck="false">{ref_code_escaped}</code></pre>
+            </div>
+            <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
+              <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
+                <span>KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
+              </div>
+              <pre id="lab-console-output" class="m-0 text-emerald-400 whitespace-pre-wrap leading-relaxed">[Nhấn 'Chạy chương trình' để thực thi mã nguồn trên trình duyệt...]</pre>
+            </div>
+          </div>
+        </section>"""
+        sub_desc = "Thực hành chỉnh sửa dữ liệu và chạy trực tiếp mã nguồn ngay trên trình duyệt."
+        pyodide_script = '<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>' if is_python_stack else ''
 
     return f"""<!DOCTYPE html>
 <html lang="vi">
@@ -177,7 +243,7 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
       <article class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
         <div class="border-b border-slate-200 pb-6 mb-8">
           <h1 class="font-montserrat font-bold text-2xl sm:text-3xl text-slate-900 leading-tight">{raw_title}</h1>
-          <p class="text-sm text-slate-500 mt-2">Thực hành chỉnh sửa dữ liệu và chạy trực tiếp mã nguồn ngay trên trình duyệt.</p>
+          <p class="text-sm text-slate-500 mt-2">{sub_desc}</p>
         </div>
 
         <section class="mb-10">
@@ -197,28 +263,7 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
           <div class="space-y-3">{steps_html}</div>
         </section>
 
-        <section class="mb-10">
-          <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">4. Mã nguồn tham khảo &amp; Thực thi trực tiếp</h2>
-          <div class="border border-slate-200 rounded-2xl overflow-hidden shadow-sm my-4 bg-slate-50">
-            <div class="px-5 py-3 bg-slate-100 border-b border-slate-200 flex justify-end items-center text-xs font-semibold text-slate-700 gap-2">
-              <button onclick="resetSandboxCode()" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition-all font-bold">
-                Khôi phục mã gốc
-              </button>
-              <button onclick="runLabCode()" class="px-4 py-1.5 bg-rikkei-red text-white rounded hover:bg-rikkei-darkred transition-all font-bold shadow-sm">
-                Chạy chương trình
-              </button>
-            </div>
-            <div class="p-4 bg-slate-50 font-mono text-sm">
-              <pre class="m-0"><code id="lab-code-editor" class="language-{lang_class}" contenteditable="true" spellcheck="false">{ref_code_escaped}</code></pre>
-            </div>
-            <div class="bg-slate-900 text-emerald-400 p-5 border-t border-slate-700 font-mono text-xs">
-              <div class="text-slate-400 mb-2 font-bold flex items-center justify-between">
-                <span>KẾT QUẢ THỰC THI (CONSOLE OUTPUT):</span>
-              </div>
-              <pre id="lab-console-output" class="m-0 text-emerald-400 whitespace-pre-wrap leading-relaxed">[Nhấn 'Chạy chương trình' để thực thi mã nguồn trên trình duyệt...]</pre>
-            </div>
-          </div>
-        </section>
+{sandbox_html}
 
         <section class="mb-6">
           <h2 class="font-montserrat font-bold text-xl text-slate-900 mb-4">5. Checklist đánh giá kết quả</h2>
@@ -227,7 +272,9 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
       </article>
     </main>
 
-    <script>
+    {'''<script>
+      document.addEventListener("DOMContentLoaded", () => { if (window.hljs) window.hljs.highlightAll(); });
+    </script>''' if is_non_code else f'''<script>
       document.addEventListener("DOMContentLoaded", () => {{ if (window.hljs) window.hljs.highlightAll(); }});
       let pyodideInstance = null;
       async function getPyodide() {{
@@ -256,7 +303,7 @@ def format_lab_to_html(lab_data: dict, tech_stack: str = "") -> str:
           output.innerText = "▶ Kiểm tra cú pháp mã nguồn {lang_class}: Đã ghi nhận mã nguồn thực hành!";
         }}
       }}
-    </script>
+    </script>'''}
   </body>
 </html>"""
 
@@ -338,6 +385,10 @@ def practical_lab_creator_agent(state: AgentState) -> AgentState:
     forbidden_scope_raw = state.get("forbidden_scope") or []
     forbidden_scope = ", ".join(str(x) for x in forbidden_scope_raw if str(x).strip()) if isinstance(forbidden_scope_raw, list) else str(forbidden_scope_raw).strip()
 
+    from core.course_nature import is_non_code_subject
+    course_name = state.get("course_name", "")
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, course_name=course_name, lesson_title=lesson_title)
+
     system_prompt = render_prompt(
         "practical_lab_creator.j2",
         {
@@ -346,7 +397,8 @@ def practical_lab_creator_agent(state: AgentState) -> AgentState:
             "chosen_domain": chosen_domain,
             "domain_prompt_block": domain_prompt_block,
             "allowed_scope": allowed_scope,
-            "forbidden_scope": forbidden_scope
+            "forbidden_scope": forbidden_scope,
+            "is_non_code_subject": is_non_code
         }
     )
 
@@ -360,6 +412,13 @@ def practical_lab_creator_agent(state: AgentState) -> AgentState:
     else:
         blueprint_context = ""
 
+    non_code_reminder = """
+NON-CODE SUBJECT STRICT MANDATE:
+- This is a non-coding subject (Agile Scrum / System Analysis & Design).
+- TUYỆT ĐỐI KHÔNG DÙNG CODE LẬP TRÌNH (Zero Programming Code Contract).
+- For 'code_demo', provide a Mermaid diagram (```mermaid\\nflowchart TD\\n...) or Gherkin Acceptance Criteria (```gherkin\\nScenario: ...) or structured specification table.
+""" if is_non_code else ""
+
     user_prompt = f"""{blueprint_context}
 Formulate Practical Lab for:
 Session: {session_id}
@@ -369,7 +428,7 @@ Expected Output: {expected_output}
 Tech Stack: {tech_stack}
 Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
 Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
-
+{non_code_reminder}
 PROGRESSIVE DIFFICULTY REMINDER: "steps" must escalate simple -> complete (early steps = simplest
 single-value setup, later steps layer in this lesson's new concept, only the final step(s) may
 reach a fuller scenario) and "code_demo" must read as that same incremental build-up, not a

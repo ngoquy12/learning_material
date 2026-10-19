@@ -76,6 +76,14 @@ def generate_session_mindmap(
         }
     )
 
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, session_title=session_title)
+    non_code_directive = ""
+    if is_non_code:
+        non_code_directive = """
+- STRICT NON-CODE REQUIREMENT (MÔN PHI-CODE): Môn học này thuộc khối Lý thuyết / Quy trình / Mô hình hóa (UML, Agile, SRS...). TUYỆT ĐỐI KHÔNG sinh bất kỳ đoạn code lập trình nào (Python, JS, Java...), KHÔNG dùng từ khóa `def`, `class`, hàm code lập trình. Toàn bộ các nhánh minh họa phải dùng Sơ đồ Mermaid (flowchart, sequenceDiagram, classDiagram) hoặc Bảng Markdown đặc tả!
+"""
+
     user_prompt = f"""Generate the Master Markmap Mindmap for Session:
 Session ID: {session_id}
 Session Title: {session_title}
@@ -106,7 +114,7 @@ MANDATORY OUTPUT CONTRACT:
 - The final "## Liên kết hệ thống" branch MUST summarize the logical dependency flow, input-process-output data mapping, and overall cross-lesson integration.
 - ABSOLUTELY FORBIDDEN to include "Mục tiêu bài học", "Bài toán", or "Đặt tình huống" branches anywhere in the mindmap.
 - ABSOLUTELY FORBIDDEN to use any text emojis (❌, ✅, ⚠️, 🔴, 🟢, ▶) anywhere in the mindmap content.
-- STRICT KNOWLEDGE SCOPING: Only reference concepts within allowed taught lessons; do not leak unlearned future topics.
+- STRICT KNOWLEDGE SCOPING: Only reference concepts within allowed taught lessons; do not leak unlearned future topics.{non_code_directive}
 """
 
     markmap_content = call_llm(

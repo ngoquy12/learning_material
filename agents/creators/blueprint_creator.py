@@ -59,6 +59,28 @@ def blueprint_creator_agent(state: AgentState) -> AgentState:
     except Exception:
         memories_context = ""
 
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, lesson_title=lesson_title)
+
+    if is_non_code:
+        code_instruction = """CRITICAL NON-CODE / PROCESS & MODELING DIRECTIVE:
+- This is a 100% NON-CODING course (Agile/Scrum, Systems Analysis & Design, UML, SDLC, BPMN, ERD, SRS).
+- ABSOLUTELY FORBIDDEN to generate ANY programming code (NO Python, NO JavaScript, NO C/Java, NO `def `, NO `print()`, NO code demo functions)!
+- All examples, concepts, and gotchas MUST be modeled using:
+  * Mermaid Diagrams (flowchart TD, sequenceDiagram, classDiagram, erDiagram)
+  * Gherkin Scenarios (Given-When-Then) or User Stories (As a / I want / So that)
+  * UML Specifications, Data Flow steps, or Parameter comparison tables
+- "raw_code_snippet" and "raw_code" MUST contain ONLY Mermaid syntax (```mermaid ... ```) or Gherkin/Markdown specifications, NEVER programming code!
+- "code_bad" and "code_good" MUST describe Anti-pattern Process vs Best Practice Process (e.g. Bad User Story vs Good User Story, or Flawed Sequence Flow vs Correct Sequence Flow)."""
+        code_example_guide = "Mã Mermaid biểu đồ luồng/quy trình (```mermaid\\ngraph TD...\\n```) hoặc kịch bản Gherkin/đặc tả Markdown."
+        bad_good_guide_bad = "Quy trình/kịch bản/sơ đồ sai (Anti-pattern)"
+        bad_good_guide_good = "Quy trình/kịch bản/sơ đồ đúng chuẩn (Best Practice)"
+    else:
+        code_instruction = f"- Tech Stack: {tech_stack} (Use clean, PEP 8/industry-standard English variable/function naming, Vietnamese comments)."
+        code_example_guide = "Mã nguồn đầy đủ có comment tiếng Việt."
+        bad_good_guide_bad = "Mã nguồn sai lỗi"
+        bad_good_guide_good = "Mã nguồn đúng khắc phục"
+
     sys_prompt = f"""You are a Lead Curriculum Architect & Senior Engineer at Rikkei Education.
 Your task is to draft a comprehensive, unified learning resource blueprint (Bản phác thảo học liệu) for a single lesson.
 This blueprint serves as the single source of truth for the entire lesson's resources (HTML Reading material, Quiz questions, and Hands-on Practical Labs).
@@ -72,14 +94,14 @@ CRITICAL DOMAIN CONSISTENCY MANDATE:
 =================================================
 
 STRICT DIRECTIVES:
-1. UNIFIED BUSINESS SCENARIO: Establish exactly ONE concrete real-world scenario that is a specific module of the UNIFIED BUSINESS DOMAIN above (e.g. if the domain is hotel booking, the scenario could be "booking confirmation code generation" or "voucher validation for a hotel stay" — never a generic unrelated business idea). All progressive examples (3.1, 3.2, 3.3), syntax templates, and gotchas must revolve around this exact scenario and use consistent naming conventions.
-2. PROGRESSIVE DIFFICULTY CONTRACT (BEGINNER-FIRST, SIMPLE -> ADVANCED): "progressive_examples" MUST escalate gradually — 3.1 genuinely minimal (1-2 lines, no branching, 1 concrete value), 3.2 adds exactly ONE new layer of complexity, 3.3 is the only one allowed full enterprise complexity. Never invert this order.
+1. UNIFIED BUSINESS SCENARIO: Establish exactly ONE concrete real-world scenario that is a specific module of the UNIFIED BUSINESS DOMAIN above. All progressive examples (3.1, 3.2, 3.3), syntax templates, and gotchas must revolve around this exact scenario and use consistent naming conventions.
+2. PROGRESSIVE DIFFICULTY CONTRACT (BEGINNER-FIRST, SIMPLE -> ADVANCED): "progressive_examples" MUST escalate gradually — 3.1 genuinely minimal, 3.2 adds exactly ONE new layer of complexity, 3.3 is the only one allowed full enterprise complexity. Never invert this order.
 3. STRICT KNOWLEDGE SCOPE BOUNDARIES:
    - ALLOWED KNOWLEDGE (Concepts already taught or in current lesson details): {allowed_scope or 'Basic fundamentals up to current lesson'}
    - FORBIDDEN KNOWLEDGE (Future lessons / unlearned advanced concepts): {forbidden_scope or 'Advanced frameworks, DOM, APIs, Async, or classes if not taught yet'}
    - ZERO SCOPE LEAKAGE CONTRACT: ABSOLUTELY FORBIDDEN to use or introduce ANY concept, syntax, function, API, or library from the FORBIDDEN KNOWLEDGE list in the examples, gotchas, or concepts!
-   - Tech Stack: {tech_stack} (Use clean, PEP 8/industry-standard English variable/function naming, Vietnamese comments).
-4. 100% Vietnamese Explanations: All explanatory texts, requirements, descriptions, and comments in code must be in 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất).
+   {code_instruction}
+4. 100% Vietnamese Explanations: All explanatory texts, requirements, descriptions, and comments must be in 100% Accented Vietnamese (Tiếng Việt có dấu chuẩn sản xuất).
 {memories_context}
 
 Generate ONLY a raw JSON object containing the following structure:
@@ -92,9 +114,9 @@ Generate ONLY a raw JSON object containing the following structure:
   }},
   "key_concepts": [
     {{
-      "concept_name": "Tên khái niệm (ví dụ: Vòng lặp for)",
+      "concept_name": "Tên khái niệm",
       "description": "Giải thích trực quan ngắn gọn về cơ chế hoạt động của khái niệm này.",
-      "raw_code_snippet": "Đoạn code ví dụ cơ bản (English syntax, Vietnamese comments)"
+      "raw_code_snippet": "{code_example_guide}"
     }}
   ],
   "progressive_examples": [
@@ -102,27 +124,27 @@ Generate ONLY a raw JSON object containing the following structure:
       "example_id": "3.1",
       "title": "Ví dụ 3.1: Cơ bản",
       "requirement": "Yêu cầu bài toán thực hành nhỏ.",
-      "raw_code": "Mã nguồn đầy đủ có comment tiếng Việt."
+      "raw_code": "{code_example_guide}"
     }},
     {{
       "example_id": "3.2",
       "title": "Ví dụ 3.2: Nâng cấp nghiệp vụ",
       "requirement": "Yêu cầu nghiệp vụ bổ sung để nâng cấp độ khó.",
-      "raw_code": "Mã nguồn đầy đủ nâng cấp từ 3.1."
+      "raw_code": "{code_example_guide}"
     }},
     {{
       "example_id": "3.3",
       "title": "Ví dụ 3.3: Ứng dụng thực tế doanh nghiệp",
       "requirement": "Yêu cầu nghiệp vụ phức tạp hơn xử lý lỗi/edge cases cấp doanh nghiệp.",
-      "raw_code": "Mã nguồn đầy đủ hoàn thiện nhất."
+      "raw_code": "{code_example_guide}"
     }}
   ],
   "gotchas_and_errors": [
     {{
-      "error_name": "Lỗi thường gặp (ví dụ: Lặp vô hạn/Sai chỉ số)",
+      "error_name": "Lỗi thường gặp",
       "explanation": "Giải thích chi tiết tại sao lỗi xảy ra và ảnh hưởng thế nào.",
-      "code_bad": "Mã nguồn sai lỗi",
-      "code_good": "Mã nguồn đúng khắc phục"
+      "code_bad": "{bad_good_guide_bad}",
+      "code_good": "{bad_good_guide_good}"
     }}
   ]
 }}

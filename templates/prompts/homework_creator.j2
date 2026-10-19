@@ -15,6 +15,12 @@ Forbidden Scope: {{ forbidden_scope or 'Do not use unlearned advanced concepts' 
 {{ domain_rules_text }}
 
 === CORE PRINCIPLES (RE_Tiêu chuẩn bài tập — bắt buộc áp dụng cho MỌI bài) ===
+{% if is_non_code_subject %}
+1. Đóng HOW – Mở WHAT & WHY: KHÔNG BAO GIỜ viết hướng dẫn giải quyết chi tiết. Chỉ mô tả đích đến (What) và lý do khách hàng cần tính năng/quy trình đó (Why). Sinh viên tự thiết kế giải pháp quy trình/mô hình/đặc tả để giải quyết.
+2. TUYỆT ĐỐI KHÔNG DÙNG CODE LẬP TRÌNH (Zero Programming Code Contract): Môn học này thuộc khối Kiến trúc/Quy trình/Phân tích & Thiết kế hệ thống. Tuyệt đối KHÔNG viết mã nguồn (Python, Java, JS, C...), KHÔNG yêu cầu sinh viên nộp code. Toàn bộ bài tập dùng SƠ ĐỒ (Mermaid, UML), TÀI LIỆU ĐẶC TẢ (User Story, tiêu chuẩn INVEST, kịch bản Gherkin BDD, Use Case, DoD, DoR), và MA TRẬN SO SÁNH / BẢNG QUY TẮC NGHIỆP VỤ.
+3. Nhúng "Tư duy sản phẩm": 100% đề bài phải có bối cảnh dự án cụ thể, đóng vai trò thực tế (Business Analyst, Product Owner, Scrum Master, System Architect), giải quyết bài toán nghiệp vụ trong domain {{ chosen_domain }}.
+4. Ngôn ngữ: 100% tiếng Việt có dấu chuẩn, không dùng emoji.
+{% else %}
 1. Đóng HOW – Mở WHAT & WHY: KHÔNG BAO GIỜ viết các bước hướng dẫn giải thuật (cấm câu kiểu
    "Bước 1: Dùng vòng lặp for, Bước 2: Dùng if/else"). Chỉ mô tả đích đến (What) và lý do
    khách hàng cần tính năng đó (Why). Sinh viên tự chọn công cụ/thuật toán để giải quyết.
@@ -26,11 +32,103 @@ Forbidden Scope: {{ forbidden_scope or 'Do not use unlearned advanced concepts' 
    khác. Nếu hợp lý, hãy để dữ liệu/kết quả của bài này gợi ý sẽ là tiền đề cho một tính năng
    ở mức độ cao hơn trong cùng hệ thống.
 4. Ngôn ngữ: 100% tiếng Việt có dấu chuẩn, không dùng emoji.
+{% endif %}
 
 === OUTPUT FORMAT REQUIREMENTS ===
 Output MUST follow strict XML tagging:
 <homework_assignment>
   <de_bai_content>
+{% if is_non_code_subject %}
+{% if pdf_level == "co_ban" %}
+### 1. Mục tiêu bài tập
+- Rèn luyện kỹ năng đọc hiểu tài liệu đặc tả, phân tích sơ đồ quy trình/UML, phát hiện lỗ hổng logic nghiệp vụ hoặc các điểm vi phạm quy chuẩn (INVEST, DoD, DoR, ACID, Chuẩn hóa dữ liệu, Nguyên tắc phân rã).
+
+### 2. Bối cảnh nghiệp vụ
+[Nêu rõ quy tắc ĐÚNG của hệ thống/tính năng trong domain {{ chosen_domain }}]
+
+### 3. Vấn đề hiện tại
+[Khách hàng hoặc đội ngũ phát triển đang gặp trục trặc gì? Mô tả triệu chứng sai lệch từ góc nhìn thực tế]
+
+### 4. Hiện trường giả (Đặc tả nghiệp vụ / User Story / Sơ đồ / Quy trình bị lỗi)
+[BẮT BUỘC: Một kịch bản User Story/Tiêu chí Acceptance Criteria/Quy trình Scrum/Sơ đồ Use Case/Class Diagram/Đặc tả luồng nghiệp vụ... CỤ THỂ, nhưng SAI LOGIC, THIẾU ĐIỀU KIỆN hoặc VI PHẠM QUY CHUẨN (Ví dụ: User Story vi phạm tiêu chí INVEST, DoD thiếu sót, sơ đồ quan hệ sai bản số/hướng mũi tên, kịch bản Gherkin thiếu bước hoặc mâu thuẫn). TUYỆT ĐỐI KHÔNG DÙNG CODE LẬP TRÌNH PYTHON/JAVA/C/JS.]
+
+### 5. Yêu cầu đầu ra
+Sinh viên phải nộp đúng 2 phần:
+1. Phân tích và chỉ rõ các điểm sai/vi phạm trong tài liệu/đặc tả/sơ đồ hiện trường giả kèm dẫn chứng cụ thể.
+2. Bản đặc tả tài liệu / sơ đồ luồng (hoặc mã Mermaid) đã được chuẩn hóa và sửa đúng 100%.
+
+### 6. Quy chuẩn nộp bài
+- Nộp file tài liệu Markdown / file sơ đồ Mermaid (.md) đẩy lên GitHub repository.
+{% elif pdf_level == "chuyen_sau" %}
+### 1. Mục tiêu bài tập
+- Rèn luyện năng lực dịch thuật từ yêu cầu thực tế đời sống sang tài liệu đặc tả kỹ thuật chuẩn hóa, tự thiết kế quy trình luồng nghiệp vụ và kiểm soát rủi ro biên.
+
+### 2. Bối cảnh & Vấn đề
+[Câu chuyện nghiệp vụ: khách hàng trong domain {{ chosen_domain }} đang cần module/tính năng gì và tại sao lại cần nó?]
+
+### 3. Yêu cầu nghiệp vụ
+[Các quy tắc hệ thống cần tuân thủ — luồng dữ liệu, các bước xác thực/phê duyệt, điều kiện phân loại, vai trò Actor...]
+
+### 4. Ràng buộc & Bẫy dữ liệu
+[BẮT BUỘC: 1-2 kịch bản ngoại lệ dị biệt để thử thách tư duy lường trước rủi ro — VD: dữ liệu xung đột, giao dịch treo, vai trò không hợp lệ, phân quyền sai lệch]
+
+### 5. Yêu cầu đầu ra
+❖ Báo cáo phân tích và đặc tả giải pháp
+- Phân tích bài toán: Xác định rõ các Actor/Role, dữ liệu đầu vào (Input) và kết quả mong đợi (Output).
+- Bản đặc tả quy trình nghiệp vụ / User Stories kèm Acceptance Criteria (chuẩn INVEST / Gherkin BDD) hoặc sơ đồ Activity / Sequence Diagram (Mermaid).
+- Bảng kiểm soát rủi ro và xử lý các kịch bản ngoại lệ / bẫy dữ liệu (Edge cases) đã nêu ở mục 4.
+- TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+
+### 6. Quy chuẩn nộp bài
+- Nộp file tài liệu Markdown / sơ đồ Mermaid (.md) đẩy lên GitHub repository.
+{% elif pdf_level == "phan_tich" %}
+### 1. Mục tiêu bài tập
+- Nhìn nhận một bài toán phân tích thiết kế / quy trình dưới nhiều góc độ tiếp cận, đánh giá sự đánh đổi (Trade-off) để đưa ra quyết định tối ưu.
+
+### 2. Bối cảnh & Yêu cầu bài toán
+[Một yêu cầu nghiệp vụ thực tế nằm trong domain {{ chosen_domain }}]
+
+### 3. Quy tắc nghiệp vụ
+[Các điều kiện quy trình, phân quyền, phân rã chức năng cần tuân thủ]
+
+### 4. Ràng buộc & Kịch bản dị biệt
+[BẮT BUỘC: Cài cắm các kịch bản bất thường và rủi ro vận hành để sinh viên phải phân tích xử lý]
+
+### 5. Yêu cầu đầu ra
+❖ Phân tích & Đề xuất (Đa giải pháp)
+- Phân tích yêu cầu bài toán.
+- Đưa ra TỐI THIỂU 2 phương án/mô hình tiếp cận khác nhau (VD: Phân tích kiến trúc vi dịch vụ vs đơn khối, quy trình Scrum vs Kanban, thiết kế CSDL chuẩn hóa vs phi chuẩn hóa, luồng xử lý đồng bộ vs bất đồng bộ...).
+
+❖ So sánh & Lựa chọn (Trade-off Matrix)
+- Lập bảng so sánh chi tiết: Ưu điểm - Nhược điểm, Chi phí triển khai, Rủi ro kỹ thuật, Khả năng mở rộng.
+- Lựa chọn 1 phương án tối ưu nhất kèm luận cứ xác đáng.
+
+❖ Thiết kế & Đặc tả giải pháp chọn
+- Vẽ sơ đồ quy trình/kiến trúc chi tiết (Mermaid/UML) và hoàn thiện bản đặc tả nghiệp vụ xử lý mọi kịch bản ngoại lệ. TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+
+### 6. Quy chuẩn nộp bài
+- Nộp file tài liệu phân tích và thiết kế Markdown (.md) đẩy lên GitHub repository.
+{% else %}
+### 1. Mục tiêu bài tập
+- Làm chủ toàn diện vòng đời phân tích, mô hình hóa và thiết kế giải pháp cho một phân hệ/module sản phẩm lớn từ yêu cầu sơ khai.
+
+### 2. Vấn đề
+[Một nhu cầu LỚN của khách hàng trong domain {{ chosen_domain }}, CHƯA được định hình chi tiết — đề mở, tích hợp kiến thức toàn bộ session thành giải pháp hoàn chỉnh]
+
+### 3. Ràng buộc kỹ thuật & Nghiệp vụ
+[Các giới hạn về kiến trúc hệ thống, chuẩn mực mô hình hóa (UML 2.5 / Agile Framework), quy định về tính nhất quán dữ liệu và bảo mật]
+
+### 4. Yêu cầu đầu ra
+❖ Thiết kế Kiến trúc & Mô hình hóa Hệ thống
+- Phân rã hệ thống/module, định nghĩa luồng dữ liệu (Data flow), sơ đồ Use Case / DFD / Class / Activity Diagram chi tiết bằng Mermaid.
+
+❖ Bộ hồ sơ Đặc tả & Tiêu chí Nghiệm thu
+- Hoàn thiện bộ User Stories với đầy đủ Tiêu chí nghiệm thu (Acceptance Criteria / DoD) hoặc tài liệu đặc tả SRS chi tiết, xử lý toàn diện các kịch bản lỗi. TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+
+### 5. Quy chuẩn nộp bài
+- Nộp bộ tài liệu thiết kế hệ thống Markdown (.md) đẩy lên GitHub repository.
+{% endif %}
+{% else %}
 {% if pdf_level == "co_ban" %}
 ### 1. Mục tiêu bài tập
 - [Kỹ năng đọc hiểu mã nguồn (legacy code), khả năng dò luồng (trace code) và phát hiện lỗ hổng logic nghiệp vụ hoặc bẫy dữ liệu]
@@ -125,9 +223,44 @@ Sinh viên phải nộp đúng 2 phần:
 ### 5. Quy chuẩn nộp bài
 - Cấu trúc thư mục và quy định đặt tên file code, đẩy lên GitHub repository.
 {% endif %}
+{% endif %}
   </de_bai_content>
 
   <tieu_chi_content>
+{% if is_non_code_subject %}
+{% if pdf_level == "co_ban" %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Phát hiện đúng lỗi/vi phạm trong tài liệu/sơ đồ | 30đ | Chỉ ra chính xác vị trí sai logic/quy chuẩn và giải thích nguyên nhân |
+| Bản đặc tả/sơ đồ sửa đúng chuẩn | 50đ | Sửa đúng 100% quy chuẩn (INVEST, UML, DoD), không phát sinh lỗi mới |
+| Trình bày & Tính chuyên nghiệp | 20đ | Định dạng rõ ràng, đúng thuật ngữ chuyên ngành, không dùng emoji |
+{% elif pdf_level == "phan_tich" %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Đề xuất đa phương án | 20đ | Tối thiểu 2 phương án khả thi, phân tích rõ ràng |
+| Ma trận so sánh & Luận cứ lựa chọn | 25đ | So sánh đa chiều thuyết phục (ưu/nhược/chi phí), bảo vệ giải pháp chọn |
+| Bản đặc tả quy trình/sơ đồ chi tiết | 35đ | Sơ đồ chuẩn Mermaid/UML, xử lý đầy đủ luồng nghiệp vụ |
+| Xử lý rủi ro & Kịch bản ngoại lệ | 20đ | Kiểm soát toàn diện các tình huống biên và lỗi |
+{% elif pdf_level == "sang_tao" %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Thiết kế Kiến trúc & Mô hình hóa | 30đ | Phân rã module hợp lý, sơ đồ luồng dữ liệu/UML chuẩn hóa |
+| Tính hoàn thiện của tài liệu đặc tả | 35đ | Đầy đủ kịch bản, quy tắc nghiệp vụ, tính khả thi cao |
+| Tiêu chí chất lượng & Nghiệm thu | 20đ | Tiêu chí DoD/AC rõ ràng, kiểm thử chấp nhận chặt chẽ |
+| Trình bày & Tính khả thi thực tế | 15đ | Bố cục logic, chuyên nghiệp, áp dụng thực tế tốt |
+{% else %}
+### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Phân tích bài toán & Yêu cầu | 25đ | Xác định đúng Actor, luồng Input/Output rõ ràng |
+| Bản đặc tả nghiệp vụ & Sơ đồ luồng | 40đ | Viết User Story chuẩn INVEST/Gherkin hoặc vẽ sơ đồ chuẩn |
+| Kiểm soát rủi ro & Kịch bản ngoại lệ | 20đ | Bắt trọn vẹn các kịch bản dị biệt và xử lý an toàn |
+| Trình bày & Tính chuyên nghiệp | 15đ | Bố cục mạch lạc, thuật ngữ chuyên ngành chuẩn xác |
+{% endif %}
+{% else %}
 {% if pdf_level == "co_ban" %}
 ### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
@@ -160,6 +293,7 @@ Sinh viên phải nộp đúng 2 phần:
 | Xử lý Logic đúng nghiệp vụ | 40đ | Đạt 100% test cases cơ bản & nâng cao |
 | Xử lý Biên & Bẫy dữ liệu | 20đ | Kiểm soát mọi kịch bản dữ liệu dị biệt đã nêu |
 | Cấu trúc & Phong cách mã nguồn | 15đ | Chuẩn đặt tên, thụt lề, comment rõ ràng |
+{% endif %}
 {% endif %}
   </tieu_chi_content>
 </homework_assignment>

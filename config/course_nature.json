@@ -1,0 +1,25 @@
+{
+  "_note": "Từ khóa nhận diện môn KHÔNG viết mã. 'strong' khớp trong tech_stack, tên môn, tên buổi và tên bài; 'weak' dễ trùng từ thường (word, prototype, process...) nên chỉ khớp trong tech_stack và tên môn. Khớp theo từ nguyên vẹn. Sửa tệp này khi thêm môn mới, không sửa mã.",
+  "strong": [
+    "agile", "scrum", "scrum guide", "kanban", "trello", "jira", "confluence", "miro", "mural",
+    "product backlog", "sprint backlog", "user story", "acceptance criteria", "gherkin",
+    "definition of done", "planning poker", "burndown chart", "daily scrum", "sprint planning",
+    "sprint review", "sprint retrospective",
+    "phân tích và thiết kế", "phân tích & thiết kế", "phân tích thiết kế", "system analysis",
+    "systems analysis", "software architecture", "sdlc", "uml", "use case", "activity diagram",
+    "class diagram", "sequence diagram", "entity relationship", "crow's foot", "crow foot",
+    "crows foot", "bpmn", "business process", "ieee 830", "plantuml", "kiến trúc phần mềm",
+    "quản lý dự án", "project management", "tin học văn phòng"
+  ],
+  "weak": [
+    "invest", "dod", "erd", "srs", "wireframe", "mockup", "prototype", "figma", "draw.io", "drawio",
+    "3-tier", "quy trình", "vcs/git", "git overview", "office", "word", "excel", "powerpoint"
+  ],
+  "design": [
+    "ui/ux", "ui-ux", "uiux", "figma", "figjam", "photoshop", "illustrator", "design system",
+    "prototyping", "wireframe", "nguyên lý thị giác", "lý thuyết màu sắc", "typography",
+    "auto layout", "heuristic", "nielsen", "design tokens", "visual design", "user interface",
+    "user experience"
+  ],
+  "design_course_codes": ["it-103", "it103"]
+}

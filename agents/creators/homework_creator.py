@@ -28,6 +28,7 @@ from core.domain_knowledge import (
 )
 from core.schemas.course_schemas import EnhancedHomeworkExerciseSchema
 from core.utils.schema_validator import validate_schema
+from core.course_nature import is_non_code_subject
 
 # Bộ 15 tầng độ khó chuẩn cho 1 session, ánh xạ sang RE_Tiêu chuẩn bài tập.pdf §III.
 # Tách thành hằng số cấp module (thay vì khai báo inline trong hàm) để
@@ -139,13 +140,109 @@ def sanitize_homework_markdown(content: str, level_name: str = "") -> str:
     """Sanitizes markdown content according to Rikkei Education formatting standards."""
     if not content:
         return ""
-    # Strip emojis using unicode ranges
-    content = re.sub(r'[\U00010000-\U0010ffff\u2600-\u26ff\u2700-\u27bf]', '', content)
-    content = re.sub(r'\n(#{1,4}\s+)', r'\n\n\1', content)
-    return content.strip()
+    try:
+        from core.markdown_sanitizer import sanitize_full_markdown
+        return sanitize_full_markdown(content)
+    except Exception:
+        content = re.sub(r'[\U00010000-\U0010ffff\u2600-\u26ff\u2700-\u27bf]', '', content)
+        content = re.sub(r'\n(#{1,4}\s+)', r'\n\n\1', content)
+        return content.strip()
 
-def _fallback_de_bai(pdf_level: str, tech_stack: str, chosen_domain: str, idx: int) -> str:
+def _fallback_de_bai(pdf_level: str, tech_stack: str, chosen_domain: str, idx: int, is_non_code: bool = False) -> str:
     """Level-specific fallback đề bài, used only if the LLM response fails to parse."""
+    if is_non_code:
+        if pdf_level == "co_ban":
+            return f"""### 1. Mục tiêu bài tập
+- Rèn kỹ năng đọc hiểu tài liệu đặc tả, phát hiện lỗi logic nghiệp vụ hoặc vi phạm quy chuẩn quy trình/UML.
+
+### 2. Bối cảnh nghiệp vụ
+Trong hệ thống {chosen_domain}, quy tắc đúng của quy trình/tính năng #{idx} cần được tuân thủ nghiêm ngặt.
+
+### 3. Vấn đề hiện tại
+Khách hàng hoặc nhóm phát triển đang phản ánh tài liệu đặc tả/sơ đồ quy trình bị sai lệch logic và mâu thuẫn yêu cầu.
+
+### 4. Hiện trường giả (Đặc tả nghiệp vụ / User Story / Sơ đồ bị lỗi)
+Tài liệu đặc tả hiện có mô tả luồng nghiệp vụ với các tiêu chí Acceptance Criteria bị thiếu điều kiện biên, mâu thuẫn trạng thái hoặc sơ đồ luồng vẽ sai hướng điều kiện.
+
+### 5. Yêu cầu đầu ra
+1. Chỉ ra điểm sai/vi phạm cụ thể trong tài liệu đặc tả/sơ đồ hiện trường giả kèm phân tích nguyên nhân.
+2. Bản đặc tả tài liệu / sơ đồ luồng (Mermaid) đã được chuẩn hóa và sửa đúng 100%.
+
+### 6. Quy chuẩn nộp bài
+- Đẩy toàn bộ tài liệu Markdown (.md) lên GitHub repository theo cấu trúc chuẩn.
+"""
+        if pdf_level == "chuyen_sau":
+            return f"""### 1. Mục tiêu bài tập
+- Dịch thuật chính xác từ ngôn ngữ nghiệp vụ sang tài liệu đặc tả kỹ thuật chuẩn hóa, tự thiết kế luồng xử lý và kiểm soát rủi ro.
+
+### 2. Bối cảnh & Vấn đề
+Trong hệ thống {chosen_domain}, khách hàng cần xây dựng tài liệu phân tích và đặc tả cho module/tính năng mới #{idx}.
+
+### 3. Yêu cầu nghiệp vụ
+- Các quy tắc hệ thống cần tuân thủ (vai trò Actor, điều kiện phân quyền, luồng phê duyệt...).
+
+### 4. Ràng buộc & Bẫy dữ liệu
+- 1-2 kịch bản dữ liệu dị biệt (dữ liệu xung đột, giao dịch treo, phiên đăng nhập hết hạn...).
+
+### 5. Yêu cầu đầu ra
+❖ Báo cáo phân tích và đặc tả giải pháp
+- Phân tích bài toán (Xác định Actor, Input, Output).
+- Bản đặc tả quy trình nghiệp vụ / User Stories kèm Acceptance Criteria (chuẩn INVEST / Gherkin) hoặc sơ đồ Activity/Sequence Diagram (Mermaid).
+- Bảng kiểm soát rủi ro và xử lý các kịch bản ngoại lệ đã nêu ở mục 4.
+- TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+
+### 6. Quy chuẩn nộp bài
+- Đẩy toàn bộ tài liệu Markdown (.md) lên GitHub repository theo cấu trúc chuẩn.
+"""
+        if pdf_level == "phan_tich":
+            return f"""### 1. Mục tiêu bài tập
+- Nhìn nhận bài toán phân tích thiết kế dưới nhiều góc độ tiếp cận, đánh giá trade-off để ra quyết định tối ưu.
+
+### 2. Bối cảnh & Yêu cầu bài toán
+Trong hệ thống {chosen_domain}, cần phân tích và đề xuất giải pháp kiến trúc/quy trình cho tính năng #{idx}.
+
+### 3. Quy tắc nghiệp vụ
+- Các điều kiện quy trình, phân quyền, phân rã chức năng cần tuân thủ.
+
+### 4. Ràng buộc & Kịch bản dị biệt
+- Các kịch bản bất thường và rủi ro vận hành cần lường trước.
+
+### 5. Yêu cầu đầu ra
+❖ Phân tích & Đề xuất (Đa giải pháp)
+- Phân tích yêu cầu bài toán.
+- Tối thiểu 2 phương án/mô hình tiếp cận khác nhau.
+
+❖ So sánh & Lựa chọn (Trade-off Matrix)
+- Bảng so sánh ưu/nhược điểm, chi phí, rủi ro, khả năng mở rộng.
+- Chốt 1 phương án tối ưu nhất kèm luận cứ xác đáng.
+
+❖ Thiết kế & Đặc tả giải pháp chọn
+- Sơ đồ quy trình/kiến trúc chi tiết (Mermaid/UML) và bản đặc tả nghiệp vụ xử lý kịch bản ngoại lệ. TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+
+### 6. Quy chuẩn nộp bài
+- Đẩy toàn bộ tài liệu Markdown (.md) lên GitHub repository theo cấu trúc chuẩn.
+"""
+        # sang_tao
+        return f"""### 1. Mục tiêu bài tập
+- Làm chủ toàn diện vòng đời phân tích, mô hình hóa và thiết kế giải pháp cho một phân hệ sản phẩm lớn.
+
+### 2. Vấn đề
+Một nhu cầu lớn của khách hàng trong hệ thống {chosen_domain} chưa được định hình chi tiết.
+
+### 3. Ràng buộc kỹ thuật & Nghiệp vụ
+- Giới hạn kiến trúc, chuẩn mực mô hình hóa (UML 2.5 / Agile Framework), quy định nhất quán dữ liệu.
+
+### 4. Yêu cầu đầu ra
+❖ Thiết kế Kiến trúc & Mô hình hóa
+- Phân rã module, luồng dữ liệu, sơ đồ Use Case / DFD / Class / Activity Diagram chi tiết bằng Mermaid.
+
+❖ Bộ hồ sơ Đặc tả & Nghiệm thu
+- Hoàn thiện User Stories kèm Acceptance Criteria / DoD, xử lý toàn diện kịch bản lỗi. TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+
+### 5. Quy chuẩn nộp bài
+- Đẩy toàn bộ tài liệu Markdown (.md) lên GitHub repository theo cấu trúc chuẩn.
+"""
+
     if pdf_level == "co_ban":
         return f"""### 1. Mục tiêu bài tập
 - Rèn kỹ năng đọc hiểu mã nguồn, dò luồng (trace code) và phát hiện lỗ hổng logic nghiệp vụ.
@@ -245,8 +342,45 @@ Một nhu cầu lớn của khách hàng trong hệ thống {chosen_domain} chư
 """
 
 
-def _fallback_tieu_chi(pdf_level: str) -> str:
+def _fallback_tieu_chi(pdf_level: str, is_non_code: bool = False) -> str:
     """Level-specific fallback rubric, used only if the LLM response fails to parse."""
+    if is_non_code:
+        if pdf_level == "co_ban":
+            return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Phát hiện đúng lỗi/vi phạm trong tài liệu/sơ đồ | 30đ | Chỉ ra chính xác vị trí sai logic/quy chuẩn và giải thích nguyên nhân |
+| Bản đặc tả/sơ đồ sửa đúng chuẩn | 50đ | Sửa đúng 100% quy chuẩn (INVEST, UML, DoD), không phát sinh lỗi mới |
+| Trình bày & Tính chuyên nghiệp | 20đ | Định dạng rõ ràng, đúng thuật ngữ chuyên ngành, không dùng emoji |
+"""
+        if pdf_level == "phan_tich":
+            return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Đề xuất đa phương án | 20đ | Tối thiểu 2 phương án khả thi, phân tích rõ ràng |
+| Ma trận so sánh & Luận cứ lựa chọn | 25đ | So sánh đa chiều thuyết phục, bảo vệ giải pháp chọn |
+| Bản đặc tả quy trình/sơ đồ chi tiết | 35đ | Sơ đồ chuẩn Mermaid/UML, xử lý đầy đủ luồng nghiệp vụ |
+| Xử lý rủi ro & Kịch bản ngoại lệ | 20đ | Kiểm soát toàn diện các tình huống biên và lỗi |
+"""
+        if pdf_level == "sang_tao":
+            return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Thiết kế Kiến trúc & Mô hình hóa | 30đ | Phân rã module hợp lý, sơ đồ luồng dữ liệu/UML chuẩn hóa |
+| Tính hoàn thiện của tài liệu đặc tả | 35đ | Đầy đủ kịch bản, quy tắc nghiệp vụ, tính khả thi cao |
+| Tiêu chí chất lượng & Nghiệm thu | 20đ | Tiêu chí DoD/AC rõ ràng, kiểm thử chấp nhận chặt chẽ |
+| Trình bày & Tính khả thi thực tế | 15đ | Bố cục logic, chuyên nghiệp, áp dụng thực tế tốt |
+"""
+        # chuyen_sau
+        return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Phân tích bài toán & Yêu cầu | 25đ | Xác định đúng Actor, luồng Input/Output rõ ràng |
+| Bản đặc tả nghiệp vụ & Sơ đồ luồng | 40đ | Viết User Story chuẩn INVEST/Gherkin hoặc vẽ sơ đồ chuẩn |
+| Kiểm soát rủi ro & Kịch bản ngoại lệ | 20đ | Bắt trọn vẹn các kịch bản dị biệt và xử lý an toàn |
+| Trình bày & Tính chuyên nghiệp | 15đ | Bố cục mạch lạc, thuật ngữ chuyên ngành chuẩn xác |
+"""
+
     if pdf_level == "co_ban":
         return """### Tiêu chuẩn Đánh giá & Thang điểm (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
@@ -285,6 +419,7 @@ def _fallback_tieu_chi(pdf_level: str) -> str:
 """
 
 
+
 def generate_homework_exercise(
     session_id: str,
     session_title: str,
@@ -311,6 +446,7 @@ def generate_homework_exercise(
     domain_rules_text = format_domain_rules_for_prompt(domain_info)
 
     # 1. Render prompt from Jinja2 template
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, session_title=session_title)
     user_prompt = render_prompt(
         "homework_creator.j2",
         {
@@ -324,7 +460,8 @@ def generate_homework_exercise(
             "tech_stack": tech_stack,
             "previous_lessons_text": previous_lessons_text,
             "forbidden_scope": forbidden_scope,
-            "domain_rules_text": domain_rules_text
+            "domain_rules_text": domain_rules_text,
+            "is_non_code_subject": is_non_code
         }
     )
 
@@ -366,10 +503,10 @@ def generate_homework_exercise(
     # Fallback if empty — mirrors the pdf_level-specific structure required by
     # RE_Tiêu chuẩn bài tập.pdf §III (see homework_creator.j2 for the primary LLM path).
     if not de_bai:
-        de_bai = _fallback_de_bai(pdf_level, tech_stack, chosen_domain, idx)
+        de_bai = _fallback_de_bai(pdf_level, tech_stack, chosen_domain, idx, is_non_code=is_non_code)
 
     if not tieu_chi:
-        tieu_chi = _fallback_tieu_chi(pdf_level)
+        tieu_chi = _fallback_tieu_chi(pdf_level, is_non_code=is_non_code)
 
     # 3. Validate with Pydantic v2 schema
     raw_payload = {
@@ -413,13 +550,61 @@ def generate_inclass_synthesis_exercise(
     Generates a standardized 30-minute in-class synthesis exercise
     following session_inclass_exercise_generator skill.
     """
-    system_prompt = (
-        "You are an Expert Technical Curriculum Author at Rikkei Education. "
-        "Generate a standardized 30-minute In-Class Synthesis Exercise (Bài tập tổng hợp trên lớp) in 100% Accented Vietnamese. "
-        "Strictly adhere to the 4-section layout: (1) Mục tiêu bài tập, (2) Mô tả bối cảnh & Yêu cầu bài toán (Input / Output kèm Bảng ví dụ minh họa), (3) Các bước thực hiện & Quy định kỹ thuật, (4) Checklist đánh giá kết quả (Nghiệm thu). "
-        "Enforce Closed How - Open What & Why (specify Input/Output, NO code skeleton/spoilers). Zero text emojis."
-    )
-    user_prompt = f"""Tạo bài tập tổng hợp trên lớp (thời lượng 30 phút) cho buổi học:
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, session_title=session_title)
+
+    if is_non_code:
+        system_prompt = (
+            "You are an Expert Technical Curriculum Author at Rikkei Education. "
+            "Generate a standardized 30-minute In-Class Synthesis Exercise (Bài tập tổng hợp trên lớp) in 100% Accented Vietnamese. "
+            "The subject belongs to System Analysis & Design / Agile Scrum. TUYỆT ĐỐI KHÔNG DÙNG CODE LẬP TRÌNH. "
+            "Focus 100% on Business Requirements Specification, User Stories with INVEST & Gherkin AC, Process Diagrams (Mermaid/UML), and Evaluation Checklist. "
+            "Strictly adhere to the 4-section layout: (1) Mục tiêu bài tập, (2) Mô tả bối cảnh & Yêu cầu bài toán (Actor, Input, Output), (3) Các bước thực hiện & Quy chuẩn đặc tả/sơ đồ, (4) Checklist đánh giá kết quả (Nghiệm thu). Zero text emojis."
+        )
+        user_prompt = f"""Tạo bài tập tổng hợp trên lớp (thời lượng 30 phút) cho buổi học:
+- Khóa học/Buổi: {session_id} - {session_title}
+- Công nghệ/Chuyên đề: {tech_stack} (Môn lý thuyết/quy trình/phân tích - KHÔNG CODE)
+- Các nội dung trọng tâm đã học: {previous_lessons_text or 'Kiến thức cốt lõi của Session'}
+- Lĩnh vực nghiệp vụ doanh nghiệp: {chosen_domain}
+- Phạm vi kiến thức bị cấm: {forbidden_scope or 'Không sử dụng kiến thức chưa học'}
+
+Yêu cầu xuất ra định dạng Markdown chuẩn 4 phần như sau:
+# Bài tập tổng hợp trên lớp: [Tên bài toán nghiệp vụ {chosen_domain}]
+
+## 1. Mục tiêu bài tập
+- [2-3 gạch đầu dòng mục tiêu kỹ năng tổng hợp phân tích, đặc tả, vẽ sơ đồ]
+
+## 2. Mô tả bối cảnh & Yêu cầu bài toán
+- **Bối cảnh doanh nghiệp**: [Mô tả bối cảnh thực tế 2-3 câu]
+- **Các tác nhân & Dữ liệu đầu vào (Input)**: [Xác định Actor và thông tin đầu vào]
+- **Kết quả đầu ra mong đợi (Output)**: [Tài liệu đặc tả, sơ đồ Mermaid/UML, User Story]
+
+### Bảng ví dụ kịch bản nghiệp vụ:
+| Kịch bản (Scenario) | Điều kiện kích hoạt | Luồng xử lý kỳ vọng | Kết quả nghiệp vụ |
+| :--- | :--- | :--- | :--- |
+| **Kịch bản 1 (Luồng chính)** | Điều kiện hợp lệ | Các bước thực hiện chuẩn | Thành công |
+| **Kịch bản 2 (Ngoại lệ/Rủi ro)** | Điều kiện sai/thiếu | Xử lý chặn lỗi an toàn | Cảnh báo rõ ràng |
+
+## 3. Các bước thực hiện & Quy định kỹ thuật
+- **Công cụ & Chuẩn mực**: Sử dụng Markdown, cú pháp sơ đồ Mermaid, chuẩn INVEST/Gherkin hoặc UML 2.5.
+- **Yêu cầu kỹ thuật**:
+  - TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH.
+  - Tự chủ động mô hình hóa quy trình và thiết lập tài liệu đặc tả chặt chẽ.
+  - Kiểm soát các tình huống biên và bẫy dữ liệu an toàn.
+
+## 4. Checklist đánh giá kết quả (Nghiệm thu)
+- [ ] Xây dựng hoàn chỉnh tài liệu đặc tả/sơ đồ đáp ứng đúng bối cảnh nghiệp vụ doanh nghiệp.
+- [ ] Định nghĩa đầy đủ các tác nhân, kịch bản chính và kịch bản ngoại lệ.
+- [ ] Sơ đồ quy trình/UML vẽ đúng chuẩn cú pháp Mermaid, trực quan và dễ hiểu.
+- [ ] Tiêu chí nghiệm thu (AC/DoD) rõ ràng, có tính khả thi kiểm thử cao.
+"""
+    else:
+        system_prompt = (
+            "You are an Expert Technical Curriculum Author at Rikkei Education. "
+            "Generate a standardized 30-minute In-Class Synthesis Exercise (Bài tập tổng hợp trên lớp) in 100% Accented Vietnamese. "
+            "Strictly adhere to the 4-section layout: (1) Mục tiêu bài tập, (2) Mô tả bối cảnh & Yêu cầu bài toán (Input / Output kèm Bảng ví dụ minh họa), (3) Các bước thực hiện & Quy định kỹ thuật, (4) Checklist đánh giá kết quả (Nghiệm thu). "
+            "Enforce Closed How - Open What & Why (specify Input/Output, NO code skeleton/spoilers). Zero text emojis."
+        )
+        user_prompt = f"""Tạo bài tập tổng hợp trên lớp (thời lượng 30 phút) cho buổi học:
 - Khóa học/Buổi: {session_id} - {session_title}
 - Công nghệ: {tech_stack}
 - Các nội dung trọng tâm đã học: {previous_lessons_text or 'Kiến thức cốt lõi của Session'}
@@ -456,6 +641,7 @@ Yêu cầu xuất ra định dạng Markdown chuẩn 4 phần như sau:
 - [ ] Bắt lỗi ngoại lệ và xử lý dữ liệu biên an toàn không gây crash chương trình.
 - [ ] Mã nguồn đạt chuẩn Clean Code, đặt tên biến/hàm đúng quy chuẩn và có chú thích rõ ràng.
 """
+
     response = call_llm(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
@@ -512,12 +698,56 @@ def generate_mindmap_exercise(
     """
     Generates a mindmap architecture assignment following mindmap_generator skill.
     """
-    system_prompt = (
-        "You are an Expert Technical Curriculum Author at Rikkei Education. "
-        "Generate a standardized Mindmap Architecture Exercise (Bài tập sơ đồ tư duy mindmap) in 100% Accented Vietnamese. "
-        "The exercise guides students to construct a complete hierarchical Markmap / Mermaid mindmap synthesizing all core architectural concepts of the session."
-    )
-    user_prompt = f"""Tạo bài tập sơ đồ tư duy mindmap kiến trúc cho:
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, session_title=session_title)
+
+    if is_non_code:
+        system_prompt = (
+            "You are an Expert Technical Curriculum Author at Rikkei Education. "
+            "Generate a standardized Mindmap Architecture Exercise (Bài tập sơ đồ tư duy mindmap) in 100% Accented Vietnamese. "
+            "The subject belongs to System Analysis & Design / Agile Scrum. TUYỆT ĐỐI KHÔNG DÙNG CODE LẬP TRÌNH. "
+            "The exercise guides students to construct a complete hierarchical Markmap / Mermaid mindmap synthesizing all core architectural concepts of the session."
+        )
+        user_prompt = f"""Tạo bài tập sơ đồ tư duy mindmap kiến trúc cho:
+- Khóa học/Buổi: {session_id} - {session_title}
+- Công nghệ/Chuyên đề: {tech_stack} (Môn lý thuyết/quy trình/phân tích - KHÔNG CODE)
+- Các nội dung trọng tâm của buổi học: {previous_lessons_text or 'Kiến thức cốt lõi của Session'}
+- Phạm vi bị cấm: {forbidden_scope or 'Không sử dụng kiến thức chưa học'}
+
+Yêu cầu xuất ra định dạng Markdown bài tập với cấu trúc sau:
+# Bài tập sơ đồ tư duy mindmap: {session_title}
+
+## 1. Mục tiêu bài tập
+- Hệ thống hóa toàn diện tư duy kiến trúc, quy trình và cấu trúc luồng dữ liệu của {session_title}.
+- Xây dựng sơ đồ tư duy Markmap / Mermaid trực quan, súc tích, liên kết các nhánh tri thức cốt lõi.
+
+## 2. Bối cảnh & Yêu cầu thiết kế Mindmap
+- Học viên đóng vai trò Software Architect / Product Owner phân tích và trực quan hóa cấu trúc kiến thức của Session.
+- Yêu cầu xây dựng sơ đồ dạng cây (Mindmap) thể hiện đầy đủ 5 nhánh kiến thức bắt buộc.
+
+## 3. Cấu trúc các nhánh kiến thức bắt buộc
+1. **Khái niệm & Vai trò**: Bản chất kỹ thuật, bài toán doanh nghiệp giải quyết (tối đa 10 từ/node).
+2. **Quy chuẩn & Nguyên tắc cốt lõi**: Các quy chuẩn chuẩn hóa (INVEST, UML 2.5, Scrum Framework, DoD), giải nghĩa từng thành phần.
+3. **Ví dụ sơ đồ / Kịch bản thực tế**: Sơ đồ Mermaid hoặc kịch bản User Story/Gherkin minh họa cơ chế (TUYỆT ĐỐI KHÔNG VIẾT CODE LẬP TRÌNH).
+4. **Lưu ý triển khai / Sai sót thường gặp**: Các lỗi phổ biến trong thực tế dự án và cách phòng tránh.
+5. **Liên kết hệ thống**: Mối quan hệ luồng nghiệp vụ và tương tác giữa các vai trò/thành phần.
+
+## 4. Quy chuẩn định dạng & Nộp bài
+- Định dạng nộp bài: File Markdown chứa cú pháp ```markmap hoặc ```mermaid mindmap.
+- Quy định súc tích: Mỗi node lá không quá 15 từ, không viết văn bản dài dòng.
+
+## 5. Checklist đánh giá sơ đồ tư duy
+- [ ] Thể hiện đầy đủ 5 nhánh cấu trúc tri thức bắt buộc.
+- [ ] Quy chuẩn và thuật ngữ chuyên ngành hoàn toàn chính xác theo {tech_stack}.
+- [ ] Các lưu ý sai sót thực tế, chuẩn kỹ thuật.
+- [ ] Tuân thủ giới hạn độ dài node (< 15 từ/node), bố cục rõ ràng, dễ nhìn.
+"""
+    else:
+        system_prompt = (
+            "You are an Expert Technical Curriculum Author at Rikkei Education. "
+            "Generate a standardized Mindmap Architecture Exercise (Bài tập sơ đồ tư duy mindmap) in 100% Accented Vietnamese. "
+            "The exercise guides students to construct a complete hierarchical Markmap / Mermaid mindmap synthesizing all core architectural concepts of the session."
+        )
+        user_prompt = f"""Tạo bài tập sơ đồ tư duy mindmap kiến trúc cho:
 - Khóa học/Buổi: {session_id} - {session_title}
 - Công nghệ: {tech_stack}
 - Các nội dung trọng tâm của buổi học: {previous_lessons_text or 'Kiến thức cốt lõi của Session'}
@@ -579,8 +809,8 @@ Yêu cầu xuất ra định dạng Markdown bài tập với cấu trúc sau:
 
 ## 3. Cấu trúc các nhánh kiến thức bắt buộc
 1. **Khái niệm & Vai trò**: Bản chất kỹ thuật, bài toán doanh nghiệp giải quyết.
-2. **Cú pháp & Giải nghĩa**: Cú pháp chuẩn của {tech_stack}, giải nghĩa tham số.
-3. **Ví dụ thực hành**: Đoạn mã nguồn thực tế ngắn gọn (5-8 dòng).
+2. **Quy chuẩn & Cấu trúc đặc tả**: Nguyên tắc, quy chuẩn và giải nghĩa thành phần.
+3. **Ví dụ sơ đồ / Kịch bản thực tế**: Sơ đồ minh họa hoặc kịch bản User Story/Gherkin.
 4. **Lưu ý triển khai / Lỗi thường gặp**: Sai sót phổ biến và cách phòng ngừa.
 5. **Liên kết hệ thống**: Mối quan hệ luồng dữ liệu trong hệ thống.
 
@@ -590,7 +820,7 @@ Yêu cầu xuất ra định dạng Markdown bài tập với cấu trúc sau:
 
 ## 5. Checklist đánh giá sơ đồ tư duy
 - [ ] Thể hiện đầy đủ 5 nhánh cấu trúc tri thức bắt buộc.
-- [ ] Cú pháp mã nguồn trong ví dụ chính xác theo {tech_stack}.
+- [ ] Quy chuẩn mô hình hóa chính xác theo {tech_stack}.
 - [ ] Các lưu ý lỗi thường gặp thực tế, chuẩn kỹ thuật.
 - [ ] Tuân thủ giới hạn độ dài node (< 15 từ/node), bố cục rõ ràng.
 """
@@ -732,6 +962,7 @@ def generate_session_homework_suite(
 
         # 3. Export folder 16: In-Class Synthesis Exercise
         rubric_16 = rubric_17 = ""
+        is_non_code = is_non_code_subject(tech_stack=tech_stack, session_title=session_title)
         if inclass_ex_content:
             folder_16_name = "16_tong_hop_demo_giang_vien_tren_lop"
             valid_folder_names.append(folder_16_name)
@@ -739,7 +970,16 @@ def generate_session_homework_suite(
             folder_16.mkdir(parents=True, exist_ok=True)
             with open(folder_16 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
                 f.write(inclass_ex_content)
-            rubric_16 = f"""### Tiêu chuẩn Đánh giá Bài tập Tổng hợp Trên lớp (100đ)
+            if is_non_code:
+                rubric_16 = f"""### Tiêu chuẩn Đánh giá Bài tập Tổng hợp Trên lớp (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Phân tích & Đặc tả Nghiệp vụ | 40đ | Đầy đủ kịch bản, Actor, Input/Output theo yêu cầu |
+| Sơ đồ Quy trình & Chuẩn hóa | 30đ | Sơ đồ Mermaid/UML vẽ đúng chuẩn cú pháp, trực quan |
+| Xử lý Kịch bản Ngoại lệ & Rủi ro | 30đ | Kiểm soát tốt các trường hợp lỗi và dữ liệu biên |
+"""
+            else:
+                rubric_16 = f"""### Tiêu chuẩn Đánh giá Bài tập Tổng hợp Trên lớp (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
 | Triển khai Logic Nghiệp vụ | 40đ | Đáp ứng đúng 100% yêu cầu Input/Output theo bảng ví dụ |
@@ -757,7 +997,16 @@ def generate_session_homework_suite(
             folder_17.mkdir(parents=True, exist_ok=True)
             with open(folder_17 / "de_bai_bai_tap.md", "w", encoding="utf-8") as f:
                 f.write(mindmap_ex_content)
-            rubric_17 = f"""### Tiêu chuẩn Đánh giá Bài tập Sơ đồ Tư duy Mindmap (100đ)
+            if is_non_code:
+                rubric_17 = f"""### Tiêu chuẩn Đánh giá Bài tập Sơ đồ Tư duy Mindmap (100đ)
+| Tiêu chí | Điểm tối đa | Mô tả chi tiết |
+| :--- | :--- | :--- |
+| Độ Bao phủ 5 Nhánh Kiến thức | 40đ | Đầy đủ: Khái niệm, Quy chuẩn, Ví dụ sơ đồ, Lỗi thường gặp, Liên kết |
+| Tính Chính xác & Chuẩn hóa | 30đ | Quy chuẩn đúng theo {tech_stack}, lưu ý lỗi chuẩn xác |
+| Trực quan & Súc tích | 30đ | Cấu trúc cây rõ ràng, súc tích (<15 từ/node), dễ nhìn |
+"""
+            else:
+                rubric_17 = f"""### Tiêu chuẩn Đánh giá Bài tập Sơ đồ Tư duy Mindmap (100đ)
 | Tiêu chí | Điểm tối đa | Mô tả chi tiết |
 | :--- | :--- | :--- |
 | Độ Bao phủ 5 Nhánh Kiến thức | 40đ | Đầy đủ: Khái niệm, Cú pháp, Ví dụ, Lỗi thường gặp, Liên kết |
@@ -766,6 +1015,7 @@ def generate_session_homework_suite(
 """
             with open(folder_17 / "tieu_chi_cham_diem_ai.md", "w", encoding="utf-8") as f:
                 f.write(rubric_17)
+
 
         # 5. Save aggregated tieu_chi_danh_gia.md for all exercises (ONLY root file)
         with open(target_homework_dir / "tieu_chi_danh_gia.md", "w", encoding="utf-8") as f:

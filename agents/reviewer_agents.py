@@ -206,7 +206,7 @@ def check_knowledge_scope_violations(text: str, session_id: str = "", state: Dic
                     return f"Cảnh báo vi phạm phạm vi kiến thức động: Bài học xuất hiện lệnh/thuật ngữ '{kw}' thuộc bài học tương lai '{fut.get('title')}' chưa được học."
     return ""
 
-def check_structural_completeness(html_text: str) -> str:
+def check_structural_completeness(html_text: str, tech_stack: str = "") -> str:
     """
     Programmatically verifies that promised content structures (Comparison Tables, Code Containers)
     are present in the HTML output to prevent truncated or incomplete lessons.
@@ -220,9 +220,24 @@ def check_structural_completeness(html_text: str) -> str:
     if ("bảng so sánh" in text_lower or "so sánh các đặc tính" in text_lower) and "<table" not in text_lower:
         return "Nội dung bài đọc xuất hiện câu dẫn 'Bảng so sánh' nhưng bị thiếu hoàn toàn cấu trúc HTML <table>. Bắt buộc phải bổ sung Bảng so sánh chi tiết."
         
-    # Check code container completeness if code introduction exists
-    if ("mã nguồn" in text_lower or "chi tiết mã nguồn" in text_lower) and ("<code" not in text_lower and "code-container" not in text_lower):
-        return "Nội dung bài đọc xuất hiện câu dẫn 'chi tiết mã nguồn' nhưng bị thiếu khối hiển thị mã nguồn (code container / live playground)."
+    # Check code container completeness if code introduction exists (only for programming/coding courses)
+    tech_lower = (tech_stack or "").lower()
+    is_non_code_course = any(k in tech_lower for k in [
+        "figma", "figjam", "ux", "ui/ux", "wireframe", "agile", "scrum", "product management", "heuristics", "design thinking"
+    ])
+    
+    if not is_non_code_course:
+        code_intro_patterns = [
+            "dưới đây là mã nguồn",
+            "chi tiết mã nguồn như sau",
+            "mã nguồn thực thi",
+            "đoạn mã nguồn sau",
+            "xem mã nguồn bên dưới",
+            "cú pháp và mã nguồn"
+        ]
+        has_code_promise = any(p in text_lower for p in code_intro_patterns)
+        if has_code_promise and ("<code" not in text_lower and "code-container" not in text_lower):
+            return "Nội dung bài đọc xuất hiện câu dẫn 'chi tiết mã nguồn' nhưng bị thiếu khối hiển thị mã nguồn (code container / live playground)."
         
     # Check that syntax blocks in non-interactive sections (like Section 2 and Section 4) do not contain interactive play buttons or editors
     import re
@@ -313,7 +328,7 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
         return {"status": "REJECTED", "feedback": master_fb}
 
     # 1.1 Structural completeness check (Table & Code Containers)
-    struct_feedback = check_structural_completeness(html_content)
+    struct_feedback = check_structural_completeness(html_content, tech_stack=tech_stack)
     if struct_feedback:
         print(f"  - Result: REJECTED (Structural Completeness check failed). Feedback: '{struct_feedback}'")
         return {"status": "REJECTED", "feedback": struct_feedback}
@@ -348,6 +363,29 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
     if forbidden_feedback:
         print(f"  - Result: REJECTED (Programmatic Stack Isolation check failed). Feedback: '{forbidden_feedback}'")
         return {"status": "REJECTED", "feedback": forbidden_feedback}
+
+    # 4. Programmatic Non-Code Subject Zero-Code Check
+    from core.course_nature import is_non_code_subject
+    course_name = state.get("course_name", "")
+    pm_lesson_details = state.get("core_ssot", {})
+    lesson_title = str(state.get("lesson_title", "") or pm_lesson_details.get("session_title", ""))
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, course_name=course_name, lesson_title=lesson_title)
+
+    if is_non_code:
+        has_python_code = bool(
+            re.search(r'\bdef\s+[a-zA-Z_]\w*\s*\(', html_content) or
+            re.search(r'class="language-python"', html_content) or
+            "pyodide-editor" in html_content or
+            re.search(r'\bimport\s+(?:math|sys|os|json|requests|numpy|pandas)\b', html_content)
+        )
+        if has_python_code:
+            code_reject_msg = (
+                "Nội dung bài học vi phạm quy chuẩn nghiêm ngặt: Môn học thuộc khối Phân tích thiết kế / Agile Scrum "
+                "là môn lý thuyết/quy trình, TUYỆT ĐỐI CẤM chứa mã nguồn code Python (def, return, pyodide-editor). "
+                "Yêu cầu 100% sử dụng sơ đồ Mermaid/UML, bảng quy tắc, hoặc kịch bản đặc tả nghiệp vụ thay vì code lập trình!"
+            )
+            print(f"  - Result: REJECTED (Non-Code Subject Violation). Feedback: '{code_reject_msg}'")
+            return {"status": "REJECTED", "feedback": code_reject_msg}
         
     import os
     gemini_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
@@ -365,12 +403,10 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
         agent_prompt = get_agent_prompt("Pedagogical_UX_Reviewer")
         system_prompt = f"{agent_prompt.get('Persona', '')}\n{agent_prompt.get('Task', '')}"
         
-        pm_lesson_details = state.get("core_ssot", {})
         prev_lessons = state.get("previous_lessons", [])
         
-        lesson_title = str(state.get("lesson_title", "") or pm_lesson_details.get("session_title", ""))
         t_lower = lesson_title.lower()
-        is_theory_only = has_any_term(t_lower, [
+        is_theory_only = is_non_code or has_any_term(t_lower, [
             "giới thiệu", "cài đặt", "môi trường", "ide", "tổng quan", "khái niệm cơ bản", "lý thuyết", "bản chất", "tìm hiểu", "khái quát",
             "lộ trình", "phương pháp", "hướng dẫn", "chuẩn bị", "tài liệu", "đánh giá", "roadmap", "method", "methodology", "study plan",
             "kế hoạch", "milestone", "milestones", "kỹ năng", "tự học"
@@ -381,6 +417,7 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
             f"        Attempt Number: {attempt_num}\n"
             f"        Target Technology Stack: {tech_stack}\n"
             f"        Is Theory/Diagram Only Lesson (No Code visualizer needed): {is_theory_only}\n"
+            f"        Is Non-Code Subject (Pure diagrams and process modeling): {is_non_code}\n"
             f"        \n"
             f"        PM Lesson Details: {json.dumps(pm_lesson_details, ensure_ascii=False)}\n"
             f"        Previous Lessons Info: {json.dumps(prev_lessons, ensure_ascii=False)}\n"
@@ -391,7 +428,8 @@ def html_ux_reviewer(state: AgentState) -> Dict[str, Any]:
             "\n"
             "        IMPORTANT CRITERIA TO INSPECT:\n"
             "        1. Dynamic Web Visualizer & Interactive Playground Standard:\n"
-            "           - IMPORTANT NOTE: If this is a theory/intro/overview lesson (Is Theory/Diagram Only Lesson = True), the reading material DOES NOT need and MUST NOT have Code Tracker or step-by-step control panels (Start, Pause, Step, Reset). The reviewer MUST NOT penalize missing interactive components. Beautiful, clear, pedagogical layout with static diagrams/flowcharts is sufficient.\n"
+            "           - IMPORTANT NOTE: If this is a theory/intro/overview lesson or non-code subject (Is Theory/Diagram Only Lesson = True), the reading material DOES NOT need and MUST NOT have Code Tracker or step-by-step control panels (Start, Pause, Step, Reset). The reviewer MUST NOT penalize missing interactive components. Beautiful, clear, pedagogical layout with static diagrams/flowcharts is sufficient.\n"
+            "           - If this is a non-code subject (Agile Scrum / SAD), verify that NO programming code (Python/JS) is present, and diagrams/specifications are used instead.\n"
             "           - If this is NOT a theory lesson (Is Theory/Diagram Only Lesson = False), reading material MUST be constructed as an Interactive Web Visualizer Application directly in the browser (complying with `skills/reading_generator/SKILL.md`), including Visualizer Canvas (`visualizer-canvas`), Interactive Control Panel (`▶ Start`, `⏸ Pause`, `⏭ Step`, `↻ Reset` buttons), Sliders & custom input fields, Code Tracker highlighting line-by-line execution (`active-line`), and real-time Terminal Console Log.\n"
             "           - SPECIAL REVIEWER NOTE: ABSOLUTELY DO NOT reject due to JS runtime logic errors or missing JS functions (pause(), step(), reset()). Full JS engine injection will be handled server-side at a later stage! Your task is strictly to verify if HTML tags exist. If HTML tags exist, PASS IT and ignore JS logic errors.\n"
             "        2. Lesson Focus & No Digression:\n"
@@ -604,14 +642,10 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
     import re
     from core.sandbox import execute_code_safely
     
-    # Extract code between code block tags (agnostic to language)
-    code_match = re.search(r'<code[^>]*class="[^"]*language-([a-zA-Z0-9]+)[^"]*"[^>]*>(.*?)</code>', html_content, re.DOTALL)
-    # Sandbox chỉ chạy được Python. Chạy mã JS/SQL/bash bằng trình thông dịch Python luôn
-    # thất bại và phản hồi sai đó bị nạp ngược vào việc sinh lại quiz.
-    if code_match and code_match.group(1).lower() not in ("python", "py", "python3"):
-        print(f"  [Sandbox] Bỏ qua chạy thử: ngôn ngữ '{code_match.group(1)}' không phải Python.")
-        code_match = None
+    # Extract code between code block tags (capturing language)
+    code_match = re.search(r'<code[^>]*class="[^"]*language-([a-zA-Z0-9_\-]+)[^"]*"[^>]*>(.*?)</code>', html_content, re.DOTALL)
     if code_match:
+        detected_lang = code_match.group(1).lower().strip()
         raw_code = code_match.group(2)
         # Decode HTML entities
         code = raw_code.replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&").replace("&quot;", '"').replace("&#x27;", "'")
@@ -620,17 +654,17 @@ def sandbox_testing_agent(state: AgentState) -> Dict[str, Any]:
         has_logic = len(code.strip()) > 10
 
         if code.strip() and has_logic and (gemini_key or openai_key):
-            print(f"  [Sandbox] Found code block. Running compilation and execution check...")
-            sandbox_result = execute_code_safely(code)
+            print(f"  [Sandbox] Found code block ({detected_lang}). Running compilation and execution check...")
+            sandbox_result = execute_code_safely(code, language=detected_lang)
             if sandbox_result["status"] == "FAILED":
-                feedback = f"Mã nguồn chạy thử thất bại trên Sandbox thực tế ({sandbox_result['engine']}):\n{sandbox_result['error']}"
+                feedback = f"Mã nguồn ({detected_lang}) chạy thử thất bại trên Sandbox thực tế ({sandbox_result['engine']}):\n{sandbox_result['error']}"
                 print(f"  - Result: REJECTED. Real sandbox failed: {sandbox_result['error'][:100]}...")
                 return {
                     "status": "REJECTED",
                     "feedback": feedback
                 }
             else:
-                print(f"  - Result: Sandbox execution PASSED (Engine: {sandbox_result['engine']})")
+                print(f"  - Result: Sandbox execution PASSED (Engine: {sandbox_result['engine']}, Language: {detected_lang})")
         else:
             print(f"  - Result: Sandbox execution SKIPPED (not enough actual code or offline fallback template)")
 

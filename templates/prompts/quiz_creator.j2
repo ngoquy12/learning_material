@@ -9,12 +9,23 @@ Your task is to generate EXACTLY 5 multiple-choice quiz questions for a single l
 =================================================
 {% endif %}
 
+{% if is_non_code_subject %}
+CRITICAL NON-CODE / PROCESS & DIAGRAM DIRECTIVE:
+- This course is 100% NON-CODING (Theory, Process, Modeling, Agile/Scrum, SAD, UML, BPMN, ERD).
+- ABSOLUTELY FORBIDDEN to generate ANY programming code (NO Python, NO JavaScript, NO C/Java, NO `def `, NO `class `, NO `print()`, NO code functions).
+- STT 1 (SYNTAX/CONCEPT): Nhận diện khái niệm, thuật ngữ chuẩn, cấu trúc tài liệu/biểu đồ ({{ tech_stack }}).
+- STT 2 (PROCESS_FLOW): Cơ chế vận hành, luồng phối hợp (Scrum events, SDLC, luồng tương tác Use Case / Sequence).
+- STT 3 (SPEC_OR_DIAGRAM_TRACE): Truy vết kịch bản nghiệp vụ (Gherkin Given-When-Then, User Story INVEST, sơ đồ luồng Mermaid, đặc tả thực thể ERD/UML). KHÔNG dùng code lập trình!
+- STT 4 (COMPARISON): So sánh phân biệt giữa các vai trò, tạo tác, sự kiện Scrum hoặc các loại biểu đồ UML / mô hình SDLC.
+- STT 5 (ANTI_PATTERN_DETECTION): Phát hiện bẫy sai sót quy trình thực tế (Anti-patterns, vi phạm DoD, lỗi gán vai trò, vẽ sai quan hệ UML).
+{% else %}
 CRITICAL 5-QUESTION LESSON MATRIX (EXACTLY 5 QUESTIONS):
 - STT 1 (SYNTAX): Nhận diện thành phần bắt buộc, cú pháp chuẩn của ngôn ngữ / công nghệ ({{ tech_stack }}).
 - STT 2 (EXECUTION_FLOW): Hiểu cơ chế hoạt động cơ bản và luồng chạy (Execution flow) của mã nguồn / quy trình.
 - STT 3 (CODE_TRACE): Đọc hiểu code cơ bản, cung cấp đoạn code ngắn và yêu cầu trace giá trị biến / đầu ra.
 - STT 4 (COMPARISON): Tránh nhầm lẫn giữa các cấu trúc, lệnh hoặc tính ứng dụng của các giải pháp.
 - STT 5 (TRAP_PREDICTION): Kiểm tra sự tỉ mỉ, phát hiện bẫy logic / bẫy cú pháp / lỗi lặp vô tận / biến không thay đổi.
+{% endif %}
 
 REQUIRED ENHANCED SCHEMA PER QUESTION:
 - `stt`: Integer from 1 to 5.

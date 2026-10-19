@@ -18,8 +18,17 @@ def extract_lang_tag(tech_stack: str) -> str:
     Khớp theo TỪ nguyên vẹn: so khớp chuỗi con làm "go" khớp "mongodb" hay "algorithm",
     "ts" khớp "tests", "js" khớp "json".
     """
+    from core.course_nature import is_non_code_subject
+    if is_non_code_subject(tech_stack):
+        ts = tech_stack.lower()
+        if "gherkin" in ts or "given-when-then" in ts:
+            return "gherkin"
+        elif any(k in ts for k in ["uml", "erd", "diagram", "bpmn"]):
+            return "mermaid"
+        return "markdown"
+
     if not tech_stack:
-        return "text"
+        return "markdown"
     main_stack = tech_stack.split('/')[0].strip().lower()
     mapping = {
         "python": "python",
@@ -49,7 +58,7 @@ def extract_lang_tag(tech_stack: str) -> str:
         if token in mapping:
             return mapping[token]
     # Fallback to sanitized main_stack slug
-    return re.sub(r'[^a-z0-9]', '', main_stack) or "text"
+    return re.sub(r'[^a-z0-9]', '', main_stack) or "markdown"
 
 def normalize_quiz_markdown_code_formatting(quiz_items: List[Dict[str, Any]], lang_tag: str) -> List[Dict[str, Any]]:
     """
@@ -242,23 +251,33 @@ Lỗi thường gặp và Anti-patterns: {json.dumps(blueprint.get('gotchas_and_
     chosen_domain = state.get("chosen_domain") or session_domain_data.get("name_vi", "Hệ thống Doanh nghiệp")
     domain_prompt_block = format_domain_rules_for_prompt(session_domain_data)
 
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, lesson_title=lesson_title)
+
     system_prompt = render_prompt(
         "quiz_creator.j2",
         {
             "tech_stack": tech_stack,
             "lang_tag": lang_tag,
             "chosen_domain": chosen_domain,
-            "domain_prompt_block": domain_prompt_block
+            "domain_prompt_block": domain_prompt_block,
+            "is_non_code_subject": is_non_code
         }
     )
+
+    non_code_mandate = """
+CRITICAL NON-CODE MANDATE:
+This course is 100% NON-CODING. ABSOLUTELY FORBIDDEN to create questions asking to trace Python/JS/C code or calculate code return values.
+Questions must evaluate process understanding, roles, artifacts, INVEST/DoD rules, Gherkin syntax scenarios, or UML diagram interpretations.""" if is_non_code else ""
 
     user_prompt = f"""Lesson Metadata:
 - Session: {session_id}
 - Lesson: {lesson_id} - {lesson_title}
 - Target Tech Stack: {tech_stack}
 - Target Code Markdown Tag: {lang_tag}
+{non_code_mandate}
 
-Reading Article Context (Extract real scenarios and code examples from this text to build quiz questions):
+Reading Article Context (Extract real scenarios and diagrams/specs from this text to build quiz questions):
 {article_context[:READING_CONTEXT_CHARS]}
 {retry_feedback_block(state, 'quiz')}{memory_prompt_block(state)}
 

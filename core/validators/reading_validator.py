@@ -91,6 +91,11 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
     except Exception:
         soup = None
 
+    tech_stack_str = str(metadata.get("tech_stack") or "").lower().strip()
+    course_name_str = str(metadata.get("course_name") or "")
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack_str, course_name=course_name_str, lesson_title=lesson_title)
+
     if is_orientation:
         # Orientation Lesson Validation (Session 01)
         # Check that NO runnable code sandboxes exist
@@ -106,6 +111,11 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         if not ("demo" in content_lower or "sản phẩm" in content_lower or "kết quả" in content_lower or "dự án" in content_lower):
             errors.append("Bài đọc Session 01 thiếu nội dung Phần 3: Demo sản phẩm dự án đầu ra.")
     else:
+        # Check non-code subject zero code violation
+        if is_non_code:
+            if "pyodide-editor" in content or re.search(r'\bdef\s+[a-zA-Z_]\w*\s*\(', content):
+                errors.append("Bài đọc môn Phân tích thiết kế / Agile Scrum vi phạm quy chuẩn nghiêm ngặt: TUYỆT ĐỐI CẤM chứa mã nguồn code Python (def, return, pyodide-editor). Hãy sử dụng sơ đồ luồng Mermaid/UML, bảng quy tắc, hoặc kịch bản Gherkin/User Story.")
+
         # Standard Technical Lesson Validation (Must contain 5 Section IDs)
         required_section_ids = ["section-1", "section-2", "section-3", "section-4", "section-5"]
         if soup:
@@ -116,13 +126,18 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         if missing_ids:
             errors.append(f"Bài đọc vi phạm định dạng 5 Section cố định: thiếu các Section ID {', '.join(missing_ids)}.")
 
-        # Section 3 Executable Code Block Check via AST
+        # Section 3 AST / Diagram / Code Block Check
         if soup:
             sec3_node = soup.find(id="section-3")
             if sec3_node:
-                has_code = bool(sec3_node.find("pre") or sec3_node.find("code") or "pyodide-editor" in str(sec3_node))
-                if requires_code and not has_code:
-                    errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
+                if is_non_code:
+                    has_content = bool(sec3_node.find("pre") or sec3_node.find("code") or sec3_node.find(class_="mermaid") or "mermaid" in str(sec3_node) or sec3_node.find("table"))
+                    if not has_content:
+                        errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa các sơ đồ quy trình Mermaid, bảng đặc tả hoặc kịch bản minh họa.")
+                else:
+                    has_code = bool(sec3_node.find("pre") or sec3_node.find("code") or "pyodide-editor" in str(sec3_node))
+                    if not has_code:
+                        errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
                 
                 # Section 3 Minimum 3 Progressive Examples Check
                 h3_count = len(sec3_node.find_all("h3"))
@@ -133,7 +148,7 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
                 sec3_match = re.search(r'id=["\']section-3["\'].*?(?=<section|\Z)', content, re.DOTALL)
                 if sec3_match:
                     sec3_text = sec3_match.group(0)
-                    if requires_code and not ("<pre" in sec3_text or "<code" in sec3_text or "pyodide-editor" in sec3_text):
+                    if not is_non_code and not ("<pre" in sec3_text or "<code" in sec3_text or "pyodide-editor" in sec3_text):
                         errors.append("Section 3 vi phạm quy chuẩn: Bắt buộc phải chứa khối mã nguồn ví dụ thực hành (<pre><code>...).")
                     h3_count = len(re.findall(r'<h3\b[^>]*>', sec3_text))
                     if h3_count < 3:
@@ -146,11 +161,10 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
         errors.append(f"Bài đọc chứa emoji văn bản bị cấm: {emoji_err}")
 
     # 4. Pyodide WASM Browser Compatibility Check strictly for Python code blocks
-    tech_stack_str = str(metadata.get("tech_stack") or "").lower().strip()
     is_python_course = (tech_stack_str == "python" or "python" in tech_stack_str) and not any(
         kw in tech_stack_str for kw in ["sql", "git", "bash", "docker", "agile", "architecture", "uml", "design", "java", "javascript", "react", "node", "cpp", "c++"]
     )
-    if not is_orientation and is_python_course:
+    if not is_orientation and not is_non_code and is_python_course:
         from core.validators.syntax_linter import lint_pyodide_compatibility
         pyodide_errors = lint_pyodide_compatibility(content)
         if pyodide_errors:
@@ -191,8 +205,9 @@ def validate_reading_material(content: Union[str, Dict[str, Any]], metadata: Dic
             errors.append(f"Bài đọc vi phạm quy chuẩn ngôn ngữ: Chứa từ khóa AI từ lóng bị cấm '{word}'. Hãy thay bằng 'Lỗi thường gặp' hoặc 'Ngoại lệ cần lưu ý'.")
 
     # 9. Requirement Callout Box Check Before Code Sandboxes
-    if not is_orientation and ("code-sb-" in content or "language-python" in content):
+    if not is_orientation and not is_non_code and ("code-sb-" in content or "language-python" in content):
         if not ("Yêu cầu bài toán" in content or "Yêu cầu" in content or "font-bold text-sky-900" in content or "border-sky-200" in content):
             errors.append("Bài đọc vi phạm quy chuẩn: Trước mỗi code sandbox cần có khối thông tin Yêu cầu bài toán thực hành rõ ràng.")
+
 
     return len(errors) == 0, errors

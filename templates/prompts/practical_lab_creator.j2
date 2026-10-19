@@ -43,32 +43,43 @@ MANDATORY DIRECTIVES:
 2. STRICT NO EMOJI DIRECTIVE: No text emojis.
 3. Content MUST match the specific technology stack ({{ tech_stack }}).
 4. Return ONLY a single valid JSON object matching the required structure.
+{% if is_non_code_subject %}
+5. ZERO PROGRAMMING CODE CONTRACT:
+   - This subject (Agile Scrum / System Analysis & Design) is strictly NON-CODING.
+   - TUYỆT ĐỐI CẤM viết mã nguồn lập trình Python, Java, JS hay C.
+   - "code_demo" field MUST be a clean Mermaid diagram (```mermaid\nflowchart TD\n...) or Gherkin Acceptance Criteria (```gherkin\nScenario: ...) or structured specification table.
+{% else %}
 5. REFERENCE CODE CONTRACT (code_demo): the sample code MUST be a COMPLETE, runnable solution
    (not a fragment/pseudo-code) that a student can read end-to-end and practice from. Every
    meaningful line or logical block MUST have a concise Vietnamese comment explaining the
    business intent (why this step exists), not just a restatement of the syntax — matching the
    style of a well-commented reference implementation, e.g. `# Tính tổng tiền hàng sau khi trừ
    mã giảm giá của khách VIP`. Comments MUST be 100% Accented Vietnamese.
+{% endif %}
 
 MANDATORY OUTPUT FORMAT:
 {
   "title": "Bài thực hành: [Tên kịch bản thực tế ngắn gọn]",
   "objectives": [
-    "[Mục tiêu 1: Cài đặt và cấu hình]",
-    "[Mục tiêu 2: Triển khai logic cốt lõi]",
-    "[Mục tiêu 3: Kiểm thử và hoàn thiện]"
+    "[Mục tiêu 1: Phân tích và nắm bắt bối cảnh]",
+    "[Mục tiêu 2: Thiết lập quy trình / vẽ sơ đồ / đặc tả yêu cầu]",
+    "[Mục tiêu 3: Kiểm định và hoàn thiện]"
   ],
   "problem_statement": "[Mô tả bài toán doanh nghiệp thực tế 2-3 đoạn ngắn]",
   "description": {
-    "inputs": "[Môi trường phát triển và dữ liệu đầu vào]",
+    "inputs": "[Tài liệu đặc tả, vai trò dự án và dữ liệu đầu vào]",
     "steps": [
-      "Bước 1: [Khởi tạo môi trường / cài đặt dependencies]",
-      "Bước 2: [Viết hàm / logic xử lý chính]",
-      "Bước 3: [Xử lý ngoại lệ / validate dữ liệu]",
-      "Bước 4: [Kiểm thử với các bộ dữ liệu mẫu]"
+      "Bước 1: [Thu thập yêu cầu / phân tích bối cảnh]",
+      "Bước 2: [Mô hình hóa quy trình / viết User Story]",
+      "Bước 3: [Thiết lập tiêu chí nghiệm thu / xử lý kịch bản lỗi]",
+      "Bước 4: [Kiểm tra và hoàn thiện tài liệu]"
     ]
   },
+{% if is_non_code_subject %}
+  "code_demo": "```mermaid\\nflowchart TD\\n    A[Bắt đầu] --> B[Xử lý]\\n    B --> C[Kết thúc]\\n```",
+{% else %}
   "code_demo": "# [Mã nguồn tham khảo HOÀN CHỈNH, chạy được, có comment tiếng Việt giải thích từng bước nghiệp vụ]",
+{% endif %}
   "evaluation": {
     "checklist": [
       "[ ] Khởi tạo môi trường và cấu hình thành công",

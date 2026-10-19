@@ -250,6 +250,9 @@ def generate_reading_html(
     chosen_domain = state.get("chosen_domain") or session_domain_data.get("name_vi", "Hệ thống Doanh nghiệp")
     domain_prompt_block = format_domain_rules_for_prompt(session_domain_data)
 
+    from core.course_nature import is_non_code_subject
+    is_non_code = is_non_code_subject(tech_stack=tech_stack, lesson_title=lesson_title)
+
     system_prompt = render_prompt("prompts/reading_master_prompt.j2", {
         "section1_title": f"Tại sao cần học {lesson_title}?",
         "section2_title": "Kiến thức và cú pháp cơ bản",
@@ -259,6 +262,7 @@ def generate_reading_html(
         "forbidden_scope": forbidden_scope,
         "chosen_domain": chosen_domain,
         "domain_prompt_block": domain_prompt_block,
+        "is_non_code_subject": is_non_code,
         "reading_minutes": READING_TARGET_MINUTES,
         "word_min": READING_WORD_MIN,
         "word_max": READING_WORD_MAX,
@@ -286,9 +290,15 @@ Allowed Knowledge Scope: {allowed_scope or 'Fundamentals up to current lesson'}
 Forbidden Knowledge Scope (STRICTLY PROHIBITED): {forbidden_scope or 'Future unlearned tech/syntax'}
 
 MANDATORY STRUCTURE & PEDAGOGY CONTRACT (keep every part concise to fit the word budget):
-1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants and mechanisms. Each sub-section adds exactly ONE increment of complexity on top of the previous one (2.1 simplest, 2.3 most advanced) — do not re-introduce the full domain scenario from scratch in every sub-section.
+{'''CRITICAL NON-CODE MANDATE:
+This course is 100% NON-CODING (Theory, Process, Modeling, Methodology).
+ABSOLUTELY FORBIDDEN to include ANY programming code (NO Python, NO JavaScript, NO C/Java, NO `def `, NO `print()`, NO code demo functions).
+Section 2 MUST use Mermaid flowcharts, SVG diagrams, and parameter tables under each sub-heading (2.1, 2.2, 2.3).
+Section 3 MUST present 3 progressive business workflows / scenarios with Mermaid flowcharts, Gherkin specs, or specification cards (NO executable Python code!).
+Section 4 Gotchas MUST be procedural Anti-patterns vs Best Practices (tables / callouts), NOT Python code!
+"interactive_visualizer" MUST be {"is_applicable": false}.''' if is_non_code else '''1. Section 2 MUST contain 3 full sub-sections (2.1, 2.2, 2.3) detailing syntax variants and mechanisms. Each sub-section adds exactly ONE increment of complexity on top of the previous one (2.1 simplest, 2.3 most advanced) — do not re-introduce the full domain scenario from scratch in every sub-section.
 2. Section 3 MUST contain 3 progressive examples (3.1 Minimal syntax — genuinely minimal, 1-2 lines, no branching; 3.2 Business logic — adds ONE new layer only; 3.3 Enterprise scenario — the only sub-section allowed full enterprise complexity). Never invert this difficulty order.
-3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope.
+3. STRICT KNOWLEDGE SCOPE: 100% of code examples and explanations MUST ONLY use concepts from Allowed Knowledge Scope.'''}
 4. Section 5 MUST contain exactly 3 interactive self-test MCQ questions under self_test_questions.
 5. Return ONLY raw pure JSON strictly adhering to the schema.
 {retry_feedback_block(state, 'html')}{memory_prompt_block(state)}"""
@@ -366,7 +376,7 @@ MANDATORY STRUCTURE & PEDAGOGY CONTRACT (keep every part concise to fit the word
         or 'viz-code-display' in know_html
         or 'Mô phỏng cơ chế vận hành từng bước' in know_html
     )
-    if not has_existing_viz_in_know:
+    if not has_existing_viz_in_know and not is_non_code:
         viz_spec = data.get("interactive_visualizer") or data.get("visualizer_spec")
         raw_sec2_4 = data.get("section2_4_html") or ""
         if viz_spec and isinstance(viz_spec, dict):
@@ -391,8 +401,8 @@ MANDATORY STRUCTURE & PEDAGOGY CONTRACT (keep every part concise to fit the word
     notes_html = re.sub(r'^\s*<(?:h1|h2)\b[^>]*>.*?</(?:h1|h2)>\s*', '', notes_html, flags=re.DOTALL | re.IGNORECASE).strip()
 
     lang_info = resolve_language_info(tech_stack)
-    know_html = convert_code_to_live_sandbox(know_html, lang_info, force_static=False, sb_prefix="sec2")
-    ex_text = convert_code_to_live_sandbox(ex_text, lang_info, force_static=False, sb_prefix="sec3")
+    know_html = convert_code_to_live_sandbox(know_html, lang_info, force_static=is_non_code, sb_prefix="sec2")
+    ex_text = convert_code_to_live_sandbox(ex_text, lang_info, force_static=is_non_code, sb_prefix="sec3")
     notes_html = convert_code_to_live_sandbox(notes_html, lang_info, force_static=True, sb_prefix="sec4")
     know_html = re.sub(r'(<div[^>]*id="line-\d+"[^>]*>)\s*\d+\.\s*', r'\1', know_html)
 
@@ -462,6 +472,12 @@ def html_writer_agent(state: AgentState) -> AgentState:
         state=state
     )
     
+    try:
+        from core.reading_html_sanitizer import sanitize_reading_html
+        html_content, _ = sanitize_reading_html(html_content)
+    except Exception as e:
+        print(f"  [Reading Creator] Warning: could not sanitize reading HTML: {e}")
+
     state["html_content"] = html_content
     state["reading_material"] = html_content
     # Chỉ reviewer mới được chuyển sang APPROVED. Đặt APPROVED ngay khi sinh khiến
