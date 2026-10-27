@@ -26,7 +26,7 @@ def test_registered():
 def test_good_reading_passes(tmp_path):
     r = check_reading(_put(tmp_path, FIXTURE.read_text(encoding="utf-8")), OPTS)
     assert r.status == "pass", [f.message for f in r.findings if f.severity == "error"]
-    assert r.kind == "reading" and r.detail["word_count"] > 1000
+    assert r.kind == "reading" and 1500 <= r.detail["word_count"] <= 2400
 
 
 def test_bad_href_and_emoji_fail(tmp_path):
@@ -58,3 +58,27 @@ def test_section_24_stays_error_without_simulator(tmp_path):
     r = check_reading(_put(tmp_path, _strip_sim(FIXTURE.read_text(encoding="utf-8"))), OPTS)
     assert r.status == "fail"
     assert any("Section 2.4" in f.message and f.severity == "error" for f in r.findings)
+
+
+def test_simulator_detector_ignores_unrelated_buttons():
+    from core.harness.gates.reading import has_section3_simulator
+
+    def sec(inner):
+        return f'<section id="section-3">{inner}</section>'
+
+    # tiêu đề mô phỏng nhưng nút không thuộc khối đó (nút sao chép trong <pre>)
+    assert not has_section3_simulator(sec(
+        '<h3>Mô phỏng tương tác: x</h3><pre><button type="button">Sao chép</button>code</pre>'))
+    # nút ngoài cạnh khối chỉ mang lớp sim
+    assert not has_section3_simulator(sec(
+        '<div class="flip-sim-card">a</div><button type="button">Sao chép</button>'))
+    # <pre> có nút sao chép lồng trong phần tử lớp sim
+    assert not has_section3_simulator(sec(
+        '<div class="l1_sim"><pre><button type="button">Sao chép</button></pre></div>'))
+    # nút nằm ở đoạn sau tiêu đề kế tiếp
+    assert not has_section3_simulator(sec(
+        '<h3>Mô phỏng tương tác: x</h3><p>t</p><h3>Khác</h3><button type="button">Sao chép</button>'))
+    # đúng: điều khiển nằm trong khối sim, hoặc ngay sau tiêu đề
+    assert has_section3_simulator(sec('<div class="l1_sim"><button type="button">Chạy</button></div>'))
+    assert has_section3_simulator(sec(
+        '<h3>Mô phỏng tương tác: x</h3><div><button type="button">Chạy</button></div>'))
