@@ -37,7 +37,7 @@ SESSION_HEADERS = (
     "isCorrect", "difficulty", "category",
 )
 
-_Q_RE = re.compile(r"^###\s+Câu\s+(\d+)\s*\((.+?)\)\s*$")
+_Q_RE = re.compile(r"^###\s+Câu\s+(\d+)\s*(?:\((.+?)\))?\s*$")  # nhãn (TAG) bắt buộc ở bộ lesson, tùy chọn ở session
 _OPT_RE = re.compile(r"^([A-D])\.\s+\S")
 _ANS_RE = re.compile(r"\*\*Đáp án đúng:\*\*\s*([A-D])\b")
 _FENCE = "```"
@@ -54,7 +54,7 @@ class QuizQuestion:
 
 
 def parse_quiz_md(text: str) -> list[QuizQuestion]:
-    """Tách các câu `### Câu N (TAG)`; phương án `A. `..`D. ` ngoài khối mã."""
+    """Tách các câu `### Câu N (TAG)` hoặc `### Câu N`; phương án `A. `..`D. ` ngoài khối mã."""
     blocks: list[tuple[int, str, list[str]]] = []
     in_fence = False
     for line in text.splitlines():
@@ -62,7 +62,7 @@ def parse_quiz_md(text: str) -> list[QuizQuestion]:
             in_fence = not in_fence
         m = None if in_fence else _Q_RE.match(line)
         if m:
-            blocks.append((int(m.group(1)), m.group(2).strip(), []))
+            blocks.append((int(m.group(1)), (m.group(2) or "").strip(), []))
         elif blocks:
             blocks[-1][2].append(line)
     questions = []
@@ -98,7 +98,8 @@ def _find_sets(folder: Path, gate: str, result: GateResult, by_token: bool) -> l
     groups: dict[str, dict[str, list[Path]]] = {}
     files_all = [p for p in sorted(folder.iterdir())
                  if p.is_file() and not p.name.startswith("~$") and p.suffix.lower() in (".md", ".xlsx")]
-    single_set = [p.suffix.lower() for p in files_all].count(".md") == 1 and         [p.suffix.lower() for p in files_all].count(".xlsx") == 1
+    exts = [p.suffix.lower() for p in files_all]
+    single_set = exts.count(".md") == 1 and exts.count(".xlsx") == 1
     for p in files_all:
         ext = p.suffix.lower()
         token = _set_token(p.name) if by_token and not single_set else ""
@@ -177,6 +178,8 @@ def _check_md(questions: list[QuizQuestion], expected: int, gate: str, result: G
     def err(msg: str):
         result.findings.append(Finding("error", gate, msg, md_name))
 
+    if not questions:
+        err("Quiz: không nhận ra tiêu đề câu hỏi dạng '### Câu N' (bộ lesson: '### Câu N (TAG)')")
     if len(questions) != expected:
         err(f"Quiz phải có đúng {expected} câu, hiện có {len(questions)}")
     numbers = [q.number for q in questions]

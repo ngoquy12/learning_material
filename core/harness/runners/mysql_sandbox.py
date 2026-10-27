@@ -63,7 +63,7 @@ class MySQLSandbox:
                f"--log-error={log}", f"--pid-file={self.root / 'mysqld.pid'}"]
         if sys.platform != "win32":
             cmd.append(f"--socket={self.root / 'mysqld.sock'}")
-        self._proc = subprocess.Popen(cmd, cwd=str(self.root), stdin=subprocess.DEVNULL,
+        self._proc = subprocess.Popen(cmd, cwd=str(self.root), env=tooling.child_env(), stdin=subprocess.DEVNULL,
                                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         deadline = time.monotonic() + START_TIMEOUT_S
         while time.monotonic() < deadline:

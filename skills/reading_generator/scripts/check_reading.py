@@ -72,15 +72,13 @@ def extra_checks(html: str) -> tuple[List[str], List[str]]:
             errors.append(f"{tag.name} viết hoa toàn bộ: {text[:40]}")
             break
 
-    body_text = soup.get_text(" ")
-    if find_bracket_tags(body_text):
-        errors.append("có thẻ ngoặc vuông kiểu [NOTE]")
-
-    # Chỉ xét văn bản ngoài khối mã: JSX như style={{ color: "red" }} là mã hợp lệ.
+    # Chỉ xét văn bản ngoài khối mã: JSX như style={{ color: "red" }} hay console.log('[INFO] ...') là mã hợp lệ.
     prose = BeautifulSoup(html, "html.parser")
     for tag in prose.find_all(["pre", "code", "script", "style"]):
         tag.decompose()
     prose_text = prose.get_text(" ")
+    if find_bracket_tags(prose_text):
+        errors.append("có thẻ ngoặc vuông kiểu [NOTE]")
     if re.search(r"\{\{\s*[A-Za-z_][\w.]*\s*(\|[^}]*)?\}\}|\{clean_title\}|\[object Object\]", prose_text):
         errors.append("còn chỗ giữ chỗ hoặc giá trị chưa kết xuất ({{ tên }}, {clean_title}, [object Object])")
     return errors, warnings

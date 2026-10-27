@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 Severity = Literal["error", "warning", "info"]
+UNKNOWN_KIND = "unknown"
 
 
 @dataclass(frozen=True)
@@ -34,6 +35,8 @@ class GateResult:
     def status(self) -> str:
         if any(f.severity == "error" for f in self.findings):
             return "fail"
+        if self.kind == UNKNOWN_KIND:
+            return "unknown"  # tệp không nhận diện được: chỉ liệt kê, không tính là đạt
         if self.skipped_reason:
             return "skipped"
         return "pass"
@@ -52,7 +55,7 @@ class Report:
     started_at: str
 
     def counts(self) -> dict[str, int]:
-        c = {"pass": 0, "fail": 0, "skipped": 0}
+        c = {"pass": 0, "fail": 0, "skipped": 0, "unknown": 0}
         for r in self.results:
             c[r.status] += 1
         return c
@@ -80,8 +83,8 @@ class Report:
                  f"Thời điểm bắt đầu: {self.started_at}", "",
                  "| Trạng thái | Số cổng |", "| --- | --- |",
                  f"| fail | {c['fail']} |", f"| skipped | {c['skipped']} |",
-                 f"| pass | {c['pass']} |", ""]
-        order = {"fail": 0, "skipped": 1, "pass": 2}
+                 f"| pass | {c['pass']} |", f"| unknown | {c['unknown']} |", ""]
+        order = {"fail": 0, "skipped": 1, "pass": 2, "unknown": 3}
         for r in sorted(self.results, key=lambda r: order[r.status]):
             lines.append(f"## [{r.status}] {r.kind}: {r.path} ({r.gate})")
             if r.skipped_reason:

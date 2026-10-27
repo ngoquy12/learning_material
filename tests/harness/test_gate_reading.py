@@ -82,3 +82,16 @@ def test_simulator_detector_ignores_unrelated_buttons():
     assert has_section3_simulator(sec('<div class="l1_sim"><button type="button">Chạy</button></div>'))
     assert has_section3_simulator(sec(
         '<h3>Mô phỏng tương tác: x</h3><div><button type="button">Chạy</button></div>'))
+
+
+def test_bracket_tag_inside_code_is_not_error(tmp_path):
+    code = "<pre><code class=\"language-javascript\">console.log('[INFO] server started');</code></pre>"
+    html = FIXTURE.read_text(encoding="utf-8").replace("</body>", code + "</body>")
+    r = check_reading(_put(tmp_path, html), OPTS)
+    assert not any("ngoặc vuông" in f.message for f in r.findings), [f.message for f in r.findings]
+
+
+def test_bracket_tag_in_prose_is_error(tmp_path):
+    html = FIXTURE.read_text(encoding="utf-8").replace("</body>", "<p>[NOTE] Ghi chú quan trọng.</p></body>")
+    r = check_reading(_put(tmp_path, html), OPTS)
+    assert any("ngoặc vuông" in f.message for f in r.findings if f.severity == "error")

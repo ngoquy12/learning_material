@@ -264,6 +264,7 @@ def test_mysql_sandbox_unavailable(monkeypatch):
 
 
 def test_mysql_sandbox_args_and_cleanup(monkeypatch, tmp_path):
+    monkeypatch.setenv("GEMINI_API_KEY", "k")
     monkeypatch.setattr(tooling, "find_mysqld", lambda: "mysqld")
     monkeypatch.setattr(tooling, "free_port", lambda exclude=frozenset({3306}): 45555)
     init_cmds, started = [], {}
@@ -277,6 +278,7 @@ def test_mysql_sandbox_args_and_cleanup(monkeypatch, tmp_path):
 
         def __init__(self, cmd, **kw):
             started["cmd"] = cmd
+            started["env"] = kw.get("env")
             log = next(a for a in cmd if a.startswith("--log-error=")).split("=", 1)[1]
             Path(log).write_text("mysqld: ready for connections. Version: '8.0'  socket: ''  port: 45555", encoding="utf-8")
 
@@ -297,6 +299,8 @@ def test_mysql_sandbox_args_and_cleanup(monkeypatch, tmp_path):
     cmd = started["cmd"]
     assert "--bind-address=127.0.0.1" in cmd and "--port=45555" in cmd
     assert not any("3306" in a for a in cmd)
+    env = started["env"]
+    assert env is not None and "GEMINI_API_KEY" not in env
     assert killed
     assert not sb.root.exists()
 

@@ -6,6 +6,7 @@ các cột `right_1..right_6` của bộ lesson luôn để trống.
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import openpyxl
@@ -264,3 +265,22 @@ def test_blank_row_in_middle_flagged(tmp_path):
     wb.active.insert_rows(4)
     wb.save(x)
     assert any("hàng trống" in m for m in errs(check_quiz_lesson(d, OPTS)))
+
+
+def test_session_heading_without_tag_accepted(tmp_path):
+    md = re.sub(r"^(### Câu \d+) \(Lesson \d+\)$", r"\1", session_md(), flags=re.M)
+    assert "(Lesson" not in md
+    r = check_quiz_session(make_session(tmp_path, md=md), OPTS)
+    assert r.status == "pass", errs(r)
+
+
+def test_lesson_heading_without_tag_still_fails(tmp_path):
+    md = re.sub(r"^(### Câu \d+) \(\w+\)$", r"\1", lesson_md(), flags=re.M)
+    r = check_quiz_lesson(make_lesson(tmp_path, md=md), OPTS)
+    assert any("nhãn" in m for m in errs(r))
+
+
+def test_no_question_heading_clear_error(tmp_path):
+    md = session_md().replace("### Câu", "#### Cau")
+    r = check_quiz_session(make_session(tmp_path, md=md), OPTS)
+    assert any("không nhận ra tiêu đề câu hỏi dạng '### Câu N'" in m for m in errs(r)), errs(r)

@@ -34,7 +34,7 @@ def test_json_roundtrip_has_status():
     r = Report("t", [ok_result(), fail_result()], "x")
     d = json.loads(r.to_json())
     assert [x["status"] for x in d["results"]] == ["pass", "fail"]
-    assert d["counts"] == {"pass": 1, "fail": 1, "skipped": 0}
+    assert d["counts"] == {"pass": 1, "fail": 1, "skipped": 0, "unknown": 0}
     assert r.to_dict()["exit_code"] == 1
 
 
