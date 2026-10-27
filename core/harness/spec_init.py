@@ -1,6 +1,7 @@
 """Dựng đặc tả môn nháp (course_spec.yaml) từ thư mục môn đã có (spec 4.4)."""
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -51,7 +52,10 @@ def _exercise_count(session: Path) -> int:
         int(m.group(1)) for p in bai_tap.iterdir()
         if p.is_dir() and (m := _EXERCISE_RE.match(p.name))
     ]
-    return max(numbers, default=0)
+    for n in sorted(set(numbers), reverse=True):
+        if resolve_target(session, ["Bai tap"], f"^{n}_") is not None:
+            return n
+    return 0
 
 
 def _draft_session(session: Path) -> dict:
@@ -59,10 +63,10 @@ def _draft_session(session: Path) -> dict:
     present = {
         "quiz_session": _has(session, "Quizz session"),
         "exercises": exercises > 0,
-        "slide_html": resolve_target(session, ["Bai giang tren lop", "slides.html"]) is not None,
-        "slide_pptx": _has(session, "Slide bai giang", "*.pptx"),
-        "mindmap": resolve_target(session, ["So do tu duy", "mindmap.md"]) is not None,
-        "lab": resolve_target(session, ["Bai thuc hanh", "lab_guide.md"]) is not None,
+        "slide_html": _has(session, "Bai giang tren lop"),
+        "slide_pptx": _has(session, "Slide bai giang"),
+        "mindmap": _has(session, "So do tu duy"),
+        "lab": _has(session, "Bai thuc hanh"),
     }
     out: dict = {"folder": session.name}
     if present["lab"]:
@@ -87,12 +91,18 @@ def _draft_session(session: Path) -> dict:
 
 def draft_spec(course_dir: Path) -> dict:
     course_dir = Path(course_dir)
+    if not course_dir.is_dir():
+        raise NotADirectoryError(f"Không tìm thấy thư mục môn: {course_dir}")
+    course_dir = course_dir.resolve()
+    sessions = _subdirs(course_dir, "session")
+    if not sessions:
+        raise ValueError(f"Không tìm thấy thư mục Session nào trong {course_dir}")
     return {
         "course_id": course_dir.name,
         "title": course_dir.name,
         "tech_stack": "",
         "notes": "course_spec.md" if (course_dir / "course_spec.md").is_file() else "",
-        "sessions": [_draft_session(s) for s in _subdirs(course_dir, "session")],
+        "sessions": [_draft_session(x) for x in sessions],
     }
 
 

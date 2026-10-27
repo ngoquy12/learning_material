@@ -1,6 +1,8 @@
 """Test dựng đặc tả nháp từ thư mục môn có sẵn."""
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from core.harness.course_spec import load_spec
@@ -51,7 +53,7 @@ def test_draft_fields(tmp_path):
     assert s2["kind"] == "practice"
     assert s2["resources"] == ["exercises", "lab"]
     assert s2["exercises"] == 2
-    assert "lessons" not in s2 or s2["lessons"] == []
+    assert "lessons" not in s2
 
 
 def test_write_and_load(tmp_path):
@@ -72,3 +74,50 @@ def test_notes_empty_without_file(tmp_path):
     data = draft_spec(course)
     assert data["notes"] == ""
     assert data["sessions"][0]["resources"] == []
+
+
+def test_relative_dot_course_id(tmp_path, monkeypatch):
+    course = tmp_path / "mon_x"
+    (course / "Session 01 - A").mkdir(parents=True)
+    monkeypatch.chdir(course)
+    data = draft_spec(Path("."))
+    assert data["course_id"] == "mon_x" and data["title"] == "mon_x"
+
+
+def test_missing_dir_and_file(tmp_path):
+    with pytest.raises(NotADirectoryError, match="Không tìm thấy thư mục môn"):
+        draft_spec(tmp_path / "khong_co")
+    f = tmp_path / "f.txt"
+    f.write_text("x")
+    with pytest.raises(NotADirectoryError):
+        draft_spec(f)
+
+
+def test_no_sessions_raises_and_writes_nothing(tmp_path):
+    course = tmp_path / "rong"
+    course.mkdir()
+    with pytest.raises(ValueError, match="Không tìm thấy thư mục Session nào"):
+        write_spec(course)
+    assert not (course / "course_spec.yaml").exists()
+
+
+def test_exercise_numbering(tmp_path):
+    padded = write_tree(tmp_path / "a", {"Session 01 - A/Bai tap/01_x/f": "x"})
+    assert draft_spec(padded)["sessions"][0].get("exercises") is None
+    assert "exercises" not in draft_spec(padded)["sessions"][0]["resources"]
+    gap = write_tree(tmp_path / "b", {
+        "Session 01 - A/Bai tap/1_x/f": "x", "Session 01 - A/Bai tap/3_y/f": "x"})
+    s = draft_spec(gap)["sessions"][0]
+    assert s["exercises"] == 3 and "exercises" in s["resources"]
+    tasks = build_tasks(load_spec(write_spec(gap)), gap)
+    assert [t.id for t in tasks if t.target is None] == ["s01/exercise_2"]
+
+
+def test_folder_detection_without_files(tmp_path):
+    course = tmp_path / "c"
+    (course / "Session 01 - A/Bai thuc hanh").mkdir(parents=True)
+    data = draft_spec(course)
+    s = data["sessions"][0]
+    assert s["kind"] == "practice" and s["resources"] == ["lab"]
+    tasks = build_tasks(load_spec(write_spec(course)), course)
+    assert [(t.kind, t.target) for t in tasks] == [("lab", None)]
