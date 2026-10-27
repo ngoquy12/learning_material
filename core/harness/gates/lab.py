@@ -1,4 +1,4 @@
-"""Cổng lab: cấu trúc `lab_guide.md` (Lab N, Tổng kết, Rubric, Kết quả mong đợi)."""
+"""Cổng lab: cấu trúc `lab_guide.md` (Lab N tăng dần không trùng, Tổng kết, Rubric, Kết quả mong đợi ngoài khối mã)."""
 from __future__ import annotations
 
 import re
@@ -18,13 +18,16 @@ _EXPECTED = "ket qua mong doi"
 
 
 def _sections(text: str) -> list[tuple[str, list[str]]]:
-    """Các mục `## ` (tiêu đề, dòng thân) ngoài khối mã."""
+    """Các mục `## ` (tiêu đề, dòng thân) ngoài khối mã; dòng thân cũng bỏ phần nằm trong khối mã."""
     out: list[tuple[str, list[str]]] = []
     in_fence = False
     for line in text.splitlines():
         if line.lstrip().startswith("```"):
             in_fence = not in_fence
-        m = None if in_fence else _H2_RE.match(line)
+            continue
+        if in_fence:
+            continue
+        m = _H2_RE.match(line)
         if m:
             out.append((m.group(1), []))
         elif out:
@@ -56,6 +59,15 @@ def check_lab(path: Path, opts: VerifyOptions) -> GateResult:
             labs.append((int(m.group(1)), norm, "\n".join(body)))
     if not labs:
         err("Lab guide không có mục `## Lab N - … (K phút)` nào")
+    seen: set[int] = set()
+    prev = None
+    for n, _, _ in labs:
+        if n in seen:
+            err(f"Lab {n}: số Lab bị trùng")
+        elif prev is not None and n < prev:
+            err(f"Lab {n}: số Lab không tăng dần (đứng sau Lab {prev})")
+        seen.add(n)
+        prev = n if prev is None else max(prev, n)
     minutes = 0
     for n, norm, body in labs:
         mm = _MINUTES_RE.search(norm)

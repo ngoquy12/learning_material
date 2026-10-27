@@ -14,6 +14,18 @@ from core.harness.options import VerifyOptions
 
 GATE = "slide_pptx"
 RENDER_ROOT = REPO / "storage" / "harness_cache" / "render"
+RENDER_KEEP = 5  # số thư mục ảnh render (deck_*) mới nhất được giữ lại
+
+
+def _prune_render_dirs(current: Path, keep: int = RENDER_KEEP) -> None:
+    """Giữ `keep` thư mục deck_* mới nhất trong RENDER_ROOT (luôn giữ `current`), xóa phần còn lại."""
+    try:
+        dirs = [d for d in RENDER_ROOT.iterdir() if d.is_dir() and d.name.startswith("deck_") and d != current]
+        dirs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
+    except OSError:
+        return
+    for d in dirs[max(keep - 1, 0):]:
+        shutil.rmtree(d, ignore_errors=True)
 
 
 def _check_deck():
@@ -66,6 +78,7 @@ def _render(result: GateResult, path: Path) -> None:
     _add(result, "error", measured.get("errors", []))
     _add(result, "warning", measured.get("warnings", []))
     result.detail["render_dir"] = str(out_dir)
+    _prune_render_dirs(out_dir)
 
 
 def check_slide_pptx(path: Path, opts: VerifyOptions) -> GateResult:

@@ -235,6 +235,63 @@ def test_file_lock_is_exclusive(tmp_path):
     assert not lock.exists()
 
 
+
+def _dead_pid() -> int:
+    import subprocess
+    import sys
+    proc = subprocess.Popen([sys.executable, "-c", "pass"])
+    proc.wait()
+    return proc.pid
+
+
+def test_file_lock_records_owner_pid(tmp_path):
+    import os
+    lock = tmp_path / "x.lock"
+    with tooling.file_lock(lock):
+        pid, ts = lock.read_text().split()
+        assert int(pid) == os.getpid()
+        assert float(ts) > 0
+
+
+def test_pid_alive():
+    import os
+    assert tooling.pid_alive(os.getpid()) is True
+    assert tooling.pid_alive(_dead_pid()) is False
+
+
+def test_file_lock_dead_owner_taken_over_at_once(tmp_path):
+    import time
+    lock = tmp_path / "x.lock"
+    lock.write_text(f"{_dead_pid()} {time.time()}")
+    start = time.monotonic()
+    with tooling.file_lock(lock, timeout=0):  # khóa mới tạo nhưng chủ đã chết: chiếm ngay
+        assert lock.read_text().split()[0] != ""
+    assert time.monotonic() - start < 5
+    assert not lock.exists()
+
+
+def test_file_lock_live_owner_not_taken(tmp_path):
+    import os
+    import time
+    lock = tmp_path / "x.lock"
+    lock.write_text(f"{os.getpid()} {time.time()}")
+    with pytest.raises(RunnerError):
+        with tooling.file_lock(lock, timeout=0):
+            pass
+    assert lock.exists()
+
+
+def test_file_lock_unreadable_owner_uses_age_fallback(tmp_path):
+    import os
+    lock = tmp_path / "x.lock"
+    lock.write_text("rác")
+    with pytest.raises(RunnerError):
+        with tooling.file_lock(lock, timeout=0):
+            pass
+    os.utime(lock, (1_000_000, 1_000_000))
+    with tooling.file_lock(lock, timeout=0):
+        pass
+
 def test_run_command_kills_on_interrupt(monkeypatch, tmp_path):
     killed = []
 
@@ -651,6 +708,28 @@ def test_runtime_cleanup_warning(monkeypatch, tmp_path):
     assert r.status == "pass"
     assert any(f.severity == "warning" and "không xóa hết" in f.message for f in r.findings)
 
+
+
+def test_runtime_mysql_cleanup_not_ok_is_warning(monkeypatch, tmp_path):
+    ex = make_exercise(tmp_path, with_db=True)
+
+    class LeakySandbox:
+        cleanup_ok = False
+        root = tmp_path / "mysql_tmp_left"
+
+        def __enter__(self):
+            return {"host": "127.0.0.1", "port": 45001, "user": "root", "password": ""}
+
+        def __exit__(self, *a):
+            return False
+
+    monkeypatch.setattr(exercise_gate, "MySQLSandbox", LeakySandbox)
+    fake_runner(monkeypatch, res(10, 10), res(3, 10))
+    r = check_exercise(ex, RUNTIME)
+    assert r.status == "pass", r.findings
+    warns = [f.message for f in r.findings if f.severity == "warning" and "MySQL tạm" in f.message]
+    assert len(warns) == 2  # một cảnh báo cho mỗi dự án (đáp án mẫu, starter)
+    assert all("mysql_tmp_left" in m for m in warns)
 
 def test_tests_html_skips_node_modules(tmp_path):
     nm = tmp_path / "node_modules" / "pkg"

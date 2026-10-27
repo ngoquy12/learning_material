@@ -68,14 +68,17 @@ def verify_path(target: Path, opts: VerifyOptions) -> Report:
     Thư mục khác: duyệt cây; --kind lọc theo loại."""
     target = Path(target)
     started = datetime.now().isoformat(timespec="seconds")
-    detected = detect_kind(target)
-    if target.is_file():
-        kind = opts.kind if opts.kind in GATES else detected
-        results = [_run_gate(kind, target, opts)] if kind else [_unknown(target, "error", _FILE_NOT_RESOURCE)]
-    elif detected:
-        results = [_run_gate(opts.kind if opts.kind in GATES else detected, target, opts)]
-    else:
-        results = _verify_tree(target, opts)
+    try:
+        detected = detect_kind(target)
+        if target.is_file():
+            kind = opts.kind if opts.kind in GATES else detected
+            results = [_run_gate(kind, target, opts)] if kind else [_unknown(target, "error", _FILE_NOT_RESOURCE)]
+        elif detected:
+            results = [_run_gate(opts.kind if opts.kind in GATES else detected, target, opts)]
+        else:
+            results = _verify_tree(target, opts)
+    except OSError as exc:  # vd. PermissionError khi duyệt cây: thành lỗi của đích, không traceback
+        results = [_unknown(target, "error", f"Không duyệt được đường dẫn: {exc}")]
     return Report(target=str(target), results=results, started_at=started)
 
 

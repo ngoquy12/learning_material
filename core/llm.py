@@ -563,7 +563,7 @@ def call_llm(
 try:
     from core.semantic_cache import with_semantic_cache
     call_llm = with_semantic_cache(call_llm)
-    print("  [LLM] Semantic Cache activated. Duplicate LLM calls will be served from cache.")
+    print("  [LLM] Semantic Cache activated. Duplicate LLM calls will be served from cache.", file=sys.stderr)
 except ImportError:
     pass
 

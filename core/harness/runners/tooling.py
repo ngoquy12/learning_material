@@ -115,25 +115,81 @@ def child_env(extra: dict | None = None) -> dict:
     return env
 
 
+def pid_alive(pid: int) -> bool:
+    """Tiến trình `pid` còn chạy không (Windows: OpenProcess + GetExitCodeProcess; nơi khác: kill 0)."""
+    if pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+        from ctypes import wintypes
+
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.OpenProcess.restype = wintypes.HANDLE
+        kernel32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+        kernel32.GetExitCodeProcess.argtypes = (wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD))
+        kernel32.CloseHandle.argtypes = (wintypes.HANDLE,)
+        process_query_limited_information, still_active, access_denied = 0x1000, 259, 5
+        handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
+        if not handle:
+            # Không mở được vì thiếu quyền: tiến trình vẫn tồn tại (của người dùng khác).
+            return ctypes.get_last_error() == access_denied
+        try:
+            code = wintypes.DWORD()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return True
+            return code.value == still_active
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    except OSError:
+        return False
+    return True
+
+
+def _lock_owner(path: Path) -> int | None:
+    """PID chủ khóa ghi trong tệp (`<pid> <timestamp>`); None nếu không đọc/không hiểu được."""
+    try:
+        first = path.read_text(encoding="utf-8", errors="replace").split()[0]
+        return int(first)
+    except (OSError, IndexError, ValueError):
+        return None
+
+
+def _lock_is_stale(path: Path, stale_after: float) -> bool:
+    owner = _lock_owner(path)
+    if owner is not None and not pid_alive(owner):
+        return True  # chủ khóa đã chết: chiếm ngay, không chờ hết hạn
+    return time.time() - path.stat().st_mtime > stale_after
+
+
 @contextmanager
 def file_lock(path: Path, timeout: float = 900, stale_after: float = 1800):
-    """Khóa liên tiến trình bằng tệp tạo độc quyền; khóa cũ hơn `stale_after` giây coi như bỏ rơi."""
+    """Khóa liên tiến trình bằng tệp tạo độc quyền, ghi `<pid> <timestamp>` của chủ khóa.
+
+    Khóa coi như bỏ rơi khi tiến trình chủ không còn chạy, hoặc (không đọc được PID) cũ hơn `stale_after` giây.
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     deadline = time.monotonic() + timeout
     while True:
         try:
             fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-            os.write(fd, str(os.getpid()).encode())
+            os.write(fd, f"{os.getpid()} {time.time():.0f}".encode())
             os.close(fd)
             break
         except FileExistsError:
             try:
-                if time.time() - path.stat().st_mtime > stale_after:
+                if _lock_is_stale(path, stale_after):
                     path.unlink()
                     continue
             except OSError:
-                continue
+                if not path.exists():
+                    continue  # chủ khóa vừa nhả: thử lấy lại ngay
             if time.monotonic() > deadline:
                 raise RunnerError(f"Chờ khóa {path.name} quá {int(timeout)} giây") from None
             time.sleep(1)

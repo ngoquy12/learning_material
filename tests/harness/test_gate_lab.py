@@ -67,3 +67,32 @@ def test_heading_in_fence_ignored(tmp_path):
     text = lab_md(with_summary=False) + "\n```\n## Tổng kết\n```\n"
     r = run(tmp_path, text)
     assert any("Tổng kết" in f.message for f in r.findings if f.severity == "error")
+
+
+def _errs(r):
+    return [f.message for f in r.findings if f.severity == "error"]
+
+
+def test_duplicate_lab_number_is_error(tmp_path):
+    text = lab_md(labs=3).replace("## Lab 3 - Nội dung lab 3", "## Lab 2 - Nội dung lab 3")
+    r = run(tmp_path, text)
+    assert any("Lab 2" in m and "trùng" in m for m in _errs(r)), r.findings
+
+
+def test_non_ascending_lab_numbers_is_error(tmp_path):
+    text = (lab_md(labs=2).replace("## Lab 1 - ", "## Lab X1 - ")
+            .replace("## Lab 2 - ", "## Lab 1 - ").replace("## Lab X1 - ", "## Lab 2 - "))
+    r = run(tmp_path, text)
+    assert any("tăng dần" in m for m in _errs(r)), r.findings
+
+
+def test_gap_in_lab_numbers_is_allowed(tmp_path):
+    text = lab_md(labs=2).replace("## Lab 2 - ", "## Lab 3 - ")
+    assert run(tmp_path, text).status == "pass"
+
+
+def test_expected_result_inside_code_fence_not_counted(tmp_path):
+    text = lab_md(skip_expected_in=2).replace(
+        "## Tổng kết", "```text\nKết quả mong đợi: chỉ là ví dụ trong mã\n```\n\n## Tổng kết")
+    r = run(tmp_path, text)
+    assert any("Lab 2" in m and "Kết quả mong đợi" in m for m in _errs(r)), r.findings

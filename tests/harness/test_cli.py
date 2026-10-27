@@ -185,3 +185,19 @@ def test_default_report_dir_outside_tree(tmp_path, monkeypatch):
     assert d.parent == tmp_path / "reports"
     assert d.name.endswith("_mon_hoc_dep")
     assert (d / "report.json").exists()
+
+
+@pytest.mark.parametrize("where", ["discover", "detect_kind"])
+def test_walk_oserror_is_error_result_not_traceback(valid_course_tree, tmp_path, monkeypatch, capsys, where):
+    def denied(*a, **k):
+        raise PermissionError(13, "Access is denied", str(valid_course_tree))
+
+    monkeypatch.setattr(f"core.harness.verify.{where}", denied)
+    out = tmp_path / "rep"
+    assert _run(valid_course_tree, "--report-dir", out) == 1
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.err + captured.out
+    data = json.loads((out / "report.json").read_text(encoding="utf-8"))
+    [res] = data["results"]
+    assert res["status"] == "fail"
+    assert "Access is denied" in res["findings"][0]["message"]

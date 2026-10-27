@@ -168,3 +168,30 @@ def test_caps_text_from_template_is_exempt(tmp_path):
     no_tpl = deck_mod.static_checks(p, tmp_path / "missing.pptx")  # template thiếu: không miễn trừ, không lỗi
     # mẫu mặc định của dự án không chứa chuỗi này
     assert any("viết hoa" in e for e in no_tpl["errors"])
+
+
+def test_render_ok_prunes_old_render_dirs(render_env, monkeypatch):
+    import os
+    mod, p = render_env
+    deck = mod._check_deck()
+    monkeypatch.setattr(deck, "render_with_powerpoint", lambda *a: {"status": "OK"})
+    monkeypatch.setattr(deck, "measured_checks", lambda probe: {"errors": [], "warnings": []})
+    mod.RENDER_ROOT.mkdir(parents=True)
+    old = []
+    for i in range(7):
+        d = mod.RENDER_ROOT / f"deck_old{i}"
+        d.mkdir()
+        (d / "slide1.png").write_bytes(b"x")
+        os.utime(d, (1_000_000 + i, 1_000_000 + i))
+        old.append(d)
+    keep_file = mod.RENDER_ROOT / "note.txt"  # tệp lạ không bị đụng tới
+    keep_file.write_text("x")
+    r = check_slide_pptx(p, VerifyOptions(render=True))
+    from pathlib import Path
+    left = {x.name for x in mod.RENDER_ROOT.iterdir() if x.is_dir()}
+    assert len(left) == mod.RENDER_KEEP
+    assert Path(r.detail["render_dir"]).name in left
+    # giữ các thư mục mới nhất, xóa các thư mục cũ nhất
+    assert {d.name for d in old[-(mod.RENDER_KEEP - 1):]} <= left
+    assert not old[0].exists()
+    assert keep_file.exists()
