@@ -154,11 +154,14 @@ def _compute(spec_path: Path, runtime: bool) -> st.StateSnapshot:
         # Một số module được nạp khi chạy cổng in ra stdout lúc import: dồn sang stderr.
         with contextlib.redirect_stdout(sys.stderr):
             snap = st.compute_status(spec_path, runtime=runtime, verify=st.verify_path)
-            st.save_state(snap)
     except SpecError as exc:
         raise _UserError([f"Đặc tả không hợp lệ: {spec_path}", *exc.messages]) from exc
     except PlanError as exc:
         raise _UserError([str(exc)]) from exc
+    except OSError as exc:
+        raise _UserError([f"Không đọc được thư mục môn: {exc}"]) from exc
+    try:
+        st.save_state(snap)
     except OSError as exc:  # vd. không ghi được storage/harness/<course_id>/
         raise _UserError([f"Không ghi được tệp trạng thái: {exc}"]) from exc
     return snap
@@ -211,6 +214,13 @@ def _is_stale(snap: st.StateSnapshot | None, spec, spec_path: Path) -> bool:
     return mtime.replace(microsecond=0) > updated
 
 
+_RENAME_NOTE = "Đích là mẫu chưa có tệp/thư mục thật: đổi đường dẫn sau khi tạo"
+
+
+def _is_pattern_missing(t: st.TaskState) -> bool:
+    return not t.target and any(m in t.target_hint.rsplit("/", 1)[-1] for m in ("...", "*"))
+
+
 def _verify_command(t: st.TaskState, target: str) -> str:
     if t.kind not in GATES:
         return ""
@@ -225,7 +235,8 @@ def _block(t: st.TaskState, course_dir: Path, notes: str) -> dict:
         "id": t.id, "kind": t.kind, "wave": t.wave, "target": target, "status": t.status,
         "skill": f"skills/{t.skill}/SKILL.md", "depends_on": list(t.depends_on), "notes": notes,
         "allowed": list(t.allowed), "forbidden": list(t.forbidden), "first_error": t.first_error,
-        "verify_command": command, "verify_note": "" if command else _EXISTENCE_NOTE,
+        "verify_command": command,
+        "verify_note": _EXISTENCE_NOTE if not command else (_RENAME_NOTE if _is_pattern_missing(t) else ""),
     }
 
 

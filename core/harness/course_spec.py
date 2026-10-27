@@ -101,6 +101,9 @@ def _check_semantics(spec: CourseSpec) -> list[str]:
     errors: list[str] = []
     if not spec.course_id.strip():
         errors.append("course_id: không được để trống")
+    elif (spec.course_id in (".", "..") or "/" in spec.course_id or "\\" in spec.course_id
+          or ":" in spec.course_id or Path(spec.course_id).name != spec.course_id):
+        errors.append("course_id: phải là một tên đơn (không chứa dấu phân cách đường dẫn hoặc '..')")
     _check_resources("defaults.lesson_resources", spec.defaults.lesson_resources, LESSON_RESOURCES, errors)
     seen_sessions: dict[str, int] = {}
     for si, session in enumerate(spec.sessions):

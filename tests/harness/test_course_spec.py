@@ -81,3 +81,12 @@ def test_strict_and_vietnamese(tmp_path, mutate, needle):
         load_spec(write_yaml(tmp_path, d))
     assert any(needle in m for m in e.value.messages)
     assert not any("Input should" in m or "Extra inputs" in m for m in e.value.messages)
+
+
+@pytest.mark.parametrize("bad", ["../..", "a/b", "a\\b", "..", ".", "C:x"])
+def test_course_id_must_be_single_component(tmp_path, bad):
+    data = copy.deepcopy(VALID)
+    data["course_id"] = bad
+    with pytest.raises(SpecError) as exc:
+        load_spec(write_yaml(tmp_path, data))
+    assert any(m.startswith("course_id") for m in exc.value.messages)

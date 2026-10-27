@@ -238,3 +238,24 @@ def test_limit_must_be_positive(tmp_path):
     _, spec = _course(tmp_path)
     with pytest.raises(SystemExit):
         main(["next", str(spec), "--limit", "0"])
+
+
+def test_compute_oserror_not_labelled_as_write(tmp_path, capsys, fake_verify, monkeypatch):
+    _, spec = _course(tmp_path)
+
+    def boom(*a, **k):
+        raise PermissionError(13, "Access is denied")
+
+    monkeypatch.setattr(st, "build_tasks", boom)
+    assert main(["status", str(spec)]) == 1
+    err = capsys.readouterr().err
+    assert "Không đọc được thư mục môn" in err and "Không ghi được" not in err
+
+
+def test_next_missing_pattern_target_has_rename_note(tmp_path, capsys, fake_verify):
+    _, spec = _course(tmp_path)
+    main(["next", str(spec), "--json"])
+    tasks = json.loads(capsys.readouterr().out)["tasks"]
+    ex = [t for t in tasks if t["kind"] == "exercise"]
+    assert ex and all("đổi đường dẫn sau khi tạo" in t["verify_note"] and t["verify_command"] for t in ex)
+    assert all(t["verify_note"] == "" for t in tasks if t["kind"] == "reading")

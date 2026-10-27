@@ -93,3 +93,11 @@ def test_pptx_first_file(tmp_path):
     for n in ("b.pptx", "a.pptx", "~$a.pptx"):
         (d / n).write_text("x")
     assert resolve_target(tmp_path, ["Slide bai giang"], "*.pptx") == d / "a.pptx"
+
+
+def test_hint_uses_accented_folder_on_disk(tmp_path):
+    spec, course = _spec(tmp_path, copy.deepcopy(VALID))
+    (course / "Session 01 - Ly thuyet" / "Lesson 01 - Tong quan" / "Bài đọc").mkdir()
+    t = _by_id(build_tasks(spec, course))["s01/l01/reading"]
+    assert t.target is None
+    assert t.target_hint == "Session 01 - Ly thuyet/Lesson 01 - Tong quan/Bài đọc/reading.html"

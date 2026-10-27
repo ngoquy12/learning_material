@@ -57,7 +57,8 @@ class StateSnapshot:
             raise ValueError("tasks phải là dict")
         tasks = {}
         for k, v in raw.items():
-            if not isinstance(v, dict) or v.get("status") not in _STATUSES                     or not isinstance(v.get("depends_on", []), list):
+            if (not isinstance(v, dict) or v.get("status") not in _STATUSES
+                    or not isinstance(v.get("depends_on", []), list)):
                 raise ValueError(f"nhiệm vụ {k} không hợp lệ")
             tasks[k] = TaskState(**v)
         return cls(course_id=data["course_id"], spec_path=data["spec_path"],

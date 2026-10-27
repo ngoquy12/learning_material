@@ -21,7 +21,7 @@ def _subdirs(parent: Path, prefix: str) -> list[Path]:
         if p.is_dir()
         and not p.name.startswith(".")
         and normalize_name(p.name) not in SKIP_DIRS
-        and normalize_name(p.name).startswith(prefix)
+        and re.match(rf"{prefix}\b", normalize_name(p.name))
     ]
     return sorted(found, key=lambda p: normalize_name(p.name))
 

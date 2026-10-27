@@ -67,6 +67,24 @@ def resolve_target(course_dir: Path, parts: list[str], pattern: str | None = Non
     return None
 
 
+def _disk_hint(course_dir: Path, hint_parts: list[str]) -> str:
+    """Gợi ý đường dẫn: dùng tên thật trên đĩa cho phần tiền tố đã có, phần còn lại giữ theo đặc tả."""
+    out: list[str] = []
+    current: Path | None = Path(course_dir)
+    for part in hint_parts:
+        match = None
+        if current is not None and current.is_dir():
+            key = normalize_name(part)
+            match = next(
+                (c for c in sorted(current.iterdir(), key=lambda p: p.name)
+                 if normalize_name(c.name) == key and not _skipped(c.name)),
+                None,
+            )
+        out.append(match.name if match else part)
+        current = match
+    return "/".join(out)
+
+
 def _dep_sessions(spec: CourseSpec, index: int) -> list[int]:
     session = spec.sessions[index]
     if session.depends_on_sessions is not None:
@@ -98,7 +116,7 @@ def build_tasks(spec: CourseSpec, course_dir: Path) -> list[Task]:
         tasks.append(Task(
             id=task_id, kind=kind, gate=gate, skill=skill,
             target=target.resolve() if target else None,
-            target_hint="/".join(hint_parts), depends_on=list(deps),
+            target_hint=_disk_hint(course_dir, hint_parts), depends_on=list(deps),
             session_index=si, lesson_index=li,
             allowed=list(lesson.allowed) if lesson else [],
             forbidden=list(lesson.forbidden) if lesson else [],

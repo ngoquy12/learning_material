@@ -121,3 +121,13 @@ def test_folder_detection_without_files(tmp_path):
     assert s["kind"] == "practice" and s["resources"] == ["lab"]
     tasks = build_tasks(load_spec(write_spec(course)), course)
     assert [(t.kind, t.target) for t in tasks] == [("lab", None)]
+
+
+def test_session_lesson_prefix_must_be_word(tmp_path):
+    course = tmp_path / "c"
+    (course / "Session 01 - A" / "Lesson 01 - X" / "Lessons_cu").mkdir(parents=True)
+    (course / "Session 01 - A" / "Lessonx").mkdir()
+    (course / "Sessions_cu").mkdir()
+    data = draft_spec(course)
+    assert [s["folder"] for s in data["sessions"]] == ["Session 01 - A"]
+    assert [x["folder"] for x in data["sessions"][0]["lessons"]] == ["Lesson 01 - X"]
