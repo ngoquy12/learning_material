@@ -77,6 +77,8 @@ Keep its images and figure captions. Keep Section 1 title general. Touch layout 
 
 `scripts/check_reading.py` runs the project's `validate_reading_material` (section ids, 3 examples in Section 3, emoji, banned words, requirement box, Pyodide compatibility for Python, word budget) and adds checks the validator lacks: `href="#"`, buttons without `type`, images without caption, `dark:` classes, ALL CAPS headings and buttons, square-bracket tags. It does not execute your code and does not judge whether the content teaches well; both remain your job (R20 and the browser check).
 
+Before reporting the reading done, also run the verification gate: `python -m core.harness verify <reading.html> --kind reading` (exit 0 required; exit 2 means a tool was missing, so name it and do not claim verified).
+
 ## 7. Reference files
 
 - `reference/html_snippets.md` — component markup: callouts, code cards, sandbox, comparison cards, simulator, self-test, decision table.

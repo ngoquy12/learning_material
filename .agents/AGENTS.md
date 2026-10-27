@@ -107,3 +107,10 @@ Ba phần: Mục tiêu (2-3 kỹ năng, sản phẩm bàn giao); Mô tả và qu
 Kho kinh nghiệm theo nhóm: `skills/lessons_learned/SKILL.md` (mỗi `<img>` có chú thích dưới; `<table>` bọc `div.overflow-x-auto`; đóng đủ thẻ; không placeholder chưa render; nhãn ngôn ngữ khớp công nghệ).
 
 - Bài tập/lab môn lập trình: viết bài đọc trước, bài tập sau; trước khi giao chạy `python scripts/check_exercise_scope.py <thư mục môn> --forbid <cấu trúc chưa dạy>` và sửa tới 0 vấn đề (quy trình ở mục 8 của `skills/exercise_generator/SKILL.md`).
+
+## 9. Cổng kiểm chứng
+
+- Một tài nguyên (bài đọc, slide, quiz, bài tập, lab) chỉ được báo là xong khi `python -m core.harness verify <đường dẫn>` trả mã thoát 0. Đường dẫn là tệp, thư mục bài hoặc cả thư mục môn; thêm `--kind` khi tên thư mục không đủ để nhận diện.
+- Mã 1 là có lỗi: sửa học liệu rồi chạy lại. Mã 2 là không có lỗi nhưng một cổng bị bỏ qua vì máy thiếu công cụ: phải nêu rõ công cụ thiếu trong báo cáo, không được coi là đạt.
+- Bài tập lập trình và slide HTML cần thêm `--runtime` (chạy test thật, đo vừa khung bằng trình duyệt). Slide `.pptx` thêm `--render` khi có PowerPoint trên Windows.
+- Báo cáo nằm ở `storage/harness_reports/`. Cách dùng, bảng loại tài nguyên và công cụ tùy chọn: `docs/harness.md`.

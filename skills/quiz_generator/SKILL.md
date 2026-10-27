@@ -78,3 +78,4 @@ When generating code snippets or code symbols inside `question`, `options`, `exp
 2. Spread the correct option across A, B, C, D; avoid long runs of the same position.
 3. Each question tests one concept and can be answered in 30 seconds.
 4. The question, options, explanation and `instant_feedback` must read as standalone domain knowledge with no pointer to any other material.
+5. Run the verification gate before reporting done: `python -m core.harness verify <quiz folder or file> --kind quiz_lesson` (use `--kind quiz_session` for session quizzes; exit 0 required; exit 2 means a tool was missing, so name it).

@@ -51,6 +51,8 @@ Accented Vietnamese, English technical terms and identifiers. No emoji or pictog
 
 It measures, for every slide at 1366x768, 1920x1080 and 1280x720: vertical overflow in the default state and after clicking each button (up to 15 per slide), horizontal overflow, console errors; and scans for leftover `{{...}}`, `href="#"`, glass/gradient/blur tokens, emoji, banned words, text smaller than 15px. It does not judge whether the content is correct or the slide looks good; that is your review of the screenshots. If Playwright or Chrome is missing, tell the user and do not claim the slides were verified.
 
+Before reporting the deck done, run the verification gate: `python -m core.harness verify <slides.html> --kind slide_html --runtime` (exit 0 required; exit 2 means a tool was missing, so name it and do not claim verified).
+
 ## 6. Reference files
 
 - `reference/slides_frame.html` — the approved frame (head, styles, header, navigation, tabs, helpers) with two example slides.

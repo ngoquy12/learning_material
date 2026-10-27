@@ -1,0 +1,68 @@
+# Harness kiểm chứng học liệu
+
+Harness (`core/harness/`) kiểm tra học liệu đã sinh theo chuẩn của dự án trước khi báo xong. Thiết kế: `docs/superpowers/specs/2026-10-27-harness-design.md`.
+
+## Cách dùng
+
+```bash
+python -m core.harness verify <đường dẫn> [--kind K] [--runtime] [--render] [--json] [--report-dir DIR]
+```
+
+- `<đường dẫn>`: một tệp, một thư mục bài (bài tập, quiz) hoặc cả thư mục môn. Với thư mục môn, harness tự duyệt và chạy cổng phù hợp cho từng tài nguyên.
+- `--kind K`: ép loại tài nguyên khi không nhận diện được từ tên thư mục.
+- `--runtime`: chạy thật (Vitest, MySQL tạm, trình duyệt).
+- `--render`: đo chữ tràn bằng PowerPoint (chỉ slide `.pptx`, chỉ Windows).
+- `--json`: in báo cáo JSON ra màn hình thay cho bản tóm tắt.
+- `--report-dir DIR`: ghi báo cáo vào `DIR` thay cho thư mục mặc định.
+
+## Loại tài nguyên (`--kind`)
+
+| Kind | Nhận diện | Kiểm tra |
+| --- | --- | --- |
+| `reading` | `Bài đọc/*.html` | Cấu trúc 5 mục, từ cấm, emoji, ngân sách từ |
+| `slide_pptx` | `Slide bài giảng/*.pptx` | Kiểm tĩnh bộ slide; `--render` đo chữ tràn bằng PowerPoint |
+| `slide_html` | `Bài giảng trên lớp/slides.html` | Kiểm tĩnh; `--runtime` đo vừa khung và lỗi console |
+| `quiz_lesson` | `Quizz lesson/` (`quiz.md`, `.xlsx`) | Định dạng và quy tắc câu hỏi quiz bài |
+| `quiz_session` | `Quizz session/` (`.md`, `.xlsx`) | Định dạng và quy tắc câu hỏi quiz buổi |
+| `exercise` | `Bài tập/<số>_<tên>/` | Kiểm tĩnh đề, rubric, starter; `--runtime` chạy test của đáp án mẫu và starter |
+| `lab` | `Bài thực hành/lab_guide.md` | Cấu trúc 3 phần, checklist, từ cấm |
+
+Nhận diện theo tên thư mục cha, không phân biệt hoa thường và dấu tiếng Việt.
+
+## Mã thoát
+
+| Mã | Ý nghĩa |
+| --- | --- |
+| 0 | Mọi cổng đạt |
+| 1 | Có ít nhất một lỗi (error), hoặc đường dẫn không tồn tại |
+| 2 | Không có lỗi nhưng một cổng bị bỏ qua vì thiếu công cụ. Không bao giờ được coi là đạt |
+
+Cảnh báo (warning) không làm hỏng lần chạy.
+
+## Báo cáo
+
+Mỗi lần chạy ghi `storage/harness_reports/<thời điểm>_<tên>/report.json` và `report.md`. Dòng cuối của lệnh in đường dẫn thư mục báo cáo. Thư mục `storage/harness_reports/` và `storage/harness_cache/` không được commit.
+
+## Công cụ tùy chọn
+
+Chỉ cần khi dùng `--runtime` hoặc `--render`. Thiếu công cụ thì cổng báo bỏ qua và lệnh trả mã 2.
+
+| Công cụ | Dùng cho | Cách cài |
+| --- | --- | --- |
+| Playwright (Python) và Chromium hoặc Chrome cài sẵn | `slide_html --runtime`, chạy `tests.html` của bài tập | `pip install playwright` rồi `python -m playwright install chromium`; hoặc cài Google Chrome |
+| Node.js và npm | Vitest cho bài tập `--runtime` | Cài Node.js LTS. Lần chạy đầu cần mạng để `npm install`; kết quả lưu ở `storage/harness_cache/node_ws` |
+| MySQL Server 8 (`mysqld`) | Bài tập có cơ sở dữ liệu `--runtime` | Cài MySQL Server 8. Harness dựng một phiên bản tạm trên cổng trống, không bao giờ dùng cổng 3306, không tạo người dùng, xóa sau khi chạy |
+| PowerPoint (Windows) | `slide_pptx --render` | Cài Microsoft PowerPoint |
+
+## Kết quả đã biết
+
+- Các khóa NodeJS và ReactJS đã duyệt đạt kiểm chứng tĩnh.
+- Bài tập có số từ ngoài khoảng 350-700 chỉ bị cảnh báo, không làm hỏng.
+- Khóa cũ dùng định dạng quiz json không đạt cổng quiz; cần đổi sang định dạng hiện hành.
+
+## Xử lý sự cố
+
+- Mã 2: đọc dòng "Bỏ qua" trong kết quả để biết công cụ thiếu, cài theo bảng trên rồi chạy lại.
+- "Không nhận diện được loại tài nguyên": thêm `--kind`, hoặc kiểm tra tên thư mục cha.
+- `npm install` treo hoặc lỗi: kiểm tra mạng, xóa `storage/harness_cache/node_ws` rồi chạy lại.
+- Khóa `.lock` còn sót trong `storage/harness_cache/` sau khi bị ngắt: khóa cũ hơn 30 phút tự bị bỏ qua; có thể xóa tay.

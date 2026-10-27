@@ -189,3 +189,4 @@ Root causes of past defects were process gaps, not individual exercises: exercis
 
    It reports (a) constructs the course has not taught in student-written code of starters and reference solutions, and (b) functions with the same name but different parameter shapes across exercises of one session. A reported drift is either a bug to fix or an intentional change that must be stated in the exercise statement.
 6. If the gate flags a construct that is genuinely needed, do NOT quietly keep it: either teach it in a reading first, or redesign the exercise so students never write it.
+7. Run the verification gate before reporting done: `python -m core.harness verify <exercise folder> --kind exercise --runtime` (runs the reference solution and starter tests for real; exit 0 required; exit 2 means a tool such as Node or mysqld was missing, so name it). Keep the scope checker above as well.
