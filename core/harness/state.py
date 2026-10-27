@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,6 +16,7 @@ from core.harness.verify import verify_path
 Status = Literal["missing", "failed", "blocked_tool", "done"]
 
 STATE_ROOT = Path(__file__).resolve().parents[2] / "storage" / "harness"
+_STATUSES = {"missing", "failed", "blocked_tool", "done"}
 _RUNTIME_GATES = {"exercise", "slide_html"}
 
 
@@ -50,7 +52,14 @@ class StateSnapshot:
     @classmethod
     def from_json(cls, text: str) -> "StateSnapshot":
         data = json.loads(text)
-        tasks = {k: TaskState(**v) for k, v in data["tasks"].items()}
+        raw = data["tasks"]
+        if not isinstance(raw, dict):
+            raise ValueError("tasks phải là dict")
+        tasks = {}
+        for k, v in raw.items():
+            if not isinstance(v, dict) or v.get("status") not in _STATUSES                     or not isinstance(v.get("depends_on", []), list):
+                raise ValueError(f"nhiệm vụ {k} không hợp lệ")
+            tasks[k] = TaskState(**v)
         return cls(course_id=data["course_id"], spec_path=data["spec_path"],
                    updated_at=data["updated_at"], runtime=data["runtime"], tasks=tasks)
 
@@ -85,7 +94,9 @@ def _check(task, runtime: bool, verify: Callable) -> dict:
     status = {0: "done", 1: "failed", 2: "blocked_tool"}.get(report.exit_code, "failed")
     return {"status": status, "errors": len(errors),
             "warnings": sum(1 for f in findings if f.severity == "warning"),
-            "first_error": errors[0].message if errors else ""}
+            "first_error": errors[0].message if errors else
+            "; ".join(r.skipped_reason for r in report.results if r.skipped_reason)
+            if status == "blocked_tool" else ""}
 
 
 def compute_status(spec_path: Path, runtime: bool = False, verify=verify_path) -> StateSnapshot:
@@ -109,14 +120,16 @@ def compute_status(spec_path: Path, runtime: bool = False, verify=verify_path) -
 def save_state(snap: StateSnapshot) -> Path:
     path = state_path(snap.course_id)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(snap.to_json(), encoding="utf-8")
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(snap.to_json(), encoding="utf-8")
+    os.replace(tmp, path)
     return path
 
 
 def load_state(course_id: str) -> StateSnapshot | None:
     try:
         return StateSnapshot.from_json(state_path(course_id).read_text(encoding="utf-8"))
-    except (OSError, ValueError, KeyError, TypeError):
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
         return None
 
 

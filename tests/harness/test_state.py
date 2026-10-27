@@ -54,6 +54,8 @@ def test_status_mapping_and_blocked_not_unlocking(tmp_path):
     assert snap.tasks["s01/l01/reading"].status == "blocked_tool"
     ids = [t.id for t in ready_tasks(snap)]
     assert ids == ["s01/l01/reading", "s01/l02/reading"]  # phụ thuộc chưa mở khóa
+    assert "s01/slide_html" not in ids and "s01/l01/reading_questions" not in ids
+    assert snap.tasks["s01/l01/reading"].first_error == "thiếu công cụ"
 
 
 def test_empty_file_is_missing(tmp_path):
@@ -80,6 +82,8 @@ def test_runtime_only_for_exercise_and_slide_html(tmp_path):
     s = course / "Session 01 - Ly thuyet"
     (s / "Bai giang tren lop").mkdir()
     (s / "Bai giang tren lop" / "slides.html").write_text("x")
+    (s / "Bai tap" / "1_demo").mkdir(parents=True)
+    (s / "Bai tap" / "1_demo" / "a.txt").write_text("x")
     seen = {}
 
     def fake(target, opts):
@@ -87,7 +91,7 @@ def test_runtime_only_for_exercise_and_slide_html(tmp_path):
         return _report(0)
 
     compute_status(spec, runtime=True, verify=fake)
-    assert seen["slide_html"] is True and seen["reading"] is False
+    assert seen["slide_html"] is True and seen["exercise"] is True and seen["reading"] is False
     seen.clear()
     compute_status(spec, runtime=False, verify=fake)
     assert not any(seen.values())
@@ -125,3 +129,18 @@ def test_save_load_roundtrip(tmp_path, monkeypatch):
     path.write_text("{hỏng", encoding="utf-8")
     assert load_state("c") is None
     assert load_state("none") is None
+
+
+def test_load_state_wrong_shape_returns_none(tmp_path, monkeypatch):
+    import json
+    monkeypatch.setattr(st, "STATE_ROOT", tmp_path)
+    task = {"id": "a", "kind": "x", "status": "done", "target": "", "target_hint": "", "wave": 1}
+    base = {"course_id": "c", "spec_path": "s", "updated_at": "t", "runtime": False}
+    for tasks in (None, [], "x", {"a": {**task, "status": "weird"}},
+                  {"a": {**task, "depends_on": "b"}}, {"a": "x"}):
+        path = st.state_path("c")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({**base, "tasks": tasks}), encoding="utf-8")
+        assert load_state("c") is None
+    path.write_text(json.dumps({**base, "tasks": {"a": task}}), encoding="utf-8")
+    assert load_state("c") is not None
