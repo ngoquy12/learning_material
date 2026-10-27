@@ -1,6 +1,6 @@
 # Phân tích 21 skill tạo học liệu và nhận xét
 
-> Cập nhật sau phân tích: chuỗi `skill-1`, `skill-2`, `skill-3` đã được thay bằng hai skill mới `slide_deck` (PPTX) và `slide_html` (slides.html), có script kiểm tra đã thử trên dữ liệu thật; `quiz_generator` đã có frontmatter; `classroom_lecture_generator` có ghi chú phạm vi. Các mục 2.1 đến 2.4 và 3.19 đến 3.21 bên dưới mô tả hiện trạng TRƯỚC khi viết lại.
+> Cập nhật sau phân tích: chuỗi `skill-1`, `skill-2`, `skill-3` đã được thay bằng hai skill mới `slide_deck` (PPTX) và `slide_html` (slides.html), có script kiểm tra đã thử trên dữ liệu thật; `quiz_generator` đã có frontmatter; `classroom_lecture_generator` có ghi chú phạm vi. Các mục 2.1 đến 2.4 và 3.19 đến 3.21 bên dưới mô tả hiện trạng TRƯỚC khi viết lại. `lessons_learned`, `quiz_generator`, `lab_generator` và `reading_generator` cũng đã sửa theo các nhận xét ở mục 3 (bản `reading_generator` cũ lưu ở `docs/archive/`); các mục 3.1 đến 3.4 và 3.7 mô tả hiện trạng trước khi sửa.
 
 Phạm vi: đã đọc toàn văn 21 `SKILL.md` trong `skills/`, mã dựng slide của dự án (`agents/creators/slide_deck_creator.py`, `agents/reviewers/slide_deck_reviewer.py`, `core/renderers/pptx/deck_engine.py`, `core/renderers/pptx/slide_validator.py`, `templates/prompts/slide_deck_stage1.j2` và `stage2.j2`, `templates/html/classroom_lecture.html.j2`), mục 5 của `.agents/AGENTS.md`, và skill PPTX của Claude để đối chiếu.
 
