@@ -71,6 +71,8 @@ def _build_parser() -> argparse.ArgumentParser:
     n.add_argument("spec")
     n.add_argument("--limit", type=_positive_int)
     n.add_argument("--json", action="store_true")
+    n.add_argument("--cached", action="store_true",
+                   help="dùng lại state.json nếu còn mới (đặc tả chưa sửa sau lần tính trước)")
     return parser
 
 
@@ -157,6 +159,8 @@ def _compute(spec_path: Path, runtime: bool) -> st.StateSnapshot:
         raise _UserError([f"Đặc tả không hợp lệ: {spec_path}", *exc.messages]) from exc
     except PlanError as exc:
         raise _UserError([str(exc)]) from exc
+    except OSError as exc:  # vd. không ghi được storage/harness/<course_id>/
+        raise _UserError([f"Không ghi được tệp trạng thái: {exc}"]) from exc
     return snap
 
 
@@ -186,6 +190,7 @@ def _cmd_status(args) -> int:
         if t.status != "done":
             line = f"[{t.status}] {t.id}  {_target_of(t, course_dir)}"
             print(f"{line}  {t.first_error}" if t.first_error else line)
+    print(f"Trạng thái tính lúc {snap.updated_at}")
     print(f"Trạng thái: {path}")
     return code
 
@@ -243,9 +248,9 @@ def _print_block(b: dict) -> None:
 def _cmd_next(args) -> int:
     spec_path = Path(args.spec)
     spec = _load(spec_path)
-    snap = st.load_state(spec.course_id)
-    if _is_stale(snap, spec, spec_path):
-        snap = _compute(spec_path, runtime=False)
+    snap = st.load_state(spec.course_id) if args.cached else None
+    if snap is None or _is_stale(snap, spec, spec_path):
+        snap = _compute(spec_path, runtime=False)  # luôn tĩnh; kiểm runtime dùng `status --runtime`
     course_dir = spec_path.parent.resolve()
     notes = str((course_dir / spec.notes).resolve()) if spec.notes else ""
     ready = st.ready_tasks(snap)
@@ -253,8 +258,9 @@ def _cmd_next(args) -> int:
         ready = ready[:args.limit]
     blocks = [_block(t, course_dir, notes) for t in ready]
     if args.json:
-        print(json.dumps(blocks, ensure_ascii=False, indent=2))
+        print(json.dumps({"updated_at": snap.updated_at, "tasks": blocks}, ensure_ascii=False, indent=2))
         return 0
+    print(f"Trạng thái tính lúc {snap.updated_at}")
     if not blocks:
         done = all(t.status == "done" for t in snap.tasks.values())
         print("Mọi nhiệm vụ đã xong." if done else

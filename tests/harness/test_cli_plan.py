@@ -90,7 +90,7 @@ def test_status_exit_3_and_json(tmp_path, capsys, fake_verify):
     assert main(["status", str(spec)]) == 3
     out = capsys.readouterr().out
     assert "missing" in out and "[missing] s01/quiz_session" in out
-    assert str(st.state_path("demo")) in out
+    assert str(st.state_path("demo")) in out and "Trạng thái tính lúc" in out
     assert main(["status", str(spec), "--json"]) == 3
     data = json.loads(capsys.readouterr().out)
     assert data["counts"]["done"] == 2 and data["counts"]["missing"] > 0
@@ -118,7 +118,9 @@ def test_status_runtime_passed(tmp_path, fake_verify):
 def test_next_limit_json_block(tmp_path, capsys, fake_verify):
     course, spec = _course(tmp_path)
     assert main(["next", str(spec), "--limit", "1", "--json"]) == 0
-    [block] = json.loads(capsys.readouterr().out)
+    data = json.loads(capsys.readouterr().out)
+    assert data["updated_at"] == st.load_state("demo").updated_at
+    [block] = data["tasks"]
     assert block["skill"].startswith("skills/") and block["skill"].endswith("/SKILL.md")
     assert "--kind" in block["verify_command"]
     assert block["wave"] == 2  # các reading đã done, đợt 2 là đợt sẵn sàng đầu tiên
@@ -135,7 +137,7 @@ def test_next_blocks_fields(tmp_path, capsys, fake_verify):
     course, spec = _course(tmp_path, data)
     (course / "Session 01 - Ly thuyet" / "Lesson 01 - Tong quan" / "Bai doc" / "reading.html").unlink()
     assert main(["next", str(spec), "--json"]) == 0
-    blocks = {b["id"]: b for b in json.loads(capsys.readouterr().out)}
+    blocks = {b["id"]: b for b in json.loads(capsys.readouterr().out)["tasks"]}
     reading = blocks["s01/l01/reading"]
     assert reading["skill"] == "skills/reading_generator/SKILL.md"
     assert reading["allowed"] == ["biến"] and reading["forbidden"] == ["class"]
@@ -155,7 +157,7 @@ def test_next_runtime_flag_for_exercise(tmp_path, capsys, fake_verify):
     data["sessions"] = data["sessions"][:1]
     course, spec = _course(tmp_path, data)
     assert main(["next", str(spec), "--json"]) == 0
-    blocks = {b["id"]: b for b in json.loads(capsys.readouterr().out)}
+    blocks = {b["id"]: b for b in json.loads(capsys.readouterr().out)["tasks"]}
     assert blocks["s01/exercise_1"]["verify_command"].endswith("--kind exercise --runtime")
     assert blocks["s01/slide_html"]["verify_command"].endswith("--kind slide_html --runtime")
     assert blocks["s01/quiz_session"]["verify_command"].endswith("--kind quiz_session")
@@ -166,26 +168,51 @@ def test_next_text_output(tmp_path, capsys, fake_verify):
     assert main(["next", str(spec), "--limit", "2"]) == 0
     out = capsys.readouterr().out
     assert out.count("skills/") == 2 and "python -m core.harness verify" in out
+    assert "Trạng thái tính lúc" in out
 
 
-def test_next_uses_cache_and_recomputes_when_stale(tmp_path, capsys, fake_verify):
+def test_next_recomputes_by_default(tmp_path, capsys, fake_verify):
     _, spec = _course(tmp_path)
     main(["next", str(spec), "--json"])
     first = len(fake_verify)
     assert first > 0 and st.load_state("demo") is not None
     main(["next", str(spec), "--json"])
+    assert len(fake_verify) == 2 * first  # mặc định luôn tính lại
+    capsys.readouterr()
+
+
+def test_next_cached_reuses_and_recomputes_when_stale(tmp_path, capsys, fake_verify):
+    _, spec = _course(tmp_path)
+    main(["next", str(spec), "--cached", "--json"])  # chưa có state.json: tính
+    first = len(fake_verify)
+    assert first > 0 and st.load_state("demo") is not None
+    main(["next", str(spec), "--cached", "--json"])
     assert len(fake_verify) == first  # dùng state.json
     future = time.time() + 120
     os.utime(spec, (future, future))
-    main(["next", str(spec), "--json"])
+    main(["next", str(spec), "--cached", "--json"])
     assert len(fake_verify) > first  # đặc tả mới hơn: tính lại
     count = len(fake_verify)
     snap = st.load_state("demo")
     snap.course_id = "khac"
     st.state_path("demo").write_text(snap.to_json(), encoding="utf-8")
-    main(["next", str(spec), "--json"])
+    main(["next", str(spec), "--cached", "--json"])
     assert len(fake_verify) > count
     capsys.readouterr()
+
+
+@pytest.mark.parametrize("cmd", ["status", "next"])
+def test_save_state_oserror_exit_1(tmp_path, capsys, fake_verify, monkeypatch, cmd):
+    _, spec = _course(tmp_path)
+
+    def denied(snap):
+        raise PermissionError(13, "Access is denied")
+
+    monkeypatch.setattr(st, "save_state", denied)
+    assert main([cmd, str(spec), "--json"]) == 1
+    captured = capsys.readouterr()
+    assert "Không ghi được tệp trạng thái" in captured.err
+    assert "Traceback" not in captured.err + captured.out and captured.out == ""
 
 
 @pytest.mark.parametrize("cmd", [["plan"], ["status"], ["next"], ["status", "--json"]])

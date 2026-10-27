@@ -113,15 +113,15 @@ Tên thư mục so khớp không phân biệt hoa thường và dấu (`Bai doc`
 python -m core.harness init <thư mục môn> [--force]
 python -m core.harness plan <course_spec.yaml> [--json]
 python -m core.harness status <course_spec.yaml> [--runtime] [--json]
-python -m core.harness next <course_spec.yaml> [--limit N] [--json]
+python -m core.harness next <course_spec.yaml> [--limit N] [--json] [--cached]
 ```
 
 - `init`: dựng `course_spec.yaml` nháp từ thư mục môn đã có (session, lesson, tài nguyên, số bài tập theo những gì đang có trên đĩa). Chỉ ghi đúng tệp này; đã có tệp thì từ chối (mã 1) trừ khi `--force`. Bản nháp cần người đọc lại: thêm `tech_stack`, `allowed`/`forbidden`.
 - `plan`: chỉ đọc đặc tả, không chạy cổng; mỗi dòng `[đợt] id  kind  đích  ← phụ thuộc`.
-- `status`: chạy cổng trên mọi đích đang có, ghi `storage/harness/<course_id>/state.json`, in số nhiệm vụ theo trạng thái (`done`, `missing`, `failed`, `blocked_tool`), rồi các nhiệm vụ chưa `done` kèm lỗi đầu tiên. `--runtime` chỉ áp cho bài tập và slide HTML.
-- `next`: in các nhiệm vụ sẵn sàng (chưa `done`, mọi phụ thuộc đã `done`), theo đợt rồi id. Mỗi khối có đích tuyệt đối, skill `skills/<tên>/SKILL.md`, phụ thuộc, tệp ghi chú của môn, `allowed`/`forbidden`, lỗi đầu tiên và lệnh kiểm `verify`. Đọc `state.json`; tự chạy lại `status` (chế độ tĩnh) khi chưa có, khác `course_id`, hoặc đặc tả sửa sau lần chạy trước. `blocked_tool` không tính là xong cho phụ thuộc.
+- `status`: chạy cổng trên mọi đích đang có, ghi `storage/harness/<course_id>/state.json`, in số nhiệm vụ theo trạng thái (`done`, `missing`, `failed`, `blocked_tool`), rồi các nhiệm vụ chưa `done` kèm lỗi đầu tiên, thời điểm tính (`Trạng thái tính lúc ...`) và đường dẫn `state.json`. `--runtime` chỉ áp cho bài tập và slide HTML.
+- `next`: in các nhiệm vụ sẵn sàng (chưa `done`, mọi phụ thuộc đã `done`), theo đợt rồi id. Mỗi khối có đích tuyệt đối, skill `skills/<tên>/SKILL.md`, phụ thuộc, tệp ghi chú của môn, `allowed`/`forbidden`, lỗi đầu tiên và lệnh kiểm `verify`. Mặc định `next` luôn tính lại trạng thái từ đĩa (chế độ tĩnh) và ghi `state.json`; muốn kiểm runtime thì chạy `status --runtime`. `--cached` dùng lại `state.json` nếu còn mới, chỉ tính lại khi chưa có, khác `course_id` hoặc đường dẫn đặc tả, hoặc đặc tả sửa sau lần tính trước (thay đổi trên đĩa mà đặc tả không đổi thì không được phát hiện). `blocked_tool` không tính là xong cho phụ thuộc. Bản chữ in dòng `Trạng thái tính lúc <thời điểm>`; `--json` in đối tượng `{"updated_at": ..., "tasks": [...]}`. Mã thoát của `next` luôn là 0 khi chạy được, kể cả khi không có nhiệm vụ nào sẵn sàng; dùng `status` để biết môn đã xong chưa.
 
-Lỗi đặc tả, thư mục không tồn tại hoặc tệp đã có: in thông báo ra stderr, mã 1. Với `--json`, stdout chỉ chứa JSON.
+Lỗi đặc tả, thư mục không tồn tại, tệp đã có hoặc không ghi được `state.json`: in thông báo ra stderr, mã 1. Với `--json`, stdout chỉ chứa JSON.
 
 ### Mã thoát của `status`
 
