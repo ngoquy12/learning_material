@@ -63,9 +63,9 @@ JSON SCHEMA:
     "Cú pháp khai báo và bản chất kỹ thuật theo chuẩn {{ tech_stack }}...",
     "Quy chuẩn thực thi và cơ chế hoạt động..."
   ],
-  "gotcha_title": "Lưu ý & Bẫy lỗi Thường gặp",
+  "gotcha_title": "Lưu ý thực hành và lỗi thường gặp",
   "gotcha_points": [
-    "Bẫy lỗi thực tế sinh viên hay mắc phải khi viết code...",
+    "Lỗi thực tế sinh viên hay mắc phải khi viết code...",
     "Lưu ý kiểm tra điều kiện biên và an toàn kiểu dữ liệu..."
   ],
   "demo_title": "Trực quan: {{ concise_topic }}",
@@ -77,7 +77,7 @@ JSON SCHEMA:
   "scenarios": [
     {"name": "1. Trường hợp Chuẩn (Standard)", "param_values": {"param1": "120000", "param2": "2"}},
     {"name": "2. Trường hợp Biên (Edge Case)", "param_values": {"param1": "120000", "param2": "10"}},
-    {"name": "3. Tình huống Ngoại lệ (Gotcha / Error)", "param_values": {"param1": "0", "param2": "2"}}
+    {"name": "3. Tình huống Ngoại lệ", "param_values": {"param1": "0", "param2": "2"}}
   ],
   "compute_logic": "var param1 = Number(params.param1) || 0; var param2 = Number(params.param2) || 0; var total = param1 * param2; var trace = ['Bước 1: Nhận đầu vào param1=' + param1 + ', param2=' + param2, 'Bước 2: Tính total = param1 * param2 = ' + total, 'Bước 3: Trả kết quả']; var badge = total <= 0 ? 'Cảnh báo' : 'Thành công'; return { trace: trace, result: String(total), badge: badge };"
 }

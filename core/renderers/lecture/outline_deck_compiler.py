@@ -645,9 +645,9 @@ def render_slide_canvas(slide: Dict[str, Any], total_slides: int) -> str:
         elif is_prompt:
             right_preview_card = """
             <div class="bento-card p-0 overflow-hidden border border-slate-200 bg-white flex flex-col justify-between h-full shadow-xs">
-              <div class="px-3 py-2 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex items-center justify-between text-xs">
+              <div class="px-3 py-2 bg-slate-900 text-white flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
-                  <i class="ph-bold ph-sparkle text-amber-400"></i>
+                  <i class="ph-bold ph-chat-text text-slate-300"></i>
                   <span class="font-bold">Kết quả AI Phân tích từ Prompt</span>
                 </div>
                 <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-400/30">AI Output</span>
@@ -1241,8 +1241,7 @@ def compile_outline_to_html(md_path: Path, output_html_path: Path, module_name: 
         left: 50%;
         transform: translateX(-50%) translateY(120%);
         width: min(90%, 960px);
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(12px);
+        background: #0f172a;
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 1rem;
         color: #f8fafc;
@@ -1277,7 +1276,7 @@ def compile_outline_to_html(md_path: Path, output_html_path: Path, module_name: 
   </head>
   <body>
     <!-- FIXED TOP HEADER -->
-    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-8">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-50 flex items-center justify-between px-8">
       <div class="flex items-center gap-4">
         <img
           src="https://rikkei.edu.vn/wp-content/uploads/2025/09/Logo.png"
@@ -1291,7 +1290,7 @@ def compile_outline_to_html(md_path: Path, output_html_path: Path, module_name: 
       </div>
 
       <div class="hidden md:flex items-center gap-2 px-4 py-1.5 bg-slate-100 rounded-full border border-slate-200">
-        <span class="w-2 h-2 rounded-full bg-rikkei-red animate-pulse"></span>
+        <span class="w-2 h-2 rounded-full bg-rikkei-red"></span>
         <span id="header-slide-title" class="text-xs font-semibold text-slate-700">
           Slide 1: {slides[0]['title']}
         </span>
@@ -1322,7 +1321,7 @@ def compile_outline_to_html(md_path: Path, output_html_path: Path, module_name: 
     </main>
 
     <!-- FLOATING BOTTOM TOOLBAR -->
-    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl rounded-full px-5 py-2 z-50 flex items-center gap-4">
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-white border border-slate-200 shadow-sm rounded-full px-5 py-2 z-50 flex items-center gap-4">
       <button
         onclick="prevSlide()"
         class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition"
@@ -1369,8 +1368,8 @@ def compile_outline_to_html(md_path: Path, output_html_path: Path, module_name: 
     <aside id="speaker-notes-drawer" class="select-text">
       <div class="flex items-center justify-between border-b border-slate-700/60 pb-2 mb-2.5">
         <div class="flex items-center gap-2">
-          <i class="ph-bold ph-broadcast text-rikkei-red text-base animate-pulse"></i>
-          <span class="font-bold text-xs uppercase tracking-wider text-slate-300">Ghi chú & Lời thoại Giảng viên (Speaker Notes)</span>
+          <i class="ph-bold ph-broadcast text-rikkei-red text-base"></i>
+          <span class="font-bold text-xs text-slate-300">Ghi chú & Lời thoại Giảng viên (Speaker Notes)</span>
         </div>
         <div class="flex items-center gap-3">
           <span id="notes-timing-badge" class="px-2 py-0.5 rounded bg-slate-800 text-[11px] font-mono text-amber-400 border border-slate-700">

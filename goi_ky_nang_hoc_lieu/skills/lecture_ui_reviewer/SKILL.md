@@ -15,7 +15,7 @@ This skill specifies the automated visual and structural review process for **In
 2. **Console Error Trapping**: Intercepts and records any uncaught JavaScript runtime exceptions or missing DOM element errors (`document.getElementById(...) is null`).
 3. **Horizontal Layout Overflow Detection**: Programmatically evaluates `scrollWidth > innerWidth` to ensure zero horizontal scrollbar or clipped cards on wide screens.
 4. **Template Integrity Check**: Verifies that no raw unrendered Jinja2 template tags (`{{ ... }}` or `undefined`) leaked into the final HTML output.
-5. **AI Vision Quality Inspection**: Performs deep multimodal vision analysis against Rikkei Education UI standards (Contrast, Glassmorphism, Typography, Responsive Spacing, Simulators).
+5. **AI Vision Quality Inspection**: Performs deep multimodal vision analysis against Rikkei Education UI standards (Contrast, flat light style, Typography, Responsive Spacing, Simulators).
 6. **Pass/Fail Certification**: Generates `lecture_ui_review_report.json` and `lecture_ui_review_report.md` with actionable fixes.
 
 ---
@@ -26,11 +26,11 @@ This skill specifies the automated visual and structural review process for **In
 |---|---|---|---|
 | 1 | **Khung chứa & Bố cục** | Critical (-25) | Max-width 1680px, căn giữa, không vỡ layout, không tràn viền màn hình ngang. |
 | 2 | **Menu Mục lục bên trái** | Major (-15) | Cố định khi cuộn (`sticky top-24`), đồng bộ 100% tiêu đề với section, có active highlight. |
-| 3 | **Thẻ Lý thuyết Glass-Card** | Major (-15) | Nền sáng mờ (`glass-card`), tương phản chữ tối trên nền sáng, đạn danh sách rõ ràng. |
+| 3 | **Thẻ Lý thuyết phẳng** | Major (-15) | Thẻ nền trắng, viền slate (lớp `glass-card` chỉ là tên cũ), chữ tối trên nền sáng, danh sách rõ ràng. Không kính mờ, không gradient. |
 | 4 | **Bộ Mô phỏng Tương tác** | Major (-20) | Điều khiển input đầy đủ, code box tối màu có highlight cú pháp, trace console hiển thị realtime. |
 | 5 | **Không Rò rỉ Ký tự Raw** | Critical (-25) | Tuyệt đối không còn thẻ `{{`, `}}`, `undefined`, `NaN`, `[object Object]`. |
 | 6 | **Độ tương phản & Font chữ** | Critical (-25) | Sử dụng Inter, Montserrat, JetBrains Mono. Cấm chữ xám mờ khó đọc trên nền tối. |
-| 7 | **Tính Trực quan Sinh động** | Major (-15) | Có animation trực quan hóa luồng dữ liệu (`pulse-active`, sơ đồ chuyển trạng thái). |
+| 7 | **Tính Trực quan** | Major (-15) | Có sơ đồ hoặc đánh dấu bước đang chạy (`pulse-active` nay là viền tĩnh). Phạt hoạt ảnh nhấp nháy, kính mờ và gradient. |
 | 8 | **Tính Sư phạm & Giải thích** | Minor (-10) | Tiến trình thực thi giải thích chi tiết, 100% Tiếng Việt có dấu chuẩn sản xuất. |
 | 9 | **Tình huống Doanh nghiệp** | Minor (-10) | Dữ liệu mô phỏng gắn liền bài toán thực tế (E-commerce, auth, tính tiền...). |
 | 10 | **Ổn định Script Runtime** | Critical (-25) | 0 lỗi console, không crash khi thay đổi input/select. |

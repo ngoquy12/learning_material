@@ -40,20 +40,14 @@
     </script>
 
     <style>
+      /* Tên lớp giữ nguyên để không vỡ mã và test cũ; kiểu dáng là thẻ phẳng nền sáng:
+         không kính mờ, không gradient, không hiệu ứng nổi khi rê chuột. */
       .glass-card {
-        background: rgba(255, 255, 255, 0.96);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(226, 232, 240, 0.85);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      .glass-card:hover {
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
-        transform: translateY(-2px);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
       }
       .gradient-text {
-        background: linear-gradient(135deg, #be111c 0%, #4f46e5 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #be111c;
       }
       /* Custom light active state for TOC links */
       .toc-link.active {
@@ -68,21 +62,12 @@
       }
 
       /* Realtime pulse animations for visual state flow */
+      /* Đánh dấu bước đang chạy bằng viền tĩnh, không hoạt ảnh nhấp nháy. */
       .pulse-active {
-        animation: pulseEmerald 1.5s infinite;
-      }
-      @keyframes pulseEmerald {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.55);
       }
       .pulse-warning {
-        animation: pulseAmber 1.5s infinite;
-      }
-      @keyframes pulseAmber {
-        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.55);
       }
 
       /* Code block scrollbars */
@@ -105,7 +90,7 @@
   </head>
   <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased selection:bg-rikkei-red selection:text-white">
     <!-- ===== FIXED TOP HEADER (EXPANDED TO MAX 1680px) ===== -->
-    <header class="fixed top-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
+    <header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-50 shadow-sm">
       <div class="max-w-[1680px] w-full mx-auto h-full px-4 sm:px-8 flex items-center justify-between">
         <div class="flex items-center gap-3 sm:gap-4 min-w-0">
           <img

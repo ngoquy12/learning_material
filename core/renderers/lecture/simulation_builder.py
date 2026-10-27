@@ -235,7 +235,7 @@ def generate_section_with_llm(
             c_bullets = data.get("concept_bullets", [])
             c_title = data.get("concept_title", "Khái niệm & Cú pháp Cốt lõi")
             g_points = data.get("gotcha_points", [])
-            g_title = data.get("gotcha_title", "Lưu ý & Bẫy lỗi Thường gặp")
+            g_title = data.get("gotcha_title", "Lưu ý thực hành và lỗi thường gặp")
 
             b_items = "".join(f"<li>{b}</li>" for b in c_bullets[:3])
             g_items = "".join(f"<p>{p}</p>" for p in g_points[:2])
@@ -447,7 +447,7 @@ def build_generic_multi_subject_section(
             """
         },
         {
-            "title": "Lưu ý & Bẫy lỗi Thường gặp",
+            "title": "Lưu ý thực hành và lỗi thường gặp",
             "icon": "ph-bold ph-warning-octagon text-rose-600",
             "badge": "LƯU Ý THỰC HÀNH",
             "badge_style": "bg-rose-50 text-rose-700 border border-rose-200",
@@ -487,7 +487,7 @@ console.log(`Tổng thanh toán: ${grandTotal} VNĐ | Lượt quay: ${orderLucky
         scenarios = [
             {"name": "1. Mua 2 sản phẩm (Chuẩn)", "param_values": {"price": "120000", "qty": "2", "discount": "30000", "shipping": "15000"}},
             {"name": "2. Mua số lượng lớn (Biên)", "param_values": {"price": "120000", "qty": "10", "discount": "30000", "shipping": "15000"}},
-            {"name": "3. Giảm giá vượt tổng tiền (Gotcha)", "param_values": {"price": "10000", "qty": "1", "discount": "30000", "shipping": "15000"}}
+            {"name": "3. Giảm giá vượt tổng tiền (Ngoại lệ)", "param_values": {"price": "10000", "qty": "1", "discount": "30000", "shipping": "15000"}}
         ]
         compute_logic = """
 var price = Number(params.price) || 0;
@@ -529,7 +529,7 @@ console.log(`Voucher khớp: ${isVoucherMatch}, Đạt mức tối thiểu: ${is
         scenarios = [
             {"name": "1. Voucher chuẩn & Đủ điều kiện (Chuẩn)", "param_values": {"voucher": "FREESHIP", "amount": "250000", "tier": "101"}},
             {"name": "2. Đơn hàng đúng ngưỡng tối thiểu (Biên)", "param_values": {"voucher": "FREESHIP", "amount": "200000", "tier": "101"}},
-            {"name": "3. Voucher sai (Gotcha)", "param_values": {"voucher": "SALE10", "amount": "250000", "tier": "101"}}
+            {"name": "3. Voucher sai (Ngoại lệ)", "param_values": {"voucher": "SALE10", "amount": "250000", "tier": "101"}}
         ]
         compute_logic = """
 var voucher = String(params.voucher || "");
@@ -569,7 +569,7 @@ console.log(`Được Freeship: ${isEligibleFreeShip} | Tên hiển thị: ${dis
         scenarios = [
             {"name": "1. Đơn hàng trên 300k được Freeship (Chuẩn)", "param_values": {"isvip": "true", "total": "350000"}},
             {"name": "2. Đơn hàng đúng ngưỡng 300k (Biên)", "param_values": {"isvip": "false", "total": "300000"}},
-            {"name": "3. Đơn hàng thấp, không VIP (Gotcha)", "param_values": {"isvip": "false", "total": "50000"}}
+            {"name": "3. Đơn hàng thấp, không VIP (Ngoại lệ)", "param_values": {"isvip": "false", "total": "50000"}}
         ]
         compute_logic = """
 var isVip = params.isvip === "true";
@@ -623,7 +623,7 @@ console.log(`Kết quả xử lý theo tiêu chuẩn {clean_tech}: ${{processedR
         scenarios = [
             {"name": "1. Trường hợp Chuẩn (Standard)", "param_values": {"p1": "100", "p2": "2"}},
             {"name": "2. Trường hợp Biên (Edge Case)", "param_values": {"p1": "0", "p2": "2"}},
-            {"name": "3. Tình huống Ngoại lệ (Gotcha)", "param_values": {"p1": "100", "p2": "0"}}
+            {"name": "3. Tình huống ngoại lệ", "param_values": {"p1": "100", "p2": "0"}}
         ]
         compute_logic = """
 var p1 = Number(params.p1) || 0;

@@ -48,11 +48,11 @@ Your task is to analyze the screenshot(s) of an Interactive Classroom Lecture Da
 Rikkei Education Visualizer Standards (10 Core Checkpoints):
 1. CONTAINER & LAYOUT INTEGRITY: Max-width up to 1680px, properly centered. No clipped cards, no ugly horizontal page body overflow.
 2. SIDEBAR TOC: Vertical sidebar on the left aligned under the logo, clearly readable links with numeric prefix (e.g. "1. ...", "2. ..."), subtle active state highlight.
-3. THEORY & GOTCHA CARDS: Left column (xl:col-span-4) contains clean light-mode glass cards with key bullets and gotcha callout box.
+3. THEORY & GOTCHA CARDS: Left column (xl:col-span-4) contains clean flat light cards (white background, slate border, no blur, no gradient) with key bullets and a common-mistakes callout box.
 4. SIMULATOR DASHBOARD: Right column (xl:col-span-8) has intuitive controller inputs (dropdowns, number inputs), a dark syntax-highlighted code block, and a real-time trace/evaluation box.
 5. NO RAW SYNTAX LEAKS: Absolutely NO unrendered template tags (e.g., '{{ ... }}', 'undefined', 'NaN', '[object Object]').
 6. CONTRAST & TYPOGRAPHY: Dark text on light backgrounds (Inter / Montserrat), green/cyan on dark code boxes (JetBrains Mono).
-7. RESPONSIVENESS & PADDING: Generous breathing room, rounded corners (rounded-2xl / rounded-3xl), subtle glassmorphism borders.
+7. RESPONSIVENESS & PADDING: Generous breathing room, rounded corners (rounded-2xl / rounded-3xl), plain slate borders; no blur, gradient or pulsing animation.
 8. PEDAGOGICAL CLARITY: Trace messages must clearly explain step-by-step execution logic in 100% Accented Vietnamese.
 9. REAL-WORLD RELEVANCE: Domain examples must be realistic (e.g. E-Commerce, Banking, Auth, Inventory).
 10. SCRIPT RUNTIME STABILITY: Zero JavaScript exceptions or console errors.
