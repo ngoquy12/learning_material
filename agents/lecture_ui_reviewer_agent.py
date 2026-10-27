@@ -24,6 +24,44 @@ MAX_IMAGE_WIDTH = 1400
 
 VISION_SEMAPHORE = threading.Semaphore(2)
 
+# Độ phân giải thật của laptop giảng viên và máy chiếu. Slide chiếu phải vừa khung ở cả ba:
+# lỗi hay gặp nhất là nội dung tràn DỌC, mà kiểm tràn ngang ở 1680px không thấy.
+FIT_VIEWPORTS = [(1366, 768), (1536, 864), (1920, 1080)]
+FIT_TOLERANCE_PX = 2
+BANNED_STYLE_TOKENS = ("backdrop-filter", "linear-gradient", "radial-gradient", "animate-pulse", "animate-bounce")
+EMOJI_PATTERN = re.compile("[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B05\u2B06\u2B07\u21A9\uFE0F]")
+
+_DECK_PROBE_JS = "() => document.querySelectorAll('.slide').length >= 3 && typeof go === 'function'"
+_SLIDE_COUNT_JS = "() => document.querySelectorAll('.slide').length"
+_MEASURE_ACTIVE_JS = """() => {
+  const s = document.querySelector('.slide.active');
+  return s ? s.scrollHeight - s.clientHeight : 0;
+}"""
+_CLICK_TABS_JS = """() => {
+  const s = document.querySelector('.slide.active');
+  return s ? Array.from(s.querySelectorAll('.pane-tabs button')).length : 0;
+}"""
+
+
+_SYSTEM_CHROME_PATHS = [
+    r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+    r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+]
+
+
+def _launch_browser(playwright):
+    """Chromium của Playwright; nếu chưa tải trình duyệt thì dùng Chrome cài sẵn trên máy."""
+    try:
+        return playwright.chromium.launch(headless=True)
+    except Exception:
+        for path in _SYSTEM_CHROME_PATHS:
+            if os.path.exists(path):
+                return playwright.chromium.launch(headless=True, executable_path=path)
+        raise
+
 
 def _compress_and_resize_img(img_path: str, max_width: int = MAX_IMAGE_WIDTH) -> str:
     """Resizes screenshot to max_width to keep payload lightweight for Vision analysis."""
@@ -130,7 +168,7 @@ class ClassroomLectureUIReviewerAgent:
 
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser = _launch_browser(p)
                 context = browser.new_context(
                     viewport={"width": viewport_width, "height": viewport_height},
                     device_scale_factor=1
@@ -168,6 +206,68 @@ class ClassroomLectureUIReviewerAgent:
 
         return res
 
+    def measure_layout(self, html_path: str, viewports=None) -> Dict[str, Any]:
+        """
+        Đo bố cục ở nhiều độ phân giải. Với bộ slide (có các khối `.slide` và hàm `go(i)`), kích hoạt lần lượt
+        từng slide và đo chiều cao nội dung so với khung, cả ở trạng thái mặc định và sau khi bấm từng tab
+        `.pane-tabs`. Với trang cuộn thường chỉ đo tràn ngang. Không bao giờ ném lỗi: thiếu Playwright thì trả
+        `error`.
+        """
+        result: Dict[str, Any] = {"deck_mode": False, "horizontal_overflow": [], "slide_overflow": [], "error": ""}
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError:
+            result["error"] = "Thiếu Playwright"
+            return result
+        file_url = Path(html_path).resolve().as_uri()
+        try:
+            with sync_playwright() as p:
+                browser = _launch_browser(p)
+                for (w, h) in (viewports or FIT_VIEWPORTS):
+                    tag = f"{w}x{h}"
+                    page = browser.new_page(viewport={"width": w, "height": h})
+                    page.goto(file_url, wait_until="load", timeout=25000)
+                    page.wait_for_timeout(1500)
+                    if page.evaluate("() => document.documentElement.scrollWidth > window.innerWidth"):
+                        result["horizontal_overflow"].append(tag)
+                    if page.evaluate(_DECK_PROBE_JS):
+                        result["deck_mode"] = True
+                        total = page.evaluate(_SLIDE_COUNT_JS)
+                        for i in range(total):
+                            page.evaluate(f"go({i})")
+                            page.wait_for_timeout(100)
+                            worst = page.evaluate(_MEASURE_ACTIVE_JS)
+                            state = "mặc định"
+                            for k in range(page.evaluate(_CLICK_TABS_JS)):
+                                page.evaluate(
+                                    "(k) => document.querySelector('.slide.active').querySelectorAll('.pane-tabs button')[k].click()", k)
+                                page.wait_for_timeout(60)
+                                over = page.evaluate(_MEASURE_ACTIVE_JS)
+                                if over > worst:
+                                    worst, state = over, f"tab {k + 1}"
+                            if worst > FIT_TOLERANCE_PX:
+                                result["slide_overflow"].append({"slide": i + 1, "viewport": tag, "over_px": int(worst), "state": state})
+                    page.close()
+                browser.close()
+        except Exception as exc:  # noqa: BLE001
+            result["error"] = str(exc)
+        return result
+
+    @staticmethod
+    def static_style_findings(html_content: str) -> List[str]:
+        """Quét tĩnh các dấu hiệu bị cấm: kính mờ, gradient, hoạt ảnh nhấp nháy, emoji, liên kết `href="#"`."""
+        findings: List[str] = []
+        for token in BANNED_STYLE_TOKENS:
+            if token in html_content:
+                findings.append(f"có `{token}` (kính mờ, gradient hoặc hoạt ảnh nhấp nháy)")
+        if re.search(r'href=["\']#["\']', html_content):
+            findings.append('có thẻ <a href="#">')
+        visible = re.sub(r"<script.*?</script>|<style.*?</style>", "", html_content, flags=re.S)
+        visible = re.sub(r"<[^>]+>", " ", visible)
+        if EMOJI_PATTERN.search(visible):
+            findings.append("có emoji hoặc ký tự biểu tượng trong nội dung")
+        return findings
+
     def review_lecture_ui(
         self,
         html_path: str,
@@ -190,6 +290,12 @@ class ClassroomLectureUIReviewerAgent:
         console_errors = capture_data.get("console_errors", [])
         body_overflow = capture_data.get("body_overflow", False)
 
+        # 1b. Đo bố cục ở nhiều độ phân giải và, với bộ slide, đo từng slide có vừa khung không
+        layout = self.measure_layout(html_path)
+        slide_overflow = layout.get("slide_overflow", [])
+        horizontal_overflow_viewports = layout.get("horizontal_overflow", [])
+        layout_error = layout.get("error", "")
+
         # 2. Static Code / Template tag check (detect unrendered Jinja2 syntax like {{ var }} or {% tag %})
         html_content = html_file.read_text(encoding="utf-8", errors="ignore")
         raw_tag_leak = bool(re.search(r'\{\{\s*[a-zA-Z_][a-zA-Z0-9_\.]*\s*\}\}', html_content) or re.search(r'\{%\s*[a-zA-Z_]', html_content))
@@ -204,6 +310,10 @@ class ClassroomLectureUIReviewerAgent:
             "body_overflow": body_overflow,
             "console_errors": console_errors,
             "raw_tag_leak": raw_tag_leak,
+            "slide_overflow": slide_overflow,
+            "horizontal_overflow_viewports": horizontal_overflow_viewports,
+            "style_findings": [],
+            "layout_error": layout_error,
             "screenshot_path": screenshot_path,
             "summary": "Giao diện bài giảng trên lớp hiển thị hoàn hảo, bố cục thoáng đãng và không có lỗi runtime.",
             "detected_strengths": [
@@ -252,6 +362,54 @@ class ClassroomLectureUIReviewerAgent:
                 "location": "Main Container",
                 "description": "Trang bị thanh cuộn ngang do phần tử con tràn ra ngoài viền viewport.",
                 "recommendation": "Thêm class `overflow-x-auto` và `min-w-0` vào các khối code và bảng dữ liệu."
+            })
+
+        if slide_overflow:
+            report_data["ui_score"] -= 25
+            shown = "; ".join(f"slide {o['slide']} (+{o['over_px']}px, {o['viewport']}, {o['state']})" for o in slide_overflow[:6])
+            more = "" if len(slide_overflow) <= 6 else f" và {len(slide_overflow) - 6} trường hợp khác"
+            report_data["issues"].append({
+                "id": len(report_data["issues"]) + 1,
+                "severity": "critical",
+                "criterion": "Slide tràn khung dọc",
+                "location": "Các slide",
+                "description": f"Có {len(slide_overflow)} trường hợp nội dung slide cao hơn khung màn hình: {shown}{more}.",
+                "recommendation": "Rút gọn chữ, tách slide, hoặc đặt mã và mô phỏng vào hai tab thay vì xếp chồng; mỗi slide phải vừa khung ở 1366x768."
+            })
+
+        if layout_error:
+            report_data["issues"].append({
+                "id": len(report_data["issues"]) + 1,
+                "severity": "minor",
+                "criterion": "Không đo được bố cục",
+                "location": "Trình duyệt",
+                "description": f"Không đo được tràn khung ở các độ phân giải 1366x768, 1536x864, 1920x1080: {layout_error[:160]}",
+                "recommendation": "Cài trình duyệt (playwright install chromium hoặc Chrome) rồi chạy lại; không coi kết quả là đã kiểm tra tràn khung."
+            })
+
+        extra_overflow = [v for v in horizontal_overflow_viewports if v != f"{DEFAULT_VIEWPORT_WIDTH}x{DEFAULT_VIEWPORT_HEIGHT}"]
+        if extra_overflow and not body_overflow:
+            report_data["ui_score"] -= 15
+            report_data["issues"].append({
+                "id": len(report_data["issues"]) + 1,
+                "severity": "major",
+                "criterion": "Horizontal Layout Overflow",
+                "location": "Main Container",
+                "description": f"Trang bị thanh cuộn ngang ở độ phân giải: {', '.join(extra_overflow)}.",
+                "recommendation": "Thêm `overflow-x-auto` và `min-w-0` cho khối mã và bảng; kiểm tra lại ở 1366x768."
+            })
+
+        style_findings = self.static_style_findings(html_content)
+        report_data["style_findings"] = style_findings
+        if style_findings:
+            report_data["ui_score"] -= min(20, 10 * len(style_findings))
+            report_data["issues"].append({
+                "id": len(report_data["issues"]) + 1,
+                "severity": "major",
+                "criterion": "Phong cách bị cấm",
+                "location": "HTML và CSS",
+                "description": "; ".join(style_findings),
+                "recommendation": "Dùng thẻ phẳng nền sáng, viền slate, đánh dấu bước bằng viền tĩnh; bỏ kính mờ, gradient, hoạt ảnh nhấp nháy, emoji."
             })
 
         # 4. Optional Vision AI Deep Inspection if screenshot exists
@@ -303,7 +461,7 @@ Return ONLY JSON adhering to the specified schema."""
                 print(f"  [Lecture UI Reviewer] Vision API fallback/skip: {e}")
 
         # Final pass determination
-        report_data["passed"] = bool(report_data["ui_score"] >= PASS_SCORE_THRESHOLD and not script_runtime_errors and not raw_tag_leak)
+        report_data["passed"] = bool(report_data["ui_score"] >= PASS_SCORE_THRESHOLD and not script_runtime_errors and not raw_tag_leak and not slide_overflow)
 
         # 5. Save Audit Reports (JSON & Markdown)
         report_json_path = os.path.join(output_dir, "lecture_ui_review_report.json")
@@ -351,6 +509,8 @@ Return ONLY JSON adhering to the specified schema."""
             f"## 2. Kiểm tra Kỹ thuật Runtime:",
             f"- **Lỗi tràn viền ngang (Horizontal Overflow)**: {'❌ Có tràn viền' if data.get('body_overflow') else '✅ Không tràn viền'}",
             f"- **Rò rỉ thẻ Template (Raw Tag Leak)**: {'❌ Phát hiện rò rỉ' if data.get('raw_tag_leak') else '✅ Không rò rỉ'}",
+            f"- **Slide tràn khung dọc**: {'❌ ' + str(len(data.get('slide_overflow', []))) + ' trường hợp' if data.get('slide_overflow') else '✅ Không tràn'}",
+            f"- **Phong cách bị cấm**: {'❌ ' + '; '.join(data.get('style_findings', [])) if data.get('style_findings') else '✅ Không có'}",
             f"- **Lỗi JavaScript Console**: {'❌ ' + str(len(data.get('console_errors', []))) + ' lỗi script' if any(not ('Failed to load resource' in e and 'status of 404' in e) for e in data.get('console_errors', [])) else '✅ 0 lỗi runtime'}",
             f"",
             f"## 3. Danh sách Vấn đề Cần Cải thiện ({len(data.get('issues', []))} mục):"
