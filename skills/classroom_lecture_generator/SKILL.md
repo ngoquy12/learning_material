@@ -5,6 +5,8 @@ description: Generate premium interactive visual classroom lecture dashboards (B
 
 # Interactive Classroom Visual Lecture Dashboard Skill (Bài giảng trên lớp) — Rikkei Education Standards
 
+> **Scope note.** This skill produces an interactive *dashboard* page, not slides. For the projected lecture slides (`slides.html`, "Bai giang tren lop") use the `slide_html` skill; for the PowerPoint deck (`slide.pptx`) use `slide_deck`. Do not apply the glass-card dashboard styling below to slides.
+
 This skill governs the generation of the **Interactive Classroom Visual Lecture Dashboard (`slides.html` / `index.html`)** used by instructors for 2-hour live classroom lectures and student review.
 
 ---

@@ -1,3 +1,8 @@
+---
+name: quiz_generator
+description: Generate multiple-choice quiz banks for e-learning: the 5-question lesson quiz (SYNTAX, EXECUTION_FLOW, CODE_TRACE, COMPARISON, TRAP_PREDICTION) and the shared question schema, following Rikkei quiz principles. Use for any request to write lesson quiz questions (Quizz lesson). Session-level 45-question banks use quizz_session. Target output language is 100% Accented Vietnamese.
+---
+
 # E-learning Quiz & Session Assessment Design Skill — Rikkei Education Standards
 
 This skill guides the AI Agent to design, standardize, and generate multiple-choice quiz question banks (including 5-question Lesson Quizzes and 45-question Session Entrance/Exit Quizzes) for E-learning platforms, strictly adhering to pedagogical standards (`RE_Tiêu chuẩn quizz.pdf`) and export schema requirements. Target output language is 100% Accented Vietnamese.
