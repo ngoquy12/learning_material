@@ -15,16 +15,19 @@ import sys
 from pathlib import Path
 from typing import Dict, List
 
+HERE = Path(__file__).resolve().parent
+_REPO = next((p for p in [HERE, *HERE.parents] if (p / "core" / "harness" / "text_rules.py").exists()), None)
+if _REPO is not None and str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+from core.harness.text_rules import BANNED_WORDS, EMOJI_RE as EMOJI  # noqa: E402
+
 CHROME_PATHS = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
     "/usr/bin/google-chrome", "/usr/bin/chromium", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 ]
-EMOJI = re.compile("[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B05\u2B06\u2B07\u21A9\uFE0F]")
 BANNED_STYLE = ["backdrop-filter", "linear-gradient", "radial-gradient", "glass-card", "gradient-text",
                 "animate-pulse", "animate-bounce", "blur(", "neon"]
-BANNED_WORDS = ["nhé", "bẫy lập trình", "thần thánh", "bí kíp", "tất tần tật", "thân mến", "thực chiến",
-                "gotcha", "anti-pattern", "khám phá", "tuyệt vời"]
 MIN_FONT_ERROR_PX = 15
 TOLERANCE_PX = 2
 

@@ -1,19 +1,16 @@
 """Cổng bài đọc: bộ kiểm tra của dự án + kiểm tra bổ sung của skill reading_generator."""
 from __future__ import annotations
 
-import importlib.util
 import re
 import time
 from collections import Counter
-from functools import lru_cache
 from pathlib import Path
 
+from core.harness.gates._skill_loader import load_skill_script
 from core.harness.findings import Finding, GateResult
 from core.harness.options import VerifyOptions
 
 GATE = "reading"
-REPO = Path(__file__).resolve().parents[3]
-CHECK_SCRIPT = REPO / "skills" / "reading_generator" / "scripts" / "check_reading.py"
 WORD_MIN, WORD_MAX = 1500, 2000
 SECTION_24_PREFIX = "Bài đọc thiếu Section 2.4"
 
@@ -22,12 +19,8 @@ _SIM_CLASS_RE = re.compile(r"(?:^|[\s_-])sim(?:$|[\s_-])", re.IGNORECASE)
 _LANG_RE = re.compile(r"\blanguage-([A-Za-z0-9_+#-]+)")
 
 
-@lru_cache(maxsize=1)
 def _skill_module():
-    spec = importlib.util.spec_from_file_location("_harness_check_reading", CHECK_SCRIPT)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+    return load_skill_script("reading_generator", "check_reading")
 
 
 def infer_tech_stack(html: str) -> str:
