@@ -8,3 +8,5 @@ GATES: dict[str, Callable] = {}
 from core.harness.gates.reading import check_reading  # noqa: E402
 
 GATES["reading"] = check_reading
+
+from core.harness.gates import quiz  # noqa: E402,F401  (dang ky quiz_lesson, quiz_session)
