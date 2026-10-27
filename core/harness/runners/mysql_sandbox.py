@@ -26,6 +26,7 @@ class MySQLSandbox:
         self.datadir: Path | None = None
         self.port: int | None = None
         self._proc: subprocess.Popen | None = None
+        self.cleanup_ok = True
 
     def _log_tail(self, name: str) -> str:
         try:
@@ -82,7 +83,7 @@ class MySQLSandbox:
             tooling.kill_tree(self._proc)
             self._proc = None
         if self.root is not None and self.root.exists():
-            tooling.rmtree(self.root)
+            self.cleanup_ok = tooling.rmtree(self.root)
 
     def __exit__(self, *exc) -> bool:
         self._cleanup()

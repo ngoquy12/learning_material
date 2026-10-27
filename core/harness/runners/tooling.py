@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
 from pathlib import Path
 
 from core.harness.runners import RunnerError
@@ -91,19 +92,62 @@ def run_command(cmd: list[str], cwd: Path, env: dict | None = None, timeout: flo
             kill_tree(proc)
             shown = " ".join([Path(cmd[0]).name, *cmd[1:3]])
             raise RunnerError(f"Lệnh `{shown}` chạy quá {int(timeout)} giây") from None
+        except BaseException:  # Ctrl+C...: không để lại tiến trình con
+            kill_tree(proc)
+            raise
         log.seek(0)
         out = log.read().decode("utf-8", errors="replace")
     return code, out
 
 
+_SECRET_MARKERS = ("API_KEY", "TOKEN", "SECRET", "PASSWORD", "CREDENTIAL")
+
+
+def _inherited_ok(key: str) -> bool:
+    up = key.upper()
+    return not up.startswith("DB_") and not any(m in up for m in _SECRET_MARKERS)
+
+
 def child_env(extra: dict | None = None) -> dict:
-    env = dict(os.environ)
+    """Môi trường cho tiến trình con: bỏ DB_* và khóa/bí mật kế thừa; `extra` của người gọi luôn thắng."""
+    env = {k: v for k, v in os.environ.items() if _inherited_ok(k)}
     env.update(extra or {})
     return env
 
 
-def rmtree(path: Path, attempts: int = 5) -> None:
-    """Xóa thư mục; thử lại vài lần vì Windows có thể còn giữ tệp ngay sau khi tiến trình tắt."""
+@contextmanager
+def file_lock(path: Path, timeout: float = 900, stale_after: float = 1800):
+    """Khóa liên tiến trình bằng tệp tạo độc quyền; khóa cũ hơn `stale_after` giây coi như bỏ rơi."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            fd = os.open(str(path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(fd, str(os.getpid()).encode())
+            os.close(fd)
+            break
+        except FileExistsError:
+            try:
+                if time.time() - path.stat().st_mtime > stale_after:
+                    path.unlink()
+                    continue
+            except OSError:
+                continue
+            if time.monotonic() > deadline:
+                raise RunnerError(f"Chờ khóa {path.name} quá {int(timeout)} giây") from None
+            time.sleep(1)
+    try:
+        yield
+    finally:
+        try:
+            path.unlink()
+        except OSError:
+            pass
+
+
+def rmtree(path: Path, attempts: int = 5) -> bool:
+    """Xóa thư mục; thử lại vài lần vì Windows có thể còn giữ tệp. Trả False nếu vẫn còn sót."""
     def retry(func, p, _exc):
         try:
             Path(p).chmod(0o700)
@@ -114,7 +158,8 @@ def rmtree(path: Path, attempts: int = 5) -> None:
     kw = {"onexc": retry} if sys.version_info >= (3, 12) else {"onerror": retry}
     for i in range(attempts):
         if not Path(path).exists():
-            return
+            return True
         shutil.rmtree(path, **kw)
         if Path(path).exists():
             time.sleep(0.5 * (i + 1))
+    return not Path(path).exists()

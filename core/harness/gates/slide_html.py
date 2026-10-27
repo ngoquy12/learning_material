@@ -89,8 +89,16 @@ def _runtime(path: Path, result: GateResult) -> None:
         result.findings.append(Finding(
             "error", GATE, f"Nội dung tràn ngang ở slide {o['slide']}, độ phân giải {o['viewport']}",
             f"slide {o['slide']}"))
-    for msg in m.get("console_errors", []):
-        result.findings.append(Finding("error", GATE, f"Lỗi console: {msg}"))
+    by_msg: dict[str, list[str]] = {}
+    for raw in m.get("console_errors", []):
+        match = re.match(r"^\[(\d+x\d+)\]\s*(.*)$", raw, flags=re.S)
+        tag, msg = (match.group(1), match.group(2)) if match else ("", raw)
+        tags = by_msg.setdefault(msg, [])
+        if tag and tag not in tags:
+            tags.append(tag)
+    for msg, tags in by_msg.items():
+        where = f" ({', '.join(tags)})" if tags else ""
+        result.findings.append(Finding("error", GATE, f"Lỗi console{where}: {msg}"))
 
 
 def check_slide_html(path: Path, opts: VerifyOptions) -> GateResult:

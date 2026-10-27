@@ -6,6 +6,7 @@ bộ chạy chọn theo nội dung thư mục (spec 4.2), không theo tên môn.
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from contextlib import nullcontext
@@ -125,9 +126,10 @@ def _package(proj: Path) -> dict | None:
 
 def _tests_html(proj: Path) -> Path | None:
     """tests.html nằm cùng thư mục với harness.js (ưu tiên gốc dự án)."""
-    for html in [proj / "tests.html", *sorted(proj.rglob("tests.html"))]:
-        if html.is_file() and "node_modules" not in html.parts and (html.parent / "harness.js").is_file():
-            return html
+    for root, dirs, files in os.walk(proj):
+        dirs[:] = sorted(d for d in dirs if d not in ("node_modules", ".git"))
+        if "tests.html" in files and "harness.js" in files:
+            return Path(root) / "tests.html"
     return None
 
 
@@ -207,24 +209,28 @@ def _runtime_findings(path: Path, result: GateResult) -> None:
         return
     detail: dict = {}
     result.detail["runtime"] = detail
-    use_db = any(runner == "vitest" and needs_mysql(proj) for _, _, proj, _, runner in plan)
-    try:
-        with (MySQLSandbox() if use_db else nullcontext(None)) as db:
-            for key, label, proj, is_sol, runner in plan:
-                if runner is None:
-                    result.findings.append(Finding("error", GATE, f"{label}: {NO_RUNNER.lower()}", str(proj)))
-                    continue
-                try:
-                    r = run_project(proj, db if runner == "vitest" and needs_mysql(proj) else None)
-                except RunnerError as exc:
-                    result.findings.append(Finding("error", GATE, f"{label}: {exc}", str(proj)))
-                    continue
-                detail[key] = {k: r.get(k) for k in ("runner", "passed", "failed", "total")}
-                _judge(label, is_sol, r, result, str(proj))
-    except ToolUnavailable as exc:
-        result.skipped_reason = str(exc)
-    except RunnerError as exc:
-        result.findings.append(Finding("error", GATE, f"Không chạy được MySQL tạm: {exc}"))
+    for key, label, proj, is_sol, runner in plan:
+        if runner is None:
+            result.findings.append(Finding("error", GATE, f"{label}: {NO_RUNNER.lower()}", str(proj)))
+            continue
+        # Mỗi dự án một MySQL tạm riêng: dữ liệu đáp án mẫu để lại không ảnh hưởng kết quả starter.
+        sandbox = MySQLSandbox() if runner == "vitest" and needs_mysql(proj) else None
+        try:
+            with (sandbox if sandbox is not None else nullcontext(None)) as db:
+                r = run_project(proj, db)
+        except ToolUnavailable as exc:
+            result.skipped_reason = str(exc)
+            return
+        except Exception as exc:  # noqa: BLE001 - mọi lỗi khi chạy một dự án thành lỗi của cổng, không dừng cả lượt
+            result.findings.append(Finding("error", GATE, f"{label}: {exc}", str(proj)))
+            continue
+        detail[key] = {k: r.get(k) for k in ("runner", "passed", "failed", "total")}
+        _judge(label, is_sol, r, result, str(proj))
+        if r.get("cleanup_warning"):
+            result.findings.append(Finding("warning", GATE, f"{label}: {r['cleanup_warning']}", str(proj)))
+        if sandbox is not None and not getattr(sandbox, "cleanup_ok", True):
+            result.findings.append(Finding("warning", GATE, f"{label}: không xóa hết thư mục MySQL tạm "
+                                                           f"{getattr(sandbox, 'root', '')}", str(proj)))
 
 
 def check_exercise(path: Path, opts: VerifyOptions) -> GateResult:

@@ -163,10 +163,17 @@ def run_tests_html(html: Path) -> dict:
             page = browser.new_page()
             console: list[str] = []
             _watch_console(page, console)
-            page.goto(path.as_uri())
-            if not page.evaluate("typeof window.report === 'function'"):
+            try:
+                page.goto(path.as_uri())
+                has_report = page.evaluate("typeof window.report === 'function'")
+            except Exception as exc:  # noqa: BLE001
+                raise RunnerError(f"Không mở được tests.html: {exc}") from exc
+            if not has_report:
                 raise RunnerError("tests.html không có hàm window.report() (thiếu harness.js?)")
-            page.evaluate("() => { window.report(); }")
+            try:
+                page.evaluate("() => { window.report(); }")
+            except Exception as exc:  # noqa: BLE001
+                raise RunnerError(f"window.report() lỗi: {exc}") from exc
             try:
                 page.wait_for_function("() => window.__results && window.__results.done === true",
                                        timeout=TESTS_TIMEOUT_S * 1000)
