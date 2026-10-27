@@ -25,7 +25,7 @@ python -m core.harness verify <đường dẫn> [--kind K] [--runtime] [--render
 | `quiz_lesson` | `Quizz lesson/` (`quiz.md`, `.xlsx`) | Định dạng và quy tắc câu hỏi quiz bài |
 | `quiz_session` | `Quizz session/` (`.md`, `.xlsx`) | Định dạng và quy tắc câu hỏi quiz buổi |
 | `exercise` | `Bài tập/<số>_<tên>/` | Kiểm tĩnh đề, rubric, starter; `--runtime` chạy test của đáp án mẫu và starter |
-| `lab` | `Bài thực hành/lab_guide.md` | Có mục `## Lab N - ... (K phút)`, mỗi Lab có "Kết quả mong đợi", có mục `Tổng kết` và `Rubric` |
+| `lab` | `Bài thực hành/lab_guide.md` | Có mục `## Lab N - ... (K phút)` với số Lab tăng dần, không trùng; mỗi Lab có "Kết quả mong đợi" ngoài khối mã; có mục `Tổng kết` và `Rubric` |
 
 Nhận diện theo tên thư mục cha, không phân biệt hoa thường và dấu tiếng Việt.
 
@@ -45,6 +45,8 @@ Cảnh báo (warning) không làm hỏng lần chạy.
 
 Mỗi lần chạy ghi `storage/harness_reports/<thời điểm>_<tên>/report.json` và `report.md`. Nếu thư mục đang kiểm chứng chứa `storage/harness_reports/` (ví dụ kiểm chứng cả kho), báo cáo được ghi vào `harness_reports/` trong thư mục tạm của hệ thống. Dòng cuối của lệnh in đường dẫn thư mục báo cáo. Thư mục `storage/harness_reports/` và `storage/harness_cache/` không được commit.
 
+Ảnh do `slide_pptx --render` xuất ra nằm ở `storage/harness_cache/render/deck_*`. Sau mỗi lần render thành công, harness chỉ giữ 5 thư mục mới nhất (`RENDER_KEEP` trong `core/harness/gates/slide_pptx.py`), tính chung mọi bộ slide; các thư mục cũ hơn bị xóa.
+
 ## Công cụ tùy chọn
 
 Chỉ cần khi dùng `--runtime` hoặc `--render`. Thiếu công cụ thì cổng báo bỏ qua và lệnh trả mã 2.
@@ -58,6 +60,8 @@ Chỉ cần khi dùng `--runtime` hoặc `--render`. Thiếu công cụ thì c�
 
 ## Kết quả đã biết (2026-10-27)
 
+Mục này là ảnh chụp tại ngày ghi ở tiêu đề, không tự cập nhật; chạy lại lệnh trên dữ liệu hiện tại trước khi dựa vào.
+
 - Các khóa NodeJS và ReactJS đã duyệt đạt kiểm chứng tĩnh.
 - Bài tập có số từ ngoài khoảng 350-700 chỉ bị cảnh báo, không làm hỏng.
 - Khóa cũ dùng định dạng quiz json không đạt cổng quiz; cần đổi sang định dạng hiện hành.
@@ -67,4 +71,4 @@ Chỉ cần khi dùng `--runtime` hoặc `--render`. Thiếu công cụ thì c�
 - Mã 2: đọc dòng "Bỏ qua" trong kết quả để biết công cụ thiếu, cài theo bảng trên rồi chạy lại.
 - "Không nhận diện được loại tài nguyên": thêm `--kind`, hoặc kiểm tra tên thư mục cha.
 - `npm install` treo hoặc lỗi: kiểm tra mạng, xóa `storage/harness_cache/node_ws` rồi chạy lại.
-- Khóa `.lock` còn sót trong `storage/harness_cache/` sau khi bị ngắt: khóa cũ hơn 30 phút tự bị bỏ qua; có thể xóa tay.
+- Khóa `.lock` còn sót trong `storage/harness_cache/` sau khi bị ngắt: tệp khóa ghi `<PID> <thời điểm>` của tiến trình giữ khóa. Nếu tiến trình đó không còn chạy, lần chạy sau chiếm khóa ngay; nếu không đọc được PID, khóa cũ hơn 30 phút mới bị bỏ qua. Có thể xóa tay khi chắc chắn không còn lần chạy nào.

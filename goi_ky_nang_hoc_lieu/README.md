@@ -74,5 +74,6 @@ Trong pipeline của dự án, tài nguyên cấp bài (`html`, `quiz`, `practic
 
 - Dùng với agent trong IDE: đưa cho agent đường dẫn `skills/<tên>/SKILL.md` của loại học liệu cần làm cùng `chuan/AGENTS.md` và đặc tả môn; yêu cầu agent đọc skill trước khi viết.
 - Dùng trong dự án: các skill này đã nằm sẵn ở `skills/` của kho mã; gói chỉ là bản gom để đọc và chia sẻ.
+- Script kiểm tra trong gói (`check_reading.py`, `check_slides_html.py`, `check_deck.py`, `deck_lint.py`) nay cần `core/harness` của kho dự án: chỉ chạy được khi gói nằm trong kho (hoặc kho có trên `sys.path`).
 - Cập nhật gói: sao chép lại `skills/`, `.agents/AGENTS.md`, `docs/quy_chuan_chi_tiet.md`, `docs/TIEU_CHUAN_BAI_DOC.md`, `docs/HUONG_DAN_SU_DUNG.md` và `templates/` sau mỗi lần chuẩn thay đổi, rồi cập nhật dòng commit ở đầu tệp này.
 - Ghi chú về `vi_du_dac_ta_mon/`: là bản mẫu, chứa đường dẫn tuyệt đối của máy đã dựng hai môn (ReactJS, NodeJS). Khi dùng cho môn mới, đổi đường dẫn và nội dung theo môn.

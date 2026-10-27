@@ -82,6 +82,7 @@ Fixed sizes of the engine (14-18 pt for body text, 14 pt code) are intentional. 
 - `deck_lint.py` (run by `build_deck.py`): slide order and count, unique h2, missing notes, items beyond builder limits, emoji, banned words, bracket tags, interactive cadence.
 - `check_deck.py`: on the built file, emoji, banned words, ALL CAPS, font size, shapes beyond the slide, notes present. With `--render` on Windows with PowerPoint: measured text overflow, text touching the footer zone, overlapping text, and PNG export plus contact sheets. Without PowerPoint it only estimates and prints a warning: then you must render the slides with another tool and view them.
 - They do **not** judge whether the content is correct or the layout is pleasant. That is your visual review.
+- Before reporting the deck done, run the verification gate: `python -m core.harness verify <deck.pptx> --kind slide_pptx` (add `--render` on Windows with PowerPoint; exit 0 required; exit 2 means a tool was missing, so name it and do not claim verified).
 
 ## 7. Reference files
 

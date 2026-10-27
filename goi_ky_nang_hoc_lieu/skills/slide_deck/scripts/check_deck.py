@@ -11,6 +11,7 @@ Mã thoát 1 nếu có LỖI. Cảnh báo không làm thất bại nhưng phải
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import math
 import re
@@ -31,9 +32,53 @@ MIN_FONT_WARN_PT = 12
 BOUNDS_TOLERANCE_EMU = 20000
 FOOTER_ZONE = 0.90          # chữ nằm dưới 90% chiều cao slide là chạm vùng chân trang của template
 ALLOWED_CAPS = {"NỘI DUNG"}  # nhãn viết hoa có sẵn trong template gốc
+CHROME_MIN_SLIDES = 3        # chữ lặp y hệt ở >= 3 slide và >= 60% số slide là phần khung của template
+CHROME_MIN_RATIO = 0.6
 
 
-def static_checks(pptx_path: Path) -> Dict[str, Any]:
+DEFAULT_TEMPLATE = HERE.parents[2] / "templates" / "pptx" / "SLIDE TEMPLATE.pptx"
+
+
+@functools.lru_cache(maxsize=8)
+def _template_texts(template: str) -> frozenset:
+    """Mọi văn bản (đã strip) có sẵn trong deck template; không có/không đọc được template thì rỗng."""
+    from pptx import Presentation
+
+    try:
+        prs = Presentation(template)
+    except Exception:  # noqa: BLE001
+        return frozenset()
+    out = set()
+
+    def visit(shapes):
+        for sh in shapes:
+            if sh.shape_type == 6 and hasattr(sh, "shapes"):  # nhóm
+                visit(sh.shapes)
+            if sh.has_text_frame and sh.text_frame.text.strip():
+                out.add(sh.text_frame.text.strip())
+
+    for slide in prs.slides:
+        visit(slide.shapes)
+    for layout in prs.slide_layouts:
+        visit(layout.shapes)
+    for master in prs.slide_masters:
+        visit(master.shapes)
+    return frozenset(out)
+
+
+def _template_chrome_texts(prs) -> set:
+    """Các văn bản (đã chuẩn hóa) lặp giống hệt trên đa số slide: chân trang/nhãn của template, không phải nội dung."""
+    seen: Dict[str, int] = {}
+    for slide in prs.slides:
+        texts = {shape.text_frame.text.strip() for shape in slide.shapes
+                 if shape.has_text_frame and shape.text_frame.text.strip()}
+        for t in texts:
+            seen[t] = seen.get(t, 0) + 1
+    need = max(CHROME_MIN_SLIDES, math.ceil(CHROME_MIN_RATIO * len(prs.slides)))
+    return {t for t, n in seen.items() if n >= need}
+
+
+def static_checks(pptx_path: Path, template_path: Any = None) -> Dict[str, Any]:
     from pptx import Presentation
     from pptx.enum.shapes import MSO_SHAPE_TYPE
     from pptx.util import Pt
@@ -43,6 +88,10 @@ def static_checks(pptx_path: Path) -> Dict[str, Any]:
     errors: List[str] = []
     warnings: List[str] = []
     estimates: List[str] = []
+    chrome = set(_template_chrome_texts(prs))
+    tpl = Path(template_path) if template_path else DEFAULT_TEMPLATE
+    if tpl.exists():
+        chrome |= _template_texts(str(tpl.resolve()))
 
     for idx, slide in enumerate(prs.slides, 1):
         notes_ok = slide.has_notes_slide and slide.notes_slide.notes_text_frame.text.strip()
@@ -70,7 +119,7 @@ def static_checks(pptx_path: Path) -> Dict[str, Any]:
             if BRACKET_TAG.search(text):
                 errors.append(f"slide {idx}: '{shape.name}' có thẻ ngoặc vuông")
             letters = re.sub(r"[^A-Za-zÀ-ỹ]", "", text)
-            if len(letters) >= 10 and letters == letters.upper() and text.strip() not in ALLOWED_CAPS:
+            if len(letters) >= 10 and letters == letters.upper() and text.strip() not in ALLOWED_CAPS and text.strip() not in chrome:
                 errors.append(f"slide {idx}: '{shape.name}' viết hoa toàn bộ: {text.strip()[:30]}")
             min_pt = None
             for para in shape.text_frame.paragraphs:
@@ -228,6 +277,7 @@ def main() -> int:
     parser.add_argument("--json", default=None, help="slides.json để kiểm lại cấu trúc")
     parser.add_argument("--render", action="store_true", help="Đo chữ tràn thật và xuất ảnh bằng PowerPoint")
     parser.add_argument("--out", default=None, help="Thư mục ảnh (mặc định: <tên_tệp>_ảnh cạnh tệp pptx)")
+    parser.add_argument("--template", default=None, help="Mặc định: templates/pptx/SLIDE TEMPLATE.pptx")
     args = parser.parse_args()
 
     pptx = Path(args.pptx)
@@ -239,7 +289,7 @@ def main() -> int:
         errors += [f"[json] {x}" for x in e]
         warnings += [f"[json] {x}" for x in w]
 
-    res = static_checks(pptx)
+    res = static_checks(pptx, args.template)
     errors += res["errors"]
     warnings += res["warnings"]
     print(f"Đã đọc {res['slides']} slide.")

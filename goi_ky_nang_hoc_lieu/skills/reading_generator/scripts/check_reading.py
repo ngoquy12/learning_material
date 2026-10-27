@@ -20,6 +20,10 @@ from pathlib import Path
 from typing import List
 
 HERE = Path(__file__).resolve().parent
+_REPO = next((p for p in [HERE, *HERE.parents] if (p / "core" / "harness" / "text_rules.py").exists()), None)
+if _REPO is not None and str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+from core.harness.text_rules import find_all_caps, find_bracket_tags  # noqa: E402
 
 
 def find_repo_root() -> Path:
@@ -64,20 +68,17 @@ def extra_checks(html: str) -> tuple[List[str], List[str]]:
 
     for tag in soup.find_all(["h1", "h2", "h3", "button"]):
         text = tag.get_text(" ", strip=True)
-        letters = re.sub(r"[^A-Za-zÀ-ỹ]", "", text)
-        if len(letters) >= 10 and letters == letters.upper():
+        if text.upper() == text and find_all_caps(text):
             errors.append(f"{tag.name} viết hoa toàn bộ: {text[:40]}")
             break
 
-    body_text = soup.get_text(" ")
-    if re.search(r"\[(NOTE|TIP|WARNING|CẢNH BÁO|LƯU Ý)\]", body_text):
-        errors.append("có thẻ ngoặc vuông kiểu [NOTE]")
-
-    # Chỉ xét văn bản ngoài khối mã: JSX như style={{ color: "red" }} là mã hợp lệ.
+    # Chỉ xét văn bản ngoài khối mã: JSX như style={{ color: "red" }} hay console.log('[INFO] ...') là mã hợp lệ.
     prose = BeautifulSoup(html, "html.parser")
     for tag in prose.find_all(["pre", "code", "script", "style"]):
         tag.decompose()
     prose_text = prose.get_text(" ")
+    if find_bracket_tags(prose_text):
+        errors.append("có thẻ ngoặc vuông kiểu [NOTE]")
     if re.search(r"\{\{\s*[A-Za-z_][\w.]*\s*(\|[^}]*)?\}\}|\{clean_title\}|\[object Object\]", prose_text):
         errors.append("còn chỗ giữ chỗ hoặc giá trị chưa kết xuất ({{ tên }}, {clean_title}, [object Object])")
     return errors, warnings

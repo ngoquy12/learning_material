@@ -13,6 +13,18 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+# Quy tắc văn bản (từ cấm, emoji, thẻ [NOTE]) dùng chung một nguồn: core/harness/text_rules.py.
+_HERE = Path(__file__).resolve().parent
+_REPO = next((p for p in [_HERE, *_HERE.parents] if (p / "core" / "harness" / "text_rules.py").exists()), None)
+if _REPO is not None and str(_REPO) not in sys.path:
+    sys.path.insert(0, str(_REPO))
+try:
+    from core.harness.text_rules import (  # noqa: E402
+        BANNED_WORDS as BANNED, BRACKET_TAG_RE as BRACKET_TAG, EMOJI_RE as EMOJI,
+    )
+except ImportError as _exc:
+    raise SystemExit(f"Không nạp được core.harness ({_exc}): chạy script bên trong kho dự án.")
+
 TYPES = {
     "cover", "agenda", "objectives", "comparison_2col", "code_right_card", "code_trace_table",
     "grid2x2", "glossary_table", "summary_2col", "exercises", "interactive", "flowchart",
@@ -21,11 +33,6 @@ TYPES = {
 NEEDS_H2 = TYPES - {"cover", "agenda", "objectives", "closing"}
 CONTENT_TYPES = TYPES - {"cover", "agenda", "objectives", "closing", "glossary_table", "summary_2col", "exercises"}
 
-EMOJI = re.compile("[\U0001F300-\U0001FAFF☀-➿⬅⬆⬇↩️]")
-BANNED = ["nhé", "bẫy lập trình", "thần thánh", "bí kíp", "tất tần tật", "thân mến", "thực chiến",
-          "gotcha", "anti-pattern", "khám phá", "tuyệt vời"]
-# Chỉ bắt thẻ viết hoa kiểu [NOTE], [TIP]; không bắt mảng trong mã như [userId].
-BRACKET_TAG = re.compile(r"\[[A-ZÀ-Ỹ][A-ZÀ-Ỹ ]{1,19}\]")
 
 # (số mục tối đa, số ký tự tối đa mỗi mục) mà bộ dựng giữ lại; vượt là bị cắt.
 LIST_LIMITS = {
