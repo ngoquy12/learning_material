@@ -1,0 +1,334 @@
+{
+  "slides": [
+    {
+      "id": 1,
+      "type": "cover",
+      "session_tag": "Session 01",
+      "title": "Lý thuyết NodeJS, Express và MySQL",
+      "course_name": "NodeJS",
+      "notes": "Chào lớp và nêu mục tiêu buổi học. [~1 phút]"
+    },
+    {
+      "id": 2,
+      "type": "agenda",
+      "items": [
+        "1. Tổng quan NodeJS",
+        "2. Express: route và middleware",
+        "3. MySQL cho API",
+        "4. Kết nối mysql2",
+        "5. API CRUD hoàn chỉnh",
+        "6. Xác thực và phân quyền",
+        "7. Kiểm thử và hoàn thiện"
+      ],
+      "notes": "Đọc nhanh danh sách. [~1 phút]"
+    },
+    {
+      "id": 3,
+      "type": "objectives",
+      "h1": "Mục tiêu bài học",
+      "goals": [
+        "Giải thích được cách Node.js xử lý nhiều yêu cầu không chặn.",
+        "Dựng được API Express có route, middleware và xử lý lỗi tập trung.",
+        "Viết được truy vấn SQL và kết nối MySQL bằng mysql2.",
+        "Bảo vệ được API bằng JWT và phân quyền."
+      ],
+      "notes": "Nhấn mạnh sản phẩm cuối buổi. [~2 phút]"
+    },
+    {
+      "id": 4,
+      "type": "code_right_card",
+      "h1": "1. Tổng quan NodeJS — 1/2",
+      "h2": "Express tách app khỏi cổng nên Supertest gọi được mà không cần listen.",
+      "code_title": "src/app.js",
+      "code_snippet": "const express = require(\"express\");\nconst app = express();\n\napp.use(express.json());\napp.get(\"/health\", (req, res) => {\n  res.json({ status: \"ok\" });\n});\n\nmodule.exports = app;",
+      "lang_tag": "JS",
+      "card_title": "Ghi chú",
+      "card_items": [
+        "app.js xuất app, không gọi listen",
+        "server.js mới gọi listen",
+        "Test gọi thẳng app bằng Supertest"
+      ],
+      "notes": "Giải thích vì sao tách đôi. [~3 phút]"
+    },
+    {
+      "id": 5,
+      "type": "flowchart",
+      "h1": "2. Express — 1/2",
+      "h2": "Yêu cầu đi qua từng middleware theo đúng thứ tự khai báo.",
+      "nodes": [
+        {
+          "type": "start",
+          "text": "Bắt đầu"
+        },
+        {
+          "type": "process",
+          "text": "express.json()"
+        },
+        {
+          "type": "decision",
+          "text": "Có mã xác thực?"
+        },
+        {
+          "type": "process",
+          "text": "Route xử lý"
+        },
+        {
+          "type": "end",
+          "text": "Kết thúc"
+        }
+      ],
+      "notes": "Đi từng bước. [~3 phút]"
+    },
+    {
+      "id": 6,
+      "type": "interactive",
+      "pattern": "predict_outcome",
+      "h1": "2. Express — 2/2",
+      "h2": "Đặt express.json() sau router thì req.body không được đọc.",
+      "prompt": "Router đặt trước express.json(). Yêu cầu POST /products gửi JSON. req.body có giá trị gì?",
+      "code_snippet": "app.use(\"/products\", router);\napp.use(express.json());",
+      "lang_tag": "JS",
+      "options": [
+        "undefined",
+        "Đối tượng JSON đã phân tích",
+        "Chuỗi rỗng",
+        "Lỗi cú pháp"
+      ],
+      "answer": "undefined: body chưa được phân tích khi route chạy.",
+      "notes": "Cho lớp dự đoán rồi mới công bố. [~3 phút]"
+    },
+    {
+      "id": 7,
+      "type": "comparison_2col",
+      "h1": "4. Kết nối mysql2 — 1/2",
+      "h2": "Truy vấn tham số hóa chặn được SQL injection còn nối chuỗi thì không.",
+      "left_title": "Nối chuỗi",
+      "left_code": "SELECT * FROM products\nWHERE name = '\" + q + \"'",
+      "left_items": [
+        "Dữ liệu vào trở thành mã SQL",
+        "Nhập ' OR 1=1 -- lấy toàn bảng"
+      ],
+      "right_title": "Tham số ?",
+      "right_code": "pool.query(\n  \"SELECT * FROM products WHERE name = ?\",\n  [q]\n)",
+      "right_items": [
+        "Giá trị luôn là dữ liệu",
+        "Chuỗi tấn công trả 0 hàng"
+      ],
+      "notes": "So sánh hai cách. [~4 phút]"
+    },
+    {
+      "id": 8,
+      "type": "code_trace_table",
+      "h1": "4. Kết nối mysql2 — 2/2",
+      "h2": "Giao dịch hoặc ghi đủ cả đơn hàng và dòng đơn, hoặc không ghi gì.",
+      "code_title": "createOrder",
+      "code_snippet": "await conn.beginTransaction();\nawait conn.query(UPDATE_STOCK, [qty, id, qty]);\nawait conn.query(INSERT_ORDER, [userId]);\nawait conn.commit();",
+      "lang_tag": "JS",
+      "table_headers": [
+        "Bước",
+        "Kho",
+        "Kết quả"
+      ],
+      "table_rows": [
+        [
+          "Bắt đầu",
+          "25",
+          "Mở giao dịch"
+        ],
+        [
+          "Trừ kho 2",
+          "23",
+          "Chưa ghi"
+        ],
+        [
+          "Tạo đơn",
+          "23",
+          "Chưa ghi"
+        ],
+        [
+          "Commit",
+          "23",
+          "Ghi đồng thời"
+        ]
+      ],
+      "col_widths": [
+        100,
+        80,
+        160
+      ],
+      "notes": "Theo dõi giá trị kho. [~4 phút]"
+    },
+    {
+      "id": 9,
+      "type": "grid2x2",
+      "h1": "5. API CRUD — 1/2",
+      "h2": "Mỗi tầng chỉ làm một việc nên dễ sửa và dễ kiểm thử.",
+      "items": [
+        {
+          "title": "routes",
+          "desc": "Gắn URL vào controller"
+        },
+        {
+          "title": "controllers",
+          "desc": "Đọc request, trả response"
+        },
+        {
+          "title": "repositories",
+          "desc": "Chứa toàn bộ SQL"
+        },
+        {
+          "title": "schemas",
+          "desc": "Kiểm tra dữ liệu bằng zod"
+        }
+      ],
+      "notes": "Mỗi ô một ý. [~3 phút]"
+    },
+    {
+      "id": 10,
+      "type": "interactive",
+      "pattern": "quick_quiz",
+      "h1": "5. API CRUD — 2/2",
+      "h2": "Phân tầng đúng đặt câu lệnh SQL ở repository chứ không ở controller.",
+      "prompt": "Câu lệnh SELECT lấy danh sách sản phẩm nên đặt ở tầng nào?",
+      "options": [
+        "routes",
+        "controllers",
+        "repositories",
+        "schemas"
+      ],
+      "answer": "repositories: tầng này chứa toàn bộ SQL.",
+      "notes": "Cho lớp chọn rồi công bố. [~2 phút]"
+    },
+    {
+      "id": 11,
+      "type": "timeline",
+      "h1": "6. Xác thực — 1/2",
+      "h2": "Luồng JWT đi từ đăng nhập tới route được bảo vệ qua bốn bước.",
+      "milestones": [
+        {
+          "label": "Đăng nhập",
+          "desc": "Gửi email và mật khẩu"
+        },
+        {
+          "label": "Ký token",
+          "desc": "Máy chủ tạo JWT"
+        },
+        {
+          "label": "Gửi kèm",
+          "desc": "Header Authorization"
+        },
+        {
+          "label": "Kiểm tra",
+          "desc": "Gắn req.user"
+        }
+      ],
+      "notes": "Đi từ trái sang phải. [~3 phút]"
+    },
+    {
+      "id": 12,
+      "type": "glossary_table",
+      "h1": "Thuật ngữ cần nhớ",
+      "h2": "Sáu thuật ngữ đủ để đọc hiểu tài liệu của một API Express.",
+      "headers": [
+        "Thuật ngữ",
+        "Tiếng Anh",
+        "Định nghĩa"
+      ],
+      "rows": [
+        [
+          "Middleware",
+          "Middleware",
+          "Hàm nhận req, res, next"
+        ],
+        [
+          "Pool kết nối",
+          "Connection pool",
+          "Tập kết nối tái sử dụng"
+        ],
+        [
+          "Giao dịch",
+          "Transaction",
+          "Nhóm lệnh ghi hoặc hủy cùng nhau"
+        ],
+        [
+          "Băm mật khẩu",
+          "Password hashing",
+          "Biến mật khẩu thành chuỗi một chiều"
+        ],
+        [
+          "JWT",
+          "JSON Web Token",
+          "Chuỗi chứa thông tin và chữ ký"
+        ],
+        [
+          "CORS",
+          "Cross-Origin Resource Sharing",
+          "Quy tắc trình duyệt cho yêu cầu khác nguồn"
+        ]
+      ],
+      "col_widths": [
+        140,
+        160,
+        300
+      ],
+      "notes": "Đọc lướt. [~2 phút]"
+    },
+    {
+      "id": 13,
+      "type": "exercises",
+      "h1": "Bài tập và tài liệu tham khảo",
+      "h2": "Sáu bài tập nâng dần từ Express thuần đến API có xác thực.",
+      "exercises": [
+        "Bài 1: API sản phẩm trong bộ nhớ",
+        "Bài 3: Truy vấn SQL báo cáo bán hàng",
+        "Bài 6: Xác thực, phân quyền và đơn hàng"
+      ],
+      "references": [
+        "expressjs.com",
+        "dev.mysql.com/doc",
+        "zod.dev"
+      ],
+      "notes": "Giao bài. [~2 phút]"
+    },
+    {
+      "id": 14,
+      "type": "summary_2col",
+      "h1": "Tổng kết",
+      "h2": "Bốn quy tắc giúp API Express an toàn và dễ bảo trì.",
+      "left_title": "Dữ liệu",
+      "left_items": [
+        {
+          "text": "Luôn tham số hóa truy vấn",
+          "bold": true,
+          "bullet": true
+        },
+        {
+          "text": "Kiểm tra đầu vào bằng zod",
+          "bold": true,
+          "bullet": true
+        }
+      ],
+      "right_title": "Bảo mật",
+      "right_items": [
+        {
+          "text": "Không trả passwordHash",
+          "bold": true,
+          "bullet": true
+        },
+        {
+          "text": "Phân quyền theo vai trò",
+          "bold": true,
+          "bullet": true
+        }
+      ],
+      "notes": "Chốt lại. [~2 phút]"
+    },
+    {
+      "id": 15,
+      "type": "closing",
+      "title": "Cảm ơn các bạn!",
+      "subtitle": "Buổi sau: thực hành API Rikkei Learn",
+      "notes": "Kết thúc. [~1 phút]"
+    }
+  ]
+}
