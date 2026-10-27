@@ -31,6 +31,20 @@ MIN_FONT_WARN_PT = 12
 BOUNDS_TOLERANCE_EMU = 20000
 FOOTER_ZONE = 0.90          # chữ nằm dưới 90% chiều cao slide là chạm vùng chân trang của template
 ALLOWED_CAPS = {"NỘI DUNG"}  # nhãn viết hoa có sẵn trong template gốc
+CHROME_MIN_SLIDES = 3        # chữ lặp y hệt ở >= 3 slide và >= 60% số slide là phần khung của template
+CHROME_MIN_RATIO = 0.6
+
+
+def _template_chrome_texts(prs) -> set:
+    """Các văn bản (đã chuẩn hóa) lặp giống hệt trên đa số slide: chân trang/nhãn của template, không phải nội dung."""
+    seen: Dict[str, int] = {}
+    for slide in prs.slides:
+        texts = {shape.text_frame.text.strip() for shape in slide.shapes
+                 if shape.has_text_frame and shape.text_frame.text.strip()}
+        for t in texts:
+            seen[t] = seen.get(t, 0) + 1
+    need = max(CHROME_MIN_SLIDES, math.ceil(CHROME_MIN_RATIO * len(prs.slides)))
+    return {t for t, n in seen.items() if n >= need}
 
 
 def static_checks(pptx_path: Path) -> Dict[str, Any]:
@@ -43,6 +57,7 @@ def static_checks(pptx_path: Path) -> Dict[str, Any]:
     errors: List[str] = []
     warnings: List[str] = []
     estimates: List[str] = []
+    chrome = _template_chrome_texts(prs)
 
     for idx, slide in enumerate(prs.slides, 1):
         notes_ok = slide.has_notes_slide and slide.notes_slide.notes_text_frame.text.strip()
@@ -70,7 +85,7 @@ def static_checks(pptx_path: Path) -> Dict[str, Any]:
             if BRACKET_TAG.search(text):
                 errors.append(f"slide {idx}: '{shape.name}' có thẻ ngoặc vuông")
             letters = re.sub(r"[^A-Za-zÀ-ỹ]", "", text)
-            if len(letters) >= 10 and letters == letters.upper() and text.strip() not in ALLOWED_CAPS:
+            if len(letters) >= 10 and letters == letters.upper() and text.strip() not in ALLOWED_CAPS and text.strip() not in chrome:
                 errors.append(f"slide {idx}: '{shape.name}' viết hoa toàn bộ: {text.strip()[:30]}")
             min_pt = None
             for para in shape.text_frame.paragraphs:

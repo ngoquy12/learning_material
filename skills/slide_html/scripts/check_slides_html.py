@@ -19,7 +19,10 @@ HERE = Path(__file__).resolve().parent
 _REPO = next((p for p in [HERE, *HERE.parents] if (p / "core" / "harness" / "text_rules.py").exists()), None)
 if _REPO is not None and str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
-from core.harness.text_rules import BANNED_WORDS, EMOJI_RE as EMOJI  # noqa: E402
+try:
+    from core.harness.text_rules import BANNED_WORDS, EMOJI_RE as EMOJI  # noqa: E402
+except ImportError as _exc:
+    raise SystemExit(f"Không nạp được core.harness.text_rules ({_exc}): chạy script bên trong kho dự án.")
 
 CHROME_PATHS = [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",

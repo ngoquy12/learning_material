@@ -20,13 +20,20 @@ def _skill_module():
     return load_skill_script("slide_html", "check_slides_html")
 
 
-def _without_code(html: str) -> str:
+def _without(html: str, names: list[str]) -> str:
     from bs4 import BeautifulSoup
 
     soup = BeautifulSoup(html, "html.parser")
-    for tag in soup.find_all(["pre", "code"]):
+    for tag in soup.find_all(names):
         tag.decompose()
     return str(soup)
+
+
+def count_slides(html: str) -> int:
+    """Số phần tử có đúng lớp `slide` (không tính slide-title, slide-num...)."""
+    from bs4 import BeautifulSoup
+
+    return len(BeautifulSoup(html, "html.parser").find_all(class_=lambda c: c is not None and "slide" in c.split()))
 
 
 def _visible_text(html: str) -> str:
@@ -40,9 +47,9 @@ def static_html_findings(html: str) -> list[Finding]:
     def err(msg: str) -> None:
         out.append(Finding("error", GATE, msg))
 
-    if _PLACEHOLDER_RE.search(_without_code(html)):
+    if _PLACEHOLDER_RE.search(_without(html, ["pre", "code", "script"])):
         err("Còn chỗ giữ chỗ {{...}} chưa thay")
-    if _HREF_HASH_RE.search(html):
+    if _HREF_HASH_RE.search(_without(html, ["pre", "code"])):
         err('Có thẻ <a href="#">')
     for token in _skill_module().BANNED_STYLE:
         if token in html:
@@ -68,7 +75,7 @@ def check_slide_html(path: Path, opts: VerifyOptions) -> GateResult:
             result.findings.append(Finding("error", GATE, "Tệp slides.html rỗng"))
         else:
             result.findings += static_html_findings(html)
-            result.detail["slides"] = len(re.findall(r"""class\s*=\s*["'][^"']*\bslide\b""", html))
+            result.detail["slides"] = count_slides(html)
             # opts.runtime: bước đo vừa khung bằng Playwright sẽ thêm ở đây (Task 7).
     result.duration_s = time.perf_counter() - start
     return result

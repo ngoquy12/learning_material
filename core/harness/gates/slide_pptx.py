@@ -1,6 +1,7 @@
 """Cổng slide pptx: kiểm tĩnh bộ slide đã dựng, lint slides.json cùng thư mục, đo chữ tràn bằng PowerPoint (render)."""
 from __future__ import annotations
 
+import shutil
 import sys
 import tempfile
 import time
@@ -35,7 +36,7 @@ def _lint_json(result: GateResult, path: Path) -> None:
     try:
         errors, warnings = lint.lint_slides(lint.load_slides(slides_json))
     except Exception as exc:  # noqa: BLE001
-        result.findings.append(Finding("error", GATE, f"Không đọc được slides.json: {exc}", str(slides_json)))
+        result.findings.append(Finding("error", GATE, f"Không đọc được slides.json: {exc}", "slides.json"))
         return
     for m in errors:
         result.findings.append(Finding("error", GATE, m, "slides.json"))
@@ -49,14 +50,16 @@ def _render(result: GateResult, path: Path) -> None:
         result.skipped_reason = "Đo bằng PowerPoint chỉ chạy trên Windows"
         return
     deck = _check_deck()
+    out_dir = None
     try:
         RENDER_ROOT.mkdir(parents=True, exist_ok=True)
         out_dir = Path(tempfile.mkdtemp(prefix="deck_", dir=RENDER_ROOT))
         probe = deck.render_with_powerpoint(path, out_dir)
     except Exception as exc:  # noqa: BLE001
-        result.skipped_reason = f"Không chạy được PowerPoint: {exc}"
-        return
+        probe = {"status": "FAILED", "reason": str(exc)}
     if probe.get("status") != "OK":
+        if out_dir is not None:
+            shutil.rmtree(out_dir, ignore_errors=True)
         result.skipped_reason = f"Không đo được bằng PowerPoint: {probe.get('reason', probe.get('status'))}"
         return
     measured = deck.measured_checks(probe)

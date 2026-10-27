@@ -50,3 +50,14 @@ def test_gate_reads_file(tmp_path):
     assert r.status == "pass", r.findings
     p.write_text("<p>neon</p>", encoding="utf-8")
     assert check_slide_html(p, VerifyOptions()).status == "fail"
+
+
+def test_slide_count_ignores_slide_title():
+    from core.harness.gates.slide_html import count_slides
+    html = "<div class='slide active'><div class='slide-title'>x</div></div><div class='slide'></div>"
+    assert count_slides(html) == 2
+
+
+def test_script_placeholder_and_code_href_ignored():
+    assert msgs("<script>const t = `{{ name }}`</script>") == []
+    assert msgs("<pre><code>&lt;a href=\"#\"&gt;x&lt;/a&gt;</code></pre>") == []

@@ -78,3 +78,77 @@ def test_render_skipped_off_windows(tmp_path, monkeypatch):
     r = check_slide_pptx(p, VerifyOptions(render=True))
     assert r.skipped_reason
     assert any(f.severity == "error" for f in r.findings)  # lỗi tĩnh vẫn giữ
+
+
+def _deck_with_footer(path, footers):
+    prs = Presentation()
+    for ft in footers:
+        s = prs.slides.add_slide(prs.slide_layouts[6])
+        tb = s.shapes.add_textbox(Inches(1), Inches(1), Inches(6), Inches(1))
+        r = tb.text_frame.paragraphs[0].add_run()
+        r.text, r.font.size = "Nội dung", Pt(18)
+        if ft:
+            fb = s.shapes.add_textbox(Inches(1), Inches(5), Inches(6), Inches(1))
+            fr = fb.text_frame.paragraphs[0].add_run()
+            fr.text, fr.font.size = ft, Pt(14)
+        s.notes_slide.notes_text_frame.text = "ghi chú"
+    prs.save(str(path))
+
+
+def test_repeated_caps_footer_is_template_chrome(tmp_path):
+    p = folder(tmp_path) / "deck.pptx"
+    _deck_with_footer(p, ["HỌC VIỆN ĐÀO TẠO LẬP TRÌNH"] * 4)
+    r = check_slide_pptx(p, VerifyOptions())
+    assert not any("viết hoa" in f.message for f in r.findings), r.findings
+
+
+def test_single_caps_text_is_error(tmp_path):
+    p = folder(tmp_path) / "deck.pptx"
+    _deck_with_footer(p, ["", "", "", "TIÊU ĐỀ VIẾT HOA QUÁ DÀI"])
+    r = check_slide_pptx(p, VerifyOptions())
+    assert any(f.severity == "error" and "viết hoa" in f.message for f in r.findings)
+
+
+# --- render ---
+@pytest.fixture
+def render_env(tmp_path, monkeypatch):
+    from core.harness.gates import slide_pptx as mod
+    monkeypatch.setattr(mod, "RENDER_ROOT", tmp_path / "render")
+    monkeypatch.setattr(sys, "platform", "win32")
+    p = folder(tmp_path) / "deck.pptx"
+    make_deck(p)
+    return mod, p
+
+
+def test_render_probe_not_ok_skips_and_cleans(render_env, monkeypatch):
+    mod, p = render_env
+    deck = mod._check_deck()
+    monkeypatch.setattr(deck, "render_with_powerpoint", lambda *a: {"status": "FAILED", "reason": "no ppt"})
+    r = check_slide_pptx(p, VerifyOptions(render=True))
+    assert "no ppt" in r.skipped_reason
+    assert list(mod.RENDER_ROOT.iterdir()) == []
+
+
+def test_render_raising_skips(render_env, monkeypatch):
+    mod, p = render_env
+    deck = mod._check_deck()
+
+    def boom(*a):
+        raise RuntimeError("com error")
+
+    monkeypatch.setattr(deck, "render_with_powerpoint", boom)
+    r = check_slide_pptx(p, VerifyOptions(render=True))
+    assert "com error" in r.skipped_reason
+    assert list(mod.RENDER_ROOT.iterdir()) == []
+
+
+def test_render_ok_maps_measured(render_env, monkeypatch):
+    mod, p = render_env
+    deck = mod._check_deck()
+    monkeypatch.setattr(deck, "render_with_powerpoint", lambda *a: {"status": "OK"})
+    monkeypatch.setattr(deck, "measured_checks", lambda probe: {"errors": ["slide 1: tràn"], "warnings": ["slide 2: sát mép"]})
+    r = check_slide_pptx(p, VerifyOptions(render=True))
+    assert not r.skipped_reason
+    assert any(f.severity == "error" and "tràn" in f.message for f in r.findings)
+    assert any(f.severity == "warning" and "sát mép" in f.message for f in r.findings)
+    assert r.detail["render_dir"].startswith(str(mod.RENDER_ROOT))
