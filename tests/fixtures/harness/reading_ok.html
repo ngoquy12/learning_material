@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NodeJS và máy chủ HTTP: mô hình không chặn, module và cấu trúc dự án API - Rikkei Education</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Montserrat:wght@700;800&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: { rikkei: { red: "#be111c", darkred: "#990d16", dark: "#0f172a" } },
+            fontFamily: { sans: ["Inter", "system-ui", "sans-serif"], montserrat: ["Montserrat", "sans-serif"], mono: ["JetBrains Mono", "monospace"] },
+            maxWidth: { 340: "1680px" },
+          },
+        },
+      };
+    </script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+<style>
+      /* Custom Thin Scrollbar for Terminal Console Log */
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 84px; /* Problem 2.2: Fixed Header clearance */
+      }
+
+      /* 1. SVG DIAGRAM - Prevent text overflow, ensure responsive */
+      .rikkei-diagram,
+      svg.rikkei-diagram {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        overflow: hidden;
+      }
+      .rikkei-diagram text,
+      svg.rikkei-diagram text {
+        font-family: "Inter", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      .diagram-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        border-radius: 0.75rem;
+      }
+      div.my-6 svg,
+      section svg,
+      article svg {
+        max-width: 100%;
+        height: auto;
+        overflow: hidden;
+      }
+
+      /* 2. TABLE - Prevent table overflow on all screens */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        word-wrap: break-word;
+      }
+
+      th,
+      td {
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+      }
+
+      th {
+        background-color: #f1f5f9;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* SAFETY NET: any <pre> code block must never blow out page width,
+         even if its wrapper div lacks an explicit overflow-x-auto class. */
+      pre {
+        max-width: 100%;
+        overflow-x: auto;
+      }
+
+      /* SAFETY NET: CSS Grid items default to a content-based minimum
+         width, which lets a long unbroken line inside a nested <pre> force
+         the whole grid track wider than the page. Allow them to shrink. */
+      .grid > * {
+        min-width: 0;
+      }
+
+      /* 3. CODE BLOCK FIXES */
+      pre code {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.875rem;
+        line-height: 1.6;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+
+      /* 3. LIGHT MODE STYLING & HIGH CONTRAST TEXT RULES */
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: #0f172a !important;
+        font-style: normal !important;
+      }
+      p,
+      li,
+      td,
+      th,
+      span,
+      div {
+        font-style: normal;
+      }
+      /* STRICT ZERO ITALIC LEAKAGE SAFETY NET */
+      article p:not(.italic):not(.img-caption),
+      article li,
+      article div:not(.img-caption-box),
+      article table,
+      article blockquote,
+      article strong,
+      article b,
+      article h1,
+      article h2,
+      article h3,
+      article h4,
+      article h5,
+      article h6 {
+        font-style: normal !important;
+      }
+      article p.italic,
+      article figcaption,
+      article .img-caption {
+        font-style: italic !important;
+      }
+      .toc-link,
+      .mobile-toc-link {
+        color: #475569 !important;
+        font-style: normal !important;
+      }
+      .toc-link:hover,
+      .mobile-toc-link:hover {
+        color: #0f172a !important;
+      }
+      .bg-amber-50 *,
+      .bg-rose-50 *,
+      .bg-emerald-50 *,
+      .bg-sky-50 * {
+        color: #1e293b !important;
+      }
+
+      /* VISUALIZER HIGH CONTRAST LIGHT MODE & SYNTAX TOKEN SAFETY NET */
+      [id*="mech"] p,
+      [id*="mech"] div,
+      [id*="visualizer"] div {
+        color: #1e293b;
+      }
+      [id*="mech-line"]:not(.active-line),
+      [id*="line-"]:not(.active-line) {
+        color: #475569 !important;
+        opacity: 1 !important;
+        font-weight: 500 !important;
+      }
+      .kw {
+        color: #cf222e !important;
+        font-weight: bold !important;
+      }
+      .str {
+        color: #0a3069 !important;
+      }
+      .num {
+        color: #0550ae !important;
+        font-weight: 600 !important;
+      }
+      .fn {
+        color: #8250df !important;
+        font-weight: 600 !important;
+      }
+      .cmt {
+        color: #6e7781 !important;
+        font-style: italic !important;
+      }
+
+      code:not(.hljs):not([class*="language"]) {
+        background-color: #f1f5f9 !important;
+        color: #be111c !important;
+        padding: 0.125rem 0.375rem !important;
+        border-radius: 0.25rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+      }
+
+      /* 4. TERMINAL BLOCK & HLJS SYNTAX HIGHLIGHTING */
+      pre code.hljs {
+        padding: 1.25rem !important;
+        border-radius: 0 0 0.75rem 0.75rem !important;
+        font-family: "JetBrains Mono", monospace !important;
+        font-size: 0.875rem !important;
+        line-height: 1.6 !important;
+        background: #f8fafc !important;
+      }
+
+      pre span,
+      code span {
+        background-color: transparent !important;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-all;
+        overflow-wrap: break-word;
+      }
+
+      /* 9. STRAY CHARACTER PREVENTION */
+      body
+        > *:not(header):not(main):not(script):not(style):not(
+          #mobile-toc-toggle
+        ):not(#mobile-toc-drawer) {
+        display: none !important;
+      }
+
+      /* Mô phỏng Lesson 01: event loop và HTTP */
+      #l1_sim input[type="range"] { max-width: 100%; accent-color: #be111c; }
+      .l1_chip { border: 1px solid #cbd5e1; background: #ffffff; color: #334155; border-radius: 9999px; padding: 0.3rem 0.75rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+      .l1_chip:hover { background: #f1f5f9; }
+      .l1_chip_on { background: #be111c; border-color: #be111c; color: #ffffff; }
+      .l1_chip_on:hover { background: #990d16; }
+      .l1_gantt { position: relative; border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; padding: 0.6rem 0.75rem 1.4rem 0.75rem; }
+      .l1_lane { display: flex; align-items: center; margin-bottom: 0.5rem; }
+      .l1_lane_name { flex: 0 0 6.2rem; font-size: 0.72rem; font-weight: 600; color: #334155; }
+      .l1_track { position: relative; flex: 1 1 auto; height: 2rem; background: #f1f5f9; border-radius: 0.3rem; overflow: hidden; }
+      .l1_seg { position: absolute; top: 0.2rem; bottom: 0.2rem; border-radius: 0.25rem; font-size: 0.68rem; font-weight: 700; line-height: 1.6rem; text-align: center; overflow: hidden; white-space: nowrap; color: #0f172a; }
+      .l1_c_A { background: #7dd3fc; }
+      .l1_c_B { background: #86efac; }
+      .l1_c_C { background: #fcd34d; }
+      .l1_io { opacity: 0.55; border: 1px dashed #475569; }
+      .l1_wait { background: repeating-linear-gradient(45deg, #fecaca, #fecaca 5px, #fee2e2 5px, #fee2e2 10px); color: #7f1d1d; border: 1px solid #dc2626; }
+      .l1_axis { position: relative; margin-left: 6.2rem; height: 1rem; }
+      .l1_tick { position: absolute; top: 0; font-size: 0.64rem; color: #64748b; transform: translateX(-50%); }
+      .l1_cursor { position: absolute; top: 0.4rem; bottom: 1.2rem; width: 2px; background: #be111c; pointer-events: none; }
+      .l1_kv { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 0.4rem; }
+      @media (min-width: 640px) { .l1_kv { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+      .l1_kv > div { border: 1px solid #e2e8f0; border-radius: 0.5rem; background: #ffffff; padding: 0.35rem 0.5rem; min-width: 0; }
+      .l1_kv span.k { display: block; font-size: 0.68rem; color: #64748b; }
+      .l1_kv span.v { display: block; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; font-weight: 700; color: #0f172a; word-break: break-word; min-height: 1.2rem; }
+      .l1_pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: "JetBrains Mono", monospace; font-size: 0.76rem; line-height: 1.7; color: #334155; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.6rem 0.75rem; }
+      .l1_pre span { border-radius: 0.2rem; }
+      .l1_hl { background: #fde68a; color: #78350f; font-weight: 700; }
+      .l1_row { width: 100%; text-align: left; font-weight: 700; font-size: 0.8rem; padding: 0.35rem 0.5rem; border-radius: 0.4rem; border: 1px solid #cbd5e1; background: #ffffff; color: #0f172a; cursor: pointer; }
+      .l1_row:hover { background: #f1f5f9; }
+      .l1_row_on { background: #fde68a; border-color: #d97706; color: #78350f; }
+      #l1_sim table { table-layout: auto; }
+      #l1_sim td, #l1_sim th { padding: 0.4rem 0.5rem; font-size: 0.78rem; }
+    </style>
+
+</head>
+<body class="bg-slate-50 text-base text-slate-800 font-sans leading-relaxed transition-colors duration-300 min-h-screen">
+<main class="max-w-[1680px] mx-auto px-6 pt-6 pb-16 flex gap-8">
+<aside class="w-80 shrink-0 hidden lg:block sticky top-24 h-[calc(100vh-120px)] overflow-y-auto pr-2">
+<div class="space-y-4">
+<h4 class="font-montserrat font-bold text-sm text-slate-700 uppercase tracking-wider flex items-center gap-2">
+<i class="ph-bold ph-list-bullets text-rikkei-red"></i> Mục lục bài đọc
+</h4>
+<nav class="flex flex-col border-l border-slate-200 space-y-1 text-sm">
+<a class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all" href="#section-1">1. Vì sao cần một máy chủ API và vì sao chọn NodeJS?</a>
+<a class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all" href="#section-2">2. NodeJS, module, HTTP và cấu trúc dự án</a>
+<a class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all" href="#section-3">3. Các ví dụ áp dụng thực tế</a>
+<a class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all" href="#section-4">4. Các lỗi thường gặp và cách khắc phục</a>
+<a class="toc-link pl-4 py-1.5 border-l-2 border-transparent text-slate-600 hover:text-slate-900 font-semibold transition-all" href="#section-5">5. Tài liệu tham khảo và câu hỏi tự kiểm tra</a>
+</nav>
+
+</div>
+</aside>
+<button class="lg:hidden fixed bottom-6 right-6 z-50 bg-rikkei-red text-white p-3.5 rounded-full shadow-xl hover:scale-105 transition-all flex items-center justify-center border border-white/20" id="mobile-toc-toggle" onclick="toggleMobileToc()" title="Mở mục lục bài đọc" type="button">
+<i class="ph-bold ph-list text-xl"></i>
+</button>
+<div class="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden transition-all duration-300" id="mobile-toc-drawer">
+<div class="fixed inset-y-0 right-0 w-80 max-w-[85vw] bg-white p-6 shadow-2xl overflow-y-auto flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-200">
+<h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2">
+<i class="ph-bold ph-list-bullets text-rikkei-red"></i> MỤC LỤC BÀI ĐỌC
+</h4>
+<button class="p-1 rounded text-slate-400 hover:text-slate-600" onclick="toggleMobileToc()" type="button">
+<i class="ph-bold ph-x text-lg"></i>
+</button>
+</div>
+<nav class="flex flex-col space-y-2 text-sm">
+<a class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100" href="#section-1" onclick="toggleMobileToc()">1. Vì sao cần một máy chủ API và vì sao chọn NodeJS?</a>
+<a class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100" href="#section-2" onclick="toggleMobileToc()">2. NodeJS, module, HTTP và cấu trúc dự án</a>
+<a class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100" href="#section-3" onclick="toggleMobileToc()">3. Các ví dụ áp dụng thực tế</a>
+<a class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100" href="#section-4" onclick="toggleMobileToc()">4. Các lỗi thường gặp và cách khắc phục</a>
+<a class="mobile-toc-link p-2 rounded-lg text-slate-700 font-semibold hover:bg-slate-100" href="#section-5" onclick="toggleMobileToc()">5. Tài liệu tham khảo và câu hỏi tự kiểm tra</a>
+</nav>
+
+</div>
+<div class="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center">
+Rikkei Education - Learning Material
+</div>
+</div>
+</div>
+<article class="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
+<div class="border-b border-slate-200 pb-6 mb-8">
+<h1 class="font-montserrat font-bold text-3xl text-slate-900 leading-tight">NodeJS và máy chủ HTTP: mô hình không chặn, module và cấu trúc dự án API</h1>
+</div>
+<section class="mb-10 scroll-mt-24" id="section-1">
+<h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">1. Vì sao cần một máy chủ API và vì sao chọn NodeJS?</h2>
+<div class="space-y-4">
+<p class="text-slate-600 mb-4 leading-relaxed">Chị Lan, Product Owner của Rikkei Shop, muốn trang sản phẩm lấy dữ liệu từ máy chủ thay cho mảng viết sẵn trong giao diện. Anh Hùng, Tech Lead, đề nghị dựng một máy chủ API bằng NodeJS: chương trình nhận yêu cầu HTTP, xử lý rồi trả JSON. Sinh viên đã biết JavaScript nên dùng lại đúng ngôn ngữ đó ở phía máy chủ. Câu hỏi của bài này là NodeJS chạy JavaScript ra sao khi nhiều yêu cầu đến cùng lúc, và một dự án API cần những tệp nào.</p>
+<figure class="my-6 text-center">
+<div class="diagram-wrap border border-slate-200 bg-slate-50 p-4">
+<svg class="rikkei-diagram" style="max-width: 680px; margin: 0 auto" viewBox="0 0 640 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Yêu cầu HTTP vào hàng đợi, luồng JavaScript duy nhất xử lý, việc I/O chạy nền rồi callback quay lại hàng đợi">
+<rect x="0" y="0" width="640" height="400" fill="#f8fafc"></rect>
+<defs><marker id="l1_arr" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto"><path d="M0,0 L12,6 L0,12 Z" fill="#475569"></path></marker></defs>
+<rect x="20" y="24" width="170" height="92" rx="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"></rect>
+<text x="105" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">Khách hàng</text>
+<text x="105" y="80" text-anchor="middle" font-size="14" fill="#334155">trình duyệt, React,</text>
+<text x="105" y="100" text-anchor="middle" font-size="14" fill="#334155">cURL, Postman</text>
+<rect x="235" y="24" width="170" height="92" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"></rect>
+<text x="320" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#78350f">Hàng đợi sự kiện</text>
+<text x="320" y="80" text-anchor="middle" font-size="14" fill="#78350f">yêu cầu mới và callback</text>
+<text x="320" y="100" text-anchor="middle" font-size="14" fill="#78350f">chờ tới lượt</text>
+<rect x="450" y="24" width="170" height="92" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="2"></rect>
+<text x="535" y="56" text-anchor="middle" font-size="16" font-weight="700" fill="#14532d">Luồng JavaScript</text>
+<text x="535" y="80" text-anchor="middle" font-size="14" fill="#14532d">chỉ một luồng, chạy</text>
+<text x="535" y="100" text-anchor="middle" font-size="14" fill="#14532d">từng callback</text>
+<path d="M 192 56 L 231 56" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#l1_arr)"></path>
+<path d="M 407 56 L 446 56" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#l1_arr)"></path>
+<path d="M 535 118 L 535 150 L 105 150 L 105 120" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#l1_arr)"></path>
+<text x="300" y="142" font-size="14" fill="#475569">res.end(JSON) trả phản hồi</text>
+<rect x="235" y="196" width="385" height="92" rx="10" fill="#e0f2fe" stroke="#0369a1" stroke-width="2"></rect>
+<text x="427" y="228" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">Hệ thống chạy nền</text>
+<text x="427" y="252" text-anchor="middle" font-size="14" fill="#334155">đọc tệp, mạng, truy vấn MySQL</text>
+<text x="427" y="272" text-anchor="middle" font-size="14" fill="#334155">nhiều việc chạy song song</text>
+<path d="M 600 118 L 600 192" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#l1_arr)"></path>
+<text x="592" y="170" text-anchor="end" font-size="14" fill="#475569">giao việc I/O</text>
+<path d="M 270 192 L 270 120" stroke="#475569" stroke-width="3" fill="none" marker-end="url(#l1_arr)"></path>
+<text x="262" y="176" text-anchor="end" font-size="14" fill="#475569">I/O xong: callback vào hàng đợi</text>
+<rect x="20" y="306" width="600" height="88" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2" stroke-dasharray="7 5"></rect>
+<text x="36" y="334" font-size="16" font-weight="700" fill="#0f172a">Một luồng nên phải tránh làm nghẽn</text>
+<text x="36" y="360" font-size="14" fill="#0f172a">await truy vấn: luồng rảnh để nhận yêu cầu khác</text>
+<text x="36" y="382" font-size="14" font-weight="700" fill="#be111c">Vòng lặp nặng CPU: giữ luồng, mọi yêu cầu khác phải chờ</text>
+</svg>
+</div>
+<figcaption class="text-xs text-slate-500 italic mt-3">Hình 1.1: Yêu cầu HTTP vào hàng đợi của event loop; tác vụ I/O chạy nền rồi callback quay về hàng đợi</figcaption>
+</figure>
+</div>
+</section>
+<section class="mb-10 scroll-mt-24" id="section-2">
+<h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">2. NodeJS, module, HTTP và cấu trúc dự án</h2>
+<div class="space-y-4">
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-2-1">2.1. Mô hình một luồng, không chặn</h3>
+<p class="text-slate-600 mb-4 leading-relaxed">Node.js là môi trường chạy JavaScript ngoài trình duyệt, gồm engine V8 và các thư viện hệ thống để đọc tệp, mở kết nối mạng. Vì vậy không có <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">window</code> hay DOM (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">typeof window</code> là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">undefined</code>), thay vào đó có <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">process</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">module</code>.</p>
+<p class="text-slate-600 mb-4 leading-relaxed">Node chạy mã của bạn trên <strong>một luồng</strong>. Khi gặp tác vụ I/O (đọc tệp, truy vấn cơ sở dữ liệu, gọi mạng), Node giao cho hệ thống chạy nền và luồng đi phục vụ yêu cầu khác. I/O xong thì callback được xếp vào hàng đợi, event loop lấy ra chạy khi luồng rảnh.</p>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">script.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">console.log("1. bắt đầu");
+setTimeout(() =&gt; console.log("3. callback sau 0 ms"), 0);
+console.log("2. kết thúc mã đồng bộ");</code></pre>
+</div>
+<p class="text-slate-600 mb-4 leading-relaxed">Kết quả in theo thứ tự 1, 2, 3: callback luôn chờ mã đồng bộ chạy xong. <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">await</code> một truy vấn cơ sở dữ liệu hoạt động giống vậy: hàm tạm dừng nhưng luồng vẫn phục vụ người khác, nên máy chủ không đứng. Ngược lại, tác vụ nặng CPU (vòng lặp dài) chiếm luồng và mọi yêu cầu khác phải chờ.</p>
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-2-2">2.2. Module CommonJS, npm và package.json</h3>
+<div class="my-6 overflow-x-auto"><table class="text-sm text-slate-700">
+<thead><tr><th>Loại module</th><th>Ví dụ nạp</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Module lõi</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("http")</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("fs")</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("path")</code></td><td>Có sẵn trong Node</td></tr>
+<tr><td>Module npm</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("express")</code></td><td>Cài bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm install</code>, nằm trong <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">node_modules</code></td></tr>
+<tr><td>Tệp của bạn</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("./utils/formatVnd")</code></td><td>Đường dẫn bắt đầu bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">./</code></td></tr>
+</tbody></table></div>
+<p class="text-slate-600 mb-4 leading-relaxed">Một tệp chia sẻ giá trị bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">module.exports</code>:</p>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">src/utils/formatVnd.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// src/utils/formatVnd.js
+function formatVnd(amount) {
+  return amount.toLocaleString("vi-VN") + " đ";
+}
+
+module.exports = formatVnd;</code></pre>
+</div>
+<p class="text-slate-600 mb-4 leading-relaxed">Nơi khác gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("./utils/formatVnd")</code>, và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">formatVnd(450000)</code> trả <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">450.000 đ</code>. Tệp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">package.json</code> mô tả dự án: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">scripts</code> (lệnh chạy bằng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm run</code>), <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">dependencies</code> (cần khi chạy, ví dụ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"express": "4.21.2"</code>), <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">devDependencies</code> (chỉ cần khi phát triển, ví dụ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">nodemon</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">vitest</code>) và phiên bản ghim của từng gói. <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm install</code> đọc tệp này rồi tải gói vào <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">node_modules</code>. Thư mục đó lớn và tái tạo được nên nằm trong <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.gitignore</code>, không commit. Lệnh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm run dev</code> chạy <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">nodemon</code>, tự khởi động lại máy chủ mỗi khi bạn lưu tệp.</p>
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-2-3">2.3. HTTP trong 1 phút, biến môi trường và cấu trúc dự án</h3>
+<div class="my-6 overflow-x-auto"><table class="text-sm text-slate-700">
+<thead><tr><th>Thành phần</th><th>Vai trò</th><th>Ví dụ</th></tr></thead>
+<tbody>
+<tr><td>Method</td><td>Hành động</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET</code> đọc, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">POST</code> tạo</td></tr>
+<tr><td>URL</td><td>Tài nguyên cần tác động</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">/products?q=sách</code></td></tr>
+<tr><td>Header</td><td>Thông tin đi kèm</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">Content-Type: application/json</code></td></tr>
+<tr><td>Body</td><td>Dữ liệu gửi lên</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{"name":"Chuột không dây"}</code></td></tr>
+<tr><td>Status</td><td>Kết quả máy chủ trả</td><td><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">200</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">201</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">404</code></td></tr>
+</tbody></table></div>
+<p class="text-slate-600 mb-4 leading-relaxed">Cấu hình thay đổi theo máy (cổng, mật khẩu cơ sở dữ liệu) không viết cứng trong mã mà đặt trong <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env</code>; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">dotenv</code> nạp tệp này vào <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">process.env</code>, và giá trị luôn là chuỗi (<code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">process.env.PORT</code> là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">"3000"</code>). <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env</code> chứa bí mật nên không commit; chỉ commit <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env.example</code> làm mẫu. Tệp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">src/config/env.js</code> của khuôn gom các biến thành đối tượng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">config</code> (ví dụ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">config.port</code>).</p>
+<p class="text-slate-600 mb-4 leading-relaxed">Dự án API của khóa tách làm hai tệp: <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">src/app.js</code> tạo app và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">module.exports = app</code> mà KHÔNG gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">listen</code>; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">src/server.js</code> mới gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">listen</code>. Nhờ vậy Supertest gọi thẳng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">app</code> trong test mà không phải mở cổng.</p>
+</div>
+</section>
+<section class="mb-10 scroll-mt-24" id="section-3">
+<h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">3. Các ví dụ áp dụng thực tế</h2>
+<div class="space-y-4">
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-3-1">3.1. Máy chủ http thuần trả JSON</h3>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+<p class="font-semibold text-sky-900 mb-2"><span class="ph-bold ph-target mr-1.5"></span>Hộp yêu cầu bài toán</p>
+<p class="text-slate-700 text-sm leading-relaxed">Dựng máy chủ trả 5 sản phẩm ở <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products</code>; mọi đường dẫn khác trả 404.</p>
+</div>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">server-http.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// server-http.js
+const http = require("http");
+
+const products = [
+  { id: 1, name: "Tai nghe Bluetooth", price: 450000, stock: 25 },
+  { id: 2, name: "Bàn phím cơ", price: 890000, stock: 12 },
+  { id: 3, name: "Áo thun", price: 199000, stock: 50 },
+  { id: 4, name: "Giày chạy bộ", price: 1250000, stock: 0 },
+  { id: 5, name: "Sách Lập trình", price: 160000, stock: 30 },
+];
+
+function sendJson(res, status, data) {
+  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
+  res.end(JSON.stringify(data));
+}
+
+const server = http.createServer((req, res) =&gt; {
+  if (req.method === "GET" &amp;&amp; req.url === "/products") {
+    return sendJson(res, 200, products);
+  }
+  sendJson(res, 404, { error: { code: "NOT_FOUND", message: "Không tìm thấy đường dẫn" } });
+});
+
+server.listen(3000, () =&gt; console.log("Máy chủ chạy ở http://localhost:3000"));</code></pre>
+</div>
+<p class="text-slate-600 mb-4 leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products</code> trả 200 với mảng 5 sản phẩm; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /orders</code> trả 404 và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{"error":{"code":"NOT_FOUND","message":"Không tìm thấy đường dẫn"}}</code>.</p>
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-3-2">3.2. Thêm chi tiết, tìm kiếm và tạo mới</h3>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+<p class="font-semibold text-sky-900 mb-2"><span class="ph-bold ph-target mr-1.5"></span>Hộp yêu cầu bài toán</p>
+<p class="text-slate-700 text-sm leading-relaxed">Thêm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products/2</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products?q=sách</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">POST /products</code> vào máy chủ trên.</p>
+</div>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">script.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// thay phần thân của http.createServer
+const url = new URL(req.url, "http://localhost"); // tự tách đường dẫn và query
+const parts = url.pathname.split("/").filter(Boolean); // "/products/2" -&gt; ["products", "2"]
+
+if (req.method === "GET" &amp;&amp; url.pathname === "/products") {
+  const q = (url.searchParams.get("q") || "").toLowerCase();
+  return sendJson(res, 200, products.filter((p) =&gt; p.name.toLowerCase().includes(q)));
+}
+if (req.method === "GET" &amp;&amp; parts[0] === "products" &amp;&amp; parts.length === 2) {
+  const product = products.find((p) =&gt; p.id === Number(parts[1]));
+  if (!product) {
+    return sendJson(res, 404, { error: { code: "NOT_FOUND", message: "Không tìm thấy sản phẩm" } });
+  }
+  return sendJson(res, 200, product);
+}
+if (req.method === "POST" &amp;&amp; url.pathname === "/products") {
+  let body = "";
+  req.on("data", (chunk) =&gt; { body += chunk; }); // tự ghép từng mảnh của body
+  req.on("end", () =&gt; {
+    const product = { id: products.length + 1, ...JSON.parse(body) };
+    products.push(product);
+    sendJson(res, 201, product);
+  });
+  return;
+}</code></pre>
+</div>
+<p class="text-slate-600 mb-4 leading-relaxed"><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products/2</code> trả 200 và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{"id":2,"name":"Bàn phím cơ","price":890000,"stock":12}</code>; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products/99</code> trả 404 "Không tìm thấy sản phẩm"; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products?q=sách</code> trả đúng một phần tử (id 5). <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">POST</code> với body <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{"name":"Chuột không dây","price":320000,"stock":40}</code> trả 201 và sản phẩm có <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">id</code> là 6.</p>
+<p class="text-slate-600 mb-4 leading-relaxed">Đây là nỗi đau của <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">http</code> thuần: tự tách URL, tự ghép body, tự chọn route bằng chuỗi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code>. Tệ hơn, gửi body <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{name:</code> làm <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">JSON.parse</code> ném <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">SyntaxError</code> trong callback <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">end</code>, tiến trình Node dừng hẳn và mọi người dùng mất dịch vụ. Express (Lesson 2) giải quyết những việc này.</p>
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-3-3">3.3. Cấu trúc chuẩn: app.js và server.js tách đôi</h3>
+<div class="p-4 rounded-xl border border-sky-200 bg-sky-50/60 text-slate-800 my-4">
+<p class="font-semibold text-sky-900 mb-2"><span class="ph-bold ph-target mr-1.5"></span>Hộp yêu cầu bài toán</p>
+<p class="text-slate-700 text-sm leading-relaxed">Dựng khung dự án với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">app</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">server</code> tách riêng, cổng đọc từ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env</code>, và một test gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">app</code> không cần mở cổng.</p>
+</div>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">src/app.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// src/app.js
+const express = require("express");
+
+const products = [/* 5 sản phẩm như mục 3.1 */];
+
+const app = express();
+
+app.get("/products", (req, res) =&gt; {
+  res.json(products);
+});
+
+module.exports = app; // chỉ xuất app, KHÔNG gọi listen</code></pre>
+</div>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">src/server.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// src/server.js
+const app = require("./app");
+const config = require("./config/env");
+
+app.listen(config.port, () =&gt; {
+  console.log(`Máy chủ chạy ở http://localhost:${config.port}`);
+});</code></pre>
+</div>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">tests/app.test.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// tests/app.test.js
+const request = require("supertest");
+const app = require("../src/app");
+
+it("GET /products trả 5 sản phẩm", async () =&gt; {
+  const res = await request(app).get("/products");
+  expect(res.status).toBe(200);
+  expect(res.body).toHaveLength(5);
+});</code></pre>
+</div>
+<p class="text-slate-600 mb-4 leading-relaxed">Với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">PORT=3000</code> trong <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm run dev</code> in <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">Máy chủ chạy ở http://localhost:3000</code>. Test chạy khi chưa có máy chủ nào mở cổng. Dòng <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">app.get("/products", ...)</code> thay cho nhánh <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">if</code> ở mục 3.1; Lesson 2 giải thích Express chi tiết.</p>
+<p class="text-slate-600 mb-4 leading-relaxed">Khối mô phỏng dưới đây chạy ngoại tuyến bằng thời gian giả lập.</p>
+<div class="my-6 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden" id="l1_sim">
+<div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+<h4 class="font-montserrat font-bold text-base text-slate-900 flex items-center gap-2"><i class="ph-bold ph-play-circle text-rikkei-red"></i> Mô phỏng tương tác: vòng đời yêu cầu qua event loop và bảng HTTP trong 1 phút</h4>
+<button class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs transition-all flex items-center gap-1.5 cursor-pointer" id="l1_reset" type="button"><i class="ph-bold ph-arrow-counter-clockwise text-sm"></i> Đặt lại</button>
+</div>
+<div class="p-4 space-y-8">
+
+<div class="space-y-3">
+<p class="font-semibold text-slate-900 text-sm">Phần 1. Ba yêu cầu đến một máy chủ chỉ có một luồng</p>
+<p class="text-sm text-slate-600">Yêu cầu A, B, C đến lúc 0, 20 và 40 ms. Mỗi yêu cầu cần 10 ms CPU, chờ 100 ms truy vấn cơ sở dữ liệu, rồi cần thêm 10 ms CPU để trả lời. Thời gian là giả lập. Chọn chế độ, bấm Chạy hoặc kéo thanh thời gian.</p>
+<div class="flex flex-wrap gap-2" id="l1_mode" role="group" aria-label="Chọn chế độ xử lý"></div>
+<label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"><input class="w-4 h-4" id="l1_heavy" type="checkbox"/> Yêu cầu B là tác vụ nặng CPU: bước 1 mất 120 ms thay vì 10 ms</label>
+<div class="flex flex-wrap items-center gap-3">
+<button class="px-3 py-1.5 rounded-lg bg-rikkei-red hover:bg-red-700 text-white font-semibold text-xs cursor-pointer flex items-center gap-1.5" id="l1_play" type="button"><i class="ph-bold ph-play text-sm"></i> <span id="l1_play_txt">Chạy</span></button>
+<input class="flex-1 min-w-40" id="l1_t" type="range" min="0" max="480" step="5" value="0" aria-label="Thời gian giả lập, tính bằng mili giây"/>
+<span class="font-mono text-sm text-slate-700 w-20 text-right" id="l1_tval">0 ms</span>
+</div>
+<div class="l1_gantt" id="l1_gantt" aria-hidden="true"></div>
+<div class="l1_kv">
+<div><span class="k">Luồng JavaScript đang</span><span class="v" id="l1_v_thread"></span></div>
+<div><span class="k">Hàng đợi callback (chờ luồng rảnh)</span><span class="v" id="l1_v_queue"></span></div>
+<div><span class="k">Đã trả lời xong</span><span class="v" id="l1_v_done"></span></div>
+</div>
+<div class="overflow-x-auto"><table class="text-sm text-slate-700" id="l1_table"></table></div>
+<div class="rounded-lg border p-3 text-sm" id="l1_verdict" aria-live="polite"></div>
+</div>
+
+<div class="space-y-3">
+<p class="font-semibold text-slate-900 text-sm">Phần 2. HTTP trong 1 phút</p>
+<p class="text-sm text-slate-600">Chọn một yêu cầu mẫu (đã chạy thật trên máy chủ ở mục 3.2), rồi bấm từng thành phần ở cột trái để thấy nó nằm ở đâu trong yêu cầu và phản hồi.</p>
+<div class="flex flex-wrap gap-2" id="l1_samples" role="group" aria-label="Chọn yêu cầu mẫu"></div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div><p class="text-xs font-semibold text-slate-700 mb-1">Yêu cầu gửi đi</p><pre class="l1_pre" id="l1_req"></pre></div>
+<div><p class="text-xs font-semibold text-slate-700 mb-1">Phản hồi nhận về</p><pre class="l1_pre" id="l1_res"></pre></div>
+</div>
+<div class="overflow-x-auto"><table class="text-sm text-slate-700" id="l1_http"></table></div>
+<p class="text-xs text-slate-500">Một vài header kỹ thuật (Connection, Transfer-Encoding) đã được lược bớt.</p>
+</div>
+
+</div>
+</div>
+</div>
+</section>
+<section class="mb-10 scroll-mt-24" id="section-4">
+<h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">4. Các lỗi thường gặp và cách khắc phục</h2>
+<div class="space-y-4">
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-4-1">4.1. Kiến thức trọng tâm cần nắm</h3>
+<ul class="list-disc pl-6 space-y-2 text-slate-600 my-4">
+<li>Node chạy mã trên một luồng; I/O chạy nền, callback quay lại qua event loop, nên <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">await</code> không làm đứng máy chủ còn việc nặng CPU thì có.</li>
+<li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require</code> nạp module lõi, module npm và tệp riêng; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">module.exports</code> chia sẻ giá trị; <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">node_modules</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env</code> không commit.</li>
+<li><code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">src/app.js</code> xuất app không <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">listen</code>, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">src/server.js</code> mới <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">listen</code>.</li>
+<li>Bản đồ khóa học: Lesson 2 Express (route, middleware); Lesson 3 MySQL; Lesson 4 <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">mysql2</code>; Lesson 5 CRUD, zod, lỗi; Lesson 6 xác thực và phân quyền; Lesson 7 kiểm thử và hoàn thiện.</li>
+</ul>
+<h3 class="font-montserrat font-bold text-xl text-slate-900 mb-3" id="sec-4-2">4.2. Các sai lầm thường gặp và cách khắc phục chuẩn mực</h3>
+<p class="font-semibold text-slate-900 mt-6 mb-2">Lỗi 1: Chạy việc nặng đồng bộ trong route</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+<div class="p-4 rounded-xl border border-rose-200 bg-rose-50/40 text-slate-800">
+<p class="font-bold text-rose-900 mb-2 flex items-center"><span class="ph-bold ph-x-circle text-rose-600 mr-2 text-lg"></span>Cách làm sai (Bad Practice)</p>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">example.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// Sai: vòng lặp chiếm luồng duy nhất 2 giây
+app.get("/report", (req, res) =&gt; {
+  const end = Date.now() + 2000;
+  while (Date.now() &lt; end) {}
+  res.json({ done: true });
+});</code></pre>
+</div>
+<p class="text-xs text-rose-800 leading-relaxed">Khi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /report</code> đang chạy, một <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products</code> gửi sau 200 ms phải chờ khoảng 1,8 giây mới được trả lời.</p>
+</div>
+<div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 text-slate-800">
+<p class="font-bold text-emerald-900 mb-2 flex items-center"><span class="ph-bold ph-check-circle text-emerald-600 mr-2 text-lg"></span>Cách làm chuẩn mực (Good Practice)</p>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">example.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// Chuẩn: chờ bằng await, không chiếm luồng
+app.get("/report", async (req, res) =&gt; {
+  await new Promise((resolve) =&gt; setTimeout(resolve, 2000));
+  res.json({ done: true });
+});</code></pre>
+</div>
+<p class="text-xs text-emerald-800 leading-relaxed">Cùng tình huống, <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products</code> được trả lời sau chừng 12 ms vì luồng vẫn rảnh trong lúc chờ.</p>
+</div>
+</div>
+<p class="font-semibold text-slate-900 mt-6 mb-2">Lỗi 2: Gọi listen trong app.js</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+<div class="p-4 rounded-xl border border-rose-200 bg-rose-50/40 text-slate-800">
+<p class="font-bold text-rose-900 mb-2 flex items-center"><span class="ph-bold ph-x-circle text-rose-600 mr-2 text-lg"></span>Cách làm sai (Bad Practice)</p>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">example.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// Sai: src/app.js tự mở cổng khi bị require
+app.listen(3000);
+module.exports = app;</code></pre>
+</div>
+<p class="text-xs text-rose-800 leading-relaxed">Mọi nơi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">require("./app")</code>, kể cả test, đều mở cổng 3000. Khi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm run dev</code> đang chạy, lệnh này ném <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">Error: listen EADDRINUSE: address already in use :::3000</code>.</p>
+</div>
+<div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50/40 text-slate-800">
+<p class="font-bold text-emerald-900 mb-2 flex items-center"><span class="ph-bold ph-check-circle text-emerald-600 mr-2 text-lg"></span>Cách làm chuẩn mực (Good Practice)</p>
+<div class="my-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+<div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-red-500"></span>
+<span class="w-3 h-3 rounded-full bg-amber-400"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<span class="ml-3 text-xs text-slate-600 font-mono font-semibold">example.js</span>
+</div>
+<pre class="m-0"><code class="hljs language-javascript">// Chuẩn: app.js chỉ xuất app, server.js mới gọi listen
+module.exports = app;</code></pre>
+</div>
+<p class="text-xs text-emerald-800 leading-relaxed">Chỉ <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">src/server.js</code> mở cổng, nên test và máy chủ thật không giẫm lên nhau.</p>
+</div>
+</div>
+</div>
+</section>
+<section class="mb-10 scroll-mt-24" id="section-5">
+<h2 class="font-montserrat font-bold text-2xl text-slate-900 mb-4">5. Tài liệu tham khảo và câu hỏi tự kiểm tra</h2>
+<div class="pt-2">
+<ul class="space-y-2 list-none pl-0">
+<li>
+<a class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium" href="https://nodejs.org/en/learn/asynchronous-work/event-loop-timers-and-nexttick" rel="noopener noreferrer" target="_blank">
+<i class="ph-bold ph-link text-sm"></i> Node.js: Event Loop, Timers, and process.nextTick
+</a>
+</li>
+<li>
+<a class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium" href="https://nodejs.org/api/http.html" rel="noopener noreferrer" target="_blank">
+<i class="ph-bold ph-link text-sm"></i> Node.js: HTTP
+</a>
+</li>
+<li>
+<a class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium" href="https://nodejs.org/api/modules.html" rel="noopener noreferrer" target="_blank">
+<i class="ph-bold ph-link text-sm"></i> Node.js: Modules
+</a>
+</li>
+<li>
+<a class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium" href="https://docs.npmjs.com/cli/v10/configuring-npm/package-json" rel="noopener noreferrer" target="_blank">
+<i class="ph-bold ph-link text-sm"></i> npm: package.json
+</a>
+</li>
+<li>
+<a class="text-rikkei-red hover:underline inline-flex items-center gap-2 font-medium" href="https://expressjs.com/" rel="noopener noreferrer" target="_blank">
+<i class="ph-bold ph-link text-sm"></i> Express
+</a>
+</li>
+</ul>
+<p class="text-sm text-slate-500 mt-4">Tự học thêm (ngoài phạm vi bài này): <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">cluster</code> và <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">worker_threads</code>, stream và buffer, ES module, TypeScript, Docker, triển khai lên cloud.</p>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-200" id="selftest-section">
+<h3 class="font-montserrat font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
+<i class="ph-bold ph-checks text-rikkei-red"></i> Câu hỏi tự kiểm tra
+</h3>
+<p class="text-sm text-slate-600 mb-6">Chọn đáp án cho từng câu rồi bấm Nộp bài để xem giải thích.</p>
+<form class="space-y-6" id="self-test-form" onsubmit="event.preventDefault(); checkSelfTest();">
+<div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+<p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2 text-left">
+<span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">1</span>
+<span>Ở mục 3.2, client gửi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">GET /products/99</code>. Máy chủ trả gì?</span>
+</p>
+<div class="space-y-2">
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q1" type="radio" value="A"/>
+<span class="text-left">A. 404 với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">message</code> là "Không tìm thấy sản phẩm".</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q1" type="radio" value="B"/>
+<span class="text-left">B. 200 với mảng rỗng.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q1" type="radio" value="C"/>
+<span class="text-left">C. 404 với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">message</code> là "Không tìm thấy đường dẫn".</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q1" type="radio" value="D"/>
+<span class="text-left">D. 500, vì <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">product</code> là <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">undefined</code>.</span>
+</label>
+</div>
+<div class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" id="q1-explanation"></div>
+</div>
+<div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+<p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2 text-left">
+<span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">2</span>
+<span>Ở mục 3.2, client gửi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">POST /products</code> với body <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">{name:</code>. Chuyện gì xảy ra?</span>
+</p>
+<div class="space-y-2">
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q2" type="radio" value="A"/>
+<span class="text-left">A. Máy chủ trả 400 và tiếp tục chạy.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q2" type="radio" value="B"/>
+<span class="text-left">B. Máy chủ trả 500 và tiếp tục chạy.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q2" type="radio" value="C"/>
+<span class="text-left">C. Máy chủ trả 201 với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">id</code> là 6.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q2" type="radio" value="D"/>
+<span class="text-left">D. <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">JSON.parse</code> ném lỗi trong callback <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">end</code>, tiến trình Node dừng.</span>
+</label>
+</div>
+<div class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" id="q2-explanation"></div>
+</div>
+<div class="selftest-item p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
+<p class="selftest-question text-sm font-semibold text-slate-800 flex items-start gap-2 text-left">
+<span class="px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-bold">3</span>
+<span>Ở mục 3.3, test gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">request(app).get("/products")</code>. Điều kiện nào cần có để test chạy được?</span>
+</p>
+<div class="space-y-2">
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q3" type="radio" value="A"/>
+<span class="text-left">A. <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">npm run dev</code> phải đang chạy ở cổng 3000.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q3" type="radio" value="B"/>
+<span class="text-left">B. Không cần máy chủ nào đang chạy, vì <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">app.js</code> không gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">listen</code>.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q3" type="radio" value="C"/>
+<span class="text-left">C. Phải có tệp <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">.env</code> với <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">PORT=3000</code>.</span>
+</label>
+<label class="selftest-answer flex items-center gap-2 text-left p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer text-sm text-slate-700 w-full">
+<input class="w-4 h-4 text-rikkei-red focus:ring-rikkei-red shrink-0" name="q3" type="radio" value="D"/>
+<span class="text-left">D. Phải gọi <code class="px-1.5 py-0.5 rounded bg-slate-100 text-rikkei-red font-mono text-sm">app.listen(3000)</code> ở đầu tệp test.</span>
+</label>
+</div>
+<div class="hidden text-xs p-3 rounded-lg mt-2 leading-relaxed text-left" id="q3-explanation"></div>
+</div>
+<div class="flex items-center justify-end gap-3 pt-2">
+<button class="px-3.5 py-1.5 rounded-lg border border-slate-300 text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-xs transition-all flex items-center gap-1.5 cursor-pointer" onclick="resetSelfTest()" type="button">
+<i class="ph-bold ph-arrow-counter-clockwise text-sm"></i> Làm lại
+</button>
+<button class="px-4 py-1.5 rounded-lg bg-rikkei-red hover:bg-red-700 text-white font-semibold text-xs shadow-sm hover:shadow transition-all flex items-center gap-1.5 cursor-pointer" id="btn-check-selftest" type="submit">
+<i class="ph-bold ph-paper-plane-tilt text-sm"></i> Nộp bài
+</button>
+</div>
+<div class="hidden p-3 rounded-lg border border-sky-200 bg-sky-50 text-sky-900 font-bold text-xs text-right shadow-sm mt-3" id="self-test-score"></div>
+</form>
+</div>
+</section>
+</article>
+</main>
+<script>
+      hljs.highlightAll();
+
+      function toggleMobileToc() {
+        document.getElementById("mobile-toc-drawer").classList.toggle("hidden");
+      }
+
+      function resetSelfTest() {
+        document.getElementById("self-test-form").reset();
+        document.querySelectorAll("[id$=-explanation]").forEach(function (el) { el.classList.add("hidden"); });
+        var s = document.getElementById("self-test-score");
+        if (s) s.classList.add("hidden");
+      }
+
+      function checkSelfTest() {
+        const answers = {"1": "A", "2": "D", "3": "B"};
+        const explanations = {"1": "Đường dẫn \"/products/99\" khớp nhánh GET chi tiết, máy chủ tìm theo id, không thấy và gọi sendJson với mã 404 cùng thông báo \"Không tìm thấy sản phẩm\". Thông báo \"Không tìm thấy đường dẫn\" chỉ dành cho đường dẫn không khớp nhánh nào, và không có nhánh nào trả 200 hay 500 ở tình huống này.", "2": "JSON.parse(body) ném SyntaxError bên trong callback của sự kiện end, nơi không có try/catch nào bắt. Lỗi không được bắt làm tiến trình Node dừng hẳn nên mọi người dùng mất dịch vụ. Máy chủ http thuần không tự trả 400 hay 500 thay cho bạn.", "3": "Supertest nhận app và tự chạy nó trên một cổng tạm ngay trong lệnh gọi, nên không cần npm run dev, không cần cổng 3000 và không cần .env. Chính vì src/app.js không gọi listen nên test không giẫm lên cổng của máy chủ thật."};
+        let score = 0;
+        const total = Object.keys(answers).length;
+        for (let i = 1; i <= total; i++) {
+          const qId = "q" + i;
+          const selected = document.querySelector(`input[name="${qId}"]:checked`);
+          const expDiv = document.getElementById(`${qId}-explanation`);
+          if (!expDiv) continue;
+          expDiv.classList.remove("hidden");
+          const correctAns = answers[i];
+          const explainText = explanations[i];
+          if (selected) {
+            if (selected.value === correctAns) {
+              score++;
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-check-circle text-emerald-600 mr-1.5 text-sm align-middle"></i> <strong>Đúng!</strong> `;
+            } else {
+              expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-rose-50 text-rose-800 border border-rose-200 font-medium text-left";
+              expDiv.innerHTML = `<i class="ph-bold ph-x-circle text-rose-600 mr-1.5 text-sm align-middle"></i> <strong>Sai!</strong> Đáp án đúng là <strong>${correctAns}</strong>. `;
+            }
+            expDiv.appendChild(document.createTextNode(explainText));
+          } else {
+            expDiv.className = "text-xs p-3 rounded-lg mt-2 bg-amber-50 text-amber-800 border border-amber-200 font-medium text-left";
+            expDiv.innerHTML = `<i class="ph-bold ph-warning text-amber-600 mr-1.5 text-sm align-middle"></i> Bạn chưa chọn câu trả lời cho câu này.`;
+          }
+        }
+        const scoreDiv = document.getElementById("self-test-score");
+        if (scoreDiv) {
+          scoreDiv.classList.remove("hidden");
+          scoreDiv.innerText = `Kết quả: ${score}/${total} câu trả lời đúng.`;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.getAttribute("id");
+              document.querySelectorAll(".toc-link, .mobile-toc-link").forEach((link) => {
+                link.classList.remove("border-rikkei-red", "text-rikkei-red", "font-bold", "bg-slate-100");
+                link.classList.add("border-transparent", "text-slate-600");
+              });
+              document.querySelectorAll(`a[href="#${id}"]`).forEach((link) => {
+                if (link.classList.contains("toc-link")) {
+                  link.classList.add("border-rikkei-red", "text-rikkei-red", "font-bold");
+                  link.classList.remove("border-transparent", "text-slate-600");
+                } else if (link.classList.contains("mobile-toc-link")) {
+                  link.classList.add("text-rikkei-red", "bg-slate-100");
+                }
+              });
+            }
+          });
+        }, { root: null, rootMargin: "-20% 0px -60% 0px", threshold: 0 });
+        document.querySelectorAll("section[id^='section-']").forEach((section) => { observer.observe(section); });
+      });
+</script>
+<script>
+var L1_HTTP = [
+ {
+  "request": "GET /products?q=s%C3%A1ch HTTP/1.1\r\nHost: localhost:3000\r\nAccept: application/json\r\nConnection: close\r\n\r\n",
+  "response": "HTTP/1.1 200 OK\r\nContent-Type: application/json; charset=utf-8\r\nDate: Mon, 26 Oct 2026 07:02:56 GMT\r\nConnection: close\r\nTransfer-Encoding: chunked\r\n\r\n40\r\n[{\"id\":5,\"name\":\"Sách Lập trình\",\"price\":160000,\"stock\":30}]\r\n0\r\n\r\n"
+ },
+ {
+  "request": "POST /products HTTP/1.1\r\nHost: localhost:3000\r\nContent-Type: application/json\r\nContent-Length: 56\r\nConnection: close\r\n\r\n{\"name\":\"Chuột không dây\",\"price\":320000,\"stock\":40}",
+  "response": "HTTP/1.1 201 Created\r\nContent-Type: application/json; charset=utf-8\r\nDate: Mon, 26 Oct 2026 07:02:56 GMT\r\nConnection: close\r\nTransfer-Encoding: chunked\r\n\r\n3f\r\n{\"id\":6,\"name\":\"Chuột không dây\",\"price\":320000,\"stock\":40}\r\n0\r\n\r\n"
+ },
+ {
+  "request": "GET /products/99 HTTP/1.1\r\nHost: localhost:3000\r\nAccept: application/json\r\nConnection: close\r\n\r\n",
+  "response": "HTTP/1.1 404 Not Found\r\nContent-Type: application/json; charset=utf-8\r\nDate: Mon, 26 Oct 2026 07:02:56 GMT\r\nConnection: close\r\nTransfer-Encoding: chunked\r\n\r\n4a\r\n{\"error\":{\"code\":\"NOT_FOUND\",\"message\":\"Không tìm thấy sản phẩm\"}}\r\n0\r\n\r\n"
+ }
+];
+/* Mô hình event loop một luồng (thời gian giả lập, đơn vị ms). */
+var L1_REQS = [
+  { id: "A", arrive: 0 },
+  { id: "B", arrive: 20 },
+  { id: "C", arrive: 40 }
+];
+var L1_CPU1 = 10;   /* bước 1: tách URL, định tuyến, gọi truy vấn */
+var L1_IO = 100;    /* chờ truy vấn cơ sở dữ liệu */
+var L1_CPU2 = 10;   /* bước 2: tạo JSON, gửi phản hồi */
+var L1_HEAVY = 120; /* bước 1 của yêu cầu B khi là tác vụ nặng CPU */
+
+/* mode: "async" (không chặn) hoặc "sync" (chặn); heavy: B là tác vụ nặng CPU */
+function l1Simulate(mode, heavy) {
+  var thread = [];  /* các đoạn trên luồng JS: {req, kind, start, end} */
+  var bg = [];      /* các đoạn I/O chạy nền: {req, start, end} */
+  var tasks = [];   /* hàng đợi: {req, kind, ready, dur} */
+  var done = {};
+  var i;
+  for (i = 0; i < L1_REQS.length; i++) {
+    var r = L1_REQS[i];
+    tasks.push({ req: r.id, kind: "cpu1", ready: r.arrive, dur: (heavy && r.id === "B") ? L1_HEAVY : L1_CPU1, order: i });
+  }
+  var now = 0;
+  while (tasks.length > 0) {
+    var best = -1;
+    for (i = 0; i < tasks.length; i++) {
+      if (tasks[i].ready <= now) {
+        if (best < 0 || tasks[i].ready < tasks[best].ready || (tasks[i].ready === tasks[best].ready && tasks[i].order < tasks[best].order)) best = i;
+      }
+    }
+    if (best < 0) {
+      var next = Infinity;
+      for (i = 0; i < tasks.length; i++) if (tasks[i].ready < next) next = tasks[i].ready;
+      now = next;
+      continue;
+    }
+    var t = tasks.splice(best, 1)[0];
+    var start = now, end = now + t.dur;
+    thread.push({ req: t.req, kind: t.kind, start: start, end: end, ready: t.ready });
+    now = end;
+    if (t.kind === "cpu1") {
+      if (mode === "sync") {
+        thread.push({ req: t.req, kind: "wait", start: now, end: now + L1_IO });
+        bg.push({ req: t.req, start: now, end: now + L1_IO });
+        now = now + L1_IO;
+        thread.push({ req: t.req, kind: "cpu2", start: now, end: now + L1_CPU2, ready: now });
+        now = now + L1_CPU2;
+        done[t.req] = now;
+      } else {
+        bg.push({ req: t.req, start: now, end: now + L1_IO });
+        tasks.push({ req: t.req, kind: "cpu2", ready: now + L1_IO, dur: L1_CPU2, order: t.order });
+      }
+    } else {
+      done[t.req] = end;
+    }
+  }
+  var rows = [], total = 0;
+  for (i = 0; i < L1_REQS.length; i++) {
+    var q = L1_REQS[i];
+    var svc = done[q.id] - q.arrive;
+    rows.push({ id: q.id, arrive: q.arrive, done: done[q.id], service: svc });
+    total += svc;
+  }
+  var end = 0;
+  for (i = 0; i < thread.length; i++) if (thread[i].end > end) end = thread[i].end;
+  return { thread: thread, bg: bg, rows: rows, avg: total / rows.length, end: end };
+}
+
+if (typeof module !== "undefined") module.exports = { l1Simulate: l1Simulate };
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  if (!$("l1_sim")) return;
+
+  /* ---------- Phần 1: event loop ---------- */
+  var MAX_T = 480;
+  var mode = "async";
+  var heavy = false;
+  var sim = null;
+  var t = 0;
+  var timer = null;
+  var KIND_NAME = { cpu1: "bước 1", cpu2: "bước 2" };
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  var MODES = [
+    { key: "async", name: "Không chặn: await truy vấn" },
+    { key: "sync", name: "Chặn: truy vấn đồng bộ" }
+  ];
+  var modeBox = $("l1_mode");
+  MODES.forEach(function (m) {
+    var b = el("button", "l1_chip", m.name);
+    b.type = "button";
+    b.setAttribute("data-key", m.key);
+    b.addEventListener("click", function () { mode = m.key; stop(); t = 0; recompute(); });
+    modeBox.appendChild(b);
+  });
+
+  function recompute() {
+    sim = l1Simulate(mode, heavy);
+    var chips = modeBox.querySelectorAll(".l1_chip");
+    for (var i = 0; i < chips.length; i++) {
+      chips[i].className = "l1_chip" + (chips[i].getAttribute("data-key") === mode ? " l1_chip_on" : "");
+    }
+    buildGantt();
+    render();
+  }
+
+  function pct(x) { return (x / MAX_T * 100) + "%"; }
+
+  var segEls = [];
+  function buildGantt() {
+    var g = $("l1_gantt");
+    g.textContent = "";
+    segEls = [];
+    var laneT = el("div", "l1_lane");
+    laneT.appendChild(el("div", "l1_lane_name", "Luồng JavaScript"));
+    var trackT = el("div", "l1_track");
+    laneT.appendChild(trackT);
+    var laneB = el("div", "l1_lane");
+    laneB.appendChild(el("div", "l1_lane_name", "Nền (I/O)"));
+    var trackB = el("div", "l1_track");
+    laneB.appendChild(trackB);
+    g.appendChild(laneT);
+    g.appendChild(laneB);
+    sim.thread.forEach(function (s) {
+      var d = el("div", "l1_seg " + (s.kind === "wait" ? "l1_wait" : "l1_c_" + s.req), s.kind === "wait" ? "chặn " + s.req : s.req + (s.kind === "cpu1" ? "1" : "2"));
+      d.style.left = pct(s.start);
+      d.style.width = "0%";
+      trackT.appendChild(d);
+      segEls.push({ el: d, start: s.start, end: s.end });
+    });
+    sim.bg.forEach(function (s) {
+      var d = el("div", "l1_seg l1_io l1_c_" + s.req, "I/O " + s.req);
+      d.style.left = pct(s.start);
+      d.style.width = "0%";
+      trackB.appendChild(d);
+      segEls.push({ el: d, start: s.start, end: s.end });
+    });
+    var axis = el("div", "l1_axis");
+    for (var x = 0; x <= MAX_T; x += 100) {
+      var tk = el("span", "l1_tick", x + " ms");
+      tk.style.left = pct(x);
+      axis.appendChild(tk);
+    }
+    g.appendChild(axis);
+    var cur = el("div", "l1_cursor");
+    cur.id = "l1_cursor";
+    g.appendChild(cur);
+  }
+
+  function threadState() {
+    for (var i = 0; i < sim.thread.length; i++) {
+      var s = sim.thread[i];
+      if (t >= s.start && t < s.end) {
+        if (s.kind === "wait") return "Bị chặn, chờ I/O của " + s.req + " (không nhận được việc khác)";
+        return "Chạy " + s.req + " " + KIND_NAME[s.kind] + (heavy && s.req === "B" && s.kind === "cpu1" ? " (nặng CPU)" : "");
+      }
+    }
+    return "Rảnh";
+  }
+
+  function queueState() {
+    var q = [];
+    sim.thread.forEach(function (s) {
+      if (s.kind !== "wait" && s.ready <= t && t < s.start) q.push(s.req + " " + KIND_NAME[s.kind]);
+    });
+    return q.length ? q.join(", ") : "Trống";
+  }
+
+  function render() {
+    $("l1_t").value = String(t);
+    $("l1_tval").textContent = t + " ms";
+    segEls.forEach(function (s) {
+      var shown = Math.max(0, Math.min(s.end, t) - s.start);
+      s.el.style.width = pct(shown);
+    });
+    var gantt = $("l1_gantt");
+    var trackLeft = gantt.querySelector(".l1_track");
+    var gw = gantt.clientWidth;
+    var tl = trackLeft ? trackLeft.offsetLeft : 0;
+    var tw = trackLeft ? trackLeft.clientWidth : 0;
+    $("l1_cursor").style.left = (tl + tw * t / MAX_T) + "px";
+    $("l1_v_thread").textContent = threadState();
+    $("l1_v_queue").textContent = queueState();
+    var finished = sim.rows.filter(function (r) { return r.done <= t; }).map(function (r) { return r.id; });
+    $("l1_v_done").textContent = finished.length ? finished.join(", ") : "Chưa có";
+
+    var tb = $("l1_table");
+    tb.textContent = "";
+    var head = el("tr");
+    ["Yêu cầu", "Đến lúc", "Trả lời xong lúc", "Thời gian phục vụ"].forEach(function (h) { head.appendChild(el("th", "", h)); });
+    tb.appendChild(head);
+    sim.rows.forEach(function (r) {
+      var tr = el("tr");
+      var ok = r.done <= t;
+      tr.appendChild(el("td", "", r.id));
+      tr.appendChild(el("td", "", r.arrive + " ms"));
+      tr.appendChild(el("td", "", ok ? r.done + " ms" : "..."));
+      tr.appendChild(el("td", "", ok ? r.service + " ms" : "..."));
+      tb.appendChild(tr);
+    });
+
+    var v = $("l1_verdict");
+    if (t >= sim.end) {
+      var r = sim.rows;
+      var list = r[0].service + ", " + r[1].service + ", " + r[2].service;
+      var msg;
+      if (mode === "async" && !heavy) {
+        msg = "Thời gian phục vụ của A, B, C là " + list + " ms. Trong 100 ms chờ I/O, luồng vẫn nhận yêu cầu khác, nên cả ba chỉ mất khoảng 120 ms.";
+      } else if (mode === "sync" && !heavy) {
+        msg = "Thời gian phục vụ của A, B, C là " + list + " ms. Mỗi truy vấn đồng bộ giữ luồng 100 ms nên yêu cầu sau phải xếp hàng chờ yêu cầu trước.";
+      } else if (mode === "async" && heavy) {
+        msg = "Thời gian phục vụ của A, B, C là " + list + " ms. I/O không chặn nhưng 120 ms tính toán của B giữ luồng, làm A trễ từ 120 lên " + r[0].service + " ms và C từ 120 lên " + r[2].service + " ms.";
+      } else {
+        msg = "Thời gian phục vụ của A, B, C là " + list + " ms. Vừa chặn I/O vừa có việc nặng CPU nên các yêu cầu sau chờ lâu nhất.";
+      }
+      v.className = "rounded-lg border p-3 text-sm " + (mode === "async" && !heavy ? "border-emerald-300 bg-emerald-50 text-emerald-900" : "border-amber-300 bg-amber-50 text-amber-900");
+      v.textContent = msg;
+    } else {
+      v.className = "rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600";
+      v.textContent = "Bấm Chạy hoặc kéo thanh thời gian đến cuối để xem kết luận.";
+    }
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+    $("l1_play_txt").textContent = "Chạy";
+  }
+
+  $("l1_play").addEventListener("click", function () {
+    if (timer) { stop(); return; }
+    if (t >= sim.end) t = 0;
+    $("l1_play_txt").textContent = "Tạm dừng";
+    timer = setInterval(function () {
+      t += 5;
+      if (t >= sim.end) { t = sim.end; stop(); }
+      render();
+    }, 30);
+  });
+  $("l1_t").addEventListener("input", function () { stop(); t = Number($("l1_t").value); render(); });
+  $("l1_heavy").addEventListener("change", function () { heavy = $("l1_heavy").checked; stop(); t = 0; recompute(); });
+
+  /* ---------- Phần 2: HTTP trong 1 phút ---------- */
+  var SAMPLES = L1_HTTP.map(function (s, i) {
+    var reqHead = s.request.split("\r\n\r\n")[0].split("\r\n");
+    var reqBody = s.request.split("\r\n\r\n")[1] || "";
+    var first = reqHead[0].split(" ");
+    var resHead = s.response.split("\r\n\r\n")[0].split("\r\n");
+    var resRaw = s.response.split("\r\n\r\n")[1] || "";
+    var resBody = resRaw.split("\r\n")[1] || "";
+    var skip = /^(Connection|Transfer-Encoding):/i;
+    return {
+      name: first[0] + " " + decodeURIComponent(first[1]),
+      method: first[0],
+      url: first[1],
+      proto: first[2],
+      reqHeaders: reqHead.slice(1).filter(function (h) { return !skip.test(h); }),
+      reqBody: reqBody,
+      status: resHead[0].replace(/^HTTP\/1\.1 /, ""),
+      resHeaders: resHead.slice(1).filter(function (h) { return !skip.test(h); }),
+      resBody: resBody
+    };
+  });
+
+  var sample = 0;
+  var part = "";
+  var PARTS = [
+    { key: "method", name: "Method", role: "Hành động muốn thực hiện" },
+    { key: "url", name: "URL", role: "Tài nguyên cần tác động, kèm query" },
+    { key: "header", name: "Header", role: "Thông tin đi kèm yêu cầu và phản hồi" },
+    { key: "body", name: "Body", role: "Dữ liệu gửi lên hoặc trả về" },
+    { key: "status", name: "Status", role: "Kết quả máy chủ trả về" }
+  ];
+
+  function span(parent, text, key) {
+    var s = el("span", "", text);
+    s.setAttribute("data-part", key);
+    parent.appendChild(s);
+    return s;
+  }
+
+  function renderHttp() {
+    var s = SAMPLES[sample];
+    var q = $("l1_samples").querySelectorAll(".l1_chip");
+    for (var i = 0; i < q.length; i++) q[i].className = "l1_chip" + (i === sample ? " l1_chip_on" : "");
+    var rq = $("l1_req");
+    rq.textContent = "";
+    span(rq, s.method, "method");
+    rq.appendChild(document.createTextNode(" "));
+    span(rq, s.url, "url");
+    rq.appendChild(document.createTextNode(" " + s.proto + "\n"));
+    s.reqHeaders.forEach(function (h) { span(rq, h, "header"); rq.appendChild(document.createTextNode("\n")); });
+    rq.appendChild(document.createTextNode("\n"));
+    if (s.reqBody) span(rq, s.reqBody, "body");
+    var rs = $("l1_res");
+    rs.textContent = "";
+    rs.appendChild(document.createTextNode("HTTP/1.1 "));
+    span(rs, s.status, "status");
+    rs.appendChild(document.createTextNode("\n"));
+    s.resHeaders.forEach(function (h) { span(rs, h, "header"); rs.appendChild(document.createTextNode("\n")); });
+    rs.appendChild(document.createTextNode("\n"));
+    span(rs, s.resBody, "body");
+
+    var tb = $("l1_http");
+    tb.textContent = "";
+    var head = el("tr");
+    ["Thành phần", "Vai trò", "Giá trị trong ví dụ"].forEach(function (h) { head.appendChild(el("th", "", h)); });
+    tb.appendChild(head);
+    PARTS.forEach(function (p) {
+      var tr = el("tr");
+      var td0 = el("td");
+      var b = el("button", "l1_row" + (part === p.key ? " l1_row_on" : ""), p.name);
+      b.type = "button";
+      b.addEventListener("click", function () { part = (part === p.key ? "" : p.key); renderHttp(); });
+      td0.appendChild(b);
+      tr.appendChild(td0);
+      tr.appendChild(el("td", "", p.role));
+      var val = "";
+      if (p.key === "method") val = s.method;
+      if (p.key === "url") val = s.url;
+      if (p.key === "header") val = s.reqHeaders.concat(s.resHeaders).join("; ");
+      if (p.key === "body") val = (s.reqBody ? "Yêu cầu: " + s.reqBody + ". " : "Yêu cầu: không có. ") + "Phản hồi: " + s.resBody;
+      if (p.key === "status") val = s.status;
+      var td2 = el("td", "", val);
+      td2.style.fontFamily = '"JetBrains Mono", monospace';
+      td2.style.wordBreak = "break-word";
+      tr.appendChild(td2);
+      tb.appendChild(tr);
+    });
+    var all = document.querySelectorAll("#l1_req span[data-part], #l1_res span[data-part]");
+    for (var k = 0; k < all.length; k++) {
+      if (part && all[k].getAttribute("data-part") === part) all[k].classList.add("l1_hl");
+      else all[k].classList.remove("l1_hl");
+    }
+  }
+
+  var box = $("l1_samples");
+  SAMPLES.forEach(function (s, i) {
+    var b = el("button", "l1_chip", s.name);
+    b.type = "button";
+    b.addEventListener("click", function () { sample = i; renderHttp(); });
+    box.appendChild(b);
+  });
+
+  $("l1_reset").addEventListener("click", function () {
+    stop();
+    mode = "async"; heavy = false; t = 0; sample = 0; part = "";
+    $("l1_heavy").checked = false;
+    recompute();
+    renderHttp();
+  });
+
+  recompute();
+  renderHttp();
+})();
+</script>
+</body>
+</html>
