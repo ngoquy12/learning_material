@@ -48,3 +48,12 @@ def course_files() -> dict[str, str | bytes]:
 @pytest.fixture
 def course_tree(tmp_path: Path) -> Path:
     return write_tree(tmp_path / "course", course_files())
+
+
+@pytest.fixture
+def valid_course_tree(tmp_path: Path) -> Path:
+    """Cay mon nho, moi tai nguyen hop le: verify tinh tra 0."""
+    from tests.harness._samples import build_valid_course
+    root = tmp_path / "valid_course"
+    root.mkdir()
+    return build_valid_course(root)
