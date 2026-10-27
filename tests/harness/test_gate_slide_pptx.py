@@ -152,3 +152,19 @@ def test_render_ok_maps_measured(render_env, monkeypatch):
     assert any(f.severity == "error" and "tràn" in f.message for f in r.findings)
     assert any(f.severity == "warning" and "sát mép" in f.message for f in r.findings)
     assert r.detail["render_dir"].startswith(str(mod.RENDER_ROOT))
+
+
+def test_caps_text_from_template_is_exempt(tmp_path):
+    from core.harness.gates.slide_pptx import _check_deck
+    deck_mod = _check_deck()
+    caps = "KHUNG CHỮ HOA CỦA TEMPLATE"
+    tpl = tmp_path / "tpl.pptx"
+    _deck_with_footer(tpl, [caps])
+    d = folder(tmp_path)
+    p = d / "deck.pptx"
+    _deck_with_footer(p, ["", "", "", caps])
+    with_tpl = deck_mod.static_checks(p, tpl)
+    assert not any("viết hoa" in e for e in with_tpl["errors"]), with_tpl["errors"]
+    no_tpl = deck_mod.static_checks(p, tmp_path / "missing.pptx")  # template thiếu: không miễn trừ, không lỗi
+    # mẫu mặc định của dự án không chứa chuỗi này
+    assert any("viết hoa" in e for e in no_tpl["errors"])
