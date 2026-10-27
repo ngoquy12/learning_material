@@ -114,3 +114,6 @@ Kho kinh nghiệm theo nhóm: `skills/lessons_learned/SKILL.md` (mỗi `<img>` c
 - Mã 1 là có lỗi: sửa học liệu rồi chạy lại. Mã 2 là không có lỗi nhưng một cổng bị bỏ qua vì máy thiếu công cụ: phải nêu rõ công cụ thiếu trong báo cáo, không được coi là đạt.
 - Bài tập lập trình và slide HTML cần thêm `--runtime` (chạy test thật, đo vừa khung bằng trình duyệt). Slide `.pptx` thêm `--render` khi có PowerPoint trên Windows.
 - Báo cáo nằm ở `storage/harness_reports/`. Cách dùng, bảng loại tài nguyên và công cụ tùy chọn: `docs/harness.md`.
+- Môn có `course_spec.yaml` ở gốc thư mục môn (môn đã có thì dựng nháp bằng `python -m core.harness init <thư mục môn>`, rồi đọc lại và bổ sung `allowed`/`forbidden`, `tech_stack`).
+- Trước khi giao hoặc nhận việc: `python -m core.harness next <course_spec.yaml>` liệt kê nhiệm vụ sẵn sàng kèm đích, skill phải đọc và lệnh kiểm; làm đúng skill và lệnh kiểm đó.
+- Tiến độ môn: `python -m core.harness status <course_spec.yaml>`; chỉ coi môn là xong khi mã thoát 0 (3 là còn thiếu, 1 là có lỗi, 2 là thiếu công cụ). Không đánh dấu xong bằng tay.

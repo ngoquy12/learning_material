@@ -112,5 +112,10 @@ def write_spec(course_dir: Path, force: bool = False) -> Path:
     if path.exists() and not force:
         raise FileExistsError(f"Đã có tệp {path}; dùng --force để ghi đè")
     text = yaml.safe_dump(draft_spec(course_dir), allow_unicode=True, sort_keys=False)
-    path.write_text(text, encoding="utf-8", newline="\n")
+    tmp = path.with_name(path.name + ".tmp")
+    try:
+        tmp.write_text(text, encoding="utf-8", newline="\n")
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
     return path

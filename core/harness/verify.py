@@ -1,9 +1,6 @@
-"""Điều phối kiểm chứng: verify_path và CLI `python -m core.harness verify`."""
+"""Điều phối kiểm chứng: verify_path; CLI nằm ở `core/harness/cli.py`."""
 from __future__ import annotations
 
-import argparse
-import contextlib
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -12,7 +9,7 @@ from core.harness.findings import Finding, GateResult, Report
 from core.harness.gates import GATES
 from core.harness.options import VerifyOptions
 from core.harness.registry import detect_kind, discover
-from core.harness.report_io import default_report_dir, is_inside, write_report
+from core.harness.report_io import write_report
 
 __all__ = ["VerifyOptions", "verify_path", "write_report", "main"]
 
@@ -97,44 +94,7 @@ def _summary(report: Report, report_dir: Path) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    for stream in (sys.stdout, sys.stderr):
-        try:
-            stream.reconfigure(encoding="utf-8", errors="replace")
-        except (AttributeError, ValueError):
-            pass
-    parser = argparse.ArgumentParser(prog="python -m core.harness")
-    sub = parser.add_subparsers(dest="command", required=True)
-    v = sub.add_parser("verify", help="kiểm chứng học liệu")
-    v.add_argument("path")
-    v.add_argument("--kind", choices=sorted(GATES),
-                   help="ép loại cho một tệp hoặc thư mục một tài nguyên; với thư mục môn: chỉ chạy tài nguyên loại này")
-    v.add_argument("--runtime", action="store_true")
-    v.add_argument("--render", action="store_true")
-    v.add_argument("--json", action="store_true")
-    v.add_argument("--report-dir")
-    args = parser.parse_args(argv)
+    """Giữ cho mã cũ: chuyển sang `cli.main` (bộ phân tích lệnh con nằm ở `core/harness/cli.py`)."""
+    from core.harness.cli import main as cli_main  # nạp muộn: cli phụ thuộc module này
 
-    target = Path(args.path)
-    if not target.exists():
-        print(f"Không tìm thấy đường dẫn: {target}", file=sys.stderr)
-        return 1
-    if args.report_dir:
-        report_dir = Path(args.report_dir)
-        if is_inside(report_dir, target):
-            print(f"Thư mục báo cáo {report_dir} nằm bên trong đích kiểm chứng {target}; "
-                  "chọn --report-dir ở ngoài", file=sys.stderr)
-            return 1
-    else:
-        try:
-            report_dir = default_report_dir(target)
-        except ValueError as exc:
-            print(str(exc), file=sys.stderr)
-            return 1
-    opts = VerifyOptions(runtime=args.runtime, render=args.render, kind=args.kind)
-    # Một số module được nạp khi chạy cổng (vd. core/llm.py) in ra stdout lúc import:
-    # dồn sang stderr để stdout chỉ còn kết quả (JSON thuần với --json).
-    with contextlib.redirect_stdout(sys.stderr):
-        report = verify_path(target, opts)
-    report_dir = write_report(report, report_dir)
-    print(report.to_json() if args.json else _summary(report, report_dir))
-    return report.exit_code
+    return cli_main(argv)

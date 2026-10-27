@@ -1,5 +1,5 @@
 import sys
 
-from core.harness.verify import main
+from core.harness.cli import main
 
 sys.exit(main())
