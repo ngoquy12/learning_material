@@ -1,4 +1,4 @@
-"""Cổng slide html: kiểm tĩnh slides.html (đo vừa khung bằng trình duyệt thuộc bước runtime, Task 7)."""
+"""Cổng slide html: kiểm tĩnh slides.html; với `--runtime` đo vừa khung từng slide và lỗi console bằng trình duyệt."""
 from __future__ import annotations
 
 import re
@@ -9,6 +9,8 @@ from core.harness.findings import Finding, GateResult
 from core.harness.gates import GATES
 from core.harness.gates._skill_loader import load_skill_script
 from core.harness.options import VerifyOptions
+from core.harness.runners import ToolUnavailable
+from core.harness.runners import browser as browser_runner
 from core.harness.text_rules import find_banned_words, find_emoji
 
 GATE = "slide_html"
@@ -62,6 +64,35 @@ def static_html_findings(html: str) -> list[Finding]:
     return out
 
 
+def _runtime(path: Path, result: GateResult) -> None:
+    """Đo bằng trình duyệt; thiếu công cụ → skipped_reason, đo hỏng → error."""
+    try:
+        m = browser_runner.measure_slides(path)
+    except ToolUnavailable as exc:
+        result.skipped_reason = str(exc)
+        return
+    except Exception as exc:  # noqa: BLE001 - lỗi trình duyệt khi đo (RunnerError, Playwright) là lỗi của cổng
+        result.findings.append(Finding("error", GATE, f"Không đo được slide bằng trình duyệt: {exc}"))
+        return
+    result.detail["runtime"] = {"slides": m.get("slides", 0),
+                                "overflow": len(m.get("slide_overflow", [])),
+                                "console_errors": len(m.get("console_errors", []))}
+    if not m.get("has_go", True):
+        result.findings.append(Finding("error", GATE, "Không có hàm go(i) để chuyển slide"))
+    for o in m.get("slide_overflow", []):
+        if o["over_px"] > browser_runner.TOLERANCE_PX:
+            result.findings.append(Finding(
+                "error", GATE,
+                f"Nội dung tràn khung ở slide {o['slide']}, độ phân giải {o['viewport']}: "
+                f"dư {o['over_px']}px ({o['state']})", f"slide {o['slide']}"))
+    for o in m.get("horizontal_overflow", []):
+        result.findings.append(Finding(
+            "error", GATE, f"Nội dung tràn ngang ở slide {o['slide']}, độ phân giải {o['viewport']}",
+            f"slide {o['slide']}"))
+    for msg in m.get("console_errors", []):
+        result.findings.append(Finding("error", GATE, f"Lỗi console: {msg}"))
+
+
 def check_slide_html(path: Path, opts: VerifyOptions) -> GateResult:
     start = time.perf_counter()
     path = Path(path)
@@ -76,7 +107,8 @@ def check_slide_html(path: Path, opts: VerifyOptions) -> GateResult:
         else:
             result.findings += static_html_findings(html)
             result.detail["slides"] = count_slides(html)
-            # opts.runtime: bước đo vừa khung bằng Playwright sẽ thêm ở đây (Task 7).
+            if opts.runtime:
+                _runtime(path, result)
     result.duration_s = time.perf_counter() - start
     return result
 
