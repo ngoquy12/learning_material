@@ -14,12 +14,13 @@ from __future__ import annotations
 
 import re
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from core.harness.findings import Finding, GateResult
 from core.harness.gates import GATES
 from core.harness.options import VerifyOptions
+from core.harness.registry import normalize_name
 
 LESSON_QUESTIONS, SESSION_QUESTIONS = 5, 45
 LESSON_TAGS = ("SYNTAX", "EXECUTION_FLOW", "CODE_TRACE", "COMPARISON", "TRAP_PREDICTION")
@@ -84,20 +85,42 @@ def parse_quiz_md(text: str) -> list[QuizQuestion]:
     return questions
 
 
-def _find_files(folder: Path, gate: str, result: GateResult) -> tuple[Path | None, Path | None]:
-    found = {}
-    for ext, label in ((".md", "md"), (".xlsx", "xlsx")):
-        files = sorted(p for p in folder.iterdir()
-                       if p.is_file() and p.suffix.lower() == ext and not p.name.startswith("~$"))
-        if not files:
-            result.findings.append(Finding("error", gate, f"Thư mục quiz thiếu tệp {label}", str(folder)))
-        elif len(files) > 1:
-            names = ", ".join(p.name for p in files)
-            result.findings.append(Finding(
-                "error", gate, f"Có nhiều tệp {label} ({names}), không xác định được tệp quiz", str(folder)))
-        else:
-            found[label] = files[0]
-    return found.get("md"), found.get("xlsx")
+_SET_TOKENS = ("dau_gio", "cuoi_gio")
+
+
+def _set_token(name: str) -> str:
+    n = normalize_name(name).replace(" ", "_").replace("-", "_")
+    return next((t for t in _SET_TOKENS if t in n), "")
+
+
+def _find_sets(folder: Path, gate: str, result: GateResult, by_token: bool) -> list[tuple[str, Path | None, Path | None]]:
+    """Trả [(tên bộ, md, xlsx)]. Bộ session nhóm theo `dau_gio`/`cuoi_gio`; tệp khác (.json, `~$`) bị bỏ qua."""
+    groups: dict[str, dict[str, list[Path]]] = {}
+    files_all = [p for p in sorted(folder.iterdir())
+                 if p.is_file() and not p.name.startswith("~$") and p.suffix.lower() in (".md", ".xlsx")]
+    single_set = [p.suffix.lower() for p in files_all].count(".md") == 1 and         [p.suffix.lower() for p in files_all].count(".xlsx") == 1
+    for p in files_all:
+        ext = p.suffix.lower()
+        token = _set_token(p.name) if by_token and not single_set else ""
+        groups.setdefault(token, {".md": [], ".xlsx": []})[ext].append(p)
+    if not groups:
+        groups[""] = {".md": [], ".xlsx": []}
+    sets = []
+    for token, files in sorted(groups.items()):
+        where = f" (bộ {token})" if token else ""
+        picked = {}
+        for ext, label in ((".md", "md"), (".xlsx", "xlsx")):
+            fs = files[ext]
+            if not fs:
+                result.findings.append(Finding("error", gate, f"Thư mục quiz thiếu tệp {label}{where}", str(folder)))
+            elif len(fs) > 1:
+                names = ", ".join(p.name for p in fs)
+                result.findings.append(Finding(
+                    "error", gate, f"Có nhiều tệp {label}{where} ({names}), không xác định được tệp quiz", str(folder)))
+            else:
+                picked[label] = fs[0]
+        sets.append((token, picked.get("md"), picked.get("xlsx")))
+    return sets
 
 
 def _read_rows(xlsx: Path, sheet: str, gate: str, result: GateResult) -> list[tuple] | None:
@@ -132,8 +155,13 @@ def _check_headers(rows: list[tuple], expected: tuple, gate: str, result: GateRe
     return True
 
 
-def _data_rows(rows: list[tuple]) -> list[tuple]:
-    return [r for r in rows[1:] if any(c is not None and str(c).strip() != "" for c in r)]
+def _data_rows(rows: list[tuple]) -> tuple[list[tuple], int]:
+    """Hàng dữ liệu (bỏ hàng trống ở cuối) và số hàng trống nằm giữa dữ liệu."""
+    blank = lambda r: not any(c is not None and str(c).strip() != "" for c in r)
+    body = list(rows[1:])
+    while body and blank(body[-1]):
+        body.pop()
+    return [r for r in body if not blank(r)], sum(1 for r in body if blank(r))
 
 
 def _letter(value) -> str:
@@ -169,48 +197,59 @@ def _check_md(questions: list[QuizQuestion], expected: int, gate: str, result: G
                 err(f"{label}: thiếu `**Phản hồi khi chọn sai:**`")
 
 
+def _check_set(md: Path | None, xlsx: Path | None, label: str, gate: str, result: GateResult,
+               lesson: bool) -> int:
+    expected_n = LESSON_QUESTIONS if lesson else SESSION_QUESTIONS
+    headers = LESSON_HEADERS if lesson else SESSION_HEADERS
+    pre = f"[bộ {label}] " if label else ""
+    start = len(result.findings)
+    questions: list[QuizQuestion] = []
+    if md is not None:
+        try:
+            questions = parse_quiz_md(md.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError) as exc:
+            result.findings.append(Finding("error", gate, f"Không đọc được md: {exc}", md.name))
+        else:
+            _check_md(questions, expected_n, gate, result, md.name, lesson)
+    if xlsx is not None:
+        rows = _read_rows(xlsx, LESSON_SHEET if lesson else SESSION_SHEET, gate, result)
+        if rows is not None and _check_headers(rows, headers, gate, result, xlsx.name):
+            data, blanks = _data_rows(rows)
+            if blanks:
+                result.findings.append(Finding(
+                    "error", gate, f"xlsx có {blanks} hàng trống nằm giữa dữ liệu (làm lệch so khớp theo thứ tự)", xlsx.name))
+            if len(data) != expected_n:
+                result.findings.append(Finding(
+                    "error", gate, f"xlsx phải có {expected_n} hàng dữ liệu, hiện có {len(data)}", xlsx.name))
+            if md is not None and len(data) != len(questions):
+                result.findings.append(Finding(
+                    "error", gate, f"Số hàng dữ liệu xlsx ({len(data)}) khác số câu md ({len(questions)})", xlsx.name))
+            col = headers.index("isCorrect")
+            for row, q in zip(data, questions):
+                shown = row[col] if col < len(row) else None
+                got = _letter(shown)
+                if got != q.answer:
+                    result.findings.append(Finding(
+                        "error", gate,
+                        f"Câu {q.number}: đáp án xlsx `isCorrect`={shown!r} ({got or 'không hợp lệ'}) "
+                        f"khác đáp án md ({q.answer or 'thiếu'})", xlsx.name))
+    if pre:
+        result.findings[start:] = [replace(f, message=pre + f.message) for f in result.findings[start:]]
+    return len(questions)
+
+
 def _check_quiz(path: Path, kind: str, lesson: bool) -> GateResult:
     start = time.perf_counter()
     path = Path(path)
     result = GateResult(kind=kind, path=str(path), gate=kind)
-    gate = kind
     folder = path.parent if path.is_file() else path
-    expected_n = LESSON_QUESTIONS if lesson else SESSION_QUESTIONS
-    headers = LESSON_HEADERS if lesson else SESSION_HEADERS
     try:
-        md, xlsx = _find_files(folder, gate, result)
-        questions: list[QuizQuestion] = []
-        if md is not None:
-            try:
-                questions = parse_quiz_md(md.read_text(encoding="utf-8"))
-            except (OSError, UnicodeDecodeError) as exc:
-                result.findings.append(Finding("error", gate, f"Không đọc được md: {exc}", md.name))
-            else:
-                _check_md(questions, expected_n, gate, result, md.name, lesson)
-        if xlsx is not None:
-            rows = _read_rows(xlsx, LESSON_SHEET if lesson else SESSION_SHEET, gate, result)
-            if rows is not None and _check_headers(rows, headers, gate, result, xlsx.name):
-                data = _data_rows(rows)
-                if len(data) != expected_n:
-                    result.findings.append(Finding(
-                        "error", gate, f"xlsx phải có {expected_n} hàng dữ liệu, hiện có {len(data)}", xlsx.name))
-                if md is not None and len(data) != len(questions):
-                    result.findings.append(Finding(
-                        "error", gate,
-                        f"Số hàng dữ liệu xlsx ({len(data)}) khác số câu md ({len(questions)})", xlsx.name))
-                col = headers.index("isCorrect")
-                for row, q in zip(data, questions):
-                    shown = row[col] if col < len(row) else None
-                    got = _letter(shown)
-                    if got != q.answer:
-                        result.findings.append(Finding(
-                            "error", gate,
-                            f"Câu {q.number}: đáp án xlsx `isCorrect`={shown!r} ({got or 'không hợp lệ'}) "
-                            f"khác đáp án md ({q.answer or 'thiếu'})",
-                            xlsx.name))
-        result.detail["questions"] = len(questions)
+        counts = {}
+        for label, md, xlsx in _find_sets(folder, kind, result, by_token=not lesson):
+            counts[label or "-"] = _check_set(md, xlsx, label, kind, result, lesson)
+        result.detail["questions"] = counts
     except OSError as exc:
-        result.findings.append(Finding("error", gate, f"Không đọc được thư mục quiz: {exc}", str(folder)))
+        result.findings.append(Finding("error", kind, f"Không đọc được thư mục quiz: {exc}", str(folder)))
     result.duration_s = time.perf_counter() - start
     return result
 

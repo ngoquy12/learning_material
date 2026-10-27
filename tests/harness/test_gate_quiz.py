@@ -187,3 +187,80 @@ def test_session_header_exact(tmp_path):
 def test_session_does_not_require_explanation_block(tmp_path):
     assert "Giải thích" not in session_md()
     assert check_quiz_session(make_session(tmp_path), OPTS).status == "pass"
+
+
+def _two_sets(tmp_path, extra=None) -> Path:
+    d = tmp_path / "Quizz session"
+    d.mkdir(parents=True)
+    for tok in ("dau_gio", "cuoi_gio"):
+        (d / f"quizz_{tok}.md").write_text(session_md(), encoding="utf-8")
+        session_xlsx(d / f"Session01._Quizz_{tok.title()}_X.xlsx")
+    for name, content in (extra or {}).items():
+        (d / name).write_text(content, encoding="utf-8")
+    return d
+
+
+def test_session_two_sets_pass_and_json_ignored(tmp_path):
+    d = _two_sets(tmp_path, {"quizz_dau_gio.json": "{}", "quizz_cuoi_gio.json": "{}"})
+    r = check_quiz_session(d, OPTS)
+    assert r.status == "pass", errs(r)
+    assert set(r.detail["questions"]) == {"dau_gio", "cuoi_gio"}
+
+
+def test_session_unpaired_md(tmp_path):
+    d = _two_sets(tmp_path)
+    next(d.glob("*Dau_Gio*.xlsx")).unlink()
+    msgs = errs(check_quiz_session(d, OPTS))
+    assert any("thiếu tệp xlsx" in m and "dau_gio" in m for m in msgs)
+
+
+def test_session_two_md_same_token(tmp_path):
+    d = _two_sets(tmp_path, {"quizz_cuoi_gio_v2.md": session_md()})
+    assert any("nhiều tệp md" in m and "cuoi_gio" in m for m in errs(check_quiz_session(d, OPTS)))
+
+
+def test_session_error_names_set(tmp_path):
+    d = _two_sets(tmp_path)
+    (d / "quizz_dau_gio.md").write_text(session_md(44), encoding="utf-8")
+    assert any(m.startswith("[bộ dau_gio]") and "45" in m for m in errs(check_quiz_session(d, OPTS)))
+
+
+def test_md_numbering_not_sequential(tmp_path):
+    md = lesson_md().replace("### Câu 3 ", "### Câu 7 ")
+    assert any("liên tục" in m for m in errs(check_quiz_lesson(make_lesson(tmp_path, md=md), OPTS)))
+
+
+def test_lesson_missing_explanation(tmp_path):
+    md = lesson_md().replace("**Giải thích:** vì lý do.", "", 1)
+    assert any("Câu 1" in m and "Giải thích" in m for m in errs(check_quiz_lesson(make_lesson(tmp_path, md=md), OPTS)))
+
+
+def test_fewer_than_four_options(tmp_path):
+    md = lesson_md().replace("D. bốn", "", 1)
+    assert any("Câu 1" in m and "4 phương án" in m for m in errs(check_quiz_lesson(make_lesson(tmp_path, md=md), OPTS)))
+
+
+def test_missing_answer(tmp_path):
+    md = lesson_md().replace("**Đáp án đúng:** A", "", 1)
+    assert any("Câu 1" in m and "Đáp án" in m for m in errs(check_quiz_lesson(make_lesson(tmp_path, md=md), OPTS)))
+
+
+def test_int_iscorrect_accepted_and_non_numeric_rejected(tmp_path):
+    d = make_lesson(tmp_path)
+    x = next(d.glob("*.xlsx"))
+    wb = openpyxl.load_workbook(x)
+    ws = wb.active
+    ws.cell(2, 16).value = 1  # int, đúng
+    ws.cell(3, 16).value = "B?"  # không phải số
+    wb.save(x)
+    msgs = errs(check_quiz_lesson(d, OPTS))
+    assert len(msgs) == 1 and "Câu 2" in msgs[0] and "không hợp lệ" in msgs[0]
+
+
+def test_blank_row_in_middle_flagged(tmp_path):
+    d = make_lesson(tmp_path)
+    x = next(d.glob("*.xlsx"))
+    wb = openpyxl.load_workbook(x)
+    wb.active.insert_rows(4)
+    wb.save(x)
+    assert any("hàng trống" in m for m in errs(check_quiz_lesson(d, OPTS)))
