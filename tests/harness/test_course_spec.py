@@ -50,3 +50,34 @@ def test_not_yaml_mapping(tmp_path, content):
 def test_missing_file(tmp_path):
     with pytest.raises(SpecError):
         load_spec(tmp_path / "none.yaml")
+
+
+def test_non_utf8(tmp_path):
+    p = tmp_path / "course_spec.yaml"
+    p.write_bytes(b"course_id: " + bytes([0xFF, 0xFE]))
+    with pytest.raises(SpecError) as e:
+        load_spec(p)
+    assert any("UTF-8" in m for m in e.value.messages)
+
+
+def test_malformed_yaml_message_vietnamese(tmp_path):
+    p = tmp_path / "course_spec.yaml"
+    p.write_text("a: [unclosed\n", encoding="utf-8")
+    with pytest.raises(SpecError) as e:
+        load_spec(p)
+    text = " ".join(e.value.messages)
+    assert "dòng" in text and "while parsing" not in text
+
+
+@pytest.mark.parametrize("mutate, needle", [
+    (lambda d: d["sessions"][0].update(resourcs=["lab"]), "sessions[0].resourcs"),
+    (lambda d: d.update(sessions=["x"]), "sessions[0]"),
+    (lambda d: d["sessions"][0].update(exercises=-1), "không được âm"),
+])
+def test_strict_and_vietnamese(tmp_path, mutate, needle):
+    d = copy.deepcopy(VALID)
+    mutate(d)
+    with pytest.raises(SpecError) as e:
+        load_spec(write_yaml(tmp_path, d))
+    assert any(needle in m for m in e.value.messages)
+    assert not any("Input should" in m or "Extra inputs" in m for m in e.value.messages)

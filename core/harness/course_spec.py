@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from core.harness.registry import normalize_name
 
@@ -19,7 +19,11 @@ class SpecError(Exception):
         self.messages = messages
 
 
-class LessonSpec(BaseModel):
+class _Strict(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+class LessonSpec(_Strict):
     folder: str
     title: str = ""
     allowed: list[str] = Field(default_factory=list)
@@ -27,7 +31,7 @@ class LessonSpec(BaseModel):
     resources: list[str] | None = None
 
 
-class SessionSpec(BaseModel):
+class SessionSpec(_Strict):
     folder: str
     kind: Literal["theory", "practice"] = "theory"
     resources: list[str] = Field(default_factory=list)
@@ -36,11 +40,11 @@ class SessionSpec(BaseModel):
     depends_on_sessions: list[int] | None = None
 
 
-class Defaults(BaseModel):
+class Defaults(_Strict):
     lesson_resources: list[str] = Field(default_factory=lambda: list(LESSON_RESOURCES))
 
 
-class CourseSpec(BaseModel):
+class CourseSpec(_Strict):
     course_id: str
     title: str = ""
     tech_stack: str = ""
@@ -72,12 +76,18 @@ _PYDANTIC_VI = {
     "list_type": "phải là danh sách",
     "dict_type": "phải là một đối tượng (mapping)",
     "literal_error": "giá trị không hợp lệ (không thuộc danh sách cho phép)",
+    "model_type": "phải là một đối tượng (mapping)",
+    "model_attributes_type": "phải là một đối tượng (mapping)",
+    "bool_type": "phải là true hoặc false",
+    "extra_forbidden": "khóa không hợp lệ (không có trong đặc tả)",
+    "int_from_float": "phải là số nguyên",
+    "string_too_short": "không được để trống",
 }
 
 
 def _translate(err: dict) -> str:
     loc = _format_loc(err["loc"])
-    reason = _PYDANTIC_VI.get(err["type"], f"giá trị không hợp lệ ({err['msg']})")
+    reason = _PYDANTIC_VI.get(err["type"], "giá trị không hợp lệ")
     return f"{loc}: {reason}"
 
 
@@ -103,7 +113,9 @@ def _check_semantics(spec: CourseSpec) -> list[str]:
         else:
             seen_sessions[key] = si
         _check_resources(f"{base}.resources", session.resources, SESSION_RESOURCES, errors)
-        if "exercises" in session.resources and session.exercises < 1:
+        if session.exercises < 0:
+            errors.append(f"{base}.exercises: không được âm")
+        elif "exercises" in session.resources and session.exercises < 1:
             errors.append(f"{base}.exercises: phải >= 1 khi có tài nguyên exercises")
         for dep in session.depends_on_sessions or []:
             if not 0 <= dep < si:
@@ -130,8 +142,12 @@ def load_spec(path: Path) -> CourseSpec:
         data = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
     except OSError as exc:
         raise SpecError([f"Không đọc được tệp đặc tả {path}: {exc}"]) from exc
+    except UnicodeDecodeError as exc:
+        raise SpecError(["Tệp đặc tả không đúng mã hóa UTF-8"]) from exc
     except yaml.YAMLError as exc:
-        raise SpecError([f"Tệp đặc tả không phải YAML hợp lệ: {exc}"]) from exc
+        mark = getattr(exc, "problem_mark", None)
+        where = f" ở dòng {mark.line + 1}, cột {mark.column + 1}" if mark else ""
+        raise SpecError([f"YAML sai cú pháp{where}"]) from exc
     if not isinstance(data, dict):
         raise SpecError(["Tệp đặc tả phải là một đối tượng YAML (mapping), không phải rỗng hoặc danh sách"])
     try:
