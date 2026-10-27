@@ -5,13 +5,13 @@ description: Generate multiple-choice quiz banks for e-learning: the 5-question 
 
 # E-learning Quiz & Session Assessment Design Skill — Rikkei Education Standards
 
-This skill guides the AI Agent to design, standardize, and generate multiple-choice quiz question banks (including 5-question Lesson Quizzes and 45-question Session Entrance/Exit Quizzes) for E-learning platforms, strictly adhering to pedagogical standards (`RE_Tiêu chuẩn quizz.pdf`) and export schema requirements. Target output language is 100% Accented Vietnamese.
+This skill guides the AI Agent to design, standardize, and generate multiple-choice quiz question banks (including 5-question Lesson Quizzes and 45-question Session Entrance/Exit Quizzes) for E-learning platforms, strictly adhering to the Rikkei quiz principles below (also summarized in `.agents/AGENTS.md` section 4) and the export schema requirements. Target output language is 100% Accented Vietnamese.
 
 ---
 
-## 🎯 1. Core Pedagogical & Quality Directives for Quiz Design
+## 1. Core Pedagogical & Quality Directives for Quiz Design
 
-When generating any multiple-choice question (Lesson Quiz or Session Entrance/Exit Quiz), the Agent MUST strictly enforce these 9 mandatory requirements from `RE_Tiêu chuẩn quizz.pdf`:
+When generating any multiple-choice question (Lesson Quiz or Session Entrance/Exit Quiz), the Agent MUST strictly enforce these mandatory requirements:
 
 1. **Single Concept (Nguyên tắc đơn nhiệm):** Each question MUST evaluate EXACTLY ONE technical concept or skill. Do not combine multiple unrelated bugs or concepts into a single question.
 2. **Context-Driven (Ngữ cảnh hóa):** Frame questions inside concrete real-world developer scenarios (Scenario-based). ABSOLUTELY FORBIDDEN to ask dry textbook definitions (e.g., FORBIDDEN: *"What is the break statement used for?"*; REQUIRED: *"You are iterating through a list of 1M users to find the first user with spending > 10M. Which statement immediately stops the loop to optimize performance?"*).
@@ -21,7 +21,7 @@ When generating any multiple-choice question (Lesson Quiz or Session Entrance/Ex
 6. **Instant Feedback (Phản hồi tức thì):** Include a short, punchy explanation for why the correct choice is right and how to fix common misconceptions.
 7. **30-Second Rule (Nguyên tắc 30 giây/câu):** Questions must be concise and straight to the point so students who studied the lesson can answer within 30 seconds.
 8. **NO CONTEXT REFERRAL PHRASES:**
-   - ABSOLUTELY FORBIDDEN to use intermediate context or source referral phrases in question stems, answer choices, or explanations: `"in the slide"`, `"on slide"`, `"lecture slide"`, `"slide mentions"`, `"in the lecture"`, `"according to the lecture"`, `"according to the video"`, `"in the video"`, `"from the instructor"`, `"instructor said"`, `"According to Section ..."`, `"in enterprise scenario ..."`, `"in the scenario"`, `"from an unknown source"`, etc.
+   - ABSOLUTELY FORBIDDEN to use intermediate context or source referral phrases in question stems, answer choices, explanations, or `instant_feedback`: `"in the slide"`, `"on slide"`, `"lecture slide"`, `"slide mentions"`, `"in the lecture"`, `"according to the lecture"`, `"according to the video"`, `"in the video"`, `"from the instructor"`, `"instructor said"`, `"According to Section ..."`, `"in enterprise scenario ..."`, `"in the scenario"`, `"from an unknown source"`, etc.
    - All questions, choices, and explanations MUST be stated 100% objectively, independently, and professionally as standard domain knowledge.
 9. **Domain-Agnostic Standard (Cấm Hardcode theo Môn):**
    - MUST be 100% domain-agnostic and dynamically adapt to `tech_stack` (Python, JS, Java, C++, SQL, Git, Docker, HTML/CSS, etc.).
@@ -29,11 +29,9 @@ When generating any multiple-choice question (Lesson Quiz or Session Entrance/Ex
 
 ---
 
----
+## 2. Lesson Quiz Standard — 5 Questions Matrix & Enhanced Schema
 
-## 📚 2. Lesson Quiz Standard — 5 Questions Matrix & Enhanced Schema
-
-Every theoretical lesson quiz deck MUST contain **EXACTLY 5 questions** strictly adhering to the 5 STT structure defined in `RE_Tiêu chuẩn quizz.pdf`:
+Every theoretical lesson quiz deck MUST contain **EXACTLY 5 questions** strictly adhering to the 5 STT structure below:
 
 | STT | Dạng câu (question_type) | Mục tiêu đánh giá (Pedagogical Goal) | Ví dụ minh họa (Domain-Agnostic Example) |
 | :-: | :--- | :--- | :--- |
@@ -51,12 +49,12 @@ Every theoretical lesson quiz deck MUST contain **EXACTLY 5 questions** strictly
 4. `options`: List of 4 homogeneous string options.
 5. `correct_option_index`: Integer `0`, `1`, `2`, or `3`.
 6. `explanation`: Detailed technical explanation of why the correct option is right.
-7. `instant_feedback`: Short, punchy pedagogical guidance when a student picks an incorrect option, explicitly pointing them back to the relevant section or concept in the lesson reading text (e.g., *"Chưa chính xác! Bạn hãy tham khảo lại Mục 2.1 trong bài đọc để hiểu rõ hơn về cú pháp khai báo..."*).
-8. `time_limit_sec`: Fixed integer `30` (30 seconds per question rule).
+7. `instant_feedback`: Short, punchy pedagogical guidance when a student picks an incorrect option, naming the CONCEPT to review and the misconception, never a section number or a source (no "Mục 2.1", no "trong bài đọc"; see directive 8). Example: *"Chưa chính xác! Hãy ôn lại cách khai báo biến bằng `const` và `let`: `const` không cho gán lại giá trị."*
+8. `time_limit_sec`: Fixed integer `30` (30 seconds per question rule; the same value everywhere, including exam quizzes).
 
 ---
 
-## 💻 3. Code Styling & Markdown Formatting Guidelines in Questions
+## 3. Code Styling & Markdown Formatting Guidelines in Questions
 
 When generating code snippets or code symbols inside `question`, `options`, `explanation`, or `instant_feedback`:
 
@@ -72,3 +70,11 @@ When generating code snippets or code symbols inside `question`, `options`, `exp
    - Use **`snake_case`** for Python/Database variables and functions (`user_id`, `order_amount`).
    - Use **`camelCase`** or **`PascalCase`** for JavaScript/TypeScript/Java (`userId`, `fetchData`).
 
+---
+
+## 4. Verification Before Delivery (mandatory for questions about code or results)
+
+1. RUN every code snippet, query, status code and output mentioned in a question. The correct option must match the real result, and each wrong option must produce a different real result. Never compute the answer by hand.
+2. Spread the correct option across A, B, C, D; avoid long runs of the same position.
+3. Each question tests one concept and can be answered in 30 seconds.
+4. The question, options, explanation and `instant_feedback` must read as standalone domain knowledge with no pointer to any other material.

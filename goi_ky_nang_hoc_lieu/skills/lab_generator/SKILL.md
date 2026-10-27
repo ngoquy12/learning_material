@@ -8,10 +8,10 @@ description: Structure practical hands-on labs with clear objectives, sequential
 ## 1. Overview & Pedagogical Vision
 Hands-on Labs serve as the practical backbone for students to develop real-world coding skills and build modular components for enterprise projects. Every Lab MUST adapt strictly to the lesson's target `tech_stack`, featuring clear objectives and step-by-step executable instructions.
 
-### 1.1 Progressive Difficulty Contract (Beginner-First, Simple ➔ Advanced)
+### 1.1 Progressive Difficulty Contract (Beginner-First, Simple -> Advanced)
 - The task's overall difficulty MUST be calibrated to what the student has ACTUALLY learned up to and including the current lesson (`allowed_scope`) — never assume mastery of concepts from later lessons.
 - The step sequence (`steps`) MUST itself escalate gradually: early steps cover the simplest possible setup/single-value handling of the scenario, later steps layer in the lesson's new concept, and only the final step(s) may approach a fuller, more complete business scenario. Never open Step 1 with the full multi-field/multi-branch complexity that belongs at the end.
-- `code_demo` MUST mirror this same step progression — the reference solution should read as an incremental build-up (simple ➔ complete), not a monolithic advanced solution dropped all at once.
+- `code_demo` MUST mirror this same step progression — the reference solution should read as an incremental build-up (simple -> complete), not a monolithic advanced solution dropped all at once.
 - Avoid stacking every business rule/edge case into a single task for early sessions of a course; edge cases and advanced rules are appropriate once the course has progressed and students have more foundation.
 
 ### 1.2 Session-Wide Domain Persistence Contract
@@ -71,22 +71,22 @@ Progressive Difficulty Contract is visible in practice rather than only describe
 - **Tài nguyên đầu vào**: Một lượt đặt phòng gồm số đêm nghỉ và giá phòng mỗi đêm là 500000 đồng. Khách nghỉ từ 3 đêm trở lên được giảm 10% trên tổng tiền.
 
 ### Các bước thực hiện:
-1. **Bước 1: Khởi tạo và thiết lập**: Khai báo biến `so_dem` với giá trị 2 và biến `gia_moi_dem` với giá trị 500000. In ra tổng tiền chưa giảm giá.
-2. **Bước 2: Xây dựng logic nghiệp vụ**: Dùng `if/else` kiểm tra `so_dem` có từ 3 trở lên hay không để tính `tong_tien` tương ứng có giảm giá hoặc không.
-3. **Bước 3: Định dạng & Kiểm lỗi**: Đổi `so_dem` lần lượt thành 3 rồi thành 0, chạy lại và đối chiếu kết quả với bảng giá.
+1. **Bước 1: Khởi tạo và thiết lập**: Khai báo biến `nights` với giá trị 2 và biến `price_per_night` với giá trị 500000. In ra tổng tiền chưa giảm giá.
+2. **Bước 2: Xây dựng logic nghiệp vụ**: Dùng `if/else` kiểm tra `nights` có từ 3 trở lên hay không để tính `total_price` tương ứng có giảm giá hoặc không.
+3. **Bước 3: Định dạng & Kiểm lỗi**: Đổi `nights` lần lượt thành 3 rồi thành 0, chạy lại và đối chiếu kết quả với bảng giá.
 
 ## 3. Checklist đánh giá
-- [ ] Chương trình chạy không lỗi cú pháp với cả ba giá trị `so_dem` là 2, 3 và 0.
-- [ ] Với `so_dem` bằng 2, kết quả in ra đúng 1000000.
-- [ ] Với `so_dem` bằng 3, kết quả in ra đúng 1350000 (đã giảm 10%).
-- [ ] Toàn bộ tên biến viết bằng tiếng Anh hoặc không dấu theo `snake_case`.
+- [ ] Chương trình chạy không lỗi cú pháp với cả ba giá trị `nights` là 2, 3 và 0.
+- [ ] Với `nights` bằng 2, kết quả in ra đúng 1000000.
+- [ ] Với `nights` bằng 3, kết quả in ra đúng 1350000 (đã giảm 10%).
+- [ ] Toàn bộ tên biến viết bằng tiếng Anh theo `snake_case`.
 ```
 
 ### 3.1 What this exemplar demonstrates
 
 | Rule | How the exemplar satisfies it |
 | :-- | :-- |
-| Progressive difficulty | Bước 1 chỉ gán biến và in ra ➔ Bước 2 mới thêm rẽ nhánh ➔ Bước 3 mới thử giá trị biên. Bước 1 không mở màn bằng toàn bộ nghiệp vụ. |
+| Progressive difficulty | Bước 1 chỉ gán biến và in ra -> Bước 2 mới thêm rẽ nhánh -> Bước 3 mới thử giá trị biên. Bước 1 không mở màn bằng toàn bộ nghiệp vụ. |
 | Scope boundary | Chỉ dùng biến, toán tử và `if/else`. Không có vòng lặp, hàm, danh sách — dù chúng sẽ khiến bài "đẹp" hơn, đó là kiến thức CHƯA dạy. |
 | Domain persistence | Toàn bộ bài nằm trong đúng bối cảnh Hotel Booking, không nhảy sang bối cảnh khác giữa chừng. |
 | Checklist đo được | Mỗi mục kiểm định nêu giá trị đầu vào và kết quả mong đợi cụ thể, chấm được đúng/sai — không phải nhận xét cảm tính như "code sạch sẽ". |
@@ -97,7 +97,7 @@ Progressive Difficulty Contract is visible in practice rather than only describe
 
 ---
 
-## 💻 4. Code Styling Guidelines in Labs
+## 4. Code Styling Guidelines in Labs
 When providing code snippets or step-by-step code guidance:
 * **Identifiers**: 100% of variable, function, class, and property names MUST be in **English**.
 * **Naming Conventions**:
@@ -106,17 +106,22 @@ When providing code snippets or step-by-step code guidance:
 * **Indentation**:
   - Ensure consistent 4-space indentation for block structures (2 spaces for JS/HTML). Use explicit linebreaks.
 
-## 8. Pre-Delivery Verification Gate (MANDATORY for programming courses)
+## 5. Multi-Step Lab Guide (long form, for a practice session)
 
-Root causes of past defects were process gaps, not individual exercises: exercises written before the readings drifted from them; solutions used constructs the course had not taught; shared base code was rewritten per exercise and diverged. Close those gaps with this gate.
+When a session is built around several chained labs (for example six labs that match six exercises), write ONE guide `Bai thuc hanh/lab_guide.md` instead of several small files:
 
-1. **Order of work**: write and finish the Lesson readings FIRST. Write exercises/labs afterwards, reusing the exact function names, Vietnamese labels, fixed error messages and data conventions that the readings introduced. Never author exercises from the syllabus alone.
-2. **Base-code markers (standard)**: in every `starter/script.js`, wrap provided code with `// ===== Mã nền (có sẵn, KHÔNG sửa) =====` ... `// ===== HẾT MÃ NỀN =====`, then `// ===== BÀI LÀM: <tên bài> =====`. The checker below skips base code; unmarked base code is treated as student code.
-3. **Shared base code is copied verbatim** from the earlier exercise's solution (same function names, same parameter shapes). Do not re-author `fakeApi`, `request`, `buildQuery`-style helpers per exercise.
-4. **Declare the not-yet-taught constructs** for the course (from `forbidden_scope` / the course spec), for example JavaScript `class,this,module,closure` or Python `class,lambda,comprehension,decorator`.
-5. **Run the gate and fix until it reports 0 problems**:
+1. **Opening**: goal of the session, prerequisites (tools, accounts, versions), and a mapping table lab -> exercise.
+2. **One section per lab**, each with: duration, objective, numbered steps (commands and files exactly as run), a block "Kết quả mong đợi" (screen text, server log lines, JSON bodies, table rows) and a short list of common errors with fixes. Labs build on each other and reuse the same files and names.
+3. **Closing**: a wrap-up (about 5 minutes), a 10-point rubric, a short "Tự học thêm" line for out-of-scope topics, and an appendix table of files per lab.
+4. Every "Kết quả mong đợi" block comes from a REAL run of the exact code in the step. Environment-specific values (database name, port) are replaced with the names the student is told to use.
+5. Durations add up to the session length; lab 1 is the simplest and the last lab is the most complete.
 
-   `python scripts/check_exercise_scope.py <course folder> --forbid <constructs> --language javascript`
+## 6. Pre-Delivery Verification Gate (MANDATORY for programming courses)
 
-   It reports (a) constructs the course has not taught in student-written code of starters and reference solutions, and (b) functions with the same name but different parameter shapes across exercises of one session. A reported drift is either a bug to fix or an intentional change that must be stated in the exercise statement.
-6. If the gate flags a construct that is genuinely needed, do NOT quietly keep it: either teach it in a reading first, or redesign the exercise so students never write it.
+Root causes of past defects were process gaps, not individual labs: labs written before the readings drifted from them, steps used constructs the course had not taught, expected outputs were guessed.
+
+1. **Order of work**: finish the Lesson readings FIRST. Write labs afterwards, reusing the exact function names, Vietnamese labels, fixed messages and data conventions the readings introduced. Never author a lab from the syllabus alone.
+2. **Run it**: execute every step of the lab in a clean copy of the starter, in order, and compare the output with the "Kết quả mong đợi" block. Fix the text, not the output.
+3. **Scope**: declare the not-yet-taught constructs for the course (from `forbidden_scope` / the course spec) and run the scope checker over the code the student writes: `python scripts/check_exercise_scope.py <course folder> --forbid <constructs> --language javascript` (it scans `script.js` and `src/**/*.js(x)`). Fix until it reports 0 problems, or state the intentional change in the lab.
+4. **Shared base code** is copied verbatim from the earlier lab's solution (same names, same parameter shapes); never re-author helpers per lab.
+5. If the checker flags a construct that is genuinely needed, do NOT quietly keep it: teach it in a reading first, or redesign the lab so students never write it.

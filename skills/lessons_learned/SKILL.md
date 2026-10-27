@@ -28,7 +28,7 @@ Cách tổ chức: nhóm A áp dụng cho mọi môn; nhóm B áp dụng theo c�
 
 ### A2. Giao diện, màu sắc, ký hiệu
 
-- Cấm emoji và ký tự biểu tượng Unicode (mũi tên, dấu tích, hình tròn màu...) trong bài đọc, mã, Quiz JSON, mindmap. Thay bằng nhãn `[NOTE]`, `[TIP]`, `[WARNING]` hoặc Phosphor Icons `<i class="ph-bold ph-*"></i>`.
+- Cấm emoji và ký tự biểu tượng Unicode (mũi tên, dấu tích, hình tròn màu...) trong bài đọc, mã, Quiz JSON, mindmap. Thay bằng nhãn chữ thường như `Lưu ý:`, `Mẹo:`, `Cảnh báo:` (KHÔNG dùng thẻ ngoặc vuông kiểu `[NOTE]`) hoặc Phosphor Icons `<i class="ph-bold ph-*"></i>`.
 - Giữ chuẩn Light Mode 100%: không dùng tiền tố `dark:`, không dùng nền tối (`bg-slate-900`, `bg-black`, `bg-slate-900/60`, mã `#020617`), không phối nền tối với `text-slate-700`.
 - Trên khung nền sáng pastel (`bg-amber-50`, `bg-rose-50`, `bg-emerald-50`...) dùng chữ tối (`text-slate-800`, `text-slate-900`, `text-amber-950`...), không dùng `text-white`, `text-slate-50`, `text-sky-300`. Khung `#viz-console` phải đạt độ tương phản Light Mode.
 - Không dùng cụm từ sáo rỗng của AI ("mẹo lập trình", "bẫy cú pháp", "bẫy lập trình"). Dùng "Lỗi thường gặp", "Ngoại lệ cần lưu ý", "Lưu ý thực tế".
@@ -64,6 +64,15 @@ Cách tổ chức: nhóm A áp dụng cho mọi môn; nhóm B áp dụng theo c�
 
 - Chuyển khóa snake_case nội bộ thành tiêu đề H2/H3 tiếng Việt có dấu tự nhiên.
 - Khối ` ```markmap ` đóng sạch, không dư dấu backtick.
+
+### A7. Kiểm chứng trước khi giao (rút ra từ hai môn ReactJS và NodeJS)
+
+- Mọi đoạn mã, truy vấn, kết quả in ra, mã trạng thái và đáp án quiz trong tài liệu phải được CHẠY THẬT rồi chép đúng kết quả; không tự tính tay. Câu dạng "dự đoán" có ba đáp án sai thật sự sai.
+- Bài tập: đáp án mẫu qua 100% test; mã khởi tạo chạy được (không lỗi cú pháp hay `require`) nhưng phần lớn test đỏ; thử ít nhất 6 lời giải sai điển hình, mỗi lần có test đỏ, ghi đúng số đỏ vào hướng dẫn giảng viên. Chạy lặp 3 lần để thấy test ổn định.
+- Lỗi mà test không bắt được (ví dụ quên `return` trước khi trả lỗi, `key={index}`) ghi riêng trong hướng dẫn giảng viên để chấm ở mục chất lượng mã.
+- Test không phụ thuộc đồng hồ thật, `Math.random` hay múi giờ máy: không khẳng định chuỗi `createdAt`; timer dùng fake timers; thời gian chờ đủ lớn cho máy chậm.
+- Kết quả mong đợi trong lab (log máy chủ, thân JSON, hàng trong bảng) lấy từ lần chạy thật; tên cơ sở dữ liệu và cổng đặt thay đúng như tài liệu hướng dẫn sinh viên.
+- Số từ bài đọc đếm một cách thống nhất (cả mã, không tính mô phỏng); đề bài 350-700 từ chữ (không tính khối mã và bảng).
 
 ---
 
@@ -118,7 +127,30 @@ Cách tổ chức: nhóm A áp dụng cho mọi môn; nhóm B áp dụng theo c�
 - Bài mở đầu (VCS) không đưa `git config`, `git init`, `git add`, `git commit`, `git remote`, `git push` vào nội dung.
 - Chuẩn đầu ra cho Git dùng động từ Bloom đo lường được (ví dụ "Xây dựng", "Lập kế hoạch", "Mô phỏng", "Liệt kê được").
 
-### B6. Docker, DevOps
+### B6. React 18 (Vite, Vitest, React Testing Library, React Router 6)
+
+- Phiên bản ghim: React 18.3.1, React Router 6.30.1, axios 1.7.9, Vitest 3.1.4. Không tạo dự án bằng `npm create vite@latest` (sinh React bản mới hơn); dùng `package.json` đã ghim.
+- Bài chỉ dùng function component, `useState`, `useEffect`, `useReducer`, `useContext`, custom hook. Không dùng `useRef`, `useMemo`, `useCallback`, `React.memo`, class component trong phạm vi chưa dạy.
+- Không truyền `async` trực tiếp cho `useEffect` (React cảnh báo và có thể ném lỗi khi unmount): định nghĩa hàm async bên trong rồi gọi.
+- `StrictMode` ở `npm run dev` chạy effect hai lần lúc mount: đây là kiểm tra có chủ đích, không phải lỗi.
+- Test dùng timer giả với `userEvent` dễ treo: dùng `fireEvent` khi có fake timers. Trả `vi.useRealTimers()` cuối test.
+- API giả (`tests/mock-api.js`) chỉ chạy trong Vitest, không nạp được vào `npm run dev`; mã của sinh viên luôn gọi URL thật. Mock không tái hiện vòng lặp vô hạn khi thiếu mảng phụ thuộc: không dùng khẳng định đó trong quiz.
+- Cảnh báo "React Router Future Flag" bị lọc trong `tests/setup.js` vì chỉ nói về nâng cấp lên bản 7.
+
+### B7. NodeJS, Express 4 và MySQL 8 (CommonJS, mysql2, zod, bcryptjs, jsonwebtoken, Vitest, Supertest)
+
+- Phiên bản ghim: Express 4.21.2 (không dùng Express 5), mysql2 3.11.5, zod 3.24.1, bcryptjs 2.4.3, jsonwebtoken 9.0.2, Vitest 3.1.4, Supertest 7.0.0. Dự án dùng CommonJS (`require`, `module.exports`); không `class`, không `this`.
+- `src/app.js` xuất `app` KHÔNG gọi `listen`; `src/server.js` mới gọi `listen`. Test dùng Supertest gọi thẳng `app`.
+- Phân trang dùng `pool.query` với `LIMIT ? OFFSET ?`; `pool.execute` với `LIMIT ?` báo `ER_WRONG_ARGUMENTS` trên MySQL 8.0.45 và mysql2 3.11.5. `pool.execute` với `IN (?)` và mảng trả 0 dòng mà không báo lỗi: tránh.
+- `SUM` và `AVG` trả DECIMAL (chuỗi); bật `decimalNumbers: true` trong `createPool` để nhận số. `TIMESTAMP` trả đối tượng `Date`.
+- Truy vấn luôn tham số hóa bằng `?`; tên cột sắp xếp lấy từ danh sách trắng, không nối chuỗi.
+- Route `async` trong Express 4 không tự bắt lỗi: dùng `try/catch` với `next(error)` hoặc `asyncHandler`. `express.json()` phải khai báo trước router, nếu không `req.body` là `undefined`.
+- Giao dịch: `getConnection`, `beginTransaction`, `commit` hoặc `rollback`, và `release` trong `finally`; thiếu `release` làm pool cạn kết nối.
+- JWT: `sub` là chuỗi (`String(id)`), đọc lại bằng `Number(payload.sub)`; không đưa thông tin bí mật vào payload; không trả `passwordHash`. `bcryptjs` dùng số vòng nhỏ trong test (`BCRYPT_ROUNDS=4`).
+- Cơ sở dữ liệu thử có tên kết thúc bằng `_test` và `resetDatabase()` từ chối chạy nếu tên không đúng; `fileParallelism: false` trong Vitest vì các tệp test dùng chung một cơ sở dữ liệu.
+- Bộ đếm `express-rate-limit` là riêng cho từng tệp test: test khác ký token trực tiếp thay vì gọi `/auth/login`.
+
+### B8. Docker, DevOps
 
 - Quy tắc khi chèn ảnh và bảng ở nhóm A1 áp dụng nguyên cho bài DevOps/Docker/quy trình nhóm (Pull Request, Merge, Conventional Commits); bổ sung: bài Docker cần Blueprint JSON video hợp lệ khi có kịch bản video.
 
